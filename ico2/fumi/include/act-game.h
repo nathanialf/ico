@@ -137,7 +137,6 @@ void ACTGame_StageChangeGObjID(int no, int kind, int idx);
 void ACTGame_StageChangeGObjDirect(struct GObj *self, int stage, void *dir, int deg);
 int ACTGame_FLAG_LIFEPINCH(struct GObj *self);
 unsigned char ACTGame_FLAG_TETSUNAGI(void);
-int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
 inline void GetSkeltonPosition(float *dst, struct GObj *obj, int node);
 
 void SetDirectRootPositionWithNodePointLimit(void *self, int node, void *pos, float t,

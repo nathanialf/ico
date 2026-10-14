@@ -178,41 +178,6 @@ void GetGeneratorSafePosition(float *dst, GObj *gobj)
     }
 }
 
-static void switch_MainStatus(GObj *gobj, unsigned char st)
-{
-    float pos[4];
-    GenWork *w = GOBJ_SUB(gobj)->work;
-
-    if (st == w->status) {
-        return;
-    }
-
-    switch (w->status) {
-    case 0:
-        if (!IsNeedGeneratorHard(gobj)) {
-            w->status = 2;
-            gamesysObjInfoUniqDataSet(gobj);
-            break;
-        }
-        iosOmSendMail(gobj, 0, gobj);
-        w->status = 1;
-        w->timer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 4;
-        GetGeneratorSafePosition(pos, gobj);
-        SetRootPosition(gobj, pos);
-        gamesysObjInfoUniqDataSet(gobj);
-        break;
-
-    case 1:
-        iosOmSendMail(gobj, 2, gobj);
-        w->status = 2;
-        gamesysObjInfoUniqDataSet(gobj);
-        break;
-
-    case 2:
-        break;
-    }
-}
-
 /* stop the current animation slot's manager (ResetCurrentBga) and start the
    manager of a slot (EntryBga), for endfunc_BGA and GeneratorGeo */
 static inline char *ResetCurrentBga(GObj *gobj) /* derived name */
@@ -505,11 +470,6 @@ inline void Generator_MaskOff(GObj *gobj)
     GenWork *w = GOBJ_SUB(gobj)->work;
 
     w->masked = 0;
-}
-
-void Generator_Delete(GObj *gobj)
-{
-    switch_MainStatus(gobj, 0);
 }
 
 int GetMotherGenerator(int label)
@@ -1042,15 +1002,4 @@ inline int GeneratorWorkEnd(GObj *gobj)
 {
     GenWork *w = GOBJ_SUB(gobj)->work;
     return w->callRequests == 0;
-}
-
-inline int IsOpenGenerator(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-    int ret = 0;
-    if (w->status == 1) {
-        GenGeo *g = &objLayout[gobj->labelId];
-        ret = (((int)(g->flags << 27) >> 27) == -2) ? 0 : w->status;
-    }
-    return ret;
 }

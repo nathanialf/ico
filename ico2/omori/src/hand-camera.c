@@ -68,41 +68,6 @@ static void RotateAccordingToStick_PatternThree(float *pitch, float *yaw, float 
     *yaw += db;
 }
 
-static void SetCurrentInfo(void *eye, void *at)
-{
-    float *p = handCameraWork;
-    float v[4];
-    float w[4];
-    float ang;
-    float t;
-    float mx;
-    float mn;
-
-    sceVu0SubVector(v, at, eye);
-    w[0] = v[0];
-    w[1] = 0.0f;
-    w[2] = v[2];
-    ang = _RotGVF(w, v);
-    p[4] = ang;
-    if (v[1] > 0.0f)
-        p[4] = -ang;
-
-    if (handCameraMode == 0) {
-        t = p[6] * 3.1415927f / 180.0f;
-        mx = (t < p[4]) ? p[4] : t;
-        p[2] = mx - p[4];
-        mn = (p[4] < -t) ? p[4] : -t;
-        p[3] = mn - p[4];
-    } else {
-        mx = p[4] + p[6] * 3.1415927f / 180.0f;
-        mx = (mx < -1.4835298f) ? -1.4835298f : ((1.4835298f < mx) ? 1.4835298f : mx);
-        p[2] = mx - p[4];
-        mn = p[4] - p[6] * 3.1415927f / 180.0f;
-        mn = (mn < -1.4835298f) ? -1.4835298f : ((1.4835298f < mn) ? 1.4835298f : mn);
-        p[3] = mn - p[4];
-    }
-}
-
 static void HandyCamera_TargetMoveType(void *eye, void *at)
 {
     float *p = handCameraWork;
@@ -177,18 +142,4 @@ inline void SetLimitHandCameraCorrect(float limitP, float limitV)
 {
     handCameraWork[5] = limitP;
     handCameraWork[6] = limitV;
-}
-
-void HandCameraCorrect(void *eye, void *at, int mode, float stickX, float stickZ, float rate)
-{
-    float *p = handCameraWork;
-
-    handCameraRate = rate;
-    handCameraMode = mode;
-
-    SetCurrentInfo(eye, at);
-
-    RotateAccordingToStick_PatternThree(p, p + 1, stickX, -stickZ);
-
-    HandyCamera_TargetMoveType(eye, at);
 }

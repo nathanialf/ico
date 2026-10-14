@@ -102,7 +102,6 @@ inline void actAfterFly(GObj *volatile self);
 static inline void ClipCollisionWithField(ClipWork *work);
 inline void afterCommonOneWall(int x);
 int ACTCheckFlagAttack(GObj *self);
-static inline void afterCommonBecarry(GObj *volatile self);
 inline void afterCommonTruckLever(GObj *volatile self);
 
 #include "commonact.h"
@@ -165,11 +164,6 @@ typedef struct { /* field names derived */
 typedef struct { /* field names derived */
     int w[6];
 } SlowrunRec; /* derived name */
-
-void ACTSetPositionWithFitting(void *self, float *pos)
-{
-    SetDirectRootPosition(self, pos);
-}
 
 static void ACTSetPositionNoFitting(void *self, float *pos)
 {
@@ -589,115 +583,6 @@ static int intrMotion[432] = {
     177, 175, 176, 177, 178, 179, 179, 180, 180, 0,   0,   181, 182, 183, 184, 185, 105, 187, 1,
     188, 189, 190, 191, 189, 118, 1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   17,  18,  262, 0,   0,   0}; /* derived name */
-
-int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
-{
-    Act *s = GOBJ_ACT(self);
-    MotOriTarget tmp;
-    int ret = intrMotion[k];
-
-    *out = s->env.motOriReq;
-    switch (k) {
-    case 140:
-        out->b = GOBJ_WORK(self)->cliffReq.b;
-        break;
-    case 305:
-        out->a = GOBJ_WORK(self)->cliffReq.a;
-        break;
-    case 298:
-        *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
-        tmp = *(MotOriTarget *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
-        out->b = s->env.motOriReq.b = tmp;
-        break;
-    case 54:
-        *(char **)((char *)s + 0x30) = GetMailAdditionalData(self, arg);
-        tmp = *(MotOriTarget *)(*(char **)((char *)GOBJ_ACT(self) + 0x30));
-        out->a = out->b = s->env.motOriReq.a = s->env.motOriReq.b = tmp;
-        s->env.sofaObj.obj = tmp.obj;
-        GetSofaPosition(self, s->env.sofaObj.obj);
-        break;
-    case 145:
-        out->a = GOBJ_WORK(self)->bellowWall3000;
-        break;
-    case 144:
-        out->a = GOBJ_WORK(self)->bellowWall400;
-        break;
-    case 114:
-    case 115:
-    case 116:
-    case 117:
-        out->b = s->env.motOriReq.a;
-        break;
-    case 45:
-        return GOBJ_ACT(self)->enemy->jumpOrient;
-    case 63:
-        if (s->actMode == 74) {
-            ret = 272;
-        }
-        break;
-    case 378:
-    case 379:
-    case 380:
-        out->b = out->a = s->env.cliffContact.b;
-        break;
-    case 381:
-        *out = s->env.cliffContact = GOBJ_ACT(boyGObj)->env.cliffContact;
-        break;
-    case 382:
-    case 383:
-    case 384:
-        *out = s->env.cliffContact;
-        break;
-    case 385:
-    case 386:
-        *out = s->env.supportReq;
-        s->env.motOriReq = *out;
-        break;
-    case 205:
-    case 206:
-    case 207:
-        if (self == boyGObj) {
-            if (ACTGame_NoWeapon(self)) {
-                ret = 42;
-            } else {
-                ret = ACTGame_GetMotOrientFromWeapon(s->weapon);
-            }
-        }
-        break;
-    case 72:
-    case 74:
-    case 338:
-        ret = s->orientMot;
-        break;
-    case 81:
-        ret = s->orientMot;
-        out->a = GOBJ_ACT(boyGObj)->env.motOriReq.b;
-        s->env.motOriReq = *out;
-        break;
-    case 89:
-    case 399:
-    case 403:
-        out->a = GOBJ_ACT(boyGObj)->env.motOriReq.b;
-        s->env.motOriReq = *out;
-        break;
-    case 416:
-        ret = 0;
-        if (s->soundMot != 0 && !((int)(s->flags20.ll >> 13) & 1)) {
-            ret = s->soundMot;
-            s->soundMot = 0;
-        }
-        break;
-    case 152:
-    case 155:
-    case 156:
-        out->a = *(MotOriTarget *)&GOBJ_ACT(self)->enemy->climbCol;
-        break;
-    default:
-        ret = intrMotion[k];
-        break;
-    }
-    return ret;
-}
 
 void ACTRunIntrCorrect(GObj *self, IntrMail *intr, IntrMail *corr)
 {
@@ -1760,26 +1645,6 @@ void actCommonStone(GObj *volatile self)
             _ACTWait(0);
         }
         ACTSendMailCorrect(self, 0x70);
-        _ACTWait(1);
-    }
-}
-
-void actCommonSofa(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-
-    SetDirectRootPositionNoFitting((void *)self, s->env.sofaPos);
-    GOBJ_ACT(self)->enemy->sofaWake = 0;
-    GOBJ_ACT(self)->enemy->dirSmoothFrames = 0;
-    GOBJ_ACT(self)->enemy->dirSmoothFrames2 = 0;
-    *(void **)((char *)s + 0x160) = *(void **)((char *)s + 0x61C);
-    while (1) {
-        GOBJ_WORK(self)->sofaTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 3;
-        GOBJ_WORK(self)->sofaRestTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 10;
-        if (GOBJ_ACT(self)->enemy->sofaWake > GOBJ_ACT(self)->enemy->sofaWakeTime) {
-            ACTSendMailCorrect(self, 0x73);
-        }
-        GOBJ_ACT(self)->enemy->sofaWake += 1;
         _ACTWait(1);
     }
 }
@@ -3395,60 +3260,6 @@ static __inline__ unsigned char requestBecarryMotion(GObj *self, int mot, int wa
     return 0;
 }
 
-void actCommonBecarry(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    int cur = -1;
-    GObj *g;
-    int old;
-    unsigned char done;
-    unsigned long long fl;
-
-    g = s->carrier;
-    ACTGameCollisionOff((volatile int *)self);
-    s->flags18.afterProc = afterCommonBecarry;
-    s->flags18.ll &= ~(1ULL << 46);
-    _ACTWait(1);
-    while (1) {
-        _ACTCharStatus_Set(self, 9, -1.0f, 0);
-        old = cur;
-        cur = GOBJ_SUB(g)->ctrl.motion;
-        if (old != cur) {
-            done = requestBecarryMotion(self, cur, (GOBJ_ACT(g)->actMode == 103) ? 30 : 0, 2118);
-            if (!done) {
-                s->flags18.ll |= (1ULL << 46);
-            }
-        }
-        if (6 <= s->modeFrame) {
-            if (actModeTbl[GOBJ_ACT(g)->actMode].carried ||
-                (fl = ((CarryMot *)&motionKind[GOBJ_SUB(g)->ctrl.motion])->f18C, fl >> 7)) {
-                afterCommonCarry(g);
-                debug_StdPrintfDummy("girl becarry error");
-            }
-        }
-        if (actModeTbl[GOBJ_ACT(boyGObj)->actMode].keepHand == 0) {
-            ACTGame_DisconnectHand();
-        }
-        if (debug_font_flag & 1) {
-            debug_Printf(100, 150, 0xFFFFFFF, "[%s]\n",
-                         (motionKind + GOBJ_SUB(girlGObj)->ctrl.motion)->name);
-        }
-        if (debug_font_flag & 1) {
-            debug_Printf(
-                100, 160, 0xFFFFFFF, "[%s]\n",
-                motionKind[*(int *)(*(char **)(*(char **)((char *)s + 0x144) + 0x15C) + 0x4A0)]
-                    .name);
-        }
-        if (debug_font_flag & 1) {
-            debug_Printf(
-                100, 170, 0xFFFFFFF, "[%s]\n",
-                actModeTbl[*(int *)(*(char **)(*(char **)((char *)s + 0x144) + 0x164) + 0x34)]
-                    .name);
-        }
-        _ACTWait(1);
-    }
-}
-
 static inline void SetIdleMotionRange(int k, int mot, int mot2) /* derived name */
 {
     int n1 = actDataTbl[k].orientRow;
@@ -3699,26 +3510,6 @@ typedef struct { /* field names derived */
     int f14;
 } TruckLeverWork; /* derived name */
 
-void actCommonTruckLever(GObj *volatile self)
-{
-    Act *s = GOBJ_ACT(self);
-    GObj *lev = s->env.pullObj;
-
-    ((TruckLeverWork *)s)->f14 = (int)afterCommonTruckLever;
-    actMotDirToWall(self);
-    while (1) {
-        if (lev != 0) {
-            if (GOBJ_SUB(self)->ctrl.frameFlag2 != 0) {
-                correctLeverHoldPoint((void *)self, lev);
-            }
-            if (GOBJ_SUB(self)->ctrl.frameFlag1 != 0) {
-                lever_nego1((void *)self, lev);
-            }
-        }
-        _ACTWait(1);
-    }
-}
-
 void ACT_LAYOUT_GAMEOVER(void)
 {
     if (gameover_layout_flag == 0) {
@@ -3730,13 +3521,6 @@ void ACT_LAYOUT_GAMEOVER(void)
 void ACTAdjustPlane(GObj *self, void *wall)
 {
     AdjustRootPositionToVerticalSidePlaneOfWall(self, wall, 30.0f);
-}
-
-inline void ACTAcceptMail(GObj *self, int mail)
-{
-    if (mail == 0xB1) {
-        GOBJ_WORK(self)->mailB1Timer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 10;
-    }
 }
 
 inline int _ACTMotDirSmzDirect(GObj *self, float *dir)
@@ -4583,19 +4367,6 @@ static inline void actAfterRopeJump(GObj *volatile self)
     GOBJ_ACT(g)->flags20.ll |= (1ULL << 31);
 }
 
-static inline void afterCommonRopeCliff(char *self)
-{
-    char *volatile local = self;
-    char *g = *(char **)((char *)boyGObj + 0x15C);
-    *(int *)(g + 0x420) = 0;
-}
-
-static inline void afterCommonRopeTurnSpecial(GObj *volatile self)
-{
-    char *g = (char *)self;
-    GOBJ_SUB(g)->root.ropeState = 0;
-}
-
 inline void actAfterDown(GObj *volatile self)
 {
     GOBJ_WORK(self)->downTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 0x82 / 0x3C;
@@ -4657,16 +4428,6 @@ inline void actAfterFly(GObj *volatile self)
     ResetFlyLimit(self);
 }
 
-static inline void ClipCollisionWithField(ClipWork *work)
-{
-    int tmp[4];
-    sceVu0CopyVector(tmp, work->pt[1]);
-    ClipWallField(work);
-    sceVu0CopyVector(work->pt[1], work->pt[2]);
-    ClipFloor(work);
-    sceVu0CopyVector(work->pt[1], tmp);
-}
-
 inline void afterCommonOneWall(int x)
 {
     volatile int local = x;
@@ -4681,14 +4442,6 @@ typedef struct { /* field names derived */
     char pad0[116];
     int coll;
 } BecSub; /* derived name */
-
-static inline void afterCommonBecarry(GObj *volatile self)
-{
-    SetKidnapInfo(-1, -1);
-    ((BecSub *)(int)GOBJ_SUB(self))->coll = 1;
-    ACTGameCollisionOn(self);
-    gflagOff(393);
-}
 
 inline void afterCommonTruckLever(GObj *volatile self)
 {

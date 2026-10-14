@@ -15,10 +15,6 @@
 #include "typedef.h"
 #include "main.h"
 
-static void actSt09aBrgDownSub(GObj *volatile self);
-static void actSt09aHint1Chk(GObj *volatile self);
-static void actSt09aHint2Chk(GObj *volatile self);
-
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
 static int demoEnd;
@@ -96,50 +92,6 @@ void actSt09aElvDown(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actSt09aBrgDown(GObj *volatile self)
-{
-    GProc *th;
-
-    lt_switch_layout(55);
-    gflagOn(86);
-    scpAdpcmPlayRequestFunc(90, &st09a_brg, 1, 1, 1);
-
-    while (st09a_brg == 0) {
-        _ACTWait(1);
-    }
-
-    th = actCreateSubThread(actSt09aBrgDownSub, 21);
-    demoEnd = 0;
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&th->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st09a_brg, 256);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-
-        stage_SetAnimation(378, 0, -1);
-        scpFadeIn(5.0f);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-    }
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
-
 void actSt09aElv(GObj *volatile self)
 {
     GObj *x = self;
@@ -157,20 +109,6 @@ void actSt09aElv(GObj *volatile self)
     act->mail = elv_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
-}
-
-void actSt09aSekizo(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    soundSeDefPlay(1346, 0, sekizoPos, 1);
-    soundSeDefPlay(1347, 0, sekizoPos, 1);
-    soundSeDefPlay(1348, 0, sekizoPos, 1);
-
-    scpSekizou(self, 84, 376, 0, 18, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
 }
 
 void actSt09aIntro(GObj *volatile self)
@@ -200,40 +138,6 @@ void actSt09aBrg(GObj *volatile self)
         act->mail = brg_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
-    }
-}
-
-void actSt09aHint1(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(87) == 0) {
-        hint1_mes[0].func = actSt09aHint1Chk;
-        act->mail = hint1_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        FinishHint(10);
-    }
-}
-
-void actSt09aHint2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(88) == 0) {
-        hint2_mes[0].func = actSt09aHint2Chk;
-        act->mail = hint2_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        FinishHint(11);
     }
 }
 
@@ -349,55 +253,4 @@ void actSt09aBrgSwitch(GObj *volatile self)
     sub->mail = brgSwitch_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
-}
-
-static void actSt09aBrgDownSub(GObj *volatile self)
-{
-    stage_SetAnimation(378, 1, 0);
-
-    while (stage_CheckAnimationFrame(378, 115, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    iosPadActRequest(boyPad, 17);
-
-    while (stage_CheckAnimationFrame(378, 165, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    iosPadActRequest(boyPad, 16);
-
-    while (stage_CheckAnimationFinish(378) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt09aHint1Chk(GObj *volatile self)
-{
-    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
-
-    gflagOn(87);
-    FinishHint(10);
-}
-
-static void actSt09aHint2Chk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 400.0f) == 0) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("HINT2_FINISH!!!!!!!!!!!!!!!\n");
-
-    gflagOn(88);
-    FinishHint(11);
 }

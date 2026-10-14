@@ -290,59 +290,12 @@ inline int GetDataSizeOfStreamMotion(int no)
     return streamEntry[no].size;
 }
 
-static void getStreamMotionData(char *dst, int off, int no)
-{
-    int size = streamEntry[no].size;
-    int over = off + size - 163840;
-
-    if (over > 0) {
-        int first = 163840 - off;
-
-        memcpy(dst, ringBuf + off, first);
-        memcpy(dst + first, ringBuf, over);
-        return;
-    }
-    memcpy(dst, ringBuf + off, size);
-}
-
-static void getStreamMotionBlendData(char *dst, int no)
-{
-    int size = streamEntry[no].size;
-    char a[size];
-    char b[size];
-    int i;
-
-    getStreamMotionData(a, streamEntry[no].cur, no);
-    getStreamMotionData(b, streamEntry[no].next, no);
-    for (i = 0; i < 4; i++) {
-        dst[i] = a[i];
-    }
-}
-
-void GetStreamMotionDataNext(char *dst, int no)
-{
-    getStreamMotionData(dst, streamEntry[no].next, no);
-}
-
 typedef struct { /* field names derived */
     char c[4];
 } StreamMotionHead; /* derived name */
 
 /* the four bytes GetStreamMotionData hands back while no data has arrived */
 static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
-
-inline float GetStreamMotionData(char *dst, int no)
-{
-    if (streamEntry[no].cur < 0) {
-        *(StreamMotionHead *)dst = *(const StreamMotionHead *)streamDummyHead;
-        /* "tried to get the stream motion before the data has arrived" */
-        debug_StdPrintfDummy(
-            "データがまだ来ていないのにストリームモーションの取得をしようとしました\n");
-        return -1.0f;
-    }
-    getStreamMotionData(dst, streamEntry[no].cur, no);
-    return (float)framePlayed / 2997.0f;
-}
 
 static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {

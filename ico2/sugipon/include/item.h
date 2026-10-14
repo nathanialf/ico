@@ -23,7 +23,6 @@ typedef struct {        /* field names derived */
 
 extern ItemBreakRec itemKind[];
 int BreakItemFromOutside(struct GObj *gobj);
-int BreakItemWithAttackHit(struct GObj *gobj, float *dir);
 int CheckCarryableItem(struct GObj *gobj);
 int CheckItemDead(struct GObj *gobj);
 int GetCharHeldItem(struct GObj *chara);

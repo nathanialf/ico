@@ -31,8 +31,6 @@
 #include "script.h"
 #include "jimaku.h"
 
-static void actSt25aElevCharaChk(GObj *volatile self);
-
 /* .sdata: the ADPCM request slots the scenes hand scpAdpcmPlayRequestFunc
    and wait on, and conte12's flag. */
 static SqEntry *conte11 = 0; /* derived name */
@@ -701,54 +699,6 @@ void BoySekikaTexScroll(void)
     tex_SetUVScroll(sekikaBoyTexture, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
 
-static void actSt25aElevChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttr(boyGObj, 0x4000000) == 0) {
-        _ACTWait(1);
-    }
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    if (gflagChk(337) == 0) {
-        scpAdpcmPlayRequestFunc(100, &elevFirst, 1, 1, 1);
-        while (elevFirst == 0) {
-            _ACTWait(1);
-        }
-        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
-        stage_SetAnimation(161, 1, 0);
-        while (stage_CheckAnimationFrame(161, 50, 0) == 0) {
-            _ACTWait(1);
-        }
-        _ACTWait(1);
-        iosPadActRequest(boyPad, 16);
-        while (stage_CheckAnimationFinish(161) == 0) {
-            _ACTWait(1);
-        }
-        _ACTWait(1);
-        gflagOn(337);
-    } else {
-        scpAdpcmPlayRequestFunc(99, &elevAgain, 0, 1, 1);
-        while (elevAgain == 0) {
-            _ACTWait(1);
-        }
-        _ACTWait((int)((60 - systemStatus[0] * 10) / systemStatus[1] * 0.15));
-        stage_SetAnimation(162, 1, 0);
-        while (stage_CheckAnimationFinish(162) == 0) {
-            _ACTWait(1);
-        }
-        _ACTWait(1);
-        gflagOff(337);
-        RequestStageChange(1, boyGObj, 0, 2.0f, 8.0f);
-    }
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-    elev_chara_mes[0].func = actSt25aElevCharaChk;
-    sub->mail = elev_chara_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
 void actSt25aGenerator(GObj *volatile self)
 {
     Generator_Mask(self);
@@ -826,28 +776,6 @@ void actItouQueenAttack(GObj *volatile self)
     sub->mail = queen_attack_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
-}
-
-void actSt25aElev(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *sub = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(337) != 0) {
-        stage_SetAnimation(162, 0, 0);
-        elev_up_mes[0].func = actSt25aElevChk;
-        sub->mail = elev_up_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(161, 0, 0);
-        elev_down_mes[0].func = actSt25aElevChk;
-        sub->mail = elev_down_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
 }
 
 void actSwordEff(GObj *volatile self)
@@ -947,18 +875,4 @@ void actItouQueenAttackChk(GObj *volatile self)
         tex_SetUVScroll(queenBallScrTexture, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 1);
         _ACTWait(1);
     }
-}
-
-static void actSt25aElevCharaChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttr(boyGObj, 0x4000000) != 0) {
-        _ACTWait(1);
-    }
-
-    elev_end_mes[0].func = actSt25aElevChk;
-    sub->mail = elev_end_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
 }

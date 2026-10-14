@@ -21,17 +21,4 @@ inline void DeleteParticleLayout(GObj *self)
     }
 }
 
-void ParticleLayoutGeo(GObj *self)
-{
-    int *q = GOBJ_SUB(self)->work;
-    if (q[0] == -1) {
-        return;
-    }
-    if (self->drawMask) {
-        return SetParticleEffectPauseFlag(q[0], 0);
-    } else {
-        return SetParticleEffectPauseFlag(q[0], 1);
-    }
-}
-
 inline void ParticleLayoutDL(void) {}

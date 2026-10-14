@@ -462,8 +462,6 @@ static const DbgOpt debugOption[76] = {
     {" ONE HIT ONLY       ", 0xC0C0C080, &debug_one_hit_only, 0, 1, debugOffOnName, 0},
     {" IGNORE DODGE       ", 0xC0C0C080, &debug_ignore_dodge, 0, 1, debugOffOnName, 0},
     {" GAME CLEAR COUNT   ", 0xC0C0C080, &gFlagGameClear, 0, 9, 0, 0},
-    {" GIRL PAD CONTROL   ", 0xC0C0C080, &debug_girl_pad_control, 0, 1, debugOffOnName,
-     ChangeGirlControlMode},
     {" NO BREAST HANG     ", 0xC0C0C080, &debug_no_breast_hang, 0, 1, debugOffOnName, 0},
 }; /* derived name */
 
@@ -769,13 +767,6 @@ extern void DebugDisp1Collision(void *hit);
    main.c and motionManager2.c, where the fourth argument is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000, volatile because it is a
    hardware counter. */
-
-inline void ChangeGirlControlMode(int mode)
-{
-    if (mode == 1) {
-        girlControlMode = mode;
-    }
-}
 
 void debug_Assert(char *fmt, ...)
 {
@@ -3250,18 +3241,6 @@ inline int debug_tsuresariTimeZero(void)
     return 1;
 }
 
-inline int debug_hintStart(void)
-{
-    void *gobj;
-    for (gobj = isysGObjGetExist_begin(); gobj != 0; gobj = isysGObjGetExist_next(gobj)) {
-        if (IsTopHint(gobj)) {
-            DebugHintStart(gobj);
-            break;
-        }
-    }
-    return 1;
-}
-
 static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
 {
     void *g;
@@ -3607,7 +3586,7 @@ static inline int debug_FreeCamera(int first)
 int LoadFileType = 1;
 
 /* the debug menu: caption, entry and whether the menu stays open */
-DbgMenuItem debugMenu[27] = {
+DbgMenuItem debugMenu[26] = {
     {"Debug Mode", (int (*)(int))debug_Mode, 0},
     {"Free Camera", debug_FreeCamera, 0},
     {"Stage Select", (int (*)(int))debug_SelectStage, 1},
@@ -3633,7 +3612,6 @@ DbgMenuItem debugMenu[27] = {
     {"DispBox", debug_DispBox, 0},
     {"DispBall", debug_DispBall, 0},
     {"Collision Test", debug_CollisionTest, 0},
-    {"Hint Start", (int (*)(int))debug_hintStart, 1},
     {"Tsuresari Time Zero", (int (*)(int))debug_tsuresariTimeZero, 1},
 };
 

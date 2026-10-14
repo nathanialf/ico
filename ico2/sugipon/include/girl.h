@@ -20,7 +20,6 @@ struct SObjSimpleSetting;
 
 void *InitGirlGeo(struct GObj *gobj, struct SObjSimpleSetting *csv);
 void GirlGeo(struct GObj *gobj);
-void GirlAI(struct GObj *gobj);
 void GirlDL(struct GObj *gobj);
 
 #endif /* GIRL_H */

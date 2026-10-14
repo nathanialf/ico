@@ -66,7 +66,6 @@ void afterBoySwim(GObj *volatile self);
 void actBoyJump(GObj *volatile self);
 inline void afterBoyTakeWeapon(GObj *volatile self);
 inline void afterBoyHangG3M(int x);
-inline void afterBoyRescueGirlBhang(GObj *volatile self);
 inline void subBoyBrainMain(int arg);
 void SetBoyInfo(GObj *weapon, GObj *item);
 void GetBoyRootPositionForCamera(float *out, struct GObj *gobj);

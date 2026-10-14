@@ -44,7 +44,6 @@ int scpAdpcmPlayRequestNum(void);
 int scpAdpcmFadeCloseFunc(struct SqEntry **h, short fade);
 int scpAdpcmCloseChkFunc(struct SqEntry **h);
 void scpDeamon(struct GObj *volatile self);
-void scpGirlHintVoiceCancel(void);
 void scpWoodBox(struct GObj *volatile self);
 int scpIsTorchLightOn(int id);
 struct GObj *scpIsBombExplode(int x);
@@ -109,7 +108,6 @@ int scpCheckExistAliveEnemy(void);
 int scpCheckExistAliveSpider(void);
 void scpLockMaxRotate(struct GObj *self, float rot);
 void scpUnLockMaxRotate(struct GObj *self);
-short scpGetRotObjectCurrentRot(int no);
 void scpCheckDisconnectWallStart(struct GObj *self);
 void scpCheckDisconnectWallEnd(struct GObj *self);
 int scpTriggerIgnore(struct GObj *self);
@@ -127,8 +125,6 @@ void scpDoorTypeUpDown(struct GObj *volatile self);
 void scpDoorTypeUpUp(struct GObj *volatile self);
 void scpSubAdpcmPlay(struct GObj *volatile self);
 void scpAdpcmCloseFunc(struct SqEntry **h);
-void scpGirlHintVoiceReady(int kind);
-void scpGirlHintVoicePlay(void);
 void scpGirlHintVoiceTickProc(void *cam);
 
 void scpSekizou(struct GObj *self, int flag, int anim, int anim2, int kind, float bx, float by,

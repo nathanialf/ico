@@ -125,27 +125,6 @@ void LightTorchOff(GObj *gobj)
     }
 }
 
-static void torchDrainControl(GObj *gobj, float level)
-{
-    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
-
-    if (w->effect[3] != -1) {
-        SetParticleEffectDrainLevel(w->effect[3], level);
-    }
-    if (w->effect[2] != -1) {
-        SetParticleEffectDrainLevel(w->effect[2], level);
-    }
-    if (w->effect[0] != -1) {
-        SetParticleEffectDrainLevel(w->effect[0], level);
-    }
-    if (w->effect[1] != -1) {
-        SetParticleEffectDrainLevel(w->effect[1], level);
-    }
-    if (w->effect[4] != -1) {
-        SetParticleEffectDrainLevel(w->effect[4], level);
-    }
-}
-
 static void moveTorch(GObj *gobj, void *mtx)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
@@ -167,27 +146,6 @@ static void moveTorch(GObj *gobj, void *mtx)
     }
 }
 
-static void setPauseFlag(GObj *gobj, int flag)
-{
-    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
-
-    if (w->effect[3] != -1) {
-        SetParticleEffectPauseFlag(w->effect[3], flag);
-    }
-    if (w->effect[2] != -1) {
-        SetParticleEffectPauseFlag(w->effect[2], flag);
-    }
-    if (w->effect[0] != -1) {
-        SetParticleEffectPauseFlag(w->effect[0], flag);
-    }
-    if (w->effect[1] != -1) {
-        SetParticleEffectPauseFlag(w->effect[1], flag);
-    }
-    if (w->effect[4] != -1) {
-        SetParticleEffectPauseFlag(w->effect[4], flag);
-    }
-}
-
 inline int IsTorchLightOn(GObj *torch)
 {
     TorchGeoWork *w = GOBJ_SUB(torch)->work;
@@ -200,25 +158,6 @@ inline void SetTorchLife(GObj *torch, int life, int fadeTime)
     TorchGeoWork *p = GOBJ_SUB(torch)->work;
     p->life = life;
     p->fadeStart = life - fadeTime;
-}
-
-inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
-{
-    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__, 232);
-    *p = emptyTorchWork;
-    /* the display object read through the SubHandle union each time: the
-       light store reads the slot again after the work store, which three
-       Sub15C * reads of it do not (measured) */
-    sceVu0UnitMatrix(&((SubHandle *)&self->dobj)->sub->matrix);
-    ((SubHandle *)&self->dobj)->sub->work = p;
-    if (lay->obj & 1) {
-        LightTorchOn(self);
-    } else {
-        ((SubHandle *)&self->dobj)->sub->lightId = 0;
-    }
-    p->flags = lay->obj & ~1;
-    GetRootPosition(p->pos, self);
-    return p;
 }
 
 inline GObj *CheckTorchChainReaction(GObj *self, float dist)
@@ -323,72 +262,6 @@ static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name 
         }
     }
     return 0;
-}
-
-static void procChainReaction(GObj *gobj)
-{
-    TorchGeoWork *w;
-    GObj *o;
-
-    w = GOBJ_SUB(gobj)->work;
-    if (w->chainFlag == 0) {
-        return;
-    }
-    o = CheckTorchChainReaction(gobj, 20.0f);
-    if (o != 0 && chainReactionBlocked(gobj, o) == 0) {
-        LightTorchOn(gobj);
-    }
-}
-
-void TorchGeo(GObj *gobj)
-{
-    TorchGeoWork *w;
-    Sub15C *sub;
-    GObj *o;
-    float drain;
-    int id;
-
-    sub = gobj->dobj;
-    o = sub->parent.obj;
-    w = sub->work;
-    if (o != 0) {
-        if (o->active == 0) {
-            LightTorchOff(gobj);
-            return;
-        }
-        GetRootPosition(w->pos, gobj);
-    }
-    if (IsTorchLightOn(gobj) == 0) {
-        procChainReaction(gobj);
-        return;
-    }
-    if (gobj->drawMask != 0) {
-        setPauseFlag(gobj, 0);
-    } else {
-        setPauseFlag(gobj, 1);
-    }
-    if (w->burnTime < 65535) {
-        w->burnTime = w->burnTime + 1;
-    }
-    if (o != 0) {
-        UpdateRealTimeGeometryValue(gobj);
-        moveTorch(gobj, w->pos);
-    }
-    if (w->life < w->burnTime) {
-        LightTorchOff(gobj);
-        procChainReaction(gobj);
-        return;
-    }
-    if (w->chainFlag == 0 && w->fadeStart < w->burnTime) {
-        drain = (float)(w->burnTime - w->fadeStart) / (float)(w->life - w->fadeStart);
-        torchDrainControl(gobj, 1.0f - drain);
-        if (w->burnTime == w->life - 1) {
-            id = SetParticleEffectActiveSensing(54, w->pos, IdentityQuaternion);
-            if (id != -1) {
-                ExecParticleEffect(id);
-            }
-        }
-    }
 }
 
 inline void TorchDL(void) {}

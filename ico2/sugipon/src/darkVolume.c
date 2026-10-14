@@ -852,26 +852,4 @@ void InitGameOverEffect(void)
     CopyVector(darkVolumeCenter, ZeroPoint);
 }
 
-inline int InitDarkVolumeGeo(GObj *self)
-{
-    *(int *)GOBJ_SUB(self)->nodeMtx = 0;
-    return 0;
-}
-
-void SetupDarkVolume(void *pos, float radius, float edge)
-{
-    darkVolume(pos, radius, 1.0f, edge);
-}
-
-void DarkVolumeGeo(GObj *self)
-{
-    float *p;
-
-    GOBJ_SUB(self)->disp = 0;
-    p = (float *)GOBJ_SUB(self)->nodeMtx;
-    if (1e-05f < *p) {
-        SetupDarkVolume((char *)p + 0x30, *p * 50.0f, 10.0f);
-    }
-}
-
 inline void DarkVolumeDL(void) {}

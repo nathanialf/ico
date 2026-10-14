@@ -60,7 +60,6 @@ extern const SECondEntry motSECondKind[];
 extern const EffEntry motionEffKind[];
 extern const VibCondEntry motEffCondKind[];
 extern const int randomEffKind[];
-int ExecuteDirectSE(struct GObj *gobj, int id);
 void ExecuteSEPackage(struct GObj *gobj, int id);
 void ExecuteSEPackageWithGroupVariation(struct GObj *gobj, int id, int grp);
 void ExecuteSEPackageWithVolumeRate(struct GObj *gobj, int id, float rate);

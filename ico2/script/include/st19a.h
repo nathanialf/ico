@@ -23,7 +23,6 @@ void actSt19aChainSwitch(GObj *volatile self);
 void actSt19aHagurumaChk(GObj *volatile self);
 void actSt19aOriMain(GObj *volatile self);
 void actSt19aOriSwitch(GObj *volatile self);
-void actSt19aOriUp(GObj *volatile self);
 void actSt19aPipeChk(GObj *volatile self);
 
 #endif /* ST19A_H */

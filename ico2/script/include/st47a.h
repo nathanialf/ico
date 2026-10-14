@@ -20,7 +20,6 @@ extern struct SqEntry *hane1down;
 extern struct SqEntry *hane2down;
 extern int sekizo_47a;
 extern unsigned char sekizo_47a_vol;
-void actSt47aBarricadeChk(GObj *volatile self);
 void actSt47aEneChk(GObj *volatile self);
 void actSt47aExit2Chk(GObj *volatile self);
 void actSt47aExitChk(GObj *volatile self);
@@ -36,7 +35,6 @@ void actSt47aHane2Girl(GObj *volatile self);
 void actSt47aHane2Main(GObj *volatile self);
 void actSt47aHane2Switch(GObj *volatile self);
 void actSt47aHane2Up(GObj *volatile self);
-void actSt47aRopeChk(GObj *volatile self);
 void actSt47aSekizo1Chk(GObj *volatile self);
 
 #endif /* ST47A_H */

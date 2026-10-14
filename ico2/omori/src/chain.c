@@ -247,18 +247,6 @@ static void chain_simulate_term_simple(GObj *gobj)
     chain_sub_simulate(gobj, cw->node, cw->holdNode, cw->nodes, 1, 0, 20.0f, 50.0f, 0.6f);
 }
 
-static void chain_simulate_term_ropeturn(GObj *gobj)
-{
-    ChainRecord *cw = GOBJ_SUB(gobj)->work;
-
-    if (debug_font_flag & 1) {
-        chainDebugY = chainDebugY + 10;
-        debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_ropeturn\n");
-    }
-    cw->pdl.ampSpeed = -0.4f;
-    chain_simulate_term_simple(gobj);
-}
-
 static void chain_simulate_term_loop(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -1389,17 +1377,6 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
 /* clang-format on */
 
-void SetChainRootUpdateMode(GObj *gobj, int mode, float *pos)
-{
-    GOBJ_SUB(gobj)->root.ropeState = mode;
-    ((ChainVal *)&GOBJ_SUB(gobj)->root.holdPoint[0])->f = pos[0];
-    ((ChainVal *)&GOBJ_SUB(gobj)->root.holdPoint[1])->f = pos[1];
-    ((ChainVal *)&GOBJ_SUB(gobj)->root.holdPoint[2])->f = pos[2];
-    if (mode == 3) {
-        SetDirectRootPositionNoFittingWithNodePoint(gobj, 22, pos, 1.0f);
-    }
-}
-
 void HoldChain(GObj *chain, GObj *owner, float *pos)
 {
     ChainRecord *p = GOBJ_SUB(chain)->work;
@@ -1576,16 +1553,6 @@ int IsAbleChainHang(GObj *chain)
     ChainRecord *cw = GOBJ_SUB(chain)->work;
 
     return cw->hangable;
-}
-
-void ChainPositionReset(GObj *chain)
-{
-    float pos[4];
-    ChainRecord *cw = GOBJ_SUB(chain)->work;
-
-    UpdateRootMatrix(chain);
-    GetRootPosition(pos, chain);
-    ResetChainNodes(cw, pos);
 }
 
 void _GetCorrectOrientOfChain(float *out, GObj *gobj, float *dir)

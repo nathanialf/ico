@@ -26,40 +26,6 @@
 #include "e3.h"
 #include "main.h"
 
-static void actSt07aChanChainChk(GObj *volatile self);
-static void actSt07aChanReadyChk(GObj *volatile self);
-
-void actSt07aInit(void)
-{
-    if (gflagChk(126) != 0) {
-        ((GObj *)scpSearchGobj(397))->active = 0;
-
-        stage_SetAnimation(360, -1, -2);
-
-        FinishHint(3);
-
-        if (gflagChk(128) != 0) {
-            SetWayGroupActive(11, 0);
-            SetWayGroupActive(12, 0);
-            stage_SetAnimation(357, 0, -1);
-        } else {
-            SetWayGroupActive(13, 0);
-            SetWayGroupActive(14, 0);
-            SetWayGroupActive(15, 0);
-            stage_SetAnimation(356, 0, -1);
-        }
-    } else {
-        scpLinkBGAtoLayoutedTarget(397, 360);
-
-        SetWayGroupActive(13, 0);
-        SetWayGroupActive(14, 0);
-        SetWayGroupActive(15, 0);
-
-        stage_SetAnimation(356, 0, 0);
-        stage_SetAnimation(355, 0, 0);
-    }
-}
-
 void actSt07aEnd(void)
 {
     if (girlGObj != 0 && gflagChk(131) == 0 && gflagChk(128) != 0) {
@@ -223,50 +189,6 @@ void actSt07aChanChk(GObj *volatile self)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
     scpWakeupEnemyAll();
-}
-
-void actSt07aChanEffect(GObj *volatile self)
-{
-    float t;
-    float tn;
-    int n;
-
-    t = 0.0f;
-    do {
-        switch ((int)t) {
-        case 154:
-            iosPadActRequest(boyPad, 15);
-            ReviveAllCarryableItemsWithRandomVelocity(-5.0f, 0.0f);
-            break;
-        case 84:
-        case 210:
-            iosPadActRequest(boyPad, 17);
-            break;
-        case 420:
-            iosPadActRequest(boyPad, 15);
-            break;
-        case 434:
-            iosPadActRequest(boyPad, 16);
-            break;
-        case 574:
-            iosPadActRequest(boyPad, 17);
-            break;
-        case 0:
-        case 112:
-        case 300:
-            break;
-        }
-
-        n = (int)t;
-        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
-        if (n != (int)tn) {
-            _ACTWait(1);
-            t = tn;
-        } else {
-            t = tn + 1.0f;
-        }
-    } while (t < 1600.0f);
-    _ACTWait(0);
 }
 
 void actSt07aTsuroChk(GObj *volatile self)
@@ -634,34 +556,6 @@ void actSt07aEneChk(GObj *volatile self)
     scpWakeupSpiderGroupOne(405);
 }
 
-void actSt07aGene1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    Generator_Mask(self);
-
-    Generator_Mask(scpSearchGobj(410));
-
-    while (gflagChk(132) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-
-    Generator_MaskOff(self);
-
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    Generator_Call(scpSearchGobj(410));
-}
-
 void actSt07aChan(GObj *volatile self)
 {
     GObj *x = self;
@@ -682,38 +576,6 @@ void actSt07aChan(GObj *volatile self)
         act->mail = chan_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
-    }
-}
-
-void actSt07aChanReady(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(126) == 0) {
-        chanReady_mes[0].func = actSt07aChanReadyChk;
-        act->mail = chanReady_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt07aChanChain(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(127) == 0) {
-        chanChain_mes[0].func = actSt07aChanChainChk;
-        act->mail = chanChain_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        ((GObj *)scpSearchGobj(454))->active = 0;
     }
 }
 
@@ -764,65 +626,6 @@ void actSt07aSekizo(GObj *volatile self)
         _ACTWait(0);
     } else {
         stage_SetAnimation(362, 0, -1);
-    }
-}
-
-void actSt07aGene2(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-    while (gflagChk(132) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    Generator_MaskOff(self);
-}
-
-void actSt07aGene3(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-    while (gflagChk(132) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    Generator_MaskOff(self);
-}
-
-void actSt07aEne2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(134) == 0) {
-        ene2_mes[0].func = actSt07aEne2Chk;
-        act->mail = ene2_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
     }
 }
 
@@ -879,43 +682,6 @@ void actSt07aGene2_3(GObj *volatile self)
     }
     _ACTWait(1);
     Generator_MaskOff(self);
-}
-
-static void actSt07aChanReadyChk(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
-        _ACTWait(1);
-    }
-    scpAdpcmPlayRequestFunc(59, &bridge, 1, 1, 0);
-}
-
-static void actSt07aChanChainChk(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    while (gflagChk(127) == 0) {
-        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(454))) {
-        case 1:
-            if (scpGameStat_BoyWeaponkind() != 0) {
-                gflagOn(127);
-                soundSeDefPlay(878, 0, 0, 1);
-                _ACTWait(30);
-                ((GObj *)scpSearchGobj(454))->active = 0;
-            }
-        case 0:
-            _ACTWait(1);
-            break;
-        case 2:
-            ((GObj *)scpSearchGobj(454))->active = 0;
-            gflagOn(127);
-            break;
-        }
-    }
 }
 
 void actSt07ChanEvent(int x)

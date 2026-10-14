@@ -18,7 +18,6 @@
 #include "main.h"
 
 static void actSt17aFallChk(GObj *volatile self);
-static void actSt17aHint1Chk(GObj *volatile self);
 
 static ActMail linkTest_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -308,38 +307,6 @@ void actSt17aHasiEffect(GObj *volatile self)
    spins for. */
 static int demoEnd;
 
-/* self is the actor entry parameter, volatile like every other stage
-   actor's. */
-static void actSt17aIntroCancel(GObj *volatile self)
-{
-    demoEnd = 0;
-
-    while (lt_fade_status() != 2) {
-        _ACTWait(1);
-    }
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-
-        stage_SetAnimation(83, 1, -1);
-        SetCameraFlag_LwsCutBack();
-        scpFadeIn(3.0f);
-    }
-
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-}
-
 void actLinkTest(GObj *volatile self)
 {
     GObj *x = self;
@@ -379,36 +346,6 @@ void actSt17aHasi(GObj *volatile self)
     } else {
         scpSearchGobj(243)->active = 0;
         stage_SetAnimation(132, 0, -1);
-    }
-}
-
-void actSt17aIntro(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(34) == 0) {
-        intro_mes[0].func = actSt17aIntroChk;
-        act->mail = intro_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt17aHint1(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(35) == 0) {
-        hint1_mes[0].func = actSt17aHint1Chk;
-        act->mail = hint1_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        FinishHint(0);
     }
 }
 
@@ -523,27 +460,4 @@ void actSt17aGirlWay(GObj *volatile self)
     EffectArg buf = {{1547.0f, -2070.0f, 1495.0f, 0.0f}};
 
     _SCPMoveCharactorByWay((void *)girlGObj, 0, buf.f, 100.0f, 2);
-}
-
-static void actSt17aHint1Chk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 200.0f) == 0) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
-
-    gflagOn(35);
-    FinishHint(0);
-}
-
-static void actSt17aFallChk(GObj *volatile self)
-{
-    while (!(gflagChk(33) && scpTriggerBall(self, boyGObj, 1800.0f))) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("FAAAAALL!\n");
-
-    iosOmSendMail(boyGObj, 226, boyGObj);
 }

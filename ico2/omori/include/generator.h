@@ -53,7 +53,6 @@ void SetInfoSpKidnapEnemy(short *work);
 inline int IsOpenGenerator(struct GObj *gobj);
 int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
 int CheckGeneratorCollision(struct GObj *gobj, float *dir);
-void Generator_Delete(struct GObj *gobj);
 void Generator_QuickCall(struct GObj *gobj);
 void GetGeneratorSafePosition(float *dst, struct GObj *gobj);
 int GetMotherGenerator(int label);

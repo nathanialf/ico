@@ -20,7 +20,6 @@
    below spin for. */
 static int demoEnd;
 
-static void actSt13aElevUpSub(GObj *volatile self);
 static void actSt13aElevDownSub(GObj *volatile self);
 void actSt13aElevDownChk(GObj *volatile self);
 
@@ -66,79 +65,6 @@ unsigned char st13a_yure_vol = 0;
 int sekizo_13a = 0;
 
 unsigned char sekizo_13a_vol = 0;
-
-static void actSt13aElevUpSub(GObj *volatile self)
-{
-    AdpcmPlay(st13a_up->stream);
-
-    stage_SetAnimation(173, 1, 0);
-    stage_SetAnimation(174, 1, 0);
-
-    while (stage_CheckAnimationFrame(173, 86, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    iosPadActRequest(boyPad, 17);
-
-    while (stage_CheckAnimationFrame(173, 140, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    st13a_yure = iosPadActRequest(boyPad, 9);
-    st13a_yure_vol = 128;
-    iosPadActVolumeSet(st13a_yure, 128);
-
-    while (stage_CheckAnimationFrame(173, 200, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    st13a_yure_vol = 64;
-
-    while (stage_CheckAnimationFrame(173, 380, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-void actSt13aElevUp(GObj *volatile self)
-{
-    GProc *th;
-
-    scpAdpcmPlayRequestFunc(77, &st13a_up, 0, 1, 0);
-    while (st13a_up == 0) {
-        _ACTWait(1);
-    }
-
-    preload(15);
-
-    st13a_yure = -1;
-    th = actCreateSubThread(actSt13aElevUpSub, 21);
-    demoEnd = 0;
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&th->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st13a_up, 512);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-    }
-
-    iosPadActStop(st13a_yure);
-    gflagOn(325);
-    RequestStageChange(15, boyGObj, 0, 0.025f, 8.0f);
-}
 
 void actSt13aElevDown(GObj *volatile self)
 {
@@ -190,51 +116,6 @@ static void actSt13aElevDownSub(GObj *volatile self)
 
     demoEnd = 1;
     _ACTWait(0);
-}
-
-void actSt13aElevDownChk(GObj *volatile self)
-{
-    GProc *th;
-
-    while (st13a_down == 0) {
-        _ACTWait(1);
-    }
-
-    AdpcmPlay(st13a_down->stream);
-    scpFadeIn(6.0f);
-
-    th = actCreateSubThread(actSt13aElevDownSub, 21);
-    demoEnd = 0;
-    st13a_yure = -1;
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&th->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        scpAdpcmFadeCloseFunc(&st13a_down, 512);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-        stage_SetAnimation(175, 0, -1);
-        stage_SetAnimation(173, 0, -1);
-        _ACTWait(2);
-        scpPlayPosSet(boyGObj, -4871.0f, 3527.0f, 2699.0f);
-        iosPadActStop(st13a_yure);
-        scpFadeIn(3.0f);
-    }
-
-    scpPlayMot(boyGObj, 0);
-    scpPlayEnd(boyGObj);
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-    gflagOff(15);
 }
 
 void actSt13aSekizoChk(GObj *volatile self)

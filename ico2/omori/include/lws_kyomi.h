@@ -22,14 +22,9 @@ struct HintDef { /* field names derived */
 
 extern struct HintDef hintTable[]; /* derived name */
 struct GObj *CreateKyomiGObj(int no);
-void DebugHintStart(struct GObj *gobj);
 void FinishHint(int no);
-char *GetBuffHintSaveInfo(void);
-int GetSizeHintSaveInfo(void);
 void Hint_Init(void);
 int IsTopHint(struct GObj *gobj);
-void MakeHintSaveInfo(void);
-void ReadHintSaveInfo(void);
 void SetParamKyomiGObj(struct GObj *gobj, float *root, float *param);
 void SleepHint(int no);
 void WakeupHint(int no);

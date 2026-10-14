@@ -208,48 +208,6 @@ SqEntry *st02a_fence = 0;
    spins for. */
 static int demoEnd;
 
-void actSt02aFenceOpen(GObj *volatile self)
-{
-    GProc *th;
-
-    scpSleepEnemyAll();
-    gflagOn(118);
-    scpAdpcmPlayRequestFunc(96, &st02a_fence, 1, 1, 1);
-    th = actCreateSubThread(actSt02aFenceOpenSub, 21);
-    demoEnd = 0;
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&th->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        while (st02a_fence == 0) {
-            _ACTWait(1);
-        }
-        scpAdpcmFadeCloseFunc(&st02a_fence, 512);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-        stage_SetAnimation(99, 0, -1);
-        stage_SetAnimation(100, 0, -1);
-        SetCameraFlag_GamecamCutBack();
-        scpFadeIn(8.0f);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-    }
-    SetWayGroupActive(26, 1);
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-    scpWakeupEnemyAll();
-}
-
 void actSt02WaterFallBoySplashCheck(GObj *volatile self)
 {
     ConstVec buf[2];

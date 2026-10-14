@@ -17,7 +17,6 @@
 
 static void actSt04rDoor2Sub(GObj *volatile self);
 static void actSt04rDoorSub(GObj *volatile self);
-static void actSt05cCrestHintChk(GObj *volatile self);
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for. */
@@ -310,21 +309,6 @@ void actSt05cEnemy2(GObj *volatile self)
     Generator_Call(self);
 }
 
-void actSt05cCrestHint(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(169) == 0) {
-        SleepHint(23);
-        crestHint_mes[0].func = actSt05cCrestHintChk;
-        act->mail = crestHint_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
 void actSt05cDoorDownEvent(int x)
 {
     volatile int local = x;
@@ -367,38 +351,4 @@ void actSt05cEneChk(GObj *volatile self)
     _ACTWait(600);
     gflagOn(167);
     gflagOn(168);
-}
-
-static void actSt04rDoorSub(GObj *volatile self)
-{
-    int h;
-
-    stage_SetAnimation(332, 1, 0);
-    h = soundSeDefPlay(1330, 0, 0, 1);
-    _ACTWait(90);
-    soundSeDefStop(h);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt04rDoor2Sub(GObj *volatile self)
-{
-    int h;
-
-    stage_SetAnimation(333, 1, 0);
-    h = soundSeDefPlay(1330, 0, 0, 1);
-    _ACTWait(90);
-    soundSeDefStop(h);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt05cCrestHintChk(GObj *volatile self)
-{
-    while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) != 0) {
-        _ACTWait(1);
-    }
-
-    gflagOn(169);
-    WakeupHint(23);
 }

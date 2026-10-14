@@ -791,24 +791,6 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
     }
 }
 
-inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
-{
-    IosPadCtx padCtx;
-    IosPadStick st;
-
-    iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
-    iosPadRead(&padCtx);
-    iosPadGetStick(&padCtx, &st, 1, 2, 2, 0);
-    {
-        Mat4 dir = {{(float)st.x - 127.5f, 0.0f, (float)st.y - 127.5f, 0.0f}};
-
-        sceVu0Normalize(&dir, &dir);
-        *outMag = st.mag;
-        *outX = dir.f[0] * *outMag;
-        *outZ = dir.f[2] * *outMag;
-    }
-}
-
 /* the camera-group search GetCameraGroupFromGObj, GetCameraGroupFromPosition
  * and SetCameraMatrix_Ico2 share */
 static inline int findCameraGroupContaining(float *pos) /* derived name */

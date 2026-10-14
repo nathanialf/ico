@@ -159,19 +159,6 @@ void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src)
     dst->rotZ = 0;
 }
 
-static void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs)
-{
-    MatrixDrive_PushMatrix();
-    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
-    MatrixDrive_RotMatrixY(cs->rotY);
-    MatrixDrive_RotMatrixX(cs->rotX);
-    MatrixDrive_RotMatrixZ(cs->rotZ);
-    sceVu0TransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
-    MatrixDrive_TransMatrix(-cs->pos[0], -cs->pos[1], -cs->pos[2]);
-    CopyMatrix(dst, MatrixDrive_GetMatrix());
-    MatrixDrive_PopMatrix();
-}
-
 void MakeCameraMatrix(CameraSet2 *cs)
 {
     float mat[16];
@@ -875,23 +862,6 @@ void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType)
     }
 }
 
-void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom, int cutBack,
-                            float blend)
-{
-    if (InsertCamera_isEnable()) {
-        insertCamera.frames = frames;
-        insertCamera.count = 0;
-        sceVu0ScaleVector(insertCamera.pos, pos, -1.0f);
-        sceVu0ScaleVector(insertCamera.tgt, tgt, -1.0f);
-        insertCamera.enable = 1;
-        insertCamera.cut = 1;
-        insertCamera.cutType = cutType;
-        insertCamera.zoom = zoom;
-        insertCamera.cutBack = cutBack;
-        insertCamera.blend = blend;
-    }
-}
-
 void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable)
 {
     *cut = 0;
@@ -927,46 +897,6 @@ void SetCameraFlag_LwsCutBack(void)
 void SetCameraFlag_GamecamCutBack(void)
 {
     gamecamCutBack = 1;
-}
-
-void SetHandCameraLimitInDemo(int limitP, int limitV)
-{
-    handCameraLimitP = limitP;
-    handCameraLimitV = limitV;
-}
-
-void ResetHandCameraLimitInDemo(void)
-{
-    handCameraLimitP = GlobalStageSetting.handCameraLimitP;
-    handCameraLimitV = GlobalStageSetting.handCameraLimitV;
-}
-
-void SetZoomMaxValInDemo(int zoom)
-{
-    zoomMaxInDemo = zoom;
-}
-
-void ResetZoomMaxValInDemo(void)
-{
-    zoomMaxInDemo = GlobalStageSetting.zoomMaxInDemo;
-}
-
-int UpdateHandCameraLimitP(void)
-{
-    handCameraLimitP = GlobalStageSetting.handCameraLimitP;
-    return 0;
-}
-
-int UpdateHandCameraLimitV(void)
-{
-    handCameraLimitV = GlobalStageSetting.handCameraLimitV;
-    return 0;
-}
-
-int UpdateZoomMaxVallInDemo(void)
-{
-    zoomMaxInDemo = GlobalStageSetting.zoomMaxInDemo;
-    return 0;
 }
 
 static int InsertCamera_isEnable(void)

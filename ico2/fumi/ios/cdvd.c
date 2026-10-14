@@ -190,125 +190,6 @@ static __inline__ void stDebugPrintMode(void) /* derived name */
 #endif
 }
 
-static void iosCdvdStManager(void)
-{
-    char buf[128];
-    char buf2[256];
-    CdStReq *req;
-    char *p;
-    int n;
-    unsigned int err;
-    int mode;
-
-    stReq.state = 0;
-    iosMsgQueueCreate(&stReqQ, stReqRing, 1);
-    iosMsgQueueCreate(&stAckQ, stAckRing, 1);
-
-    while (1) {
-        req = &stReq;
-        mode = 0;
-        if (req->state != 1) {
-            mode = 1;
-        }
-        if (iosMsgRecv(&stReqQ, (int *)&req, mode) == -1) {
-            if (req->state != 1) {
-                sprintf(buf, "stream mode error %d\n", req->state);
-                debug_assertMessage(__FILE__, 518, buf);
-                __assert(__FILE__, 518, "e");
-            }
-            if (req->readPos > req->writePos) {
-                n = req->readPos - req->writePos;
-            } else if (req->readPos < req->writePos || req->count == 0) {
-                n = req->size - req->writePos;
-            } else {
-                n = 0;
-                if (req->count != req->size) {
-                    sprintf(buf2, "stream size illigual %d\n", req->count);
-                    debug_assertMessage(__FILE__, 546, buf2);
-                    __assert(__FILE__, 546, "e");
-                }
-            }
-            if (n > 16) {
-                n = 16;
-            }
-            if (req->owner->left < n) {
-                n = req->owner->left;
-            }
-            if (n != 0) {
-                p = req->buf + (req->writePos << 11);
-            retry:
-                if (sceCdRead(req->owner->lsn, n, p, &req->owner->mode) == 0) {
-                    sprintf(buf2, "read command fail\n");
-                    debug_assertMessage(__FILE__, 569, buf2);
-                    __assert(__FILE__, 569, "e");
-                }
-                sceCdSync(0);
-                err = sceCdGetError();
-                if ((int)err == -1) {
-                    sceCdInit(0);
-                    sceCdMmode(iosCdvdMediaType);
-                    stDebugPrintError();
-                    stDebugPrintStatus();
-                    stDebugPrintMode();
-                    if (0) {
-                        debug_StdPrintfDummy("get error fail");
-                    }
-                }
-                if (err >= 2) {
-                    if (0) {
-                        debug_StdPrintfDummy("st cd read error %d\n", err);
-                    }
-                    iosCdvdDiskReadyBlock();
-                    goto retry;
-                }
-                if (stLoadEndWait != 0) {
-                    iosMsgSend(&stAckQ, 1, 0);
-                    stLoadEndWait = 0;
-                }
-                req->owner->lsn += n;
-                req->owner->left -= n;
-                req->writePos += n;
-                req->count += n;
-                if (req->writePos >= req->size) {
-                    req->writePos = 0;
-                }
-            } else {
-                req->state = 2;
-            }
-        } else {
-            switch (req->command) {
-            case 0:
-            case 2:
-                req->state = 1;
-                break;
-            case 1:
-                iosMsgSend(&stAckQ, 2, 0);
-                req->state = 0;
-                break;
-            }
-        }
-    }
-}
-
-/* The definition between the stream manager and the directory search.
- * Declared inline: iosCdvdMgrLoad, iosCdvdMgrPackLoad, iosCdvdManager and
- * iosCdvdDirectStOpen expand it, the stream manager above calls it, and the
- * out-of-line body goes to the end of the object.  Its two strings follow the
- * stream manager's in .rodata. */
-static inline void iosCdvdDiskReadyBlock(void)
-{
-    if (sceCdDiskReady(1) != 2) {
-        sceCdlFILE fp;
-        char file[32];
-        strcpy(file, "SCES_507.60");
-        iosCdvdChgFileName(file);
-        debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCES_507.60", file);
-        do {
-            sceCdDiskReady(0);
-        } while (sceCdGetDiskType() != cdDiskType || sceCdSearchFile(&fp, file) == 0);
-    }
-}
-
 /* the search-cache lookup of a file's sector, which iosCdvdGetFileLsn and
  * iosCdvdBackGroundMgrAdd inline */
 static inline int getFileLsn(char *name, int *size) /* derived name */
@@ -361,65 +242,6 @@ static void iosCdvdMgrSearchFile(IosCdvdHandle *self)
             debug_StdPrintfDummy("iosCdvdMgrSearchFile: warning iosCdvdSrhBuff over\n");
         }
     }
-}
-
-static void iosCdvdMgrStStart(IosCdvdHandle *self)
-{
-    int total;
-    int rest;
-    int cnt = stagePreLoadSectorCnt;
-    int prelsn = stagePreLoadLsn;
-    int lsn = self->file.lsn;
-
-    stPreLoadCnt = cnt;
-    self->buffCnt = 0;
-    self->result = 0;
-    if (lsn == prelsn) {
-        lsn += cnt;
-    } else {
-        stagePreLoadSectorCnt = 0;
-        stPreLoadCnt = 0;
-    }
-    stReq.owner = (IosCdvdHandle *)self;
-    stReq.buf = stagePreLoadBuff;
-    stReq.size = 0x380;
-    stReq.count = stPreLoadCnt;
-    stReq.writePos = stPreLoadCnt;
-    if (stPreLoadCnt >= 0x380) {
-        stReq.writePos = 0;
-    }
-    stReq.readPos = 0;
-    self->lsn = lsn;
-    total = (self->file.size - 1) >> 11;
-    rest = lsn - self->file.lsn - 1;
-    self->left = total - rest;
-    stReq.command = 0;
-    iosMsgSend(&stReqQ, &stReq, 1);
-    self->inflate = open_inflate_handler(inflate_cd_read_func, self);
-}
-
-static void iosCdvdMgrStStop(IosCdvdHandle *self)
-{
-    char buf[128];
-    int msg;
-    int pri;
-
-    pri = iosThreadGetPri(0);
-    iosThreadSetPri(0, 27);
-    stReq.command = 1;
-    iosMsgSend(&stReqQ, &stReq, 1);
-    if (stReq.state == 1) {
-        sceCdBreak();
-    }
-    iosThreadSetPri(0, pri);
-    iosMsgRecv(&stAckQ, &msg, 1);
-    if (msg != 2) {
-        sprintf(buf, "stream manager stop command error %d\n", msg);
-        debug_assertMessage(__FILE__, 906, buf);
-        __assert(__FILE__, 906, "e");
-    }
-    self->result = 0;
-    close_inflate_handler(self->inflate);
 }
 
 /* a file name in the disc's form (a leading backslash, upper case, ";1"),
@@ -621,58 +443,6 @@ static void iosCdvdMgrPackLoad(IosCdvdHandle *self)
     }
 }
 
-static int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *self)
-{
-    char msgbuf[128];
-    int msg;
-    CdStReq *req = &stReq;
-    int pri = iosThreadGetPri(0);
-    int total = 0;
-    int size;
-    int bytes;
-
-    while (n != 0) {
-        iosThreadSetPri(0, 27);
-        if (req->readPos + n > req->size) {
-            size = req->size - req->readPos;
-        } else {
-            size = n;
-        }
-        if (flag == 0) {
-            size = req->count;
-        } else {
-            while (req->count < size) {
-                stLoadEndWait = 1;
-                iosMsgRecv(&stAckQ, &msg, 1);
-                if (msg != 1) {
-                    sprintf(msgbuf, "stream manager load end command error %d\n", msg);
-                    debug_assertMessage(__FILE__, 1304, msgbuf);
-                    __assert(__FILE__, 1304, "e");
-                }
-            }
-        }
-        if (size != 0) {
-            bytes = size << 11;
-            memcpy((char *)buf, (char *)((req->readPos << 11) + (int)req->buf), bytes);
-            if (req->readPos + size >= req->size) {
-                req->readPos = 0;
-            } else {
-                req->readPos = req->readPos + size;
-            }
-            req->count -= size;
-            buf += bytes;
-            n -= size;
-            total += size;
-            if (stReq.state == 2) {
-                stReq.command = 2;
-                iosMsgSend(&stReqQ, &stReq, 1);
-            }
-        }
-        iosThreadSetPri(0, pri);
-    }
-    return total;
-}
-
 /* The read-retry sleep: IosCdvdMgrSleep marks the cdvd thread asleep, as
    cdWait and iosCdvdManager set it around their own sleeps. */
 static inline void cdvdSleep(void) /* derived name */
@@ -799,14 +569,6 @@ typedef struct { /* field names derived */
     long long lo;
     long long hi;
 } CdvdName16; /* derived name */
-
-static void iosCdvdUnifileInfoGet(void)
-{
-    unifileHandle.ctl.ll &= ~1LL;
-    *(CdvdName16 *)unifileHandle.name = *(CdvdName16 *)"DFDATAS/DATA.DF";
-    unifileHandle.handler = unifile_read_func;
-    iosCdvdMgrLoad(&unifileHandle);
-}
 
 int iosCdvdBackGroundMgrRunning = 0;
 

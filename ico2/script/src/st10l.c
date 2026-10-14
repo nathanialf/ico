@@ -371,55 +371,6 @@ void actSt10lEneCam3Chk(GObj *volatile self)
     scpWakeupEnemyAll();
 }
 
-void actSt10lChainMove(GObj *volatile self)
-{
-    lt_switch_layout(55);
-    scpSleepEnemyAll();
-
-    gflagOn(287);
-    FinishHint(13);
-
-    _ACTWait(30);
-
-    scpAdpcmPlayRequestFunc(97, &chain10l, 1, 1, 1);
-
-    while (chain10l == 0) {
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(384, 1, 0);
-    SetCameraFlag_LwsCutBack();
-
-    while (stage_CheckAnimationFrame(384, 240, 0) == 0) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            scpFadeOut(16.0f, 0, 0, 0);
-            scpAdpcmFadeCloseFunc(&chain10l, 512);
-
-            while (scpFadeChk() != 0) {
-                _ACTWait(1);
-            }
-            while (lt_fade_status() != 2) {
-                _ACTWait(1);
-            }
-
-            stage_SetAnimation(384, 1, 239);
-            scpFadeIn(3.0f);
-            break;
-        }
-        _ACTWait(1);
-    }
-
-    scpWakeupEnemyAll();
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-
-    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
-
-    stage_SetAnimation(384, 0, 0);
-
-    scpSearchGobj(985)->active = 1;
-}
-
 void actSt10lChain(GObj *volatile self)
 {
     GObj *x = self;

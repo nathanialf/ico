@@ -56,45 +56,6 @@ void actSt18aEnd(void)
     }
 }
 
-void actSt18aIntroChk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 1000.0f) == 0) {
-        _ACTWait(1);
-    }
-
-    lt_switch_layout(55);
-
-    gflagOn(55);
-
-    scpBoyControlReadDisable = 1;
-
-    _ACTWait(1);
-
-    stage_SetAnimation(354, 1, 0);
-
-    while (stage_CheckAnimationFinish(354) == 0) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            scpFadeOut(16.0f, 0, 0, 0);
-
-            while (scpFadeChk() != 0) {
-                _ACTWait(1);
-            }
-            while (lt_fade_status() != 2) {
-                _ACTWait(1);
-            }
-
-            stage_SetAnimation(354, 1, -1);
-            SetCameraFlag_LwsCutBack();
-            scpFadeIn(3.0f);
-            break;
-        }
-        _ACTWait(1);
-    }
-
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-}
-
 void actSt18aSwitchLChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -555,28 +516,6 @@ void actSt18aEnemy2_2(GObj *volatile self)
 void actSt18aCamera(int x)
 {
     volatile int local = x;
-}
-
-static void actSt18aDoorChkSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    stage_SetAnimation(123, 1, 0);
-
-    if (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0) {
-        SetCameraFlag_LwsCutBack();
-    }
-
-    soundSeDefPlay(1221, 0, 0, 1);
-    _ACTWait(50);
-    doorChkDone = 1;
-    soundSeDefPlay(1222, 0, 0, 1);
-    while (stage_CheckAnimationFinish(123) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
 }
 
 void actSt18aEneChk(GObj *volatile self)

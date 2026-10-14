@@ -132,44 +132,6 @@ static inline float sugiSignedRandom(void) /* derived name */
     return sugiRandom() * 2.0f - 1.0f;
 }
 
-static void _setParticleEffect(PEPartRec *out, PEPackage *pkg, char *m, float k)
-{
-    PEPartRec *w;
-    int n;
-    float span;
-
-    w = &particleWork;
-    CopyVector(w->pos, m + 0x30);
-    spreadVector[2] = pkg->speed * (pkg->speedRand * sugiSignedRandom() + 1.0f);
-    CopyMatrix(MatrixDrive_GetMatrix(), m);
-    if (pkg->spread != 0) {
-        MatrixDrive_RotMatrixY((short)((float)pkg->spread * (sugiRandom() - 0.5f) * 182.04445f));
-        MatrixDrive_RotMatrixX((short)((float)pkg->spread * (sugiRandom() - 0.5f) * 182.04445f));
-    }
-    sceVu0ApplyMatrix(w->vel, MatrixDrive_GetMatrix(), spreadVector);
-    n = (int)((float)(unsigned int)pkg->emit * (pkg->emitRand * sugiSignedRandom() + 1.0f));
-    w->life = (float)n * k;
-    w->size = pkg->size * (pkg->sizeRand * sugiSignedRandom() + 1.0f);
-    w->alpha = pkg->alpha * (pkg->alphaRand * sugiSignedRandom() + 1.0f) * k;
-    w->sizeStep = pkg->sizeStep * (pkg->sizeStepRand * sugiSignedRandom() + 1.0f);
-    if (pkg->spinY != 0) {
-        w->spin = 1;
-        w->spinX = (short)((float)pkg->spinX * (pkg->spinXRand * sugiSignedRandom() + 1.0f));
-        w->spinY = (short)((float)pkg->spinY * (pkg->spinYRand * sugiSignedRandom() + 1.0f));
-    } else {
-        w->spin = 0;
-    }
-    span = (float)pkg->life * (pkg->lifeRand * sugiSignedRandom() + 1.0f);
-    w->alphaStep = w->alpha / span;
-    if ((float)w->life < span) {
-        w->alpha = w->alpha - (span - (float)w->life) * w->alphaStep;
-    }
-    CopyIVector(w->col, &pkg->col);
-    w->u = (float)pkg->u * 0.25f;
-    w->v = (float)pkg->v * 0.25f;
-    *out = particleWork;
-}
-
 /* Project the effect's origin through the current camera matrix and report
    whether the result falls outside the screen box. */
 static inline int particleEffectOffScreen(PEGeo *geo) /* derived name */
@@ -309,60 +271,6 @@ static inline int updateParticle(PEGeo *self, float *m) /* derived name */
         }
     }
     return 1;
-}
-
-static int execParticleEffect(PEGeo *self)
-{
-    float m[16];
-    PEPartRec *part;
-    PEPartRec *base;
-    PEVtx *d0;
-    PEVtx *v0;
-    PEVtx *v1;
-    int flags;
-    int i;
-    int n;
-    float last;
-    float total;
-    float next;
-
-    d0 = (PEVtx *)self->prim->vtx;
-    flags = 0;
-    if (particleEffectOffScreen(self)) {
-        return self->pkg->mode == 1;
-    }
-    GetMatrixFromQuaternionPos(m, self->quat, self->pos);
-    part = self->parts;
-    for (i = 0; i < self->n; i++, part++, d0++) {
-        if ((float)i < self->emitted) {
-            PEWORK = *part;
-            flags |= updateParticle(self, m);
-            peSetVtx(d0, &PEWORK);
-            *part = PEWORK;
-        } else {
-            peSetVtx(d0, &blankParticle);
-            flags |= 1;
-        }
-    }
-    total = (float)self->n;
-    last = self->emitted;
-    if (last < total) {
-        v0 = self->prim->vtx;
-        v1 = self->prim->vtxNext;
-        base = self->parts;
-        next = last + self->pkg->emitStep;
-        n = (int)next;
-        if (total < next) {
-            n = (int)total;
-        }
-        for (i = (int)last; i < n; i++) {
-            _setParticleEffect(&base[i], self->pkg, (char *)m, 1.0f);
-            peSetVtx(&v0[i], &base[i]);
-            peSetVtx(&v1[i], &base[i]);
-        }
-        self->emitted = next;
-    }
-    return flags;
 }
 
 /* The display-list packet builder state, the same record src/GifPacket.c
@@ -655,14 +563,6 @@ void InitParticleEffects(void)
     }
 }
 
-void ExecParticleEffects(void)
-{
-    int i;
-    for (i = 0; i < 128; i++) {
-        ExecParticleEffect(i);
-    }
-}
-
 void DispParticleEffects(void)
 {
     int i;
@@ -680,11 +580,6 @@ void DeleteParticleEffect(int no)
         deleteParticleEffectGeo(no);
         particleEffects[no].used = 0;
     }
-}
-
-void SetParticleEffectPauseFlag(int id, int pause)
-{
-    particleEffects[id].pause = pause;
 }
 
 /* the body of SetParticleEffect, which SetParticleEffectActiveSensing
@@ -796,12 +691,5 @@ void SetParticleEffectClipEnableFlag(int id, int on)
 {
     if (id >= 0) {
         particleEffects[id].geo->clip = on;
-    }
-}
-
-void SetParticleEffectDrainLevel(int id, float level)
-{
-    if (id >= 0) {
-        particleEffects[id].geo->rate = level;
     }
 }

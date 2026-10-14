@@ -16,7 +16,6 @@ static int execSE(int no, void *entry);
 static int checkWaterDepth(struct GObj *gobj, int depth);
 static int checkModelDataID(struct GObj *gobj, int id);
 static int checkWeaponType(struct GObj *gobj, int kind);
-static int execVib(int no, void *entry);
 static int execWeaponLightOff(int no, void *entry);
 extern GsysObjInfo seDef[];
 /* int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
@@ -288,21 +287,6 @@ done:
     return 1;
 }
 
-static void execVibCondition(int no, int *entry)
-{
-    if (girlControlMode != 0) {
-        /* EUC-JP: "controller-2 vibration condition detect mode" */
-        debug_StdPrintfDummy("2コン振動条件検知モード\n");
-        if (motEffCondKind[no].kind != 0) {
-            if (fdsFlags != 0) {
-                StopFDSVibration(fdsFlags);
-            }
-        } else {
-            *entry = iosPadActRequest(girlPad, motEffCondKind[no].actId);
-        }
-    }
-}
-
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
@@ -316,47 +300,6 @@ static inline void fireFDSSlot(float t, int no, void *entry, int *done,
     if (t < fdsLayout->animFrame) {
         fn(no, entry);
         *done = 1;
-    }
-}
-
-void ExecFrameDependSequence(GObj *gobj)
-{
-    Sub15C *w;
-    struct MotCtrl *p;
-    int i;
-
-    w = GOBJ_SUB(gobj);
-    p = &w->ctrl;
-    fdsGObj = (char *)gobj;
-    fdsLayout = p;
-    fdsWork = &w->root;
-    fdsFlags = (FDSFlags *)w->fdsFlags;
-    fdsRecord = &motionKind[p->motion];
-    fdsVolume = 1.0f;
-
-    for (i = 0; i < 12; i++) {
-        if (fdsFlags->seDone[i] == 0) {
-            fireFDSSlot(fdsRecord->se[i].t, fdsRecord->se[i].no, 0, &fdsFlags->seDone[i], execSE);
-        }
-    }
-    for (i = 0; i < 2; i++) {
-        if (fdsFlags->vibDone[i] == 0) {
-            fireFDSSlot(fdsRecord->vib[i].t, fdsRecord->vib[i].no, &fdsFlags->vibEntry[i],
-                        &fdsFlags->vibDone[i], execVib);
-        }
-    }
-    if (CheckFloorAttribute((GObj *)fdsGObj, 0x40000) == 0) {
-        for (i = 0; i < 12; i++) {
-            if (fdsFlags->effDone[i] == 0) {
-                fireFDSSlot(fdsRecord->eff[i].t, fdsRecord->eff[i].no, 0, &fdsFlags->effDone[i],
-                            execEff);
-            }
-        }
-    }
-    if (GOBJ_SUB(gobj)->ctrl.pickedWeapon != 0) {
-        if (fdsFlags->weaponDone == 0) {
-            fireFDSSlot(fdsRecord->weaponFrame, 0, 0, &fdsFlags->weaponDone, execWeaponLightOff);
-        }
     }
 }
 
@@ -483,31 +426,6 @@ void InitFrameDependSequence(void *flags)
     }
 }
 
-static int ExecuteDirectSEWithGroupVariation(GObj *gobj, int id, int grp)
-{
-    setSEEnvironment(gobj, id);
-    return execSE(id, 0);
-}
-
-int ExecuteDirectSE(GObj *gobj, int id)
-{
-    setSEEnvironment(gobj, id);
-    return execSE(id, 0);
-}
-
-void StopFDSVibration(void *flags)
-{
-    int *p = ((FDSFlags *)flags)->vibEntry;
-    int i;
-
-    for (i = 0; i < 2; i++) {
-        if (p[i] != -1) {
-            iosPadActStop(p[i]);
-            p[i] = -1;
-        }
-    }
-}
-
 static inline int checkWaterDepth(GObj *gobj, int depth)
 {
     return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
@@ -516,27 +434,6 @@ static inline int checkWaterDepth(GObj *gobj, int depth)
 static inline int checkModelDataID(GObj *gobj, int id)
 {
     return GOBJ_SUB(gobj)->modelId == id;
-}
-
-static inline int checkWeaponType(GObj *gobj, int kind)
-{
-    GObj *w = GOBJ_SUB(gobj)->ctrl.pickedWeapon;
-    if (w != 0 && CheckWeaponKind(w) == kind) {
-        return 1;
-    }
-    return 0;
-}
-
-static inline int execVib(int no, void *entry)
-{
-    if (no <= 0xFFFF) {
-        if (no > 0) {
-            iosPadActRequest(boyPad, no);
-        }
-    } else if (no > 0x1FFFF) {
-        execVibCondition(no - 0x20000, entry);
-    }
-    return 1;
 }
 
 /* a frame slot's handler: it is passed the slot's number and entry, which it does not read */

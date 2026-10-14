@@ -116,7 +116,6 @@ float GetChainCollision(ChainSet *sys, void *pos, float r);
 float GetChainNodeID(ChainCfg *cfg, float f);
 void GetCloth4D(Cloth4D *c, float x, float y);
 void GetCloth4DWithDetail(Cloth4D *c, float x, float y, float z, float w);
-void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *qa, void *qb);
 
 void GetClothAnimation(VECTOR **pos, VECTOR **vel, struct GObj *obj, void *m, ClothCfg *cfg,
                        int nwall, int wallOwner, int fixEnd);

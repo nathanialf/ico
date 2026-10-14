@@ -53,83 +53,6 @@ typedef struct GirlWork { /* field names derived */
 } GirlWork;               /* derived name */
 
 /* file-static: boy.c has a global function of the same name */
-static void execClothes(GObj *gobj)
-{
-    float q[4];
-    GirlWork *w;
-    int n;
-
-    n = GetSkeltonFocusNode(gobj, 35);
-    w = GOBJ_SUB(gobj)->work;
-    SetQuaternionByAxisRotateV(q, -debug_hair_bend_angle * 16, ZUnitVector);
-    if ((void *)w->hair != 0) {
-        ((Cloth4D *)w->hair)->collision = debug_hair_collision;
-    }
-    switch (w->cloth12Disp) {
-    default:
-    case 1:
-        if ((void *)w->cloth1 != 0) {
-            GetCloth4D((void *)w->cloth1, 4.0f, 0.98f);
-        }
-        if ((void *)w->cloth2 != 0) {
-            GetCloth4D((void *)w->cloth2, 4.0f, 0.98f);
-        }
-        if ((void *)w->hair != 0) {
-            GetCloth4DWithTight((void *)w->hair, debug_hair_gravity_level * 0.002f, 1.0f,
-                                debug_hair_tight_level * 0.01f, 1.0f,
-                                (char *)GOBJ_SUB(gobj)->nodeQuat + n * 16, q);
-        }
-        break;
-    case 2:
-        if ((void *)w->cloth1 != 0) {
-            GetCloth4D((void *)w->cloth1, 0.0f, 0.98f);
-        }
-        if ((void *)w->cloth2 != 0) {
-            GetCloth4D((void *)w->cloth2, 4.0f, 0.98f);
-        }
-        if ((void *)w->hair != 0) {
-            GetCloth4DWithTight((void *)w->hair, debug_hair_gravity_level * 0.002f, 1.0f,
-                                debug_hair_tight_level * 0.01f, 1.0f,
-                                (char *)GOBJ_SUB(gobj)->nodeQuat + n * 16, q);
-        }
-        break;
-    case 0:
-        break;
-    }
-    if (w->cloth0Disp != 0) {
-        if ((void *)w->cloth0 != 0) {
-            GetCloth4D((void *)w->cloth0, 3.0f, 0.98f);
-        }
-    }
-    if (w->cloth3Disp != 0) {
-        if ((void *)w->cloth3 != 0) {
-            GetCloth4D((void *)w->cloth3, 4.0f, 0.98f);
-        }
-    }
-}
-
-/* file-static: boy.c has a global function of the same name */
-static void dispCrown(GObj *gobj, Sub15C *acc)
-{
-    GirlWork *w;
-    int n;
-
-    w = GOBJ_SUB(gobj)->work;
-    n = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + n * 64);
-    MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
-    if (w->ornamentDisp != 0) {
-        CopyMatrix(*(char **)((char *)w->ornament0 + 0xC), MatrixDrive_GetMatrix());
-        CopyMatrix(*(char **)((char *)w->ornament1 + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow((Sub15C *)w->ornament1, GOBJ_SUB(gobj));
-        reg_DispAccessoryWithShadow((Sub15C *)w->ornament0, GOBJ_SUB(gobj));
-    } else {
-        CopyMatrix((char *)acc->nodeMtx, MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow(acc, GOBJ_SUB(gobj));
-    }
-}
-
-/* file-static: boy.c has a global function of the same name */
 static void dispClothes(GObj *gobj)
 {
     GirlWork *w;
@@ -1723,12 +1646,6 @@ inline void SetGirlClothDispSwitch(GObj *gobj, int part, int on)
     }
 }
 
-inline void SetGirlHairDispSwitch(GObj *gobj, int on)
-{
-    GirlWork *cloth = GOBJ_SUB(gobj)->work;
-    cloth->ornamentDisp = on;
-}
-
 typedef struct { /* field names derived */
     int tightLevel;
     int gravityLevel;
@@ -1748,17 +1665,6 @@ static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
     debug_hair_gravity_level = p->gravityLevel;
     debug_hair_bend_angle = p->bendAngle;
     debug_hair_collision = p->collision;
-}
-
-static inline void setGirlClothSetting(int lv)
-{
-    if (lv == 0) {
-        debug_StdPrintfDummy("set cloth demo mode\n");
-        setGirlClothParam(&girlClothDemoParam);
-    } else {
-        debug_StdPrintfDummy("set cloth game mode\n");
-        setGirlClothParam(&girlClothGameParam);
-    }
 }
 
 void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
@@ -1848,65 +1754,6 @@ void GirlGeo(GObj *gobj)
         }
     }
     execClothes(gobj);
-}
-
-void GirlAI(GObj *gobj)
-{
-    Sub15C *work = GOBJ_SUB(gobj);
-    int mode = work->ctrl.motion;
-    GirlWork *cloth = work->work;
-    int shifted = work->ctrl.justShifted;
-
-    if (mode == 663) {
-        if (shifted != 0) {
-            if (cloth->hint2Ready != 0) {
-                debug_StdPrintfDummy("reset hint2 voice ready\n");
-                scpGirlHintVoiceCancel();
-            }
-            scpGirlHintVoiceReady(101);
-            cloth->hint1Ready = 1;
-            debug_StdPrintfDummy("hint1 voice ready\n");
-        }
-        if (cloth->hint1Ready != 0 && cloth->hint1Played == 0 &&
-            47.0f < GOBJ_SUB(gobj)->ctrl.animFrame) {
-            scpGirlHintVoicePlay();
-            cloth->hint1Played = 1;
-            debug_StdPrintfDummy("hint1 voice play\n");
-        }
-    }
-    if (mode == 666) {
-        if (shifted != 0) {
-            if (cloth->hint1Ready != 0) {
-                debug_StdPrintfDummy("reset hint1 voice ready\n");
-                scpGirlHintVoiceCancel();
-            }
-            scpGirlHintVoiceReady(103);
-            cloth->hint2Ready = 1;
-            debug_StdPrintfDummy("hint2 voice ready\n");
-        }
-        if (cloth->hint2Ready != 0 && cloth->hint2Played == 0 &&
-            107.0f < GOBJ_SUB(gobj)->ctrl.animFrame) {
-            scpGirlHintVoicePlay();
-            cloth->hint2Played = 1;
-            debug_StdPrintfDummy("hint2 voice play\n");
-        }
-    }
-    if (cloth->hint1Ready != 0) {
-        if (mode != 663 && mode != 664) {
-            debug_StdPrintfDummy("hint1 voice reset\n");
-            cloth->hint1Ready = 0;
-            cloth->hint1Played = 0;
-            scpGirlHintVoiceCancel();
-        }
-    }
-    if (cloth->hint2Ready != 0) {
-        if (mode != 666 && mode != 667) {
-            debug_StdPrintfDummy("hint2 voice reset\n");
-            cloth->hint2Ready = 0;
-            cloth->hint2Played = 0;
-            scpGirlHintVoiceCancel();
-        }
-    }
 }
 
 /* the name the cloth debug display prints for each girl kind */

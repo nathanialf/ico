@@ -68,17 +68,6 @@ void torchOnOfWeaponSE(GObj *torch)
     ExecuteSEPackage(torch, 66);
 }
 
-void torchOffOfWeaponSE(GObj *torch)
-{
-    StopSEPackage(torch);
-    ExecuteSEPackage(torch, 67);
-}
-
-void weaponHitReactionSE(GObj *g)
-{
-    ExecuteSEPackage(g, 68);
-}
-
 void weaponFumbleSE(GObj *g)
 {
     ExecuteSEPackage(g, 92);
@@ -699,127 +688,6 @@ void dispInsectNet(GObj *g)
     gif_EndPacket();
 }
 
-static void dispBlur(GObj *g)
-{
-    WeaponWork *w = GOBJ_SUB(g)->work;
-
-    if (weaponKind[w->kind].blur != -1) {
-        WeaponDef *e = &weaponKind[w->kind];
-        void *s = w->buf;
-        GifColor c = {e->color[0], e->color[1], e->color[2], e->color[3]};
-
-        _SetCurrentMatrix(matrixptr + 0x100);
-        gif_StartPacketPri(2);
-        switch (e->blur) {
-        case 0:
-        default:
-            gif_SetAlpha(1, 7, 128);
-            break;
-        case 1:
-            gif_SetAlpha(1, 5, 128);
-            break;
-        case 2:
-            gif_SetAlpha(1, 6, 128);
-            break;
-        }
-        gif_SetZTest(1);
-        gif_SetZWrite(1);
-        gif_DrawStripF(s, c, 22, 1);
-        gif_EndPacket();
-    }
-    if (w->kind == 8) {
-        if (12.0f < w->bladeLength) {
-            _UnitMatrix(MatrixDrive_GetMatrix());
-            gif_StartPacketPri(2);
-            gif_SetAlpha(1, 5, 128);
-        }
-        gif_EndPacket();
-    }
-}
-
-static void calcBlur(GObj *g, float t)
-{
-    float q1[4];   /* 0x00 */
-    float q2[4];   /* 0x10 */
-    float d[4];    /* 0x20 */
-    float p[4];    /* 0x30 */
-    float m[4][4]; /* 0x40 */
-    float n[4];    /* 0x80 */
-    float a[4];    /* 0x90 */
-    float b[4];    /* 0xA0 */
-    float sub[4];  /* 0xB0 */
-    float tmp[4];  /* 0xC0 */
-    Sub15C *e = GOBJ_SUB(g);
-    WeaponWork *w = (WeaponWork *)e->work;
-    char *base;
-    PEPartRec *vtx;
-    char *dst1;
-    char *dst2;
-    PEGeo *pd;
-    int h;
-    int i;
-    int j;
-    int k;
-    float ang;
-    float r;
-
-    GetInverseQuaternion(q1, e->root.itemQuat);
-    MultiQuaternion(q1, e->root.quat, q1);
-    SubVectorXYZ(d, e->root.pos, e->root.move);
-    if (weaponKind[w->kind].blur == -1) {
-        return;
-    }
-    base = w->buf;
-    GetMatrixFromQuaternion(m, q1);
-    _ApplyMatrix(a, m, ZUnitVector);
-    GetMatrixFromQuaternion(m, e->root.quat);
-    _ApplyMatrix(b, m, ZUnitVector);
-    _OuterProduct(n, b, a);
-    _NormalizeVector(n, n);
-    ang = acosf(_InnerProduct(a, b)) * 10430.378f;
-    _ScaleVectorXYZ(a, a, t);
-    a[3] = 1.0f;
-    for (i = 0; i < 11; i++) {
-        float rr = (float)i / 10.0f;
-
-        SetQuaternionByAxisRotateVWithNoRegularize(q2, (short)(ang * (float)i / 10.0f), n);
-        sceVu0InterVector(p, e->root.pos, d, rr);
-        GetMatrixFromQuaternionPos(m, q2, p);
-        CopyVector(base + i * 32, m[3]);
-        sceVu0ApplyMatrix(base + (i * 32 + 16), m, a);
-    }
-    if (w->kind >= 10) {
-        return;
-    }
-    if (w->kind < 8) {
-        return;
-    }
-    if (t > 12.0f) {
-        h = SetParticleEffect(50, e->root.pos, IdentityQuaternion);
-        if (h != -1) {
-            pd = GetParticleEffectData(h);
-            vtx = pd->parts;
-            dst1 = pd->prim->vtx;
-            dst2 = pd->prim->vtxNext;
-            ExecParticleEffect(h);
-            for (j = 0; j < pd->n; j++) {
-                k = j * 10 / pd->n;
-                r = random_unit();
-                _InterVector(vtx->pos, base + (k + 1) * 32, base + ((k + 1) * 32 + 16), r);
-                _InterVector(tmp, base + k * 32, base + (k * 32 + 16), r);
-                _SubVector(sub, vtx->pos, tmp);
-                _ScaleVector(vtx->vel, sub,
-                             pd->pkg->speed * (pd->pkg->speedRand * random_signed() + 1.0f));
-                sceVu0CopyVector(dst1, vtx->pos);
-                dst1 += 32;
-                sceVu0CopyVector(dst2, vtx->pos);
-                dst2 += 32;
-                vtx++;
-            }
-        }
-    }
-}
-
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
@@ -830,103 +698,6 @@ typedef union { /* field names derived */
     float f[4][4];
     int i[4][4];
 } WeaponMatrix; /* derived name */
-
-void WeaponGeo(GObj *g)
-{
-    WeaponWork *w = GOBJ_SUB(g)->work;
-    int kind;
-    int i;
-    int n;
-    float t;
-    float a;
-
-    getGeometry(g);
-    checkHit(g);
-
-    kind = w->kind;
-    w->bladeOn = 0;
-    if (w->kind >= 10 || kind < 8) {
-        if (w->state == 1 ||
-            (w->holder != 0 && motionKind[w->holder->dobj->ctrl.motion].flags2.bits.weaponSwing)) {
-            calcBlur(g, weaponKind[kind].length);
-            w->bladeOn = 1;
-        }
-    } else {
-        weaponKind[kind].length = 40.0f;
-        for (i = 0; i < 2; i++) {
-            w->net[i] = random_signed_b();
-        }
-        if (w->holder != 0) {
-            if (w->holder == boyGObj && ACTGame_FLAG_TETSUNAGI_VISUAL()) {
-                weaponKind[w->kind].length = 270.0f;
-            }
-            if (w->bladeTimer >= 30.0f) {
-                w->bladeLength += (weaponKind[w->kind].length - w->bladeLength) * 0.4f;
-            } else {
-                w->bladeTimer = w->bladeTimer + 1.0f;
-                if (w->bladeTimer == 29.0f) {
-                    ExecuteDirectSE(g, 0x101E7);
-                }
-            }
-        } else {
-            w->bladeLength += (0.0f - w->bladeLength) * 0.1f;
-            w->bladeTimer = 0.0f;
-        }
-        calcBlur(g, w->bladeLength);
-        w->bladeOn = 1;
-        t = w->bladeLength;
-        stage_SetLoopFlag(473, 1);
-        if (t > 1.0f) {
-            n = (int)stage_PlayBgAnimation(473, (float)w->humAnim,
-                                           (char *)GOBJ_SUB(g)->nodeMtx + 0x30, IdentityQuaternion);
-            if (systemStatus[5] == 0) {
-                w->humAnim = n;
-            }
-        } else {
-            stage_PlayBgAnimation(473, 0.0f, (char *)GOBJ_SUB(g)->nodeMtx + 0x30,
-                                  IdentityQuaternion);
-            w->humAnim = 0;
-        }
-        stage_SetLoopFlag(473, 0);
-    }
-
-    GetRootMatrix(MatrixDrive_GetMatrix(), g);
-    CopyVector(w->tipPos, MatrixDrive_GetMatrix()[3]);
-    if (w->offsetMode != 0) {
-        float v[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-
-        v[3] = 0.0f;
-        sceVu0ApplyMatrix(v, MatrixDrive_GetMatrix(), v);
-        a = -atan2f(v[1], _Sqrt(1.0f - v[1] * v[1]));
-        ((WeaponMatrix *)MatrixDrive_GetMatrix())->f[3][1] -=
-            GetTableSin((short)(a * 10430.378f)) * 70.0f;
-        CopyMatrix((char *)GOBJ_SUB(g)->nodeMtx, MatrixDrive_GetMatrix());
-    }
-}
-
-void WeaponDL(GObj *g)
-{
-    WeaponWork *w = GOBJ_SUB(g)->work;
-
-    switch (w->kind) {
-    default:
-        p2o_SetDefaultEnviroment();
-        p2o_DispVU1(g);
-        break;
-    case 7:
-        dispInsectNet(g);
-        break;
-    case 8:
-    case 9:
-        dispLaserSword(g, w->bladeLength);
-        break;
-    case 0:
-        break;
-    }
-    if (w->bladeOn != 0) {
-        dispBlur(g);
-    }
-}
 
 void PickupWeapon(GObj *self, GObj *holder, int focus)
 {
@@ -1106,9 +877,4 @@ void ExecDemoQueensSword(GObj *g)
     Sub15C *e = GOBJ_SUB(g);
     WeaponWork *w = e->work;
     w->sword->active = e->disp;
-}
-
-void SetWeaponOffsetMode(GObj *self, int mode)
-{
-    setWeaponOffsetMode(self, mode);
 }

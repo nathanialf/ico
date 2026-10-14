@@ -1895,11 +1895,6 @@ float QueenBallRadius(GObj *gobj)
     return ((QueenBallWork *)GOBJ_SUB(gobj)->work)->scale * 100.0f;
 }
 
-float GetQueenBallThickness(void)
-{
-    return 150.0f;
-}
-
 void queenBallBeforeFunc(GObj *g)
 {
     GObjMailQueue *q = (GObjMailQueue *)&g->mailBox;

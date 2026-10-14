@@ -492,30 +492,6 @@ void gif_DrawStripF(void *v, GifColor col, int n, int prim)
     }
 }
 
-void gif_DrawStripFST(void *v, void *uv, GifColor col, int n, int prim)
-{
-    char *p = v;
-    int *s = uv;
-    int i;
-
-    stripVisible[0] = stripVisible[1] = 0;
-    setGsReg(0x00, ((long long)prim << 6) | 0x94);
-    stripIndex = 0;
-    setGsReg(0x01, GIF_COLOR(&col) | (0xFE00LL << 46));
-    for (i = 0; i < n; i++, p += 16, s += 4) {
-        volatile int q[4];
-        int t;
-
-        rotTransPers(q, p);
-        t = isInScreen(q);
-        setGsReg(0x02, (long long)s[0] | ((long long)s[1] << 32));
-        setGsReg(t && stripVisible[0] && stripVisible[1] ? 0x05 : 0x0D,
-                 GIF_XY0(q[0], q[1], (long long)q[2]));
-        stripVisible[stripIndex++] = t;
-        stripIndex &= 1;
-    }
-}
-
 void gif_DrawStripG(void *v, void *col, int n, int prim)
 {
     char *p = v;

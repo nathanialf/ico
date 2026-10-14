@@ -48,9 +48,10 @@
 #   present, in an earlier form (the line carries a comment saying why):
 #     act-wish.c, attackhit.c, mail-add-data.c, flag.c, girlForceField.c,
 #     handManager.c, st04e.c, st05e.c, st13a.c, st19a.c, st24a.c.
-#   absent: puddle.c, waterDot.c, windmill.c and sce/libscf/libscf.c. Their
-#     lines stay, each marked, until their sources leave this branch; until
-#     then they link PAL's code and data where the USA ELF has none.
+#   absent: puddle.c, waterDot.c, windmill.c and sce/libscf/libscf.c, whose
+#     sources this branch does not carry (no USA function between their
+#     neighbours' .text, no run of their sizes anywhere, and none of their
+#     .data, .rodata, .sdata or .lit4 in the ELF).
 #
 # Departures from PAL's order:
 #   ico2/omori/src/lws_kyomi.c sits between ico2/omori/src/access.c and
@@ -170,13 +171,11 @@ data:auto-escort
 data:camera-set
 data:exit-data
 data:game-param
-data:unmapped_002ADBA0
 data:generator-sub-position
 data:girl-warp-list
 data:iconfile
 data:idle-mot-def
 data:init-func
-data:unmapped_0055FBD0
 data:look-target-data
 data:motion-def
 data:motion-ik-eff-def
@@ -255,7 +254,6 @@ ico2/sugipon/src/moveColTest.c
 ico2/sugipon/src/multiBgaManager.c
 ico2/sugipon/src/particleEffect.c
 ico2/sugipon/src/particleLayout.c
-ico2/sugipon/src/puddle.c  # absent from the USA link: no USA function between particleLayout.c's and rope.c's .text, no run of its sizes anywhere, and none of its .data, .rodata, .sdata or .lit4 in the ELF
 ico2/sugipon/src/rope.c
 ico2/sugipon/src/ropeFix.c
 ico2/sugipon/src/rotObject.c
@@ -267,12 +265,10 @@ ico2/sugipon/src/stormTest.c
 ico2/sugipon/src/streamMotionManager.c
 ico2/sugipon/src/sugiTree.c
 ico2/sugipon/src/torch.c
-ico2/sugipon/src/waterDot.c  # absent from the USA link: torch.c's last twin and waySystemManager.c's first touch, no run of its sizes anywhere, and none of its .data, .rodata or .lit4 in the ELF
 ico2/sugipon/src/waySystemManager.c
 ico2/sugipon/src/weapon.c
 ico2/sugipon/src/windField.c
 ico2/sugipon/src/windManager.c
-ico2/sugipon/src/windmill.c  # absent from the USA link: windManager.c's last twin and wireLetter.c's first touch, and no three functions of 360, 8 and 8 B in a row anywhere
 ico2/sugipon/src/wireLetter.c
 ico2/sugipon/src/worm.c
 ico2/seki/src/Basic.c
@@ -433,7 +429,6 @@ sce/libmpeg/csc.c
 sce/libmpeg/bit.c
 sce/libipu/libipu.c
 sce/libipu/ipuinit.c
-sce/libscf/libscf.c  # absent from the USA link: ipuinit.c's last twin and sound.c's first touch, and its .data and .rodata are not in the ELF (as on JPN)
 sce/libsndn2/sound.c
 sce/libm/math/sf_sin.c
 sce/libm/math/wf_acos.c

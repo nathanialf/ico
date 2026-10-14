@@ -18,7 +18,6 @@ typedef struct ClimbCol {     /* field names derived */
 } ClimbCol; /* derived name */
 
 void ChainGeo(struct GObj *gobj);
-void ChainPositionReset(struct GObj *chain);
 int CheckChainClimbablePos(struct GObj *chain);
 void EnableChainHang(struct GObj *chain);
 

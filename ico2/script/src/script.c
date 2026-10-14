@@ -298,18 +298,6 @@ inline float scpGetRotObjectRotCount(int id)
     return 0.0f;
 }
 
-inline short scpGetRotObjectCurrentRot(int no)
-{
-    short rot;
-    int ext;
-    GamesysObjInfo *info = gamesysObjInfoGet(18, no);
-    if (info != 0) {
-        GetRotObjectGameSysObjInfoExtData(&rot, &ext, info);
-        return rot;
-    }
-    return 0;
-}
-
 inline int scpIsRotObjectZPlusDirInclude(int id, int from, int to)
 {
     GObj *q = scpSearchGobj(id);
@@ -892,75 +880,6 @@ static inline void scpAdpcmRequestClose(SqEntry **id) /* derived name */
         }
 }
 
-void scpSubAdpcmPlay(GObj *volatile self)
-{
-    AdpcmOpenReq work;
-    int i;
-    SqEntry *h;
-
-    memset(adpcmReq, 0, sizeof(adpcmReq));
-    for (;;) {
-        AdpcmReq *tbl = adpcmReq;
-        for (i = 0; i < 2; i++) {
-            if (tbl[i].kind != 0) {
-                AdpcmReq *p = &tbl[i];
-
-                while (AdpcmFreeAreaGet() == 0) {
-                    /* could not open: ADPCM is full */
-                    debug_StdPrintfDummy("ADPCM一杯で開けませんでした。\n");
-                    if (AdpcmNotUseIopAreaFree() != 0) {
-                        /* an IOP area in use although nothing is open: found and forced free */
-                        debug_StdPrintfDummy(
-                            "オープンされていないのにも関わらず使われていないIOP領域発見&強制解放\n");
-                    } else if (fightSoundPlayChk() != 0) {
-                        /* stop the battle music and request instead; no battle music until the stage changes */
-                        debug_StdPrintfDummy(
-                            "戦闘曲を止めて,変わりにリクエストします。以降ステージ切り換えまで戦闘曲なりません。\n");
-                        fightSoundProcessRequestPause();
-                        while (fightSoundPlayChk() != 0) {
-                            _ACTWait(1);
-                        }
-                    } else {
-                        /* the battle music is not playing, so to keep the program running stop every tune and request instead */
-                        debug_StdPrintfDummy(
-                            "戦闘曲なっていないので,プログラムを止めないために\n全部曲を止めて,変わりにリクエストします。\n");
-                        AdpcmFadeCloseAll(0x3FFF);
-                        _ACTWait(1);
-                    }
-                }
-                soundDataOpen(&work, 2, p->kind, p->ch, p->loopNum);
-                while ((h = soundDataOpenSync(&work)) == (SqEntry *)-1) {
-                    _ACTWait(1);
-                }
-                if (h != 0) {
-                    if (p->play != 0) {
-                        AdpcmPlay(h->stream);
-                    }
-                    if (p->cancel == 0) {
-                        if (p->id != 0) {
-                            *p->id = h;
-                        }
-                    } else {
-                        soundDataClose(h);
-                    }
-                }
-                p->kind = 0;
-            }
-        }
-        _ACTWait(1);
-    }
-}
-
-void scpAdpcmCloseFunc(SqEntry **h)
-{
-    SqEntry *handle = *h;
-    if (handle != 0) {
-        soundDataClose(handle);
-        return;
-    }
-    scpAdpcmRequestClose(h);
-}
-
 inline int scpAdpcmFadeCloseFunc(SqEntry **h, short fade)
 {
     SqEntry *p = *h;
@@ -975,20 +894,6 @@ inline int scpAdpcmFadeCloseFunc(SqEntry **h, short fade)
     }
     scpAdpcmRequestClose(h);
     return 0;
-}
-
-inline int scpAdpcmCloseChkFunc(SqEntry **h)
-{
-    int no;
-    SqEntry *p = *h;
-    if (p != 0) {
-        if (p->stream == 0 || p->stream->bg == 0) {
-            return 0;
-        }
-        return 1;
-    }
-    no = -1;
-    return no < scpAdpcmRequestSlot(h);
 }
 
 /* scpAdpcmCloseChkFunc's check for the hint voice's slot, used only by
@@ -1016,122 +921,6 @@ inline void scpDeamon(GObj *volatile self)
     _ACTWait(1);
     backStageProcessInStage(0.0f);
     gflagOff(394);
-}
-
-void scpGirlHintVoiceReady(int kind)
-{
-    float p0[4];
-    float p1[4];
-    float d[4];
-    float dist;
-
-    if (girlHintVoice != 0) {
-        /* a hint voice is playing, so a new one cannot be READY */
-        debug_StdPrintfDummy("ヒントポイス再生中なので新にREADYできません\n");
-    }
-    if (AdpcmFreeAreaGet() == 0) {
-        /* hint voice: could not open, ADPCM is full */
-        debug_StdPrintfDummy("ヒントポイスADPCM一杯で開けませんでした。\n");
-        return;
-    }
-    if (boyGObj == 0) {
-        return;
-    }
-    GetRootPosition(p0, boyGObj);
-    GetRootPosition(p1, girlGObj);
-    _SubVector(d, p0, p1);
-    dist = _InnerProduct(d, d);
-    girlHintRangeMin = 500.0f;
-    girlHintRangeMax = 4000.0f;
-    switch (kind) {
-    case 101:
-        if (500000.0f < dist) {
-            kind = 102;
-        }
-        break;
-    case 103:
-        if (500000.0f < dist) {
-            kind = 104;
-        }
-        break;
-    }
-    scpAdpcmPlayRequestFunc(kind, &girlHintVoice, 1, 1, 0);
-}
-
-void scpGirlHintVoicePlay(void)
-{
-    SqEntry *p = girlHintVoice;
-    if (p != 0) {
-        AdpcmPlay(p->stream);
-    } else {
-        /* the hint voice is not prepared yet, so it could not play */
-        debug_StdPrintfDummy("ヒントポイスの準備未終了の状態なのでならせませんでした。\n");
-    }
-}
-
-inline void scpGirlHintVoiceCancel(void)
-{
-    if (scpAdpcmCloseChkFunc(&girlHintVoice) != 0) {
-        scpAdpcmCloseFunc(&girlHintVoice);
-        girlHintVoice = 0;
-    }
-}
-
-void scpGirlHintVoiceTickProc(void *cam)
-{
-    float rmin = girlHintRangeMin; /* both range globals are read into locals
-                                      before the early returns */
-    float rmax = girlHintRangeMax;
-    float pos[4];
-    float dist;
-    int deg;
-    AdpcmStream *snd;
-    float vol;
-    float lr;
-    float l;
-    float r;
-    int adeg;
-
-    if (girlHintVoice == 0 || girlGObj == 0)
-        return;
-    if (scpGirlHintVoiceChk() == 0) {
-        girlHintVoice = 0;
-        return;
-    }
-    snd = girlHintVoice->stream;
-    GetRootPosition(pos, girlGObj);
-    CameraGetOtherObjOffset(pos, &dist, &deg);
-    if (rmax <= dist) {
-        vol = 0.0f;
-    } else if (dist < rmin) {
-        vol = 1.0f / (dist / rmin + 1.0f);
-    } else {
-        dist = dist - rmin;
-        vol = 1.0f / (dist / (rmax - rmin) + 1.0f) - 0.5f;
-    }
-    /* adeg is the angle's magnitude: the angle is copied first and the
-       negation reads it again */
-    adeg = deg;
-    if (adeg <= -1)
-        adeg = -deg;
-    lr = (float)adeg * -0.0027777778f + 1.0f;
-    /* each arm sets its fixed side first */
-    if (deg >= 0) {
-        r = 1.0f;
-        adeg = deg;
-        if (adeg >= 91)
-            adeg = 180 - adeg;
-        l = (float)adeg * -0.01f + 1.0f;
-    } else {
-        l = 1.0f;
-        adeg = -deg;
-        if (adeg >= 91)
-            adeg = 180 - adeg;
-        r = (float)adeg * -0.01f + 1.0f;
-    }
-    snd->volL[0] = vol * 16383.0f * lr * l;
-    snd->volR[1] = vol * 16383.0f * lr * r;
-    AdpcmInterStereoVolumeSet(snd, 0);
 }
 
 static void scpWoodSrh(GObj *self, struct WoodBoxEnt *w)
@@ -1879,23 +1668,7 @@ inline int scpCheckExistAliveSpider(void)
     return 0;
 }
 
-inline void scpLockMaxRotate(GObj *self, float rot)
-{
-    GOBJ_ACT(self)->flags20.ll |= (1ULL << 33);
-    GOBJ_WORK(self)->lockedMaxRotate = rot;
-}
-
-inline void scpUnLockMaxRotate(GObj *self)
-{
-    GOBJ_ACT(self)->flags20.ll &= ~(1ULL << 33);
-}
-
 inline void scpCheckDisconnectWallStart(GObj *self)
 {
     GOBJ_ACT(self)->flags18.ll |= (1ULL << 58);
-}
-
-inline void scpCheckDisconnectWallEnd(GObj *self)
-{
-    GOBJ_ACT(self)->flags18.ll &= ~(1ULL << 58);
 }

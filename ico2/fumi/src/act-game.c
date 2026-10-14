@@ -367,14 +367,6 @@ inline unsigned char ACTGame_FLAG_TETSUNAGI(void)
     return flag;
 }
 
-inline int ACTGame_FLAG_TETSUNAGI_VISUAL(void)
-{
-    GObj *g = girlGObj;
-    if (g == 0)
-        return 0;
-    return (int)(GOBJ_ACT(g)->flags18.ll >> 42) & 1;
-}
-
 void ACTGame_TryConnectHand(void)
 {
     RequestChangeHandMode(boyGObj, 1, 5, 5, girlGObj, 0, 0);

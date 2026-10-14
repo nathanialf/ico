@@ -17,10 +17,6 @@
 #include "main.h"
 #include "script.h"
 
-static void actSt03tGirlPosChk(GObj *volatile self);
-static void actSt03tGirlUpChk(GObj *volatile self);
-static void actSt03tHint1OffChk(GObj *volatile self);
-
 static ActMail switchL_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail switchLUp_mes[2] = {{430}, {429}}; /* derived name */
@@ -311,32 +307,6 @@ void actSt03tSwitchRUpChk(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actSt03tGene(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    Generator_Mask(self);
-
-    Generator_Mask(scpSearchGobj(877));
-    Generator_Mask(scpSearchGobj(878));
-
-    while (gflagChk(105) == 0) {
-        _ACTWait(1);
-    }
-
-    Generator_MaskOff(self);
-
-    Generator_Call(self);
-    _ACTWait(20);
-    Generator_Call(self);
-
-    Generator_Call(scpSearchGobj(877));
-    Generator_Call(scpSearchGobj(878));
-}
-
 void actSt03tBoxA(GObj *volatile self)
 {
     GObj *x = self;
@@ -391,23 +361,6 @@ void actSt03tInit(void)
         SetWayGroupActive(5, 1);
     } else {
         SetWayGroupActive(5, 0);
-    }
-}
-
-void actSt03tGirlUp(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(93) == 0) {
-        girlUp_mes[0].func = actSt03tGirlUpChk;
-        act->mail = girlUp_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        FinishHint(12);
     }
 }
 
@@ -467,36 +420,6 @@ void actSt03tEne(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
-}
-
-void actSt03tGirlPos(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(101) == 0) {
-        SleepHint(12);
-
-        girlPos_mes[0].func = actSt03tGirlPosChk;
-        act->mail = girlPos_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt03tHint1Sleep(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    hint1Sleep_mes[0].func = actSt03tHint1OffChk;
-    act->mail = hint1Sleep_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
 }
 
 void actSt03tGirlCamEvent(int x)
@@ -611,57 +534,6 @@ void actSt03tWayOffChk(GObj *volatile self)
 
     wayOffChk_mes[0].func = actSt03tWayOnChk;
     sub->mail = wayOffChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt03tGirlPosChk(GObj *volatile self)
-{
-    while (girlGObj == 0 || scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
-        _ACTWait(1);
-    }
-
-    gflagOn(101);
-    WakeupHint(12);
-}
-
-static void actSt03tGirlUpChk(GObj *volatile self)
-{
-    while (girlGObj == 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
-    gflagOn(93);
-    FinishHint(12);
-}
-
-static void actSt03tHint1OnChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 60);
-    WakeupHint(12);
-
-    hint1OnChk_mes[0].func = actSt03tHint1OffChk;
-    sub->mail = hint1OnChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt03tHint1OffChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (gflagChk(102) == 0) {
-        _ACTWait(1);
-    }
-
-    SleepHint(12);
-    gflagOff(102);
-
-    hint1OffChk_mes[0].func = actSt03tHint1OnChk;
-    sub->mail = hint1OffChk_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }

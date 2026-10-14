@@ -30,7 +30,6 @@ void actSt04rBrg1Chk(GObj *volatile self);
 void actSt04rBrg1WayChk(GObj *volatile self);
 void actSt04rBrg2Chk(GObj *volatile self);
 void actSt04rBrg2WayChk(GObj *volatile self);
-void actSt04rBrgCommon(GObj *volatile self);
 void actSt04rC1BallMain(GObj *volatile self);
 void actSt04rC1BallSwitch(GObj *volatile self);
 void actSt04rC1BallTurn(GObj *volatile self);

@@ -701,36 +701,6 @@ static void synchronizeMotionOutputOriginForGirl(GObj *gobj)
     }
 }
 
-static void actionOfWater(GObj *gobj)
-{
-    float pos[4];
-    BoyWork *w = GOBJ_SUB(gobj)->work;
-    int node;
-
-    ExecWaterDot(w->waterDot);
-    if (GOBJ_SUB(gobj)->ctrl.rootUpdateMode == 0xB) {
-        w->wet = 1;
-        w->dripVel = 5.0f;
-        w->drip = 0.0f;
-    } else {
-        w->wet = 0;
-        w->dripVel = w->dripVel * 0.98f;
-        w->drip = w->drip + w->dripVel;
-        if (1.0f < w->drip) {
-            node = GetSkeltonFocusNode(gobj, 0x16);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot(w->waterDot, pos, ZeroVector, 8.0f);
-            node = GetSkeltonFocusNode(gobj, 0x6);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot(w->waterDot, pos, ZeroVector, 8.0f);
-            node = GetSkeltonFocusNode(gobj, 0x2C);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot(w->waterDot, pos, ZeroVector, 10.0f);
-            w->drip = 0.0f;
-        }
-    }
-}
-
 void BoyGeo(GObj *gobj)
 {
     HandManager(gobj);
@@ -744,26 +714,6 @@ void BoyGeo(GObj *gobj)
     }
     CylinderCollision(gobj, 2, ACTGame_FLAG_TETSUNAGI() != 0 ? 15.0f : 30.0f, 50.0f, 0.7f);
     actionOfWater(gobj);
-}
-
-static void dispSubParts(GObj *gobj)
-{
-    BoyWork *w = GOBJ_SUB(gobj)->work;
-    char *a;
-    char *c;
-    int node;
-
-    a = (char *)w->head;
-    node = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
-    p2o_DispVU1DObj(w->head);
-    a = (char *)w->body;
-    node = GetSkeltonFocusNode(gobj, 0x14);
-    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
-    c = (char *)w->body->nodeMtx + 0x40;
-    node = GetSkeltonFocusNode(gobj, 0x4);
-    CopyMatrix(c, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
-    p2o_DispVU1DObjMulti(w->body);
 }
 
 static void dispCrown(GObj *gobj)

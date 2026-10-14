@@ -590,28 +590,6 @@ void actConte14_13(GObj *volatile self)
     RequestStageChange(6, boyGObj, girlGObj, 1.0f, 8.0f);
 }
 
-void actStaff1(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    stage_SetAnimation(30, 0, -1);
-    stage_SetAnimation(26, 0, 0);
-    stage_SetAnimation(33, 0, 0);
-    stage_SetAnimation(34, 0, 0);
-    stage_SetAnimation(36, 0, 0);
-    stage_SetAnimation(38, 0, 0);
-    stage_SetAnimation(35, 0, 0);
-    staff1_mes[0].func = actStaff1Chk;
-    act->mail = staff1_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
 void actStaff1Demo(GObj *volatile self)
 {
     preload(1);
@@ -1019,32 +997,6 @@ void actConte14_14(GObj *volatile self)
     gflagOff(338);
 }
 
-void actSt27aEnd(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gFlagGameClear == 0) {
-        scpSearchGobj(2256)->active = 0;
-        scpSearchGobj(2257)->active = 0;
-        scpSearchGobj(2258)->active = 0;
-        scpSearchGobj(2259)->active = 0;
-        scpSearchGobj(2260)->active = 0;
-        scpSearchGobj(2261)->active = 0;
-        scpSearchGobj(2262)->active = 0;
-        scpSearchGobj(2263)->active = 0;
-    }
-
-    if (gflagChk(355) == 0) {
-        st27aEnd_mes[0].func = actSt27aEndChk;
-        act->mail = st27aEnd_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
 void actSt27aEndChk(GObj *volatile self)
 {
     float max;
@@ -1082,189 +1034,6 @@ void actSt27aEndChk(GObj *volatile self)
         _ACTWait(1);
     }
     scpSeEnvMasterVolRate = 0;
-}
-
-void actSt27aEndDemo(GObj *volatile self)
-{
-    stage_SetAnimation(866, 1, 0);
-
-    if (gflagChk(354) == 0) {
-        scpPlayMot(boyGObj, 467);
-    } else {
-        scpPlayMot(boyGObj, 470);
-    }
-
-    scpPlayMot(scpSearchGobj(2253), 830);
-
-    scpSearchGobj(2253)->active = 1;
-
-    while (stage_ContinueAnimation(866, 867) == 0) {
-        _ACTWait(1);
-    }
-
-    if (gflagChk(354) == 0) {
-        scpPlayMot(boyGObj, 468);
-    } else {
-        scpPlayMot(boyGObj, 471);
-    }
-
-    scpPlayMot(scpSearchGobj(2253), 831);
-
-    while (stage_ContinueAnimation(867, 868) == 0) {
-        _ACTWait(1);
-    }
-
-    SetHandCameraLimitInDemo(10, 10);
-
-    SetZoomMaxValInDemo(30);
-
-    if (gflagChk(354) == 0) {
-        scpPlayMot(boyGObj, 469);
-    } else {
-        scpPlayMot(boyGObj, 472);
-    }
-
-    scpPlayMot(scpSearchGobj(2253), 832);
-
-    if (gflagChk(354) == 0) {
-        while (stage_CheckAnimationFinish(868) == 0) {
-            _ACTWait(1);
-        }
-        _ACTWait(1);
-
-        ResetHandCameraLimitInDemo();
-
-        ResetZoomMaxValInDemo();
-
-        RequestStageChange(1, boyGObj, girlGObj, 1.0f, 8.0f);
-    } else {
-        if (st27aEnd != 0) {
-            scpAdpcmFadeCloseFunc(&st27aEnd, 80);
-        }
-
-        while (stage_CheckAnimationFrame(868, 390, 0) == 0) {
-            _ACTWait(1);
-        }
-        _ACTWait(1);
-
-        ResetHandCameraLimitInDemo();
-
-        ResetZoomMaxValInDemo();
-
-        scpFadeOut(6.0f, 0, 0, 0);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-
-        scpDisActivateAllWithKind(19);
-
-        scpFadeIn(1.5f);
-
-        stage_SetAnimation(869, 1, 0);
-
-        stage_SetAnimation(198, 1, 0);
-
-        scpPlayMot(boyGObj, 473);
-
-        scpPlayMot(scpSearchGobj(2253), 833);
-
-        while (stage_CheckAnimationFrame(869, 390, 0) == 0) {
-            _ACTWait(1);
-        }
-        _ACTWait(1);
-
-        scpFadeOut(3.0f, 0, 0, 0);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-
-        _ACTWait(10);
-
-        scpPlayMot(boyGObj, 0);
-
-        _ACTWait(10);
-
-        RequestStageChange(1, boyGObj, girlGObj, 1.0f, 8.0f);
-    }
-}
-
-void actEndLogoChk(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    int id = 60;
-
-    _ACTWait(1);
-
-    scpBoyControlReadDisable = 1;
-    enable_game_pause = 0;
-
-    switch (NonLinearCameraMove) {
-    case 3:
-        id = 61;
-        break;
-    case 4:
-        id = 62;
-        break;
-    case 6:
-        id = 64;
-        break;
-    case 5:
-        id = 63;
-        break;
-    }
-
-    stage_SetLoopFlag(id, 1);
-
-    stage_SetAnimation(id, 1, 0);
-
-    SetHandCameraLimitInDemo(0, 0);
-
-    SetZoomMaxValInDemo(0);
-
-    preload(1);
-
-    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 30);
-
-    scpFadeOut(6.0f, 0, 0, 0);
-
-    while (scpFadeChk() != 0) {
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(id, -1, -2);
-
-    scpFadeIn(6.0f);
-
-    end_mes[0].func = actEndingSave;
-    act->mail = end_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actEndDemo03(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (boyGObj != 0) {
-        scpPlayMot(boyGObj, 0);
-    }
-
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    scpFadeOut(255.0f, 0, 0, 0);
-    stage_SetAnimation(74, 0, -1);
-    stage_SetAnimation(75, 0, -1);
-    stage_SetAnimation(77, 0, -1);
-    demo03_mes[0].func = actEndDemo03Chk;
-    act->mail = demo03_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
 }
 
 void actEndDemo04(GObj *volatile self)
@@ -1519,23 +1288,6 @@ void actConte14_5(GObj *volatile self)
     _ACTWait(1);
 
     RequestStageChange(6, boyGObj, girlGObj, 1.0f, 8.0f);
-}
-
-void actEndDemo06Chk(GObj *volatile self)
-{
-    scpAdpcmPlayRequestFunc(47, &sea, 0, 1, 1);
-
-    while (sea == 0) {
-        _ACTWait(1);
-    }
-
-    scpFadeIn(6.0f);
-
-    gflagOff(339);
-
-    gflagOff(343);
-
-    actCreateSubThread(actConte14_6, 21);
 }
 
 void actEndDemo07Chk(GObj *volatile self)

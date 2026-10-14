@@ -59,14 +59,11 @@ float GetWeaponWeight(struct GObj *self);
 struct SObjSimpleSetting;
 
 void torchOnOfWeaponSE(struct GObj *torch);
-void torchOffOfWeaponSE(struct GObj *torch);
 void weaponFumbleSE(struct GObj *g);
 void weaponStickSE(struct GObj *g);
 void ReleaseWeaponWithFumbleTargetPos(struct GObj *g, void *pos, void *quat, void *rot, float t);
 void WeaponHitEffect(struct GObj *self, void *enemy);
 void *InitWeaponGeo(struct GObj *g, struct SObjSimpleSetting *lay);
-void WeaponGeo(struct GObj *g);
-void WeaponDL(struct GObj *g);
 void ReleaseWeaponWithFumble(struct GObj *self, float *move, float *quat);
 int InitWeaponFumbleSequence(struct GObj *self);
 void *InitDemoQueensSword(struct GObj *g, struct SObjSimpleSetting *lay);

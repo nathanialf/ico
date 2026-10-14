@@ -20,8 +20,6 @@
 #include "typedef.h"
 #include "main.h"
 
-static void actSt20aBridgeDownSub(GObj *volatile self);
-static void actSt20aGirlPosChk(GObj *volatile self);
 static void actSt20aHint1Chk(GObj *volatile self);
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
@@ -79,15 +77,6 @@ void actSt20aInit(void)
     }
 }
 
-void actSt20aEnd(void)
-{
-    if (girlGObj != 0 && gflagChk(315) != 0 && gflagChk(318) == 0) {
-        gflagOn(391);
-    }
-    gamesysObjInfoCls(scpSearchGobj(2025)->kind, scpSearchGobj(2025)->labelId);
-    gamesysObjInfoCls(scpSearchGobj(2023)->kind, scpSearchGobj(2023)->labelId);
-}
-
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
 static int demoEnd;
@@ -102,44 +91,6 @@ SqEntry *gondola_down = 0;
 unsigned int st20a_yure = 0;
 
 unsigned char st20a_yure_vol = 0;
-
-void actSt20aBridgeDown(GObj *volatile self)
-{
-    GProc *th;
-
-    lt_switch_layout(55);
-    scpSleepEnemyAll();
-    gflagOn(315);
-    gflagOff(391);
-    st20a_yure = 0xFFFFFFFF;
-    demoEnd = 0;
-    scpAdpcmPlayRequestFunc(71, &brg20a, 1, 1, 0);
-    th = actCreateSubThread(actSt20aBridgeDownSub, 21);
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-    iosThreadSetPri(&th->thread, 34);
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        while (brg20a == 0) {
-            _ACTWait(1);
-        }
-        scpAdpcmFadeCloseFunc(&brg20a, 512);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-        stage_SetAnimation(148, 0, -1);
-        scpFadeIn(3.0f);
-    }
-    iosPadActStop(st20a_yure);
-    SetWayGroupActive(4, 1);
-    scpWakeupEnemyAll();
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
 
 void actSt20aGondolaDown(GObj *volatile self)
 {
@@ -506,37 +457,6 @@ void actSt20aEnemy3(GObj *volatile self)
     Generator_MaskOff(self);
 }
 
-void actSt20aHint1(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *sub = (Act *)actInitialize(self);
-
-    _ACTWait(1);
-    if (gflagChk(321) == 0) {
-        hint1_mes[0].func = actSt20aHint1Chk;
-        sub->mail = hint1_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        FinishHint(20);
-    }
-}
-
-void actSt20aGirlPos(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *sub = (Act *)actInitialize(self);
-
-    _ACTWait(1);
-    if (gflagChk(322) == 0) {
-        SleepHint(20);
-        girlPos_mes[0].func = actSt20aGirlPosChk;
-        sub->mail = girlPos_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
 /* the actor entry's parameter is its frame home: the thread switch writes it */
 void actSt20aBridgeMain(GObj *volatile self)
 {
@@ -556,25 +476,6 @@ void actSt20aBridgeSwitch(GObj *volatile self)
     sub->mainMail = 0;
     sub->mail = bridgeSwitch_mes;
     ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt20aBridgeDownSub(GObj *volatile self)
-{
-    _ACTWait(30);
-    while (brg20a == 0) {
-        _ACTWait(1);
-    }
-    AdpcmPlay(brg20a->stream);
-    stage_SetAnimation(148, 1, 0);
-    st20a_yure = iosPadActRequest(boyPad, 9);
-    st20a_yure_vol = 128;
-    iosPadActVolumeSet(st20a_yure, 128);
-    while (stage_CheckAnimationFinish(148) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
     _ACTWait(0);
 }
 
@@ -624,28 +525,6 @@ void actSt20aExitChk(GObj *volatile self)
         RequestStageChange(4, boyGObj, girlGObj, 2.0f, 8.0f);
     }
     RequestStageChange(4, boyGObj, 0, 2.0f, 8.0f);
-}
-
-void actSt20aEneChk(GObj *volatile self)
-{
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-    while (gflagChk(315) == 0 || scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    gflagOn(318);
-    gflagOn(319);
-}
-
-static void actSt20aGirlPosChk(GObj *volatile self)
-{
-    while (girlGObj == 0 || scpTriggerBall(self, girlGObj, 200.0f) == 0) {
-        _ACTWait(1);
-    }
-    gflagOn(322);
-    WakeupHint(20);
 }
 
 static void actSt20aHint1Chk(GObj *volatile self)

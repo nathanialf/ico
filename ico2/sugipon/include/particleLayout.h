@@ -17,6 +17,5 @@ void DeleteParticleLayout(struct GObj *self);
 
 struct GObj;
 
-void ParticleLayoutGeo(struct GObj *self);
 
 #endif /* PARTICLELAYOUT_H */

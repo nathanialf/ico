@@ -14,8 +14,6 @@
 #include "main.h"
 #include "script.h"
 
-static void actSt19aChainDownSub(GObj *volatile self);
-
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
 static int demoEnd;
@@ -50,48 +48,6 @@ SqEntry *fence_down_19a = 0;
 SqEntry *hgrm_19a = 0;
 
 SqEntry *pipe19a = 0;
-
-void actSt19aOriUp(GObj *volatile self)
-{
-    int skip = 0;
-    int i;
-
-    lt_switch_layout(55);
-    _ACTWait(60);
-    scpAdpcmPlayRequestFunc(74, &fence_up_19a, 1, 1, 1);
-    while (fence_up_19a == 0) {
-        _ACTWait(1);
-    }
-    stage_SetAnimation(142, 1, 0);
-    gflagOn(310);
-    while (stage_CheckAnimationFrame(142, 89, 1) == 0) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            skip = 1;
-            scpFadeOut(16.0f, 0, 0, 0);
-            scpAdpcmFadeCloseFunc(&fence_up_19a, 512);
-            while (scpFadeChk() != 0) {
-                _ACTWait(1);
-            }
-            while (lt_fade_status() != 2) {
-                _ACTWait(1);
-            }
-            stage_SetAnimation(142, 0, 89);
-            scpFadeIn(3.0f);
-            break;
-        }
-        _ACTWait(1);
-    }
-    for (i = 120; i-- > 0 && skip == 0;) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            skip = 1;
-        }
-    }
-    if (skip == 0) {
-        scpAdpcmFadeCloseFunc(&fence_up_19a, 256);
-    }
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
@@ -228,75 +184,6 @@ void actSt19aPipeChk(GObj *volatile self)
     scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
-}
-
-void actSt19aChainDown(GObj *volatile self)
-{
-    GProc *th;
-
-    lt_switch_layout(55);
-    scpAdpcmPlayRequestFunc(97, &pipe19a, 1, 1, 0);
-    th = actCreateSubThread(actSt19aChainDownSub, 21);
-    demoEnd = 0;
-    while (demoEnd == 0) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            break;
-        }
-        _ACTWait(1);
-    }
-    iosThreadSetPri(&th->thread, 34);
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-        SetCameraFlag_LwsCutBack();
-        scpFadeIn(3.0f);
-    }
-    scpSearchGobj(1963)->active = 1;
-    stage_SetAnimation(144, 0, 361);
-    if (pipe19a != 0) {
-        scpAdpcmFadeCloseFunc(&pipe19a, 256);
-    }
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
-
-void actSt19bIntro(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-    if (gflagChk(314) == 0) {
-        while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
-            _ACTWait(1);
-        }
-        lt_switch_layout(55);
-        scpBoyControlReadDisable = 1;
-        gflagOn(314);
-        stage_SetAnimation(137, 1, 0);
-        while (stage_CheckAnimationFinish(137) == 0) {
-            if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-                scpFadeOut(16.0f, 0, 0, 0);
-                while (scpFadeChk() != 0) {
-                    _ACTWait(1);
-                }
-                while (lt_fade_status() != 2) {
-                    _ACTWait(1);
-                }
-                stage_SetAnimation(137, 0, -1);
-                scpFadeIn(3.0f);
-                break;
-            }
-            _ACTWait(1);
-        }
-        lt_switch_layout(54);
-        scpBoyControlReadDisable = 0;
-    }
 }
 
 void actSt19aOri(GObj *volatile self)
@@ -440,29 +327,4 @@ void actSt19aChainSwitch(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
-}
-
-static void actSt19aChainDownSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    while (pipe19a == 0) {
-        _ACTWait(1);
-    }
-
-    AdpcmPlay(pipe19a->stream);
-
-    stage_SetAnimation(144, 1, 0);
-
-    gflagOn(313);
-
-    SetCameraFlag_LwsCutBack();
-
-    while (stage_CheckAnimationFrame(144, 240, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(60);
 }

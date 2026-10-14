@@ -1092,48 +1092,6 @@ int stage_DispBgAnimation(BgaPlayNode **self)
     return 0;
 }
 
-int stage_DispBgAnimationNoFinish(BgaPlayNode **self)
-{
-    int i;
-    StageAnim *e;
-
-    if (*self == 0) {
-        return -1;
-    }
-    if ((*self)->kill) {
-        stage_KillPlayBgAnimation(self);
-        *self = 0;
-        return -1;
-    }
-    if ((*self)->scale != 1.0f) {
-        stage_SetScale((*self)->no, (*self)->scale);
-    }
-    if ((*self)->speed == 1.0f) {
-        stage_SetBgAnimationPlayNode(*self, (*self)->no);
-        (*self)->frame =
-            stage_PlayBgAnimation((*self)->no, (*self)->frame, (*self)->pos, (*self)->rot);
-    } else {
-        stage_SetBgAnimationPlayNode(*self, (*self)->no);
-        (*self)->frame = stage_PlayBgAnimationDissolve((*self)->no, (*self)->pos, (*self)->rot,
-                                                       (*self)->frame, (*self)->speed);
-    }
-    (*self)->play = 0;
-    if ((*self)->frame == -1.0f) {
-        for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
-            if ((*self)->no == e->entry1->no) {
-                if ((e->flags.i >> 30) == 0) {
-                    /* a jump to the function's exit, the way Light.c leaves
-                       its loops (goto found) */
-                    (*self)->frame = e->entry2->end;
-                    goto end;
-                }
-            }
-        }
-    }
-end:
-    return 0;
-}
-
 static void stage_SetCameraForceOff(void)
 {
     bga_SetCameraForceOff();
