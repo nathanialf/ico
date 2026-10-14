@@ -213,10 +213,8 @@ int main(void)
     return 0;
 }
 
-/* main.c's .sdata globals.  The PAL build adds six (marked derived): one
-   quadword after game_pause and the girl-control block before boyGObj.  Each
-   is a 4-byte scalar; the ones marked QWORD open a 16-byte quadword of their
-   own, the rest of which stays empty. */
+/* main.c's .sdata globals.  Each is a 4-byte scalar; the ones marked QWORD
+   open a 16-byte quadword of their own, the rest of which stays empty. */
 #define QWORD __attribute__((aligned(16)))
 
 int buffer_ID QWORD = 0;
@@ -241,8 +239,6 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
-int NonLinearCameraMove QWORD = 0;
-
 int GlobalTimer QWORD = 0;
 
 int lock_execIcoMisc QWORD = 0;
@@ -253,7 +249,7 @@ int game_pause QWORD = 0;
 
 int data_loading QWORD = 0;
 
-/* the PAL build's inserted, unreferenced quadword */
+/* an unreferenced quadword after data_loading */
 static int reservedWord QWORD = 0; /* derived name */
 
 int screen_offset_x QWORD = 0;
@@ -275,15 +271,6 @@ int IosSndLock QWORD = 0;
 int IosStgMgrLock QWORD = 0;
 
 int systemFault QWORD = 0;
-
-/* the 0/1 game option that selects the pad word, held or pressed, the actions read */
-int optionControlType QWORD = 0; /* derived name */
-
-/* the five-way game option GsBase indexes its per-mode tint and blur rows with */
-int optionScreenMode QWORD = 0; /* derived name */
-
-/* ChangeGirlControlMode's flag, the game option that hands the girl to pad 2 */
-int girlControlMode QWORD = 0; /* derived name */
 
 GObj *boyGObj = 0;
 

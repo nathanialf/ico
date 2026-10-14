@@ -283,6 +283,12 @@ int play_way(void);
 int point_nige(void);
 int quick_save_wpfile(void);
 
+INCLUDE_ASM_LIT(play_way);
+
+INCLUDE_ASM_LIT(point_nige);
+
+INCLUDE_ASM_LIT(quick_save_wpfile);
+
 static int quick_load_wpfile(void)
 {
     char buf[112];

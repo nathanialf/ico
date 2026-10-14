@@ -646,6 +646,8 @@ int gsb_StageSettingTool(void);
 
 INCLUDE_ASM_LIT(gsb_LoadStageSettings);
 
+INCLUDE_ASM_LIT(gsb_SaveStageSettings);
+
 INCLUDE_ASM(gsb_StageSettingTool);
 
 typedef struct { /* field names derived */

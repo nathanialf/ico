@@ -805,6 +805,8 @@ void debug_LogPrintf(const char *fmt, ...)
     sceWrite(logFd, buf, info);
 }
 
+INCLUDE_ASM_LIT(debug_SaveStartStageFile);
+
 INCLUDE_ASM(debug_SaveDebugOptionFile);
 
 INCLUDE_ASM(debug_GetDebugOption);
@@ -1479,6 +1481,8 @@ static int unformatBlink = 0; /* derived name */
 
 INCLUDE_ASM_LIT(debug_mcUnformat);
 
+INCLUDE_ASM_LIT(debug_mcFormat);
+
 static int debug_mcRetErrCheck(McMgr *mc)
 {
     char buf[64];
@@ -1709,6 +1713,10 @@ static int adpcmSelect = 0; /* derived name */
 static int adpcmHandle = -1; /* derived name */
 
 int debug_AdpcmTest(int first);
+
+INCLUDE_ASM_LIT(debug_reverbTest);
+
+INCLUDE_ASM_LIT(debug_AdpcmTest);
 
 static char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {

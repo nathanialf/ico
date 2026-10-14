@@ -23,6 +23,9 @@ static int killShadow = 0; /* derived name */
 
 static int killShadowRequest = 0; /* derived name */
 
+/* the colour shadow_Reset fills the shadow buffer with, read a byte at a time */
+static unsigned char shadowFillColor[4] = {0}; /* derived name */
+
 /* The shadow display opens, fills and closes a PATH1 packet of its own
  * through PacketBufferStruct (DmaPacket.h), whose packet addresses are one
  * pointer union. */

@@ -312,6 +312,8 @@ static inline int scpGirlHintVoiceChk(void) /* derived name */
     return scpAdpcmCloseChkFunc(&girlHintVoice);
 }
 
+INCLUDE_ASM_LIT(scpDeamon);
+
 INCLUDE_ASM(scpWoodSrh);
 
 /* where the stone statue's sound effects play */
