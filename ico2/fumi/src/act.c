@@ -350,6 +350,8 @@ typedef struct { /* field names derived */
     IntrEnt ent[1];
 } IntrList; /* derived name */
 
+static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out);
+
 INCLUDE_ASM(act_check_intr_list);
 
 static void act_check_mail(void *self, IntrMail *m)
