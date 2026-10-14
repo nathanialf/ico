@@ -11,7 +11,6 @@
 #include "debug_exception.h"
 #include "Basic.h"
 #include <assert.h>
-#include "include_asm.h"
 
 #define DL_DEBUG 0 /* derived name */
 
@@ -51,7 +50,27 @@ static const int dlBufferSize[13] = {
     81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
 };
 
-INCLUDE_ASM(dl_Init);
+void dl_Init(void)
+{
+    int i;
+    int j;
+    dlPriority = 0;
+    dlStackDepth = 0;
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 13; j++) {
+            dlBufferHead[i][j] =
+                (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 387) |
+                0x30000000;
+        }
+    }
+    dlBank = 0;
+    for (i = 0; i < 13; i++) {
+        dlEntries[i].start = dlEntries[i].cur = dlBufferHead[0][i];
+        dlEntries[i].open = 0;
+    }
+    dpk_Init();
+    dl_Clear();
+}
 
 inline void dl_Out(void)
 {
@@ -125,9 +144,29 @@ inline void dl_SetDLPriority(int pri)
     }
 }
 
-INCLUDE_ASM(dl_PushPriority);
+void dl_PushPriority(void)
+{
+    if (dlStackDepth < 7) {
+        dlStackDepth = dlStackDepth + 1;
+        dlPriorityStack[dlStackDepth - 1] = dlPriority;
+    } else {
+        debug_StdPrintfDummy("dl_PushPriority:Stack Overflow.\n");
+        debug_assert(__FILE__, 526);
+        __assert(__FILE__, 526, "FALSE");
+    }
+}
 
-INCLUDE_ASM(dl_PopPriority);
+void dl_PopPriority(void)
+{
+    if (dlStackDepth > 0) {
+        dlPriority = dlPriorityStack[dlStackDepth - 1];
+        dlStackDepth--;
+    } else {
+        debug_StdPrintfDummy("dl_PopPriority:Stack Underflow.\n");
+        debug_assert(__FILE__, 544);
+        __assert(__FILE__, 544, "FALSE");
+    }
+}
 
 inline int dl_GetPri(void)
 {

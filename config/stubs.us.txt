@@ -2592,12 +2592,6 @@ text bga_CheckSdfCameraFrameIn 0x001FA998 0x001FAA30 ico2/seki/src/BgAnimation.c
 text func_001FAE98 0x001FAE98 0x001FB07C ico2/seki/src/DisplayFont.c  # us-only; in DisplayFont.c's span; pairs with no PAL-only function there by size and order
 text font_Print 0x001FB080 0x001FB478 ico2/seki/src/DisplayFont.c lines=138  # us-only (in DisplayFont.c's span; PAL order suggests font_Print (1424 B in PAL)); named font_Print by call sites, callees (provisional)
 sdlit font_Print 0x00633808 0x0063380D ico2/seki/src/DisplayFont.c  # 1 string, measured from the base
-text dl_Init 0x001FB4C8 0x001FB5E0 ico2/seki/src/DisplayList.c lines=21  # ordinal; first difference at insn 29; imm:1; extent-equal
-text dl_PushPriority 0x001FB768 0x001FB7F4 ico2/seki/src/DisplayList.c lines=11  # ordinal; first difference at insn 11; imm:2; extent-equal
-rdlit dl_PushPriority 0x0061ABA0 0x0061ABC1 ico2/seki/src/DisplayList.c align=16  # 1 string
-sdlit dl_PushPriority 0x00633818 0x00633824 ico2/seki/src/DisplayList.c  # 1 data
-text dl_PopPriority 0x001FB7F8 0x001FB880 ico2/seki/src/DisplayList.c lines=11  # ordinal; first difference at insn 10; imm:2; extent-equal
-rdlit dl_PopPriority 0x0061ABC8 0x0061ABE9 ico2/seki/src/DisplayList.c  # 1 string
 text getDitchDistTbl 0x001FC520 0x001FC6C8 ico2/fumi/src/act-env.c local lines=62  # ordinal; first difference at insn 0; length:-108; extent-differs
 lit4 getDitchDistTbl 0x00631448 0x0063144C ico2/fumi/src/act-env.c  # 1 float, measured from the base: the text loads them
 text GetDitchPosition 0x001FC6C8 0x001FC780 ico2/fumi/src/act-env.c local lines=38  # ordinal; first difference at insn 0; length:-4; extent-differs
@@ -2653,8 +2647,11 @@ sdlit play_way 0x00633898 0x006338A0 ico2/fumi/src/way_tool.c def  # 1 string, m
 text point_nige 0x00207018 0x002070AC ico2/fumi/src/way_tool.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before quick_save_wpfile
 rdlit point_nige 0x0061B668 0x0061B676 ico2/fumi/src/way_tool.c def  # 1 string, measured from the base
 text quick_save_wpfile 0x002070B0 0x00207168 ico2/fumi/src/way_tool.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before cursor_control
-sdlit quick_save_wpfile 0x006338A8 0x006338AF ico2/fumi/src/way_tool.c def  # 1 string, measured from the base
+sdlit quick_save_wpfile 0x006338A0 0x006338AF ico2/fumi/src/way_tool.c def  # 2 strings, measured from the base; the file name quick_load_wpfile (a stub for it) shares
 rdlit quick_save_wpfile 0x0061B678 0x0061B68C ico2/fumi/src/way_tool.c def  # 1 string, measured from the base
+text quick_load_wpfile 0x00206208 0x00206324 ico2/fumi/src/way_tool.c local lines=33  # equal; a stub because it shares the file name quick_save_wpfile (a stub) writes first, and gcc would write its own copy
+sdlit quick_load_wpfile 0x006338B0 0x006338C7 ico2/fumi/src/way_tool.c  # 3 strings, measured from the base
+rdlit quick_load_wpfile 0x0061B690 0x0061B6A5 ico2/fumi/src/way_tool.c  # 1 string, measured from the base
 text cursor_control 0x00207168 0x002071E4 ico2/fumi/src/way_tool.c lines=15  # ordinal; first difference at insn 11; imm:2; extent-equal
 text actDejaChk 0x002071E8 0x00207344 ico2/script/src/deja.c lines=27  # ordinal; first difference at insn 7; other:4; extent-equal
 lit4 actDejaChk 0x006314A4 0x006314A8 ico2/script/src/deja.c  # 1 float

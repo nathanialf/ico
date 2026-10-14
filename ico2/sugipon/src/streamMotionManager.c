@@ -46,12 +46,6 @@ static int ringUsed = 0; /* derived name */
 
 static unsigned int streamIdle = 1; /* derived name */
 
-static int framePlayed = 0; /* derived name */
-
-static int frameTime = 0; /* derived name */
-
-static int frameCount = 0; /* derived name */
-
 /* One character's stream: the node and shape counts the frame header gives,
    the frame's size, the ring offset of the current frame, the object and the
    function called when the stream ends. */
