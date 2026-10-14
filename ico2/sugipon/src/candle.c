@@ -14,6 +14,7 @@ typedef struct CandleFlame { /* field names derived */
 
 #include "candle.h"
 #include "ios.h"
+#include "include_asm.h"
 
 int InitCandleGeo(void *self, void *mtx)
 {
@@ -39,63 +40,6 @@ int InitCandleGeo(void *self, void *mtx)
     return (int)flame;
 }
 
-void CandleGeo(void *self)
-{
-    Sub15C *w = GOBJ_SUB(self);
-    CandleFlame *flame = w->work;
-    /* the release pass reads the display object through its own handle */
-    Sub15C *cw = GOBJ_SUB(self);
-    int i;
-
-    if (w->nodeNum >= 2) {
-        for (i = 0; i < w->nodeNum; i++) {
-            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeMtx + i * 64);
-            MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
-            if (flame[i].effect != -1) {
-                SetParticleEffectGeometry(flame[i].effect, MatrixDrive_GetMatrix()[3],
-                                          IdentityQuaternion);
-            }
-        }
-        if (cw->disp == 0) {
-            for (i = 0; i < cw->nodeNum; i++) {
-                if (flame[i].effect != -1) {
-                    DeleteParticleEffect(flame[i].effect);
-                    flame[i].effect = -1;
-                    flame[i].off = 1;
-                }
-            }
-        }
-    }
-}
-
-inline void _deleteLayoutedCandleParticleEffect(void *gobj)
-{
-    CandleFlame *flame;
-    int i;
-
-    flame = GOBJ_SUB(gobj)->work;
-    if (GOBJ_SUB(gobj)->nodeNum >= 2) {
-        for (i = 0; i < GOBJ_SUB(gobj)->nodeNum; i++) {
-            if (flame[i].off == 0) {
-                DeleteParticleEffect(flame[i].effect);
-                flame[i].effect = -1;
-                flame[i].off = 1;
-            }
-        }
-    }
-}
-
-inline void DeleteLayoutedCandleParticleEffect(void)
-{
-    void *gobj;
-
-    gobj = isysGObjSearchFromObjKindID_begin(34);
-    while (gobj != 0) {
-        _deleteLayoutedCandleParticleEffect(gobj);
-        gobj = isysGObjSearchFromObjKindID_next(gobj);
-    }
-}
-
 void CandleDL(GObj *self)
 {
     Sub15C *d = self->dobj;
@@ -104,3 +48,9 @@ void CandleDL(GObj *self)
         p2o_DispVU1DObjMulti(d);
     }
 }
+
+INCLUDE_ASM(CandleGeo);
+
+INCLUDE_ASM(DeleteLayoutedCandleParticleEffect);
+
+INCLUDE_ASM(_deleteLayoutedCandleParticleEffect);

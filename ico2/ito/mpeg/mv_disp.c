@@ -5,6 +5,7 @@
 #include <eeregs.h>
 #include <libgraph.h>
 #include "main.h"
+#include "include_asm.h"
 
 inline void *setTEX0_1(int *p, int tbp0, int tbw, int psm, int tw, int th, int tcc, int tfx,
                        unsigned int cbp, unsigned int cpsm, unsigned int csm, unsigned int csa,
@@ -93,53 +94,11 @@ static inline int *setClearSprite(int *p, MvRect *r, unsigned int col) /* derive
     return p;
 }
 
-void dispClear(MvDispEnv *self, unsigned int col)
-{
-    MvRect r;
-    int *p;
+INCLUDE_ASM(dispClear);
 
-    r.x = 0;
-    r.y = 0;
-    r.w = self->width << 4;
-    r.h = ((self->height + 31) / 32 * 64 + self->height * 2) << 4;
+void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby);
 
-    p = setGIFtag((int *)uncached_accel_addr((int)mvClearPacket), 14, 1, 0, 0, 0, 1, 4);
-    setClearSprite(p, &r, col);
-
-    *D2_MADR = phys_addr((int)mvClearPacket);
-    *D2_QWC = 5;
-    *D2_CHCR = 0x101;
-
-    sceGsSyncPath(0, 0);
-}
-
-void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
-{
-    int *p;
-    int w = 720;
-    int h = 288;
-
-    self->fbp[0] = 0;
-    self->fbp[1] = 108;
-    self->width = w;
-    self->height = h;
-    self->imageWidth = imageW;
-    self->imageHeight = imageH;
-
-    sceGsSetDefDispEnv(&self->env.gs, 0, imageW, imageH / 2, 0, 0);
-
-    self->env.w.dispfbDB = (self->env.w.dispfbDB & ~0x7FF) | (dbx & 0x7FF);
-    self->env.w.dispfbDB = (self->env.w.dispfbDB & 0xFFC007FF) | ((dby & 0x7FF) << 11);
-    self->env.w.dispfb = (self->env.w.dispfb & ~0x7E00) | 0x1800;
-
-    p = setGIFtag((int *)uncached_accel_addr((int)mvDispPacket), 14, 1, 0, 0, 0, 1, 6);
-    p = setPRMODECONT(p, 1);
-    p = setFRAME_1(p, 0, (self->width + 63) / 64, 0, 0);
-    p = setTEST_1(p, 0, 0, 0, 0, 0, 0, 0, 0);
-    p = setSCISSOR_1(p, 0, self->width - 1, 0, (self->height + 31) / 32 * 128 - 1);
-    p = setXYOFFSET_1(p, 0, 0);
-    setCLAMP_1(p, 1, 1, 0, 0, 0, 0);
-}
+INCLUDE_ASM(setDispEnv);
 
 void setImageSize(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
 {
@@ -159,82 +118,11 @@ void sendDispEnv(MvDispEnv *self)
     sceGsSyncPath(0, 0);
 }
 
-void dispCreate(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
-{
-    /* the five display-state words are read and written by vblankHandler on the
-       vblank interrupt, so they are reset through volatile */
-    *(volatile int *)&dispRunning = 0;
-    *(volatile int *)&dispVblankCount = 0;
-    *(volatile int *)&dispImageDone = 0;
-    *(volatile int *)&dispField = 0;
-    *(volatile int *)&dispSyncBusy = 0;
-    sceGsSyncV(0);
-    sceGsResetGraph(0, 1, systemStatus[0] != 0 ? 3 : 2, 1);
-    sceGsResetPath();
-    setDispEnv(self, imageW, imageH, dbx, dby);
-    sendDispEnv(self);
-}
+INCLUDE_ASM(dispCreate);
 
 inline void dispDelete(MvDispEnv *self) {}
 
-void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, int w, int h,
-                 int texW, int texH)
-{
-    MvRect r;
-    MvRect uv;
-    void *p = (void *)uncached_accel_addr(src);
-    int nx;
-    int ny;
-    int bw;
-    int bh;
-    int dbp;
-    int i;
-    int j;
-
-    nx = texW >> 4;
-    ny = texH >> 4;
-
-    r.x = x << 4;
-    r.y = y << 4;
-    r.w = w << 4;
-    r.h = h << 4;
-    uv.x = 8;
-    uv.y = 8;
-    uv.w = texW << 4;
-    uv.h = texH << 4;
-
-    if (field == 0) {
-        bh = (self->height + 31) / 32;
-        bw = (self->width + 63) / 64;
-        dbp = bh * (bw << 6);
-        p = setDMAscTag(p, 0, 0, 0, 1, 0, 3);
-        p = setGIFtag(p, 14, 1, 0, 0, 0, 0, 2);
-        p = setBITBLTBUF(p, dbp, bw, 0);
-        p = setTRXREG(p, 16, 16);
-        for (i = 0; i < nx; i++) {
-            for (j = 0; j < ny; j++) {
-                p = setDMAscTag(p, 0, 0, 0, 1, 0, 4);
-                p = setGIFtag(p, 14, 1, 0, 0, 0, 0, 2);
-                p = setTRXPOS(p, 0, i << 4, j << 4);
-                p = setTRXDIR(p, 0);
-                p = setGIFtag(p, 0, 0, 2, 0, 0, 0, 64);
-                p = setDMAscTag(p, 0, phys_addr(image), 0, 3, 0, 64);
-                image += 1024;
-            }
-        }
-    } else {
-        uv.y = 24;
-        r.y = (y + (self->height + 31) / 32 * 32) << 4;
-    }
-
-    p = setDMAscTag(p, 0, 0, 0, 7, 0, 16);
-    p = setGIFtag(p, 14, 1, 0, 0, 0, 1, 15);
-    p = setTEXFLUSH(p);
-    p = setTEX1_1(p, 0, 0, 1, 1, 0, 0, 0);
-    p = setTEX0_1(p, (self->height + 31) / 32 * ((self->width + 63) / 64 << 6),
-                  (self->width + 63) / 64, 0, 10, 10, 0, 1, 0, 0, 0, 0, 0);
-    setTexSprite(p, &r, &uv);
-}
+INCLUDE_ASM(dispSetTags);
 
 void dispSwitch(MvDispEnv *self, int flag)
 {
@@ -248,41 +136,7 @@ void dispSwitch(MvDispEnv *self, int flag)
     sceGsPutDispEnv(&self->env.gs);
 }
 
-int vblankHandler(int cause)
-{
-    VoTag *tag;
-    int st;
-
-    *(volatile int *)&dispField = (int)((*GS_CSR >> 13) & 1);
-    if (*(volatile int *)&dispRunning != 0) {
-        *(volatile int *)&dispVblankCount = *(volatile int *)&dispVblankCount + 1;
-        /* the display-state words are shared with the foreground code, which
-           reads them between vblanks */
-        *(volatile int *)&dispSyncBusy = sceGsSyncPath(1, 0);
-        if (*(volatile int *)&dispSyncBusy == 0) {
-            tag = voBufGetTag(&voBuf);
-            if (tag == 0) {
-                mvFrameCount++;
-                SYNC();
-                EI();
-                return 0;
-            }
-            if (*(volatile int *)&dispField == 0 && tag->status == 2) {
-                dispSwitch(&display, 0);
-                loadImage((int)tag->packet[1]);
-                tag->status = 1;
-            } else if (*(volatile int *)&dispField != 0 && (st = tag->status) == 1) {
-                dispSwitch(&display, 1);
-                loadImage((int)tag->packet[0]);
-                tag->status = 0;
-                *(volatile int *)&dispImageDone = st;
-            }
-        }
-    }
-    SYNC();
-    EI();
-    return 0;
-}
+INCLUDE_ASM(vblankHandler);
 
 inline int handler_endimage(int channel)
 {

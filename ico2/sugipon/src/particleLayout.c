@@ -3,35 +3,12 @@
 #include "particleLayout.h"
 #include "ios.h"
 #include "memory.h"
+#include "include_asm.h"
 
-inline int *InitParticleLayoutGeo(GObj *self, int *layout)
-{
-    int *r;
-    r = iosMallocDebug(ios_partition_sugipon, 4, "src/particleLayout.c", 12);
-    *r = SetParticleEffect(layout[12], layout, GOBJ_SUB(self)->quat);
-    return r;
-}
+INCLUDE_ASM(DeleteParticleLayout);
 
-inline void DeleteParticleLayout(GObj *self)
-{
-    int *q = GOBJ_SUB(self)->work;
-    if (q[0] != -1) {
-        DeleteParticleEffect(q[0]);
-        q[0] = -1;
-    }
-}
+INCLUDE_ASM(InitParticleLayoutGeo);
 
-void ParticleLayoutGeo(GObj *self)
-{
-    int *q = GOBJ_SUB(self)->work;
-    if (q[0] == -1) {
-        return;
-    }
-    if (self->drawMask) {
-        return SetParticleEffectPauseFlag(q[0], 0);
-    } else {
-        return SetParticleEffectPauseFlag(q[0], 1);
-    }
-}
+INCLUDE_ASM(ParticleLayoutGeo);
 
 inline void ParticleLayoutDL(void) {}

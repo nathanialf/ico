@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include "Matrix.h"
 #include "main.h"
+#include "include_asm.h"
 
 /* the count of positions add_wp_pos has collected, the flag that stops it
    while WayRangeSearch measures a path, and the range search's limit mode */
@@ -311,140 +312,7 @@ static __inline__ void wayKidnapDebugEdge(int k) /* derived name */
 #endif
 }
 
-int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
-{
-    float v[4];
-    WayPoint *found;
-    WayPoint *cur;
-    /* the initialiser is dead: edge is set at the top of every pass of the loop
-       before any read */
-    WayGroup *edge = 0;
-    WayPoint *nearest;
-    float best;
-    float d;
-    int n = 0;
-    int i;
-    int j;
-    int k;
-
-    for (i = 0; i < 275; i++) {
-        searchNodes[i] = 0;
-    }
-    for (k = 0; k < 94; k++) {
-        edgeDone[k] = 0;
-    }
-    GetWay_begin(pos, w, pos);
-    found = 0;
-    cur = w->nearWp;
-    if (cur == 0) {
-        /* my own WAY was not found */
-        debug_StdPrintfDummy("自分のWAYが見付からなかった");
-        goto ret;
-    }
-    edgeDone[cur->group] = 1;
-    searchNodes[n++] = cur;
-
-    while (1) {
-        for (i = 0; i < n; i++) {
-            if (searchNodes[i] != 0) {
-                goto found;
-            }
-        }
-        break;
-    found:
-        cur = searchNodes[i];
-        edge = &way_group[cur->group];
-        debug_StdPrintfDummy("srh wp %p group id %d %d\n", cur, cur->group, i);
-        searchNodes[i] = 0;
-        debug_StdPrintfDummy("active %d\n", edge->active);
-        if (edge->active != 0) {
-            /* k is the index of this edge in the table, as everywhere below, and
-               the DEBUG build's trace reads it; in retail the value is dead
-               (the next read of k follows its reassignment in both loops) */
-            k = edge - way_group;
-            wayKidnapDebugEdge(k);
-            found = SearchOpenNode(cur);
-        }
-        if (found != 0) {
-            break;
-        }
-        if (edge->bridge == 0) {
-            for (k = 0; k < 94; k++) {
-                if (way_group[k].used == 0) {
-                    continue;
-                }
-                if (way_group[k].bridge == 0) {
-                    continue;
-                }
-                for (j = 0; j < 2; j++) {
-                    if (cur->group != way_point[way_group[k].end[j]].group) {
-                        continue;
-                    }
-                    if (edgeDone[k] != 0) {
-                        continue;
-                    }
-                    edgeDone[k] = 1;
-                    if (chk && way_group[k].active == 0) {
-                        continue;
-                    }
-                    if (j == 0) {
-                        searchNodes[n++] = way_group[k].first;
-                    } else {
-                        searchNodes[n++] = way_group[k].last;
-                    }
-                    debug_StdPrintfDummy("add no bridge wp %p %d %d\n", searchNodes[n - 1], j, k);
-                }
-            }
-        } else {
-            for (j = 0; j < 2; j++) {
-                k = way_point[edge->end[j]].group;
-                if (edgeDone[k] != 0) {
-                    continue;
-                }
-                edgeDone[k] = 1;
-                if (chk && way_group[k].active == 0) {
-                    continue;
-                }
-                searchNodes[n++] = &way_point[edge->end[j]];
-                debug_StdPrintfDummy("add bridge wp %p %d %d\n", searchNodes[n - 1], j, k);
-            }
-        }
-    }
-
-ret:
-    if (found == 0 && chk) {
-        return 0;
-    }
-    if (found == 0) {
-        nearest = 0;
-        best = 3.40282347e+38f /* FLT_MAX */;
-        /* not found, so search every WAYPOOINT for the nearest point of the
-           active group that allows a nest */
-        debug_StdPrintfDummy(
-            "見付からないので全WAYPOOINTから アクティブグループで巣許可の一番近いポイントを検索");
-        for (i = 0; i < 275; i++) {
-            cur = &way_point[i];
-            if (cur->used == 0 || cur->bridgeEnd != 0 || way_group[cur->group].active == 0) {
-                continue;
-            }
-            _SubVector(v, pos, cur->pos);
-            d = _InnerProduct(v, v);
-            if (d < best) {
-                nearest = cur;
-                best = d;
-            }
-        }
-        if (nearest != 0) {
-            sceVu0CopyVector(dst, cur->pos);
-            return 1;
-        }
-        /* no point of the active group allows a nest */
-        debug_StdPrintfDummy("アクティブグループの巣許可のポイントがみつかりません");
-        return 0;
-    }
-    sceVu0CopyVector(dst, found->pos);
-    return 1;
-}
+INCLUDE_ASM(WayPointWithRangeFromPos2);
 
 /* a public inline, deferred like the others */
 inline int WayPointWithRangeFromGObj(GObj *obj, float f)

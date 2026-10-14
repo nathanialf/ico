@@ -1,13 +1,9 @@
 #include "mv_defs.h"
 #include "mv_strfile.h"
 #include "cdvd.h"
+#include "include_asm.h"
 
-int strFileOpen(char *self, char *name)
-{
-    strcpy(self + 0x38, name);
-    iosCdvdDirectStOpen((struct IosCdvdHandle *)self);
-    return 1;
-}
+INCLUDE_ASM(strFileOpen);
 
 int strFileClose(char *self)
 {

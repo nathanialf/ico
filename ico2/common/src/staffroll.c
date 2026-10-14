@@ -5,6 +5,7 @@
 #include "main.h"
 #include "debug_exception.h"
 #include <assert.h>
+#include "include_asm.h"
 
 /* staffroll.o's whole .data run: the roll's display area, centred on the
    origin, {x, y, width, height}.  Only the first word is read here, as the
@@ -47,20 +48,7 @@ float staffRollCenterOffsetX = 0.0f;
 
 float staffRollCenterOffsetXDest = 0.0f;
 
-void staffRollStart(float t, int alpha)
-{
-    staffRollStartFlag = 1;
-    rollSpeed = (t + t) * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
-    staffRollAlpha = alpha;
-    rollNameIdx = 0;
-    rollOffset = 0.0f;
-    rollStep = 0;
-    rollWidth = 0;
-    closing = 0;
-    staffRollCenterOffsetX = staffRollCenterOffsetXDest = rollOffset;
-    staffRollArea[0] = 1280;
-    memset(rollLines, 0, sizeof(rollLines));
-}
+INCLUDE_ASM(staffRollStart);
 
 /* The scroll loop walks the 300-entry table by byte offset and spells the
    base at every use site. */
@@ -102,33 +90,9 @@ static int staffRollScroll(void)
     return count;
 }
 
-static int staffRollNameOut(void)
-{
-    StaffRollEntry *e;
-    char **s;
-    int i;
+static int staffRollNameOut(void);
 
-    if (rollOffset / (float)(font_GetHeight() + 1) >= (float)rollNameIdx) {
-        for (i = 0; i < 300; i++) {
-            if (rollLines[i].str == 0)
-                goto found;
-        }
-        /* staff roll: out of area */
-        debug_StdPrintfDummy("staff roll 領域不足\n");
-        debug_assert(__FILE__, 192);
-        __assert(__FILE__, 192, "0");
-    found:
-
-        e = &rollLines[i];
-        s = &staffRollNameData[rollNameIdx++];
-        if (*s != 0)
-            e->str = s;
-
-        e->y = (float)(font_GetHeight() + 449);
-        e->align = font_CheckAlign(&e->col, *e->str);
-    }
-    return rollNameIdx >= staffRollNameDataNum;
-}
+INCLUDE_ASM(staffRollNameOut);
 
 /* the roll's colour; only its alpha byte is read and written, fading toward
    staffRollAlpha.  A 4-byte array is 8-aligned, which leaves the zero word

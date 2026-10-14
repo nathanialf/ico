@@ -6,6 +6,7 @@
 #include "Matrix.h"
 #include "charFileManager.h"
 #include <assert.h>
+#include "include_asm.h"
 
 /* a 16-byte aligned float[4], the shape of libvu0's sceVu0FVECTOR */
 typedef float Vec[4] __attribute__((aligned(16))); /* derived name */
@@ -171,29 +172,9 @@ static void MakeBoundingBox(PObj *self)
     }
 }
 
-static void MakePacket(PObj *p, int n)
-{
-    PObjPkt *q;
+static void MakePacket(PObj *p, int n);
 
-    p->tag.v.nloop = n;
-    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].shade << 18);
-    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].lod << 22);
-    p->tag.v.lightScale = modelData[n].lightScale;
-    p->ambientScale = modelData[n].ambientScale;
-
-    q = (PObjPkt *)mallocseki(0x880);
-    p->pkt = q;
-    q->lightMtx = (PktHdr *)mallocseki(0x100);
-    q->lightMtx->kind = modelData[n].pktKind;
-
-    q->owner = p;
-    q->nodes = mallocseki(p->partCount * 80);
-    if (q->lightMtx->kind != 4) {
-        if (p->image != 0)
-            p2o_MakePacket(q);
-    }
-    debug_StdPrintfDummy("end of packet making...\n");
-}
+INCLUDE_ASM(MakePacket);
 
 /* the file's own vector setter, inlined into InitPObj */
 static __inline__ void SetPObjVector(Vec v, float x, float y, float z) /* derived name */

@@ -4,6 +4,7 @@
 #include "geometryManager.h"
 #include "st13d.h"
 #include "main.h"
+#include "include_asm.h"
 
 inline void actSt13dInit(void) {}
 
@@ -22,31 +23,7 @@ static const PosBox exitRPos = {{854.0f, -156.0f, -400.0f, 0.0f}}; /* derived na
 
 static const PosBox exitLPos = {{854.0f, -156.0f, 400.0f, 0.0f}}; /* derived name */
 
-void actSt13dExit(GObj *volatile self)
-{
-    GObj *x = self;
-    PosBox pos;
-    PosBox size;
-    PosBox p;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(18) == 0) {
-        ScpCallCameraOff();
-    }
-
-    pos = exitPos;
-    size = exit2Pos;
-
-    GetRootPosition(&p, boyGObj);
-
-    while (scpTriggerPosBox((float *)&p, (float *)&pos, (float *)&size) == 0) {
-        _ACTWait(1);
-    }
-
-    RequestStageChange(2, boyGObj, 0, 16.0f, 16.0f);
-}
+INCLUDE_ASM(actSt13dExit);
 
 void actSt13dExitR(GObj *volatile self)
 {

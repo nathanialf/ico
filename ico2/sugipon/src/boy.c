@@ -43,6 +43,7 @@ typedef struct { /* field names derived */
 #include "lineManager.h"
 #include "ios.h"
 #include "StageAnimation.h"
+#include "include_asm.h"
 
 /* The boy's five generated cloth meshes, in the order InitBoyGeo hands them
    to InitCloth4D: the mantle, the tape belt and the three loose tape strips,
@@ -382,107 +383,17 @@ typedef struct BoyWork { /* field names derived */
     float detail;           /* 0x64 */
 } BoyWork;                  /* derived name */
 
-static void dispClothes(GObj *gobj)
-{
-    BoyWork *w = GOBJ_SUB(gobj)->work;
-    char *x;
-
-    x = (char *)GOBJ_SUB(gobj)->lightMtx;
-    DispCloth4D((Cloth4D *)w->mantle, x + 0x40, x);
-    x = (char *)GOBJ_SUB(gobj)->lightMtx;
-    DispCloth4D((Cloth4D *)w->tape, x + 0x40, x);
-    x = (char *)GOBJ_SUB(gobj)->lightMtx;
-    DispCloth4D((Cloth4D *)w->tapeB, x + 0x40, x);
-    x = (char *)GOBJ_SUB(gobj)->lightMtx;
-    DispCloth4D((Cloth4D *)w->tapeBoro1, x + 0x40, x);
-    x = (char *)GOBJ_SUB(gobj)->lightMtx;
-    DispCloth4D((Cloth4D *)w->tapeBoro2, x + 0x40, x);
-}
+INCLUDE_ASM(dispClothes_boy);
 
 /* A file static; girl.c has its own of the same name.  The five else-arm
  * calls go through one nested inline helper, as clothAnimation.c's
  * interHalf does. */
-static void execClothes(GObj *gobj)
-{
-    BoyWork *w = GOBJ_SUB(gobj)->work;
-
-    if (w->wet != 0) {
-        GetCloth4DWithDetail(w->mantle, 0.0f, 0.5f, 1.0f, 0.0f);
-        GetCloth4DWithDetail(w->tape, 0.0f, 0.5f, 1.0f, 0.0f);
-        GetCloth4D(w->tapeB, 5.0f, 0.98f);
-        GetCloth4D(w->tapeBoro1, 5.0f, 0.98f);
-        GetCloth4D(w->tapeBoro2, 5.0f, 0.98f);
-        w->detail = 1.0f;
-    } else {
-        float f = w->detail;
-        float x = f * 5.0f + 3.0f;
-        float wt = 1.0f - f;
-        __inline__ void setClothDetail(void *cloth) /* derived name */
-        {
-            GetCloth4DWithDetail(cloth, x, 0.98f, 1.0f, wt);
-        }
-
-        setClothDetail(w->mantle);
-        setClothDetail(w->tape);
-        setClothDetail(w->tapeB);
-        setClothDetail(w->tapeBoro1);
-        setClothDetail(w->tapeBoro2);
-        w->detail *= 0.999f;
-    }
-}
+INCLUDE_ASM(execClothes_boy);
 
 /* the one LightLineExt InitLightLineGeo fills */
 static LightLineExt lightLineExt; /* derived name */
 
-LightLineExt *InitLightLineGeo(GObj *gobj, float *pos)
-{
-    LLVec v = {pos[0] + 500.0f, pos[1], pos[2] + 200.0f, 1.0f};
-    int i;
-    int j;
-    int n;
-    float f;
-
-    llExtGeo = &lightLineExt;
-    llExtGeo->phase = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 161);
-    llExtGeo->speed = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 162);
-    llExtGeo->line = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 163);
-    for (i = 0; i < 100; i++) {
-        llExtGeo->phase[i] = 0.0f;
-        llExtGeo->speed[i] = random_unit() * 0.1f + 0.01f;
-        llExtGeo->line[i] = iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c", 168);
-        CopyVector(llExtGeo->line[i], &v);
-        llExtGeo->line[i][0].x += (float)((i - 0x32) * 5);
-        for (j = 1; j < 20; j++) {
-            CopyVector(&llExtGeo->line[i][j], &llExtGeo->line[i][j - 1]);
-            if (random_unit() < 0.9f) {
-                if (j & 1) {
-                    llExtGeo->line[i][j].y -= (float)((int)(random_unit() * 10.0f) + 1) * 5.0f;
-                } else {
-                    n = (int)(random_signed() * 10.0f) + 1;
-                    llExtGeo->line[i][j].x += (float)n * 5.0f;
-                }
-            } else {
-                f = (float)((int)(random_unit() * 10.0f) + 1) * 5.0f;
-                llExtGeo->line[i][j].y -= f;
-                llExtGeo->line[i][j].x += f;
-            }
-        }
-    }
-    return llExtGeo;
-}
-
-inline void LightLineGeo(void)
-{
-    int i;
-
-    for (i = 0; i < 100; i++) {
-        llExtGeo->phase[i] += llExtGeo->speed[i];
-        if (llExtGeo->phase[i] > 1.0f) {
-            llExtGeo->speed[i] = random_unit() * 0.01f + 0.001f;
-            llExtGeo->phase[i] = 0;
-        }
-    }
-}
+INCLUDE_ASM(InitLightLineGeo);
 
 void LightLineDL(void)
 {
@@ -556,11 +467,6 @@ void LightLineDL(void)
     gif_EndPacket();
 }
 
-inline void SelectBoyCrown(GObj *self, int crown)
-{
-    ((BoyWork *)GOBJ_SUB(self)->work)->crown = crown;
-}
-
 /* The display-list record's 0x38 word carries single bits set and cleared with
    ld/or/sd and ld/and/sd, and a 16-bit field two bytes into the same
    container reached with a plain sh; the same union src/enemyParts.c uses. */
@@ -578,78 +484,7 @@ static ClothHangCfg tapeHang[3] = {
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
 
-BoyWork *InitBoyGeo(GObj *gobj, void *csv)
-{
-    BoyWork *w;
-    BoyWork *p;
-    int i;
-
-    w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c", 280);
-    /* the work word, stored and read back as char * */
-    *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x830) = (char *)w;
-    p = (BoyWork *)*(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x830);
-    p->mantle = (char *)InitCloth4D(gobj, &mantleMesh, mantleHang);
-    p->tape = (char *)InitCloth4D(gobj, &tapeMesh, tapeHang);
-    p->tapeB = (char *)InitCloth4D(gobj, &tapeBMesh, 0);
-    p->tapeBoro1 = (char *)InitCloth4D(gobj, &tapeBoro1Mesh, 0);
-    p->tapeBoro2 = (char *)InitCloth4D(gobj, &tapeBoro2Mesh, 0);
-    *(int *)(*(char **)(((char *)gobj) + 0x15C) + 0x554) = 1;
-    w->head = (Sub15C *)CSVSYSTEM_InitDObj(2, csv);
-    w->body = (Sub15C *)CSVSYSTEM_InitDObj(3, csv);
-    if (w->body->nodeMtx != 0) {
-        iosFree(w->body->nodeMtx & 0xFFFFFFF);
-    }
-    if (w->body->nodeQuat != 0) {
-        iosFree(w->body->nodeQuat & 0xFFFFFFF);
-    }
-    w->body->nodeMtx = 0;
-    w->body->nodeQuat = 0;
-    w->body->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 128, "src/boy.c", 291);
-    w->body->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 32, "src/boy.c", 291);
-    w->body->nodeNum = 2;
-    if (w->body->nodes != 0) {
-        iosFree((int)w->body->nodes & 0xFFFFFFF);
-    }
-    w->body->nodes = iosMallocDebug(ios_partition_seki, 160, "src/boy.c", 291);
-    for (i = 0; i < 2; i++) {
-        w->body->nodes[i].flags.ll &= ~1;
-        w->body->nodes[i].flags.ll &= ~2;
-        w->body->nodes[i].pos[0] = 0.0f;
-        w->body->nodes[i].pos[1] = 0.0f;
-        w->body->nodes[i].pos[2] = 0.0f;
-        w->body->nodes[i].pos[3] = 1.0f;
-        w->body->nodes[i].flags.ll &= ~4;
-        w->body->nodes[i].fade = 0.0f;
-        w->body->nodes[i].alpha = 1.0f;
-        ((short *)&w->body->nodes[i].flags)[1] = 0;
-        w->body->nodes[i].scale[0] = 1.0f;
-        w->body->nodes[i].scale[1] = 1.0f;
-        w->body->nodes[i].scale[2] = 1.0f;
-    }
-    w->body->dispType = 2;
-    w->crown0 = CSVSYSTEM_InitDObj(1, csv);
-    w->crown1 = CSVSYSTEM_InitDObj(15, csv);
-    w->crown2 = CSVSYSTEM_InitDObj(16, csv);
-    (*(BoyWork **)(*(char **)(((char *)gobj) + 0x15C) + 0x830))->crown = 0;
-    sceVu0UnitMatrix(w->crown0 + 0x20);
-    InitMotionOrient(gobj, 0, 0x503, 0, 0xC, 0);
-    InitLightLineGeo(gobj, csv);
-    SetLodLevel(gobj, 2);
-    w->stone = 0;
-    w->stoneAnim = 0;
-    w->refl.nrow = 20;
-    w->refl.ncol = 20;
-    w->refl.sizeX = 300.0f;
-    w->refl.sizeZ = 300.0f;
-    w->refl.color = 0x80808080;
-    InitLimitedPoolReflactionMesh(&w->refl);
-    w->waterDot = AllocWaterDot(gobj, 30, 5);
-    w->wet = 0;
-    w->dripVel = 0.0f;
-    w->drip = 0.0f;
-    w->detail = 0.0f;
-    return w;
-}
+INCLUDE_ASM(InitBoyGeo);
 
 /* the two wire spheres the girl-to-boy position sync draws when the debug flag
    is on: blue for the girl, orange for the boy */
@@ -662,86 +497,16 @@ static LightLineExt lightLineExt = {0, 0, 0}; /* derived name */
 static void synchronizeMotionOutputOriginForGirl(GObj *gobj);
 static void actionOfWater(GObj *gobj);
 
-void BoyGeo(GObj *gobj)
-{
-    HandManager(gobj);
-    ExecMotionOrient(gobj);
-    synchronizeMotionOutputOriginForGirl(gobj);
-    execClothes(gobj);
-    ExecuteSlipProc(gobj);
-    SetActressLight(gobj, 35, 44, 471);
-    if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.7f) != 0) {
-        iosOmSendMail(gobj, 6, gobj);
-    }
-    CylinderCollision(gobj, 2, ACTGame_FLAG_TETSUNAGI() != 0 ? 15.0f : 30.0f, 50.0f, 0.7f);
-    actionOfWater(gobj);
-}
+INCLUDE_ASM(BoyGeo);
 
 static void dispSubParts(GObj *gobj);
 
-static void dispCrown(GObj *gobj)
-{
-    BoyWork *w = GOBJ_SUB(gobj)->work;
-    int node = GetSkeltonFocusNode(gobj, 0x23);
-    char *obj;
+INCLUDE_ASM(dispCrown);
 
-    switch (w->crown) {
-    case 1:
-        obj = w->crown1;
-        break;
-    case 2:
-        obj = w->crown2;
-        break;
-    default:
-        obj = w->crown0;
-        break;
-    }
-    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
-    MatrixDrive_RotMatrixX(-0x8000);
-    CopyMatrix(*(char **)(obj + 0xC), MatrixDrive_GetMatrix());
-    reg_DispAccessoryWithShadow((Sub15C *)obj, GOBJ_SUB(gobj));
-}
+INCLUDE_ASM(BoyDL);
 
-inline void SetBoyStonizedVisual(GObj *self)
-{
-    BoyWork *crown = GOBJ_SUB(self)->work;
-    AdjustMotionHeightToNearestField(self);
-    crown->stone = 1;
-    crown->stoneAnim = 0;
-    GOBJ_SUB(self)->ctrl.slipOn = 0;
-}
+INCLUDE_ASM(SelectBoyCrown);
 
-void BoyDL(GObj *gobj)
-{
-    char pos[16];
-    char quat[16];
-    BoyWork *w = GOBJ_SUB(gobj)->work;
-    PoolMesh *m;
-    Sub15C *sub;
-    int r;
+INCLUDE_ASM(LightLineGeo);
 
-    ExecutePauseSlipProc(gobj);
-    if (w->stone != 0) {
-        GetRootPosition(pos, gobj);
-        GetRootQuaternion(quat, gobj);
-        RotQuaternionY(quat, -32768);
-        r = (int)stage_PlayBgAnimation(488, (float)w->stoneAnim, pos, quat);
-        if (systemStatus[5] == 0 && r != -1) {
-            w->stoneAnim = r;
-        }
-    } else {
-        p2o_SetDefaultEnviroment();
-        p2o_DispVU1(gobj);
-        dispSubParts(gobj);
-        dispCrown(gobj);
-        dispClothes(gobj);
-    }
-    if (stage_no == 0x27 && 20.0f < GOBJ_SUB(gobj)->ctrl.waterDepth &&
-        GOBJ_SUB(gobj)->ctrl.pool != 0 && CheckPoolHasGridMesh(GOBJ_SUB(gobj)->ctrl.pool) == 0) {
-        sub = GOBJ_SUB(gobj);
-        m = (PoolMesh *)(sub->work + 0x34);
-        SetLimitedPoolReflactionMesh(m, sub->ctrl.pool, gobj);
-        DispLimitedPoolReflactionMesh(m);
-    }
-    DispWaterDot(w->waterDot);
-}
+INCLUDE_ASM(SetBoyStonizedVisual);

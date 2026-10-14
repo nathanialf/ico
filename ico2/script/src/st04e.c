@@ -16,6 +16,7 @@
 #include "stageSEProc.h"
 #include "main.h"
 #include "script.h"
+#include "include_asm.h"
 
 static void actSt04eWaterStopSub(GObj *volatile self);
 
@@ -32,111 +33,12 @@ static ActMail water_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail waterSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt04eWaterStop(GObj *volatile self)
-{
-    GProc *th;
+INCLUDE_ASM(actSt04eWater);
 
-    lt_switch_layout(55);
+INCLUDE_ASM(actSt04eWaterMain);
 
-    demoEnd = 0;
-    demoSkipped = 0;
-    actCreateSubThread(actSt04eWaterFlagOn, 21);
+INCLUDE_ASM(actSt04eWaterSwitch);
 
-    scpSleepEnemyAll();
+INCLUDE_ASM(actSt04eWaterStop);
 
-    th = actCreateSubThread(actSt04eWaterStopSub, 21);
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    demoSkipped = demoEnd ^ 1;
-    iosThreadSetPri(&th->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-
-        stage_SetAnimation(262, 0, -1);
-        stage_SetAnimation(261, -1, -2);
-        scpFadeIn(3.0f);
-    }
-
-    scpSearchGobj(1273)->active = 1;
-    scpSearchGobj(1272)->active = 0;
-
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-
-    scpWakeupEnemyAll();
-
-    SetWayGroupActive(5, 1);
-}
-
-void actSt04eWater(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    SetRotObjectLockFlag(scpSearchGobj(1274), 1);
-
-    if (gflagChk(230) == 0) {
-        scpSearchGobj(1273)->active = 0;
-        water_mes[0].func = actSt04eWaterMain;
-        act->mail = water_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        scpSearchGobj(1272)->active = 0;
-        stage_SetAnimation(261, -1, -2);
-    }
-}
-
-void actSt04eWaterMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    sub->mainMail = waterMain_mes;
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-void actSt04eWaterSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    waterSwitch_mes[0].func = actSt04eWaterStop;
-    sub->mail = waterSwitch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt04eWaterFlagOn(GObj *volatile self)
-{
-    int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 6.0;
-
-    riverFadeSpeed = 0.005f;
-
-    while (t-- > 0) {
-        if (demoSkipped != 0) {
-            riverFadeSpeed = 1000.0f;
-            break;
-        }
-        _ACTWait(1);
-    }
-
-    gflagOn(230);
-}
+INCLUDE_ASM(actSt04eWaterFlagOn);

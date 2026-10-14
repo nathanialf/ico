@@ -9,6 +9,7 @@
 #include "main.h"
 #include "geometryManager.h"
 #include "brain.h"
+#include "include_asm.h"
 
 struct HintInfo { /* field names derived */
     int anim;     /* the stage animation the hint plays */
@@ -28,69 +29,12 @@ static struct {      /* field names derived */
    flags */
 static struct HintInfo hintDefault = {-1, -1, -1, 0}; /* derived name */
 
-GObj *CreateKyomiGObj(int no)
-{
-    float lay[16];
-    GObj *gobj;
-    struct HintInfo *hint;
-    int i;
+INCLUDE_ASM(LwsKyomiGeo);
 
-    memset(lay, 0, 64);
-    lay[8] = 1.0f;
-    lay[9] = 1.0f;
-    lay[10] = 1.0f;
-    gobj = CreateLayoutedGObj(61, 75, -1, 0, lay, 1, 7, 0);
-    hint = (struct HintInfo *)iosMallocDebug(ios_partition_sugipon, 16, "src/lws_kyomi.c", 101);
-    GOBJ_SUB(gobj)->work = hint;
-    *hint = hintDefault;
-    hint->anim = no;
-    for (i = 0; i < 28; i++) {
-        if (hintTable[i].stage == stage_no && hintTable[i].no == no) {
-            hint->no = i;
-            hint->time = (int)(hintTable[i].time * 60.0f * 60.0f *
-                               (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
-        }
-    }
-    brainStatusDefaultSet(&brainGirl, gobj, 1);
-    return gobj;
-}
+INCLUDE_ASM(CreateKyomiGObj);
 
 /* the hint timers, a window onto the per-hint elapsed-time array */
 static float *hintTimers; /* derived name */
-
-void LwsKyomiGeo(GObj *gobj)
-{
-    struct HintInfo *hint;
-    int i;
-    unsigned char fin;
-
-    hint = GOBJ_SUB(gobj)->work;
-    hint->flags &= ~1;
-    for (i = 0; i < 28; i++) {
-        if (hintTable[i].stage == stage_no && (hintTable[i].flags & 1) == 0) {
-            if ((((unsigned int)hintTable[i].flags >> 1) & 1) == 0 && i == hint->no) {
-                hint->flags |= 1;
-            }
-            break;
-        }
-    }
-    if (hint->no != -1) {
-        fin = stage_CheckAnimationFinish(hint->anim);
-        if (hint->flags & 1) {
-            hintTimers[hint->no] += 1.0f;
-            if ((float)hint->time < hintTimers[hint->no]) {
-                if (fin != 0) {
-                    stage_SetAnimation(hint->anim, 1, 0);
-                }
-            }
-        } else {
-            if (fin == 0) {
-                stage_SetAnimation(hint->anim, -1, -2);
-            }
-        }
-    }
-    brainSubLevelGop(gobj, 0.1f);
-}
 
 /* Clear one 4-byte half of the save block, then pack one flag bit of every
  * hint into it.  `buf` is the half being packed and `off` its byte offset

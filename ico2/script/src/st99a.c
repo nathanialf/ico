@@ -5,6 +5,7 @@
 #include "StageAnimation.h"
 #include "typedef.h"
 #include "main.h"
+#include "include_asm.h"
 
 static ActMail explode_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -18,190 +19,40 @@ static ActMail st27aWave_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail spider_mes[2] = {{430}, {429}}; /* derived name */
 
-void actExplode(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actExplode);
 
-    explode_mes[0].func = actExplodeChk;
-    act->mail = explode_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSplash1);
 
-void actSplash1(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSplash2);
 
-    splash1_mes[0].func = actSplash1Chk;
-    act->mail = splash1_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actWave);
 
-void actSplash2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSpider);
 
-    splash2_mes[0].func = actSplash2Chk;
-    act->mail = splash2_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actDevilLightning);
 
-void actWave(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actQueenLightning);
 
-    wave_mes[0].func = actWaveChk;
-    act->mail = wave_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt27aWave);
 
-void actSpider(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actExplodeChk);
 
-    stage_SetLoopFlag(160, 1);
-    stage_SetAnimation(160, 1, 0);
+INCLUDE_ASM(actSplash1Chk);
 
-    spider_mes[0].func = actSpiderChk;
-    act->mail = spider_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actDevilLightning(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3513, 0, 554, 0);
-}
-
-void actQueenLightning(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3512, 0, 555, 0);
-}
-
-void actSt27aWave(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    st27aWave_mes[0].func = actSt27aWaveChk;
-    act->mail = st27aWave_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actExplodeChk(GObj *volatile self)
-{
-    GOBJ_SUB(scpSearchGobj(3014))->ctrl.noStand = 1;
-    GOBJ_SUB(scpSearchGobj(3014))->ctrl.noStand = 0;
-    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
-    _ACTWait(60);
-    stage_SetAnimation(511, 1, 0);
-    scpLinkBGAtoLayoutedTarget(3014, 511);
-    while (stage_CheckAnimationFinish(511) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-}
-
-void actSplash1Chk(GObj *volatile self)
-{
-    GOBJ_SUB(scpSearchGobj(3015))->ctrl.noStand = 1;
-    GOBJ_SUB(scpSearchGobj(3015))->ctrl.noStand = 0;
-    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
-    _ACTWait(60);
-    stage_SetAnimation(498, 1, 0);
-    scpLinkBGAtoLayoutedTarget(3015, 498);
-    while (stage_CheckAnimationFinish(498) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-}
-
-void actSplash2Chk(GObj *volatile self)
-{
-    GOBJ_SUB(scpSearchGobj(3016))->ctrl.noStand = 1;
-    GOBJ_SUB(scpSearchGobj(3016))->ctrl.noStand = 0;
-    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
-    _ACTWait(60);
-    stage_SetAnimation(499, 1, 0);
-    scpLinkBGAtoLayoutedTarget(3016, 499);
-    while (stage_CheckAnimationFinish(499) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-}
+INCLUDE_ASM(actSplash2Chk);
 
 void actWaveChk(GObj *volatile self)
 {
     actCreateSubThread(actWave1, 21);
 }
 
-void actWave1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    while (1) {
-        stage_SetAnimation(519, 1, 0);
-        _ACTWait(179);
-        stage_SetAnimation(520, 1, 0);
-        _ACTWait(179);
-        stage_SetAnimation(521, 1, 0);
-        _ACTWait(179);
-        stage_SetAnimation(522, 1, 0);
-        _ACTWait(179);
-    }
-}
+INCLUDE_ASM(actWave1);
 
 void actSt27aWaveChk(GObj *volatile self)
 {
     actCreateSubThread(actSt27aWave1, 21);
 }
 
-void actSt27aWave1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    while (1) {
-        stage_SetAnimation(194, 1, 0);
-        _ACTWait(200);
-        stage_SetAnimation(195, 1, 0);
-        _ACTWait(200);
-        stage_SetAnimation(196, 1, 0);
-        _ACTWait(200);
-        stage_SetAnimation(197, 1, 0);
-        _ACTWait(200);
-    }
-}
+INCLUDE_ASM(actSt27aWave1);
 
-void actSpiderChk(GObj *volatile self)
-{
-    while (1) {
-        while ((GOBJ_ACT(boyGObj)->pad.trg & 0x400) == 0) {
-            _ACTWait(1);
-        }
-        scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);
-        _ACTWait(1);
-    }
-}
+INCLUDE_ASM(actSpiderChk);

@@ -13,6 +13,7 @@
 #include "GifPacket.h"
 #include "DmaPacket.h"
 #include "DisplayList.h"
+#include "include_asm.h"
 
 /* the centre the game-over dark volume and its shock ring spread from, and
    the position of the ordinary dark volume, both homogeneous points */
@@ -277,8 +278,6 @@ static void renderViewCoordZSphere(void *pos, DVColor col, int neg, float r)
     }
 }
 
-inline void ExecGameOverEffect(void) {}
-
 /* the packet writer's cursor check, built only when DEBUG is defined */
 static __inline__ void dvCheckPacket(char *p) /* derived name */
 {
@@ -340,354 +339,9 @@ static const DVColor volumeOuterColor = {255, 255, 255, 128}; /* derived name */
 
 static const DVColor volumeInnerColor = {127, 0, 98, 128}; /* derived name */
 
-static void sonic(void *pos, float t)
-{
-    int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
-                   ScreenHeight * 16};
-    int rect2[4] = {4, 4, ScreenWidth * 16, ScreenHeight * 16};
+INCLUDE_ASM(sonic);
 
-    dl_SetDLPriority(10);
-    dvOpenPacket();
-    dvSetFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
-    dvSetGsReg(0x4E, 0x1300000C0LL);
-    dvSetGsReg(0x47, 0x30000);
-    dvSetGsReg(0x49, 0);
-    dvSetGsReg(0x42, 0x8000000044LL);
-    dvSetGsReg(0x00, 0x406);
-    dvSetGsReg(0x01, (long)sonicPacketColor.r | ((long)sonicPacketColor.g << 8) |
-                         ((long)sonicPacketColor.b << 16) | ((long)sonicPacketColor.a << 24));
-    dvSetGsReg(0x05,
-               (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) | 0xFFFFFFFF00000000LL);
-    dvSetGsReg(0x05, (long)(rect[0] + 0x8000 + rect[2]) |
-                         ((long)(rect[1] + 0x8000 + rect[3]) << 16) | 0xFFFFFFFF00000000LL);
-    dvSetGsReg(0x4A, 0);
-    dvSetGsReg(0x3B, 0x8000000080LL);
-    dvSetGsReg(0x47, 0x50000);
-    dvSetGsReg(0x42, 0x8000000068LL);
-    dvSetGsReg(0x46, 0);
-    {
-        char *p;
-        char *q;
-
-        dvCheckPacket(PacketBufferStruct.ptr.c);
-        ((GifPkWord *)PacketBufferStruct.end.c)->d =
-            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
-                            4) -
-                           1) |
-            0x1000000000008000LL;
-        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
-            0x6C008000;
-        p = PacketBufferStruct.ptr.c;
-        ((GifPkWord *)p)->w[0] = 0x15000000;
-        p += 4;
-        PacketBufferStruct.ptr.c = p;
-        ((GifPkWord *)p)->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 4;
-        ((GifPkWord *)(p + 4))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 8;
-        ((GifPkWord *)(p + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 0xC;
-        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
-                             4) -
-                            1) |
-                           0x10000000);
-        q = PacketBufferStruct.ptr.c;
-        PacketBufferStruct.tail.c = q;
-        ((GifPkWord *)q)->d = 0x60000000;
-        PacketBufferStruct.ptr.c = q + 8;
-        ((GifPkWord *)(q + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = q + 0xC;
-        ((GifPkWord *)(q + 8))->w[1] = 0;
-        PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-        dl_CloseDma();
-    }
-    gif_StartPacketPri(10);
-    renderViewCoordZSphere(pos, sonicSphereColor, 1, (t + 50.0f) * 3.0f);
-    renderViewCoordZSphere(pos, sonicSphereColor, 0, t * 2.5f);
-    gif_EndPacket();
-    dl_SetDLPriority(10);
-    dvOpenPacket();
-    dvSetGsReg(0x47, 0x30000);
-    dvSetGsReg(0x4E, 0x1300000C0LL);
-    dvSetGsReg(0x46, 1);
-    dvSetGsReg(0x4A, 0);
-    dvSetGsReg(0x3B, 0x8000008080LL);
-    dvSetGsReg(0x14, 0x60);
-    dvSetFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
-    dvSetGsReg(0x42, 0x44);
-    dvSetGsReg(0x47, 0x30000);
-    dvSetGsReg(0x06, 0x664122800LL);
-    {
-        int rect3[4] = {-ScreenWidth / 2 * 16 + 500, -ScreenHeight / 2 * 16 + 500,
-                        ScreenWidth * 16 - 500, ScreenHeight * 16 - 500};
-
-        dvSetGsReg(0x42, 0x8000000068LL);
-        dvSetGsReg(0x00, 0x156);
-        dvSetGsReg(0x01, (long)sonicRingColor.r | ((long)sonicRingColor.g << 8) |
-                             ((long)sonicRingColor.b << 16) | ((long)sonicRingColor.a << 24));
-        dvSetGsReg(0x03, (long)rect2[0] | ((long)rect2[1] << 16));
-        dvSetGsReg(0x05, (long)(rect3[0] + 0x8000) | ((long)(rect3[1] + 0x8000) << 16) |
-                             0xFFFFFFFF00000000LL);
-        dvSetGsReg(0x03, (long)(rect2[0] + rect2[2]) | ((long)(rect2[1] + rect2[3]) << 16));
-        dvSetGsReg(0x05, (long)(rect3[0] + 0x8000 + rect3[2]) |
-                             ((long)(rect3[1] + 0x8000 + rect3[3]) << 16) | 0xFFFFFFFF00000000LL);
-        dvSetGsReg(0x4E, 0x300000C0);
-        dvSetGsReg(0x47, 0x50000);
-    }
-    {
-        char *p;
-        char *q;
-
-        dvCheckPacket(PacketBufferStruct.ptr.c);
-        ((GifPkWord *)PacketBufferStruct.end.c)->d =
-            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
-                            4) -
-                           1) |
-            0x1000000000008000LL;
-        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
-            0x6C008000;
-        p = PacketBufferStruct.ptr.c;
-        ((GifPkWord *)p)->w[0] = 0x15000000;
-        p += 4;
-        PacketBufferStruct.ptr.c = p;
-        ((GifPkWord *)p)->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 4;
-        ((GifPkWord *)(p + 4))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 8;
-        ((GifPkWord *)(p + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 0xC;
-        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
-                             4) -
-                            1) |
-                           0x10000000);
-        q = PacketBufferStruct.ptr.c;
-        PacketBufferStruct.tail.c = q;
-        ((GifPkWord *)q)->d = 0x60000000;
-        PacketBufferStruct.ptr.c = q + 8;
-        ((GifPkWord *)(q + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = q + 0xC;
-        ((GifPkWord *)(q + 8))->w[1] = 0;
-        PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-        dl_CloseDma();
-    }
-    dl_SetDLPriority(10);
-    dvOpenPacket();
-    {
-        int rect4[4] = {504, 504, ScreenWidth * 16 - 500, ScreenHeight * 16 - 500};
-        unsigned char v;
-        float s = t * 3.0f;
-
-        if (1000.0f < s) {
-            v = 138;
-        } else {
-            v = s * -107.0f * 0.001f + 245.0f;
-        }
-        {
-            DVColor c = {v, v + 10, v, 128};
-
-            dvSetGsReg(0x46, 1);
-            dvSetGsReg(0x4A, 0);
-            dvSetFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
-            dvSetGsReg(0x06, 0x664020800LL);
-            dvSetGsReg(0x14, 0x60);
-            dvSetGsReg(0x47, 0x33001);
-            dvSetGsReg(0x4E, 0x1300000C0LL);
-            dvSetGsReg(0x42, 0x44);
-            dvSetGsReg(0x00, 0x156);
-            dvSetGsReg(0x01, (long)c.r | ((long)c.g << 8) | ((long)c.b << 16) | ((long)c.a << 24));
-            dvSetGsReg(0x03, (long)rect4[0] | ((long)rect4[1] << 16));
-            dvSetGsReg(0x05, (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) |
-                                 0xFFFFFFFF00000000LL);
-            dvSetGsReg(0x03, (long)(rect4[0] + rect4[2]) | ((long)(rect4[1] + rect4[3]) << 16));
-            dvSetGsReg(0x05, (long)(rect[0] + 0x8000 + rect[2]) |
-                                 ((long)(rect[1] + 0x8000 + rect[3]) << 16) | 0xFFFFFFFF00000000LL);
-        }
-    }
-    {
-        char *p;
-        char *q;
-
-        dvCheckPacket(PacketBufferStruct.ptr.c);
-        ((GifPkWord *)PacketBufferStruct.end.c)->d =
-            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
-                            4) -
-                           1) |
-            0x1000000000008000LL;
-        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
-            0x6C008000;
-        p = PacketBufferStruct.ptr.c;
-        ((GifPkWord *)p)->w[0] = 0x15000000;
-        p += 4;
-        PacketBufferStruct.ptr.c = p;
-        ((GifPkWord *)p)->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 4;
-        ((GifPkWord *)(p + 4))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 8;
-        ((GifPkWord *)(p + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 0xC;
-        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
-                             4) -
-                            1) |
-                           0x10000000);
-        q = PacketBufferStruct.ptr.c;
-        PacketBufferStruct.tail.c = q;
-        ((GifPkWord *)q)->d = 0x60000000;
-        PacketBufferStruct.ptr.c = q + 8;
-        ((GifPkWord *)(q + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = q + 0xC;
-        ((GifPkWord *)(q + 8))->w[1] = 0;
-        PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-        dl_CloseDma();
-    }
-}
-
-static void darkVolume(void *pos, float radius, float ratio, float edge)
-{
-    int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
-                   ScreenHeight * 16};
-    int rect2[4] = {4, 4, ScreenWidth * 16, ScreenHeight * 16};
-
-    dl_SetDLPriority(10);
-    dvOpenPacket();
-    dvSetFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
-    dvSetGsReg(0x4A, 0);
-    dvSetGsReg(0x3B, 0x8000000080LL);
-    dvSetGsReg(0x4E, 0x1300000C0LL);
-    dvSetGsReg(0x47, 0x30000);
-    dvSetGsReg(0x49, 0);
-    dvSetGsReg(0x42, 0x8000000044LL);
-    dvSetGsReg(0x00, 0x406);
-    dvSetGsReg(0x01, (long)volumePacketColor.r | ((long)volumePacketColor.g << 8) |
-                         ((long)volumePacketColor.b << 16) | ((long)volumePacketColor.a << 24));
-    dvSetGsReg(0x05,
-               (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) | 0xFFFFFFFF00000000LL);
-    dvSetGsReg(0x05, (long)(rect[0] + 0x8000 + rect[2]) |
-                         ((long)(rect[1] + 0x8000 + rect[3]) << 16) | 0xFFFFFFFF00000000LL);
-    dvSetGsReg(0x47, 0x50000);
-    dvSetGsReg(0x42, 0x8000000068LL);
-    dvSetGsReg(0x46, 0);
-    {
-        char *p;
-        char *q;
-
-        dvCheckPacket(PacketBufferStruct.ptr.c);
-        ((GifPkWord *)PacketBufferStruct.end.c)->d =
-            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
-                            4) -
-                           1) |
-            0x1000000000008000LL;
-        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
-            0x6C008000;
-        p = PacketBufferStruct.ptr.c;
-        ((GifPkWord *)p)->w[0] = 0x15000000;
-        p += 4;
-        PacketBufferStruct.ptr.c = p;
-        ((GifPkWord *)p)->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 4;
-        ((GifPkWord *)(p + 4))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 8;
-        ((GifPkWord *)(p + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 0xC;
-        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
-                             4) -
-                            1) |
-                           0x10000000);
-        q = PacketBufferStruct.ptr.c;
-        PacketBufferStruct.tail.c = q;
-        ((GifPkWord *)q)->d = 0x60000000;
-        PacketBufferStruct.ptr.c = q + 8;
-        ((GifPkWord *)(q + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = q + 0xC;
-        ((GifPkWord *)(q + 8))->w[1] = 0;
-        PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-        dl_CloseDma();
-    }
-    gif_StartPacketPri(10);
-    {
-        DVColor c = {volumeOuterColor.r - volumeInnerColor.r - 1,
-                     volumeOuterColor.g - volumeInnerColor.g - 1,
-                     volumeOuterColor.b - volumeInnerColor.b - 1, 128};
-
-        renderViewCoordZSphere(pos, volumeOuterColor, 1, radius + edge);
-        renderViewCoordZSphere(pos, volumeInnerColor, 0, radius * ratio + edge * 0.6666667f);
-        renderViewCoordZSphere(pos, c, 0, radius * ratio * ratio);
-        gif_EndPacket();
-    }
-    dl_SetDLPriority(10);
-    dvOpenPacket();
-    dvSetGsReg(0x47, 0x30000);
-    dvSetGsReg(0x4E, 0x1300000C0LL);
-    dvSetGsReg(0x46, 1);
-    dvSetGsReg(0x4A, 0);
-    dvSetGsReg(0x3B, 0x8000008080LL);
-    dvSetGsReg(0x14, 0x60);
-    dvSetFrame(0x1000040, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
-    dvSetGsReg(0x42, 0x44);
-    dvSetGsReg(0x47, 0x30000);
-    dvSetGsReg(0x06, 0x664122800LL);
-    dvSetGsReg(0x00, 0x156);
-    dvSetGsReg(0x01, (long)volumeEdgeColor.r | ((long)volumeEdgeColor.g << 8) |
-                         ((long)volumeEdgeColor.b << 16) | ((long)volumeEdgeColor.a << 24));
-    dvSetGsReg(0x03, (long)rect2[0] | ((long)rect2[1] << 16));
-    dvSetGsReg(0x05,
-               (long)(rect[0] + 0x8000) | ((long)(rect[1] + 0x8000) << 16) | 0xFFFFFFFF00000000LL);
-    dvSetGsReg(0x03, (long)(rect2[0] + rect2[2]) | ((long)(rect2[1] + rect2[3]) << 16));
-    dvSetGsReg(0x05, (long)(rect[0] + 0x8000 + rect[2]) |
-                         ((long)(rect[1] + 0x8000 + rect[3]) << 16) | 0xFFFFFFFF00000000LL);
-    dvSetGsReg(0x4E, 0x300000C0);
-    dvSetGsReg(0x47, 0x50000);
-    {
-        char *p;
-        char *q;
-
-        dvCheckPacket(PacketBufferStruct.ptr.c);
-        ((GifPkWord *)PacketBufferStruct.end.c)->d =
-            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
-                            4) -
-                           1) |
-            0x1000000000008000LL;
-        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
-            0x6C008000;
-        p = PacketBufferStruct.ptr.c;
-        ((GifPkWord *)p)->w[0] = 0x15000000;
-        p += 4;
-        PacketBufferStruct.ptr.c = p;
-        ((GifPkWord *)p)->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 4;
-        ((GifPkWord *)(p + 4))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 8;
-        ((GifPkWord *)(p + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = p + 0xC;
-        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
-                             4) -
-                            1) |
-                           0x10000000);
-        q = PacketBufferStruct.ptr.c;
-        PacketBufferStruct.tail.c = q;
-        ((GifPkWord *)q)->d = 0x60000000;
-        PacketBufferStruct.ptr.c = q + 8;
-        ((GifPkWord *)(q + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = q + 0xC;
-        ((GifPkWord *)(q + 8))->w[1] = 0;
-        PacketBufferStruct.ptr.c = q + 0x10;
-        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-        dl_CloseDma();
-    }
-}
+INCLUDE_ASM(darkVolume);
 
 /* the game-over effect's state and the ordinary dark volume's radius and
    target radius */
@@ -715,18 +369,6 @@ static inline void setGameOverEffect(float *center, float speed) /* derived name
     gameOverQueen = 0;
     CopyVector(gameOverCenter, center);
     gameOverSpeed = speed;
-}
-
-inline void StartGameOverEffect(float *center, float speed)
-{
-    if (girlGObj != 0) {
-        ExecuteSEPackage(girlGObj, 0x7A);
-        ExecuteSEPackage(girlGObj, 0x7B);
-        ExecuteSEPackage(girlGObj, 0x7C);
-        ExecuteSEPackage(girlGObj, 0x7D);
-        ExecuteSEPackage(girlGObj, 0x7E);
-    }
-    setGameOverEffect(center, speed);
 }
 
 inline void StartQueenAttackEffect(float *center, float speed)
@@ -759,44 +401,7 @@ static inline void sendGameOverMail(void *gobj, float r2) /* derived name */
     }
 }
 
-void DispGameOverEffect(void)
-{
-    void *g;
-
-    if (gameOverActive != 0) {
-        sonic(gameOverCenter, gameOverRadius);
-        darkVolume(gameOverCenter, gameOverRadius, 1.0f, 30.0f);
-        if (gameOverRing != 0) {
-            float r2 = gameOverRadius * gameOverRadius;
-
-            g = (void *)boyGObj;
-            if (g != 0) {
-                sendGameOverMail(g, r2);
-            }
-            for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-                 g = isysGObjSearchFromObjKindID_next(g)) {
-                sendGameOverMail(g, r2);
-            }
-            for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
-                 g = isysGObjSearchFromObjKindID_next(g)) {
-                sendGameOverMail(g, r2);
-            }
-        }
-        if (gameOverRadius < 50000.0f && systemStatus[5] == 0) {
-            gameOverRadius = gameOverRadius + gameOverSpeed;
-        }
-    } else {
-        if (darkVolumeTarget < 0.001f && darkVolumeRadius < 1.0f) {
-            return;
-        }
-        darkVolume(darkVolumeCenter, darkVolumeRadius, 0.96f, 0.0f);
-        if (systemStatus[5] != 0) {
-            return;
-        }
-        darkVolumeRadius = darkVolumeRadius + (darkVolumeTarget - darkVolumeRadius) * 0.3f;
-        darkVolumeTarget = 0.0f;
-    }
-}
+INCLUDE_ASM(DispGameOverEffect);
 
 void GetGameOverEffectCenterPosition(float *pos)
 {
@@ -852,23 +457,14 @@ void InitGameOverEffect(void)
     CopyVector(darkVolumeCenter, ZeroPoint);
 }
 
-inline int InitDarkVolumeGeo(GObj *self)
-{
-    *(int *)GOBJ_SUB(self)->nodeMtx = 0;
-    return 0;
-}
-
 void SetupDarkVolume(void *pos, float radius, float edge);
 
-void DarkVolumeGeo(GObj *self)
-{
-    float *p;
+INCLUDE_ASM(InitDarkVolumeGeo);
 
-    GOBJ_SUB(self)->disp = 0;
-    p = (float *)GOBJ_SUB(self)->nodeMtx;
-    if (1e-05f < *p) {
-        SetupDarkVolume((char *)p + 0x30, *p * 50.0f, 10.0f);
-    }
-}
+INCLUDE_ASM(DarkVolumeGeo);
 
-inline void DarkVolumeDL(void) {}
+INCLUDE_ASM(DarkVolumeDL);
+
+INCLUDE_ASM(ExecGameOverEffect);
+
+INCLUDE_ASM(StartGameOverEffect);

@@ -11,6 +11,7 @@
 #include "DisplayList.h"
 #include "Basic.h"
 #include "gobj.h"
+#include "include_asm.h"
 
 /* One skinning matrix per cluster, 64 of 64 bytes, built by
  * shadow_EntryClusterShadow. */
@@ -84,73 +85,7 @@ static int killShadowRequest = 0; /* derived name */
         }                                                                                          \
     }
 
-void shadow_Reset(void)
-{
-    char *c;
-    char *p;
-    char *q;
-
-    if (killShadowRequest != killShadow) {
-        killShadow = killShadowRequest;
-    }
-    tex_LockHeadTBP(0x3D80, 3);
-    dl_SetDLPriority(3);
-    gifStartPacketPath1(c);
-    {
-        int full[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
-                       ScreenHeight * 16};
-        int band[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16, 256};
-        unsigned char col[4] = {0};
-
-        setFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
-        setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
-        setGsReg(0x47, 0x30000);
-        spriteRect(band, col, 0x406);
-
-        setFrame(0x142, ScreenWidth, ScreenHeight, 0, 0);
-        setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
-        setGsReg(0x47, 0x30000);
-        spriteRect(full, col, 0x406);
-
-        setGsReg(0x4A, 0);
-        setGsReg(0x3B, 0x80 | ((long long)0x80 << 32));
-        setGsReg(0x47, 0x50000);
-        setGsReg(0x42, 0x68 | ((long long)0x80 << 32));
-        setGsReg(0x46, 0);
-    }
-    ((GifPkWord *)PacketBufferStruct.end.c)->d =
-        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> 4) -
-                       1) |
-        0x1000000000008000LL;
-    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-        (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
-        0x6C008000;
-    p = PacketBufferStruct.ptr.c;
-    ((GifPkWord *)p)->w[0] = 0x15000000;
-    p += 4;
-    PacketBufferStruct.ptr.c = p;
-    ((GifPkWord *)p)->w[0] = 0;
-    PacketBufferStruct.ptr.c = (p + 4);
-    ((GifPkWord *)(p + 4))->w[0] = 0;
-    PacketBufferStruct.ptr.c = (p + 8);
-    ((GifPkWord *)(p + 8))->w[0] = 0;
-    PacketBufferStruct.ptr.c = (p + 0xC);
-    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
-                         4) -
-                        1) |
-                       0x10000000);
-    q = PacketBufferStruct.ptr.c;
-    PacketBufferStruct.tail.c = q;
-    ((GifPkWord *)q)->d = 0x60000000;
-    PacketBufferStruct.ptr.c = (q + 8);
-    ((GifPkWord *)(q + 8))->w[0] = 0;
-    PacketBufferStruct.ptr.c = (q + 0xC);
-    ((GifPkWord *)(q + 8))->w[1] = 0;
-    PacketBufferStruct.ptr.c = (q + 0x10);
-    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-    dl_CloseDma();
-}
+INCLUDE_ASM(shadow_Reset);
 
 /* The textured sprite: PRIM, RGBAQ, then a UV and an XYZ2 pair for each
  * corner, the far corner as spriteRect holds it. */
@@ -173,115 +108,7 @@ void shadow_Reset(void)
 /* the debug flag word: bit 0 turns the on-screen labels on */
 /* "S", the one character label this pass prints */
 
-void shadow_Draw(void)
-{
-    if (debug_font_flag & 1) {
-        debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, "S");
-    }
-    {
-        /* the four level tables, this block's statics */
-        /* the frame buffer pointer of each shadow mipmap level */
-        static const unsigned int levelFbp[4] = {0x142, 0x1C2, 0x1E2, 0x1EA}; /* derived name */
-        /* the texture base pointer of each shadow mipmap level */
-        static const unsigned int levelTbp[4] = {0x2840, 0x3840, 0x3C40, 0x3D40}; /* derived name */
-        /* the sprite corner and size of each level in 12.4 screen units */
-        static const int levelRect[4][4] = {{-4100, -4100, 8192, 8192},
-                                            {-2052, -2052, 4096, 4096},
-                                            {-1028, -1028, 2048, 2048},
-                                            {-516, -516, 1024, 1024}}; /* derived name */
-        /* the sprite texture rectangle of each level at the 512 pixel default */
-        static const int levelUV[4][4] = {{4, 4, 8192, 8192},
-                                          {4, 4, 4096, 4096},
-                                          {4, 4, 2048, 2048},
-                                          {4, 4, 1024, 1024}}; /* derived name */
-        int rect[4][4] = {{4, 4, ScreenWidth * 16, ScreenHeight * 16},
-                          {4, 4, ScreenWidth * 8, ScreenHeight * 8},
-                          {4, 4, ScreenWidth * 4, ScreenHeight * 4},
-                          {4, 4, ScreenWidth * 2, ScreenHeight * 2}};
-        int off[4] = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
-                      ScreenHeight * 16};
-        unsigned char col[4] = {128, 128, 128, GlobalStageSetting.shadowDepth};
-        int dbg = 0; /* local debug switch, see the test in the upward loop */
-        int i;
-        char *c;
-        char *q;
-
-        dl_SetDLPriority(3);
-        gifStartPacketPath1(c);
-        setGsReg(0x47, 0x30000);
-        setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
-        setGsReg(0x46, 1);
-        setGsReg(0x4A, 0);
-        setGsReg(0x3B, 0x8080 | ((long long)0x80 << 32));
-        setGsReg(0x14, 0x60);
-
-        for (i = 0; i < 3; i++) {
-            setFrame(levelFbp[i + 1], 512 >> (i + 1), 512 >> (i + 1), 0, 0);
-            if (i == 0) {
-                *PacketBufferStruct.ptr.d++ = levelTbp[i] | ((long long)(512 >> i) / 64 << 14) |
-                                              ((long long)1 << 20) | ((long long)(9 - i) << 26) |
-                                              ((long long)(9 - i) << 30) |
-                                              ((long long)0x8000 << 19);
-                *PacketBufferStruct.ptr.d++ = 0x06;
-            } else {
-                *PacketBufferStruct.ptr.d++ =
-                    levelTbp[i] | ((long long)(512 >> i) / 64 << 14) | ((long long)(9 - i) << 26) |
-                    ((long long)(9 - i) << 30) | ((long long)0x8000 << 19);
-                *PacketBufferStruct.ptr.d++ = 0x06;
-            }
-            spriteUV(levelRect[i + 1], levelUV[i], col, 0x116);
-        }
-
-        setFrame(0x40, ScreenWidth, ScreenHeight, 0, 0);
-        setGsReg(0x42, 0x44);
-        setGsReg(0x47, 0x3400D);
-
-        for (i = 3; i > 0; i--) {
-            unsigned char col2[4] = {GlobalStageSetting.shadowColR, GlobalStageSetting.shadowColG,
-                                     GlobalStageSetting.shadowColB,
-                                     GlobalStageSetting.shadowBlend[i]};
-
-            /* a local debug switch, off: draw every level in mid grey */
-            if (dbg) {
-                col2[0] = col2[1] = col2[2] = col2[3] = 0x80;
-            }
-            *PacketBufferStruct.ptr.d++ = levelTbp[i] | ((long long)(512 >> i) / 64 << 14) |
-                                          ((long long)(9 - i) << 26) | ((long long)(9 - i) << 30) |
-                                          ((long long)0x8000 << 19);
-            *PacketBufferStruct.ptr.d++ = 0x06;
-            setGsReg(0x14, 0x60);
-            spriteUV(off, rect[i], col2, 0x156);
-        }
-
-        setGsReg(0x4E, 0x300000C0);
-        setGsReg(0x47, 0x50000);
-        setFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
-
-        ((GifPkWord *)PacketBufferStruct.end.c)->d =
-            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
-                            4) -
-                           1) |
-            0x1000000000008000LL;
-        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-            ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
-        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
-                             4) -
-                            1) |
-                           0x10000000);
-        q = PacketBufferStruct.ptr.c;
-        PacketBufferStruct.tail.c = q;
-        ((GifPkWord *)q)->d = 0x60000000;
-        PacketBufferStruct.ptr.c = (q + 8);
-        ((GifPkWord *)(q + 8))->w[0] = 0;
-        PacketBufferStruct.ptr.c = (q + 0xC);
-        ((GifPkWord *)(q + 8))->w[1] = 0;
-        PacketBufferStruct.ptr.c = (q + 0x10);
-        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-        dl_CloseDma();
-    }
-    tex_UnlockHeadTBP(3);
-}
+INCLUDE_ASM(shadow_Draw);
 
 #ifdef DEBUG
 
@@ -303,14 +130,7 @@ void shadow_Render(Sub15C *o)
 #endif
 }
 
-static void shadow_getShadowVectorAverage(void *dir, Sub15C *o)
-{
-    _CopyVector(dir, o->shadowDir);
-    _SetCurrentMatrix(matrixptr + 0x80);
-    _ClearTransCurrentMatrix();
-    _ApplyCurrentMatrix(dir, dir);
-    _NormalizeVector(dir, dir);
-}
+INCLUDE_ASM(shadow_getShadowVectorAverage);
 
 /* the same quadword copy type src/Primitive.c uses: the accumulator reset is
  * one lq/sq pair per vertex */
@@ -364,76 +184,7 @@ static inline void applyWeightedVtx(void *dst, void *src, float w) /* derived na
                          : "$8");
 }
 
-static void shadow_EntryClusterShadow(Sub15C *o, float len)
-{
-    VECTOR zero = {0.0f, 0.0f, 0.0f, 1.0f};
-    float v[4];
-    float sa[4];
-    float sb[4];
-    PObjModel *x = o->shadow;
-    PObjPart *p;
-    int i;
-    unsigned int k;
-
-    _InitCurrentMatrix();
-    shadow_getShadowVectorAverage(v, o);
-    _ScaleVectorXYZ(sa, v, len);
-    _ScaleVectorXYZ(sb, v, 4.0f);
-
-    for (i = 0; i < o->nodeNum; i++) {
-        _SetCurrentMatrix((char *)o->nodeMtx + i * 0x40);
-        _MulCurrentMatrixR(o->clusterMtx + i * 0x40);
-        _MulCurrentMatrixL(matrixptr + 0x80);
-        _GetCurrentMatrix(clusterMatrix + i * 0x40);
-    }
-
-    __asm__ __volatile__("lq $8, 0(%0)" : : "r"(&zero) : "$8");
-    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
-        for (k = 0; k < p->vtxCount; k++) {
-            __asm__ __volatile__("sq $8, 0(%0)" : : "r"((Qw128 *)p->vtxSave + k) : "$8");
-        }
-    }
-
-    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
-        for (k = 0; k < p->polyCount; k++) {
-            ClusterWeight *e;
-            VECTOR *dst;
-            VECTOR *src;
-
-            _SetCurrentMatrix(clusterMatrix + ((ClusterPoly *)p->polys)[k].matrix * 0x40);
-            e = ((ClusterPoly *)p->polys)[k].run;
-            /* both bases are read once here, ahead of the loop */
-            dst = (VECTOR *)p->vtxSave;
-            src = (VECTOR *)p->vtx;
-            do {
-                applyWeightedVtx(dst + e->idx, src + e->idx, e->w);
-            } while ((++e)->idx != -1);
-        }
-        for (k = 0; k < p->vtxCount; k++) {
-            _AddVectorXYZ(p->nrmSave + k * 16, p->vtxSave + k * 16, sa);
-            _AddVectorXYZ(p->vtxSave + k * 16, p->vtxSave + k * 16, sb);
-        }
-    }
-
-    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
-        VECTOR *va = (VECTOR *)p->vtxSave;
-        VECTOR *vb = (VECTOR *)p->nrmSave;
-
-        for (k = 0; k < p->vtxCount; k++) {
-            if (1.0f <= va[k].z && 1.0f <= vb[k].z) {
-            } else if (va[k].z < 1.0f && vb[k].z < 1.0f) {
-                vb[k].w = -1.0f;
-                va[k].w = -1.0f;
-            } else if (vb[k].z < 1.0f) {
-                _InterVectorXYZ(&vb[k], &va[k], &vb[k],
-                                1.0f - (va[k].z - 1.0f) / (va[k].z - vb[k].z));
-            } else if (va[k].z < 1.0f) {
-                _InterVectorXYZ(&va[k], &vb[k], &va[k],
-                                1.0f - (vb[k].z - 1.0f) / (vb[k].z - va[k].z));
-            }
-        }
-    }
-}
+INCLUDE_ASM(shadow_EntryClusterShadow);
 
 /* Transform a vertex by the current matrix through VU0: one asm block, the
  * two vnop runs placed by hand around the multiply, both addresses "r"
@@ -456,53 +207,7 @@ static inline void applyCurrentMatrixV(void *dst, void *src) /* derived name */
                          : "r"(dst), "r"(src));
 }
 
-static void shadow_EntryNormalShadow(Sub15C *o, int idx, float len)
-{
-    float v[4];
-    float sa[4];
-    float sb[4];
-    PObjModel *x = o->shadow;
-    int i;
-    int j;
-    PObjPart *p;
-
-    shadow_getShadowVectorAverage(v, o);
-    _ScaleVectorXYZ(sa, v, len);
-    _ScaleVectorXYZ(sb, v, 4.0f);
-    _SetCurrentMatrix((char *)o->nodeMtx + idx * 0x40);
-    _MulCurrentMatrixL(matrixptr + 0x80);
-
-    p = x->parts;
-    for (i = 0; i < x->partCount; i++, p++) {
-        for (j = 0; j < p->vtxCount; j++) {
-            applyCurrentMatrixV(p->vtxSave + j * 16, p->vtx + j * 16);
-        }
-        for (j = 0; j < p->vtxCount; j++) {
-            _AddVectorXYZ(p->nrmSave + j * 16, p->vtxSave + j * 16, sa);
-            _AddVectorXYZ(p->vtxSave + j * 16, p->vtxSave + j * 16, sb);
-        }
-    }
-
-    p = x->parts;
-    for (i = 0; i < x->partCount; i++, p++) {
-        VECTOR *va = (VECTOR *)p->vtxSave;
-        VECTOR *vb = (VECTOR *)p->nrmSave;
-
-        for (j = 0; j < p->vtxCount; j++) {
-            if (1.0f <= va[j].z && 1.0f <= vb[j].z) {
-            } else if (va[j].z < 1.0f && vb[j].z < 1.0f) {
-                vb[j].w = -1.0f;
-                va[j].w = -1.0f;
-            } else if (vb[j].z < 1.0f) {
-                _InterVectorXYZ(&vb[j], &va[j], &vb[j],
-                                1.0f - (va[j].z - 1.0f) / (va[j].z - vb[j].z));
-            } else if (va[j].z < 1.0f) {
-                _InterVectorXYZ(&va[j], &vb[j], &va[j],
-                                1.0f - (vb[j].z - 1.0f) / (vb[j].z - va[j].z));
-            }
-        }
-    }
-}
+INCLUDE_ASM(shadow_EntryNormalShadow);
 
 /* The static helpers shadow_RenderVolume and shadow_RenderVolumeMulti share;
  * both inline every one of them. */
@@ -884,207 +589,9 @@ typedef struct ShadowRun { /* field names derived */
     char pad6[10];
 } ShadowRun; /* derived name */
 
-void shadow_RenderVolume(Sub15C *o)
-{
-    VECTOR pos;
-    VECTOR cam;
-    PObjModel *x = o->shadow;
-    float len = o->model->shadowLength;
-    unsigned long long *p;
-    unsigned long long *start;
-    char *c;
-    char *q;
-    PObjPart *part;
-    ShadowRun *e;
-    VECTOR *top;
-    VECTOR *bot;
-    int i;
-    unsigned int j;
-    int k;
-    int n;
-    int state;
-    float sgn;
-    float r;
+INCLUDE_ASM(shadow_RenderVolume);
 
-    if (x->mode.bits & 0x04000000) {
-        return;
-    }
-    if (len != x->shadowLength && 0.0f < x->shadowLength) {
-        len = x->shadowLength;
-    }
-    __GetCameraPos(&cam);
-    GetRootPositionByDObj(&pos, o);
-    _GetLength(&pos, &cam);
-    if (o->dispType == 1) {
-        shadow_EntryClusterShadow(o, len);
-    } else {
-        shadow_EntryNormalShadow(o, 0, len);
-    }
-    dl_SetDLPriority(3);
-    shadow_getShadowVectorAverage(&pos, o);
-    loadVolumeMatrix(&pos);
-    c = PacketBufferStruct.ptr.c;
-    PacketBufferStruct.gif.c = 0;
-    PacketBufferStruct.dma.c = c;
-    PacketBufferStruct.end.c = 0;
-    PacketBufferStruct.tail.c = c;
-    PacketBufferStruct.ptr.c = (c + 8);
-    ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
-    PacketBufferStruct.gif.c = c + 0xC;
-    PacketBufferStruct.ptr.c = (c + 0x10);
-    p = PacketBufferStruct.ptr.d;
-    start = p;
-    for (i = 0; i < x->partCount; i++) {
-        part = &x->parts[i];
-        top = (VECTOR *)part->vtxSave;
-        bot = (VECTOR *)part->nrmSave;
-        for (j = 0; j < part->stripCount; j++) {
-            e = ((ShadowRun **)part->strips)[j];
-            while ((n = (e++)->count) != 0) {
-                sgn = e->count != 0 ? 1.0f : -1.0f;
-                state = clipVolumeHead(&top[e[0].vtx], &bot[e[0].vtx], &top[e[1].vtx],
-                                       &bot[e[1].vtx], sgn);
-                e += 2;
-                for (k = 2; k < n; k++) {
-                    if (top[e->vtx].w == -1.0f) {
-                        state = 3;
-                    } else if (state) {
-                        state--;
-                    }
-                    r = clipVolumeEdge(&top[e->vtx], &bot[e->vtx], sgn);
-                    if (0.0f <= r) {
-                        if (state == 0) {
-                            p = emitVolumeStrip(p, sgn);
-                        }
-                    } else if (top[e->vtx].w == -1.0f) {
-                        state = 3;
-                    }
-                    sgn = -sgn;
-                    e++;
-                }
-            }
-        }
-    }
-    PacketBufferStruct.ptr.d = p;
-    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-        (unsigned int)((((unsigned int)((char *)p - PacketBufferStruct.tail.c) >> 4) - 1) |
-                       0x10000000);
-    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
-    q = PacketBufferStruct.ptr.c;
-    PacketBufferStruct.tail.c = q;
-    ((GifPkWord *)q)->d = 0x60000000;
-    PacketBufferStruct.ptr.c = (q + 8);
-    ((GifPkWord *)(q + 8))->w[0] = 0;
-    PacketBufferStruct.ptr.c = (q + 0xC);
-    ((GifPkWord *)(q + 8))->w[1] = 0;
-    PacketBufferStruct.ptr.c = (q + 0x10);
-    if (p - start > 0) {
-        dl_SetDLPriority(dl_GetPri());
-        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-        dl_CloseDma();
-    }
-    dl_SetDLPriority(0);
-}
-
-void shadow_RenderVolumeMulti(Sub15C *o, int idx)
-{
-    VECTOR pos;
-    VECTOR cam;
-    PObjModel *x = o->shadow;
-    float len = o->model->shadowLength;
-    unsigned long long *p;
-    unsigned long long *start;
-    char *c;
-    char *q;
-    PObjPart *part;
-    ShadowRun *e;
-    VECTOR *top;
-    VECTOR *bot;
-    int i;
-    unsigned int j;
-    int k;
-    int n;
-    int state;
-    float sgn;
-    float r;
-
-    if (x->mode.bits & 0x04000000) {
-        return;
-    }
-    if (len != x->shadowLength && 0.0f < x->shadowLength) {
-        len = x->shadowLength;
-    }
-    __GetCameraPos(&cam);
-    GetRootPositionByDObj(&pos, o);
-    _GetLength(&pos, &cam);
-    shadow_EntryNormalShadow(o, idx, len);
-    dl_SetDLPriority(3);
-    shadow_getShadowVectorAverage(&pos, o);
-    loadVolumeMatrix(&pos);
-    c = PacketBufferStruct.ptr.c;
-    PacketBufferStruct.gif.c = 0;
-    PacketBufferStruct.dma.c = c;
-    PacketBufferStruct.end.c = 0;
-    PacketBufferStruct.tail.c = c;
-    PacketBufferStruct.ptr.c = (c + 8);
-    ((GifPkWord *)(c + 8))->w[0] = 0x11000000;
-    PacketBufferStruct.gif.c = c + 0xC;
-    PacketBufferStruct.ptr.c = (c + 0x10);
-    p = PacketBufferStruct.ptr.d;
-    start = p;
-    for (i = 0; i < x->partCount; i++) {
-        part = &x->parts[i];
-        top = (VECTOR *)part->vtxSave;
-        bot = (VECTOR *)part->nrmSave;
-        for (j = 0; j < part->stripCount; j++) {
-            e = ((ShadowRun **)part->strips)[j];
-            while ((n = (e++)->count) != 0) {
-                sgn = e->count != 0 ? 1.0f : -1.0f;
-                state = clipVolumeHead(&top[e[0].vtx], &bot[e[0].vtx], &top[e[1].vtx],
-                                       &bot[e[1].vtx], sgn);
-                e += 2;
-                for (k = 2; k < n; k++) {
-                    if (top[e->vtx].w == -1.0f) {
-                        state = 3;
-                    } else if (state) {
-                        state--;
-                    }
-                    r = clipVolumeEdge(&top[e->vtx], &bot[e->vtx], sgn);
-                    if (0.0f <= r) {
-                        if (state == 0) {
-                            p = emitVolumeStrip(p, sgn);
-                        }
-                    } else if (top[e->vtx].w == -1.0f) {
-                        state = 3;
-                    }
-                    sgn = -sgn;
-                    e++;
-                }
-            }
-        }
-    }
-    PacketBufferStruct.ptr.d = p;
-    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
-        (unsigned int)((((unsigned int)((char *)p - PacketBufferStruct.tail.c) >> 4) - 1) |
-                       0x10000000);
-    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
-        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
-    q = PacketBufferStruct.ptr.c;
-    PacketBufferStruct.tail.c = q;
-    ((GifPkWord *)q)->d = 0x60000000;
-    PacketBufferStruct.ptr.c = (q + 8);
-    ((GifPkWord *)(q + 8))->w[0] = 0;
-    PacketBufferStruct.ptr.c = (q + 0xC);
-    ((GifPkWord *)(q + 8))->w[1] = 0;
-    PacketBufferStruct.ptr.c = (q + 0x10);
-    if (p - start > 0) {
-        dl_SetDLPriority(dl_GetPri());
-        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
-        dl_CloseDma();
-    }
-    dl_SetDLPriority(0);
-}
+INCLUDE_ASM(shadow_RenderVolumeMulti);
 
 /* The three record shapes shadow_MakeObjectData copies out of the model into
  * its own heap.  The vertex and polygon records are eight-byte aligned; the
@@ -1175,62 +682,6 @@ void shadow_MakeObjectData(PObjModel *mdl)
             }
         }
         p->strips = s;
-    }
-}
-
-inline void shadow_KillShadow(int val)
-{
-    killShadowRequest = val;
-}
-
-inline void shadow_DispCancel(int id, int cancel)
-{
-    GObj *obj = isysGObjGetExist_begin();
-    if (obj != 0) {
-        long long bit = (long long)(cancel & 1) << 26;
-        do {
-            Sub15C *node = obj->dobj;
-            if (node != 0) {
-                PObjModel *dl = node->model;
-                if (dl != 0) {
-                    PObjModel *x = node->shadow;
-                    if (x != 0) {
-                        if (dl->mode.s.id == id) {
-                            x->mode.bits = (x->mode.bits & ~0x04000000) | bit;
-                        }
-                    }
-                }
-            }
-            obj = isysGObjGetExist_next(obj);
-        } while (obj != 0);
-    }
-}
-
-inline void shadow_SetLength(Sub15C *o, float len)
-{
-    if (0.0f < len) {
-        o->shadow->shadowLength = len;
-    } else {
-        o->shadow->shadowLength = o->model->shadowLength;
-    }
-}
-
-inline void shadow_Init(void)
-{
-    GObj *obj;
-    killShadow = 0;
-    killShadowRequest = 0;
-    for (obj = isysGObjGetExist_begin(); obj != 0; obj = isysGObjGetExist_next(obj)) {
-        Sub15C *node = GOBJ_SUB(obj);
-        if (node != 0) {
-            PObjModel *dl = node->model;
-            if (dl != 0) {
-                PObjModel *x = node->shadow;
-                if (x != 0) {
-                    x->mode.bits &= ~0x04000000;
-                }
-            }
-        }
     }
 }
 
@@ -1326,3 +777,11 @@ int shadow_Tool(void)
     }
     return ret;
 }
+
+INCLUDE_ASM(shadow_KillShadow);
+
+INCLUDE_ASM(shadow_DispCancel);
+
+INCLUDE_ASM(shadow_SetLength);
+
+INCLUDE_ASM(shadow_Init);
