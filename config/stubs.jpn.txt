@@ -163,9 +163,6 @@ rdlit rootUpdateXZ 0x006191F8 0x0061923E ico2/sugipon/src/motionManager.c  # 1 s
 text rootUpdateXZ_MotPos 0x001E8398 0x001E8894 ico2/sugipon/src/motionManager.c local lines=83 in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 44; length:-12; extent-differs
 lit4 rootUpdateXZ_MotPos 0x00633174 0x00633178 ico2/sugipon/src/motionManager.c  # 1 float; target side (no PAL body to compile)
 rdlit rootUpdateXZ_MotPos 0x00619240 0x00619251 ico2/sugipon/src/motionManager.c  # 1 string; target side (no PAL body to compile)
-text FullScreenEffectBefore 0x001FBCC8 0x001FBE48 ico2/sugipon/src/staticBlur.c lines=71  # ordinal; first difference at insn 2; length:-9; extent-differs
-rdlit FullScreenEffectBefore 0x0061A300 0x0061A320 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
-sdlit FullScreenEffectBefore 0x00635678 0x0063567C ico2/sugipon/src/staticBlur.c  # 1 string
 text ACTGetEnvironment 0x00209F08 0x0020E524 ico2/fumi/src/act-env.c lines=1078  # ordinal; first difference at insn 793; length:-1; extent-differs
 lit4 ACTGetEnvironment 0x006332AC 0x006332F4 ico2/fumi/src/act-env.c  # 18 floats
 rdlit ACTGetEnvironment 0x0061AD90 0x0061ADBC ico2/fumi/src/act-env.c align=16  # 3 strings
@@ -176,7 +173,6 @@ text actOpDemo01 0x0021C330 0x0021C840 ico2/script/src/op.c lines=134  # ordinal
 sdlit actOpDemo01 0x006358B8 0x006358CF ico2/script/src/op.c  # 3 strings
 text actSt13bConte02 0x00244730 0x0024504C ico2/script/src/st13b.c lines=238  # ordinal; first difference at insn 0; length:-23; extent-differs
 rdlit actSt13bConte02 0x0061C080 0x0061C088 ico2/script/src/st13b.c  # 1 double
-text dispClear 0x00255118 0x00255290 ico2/ito/mpeg/mv_disp.c lines=19  # ordinal; first difference at insn 1; length:+1; extent-differs
 text setDispEnv 0x00255290 0x00255488 ico2/ito/mpeg/mv_disp.c lines=27  # ordinal; first difference at insn 0; length:+7; extent-differs
 text dispSetTags 0x002555A8 0x00255B08 ico2/ito/mpeg/mv_disp.c lines=58  # ordinal; first difference at insn 0; length:+76; extent-differs
 #

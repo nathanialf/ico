@@ -94,7 +94,25 @@ static inline int *setClearSprite(int *p, MvRect *r, unsigned int col) /* derive
     return p;
 }
 
-INCLUDE_ASM(dispClear);
+void dispClear(MvDispEnv *self, unsigned int col)
+{
+    MvRect r;
+    int *p;
+
+    r.x = 0;
+    r.y = 0;
+    r.w = self->width << 4;
+    r.h = ((self->height + 31) / 32 * 64 + self->height * 3) << 4;
+
+    p = setGIFtag((int *)uncached_accel_addr((int)mvClearPacket), 14, 1, 0, 0, 0, 1, 4);
+    setClearSprite(p, &r, col);
+
+    *D2_MADR = phys_addr((int)mvClearPacket);
+    *D2_QWC = 5;
+    *D2_CHCR = 0x101;
+
+    sceGsSyncPath(0, 0);
+}
 
 void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby);
 
