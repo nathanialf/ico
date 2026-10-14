@@ -7,12 +7,12 @@ console loads is identical to the disc's (the ROM image SHA-1 matches), and
 so is the ELF file itself (its SHA-1 matches the disc's).
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
+![.text progress](https://img.shields.io/badge/text-100.00%20%25%20%2841.70%20%25%20source%20%2B%2058.30%20%25%20disc%29-brightgreen.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
-![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.54%20%25%20source%20%2B%2027.46%20%25%20disc%29-brightgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.49%20%25%20source%20%2B%2090.51%20%25%20disc%29-brightgreen.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg)
+![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2869.12%20%25%20source%20%2B%2030.88%20%25%20disc%29-brightgreen.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%286.38%20%25%20source%20%2B%2093.62%20%25%20disc%29-brightgreen.svg)
+![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20%2827.08%20%25%20source%20%2B%2072.92%20%25%20disc%29-brightgreen.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2884.62%20%25%20source%20%2B%2015.38%20%25%20disc%29-brightgreen.svg)
 ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg)
 ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
 <!-- progress:end -->
