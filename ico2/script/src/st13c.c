@@ -52,37 +52,37 @@ static GObj *bossGenerator; /* derived name */
 
 /* .data: actor mail packets. */
 
-static ActMail bmg1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail bmg1_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail sleep_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sleep_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail cageDownMain_mes[2] = {{406, actSt13cCageDownSwitch}, {429}}; /* derived name */
+static ActMail cageDownMain_mes[2] = {{372, actSt13cCageDownSwitch}, {392}}; /* derived name */
 
-static ActMail cageDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail cageDown_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail cageDownSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail cageDownSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail cageFallReady_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail cageFallReady_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail cageFall_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail cageFall_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail cageFall2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail cageFall2_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail sekizoJimaku_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizoJimaku_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail girlCarry_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail girlCarry_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail girlCarryChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail girlCarryChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail girlCarryAgainChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail girlCarryAgainChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail hand_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hand_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail rescue_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail rescue_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail buki_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail buki_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sdata: bmg and hand around the two scene streams, then a word no code
    uses, a shake and its volume. */

@@ -43,69 +43,69 @@ static const ConstVec jumpPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derive
 
 static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static ActMail suimon_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail suimon_mes[2] = {{393}, {392}}; /* derived name */
 
 static float suimon_sound_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f}; /* derived name */
 
-static ActMail door_down_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_down_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door_up_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_up_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door_upchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_upchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door_dnchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_dnchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail shutter_main_mes[2] = {{406, actSt06aShutterSwitch}, {429}}; /* derived name */
+static ActMail shutter_main_mes[2] = {{372, actSt06aShutterSwitch}, {392}}; /* derived name */
 
-static ActMail shutter_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail shutter_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail shutter_switch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail shutter_switch_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail exit_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail box_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail box_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail box2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail box2_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail box3_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail box3_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ball_delete_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ball_delete_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail box_event2_in_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail box_event2_in_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail box_event2_out_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail box_event2_out_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail box_event2_inchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail box_event2_inchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail box_event2_out_chk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail box_event2_out_chk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail way_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail way_onchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_onchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail way_offchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_offchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wall_way_on_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wall_way_on_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wall_way_off_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wall_way_off_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wall_way_onchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wall_way_onchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wall_way_offchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wall_way_offchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wall_way2_on_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wall_way2_on_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wall_way2_off_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wall_way2_off_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wall_way2_onchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wall_way2_onchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wall_way2_offchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wall_way2_offchk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail statue_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail statue_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail head_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail head_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail tree_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail tree_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for, and its complement, true when the player skipped the demo

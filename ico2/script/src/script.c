@@ -109,51 +109,21 @@ extern struct MotTblRec { /* derived name */ /* field names derived */
 static int wireBoxColor[4] = {0, 16, 32, 128}; /* derived name */
 
 /* .data: the two exported door tables, then five read only here.  Each is
-   the usual actor mail pair: the mail the door thread answers, then the 429
+   the usual actor mail pair: the mail the door thread answers, then the 392
    end marker act.c walks to. */
-ActMail scpInterDoorUpLever1[2] = {{406, scpDoorTypeUpSwitch}, {429}};
+ActMail scpInterDoorUpLever1[2] = {{372, scpDoorTypeUpSwitch}, {392}};
 
-ActMail scpInterDoorUpLever2[2] = {{407, scpDoorTypeUpSwitch}, {429}};
+ActMail scpInterDoorUpLever2[2] = {{373, scpDoorTypeUpSwitch}, {392}};
 
-static ActMail doorTypeUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorTypeUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorTypeUpSwitchDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorTypeUpSwitchDown_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorTypeUpSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorTypeUpSwitchUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorTypeUpDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorTypeUpDown_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorTypeUpUp_mes[2] = {{430}, {429}}; /* derived name */
-
-/* the 0x30-byte wood-bridge table entry at woodBoxTbl: an object id, the
-   trigger `kind` that selects which axis test runs, the bridge end offset the
-   way group is built from, and the four axis bounds the tests read. */
-struct WoodBoxEnt { /* derived name */ /* field names derived */
-    short id;                          /* 0x00 */
-    char kind;                         /* 0x02 */
-    char pad3[13];                     /* 0x03 */
-    float ofs[4];                      /* 0x10 */
-    float b0;                          /* 0x20 */
-    float b1;                          /* 0x24 */
-    float b2;                          /* 0x28 */
-    float b3;                          /* 0x2C */
-};
-
-/* .data: the wood-bridge trigger table, one row per bridge object, walked by
-   object id. */
-static struct WoodBoxEnt woodBoxTbl[11] = {
-    {276, 6, {0}, {0.0f, -100.0f, 100.0f, 0.0f}, 1068.0f, -135.0f, 200.0f, 580.0f},
-    {1710, 0, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -1410.0f, 1000.0f, 0.0f, 0.0f},
-    {1705, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, 807.0f, 2000.0f, 570.0f, 1027.0f},
-    {1707, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, 807.0f, 2000.0f, 570.0f, 1027.0f},
-    {363, 1, {0}, {0.0f, -200.0f, -100.0f, 0.0f}, 740.0f, -3600.0f, 0.0f, 0.0f},
-    {988, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, -1431.0f, 105.0f, -470.0f, -259.0f},
-    {865, 8, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -350.0f, -285.0f, -450.0f, -280.0f},
-    {866, 8, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -350.0f, -285.0f, -450.0f, -280.0f},
-    {1773, 7, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
-    {1626, 1, {0}, {100.0f, -200.0f, 0.0f, 0.0f}, 680.0f, 230.0f, 0.0f, 0.0f},
-    {3294, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
-}; /* derived name */
+static ActMail doorTypeUpUp_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sbss: a stage change has been requested and no further one is
    accepted. */

@@ -17,7 +17,7 @@
 
 static void actSt24aSwordSub(GObj *volatile self);
 
-static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sword_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */

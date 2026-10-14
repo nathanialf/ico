@@ -129,12 +129,12 @@ typedef struct { /* field names derived */
 } GirlSofaWork;        /* derived name */
 
 /* the three attract parameter sets */
-static GirlAttractParam attractObjParam = {0, {0}, {0}, 0, 338, 100.0f, 100.0f}; /* derived name */
+static GirlAttractParam attractObjParam = {0, {0}, {0}, 0, 312, 100.0f, 100.0f}; /* derived name */
 
-static GirlAttractParam attractSofaParam = {0, {0}, {0}, 68, 267, 50.0f, 100.0f,
+static GirlAttractParam attractSofaParam = {0, {0}, {0}, 61, 248, 50.0f, 100.0f,
                                             1, {0}, {0}, 0,  {0}, 200.0f}; /* derived name */
 
-static GirlAttractParam attractBoyParam = {0, {0}, {0}, 0, 338, 100.0f, 70.0f}; /* derived name */
+static GirlAttractParam attractBoyParam = {0, {0}, {0}, 0, 312, 100.0f, 70.0f}; /* derived name */
 
 /* The actor entry parameter is volatile: the actor scheduler writes the
  * caller's home slot while this thread is parked in _ACTWait. */

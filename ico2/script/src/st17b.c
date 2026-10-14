@@ -7,7 +7,7 @@
 #include "typedef.h"
 #include "include_asm.h"
 
-static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail check_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sdata: the lightning stream handle. */
 struct SqEntry *lightning2 = 0;

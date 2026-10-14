@@ -27,11 +27,11 @@ static int demoEnd;
 
 static int demoSkipped; /* derived name */
 
-static ActMail waterMain_mes[2] = {{406, actSt04eWaterSwitch}, {429}}; /* derived name */
+static ActMail waterMain_mes[2] = {{372, actSt04eWaterSwitch}, {392}}; /* derived name */
 
-static ActMail water_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail water_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail waterSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail waterSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt04eWater);
 

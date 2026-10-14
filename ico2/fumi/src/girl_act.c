@@ -146,39 +146,37 @@ typedef struct GirlBrainWork { /* field names derived */
     void *target;     /* 0x57D0 the brain's current target gobj             */
     void *lastTarget; /* 0x57D4 the target the last DecideMode pass saw      */
     char pad57D8[4];
-    int curMode;    /* 0x57DC the mode the brain last switched to */
-    int targetFlag; /* 0x57E0 bit 16 of the winning BrainTarget's b18 word */
-    char pad57E4[12];
-    float runawayGoal[4]; /* 0x57F0 the runaway goal */
-    float hidePoint[4];   /* 0x5800 last accepted hide point */
-    float runawayFrom[4]; /* 0x5810 where the runaway search starts ("girl brain target") */
-    float girlRoot[4];    /* 0x5820 GetRootPosition of the girl */
-    float girlPos[4];     /* 0x5830 the girl's own position, GetRootProjectionPosOfGObj */
-    float boyRoot[4];     /* 0x5840 GetRootPosition of the boy */
-    float boyPos[4];      /* 0x5850 the boy's GetRootProjectionPosOfGObj */
-    WayPoint *lastWay;    /* 0x5860, the way point GetWay_next last returned */
-    char pad5864[12];
-    WVTObj hideWay;            /* 0x5870, the way the girl tries to the hide point */
-    unsigned char warn;        /* 0x58F0 a brain state asks the main loop to checkWarning */
-    unsigned char pad58F1;     /* 0x58F1 cleared each frame, never read */
-    unsigned char modeChanged; /* 0x58F2 set on the frame the mode changes */
-    unsigned char lookHold;    /* 0x58F3 3 s after flags18 bit 62 while she faced the boy */
-    int markerPulse;           /* 0x58F4 the runaway goal marker's pulse */
-    int runMode;               /* 0x58F8 */
+    int curMode;          /* 0x57DC the mode the brain last switched to */
+    float runawayGoal[4]; /* 0x57E0 the runaway goal */
+    float hidePoint[4];   /* 0x57F0 last accepted hide point */
+    float runawayFrom[4]; /* 0x5800 where the runaway search starts ("girl brain target") */
+    float girlRoot[4];    /* 0x5810 GetRootPosition of the girl */
+    float girlPos[4];     /* 0x5820 the girl's own position, GetRootProjectionPosOfGObj */
+    float boyRoot[4];     /* 0x5830 GetRootPosition of the boy */
+    float boyPos[4];      /* 0x5840 the boy's GetRootProjectionPosOfGObj */
+    WayPoint *lastWay;    /* 0x5850, the way point GetWay_next last returned */
+    char pad5854[12];
+    WVTObj hideWay;            /* 0x5860, the way the girl tries to the hide point */
+    unsigned char warn;        /* 0x58E0 a brain state asks the main loop to checkWarning */
+    unsigned char pad58E1;     /* 0x58E1 cleared each frame, never read */
+    unsigned char modeChanged; /* 0x58E2 set on the frame the mode changes */
+    unsigned char lookHold;    /* 0x58E3 3 s after flags18 bit 62 while she faced the boy */
+    int markerPulse;           /* 0x58E4 the runaway goal marker's pulse */
+    int runMode;               /* 0x58E8 */
     int wait;
     int timer;
     int limit;
-    int modeFrames;    /* 0x5908 frames since the last mode change */
-    int status31Timer; /* 0x590C frames the attract state keeps char status 31 set */
-    int unseenFrames;  /* 0x5910 frames no hide-list object has been in view */
-    int hideAdvWait;   /* 0x5914 frames before the hide state may advance */
-    int pad5918[2];    /* 0x5918, to the 0x5920 girlBrainMain_Init clears */
+    int modeFrames;    /* 0x58F8 frames since the last mode change */
+    int status31Timer; /* 0x58FC frames the attract state keeps char status 31 set */
+    int unseenFrames;  /* 0x5900 frames no hide-list object has been in view */
+    int hideAdvWait;   /* 0x5904 frames before the hide state may advance */
+    int pad5908[2];    /* 0x5908, to the 0x5910 girlBrainMain_Init clears */
 } GirlBrainWork;       /* derived name */
 
 /* The head of the TU's .data (the brain work record brain_val and the hand
    manager handmgr follow, defined after the last of these): the
-   danger-environment initial value, the brain mode table (the mode's routine
-   and its flag byte), the object kinds the others list gathers (-1 ends it)
+   danger-environment initial value, the brain mode table (the mode's
+   routine), the object kinds the others list gathers (-1 ends it)
    and their debug names, the run-mode rows ChangeRunMode indexes, the three
    attract parameter sets, the debug names of the move states, the three
    escape angles and the debug names of the attract states.  Each is defined
@@ -189,11 +187,6 @@ typedef struct { /* field names derived */
     void *save;
     int count;
 } GirlDangerEnv; /* derived name */
-
-typedef struct { /* field names derived */
-    void (*proc)(GObj *self);
-    unsigned char flag;
-} GirlBrainMode; /* derived name */
 
 typedef struct { /* field names derived */
     void *obj;   /* 0x00 the object the girl walks to */
@@ -225,15 +218,15 @@ void subGirlBrain_HideAdvance(GObj *volatile self);
 
 static GirlDangerEnv dangerEnvDefault = {0}; /* derived name */
 
-static GirlBrainMode girlBrainModeTable[10] = {
+/* the brain mode handlers, indexed by the girl's brain mode */
+static void (*girlBrainModeTable[10])(GObj *self) = {
     /* derived name */
-    {subGirlBrain_Idle, 0},        {subGirlBrain_Attract, 0},  {subGirlBrain_Escape, 1},
-    {subGirlBrain_Hide, 1},        {subGirlBrain_Hesitate, 1}, {subGirlBrain_Becarry, 0},
-    {subGirlBrain_Busy, 0},        {subGirlBrain_Pulledup, 0}, {subGirlBrain_DangerEnv, 0},
-    {subGirlBrain_HideAdvance, 1},
+    subGirlBrain_Idle,      subGirlBrain_Attract,     subGirlBrain_Escape, subGirlBrain_Hide,
+    subGirlBrain_Hesitate,  subGirlBrain_Becarry,     subGirlBrain_Busy,   subGirlBrain_Pulledup,
+    subGirlBrain_DangerEnv, subGirlBrain_HideAdvance,
 }; /* derived name */
 
-static int othersKindList[3] = {4, 62, -1}; /* derived name */
+static int othersKindList[3] = {4, 60, -1}; /* derived name */
 
 /* The TU's .bss: sort_list's index/distance pairs and its copy of the sorted
    positions, CorrectList's compaction scratch and the runaway candidate list
@@ -468,15 +461,12 @@ INCLUDE_ASM(girlBrainMain_CheckWarningMode);
    subGirlBrainMain */
 static inline void *girlBrainGetTarget(void) /* derived name */
 {
-    int *flag = &brain_val.targetFlag;
     Brain *b = &brainGirl;
     void *obj = 0;
 
     brainGetTarget(b);
-    *flag = 0;
     if (b->idx != -1) {
         obj = (void *)b->tgt[b->idx].gobj;
-        *flag = *(unsigned short *)&b->tgt[b->idx].detail & 1;
     }
     return obj;
 }

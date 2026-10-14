@@ -22,19 +22,19 @@
 
 static void actSt08aDoorUpSub(GObj *volatile self);
 
-static ActMail ene1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene1_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene2_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door_main_mes[2] = {{407, actSt08aDoorSwitch}, {429}}; /* derived name */
+static ActMail door_main_mes[2] = {{373, actSt08aDoorSwitch}, {392}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door_switch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_switch_mes[2] = {{393}, {392}}; /* derived name */
 
 static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for, and the flag actSt08aDoorUpSub raises when the door is all

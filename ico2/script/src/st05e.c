@@ -19,13 +19,13 @@ static void actSt05eWaterStopSub(GObj *volatile self);
 
 /* .data: four 0x20-byte actor mail packets, one per thread hand-off. */
 
-static ActMail waterMain_mes[2] = {{406, actSt05eWaterSwitch}, {429}}; /* derived name */
+static ActMail waterMain_mes[2] = {{372, actSt05eWaterSwitch}, {392}}; /* derived name */
 
-static ActMail water_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail water_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail waterSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail waterSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail solar_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail solar_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for, and its complement, true when the player skipped the demo with

@@ -23,25 +23,25 @@ static int demoEnd;
 
 /* .data: actor mail packets. */
 
-static ActMail oriMain_mes[2] = {{407, actSt19aOriSwitch}, {429}}; /* derived name */
+static ActMail oriMain_mes[2] = {{373, actSt19aOriSwitch}, {392}}; /* derived name */
 
-static ActMail ori_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ori_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail oriSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail oriSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
 static float oriXLPos[4] = {-642.0f, 2132.0f, -2861.0f, 0.0f}; /* derived name */
 
 static float haguruma2Pos[4] = {486.0f, 2386.0f, -2917.0f, 0.0f}; /* derived name */
 
-static ActMail haguruma_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail haguruma_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail pipe_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail pipe_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail chainMain_mes[2] = {{406, actSt19aChainSwitch}, {429}}; /* derived name */
+static ActMail chainMain_mes[2] = {{372, actSt19aChainSwitch}, {392}}; /* derived name */
 
-static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chain_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail chainSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chainSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sdata: the fence, horn and pipe stream handles. */
 SqEntry *fence_up_19a = 0;

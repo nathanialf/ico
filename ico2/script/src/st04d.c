@@ -13,9 +13,9 @@ inline void actSt04dDoor1Event(int x)
     volatile int local = x;
 }
 
-static ActMail door1_down_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door1_down_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door1_up_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door1_up_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt04dDoor1);
 
@@ -27,7 +27,7 @@ static const ConstVec door1UpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; 
 
 static const ConstVec door1DownEffectPos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
-static ActMail door1_up_chk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door1_up_chk_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt04dDoor1UpChk);
 
@@ -79,7 +79,7 @@ inline void actSt04dDoor1DownEffect(GObj *volatile self)
     }
 }
 
-static ActMail door1_down_chk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door1_down_chk_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt04dDoor1DownChk);
 
@@ -88,9 +88,9 @@ inline void actSt04dDoor2Event(int x)
     volatile int local = x;
 }
 
-static ActMail door2_down_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2_down_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door2_up_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2_up_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt04dDoor2);
 
@@ -102,7 +102,7 @@ static const ConstVec door2UpEffectPos = {{704.0f, -1700.0f, -5679.0f, 1.0f}}; /
 
 static const ConstVec door2DownEffectPos = {{704.0f, -1955.0f, -5679.0f, 1.0f}}; /* derived name */
 
-static ActMail door2_up_chk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2_up_chk_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt04dDoor2UpChk);
 
@@ -154,6 +154,6 @@ inline void actSt04dDoor2DownEffect(GObj *volatile self)
     }
 }
 
-static ActMail door2_down_chk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2_down_chk_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt04dDoor2DownChk);

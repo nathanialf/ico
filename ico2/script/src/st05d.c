@@ -26,15 +26,15 @@ void actSt05dDoor2UpEffect(GObj *volatile self);
 void actSt05dDoor2DownEffect(GObj *volatile self);
 void actSt05dEneChk(GObj *volatile self);
 
-static ActMail door2Down_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2Down_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door2Up_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2Up_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door2UpChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2UpChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail door2DownChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2DownChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
 
 void actSt05dDoor2DownChk(GObj *volatile self);
 void actSt05dDoor2UpChk(GObj *volatile self);

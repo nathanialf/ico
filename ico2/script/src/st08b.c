@@ -17,21 +17,21 @@
 #include "script.h"
 #include "include_asm.h"
 
-static ActMail kurenMain_mes[2] = {{406, actSt08bKurenSwitch}, {429}}; /* derived name */
+static ActMail kurenMain_mes[2] = {{372, actSt08bKurenSwitch}, {392}}; /* derived name */
 
-static ActMail kuren_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail kuren_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail kurenSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail kurenSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorDown_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorUpChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorUpChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorDownChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorDownChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */

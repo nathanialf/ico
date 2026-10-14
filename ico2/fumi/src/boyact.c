@@ -157,41 +157,18 @@ typedef struct { /* field names derived */
     int w[8];
 } BoyKidnapWork; /* derived name */
 
-/* the private insert-camera record, 16-aligned as the programmer's other
-   vector records (act-game.c Vec4S, way_sys.c WayClipWork) */
-typedef struct {           /* field names derived */
-    float pos[4];          /* 0x00, where the camera starts */
-    float tgt[4];          /* 0x10, where it moves to */
-    struct GObj *track;    /* 0x20, the object the return leg follows, or 0 for pos */
-    int inFrames;          /* 0x24, frames of the move to tgt */
-    int outFrames;         /* 0x28, frames of the return */
-    float inRate;          /* 0x2C, the move's interpolation step */
-    float blend;           /* 0x30, InsertCamera_SetDetail's blend */
-    unsigned char control; /* 0x34, PrivInsCamChk_Control's answer */
-    unsigned char pad35[3];
-    int cnt;                               /* 0x38 */
-    int on;                                /* 0x3C */
-    float cur[4];                          /* 0x40 */
-} __attribute__((aligned(16))) PrivInsCam; /* derived name */
-
 static BoyWork boyInfoDefault = {{0, 0, 0xFFFFFFFF}}; /* derived name */
 
-static BoyKidnapWork characterPacketDefault = {{0, 0, 0, 0, 0, -1, -1}}; /* derived name */
+static BoyKidnapWork characterPacketDefault = {{0}}; /* derived name */
 
 static BgaEntry boyBgaTable[] = {
     /* derived name */
-    {480, 0.0f, 7.0f, 1, 70, 1, 1, 1.0f},
-    {481, 0.0f, 0.0f, 0, 70, 0, 1, 1.0f},
-    {485, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
-    {486, -10.0f, 23.0f, 1, 70, 1, 1, -1.0f},
+    {415, 0.0f, 7.0f, 1, 70, 1, 1, 1.0f},
+    {416, 0.0f, 0.0f, 0, 70, 0, 1, 1.0f},
+    {420, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
+    {421, -10.0f, 23.0f, 1, 70, 1, 1, -1.0f},
     {-1},
 }; /* derived name */
-
-/* PrivInsCam's initial value: subBoyCollision copies it whole into
-   privInsCam. */
-static PrivInsCam privInsCamDefault = {
-    /* derived name */
-    {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0, 0, 0, 0.5f, 0.2f}; /* derived name */
 
 /* boyact.o's two .data globals, the last two quadwords of its .data:
    test_rope_velo, which no code names, and add_rope_vec, the boy's orient

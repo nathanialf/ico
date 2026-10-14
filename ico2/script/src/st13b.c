@@ -39,31 +39,31 @@ static unsigned char padActVolume; /* derived name */
 static int doorUpDone; /* derived name */
 
 /* .data: actor mail packets. */
-static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floor_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail sekizo2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo2_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail meetAgain_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail meetAgain_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail boss_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail boss_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail bossAfter_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail bossAfter_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail elevMain_mes[2] = {{406, actSt13bElevSwitch}, {429}}; /* derived name */
+static ActMail elevMain_mes[2] = {{372, actSt13bElevSwitch}, {392}}; /* derived name */
 
-static ActMail elev_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elev_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail elevSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elevSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail elevUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elevUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorMain_mes[2] = {{407, actSt13bDoorSwitch}, {429}}; /* derived name */
+static ActMail doorMain_mes[2] = {{373, actSt13bDoorSwitch}, {392}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail doorSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
 static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
 

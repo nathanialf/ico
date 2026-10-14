@@ -16,9 +16,9 @@
 #include "script.h"
 #include "include_asm.h"
 
-static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ene1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene1_mes[2] = {{393}, {392}}; /* derived name */
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */

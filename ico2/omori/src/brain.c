@@ -47,12 +47,12 @@ static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* 
     BrainTarget *t;
     int i;
 
-    for (i = 0; i < 40; i++) {
+    for (i = 0; i < 20; i++) {
         if (b->tgt[i].gobj == 0) {
             break;
         }
     }
-    if (i == 40) {
+    if (i == 20) {
         return;
     }
     t = &b->tgt[i];

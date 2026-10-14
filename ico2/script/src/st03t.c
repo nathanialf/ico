@@ -18,37 +18,37 @@
 #include "script.h"
 #include "include_asm.h"
 
-static ActMail switchL_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchL_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail switchLUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchLUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail switchLChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchLChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail switchLUpChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchLUpChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail switchR_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchR_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail switchRUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchRUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail switchRChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchRChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail switchRUpChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchRUpChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail girlCam_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail girlCam_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail girlCamStartChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail girlCamStartChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail girlCamEndChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail girlCamEndChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wayOn_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wayOn_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wayOff_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wayOff_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wayOnChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wayOnChk_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail wayOffChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wayOffChk_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt03tSwitchL);
 

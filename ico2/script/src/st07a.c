@@ -167,17 +167,17 @@ void actSt07aTsuroEffect(GObj *volatile self)
 
 INCLUDE_ASM(actSt07aSekizoChk);
 
-static ActMail chan_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chan_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail tsuro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail tsuro_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene2_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt07aEne);
 

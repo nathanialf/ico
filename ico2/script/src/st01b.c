@@ -19,19 +19,19 @@
 #include "include_asm.h"
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
-   entry answers (430 = the actor's own wake-up post, 429 = the trailing
+   entry answers (393 = the actor's own wake-up post, 392 = the trailing
    entry); the handler in .func is installed at run time just before the
    record is posted. Each record is named for the actor thread that owns
    and posts it. */
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floor_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail way_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail way_on_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_on_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail way_off_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_off_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt01bInit);
 

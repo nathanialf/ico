@@ -24,47 +24,47 @@ static const ConstVec eneCam3ChkPos = {{-33.0f, -72.0f, 470.0f, 0.0f}}; /* deriv
 
 /* .data: actor mail packets. */
 
-static ActMail floorMain_mes[2] = {{406, actSt10lFloorSwitch}, {429}}; /* derived name */
+static ActMail floorMain_mes[2] = {{372, actSt10lFloorSwitch}, {392}}; /* derived name */
 
-static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floor_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail floorSwitchRight_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floorSwitchRight_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail floorSwitchLeft_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floorSwitchLeft_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail floorLeft_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floorLeft_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail floorRight_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floorRight_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail gondolaMain_mes[2] = {{407, actSt10lGondolaSwitch}, {429}}; /* derived name */
+static ActMail gondolaMain_mes[2] = {{373, actSt10lGondolaSwitch}, {392}}; /* derived name */
 
-static ActMail gondola_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondola_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail gondolaSwitchDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondolaSwitchDown_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail gondolaSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondolaSwitchUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail gondolaUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondolaUp_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail gondolaDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondolaDown_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail eneCam1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail eneCam1_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail box_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail box_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail eneCam2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail eneCam2_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail eneCam3_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail eneCam3_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail boxA_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail boxA_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail boxB_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail boxB_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail chainMain_mes[2] = {{408, actSt10lChainSwitch}, {429}}; /* derived name */
+static ActMail chainMain_mes[2] = {{374, actSt10lChainSwitch}, {392}}; /* derived name */
 
-static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chain_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail chainSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chainSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sdata: the floor, gondola and chain stream handles. */
 SqEntry *floor10l = 0;

@@ -106,10 +106,10 @@ struct SqEntry *titleAdpcm = 0;
 INCLUDE_ASM(actTitleShortCut);
 
 /* .data: the two demo mail pairs, each the mail the demo thread answers and
-   the 429 end marker. */
-static ActMail opDemo02_mes[2] = {{430}, {429}}; /* derived name */
+   the 392 end marker. */
+static ActMail opDemo02_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail opDemo03_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail opDemo03_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actTitleReadTimeDemo0);
 

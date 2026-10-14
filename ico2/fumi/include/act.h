@@ -67,7 +67,7 @@ typedef struct { /* field names derived */
 extern const ActModeRec actModeTbl[];
 
 /* act-intrlist: one actor mail entry, 0x18 bytes; lists end at the entry
- * whose kind is 429. Readers: ico2/fumi/src/act.c (BeforeFunc,
+ * whose kind is 392. Readers: ico2/fumi/src/act.c (BeforeFunc,
  * act_check_intr_list, act_check_mail) and commonact.c (ACTRunIntrCorrect).
  * Owner: ico2/fumi/include/act.h. */
 typedef struct IntrMail {                           /* field names derived */

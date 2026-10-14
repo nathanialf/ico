@@ -1060,7 +1060,7 @@ typedef struct { /* field names derived */
     float targetLevel; /* 0x20, the chosen target's level over the threshold, 0 to 1 */
     short idx;
     char pad26[2];
-    BrainTarget tgt[40];
+    BrainTarget tgt[20];
 } Brain; /* derived name */
 
 /* a 64-bit actor status word with its two word halves */
@@ -1098,7 +1098,7 @@ typedef struct { /* field names derived */
 extern const ExitData exitData[]; /* exit-data, in .rodata */
 
 /* One row of an actor's mail table (Act.mail, Act.mainMail): the message id
-   the actor listens for and the three entry points it starts.  429 ends a
+   the actor listens for and the three entry points it starts.  392 ends a
    table.  act2.c's BeforeFunc2 walks it. */
 typedef struct ActMail {        /* field names derived */
     unsigned short mail;        /* 0x00, the message id */

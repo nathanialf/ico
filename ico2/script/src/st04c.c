@@ -40,13 +40,13 @@ INCLUDE_ASM(actSt04lDoorChk);
 
 INCLUDE_ASM(actSt04cSolarXL);
 
-static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorDown_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
 
-static ActMail st04lDoor_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st04lDoor_mes[2] = {{393}, {392}}; /* derived name */
 
 INCLUDE_ASM(actSt04lDoor);
 
