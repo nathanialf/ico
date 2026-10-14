@@ -66,9 +66,7 @@ text Main 0x00101C80 0x00101F88 ico2/common/src/main.c lines=95  # ordinal; firs
 lit4 Main 0x00632680 0x00632684 ico2/common/src/main.c  # 1 float; target side (DISAGREE)
 sdlit Main 0x00633798 0x006337A4 ico2/common/src/main.c  # 2 strings; target side (DISAGREE: December prints the video mode)
 rdlit Main 0x00548820 0x005488C4 ico2/common/src/main.c  # 7 strings; target side (DISAGREE)
-text SetFallDownSplash 0x0010B098 0x0010B27C ico2/sugipon/src/pool.c lines=32  # ordinal; first difference at insn 39; imm:2; extent-equal
 text dispPool 0x0010C0B0 0x0010C57C ico2/sugipon/src/pool.c local lines=116  # ordinal; first difference at insn 1; length:+11; extent-differs
-text PoolDL 0x0010C580 0x0010C67C ico2/sugipon/src/pool.c lines=18  # ordinal; first difference at insn 6; imm:2; extent-equal
 text file_LoadCDFile 0x0010EF00 0x0010F624 ico2/seki/src/FileManager.c local lines=170  # ordinal; first difference at insn 80; imm:11; extent-equal
 lit4 file_LoadCDFile 0x00632748 0x0063274C ico2/seki/src/FileManager.c  # 1 float
 rdlit file_LoadCDFile 0x00548F50 0x005493B0 ico2/seki/src/FileManager.c align=16  # 24 strings, 2 jump tables
@@ -88,14 +86,6 @@ text stage_PlayBgAnimationDissolve 0x0012B8B8 0x0012BBB4 ico2/seki/src/StageAnim
 text iosInitialize 0x00137CF8 0x00137ECC ico2/fumi/ios/ios.c lines=30  # census equal (immediates masked), but lui 0x76 -> 0x78 at insn 8 (iosMallocInitPartition's base)
 rdlit iosInitialize 0x0054C3A0 0x0054C3D1 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x00633EC0 0x00633EFF ico2/fumi/ios/ios.c  # 8 strings
-text controler_stable_check 0x0013C8E0 0x0013CE60 ico2/fumi/ios/pad.c local lines=191  # ordinal; first difference at insn 312; imm:2; extent-equal
-rdlit controler_stable_check 0x0054CDF0 0x0054CEC2 ico2/fumi/ios/pad.c align=16  # 10 strings
-rdlit controler_stable_check 0x0054CED0 0x0054D004 ico2/fumi/ios/pad.c align=16  # 1 jtbl
-sdlit controler_stable_check 0x00634040 0x00634092 ico2/fumi/ios/pad.c  # 11 strings
-text iosPadDevInit 0x0013CE60 0x0013D094 ico2/fumi/ios/pad.c lines=30  # ordinal; first difference at insn 30; imm:4; extent-equal
-rdlit iosPadDevInit 0x0054D008 0x0054D03D ico2/fumi/ios/pad.c  # 2 strings
-text iosPadDevReadFunc 0x0013D098 0x0013D26C ico2/fumi/ios/pad.c local lines=47  # ordinal; first difference at insn 29; length:-12; extent-differs
-rdlit iosPadDevReadFunc 0x0054D040 0x0054D072 ico2/fumi/ios/pad.c  # 2 strings; target side (DISAGREE)
 text findChainInJump 0x0014FB60 0x00150328 ico2/fumi/src/boyact.c local lines=143  # ordinal; first difference at insn 3; length:-6; extent-differs
 lit4 findChainInJump 0x006328A8 0x006328B0 ico2/fumi/src/boyact.c  # 2 floats
 text GetChainSlope 0x001514C8 0x001516B4 ico2/fumi/src/boyact.c local lines=36  # ordinal; first difference at insn 19; length:-19; extent-differs
@@ -123,11 +113,6 @@ lit4 actGirlHand 0x00632BB8 0x00632BCC ico2/fumi/src/girl_act.c  # 5 floats
 rdlit actGirlHand 0x0054F2A0 0x0054F2AC ico2/fumi/src/girl_act.c align=16  # 1 string
 sdlit actGirlHand 0x00634408 0x00634418 ico2/fumi/src/girl_act.c  # 1 string, 2 statics, 1 word
 text actGirlReadyMove 0x0017A3C8 0x0017A4FC ico2/fumi/src/girl_act.c lines=25  # ordinal; first difference at insn 0; length:-26; extent-differs
-text jimakuMgrBegin 0x0017C8C8 0x0017CAE0 ico2/fumi/src/jimaku.c local lines=60  # ordinal; first difference at insn 0; length:-21; extent-differs
-text jimakuMgrNext 0x0017CAE0 0x0017CCA8 ico2/fumi/src/jimaku.c local lines=45  # ordinal; first difference at insn 69; imm:2; extent-equal
-rdlit jimakuMgrNext 0x0054F390 0x0054F3BD ico2/fumi/src/jimaku.c align=16  # 3 strings
-sdlit jimakuMgrNext 0x00634440 0x0063445C ico2/fumi/src/jimaku.c  # 1 data
-text jimakuDisp 0x0017CEA0 0x0017CFBC ico2/fumi/src/jimaku.c lines=37  # ordinal; first difference at insn 53; imm:2; extent-equal
 text actConte11 0x00185A40 0x00185D08 ico2/script/src/st25a.c lines=60  # ordinal; first difference at insn 3; imm:12; extent-equal
 lit4 actConte11 0x00632C44 0x00632C54 ico2/script/src/st25a.c  # 4 floats
 text actSt25aQueenTalkChk 0x00185D08 0x00186238 ico2/script/src/st25a.c lines=128  # ordinal; first difference at insn 31; imm:11; extent-equal

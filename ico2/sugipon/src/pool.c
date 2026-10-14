@@ -156,7 +156,38 @@ static void setNodePursueParticleEffectWithUpperLimit(int id, GObj *obj, int foc
     }
 }
 
-INCLUDE_ASM(SetFallDownSplash);
+void SetFallDownSplash(GObj *pool, GObj *self)
+{
+    float pos[4];
+    float tmp[4];
+    PoolWork *w = GOBJ_SUB(pool)->work;
+
+    GetRootPosition(pos, self);
+    _ScaleVectorXYZ(tmp, GOBJ_SUB(self)->root.move, 2.0f);
+    _AddVector(pos, pos, tmp);
+    pos[1] = w->pos[1];
+
+    if (GOBJ_SUB(self)->skel != 0) {
+        setNodePursueParticleEffectWithUpperLimit(48, self, 51, pos[1]);
+        setNodePursueParticleEffectWithUpperLimit(48, self, 47, pos[1]);
+    }
+
+    stage_SetLoopFlag(495, 0);
+    stage_SetFrameStep(495, 1);
+
+    EntryMultiBgaManagerNoKind(w->splash, w->splashNo, pos);
+    w->splashNo = (w->splashNo + 1) % 2;
+
+    if (w->hasGrid != 0) {
+        setWaveCell(w, pos, &w->ripple[w->rippleNo], w->step, w->nx, w->ny, 0.5f);
+        w->rippleNo = w->rippleNo + 1;
+        if (w->rippleNo == 5) {
+            w->rippleNo = 0;
+        }
+    }
+
+    falldownSE(self);
+}
 
 void GetPoolGlobalDrainVector(void *dst, GObj *pool)
 {
@@ -542,9 +573,28 @@ static float workLightNormal[4][4] = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
+static void dispPool(GObj *self);
+
 INCLUDE_ASM(dispPool);
 
-INCLUDE_ASM(PoolDL);
+void PoolDL(GObj *self)
+{
+    PoolWork *w = GOBJ_SUB(self)->work;
+
+    DispMultiBgaManagerWithKind(494, w->bga, 10);
+    DispMultiBgaManagerWithKind(495, w->splash, 2);
+    if (systemStatus[5] == 0) {
+        w->phase =
+            (short)((float)w->phase +
+                    60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 2000.0f);
+    }
+    if (w->hasGrid != 0) {
+        updatePoolGeo(self);
+        dispPool(self);
+    } else {
+        p2o_DispVU1(self);
+    }
+}
 
 void InitLimitedPoolReflactionMesh(PoolMesh *refl)
 {
