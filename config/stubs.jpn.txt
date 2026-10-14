@@ -199,46 +199,17 @@ text GetCurrentMotionDirectionAdjustFlag 0x001F1080 0x001F10AC ico2/sugipon/src/
 text FullScreenEffectBefore 0x001FBCC8 0x001FBE48 ico2/sugipon/src/staticBlur.c lines=71  # ordinal; first difference at insn 2; length:-9; extent-differs
 rdlit FullScreenEffectBefore 0x0061A300 0x0061A320 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
 sdlit FullScreenEffectBefore 0x00635678 0x0063567C ico2/sugipon/src/staticBlur.c  # 1 string
-text bga_InitData 0x00204190 0x00204538 ico2/seki/src/BgAnimation.c lines=80  # ordinal; first difference at insn 14; imm:2; extent-equal
-rdlit bga_InitData 0x0061A840 0x0061A8B6 ico2/seki/src/BgAnimation.c align=16  # 2 strings, 1 jtbl; then bga_InitSdfCamera's string, which its inline definition (between bga_InitData and bga_initLightEnvelope) writes there
-sdlit bga_InitData 0x00635740 0x00635754 ico2/seki/src/BgAnimation.c  # 2 strings; then bga_InitSdfCamera's "SDF", likewise
-text bga_initLightEnvelope 0x00204538 0x0020484C ico2/seki/src/BgAnimation.c local lines=67  # ordinal; first difference at insn 81; imm:6; extent-equal
-rdlit bga_initLightEnvelope 0x0061A8B8 0x0061A8F3 ico2/seki/src/BgAnimation.c  # 2 strings
-sdlit bga_initLightEnvelope 0x00635758 0x0063575A ico2/seki/src/BgAnimation.c  # 1 string
-text bga_ApplyDObject 0x00204850 0x00204B1C ico2/seki/src/BgAnimation.c lines=67  # ordinal; first difference at insn 34; imm:3; extent-equal
-rdlit bga_ApplyDObject 0x0061A8F8 0x0061A978 ico2/seki/src/BgAnimation.c  # 2 strings, 1 jtbl
-sdlit bga_ApplyDObject 0x00635760 0x00635762 ico2/seki/src/BgAnimation.c  # 1 string
-text bga_GetMotion 0x00204B20 0x002050F0 ico2/seki/src/BgAnimation.c local lines=134  # jpn-only in the census; in PAL's bga_GetMotion slot, called once (jal at 0x205F84) as PAL calls bga_GetMotion once; 1488 B (PAL 1780)
-text bga_GetExtMotion 0x002050F0 0x002053B4 ico2/seki/src/BgAnimation.c local lines=69  # called four times from the 0x205980 function, as PAL bga_calcEnvelope calls bga_GetExtMotion; 708 B (PAL 644)
-text bga_GetGizmoMotion 0x002053B8 0x00205714 ico2/seki/src/BgAnimation.c local lines=82  # called once from the 0x205980 function, as PAL bga_calcEnvelope calls bga_GetGizmoMotion; 860 B (PAL 796)
-text func_00205718 0x00205718 0x00205980 ico2/seki/src/BgAnimation.c  # jpn-only; in BgAnimation.c's span
-text bga_calcEnvelope 0x00205980 0x00205C3C ico2/seki/src/BgAnimation.c local lines=81  # calls bga_GetExtMotion x4 and bga_GetGizmoMotion, as PAL bga_calcEnvelope; 700 B (PAL 1084)
+text bga_GetMotion 0x00204B20 0x002050F0 ico2/seki/src/BgAnimation.c local lines=134  # December's one motion reader (PAL's bga_GetMotion, bga_GetMotionParticle and bga_GetMotionLightning in one): bga_CalcObject calls it for every object type with bgaPos, the degree rotation and bgaScale; not yet written
+text bga_GetExtMotion 0x002050F0 0x002053B4 ico2/seki/src/BgAnimation.c local lines=69  # called four times from bga_calcEnvelope; 708 bytes against PAL's 644; not yet written
+text bga_GetGizmoMotion 0x002053B8 0x00205714 ico2/seki/src/BgAnimation.c local lines=82  # called once from bga_calcEnvelope; 860 bytes against PAL's 796; not yet written
+text bga_calcEnvelope 0x00205980 0x00205C3C ico2/seki/src/BgAnimation.c local lines=81  # December calls bga_updateMotionFrame twice (PAL inlines bga_stepEnvelope); 700 bytes against PAL's 1084; not yet written
 lit4 bga_calcEnvelope 0x0063328C 0x00633290 ico2/seki/src/BgAnimation.c  # 1 float; target side (DISAGREE)
 rdlit bga_calcEnvelope 0x0061A978 0x0061A9C8 ico2/seki/src/BgAnimation.c  # 1 string, 1 jtbl; target side (DISAGREE)
-text bga_CalcObject 0x00205F10 0x002066C8 ico2/seki/src/BgAnimation.c local lines=170  # ordinal; first difference at insn 0; length:-73; extent-differs
+text bga_CalcObject 0x00205F10 0x002066C8 ico2/seki/src/BgAnimation.c local lines=170  # first difference at insn 0 (frame 208 bytes): December calls bga_GetMotion once for every type, converts the degree rotation to bgaRot with one constant, its particle case tests bgaScale against 4.0f and 0.0f and keeps the effect id in a 64-bit field of the particle record (dsra32/sra 17), and the end steps d->motion with bga_updateMotionFrame; not yet written
 lit4 bga_CalcObject 0x00633290 0x00633294 ico2/seki/src/BgAnimation.c  # 1 float; target side (DISAGREE)
 rdlit bga_CalcObject 0x0061A9C8 0x0061AA70 ico2/seki/src/BgAnimation.c  # 2 strings, 1 jtbl; target side (DISAGREE)
 sdlit bga_CalcObject 0x00635768 0x0063576C ico2/seki/src/BgAnimation.c  # 1 string; target side (DISAGREE)
-text bga_resetObjectCounter 0x002066C8 0x00206794 ico2/seki/src/BgAnimation.c local lines=19  # ordinal; first difference at insn 0; length:-93; extent-differs
-text bga_SetFrame 0x00206798 0x002069FC ico2/seki/src/BgAnimation.c lines=37  # ordinal; first difference at insn 10; length:+54; extent-differs
-text bga_CalcAnimation 0x00206A00 0x00206D20 ico2/seki/src/BgAnimation.c lines=78  # ordinal; first difference at insn 14; length:+6; extent-differs
-text bga_CalcSdfCamera 0x00206D20 0x00207154 ico2/seki/src/BgAnimation.c lines=85  # ordinal; first difference at insn 1; length:+9; extent-differs
-lit4 bga_CalcSdfCamera 0x00633294 0x006332A0 ico2/seki/src/BgAnimation.c  # 3 floats; target side (DISAGREE)
-text bga_addLightning 0x00207158 0x002073B0 ico2/seki/src/BgAnimation.c local lines=65  # ordinal; first difference at insn 68; imm:5; extent-equal
-rdlit bga_addLightning 0x0061AA70 0x0061AA8D ico2/seki/src/BgAnimation.c align=16  # 1 string
-text bga_DispLightning 0x002073B0 0x00207910 ico2/seki/src/BgAnimation.c lines=129  # ordinal; first difference at insn 127; imm:2; extent-equal
-lit4 bga_DispLightning 0x006332A0 0x006332A4 ico2/seki/src/BgAnimation.c  # 1 float
-rdlit bga_DispLightning 0x0061AA90 0x0061AAD0 ico2/seki/src/BgAnimation.c align=16  # 1 string
-text bga_ResetCamera 0x00207910 0x00207918 ico2/seki/src/BgAnimation.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text bga_GetCameraMatrix 0x00207918 0x0020795C ico2/seki/src/BgAnimation.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text bga_InitSdfCamera 0x00207960 0x002079D4 ico2/seki/src/BgAnimation.c lines=11  # ordinal; first difference at insn 14; imm:2; extent-equal
-text bga_SetCamFrame 0x002079D8 0x00207A54 ico2/seki/src/BgAnimation.c lines=17  # ordinal; first difference at insn 8; length:-6; extent-differs
-text bga_CheckAnimationFinish 0x00207A58 0x00207ADC ico2/seki/src/BgAnimation.c lines=17  # ordinal; first difference at insn 1; length:+12; extent-differs
-text bga_CheckAnimationFrame 0x00207AE0 0x00207B78 ico2/seki/src/BgAnimation.c lines=20  # ordinal; first difference at insn 1; length:+12; extent-differs
-text bga_CheckAnimationFrameIn 0x00207B78 0x00207C18 ico2/seki/src/BgAnimation.c lines=15  # ordinal; first difference at insn 0; other:37; extent-equal
-text bga_CheckSdfCameraFinish 0x00207C18 0x00207C90 ico2/seki/src/BgAnimation.c lines=11  # ordinal; first difference at insn 0; length:+9; extent-differs
-text bga_CheckSdfCameraFrame 0x00207C90 0x00207D18 ico2/seki/src/BgAnimation.c lines=17  # ordinal; first difference at insn 1; length:+13; extent-differs
-text bga_CheckSdfCameraFrameIn 0x00207D18 0x00207DB0 ico2/seki/src/BgAnimation.c lines=16  # ordinal; first difference at insn 0; other:35; extent-equal
+text bga_CalcAnimation 0x00206A00 0x00206D20 ico2/seki/src/BgAnimation.c lines=78  # equal in C with December's end test (p->frame += p->step; p->end * rate / 30.0f < p->frame, no bgaFrame) once bga_CalcObject is C: carved while bga_CalcObject is, since its call needs bga_CalcObject's definition above it
 text ACTGetEnvironment 0x00209F08 0x0020E524 ico2/fumi/src/act-env.c lines=1078  # ordinal; first difference at insn 793; length:-1; extent-differs
 lit4 ACTGetEnvironment 0x006332AC 0x006332F4 ico2/fumi/src/act-env.c  # 18 floats
 rdlit ACTGetEnvironment 0x0061AD90 0x0061ADBC ico2/fumi/src/act-env.c align=16  # 3 strings
