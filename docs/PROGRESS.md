@@ -1,6 +1,6 @@
 # Progress
 
-The share of each section of the PAL boot ELF that the rebuilt ELF holds identical to the base, and where those bytes come from: the tracked sources, or the data-only members generated at build time from the user's disc. The table between the markers is rewritten by `tools/check_elf.py --progress` (`tools/build.sh progress`); do not edit it by hand.
+The share of each section of the USA boot ELF that the rebuilt ELF holds identical to the base, and where those bytes come from: the tracked sources, or the data-only members and the campaign stubs generated at build time from the user's disc. The table between the markers is rewritten by `tools/check_elf.py --progress` (`tools/build.sh progress`); do not edit it by hand.
 
 <!-- progress:begin -->
 | Section | From source | From the disc | Total bytes | Source % | Identical % |

@@ -20,39 +20,39 @@ sudo apt-get install git curl xz-utils make patch gcc gcc-multilib \
 `binutils-mips-linux-gnu` provides `mips-linux-gnu-objcopy`, which writes the
 ROM views (`tools/extract_elf.py`, `tools/compile_c.sh`, the ninja `rom`
 rule). Other distributions need the equivalent packages. The first run needs
-network access to fetch the tools listed below. The other target branches
-read a `.bin` and its `.cue` instead of an ISO; `tools/extract_elf.py` reads
-the raw 2352-byte sectors itself, so those targets need no extra package.
+network access to fetch the tools listed below.
 
-You also need your own image of the PAL disc, SCES-50760, as a plain ISO. The
-build accepts exactly one revision:
+You also need your own image of the USA disc, SLUS-20218, as the raw `.bin`
+a dump writes and its `.cue`. `tools/extract_elf.py` reads the raw 2352-byte
+sectors itself (the `.cue` gives the mode, MODE2/2352 on this disc), so no
+extra package is needed. The build accepts exactly one revision,
+`VER = 1.00` in the disc's `SYSTEM.CNF`:
 
 | file | SHA-1 (`config/sha1sums.txt`) |
 | --- | --- |
-| `baserom/pal/baseelf.elf`, the disc's `SCES_507.60` | `da3644c54c26fe760f3b6a591a5fc2eab396ed2b` |
-| `baserom/pal/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `a401d1e5a20b1659189a8b1026a8eb35811dc9ca` |
+| `baserom/us/baseelf.elf`, the disc's `SCUS_971.13` | `a4d8fc1948fb2da2395f3863a94a3b93de55de14` |
+| `baserom/us/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `fbf50c75cd5911273511c4f9af90503ff8423582` |
 
 ## One command
 
 ```sh
 mkdir -p baserom
-cp "/path/to/Ico (Europe).iso" baserom/Ico_PAL.iso
+cp "/path/to/Ico (USA).bin" baserom/Ico_USA.bin
+cp "/path/to/Ico (USA).cue" baserom/Ico_USA.cue
 ./build.sh
 ```
 
 `./build.sh` runs the steps below that are not already done, in order, and
 stops with a non-zero exit at the first failure. On a four-core host with
-the toolchain already installed and `baserom/pal/` already extracted,
-`rm -rf build build.ninja && tools/build.sh setup && .venv/bin/ninja` took
-22 s and 39 s in two runs and ended with
-`check_elf: gate PASS`; a fresh clone of the public repository, with the
-toolchain downloads of section 1, took 92 s on the same host. A second `./build.sh` on the built tree rebuilds
+the toolchain already installed and `baserom/us/` already extracted,
+`tools/build.sh setup && .venv/bin/ninja` took 56 s and ended with
+`check_elf: gate PASS`. A second `./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
 below describe each step; each can also be run on its own. The scripts are
 the same on every target branch and take the target, and with it every
-`config/*.pal.*` and `baserom/pal/` path below, from
+`config/*.us.*` and `baserom/us/` path below, from
 `tools/ico_version.py` (the first `config/link_order.<slug>.txt` that
-exists).
+exists: `config/link_order.us.txt` on this branch).
 
 ## 1. Host setup: `tools/setup.sh`
 
@@ -109,9 +109,10 @@ reproduces the second pattern in all twelve. The patch writes the byte
 explicitly: `--overlay-fill=N` (0 to 255, default 0) for an overlay whose VU
 address is a constant, 0 for the others. `tools/gen_ninja.py` passes the
 option only when a `.dsm` line of the link order carries an `overlay-fill=N`
-token; PAL's carries none, so its command line also works with an unpatched
-dvp-as. With the patch the build no longer depends on the host's heap;
-without it a host with `MALLOC_PERTURB_` set fails PAL's whole-file SHA-1.
+token. The five `.dsm` lines of `config/link_order.us.txt` carry
+`overlay-fill=110`, so this branch needs the patched dvp-as: an unpatched
+one leaves the byte to the host's heap and fails the whole-file SHA-1 unless
+the heap happens to hold 0x6E (PAL's link order carries no token).
 
 Neither build needs bison, flex or makeinfo. The 2.10 tarball ships its
 generated parsers, but its configure stops when it finds no lex or yacc, so
@@ -125,16 +126,18 @@ when that changes.
 
 ## 2. The base ELF: `tools/extract_elf.sh`
 
-`./build.sh` runs it when `baserom/pal/baseelf.elf` is missing, and says so
-plainly when `baserom/Ico_PAL.iso` is missing too. The script reads the
-disc's ISO9660 filesystem with pycdlib (`tools/extract_elf.py`), extracts the
-boot file named by `SYSTEM.CNF`'s `BOOT2` line, and writes
-`baserom/pal/baseelf.elf` and its `objcopy -O binary` view
-`baserom/pal/baseelf.rom`. It checks both SHA-1s against
-`config/sha1sums.txt` and stops on a mismatch. It also copies the disc's
-`MAIN.MAP`, `SRCFILE.TXT`, `TRFILE.TXT` and `SYSTEM.CNF` into `baserom/pal/`
-as reference material (`docs/LEGAL.md`). Everything under `baserom/` is
-gitignored.
+`./build.sh` runs it when `baserom/us/baseelf.elf` is missing, and says so
+plainly when `baserom/Ico_USA.bin` or `baserom/Ico_USA.cue` is missing too.
+The script first cooks the raw image: it reads the mode from the `.cue`,
+keeps the 2048 bytes of user data of each 2352-byte sector, and writes the
+result once to `baserom/Ico_USA.iso` beside the `.bin`, a cache that later
+runs read directly. It then reads that ISO9660 filesystem with pycdlib
+(`tools/extract_elf.py`), extracts the boot file named by `SYSTEM.CNF`'s
+`BOOT2` line (`SCUS_971.13`), and writes `baserom/us/baseelf.elf` and its
+`objcopy -O binary` view `baserom/us/baseelf.rom`. It checks both SHA-1s
+against `config/sha1sums.txt` and stops on a mismatch. It also copies the
+disc's `SYSTEM.CNF` into `baserom/us/`; the USA disc ships no map or listing
+(`docs/LEGAL.md`). Everything under `baserom/` is gitignored.
 
 ## 3. `tools/build.sh setup`
 
@@ -146,17 +149,21 @@ rewrites itself when `tools/gen_ninja.py` or one of its inputs changes.
 ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 `tools/gen_ninja.py` from these inputs:
 
-- `config/link_order.pal.txt`: every object of the link in the retail link's
+- `config/link_order.us.txt`: every object of the link in the retail link's
   order, one source per line, with the data-only members as `data:` lines.
+  The disc has no map, so the order is PAL's carried over by the function
+  census, and each line that departs from it says why.
   `tools/gen_ninja.py` fails if a tracked `.c`, `.s`, `.S` or `.dsm` under
   `ico2/` or `sce/` is missing from it.
-- `config/link.pal.ld`: the hand-written linker script, which places each
+- `config/link.us.ld`: the hand-written linker script, which places each
   section at the base ELF's addresses and defines the symbols the link needs.
-- `config/data_members.pal.txt`: the data-only members (member, section,
-  address range, MAIN.MAP's names at their offsets).
-- `config/data_schema.pal.txt`: the data-only members written as C (member,
+- `config/data_members.us.txt`: the data-only members (member, section,
+  address range in this ELF, the PAL disc's MAIN.MAP names at their
+  offsets).
+- `config/data_schema.us.txt`: the data-only members written as C (member,
   section, element type, the game header that defines it, element count,
   MAIN.MAP's names).
+- `config/stubs.us.txt`: the campaign stubs (section 4).
 
 `tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
 `build.ninja` only), `clean` (delete `build/`), `distclean` (also
@@ -187,7 +194,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   `.dsm` path for the first overlay of each program, the empty name cpp gives
   standard input and the include's path for the others;
 - writes the data-only members from the base ELF into `build/data/`. Each
-  of the 73, all listed in `config/data_schema.pal.txt`, is written as C by
+  of the 71, all listed in `config/data_schema.us.txt`, is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
   with every pointer named after the symbol at its address, floats as the
   shortest decimal that reads back to the same bits and names as string
@@ -201,10 +208,9 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
   its offset by `build/data/<member>.alias.ld`;
-- writes the stubs, when `config/stubs.pal.txt` has rows (on `main` it has
-  none, and this step does nothing). While another target is rebuilt from
-  this tree, a function whose C does not yet give that target's bytes is
-  listed there with its address range and its translation unit, and the C
+- writes the stubs from `config/stubs.us.txt`. While this target is
+  rebuilt from the tree seeded from `main`, a function whose C does not yet
+  give the USA bytes is listed there with its address range and its translation unit, and the C
   carries `INCLUDE_ASM(stem);` where the function stands in the file (the
   stem is the function's name, or the row's `file=<stem>` when two statics
   in two TUs share a name; a function defined in a `.c.inc` the TU includes
@@ -273,8 +279,8 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   `build/ico.layout.elf`), relocated fields masked, and with `--order` each
   TU's function order with the target's, naming a stub placed before
   functions the target emits earlier;
-- links with ld 2.10 and `config/link.pal.ld`, once to `build/ico.syms.elf`
-  (symbols kept, with the map `build/ico.pal.map`) and once stripped to
+- links with ld 2.10 and `config/link.us.ld`, once to `build/ico.syms.elf`
+  (symbols kept, with the map `build/ico.us.map`) and once stripped to
   `build/ico.elf`, as the base is;
 - writes `build/ico.rom` with `objcopy -O binary`;
 - runs `tools/check_elf.py --gate`: every allocated section of
@@ -306,8 +312,8 @@ rewrites the README's badge block, the table in `docs/PROGRESS.md` and
 `docs/progress.json` from the built ELF, its link map and the function
 symbols of `build/ico.syms.elf`. A byte counts for its section when the map
 row that places it belongs to an object built from `ico2/` or `sce/` and the
-byte equals the base's; bytes from `build/data/` are counted separately as
-extracted tables. The count is by object, so `staffroll_dat`'s count word
+byte equals the base's; bytes from `build/data/` and the campaign stubs'
+bytes are counted separately, as from the disc. The count is by object, so `staffroll_dat`'s count word
 (4 bytes of `.sdata`) counts as from the disc although the generator
 computes it from the table's element count.
 
@@ -350,4 +356,5 @@ gate after formatting.
 ## Running the rebuilt ELF (optional)
 
 Any PS2 emulator can run `build/ico.elf` as a sanity check, with
-`baserom/Ico_PAL.iso` as the disc for the game's data files.
+the cooked `baserom/Ico_USA.iso` (or the `.bin` and `.cue`) as the disc for
+the game's data files.
