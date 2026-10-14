@@ -1348,16 +1348,6 @@ static DbgCol barScaleCol[1] = {{0xA0, 0xA0, 0xA0, 0xA0}}; /* derived name */
 static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 
 /* clang-format off */
-INCLUDE_ASM(barBlink_103);
-
-INCLUDE_ASM(barMax_104);
-
-INCLUDE_ASM(barMin_105);
-
-INCLUDE_ASM(barItem_106);
-
-INCLUDE_ASM(barLine_107);
-
 INCLUDE_ASM(debug_DrawBar);
 
 inline void debug_SetBar(char *name, unsigned int col, char *file, int line)

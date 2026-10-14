@@ -103,8 +103,6 @@ static __inline__ void stageAnimDebugHook(void) /* derived name */
 #endif
 }
 
-INCLUDE_ASM(stageGObjArg_15);
-
 INCLUDE_ASM(stage_Init);
 
 void stage_SetAnimation(int key, int mode, int frame)

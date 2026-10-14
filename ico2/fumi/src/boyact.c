@@ -616,8 +616,6 @@ float add_rope_val = 0.0f;
 
 void subBoyControl(GObj *volatile self);
 
-INCLUDE_ASM(slowWalkTimer_73);
-
 INCLUDE_ASM(subBoyControl);
 
 typedef struct {                      /* field names derived */

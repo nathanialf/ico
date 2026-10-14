@@ -270,12 +270,6 @@ typedef struct AnimList { /* field names derived */
    ahead and defined with the second after actSt04aGateOpenChk. */
 static const ConstVec liftOfs1;
 
-INCLUDE_ASM(gateOpen2Anims_24);
-
-INCLUDE_ASM(boyRootPos2_25);
-
-INCLUDE_ASM(girlRootPos2_26);
-
 INCLUDE_ASM(actSt04aGateOpenChk);
 
 static const ConstVec liftOfs1 = {{0.0f, 0.0f, 6000.0f, 1.0f}}; /* derived name */
