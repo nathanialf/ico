@@ -8,8 +8,11 @@
 # file. tools/check_dev_native.py refuses an INCLUDE_ASM whose name has no row
 # here. With no rows the mechanism is idle.
 #
-# Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [file=F]
-#   section   text, rodata, data or sdata
+# Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N]
+#          [file=F] [in=<file.c.inc>] [def]
+#   section   text, rodata, data or sdata; lit4, rdlit or sdlit for the
+#             constants a text row's function brings into .lit4, .rodata
+#             or .sdata (tools/gen_stub_s.py --literals writes them)
 #   name      the symbol the stub defines
 #   vma_lo/hi the range [lo, hi) in the base ELF, hex (a text row ends at the
 #             function's last instruction, not at the fill after it)
@@ -21,6 +24,11 @@
 #             statics; F is <name>_<TU stem>. Three names need it here
 #             (display_texture, effect_end_func,
 #             init_textures_of_specified_property), each on both of its rows.
+#   lines=N   the number of source lines the carved definition spanned
+#   in=path   the function is defined in a .c.inc the TU includes; its
+#             INCLUDE_ASM line stands there
+#   def       an rdlit or sdlit row of an inline function, written where the
+#             function is defined (INCLUDE_ASM_LIT)
 #
 # Seeded from the function census against the PAL build, tools/correlate_elf.py
 # (the USA disc ships no map: a name is the PAL listing's name of the twin the
@@ -106,10 +114,11 @@
 #     immediates differ (tools/match_check.py names the instruction).
 # A us-only func_<VMA> row stands where its USA address puts it among its
 # TU's functions; mv_readbuf.c's readBufDelete and func_0019D9D8 open that
-# file, before readBufCreate. Functions defined in a .c.inc (switch.c.inc,
-# motMan_getFinalMatrix.c.inc, motMan_rootUpdate.c.inc,
+# file, before readBufCreate. Functions defined in a .c.inc
+# (motMan_getFinalMatrix.c.inc, motMan_rootUpdate.c.inc,
 # girl_brain_attract.c.inc) carry their INCLUDE_ASM at the definition, in the
-# .c.inc; the TU includes include_asm.h before it.
+# .c.inc, and their row gives in=<file.c.inc>; the TU includes include_asm.h
+# before it.
 
 text Main 0x00101C80 0x00101F70 ico2/common/src/main.c lines=95  # ordinal; first difference at insn 0; length:-18; extent-differs
 text scheduler 0x00102158 0x0010233C ico2/common/src/main.c local lines=63  # ordinal; first difference at insn 66; other:1; extent-equal
@@ -830,8 +839,8 @@ text girlBrainMain_Init 0x0016BCF0 0x0016BD04 ico2/fumi/src/girl_act.c local lin
 text ChangeRunMode.135 0x0016BD08 0x0016BDF8 ico2/fumi/src/girl_act.c local file=ChangeRunMode_135  # ordinal; first difference at insn 9; imm:4; extent-equal
 text subGirlBrainMain 0x0016BDF8 0x0016CED0 ico2/fumi/src/girl_act.c lines=465  # ordinal; first difference at insn 12; length:-147; extent-differs
 text subGirlBrain_Pulledup 0x0016CED0 0x0016D32C ico2/fumi/src/girl_act.c lines=90  # ordinal; first difference at insn 29; length:-4; extent-differs
-text ATGoalTurnMail 0x0016D330 0x0016D484 ico2/fumi/src/girl_act.c local  # ordinal; first difference at insn 0; length:-2; extent-differs
-text subGirlBrain_Attract 0x0016D708 0x0016E90C ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 0; length:-359; extent-differs
+text ATGoalTurnMail 0x0016D330 0x0016D484 ico2/fumi/src/girl_act.c local in=ico2/fumi/src/girl_brain_attract.c.inc  # ordinal; first difference at insn 0; length:-2; extent-differs
+text subGirlBrain_Attract 0x0016D708 0x0016E90C ico2/fumi/src/girl_act.c in=ico2/fumi/src/girl_brain_attract.c.inc  # ordinal; first difference at insn 0; length:-359; extent-differs
 text _girlBrainHide_MakeHidePoint 0x0016E910 0x0016EB68 ico2/fumi/src/girl_act.c local lines=53  # ordinal; first difference at insn 28; imm:4; extent-equal
 text girlBrainHide_GoalTurn 0x0016EB68 0x0016EC74 ico2/fumi/src/girl_act.c local lines=35  # ordinal; first difference at insn 24; imm:8; extent-equal
 text isHideRecheck.189 0x0016EC78 0x0016EE08 ico2/fumi/src/girl_act.c local file=isHideRecheck_189  # nested in subGirlBrain_Hide (a stub); equal, gone with its carved parent
@@ -1642,18 +1651,18 @@ text ReviveAllCarryableItemsWithNonSleepFrame 0x001D4170 0x001D4224 ico2/sugipon
 text SetLodLevel 0x001D4B40 0x001D4BCC ico2/sugipon/src/lodManager.c lines=19  # ordinal; first difference at insn 0; length:-12; extent-differs
 text ResetDynamicMotionManager 0x001D4DE8 0x001D4E2C ico2/sugipon/src/motionFileManager.c lines=10  # ordinal; first difference at insn 6; imm:2; extent-equal
 text ResetStatic2MotionManager 0x001D4E30 0x001D4E6C ico2/sugipon/src/motionFileManager.c lines=9  # ordinal; first difference at insn 5; imm:2; extent-equal
-text _getFinalMatrix 0x001D59C8 0x001D83D8 ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 0; length:-143; extent-differs
-text getFinalMatrix 0x001D8590 0x001D8754 ico2/sugipon/src/motionManager.c local  # census-equal with immediates masked; differs (match_check other:3)
+text _getFinalMatrix 0x001D59C8 0x001D83D8 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc  # ordinal; first difference at insn 0; length:-143; extent-differs
+text getFinalMatrix 0x001D8590 0x001D8754 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc  # census-equal with immediates masked; differs (match_check other:3)
 text checkCliffState 0x001D92E0 0x001D988C ico2/sugipon/src/motionManager.c local lines=133  # ordinal; first difference at insn 0; length:-12; extent-differs
 text _checkCliffAndWall 0x001D9890 0x001D9BB8 ico2/sugipon/src/motionManager.c local lines=62  # ordinal; first difference at insn 17; length:-1; extent-differs
-text getFieldCollision 0x001DA4B8 0x001DA60C ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 0; length:+10; extent-differs
-text rootUpdateXZ 0x001DB000 0x001DC0E4 ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 48; length:-7; extent-differs
-text rootUpdateXZ_MotPos 0x001DC0E8 0x001DC554 ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 44; length:-48; extent-differs
-text forceReset 0x001DC908 0x001DC938 ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 3; imm:1; extent-equal
-text rootUpdateStepSolution 0x001DD7A8 0x001DE250 ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 169; length:-27; extent-differs
-text rootUpdateY_Rope 0x001DED10 0x001DEF20 ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 1; length:-19; extent-differs
-text rootUpdateFly 0x001DEF20 0x001DF14C ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 89; length:+5; extent-differs
-text rootUpdateEnemyFly 0x001DF150 0x001DF368 ico2/sugipon/src/motionManager.c local  # ordinal; first difference at insn 106; length:+5; extent-differs
+text getFieldCollision 0x001DA4B8 0x001DA60C ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 0; length:+10; extent-differs
+text rootUpdateXZ 0x001DB000 0x001DC0E4 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 48; length:-7; extent-differs
+text rootUpdateXZ_MotPos 0x001DC0E8 0x001DC554 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 44; length:-48; extent-differs
+text forceReset 0x001DC908 0x001DC938 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 3; imm:1; extent-equal
+text rootUpdateStepSolution 0x001DD7A8 0x001DE250 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 169; length:-27; extent-differs
+text rootUpdateY_Rope 0x001DED10 0x001DEF20 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 1; length:-19; extent-differs
+text rootUpdateFly 0x001DEF20 0x001DF14C ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 89; length:+5; extent-differs
+text rootUpdateEnemyFly 0x001DF150 0x001DF368 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 106; length:+5; extent-differs
 text _getGeometryOfMotion 0x001DF368 0x001DF8C0 ico2/sugipon/src/motionManager.c local lines=120  # ordinal; first difference at insn 194; imm:3; extent-equal
 text GetGeometryOfMotion 0x001DFBC8 0x001E00F8 ico2/sugipon/src/motionManager.c lines=85  # ordinal; first difference at insn 23; imm:20; extent-equal
 text GetMatrixOfMotion 0x001E00F8 0x001E0438 ico2/sugipon/src/motionManager.c lines=79  # ordinal; first difference at insn 16; imm:1; extent-equal
