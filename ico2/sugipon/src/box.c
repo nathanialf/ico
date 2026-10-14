@@ -34,7 +34,6 @@
 #include "objact.h"
 #include "gobj.h"
 #include "switch.c.inc"
-#include "include_asm.h"
 
 /* The 416-byte box work block InitBoxGeo allocates and seeds from the
    template below, aligned(8). */
@@ -1447,9 +1446,47 @@ inline int IsThisBoxTruck(GObj *self)
     return p->route;
 }
 
-static void action(GObj *self);
+static void action(GObj *self)
+{
+    /* the float view carries the up vector */
+    Vec4u v;
+    BoxWork *p = GOBJ_SUB(self)->work;
 
-INCLUDE_ASM(action);
+    switch (p->mode) {
+    case 0:
+        if (p->route != 0) {
+            inertiaMove(self);
+            updateBoxWheelAngle(self);
+            memset(&v, 0, 16);
+            v.f[2] = 1.0f;
+            _ApplyMatrix(GOBJ_SUB(self)->ctrl.dir, (void *)GOBJ_SUB(self)->nodeMtx, &v);
+        }
+        break;
+    case 1:
+    case 6:
+        execAutoMove(self);
+        break;
+    case 2:
+    case 3:
+        execFallDown(self);
+        break;
+    case 4:
+        playBoxAnimation(self, v.f);
+        break;
+    case 5:
+        execFloating(self);
+        break;
+    case -1:
+    default:
+        debug_StdPrintfDummy("box die!!!\n");
+        break;
+    }
+    if (p->mode != 6) {
+        if (*(int *)(p->subGObj + 0x16C) != 0) {
+            *(int *)(p->subGObj + 0x16C) = 0;
+        }
+    }
+}
 
 inline void GetBoxGlobalHoldPoint(float *out, GObj *self, float *local)
 {

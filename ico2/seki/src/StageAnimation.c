@@ -543,7 +543,57 @@ void stage_ResetAnimation(void)
 
 INCLUDE_ASM(stage_CalcAnimationNoParent);
 
-INCLUDE_ASM(stage_CalcAnimationParent);
+void stage_CalcAnimationParent(void)
+{
+    int i;
+    StageAnim *e;
+    BgaHeader *entry2;
+
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (stageAnimCount == 0) {
+        return;
+    }
+    bga_SetUniqAnimationFlag(1);
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        entry2 = e->entry2;
+        if (entry2->cut != 0) {
+            continue;
+        }
+        if (entry2->anim->obj == 0) {
+            continue;
+        }
+        if (systemStatus[0x14 / 4] != 0) {
+            continue;
+        }
+        switch (entry2->mode) {
+        case -1: {
+            int k;
+
+            for (k = 0; k < e->flags.b.count; k++) {
+                char *objs = (char *)e->obj;
+                char *o = *(char **)(objs + (k << 2));
+                GOBJ_SUB(o)->disp = 0;
+            }
+            break;
+        }
+        case 1:
+            _InitCurrentMatrix();
+            bga_CalcAnimation(e->entry2, e->entry1->loop, 0);
+            break;
+        case 0:
+            _InitCurrentMatrix();
+            bga_CalcAnimation(e->entry2, e->entry1->loop, 1);
+            break;
+        }
+    }
+    bga_SetUniqAnimationFlag(0);
+}
 
 void stage_DispAnimation(void)
 {
