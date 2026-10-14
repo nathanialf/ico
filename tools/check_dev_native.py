@@ -34,6 +34,20 @@ pins are fine only where the developers' own source was assembly).
      (`extern int x __asm__("name");`), which binds one name to another
      symbol instead of declaring the symbol under its own name.
 
+  8. The campaign stubs (config/stubs.<slug>.txt, tools/gen_stub_s.py).  The
+     only asm a C file may carry for a function it does not yet compile is the
+     exact line `INCLUDE_ASM(name);` at file scope, and only while the list
+     has a row for that name naming this file; the row and the line go
+     together, so a listed name whose file lacks the line is refused too.  An
+     INCLUDE_ASM in any other spelling, one for a name the list does not
+     carry, one on a tree whose list is empty, an `#include "include_asm.h"`
+     with no listed stub beside it, and a `.include` in any other asm are
+     refused.  The macro comes from build/stubs/include_asm.h, which
+     gen_stub_s.py writes with the stubs and the tree never tracks, so a file
+     that includes it does not compile once the list is empty.  A `#line`
+     after the INCLUDE_ASM line, which keeps a TU's __LINE__ numbering, is
+     decided by the byte gate, not here.
+
 What the ban list in CLAUDE.md names but no pattern can decide (dead stores,
 declaration tricks, a do-while(0) wrapper with a body) stays with review.
 """
@@ -43,6 +57,8 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+from gen_stub_s import LIST as STUB_LIST, parse_stubs  # noqa: E402
 LISTING = os.path.join(ROOT, 'baserom', 'pal', 'SRCFILE.TXT')
 ALLOW = os.path.join(ROOT, 'tools', 'dev_native_allow.txt')
 
@@ -63,6 +79,10 @@ ASM_OPEN = re.compile(r'(__asm__|\basm\b)\s*(__volatile__|volatile)?\s*\(')
 EMPTY_ASM = re.compile(r'(__asm__|\basm\b)\s*(__volatile__|volatile)?\s*\(\s*""\s*[:)]')
 ALIAS = re.compile(r'[\w\])]\s*(__asm__|\basm\b)\s*\(\s*"[A-Za-z_.][\w.]*"\s*\)\s*(__attribute__\b.*)?[;,=]')
 PIN_MACRO = re.compile(r'\b(KEEP_LIVE|ANCHOR|MEM_BARRIER|MATERIALIZE)\s*\(|\bREG\s*\(\s*\$')
+# rule 8: the one stub form, and the other spellings that would bring in asm text
+INCLUDE_ASM_LINE = re.compile(r'^INCLUDE_ASM\((\w+)\);$')
+INCLUDE_ASM_HDR = re.compile(r'^\s*#\s*include\s+["<]include_asm\.h[">]')
+ASM_INCLUDE = re.compile(r'\.include\b')
 # instructions no C spells, valid only inside an asm template (the assert trap and its kin)
 ASM_ONLY = re.compile(r'\b(break|teq|tne|tge|tlt|tgeu|tltu)\b')
 
@@ -156,8 +176,49 @@ def check_one_assembler(bad):
             bad.append(f'tools/compile_c.sh:{i+1}: a config opt-in selects the assembler (selection is by archive only)')
 
 
+def check_stubs(f, L, stubs, bad):
+    """rule 8 on one file: each INCLUDE_ASM line against the stub list, and
+    each row naming this file against its lines."""
+    seen = set()
+    header = False
+    for i, l in enumerate(L):
+        if 'INCLUDE_ASM' not in l and 'include_asm' not in l and '.include' not in l:
+            continue
+        m = INCLUDE_ASM_LINE.match(l.rstrip())
+        if m and enclosing_function(L, i) is None:
+            name = m.group(1)
+            if not stubs:
+                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}) on a tree whose stub list is empty ({os.path.relpath(STUB_LIST, ROOT)})')
+            elif name not in stubs:
+                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}): {name} has no row in {os.path.relpath(STUB_LIST, ROOT)}')
+            elif stubs[name]['tu'] != f:
+                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}): its row names {stubs[name]["tu"]}, not this file')
+            elif name in seen:
+                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}) a second time')
+            else:
+                seen.add(name)
+        elif INCLUDE_ASM_HDR.match(l):
+            header = True
+        elif 'INCLUDE_ASM' in l:
+            bad.append(f'{f}:{i+1}: INCLUDE_ASM in a form other than `INCLUDE_ASM(name);` alone on a file-scope line')
+        elif ASM_INCLUDE.search(l) and f.endswith(('.c', '.h', '.inc')):
+            bad.append(f'{f}:{i+1}: .include in an asm template (stubs come only through INCLUDE_ASM)')
+    if header and not seen:
+        bad.append(f'{f}: includes include_asm.h with no listed stub')
+    for name, r in stubs.items():
+        if r['tu'] == f and name not in seen:
+            bad.append(f'{f}: {os.path.relpath(STUB_LIST, ROOT)}:{r["line"]} lists {name} for this file, which has no INCLUDE_ASM({name}); line')
+
+
 def main(argv):
     files = staged_or_all(argv)
+    stubs = {r['name']: r for r in parse_stubs()}
+    # a staged change to the stub list checks every file it names
+    if '--all' not in argv and not os.environ.get('FILES'):
+        staged = subprocess.run(['git', 'diff', '--cached', '--name-only'], cwd=ROOT,
+                                capture_output=True, text=True).stdout.split()
+        if os.path.relpath(STUB_LIST, ROOT) in staged:
+            files += [t for t in dict.fromkeys(r['tu'] for r in stubs.values()) if t not in files]
     listing = load_listing()
     allow = load_allow()
     bad = []
@@ -174,6 +235,7 @@ def main(argv):
             L = open(path, errors='replace').read().split('\n')
         except OSError:
             continue
+        check_stubs(f, L, stubs, bad)
         newlib = f.startswith('sce/libc/')
         for i, l in enumerate(L):
             m = KNR_HDR.match(l)

@@ -1,0 +1,23 @@
+# config/stubs.pal.txt -- the functions and data runs still built from the base ELF.
+#
+# Campaign scaffolding. A row names a range of the base ELF that no tracked
+# source produces yet; tools/gen_stub_s.py writes it as build/stubs/<name>.s
+# from the user's own baserom/pal/baseelf.elf at build time (nothing of the
+# ROM is tracked, docs/LEGAL.md), and the TU the row names includes it with
+# `INCLUDE_ASM(name);` at the function's place in the file, with the macro
+# from build/stubs/include_asm.h, which gen_stub_s.py writes beside the
+# stubs. tools/check_dev_native.py refuses an INCLUDE_ASM whose name has no
+# row here. With no rows the mechanism is idle, as it is on main: every object
+# of the PAL link is built from source.
+#
+# Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N]
+#   section   text, rodata, data or sdata
+#   name      the symbol the stub defines
+#   vma_lo/hi the range [lo, hi) in the base ELF, hex (a text row ends at the
+#             function's last instruction, not at the fill after it)
+#   tu        the C source under ico2/ or sce/ that includes the stub
+#   local     the name is a static in the C (no .globl)
+#   align=N   the stub's alignment in bytes (default: the largest power of two
+#             dividing vma_lo, at most 8)
+#   lines=N   the stubbed body spanned N source lines (for the TU's `#line`
+#             after INCLUDE_ASM when it uses __LINE__; nothing reads it yet)

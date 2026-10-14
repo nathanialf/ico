@@ -34,7 +34,12 @@ and once with -s to ico.elf, since the base carries no .symtab or .strtab but
 2.10's -s keeps their names in .shstrtab as the base does; ld 2.10 has no
 INCLUDE inside a section, so the script it reads is build/link.ld,
 config/link.<slug>.ld with its INCLUDE lines expanded; the map it writes is
-build/ico.<slug>.map), rom, verify (tools/check_elf.py --gate
+build/ico.<slug>.map), stubs (tools/gen_stub_s.py: build/stubs/<name>.s
+for each row of config/stubs.<slug>.txt, from the base ELF, and the macro's
+header build/stubs/include_asm.h, implicit inputs of the object of the TU the
+row names, which includes the stub with INCLUDE_ASM), stubcheck
+(gen_stub_s.py --check on the linked ELF, so a stub out of place is named
+before the gate), rom, verify (tools/check_elf.py --gate
 --require-elf-sha: the allocated sections, the ROM SHA-1 and the whole ELF's
 SHA-1).
 
@@ -53,6 +58,8 @@ from gen_data_c import parse_schema, parse_table  # noqa: E402
 from ico_version import (  # noqa: E402
     detect_version, baseelf_path, config_path, link_map_path,
 )
+# The stub list's one parser (config/stubs.<slug>.txt).
+from gen_stub_s import HEADER as STUB_HEADER, LIST as STUB_LIST_PATH, parse_stubs  # noqa: E402
 
 VERSION = detect_version(ROOT)
 
@@ -67,6 +74,7 @@ TABLE = _rel(config_path(ROOT, VERSION, "data_members", "txt"))
 SCHEMA = _rel(config_path(ROOT, VERSION, "data_schema", "txt"))
 BASE_ELF = _rel(baseelf_path(ROOT, VERSION))
 LINK_MAP = _rel(link_map_path(ROOT, VERSION))
+STUB_LIST = _rel(STUB_LIST_PATH)
 OUT = "build"
 NINJA = "build.ninja"
 LD = "tools/cc/binutils-2.10-ee/bin/ld"
@@ -224,6 +232,15 @@ def main():
         write_labels(sys.argv[2])
         return 0
     entries = parse_list()
+    stubs = parse_stubs()
+    srcs = {e["name"] for e in entries if e["kind"] == "src"}
+    for r in stubs:
+        if r["tu"] not in srcs:
+            fail(f"{STUB_LIST}:{r['line']}: {r['tu']} is not a source in {LIST}")
+    stub_h = f"{OUT}/stubs/{STUB_HEADER}"
+    stub_s = {}
+    for r in stubs:
+        stub_s.setdefault(r["tu"], [stub_h]).append(f"{OUT}/stubs/{r['name']}.s")
     members = table_members()
     cmembers = schema_members()
     check(entries, members)
@@ -281,6 +298,10 @@ def main():
              "  description = LABELS $out\n\n"
              f"rule link\n  command = $ldcmd -Map {LINK_MAP} -o {OUT}/ico.syms.elf $in"
              f" && $ldcmd -s -o {OUT}/ico.elf $in\n  description = LD $out\n\n"
+             "rule stubs\n  command = $py tools/gen_stub_s.py\n"
+             "  description = STUBS $out\n  restat = 1\n\n"
+             f"rule stubcheck\n  command = $py tools/gen_stub_s.py --check {OUT}/ico.syms.elf > $out\n"
+             "  description = CHECK stubs\n\n"
              "rule rom\n  command = $objcopy -O binary --gap-fill=0 $in $out\n  description = ROM $out\n\n"
              f"rule verify\n  command = $py tools/check_elf.py --gate --require-elf-sha --elf {OUT}/ico.elf"
              f" --map {LINK_MAP} --rom $in && touch $out\n  description = VERIFY $in\n\n")
@@ -308,7 +329,8 @@ def main():
             link.append(o)
             layout.append(o)
             if e["name"].endswith(".c"):
-                w.append(f"build {o}: cc {e['name']}\n")
+                deps = stub_s.get(e["name"])
+                w.append(f"build {o}: cc {e['name']}{' | ' + ' '.join(deps) if deps else ''}\n")
             elif e["name"].endswith(".dsm"):
                 dsm = Path(e["name"]).relative_to("ico2")
                 vsm = dsm.with_suffix(".vsm")
@@ -322,20 +344,26 @@ def main():
                 w.append(f"build {o}: {rule} {e['name']}\n  gnum = {gnum}\n")
     w.append(f"build {LABELS}: labels {' '.join(label_sources())} | {LIST} {TABLE}"
              " tools/gen_ninja.py\n")
+    if stubs:
+        outs = [stub_h] + [s for ss in stub_s.values() for s in ss[1:]]
+        w.append(f"build {' '.join(outs)}: stubs | {STUB_LIST} {BASE_ELF} tools/gen_stub_s.py\n"
+                 f"build {OUT}/stubs.ok: stubcheck {OUT}/ico.syms.elf | {STUB_LIST} tools/gen_stub_s.py\n")
     aliases = [f"{OUT}/data/{m}.alias.ld" for m in cmembers]
     w.append(f"\nbuild {LAYOUT_ELF}: layout {' '.join(layout + aliases)} | {LAYOUT_LD} {LD}\n")
     w.append(f"\nbuild {OUT}/ico.syms.elf {OUT}/ico.elf: link {' '.join(link + aliases)} | {LINK_LD} {LD}"
              f"{''.join(' ' + s for s in stamps)}\n"
              f"build {OUT}/ico.rom: rom {OUT}/ico.elf\n"
-             f"build {OUT}/.verified: verify {OUT}/ico.rom | tools/check_elf.py\n"
+             f"build {OUT}/.verified: verify {OUT}/ico.rom | tools/check_elf.py"
+             f"{' ' + OUT + '/stubs.ok' if stubs else ''}\n"
              f"default {OUT}/.verified\n"
              f"build {NINJA} {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld {LINK_LD} {LAYOUT_LD}: gen | "
-             f"tools/gen_ninja.py tools/gen_data_c.py tools/ico_version.py {LIST} {TABLE} {SCHEMA} {SCRIPT}\n")
+             f"tools/gen_ninja.py tools/gen_data_c.py tools/gen_stub_s.py tools/ico_version.py"
+             f" {LIST} {TABLE} {SCHEMA} {SCRIPT}{' ' + STUB_LIST if STUB_LIST_PATH.exists() else ''}\n")
     (ROOT / NINJA).write_text("".join(w))
     n = {k: sum(e["kind"] == k for e in entries) for k in ("src", "data")}
     toks = sum(len(e["align"]) for e in entries)
     print(f"gen_ninja: wrote {NINJA} ({len(link)} objects: {n['src']} sources, "
-          f"{n['data']} data members, {toks} align tokens)")
+          f"{n['data']} data members, {toks} align tokens, {len(stubs)} stubs)")
     return 0
 
 

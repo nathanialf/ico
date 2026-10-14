@@ -91,7 +91,14 @@ SCE_INCS=""
 for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd libsndn2; do
     SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
 done
-CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS}"
+# build/stubs/ holds include_asm.h, the campaign's stub scaffolding, which
+# tools/gen_stub_s.py writes with the stubs (config/stubs.<slug>.txt); nothing
+# tracked provides it, so a TU that includes it compiles only while stubs exist.
+# Searched last and absolute so it is the same from every compile directory. A
+# search path is not recorded in the object; an object whose source does not
+# include the header is byte-identical with or without it, and with or without
+# the directory.
+CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS} -I${ROOT}/build/stubs"
 # DUMP MODE: `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
 # pass dump) under the SAME per-origin flags and assembler, then moves the dumps gcc wrote
 # beside the source into DUMP_DIR so nothing lands under ico2/ or sce/. DUMP_FLAGS may add

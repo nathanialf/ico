@@ -25,6 +25,11 @@ derive progress from that comparison and the link map.
               members generated at build time from the user's own base ELF (as
               C for the members config/data_schema.<ver>.txt lists, as assembly
               for the rest), whose content is not in the repository.
+              The ranges config/stubs.<ver>.txt lists (tools/gen_stub_s.py:
+              functions and data runs a TU still includes from the base ELF
+              while its C is unfinished) count as from the disc too, though
+              their bytes sit in a TU's object, and a function inside one is
+              reported as a stub, not as matched.
               Fill belongs to the object it follows, in every section: a
               `*fill*` row counts with the input section that ends where it
               starts, so an object's trailing pad, a data-only member's
@@ -67,6 +72,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ico_version import (  # noqa: E402
     detect_version, baseelf_path, config_path, link_map_path,
 )
+from gen_stub_s import parse_stubs  # noqa: E402
 
 VERSION = detect_version(REPO_ROOT)
 BASE_ELF = baseelf_path(REPO_ROOT, VERSION)
@@ -275,6 +281,8 @@ class Comparison:
     def __init__(self, base: Elf, built: Elf, rows: list[dict]):
         self.base, self.built, self.rows = base, built, rows
         self.row_addrs = [r["addr"] for r in rows]
+        # config/stubs.<ver>.txt's ranges: bytes from the disc inside a TU's object
+        self.stubs = sorted((r["lo"], r["hi"]) for r in parse_stubs())
         self.sections = []        # base allocated sections, in address order
         for s in sorted((s for s in base.sections if s["alloc"]),
                         key=lambda s: (s["addr"], s["name"])):
@@ -358,10 +366,17 @@ class Comparison:
             if b > a:
                 yield r, a, b
 
+    def stub_spans(self, lo: int, hi: int):
+        """The parts of [lo, hi) that config/stubs.<ver>.txt lists."""
+        for a, b in self.stubs:
+            if a < hi and b > lo:
+                yield max(a, lo), min(b, hi)
+
     def credit(self, s: dict) -> dict[str, int]:
         """{owned, extracted, other, none} bytes of section s; for
         PROGBITS only bytes identical to the base count toward `owned` and
-        `extracted`."""
+        `extracted`. A stub's bytes inside an owned object count as
+        extracted."""
         out = {"owned": 0, "extracted": 0, "other": 0, "none": 0,
                "identical_owned": 0, "identical_extracted": 0}
         placed = 0
@@ -371,6 +386,14 @@ class Comparison:
             placed += b - a
             if not s["nobits"] and cls in ("owned", "extracted"):
                 out["identical_" + cls] += self.identical(s, a, b)
+            if cls == "owned":
+                for x, y in self.stub_spans(a, b):
+                    out["owned"] -= y - x
+                    out["extracted"] += y - x
+                    if not s["nobits"]:
+                        same = self.identical(s, x, y)
+                        out["identical_owned"] -= same
+                        out["identical_extracted"] += same
         out["none"] += max(0, s["size"] - placed)
         return out
 
@@ -749,10 +772,12 @@ def build_tree(cmp_: Comparison, secs: dict) -> dict:
                     nxt = inside[k + 1][0] if k + 1 < len(inside) else hi
                     size = nxt - addr
                 size = min(size, hi - addr)
-                matched = cmp_.range_equal(addr, addr + size)
+                stub = any(cmp_.stub_spans(addr, addr + size))
+                matched = not stub and cmp_.range_equal(addr, addr + size)
                 node["funcs"].append({
                     "name": _strip_suffix(name), "addr": f"0x{addr:08X}",
                     "size": size, "section": sect, "matched": matched,
+                    **({"stub": True} if stub else {}),
                 })
                 ss = sym_sections.setdefault(sect, [0, 0])
                 ss[1] += size
@@ -762,30 +787,33 @@ def build_tree(cmp_: Comparison, secs: dict) -> dict:
         p["tus"][tu] = node
 
     prog_list = []
-    tot_mf = tot_f = 0
+    tot_mf = tot_f = tot_sf = 0
     for prog in sorted(programmers.values(), key=lambda p: p["name"]):
         tus = []
-        pmf = pf = pmb = pb = 0
+        pmf = pf = pmb = pb = psf = 0
         for t in sorted(prog["tus"].values(), key=lambda t: t["path"]):
             fs = sorted(t["funcs"], key=lambda f: f["addr"])
             mf = sum(1 for f in fs if f["matched"])
             mb = sum(f["size"] for f in fs if f["matched"])
+            sf = sum(1 for f in fs if f.get("stub"))
             b = sum(f["size"] for f in fs)
             node = {"name": t["name"], "path": t["path"],
                     **({"archive": t["archive"]} if "archive" in t else {}),
                     "matched_funcs": mf, "total_funcs": len(fs),
-                    "matched_bytes": mb, "total_bytes": b, "funcs": fs}
+                    "matched_bytes": mb, "total_bytes": b,
+                    **({"stub_funcs": sf} if sf else {}), "funcs": fs}
             sb = sec_bytes.get(t["path"])
             if sb:
                 node["section_bytes"] = {k: sb[k] for k in sorted(sb)}
             tus.append(node)
-            pmf += mf; pf += len(fs); pmb += mb; pb += b
+            pmf += mf; pf += len(fs); pmb += mb; pb += b; psf += sf
         entry = {"name": prog["name"], "matched_funcs": pmf, "total_funcs": pf,
-                 "matched_bytes": pmb, "total_bytes": pb, "tus": tus}
+                 "matched_bytes": pmb, "total_bytes": pb,
+                 **({"stub_funcs": psf} if psf else {}), "tus": tus}
         if prog["name"] == VUTEXT_GROUP:
             entry["note"] = VUTEXT_NOTE
         prog_list.append(entry)
-        tot_mf += pmf; tot_f += pf
+        tot_mf += pmf; tot_f += pf; tot_sf += psf
 
     sections = {k: v for k, v in secs["sections"].items() if v[1]}
     text = sections.get(".text", [0, 0])
@@ -793,7 +821,7 @@ def build_tree(cmp_: Comparison, secs: dict) -> dict:
         "schema": 2,
         "version": VERSION,
         "totals": {
-            "matched_funcs": tot_mf, "total_funcs": tot_f,
+            "matched_funcs": tot_mf, "total_funcs": tot_f, "stub_funcs": tot_sf,
             "matched_bytes": text[0], "total_bytes": text[1],
             "sections": sections,
             "extracted": {k: secs["extracted"].get(k, 0) for k in sections},
@@ -867,7 +895,10 @@ def _table(sections: dict, extracted: dict) -> str:
         "which the build generates from the "
         "user's own base ELF as C from the record types and names in "
         f"`{_rel(config_path(REPO_ROOT, VERSION, 'data_schema', 'txt'))}` "
-        "(`tools/gen_data_c.py`); none of their "
+        "(`tools/gen_data_c.py`), and the functions and data runs "
+        f"`{_rel(config_path(REPO_ROOT, VERSION, 'stubs', 'txt'))}` lists, "
+        "which a translation unit still includes from the base ELF while its "
+        "C is unfinished (`tools/gen_stub_s.py`); none of their "
         "content is in the repository. "
         "Linker fill counts with the object it follows. "
         "**Identical** is their sum, the share of the section equal to the base, "
@@ -914,7 +945,7 @@ def run_progress(args) -> int:
                   f"  from the disc {tree['totals']['extracted'].get(sec, 0)}")
     t = tree["totals"]
     print(f"  functions  {t['matched_funcs']}/{t['total_funcs']}, "
-          f"{len(tree['programmers'])} groups")
+          f"{t['stub_funcs']} stubs, {len(tree['programmers'])} groups")
     out = Path(args.out_dir) if args.out_dir else None
     readme = (out / "README.md") if out else README
     doc = (out / "PROGRESS.md") if out else PROGRESS_DOC

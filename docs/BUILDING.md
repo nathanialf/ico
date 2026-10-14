@@ -183,6 +183,26 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
   its offset by `build/data/<member>.alias.ld`;
+- writes the stubs, when `config/stubs.pal.txt` has rows (on `main` it has
+  none, and this step does nothing). While another target is rebuilt from
+  this tree, a function whose C does not yet give that target's bytes is
+  listed there with its address range and its translation unit, and the C
+  carries `INCLUDE_ASM(name);` where the function stands in the file.
+  `tools/gen_stub_s.py` writes `build/stubs/<name>.s` from the user's own
+  base ELF, one `.word` per instruction with no relocations, and the
+  assembler reads it at that point of the compiler's output, so the stub
+  sits between the functions around it and the gate passes at every commit.
+  It writes the macro's header too, `build/stubs/include_asm.h`, which
+  `tools/compile_c.sh` searches last: the tree tracks no copy, so a TU that
+  includes it compiles only while stubs exist. The line shifts every later
+  line of the TU; a TU that uses `__LINE__` below it keeps its numbering with
+  a `#line` directive after the `INCLUDE_ASM` line, written by hand (a row's
+  `lines=N` records the span of the body it stands for), and the gate
+  decides. Nothing of it is tracked. `--check` names a stub
+  out of place; `tools/check_dev_native.py` refuses an `INCLUDE_ASM` the
+  list does not carry and a listed name whose file lacks it; the progress
+  figures count a stub's bytes as from the disc and its function as a stub,
+  not as matched;
 - links with ld 2.10 and `config/link.pal.ld`, once to `build/ico.syms.elf`
   (symbols kept, with the map `build/ico.pal.map`) and once stripped to
   `build/ico.elf`, as the base is;
@@ -245,7 +265,9 @@ it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
   `tools/check_shared_layer.sh` fetches `origin/main` and refuses the push
   when the branch's `tools/`, `build.sh`, `.github/` or `docs/index.html`
   differs from main's, naming the files; those are the same on every target
-  branch, and a change to them lands on `main` first. Then, for each pushed
+  branch, and a change to them lands on `main` first. The comparison leaves
+  out `tools/dev_native_allow.txt` (a pathspec exclude): it holds sites in the
+  branch's own sources, so each branch keeps its own. Then, for each pushed
   ref whose commits touch the build, it requires the working tree to be at
   that ref's tip with no uncommitted changes under `ico2/`, `sce/`,
   `config/` or `tools/`, and runs `tools/build.sh setup` and `ninja` on it.

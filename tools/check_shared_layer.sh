@@ -2,16 +2,20 @@
 # =============================================================================
 # tools/check_shared_layer.sh
 #
-# The shared layer (tools/, build.sh, .github/ and docs/index.html) is the
-# same file for file on every target branch (main, jpn, ntsc, aug6): the
-# target is chosen only by tools/ico_version.py's slug detection, never by a
-# branch's own copy of a tool. A change to the shared layer lands on main
-# first and is then copied to the other branches as it is.
+# The shared layer (tools/ except tools/dev_native_allow.txt, build.sh,
+# .github/ and docs/index.html) is the same file for file on every target
+# branch (main, jpn, ntsc, aug6): the target is chosen only by
+# tools/ico_version.py's slug detection, never by a branch's own copy of a
+# tool. A change to the shared layer lands on main first and is then copied
+# to the other branches as it is. tools/dev_native_allow.txt is left out: it
+# holds the allowed sites in the branch's own sources, so each branch keeps
+# its own.
 #
 # On main this passes. On any other branch it runs `git fetch origin main`
-# and requires `git diff --stat origin/main -- tools build.sh .github
-# docs/index.html` to be empty; otherwise it names the files that differ and
-# exits 1. A failed fetch also exits non-zero.
+# and requires `git diff --stat origin/main -- tools
+# ':(exclude)tools/dev_native_allow.txt' build.sh .github docs/index.html` to
+# be empty; otherwise it names the files that differ and exits 1. A failed
+# fetch also exits non-zero.
 #
 #   tools/check_shared_layer.sh                  the checked-out branch and
 #                                                the working tree
@@ -27,7 +31,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-SHARED=(tools build.sh .github docs/index.html)
+SHARED=(tools ':(exclude)tools/dev_native_allow.txt' build.sh .github docs/index.html)
 
 branch="${1:-$(git symbolic-ref --short -q HEAD || true)}"
 commit="${2:-}"
@@ -57,11 +61,11 @@ fi
 stat="$(git diff --stat origin/main $commit -- "${SHARED[@]}")"
 if [[ -n "$stat" ]]; then
     echo "check_shared_layer: ${branch:-HEAD} differs from origin/main in the shared layer" >&2
-    echo "  (tools/, build.sh, .github/, docs/index.html):" >&2
+    echo "  (tools/ except tools/dev_native_allow.txt, build.sh, .github/, docs/index.html):" >&2
     printf '%s\n' "$stat" | sed 's/^/  /' >&2
     echo "  Land the change on main first, then copy main's files here:" >&2
-    echo "    git checkout origin/main -- ${SHARED[*]}" >&2
+    echo "    git checkout origin/main -- ${SHARED[*]@Q}" >&2
     exit 1
 fi
 
-echo "check_shared_layer: OK (${branch:-HEAD} matches origin/main in ${SHARED[*]})"
+echo "check_shared_layer: OK (${branch:-HEAD} matches origin/main in tools/ except tools/dev_native_allow.txt, build.sh, .github/, docs/index.html)"
