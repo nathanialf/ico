@@ -2499,7 +2499,7 @@ static int menuArg = 0; /* derived name */
 static inline void debug_MenuBlink(void) /* derived name */
 {
     if (menuBlink >> 4) {
-        debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Jan 17 2002", "15:37:26");
+        debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Aug  7 2001", "15:03:20");
     }
     menuBlink++;
     if (menuBlink >= 0x41) {

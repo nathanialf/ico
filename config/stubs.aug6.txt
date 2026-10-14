@@ -1883,7 +1883,7 @@ rdlit ReadSoundSqFile 0x0060BA00 0x0060BA2B ico2/common/src/charFileManager.c de
 text ReadSoundAdpcmFile 0x001A01B8 0x001A02F4 ico2/common/src/charFileManager.c lines=23  # ordinal; first difference at insn 37; imm:1; extent-equal
 rdlit ReadSoundAdpcmFile 0x0060BA30 0x0060BA59 ico2/common/src/charFileManager.c def  # 1 string
 text debug_Assert 0x001A0318 0x001A03AC ico2/common/src/debug.c lines=9  # ordinal; first difference at insn 15; imm:4; extent-equal
-rdlit debug_Assert 0x0060D3B0 0x0060D414 ico2/common/src/debug.c align=16  # 1 data
+rdlit debug_Assert 0x0060D3B0 0x0060D3BC ico2/common/src/debug.c align=16  # 1 string (the log strings after it are debug_openLog's and debug_closeLog's)
 sdlit debug_Assert 0x0062CB40 0x0062CB4A ico2/common/src/debug.c  # 2 strings
 text debug_SaveDebugOptionFile 0x001A0420 0x001A0540 ico2/common/src/debug.c local lines=22  # ordinal; first difference at insn 27; imm:1; extent-equal
 rdlit debug_SaveDebugOptionFile 0x0060D520 0x0060D5C9 ico2/common/src/debug.c align=16  # 4 strings
@@ -1929,8 +1929,8 @@ sdlit debug_mcLoadMainBlock 0x0062CCB8 0x0062CCC0 ico2/common/src/debug.c  # tar
 text debug_mcDeleteFile 0x001A5A90 0x001A5C04 ico2/common/src/debug.c local lines=50  # census-equal; stubbed because it inlines a function stubbed for emission order
 rdlit debug_mcDeleteFile 0x0060E070 0x0060E0A4 ico2/common/src/debug.c align=16  # 2 strings, 1 jtbl
 text debug_MemoryCard 0x001A5C08 0x001A5E88 ico2/common/src/debug.c lines=63  # census-equal; stubbed because it inlines a function stubbed for emission order
-rdlit debug_MemoryCard 0x0060E0B8 0x0060E0E8 ico2/common/src/debug.c  # 1 data
-rdlit debug_MemoryCard 0x0060E108 0x0060E156 ico2/common/src/debug.c  # 1 data, 1 string
+rdlit debug_MemoryCard 0x0060E0A8 0x0060E0E8 ico2/common/src/debug.c  # target side: "UNFORMAT" and the menu table
+rdlit debug_MemoryCard 0x0060E0E8 0x0060E156 ico2/common/src/debug.c  # target side: two strings, the status table and a string
 sdlit debug_MemoryCard 0x0062CCD0 0x0062CD05 ico2/common/src/debug.c  # target side: its menu strings and "MENU"
 text debug_SETest 0x001A5E88 0x001A6124 ico2/common/src/debug.c lines=18  # ordinal; first difference at insn 37; imm:5; extent-equal
 sdlit debug_SETest 0x0062CD10 0x0062CD18 ico2/common/src/debug.c  # 1 string
