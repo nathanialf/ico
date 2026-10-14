@@ -31,10 +31,6 @@ static void getMotionGeometry(void *self);
 static void getStreamShapeGeometry(void *self, void *sm);
 static void shiftMotionData(int obj, int motion, int request, int shiftMode);
 
-/* The rope's interpolation rate: the chain's geometry sets it from the hang
-   height and rootUpdateY_Rope moves the root by it. */
-float ropeInterRate = 0.0f; /* derived name */
-
 extern MotionOrientEntry motionOrient[];
 
 struct MotOriHead8 { /* field names derived */
@@ -61,7 +57,75 @@ extern const MotionDef motionKind[];
    const, so motionOrientManager.h cannot carry it */
 extern const MotOriName motionOriKind[];
 
-INCLUDE_ASM(orientDebug);
+static void orientDebug(void *self, int idx, int y)
+{
+    char buf[256];
+    MotOriName name;
+
+    switch (motionKind[MOWORK(self)->ctrl.motion].rootUpdateMode) {
+    default:
+    case 12:
+    case 13:
+    case 14:
+    case 18:
+    case 19:
+        sprintf(buf, "ASSERT");
+        break;
+    case 1:
+        sprintf(buf, "XZ");
+        break;
+    case 20:
+        sprintf(buf, "XZ_FIT");
+        break;
+    case 2:
+        sprintf(buf, "XZ_MOTPOS");
+        break;
+    case 17:
+        sprintf(buf, "XZ_MOTPOS_FIT");
+        break;
+    case 7:
+        sprintf(buf, "UPPERWALLSOLUTION");
+        break;
+    case 16:
+        sprintf(buf, "UPPERWALLSOL_FIT");
+        break;
+    case 8:
+        sprintf(buf, "LOWERWALLSOLUTION");
+        break;
+    case 9:
+        sprintf(buf, "CLIFFSOLUTION");
+        break;
+    case 10:
+        sprintf(buf, "HANG");
+        break;
+    case 15:
+        sprintf(buf, "HANG FIT");
+        break;
+    case 11:
+        sprintf(buf, "WATER");
+        break;
+    case 5:
+        sprintf(buf, "NODEFIX");
+        break;
+    case 4:
+        sprintf(buf, "Y_ROPE");
+        break;
+    case 3:
+        sprintf(buf, "Y");
+        break;
+    case 0:
+        sprintf(buf, "TRUEMOTION");
+        break;
+    case 6:
+        sprintf(buf, "DIRECTPLAY");
+        break;
+    }
+    if (debug_window_flag != 0) {
+        name = motionOriKind[idx];
+        debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name,
+                              motionKind[MOWORK(self)->ctrl.motion].name, buf);
+    }
+}
 
 static inline void checkMotionKind(int i, int j) /* derived name */
 {

@@ -211,7 +211,6 @@ int UpdateFrameCounter(void *self);
 char *SetMotionRequest(void *self, int mot, MotOriReq req);
 void SetNodeRotationLimitDataTable(void *self, int from, int to);
 /* the rope interpolation rate the chain sets (motionOrientManager.c) */
-extern float ropeInterRate;
 void ForTest_ForceShiftMotion(int obj, int motion);
 
 #endif /* MOTIONORIENTMANAGER_H */

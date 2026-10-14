@@ -2279,10 +2279,6 @@ text ResetMotionProgramInterpInfo 0x001E0988 0x001E09F8 ico2/sugipon/src/motionM
 text SetDirectMotionProgramInterpInfo 0x001E09F8 0x001E0A74 ico2/sugipon/src/motionManager.c  # ordinal; first difference at insn 10; imm:1; extent-equal
 text getFinalMatrixCore 0x001E0A78 0x001E0B58 ico2/sugipon/src/motionManager.c local  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text pursueNaturalGeometry 0x001E0B58 0x001E0C08 ico2/sugipon/src/motionManager.c local  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text orientDebug 0x001E0D50 0x001E0FE8 ico2/sugipon/src/motionOrientManager.c local lines=69  # ordinal; first difference at insn 1; imm:2; extent-equal
-sdlit orientDebug 0x00633480 0x0063349D ico2/sugipon/src/motionOrientManager.c  # 4 strings, measured from the base
-sdlit orientDebug 0x006334A8 0x006334BA ico2/sugipon/src/motionOrientManager.c  # 3 strings, measured from the base
-rdlit orientDebug 0x00619620 0x006196C3 ico2/sugipon/src/motionOrientManager.c  # 9 strings, measured from the base
 text GetNbMotionFrames 0x001E0FE8 0x001E10EC ico2/sugipon/src/motionOrientManager.c lines=16  # ordinal; first difference at insn 0; imm:4; extent-equal
 text GetMotionPlaySpeedRatio 0x001E10F0 0x001E11CC ico2/sugipon/src/motionOrientManager.c lines=11  # ordinal; first difference at insn 0; imm:5; extent-equal
 text execFrameTrigger 0x001E11D0 0x001E12A0 ico2/sugipon/src/motionOrientManager.c local lines=30  # ordinal; first difference at insn 1; imm:5; extent-equal
@@ -2294,6 +2290,7 @@ rdlit shiftMotionOrientEndFunc 0x00619800 0x00619848 ico2/sugipon/src/motionOrie
 sdlit shiftMotionOrientEndFunc 0x006334F0 0x006334F2 ico2/sugipon/src/motionOrientManager.c  # 1 string
 text shiftMotionOrientBeginFunc 0x001E1FD8 0x001E2370 ico2/sugipon/src/motionOrientManager.c local lines=49  # ordinal; first difference at insn 5; length:-3; extent-differs
 rdlit shiftMotionOrientBeginFunc 0x00619848 0x006198EB ico2/sugipon/src/motionOrientManager.c  # 4 strings
+sdlit shiftMotionOrientBeginFunc 0x006334F8 0x006334FC ico2/sugipon/src/motionOrientManager.c  # 1 word, measured from the base: an aggregate initialiser the text takes the address of
 text normalMotionShift 0x001E2380 0x001E269C ico2/sugipon/src/motionOrientManager.c local lines=34  # ordinal; first difference at insn 29; imm:7; extent-equal
 lit4 normalMotionShift 0x00631370 0x00631374 ico2/sugipon/src/motionOrientManager.c  # 1 float
 text parallelMotionShift 0x001E26A0 0x001E29E8 ico2/sugipon/src/motionOrientManager.c local lines=27  # ordinal; first difference at insn 43; imm:4; extent-equal
@@ -2301,7 +2298,7 @@ lit4 parallelMotionShift 0x00631374 0x0063137C ico2/sugipon/src/motionOrientMana
 text SetMotionRequest 0x001E29E8 0x001E2D64 ico2/sugipon/src/motionOrientManager.c lines=61  # ordinal; first difference at insn 95; imm:3; extent-equal
 rdlit SetMotionRequest 0x006198F0 0x00619954 ico2/sugipon/src/motionOrientManager.c align=16  # 2 strings, 1 data
 rdlit SetMotionRequest 0x00619960 0x00619998 ico2/sugipon/src/motionOrientManager.c align=16  # 1 jtbl
-sdlit SetMotionRequest 0x00633508 0x0063350B ico2/sugipon/src/motionOrientManager.c  # 1 string
+sdlit SetMotionRequest 0x00633508 0x0063352A ico2/sugipon/src/motionOrientManager.c  # 5 strings, measured from the base: the four the spinner table points at
 text getNodeBlendedFloatingMotion 0x001E2D68 0x001E302C ico2/sugipon/src/motionOrientManager.c local lines=39  # ordinal; first difference at insn 1; imm:11; extent-equal
 rdlit getNodeBlendedFloatingMotion 0x00619998 0x006199C4 ico2/sugipon/src/motionOrientManager.c  # 1 string
 text getMotionGeometry 0x001E3030 0x001E39E4 ico2/sugipon/src/motionOrientManager.c local lines=179  # us-only (in motionOrientManager.c's span; PAL order suggests getMotionGeometry (2536 B in PAL)); named getMotionGeometry by call sites, callees, body alignment (provisional)
