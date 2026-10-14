@@ -325,8 +325,6 @@ text GetCurrentMotionDirectionAdjustFlag 0x001F1080 0x001F10AC ico2/sugipon/src/
 text FullScreenEffectBefore 0x001FBCC8 0x001FBE48 ico2/sugipon/src/staticBlur.c lines=71  # ordinal; first difference at insn 2; length:-9; extent-differs
 rdlit FullScreenEffectBefore 0x0061A300 0x0061A320 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
 sdlit FullScreenEffectBefore 0x00635678 0x0063567C ico2/sugipon/src/staticBlur.c  # 1 string
-text WeaponGeo 0x00200E40 0x002011EC ico2/sugipon/src/weapon.c lines=72  # ordinal; first difference at insn 28; other:8; extent-equal
-lit4 WeaponGeo 0x00633258 0x00633264 ico2/sugipon/src/weapon.c  # 3 floats
 text bga_InitData 0x00204190 0x00204538 ico2/seki/src/BgAnimation.c lines=80  # ordinal; first difference at insn 14; imm:2; extent-equal
 rdlit bga_InitData 0x0061A840 0x0061A8B6 ico2/seki/src/BgAnimation.c align=16  # 2 strings, 1 jtbl; then bga_InitSdfCamera's string, which its inline definition (between bga_InitData and bga_initLightEnvelope) writes there
 sdlit bga_InitData 0x00635740 0x00635754 ico2/seki/src/BgAnimation.c  # 2 strings; then bga_InitSdfCamera's "SDF", likewise
