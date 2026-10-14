@@ -63,6 +63,12 @@ static int playSE(int no);
 
 INCLUDE_ASM(playSE);
 
+/* .sbss and .bss: the debug tally playSERandomID prints, the number of
+   picks so far and how many times each entry was picked. */
+static int seRandomPicks; /* derived name */
+
+static int seRandomPickCount[50]; /* derived name */
+
 static int playSERandomID(int no, void *entry);
 
 INCLUDE_ASM(playSERandomID);

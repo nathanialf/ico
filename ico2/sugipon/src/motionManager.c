@@ -127,19 +127,19 @@ static sceVu0IVECTOR dirColor = {0xFF, 0x60, 0x40, 0x80}; /* derived name */
 
 static sceVu0IVECTOR dirColor2 = {0x00, 0x60, 0xFF, 0x80}; /* derived name */
 
-static float ikXAxis[4]; /* derived name */
+static sceVu0FVECTOR ikXAxis; /* derived name */
 
-static float ikBendQuat[4]; /* derived name */
+static sceVu0FVECTOR ikBendQuat; /* derived name */
 
 static float naturalMatrix[16]; /* derived name */
 
-static float naturalTrans[4]; /* derived name */
+static sceVu0FVECTOR naturalTrans; /* derived name */
 
-static float rootMove[4]; /* derived name */
+static sceVu0FVECTOR rootMove; /* derived name */
 
-static float rootStep[4]; /* derived name */
+static sceVu0FVECTOR rootStep; /* derived name */
 
-static float rootDelta[4]; /* derived name */
+static sceVu0FVECTOR rootDelta; /* derived name */
 
 /* The skeleton the motion being computed belongs to: its node array and its
    object.  Declared here for the functions above; the definitions follow
