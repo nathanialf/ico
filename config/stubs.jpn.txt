@@ -672,17 +672,6 @@ text actSt13cCageDown 0x00249800 0x002498AC ico2/script/src/st13c.c lines=21  # 
 text actSt13cSekizo 0x00249A28 0x00249AD8 ico2/script/src/st13c.c lines=20  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actE3St13cSekizo 0x00249D30 0x00249DC4 ico2/script/src/st13c.c lines=15  # ordinal; first difference at insn 11; imm:1; extent-equal
 text actSt13cBukiChk 0x0024A400 0x0024A454 ico2/script/src/st13c.c lines=7  # ordinal; first difference at insn 13; imm:1; extent-equal
-text actSt17aDoor 0x0024A6E0 0x0024A830 ico2/script/src/st17a.c lines=32  # ordinal; first difference at insn 14; imm:7; extent-equal
-text actSt17aDoorUpChk 0x0024A830 0x0024A9CC ico2/script/src/st17a.c lines=42  # ordinal; first difference at insn 37; imm:4; extent-equal
-lit4 actSt17aDoorUpChk 0x0063351C 0x00633528 ico2/script/src/st17a.c  # 3 floats
-text actSt17aDoorDownChk 0x0024A9D0 0x0024AB60 ico2/script/src/st17a.c lines=41  # ordinal; first difference at insn 37; imm:3; extent-equal
-lit4 actSt17aDoorDownChk 0x00633528 0x00633534 ico2/script/src/st17a.c  # 3 floats
-text actSt17aHasiChk 0x0024AB60 0x0024AE98 ico2/script/src/st17a.c lines=82  # ordinal; first difference at insn 63; imm:4; extent-equal
-text actSt17aIntroCancel 0x0024B168 0x0024B278 ico2/script/src/st17a.c local lines=29  # ordinal; first difference at insn 51; imm:2; extent-equal
-text actSt17aSekizo 0x0024B2E0 0x0024B344 ico2/script/src/st17a.c lines=9  # ordinal; first difference at insn 12; imm:2; extent-equal
-lit4 actSt17aSekizo 0x00633534 0x00633540 ico2/script/src/st17a.c  # 3 floats
-text actSt17aHasi 0x0024B348 0x0024B40C ico2/script/src/st17a.c lines=19  # ordinal; first difference at insn 18; imm:2; extent-equal
-text actSt17aIntroChk 0x0024B7D0 0x0024B87C ico2/script/src/st17a.c lines=17  # ordinal; first difference at insn 4; imm:3; extent-equal
 text actSt18aIntroChk 0x0024BAF0 0x0024BC38 ico2/script/src/st18a.c lines=38  # ordinal; first difference at insn 16; imm:5; extent-equal
 text actSt18aSwitchLChk 0x0024BC38 0x0024BE6C ico2/script/src/st18a.c lines=40  # ordinal; first difference at insn 68; imm:4; extent-equal
 text actSt18aSwitchLUpChk 0x0024BE70 0x0024BFAC ico2/script/src/st18a.c lines=31  # ordinal; first difference at insn 23; imm:5; extent-equal
