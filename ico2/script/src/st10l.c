@@ -79,27 +79,347 @@ SqEntry *st10l_gondola_down = 0;
 
 SqEntry *chain10l = 0;
 
-INCLUDE_ASM(actSt10lInit);
+void actSt10lInit(void)
+{
+    if (gflagChk(289) != 0) {
+        SetWayGroupActive(22, 1);
+        SetWayGroupActive(23, 1);
+        stage_SetAnimation(375, 0, 89);
+    } else {
+        SetWayGroupActive(20, 1);
+        SetWayGroupActive(21, 1);
+        stage_SetAnimation(375, 0, 0);
+    }
+}
 
-INCLUDE_ASM(actSt10lFloorLeft);
+void actSt10lFloorLeft(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt10lFloorRight);
+    if (gflagChk(290) == 0 && girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
+        gflagOn(290);
+    }
 
-INCLUDE_ASM(actSt10lGondolaUp);
+    if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0) {
+        scpPlayStart(girlGObj);
+        scpPlayMot(girlGObj, 532);
+    }
 
-INCLUDE_ASM(actSt10lGondolaDown);
+    if (gflagChk(290) != 0 && girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
+        scpPlayPosSet(girlGObj, -167.0f, -72.0f, -705.0f);
+        scpPlayStart(girlGObj);
+        scpPlayMot(girlGObj, 532);
+    }
 
-void actSt10lEneCam2Chk(GObj *volatile self);
+    scpAdpcmPlayRequestFunc(91, &floor10l, 1, 1, 1);
 
-INCLUDE_ASM(actSt10lEneCam2Chk);
+    while (floor10l == 0) {
+        _ACTWait(1);
+    }
 
-void actSt10lEneCam3Chk(GObj *volatile self);
+    stage_SetAnimation(375, 1, 0);
 
-INCLUDE_ASM(actSt10lEneCam3Chk);
+    SetWayGroupActive(20, 0);
+    SetWayGroupActive(21, 0);
+    SetWayGroupActive(22, 1);
+    SetWayGroupActive(23, 1);
 
-void actSt10lChainMove(GObj *volatile self);
+    gflagOn(289);
 
-INCLUDE_ASM(actSt10lChainMove);
+    while (stage_CheckAnimationFrame(375, 89, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    if (gflagChk(290) != 0) {
+        gflagOn(296);
+    }
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 10);
+
+    if (gflagChk(295) == 0) {
+        scpBoyControlReadDisable = 0;
+        lt_switch_layout(51);
+        scpWakeupEnemyAll();
+
+        if (girlGObj != 0) {
+            scpPlayEnd(girlGObj);
+        }
+    }
+
+    floorLeft_mes[0].func = actSt10lFloorMain;
+    sub->mail = floorLeft_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+void actSt10lFloorRight(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    if (gflagChk(290) != 0 && girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
+        scpPlayPosSet(girlGObj, -196.0f, -72.0f, 62.0f);
+        scpPlayStart(girlGObj);
+        scpPlayMot(girlGObj, 532);
+    }
+
+    scpAdpcmPlayRequestFunc(91, &floor10l, 1, 1, 1);
+
+    while (floor10l == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(375, 1, 90);
+
+    SetWayGroupActive(20, 1);
+    SetWayGroupActive(21, 1);
+    SetWayGroupActive(22, 0);
+    SetWayGroupActive(23, 0);
+
+    gflagOff(289);
+
+    while (stage_CheckAnimationFrame(375, 180, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 11);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+    scpWakeupEnemyAll();
+
+    if (girlGObj != 0) {
+        scpPlayEnd(girlGObj);
+    }
+
+    floorRight_mes[0].func = actSt10lFloorMain;
+    sub->mail = floorRight_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+void actSt10lGondolaUp(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpAdpcmPlayRequestFunc(88, &st10l_gondola_up, 1, 1, 1);
+
+    while (st10l_gondola_up == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(376, 1, 0);
+
+    while (stage_CheckAnimationFrame(376, 169, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 16);
+
+    while (stage_CheckAnimationFrame(376, 179, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    gflagOn(291);
+
+    if (st10l_gondola_up != 0) {
+        scpAdpcmFadeCloseFunc(&st10l_gondola_up, 256);
+    }
+
+    while (scpAdpcmCloseChkFunc(&st10l_gondola_up) != 0) {
+        _ACTWait(1);
+    }
+
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+    lt_switch_layout(51);
+
+    gondolaUp_mes[0].func = actSt10lGondolaMain;
+    sub->mail = gondolaUp_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+void actSt10lGondolaDown(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    SetGirlDangerGObj(boyGObj);
+
+    scpAdpcmPlayRequestFunc(89, &st10l_gondola_down, 1, 1, 1);
+
+    while (st10l_gondola_down == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(376, 1, 180);
+
+    while (stage_CheckAnimationFrame(376, 340, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_CheckAnimationFrame(376, 360, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    gflagOff(291);
+
+    if (st10l_gondola_down != 0) {
+        scpAdpcmFadeCloseFunc(&st10l_gondola_down, 256);
+    }
+
+    while (scpAdpcmCloseChkFunc(&st10l_gondola_down) != 0) {
+        _ACTWait(1);
+    }
+
+    ClearGirlDangerGObj();
+
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+    lt_switch_layout(51);
+
+    gondolaDown_mes[0].func = actSt10lGondolaMain;
+    sub->mail = gondolaDown_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+void actSt10lEneCam2Chk(GObj *volatile self)
+{
+    int save;
+
+    while (girlGObj == 0 || scpTriggerFloorAttr(boyGObj, 0x4000000) == 0 || gflagChk(287) == 0 ||
+           GOBJ_ACT(girlGObj)->actMode == 111) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+
+    save = iosPadActRequestEnable;
+    iosPadActRequestEnable = 0;
+
+    scpKillEnemyOne(992);
+    scpKillEnemyOne(993);
+    scpKillSpiderGroup(994);
+    scpSleepEnemyOne(3734);
+    scpSleepEnemyOne(991);
+    scpSleepEnemyOne(1006);
+    scpSleepSpiderGroupOne(1007);
+
+    _ACTWait(30);
+
+    gflagOn(294);
+
+    iosPadActRequestEnable = save;
+
+    stage_SetAnimation(377, 1, 0);
+
+    while (stage_CheckAnimationFinish(377) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 0;
+
+    scpWakeupEnemyOne(3734);
+    scpWakeupEnemyOne(992);
+    scpWakeupEnemyOne(993);
+    scpWakeupSpiderGroupOne(994);
+    scpWakeupEnemyOne(991);
+    scpWakeupEnemyOne(1006);
+    scpWakeupSpiderGroupOne(1007);
+}
+
+void actSt10lEneCam3Chk(GObj *volatile self)
+{
+    long long buf[2];
+
+    while (gflagChk(296) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(295);
+    FinishHint(14);
+
+    stage_SetAnimation(378, 1, 0);
+
+    buf[0] = eneCam3ChkPos.d[0];
+    buf[1] = eneCam3ChkPos.d[1];
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
+
+    while (stage_CheckAnimationFinish(378) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    gflagOff(295);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+}
+
+void actSt10lChainMove(GObj *volatile self)
+{
+    lt_switch_layout(52);
+    scpSleepEnemyAll();
+
+    gflagOn(287);
+    FinishHint(13);
+
+    _ACTWait(30);
+
+    scpAdpcmPlayRequestFunc(97, &chain10l, 1, 1, 1);
+
+    while (chain10l == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(380, 1, 0);
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFrame(380, 240, 0) == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            scpFadeOut(16.0f, 0, 0, 0);
+            scpAdpcmFadeCloseFunc(&chain10l, 512);
+
+            while (scpFadeChk() != 0) {
+                _ACTWait(1);
+            }
+            while (lt_fade_status() != 2) {
+                _ACTWait(1);
+            }
+
+            stage_SetAnimation(380, 1, 239);
+            scpFadeIn(3.0f);
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    scpWakeupEnemyAll();
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
+
+    stage_SetAnimation(380, 0, 0);
+
+    scpSearchGobj(985)->active = 1;
+}
 
 INCLUDE_ASM(actSt10lChain);
 
@@ -116,9 +436,36 @@ void actSt10lFloor(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt10lGondola);
+void actSt10lGondola(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-INCLUDE_ASM(actSt10lSekizo);
+    _ACTWait(1);
+
+    if (gflagChk(291) != 0) {
+        stage_SetAnimation(376, 0, 0);
+        _ACTWait(10);
+        stage_SetAnimation(376, 0, 179);
+    } else {
+        stage_SetAnimation(376, 0, 0);
+    }
+
+    gondola_mes[0].func = actSt10lGondolaMain;
+    act->mail = gondola_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+void actSt10lSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 288, 379, 0, 19, 0.0f, -72.0f, 1274.0f, 76.0f, -72.0f, 1274.0f);
+}
 
 void actSt10lBox(GObj *volatile self)
 {
@@ -388,7 +735,27 @@ void actSt10lFloorMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt10lFloorSwitch);
+void actSt10lFloorSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyAll();
+
+    if (gflagChk(289) != 0) {
+        floorSwitchRight_mes[0].func = actSt10lFloorRight;
+        sub->mail = floorSwitchRight_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+
+    floorSwitchLeft_mes[0].func = actSt10lFloorLeft;
+    sub->mail = floorSwitchLeft_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 void actSt10lGondolaMain(GObj *volatile self)
 {
@@ -400,7 +767,27 @@ void actSt10lGondolaMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt10lGondolaSwitch);
+void actSt10lGondolaSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyAll();
+
+    if (gflagChk(291) != 0) {
+        gondolaSwitchDown_mes[0].func = actSt10lGondolaDown;
+        sub->mail = gondolaSwitchDown_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+
+    gondolaSwitchUp_mes[0].func = actSt10lGondolaUp;
+    sub->mail = gondolaSwitchUp_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 void actSt10lEneCam1Chk(GObj *volatile self)
 {
