@@ -1,25 +1,33 @@
-# config/link_order.pal.txt: the objects of the PAL link, one per line, in link order.
+# config/link_order.aug6.txt: the objects of the Aug-6-2001 prototype link, one per line, in link order.
 #
-# The order is the retail link's object order as MAIN.MAP gives it: every
-# output section of config/link.pal.ld takes its inputs in this one order.
-# Each object with no .text and each data-only member sits where its other
-# sections and MAIN.MAP's member order put it; the five VU microprograms are
-# listed as their sources. tools/gen_ninja.py reads this file and fails on any
-# tracked .c/.s/.dsm under ico2/ or sce/ that is missing here, and on any
-# listed file that does not exist. tools/ico_version.{py,sh} detect the
-# target (pal) by this file's existence.
+# The prototype disc ships a MAIN.MAP, but it is the PAL disc's file byte for
+# byte and describes that later link, not this ELF. This order is PAL's
+# (config/link_order.pal.txt on main, MAIN.MAP's object order) carried over by
+# the function census, tools/correlate_elf.py: each PAL object keeps its place
+# while its .text twins in the aug6 ELF keep the same relative order. The
+# disc's TRFILE.TXT (an address, function, source file and line per source
+# line) is of a build close to this one: its addresses differ from
+# this ELF's by an offset that is constant between neighbouring functions, and
+# shifted by that offset it gives the census's own name to 3299 of 3334 twins
+# it covers, so it is used below as evidence of where an object's functions
+# are. A line that departs from PAL's order says why in a comment on the line.
+# Every output section of config/link.aug6.ld takes its inputs in this one
+# order. tools/gen_ninja.py reads this file and fails on any tracked .c/.s/.dsm
+# under ico2/ or sce/ that is missing here, and on any listed file that does
+# not exist. tools/ico_version.{py,sh} detect the target (aug6) by this file's
+# existence.
 #
 # Line forms:
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
 #                      assembled per archive, ico2/vusrc/*.dsm by dvp-as)
 #   data:<member>      a data-only ico2000.a member: every row of
-#                      config/data_members.pal.txt for it, generated from the
+#                      config/data_members.aug6.txt for it, generated from the
 #                      user's base ELF at build time by tools/gen_data_c.py from
-#                      the record types config/data_schema.pal.txt names. Inside each
-#                      run of them the order is MAIN.MAP's: its sections keep
-#                      their ROM order and interleave by member name.
+#                      the record types config/data_schema.aug6.txt names. The
+#                      data: lines are still PAL's, in PAL's places, pending the
+#                      derivation of the aug6 members.
 #
-# Tokens after a path:
+# Token after a path:
 #   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
 #                      16-aligned after fill that its own section alignment
 #                      does not produce. While any line carries one,
@@ -27,21 +35,42 @@
 #                      input (build/<sec>.inputs.ld, which the script
 #                      INCLUDEs) with an ALIGN before the object; otherwise
 #                      the file is empty and the script's wildcards alone
-#                      place the section.
-#   overlay-fill=N     on a .dsm line: the byte, decimal 0 to 255, that
-#                      dvp-as repeats over the program's constant-address
-#                      overlay section (--overlay-fill=N, from
-#                      tools/binutils-dvp-overlay-fill.patch). It is the
-#                      period assembler's uninitialised heap memory, measured
-#                      on the disc's ELF, not a feature of the source.
-#                      Absent means 0, PAL's byte, so no line here has one.
+#                      place the section. The tokens below, and the addresses
+#                      in the comments above them, are PAL's measurements, not
+#                      yet re-measured against the aug6 base.
 #
-# No object owns these zero runs (ROM offsets, VMA minus 0x100000): 0x18ECB0,
-# the 80 bytes after .vutext (.reginfo is not allocated, the gap is fill);
-# 0x44D320, past the end of .data; 0x539C54, past the end of .lit4; and eight
-# pads that the next object's own section alignment reproduces (0x44A3CC in
-# .data; 0x44DB0C, 0x51EEC2, 0x51F182, 0x51F218, 0x51FA18 and 0x51FBD8 in
-# .rodata; 0x53B8D9 in .sdata). The run at 0x538848 in .rodata is empty.
+# No object owns these zero runs at the section boundaries (ROM offsets, VMA
+# minus 0x100000, from the aug6 ELF's section headers): 0x170A50, the 48 bytes
+# after .vutext (.reginfo is not allocated, the gap is fill); 0x44D978, past
+# the end of .data; 0x52BA38, past the end of .lit4. The pads inside sections
+# that PAL's file lists are not yet re-derived for the aug6 build.
+#
+# The aug6 build is the earliest of the four: 1561 of PAL's 5755 functions
+# have no twin in it and 1209 of its functions have none in PAL. The census
+# marks 16 PAL objects absent (no function with a twin). Each was looked for in
+# the aug6 ELF by its PAL object's .data, .rodata, .sdata and .lit4 with every
+# relocated field masked, by TRFILE.TXT's functions for its source file shifted
+# to this ELF, and by the sizes and order of the aug6 functions no PAL function
+# claims, where its link order puts it:
+#   present, in an earlier form (the line carries a comment saying why):
+#     act-wish.c, attackhit.c, mail-add-data.c, flag.c, girlForceField.c,
+#     handManager.c, st04e.c, st05e.c, st13a.c, st19a.c, st24a.c.
+#   absent: puddle.c, waterDot.c, windmill.c, sce/libcdvd/libcdvd_267388.c and
+#     sce/libscf/libscf.c. Their lines stay, each marked, until their sources
+#     leave this branch; until then they link PAL's code and data where the
+#     aug6 ELF has none.
+#
+# Departures from PAL's order:
+#   ico2/fumi/sound/adpcm_init.c sits between ico2/fumi/isys/gobj_cam_dl.c and
+#   ico2/fumi/src/act-env.c, not between obj_manager.c and s_init.c: its 22
+#   twins lie in the aug6 .text at 0x1F92A0..0x1FA070, after gobj_cam_dl.c's
+#   last twin and before act-env.c's first, TRFILE.TXT gives the function
+#   before them (0x1F9188) to adpcm_init.c, and its PAL .sdata is at 0x62D9A0,
+#   after DisplayFont.c's at 0x62D960, not beside s_init.c's at 0x62C368.
+#   ico2/omori/src/lws_kyomi.c sits between ico2/omori/src/access.c and
+#   ico2/omori/src/objact.c, not between hand-camera.c and mail-add-data.c:
+#   its one twin, SetParamKyomiGObj, lies in the aug6 .text between access.c's
+#   last twin and objact.c's first, as in the USA build.
 
 sce/crt0.s
 sce/libkernl/klib.s
@@ -92,12 +121,11 @@ ico2/fumi/isys/gobj_dl.c
 ico2/fumi/isys/gobj_process.c
 ico2/fumi/isys/isys.c
 ico2/fumi/isys/obj_manager.c
-ico2/fumi/sound/adpcm_init.c
 ico2/fumi/sound/s_init.c
 ico2/fumi/sound/soundManager.c
 ico2/fumi/src/act-game.c
 ico2/fumi/src/act-parallel-control.c
-ico2/fumi/src/act-wish.c
+ico2/fumi/src/act-wish.c  # present, no twin: its PAL .rodata is at 0x5524D8 after act-parallel-control.c's; TRFILE.TXT puts its one function, ACTGetWish_FromPad, at the 3936 B aug6 function at 0x14A6D8 that follows that object's .text (4836 B in PAL)
 ico2/fumi/src/boyact.c
 ico2/fumi/src/commonact.c
 ico2/fumi/src/enemy_act.c
@@ -112,7 +140,7 @@ ico2/script/src/gflag.c
 ico2/script/src/script.c align.data=16
 ico2/script/src/st25a.c
 ico2/script/src/warpGirl.c
-ico2/omori/src/attackhit.c
+ico2/omori/src/attackhit.c  # present, no twin: ten aug6 functions lie between warpGirl.c's and brain.c's .text (0x17E4E0..0x17F450) where PAL has its eleven, nine of them named attackhit.c's by TRFILE.TXT, with 8, 8 and 48 B in a row as Enemy/Boy/CommonAttackCenter; its PAL .rodata is not found
 ico2/omori/src/brain.c
 ico2/omori/src/camera-editor.c
 ico2/omori/src/camera-ico2.c
@@ -125,8 +153,7 @@ ico2/omori/src/fightSound.c
 ico2/omori/src/generator.c
 ico2/omori/src/gv.c
 ico2/omori/src/hand-camera.c
-ico2/omori/src/lws_kyomi.c
-ico2/omori/src/mail-add-data.c
+ico2/omori/src/mail-add-data.c  # present, no twin: its PAL .rodata is at 0x5550C8 after generator.c's; TRFILE.TXT names its four functions at 0x1927E8..0x192A08, after hand-camera.c's .text
 ico2/omori/src/poly-flat.c
 ico2/ito/src/act_bird.c
 ico2/ito/src/gather_effect.c
@@ -220,12 +247,12 @@ ico2/sugipon/src/darkVolume.c
 ico2/sugipon/src/effectTool.c
 ico2/sugipon/src/enemy.c
 ico2/sugipon/src/enemyParts.c
-ico2/sugipon/src/flag.c
+ico2/sugipon/src/flag.c  # present, no twin: its PAL .rodata is at 0x6116C8 after enemyParts.c's; three aug6 functions follow enemyParts.c's .text, the first and last named InitFlagGeo and FlagDL by TRFILE.TXT
 ico2/sugipon/src/flyManager.c
 ico2/sugipon/src/frameDependSequence.c
 ico2/sugipon/src/girl.c
-ico2/sugipon/src/girlForceField.c
-ico2/sugipon/src/handManager.c
+ico2/sugipon/src/girlForceField.c  # present, no twin: its PAL .rodata is at 0x611830; aug6 functions of 324, 128 and 8 B follow girl.c's .text, PAL's sizes for its three
+ico2/sugipon/src/handManager.c  # present, no twin: aug6 functions of 280, 668, 804 and 340 B follow girlForceField.c's; TRFILE.TXT lists its four (getBone, connectToTarget, _handManager, HandManager) with spans of 280, 672, 808 and 344 B
 ico2/sugipon/src/item.c
 ico2/sugipon/src/lineManager.c
 ico2/sugipon/src/lodManager.c
@@ -237,7 +264,7 @@ ico2/sugipon/src/moveColTest.c
 ico2/sugipon/src/multiBgaManager.c
 ico2/sugipon/src/particleEffect.c
 ico2/sugipon/src/particleLayout.c
-ico2/sugipon/src/puddle.c
+ico2/sugipon/src/puddle.c  # absent from the aug6 link: particleLayout.c's last function (0x1E6190, ParticleLayoutDL by TRFILE.TXT) and rope.c's first touch, TRFILE.TXT has no puddle.c, and none of its .text, .data, .rodata, .sdata or .lit4 is in the ELF
 ico2/sugipon/src/rope.c
 ico2/sugipon/src/ropeFix.c
 ico2/sugipon/src/rotObject.c
@@ -249,12 +276,12 @@ ico2/sugipon/src/stormTest.c
 ico2/sugipon/src/streamMotionManager.c
 ico2/sugipon/src/sugiTree.c
 ico2/sugipon/src/torch.c
-ico2/sugipon/src/waterDot.c
+ico2/sugipon/src/waterDot.c  # absent from the aug6 link: TRFILE.TXT gives the aug6 functions between torch.c's last twin and waySystemManager.c's first to torch.c and has no waterDot.c, and none of its .text, .data, .rodata or .lit4 is in the ELF
 ico2/sugipon/src/waySystemManager.c
 ico2/sugipon/src/weapon.c
 ico2/sugipon/src/windField.c
 ico2/sugipon/src/windManager.c
-ico2/sugipon/src/windmill.c
+ico2/sugipon/src/windmill.c  # absent from the aug6 link: windManager.c's last twin and wireLetter.c's first touch, TRFILE.TXT has no windmill.c, and no three functions of 360, 8 and 8 B in a row are anywhere
 ico2/sugipon/src/wireLetter.c
 ico2/sugipon/src/worm.c
 ico2/seki/src/Basic.c
@@ -264,6 +291,7 @@ ico2/seki/src/DisplayList.c
 ico2/seki/src/DmaPacket.c
 ico2/seki/src/EnemyInit.c
 ico2/fumi/isys/gobj_cam_dl.c
+ico2/fumi/sound/adpcm_init.c  # moved from before s_init.c: its 22 twins lie in the aug6 .text at 0x1F92A0..0x1FA070, between gobj_cam_dl.c's and act-env.c's, and its PAL .sdata is at 0x62D9A0, after DisplayFont.c's at 0x62D960
 ico2/fumi/src/act-env.c
 ico2/fumi/src/act-way.c
 ico2/fumi/src/act.c
@@ -285,13 +313,13 @@ ico2/script/src/st04a.c
 ico2/script/src/st04b.c
 ico2/script/src/st04c.c
 ico2/script/src/st04d.c
-ico2/script/src/st04e.c
+ico2/script/src/st04e.c  # present, no twin: TRFILE.TXT names its five functions at 0x217538..0x2177A8, after st04d.c's .text; its PAL .data and .rodata are not found
 ico2/script/src/st04l.c
 ico2/script/src/st04r.c
 ico2/script/src/st05b.c
 ico2/script/src/st05c.c
 ico2/script/src/st05d.c
-ico2/script/src/st05e.c
+ico2/script/src/st05e.c  # present, no twin: TRFILE.TXT names its seven functions at 0x222850..0x222C98, after st05d.c's .text; its PAL .data is not found
 ico2/script/src/st06a.c
 ico2/script/src/st07a.c
 ico2/script/src/st08a.c
@@ -299,7 +327,7 @@ ico2/script/src/st08b.c
 ico2/script/src/st09a.c
 ico2/script/src/st10l.c
 ico2/script/src/st10r.c
-ico2/script/src/st13a.c
+ico2/script/src/st13a.c  # present, no twin: TRFILE.TXT names its fifteen functions at 0x22B5F0..0x22C120, after st10r.c's .text; its PAL .data and .lit4 are not found
 ico2/script/src/st13b.c
 ico2/script/src/st13b2.c
 ico2/script/src/st13c.c
@@ -307,14 +335,15 @@ ico2/script/src/st13d.c
 ico2/script/src/st17a.c
 ico2/script/src/st17b.c
 ico2/script/src/st18a.c
-ico2/script/src/st19a.c
+ico2/script/src/st19a.c  # present, no twin: its PAL .rodata is at 0x614E20; TRFILE.TXT names its eighteen functions at 0x2335B8..0x234320, after st18a.c's .text
 ico2/script/src/st20a.c
 ico2/script/src/st22a.c
-ico2/script/src/st24a.c
+ico2/script/src/st24a.c  # present, no twin: its PAL .rodata is at 0x614E50 and its .lit4 at 0x62B89C; TRFILE.TXT names its three functions at 0x235B30..0x235DB8, after st22a.c's .text
 ico2/script/src/st47a.c
 ico2/script/src/st99a.c
 ico2/script/src/stageSEProc.c
 ico2/omori/src/access.c
+ico2/omori/src/lws_kyomi.c  # moved from after hand-camera.c: its twin SetParamKyomiGObj is in the aug6 .text between access.c's and objact.c's, as on USA
 ico2/omori/src/objact.c
 ico2/ito/mpeg/mv_audiodec.c
 ico2/ito/mpeg/mv_disp.c
@@ -400,7 +429,7 @@ sce/libcdvd/cdvd005.c
 sce/libcdvd/cdvd006.c
 sce/libcdvd/cdvd014.c
 sce/libcdvd/cdvd015.c
-sce/libcdvd/libcdvd_267388.c
+sce/libcdvd/libcdvd_267388.c  # absent from the aug6 link: cdvd015.c's twin and cdvd047.c's first touch at 0x249D48, and its .text and .rodata are not in the ELF
 sce/libcdvd/cdvd047.c
 sce/libpad/libpad.c
 sce/libmc/libmc.c
@@ -414,7 +443,7 @@ sce/libmpeg/csc.c
 sce/libmpeg/bit.c
 sce/libipu/libipu.c
 sce/libipu/ipuinit.c
-sce/libscf/libscf.c
+sce/libscf/libscf.c  # absent from the aug6 link: ipuinit.c's last twin and sound.c's first touch, and its .text, .data and .rodata are not in the ELF (as on JPN and USA)
 sce/libsndn2/sound.c
 sce/libm/math/sf_sin.c
 sce/libm/math/wf_acos.c

@@ -1,7 +1,7 @@
 # Format: <SHA-1>  <filename>
-# MAIN BRANCH (pal). ICO PAL retail disc SCES-50760; boot ELF SCES_507.60.
-# Files live under baserom/pal/ (gitignored); the names below are basenames.
-# baseelf.elf: EE boot ELF extracted from the retail PAL disc.
+# AUG6 BRANCH (aug6). ICO Aug-6-2001 prototype disc (VER 1.00, VMODE NTSC); boot ELF SCUS_971.13.
+# Files live under baserom/aug6/ (gitignored); the names below are basenames.
+# baseelf.elf: EE boot ELF extracted from the prototype disc.
 # baseelf.rom: objcopy -O binary --gap-fill=0x00 view; build/ico.rom must have this SHA-1.
-da3644c54c26fe760f3b6a591a5fc2eab396ed2b  baseelf.elf
-a401d1e5a20b1659189a8b1026a8eb35811dc9ca  baseelf.rom
+5d169c281756a8bde712704fa0cb9eb984693cd6  baseelf.elf
+2b4d7de41966ff38d061b4c985de45fc212e2fb2  baseelf.rom
