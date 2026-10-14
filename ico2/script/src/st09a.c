@@ -18,10 +18,6 @@
 
 static void actSt09aBrgDownSub(GObj *volatile self);
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 /* .data: actor mail packets. */
 
 static ActMail elvMain_mes[2] = {{372, actSt09aElvSwitch}, {392}}; /* derived name */

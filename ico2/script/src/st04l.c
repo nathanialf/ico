@@ -31,29 +31,13 @@
 
 static void actSt04eSolarBeamChkSub(GObj *volatile self);
 
-/* .sbss: the four arguments turnBall hands to the ball-turn actor through file
-   scope, the demo's own end flag, the crest-2 animation the room selects, and
-   the flag the stair subthread raises once it is past its setup. */
-static int turnFlag; /* derived name */
-
-static int turnAnim; /* derived name */
-
-static int turnGobj1; /* derived name */
-
-static int turnGobj2; /* derived name */
-
-static int demoEnd;
-
-static int crest2Anim; /* derived name */
-
-static int subStarted; /* derived name */
-
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
 
 static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}}; /* derived name */
 
-/* .sdata: the room's stream handles and shakes (solar4l unused). */
+/* .sdata: the room's stream handles, then the two shakes' pad actuator
+   handles and volumes. */
 SqEntry *ball1_4l = 0;
 
 SqEntry *ball2_4l = 0;
@@ -66,7 +50,7 @@ SqEntry *crest2 = 0;
 
 SqEntry *crest3 = 0;
 
-int solar4l = 0;
+SqEntry *solar4l = 0;
 
 SqEntry *stair4d = 0;
 
@@ -74,13 +58,17 @@ SqEntry *st04d_hasi = 0;
 
 SqEntry *sekizo4c = 0;
 
-unsigned int oriup4c = 0;
+SqEntry *oriup4c = 0;
 
-unsigned char oridown4c = 0;
+SqEntry *oridown4c = 0;
 
 unsigned int st04l_yure = 0;
 
 unsigned char st04l_yure_vol = 0;
+
+int sekizo_4l = 0;
+
+unsigned char sekizo_4l_vol = 0;
 
 INCLUDE_ASM(actSt04cInit);
 

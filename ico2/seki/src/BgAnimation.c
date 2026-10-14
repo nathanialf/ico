@@ -88,12 +88,7 @@ typedef struct BgaMotion { /* field names derived */
     /* 0x0C */ float frame;
 } BgaMotion; /* derived name */
 
-/* The six words the file's functions share.  bgaStreamSync is read and
-   cleared by streamMotionManager.c (_infoUpdate), so it is global. */
-int bgaStreamSync = 0; /* derived name */
-
-static int bgaFrame = 0; /* derived name */
-
+/* The four words the file's functions share. */
 static float bgaZoom = 0.0f; /* derived name */
 
 static int bgaUniqAnimationFlag = 1; /* derived name */

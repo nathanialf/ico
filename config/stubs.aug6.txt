@@ -2788,9 +2788,11 @@ text _RotTransCurrentMatrixYXZ 0x001F5970 0x001F59A8 ico2/seki/src/BgAnimation.c
 text bga_CalcObject 0x001F59A8 0x001F6088 ico2/seki/src/BgAnimation.c local lines=170  # ordinal; first difference at insn 1; length:-127; extent-differs
 rdlit bga_CalcObject 0x00613558 0x006135C0 ico2/seki/src/BgAnimation.c  # target side
 rdlit bga_CalcObject 0x006135C0 0x00613600 ico2/seki/src/BgAnimation.c align=16  # jump table (target side)
+sdlit bga_CalcObject 0x0062D950 0x0062D954 ico2/seki/src/BgAnimation.c  # target side: a string
 text bga_resetObjectCounter 0x001F6088 0x001F6154 ico2/seki/src/BgAnimation.c local lines=19  # ordinal; first difference at insn 0; length:-93; extent-differs
 text bga_SetFrame 0x001F6158 0x001F635C ico2/seki/src/BgAnimation.c lines=37  # ordinal; first difference at insn 0; length:+30; extent-differs
 text bga_CalcAnimation 0x001F6360 0x001F66E4 ico2/seki/src/BgAnimation.c lines=78  # ordinal; first difference at insn 2; length:+31; extent-differs
+sdlit bga_CalcAnimation 0x0062D958 0x0062D960 ico2/seki/src/BgAnimation.c  # target side: a string
 text bga_CalcSdfCamera 0x001F66E8 0x001F6ADC ico2/seki/src/BgAnimation.c lines=85  # ordinal; first difference at insn 1; length:-7; extent-differs
 lit4 bga_CalcSdfCamera 0x0062B5A0 0x0062B5AC ico2/seki/src/BgAnimation.c # target side
 text bga_addLightning 0x001F6AE0 0x001F6D38 ico2/seki/src/BgAnimation.c local lines=65  # ordinal; first difference at insn 68; imm:5; extent-equal
@@ -2812,9 +2814,10 @@ text bga_CheckSdfCameraFrame 0x001F7578 0x001F7600 ico2/seki/src/BgAnimation.c l
 text bga_CheckSdfCameraFrameIn 0x001F7600 0x001F7698 ico2/seki/src/BgAnimation.c lines=16  # ordinal; first difference at insn 0; other:35; extent-equal
 text disp 0x001F7B00 0x001F7CE4 ico2/seki/src/DisplayFont.c file=disp_DisplayFont  # trfile; aug6-only in the census; not in PAL's DisplayFont
 text font_Print 0x001F7CE8 0x001F80E0 ico2/seki/src/DisplayFont.c lines=138  # trfile; aug6-only in the census; PAL's font_Print (1424 B in PAL)
+sdlit font_Print 0x0062D978 0x0062D97D ico2/seki/src/DisplayFont.c  # target side: the texture name
 text dl_PushPriority 0x001F83D0 0x001F845C ico2/seki/src/DisplayList.c lines=11  # ordinal; first difference at insn 11; imm:2; extent-equal
 rdlit dl_PushPriority 0x006136B0 0x006136D8 ico2/seki/src/DisplayList.c  # target side
-sdlit dl_PushPriority 0x0062D988 0x0062D994 ico2/seki/src/DisplayList.c  # 1 data
+sdlit dl_PushPriority 0x0062D988 0x0062D98E ico2/seki/src/DisplayList.c  # target side: "FALSE" (the "e" after it is dl_OpenDma's, written at its definition)
 text dl_PopPriority 0x001F8460 0x001F84E8 ico2/seki/src/DisplayList.c lines=11  # ordinal; first difference at insn 10; imm:2; extent-equal
 rdlit dl_PopPriority 0x006136D8 0x00613700 ico2/seki/src/DisplayList.c  # target side
 text AdpcmStreamInit 0x001F9188 0x001F929C ico2/fumi/sound/adpcm_init.c lines=18  # trfile; aug6-only in the census; PAL's AdpcmStreamInit (252 B in PAL)
@@ -2845,6 +2848,7 @@ sdlit DebugActOrientFlag 0x0062D9B8 0x0062D9C8 ico2/fumi/src/act-env.c  # 2 stri
 text ACTGetEnvironment 0x001FA3D0 0x001FE0A4 ico2/fumi/src/act-env.c lines=1058  # trfile; aug6-only in the census; PAL's ACTGetEnvironment (17952 B in PAL)
 lit4 ACTGetEnvironment 0x0062B5B0 0x0062B5E0 ico2/fumi/src/act-env.c # target side
 rdlit ACTGetEnvironment 0x006139D0 0x00613A10 ico2/fumi/src/act-env.c # target side
+sdlit ACTGetEnvironment 0x0062D9C8 0x0062D9E0 ico2/fumi/src/act-env.c  # target side: two strings and two floats
 text ACTSetEnvAllmighty 0x001FE0A8 0x001FE1D0 ico2/fumi/src/act-env.c lines=24  # ordinal; first difference at insn 2; other:27; extent-equal
 text GetSofaPosition 0x001FE1D0 0x001FE24C ico2/fumi/src/act-env.c lines=14  # ordinal; first difference at insn 10; imm:7; extent-equal
 text DetourCheck 0x001FE338 0x001FE5DC ico2/fumi/src/act-way.c local lines=59  # ordinal; first difference at insn 22; imm:16; extent-equal
@@ -2906,17 +2910,21 @@ text WayPoint_begin 0x00202E60 0x00202E9C ico2/fumi/src/way_llf.c lines=17  # or
 text group_select 0x00203138 0x00203450 ico2/fumi/src/way_tool.c local lines=49  # ordinal; first difference at insn 17; imm:4; extent-equal
 rdlit group_select 0x00614198 0x006141A8 ico2/fumi/src/way_tool.c  # target side
 sdlit group_select 0x0062DA14 0x0062DA18 ico2/fumi/src/way_tool.c  # 1 static
+text quick_load_wpfile 0x00203670 0x0020378C ico2/fumi/src/way_tool.c local lines=33  # equal; a stub because it shares the file name quick_save_wpfile (a stub) writes first, and gcc would write its own copy
+sdlit quick_load_wpfile 0x0062DA38 0x0062DA50 ico2/fumi/src/way_tool.c  # 3 strings, target side
+rdlit quick_load_wpfile 0x00614220 0x00614235 ico2/fumi/src/way_tool.c  # 1 string, target side
 text way_toolDL 0x00203EF8 0x0020417C ico2/fumi/src/way_tool.c local lines=62  # ordinal; first difference at insn 128; imm:1; extent-equal
 lit4 way_toolDL 0x0062B60C 0x0062B610 ico2/fumi/src/way_tool.c  # 1 float
 text debug_WayTool 0x00204180 0x002043A0 ico2/fumi/src/way_tool.c lines=64  # ordinal; first difference at insn 14; imm:2; extent-equal
 rdlit debug_WayTool 0x00614350 0x00614370 ico2/fumi/src/way_tool.c  # target side
 sdlit debug_WayTool 0x0062DA68 0x0062DA70 ico2/fumi/src/way_tool.c  # 2 statics
 text play_way 0x002043A0 0x00204480 ico2/fumi/src/way_tool.c lines=32  # ordinal; first difference at insn 31; imm:2; extent-equal
-sdlit play_way 0x0062DA1C 0x0062DA20 ico2/fumi/src/way_tool.c  # 1 static
+sdlit play_way 0x0062DA1C 0x0062DA20 ico2/fumi/src/way_tool.c def  # 1 static, written at the definition with the string
 sdlit play_way 0x0062DA20 0x0062DA28 ico2/fumi/src/way_tool.c def  # 1 string
 text point_nige 0x00204480 0x00204514 ico2/fumi/src/way_tool.c lines=24  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 rdlit point_nige 0x006141F8 0x00614220 ico2/fumi/src/way_tool.c def  # target side
 text quick_save_wpfile 0x00204518 0x002045D0 ico2/fumi/src/way_tool.c lines=27  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
+sdlit quick_save_wpfile 0x0062DA28 0x0062DA37 ico2/fumi/src/way_tool.c def  # 2 strings, target side; the file name quick_load_wpfile (a stub for it) shares
 text cursor_control 0x002045D0 0x0020464C ico2/fumi/src/way_tool.c lines=15  # ordinal; first difference at insn 11; imm:2; extent-equal
 text actDejaChk 0x00204650 0x002047AC ico2/script/src/deja.c lines=27  # ordinal; first difference at insn 7; other:4; extent-equal
 lit4 actDejaChk 0x0062B610 0x0062B614 ico2/script/src/deja.c  # 1 float
@@ -3027,6 +3035,7 @@ lit4 actStaff3RollChk 0x0062B650 0x0062B654 ico2/script/src/end.c  # 1 float
 text actEndDemo14Chk 0x0020AC78 0x0020ACA8 ico2/script/src/end.c lines=6  # ordinal; first difference at insn 4; imm:1; extent-equal
 text actEndLogoChk 0x0020ACA8 0x0020AD68 ico2/script/src/end.c lines=53  # trfile; the census pairs PAL actEndingSave here (ordinal; first difference at insn 0; length:-9; extent-differs)
 text actOpDemo01 0x0020AEF0 0x0020B3EC ico2/script/src/op.c lines=134  # ordinal; first difference at insn 0; length:-9; extent-differs
+sdlit actOpDemo01 0x0062DAB8 0x0062DACF ico2/script/src/op.c  # target side: 3 strings
 text actTitleShortCut 0x0020B3F0 0x0020B530 ico2/script/src/op.c lines=41  # ordinal; first difference at insn 18; length:-6; extent-differs
 text actTitleReadTimeDemo0 0x0020B530 0x0020BCF4 ico2/script/src/op.c lines=190  # ordinal; first difference at insn 19; length:-8; extent-differs
 rdlit actTitleReadTimeDemo0 0x006144C0 0x00614509 ico2/script/src/op.c  # 4 strings

@@ -67,10 +67,6 @@ INCLUDE_ASM(actSt20aInit);
 
 INCLUDE_ASM(actSt20aEnd);
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 /* .sdata: the bridge and gondola stream handles and the shake. */
 SqEntry *brg20a = 0;
 

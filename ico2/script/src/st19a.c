@@ -17,10 +17,6 @@
 
 static void actSt19aChainDownSub(GObj *volatile self);
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 /* .data: actor mail packets. */
 
 static ActMail oriMain_mes[2] = {{373, actSt19aOriSwitch}, {392}}; /* derived name */
@@ -53,7 +49,7 @@ static ActMail chainUp_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
 
-/* .sdata: the fence, horn and pipe stream handles. */
+/* .sdata: the fence, horn, pipe and chain stream handles. */
 SqEntry *fence_up_19a = 0;
 
 SqEntry *fence_down_19a = 0;
@@ -61,6 +57,8 @@ SqEntry *fence_down_19a = 0;
 SqEntry *hgrm_19a = 0;
 
 SqEntry *pipe19a = 0;
+
+SqEntry *chain19a = 0;
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */

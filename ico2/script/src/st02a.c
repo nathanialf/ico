@@ -112,10 +112,6 @@ INCLUDE_ASM(actSt02aDoorDownChk);
 /* .sdata */
 SqEntry *st02a_fence = 0;
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 void actSt02WaterFallBoySplashCheck(GObj *volatile self)
 {
     ConstVec buf[2];

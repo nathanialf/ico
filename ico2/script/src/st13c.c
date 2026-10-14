@@ -82,8 +82,7 @@ static ActMail rescue_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail buki_mes[2] = {{393}, {392}}; /* derived name */
 
-/* .sdata: bmg and hand around the two scene streams, then a word no code
-   uses, a shake and its volume. */
+/* .sdata: bmg and hand around the two scene streams */
 SqEntry *bmg = 0;
 
 static SqEntry *st13c_adpcm = 0; /* derived name */
@@ -91,10 +90,6 @@ static SqEntry *st13c_adpcm = 0; /* derived name */
 static SqEntry *st13c_adpcm2 = 0; /* derived name */
 
 SqEntry *hand = 0;
-
-static SqEntry *st13c_reserved = 0; /* derived name */
-
-static unsigned char st13c_yure_vol = 0; /* derived name */
 
 INCLUDE_ASM(actSt13cInit);
 

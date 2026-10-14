@@ -74,17 +74,15 @@ static const EffectArg tsuroEffect8Pos = {{-1223.0f, 1325.0f, -1101.0f, 1.0f}}; 
 
 static const EffectArg tsuroEffect9Pos = {{-1273.0f, 1325.0f, -873.0f, 1.0f}}; /* derived name */
 
-/* .sdata: the bridge and statue stream handles and the statue's shake, then
-   the shake's volume. */
+/* .sdata: the bridge and statue stream handles, then the statue shake's pad
+   actuator handle and volume. */
 SqEntry *bridge = 0;
 
 SqEntry *sekizo7a = 0;
 
-SqEntry *sekizo_7a = 0;
+int sekizo_7a = 0;
 
-int sekizo_7a_vol = 0;
-
-static unsigned char st07a_yure_vol = 0; /* derived name */
+unsigned char sekizo_7a_vol = 0;
 
 INCLUDE_ASM(actSt07aChanChk);
 

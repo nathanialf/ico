@@ -15,6 +15,9 @@
 #include "main.h"
 #include "include_asm.h"
 
+/* .sdata: the intro stream's handle, which actSt04cIntroChk fades out */
+SqEntry *intro = 0;
+
 static void actSt04cIntroChkSub(GObj *volatile self);
 
 INCLUDE_ASM(actSt04cEnd);
@@ -31,10 +34,6 @@ static const ConstVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}}; /*
 static const ConstVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}}; /* derived name */
 
 INCLUDE_ASM(actSt04cDoorDownChk);
-
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
 
 INCLUDE_ASM(actSt04lDoorChk);
 

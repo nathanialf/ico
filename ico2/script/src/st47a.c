@@ -89,10 +89,6 @@ INCLUDE_ASM(actSt47aHane1Up);
 
 INCLUDE_ASM(actSt47aHane2Up);
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 INCLUDE_ASM(actSt47aRopeChk);
 
 INCLUDE_ASM(actSt47aEnemy1);

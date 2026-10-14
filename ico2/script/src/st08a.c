@@ -36,13 +36,6 @@ static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f}; /* deri
 
 static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
 
-/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
-   below spin for, and the flag actSt08aDoorUpSub raises when the door is all
-   the way up. */
-static int demoEnd;
-
-static int doorUpDone; /* derived name */
-
 INCLUDE_ASM(actSt08aEnd);
 
 INCLUDE_ASM(actSt08aEne1Chk);

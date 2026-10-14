@@ -37,8 +37,8 @@ INCLUDE_ASM(actE3WarningChk);
 #include "e3.h"
 
 /* .sdata: the title stream's handle, the capsule's, the cage fall's, the
-   first gate's, the stone statue's and its volume word, then the statue
-   shake's volume. */
+   first gate's, then the stone statue shake's pad actuator handle and its
+   volume. */
 static SqEntry *e3title = 0; /* derived name */
 
 SqEntry *e3capsule = 0;
@@ -47,11 +47,9 @@ static SqEntry *e3cage = 0; /* derived name */
 
 SqEntry *e3gate1st = 0;
 
-SqEntry *sekizo_e3 = 0;
+int sekizo_e3 = 0;
 
-int sekizo_e3_vol = 0;
-
-static unsigned char e3sekizo_yure_vol = 0; /* derived name */
+unsigned char sekizo_e3_vol = 0;
 
 /* actE3Warning's mail, the first object of the TU's .data */
 static ActMail warning_mes[2] = {{393}, {392}}; /* derived name */

@@ -73,10 +73,6 @@ INCLUDE_ASM(actSt00aEnd);
 
 INCLUDE_ASM(actSt00aEneChk);
 
-/* .sbss: the flag the stair-check subthread raises when the demo is over,
-   which the wait loop below spins for. */
-static int demoEnd;
-
 static void actSt00aStairChkSub(GObj *volatile self);
 
 INCLUDE_ASM(actSt00aStairChk);

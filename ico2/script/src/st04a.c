@@ -100,28 +100,23 @@ typedef struct AnimList28 { /* field names derived */
    record, does not declare it */
 extern StreamMotionFile streamMotion[];
 
-/* .sdata: the first gate's stream handle and gate1, which no code uses.
-   actSt04aConte06's "!!\n" trace follows them. */
+/* .sdata: the first gate's stream handle and gate1, the gate-open
+   stream's. */
 SqEntry *gate1st = 0;
 
 int gate1 = 0;
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loops below
-   spin for, and a running flag set for the length of the conte09_3 cutscene
-   that nothing reads back. */
+   spin for. */
 static int demoEnd;
-
-static int conte09_3Running; /* derived name */
 
 INCLUDE_ASM(actSt04aGateChk);
 
 INCLUDE_ASM(actSt04aConte06);
 
-/* .sdata, after actSt04aConte06's trace: the gate and torch stream handles,
+/* .sdata: the rest of the gate and torch stream handles,
    then the pad shakes and their volumes (declared in st04a.h for
    actSt04aConte06). */
-static SqEntry *gate_open = 0; /* derived name */
-
 static SqEntry *gate_open2 = 0; /* derived name */
 
 static SqEntry *conte09_2 = 0; /* derived name */

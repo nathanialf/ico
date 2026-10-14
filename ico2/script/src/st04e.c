@@ -13,19 +13,11 @@
 #include "motionManager2.h"
 #include "rotObject.h"
 #include "typedef.h"
-#include "stageSEProc.h"
 #include "main.h"
 #include "script.h"
 #include "include_asm.h"
 
 static void actSt04eWaterStopSub(GObj *volatile self);
-
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for, and its complement, true when the player skipped the demo with
-   START. */
-static int demoEnd;
-
-static int demoSkipped; /* derived name */
 
 static ActMail waterMain_mes[2] = {{372, actSt04eWaterSwitch}, {392}}; /* derived name */
 

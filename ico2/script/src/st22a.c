@@ -25,7 +25,7 @@ static int lightningAnims[];
    lightning plays. */
 struct SqEntry *lightning = 0;
 
-static int lightningAnims[2] = {758, 759}; /* derived name */
+static int lightningAnims[2] = {683, 684}; /* derived name */
 
 void actSt22aLightningVolime(GObj *volatile self)
 {

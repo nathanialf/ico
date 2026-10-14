@@ -17,10 +17,6 @@
 #include "main.h"
 #include "include_asm.h"
 
-/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
-   below spin for. */
-static int demoEnd;
-
 static void actSt13aElevUpSub(GObj *volatile self);
 static void actSt13aElevDownSub(GObj *volatile self);
 void actSt13aElevDownChk(GObj *volatile self);

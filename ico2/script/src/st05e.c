@@ -10,7 +10,6 @@
 #include "StageAnimation.h"
 #include "rotObject.h"
 #include "typedef.h"
-#include "stageSEProc.h"
 #include "script.h"
 #include "main.h"
 #include "include_asm.h"
@@ -26,13 +25,6 @@ static ActMail water_mes[2] = {{393}, {392}}; /* derived name */
 static ActMail waterSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail solar_mes[2] = {{393}, {392}}; /* derived name */
-
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for, and its complement, true when the player skipped the demo with
-   START. */
-static int demoEnd;
-
-static int demoSkipped; /* derived name */
 
 /* .sdata: the solar stream handle. */
 struct SqEntry *solar = 0;

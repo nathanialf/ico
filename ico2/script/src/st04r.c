@@ -115,35 +115,22 @@ static ActMail torch2_1xl_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail torch2_2xl_mes[2] = {{393}, {392}}; /* derived name */
 
-/* .sbss: the pad actuator handle openGate holds, the demo's own end flag, the
-   gate animation and voice clip openGate plays, and the flag the stair
-   subthread raises once it is past its setup. */
-static int padAct; /* derived name */
-
-static int demoEnd;
-
-static int gateAnim; /* derived name */
-
-static int gateAdpcm; /* derived name */
-
-static int subStarted; /* derived name */
-
 /* The look-at point both characters face in the crest cutscene. */
 static const ConstVec crestFacePos = {{0.0f, 0.0f, -5000.0f, 1.0f}}; /* derived name */
 
-/* .sdata: the room's stream handles and shakes (the three balls and crest2_4r
-   unused). */
+/* .sdata: the room's stream handles, then the two shakes' pad actuator
+   handles and volumes. */
 SqEntry *solar4r = 0;
 
-int ball1_4r = 0;
+SqEntry *ball1_4r = 0;
 
-int ball2_4r = 0;
+SqEntry *ball2_4r = 0;
 
-int ball3_4r = 0;
+SqEntry *ball3_4r = 0;
 
 SqEntry *crest1_4r = 0;
 
-int crest2_4r = 0;
+SqEntry *crest2_4r = 0;
 
 SqEntry *crest3_4r = 0;
 
@@ -151,13 +138,15 @@ SqEntry *stair5d = 0;
 
 SqEntry *sekizo5c = 0;
 
-unsigned char st05d_hasi = 0;
+SqEntry *st05d_hasi = 0;
 
 int st04r_yure = 0;
 
 unsigned char st04r_yure_vol = 0;
 
 int sekizo_4r = 0;
+
+unsigned char sekizo_4r_vol = 0;
 
 INCLUDE_ASM(actSt05eEnd);
 

@@ -10,7 +10,6 @@
 #include "windManager.h"
 #include <libvu0.h>
 #include <string.h>
-#include "stageSEProc.h"
 #include "main.h"
 #include "include_asm.h"
 
@@ -93,7 +92,7 @@ static float river06aLevel; /* derived name */
  * stageSE06ariver */
 static inline int SEFadeOut(SeSlot *self, float *lvl) /* derived name */
 {
-    float v = *lvl - riverFadeSpeed;
+    float v = *lvl - 0.005f;
 
     *lvl = v;
     self->volumeRate = v;
@@ -175,10 +174,6 @@ typedef struct { /* field names derived */
 } __attribute__((aligned(16))) SEVec; /* derived name */
 
 INCLUDE_ASM(stageSE19ataki);
-
-/* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
-   (0.005f, or 1000.0f to cut the river at once) */
-float riverFadeSpeed = 0.0f; /* derived name */
 
 int stageSE02astrong(SeSlot *self)
 {

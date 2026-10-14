@@ -19,7 +19,6 @@
 #include "motionManager2.h"
 #include "rotObject.h"
 #include "typedef.h"
-#include "stageSEProc.h"
 #include "script.h"
 #include "main.h"
 #include "include_asm.h"
@@ -104,13 +103,6 @@ static ActMail statue_mes[2] = {{393}, {392}}; /* derived name */
 static ActMail head_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail tree_mes[2] = {{393}, {392}}; /* derived name */
-
-/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
-   below spin for, and its complement, true when the player skipped the demo
-   with START. */
-static int demoEnd;
-
-static int demoSkipped; /* derived name */
 
 INCLUDE_ASM(actSt06aInit);
 

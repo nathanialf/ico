@@ -105,10 +105,6 @@ void actSt17aHasiEffect(GObj *volatile self)
     } while (t < 1000.0f);
 }
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 /* self is the actor entry parameter, volatile like every other stage
    actor's. */
 static void actSt17aIntroCancel(GObj *volatile self);

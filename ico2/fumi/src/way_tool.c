@@ -243,39 +243,11 @@ INCLUDE_ASM_LIT(point_nige);
 
 inline int quick_save_wpfile(void);
 
-static int quick_load_wpfile(void)
-{
-    char buf[112];
-    int s0;
-    int i;
-    char *p;
+INCLUDE_ASM_LIT(quick_save_wpfile);
 
-    load_save_flag = 1;
-    sprintf(buf, "test.wp");
-    s0 = debugSceOpen(buf, 1);
-    if (s0 < 0) {
-        debug_StdPrintfDummy("cannot load wp file\n");
-        load_save_flag = 0;
-        return 0;
-    }
-    FlushCache(0);
-    i = 0x1F;
-    p = (char *)&wpBuf[i];
-    do {
-        *p = -1;
-        p--;
-        i--;
-    } while (i >= 0);
-    sceRead(s0, &wpBuf[15], 0x10);
-    debugSceClose(s0);
-    for (i = -15; i < 17; i++) {
-        debug_StdPrintfDummy("%d ", ((char *)wpBuf)[i + 15]);
-    }
-    debug_StdPrintfDummy("\n");
-    debug_StdPrintfDummy("loaded\n");
-    load_save_flag = 0;
-    return 1;
-}
+static int quick_load_wpfile(void);
+
+INCLUDE_ASM(quick_load_wpfile);
 
 /* the authored way group table: one 0x3C record per group */
 /* the authored way point table: one 0x1C record per point */

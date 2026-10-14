@@ -25,18 +25,13 @@
 static void actSt13bDoorUpSub(GObj *volatile self);
 static void actSt13bElevUpSub(GObj *volatile self);
 
-/* .sbss: the demo's own end flag, the conte-02 end flag, the pad actuator
-   handle and volume byte the door-up subthread holds, and the flag
-   actSt13bDoorUpSub raises when the door is up. */
+/* .sbss: the demo's own end flag and the pad actuator handle and volume byte
+   the conte-02 cutscene holds. */
 static int demoEnd;
-
-static int conte02End; /* derived name */
 
 static int padAct; /* derived name */
 
 static unsigned char padActVolume; /* derived name */
-
-static int doorUpDone; /* derived name */
 
 /* .data: actor mail packets. */
 static ActMail floor_mes[2] = {{393}, {392}}; /* derived name */
@@ -69,8 +64,8 @@ static ActMail doorSwitch_mes[2] = {{393}, {392}}; /* derived name */
 
 static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
 
-/* .sdata: the scene stream, the stream handles and shakes, then a further
-   shake and volume. */
+/* .sdata: the scene stream and the stream handles, then the two shakes' pad
+   actuator handles and volumes. */
 static SqEntry *st13b_adpcm = 0; /* derived name */
 
 SqEntry *sekizo13b = 0;
@@ -89,17 +84,13 @@ SqEntry *st13b_up = 0;
 
 SqEntry *st13b_down = 0;
 
-SqEntry *sekizo_13b = 0;
+int sekizo_13b = 0;
 
-SqEntry *sekizo_13b_vol = 0;
+unsigned char sekizo_13b_vol = 0;
 
 int st13b_yure = 0;
 
 unsigned char st13b_yure_vol = 0;
-
-static int st13b_boss_yure = 0; /* derived name */
-
-static unsigned char st13b_boss_yure_vol = 0; /* derived name */
 
 INCLUDE_ASM(actSt13bFloor);
 

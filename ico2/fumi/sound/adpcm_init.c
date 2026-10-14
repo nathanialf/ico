@@ -98,6 +98,18 @@ int debugAdpcmOn = 1;
 
 SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, int loopNum);
 
+static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
+{
+    int adr = self->iopBuf;
+    int no = (adr - adpcmIopBase) / 0x5C000;
+
+    if (no >= 3) {
+        debug_assert(adpcmSrcFile, 143);
+        __assert(adpcmSrcFile, 143, "0");
+    }
+    adpcmIopBuffUsed[no] = 0;
+}
+
 INCLUDE_ASM(adpcmDataSet);
 
 void AdpcmPlay(AdpcmStream *self)
@@ -112,18 +124,6 @@ void AdpcmStop(AdpcmStream *self)
 }
 
 INCLUDE_ASM(AdpcmOpen);
-
-static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
-{
-    int adr = self->iopBuf;
-    int no = (adr - adpcmIopBase) / 0x5C000;
-
-    if (no >= 3) {
-        debug_assert(adpcmSrcFile, 143);
-        __assert(adpcmSrcFile, 143, "0");
-    }
-    adpcmIopBuffUsed[no] = 0;
-}
 
 INCLUDE_ASM(AdpcmClose);
 

@@ -27,8 +27,8 @@
 
 static void actEndingSave(GObj *volatile self);
 
-/* .sdata: the ending scenes' stream handles (ed5 and happy_end unused), then
-   the staff roll's, the fourteenth demo's and the st27a ending's. */
+/* .sdata: the ending scenes' stream handles (ed5 holds the seventh demo's,
+   sea the fourteenth demo's and happy_end the st27a ending's). */
 SqEntry *ed1 = 0;
 
 SqEntry *ed2 = 0;
@@ -44,12 +44,6 @@ SqEntry *ed6 = 0;
 SqEntry *sea = 0;
 
 int happy_end = 0;
-
-static SqEntry *staff3 = 0; /* derived name */
-
-static SqEntry *endDemo14 = 0; /* derived name */
-
-static SqEntry *st27aEnd = 0; /* derived name */
 
 static ActMail demo01_mes[2] = {{393}, {392}}; /* derived name */
 
