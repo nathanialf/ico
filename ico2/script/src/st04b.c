@@ -176,7 +176,23 @@ void actSt04bEne1Chk(GObj *volatile self)
     scpWakeupEnemyOne(3734);
 }
 
-INCLUDE_ASM(actSt04bCrest01XL);
+void actSt04bCrest01XL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(174) == 0) {
+        stage_SetAnimation(181, 0, 0);
+        stage_SetAnimation(182, 0, 0);
+    } else {
+        stage_SetAnimation(181, 0, -1);
+        stage_SetAnimation(182, 0, -1);
+        scpTorchLightOn(1056);
+        scpTorchLightOn(1057);
+    }
+}
 
 void actSt04bDoorXL(GObj *volatile self)
 {

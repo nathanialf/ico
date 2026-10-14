@@ -16,7 +16,6 @@
 #include "stageSEProc.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static void actSt04eFuchi1Chk(GObj *volatile self);
 static void actSt04eFuchi2Chk(GObj *volatile self);
@@ -132,11 +131,56 @@ void actSt04eHint1WakeUp(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt04eFuchi1);
+static void actSt04eFuchi1(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt04eFuchi2);
+    if (gflagChk(227) == 0) {
+        stage_SetAnimation(259, 0, 0);
+        fuchi1_mes[0].func = actSt04eFuchi1Chk;
+        act->mail = fuchi1_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(259, 0, -1);
+    }
+}
 
-INCLUDE_ASM(actSt04eFuchi3);
+static void actSt04eFuchi2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(228) == 0) {
+        stage_SetAnimation(260, 0, 0);
+        fuchi2_mes[0].func = actSt04eFuchi2Chk;
+        act->mail = fuchi2_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(260, 0, -1);
+    }
+}
+
+static void actSt04eFuchi3(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(229) == 0) {
+        stage_SetAnimation(261, 0, 0);
+        fuchi3_mes[0].func = actSt04eFuchi3Chk;
+        act->mail = fuchi3_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(261, 0, -1);
+    }
+}
 
 void actSt04eSe(GObj *volatile self)
 {

@@ -779,7 +779,15 @@ inline void ChangeGirlControlMode(int mode)
     }
 }
 
-INCLUDE_ASM(debug_Assert);
+void debug_Assert(char *fmt, ...)
+{
+    char buf[256];
+    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
+    debug_assertMessage("src/debug.c", 1389, buf);
+    __assert("src/debug.c", 1389, "e");
+    debug_assert("src/debug.c", 1390);
+    __assert("src/debug.c", 1390, "0");
+}
 
 /* the host log file (the DEBUG build opens it) */
 static int logFd = -1; /* derived name */

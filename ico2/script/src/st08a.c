@@ -525,7 +525,21 @@ void actSt08aTorch(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt08aInit);
+void actSt08aInit(void)
+{
+    float f = 0.95f;
+
+    scpSetCageVelocityFriction(365, f);
+    scpSetCageVelocityFriction(364, f);
+
+    if (gflagChk(80) != 0) {
+        stage_SetAnimation(366, 0, 510);
+        scpSearchGobj(365)->active = 0;
+    } else {
+        stage_SetAnimation(366, 0, 0);
+        scpSearchGobj(364)->active = 0;
+    }
+}
 
 void actSt08aDoorMain(GObj *volatile self)
 {

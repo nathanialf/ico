@@ -147,9 +147,6 @@ sdlit actGirlHand 0x00634408 0x00634418 ico2/fumi/src/girl_act.c  # 1 string, 2 
 text monitorMonitorCamera 0x0018F938 0x001900D8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 2; length:-99; extent-differs
 lit4 monitorMonitorCamera 0x00632C88 0x00632C94 ico2/omori/src/camera-ico2.c  # 3 floats; target side (DISAGREE)
 rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  # 2 doubles; target side (DISAGREE)
-text debug_Assert 0x001AB338 0x001AB3CC ico2/common/src/debug.c lines=9  # ordinal; first difference at insn 15; imm:4; extent-equal
-rdlit debug_Assert 0x00614810 0x0061481C ico2/common/src/debug.c align=16  # 1 string (the unreferenced log strings after it are debug_openLog's and debug_closeLog's, from the C)
-sdlit debug_Assert 0x00634930 0x0063493A ico2/common/src/debug.c  # 2 strings
 text debug_VariableInit 0x001AB7C8 0x001AB950 ico2/common/src/debug.c lines=82  # ordinal; first difference at insn 1; other:15; extent-equal
 text debug_Load 0x001AB9A8 0x001ABF88 ico2/common/src/debug.c lines=95  # ordinal; first difference at insn 58; imm:10; extent-equal
 lit4 debug_Load 0x00632EC0 0x00632EC4 ico2/common/src/debug.c  # 1 float
@@ -227,13 +224,9 @@ text actOpDemo01 0x0021C330 0x0021C840 ico2/script/src/op.c lines=134  # ordinal
 sdlit actOpDemo01 0x006358B8 0x006358CF ico2/script/src/op.c  # 3 strings
 text actSt03tSwitchL 0x00221FE0 0x002220C4 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 14; imm:3; extent-equal
 text actSt03tSwitchR 0x002224C0 0x002225A4 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 14; imm:3; extent-equal
-text actSt04bCrest01XL 0x002285E0 0x00228670 ico2/script/src/st04b.c lines=17  # ordinal; first difference at insn 12; imm:3; extent-equal
 text actSt04bSekizo 0x00228710 0x002287CC ico2/script/src/st04b.c lines=19  # ordinal; first difference at insn 14; imm:1; extent-equal
 lit4 actSt04bSekizo 0x006333F4 0x006333FC ico2/script/src/st04b.c  # 2 floats
 text actSt04lDoor 0x00229008 0x002290B4 ico2/script/src/st04c.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt04eFuchi1 0x0022A310 0x0022A3A8 ico2/script/src/st04e.c local lines=16  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt04eFuchi2 0x0022A3A8 0x0022A440 ico2/script/src/st04e.c local lines=16  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt04eFuchi3 0x0022A440 0x0022A4D8 ico2/script/src/st04e.c local lines=16  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt05bCrest01XL 0x00235820 0x00235920 ico2/script/src/st05b.c lines=28  # ordinal; first difference at insn 12; imm:5; extent-equal
 text actSt05bSekizo 0x00235D28 0x00235DE4 ico2/script/src/st05b.c lines=19  # ordinal; first difference at insn 14; imm:1; extent-equal
 lit4 actSt05bSekizo 0x00633448 0x00633450 ico2/script/src/st05b.c  # 2 floats
@@ -241,8 +234,6 @@ text actSt04rDoor 0x00236548 0x002365EC ico2/script/src/st05c.c lines=17  # ordi
 text actSt04rDoor2 0x002365F0 0x00236694 ico2/script/src/st05c.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt07aSekizo 0x0023C528 0x0023C5C0 ico2/script/src/st07a.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt08aHasi 0x0023DE38 0x0023DEE8 ico2/script/src/st08a.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt08aInit 0x0023DF50 0x0023DFC8 ico2/script/src/st08a.c lines=15  # ordinal; first difference at insn 13; imm:1; extent-equal
-lit4 actSt08aInit 0x0063347C 0x00633480 ico2/script/src/st08a.c  # 1 float
 text actSt10lChain 0x002408A8 0x00240954 ico2/script/src/st10l.c lines=21  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt10rInit 0x00241700 0x002417D4 ico2/script/src/st10r.c lines=25  # ordinal; first difference at insn 6; imm:5; extent-equal
 text actSt10rChain 0x00242D88 0x00242E2C ico2/script/src/st10r.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
@@ -257,7 +248,6 @@ text actSt19aOri 0x0024D968 0x0024DA14 ico2/script/src/st19a.c lines=20  # ordin
 lit4 actSt19aOri 0x00633568 0x00633574 ico2/script/src/st19a.c  # 3 floats
 text actSt47aSekizo1 0x00251248 0x00251308 ico2/script/src/st47a.c lines=20  # ordinal; first difference at insn 14; imm:1; extent-equal
 lit4 actSt47aSekizo1 0x006335C0 0x006335C4 ico2/script/src/st47a.c  # 1 float
-text ObjAction_CorrectGeo 0x002543A0 0x0025441C ico2/omori/src/objact.c lines=11  # ordinal; first difference at insn 21; imm:2; extent-equal
 text dispClear 0x00255118 0x00255290 ico2/ito/mpeg/mv_disp.c lines=19  # ordinal; first difference at insn 1; length:+1; extent-differs
 text setDispEnv 0x00255290 0x00255488 ico2/ito/mpeg/mv_disp.c lines=27  # ordinal; first difference at insn 0; length:+7; extent-differs
 text dispCreate 0x00255500 0x002555A4 ico2/ito/mpeg/mv_disp.c lines=15  # ordinal; first difference at insn 4; length:-4; extent-differs

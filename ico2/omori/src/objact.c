@@ -4,7 +4,6 @@
 #include "typedef.h"
 #include "act2.h"
 #include "gamesys.h"
-#include "include_asm.h"
 
 /* the data-only member obj-action.o, read as typedef.h's OaRecB rows; no
    header declares it */
@@ -32,15 +31,27 @@ inline void ObjAction_Init(void)
 static inline void objActionCorrectFlag(OaRecB *p) /* derived name */
 {
     if ((p->flags & 1) == 1u) {
-        p->mode = 972;
+        p->mode = 949;
     }
 }
 
 static inline void objActionCorrectMode(OaRecB *p) /* derived name */
 {
-    if (p->mode == 972) {
+    if (p->mode == 949) {
         p->mode = p->baseMode;
     }
+}
+
+inline void ObjAction_CorrectGeo(int label, int unused)
+{
+    OaRecB *p;
+    if (label < 0)
+        return;
+    p = objActionRecord(label);
+    if (p == 0)
+        return;
+    objActionCorrectFlag(p);
+    objActionCorrectMode(p);
 }
 
 inline void ObjAction_Mail(void *data, int mail)
@@ -76,5 +87,3 @@ void ObjectBeforeFunc(GObj *self)
 {
     BeforeFunc2(self);
 }
-
-INCLUDE_ASM(ObjAction_CorrectGeo);
