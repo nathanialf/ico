@@ -1,25 +1,27 @@
-# config/link_order.pal.txt: the objects of the PAL link, one per line, in link order.
+# config/link_order.jpn.txt: the objects of the JPN link, one per line, in link order.
 #
-# The order is the retail link's object order as MAIN.MAP gives it: every
-# output section of config/link.pal.ld takes its inputs in this one order.
-# Each object with no .text and each data-only member sits where its other
-# sections and MAIN.MAP's member order put it; the five VU microprograms are
-# listed as their sources. tools/gen_ninja.py reads this file and fails on any
-# tracked .c/.s/.dsm under ico2/ or sce/ that is missing here, and on any
-# listed file that does not exist. tools/ico_version.{py,sh} detect the
-# target (pal) by this file's existence.
+# The JPN disc (SCPS-11003) ships no linker map, so this order is PAL's
+# (config/link_order.pal.txt on main, MAIN.MAP's object order) carried over by
+# the function census, tools/correlate_elf.py: each PAL object keeps its place
+# while its .text twins in the JPN ELF keep the same relative order. A line
+# that departs from PAL's order says why in a comment on the line. Every output
+# section of config/link.jpn.ld takes its inputs in this one order.
+# tools/gen_ninja.py reads this file and fails on any tracked .c/.s/.dsm under
+# ico2/ or sce/ that is missing here, and on any listed file that does not
+# exist. tools/ico_version.{py,sh} detect the target (jpn) by this file's
+# existence.
 #
 # Line forms:
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
 #                      assembled per archive, ico2/vusrc/*.dsm by dvp-as)
 #   data:<member>      a data-only ico2000.a member: every row of
-#                      config/data_members.pal.txt for it, generated from the
+#                      config/data_members.jpn.txt for it, generated from the
 #                      user's base ELF at build time by tools/gen_data_c.py from
-#                      the record types config/data_schema.pal.txt names. Inside each
-#                      run of them the order is MAIN.MAP's: its sections keep
-#                      their ROM order and interleave by member name.
+#                      the record types config/data_schema.jpn.txt names. The
+#                      data: lines are still PAL's, in PAL's places, pending the
+#                      derivation of the JPN members.
 #
-# Tokens after a path:
+# Token after a path:
 #   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
 #                      16-aligned after fill that its own section alignment
 #                      does not produce. While any line carries one,
@@ -27,21 +29,26 @@
 #                      input (build/<sec>.inputs.ld, which the script
 #                      INCLUDEs) with an ALIGN before the object; otherwise
 #                      the file is empty and the script's wildcards alone
-#                      place the section.
-#   overlay-fill=N     on a .dsm line: the byte, decimal 0 to 255, that
-#                      dvp-as repeats over the program's constant-address
-#                      overlay section (--overlay-fill=N, from
-#                      tools/binutils-dvp-overlay-fill.patch). It is the
-#                      period assembler's uninitialised heap memory, measured
-#                      on the disc's ELF, not a feature of the source.
-#                      Absent means 0, PAL's byte, so no line here has one.
+#                      place the section. The tokens below, and the addresses
+#                      in the comments above them, are PAL's measurements, not
+#                      yet re-measured against the JPN base.
 #
-# No object owns these zero runs (ROM offsets, VMA minus 0x100000): 0x18ECB0,
-# the 80 bytes after .vutext (.reginfo is not allocated, the gap is fill);
-# 0x44D320, past the end of .data; 0x539C54, past the end of .lit4; and eight
-# pads that the next object's own section alignment reproduces (0x44A3CC in
-# .data; 0x44DB0C, 0x51EEC2, 0x51F182, 0x51F218, 0x51FA18 and 0x51FBD8 in
-# .rodata; 0x53B8D9 in .sdata). The run at 0x538848 in .rodata is empty.
+# No object owns these zero runs at the section boundaries (ROM offsets, VMA
+# minus 0x100000, from the JPN ELF's section headers): 0x18CBC0, the 64 bytes
+# after .vutext (.reginfo is not allocated, the gap is fill); 0x448678, past the
+# end of .data; 0x533724, past the end of .lit4. The pads inside sections that
+# PAL's file lists are not yet re-derived for JPN.
+#
+# Departures from PAL's order:
+#   puddle.c, waterDot.c and windmill.c sit after ico2/ito/mpeg/mv_vibuf.c
+#   and before ico2/common/src/GobjProc.c: their .text twins in the JPN ELF
+#   lie there, and the PAL bytes of their .data, .rodata, .lit4 and .sdata are
+#   found after mv_vibuf's in the JPN sections too (windmill's three functions
+#   have no twin, but three functions of its sizes sit between waterDot's and
+#   GobjProc's in the JPN .text).
+#   sce/libscf/libscf.c stays listed, though none of its 21 functions has a
+#   twin and its .data and .rodata bytes are not in the JPN ELF: the member is
+#   not in the JPN link. The line goes when the source leaves this branch.
 
 sce/crt0.s
 sce/libkernl/klib.s
@@ -237,7 +244,6 @@ ico2/sugipon/src/moveColTest.c
 ico2/sugipon/src/multiBgaManager.c
 ico2/sugipon/src/particleEffect.c
 ico2/sugipon/src/particleLayout.c
-ico2/sugipon/src/puddle.c
 ico2/sugipon/src/rope.c
 ico2/sugipon/src/ropeFix.c
 ico2/sugipon/src/rotObject.c
@@ -249,12 +255,10 @@ ico2/sugipon/src/stormTest.c
 ico2/sugipon/src/streamMotionManager.c
 ico2/sugipon/src/sugiTree.c
 ico2/sugipon/src/torch.c
-ico2/sugipon/src/waterDot.c
 ico2/sugipon/src/waySystemManager.c
 ico2/sugipon/src/weapon.c
 ico2/sugipon/src/windField.c
 ico2/sugipon/src/windManager.c
-ico2/sugipon/src/windmill.c
 ico2/sugipon/src/wireLetter.c
 ico2/sugipon/src/worm.c
 ico2/seki/src/Basic.c
@@ -320,6 +324,9 @@ ico2/ito/mpeg/mv_audiodec.c
 ico2/ito/mpeg/mv_disp.c
 ico2/ito/mpeg/mv_sub.c
 ico2/ito/mpeg/mv_vibuf.c
+ico2/sugipon/src/puddle.c  # moved from after particleLayout.c: JPN .text and data put it after mv_vibuf.c
+ico2/sugipon/src/waterDot.c  # moved from after torch.c: JPN .text and data put it after puddle.c
+ico2/sugipon/src/windmill.c  # moved from after windManager.c: the three functions of its sizes follow waterDot.c in the JPN .text
 ico2/common/src/GobjProc.c
 data:blend-motion-def
 data:enemy-def
@@ -414,7 +421,7 @@ sce/libmpeg/csc.c
 sce/libmpeg/bit.c
 sce/libipu/libipu.c
 sce/libipu/ipuinit.c
-sce/libscf/libscf.c
+sce/libscf/libscf.c  # no JPN twins and no JPN data: not in the JPN link (see the header)
 sce/libsndn2/sound.c
 sce/libm/math/sf_sin.c
 sce/libm/math/wf_acos.c
