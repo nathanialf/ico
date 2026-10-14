@@ -635,14 +635,6 @@ text actSt08aInit 0x0023DF50 0x0023DFC8 ico2/script/src/st08a.c lines=15  # ordi
 lit4 actSt08aInit 0x0063347C 0x00633480 ico2/script/src/st08a.c  # 1 float
 text actSt08aDoorUpSub 0x0023E058 0x0023E108 ico2/script/src/st08a.c local lines=19  # ordinal; first difference at insn 6; imm:2; extent-equal
 text actSt08aIntroChk 0x0023E108 0x0023E1B0 ico2/script/src/st08a.c lines=20  # ordinal; first difference at insn 16; imm:4; extent-equal
-text actSt08bKurenSwitch 0x0023E300 0x0023E6D0 ico2/script/src/st08b.c lines=102  # ordinal; first difference at insn 27; imm:5; extent-equal
-text actSt08bKurenLeft 0x0023E6D0 0x0023E7E8 ico2/script/src/st08b.c lines=30  # ordinal; first difference at insn 5; imm:6; extent-equal
-text actSt08bKurenRight 0x0023E7E8 0x0023E8E8 ico2/script/src/st08b.c lines=27  # ordinal; first difference at insn 5; imm:7; extent-equal
-text actSt08bDoor 0x0023E8E8 0x0023E9EC ico2/script/src/st08b.c lines=23  # ordinal; first difference at insn 17; imm:4; extent-equal
-text actSt08bDoorUpChk 0x0023E9F0 0x0023EB68 ico2/script/src/st08b.c lines=34  # ordinal; first difference at insn 38; imm:2; extent-equal
-lit4 actSt08bDoorUpChk 0x00633480 0x00633488 ico2/script/src/st08b.c  # 2 floats
-text actSt08bDoorDownChk 0x0023EB68 0x0023ECE0 ico2/script/src/st08b.c lines=34  # ordinal; first difference at insn 38; imm:2; extent-equal
-lit4 actSt08bDoorDownChk 0x00633488 0x00633490 ico2/script/src/st08b.c  # 2 floats
 text actSt09aInit 0x0023F1B8 0x0023F1F8 ico2/script/src/st09a.c lines=8  # ordinal; first difference at insn 6; imm:2; extent-equal
 text actSt09aElvDown 0x0023F1F8 0x0023F2E8 ico2/script/src/st09a.c lines=32  # ordinal; first difference at insn 3; imm:4; extent-equal
 text actSt09aBrgDown 0x0023F2E8 0x0023F474 ico2/script/src/st09a.c lines=43  # ordinal; first difference at insn 3; imm:3; extent-equal
