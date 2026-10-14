@@ -23,6 +23,7 @@
 #include "way_util.h"
 #include "way_tool.h"
 #include "main.h"
+#include "include_asm.h"
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
@@ -278,91 +279,9 @@ static int point_insert(void)
     return 0;
 }
 
-inline int play_way(void)
-{
-    static int playMode = 0; /* derived name */
-    GObj *g;
-    int f;
-
-    if (debug_font_flag & 1) {
-        debug_Printf(18, 54, 0xFF000000, "to boy\n");
-    }
-    f = wayToolPad.trg;
-    if (f & 0x20) {
-        g = isysGObjSearchFromObjKindID_begin(2);
-        switch (playMode) {
-        case 0:
-            while (g != 0) {
-                GOBJ_ACT(g)->wayMode = 1;
-                g = isysGObjSearchFromObjKindID_next(g);
-            }
-            break;
-        case 1:
-            while (g != 0) {
-                GOBJ_ACT(g)->wayMode = 0;
-                g = isysGObjSearchFromObjKindID_next(g);
-            }
-            break;
-        }
-        playMode ^= 1;
-    } else if (f & 0x40) {
-        return -1;
-    }
-    return 0;
-}
-
-inline int point_nige(void)
-{
-    WayPoint *p;
-    int v;
-
-    if (debug_font_flag & 1) {
-        unsigned int color = 0xFF000000;
-        debug_Printf(18, 54, color, "point + nige\n");
-    }
-    v = wayToolPad.trg;
-    if (v & 0x20) {
-        p = waypoint_with_range(wayWorkPos, 60.0f);
-        if (p == 0) {
-            return 0;
-        }
-        wayPointSel = p->index;
-        if (p->index >= 0) {
-            p->escape ^= 1;
-        }
-    } else if (v & 0x40) {
-        return -1;
-    }
-    return 0;
-}
-
-inline int quick_save_wpfile(void)
-{
-    char buf[112];
-    int s0;
-    int i;
-    unsigned char *p;
-    load_save_flag = 1;
-    sprintf(buf, "test.wp");
-    s0 = debugSceOpen(buf, 0x202);
-    if (s0 < 0) {
-        debug_StdPrintfDummy("cannot save wp file");
-        load_save_flag = 0;
-        return 0;
-    }
-    i = 0xF;
-    p = &wpBuf[i];
-    do {
-        *p = i;
-        p--;
-        i--;
-    } while (i >= 0);
-    sceWrite(s0, wpBuf, 0x10);
-    debugSceClose(s0);
-    debug_StdPrintfDummy("saved\n");
-    load_save_flag = 0;
-    return 1;
-}
+int play_way(void);
+int point_nige(void);
+int quick_save_wpfile(void);
 
 static int quick_load_wpfile(void)
 {
@@ -661,83 +580,12 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-int debug_WayTool(void)
-{
-    static int menuState = 1; /* derived name */
-    static int menuSel = 0;   /* derived name */
-    float pos[4];
-    int r;
-    int (*f)(int);
-    int state;
+INCLUDE_ASM(debug_WayTool);
 
-    cursorGObj = isysGObjSearchFromObjLayoutID(2);
-    if (cursorGObj != 0) {
-        if (first_waytool == 0) {
-            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 0x4AA);
-            isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
-            isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);
-            first_waytool = 1;
-        }
-    }
+INCLUDE_ASM(play_way);
 
-    if (first_waytool == 1) {
-        savedCamTarget = CurrentTargetGObj;
-        CurrentTargetGObj = cursorGObj;
-        GetRootPosition(pos, savedCamTarget);
-        SetDirectRootPosition(CurrentTargetGObj, pos);
-        Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
-        first_waytool = 2;
-    }
+INCLUDE_ASM(point_nige);
 
-    iosPadConnect(&wayToolPad, 0, 0, &iosPadConfDefault);
-    iosPadRead(&wayToolPad);
-    iosPadGetStick(&wayToolPad, wayToolStick, 1, 0, 0, 0);
+INCLUDE_ASM(quick_save_wpfile);
 
-    state = menuState;
-    if (state == 1) {
-        r = debug_SelectCsvWindow("Way Tool", 0x12, 0x36, 0xB, debugWayMenu, 8, 0, 1, 9, &menuSel);
-        switch (r) {
-        case 0:
-            return 0;
-        case -1:
-            first_waytool = 1;
-            menuState = 1;
-            CurrentTargetGObj = savedCamTarget;
-            Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
-            return -1;
-        default:
-            first_waytool = 1;
-            menuState = 2;
-            break;
-        }
-    } else if (state == 2) {
-        f = debugWayMenu[menuSel].fn;
-        if (f == 0) {
-            menuState = 1;
-        } else {
-            r = f(first_waytool);
-            if (r == -1) {
-                menuState = 1;
-            } else if (r != 0) {
-                menuState = 1;
-            }
-        }
-    }
-    return 0;
-}
-
-inline void cursor_control(GObj *volatile self)
-{
-    Act *w = GOBJ_ACT(self);
-
-    iosPadConnect(&w->pad, 0, 0, &iosPadConfDefault);
-
-    while (1) {
-        iosPadRead(&w->pad);
-
-        if (self == CurrentTargetGObj && (w->pad.trg & 1)) {
-            ACTDebugMove(self, 1);
-        }
-        _ACTWait(1);
-    }
-}
+INCLUDE_ASM(cursor_control);

@@ -14,6 +14,7 @@
 #include "Matrix.h"
 #include "matrixDrive.h"
 #include "sceneManager.h"
+#include "include_asm.h"
 
 /* the name every iosMallocDebug in this file reports itself under */
 static const char rotObjectFile[] = "src/rotObject.c"; /* derived name */
@@ -46,25 +47,11 @@ typedef struct RotObjMemory { /* field names derived */
     int turnCount; /* 0x4 */
 } RotObjMemory;    /* derived name */
 
-static void moveStartSE(GObj *self)
-{
-    ExecuteSEPackage(self, 53);
-}
+INCLUDE_ASM(moveStartSE);
 
-static void moveEndSE(GObj *self)
-{
-    StopSEPackage(self);
-    ExecuteSEPackage(self, 58);
-}
+INCLUDE_ASM(moveEndSE);
 
-void RotObjectGeo(GObj *self)
-{
-    RotObjWork *p = GOBJ_SUB(self)->work;
-    if (p->saveCount++ >= 31) {
-        p->saveCount = 0;
-        gamesysObjInfoUniqDataSet(self);
-    }
-}
+INCLUDE_ASM(RotObjectGeo);
 
 static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived name */
 {
@@ -110,198 +97,32 @@ void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, GObj *holder)
     sceVu0Normalize(dir, dir);
 }
 
-int MoveRotObjectWithHoldPoint(GObj *bar, float *hold, void *self, float *dir, float *up)
-{
-    RotObjWork *w = GOBJ_SUB(bar)->work;
-    float q[4];
-    float m[16];
-    float tm[16];
-    float p[4];
-    char *h;
-    float vy;
-    float len;
-    float sl;
-    float ang;
-    float k;
+INCLUDE_ASM(MoveRotObjectWithHoldPoint);
 
-    if (w->lock != 0)
-        return 0;
-    if (bar->active == 0) {
-        w->turnCount = 0;
-        return 0;
-    }
-    getRotObjectDriveMatrix(bar, m);
-    {
-        float v[4];
-        float o[4];
-        MatrixDrive_SetTransposeMatrix(tm, m);
-        sceVu0ApplyMatrix(q, tm, dir);
-        CopyVector(p, up);
-        p[1] = 0.0f;
-        p[3] = 0.0f;
-        _ApplyMatrix(p, tm, p);
-        _OuterProduct(v, p, hold);
-        vy = v[1];
-        len = FSqrt(hold[0] * hold[0] + hold[2] * hold[2]);
-        sceVu0ScaleVector(q, q, len / FSqrt(q[0] * q[0] + q[2] * q[2]));
-        sceVu0OuterProduct(o, q, hold);
-        sl = _GetLengthXZ(q, hold);
-        if (o[1] < 0.0f)
-            sl = -sl;
-        if (sl * vy < 0.0f)
-            return 0;
-    }
-    ang = -atan2f(sl, len);
-    ang *= w->rate;
-    k = len * 0.01f * w->armScale;
-    if (k > 1.0f)
-        k = 1.0f;
-    k *= k;
-    k *= k;
-    ang *= k;
-    switch (w->kind) {
-    case 2:
-        if (0.0f <= ang)
-            return 0;
-        break;
-    case 3:
-        if (GOBJ_SUB(bar)->parent.obj != 0) {
-            float r;
+INCLUDE_ASM(ExecRotObjectMoveStartReaction);
 
-            h = (char *)GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->nodeMtx;
-            ((Vec4 *)(h + 0x30))->f[1] += ang * 31.83098793f;
-            CopyVector(GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->root.pos,
-                       (char *)GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->nodeMtx + 0x30);
-            r = -((Vec4 *)(h + 0x30))->f[1];
-            if (w->limitMax < r) {
-                ((Vec4 *)(h + 0x30))->f[1] = -w->limitMax;
-                CopyVector(GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->root.pos,
-                           (char *)GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->nodeMtx + 0x30);
-                return 0;
-            } else if (r < w->limitMin) {
-                ((Vec4 *)(h + 0x30))->f[1] = -w->limitMin;
-                CopyVector(GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->root.pos,
-                           (char *)GOBJ_SUB(GOBJ_SUB(bar)->parent.obj)->nodeMtx + 0x30);
-                return 0;
-            }
-        }
-        break;
-    }
-    /* the function's name trace, switched off */
-    if (0) {
-        debug_StdPrintfDummy("%s\n", "MoveRotObjectWithHoldPoint");
-    }
-    w->turnCount += ang * 10430.378f;
-    w->angle += ang * 10430.378f;
-    return 1;
-}
+INCLUDE_ASM(ExecRotObjectMoveEndReaction);
 
-void ExecRotObjectMoveStartReaction(GObj *self)
-{
-    moveStartSE(self);
-}
+INCLUDE_ASM(GetRotObjectGlobalHoldGeometry);
 
-void ExecRotObjectMoveEndReaction(GObj *self)
-{
-    moveEndSE(self);
-}
+INCLUDE_ASM(InitRotObjectGeo);
 
-void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdPos, void *holdDir)
-{
-    float m[16];
+INCLUDE_ASM(RotObjectDL);
 
-    getRotObjectDriveMatrix(bar, m);
-    sceVu0ApplyMatrix(pos, m, holdPos);
-    sceVu0ApplyMatrix(dir, m, holdDir);
-    /* the function's name trace, switched off */
-    if (0) {
-        debug_StdPrintfDummy("%s\n", "GetRotObjectGlobalHoldGeometry");
-    }
-}
-
-RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
-{
-    RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile, 57);
-
-    p->saveCount = rotObjectPhase;
-    rotObjectPhase = (rotObjectPhase + 1) % 30;
-
-    CopyVector(p->pos, src->pos);
-    p->kind = src->obj;
-    p->pos[3] = 1.0f;
-    p->angle = src->rot[1] * 32768.0f / 180.0f;
-    p->turnCount = 0;
-    p->limitMax = p->limitMin = 0.0f;
-    p->lock = 0;
-    p->rate = src->scale[1] < 0.05f ? 1.0f : src->scale[1];
-    p->armScale = 1.0f;
-
-    if (p->kind == 3) {
-        p->limitMax = src->scale[2];
-        p->limitMin = src->scale[0];
-        CopyVector(((SubHandle *)&gobj->dobj)->sub->root.pos, ZeroPoint);
-    }
-    {
-        struct DObjNode *q = GOBJ_SUB(gobj)->nodes;
-        q->scale[0] = q->scale[1] = q->scale[2] = 1.0f;
-    }
-    return p;
-}
-
-void RotObjectDL(GObj *gobj)
-{
-    getRotObjectDriveMatrix(gobj, (void *)GOBJ_SUB(gobj)->nodeMtx);
-    p2o_DispVU1(gobj);
-}
-
-float GetRotObjectRotCount(GObj *self)
-{
-    RotObjWork *w = GOBJ_SUB(self)->work;
-
-    return (float)w->turnCount * (1.0f / 65536.0f);
-}
+INCLUDE_ASM(GetRotObjectRotCount);
 
 /* the +Z unit vector the drive matrix is applied to */
 static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
-int GetRotObjectZPlusDirection(GObj *gobj)
-{
-    float m[16];
-    float v[4];
-
-    getRotObjectDriveMatrix(gobj, m);
-    sceVu0ApplyMatrix(v, m, zPlusVector);
-    v[1] = 0.0f;
-    sceVu0Normalize(v, v);
-    return GetTableArcTan2(v[0], v[2]);
-}
+INCLUDE_ASM(GetRotObjectZPlusDirection);
 
 int RestoreRotObjectGeo(void)
 {
     return 1;
 }
 
-int RestoreRotObjectExtGeo(GObj *self, GamesysObjInfo *info)
-{
-    RotObjWork *p = GOBJ_SUB(self)->work;
-    RotObjMemory *m = (RotObjMemory *)info->work;
+INCLUDE_ASM(RestoreRotObjectExtGeo);
 
-    p->angle = m->angle;
-    p->turnCount = m->turnCount;
-    return 1;
-}
+INCLUDE_ASM(MemoryRotObject);
 
-int MemoryRotObject(RotObjMemory *mem, GObj *self)
-{
-    RotObjWork *p = GOBJ_SUB(self)->work;
-    mem->angle = p->angle;
-    mem->turnCount = p->turnCount;
-    return 1;
-}
-
-void SetRotObjectLockFlag(GObj *self, int lock)
-{
-    RotObjWork *w = GOBJ_SUB(self)->work;
-
-    w->lock = lock;
-}
+INCLUDE_ASM(SetRotObjectLockFlag);

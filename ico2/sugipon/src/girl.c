@@ -23,6 +23,7 @@
 #include "main.h"
 #include "DisplayP2O.h"
 #include "sceneManager.h"
+#include "include_asm.h"
 
 static void setGirlClothSetting(int lv);
 
@@ -53,55 +54,11 @@ typedef struct GirlWork { /* field names derived */
 } GirlWork;               /* derived name */
 
 /* file-static: boy.c has a global function of the same name */
-static void dispClothes(GObj *gobj)
-{
-    GirlWork *w;
-    char *x;
-    char *y;
+static void dispClothes(GObj *gobj);
 
-    w = GOBJ_SUB(gobj)->work;
-    x = (char *)GOBJ_SUB(gobj)->lightMtx;
-    y = x + 0x40;
-    if (w->crown != 0) {
-        dispCrown(gobj, (Sub15C *)w->crown);
-    }
-    if (w->cloth12Disp != 0) {
-        if (w->ornamentDisp != 0) {
-            if (w->cloth1 != 0) {
-                DispCloth4DWithAdd((void *)w->cloth1, y, x);
-            }
-            if (w->cloth2 != 0) {
-                DispCloth4DWithAdd((void *)w->cloth2, y, x);
-            }
-        } else {
-            if (w->cloth1 != 0) {
-                DispCloth4D((void *)w->cloth1, y, x);
-            }
-            if (w->cloth2 != 0) {
-                DispCloth4D((void *)w->cloth2, y, x);
-            }
-            if (w->hair != 0) {
-                DispCloth4D((void *)w->hair, y, x);
-            }
-        }
-    }
-    if (w->cloth0Disp != 0) {
-        if (GOBJ_SUB(gobj)->ctrl.motion < 642) {
-            if (GOBJ_SUB(gobj)->ctrl.motion >= 639) {
-                goto skip;
-            }
-        }
-        if (w->cloth0 != 0) {
-            DispCloth4D((void *)w->cloth0, y, x);
-        }
-    skip:;
-    }
-    if (w->cloth3Disp != 0) {
-        if (w->cloth3 != 0) {
-            DispCloth4D((void *)w->cloth3, y, x);
-        }
-    }
-}
+INCLUDE_ASM(func_001D14B8);
+
+INCLUDE_ASM(dispClothes_girl);
 
 /* The girl's eight cloth meshes: the five InitGirlGeo builds for the game,
    named after the work slot each fills, and the three the demo kind builds. */
@@ -1630,22 +1587,6 @@ static ClothHangCfg clothHangF20[2] = {
 }; /* derived name */
 
 /* the three cloth and hair setters */
-inline void SetGirlClothDispSwitch(GObj *gobj, int part, int on)
-{
-    GirlWork *cloth = GOBJ_SUB(gobj)->work;
-    switch (part) {
-    case 0:
-        cloth->cloth0Disp = on;
-        break;
-    case 1:
-        cloth->cloth12Disp = on;
-        break;
-    case 2:
-        cloth->cloth3Disp = on;
-        break;
-    }
-}
-
 typedef struct { /* field names derived */
     int tightLevel;
     int gravityLevel;
@@ -1667,94 +1608,9 @@ static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
     debug_hair_collision = p->collision;
 }
 
-void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
-{
-    GirlWork *w;
-    int p;
-    int kind;
+INCLUDE_ASM(InitGirlGeo);
 
-    w = iosMallocDebug(ios_partition_sugipon, sizeof(GirlWork), __FILE__, 892);
-    p = (int)GOBJ_SUB(gobj);
-    w->hint2Ready = 0;
-    w->hint1Ready = 0;
-    w->hint2Played = 0;
-    w->hint1Played = 0;
-    w->ornamentDisp = 0;
-    ((Sub15C *)p)->lodFunc = setGirlClothSetting;
-    kind = csv->obj;
-    w->crown = 0;
-    w->ornament1 = 0;
-    w->ornament0 = 0;
-    w->cloth3 = 0;
-    w->hair = 0;
-    w->cloth2 = 0;
-    w->cloth0 = 0;
-    w->cloth1 = 0;
-    w->kind = kind;
-    /* the work pointer, stored as a word */
-    *(int *)&GOBJ_SUB(gobj)->work = (int)w;
-    switch (kind) {
-    case 1:
-        w->cloth1 = (int)InitCloth4D(gobj, &demoClothMeshF10, 0);
-        w->cloth2 = (int)InitCloth4D(gobj, &demoClothMeshF14, 0);
-        w->cloth3 = (int)InitCloth4D(gobj, &demoClothMeshF20, 0);
-        break;
-    case 2:
-        break;
-    default:
-        w->cloth1 = (int)InitCloth4D(gobj, &clothMeshF10, clothHangF10);
-        w->cloth0 = (int)InitCloth4D(gobj, &clothMeshF8, clothHangF8);
-        w->cloth2 = (int)InitCloth4D(gobj, &clothMeshF14, clothHangF10);
-        w->hair = (int)InitCloth4D(gobj, &clothMeshF18, clothHangF18);
-        w->cloth3 = (int)InitCloth4D(gobj, &clothMeshF20, clothHangF20);
-        w->crown = (int)CSVSYSTEM_InitDObj(12, csv);
-        w->ornament0 = (int)CSVSYSTEM_InitDObj(13, csv);
-        w->ornament1 = (int)CSVSYSTEM_InitDObj(14, csv);
-        break;
-    }
-    ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth0Disp = 1;
-    ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth12Disp = 1;
-    ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth3Disp = 1;
-    InitMotionOrient(gobj, 1283, 2122, 12, 24, 532);
-    SetLodLevel(gobj, 2);
-    return w;
-}
-
-void GirlGeo(GObj *gobj)
-{
-    float v[4];
-    int n0;
-    int n1;
-    float len;
-    float ratio;
-    Sub15C *w;
-
-    HandManager(gobj);
-    ExecMotionOrient(gobj);
-    SetActressLight(gobj, 35, 44, 470);
-    if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.0f)) {
-        iosOmSendMail(gobj, 6, gobj);
-    }
-    if (CylinderCollision(gobj, 1, ACTGame_FLAG_TETSUNAGI() ? 15.0f : 30.0f, 50.0f, 0.3f)) {
-        iosOmSendMail(gobj, 6, gobj);
-        GirlAct_BoyAndMeCollisionMail(gobj);
-    } else {
-        w = GOBJ_SUB(gobj);
-        if (w->root.hand0.mode == 4 && w->cylinderOn != 0 && w->root.cylinder != 0) {
-            n0 = GetSkeltonFocusNode(boyGObj, 6);
-            n1 = GetSkeltonFocusNode(gobj, 22);
-            sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n0 * 64 + 48,
-                            (char *)GOBJ_SUB(gobj)->nodeMtx + n1 * 64 + 48);
-            len = FSqrt(sceVu0InnerProduct(v, v));
-            if (10.0f < len) {
-                ratio = 1.0f - len / 50.0f;
-                ratio = ratio < 0.75f ? 0.75f : ratio;
-                SetMotionPlaySpeedRatio(boyGObj, ratio);
-            }
-        }
-    }
-    execClothes(gobj);
-}
+INCLUDE_ASM(GirlGeo);
 
 /* the name the cloth debug display prints for each girl kind */
 static char *girlClothName[4] = {"", "DEVIL", "STONE", 0}; /* derived name */
@@ -1765,23 +1621,9 @@ static inline GirlWork *getGirlCloth(GObj *gobj) /* derived name */
     return GOBJ_SUB(gobj)->work;
 }
 
-static void debugWireStringGirl(GObj *gobj)
-{
-    float m[16];
-    float pos[4];
-    GirlWork *cloth = getGirlCloth(gobj);
+static void debugWireStringGirl(GObj *gobj);
 
-    GetRootPosition(pos, gobj);
-    sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
-    m[3] = m[7] = m[11] = 0.0f;
-    _UnitMatrix(MatrixDrive_GetMatrix());
-    MatrixDrive_TransMatrixV(pos);
-    _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
-    MatrixDrive_PushMatrix();
-    MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
-    DispWireString(girlClothName[cloth->kind]);
-    MatrixDrive_PopMatrix();
-}
+INCLUDE_ASM(debugWireStringGirl);
 
 void GirlDL(GObj *gobj)
 {
@@ -1790,3 +1632,7 @@ void GirlDL(GObj *gobj)
     dispClothes(gobj);
     debugWireStringGirl(gobj);
 }
+
+INCLUDE_ASM(func_001D1AD0);
+
+INCLUDE_ASM(SetGirlClothDispSwitch);

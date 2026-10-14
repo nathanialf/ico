@@ -20,6 +20,7 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
+#include "include_asm.h"
 
 /* .sbss: the demo's own end flag, the conte-02 end flag, the pad actuator
    handle and volume byte the door-up subthread holds, and the flag
@@ -101,576 +102,43 @@ static int st13b_boss_yure = 0; /* derived name */
 
 static unsigned char st13b_boss_yure_vol = 0; /* derived name */
 
-void actSt13bFloor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSt13bFloor);
 
-    if (gflagChk(5) == 0) {
-        scpFadeOut(255.0f, 0, 0, 0);
-        lt_switch_layout(55);
-        scpBoyControlReadDisable = 1;
+INCLUDE_ASM(actSt13bFloorChk);
 
-        stage_SetAnimation(30, 0, 0);
-        stage_SetAnimation(26, 0, 0);
-        stage_SetAnimation(33, 0, 0);
-        stage_SetAnimation(34, 0, 0);
-        stage_SetAnimation(36, 0, 0);
-        stage_SetAnimation(38, 0, 0);
-        stage_SetAnimation(40, 0, 235);
-        stage_SetAnimation(43, 0, 0);
-        stage_SetAnimation(35, 0, 0);
+INCLUDE_ASM(actSt13bConte02);
 
-        floor_mes[0].func = actSt13bFloorChk;
-        act->mail = floor_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(32, 0, -1);
-        stage_SetAnimation(26, 0, -1);
-        stage_SetAnimation(36, 0, 0);
-        stage_SetAnimation(38, 0, 0);
-    }
-}
+INCLUDE_ASM(actSt13bSekizoChk);
 
-void actSt13bFloorChk(GObj *volatile self)
-{
-    int v = 32;
+INCLUDE_ASM(actSt13bSekizo2Chk);
 
-    gflagOn(5);
-    actCreateSubThread(actSt13bConte02, 21);
-    actCreateSubThread(actSt13bConte02Jimaku, 21);
+INCLUDE_ASM(actSt13bMeetAgain);
 
-    conte02End = 0;
-    st13b_adpcm = 0;
+INCLUDE_ASM(func_00230A40);
 
-    do {
-        _ACTWait(1);
-    } while (st13b_adpcm == 0);
+INCLUDE_ASM(func_00230B38);
 
-    while (conte02End == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
+INCLUDE_ASM(func_00230C38);
 
-    if (conte02End == 0) {
-        v = 64;
-    }
+INCLUDE_ASM(func_00230D18);
 
-    if (st13b_adpcm != 0) {
-        scpAdpcmFadeCloseFunc(&st13b_adpcm, v);
-    }
+INCLUDE_ASM(actSt13bElevUp);
 
-    RequestStageChange(4, boyGObj, 0, 0.025f, 2.0f);
-}
+INCLUDE_ASM(func_00230F78);
 
-void actSt13bConte02(GObj *volatile self)
-{
-    scpPlayStart(boyGObj);
-    stgmgrNextStagePreLoadForceStageSet(0);
-    scpAdpcmPlayRequestFunc(11, &st13b_adpcm, 0, 1, 0);
+INCLUDE_ASM(actSt13bSekizo);
 
-    while (st13b_adpcm == 0) {
-        _ACTWait(1);
-    }
+INCLUDE_ASM(actSt13bSekizo2);
 
-    scpFadeIn(8.0f);
+INCLUDE_ASM(actSt13bBossAfter);
 
-    stgmgrNextStagePreLoadForceStageSet(exitData[(&stageData[stage_no])->ent[3]].nextStage);
-    stgmgrNextStagePreLoadForceNoCancel(1);
+INCLUDE_ASM(actSt13bStoneGirl);
 
-    stage_SetAnimation(586, 1, 0);
-    scpPlayMot((void *)boyGObj, 282);
-    scpPlayMot(scpSearchGobj(2403), 1001);
-    scpSearchGobj(2403)->active = 1;
-    scpPlayMot(scpSearchGobj(2404), 1023);
-    scpSearchGobj(2404)->active = 1;
-    scpPlayMot(scpSearchGobj(2405), 1047);
-    scpSearchGobj(2405)->active = 1;
-    _ACTWait(1);
+INCLUDE_ASM(actSt13bElev);
 
-    stage_SetAnimation(34, 1, 0);
-    stage_SetAnimation(21, 1, 0);
+INCLUDE_ASM(actSt13bDoor);
 
-    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 0.15);
-
-    if (systemStatus[0] != 0) {
-        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 1.0);
-    }
-
-    AdpcmPlay(st13b_adpcm->stream);
-
-    while (stage_ContinueAnimation(586, 587) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 283);
-    scpPlayMot(scpSearchGobj(2403), 1002);
-    scpPlayMot(scpSearchGobj(2404), 1024);
-    scpPlayMot(scpSearchGobj(2405), 1048);
-    _ACTWait(1);
-
-    stage_SetAnimation(27, 1, 0);
-    stage_SetAnimation(22, 1, 0);
-
-    while (stage_ContinueAnimation(587, 588) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    stage_SetAnimation(28, 1, 0);
-
-    while (stage_ContinueAnimation(588, 589) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 284);
-    scpPlayMot(scpSearchGobj(2403), 1003);
-    scpPlayMot(scpSearchGobj(2404), 1025);
-    scpPlayMot(scpSearchGobj(2405), 1049);
-    _ACTWait(1);
-
-    stage_SetAnimation(29, 1, 0);
-    stage_SetAnimation(23, 1, 0);
-
-    while (stage_ContinueAnimation(589, 590) == 0) {
-        _ACTWait(1);
-    }
-
-    scpFadeIn(3.0f);
-
-    scpPlayMot((void *)boyGObj, 285);
-    scpPlayMot(scpSearchGobj(2404), 1026);
-    _ACTWait(1);
-
-    stage_SetAnimation(30, 1, 0);
-
-    while (stage_ContinueAnimation(590, 591) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 286);
-    scpPlayMot(scpSearchGobj(2403), 1002);
-    scpPlayMot(scpSearchGobj(2404), 1024);
-    scpPlayMot(scpSearchGobj(2405), 1048);
-    _ACTWait(1);
-
-    stage_SetAnimation(31, 1, 0);
-
-    while (stage_ContinueAnimation(591, 592) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot(scpSearchGobj(2403), 1004);
-    scpPlayMot(scpSearchGobj(2404), 1027);
-    scpPlayMot(scpSearchGobj(2405), 1050);
-    _ACTWait(1);
-
-    stage_SetAnimation(24, 1, 0);
-
-    while (stage_ContinueAnimation(592, 593) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 287);
-    scpSearchGobj(2403)->active = 0;
-    scpSearchGobj(2404)->active = 0;
-    scpSearchGobj(2405)->active = 0;
-
-    stage_SetAnimation(34, 0, 0);
-
-    while (stage_CheckAnimationFrame(593, 200, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    scpFadeOut(3.0f, 0, 0, 0);
-
-    while (scpFadeChk() != 0) {
-        _ACTWait(45);
-    }
-
-    stage_SetAnimation(593, -1, -2);
-    scpFadeIn(3.0f);
-    stage_SetAnimation(594, 1, 0);
-
-    while (stage_ContinueAnimation(594, 595) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 288);
-    _ACTWait(1);
-
-    stage_SetAnimation(26, 1, 0);
-    _ACTWait(60);
-
-    padAct = iosPadActRequest(boyPad, 9);
-    padActVolume = 128;
-    iosPadActVolumeSet(padAct, 128);
-
-    while (stage_ContinueAnimation(595, 596) == 0) {
-        _ACTWait(1);
-    }
-
-    while (stage_ContinueAnimation(596, 597) == 0) {
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(25, 1, 0);
-
-    while (stage_ContinueAnimation(597, 598) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 289);
-    _ACTWait(130);
-
-    stage_SetAnimation(32, 1, 0);
-
-    while (stage_ContinueAnimation(598, 599) == 0) {
-        _ACTWait(1);
-    }
-
-    while (stage_ContinueAnimation(599, 600) == 0) {
-        _ACTWait(1);
-    }
-
-    iosPadActStop(padAct);
-    scpPlayMot((void *)boyGObj, 290);
-
-    while (stage_ContinueAnimation(600, 601) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 288);
-
-    while (stage_ContinueAnimation(601, 602) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 292);
-    _ACTWait(1);
-
-    stage_SetAnimation(32, 1, 208);
-
-    while (stage_ContinueAnimation(602, 603) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 293);
-    iosPadActRequest(boyPad, 16);
-
-    while (stage_ContinueAnimation(603, 604) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 294);
-
-    _ACTWait(30);
-    iosPadActRequest(boyPad, 15);
-    _ACTWait(30);
-    iosPadActRequest(boyPad, 17);
-    _ACTWait(15);
-    iosPadActRequest(boyPad, 17);
-    _ACTWait(5);
-    iosPadActRequest(boyPad, 16);
-    _ACTWait(15);
-    iosPadActRequest(boyPad, 17);
-
-    while (stage_ContinueAnimation(604, 605) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 295);
-
-    while (stage_ContinueAnimation(605, 606) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 296);
-
-    while (stage_ContinueAnimation(606, 607) == 0) {
-        _ACTWait(1);
-    }
-
-    scpPlayMot((void *)boyGObj, 297);
-
-    while (stage_CheckAnimationFrame(607, 150, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    conte02End = 1;
-}
-
-void actSt13bSekizoChk(GObj *volatile self)
-{
-    float dir[4];
-
-    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) == 75) {
-        _ACTWait(1);
-    }
-
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    scpAdpcmPlayRequestFunc(19, &sekizo13b, 1, 1, 1);
-
-    while (sekizo13b == 0) {
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(33, 1, 0);
-
-    st13b_yure = iosPadActRequest(boyPad, 9);
-    st13b_yure_vol = 128;
-    iosPadActVolumeSet(st13b_yure, 128);
-
-    scpPlayStart(boyGObj);
-    scpPlayPosSet((void *)boyGObj, 3085.0f, -1338.0f, 0.0f);
-    _ACTWait(1);
-
-    sceVu0SubVector(dir, test_CURRENTROOT(self), test_CURRENTROOT(boyGObj));
-    scpPlayMotDir(boyGObj, dir);
-    scpSekizouCheckPoint();
-    scpPlayMot((void *)boyGObj, 251);
-    scpPlayWaitMotEnd(boyGObj);
-    scpPlayMot((void *)boyGObj, 0);
-    scpPlayEnd(boyGObj);
-    gflagOn(10);
-
-    while (stage_CheckAnimationFrame(33, 151, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    iosPadActStop(st13b_yure);
-
-    while (stage_CheckAnimationFinish(33) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-}
-
-void actSt13bSekizo2Chk(GObj *volatile self)
-{
-    float dir[4];
-
-    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) == 75) {
-        _ACTWait(1);
-    }
-
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    scpAdpcmPlayRequestFunc(18, &sekizo13b2, 1, 1, 1);
-
-    while (sekizo13b2 == 0) {
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(34, 1, 0);
-
-    st13b_yure = iosPadActRequest(boyPad, 9);
-    st13b_yure_vol = 128;
-    iosPadActVolumeSet(st13b_yure, 128);
-
-    scpPlayStart(boyGObj);
-    scpPlayPosSet((void *)boyGObj, -1563.0f, 527.0f, 0.0f);
-    _ACTWait(1);
-
-    sceVu0SubVector(dir, test_CURRENTROOT(self), test_CURRENTROOT(boyGObj));
-    scpPlayMotDir(boyGObj, dir);
-    scpSekizouCheckPoint();
-    scpPlayMot((void *)boyGObj, 251);
-    scpPlayWaitMotEnd(boyGObj);
-    scpPlayMot((void *)boyGObj, 0);
-    scpPlayEnd(boyGObj);
-    gflagOn(11);
-
-    while (stage_CheckAnimationFrame(34, 151, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    iosPadActStop(st13b_yure);
-
-    while (stage_CheckAnimationFinish(34) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-}
-
-void actSt13bMeetAgain(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(12) == 0) {
-        stage_SetAnimation(32, 0, -1);
-        stage_SetAnimation(26, 0, 0);
-        stage_SetAnimation(35, 0, 0);
-        stage_SetAnimation(36, 0, 0);
-        stage_SetAnimation(38, 0, 0);
-
-        meetAgain_mes[0].func = actSt13bMeetAgainChk;
-        act->mail = meetAgain_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(32, 0, -1);
-        stage_SetAnimation(26, 0, 0);
-        stage_SetAnimation(35, 0, 0);
-        stage_SetAnimation(36, 0, 0);
-        stage_SetAnimation(38, 0, 0);
-    }
-}
-
-void actSt13bElevUp(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(325) != 0) {
-        lt_switch_layout(55);
-        scpBoyControlReadDisable = 1;
-        scpFadeOut(255.0f, 0, 0, 0);
-        stage_SetAnimation(40, 0, 235);
-        _ACTWait(10);
-        scpBoyControlReadDisable = 1;
-        stage_SetAnimation(40, 0, 0);
-        elevUp_mes[0].func = actSt13bElevUpChk;
-        act->mail = elevUp_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(40, 0, 235);
-    }
-}
-
-void actSt13bSekizo(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(10) == 0) {
-        stage_SetAnimation(33, 0, 0);
-
-        sekizo_mes[0].func = actSt13bSekizoChk;
-        act->mail = sekizo_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(33, 0, -1);
-    }
-}
-
-void actSt13bSekizo2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(11) == 0) {
-        stage_SetAnimation(34, 0, 0);
-
-        sekizo2_mes[0].func = actSt13bSekizo2Chk;
-        act->mail = sekizo2_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(34, 0, -1);
-    }
-}
-
-void actSt13bBossAfter(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(14) == 0) {
-        stage_SetAnimation(35, 0, 0);
-
-        bossAfter_mes[0].func = actSt13bBossAfterChk;
-        act->mail = bossAfter_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(35, 0, -1);
-    }
-}
-
-void actSt13bStoneGirl(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    if (current_stage_no == 46) {
-        scpPlayMot(scpSearchGobj(2462), 808);
-        scpSearchGobj(2462)->active = 1;
-    }
-}
-
-void actSt13bElev(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    elev_mes[0].func = actSt13bElevMain;
-    act->mail = elev_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt13bDoor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(17) == 0) {
-        stage_SetAnimation(43, 0, 0);
-
-        door_mes[0].func = actSt13bDoorMain;
-        act->mail = door_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(43, 0, -1);
-    }
-}
-
-void actBossTest(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    stage_SetAnimation(32, 0, -1);
-    stage_SetAnimation(26, 0, 0);
-    stage_SetAnimation(35, 0, 0);
-    stage_SetAnimation(36, 0, 0);
-    stage_SetAnimation(38, 0, 0);
-}
+INCLUDE_ASM(actBossTest);
 
 void actSt13bConte02Jimaku(GObj *volatile self)
 {
@@ -708,25 +176,20 @@ void actSt13bSekizo2Event(int x)
     volatile int local = x;
 }
 
-void actSt13bDoorMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
+INCLUDE_ASM(func_002315D8);
 
-    sub->mainMail = doorMain_mes;
-    while (1) {
-        _ACTWait(1);
-    }
-}
+INCLUDE_ASM(func_00231690);
 
-void actSt13bDoorSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
+INCLUDE_ASM(func_00231748);
 
-    sub->mainMail = 0;
-    scpBoyControlReadDisable = 1;
+INCLUDE_ASM(func_00231818);
 
-    doorSwitch_mes[0].func = actSt13bDoorUp;
-    sub->mail = doorSwitch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt13bDoorMain);
+
+INCLUDE_ASM(actSt13bDoorSwitch);
+
+INCLUDE_ASM(func_00231958);
+
+INCLUDE_ASM(func_00231988);
+
+INCLUDE_ASM(func_002319E0);

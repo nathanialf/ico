@@ -16,6 +16,7 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
+#include "include_asm.h"
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (430 = the actor's own wake-up post, 429 = the trailing
@@ -32,48 +33,11 @@ static ActMail way_on_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail way_off_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt01bInit(void)
-{
-    if (gflagChk(70) == 0) {
-        SetWayGroupActive(2, 0);
-        stage_SetAnimation(183, 0, 0);
-        return stage_SetAnimation(180, 0, 0);
-    }
-    SetWayGroupActive(2, 1);
-    stage_SetAnimation(183, 0, -1);
-    stage_SetAnimation(180, 0, -1);
-    return FinishHint(9);
-}
+INCLUDE_ASM(actSt01bInit);
 
-void actSt01bEneChk(GObj *volatile self)
-{
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-    while (gflagChk(70) == 0 || scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 ||
-           (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 &&
-            scpTriggerFloorAttr(girlGObj, 0x2000000) == 0)) {
-        _ACTWait(1);
-    }
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    scpSleepEnemyOne(3757);
-    _ACTWait(30);
-    gflagOn(68);
-    gflagOn(69);
-    stage_SetAnimation(182, 1, 0);
-    while (stage_CheckAnimationFrame(182, 90, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    while (stage_CheckAnimationFinish(182) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-    scpWakeupEnemyOne(3757);
-}
+INCLUDE_ASM(actSt01bEneChk);
+
+INCLUDE_ASM(func_00210F20);
 
 /* .sdata */
 SqEntry *st01b_floor = 0;
@@ -93,169 +57,25 @@ static int seHandle; /* derived name */
 
 static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}}; /* derived name */
 
-void actSt01bSekizo(GObj *volatile self)
-{
-    GObj *x = self;
+INCLUDE_ASM(actSt01bSekizo);
 
-    actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSt01bEne);
 
-    scpSekizou(self, 65, 178, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
-}
+INCLUDE_ASM(actSt01bEnemy1);
 
-void actSt01bEne(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
+INCLUDE_ASM(actSt01bEnemy2);
 
-    _ACTWait(1);
+INCLUDE_ASM(actSt01bEnemy3);
 
-    if (gflagChk(68) == 0) {
-        ene_mes[0].func = actSt01bEneChk;
-        act->mail = ene_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
+INCLUDE_ASM(actSt01bEnemy4);
 
-void actSt01bEnemy1(GObj *volatile self)
-{
-    GObj *x = self;
+INCLUDE_ASM(actSt01bEnemy5);
 
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
+INCLUDE_ASM(actSt01bEnemy6);
 
-    while (gflagChk(69) == 0) {
-        _ACTWait(1);
-    }
+INCLUDE_ASM(actSt01bFloor);
 
-    _ACTWait(116);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    Generator_MaskOff(self);
-}
-
-void actSt01bEnemy2(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-
-    while (gflagChk(69) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(100);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    Generator_MaskOff(self);
-}
-
-void actSt01bEnemy3(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-
-    while (gflagChk(69) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(130);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    Generator_MaskOff(self);
-}
-
-void actSt01bEnemy4(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-
-    while (gflagChk(69) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(115);
-    Generator_Call(self);
-}
-
-void actSt01bEnemy5(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-
-    while (gflagChk(69) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(125);
-    Generator_Call(self);
-}
-
-void actSt01bEnemy6(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-
-    while (gflagChk(69) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(110);
-    Generator_Call(self);
-}
-
-void actSt01bFloor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(70) == 0) {
-        floor_mes[0].func = actSt01bFloorChk;
-        act->mail = floor_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt01bWay(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    way_mes[0].func = actSt01bWayOnChk;
-    act->mail = way_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt01bWay);
 
 void actSt01bEnd(void) {}
 
@@ -269,40 +89,6 @@ void actSt01bFloorEvent(int x)
     volatile int local = x;
 }
 
-void actSt01bWayOnChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
+INCLUDE_ASM(actSt01bWayOnChk);
 
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-    while (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 || gflagChk(70) == 0) {
-        _ACTWait(1);
-    }
-
-    SetWayGroupActive(4, 1);
-
-    way_on_mes[0].func = actSt01bWayOffChk;
-    sub->mail = way_on_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt01bWayOffChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-    while (scpTriggerFloorAttr(girlGObj, 0x2000000) == 0 || gflagChk(70) == 0) {
-        _ACTWait(1);
-    }
-
-    SetWayGroupActive(4, 0);
-
-    way_off_mes[0].func = actSt01bWayOnChk;
-    sub->mail = way_off_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt01bWayOffChk);

@@ -11,6 +11,7 @@
 #include "main.h"
 #include "motionManager2.h"
 #include "frameDependSequence.h"
+#include "include_asm.h"
 
 static int execSE(int no, void *entry);
 static int checkWaterDepth(struct GObj *gobj, int depth);
@@ -52,240 +53,23 @@ extern int soundSeDefPlayWithVolumeRate(int se, unsigned int owner, int pos, int
                                         float rate);
 /* seMail has no header; declared as ico2/fumi/src/seMail.c defines it */
 extern void seMail(int self, int id);
+static int playSE(int no);
 
-static int playSE(int no)
-{
-    int ret;
+INCLUDE_ASM(playSE);
 
-    if (no != 0) {
-        if (((GObj *)fdsGObj)->drawMask != 0) {
-            if (fdsLayout != 0 && fdsLayout->seMute != 0) {
-                /* EUC-JP: "gObj:(%p) has its motion SE stopped" */
-                debug_StdPrintfDummy("gObj:(%p) はモーションSEが停止しています\n", fdsGObj);
-                return 1;
-            }
+static int playSERandomID(int no, void *entry);
 
-            if (fdsVolume > 0.95f) {
-                ret = soundSeDefPlay(no, fdsGroup, GOBJ_SUB(fdsGObj)->nodeMtx + 0x30, 1);
-            } else {
-                ret = soundSeDefPlayWithVolumeRate(no, fdsGroup, GOBJ_SUB(fdsGObj)->nodeMtx + 0x30,
-                                                   1, fdsVolume);
-            }
+INCLUDE_ASM(playSERandomID);
 
-            seMail((int)fdsGObj, no);
-            if (ret == -2) {
-                if (debug_seslotdisp_flag != 0) {
-                    /* EUC-JP: "SE \"%s\" is not loaded" */
-                    debug_StdPrintfDummy("SE \033[36m\"%s\"\033[m はロードされていません\n",
-                                         &seDef[no]);
-                }
-                return 0;
-            }
-            if (ret < 0) {
-                return 1;
-            }
-            if (debug_seslotdisp_flag != 0) {
-                debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
-                                     &seDef[no], fdsGroup);
-            }
-        }
-    }
-    return 1;
-}
+static int playSEConditionID(int no, void *entry);
 
-static int playSERandomID(int no, void *entry)
-{
-    float rest;
-    float rnd;
-    float share;
-    float acc;
-    int nshare;
-    int n;
-    int i;
+INCLUDE_ASM(playSEConditionID);
 
-    rest = 100.0f;
-    nshare = 0;
-    for (n = 0; n < randomSEKind[no + n].se; n++) {
-        if (randomSEKind[no + n].rate < 0.0f) {
-            nshare++;
-        } else {
-            rest -= randomSEKind[no + n].rate;
-        }
-    }
-    rnd = crt_random_unit() * 0.99999f;
-    acc = 0.0f;
-    share = 0.0f;
-    if (acc <= rest && nshare != 0) {
-        share = rest < acc ? acc : rest / (float)nshare;
-    }
-    for (i = 0; i < n; i++) {
-        float w = randomSEKind[no + i].rate;
-        if (w < 0.0f) {
-            w = share;
-        }
-        acc += w * 0.01f;
-        if (rnd < acc) {
-            return execSE(randomSEKind[no + i].se, entry);
-        }
-    }
-    return execSE(randomSEKind[no].se, entry);
-}
+INCLUDE_ASM(playEff);
 
-static int playSEConditionID(int no, void *entry)
-{
-    int (*fn)(GObj *, int);
-    const SECondEntry *p;
+INCLUDE_ASM(execEff);
 
-    switch (motSECondKind[no].kind) {
-    case 0:
-    default:
-        fn = CheckFloorAttribute;
-        break;
-    case 1:
-        fn = CheckWallAttribute;
-        break;
-    case 2:
-        fn = checkWaterDepth;
-        break;
-    case 3:
-        fn = checkModelDataID;
-        break;
-    case 4:
-        fn = checkWeaponType;
-        break;
-    }
-    if (motSECondKind[no].kind != -1) {
-        p = &motSECondKind[no];
-        do {
-            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
-                if (execSE(p->se, entry) != 0) {
-                    return 1;
-                }
-            }
-            p++;
-        } while (p->kind != -1);
-    }
-    return 0;
-}
-
-static inline int execSE(int no, void *entry)
-{
-    if (no <= 0xFFFF) {
-        return playSE(no);
-    } else if (no <= 0x1FFFF) {
-        return playSERandomID(no - 0x10000, entry);
-    } else {
-        return playSEConditionID(no - 0x20000, entry);
-    }
-    /* the bad-ID report, switched off */
-    if (0) {
-        /* EUC-JP: "an SE with a strange ID(%d) was called" */
-        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
-    }
-}
-
-static void playEff(int no)
-{
-    float q[4];
-    float pos[4];
-    const EffEntry *p;
-    int node;
-    unsigned int flags;
-
-    if (motionEffKind[no].node == -1) {
-        GetRootQuaternion(q, (GObj *)fdsGObj);
-        GetRootMatrix(MatrixDrive_GetMatrix(), (GObj *)fdsGObj);
-    } else {
-        node = GetSkeltonFocusNode((GObj *)fdsGObj, motionEffKind[no].node);
-        if (no == -1) {
-            GetRootQuaternion(q, (GObj *)fdsGObj);
-            GetRootMatrix(MatrixDrive_GetMatrix(), (GObj *)fdsGObj);
-            /* EUC-JP: "note: the node of a node-specified motion effect was not found" */
-            debug_StdPrintfDummy(
-                "注意：ノード指定のモーションエフェクトでノードが見つかりませんでした\n");
-        } else {
-            GetRootQuaternion(q, (GObj *)fdsGObj);
-            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(fdsGObj)->nodeMtx + (node << 6));
-        }
-    }
-    MatrixDrive_TransMatrix(-motionEffKind[no].x, -motionEffKind[no].y, -motionEffKind[no].z);
-    CopyVector(pos, (float *)(MatrixDrive_GetMatrix()[3]));
-    RotQuaternionY(q, motionEffKind[no].ry * -32768.0f / 180.0f);
-    RotQuaternionX(q, motionEffKind[no].rx * -32768.0f / 180.0f);
-    RotQuaternionZ(q, motionEffKind[no].rz * -32768.0f / 180.0f);
-    p = &motionEffKind[no];
-    flags = p->flags;
-    if ((flags >> 1) & 1) {
-        pos[1] = GOBJ_SUB(fdsGObj)->ctrl.waterY;
-    }
-    if (flags & 1) {
-        EntryStageMultiBgaManager(motionEffKind[no].eff, pos, q);
-    } else {
-        if (stage_no == 0x21 && pos[0] < -4500.0f) {
-            return;
-        }
-        SetParticleEffect(motionEffKind[no].eff, pos, q);
-    }
-}
-
-static int execEff(int no, void *entry)
-{
-    int (*fn)(GObj *, int);
-    const VibCondEntry *p;
-    int idx;
-    int j;
-    int eff;
-    int k;
-    int n;
-
-    if (no <= 0xFFFF) {
-        if (no == 0x18) {
-            goto done;
-        }
-        if (no == 0) {
-            goto done;
-        }
-        playEff(no);
-        goto done;
-    }
-    if (no <= 0x1FFFF) {
-        idx = no - 0x10000;
-        k = idx + 1;
-        n = 0;
-        if (randomEffKind[idx] != 0x18) {
-            do {
-                n++;
-            } while (randomEffKind[k++] != 0x18);
-        }
-        execEff(randomEffKind[idx + (int)(((float)n - 1e-05f) * crt_random_unit())], entry);
-        goto done;
-    }
-    j = no - 0x20000;
-    switch (motEffCondKind[j].kind) {
-    case 0:
-    default:
-        fn = CheckFloorAttribute;
-        break;
-    case 2:
-        fn = checkWaterDepth;
-        break;
-    }
-    if (motEffCondKind[j].kind != -1) {
-        p = &motEffCondKind[j];
-        do {
-            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
-                eff = p->actId;
-                goto call;
-            }
-            p++;
-        } while (p->kind != -1);
-    }
-    eff = 0x18;
-call:
-    execEff(eff, entry);
-done:
-    return 1;
-}
+INCLUDE_ASM(func_001D0D18);
 
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
@@ -342,18 +126,9 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     return no;
 }
 
-static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
-{
-    int id;
-    int *p;
-    int i;
+static void executeSEPackageByGObj(GObj *gobj, int no, int grp);
 
-    id = setSEEnvironment(gobj, grp);
-    p = findSEPackage(no, id);
-    for (i = 0; i < 2; i++) {
-        execSE(p[i], 0);
-    }
-}
+INCLUDE_ASM(executeSEPackageByGObj);
 
 static void executeSEPackageWithNoGObj(int no)
 {
@@ -406,48 +181,15 @@ void StopSEPackage(GObj *gobj)
     StopSEPackageWithGroupVariation(gobj, 0);
 }
 
-void InitFrameDependSequence(void *flags)
-{
-    FDSFlags *f = flags;
-    int i;
-
-    for (i = 0; i < 2; i++) {
-        f->vibDone[i] = 0;
-    }
-    for (i = 0; i < 12; i++) {
-        f->effDone[i] = 0;
-    }
-    for (i = 0; i < 12; i++) {
-        f->seDone[i] = 0;
-    }
-    f->weaponDone = 0;
-    for (i = 0; i < 2; i++) {
-        f->vibEntry[i] = -1;
-    }
-}
-
-static inline int checkWaterDepth(GObj *gobj, int depth)
-{
-    return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
-}
-
-static inline int checkModelDataID(GObj *gobj, int id)
-{
-    return GOBJ_SUB(gobj)->modelId == id;
-}
+INCLUDE_ASM(InitFrameDependSequence);
 
 /* a frame slot's handler: it is passed the slot's number and entry, which it does not read */
-static inline int execWeaponLightOff(int no, void *entry)
-{
-    Sub15C *p;
-    GObj *q;
-    p = GOBJ_SUB(fdsGObj);
-    q = p->ctrl.pickedWeapon;
-    if (q != 0) {
-        if (CheckWeaponKind(q) == 1) {
-            Sub15C *r = GOBJ_SUB(fdsGObj);
-            LightTorchOffOfWeapon(r->ctrl.pickedWeapon);
-        }
-    }
-    return 1;
-}
+INCLUDE_ASM(execSE);
+
+INCLUDE_ASM(checkWaterDepth);
+
+INCLUDE_ASM(checkModelDataID);
+
+INCLUDE_ASM(func_001D1440);
+
+INCLUDE_ASM(execWeaponLightOff);

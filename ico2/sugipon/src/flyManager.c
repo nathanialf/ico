@@ -8,6 +8,7 @@ static GObj *flyGObj = 0; /* derived name */
 #include "flyManager.h"
 #include "debug.h"
 #include <string.h>
+#include "include_asm.h"
 
 static inline int getFloorLimitValue(int attr) /* derived name */
 {
@@ -31,14 +32,6 @@ static inline void *clipFlyFloor(ClipWork *work, void *pos) /* derived name */
     return work->floor.elem;
 }
 
-inline int InitFlyInfo(GObj *self)
-{
-    Sub15C *d = self->dobj;
-    flyGObj = self;
-    d->disp = 0;
-    return 0;
-}
-
 void DispFlyInfo(void)
 {
     int test = debug_fly_limit_test;
@@ -52,37 +45,10 @@ void DispFlyInfo(void)
     DrawGObjFloorCollision(g, 0);
 }
 
-inline void InitFlyManager(void)
-{
-    flyGObj = 0;
-}
+INCLUDE_ASM(InitFlyInfo);
 
-inline int GetFlyLimitClearance(void *pos)
-{
-    ClipWork work;
+INCLUDE_ASM(InitFlyManager);
 
-    if (flyGObj != 0) {
-        memset(&work, 0, sizeof(work));
-        if (clipFlyFloor(&work, pos) != 0) {
-            return -getFloorLimitValue(work.attr);
-        }
-    }
-    return -10000;
-}
+INCLUDE_ASM(GetFlyLimitHeight);
 
-inline int GetFlyLimitHeight(FlyLimitInfo *info, void *pos)
-{
-    ClipWork work;
-
-    if (flyGObj != 0) {
-        memset(&work, 0, sizeof(work));
-        if (clipFlyFloor(&work, pos) != 0) {
-            info->floorY = work.pt[2][1];
-            info->limitOfs = -getFloorLimitValue(work.attr);
-            info->limitY = info->floorY + info->limitOfs;
-            info->flags = 0;
-            return 1;
-        }
-    }
-    return 0;
-}
+INCLUDE_ASM(GetFlyLimitClearance);

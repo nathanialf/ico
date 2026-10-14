@@ -13,46 +13,12 @@ static BgaPlayNode *stageBgaAnim[30]; /* derived name */
 static int stageBgaCount = 0; /* derived name */
 
 #include "stageMultiBgaManager.h"
+#include "include_asm.h"
 
-inline void InitStageMultiBgaManager(void)
-{
-    int i;
+INCLUDE_ASM(InitStageMultiBgaManager);
 
-    for (i = 0; i < 30; i++) {
-        stageBga[i] = *(BgaDisp *)&InitialBgaMultiAnimeState;
-        stageBgaAnim[i] = 0;
-    }
-    stageBgaCount = 0;
-}
+INCLUDE_ASM(EntryStageMultiBgaManager);
 
-inline void EntryStageMultiBgaManager(int kind, void *pos, void *rot)
-{
-    EntryStageMultiBgaManagerWithStay(kind, pos, rot, 0);
-}
+INCLUDE_ASM(EntryStageMultiBgaManagerSensitive);
 
-inline void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, void *vel)
-{
-    EntryStageMultiBgaManagerSensitiveWithStay(kind, pos, rot, vel, 0);
-}
-
-void DispStageMultiBgaManager(void)
-{
-    int i;
-
-    for (i = 0; i < 30; i++) {
-        if (stageBgaAnim[i] == 0) {
-            continue;
-        }
-        if (stageBga[i].stay) {
-            stage_DispBgAnimationNoFinish(&stageBgaAnim[i]);
-        } else {
-            if (stage_DispBgAnimation(&stageBgaAnim[i])) {
-                stageBgaAnim[i] = 0;
-                continue;
-            }
-        }
-        if (systemStatus[5] == 0) {
-            _AddVector(stageBgaAnim[i]->pos, stageBgaAnim[i]->pos, stageBga[i].vel);
-        }
-    }
-}
+INCLUDE_ASM(DispStageMultiBgaManager);

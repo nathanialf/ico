@@ -11,6 +11,7 @@
 #include "mv_videodec.h"
 #include <eeregs.h>
 #include <libcdvd.h>
+#include "include_asm.h"
 
 /* the DMA and interrupt channels the player takes over for the length of the
    stream and hands back one by one in movie_end. */
@@ -376,3 +377,5 @@ int movie_proc(int (*poll)(void))
     movie_end();
     return r;
 }
+
+INCLUDE_ASM(func_0019D9C8);

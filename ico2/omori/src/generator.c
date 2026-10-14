@@ -60,59 +60,11 @@ static int generatorPacket[2820]; /* derived name */
 #include <string.h>
 #include "ios.h"
 #include "main.h"
+#include "include_asm.h"
 
 static GObj *IsNeedGeneratorHard(GObj *mother);
 
-inline int SearchActiveGenerator(void)
-{
-    GObj *g;
-
-    g = isysGObjSearchFromObjKindID_begin(33);
-    while (g != 0) {
-        GenWork *w = GOBJ_SUB(g)->work;
-
-        if (g->active != 0) {
-            if (w->status == 1) {
-                return 1;
-            }
-        }
-        g = isysGObjSearchFromObjKindID_next(g);
-    }
-    return 0;
-}
-
-int CheckGeneratorCollision(GObj *gobj, float *dir)
-{
-    float pos[4];
-    float tmp[4];
-    float p[4];
-    GObj *g;
-
-    g = isysGObjSearchFromObjKindID_begin(33);
-    GetRootPosition(pos, gobj);
-    sceVu0ScaleVector(tmp, dir, 100.0f);
-    sceVu0AddVector(pos, pos, tmp);
-
-    for (; g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
-        GenWork *w = GOBJ_SUB(g)->work;
-
-        if (g->active == 0) {
-            continue;
-        }
-        if (w->status != 1) {
-            continue;
-        }
-        GetRootPosition(p, g);
-        if (_DistxzSqGV(p, pos) < 22500.0f) {
-            float d = p[1] - 50.0f - pos[1];
-
-            if ((d < 0.0f ? -d : d) < 100.0f) {
-                return 0;
-            }
-        }
-    }
-    return 1;
-}
+INCLUDE_ASM(CheckGeneratorCollision);
 
 /* whether no live enemy stands close to pos; GetGeneratorSafePosition uses it
    twice and reads the result as a byte */
@@ -139,44 +91,7 @@ static inline unsigned char IsGeneratorSafePosition(float *pos) /* derived name 
     return 1;
 }
 
-void GetGeneratorSafePosition(float *dst, GObj *gobj)
-{
-    float pos[4];
-    int i;
-
-    GetRootPosition(pos, gobj);
-    if (IsGeneratorSafePosition(pos)) {
-        dst[0] = pos[0];
-        dst[1] = pos[1];
-        dst[2] = pos[2];
-        return;
-    }
-
-    {
-        float probe[4];
-
-        for (i = 0; i < 7; i++) {
-            const SafePosOffset *e = &generatorSubPosition[i];
-
-            if (e->kind != gobj->labelId) {
-                continue;
-            }
-            probe[0] = -e->x;
-            probe[1] = -e->y;
-            probe[2] = -e->z;
-            if (IsGeneratorSafePosition(probe)) {
-                dst[0] = probe[0];
-                dst[1] = probe[1];
-                dst[2] = probe[2];
-                return;
-            }
-        }
-        GetRootPosition(probe, gobj);
-        dst[0] = probe[0];
-        dst[1] = probe[1];
-        dst[2] = probe[2];
-    }
-}
+INCLUDE_ASM(GetGeneratorSafePosition);
 
 /* stop the current animation slot's manager (ResetCurrentBga) and start the
    manager of a slot (EntryBga), for endfunc_BGA and GeneratorGeo */
@@ -200,134 +115,9 @@ static inline void EntryBga(GObj *gobj, GenWork *w, int slot) /* derived name */
     EntryMultiBgaManager(w->bga[slot].p, 0, -1, (void *)test_CURRENTROOT(gobj), mtx);
 }
 
-static void endfunc_BGA(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
+INCLUDE_ASM(endfunc_BGA);
 
-    switch (w->cur) {
-    case 0: {
-        GenWork *cur;
-
-        w->bga[1].active = 1;
-        cur = (GenWork *)ResetCurrentBga(gobj);
-        EntryBga(gobj, cur, 1);
-        cur->cur = 1;
-        break;
-    }
-
-    case 1:
-        w->bga[1].p->frame = 0.0f;
-        break;
-
-    case 2: {
-        GenWork *cur;
-
-        w->bgaDone = 1;
-        cur = (GenWork *)ResetCurrentBga(gobj);
-        cur->cur = -1;
-        break;
-    }
-
-    default:
-        debug_assert(__FILE__, 504);
-        __assert(__FILE__, 504, "0");
-        break;
-    }
-}
-
-static GObj *IsNeedGeneratorHard(GObj *mother)
-{
-    GenWork *w = GOBJ_SUB(mother)->work;
-    GObj *g;
-    int count = 0;
-    int isCalling = (w->status == 1);
-
-    if (mother != 0 && mother->labelId == 3758) {
-        int found = 0;
-
-        g = isysGObjSearchFromObjLayoutID(3757);
-        if (g != 0) {
-            GenGeo *gv = &objLayout[g->labelId];
-
-            if (gv->reviveCount == -1 || gv->reviveCount > 0) {
-                found = 1;
-            }
-            if (isEnemyActive(g)) {
-                found = 1;
-            }
-        }
-        return found ? g : 0;
-    }
-
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        Act *p = GOBJ_ACT(g);
-
-        if ((unsigned int)(p->flags18.ll >> 34) & 1) {
-            continue;
-        }
-        if (mother == 0 || (mother->labelId != GetMotherGeneratorLabelAskEnemy(g) &&
-                            objLayout[g->labelId].parent != mother->labelId)) {
-            continue;
-        }
-        if (objLayout[g->labelId].reviveCount == -1 || objLayout[g->labelId].reviveCount > 0) {
-            return g;
-        }
-        if (isEnemyActive(g)) {
-            return g;
-        }
-    }
-
-    for (g = isysGObjSearchFromObjKindID_begin(33); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {}
-
-    for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        Act *p = GOBJ_ACT(g);
-
-        count += (int)(p->flags18.ll >> 32) & 1;
-    }
-
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        Act *p = GOBJ_ACT(g);
-        GenGeo *gv = &objLayout[g->labelId];
-
-        if (g->labelId == 3757) {
-            continue;
-        }
-        if ((unsigned int)(p->flags18.ll >> 34) & 1) {
-            if (count < 5) {
-                continue;
-            }
-            return g;
-        }
-        if (mother != 0) {
-            if (mother->labelId == GetMotherGeneratorLabelAskEnemy(g)) {
-                continue;
-            }
-            if (objLayout[g->labelId].parent == mother->labelId) {
-                continue;
-            }
-        }
-        if (isEnemyActive(g)) {
-            return g;
-        }
-        if (gv->reviveCount == -1 || gv->reviveCount > 0) {
-            if (!isCalling) {
-                return g;
-            }
-            {
-                GObj *m = GetMotherGeneratorGObjAskEnemy(g);
-
-                if (m != 0 && IsOpenGenerator(m)) {
-                    return g;
-                }
-            }
-        }
-    }
-    return 0;
-}
+INCLUDE_ASM(IsNeedGeneratorHard);
 
 inline int IsEnableCallEnemyByTargetGObj(GObj *gobj)
 {
@@ -345,298 +135,17 @@ inline int IsEnableCallEnemyByTargetGObj(GObj *gobj)
     return 0;
 }
 
-inline GObj *IsEnableCallEnemy(GObj *self)
-{
-    GObj *g;
+GObj *CallEnemy(GObj *mother, float *pos, float *dir, int kind);
 
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        Act *p = GOBJ_ACT(g);
-        int no = g->labelId;
-        GenGeo *gg = &objLayout[no];
+INCLUDE_ASM(CallEnemy);
 
-        if (self != 0 && self->labelId == 3758 && no != 3757) {
-            continue;
-        }
-        if (objLayout[no].parent != 0 && self != 0 && objLayout[no].parent != self->labelId) {
-            continue;
-        }
-        if ((unsigned int)(p->flags18.ll >> 34) & 1) {
-            continue;
-        }
-        if ((gg->flags >> 21) & 1) {
-            continue;
-        }
-        if (gg->reviveCount == -1 || gg->reviveCount > 0) {
-            return g;
-        }
-    }
-    return 0;
-}
+INCLUDE_ASM(Generator_QuickCall);
 
-inline GObj *DirectCallEnemy(GObj *gobj, GObj *mother, float *pos, float *dir, int kind)
-{
-    GenGeo *gg = &objLayout[gobj->labelId];
+INCLUDE_ASM(GetMotherGenerator);
 
-    gg->flags = (gg->flags | 0x200000) & 0xFFFBFFFF;
+INCLUDE_ASM(ReadGeneratorPacket);
 
-    debug_StdPrintfDummy("call enemy! = %d (%p : %d)\n", gobj->labelId, mother,
-                         (mother != 0) ? mother->labelId : -1);
-    debug_StdPrintfDummy("[%8s] %8f %8f %8f %8f\n", "revive", pos[0], pos[1], pos[2], pos[3]);
-    if (mother != 0) {
-        SetMotherGenerator(gobj->labelId, mother->labelId);
-    }
-    if (gg->reviveCount != -1) {
-        gg->reviveCount--;
-    }
-    actEnemyRestart(gobj, pos, dir, kind, mother);
-    ACTGame_SaveActorInformation(gobj);
-    return gobj;
-}
-
-GObj *CallEnemy(GObj *mother, float *pos, float *dir, int kind)
-{
-    GObj *gobj = IsEnableCallEnemy(mother);
-
-    if (gobj != 0) {
-        return DirectCallEnemy(gobj, mother, pos, dir, kind);
-    }
-    return 0;
-}
-
-inline void LockEnemyGenerate(GObj *gobj)
-{
-    Act *p;
-    p = GOBJ_ACT(gobj);
-    debug_StdPrintfDummy("lock! = %d\n", gobj->labelId);
-    p->flags18.ll = p->flags18.ll | 0x400000000LL;
-}
-
-inline void UnlockEnemyGenerate(GObj *gobj)
-{
-    Act *p = GOBJ_ACT(gobj);
-    GenGeo *g = &objLayout[gobj->labelId];
-    debug_StdPrintfDummy("unlock! = %d\n", gobj->labelId);
-    p->flags18.ll &= ~((unsigned long)0x8000 << 19);
-    g->flags = (g->flags | 0x200000) & 0xFFFBFFFF;
-}
-
-inline void RestoreReviveCount(GObj *gobj)
-{
-    GenGeo *g = &objLayout[gobj->labelId];
-    if (g->reviveCount != -1) {
-        int n = (short)(g->reviveCount + 1);
-        int lim = ((g->flags >> 5) & 0x1F) + 1;
-        n = (lim < n) ? lim : n;
-        g->reviveCount = n;
-        if (gobj->labelId == 3757) {
-            g->reviveCount = (g->reviveCount < 0) ? 0 : ((g->reviveCount > 1) ? 1 : g->reviveCount);
-        }
-    }
-}
-
-void Generator_QuickCall(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-
-    w->status = 1;
-    gamesysObjInfoUniqDataSet(gobj);
-    iosOmSendMail(gobj, 1, gobj);
-}
-
-inline void Generator_Call(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-
-    w->callRequests += 1;
-}
-
-inline void Generator_ResetCount(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-
-    w->resetRequest = 1;
-}
-
-inline void Generator_Mask(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-
-    w->masked = 1;
-}
-
-inline void Generator_MaskOff(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-
-    w->masked = 0;
-}
-
-int GetMotherGenerator(int label)
-{
-    int info[2];
-    int x;
-    int st;
-    int i;
-    int j;
-    int best;
-    int ret;
-
-    if (label == 3757) {
-        return 3758;
-    }
-
-    GetKidnapInfo(&info[0], &info[1]);
-    if (info[0] != -1 && info[0] == label) {
-        return info[1];
-    }
-
-    x = (int)((objLayout + label)->flags << 27) >> 27;
-    if (x != -1) {
-        st = GetStageFromLabel(label);
-        for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
-            GenGeo *g = &objLayout[i];
-
-            if (g->kind == 33) {
-                if (((int)(g->flags << 27) >> 27) == x) {
-                    return i;
-                }
-            }
-        }
-    }
-
-    best = 0;
-    ret = -1;
-    st = GetStageFromLabel(label);
-    for (j = stageData[st].labelTop; j < stageData[st].labelEnd; j++) {
-        GenGeo *g = &objLayout[j];
-
-        if (g->kind == 33) {
-            int v = (g->flags >> 17) & 1;
-
-            if (best < v) {
-                best = v;
-                ret = j;
-            }
-        }
-    }
-    return ret;
-}
-
-inline void SetMotherGenerator(int no, int label)
-{
-    int i;
-    int cnt;
-
-    if (no == 3757) {
-        return;
-    }
-    cnt = 0;
-    for (i = stageData[stage_no].labelTop; i < stageData[stage_no].labelEnd; i++) {
-        GenGeo *g = &objLayout[i];
-        if (g->kind == 33) {
-            if (i == label) {
-                GenGeo *m = &objLayout[no];
-                m->flags = ((int)m->flags & ~0x3C00) | ((cnt & 0xF) << 10);
-                return;
-            }
-            cnt++;
-        }
-    }
-}
-
-inline void Generator_Init(void)
-{
-    int i;
-
-    for (i = 0; i < 3759; i++) {
-        GenGeo *g = &objLayout[i];
-        unsigned int x = g->flags & 0xFFDFFFFF;
-        unsigned int y = x & 0xFFFBFFFF;
-
-        y |= ((x >> 19) & 1) << 18;
-        g->flags = y;
-        g->reviveCount = (y >> 5) & 0x1F;
-        if ((y >> 19) & 1) {
-            unsigned int z = y | 0x40000;
-            g->flags = z;
-            if ((int)((z >> 5) & 0x1F) != -1) {
-                g->reviveCount++;
-            }
-        }
-    }
-}
-
-inline void ReturnEnemyToGenerator(int label)
-{
-    GenGeo *g = &objLayout[label];
-    unsigned int x = g->flags & 0xFFDFFFFF;
-    unsigned int y = x & 0xFFFBFFFF;
-    y |= ((x >> 19) & 1) << 18;
-    g->flags = y;
-    if ((y >> 19) & 1) {
-        unsigned int z = y | 0x40000;
-        g->flags = z;
-        if ((int)((z >> 5) & 0x1F) != -1) {
-            g->reviveCount++;
-        }
-    }
-}
-
-inline int *GetbufpGeneratorPacket(void)
-{
-    return generatorPacket;
-}
-
-inline int GetsizeGeneratorPacket(void)
-{
-    return 11277;
-}
-
-void ReadGeneratorPacket(void)
-{
-    unsigned char *p = (unsigned char *)GetbufpGeneratorPacket();
-    int i;
-
-    for (i = 0; i < 3759; i++) {
-        GenGeo *g = &objLayout[i];
-        unsigned int b = *p++;
-        unsigned int x = (b >> 4) << 10;
-
-        g->flags = ((int)g->flags & ~0x3C00) | x;
-        g->flags = (g->flags & ~0x200000) | ((b & 1) << 21);
-    }
-
-    for (i = 0; i < 3759; i++) {
-        GenGeo *g = &objLayout[i];
-        char c = *(char *)p++;
-
-        g->flags = (g->flags & ~0x40000) | ((c & 1) << 18);
-    }
-
-    for (i = 0; i < 3759; i++) {
-        objLayout[i].reviveCount = (char)*p;
-        p++;
-    }
-}
-
-void MakeGeneratorPacket(void)
-{
-    char *p = (char *)GetbufpGeneratorPacket();
-    int i;
-
-    for (i = 0; i < 3759; i++) {
-        *p++ = (((int)(objLayout[i].flags << 18) >> 28) << 4) | ((objLayout[i].flags >> 21) & 1);
-    }
-
-    for (i = 0; i < 3759; i++) {
-        *p++ = (objLayout[i].flags >> 18) & 1;
-    }
-
-    for (i = 0; i < 3759; i++) {
-        *p++ = objLayout[i].reviveCount;
-    }
-}
+INCLUDE_ASM(MakeGeneratorPacket);
 
 inline void ResetReviveCountEnemy(GObj *gobj)
 {
@@ -657,34 +166,6 @@ inline void SetInfoSpKidnapGenerator(short *info)
     info[1] = 1;
 }
 
-inline int RestoreGeneratorGeo(float *dst, float *src)
-{
-    dst[0] = src[4];
-    dst[1] = src[5];
-    dst[2] = src[6];
-    return 1;
-}
-
-inline int RestoreGeneratorExtGeo(GObj *gobj, short *info)
-{
-    GenWork *p = GOBJ_SUB(gobj)->work;
-    p->status = info[24];
-    p->callRequests = info[25];
-    if (info[24] == 1) {
-        p->callState = 2;
-        iosOmSendMail(gobj, 1, gobj);
-    }
-    return 1;
-}
-
-inline int MemoryGenerator(short *info, GObj *gobj)
-{
-    GenWork *p = GOBJ_SUB(gobj)->work;
-    info[0] = p->status;
-    info[1] = p->callRequests;
-    return 1;
-}
-
 /* The generator's view of its object's mail box (GObj 0x54, typedef.h's
    IosMailBox): the count, and the queued mails with an unsigned kind. */
 typedef struct GenReqEntry { /* field names derived */
@@ -697,82 +178,12 @@ typedef struct GenReq { /* field names derived */
     int count;
 } GenReq; /* derived name */
 
-void generatorBeforeFunc(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-    GenReq *q = (GenReq *)&gobj->mailBox;
-    int i;
-
-    for (i = 0; i < q->count; i++) {
-        switch (((GenReqEntry *)gobj->mailBox.mail)[i].kind) {
-        case 0: {
-            GenWork *cur;
-
-            w->bga[0].active = 1;
-            cur = (GenWork *)ResetCurrentBga(gobj);
-            EntryBga(gobj, cur, 0);
-            cur->cur = 0;
-            break;
-        }
-
-        case 1: {
-            GenWork *cur;
-
-            w->bga[1].active = 1;
-            cur = (GenWork *)ResetCurrentBga(gobj);
-            EntryBga(gobj, cur, 1);
-            cur->cur = 1;
-            break;
-        }
-
-        case 2:
-            w->bgaDelay = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 4;
-            break;
-        }
-    }
-    q->count = 0;
-}
+INCLUDE_ASM(generatorBeforeFunc);
 
 /* The kind's constructor: CreateLayoutedGObj hands it the scene object's
    SObjSimpleSetting, not the layout row.  The enemy kind is the setting's
    object word (initSceneGObj fills it from the row's initArg) and the aim
    angle its Y rotation. */
-inline GenWork *InitGeneratorGeo(GObj *gobj, SObjSimpleSetting *src)
-{
-    GenWork *p = iosMallocDebug(ios_partition_sugipon, 112, __FILE__, 1230);
-    int i;
-
-    p->count = 0;
-    p->autoCallTimer = 0;
-    p->callRequests = 0;
-    p->masked = 0;
-    p->resetRequest = 0;
-    p->kind = src->obj;
-    p->hard = 0;
-
-    p->status = 0;
-    p->callState = 0;
-    p->cur = -1;
-    p->callDelay = -1;
-    p->bgaDelay = -1;
-    p->timer = 0;
-
-    p->dir[0] = 0.0f;
-    p->dir[1] = 0.0f;
-    p->dir[2] = 1.0f;
-    /* the direction is a quadword whose fourth word holds the bgaDone byte */
-    *(float *)&p->bgaDone = 0.0f;
-
-    _ApplyRyGV(p->dir, src->rot[1]);
-
-    for (i = 0; i < 4; i++) {
-        p->bga[i].p = InitMultiBgaManager(1);
-        p->bga[i].active = 0;
-    }
-
-    return p;
-}
-
 /* for GeneratorGeo: the generator's forward axis, the direction it sends
    enemies off in */
 static inline void SetGeneratorAimVector(GObj *gobj) /* derived name */
@@ -836,121 +247,7 @@ static inline void CallEnemyFromGenerator(GObj *gobj, float *pos, float *dir) /*
     }
 }
 
-void GeneratorGeo(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-    int hard = 0;
-    const StgPre *sd = &stageData[stage_no];
-    int noBoy = sd->flag1 && girlGObj == 0;
-
-    w->hard = (int)IsNeedGeneratorHard(gobj);
-    if (w->hard != 0) {
-        if (w->timer < 30) {
-            w->timer = 30;
-        }
-    }
-
-    if (w->count >= 12) {
-        if (w->resetRequest != 0) {
-            w->callRequests = 0;
-            w->resetRequest = 0;
-        }
-
-        if (isysGObjSearchFromObjKindID_begin(47) != 0) {
-            w->active = 1;
-        } else {
-            w->active = 0;
-        }
-
-        SetGeneratorAimVector(gobj);
-
-        if (noBoy) {
-            w->callRequests = 0;
-        }
-
-        if (w->callRequests == 0) {
-            if (w->masked == 0) {
-                if (!noBoy) {
-                    w->autoCallTimer = w->autoCallTimer + 1;
-                    if (w->autoCallTimer >= 11) {
-                        Generator_Call(gobj);
-                        w->autoCallTimer = 0;
-                    }
-                }
-            }
-        }
-
-        switch (w->callState) {
-        case 0:
-            if (w->callRequests != 0) {
-                w->callState = 1;
-                w->callDelay = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 2;
-                switch_MainStatus(gobj, 1);
-            }
-            break;
-
-        case 1:
-            w->callDelay = w->callDelay - 1;
-            if (w->callDelay < 0) {
-                w->callState = 2;
-            }
-            break;
-
-        case 2:
-            hard = 1;
-            break;
-
-        default:
-            debug_assert(__FILE__, 1371);
-            __assert(__FILE__, 1371, "0");
-            break;
-        }
-
-        if (w->active != 0) {
-            hard = 1;
-        }
-
-        {
-            float pos[4];
-            int i;
-
-            if (hard) {
-                if (((60 - systemStatus[0] * 10) / systemStatus[1]) / 2 < w->count) {
-                    if (w->callRequests != 0) {
-                        GetRootPosition(pos, gobj);
-                        for (i = 0; i < w->callRequests; i++) {
-                            CallEnemyFromGenerator(gobj, pos, w->dir);
-                        }
-                        w->callRequests = 0;
-                    }
-                }
-            }
-
-            if (!IsGeneratorCalling()) {
-                if (w->timer == 0) {
-                    switch_MainStatus(gobj, 0);
-                }
-            }
-
-            if (w->bgaDelay != -1) {
-                if (w->bgaDelay == 0) {
-                    w->bga[2].active = 1;
-                    EntryGeneratorBga2(gobj);
-                    w->bgaDelay = -1;
-                } else {
-                    w->bgaDelay = w->bgaDelay - 1;
-                }
-            }
-
-            debug_Arrow(100.0f, (void *)test_CURRENTROOT(gobj), w->dir, 0xFF, 0, 0xFF);
-        }
-    }
-
-    if (w->timer != 0) {
-        w->timer = w->timer - 1;
-    }
-    w->count = w->count + 1;
-}
+INCLUDE_ASM(GeneratorGeo);
 
 /* for GeneratorDL: put the animation managers at the generator's root */
 static inline void SetGeneratorBgaRootPosition(GObj *gobj, GenBga *tbl) /* derived name */
@@ -971,35 +268,44 @@ static inline void SetGeneratorBgaRootPosition(GObj *gobj, GenBga *tbl) /* deriv
     }
 }
 
-void GeneratorDL(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-    GenBga *tbl = w->bga;
-    int idx;
+INCLUDE_ASM(GeneratorDL);
 
-    SetGeneratorBgaRootPosition(gobj, tbl);
+INCLUDE_ASM(InitGeneratorGeo);
 
-    if (w->active) {
-        DispMultiBgaManagerWithKind(508, w->bga[1].p, 1);
-    } else {
-        DispMultiBgaManagerWithKind(507, w->bga[0].p, 1);
-        DispMultiBgaManagerWithKind(508, w->bga[1].p, 1);
-        DispMultiBgaManagerWithKind(509, w->bga[2].p, 1);
-        DispMultiBgaManagerWithKind(506, w->bga[3].p, 1);
-    }
+INCLUDE_ASM(Generator_Call);
 
-    idx = w->cur;
-    if (idx != -1) {
-        GenBga *e = &tbl[idx];
+INCLUDE_ASM(Generator_ResetCount);
 
-        if (*(float *)e->p < 0.0f) {
-            endfunc_BGA(gobj);
-        }
-    }
-}
+INCLUDE_ASM(Generator_Mask);
 
-inline int GeneratorWorkEnd(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-    return w->callRequests == 0;
-}
+INCLUDE_ASM(Generator_MaskOff);
+
+INCLUDE_ASM(SetMotherGenerator);
+
+INCLUDE_ASM(Generator_Init);
+
+INCLUDE_ASM(GetbufpGeneratorPacket);
+
+INCLUDE_ASM(GetsizeGeneratorPacket);
+
+INCLUDE_ASM(RestoreGeneratorGeo);
+
+INCLUDE_ASM(RestoreGeneratorExtGeo);
+
+INCLUDE_ASM(MemoryGenerator);
+
+INCLUDE_ASM(IsEnableCallEnemy);
+
+INCLUDE_ASM(DirectCallEnemy);
+
+INCLUDE_ASM(LockEnemyGenerate);
+
+INCLUDE_ASM(UnlockEnemyGenerate);
+
+INCLUDE_ASM(RestoreReviveCount);
+
+INCLUDE_ASM(ReturnEnemyToGenerator);
+
+INCLUDE_ASM(GeneratorWorkEnd);
+
+INCLUDE_ASM(SearchActiveGenerator);

@@ -9,6 +9,7 @@
 #include "warpGirl.h"
 #include <string.h>
 #include "main.h"
+#include "include_asm.h"
 
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
 static unsigned char gflags[50] = {0}; /* derived name */
@@ -19,41 +20,11 @@ int gFlagGameClear = 0; /* derived name */
 
 int gFlagSaveStage = 0;
 
-void gflagInit(void)
-{
-    int keep = gflagChk(379);
+INCLUDE_ASM(gflagInit);
 
-    memset(gflags, 0, sizeof(gflags));
-    before_stage_no = 0;
-    if (keep != 0) {
-        gflagOn(379);
-    }
-    Boy_Init();
-    Hint_Init();
-    StageOrientInit();
-    gamesysObjInfoInit();
-    Generator_Init();
-    warpGirlInit();
-    systemStatus[3] = 0;
-    memset(IosMcPreviewInfo, 0, 20);
-    gamesysVersionDiff = 0;
-    itouGFlagInit();
-}
+INCLUDE_ASM(gflagSave);
 
-void gflagSave(GamesysMemCursor *fp)
-{
-    gFlagSaveStage = stage_no;
-    gamesysMemoryHandlerWrite(fp, &gFlagSaveStage, 4);
-    gamesysMemoryHandlerWrite(fp, &gFlagGameClear, 4);
-    gamesysMemoryHandlerWrite(fp, gflags, sizeof(gflags));
-}
-
-void gflagLoad(GamesysMemCursor *fp)
-{
-    gamesysMemoryHandlerRead(fp, &gFlagSaveStage, 4);
-    gamesysMemoryHandlerRead(fp, &gFlagGameClear, 4);
-    gamesysMemoryHandlerRead(fp, gflags, sizeof(gflags));
-}
+INCLUDE_ASM(gflagLoad);
 
 int gflagChk(int bit_idx)
 {

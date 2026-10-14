@@ -13,6 +13,7 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
+#include "include_asm.h"
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
@@ -54,277 +55,38 @@ SqEntry *pipe19a = 0;
 
 static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}}; /* derived name */
 
-void actSt19aHaguruma(GObj *volatile self)
-{
-    long long pos[2];
-    Act *sub;
-    GObj *x = self;
+INCLUDE_ASM(func_00236E10);
 
-    sub = actInitialize(self);
-    _ACTWait(1);
-    pos[0] = hagurumaPos.d[0];
-    pos[1] = hagurumaPos.d[1];
-    soundSeDefPlay(1349, 0, (float *)pos, 1);
-    if (gflagChk(311) == 0) {
-        scpSearchGobj(1960)->active = 0;
-        stage_SetAnimation(139, 0, 0);
-        stage_SetAnimation(140, -1, -2);
-        haguruma_mes[0].func = actSt19aHagurumaChk;
-        sub->mail = haguruma_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        soundSeDefPlay(1350, 0, haguruma2Pos, 1);
-        soundSeDefPlay(1351, 0, haguruma2Pos, 1);
-        soundSeDefPlay(1352, 0, haguruma2Pos, 1);
-        scpSearchGobj(1961)->active = 0;
-        stage_SetAnimation(139, 1, 0);
-        stage_SetLoopFlag(139, 1);
-        stage_SetLoopFlag(140, 1);
-    }
-}
+INCLUDE_ASM(actSt19aHaguruma);
 
-void actSt19aHagurumaChk(GObj *volatile self)
-{
-    int skip = 0;
-    int i;
+INCLUDE_ASM(actSt19aHagurumaChk);
 
-    while (scpTriggerBall(self, scpSearchGobj(1961), 220.0f) == 0) {
-        _ACTWait(1);
-    }
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    gflagOn(311);
-    scpAdpcmPlayRequestFunc(76, &fence_down_19a, 1, 1, 1);
-    while (fence_down_19a == 0) {
-        _ACTWait(1);
-    }
-    for (i = 60; i-- > 0 && skip == 0;) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            skip = 1;
-        }
-    }
-    stage_SetAnimation(141, 1, 0);
-    for (i = 90; i-- > 0 && skip == 0;) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            skip = 1;
-        }
-    }
-    _ACTWait(1);
-    stage_SetAnimation(139, 1, 0);
-    stage_SetAnimation(140, 1, 0);
-    scpSearchGobj(1961)->active = 0;
-    scpSearchGobj(1960)->active = 1;
-    stage_SetLoopFlag(139, 1);
-    stage_SetLoopFlag(140, 1);
-    soundSeDefPlay(1350, 0, haguruma2Pos, 1);
-    soundSeDefPlay(1351, 0, haguruma2Pos, 1);
-    soundSeDefPlay(1352, 0, haguruma2Pos, 1);
-    while (stage_CheckAnimationFinish(141) == 0) {
-        if (((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) || skip != 0) {
-            scpFadeOut(16.0f, 0, 0, 0);
-            scpAdpcmFadeCloseFunc(&fence_down_19a, 512);
-            while (scpFadeChk() != 0) {
-                _ACTWait(1);
-            }
-            while (lt_fade_status() != 2) {
-                _ACTWait(1);
-            }
-            stage_SetAnimation(141, 0, -1);
-            scpFadeIn(3.0f);
-            scpBoyControlReadDisable = 0;
-            goto done;
-        }
-        _ACTWait(1);
-    }
-    scpBoyControlReadDisable = 0;
-done:
-    lt_switch_layout(54);
-}
+INCLUDE_ASM(actSt19aPipeChk);
 
-void actSt19aPipeChk(GObj *volatile self)
-{
-    int i;
+INCLUDE_ASM(func_00237338);
 
-    while (scpTriggerBall(self, boyGObj, 50.0f) == 0) {
-        _ACTWait(1);
-    }
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    scpPlayStart(boyGObj);
-    gflagOn(312);
-    scpSearchGobj(1958)->active = 0;
-    _ACTWait(1);
-    scpAdpcmPlayRequestFunc(84, &hgrm_19a, 1, 1, 1);
-    while (hgrm_19a == 0) {
-        _ACTWait(1);
-    }
-    stage_SetAnimation(143, 1, 0);
-    FeedbackWallWorkInfoToBrainSystem(boyGObj);
-    scpPlayMot(boyGObj, 78);
-    for (i = 300; i-- > 0;) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            scpFadeOut(16.0f, 0, 0, 0);
-            scpAdpcmFadeCloseFunc(&hgrm_19a, 512);
-            while (scpFadeChk() != 0) {
-                _ACTWait(1);
-            }
-            while (lt_fade_status() != 2) {
-                _ACTWait(1);
-            }
-            stage_SetAnimation(143, 0, -1);
-            scpPlayPosSet(boyGObj, 336.0f, 3933.0f, -402.0f);
-            _ACTWait(4);
-            scpFadeIn(3.0f);
-            break;
-        }
-        _ACTWait(1);
-    }
-    scpSearchGobj(1959)->active = 1;
-    scpPlayEnd(boyGObj);
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
+INCLUDE_ASM(func_00237428);
 
-void actSt19aOri(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
+INCLUDE_ASM(actSt19aOri);
 
-    _ACTWait(1);
+INCLUDE_ASM(actSt19aOriXL);
 
-    ScpCallCameraSetTarget(4298.0f, -2342.0f, 1331.0f);
+INCLUDE_ASM(actSt19aPipe);
 
-    if (gflagChk(310) == 0) {
-        stage_SetAnimation(142, 0, 0);
+INCLUDE_ASM(actSt19aPipeXL);
 
-        ori_mes[0].func = actSt19aOriMain;
-        act->mail = ori_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(142, 0, 89);
-    }
-}
+INCLUDE_ASM(actSt19aChain);
 
-void actSt19aOriXL(GObj *volatile self)
-{
-    GObj *x = self;
+INCLUDE_ASM(func_002377E8);
 
-    actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSt19aOriMain);
 
-    soundSeDefPlay(1349, 0, oriXLPos, 1);
+INCLUDE_ASM(actSt19aOriSwitch);
 
-    stage_SetAnimation(142, 0, 0);
-}
+INCLUDE_ASM(func_00237930);
 
-void actSt19aPipe(GObj *volatile self)
-{
-    GObj *x = self;
+INCLUDE_ASM(actSt19aChainMain);
 
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSt19aChainSwitch);
 
-    if (gflagChk(312) == 0) {
-        scpSearchGobj(1959)->active = 0;
-        stage_SetAnimation(143, 0, 0);
-
-        pipe_mes[0].func = actSt19aPipeChk;
-        act->mail = pipe_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-
-    } else {
-        scpSearchGobj(1958)->active = 0;
-        stage_SetAnimation(143, 0, -1);
-    }
-}
-
-void actSt19aPipeXL(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(312) == 0) {
-        stage_SetAnimation(143, 0, 0);
-    } else {
-        stage_SetAnimation(143, 0, -1);
-    }
-}
-
-void actSt19aChain(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(313) == 0) {
-        scpSearchGobj(1963)->active = 0;
-
-        stage_SetAnimation(144, 0, 0);
-
-        chain_mes[0].func = actSt19aChainMain;
-        act->mail = chain_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt19aOriMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-
-    sub->mainMail = oriMain_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-void actSt19aOriSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-    oriSwitch_mes[0].func = actSt19aOriUp;
-    sub->mail = oriSwitch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt19aChainMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-
-    sub->mainMail = chainMain_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-void actSt19aChainSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    if (gflagChk(313) == 0) {
-        chainSwitch_mes[0].func = actSt19aChainDown;
-        sub->mail = chainSwitch_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
+INCLUDE_ASM(func_00237AD8);

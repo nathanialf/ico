@@ -13,6 +13,7 @@
 #include "stageSEProc.h"
 #include "script.h"
 #include "main.h"
+#include "include_asm.h"
 
 /* .data: four 0x20-byte actor mail packets, one per thread hand-off. */
 
@@ -32,22 +33,6 @@ static int demoSkipped; /* derived name */
 /* .sdata: the solar stream handle. */
 struct SqEntry *solar = 0;
 
-void actSt05eWater(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(func_00225B20);
 
-    if (gflagChk(231) == 0) {
-        scpSearchGobj(1555)->active = 0;
-
-        water_mes[0].func = actSt05eWaterMain;
-        act->mail = water_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        scpSearchGobj(1554)->active = 0;
-
-        stage_SetAnimation(266, -1, -2);
-    }
-}
+INCLUDE_ASM(actSt05eWater);

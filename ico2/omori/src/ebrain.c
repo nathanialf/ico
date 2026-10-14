@@ -12,6 +12,7 @@
 #include "debug_exception.h"
 #include "main.h"
 #include <assert.h>
+#include "include_asm.h"
 
 int eBrainBoyChaseCount;
 
@@ -67,42 +68,6 @@ static inline EBSlot *eBrainGetPacket(GObj *gop) /* derived name */
         return 0;
     else
         return &ebrainSlots[i];
-}
-
-inline void eBrainInit(void)
-{
-    int i;
-    eBrainGirlChaseCount = 0;
-    eBrainBoyChaseCount = 0;
-    girlHolder = 0;
-    enemiesWait = 0;
-    for (i = 0; i < 32; i++) {
-        ebrainSlots[i].owner = 0;
-    }
-}
-
-inline int eBrainStatusSet(GObj *gop, int status)
-{
-    EBSlot *slot;
-    int i;
-    if (status != 4)
-        return 0;
-    for (i = 0; i < 32; i++) {
-        if (ebrainSlots[i].owner == 0)
-            break;
-    }
-    if (i < 32)
-        slot = &ebrainSlots[i];
-    else
-        slot = 0;
-    if (slot == 0) {
-        debug_StdPrintfDummy("eBrainStatusSet: ebrain area over\n");
-        return 0;
-    }
-    slot->owner = gop;
-    slot->status = 0;
-    slot->message = 0;
-    return (int)slot;
 }
 
 static EBSlot *boyTargets[32]; /* derived name */
@@ -180,24 +145,6 @@ void eBrainProcess(void)
     }
 }
 
-inline int GetStageFromLabel(int label)
-{
-    int UseStageNo = -1;
-    int i;
-
-    for (i = 0; i < 106; i++) {
-        if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
-            UseStageNo = i;
-            break;
-        }
-    }
-    if (!(UseStageNo > 0)) {
-        debug_assert("src/ebrain.c", 472);
-        __assert("src/ebrain.c", 472, "UseStageNo>0");
-    }
-    return UseStageNo;
-}
-
 inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
 {
     int pri = -1;
@@ -230,50 +177,9 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
     return GeneratorLabel;
 }
 
-int eBrainGetTargetGeneratorFromLabel(int label)
-{
-    int GeneratorLabel = -1;
-    int pri = -1;
-    int UseStageNo;
-    int i;
-    int ret;
-    int st;
-    int f;
+int eBrainGetTargetGeneratorFromLabel(int label);
 
-    ret = GetMotherGenerator(label);
-    if (ret != -1)
-        return ret;
-
-    UseStageNo = -1;
-    for (i = 0; i < 106; i++) {
-        if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
-            UseStageNo = i;
-            break;
-        }
-    }
-    if (!(UseStageNo > 0)) {
-        debug_assert("src/ebrain.c", 472);
-        __assert("src/ebrain.c", 472, "UseStageNo>0");
-    }
-
-    st = UseStageNo;
-    for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
-        GenGeo *g = &objLayout[i];
-        if (g->kind == 33) {
-            f = g->flags >> 17;
-            f &= 1;
-            if (pri < f) {
-                pri = f;
-                GeneratorLabel = i;
-            }
-        }
-    }
-    if (!(GeneratorLabel > 0)) {
-        debug_assert("src/ebrain.c", 542);
-        __assert("src/ebrain.c", 542, "GeneratorLabel>0");
-    }
-    return GeneratorLabel;
-}
+INCLUDE_ASM(eBrainGetTargetGeneratorFromLabel);
 
 static inline int eBrainCanSeeTarget(GObj *gop, GObj *target) /* derived name */
 {
@@ -459,24 +365,10 @@ EBSlot *eBrainGetTarget(GObj *gop)
     return p;
 }
 
-inline void eBrainSendMes(GObj *gop, int mes)
-{
-    EBSlot *p = eBrainGetPacket(gop);
+INCLUDE_ASM(eBrainInit);
 
-    p->message = mes;
-    switch (mes) {
-    case 9:
-        girlHolder = gop;
-        break;
-    case 10:
-        if (girlHolder == gop)
-            girlHolder = 0;
-        eBrainSetStatus(p, 7);
-        break;
-    case 4:
-    case 5:
-        if (girlHolder == gop)
-            girlHolder = 0;
-        break;
-    }
-}
+INCLUDE_ASM(eBrainStatusSet);
+
+INCLUDE_ASM(eBrainSendMes);
+
+INCLUDE_ASM(GetStageFromLabel);

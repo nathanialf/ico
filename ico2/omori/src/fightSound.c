@@ -6,6 +6,7 @@
 #include "main.h"
 #include "gamesys.h"
 #include <assert.h>
+#include "include_asm.h"
 
 /* set while the fight music is paused */
 static int fightSoundPause = 0; /* derived name */
@@ -23,74 +24,9 @@ static int fightSoundState = 0; /* derived name */
 /* set while the girl is held (status 9) or taken off the stage */
 static int fightSoundGirlTaken = 0; /* derived name */
 
-static void fightSoundProcessMain(void)
-{
-    int req;
-    int cond = 0;
-    int step;
+static void fightSoundProcessMain(void);
 
-    req = 0x110001;
-    fightSnd.handle = soundDataAreaSearch(&req);
-    if (fightSnd.handle == 0) {
-        fightSnd.volume = 0;
-        if (fightSoundPause == 1) {
-            return;
-        }
-    }
-    if (systemStatus[6] != 0) {
-        return;
-    }
-    if (systemStatus[5] == 0 && fightSoundPause != 1) {
-        if (boyGObj != 0) {
-            cond = 0;
-            if (_ACTCharStatus_Check(boyGObj, 17) != 0) {
-                cond = 1;
-            }
-        }
-        if (systemStatus[6] == 0) {
-            fightSoundGirlTaken = 0;
-            if ((girlGObj != 0 && _ACTCharStatus_Check(girlGObj, 9) != 0) ||
-                gamesysAnotherStageTsuresari != 0) {
-                fightSoundGirlTaken = 1;
-            }
-        }
-    } else {
-        fightSoundGirlTaken = 0;
-        cond = 0;
-    }
-    if (fightSnd.handle == 0) {
-        if (cond != 0 || fightSoundGirlTaken != 0) {
-            if (systemStatus[6] == 0) {
-                soundDataOpen(&fightSnd.req, 2, 1, 2, 0);
-                if (fightSnd.req.iopBuf != 0) {
-                    fightSoundState = 1;
-                }
-            }
-        }
-    }
-    if (fightSnd.handle == 0) {
-        return;
-    }
-    step = 96;
-    if (fightSoundPause == 1) {
-        step = 1024;
-    }
-    if (cond == 0 && fightSoundGirlTaken == 0) {
-        fightSnd.volume -= step;
-        if (fightSnd.volume < 0) {
-            fightSnd.volume = 0;
-        }
-    } else {
-        fightSnd.volume += step;
-        if (fightSnd.volume > 6144) {
-            fightSnd.volume = 6144;
-        }
-    }
-    AdpcmVolumeSet(fightSnd.handle, fightSnd.volume);
-    if (fightSnd.volume == 0) {
-        fightSoundState = 2;
-    }
-}
+INCLUDE_ASM(fightSoundProcessMain);
 
 void fightSoundProcess(void)
 {

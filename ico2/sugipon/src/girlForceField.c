@@ -18,54 +18,17 @@ typedef struct GirlForceFieldWork { /* field names derived */
 #include "main.h"
 #include "StageAnimation.h"
 #include "sceneManager.h"
+#include "include_asm.h"
 
 /* the girl's blue, the colour boy.c's position-sync marker draws her sphere
    in; nothing reads it */
 static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
 
-inline GirlForceFieldWork *InitGirlForceFieldGeo(GObj *self, SObjSimpleSetting *param)
-{
-    GirlForceFieldWork *w = (GirlForceFieldWork *)iosMallocDebug(
-        ios_partition_sugipon, sizeof(GirlForceFieldWork), "src/girlForceField.c", 23);
-    struct DObjNode *c;
-    w->radius = param->scale[2];
-    w->invRadius = 1.0f / w->radius;
-    w->frame = 0;
-    c = ((SubHandle *)&self->dobj)->sub->nodes;
-    c->scale[0] = c->scale[1] = c->scale[2] = 1.0f;
-    return w;
-}
-
-inline void GirlForceFieldGeo(void) {}
-
 /* the action table the layout rows select into */
 extern OaRecB objAction[];
 
-void GirlForceFieldDL(GObj *self)
-{
-    float pos[4];
-    float quat[4];
-    float gpos[4];
-    GirlForceFieldWork *w = GOBJ_SUB(self)->work;
-    float d2;
-    float ratio;
+INCLUDE_ASM(GirlForceFieldDL);
 
-    UpdateRootMatrix(self);
-    GetRootPosition(pos, self);
+INCLUDE_ASM(InitGirlForceFieldGeo);
 
-    if (girlGObj != 0) {
-        GetRootPosition(gpos, girlGObj);
-        d2 = distance_squared(gpos, pos);
-        if (d2 < w->radius * w->radius) {
-            ratio = 1.0f - FSqrt(d2) * w->invRadius;
-            ratio = ratio < 0.0f ? 0.0f : ratio;
-
-            GetRootQuaternion(quat, self);
-            w->frame = (int)stage_PlayBgAnimationDissolve(
-                objAction[objLayout[self->labelId].action].baseMode, pos, quat, (float)w->frame,
-                ratio);
-            return;
-        }
-    }
-    w->frame = 0;
-}
+INCLUDE_ASM(GirlForceFieldGeo);

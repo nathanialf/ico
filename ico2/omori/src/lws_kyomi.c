@@ -9,6 +9,7 @@
 #include "main.h"
 #include "geometryManager.h"
 #include "brain.h"
+#include "include_asm.h"
 
 struct HintInfo { /* field names derived */
     int anim;     /* the stage animation the hint plays */
@@ -68,6 +69,10 @@ static float *hintTimers; /* derived name */
             break;                                                                                 \
         }                                                                                          \
     }
+
+INCLUDE_ASM(func_0023D518);
+
+INCLUDE_ASM(func_0023D528);
 
 void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
 {

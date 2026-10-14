@@ -11,6 +11,7 @@
 #include "quaternion.h"
 #include "typedef.h"
 #include "main.h"
+#include "include_asm.h"
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
@@ -40,136 +41,17 @@ static ActMail crestHint_mes[2] = {{430}, {429}}; /* derived name */
 void actSt05dDoor2DownChk(GObj *volatile self);
 void actSt05dDoor2UpChk(GObj *volatile self);
 
-void actSt05dDoor2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
+INCLUDE_ASM(actSt05dDoor2);
 
-    _ACTWait(1);
+INCLUDE_ASM(actSt05dDoor2UpChk);
 
-    if (scpTriggerBall(self, boyGObj, 400.0f) != 0 ||
-        (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
-        stage_SetAnimation(349, 0, 0);
-        _ACTWait(60);
-        door2Down_mes[0].func = actSt05dDoor2DownChk;
-        act->mail = door2Down_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(348, 0, 0);
-        door2Up_mes[0].func = actSt05dDoor2UpChk;
-        act->mail = door2Up_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
+INCLUDE_ASM(actSt05dDoor2DownChk);
 
-void actSt05dDoor2UpChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    long long buf[2];
+INCLUDE_ASM(func_00225740);
 
-    while (scpTriggerFloorAttrTargetMan(self, 0x2000000) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(15);
+INCLUDE_ASM(actSt05dEnemy1);
 
-    actCreateSubThread(actSt05dDoor2UpEffect, 21);
-
-    ReviveAllCarryableItemsWithNonSleepFrame(60);
-
-    stage_SetAnimation(348, 1, 0);
-
-    buf[0] = door2UpChkPos.d[0];
-    buf[1] = door2UpChkPos.d[1];
-    soundSeDefPlay(1220, 0, (float *)buf, 1);
-    _ACTWait(30);
-    soundSeDefPlay(1221, 0, (float *)buf, 1);
-    _ACTWait(30);
-    soundSeDefPlay(1222, 0, (float *)buf, 1);
-
-    while (stage_CheckAnimationFinish(348) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    door2UpChk_mes[0].func = actSt05dDoor2DownChk;
-    sub->mail = door2UpChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt05dDoor2DownChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    long long buf[2];
-
-    while (scpTriggerFloorAttrTargetMan(self, 0x2000000) != 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(15);
-
-    actCreateSubThread(actSt05dDoor2DownEffect, 21);
-
-    ReviveAllCarryableItemsWithNonSleepFrame(60);
-
-    stage_SetAnimation(349, 1, 0);
-
-    buf[0] = door2UpChkPos.d[0];
-    buf[1] = door2UpChkPos.d[1];
-    soundSeDefPlay(1220, 0, (float *)buf, 1);
-    _ACTWait(30);
-    soundSeDefPlay(1221, 0, (float *)buf, 1);
-    _ACTWait(30);
-    soundSeDefPlay(1222, 0, (float *)buf, 1);
-
-    while (stage_CheckAnimationFinish(349) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    door2DownChk_mes[0].func = actSt05dDoor2UpChk;
-    sub->mail = door2DownChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt05dEnemy1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-    Generator_Mask(scpSearchGobj(1477));
-    Generator_Mask(scpSearchGobj(1478));
-    while (gflagChk(172) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    Generator_MaskOff(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    Generator_Call(scpSearchGobj(1477));
-    Generator_Call(scpSearchGobj(1478));
-}
-
-void actSt05dEnemy2(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-    while (gflagChk(172) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    Generator_MaskOff(self);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-}
+INCLUDE_ASM(actSt05dEnemy2);
 
 void actSt05dDoor2Event(int x)
 {
@@ -224,15 +106,4 @@ void actSt05dDoor2DownEffect(GObj *volatile self)
     }
 }
 
-void actSt05dEneChk(GObj *volatile self)
-{
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-    while (girlGObj == 0 || gflagChk(170) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    gflagOn(171);
-    gflagOn(172);
-}
+INCLUDE_ASM(actSt05dEneChk);

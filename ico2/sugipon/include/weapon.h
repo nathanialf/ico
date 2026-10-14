@@ -58,7 +58,6 @@ float GetWeaponWeight(struct GObj *self);
 
 struct SObjSimpleSetting;
 
-void torchOnOfWeaponSE(struct GObj *torch);
 void weaponFumbleSE(struct GObj *g);
 void weaponStickSE(struct GObj *g);
 void ReleaseWeaponWithFumbleTargetPos(struct GObj *g, void *pos, void *quat, void *rot, float t);

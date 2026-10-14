@@ -16,6 +16,7 @@
 #include "stageSEProc.h"
 #include "main.h"
 #include "script.h"
+#include "include_asm.h"
 
 static void actSt04eHint1Chk(GObj *volatile self);
 
@@ -46,58 +47,12 @@ static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f}; /* derived name */
 
 static ActMail hint1WakeUp_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt04eWater(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSt04eWater);
 
-    SetRotObjectLockFlag(scpSearchGobj(1274), 1);
+INCLUDE_ASM(actSt04eWaterMain);
 
-    if (gflagChk(230) == 0) {
-        scpSearchGobj(1273)->active = 0;
-        water_mes[0].func = actSt04eWaterMain;
-        act->mail = water_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        scpSearchGobj(1272)->active = 0;
-        stage_SetAnimation(261, -1, -2);
-    }
-}
+INCLUDE_ASM(actSt04eWaterSwitch);
 
-void actSt04eWaterMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
+INCLUDE_ASM(func_0021A390);
 
-    sub->mainMail = waterMain_mes;
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-void actSt04eWaterSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    waterSwitch_mes[0].func = actSt04eWaterStop;
-    sub->mail = waterSwitch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt04eHint1Chk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 1000.0f) == 0 ||
-           ForMotionViewer_GetCurrentMotion(boyGObj) != 145) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
-    gflagOn(225);
-    FinishHint(18);
-}
+INCLUDE_ASM(actSt04eHint1Chk);

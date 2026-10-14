@@ -14,6 +14,7 @@
 #include "motionManager2.h"
 #include "typedef.h"
 #include "main.h"
+#include "include_asm.h"
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
@@ -50,207 +51,33 @@ static ActMail hint2_mes[2] = {{430}, {429}}; /* derived name */
 /* .sdata: the bridge stream handle. */
 SqEntry *st09a_brg = 0;
 
-void actSt09aInit(void)
-{
-    if (gflagChk(86) == 0) {
-        stage_SetAnimation(378, 0, 0);
-    } else {
-        stage_SetAnimation(378, 0, -1);
-    }
-}
+INCLUDE_ASM(actSt09aInit);
 
-void actSt09aElvDown(GObj *volatile self)
-{
-    Act *act = GOBJ_ACT(self);
-    /* the sound handle, which the sound subsystem owns; it is kept across
-       the animation wait and read again for soundSeDefStop */
-    volatile int se;
+INCLUDE_ASM(actSt09aElvDown);
 
-    lt_switch_layout(55);
-    LockForceGroundParent(boyGObj);
+INCLUDE_ASM(func_0022B9A8);
 
-    stage_SetAnimation(375, 1, 0);
+INCLUDE_ASM(func_0022BA70);
 
-    se = soundSeDefPlay(1217, 0, 0, 1);
+INCLUDE_ASM(actSt09aElv);
 
-    gflagOn(83);
+INCLUDE_ASM(actSt09aIntro);
 
-    while (stage_CheckAnimationFrame(375, 210, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
+INCLUDE_ASM(actSt09aBrg);
 
-    soundSeDefStop(se);
+INCLUDE_ASM(actSt09aElvMain);
 
-    UnlockForceGroundParent(boyGObj);
+INCLUDE_ASM(actSt09aElvSwitch);
 
-    lt_switch_layout(54);
-
-    elvDown_mes[0].func = actSt09aElvMain;
-    act->mail = elvDown_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt09aElv(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(83) != 0) {
-        stage_SetAnimation(375, 0, 210);
-    } else {
-        stage_SetAnimation(375, 0, 0);
-    }
-
-    elv_mes[0].func = actSt09aElvMain;
-    act->mail = elv_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt09aIntro(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(85) == 0) {
-        intro_mes[0].func = actSt09aIntroChk;
-        act->mail = intro_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt09aBrg(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(86) == 0) {
-        brg_mes[0].func = actSt09aBrgMain;
-        act->mail = brg_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt09aElvMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-
-    sub->mainMail = elvMain_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-void actSt09aElvSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    if (gflagChk(83) != 0) {
-        elvSwitchUp_mes[0].func = actSt09aElvUp;
-        sub->mail = elvSwitchUp_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-
-    elvSwitchDown_mes[0].func = actSt09aElvDown;
-    sub->mail = elvSwitchDown_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt09aElvUp(GObj *volatile self)
-{
-    Act *act = GOBJ_ACT(self);
-    /* the sound handle, which the sound subsystem owns; it is kept across
-       the animation wait and read again for soundSeDefStop */
-    volatile int se;
-
-    lt_switch_layout(55);
-
-    stage_SetAnimation(375, 1, 211);
-
-    se = soundSeDefPlay(1217, 0, 0, 1);
-
-    gflagOff(83);
-
-    while (stage_CheckAnimationFrame(375, 420, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    soundSeDefStop(se);
-
-    lt_switch_layout(54);
-
-    elvUp_mes[0].func = actSt09aElvMain;
-    act->mail = elvUp_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt09aElvUp);
 
 void actSt09aSekizoEvent(int x)
 {
     volatile int local = x;
 }
 
-void actSt09aIntroChk(GObj *volatile self)
-{
-    lt_switch_layout(55);
-    gflagOn(85);
+INCLUDE_ASM(actSt09aIntroChk);
 
-    scpBoyControlReadDisable = 1;
-    _ACTWait(1);
+INCLUDE_ASM(actSt09aBrgMain);
 
-    stage_SetAnimation(377, 1, 0);
-
-    while (stage_CheckAnimationFinish(377) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    lt_switch_layout(54);
-
-    scpBoyControlReadDisable = 0;
-}
-
-void actSt09aBrgMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    sub->mainMail = brgMain_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-void actSt09aBrgSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    brgSwitch_mes[0].func = actSt09aBrgDown;
-    sub->mail = brgSwitch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt09aBrgSwitch);
