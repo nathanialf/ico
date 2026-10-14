@@ -260,7 +260,9 @@ sdlit gsb_antiAlias 0x0062BD78 0x0062BD7C ico2/seki/src/GsBase.c  # target side:
 text gsb_SetGsDefault 0x00113F10 0x0011403C ico2/seki/src/GsBase.c local lines=38  # aug6-only in the census (in GsBase.c's span); gsb_SetGsDefault by body ratio 0.95, callees 0.89, sizes 280/300
 text gsb_PostEffect 0x00114040 0x00114204 ico2/seki/src/GsBase.c local lines=36  # aug6-only in the census (in GsBase.c's span); gsb_PostEffect by body ratio 0.94, callees 0.92, sizes 468/452
 sdlit gsb_PostEffect 0x0062BD80 0x0062BD92 ico2/seki/src/GsBase.c  # target side: three strings
+rdlit gsb_PostEffect 0x0054EAD0 0x0054EAEB ico2/seki/src/GsBase.c  # target side: a string
 text gsb_InitGSSystem 0x00114208 0x001142F8 ico2/seki/src/GsBase.c lines=32  # aug6-only in the census (in GsBase.c's span); gsb_InitGSSystem by body ratio 0.97, callees 0.92, sizes 256/240, call sites 1
+rdlit gsb_InitGSSystem 0x0054EAF0 0x0054EB2A ico2/seki/src/GsBase.c  # target side: four strings
 text gsb_UpdateGSSystem 0x001142F8 0x00114418 ico2/seki/src/GsBase.c lines=36  # aug6-only in the census (in GsBase.c's span); gsb_UpdateGSSystem by body ratio 0.83, callees 0.50, sizes 328/288
 text gsb_SetVSMatrixSub 0x00114538 0x001148F4 ico2/seki/src/GsBase.c local lines=91  # ordinal; first difference at insn 0; length:-74; extent-differs
 text gsb_SetVSMatrix 0x001148F8 0x00114ADC ico2/seki/src/GsBase.c lines=38  # ordinal; first difference at insn 0; length:-38; extent-differs
@@ -274,8 +276,11 @@ text gsb_SetBGColor 0x00115118 0x00115170 ico2/seki/src/GsBase.c lines=13  # cen
 text gsb_GetBGColor 0x00115170 0x0011519C ico2/seki/src/GsBase.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text gsb_SetZoom 0x001151A0 0x001151AC ico2/seki/src/GsBase.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text gsb_SyncGSSystem 0x001151B0 0x00115210 ico2/seki/src/GsBase.c lines=15  # trfile; aug6-only in the census; PAL's gsb_SyncGSSystem (100 B in PAL)
+rdlit gsb_SyncGSSystem 0x0054EB30 0x0054EB3B ico2/seki/src/GsBase.c def  # target side: a string, written at the definition
 text gsb_LoadStageSettings 0x00115210 0x001152AC ico2/seki/src/GsBase.c lines=15  # trfile; aug6-only in the census; PAL's gsb_LoadStageSettings (156 B in PAL)
+rdlit gsb_LoadStageSettings 0x0054EB50 0x0054EBBE ico2/seki/src/GsBase.c def  # target side: three strings, written at the definition (the file name gsb_SaveStageSettings shares)
 text gsb_SaveStageSettings 0x001152B0 0x0011534C ico2/seki/src/GsBase.c lines=18  # trfile; aug6-only in the census; PAL's gsb_SaveStageSettings (172 B in PAL)
+rdlit gsb_SaveStageSettings 0x0054EBC0 0x0054EC0E ico2/seki/src/GsBase.c def  # target side: two strings, written at the definition
 text gsb_ClearFrameBuffer 0x00115350 0x001153F4 ico2/seki/src/GsBase.c lines=4  # trfile; aug6-only in the census; PAL's gsb_ClearFrameBuffer (12 B in PAL)
 text light_killLinkLight 0x001153F8 0x00115498 ico2/seki/src/Light.c local lines=21  # ordinal; first difference at insn 10; imm:2; extent-equal
 rdlit light_killLinkLight 0x0054F040 0x0054F064 ico2/seki/src/Light.c align=16  # 2 strings

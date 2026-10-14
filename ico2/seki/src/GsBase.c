@@ -94,8 +94,8 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
 INCLUDE_ASM(gsb_Init);
 
 /* A frame buffer clear packet for the whole screen, 48 doublewords: a GIF tag
-   of 23 A+D writes and the register pairs.  Nothing reads it: the send that
-   copied it is gone from the retail body. */
+   of 23 A+D writes and the register pairs, which gsb_ClearFrameBuffer
+   sends. */
 static const long long clearFramePacket[48] = {
     /* derived name */
     0x1000000000008017LL,
@@ -108,7 +108,7 @@ static const long long clearFramePacket[48] = {
     0x18,
     0x30000,
     0x47,
-    0x130000000LL,
+    0x1300000C0LL,
     0x4E,
     0x200000002000000LL,
     0x40,
@@ -461,6 +461,10 @@ INCLUDE_ASM(gsb_InitGSSystem);
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */
 
+inline int gsb_SyncGSSystem(void);
+
+INCLUDE_ASM_LIT(gsb_SyncGSSystem);
+
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
  * either swapped or cleared, then reopen the frame's register set. */
@@ -494,13 +498,13 @@ void gsb_ResetGSSystem(void)
     gsb_SetGsDefault();
 }
 
-/* the 1500 unit screen the projection proj is scaled to */
-static const float vsScreenSize[] = {1500.0f, 1500.0f, 0.0f, 0.0f}; /* derived name */
+/* the 768 unit screen the projection proj is scaled to */
+static const float vsScreenSize[] = {768.0f, 768.0f, 0.0f, 0.0f}; /* derived name */
 
 /* Build the view matrices from the record gsb_SetVSMatrix fills (vs[0] the
  * zoom, vs[1] and vs[2] the aspect terms, vs[3] and vs[4] the centre, vs[5]
  * and vs[6] the depth range, vs[7] and vs[8] the near and far planes): the
- * screen matrix screen, the perspective projection proj for the 1500 unit
+ * screen matrix screen, the perspective projection proj for the 768 unit
  * screen, the one projHalf for the half size screen, the viewport viewport,
  * and the pair built on a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
  * scale terms are locals of their own. */
@@ -601,58 +605,50 @@ typedef struct sceCdCLOCK {
 } sceCdCLOCK;
 
 inline int gsb_LoadStageSettings(void);
+
+INCLUDE_ASM_LIT(gsb_LoadStageSettings);
+
 inline int gsb_SaveStageSettings(void);
 
-/* one row of the film noise debug menu (the same shape ico2/seki/src/ZFog.c
-   carries for the fog tool): a label, the word it edits, whether that word is
-   a float, its range, its default and its step, and the callback to run once
-   the value has moved. */
+INCLUDE_ASM_LIT(gsb_SaveStageSettings);
+
+/* one row of the stage setting page: a label, the word it edits, its range,
+   its default and its step, and the callback to run once the value has
+   moved. */
 typedef struct GsbToolItem { /* field names derived */
     char *name;              /* 0x00 */
-    void *val;               /* 0x04 */
-    int isFloat;             /* 0x08 */
-    float min;               /* 0x0C */
-    float max;               /* 0x10 */
-    float def;               /* 0x14 */
-    float step;              /* 0x18 */
-    int (*fn)();             /* 0x1C */
+    int *val;                /* 0x04 */
+    int min;                 /* 0x08 */
+    int max;                 /* 0x0C */
+    int def;                 /* 0x10 */
+    int step;                /* 0x14 */
+    int (*fn)();             /* 0x18 */
 } GsbToolItem;               /* derived name */
 
-/* the unselected and selected row colours, as ZFog's fogRowColor */
-static const unsigned int filmNoiseRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
-
-/* the twenty one rows of the stage setting page, each naming a word of the
-   stage record (the words at 0xE4..0xF0, 0xF8, 0x104..0x11C and 0x180..0x190
-   are still padding in typedef.h's StageSetting) */
+/* the seventeen rows of the stage setting page, each naming a word of the
+   stage record */
 static const GsbToolItem stageSettingItems[] = {
     /* derived name */
-    {" HighLight Color R   ", &GlobalStageSetting.reductionCol[0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-     0},
-    {" HighLight Color G   ", &GlobalStageSetting.reductionCol[1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-     0},
-    {" HighLight Color B   ", &GlobalStageSetting.reductionCol[2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-     0},
-    {" Zoom Offset         ", &GlobalStageSetting.viewScale, 0, 5e+01f, 4e+02f, 1e+02f, 1.0f, 0},
-    {" Def Tex Sample Mode ", &GlobalStageSetting.texSampleMode, 0, 0.0f, 5.0f, 5.0f, 1.0f,
-     tex_RemakeRegistersSampleMin},
-    {" Post Effect         ", &GlobalStageSetting.postEffect, 0, 0.0f, 8.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect     ", &GlobalStageSetting.feedbackEffect, 0, 0.0f, 3.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect R   ", &GlobalStageSetting.feedbackCol[0], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect G   ", &GlobalStageSetting.feedbackCol[1], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect B   ", &GlobalStageSetting.feedbackCol[2], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect A   ", &GlobalStageSetting.feedbackCol[3], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" DepthField Level    ", &GlobalStageSetting.depthFieldLevel, 0, 0.0f, 1e+03f, 1e+02f, 1.0f,
-     0},
-    {" DepthField Start    ", &GlobalStageSetting.depthFieldStart, 0, 0.0f, 2e+04f, 2e+03f, 2e+01f,
-     0},
-    {" DepthField Width    ", &GlobalStageSetting.depthFieldWidth, 0, 0.0f, 2e+04f, 1e+04f, 2e+01f,
-     0},
-    {" Motion Blur         ", &GlobalStageSetting.motionBlur, 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
-    {" AntiLevel0          ", &GlobalStageSetting.antiLevel0, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" AntiLevel1          ", &GlobalStageSetting.antiLevel1, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" HighLight Color R   ", &GlobalStageSetting.reductionCol[0], 0, 255, 128, 1, 0},
+    {" HighLight Color G   ", &GlobalStageSetting.reductionCol[1], 0, 255, 128, 1, 0},
+    {" HighLight Color B   ", &GlobalStageSetting.reductionCol[2], 0, 255, 128, 1, 0},
+    {" Zoom Offset         ", &GlobalStageSetting.viewScale, 50, 400, 100, 1, 0},
+    {" Def Tex Sample Mode ", &GlobalStageSetting.texSampleMode, 0, 5, 5, 1, tex_RemakeRegistersSampleMin},
+    {" Post Effect         ", &GlobalStageSetting.postEffect, 0, 8, 0, 1, 0},
+    {" Feedback Effect     ", &GlobalStageSetting.feedbackEffect, 0, 3, 0, 1, 0},
+    {" Feedback Effect R   ", &GlobalStageSetting.feedbackCol[0], 0, 255, 0, 1, 0},
+    {" Feedback Effect G   ", &GlobalStageSetting.feedbackCol[1], 0, 255, 0, 1, 0},
+    {" Feedback Effect B   ", &GlobalStageSetting.feedbackCol[2], 0, 255, 0, 1, 0},
+    {" Feedback Effect A   ", &GlobalStageSetting.feedbackCol[3], 0, 255, 0, 1, 0},
+    {" DepthField Level    ", &GlobalStageSetting.depthFieldLevel, 0, 1000, 100, 1, 0},
+    {" DepthField Start    ", &GlobalStageSetting.depthFieldStart, 0, 20000, 2000, 20, 0},
+    {" DepthField Width    ", &GlobalStageSetting.depthFieldWidth, 0, 20000, 10000, 20, 0},
+    {" Motion Blur         ", &GlobalStageSetting.motionBlur, 0, 127, 32, 1, 0},
+    {" AntiLevel0          ", &GlobalStageSetting.antiLevel0, 0, 255, 24, 1, 0},
+    {" AntiLevel1          ", &GlobalStageSetting.antiLevel1, 0, 255, 24, 1, 0},
 };
 
-/* the unselected and selected row colours, as filmNoiseRowColor */
+/* the unselected and selected row colours, as ZFog's fogRowColor */
 static const unsigned int stageSettingRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
 /* the stage setting page's own copy of the same pair */
@@ -660,7 +656,7 @@ static char *stageSettingOnOffText[] = {"Off", "On"}; /* derived name */
 
 static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 
-/* The stage setting page of the debug menu: twenty one editable words of the
+/* The stage setting page of the debug menu: seventeen editable words of the
  * stage record, the pad keys that walk and change them, and the key that dumps
  * the page to the log. */
 int gsb_StageSettingTool(void);
@@ -686,7 +682,7 @@ static GsbMenuItem stageSettingMenu[] = {
     {"Save Settings", gsb_SaveStageSettings},
 }; /* derived name */
 
-/* the unselected and selected row colours, as filmNoiseRowColor */
+/* the unselected and selected row colours, as stageSettingRowColor */
 static const unsigned int menuRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
 /* the menu row under the cursor and the page it opened, -1 for none */
