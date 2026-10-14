@@ -5,9 +5,66 @@
 #include <eekernel.h>
 #include <sifrpc.h>
 #include <sound.h>
-#include "include_asm.h"
 
-INCLUDE_ASM(audioDecCreate);
+int audioDecCreate(AudioDec *self, int mono, int volume)
+{
+    int pcm[4];
+    int p;
+    int size = 24576;
+    int bufsize = 49152;
+
+    self->pcmInited = 0;
+    self->ch1Open = 0;
+    self->ch0Open = 0;
+
+    p = alloc_zeroed(bufsize, 64);
+    if (p == 0) {
+        return -1;
+    }
+
+    self->state = 0;
+    self->headerBytes = 0;
+    self->ring = p;
+    self->ringSize = bufsize;
+    self->writePos = 0;
+    self->filled = 0;
+    self->putTotal = 0;
+    self->sentTotal = 0;
+    self->iopSize = size;
+    self->iopPos = 0;
+    self->word50 = 0;
+
+    self->iopBuf = sceSifAllocIopHeap(size);
+    if (self->iopBuf == 0) {
+        debug_StdPrintfDummy("Cannot allocate IOP memory\n");
+        return 0;
+    }
+    debug_StdPrintfDummy("Allocate IOP memory 0x%08x\n", self->iopBuf);
+
+    self->mono = mono;
+    self->volume = volume;
+    SgStPcmInit();
+    self->pcmInited = 1;
+
+    pcm[0] = 0;
+    pcm[1] = 0x10400;
+    pcm[2] = self->iopBuf;
+    pcm[3] = size;
+    if ((self->ch0Open = (SgStPcmOpen(pcm) == 0)) == 0) {
+        return -1;
+    }
+
+    pcm[0] = 1;
+    pcm[1] = 0x10400;
+    pcm[2] = self->iopBuf + 0x200;
+    pcm[3] = size;
+    if ((self->ch1Open = (SgStPcmOpen(pcm) == 0)) == 0) {
+        return -1;
+    }
+
+    SgStPcmSetEffect(8);
+    return 0;
+}
 
 inline int audioDecDelete(AudioDec *self)
 {

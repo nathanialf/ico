@@ -767,19 +767,6 @@ lit4 QueenGeo 0x00632E4C 0x00632E58 ico2/ito/src/queen.c  # 3 floats
 text QueenBallGeo 0x001A3418 0x001A3BEC ico2/ito/src/queen.c lines=105  # ordinal; first difference at insn 155; imm:3; extent-equal
 lit4 QueenBallGeo 0x00632EA8 0x00632EAC ico2/ito/src/queen.c  # 1 float
 text QueenBallDL 0x001A3BF0 0x001A3DAC ico2/ito/src/queen.c lines=45  # ordinal; first difference at insn 34; imm:3; extent-equal
-text readBufCreate 0x001A5FA0 0x001A604C ico2/ito/mpeg/mv_readbuf.c lines=13  # ordinal; first difference at insn 13; imm:3; extent-equal
-text videoDecCreate 0x001A61B0 0x001A62F8 ico2/ito/mpeg/mv_videodec.c lines=18  # ordinal; first difference at insn 14; imm:3; extent-equal
-text decBitStrm0 0x001A64F8 0x001A670C ico2/ito/mpeg/mv_videodec.c local lines=47  # ordinal; first difference at insn 110; imm:1; extent-equal
-rdlit decBitStrm0 0x00552A30 0x00552A7F ico2/ito/mpeg/mv_videodec.c  # 3 strings
-text mpegError 0x001A6838 0x001A6860 ico2/ito/mpeg/mv_videodec.c local lines=7  # equal; its out-of-line copy served a stub
-text mpegNodata 0x001A6860 0x001A6890 ico2/ito/mpeg/mv_videodec.c local lines=8  # equal; its out-of-line copy served a stub
-text mpegStopDMA 0x001A6890 0x001A68B0 ico2/ito/mpeg/mv_videodec.c local lines=7  # equal; its out-of-line copy served a stub
-text mpegRestartDMA 0x001A68B0 0x001A68D0 ico2/ito/mpeg/mv_videodec.c local lines=7  # equal; its out-of-line copy served a stub
-text mpegTS 0x001A68D0 0x001A6910 ico2/ito/mpeg/mv_videodec.c local lines=11  # equal; its out-of-line copy served a stub
-text voBufCreate 0x001A6940 0x001A6AA0 ico2/ito/mpeg/mv_vobuf.c lines=24  # ordinal; first difference at insn 14; imm:6; extent-equal
-text voBufIncCount 0x001A6AE0 0x001A6B58 ico2/ito/mpeg/mv_vobuf.c lines=9  # census equal (immediates masked), but lui/ori 0xC0340 -> 0xA0A40 at insn 6
-text voBufGetData 0x001A6B58 0x001A6B8C ico2/ito/mpeg/mv_vobuf.c lines=4  # census equal (immediates masked), but lui/ori at insn 5
-text voBufGetTag 0x001A6B90 0x001A6BE4 ico2/ito/mpeg/mv_vobuf.c lines=4  # census equal (immediates masked), but lui/ori at insn 5
 text CSVSYSTEM_InitDObj 0x001A78D0 0x001A7AA8 ico2/common/src/DObj.c lines=24  # ordinal; first difference at insn 32; imm:1; extent-equal
 rdlit CSVSYSTEM_InitDObj 0x006122F0 0x00612392 ico2/common/src/DObj.c  # 5 strings
 text StageManager 0x001A8238 0x001A8524 ico2/common/src/StageManager.c lines=94  # ordinal; first difference at insn 111; imm:1; extent-equal
@@ -1629,14 +1616,10 @@ text actWave1 0x00252398 0x0025241C ico2/script/src/st99a.c lines=15  # ordinal;
 text actSt27aWave1 0x00252448 0x002524CC ico2/script/src/st99a.c lines=15  # ordinal; first difference at insn 7; imm:5; extent-equal
 text actSt17aTestChk 0x00252538 0x002525A4 ico2/script/src/st99a.c local lines=10  # ordinal; first difference at insn 12; imm:2; extent-equal
 text ObjAction_CorrectGeo 0x002543A0 0x0025441C ico2/omori/src/objact.c lines=11  # ordinal; first difference at insn 21; imm:2; extent-equal
-text audioDecCreate 0x002545D8 0x0025478C ico2/ito/mpeg/mv_audiodec.c lines=59  # ordinal; first difference at insn 3; imm:3; extent-equal
-rdlit audioDecCreate 0x0061C410 0x0061C44C ico2/ito/mpeg/mv_audiodec.c  # 2 strings
 text dispClear 0x00255118 0x00255290 ico2/ito/mpeg/mv_disp.c lines=19  # ordinal; first difference at insn 1; length:+1; extent-differs
 text setDispEnv 0x00255290 0x00255488 ico2/ito/mpeg/mv_disp.c lines=27  # ordinal; first difference at insn 0; length:+7; extent-differs
 text dispCreate 0x00255500 0x002555A4 ico2/ito/mpeg/mv_disp.c lines=15  # ordinal; first difference at insn 4; length:-4; extent-differs
 text dispSetTags 0x002555A8 0x00255B08 ico2/ito/mpeg/mv_disp.c lines=58  # ordinal; first difference at insn 0; length:+76; extent-differs
-text vblankHandler 0x00255B40 0x00255CC8 ico2/ito/mpeg/mv_disp.c lines=35  # census equal (immediates masked), but ori 0x6740 -> 0x0240 at insn 48
-text viBufCreate 0x00256678 0x00256838 ico2/ito/mpeg/mv_vibuf.c lines=47  # ordinal; first difference at insn 13; imm:9; extent-equal
 text InitWindMillGeo 0x00258DE8 0x00258F50 ico2/sugipon/src/windmill.c lines=31  # PAL-only in the census (windmill.c moved), same size and order; differs at insn 16
 
 # Function-scope statics in .data that a carved function's C defined (gcc

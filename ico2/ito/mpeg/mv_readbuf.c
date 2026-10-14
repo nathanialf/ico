@@ -1,8 +1,19 @@
 #include "mv_defs.h"
 #include "mv_readbuf.h"
-#include "include_asm.h"
 
-INCLUDE_ASM(readBufCreate);
+int readBufCreate(ReadBuf *self)
+{
+    int buf;
+
+    buf = alloc_zeroed(327680, 64);
+    self->data = (unsigned char *)buf;
+    if (buf == 0) {
+        return -1;
+    }
+    self->size = 327680;
+    self->put = self->count = 0;
+    return 0;
+}
 
 void readBufDelete(ReadBuf *self) {}
 
