@@ -125,12 +125,6 @@ lit4 actItouQueenAttackChk 0x00632C6C 0x00632C78 ico2/script/src/st25a.c  # 3 fl
 text monitorMonitorCamera 0x0018F938 0x001900D8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 2; length:-99; extent-differs
 lit4 monitorMonitorCamera 0x00632C88 0x00632C94 ico2/omori/src/camera-ico2.c  # 3 floats; target side (DISAGREE)
 rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  # 2 doubles; target side (DISAGREE)
-text subBirdBrainMain 0x0019DF88 0x0019F3BC ico2/ito/src/act_bird.c lines=522  # ordinal; first difference at insn 697; imm:4; extent-equal
-lit4 subBirdBrainMain 0x00632DC0 0x00632E14 ico2/ito/src/act_bird.c  # 21 floats
-rdlit subBirdBrainMain 0x005509F0 0x00550A34 ico2/ito/src/act_bird.c align=16  # 4 strings
-rdlit subBirdBrainMain 0x00550A40 0x00550A64 ico2/ito/src/act_bird.c align=16  # 1 jtbl
-sdlit subBirdBrainMain 0x006346E8 0x0063471F ico2/ito/src/act_bird.c  # 7 strings
-text BirdDL 0x0019F5C8 0x0019F628 ico2/ito/src/act_bird.c lines=15  # ordinal; first difference at insn 15; imm:1; extent-equal
 text gene_enemy 0x001A21A0 0x001A24EC ico2/ito/src/queen.c file=gene_enemy_queen lines=79  # ordinal; first difference at insn 187; imm:1; extent-equal
 text QueenGeo 0x001A2E70 0x001A2F20 ico2/ito/src/queen.c lines=16  # ordinal; first difference at insn 17; imm:1; extent-equal
 lit4 QueenGeo 0x00632E4C 0x00632E58 ico2/ito/src/queen.c  # 3 floats
