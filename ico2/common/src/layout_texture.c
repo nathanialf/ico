@@ -461,7 +461,7 @@ static void display_texture(int no, LtProperty *e)
     box.y = (e->dispY - 113) * 16;
 
     sel = (e == &texProperty[texLayout[no].curItem]);
-    if (sel && lt_item_select_disable == 0 && fadeState == 2 && e->selectable == 0) {
+    if (sel && lt_item_select_disable == 0 && fadeState == 2) {
         SprCol pcol;
 
         memset(&pcol, 0, sizeof(pcol));
@@ -519,21 +519,14 @@ static void display_texture(int no, LtProperty *e)
                 u.col.b = 0;
             }
         }
-        if (texLayout[no].curItem != e->ownerItem) {
-            if (e->selectable != 0 && sel == 0 && (flag != 0 || e->ownerItem >= 0)) {
-                u.col.r = u.col.r * 0.5f;
-                u.col.g = u.col.g * 0.5f;
-                u.col.b = u.col.b * 0.5f;
-            }
-        }
         gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, &u.col, 1);
 
-        if (e->selectable != 0 && sel != 0 && fadeState == 8) {
+        if (sel != 0 && fadeState == 8) {
             float t = (float)fadeCount / (float)fadeLength;
 
             lt_glow_sprite(&box, &ofs, 80, 80, 80, t, 55, 50);
             lt_glow_sprite(&box, &ofs, 30, 30, 30, t, 110, 100);
-        } else if (e->selectable != 0 && sel != 0 && glowOn != 0) {
+        } else if (sel != 0 && glowOn != 0) {
             lt_glow_sprite(&box, &ofs, 54, 80, 115, (float)glowCount / (float)glowLength, 32, 32);
         }
         gif_SetZWrite(1);
@@ -569,11 +562,7 @@ static void display_primary_texture_layout(int no, int sel)
     col.a = (int)(p->colA * 127.0f);
     lt_draw_primary_sprite(&col);
     if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
-        if (p->curItem >= 0) {
-            m = texProperty[p->curItem].selectMode;
-        } else {
-            m = 0;
-        }
+        m = 0;
         sel = p->proc(ltSelectFlag, sel);
         if (sel != -1) {
             flag = 0;

@@ -1828,10 +1828,7 @@ void subBoyCollision(GObj *volatile self)
                 sub->dir[2] = vec[2];
             }
             if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
-                SetMotionDirectionSmooze(self, sub->dir,
-                                         (float)(((void *)self == girlGObj && girlControlMode != 0)
-                                                     ? CHAINROW(self)->girlDirFrames
-                                                     : CHAINROW(self)->dirFrames));
+                SetMotionDirectionSmooze(self, sub->dir, (float)CHAINROW(self)->dirFrames);
             }
         }
         CommonAttackCenter((void *)self);

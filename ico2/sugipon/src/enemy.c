@@ -470,7 +470,6 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
     w->flyXZAccel = 1.0f;
     kind = enemyInitPartsList(self, param);
     w->def = kind;
-    w->flyXZAccel = enemyKind[kind].float0C;
     InitMotionOrient(self, 0x84A, 0x967, 0x18, 0x24, 0x342);
     no = enemyVariation;
     SUBOF(self)->ctrl.variation = no;

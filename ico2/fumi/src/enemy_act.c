@@ -598,11 +598,8 @@ void subEnemyCollision(GObj *volatile self)
         }
         if ((stage_no == 19 || stage_no == 28) && sub->actMode == 6) {
         } else if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
-            SetMotionDirectionSmooze(
-                self, dir,
-                (float)((self == girlGObj && girlControlMode != 0)
-                            ? motionKind[GOBJ_SUB(self)->ctrl.motion].girlDirFrames
-                            : motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames));
+            SetMotionDirectionSmooze(self, dir,
+                                     (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
         }
         if (actEnemyFlagCheckDead(self) == 0) {
             ACTGame_SaveActorInformation(self);
@@ -1206,11 +1203,8 @@ void actEnemyKidnapBegin(GObj *volatile self)
         if (GOBJ_SUB(self)->ctrl.motion == 0x3AA) {
             _OrientXZGV(dir, test_CURRENTROOT((girlGObj)), test_CURRENTROOT(self));
             if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
-                SetMotionDirectionSmooze(
-                    (void *)self, dir,
-                    (float)((self == girlGObj && girlControlMode != 0)
-                                ? motionKind[GOBJ_SUB(self)->ctrl.motion].girlDirFrames
-                                : motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames));
+                SetMotionDirectionSmooze((void *)self, dir,
+                                         (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
             }
             mode = enemyKidnapCheckGirl(self);
             switch (mode) {

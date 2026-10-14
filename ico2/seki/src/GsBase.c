@@ -1237,125 +1237,6 @@ inline int gsb_SaveStageSettings(void)
     return -1;
 }
 
-/* The stage setting page of the debug menu: twenty one editable words of the
- * stage record, the pad keys that walk and change them, and the key that dumps
- * the page to the log. */
-int gsb_StageSettingTool(void)
-{
-    int i;
-    int ret = 0;
-
-    debug_PrintfDummy(10, 30, 0xFF800000, "StageSetting Tool");
-
-    for (i = 0; i < 21; i++) {
-        if (stageSettingItems[i].min == 0.0f && stageSettingItems[i].max == 1.0f &&
-            stageSettingItems[i].isFloat == 0) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30,
-                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %s",
-                              stageSettingItems[i].name,
-                              stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
-        } else if (stageSettingItems[i].isFloat == 0) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30,
-                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %d",
-                              stageSettingItems[i].name, *(int *)stageSettingItems[i].val);
-        } else {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30,
-                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %f",
-                              stageSettingItems[i].name, *(float *)stageSettingItems[i].val);
-        }
-    }
-
-    if (pad[0].rep & 0x4000) {
-        if (++stageSettingRow >= 21) {
-            stageSettingRow = 0;
-        }
-    }
-    if (pad[0].rep & 0x1000) {
-        if (--stageSettingRow < 0) {
-            stageSettingRow = 20;
-        }
-    }
-    if (pad[0].rep & 0x2000) {
-        if (stageSettingItems[stageSettingRow].isFloat == 0) {
-            int v = (float)*(int *)stageSettingItems[stageSettingRow].val +
-                    stageSettingItems[stageSettingRow].step;
-
-            *(int *)stageSettingItems[stageSettingRow].val = v;
-            if (stageSettingItems[stageSettingRow].max < (float)v) {
-                *(int *)stageSettingItems[stageSettingRow].val =
-                    stageSettingItems[stageSettingRow].min;
-            }
-        } else {
-            float v = *(float *)stageSettingItems[stageSettingRow].val +
-                      stageSettingItems[stageSettingRow].step;
-
-            *(float *)stageSettingItems[stageSettingRow].val = v;
-            if (stageSettingItems[stageSettingRow].max < v) {
-                *(float *)stageSettingItems[stageSettingRow].val =
-                    stageSettingItems[stageSettingRow].min;
-            }
-        }
-        if (stageSettingItems[stageSettingRow].fn != 0) {
-            stageSettingItems[stageSettingRow].fn(0);
-        }
-    }
-    if (pad[0].rep & 0x8000) {
-        if (stageSettingItems[stageSettingRow].isFloat == 0) {
-            int v = (float)*(int *)stageSettingItems[stageSettingRow].val -
-                    stageSettingItems[stageSettingRow].step;
-
-            *(int *)stageSettingItems[stageSettingRow].val = v;
-            if ((float)v < stageSettingItems[stageSettingRow].min) {
-                *(int *)stageSettingItems[stageSettingRow].val =
-                    stageSettingItems[stageSettingRow].max;
-            }
-        } else {
-            float v = *(float *)stageSettingItems[stageSettingRow].val -
-                      stageSettingItems[stageSettingRow].step;
-
-            *(float *)stageSettingItems[stageSettingRow].val = v;
-            if (v < stageSettingItems[stageSettingRow].min) {
-                *(float *)stageSettingItems[stageSettingRow].val =
-                    stageSettingItems[stageSettingRow].max;
-            }
-        }
-        if (stageSettingItems[stageSettingRow].fn != 0) {
-            stageSettingItems[stageSettingRow].fn(0);
-        }
-    }
-    if (pad[0].flags & 0x10) {
-        if (stageSettingItems[stageSettingRow].isFloat == 0) {
-            *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].def;
-        } else {
-            *(float *)stageSettingItems[stageSettingRow].val =
-                stageSettingItems[stageSettingRow].def;
-        }
-    }
-    if (pad[0].flags & 0x20) {
-        for (i = 0; i < 21; i++) {
-            if (stageSettingItems[i].min == 0.0f && stageSettingItems[i].max == 1.0f &&
-                stageSettingItems[i].isFloat == 0) {
-                debug_StdPrintfDummy("StageSetting %s => %s\n", stageSettingItems[i].name,
-                                     stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
-            } else if (stageSettingItems[i].isFloat == 0) {
-                debug_StdPrintfDummy("StageSetting %s => %d\n", stageSettingItems[i].name,
-                                     *(int *)stageSettingItems[i].val);
-            } else {
-                debug_StdPrintfDummy("StageSetting %s => %f\n", stageSettingItems[i].name,
-                                     *(float *)stageSettingItems[i].val);
-            }
-        }
-        ret = 1;
-    }
-    if (pad[0].flags & 0x40) {
-        ret = -1;
-    }
-    if (ret != 0) {
-        stageSettingRow = 0;
-    }
-    return ret;
-}
-
 /* one row of the film noise debug menu (the same shape ico2/seki/src/ZFog.c
    carries for the fog tool): a label, the word it edits, whether that word is
    a float, its range, its default and its step, and the callback to run once
@@ -1487,6 +1368,125 @@ static const unsigned int stageSettingRowColor[] = {0xFFFFFF00, 0xFF000000}; /* 
 static char *stageSettingOnOffText[] = {"Off", "On"}; /* derived name */
 
 static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
+
+/* The stage setting page of the debug menu: twenty one editable words of the
+ * stage record, the pad keys that walk and change them, and the key that dumps
+ * the page to the log. */
+int gsb_StageSettingTool(void)
+{
+    int i;
+    int ret = 0;
+
+    debug_PrintfDummy(10, 30, 0xFF800000, "StageSetting Tool");
+
+    for (i = 0; i < 21; i++) {
+        if (stageSettingItems[i].min == 0.0f && stageSettingItems[i].max == 1.0f &&
+            stageSettingItems[i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %s",
+                              stageSettingItems[i].name,
+                              stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
+        } else if (stageSettingItems[i].isFloat == 0) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %d",
+                              stageSettingItems[i].name, *(int *)stageSettingItems[i].val);
+        } else {
+            debug_PrintfDummy(18, (i + 1) * 8 + 30,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %f",
+                              stageSettingItems[i].name, *(float *)stageSettingItems[i].val);
+        }
+    }
+
+    if (pad[0].rep & 0x4000) {
+        if (++stageSettingRow >= 21) {
+            stageSettingRow = 0;
+        }
+    }
+    if (pad[0].rep & 0x1000) {
+        if (--stageSettingRow < 0) {
+            stageSettingRow = 20;
+        }
+    }
+    if (pad[0].rep & 0x2000) {
+        if (stageSettingItems[stageSettingRow].isFloat == 0) {
+            int v = (float)*(int *)stageSettingItems[stageSettingRow].val +
+                    stageSettingItems[stageSettingRow].step;
+
+            *(int *)stageSettingItems[stageSettingRow].val = v;
+            if (stageSettingItems[stageSettingRow].max < (float)v) {
+                *(int *)stageSettingItems[stageSettingRow].val =
+                    stageSettingItems[stageSettingRow].min;
+            }
+        } else {
+            float v = *(float *)stageSettingItems[stageSettingRow].val +
+                      stageSettingItems[stageSettingRow].step;
+
+            *(float *)stageSettingItems[stageSettingRow].val = v;
+            if (stageSettingItems[stageSettingRow].max < v) {
+                *(float *)stageSettingItems[stageSettingRow].val =
+                    stageSettingItems[stageSettingRow].min;
+            }
+        }
+        if (stageSettingItems[stageSettingRow].fn != 0) {
+            stageSettingItems[stageSettingRow].fn(0);
+        }
+    }
+    if (pad[0].rep & 0x8000) {
+        if (stageSettingItems[stageSettingRow].isFloat == 0) {
+            int v = (float)*(int *)stageSettingItems[stageSettingRow].val -
+                    stageSettingItems[stageSettingRow].step;
+
+            *(int *)stageSettingItems[stageSettingRow].val = v;
+            if ((float)v < stageSettingItems[stageSettingRow].min) {
+                *(int *)stageSettingItems[stageSettingRow].val =
+                    stageSettingItems[stageSettingRow].max;
+            }
+        } else {
+            float v = *(float *)stageSettingItems[stageSettingRow].val -
+                      stageSettingItems[stageSettingRow].step;
+
+            *(float *)stageSettingItems[stageSettingRow].val = v;
+            if (v < stageSettingItems[stageSettingRow].min) {
+                *(float *)stageSettingItems[stageSettingRow].val =
+                    stageSettingItems[stageSettingRow].max;
+            }
+        }
+        if (stageSettingItems[stageSettingRow].fn != 0) {
+            stageSettingItems[stageSettingRow].fn(0);
+        }
+    }
+    if (pad[0].flags & 0x10) {
+        if (stageSettingItems[stageSettingRow].isFloat == 0) {
+            *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].def;
+        } else {
+            *(float *)stageSettingItems[stageSettingRow].val =
+                stageSettingItems[stageSettingRow].def;
+        }
+    }
+    if (pad[0].flags & 0x20) {
+        for (i = 0; i < 21; i++) {
+            if (stageSettingItems[i].min == 0.0f && stageSettingItems[i].max == 1.0f &&
+                stageSettingItems[i].isFloat == 0) {
+                debug_StdPrintfDummy("StageSetting %s => %s\n", stageSettingItems[i].name,
+                                     stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
+            } else if (stageSettingItems[i].isFloat == 0) {
+                debug_StdPrintfDummy("StageSetting %s => %d\n", stageSettingItems[i].name,
+                                     *(int *)stageSettingItems[i].val);
+            } else {
+                debug_StdPrintfDummy("StageSetting %s => %f\n", stageSettingItems[i].name,
+                                     *(float *)stageSettingItems[i].val);
+            }
+        }
+        ret = 1;
+    }
+    if (pad[0].flags & 0x40) {
+        ret = -1;
+    }
+    if (ret != 0) {
+        stageSettingRow = 0;
+    }
+    return ret;
+}
 
 /* The stage lock file's name, and the owner name read back out of it. */
 static char lockFileName[256]; /* derived name */

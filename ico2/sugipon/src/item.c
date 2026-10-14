@@ -302,7 +302,7 @@ static void carriedItemGeo(GObj *gobj)
 
 /* start the break animation of a broken item; BreakItemFromOutside and
    BreakItemWithAttackHit use it */
-static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg) /* derived name */
+static inline int entryBreakBgAnimation(int id, float *pos, float *dir) /* derived name */
 {
     float rot[4];
     float d[4];
@@ -314,7 +314,7 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
         d[1] = 0.0f;
         _NormalizeVector(d, d);
         RotQuaternionY(&rot, GetTableArcTan2(d[0], d[2]));
-        EntryStageMultiBgaManagerWithStay(id, pos, &rot, arg);
+        EntryStageMultiBgaManager(id, pos, &rot);
         return 1;
     }
     return 0;
@@ -344,8 +344,7 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
             _NormalizeVector(d, d);
             RotQuaternionY(&rot, GetTableArcTan2(d[0], d[2]));
             _ScaleVectorXYZ(sv, vel, 0.3f);
-            EntryStageMultiBgaManagerSensitiveWithStay(id, pos, &rot, sv,
-                                                       itemKind[p->kind].stayMode);
+            EntryStageMultiBgaManagerSensitive(id, pos, &rot, sv);
             SetParticleEffect(10, pos, &rot);
         }
         if ((itemKind + p->kind)->flags & 1) {
@@ -364,7 +363,7 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
     ItemWork *p = GOBJ_SUB(gobj)->work;
 
     if (10.0f < len) {
-        entryBreakBgAnimation(itemKind[p->kind].breakAnim, pos, vel, itemKind[p->kind].breakMode);
+        entryBreakBgAnimation(itemKind[p->kind].breakAnim, pos, vel);
         if ((itemKind + p->kind)->flags & 1) {
             ExecuteSEPackage(gobj, 43);
             return 1;
@@ -743,7 +742,7 @@ int BreakItemFromOutside(GObj *gobj)
         p->fuse.state = 2;
     } else {
         GetRootPosition(pos, gobj);
-        entryBreakBgAnimation(itemKind[p->kind].dropAnim, pos, ZeroVector, 0);
+        entryBreakBgAnimation(itemKind[p->kind].dropAnim, pos, ZeroVector);
         ExecuteSEPackage(gobj, 43);
         if (GetItemKindInline(gobj) == 6) {
             _AttackCenter(gobj, 17, pos, 0, 200.0f, 0);

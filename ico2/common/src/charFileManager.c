@@ -231,11 +231,6 @@ void ReadTextureFile(void *h, char *name, int size, int id, int kind, int word08
         return;
     }
     iosCdvdHandlerRead(h, buf, size);
-    if (kind == 55 && seg == 1 && texFile[id].cameraMove != 0) {
-        if (texFile[id].cameraMove != NonLinearCameraMove) {
-            flag = seg;
-        }
-    }
     if (flag == 0) {
         rv = tex_InitTexture(name, buf);
     }
