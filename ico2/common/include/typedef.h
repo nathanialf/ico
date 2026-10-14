@@ -1543,10 +1543,10 @@ typedef struct { /* field names derived */
 
 /* RECONSTRUCTION, names ours: one memory card's product file, 0x1E8 bytes,
  * the record mcard.c's product_write and product_read move whole: the twenty
- * save files' previews, then the options and the last save's place. The
- * December 2001 record: PAL's adds cameraMove and palMode at 0x1E8 and aligns
- * the record to 16 (0x1F0); here product_write and product_read move 488
- * bytes and index the two files 488 apart.
+ * save files' previews, then the options and the last save's place; 8-byte
+ * aligned. The December 2001 record: PAL's adds cameraMove and palMode at
+ * 0x1E8 and aligns the record to 16 (0x1F0); here product_write and
+ * product_read move 488 bytes and index the two files 488 apart.
  * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c,
  * common/src/kanbanBoot.c. */
 typedef struct {        /* field names derived */
@@ -1566,7 +1566,7 @@ typedef struct {         /* field names derived */
     char padConf[64];    /* 0x1A0, iosPadConfCustom's bits */
     int fileNo;          /* 0x1E0, the card's current file */
     int serial;          /* 0x1E4, the serial of the save it holds */
-} McProductFile;         /* derived name */
+} McProductFile __attribute__((aligned(8))); /* derived name */
 
 /* mcard.c's two product files, one per port */
 extern McProductFile IosMcProductFile[];

@@ -22,7 +22,6 @@
 #include "s_init.h"
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 static int _la_set_current_port_2(void *p, int first);
 static int _la_set_current_port_lock_2(void *p, int first);
@@ -124,6 +123,19 @@ void NEGATIVE_SE()
 void CUR_SE(void)
 {
     soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
+}
+
+inline int PSH_POSITIVE_OR_NEGATIVE(int idx)
+{
+    int v = pad[idx].flags;
+    if ((v & 0x20) != 0)
+        goto one;
+    if ((v & 0x40) == 0)
+        goto zero;
+one:
+    return 1;
+zero:
+    return 0;
 }
 
 void la_TESTFUNCTION(void)
@@ -597,17 +609,216 @@ static int _la_set_current_port_new(McMgr *p, int first)
     return r;
 }
 
-INCLUDE_ASM(la_vibe_select);
+inline int la_boot_memory_card_check(void)
+{
+    if (kanbanBootEnd == 0) {
+        return -1;
+    }
+    systemStatus[11] = 7;
+    layout_boot_flag = 1;
+    lt_set_item_select_func(0);
+    actionStarted = 0;
+    return 0x34;
+}
+
+inline int la_boot_no_memory_card(int first, int item)
+{
+    debug_StdPrintfDummy("no memoca\n");
+    return item;
+}
+
+inline int la_boot_no_free_area(int first, int item)
+{
+    debug_StdPrintfDummy("no free\n");
+    return item;
+}
+
+inline int la_boot_confirm_memory_card(void)
+{
+    if (pad[0].flags & 0x20) {
+        return lt_link_layout(0);
+    }
+    return -1;
+}
+
+inline void keyconfig_reset(void)
+{
+    KeyConf def = {{0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200,
+                    0x0400, 0x0800, 0x1000, 0x2000, 0x4000, 0x8000}};
+
+    *(KeyConf *)iosPadConfCustom.bit = def;
+}
+
+int la_vibe_select(void)
+{
+    if (lt_fade_status() == 2 && (pad[0].flags & 0x820)) {
+        soundSeDefPlay(415, 0xFFFFFFFF, 0, 0);
+        switch (lt_current_property_item()) {
+        case 0xE:
+            iosPadActRequestEnable = 1;
+            break;
+        case 0xF:
+            iosPadActRequestEnable = 0;
+            break;
+        }
+        if (titleAdpcm != 0) {
+            titleAdpcm->stream->fadeStep = 0x80;
+        }
+        titleAdpcm = 0;
+        gflagInit();
+        keyconfig_reset();
+        systemStatus[4] = 0;
+        gflagOn(382);
+        return -1;
+    }
+    if (lt_fade_status() != 2) {
+        return -1;
+    }
+    if ((pad[0].flags & 0x40) == 0) {
+        return -1;
+    }
+    NEGATIVE_SE();
+    lt_set_item_select_func(0);
+    actionStarted = 0;
+    return 0x9;
+}
+
+inline int la_scei_logo(int first)
+{
+    if (first) {
+        stgmgrNextStagePreLoadForceStageSet(0);
+        logoIcoMiscLock = lock_execIcoMisc;
+        systemStatus[5] = 1;
+        iosPadEnable();
+        isysGObjActiveLink(0, 0);
+        gflagOff(386);
+        if (layout_boot_flag == 0) {
+            layout_boot_flag = 1;
+        }
+    }
+    return -1;
+}
 
 int title_demo_mode = 0;
 
+inline int la_title_demo(void)
+{
+    return -1;
+}
+
 static int continueDecided = 0; /* derived name */
 
-INCLUDE_ASM(la_title_continue_or_new);
+int la_title_continue_or_new(int first)
+{
+    if (first) {
+        opTitleLogoMode = 1;
+        continueIcoMiscLock = lock_execIcoMisc;
+        iosPadEnable();
+        isysGObjActiveLink(0, 1);
+        systemStatus[5] = 0;
+        gflagOff(382);
+        if (gflagChk(385) == 0) {
+            gflagOn(385);
+        }
+        continueDecided = 0;
+        lt_continue_selected = 0;
+    }
+    if (continueDecided != 0) {
+        lt_item_select_disable = 0;
+        lt_mask_property(0x14, 0);
+        lt_mask_property(0x15, 0);
+    } else {
+        lt_item_select_disable = 1;
+        lt_mask_property(0x14, 1);
+        lt_mask_property(0x15, 1);
+    }
+    if (continueDecided != 0 && (pad[0].flags & 0x820) && lt_fade_status() == 2) {
+        lt_continue_selected = 1;
+        soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
+        switch (lt_current_property_item()) {
+        case 0x14:
+            opTitleLogoMode = 2;
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x11;
+        case 0x15:
+            opTitleLogoMode = 2;
+            gFlagGameClear = 0;
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 6;
+        }
+    }
+    switch (_la_set_current_port_2(&mc, first)) {
+    case 0:
+        break;
+    case 1:
+        if ((curPortInfo->flags.w & 0x22) == 2) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0xA;
+        }
+        continueDecided = 1;
+        break;
+    case -1:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0xA;
+    }
+    return -1;
+}
 
 static int newGameDecided = 0; /* derived name */
 
-INCLUDE_ASM(la_title_new_game_only);
+int la_title_new_game_only(int first)
+{
+    if (first) {
+        opTitleLogoMode = 1;
+        newGameIcoMiscLock = lock_execIcoMisc;
+        iosPadEnable();
+        isysGObjActiveLink(0, 1);
+        systemStatus[5] = 0;
+        gflagOff(382);
+        if (gflagChk(385) == 0) {
+            gflagOn(385);
+        }
+        newGameDecided = 0;
+        lt_continue_selected = 0;
+        lastPort = -1;
+    }
+    if (newGameDecided != 0) {
+        lt_item_select_disable = 0;
+        lt_mask_property(22, 0);
+    } else {
+        lt_item_select_disable = 1;
+        lt_mask_property(22, 1);
+    }
+    if (newGameDecided != 0 && (pad[0].flags & 0x820) && lt_fade_status() == 2) {
+        soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
+        lt_continue_selected = 1;
+        opTitleLogoMode = 2;
+        gFlagGameClear = 0;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 6;
+    }
+    switch (_la_set_current_port_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        newGameDecided = 1;
+        break;
+    case 1:
+        if ((curPortInfo->flags.w >> 5) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 9;
+        }
+        newGameDecided = 1;
+        break;
+    }
+    return -1;
+}
 
 static int filePort = -1; /* derived name */
 
@@ -620,6 +831,37 @@ static int savedFileNo = 0; /* derived name */
 static int fileMoved = 0; /* derived name */
 
 static int fileFirst = 1; /* derived name */
+
+static inline int la_mc_saved_file_select(int item)
+{
+    int i = item - 0x21;
+    int old = i;
+
+    lt_analog2Pad();
+    do {
+        if (pad[0].flags & 0x1000) {
+            i += 5;
+        } else if (pad[0].flags & 0x4000) {
+            i -= 5;
+        } else if (pad[0].flags & 0x8000) {
+            i -= 1;
+        } else if (pad[0].flags & 0x2000) {
+            i += 1;
+        } else if (IosMcProductFile[filePort].file[i].stage == 0xFFFFFFFF) {
+            i++;
+        }
+        if (i < 0) {
+            i += 10;
+        }
+        if (i >= 10) {
+            i -= 10;
+        }
+    } while (IosMcProductFile[filePort].file[i].stage == 0xFFFFFFFF);
+    if (old != i) {
+        CUR_SE();
+    }
+    return i + 0x21;
+}
 
 /* the selected port's current file number, 0 when the port has no card or
    the file is empty; inlined into la_mc_file_select both directly and
@@ -644,9 +886,67 @@ static inline int mcFileNoOfPort(void) /* derived name */
     return mcCurrentFileNo();
 }
 
-INCLUDE_ASM(la_mc_file_select);
+int la_mc_file_select(int first)
+{
+    int i;
 
-INCLUDE_ASM(_la_mask_preview_info);
+    curFile = lt_current_property_item() - 33;
+
+    if (first) {
+        fileFirst = 1;
+        fileMoved = 0;
+    }
+
+    if (actionStarted == 0) {
+        lt_item_select_disable = 1;
+        return -1;
+    }
+
+    if (fileFirst != 0) {
+        fileFirst = 0;
+        if (mcLoadMode != 0) {
+            curFile = mcCurrentFileNo();
+        } else {
+            curFile = mcFileNoOfPort();
+        }
+        texLayout[11].curItem = curFile + 33;
+        fileMoved = 1;
+    }
+
+    for (i = 0; i < 10; i++) {
+        if (((fileMask >> i) & 1) && IosMcProductFile[filePort].file[i].stage != 0xFFFFFFFF) {
+            lt_mask_property(i + 33, 0);
+            lt_mask_property(i + 23, 1);
+        } else {
+            lt_mask_property(i + 33, 1);
+            lt_mask_property(i + 23, 0);
+        }
+    }
+
+    previewInfo = *(struct McPreview *)&IosMcProductFile[filePort].file[curFile];
+
+    return (pad[0].flags & 0x30) ? curFile : -1;
+}
+
+static void _la_mask_preview_info(void)
+{
+    int i;
+
+    for (i = 0; i < 10; i++) {
+        lt_mask_property(i + 47, 1);
+        lt_mask_property(i + 57, 1);
+        lt_mask_property(i + 67, 1);
+        lt_mask_property(i + 77, 1);
+        lt_mask_property(i + 87, 1);
+        lt_mask_property(i + 97, 1);
+    }
+    lt_mask_property(45, 1);
+    lt_mask_property(46, 1);
+    for (i = 0; i < 39; i++) {
+        lt_mask_property(i + 108, 1);
+    }
+    lt_mask_property(107, 1);
+}
 
 /* the play time of a save record split into hours, minutes and seconds and
    clamped to 99:59:59, inlined into _la_set_preview_info, la_load_processing
@@ -666,32 +966,361 @@ static inline void playTime(struct McPreview *p, int *hour, int *min, int *sec) 
     }
 }
 
-INCLUDE_ASM(_la_set_preview_info);
+static void _la_set_preview_info(void)
+{
+    int hour;
+    int min;
+    int sec;
+    int n;
+
+    _la_mask_preview_info();
+
+    if (((fileMask >> curFile) & 1) == 0) {
+        return;
+    }
+    if (IosMcProductFile[filePort].file[curFile].stage == 0xFFFFFFFF) {
+        return;
+    }
+
+    playTime(&previewInfo, &hour, &min, &sec);
+
+    hour = ((hour / 10 + 9) % 10) * 10 + (hour % 10 + 9) % 10;
+    min = ((min / 10 + 9) % 10) * 10 + (min % 10 + 9) % 10;
+    sec = ((sec / 10 + 9) % 10) * 10 + (sec % 10 + 9) % 10;
+
+    lt_mask_property(47 + hour / 10, 0);
+    lt_mask_property(57 + hour % 10, 0);
+    lt_mask_property(67 + min / 10, 0);
+    lt_mask_property(77 + min % 10, 0);
+    lt_mask_property(87 + sec / 10, 0);
+    lt_mask_property(97 + sec % 10, 0);
+    lt_mask_property(45, 0);
+    lt_mask_property(46, 0);
+
+    n = previewInfo.stage;
+    if (n == 61) {
+        n = 38;
+    }
+    if (n >= 3 && n < 56) {
+        switch (previewInfo.sofa) {
+        case 329:
+            n = 39;
+            break;
+        case 331:
+            n = 40;
+            break;
+        }
+        lt_mask_property(n + 105, 0);
+        if (previewInfo.cleared != 0) {
+            lt_mask_property(107, 0);
+        }
+    }
+}
+
+inline int la_mc_preview_info(void)
+{
+    if (fileMask == 0) {
+        if ((1 >> curFile) & 1) {
+            return -1;
+        }
+    }
+    _la_set_preview_info();
+    return -1;
+}
+
+inline int la_mc_current_slot(void)
+{
+    lt_mask_property(0x93, curPort);
+    lt_mask_property(0x94, curPort ^ 1);
+    return -1;
+}
 
 /* the load screen's default item; inlined once, into
    la_load_game_memory_card_check */
 static inline void setLoadGameStartItem(void) /* derived name */
 {
     if (loadSerial == IosMcProductFile[0].serial || saveSerial != IosMcProductFile[1].serial) {
-        texLayout[17].defaultItem = 186;
+        texLayout[14].defaultItem = 158;
     } else {
-        texLayout[17].defaultItem = 187;
+        texLayout[14].defaultItem = 159;
     }
 }
 
-INCLUDE_ASM(la_load_game_memory_card_check);
+int la_load_game_memory_card_check(int first)
+{
+    _la_mask_preview_info();
+    mcLoadMode = 1;
+    lt_mask_property(0x93, 1);
+    lt_mask_property(0x94, 1);
+    switch (_la_set_current_port_2(&mc, first)) {
+    case 0:
+        if (mcLastResult == 0 || mcLastResult == -14) {
+            return -1;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x13;
+    case -1:
+        if ((curPortInfo->flags.w >> 1) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x14;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x13;
+    case 1:
+        if ((curPortInfo->flags.w >> 6) & 1) {
+            setLoadGameStartItem();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0xE;
+        }
+        if ((curPortInfo->flags.w >> 5) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x10;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x14;
+    }
+    return -1;
+}
+
+inline int la_mc_load_current_slot_select(void)
+{
+    _la_mask_preview_info();
+    if (pad[0].flags & 0x20) {
+        curPort = lt_current_property_item() - 0x9E;
+        lastPort = curPort;
+        curPortInfo = &mcPortInfo[curPort];
+        POSITIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x10;
+    }
+    if (pad[0].flags & 0x40) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x9;
+    }
+    return -1;
+}
 
 static int loadCardChanged = 1; /* derived name */
 
 static int loadFileChosen = 0; /* derived name */
 
-INCLUDE_ASM(la_mc_load_file_select);
+int la_mc_load_file_select(int first, int item)
+{
+    int r;
 
-INCLUDE_ASM(la_load_confirm_no_memory_card);
+    if (first) {
+        fileMask = 0;
+        lastPort = filePort = curPort;
+        loadFileChosen = 0;
+    }
 
-INCLUDE_ASM(la_load_confirm_no_data);
+    if (fileMask != 0) {
+        _la_set_preview_info();
+        lt_mask_property(44, 1);
+        lt_mask_property(43, 1);
+        lt_mask_property(167, 0);
+        lt_mask_property(168, 0);
+    } else {
+        _la_mask_preview_info();
+        lt_mask_property(44, 0);
+        lt_mask_property(43, 0);
+        lt_mask_property(167, 1);
+        lt_mask_property(168, 1);
+    }
+    lt_set_item_select_func((int)la_mc_saved_file_select);
 
-INCLUDE_ASM(la_load_start_check);
+    if (pad[0].flags & 0x40) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 9;
+    }
+
+    if ((fileMask != 0 || loadFileChosen != 0) && (pad[0].flags & 0x20)) {
+        POSITIVE_SE();
+        if (IosMcProductFile[filePort].file[item].stage != 0xFFFFFFFF) {
+            selectFile = item;
+            lastPort = filePort;
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 18;
+        }
+    }
+
+    r = _la_set_current_port_lock_2(&mc, first);
+    switch (r) {
+    case -1:
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 19;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 20;
+    case 1:
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 19;
+        }
+        if ((curPortInfo->flags.w & 0x22) == 2) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 20;
+        }
+        break;
+    case 0:
+    default:
+        return -1;
+    }
+
+    if (fileMask != 0) {
+        if (loadCardChanged == 0) {
+            if (((curPortInfo->flags.w >> 6) & 1) != 0) {
+                debug_StdPrintfDummy("1 to 2\n");
+                lt_set_item_select_func(0);
+                actionStarted = 0;
+                return 14;
+            }
+        } else if (((curPortInfo->flags.w >> 6) & 1) == 0) {
+            debug_StdPrintfDummy("2 to 1\n");
+            loadCardChanged = (curPortInfo->flags.w >> 6) & 1;
+        }
+    } else {
+        loadCardChanged = (curPortInfo->flags.w >> 6) & 1;
+        fileMask = curPortInfo->fileMask;
+        actionStarted = r;
+        if ((curPortInfo->flags.w & 0xA) == 2) {
+            loadFileChosen = r;
+        }
+    }
+    return -1;
+}
+
+int la_load_confirm_no_memory_card(int first)
+{
+    if (first) {
+        _la_mask_preview_info();
+    }
+    if (PSH_POSITIVE_OR_NEGATIVE(0)) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0xA;
+    }
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        if ((curPortInfo->flags.w & 0x32) == 2 || (curPortInfo->flags.w & 0x22) == 2) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x14;
+        }
+        if ((curPortInfo->flags.w >> 1) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x11;
+        }
+        lock2Restart = 1;
+        break;
+    case 1:
+        if ((curPortInfo->flags.w & 0x32) == 2 || (curPortInfo->flags.w & 0x22) == 2) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x14;
+        }
+        if ((curPortInfo->flags.w >> 1) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x11;
+        }
+        break;
+    }
+    return -1;
+}
+
+int la_load_confirm_no_data(int first)
+{
+    if (first) {
+        _la_mask_preview_info();
+    }
+    if (PSH_POSITIVE_OR_NEGATIVE(0)) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0xA;
+    }
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x13;
+        }
+        lock2Restart = 1;
+        break;
+    case 1:
+        if ((curPortInfo->flags.w >> 5) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x11;
+        }
+        break;
+    }
+    return -1;
+}
+
+int la_load_start_check(int first)
+{
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        fileMask = 0x3FF;
+        if (mcLastResult == 0 || mcLastResult == -14) {
+            return -1;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x2B;
+    case -1:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x2B;
+    case 1:
+        if (filePort != curPort) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x2B;
+        }
+        if ((curPortInfo->flags.w & 3) != 3) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x13;
+        }
+        if ((curPortInfo->fileMask >> selectFile) & 1) {
+            fileMask = 0x3FF;
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x16;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x14;
+    }
+    return -1;
+}
 
 /* the saved file's serial read from the port's record, with the file number
    kept beside it; inlined into la_load_processing directly and into
@@ -731,7 +1360,115 @@ static inline void gflagRestoreState(void) /* derived name */
 
 static int loadStep = 0; /* derived name */
 
-INCLUDE_ASM(la_load_processing);
+int la_load_processing(int first)
+{
+    int err;
+    int hour;
+    int min;
+    int sec;
+
+    debug_StdPrintfDummy("load processing\n");
+    if (first) {
+        loadStep = 0;
+    }
+
+    switch (loadStep) {
+    case 0:
+        strcpy(mc.path, "game.");
+        mc.fileNo = selectFile;
+        mc.port = curPort;
+        mc.slot = 0;
+        iosMcGetBlockSaveInfo(&mc);
+        loadStep++;
+        break;
+    case 1:
+    case 3:
+        if (iosMcSync(&mc) != 0) {
+            loadStep++;
+        }
+        break;
+    case 2:
+        loadStep++;
+        break;
+    case 6:
+    case 9:
+        debug_StdPrintfDummy("case %d\n", loadStep);
+        err = _la_mcard_error_check(&mc);
+        if (err > 0) {
+            loadStep++;
+            debug_StdPrintfDummy("McLoad phase:%d  %x\n", loadStep, err);
+            debug_StdPrintfDummy("phase++\n");
+            return -1;
+        }
+        debug_StdPrintfDummy("through\n");
+        debug_StdPrintfDummy("chk:%d\n", err);
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 43;
+    case 4:
+        debug_StdPrintfDummy("case 4\n");
+        if (((1 << mc.fileNo) & mc.mask) == 0) {
+            loadStep = 20;
+        } else {
+            iosMcLoadProductBlock(&mc);
+            loadStep++;
+        }
+        break;
+    case 5:
+    case 8:
+        debug_StdPrintfDummy("case %d\n", loadStep);
+        if (iosMcSync(&mc) != 0) {
+            loadStep++;
+        }
+        break;
+    case 7:
+        debug_StdPrintfDummy("case %d\n", loadStep);
+        debug_StdPrintfDummy("=== LoadGameBlock ===\n");
+        iosMcLoadGameBlock(&mc, gameSysMainSaveBuff);
+        loadStep++;
+        break;
+    case 10:
+        gflagKeepState();
+        gflagInit();
+        gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
+        gflagRestoreState();
+        systemStatus[3] = 1;
+        systemStatus[4] = 1;
+        debug_StdPrintfDummy("case 10\n");
+        loadStep = 0;
+        *(struct McPreview *)IosMcPreviewInfo =
+            *(struct McPreview *)&IosMcProductFile[mc.port].file[mc.fileNo];
+        playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
+        loadSerial = mcSetFileNo(mc.port, mc.fileNo);
+        debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
+        seEnvForceClose = 1;
+        if (titleAdpcm != 0) {
+            titleAdpcm->stream->fadeStep = 0x40;
+        }
+        titleAdpcm = 0;
+        if (gflagChk(395)) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 6;
+        }
+        stgmgrForceSwitchWithFade(gFlagSaveStage, 0.05f, 4.0f);
+        ACTGame_SetActors_Debug(gFlagSaveStage, 0);
+        return -1;
+    case 20:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 17;
+    }
+    return -1;
+}
+
+inline int la_general_mc_confirm(void)
+{
+    if (pad[0].flags & 0x20) {
+        return lt_current_property_item();
+    }
+    return -1;
+}
 
 /* opens layout voice number no; inlined into la_game_over_continue and into
    la_mc_confirm_save_file with different numbers */
@@ -753,20 +1490,168 @@ static int saveVoiceOpened = 0; /* derived name */
 
 static int saveVoiceWait = 0; /* derived name */
 
-INCLUDE_ASM(la_mc_confirm_save_file);
+int la_mc_confirm_save_file(int first, int item)
+{
+    int i;
+
+    _la_mask_preview_info();
+    lt_mask_property(0x93, 1);
+    lt_mask_property(0x94, 1);
+    if (first) {
+        systemStatus[5] = 1;
+        fightSoundProcessRequestPause();
+        fightSoundStopped = 1;
+        CheckPoint();
+        saveVoiceOpened = 0;
+        saveVoiceWait = 0;
+    }
+    if (saveVoiceOpened == 0) {
+        if (AdpcmFreeAreaGet() != 0) {
+            saveVoice = openLayoutVoice(0x16);
+            saveVoiceOpened = 1;
+        } else {
+            debug_StdPrintfDummy("ADPCM一杯で開けませんでした。\n");
+            if (AdpcmNotUseIopAreaFree() != 0) {
+                debug_StdPrintfDummy(
+                    "オープンされていないのにも関わらず使われていないIOP領域発見&強制解放\n");
+                return -1;
+            }
+            if (saveVoiceWait-- < 0) {
+                AdpcmFadeCloseAll(0x3FFF);
+                return -1;
+            }
+        }
+    } else {
+        _la_mask_preview_info();
+        /* a loop over extra preview pages, built with a count of 0 in the
+           release build, so its body never runs */
+        for (i = 0; i < LA_EXTRA_PREVIEW_PAGES; i++) {
+            _la_mask_preview_info();
+        }
+        if (saveVoice != 0) {
+            layoutVoice = soundDataOpenSync(&voiceOpenReq);
+            if (layoutVoice != (SqEntry *)0xFFFFFFFF) {
+                saveVoice = 0;
+                if (layoutVoice != 0) {
+                    AdpcmPlay(layoutVoice->stream);
+                    return -1;
+                }
+            }
+            return -1;
+        }
+        {
+            if (lt_fade_status() == 2) {
+                switch (item) {
+                case 190:
+                    POSITIVE_SE();
+                    lt_set_item_select_func(0);
+                    actionStarted = 0;
+                    return 0x1B;
+                case 191:
+                    NEGATIVE_SE();
+                    systemStatus[5] = 0;
+                    lt_set_item_select_func(0);
+                    actionStarted = 0;
+                    return 0x33;
+                }
+            }
+            if (lt_fade_status() != 2) {
+                return -1;
+            }
+            if ((pad[0].flags & 0x40) == 0) {
+                return -1;
+            }
+            if (stage_no == 0x3D) {
+                return -1;
+            }
+            NEGATIVE_SE();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x33;
+        }
+    }
+    return -1;
+}
 
 /* the save side of setLoadGameStartItem, inlined twice into
    la_save_game_memory_card_check */
 static inline void setSaveGameStartItem(void) /* derived name */
 {
     if (loadSerial == IosMcProductFile[0].serial || loadSerial != IosMcProductFile[1].serial) {
-        texLayout[18].defaultItem = 186;
+        texLayout[15].defaultItem = 158;
     } else {
-        texLayout[18].defaultItem = 187;
+        texLayout[15].defaultItem = 159;
     }
 }
 
-INCLUDE_ASM(la_save_game_memory_card_check);
+int la_save_game_memory_card_check(int first)
+{
+    _la_mask_preview_info();
+    mcLoadMode = 0;
+    lt_mask_property(0x93, 1);
+    lt_mask_property(0x94, 1);
+    debug_StdPrintfDummy("save game check port %d\n", curPort);
+    switch (_la_set_current_port_new(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        debug_StdPrintfDummy("fail\n");
+        if ((curPortInfo->flags.w & 3) == 3) {
+            if ((curPortInfo->flags.w >> 2) & 1) {
+                setSaveGameStartItem();
+                lt_set_item_select_func(0);
+                actionStarted = 0;
+                return 0xF;
+            }
+            if (((curPortInfo->flags.w >> 4) & 1) == 0) {
+                lt_set_item_select_func(0);
+                actionStarted = 0;
+                return 0x1D;
+            }
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1C;
+    case 1:
+        debug_StdPrintfDummy("sucess :%d %d %d\n", (curPortInfo->flags.w >> 5) & 1,
+                             (curPortInfo->flags.w >> 4) & 1, (curPortInfo->flags.w & 0xA) == 2);
+        if ((curPortInfo->flags.w >> 2) & 1) {
+            setSaveGameStartItem();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0xF;
+        }
+        if ((curPortInfo->flags.w & 0x30) != 0 || (curPortInfo->flags.w & 0xA) == 2) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1E;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1D;
+    }
+    return -1;
+}
+
+inline int la_mc_save_current_slot_select(void)
+{
+    if (pad[0].flags & 0x20) {
+        POSITIVE_SE();
+        curPort = lt_current_property_item() - 0x9E;
+        lastPort = curPort;
+        curPortInfo = &mcPortInfo[curPort];
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1E;
+    }
+    if (pad[0].flags & 0x40) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x19;
+    }
+    return -1;
+}
 
 /* the sprite rectangle and colour the gif helpers take, the same pair
    layout_texture.c declares */
@@ -797,19 +1682,402 @@ static int barStep = 0; /* derived name */
 
 static int barFrame = 0; /* derived name */
 
-INCLUDE_ASM(progressive_bar);
+static void progressive_bar(void)
+{
+    int n;
+
+    if (fbKeep != 0) {
+        return;
+    }
+    if (systemStatus[7] <= 0) {
+        return;
+    }
+    n = systemStatus[8];
+    gif_StartPacketPri(12);
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+    gif_SetAlpha(1, 2, 64);
+    {
+        SprRect frame = {80, 6, -160, 6};
+        SprCol frameCol = {128, 128, 128, 32};
+
+        gif_Sprite(&frame, 0xFFFFFFFF, 0, &frameCol, 1);
+    }
+    {
+        SprRect back = {78, 7, -156, 4};
+        SprCol backCol = {0, 0, 0, 32};
+
+        gif_Sprite(&back, 0xFFFFFFFF, 0, &backCol, 1);
+    }
+    {
+        int w = (float)barStep / (float)barTotal * -160.0f;
+        SprRect bar = {-80 - w, 8, w, 2};
+        SprCol barCol = {64, 255, 64, 32};
+
+        gif_Sprite(&bar, 0xFFFFFFFF, 0, &barCol, 1);
+    }
+    gif_SetZTest(1);
+    gif_SetZWrite(1);
+    gif_SetAlpha(1, 4, 128);
+    gif_EndPacket();
+    if (n != barLastStep) {
+        barLastStep = n;
+        barFrame++;
+    }
+}
 
 static int saveCardChanged = 1; /* derived name */
 
-INCLUDE_ASM(la_mc_save_file_select);
+int la_mc_save_file_select(int first, int item)
+{
+    int r;
 
-INCLUDE_ASM(la_save_start_check);
+    if (first) {
+        fileMask = 0;
+        lastPort = filePort = curPort;
+        saveSelectReady = 0;
+        barTotal = 2;
+        barStep = 0;
+    }
 
-INCLUDE_ASM(la_save_confirm_overwrite);
+    if (actionStarted != 0) {
+        _la_set_preview_info();
+        lt_mask_property(44, 1);
+        lt_mask_property(43, 1);
+        lt_mask_property(216, 0);
+        lt_mask_property(217, 0);
+    } else {
+        lt_mask_property(44, 0);
+        lt_mask_property(43, 0);
+        lt_mask_property(216, 1);
+        lt_mask_property(217, 1);
+    }
 
-INCLUDE_ASM(la_format_confirm);
+    if (actionStarted != 0) {
+        if (pad[0].flags & 0x40) {
+            NEGATIVE_SE();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 25;
+        }
+    }
+
+    if ((fileMask != 0 || saveSelectReady != 0) && (pad[0].flags & 0x20)) {
+        POSITIVE_SE();
+        selectFile = item;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 31;
+    }
+
+    r = _la_set_current_port_lock_2(&mc, first);
+    switch (r) {
+    case -1:
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 28;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 29;
+    case 1:
+        if (((mcPortInfo[filePort].flags.w >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 25;
+        }
+        if (fileMask != 0) {
+            if (saveCardChanged == 0) {
+                if (((curPortInfo->flags.w >> 2) & 1) != 0) {
+                    lt_set_item_select_func(0);
+                    actionStarted = 0;
+                    return 15;
+                }
+            } else if (((curPortInfo->flags.w >> 2) & 1) == 0) {
+                saveCardChanged = 0;
+            }
+        } else {
+            saveCardChanged = (curPortInfo->flags.w >> 2) & 1;
+            if ((curPortInfo->flags.w >> 3) & 1) {
+                debug_StdPrintfDummy("format 2\n");
+                saveSelectReady = r;
+            } else if ((curPortInfo->flags.w & 0xA) == 2) {
+                debug_StdPrintfDummy("unformat 2\n");
+                if (filePort == curPort) {
+                    actionStarted = r;
+                }
+                saveSelectReady = r;
+                return -1;
+            }
+        }
+        if (filePort == curPort) {
+            fileMask = curPortInfo->fileMask;
+            actionStarted = 1;
+        }
+        break;
+    case 0:
+    default:
+        return -1;
+    }
+    return -1;
+}
+
+inline int la_save_confirm_no_memory_card(int first)
+{
+    if (PSH_POSITIVE_OR_NEGATIVE(0)) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x19;
+    }
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        if ((curPortInfo->flags.w >> 1) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1B;
+        }
+        lock2Restart = 1;
+        break;
+    case 1:
+        if ((curPortInfo->flags.w >> 1) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1B;
+        }
+        break;
+    }
+    return -1;
+}
+
+inline int la_save_confirm_no_free_area(int first)
+{
+    if (PSH_POSITIVE_OR_NEGATIVE(0)) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x19;
+    }
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1C;
+        }
+        lock2Restart = 1;
+        break;
+    case 1:
+        if ((curPortInfo->flags.w >> 4) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1B;
+        }
+        break;
+    }
+    return -1;
+}
+
+int la_save_start_check(int first)
+{
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        if (((curPortInfo->flags.w >> 1) & 1) == 0) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x1C;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1B;
+    case 1:
+        if (filePort != curPort) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x29;
+        }
+        if ((curPortInfo->flags.w & 0xA) == 2) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x21;
+        }
+        if ((curPortInfo->fileMask >> selectFile) & 1) {
+            if (IosMcProductFile[filePort].file[selectFile].stage != 0xFFFFFFFF) {
+                lt_set_item_select_func(0);
+                actionStarted = 0;
+                return 0x20;
+            }
+            if (curPortInfo->fileMask != 0) {
+                debug_StdPrintfDummy("already exist save data\n");
+                lt_set_item_select_func(0);
+                actionStarted = 0;
+                return 0x23;
+            }
+        }
+        debug_StdPrintfDummy("new save. system data making..\n");
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x24;
+    }
+    return -1;
+}
+
+int la_save_confirm_overwrite(int first, int item)
+{
+    if (first) {
+        filePort = curPort;
+    }
+    fileMask = 0x3FF;
+    _la_set_preview_info();
+    if (lt_fade_status() == 2 && (pad[0].flags & 0x40)) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1E;
+    }
+    switch (item) {
+    case 190:
+    case 194:
+        POSITIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x23;
+    case 191:
+    case 195:
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1E;
+    }
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1C;
+    case 1:
+        if (saveCardChanged == 0) {
+            if (((curPortInfo->flags.w >> 2) & 1) == 0) {
+                break;
+            }
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0xF;
+        }
+        if ((curPortInfo->flags.w >> 2) & 1) {
+            break;
+        }
+        saveCardChanged = 0;
+        if (filePort == curPort) {
+            break;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1B;
+    }
+    return -1;
+}
+
+int la_format_confirm(int first, int item)
+{
+    if (first) {
+        filePort = curPort;
+    }
+    if (lt_fade_status() == 2 && (pad[0].flags & 0x40)) {
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1E;
+    }
+    switch (item) {
+    case 190:
+    case 194:
+        POSITIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x22;
+    case 191:
+    case 195:
+        NEGATIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1E;
+    }
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1C;
+    case 1:
+        if (saveCardChanged == 0) {
+            if (((curPortInfo->flags.w >> 2) & 1) == 0) {
+                break;
+            }
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0xF;
+        }
+        if ((curPortInfo->flags.w >> 2) & 1) {
+            break;
+        }
+        saveCardChanged = 0;
+        if (filePort == curPort) {
+            break;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1B;
+    }
+    return -1;
+}
 
 static int formatStep = 0; /* derived name */
+
+inline int la_format_processing(int first)
+{
+    if (first) {
+        formatStep = 0;
+    }
+    switch (formatStep) {
+    case 0:
+        mc.port = curPort;
+        mc.slot = 0;
+        iosMcFormat(&mc);
+        formatStep++;
+        break;
+    case 1:
+    case 3:
+        if (iosMcSync(&mc) == 0) {
+            break;
+        }
+        formatStep++;
+        break;
+    case 2:
+        if (_la_mcard_error_check(&mc) > 0) {
+            formatStep++;
+            break;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x2A;
+    case 4:
+        formatStep++;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x24;
+    }
+    return -1;
+}
 
 /* the CD real-time clock record sceCdReadClock fills in, declared here as
    seki/src/GsBase.c declares it */
@@ -840,7 +2108,87 @@ static inline int mcMakeSerial(void) /* derived name */
 
 static int systemSaveStep = 0; /* derived name */
 
-INCLUDE_ASM(la_system_save_processing);
+int la_system_save_processing(int first)
+{
+    int err;
+    int i;
+    int hour;
+    int min;
+    int sec;
+
+    curPortInfo = &mcPortInfo[mc.port];
+    if (first) {
+        systemSaveStep = 0;
+        systemSaveRetry = 0;
+        barTotal = 14;
+    }
+
+    progressive_bar();
+
+    switch (systemSaveStep) {
+    case 0:
+        strcpy(mc.path, "game.");
+        mc.fileNo = systemSaveRetry;
+        mc.port = curPort;
+        mc.slot = 0;
+        iosMcGetBlockSaveInfo(&mc);
+        systemSaveStep++;
+        curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x80;
+        barStep++;
+        break;
+    case 2:
+        iosMcSaveIconBlock(&mc);
+        systemSaveStep++;
+        break;
+    case 6:
+    case 9:
+        err = _la_mcard_error_check(&mc);
+        if (err > 0) {
+            systemSaveStep++;
+            debug_StdPrintfDummy("McSave phase:%d  %x\n", systemSaveStep, err);
+            return -1;
+        }
+        curPortInfo->flags.w |= 0x80;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 41;
+    case 4:
+        for (i = 0; i < 10; i++) {
+            IosMcProductFile[mc.port].file[i].stage = 0xFFFFFFFF;
+        }
+        while ((IosMcProductFile[mc.port].serial = mcMakeSerial()) == 0)
+            ;
+        playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
+        iosMcSaveProductBlock(&mc);
+        systemSaveStep++;
+        barStep++;
+        break;
+    case 1:
+    case 3:
+    case 5:
+    case 8:
+        if (iosMcSync(&mc) != 0) {
+            systemSaveStep++;
+        }
+        break;
+    case 7:
+        iosMcSaveGameBlock(&mc, gameSysMainSaveBuff);
+        systemSaveStep++;
+        barStep++;
+        break;
+    case 10:
+        systemSaveStep = 7;
+        systemSaveRetry++;
+        mc.fileNo = systemSaveRetry;
+        if (systemSaveRetry >= 10) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 35;
+        }
+        break;
+    }
+    return -1;
+}
 
 /* the save side's readback, the serial kept as both the saved and the
    current one; inlined into la_save_processing */
@@ -854,13 +2202,293 @@ static inline void mcSetSavedFile(void) /* derived name */
 
 static int saveStep = 0; /* derived name */
 
-INCLUDE_ASM(la_save_processing);
+int la_save_processing(int first)
+{
+    int err;
+    int hour;
+    int min;
+    int sec;
 
-INCLUDE_ASM(la_end_confirm);
+    curPortInfo = &mcPortInfo[mc.port];
+    if (first) {
+        fileMask = 0;
+        saveStep = 0;
+    }
+
+    progressive_bar();
+
+    switch (saveStep) {
+    case 0:
+        strcpy(mc.path, "game.");
+        mc.fileNo = selectFile;
+        mc.port = curPort;
+        mc.slot = 0;
+        iosMcGetBlockSaveInfo(&mc);
+        saveStep++;
+        curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x80;
+        break;
+    case 1:
+        if (iosMcSync(&mc) != 0) {
+            saveStep = 4;
+        }
+        break;
+    case 2:
+        iosMcSaveIconBlock(&mc);
+        saveStep++;
+        break;
+    case 6:
+    case 9:
+        err = _la_mcard_error_check(&mc);
+        if (err > 0) {
+            saveStep++;
+            debug_StdPrintfDummy("McSave phase:%d  %x\n", saveStep, err);
+            return -1;
+        }
+        curPortInfo->flags.w |= 0x80;
+        debug_StdPrintfDummy("save error? %d\n", saveStep);
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 41;
+    case 4:
+        IosMcPreviewInfo[0] = stage_no;
+        IosMcPreviewInfo[3] = GetSaveSofaLayoutID();
+        IosMcPreviewInfo[1] = gFlagGameClear;
+        *(struct McPreview *)&IosMcProductFile[mc.port].file[mc.fileNo] =
+            *(struct McPreview *)IosMcPreviewInfo;
+        playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
+        (IosMcProductFile + mc.port)->fileNo = mc.fileNo;
+        if ((IosMcProductFile + mc.port)->serial == (IosMcProductFile + (mc.port ^ 1))->serial) {
+            do {
+                while ((IosMcProductFile[mc.port].serial = mcMakeSerial()) == 0)
+                    ;
+            } while ((IosMcProductFile + mc.port)->serial ==
+                     (IosMcProductFile + (mc.port ^ 1))->serial);
+        }
+        mcSetSavedFile();
+        iosMcSaveProductBlock(&mc);
+        saveStep++;
+        break;
+    case 3:
+    case 5:
+    case 8:
+        if (iosMcSync(&mc) != 0) {
+            saveStep++;
+            barStep++;
+        }
+        break;
+    case 7:
+        CheckPoint();
+        iosMcSaveGameBlock(&mc, gameSysMainSaveBuff);
+        saveStep++;
+        break;
+    case 10:
+        saveStep = 0;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 38;
+    }
+    return -1;
+}
+
+inline int la_save_confirm_complete(int first, int item)
+{
+    if (first) {
+        previewInfo = *(struct McPreview *)IosMcPreviewInfo;
+        fileMask = 0x3FF;
+        _la_set_preview_info();
+        debug_StdPrintfDummy("save complete %d %d\n", fileMask, curFile);
+    }
+    if (item != -1) {
+        debug_StdPrintfDummy("%d %d %d\n", 0xF1, 0xF2, item);
+    }
+    switch (item) {
+    case 0xF1:
+        systemStatus[5] = 0;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x33;
+    case 0xF2:
+        nextStage = 1;
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x3C;
+    }
+    return -1;
+}
+
+int la_end_confirm(void)
+{
+    int item;
+
+    if (lt_fade_status() == 2 && (pad[0].flags & 0x40)) {
+        NEGATIVE_SE();
+        item = lt_current_property_item();
+        if (item >= 247) {
+            if (item < 249) {
+                lt_set_item_select_func(0);
+                actionStarted = 0;
+                return 0x26;
+            }
+            if (item < 403) {
+                if (item >= 401) {
+                    lt_set_item_select_func(0);
+                    actionStarted = 0;
+                    return 0x36;
+                }
+            }
+        }
+    }
+    if (pad[0].flags & 0x20) {
+        debug_StdPrintfDummy("%d\n", lt_current_property_item());
+        switch (lt_current_property_item()) {
+        case 247:
+        case 401:
+            POSITIVE_SE();
+            optionScreenMode = 0;
+            gflagInit();
+            fightSoundProcessRequestPause();
+            fightSoundClose();
+            soundDataSegAllClose(0, 2);
+            nextStage = 1;
+            stgmgrForceSwitchWithFade(1, 0.025f, 4.0f);
+        case 248:
+            NEGATIVE_SE();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x26;
+        case 402:
+            NEGATIVE_SE();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x36;
+        }
+    }
+    return -1;
+}
+
+inline int la_save_confirm_yesno(void)
+{
+    if (pad[0].flags & 0x40) {
+        return lt_current_property_item();
+    }
+    return -1;
+}
+
+inline int la_save_confirm_fail(void)
+{
+    return -1;
+}
+
+inline int la_format_confirm_fail(void)
+{
+    return -1;
+}
+
+inline int la_delete_start_check(int first)
+{
+    switch (_la_set_current_port_2(&mc, first)) {
+    case 0:
+        break;
+    case -1:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1B;
+    case 1:
+        if ((curPortInfo->fileMask >> selectFile) & 1) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x2E;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1E;
+    }
+    return -1;
+}
+
+inline int la_delete_confirm(int first, int item)
+{
+    switch (item) {
+    case 0xBE:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x2F;
+    case 0xBF:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x1B;
+    }
+    return -1;
+}
 
 static int deleteStep = 0; /* derived name */
 
-INCLUDE_ASM(la_delete_processing);
+int la_delete_processing(int first)
+{
+    if (first) {
+        mc.fileNo = selectFile;
+        deleteStep = 2;
+    }
+    switch (deleteStep) {
+    case 2:
+        strcpy(mc.path, mc.dir[mc.fileNo].EntryName);
+        iosMcDelete(&mc);
+        deleteStep++;
+        break;
+    case 3:
+        if (iosMcSync(&mc) == 0) {
+            break;
+        }
+        deleteStep++;
+        break;
+    case 4:
+        if (_la_mcard_error_check(&mc) == 0) {
+            break;
+        }
+        deleteStep++;
+        break;
+    case 5:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x30;
+    }
+    return -1;
+}
+
+inline int la_delete_confirm_complete(void)
+{
+    int ret;
+    if ((pad[0].flags & 0x40) == 0)
+        goto fail;
+    lt_set_item_select_func(0);
+    actionStarted = 0;
+    ret = 0x1B;
+    goto out;
+fail:
+    ret = -1;
+out:
+    return ret;
+}
+
+inline int la_delete_confirm_fail(void)
+{
+    return -1;
+}
+
+inline int la_game_loading(int first)
+{
+    if (first != 0) {
+        systemStatus[6] = 1;
+    }
+    return -1;
+}
+
+inline void la_playtime_count(void)
+{
+    if (systemStatus[5] == 0) {
+        IosMcPreviewInfo[2]++;
+    }
+}
 
 /* inlined into la_game_loop and into la_game_over_continue */
 static inline void releaseGameLoopCursor(void) /* derived name */
@@ -873,13 +2501,171 @@ static inline void releaseGameLoopCursor(void) /* derived name */
 
 int laoutActionPauseRequest = 0;
 
-INCLUDE_ASM(la_game_loop);
+int la_game_loop(int first)
+{
+    if (first) {
+        if (fightSoundStopped != 0) {
+            fightSoundProcessRequestStart();
+            fightSoundStopped = 0;
+        }
+        releaseGameLoopCursor();
+        systemStatus[2] = 1;
+        systemStatus[5] = 0;
+        iosPadEnable();
+        isysGObjActiveLink(0, 1);
+        layoutActPushStartNew = 0;
+    }
+    if (layoutActPushStartNew != 0) {
+        laoutActionPauseRequest++;
+    } else {
+        laoutActionPauseRequest = 0;
+    }
+    if ((startStagePauseDisableTimer >= 11 && (pad[0].flags & 0x800)) ||
+        (float)laoutActionPauseRequest >
+            (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f) {
+        if (enable_game_pause == 0) {
+            return -1;
+        }
+        if (gflagChk(338) != 0) {
+            return -1;
+        }
+        systemStatus[5] = 1;
+        layoutActPushStartNew = 0;
+        adpcmPauseRequest(1);
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x36;
+    }
+    return -1;
+}
+
+inline int la_game_demo_pause(int first)
+{
+    if (first) {
+        systemStatus[5] = 1;
+    }
+    if ((pad[0].flags & 0x800) == 0) {
+        return -1;
+    }
+    lt_set_item_select_func(0);
+    actionStarted = 0;
+    return 0x34;
+}
+
+inline int la_game_demo(int first)
+{
+    if (first) {
+        if (stage_no == 1) {
+            iosPadDisable();
+        }
+    }
+    if ((pad[0].flags & 0x800) && gflagChk(388)) {
+        debug_StdPrintfDummy("push start\n");
+        gflagOff(388);
+        title_demo_mode ^= 1;
+        nextStage = stage_after_skipping_demo;
+        stgmgrForceSwitchWithFade(nextStage, 8.0f, 4.0f);
+        if (stage_after_skipping_demo == 0xFFFFFFFF) {
+            stage_after_skipping_demo = 1;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x3C;
+    }
+    return -1;
+}
+
+inline int la_game_pause(int first)
+{
+    if (first) {
+        systemStatus[5] = 1;
+        iosPadActStopAll();
+        texLayout[55].defaultItem = 285;
+    }
+    if (lt_fade_status() != 2) {
+        return -1;
+    }
+    if (((pad[0].flags & 0x20) && lt_current_property_item() == 0x110) || (pad[0].flags & 0x840)) {
+        NEGATIVE_SE(0);
+        adpcmPauseRequest(0);
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x33;
+    }
+    return -1;
+}
 
 static int gameOverVoice = 0; /* derived name */
 
 static int gameOverVoiceOpened = 0; /* derived name */
 
-INCLUDE_ASM(la_game_over_continue);
+int la_game_over_continue(int first)
+{
+    if (first) {
+        if (fadeStatus != 0) {
+            scpFadeIn(3.0f);
+        }
+        enable_game_pause = 1;
+        iosPadEnable();
+        scpBoyControlReadDisable = 0;
+        systemStatus[5] = 1;
+        AdpcmFadeCloseAll(0x200);
+        AdpcmNotUseIopAreaFree();
+        soundSePlayModeStop(1);
+        soundSePlayModeStop(0);
+        iosPadActStopAll();
+        gameOverVoiceOpened = 0;
+    } else if (gameOverVoiceOpened == 0) {
+        if (AdpcmFreeAreaGet() != 0) {
+            gameOverVoice = openLayoutVoice(0x34);
+            gameOverVoiceOpened = 1;
+        }
+    } else if (gameOverVoice != 0) {
+        layoutVoice = soundDataOpenSync(&voiceOpenReq);
+        if (layoutVoice != (SqEntry *)0xFFFFFFFF) {
+            gameOverVoice = 0;
+            if (layoutVoice != 0) {
+                AdpcmPlay(layoutVoice->stream);
+                return -1;
+            }
+        }
+    } else {
+        switch (lt_current_property_item()) {
+        case 0x196:
+            if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
+                return -1;
+            }
+            POSITIVE_SE();
+            systemStatus[4] = 1;
+            nextStage = gFlagSaveStage;
+            releaseGameLoopCursor();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x3C;
+        case 0x197:
+            if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
+                return -1;
+            }
+            POSITIVE_SE();
+            optionScreenMode = 0;
+            gflagInit();
+            nextStage = 1;
+            releaseGameLoopCursor();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 0x3C;
+        }
+    }
+    return -1;
+}
+
+inline int la_switching_stage(void)
+{
+    if (fightSoundPlayChk() == 0) {
+        stgmgrForceSwitchWithFade(nextStage, 0.4f, 4.0f);
+    }
+    return -1;
+}
 
 /* the key-config property sweep, inlined into la_key_config twice */
 static inline void keyconfigMaskAll(void) /* derived name */
@@ -887,8 +2673,8 @@ static inline void keyconfigMaskAll(void) /* derived name */
     int i;
 
     for (i = 0; i < 48; i++) {
-        lt_mask_property(i + 342, 1);
-        lt_default_mask_property(i + 342, 1);
+        lt_mask_property(i + 319, 1);
+        lt_default_mask_property(i + 319, 1);
     }
 }
 
@@ -933,7 +2719,74 @@ static inline int keyAssignIndex(int v) /* derived name */
 
 static int keyConfigMask = 0xFF; /* derived name */
 
-INCLUDE_ASM(la_key_config);
+int la_key_config(int first)
+{
+    int i;
+    int sel;
+    int m;
+    int k;
+    int n;
+
+    sel = lt_current_property_item() - 313;
+    if (first) {
+        texLayout[55].defaultItem = 300;
+        for (i = 0; i < 16; i++) {
+            if ((keyConfigMask >> i) & 1) {
+                keyConfigSlot[keyCodeIndex(iosPadConfCustom.bit[i])] = keyCodeIndex(1 << i);
+            }
+        }
+    }
+    if (sel >= 0 && sel < 6) {
+        m = pad[0].flags & keyConfigMask;
+        if (m != 0 && m == pad[0].flags) {
+            k = keyCodeIndex(m);
+            POSITIVE_SE();
+            if (k != -1) {
+                n = keyAssignIndex(m);
+                if (n != -1) {
+                    keyConfigSlot[n] = keyConfigSlot[sel];
+                }
+                keyConfigSlot[sel] = k;
+            }
+        }
+    }
+    keyconfigMaskAll();
+    for (i = 0; i < 6; i++) {
+        lt_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
+        lt_default_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
+    }
+    if (pad[0].flags & 0x20) {
+        if (lt_current_property_item() == 368) {
+            for (i = 7; i >= 0; i--) {
+                keyConfigSlot[i] = i;
+            }
+            NEGATIVE_SE();
+        }
+        if (lt_current_property_item() == 367) {
+            POSITIVE_SE();
+            for (i = 0; i < 16; i++) {
+                if ((keyConfigMask >> i) & 1) {
+                    iosPadConfCustom.bit[i] = 0;
+                } else {
+                    iosPadConfCustom.bit[i] = 1 << i;
+                }
+            }
+            for (i = 0; i < 8; i++) {
+                iosPadConfCustom.bit[keyBitIndex(keyConfigCode[keyConfigSlot[i]])] =
+                    keyConfigCode[i];
+            }
+            keyconfigMaskAll();
+            for (i = 0; i < 6; i++) {
+                lt_default_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
+                lt_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
+            }
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 55;
+        }
+    }
+    return -1;
+}
 
 /* the option screen's layout items: the five screen modes, the stage
    animation each mode plays (-1 for none), and the two choices of the control
@@ -945,7 +2798,114 @@ static const int screenModeAnim[5] = {-1, 63, 64, 65, 66}; /* derived name */
 
 static const int choiceItem[4] = {298, 299, 305, 306}; /* derived name */
 
-INCLUDE_ASM(la_game_option);
+int la_game_option(void)
+{
+    int mode;
+    int cur;
+    int sel;
+    int item;
+
+    mode = soundOutputModeGet();
+    lt_analog2Pad();
+    if ((pad[0].now & 0xA000) != 0) {
+        cur = optionControlType;
+        sel = optionScreenMode;
+        switch (lt_current_property_item()) {
+        case 277:
+            if ((pad[0].flags & 0x8000) != 0) {
+                sel--;
+                if (sel < 0) {
+                    sel = 4;
+                }
+                CUR_SE();
+            } else if ((pad[0].flags & 0x2000) != 0) {
+                sel++;
+                if (sel >= 5) {
+                    sel = 0;
+                }
+                CUR_SE();
+            }
+            break;
+        case 295:
+            if ((pad[0].flags & 0xA000) != 0) {
+                cur = cur == 0;
+                CUR_SE();
+            }
+            break;
+        case 290:
+            if ((pad[0].flags & 0xA000) != 0) {
+                iosPadActRequestEnable = iosPadActRequestEnable == 0;
+                CUR_SE();
+            }
+            break;
+        case 285:
+            if ((pad[0].flags & 0xA000) != 0) {
+                if (mode == 1) {
+                    mode = 0;
+                } else {
+                    mode = 1;
+                }
+                soundOutputModeSet(mode);
+                CUR_SE();
+            }
+            break;
+        case 302:
+            if ((pad[0].flags & 0xA000) != 0) {
+                girlControlMode = girlControlMode == 0;
+                CUR_SE();
+            }
+            break;
+        }
+        if (sel != optionScreenMode) {
+            if (screenModeAnim[optionScreenMode] != -1) {
+                stage_SetLoopFlag(screenModeAnim[optionScreenMode], 0);
+                stage_SetAnimation(screenModeAnim[optionScreenMode], -1, -2);
+            }
+            item = screenModeAnim[sel];
+            if (item != -1) {
+                stage_SetLoopFlag(item, 1);
+                stage_SetAnimation(item, 1, 0);
+            }
+            optionScreenMode = sel;
+        }
+        optionControlType = cur;
+    }
+    for (sel = 0; sel < 5; sel++) {
+        lt_default_mask_property(screenModeItem[sel], 1);
+    }
+    lt_default_mask_property(screenModeItem[optionScreenMode], 0);
+    for (sel = 0; sel < 2; sel++) {
+        lt_default_mask_property(choiceItem[sel], 1);
+    }
+    lt_default_mask_property(choiceItem[optionControlType], 0);
+    if ((pad[0].flags & 0x20) != 0) {
+        if (lt_current_property_item() == 307) {
+            NEGATIVE_SE();
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 54;
+        }
+    }
+    if (mode == 0) {
+        lt_default_mask_property(288, 0);
+        lt_default_mask_property(289, 1);
+    } else {
+        lt_default_mask_property(288, 1);
+        lt_default_mask_property(289, 0);
+    }
+    if (iosPadActRequestEnable != 0) {
+        lt_default_mask_property(293, 0);
+        lt_default_mask_property(294, 1);
+    } else {
+        lt_default_mask_property(293, 1);
+        lt_default_mask_property(294, 0);
+    }
+    for (sel = 0; sel < 2; sel++) {
+        lt_default_mask_property((choiceItem + 2)[sel], 1);
+    }
+    lt_default_mask_property((choiceItem + 2)[girlControlMode], 0);
+    return -1;
+}
 
 /* inlined once, into la_adjust_screen */
 static inline void clearAdjustScreenMarks(void) /* derived name */
@@ -953,74 +2913,44 @@ static inline void clearAdjustScreenMarks(void) /* derived name */
     int i;
 
     for (i = 0; i < 15; i++) {
-        lt_default_mask_property(i + 395, 1);
+        lt_default_mask_property(i + 372, 1);
     }
 }
 
-INCLUDE_ASM(la_adjust_screen);
+int la_adjust_screen(void)
+{
+    int v;
+
+    texLayout[55].defaultItem = 301;
+    lt_analog2Pad();
+    if (pad[0].flags & 0x8000) {
+        v = systemStatus[11];
+        if (v > 0) {
+            CUR_SE();
+            systemStatus[11] = v - 1;
+        }
+    } else if (pad[0].flags & 0x2000) {
+        v = systemStatus[11];
+        if (v < 14) {
+            CUR_SE();
+            systemStatus[11] = v + 1;
+        }
+    }
+    if (pad[0].flags & 0x40) {
+        NEGATIVE_SE();
+        systemStatus[11] = 7;
+    }
+    clearAdjustScreenMarks();
+    lt_default_mask_property(systemStatus[11] + 372, 0);
+    if (pad[0].flags & 0x20) {
+        POSITIVE_SE();
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 0x37;
+    }
+    return -1;
+}
 
 unsigned int stage_after_skipping_demo = 0;
 
 int layoutActPushStartNew = 0;
-
-INCLUDE_ASM(la_boot_memory_card_check);
-
-INCLUDE_ASM(la_boot_no_memory_card);
-
-INCLUDE_ASM(la_boot_no_free_area);
-
-INCLUDE_ASM(la_boot_confirm_memory_card);
-
-INCLUDE_ASM(la_scei_logo);
-
-INCLUDE_ASM(la_title_demo);
-
-INCLUDE_ASM(la_mc_preview_info);
-
-INCLUDE_ASM(la_mc_current_slot);
-
-INCLUDE_ASM(la_mc_load_current_slot_select);
-
-INCLUDE_ASM(la_mc_save_current_slot_select);
-
-INCLUDE_ASM(la_general_mc_confirm);
-
-INCLUDE_ASM(la_save_confirm_no_memory_card);
-
-INCLUDE_ASM(la_save_confirm_no_free_area);
-
-INCLUDE_ASM(la_format_processing);
-
-INCLUDE_ASM(la_save_confirm_complete);
-
-INCLUDE_ASM(la_save_confirm_fail);
-
-INCLUDE_ASM(la_format_confirm_fail);
-
-INCLUDE_ASM(la_delete_start_check);
-
-INCLUDE_ASM(la_delete_confirm);
-
-INCLUDE_ASM(la_delete_confirm_complete);
-
-INCLUDE_ASM(la_delete_confirm_fail);
-
-INCLUDE_ASM(la_game_loading);
-
-INCLUDE_ASM(la_playtime_count);
-
-INCLUDE_ASM(la_game_demo);
-
-INCLUDE_ASM(la_game_demo_pause);
-
-INCLUDE_ASM(la_game_pause);
-
-INCLUDE_ASM(la_switching_stage);
-
-INCLUDE_ASM(la_save_confirm_yesno);
-
-INCLUDE_ASM(PSH_POSITIVE_OR_NEGATIVE);
-
-INCLUDE_ASM(keyconfig_reset);
-
-INCLUDE_ASM(la_mc_saved_file_select);
