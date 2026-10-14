@@ -50,7 +50,6 @@
 #include "flyManager.h"
 #include "staticBlur.h"
 #include <assert.h>
-#include "include_asm.h"
 
 static void disp_memory_partition_bar(void);
 /* debug.h leaves it out (see there) */
@@ -85,6 +84,10 @@ extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, 
 
 /* .bss: the line buffer the memory report is printed through */
 static char printBuf[128]; /* derived name */
+
+inline void ExitIcoMisc(void) {}
+
+inline void DummyIcoMisc(void) {} /* derived name */
 
 /* two-dimensional screen position handed to Draw2DLine */
 typedef struct { /* field names derived */
@@ -241,7 +244,101 @@ static int seEnvMute = 0; /* derived name */
 
 static int diskErrorBlink = 0; /* derived name */
 
-INCLUDE_ASM(ExecIcoMisc);
+void ExecIcoMisc(void)
+{
+    int total;
+    int used;
+    void *cam;
+
+    if (debug_mem_partition_flag == 1) {
+        disp_memory_partition();
+    }
+    if (debug_seslotdisp_flag == 1) {
+        debug_SESlotDisp();
+    }
+    if (iosCdvdDiskStatusGet() != 0) {
+        if (diskErrorBlink++ < 15) {
+            debug_PrintfDummy(250, 100, 0xFF000000, "DISK ERROR");
+        } else if (diskErrorBlink >= 31) {
+            diskErrorBlink = 0;
+        }
+    }
+    if (iopBuffOver != 0) {
+        debug_PrintfDummy(250, 100, 0xFF000000, "IOP BUFF OVER -%d bytes", iopBuffOver);
+    }
+    iosOmGetGObjStatus(&total, &used);
+    if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0) {
+        debug_Printf(470, 10, (used * 100 / total > 90) ? 0xFF300080 : 0xC0FF80, "GObj %d/%d", used,
+                     total);
+    }
+    if (debug_memory_bar != 0) {
+        disp_memory_partition_bar();
+    }
+    if (graphics_ready == 0) {
+        if (iosCdvdDiskStatusGet() == 0) {
+            exec_layout_texture();
+        }
+    }
+    if (kanbanCommonRead != 0) {
+        if (stage_no == 1) {
+            kanbanBootMain();
+        }
+    }
+    kanbanExec();
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (systemStatus[5] == 0) {
+        ExecParticleEffects();
+        ExecStreamMotionManager();
+        ExecWindManager();
+        soundSeEnvMasterVolRate = scpSeEnvMasterVolRate;
+        ExecSpiderGroupManager();
+        ExecGameOverEffect();
+        seEnvMute = 0;
+    } else {
+        if (current_layout_id == 25) {
+            seEnvMute = 1;
+        }
+        if (seEnvMute != 0) {
+            soundSeEnvMasterVolRate = 0.0f;
+        } else if (scpSeEnvMasterVolRate > 0.5f) {
+            soundSeEnvMasterVolRate = 0.5f;
+        }
+    }
+    if (systemStatus[6] == 0) {
+        gamesysBackStageProcess();
+        if (debug_wallcheck_flag == 1) {
+            warpGirlOutStage(stage_no, 1);
+        }
+        cam = GetCameraPos();
+        if (prevCameraPos == 0) {
+            if (cam != 0) {
+                soundSeEnvPlay();
+            }
+        }
+        prevCameraPos = cam;
+        if (cam != 0) {
+            soundReqTickProc();
+            scpGirlHintVoiceTickProc(cam);
+        }
+        fightSoundProcess();
+    }
+    eBrainProcess();
+    if (fall_death_active != 0) {
+        if (boyGObj != 0) {
+            if (GOBJ_SUB(boyGObj)->ctrl.fallHeight > 1000.0f) {
+                lt_switch_layout(59);
+            }
+        }
+        if (girlGObj != 0) {
+            if (GOBJ_SUB(girlGObj)->ctrl.fallHeight > 1000.0f) {
+                lt_switch_layout(59);
+            }
+        }
+    }
+    jimakuDisp(&jimaku_msg);
+}
 
 /* per-scene preset: twelve (time, effect id) pairs then the scene label at 0xC0 */
 typedef struct { /* field names derived */
@@ -252,7 +349,7 @@ typedef struct { /* field names derived */
     } ent[12];
 
     char pad60[0xC0 - 0x60];
-    char name[0x194 - 0xC0];
+    char name[0x190 - 0xC0];
 } ScnPre; /* derived name */
 
 /* particle-effect entry: package id at 0x18, attribute word at 0x20 whose
@@ -282,7 +379,147 @@ static int loadedMotionSeg = -1; /* derived name */
 /* .sbss: the frame stamp the load-time report below prints */
 static int load_time; /* derived name */
 
-INCLUDE_ASM(InitIcoMisc);
+void InitIcoMisc(int *arg)
+{
+    int stage = *arg;
+    int i;
+    int j;
+    int id;
+    int found;
+    int pack;
+    char *fname;
+
+    debugMoveMode = 0;
+    motionFrameUpdate = 1;
+
+    InitializeStaticBlur();
+    InitStreamMotionManager();
+    InitSpiderGroupManager();
+    InitFlyManager();
+
+    if (systemStatus[3] != 0 && systemStatus[4] != 0) {
+        gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
+        scpBoyControlReadDisable = 0;
+        systemStatus[4] = 0;
+    }
+    if (thisIsYourStartStage != 1 && setActorsDebugPending != 0) {
+        ACTGame_SetActors_Debug(stage, 0);
+        setActorsDebugPending = 0;
+    }
+    debug_StdPrintfDummy("Init Object Light\n");
+    light_InitLight();
+    InitStageLight(stage);
+    enemy_Initialize();
+    debug_StdPrintfDummy("Init Packing Data\n");
+    load_time = frame_count;
+    if (charFileManagerReady == 0) {
+        InitCharFileManager();
+    } else {
+        ResetCharFileManager();
+    }
+    charFileManagerReady = 1;
+    debug_StdPrintfDummy("InitCharFIleManager out\n");
+    pack = LoadFileType;
+    if (commonPackLoaded == 0) {
+        debugCdvdLoadInfoSegInit(0);
+        iosCdvdLoadPackFile(pack, GetDataFileName(-1, pack), 0);
+        kanbanInit(0);
+        kanbanBootInit();
+        commonPackLoaded = 1;
+    }
+    if (stage_no == 1) {
+        kanbanBootStart();
+    }
+    if (loadedMotionSeg != stageData[stage].mot) {
+        /* case 1 shares the default arm */
+        switch (stageData[stage].mot) {
+        case 1:
+        default:
+            fname = GetDataFileName2("MOTION1", pack);
+            break;
+        case 2:
+            fname = GetDataFileName2("MOTION2", pack);
+            break;
+        case 3:
+            fname = GetDataFileName2("MOTION3", pack);
+            break;
+        }
+        if (loadedMotionSeg != -1) {
+            /* "this stage uses a different motion segment from the previous one" */
+            debug_StdPrintfDummy(
+                "\033[33mこのステージは前のステージと異なるモーションセグメントを使用します。\033[m\n");
+            ResetStatic2MotionManager(loadedMotionSeg);
+        }
+        iosMallocResetPartition(ios_partition_s2motion);
+        iosCdvdLoadPackFile(pack, fname, 0);
+        loadedMotionSeg = stageData[stage].mot;
+    }
+    debug_StdPrintfDummy("iosCdvdLoadPackFile\n");
+    debugCdvdLoadInfoSegInit(1);
+    iosCdvdLoadPackFile(pack, GetDataFileName(stage, pack), 1);
+    load_time = frame_count - load_time;
+    debug_StdPrintfDummy("InitWayPointSystem\n");
+    InitWayPointSystem();
+    debug_StdPrintfDummy("MakeFogClut\n");
+    fog_MakeFogClut();
+    debug_StdPrintfDummy("InitParticleEffects\n");
+    InitParticleEffects();
+    InitStageMultiBgaManager();
+    InitializeWaterDot();
+    debug_StdPrintfDummy("InitSceneObjects( %d )\n", stage);
+    InitSceneObjects(stage);
+    InitWindManager(stage);
+    debug_StdPrintfDummy("%s\n", stageData[stage_no].name);
+    init_layout_texture(stage);
+
+    found = 0;
+    for (i = 0; i < 1145; i++) {
+        for (j = 0; j < 12; j++) {
+            id = motionKind[i].ent[j].id;
+            if (id > 0xFFFF) {
+                continue;
+            }
+            if (motionEffKind[id].done) {
+                continue;
+            }
+            if (id == 24) {
+                continue;
+            }
+            if (GetParticleEffectPackage(motionEffKind[id].pkg)[1] != 1) {
+                continue;
+            }
+            /* "the particle %s that %s calls is emitted forever" */
+            debug_StdPrintfDummy(
+                "\"\033[33m%s\033[m\"が呼ぶパーティクル\"\033[33m%s\033[m\"は永久発生です\n",
+                motionKind[i].name, particleEffectFile[motionEffKind[id].pkg].name);
+            found = 1;
+        }
+    }
+    if (found != 0) {
+        /* "it runs, but left going it eats up memory: change the data to one
+           that does not loop" */
+        debug_StdPrintfDummy(
+            "\033[36m動作はさせますが続けているとメモリの\n資源を食いつくします\nループではないものにデータを修正してください\033[m\n");
+    }
+    debug_StdPrintfDummy("Init Stage Animation\n");
+    gsb_ResetFilmNoise();
+    stage_Init();
+    debug_StdPrintfDummy("Init Object Action\n");
+    ObjAction_Init();
+    InitStageChange();
+    graphics_ready = 0;
+    debug_StdPrintfDummy("load time %f sec\n", load_time / 60.0f);
+    sndInit(stage);
+    iosPadActInit();
+    if (stageData[stage_no].initproc != 0) {
+        stageData[stage_no].initproc();
+    }
+    MakeCollisionDependGObjList();
+    gamesysObjInfoStageInitPosSaveUnlock();
+    systemStatus[5] = 0;
+    systemStatus[6] = 0;
+    iosThreadDestroy(0);
+}
 
 int dbgC0 = 0;
 
@@ -335,7 +572,3 @@ void DispIcoMisc(void)
     }
     light_DispVolume();
 }
-
-INCLUDE_ASM(ExitIcoMisc);
-
-INCLUDE_ASM(func_001B8908);

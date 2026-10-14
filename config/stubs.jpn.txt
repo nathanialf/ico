@@ -161,13 +161,6 @@ lit4 debug_DispBar 0x00632ECC 0x00632ED0 ico2/common/src/debug.c  # 1 float
 rdlit debug_DispBar 0x00614DE8 0x00614E10 ico2/common/src/debug.c  # 2 strings
 text debug_SnapShot 0x001AE538 0x001AF488 ico2/common/src/debug.c lines=81  # ordinal; first difference at insn 1; length:+739; extent-differs
 rdlit debug_SnapShot 0x00614E10 0x00614EBA ico2/common/src/debug.c  # 6 strings; target side (DISAGREE: December's snapshot modes)
-text ExecIcoMisc 0x001B7EF8 0x001B820C ico2/common/src/icoMisc.c lines=95  # ordinal; first difference at insn 114; imm:3; extent-equal
-rdlit ExecIcoMisc 0x00616840 0x00616873 ico2/common/src/icoMisc.c align=16  # 3 strings
-text InitIcoMisc 0x001B8210 0x001B8738 ico2/common/src/icoMisc.c lines=141  # ordinal; first difference at insn 211; imm:3; extent-equal
-rdlit InitIcoMisc 0x00616878 0x00616A7A ico2/common/src/icoMisc.c  # 14 strings
-sdlit InitIcoMisc 0x00634F18 0x00634F34 ico2/common/src/icoMisc.c  # 4 strings
-text ExitIcoMisc 0x001B8900 0x001B8908 ico2/common/src/icoMisc.c lines=1  # equal; a deferred inline the jpn-only stub after it must follow
-text func_001B8908 0x001B8908 0x001B8910 ico2/common/src/icoMisc.c  # jpn-only; no PAL counterpart: an empty function after ExitIcoMisc (icoMisc.c's last); kanban.c's first twin follows at 0x1B8910
 text kanbanBootMcCheck 0x001B9490 0x001B96E8 ico2/common/src/kanbanBoot.c local lines=236  # ordinal; first difference at insn 3; length:-254; extent-differs
 text staffRollStart 0x001C1D20 0x001C1D74 ico2/common/src/staffroll.c lines=14  # ordinal; first difference at insn 0; length:-20; extent-differs
 text checkFieldContact 0x001C6718 0x001C683C ico2/sugipon/src/box.c local lines=34  # ordinal; first difference at insn 0; length:-11; extent-differs
