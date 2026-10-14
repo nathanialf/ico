@@ -11,15 +11,19 @@
 # of the PAL link is built from source.
 #
 # Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N] [file=<stem>]
+#          [in=<file.c.inc>] [def]
 #   section   text, rodata, data or sdata: the base ELF section of the range;
 #             lit4, rdlit or sdlit: the constants a text row's function brings
 #             into .lit4, .rodata or .sdata (the assembler's li.s and li.d
 #             pools, gcc's strings, constant runs, jump tables and the
 #             function's own statics), written after the function's text
+#             (a constant moved in a data section moves the code too: every
+#             address of one in an instruction is a relocated field)
 #   name      the symbol the stub defines (a literal row: its text row's name)
 #   vma_lo/hi the range [lo, hi) in the base ELF, hex (a text row ends at the
 #             function's last instruction, not at the fill after it)
-#   tu        the C source under ico2/ or sce/ that includes the stub
+#   tu        the C source under ico2/ or sce/ that includes the stub (its
+#             object reads it, also when the line lives in an in= file)
 #   local     the name is a static in the C (no .globl; not on a literal row)
 #   align=N   the stub's alignment in bytes (default: the largest power of two
 #             dividing vma_lo, at most 8; a lit4 row aligns to 4)
@@ -28,9 +32,19 @@
 #   file=stem the stub's file and INCLUDE_ASM name when two statics in two TUs
 #             share a name (default: the name); a literal row carries its text
 #             row's
+#   in=path   the .c.inc the TU includes where the function is defined: its
+#             INCLUDE_ASM line lives there (not on a literal row)
+#   def       an rdlit or sdlit row written where the function is defined,
+#             not after its text: build/stubs/<stem>.lit.s, which the file
+#             includes with `INCLUDE_ASM_LIT(stem);` in the definition's place
+#             (a stubbed inline function's strings and gcc's other constants;
+#             its code, .lit4 floats, li.d doubles and jump tables follow
+#             INCLUDE_ASM at the end of the file)
 #
 # tools/gen_stub_s.py --carve NAME replaces the function's definition in its
-# TU with the INCLUDE_ASM line, writes lines=N, and derives the literal rows
-# (--literals, from the compiled TU and the base ELF's words; --no-literals
-# leaves them alone); --restore NAME puts the definition back from main;
-# --carve-all and --restore-all do every text row.
+# TU (or its in= file) with the INCLUDE_ASM line (an inline function's line
+# goes to the end of the file, and INCLUDE_ASM_LIT takes the definition's
+# place when the row has def rows), writes lines=N, and derives the literal
+# rows (--literals, from the compiled TU and the base ELF's words;
+# --no-literals leaves them alone); --restore NAME puts the definition back
+# from main; --carve-all and --restore-all do every text row.

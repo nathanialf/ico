@@ -16,6 +16,7 @@ the list empty the mechanism is idle.
 The list, one row per stub, `#` starts a comment:
 
     <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N] [file=<stem>]
+              [in=<file.c.inc>] [def]
 
   section   text, rodata, data or sdata: the base ELF section the range
             lies in; lit4, rdlit or sdlit for a text row's constants (below)
@@ -35,6 +36,15 @@ The list, one row per stub, `#` starts a comment:
             INCLUDE_ASM(stem), while the symbol stays <name>: two statics of
             one name in two TUs get a row each (default: stem = name; stems
             are unique, and a name is global in one row at most)
+  in=path   the function is defined in a .c.inc the TU includes, and its
+            INCLUDE_ASM line lives there, at the definition (the tu column
+            stays the including .c, whose object reads the stub; ninja makes
+            that object depend on the .c.inc too). A literal row takes its
+            text row's
+  def       on an rdlit or sdlit row: the run is written where the function
+            is defined, to build/stubs/<stem>.lit.s, which the file reads
+            with INCLUDE_ASM_LIT(stem); at that place (an inline function's
+            strings and gcc's other constants, below)
 
 A literal row carries the anonymous constants a stubbed function brings
 into its TU's data sections. gcc writes the string literals and constants a
@@ -45,13 +55,17 @@ TU's .lit4, and `li.d` into a register pair into a load of a constant it
 appends to the TU's .rodata, each as it reads the instruction, in load order
 and with no merging of equal values. A stub of raw words loads from the same
 offsets but brings none of them, so every later constant of the TU would move
-up. `lit4 <name> <lo> <hi> <tu>` (`rdlit` for .rodata, `sdlit` for .sdata),
+up, and with them the code: every address of a constant in an instruction
+(a %hi and %lo pair, a $gp offset, a literal load) is a relocated field, so
+a constant that moves changes the words of each function that loads it, the
+TU's own and those of other TUs, and the gate's .text row cannot pass
+before .lit4, .rodata and .sdata do. `lit4 <name> <lo> <hi> <tu>` (`rdlit` for .rodata, `sdlit` for .sdata),
 with the name and file= of the function's text row in the same TU, gives the
 range of the base ELF's section that function's own constants occupy (one
 contiguous run per section, since each sits between the constants of the
 functions before and after it); the stub file writes them as bytes of that
-section after the function's text, so the TU's other constants keep their
-places. A literal row takes no `local`; lit4 aligns to 4 as the assembler
+section after the function's text, so the TU's other constants, and the
+code that addresses them, keep their places. A literal row takes no `local`; lit4 aligns to 4 as the assembler
 does, rdlit and sdlit to align=N (default as for a data row, the largest
 power of two dividing vma_lo, at most 8; gcc aligns its strings to 8 and its
 jump tables to 16). A function has one row per run of its constants in a
@@ -82,20 +96,37 @@ table's run) or less.
 
 Ownership follows the order gcc reads the TU. gcc writes a string or a
 constant run once per TU, when it first expands a body that uses it, so the
-first function in the object that references it owns it and a later stubbed
-user needs no row; the assembler interns nothing (equal floats are two
-words), so .lit4 and the li.d pool belong to the function whose text loads
-them. A constant some function still in C emits needs no row either: the
-tool compiles the TU a second time with the listed functions removed, and a
-constant that compile still writes (an inline function's body is expanded
-where it is defined, even with every caller stubbed) stays the C's. Three
-cases print HAND and write nothing, because no row can place them: a
+first function in reading order that references it owns it and a later
+stubbed user needs no row; reading order is definition order (a .c.inc's
+definitions at the line that includes it), and an inline function, whose
+code comes out at the end of the object, reads where it is defined. The
+assembler interns nothing (equal floats are two words), so .lit4 and the
+li.d pool belong to the function whose text loads them. A constant some
+function still in C emits needs no row either: the tool compiles the TU a
+second time with the listed functions removed, and a constant that compile
+still writes (an inline function's body is expanded where it is defined,
+even with every caller stubbed) stays the C's.
+
+A stubbed inline function's strings and gcc's other constants in .rodata and
+.sdata are written where it is defined, among its neighbours' constants,
+while its code, and with it the assembler's .lit4 floats and li.d doubles
+and its jump tables (referenced from that code), comes out at the end of the
+file. Its rdlit and sdlit rows for gcc's constants carry `def`: the stub
+writes them to build/stubs/<stem>.lit.s, and --carve puts
+
+    INCLUDE_ASM_LIT(stem);
+
+where the definition stood, with INCLUDE_ASM(stem); at the end of the file
+as for any inline function. Measured on PAL with ReadSoundSqFile
+(charFileManager.c) and stage_CheckAnimationFinish (StageAnimation.c): gate
+PASS with the string at the definition, and with the same row written after
+the text instead, .rodata and .text differ.
+
+Three cases print HAND and write nothing, because no row can place them: a
 constant the stubbed owner shares with a later function still in C (gcc
 writes it again before that function: measured, the stub's copy and gcc's
-both land), a constant of an inline function that is stubbed (gcc writes it
-where the function is defined, the stub stands at the end of the file), and
-one the TU's data also references; a static inside the function that lives
-in .data, .sbss or .bss is named the same way. A count or kind that differs
+both land), one the TU's data also references, and a static inside the
+function that lives in .data, .sbss or .bss. A count or kind that differs
 between the sides prints DISAGREE: the target's function is not the
 object's, and its rows are measured by hand.
 
@@ -126,8 +157,11 @@ it was included from (`.previous`), so the compiler's own section state holds.
                                              its old ones; --dry-run prints
 
 NAME is a row's stem, or its name when one row carries it. Only a text
-row's function is carved; its literal rows ride on the same INCLUDE_ASM line,
-and --carve derives them first (above).
+row's function is carved; its literal rows ride on the same INCLUDE_ASM line
+(def rows on INCLUDE_ASM_LIT), and --carve derives them first (above). A row
+with in=<file.c.inc> is carved in that file: the uses and declarations of
+the name in the TU before and after the line that includes it count with
+the file's own.
 The carve works on the file's bytes, so an EUC-JP source keeps its encoding,
 and restore reads REV's file with `git cat-file --filters`, which applies the
 working-tree encoding (`git show` would give the UTF-8 that git stores).
@@ -143,7 +177,8 @@ line replaces exactly those lines, and the row gets `lines=N`, the number of
 lines replaced, when it has none. When the file uses the name after the
 definition and does not declare it before, the signature stays above the
 INCLUDE_ASM line as a declaration, since a call with no declaration in scope
-is an implicit `int name()` and compiles differently. The first carve in a
+is an implicit `int name()` and compiles differently (and an address of an
+undeclared name does not compile). The first carve in a
 file adds `#include "include_asm.h"` after the last `#include` above the
 first INCLUDE_ASM line (at the top of the file when there is none), and the
 restore of the last one removes it. A file in tools/format_layout.py's
@@ -159,12 +194,20 @@ the definition with the blank line after it and puts its INCLUDE_ASM line at
 the end of the file, among the stubs there in address order. That places it
 before every inline function the compiler still emits at the end, so the
 ones the base has before it are carved too (stubcheck names a stub out of
-place). An inline function the file uses after its definition, where gcc can
-inline it, is refused: the users lose the inlined body. A restore puts the
-definition back after the lines that preceded it in REV. A definition inside
-`#if`/`#ifdef`, or in a `.c.inc` the TU includes, is refused, and so is a
-name the file does not define (a function only the target has): those are
-placed by hand.
+place). An inline function the file calls after its definition, where gcc
+can inline it, is refused: the callers lose the inlined body. A later use
+that only takes its address (a function pointer in a table or an argument)
+inlines nothing, and the declaration alone stays where the definition stood
+when nothing above declares the name (measured on PAL: StageManager.c's
+stgmgrNextStagePreLoadDiskNotReady, whose address
+stgmgrNextStagePreLoadEntry passes, carved with the four inline functions
+the base emits before it, gate PASS). With def rows the INCLUDE_ASM_LIT
+line stands there too, after the declaration. A restore puts the definition
+back in place of the INCLUDE_ASM_LIT line or of the declaration carve kept,
+else after the lines that preceded it in REV. A definition inside
+`#if`/`#ifdef`, an inline function in a `.c.inc` (its stub belongs at the end
+of the TU, not of the .c.inc), and a name the file does not define (a
+function only the target has) are refused: those are placed by hand.
 """
 
 import argparse
@@ -222,6 +265,17 @@ HEADER_TEXT = """\
  * body had (the row's lines=N records the span); the byte gate decides. */
 #define INCLUDE_ASM(NAME) __asm__(".include \\"build/stubs/" #NAME ".s\\"")
 
+/* An inline function's strings and gcc's other constants are written where
+ * the function is defined, while gcc emits its code after the whole file is
+ * read, where its INCLUDE_ASM line stands. The row's rdlit and sdlit rows
+ * marked def are written to build/stubs/stem.lit.s, which
+ *
+ *     INCLUDE_ASM_LIT(stem);
+ *
+ * reads at the definition's place; the text, its .lit4 floats, its li.d
+ * doubles and its jump tables stay with INCLUDE_ASM(stem). */
+#define INCLUDE_ASM_LIT(NAME) __asm__(".include \\"build/stubs/" #NAME ".lit.s\\"")
+
 #endif /* INCLUDE_ASM_H */
 """
 
@@ -252,7 +306,7 @@ def parse_stubs(path=LIST):
             continue
         if len(f) < 5 or f[0] not in SECTIONS:
             fail(f"{where}:{n}: expected '<section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N]"
-                 f" [file=<stem>]' with section one of {', '.join(SECTIONS)}")
+                 f" [file=<stem>] [in=<file.c.inc>] [def]' with section one of {', '.join(SECTIONS)}")
         sec, name, tu = f[0], f[1], f[4]
         if not re.fullmatch(r"[A-Za-z_][\w.]*", name):
             fail(f"{where}:{n}: '{name}' is not a symbol name")
@@ -266,13 +320,18 @@ def parse_stubs(path=LIST):
             fail(f"{where}:{n}: a {sec} range starts and ends on a word")
         if not re.fullmatch(r"(ico2|sce)/\S+\.c", tu):
             fail(f"{where}:{n}: '{tu}' is not a C source under ico2/ or sce/")
-        local, align, span, stem = False, natural_align(lo), None, name
+        local, align, span, stem, src, at_def = False, natural_align(lo), None, name, tu, False
         for tok in f[5:]:
             m = re.fullmatch(r"align=(\d+)", tok)
             k = re.fullmatch(r"lines=(\d+)", tok)
             st = re.fullmatch(r"file=(\w+)", tok)
+            inc = re.fullmatch(r"in=((?:ico2|sce)/\S+\.c\.inc)", tok)
             if tok == "local" and sec not in LITERALS:
                 local = True
+            elif inc and sec not in LITERALS:
+                src = inc.group(1)
+            elif tok == "def" and sec in ("rdlit", "sdlit"):
+                at_def = True
             elif m and sec != "lit4" and int(m.group(1)) in (1, 2, 4, 8, 16) and lo % int(m.group(1)) == 0:
                 align = int(m.group(1))
             elif k and int(k.group(1)) > 0:
@@ -281,7 +340,9 @@ def parse_stubs(path=LIST):
                 stem = st.group(1)
             else:
                 fail(f"{where}:{n}: bad token '{tok}' (local, align=N with N a power of two dividing vma_lo,"
-                     " lines=N with N > 0, or file=<stem>; a literal row takes no local, a lit4 row no align=)")
+                     " lines=N with N > 0, file=<stem>, in=<path.c.inc> under ico2/ or sce/, or def;"
+                     " a literal row takes no local and no in=, a lit4 row no align=, and only an rdlit or"
+                     " sdlit row takes def)")
         if sec in LITERALS:
             if sec == "lit4":
                 align = 4
@@ -289,7 +350,7 @@ def parse_stubs(path=LIST):
             fail(f"{where}:{n}: {stem} is listed twice (first at line {stems[stem]['line']});"
                  " two statics of one name take file=<stem>")
         row = dict(section=sec, name=name, lo=lo, hi=hi, tu=tu, local=local, align=align,
-                   lines=span, stem=stem, line=n)
+                   lines=span, stem=stem, line=n, src=src, at_def=at_def)
         if sec in LITERALS:
             lits.append(row)
         else:
@@ -300,6 +361,8 @@ def parse_stubs(path=LIST):
         if t is None or t["section"] != "text" or t["name"] != r["name"] or t["tu"] != r["tu"]:
             fail(f"{where}:{r['line']}: the {r['section']} row for {r['stem']} has no text row of that name,"
                  " stem and TU")
+        # a literal row's lines live where its function's do
+        r["src"] = t["src"]
     glob = {}
     for r in stems.values():
         if not r["local"]:
@@ -311,6 +374,18 @@ def parse_stubs(path=LIST):
         if b["lo"] < a["hi"]:
             fail(f"{where}:{b['line']}: {b['name']} overlaps {a['name']} (line {a['line']})")
     return rows
+
+
+def stub_files(rows):
+    """{tu: [the files under build/stubs/ the TU's object reads]}: each
+    stem's .s, and its .lit.s when a def row asks for INCLUDE_ASM_LIT."""
+    out = {}
+    for r in rows:
+        names = [f"{r['stem']}.s"] + ([f"{r['stem']}.lit.s"] if r["at_def"] else [])
+        for n in names:
+            if n not in out.setdefault(r["tu"], []):
+                out[r["tu"]].append(n)
+    return out
 
 
 def stub_rows(rows):
@@ -392,13 +467,31 @@ def write_stub(rows, bufs):
         out += data_lines(buf, lo)
         out.append(f"    .size {name},.-{name}")
     out.append("    .previous")
-    for r, b in zip(rows[1:], bufs[1:]):
-        # the constants the function's code brought into the section
+    out += literal_lines(name, [(r, b) for r, b in zip(rows[1:], bufs[1:]) if not r["at_def"]])
+    return "\n".join(out) + "\n"
+
+
+def literal_lines(name, pairs):
+    """The constants the function's code brought into the sections, each run
+    in its section and back."""
+    out = []
+    for r, b in pairs:
         sec = LITERALS[r["section"]]
         out += [f"# {name}'s constants: 0x{r['lo']:08X}..0x{r['hi']:08X} of the base ELF's {sec}.",
                 f"    .section {sec}", f"    .p2align {r['align'].bit_length() - 1}"]
         out += data_lines(b, r["lo"])
         out.append("    .previous")
+    return out
+
+
+def write_lit_stub(rows, bufs):
+    """The stub file INCLUDE_ASM_LIT reads at the function's definition: its
+    def rows' constants only (an inline function's strings and gcc's
+    constants, which gcc writes where the function is defined)."""
+    row = rows[0]
+    out = [f"# {row['name']}: the constants gcc writes where the function is defined, for {row['src']};"
+           " generated by tools/gen_stub_s.py, not tracked."]
+    out += literal_lines(row["name"], [(r, b) for r, b in zip(rows[1:], bufs[1:]) if r["at_def"]])
     return "\n".join(out) + "\n"
 
 
@@ -452,6 +545,14 @@ INLINE = re.compile(rb"\binline\b|\b__inline")
 
 def asm_line(stem):
     return f"INCLUDE_ASM({stem});\n".encode()
+
+
+def lit_line(stem):
+    return f"INCLUDE_ASM_LIT({stem});\n".encode()
+
+
+def is_stub_line(line):
+    return line.startswith((b"INCLUDE_ASM(", b"INCLUDE_ASM_LIT("))
 
 
 def scan_code(lines):
@@ -534,12 +635,11 @@ def definitions(lines):
 def find_definition(lines, name, where):
     found = [d for d in definitions(lines) if d["name"] == name]
     if not found:
-        inc = [m.group(1).decode() for m in (re.match(rb'\s*#\s*include\s+"([^"]+\.inc)"', l) for l in lines) if m]
-        there = [i for i in inc if (ROOT / where).parent.joinpath(i).exists() and any(
-            d["name"] == name for d in definitions((ROOT / where).parent.joinpath(i).read_bytes()
-                                                   .splitlines(keepends=True)))]
+        there = [i for i in included(where, lines) if any(
+            d["name"] == name for d in definitions((ROOT / i).read_bytes().splitlines(keepends=True)))]
         fail(f"{where}: no definition of {name} at file scope"
-             + (f"; it is in {', '.join(there)}, which the TU includes: carve it there by hand" if there else ""))
+             + (f"; it is in {', '.join(there)}, which the TU includes: give the row in={there[0]}"
+                if there else ""))
     top = [d for d in found if d["cond"] == 0]
     if not top:
         fail(f"{where}:{found[0]['s'] + 1}: {name} is defined inside #if/#ifdef; carve it by hand,"
@@ -550,6 +650,38 @@ def find_definition(lines, name, where):
     if d["e"] > d["s"] and not lines[d["e"]].startswith(b"}"):
         fail(f"{where}:{d['e'] + 1}: {name}'s closing brace is not at column 0")
     return d
+
+
+def included(tu, lines):
+    """The .c.inc files tu's lines include, as paths from the root, in order."""
+    out = []
+    for l in lines:
+        m = re.match(rb'\s*#\s*include\s+"([^"]+\.c\.inc)"', l)
+        if m:
+            out.append(os.path.normpath(os.path.join(os.path.dirname(tu), m.group(1).decode())))
+    return out
+
+
+def include_at(tu, tu_lines, src):
+    """The line of tu_lines that includes src."""
+    rel = os.path.relpath(src, os.path.dirname(tu)).encode()
+    at = [k for k, l in enumerate(tu_lines) if re.match(rb'\s*#\s*include\s+"' + re.escape(rel) + rb'"', l)]
+    if len(at) != 1:
+        fail(f"{tu}: {'does not include' if not at else 'includes more than once'} {src}"
+             " (the row's in=)")
+    return at[0]
+
+
+def context(row, tu_lines=None):
+    """The TU's lines before and after the line that includes the row's
+    in=<file.c.inc> (none for a row in its .c), for the uses and
+    declarations of the name around the file."""
+    if row["src"] == row["tu"]:
+        return [], []
+    if tu_lines is None:
+        tu_lines = (ROOT / row["tu"]).read_bytes().splitlines(keepends=True)
+    k = include_at(row["tu"], tu_lines, row["src"])
+    return tu_lines[:k], tu_lines[k + 1:]
 
 
 def prototype(lines, d):
@@ -571,11 +703,18 @@ def mentions(lines, name, start, end=None, macros=True):
     return any((macros or not pp) and pat.search(c) for c, pp, _ in scan_code(lines[start:end]))
 
 
+def calls(lines, name, start):
+    """Whether code in lines[start:] calls `name` (macros count): a use
+    gcc can inline, unlike one that only takes the address."""
+    pat = re.compile(rb"\b" + re.escape(name.encode()) + rb"\s*\(")
+    return any(pat.search(c) for c, _, _ in scan_code(lines[start:]))
+
+
 def place_header(lines):
     """#include "include_asm.h" after the last #include above the first
     INCLUDE_ASM line (at the top, with a blank line after it, when there is
     none); removed when no INCLUDE_ASM line is left."""
-    asm = [k for k, l in enumerate(lines) if l.startswith(b"INCLUDE_ASM(")]
+    asm = [k for k, l in enumerate(lines) if is_stub_line(l)]
     have = [k for k, l in enumerate(lines) if l == INCLUDE_LINE]
     if asm and have and have[0] < asm[0] and len(have) == 1:
         return lines
@@ -584,7 +723,7 @@ def place_header(lines):
         del lines[k:k + 1 + top]
     if not asm:
         return lines
-    first = next(k for k, l in enumerate(lines) if l.startswith(b"INCLUDE_ASM("))
+    first = next(k for k, l in enumerate(lines) if is_stub_line(l))
     info = scan_code(lines)
     inc = [k for k in range(first) if info[k][1] and INCLUDE.match(lines[k])]
     if inc:
@@ -594,30 +733,42 @@ def place_header(lines):
     return lines
 
 
-def carve(lines, row, where, lo_of):
-    """Replace row's definition with its INCLUDE_ASM line; the lines it
-    spanned. lo_of gives each stem's vma_lo, to order the stubs of inline
-    functions at the end of the file."""
+def carve(lines, row, where, lo_of, lit=False, ctx=([], [])):
+    """Replace row's definition in lines (the file row's src, where) with
+    its INCLUDE_ASM line; the lines it spanned. lo_of gives each stem's
+    vma_lo, to order the stubs of inline functions at the end of the file;
+    lit puts INCLUDE_ASM_LIT at an inline function's definition; ctx is the
+    TU's lines before and after the include of a .c.inc."""
     d = find_definition(lines, row["name"], where)
-    s, e = d["s"], d["e"]
+    s, e, name = d["s"], d["e"], row["name"]
+    # a later use with no declaration above would make a call an implicit
+    # `int name()`, which compiles differently, and an address of an
+    # undeclared name does not compile: the signature stays as a declaration
+    keep = []
+    if ((mentions(lines, name, e + 1) or mentions(ctx[1], name, 0))
+            and not (mentions(lines, name, 0, s, macros=False) or mentions(ctx[0], name, 0, macros=False))):
+        keep = prototype(lines, d) + [b"\n"]
     if not d["inline"]:
-        # a later use with no declaration above would make the call an
-        # implicit `int name()`, which compiles differently: the signature
-        # stays as a declaration
-        keep = []
-        if mentions(lines, row["name"], e + 1) and not mentions(lines, row["name"], 0, s, macros=False):
-            keep = prototype(lines, d) + [b"\n"]
         lines[s:e + 1] = keep + [asm_line(row["stem"])]
     else:
         # gcc 2.9 compiles an inline function it must emit after the whole
         # file is read, after every other definition and every file-scope
         # asm; its stub goes at the end of the file, with the other stubs
-        # there in address order. A use after the definition is inlined
-        # there, which a stub cannot give.
-        if mentions(lines, row["name"], e + 1):
-            fail(f"{where}:{s + 1}: inline {row['name']} is used after its definition, where gcc may"
-                 " inline it; carve or restore those users first")
-        if e + 1 < len(lines) and lines[e + 1] == b"\n":
+        # there in address order. A call after the definition is inlined
+        # there, which a stub cannot give; a use that only takes the address
+        # needs the declaration alone.
+        if where != row["tu"]:
+            fail(f"{where}:{s + 1}: inline {name} is defined in a file {row['tu']} includes, and its stub"
+                 " belongs at the end of the TU; carve it by hand")
+        if calls(lines, name, e + 1):
+            fail(f"{where}:{s + 1}: inline {name} is called after its definition, where gcc may"
+                 " inline it; carve or restore those callers first")
+        # gcc writes the function's strings and other constants where it is
+        # defined: INCLUDE_ASM_LIT there, when the row has def literal rows
+        here = keep + [lit_line(row["stem"])] if lit else keep[:-1]
+        if here:
+            lines[s:e + 1] = here
+        elif e + 1 < len(lines) and lines[e + 1] == b"\n":
             del lines[s:e + 2]
         elif s > 0 and lines[s - 1] == b"\n":
             del lines[s - 1:e + 1]
@@ -634,36 +785,52 @@ def carve(lines, row, where, lo_of):
             lines[later[0]:later[0]] = [asm_line(row["stem"]), b"\n"]
         else:
             lines += [b"\n", asm_line(row["stem"])]
-        print(f"gen_stub_s: {row['name']} is inline: INCLUDE_ASM at the end of {where}. Its stub is emitted"
-              " after everything the file defines in place and before every inline function the compiler"
-              " still emits there, so those that come before it in the base are carved too"
-              " (stubcheck names a stub out of place)")
+        print(f"gen_stub_s: {name} is inline: INCLUDE_ASM at the end of {where}"
+              + (", INCLUDE_ASM_LIT for its strings where it was defined" if lit else "")
+              + ". Its stub is emitted after everything the file defines in place and before every inline"
+              " function the compiler still emits there, so those that come before it in the base are carved"
+              " too (stubcheck names a stub out of place)")
     place_header(lines)
     return e - s + 1
 
 
 def restore(lines, rev_lines, row, where, rev):
     """Put row's definition back from rev_lines in place of its INCLUDE_ASM
-    line (and the declaration carve left above it)."""
+    line (and the declaration carve left above it; for an inline function,
+    in place of its INCLUDE_ASM_LIT line or its declaration, else after the
+    lines that preceded it in rev)."""
     at = [k for k, l in enumerate(lines) if l == asm_line(row["stem"])]
     if len(at) != 1:
         fail(f"{where}: {'no' if not at else 'more than one'} INCLUDE_ASM({row['stem']}); line")
-    d = find_definition(rev_lines, row["name"], f"{rev}:{row['tu']}")
+    d = find_definition(rev_lines, row["name"], f"{rev}:{row['src']}")
     s, e = d["s"], d["e"]
     body = rev_lines[s:e + 1]
     k = at[0]
+    keep = prototype(rev_lines, d) + [b"\n"]
     if not d["inline"]:
-        keep = prototype(rev_lines, d) + [b"\n"]
         if lines[k - len(keep):k] == keep:
             k -= len(keep)
         lines[k:at[0] + 1] = body
+        place_header(lines)
+        return
+    del lines[k - 1 if k > 0 and lines[k - 1] == b"\n" else k:k + 1]
+    lit = [j for j, l in enumerate(lines) if l == lit_line(row["stem"])]
+    if len(lit) > 1:
+        fail(f"{where}: more than one INCLUDE_ASM_LIT({row['stem']}); line")
+    decl = [j for j in range(len(lines)) if lines[j:j + len(keep) - 1] == keep[:-1]]
+    if lit:
+        j = lit[0]
+        lines[j - len(keep) if lines[j - len(keep):j] == keep else j:j + 1] = body
+    elif len(decl) == 1 and not any(rev_lines[j:j + len(keep) - 1] == keep[:-1] for j in range(len(rev_lines))):
+        # the declaration carve kept where the definition stood
+        lines[decl[0]:decl[0] + len(keep) - 1] = body
     else:
-        del lines[k - 1 if k > 0 and lines[k - 1] == b"\n" else k:k + 1]
         # after the lines that preceded it in rev, as many as it takes to
         # name one place, blank lines aside (the layout pass settles those)
         before = [l for l in rev_lines[:s] if l.strip()]
         solid = [j for j, l in enumerate(lines) if l.strip()]
         text = [lines[j] for j in solid]
+        hits = []
         for n in range(1, len(before) + 1):
             ctx = before[-n:]
             hits = [solid[i + n - 1] for i in range(len(text) - n + 1) if text[i:i + n] == ctx]
@@ -718,19 +885,21 @@ def set_lines(path, spans):
 
 
 def carve_rows(rows, todo, list_path, back, rev):
-    """Carve (or with back, restore) each row of todo, one write per TU."""
-    by_tu, errors, done, skipped, spans = {}, [], 0, 0, {}
+    """Carve (or with back, restore) each row of todo, one write per file
+    (the TU, or the row's in=<file.c.inc>)."""
+    by_src, errors, done, skipped, spans = {}, [], 0, 0, {}
     lo_of = {r["stem"]: r["lo"] for r in rows if r["section"] == "text"}
+    lit = {r["stem"] for r in rows if r["at_def"]}
     for r in todo:
-        by_tu.setdefault(r["tu"], []).append(r)
-    for tu, rs in by_tu.items():
-        path = ROOT / tu
+        by_src.setdefault(r["src"], []).append(r)
+    for src, rs in by_src.items():
+        path = ROOT / src
         lines = path.read_bytes().splitlines(keepends=True)
         old = list(lines)
         # a file in the layout format.sh keeps stays in it (a declaration
         # carve leaves can join the block above it); restore gives it back
         clean = layout(lines) == lines
-        rev_lines = rev_file(rev, tu) if back else None
+        rev_lines = rev_file(rev, src) if back else None
         if back:
             # an inline function goes back after the others, so the lines
             # before it in rev are in place first
@@ -748,9 +917,9 @@ def carve_rows(rows, todo, list_path, back, rev):
                 continue
             try:
                 if back:
-                    restore(lines, rev_lines, r, tu, rev)
+                    restore(lines, rev_lines, r, src, rev)
                 else:
-                    n = carve(lines, r, tu, lo_of)
+                    n = carve(lines, r, src, lo_of, r["stem"] in lit, context(r))
                     if not r["lines"]:
                         spans[r["line"]] = n
                 done += 1
@@ -1030,49 +1199,71 @@ def symbol_sections(path):
         return out
 
 
-def compile_lines(tu, lines, out):
-    """tu compiled as lines (written in place for the compile, so the
-    compiler sees the file's own name and directory, and put back after)."""
+def compile_files(tu, files, out):
+    """tu compiled with files ({path: lines}: the TU and the .c.inc files it
+    includes) written in place for the compile, so the compiler sees each
+    file's own name and directory, and put back after."""
     from match_check import compile_tu
-    path = ROOT / tu
-    orig = path.read_bytes()
-    if b"".join(lines) == orig:
-        return compile_tu(tu, out)
+    orig = {f: (ROOT / f).read_bytes() for f in files}
+    changed = [f for f, lines in files.items() if b"".join(lines) != orig[f]]
     try:
-        path.write_bytes(b"".join(lines))
+        for f in changed:
+            (ROOT / f).write_bytes(b"".join(files[f]))
         return compile_tu(tu, out)
     finally:
-        path.write_bytes(orig)
+        for f in changed:
+            (ROOT / f).write_bytes(orig[f])
 
 
-def whole_lines(tu, rows_tu, rev):
-    """The TU with every listed function of it in C: a carved one is put
-    back from rev."""
-    lines = (ROOT / tu).read_bytes().splitlines(keepends=True)
-    carved = [r for r in rows_tu if asm_line(r["stem"]) in lines]
-    if not carved:
-        return lines
-    rev_lines = rev_file(rev, tu)
-    at = {d["name"]: (d["inline"], d["s"] if d["inline"] else 0) for d in definitions(rev_lines)}
-    for r in sorted(carved, key=lambda r: at.get(r["name"], (False, 0))):
-        restore(lines, rev_lines, r, tu, rev)
-    return lines
+def whole_files(tu, rows_tu, rev):
+    """{path: lines} of the TU and of each in= file of its rows, with every
+    listed function in C: a carved one is put back from rev."""
+    files = {}
+    for src in dict.fromkeys([tu] + [r["src"] for r in rows_tu]):
+        lines = (ROOT / src).read_bytes().splitlines(keepends=True)
+        carved = [r for r in rows_tu if r["src"] == src and asm_line(r["stem"]) in lines]
+        if carved:
+            rev_lines = rev_file(rev, src)
+            at = {d["name"]: (d["inline"], d["s"] if d["inline"] else 0) for d in definitions(rev_lines)}
+            for r in sorted(carved, key=lambda r: at.get(r["name"], (False, 0))):
+                restore(lines, rev_lines, r, src, rev)
+        files[src] = lines
+    return files
 
 
-def without_lines(whole, rows_tu, tu):
-    """The TU with every listed function's definition gone (a declaration
-    kept where carve keeps one), to see which constants the rest of the C
-    still emits. A definition carve refuses stays."""
-    lines = list(whole)
+def without_files(whole, rows_tu, tu):
+    """The files with every listed function's definition gone (a
+    declaration kept where carve keeps one), to see which constants the rest
+    of the C still emits. A definition carve refuses stays."""
     lo_of = {r["stem"]: r["lo"] for r in rows_tu}
-    at = {d["name"]: d["s"] for d in definitions(lines)}
-    for r in sorted(rows_tu, key=lambda r: -at.get(r["name"], -1)):
-        try:
-            with open(os.devnull, "w") as quiet, contextlib.redirect_stdout(quiet):
-                carve(lines, r, tu, lo_of)
-        except SystemExit:
-            pass
-    return [l for l in lines if not l.startswith(b"INCLUDE_ASM(") and l != INCLUDE_LINE]
+    out = {}
+    for src, lines in whole.items():
+        lines = list(lines)
+        at = {d["name"]: d["s"] for d in definitions(lines)}
+        for r in sorted((r for r in rows_tu if r["src"] == src), key=lambda r: -at.get(r["name"], -1)):
+            try:
+                with open(os.devnull, "w") as quiet, contextlib.redirect_stdout(quiet):
+                    carve(lines, r, src, lo_of, False, context(r, whole[tu]))
+            except SystemExit:
+                pass
+        out[src] = [l for l in lines if not is_stub_line(l) and l != INCLUDE_LINE]
+    return out
+
+
+def reading_order(tu, files):
+    """{function: rank} in the order gcc reads the TU's definitions, a
+    .c.inc's at the line that includes it. gcc writes a string or constant
+    run when it first expands a body that uses it: for an inline function
+    where it is defined, though its code comes out at the end of the
+    object."""
+    tu_lines = files[tu]
+    items = [(d["s"], 0, d["name"]) for d in definitions(tu_lines)]
+    for inc in included(tu, tu_lines):
+        lines = files.get(inc) or ((ROOT / inc).read_bytes().splitlines(keepends=True)
+                                   if (ROOT / inc).exists() else [])
+        k = include_at(tu, tu_lines, inc)
+        items += [(k, d["s"], d["name"]) for d in definitions(lines)]
+    return {n: i for i, (_, _, n) in enumerate(sorted(items))}
 
 
 def still_emits(obj, sec, kind, content):
@@ -1101,9 +1292,13 @@ def describe(obj, key):
 def derive_tu(tu, rows_tu, target, sec_of_name, rev):
     """{stem: result} for the TU's text rows: result has `status` (none,
     ok, hand, absent or disagree), `rows` (the literal rows) and `notes`."""
-    src_lines = whole_lines(tu, rows_tu, rev)
+    files = whole_files(tu, rows_tu, rev)
     with tempfile.TemporaryDirectory(prefix="gen_stub_s.") as tmp:
-        obj = ObjectRefs(compile_lines(tu, src_lines, Path(tmp) / "whole"), sec_of_name)
+        obj = ObjectRefs(compile_files(tu, files, Path(tmp) / "whole"), sec_of_name)
+        # the owner of a constant is its first user in reading order
+        rank = reading_order(tu, files)
+        for u in obj.users.values():
+            u.sort(key=lambda f: rank.get(f, len(rank)))
         # gcc writes a string or constant run when it first expands a body
         # that uses it, and an inline function's body is expanded where it is
         # defined even when every user is a stub: what the C still emits
@@ -1111,10 +1306,10 @@ def derive_tu(tu, rows_tu, target, sec_of_name, rev):
         rest = None
         if any(obj.literal(k)[0] in ("string", "data") for r in rows_tu for k in obj.refs.get(r["name"], [])
                if k[1] is None):
-            rest = ObjectRefs(compile_lines(tu, without_lines(src_lines, rows_tu, tu), Path(tmp) / "without"),
+            rest = ObjectRefs(compile_files(tu, without_files(files, rows_tu, tu), Path(tmp) / "without"),
                               sec_of_name)
     stubbed = {r["name"] for r in rows_tu}
-    inline = {d["name"] for d in definitions(src_lines) if d["inline"]}
+    inline = {d["name"] for lines in files.values() for d in definitions(lines) if d["inline"]}
     out = {}
     for row in rows_tu:
         name, notes, hand, lits = row["name"], [], [], []
@@ -1145,7 +1340,7 @@ def derive_tu(tu, rows_tu, target, sec_of_name, rev):
                         # around this place, the size the object gives it
                         seen.add(k[1])
                         lo, hi, _ = next(x for x in obj.named[sec] if x[2] == k[1])
-                        lits.append((LIT_CLASS[sec], addr - k[2], hi - lo, "static", sec))
+                        lits.append((LIT_CLASS[sec], addr - k[2], hi - lo, "static", sec, False))
                     continue
                 users = obj.users[k]
                 if users[0] != name:
@@ -1161,9 +1356,11 @@ def derive_tu(tu, rows_tu, target, sec_of_name, rev):
                 if (sec, k[2]) in obj.from_data:
                     hand.append(f"{describe(obj, k)} is also referenced from the TU's data, whose"
                                 " initializer may emit it before this function")
-                if name in inline and kind not in ("float", "double", "jtbl"):
-                    hand.append(f"{describe(obj, k)}: {name} is inline; gcc emits its constants where it is"
-                                " defined and its stub stands at the end of the file")
+                # gcc writes an inline function's strings and constants where
+                # it is defined (a def row, INCLUDE_ASM_LIT there); the
+                # assembler's floats and doubles and the jump tables follow
+                # its code to the end of the file
+                at_def = name in inline and kind in ("string", "data", "word")
                 _, data = target.section(addr)
                 if kind == "string":
                     z = data.find(b"\0", 0, max(size, 4096))
@@ -1178,7 +1375,7 @@ def derive_tu(tu, rows_tu, target, sec_of_name, rev):
                                      " addresses in .text")
                 elif kind == "double" and addr % 8:
                     notes.append(f"{describe(obj, k)}: the target's address 0x{addr:08X} is not 8-aligned")
-                lits.append((LIT_CLASS[sec], addr, size, kind, sec))
+                lits.append((LIT_CLASS[sec], addr, size, kind, sec, at_def))
         if notes:
             out[row["stem"]] = dict(status="disagree", rows=[], notes=notes, own=mine)
             continue
@@ -1190,10 +1387,12 @@ def derive_tu(tu, rows_tu, target, sec_of_name, rev):
 def literal_rows(row, lits, target, obj):
     """The literals as rows: one per run of a section's literals that lie
     next to each other in the target (with at most the alignment padding of
-    the next one between them: fewer than 8 zero bytes)."""
+    the next one between them: fewer than 8 zero bytes), those written at
+    the definition (def) and those after the code apart."""
     rows = []
-    for cls, sec in (("lit4", ".lit4"), ("rdlit", ".rodata"), ("sdlit", ".sdata")):
-        mine = sorted((a, a + n, k) for c, a, n, k, _ in lits if c == cls)
+    for cls, sec, at_def in (("lit4", ".lit4", False), ("rdlit", ".rodata", False), ("sdlit", ".sdata", False),
+                             ("rdlit", ".rodata", True), ("sdlit", ".sdata", True)):
+        mine = sorted((a, a + n, k) for c, a, n, k, _, d in lits if c == cls and d == at_def)
         runs = []
         for lo, hi, k in mine:
             if runs:
@@ -1211,6 +1410,8 @@ def literal_rows(row, lits, target, obj):
                     toks.append(f"align={a}")
             if row["stem"] != row["name"]:
                 toks.append(f"file={row['stem']}")
+            if at_def:
+                toks.append("def")
             c = Counter(ks)
             what = ", ".join(f"{n} {PLURAL[k] if n > 1 else k}" for k, n in c.items())
             rows.append(f"{cls} {row['name']} 0x{lo:08X} 0x{hi:08X} {row['tu']}"
@@ -1309,7 +1510,9 @@ def main():
                      + (f" align={r['align']}" if r["section"] != "lit4" and r["align"] != natural_align(r["lo"])
                         else "")
                      + (f" lines={r['lines']}" if r["lines"] else "")
-                     + (f" file={r['stem']}" if r["stem"] != r["name"] else ""))
+                     + (f" file={r['stem']}" if r["stem"] != r["name"] else "")
+                     + (f" in={r['src']}" if r["src"] != r["tu"] and r["section"] not in LITERALS else "")
+                     + (" def" if r["at_def"] else ""))
             print(f"{r['section']:<6} {r['name']} {r['lo']:08X} {r['hi']:08X} {r['tu']}{extra}")
         print(f"gen_stub_s: {len(rows)} stubs in {a.stubs}" + ("" if rows else " (idle)"), file=sys.stderr)
         return 0
@@ -1329,7 +1532,7 @@ def main():
             # derived while the functions are still C
             src = {}
             fresh = [r for r in todo if asm_line(r["stem"]) not in src.setdefault(
-                r["tu"], (ROOT / r["tu"]).read_bytes().splitlines(keepends=True))]
+                r["src"], (ROOT / r["src"]).read_bytes().splitlines(keepends=True))]
             if fresh:
                 results = derive(rows, fresh, a.elf, a.syms, a.rev)
                 rc = report_literals(rows, results, True)
@@ -1347,8 +1550,10 @@ def main():
     with open(BASE_ELF, "rb") as fh:
         elf = ELFFile(fh)
         for stem, rs in stems.items():
-            text = write_stub(rs, [section_bytes(elf, r, "the base ELF") for r in rs])
-            wrote += write_if_changed(a.out_dir / f"{stem}.s", text)
+            bufs = [section_bytes(elf, r, "the base ELF") for r in rs]
+            wrote += write_if_changed(a.out_dir / f"{stem}.s", write_stub(rs, bufs))
+            if any(r["at_def"] for r in rs):
+                wrote += write_if_changed(a.out_dir / f"{stem}.lit.s", write_lit_stub(rs, bufs))
     print(f"gen_stub_s: {len(stems)} stubs and {HEADER}, {wrote} written to {a.out_dir}")
     return 0
 

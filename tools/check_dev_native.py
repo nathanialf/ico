@@ -2,7 +2,8 @@
 """check_dev_native.py: refuse constructs a developer did not write.
 
 Run by the pre-commit hook on staged C files (or on the whole tree with
---all).  Exit 1 on any hit.  The rules follow CLAUDE.md's crutch test and the
+--all).  Exit 1 on any hit.  --self-test runs rule 8 on the file-scope
+shapes a carve leaves (SELF_TEST) and on the forms it refuses.  The rules follow CLAUDE.md's crutch test and the
 user's standing instruction of 2026-09-23 (dev-native code; asm and register
 pins are fine only where the developers' own source was assembly).
 
@@ -38,11 +39,17 @@ pins are fine only where the developers' own source was assembly).
      only asm a C file may carry for a function it does not yet compile is the
      exact line `INCLUDE_ASM(stem);` at file scope, and only while the list
      has a row of that stem naming this file (the stem is the row's name, or
-     its file=<stem> when two statics share a name); the row and the line go
-     together, so a listed stem whose file lacks the line is refused too.  A
-     literal row (lit4, rdlit, sdlit: the function's constants) rides on its
-     function's line and has none of its own.  An
-     INCLUDE_ASM in any other spelling, one for a stem the list does not
+     its file=<stem> when two statics share a name; the file is the row's TU,
+     or its in=<file.c.inc>, which the TU must include); the row and the line
+     go together, so a listed stem whose file lacks the line is refused too.
+     A literal row (lit4, rdlit, sdlit: the function's constants) rides on
+     its function's line and has none of its own, except that a stem with a
+     def literal row (an inline function's strings, written where it is
+     defined) carries exactly one `INCLUDE_ASM_LIT(stem);` at file scope in
+     the same file as well, and no other stem carries one.  A file-scope
+     line is one outside every function body: a prototype on one line or
+     several and a one-line `{}` function above it leave it at file scope.
+     An INCLUDE_ASM in any other spelling, one for a stem the list does not
      carry, one on a tree whose list is empty, an `#include "include_asm.h"`
      with no listed stub beside it, and a `.include` in any other asm are
      refused.  The macro comes from build/stubs/include_asm.h, which
@@ -84,6 +91,7 @@ ALIAS = re.compile(r'[\w\])]\s*(__asm__|\basm\b)\s*\(\s*"[A-Za-z_.][\w.]*"\s*\)\
 PIN_MACRO = re.compile(r'\b(KEEP_LIVE|ANCHOR|MEM_BARRIER|MATERIALIZE)\s*\(|\bREG\s*\(\s*\$')
 # rule 8: the one stub form, and the other spellings that would bring in asm text
 INCLUDE_ASM_LINE = re.compile(r'^INCLUDE_ASM\((\w+)\);$')
+INCLUDE_ASM_LIT_LINE = re.compile(r'^INCLUDE_ASM_LIT\((\w+)\);$')
 INCLUDE_ASM_HDR = re.compile(r'^\s*#\s*include\s+["<]include_asm\.h[">]')
 ASM_INCLUDE = re.compile(r'\.include\b')
 # instructions no C spells, valid only inside an asm template (the assert trap and its kin)
@@ -137,15 +145,96 @@ def load_allow():
     return allow
 
 
+def code_chars(L, j, col=0):
+    """(line, character) of the code from line j, column col on: comments,
+    string and character literals and preprocessor lines left out, a '\\n'
+    at each line's end."""
+    blk = False
+    for k in range(j, len(L)):
+        l = L[k]
+        if not blk and l.lstrip().startswith('#') and not (k == j and col):
+            continue
+        n, c = len(l), col if k == j else 0
+        while c < n:
+            if blk:
+                e = l.find('*/', c)
+                if e < 0:
+                    break
+                blk, c = False, e + 2
+            elif l.startswith('/*', c):
+                blk, c = True, c + 2
+            elif l.startswith('//', c):
+                break
+            elif l[c] in '"\'':
+                q, c = l[c], c + 1
+                while c < n and l[c] != q:
+                    c += 2 if l[c] == '\\' else 1
+                c += 1
+            else:
+                yield k, l[c]
+                c += 1
+        yield k, '\n'
+
+
+def header_kind(L, j, start):
+    """What the item whose name's `(` ends at column start of line j is:
+    ('decl', None) when its parameter list is followed by `;`, `,` or `=`
+    (a prototype, on one line or several, an __attribute__ or asm label
+    between), else ('def', the line of the body's first `{`, or None when
+    the file ends first); a K&R definition's parameter declarations stand
+    between the list and the `{`."""
+    depth, after, word, knr = 1, False, '', False
+    for k, ch in code_chars(L, j, start):
+        if not after:
+            depth += {'(': 1, ')': -1}.get(ch, 0)
+            after = depth == 0
+            continue
+        if ch.isalnum() or ch == '_':
+            word += ch
+            continue
+        if word:
+            knr = knr or word not in ('__attribute__', '__asm__', 'asm')
+            word = ''
+        if ch == '{':
+            return 'def', k
+        if knr or ch.isspace():
+            continue
+        if ch in ';,=':
+            return 'decl', None
+        if ch == '(':
+            # an __attribute__ ((...)) or asm label after the parameters
+            depth, after = 1, False
+    return 'def', None
+
+
 def enclosing_function(L, i):
-    """the C function whose body holds line i, or None at file scope (a `}` in
-    column 0 closes the previous function before any header is reached)."""
+    """the C function whose body holds line i, or None at file scope.  A
+    header is a line that starts an item naming a function with `(`; a
+    prototype (its parameter list followed by `;`, on one line or several)
+    is not one, and a function whose body closes above line i (a `}` in
+    column 0, or a body that opens and closes on its own lines, such as a
+    one-line `{}`) leaves line i at file scope."""
     for j in range(i, -1, -1):
         if j < i and L[j].rstrip() == '}':
             return None
         m = FN_HDR.match(L[j])
-        if m and not L[j].rstrip().endswith(';') and m.group(1) not in ('if', 'while', 'for', 'switch', 'return', 'sizeof'):
-            return m.group(1)
+        if not m or L[j].rstrip().endswith(';') or m.group(1) in ('if', 'while', 'for', 'switch', 'return', 'sizeof'):
+            continue
+        kind, brace = header_kind(L, j, m.end())
+        if kind == 'decl':
+            continue
+        if brace is not None and brace < i:
+            depth = 0
+            for k, ch in code_chars(L, brace):
+                if k >= i:
+                    break
+                if ch == '{':
+                    depth += 1
+                elif ch == '}':
+                    depth -= 1
+                    if depth == 0:
+                        return None
+        return m.group(1)
     return None
 
 
@@ -179,51 +268,137 @@ def check_one_assembler(bad):
             bad.append(f'tools/compile_c.sh:{i+1}: a config opt-in selects the assembler (selection is by archive only)')
 
 
-def check_stubs(f, L, stubs, bad):
-    """rule 8 on one file: each INCLUDE_ASM line against the stub list (by
-    stem), and each row naming this file against its lines."""
-    seen = set()
+def check_stubs(f, L, stubs, bad, lit=frozenset()):
+    """rule 8 on one file: each INCLUDE_ASM and INCLUDE_ASM_LIT line against
+    the stub list (by stem), and each row whose line lives in this file (its
+    TU, or its in=<file.c.inc>) against its lines.  lit holds the stems with
+    a def literal row, whose INCLUDE_ASM_LIT line stands at the definition."""
+    seen, seen_lit = set(), set()
     header = False
+    rel = os.path.relpath(STUB_LIST, ROOT)
     for i, l in enumerate(L):
         if 'INCLUDE_ASM' not in l and 'include_asm' not in l and '.include' not in l:
             continue
-        m = INCLUDE_ASM_LINE.match(l.rstrip())
+        m = INCLUDE_ASM_LINE.match(l.rstrip()) or INCLUDE_ASM_LIT_LINE.match(l.rstrip())
         if m and enclosing_function(L, i) is None:
             name = m.group(1)
+            form = 'INCLUDE_ASM_LIT' if l.startswith('INCLUDE_ASM_LIT') else 'INCLUDE_ASM'
+            done = seen_lit if form == 'INCLUDE_ASM_LIT' else seen
             if not stubs:
-                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}) on a tree whose stub list is empty ({os.path.relpath(STUB_LIST, ROOT)})')
+                bad.append(f'{f}:{i+1}: {form}({name}) on a tree whose stub list is empty ({rel})')
             elif name not in stubs:
-                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}): no row of that stem in {os.path.relpath(STUB_LIST, ROOT)}')
-            elif stubs[name]['tu'] != f:
-                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}): its row names {stubs[name]["tu"]}, not this file')
-            elif name in seen:
-                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}) a second time')
+                bad.append(f'{f}:{i+1}: {form}({name}): no row of that stem in {rel}')
+            elif stubs[name]['src'] != f:
+                bad.append(f'{f}:{i+1}: {form}({name}): its row names {stubs[name]["src"]}, not this file')
+            elif form == 'INCLUDE_ASM_LIT' and name not in lit:
+                bad.append(f'{f}:{i+1}: INCLUDE_ASM_LIT({name}): {name} has no def literal row in {rel}')
+            elif name in done:
+                bad.append(f'{f}:{i+1}: {form}({name}) a second time')
             else:
-                seen.add(name)
+                done.add(name)
         elif INCLUDE_ASM_HDR.match(l):
             header = True
         elif 'INCLUDE_ASM' in l:
-            bad.append(f'{f}:{i+1}: INCLUDE_ASM in a form other than `INCLUDE_ASM(name);` alone on a file-scope line')
+            bad.append(f'{f}:{i+1}: INCLUDE_ASM in a form other than `INCLUDE_ASM(name);` or'
+                       ' `INCLUDE_ASM_LIT(name);` alone on a file-scope line')
         elif ASM_INCLUDE.search(l) and f.endswith(('.c', '.h', '.inc')):
             bad.append(f'{f}:{i+1}: .include in an asm template (stubs come only through INCLUDE_ASM)')
-    if header and not seen:
+    if header and not seen and not seen_lit:
         bad.append(f'{f}: includes include_asm.h with no listed stub')
     for name, r in stubs.items():
-        if r['tu'] == f and name not in seen:
-            bad.append(f'{f}: {os.path.relpath(STUB_LIST, ROOT)}:{r["line"]} lists {r["name"]} for this file, which has no INCLUDE_ASM({name}); line')
+        if r['src'] == f and name not in seen:
+            bad.append(f'{f}: {rel}:{r["line"]} lists {r["name"]} for this file, which has no INCLUDE_ASM({name}); line')
+        if r['src'] == f and name in lit and name not in seen_lit:
+            bad.append(f'{f}: {rel}:{r["line"]} gives {r["name"]} def literal rows, and this file has no'
+                       f' INCLUDE_ASM_LIT({name}); line')
+        if r['tu'] == f and r['src'] != f:
+            inc = os.path.relpath(r['src'], os.path.dirname(f))
+            if not any(re.match(r'\s*#\s*include\s+"' + re.escape(inc) + '"', x) for x in L):
+                bad.append(f'{f}: {rel}:{r["line"]} puts {r["name"]} in {r["src"]}, which this file does not include')
+
+
+# --self-test: the file-scope shapes a carve leaves around INCLUDE_ASM (a
+# prototype on one line or several, a one-line `{}` function, a declaration
+# with an attribute) and the ones rule 8 refuses, as (name, file, text, the
+# refusals expected, as substrings, in order)
+SELF_TEST = [
+    ('multi-line prototype', 'ico2/a.c',
+     'int f(void)\n{\n    return 0;\n}\n\nint g(int a, float *b,\n      unsigned char c);\n\nINCLUDE_ASM(g);\n'
+     '\nINCLUDE_ASM(h);\n', []),
+    ('static multi-line prototype, two stubs', 'ico2/a.c',
+     'static int g(int a, void *b, float r,\n             unsigned char c);\n\nINCLUDE_ASM(h);\n\nINCLUDE_ASM(g);\n',
+     []),
+    ('one-line {} function between stubs', 'ico2/a.c',
+     'INCLUDE_ASM(g);\n\ninline void f(int *p) {}\n\nINCLUDE_ASM(h);\n', []),
+    ('comment, extern and multi-line prototype', 'ico2/a.c',
+     '/* declared here:\n   a note */\nextern const int t[];\n\nstatic void g(int *c, float x, float y,\n'
+     '              void *q);\n\nINCLUDE_ASM(g);\n\nINCLUDE_ASM(h);\n', []),
+    ('multi-line extern, prototype, static data', 'ico2/a.c',
+     'static int n; /* derived name */\nextern int k(char *t, int x,\n             int y);\nstatic int g(void);\n\n'
+     'INCLUDE_ASM(g);\n\nstatic int m = -1;\n\nstatic int h(void);\n\nINCLUDE_ASM(h);\n', []),
+    ('declaration with an attribute', 'ico2/a.c',
+     'static int s __attribute__((aligned(16)));\n\nINCLUDE_ASM(g);\n\nINCLUDE_ASM(h);\n', []),
+    ('INCLUDE_ASM inside a body', 'ico2/a.c',
+     'int f(int a,\n      int b)\n{\nINCLUDE_ASM(g);\n}\n\nINCLUDE_ASM(h);\n',
+     ['ico2/a.c:4: INCLUDE_ASM in a form other', 'lists g for this file']),
+    ('INCLUDE_ASM inside a K&R body', 'ico2/a.c',
+     'int f(a, b)\nint a;\nint b;\n{\nINCLUDE_ASM(g);\n}\n\nINCLUDE_ASM(h);\n',
+     ['ico2/a.c:5: INCLUDE_ASM in a form other', 'lists g for this file']),
+    ('INCLUDE_ASM_LIT at the definition, INCLUDE_ASM at the end', 'ico2/b.c',
+     'int f(void);\n\nINCLUDE_ASM_LIT(i);\n\nint f(void)\n{\n    return 0;\n}\n\nINCLUDE_ASM(j);\n'
+     '\nINCLUDE_ASM(i);\n', []),
+    ('INCLUDE_ASM_LIT with no def row', 'ico2/b.c',
+     'INCLUDE_ASM_LIT(i);\nINCLUDE_ASM_LIT(j);\n\nINCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
+     ['INCLUDE_ASM_LIT(j): j has no def literal row']),
+    ('def row with no INCLUDE_ASM_LIT', 'ico2/b.c', 'INCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
+     ['gives i def literal rows']),
+    ('INCLUDE_ASM_LIT twice', 'ico2/b.c',
+     'INCLUDE_ASM_LIT(i);\nINCLUDE_ASM_LIT(i);\nINCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
+     ['INCLUDE_ASM_LIT(i) a second time']),
+    ('a row in= its .c.inc: the line there', 'ico2/c_part.c.inc', 'INCLUDE_ASM(k);\n', []),
+    ('a row in= its .c.inc: the TU includes it', 'ico2/c.c', '#include "c_part.c.inc"\n', []),
+    ('a row in= its .c.inc: the line in the TU', 'ico2/c.c', '#include "c_part.c.inc"\nINCLUDE_ASM(k);\n',
+     ['INCLUDE_ASM(k): its row names ico2/c_part.c.inc, not this file']),
+    ('a row in= a .c.inc the TU does not include', 'ico2/c.c', 'int x;\n',
+     ['puts k in ico2/c_part.c.inc, which this file does not include']),
+]
+
+
+def self_test():
+    """rule 8 on the shapes above, against a list of five rows."""
+    def row(stem, tu, src=None, line=1):
+        return dict(name=stem, stem=stem, tu=tu, src=src or tu, line=line)
+    stubs = {'g': row('g', 'ico2/a.c'), 'h': row('h', 'ico2/a.c', line=2), 'i': row('i', 'ico2/b.c', line=3),
+             'j': row('j', 'ico2/b.c', line=4), 'k': row('k', 'ico2/c.c', 'ico2/c_part.c.inc', line=5)}
+    failed = 0
+    for name, f, text, want in SELF_TEST:
+        bad = []
+        mine = {k: r for k, r in stubs.items() if f in (r['tu'], r['src'])}
+        check_stubs(f, text.split('\n'), mine, bad, {'i'})
+        ok = len(bad) == len(want) and all(w in b for w, b in zip(want, bad))
+        failed += not ok
+        print(f'check_dev_native: self-test {"ok  " if ok else "FAIL"} {name}'
+              + ('' if ok else ': ' + ('; '.join(bad) or 'nothing refused')), file=sys.stderr)
+    print(f'check_dev_native: self-test {len(SELF_TEST) - failed} of {len(SELF_TEST)} as expected', file=sys.stderr)
+    return 1 if failed else 0
 
 
 def main(argv):
+    if '--self-test' in argv:
+        return self_test()
     files = staged_or_all(argv)
     # keyed by stem, the name INCLUDE_ASM spells; a literal row (lit4, rdlit,
     # sdlit) has no line of its own
-    stubs = {r['stem']: r for r in parse_stubs() if r['section'] not in LITERALS}
+    rows = parse_stubs()
+    stubs = {r['stem']: r for r in rows if r['section'] not in LITERALS}
+    lit = {r['stem'] for r in rows if r['at_def']}
     # a staged change to the stub list checks every file it names
     if '--all' not in argv and not os.environ.get('FILES'):
         staged = subprocess.run(['git', 'diff', '--cached', '--name-only'], cwd=ROOT,
                                 capture_output=True, text=True).stdout.split()
         if os.path.relpath(STUB_LIST, ROOT) in staged:
-            files += [t for t in dict.fromkeys(r['tu'] for r in stubs.values()) if t not in files]
+            files += [t for t in dict.fromkeys(x for r in stubs.values() for x in (r['tu'], r['src']))
+                      if t not in files]
     listing = load_listing()
     allow = load_allow()
     bad = []
@@ -240,7 +415,7 @@ def main(argv):
             L = open(path, errors='replace').read().split('\n')
         except OSError:
             continue
-        check_stubs(f, L, stubs, bad)
+        check_stubs(f, L, stubs, bad, lit)
         newlib = f.startswith('sce/libc/')
         for i, l in enumerate(L):
             m = KNR_HDR.match(l)

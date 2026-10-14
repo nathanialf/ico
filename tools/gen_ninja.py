@@ -37,9 +37,11 @@ and once with -s to ico.elf, since the base carries no .symtab or .strtab but
 INCLUDE inside a section, so the script it reads is build/link.ld,
 config/link.<slug>.ld with its INCLUDE lines expanded; the map it writes is
 build/ico.<slug>.map), stubs (tools/gen_stub_s.py: build/stubs/<stem>.s
-for each row of config/stubs.<slug>.txt, from the base ELF, and the macro's
-header build/stubs/include_asm.h, implicit inputs of the object of the TU the
-row names, which includes the stub with INCLUDE_ASM), stubcheck
+for each row of config/stubs.<slug>.txt, from the base ELF, <stem>.lit.s for
+a row with def literal rows, and the macro's header build/stubs/include_asm.h,
+implicit inputs of the object of the TU the row names, which includes the
+stub with INCLUDE_ASM and INCLUDE_ASM_LIT; a row's in=<file.c.inc> is an
+implicit input of that object too), stubcheck
 (gen_stub_s.py --check on the linked ELF, so a stub out of place is named
 before the gate), rom, verify (tools/check_elf.py --gate
 --require-elf-sha: the allocated sections, the ROM SHA-1 and the whole ELF's
@@ -61,7 +63,7 @@ from ico_version import (  # noqa: E402
     detect_version, baseelf_path, config_path, link_map_path,
 )
 # The stub list's one parser (config/stubs.<slug>.txt).
-from gen_stub_s import HEADER as STUB_HEADER, LIST as STUB_LIST_PATH, parse_stubs  # noqa: E402
+from gen_stub_s import HEADER as STUB_HEADER, LIST as STUB_LIST_PATH, parse_stubs, stub_files  # noqa: E402
 
 VERSION = detect_version(ROOT)
 
@@ -246,11 +248,14 @@ def main():
         if r["tu"] not in srcs:
             fail(f"{STUB_LIST}:{r['line']}: {r['tu']} is not a source in {LIST}")
     stub_h = f"{OUT}/stubs/{STUB_HEADER}"
-    stub_s = {}
+    # a literal row shares its function's file; a def row adds <stem>.lit.s
+    stub_s = {tu: [stub_h] + [f"{OUT}/stubs/{n}" for n in ns] for tu, ns in stub_files(stubs).items()}
+    # a row's in=<file.c.inc>, the file its INCLUDE_ASM line lives in, is
+    # read by the TU's compile too (ninja does not track includes)
+    stub_src = {}
     for r in stubs:
-        stem_s = f"{OUT}/stubs/{r['stem']}.s"   # a literal row shares its function's file
-        if stem_s not in stub_s.setdefault(r["tu"], [stub_h]):
-            stub_s[r["tu"]].append(stem_s)
+        if r["src"] != r["tu"] and r["src"] not in stub_src.setdefault(r["tu"], []):
+            stub_src[r["tu"]].append(r["src"])
     members = table_members()
     cmembers = schema_members()
     check(entries, members)
@@ -347,7 +352,7 @@ def main():
             link.append(o)
             layout.append(o)
             if e["name"].endswith(".c"):
-                deps = stub_s.get(e["name"])
+                deps = stub_s.get(e["name"], []) + stub_src.get(e["name"], [])
                 w.append(f"build {o}: cc {e['name']}{' | ' + ' '.join(deps) if deps else ''}\n")
             elif e["name"].endswith(".dsm"):
                 dsm = Path(e["name"]).relative_to("ico2")

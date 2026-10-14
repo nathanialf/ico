@@ -207,7 +207,9 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   listed there with its address range and its translation unit, and the C
   carries `INCLUDE_ASM(stem);` where the function stands in the file (the
   stem is the function's name, or the row's `file=<stem>` when two statics
-  in two TUs share a name). `tools/gen_stub_s.py` writes
+  in two TUs share a name; a function defined in a `.c.inc` the TU includes
+  has its line there, named by the row's `in=<file.c.inc>`, and the TU's
+  object depends on that file). `tools/gen_stub_s.py` writes
   `build/stubs/<stem>.s` from the user's own base ELF, one `.word` per
   instruction with no relocations, and the assembler reads it at that point
   of the compiler's output, so the stub sits between the functions around it
@@ -217,12 +219,25 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   a static inside the function) are not in the stub's words; a `lit4`,
   `rdlit` or `sdlit` row gives a range of .lit4, .rodata or .sdata they
   occupy, and the stub file writes them after the function, so the TU's
-  later constants keep their places. `--literals` derives those rows, and
-  `--carve` runs it while the function is still C: the TU compiled on this
+  later constants keep their places. Without those rows the code moves
+  too: every address of a constant in an instruction (a `%hi`/`%lo` pair,
+  a `$gp` offset) is a relocated field, so a constant that moves changes
+  the words of every function that loads it, and the gate's .text row
+  cannot pass before the data sections do. A stubbed inline function is
+  split in two: gcc writes its strings and other constants where the
+  function is defined, among its neighbours', and its code after the whole
+  file, so its `rdlit` and `sdlit` rows for those carry `def`,
+  `gen_stub_s.py` writes them to `build/stubs/<stem>.lit.s`, and the file
+  reads them with `INCLUDE_ASM_LIT(stem);` in the definition's place, while
+  the code, the .lit4 floats, the `li.d` doubles and the jump tables (the
+  assembler interns .lit4 in load order, and a jump table is referenced
+  from the code) follow `INCLUDE_ASM(stem);` at the end of the file.
+  `--literals` derives those rows, and `--carve` runs it while the function is still C: the TU compiled on this
   tree names, by its relocations, the constants each function references
   and which function owns each one in the order gcc reads the file (the
-  first user of a string; a constant the C still emits with the listed
-  functions removed, such as an inline function's string, is the C's), the
+  first user of a string, an inline function reading where it is defined;
+  a constant the C still emits with the listed functions removed, such as
+  the string of an inline function left in C, is the C's), the
   row's words in the target ELF give their addresses (`$gp` offsets and
   `%hi`/`%lo` pairs), and the two lists must pair one to one; what cannot be
   placed by a row is printed as HAND and a pair that differs as DISAGREE,
@@ -233,13 +248,16 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   `--restore NAME` (`--carve-all`, `--restore-all`) replace a definition
   with its `INCLUDE_ASM` line and put it back from `main`, on the file's
   bytes; an inline function's line goes to the end of the file, since gcc
-  2.9 emits inline functions after everything else. The line shifts every
+  2.9 emits inline functions after everything else, and an inline function
+  called after its definition is refused, while one whose later uses only
+  take its address keeps its declaration in place. The line shifts every
   later line of the TU; a TU that uses `__LINE__` below it keeps its
   numbering with a `#line` directive after the `INCLUDE_ASM` line, written by
   hand (a row's `lines=N` records the span of the body it stands for), and
   the gate decides. Nothing of it is tracked. `--check` names a stub out of
-  place; `tools/check_dev_native.py` refuses an `INCLUDE_ASM` the list does
-  not carry and a listed stem whose file lacks it; the progress figures
+  place; `tools/check_dev_native.py` refuses an `INCLUDE_ASM` or
+  `INCLUDE_ASM_LIT` the list does not carry and a listed stem whose file
+  lacks it; the progress figures
   count a stub's bytes as from the disc and its function as a stub, not as
   matched. `tools/match_check.py TU FUNC` (or `--all`) compiles one TU into a
   scratch object and compares each function with the target's words at its
