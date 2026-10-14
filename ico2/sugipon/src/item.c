@@ -388,9 +388,61 @@ INCLUDE_ASM(floatGeo_75);
 
 INCLUDE_ASM(uncarriedItemGeo);
 
-static void execBombGeo(GObj *gobj);
+static void execBombGeo(GObj *gobj)
+{
+    float v[4];
+    ItemWork *rec = GOBJ_SUB(gobj)->work;
+    ItemFuse *q = &rec->fuse;
 
-INCLUDE_ASM(execBombGeo);
+    switch (q->state) {
+    default:
+    case 0:
+        if (IsTorchLightOn(q->torch)) {
+            q->state = 1;
+            bombSparkStartSE(gobj);
+            bombSparkSE(gobj);
+            rec->fuse.animMode = 1;
+        }
+        break;
+    case 1:
+        CopyVector(v, itemDropOfs);
+        v[1] = itemDropOfs[1] *
+               (((float)q->time * (1.0f / ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
+                                           60.0f * 300.0f)) +
+                 1.0f) *
+                0.5f);
+        CopyVector(((SubHandle *)&q->torch->dobj)->p + 0xA0, v);
+        q->time = q->time - 1;
+        if (q->time == 0) {
+            q->state = 2;
+        }
+        break;
+    case 2:
+        rec->fuse.animMode = 0;
+        stage_SetLoopFlag(507, 0);
+        stage_SetFrameStep(507, 1);
+        GetRootPosition(q->pos, gobj);
+        _AttackCenter(gobj, 17, q->pos, 0, 200.0f, 0);
+        LightTorchOff(q->torch);
+        q->torch->active = 0;
+        rec->released = 0;
+        StopSEPackage(gobj);
+        bombExplodeSE(gobj);
+        stage_KillPlayBgAnimationIfOverMaxCount(507, 1);
+        q->anim = stage_MakePlayBgAnimation(507);
+        q->anim->frame = 1.0f;
+        _CopyVector(q->anim->pos, q->pos);
+        CopyQuaternion(q->anim->rot, IdentityQuaternion);
+        q->state = 3;
+        GOBJ_SUB(gobj)->disp = 0;
+        break;
+    case 3:
+        rec->released = 0;
+        break;
+    case 4:
+        break;
+    }
+}
 
 void ItemGeo(GObj *gobj)
 {

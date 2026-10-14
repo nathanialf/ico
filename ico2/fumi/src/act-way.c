@@ -21,15 +21,101 @@
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0}; /* derived name */
 
-static void DetourCheck(GObj *self, float *out);
+static void DetourCheck(GObj *self, float *out)
+{
+    float orient[4];
+    float cur[4];
+    float o2[4];
+    float tmp[4];
+    float dir[4];
+    Act *act = GOBJ_ACT(self);
+    int i;
+    int wait = 0;
+    int ok = 0;
 
-INCLUDE_ASM(DetourCheck);
+    if (debug_girl_detour_flag == 0) {
+        return;
+    }
+    GetSkeltonOrient(orient, self, 0x2C);
+    if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8D0) != 0) {
+        out[0] = *(float *)((char *)GOBJ_ACT(self)->work + 0x8E0);
+        out[1] = *(float *)((char *)GOBJ_ACT(self)->work + 0x8E4);
+        out[2] = *(float *)((char *)GOBJ_ACT(self)->work + 0x8E8);
+        *(int *)((char *)GOBJ_ACT(self)->work + 0x8D0) -= 1;
+        return;
+    }
+    /* two identical case bodies */
+    switch (act->actMode) {
+    case 2:
+        ok = 1;
+        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
+        break;
+    case 3:
+        ok = 1;
+        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
+        break;
+    }
+    /* the four tests are one statement */
+    if (ok == 0 || act->stick.mag == 0.0f || (GOBJ_SUB(self)->ctrl.flags & 2) == 0 ||
+        ((*(unsigned long long *)((char *)GOBJ_ACT(self)->work + 0x448) >> 33) & 1) == 0) {
+        return;
+    }
+    cur[0] = test_CURRENTROOT(self)[0];
+    cur[1] = test_CURRENTROOT(self)[1];
+    cur[2] = test_CURRENTROOT(self)[2];
+    GetSkeltonOrient(o2, self, 0x2C);
+    for (i = 0; detourAngle[i] != 0; i++) {
+        dir[0] = o2[0];
+        dir[1] = o2[1];
+        dir[2] = o2[2];
+        _ApplyRyGV(dir, (float)detourAngle[i] * 3.1415927f / 180.0f);
+        sceVu0ScaleVector(tmp, dir, 100.0f);
+        sceVu0AddVector(tmp, cur, tmp);
+        if (ACTCheckCollis_WAY(10.0f, cur, tmp, 0, 0) == 0) {
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x8E0) = dir[0];
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x8E4) = dir[1];
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x8E8) = dir[2];
+            *(int *)((char *)GOBJ_ACT(self)->work + 0x8D0) = wait;
+            return;
+        }
+    }
+}
 
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
-static int checkPositionIllegal(GObj *self, float *pos);
 
-INCLUDE_ASM(checkPositionIllegal);
+static int checkPositionIllegal(GObj *self, float *pos)
+{
+    float v[4];
+    float r[4];
+    float dy;
+    Act *act = GOBJ_ACT(self);
+
+    if (act->actMode == 0x70) {
+        return 1;
+    }
+    if (act->actMode == 0x26 ||
+        (((GOBJ_SUB(self)->ctrl.motion + motionKind)->flags.word >> 15) & 1)) {
+        return 1;
+    }
+    v[0] = pos[0];
+    v[1] = pos[1];
+    v[2] = pos[2];
+    debug_NMarker(v, 0, 255, 0, 100.0f);
+    r[0] = test_CURRENTROOT(self)[0];
+    r[1] = test_CURRENTROOT(self)[1];
+    r[2] = test_CURRENTROOT(self)[2];
+    r[1] = r[1] - GetDifferenceFromLastField(self, 0x2C);
+    debug_NMarker(r, 0, 0, 255, 100.0f);
+    dy = v[1] - r[1];
+    if (dy < 0.0f) {
+        if (-dy > 40.0f) {
+            return 1;
+        }
+        return 0;
+    }
+    return dy > 40.0f;
+}
 
 inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *actor, void *posout)
 {
