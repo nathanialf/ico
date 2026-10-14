@@ -8,7 +8,7 @@
 #ifndef ACT_GAME_H
 #define ACT_GAME_H
 
-#include "typedef.h" /* WayRequest, which ActWork carries at 0x580 */
+#include "typedef.h" /* WayRequest, which ActWork carries at 0x570 */
 #include "clipCollisionManager.h"
 
 struct GObj;
@@ -106,19 +106,17 @@ typedef struct ActWork { /* field names derived */
     float hintPosX;     /* 0x520 */
     float hintPosY;     /* 0x524 */
     float hintPosZ;     /* 0x528 */
-    char pad52C[4];
-    float boxDir[4]; /* 0x530, the direction a box is pushed and pulled in (actCommonBox) */
-    char pad540[64];
-    WayRequest wayReq; /* 0x580, the way search RequestWayBegin hands to the way system manager */
-    char pad638[232];
-    ClipColReq view; /* 0x720, the clip ACTGameView_Loop runs to the object it looks at */
-    int viewState; /* 0x800 */
-    char pad804[140];
-    float emgPosX; /* 0x8A0 */
-    float emgPosY; /* 0x8A4 */
-    float emgPosZ; /* 0x8A8 */
-    char pad8AC[4];
-    MotOriReq intrReq; /* 0x8B0, the orient request of the interrupt motion
+    char pad52C[68];
+    WayRequest wayReq; /* 0x570, the way search RequestWayBegin hands to the way system manager */
+    char pad628[232];
+    ClipColReq view; /* 0x710, the clip ACTGameView_Loop runs to the object it looks at */
+    int viewState; /* 0x7F0 */
+    char pad7F4[156];
+    float emgPosX; /* 0x890 */
+    float emgPosY; /* 0x894 */
+    float emgPosZ; /* 0x898 */
+    char pad89C[4];
+    MotOriReq intrReq; /* 0x8A0, the orient request of the interrupt motion
                           act_check_intr_list started; the hang and climb acts
                           lay the root against its walls, b's element the wall
                           under the cliff edge */
