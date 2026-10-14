@@ -15,7 +15,6 @@
 #include <libvu0.h>
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for. */
@@ -312,7 +311,24 @@ void actSt13aElev(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt13aSekizo);
+void actSt13aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(326) == 0) {
+        stage_SetAnimation(172, 0, 0);
+
+        sekizo_mes[0].func = actSt13aSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(172, 0, -1);
+    }
+}
 
 void actSt13aCheck(GObj *volatile self)
 {

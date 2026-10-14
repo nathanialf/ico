@@ -706,7 +706,24 @@ void actSt10rExit(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt10rChain);
+void actSt10rChain(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(304) == 0) {
+        stage_SetAnimation(383, 0, 0);
+        scpSearchGobj(1622)->active = 0;
+
+        chain_mes[0].func = actSt10rChainMain;
+        act->mail = chain_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(383, 0, -1);
+    }
+}
 
 void actSt10rSekizo(GObj *volatile self)
 {

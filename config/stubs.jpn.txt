@@ -226,18 +226,12 @@ text actSt03tSwitchL 0x00221FE0 0x002220C4 ico2/script/src/st03t.c lines=25  # o
 text actSt03tSwitchR 0x002224C0 0x002225A4 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 14; imm:3; extent-equal
 text actSt04bSekizo 0x00228710 0x002287CC ico2/script/src/st04b.c lines=19  # ordinal; first difference at insn 14; imm:1; extent-equal
 lit4 actSt04bSekizo 0x006333F4 0x006333FC ico2/script/src/st04b.c  # 2 floats
-text actSt04lDoor 0x00229008 0x002290B4 ico2/script/src/st04c.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt05bCrest01XL 0x00235820 0x00235920 ico2/script/src/st05b.c lines=28  # ordinal; first difference at insn 12; imm:5; extent-equal
 text actSt05bSekizo 0x00235D28 0x00235DE4 ico2/script/src/st05b.c lines=19  # ordinal; first difference at insn 14; imm:1; extent-equal
 lit4 actSt05bSekizo 0x00633448 0x00633450 ico2/script/src/st05b.c  # 2 floats
-text actSt04rDoor 0x00236548 0x002365EC ico2/script/src/st05c.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt04rDoor2 0x002365F0 0x00236694 ico2/script/src/st05c.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt07aSekizo 0x0023C528 0x0023C5C0 ico2/script/src/st07a.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt08aHasi 0x0023DE38 0x0023DEE8 ico2/script/src/st08a.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt10lChain 0x002408A8 0x00240954 ico2/script/src/st10l.c lines=21  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt10rInit 0x00241700 0x002417D4 ico2/script/src/st10r.c lines=25  # ordinal; first difference at insn 6; imm:5; extent-equal
-text actSt10rChain 0x00242D88 0x00242E2C ico2/script/src/st10r.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt13aSekizo 0x002440E8 0x00244180 ico2/script/src/st13a.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt13bConte02 0x00244730 0x0024504C ico2/script/src/st13b.c lines=238  # ordinal; first difference at insn 0; length:-23; extent-differs
 rdlit actSt13bConte02 0x0061C080 0x0061C088 ico2/script/src/st13b.c  # 1 double
 text actSt13cSekizo 0x00249A28 0x00249AD8 ico2/script/src/st13c.c lines=20  # ordinal; first difference at insn 14; imm:1; extent-equal

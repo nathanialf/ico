@@ -13,7 +13,6 @@
 #include "generator.h"
 #include "script.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt04cIntroChkSub(GObj *volatile self);
 
@@ -198,7 +197,24 @@ static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail st04lDoor_mes[2] = {{430}, {429}}; /* derived name */
 
-INCLUDE_ASM(actSt04lDoor);
+void actSt04lDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(199) == 0) {
+        stage_SetAnimation(227, 0, 0);
+        st04lDoor_mes[0].func = actSt04lDoorChk;
+        act->mail = st04lDoor_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(227, 0, -1);
+        scpSearchGobj(1098)->active = 0;
+        FinishHint(15);
+    }
+}
 
 void actSt04cIntro(GObj *volatile self)
 {

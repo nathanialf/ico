@@ -25,7 +25,6 @@
 #include "typedef.h"
 #include "e3.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt07aChanChainChk(GObj *volatile self);
 static void actSt07aChanReadyChk(GObj *volatile self);
@@ -750,7 +749,23 @@ void actSt07aIntro(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt07aSekizo);
+void actSt07aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(130) == 0) {
+        stage_SetAnimation(358, 0, 0);
+        sekizo_mes[0].func = actSt07aSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(358, 0, -1);
+    }
+}
 
 void actSt07aGene2(GObj *volatile self)
 {

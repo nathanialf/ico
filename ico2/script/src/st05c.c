@@ -14,7 +14,6 @@
 #include "typedef.h"
 #include "script.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt04rDoor2Sub(GObj *volatile self);
 static void actSt04rDoorSub(GObj *volatile self);
@@ -207,9 +206,41 @@ void actSt05cWaterXL(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt04rDoor);
+void actSt04rDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt04rDoor2);
+    if (gflagChk(255) == 0) {
+        stage_SetAnimation(328, 0, 0);
+        st04rDoor_mes[0].func = actSt04rDoorChk;
+        act->mail = st04rDoor_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(328, 0, -1);
+        scpSearchGobj(1380)->active = 0;
+    }
+}
+
+void actSt04rDoor2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(256) == 0) {
+        stage_SetAnimation(329, 0, 0);
+        st04rDoor2_mes[0].func = actSt04rDoor2Chk;
+        act->mail = st04rDoor2_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(329, 0, -1);
+        scpSearchGobj(1381)->active = 0;
+    }
+}
 
 void actSt05cDoorDown(GObj *volatile self)
 {
