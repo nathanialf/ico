@@ -161,6 +161,8 @@ void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1)
     SetMotionDirection(self, v);
 }
 
+static const char motMan2File[] = __FILE__; /* derived name */
+
 INCLUDE_ASM(GetRootPosOfNextFrame);
 
 INCLUDE_ASM(AdjustMotionHeightToField);
@@ -879,8 +881,6 @@ static inline float getSlopeRatio(float d, float rate) /* derived name */
 }
 
 INCLUDE_ASM(SlopeIKControl);
-
-static const char motMan2File[] = __FILE__; /* derived name */
 
 /* AdjustRootPositionToVerticalSidePlaneOfWall was about to push into the
    wall, so the position was clipped */

@@ -174,6 +174,23 @@ static __inline__ void stDebugPrintMode(void) /* derived name */
 
 static void iosCdvdStManager(void);
 
+/* Declared inline: the manager and the load paths expand it, and no
+ * out-of-line body is written; its two strings come before getFileLsn's in
+ * .rodata.  August waits on the USA product file and prints no names. */
+static inline void iosCdvdDiskReadyBlock(void)
+{
+    if (sceCdDiskReady(1) != 2) {
+        sceCdlFILE fp;
+        char file[32];
+        strcpy(file, "SCUS_971.13");
+        iosCdvdChgFileName(file);
+        debug_StdPrintfDummy("wait insert ico disk\n");
+        do {
+            sceCdDiskReady(0);
+        } while (sceCdGetDiskType() != cdDiskType || sceCdSearchFile(&fp, file) == 0);
+    }
+}
+
 /* the search-cache lookup of a file's sector, which iosCdvdGetFileLsn and
  * iosCdvdBackGroundMgrAdd inline */
 static inline int getFileLsn(char *name, int *size) /* derived name */

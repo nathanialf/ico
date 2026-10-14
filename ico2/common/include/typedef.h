@@ -785,7 +785,8 @@ typedef int sceVu0IVECTOR[4] __attribute__((aligned(16)));
 #define VU0_NOREORDER_BEGIN() __asm__ __volatile__(".set noreorder")
 #define VU0_NOREORDER_END() __asm__ __volatile__(".set reorder")
 
-/* the stage's display setting: the lights, fog, shadow, post effects and camera limits */
+/* the stage's display setting: the lights, fog, shadow and post effects, 0x130
+   bytes (gsb_LoadStageSettings reads 304) */
 typedef struct StageSetting { /* field names derived */
     float flatLightDir[3][4]; /* 0x000 */
     float flatLightCol[3][4]; /* 0x030 */
@@ -808,9 +809,7 @@ typedef struct StageSetting { /* field names derived */
     int shadowColG;     /* 0x0C4 */
     int shadowColB;     /* 0x0C8 */
     char pad0CC[4];     /* 0x0CC */
-    /* RECONSTRUCTION: the reduction tint used while no sub target is current,
-       and the per sub target row whose fourth word is the film grain tint
-       ico2/seki/src/GsBase.c reads at 0x13C. */
+    /* RECONSTRUCTION: the reduction tint. */
     int reductionCol[3]; /* 0x0D0 */
     char pad0DC[4];      /* 0x0DC */
     /* RECONSTRUCTION: the stage's view scale, a percentage that
@@ -832,38 +831,6 @@ typedef struct StageSetting { /* field names derived */
     int feedbackCol[4];  /* 0x110, "Feedback Effect R, G, B, A" */
     int fogStrength;     /* 0x120 */
     char pad124[12];     /* 0x124 */
-
-    /* RECONSTRUCTION: each target row is a 16 byte aligned quadword (red,
-       green, blue, then the film grain tint), the ROM's own proof being
-       gsb_Reduction's tint reads in ico2/seki/src/GsBase.c.  expr.c folds
-       a member's constant offset onto the record's base before adding the
-       variable index only while the reference's alignment is exactly the
-       field's; with the row aligned to 16 it adds base and index first, cse
-       puts the index first, and the 0x130 stays the load's displacement,
-       which is the ROM's `addu index, index, base` / `lw 0x130`.  The row
-       is the typed quadword; it replaced a bare aligned(16) on an r, g, b, a
-       struct (re-audit, completeness pass 57), with every user's object
-       byte-identical. */
-    sceVu0IVECTOR targetCol[4]; /* 0x130 */
-
-    /* RECONSTRUCTION: the film grain's UV step, which
-       ico2/seki/src/GsBase.c's gsb_filmNoise passes as raw bits. */
-    float grainScale; /* 0x170 */
-    char pad174[12];  /* 0x174 */
-    /* the camera limits ico2/omori/src/camera-root.c loads per stage, named
-       after GsBase.c's menu labels */
-    int handCameraLimitP; /* 0x180, "HandCamera Limit P" */
-    int handCameraLimitV; /* 0x184, "HandCamera Limit V" */
-    char pad188[8];       /* 0x188 */
-    int zoomMaxInDemo;    /* 0x190, "ZOOM MAX IN DEMO" */
-    char pad194[8];       /* 0x194 */
-
-    struct {
-        int a;
-        int b;
-    } antiLevel[4]; /* 0x19C */
-
-    int subMotionBlur[5]; /* 0x1BC */
 } StageSetting; /* derived name */
 
 /* an RGBA colour as four words, 16-byte aligned */

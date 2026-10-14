@@ -42,6 +42,31 @@ static unsigned int gobjMax; /* derived name */
 
 int debugKindOld = 0;
 
+/* the kind-table unlink, which isysGObjKindTableRemove and the object
+ * removal inline */
+static __inline__ void kindTableRemove(GObj *g) /* derived name */
+{
+    int kind = g->kind;
+    GObj *p;
+    if ((unsigned int)(kind - 1) < 66) {
+        p = gobjKindHead[kind];
+        if (p == g) {
+            gobjKindHead[kind] = g->kindNext;
+            return;
+        }
+        if (p == 0)
+            return;
+        while (p->kindNext != g) {
+            if (p == 0) {
+                debug_assert(__FILE__, 146);
+                __assert(__FILE__, 146, "0");
+            }
+            p = p->kindNext;
+        }
+        p->next = g->kindNext;
+    }
+}
+
 static void cut_gobj_link(GObj *p)
 {
     if (p == 0) {
@@ -65,31 +90,6 @@ static void cut_gobj_link(GObj *p)
     }
     if (p == gobj_link_tail[p->linkId]) {
         gobj_link_tail[p->linkId] = p->prev;
-    }
-}
-
-/* the kind-table unlink, which isysGObjKindTableRemove and the object
- * removal inline */
-static __inline__ void kindTableRemove(GObj *g) /* derived name */
-{
-    int kind = g->kind;
-    GObj *p;
-    if ((unsigned int)(kind - 1) < 66) {
-        p = gobjKindHead[kind];
-        if (p == g) {
-            gobjKindHead[kind] = g->kindNext;
-            return;
-        }
-        if (p == 0)
-            return;
-        while (p->kindNext != g) {
-            if (p == 0) {
-                debug_assert(__FILE__, 146);
-                __assert(__FILE__, 146, "0");
-            }
-            p = p->kindNext;
-        }
-        p->next = g->kindNext;
     }
 }
 

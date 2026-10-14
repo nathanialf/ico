@@ -446,7 +446,6 @@ static inline void correctLeverHoldPoint(GObj *self, GObj *lev) /* derived name 
             GetFloorLeverGlobalHoldPoint(w, lev);
         } else if (lev->kind < 26) {
             GetWallLeverGlobalHoldPoint(w, lev);
-            debug_StdPrintfDummy("%f, %f, %f\n", w[0], w[1], w[2]);
         }
     }
     SetDirectRootPositionNoFittingWithNodePointXZ(self, 0x16, w, 0.2f);
