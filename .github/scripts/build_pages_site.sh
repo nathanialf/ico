@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-# build_pages_site.sh: assemble the three-version progress dashboard into _site/
+# build_pages_site.sh: assemble the four-version progress dashboard into _site/
 #
-# Run by .github/workflows/pages.yml on `main`, `ntsc` and `aug6`. It works out
+# Run by .github/workflows/pages.yml on `main`, `jpn`, `ntsc` and `aug6`. It works out
 # what to do from the branch it is running on, so there are no per-branch
 # conditionals to keep in sync.
 #
@@ -17,18 +17,21 @@
 #     scripts) comes from `main` only. On `main` it is the checked-out file;
 #     on any other branch it is read from origin/main. A page change lands on
 #     `main` and the next deploy from any branch publishes it; the other
-#     branches' copies of docs/index.html are never read.
+#     branches' copies of docs/index.html (identical to main's once the
+#     change is copied over, tools/check_shared_layer.sh) are never read.
 #   - Each branch contributes only its own data: docs/progress.json and
 #     docs/PROGRESS.md (DATA_FILES below).
 #
 # Branch -> version:
-#   main -> pal    PAL retail  (SCES-50760)
-#   ntsc -> us     USA retail  (SLUS-20218)
+#   main -> pal    PAL retail       (SCES-50760)
+#   jpn  -> jpn    Japanese retail  (SCPS-11003)
+#   ntsc -> us     USA retail       (SLUS-20218)
 #   aug6 -> aug6   Aug-6-2001 prototype
 #
 # Layout produced:
 #   _site/index.html        version-toggle dashboard, `main`'s copy
 #   _site/pal/              `main`'s progress.json and PROGRESS.md
+#   _site/jpn/              `jpn`'s progress.json and PROGRESS.md
 #   _site/us/               `ntsc`'s progress.json and PROGRESS.md
 #   _site/aug6/             `aug6`'s progress.json and PROGRESS.md
 #
@@ -58,9 +61,10 @@ BRANCH="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 # so adding a target means editing this one line (plus docs/index.html's own
 # picker) rather than hunting per-branch conditionals.
 VERSION_OF_main=pal
+VERSION_OF_jpn=jpn
 VERSION_OF_ntsc=us
 VERSION_OF_aug6=aug6
-BRANCHES="main ntsc aug6"
+BRANCHES="main jpn ntsc aug6"
 
 # The branch whose docs/index.html is the dashboard page.
 PAGE_BRANCH=main
@@ -73,7 +77,7 @@ version_of() { eval "printf '%s\n' \"\${VERSION_OF_$1-}\""; }
 SELF="$(version_of "$BRANCH")"
 if [ -z "$SELF" ]; then
     echo "build_pages_site: no version mapping for branch '$BRANCH'" >&2
-    echo "  expected 'main' (-> pal), 'ntsc' (-> us) or 'aug6' (-> aug6)." >&2
+    echo "  expected 'main' (-> pal), 'jpn' (-> jpn), 'ntsc' (-> us) or 'aug6' (-> aug6)." >&2
     exit 1
 fi
 

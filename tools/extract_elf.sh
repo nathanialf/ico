@@ -5,11 +5,18 @@
 # Extracts this branch's EE-side boot ELF from the user's ICO disc image and
 # records its SHA-1 to config/sha1sums.txt (creating the entry on first run,
 # verifying against the existing entry on subsequent runs). Which disc and
-# where the outputs land follow the branch's target (tools/ico_version.py):
-#   main / pal : baserom/Ico_PAL.iso        -> baserom/pal/baseelf.{elf,rom}
-#                                              + MAIN.MAP SRCFILE.TXT
-#                                                TRFILE.TXT SYSTEM.CNF
-#   ntsc / us  : baserom/Ico_USA.bin + .cue -> baserom/baseelf.{elf,rom}
+# where the outputs land follow the branch's target (tools/ico_version.py,
+# whose DISCS table names each target's disc):
+#   main / pal  : baserom/Ico_PAL.iso         -> baserom/pal/baseelf.{elf,rom}
+#                                                + MAIN.MAP SRCFILE.TXT
+#                                                  TRFILE.TXT SYSTEM.CNF
+#   jpn  / jpn  : baserom/Ico_JPN.bin + .cue  -> baserom/jpn/baseelf.{elf,rom}
+#                                                + SYSTEM.CNF
+#   ntsc / us   : baserom/Ico_USA.bin + .cue  -> baserom/us/baseelf.{elf,rom}
+#                                                + SYSTEM.CNF
+#   aug6 / aug6 : baserom/Ico_AUG6.bin + .cue -> baserom/aug6/baseelf.{elf,rom}
+#                                                + MAIN.MAP TRFILE.TXT
+#                                                  SYSTEM.CNF
 # The boot file name comes from the disc's SYSTEM.CNF BOOT2 line.
 #
 # Wrapper that delegates to tools/extract_elf.py: pure-Python implementation

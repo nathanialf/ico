@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""tools/gen_ninja.py: emit build.ninja from config/link_order.pal.txt.
+"""tools/gen_ninja.py: emit build.ninja from config/link_order.<slug>.txt.
 
-Every object from its own source, linked by the hand-written config/link.pal.ld
-in the one object order of config/link_order.pal.txt.
+Every object from its own source, linked by the hand-written
+config/link.<slug>.ld in the one object order of config/link_order.<slug>.txt.
+<slug> is the branch's target as tools/ico_version.py detects it (pal on
+main), and the base ELF is baserom/<slug>/baseelf.elf.
 
 Rules: cc (tools/compile_c.sh), as (the .s sources, assembler and -G per
 archive as compile_c.sh chooses them for C), vucpp and vu (each VU1
@@ -16,7 +18,7 @@ hash the file and line it is reading: the .dsm path for the first, and the
 name cpp gives the text after that, "" for standard input and vusrc/<name>.h
 for a shared include; -no-abicalls -mabi=64 leave the ABI bits of e_flags
 clear, the one setting the link merges with the game's EABI64 objects), the
-members config/data_schema.pal.txt lists as C (tools/gen_data_c.py: a zero
+members config/data_schema.<slug>.txt lists as C (tools/gen_data_c.py: a zero
 stand-in per member, a layout link with the stand-ins that fixes every other
 address, the member's C written from the base ELF with its pointers named from
 that link, compiled by ccdata (compile_c.sh run on it as a game TU, from a
@@ -27,12 +29,14 @@ placeholders a tracked source spells inside a data member's row, which
 gen_data_c.py binds), link (the period linker, GNU ld 2.10 with
 tools/binutils-2.10-ee.patch, built by tools/setup.sh under
 tools/cc/binutils-2.10-ee/, writing the IRIX-compatible elf32-littlemips output
-MAIN.MAP names: once to ico.syms.elf, which keeps the symbols, and once with -s
-to ico.elf, since the base carries no .symtab or .strtab but 2.10's -s keeps
-their names in .shstrtab as the base does; ld 2.10 has no INCLUDE inside a
-section, so the script it reads is build/link.ld, config/link.pal.ld with its
-INCLUDE lines expanded), rom, verify (tools/check_elf.py --gate --require-elf-sha: the allocated
-sections, the ROM SHA-1 and the whole ELF's SHA-1).
+the PAL disc's MAIN.MAP names: once to ico.syms.elf, which keeps the symbols,
+and once with -s to ico.elf, since the base carries no .symtab or .strtab but
+2.10's -s keeps their names in .shstrtab as the base does; ld 2.10 has no
+INCLUDE inside a section, so the script it reads is build/link.ld,
+config/link.<slug>.ld with its INCLUDE lines expanded; the map it writes is
+build/ico.<slug>.map), rom, verify (tools/check_elf.py --gate
+--require-elf-sha: the allocated sections, the ROM SHA-1 and the whole ELF's
+SHA-1).
 
     tools/build.sh setup && ninja
 """
@@ -46,12 +50,23 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 # The member table's and the schema's one parser each.
 from gen_data_c import parse_schema, parse_table  # noqa: E402
+from ico_version import (  # noqa: E402
+    detect_version, baseelf_path, config_path, link_map_path,
+)
 
-LIST = "config/link_order.pal.txt"
-SCRIPT = "config/link.pal.ld"
-TABLE = "config/data_members.pal.txt"
-SCHEMA = "config/data_schema.pal.txt"
-BASE_ELF = "baserom/pal/baseelf.elf"
+VERSION = detect_version(ROOT)
+
+
+def _rel(p):
+    return p.relative_to(ROOT).as_posix()
+
+
+LIST = _rel(config_path(ROOT, VERSION, "link_order", "txt"))
+SCRIPT = _rel(config_path(ROOT, VERSION, "link", "ld"))
+TABLE = _rel(config_path(ROOT, VERSION, "data_members", "txt"))
+SCHEMA = _rel(config_path(ROOT, VERSION, "data_schema", "txt"))
+BASE_ELF = _rel(baseelf_path(ROOT, VERSION))
+LINK_MAP = _rel(link_map_path(ROOT, VERSION))
 OUT = "build"
 NINJA = "build.ninja"
 LD = "tools/cc/binutils-2.10-ee/bin/ld"
@@ -92,7 +107,7 @@ def parse_list():
 
 
 def table_members():
-    """The members config/data_members.pal.txt has rows for."""
+    """The members the member table (TABLE) has rows for."""
     return {r["member"] for r in parse_table(ROOT / TABLE)}
 
 
@@ -143,9 +158,9 @@ def label_sources():
 
 def write_labels(out):
     """The address-named labels (D_<VMA>) sources use inside the data
-    members. config/data_members.pal.txt carries MAIN.MAP's names and the few
-    derived names the C reads a table by; a C or assembly file that reads a
-    table at an interior offset, where MAIN.MAP names no symbol, spells the
+    members. The member table (TABLE) carries the disc map's names and the
+    few derived names the C reads a table by; a C or assembly file that reads
+    a table at an interior offset, where no map name falls, spells the
     address as the name, and gen_data_c.py --alias binds that label. Only
     names some source spells are written."""
     rows = [(r["lo"], r["hi"], {name for name, _ in r["syms"]}) for r in parse_table(ROOT / TABLE)]
@@ -189,7 +204,7 @@ def inputs_ld(entries, sec, layout=False):
 
 
 def expand_includes(script, swap=None):
-    """config/link.pal.ld with each INCLUDE line replaced by the file it names
+    """The linker script (SCRIPT) with each INCLUDE line replaced by the file it names
     (or by the text swap gives for that path): ld 2.10 reads INCLUDE only at
     the top level of a script."""
     out = []
@@ -264,11 +279,11 @@ def main():
              "rule layout\n  command = $ldlayout -o $out $in\n  description = LD $out\n\n"
              "rule labels\n  command = $py tools/gen_ninja.py --labels $out\n"
              "  description = LABELS $out\n\n"
-             f"rule link\n  command = $ldcmd -Map {OUT}/ico.pal.map -o {OUT}/ico.syms.elf $in"
+             f"rule link\n  command = $ldcmd -Map {LINK_MAP} -o {OUT}/ico.syms.elf $in"
              f" && $ldcmd -s -o {OUT}/ico.elf $in\n  description = LD $out\n\n"
              "rule rom\n  command = $objcopy -O binary --gap-fill=0 $in $out\n  description = ROM $out\n\n"
              f"rule verify\n  command = $py tools/check_elf.py --gate --require-elf-sha --elf {OUT}/ico.elf"
-             f" --map {OUT}/ico.pal.map --rom $in && touch $out\n  description = VERIFY $in\n\n")
+             f" --map {LINK_MAP} --rom $in && touch $out\n  description = VERIFY $in\n\n")
     link = []
     layout = []
     stamps = []
@@ -315,7 +330,7 @@ def main():
              f"build {OUT}/.verified: verify {OUT}/ico.rom | tools/check_elf.py\n"
              f"default {OUT}/.verified\n"
              f"build {NINJA} {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld {LINK_LD} {LAYOUT_LD}: gen | "
-             f"tools/gen_ninja.py tools/gen_data_c.py {LIST} {TABLE} {SCHEMA} {SCRIPT}\n")
+             f"tools/gen_ninja.py tools/gen_data_c.py tools/ico_version.py {LIST} {TABLE} {SCHEMA} {SCRIPT}\n")
     (ROOT / NINJA).write_text("".join(w))
     n = {k: sum(e["kind"] == k for e in entries) for k in ("src", "data")}
     toks = sum(len(e["align"]) for e in entries)

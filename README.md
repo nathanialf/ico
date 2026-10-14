@@ -121,8 +121,9 @@ config/                     link_order.pal.txt (every object in link order),
                             names of each member built as C),
                             sha1sums.txt; ico.pal.yaml and symbol_addrs.pal*.txt
                             are kept as a record and nothing reads them
-tools/                      setup, extraction, build and gate scripts, listed
-                            in tools/README.md
+tools/                      setup, extraction, build and gate scripts, the
+                            same on every target branch, listed in
+                            tools/README.md
 docs/                       documentation, indexed by docs/README.md
 baserom/  build/            local only and gitignored: the user's disc image
                             and extracted ELF, and the build output

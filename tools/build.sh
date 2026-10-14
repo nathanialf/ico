@@ -5,8 +5,8 @@
 # (`main` = PAL retail, slug pal). Override with VERSION=<slug> for ad-hoc runs.
 #
 # Inner-loop build is `ninja` (or `.venv/bin/ninja` if not on PATH): every
-# object from its own source, linked by config/link.pal.ld in the order of
-# config/link_order.pal.txt (tools/gen_ninja.py writes build.ninja). This
+# object from its own source, linked by config/link.<slug>.ld in the order of
+# config/link_order.<slug>.txt (tools/gen_ninja.py writes build.ninja). This
 # script only handles the one-shots that do not belong in the build graph.
 #
 # Subcommands:

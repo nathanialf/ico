@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-# build.sh: build the PAL boot ELF from a clean clone in one command.
+# build.sh: build the branch's boot ELF from a clean clone in one command.
+#
+# The target is the one tools/ico_version.sh detects (main: pal, jpn: jpn,
+# ntsc: us, aug6: aug6), and so are the paths below.
 #
 #   1. tools/setup.sh, when the toolchain under tools/cc/ or the venv is
 #      missing. Then a check for mips-linux-gnu-objcopy, a host package.
-#   2. tools/extract_elf.sh, when baserom/pal/baseelf.elf is missing. It reads
-#      baserom/Ico_PAL.iso, the user's own image of the PAL disc.
+#   2. tools/extract_elf.sh, when baserom/<slug>/baseelf.elf is missing. It
+#      reads the user's own image of the target's disc: baserom/Ico_PAL.iso
+#      on PAL, a .bin and its .cue (baserom/Ico_JPN.bin, Ico_USA.bin,
+#      Ico_AUG6.bin) on the others.
 #   3. tools/build.sh setup when build.ninja is missing (delete build/, verify
 #      the base ELF and ROM SHA-1s, write build.ninja); otherwise
 #      tools/build.sh verify, the SHA-1s alone. build.ninja rewrites itself
@@ -22,8 +27,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 
-ISO="baserom/Ico_PAL.iso"
-BASEELF="baserom/pal/baseelf.elf"
+# shellcheck source=tools/ico_version.sh
+. tools/ico_version.sh
+ico_version_init "$ROOT"
+DISC="$ICO_DISC"
+CUE="$ICO_DISC_CUE"
+BASEELF="$ICO_BASEELF"
 NINJA=".venv/bin/ninja"
 
 toolchain_ok() {
@@ -53,17 +62,34 @@ if ! command -v mips-linux-gnu-objcopy >/dev/null 2>&1; then
 fi
 
 if [[ ! -f "$BASEELF" ]]; then
-    if [[ ! -f "$ISO" ]]; then
-        cat >&2 <<EOF
-build.sh: $BASEELF is missing and there is no disc image to extract it from.
-  Copy your own image of the PAL disc (SCES-50760) to $ISO:
-    mkdir -p baserom
-    cp "/path/to/Ico (Europe).iso" $ISO
-  then run ./build.sh again. Nothing under baserom/ is ever committed.
-EOF
+    if [[ -z "$DISC" ]]; then
+        echo "build.sh: $BASEELF is missing and target '$ICO_VERSION' has no disc recipe" >&2
+        echo "  in tools/ico_version.sh; place the extracted files under $ICO_BASEROM_DIR/ by hand." >&2
         exit 1
     fi
-    echo "==> build.sh: extracting the base ELF from $ISO"
+    if [[ ! -f "$DISC" || ( -n "$CUE" && ! -f "$CUE" ) ]]; then
+        if [[ -n "$CUE" ]]; then
+            cat >&2 <<EOF
+build.sh: $BASEELF is missing and there is no disc image to extract it from.
+  Copy your own image of the $ICO_DISC_NAME, the .bin and its .cue,
+  to $DISC and $CUE:
+    mkdir -p baserom
+    cp "/path/to/Ico ($ICO_DISC_WHERE).bin" $DISC
+    cp "/path/to/Ico ($ICO_DISC_WHERE).cue" $CUE
+  then run ./build.sh again. Nothing under baserom/ is ever committed.
+EOF
+        else
+            cat >&2 <<EOF
+build.sh: $BASEELF is missing and there is no disc image to extract it from.
+  Copy your own image of the $ICO_DISC_NAME to $DISC:
+    mkdir -p baserom
+    cp "/path/to/Ico ($ICO_DISC_WHERE).iso" $DISC
+  then run ./build.sh again. Nothing under baserom/ is ever committed.
+EOF
+        fi
+        exit 1
+    fi
+    echo "==> build.sh: extracting the base ELF from $DISC"
     tools/extract_elf.sh
 fi
 

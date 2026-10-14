@@ -1,15 +1,17 @@
 name: Deploy progress dashboard
 
-# Publish the THREE-VERSION static progress dashboard to GitHub Pages.
+# Publish the FOUR-VERSION static progress dashboard to GitHub Pages.
 #
-# One branch per target: main -> pal (PAL retail, SCES-50760), ntsc -> us (USA
-# retail, SLUS-20218), aug6 -> aug6 (Aug-6-2001 prototype).
+# One branch per target: main -> pal (PAL retail, SCES-50760), jpn -> jpn
+# (Japanese retail, SCPS-11003), ntsc -> us (USA retail, SLUS-20218), aug6 ->
+# aug6 (Aug-6-2001 prototype).
 #
 # Each branch runs its own copy of this workflow and of
-# .github/scripts/build_pages_site.sh; main's copy is the current one. A Pages
-# deploy replaces the ENTIRE site, so every copy assembles the complete site
-# (pal + us + aug6) from the three branches' progress files, or whichever
-# branch deployed last would 404 the other versions' data.
+# .github/scripts/build_pages_site.sh; the copies are identical (the shared
+# layer, tools/check_shared_layer.sh) and main's is where a change lands
+# first. A Pages deploy replaces the ENTIRE site, so every copy assembles the
+# complete site (pal + jpn + us + aug6) from the four branches' progress
+# files, or whichever branch deployed last would 404 the other versions' data.
 #
 # The dashboard page, docs/index.html, is read from `main` only, whichever
 # branch runs the deploy; each branch contributes just its progress.json and
@@ -18,7 +20,7 @@ name: Deploy progress dashboard
 # See .github/scripts/build_pages_site.sh for the layout it produces.
 on:
   push:
-    branches: [main, ntsc, aug6]
+    branches: [main, jpn, ntsc, aug6]
     # Only the files the site actually serves. docs/ also holds the project's
     # documentation, and a documentation edit is not a reason to redeploy.
     paths:
@@ -57,7 +59,7 @@ jobs:
       - name: Checkout (this branch)
         uses: actions/checkout@v5
 
-      - name: Assemble three-version site
+      - name: Assemble four-version site
         run: .github/scripts/build_pages_site.sh "${{ github.ref_name }}"
 
       - name: Configure Pages

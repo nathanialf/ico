@@ -46,7 +46,11 @@ the toolchain already installed and `baserom/pal/` already extracted,
 `check_elf: gate PASS`; a fresh clone of the public repository, with the
 toolchain downloads of section 1, took 92 s on the same host. A second `./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
-below describe each step; each can also be run on its own.
+below describe each step; each can also be run on its own. The scripts are
+the same on every target branch and take the target, and with it every
+`config/*.pal.*` and `baserom/pal/` path below, from
+`tools/ico_version.py` (the first `config/link_order.<slug>.txt` that
+exists).
 
 ## 1. Host setup: `tools/setup.sh`
 
@@ -222,8 +226,8 @@ that changes `docs/index.html`, `docs/progress.json`, `docs/PROGRESS.md`,
 the workflow or its script, `.github/workflows/pages.yml` runs
 `.github/scripts/build_pages_site.sh`, which assembles one site and deploys
 it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
-`origin/main` on the other branches); each of the three branches supplies
-only its `progress.json` and `PROGRESS.md`.
+`origin/main` on the other branches); each target branch supplies only its
+`progress.json` and `PROGRESS.md`.
 
 ## Hooks
 
@@ -237,10 +241,14 @@ only its `progress.json` and `PROGRESS.md`.
   `baserom/`, it then runs `tools/build.sh setup`, `ninja` and
   `tools/check_elf.py --progress`, and adds the refreshed progress files to
   the commit.
-- **pre-push**: for each pushed ref whose commits touch the build, requires
-  the working tree to be at that ref's tip with no uncommitted changes under
-  `ico2/`, `sce/`, `config/` or `tools/`, and runs `tools/build.sh setup` and
-  `ninja` on it.
+- **pre-push**: for each pushed branch other than `main`,
+  `tools/check_shared_layer.sh` fetches `origin/main` and refuses the push
+  when the branch's `tools/`, `build.sh`, `.github/` or `docs/index.html`
+  differs from main's, naming the files; those are the same on every target
+  branch, and a change to them lands on `main` first. Then, for each pushed
+  ref whose commits touch the build, it requires the working tree to be at
+  that ref's tip with no uncommitted changes under `ico2/`, `sce/`,
+  `config/` or `tools/`, and runs `tools/build.sh setup` and `ninja` on it.
 
 `tools/format.sh` formats the tracked C with the tracked `.clang-format` and
 then `tools/format_layout.py`'s top-level blank-line layout. The game

@@ -240,15 +240,18 @@ if [[ "${ICO_FROM_BUILD_SH:-0}" == "1" ]]; then
 fi
 echo "Setup complete. Next steps:"
 # The disc image the extractor wants depends on this branch's target: PAL retail
-# (main) reads a plain ISO, USA retail (ntsc) a .bin/.cue pair. Ask
-# tools/ico_version.sh which target this working tree carries.
+# (main) reads a plain ISO, the others a .bin/.cue pair. Ask
+# tools/ico_version.sh which target this working tree carries and what its
+# disc image is called.
 # shellcheck source=tools/ico_version.sh
 . "$(dirname "$0")/ico_version.sh"
 ico_version_init "$(cd "$(dirname "$0")/.." && pwd)"
-case "$ICO_VERSION" in
-    pal)  echo "  1. Place your disc image at baserom/Ico_PAL.iso" ;;
-    us)   echo "  1. Place your disc image at baserom/Ico_USA.bin (+ .cue)" ;;
-    *)    echo "  1. Place your $ICO_VERSION disc image under baserom/" ;;
-esac
+if [[ -n "$ICO_DISC_CUE" ]]; then
+    echo "  1. Place your image of the $ICO_DISC_NAME at $ICO_DISC (+ $ICO_DISC_CUE)"
+elif [[ -n "$ICO_DISC" ]]; then
+    echo "  1. Place your image of the $ICO_DISC_NAME at $ICO_DISC"
+else
+    echo "  1. Place your $ICO_VERSION disc image under baserom/"
+fi
 echo "  2. Run './build.sh' (or 'tools/extract_elf.sh', then"
 echo "     'tools/build.sh setup && .venv/bin/ninja') to extract $ICO_BASEELF and build"

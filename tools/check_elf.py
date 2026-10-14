@@ -23,7 +23,7 @@ derive progress from that comparison and the link map.
               only, there is nothing to compare). From the disc (`extracted`):
               the same count for the objects under build/data/, the data-only
               members generated at build time from the user's own base ELF (as
-              C for the members config/data_schema.pal.txt lists, as assembly
+              C for the members config/data_schema.<ver>.txt lists, as assembly
               for the rest), whose content is not in the repository.
               Fill belongs to the object it follows, in every section: a
               `*fill*` row counts with the input section that ends where it
@@ -39,9 +39,11 @@ derive progress from that comparison and the link map.
               reports; it gates nothing and needs no map.
 
 Inputs: build/ico.elf, build/ico.<ver>.map (written by the link, see
-tools/gen_ninja.py), the base ELF and config/sha1sums.txt. --progress also
-reads the function symbols from build/ico.syms.elf, the same link with its
-symbol table kept (build/ico.elf is stripped, as the base is).
+tools/gen_ninja.py), the base ELF (baserom/<ver>/baseelf.elf) and
+config/sha1sums.txt, where <ver> is the branch's target as
+tools/ico_version.py detects it (pal on main). --progress also reads the
+function symbols from build/ico.syms.elf, the same link with its symbol table
+kept (build/ico.elf is stripped, as the base is).
 """
 
 from __future__ import annotations
@@ -62,14 +64,16 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from ico_version import detect_version, baseelf_path  # noqa: E402
+from ico_version import (  # noqa: E402
+    detect_version, baseelf_path, config_path, link_map_path,
+)
 
 VERSION = detect_version(REPO_ROOT)
 BASE_ELF = baseelf_path(REPO_ROOT, VERSION)
 BUILT_ELF = REPO_ROOT / "build" / "ico.elf"
 BUILT_ROM = REPO_ROOT / "build" / "ico.rom"
 BUILT_SYMS = REPO_ROOT / "build" / "ico.syms.elf"
-LINK_MAP = REPO_ROOT / "build" / f"ico.{VERSION}.map"
+LINK_MAP = link_map_path(REPO_ROOT, VERSION)
 SHA1SUMS = REPO_ROOT / "config" / "sha1sums.txt"
 README = REPO_ROOT / "README.md"
 PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
@@ -859,9 +863,11 @@ def _table(sections: dict, extracted: dict) -> str:
         "**From source** counts the bytes placed by an object compiled or "
         "assembled from a tracked source under `ico2/` or `sce/`. **From the "
         "disc** counts the bytes of the data-only archive members "
-        "(`config/data_members.pal.txt`), which the build generates from the "
+        f"(`{_rel(config_path(REPO_ROOT, VERSION, 'data_members', 'txt'))}`), "
+        "which the build generates from the "
         "user's own base ELF as C from the record types and names in "
-        "`config/data_schema.pal.txt` (`tools/gen_data_c.py`); none of their "
+        f"`{_rel(config_path(REPO_ROOT, VERSION, 'data_schema', 'txt'))}` "
+        "(`tools/gen_data_c.py`); none of their "
         "content is in the repository. "
         "Linker fill counts with the object it follows. "
         "**Identical** is their sum, the share of the section equal to the base, "

@@ -8,11 +8,11 @@ non-zero on mismatch or missing target.
 
 config/sha1sums.txt is keyed by BASENAME (baseelf.elf / baseelf.rom) on every
 branch, each branch recording only its own target's hashes, so the same
-lookup works whether the file lives at baserom/ (us) or baserom/<ver>/
-(pal, aug6). (The built ROM's SHA-1 is checked by tools/check_elf.py --gate.)
+lookup works for every target's baserom/<ver>/ (tools/ico_version.py). (The
+built ROM's SHA-1 is checked by tools/check_elf.py --gate.)
 
-    verify_elf.py --target baserom/pal/baseelf.elf
-    verify_elf.py --target baserom/pal/baseelf.rom
+    verify_elf.py --target baserom/<ver>/baseelf.elf
+    verify_elf.py --target baserom/<ver>/baseelf.rom
 """
 
 from __future__ import annotations
@@ -24,6 +24,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SHA1SUMS = REPO_ROOT / "config" / "sha1sums.txt"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ico_version import detect_version, link_map_path  # noqa: E402
+
+LINK_MAP = link_map_path(REPO_ROOT, detect_version(REPO_ROOT)).relative_to(REPO_ROOT)
 
 
 def load_recorded(name: str) -> str | None:
@@ -80,7 +84,7 @@ def main(argv: list[str] | None = None) -> int:
         f"  expected: {recorded}\n"
         f"  actual:   {actual}\n"
         f"  localize: tools/check_elf.py --gate names the section that "
-        f"differs, and build/ico.pal.map names the object at that address.",
+        f"differs, and {LINK_MAP} names the object at that address.",
         file=sys.stderr,
     )
     return 1

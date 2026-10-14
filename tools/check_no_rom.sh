@@ -10,9 +10,11 @@
 # negatives are not):
 #
 #   1. File extensions associated with PS2 disc dumps and extracted assets.
-#   2. PS2 boot-ELF naming patterns (SLUS-/SLES-/SLPS-/SLPM-/SCUS-/...) and
-#      the PAL disc's reference files (MAIN.MAP, SRCFILE.TXT, TRFILE.TXT,
-#      TRTABLE.BIN, SYSTEM.CNF), which docs/LEGAL.md keeps out of the tree.
+#   2. PS2 boot-ELF naming patterns (SLUS-/SLES-/SLPS-/SLPM-/SCUS-/...), the
+#      discs' reference files (MAIN.MAP, SRCFILE.TXT, TRFILE.TXT,
+#      TRTABLE.BIN, SYSTEM.CNF), which docs/LEGAL.md keeps out of the tree,
+#      and the names the tools give the user's disc images (Ico_PAL.*,
+#      Ico_JPN.*, Ico_USA.*, Ico_AUG6.*) whatever their extension.
 #   3. Any tracked file > 256 KiB (C sources under ico2/ and sce/: 8 MiB),
 #      except the named text files below.
 #   4. ELF magic (\x7fELF) sniff regardless of extension.
@@ -61,6 +63,15 @@ for f in "${files[@]}"; do
         note "disc reference file: $f"
     fi
 done
+# The extension rule above already refuses .iso, .bin and .cue; this one
+# also refuses a renamed copy or a cooked cache under another extension.
+disc_image_re='(^|/)ICO_(PAL|JPN|USA|AUG6)\.[^/]*$'
+for f in "${files[@]}"; do
+    [[ -z "$f" ]] && continue
+    if [[ "${f^^}" =~ $disc_image_re ]]; then
+        note "disc image name: $f"
+    fi
+done
 
 # --- 3. size cap ---
 # Non-source files keep the tight 256 KiB cap (catches stray binary/asset
@@ -73,11 +84,11 @@ src_large_re='^(ico2|sce)/.*\.(c|h|c\.inc|inc)$'
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue
-    # Symbol-address files (config/symbol_addrs.<ver>.txt: pal, us, aug6) are
+    # Symbol-address files (config/symbol_addrs.<ver>.txt) are
     # `Name = 0xADDR; // type:func` declarations, no byte data. The aug6 and
     # PAL ones are large (>256 KiB) only because those builds are fully named
-    # from a disc-shipped MAIN.MAP (5k+ functions), unlike the USA retail
-    # target's sparse file. Format-verified text, not laundered ROM; exempt the
+    # from a disc-shipped MAIN.MAP (5k+ functions), unlike a target whose
+    # disc ships no map. Format-verified text, not laundered ROM; exempt the
     # size cap (content is still subject to the byte-array rules below).
     case "$f" in config/symbol_addrs.*.txt) continue ;; esac
     # config/ico.<ver>.yaml is a posterity record read by nothing: address

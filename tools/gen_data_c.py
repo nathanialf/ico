@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """tools/gen_data_c.py -- write a data-only member as C from the base ELF.
 
-The members config/data_schema.pal.txt lists are written in the form the
+The members config/data_schema.<slug>.txt lists are written in the form the
 developers compiled: one C translation unit per member, an initialized array
 (or a single object) of a record type per section the member occupies, which
 ninja compiles with the game's flags (tools/compile_c.sh). The values come
-from the user's own baserom/pal/baseelf.elf at build time and are never
+from the user's own baserom/<slug>/baseelf.elf at build time and are never
 committed (docs/LEGAL.md); the schema rows and the records' header hold only
 types. A member row with no schema row is the member's own string pool: the
 char pointers into it are written as string literals, and the compiler lays
@@ -40,6 +40,9 @@ function), arrays, nested structs and bit-fields, laid out by the EE's rules (4-
 pointers and ints, 8-byte long long and double, bit-fields from the low bit
 of their declared type's unit). A base type with a trailing [N] is an array
 element (char[32]: the C defines `char name[count][32]`).
+
+<slug> is the branch's target as tools/ico_version.py detects it (pal on
+main); the member table is config/data_members.<slug>.txt.
 """
 
 import argparse
@@ -52,9 +55,13 @@ from elftools.elf.elffile import ELFFile
 from elftools.elf.relocation import RelocationSection
 
 ROOT = Path(__file__).resolve().parent.parent
-SCHEMA = ROOT / "config/data_schema.pal.txt"
-TABLE = ROOT / "config/data_members.pal.txt"
-BASE_ELF = ROOT / "baserom/pal/baseelf.elf"
+sys.path.insert(0, str(ROOT / "tools"))
+from ico_version import detect_version, baseelf_path, config_path  # noqa: E402
+
+VERSION = detect_version(ROOT)
+SCHEMA = config_path(ROOT, VERSION, "data_schema", "txt")
+TABLE = config_path(ROOT, VERSION, "data_members", "txt")
+BASE_ELF = baseelf_path(ROOT, VERSION)
 
 
 def fail(msg):
@@ -64,7 +71,8 @@ def fail(msg):
 # ----------------------------------------------------------------- table ----
 
 def parse_table(path=TABLE):
-    """config/data_members.pal.txt's rows: one per (member, section)."""
+    """The member table's rows (config/data_members.<slug>.txt): one per
+    (member, section)."""
     rows = []
     for n, line in enumerate(path.read_text().splitlines(), 1):
         line = line.split("#", 1)[0].strip()
@@ -141,7 +149,7 @@ def parse_schema(path=SCHEMA):
 
 
 def member_rows(name):
-    """The member's rows of config/data_members.pal.txt, in table order, each
+    """The member's rows of the member table (TABLE), in table order, each
     with its schema row (None for a row only the C's string literals fill: a
     member's own string pool, which the compiler lays out)."""
     sch = parse_schema()
@@ -748,8 +756,8 @@ def write_c(member, rows, datas, layout):
         if s["header"] not in headers:
             headers.append(s["header"])
     out = [
-        f"/* {member}.o, written by tools/gen_data_c.py from baserom/pal/baseelf.elf",
-        " * and config/data_schema.pal.txt. Generated: do not commit. */",
+        f"/* {member}.o, written by tools/gen_data_c.py from {BASE_ELF.relative_to(ROOT)}",
+        f" * and {SCHEMA.relative_to(ROOT)}. Generated: do not commit. */",
         "",
     ]
     out += [f'#include "{(Path("../..") / h).as_posix()}"' for h in headers]

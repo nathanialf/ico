@@ -2,7 +2,9 @@
 # Install the IP-safety scan and the byte gate as git hooks (opt-in):
 #   - pre-commit: refuses a local commit that breaks the build
 #   - pre-push:   refuses to push a ref whose tip does not rebuild the base,
-#                 the backstop for commits made with --no-verify
+#                 the backstop for commits made with --no-verify, or a branch
+#                 other than main whose shared layer (tools/, build.sh,
+#                 .github/, docs/index.html) differs from origin/main's
 # Re-run any time either hook body changes.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -116,7 +118,13 @@ echo "Installed pre-commit hook at $HOOK"
 # `git push --no-verify` skips it in turn.
 cat > "$PUSH_HOOK" <<'EOF'
 #!/usr/bin/env bash
-# Auto-installed by tools/install_hooks.sh. Per-push byte gate.
+# Auto-installed by tools/install_hooks.sh. Per-push shared-layer check and
+# byte gate.
+#
+# For each branch being pushed other than main, tools/check_shared_layer.sh
+# requires its tip's tools/, build.sh, .github/ and docs/index.html to equal
+# origin/main's: the four target branches carry the same shared layer, and a
+# change to it lands on main first.
 #
 # For each ref being pushed whose commits touch the build, requires the
 # working tree to be at that ref's tip with no uncommitted change to a
@@ -149,6 +157,16 @@ while read local_ref local_sha remote_ref remote_sha; do
     if [[ "$local_sha" =~ ^0+$ ]]; then
         continue
     fi
+    # The shared layer must equal main's on every other branch.
+    case "$remote_ref" in
+        refs/heads/*)
+            if ! "$ROOT/tools/check_shared_layer.sh" "${remote_ref#refs/heads/}" "$local_sha"; then
+                echo "pre-push: SHARED LAYER differs from origin/main on $remote_ref: refusing push." >&2
+                push_failed=1
+                continue
+            fi
+            ;;
+    esac
     # Check if any commits being pushed touch build-sensitive paths
     if [[ "$remote_sha" =~ ^0+$ ]]; then
         # New branch: check all commits in local_sha
