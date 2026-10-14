@@ -817,10 +817,6 @@ text actSt20aGondola 0x0024EB68 0x0024EC18 ico2/script/src/st20a.c lines=18  # o
 text actSt20aBridgeDownSub 0x0024F0D0 0x0024F184 ico2/script/src/st20a.c local lines=18  # ordinal; first difference at insn 16; imm:2; extent-equal
 text actSt20aGondolaMain 0x0024F188 0x0024F1D0 ico2/script/src/st20a.c lines=12  # ordinal; first difference at insn 3; imm:1; extent-equal
 text actSt20aGondolaSwitch 0x0024F1D0 0x0024F274 ico2/script/src/st20a.c lines=19  # ordinal; first difference at insn 3; imm:1; extent-equal
-text actSt22aIntroChk 0x0024F788 0x0024FA30 ico2/script/src/st22a.c lines=57  # ordinal; first difference at insn 13; imm:4; extent-equal
-lit4 actSt22aIntroChk 0x0063359C 0x006335A0 ico2/script/src/st22a.c  # 1 float
-text actSt22aIntroSub 0x0024FA30 0x0024FB48 ico2/script/src/st22a.c lines=22  # ordinal; first difference at insn 9; imm:4; extent-equal
-lit4 actSt22aIntroSub 0x006335A0 0x006335A4 ico2/script/src/st22a.c  # 1 float
 text actSt24aSwordChk 0x0024FB48 0x0024FDB8 ico2/script/src/st24a.c lines=47  # ordinal; first difference at insn 26; imm:3; extent-equal
 lit4 actSt24aSwordChk 0x006335A4 0x006335AC ico2/script/src/st24a.c  # 2 floats
 text actSt24aDemoCamChk 0x0024FDB8 0x0024FEF8 ico2/script/src/st24a.c local lines=30  # ordinal; first difference at insn 16; imm:5; extent-equal
