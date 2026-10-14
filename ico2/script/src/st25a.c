@@ -44,10 +44,6 @@ static int conte12Flag = 0; /* derived name */
 
 SqEntry *dead = 0;
 
-static SqEntry *elevAgain = 0; /* derived name */
-
-static SqEntry *elevFirst = 0; /* derived name */
-
 /* stream-motion-def's table; streamMotionManager.h, which defines the
    record, does not declare it */
 extern StreamMotionFile streamMotion[];

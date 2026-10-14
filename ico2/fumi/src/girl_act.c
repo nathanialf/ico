@@ -283,8 +283,8 @@ static inline void ATGoalTurnSendMail(GObj *self) /* derived name */
 {
     Act *act = GOBJ_ACT(self);
     int mail = -1;
-    int slow[2] = {231, 242};
-    int fast[2] = {232, 243};
+    int slow[2] = {215, 226};
+    int fast[2] = {216, 227};
     int idx = 0;
 
     switch (goalTurnReq.prio) {

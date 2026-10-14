@@ -53,17 +53,10 @@
 #include "weapon.h"
 #include "include_asm.h"
 
-/* .sdata.  The three words after scpSeEnvMasterVolRate are the girl's hint
-   voice: its ADPCM handle and the distance range its volume follows. */
+/* .sdata */
 int scpBoyControlReadDisable = 0;
 
 float scpSeEnvMasterVolRate = 1.0f;
-
-static SqEntry *girlHintVoice = 0; /* derived name */
-
-static float girlHintRangeMin = 500.0f; /* derived name */
-
-static float girlHintRangeMax = 4000.0f; /* derived name */
 
 SqEntry *sekizo_common = 0;
 
@@ -303,13 +296,6 @@ static inline void scpAdpcmRequestClose(SqEntry **id) /* derived name */
             adpcmReq[i].cancel = 1;
             break;
         }
-}
-
-/* scpAdpcmCloseChkFunc's check for the hint voice's slot, used only by
-   scpGirlHintVoiceTickProc */
-static inline int scpGirlHintVoiceChk(void) /* derived name */
-{
-    return scpAdpcmCloseChkFunc(&girlHintVoice);
 }
 
 INCLUDE_ASM_LIT(scpDeamon);

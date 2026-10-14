@@ -346,17 +346,6 @@ static inline unsigned char isEnemyCarriedByGirl(GObj *self) /* derived name */
     return 0;
 }
 
-/* A static inline shared by actEnemyRestart and actEnemyStart.  `max` is a
-   local holding 43. */
-static inline float getEnemyRestartLife(GObj *self) /* derived name */
-{
-    int max = 43;
-    int idx = gFlagGameClear + 38;
-
-    idx = (idx < 38) ? 38 : ((idx <= max) ? idx : max);
-    return GetEnemyDefLife(self) * _ACTGame_GetParamF(idx);
-}
-
 /* PairSetGeometry is a GNU nested function, reading its parent's frame
    through the static chain. */
 static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */

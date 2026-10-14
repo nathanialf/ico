@@ -116,28 +116,13 @@ void lt_analog2Pad(void)
    file static) */
 static void display_texture(int no, LtProperty *e);
 
-/* whether property item no is shown; the second range is a conditional
-   expression */
-static inline int lt_property_visible(int no) /* derived name */
-{
-    int vis = 1;
-
-    if (gFlagGameClear == 0 && current_layout_id == 58 && no >= 300 &&
-        (no < 308 || (no < 330 ? no >= 325 : 0))) {
-        vis = 0;
-    }
-    return vis;
-}
-
 static inline void lt_draw_layout(int no) /* derived name */
 {
     int i = texLayout[no].first;
     int last = texLayout[no].last;
 
     for (; i < last; i++) {
-        if (lt_property_visible(i)) {
-            display_texture(no, &texProperty[i]);
-        }
+        display_texture(no, &texProperty[i]);
     }
 }
 

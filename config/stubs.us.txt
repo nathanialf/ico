@@ -1035,6 +1035,7 @@ text ChangeBrain_ToAttack.272 0x00163068 0x001631B8 ico2/fumi/src/enemy_act.c lo
 text subEnemyBrain_ToBoy 0x001631B8 0x00163890 ico2/fumi/src/enemy_act.c lines=156  # us-only (in enemy_act.c's span; PAL order suggests subEnemyBrain_ToBoy (1808 B in PAL)); named subEnemyBrain_ToBoy by callees (provisional)
 lit4 subEnemyBrain_ToBoy 0x00630D34 0x00630D38 ico2/fumi/src/enemy_act.c  # 1 float, measured from the base: the text loads them
 rdlit subEnemyBrain_ToBoy 0x00559080 0x00559122 ico2/fumi/src/enemy_act.c  # 6 strings, measured from the base
+sdlit subEnemyBrain_ToBoy 0x006323A8 0x006323AC ico2/fumi/src/enemy_act.c  # 1 word, measured from the base: a constant pool entry the text loads
 text ChangeBrain_ToKidnap.282 0x00163890 0x0016394C ico2/fumi/src/enemy_act.c local file=ChangeBrain_ToKidnap_282  # us-only (in enemy_act.c's span; body equals PAL ChangeBrain_ToKidnap.282's with immediates and jump targets masked); named ChangeBrain_ToKidnap.282 by its body equals PAL's with immediates and jump targets masked, body alignment (provisional)
 text subEnemyBrain_ToGirl 0x00163950 0x00163B40 ico2/fumi/src/enemy_act.c lines=63  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_ToGirl's with immediates and jump targets masked); named subEnemyBrain_ToGirl by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 rdlit subEnemyBrain_ToGirl 0x00559168 0x005591D4 ico2/fumi/src/enemy_act.c  # 1 data
@@ -1047,6 +1048,7 @@ data col.304 0x00282650 0x00282660 ico2/fumi/src/enemy_act.c local file=col_304 
 text actEnemyStart 0x00164440 0x0016489C ico2/fumi/src/enemy_act.c lines=83  # us-only (in enemy_act.c's span; PAL order suggests actEnemyStart (1248 B in PAL)); named actEnemyStart by callees, body alignment (provisional)
 lit4 actEnemyStart 0x00630D44 0x00630D4C ico2/fumi/src/enemy_act.c  # 2 floats, measured from the base: the text loads them
 rdlit actEnemyStart 0x005591D8 0x005591EA ico2/fumi/src/enemy_act.c  # 1 string, measured from the base
+sdlit actEnemyStart 0x006323AC 0x006323B0 ico2/fumi/src/enemy_act.c  # 1 word, measured from the base: a constant pool entry the text loads
 text subEnemyBrain_Irregular 0x001648A0 0x001649CC ico2/fumi/src/enemy_act.c lines=12  # us-only (in enemy_act.c's span; pairs with no PAL-only function there by size and order); named subEnemyBrain_Irregular by a data table (brainModeTable's IRREGULAR row) (provisional)
 text subEnemyBrain_Attack 0x001649D0 0x00164D30 ico2/fumi/src/enemy_act.c lines=27  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Attack's with immediates and jump targets masked); named subEnemyBrain_Attack by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text subEnemyBrain_Cling 0x00164D30 0x00164E8C ico2/fumi/src/enemy_act.c lines=27  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Cling's with immediates and jump targets masked); named subEnemyBrain_Cling by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
@@ -1124,6 +1126,7 @@ rdlit girlBrainMain_MakeOthersList 0x00559510 0x00559542 ico2/fumi/src/girl_act.
 sdlit girlBrainMain_MakeOthersList 0x00632450 0x0063245C ico2/fumi/src/girl_act.c  # 1 data
 text girlBrainMain_CheckWarningMode 0x0016B3C0 0x0016B78C ico2/fumi/src/girl_act.c local lines=41  # us-only (in girl_act.c's span; PAL order suggests girlBrainMain_CheckWarningMode (692 B in PAL)); named girlBrainMain_CheckWarningMode by call sites, callees, body alignment (provisional)
 lit4 girlBrainMain_CheckWarningMode 0x00630D54 0x00630D5C ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
+sdlit girlBrainMain_CheckWarningMode 0x00632470 0x00632472 ico2/fumi/src/girl_act.c  # 1 string, measured from the base: no code reads it; it stands between groupRelationName's strings and moveStateName's, and this is the first stub after groupRelationName
 text girlBrainMain_DecideMode 0x0016B790 0x0016BCA0 ico2/fumi/src/girl_act.c local lines=151  # us-only (in girl_act.c's span; PAL order suggests girlBrainMain_DecideMode (1672 B in PAL)); named girlBrainMain_DecideMode by call sites, callees (provisional)
 lit4 girlBrainMain_DecideMode 0x00630D5C 0x00630D64 ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
 text girlBrainMain_Init 0x0016BCF0 0x0016BD04 ico2/fumi/src/girl_act.c local lines=4  # ordinal; first difference at insn 4; imm:1; extent-equal
@@ -1171,10 +1174,9 @@ rdlit WayTest 0x00559710 0x00559712 ico2/fumi/src/girl_act.c  # 1 string, measur
 text subGirlControl 0x00171E48 0x001725C4 ico2/fumi/src/girl_act.c lines=230  # ordinal; first difference at insn 0; length:-163; extent-differs
 lit4 subGirlControl 0x00630DE0 0x00630E14 ico2/fumi/src/girl_act.c  # 13 floats, measured from the base: the text loads them
 rdlit subGirlControl 0x00559770 0x0055977B ico2/fumi/src/girl_act.c  # 1 string, measured from the base
+sdlit subGirlControl 0x006324C8 0x006324E7 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base: no code reads them, the compiled-out debug code's
 text subGirlCollision 0x001725C8 0x00173060 ico2/fumi/src/girl_act.c lines=200  # ordinal; first difference at insn 20; length:-39; extent-differs
 lit4 subGirlCollision 0x00630E14 0x00630E1C ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
-sdlit subGirlCollision 0x00632440 0x00632442 ico2/fumi/src/girl_act.c  # 1 string, measured from the base
-sdlit subGirlCollision 0x00632448 0x0063244A ico2/fumi/src/girl_act.c  # 1 string, measured from the base
 sdlit subGirlCollision 0x006324E8 0x006324EE ico2/fumi/src/girl_act.c  # 1 string, measured from the base
 rdlit subGirlCollision 0x00559888 0x005598C8 ico2/fumi/src/girl_act.c  # 3 strings, measured from the base
 text HandMgr_GetDistHand.289 0x00173060 0x00173170 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_289  # nested in actGirlHand (a stub); equal, gone with its carved parent
@@ -1188,7 +1190,7 @@ text GetBoyMode.313 0x001736B8 0x0017381C ico2/fumi/src/girl_act.c local file=Ge
 rdlit GetBoyMode.313 0x00559950 0x00559A5C ico2/fumi/src/girl_act.c align=16 file=GetBoyMode_313  # 1 jtbl
 text actGirlHand 0x00173820 0x0017429C ico2/fumi/src/girl_act.c lines=353  # us-only (in girl_act.c's span; PAL order suggests actGirlHand (2792 B in PAL)); named actGirlHand by callees, body alignment (provisional)
 lit4 actGirlHand 0x00630E24 0x00630E38 ico2/fumi/src/girl_act.c  # 5 floats, measured from the base: the text loads them
-sdlit actGirlHand 0x006324F0 0x006324F3 ico2/fumi/src/girl_act.c  # 1 string, measured from the base
+sdlit actGirlHand 0x006324F0 0x00632500 ico2/fumi/src/girl_act.c  # 1 string, the function's two static floats and 1 pool word, measured from the base
 rdlit actGirlHand 0x00559A60 0x00559A6C ico2/fumi/src/girl_act.c  # 1 string, measured from the base
 text actGirlPulledReady 0x001742A0 0x001743EC ico2/fumi/src/girl_act.c lines=29  # us-only (in girl_act.c's span; body equals PAL actGirlPulledReady's with immediates and jump targets masked); named actGirlPulledReady by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text actGirlPulledGo 0x001743F0 0x00174558 ico2/fumi/src/girl_act.c lines=33  # us-only (in girl_act.c's span; PAL order suggests actGirlPulledGo (444 B in PAL)); named actGirlPulledGo by callees (provisional)
@@ -1436,7 +1438,7 @@ text MakeCameraMatrix 0x0018B880 0x0018B9CC ico2/omori/src/camera-root.c lines=1
 text InitCamera 0x0018C0A8 0x0018C210 ico2/omori/src/camera-root.c lines=23  # ordinal; first difference at insn 24; length:-8; extent-differs
 text SetCameraMatrix 0x0018C210 0x0018CA78 ico2/omori/src/camera-root.c lines=223  # ordinal; first difference at insn 0; length:-165; extent-differs
 lit4 SetCameraMatrix 0x00630EF4 0x00630EFC ico2/omori/src/camera-root.c  # 2 floats, measured from the base: the text loads them
-sdlit SetCameraMatrix 0x00632708 0x00632728 ico2/omori/src/camera-root.c  # 4 strings, measured from the base
+sdlit SetCameraMatrix 0x00632708 0x00632730 ico2/omori/src/camera-root.c  # 4 strings and the function's two statics, measured from the base
 rdlit SetCameraMatrix 0x0055AA50 0x0055AA5C ico2/omori/src/camera-root.c  # 1 string, measured from the base
 text InsertCamera_Set 0x0018CD00 0x0018CD94 ico2/omori/src/camera-root.c lines=19  # us-only (in camera-root.c's span; PAL order suggests InsertCamera_Set (164 B in PAL)); named InsertCamera_Set by callees, body alignment (provisional)
 text InsertCamera_SetNoraml 0x0018CD98 0x0018CE40 ico2/omori/src/camera-root.c lines=15  # us-only (in camera-root.c's span; PAL order suggests InsertCamera_SetNoraml (176 B in PAL)); named InsertCamera_SetNoraml by call sites, callees, body alignment (provisional)
@@ -1622,6 +1624,7 @@ text effect_end_func 0x00199A08 0x00199A5C ico2/ito/src/queen.c local file=effec
 text queenBeforeFunc 0x00199A60 0x00199C2C ico2/ito/src/queen.c lines=49  # us-only (in queen.c's span; PAL order suggests queenBeforeFunc (484 B in PAL)); named queenBeforeFunc by callees, body alignment (provisional)
 text gene_enemy 0x00199C30 0x00199F7C ico2/ito/src/queen.c file=gene_enemy_queen lines=79  # us-only (in queen.c's span; body equals PAL gene_enemy's with immediates and jump targets masked); named gene_enemy by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text subQueenBrainMain 0x00199F80 0x0019A6E4 ico2/ito/src/queen.c lines=152  # us-only (in queen.c's span; PAL order suggests subQueenBrainMain (1912 B in PAL)); named subQueenBrainMain by callees, body alignment (provisional)
+sdlit subQueenBrainMain 0x006327F0 0x006327F8 ico2/ito/src/queen.c  # 1 string, measured from the base
 text Debug_StickControl 0x0019A6E8 0x0019A7E4 ico2/ito/src/queen.c local file=Debug_StickControl_queen lines=20  # us-only (in queen.c's span; body equals PAL Debug_StickControl's with immediates and jump targets masked); named Debug_StickControl by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
 lit4 Debug_StickControl 0x00631068 0x0063106C ico2/ito/src/queen.c file=Debug_StickControl_queen  # 1 float
 text InitQueenGeo 0x0019A7E8 0x0019A8F0 ico2/ito/src/queen.c lines=21  # us-only (in queen.c's span; body equals PAL InitQueenGeo's with immediates and jump targets masked); named InitQueenGeo by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)

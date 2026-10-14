@@ -462,8 +462,6 @@ static const DbgOpt debugOption[76] = {
     {" LWSKYOMI LOOKONLY  ", 0xC0C0C080, &debug_lwskyomi_lookonly, 0, 1, debugOffOnName, 0},
     {" ONE HIT ONLY       ", 0xC0C0C080, &debug_one_hit_only, 0, 1, debugOffOnName, 0},
     {" IGNORE DODGE       ", 0xC0C0C080, &debug_ignore_dodge, 0, 1, debugOffOnName, 0},
-    {" GAME CLEAR COUNT   ", 0xC0C0C080, &gFlagGameClear, 0, 9, 0, 0},
-    {" NO BREAST HANG     ", 0xC0C0C080, &debug_no_breast_hang, 0, 1, debugOffOnName, 0},
 }; /* derived name */
 
 /* the font window's line count */
