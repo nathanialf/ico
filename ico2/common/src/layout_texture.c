@@ -76,7 +76,6 @@ static unsigned int fadeCount; /* derived name */
 extern void *memset(void *dst, int c, int n);
 
 #include "Texture.h"
-#include "include_asm.h"
 
 static void default_item_select(int no);
 
@@ -172,8 +171,8 @@ static inline int lt_property_visible(int no) /* derived name */
 {
     int vis = 1;
 
-    if (gFlagGameClear == 0 && current_layout_id == 58 && no >= 300 &&
-        (no < 308 || (no < 330 ? no >= 325 : 0))) {
+    if (gFlagGameClear == 0 && current_layout_id == 55 && no >= 277 &&
+        (no < 285 || (no < 307 ? no >= 302 : 0))) {
         vis = 0;
     }
     return vis;
@@ -196,7 +195,7 @@ static inline void lt_draw_layout(int no) /* derived name */
    out-of-line function and the second site set 3. */
 static inline void lt_switch_layout_7(int no) /* derived name */
 {
-    if ((fadeState == 2 && no != current_layout_id) || no == 62) {
+    if ((fadeState == 2 && no != current_layout_id) || no == 59) {
         nextLayout = no;
         display_texture_fade_cancel_chk(current_layout_id, no);
         if (fadeType == 1) {
@@ -210,7 +209,7 @@ static inline void lt_switch_layout_7(int no) /* derived name */
 
 static inline void lt_switch_layout_3(int no) /* derived name */
 {
-    if ((fadeState == 2 && no != current_layout_id) || no == 62) {
+    if ((fadeState == 2 && no != current_layout_id) || no == 59) {
         nextLayout = no;
         display_texture_fade_cancel_chk(current_layout_id, no);
         if (fadeType == 1) {
@@ -222,7 +221,72 @@ static inline void lt_switch_layout_3(int no) /* derived name */
     }
 }
 
-INCLUDE_ASM(default_item_select);
+static void default_item_select(int no)
+{
+    LtProp *p = &texLayout[no];
+    LtProperty *e = &texProperty[p->curItem];
+    int prev;
+
+    if (p->curItem < 0) {
+        return;
+    }
+    if (lt_item_select_disable != 0) {
+        return;
+    }
+    if (fadeState != 2) {
+        return;
+    }
+    if (fadeCallback == 0) {
+        lt_analog2Pad();
+        prev = p->curItem;
+        if ((pad[0].flags & 0x60) == 0) {
+            if ((pad[0].flags & 0x1000) && e->upItem >= 0) {
+                p->curItem = e->upItem;
+                while (!lt_property_visible(p->curItem)) {
+                    p->curItem = texProperty[p->curItem].upItem;
+                }
+            } else if ((pad[0].flags & 0x4000) && e->downItem >= 0) {
+                p->curItem = e->downItem;
+                while (!lt_property_visible(p->curItem)) {
+                    p->curItem = texProperty[p->curItem].downItem;
+                }
+            } else if ((pad[0].flags & 0x8000) && e->leftItem >= 0) {
+                p->curItem = e->leftItem;
+            } else if ((pad[0].flags & 0x2000) && e->rightItem >= 0) {
+                p->curItem = e->rightItem;
+            }
+        }
+        if (p->curItem != prev) {
+            soundSeDefPlay(411, 0xFFFFFFFE, 0, 0);
+            glowOn = 1;
+            glowLength = (unsigned int)((60 - systemStatus[0] * 10) / systemStatus[1] * 0.25f);
+            selectFrame = frame_count;
+            glowCount = 0;
+        }
+    } else {
+        p->curItem = ((int (*)(int))fadeCallback)(p->curItem);
+        fadeCallback = 0;
+    }
+
+    e = &texProperty[p->curItem];
+    if (pad[0].flags & 0x20) {
+        if (e->right >= 0) {
+            if (fadeState == 2) {
+                soundSeDefPlay(412, 0xFFFFFFFE, 0, 0);
+                lt_switch_layout_7(e->right);
+                return;
+            }
+        }
+    }
+    if (pad[0].flags & 0x40) {
+        if (e->left >= 0) {
+            if (fadeState == 2) {
+                soundSeDefPlay(413, 0xFFFFFFFE, 0, 0);
+                lt_switch_layout_3(e->left);
+            }
+        }
+    }
+}
 
 static inline void lt_reset_property_chain(int no) /* derived name */
 {
@@ -492,11 +556,106 @@ static inline void lt_draw_primary_sprite(SprCol *col) /* derived name */
     gif_EndPacket();
 }
 
-static void display_primary_texture_layout(int no, int sel);
+static void display_primary_texture_layout(int no, int sel)
+{
+    SprCol col;
+    LtProp *p = &texLayout[no];
+    int m;
+    int flag;
 
-INCLUDE_ASM(display_primary_texture_layout);
+    col.r = (int)(p->colR * 255.0f);
+    col.g = (int)(p->colG * 255.0f);
+    col.b = (int)(p->colB * 255.0f);
+    col.a = (int)(p->colA * 127.0f);
+    lt_draw_primary_sprite(&col);
+    if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
+        if (p->curItem >= 0) {
+            m = texProperty[p->curItem].selectMode;
+        } else {
+            m = 0;
+        }
+        sel = p->proc(ltSelectFlag, sel);
+        if (sel != -1) {
+            flag = 0;
+            if ((pad[0].flags & 0x20) != 0) {
+                flag = m == 1;
+            }
+            if ((fadeState == 2 && sel != current_layout_id) || sel == 59) {
+                nextLayout = sel;
+                display_texture_fade_cancel_chk(current_layout_id, sel);
+                if (fadeType == 1) {
+                    fadeState = 5;
+                } else {
+                    nextFadeState = 3;
+                    fadeState = flag ? 7 : 3;
+                }
+            }
+        } else if ((pad[0].flags & 0x20) != 0) {
+            if (m == 2) {
+                nextFadeState = m;
+                fadeState = 7;
+            }
+        }
+        ltSelectFlag = 0;
+    }
+    texture_fading(p);
+    lt_draw_layout(no);
+}
 
-INCLUDE_ASM(exec_layout_texture);
+void exec_layout_texture(void)
+{
+    int n = 0;
+    int list[16];
+    int ret = -1;
+    LtProp *p;
+    int v;
+    int j;
+    int k;
+
+    if (frame_count - selectFrame == 0 || frame_count - selectFrame == 1) {
+        pad[0].flags = 0;
+    }
+    p = &texLayout[current_layout_id];
+    for (;;) {
+        for (j = p->first; j < p->last; j++) {
+            LtProperty *e = &texProperty[j];
+
+            e->masked = e->defaultMask;
+        }
+        if (p->link >= 0) {
+            list[n++] = p->link;
+            p = &texLayout[p->link];
+        } else {
+            break;
+        }
+    }
+    list[n] = -1;
+    for (n--; n != -1; n--) {
+        p = &texLayout[list[n]];
+        v = p->curItem;
+        ltCurrentItem = v;
+        if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
+            ret = p->proc(p->procFirst, ret);
+            p->procFirst = 0;
+            v = p->curItem;
+        } else {
+            ret = -1;
+        }
+        if (v >= 0 && lt_item_select_disable == 0) {
+            default_item_select(list[n]);
+        }
+    }
+    p = &texLayout[current_layout_id];
+    ltCurrentItem = p->curItem;
+    display_primary_texture_layout(current_layout_id, ret);
+    if (p->curItem >= 0 && lt_item_select_disable == 0) {
+        default_item_select(current_layout_id);
+    }
+    for (k = 0; list[k] >= 0; k++) {
+        lt_draw_layout(list[k]);
+    }
+    lt_item_select_disable = 0;
+}
 
 /* init_textures_of_specified_property is a file static, as is
    ico2/common/src/kanban's function of the same name */

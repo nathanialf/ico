@@ -169,9 +169,6 @@ sdlit InitIcoMisc 0x00634F18 0x00634F34 ico2/common/src/icoMisc.c  # 4 strings
 text ExitIcoMisc 0x001B8900 0x001B8908 ico2/common/src/icoMisc.c lines=1  # equal; a deferred inline the jpn-only stub after it must follow
 text func_001B8908 0x001B8908 0x001B8910 ico2/common/src/icoMisc.c  # jpn-only; no PAL counterpart: an empty function after ExitIcoMisc (icoMisc.c's last); kanban.c's first twin follows at 0x1B8910
 text kanbanBootMcCheck 0x001B9490 0x001B96E8 ico2/common/src/kanbanBoot.c local lines=236  # ordinal; first difference at insn 3; length:-254; extent-differs
-text default_item_select 0x001BEFE8 0x001BF3D8 ico2/common/src/layout_texture.c local lines=66  # ordinal; first difference at insn 34; imm:15; extent-equal
-text display_primary_texture_layout 0x001C01A8 0x001C0490 ico2/common/src/layout_texture.c local lines=45  # ordinal; first difference at insn 98; imm:9; extent-equal
-text exec_layout_texture 0x001C0490 0x001C0770 ico2/common/src/layout_texture.c lines=54  # ordinal; first difference at insn 139; imm:5; extent-equal
 text staffRollStart 0x001C1D20 0x001C1D74 ico2/common/src/staffroll.c lines=14  # ordinal; first difference at insn 0; length:-20; extent-differs
 text checkFieldContact 0x001C6718 0x001C683C ico2/sugipon/src/box.c local lines=34  # ordinal; first difference at insn 0; length:-11; extent-differs
 text action 0x001C8FC0 0x001C9158 ico2/sugipon/src/box.c local lines=45  # ordinal; first difference at insn 5; length:-16; extent-differs
