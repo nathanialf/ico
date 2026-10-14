@@ -141,8 +141,6 @@ lit4 QueenGeo 0x00632E4C 0x00632E58 ico2/ito/src/queen.c  # 3 floats
 text QueenBallGeo 0x001A3418 0x001A3BEC ico2/ito/src/queen.c lines=105  # ordinal; first difference at insn 155; imm:3; extent-equal
 lit4 QueenBallGeo 0x00632EA8 0x00632EAC ico2/ito/src/queen.c  # 1 float
 text QueenBallDL 0x001A3BF0 0x001A3DAC ico2/ito/src/queen.c lines=45  # ordinal; first difference at insn 34; imm:3; extent-equal
-text CSVSYSTEM_InitDObj 0x001A78D0 0x001A7AA8 ico2/common/src/DObj.c lines=24  # ordinal; first difference at insn 32; imm:1; extent-equal
-rdlit CSVSYSTEM_InitDObj 0x006122F0 0x00612392 ico2/common/src/DObj.c  # 5 strings
 text StageManager 0x001A8238 0x001A8524 ico2/common/src/StageManager.c lines=94  # ordinal; first difference at insn 111; imm:1; extent-equal
 rdlit StageManager 0x006124E0 0x0061256C ico2/common/src/StageManager.c  # 4 strings, 1 data
 text backStageProcessOutStage 0x001A8660 0x001A8B90 ico2/common/src/backStage.c lines=107  # ordinal; first difference at insn 297; imm:4; extent-equal
