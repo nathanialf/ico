@@ -2345,6 +2345,7 @@ lit4 playSE 0x0062B3CC 0x0062B3D0 ico2/sugipon/src/frameDependSequence.c # targe
 text playSERandomID 0x001CD8F0 0x001CDBB0 ico2/sugipon/src/frameDependSequence.c local lines=37  # trfile; aug6-only in the census; PAL's playSERandomID (464 B in PAL)
 rdlit playSERandomID 0x00611730 0x00611780 ico2/sugipon/src/frameDependSequence.c  # target side
 lit4 playSERandomID 0x0062B3D0 0x0062B3DC ico2/sugipon/src/frameDependSequence.c # target side
+sdlit playSERandomID 0x0062D540 0x0062D552 ico2/sugipon/src/frameDependSequence.c  # target side: two strings and a static word
 text playSEConditionID 0x001CDBB0 0x001CDCB0 ico2/sugipon/src/frameDependSequence.c local lines=36  # trfile; aug6-only in the census; PAL's playSEConditionID (288 B in PAL)
 text playEff 0x001CDCB0 0x001CDEF4 ico2/sugipon/src/frameDependSequence.c local lines=43  # trfile; aug6-only in the census; PAL's playEff (624 B in PAL)
 rdlit playEff 0x00611780 0x006117C8 ico2/sugipon/src/frameDependSequence.c  # target side
@@ -2442,6 +2443,7 @@ text setIKAndAdjustRootHeight 0x001D79A8 0x001D8188 ico2/sugipon/src/motionManag
 rdlit setIKAndAdjustRootHeight 0x00611C58 0x00611CD0 ico2/sugipon/src/motionManager.c  # target side
 lit4 setIKAndAdjustRootHeight 0x0062B48C 0x0062B4A0 ico2/sugipon/src/motionManager.c  # 5 floats
 sdlit setIKAndAdjustRootHeight 0x0062D5C8 0x0062D5CC ico2/sugipon/src/motionManager.c  # 1 word
+sdata D_0062D5D0 0x0062D5D0 0x0062D5D8 ico2/sugipon/src/motionManager.c local  # the two words _getFinalMatrix reads (lwc1, as in PAL), which the prototype has after the root-update functions' constants and before skelNode
 text landingFieldAction 0x001D8188 0x001D82C8 ico2/sugipon/src/motionManager.c in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=13  # ordinal; first difference at insn 11; imm:9; extent-equal
 text floorFitting 0x001D82C8 0x001D8394 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=20  # ordinal; first difference at insn 12; imm:3; extent-equal
 text rootUpdateXZ 0x001D8398 0x001D947C ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=197  # ordinal; first difference at insn 37; length:-7; extent-differs
@@ -2505,6 +2507,7 @@ rdlit shiftMotionOrientEndFunc 0x00612130 0x00612178 ico2/sugipon/src/motionOrie
 sdlit shiftMotionOrientEndFunc 0x0062D650 0x0062D652 ico2/sugipon/src/motionOrientManager.c  # 1 string
 text shiftMotionOrientBeginFunc 0x001DF288 0x001DF620 ico2/sugipon/src/motionOrientManager.c local lines=49  # ordinal; first difference at insn 5; length:-3; extent-differs
 rdlit shiftMotionOrientBeginFunc 0x00612178 0x0061221B ico2/sugipon/src/motionOrientManager.c  # 4 strings
+sdlit shiftMotionOrientBeginFunc 0x0062D658 0x0062D65C ico2/sugipon/src/motionOrientManager.c  # target side: a static word
 text normalMotionShift 0x001DF630 0x001DF94C ico2/sugipon/src/motionOrientManager.c local lines=34  # ordinal; first difference at insn 11; imm:11; extent-equal
 lit4 normalMotionShift 0x0062B4E0 0x0062B4E4 ico2/sugipon/src/motionOrientManager.c  # 1 float
 text parallelMotionShift 0x001DF950 0x001DFC98 ico2/sugipon/src/motionOrientManager.c local lines=27  # ordinal; first difference at insn 9; imm:7; extent-equal
@@ -2512,7 +2515,7 @@ lit4 parallelMotionShift 0x0062B4E4 0x0062B4EC ico2/sugipon/src/motionOrientMana
 text SetMotionRequest 0x001DFC98 0x001E0014 ico2/sugipon/src/motionOrientManager.c lines=61  # ordinal; first difference at insn 29; imm:12; extent-equal
 rdlit SetMotionRequest 0x00612220 0x00612284 ico2/sugipon/src/motionOrientManager.c align=16  # 2 strings, 1 data
 rdlit SetMotionRequest 0x00612290 0x006122C8 ico2/sugipon/src/motionOrientManager.c align=16  # 1 jtbl
-sdlit SetMotionRequest 0x0062D668 0x0062D66B ico2/sugipon/src/motionOrientManager.c  # 1 string
+sdlit SetMotionRequest 0x0062D668 0x0062D68A ico2/sugipon/src/motionOrientManager.c  # target side: "\n " and the four spinner strings
 text getNodeBlendedFloatingMotion 0x001E0018 0x001E02DC ico2/sugipon/src/motionOrientManager.c local lines=39  # ordinal; first difference at insn 1; imm:11; extent-equal
 rdlit getNodeBlendedFloatingMotion 0x006122C8 0x006122F4 ico2/sugipon/src/motionOrientManager.c  # 1 string
 text getMotionGeometry 0x001E02E0 0x001E0C64 ico2/sugipon/src/motionOrientManager.c local lines=179  # aug6-only in the census (in motionOrientManager.c's span); getMotionGeometry by body ratio 0.91, callees 0.97, sizes 2536/2436

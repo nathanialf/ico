@@ -296,6 +296,8 @@ INCLUDE_ASM(dispLastNode);
 #include "GifPacket.h"
 #include "DObj.h"
 
+INCLUDE_ASM(D_0062D5D0);
+
 static SkelNode *skelNode = 0; /* derived name */
 
 static int skelGObj = 0; /* derived name */

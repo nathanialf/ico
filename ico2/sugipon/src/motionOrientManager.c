@@ -31,10 +31,6 @@ static void getMotionGeometry(void *self);
 static void getStreamShapeGeometry(void *self, void *sm);
 static void shiftMotionData(int obj, int motion, int request, int shiftMode);
 
-/* The rope's interpolation rate: the chain's geometry sets it from the hang
-   height and rootUpdateY_Rope moves the root by it. */
-float ropeInterRate = 0.0f; /* derived name */
-
 extern MotionOrientEntry motionOrient[];
 
 struct MotOriHead8 { /* field names derived */
