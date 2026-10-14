@@ -354,6 +354,7 @@ data:obj-trigger
 data:parallel-motion-orient
 data:particle-effect
 data:spider-def
+data:texture-path  # .rodata between spider-def and way-group here (config/data_members.us.txt); PAL links it in .data after texture-layout
 data:way-group
 ico2/common/src/PObj.c
 data:unmapped_00533FC0  # first in its .data run here, before item-kind-def (data_members.us.txt)
@@ -362,7 +363,6 @@ data:mirror-motion-def
 data:model-path
 data:prog-se-link
 data:texture-layout
-data:texture-path
 data:way-point
 data:weapon-fumble-def
 ico2/fumi/src/vobj.c

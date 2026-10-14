@@ -38,8 +38,6 @@ void brainAddLevelGirl(float lv)
 
 INCLUDE_ASM(brainInit);
 
-INCLUDE_ASM(OverrideBrainStatusByGObj);
-
 static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* derived name */
 {
     float capStep = objKindData[k].brainCapStep;
@@ -53,6 +51,7 @@ static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* 
         }
     }
     if (i == 20) {
+        debug_StdPrintfDummy("brainStatusDefaultSet: brain target area over\n");
         return;
     }
     t = &b->tgt[i];
@@ -67,6 +66,8 @@ static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* 
     *(int *)&t->lookOnly &= ~0x10000;
     brainSetTargetTimer(t);
 }
+
+INCLUDE_ASM(OverrideBrainStatusByGObj);
 
 INCLUDE_ASM(brainStatusDefaultSet);
 

@@ -19,7 +19,6 @@
 #include <sound.h>
 #include "include_asm.h"
 
-static inline void iosCdvdDiskReadyBlock(void);
 static void iosCdvdBackGroundMgrInit(void);
 static void iosCdvdBackGroundMgr(void);
 
@@ -144,6 +143,24 @@ static __inline__ void stDebugPrintMode(void) /* derived name */
 #ifdef DEBUG
     scePrintf("cd media mode %d\n", iosCdvdMediaType);
 #endif
+}
+
+/* Declared inline: iosCdvdMgrLoad, iosCdvdMgrPackLoad, iosCdvdManager,
+ * iosCdvdDirectStOpen and cdWait expand it.  Until the disc is back it prints
+ * the request on every pass and waits for a PlayStation 2 CD (disc type 18)
+ * that holds the boot file. */
+static inline void iosCdvdDiskReadyBlock(void)
+{
+    if (sceCdDiskReady(1) != 2) {
+        sceCdlFILE fp;
+        char file[32];
+        strcpy(file, "SCUS_971.13");
+        iosCdvdChgFileName(file);
+        do {
+            debug_StdPrintfDummy("wait insert ico disk\n");
+            sceCdDiskReady(0);
+        } while (sceCdGetDiskType() != 18 || sceCdSearchFile(&fp, file) == 0);
+    }
 }
 
 /* the search-cache lookup of a file's sector, which iosCdvdGetFileLsn and

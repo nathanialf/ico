@@ -31,7 +31,7 @@ int IosMcLock = -1;
 
 char *iconName[3] = {"boy_blk.ico", "boy_blk.ico", "boy_blk.ico"};
 
-char *iOSMcSaveSeg[6] = {"BESCES-50760ico", "icon.sys",    "boy_blk.ico",
+char *iOSMcSaveSeg[6] = {"BASCUS-97113ico", "icon.sys",    "boy_blk.ico",
                          "boy_blk.ico",     "boy_blk.ico", "game."};
 
 static int mcLockCount = 0; /* derived name */
@@ -54,6 +54,19 @@ typedef struct { /* field names derived */
 } McName; /* derived name */
 
 /* the file-static card helpers the manager entry points inline */
+static inline void iosMcMgrGetInfo(McMgr *mp)
+{
+    while (sceMcGetInfo(mp->port, mp->slot, &mp->type, &mp->free, &mp->format) > 0) {
+        debug_StdPrintfDummy("iosMcMgrGetInfo: request busy\n");
+    }
+
+    iosMcMgrSync(mp);
+
+    if (mp->result != 0 && mp->result >= -10) {
+        mp->cardState = mp->result;
+    }
+}
+
 static inline void iosMcMgrFormat(McMgr *mp) /* derived name */
 {
     while (sceMcFormat(mp->port, mp->slot) > 0) {

@@ -94,11 +94,11 @@ void funcGirlHandDisconnect(void)
    g200climb.h) textually included here: each defines the hand-off's
    after-routine and act-routine `inline`, which the compiler emits at the
    end of the file in girl_act.h's order, and the mot-routine plainly,
+   emitted in place.  Their strings come out here, in this order. */
 INCLUDE_ASM_LIT(afterGirlHand50);
 
 INCLUDE_ASM_LIT(actGirlHand50);
 
-   emitted in place.  Their strings come out here, in this order. */
 INCLUDE_ASM(motGirlHand50);
 
 INCLUDE_ASM_LIT(actGirlHand100);
@@ -863,6 +863,8 @@ extern int fptodp(float v);
 
 INCLUDE_ASM(subGirlCollision);
 
+INCLUDE_ASM_LIT(afterGirlHand);
+
 /* this TU's uses of GetHeightOfFieldPlaneDifference do not fit the
    prototype in motionManager2.h */
 
@@ -881,8 +883,6 @@ INCLUDE_ASM(HandMgr_Print_305);
 INCLUDE_ASM(HandMgr_Speed_309);
 
 INCLUDE_ASM(GetBoyMode_313);
-
-INCLUDE_ASM_LIT(afterGirlHand);
 
 INCLUDE_ASM(actGirlHand);
 
@@ -955,10 +955,6 @@ static inline const EscortPoint *searchEscortPoint(int area, int point) /* deriv
 
 INCLUDE_ASM(IsGirlStatusEscortEnable);
 
-INCLUDE_ASM(func_00175098);
-
-INCLUDE_ASM(func_001752D0);
-
 static inline void dispEscortSphere(void *pos, float r, unsigned char in) /* derived name */
 {
     Col4 col;
@@ -980,6 +976,10 @@ static inline void dispEscortSphere(void *pos, float r, unsigned char in) /* der
         MatrixDrive_PopMatrix();
     }
 }
+
+INCLUDE_ASM(func_00175098);
+
+INCLUDE_ASM(func_001752D0);
 
 /* the *(sub+0x688) ACT parameter block, viewed as a struct whose stores are
    member stores */

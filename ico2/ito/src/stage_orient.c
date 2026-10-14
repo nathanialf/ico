@@ -10,7 +10,7 @@ typedef struct { /* field names derived */
     float pos2[3];
 } StageOrientDef; /* derived name */
 
-static const StageOrientDef stageOrientDefs[41] = {
+static const StageOrientDef stageOrientDefs[35] = {
     /* derived name */
     {"st47a", 0.0f, {200.0f, -350.0f, -950.0f}, {0.0f, -1750.0f, 0.0f}},
     {"st18a", -3.14159f, {-4850.0f, -1650.0f, 3075.0f}, {-2600.0f, -950.0f, 1375.0f}},
@@ -47,12 +47,6 @@ static const StageOrientDef stageOrientDefs[41] = {
     {"st25a", 0.0f, {-25000.0f, 4640.0f, 450.0f}, {-25000.0f, 5400.0f, 450.0f}},
     {"st24b", -1.5708f, {-20500.0f, -10450.0f, -600.0f}, {-20500.0f, -10450.0f, -600.0f}},
     {"st27a", 1.5708f, {27325.0f, -12310.0f, 77370.0f}, {29200.0f, -12400.0f, 77500.0f}},
-    {"E3_st01b", 0.0f, {-14935.0f, 175.0f, 420.0f}, {-14850.0f, 425.0f, 525.0f}},
-    {"E3_st09a", -1.5708f, {-11575.0f, 650.0f, 0.0f}, {-11575.0f, 650.0f, 0.0f}},
-    {"E3_st04a", -1.5708f, {-16200.0f, 600.0f, -1400.0f}, {-17900.0f, 600.0f, -1400.0f}},
-    {"E3_st13c", -3.14159f, {-18650.0f, -230.0f, 450.0f}, {-18650.0f, -500.0f, 450.0f}},
-    {"E3_st13d", 3.14159f, {-18620.0f, 2505.0f, 450.0f}, {-18650.0f, -500.0f, 450.0f}},
-    {"E3_st13b", 3.14159f, {-24850.0f, -430.0f, 450.0f}, {-24850.0f, -900.0f, 450.0f}},
 };
 
 /* the orient index each stage resolves to, -1 where the stage has none */
@@ -61,7 +55,6 @@ static short stageOrientIdx[104]; /* derived name */
 #include "stage_orient.h"
 #include <stdio.h>
 #include <string.h>
-#include "include_asm.h"
 
 /* the matrix that places a stage at its orient record's anchor and angle,
    for GetStageDifferenceMatrix and StageOrientGet2 */
@@ -88,7 +81,22 @@ static inline void MakeStageOrientMatrix(float *m, const StageOrientDef *p) /* d
     MatrixDrive_PopMatrix();
 }
 
-INCLUDE_ASM_LIT(StageOrientInit);
+inline void StageOrientInit(void)
+{
+    int i, j;
+    char buf[64];
+
+    for (i = 0; i < 104; i++) {
+        sscanf(stageData[i].name, "%s", buf);
+        stageOrientIdx[i] = -1;
+        for (j = 0; j < sizeof(stageOrientDefs) / sizeof(stageOrientDefs[0]); j++) {
+            if (strcmp(buf, stageOrientDefs[j].name) == 0) {
+                stageOrientIdx[i] = j;
+                break;
+            }
+        }
+    }
+}
 
 static int GetStageDifferenceMatrix(float *out, int stA, int stB)
 {
@@ -238,5 +246,3 @@ int OtherStagePositionGet(float *ret, int stA, int stB, float *pos)
     ret[1] = -ret[1];
     return 1;
 }
-
-INCLUDE_ASM(StageOrientInit);

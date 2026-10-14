@@ -429,6 +429,8 @@ INCLUDE_ASM(CheckEnemyBrainMode);
 
 INCLUDE_ASM(BrainMode_Requset_217);
 
+INCLUDE_ASM_LIT(subEnemyBrain_ToGenerator);
+
 INCLUDE_ASM(subEnemyBrainMain);
 
 INCLUDE_ASM(enemy_dodge);

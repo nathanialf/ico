@@ -75,11 +75,11 @@ INCLUDE_ASM(CorrectOrient_RopeCliff);
    three: each defines the hand-off's after-routine and act-routine `inline`,
    which the compiler emits at the end of the file in boyact.h's order, and
    the mot-routine plainly, emitted in place.  Their strings come out here,
+   in this order, at the head of the TU's .rodata. */
 INCLUDE_ASM_LIT(afterBoyHand50);
 
 INCLUDE_ASM_LIT(actBoyHand50);
 
-   in this order, at the head of the TU's .rodata. */
 INCLUDE_ASM(motBoyHand50);
 
 /* the shared "face the girl" prologue the b100climb.h / b200climb.h climb
@@ -179,7 +179,68 @@ float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 INCLUDE_ASM(UpdateGeo_48);
 
-INCLUDE_ASM(BoyBgaManager);
+static void BoyBgaManager(void *self, int id, void *dst)
+{
+    /* UpdateGeo is a GNU nested function: it reads `self` out of
+       BoyBgaManager's frame through the static chain. */
+    void UpdateGeo(BgaEntry * p)
+    {
+        float dir[4];
+        float tmp[4];
+        void *obj;
+
+        if (p->b0F != 0) {
+            dir[0] = test_CURRENTORIENT(self)[0];
+            dir[1] = test_CURRENTORIENT(self)[1];
+            dir[2] = test_CURRENTORIENT(self)[2];
+        } else {
+            obj = isysGObjSearchFromObjKindID_begin(47);
+            _OrientXZGV(dir, test_CURRENTROOT(obj), test_CURRENTROOT(self));
+        }
+        sceVu0ScaleVector(dir, dir, p->f10);
+        ActGame_GetOrientQ(p->f30, dir, 0);
+        sceVu0ScaleVector(tmp, test_CURRENTORIENT(self), p->f08);
+        sceVu0AddVector(p->f20, test_CURRENTROOT(self), tmp);
+        sceVu0ScaleVector(tmp, test_CURRENTORIENT(self), p->f04);
+        _ApplyRyGV(tmp, 1.5707964f);
+        sceVu0AddVector(p->f20, p->f20, tmp);
+        p->f20[1] += (float)p->b0D;
+    }
+    BgaEntry *p;
+    int i;
+    int v;
+    int r;
+
+    for (i = 0; 0 <= boyBgaTable[i].id; i++) {
+        if (boyBgaTable[i].id == id) {
+            p = &boyBgaTable[i];
+            goto found;
+        }
+    }
+    debug_assert(__FILE__, 1543);
+    __assert(__FILE__, 1543, "0");
+    p = 0;
+found:
+    v = *(int *)dst;
+    if (v < 0) {
+        return;
+    }
+    if (p->b0C != 0) {
+        UpdateGeo(p);
+        goto reload;
+    }
+    if (v == 0) {
+        UpdateGeo(p);
+    reload:
+        v = *(int *)dst;
+    }
+    r = (int)stage_PlayBgAnimation(p->id, (float)v, p->f20, p->f30);
+    if (p->b0E == 0) {
+        *(int *)dst = r;
+    } else if (0 <= r) {
+        *(int *)dst = r;
+    }
+}
 
 static unsigned char girlLookStarted; /* derived name */
 
@@ -377,7 +438,7 @@ typedef struct { /* field names derived */
     int id[4];
 } ObjKindList; /* derived name */
 
-static const ObjKindList collisionKinds = {{4, 47, 62, -1}}; /* derived name */
+static const ObjKindList collisionKinds = {{4, 46, 61, -1}}; /* derived name */
 
 /* the nearest object of a kind in front of the actor, which ACTSearchGObj,
    subBoyCollision and actBoyAttack inline */
@@ -516,6 +577,8 @@ static inline void ACTSendMail_PULLUP_START(void) /* derived name */
 }
 
 INCLUDE_ASM_LIT(actBoyCall);
+
+INCLUDE_ASM_LIT(actBoyItemAfter);
 
 INCLUDE_ASM(ditch_check_heroin_position);
 

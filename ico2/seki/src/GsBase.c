@@ -592,7 +592,10 @@ int gsb_ClipBox(float *p)
 }
 
 int gsb_LoadStageSettings(void);
+INCLUDE_ASM_LIT(gsb_LoadStageSettings);
+
 int gsb_SaveStageSettings(void);
+INCLUDE_ASM_LIT(gsb_SaveStageSettings);
 
 /* one row of the stage setting page: a label, the word it edits, its
    range, its default and its step, and the callback to run once the value
@@ -643,10 +646,6 @@ static char *stageSettingOnOffText[] = {"Off", "On"}; /* derived name */
  * stage record, the pad keys that walk and change them, and the key that dumps
  * the page to the log. */
 int gsb_StageSettingTool(void);
-
-INCLUDE_ASM_LIT(gsb_LoadStageSettings);
-
-INCLUDE_ASM_LIT(gsb_SaveStageSettings);
 
 INCLUDE_ASM(gsb_StageSettingTool);
 
