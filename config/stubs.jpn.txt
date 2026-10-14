@@ -224,7 +224,7 @@ text kanbanBootMcCheck 0x001B9490 0x001B96E8 ico2/common/src/kanbanBoot.c local 
 text kanbanBootMain 0x001B96E8 0x001B9840 ico2/common/src/kanbanBoot.c lines=52  # ordinal; first difference at insn 33; other:1; extent-equal
 rdlit kanbanBootMain 0x00616AE0 0x00616B00 ico2/common/src/kanbanBoot.c align=16  # 1 jtbl
 text la_vibe_select 0x001BA428 0x001BA634 ico2/common/src/layout_action.c lines=33  # ordinal; first difference at insn 8; imm:5; extent-equal
-rdlit la_vibe_select 0x00616D18 0x00616D58 ico2/common/src/layout_action.c  # 1 data
+rdlit la_vibe_select 0x00616CF8 0x00616D58 ico2/common/src/layout_action.c  # la_boot_no_memory_card's and la_boot_no_free_area's strings, which their inline definitions write just before this function's data; then 1 data
 text la_title_continue_or_new 0x001BA638 0x001BA824 ico2/common/src/layout_action.c lines=59  # ordinal; first difference at insn 28; imm:9; extent-equal
 text la_title_new_game_only 0x001BA828 0x001BA9D0 ico2/common/src/layout_action.c lines=49  # ordinal; first difference at insn 30; imm:4; extent-equal
 text la_mc_file_select 0x001BA9D0 0x001BAC50 ico2/common/src/layout_action.c lines=41  # ordinal; first difference at insn 10; imm:11; extent-equal
@@ -257,7 +257,7 @@ text la_format_confirm 0x001BC7D8 0x001BC970 ico2/common/src/layout_action.c lin
 text la_system_save_processing 0x001BC970 0x001BCC98 ico2/common/src/layout_action.c lines=81  # ordinal; first difference at insn 86; imm:4; extent-equal
 rdlit la_system_save_processing 0x00616F68 0x00616FAC ico2/common/src/layout_action.c  # 1 string, 1 jtbl
 text la_save_processing 0x001BCC98 0x001BD04C ico2/common/src/layout_action.c lines=87  # ordinal; first difference at insn 93; imm:5; extent-equal
-rdlit la_save_processing 0x00616FB0 0x00616FEC ico2/common/src/layout_action.c align=16  # 1 string, 1 jtbl
+rdlit la_save_processing 0x00616FB0 0x00617024 ico2/common/src/layout_action.c align=16  # 1 string, 1 jtbl; then la_save_confirm_complete's and la_game_demo's strings, which their inline definitions write after it
 text la_end_confirm 0x001BD050 0x001BD1D0 ico2/common/src/layout_action.c lines=49  # ordinal; first difference at insn 9; imm:13; extent-equal
 lit4 la_end_confirm 0x00632EEC 0x00632EF0 ico2/common/src/layout_action.c  # 1 float
 sdlit la_end_confirm 0x00635088 0x0063508C ico2/common/src/layout_action.c  # 1 string
@@ -388,8 +388,8 @@ sdlit FullScreenEffectBefore 0x00635678 0x0063567C ico2/sugipon/src/staticBlur.c
 text WeaponGeo 0x00200E40 0x002011EC ico2/sugipon/src/weapon.c lines=72  # ordinal; first difference at insn 28; other:8; extent-equal
 lit4 WeaponGeo 0x00633258 0x00633264 ico2/sugipon/src/weapon.c  # 3 floats
 text bga_InitData 0x00204190 0x00204538 ico2/seki/src/BgAnimation.c lines=80  # ordinal; first difference at insn 14; imm:2; extent-equal
-rdlit bga_InitData 0x0061A840 0x0061A898 ico2/seki/src/BgAnimation.c align=16  # 2 strings, 1 jtbl
-sdlit bga_InitData 0x00635740 0x0063574E ico2/seki/src/BgAnimation.c  # 2 strings
+rdlit bga_InitData 0x0061A840 0x0061A8B6 ico2/seki/src/BgAnimation.c align=16  # 2 strings, 1 jtbl; then bga_InitSdfCamera's string, which its inline definition (between bga_InitData and bga_initLightEnvelope) writes there
+sdlit bga_InitData 0x00635740 0x00635754 ico2/seki/src/BgAnimation.c  # 2 strings; then bga_InitSdfCamera's "SDF", likewise
 text bga_initLightEnvelope 0x00204538 0x0020484C ico2/seki/src/BgAnimation.c local lines=67  # ordinal; first difference at insn 81; imm:6; extent-equal
 rdlit bga_initLightEnvelope 0x0061A8B8 0x0061A8F3 ico2/seki/src/BgAnimation.c  # 2 strings
 sdlit bga_initLightEnvelope 0x00635758 0x0063575A ico2/seki/src/BgAnimation.c  # 1 string
