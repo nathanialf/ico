@@ -16,10 +16,6 @@ extern float center_X;
 extern float center_Y;
 extern int ScreenWidth;
 extern int ScreenHeight;
-extern int currentScreenWidth;
-extern int currentScreenHeight;
-extern int screenOffsetX;
-extern int screenOffsetY;
 extern int vsWidth;
 extern int vsHeight;
 /* GsBase.c's `inline` functions, in the order of their definitions'

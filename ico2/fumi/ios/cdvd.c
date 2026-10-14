@@ -90,26 +90,18 @@ IosMsgQueue CdvdMsgQ_LoadEnd = {0};
 CdSrhEnt iosCdvdSrhBuff[200] = {0};
 
 /* .sdata, the objects before the first string: the sleep flag, the
-   directory cache count, the media mode (2, DVD), the disc type the drive
-   must report (20, a DVD video disc), the spindle control byte copied into
-   each handle's read mode, the background read mode record (a record, so
-   8-aligned after the byte), the background drive state and the stream
-   load-end wait flag. */
+   directory cache count, the media mode (1, CD), the background read mode
+   record (eight tries, normal spindle; a record, so 8-aligned) and the
+   background drive state. */
 int IosCdvdMgrSleep = 0;
 
 static int srhBuffCnt = 0; /* derived name */
 
-int iosCdvdMediaType = 2;
+int iosCdvdMediaType = 1;
 
-static int cdDiskType = 20; /* derived name */
-
-static unsigned char cdSpindlCtrl = 1; /* derived name */
-
-static CdRMode bgReadMode = {0}; /* derived name */
+static CdRMode bgReadMode = {8, 1, 0}; /* derived name */
 
 static int bgDriveState = 0; /* derived name */
-
-static int stLoadEndWait = 0; /* derived name */
 
 /* bgReqTable the seven 300-byte background requests; skipBuf the 1 KB sink
    iosCdvdHandlerRead reads into when the caller passes no buffer. */
@@ -170,7 +162,7 @@ static inline void iosCdvdDiskReadyBlock(void)
         debug_StdPrintfDummy("wait insert ico disk\n");
         do {
             sceCdDiskReady(0);
-        } while (sceCdGetDiskType() != cdDiskType || sceCdSearchFile(&fp, file) == 0);
+        } while (sceCdGetDiskType() != 18 || sceCdSearchFile(&fp, file) == 0); /* a PlayStation CD */
     }
 }
 
@@ -366,19 +358,13 @@ INCLUDE_ASM(iosCdvdBackGroundMgrAdd);
 
 /* The rest of the .sdata run, after iosCdvdManager's strings: the saved
    system parameter word cdWait restores after a drive recovery and the flag
-   that it is saved, the background read and read retry counts, the stream
-   motion late count streamMotionManager keeps, and inflateSec. */
+   that it is saved, and inflateSec. */
 static int cdWaitParamSet = 0; /* derived name */
 
 static int cdWaitParamSave = 0; /* derived name */
 
-static int bgReadCnt = 0; /* derived name */
-
-static int bgReadRetryCnt = 0; /* derived name */
-
-int iosCdvdStDelayCnt = 0; /* derived name */
-
 float inflateSec = 0;
+
 
 static void cdWait(int *busy);
 

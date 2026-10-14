@@ -58,7 +58,6 @@ extern CdSrhEnt iosCdvdSrhBuff[];
 extern int IosCdvdMgrSleep;
 extern int iosCdvdMediaType;
 extern int iosCdvdBackGroundMgrRunning;
-extern int iosCdvdStDelayCnt;
 extern float inflateSec;
 long long inflate_cd_read_func(void *buf, long long size, void *handle);
 

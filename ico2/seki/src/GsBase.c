@@ -33,8 +33,7 @@
 extern void *memset(void *p, int c, int n);
 
 /* GsBase.c's globals, tentative definitions: the frame buffer flags, the
-   screen centre and size, then the XYOFFSET adjustment and the frame size
-   gsb_SetVSMatrix records. */
+   screen centre and size, then the frame size gsb_SetVSMatrix records. */
 int fbKeep;
 
 int fbClear;
@@ -47,25 +46,13 @@ int ScreenWidth;
 
 int ScreenHeight;
 
-int currentScreenWidth;
-
-int currentScreenHeight;
-
-int screenOffsetX; /* derived name */
-
-int screenOffsetY; /* derived name */
-
 int vsWidth; /* derived name */
 
 int vsHeight; /* derived name */
 
-/* The stage lock state, the word gsb_Init clears (nothing reads it), the GS
-   system flag, the zoom easing (target, current, speed) and the last
-   projection distance gsb_SetVSMatrix was given. */
-static int otherEditingLocked = 0; /* derived name */
-
-static int editingSettings = 0; /* derived name */
-
+/* The word gsb_Init clears (nothing reads it), the GS system flag, the zoom
+   easing (target, current, speed) and the last projection distance
+   gsb_SetVSMatrix was given. */
 static int gsInitState = 0; /* derived name */
 
 static int gsSystemReady = 0; /* derived name */
@@ -275,7 +262,7 @@ INCLUDE_ASM(gsb_fade);
 
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */
-static int scissorLastState = 54; /* derived name */
+static int scissorLastState = 50; /* derived name */
 
 static float scissorLevel = 0.0f; /* derived name */
 
@@ -470,20 +457,6 @@ INCLUDE_ASM(gsb_PostEffect);
 static int firstGsInit = 1; /* derived name */
 
 INCLUDE_ASM(gsb_InitGSSystem);
-
-/* Six zero words between gsb_InitGSSystem's flag and gsb_SyncGSSystem's
-   counter: nothing reads or writes them. */
-static int gsbUnused0 = 0; /* derived name */
-
-static int gsbUnused1 = 0; /* derived name */
-
-static int gsbUnused2 = 0; /* derived name */
-
-static int gsbUnused3 = 0; /* derived name */
-
-static int gsbUnused4 = 0; /* derived name */
-
-static int gsbUnused5 = 0; /* derived name */
 
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */

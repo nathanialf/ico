@@ -127,6 +127,7 @@
 text Main 0x00101C80 0x00101F50 ico2/common/src/main.c lines=95  # ordinal; first difference at insn 0; length:-26; extent-differs
 lit4 Main 0x0062AA80 0x0062AA84 ico2/common/src/main.c # target side
 rdlit Main 0x0054DB20 0x0054DBC8 ico2/common/src/main.c # target side
+sdlit Main 0x0062BA98 0x0062BAA4 ico2/common/src/main.c  # target side: "NTSC" and "PAL"
 text scheduler 0x00102138 0x0010230C ico2/common/src/main.c local lines=63  # ordinal; first difference at insn 22; length:-4; extent-differs
 rdlit scheduler 0x0054DC50 0x0054DCD1 ico2/common/src/main.c  # 2 strings, 1 data
 text EntryDelayFree 0x00102528 0x001025B8 ico2/sugipon/src/delayFreeManager.c lines=9  # ordinal; first difference at insn 0; length:-1; extent-differs
@@ -176,9 +177,10 @@ text InitMotionGeoInfo 0x00107070 0x00107290 ico2/sugipon/src/motionManager2.c l
 lit4 InitMotionGeoInfo 0x0062AAD0 0x0062AAD4 ico2/sugipon/src/motionManager2.c  # 1 float
 text SlopeIKControl 0x001075E0 0x001079EC ico2/sugipon/src/motionManager2.c lines=38  # ordinal; first difference at insn 0; length:+55; extent-differs
 lit4 SlopeIKControl 0x0062AAD4 0x0062AAFC ico2/sugipon/src/motionManager2.c # target side
+sdlit SlopeIKControl 0x0062BCC8 0x0062BCCA ico2/sugipon/src/motionManager2.c  # target side: "e", its assert's
 text GetPureVerticalPlaneOfCurrentPosition 0x001079F0 0x00107CA0 ico2/sugipon/src/motionManager2.c lines=71  # ordinal; first difference at insn 116; imm:2; extent-equal
 lit4 GetPureVerticalPlaneOfCurrentPosition 0x0062AAFC 0x0062AB00 ico2/sugipon/src/motionManager2.c  # 1 float
-sdlit GetPureVerticalPlaneOfCurrentPosition 0x0062BCC8 0x0062BCD8 ico2/sugipon/src/motionManager2.c  # 2 strings, 1 word
+sdlit GetPureVerticalPlaneOfCurrentPosition 0x0062BCD0 0x0062BCD8 ico2/sugipon/src/motionManager2.c  # target side: "!!" and a float
 text FeedbackWallWorkInfoToBrainSystem 0x00109A20 0x00109A60 ico2/sugipon/src/motionManager2.c lines=7  # ordinal; first difference at insn 2; imm:12; extent-equal
 text GetMotionPointer 0x00109A60 0x00109A6C ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
 text GetCollisionOfLastActiveField 0x00109A70 0x00109A7C ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
@@ -198,6 +200,7 @@ text CheckPureCliffAttribute 0x0010A088 0x0010A0A8 ico2/sugipon/src/motionManage
 text GetDifferenceFromWallUpperField 0x0010A100 0x0010A1CC ico2/sugipon/src/motionManager2.c lines=6  # ordinal; first difference at insn 0; length:+36; extent-differs
 text GetDifferenceFromLastField 0x0010A1D0 0x0010A29C ico2/sugipon/src/motionManager2.c lines=6  # ordinal; first difference at insn 0; length:+36; extent-differs
 text GetDifferenceFromLowerField 0x0010A2A0 0x0010A384 ico2/sugipon/src/motionManager2.c lines=13  # ordinal; first difference at insn 0; length:+34; extent-differs
+sdlit GetDifferenceFromLowerField 0x0062BCD8 0x0062BCDC ico2/sugipon/src/motionManager2.c  # target side: a float
 text GetDifferenceFromWallLowerPlane 0x0010A388 0x0010A464 ico2/sugipon/src/motionManager2.c lines=10  # ordinal; first difference at insn 0; length:+28; extent-differs
 text GetDifferenceFromWallUpperPlane 0x0010A468 0x0010A544 ico2/sugipon/src/motionManager2.c lines=10  # ordinal; first difference at insn 0; length:+28; extent-differs
 text DisableChangeRootUpdateMode 0x0010A548 0x0010A558 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 3; imm:1; extent-equal
@@ -216,6 +219,7 @@ text GetOutOutsideOfWall 0x0010AE18 0x0010AEC4 ico2/sugipon/src/motionManager2.c
 text falldownSE 0x0010B0B8 0x0010B0C0 ico2/sugipon/src/pool.c local lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text SetFallDownSplash 0x0010B3C8 0x0010B5E4 ico2/sugipon/src/pool.c lines=32  # ordinal; first difference at insn 2; length:+14; extent-differs
 rdlit SetFallDownSplash 0x0054E110 0x0054E19C ico2/sugipon/src/pool.c # target side
+sdlit SetFallDownSplash 0x0062BCF8 0x0062BCFA ico2/sugipon/src/pool.c  # target side: "e", its assert's
 text GetPoolGlobalDrainVector 0x0010B5E8 0x0010B5F8 ico2/sugipon/src/pool.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text InitPoolGeo 0x0010B5F8 0x0010BA94 ico2/sugipon/src/pool.c lines=87  # ordinal; first difference at insn 1; imm:11; extent-equal
 lit4 InitPoolGeo 0x0062AB04 0x0062AB08 ico2/sugipon/src/pool.c  # 1 float
@@ -238,18 +242,24 @@ sdlit file_Init 0x0062BD08 0x0062BD0F ico2/seki/src/FileManager.c  # 1 string
 text file_LoadCDFile 0x0010F220 0x0010F954 ico2/seki/src/FileManager.c local lines=170  # ordinal; first difference at insn 56; length:+4; extent-differs
 rdlit file_LoadCDFile 0x0054E380 0x0054E6E0 ico2/seki/src/FileManager.c  # target side
 rdlit file_LoadCDFile 0x0054E6E0 0x0054E7E0 ico2/seki/src/FileManager.c align=16  # jump table (target side)
+sdlit file_LoadCDFile 0x0062BD10 0x0062BD1E ico2/seki/src/FileManager.c  # target side: ";1" and "FALSE"
 text gif_SetDrawEnviroment 0x00110FD8 0x0011119C ico2/seki/src/GifPacket.c lines=23  # ordinal; first difference at insn 1; length:-6; extent-differs
 text gif_SetHalfOffset 0x00112580 0x00112600 ico2/seki/src/GifPacket.c lines=5  # ordinal; first difference at insn 1; length:+2; extent-differs
 text gsb_Init 0x00112760 0x001128C4 ico2/seki/src/GsBase.c lines=33  # ordinal; first difference at insn 0; length:+6; extent-differs
 rdlit gsb_Init 0x0054E8A0 0x0054E8B0 ico2/seki/src/GsBase.c # target side
 text gsb_Reduction 0x001128C8 0x00112C9C ico2/seki/src/GsBase.c lines=77  # ordinal; first difference at insn 0; length:-92; extent-differs
 text gsb_fade 0x00112F30 0x001132B0 ico2/seki/src/GsBase.c local lines=59  # ordinal; first difference at insn 111; other:1; extent-equal
+sdlit gsb_fade 0x0062BD58 0x0062BD5A ico2/seki/src/GsBase.c  # target side: a string
 text gsb_scissorOnDemo 0x001132B0 0x00113640 ico2/seki/src/GsBase.c local lines=45  # trfile; aug6-only in the census; PAL's gsb_scissorOnDemo (904 B in PAL)
+sdlit gsb_scissorOnDemo 0x0062BD68 0x0062BD6A ico2/seki/src/GsBase.c  # target side: a string
 text gsb_controlBrightness 0x00113640 0x00113788 ico2/seki/src/GsBase.c local lines=27  # census-equal (lui and addiu immediates masked); match_check differs: an ori immediate at +0x12c
+sdlit gsb_controlBrightness 0x0062BD70 0x0062BD72 ico2/seki/src/GsBase.c  # target side: a string
 text gsb_antiAlias 0x00113788 0x00113B60 ico2/seki/src/GsBase.c local lines=53  # ordinal; first difference at insn 0; length:+13; extent-differs
 rdlit gsb_antiAlias 0x0054EA30 0x0054EA90 ico2/seki/src/GsBase.c # target side
+sdlit gsb_antiAlias 0x0062BD78 0x0062BD7C ico2/seki/src/GsBase.c  # target side: a word
 text gsb_SetGsDefault 0x00113F10 0x0011403C ico2/seki/src/GsBase.c local lines=38  # aug6-only in the census (in GsBase.c's span); gsb_SetGsDefault by body ratio 0.95, callees 0.89, sizes 280/300
 text gsb_PostEffect 0x00114040 0x00114204 ico2/seki/src/GsBase.c local lines=36  # aug6-only in the census (in GsBase.c's span); gsb_PostEffect by body ratio 0.94, callees 0.92, sizes 468/452
+sdlit gsb_PostEffect 0x0062BD80 0x0062BD92 ico2/seki/src/GsBase.c  # target side: three strings
 text gsb_InitGSSystem 0x00114208 0x001142F8 ico2/seki/src/GsBase.c lines=32  # aug6-only in the census (in GsBase.c's span); gsb_InitGSSystem by body ratio 0.97, callees 0.92, sizes 256/240, call sites 1
 text gsb_UpdateGSSystem 0x001142F8 0x00114418 ico2/seki/src/GsBase.c lines=36  # aug6-only in the census (in GsBase.c's span); gsb_UpdateGSSystem by body ratio 0.83, callees 0.50, sizes 328/288
 text gsb_SetVSMatrixSub 0x00114538 0x001148F4 ico2/seki/src/GsBase.c local lines=91  # ordinal; first difference at insn 0; length:-74; extent-differs
@@ -257,7 +267,9 @@ text gsb_SetVSMatrix 0x001148F8 0x00114ADC ico2/seki/src/GsBase.c lines=38  # or
 lit4 gsb_SetVSMatrix 0x0062AB48 0x0062AB50 ico2/seki/src/GsBase.c # target side
 text gsb_StageSettingTool 0x00114BD0 0x00114FB0 ico2/seki/src/GsBase.c lines=115  # trfile; aug6-only in the census; PAL's gsb_StageSettingTool (1508 B in PAL)
 rdlit gsb_StageSettingTool 0x0054EF90 0x0054EFD8 ico2/seki/src/GsBase.c # target side
+sdlit gsb_StageSettingTool 0x0062BDB0 0x0062BDC0 ico2/seki/src/GsBase.c  # target side: two strings
 text gsb_StageSetting 0x00114FB0 0x00115118 ico2/seki/src/GsBase.c lines=40  # trfile; aug6-only in the census; PAL's gsb_StageSetting (512 B in PAL)
+sdlit gsb_StageSetting 0x0062BDC8 0x0062BDCB ico2/seki/src/GsBase.c  # target side: a string
 text gsb_SetBGColor 0x00115118 0x00115170 ico2/seki/src/GsBase.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text gsb_GetBGColor 0x00115170 0x0011519C ico2/seki/src/GsBase.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text gsb_SetZoom 0x001151A0 0x001151AC ico2/seki/src/GsBase.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
@@ -363,6 +375,7 @@ text prim_InitMesh3D 0x0011CFC0 0x0011D258 ico2/seki/src/Primitive.c lines=42  #
 lit4 prim_InitMesh3D 0x0062ABE8 0x0062ABF0 ico2/seki/src/Primitive.c  # 2 floats
 text prim_InitParticle 0x0011DD68 0x0011E0C0 ico2/seki/src/Primitive.c lines=4  # trfile; the census pairs PAL prim_InitParticleByPartition here (ordinal; first difference at insn 0; length:-3; extent-differs)
 rdlit prim_InitParticle 0x0054F880 0x0054F924 ico2/seki/src/Primitive.c align=16  # target side, a quadword first
+sdlit prim_InitParticle 0x0062BEB0 0x0062BEB3 ico2/seki/src/Primitive.c  # target side: a string
 text prim_DispParticle 0x0011E0C0 0x0011E294 ico2/seki/src/Primitive.c lines=31  # ordinal; first difference at insn 28; imm:2; extent-equal
 rdlit prim_DispParticle 0x0054F928 0x0054F963 ico2/seki/src/Primitive.c  # 1 string
 sdlit prim_DispParticle 0x0062BEB8 0x0062BEBE ico2/seki/src/Primitive.c  # 1 string
@@ -397,8 +410,10 @@ text reg_setEMatrixPacket.120 0x00122560 0x00122760 ico2/seki/src/RegistPacket.c
 text reg_DispEnemy 0x00122760 0x00122A44 ico2/seki/src/RegistPacket.c lines=116  # ordinal; first difference at insn 16; imm:4; extent-equal
 text reg_DispObj 0x00122A48 0x00122AE4 ico2/seki/src/RegistPacket.c lines=26  # ordinal; first difference at insn 2; imm:3; extent-equal
 text shadow_Reset 0x00122B80 0x00122FE4 ico2/seki/src/Shadow.c lines=67  # ordinal; first difference at insn 0; length:-140; extent-differs
+sdlit shadow_Reset 0x0062BED8 0x0062BEDC ico2/seki/src/Shadow.c  # target side: a static colour, four bytes
 text shadow_Draw 0x00122FE8 0x00123AA4 ico2/seki/src/Shadow.c lines=109  # ordinal; first difference at insn 1; length:-74; extent-differs
 rdlit shadow_Draw 0x0054FC30 0x0054FCD0 ico2/seki/src/Shadow.c # target side
+sdlit shadow_Draw 0x0062BEE0 0x0062BEE2 ico2/seki/src/Shadow.c  # target side: a string
 text shadow_getShadowVectorAverage 0x00123AC8 0x00123B18 ico2/seki/src/Shadow.c local lines=8  # ordinal; first difference at insn 1; imm:1; extent-equal
 text shadow_EntryClusterShadow 0x00123B18 0x00123F74 ico2/seki/src/Shadow.c local lines=70  # ordinal; first difference at insn 21; imm:1; extent-equal
 text shadow_EntryNormalShadow 0x00123F78 0x0012428C ico2/seki/src/Shadow.c local lines=47  # ordinal; first difference at insn 17; imm:1; extent-equal
@@ -429,6 +444,7 @@ text stage_ResetAnimation 0x001298B0 0x001298B8 ico2/seki/src/StageAnimation.c l
 text stage_CalcAnimationNoParent 0x001298B8 0x00129AB8 ico2/seki/src/StageAnimation.c lines=72  # trfile; aug6-only in the census; PAL's stage_CalcAnimationNoParent (588 B in PAL)
 text stage_CalcAnimationParent 0x00129AB8 0x00129C50 ico2/seki/src/StageAnimation.c lines=54  # trfile; aug6-only in the census; PAL's stage_CalcAnimationParent (432 B in PAL)
 text stage_DispAnimation 0x00129C50 0x00129DB0 ico2/seki/src/StageAnimation.c lines=42  # trfile; aug6-only in the census; PAL's stage_DispAnimation (312 B in PAL)
+sdlit stage_DispAnimation 0x0062BF20 0x0062BF25 ico2/seki/src/StageAnimation.c  # target side: a string
 text stage_SetScale 0x00129DB0 0x00129EB8 ico2/seki/src/StageAnimation.c lines=21  # trfile; aug6-only in the census; PAL's stage_SetScale (264 B in PAL)
 text stage_PlayBgAnimation 0x00129EB8 0x0012A1A8 ico2/seki/src/StageAnimation.c lines=61  # aug6-only in the census (in StageAnimation.c's span); stage_PlayBgAnimation by body ratio 0.40, callees 0.67, sizes 648/752, call sites 4
 text stage_PlayBgAnimationDissolve 0x0012A1A8 0x0012A4D8 ico2/seki/src/StageAnimation.c lines=62  # aug6-only in the census (in StageAnimation.c's span); stage_PlayBgAnimationDissolve by body ratio 0.75, callees 0.67, sizes 724/816, call sites 1
@@ -468,23 +484,28 @@ text tex_ResetVram 0x0012DE70 0x0012DFAC ico2/seki/src/Texture.c lines=12  # ord
 text tex_UpdateMipMapLevel 0x0012FD70 0x0012FE2C ico2/seki/src/Texture.c lines=23  # trfile; aug6-only in the census; PAL's tex_UpdateMipMapLevel (152 B in PAL)
 text tex_ResetVramPri 0x0012FE30 0x0012FEBC ico2/seki/src/Texture.c lines=4  # trfile; aug6-only in the census; PAL's tex_ResetVramPri (196 B in PAL)
 text fog_DrawFog 0x00130328 0x00130E70 ico2/seki/src/ZFog.c lines=76  # ordinal; first difference at insn 1; length:-47; extent-differs
+sdlit fog_DrawFog 0x0062C0B0 0x0062C0B2 ico2/seki/src/ZFog.c  # target side: a string
 text iosCdvdMgrSearchFile 0x001311C8 0x00131358 ico2/fumi/ios/cdvd.c local lines=36  # trfile; aug6-only in the census; PAL's iosCdvdMgrSearchFile (400 B in PAL)
 rdlit iosCdvdMgrSearchFile 0x00550BD8 0x00550C43 ico2/fumi/ios/cdvd.c  # 2 strings
 text iosCdvdMgrStStop 0x00131358 0x00131398 ico2/fumi/ios/cdvd.c local lines=23  # trfile; aug6-only in the census; PAL's iosCdvdMgrStStop (252 B in PAL)
 text iosCdvdMgrLoad 0x00131398 0x001315DC ico2/fumi/ios/cdvd.c local lines=38  # trfile; aug6-only in the census; PAL's iosCdvdMgrLoad (452 B in PAL)
 rdlit iosCdvdMgrLoad 0x00550C48 0x00550C70 ico2/fumi/ios/cdvd.c # target side
+sdlit iosCdvdMgrLoad 0x0062C100 0x0062C108 ico2/fumi/ios/cdvd.c  # target side: a string
 text temp_loadfunc 0x001315E0 0x00131674 ico2/fumi/ios/cdvd.c lines=8  # trfile; aug6-only in the census; PAL's temp_loadfunc (148 B in PAL)
 rdlit temp_loadfunc 0x00550C70 0x00550C98 ico2/fumi/ios/cdvd.c  # 1 string
 text iosCdvdMgrPackLoad 0x00131678 0x00131B5C ico2/fumi/ios/cdvd.c local lines=78  # trfile; aug6-only in the census; PAL's iosCdvdMgrPackLoad (972 B in PAL)
 rdlit iosCdvdMgrPackLoad 0x00550C98 0x00550D38 ico2/fumi/ios/cdvd.c # target side
+sdlit iosCdvdMgrPackLoad 0x0062C108 0x0062C10E ico2/fumi/ios/cdvd.c  # target side: a string
 text iosCdvdHandlerReadNoInflate 0x00131B60 0x00131F08 ico2/fumi/ios/cdvd.c lines=47  # trfile; aug6-only in the census; PAL's iosCdvdHandlerReadNoInflate (420 B in PAL)
 rdlit iosCdvdHandlerReadNoInflate 0x00550D38 0x00550D58 ico2/fumi/ios/cdvd.c # target side
+sdlit iosCdvdHandlerReadNoInflate 0x0062C110 0x0062C118 ico2/fumi/ios/cdvd.c  # target side: a string
 text iosCdvdHandlerReadInflate 0x00131F08 0x00131FB8 ico2/fumi/ios/cdvd.c lines=14  # trfile; aug6-only in the census; PAL's iosCdvdHandlerReadInflate (136 B in PAL)
 rdlit iosCdvdHandlerReadInflate 0x00550D58 0x00550D98 ico2/fumi/ios/cdvd.c # target side
 text unifile_read_func 0x00132098 0x00132254 ico2/fumi/ios/cdvd.c local lines=19  # ordinal; first difference at insn 20; imm:2; extent-equal
 rdlit unifile_read_func 0x00550D98 0x00550DB8 ico2/fumi/ios/cdvd.c  # 1 data
 text iosCdvdManager 0x00132258 0x001324B4 ico2/fumi/ios/cdvd.c lines=61  # trfile; aug6-only in the census; PAL's iosCdvdManager (532 B in PAL)
 rdlit iosCdvdManager 0x00550DB8 0x00550E20 ico2/fumi/ios/cdvd.c # target side
+sdlit iosCdvdManager 0x0062C120 0x0062C125 ico2/fumi/ios/cdvd.c  # target side: a string
 text iosCdvdBackGroundMgrAdd 0x00132530 0x00132830 ico2/fumi/ios/cdvd.c lines=55  # trfile; aug6-only in the census; PAL's iosCdvdBackGroundMgrAdd (704 B in PAL)
 rdlit iosCdvdBackGroundMgrAdd 0x00550E20 0x00550E48 ico2/fumi/ios/cdvd.c # target side
 text iosCdvdBackGroundMgr 0x00132830 0x00132B20 ico2/fumi/ios/cdvd.c local lines=23  # trfile; aug6-only in the census; PAL's iosCdvdBackGroundMgr (180 B in PAL)

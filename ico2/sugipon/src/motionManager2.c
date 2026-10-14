@@ -817,8 +817,9 @@ static void dispSkeltonHierarchy(int node)
     }
 }
 
-/* SetSkeltonDispSwitch's switch for DispSkelton's debug draw */
-static int skeltonDispSwitch = 0; /* derived name */
+/* SetSkeltonDispSwitch's switch for DispSkelton's debug draw, defined
+   after SlopeIKControl */
+static int skeltonDispSwitch; /* derived name */
 
 void DispSkelton(GObj *self, int motion)
 {
@@ -880,6 +881,8 @@ static inline float getSlopeRatio(float d, float rate) /* derived name */
 }
 
 INCLUDE_ASM(SlopeIKControl);
+
+static int skeltonDispSwitch = 0;
 
 /* AdjustRootPositionToVerticalSidePlaneOfWall was about to push into the
    wall, so the position was clipped */

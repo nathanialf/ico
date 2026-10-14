@@ -52,9 +52,6 @@ inline void _RotTransCurrentMatrix(void *dst, void *src)
     VU0_V2OP(vmove.xy, 11, 10);
 }
 
-/* the VU0 register save depth the push and pop check */
-static int vu0PushDepth = 0; /* derived name */
-
 INCLUDE_ASM(_RemakeNormal);
 
 inline void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void *s3)
