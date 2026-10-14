@@ -48,10 +48,30 @@ static int dlPriorityStack[8]; /* derived name */
 /* The size of each priority's list buffer. */
 static const int dlBufferSize[13] = {
     /* derived name */
-    81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
+    81920, 14336, 30720, 4096, 16384, 49152, 40960, 12288, 26624, 14336, 4096, 32768, 98304,
 };
 
-INCLUDE_ASM(dl_Init);
+void dl_Init(void)
+{
+    int i;
+    int j;
+    dlPriority = 0;
+    dlStackDepth = 0;
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 13; j++) {
+            dlBufferHead[i][j] =
+                (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 387) |
+                0x30000000;
+        }
+    }
+    dlBank = 0;
+    for (i = 0; i < 13; i++) {
+        dlEntries[i].start = dlEntries[i].cur = dlBufferHead[0][i];
+        dlEntries[i].open = 0;
+    }
+    dpk_Init();
+    dl_Clear();
+}
 
 inline void dl_Out(void)
 {

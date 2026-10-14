@@ -87,14 +87,12 @@ void adpcmTickProc2(SqEntry *obj)
 
 /* adpcm_init.o's .rodata opens with these three named objects: the two
    messages are printed further down the file than the strings that follow
-   them. */
+   them (August's set: the allocation report, no IOP free message). */
 static const char adpcmSrcFile[] = __FILE__; /* derived name */
 
-static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n"; /* derived name */
+static const char adpcmAllocedMsg[] = "iop adpcm alloced 0x%x ,%x \n"; /* derived name */
 
-/* the IOP area is reserved but unused, so it is being freed */
-static const char adpcmFreeIopMsg[] =
-    "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n"; /* derived name */
+static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n"; /* derived name */
 
 int debugAdpcmOn = 1;
 

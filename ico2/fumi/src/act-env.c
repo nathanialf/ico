@@ -59,10 +59,6 @@ static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f}; /* derived nam
 #include "motionOrientManager.h"
 #include "include_asm.h"
 
-/* Where the first carrier stands in the stage 8 ditch below the -3000 line
-   (the .rodata's second object). */
-static const VECTOR ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f}; /* derived name */
-
 static inline int getDitchCarryMode(void) /* derived name */
 {
     void *a;

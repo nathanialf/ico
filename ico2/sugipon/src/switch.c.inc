@@ -14,6 +14,8 @@ INCLUDE_ASM(GetFloorLeverGlobalHoldPoint);
 /* the zeroed template both lever inits copy into a new geometry block */
 static LeverGeoWork leverGeoInit = {0}; /* derived name */
 
+INCLUDE_ASM_LIT(InitFloorLeverGeo);
+
 INCLUDE_ASM(FloorLeverTriStateGeo);
 
 /* the two frame-rate divisors, the pair box.c's own fall code reads */

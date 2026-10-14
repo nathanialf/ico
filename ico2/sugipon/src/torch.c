@@ -63,8 +63,7 @@ static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name 
     if (girlGObj != 0) {
         q = GOBJ_ACT(girlGObj);
         if (b != 0 && b == q->curItem) {
-            /* tried to light the heroine's bomb */
-            debug_StdPrintfDummy("ヒロインの爆弾に点火しようとした\n");
+            /* tried to light the heroine's bomb (no print in August) */
             return 1;
         }
     }

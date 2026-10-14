@@ -81,6 +81,34 @@ typedef struct {              /* field names derived */
     float flyXZAccel; /* 0x50, the fly XZ acceleration, from the enemyKind row */
 } EnemyWork;          /* derived name */
 
+/* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
+ * reads it back as a pointer, so every read of it is a union view, the same
+ * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
+
+#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub) /* derived name */
+
+static int setEnemyObject(GObj *self, int kind, int *ctr);
+
+/* InitEnemyGeo's parts list; its body inlines clearEnemyParticleFlags */
+static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* derived name */
+{
+    int kind = param->obj;
+    EnemyWork *w;
+    int n;
+    int *parts;
+
+    n = SUBOF(self)->skelNodeNum;
+    /* the work-record entry is read as an int and cast */
+    w = (EnemyWork *)*(int *)&SUBOF(self)->work;
+
+    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 285);
+    w->broken = parts;
+    clearEnemyParticleFlags(parts, n);
+    w->kind = kind;
+    w->ctr = 0;
+    return setEnemyObject(self, kind, &w->ctr);
+}
+
 INCLUDE_ASM(setEnemyParticleObject);
 
 static inline int enemyRandomizeID(int kind, int *ctr) /* derived name */
@@ -96,8 +124,6 @@ static inline int enemyRandomizeID(int kind, int *ctr) /* derived name */
     }
     return randomEnemyVariationKind[id];
 }
-
-static int setEnemyObject(GObj *self, int kind, int *ctr);
 
 INCLUDE_ASM(setEnemyObject);
 
@@ -137,34 +163,8 @@ INCLUDE_ASM(EnemyCheckHit);
  * initialiser; the particle calls sit under a test of a local constant. */
 INCLUDE_ASM(CheckEnemyHit);
 
-/* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
- * reads it back as a pointer, so every read of it is a union view, the same
- * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
-
-#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub) /* derived name */
-
 /* the variation number the next enemy takes, stepped by two modulo ten */
 static int enemyVariation = 0; /* derived name */
-
-/* InitEnemyGeo's parts list; its body inlines clearEnemyParticleFlags */
-static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* derived name */
-{
-    int kind = param->obj;
-    EnemyWork *w;
-    int n;
-    int *parts;
-
-    n = SUBOF(self)->skelNodeNum;
-    /* the work-record entry is read as an int and cast */
-    w = (EnemyWork *)*(int *)&SUBOF(self)->work;
-
-    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 285);
-    w->broken = parts;
-    clearEnemyParticleFlags(parts, n);
-    w->kind = kind;
-    w->ctr = 0;
-    return setEnemyObject(self, kind, &w->ctr);
-}
 
 INCLUDE_ASM(InitEnemyGeo);
 

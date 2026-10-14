@@ -40,6 +40,16 @@ static int demoEnd;
 
 static const ConstVec chanChkPos = {{10000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
+/* the nine points actSt07aChanEffect sets its effects at */
+static const ConstVec chanEffectPos[9] = {
+    /* derived name */
+    {{-1617.0f, -958.0f, -957.15f, 1.0f}}, {{-1641.0f, 80.0f, -848.15f, 1.0f}},
+    {{-1669.0f, 73.0f, -765.15f, 1.0f}},   {{-1689.0f, 191.0f, -624.15f, 1.0f}},
+    {{-1700.0f, 180.0f, -524.15f, 1.0f}},  {{-1745.0f, 106.0f, -632.15f, 1.0f}},
+    {{-1352.0f, 1344.0f, -561.15f, 1.0f}}, {{-1411.0f, 1327.0f, -459.15f, 1.0f}},
+    {{-1562.0f, 1630.0f, 451.15f, 1.0f}},
+};
+
 static const ConstVec chanWay1Pos = {{-875.0f, 77.0f, -958.0f, 0.0f}}; /* derived name */
 
 static const ConstVec chanWay2Pos = {{-264.0f, 1277.0f, -292.0f, 0.0f}}; /* derived name */

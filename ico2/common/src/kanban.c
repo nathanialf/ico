@@ -96,7 +96,6 @@ static inline int get_texture_no_of_property(int idx) /* derived name */
     no = tex_GetTextureNo(name);
 
     if (no < 0) {
-        debug_StdPrintfDummy("tex_id %d\n", n);
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
         debug_assert(__FILE__, 272);
         __assert(__FILE__, 272, "0");

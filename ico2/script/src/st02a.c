@@ -95,23 +95,15 @@ static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; 
 static const ConstVec boySplashPos[2] = {{{840.0f, 235.0f, 560.0f, 1.0f}},
                                          {{740.0f, 235.0f, 560.0f, 1.0f}}};
 
-/* The waterfall's two reflection meshes and the two layout quads they are
- * stretched over: the first quad drops from y 280 to y 0, which is the falling
- * water, and the second is flat at y 0, which is the pool below it.  The value
- * at offset 0x1C is a hardware field. */
-static const PoolMesh fallReflactionMesh = {30, 20, 0, 0, 0, 0, 0, 0x60687080}; /* derived name */
-
-static const PoolMesh poolReflactionMesh = {10, 10, 0, 0, 0, 0, 0, 0x60687080}; /* derived name */
+/* The waterfall's reflection mesh and the layout quad it is stretched over:
+ * the quad drops from y 280 to y 0, which is the falling water (August has no
+ * pool mesh).  The value at offset 0x1C is a hardware field. */
+static const PoolMesh fallReflactionMesh = {40, 20, 0, 0, 0, 0, 0, 0x60687080}; /* derived name */
 
 static const PoolMeshQuad fallReflactionQuad = {{{650.0f, 280.0f, 550.0f, 1.0f},
                                                  {650.0f, 0.0f, 700.0f, 1.0f},
-                                                 {920.0f, 280.0f, 550.0f, 1.0f},
-                                                 {920.0f, 0.0f, 700.0f, 1.0f}}};
-
-static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
-                                                 {650.0f, 0.0f, 1200.0f, 1.0f},
-                                                 {920.0f, 0.0f, 700.0f, 1.0f},
-                                                 {920.0f, 0.0f, 1200.0f, 1.0f}}};
+                                                 {900.0f, 280.0f, 550.0f, 1.0f},
+                                                 {900.0f, 0.0f, 700.0f, 1.0f}}};
 
 INCLUDE_ASM(actSt02aDoorUpChk);
 
