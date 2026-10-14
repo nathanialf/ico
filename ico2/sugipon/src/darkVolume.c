@@ -858,10 +858,7 @@ inline int InitDarkVolumeGeo(GObj *self)
     return 0;
 }
 
-void SetupDarkVolume(void *pos, float radius, float edge)
-{
-    darkVolume(pos, radius, 1.0f, edge);
-}
+void SetupDarkVolume(void *pos, float radius, float edge);
 
 void DarkVolumeGeo(GObj *self)
 {

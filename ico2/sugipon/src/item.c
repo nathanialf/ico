@@ -74,15 +74,8 @@ typedef struct {                        /* field names derived */
     int pad94[3];                       /* 0x94 */
 } __attribute__((aligned(8))) ItemWork; /* derived name */
 
-static void bombSparkStartSE(GObj *gobj)
-{
-    ExecuteSEPackage(gobj, 50);
-}
-
-static void bombSparkSE(GObj *gobj)
-{
-    ExecuteSEPackage(gobj, 51);
-}
+static void bombSparkStartSE(GObj *gobj);
+static void bombSparkSE(GObj *gobj);
 
 static void bombExplodeSE(GObj *gobj)
 {
@@ -789,17 +782,6 @@ int GetItemKind(GObj *gobj)
     return GetItemKindInline(gobj);
 }
 
-int GetCharHeldItem(GObj *chara)
-{
-    GObj *w;
-    if (chara == 0)
-        return -1;
-    w = GOBJ_ACT(chara)->curItem;
-    if (w == 0)
-        return -1;
-    return ((ItemWork *)GOBJ_SUB(w)->work)->kind;
-}
-
 int IsItemHoldable(GObj *gobj)
 {
     ItemWork *p = GOBJ_SUB(gobj)->work;
@@ -908,21 +890,6 @@ void StopItemExplodeAnimationAll(void)
             }
         }
     }
-}
-
-int BreakItemWithAttackHit(GObj *gobj, float *dir)
-{
-    float pos[4];
-    ItemWork *p = GOBJ_SUB(gobj)->work;
-
-    if (!IsItemKindBomb(gobj)) {
-        GetRootPosition(pos, gobj);
-        if (entryBreakBgAnimation(itemKind[p->kind].hitAnim, pos, dir, itemKind[p->kind].hitMode)) {
-            ExecuteSEPackage(gobj, 43);
-            setItemDead(gobj);
-        }
-    }
-    return 0;
 }
 
 int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame)

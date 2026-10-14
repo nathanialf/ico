@@ -367,14 +367,6 @@ inline unsigned char ACTGame_FLAG_TETSUNAGI(void)
     return flag;
 }
 
-inline int ACTGame_FLAG_TETSUNAGI_VISUAL(void)
-{
-    GObj *g = girlGObj;
-    if (g == 0)
-        return 0;
-    return (int)(GOBJ_ACT(g)->flags18.ll >> 42) & 1;
-}
-
 void ACTGame_TryConnectHand(void)
 {
     RequestChangeHandMode(boyGObj, 1, 5, 5, girlGObj, 0, 0);
@@ -2680,13 +2672,6 @@ inline void GetGirlPositionAtThisStage(float *pos)
     OtherStagePositionGet(pos, stage_no, id, buf);
 }
 
-inline void GetOtherStageGirlOrient(float *orient, float *root)
-{
-    float pos[4];
-    GetGirlPositionAtThisStage(pos);
-    _OrientGV(orient, pos, root);
-}
-
 void ACTLookTargetSystem_Exec(GObj *self)
 {
     char *s = (char *)((int *)self)[89];
@@ -3199,52 +3184,4 @@ void RequestChangeHandMode(GObj *self, int mode, int pri, int flag, GObj *p5, in
 inline void _ACTSetEnemyDisappearSpeed(GObj *self, float speed)
 {
     GOBJ_WORK(self)->disappearSpeed = speed;
-}
-
-inline int ACTChkAttackIgnore_BOY(GObj *self, GObj *actor)
-{
-    Act *s = GOBJ_ACT(self);
-    if (s->actMode == 0x35 ||
-        (((ActWork *)s->work)->leverTimer != 0 && scpBoyControlReadDisable != 0) ||
-        ((int)(s->flags18.ll >> 35) & 1) == 0) {
-        return 1;
-    }
-    return 0;
-}
-
-inline int ACTChkAttackIgnore_GIRL(GObj *self, GObj *actor)
-{
-    Act *s = GOBJ_ACT(self);
-    switch (s->actMode) {
-    case 0x6F:
-        return 1;
-
-    case 5:
-        if (actor != 0 && actor->kind == 17) {
-            return 1;
-        }
-        break;
-    }
-    return 0;
-}
-
-inline int ACTChkAttackIgnore_ENEMY(GObj *self, GObj *actor)
-{
-    Act *s = GOBJ_ACT(self);
-
-    switch (s->actMode) {
-    case 0x67:
-        if ((60 - systemStatus[0] * 10) / systemStatus[1] / 2 < s->modeFrame) {
-            return 1;
-        }
-        break;
-
-    case 6:
-        if (((int)(s->flags18.ll >> 57) & 1) && stage_no != 0x56 && stage_no != 3 &&
-            stage_no != 0x2E) {
-            return 1;
-        }
-        break;
-    }
-    return 0;
 }

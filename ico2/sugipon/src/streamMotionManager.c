@@ -274,12 +274,6 @@ static void _deleteStreamMotionManager(void)
     debug_StdPrintfDummy("delete stream motion manager\n");
 }
 
-void DisableStreamMotionManagerAutomaticDelete(void)
-{
-    streamIdle = 0;
-    debug_StdPrintfDummy("disable automatic delete\n");
-}
-
 inline int GetDataSizeOfStreamMotion(int no)
 {
     if (streamEntry[no].cur < 0) {
@@ -290,39 +284,7 @@ inline int GetDataSizeOfStreamMotion(int no)
     return streamEntry[no].size;
 }
 
-static void getStreamMotionData(char *dst, int off, int no)
-{
-    int size = streamEntry[no].size;
-    int over = off + size - 163840;
-
-    if (over > 0) {
-        int first = 163840 - off;
-
-        memcpy(dst, ringBuf + off, first);
-        memcpy(dst + first, ringBuf, over);
-        return;
-    }
-    memcpy(dst, ringBuf + off, size);
-}
-
-static void getStreamMotionBlendData(char *dst, int no)
-{
-    int size = streamEntry[no].size;
-    char a[size];
-    char b[size];
-    int i;
-
-    getStreamMotionData(a, streamEntry[no].cur, no);
-    getStreamMotionData(b, streamEntry[no].next, no);
-    for (i = 0; i < 4; i++) {
-        dst[i] = a[i];
-    }
-}
-
-void GetStreamMotionDataNext(char *dst, int no)
-{
-    getStreamMotionData(dst, streamEntry[no].next, no);
-}
+static void getStreamMotionData(char *dst, int off, int no);
 
 typedef struct { /* field names derived */
     char c[4];
@@ -412,17 +374,6 @@ void ExecStreamMotionManager(void)
     }
 }
 
-void MallocStreamMotionBuffer(void)
-{
-    ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c", 602);
-    readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c", 604);
-    readBuf = (char *)((int)(readBufRaw + 63) & 0xFFFFFFC0);
-    if (ringBuf == 0 || readBuf == 0) {
-        /* "could not allocate the stream buffer memory" */
-        debug_StdPrintfDummy("ストリーム用のバッファメモリが確保できませんでした\n");
-    }
-}
-
 inline void ClearAllStreamMotionEntry(void)
 {
     int i;
@@ -503,17 +454,6 @@ inline int CheckReadyStreamMotion(void)
 inline void SetStreamMotionFinishCallBackFunc(int no, void (*func)(GObj *))
 {
     streamEntry[no].finishFunc = func;
-}
-
-inline void FreeStreamMotionBuffer(void)
-{
-    if (ringBuf != 0) {
-        iosFree(ringBuf);
-        iosFree(readBufRaw);
-        readBufRaw = 0;
-        ringBuf = 0;
-        readBuf = 0;
-    }
 }
 
 static inline int _closeHander(void)

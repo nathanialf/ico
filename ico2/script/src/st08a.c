@@ -20,11 +20,6 @@
 #include "script.h"
 
 static void actSt08aDoorUpSub(GObj *volatile self);
-static void actSt08aGirlPosChk(GObj *volatile self);
-static void actSt08aHasiMain(GObj *volatile self);
-static void actSt08aHasiSwitch(GObj *volatile self);
-static void actSt08aHint1Chk(GObj *volatile self);
-static void actSt08aTorchOffChk(GObj *volatile self);
 
 static ActMail ene1_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -39,22 +34,6 @@ static ActMail door_switch_mes[2] = {{430}, {429}}; /* derived name */
 static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f}; /* derived name */
 
 static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail girl_pos_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail hasi_main_mes[2] = {{408, actSt08aHasiSwitch}, {429}}; /* derived name */
-
-static ActMail hasi_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail hasi_switch_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail torch_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail torch_on_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail torch_off_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for, and the flag actSt08aDoorUpSub raises when the door is all
@@ -191,140 +170,6 @@ void actSt08aDoorUp(GObj *volatile self)
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
     lt_switch_layout(54);
-}
-
-/* .sdata: the scene's stream handle. */
-static SqEntry *st08a_adpcm = 0; /* derived name */
-
-static void actSt08aHasiUpSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    while (st08a_adpcm == 0) {
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(106, 1, 0);
-
-    while (stage_CheckAnimationFrame(106, 30, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    AdpcmPlay(st08a_adpcm->stream);
-
-    while (stage_CheckAnimationFrame(106, 180, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    iosPadActRequest(boyPad, 17);
-
-    while (stage_CheckAnimationFinish(106) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt08aHasiUp(GObj *volatile self)
-{
-    GProc *th;
-
-    lt_switch_layout(55);
-    gflagOn(79);
-    SetWayGroupActive(30, 1);
-    scpSleepEnemyAll();
-
-    demoEnd = 0;
-    scpAdpcmPlayRequestFunc(98, &st08a_adpcm, 1, 1, 0);
-
-    th = actCreateSubThread(actSt08aHasiUpSub, 21);
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&th->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        while (st08a_adpcm == 0) {
-            _ACTWait(1);
-        }
-        scpAdpcmFadeCloseFunc(&st08a_adpcm, 512);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-        stage_SetAnimation(106, 0, -1);
-        scpFadeIn(3.0f);
-    }
-
-    scpWakeupEnemyAll();
-    scpSearchGobj(369)->active = 0;
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
-
-static void actSt08aTorchOnChk(GObj *volatile self)
-{
-    Act *act = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0 ||
-           scpTriggerFloorAttr(boyGObj, 0x7000000) != 0 ||
-           scpTriggerFloorAttr(boyGObj, 0xA000000) != 0) {
-        _ACTWait(1);
-    }
-
-    ((unsigned int *)scpSearchGobj(350))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(351))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(352))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(353))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(354))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(355))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(356))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(357))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(358))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(359))[80 / 4] = 0xFFFFFFFF;
-    ((unsigned int *)scpSearchGobj(348))[80 / 4] = 0xFFFFFFFF;
-
-    torch_on_mes[0].func = actSt08aTorchOffChk;
-    act->mail = torch_on_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt08aTorchOffChk(GObj *volatile self)
-{
-    Act *act = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttr(boyGObj, 0x5000000) == 0 &&
-           scpTriggerFloorAttr(boyGObj, 0x7000000) == 0 &&
-           scpTriggerFloorAttr(boyGObj, 0xA000000) == 0) {
-        _ACTWait(1);
-    }
-
-    ((int *)scpSearchGobj(350))[80 / 4] = 0;
-    ((int *)scpSearchGobj(351))[80 / 4] = 0;
-    ((int *)scpSearchGobj(352))[80 / 4] = 0;
-    ((int *)scpSearchGobj(353))[80 / 4] = 0;
-    ((int *)scpSearchGobj(354))[80 / 4] = 0;
-    ((int *)scpSearchGobj(355))[80 / 4] = 0;
-    ((int *)scpSearchGobj(356))[80 / 4] = 0;
-    ((int *)scpSearchGobj(357))[80 / 4] = 0;
-    ((int *)scpSearchGobj(358))[80 / 4] = 0;
-    ((int *)scpSearchGobj(359))[80 / 4] = 0;
-    ((int *)scpSearchGobj(348))[80 / 4] = 0;
-
-    torch_off_mes[0].func = actSt08aTorchOnChk;
-    act->mail = torch_off_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
 }
 
 void actSt08aDoor(GObj *volatile self)
@@ -479,68 +324,6 @@ void actSt08aIntro(GObj *volatile self)
     }
 }
 
-void actSt08aHint1(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(77) == 0) {
-        hint1_mes[0].func = actSt08aHint1Chk;
-        act->mail = hint1_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        FinishHint(2);
-    }
-}
-
-void actSt08aGirlPos(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(78) == 0) {
-        SleepHint(2);
-        girl_pos_mes[0].func = actSt08aGirlPosChk;
-        act->mail = girl_pos_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt08aHasi(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(79) == 0) {
-        stage_SetAnimation(106, 0, 0);
-        hasi_mes[0].func = actSt08aHasiMain;
-        act->mail = hasi_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(106, 0, -1);
-        scpSearchGobj(369)->active = 0;
-        SetWayGroupActive(30, 1);
-    }
-}
-
-void actSt08aTorch(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    torch_mes[0].func = actSt08aTorchOffChk;
-    act->mail = torch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
 void actSt08aInit(void)
 {
     float f = 0.95f;
@@ -582,26 +365,6 @@ void actSt08aDoorSwitch(GObj *volatile self)
     _ACTWait(0);
 }
 
-static void actSt08aDoorUpSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    stage_SetAnimation(105, 1, 0);
-
-    soundSeDefPlay(1221, 0, door_up_sound_pos, 1);
-    _ACTWait(30);
-    doorUpDone = 1;
-    soundSeDefPlay(1222, 0, door_up_sound_pos, 1);
-
-    while (stage_CheckAnimationFinish(105) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt08aIntroChk(GObj *volatile self)
 {
     while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
@@ -621,51 +384,4 @@ void actSt08aIntroChk(GObj *volatile self)
 
     lt_switch_layout(54);
     scpBoyControlReadDisable = 0;
-}
-
-static void actSt08aGirlPosChk(GObj *volatile self)
-{
-    while (girlGObj == 0 || scpTriggerBall(self, girlGObj, 200.0f) == 0) {
-        _ACTWait(1);
-    }
-
-    gflagOn(78);
-    WakeupHint(2);
-}
-
-static void actSt08aHint1Chk(GObj *volatile self)
-{
-    while (gflagChk(80) == 0) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
-
-    gflagOn(77);
-    FinishHint(2);
-}
-
-static void actSt08aHasiMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-
-    sub->mainMail = hasi_main_mes;
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-static void actSt08aHasiSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    sub->mainMail = 0;
-    scpBoyControlReadDisable = 1;
-
-    hasi_switch_mes[0].func = actSt08aHasiUp;
-    sub->mail = hasi_switch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
 }

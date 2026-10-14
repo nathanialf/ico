@@ -249,80 +249,7 @@ void actSt04eInit(void)
     }
 }
 
-static void actSt04lBallTurnCommonSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    scpAdpcmPlayRequestFunc(82, &ball1_4l, 1, 1, 1);
-
-    while (ball1_4l == 0) {
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(turnAnim, 1, 0);
-
-    while (stage_CheckAnimationFinish(turnAnim) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 6);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt04lBallTurnCommon(GObj *volatile self)
-{
-    GProc *h;
-
-    lt_switch_layout(55);
-    gflagOn(turnFlag);
-    scpSleepEnemyAll();
-
-    h = actCreateSubThread(actSt04lBallTurnCommonSub, 21);
-
-    demoEnd = 0;
-    ball1_4l = (SqEntry *)0xFFFFFFFF;
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&h->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-
-        while (ball1_4l == 0) {
-            _ACTWait(1);
-        }
-
-        if (ball1_4l != (SqEntry *)0xFFFFFFFF) {
-            scpAdpcmFadeCloseFunc(&ball1_4l, 512);
-        }
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-
-        stage_SetAnimation(turnAnim, 0, -1);
-        scpFadeIn(5.0f);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-    }
-
-    scpSearchGobj(turnGobj1)->active = 1;
-    scpSearchGobj(turnGobj2)->active = 1;
-    scpWakeupEnemyAll();
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
+static void actSt04lBallTurnCommon(GObj *volatile self);
 
 static ActMail c1BallMain_mes[2] = {{406, actSt04lC1BallSwitch}, {429}}; /* derived name */
 
@@ -331,8 +258,6 @@ static ActMail c1Ball_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail c1BallSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail c1BallTurn_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail turnBall_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail c2BallMain_mes[2] = {{406, actSt04lC2BallSwitch}, {429}}; /* derived name */
 
@@ -432,21 +357,6 @@ static ActMail torch2_1XL_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail torch2_2XL_mes[2] = {{430}, {429}}; /* derived name */
 
-void turnBall(GObj *self, int flag, int anim, int gobj1, int gobj2)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    turnFlag = flag;
-    turnAnim = anim;
-    turnGobj1 = gobj1;
-    turnGobj2 = gobj2;
-
-    turnBall_mes[0].func = actSt04lBallTurnCommon;
-    sub->mail = turnBall_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
 void actSt04lCrest02(GObj *volatile self)
 {
     GObj *x = self;
@@ -473,36 +383,7 @@ void actSt04lCrest02(GObj *volatile self)
     }
 }
 
-static void actSt04lCrestSub(GObj *volatile self)
-{
-    stage_SetAnimation(252, 1, 0);
-    stage_SetAnimation(199, 1, 0);
-
-    while (stage_CheckAnimationFrame(199, 30, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-
-    oriup4c = iosPadActRequest(boyPad, 10);
-    oridown4c = 128;
-    iosPadActVolumeSet(oriup4c, 128);
-
-    while (stage_CheckAnimationFrame(199, 190, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    iosPadActStop(oriup4c);
-
-    while (stage_CheckAnimationFinish(199) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt04lCrestSub(GObj *volatile self);
 
 void actSt04lCrestMain(GObj *volatile self)
 {
@@ -565,41 +446,7 @@ void actSt04lCrestMain(GObj *volatile self)
     RequestStageChange(3, boyGObj, 0, 2.0f, 8.0f);
 }
 
-static void actSt04lCrest2Sub(GObj *volatile self)
-{
-    stage_SetAnimation(crest2Anim, 1, 0);
-
-    while (stage_CheckAnimationFrame(crest2Anim, 30, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-
-    oriup4c = iosPadActRequest(boyPad, 10);
-    oridown4c = 128;
-    iosPadActVolumeSet(oriup4c, 128);
-
-    while (stage_CheckAnimationFrame(crest2Anim, 190, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    iosPadActStop(oriup4c);
-    oriup4c = 0xFFFFFFFF;
-
-    while (stage_CheckAnimationFinish(crest2Anim) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-
-    if (current_stage_no == 19) {
-        scpSearchGobj(1122)->active = 1;
-    }
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt04lCrest2Sub(GObj *volatile self);
 
 void actSt04lCrest2Main(GObj *volatile self)
 {
@@ -672,33 +519,7 @@ void actSt04lCrest2Main(GObj *volatile self)
     scpWakeupEnemyAll();
 }
 
-static void actSt04lCrest3Sub(GObj *volatile self)
-{
-    while (stage_CheckAnimationFrame(203, 30, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-
-    oriup4c = iosPadActRequest(boyPad, 10);
-    oridown4c = 128;
-    iosPadActVolumeSet(oriup4c, 128);
-
-    while (stage_CheckAnimationFrame(203, 190, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    iosPadActStop(oriup4c);
-
-    while (stage_CheckAnimationFinish(203) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt04lCrest3Sub(GObj *volatile self);
 
 void actSt04lCrest3Main(GObj *volatile self)
 {
@@ -804,66 +625,7 @@ void actSt04eSolarBeamChk(GObj *volatile self)
     RequestStageChange(7, boyGObj, 0, 2.0f, 8.0f);
 }
 
-static void actSt04lStairSub(GObj *volatile self)
-{
-    long long ofs[2];
-    float dir[4];
-
-    _ACTWait(60);
-
-    while (crest3 == 0) {
-        _ACTWait(1);
-    }
-
-    AdpcmPlay(crest3->stream);
-
-    stage_SetAnimation(258, 1, 0);
-
-    scpPlayStart(boyGObj);
-    scpPlayStart(girlGObj);
-    scpPlayMot(boyGObj, 0);
-    scpPlayMot(girlGObj, 532);
-    scpPlayPosSet(boyGObj, 55.0f, 28.0f, -3881.0f);
-    scpPlayPosSet(girlGObj, -58.0f, 28.0f, -3891.0f);
-
-    ofs[0] = stairSubPos.d[0];
-    ofs[1] = stairSubPos.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT(boyGObj));
-    scpPlayMotDir(boyGObj, dir);
-
-    ofs[0] = stairSubPos.d[0];
-    ofs[1] = stairSubPos.d[1];
-    sceVu0SubVector(dir, ofs, test_CURRENTROOT(girlGObj));
-    scpPlayMotDir(girlGObj, dir);
-
-    subStarted = 1;
-
-    while (stage_CheckAnimationFinish(258) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    iosPadActRequest(boyPad, 17);
-
-    stage_SetAnimation(227, 1, 0);
-
-    while (stage_CheckAnimationFrame(227, 140, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    oriup4c = iosPadActRequest(boyPad, 9);
-    oridown4c = 128;
-    iosPadActVolumeSet(oriup4c, 128);
-
-    while (stage_CheckAnimationFinish(227) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt04lStairSub(GObj *volatile self);
 
 void actSt04lStairChk(GObj *volatile self)
 {
@@ -1577,39 +1339,7 @@ void actSt04lMonyou07Chk(GObj *volatile self)
     scpBoyControlReadDisable = 0;
 }
 
-static void actSt04lOriSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    while (st04d_hasi == 0) {
-        _ACTWait(1);
-    }
-
-    AdpcmPlay(st04d_hasi->stream);
-
-    stage_SetAnimation(243, 1, 0);
-    stage_SetAnimation(245, 1, 0);
-    stage_SetAnimation(244, 1, 0);
-
-    while (stage_CheckAnimationFrame(243, 90, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    iosPadActRequest(boyPad, 15);
-
-    if (girlGObj != 0) {
-        scpPlayMotReq(girlGObj, 216);
-    }
-
-    while (stage_CheckAnimationFinish(243) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt04lOriSub(GObj *volatile self);
 
 void actSt04lOriChk(GObj *volatile self)
 {
@@ -1774,38 +1504,7 @@ void actSt04lOri2(GObj *volatile self)
     }
 }
 
-static void actSt04lOri2Sub(GObj *volatile self)
-{
-    iosPadActRequest(boyPad, 17);
-    _ACTWait(30);
-
-    while (sekizo4c == 0) {
-        _ACTWait(1);
-    }
-
-    AdpcmPlay(sekizo4c->stream);
-
-    stage_SetAnimation(248, 1, 0);
-
-    while (stage_CheckAnimationFrame(248, 30, 0) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    iosPadActRequest(boyPad, 15);
-
-    if (girlGObj != 0) {
-        scpPlayMotReq(girlGObj, 216);
-    }
-
-    while (stage_CheckAnimationFinish(248) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt04lOri2Sub(GObj *volatile self);
 
 void actSt04lOri2Chk(GObj *volatile self)
 {
@@ -2817,19 +2516,6 @@ void actSt04lC3BallTurn(GObj *volatile self)
     c3BallTurn_mes[0].func = actSt04lBallTurnCommon;
     act->mail = c3BallTurn_mes;
     ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt04eSolarBeamChkSub(GObj *volatile self)
-{
-    stage_SetAnimation(292, 1, 0);
-
-    while (stage_CheckAnimationFinish(292) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    demoEnd = 1;
     _ACTWait(0);
 }
 

@@ -928,25 +928,7 @@ int la_mc_file_select(int first)
     return (pad[0].flags & 0x50) ? curFile : -1;
 }
 
-static void _la_mask_preview_info(void)
-{
-    int i;
-
-    for (i = 0; i < 10; i++) {
-        lt_mask_property(i + 76, 1);
-        lt_mask_property(i + 86, 1);
-        lt_mask_property(i + 96, 1);
-        lt_mask_property(i + 106, 1);
-        lt_mask_property(i + 116, 1);
-        lt_mask_property(i + 126, 1);
-    }
-    lt_mask_property(74, 1);
-    lt_mask_property(75, 1);
-    for (i = 0; i < 39; i++) {
-        lt_mask_property(i + 137, 1);
-    }
-    lt_mask_property(136, 1);
-}
+static void _la_mask_preview_info(void);
 
 /* the play time of a save record split into hours, minutes and seconds and
    clamped to 99:59:59, inlined into _la_set_preview_info, la_load_processing
@@ -2481,13 +2463,6 @@ inline int la_game_loading(int first)
         systemStatus[6] = 1;
     }
     return -1;
-}
-
-inline void la_playtime_count(void)
-{
-    if (systemStatus[5] == 0) {
-        IosMcPreviewInfo[2]++;
-    }
 }
 
 /* inlined into la_game_loop and into la_game_over_continue */

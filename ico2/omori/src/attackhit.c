@@ -78,39 +78,7 @@ static inline int inner_check_sub(float *p, float *o, float *a, float *b) /* der
     return inner_check_core(d0, d1, d2);
 }
 
-static int inner_check(float *p, float *o, float *a, float *b, float r, float t)
-{
-    float n[4];
-    unsigned char ok;
-    float lim;
-    float d;
-
-    ok = inner_check_sub(p, o, a, b);
-
-    if (ok == 0) {
-        return 0;
-    }
-    lim = (_DistGV(o, a) + _DistGV(o, b)) * 0.5;
-    if (_DistGV(p, o) < lim + r) {
-        float v0[4];
-        float v1[4];
-        float v2[4];
-
-        sceVu0SubVector(v2, p, o);
-        sceVu0SubVector(v0, a, o);
-        sceVu0SubVector(v1, b, o);
-        sceVu0OuterProduct(n, v0, v1);
-        sceVu0Normalize(n, n);
-        d = sceVu0InnerProduct(n, v2);
-        if (d < 0.0f) {
-            d = -d;
-        }
-        if (d < t) {
-            return 1;
-        }
-    }
-    return 0;
-}
+static int inner_check(float *p, float *o, float *a, float *b, float r, float t);
 
 typedef struct { /* field names derived */
     /* 0x00 */ float radius;
@@ -587,19 +555,6 @@ inline void CommonAttackCenter(GObj *gobj)
     AttackPack pack;
     MakeAttackPack_Actor(&pack, gobj, GOBJ_ACT(gobj)->weapon);
     AttackGenerate(&pack);
-}
-
-inline GObj *_AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius, GObj *spare)
-{
-    AttackPack pack;
-
-    if (gop == 0) {
-        debug_assert(__FILE__, 931);
-        __assert(__FILE__, 931, "gop!=NULL");
-    }
-    SetupAttackPack(&pack, gop, group, pos, ofs, radius);
-    pack.spare = spare;
-    return AttackGenerate(&pack);
 }
 
 inline void AttackCenter_WithDir(GObj *gop, int group, float *pos, float *dir, float radius)

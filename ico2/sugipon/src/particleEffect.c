@@ -132,43 +132,7 @@ static inline float sugiSignedRandom(void) /* derived name */
     return sugiRandom() * 2.0f - 1.0f;
 }
 
-static void _setParticleEffect(PEPartRec *out, PEPackage *pkg, char *m, float k)
-{
-    PEPartRec *w;
-    int n;
-    float span;
-
-    w = &particleWork;
-    CopyVector(w->pos, m + 0x30);
-    spreadVector[2] = pkg->speed * (pkg->speedRand * sugiSignedRandom() + 1.0f);
-    CopyMatrix(MatrixDrive_GetMatrix(), m);
-    if (pkg->spread != 0) {
-        MatrixDrive_RotMatrixY((short)((float)pkg->spread * (sugiRandom() - 0.5f) * 182.04445f));
-        MatrixDrive_RotMatrixX((short)((float)pkg->spread * (sugiRandom() - 0.5f) * 182.04445f));
-    }
-    sceVu0ApplyMatrix(w->vel, MatrixDrive_GetMatrix(), spreadVector);
-    n = (int)((float)(unsigned int)pkg->emit * (pkg->emitRand * sugiSignedRandom() + 1.0f));
-    w->life = (float)n * k;
-    w->size = pkg->size * (pkg->sizeRand * sugiSignedRandom() + 1.0f);
-    w->alpha = pkg->alpha * (pkg->alphaRand * sugiSignedRandom() + 1.0f) * k;
-    w->sizeStep = pkg->sizeStep * (pkg->sizeStepRand * sugiSignedRandom() + 1.0f);
-    if (pkg->spinY != 0) {
-        w->spin = 1;
-        w->spinX = (short)((float)pkg->spinX * (pkg->spinXRand * sugiSignedRandom() + 1.0f));
-        w->spinY = (short)((float)pkg->spinY * (pkg->spinYRand * sugiSignedRandom() + 1.0f));
-    } else {
-        w->spin = 0;
-    }
-    span = (float)pkg->life * (pkg->lifeRand * sugiSignedRandom() + 1.0f);
-    w->alphaStep = w->alpha / span;
-    if ((float)w->life < span) {
-        w->alpha = w->alpha - (span - (float)w->life) * w->alphaStep;
-    }
-    CopyIVector(w->col, &pkg->col);
-    w->u = (float)pkg->u * 0.25f;
-    w->v = (float)pkg->v * 0.25f;
-    *out = particleWork;
-}
+static void _setParticleEffect(PEPartRec *out, PEPackage *pkg, char *m, float k);
 
 /* Project the effect's origin through the current camera matrix and report
    whether the result falls outside the screen box. */
@@ -451,36 +415,7 @@ static void dispParticleEffect(PEGeo *geo)
     prim_DispParticle(geo->prim, matrixptr + 0x100);
 }
 
-int SetParticleEffectByPartition(int no, void *pos, void *quat, struct IosMemPart *part)
-{
-    int id;
-
-    id = searchFreeParticleEffect();
-    if (id < 0) {
-        debug_StdPrintfDummy("No more effect... Ignored.\n");
-        return -1;
-    }
-    particleEffects[id].used = 1;
-    particleEffects[id].geoCtrl = 1;
-    particleEffects[id].geo = (PEGeo *)iosMallocDebugNoAssert(part, sizeof(PEGeo), __FILE__, 501);
-    particleEffects[id].sensing = 0;
-    particleEffects[id].sensPos = 0;
-    particleEffects[id].sensQuat = 0;
-    if (particleEffects[id].geo != 0) {
-        setParticleEffectGeometry(particleEffects[id].geo, pos, quat);
-        if (setParticleEffect(particleEffects[id].geo,
-                              (PEPackage *)((char *)particleParams + no * 160), part) == 0) {
-            iosFree(particleEffects[id].geo);
-            particleEffects[id].geo = 0;
-            particleEffects[id].used = 0;
-            id = -1;
-        }
-    } else {
-        particleEffects[id].used = 0;
-        id = -1;
-    }
-    return id;
-}
+int SetParticleEffectByPartition(int no, void *pos, void *quat, struct IosMemPart *part);
 
 /* free one effect's geometry; every deleter in this file inlines it */
 static inline void deleteParticleEffectGeo(int no) /* derived name */
@@ -655,14 +590,6 @@ void InitParticleEffects(void)
     }
 }
 
-void ExecParticleEffects(void)
-{
-    int i;
-    for (i = 0; i < 128; i++) {
-        ExecParticleEffect(i);
-    }
-}
-
 void DispParticleEffects(void)
 {
     int i;
@@ -680,11 +607,6 @@ void DeleteParticleEffect(int no)
         deleteParticleEffectGeo(no);
         particleEffects[no].used = 0;
     }
-}
-
-void SetParticleEffectPauseFlag(int id, int pause)
-{
-    particleEffects[id].pause = pause;
 }
 
 /* the body of SetParticleEffect, which SetParticleEffectActiveSensing
@@ -796,12 +718,5 @@ void SetParticleEffectClipEnableFlag(int id, int on)
 {
     if (id >= 0) {
         particleEffects[id].geo->clip = on;
-    }
-}
-
-void SetParticleEffectDrainLevel(int id, float level)
-{
-    if (id >= 0) {
-        particleEffects[id].geo->rate = level;
     }
 }

@@ -28,11 +28,6 @@ static AdpcmStream adpcmStream[2]; /* derived name */
 
 static int adpcmSpuSlot[4]; /* derived name */
 
-void AdpcmStreamFree(void)
-{
-    sceSifFreeIopHeap(adpcmIopHeap);
-}
-
 void adpcmTickProc2(SqEntry *obj)
 {
     AdpcmStream *self = obj->stream;
@@ -332,16 +327,7 @@ inline void adpcmPauseRequest(int val)
     adpcmPause = val;
 }
 
-inline void AdpcmStreamHeap(void)
-{
-    int r = iosSifAllocIopHeapDebug(0xB8800, adpcmSrcFile, 68);
-    adpcmIopHeap = r;
-    if (r & 0x7FF) {
-        adpcmIopBase = (r / 0x800 + 1) * 0x800;
-    } else {
-        adpcmIopBase = r;
-    }
-}
+inline void AdpcmStreamHeap(void);
 
 inline void AdpcmStreamInit(void)
 {
@@ -360,40 +346,6 @@ inline void AdpcmStreamInit(void)
         adpcmIopBuffUsed[i] = 0;
     }
     adpcmPause = 0;
-}
-
-inline int AdpcmNotUseIopAreaFree(void)
-{
-    int cnt = 0;
-    int i;
-    unsigned char buf[2];
-    AdpcmStream *p = adpcmStream;
-    AdpcmStream *end = p + 2;
-
-    *(short *)buf = 0;
-
-    do {
-        if (p->used != 0) {
-            int no = (p->iopBuf - adpcmIopBase) / 0x5C000;
-            if (no < 3) {
-                buf[no] = 1;
-            }
-        }
-        p++;
-    } while ((int)p < (int)end);
-
-    i = 0;
-    do {
-        if (buf[i] == 0) {
-            if (adpcmIopBuffUsed[i] != 0) {
-                debug_StdPrintfDummy(adpcmFreeIopMsg);
-                cnt++;
-                adpcmIopBuffUsed[i] = 0;
-            }
-        }
-        i++;
-    } while (i < 2);
-    return cnt;
 }
 
 inline SqEntry *AdpcmOpenSync(AdpcmOpenReq *self)

@@ -587,31 +587,6 @@ void SetEnemyDissolve(GObj *self, float ratio)
         sub->nodes->fade = 1.0f;
 }
 
-static void SetEnemyFlyXZAccel(GObj *self, float accel)
-{
-    EnemyWork *w = GOBJ_SUB(self)->work;
-
-    w->flyXZAccel = accel;
-}
-
-static void SetEnemyFlyXZAccelAll(float accel)
-{
-    GObj *g = isysGObjSearchFromObjKindID_begin(4);
-    while (g != 0) {
-        EnemyWork *w = GOBJ_SUB(g)->work;
-
-        w->flyXZAccel = accel;
-        g = isysGObjSearchFromObjKindID_next(g);
-    }
-}
-
-float GetEnemyFlyXZAccel(GObj *self)
-{
-    EnemyWork *w = GOBJ_SUB(self)->work;
-
-    return w->flyXZAccel;
-}
-
 void EnemyAI(void) {}
 
 void SetEnemyFootPrintSwitch(GObj *self, int on)
@@ -764,16 +739,6 @@ int GetEnemyBattleType(GObj *self)
 float GetEnemyDefLife(GObj *self)
 {
     return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].life;
-}
-
-float GetEnemyDefDodgeRange(GObj *self)
-{
-    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].dodge;
-}
-
-float GetEnemyDefParaIndex(GObj *self)
-{
-    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].paraIndex;
 }
 
 void ResetEnemyPositionInfo(GObj *self)

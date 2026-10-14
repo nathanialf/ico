@@ -1907,44 +1907,7 @@ static void enemy_dodge(GObj *self)
     }
 }
 
-static void enemy_dodge_to_boy(GObj *self)
-{
-    float boy[4];
-    float me[4];
-    float v[4];
-    int ang;
-
-    if ((void *)boyGObj == 0) {
-        return;
-    }
-    if (((int)(*(long long *)((char *)GOBJ_ACT(self)->enemy + 0x210) >> 1)) & 1) {
-        boy[0] = test_CURRENTROOT(((void *)boyGObj))[0];
-        boy[1] = test_CURRENTROOT(((void *)boyGObj))[1];
-        boy[2] = test_CURRENTROOT(((void *)boyGObj))[2];
-        me[0] = test_CURRENTROOT(self)[0];
-        me[1] = test_CURRENTROOT(self)[1];
-        me[2] = test_CURRENTROOT(self)[2];
-        if (_DistSqGV(boy, me) < GetEnemyDefDodgeRange(self) * GetEnemyDefDodgeRange(self)) {
-            _OrientXZGV(v, boy, me);
-            ang = _RotyGV(v, test_CURRENTORIENT(((void *)boyGObj)));
-            ang = (ang < 0) ? -ang : ang;
-            if (ang < 114) {
-                return;
-            }
-            ang = _RotyGV(v, test_CURRENTORIENT(self));
-            ang = (ang < 0) ? -ang : ang;
-            if ((float)ang < 45.0f) {
-                if (IsBoyStatus_NotDanger() != 0) {
-                    return;
-                }
-                if (debug_ignore_dodge != 0) {
-                    return;
-                }
-                ACTSendMailCorrect(self, 0x113);
-            }
-        }
-    }
-}
+static void enemy_dodge_to_boy(GObj *self);
 
 /* a `static inline` defined outside this function, expanded twice here */
 static inline float battleRangeScale(GObj *self, float v) /* derived name */
@@ -2685,16 +2648,6 @@ inline int GetEnemyType(float x, float y, float z)
 inline int GetEnemyTypeFromGObj(GObj *obj)
 {
     return GOBJ_ACT(obj)->enemy->liftKind;
-}
-
-inline int GetMotherGeneratorLabelAskEnemy(GObj *enemy)
-{
-    return GOBJ_WORK(enemy)->motherLabel;
-}
-
-inline GObj *GetMotherGeneratorGObjAskEnemy(GObj *enemy)
-{
-    return GOBJ_WORK(enemy)->motherGObj;
 }
 
 /* the bit-51 store to the actor word is a union access, the four 0.05f

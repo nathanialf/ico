@@ -93,33 +93,7 @@ static int seHandle; /* derived name */
 
 static const ConstVec floorChkSubPos = {{-101.0f, -381.0f, -398.0f, 0.0f}}; /* derived name */
 
-static void actSt01bFloorChkSub(GObj *volatile self)
-{
-    ConstVec pos;
-
-    while (st01b_floor == 0) {
-        _ACTWait(1);
-    }
-    AdpcmPlay(st01b_floor->stream);
-    stage_SetAnimation(180, 1, 0);
-    stage_SetAnimation(181, 1, 0);
-    pos = floorChkSubPos;
-    seHandle = soundSeDefPlay(1325, 0, pos.f, 1);
-    _ACTWait(90);
-    soundSeDefStop(seHandle);
-    seHandle = -1;
-    soundSeDefPlay(1288, 0, 0, 1);
-    stage_SetAnimation(183, 1, 0);
-    st01b_yure = iosPadActRequest(boyPad, 9);
-    st01b_yure_vol = 128;
-    iosPadActVolumeSet(st01b_yure, 128);
-    while (stage_CheckAnimationFrame(183, 180, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt01bFloorChkSub(GObj *volatile self);
 
 void actSt01bFloorChk(GObj *volatile self)
 {

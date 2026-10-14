@@ -22,7 +22,6 @@ void actCommonCatchFire(GObj *volatile self);
 void actCommonCatchFireBomb(GObj *volatile self);
 void actCommonPutFire(GObj *volatile self);
 void actCommonBoxReverbe(GObj *volatile self);
-void actCommonItem(GObj *volatile self);
 void actCommonClimb(GObj *volatile self);
 void actCommonCliffdown(GObj *volatile self);
 void actCommonLadderBellow(GObj *volatile self);
@@ -171,10 +170,7 @@ void ACTSetPositionWithFitting(void *self, float *pos)
     SetDirectRootPosition(self, pos);
 }
 
-static void ACTSetPositionNoFitting(void *self, float *pos)
-{
-    SetDirectRootPositionNoFitting(self, pos);
-}
+static void ACTSetPositionNoFitting(void *self, float *pos);
 
 void ACTSetPositionNodeWithFitting(void *self, int node, float *pos, float t)
 {
@@ -3732,13 +3728,6 @@ void ACTAdjustPlane(GObj *self, void *wall)
     AdjustRootPositionToVerticalSidePlaneOfWall(self, wall, 30.0f);
 }
 
-inline void ACTAcceptMail(GObj *self, int mail)
-{
-    if (mail == 0xB1) {
-        GOBJ_WORK(self)->mailB1Timer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 10;
-    }
-}
-
 inline int _ACTMotDirSmzDirect(GObj *self, float *dir)
 {
     Act *s = GOBJ_ACT(self);
@@ -3864,14 +3853,6 @@ inline void actCommonPutFire(GObj *volatile self)
 inline void actCommonBoxReverbe(GObj *volatile self)
 {
     _ACTWait(40);
-    for (;;) {
-        ACTSendMailCorrect(self, 0xC7);
-        _ACTWait(1);
-    }
-}
-
-inline void actCommonItem(GObj *volatile self)
-{
     for (;;) {
         ACTSendMailCorrect(self, 0xC7);
         _ACTWait(1);
@@ -4537,19 +4518,6 @@ inline void ControlMotionOrient(int id, int mot)
     motionOrient[id].w[2] = mot;
 }
 
-inline int FloorIsTruck(GObj *self)
-{
-    GObj *p = GOBJ_SUB(self)->parent.obj;
-    if (p != 0) {
-        if (p->kind == 17) {
-            if (IsThisBoxTruck(p) == 7) {
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-
 inline void _ACTMotDir_V(void *self, void *dir)
 {
     float local[4];
@@ -4575,25 +4543,6 @@ inline void actAfterForceRopeSwing(GObj *volatile self)
         __assert("src/commonact.c", 1653, "ROPE_GOBJ!=NULL");
     }
     UnLockChainGeo(s->chain);
-}
-
-static inline void actAfterRopeJump(GObj *volatile self)
-{
-    char *g = (char *)self;
-    GOBJ_ACT(g)->flags20.ll |= (1ULL << 31);
-}
-
-static inline void afterCommonRopeCliff(char *self)
-{
-    char *volatile local = self;
-    char *g = *(char **)((char *)boyGObj + 0x15C);
-    *(int *)(g + 0x420) = 0;
-}
-
-static inline void afterCommonRopeTurnSpecial(GObj *volatile self)
-{
-    char *g = (char *)self;
-    GOBJ_SUB(g)->root.ropeState = 0;
 }
 
 inline void actAfterDown(GObj *volatile self)
@@ -4629,12 +4578,6 @@ inline void afterCommonBox(GObj *volatile self)
     _boxbar_set_sound(self, 0);
 }
 
-static inline void actAfterJump(GObj *volatile self)
-{
-    char *g = (char *)self;
-    GOBJ_ACT(g)->flags20.ll |= (1ULL << 31);
-}
-
 inline void actAfterFall(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
@@ -4657,16 +4600,6 @@ inline void actAfterFly(GObj *volatile self)
     ResetFlyLimit(self);
 }
 
-static inline void ClipCollisionWithField(ClipWork *work)
-{
-    int tmp[4];
-    sceVu0CopyVector(tmp, work->pt[1]);
-    ClipWallField(work);
-    sceVu0CopyVector(work->pt[1], work->pt[2]);
-    ClipFloor(work);
-    sceVu0CopyVector(work->pt[1], tmp);
-}
-
 inline void afterCommonOneWall(int x)
 {
     volatile int local = x;
@@ -4681,14 +4614,6 @@ typedef struct { /* field names derived */
     char pad0[116];
     int coll;
 } BecSub; /* derived name */
-
-static inline void afterCommonBecarry(GObj *volatile self)
-{
-    SetKidnapInfo(-1, -1);
-    ((BecSub *)(int)GOBJ_SUB(self))->coll = 1;
-    ACTGameCollisionOn(self);
-    gflagOff(393);
-}
 
 inline void afterCommonTruckLever(GObj *volatile self)
 {

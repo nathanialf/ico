@@ -557,28 +557,6 @@ void actSt18aCamera(int x)
     volatile int local = x;
 }
 
-static void actSt18aDoorChkSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    stage_SetAnimation(123, 1, 0);
-
-    if (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0) {
-        SetCameraFlag_LwsCutBack();
-    }
-
-    soundSeDefPlay(1221, 0, 0, 1);
-    _ACTWait(50);
-    doorChkDone = 1;
-    soundSeDefPlay(1222, 0, 0, 1);
-    while (stage_CheckAnimationFinish(123) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt18aEneChk(GObj *volatile self)
 {
     if (girlGObj == 0) {

@@ -346,18 +346,6 @@ void brainInitGirlSet(GObj *girl, GObj *cur)
     } while (t->gobj != 0);
 }
 
-void brainAddLevelGirlDetail(int flag, float lv)
-{
-    Brain *b = &brainGirl;
-
-    if (b->cur != 0) {
-        brainAddLevel(b->cur, lv);
-        if (flag != 0) {
-            *(int *)&b->cur->lookOnly |= 0x10000;
-        }
-    }
-}
-
 void brainAddLevelGop(GObj *gobj, float lv)
 {
     int i;

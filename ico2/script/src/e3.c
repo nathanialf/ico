@@ -58,8 +58,6 @@ void actE3WarningChk(GObj *volatile self)
 
 #include "e3.h"
 
-static inline void actE3St09aBrgSwitch(GObj *volatile self);
-
 /* .sdata: the title stream's handle, the capsule's, the cage fall's, the
    first gate's, the stone statue's and its volume word, then the statue
    shake's volume. */
@@ -104,12 +102,6 @@ static float st09aSekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f}; /* derived n
 static ActMail st09aSekizo_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail gate_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail st09aBrgMain_mes[2] = {{407, actE3St09aBrgSwitch}, {429}}; /* derived name */
-
-static ActMail st09aBrg_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail st09aBrgSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
 void actE3Title(GObj *volatile self)
 {
@@ -1044,42 +1036,6 @@ void actE3St01bInit(void)
     stage_SetAnimation(183, 0, -1);
 }
 
-static void actE3St09aBrgDown(GObj *volatile self)
-{
-    lt_switch_layout(55);
-    gflagOn(86);
-
-    scpAdpcmPlayRequestFunc(90, &sekizo_e3, 1, 1, 1);
-    while (sekizo_e3 == 0) {
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(378, 1, 0);
-
-    while (stage_CheckAnimationFrame(378, 115, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    iosPadActRequest(boyPad, 17);
-
-    while (stage_CheckAnimationFrame(378, 165, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    iosPadActRequest(boyPad, 16);
-
-    while (stage_CheckAnimationFinish(378) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpBoyControlReadDisable = 0;
-
-    lt_switch_layout(54);
-}
-
 void actE3Warning(GObj *volatile self)
 {
     GObj *x = self;
@@ -1285,25 +1241,6 @@ void actE3St01bGene3(GObj *volatile self)
     Generator_MaskOff(self);
 }
 
-void actE3St09aBrg(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *sub = (Act *)actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(86) == 0) {
-        stage_SetAnimation(378, 0, 0);
-
-        st09aBrg_mes[0].func = actE3St09aBrgMain;
-        sub->mail = st09aBrg_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(378, 0, -1);
-    }
-}
-
 void actE3Gate(GObj *volatile self)
 {
     GObj *x = self;
@@ -1457,29 +1394,4 @@ inline void actE3St01bEneChk(GObj *volatile self)
     lt_switch_layout(54);
 
     scpBoyControlReadDisable = 0;
-}
-
-inline void actE3St09aBrgMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    sub->mainMail = st09aBrgMain_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-static inline void actE3St09aBrgSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    st09aBrgSwitch_mes[0].func = actE3St09aBrgDown;
-    sub->mail = st09aBrgSwitch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
 }

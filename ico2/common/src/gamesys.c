@@ -35,8 +35,6 @@ void gamesysObjInfoLoad(GamesysMemCursor *h);
 void gamesysObjInfoSave(GamesysMemCursor *h);
 static void gamesysGeneratorInfoLoad(GamesysMemCursor *self);
 static void gamesysGeneratorInfoSave(GamesysMemCursor *self);
-static void gamesysHintInfoLoad(GamesysMemCursor *self);
-static void gamesysHintInfoSave(GamesysMemCursor *self);
 static void gamesysCharacterInfoLoad(GamesysMemCursor *self);
 static void gamesysCharacterInfoSave(GamesysMemCursor *self);
 
@@ -56,8 +54,6 @@ void *gameSysMemoryFuncList[] = {
     gamesysObjInfoSave,
     gamesysGeneratorInfoLoad,
     gamesysGeneratorInfoSave,
-    gamesysHintInfoLoad,
-    gamesysHintInfoSave,
     gamesysCharacterInfoLoad,
     gamesysCharacterInfoSave,
     backStageLoad,
@@ -293,28 +289,6 @@ static void gamesysGeneratorInfoLoad(GamesysMemCursor *self)
     }
     self->offset += s2;
     return ReadGeneratorPacket();
-}
-
-static void gamesysHintInfoSave(GamesysMemCursor *self)
-{
-    char *buf;
-    int size;
-
-    MakeHintSaveInfo();
-    buf = GetBuffHintSaveInfo();
-    size = GetSizeHintSaveInfo();
-    gamesysMemoryHandlerWrite(self, buf, size);
-}
-
-static void gamesysHintInfoLoad(GamesysMemCursor *self)
-{
-    char *s1 = GetBuffHintSaveInfo();
-    int s2 = GetSizeHintSaveInfo();
-    if (s1 != 0) {
-        memcpy(s1, self->base + self->offset, s2);
-    }
-    self->offset += s2;
-    return ReadHintSaveInfo();
 }
 
 static void gamesysCharacterInfoSave(GamesysMemCursor *self)

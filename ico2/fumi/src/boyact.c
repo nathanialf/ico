@@ -1704,71 +1704,11 @@ static void OtherStageGirlPinchCamera_After(float t)
     }
 }
 
-void ACTDispLwsBoyStonize_InQueenStage(void *self)
-{
-    BoyBgaManager(self, 0x1E0, (char *)GOBJ_ACT(self)->enemy + 0x2A0);
-    BoyBgaManager(self, 0x1E1, (char *)GOBJ_ACT(self)->enemy + 0x2A4);
-    BoyBgaManager(self, 0x1E5, (char *)GOBJ_ACT(self)->enemy + 0x2B0);
-    BoyBgaManager(self, 0x1E5, (char *)GOBJ_ACT(self)->enemy + 0x2AC);
-    BoyBgaManager(self, 0x1E6, (char *)GOBJ_ACT(self)->enemy + 0x2A8);
-}
-
 static int characterPacket[8]; /* derived name */
 
 static PrivInsCam privInsCam; /* derived name */
 
-/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
-extern void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom,
-                                   int cutBack, float blend);
-
-static void PrivInsCamProcess(void)
-{
-    float p[4];
-
-    switch (privInsCam.on) {
-    case 1:
-        privInsCam.cur[0] = privInsCam.pos[0];
-        privInsCam.cur[1] = privInsCam.pos[1];
-        privInsCam.cur[2] = privInsCam.pos[2];
-        privInsCam.cnt = privInsCam.inFrames;
-        privInsCam.on = 2;
-        break;
-    case 2:
-        _InterGV(privInsCam.cur, privInsCam.tgt, privInsCam.cur, 1.0f, privInsCam.inRate);
-        InsertCamera_SetDetail(GetCurrentCameraSet2(), privInsCam.cur, 5, 1, 2, 0,
-                               privInsCam.blend);
-        if (--privInsCam.cnt <= 0) {
-            privInsCam.on = 3;
-        }
-        break;
-    case 3:
-        privInsCam.tgt[0] = privInsCam.cur[0];
-        privInsCam.tgt[1] = privInsCam.cur[1];
-        privInsCam.tgt[2] = privInsCam.cur[2];
-        privInsCam.cnt = privInsCam.outFrames;
-        privInsCam.on = 4;
-        break;
-    case 4:
-        if (privInsCam.track != 0) {
-            p[0] = test_CURRENTROOT(privInsCam.track)[0];
-            p[1] = test_CURRENTROOT(privInsCam.track)[1];
-            p[2] = test_CURRENTROOT(privInsCam.track)[2];
-        } else {
-            p[0] = privInsCam.pos[0];
-            p[1] = privInsCam.pos[1];
-            p[2] = privInsCam.pos[2];
-        }
-        _InterGV(privInsCam.cur, p, privInsCam.tgt, (float)privInsCam.cnt,
-                 (float)(privInsCam.outFrames - privInsCam.cnt));
-        InsertCamera_SetDetail(GetCurrentCameraSet2(), privInsCam.cur, 2, 1, 0, 0,
-                               privInsCam.blend);
-        if (--privInsCam.cnt <= 0) {
-            privInsCam.on = 0;
-        }
-        break;
-    }
-}
-
+static void PrivInsCamProcess(void);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void Camctrl_SetTarget(GObj *gobj, GObj *subGObj, int pri);
 
@@ -2587,33 +2527,7 @@ inline void actBoyCall(GObj *volatile self)
 #define BOY_GIRL_DY()                                                                              \
     (test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1]) /* derived name */
 
-static void ACTSendMail_PULLUP_GO(void)
-{
-    GObj *g = boyGObj;
-    Act *sub = GOBJ_ACT(g);
-
-    switch (sub->env.cliffSel) {
-    case 0x64:
-        ACTSendMailCorrect(g, 0x4A);
-        sub->orientMot = 0x6B;
-        break;
-    case 0xC8:
-        ACTSendMailCorrect(g, 0x4A);
-        sub->orientMot = 0x6D;
-        break;
-    case 0x12C:
-        if (GOBJ_ACT(girlGObj)->actMode != 0x50) {
-            break;
-        }
-        if (!(300.0f < (BOY_GIRL_DY() < 0.0f ? -BOY_GIRL_DY() : BOY_GIRL_DY()))) {
-            ACTSendMailCorrect(g, 0x4A);
-            sub->orientMot = 0x6F;
-        } else if (girlGObj != 0) {
-            iosOmSendMail(girlGObj, 0x52, isysCurrentGObj);
-        }
-        break;
-    }
-}
+static void ACTSendMail_PULLUP_GO(void);
 
 /* the pull-up start mail, inlined into actBoyPullupGo */
 static inline void ACTSendMail_PULLUP_START(void) /* derived name */
@@ -3098,70 +3012,6 @@ void actBoyDitch3mReady(GObj *volatile self)
     }
 }
 
-void actBoyRescueGirlBhang(GObj *volatile self)
-{
-    float tgt[4];
-    float mv[4];
-    float boy[4];
-    float girl[4];
-    Act *sub = GOBJ_ACT(self);
-    int mode;
-    int connect = 1;
-
-    *(void **)((char *)sub + 0x18) = (void *)afterBoyRescueGirlBhang;
-    while (1) {
-        mode = 0;
-        switch (GOBJ_ACT(girlGObj)->actMode) {
-        case 0x1C:
-            mode = 1;
-            break;
-        case 0x1D:
-            mode = 2;
-            if ((60 - systemStatus[0] * 10) / systemStatus[1] / 2 < sub->modeFrame) {
-                if (connect) {
-                    ACTGame_ConnectHand();
-                    connect = 0;
-                }
-            }
-            break;
-        }
-        if (mode != 0) {
-            if (sub->modeFrame < 0xA) {
-                boy[0] = test_CURRENTROOT(boyGObj)[0];
-                boy[1] = test_CURRENTROOT(boyGObj)[1];
-                boy[2] = test_CURRENTROOT(boyGObj)[2];
-                girl[0] = test_CURRENTROOT(girlGObj)[0];
-                girl[1] = test_CURRENTROOT(girlGObj)[1];
-                girl[2] = test_CURRENTROOT(girlGObj)[2];
-                tgt[0] = girl[0];
-                tgt[2] = girl[2];
-                tgt[1] = boy[1];
-                _MoveGV(mv, boy, tgt, 5.0f);
-                SetRootPosition((void *)self, mv);
-            }
-        }
-        if (motionKind[GOBJ_SUB(self)->ctrl.motion].playMode == 1) {
-            if (mode == 1) {
-                ACTSendMailCorrect(self, 0x15B);
-                if (girlGObj != 0) {
-                    iosOmSendMail(girlGObj, 0x51, isysCurrentGObj);
-                }
-                GOBJ_ACT(girlGObj)->orientMot = 0x66;
-            }
-            if (mode == 2) {
-                ACTSendMailCorrect(self, 0x15B);
-                if (girlGObj != 0) {
-                    iosOmSendMail(girlGObj, 0x40, isysCurrentGObj);
-                }
-            }
-        }
-        if (mode == 0) {
-            ACTSendMailCorrect(self, 0xC7);
-        }
-        _ACTWait(1);
-    }
-}
-
 inline int RequestStageChangeKidnapEnd(int stage, int targetId)
 {
     int rv = 0;
@@ -3536,36 +3386,6 @@ inline int isLiftBoyEnable(void)
     return 0;
 }
 
-inline void SetKidnapInfo(int enemyLabel, int targetLabel)
-{
-    characterPacket[5] = enemyLabel;
-    characterPacket[6] = targetLabel;
-}
-
-inline void GetKidnapInfo(int *enemyLabel, int *targetLabel)
-{
-    *enemyLabel = characterPacket[5];
-    *targetLabel = characterPacket[6];
-}
-
-inline void PrivInsCamSet(float *pos, float *tgt, GObj *track, int inFrames, int outFrames,
-                          float inRate, float blend, unsigned char control)
-{
-    privInsCam.pos[0] = pos[0];
-    privInsCam.pos[1] = pos[1];
-    privInsCam.pos[2] = pos[2];
-    privInsCam.tgt[0] = tgt[0];
-    privInsCam.tgt[1] = tgt[1];
-    privInsCam.tgt[2] = tgt[2];
-    privInsCam.track = track;
-    privInsCam.inFrames = inFrames;
-    privInsCam.outFrames = outFrames;
-    privInsCam.inRate = inRate;
-    privInsCam.blend = blend;
-    privInsCam.control = control;
-    privInsCam.on = 1;
-}
-
 inline int IsBoyStatus_EnemyMustWait(void)
 {
     Act *sub;
@@ -3631,24 +3451,6 @@ inline void OnGirlEscortFlag(void)
     boyInfo[1] |= 0x800000000LL;
 }
 
-inline void SetBoyWeaponGObj(void *w)
-{
-    if (boyGObj != 0 && w != 0) {
-        SwapBoyWeapon(0, w, boyGObj);
-    }
-}
-
-inline int IsBoyStatus_NotDanger(void)
-{
-    unsigned int st = (unsigned int)GOBJ_ACT(boyGObj)->actMode;
-    if (st < 0x17) {
-        if (st >= 0x14) {
-            return 1;
-        }
-    }
-    return 0 < GOBJ_WORK(boyGObj)->downTimer;
-}
-
 inline int GetEfStageCameraTargetID(void)
 {
     if (BOYEFSTAGE[0]) {
@@ -3660,16 +3462,6 @@ inline int GetEfStageCameraTargetID(void)
 inline int IsBackFromEfStage(void)
 {
     return BOYEFSTAGE[0];
-}
-
-inline int PrivInsCamChk(void)
-{
-    return privInsCam.on != 0;
-}
-
-inline unsigned char PrivInsCamChk_Control(void)
-{
-    return privInsCam.control;
 }
 
 inline int *GetbufpCharacterPacket(void)
@@ -3796,11 +3588,6 @@ inline void afterBoyTakeWeapon(GObj *volatile self)
 inline void afterBoyHangG3M(int x)
 {
     volatile int local = x;
-}
-
-inline void afterBoyRescueGirlBhang(GObj *volatile self)
-{
-    ACTGame_DisconnectHand();
 }
 
 inline void subBoyBrainMain(int arg)

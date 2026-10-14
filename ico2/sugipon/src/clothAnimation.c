@@ -634,117 +634,6 @@ static __inline__ void clothFixDebug(ClothFixPoint *fix) /* derived name */
 #endif
 }
 
-void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx)
-{
-    VECTOR dv;
-    int i;
-    int j;
-    int nx;
-    int ny;
-    ClothFixPoint *q;
-
-    nx = cfg->num;
-    ny = cfg->div;
-    q = cfg->anchors;
-
-    for (i = 0; i < nx; i++) {
-        for (j = 0; j < ny; j++) {
-            _ScaleVector(&dv, &pv[i][j], 0.98f);
-            _ScaleVector(&pv[i][j], &pa[i][j], -1.0f);
-            pv[i][j].w = 0.0f;
-            _AddVectorXYZ(&pa[i][j], &pa[i][j], &dv);
-        }
-    }
-
-    for (i = 0; i < nx; i++) {
-        for (j = 0; j < ny; j++) {}
-    }
-
-    _ApplyMatrix(pa[0], mtx, &q[0].v1);
-    _ApplyMatrix(pa[nx - 1], mtx, &q[1].v1);
-    _ApplyMatrix(&pa[0][ny - 1], mtx, &q[2].v1);
-    _ApplyMatrix(&pa[nx - 1][ny - 1], mtx, &q[3].v1);
-
-    {
-        void yTension(int y)
-        {
-            __inline__ void interHalf(VECTOR * d, VECTOR * a, VECTOR * b) /* derived name */
-            {
-                _InterVectorXYZ(d, a, b, 0.5f);
-            }
-            VECTOR *r;
-            int x;
-            int xp;
-            int m;
-            int mp;
-            int mm;
-
-            r = pa[y];
-            clothFixDebug(q);
-            for (x = 1; x < ny - 1; x++) {
-                xp = x + 1;
-                m = ny - xp;
-                mp = m + 1;
-                mm = m - 1;
-                interHalf(&r[x], &r[x + 1], &r[x - 1]);
-                interHalf(&r[m], &r[mp], &r[mm]);
-            }
-        }
-        void xTension(int x)
-        {
-            __inline__ void interHalf(VECTOR * d, VECTOR * a, VECTOR * b) /* derived name */
-            {
-                _InterVectorXYZ(d, a, b, 0.5f);
-            }
-            int y;
-            int yp;
-            int m;
-            int mp;
-            int mm;
-
-            for (y = 1; y < nx - 1; y++) {
-                yp = y + 1;
-                m = nx - yp;
-                mp = m + 1;
-                mm = m - 1;
-                interHalf(&pa[y][x], &pa[y + 1][x], &pa[y - 1][x]);
-                interHalf(&pa[m][x], &pa[mp][x], &pa[mm][x]);
-            }
-        }
-        VECTOR rv;
-        VECTOR rt;
-        VECTOR wp;
-        VECTOR *wv;
-        int n;
-
-        yTension(0);
-        yTension(nx - 1);
-        xTension(0);
-        xTension(ny - 1);
-        for (n = 1; n < nx - 1; n++) {
-            yTension(n);
-        }
-        for (n = 1; n < ny - 1; n++) {
-            xTension(n);
-        }
-
-        wv = (VECTOR *)GetWindVector(&wp.x, &pa[0]->x);
-        wp.x = wp.x / 40960.0f;
-        for (i = 0; i < nx; i++) {
-            for (j = 0; j < ny; j++) {
-                AddVectorXYZ(&pv[i][j], &pv[i][j], &pa[i][j]);
-                AddVectorXYZ(&pv[i][j], &pv[i][j], wv);
-                rt.x = wp.x * 3.0f * (float)((rand() & 0x7fff) - 16383);
-                rt.y = wp.x * 3.0f * (float)((rand() & 0x7fff) - 16383);
-                rt.z = wp.x * 3.0f * (float)((rand() & 0x7fff) - 16383);
-                rt.w = 0.0f;
-                rv = rt;
-                AddVectorXYZ(&pv[i][j], &pv[i][j], &rv);
-            }
-        }
-    }
-}
-
 /* the two cap planes of the unit cylinder clipCylinderCollision clips
    against, each with a zero vector after it */
 static sceVu0FVECTOR clipPlane[2][2] = {
@@ -928,58 +817,6 @@ ClothSet *InitClothes(ClothCfg *cfg)
     return r;
 }
 
-ClothSet *InitClothesNoShade(ClothCfg *cfg)
-{
-    ClothSet *r;
-    int i = 0;
-    int m;
-    int q;
-    float aa[4];
-    float bb[4];
-
-    r = (ClothSet *)iosMallocDebug(ios_partition_sugipon, sizeof(ClothSet), "src/clothAnimation.c",
-                                   1296);
-    debug_StdPrintfDummy("\x1b[36mALLOC CLOTHES\x1b[m\n");
-    while (cfg[i].num != -1) {
-        i++;
-    }
-    r->num = i;
-    r->rec = (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ClothRec),
-                                        "src/clothAnimation.c", 1301);
-    for (i = 0; i < r->num; i++) {
-        if (cfg[i].tex != 0) {
-            r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x5C, 0x80808080, 0);
-            r->rec[i].textured = 1;
-            r->rec[i].tex = *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg[i].tex));
-        } else {
-            r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x4C, 0xFFFFFF80, 0);
-            r->rec[i].textured = 0;
-        }
-        r->rec[i].pos =
-            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1329);
-        r->rec[i].vel =
-            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1330);
-        r->rec[i].mark =
-            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1331);
-        for (m = 0; m < cfg[i].num; m++) {
-            r->rec[i].pos[m] = (VECTOR *)(r->rec[i].mesh->pos + m * cfg[i].div);
-            r->rec[i].vel[m] = iosMallocDebug(ios_partition_sugipon, cfg[i].div * 16,
-                                              "src/clothAnimation.c", 1336);
-            r->rec[i].mark[m] =
-                iosMallocDebug(ios_partition_sugipon, cfg[i].div * 4, "src/clothAnimation.c", 1337);
-            memset(aa, 0, 16);
-            aa[3] = 1.0f;
-            memset(bb, 0, 16);
-            for (q = 0; q < cfg[i].div; q++) {
-                CopyVector(&r->rec[i].pos[m][q], aa);
-                CopyVector(&r->rec[i].vel[m][q], bb);
-                r->rec[i].mark[m][q] = -1;
-            }
-        }
-    }
-    return r;
-}
-
 void DispClothMesh(ClothRec *rec, void *la, void *lb)
 {
     int t;
@@ -1054,28 +891,6 @@ void DispCloth4D(Cloth4D *c, void *la, void *lb)
     }
     gif_StartPacketPri(1);
     gif_SetAlpha(1, 7, 0x80);
-    gif_SetGsReg(8, 0);
-    gif_EndPacket();
-    _SetCurrentMatrix(matrixptr + 0x100);
-    prim_DispMesh3D(c->mesh, la, lb, t);
-    if (debug_cloth_info != 0) {
-        DispMeshWire(c->pos, c->cfg->nx, c->cfg->ny);
-    }
-}
-
-void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb)
-{
-    int t;
-    dl_SetDLPriority(1);
-    p2o_SetDefaultEnviroment();
-    prim_UpdateMesh3D(c->mesh, 3, buffer_ID);
-    if (c->cfg->tex != 0) {
-        t = tex_GetTextureNo(&c->tex);
-    } else {
-        t = -1;
-    }
-    gif_StartPacketPri(1);
-    gif_SetAlpha(1, 5, 0x80);
     gif_SetGsReg(8, 0);
     gif_EndPacket();
     _SetCurrentMatrix(matrixptr + 0x100);
@@ -1754,22 +1569,6 @@ static void _getCloth4D(Cloth4D *c, float x, float y, float z, float w, int tigh
         }
     }
     getCloth4D_postProcess(c, rows);
-}
-
-void GetCloth4D(Cloth4D *c, float x, float y)
-{
-    _getCloth4D(c, x, y, 1.0f, 1.0f, 0, IdentityQuaternion, IdentityQuaternion);
-}
-
-void GetCloth4DWithDetail(Cloth4D *c, float x, float y, float z, float w)
-{
-    _getCloth4D(c, x, y, z, w, 0, IdentityQuaternion, IdentityQuaternion);
-}
-
-/* the two pointers follow the four floats, like _getCloth4D's own tail */
-void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *qa, void *qb)
-{
-    _getCloth4D(c, x, y, z, w, 1, qa, qb);
 }
 
 typedef struct { /* field names derived */

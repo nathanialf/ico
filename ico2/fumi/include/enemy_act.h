@@ -165,8 +165,6 @@ int GetEnemyTypeFromGObj(struct GObj *obj);
 int GetEnemyType(float x, float y, float z);
 int isEnemyKidnapEnable(GObj *self);
 inline int isEnemyActive(GObj *self);
-int GetMotherGeneratorLabelAskEnemy(struct GObj *enemy);
-struct GObj *GetMotherGeneratorGObjAskEnemy(struct GObj *enemy);
 inline void subEnemyBrain_Idle(GObj *volatile self);
 void subEnemyBrain_Await(GObj *volatile self);
 void subEnemyBrain_FindGirl(GObj *volatile self);

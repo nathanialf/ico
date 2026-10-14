@@ -1147,45 +1147,6 @@ extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm
  * GifRect *, GifColor *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, TexColor *col, int prim);
 
-static void tex_TransTextureDefocus(int id, int lv)
-{
-    TexData *p;
-    int w;
-    int h;
-    int tbp;
-    int rect[4];
-
-    tex_TransTexture(id, dl_GetPri());
-
-    p = getTextureData(id);
-    w = p->pic.imageWidth >> lv;
-    h = p->pic.imageHeight >> lv;
-
-    tbp = tex_AllocVramAuto(0, w * h / 64);
-
-    gif_StartPacketPri(dl_GetPri());
-    rect[0] = -w * 8 - 4;
-    rect[1] = -h * 8 - 4;
-    rect[2] = w * 16;
-    rect[3] = h * 16;
-    {
-        int uv[4] = {8, 8, p->pic.imageWidth * 16, p->pic.imageHeight * 16};
-        TexColor col = {128, 128, 128, 128};
-        gif_SetZTest(0);
-        gif_SetZWrite(0);
-        gif_SetDrawEnviroment(tbp, 0, w, h, 0, 0);
-        gif_SpriteSensitiveOrg(rect, 0xFFFFFFFF, uv, &col, 0);
-        gif_SetZWrite(1);
-        gif_SetZTest(1);
-
-        gif_SetGsReg(6, tbp | ((long long)(w < 64 ? 1 : w / 64) << 14) |
-                            ((long long)getTWTH(w) << 26) | ((long long)getTWTH(h) << 30) |
-                            ((long long)1 << 34));
-        gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 1, 0);
-        gif_EndPacket();
-    }
-}
-
 /* A 256-entry CLUT is held in CSM1 order, the two halves of every other
  * 16-entry block swapped, so an entry index is swizzled before the entry is
  * touched. A 16-entry CLUT is held straight. tex_dispClut walks the same
@@ -2006,18 +1967,6 @@ void tex_UpdateMipMapLevel(float lv)
         tex->pkt.tex1.data = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) |
                              ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
     }
-}
-
-void tex_LockHeadTBP(int tbp, int pri)
-{
-    headTbp[pri] = tbp;
-    resetVramPri(pri);
-}
-
-void tex_UnlockHeadTBP(int pri)
-{
-    headTbp[pri] = 0;
-    resetVramPri(pri);
 }
 
 void tex_ResetVramPri(int pri)

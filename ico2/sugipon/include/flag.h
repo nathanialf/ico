@@ -12,7 +12,6 @@
 
 struct GObj;
 
-void SetFlag4PointFixID(struct GObj *self, int turns, int id);
 
 typedef struct { /* field names derived */
     float m[4];

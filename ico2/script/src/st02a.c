@@ -691,22 +691,6 @@ void actSt02aFenceSwitch(GObj *volatile self)
     _ACTWait(0);
 }
 
-static void actSt02aFenceOpenSub(GObj *volatile self)
-{
-    while (st02a_fence == 0) {
-        _ACTWait(1);
-    }
-    stage_SetAnimation(99, 1, 0);
-    stage_SetAnimation(100, 1, 0);
-    while (stage_CheckAnimationFinish(100) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt02aGondolaMain(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);

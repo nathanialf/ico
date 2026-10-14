@@ -27,7 +27,6 @@
 #include "Matrix.h"
 
 static void getMotionGeometry(void *self);
-static void getStreamBlendShapeGeometry(void *self, void *m0, void *m1, float t);
 static void getStreamShapeGeometry(void *self, void *sm);
 static void shiftMotionData(int obj, int motion, int request, int shiftMode);
 
@@ -1277,26 +1276,6 @@ static void getStreamMotionGeometry(void *self, void *sm)
     }
 }
 
-static void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float t)
-{
-    float v0[4];
-    float v1[4];
-    float v2[4];
-    int n = MOWORK(self)->skelNodeNum;
-    StreamElem mot0[n];
-
-    if (getStreamVec(self, sm0, v0, mot0)) {
-        StreamElem mot1[n], mot2[n];
-
-        getStreamVec(self, sm1, v1, mot1);
-        GetBlendedMotion(mot2, v2, mot1, v1, mot0, v0, t, MOWORK(self)->blendless, n);
-        GetGeometryOfMotion(self, mot2, mot2, v2, 1.0f, ZeroVector, -1);
-        CopyMotion(MOWORK(self)->motionBuf, mot2, MOWORK(self)->skelNodeNum);
-        CopyVector(MOWORK(self)->motionPos, v2);
-        DispSkelton(self, mot2);
-    }
-}
-
 /* The clamp and its own `int *p` declaration, a macro with a block body
  * shared by getStreamBlendShapeGeometry and getStreamShapeGeometry.  The test
  * is this programmer's absolute-value idiom (box.c, geometryManager.c,
@@ -1311,28 +1290,6 @@ static void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float
             *p = 0;                                                                                \
         }                                                                                          \
     }
-
-static void getStreamBlendShapeGeometry(void *self, void *sm0, void *sm1, float t)
-{
-    int i;
-    int n = GOBJ_SUB(self)->morphNum;
-    if (n != 0) {
-        float a[n];
-        if (GetStreamShapeMotion(a, sm0) != 0) {
-            float b[n];
-
-            GetStreamShapeMotion(b, sm1);
-            for (i = 0; i < n; i++) {
-                float x;
-                x = (a[i] * (1.0f - t) + b[i] * t) * 0.01f;
-                SET_SHAPE_VALUE(self, i, x);
-            }
-
-        } else
-            for (i = 0; i < n; i++)
-                *(int *)(*(int *)((char *)GOBJ_SUB(self) + 0x838) + i * 4) = 0;
-    }
-}
 
 static void getStreamShapeGeometry(void *self, void *sm)
 {
@@ -1355,23 +1312,7 @@ static void getStreamShapeGeometry(void *self, void *sm)
     }
 }
 
-static void getStreamMotion(void *self)
-{
-    int s = MOWORK(self)->ctrl.stream;
-    char a[GetDataSizeOfStreamMotion(s)];
-    float t = GetStreamMotionData(a, s);
-
-    if (t <= 0.0f) {
-        getStreamMotionGeometry(self, a);
-        getStreamShapeGeometry(self, a);
-    } else {
-        char b[GetDataSizeOfStreamMotion(s)];
-
-        GetStreamMotionDataNext(b, s);
-        getStreamBlendMotionGeometry(self, a, b, t);
-        getStreamBlendShapeGeometry(self, a, b, t);
-    }
-}
+static void getStreamMotion(void *self);
 
 void ExecMotionOrient(void *self)
 {

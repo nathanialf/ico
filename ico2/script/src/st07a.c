@@ -26,9 +26,6 @@
 #include "e3.h"
 #include "main.h"
 
-static void actSt07aChanChainChk(GObj *volatile self);
-static void actSt07aChanReadyChk(GObj *volatile self);
-
 void actSt07aInit(void)
 {
     if (gflagChk(126) != 0) {
@@ -538,10 +535,6 @@ void actSt07aSekizoChk(GObj *volatile self)
     lt_switch_layout(54);
 }
 
-static ActMail chanReady_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail chanChain_mes[2] = {{430}, {429}}; /* derived name */
-
 static ActMail chan_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail tsuro_mes[2] = {{430}, {429}}; /* derived name */
@@ -682,38 +675,6 @@ void actSt07aChan(GObj *volatile self)
         act->mail = chan_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
-    }
-}
-
-void actSt07aChanReady(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(126) == 0) {
-        chanReady_mes[0].func = actSt07aChanReadyChk;
-        act->mail = chanReady_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt07aChanChain(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(127) == 0) {
-        chanChain_mes[0].func = actSt07aChanChainChk;
-        act->mail = chanChain_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        ((GObj *)scpSearchGobj(454))->active = 0;
     }
 }
 
@@ -879,43 +840,6 @@ void actSt07aGene2_3(GObj *volatile self)
     }
     _ACTWait(1);
     Generator_MaskOff(self);
-}
-
-static void actSt07aChanReadyChk(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
-        _ACTWait(1);
-    }
-    scpAdpcmPlayRequestFunc(59, &bridge, 1, 1, 0);
-}
-
-static void actSt07aChanChainChk(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    while (gflagChk(127) == 0) {
-        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(454))) {
-        case 1:
-            if (scpGameStat_BoyWeaponkind() != 0) {
-                gflagOn(127);
-                soundSeDefPlay(878, 0, 0, 1);
-                _ACTWait(30);
-                ((GObj *)scpSearchGobj(454))->active = 0;
-            }
-        case 0:
-            _ACTWait(1);
-            break;
-        case 2:
-            ((GObj *)scpSearchGobj(454))->active = 0;
-            gflagOn(127);
-            break;
-        }
-    }
 }
 
 void actSt07ChanEvent(int x)

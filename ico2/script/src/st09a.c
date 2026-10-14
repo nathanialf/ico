@@ -16,8 +16,6 @@
 #include "main.h"
 
 static void actSt09aBrgDownSub(GObj *volatile self);
-static void actSt09aHint1Chk(GObj *volatile self);
-static void actSt09aHint2Chk(GObj *volatile self);
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
@@ -46,10 +44,6 @@ static ActMail brgMain_mes[2] = {{407, actSt09aBrgSwitch}, {429}}; /* derived na
 static ActMail brg_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail brgSwitch_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail hint2_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the bridge stream handle. */
 SqEntry *st09a_brg = 0;
@@ -203,40 +197,6 @@ void actSt09aBrg(GObj *volatile self)
     }
 }
 
-void actSt09aHint1(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(87) == 0) {
-        hint1_mes[0].func = actSt09aHint1Chk;
-        act->mail = hint1_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        FinishHint(10);
-    }
-}
-
-void actSt09aHint2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(88) == 0) {
-        hint2_mes[0].func = actSt09aHint2Chk;
-        act->mail = hint2_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        FinishHint(11);
-    }
-}
-
 void actSt09aElvMain(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -349,55 +309,4 @@ void actSt09aBrgSwitch(GObj *volatile self)
     sub->mail = brgSwitch_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
-}
-
-static void actSt09aBrgDownSub(GObj *volatile self)
-{
-    stage_SetAnimation(378, 1, 0);
-
-    while (stage_CheckAnimationFrame(378, 115, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    iosPadActRequest(boyPad, 17);
-
-    while (stage_CheckAnimationFrame(378, 165, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    iosPadActRequest(boyPad, 16);
-
-    while (stage_CheckAnimationFinish(378) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt09aHint1Chk(GObj *volatile self)
-{
-    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("HINT1_FINISH!!!!!!!!!!!!!!!\n");
-
-    gflagOn(87);
-    FinishHint(10);
-}
-
-static void actSt09aHint2Chk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 400.0f) == 0) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("HINT2_FINISH!!!!!!!!!!!!!!!\n");
-
-    gflagOn(88);
-    FinishHint(11);
 }

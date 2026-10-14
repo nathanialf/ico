@@ -24,12 +24,6 @@
 #include "main.h"
 
 static void actSt06aBoxSub(GObj *volatile self);
-static void actSt06aExitGirlChk(GObj *volatile self);
-static void actSt06aJumpMain(GObj *volatile self);
-static void actSt06aJumpSub(GObj *volatile self);
-static void actSt06aJumpSwitch(GObj *volatile self);
-static void actSt06aKyomiOffChk(GObj *volatile self);
-static void actSt06aPistonRideOnChk(GObj *volatile self);
 static void actSt06aShutterOpenSub(GObj *volatile self);
 static void actSt06aSuimonSub(GObj *volatile self);
 
@@ -47,17 +41,6 @@ static const ConstVec suimonSubPos = {{-1869.0f, -1147.0f, -664.0f, 0.0f}}; /* d
 static const ConstVec jumpPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derived name */
 
 static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
-
-static const ConstVec kyomiPos = {{-985.0f, -177.0f, -696.0f, 0.0f}}; /* derived name */
-
-static const ConstVec farPos = {{0.0f, 0.0f, -1000000.0f, 1.0f}}; /* derived name */
-
-/* st06a.c's `inline` functions, in the order of their definitions'
-   out-of-line copies at the end of the object (first-declaration order). */
-static inline void actSt06aPistonRideOffChk(GObj *volatile self);
-static inline void actSt06aPistonFlagOffChk(GObj *volatile self);
-static inline void actSt06aSoundChk(GObj *volatile self);
-static inline void actSt06aSound2Chk(GObj *volatile self);
 
 static ActMail suimon_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -78,8 +61,6 @@ static ActMail shutter_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail shutter_switch_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail exit_girl_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail box_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -124,40 +105,6 @@ static ActMail statue_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail head_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail tree_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail kyomi_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail kyomi_onchk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail kyomi_off_chk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail jump_main_mes[2] = {{407, actSt06aJumpSwitch}, {429}}; /* derived name */
-
-static ActMail jump_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail jump_switch_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail piston_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail piston_ride_onchk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail piston_ride_offchk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail piston_flag_mes[2] = {{430}, {429}}; /* derived name */
-
-static float piston_flag_sound_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f}; /* derived name */
-
-static ActMail piston_flag_onchk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail piston_flag_offchk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail sound_mes[2] = {{430}, {429}}; /* derived name */
-
-static float sound_chk_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f}; /* derived name */
-
-static ActMail sound2_mes[2] = {{430}, {429}}; /* derived name */
-
-static float sound2_chk_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for, and its complement, true when the player skipped the demo
@@ -627,96 +574,6 @@ void actSt06aHeadChk(GObj *volatile self)
     lt_switch_layout(54);
 }
 
-static void actSt06aJumpMove(GObj *volatile self)
-{
-    GProc *h;
-
-    lt_switch_layout(55);
-    scpSleepEnemyAll();
-
-    h = actCreateSubThread(actSt06aJumpSub, 21);
-
-    demoEnd = 0;
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&h->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-
-        stage_SetLoopFlag(113, 1);
-        stage_SetAnimation(113, 1, 0);
-        gflagOn(116);
-        stage_SetAnimation(114, 0, -1);
-        SetCameraFlag_LwsCutBack();
-        scpFadeIn(8.0f);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-    }
-
-    scpWakeupEnemyAll();
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
-
-static inline void actSt06aPistonRideOffChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttr(boyGObj, 0x6000000) != 0) {
-        if (gflagChk(117) != 0) {
-            debug_StdPrintfDummy("FALLDOWN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-            iosOmSendMail(boyGObj, 7, boyGObj);
-        }
-        _ACTWait(1);
-    }
-
-    piston_ride_offchk_mes[0].func = actSt06aPistonRideOnChk;
-    sub->mail = piston_ride_offchk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt06aPistonFlagOnChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (gflagChk(116) == 0 || gflagChk(106) != 0) {
-        _ACTWait(1);
-    }
-
-    while (stage_CheckAnimationFrame(113, 122, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    soundSeDefPlay(1361, 0, piston_flag_sound_pos, 1);
-    gflagOn(117);
-    debug_StdPrintfDummy("PISTON_FLAG_ON!\n");
-
-    while (stage_CheckAnimationFrame(113, 124, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    piston_flag_onchk_mes[0].func = actSt06aPistonFlagOffChk;
-    sub->mail = piston_flag_onchk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
 void actSt06aShutter(GObj *volatile self)
 {
     GObj *x = self;
@@ -747,19 +604,6 @@ void actSt06aExit(GObj *volatile self)
 
     exit_mes[0].func = actSt06aExitChk;
     act->mail = exit_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt06aExitGirl(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    exit_girl_mes[0].func = actSt06aExitGirlChk;
-    act->mail = exit_girl_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
@@ -963,96 +807,6 @@ void actSt06aBallDelete(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actSt06aKyomi(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    kyomi_mes[0].func = actSt06aKyomiOffChk;
-    act->mail = kyomi_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt06aJump(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(116) == 0) {
-        stage_SetAnimation(113, 0, 0);
-        jump_mes[0].func = actSt06aJumpMain;
-        act->mail = jump_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else if (gflagChk(106) == 0) {
-        stage_SetLoopFlag(113, 1);
-        stage_SetAnimation(113, 1, 0);
-    } else {
-        stage_SetAnimation(113, 0, 0);
-    }
-}
-
-void actSt06aPiston(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    piston_mes[0].func = actSt06aPistonRideOnChk;
-    act->mail = piston_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt06aPistonFlag(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    piston_flag_mes[0].func = actSt06aPistonFlagOnChk;
-    act->mail = piston_flag_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt06aSound(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(106) == 0) {
-        sound_mes[0].func = actSt06aSoundChk;
-        act->mail = sound_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt06aSound2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(106) == 0) {
-        sound2_mes[0].func = actSt06aSound2Chk;
-        act->mail = sound2_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
 void actSt06aSuimonEvent(int x)
 {
     volatile int local = x;
@@ -1102,20 +856,6 @@ void actSt06aSuimonFlagOn(GObj *volatile self)
         _ACTWait(1);
     }
     gflagOn(106);
-}
-
-static void actSt06aSuimonSub(GObj *volatile self)
-{
-    stage_SetAnimation(107, 1, 0);
-    stage_SetAnimation(109, 1, 0);
-
-    while (stage_CheckAnimationFinish(107) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
 }
 
 void actSt06aDoorEvent(int x)
@@ -1198,27 +938,6 @@ void actSt06aShutterSwitch(GObj *volatile self)
     _ACTWait(0);
 }
 
-static void actSt06aShutterOpenSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    while (shutter == 0) {
-        _ACTWait(1);
-    }
-
-    AdpcmPlay(shutter->stream);
-
-    stage_SetAnimation(110, 1, 0);
-
-    while (stage_CheckAnimationFinish(110) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt06aExitChk(GObj *volatile self)
 {
     while (gflagChk(106) != 0 || scpTriggerBall(self, boyGObj, 400.0f) == 0) {
@@ -1227,49 +946,6 @@ void actSt06aExitChk(GObj *volatile self)
 
     scpBoyControlReadDisable = 0;
     RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
-}
-
-static void actSt06aExitGirlChk(GObj *volatile self)
-{
-    long long buf1[2];
-    long long buf2[2];
-
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-
-    while (gflagChk(106) != 0 || scpTriggerBall(self, girlGObj, 400.0f) == 0) {
-        _ACTWait(1);
-    }
-
-    buf1[0] = kyomiPos.d[0];
-    buf1[1] = kyomiPos.d[1];
-    RequestStageChangeDirect(girlGObj, 22, buf1, 180);
-
-    buf2[0] = farPos.d[0];
-    buf2[1] = farPos.d[1];
-    SetDirectRootPosition(girlGObj, buf2);
-
-    ScpCallCameraSetTarget(-800.0f, -500.0f, 2200.0f);
-}
-
-static void actSt06aBoxSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    stage_SetAnimation(115, 1, 0);
-
-    scpSearchGobj(1773)->active = 0;
-
-    while (stage_CheckAnimationFinish(115) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 7);
-
-    demoEnd = 1;
-    _ACTWait(0);
 }
 
 void actSt06aBox2Chk(GObj *volatile self)
@@ -1454,169 +1130,4 @@ void actSt06aTreeChk(GObj *volatile self)
 
     scpSearchGobj(1770)->active = 1;
     ReviveAllCarryableItems();
-}
-
-static void actSt06aKyomiOnChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-
-    while (scpTriggerFloorAttr(boyGObj, 0x5000000) == 0 ||
-           scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
-        _ACTWait(1);
-    }
-
-    scpSearchGobj(1766)->active = 1;
-    scpSearchGobj(1767)->active = 1;
-    scpSearchGobj(1768)->active = 1;
-    scpSearchGobj(1769)->active = 1;
-
-    kyomi_onchk_mes[0].func = actSt06aKyomiOffChk;
-    sub->mail = kyomi_onchk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt06aKyomiOffChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-
-    while (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0 &&
-           scpTriggerFloorAttr(girlGObj, 0x5000000) != 0) {
-        _ACTWait(1);
-    }
-
-    scpSearchGobj(1766)->active = 0;
-    scpSearchGobj(1767)->active = 0;
-    scpSearchGobj(1768)->active = 0;
-    scpSearchGobj(1769)->active = 0;
-
-    kyomi_off_chk_mes[0].func = actSt06aKyomiOnChk;
-    sub->mail = kyomi_off_chk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt06aJumpMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-
-    sub->mainMail = jump_main_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-static void actSt06aJumpSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    jump_switch_mes[0].func = actSt06aJumpMove;
-    sub->mail = jump_switch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt06aJumpSub(GObj *volatile self)
-{
-    stage_SetAnimation(114, 1, 0);
-
-    while (stage_CheckAnimationFrame(114, 60, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    stage_SetLoopFlag(113, 1);
-    stage_SetAnimation(113, 1, 0);
-    gflagOn(116);
-    SetCameraFlag_LwsCutBack();
-
-    while (stage_CheckAnimationFinish(114) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(1);
-}
-
-static void actSt06aPistonRideOnChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (gflagChk(116) == 0 || scpTriggerFloorAttr(boyGObj, 0x6000000) == 0) {
-        _ACTWait(1);
-    }
-
-    piston_ride_onchk_mes[0].func = actSt06aPistonRideOffChk;
-    sub->mail = piston_ride_onchk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static inline void actSt06aPistonFlagOffChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (stage_CheckAnimationFrame(113, 125, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    gflagOff(117);
-    debug_StdPrintfDummy("PISTON_FLAG_OFF!\n");
-
-    while (stage_CheckAnimationFrame(113, 199, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    piston_flag_offchk_mes[0].func = actSt06aPistonFlagOnChk;
-    sub->mail = piston_flag_offchk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static inline void actSt06aSoundChk(GObj *volatile self)
-{
-    int handle = soundSeDefPlay(1358, 0, sound_chk_pos, 1);
-
-    while (gflagChk(106) == 0) {
-        _ACTWait(1);
-    }
-
-    soundSeDefStop(handle);
-}
-
-static inline void actSt06aSound2Chk(GObj *volatile self)
-{
-    int handle;
-
-    while (gflagChk(116) == 0) {
-        _ACTWait(1);
-    }
-
-    debug_StdPrintfDummy("PISTON_LOOP_SE!!!!!!!!!!!!\n");
-
-    handle = soundSeDefPlay(1360, 0, sound2_chk_pos, 1);
-
-    while (gflagChk(106) == 0) {
-        _ACTWait(1);
-    }
-
-    soundSeDefStop(handle);
 }

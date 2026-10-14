@@ -288,21 +288,7 @@ done:
     return 1;
 }
 
-static void execVibCondition(int no, int *entry)
-{
-    if (girlControlMode != 0) {
-        /* EUC-JP: "controller-2 vibration condition detect mode" */
-        debug_StdPrintfDummy("2コン振動条件検知モード\n");
-        if (motEffCondKind[no].kind != 0) {
-            if (fdsFlags != 0) {
-                StopFDSVibration(fdsFlags);
-            }
-        } else {
-            *entry = iosPadActRequest(girlPad, motEffCondKind[no].actId);
-        }
-    }
-}
-
+static void execVibCondition(int no, int *entry);
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
@@ -483,31 +469,6 @@ void InitFrameDependSequence(void *flags)
     }
 }
 
-static int ExecuteDirectSEWithGroupVariation(GObj *gobj, int id, int grp)
-{
-    setSEEnvironment(gobj, id);
-    return execSE(id, 0);
-}
-
-int ExecuteDirectSE(GObj *gobj, int id)
-{
-    setSEEnvironment(gobj, id);
-    return execSE(id, 0);
-}
-
-void StopFDSVibration(void *flags)
-{
-    int *p = ((FDSFlags *)flags)->vibEntry;
-    int i;
-
-    for (i = 0; i < 2; i++) {
-        if (p[i] != -1) {
-            iosPadActStop(p[i]);
-            p[i] = -1;
-        }
-    }
-}
-
 static inline int checkWaterDepth(GObj *gobj, int depth)
 {
     return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
@@ -516,15 +477,6 @@ static inline int checkWaterDepth(GObj *gobj, int depth)
 static inline int checkModelDataID(GObj *gobj, int id)
 {
     return GOBJ_SUB(gobj)->modelId == id;
-}
-
-static inline int checkWeaponType(GObj *gobj, int kind)
-{
-    GObj *w = GOBJ_SUB(gobj)->ctrl.pickedWeapon;
-    if (w != 0 && CheckWeaponKind(w) == kind) {
-        return 1;
-    }
-    return 0;
 }
 
 static inline int execVib(int no, void *entry)

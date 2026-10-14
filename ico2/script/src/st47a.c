@@ -22,7 +22,6 @@
 #include "script.h"
 #include "main.h"
 
-static void actSt47aHint2OnChk(GObj *volatile self);
 static void actSt47aRopeSub(GObj *volatile self);
 
 void actSt47aInit(void)
@@ -210,8 +209,6 @@ static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail exit2_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail hint2On_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt47aHane1Down(GObj *volatile self)
 {
@@ -785,23 +782,6 @@ void actSt47aEnemy4(GObj *volatile self)
     Generator_MaskOff(self);
 }
 
-void actSt47aHint2On(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(54) == 0) {
-        SleepHint(5);
-
-        hint2On_mes[0].func = actSt47aHint2OnChk;
-        act->mail = hint2On_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
 void actSt47aSekizo1Event(int x)
 {
     volatile int local = x;
@@ -925,28 +905,6 @@ void actSt47aHane2Girl(GObj *volatile self)
     _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
-static void actSt47aRopeSub(GObj *volatile self)
-{
-    _ACTWait(15);
-
-    stage_SetAnimation(170, 1, 0);
-
-    while (stage_CheckAnimationFrame(170, 148, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpSearchGobj(503)->active = 1;
-
-    while (stage_CheckAnimationFinish(170) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt47aBarricadeEvent(int x)
 {
     volatile int local = x;
@@ -985,14 +943,4 @@ void actSt47aEneChk(GObj *volatile self)
     _ACTWait(1);
     gflagOn(52);
     gflagOn(53);
-}
-
-static void actSt47aHint2OnChk(GObj *volatile self)
-{
-    while (gflagChk(47) == 0) {
-        _ACTWait(1);
-    }
-
-    gflagOn(54);
-    WakeupHint(5);
 }

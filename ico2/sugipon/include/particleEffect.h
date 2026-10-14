@@ -137,7 +137,6 @@ void ResetParticleEffectPackages(int *pkg);
 int SetParticleEffect(int id, void *pos, void *quat);
 int SetParticleEffectActiveSensing(int id, void *pos, void *quat);
 int SetParticleEffectByPartition(int id, void *pos, void *quat, struct IosMemPart *part);
-void SetParticleEffectDrainLevel(int id, float level);
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
 void SetParticleEffectPackage(int no, int *data, int size);
 void SetParticleEffectPauseFlag(int id, int pause);

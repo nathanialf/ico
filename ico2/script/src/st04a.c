@@ -38,8 +38,6 @@
 static void actConte09_3_demoCancel(GObj *volatile self);
 static void actSt04aGateLSub(GObj *volatile self);
 static void actSt04aGateRSub(GObj *volatile self);
-static void actSt04aModelOffChk(GObj *volatile self);
-static void actSt04aModelOnChk(GObj *volatile self);
 static void finishCallBackFunc(struct GObj *obj);
 
 /* this file's own view of Act (the shared one is in typedef.h) */
@@ -90,10 +88,6 @@ static ActMail gate_r_mail[2] = {{430}, {429}}; /* derived name */
 static ActMail torch1_mail[2] = {{430}, {429}}; /* derived name */
 
 static ActMail girl_sit_mail[2] = {{430}, {429}}; /* derived name */
-
-static ActMail torch_hint_mail[2] = {{430}, {429}}; /* derived name */
-
-static ActMail model_mail[2] = {{430}, {429}}; /* derived name */
 
 void actSt04aGate(GObj *volatile self)
 {
@@ -1807,39 +1801,6 @@ void actSt04aTorchAllFlagfChk(GObj *volatile self)
     scpWakeupEnemyAll();
 }
 
-static void actSt04aTorchHintChk(GObj *volatile self)
-{
-    while (gflagChk(155) == 0) {
-        _ACTWait(1);
-    }
-
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(563), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(564), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(565), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(566), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(567), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(568), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(569), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(570), 1.0f, 0.001f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(591), 1.0f, 0.001f, 1.0f);
-
-    if (gflagChk(156) == 0) {
-        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 20);
-    }
-
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(563), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(564), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(565), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(566), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(567), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(568), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(569), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(570), 10.0f, 0.01f, 1.0f);
-    OverrideBrainStatusByGObj(&brainGirl, scpSearchGobj(591), 2.0f, 0.01f, 1.0f);
-
-    gflagOn(156);
-}
-
 void actSt04aGateL(GObj *volatile self)
 {
     GObj *x = self;
@@ -1890,30 +1851,6 @@ void actSt04aTorchXL(GObj *volatile self)
     stage_SetAnimation(291, 0, 0);
 }
 
-void actSt04aDeadCam(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    while (gflagChk(141) == 0 || scpTriggerBall(self, boyGObj, 600.0f) == 0) {
-        _ACTWait(1);
-    }
-
-    while (stage_CheckAnimationFrame(273, 1400, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    stage_SetAnimation(274, 1, 0);
-
-    while (stage_CheckAnimationFinish(274) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-}
-
 void actSt04aGateOpen2(GObj *volatile self)
 {
     GObj *x = self;
@@ -1950,34 +1887,6 @@ void actSt04aGirlSit(GObj *volatile self)
 
     girl_sit_mail[0].func = actSt04aGirlSitChk;
     act->mail = girl_sit_mail;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt04aTorchHint(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(153) == 0) {
-        torch_hint_mail[0].func = actSt04aTorchHintChk;
-        act->mail = torch_hint_mail;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt04aModel(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    scpSearchGobj(648)->active = 0;
-
-    model_mail[0].func = actSt04aModelOnChk;
-    act->mail = model_mail;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
@@ -2128,35 +2037,6 @@ void actConte09_3Jimaku(GObj *volatile self)
     } while (t < 3000.0f);
 }
 
-static void actConte09_3_demoCancel(GObj *volatile self)
-{
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-static void actSt04aGateLSub(GObj *volatile self)
-{
-    stage_SetAnimation(293, 1, 0);
-    while (stage_CheckAnimationFinish(293) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt04aGateRSub(GObj *volatile self)
-{
-    stage_SetAnimation(295, 1, 0);
-    while (stage_CheckAnimationFinish(295) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt04aGirlSitChk(GObj *volatile self)
 {
     int n;
@@ -2186,37 +2066,5 @@ void actSt04aGirlSitChk(GObj *volatile self)
    Named for the thread that owns and posts it. */
 static ActMail model_on[2] = {{430}, {429}}; /* derived name */
 
-static void actSt04aModelOnChk(GObj *volatile self)
-{
-    ActSt04A *sub = ((PObjGObjSt04A *)self)->act;
-
-    while (scpTriggerFloorAttr(boyGObj, 0x3000000) != 0) {
-        _ACTWait(1);
-    }
-
-    scpSearchGobj(648)->active = 1;
-
-    model_on[0].func = actSt04aModelOffChk;
-    sub->mail = model_on;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
 /* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
 static ActMail model_off[2] = {{430}, {429}}; /* derived name */
-
-static void actSt04aModelOffChk(GObj *volatile self)
-{
-    ActSt04A *sub = ((PObjGObjSt04A *)self)->act;
-
-    while (scpTriggerFloorAttr(boyGObj, 0x3000000) == 0) {
-        _ACTWait(1);
-    }
-
-    scpSearchGobj(648)->active = 0;
-
-    model_off[0].func = actSt04aModelOnChk;
-    sub->mail = model_off;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}

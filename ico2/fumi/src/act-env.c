@@ -102,68 +102,8 @@ static inline int getDitchCarryModeStage8(void) /* derived name */
     return 0;
 }
 
-static void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj, int *carry)
-{
-    VECTOR v;
-    int mode;
-
-    *tbl = ditchDistTbl;
-
-    *sofa = 0;
-    *carry = 0;
-    *range = 0.0f;
-    if (stage_no == 26) {
-        *tbl = ditchDistTblStage26;
-        if (getDitchCarryMode()) {
-            *range = 50.0f;
-        }
-    }
-    mode = getDitchCarryModeStage8();
-    if (mode) {
-        if (-3000.0f < test_CURRENTROOT(boyGObj)[1]) {
-            *tbl = ditchDistTblStage8;
-            if (mode == 1) {
-                v.x = test_CURRENTROOT(boyGObj)[0];
-                v.y = test_CURRENTROOT(boyGObj)[1];
-                v.z = test_CURRENTROOT(boyGObj)[2];
-                sceVu0SubVector(&v, &v, ditchCheckBase);
-                _ApplyRyGV(&v.x, (float)(int)(_GetDirection(ditchCheckDir) / 3.1415927f * 180.0f) *
-                                     3.1415927f / 180.0f);
-                if (v.z < -150.0f) {
-                    *tbl = ditchDistTblNone;
-                }
-            }
-            if (mode == 2) {
-                v.x = test_CURRENTROOT(boyGObj)[0];
-                v.y = test_CURRENTROOT(boyGObj)[1];
-                v.z = test_CURRENTROOT(boyGObj)[2];
-
-                if (520.0f < v.x) {
-                    *tbl = ditchDistTblNone;
-                }
-            }
-        } else {
-            if (mode == 1) {
-                v = ditchCarryPos;
-
-                *tbl = ditchDistTblCarry;
-                pos[0] = v.x;
-                pos[1] = v.y;
-                pos[2] = v.z;
-                _OrientXZGV(obj, ditchCarryTarget, &v.x);
-
-                *carry = mode;
-            } else {
-                *tbl = ditchDistTblSofa;
-                pos[0] = ditchSofaPos[0];
-                pos[1] = ditchSofaPos[1];
-                pos[2] = ditchSofaPos[2];
-                _OrientXZGV(obj, ditchSofaTarget, ditchSofaPos);
-            }
-            *sofa = 1;
-        }
-    }
-}
+static void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj,
+                            int *carry);
 
 static int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
 {

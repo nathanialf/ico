@@ -63,7 +63,7 @@ typedef struct { /* field names derived */
     unsigned int w, h;
 } FR; /* derived name */
 
-/* the debug-option table: 76 records of 0x1C bytes */
+/* the debug-option table: 67 records of 0x1C bytes */
 typedef struct { /* field names derived */
     /* 0x00 */ char *name;
     /* 0x04 */ unsigned int col;
@@ -358,7 +358,7 @@ static char *debugBarName[] = {"Off", "Low-Deco", "High-Deco"}; /* derived name 
 
 static char *debugProfileName[] = {"Variable", "Process"}; /* derived name */
 
-static char *debugSnapSizeName[] = {"None", "1x1", "2x2", "4x4", "8x8"}; /* derived name */
+static char *debugSnapSizeName[] = {"Normal", "Half", "Double", "Double+Wide"}; /* derived name */
 
 static char *debugSnapFormName[] = {"TIM2", "BMP"}; /* derived name */
 
@@ -384,7 +384,7 @@ static char *debugMotionTargetName[] = {"BOY", "GIRL", "BIRD", "ENEMY", "QUEEN"}
 
 /* the debug options: name, colour, value, range, value names and the function
    called on a change, in the order debug_Mode pages through them */
-static const DbgOpt debugOption[76] = {
+static const DbgOpt debugOption[67] = {
     {" FrameStep          ", 0x0080FF80, &systemStatus[1], 1, 2, debugFrameStepName,
      (void (*)(int))gsResetFunc},
     {" NTSC/PAL           ", 0x0080FF80, &systemStatus[0], 0, 1, debugNtscPalName,
@@ -413,10 +413,6 @@ static const DbgOpt debugOption[76] = {
     {" CollisionOldProc   ", 0x90C0FF80, &debug_col_old_proc, 0, 1, debugOffOnName, 0},
     {" Skelton            ", 0x80FFC080, &debug_skel_flag, 0, 1, debugOffOnName, 0},
     {" ClothInfo          ", 0x80FFC080, &debug_cloth_info, 0, 1, debugOffOnName, 0},
-    {" HairTightLevel     ", 0x80FFC080, &debug_hair_tight_level, 0, 100, 0, 0},
-    {" HairGravityLevel   ", 0x80FFC080, &debug_hair_gravity_level, 0, 500, 0, 0},
-    {" HairBendAngle      ", 0x80FFC080, &debug_hair_bend_angle, 0, 512, 0, 0},
-    {" HairCollision      ", 0x80FFC080, &debug_hair_collision, 0, 1, debugOffOnName, 0},
     {" FaceWInterpRatio   ", 0x80FFC080, &debug_face_rot_w_ratio, 0, 100, 0, 0},
     {" CharaTarget        ", 0x80FFC080, &debug_chara_target, 0, 1, debugOffOnName, 0},
     {" MotionActNode      ", 0x80FFC080, &debug_actnode_flag, 0, 1, debugOffOnName, 0},
@@ -429,8 +425,8 @@ static const DbgOpt debugOption[76] = {
     {" BrainOnOff         ", 0xFF80FF80, &debug_brain_flag, 0, 1, debugOffOnName, 0},
     {" GBrainInfo         ", 0xFF80FF80, &debug_gbrain_info_flag, 0, 1, debugOffOnName, 0},
     {" WayTool            ", 0xFF80FF80, &debug_wayline, 0, 1, debugOffOnName, 0},
-    {" SnapShotView       ", 0xC0C0C080, &debug_snapshot_num, 20, 500, 0, 0},
-    {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 4, debugSnapSizeName, 0},
+    {" SnapShotNum        ", 0xC0C0C080, &debug_snapshot_num, 0, 3000000, 0, 0},
+    {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 3, debugSnapSizeName, 0},
     {" SnapForm           ", 0xC0C0C080, &debug_snapshot_format, 0, 1, debugSnapFormName, 0},
     {" Jimaku Test        ", 0xC0C0C080, &debug_jimaku, 0, 1, debugOffOnName, 0},
     {" Camera             ", 0xC0C0C080, &debug_camera_flag, 0, 1, debugOffOnName, 0},
@@ -459,12 +455,6 @@ static const DbgOpt debugOption[76] = {
     {" DISP ESCORT BALL   ", 0xC0C0C080, &debug_disp_escort_ball, 0, 1, debugOffOnName, 0},
     {" GIRL DETOUR        ", 0xC0C0C080, &debug_girl_detour_flag, 0, 1, debugOffOnName, 0},
     {" LWSKYOMI LOOKONLY  ", 0xC0C0C080, &debug_lwskyomi_lookonly, 0, 1, debugOffOnName, 0},
-    {" ONE HIT ONLY       ", 0xC0C0C080, &debug_one_hit_only, 0, 1, debugOffOnName, 0},
-    {" IGNORE DODGE       ", 0xC0C0C080, &debug_ignore_dodge, 0, 1, debugOffOnName, 0},
-    {" GAME CLEAR COUNT   ", 0xC0C0C080, &gFlagGameClear, 0, 9, 0, 0},
-    {" GIRL PAD CONTROL   ", 0xC0C0C080, &debug_girl_pad_control, 0, 1, debugOffOnName,
-     ChangeGirlControlMode},
-    {" NO BREAST HANG     ", 0xC0C0C080, &debug_no_breast_hang, 0, 1, debugOffOnName, 0},
 }; /* derived name */
 
 /* the font window's line count */
@@ -769,13 +759,6 @@ extern void DebugDisp1Collision(void *hit);
    main.c and motionManager2.c, where the fourth argument is literally the caller's line number.
    +0x14 samples the EE timer T0_COUNT at 0x10000000, volatile because it is a
    hardware counter. */
-
-inline void ChangeGirlControlMode(int mode)
-{
-    if (mode == 1) {
-        girlControlMode = mode;
-    }
-}
 
 void debug_Assert(char *fmt, ...)
 {
@@ -3250,18 +3233,6 @@ inline int debug_tsuresariTimeZero(void)
     return 1;
 }
 
-inline int debug_hintStart(void)
-{
-    void *gobj;
-    for (gobj = isysGObjGetExist_begin(); gobj != 0; gobj = isysGObjGetExist_next(gobj)) {
-        if (IsTopHint(gobj)) {
-            DebugHintStart(gobj);
-            break;
-        }
-    }
-    return 1;
-}
-
 static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
 {
     void *g;
@@ -3607,7 +3578,7 @@ static inline int debug_FreeCamera(int first)
 int LoadFileType = 1;
 
 /* the debug menu: caption, entry and whether the menu stays open */
-DbgMenuItem debugMenu[27] = {
+DbgMenuItem debugMenu[26] = {
     {"Debug Mode", (int (*)(int))debug_Mode, 0},
     {"Free Camera", debug_FreeCamera, 0},
     {"Stage Select", (int (*)(int))debug_SelectStage, 1},
@@ -3633,7 +3604,6 @@ DbgMenuItem debugMenu[27] = {
     {"DispBox", debug_DispBox, 0},
     {"DispBall", debug_DispBall, 0},
     {"Collision Test", debug_CollisionTest, 0},
-    {"Hint Start", (int (*)(int))debug_hintStart, 1},
     {"Tsuresari Time Zero", (int (*)(int))debug_tsuresariTimeZero, 1},
 };
 

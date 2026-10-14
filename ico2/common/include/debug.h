@@ -164,7 +164,6 @@ int debug_GameOver(void);
 int debug_EndingDemo(void);
 int debug_BackStageTest(void);
 int debug_tsuresariTimeZero(void);
-int debug_hintStart(void);
 int debug_SelectPad2ControlGobj(int reset);
 void debug_Assert(char *fmt, ...);
 void debug_DispQW(void *p, int size);

@@ -206,13 +206,6 @@ void ExecRotObjectMoveEndReaction(GObj *self)
     moveEndSE(self);
 }
 
-void SetRotObjectArmRadius(GObj *self, float radius)
-{
-    RotObjWork *w = GOBJ_SUB(self)->work;
-
-    w->armScale = 100.0f / radius;
-}
-
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdPos, void *holdDir)
 {
     float m[16];
@@ -253,14 +246,6 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
         q->scale[0] = q->scale[1] = q->scale[2] = 1.0f;
     }
     return p;
-}
-
-void GetRotObjectGameSysObjInfoExtData(short *angle, int *turnCount, GamesysObjInfo *info)
-{
-    RotObjMemory *m = (RotObjMemory *)info->work;
-
-    *angle = m->angle;
-    *turnCount = m->turnCount;
 }
 
 void RotObjectDL(GObj *gobj)

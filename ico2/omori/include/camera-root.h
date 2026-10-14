@@ -28,8 +28,6 @@ void InitCamera(void);
 void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
 void InsertCamera_Set(float *pos, float *tgt, int frames);
 
-void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom, int cutBack,
-                            float blend);
 
 void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 
@@ -46,9 +44,6 @@ void SetMonitorCameraInitializeFlag(void);
 void SetWSMatrix(void *src);
 void SetZoomMaxValInDemo(int zoom);
 void CameraSetTargetGObj(struct GObj *gobj, struct GObj *subGObj);
-int UpdateHandCameraLimitP(void);
-int UpdateHandCameraLimitV(void);
-int UpdateZoomMaxVallInDemo(void);
 
 void GetCameraInfomationFromGlobalPosition(float *pos, float *outDist, int *outAngle, float *fov,
                                            float *zoom);

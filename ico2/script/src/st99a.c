@@ -6,8 +6,6 @@
 #include "typedef.h"
 #include "main.h"
 
-static void actSt17aTestChk(GObj *volatile self);
-
 static ActMail explode_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail splash1_mes[2] = {{430}, {429}}; /* derived name */
@@ -19,8 +17,6 @@ static ActMail wave_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail st27aWave_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail spider_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail st17aTest_mes[2] = {{430}, {429}}; /* derived name */
 
 void actExplode(GObj *volatile self)
 {
@@ -101,20 +97,6 @@ void actQueenLightning(GObj *volatile self)
     _ACTWait(1);
 
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3512, 0, 555, 0);
-}
-
-void actSt17aTest(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    stage_SetAnimation(132, 0, 0);
-
-    st17aTest_mes[0].func = actSt17aTestChk;
-    act->mail = st17aTest_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
 }
 
 void actSt27aWave(GObj *volatile self)
@@ -220,17 +202,6 @@ void actSpiderChk(GObj *volatile self)
             _ACTWait(1);
         }
         scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);
-        _ACTWait(1);
-    }
-}
-
-static void actSt17aTestChk(GObj *volatile self)
-{
-    while (1) {
-        while ((pad[1].flags & 0x20) == 0) {
-            _ACTWait(1);
-        }
-        stage_SetAnimation(84, 1, 0);
         _ACTWait(1);
     }
 }

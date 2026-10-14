@@ -24,8 +24,10 @@
 #                      config/data_members.aug6.txt for it, generated from the
 #                      user's base ELF at build time by tools/gen_data_c.py from
 #                      the record types config/data_schema.aug6.txt names. The
-#                      data: lines are still PAL's, in PAL's places, pending the
-#                      derivation of the aug6 members.
+#                      data: lines are PAL's members in the places
+#                      config/data_members.aug6.txt finds them: PAL's three
+#                      unmapped runs are absent, adpcmfile and texture-path
+#                      sit in .rodata where their lines say.
 #
 # Token after a path:
 #   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
@@ -56,9 +58,16 @@
 #     act-wish.c, attackhit.c, mail-add-data.c, flag.c, girlForceField.c,
 #     handManager.c, st04e.c, st05e.c, st13a.c, st19a.c, st24a.c.
 #   absent: puddle.c, waterDot.c, windmill.c, sce/libcdvd/libcdvd_267388.c and
-#     sce/libscf/libscf.c. Their lines stay, each marked, until their sources
-#     leave this branch; until then they link PAL's code and data where the
-#     aug6 ELF has none.
+#     sce/libscf/libscf.c. Their sources and lines are not on this branch:
+#     puddle.c sits where particleLayout.c's last function (0x1E6190,
+#     ParticleLayoutDL by TRFILE.TXT) meets rope.c's first, waterDot.c where
+#     TRFILE.TXT gives the functions between torch.c's last twin and
+#     waySystemManager.c's first to torch.c, windmill.c where windManager.c's
+#     last twin meets wireLetter.c's first, libcdvd_267388.c where cdvd015.c's
+#     twin meets cdvd047.c's first (0x249D48), and libscf.c where ipuinit.c's
+#     last twin meets sound.c's first; TRFILE.TXT names none of the three game
+#     sources, and no object's .text, .data, .rodata, .sdata or .lit4 is in the
+#     ELF.
 #
 # Departures from PAL's order:
 #   ico2/fumi/sound/adpcm_init.c sits between ico2/fumi/isys/gobj_cam_dl.c and
@@ -173,19 +182,16 @@ data:accessary
 data:act-data-tbl
 data:act-intrlist
 data:act-mode-def
-data:adpcmfile
 data:attack-def
 data:auto-escort
 data:camera-set
 data:exit-data
 data:game-param
-data:unmapped_002ADBA0
 data:generator-sub-position
 data:girl-warp-list
 data:iconfile
 data:idle-mot-def
 data:init-func
-data:unmapped_0055FBD0
 data:look-target-data
 data:motion-def
 data:motion-ik-eff-def
@@ -264,7 +270,6 @@ ico2/sugipon/src/moveColTest.c
 ico2/sugipon/src/multiBgaManager.c
 ico2/sugipon/src/particleEffect.c
 ico2/sugipon/src/particleLayout.c
-ico2/sugipon/src/puddle.c  # absent from the aug6 link: particleLayout.c's last function (0x1E6190, ParticleLayoutDL by TRFILE.TXT) and rope.c's first touch, TRFILE.TXT has no puddle.c, and none of its .text, .data, .rodata, .sdata or .lit4 is in the ELF
 ico2/sugipon/src/rope.c
 ico2/sugipon/src/ropeFix.c
 ico2/sugipon/src/rotObject.c
@@ -276,12 +281,10 @@ ico2/sugipon/src/stormTest.c
 ico2/sugipon/src/streamMotionManager.c
 ico2/sugipon/src/sugiTree.c
 ico2/sugipon/src/torch.c
-ico2/sugipon/src/waterDot.c  # absent from the aug6 link: TRFILE.TXT gives the aug6 functions between torch.c's last twin and waySystemManager.c's first to torch.c and has no waterDot.c, and none of its .text, .data, .rodata or .lit4 is in the ELF
 ico2/sugipon/src/waySystemManager.c
 ico2/sugipon/src/weapon.c
 ico2/sugipon/src/windField.c
 ico2/sugipon/src/windManager.c
-ico2/sugipon/src/windmill.c  # absent from the aug6 link: windManager.c's last twin and wireLetter.c's first touch, TRFILE.TXT has no windmill.c, and no three functions of 360, 8 and 8 B in a row are anywhere
 ico2/sugipon/src/wireLetter.c
 ico2/sugipon/src/worm.c
 ico2/seki/src/Basic.c
@@ -350,6 +353,7 @@ ico2/ito/mpeg/mv_disp.c
 ico2/ito/mpeg/mv_sub.c
 ico2/ito/mpeg/mv_vibuf.c
 ico2/common/src/GobjProc.c
+data:adpcmfile  # in .rodata here, first in the run after mv_vibuf.o .rodata, before blend-motion-def (config/data_members.aug6.txt)
 data:blend-motion-def
 data:enemy-def
 data:enemy-model-grp
@@ -368,15 +372,14 @@ data:obj-trigger
 data:parallel-motion-orient
 data:particle-effect
 data:spider-def
+data:texture-path  # in .rodata here, between spider-def and way-group (config/data_members.aug6.txt)
 data:way-group
 ico2/common/src/PObj.c
 data:item-kind-def
 data:mirror-motion-def
 data:model-path
 data:prog-se-link
-data:unmapped_00533FC0
 data:texture-layout
-data:texture-path
 data:way-point
 data:weapon-fumble-def
 ico2/fumi/src/vobj.c
@@ -429,7 +432,6 @@ sce/libcdvd/cdvd005.c
 sce/libcdvd/cdvd006.c
 sce/libcdvd/cdvd014.c
 sce/libcdvd/cdvd015.c
-sce/libcdvd/libcdvd_267388.c  # absent from the aug6 link: cdvd015.c's twin and cdvd047.c's first touch at 0x249D48, and its .text and .rodata are not in the ELF
 sce/libcdvd/cdvd047.c
 sce/libpad/libpad.c
 sce/libmc/libmc.c
@@ -443,7 +445,6 @@ sce/libmpeg/csc.c
 sce/libmpeg/bit.c
 sce/libipu/libipu.c
 sce/libipu/ipuinit.c
-sce/libscf/libscf.c  # absent from the aug6 link: ipuinit.c's last twin and sound.c's first touch, and its .text, .data and .rodata are not in the ELF (as on JPN and USA)
 sce/libsndn2/sound.c
 sce/libm/math/sf_sin.c
 sce/libm/math/wf_acos.c

@@ -54,25 +54,6 @@ static inline void setFlag4PointMesh(Mesh3D *mesh, ClothCfg *cl, float k, int id
     }
 }
 
-void SetFlag4PointFixID(GObj *self, int turns, int id)
-{
-    FlagWork *w;
-    short ang;
-
-    w = GOBJ_SUB(self)->work;
-    w->turns = turns;
-    _UnitMatrix(MatrixDrive_GetMatrix());
-    ang = -turns * 0x4000;
-    MatrixDrive_RotMatrixZ(ang);
-    _ApplyMatrix((char *)GOBJ_SUB(self) + 0xA0, MatrixDrive_GetMatrix(),
-                 (char *)GOBJ_SUB(self) + 0xA0);
-    RotQuaternionZ(GOBJ_SUB(self)->root.quat, ang);
-    /* the clothes' one cloth: its mesh, and the config's rows and columns */
-    setFlag4PointMesh(w->clothes->rec->mesh, w->cfg, turns * 0.25f, id);
-    prim_UpdateMesh3D(w->clothes->rec->mesh, 8, 0);
-    prim_UpdateMesh3D(w->clothes->rec->mesh, 8, 1);
-}
-
 /* InitFlagGeo builds a cloth from the laid-out object's row of layoutClothDef
    (attackCheckBoundary.h): its corners, the cloth type in the low four bits,
    the rows and columns, the length shared out over the columns and the fall. */

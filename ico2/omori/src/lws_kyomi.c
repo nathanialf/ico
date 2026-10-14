@@ -105,15 +105,6 @@ void LwsKyomiGeo(GObj *gobj)
             (buf)[i / 8] |= m;                                                                     \
         }                                                                                          \
     }
-
-void MakeHintSaveInfo(void)
-{
-    int i;
-
-    MAKE_HINT_SAVE_BITS(hintWork.save, 0, 0);
-    MAKE_HINT_SAVE_BITS(hintWork.save + 4, 4, 1);
-}
-
 /* the inverse of MAKE_HINT_SAVE_BITS, unpacking one 4-byte half back into the
  * flag bit */
 #define READ_HINT_SAVE_BITS(buf, bit) /* derived name */                                           \
@@ -138,17 +129,6 @@ void MakeHintSaveInfo(void)
             break;                                                                                 \
         }                                                                                          \
     }
-
-void ReadHintSaveInfo(void)
-{
-    int j;
-    int k;
-    int n;
-    int end;
-
-    READ_HINT_SAVE_BITS(hintWork.save, 0);
-    READ_HINT_SAVE_BITS(hintWork.save + 4, 1);
-}
 
 void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
 {
@@ -175,64 +155,4 @@ void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
     UpdateRootMatrix(gobj);
     GetRootPosition(pos, gobj);
     brainSetLevelGop(gobj, lv, on1, on2);
-}
-
-void FinishHint(int no)
-{
-    (hintTable + no)->flags |= 1;
-}
-
-void SleepHint(int no)
-{
-    (hintTable + no)->flags |= 2;
-}
-
-void WakeupHint(int no)
-{
-    (hintTable + no)->flags &= ~2;
-}
-
-int IsTopHint(GObj *gobj)
-{
-    if (gobj->kind == 61) {
-        struct HintInfo *hint = GOBJ_SUB(gobj)->work;
-
-        if (hint->flags & 1) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-void DebugHintStart(GObj *gobj)
-{
-    struct HintInfo *hint;
-
-    hint = GOBJ_SUB(gobj)->work;
-    hintTimers[hint->no] = hint->time;
-}
-
-int GetSizeHintSaveInfo(void)
-{
-    return sizeof(hintWork);
-}
-
-char *GetBuffHintSaveInfo(void)
-{
-    return hintWork.save;
-}
-
-void Hint_Init(void)
-{
-    struct HintDef *p;
-    int i;
-
-    hintTimers = hintWork.timer;
-    memset(&hintWork, 0, sizeof(hintWork));
-    p = hintTable;
-    for (i = 0; i < 28; i++) {
-        p->flags &= ~2;
-        p->flags &= ~1;
-        p++;
-    }
 }

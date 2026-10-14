@@ -20,10 +20,11 @@
 #   align=N   the stub's alignment in bytes (default: the largest power of two
 #             dividing vma_lo, at most 8)
 #   file=F    the stub's file, build/stubs/F.s, for a name two TUs define as
-#             statics; F is <name>_<TU stem>. Seven names need it here
-#             (disp, dispClothes, display_texture, effect_end_func,
-#             execClothes, gene_enemy, init_textures_of_specified_property),
-#             each on both or all of its rows.
+#             statics; F is <name>_<TU stem>. Eight names need it here
+#             (Debug_StickControl, disp, dispClothes, display_texture,
+#             effect_end_func, execClothes, gene_enemy,
+#             init_textures_of_specified_property), each on both or all of
+#             its rows.
 #
 # Seeded from the function census against the PAL build, tools/correlate_elf.py,
 # and the prototype disc's TRFILE.TXT. The disc's MAIN.MAP is the PAL disc's
@@ -77,6 +78,19 @@
 #     is a place in the order, not a name.
 # For every TRFILE.TXT name the source file it gives agrees with the census's
 # object spans and link order.
+#
+# Removal of what the prototype does not contain. Of the 137 aug6-only rows
+# with a derived name, 128 are named after the PAL function of their TU they
+# are, each with its evidence on the line: the body (instruction shapes with
+# immediates and registers' numbers kept, relocated fields masked) against
+# the PAL function's, the share of mapped callees, the sizes, the call sites
+# that reach it from the counterparts of the PAL function's callers, and the
+# data tables (act-mode-def, obj-kind-data) that hold it in the row where
+# PAL's holds the PAL function. The other nine keep func_<VMA>. The row
+# 0x1E5688 is SetParticleEffect, which TRFILE.TXT names there and which the
+# census-equal callers call, not the census's SetParticleEffectByPartition.
+# A PAL function no row names and no twin keeps has no counterpart here and
+# is not in this tree.
 #
 # Left out of the census's aug6-only list: 0x1000C0 (80 bytes) is PAL's _root,
 # its fill and RFU000_FullReset, byte-identical, merged by the boundary scan
@@ -187,10 +201,10 @@ text gsb_Reduction 0x001128C8 0x00112C9C ico2/seki/src/GsBase.c  # ordinal; firs
 text gsb_fade 0x00112F30 0x001132B0 ico2/seki/src/GsBase.c local  # ordinal; first difference at insn 111; other:1; extent-equal
 text gsb_scissorOnDemo 0x001132B0 0x00113640 ico2/seki/src/GsBase.c local  # trfile; aug6-only in the census; PAL's gsb_scissorOnDemo (904 B in PAL)
 text gsb_antiAlias 0x00113788 0x00113B60 ico2/seki/src/GsBase.c local  # ordinal; first difference at insn 0; length:+13; extent-differs
-text func_00113F10 0x00113F10 0x0011403C ico2/seki/src/GsBase.c  # aug6-only; in GsBase.c's span; PAL order suggests gsb_SetGsDefault (280 B in PAL)
-text func_00114040 0x00114040 0x00114204 ico2/seki/src/GsBase.c  # aug6-only; in GsBase.c's span; PAL order suggests gsb_PostEffect (468 B in PAL)
-text func_00114208 0x00114208 0x001142F8 ico2/seki/src/GsBase.c  # aug6-only; in GsBase.c's span; PAL order suggests gsb_InitGSSystem (256 B in PAL)
-text func_001142F8 0x001142F8 0x00114418 ico2/seki/src/GsBase.c  # aug6-only; in GsBase.c's span; PAL order suggests gsb_UpdateGSSystem (328 B in PAL)
+text gsb_SetGsDefault 0x00113F10 0x0011403C ico2/seki/src/GsBase.c local  # aug6-only in the census (in GsBase.c's span); gsb_SetGsDefault by body ratio 0.95, callees 0.89, sizes 280/300
+text gsb_PostEffect 0x00114040 0x00114204 ico2/seki/src/GsBase.c local  # aug6-only in the census (in GsBase.c's span); gsb_PostEffect by body ratio 0.94, callees 0.92, sizes 468/452
+text gsb_InitGSSystem 0x00114208 0x001142F8 ico2/seki/src/GsBase.c  # aug6-only in the census (in GsBase.c's span); gsb_InitGSSystem by body ratio 0.97, callees 0.92, sizes 256/240, call sites 1
+text gsb_UpdateGSSystem 0x001142F8 0x00114418 ico2/seki/src/GsBase.c  # aug6-only in the census (in GsBase.c's span); gsb_UpdateGSSystem by body ratio 0.83, callees 0.50, sizes 328/288
 text gsb_SetVSMatrixSub 0x00114538 0x001148F4 ico2/seki/src/GsBase.c local  # ordinal; first difference at insn 0; length:-74; extent-differs
 text gsb_SetVSMatrix 0x001148F8 0x00114ADC ico2/seki/src/GsBase.c  # ordinal; first difference at insn 0; length:-38; extent-differs
 text gsb_StageSettingTool 0x00114BD0 0x00114FB0 ico2/seki/src/GsBase.c  # trfile; aug6-only in the census; PAL's gsb_StageSettingTool (1508 B in PAL)
@@ -264,8 +278,8 @@ text stage_CalcAnimationNoParent 0x001298B8 0x00129AB8 ico2/seki/src/StageAnimat
 text stage_CalcAnimationParent 0x00129AB8 0x00129C50 ico2/seki/src/StageAnimation.c  # trfile; aug6-only in the census; PAL's stage_CalcAnimationParent (432 B in PAL)
 text stage_DispAnimation 0x00129C50 0x00129DB0 ico2/seki/src/StageAnimation.c  # trfile; aug6-only in the census; PAL's stage_DispAnimation (312 B in PAL)
 text stage_SetScale 0x00129DB0 0x00129EB8 ico2/seki/src/StageAnimation.c  # trfile; aug6-only in the census; PAL's stage_SetScale (264 B in PAL)
-text func_00129EB8 0x00129EB8 0x0012A1A8 ico2/seki/src/StageAnimation.c  # aug6-only; in StageAnimation.c's span; PAL order suggests stage_PlayBgAnimationDissolve (724 B in PAL)
-text func_0012A1A8 0x0012A1A8 0x0012A4D8 ico2/seki/src/StageAnimation.c  # aug6-only; in StageAnimation.c's span; PAL order suggests stage_DispBgAnimationNoFinish (736 B in PAL)
+text stage_PlayBgAnimation 0x00129EB8 0x0012A1A8 ico2/seki/src/StageAnimation.c  # aug6-only in the census (in StageAnimation.c's span); stage_PlayBgAnimation by body ratio 0.40, callees 0.67, sizes 648/752, call sites 4
+text stage_PlayBgAnimationDissolve 0x0012A1A8 0x0012A4D8 ico2/seki/src/StageAnimation.c  # aug6-only in the census (in StageAnimation.c's span); stage_PlayBgAnimationDissolve by body ratio 0.75, callees 0.67, sizes 724/816, call sites 1
 text stage_MakePlayBgAnimation 0x0012A4D8 0x0012A668 ico2/seki/src/StageAnimation.c  # trfile; aug6-only in the census; PAL's stage_MakePlayBgAnimation (388 B in PAL)
 text stage_KillPlayBgAnimation 0x0012A668 0x0012A6CC ico2/seki/src/StageAnimation.c  # trfile; aug6-only in the census; PAL's stage_KillPlayBgAnimation (88 B in PAL)
 text stage_DispBgAnimation 0x0012A6D0 0x0012A950 ico2/seki/src/StageAnimation.c  # trfile; aug6-only in the census; PAL's stage_DispBgAnimation (640 B in PAL)
@@ -299,7 +313,7 @@ text iosCdvdBackGroundMgr 0x00132830 0x00132B20 ico2/fumi/ios/cdvd.c local  # tr
 text iosCdvdDirectStOpen 0x00132B20 0x00132CCC ico2/fumi/ios/cdvd.c  # trfile; aug6-only in the census; PAL's iosCdvdDirectStOpen (500 B in PAL)
 text iosCdvdGetFileLsn 0x00132D70 0x00132E50 ico2/fumi/ios/cdvd.c  # ordinal; first difference at insn 31; imm:2; extent-equal
 text iosCdvdLoadPackFile 0x00132E80 0x00132EFC ico2/fumi/ios/cdvd.c  # ordinal; first difference at insn 14; imm:4; extent-equal
-text func_00132FC0 0x00132FC0 0x001330D0 ico2/fumi/ios/cdvd.c  # aug6-only; in cdvd.c's span; no PAL-only function there
+text iosCdvdBackGroundRead 0x00132FC0 0x001330D0 ico2/fumi/ios/cdvd.c  # aug6-only in the census (in cdvd.c's span); iosCdvdBackGroundRead by body ratio 0.36, callees 0.33, sizes 476/272, call sites 4
 text iosCdvdBackGroundReadIOPm 0x001330D0 0x001331E0 ico2/fumi/ios/cdvd.c  # trfile; aug6-only in the census; PAL's iosCdvdBackGroundReadIOPm (476 B in PAL)
 text iosCdvdDirectStClose 0x001331E8 0x00133224 ico2/fumi/ios/cdvd.c  # trfile; aug6-only in the census; PAL's iosCdvdDirectStClose (64 B in PAL)
 text inflate_cd_read_func 0x00133288 0x001332E4 ico2/fumi/ios/cdvd.c  # ordinal; first difference at insn 3; imm:2; extent-equal
@@ -364,10 +378,10 @@ text ACTEnvGetTest 0x00144C10 0x001450BC ico2/fumi/src/act-game.c local  # trfil
 text ActOrientTest 0x001450C0 0x00146814 ico2/fumi/src/act-game.c local  # trfile; aug6-only in the census; PAL's ActOrientTest (6328 B in PAL)
 text GetGirlHandlinkClInfo 0x00146818 0x00146C04 ico2/fumi/src/act-game.c local  # trfile; aug6-only in the census; PAL's GetGirlHandlinkClInfo (1004 B in PAL)
 text hand_able_connect.267 0x00146C08 0x00146CCC ico2/fumi/src/act-game.c local  # trfile; aug6-only in the census; PAL's hand_able_connect.267 (336 B in PAL)
-text func_00146CD0 0x00146CD0 0x00147780 ico2/fumi/src/act-game.c  # aug6-only; in act-game.c's span; PAL order suggests ACTGame_CommonLoop (3192 B in PAL)
+text ACTGame_CommonLoop 0x00146CD0 0x00147780 ico2/fumi/src/act-game.c  # aug6-only in the census (in act-game.c's span); ACTGame_CommonLoop by body ratio 0.61, callees 0.86, sizes 3192/2736
 text func_00147780 0x00147780 0x001477B0 ico2/fumi/src/act-game.c  # aug6-only; in act-game.c's span; pairs with no PAL-only function there by size and order
-text func_001477B0 0x001477B0 0x00147BC8 ico2/fumi/src/act-game.c  # aug6-only; in act-game.c's span; PAL order suggests GetTarget.280 (976 B in PAL)
-text func_00147BC8 0x00147BC8 0x00148114 ico2/fumi/src/act-game.c  # aug6-only; in act-game.c's span; PAL order suggests ACTLookTargetSystem_Exec (1708 B in PAL)
+text GetTarget.280 0x001477B0 0x00147BC8 ico2/fumi/src/act-game.c local  # aug6-only in the census (in act-game.c's span); GetTarget.280 by body ratio 0.77, callees 0.60, sizes 976/1048
+text ACTLookTargetSystem_Exec 0x00147BC8 0x00148114 ico2/fumi/src/act-game.c  # aug6-only in the census (in act-game.c's span); ACTLookTargetSystem_Exec by called from subBoyCollision's and subGirlCollision's counterparts, PAL's two callers of ACTLookTargetSystem_Exec
 text ACTItemThrow.301 0x00148118 0x00148244 ico2/fumi/src/act-game.c local  # trfile; aug6-only in the census; PAL's ACTItemThrow.301 (224 B in PAL)
 text ACTItemWatchMotion 0x00148248 0x0014848C ico2/fumi/src/act-game.c local  # trfile; aug6-only in the census; PAL's ACTItemWatchMotion (800 B in PAL)
 text ACTGame_InsertCamera_GirlIsPinch 0x00148490 0x001485D8 ico2/fumi/src/act-game.c  # trfile; aug6-only in the census; PAL's ACTGame_InsertCamera_GirlIsPinch (308 B in PAL)
@@ -414,37 +428,37 @@ text ACTGame_SetMotionPlaySpeedRatio_Clear 0x0014A3E0 0x0014A3FC ico2/fumi/src/a
 text ACTGame_SetMotionPlaySpeedRatio_Exec 0x0014A400 0x0014A4CC ico2/fumi/src/act-game.c  # ordinal; first difference at insn 6; other:9; extent-equal
 text ActPara_MakeTbl 0x0014A510 0x0014A664 ico2/fumi/src/act-parallel-control.c  # ordinal; first difference at insn 10; other:7; extent-equal
 text ActPara_InitSystem 0x0014A668 0x0014A6A4 ico2/fumi/src/act-parallel-control.c  # ordinal; first difference at insn 4; imm:2; extent-equal
-text func_0014A6D8 0x0014A6D8 0x0014B638 ico2/fumi/src/act-wish.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests ACTGetWish_FromPad (4836 B in PAL)
-text func_0014B638 0x0014B638 0x0014BDF4 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests findChainInJump (2016 B in PAL)
-text func_0014BDF8 0x0014BDF8 0x0014BFB0 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest CorrectOrient_RopeCliff
-text func_0014BFB0 0x0014BFB0 0x0014C0BC ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest motBoyHand50
-text func_0014C0C0 0x0014C0C0 0x0014C36C ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest motBoyHand100
-text func_0014C370 0x0014C370 0x0014C65C ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest motBoyHand200
-text func_0014C660 0x0014C660 0x0014CA14 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests handoff_heroin (992 B in PAL)
-text func_0014CA18 0x0014CA18 0x0014CBA0 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests CheckCollisionAttr (412 B in PAL)
-text func_0014CBA0 0x0014CBA0 0x0014CCFC ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest UpdateGeo.48
-text func_0014CD00 0x0014CD00 0x0014CE20 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest BoyBgaManager
-text func_0014CE20 0x0014CE20 0x0014CF58 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest E3_StageStartBoy
-text func_0014CF58 0x0014CF58 0x0014D144 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests GetChainSlope (568 B in PAL)
-text func_0014D148 0x0014D148 0x0014E854 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests subBoyControl (6260 B in PAL)
-text func_0014E858 0x0014E858 0x0014E98C ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest InitSwapWeapon
-text func_0014E990 0x0014E990 0x0014EA00 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests PutWeapon (140 B in PAL)
-text func_0014EA00 0x0014EA00 0x0014EB80 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests OtherStageGirlPinchCamera_After (488 B in PAL)
-text func_0014EB80 0x0014EB80 0x0014FBA4 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests subBoyCollision (5028 B in PAL)
-text func_0014FBA8 0x0014FBA8 0x0014FD94 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests actBoySwim (628 B in PAL)
-text func_0014FD98 0x0014FD98 0x0014FF04 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest actBoyWalk
-text func_0014FF08 0x0014FF08 0x00150074 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest actBoyRun
-text func_00150078 0x00150078 0x00150294 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests actBoyAttack (564 B in PAL)
-text func_00150298 0x00150298 0x00150420 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest actBoyTakeWeaponReady
-text func_00150420 0x00150420 0x00150604 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest actBoyTakeWeapon
-text func_00150608 0x00150608 0x00150714 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests actBoyCliffHesitate (276 B in PAL)
-text func_00150718 0x00150718 0x00150808 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest ditch_check_heroin_position
-text func_00150808 0x00150808 0x00150A2C ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests actBoyPullupReady (684 B in PAL)
-text func_00150A30 0x00150A30 0x00150BC8 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest actBoyPullupGo
-text func_00150BC8 0x00150BC8 0x00150F94 ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest actBoyBelift
-text func_00150F98 0x00150F98 0x0015143C ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL size and order suggest actBoyRescueReady
-text func_00151440 0x00151440 0x0015183C ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests actBoyDitch3mReady (1452 B in PAL)
-text func_00151840 0x00151840 0x0015198C ico2/fumi/src/boyact.c  # aug6-only; after act-parallel-control.c's span; PAL order suggests SetStatusBoy_OtherStageGirlPinch (348 B in PAL)
+text ACTGetWish_FromPad 0x0014A6D8 0x0014B638 ico2/fumi/src/act-wish.c  # aug6-only in the census (after act-parallel-control.c's span); ACTGetWish_FromPad by body ratio 0.60, callees 1.00, sizes 4836/3936, call sites 1
+text findChainInJump 0x0014B638 0x0014BDF4 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); findChainInJump by body ratio 0.86, callees 1.00, sizes 2016/1980
+text CorrectOrient_RopeCliff 0x0014BDF8 0x0014BFB0 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); CorrectOrient_RopeCliff by body ratio 1.00, callees 1.00, sizes 440/440
+text motBoyHand50 0x0014BFB0 0x0014C0BC ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); motBoyHand50 by body ratio 1.00, callees 1.00, sizes 268/268
+text motBoyHand100 0x0014C0C0 0x0014C36C ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); motBoyHand100 by body ratio 1.00, callees 1.00, sizes 684/684
+text motBoyHand200 0x0014C370 0x0014C65C ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); motBoyHand200 by body ratio 1.00, callees 1.00, sizes 748/748
+text handoff_heroin 0x0014C660 0x0014CA14 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); handoff_heroin by body ratio 0.96, callees 1.00, sizes 992/948, call sites 1
+text CheckCollisionAttr 0x0014CA18 0x0014CBA0 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); CheckCollisionAttr by body ratio 0.84, callees 0.67, sizes 412/392
+text UpdateGeo.48 0x0014CBA0 0x0014CCFC ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); UpdateGeo.48 by body ratio 1.00, callees 1.00, sizes 348/348
+text BoyBgaManager 0x0014CD00 0x0014CE20 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); BoyBgaManager by body ratio 1.00, callees 0.33, sizes 288/288
+text E3_StageStartBoy 0x0014CE20 0x0014CF58 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); E3_StageStartBoy by body ratio 1.00, callees 1.00, sizes 312/312
+text GetChainSlope 0x0014CF58 0x0014D144 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); GetChainSlope by body ratio 0.85, callees 1.00, sizes 568/492
+text subBoyControl 0x0014D148 0x0014E854 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); subBoyControl by body ratio 0.90, callees 0.82, sizes 6260/5900
+text InitSwapWeapon 0x0014E858 0x0014E98C ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); InitSwapWeapon by body ratio 1.00, callees 1.00, sizes 308/308
+text PutWeapon 0x0014E990 0x0014EA00 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); PutWeapon by body ratio 0.89, callees 0.33, sizes 140/112
+text OtherStageGirlPinchCamera_After 0x0014EA00 0x0014EB80 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); OtherStageGirlPinchCamera_After by body ratio 0.62, callees 0.50, sizes 488/384
+text subBoyCollision 0x0014EB80 0x0014FBA4 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); subBoyCollision by body ratio 0.76, callees 0.64, sizes 5028/4132
+text actBoySwim 0x0014FBA8 0x0014FD94 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoySwim by body ratio 0.69, callees 0.89, sizes 628/492
+text actBoyWalk 0x0014FD98 0x0014FF04 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyWalk by body ratio 1.00, callees 1.00, sizes 364/364
+text actBoyRun 0x0014FF08 0x00150074 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyRun by body ratio 1.00, callees 1.00, sizes 364/364
+text actBoyAttack 0x00150078 0x00150294 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyAttack by body ratio 0.96, callees 0.86, sizes 564/540
+text actBoyTakeWeaponReady 0x00150298 0x00150420 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyTakeWeaponReady by body ratio 1.00, callees 1.00, sizes 392/392
+text actBoyTakeWeapon 0x00150420 0x00150604 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyTakeWeapon by body ratio 1.00, callees 0.67, sizes 484/484
+text pullup_check_heroin_position 0x00150608 0x00150714 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); pullup_check_heroin_position by body ratio 0.66, callees 0.50, sizes 436/268
+text ditch_check_heroin_position 0x00150718 0x00150808 ico2/fumi/src/boyact.c local  # aug6-only in the census (after act-parallel-control.c's span); ditch_check_heroin_position by body ratio 1.00, callees 1.00, sizes 240/240
+text actBoyPullupReady 0x00150808 0x00150A2C ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyPullupReady by act-mode-def's PULLUP_READY row holds it, as PAL's holds actBoyPullupReady
+text actBoyPullupGo 0x00150A30 0x00150BC8 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyPullupGo by body ratio 1.00, callees 1.00, sizes 408/408
+text actBoyBelift 0x00150BC8 0x00150F94 ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyBelift by body ratio 1.00, callees 1.00, sizes 972/972
+text actBoyRescueReady 0x00150F98 0x0015143C ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyRescueReady by body ratio 1.00, callees 1.00, sizes 1188/1188
+text actBoyDitch3mReady 0x00151440 0x0015183C ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); actBoyDitch3mReady by body ratio 0.69, callees 0.50, sizes 1452/1020
+text SetStatusBoy_OtherStageGirlPinch 0x00151840 0x0015198C ico2/fumi/src/boyact.c  # aug6-only in the census (after act-parallel-control.c's span); SetStatusBoy_OtherStageGirlPinch by body ratio 0.96, callees 0.71, sizes 348/332, call sites 1
 text actBoyStart 0x00151990 0x00151DD4 ico2/fumi/src/boyact.c  # ordinal; first difference at insn 41; imm:19; extent-equal
 text GetBoyWeaponGObj 0x00151E10 0x00151E30 ico2/fumi/src/boyact.c  # ordinal; first difference at insn 5; imm:1; extent-equal
 text actBoyStand 0x00151E30 0x00151E98 ico2/fumi/src/boyact.c  # ordinal; first difference at insn 1; other:6; extent-equal
@@ -452,8 +466,8 @@ text actBoyHang 0x00151E98 0x00151ED0 ico2/fumi/src/boyact.c  # ordinal; first d
 text actBoyBHang 0x00151ED0 0x00151F08 ico2/fumi/src/boyact.c  # ordinal; first difference at insn 6; imm:2; extent-equal
 text actBoyFall 0x00151F08 0x00151F48 ico2/fumi/src/boyact.c  # ordinal; first difference at insn 10; imm:1; extent-equal
 text actBoyCall 0x00151F48 0x00151FC0 ico2/fumi/src/boyact.c  # ordinal; first difference at insn 12; imm:6; extent-equal
-text func_00151FC0 0x00151FC0 0x00151FEC ico2/fumi/src/boyact.c  # aug6-only; in boyact.c's span; PAL size and order suggest actBoyRescueSrc
-text func_00151FF0 0x00151FF0 0x0015204C ico2/fumi/src/boyact.c  # aug6-only; in boyact.c's span; PAL size and order suggest actBoySupportGBLoop
+text func_00151FC0 0x00151FC0 0x00151FEC ico2/fumi/src/boyact.c  # aug6-only; in boyact.c's span; PAL size and order suggest actBoyRescueSrc; act-mode-def's ITEM row holds it, where PAL's holds commonact.c's actCommonItem
+text func_00151FF0 0x00151FF0 0x0015204C ico2/fumi/src/boyact.c  # aug6-only; in boyact.c's span; PAL size and order suggest actBoySupportGBLoop; act-mode-def's ITEMAFTER row (a row PAL's table lacks) holds it
 text actBoyCliffHesitate 0x00152050 0x001520F4 ico2/fumi/src/boyact.c  # trfile; aug6-only in the census; PAL's actBoyCliffHesitate (276 B in PAL)
 text actBoyHangBefore 0x001520F8 0x001521A4 ico2/fumi/src/boyact.c  # trfile; aug6-only in the census; PAL's actBoyHangBefore (172 B in PAL)
 text actBoyReadyMove 0x001521A8 0x001522B4 ico2/fumi/src/boyact.c  # trfile; aug6-only in the census; PAL's actBoyReadyMove (448 B in PAL)
@@ -505,8 +519,8 @@ text actCommonRopeSpecial 0x00155C90 0x00155FF4 ico2/fumi/src/commonact.c  # ord
 text actCommonLever 0x00156080 0x001561E8 ico2/fumi/src/commonact.c  # ordinal; first difference at insn 3; length:-19; extent-differs
 text DamageFunc 0x00156210 0x001562AC ico2/fumi/src/commonact.c local  # ordinal; first difference at insn 13; imm:4; extent-equal
 text DownFunc 0x001562B0 0x001562F8 ico2/fumi/src/commonact.c local  # ordinal; first difference at insn 11; imm:1; extent-equal
-text func_001562F8 0x001562F8 0x001563E8 ico2/fumi/src/commonact.c  # aug6-only; in commonact.c's span; PAL order suggests actCommonDown (324 B in PAL)
-text func_001563E8 0x001563E8 0x0015674C ico2/fumi/src/commonact.c  # aug6-only; in commonact.c's span; PAL order suggests actCommonDie (900 B in PAL)
+text actCommonDown 0x001562F8 0x001563E8 ico2/fumi/src/commonact.c  # aug6-only in the census (in commonact.c's span); actCommonDown by body ratio 0.74, callees 1.00, sizes 324/240
+text actCommonDie 0x001563E8 0x0015674C ico2/fumi/src/commonact.c  # aug6-only in the census (in commonact.c's span); actCommonDie by body ratio 0.98, callees 0.94, sizes 900/868
 text Cling.176 0x00156750 0x00156900 ico2/fumi/src/commonact.c local  # trfile; aug6-only in the census; PAL's Cling.176 (432 B in PAL)
 text actCommonCling 0x00156900 0x00156998 ico2/fumi/src/commonact.c  # trfile; aug6-only in the census; PAL's actCommonCling (152 B in PAL)
 text actCommonSlip 0x00156998 0x00156AB4 ico2/fumi/src/commonact.c  # trfile; aug6-only in the census; PAL's actCommonSlip (284 B in PAL)
@@ -526,11 +540,11 @@ text emergencyCheck.284 0x001586E8 0x00158994 ico2/fumi/src/commonact.c local  #
 text flyCoreLoop 0x00158998 0x00159138 ico2/fumi/src/commonact.c local  # trfile; aug6-only in the census; PAL's flyCoreLoop (3444 B in PAL)
 text actCommonFly 0x00159138 0x00159210 ico2/fumi/src/commonact.c  # trfile; aug6-only in the census; PAL's actCommonFly (252 B in PAL)
 text actCommonLadder 0x00159210 0x001597E4 ico2/fumi/src/commonact.c  # trfile; aug6-only in the census; PAL's actCommonLadder (1524 B in PAL)
-text func_001597E8 0x001597E8 0x0015994C ico2/fumi/src/commonact.c  # aug6-only; in commonact.c's span; PAL size and order suggest actCommonEdgeHang
-text func_00159950 0x00159950 0x001599A4 ico2/fumi/src/commonact.c  # aug6-only; in commonact.c's span; PAL size and order suggest funcCommonBeginReady
-text func_001599A8 0x001599A8 0x001599FC ico2/fumi/src/commonact.c  # aug6-only; in commonact.c's span; PAL size and order suggest funcCommonEndReady
-text func_00159A00 0x00159A00 0x00159A54 ico2/fumi/src/commonact.c  # aug6-only; in commonact.c's span; PAL size and order suggest funcCommonEndExec
-text func_00159A58 0x00159A58 0x00159AAC ico2/fumi/src/commonact.c  # aug6-only; in commonact.c's span; PAL size and order suggest funcCommonError
+text actCommonEdgeHang 0x001597E8 0x0015994C ico2/fumi/src/commonact.c  # aug6-only in the census (in commonact.c's span); actCommonEdgeHang by body ratio 1.00, callees 1.00, sizes 356/356
+text funcCommonBeginReady 0x00159950 0x001599A4 ico2/fumi/src/commonact.c  # aug6-only in the census (in commonact.c's span); funcCommonBeginReady by body ratio 1.00, callees -, sizes 84/84
+text funcCommonEndReady 0x001599A8 0x001599FC ico2/fumi/src/commonact.c  # aug6-only in the census (in commonact.c's span); funcCommonEndReady by body ratio 1.00, callees -, sizes 84/84
+text funcCommonEndExec 0x00159A00 0x00159A54 ico2/fumi/src/commonact.c  # aug6-only in the census (in commonact.c's span); funcCommonEndExec by body ratio 1.00, callees -, sizes 84/84
+text funcCommonError 0x00159A58 0x00159AAC ico2/fumi/src/commonact.c  # aug6-only in the census (in commonact.c's span); funcCommonError by body ratio 1.00, callees -, sizes 84/84
 text SetMotionDirectionSmooze 0x00159AB0 0x00159CE4 ico2/fumi/src/commonact.c  # trfile; aug6-only in the census; PAL's SetMotionDirectionSmooze (588 B in PAL)
 text _ACTDebugPrint 0x00159CE8 0x00159FDC ico2/fumi/src/commonact.c  # trfile; aug6-only in the census; PAL's _ACTDebugPrint (752 B in PAL)
 text ACTSendMailCorrect 0x00159FE0 0x0015A060 ico2/fumi/src/commonact.c  # trfile; aug6-only in the census; PAL's ACTSendMailCorrect (144 B in PAL)
@@ -616,20 +630,20 @@ text boss_effect_check_parts 0x0015D9C8 0x0015DA0C ico2/fumi/src/enemy_act.c loc
 text boss_effect_process 0x0015DA10 0x0015DB74 ico2/fumi/src/enemy_act.c local  # ordinal; first difference at insn 26; imm:8; extent-equal
 text _DoAwait 0x0015DB78 0x0015DBF0 ico2/fumi/src/enemy_act.c local  # ordinal; first difference at insn 7; other:5; extent-equal
 text _DoAwaitGirl 0x0015DBF0 0x0015DC68 ico2/fumi/src/enemy_act.c local  # ordinal; first difference at insn 7; other:5; extent-equal
-text func_0015DD70 0x0015DD70 0x0015E10C ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests subEnemyControl (928 B in PAL)
-text func_0015E110 0x0015E110 0x0015E610 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests subEnemyCollision (1436 B in PAL)
-text func_0015E610 0x0015E610 0x0015E734 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest actEnemyAttack
-text func_0015E738 0x0015E738 0x0015E96C ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests actEnemyRestart (716 B in PAL)
-text func_0015E970 0x0015E970 0x0015EAC8 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest PairSetGeometry.150
-text func_0015EAC8 0x0015EAC8 0x0015EBD4 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests actEnemyForceSwitchToCarry (480 B in PAL)
-text func_0015EBD8 0x0015EBD8 0x0015F0DC ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests actEnemyKidnapEnd (1876 B in PAL)
-text func_0015F0E0 0x0015F0E0 0x0015F2A8 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests actEnemyKidnapBegin (520 B in PAL)
-text func_0015F2A8 0x0015F2A8 0x0015F48C ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest MoveChestForCatchBoy
-text func_0015F490 0x0015F490 0x0015F89C ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest actEnemyBodylift
-text func_0015F8A0 0x0015F8A0 0x0015F9C0 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest actEnemyPickupBegin
-text func_0015F9C0 0x0015F9C0 0x0015FB2C ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests CheckEnemyBrainMode (432 B in PAL)
-text func_0015FB30 0x0015FB30 0x0015FE04 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest BrainMode_Requset.217
-text func_0015FE08 0x0015FE08 0x00160364 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests subEnemyBrainMain (1520 B in PAL)
+text subEnemyControl 0x0015DD70 0x0015E10C ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); subEnemyControl by body ratio 0.98, callees 1.00, sizes 928/924
+text subEnemyCollision 0x0015E110 0x0015E610 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); subEnemyCollision by body ratio 0.90, callees 0.85, sizes 1436/1280
+text actEnemyAttack 0x0015E610 0x0015E734 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyAttack by body ratio 1.00, callees 0.80, sizes 292/292
+text actEnemyRestart 0x0015E738 0x0015E96C ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyRestart by body ratio 0.56, callees 0.69, sizes 716/564, call sites 2
+text PairSetGeometry.150 0x0015E970 0x0015EAC8 ico2/fumi/src/enemy_act.c local  # aug6-only in the census (in enemy_act.c's span); PairSetGeometry.150 by body ratio 1.00, callees 1.00, sizes 344/344
+text actEnemyForceSwitchToCarry 0x0015EAC8 0x0015EBD4 ico2/fumi/src/enemy_act.c local  # aug6-only in the census (in enemy_act.c's span); actEnemyForceSwitchToCarry by body ratio 0.63, callees 0.56, sizes 480/268, call sites 1
+text actEnemyKidnapEnd 0x0015EBD8 0x0015F0DC ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyKidnapEnd by body ratio 0.68, callees 0.76, sizes 1876/1284
+text actEnemyKidnapBegin 0x0015F0E0 0x0015F2A8 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyKidnapBegin by body ratio 0.86, callees 0.85, sizes 520/456
+text MoveChestForCatchBoy 0x0015F2A8 0x0015F48C ico2/fumi/src/enemy_act.c local  # aug6-only in the census (in enemy_act.c's span); MoveChestForCatchBoy by body ratio 1.00, callees 1.00, sizes 484/484
+text actEnemyBodylift 0x0015F490 0x0015F89C ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyBodylift by body ratio 1.00, callees 0.88, sizes 1036/1036
+text actEnemyPickupBegin 0x0015F8A0 0x0015F9C0 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyPickupBegin by body ratio 1.00, callees 0.82, sizes 288/288
+text CheckEnemyBrainMode 0x0015F9C0 0x0015FB2C ico2/fumi/src/enemy_act.c local  # aug6-only in the census (in enemy_act.c's span); CheckEnemyBrainMode by body ratio 0.90, callees 1.00, sizes 432/364
+text BrainMode_Requset.217 0x0015FB30 0x0015FE04 ico2/fumi/src/enemy_act.c local  # aug6-only in the census (in enemy_act.c's span); BrainMode_Requset.217 by body ratio 1.00, callees 1.00, sizes 724/724
+text subEnemyBrainMain 0x0015FE08 0x00160364 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); subEnemyBrainMain by body ratio 0.80, callees 0.67, sizes 1520/1372
 text enemy_dodge 0x00160368 0x00160550 ico2/fumi/src/enemy_act.c local  # trfile; aug6-only in the census; PAL's enemy_dodge (476 B in PAL)
 text Battle_isCurrentStatus 0x00160550 0x00160944 ico2/fumi/src/enemy_act.c local  # trfile; aug6-only in the census; PAL's Battle_isCurrentStatus (812 B in PAL)
 text NakaBoss 0x00160C38 0x00160EE8 ico2/fumi/src/enemy_act.c local  # trfile; aug6-only in the census; PAL's NakaBoss (712 B in PAL)
@@ -640,15 +654,15 @@ text subEnemyBrain_ToGirl 0x001617A8 0x00161998 ico2/fumi/src/enemy_act.c  # trf
 text _ApproachTarget_Boss 0x00161998 0x00161BB8 ico2/fumi/src/enemy_act.c local  # trfile; aug6-only in the census; PAL's _ApproachTarget_Boss (544 B in PAL)
 text flyMailCore 0x00161BB8 0x00161D0C ico2/fumi/src/enemy_act.c local  # trfile; aug6-only in the census; PAL's flyMailCore (340 B in PAL)
 text _ApproachTarget_Way 0x00161D10 0x00162294 ico2/fumi/src/enemy_act.c local  # trfile; aug6-only in the census; PAL's _ApproachTarget_Way (1700 B in PAL)
-text func_00162298 0x00162298 0x001626D8 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests NakaBoss (712 B in PAL)
-text func_001626D8 0x001626D8 0x00162804 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL order suggests ChangeBrain_ToAttack.272 (336 B in PAL)
-text func_00162808 0x00162808 0x00162B68 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest subEnemyBrain_Attack
-text func_00162B68 0x00162B68 0x00162CC4 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest subEnemyBrain_Cling
-text func_00162CC8 0x00162CC8 0x00162CE4 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest funcEnemyAiGetGirl
-text func_00162CE8 0x00162CE8 0x00162D2C ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest actEnemyWalk
-text func_00162D30 0x00162D30 0x00162D74 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest actEnemyRun
-text func_00162D78 0x00162D78 0x00162DBC ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest actEnemyHang
-text func_00162DC0 0x00162DC0 0x00162E04 ico2/fumi/src/enemy_act.c  # aug6-only; in enemy_act.c's span; PAL size and order suggest actEnemyBodyslam
+text actEnemyStart 0x00162298 0x001626D8 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyStart by body ratio 0.78, callees 0.90, sizes 1248/1088; obj-kind-data ENEMY1 start
+text subEnemyBrain_Irregular 0x001626D8 0x00162804 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); subEnemyBrain_Irregular by body ratio 0.94, callees 0.60, sizes 268/300
+text subEnemyBrain_Attack 0x00162808 0x00162B68 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); subEnemyBrain_Attack by body ratio 1.00, callees 1.00, sizes 864/864
+text subEnemyBrain_Cling 0x00162B68 0x00162CC4 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); subEnemyBrain_Cling by body ratio 1.00, callees 1.00, sizes 348/348
+text funcEnemyAiGetGirl 0x00162CC8 0x00162CE4 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); funcEnemyAiGetGirl by body ratio 1.00, callees -, sizes 28/28
+text actEnemyWalk 0x00162CE8 0x00162D2C ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyWalk by body ratio 1.00, callees 1.00, sizes 68/68
+text actEnemyRun 0x00162D30 0x00162D74 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyRun by body ratio 1.00, callees 1.00, sizes 68/68
+text actEnemyHang 0x00162D78 0x00162DBC ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyHang by body ratio 1.00, callees 1.00, sizes 68/68
+text actEnemyStand 0x00162DC0 0x00162E04 ico2/fumi/src/enemy_act.c  # aug6-only in the census (in enemy_act.c's span); actEnemyStand by body ratio 1.00, callees 1.00, sizes 68/68
 text actEnemyCarry 0x00162E08 0x00162E50 ico2/fumi/src/enemy_act.c  # trfile; aug6-only in the census; PAL's actEnemyCarry (72 B in PAL)
 text actEnemyBodyslam 0x00162E50 0x00162E94 ico2/fumi/src/enemy_act.c  # trfile; aug6-only in the census; PAL's actEnemyBodyslam (68 B in PAL)
 text actEnemyBodyslamFail 0x00162E98 0x00162ED4 ico2/fumi/src/enemy_act.c  # trfile; aug6-only in the census; PAL's actEnemyBodyslamFail (60 B in PAL)
@@ -689,9 +703,9 @@ text motGirlHand50 0x001684D0 0x00168654 ico2/fumi/src/girl_act.c  # ordinal; fi
 text motGirlHand100 0x00168658 0x00168814 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 11; imm:21; extent-equal
 text motGirlHand200 0x00168818 0x00168A3C ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 33; imm:19; extent-equal
 text SetTurnSpeedInEscape 0x00168A50 0x00168A80 ico2/fumi/src/girl_act.c local  # ordinal; first difference at insn 3; imm:1; extent-equal
-text func_00168C78 0x00168C78 0x001691A8 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests girlBrainMain_MakeOthersList (1720 B in PAL)
+text girlBrainMain_MakeOthersList 0x00168C78 0x001691A8 ico2/fumi/src/girl_act.c local  # aug6-only in the census (in girl_act.c's span); girlBrainMain_MakeOthersList by body ratio 0.87, callees 0.92, sizes 1720/1328
 text girlBrainMain_CheckWarningMode 0x001691A8 0x00169574 ico2/fumi/src/girl_act.c local  # trfile; aug6-only in the census; PAL's girlBrainMain_CheckWarningMode (692 B in PAL)
-text func_00169578 0x00169578 0x001699D0 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests girlBrainMain_DecideMode (1672 B in PAL)
+text girlBrainMain_DecideMode 0x00169578 0x001699D0 ico2/fumi/src/girl_act.c local  # aug6-only in the census (in girl_act.c's span); girlBrainMain_DecideMode by body ratio 0.55, callees 0.85, sizes 1672/1112
 text girlBrainMain_Init 0x00169A20 0x00169A34 ico2/fumi/src/girl_act.c local  # ordinal; first difference at insn 4; imm:1; extent-equal
 text ChangeRunMode.135 0x00169A38 0x00169B28 ico2/fumi/src/girl_act.c local  # ordinal; first difference at insn 9; imm:4; extent-equal
 text subGirlBrainMain 0x00169B28 0x0016AC18 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 12; length:-141; extent-differs
@@ -705,8 +719,8 @@ text girlBrainRunawaySearchPoint 0x0016D080 0x0016D618 ico2/fumi/src/girl_act.c 
 text girlBrainRunawayMoveByWay 0x0016D618 0x0016D8B4 ico2/fumi/src/girl_act.c local  # ordinal; first difference at insn 12; imm:12; extent-equal
 text subGirlBrain_Escape 0x0016D8B8 0x0016DFF0 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 3; length:+63; extent-differs
 text Danger_Bomb 0x0016E350 0x0016E5C0 ico2/fumi/src/girl_act.c local  # ordinal; first difference at insn 18; length:-1; extent-differs
-text func_0016E890 0x0016E890 0x0016EB48 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests Danger_Gondola (712 B in PAL)
-text func_0016EB48 0x0016EB48 0x0016EF38 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest GetSafePosition.247
+text Danger_Gondola 0x0016E890 0x0016EB48 ico2/fumi/src/girl_act.c local  # aug6-only in the census (in girl_act.c's span); Danger_Gondola by body ratio 0.98, callees 1.00, sizes 712/696
+text GetSafePosition.247 0x0016EB48 0x0016EF38 ico2/fumi/src/girl_act.c local  # aug6-only in the census (in girl_act.c's span); GetSafePosition.247 by body ratio 1.00, callees 1.00, sizes 1008/1008, call sites 2
 text Danger_Box 0x0016EF38 0x0016F3A4 ico2/fumi/src/girl_act.c local  # trfile; aug6-only in the census; PAL's Danger_Box (1136 B in PAL)
 text subGirlBrain_HideAdvance 0x0016F3A8 0x0016F560 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 0; other:70; extent-equal
 text WayTest 0x0016F838 0x0016FAB8 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 0; length:+30; extent-differs
@@ -714,37 +728,37 @@ text subGirlControl 0x0016FAB8 0x00170220 ico2/fumi/src/girl_act.c  # ordinal; f
 text subGirlCollision 0x00170220 0x00170CB8 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 20; length:-39; extent-differs
 text HandMgr_Speed.309 0x00171130 0x0017130C ico2/fumi/src/girl_act.c local  # trfile; aug6-only in the census; PAL's HandMgr_Speed.309 (604 B in PAL)
 text GetBoyMode.313 0x00171310 0x00171474 ico2/fumi/src/girl_act.c local  # trfile; aug6-only in the census; PAL's GetBoyMode.313 (368 B in PAL)
-text func_00171478 0x00171478 0x00171EB8 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests actGirlHand (2792 B in PAL)
+text actGirlHand 0x00171478 0x00171EB8 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlHand by body ratio 0.79, callees 1.00, sizes 2792/2624
 text actGirlPulledReady 0x00171EB8 0x00172004 ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's actGirlPulledReady (332 B in PAL)
 text actGirlPulledGo 0x00172008 0x00172170 ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's actGirlPulledGo (444 B in PAL)
 text actGirlDitch3mReady 0x00172170 0x00172254 ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's actGirlDitch3mReady (228 B in PAL)
 text actGirlReadyMove 0x00172258 0x0017238C ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's actGirlReadyMove (412 B in PAL)
 text actGirlRescueDst 0x00172390 0x00172634 ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's actGirlRescueDst (716 B in PAL)
 text actGirlSupportBGBegin 0x00172638 0x00172790 ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's actGirlSupportBGBegin (344 B in PAL)
-text func_00172790 0x00172790 0x00172968 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests actGirlStart (480 B in PAL)
-text func_00172968 0x00172968 0x00172AF0 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest GirlAct_BoyAndMeCollisionMail
-text func_00172AF0 0x00172AF0 0x00172C84 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest IsGirlStatusEscortEnable
-text func_00172C88 0x00172C88 0x00172EC0 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests actGirlHintPoint (556 B in PAL)
+text actGirlStart 0x00172790 0x00172968 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlStart by body ratio 0.98, callees 1.00, sizes 480/472; obj-kind-data GIRL start
+text GirlAct_BoyAndMeCollisionMail 0x00172968 0x00172AF0 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); GirlAct_BoyAndMeCollisionMail by body ratio 1.00, callees 1.00, sizes 392/392
+text IsGirlStatusEscortEnable 0x00172AF0 0x00172C84 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); IsGirlStatusEscortEnable by body ratio 0.86, callees 1.00, sizes 404/404
+text DebugDispAutoEscort 0x00172C88 0x00172EC0 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); DebugDispAutoEscort by body ratio 0.93, callees 1.00, sizes 584/568
 text func_00172EC0 0x00172EC0 0x00172EF8 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests FindGirlPullupFloorBoxGObj (68 B in PAL)
-text func_00172EF8 0x00172EF8 0x00172FC8 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlSupportGBBegin
-text func_00172FC8 0x00172FC8 0x00173024 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlSupportGBLoop
-text func_00173028 0x00173028 0x00173054 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlSupportGBEnd
-text func_00173058 0x00173058 0x0017309C ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlHangG3M
-text func_001730A0 0x001730A0 0x001731A0 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlDitch3mExec
-text func_001731A0 0x001731A0 0x001731E4 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlStand
-text func_001731E8 0x001731E8 0x0017322C ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlWalk
-text func_00173230 0x00173230 0x00173274 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlRun
-text func_00173278 0x00173278 0x001732EC ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; pairs with no PAL-only function there by size and order
-text func_001732F0 0x001732F0 0x00173370 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests actGirlBHang (244 B in PAL)
+text actGirlSupportGBBegin 0x00172EF8 0x00172FC8 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlSupportGBBegin by body ratio 1.00, callees 1.00, sizes 208/208
+text actGirlSupportGBLoop 0x00172FC8 0x00173024 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlSupportGBLoop by body ratio 1.00, callees 1.00, sizes 92/92
+text actGirlSupportGBEnd 0x00173028 0x00173054 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlSupportGBEnd by body ratio 1.00, callees 1.00, sizes 44/44
+text actGirlHangG3M 0x00173058 0x0017309C ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlHangG3M by body ratio 1.00, callees 1.00, sizes 68/68
+text actGirlDitch3mExec 0x001730A0 0x001731A0 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlDitch3mExec by body ratio 1.00, callees 1.00, sizes 256/256
+text actGirlStand 0x001731A0 0x001731E4 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlStand by body ratio 1.00, callees 1.00, sizes 68/68
+text actGirlWalk 0x001731E8 0x0017322C ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlWalk by body ratio 1.00, callees 1.00, sizes 68/68
+text actGirlRun 0x00173230 0x00173274 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlRun by body ratio 1.00, callees 1.00, sizes 68/68
+text actGirlHang 0x00173278 0x001732EC ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlHang by act-mode-def's HANG row holds it (girl column), as PAL's holds actGirlHang
+text actGirlBHang 0x001732F0 0x00173370 ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlBHang by body ratio 0.54, callees 0.67, sizes 244/128
 text actGirlAttack 0x00173370 0x001733B4 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 12; imm:1; extent-equal
 text actGirlBecall 0x001733B8 0x001734B0 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 51; imm:1; extent-equal
 text actGirlAttractAction 0x00173538 0x00173564 ico2/fumi/src/girl_act.c  # ordinal; first difference at insn 6; imm:1; extent-equal
-text func_00173568 0x00173568 0x0017360C ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlHand50
-text func_00173610 0x00173610 0x0017364C ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest afterGirlHand50
-text func_00173650 0x00173650 0x001736CC ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlHand100
-text func_001736D0 0x001736D0 0x0017370C ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest afterGirlHand100
-text func_00173710 0x00173710 0x0017378C ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest actGirlHand200
-text func_00173790 0x00173790 0x001737CC ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL size and order suggest afterGirlHand200
+text actGirlHand50 0x00173568 0x0017360C ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlHand50 by body ratio 1.00, callees 1.00, sizes 164/164
+text afterGirlHand50 0x00173610 0x0017364C ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); afterGirlHand50 by body ratio 1.00, callees 1.00, sizes 60/60
+text actGirlHand100 0x00173650 0x001736CC ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlHand100 by body ratio 1.00, callees 1.00, sizes 124/124
+text afterGirlHand100 0x001736D0 0x0017370C ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); afterGirlHand100 by body ratio 1.00, callees 1.00, sizes 60/60
+text actGirlHand200 0x00173710 0x0017378C ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); actGirlHand200 by body ratio 1.00, callees 1.00, sizes 124/124
+text afterGirlHand200 0x00173790 0x001737CC ico2/fumi/src/girl_act.c  # aug6-only in the census (in girl_act.c's span); afterGirlHand200 by body ratio 1.00, callees 1.00, sizes 60/60
 text NotNeedBackHand 0x001737D0 0x00173824 ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's NotNeedBackHand (84 B in PAL)
 text SetGirlDangerGObj 0x00173828 0x00173848 ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's SetGirlDangerGObj (32 B in PAL)
 text ClearGirlDangerGObj 0x00173848 0x00173868 ico2/fumi/src/girl_act.c  # trfile; aug6-only in the census; PAL's ClearGirlDangerGObj (32 B in PAL)
@@ -836,7 +850,7 @@ text MakeAttackPack_Actor 0x0017E4E0 0x0017E76C ico2/omori/src/attackhit.c local
 text AttackCheckSameGroup 0x0017E770 0x0017E908 ico2/omori/src/attackhit.c local  # trfile; aug6-only in the census; PAL's AttackCheckSameGroup (424 B in PAL)
 text AttackMail 0x0017E908 0x0017EBE4 ico2/omori/src/attackhit.c local  # trfile; aug6-only in the census; PAL's AttackMail (720 B in PAL)
 text AttackCheckHit 0x0017EBE8 0x0017EED4 ico2/omori/src/attackhit.c local  # trfile; aug6-only in the census; PAL's AttackCheckHit (1160 B in PAL)
-text func_0017EED8 0x0017EED8 0x0017F0D0 ico2/omori/src/attackhit.c  # aug6-only; after warpGirl.c's span; PAL order suggests inner_check (524 B in PAL)
+text AttackGenerate 0x0017EED8 0x0017F0D0 ico2/omori/src/attackhit.c local  # aug6-only in the census (after warpGirl.c's span); AttackGenerate by body ratio 0.61, callees 0.64, sizes 652/504, call sites 1
 text CommonAttackCenter 0x0017F0E0 0x0017F110 ico2/omori/src/attackhit.c  # trfile; aug6-only in the census; PAL's CommonAttackCenter (48 B in PAL)
 text AttackCenter 0x0017F110 0x0017F29C ico2/omori/src/attackhit.c  # trfile; aug6-only in the census; not in PAL's attackhit
 text AttackCenter_WithDir 0x0017F2A0 0x0017F450 ico2/omori/src/attackhit.c  # trfile; aug6-only in the census; PAL's AttackCenter_WithDir (440 B in PAL)
@@ -859,7 +873,7 @@ text monitorMonitorCamera 0x00185BF8 0x00186198 ico2/omori/src/camera-ico2.c loc
 text ReflectCameraSetBinary 0x00186CA8 0x00186FC8 ico2/omori/src/camera-ico2.c  # ordinal; first difference at insn 36; imm:1; extent-equal
 text InitIco2Camera 0x00186FC8 0x00187088 ico2/omori/src/camera-ico2.c  # ordinal; first difference at insn 4; other:4; extent-equal
 text GetTargetOffset 0x00187088 0x00187264 ico2/omori/src/camera-ico2.c local  # ordinal; first difference at insn 54; imm:2; extent-equal
-text func_00187268 0x00187268 0x001878E0 ico2/omori/src/camera-ico2.c  # aug6-only; in camera-ico2.c's span; PAL order suggests SetCameraMatrix_Ico2 (1420 B in PAL)
+text SetCameraMatrix_Ico2 0x00187268 0x001878E0 ico2/omori/src/camera-ico2.c  # aug6-only in the census (in camera-ico2.c's span); SetCameraMatrix_Ico2 by body ratio 0.82, callees 0.95, sizes 1420/1656
 text ReadCameraSet 0x001878E0 0x00188574 ico2/omori/src/camera-ico2.c local  # trfile; aug6-only in the census; PAL's ReadCameraSet (3220 B in PAL)
 text AddPluralCameraSet 0x00188728 0x001887D4 ico2/omori/src/camera-ico2.c  # ordinal; first difference at insn 15; imm:2; extent-equal
 text GetPluralCameraSet 0x001887E0 0x00188884 ico2/omori/src/camera-ico2.c  # ordinal; first difference at insn 27; imm:2; extent-equal
@@ -952,7 +966,7 @@ text GetMailAdditionalData 0x001928F8 0x0019299C ico2/omori/src/mail-add-data.c 
 text ClearMailAdditionalData 0x001929A0 0x00192A08 ico2/omori/src/mail-add-data.c  # trfile; aug6-only in the census; PAL's ClearMailAdditionalData (104 B in PAL)
 text birdBeforeFunc 0x00192EE8 0x0019310C ico2/ito/src/act_bird.c  # ordinal; first difference at insn 16; imm:32; extent-equal
 text subBirdBrainMain 0x00193240 0x001945F8 ico2/ito/src/act_bird.c  # ordinal; first difference at insn 5; length:-31; extent-differs
-text Debug_StickControl 0x001946F8 0x001947F4 ico2/ito/src/act_bird.c local  # ordinal; first difference at insn 10; imm:9; extent-equal
+text Debug_StickControl 0x001946F8 0x001947F4 ico2/ito/src/act_bird.c local file=Debug_StickControl_act_bird  # ordinal; first difference at insn 10; imm:9; extent-equal
 text BirdDL 0x00194800 0x00194860 ico2/ito/src/act_bird.c  # ordinal; first difference at insn 6; imm:2; extent-equal
 text subBirdControl 0x001948E0 0x00194918 ico2/ito/src/act_bird.c  # ordinal; first difference at insn 6; length:+1; extent-differs
 text actBirdStart 0x00194940 0x001949BC ico2/ito/src/act_bird.c  # ordinal; first difference at insn 22; imm:3; extent-equal
@@ -975,10 +989,10 @@ text effect_end_func 0x00197158 0x001971AC ico2/ito/src/queen.c local file=effec
 text queenBeforeFunc 0x001971B0 0x0019735C ico2/ito/src/queen.c  # trfile; aug6-only in the census; PAL's queenBeforeFunc (484 B in PAL)
 text gene_enemy 0x00197360 0x001976AC ico2/ito/src/queen.c file=gene_enemy_queen  # trfile; aug6-only in the census; PAL's gene_enemy (844 B in PAL)
 text subQueenBrainMain 0x001976B0 0x00197DDC ico2/ito/src/queen.c  # trfile; aug6-only in the census; PAL's subQueenBrainMain (1912 B in PAL)
-text func_00197DE0 0x00197DE0 0x00197EDC ico2/ito/src/queen.c  # aug6-only; after queen.c's span; PAL size and order suggest Debug_StickControl
-text func_00197EE0 0x00197EE0 0x00197FE8 ico2/ito/src/queen.c  # aug6-only; after queen.c's span; PAL size and order suggest InitQueenGeo
-text func_00197FE8 0x00197FE8 0x0019807C ico2/ito/src/queen.c  # aug6-only; after queen.c's span; PAL order suggests actQueenStart (144 B in PAL)
-text func_00198080 0x00198080 0x001980EC ico2/ito/src/queen.c  # aug6-only; after queen.c's span; PAL order suggests QueenStartAttack (96 B in PAL)
+text Debug_StickControl 0x00197DE0 0x00197EDC ico2/ito/src/queen.c local file=Debug_StickControl_queen  # aug6-only in the census (after queen.c's span); Debug_StickControl by body ratio 1.00, callees 1.00, sizes 252/252, call sites 1
+text InitQueenGeo 0x00197EE0 0x00197FE8 ico2/ito/src/queen.c  # aug6-only in the census (after queen.c's span); InitQueenGeo by body ratio 1.00, callees 1.00, sizes 264/264; obj-kind-data QUEEN create
+text QueenGeo 0x00197FE8 0x0019807C ico2/ito/src/queen.c  # aug6-only in the census (after queen.c's span); QueenGeo by body ratio 0.84, callees 0.20, sizes 176/148; obj-kind-data QUEEN geo
+text QueenDL 0x00198080 0x001980EC ico2/ito/src/queen.c  # aug6-only in the census (after queen.c's span); QueenDL by body ratio 0.85, callees 0.75, sizes 128/108; obj-kind-data QUEEN dl
 text QueenBarrierGeo 0x001980F0 0x00198520 ico2/ito/src/queen.c  # trfile; aug6-only in the census; PAL's QueenBarrierGeo (1072 B in PAL)
 text QueenBarrierDL 0x00198520 0x00198568 ico2/ito/src/queen.c  # trfile; aug6-only in the census; PAL's QueenBarrierDL (72 B in PAL)
 text QueenBallGeo 0x00198568 0x00198D24 ico2/ito/src/queen.c  # trfile; aug6-only in the census; PAL's QueenBallGeo (2004 B in PAL)
@@ -1001,7 +1015,7 @@ text StageOrientInit 0x0019A3C8 0x0019A4B8 ico2/ito/src/stage_orient.c  # ordina
 text readMpeg 0x0019A600 0x0019A844 ico2/ito/mpeg/mv_main.c local  # ordinal; first difference at insn 2; length:-42; extent-differs
 text initAll 0x0019A848 0x0019AB4C ico2/ito/mpeg/mv_main.c local  # ordinal; first difference at insn 3; length:-1; extent-differs
 text free_buffer 0x0019AF98 0x0019AFA0 ico2/ito/mpeg/mv_readbuf.c  # trfile; aug6-only in the census; not in PAL's mv_readbuf
-text func_0019AFA0 0x0019AFA0 0x0019AFA8 ico2/ito/mpeg/mv_readbuf.c  # aug6-only; after mv_main.c's span; PAL size and order suggest readBufDelete
+text readBufDelete 0x0019AFA0 0x0019AFA8 ico2/ito/mpeg/mv_readbuf.c  # aug6-only in the census (after mv_main.c's span); readBufDelete by termAll (body equal to PAL's) calls it where PAL's calls readBufDelete
 text func_0019AFA8 0x0019AFA8 0x0019AFB8 ico2/ito/mpeg/mv_readbuf.c  # aug6-only; after mv_main.c's span; pairs with no PAL-only function there by size and order
 text readBufCreate 0x0019AFB8 0x0019B064 ico2/ito/mpeg/mv_readbuf.c  # trfile; aug6-only in the census; PAL's readBufCreate (172 B in PAL)
 text strFileOpen 0x0019B140 0x0019B174 ico2/ito/mpeg/mv_strfile.c  # ordinal; first difference at insn 5; imm:1; extent-equal
@@ -1219,7 +1233,7 @@ text GetBoxHoldPoint 0x001BC7D0 0x001BCA10 ico2/sugipon/src/box.c  # ordinal; fi
 text moveBoxAutoMatic 0x001BCB68 0x001BCC88 ico2/sugipon/src/box.c local  # trfile; aug6-only in the census; PAL's moveBoxAutoMatic (456 B in PAL)
 text MoveBoxWithHoldPoint 0x001BCC88 0x001BD11C ico2/sugipon/src/box.c  # trfile; aug6-only in the census; PAL's MoveBoxWithHoldPoint (1756 B in PAL)
 text ReInitBoxGeo 0x001BD120 0x001BD324 ico2/sugipon/src/box.c  # trfile; aug6-only in the census; PAL's ReInitBoxGeo (216 B in PAL)
-text func_001BD328 0x001BD328 0x001BD750 ico2/sugipon/src/box.c  # aug6-only; in box.c's span; PAL order suggests InitBoxGeo (1128 B in PAL)
+text InitBoxGeo 0x001BD328 0x001BD750 ico2/sugipon/src/box.c  # aug6-only in the census (in box.c's span); InitBoxGeo by body ratio 0.96, callees 1.00, sizes 1128/1064; obj-kind-data WOODBOX01 create
 text BoxGeo 0x001BD750 0x001BD7C0 ico2/sugipon/src/box.c  # trfile; aug6-only in the census; PAL's BoxGeo (112 B in PAL)
 text GetBoxMode 0x001BD7C0 0x001BD7D0 ico2/sugipon/src/box.c  # trfile; aug6-only in the census; PAL's GetBoxMode (16 B in PAL)
 text AlignBox 0x001BD7D0 0x001BD940 ico2/sugipon/src/box.c  # trfile; aug6-only in the census; PAL's AlignBox (396 B in PAL)
@@ -1244,9 +1258,9 @@ text dispClothes 0x001BE5D8 0x001BE678 ico2/sugipon/src/boy.c local file=dispClo
 text execClothes 0x001BE678 0x001BE704 ico2/sugipon/src/boy.c local file=execClothes_boy  # ordinal; first difference at insn 0; length:-64; extent-differs
 text InitLightLineGeo 0x001BE708 0x001BEA2C ico2/sugipon/src/boy.c  # ordinal; first difference at insn 14; imm:4; extent-equal
 text InitBoyGeo 0x001BEE20 0x001BEFCC ico2/sugipon/src/boy.c  # trfile; aug6-only in the census; PAL's InitBoyGeo (868 B in PAL)
-text func_001BEFD0 0x001BEFD0 0x001BF118 ico2/sugipon/src/boy.c  # aug6-only; in boy.c's span; PAL order suggests actionOfWater (368 B in PAL)
-text func_001BF118 0x001BF118 0x001BF1C4 ico2/sugipon/src/boy.c  # aug6-only; in boy.c's span; PAL size and order suggest dispCrown
-text func_001BF1C8 0x001BF1C8 0x001BF308 ico2/sugipon/src/boy.c  # aug6-only; in boy.c's span; PAL order suggests BoyDL (328 B in PAL)
+text BoyGeo 0x001BEFD0 0x001BF118 ico2/sugipon/src/boy.c  # aug6-only in the census (in boy.c's span); BoyGeo by obj-kind-data's BOY row holds it as geo, as PAL's holds BoyGeo
+text dispCrown 0x001BF118 0x001BF1C4 ico2/sugipon/src/boy.c local  # aug6-only in the census (in boy.c's span); dispCrown by body ratio 1.00, callees 1.00, sizes 172/172
+text BoyDL 0x001BF1C8 0x001BF308 ico2/sugipon/src/boy.c  # aug6-only in the census (in boy.c's span); BoyDL by body ratio 0.90, callees 0.62, sizes 328/320; obj-kind-data BOY dl
 text SelectBoyCrown 0x001BF308 0x001BF318 ico2/sugipon/src/boy.c  # ordinal; first difference at insn 1; imm:1; extent-equal
 text SetBoyStonizedVisual 0x001BF3E0 0x001BF428 ico2/sugipon/src/boy.c  # ordinal; first difference at insn 7; imm:4; extent-equal
 text CageRideFunc 0x001BF428 0x001BF560 ico2/sugipon/src/cage.c  # ordinal; first difference at insn 14; imm:1; extent-equal
@@ -1266,9 +1280,9 @@ text _deleteLayoutedCandleParticleEffect 0x001C05A8 0x001C0644 ico2/sugipon/src/
 text GetChainAnimation 0x001C1560 0x001C1B64 ico2/sugipon/src/clothAnimation.c  # ordinal; first difference at insn 13; length:+63; extent-differs
 text InitChains 0x001C2B30 0x001C2E0C ico2/sugipon/src/clothAnimation.c  # ordinal; first difference at insn 9; imm:5; extent-equal
 text InitClothes 0x001C2E10 0x001C3240 ico2/sugipon/src/clothAnimation.c  # ordinal; first difference at insn 3; imm:7; extent-equal
-text func_001C3638 0x001C3638 0x001C3C08 ico2/sugipon/src/clothAnimation.c  # aug6-only; in clothAnimation.c's span; PAL order suggests getCloth4D_preProcess (1716 B in PAL)
+text getCloth4D_preProcess 0x001C3638 0x001C3C08 ico2/sugipon/src/clothAnimation.c local  # aug6-only in the census (in clothAnimation.c's span); getCloth4D_preProcess by body ratio 0.54, callees 0.76, sizes 1716/1488
 text getCloth4D 0x001C4060 0x001C521C ico2/sugipon/src/clothAnimation.c local  # ordinal; first difference at insn 2; length:-12; extent-differs
-text func_001C5488 0x001C5488 0x001C56E4 ico2/sugipon/src/clothAnimation.c  # aug6-only; in clothAnimation.c's span; PAL order suggests _getCloth4D (612 B in PAL)
+text _getCloth4D 0x001C5488 0x001C56E4 ico2/sugipon/src/clothAnimation.c local  # aug6-only in the census (in clothAnimation.c's span); _getCloth4D by body ratio 0.80, callees 0.67, sizes 612/604
 text InitCloth4D 0x001C56E8 0x001C5BC4 ico2/sugipon/src/clothAnimation.c  # trfile; aug6-only in the census; PAL's InitCloth4D (1252 B in PAL)
 text sonic 0x001C7058 0x001C8050 ico2/sugipon/src/darkVolume.c local  # ordinal; first difference at insn 5; length:-11; extent-differs
 text darkVolume 0x001C8050 0x001C8B7C ico2/sugipon/src/darkVolume.c local  # ordinal; first difference at insn 1; length:+6; extent-differs
@@ -1314,7 +1328,7 @@ text EntryEnemyFootPrint 0x001CC950 0x001CCA00 ico2/sugipon/src/enemyParts.c  # 
 text InitPointBlur 0x001CCA20 0x001CCB5C ico2/sugipon/src/enemyParts.c  # ordinal; first difference at insn 18; imm:4; extent-equal
 text DispEnemyEye 0x001CCC28 0x001CCCAC ico2/sugipon/src/enemyParts.c  # ordinal; first difference at insn 8; length:-1; extent-differs
 text InitFlagGeo 0x001CCDE8 0x001CD384 ico2/sugipon/src/flag.c  # trfile; aug6-only in the census; PAL's InitFlagGeo (2028 B in PAL)
-text func_001CD388 0x001CD388 0x001CD478 ico2/sugipon/src/flag.c  # aug6-only; after enemyParts.c's span; PAL order suggests FlagGeo (288 B in PAL)
+text FlagGeo 0x001CD388 0x001CD478 ico2/sugipon/src/flag.c  # aug6-only in the census (after enemyParts.c's span); FlagGeo by body ratio 0.89, callees 0.75, sizes 288/240; obj-kind-data FLAG geo
 text FlagDL 0x001CD478 0x001CD62C ico2/sugipon/src/flag.c  # trfile; aug6-only in the census; PAL's FlagDL (508 B in PAL)
 text GetFlyLimitHeight 0x001CD678 0x001CD748 ico2/sugipon/src/flyManager.c  # trfile; aug6-only in the census; PAL's GetFlyLimitHeight (248 B in PAL)
 text GetFlyLimitClearance 0x001CD748 0x001CD7E4 ico2/sugipon/src/flyManager.c  # trfile; aug6-only in the census; PAL's GetFlyLimitClearance (200 B in PAL)
@@ -1333,17 +1347,17 @@ text execWeaponLightOff 0x001CE800 0x001CE850 ico2/sugipon/src/frameDependSequen
 text execClothes 0x001CE850 0x001CE918 ico2/sugipon/src/girl.c local file=execClothes_girl  # trfile; aug6-only in the census; PAL's execClothes (532 B in PAL)
 text dispClothes 0x001CE918 0x001CEA00 ico2/sugipon/src/girl.c local file=dispClothes_girl  # trfile; aug6-only in the census; PAL's dispClothes (324 B in PAL)
 text InitGirlGeo 0x001CEA00 0x001CEB8C ico2/sugipon/src/girl.c  # trfile; aug6-only in the census; PAL's InitGirlGeo (536 B in PAL)
-text func_001CEB90 0x001CEB90 0x001CED54 ico2/sugipon/src/girl.c  # aug6-only; after frameDependSequence.c's span; PAL size and order suggest GirlGeo
+text GirlGeo 0x001CEB90 0x001CED54 ico2/sugipon/src/girl.c  # aug6-only in the census (after frameDependSequence.c's span); GirlGeo by body ratio 1.00, callees 0.62, sizes 452/452; obj-kind-data GIRL geo
 text debugWireStringGirl 0x001CED58 0x001CEE30 ico2/sugipon/src/girl.c local  # ordinal; first difference at insn 11; imm:1; extent-equal
-text func_001CEE68 0x001CEE68 0x001CEE70 ico2/sugipon/src/girl.c  # aug6-only; after girl.c's span; PAL order suggests SetGirlHairDispSwitch (16 B in PAL)
-text func_001CEE70 0x001CEE70 0x001CEEC4 ico2/sugipon/src/girl.c  # aug6-only; after girl.c's span; PAL order suggests setGirlClothSetting (104 B in PAL)
-text func_001CEEC8 0x001CEEC8 0x001CF00C ico2/sugipon/src/girlForceField.c  # aug6-only; after girl.c's span; PAL size and order suggest GirlForceFieldDL
-text func_001CF010 0x001CF010 0x001CF090 ico2/sugipon/src/girlForceField.c  # aug6-only; after girl.c's span; PAL size and order suggest InitGirlForceFieldGeo
-text func_001CF090 0x001CF090 0x001CF098 ico2/sugipon/src/girlForceField.c  # aug6-only; after girl.c's span; PAL size and order suggest GirlForceFieldGeo
-text func_001CF098 0x001CF098 0x001CF1B0 ico2/sugipon/src/handManager.c  # aug6-only; after girl.c's span; PAL size and order suggest getBone.6
-text func_001CF1B0 0x001CF1B0 0x001CF44C ico2/sugipon/src/handManager.c  # aug6-only; after girl.c's span; PAL order suggests connectToTarget (812 B in PAL)
-text func_001CF450 0x001CF450 0x001CF774 ico2/sugipon/src/handManager.c  # aug6-only; after girl.c's span; PAL size and order suggest _handManager
-text func_001CF778 0x001CF778 0x001CF8CC ico2/sugipon/src/handManager.c  # aug6-only; after girl.c's span; PAL size and order suggest HandManager
+text GirlAI 0x001CEE68 0x001CEE70 ico2/sugipon/src/girl.c  # aug6-only in the census (after girl.c's span); GirlAI by obj-kind-data's GIRL and DEVIL_GIRL rows hold it as ai, as PAL's hold GirlAI
+text SetGirlClothDispSwitch 0x001CEE70 0x001CEEC4 ico2/sugipon/src/girl.c  # aug6-only in the census (after girl.c's span); SetGirlClothDispSwitch by body ratio 1.00, callees -, sizes 84/84
+text GirlForceFieldDL 0x001CEEC8 0x001CF00C ico2/sugipon/src/girlForceField.c  # aug6-only in the census (after girl.c's span); GirlForceFieldDL by body ratio 1.00, callees 0.67, sizes 324/324
+text InitGirlForceFieldGeo 0x001CF010 0x001CF090 ico2/sugipon/src/girlForceField.c  # aug6-only in the census (after girl.c's span); InitGirlForceFieldGeo by body ratio 1.00, callees 1.00, sizes 128/128
+text GirlForceFieldGeo 0x001CF090 0x001CF098 ico2/sugipon/src/girlForceField.c  # aug6-only in the census (after girl.c's span); GirlForceFieldGeo by body ratio 1.00, callees -, sizes 8/8
+text getBone.6 0x001CF098 0x001CF1B0 ico2/sugipon/src/handManager.c local  # aug6-only in the census (after girl.c's span); getBone.6 by body ratio 1.00, callees 1.00, sizes 280/280
+text connectToTarget 0x001CF1B0 0x001CF44C ico2/sugipon/src/handManager.c local  # aug6-only in the census (after girl.c's span); connectToTarget by body ratio 0.69, callees 0.69, sizes 812/668
+text _handManager 0x001CF450 0x001CF774 ico2/sugipon/src/handManager.c local  # aug6-only in the census (after girl.c's span); _handManager by body ratio 1.00, callees 0.88, sizes 804/804
+text HandManager 0x001CF778 0x001CF8CC ico2/sugipon/src/handManager.c  # aug6-only in the census (after girl.c's span); HandManager by body ratio 0.98, callees 0.33, sizes 340/340
 text func_001CF8D0 0x001CF8D0 0x001CF8D8 ico2/sugipon/src/handManager.c  # aug6-only; after girl.c's span; pairs with no PAL-only function there by size and order
 text func_001CF8D8 0x001CF8D8 0x001CF8E0 ico2/sugipon/src/handManager.c  # aug6-only; after girl.c's span; pairs with no PAL-only function there by size and order
 text bombExplodeSE 0x001CF8E0 0x001CF8E8 ico2/sugipon/src/item.c local  # trfile; the census pairs PAL bombSparkStartSE here (bodies equal); PAL's bombExplodeSE is 8 B
@@ -1426,12 +1440,12 @@ text normalMotionShift 0x001DF630 0x001DF94C ico2/sugipon/src/motionOrientManage
 text parallelMotionShift 0x001DF950 0x001DFC98 ico2/sugipon/src/motionOrientManager.c local  # ordinal; first difference at insn 9; imm:7; extent-equal
 text SetMotionRequest 0x001DFC98 0x001E0014 ico2/sugipon/src/motionOrientManager.c  # ordinal; first difference at insn 29; imm:12; extent-equal
 text getNodeBlendedFloatingMotion 0x001E0018 0x001E02DC ico2/sugipon/src/motionOrientManager.c local  # ordinal; first difference at insn 1; imm:11; extent-equal
-text func_001E02E0 0x001E02E0 0x001E0C64 ico2/sugipon/src/motionOrientManager.c  # aug6-only; in motionOrientManager.c's span; PAL order suggests getMotionGeometry (2536 B in PAL)
-text func_001E0C68 0x001E0C68 0x001E0F88 ico2/sugipon/src/motionOrientManager.c  # aug6-only; in motionOrientManager.c's span; PAL size and order suggest getShapeGeometry
-text func_001E0F88 0x001E0F88 0x001E10A0 ico2/sugipon/src/motionOrientManager.c  # aug6-only; in motionOrientManager.c's span; PAL order suggests getStreamMotionGeometry (300 B in PAL)
-text func_001E10A0 0x001E10A0 0x001E11BC ico2/sugipon/src/motionOrientManager.c  # aug6-only; in motionOrientManager.c's span; PAL size and order suggest getStreamShapeGeometry
+text getMotionGeometry 0x001E02E0 0x001E0C64 ico2/sugipon/src/motionOrientManager.c local  # aug6-only in the census (in motionOrientManager.c's span); getMotionGeometry by body ratio 0.91, callees 0.97, sizes 2536/2436
+text getShapeGeometry 0x001E0C68 0x001E0F88 ico2/sugipon/src/motionOrientManager.c local  # aug6-only in the census (in motionOrientManager.c's span); getShapeGeometry by body ratio 1.00, callees 1.00, sizes 800/800
+text getStreamMotionGeometry 0x001E0F88 0x001E10A0 ico2/sugipon/src/motionOrientManager.c local  # aug6-only in the census (in motionOrientManager.c's span); getStreamMotionGeometry by body ratio 0.68, callees 1.00, sizes 300/280
+text getStreamShapeGeometry 0x001E10A0 0x001E11BC ico2/sugipon/src/motionOrientManager.c local  # aug6-only in the census (in motionOrientManager.c's span); getStreamShapeGeometry by body ratio 1.00, callees 1.00, sizes 284/284
 text func_001E11C0 0x001E11C0 0x001E1244 ico2/sugipon/src/motionOrientManager.c  # aug6-only; in motionOrientManager.c's span; PAL size and order suggest GetMotionOrient
-text func_001E1248 0x001E1248 0x001E13FC ico2/sugipon/src/motionOrientManager.c  # aug6-only; in motionOrientManager.c's span; PAL order suggests CopyBlendMotionDataSource (284 B in PAL)
+text ExecMotionOrient 0x001E1248 0x001E13FC ico2/sugipon/src/motionOrientManager.c  # aug6-only in the census (in motionOrientManager.c's span); ExecMotionOrient by body ratio 1.00, callees 0.75, sizes 436/436, call sites 1
 text SetNodeRotationLimitDataTable 0x001E1400 0x001E173C ico2/sugipon/src/motionOrientManager.c  # trfile; aug6-only in the census; PAL's SetNodeRotationLimitDataTable (828 B in PAL)
 text GetMotionOrient 0x001E1740 0x001E17C4 ico2/sugipon/src/motionOrientManager.c  # trfile; aug6-only in the census; PAL's GetMotionOrient (132 B in PAL)
 text getMotionOrient 0x001E17C8 0x001E1860 ico2/sugipon/src/motionOrientManager.c  # trfile; aug6-only in the census; PAL's getMotionOrient (152 B in PAL)
@@ -1453,13 +1467,13 @@ text EntryMultiBgaManagerSensitive 0x001E3D80 0x001E3DEC ico2/sugipon/src/multiB
 text EntryMultiBgaManagerNoKind 0x001E3EB0 0x001E3F1C ico2/sugipon/src/multiBgaManager.c  # ordinal; first difference at insn 3; length:-1; extent-differs
 text setParticleEffect 0x001E4020 0x001E4638 ico2/sugipon/src/particleEffect.c local  # trfile; aug6-only in the census; PAL's setParticleEffect (692 B in PAL)
 text execParticleEffect 0x001E4638 0x001E5368 ico2/sugipon/src/particleEffect.c local  # trfile; aug6-only in the census; PAL's execParticleEffect (1676 B in PAL)
-text SetParticleEffectByPartition 0x001E5688 0x001E5824 ico2/sugipon/src/particleEffect.c  # ordinal; first difference at insn 0; length:-1; extent-differs
+text SetParticleEffect 0x001E5688 0x001E5824 ico2/sugipon/src/particleEffect.c  # TRFILE.TXT names it SetParticleEffect (span 8 B longer there), where the census pairs PAL SetParticleEffectByPartition (ordinal; first difference at insn 0; length:-1); the census-equal callers scpEffectStart, InitCandleGeo, EditTarget, enemySetParticleDie, SetEnemyStonizedVisual and InitParticleLayoutGeo call it where PAL's call SetParticleEffect
 text SetParticleEffectGeometry 0x001E5828 0x001E5868 ico2/sugipon/src/particleEffect.c  # ordinal; first difference at insn 1; imm:2; extent-equal
 text SetParticleEffectUpperLimit 0x001E5868 0x001E58A4 ico2/sugipon/src/particleEffect.c  # ordinal; first difference at insn 2; imm:2; extent-equal
 text ExecParticleEffect 0x001E58A8 0x001E5A9C ico2/sugipon/src/particleEffect.c  # ordinal; first difference at insn 0; length:+15; extent-differs
 text ResetParticleEffectPackages 0x001E5AA0 0x001E5BAC ico2/sugipon/src/particleEffect.c  # ordinal; first difference at insn 0; length:-4; extent-differs
-text func_001E5C78 0x001E5C78 0x001E5CDC ico2/sugipon/src/particleEffect.c  # aug6-only; in particleEffect.c's span; PAL order suggests InitParticleEffects (108 B in PAL)
-text func_001E5CE0 0x001E5CE0 0x001E5D34 ico2/sugipon/src/particleEffect.c  # aug6-only; in particleEffect.c's span; PAL size and order suggest DispParticleEffects
+text InitParticleEffects 0x001E5C78 0x001E5CDC ico2/sugipon/src/particleEffect.c  # aug6-only in the census (in particleEffect.c's span); InitParticleEffects by body ratio 0.96, callees -, sizes 108/100
+text DispParticleEffects 0x001E5CE0 0x001E5D34 ico2/sugipon/src/particleEffect.c  # aug6-only in the census (in particleEffect.c's span); DispParticleEffects by body ratio 1.00, callees 1.00, sizes 84/84, call sites 1
 text DeleteParticleEffect 0x001E5D38 0x001E5DC4 ico2/sugipon/src/particleEffect.c  # trfile; aug6-only in the census; PAL's DeleteParticleEffect (140 B in PAL)
 text SetParticleEffectActiveSensing 0x001E5DC8 0x001E5E34 ico2/sugipon/src/particleEffect.c  # trfile; aug6-only in the census; PAL's SetParticleEffectActiveSensing (112 B in PAL)
 text DeleteParticleEffectsByPackage 0x001E5E50 0x001E5EE8 ico2/sugipon/src/particleEffect.c  # ordinal; first difference at insn 7; imm:8; extent-equal
@@ -1644,7 +1658,7 @@ text after_func_exec 0x001FF6A8 0x001FF830 ico2/fumi/src/act.c local  # trfile; 
 text actInitialize_ext_charcter 0x001FF830 0x001FF8EC ico2/fumi/src/act.c  # trfile; aug6-only in the census; PAL's actInitialize_ext_charcter (188 B in PAL)
 text actInitialize 0x001FF8F0 0x001FFCC8 ico2/fumi/src/act.c  # trfile; aug6-only in the census; PAL's actInitialize (996 B in PAL)
 text act_check_intr_list 0x001FFCC8 0x001FFEAC ico2/fumi/src/act.c local  # trfile; aug6-only in the census; PAL's act_check_intr_list (484 B in PAL)
-text func_001FFEB0 0x001FFEB0 0x00200148 ico2/fumi/src/act.c  # aug6-only; in act.c's span; PAL order suggests act_check_mail (648 B in PAL)
+text act_check_mail 0x001FFEB0 0x00200148 ico2/fumi/src/act.c local  # aug6-only in the census (in act.c's span); act_check_mail by body ratio 0.85, callees -, sizes 648/664
 text BeforeFunc 0x00200148 0x00200810 ico2/fumi/src/act.c  # trfile; aug6-only in the census; PAL's BeforeFunc (1752 B in PAL)
 text ACTDebugMove 0x00200810 0x00200FEC ico2/fumi/src/act.c  # ordinal; first difference at insn 67; imm:14; extent-equal
 text actInitialize_only_charcter 0x00200FF8 0x002010F0 ico2/fumi/src/act.c  # trfile; aug6-only in the census; PAL's actInitialize_only_charcter (256 B in PAL)

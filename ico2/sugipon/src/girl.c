@@ -1723,23 +1723,12 @@ inline void SetGirlClothDispSwitch(GObj *gobj, int part, int on)
     }
 }
 
-inline void SetGirlHairDispSwitch(GObj *gobj, int on)
-{
-    GirlWork *cloth = GOBJ_SUB(gobj)->work;
-    cloth->ornamentDisp = on;
-}
-
 typedef struct { /* field names derived */
     int tightLevel;
     int gravityLevel;
     int bendAngle;
     int collision;
 } GirlClothSetting; /* derived name */
-
-/* the two cloth parameter sets setGirlClothSetting switches between */
-static GirlClothSetting girlClothDemoParam = {20, 0, 256, 1}; /* derived name */
-
-static GirlClothSetting girlClothGameParam = {20, 0, 256, 0}; /* derived name */
 
 /* copy a cloth setting into the hair debug levels */
 static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
@@ -1748,17 +1737,6 @@ static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
     debug_hair_gravity_level = p->gravityLevel;
     debug_hair_bend_angle = p->bendAngle;
     debug_hair_collision = p->collision;
-}
-
-static inline void setGirlClothSetting(int lv)
-{
-    if (lv == 0) {
-        debug_StdPrintfDummy("set cloth demo mode\n");
-        setGirlClothParam(&girlClothDemoParam);
-    } else {
-        debug_StdPrintfDummy("set cloth game mode\n");
-        setGirlClothParam(&girlClothGameParam);
-    }
 }
 
 void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)

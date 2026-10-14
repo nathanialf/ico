@@ -354,8 +354,6 @@ int movie_abort_check(void)
     return ret;
 }
 
-void demoEnd(void) {}
-
 /* the boot thread's kernel id */
 static int bootThreadId; /* derived name */
 

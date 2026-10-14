@@ -95,8 +95,6 @@ SqEntry *hand = 0;
 
 static SqEntry *st13c_reserved = 0; /* derived name */
 
-static int st13c_yure = 0; /* derived name */
-
 static unsigned char st13c_yure_vol = 0; /* derived name */
 
 void actSt13cInit(void)
@@ -914,85 +912,7 @@ void actSt13cCageFallEffect(GObj *volatile self)
     _ACTWait(0);
 }
 
-static void actSt13cSekizoChk(GObj *volatile self)
-{
-    /* the SE handle, which the sound subsystem owns; here it is never
-       written before soundSeDefStop reads it back */
-    volatile int se;
-    float dir[4];
-
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-
-    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
-           scpTriggerBall(self, girlGObj, 200.0f) == 0 || gflagChk(28) == 0) {
-        _ACTWait(1);
-    }
-
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    SetWayGroupActive(2, 1);
-
-    scpAdpcmPlayRequestFunc(17, &hand, 1, 1, 1);
-    while (hand == 0) {
-        _ACTWait(1);
-    }
-
-    scpKillEnemyAll();
-    scpMaskGeneratorAll();
-
-    stage_SetAnimation(77, 1, 0);
-
-    st13c_yure = iosPadActRequest(boyPad, 9);
-    st13c_yure_vol = 128;
-    iosPadActVolumeSet(st13c_yure, 128);
-
-    scpPlayStart(boyGObj);
-    scpPlayStart(girlGObj);
-    scpPlayMot(boyGObj, 0);
-    scpPlayMot(girlGObj, 532);
-    scpPlayPosSet(boyGObj, -300.0f, -100.0f, 100.0f);
-    scpPlayPosSet(girlGObj, -300.0f, -100.0f, 0.0f);
-    _ACTWait(1);
-
-    sceVu0SubVector(dir, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
-    scpPlayMotDir(girlGObj, dir);
-
-    scpBoyControlReadDisable = 1;
-
-    sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
-    scpPlayMotDir(boyGObj, dir);
-
-    scpSekizouCheckPoint();
-
-    scpPlayMot(girlGObj, 645);
-    scpPlayWaitMotEnd(girlGObj);
-
-    gflagOn(31);
-
-    soundSeDefStop(se);
-
-    while (stage_CheckAnimationFrame(77, 180, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    iosPadActStop(st13c_yure);
-
-    while (stage_CheckAnimationFinish(77) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpPlayMot(girlGObj, 532);
-    scpPlayEnd(girlGObj);
-    scpPlayMot(boyGObj, 0);
-    scpPlayEnd(boyGObj);
-
-    scpBoyControlReadDisable = 0;
-    lt_switch_layout(54);
-}
+static void actSt13cSekizoChk(GObj *volatile self);
 
 void actSt13cGirlCarryChk(GObj *volatile self)
 {
@@ -1375,22 +1295,6 @@ void actSt13cBuki(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actE3St13cSekizo(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    scpSekizou(self, 31, 77, 0, 17, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
-
-    if (gflagChk(31) == 0) {
-        SetWayGroupActive(2, 0);
-    } else {
-        SetWayGroupActive(2, 1);
-    }
-}
-
 void actSt13cBmg1Event(int x)
 {
     volatile int local = x;
@@ -1552,14 +1456,6 @@ void actSt13cGirlCarryAgainChk(GObj *volatile self)
     _ACTWait(0);
 
     _ACTWait(1);
-}
-
-static void actSt13cHandSub(GObj *volatile self)
-{
-    _ACTWait(100);
-    scpPlayWaitMotEnd(boyGObj);
-    demoEnd = 1;
-    _ACTWait(0);
 }
 
 void actSt13cRescueChk(GObj *volatile self)

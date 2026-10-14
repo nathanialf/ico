@@ -504,24 +504,6 @@ void actSt00aAtr2Chk(GObj *volatile self)
     gflagOn(42);
 }
 
-static void actSt00aStairChkSub(GObj *volatile self)
-{
-    _ACTWait(90);
-    iosPadActRequest(boyPad, 17);
-    while (stage_CheckAnimationFinish(87) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    stage_SetAnimation(89, 1, 0);
-    stage_SetAnimation(90, 1, 0);
-    proto_yure = iosPadActRequest(boyPad, 9);
-    proto_yure_vol = 128;
-    iosPadActVolumeSet(proto_yure, 128);
-    _ACTWait(500);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt00aDoor2Event(int x)
 {
     volatile int local = x;

@@ -203,30 +203,6 @@ inline int DeleteWayPoint(int pno)
     return 0;
 }
 
-/* CreateBridge sits between DeleteWayPoint and the begin iterators; it is the
-   one function of the TU too large to inline. */
-int CreateBridge(float *a, float *b)
-{
-    int gno;
-    int p0;
-    int p1;
-
-    gno = CreateWayGroup();
-    if (gno < 0) {
-        debug_StdPrintfDummy("WayPointCreateNewBridge: way group not create\n");
-        return -1;
-    }
-    p0 = CreateWayPoint(a);
-    AddWayPoint(gno, p0);
-    way_point[p0].bridgeEnd = 1;
-    p1 = CreateWayPoint(b);
-    AddWayPoint(gno, p1);
-    way_point[p1].bridgeEnd = 1;
-    set_bridge(gno);
-    SetWayGroupActive(gno, 1);
-    return gno;
-}
-
 /* the begin iterators start one record before the way-group table and step
    before the first test */
 

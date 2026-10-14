@@ -13,7 +13,6 @@
 
 struct GObj;
 
-void GetRotObjectGameSysObjInfoExtData(short *angle, int *turnCount, GamesysObjInfo *info);
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, struct GObj *bar, void *holdPos,
                                     void *holdDir);
 void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, struct GObj *holder);

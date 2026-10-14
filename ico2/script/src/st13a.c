@@ -67,42 +67,6 @@ int sekizo_13a = 0;
 
 unsigned char sekizo_13a_vol = 0;
 
-static void actSt13aElevUpSub(GObj *volatile self)
-{
-    AdpcmPlay(st13a_up->stream);
-
-    stage_SetAnimation(173, 1, 0);
-    stage_SetAnimation(174, 1, 0);
-
-    while (stage_CheckAnimationFrame(173, 86, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    iosPadActRequest(boyPad, 17);
-
-    while (stage_CheckAnimationFrame(173, 140, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    st13a_yure = iosPadActRequest(boyPad, 9);
-    st13a_yure_vol = 128;
-    iosPadActVolumeSet(st13a_yure, 128);
-
-    while (stage_CheckAnimationFrame(173, 200, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    st13a_yure_vol = 64;
-
-    while (stage_CheckAnimationFrame(173, 380, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt13aElevUp(GObj *volatile self)
 {
     GProc *th;
@@ -162,34 +126,6 @@ void actSt13aElevDown(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
-}
-
-static void actSt13aElevDownSub(GObj *volatile self)
-{
-    stage_SetAnimation(173, 1, 451);
-    stage_SetAnimation(175, 1, 0);
-
-    scpPlayPosSet(boyGObj, -4871.0f, -2800.0f, 2699.0f);
-
-    st13a_yure = iosPadActRequest(boyPad, 9);
-    st13a_yure_vol = 128;
-    iosPadActVolumeSet(st13a_yure, 128);
-
-    while (stage_CheckAnimationFrame(173, 850, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    iosPadActRequest(boyPad, 17);
-    iosPadActStop(st13a_yure);
-    st13a_yure = -1;
-
-    while (stage_CheckAnimationFinish(173) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
 }
 
 void actSt13aElevDownChk(GObj *volatile self)

@@ -1861,18 +1861,6 @@ void queenBarrierBeforeFunc(GObj *g)
     q->num = 0;
 }
 
-int InqQueenBarrierExist(void)
-{
-    GObj *g;
-    int exist = 0;
-
-    g = isysGObjSearchFromObjKindID_begin(54);
-    if (g != 0) {
-        exist = ((QueenBarrierWork *)GOBJ_SUB(g)->work)->damage < 5;
-    }
-    return exist;
-}
-
 void *InitQueenBarrierGeo(GObj *g)
 {
     QueenBarrierWork *w;
@@ -1893,11 +1881,6 @@ void *InitQueenBarrierGeo(GObj *g)
 float QueenBallRadius(GObj *gobj)
 {
     return ((QueenBallWork *)GOBJ_SUB(gobj)->work)->scale * 100.0f;
-}
-
-float GetQueenBallThickness(void)
-{
-    return 150.0f;
 }
 
 void queenBallBeforeFunc(GObj *g)

@@ -18,8 +18,6 @@ static void actSt24aSwordSub(GObj *volatile self);
 
 static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
 
-static ActMail demoCam_mes[2] = {{430}, {429}}; /* derived name */
-
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
 static int demoEnd;
@@ -77,37 +75,6 @@ void actSt24aSwordChk(GObj *volatile self)
     scpBoyControlReadDisable = 0;
 }
 
-static void actSt24aDemoCamChk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 700.0f) == 0) {
-        _ACTWait(1);
-    }
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    gflagOn(330);
-    stage_SetAnimation(154, 1, 0);
-    SetCameraFlag_LwsCutBack();
-    while (stage_CheckAnimationFinish(154) == 0) {
-        if (pad[0].flags & 0x800) {
-            if (scpAdpcmPlayRequestNum() == 0) {
-                scpFadeOut(16.0f, 0, 0, 0);
-                while (scpFadeChk() != 0) {
-                    _ACTWait(1);
-                }
-                while (lt_fade_status() != 2) {
-                    _ACTWait(1);
-                }
-                stage_SetAnimation(154, 0, -1);
-                scpFadeIn(3.0f);
-                break;
-            }
-        }
-        _ACTWait(1);
-    }
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-}
-
 void actSt24aSword(GObj *volatile self)
 {
     GObj *x = self;
@@ -131,45 +98,4 @@ void actSt24aSaku(GObj *volatile self)
     _ACTWait(1);
 
     stage_SetAnimation(151, 0, 0);
-}
-
-void actSt24aDemoCam(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(330) == 0) {
-        demoCam_mes[0].func = actSt24aDemoCamChk;
-        act->mail = demoCam_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-static void actSt24aSwordSub(GObj *volatile self)
-{
-    while (sword == 0) {
-        _ACTWait(1);
-    }
-    AdpcmPlay(sword->stream);
-
-    stage_SetAnimation(153, 1, 0);
-
-    scpPlayMot(boyGObj, 250);
-
-    while (stage_CheckAnimationFrame(153, 21, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpSetBoyWeaponGObj(scpSearchGobj(2098));
-
-    while (stage_CheckAnimationFinish(153) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
 }

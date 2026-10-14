@@ -116,21 +116,7 @@ static int checkPositionIllegal(GObj *self, float *pos)
     return dy > 40.0f;
 }
 
-inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *actor, void *posout)
-{
-    float a[4];
-    float b[4];
-
-    a[0] = p0[0];
-    a[1] = p0[1];
-    a[2] = p0[2];
-    b[0] = p1[0];
-    b[1] = p1[1];
-    b[2] = p1[2];
-    a[1] -= 50.0f;
-    b[1] -= 50.0f;
-    return ACTCheckCollis_WAY(10.0f, a, b, actor, posout);
-}
+inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *actor, void *posout);
 
 /* three helpers inlined into ACTWayMove_BeginDetail and
    ACTWayMove_NextDetail */

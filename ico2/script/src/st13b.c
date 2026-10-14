@@ -22,7 +22,6 @@
 #include "script.h"
 
 static void actSt13bDoorUpSub(GObj *volatile self);
-static void actSt13bElev2CharaChk(GObj *volatile self);
 static void actSt13bElevUpSub(GObj *volatile self);
 
 /* .sbss: the demo's own end flag, the conte-02 end flag, the pad actuator
@@ -66,14 +65,6 @@ static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail doorSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
 static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
-
-static ActMail elev2Chk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail elev2Chk2_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail elev2Chara_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail elev2CharaChk_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the scene stream, the stream handles and shakes, then a further
    shake and volume. */
@@ -539,32 +530,7 @@ void actSt13bMeetAgain(GObj *volatile self)
     }
 }
 
-static void actSt13bMeetAgainSub(GObj *volatile self)
-{
-    stage_SetAnimation(760, 1, 0);
-
-    scpPlayMot((void *)boyGObj, 2);
-    scpPlayMot(scpSearchGobj(2464), 971);
-    scpPlayMot(scpSearchGobj(2465), 972);
-    scpPlayMot(scpSearchGobj(2466), 973);
-    scpPlayMot(scpSearchGobj(2467), 974);
-    scpPlayMot(scpSearchGobj(2468), 975);
-    scpPlayMot(scpSearchGobj(2469), 976);
-
-    while (stage_ContinueAnimation(760, 761) == 0) {
-        _ACTWait(1);
-    }
-
-    SetCameraFlag_LwsCutBack();
-
-    while (stage_CheckAnimationFinish(761) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt13bMeetAgainSub(GObj *volatile self);
 
 void actSt13bMeetAgainChk(GObj *volatile self)
 {
@@ -740,31 +706,7 @@ void actSt13bBossAfterChk(GObj *volatile self)
     lt_switch_layout(54);
 }
 
-static void actSt13bElevDownSub(GObj *volatile self)
-{
-    stage_SetAnimation(40, 1, 235);
-
-    while (stage_CheckAnimationFrame(40, 321, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    iosPadActRequest(boyPad, 17);
-
-    while (stage_CheckAnimationFrame(40, 350, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    st13b_boss_yure = iosPadActRequest(boyPad, 9);
-    st13b_boss_yure_vol = 128;
-    iosPadActVolumeSet(st13b_boss_yure, 128);
-
-    while (stage_CheckAnimationFrame(40, 450, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+static void actSt13bElevDownSub(GObj *volatile self);
 
 void actSt13bElevDown(GObj *volatile self)
 {
@@ -924,69 +866,6 @@ void actSt13bDoorUp(GObj *volatile self)
     lt_switch_layout(54);
 }
 
-static void actSt13bElev2Chk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttr(boyGObj, 0x4000000) == 0) {
-        _ACTWait(1);
-    }
-
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-
-    if (gflagChk(16) != 0) {
-        scpAdpcmPlayRequestFunc(100, &sekizo_13b_vol, 1, 1, 1);
-
-        while (sekizo_13b_vol == 0) {
-            _ACTWait(1);
-        }
-
-        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
-        stage_SetAnimation(42, 1, 0);
-
-        while (stage_CheckAnimationFrame(42, 50, 0) == 0) {
-            _ACTWait(1);
-        }
-
-        _ACTWait(1);
-        iosPadActRequest(boyPad, 16);
-
-        while (stage_CheckAnimationFinish(42) == 0) {
-            _ACTWait(1);
-        }
-
-        _ACTWait(1);
-        gflagOff(16);
-        scpBoyControlReadDisable = 0;
-    } else {
-        scpAdpcmPlayRequestFunc(99, &sekizo_13b, 0, 1, 1);
-
-        while (sekizo_13b == 0) {
-            _ACTWait(1);
-        }
-
-        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 0.15);
-        stage_SetAnimation(41, 1, 0);
-
-        while (stage_CheckAnimationFinish(41) == 0) {
-            _ACTWait(1);
-        }
-
-        _ACTWait(1);
-        gflagOn(16);
-        RequestStageChange(2, boyGObj, 0, 2.0f, 8.0f);
-        scpBoyControlReadDisable = 0;
-    }
-
-    lt_switch_layout(54);
-
-    elev2Chara_mes[0].func = actSt13bElev2CharaChk;
-    sub->mail = elev2Chara_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
 void actSt13bSekizo(GObj *volatile self)
 {
     GObj *x = self;
@@ -1068,30 +947,6 @@ void actSt13bElev(GObj *volatile self)
     act->mail = elev_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
-}
-
-void actSt13bElev2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(16) != 0) {
-        stage_SetAnimation(42, 0, 0);
-
-        elev2Chk_mes[0].func = actSt13bElev2Chk;
-        act->mail = elev2Chk_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(41, 0, 0);
-
-        elev2Chk2_mes[0].func = actSt13bElev2Chk;
-        act->mail = elev2Chk2_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
 }
 
 void actSt13bDoor(GObj *volatile self)
@@ -1208,26 +1063,6 @@ void actSt13bElevSwitch(GObj *volatile self)
     _ACTWait(0);
 }
 
-static void actSt13bElevUpSub(GObj *volatile self)
-{
-    stage_SetAnimation(40, 1, 0);
-    st13b_boss_yure = iosPadActRequest(boyPad, 9);
-    st13b_boss_yure_vol = 128;
-    iosPadActVolumeSet(st13b_boss_yure, 128);
-    while (stage_CheckAnimationFrame(40, 200, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    iosPadActRequest(boyPad, 17);
-    iosPadActStop(st13b_boss_yure);
-    while (stage_CheckAnimationFrame(40, 234, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt13bDoorMain(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -1247,44 +1082,6 @@ void actSt13bDoorSwitch(GObj *volatile self)
 
     doorSwitch_mes[0].func = actSt13bDoorUp;
     sub->mail = doorSwitch_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-static void actSt13bDoorUpSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    stage_SetAnimation(43, 1, 0);
-
-    _ACTWait(120);
-
-    soundSeDefPlay(1221, 0, doorUpSubPos, 1);
-
-    _ACTWait(30);
-
-    doorUpDone = 1;
-    soundSeDefPlay(1222, 0, doorUpSubPos, 1);
-
-    while (stage_CheckAnimationFinish(43) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt13bElev2CharaChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttr(boyGObj, 0x4000000) != 0) {
-        _ACTWait(1);
-    }
-
-    elev2CharaChk_mes[0].func = actSt13bElev2Chk;
-    sub->mail = elev2CharaChk_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }

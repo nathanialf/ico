@@ -1698,32 +1698,3 @@ void actEndDemo14Chk(GObj *volatile self)
 
     actCreateSubThread(actConte14_14, 21);
 }
-
-static void actEndingSave(GObj *volatile self)
-{
-    if (gFlagGameClear == 0) {
-        int save;
-
-        gFlagGameClear = 1;
-        save = IosMcPreviewInfo[2];
-        gflagInit();
-        IosMcPreviewInfo[2] = save;
-        gflagOn(395);
-        lt_switch_layout(28);
-        _ACTWait(60);
-
-        while (current_layout_id != 54) {
-            _ACTWait(1);
-        }
-        gFlagGameClear = 0;
-    }
-
-    scpFadeOut(255.0f, 0, 0, 0);
-
-    while (scpFadeChk() != 0) {
-        _ACTWait(1);
-    }
-
-    optionScreenMode = 0;
-    RequestStageChange(1, boyGObj, 0, 255.0f, 8.0f);
-}

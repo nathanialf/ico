@@ -189,21 +189,6 @@ void SetDirectRootPositionNoFittingWithNodePoint(GObj *gobj, int node, float *po
     SetDirectRootPositionNoFitting_i(gobj, w);
 }
 
-void SetDirectRootPositionNoFittingWithNodePointXZ(GObj *gobj, int node, float *pos, float t)
-{
-    float v[4];
-    float w[4];
-    int idx;
-
-    idx = GetSkeltonFocusNode(gobj, node);
-    sceVu0SubVector(v, pos, (float *)(gobj->dobj->nodeMtx + (idx << 6)) + 12);
-    sceVu0ScaleVector(v, v, t);
-    GetRootPosition_i(w, gobj);
-    v[1] = 0.0f;
-    sceVu0AddVector(w, w, v);
-    SetDirectRootPositionNoFitting_i(gobj, w);
-}
-
 void SetDirectRootPositionWithNodePoint(GObj *gobj, int node, float *pos, float t)
 {
     SetDirectRootPositionNoFittingWithNodePoint(gobj, node, pos, t);

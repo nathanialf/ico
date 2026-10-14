@@ -24,7 +24,6 @@ static const ConstVec door2UpEffect2Pos = {{-704.0f, -1955.0f, -5679.0f, 1.0f}};
 void actSt05dDoor2UpEffect(GObj *volatile self);
 void actSt05dDoor2DownEffect(GObj *volatile self);
 void actSt05dEneChk(GObj *volatile self);
-static void actSt05dCrestHintChk(GObj *volatile self);
 
 static ActMail door2Down_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -35,8 +34,6 @@ static ActMail door2UpChk_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail door2DownChk_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail crestHint_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt05dDoor2DownChk(GObj *volatile self);
 void actSt05dDoor2UpChk(GObj *volatile self);
@@ -197,22 +194,6 @@ void actSt05dEnemy2(GObj *volatile self)
     Generator_Call(self);
 }
 
-void actSt05dCrestHint(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(173) == 0) {
-        SleepHint(25);
-        crestHint_mes[0].func = actSt05dCrestHintChk;
-        act->mail = crestHint_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
 void actSt05dDoor2Event(int x)
 {
     volatile int local = x;
@@ -277,13 +258,4 @@ void actSt05dEneChk(GObj *volatile self)
     _ACTWait(1);
     gflagOn(171);
     gflagOn(172);
-}
-
-static void actSt05dCrestHintChk(GObj *volatile self)
-{
-    while (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0 || gflagChk(232) != 0) {
-        _ACTWait(1);
-    }
-    gflagOn(173);
-    WakeupHint(25);
 }

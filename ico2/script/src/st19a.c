@@ -441,28 +441,3 @@ void actSt19aChainSwitch(GObj *volatile self)
         _ACTWait(0);
     }
 }
-
-static void actSt19aChainDownSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    while (pipe19a == 0) {
-        _ACTWait(1);
-    }
-
-    AdpcmPlay(pipe19a->stream);
-
-    stage_SetAnimation(144, 1, 0);
-
-    gflagOn(313);
-
-    SetCameraFlag_LwsCutBack();
-
-    while (stage_CheckAnimationFrame(144, 240, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(60);
-}

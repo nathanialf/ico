@@ -16,8 +16,6 @@
 #include "script.h"
 #include "main.h"
 
-static void actSt10lEneKillChk(GObj *volatile self);
-
 /* .rodata: the girl's way-point packet for actSt10lEneCam3Chk, a 16-byte
    constant vector template whose long long view the copy reads */
 
@@ -66,8 +64,6 @@ static ActMail chainMain_mes[2] = {{408, actSt10lChainSwitch}, {429}}; /* derive
 static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail chainSwitch_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail eneKill_mes[2] = {{430}, {429}}; /* derived name */
 
 /* .sdata: the floor, gondola and chain stream handles. */
 SqEntry *floor10l = 0;
@@ -681,21 +677,6 @@ void actSt10lEneCam3(GObj *volatile self)
     }
 }
 
-void actSt10lEneKill(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(297) == 0) {
-        eneKill_mes[0].func = actSt10lEneKillChk;
-        act->mail = eneKill_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
 void actSt10lBoxA(GObj *volatile self)
 {
     GObj *x = self;
@@ -886,30 +867,4 @@ void actSt10lChainSwitch(GObj *volatile self)
     sub->mail = chainSwitch_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
-}
-
-static void actSt10lEneKillChk(GObj *volatile self)
-{
-    int save;
-
-    while (scpTriggerBall(self, boyGObj, 500.0f) == 0) {
-        _ACTWait(1);
-    }
-
-    enable_game_pause = 0;
-    _ACTWait(1);
-
-    save = iosPadActRequestEnable;
-    iosPadActRequestEnable = 0;
-    _ACTWait(30);
-
-    gflagOn(297);
-    scpKillEnemyOne(1000);
-    scpKillEnemyOne(1001);
-    scpKillSpiderGroup(1002);
-    _ACTWait(30);
-
-    iosPadActRequestEnable = save;
-    _ACTWait(1);
-    enable_game_pause = 1;
 }

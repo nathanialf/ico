@@ -216,20 +216,3 @@ void actSt05eWaterFlagOn(GObj *volatile self)
     }
     gflagOn(231);
 }
-
-static void actSt05eWaterStopSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    stage_SetAnimation(267, 1, 0);
-
-    stage_SetAnimation(266, -1, -2);
-
-    while (stage_CheckAnimationFinish(267) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}

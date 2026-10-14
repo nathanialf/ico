@@ -449,9 +449,9 @@ float iosPadNormalizeStick(IosPadStick *st)
     return (len - 48.0f) / 72.0f;
 }
 
-static int iosPadGetStick_func(IosPadCtx *ctx, IosPadStick *st, int mode, int a3, int a4,
-                               int simulate)
+int iosPadGetStick(IosPadCtx *ctx, void *out, int mode, int a3, int a4, int simulate)
 {
+    IosPadStick *st = out;
     IosPadDevRec *rec = ctx->dev;
     IosPadBuf *buf = &rec->buf[rec->idx];
     float ox;
@@ -590,15 +590,6 @@ int iosPadConnect(IosPadCtx *ctx, int a1, int port, PadConf *conf)
     ctx->conf = conf;
     ctx->dev = &iosPadDev[port];
     return 0;
-}
-
-int iosPadGetStick(IosPadCtx *ctx, void *st, int mode, int a3, int a4, int simulate)
-{
-    int rv;
-    _PushVu0Registers();
-    rv = iosPadGetStick_func(ctx, st, mode, a3, a4, simulate);
-    _PopVu0Registers();
-    return rv;
 }
 
 void iosPadStickCameraCoord(void *out, IosPadStick *stick)

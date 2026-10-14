@@ -25,17 +25,7 @@ inline void InitStageMultiBgaManager(void)
     stageBgaCount = 0;
 }
 
-inline void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay)
-{
-    stageBgaAnim[stageBgaCount] = stage_MakePlayBgAnimation(kind);
-    _CopyVector(stageBgaAnim[stageBgaCount]->pos, pos);
-    CopyQuaternion(stageBgaAnim[stageBgaCount]->rot, rot);
-    EntryMultiBgaManager(stageBga, stageBgaCount++, kind, pos, rot);
-    stageBga[stageBgaCount - 1].stay = stay;
-    if (stageBgaCount >= 30) {
-        stageBgaCount = 0;
-    }
-}
+inline void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay);
 
 inline void EntryStageMultiBgaManager(int kind, void *pos, void *rot)
 {
@@ -43,17 +33,7 @@ inline void EntryStageMultiBgaManager(int kind, void *pos, void *rot)
 }
 
 inline void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, void *vel,
-                                                       int stay)
-{
-    stageBgaAnim[stageBgaCount] = stage_MakePlayBgAnimation(kind);
-    _CopyVector(stageBgaAnim[stageBgaCount]->pos, pos);
-    CopyQuaternion(stageBgaAnim[stageBgaCount]->rot, rot);
-    EntryMultiBgaManagerSensitive(stageBga, stageBgaCount++, kind, pos, rot, vel);
-    stageBga[stageBgaCount - 1].stay = stay;
-    if (stageBgaCount >= 30) {
-        stageBgaCount = 0;
-    }
-}
+                                                       int stay);
 
 inline void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, void *vel)
 {

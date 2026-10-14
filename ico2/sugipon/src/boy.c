@@ -659,77 +659,8 @@ static int boySyncMarkerColor[4] = {255, 96, 64, 128}; /* derived name */
 
 static LightLineExt lightLineExt = {0, 0, 0}; /* derived name */
 
-static void synchronizeMotionOutputOriginForGirl(GObj *gobj)
-{
-    float d[4];
-    float v[4];
-    MotSyncPair *p;
-    int i;
-    int okA = 0;
-    int okB = 0;
-
-    if (girlGObj != 0) {
-        p = motSyncPairs;
-        for (i = 0; i < 5; i++) {
-            if (GOBJ_SUB(girlGObj)->ctrl.motion == p->girl) {
-                okA = 1;
-            }
-            if (GOBJ_SUB(gobj)->ctrl.motion == p->boy) {
-                okB = 1;
-            }
-            p++;
-        }
-        if (okA != 0 && okB != 0) {
-            _InterVectorXYZ(v, GOBJ_SUB(girlGObj)->root.up, GOBJ_SUB(gobj)->root.up, 0.9f);
-            _SubVectorXYZ(d, v, GOBJ_SUB(girlGObj)->root.up);
-            d[1] = 0.0f;
-            GetRootPosition(v, girlGObj);
-            _AddVectorXYZ(v, v, d);
-            SetDirectRootPositionNoFitting(girlGObj, v);
-            if (debug_wallhitcoldisp != 0) {
-                gif_StartPacketPri(0xB);
-                gif_SetAlpha(1, 5, 0x80);
-                _UnitMatrix(MatrixDrive_GetMatrix());
-                MatrixDrive_TransMatrixV(GOBJ_SUB(girlGObj)->root.up);
-                prim_DispWireSphere(10.0f, girlSyncMarkerColor, 16, 8);
-                _UnitMatrix(MatrixDrive_GetMatrix());
-                MatrixDrive_TransMatrixV(GOBJ_SUB(gobj)->root.up);
-                prim_DispWireSphere(10.0f, boySyncMarkerColor, 16, 8);
-                gif_EndPacket();
-            }
-        }
-    }
-}
-
-static void actionOfWater(GObj *gobj)
-{
-    float pos[4];
-    BoyWork *w = GOBJ_SUB(gobj)->work;
-    int node;
-
-    ExecWaterDot(w->waterDot);
-    if (GOBJ_SUB(gobj)->ctrl.rootUpdateMode == 0xB) {
-        w->wet = 1;
-        w->dripVel = 5.0f;
-        w->drip = 0.0f;
-    } else {
-        w->wet = 0;
-        w->dripVel = w->dripVel * 0.98f;
-        w->drip = w->drip + w->dripVel;
-        if (1.0f < w->drip) {
-            node = GetSkeltonFocusNode(gobj, 0x16);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot(w->waterDot, pos, ZeroVector, 8.0f);
-            node = GetSkeltonFocusNode(gobj, 0x6);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot(w->waterDot, pos, ZeroVector, 8.0f);
-            node = GetSkeltonFocusNode(gobj, 0x2C);
-            CopyVector(pos, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6) + 0x30);
-            EntryWaterDot(w->waterDot, pos, ZeroVector, 10.0f);
-            w->drip = 0.0f;
-        }
-    }
-}
+static void synchronizeMotionOutputOriginForGirl(GObj *gobj);
+static void actionOfWater(GObj *gobj);
 
 void BoyGeo(GObj *gobj)
 {
@@ -746,25 +677,7 @@ void BoyGeo(GObj *gobj)
     actionOfWater(gobj);
 }
 
-static void dispSubParts(GObj *gobj)
-{
-    BoyWork *w = GOBJ_SUB(gobj)->work;
-    char *a;
-    char *c;
-    int node;
-
-    a = (char *)w->head;
-    node = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
-    p2o_DispVU1DObj(w->head);
-    a = (char *)w->body;
-    node = GetSkeltonFocusNode(gobj, 0x14);
-    CopyMatrix(*(char **)(a + 0xC), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
-    c = (char *)w->body->nodeMtx + 0x40;
-    node = GetSkeltonFocusNode(gobj, 0x4);
-    CopyMatrix(c, (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
-    p2o_DispVU1DObjMulti(w->body);
-}
+static void dispSubParts(GObj *gobj);
 
 static void dispCrown(GObj *gobj)
 {

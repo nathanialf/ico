@@ -199,22 +199,7 @@ typedef struct { /* field names derived */
     char c[17];
 } McName; /* derived name */
 
-static void iosMcMgrGetInfo(McMgr *mp)
-{
-    int r;
-
-    while ((r = sceMcGetInfo(mp->port, mp->slot, &mp->type, &mp->free, &mp->format)) != 0) {
-        debug_StdPrintfDummy("iosMcMgrGetInfo: request busy %d\n", r);
-    }
-
-    iosMcMgrSync(mp);
-
-    debug_StdPrintfDummy("mcMgrGetInfo result:%d type:%d\n", mp->result, mp->type);
-
-    if (mp->result != 0 && mp->result >= -10) {
-        mp->cardState = mp->result;
-    }
-}
+static void iosMcMgrGetInfo(McMgr *mp);
 
 /* the file-static card helpers the manager entry points inline */
 static inline void iosMcMgrFormat(McMgr *mp) /* derived name */

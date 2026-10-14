@@ -355,16 +355,6 @@ void actSt04cEneChk(GObj *volatile self)
     gflagOn(164);
 }
 
-static void actSt04cIntroChkSub(GObj *volatile self)
-{
-    while (stage_CheckAnimationFinish(352) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
 void actSt04lDoorEvent(int x)
 {
     volatile int local = x;

@@ -446,17 +446,6 @@ clear:
     fadeStatus = 0;
 }
 
-void gsb_SetMotionBlur(void)
-{
-    int i = optionScreenMode;
-
-    if (i == 0) {
-        SetMotionBlur(GlobalStageSetting.motionBlur);
-    } else {
-        SetMotionBlur(GlobalStageSetting.subMotionBlur[i - 1]);
-    }
-}
-
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */
 static int scissorLastState = 54; /* derived name */
@@ -796,50 +785,7 @@ static void gsb_SetGsDefault(void)
  * slot 10, drawn as one full screen sprite whose colour comes from the
  * stage record's grain tint for this target and whose UV step is the
  * record's grain scale, passed as raw bits in both halves of the register. */
-static void gsb_filmNoise(void)
-{
-    int n = tex_GetTextureNo("sandstorm_spr");
-    float scale;
-
-    if (n < 0) {
-        return;
-    }
-    scale = GlobalStageSetting.grainScale;
-    tex_TransTexture(n, 0xA);
-    gif_StartPacketPriPath1(dl_GetPri());
-    gif_SetGsReg(8, 0);
-    gif_SetGsReg(0x4E, 0x1300000C0LL);
-    gif_SetGsReg(0x47, 0x30000);
-    gif_SetGsReg(0x49, 0);
-    gif_SetGsReg(0x42, 0x44);
-    gif_SetGsReg(0, 0x56);
-    gif_SetGsReg(1, ((long long)GlobalStageSetting.targetCol[optionScreenMode - 1][3] << 24) |
-                        0x3F80000000808080LL);
-    gif_SetGsReg(2, 0);
-    gif_SetGsReg(5, 0xFFFFFFFF70007000LL);
-    gif_SetGsReg(2, ((long long)*(unsigned int *)&scale << 32) | *(unsigned int *)&scale);
-    gif_SetGsReg(5, 0xFFFFFFFF90009000LL);
-    gif_EndPacketPath1();
-}
-
-/* the stage animation group each film noise target loops, -1 for none */
-static const int filmNoiseGroup[] = {-1, 67, 68, 69, 70}; /* derived name */
-
-inline void gsb_ResetFilmNoise(void)
-{
-    int i;
-    for (i = 0; i < 5; i++) {
-        if (filmNoiseGroup[i] != -1) {
-            if (i == optionScreenMode) {
-                stage_SetLoopFlag(filmNoiseGroup[i], 1);
-                debug_StdPrintfDummy("set film noise %d\n", optionScreenMode);
-            } else {
-                stage_SetLoopFlag(filmNoiseGroup[i], 0);
-                debug_StdPrintfDummy("clear film noise %d\n", optionScreenMode);
-            }
-        }
-    }
-}
+static void gsb_filmNoise(void);
 
 /* set by gsb_UpdateGSSystem once the frame is up, tested by gsb_PostEffect */
 static int postEffectReady = 0; /* derived name */
@@ -934,10 +880,6 @@ static int gsbUnused3 = 0; /* derived name */
 static int gsbUnused4 = 0; /* derived name */
 
 static int gsbUnused5 = 0; /* derived name */
-
-inline int gsb_ResetSnap(void) {}
-
-inline int gsb_TakeSnap(void) {}
 
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */
@@ -1279,26 +1221,7 @@ inline int gsb_LoadStageSettings(void)
  * appended to it. */
 static char logBuf[256]; /* derived name */
 
-static void appendLogFile(void)
-{
-    sceCdCLOCK clock;
-    int fd;
-
-    sceCdReadClock(&clock);
-    sprintf(logBuf, "object/stagesetting/change.txt");
-    fd = debugSceOpen(logBuf, 0x302);
-    if (fd < 0) {
-        debug_StdPrintfDummy("change.txt open error.\n");
-        return;
-    }
-    sprintf(logBuf, "%04x/%02x/%02x %02x:%02x:%02x : stage %s  edit by %s\n", clock.year | 0x2000,
-            clock.month, clock.day, clock.hour, clock.minute, clock.second,
-            stageData[stage_no].key2, "horagai");
-    sceLseek(fd, 0, 2);
-    sceWrite(fd, logBuf, strlen(logBuf));
-    debugSceClose(fd);
-    debug_StdPrintfDummy(logBuf);
-}
+static void appendLogFile(void);
 
 inline int gsb_SaveStageSettings(void)
 {
@@ -1334,211 +1257,8 @@ typedef struct GsbToolItem { /* field names derived */
     int (*fn)();             /* 0x1C */
 } GsbToolItem;               /* derived name */
 
-/* the four pages of seven rows, one page per render target, each row naming
-   a word of the stage record */
-static const GsbToolItem filmNoiseItems[4][7] = {
-    /* derived name */
-    {
-        {" HighLight Color R ", &GlobalStageSetting.targetCol[0][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color G ", &GlobalStageSetting.targetCol[0][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color B ", &GlobalStageSetting.targetCol[0][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" Noise Level       ", &GlobalStageSetting.targetCol[0][3], 0, 0.0f, 255.0f, 8.0f, 1.0f,
-         0},
-        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[0], 0, 0.0f, 127.0f, 32.0f, 1.0f,
-         0},
-        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[0].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[0].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-    },
-    {
-        {" HighLight Color R ", &GlobalStageSetting.targetCol[1][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color G ", &GlobalStageSetting.targetCol[1][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color B ", &GlobalStageSetting.targetCol[1][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" Noise Level       ", &GlobalStageSetting.targetCol[1][3], 0, 0.0f, 255.0f, 16.0f, 1.0f,
-         0},
-        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[1], 0, 0.0f, 127.0f, 32.0f, 1.0f,
-         0},
-        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[1].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[1].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-    },
-    {
-        {" HighLight Color R ", &GlobalStageSetting.targetCol[2][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color G ", &GlobalStageSetting.targetCol[2][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color B ", &GlobalStageSetting.targetCol[2][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" Noise Level       ", &GlobalStageSetting.targetCol[2][3], 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[2], 0, 0.0f, 127.0f, 32.0f, 1.0f,
-         0},
-        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[2].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[2].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-    },
-    {
-        {" HighLight Color R ", &GlobalStageSetting.targetCol[3][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color G ", &GlobalStageSetting.targetCol[3][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color B ", &GlobalStageSetting.targetCol[3][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" Noise Level       ", &GlobalStageSetting.targetCol[3][3], 0, 0.0f, 255.0f, 32.0f, 1.0f,
-         0},
-        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[3], 0, 0.0f, 127.0f, 32.0f, 1.0f,
-         0},
-        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[3].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[3].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-    },
-};
-
 /* the unselected and selected row colours, as ZFog's fogRowColor */
 static const unsigned int filmNoiseRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
-
-/* the word a boolean row prints */
-static char *filmNoiseOnOffText[] = {"Off", "On"}; /* derived name */
-
-static int filmNoiseRow = 0; /* derived name */ /* the highlighted row */
-
-/* The film noise page of the debug menu: seven editable words of the stage
- * record for the target this page names, the pad keys that walk and change
- * them, the key that dumps the page to the log, and the key that copies this
- * target's tint and blur over the main ones. */
-static int gsb_FilmNoiseTool(int target)
-{
-    int i;
-    int ret = 0;
-    int page = target;
-
-    debug_PrintfDummy(10, 30, 0xFF800000, "Film Noise Pattern %d", target);
-
-    for (i = 0; i < 7; i++) {
-        if (filmNoiseItems[target][i].min == 0.0f && filmNoiseItems[target][i].max == 1.0f &&
-            filmNoiseItems[target][i].isFloat == 0) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, filmNoiseRowColor[(filmNoiseRow == i) ? 1 : 0],
-                              "%s : %s", filmNoiseItems[target][i].name,
-                              filmNoiseOnOffText[*(int *)filmNoiseItems[target][i].val]);
-        } else if (filmNoiseItems[target][i].isFloat == 0) {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, filmNoiseRowColor[(filmNoiseRow == i) ? 1 : 0],
-                              "%s : %d", filmNoiseItems[target][i].name,
-                              *(int *)filmNoiseItems[target][i].val);
-        } else {
-            debug_PrintfDummy(18, (i + 1) * 8 + 30, filmNoiseRowColor[(filmNoiseRow == i) ? 1 : 0],
-                              "%s : %f", filmNoiseItems[target][i].name,
-                              *(float *)filmNoiseItems[target][i].val);
-        }
-    }
-
-    if (pad[0].rep & 0x4000) {
-        if (++filmNoiseRow >= 7) {
-            filmNoiseRow = 0;
-        }
-    }
-    if (pad[0].rep & 0x1000) {
-        if (--filmNoiseRow < 0) {
-            filmNoiseRow = 6;
-        }
-    }
-    if (pad[0].rep & 0x2000) {
-        if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
-            int v = (float)*(int *)filmNoiseItems[page][filmNoiseRow].val +
-                    filmNoiseItems[page][filmNoiseRow].step;
-
-            *(int *)filmNoiseItems[page][filmNoiseRow].val = v;
-            if (filmNoiseItems[page][filmNoiseRow].max < (float)v) {
-                *(int *)filmNoiseItems[page][filmNoiseRow].val =
-                    filmNoiseItems[page][filmNoiseRow].min;
-            }
-        } else {
-            float v = *(float *)filmNoiseItems[page][filmNoiseRow].val +
-                      filmNoiseItems[page][filmNoiseRow].step;
-
-            *(float *)filmNoiseItems[page][filmNoiseRow].val = v;
-            if (filmNoiseItems[page][filmNoiseRow].max < v) {
-                *(float *)filmNoiseItems[page][filmNoiseRow].val =
-                    filmNoiseItems[page][filmNoiseRow].min;
-            }
-        }
-        if (filmNoiseItems[page][filmNoiseRow].fn != 0) {
-            filmNoiseItems[page][filmNoiseRow].fn(0);
-        }
-    }
-    if (pad[0].rep & 0x8000) {
-        if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
-            int v = (float)*(int *)filmNoiseItems[page][filmNoiseRow].val -
-                    filmNoiseItems[page][filmNoiseRow].step;
-
-            *(int *)filmNoiseItems[page][filmNoiseRow].val = v;
-            if ((float)v < filmNoiseItems[page][filmNoiseRow].min) {
-                *(int *)filmNoiseItems[page][filmNoiseRow].val =
-                    filmNoiseItems[page][filmNoiseRow].max;
-            }
-        } else {
-            float v = *(float *)filmNoiseItems[page][filmNoiseRow].val -
-                      filmNoiseItems[page][filmNoiseRow].step;
-
-            *(float *)filmNoiseItems[page][filmNoiseRow].val = v;
-            if (v < filmNoiseItems[page][filmNoiseRow].min) {
-                *(float *)filmNoiseItems[page][filmNoiseRow].val =
-                    filmNoiseItems[page][filmNoiseRow].max;
-            }
-        }
-        if (filmNoiseItems[page][filmNoiseRow].fn != 0) {
-            filmNoiseItems[page][filmNoiseRow].fn(0);
-        }
-    }
-    if (pad[0].flags & 0x10) {
-        if (filmNoiseItems[page][filmNoiseRow].isFloat == 0) {
-            *(int *)filmNoiseItems[page][filmNoiseRow].val = filmNoiseItems[page][filmNoiseRow].def;
-        } else {
-            *(float *)filmNoiseItems[page][filmNoiseRow].val =
-                filmNoiseItems[page][filmNoiseRow].def;
-        }
-    }
-    if (pad[0].flags & 0x20) {
-        for (i = 0; i < 7; i++) {
-            if (filmNoiseItems[page][i].min == 0.0f && filmNoiseItems[page][i].max == 1.0f &&
-                filmNoiseItems[page][i].isFloat == 0) {
-                debug_StdPrintfDummy("StageSetting %s => %s\n", filmNoiseItems[page][i].name,
-                                     filmNoiseOnOffText[*(int *)filmNoiseItems[page][i].val]);
-            } else if (filmNoiseItems[page][i].isFloat == 0) {
-                debug_StdPrintfDummy("StageSetting %s => %d\n", filmNoiseItems[page][i].name,
-                                     *(int *)filmNoiseItems[page][i].val);
-            } else {
-                debug_StdPrintfDummy("StageSetting %s => %f\n", filmNoiseItems[page][i].name,
-                                     *(float *)filmNoiseItems[page][i].val);
-            }
-        }
-        ret = 1;
-    }
-    if (pad[0].flags & 0x80) {
-        GlobalStageSetting.targetCol[target][0] = GlobalStageSetting.reductionCol[0];
-        GlobalStageSetting.targetCol[target][1] = GlobalStageSetting.reductionCol[1];
-        GlobalStageSetting.targetCol[target][2] = GlobalStageSetting.reductionCol[2];
-        GlobalStageSetting.subMotionBlur[target] = GlobalStageSetting.motionBlur;
-        GlobalStageSetting.antiLevel[target].a = GlobalStageSetting.antiLevel0;
-        GlobalStageSetting.antiLevel[target].b = GlobalStageSetting.antiLevel1;
-    }
-    if (pad[0].flags & 0x40) {
-        ret = -1;
-    }
-    if (ret != 0) {
-        filmNoiseRow = 0;
-    }
-    return ret;
-}
 
 /* the twenty one rows of the stage setting page, each naming a word of the
    stage record (the words at 0xE4..0xF0, 0xF8, 0x104..0x11C and 0x180..0x190
@@ -1566,16 +1286,9 @@ static const GsbToolItem stageSettingItems[] = {
      0},
     {" DepthField Width    ", &GlobalStageSetting.depthFieldWidth, 0, 0.0f, 2e+04f, 1e+04f, 2e+01f,
      0},
-    {" HandCamera Limit P  ", &GlobalStageSetting.handCameraLimitP, 0, 0.0f, 1.8e+02f, 1.2e+02f,
-     1.0f, UpdateHandCameraLimitP},
-    {" HandCamera Limit V  ", &GlobalStageSetting.handCameraLimitV, 0, 0.0f, 9e+01f, 8e+01f, 1.0f,
-     UpdateHandCameraLimitV},
-    {" ZOOM MAX IN DEMO    ", &GlobalStageSetting.zoomMaxInDemo, 0, 0.0f, 3e+02f, 2e+02f, 1.0f,
-     UpdateZoomMaxVallInDemo},
     {" Motion Blur         ", &GlobalStageSetting.motionBlur, 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
     {" AntiLevel0          ", &GlobalStageSetting.antiLevel0, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
     {" AntiLevel1          ", &GlobalStageSetting.antiLevel1, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Film Noise Tex Rep  ", &GlobalStageSetting.grainScale, 1, 1.0f, 8.0f, 6.0f, 0.1f, 0},
 };
 
 /* the unselected and selected row colours, as filmNoiseRowColor */
@@ -1710,70 +1423,12 @@ static char lockFileName[256]; /* derived name */
 
 static char lockOwner[72]; /* derived name */
 
-static void updateOtherEditingLockFlag(void)
-{
-    char buf[256];
-    int fd;
-
-    sprintf(lockFileName, "object/stagesetting/%s.lock", stageData[stage_no].key2);
-    otherEditingLocked = 0;
-    fd = debugSceOpen(lockFileName, 1);
-    if (fd >= 0) {
-        sceRead(fd, buf, 0x100);
-        debugSceClose(fd);
-        sscanf(buf, "%s\n", lockOwner);
-    }
-    if (fd < 0 || strcmp("nouser", lockOwner) == 0) {
-        debug_StdPrintfDummy("no lock\n");
-        editingSettings = 0;
-    } else if (strcmp("horagai", lockOwner) != 0) {
-        debug_StdPrintfDummy("lock by \"%s\"\n", lockOwner);
-        otherEditingLocked = 1;
-    } else {
-        editingSettings = 1;
-    }
-}
-
 /* the lock file's name, built at the head of updateOtherEditingLockFlag,
  * createLockFile and removeLockFile */
 static inline char *makeLockFileName(void) /* derived name */
 {
     sprintf(lockFileName, "object/stagesetting/%s.lock", stageData[stage_no].key2);
     return lockFileName;
-}
-
-static int createLockFile(void)
-{
-    char buf[256];
-    char *name = makeLockFileName();
-    int fd = debugSceOpen(name, 0x602);
-    if (fd < 0) {
-        debug_StdPrintfDummy("cant create lock file\n");
-        return 0;
-    }
-    sprintf(buf, "%s\n", "horagai");
-    sceWrite(fd, buf, strlen(buf) + 1);
-    debugSceClose(fd);
-    debug_StdPrintfDummy(" create lock file \"%s\" by %s\n", name, buf);
-    editingSettings = 1;
-    return 1;
-}
-
-static int removeLockFile(void)
-{
-    char buf[256];
-    char *name = makeLockFileName();
-    int fd = debugSceOpen(name, 0x602);
-    if (fd < 0) {
-        debug_StdPrintfDummy("cant remove lock file\n");
-        return 0;
-    }
-    sprintf(buf, "%s\n", "nouser");
-    sceWrite(fd, buf, strlen(buf) + 1);
-    debugSceClose(fd);
-    debug_StdPrintfDummy(" remove lock file \"%s\" by %s\n", name, "horagai");
-    editingSettings = 0;
-    return 1;
 }
 
 typedef struct { /* field names derived */
@@ -1815,44 +1470,13 @@ inline void gsb_SetZoom(float target, float speed)
     zoomSpeed = speed;
 }
 
-inline int lockOtherEditing(void)
-{
-    updateOtherEditingLockFlag();
-    if (otherEditingLocked != 0) {
-        return -1;
-    }
-    createLockFile();
-    gsb_LoadStageSettings();
-    return -1;
-}
-
-inline int unlockOtherEditing(void)
-{
-    updateOtherEditingLockFlag();
-    if (otherEditingLocked != 0) {
-        return -1;
-    }
-    gsb_LoadStageSettings();
-    removeLockFile();
-    return -1;
-}
-
-static GsbMenuItem lockedMenu[] = {
-    {"LOCK OTHER EDITING", lockOtherEditing, 0},
-}; /* derived name */
-
 static GsbMenuItem stageSettingMenu[] = {
     {"Light Tool", light_Tool, 0},
     {"Shadow Tool", shadow_Tool, 0},
     {"Fog Tool", fog_FogTool, 0},
-    {"Film Noise 1", gsb_FilmNoiseTool, 0},
-    {"Film Noise 2", gsb_FilmNoiseTool, 1},
-    {"Film Noise 3", gsb_FilmNoiseTool, 2},
-    {"Film Noise 4", gsb_FilmNoiseTool, 3},
     {"Other Settings", gsb_StageSettingTool, 0},
     {"Load Settings", gsb_LoadStageSettings, 0},
     {"Save Settings", gsb_SaveStageSettings, 0},
-    {"UnLock Quit", unlockOtherEditing, 0},
 }; /* derived name */
 
 /* the unselected and selected row colours, as filmNoiseRowColor */

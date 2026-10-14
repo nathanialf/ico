@@ -1020,8 +1020,6 @@ void light_InitLight(void)
     flatLightNum = 0;
 }
 
-void light_ResetLight(void) {}
-
 void light_KillAllFixLight(void)
 {
     Light *p = (Light *)lastLight;

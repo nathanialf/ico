@@ -125,26 +125,7 @@ void LightTorchOff(GObj *gobj)
     }
 }
 
-static void torchDrainControl(GObj *gobj, float level)
-{
-    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
-
-    if (w->effect[3] != -1) {
-        SetParticleEffectDrainLevel(w->effect[3], level);
-    }
-    if (w->effect[2] != -1) {
-        SetParticleEffectDrainLevel(w->effect[2], level);
-    }
-    if (w->effect[0] != -1) {
-        SetParticleEffectDrainLevel(w->effect[0], level);
-    }
-    if (w->effect[1] != -1) {
-        SetParticleEffectDrainLevel(w->effect[1], level);
-    }
-    if (w->effect[4] != -1) {
-        SetParticleEffectDrainLevel(w->effect[4], level);
-    }
-}
+static void torchDrainControl(GObj *gobj, float level);
 
 static void moveTorch(GObj *gobj, void *mtx)
 {
@@ -167,26 +148,7 @@ static void moveTorch(GObj *gobj, void *mtx)
     }
 }
 
-static void setPauseFlag(GObj *gobj, int flag)
-{
-    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
-
-    if (w->effect[3] != -1) {
-        SetParticleEffectPauseFlag(w->effect[3], flag);
-    }
-    if (w->effect[2] != -1) {
-        SetParticleEffectPauseFlag(w->effect[2], flag);
-    }
-    if (w->effect[0] != -1) {
-        SetParticleEffectPauseFlag(w->effect[0], flag);
-    }
-    if (w->effect[1] != -1) {
-        SetParticleEffectPauseFlag(w->effect[1], flag);
-    }
-    if (w->effect[4] != -1) {
-        SetParticleEffectPauseFlag(w->effect[4], flag);
-    }
-}
+static void setPauseFlag(GObj *gobj, int flag);
 
 inline int IsTorchLightOn(GObj *torch)
 {
@@ -325,20 +287,7 @@ static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name 
     return 0;
 }
 
-static void procChainReaction(GObj *gobj)
-{
-    TorchGeoWork *w;
-    GObj *o;
-
-    w = GOBJ_SUB(gobj)->work;
-    if (w->chainFlag == 0) {
-        return;
-    }
-    o = CheckTorchChainReaction(gobj, 20.0f);
-    if (o != 0 && chainReactionBlocked(gobj, o) == 0) {
-        LightTorchOn(gobj);
-    }
-}
+static void procChainReaction(GObj *gobj);
 
 void TorchGeo(GObj *gobj)
 {
