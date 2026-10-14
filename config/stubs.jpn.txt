@@ -322,8 +322,6 @@ text SetParallelMotionTableWithNoRequest 0x001F0F48 0x001F0F6C ico2/sugipon/src/
 text SetParallelMotionTable 0x001F0F70 0x001F0FDC ico2/sugipon/src/motionOrientManager.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
 text InitMotionOrient 0x001F0FE0 0x001F1080 ico2/sugipon/src/motionOrientManager.c lines=14  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
 text GetCurrentMotionDirectionAdjustFlag 0x001F1080 0x001F10AC ico2/sugipon/src/motionOrientManager.c lines=4  # ordinal; first difference at insn 2; length:+1; extent-differs
-text motKindMenuProc 0x001F1970 0x001F1D84 ico2/sugipon/src/motionViewer.c local lines=50  # ordinal; first difference at insn 15; imm:3; extent-equal
-rdlit motKindMenuProc 0x00619AE8 0x00619B31 ico2/sugipon/src/motionViewer.c  # 3 strings
 text FullScreenEffectBefore 0x001FBCC8 0x001FBE48 ico2/sugipon/src/staticBlur.c lines=71  # ordinal; first difference at insn 2; length:-9; extent-differs
 rdlit FullScreenEffectBefore 0x0061A300 0x0061A320 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
 sdlit FullScreenEffectBefore 0x00635678 0x0063567C ico2/sugipon/src/staticBlur.c  # 1 string
