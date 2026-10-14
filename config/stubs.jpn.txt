@@ -540,24 +540,7 @@ text actSt08aInit 0x0023DF50 0x0023DFC8 ico2/script/src/st08a.c lines=15  # ordi
 lit4 actSt08aInit 0x0063347C 0x00633480 ico2/script/src/st08a.c  # 1 float
 text actSt10lChain 0x002408A8 0x00240954 ico2/script/src/st10l.c lines=21  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt10rInit 0x00241700 0x002417D4 ico2/script/src/st10r.c lines=25  # ordinal; first difference at insn 6; imm:5; extent-equal
-text actSt10rFloorChk 0x00241830 0x002419E4 ico2/script/src/st10r.c lines=48  # ordinal; first difference at insn 18; imm:3; extent-equal
-text actSt10rFloorHitChk 0x002419E8 0x00241B28 ico2/script/src/st10r.c local lines=27  # ordinal; first difference at insn 28; imm:7; extent-equal
-text actSt10rCageMain 0x00241B28 0x00241D00 ico2/script/src/st10r.c lines=59  # ordinal; first difference at insn 16; imm:3; extent-equal
-text actSt10rTowerChk 0x00241D00 0x00241F5C ico2/script/src/st10r.c lines=78  # ordinal; first difference at insn 31; imm:3; extent-equal
-text actSt10rTowerConte 0x00241F60 0x00242128 ico2/script/src/st10r.c lines=43  # ordinal; first difference at insn 7; imm:9; extent-equal
-text actSt10rChainMove 0x00242128 0x002422C8 ico2/script/src/st10r.c lines=55  # ordinal; first difference at insn 5; imm:3; extent-equal
-text actSt10rFence 0x002422C8 0x002424C4 ico2/script/src/st10r.c lines=54  # ordinal; first difference at insn 47; imm:4; extent-equal
-lit4 actSt10rFence 0x006334A4 0x006334A8 ico2/script/src/st10r.c  # 1 float
-text actSt10rFenceDownChk 0x002424C8 0x0024263C ico2/script/src/st10r.c lines=37  # ordinal; first difference at insn 35; imm:5; extent-equal
-text actSt10rFenceUpChk 0x00242640 0x002427B0 ico2/script/src/st10r.c lines=37  # ordinal; first difference at insn 35; imm:4; extent-equal
-text actSt10rFenceDownChk2 0x002427B0 0x00242924 ico2/script/src/st10r.c lines=37  # ordinal; first difference at insn 35; imm:5; extent-equal
-text actSt10rFenceUpChk2 0x00242928 0x00242A98 ico2/script/src/st10r.c lines=37  # ordinal; first difference at insn 35; imm:4; extent-equal
 text actSt10rChain 0x00242D88 0x00242E2C ico2/script/src/st10r.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt10rSekizo 0x00242E30 0x00242E94 ico2/script/src/st10r.c lines=9  # ordinal; first difference at insn 12; imm:1; extent-equal
-lit4 actSt10rSekizo 0x006334AC 0x006334B4 ico2/script/src/st10r.c  # 2 floats
-text actSt10rFloorSub 0x00243160 0x00243244 ico2/script/src/st10r.c local lines=24  # ordinal; first difference at insn 6; imm:6; extent-equal
-text actSt10rCageSub 0x00243248 0x002432E8 ico2/script/src/st10r.c local lines=22  # ordinal; first difference at insn 15; imm:2; extent-equal
-text actSt10rChainMoveSub 0x00243498 0x00243534 ico2/script/src/st10r.c local lines=23  # ordinal; first difference at insn 17; imm:1; extent-equal
 text actSt13aSekizo 0x002440E8 0x00244180 ico2/script/src/st13a.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt13bConte02 0x00244730 0x0024504C ico2/script/src/st13b.c lines=238  # ordinal; first difference at insn 0; length:-23; extent-differs
 rdlit actSt13bConte02 0x0061C080 0x0061C088 ico2/script/src/st13b.c  # 1 double
