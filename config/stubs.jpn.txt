@@ -432,12 +432,6 @@ lit4 actSt04bSekizo 0x006333F4 0x006333FC ico2/script/src/st04b.c  # 2 floats
 text actSt04bBallXL 0x00228988 0x002289EC ico2/script/src/st04b.c lines=13  # ordinal; first difference at insn 12; imm:2; extent-equal
 text actSt04bSolarXL 0x002289F0 0x00228A50 ico2/script/src/st04b.c lines=12  # ordinal; first difference at insn 13; imm:2; extent-equal
 text actSt04lDoor 0x00229008 0x002290B4 ico2/script/src/st04c.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt04dDoor1 0x00229588 0x00229690 ico2/script/src/st04d.c lines=23  # ordinal; first difference at insn 19; imm:4; extent-equal
-text actSt04dDoor1UpChk 0x00229690 0x002297E8 ico2/script/src/st04d.c lines=32  # ordinal; first difference at insn 30; imm:2; extent-equal
-text actSt04dDoor1DownChk 0x002297E8 0x00229940 ico2/script/src/st04d.c lines=32  # ordinal; first difference at insn 30; imm:2; extent-equal
-text actSt04dDoor2 0x00229940 0x00229A48 ico2/script/src/st04d.c lines=23  # ordinal; first difference at insn 19; imm:4; extent-equal
-text actSt04dDoor2UpChk 0x00229A48 0x00229BA0 ico2/script/src/st04d.c lines=32  # ordinal; first difference at insn 30; imm:2; extent-equal
-text actSt04dDoor2DownChk 0x00229BA0 0x00229CF8 ico2/script/src/st04d.c lines=32  # ordinal; first difference at insn 30; imm:2; extent-equal
 text actSt04eWaterStop 0x0022A098 0x0022A208 ico2/script/src/st04e.c lines=47  # ordinal; first difference at insn 5; imm:4; extent-equal
 text actSt04eFuchi1 0x0022A310 0x0022A3A8 ico2/script/src/st04e.c local lines=16  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt04eFuchi2 0x0022A3A8 0x0022A440 ico2/script/src/st04e.c local lines=16  # ordinal; first difference at insn 14; imm:1; extent-equal
