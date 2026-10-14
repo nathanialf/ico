@@ -240,13 +240,13 @@ text execBombGeo 0x001DF868 0x001DFAA4 ico2/sugipon/src/item.c local lines=55  #
 rdlit execBombGeo 0x00618E50 0x00618E64 ico2/sugipon/src/item.c align=16  # 1 jtbl
 text BreakItemFromOutside 0x001DFCC0 0x001DFE14 ico2/sugipon/src/item.c lines=18  # ordinal; first difference at insn 26; imm:1; extent-equal
 text BreakItemWithAttackHit 0x001E0278 0x001E03A4 ico2/sugipon/src/item.c lines=14  # ordinal; first difference at insn 22; imm:1; extent-equal
-text _getFinalMatrix 0x001E1C30 0x001E4674 ico2/sugipon/src/motionManager.c local lines=691  # ordinal; first difference at insn 2; length:-130; extent-differs
+text _getFinalMatrix 0x001E1C30 0x001E4674 ico2/sugipon/src/motionManager.c local lines=691 in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc  # ordinal; first difference at insn 2; length:-130; extent-differs
 lit4 _getFinalMatrix 0x006330E8 0x00633128 ico2/sugipon/src/motionManager.c  # 16 floats; target side (no PAL body to compile)
 rdlit _getFinalMatrix 0x00618FA0 0x00619070 ico2/sugipon/src/motionManager.c align=16  # 1 jtbl; target side (no PAL body to compile)
-text rootUpdateXZ 0x001E72B0 0x001E8398 ico2/sugipon/src/motionManager.c local lines=197  # ordinal; first difference at insn 65; length:-6; extent-differs
+text rootUpdateXZ 0x001E72B0 0x001E8398 ico2/sugipon/src/motionManager.c local lines=197 in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 65; length:-6; extent-differs
 lit4 rootUpdateXZ 0x00633164 0x00633174 ico2/sugipon/src/motionManager.c  # 4 floats; target side (no PAL body to compile)
 rdlit rootUpdateXZ 0x006191F8 0x0061923E ico2/sugipon/src/motionManager.c  # 1 string, unreferenced (a print the retail build compiles out); target side (no PAL body to compile)
-text rootUpdateXZ_MotPos 0x001E8398 0x001E8894 ico2/sugipon/src/motionManager.c local lines=83  # ordinal; first difference at insn 44; length:-12; extent-differs
+text rootUpdateXZ_MotPos 0x001E8398 0x001E8894 ico2/sugipon/src/motionManager.c local lines=83 in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 44; length:-12; extent-differs
 lit4 rootUpdateXZ_MotPos 0x00633174 0x00633178 ico2/sugipon/src/motionManager.c  # 1 float; target side (no PAL body to compile)
 rdlit rootUpdateXZ_MotPos 0x00619240 0x00619251 ico2/sugipon/src/motionManager.c  # 1 string; target side (no PAL body to compile)
 text UpdateFrameCounter 0x001ED678 0x001EDB04 ico2/sugipon/src/motionOrientManager.c lines=82  # ordinal; first difference at insn 15; length:-3; extent-differs

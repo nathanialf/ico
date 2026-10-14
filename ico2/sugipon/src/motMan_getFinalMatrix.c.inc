@@ -1,3 +1,5 @@
+#include "include_asm.h"
+
 /* motMan_getFinalMatrix.c.inc: the motion manager's final node matrices and their angle limits; motionManager.c includes this file. */
 inline int SetDirectMotionProgramInterpInfo(GObj *self, int focus, float rate)
 {

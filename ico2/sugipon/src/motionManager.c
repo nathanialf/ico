@@ -187,7 +187,6 @@ static void getInitialMatrix(Sub15C *obj, int idx);
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
-#include "include_asm.h"
 
 static inline void dispSquare(int alpha) /* derived name */
 {
