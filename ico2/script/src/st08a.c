@@ -44,9 +44,6 @@ INCLUDE_ASM(func_0022A1B8);
 
 INCLUDE_ASM(func_0022A2C8);
 
-/* .sdata: the scene's stream handle. */
-static SqEntry *st08a_adpcm = 0; /* derived name */
-
 INCLUDE_ASM(actSt08aDoor);
 
 INCLUDE_ASM(actSt08aEne1);

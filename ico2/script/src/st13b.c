@@ -82,10 +82,6 @@ SqEntry *st13b_up = 0;
 
 SqEntry *st13b_down = 0;
 
-SqEntry *sekizo_13b = 0;
-
-SqEntry *sekizo_13b_vol = 0;
-
 int st13b_yure = 0;
 
 unsigned char st13b_yure_vol = 0;

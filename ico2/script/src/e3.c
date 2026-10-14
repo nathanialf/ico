@@ -39,8 +39,7 @@ INCLUDE_ASM(actE3WarningChk);
 static inline void actE3St09aBrgSwitch(GObj *volatile self);
 
 /* .sdata: the title stream's handle, the capsule's, the cage fall's, the
-   first gate's, the stone statue's and its volume word, then the statue
-   shake's volume. */
+   first gate's, and the stone statue's and its volume word. */
 static SqEntry *e3title = 0; /* derived name */
 
 SqEntry *e3capsule = 0;
@@ -52,8 +51,6 @@ SqEntry *e3gate1st = 0;
 SqEntry *sekizo_e3 = 0;
 
 int sekizo_e3_vol = 0;
-
-static unsigned char e3sekizo_yure_vol = 0; /* derived name */
 
 static ActMail warning_mes[2] = {{397}, {396}}; /* derived name */
 

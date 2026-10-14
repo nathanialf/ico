@@ -27,8 +27,8 @@
 
 static void actEndingSave(GObj *volatile self);
 
-/* .sdata: the ending scenes' stream handles (ed5 and happy_end unused), then
-   the staff roll's, the fourteenth demo's and the st27a ending's. */
+/* .sdata: the ending scenes' stream handles, then the fourteenth demo's and
+   the st27a ending's. */
 SqEntry *ed1 = 0;
 
 SqEntry *ed2 = 0;
@@ -40,12 +40,6 @@ SqEntry *ed4 = 0;
 int ed5 = 0;
 
 SqEntry *ed6 = 0;
-
-SqEntry *sea = 0;
-
-int happy_end = 0;
-
-static SqEntry *staff3 = 0; /* derived name */
 
 static SqEntry *endDemo14 = 0; /* derived name */
 

@@ -94,6 +94,9 @@ void actSt04cDoorDownEffect(GObj *volatile self)
 
 INCLUDE_ASM(actSt04cEneChk);
 
+/* .sdata: the stream actSt04cIntroChkSub fades out when the intro ends */
+static SqEntry *st04cIntro = 0; /* derived name */
+
 INCLUDE_ASM(actSt04cIntroChkSub);
 
 void actSt04lDoorEvent(int x)

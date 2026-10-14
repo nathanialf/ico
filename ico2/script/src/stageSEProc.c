@@ -176,10 +176,6 @@ typedef struct { /* field names derived */
 
 INCLUDE_ASM(stageSE19ataki);
 
-/* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
-   (0.005f, or 1000.0f to cut the river at once) */
-float riverFadeSpeed = 0.0f; /* derived name */
-
 int stageSE02astrong(SeSlot *self)
 {
     Blk32 v;
@@ -198,6 +194,10 @@ int stageSE02astrong(SeSlot *self)
     self->volumeRate = w;
     return 1;
 }
+
+/* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
+   (0.005f, or 1000.0f to cut the river at once) */
+float riverFadeSpeed = 0.0f; /* derived name */
 
 INCLUDE_ASM(stageSE02ataki);
 

@@ -132,17 +132,20 @@ int crest2_4r = 0;
 
 SqEntry *crest3_4r = 0;
 
+/* the stream func_00220B00 opens */
+static SqEntry *st04rAdpcm = 0; /* derived name */
+
 SqEntry *stair5d = 0;
 
 SqEntry *sekizo5c = 0;
 
 unsigned char st05d_hasi = 0;
 
+int sekizo_4r = 0;
+
 int st04r_yure = 0;
 
 unsigned char st04r_yure_vol = 0;
-
-int sekizo_4r = 0;
 
 INCLUDE_ASM(actSt05eEnd);
 

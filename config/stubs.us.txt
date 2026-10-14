@@ -2642,7 +2642,7 @@ text debug_WayTool 0x00206D18 0x00206F38 ico2/fumi/src/way_tool.c lines=64  # or
 rdlit debug_WayTool 0x0061B7C0 0x0061B7D9 ico2/fumi/src/way_tool.c  # 2 strings
 sdlit debug_WayTool 0x006338E0 0x006338E8 ico2/fumi/src/way_tool.c  # 2 statics
 text play_way 0x00206F38 0x00207018 ico2/fumi/src/way_tool.c  # ordinal; first difference at insn 31; imm:2; extent-equal
-sdlit play_way 0x00633894 0x00633898 ico2/fumi/src/way_tool.c  # 1 static
+sdlit play_way 0x00633894 0x00633898 ico2/fumi/src/way_tool.c def  # 1 static, written at the definition with the string
 sdlit play_way 0x00633898 0x006338A0 ico2/fumi/src/way_tool.c def  # 1 string, measured from the base
 text point_nige 0x00207018 0x002070AC ico2/fumi/src/way_tool.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before quick_save_wpfile
 rdlit point_nige 0x0061B668 0x0061B676 ico2/fumi/src/way_tool.c def  # 1 string, measured from the base

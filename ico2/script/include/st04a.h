@@ -14,7 +14,6 @@ struct SqEntry;
 
 /* st04a.o's .sdata globals */
 extern struct SqEntry *gate1st;
-extern int gate1;
 extern struct SqEntry *gate_ready_l;
 extern struct SqEntry *gate_ready_r;
 extern struct SqEntry *torch;

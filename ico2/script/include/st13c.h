@@ -14,7 +14,6 @@ struct SqEntry;
 
 /* st13c.o's .sdata globals */
 extern struct SqEntry *bmg;
-extern struct SqEntry *hand;
 void actSt13cBmg1Chk(GObj *volatile self);
 void actSt13cBukiChk(GObj *volatile self);
 void actSt13cCage1stDown(GObj *volatile self);

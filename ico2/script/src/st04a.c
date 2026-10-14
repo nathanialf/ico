@@ -98,11 +98,8 @@ typedef struct AnimList28 { /* field names derived */
    record, does not declare it */
 extern StreamMotionFile streamMotion[];
 
-/* .sdata: the first gate's stream handle and gate1, which no code uses.
-   actSt04aConte06's "!!\n" trace follows them. */
+/* .sdata: the first gate's stream handle */
 SqEntry *gate1st = 0;
-
-int gate1 = 0;
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loops below
    spin for. */

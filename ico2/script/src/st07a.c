@@ -62,10 +62,8 @@ static const EffectArg tsuroEffect8Pos = {{-1223.0f, 1325.0f, -1101.0f, 1.0f}}; 
 
 static const EffectArg tsuroEffect9Pos = {{-1273.0f, 1325.0f, -873.0f, 1.0f}}; /* derived name */
 
-/* .sdata: the bridge and statue stream handles and the statue's shake, then
-   the shake's volume. */
-SqEntry *bridge = 0;
-
+/* .sdata: the statue stream handles and the statue's shake, then the
+   shake's volume. */
 SqEntry *sekizo7a = 0;
 
 SqEntry *sekizo_7a = 0;

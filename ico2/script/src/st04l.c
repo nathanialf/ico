@@ -49,6 +49,9 @@ SqEntry *crest3 = 0;
 
 int solar4l = 0;
 
+/* the stream the rope checks (actSt04lRope1Chk, func_0021BD80) open */
+static SqEntry *ropeChk4l = 0; /* derived name */
+
 SqEntry *stair4d = 0;
 
 SqEntry *st04d_hasi = 0;

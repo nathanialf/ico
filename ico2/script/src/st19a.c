@@ -43,7 +43,10 @@ static ActMail D_004D3B90[2] = {{397}, {396}}; /* derived name */
 
 static ActMail D_004D3BB0[2] = {{397}, {396}}; /* derived name */
 
-/* .sdata: the fence, horn and pipe stream handles. */
+/* .sdata: the stream func_00237930 opens, then the fence, horn and pipe
+   stream handles. */
+static SqEntry *st19aAdpcm = 0; /* derived name */
+
 SqEntry *fence_up_19a = 0;
 
 SqEntry *fence_down_19a = 0;

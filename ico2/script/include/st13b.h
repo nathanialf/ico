@@ -21,8 +21,6 @@ extern struct SqEntry *sd;
 extern struct SqEntry *boss_dead;
 extern struct SqEntry *st13b_up;
 extern struct SqEntry *st13b_down;
-extern struct SqEntry *sekizo_13b;
-extern struct SqEntry *sekizo_13b_vol;
 extern int st13b_yure;
 extern unsigned char st13b_yure_vol;
 void actSt13bBossAfterChk(GObj *volatile self);
