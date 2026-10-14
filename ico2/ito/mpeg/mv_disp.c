@@ -5,7 +5,6 @@
 #include <eeregs.h>
 #include <libgraph.h>
 #include "main.h"
-#include "include_asm.h"
 
 inline void *setTEX0_1(int *p, int tbp0, int tbw, int psm, int tw, int th, int tcc, int tfx,
                        unsigned int cbp, unsigned int cpsm, unsigned int csm, unsigned int csa,
@@ -178,7 +177,92 @@ void dispCreate(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
 
 inline void dispDelete(MvDispEnv *self) {}
 
-INCLUDE_ASM(dispSetTags);
+void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, int w, int h,
+                 int texW, int texH)
+{
+    MvRect r;
+    MvRect uv;
+    MvRect r2;
+    MvRect uv2;
+    void *p = (void *)uncached_accel_addr(src);
+    int nx;
+    int ny;
+    int bw;
+    int bh;
+    int dbp;
+    int i;
+    int j;
+
+    nx = texW >> 4;
+    ny = texH >> 4;
+
+    r.x = 0;
+    r.y = ((self->height + 31) / 32 * 64 + self->height * 2) << 4;
+    r.w = texW << 4;
+    r.h = texH / 2 << 4;
+
+    if (field == 0) {
+        uv.x = 8;
+        uv.y = 8;
+        uv.w = texW << 4;
+        uv.h = texH << 4;
+
+        r2.x = x << 4;
+        r2.y = y << 4;
+        r2.w = w << 4;
+        r2.h = h << 4;
+
+        uv2.x = 8;
+        uv2.y = (self->height * 2 << 4) + 8;
+        uv2.w = texW << 4;
+        uv2.h = texH / 2 << 4;
+
+        bh = (self->height + 31) / 32;
+        bw = (self->width + 63) / 64;
+        dbp = bh * (bw << 6);
+        p = setDMAscTag(p, 0, 0, 0, 1, 0, 3);
+        p = setGIFtag(p, 14, 1, 0, 0, 0, 0, 2);
+        p = setBITBLTBUF(p, dbp, bw, 0);
+        p = setTRXREG(p, 16, 16);
+        for (i = 0; i < nx; i++) {
+            for (j = 0; j < ny; j++) {
+                p = setDMAscTag(p, 0, 0, 0, 1, 0, 4);
+                p = setGIFtag(p, 14, 1, 0, 0, 0, 0, 2);
+                p = setTRXPOS(p, 0, i << 4, j << 4);
+                p = setTRXDIR(p, 0);
+                p = setGIFtag(p, 0, 0, 2, 0, 0, 0, 64);
+                p = setDMAscTag(p, 0, phys_addr(image), 0, 3, 0, 64);
+                image += 1024;
+            }
+        }
+    } else {
+        uv.x = 8;
+        uv.y = 24;
+        uv.w = texW << 4;
+        uv.h = texH << 4;
+
+        r2.x = x << 4;
+        r2.y = (y + (self->height + 31) / 32 * 32) << 4;
+        r2.w = w << 4;
+        r2.h = h << 4;
+
+        uv2.x = 8;
+        uv2.y = (self->height * 2 << 4) + 8;
+        uv2.w = texW << 4;
+        uv2.h = texH / 2 << 4;
+    }
+
+    p = setDMAscTag(p, 0, 0, 0, 7, 0, 16);
+    p = setGIFtag(p, 14, 1, 0, 0, 0, 1, 15);
+    p = setTEXFLUSH(p);
+    p = setTEX1_1(p, 0, 0, 0, 0, 0, 0, 0);
+    p = setTEX0_1(p, (self->height + 31) / 32 * ((self->width + 63) / 64 << 6),
+                  (self->width + 63) / 64, 0, 10, 10, 0, 1, 0, 0, 0, 0, 0);
+    p = setTexSprite(p, &r, &uv);
+    p = setTEXFLUSH(p);
+    p = setTEX1_1(p, 0, 0, 1, 1, 0, 0, 0);
+    setTexSprite(p, &r2, &uv2);
+}
 
 void dispSwitch(MvDispEnv *self, int flag)
 {

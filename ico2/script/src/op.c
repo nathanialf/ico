@@ -16,7 +16,6 @@
 #include "gobj_process.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 /* .sbss: titleSubEnd and demoSubEnd are the flags a title or demo sub-thread
    raises when it is done and its parent waits on, titleSubAdpcm and demoAdpcm
@@ -90,7 +89,140 @@ void actTitleShortCut(GObj *volatile self);
    of the body: it reads and writes the parent's `t` and is inlined at both of
    its calls.  The tail after each demo (the thread priority and the fade out)
    is written out in case 0 and again in case 1. */
-INCLUDE_ASM(actOpDemo01);
+void actOpDemo01(GObj *volatile self)
+{
+    GObj *x = self;
+    GProc *th;
+    int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
+
+    inline int tick(void) /* derived name */
+    {
+        if ((current_layout_id == 9 || current_layout_id == 10) && lt_continue_selected == 0) {
+            t--;
+        } else {
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
+        }
+        if (t < 0) {
+            current_layout_id = 52;
+            return 1;
+        }
+        return 0;
+    }
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    gFlagGameClear = 0;
+    optionScreenMode = 0;
+    girlControlMode = 0;
+    stgmgrNextStagePreLoadForceStageSet(0);
+
+    actCreateSubThread(actSubMpegReturnPreload, 21);
+
+    actCreateSubThread(actSt26aConte01_1_newgame, 21);
+
+    scpBoyControlReadDisable = 1;
+
+    while (kanbanBootEnd == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeOut(255.0f, 0, 0, 0);
+    titleAdpcm = 0;
+
+    while (1) {
+        titleSubEnd = 0;
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        opTitleLogoMode = 0;
+
+        stage_SetAnimation(567, -1, -2);
+        stage_SetAnimation(559, -1, -2);
+        stage_SetAnimation(560, -1, -2);
+        stage_SetAnimation(561, -1, -2);
+        stage_SetAnimation(563, -1, -2);
+        stage_SetAnimation(564, -1, -2);
+        stage_SetAnimation(565, -1, -2);
+
+        switch (opDemoMode) {
+        case 0:
+            debug_StdPrintfDummy("mode 0");
+            current_layout_id = 52;
+
+            if (titleAdpcm != 0) {
+                scpAdpcmFadeCloseFunc(&titleAdpcm, 288);
+            }
+            titleAdpcm = 0;
+            titleSubAdpcm = 0;
+            th = actCreateSubThread(actTitleReadTimeDemo0, 21);
+
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
+            while (titleSubAdpcm == 0) {
+                _ACTWait(1);
+            }
+            _ACTWait(30);
+
+            while (1) {
+                _ACTWait(1);
+                if (titleSubEnd == 0) {
+                    if (pad[0].flags & 0x800) {
+                        opDemoMode = 1;
+                        opDemoNextMode = 2;
+                        break;
+                    }
+                } else if (tick()) {
+                    opDemoMode = 2;
+                    break;
+                }
+            }
+
+            if (titleSubAdpcm != 0) {
+                scpAdpcmCloseFunc(&titleSubAdpcm);
+            }
+            iosThreadSetPri(&((GProc *)th)->thread, 34);
+            scpFadeOut(16.0f, 0, 0, 0);
+            break;
+
+        case 1:
+            debug_StdPrintfDummy("mode 1");
+            opTitleLogoMode = 1;
+            lt_switch_layout(9);
+            th = actCreateSubThread(actTitleShortCut, 21);
+
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
+
+            while (1) {
+                _ACTWait(1);
+                if (titleSubEnd != 0 && tick()) {
+                    lt_switch_layout(52);
+                    opDemoMode = opDemoNextMode;
+                    break;
+                }
+            }
+            iosThreadSetPri(&((GProc *)th)->thread, 34);
+            scpFadeOut(16.0f, 0, 0, 0);
+            break;
+
+        case 2:
+            debug_StdPrintfDummy("mode 2");
+            opDemoMode = 1;
+            opDemoNextMode = 0;
+            mpegPlayReturnStage = 1;
+            if (titleAdpcm != 0) {
+                scpAdpcmFadeCloseFunc(&titleAdpcm, 1024);
+                while (scpAdpcmCloseChkFunc(&titleAdpcm) != 0) {
+                    _ACTWait(1);
+                }
+            }
+            titleAdpcm = 0;
+            _ACTWait(1);
+            stgmgrForceSwitchWithFade(57, 256.0f, 4.0f);
+            _ACTWait(0);
+            break;
+        }
+    }
+}
 
 /* .sdata, after actOpDemo01's traces: the second demo's and the first
    scene's stream handles, the title logo's step and the title's stream handle

@@ -673,7 +673,84 @@ static inline int getFloorAttributeUnderNode(void) /* derived name */
 
 INCLUDE_ASM(rootUpdateXZ);
 
-INCLUDE_ASM(rootUpdateXZ_MotPos);
+static ObjNode rootUpdateXZ_MotPos(int kind, int no)
+{
+    ObjNode ret = {0, -1};
+    ClipWork w;
+    Vec16 mv;
+    Vec16 step;
+    float mtx[16];
+    float lim;
+    int r;
+
+    GetMatrixFromQuaternion(mtx, skelRoot->quat);
+    sceVu0ApplyMatrix(&mv, mtx, rootMove);
+    sceVu0ApplyMatrix(&step, mtx, rootStep);
+    AddVectorXYZ(skelRoot->pos, skelRoot->pos, &step);
+
+    if (no != -1) {
+        CopyVector(skelRoot->delta, rootDelta);
+    } else {
+        if (skelMotCtrl->motion == 21) {
+            lim = -(60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 10.0f);
+            if (skelRoot->delta[1] < lim) {
+                skelRoot->delta[1] = lim;
+                /* the release build's printf is debug_StdPrintfDummy */
+                debug_StdPrintfDummy("inertia cancel.\n");
+            }
+        }
+        AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->delta);
+    }
+
+    if (wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, skelRoot->projHeight + -30.0f) ==
+        0) {
+        if (skelMotCtrl->wallReact != 0) {
+            wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, 5.0f);
+        }
+    }
+
+    if (skelMotCtrl->floorFit != 0) {
+        if (no != -1 || skelRoot->slopeIK != 0) {
+            if (getFieldCollision(&w) != 0) {
+                CopyVector(&skelRoot->plane, &w.normal);
+                skelRoot->pos[1] = w.pt[2][1] + mv.f[1];
+                if (no != -1 || skelMotCtrl->motion == 75 || skelMotCtrl->motion == 599 ||
+                    skelMotCtrl->motion == 58) {
+                    skelMotCtrl->floorAttr = GetFloorAttribute(&w);
+                    ret = w.floor.o;
+                } else {
+                    skelMotCtrl->floorAttr = 0;
+                }
+            } else {
+                skelMotCtrl->flags = skelMotCtrl->flags | 4;
+            }
+        } else {
+            getFieldCollision(&w);
+        }
+        r = getFlyFieldCollision(&w);
+        switch (r) {
+        case 1:
+            if (skelMotDef->landFrame > skelMotCtrl->animFrame) {
+                skelRoot->pos[1] = w.pt[2][1] + mv.f[1];
+            } else {
+                landingFieldAction(&w);
+            }
+            break;
+        case 2:
+            markPoolContact(&w);
+            break;
+        }
+    }
+
+    checkCliffAndWallStateAtJump();
+    floorFitting(kind);
+    skelRoot->height = rootMove[1];
+    SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
+    CopyVector(skelRoot->trans, ZeroPoint);
+    CopyVector(skelRoot->last, skelRoot->pos);
+    skelRoot->standNode = no;
+    return ret;
+}
 
 static int adjustSideWall(ClipWork *w, int nearTest, Vec16 *wallPlane)
 {
