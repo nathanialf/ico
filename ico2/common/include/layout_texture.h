@@ -29,7 +29,7 @@ void lt_analog2Pad(void);
 void exec_layout_texture(void);
 void init_layout_texture(int stage);
 
-/* tex-property: one layout texture property, 0x70 bytes, the rows of
+/* tex-property: one layout texture property, 0x6C bytes, the rows of
  * texProperty a layout's first..last range covers. Readers:
  * ico2/common/src/layout_texture.c, ico2/fumi/src/jimaku.c (texNo). The
  * pad bits name the item links: 0x1000 up, 0x4000 down, 0x8000 left, 0x2000
@@ -39,37 +39,34 @@ typedef struct LtProperty { /* field names derived */
     int word4;              /* 0x04, no C reader */
     int word8;              /* 0x08, no C reader */
     int wordC;              /* 0x0C, no C reader */
-    int ownerItem;          /* 0x10, the item whose selection keeps this one lit, -1 for none */
-    int word14;             /* 0x14, no C reader */
-    void *texData;          /* 0x18, 0 in the shipped rows */
-    int texNo;              /* 0x1C, the texture tex_TransTexture sends */
-    int up;                 /* 0x20, lt_link_layout's layout for direction 3 */
-    int down;               /* 0x24, for direction 2 */
-    int left;               /* 0x28, for direction 1, and the layout a triangle switches to */
-    int right;              /* 0x2C, for direction 0, and the layout a cross switches to */
-    int rightItem;          /* 0x30, the item the pad's right moves to, -1 for none */
-    int leftItem;           /* 0x34 */
-    int downItem;           /* 0x38 */
-    int upItem;             /* 0x3C */
-    int word40;             /* 0x40, no C reader */
-    int centerX;            /* 0x44, nonzero centres the sprite across the screen */
-    int dispH;              /* 0x48, the sprite's height in field lines, 0 for the texture's */
-    int dispW;              /* 0x4C, its width in pixels, 0 for the texture's */
-    int dispY;              /* 0x50, from the top of the 226-line screen */
-    int dispX;              /* 0x54, from the left of the 640-pixel screen */
-    int texFileNo;          /* 0x58, the texFile row the texture is named from */
-    int texU;               /* 0x5C, the texel rectangle the sprite draws */
-    int texH;               /* 0x60 */
-    int texW;               /* 0x64 */
-    int texV;               /* 0x68 */
-    /* 0x6C: the flag word, declared as bits */
-    unsigned int selectMode : 2;  /* 1: a cross on the item takes the long fade */
-    unsigned int fade_cancel : 1; /* drawn in the highlight colour */
-    unsigned int selectable : 1;  /* dimmed when another item is selected, glows when it is */
-    unsigned int masked : 1;      /* not drawn (lt_mask_property) */
+    int word14;             /* 0x10, no C reader */
+    void *texData;          /* 0x14, 0 in the shipped rows */
+    int texNo;              /* 0x18, the texture tex_TransTexture sends */
+    int up;                 /* 0x1C, lt_link_layout's layout for direction 3 */
+    int down;               /* 0x20, for direction 2 */
+    int left;               /* 0x24, for direction 1, and the layout a triangle switches to */
+    int right;              /* 0x28, for direction 0, and the layout a cross switches to */
+    int rightItem;          /* 0x2C, the item the pad's right moves to, -1 for none */
+    int leftItem;           /* 0x30 */
+    int downItem;           /* 0x34 */
+    int upItem;             /* 0x38 */
+    int word40;             /* 0x3C, no C reader */
+    int centerX;            /* 0x40, nonzero centres the sprite across the screen */
+    int dispH;              /* 0x44, the sprite's height in field lines, 0 for the texture's */
+    int dispW;              /* 0x48, its width in pixels, 0 for the texture's */
+    int dispY;              /* 0x4C, from the top of the 226-line screen */
+    int dispX;              /* 0x50, from the left of the 640-pixel screen */
+    int texH;               /* 0x54, the texel rectangle the sprite draws */
+    int texW;               /* 0x58 */
+    int texV;               /* 0x5C */
+    int texU;               /* 0x60 */
+    int texFileNo;          /* 0x64, the texFile row the texture is named from */
+    /* 0x68: the flag word, declared as bits */
     unsigned int defaultMask
-        : 1; /* the mask restored on a layout switch (lt_default_mask_property) */
-    unsigned int : 26;
+        : 1;                 /* the mask restored on a layout switch (lt_default_mask_property) */
+    unsigned int masked : 1; /* not drawn (lt_mask_property) */
+    unsigned int fade_cancel : 1; /* drawn in the highlight colour */
+    unsigned int : 29;
 } LtProperty; /* derived name */
 
 extern LtProperty texProperty[];

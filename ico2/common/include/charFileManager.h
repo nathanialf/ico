@@ -17,25 +17,25 @@ void ResetCharFileManager(void);
 struct Sub15C;
 void CSVSYSTEM_ReadCharFiles(struct Sub15C *rec, int id);
 
-/* texture-path: one texture file, 0x34 bytes. Readers:
- * ico2/common/src/charFileManager.c (TexRec), kanban.c, layout_texture.c.
- * Owner: ico2/common/include/charFileManager.h. */
-typedef struct {    /* field names derived */
-    char path[48];  /* 0x00 */
-    int cameraMove; /* 0x30, compared with NonLinearCameraMove */
-} TexRec;           /* derived name */
+/* texture-path: one texture file, 0x20 bytes. Readers: kanban.c,
+ * layout_texture.c. Owner: ico2/common/include/charFileManager.h. */
+typedef struct {   /* field names derived */
+    char path[32]; /* 0x00 */
+} TexRec;          /* derived name */
 
-/* model-path: one model, 0x8C bytes, indexed by the model id. Reader:
+/* model-path: one model, 0x10C bytes, indexed by the model id. Reader:
  * ico2/common/src/PObj.c (InitPObj, AllocPObj, MakePacket), charFileManager.c
- * (ReadSkeltonFile, ReadCollisionFile: the two paths). */
+ * (ReadSkeltonFile, ReadCollisionFile: the skeleton and collision paths). */
 typedef struct PObjMdl { /* field names derived */
-    char path[48];       /* 0x00, the skeleton file, "NULL" for none */
-    char collPath[64];   /* 0x30, the collision file */
-    float offset[3];     /* 0x70, InitPObj adds it to every vertex and box corner */
-    float lightScale;    /* 0x7C, copied into the PObj at 0x34 */
-    float ambientScale;  /* 0x80, copied into the PObj at 0x38 */
-    float shadowLength;  /* 0x84, copied into the PObj at 0x3C */
-    /* 0x88, read as bits */
+    char modelPath[64];  /* 0x00, derived name: the model file, no C reader */
+    char shadowPath[64]; /* 0x40, derived name: the shadow model file, no C reader */
+    char path[48];       /* 0x80, the skeleton file, "NULL" for none */
+    char collPath[64];   /* 0xB0, the collision file */
+    float offset[3];     /* 0xF0, InitPObj adds it to every vertex and box corner */
+    float lightScale;    /* 0xFC, copied into the PObj at 0x34 */
+    float ambientScale;  /* 0x100, copied into the PObj at 0x38 */
+    float shadowLength;  /* 0x104, copied into the PObj at 0x3C */
+    /* 0x108, read as bits */
     unsigned int pktKind : 4; /* the packet header's kind, 4 for none */
     unsigned int shade : 4;   /* MakePacket's tag bits 18-21, the PObj's shade */
     unsigned int lod : 4;     /* MakePacket's tag bits 22-25, the PObj's level of detail */
@@ -43,7 +43,7 @@ typedef struct PObjMdl { /* field names derived */
 } PObjMdl; /* derived name */
 
 /* the data-only members texture-path and model-path */
-extern TexRec texFile[];
+extern const TexRec texFile[];
 extern PObjMdl modelData[];
 
 #endif /* CHARFILEMANAGER_H */

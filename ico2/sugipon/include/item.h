@@ -10,19 +10,15 @@
 
 struct GObj;
 
-/* item-kind-def: one item kind's break animations, 0x20 bytes, seven kinds:
-   the stage BG animations (972 for none) and their modes the item plays
-   while it stays, breaks, drops and is hit, and whether the break plays SE
-   package 43. */
+/* item-kind-def: one item kind's break animations, 0x14 bytes, seven kinds:
+   the stage BG animations (815 for none) the item plays while it stays,
+   breaks, drops and is hit, and whether the break plays SE package 42. */
 typedef struct {        /* field names derived */
     int stayAnim;       /* 0x00 */
-    int stayMode;       /* 0x04 */
-    int breakAnim;      /* 0x08 */
-    int breakMode;      /* 0x0C */
-    int dropAnim;       /* 0x10 */
-    int hitAnim;        /* 0x14 */
-    int hitMode;        /* 0x18 */
-    unsigned int flags; /* 0x1C, bit 0: play SE package 43 */
+    int breakAnim;      /* 0x04 */
+    int dropAnim;       /* 0x08 */
+    int hitAnim;        /* 0x0C */
+    unsigned int flags; /* 0x10, bit 0: play SE package 42 */
 } ItemBreakRec;         /* derived name */
 
 extern ItemBreakRec itemKind[];
