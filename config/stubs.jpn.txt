@@ -231,25 +231,6 @@ lit4 subEnemyBrain_ToBoy 0x00632AB8 0x00632ABC ico2/fumi/src/enemy_act.c  # 1 fl
 rdlit subEnemyBrain_ToBoy 0x0054E8C8 0x0054E984 ico2/fumi/src/enemy_act.c  # 6 strings, 1 jtbl
 rdlit subEnemyBrain_ToBoy 0x0054E990 0x0054E9A4 ico2/fumi/src/enemy_act.c align=16  # 1 jtbl
 sdlit subEnemyBrain_ToBoy 0x006342C0 0x006342C4 ico2/fumi/src/enemy_act.c  # 1 word
-text ChangeRunMode.135 0x00170CC8 0x00170DB8 ico2/fumi/src/girl_act.c local file=ChangeRunMode_135  # nested in subGirlBrainMain (a stub); equal, gone with its carved parent
-text subGirlBrainMain 0x00170DB8 0x001720DC ico2/fumi/src/girl_act.c lines=465  # ordinal; first difference at insn 1182; other:4; extent-equal
-lit4 subGirlBrainMain 0x00632AEC 0x00632AFC ico2/fumi/src/girl_act.c  # 4 floats
-rdlit subGirlBrainMain 0x0054EDD8 0x0054EE28 ico2/fumi/src/girl_act.c  # 1 data, 1 jtbl
-rdlit subGirlBrainMain 0x0054EE30 0x0054EE58 ico2/fumi/src/girl_act.c align=16  # 1 jtbl
-rdlit subGirlBrainMain 0x0054EE60 0x0054EE80 ico2/fumi/src/girl_act.c align=16  # 1 jtbl
-text GetSafePosition.240 0x00175ED0 0x0017619C ico2/fumi/src/girl_act.c local file=GetSafePosition_240  # nested in Danger_Gondola (a stub); equal, gone with its carved parent
-lit4 GetSafePosition.240 0x00632B50 0x00632B54 ico2/fumi/src/girl_act.c file=GetSafePosition_240  # 1 float
-text Danger_Gondola 0x001761A0 0x00176468 ico2/fumi/src/girl_act.c local lines=119  # equal as C in place; the stubs before it move ee-as's short-loop padding (3 nops missing at insn 103)
-lit4 Danger_Gondola 0x00632B54 0x00632B58 ico2/fumi/src/girl_act.c  # 1 float
-rdlit Danger_Gondola 0x0054EF28 0x0054EF32 ico2/fumi/src/girl_act.c  # 1 string
-text subGirlControl 0x001777E8 0x001781F0 ico2/fumi/src/girl_act.c lines=234  # ordinal; first difference at insn 222; imm:6; extent-equal
-lit4 subGirlControl 0x00632B6C 0x00632BA8 ico2/fumi/src/girl_act.c  # 15 floats
-rdlit subGirlControl 0x0054EFB8 0x0054F0C4 ico2/fumi/src/girl_act.c  # 1 data, 1 jtbl
-text subGirlCollision 0x001781F0 0x00178D28 ico2/fumi/src/girl_act.c lines=200  # ordinal; first difference at insn 97; length:+1; extent-differs
-lit4 subGirlCollision 0x00632BA8 0x00632BB0 ico2/fumi/src/girl_act.c  # 2 floats
-rdlit subGirlCollision 0x0054F0C8 0x0054F108 ico2/fumi/src/girl_act.c  # 3 strings
-rdlit subGirlCollision 0x0054F110 0x0054F130 ico2/fumi/src/girl_act.c align=16  # 2 data runs
-sdlit subGirlCollision 0x00634400 0x00634406 ico2/fumi/src/girl_act.c  # 1 string
 text HandMgr_GetDistHand.289 0x00178D28 0x00178E38 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_289  # nested in actGirlHand (a stub); equal, gone with its carved parent
 text HandMgr_Update.297 0x00178E38 0x00178F2C ico2/fumi/src/girl_act.c local file=HandMgr_Update_297  # nested in actGirlHand (a stub); equal
 text HandMgr_Judge.301 0x00178F30 0x00179098 ico2/fumi/src/girl_act.c local file=HandMgr_Judge_301  # nested in actGirlHand (a stub); equal
@@ -264,18 +245,6 @@ lit4 actGirlHand 0x00632BB8 0x00632BCC ico2/fumi/src/girl_act.c  # 5 floats
 rdlit actGirlHand 0x0054F2A0 0x0054F2AC ico2/fumi/src/girl_act.c align=16  # 1 string
 sdlit actGirlHand 0x00634408 0x00634418 ico2/fumi/src/girl_act.c  # 1 string, 2 statics, 1 word
 text actGirlReadyMove 0x0017A3C8 0x0017A4FC ico2/fumi/src/girl_act.c lines=25  # ordinal; first difference at insn 0; length:-26; extent-differs
-text ACTGame_GirlBeforeFunc 0x0017B2A0 0x0017B394 ico2/fumi/src/girl_act.c lines=25  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text FindGirlPullupFloorBoxGObj 0x0017B398 0x0017B3DC ico2/fumi/src/girl_act.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlSupportGBBegin 0x0017B3E0 0x0017B4B0 ico2/fumi/src/girl_act.c lines=20  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlSupportGBLoop 0x0017B4B0 0x0017B50C ico2/fumi/src/girl_act.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlSupportGBEnd 0x0017B510 0x0017B53C ico2/fumi/src/girl_act.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlHangG3M 0x0017B540 0x0017B584 ico2/fumi/src/girl_act.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlDitch3mExec 0x0017B588 0x0017B688 ico2/fumi/src/girl_act.c lines=31  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlStand 0x0017B688 0x0017B6CC ico2/fumi/src/girl_act.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlWalk 0x0017B6D0 0x0017B714 ico2/fumi/src/girl_act.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlRun 0x0017B718 0x0017B75C ico2/fumi/src/girl_act.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actGirlHang 0x0017B760 0x0017B870 ico2/fumi/src/girl_act.c lines=25  # ordinal; first difference at insn 16; imm:4; extent-equal
-text actGirlBHang 0x0017B870 0x0017B964 ico2/fumi/src/girl_act.c lines=17  # ordinal; first difference at insn 16; imm:3; extent-equal
 text jimakuMgrBegin 0x0017C8C8 0x0017CAE0 ico2/fumi/src/jimaku.c local lines=60  # ordinal; first difference at insn 0; length:-21; extent-differs
 text jimakuMgrNext 0x0017CAE0 0x0017CCA8 ico2/fumi/src/jimaku.c local lines=45  # ordinal; first difference at insn 69; imm:2; extent-equal
 rdlit jimakuMgrNext 0x0054F390 0x0054F3BD ico2/fumi/src/jimaku.c align=16  # 3 strings
