@@ -8,8 +8,10 @@
 # file. tools/check_dev_native.py refuses an INCLUDE_ASM whose name has no row
 # here. With no rows the mechanism is idle.
 #
-# Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [file=F]
-#   section   text, rodata, data or sdata
+# Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N]
+#          [file=F] [in=<file.c.inc>] [def]
+#   section   text, rodata, data or sdata; lit4, rdlit or sdlit for a text
+#             row's constants (tools/gen_stub_s.py's docstring)
 #   name      the symbol the stub defines
 #   vma_lo/hi the range [lo, hi) in the base ELF, hex (a text row ends at the
 #             function's last instruction, not at the fill after it)
@@ -91,6 +93,21 @@
 # census-equal callers call, not the census's SetParticleEffectByPartition.
 # A PAL function no row names and no twin keeps has no counterpart here and
 # is not in this tree.
+#
+# Rows the carve adds (their comments say which):
+#   - a nested function (gcc's name.N, numbered as this tree's compile numbers
+#     it, file=<name>_<N>) of a stubbed parent, placed before the parent;
+#   - an inline function the prototype emits before a stub: gcc emits every
+#     inline function after the TU's stubs, so it is stubbed too, and so is
+#     each C function that inlines one;
+#   - a static inline gcc no longer emits once its callers are stubs;
+#   - a census-equal function whose bytes still differ (an immediate the
+#     census's masks hide, or ee-as short-loop padding while the TU includes
+#     stubs);
+#   - a data row for a function-scope static that left with its function's
+#     carve and that no literal row carries.
+# Literal rows (lit4, rdlit, sdlit) follow their text rows; gen_stub_s.py
+# --literals derived them (the WIP commit that added them says how).
 #
 # Left out of the census's aug6-only list: 0x1000C0 (80 bytes) is PAL's _root,
 # its fill and RFU000_FullReset, byte-identical, merged by the boundary scan
