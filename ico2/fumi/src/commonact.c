@@ -3213,9 +3213,7 @@ void _ACTDebugPrint(GObj *self)
                                  GOBJ_SUB(self)->ctrl.animFrame);
                     if (debug_font_flag & 1) {
                         debug_Printf(30, 130, 0xFFFFFFF, "maxry = [%d]\n",
-                                     self == girlGObj && (void *)girlControlMode != 0
-                                         ? (motionKind + GOBJ_SUB(self)->ctrl.motion)->girlDirFrames
-                                         : (motionKind + GOBJ_SUB(self)->ctrl.motion)->dirFrames);
+                                     (motionKind + GOBJ_SUB(self)->ctrl.motion)->dirFrames);
                         if (debug_font_flag & 1) {
                             debug_Printf(30, 140, 0xFFFFFFF, " life = [%d]\n", (int)sub->life);
                             if (debug_font_flag & 1) {
@@ -3421,9 +3419,6 @@ void actCommonBecarry(GObj *volatile self)
                 afterCommonCarry(g);
                 debug_StdPrintfDummy("girl becarry error");
             }
-        }
-        if (actModeTbl[GOBJ_ACT(boyGObj)->actMode].keepHand == 0) {
-            ACTGame_DisconnectHand();
         }
         if (debug_font_flag & 1) {
             debug_Printf(100, 150, 0xFFFFFFF, "[%s]\n",
@@ -3735,11 +3730,8 @@ inline int _ACTMotDirSmzDirect(GObj *self, float *dir)
     s->dir[0] = dir[0];
     s->dir[1] = dir[1];
     s->dir[2] = dir[2];
-    return SetMotionDirectionSmooze(
-        self, dir,
-        (float)(self == girlGObj && (void *)girlControlMode != 0
-                    ? (motionKind + GOBJ_SUB(self)->ctrl.motion)->girlDirFrames
-                    : (motionKind + GOBJ_SUB(self)->ctrl.motion)->dirFrames));
+    return SetMotionDirectionSmooze(self, dir,
+                                    (float)(motionKind + GOBJ_SUB(self)->ctrl.motion)->dirFrames);
 }
 
 inline void WithMailFunc_Idling(GObj *self)

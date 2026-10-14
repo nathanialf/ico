@@ -51,6 +51,6 @@ void sndInit(int idx)
     short attrOff;
     soundSeKindBuild();
     adpcmPauseRequest(0);
-    attrOff = 0x18C;
+    attrOff = 0x188;
     soundReverbDepthSet(*(unsigned short *)((char *)&stageData[idx] + attrOff));
 }

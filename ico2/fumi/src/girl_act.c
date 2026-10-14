@@ -3117,11 +3117,7 @@ void subGirlControl(GObj *volatile self)
             break;
         default:
             if (w.p->stick.mag > 0.1f && w.p->actMode != 0x73) {
-                SetMotionDirectionSmooze(
-                    self, dir,
-                    (float)(((void *)self == (void *)girlGObj && (void *)girlControlMode != 0)
-                                ? MOTDIRROW(self)->girlDirFrames
-                                : MOTDIRROW(self)->dirFrames));
+                SetMotionDirectionSmooze(self, dir, (float)MOTDIRROW(self)->dirFrames);
             }
             break;
         }
@@ -3655,9 +3651,7 @@ void actGirlHand(GObj *volatile self)
             static float pullLen = 0.0f;  /* derived name */
             static float pullTurn = 0.0f; /* derived name */
 
-            hand = (float)(((void *)self == (void *)girlGObj && (void *)girlControlMode != 0)
-                               ? MOTDIRROW(self)->girlDirFrames
-                               : MOTDIRROW(self)->dirFrames);
+            hand = (float)MOTDIRROW(self)->dirFrames;
             t = 200.0f;
             n1 = GetSkeltonFocusNode((void *)girlGObj, 0x12);
             CopyVector(gpos, (char *)GOBJ_SUB(girlGObj)->nodeMtx + n1 * 0x40 + 0x30);

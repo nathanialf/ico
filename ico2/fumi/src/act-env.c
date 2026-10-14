@@ -859,26 +859,6 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         GetOrientOfCliffOfGObj(env->cliffOrient, self);
         env->cliffOrient[3] = 1.0f;
         r = absRotyFromScaled(test_CURRENTORIENT(self), env->cliffOrient, 1.0f);
-        if (self == boyGObj && girlGObj != 0) {
-            float p60[4];
-
-            p60[0] = test_CURRENTROOT((girlGObj))[0];
-            p60[1] = test_CURRENTROOT((girlGObj))[1];
-            p60[2] = test_CURRENTROOT((girlGObj))[2];
-            if (_DistSqGV(pos, p60) < stageData[stage_no].ledgeRange * stageData[stage_no].ledgeRange) {
-                float p70[4][4];
-                float pB0[4], pC0[4];
-
-                sceVu0SubVector(pB0, p60, pos);
-                GetMatrixDirectionToZ(p70[0], env->cliffOrient);
-                pB0[3] = 0.0f;
-                sceVu0ApplyMatrix(pC0, p70, pB0);
-                if (0.0f < pC0[2])
-                    v1E4 = 1;
-                if (stage_no == 16)
-                    v1E4 = 1;
-            }
-        }
         if (self == boyGObj && hh < 80.0f && girlGObj != 0 &&
             171 <= _AbsRotyGV(test_CURRENTORIENT((girlGObj)), env->cliffOrient)) {
             if (GOBJ_ACT(girlGObj)->actMode == 0x1D &&

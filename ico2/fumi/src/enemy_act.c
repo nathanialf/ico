@@ -598,11 +598,8 @@ void subEnemyCollision(GObj *volatile self)
         }
         if ((stage_no == 19 || stage_no == 28) && sub->actMode == 6) {
         } else if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
-            SetMotionDirectionSmooze(
-                self, dir,
-                (float)((self == girlGObj && girlControlMode != 0)
-                            ? motionKind[GOBJ_SUB(self)->ctrl.motion].girlDirFrames
-                            : motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames));
+            SetMotionDirectionSmooze(self, dir,
+                                     (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
         }
         if (actEnemyFlagCheckDead(self) == 0) {
             ACTGame_SaveActorInformation(self);
@@ -1206,11 +1203,8 @@ void actEnemyKidnapBegin(GObj *volatile self)
         if (GOBJ_SUB(self)->ctrl.motion == 0x3AA) {
             _OrientXZGV(dir, test_CURRENTROOT((girlGObj)), test_CURRENTROOT(self));
             if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
-                SetMotionDirectionSmooze(
-                    (void *)self, dir,
-                    (float)((self == girlGObj && girlControlMode != 0)
-                                ? motionKind[GOBJ_SUB(self)->ctrl.motion].girlDirFrames
-                                : motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames));
+                SetMotionDirectionSmooze((void *)self, dir,
+                                         (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
             }
             mode = enemyKidnapCheckGirl(self);
             switch (mode) {
@@ -1703,12 +1697,6 @@ void subEnemyBrainMain(GObj *volatile self)
             sub->stick.y = 127;
             sub->stick.x = 127;
             while (1) {
-                if ((char *)girlGObj == 0 || GOBJ_ACT(girlGObj)->actMode != 0x6F ||
-                    GOBJ_ACT(girlGObj)->carrier != self) {
-                    if (actModeTbl[GOBJ_ACT(self)->actMode].bit5) {
-                        ACTSendMailCorrect((void *)self, 0x102);
-                    }
-                }
                 if ((((int)((long long)sub->flags20.ll >> 4)) & 1) != 0) {
                     isysGObjProcActive(g);
                     *(long long *)((char *)sub + 0x20) &= ~0x200000LL;

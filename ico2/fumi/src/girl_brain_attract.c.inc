@@ -517,16 +517,6 @@ restart:
                     setMode(2);
                 }
             }
-            if (tgt.obj != 0 && IsTopHint(tgt.obj) &&
-                ((int)((unsigned long long)sub->wayFlags >> 18) & 1)) {
-                hintCnt = hintCnt + actModeTbl[GOBJ_ACT(self)->actMode].hintCount;
-                if ((60 - systemStatus[0] * 10) / systemStatus[1] * 4 < hintCnt) {
-                    sub->stick.mag = 0.0f;
-                }
-                if ((60 - systemStatus[0] * 10) / systemStatus[1] * 5 < hintCnt) {
-                    setMode(2);
-                }
-            }
             break;
         }
         case 6:
@@ -546,9 +536,6 @@ restart:
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && sub->wayMode == 2 &&
                     girlControlMode == 0) {
                     girlAttractTurnMailL((void *)self, tgt.obj, tgt.pos, mypos);
-                    if (actModeTbl[GOBJ_ACT(self)->actMode].attractWait) {
-                        cnt = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
-                    }
                 }
                 if (tgt.obj == (void *)boyGObj && sub->wayMode == 2 && escape == 0 &&
                     GOBJ_WORK(self)->turnMailWait == 0 && girlControlMode == 0 &&
@@ -581,9 +568,6 @@ restart:
                 sub->stick.mag = 0.0f;
                 if (tgt.obj != 0 && IsTopHint(tgt.obj) && girlControlMode == 0) {
                     girlAttractTurnMailL((void *)self, tgt.obj, tgt.pos, mypos);
-                    if (actModeTbl[GOBJ_ACT(self)->actMode].attractWait) {
-                        cnt = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
-                    }
                 } else {
                     sub->orientMot = tgt.kind;
                     ACTSendMailCorrect((void *)self, tgt.mail);

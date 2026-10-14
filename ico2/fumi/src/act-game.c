@@ -1672,8 +1672,7 @@ void ACTGame_BeforeFunc(GObj *self)
         GOBJ_WORK(self)->bit37Frames = 0;
     }
 
-    if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 14) & 1) ||
-        actModeTbl[GOBJ_ACT(self)->actMode].bit14) {
+    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 14) & 1) {
         s->flags18.ll |= 1ULL << 38;
         if (self == boyGObj) {
             if (((char *)girlGObj) != 0) {

@@ -537,10 +537,7 @@ void handoff_heroin(void)
 
     if (girlGObj != 0) {
         if (GOBJ_SUB(girlGObj)->root.hand0.mode == 6) {
-            if (actModeTbl[GOBJ_ACT(boy)->actMode].bit7) {
-            } else {
-                iosOmSendMail(girlGObj, 0x3E, isysCurrentGObj);
-            }
+            iosOmSendMail(girlGObj, 0x3E, isysCurrentGObj);
             ACTSendMailCorrect(boy, 0xFA);
         } else if (_DistxzGV(test_CURRENTROOT(boy), test_CURRENTROOT(girlGObj)) < 100.0f &&
                    ABSF(ABSF(BOYGIRL_DY())) < 100.0f) {
@@ -1818,10 +1815,7 @@ void subBoyCollision(GObj *volatile self)
                 sub->dir[2] = vec[2];
             }
             if (0.1f < sub->stick.mag && sub->actMode != 0x73) {
-                SetMotionDirectionSmooze(self, sub->dir,
-                                         (float)(((void *)self == girlGObj && girlControlMode != 0)
-                                                     ? CHAINROW(self)->girlDirFrames
-                                                     : CHAINROW(self)->dirFrames));
+                SetMotionDirectionSmooze(self, sub->dir, (float)CHAINROW(self)->dirFrames);
             }
         }
         CommonAttackCenter((void *)self);
@@ -2780,9 +2774,7 @@ void actBoyReadyMove(GObj *volatile self)
     BoyMoveOrder ord = *(BoyMoveOrder *)((char *)GOBJ_ACT(self)->intrData);
 
     while (1) {
-        if ((((void *)self == girlGObj && girlControlMode != 0)
-                 ? (GOBJ_SUB(self)->ctrl.motion + motionKind)->girlDirFrames
-                 : (GOBJ_SUB(self)->ctrl.motion + motionKind)->dirFrames) == 0) {
+        if ((GOBJ_SUB(self)->ctrl.motion + motionKind)->dirFrames == 0) {
             SetMotionDirectionSmooze(self, ord.dir, 10.0f);
         } else {
             _ACTMotDirSmzDirect((void *)self, ord.dir);
