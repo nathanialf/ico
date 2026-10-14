@@ -25,8 +25,6 @@
 #include "sceneManager.h"
 #include "include_asm.h"
 
-static void setGirlClothSetting(int lv);
-
 /* The girl's work record: her kind, the four cloths and the hair she wears
    with the switches SetGirlClothDispSwitch sets (case 0 for cloth0, 1 for
    cloth1, cloth2 and the hair, 2 for cloth3), the crown and the two
@@ -1948,23 +1946,6 @@ static ClothHangCfg clothHangF1C[2] = {
     {1, -15.0f, 30.0f, 20.0f, 1, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
-
-/* the three cloth and hair setters */
-typedef struct { /* field names derived */
-    int tightLevel;
-    int gravityLevel;
-    int bendAngle;
-    int collision;
-} GirlClothSetting; /* derived name */
-
-/* copy a cloth setting into the hair debug levels */
-static inline void setGirlClothParam(GirlClothSetting *p) /* derived name */
-{
-    debug_hair_tight_level = p->tightLevel;
-    debug_hair_gravity_level = p->gravityLevel;
-    debug_hair_bend_angle = p->bendAngle;
-    debug_hair_collision = p->collision;
-}
 
 INCLUDE_ASM(InitGirlGeo);
 

@@ -57,8 +57,6 @@ static void debug_PrintFont(int x, int y, int col, char *str);
 static int debug_selectFile(McMgr *mc);
 static void debug_makeBackImage(void);
 
-static int debug_girl_pad_control;
-
 typedef struct { /* field names derived */
     int x, y;
     unsigned int w, h;
@@ -788,6 +786,13 @@ void debug_openLog(void)
 }
 
 /* the close report, disabled in retail */
+inline void debug_closeLog(void)
+{
+    if (0) {
+        debug_StdPrintfDummy("log-file closed.\n");
+    }
+}
+
 void debug_LogPrintf(const char *fmt, ...)
 {
     char buf[256];
@@ -797,7 +802,26 @@ void debug_LogPrintf(const char *fmt, ...)
     sceWrite(logFd, buf, info);
 }
 
-INCLUDE_ASM_LIT(debug_SaveStartStageFile);
+inline void debug_SaveStartStageFile(int stage)
+{
+    char buf[256];
+    debug_StdPrintfDummy("==== Save start stage =======================================\n");
+    if (debugSceOpen("thisIsYourStartStage", 0x602) < 0) {
+        debug_StdPrintfDummy("debug_SaveStartStageFile: host file open error.\n");
+    } else {
+        sprintf(buf, "%d", stage);
+        sceWrite(0, buf, strlen(buf));
+        debug_StdPrintfDummy("Save start stage file. Setting to [ \033[36m%d\033[m ]\n", stage);
+        debugSceClose(0);
+    }
+    debug_StdPrintfDummy("=============================================================\n");
+    debug_openLog();
+}
+
+inline int debug_TryToGetStartStage(void)
+{
+    return -1;
+}
 
 INCLUDE_ASM(debug_SaveDebugOptionFile);
 
@@ -829,7 +853,33 @@ void debug_Init(void)
     debug_makeBackImage();
 }
 
-INCLUDE_ASM_LIT(debug_GetTimerSec);
+inline void debug_BeginTimer(int mode)
+{
+    *T1_COUNT = 0;
+    *T1_MODE = mode | 0x80;
+}
+
+inline float debug_GetTimerSec(void)
+{
+    float clock[4] = {2500000.0f, 156250.0f, 9000.0f, 260.0f};
+    int v;
+    float f2;
+
+    if (*T1_MODE & 0x800) {
+        return -1.0f;
+    }
+    v = *T1_COUNT;
+    f2 = (float)(unsigned int)v;
+    return f2 / clock[*T1_MODE & 3] / 60.0f;
+}
+
+inline float debug_GetTimerCount(void)
+{
+    if ((*T1_MODE) & 0x800) {
+        return -1.0f;
+    }
+    return (float)(*(volatile unsigned int *)T1_COUNT);
+}
 
 INCLUDE_ASM(debug_Load);
 
@@ -957,6 +1007,18 @@ static void debug_PrintFont(int x, int y, int col, char *str)
 
 int charNumH = 10;
 
+inline void debug_ClearFontWindow(void)
+{
+    char *p = (char *)fontLines;
+    int i;
+    p += 0x5B4;
+    for (i = 26; i >= 0; i--) {
+        *p = 0;
+        p -= 0x38;
+    }
+    fontWindowLine = 0;
+}
+
 static void debug_FlushFontWindow(void)
 {
     FR r = {16, (int)(224.0f - ((float)charNumH + 0.5f) * 8.0f), 50, charNumH};
@@ -992,6 +1054,12 @@ static void debug_FlushFontWindow(void)
 void debug_FlushFont(void)
 {
     debug_FlushFontWindow();
+}
+
+inline int debug_CallbackGsFinish(int channel)
+{
+    drawTimerCount = *T0_COUNT;
+    return 0;
 }
 
 /* The four corners of a marker box, inlined into draw_batsu and
@@ -1034,7 +1102,42 @@ INCLUDE_ASM(draw_shikaku_86);
 
 INCLUDE_ASM(debug_brainBar);
 
-INCLUDE_ASM(debug_MakeBarString);
+static int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
+{
+    char buf[16];
+    int i;
+    int len;
+
+    len = strlen(p);
+    if (len == 0) {
+        return 0;
+    }
+    barString[0] = 0;
+    for (i = 0; i < len; i++, p++) {
+        if (*p == '$') {
+            switch (p[1]) {
+            case 'P':
+                sprintf(buf, "%d", a);
+                strcat(barString, buf);
+                break;
+            case 'T':
+                sprintf(buf, "%d", b);
+                strcat(barString, buf);
+                break;
+            }
+            p++;
+            i++;
+        } else {
+            buf[0] = *p;
+            buf[1] = 0;
+            strcat(barString, buf);
+        }
+    }
+    if (strlen(barString) != 0 && (debug_font_flag & 1)) {
+        debug_Printf((int)(x + 0x148), fr.y + line * 7 + (fr.h + 0x71), 0xFFFFFF00u, barString);
+    }
+    return strlen(barString);
+}
 
 /* the profiler bar's backdrop, scale and label colours */
 static DbgCol barBackCol[1] = {{0x00, 0x00, 0x40, 0x20}}; /* derived name */
@@ -1046,11 +1149,53 @@ static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 /* clang-format off */
 INCLUDE_ASM(debug_DrawBar);
 
-INCLUDE_ASM_LIT(debug_SetBar);
+inline void debug_SetBar(char *name, unsigned int col, char *file, int line)
+{
+    DebugBar *p = &debugBars[debugBarCount];
+    if (debug_profile_type == 0 && debugBarCount != 0x400) {
+        sprintf(p->name, "%8s", name);
+        p->count = *T0_COUNT;
+        p->col.r = col >> 24;
+        p->col.g = col >> 16;
+        p->col.b = col >> 8;
+        p->col.a = col;
+        p->file = file;
+        p->line = line;
+        debugBarCount++;
+    }
+}
 
 /* debug_SetBar with the inverted debug_profile_type gate (records only while the
    profiler flag is set). */
+inline void debug_SetBar2(char *name, unsigned int col, char *file, int line)
+{
+    DebugBar *p = &debugBars[debugBarCount];
+    if (debug_profile_type != 0 && debugBarCount != 0x400) {
+        sprintf(p->name, "%8s", name);
+        p->count = *T0_COUNT;
+        p->col.r = col >> 24;
+        p->col.g = col >> 16;
+        p->col.b = col >> 8;
+        p->col.a = col;
+        p->file = file;
+        p->line = line;
+        debugBarCount++;
+    }
+}
+
 INCLUDE_ASM(debug_DispBar);
+
+inline void debug_ResetBar(void)
+{
+    texregs = 0;
+    *T0_COUNT = 0;
+    textures = 0;
+    packets = 0;
+    strips = 0;
+    polygons = 0;
+    texturetranssize = 0;
+    debugBarCount = 0;
+}
 
 /* Halves a 32-bit snapshot with a 2x2 box filter; the clamp and the
    destination helper are nested functions. */
@@ -1182,6 +1327,16 @@ void debug_DispQW(void *p, int size)
     debug_StdPrintfDummy("\n");
 }
 
+inline void debug_DispMatrix(int *m)
+{
+    int *p = m;
+    int i;
+    for (i = 3; i >= 0; i--) {
+        debug_DispQW(p, 0);
+        p = (int *)((char *)p + 0x10);
+    }
+}
+
 void debug_Printf(int a, int b, unsigned int c, const char *fmt, ...)
 {
     char buf[256];
@@ -1235,6 +1390,13 @@ void debug_PrintFontWindow(int col, const char *fmt, ...)
     }
 }
 
+inline void debug_ResizeFontWindowHeight(int val)
+{
+    charNumH = val;
+}
+
+inline void debug_SetBarDummy(void) {}
+
 void debug_PrintfDummy(int x, int y, unsigned int col, const char *fmt, ...) {}
 
 void debug_PrintFontWindowDummy(int col, int fmt, ...) {}
@@ -1244,7 +1406,60 @@ void debug_StdPrintfDummy(const char *fmt, ...)
     (void)fmt;
 }
 
-INCLUDE_ASM(debug_PrintFontf);
+void debug_PrintFontf(int x, int y, char *p, ...)
+{
+    char *d;
+    char *va;
+    char *f;
+    char c;
+    float v;
+    d = fontfLine;
+    va = (char *)__builtin_next_arg(p) - 0x28;
+    if (*p == 0) {
+        *d = 0;
+        return;
+    }
+    do {
+        c = *p;
+        if (c == '\n') {
+            *d = 0;
+            if (debug_font_flag & 1) {
+                debug_Printf(x, y, 0xFFFFFF00u, fontfLine);
+            }
+            d = fontfLine;
+            y += 8;
+        } else if (c != '%') {
+            *d = *p;
+            d++;
+        } else {
+            p++;
+            switch (*p) {
+            case 'd':
+                va += 8;
+                f = "%d";
+                d += sprintf(d, f, *(int *)(va - 8));
+                break;
+            case 'x':
+                va += 8;
+                f = "%x";
+                d += sprintf(d, f, *(int *)(va - 8));
+                break;
+            case 'f':
+                va += 8;
+                v = dptofp(*(double *)(va - 8));
+                f = "%f";
+                d += sprintf(d, f, v);
+                break;
+            default:
+                f = "debug_PrintFontf error\n";
+                debug_StdPrintfDummy(f);
+                break;
+            }
+        }
+        p++;
+    } while (*p != 0);
+    *d = 0;
+}
 
 void debug_PrintMatrix(float *arg)
 {
@@ -1292,9 +1507,49 @@ void debug_DispVu1FReg(int no, int mode)
     }
 }
 
-INCLUDE_ASM_LIT(debug_DispVu1IReg);
+inline void debug_DispVu1IReg(int no)
+{
+    int i;
+    int buf[4];
+    if (no >= 0) {
+        __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(no * 16 + 0x420));
+        __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
+        __asm__ __volatile__("sqc2 $vf2, %0" : "=m"(buf) : : "memory");
+        debug_StdPrintfDummy("VI%02d:%08x %08x %08x %08x\n", no, buf[0], buf[1], buf[2], buf[3]);
+    } else {
+        __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(0x420));
+        for (i = 0; i < 16; i++) {
+            __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
+            __asm__ __volatile__("sqc2 $vf2, %0" : "=m"(buf) : : "memory");
+            debug_StdPrintfDummy("VI%02d:%08x %08x %08x %08x\n", i, buf[0], buf[1], buf[2], buf[3]);
+        }
+    }
+}
 
-INCLUDE_ASM_LIT(debug_DispVu1SReg);
+inline void debug_DispVu1SReg(int no)
+{
+    int i;
+    int buf[4];
+    if (no >= 0) {
+        __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(no * 16 + 0x420));
+        __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
+        __asm__ __volatile__("sqc2 $vf2, %0" : "=m"(buf) : : "memory");
+        debug_StdPrintfDummy("VS%02d:%08x %08x %08x %08x\n", no, buf[0], buf[1], buf[2], buf[3]);
+    } else {
+        __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(0x420));
+        for (i = 0; i < 16; i++) {
+            __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
+            __asm__ __volatile__("sqc2 $vf2, %0" : "=m"(buf) : : "memory");
+            debug_StdPrintfDummy("VS%02d:%08x %08x %08x %08x\n", i, buf[0], buf[1], buf[2], buf[3]);
+        }
+    }
+}
+
+inline int gsResetFunc(int val)
+{
+    gsb_Init(&db);
+    return 1;
+}
 
 /* the value names debug_Mode logs a two-state option with */
 static char *modeValueName[] = {"Off", "On"}; /* derived name */
@@ -1333,11 +1588,112 @@ int debug_SelectCsvWindowVal(char *title, int x, int y, int rows, int count, int
 /* the csv window's scroll counter */
 static int csvScroll = 0; /* derived name */
 
-INCLUDE_ASM_LIT(_debug_SelectCsvWindow);
+inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
+                           int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int))
+{
+    char buf[256];
+    int sel;
+    int i;
+    int half;
+    int k;
+    int top;
+    int yy;
+    int len;
+    int v;
+    int col;
+
+    sel = *psel;
+    debug_PrintfDummy(x, y, 0xFFFFFF00u, "%s", title);
+    if ((pad[0].now & 2) == 0) {
+        if (pad[0].flags & 0x80) {
+            debug_font_flag ^= 2;
+        }
+        if (sel >= n) {
+            sel = n - 1;
+        }
+        if (pad[0].rep & 0x4000) {
+            sel++;
+            if (sel >= n) {
+                sel = 0;
+            }
+        }
+        if (pad[0].rep & 0x1000) {
+            sel--;
+            if (sel < 0) {
+                sel = n - 1;
+            }
+        }
+        if (n < rows) {
+            rows = n;
+        }
+        half = (int)(((float)rows - 0.5f) * 0.5f);
+        if (sel < half) {
+            k = sel;
+        } else if (n - (rows - half) < sel) {
+            k = rows - (n - sel);
+        } else {
+            k = half;
+        }
+        top = sel - k;
+        yy = y + 8;
+        for (i = top; i < top + rows; i++) {
+            if (i - top == k) {
+                col = 0xFF404000;
+            } else if (colfunc == 0) {
+                col = 0xFFFFFF00;
+            } else {
+                col = colfunc(i);
+            }
+            v = base + stride * i + off;
+            if (deref == 1) {
+                v = *(int *)v;
+            }
+            len = csvScroll;
+            getline(buf, i, v);
+            if (len >= 2) {
+                if (len >= 0x100) {
+                    len = 0xFF;
+                }
+                buf[len - 1] = -110;
+                buf[len] = 0;
+            } else {
+                buf[0] = 0;
+            }
+            debug_PrintfDummy(x, yy, col, "  %s", buf);
+            yy += 8;
+        }
+        if (csvScroll <= 0xFFFE) {
+            csvScroll += systemStatus[1];
+        }
+        *psel = sel;
+        if (pad[0].flags & 0x20) {
+            csvScroll = 0;
+            return 1;
+        } else if (pad[0].flags & 0x140) {
+            csvScroll = 0;
+            return -1;
+        }
+    }
+    return 0;
+}
 
 static void getLineBuffer(char *buf, int line, char *str)
 {
     sprintf(buf, "%02d:%s", line, str);
+}
+
+inline int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, const void *base, int stride,
+                                  int off, int deref, int n, int *psel)
+{
+    return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
+                                      getLineBuffer, 0);
+}
+
+inline int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, const void *base, int stride,
+                                       int off, int deref, int n, int *psel, int (*colfunc)(int))
+{
+    return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
+                                      getLineBuffer, colfunc);
 }
 
 static void getBuffer(char *buf)
@@ -1377,17 +1733,67 @@ static inline int debug_mcAsk(char *msg) /* derived name */
     return yes;
 }
 
-INCLUDE_ASM_LIT(debug_mcFormat);
-
-INCLUDE_ASM_LIT(debug_mcUnformat);
-
 static int formatState = 0; /* derived name */
 
 static int formatBlink = 0; /* derived name */
 
+inline int debug_mcFormat(int port)
+{
+    int r;
+    switch (formatState) {
+    case 0:
+        r = debug_mcConfirm("format");
+        if (r != 1) {
+            return r;
+        }
+        iosMcFormat(port);
+        formatState++;
+        break;
+    case 1:
+        if (formatBlink++ & 0x10) {
+            debug_PrintfDummy(120, 70, 0xFFFFFF00u, "now formatting");
+        }
+        if (iosMcSync(port) != 0) {
+            formatState++;
+        }
+        break;
+    default:
+        formatState = 0;
+        return 1;
+    }
+    return 0;
+}
+
 static int unformatState = 0; /* derived name */
 
 static int unformatBlink = 0; /* derived name */
+
+inline int debug_mcUnformat(int port)
+{
+    int r;
+    switch (unformatState) {
+    case 0:
+        r = debug_mcConfirm("Unformat");
+        if (r != 1) {
+            return r;
+        }
+        iosMcUnformat(port);
+        unformatState++;
+        break;
+    case 1:
+        if (unformatBlink++ & 0x10) {
+            debug_PrintfDummy(120, 70, 0xFFFFFF00u, "now unformatting");
+        }
+        if (iosMcSync(port) != 0) {
+            unformatState++;
+        }
+        break;
+    default:
+        unformatState = 0;
+        return 1;
+    }
+    return 0;
+}
 
 static int debug_mcRetErrCheck(McMgr *mc)
 {
@@ -1437,9 +1843,13 @@ static int selectFileState = 0; /* derived name */
 
 INCLUDE_ASM(debug_selectFile);
 
-inline void *debug_saveNumFunc(int no, void *mc);
-
-INCLUDE_ASM_LIT(debug_saveNumFunc);
+inline void *debug_saveNumFunc(int no, void *mc)
+{
+    if ((1 << no) & ((McMgr *)mc)->mask) {
+        return "SAVED";
+    }
+    return "NEW";
+}
 
 static int saveState = 0; /* derived name */
 
@@ -1521,6 +1931,12 @@ static int deleteState = 0; /* derived name */
 
 INCLUDE_ASM(debug_mcDeleteFile);
 
+inline int debug_mcTest(void)
+{
+    iosMcTest();
+    return 1;
+}
+
 static int mcMenuSelect = 0; /* derived name */
 
 static int mcState = 0; /* derived name */
@@ -1529,7 +1945,16 @@ int debug_MemoryCard(void);
 
 INCLUDE_ASM(debug_MemoryCard);
 
-inline int debug_STAFFROLLTest(void);
+inline int debug_STAFFROLLTest(void)
+{
+    staffRollStart(1.0f, 0x80);
+    return 1;
+}
+
+inline int debug_SETest_color(int idx)
+{
+    return seKind[seDef[idx].kind] != 0 ? 0xFFFFFF00 : 0x80808000;
+}
 
 static int seSelect = 0; /* derived name */
 
@@ -1579,17 +2004,57 @@ void debug_SESlotDisp(void)
     }
 }
 
-inline int debug_reverbTest(void);
-
-INCLUDE_ASM_LIT(debug_reverbTest);
+inline int debug_reverbTest(void)
+{
+    int depth = soundReverbDepthGet();
+    if (pad[0].rep & 0x1000) {
+        if (depth <= 99) {
+            depth++;
+        }
+    }
+    if (pad[0].rep & 0x4000) {
+        depth -= (0 < depth);
+    }
+    soundReverbDepthSet(depth);
+    debug_PrintfDummy(10, 80, 0xFFFFFF00u, "REVERB DEPTH %d%%\n", soundReverbDepthGet());
+    return (pad[0].flags & 0x60) != 0;
+}
 
 static int adpcmSelect = 0; /* derived name */
 
 static int adpcmHandle = -1; /* derived name */
 
-inline int debug_AdpcmTest(int first);
+inline int debug_AdpcmTest(int first)
+{
+    int r;
+    if (first != 0) {
+        adpcmHandle = -1;
+    }
+    r = debug_SelectCsvWindow("ADPCM LIST", 10, 0x3C, 10, adpcmFile, 0x40, 0, 0, 96, &adpcmSelect);
+    if (r > 0) {
+        if (adpcmSelect != 0) {
+            scpAdpcmPlayRequestFunc(adpcmSelect, 0, 1, 1, 1);
+        }
+    }
+    return r;
+}
 
-INCLUDE_ASM_LIT(debug_AdpcmTest);
+inline void debugCdvdLoadInfoSegInit(int page)
+{
+    int i;
+    for (i = 25; i >= 0; i--)
+        loadInfoSeg[page][i][0] = 0;
+}
+
+inline void debugCdvdLoadInfoSegAdd(int page, int idx, int delta)
+{
+    *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) += delta;
+}
+
+inline void debugCdvdLoadInfoSegCls(int page, int idx)
+{
+    *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) = 0;
+}
 
 static char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {
@@ -1612,14 +2077,49 @@ static int loadInfoPage = 1; /* derived name */
 
 static int loadInfoSelect = 0; /* derived name */
 
-inline int debugCdvdLoadInfoSegDisp(void);
+inline int debugCdvdLoadInfoSegDisp(void)
+{
+    char title[] = "CD LOAD INFO COMMON";
+    int r;
+    if (loadInfoPage != 0) {
+        strcpy(title, "CD LOAD INFO STAGE");
+    }
+    r = debug_SelectCsvWindowVal(title, 80, 70, 10, 26, &loadInfoSelect,
+                                 (int (*)(int, int))debugCdvdLoadInfoSegDispFunc, loadInfoPage);
+    if (pad[0].flags & 0x10) {
+        int i;
+        int *p = (int *)((char *)loadInfoSeg + loadInfoPage * 0xD0);
+        for (i = 25; i >= 0; i--) {
+            p[1] = p[0];
+            p += 2;
+        }
+    }
+    return r;
+}
 
-INCLUDE_ASM_LIT(debugCdvdLoadInfoSegDisp);
+inline int debug_GameOver(void)
+{
+    debug_Menu_off();
+    return -1;
+}
 
-inline int debug_GameOver(void);
-inline int debug_EndingDemo(void);
-inline int debug_BackStageTest(void);
-inline int debug_tsuresariTimeZero(void);
+inline int debug_EndingDemo(void)
+{
+    debug_Menu_off();
+    return -1;
+}
+
+inline int debug_BackStageTest(void)
+{
+    backStageProcessInStage(10000000.0f);
+    return 1;
+}
+
+inline int debug_tsuresariTimeZero(void)
+{
+    backStageDebugTimeZero();
+    return 1;
+}
 
 static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
 {
@@ -1664,9 +2164,22 @@ INCLUDE_ASM(debug_SelectActGobj);
 
 static int pad2GobjSelect = 0; /* derived name */
 
-inline int debug_SelectPad2ControlGobj(int reset);
-
-INCLUDE_ASM_LIT(debug_SelectPad2ControlGobj);
+inline int debug_SelectPad2ControlGobj(int reset)
+{
+    DbgGobjEnt list[10];
+    int n;
+    int r;
+    n = debug_ListPadControlGobj(list);
+    if (reset != 0) {
+        pad2GobjSelect = 0;
+    }
+    r = debug_SelectCsvWindow("CHARACTER PAD2 CONTROL", 0xA, 0x32, 0xB, list, 8, 0, 1, n, &pad2GobjSelect);
+    if (r > 0) {
+        CurrentTargetGObjSub = list[pad2GobjSelect].obj;
+        return 1;
+    }
+    return (r == -1) ? -1 : 0;
+}
 
 static int debug_DispBox(int on)
 {
@@ -1843,7 +2356,91 @@ static Col4 collisionWallCol = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
 /* the floor hit sphere colour */
 static Col4 collisionFloorCol = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
 
-INCLUDE_ASM(debug_CollisionTest);
+static int debug_CollisionTest(int reset)
+{
+    float v[4];
+    VECTOR mv;
+    IosPadCtx padCtx;
+    IosPadStick st0;
+    IosPadStick st1;
+    WallCfg wall;
+    int r;
+
+    r = debug_SelectCsvWindow("Collision Test", 10, 50, 11, collisionMoveName, 4, 0, 1, 3,
+                              &collisionTestRow);
+    if (reset != 0) {
+        GetRootPosition(collisionRay.pt[0], boyGObj);
+        CopyVector(collisionRay.pt[1], collisionRay.pt[0]);
+        collisionRay.radius = 0;
+        collisionRay.pt[1][2] += 100.0f;
+    }
+    memset(&mv, 0, sizeof(mv));
+    iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
+    iosPadRead(&padCtx);
+    iosPadGetStick(&padCtx, &st0, 0, 2, 2, 0);
+    iosPadGetStick(&padCtx, &st1, 1, 2, 2, 0);
+    iosPadStickCameraCoord(v, &st1);
+    if (padCtx.now & 8) {
+        if (st1.mag > 0.001f) {
+            mv.y = st1.dz * st1.mag * 16.0f;
+        }
+    } else {
+        if (st1.mag > 0.001f) {
+            mv.x = v[0] * st1.mag * 16.0f;
+            mv.z = v[2] * st1.mag * 16.0f;
+        }
+    }
+    switch (collisionTestRow) {
+    case 1:
+        _AddVector(collisionRay.pt[0], collisionRay.pt[0], &mv);
+        break;
+    case 2:
+        _AddVector(collisionRay.pt[1], collisionRay.pt[1], &mv);
+        break;
+    case 0:
+    default:
+        _AddVector(collisionRay.pt[0], collisionRay.pt[0], &mv);
+        _AddVector(collisionRay.pt[1], collisionRay.pt[1], &mv);
+        break;
+    }
+    ClipCollision(&collisionRay);
+    if (collisionRay.wall.elem != 0) {
+        wall.o = collisionRay.wall.o;
+        wall.elem = collisionRay.wall.elem;
+        *(WallCfg *)&mv = wall;
+        gif_StartPacketPri(11);
+        gif_SetZWrite(0);
+        gif_SetZTest(0);
+        gif_SetAlpha(1, 0, 0x80);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(collisionRay.pt[2]);
+        prim_DispWireSphere(5.0f, (void *)&collisionWallCol, 8, 4);
+        gif_EndPacket();
+        DebugDisp1Collision(&mv);
+        debug_PrintfDummy(80, 180, 0xFFFFFF00u, "HIT: %p,%d", collisionRay.wall.o.obj,
+                          collisionRay.wall.o.node);
+        debug_PrintfDummy(80, 190, 0xFFFFFF00u, "ATTR: %x",
+                          GetWallAttribute(&collisionRay));
+    }
+    if (collisionRay.floor.elem != 0) {
+        gif_StartPacketPri(11);
+        gif_SetZWrite(0);
+        gif_SetZTest(0);
+        gif_SetAlpha(1, 0, 0x80);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(collisionRay.pt[2]);
+        prim_DispWireSphere(5.0f, (void *)&collisionFloorCol, 8, 4);
+        gif_EndPacket();
+    }
+    debug_PrintfDummy(80, 160, 0xFFFFFF00u, "SRC: %f, %f, %f", collisionRay.pt[0][0],
+                      collisionRay.pt[0][1], collisionRay.pt[0][2]);
+    debug_PrintfDummy(80, 170, 0xFFFFFF00u, "DST: %f, %f, %f", collisionRay.pt[1][0],
+                      collisionRay.pt[1][1], collisionRay.pt[1][2]);
+    CameraSetMode(1);
+    DrawCollisionRay(&collisionRay);
+    DrawCollision(0);
+    return r;
+}
 
 static inline int debug_FreeCamera(int first)
 {
@@ -1938,10 +2535,34 @@ void debug_Menu_off(void)
     menuState = 0;
 }
 
-INCLUDE_ASM_LIT(debugSceOpen);
-
 /* the file debugSceOpen has open */
 static int sceFd = -1; /* derived name */
+
+inline int debugSceOpen(const char *name, int mode)
+{
+    sprintf(sceOpenPath, "%s%s;1", "cdrom0:\\", name);
+    return sceFd = sceOpen(sceOpenPath, mode);
+}
+
+inline int debugSceClose(int fd)
+{
+    if (fd == sceFd) {
+        sceFd = -1;
+    }
+    return sceClose(fd);
+}
+
+inline int debugSceCloseFdNew(void)
+{
+    int r = 0;
+    int h = sceFd;
+    if (h != -1) {
+        sceFd = -1;
+        r = sceClose(h);
+        sceFd = -1;
+    }
+    return r;
+}
 
 /* debug.o's globals (see debug.h) */
 int polygons = 0;
@@ -2097,101 +2718,3 @@ int debug_fly_limit_test = 0;
 int debug_lwskyomi_lookonly = 0; /* derived name */
 
 int debug_one_hit_only = 0; /* derived name */
-
-int debug_ignore_dodge = 0; /* derived name */
-
-int debug_hand_camera = 0; /* derived name */
-
-int debug_enemy_kidnap_timer = 0; /* derived name */
-
-static int debug_girl_pad_control = 0; /* derived name */
-
-int debug_hair_tight_level = 0; /* derived name */
-
-int debug_hair_gravity_level = 0; /* derived name */
-
-int debug_hair_bend_angle = 0; /* derived name */
-
-int debug_hair_collision = 0; /* derived name */
-
-int debug_no_breast_hang = 0; /* derived name */
-
-INCLUDE_ASM(debug_BeginTimer);
-
-INCLUDE_ASM(debug_GetTimerSec);
-
-INCLUDE_ASM(debug_GetTimerCount);
-
-INCLUDE_ASM(debug_ClearFontWindow);
-
-INCLUDE_ASM(debug_ResizeFontWindowHeight);
-
-INCLUDE_ASM(debug_SetBar);
-
-INCLUDE_ASM(debug_SetBar2);
-
-INCLUDE_ASM(debug_ResetBar);
-
-INCLUDE_ASM(debug_DispVu1IReg);
-
-INCLUDE_ASM(debug_DispVu1SReg);
-
-INCLUDE_ASM(debug_DispMatrix);
-
-INCLUDE_ASM(debug_SetBarDummy);
-
-INCLUDE_ASM(debug_SelectCsvWindowWithLine);
-
-INCLUDE_ASM(debug_TryToGetStartStage);
-
-INCLUDE_ASM(debugSceOpen);
-
-INCLUDE_ASM(debugSceClose);
-
-INCLUDE_ASM(debugSceCloseFdNew);
-
-INCLUDE_ASM(debug_closeLog);
-
-INCLUDE_ASM(debugCdvdLoadInfoSegInit);
-
-INCLUDE_ASM(debugCdvdLoadInfoSegAdd);
-
-INCLUDE_ASM(debugCdvdLoadInfoSegCls);
-
-INCLUDE_ASM(gsResetFunc);
-
-INCLUDE_ASM(debug_CallbackGsFinish);
-
-INCLUDE_ASM(debug_SaveStartStageFile);
-
-INCLUDE_ASM(_debug_SelectCsvWindow);
-
-INCLUDE_ASM(debug_SelectCsvWindowWithLineColor);
-
-INCLUDE_ASM(debug_mcFormat);
-
-INCLUDE_ASM(debug_mcUnformat);
-
-INCLUDE_ASM(debug_saveNumFunc);
-
-INCLUDE_ASM(debug_mcTest);
-
-INCLUDE_ASM(debug_STAFFROLLTest);
-
-INCLUDE_ASM(debug_SETest_color);
-
-INCLUDE_ASM(debug_reverbTest);
-
-INCLUDE_ASM(debug_AdpcmTest);
-
-INCLUDE_ASM(debugCdvdLoadInfoSegDisp);
-
-INCLUDE_ASM(debug_GameOver);
-
-INCLUDE_ASM(debug_EndingDemo);
-
-INCLUDE_ASM(debug_BackStageTest);
-
-INCLUDE_ASM(debug_tsuresariTimeZero);
-
-INCLUDE_ASM(debug_SelectPad2ControlGobj);

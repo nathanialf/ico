@@ -1895,7 +1895,6 @@ sdlit debug_MakeFont 0x0062CB6C 0x0062CB74 ico2/common/src/debug.c  # 2 words
 text draw_batsu.82 0x001A1998 0x001A1AC0 ico2/common/src/debug.c local file=draw_batsu_82  # nested in debug_brainBar, which is carved; census twin of PAL's draw_batsu.85 (gcc numbers it draw_batsu.82 in this tree)
 text draw_shikaku.86 0x001A1AC0 0x001A1C40 ico2/common/src/debug.c local file=draw_shikaku_86  # nested in debug_brainBar, which is carved; census twin of PAL's draw_shikaku.89 (gcc numbers it draw_shikaku.86 in this tree)
 text debug_brainBar 0x001A1C40 0x001A1FAC ico2/common/src/debug.c local lines=98  # ordinal; first difference at insn 96; imm:2; extent-equal
-text debug_MakeBarString 0x001A1FB0 0x001A2170 ico2/common/src/debug.c local lines=36  # census-equal; stubbed with debug_SaveStartStageFile: the "%d" they share is that inline function's, written at its definition before them, so gcc must not write it again here
 text debug_DrawBar 0x001A2170 0x001A2F10 ico2/common/src/debug.c local lines=209  # ordinal; first difference at insn 0; length:-22; extent-differs
 lit4 debug_DrawBar 0x0062B258 0x0062B260 ico2/common/src/debug.c  # 2 floats
 rdlit debug_DrawBar 0x0060D940 0x0060D984 ico2/common/src/debug.c align=16  # 2 data runs, 1 string
@@ -1906,9 +1905,6 @@ rdlit debug_DispBar 0x0060D988 0x0060D9B0 ico2/common/src/debug.c  # 2 strings
 text debug_WriteBMP 0x001A32D0 0x001A3460 ico2/common/src/debug.c local lines=38  # ordinal; first difference at insn 1; length:+5; extent-differs
 text debug_SnapShot 0x001A3460 0x001A3DE4 ico2/common/src/debug.c lines=81  # ordinal; first difference at insn 1; length:+368; extent-differs
 rdlit debug_SnapShot 0x0060D9B0 0x0060DA60 ico2/common/src/debug.c # target side
-text debug_PrintFontf 0x001A43F0 0x001A45A4 ico2/common/src/debug.c lines=54  # census-equal; stubbed with debug_SaveStartStageFile for the "%d" they share (as debug_MakeBarString)
-rdlit debug_PrintFontf 0x0060DAD8 0x0060DAF0 ico2/common/src/debug.c  # 1 string
-sdlit debug_PrintFontf 0x0062CC20 0x0062CC2B ico2/common/src/debug.c  # 2 strings
 text debug_Mode 0x001A4810 0x001A4C58 ico2/common/src/debug.c local lines=56  # ordinal; first difference at insn 29; imm:8; extent-equal
 rdlit debug_Mode 0x0060DB78 0x0060DBE7 ico2/common/src/debug.c  # 6 strings
 text debug_SelectCsvWindow 0x001A4DE8 0x001A5070 ico2/common/src/debug.c lines=6  # census-equal; stubbed because it inlines a function stubbed for emission order
@@ -1924,80 +1920,19 @@ sdlit debug_selectFile 0x0062CC88 0x0062CC8A ico2/common/src/debug.c  # 1 string
 text debug_mcLoadMainBlock 0x001A5850 0x001A5A90 ico2/common/src/debug.c local lines=75  # ordinal; first difference at insn 9; length:-1; extent-differs
 rdlit debug_mcLoadMainBlock 0x0060DE88 0x0060DED8 ico2/common/src/debug.c # target side
 rdlit debug_mcLoadMainBlock 0x0060DEE0 0x0060E070 ico2/common/src/debug.c align=16  # target side
+sdlit debug_mcLoadMainBlock 0x0062CCB8 0x0062CCC0 ico2/common/src/debug.c  # target side: a string
 text debug_mcDeleteFile 0x001A5A90 0x001A5C04 ico2/common/src/debug.c local lines=50  # census-equal; stubbed because it inlines a function stubbed for emission order
 rdlit debug_mcDeleteFile 0x0060E070 0x0060E0A4 ico2/common/src/debug.c align=16  # 2 strings, 1 jtbl
 text debug_MemoryCard 0x001A5C08 0x001A5E88 ico2/common/src/debug.c lines=63  # census-equal; stubbed because it inlines a function stubbed for emission order
 rdlit debug_MemoryCard 0x0060E0B8 0x0060E0E8 ico2/common/src/debug.c  # 1 data
 rdlit debug_MemoryCard 0x0060E108 0x0060E156 ico2/common/src/debug.c  # 1 data, 1 string
-sdlit debug_MemoryCard 0x0062CD00 0x0062CD05 ico2/common/src/debug.c  # 1 string
+sdlit debug_MemoryCard 0x0062CCD0 0x0062CD05 ico2/common/src/debug.c  # target side: its menu strings and "MENU"
 text debug_SETest 0x001A5E88 0x001A6124 ico2/common/src/debug.c lines=18  # ordinal; first difference at insn 37; imm:5; extent-equal
 sdlit debug_SETest 0x0062CD10 0x0062CD18 ico2/common/src/debug.c  # 1 string
 text debug_SelectActGobj 0x001A63C8 0x001A6504 ico2/common/src/debug.c local lines=15  # ordinal; first difference at insn 27; imm:1; extent-equal
 rdlit debug_SelectActGobj 0x0060E1C0 0x0060E1D5 ico2/common/src/debug.c align=16  # 1 string
-text debug_CollisionTest 0x001A6C68 0x001A70BC ico2/common/src/debug.c local lines=85  # census-equal; stubbed because it inlines a function stubbed for emission order
-lit4 debug_CollisionTest 0x0062B264 0x0062B26C ico2/common/src/debug.c  # 2 floats
-rdlit debug_CollisionTest 0x0060E2B0 0x0060E2C0 ico2/common/src/debug.c # target side
-rdlit debug_CollisionTest 0x0060E2C0 0x0060E300 ico2/common/src/debug.c align=16  # 4 strings
 text debug_Menu 0x001A70C0 0x001A731C ico2/common/src/debug.c lines=55  # ordinal; first difference at insn 28; imm:1; extent-equal
 rdlit debug_Menu 0x0060E538 0x0060E543 ico2/common/src/debug.c  # 1 string
-text debug_BeginTimer 0x001A7328 0x001A734C ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_GetTimerSec 0x001A7350 0x001A7420 ico2/common/src/debug.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debug_GetTimerSec 0x0060D738 0x0060D748 ico2/common/src/debug.c def  # 1 data
-text debug_GetTimerCount 0x001A7420 0x001A7480 ico2/common/src/debug.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_ClearFontWindow 0x001A7480 0x001A74B4 ico2/common/src/debug.c lines=11  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_ResizeFontWindowHeight 0x001A74B8 0x001A74C0 ico2/common/src/debug.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_SetBar 0x001A74C0 0x001A7578 ico2/common/src/debug.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-sdlit debug_SetBar 0x0062CBF8 0x0062CBFC ico2/common/src/debug.c def  # 1 string
-text debug_SetBar2 0x001A7578 0x001A7630 ico2/common/src/debug.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_ResetBar 0x001A7630 0x001A7658 ico2/common/src/debug.c lines=11  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_DispVu1IReg 0x001A7658 0x001A76FC ico2/common/src/debug.c lines=18  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debug_DispVu1IReg 0x0060DB30 0x0060DB4C ico2/common/src/debug.c align=16 def  # 1 string
-text debug_DispVu1SReg 0x001A7700 0x001A77A4 ico2/common/src/debug.c lines=18  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debug_DispVu1SReg 0x0060DB50 0x0060DB6C ico2/common/src/debug.c align=16 def  # 1 string
-text debug_DispMatrix 0x001A77A8 0x001A77EC ico2/common/src/debug.c lines=9  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_SetBarDummy 0x001A77F0 0x001A77F8 ico2/common/src/debug.c lines=1  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_SelectCsvWindowWithLine 0x001A77F8 0x001A7A80 ico2/common/src/debug.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_TryToGetStartStage 0x001A7A80 0x001A7A88 ico2/common/src/debug.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debugSceOpen 0x001A7A88 0x001A7AE8 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debugSceOpen 0x0060E548 0x0060E551 ico2/common/src/debug.c def  # 1 string
-sdlit debugSceOpen 0x0062CDD0 0x0062CDD7 ico2/common/src/debug.c def  # 1 string
-text debugSceClose 0x001A7AE8 0x001A7B14 ico2/common/src/debug.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debugSceCloseFdNew 0x001A7B18 0x001A7B50 ico2/common/src/debug.c lines=11  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_closeLog 0x001A7B50 0x001A7B58 ico2/common/src/debug.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debugCdvdLoadInfoSegInit 0x001A7B58 0x001A7B9C ico2/common/src/debug.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debugCdvdLoadInfoSegAdd 0x001A7BA0 0x001A7BCC ico2/common/src/debug.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debugCdvdLoadInfoSegCls 0x001A7BD0 0x001A7BF4 ico2/common/src/debug.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text gsResetFunc 0x001A7BF8 0x001A7C1C ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_CallbackGsFinish 0x001A7C20 0x001A7C34 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_SaveStartStageFile 0x001A7C38 0x001A7CE4 ico2/common/src/debug.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debug_SaveStartStageFile 0x0060D418 0x0060D51F ico2/common/src/debug.c def  # target side: its five strings, written at its definition
-sdlit debug_SaveStartStageFile 0x0062CB58 0x0062CB5B ico2/common/src/debug.c def  # target side: "%d", written at its definition
-text _debug_SelectCsvWindow 0x001A7CE8 0x001A7F90 ico2/common/src/debug.c lines=88  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-sdlit _debug_SelectCsvWindow 0x0062CC48 0x0062CC55 ico2/common/src/debug.c def  # target side: two strings, written at its definition
-text debug_SelectCsvWindowWithLineColor 0x001A7F90 0x001A8234 ico2/common/src/debug.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_mcFormat 0x001A8238 0x001A831C ico2/common/src/debug.c lines=26  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debug_mcFormat 0x0060DC58 0x0060DC67 ico2/common/src/debug.c def  # 1 string
-sdlit debug_mcFormat 0x0062CC70 0x0062CC77 ico2/common/src/debug.c def  # 1 string
-text debug_mcUnformat 0x001A8320 0x001A8404 ico2/common/src/debug.c lines=26  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debug_mcUnformat 0x0060DC68 0x0060DC89 ico2/common/src/debug.c def  # 2 strings
-text debug_saveNumFunc 0x001A8408 0x001A8434 ico2/common/src/debug.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-sdlit debug_saveNumFunc 0x0062CC90 0x0062CC9C ico2/common/src/debug.c def  # 2 strings
-text debug_mcTest 0x001A8438 0x001A8458 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_STAFFROLLTest 0x001A8458 0x001A8480 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_SETest_color 0x001A8480 0x001A84C0 ico2/common/src/debug.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_reverbTest 0x001A84C0 0x001A8560 ico2/common/src/debug.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debug_reverbTest 0x0060E158 0x0060E16B ico2/common/src/debug.c def  # 1 string
-text debug_AdpcmTest 0x001A8560 0x001A85EC ico2/common/src/debug.c lines=14  # ordinal; first difference at insn 6; imm:1; extent-equal
-rdlit debug_AdpcmTest 0x0060E170 0x0060E17B ico2/common/src/debug.c align=16 def  # 1 string
-text debugCdvdLoadInfoSegDisp 0x001A85F0 0x001A86E4 ico2/common/src/debug.c lines=19  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit debugCdvdLoadInfoSegDisp 0x0060E190 0x0060E1BB ico2/common/src/debug.c align=16 def  # 2 strings
-text debug_GameOver 0x001A86E8 0x001A8708 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_EndingDemo 0x001A8708 0x001A8728 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_BackStageTest 0x001A8728 0x001A874C ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 debug_BackStageTest 0x0062B26C 0x0062B270 ico2/common/src/debug.c  # 1 float
-text debug_tsuresariTimeZero 0x001A8750 0x001A8770 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text debug_SelectPad2ControlGobj 0x001A8770 0x001A888C ico2/common/src/debug.c lines=16  # census-equal; stubbed because it inlines a function stubbed for emission order
-rdlit debug_SelectPad2ControlGobj 0x0060E1D8 0x0060E1EF ico2/common/src/debug.c def  # 1 string
 text gamesysObjInfoInit 0x001AB158 0x001AB1AC ico2/common/src/gamesys.c lines=12  # ordinal; first difference at insn 17; imm:1; extent-equal
 text gamesysObjInfoSave 0x001AB1B0 0x001AB248 ico2/common/src/gamesys.c lines=18  # ordinal; first difference at insn 33; imm:1; extent-equal
 text gamesysObjInfoLoad 0x001AB248 0x001AB298 ico2/common/src/gamesys.c lines=6  # ordinal; first difference at insn 17; imm:1; extent-equal
