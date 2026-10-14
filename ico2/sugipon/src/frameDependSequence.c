@@ -349,22 +349,9 @@ static void executeSEPackageByGObj(GObj *gobj, int no, int grp);
 
 INCLUDE_ASM(executeSEPackageByGObj);
 
-static void executeSEPackageWithNoGObj(int no)
-{
-    int *p;
-    int i;
+static void executeSEPackageWithNoGObj(int no);
 
-    p = findSEPackage(no, -1);
-    for (i = 0; i < 2; i++) {
-        if (p[i] != 0) {
-            soundSeDefPlay(p[i], 0xFFFFFFFF, 0, 1);
-            if (debug_seslotdisp_flag != 0) {
-                debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
-                                     &seDef[p[i]], 0xFFFFFFFF);
-            }
-        }
-    }
-}
+INCLUDE_ASM(executeSEPackageWithNoGObj);
 
 void ExecuteSEPackageWithGroupVariation(GObj *gobj, int id, int grp)
 {

@@ -119,13 +119,195 @@ static int demoEnd;
 
 static int conte09_3Running; /* derived name */
 
-INCLUDE_ASM(gateOpenAnims_9);
+void actSt04aGateChk(GObj *volatile self)
+{
+    GProc *th0;
+    GProc *th1;
+    GProc *th2;
+    int i;
+    int n;
 
-INCLUDE_ASM(boyRootPos_10);
+    stgmgrNextStagePreLoadForceStageSet(0);
 
-INCLUDE_ASM(girlRootPos_11);
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
 
-INCLUDE_ASM(actSt04aGateChk);
+    while (scpTriggerBall(self, boyGObj, 3000.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    th0 = actCreateSubThread(actSt04aEnvSe, 21);
+
+    lt_switch_layout(52);
+
+    scpBoyControlReadDisable = 1;
+
+    scpPlayStart(boyGObj);
+
+    scpDispOffAllWithKind(19);
+
+    scpPlayMot(boyGObj, 0);
+
+    StandbyStreamMotion(streamMotion[1].path);
+
+    i = 0;
+    while (CheckReadyStreamMotion() == 0) {
+        debug_StdPrintfDummy("Now waiting for standby stream motion system... %d\n", ++i);
+        _ACTWait(1);
+    }
+
+    DisableStreamMotionManagerAutomaticDelete();
+
+    scpPlayStart(girlGObj);
+
+    reg_SetScissorSw(1);
+
+    SetStaticBlur(0);
+
+    scpAdpcmPlayRequestFunc(23, &gate1st, 1, 1, 0);
+    while (gate1st == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(137);
+
+    _ACTWait(1);
+
+    th1 = actCreateSubThread(actSt04aConte06, 21);
+    th2 = actCreateSubThread(actSt04aConte06Jimaku, 21);
+
+    stage_SetAnimation(265, 1, 0);
+
+    scpSearchGobj(590)->active = 1;
+
+    EntryStreamMotion(boyGObj);
+    EntryStreamMotion(girlGObj);
+    EntryStreamMotion(scpSearchGobj(590));
+
+    PlayStreamMotion();
+
+    scpFadeIn(6.0f);
+
+    _ACTWait((int)((60 - systemStatus[0] * 10) / systemStatus[1] * 2.5));
+
+    demoEnd = 0;
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    n = demoEnd ^ 1;
+
+    if (n != 0) {
+        scpAdpcmFadeCloseFunc(&gate1st, 192);
+
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+
+    DeleteStreamMotionManager();
+
+    iosPadActStopAll();
+
+    iosThreadSetPri(&th1->thread, 34);
+    iosThreadSetPri(&th2->thread, 34);
+    iosThreadSetPri(&th0->thread, 34);
+
+    if (n != 0) {
+        {
+            /* the gate-open animations, in the order they start */
+            static const AnimList28 gateOpenAnims = {{551, 485, 644, 645, 646, 647, 648, 649,
+                                                      650, 651, 652, 653, 654, 655, 656, 657,
+                                                      658, 659, 660, 661, 662, 663, 664, 665,
+                                                      666, 667, 668, 669}}; /* derived name */
+            AnimList28 anim;
+            unsigned int j;
+
+            anim = gateOpenAnims;
+            for (j = 0; j < 28; j++) {
+                stage_SetAnimation(anim.v[j], 1, -1);
+                _ACTWait(1);
+            }
+        }
+
+        jimakuUndisp(&jimaku_msg);
+
+        stage_SetAnimation(265, 0, -1);
+        stage_SetAnimation(669, 1, -1);
+        stage_SetAnimation(471, -1, -2);
+        stage_SetAnimation(473, -1, -2);
+
+        scpSearchGobj(590)->active = 0;
+
+        stage_SetLoopFlag(551, 0);
+        stage_SetAnimation(551, -1, -2);
+
+        reg_SetScissorSw(0);
+
+        {
+            /* the boy's and the girl's root positions after the gate opens */
+            static const ConstVec boyRootPos = {
+                {1.635725f, -72.36407f, -1233.2648f, 0.0f}}; /* derived name */
+            static const ConstVec girlRootPos = {
+                {7.660961f, -88.9936f, -1293.0424f, 0.0f}}; /* derived name */
+            long long p1[2];
+            long long p2[2];
+
+            p1[0] = boyRootPos.d[0];
+            p1[1] = boyRootPos.d[1];
+            SetDirectRootPosition(boyGObj, p1);
+
+            p2[0] = girlRootPos.d[0];
+            p2[1] = girlRootPos.d[1];
+            SetDirectRootPosition(girlGObj, p2);
+        }
+
+        _ACTWait(1);
+
+        SetCameraFlag_GamecamCutBack();
+
+        scpFadeIn(3.0f);
+    }
+
+    {
+        float dir[4];
+
+        scpSeEnvMasterVolRate = 1.0f;
+
+        scpPlayMot(boyGObj, 0);
+        scpPlayMot(girlGObj, 532);
+
+        GOBJ_SUB(boyGObj)->ctrl.blendFrames =
+            (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 0.0f);
+        GOBJ_SUB(girlGObj)->ctrl.blendFrames =
+            (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 0.0f);
+
+        sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
+
+        sceVu0SubVector(dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj));
+        scpPlayMotDir(girlGObj, dir);
+    }
+
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
+
+    _ACTWait(1);
+
+    iosOmSendMail(girlGObj, 63, boyGObj);
+
+    scpBoyControlReadDisable = 0;
+
+    lt_switch_layout(51);
+
+    SetStaticBlur(1);
+
+    gflagOn(155);
+
+    stgmgrNextStagePreLoadDistBoyMode();
+}
 
 INCLUDE_ASM(actSt04aConte06);
 

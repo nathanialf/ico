@@ -61,9 +61,76 @@ extern const MotionDef motionKind[];
 /* declared here: ico2/fumi/src/commonact.c declares the table without
    const, so motionOrientManager.h cannot carry it */
 extern const MotOriName motionOriKind[];
-static void orientDebug(void *self, int idx, int y);
 
-INCLUDE_ASM(orientDebug);
+static void orientDebug(void *self, int idx, int y)
+{
+    char buf[256];
+    MotOriName name;
+
+    switch (motionKind[MOWORK(self)->ctrl.motion].rootUpdateMode) {
+    default:
+    case 12:
+    case 13:
+    case 14:
+    case 18:
+    case 19:
+        sprintf(buf, "ASSERT");
+        break;
+    case 1:
+        sprintf(buf, "XZ");
+        break;
+    case 20:
+        sprintf(buf, "XZ_FIT");
+        break;
+    case 2:
+        sprintf(buf, "XZ_MOTPOS");
+        break;
+    case 17:
+        sprintf(buf, "XZ_MOTPOS_FIT");
+        break;
+    case 7:
+        sprintf(buf, "UPPERWALLSOLUTION");
+        break;
+    case 16:
+        sprintf(buf, "UPPERWALLSOL_FIT");
+        break;
+    case 8:
+        sprintf(buf, "LOWERWALLSOLUTION");
+        break;
+    case 9:
+        sprintf(buf, "CLIFFSOLUTION");
+        break;
+    case 10:
+        sprintf(buf, "HANG");
+        break;
+    case 15:
+        sprintf(buf, "HANG FIT");
+        break;
+    case 11:
+        sprintf(buf, "WATER");
+        break;
+    case 5:
+        sprintf(buf, "NODEFIX");
+        break;
+    case 4:
+        sprintf(buf, "Y_ROPE");
+        break;
+    case 3:
+        sprintf(buf, "Y");
+        break;
+    case 0:
+        sprintf(buf, "TRUEMOTION");
+        break;
+    case 6:
+        sprintf(buf, "DIRECTPLAY");
+        break;
+    }
+    if (debug_window_flag != 0) {
+        name = motionOriKind[idx];
+        debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name,
+                              motionKind[MOWORK(self)->ctrl.motion].name, buf);
+    }
+}
 
 static inline void checkMotionKind(int i, int j) /* derived name */
 {
@@ -373,7 +440,67 @@ typedef struct MotOriSpin { /* field names derived */
     char *s[4];
 } MotOriSpin; /* derived name */
 
-INCLUDE_ASM(SetMotionRequest);
+char *SetMotionRequest(void *self, int mot, MotOriReq req)
+{
+    char *w = (char *)GOBJ_SUB(self) + 0x470;
+    int old = *(int *)(w + 0xD0);
+
+    *(int *)(w + 0xD0) = mot;
+    if (normalMotionShift(self, 1) != 0) {
+        *(int *)(w + 0x44) = 0;
+        switch (*(int *)(w + 0x68)) {
+        case 3:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 13:
+        case 15:
+        case 16:
+            *(MotOriReq *)&GOBJ_SUB(self)->root.wall = req;
+            debug_StdPrintfDummy("\033[36mUpdate with collision info that act memorized.\033[m\n");
+            break;
+        }
+        if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+            (debug_mot_debug_target == 1 && self == girlGObj) ||
+            (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+            if (ignoreCount != 0 && debug_window_flag != 0) {
+                debug_PrintFontWindow(0xC0FF20, "\n ");
+            }
+            orientDebug(self, mot, 0xFFFFFF80);
+            ignoreCount = 0;
+        }
+    } else {
+        *(int *)(w + 0xD0) = old;
+        if (pad[0].now & 0x2) {
+            if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+                (debug_mot_debug_target == 1 && self == girlGObj) ||
+                (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+                (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+                (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+                MotOriSpin spin = {{"-", "\\", "|", "/"}};
+
+                if (ignoreMotion != mot && ignoreCount != 0) {
+                    ignoreCount = 0;
+                    if (debug_window_flag != 0) {
+                        debug_PrintFontWindow(0xC0FF20, "\n ");
+                    }
+                }
+                if (debug_window_flag != 0) {
+                    MotOriName name = motionOriKind[mot];
+
+                    debug_PrintFontWindow(0x3080FF20, "%s %s at %s ignore %d times",
+                                          spin.s[frame_count & 3], name.s,
+                                          motionKind[*(int *)(w + 0x30)].name, ++ignoreCount);
+                }
+                ignoreMotion = mot;
+            }
+        }
+    }
+    return w;
+}
 
 INCLUDE_ASM(getNodeBlendedFloatingMotion);
 

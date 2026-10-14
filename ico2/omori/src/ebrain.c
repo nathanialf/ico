@@ -177,9 +177,50 @@ inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
     return GeneratorLabel;
 }
 
-int eBrainGetTargetGeneratorFromLabel(int label);
+int eBrainGetTargetGeneratorFromLabel(int label)
+{
+    int GeneratorLabel = -1;
+    int pri = -1;
+    int UseStageNo;
+    int i;
+    int ret;
+    int st;
+    int f;
 
-INCLUDE_ASM(eBrainGetTargetGeneratorFromLabel);
+    ret = GetMotherGenerator(label);
+    if (ret != -1)
+        return ret;
+
+    UseStageNo = -1;
+    for (i = 0; i < 104; i++) {
+        if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
+            UseStageNo = i;
+            break;
+        }
+    }
+    if (!(UseStageNo > 0)) {
+        debug_assert("src/ebrain.c", 472);
+        __assert("src/ebrain.c", 472, "UseStageNo>0");
+    }
+
+    st = UseStageNo;
+    for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
+        GenGeo *g = &objLayout[i];
+        if (g->kind == 33) {
+            f = g->flags >> 17;
+            f &= 1;
+            if (pri < f) {
+                pri = f;
+                GeneratorLabel = i;
+            }
+        }
+    }
+    if (!(GeneratorLabel > 0)) {
+        debug_assert("src/ebrain.c", 542);
+        __assert("src/ebrain.c", 542, "GeneratorLabel>0");
+    }
+    return GeneratorLabel;
+}
 
 static inline int eBrainCanSeeTarget(GObj *gop, GObj *target) /* derived name */
 {
