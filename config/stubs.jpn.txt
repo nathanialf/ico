@@ -621,19 +621,9 @@ text actSt13cCageDown 0x00249800 0x002498AC ico2/script/src/st13c.c lines=21  # 
 text actSt13cSekizo 0x00249A28 0x00249AD8 ico2/script/src/st13c.c lines=20  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actE3St13cSekizo 0x00249D30 0x00249DC4 ico2/script/src/st13c.c lines=15  # ordinal; first difference at insn 11; imm:1; extent-equal
 text actSt13cBukiChk 0x0024A400 0x0024A454 ico2/script/src/st13c.c lines=7  # ordinal; first difference at insn 13; imm:1; extent-equal
-text actSt18aIntroChk 0x0024BAF0 0x0024BC38 ico2/script/src/st18a.c lines=38  # ordinal; first difference at insn 16; imm:5; extent-equal
-text actSt18aSwitchLChk 0x0024BC38 0x0024BE6C ico2/script/src/st18a.c lines=40  # ordinal; first difference at insn 68; imm:4; extent-equal
-text actSt18aSwitchLUpChk 0x0024BE70 0x0024BFAC ico2/script/src/st18a.c lines=31  # ordinal; first difference at insn 23; imm:5; extent-equal
-lit4 actSt18aSwitchLUpChk 0x0063354C 0x00633558 ico2/script/src/st18a.c  # 3 floats
-text actSt18aSwitchRChk 0x0024BFB0 0x0024C1E4 ico2/script/src/st18a.c lines=40  # ordinal; first difference at insn 68; imm:4; extent-equal
-text actSt18aSwitchRUpChk 0x0024C1E8 0x0024C324 ico2/script/src/st18a.c lines=31  # ordinal; first difference at insn 23; imm:5; extent-equal
-lit4 actSt18aSwitchRUpChk 0x00633558 0x00633564 ico2/script/src/st18a.c  # 3 floats
-text actSt18aDoorChk 0x0024C328 0x0024C4EC ico2/script/src/st18a.c lines=53  # ordinal; first difference at insn 25; imm:3; extent-equal
-text actSt18aDoorDownChk 0x0024C4F0 0x0024C5FC ico2/script/src/st18a.c lines=26  # ordinal; first difference at insn 26; imm:2; extent-equal
 text actSt18aDoor 0x0024C840 0x0024C904 ico2/script/src/st18a.c lines=23  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt18aSwitchL 0x0024C908 0x0024C9CC ico2/script/src/st18a.c lines=23  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt18aSwitchR 0x0024C9D0 0x0024CA94 ico2/script/src/st18a.c lines=23  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt18aDoorChkSub 0x0024CD08 0x0024CDC4 ico2/script/src/st18a.c local lines=21  # ordinal; first difference at insn 5; imm:2; extent-equal
 text actSt19aOriUp 0x0024CEC0 0x0024D08C ico2/script/src/st19a.c lines=41  # ordinal; first difference at insn 3; imm:6; extent-equal
 text actSt19aHaguruma 0x0024D090 0x0024D1DC ico2/script/src/st19a.c lines=29  # ordinal; first difference at insn 29; imm:5; extent-equal
 text actSt19aHagurumaChk 0x0024D1E0 0x0024D4B4 ico2/script/src/st19a.c lines=57  # ordinal; first difference at insn 22; imm:9; extent-equal
