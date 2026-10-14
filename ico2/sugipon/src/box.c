@@ -94,6 +94,8 @@ INCLUDE_ASM(switchReleaseSE);
 
 INCLUDE_ASM(GetFloorLeverGlobalHoldPoint);
 
+INCLUDE_ASM_LIT(InitFloorLeverGeo);
+
 INCLUDE_ASM(FloorLeverTriStateGeo);
 
 INCLUDE_ASM(FloorLeverGeo);

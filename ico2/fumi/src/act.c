@@ -74,6 +74,8 @@ void actCreateMotionThread(void (*func)(), int pri, GProc **proc)
     }
 }
 
+INCLUDE_ASM_LIT(actCreateSubThread);
+
 INCLUDE_ASM(after_func_exec);
 
 INCLUDE_ASM(actInitialize_ext_charcter);

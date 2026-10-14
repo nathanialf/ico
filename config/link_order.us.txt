@@ -152,7 +152,7 @@ ico2/ito/src/gather_effect.c
 ico2/ito/src/itou_boss.c
 ico2/ito/src/itou_gflag.c
 ico2/ito/src/itou_sub.c
-ico2/ito/src/lightning.c
+ico2/ito/src/lightning.c align.rodata=16  # USA: itou_sub.o's .rodata ends at 0x55C1B4 and lightning.o's starts at 0x55C1C0 (DrawLightning2's texture name)
 ico2/ito/src/queen.c
 ico2/ito/src/queen_barrier_disp.c
 ico2/ito/src/stage_orient.c
@@ -203,7 +203,7 @@ data:stage-anim
 data:stream-motion-def
 data:tex-property
 data:weapon-def
-ico2/common/src/DObj.c
+ico2/common/src/DObj.c align.rodata=16  # USA: weapon-def ends at 0x612618 and DObj.o's .rodata starts at 0x612620
 ico2/common/src/StageManager.c
 ico2/common/src/backStage.c
 ico2/common/src/charFileManager.c

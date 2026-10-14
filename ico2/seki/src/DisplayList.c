@@ -47,7 +47,7 @@ static int dlPriorityStack[8]; /* derived name */
 /* The size of each priority's list buffer. */
 static const int dlBufferSize[13] = {
     /* derived name */
-    81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
+    81920, 14336, 30720, 4096, 16384, 49152, 40960, 12288, 26624, 14336, 4096, 32768, 98304,
 };
 
 void dl_Init(void)

@@ -147,7 +147,7 @@ void DisableStreamMotionManagerAutomaticDelete(void)
     debug_StdPrintfDummy("disable automatic delete\n");
 }
 
-INCLUDE_ASM(func_001F0A38);
+INCLUDE_ASM_LIT(GetDataSizeOfStreamMotion);
 
 typedef struct { /* field names derived */
     char c[4];
@@ -156,7 +156,7 @@ typedef struct { /* field names derived */
 /* the four bytes GetStreamMotionData hands back while no data has arrived */
 static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
 
-INCLUDE_ASM_LIT(GetDataSizeOfStreamMotion);
+INCLUDE_ASM(func_001F0A38);
 
 static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {

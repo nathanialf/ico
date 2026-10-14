@@ -60,6 +60,8 @@ SqEntry *pipe19a = 0;
 
 static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}}; /* derived name */
 
+static const ConstVec hagurumaChkPos = {{486.0f, 2386.0f, -2917.0f, 0.0f}}; /* derived name */
+
 INCLUDE_ASM(func_00236E10);
 
 INCLUDE_ASM(actSt19aHaguruma);

@@ -177,8 +177,6 @@ float test_rope_velo[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 float add_rope_vec[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-INCLUDE_ASM(UpdateGeo_48);
-
 static void BoyBgaManager(void *self, int id, void *dst)
 {
     /* UpdateGeo is a GNU nested function: it reads `self` out of
@@ -194,7 +192,7 @@ static void BoyBgaManager(void *self, int id, void *dst)
             dir[1] = test_CURRENTORIENT(self)[1];
             dir[2] = test_CURRENTORIENT(self)[2];
         } else {
-            obj = isysGObjSearchFromObjKindID_begin(47);
+            obj = isysGObjSearchFromObjKindID_begin(46);
             _OrientXZGV(dir, test_CURRENTROOT(obj), test_CURRENTROOT(self));
         }
         sceVu0ScaleVector(dir, dir, p->f10);

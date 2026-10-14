@@ -62,7 +62,7 @@ typedef struct { /* field names derived */
     unsigned int w, h;
 } FR; /* derived name */
 
-/* the debug-option table: 76 records of 0x1C bytes */
+/* the debug-option table: 69 records of 0x1C bytes */
 typedef struct { /* field names derived */
     /* 0x00 */ char *name;
     /* 0x04 */ unsigned int col;
@@ -383,7 +383,7 @@ static char *debugMotionTargetName[] = {"BOY", "GIRL", "BIRD", "ENEMY", "QUEEN"}
 
 /* the debug options: name, colour, value, range, value names and the function
    called on a change, in the order debug_Mode pages through them */
-static const DbgOpt debugOption[76] = {
+static const DbgOpt debugOption[69] = {
     {" FrameStep          ", 0x0080FF80, &systemStatus[1], 1, 2, debugFrameStepName,
      (void (*)(int))gsResetFunc},
     {" NTSC/PAL           ", 0x0080FF80, &systemStatus[0], 0, 1, debugNtscPalName,
@@ -424,8 +424,8 @@ static const DbgOpt debugOption[76] = {
     {" BrainOnOff         ", 0xFF80FF80, &debug_brain_flag, 0, 1, debugOffOnName, 0},
     {" GBrainInfo         ", 0xFF80FF80, &debug_gbrain_info_flag, 0, 1, debugOffOnName, 0},
     {" WayTool            ", 0xFF80FF80, &debug_wayline, 0, 1, debugOffOnName, 0},
-    {" SnapShotNum        ", 0xC0C0C080, &debug_snapshot_num, 20, 500, 0, 0},
-    {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 4, debugSnapSizeName, 0},
+    {" SnapShotNum        ", 0xC0C0C080, &debug_snapshot_num, 0, 3000000, 0, 0},
+    {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 3, debugSnapSizeName, 0},
     {" SnapForm           ", 0xC0C0C080, &debug_snapshot_format, 0, 1, debugSnapFormName, 0},
     {" Jimaku Test        ", 0xC0C0C080, &debug_jimaku, 0, 1, debugOffOnName, 0},
     {" Camera             ", 0xC0C0C080, &debug_camera_flag, 0, 1, debugOffOnName, 0},
@@ -1517,9 +1517,6 @@ static int modeSelect = 0; /* derived name */
 
 static unsigned char modeBlink = 0; /* derived name */
 
-/* the colours the cursor line blinks between */
-static const unsigned int blinkColor[] = {0xFFFFFF00, 0xC0C0C000}; /* derived name */
-
 inline void debug_DispVu1IReg(int no)
 {
     int i;
@@ -1563,6 +1560,9 @@ inline int gsResetFunc(int val)
     gsb_Init(&db);
     return 1;
 }
+
+/* the colours the cursor line blinks between */
+static const unsigned int blinkColor[] = {0xFFFFFF00, 0xC0C0C000}; /* derived name */
 
 /* clang-format off */
 INCLUDE_ASM(debug_Mode);
@@ -1904,8 +1904,6 @@ static int debug_selectFile(McMgr *mc)
     return r;
 }
 
-static int saveState = 0; /* derived name */
-
 inline void *debug_saveNumFunc(int no, void *mc)
 {
     if ((1 << no) & ((McMgr *)mc)->mask) {
@@ -1913,6 +1911,8 @@ inline void *debug_saveNumFunc(int no, void *mc)
     }
     return "NEW";
 }
+
+static int saveState = 0; /* derived name */
 
 static int debug_mcSaveMainBlock(McMgr *mc)
 {
@@ -2747,7 +2747,7 @@ static int menuArg = 0; /* derived name */
 static inline void debug_MenuBlink(void) /* derived name */
 {
     if (menuBlink >> 4) {
-        debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Jan 17 2002", "15:37:26");
+        debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Aug 20 2001", "22:01:44");
     }
     menuBlink++;
     if (menuBlink >= 0x41) {

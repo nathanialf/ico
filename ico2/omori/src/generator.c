@@ -160,7 +160,7 @@ inline void ResetReviveCountEnemy(GObj *gobj)
 
 inline void SetInfoSpKidnapEnemy(short *work)
 {
-    GenGeo *info = &objLayout[3757]; /* the kidnap enemy's layout record */
+    GenGeo *info = &objLayout[3453]; /* the kidnap enemy's layout record */
     info->flags |= 0x200000;
     info->flags &= ~0x40000;
     info->reviveCount = 0;

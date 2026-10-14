@@ -38,6 +38,20 @@ static int demoEnd;
 
 static const ConstVec chanChkPos = {{10000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
+/* .sdata: the statue stream handles and the statue's shake, then the
+   shake's volume. */
+SqEntry *sekizo7a = 0;
+
+SqEntry *sekizo_7a = 0;
+
+int sekizo_7a_vol = 0;
+
+static unsigned char st07a_yure_vol = 0; /* derived name */
+
+INCLUDE_ASM(actSt07aChanChk);
+
+INCLUDE_ASM(func_002285E8);
+
 static const ConstVec chanWay1Pos = {{-875.0f, 77.0f, -958.0f, 0.0f}}; /* derived name */
 
 static const ConstVec chanWay2Pos = {{-264.0f, 1277.0f, -292.0f, 0.0f}}; /* derived name */
@@ -61,20 +75,6 @@ static const EffectArg tsuroEffect7Pos = {{-1327.0f, 1327.0f, -1141.0f, 1.0f}}; 
 static const EffectArg tsuroEffect8Pos = {{-1223.0f, 1325.0f, -1101.0f, 1.0f}}; /* derived name */
 
 static const EffectArg tsuroEffect9Pos = {{-1273.0f, 1325.0f, -873.0f, 1.0f}}; /* derived name */
-
-/* .sdata: the statue stream handles and the statue's shake, then the
-   shake's volume. */
-SqEntry *sekizo7a = 0;
-
-SqEntry *sekizo_7a = 0;
-
-int sekizo_7a_vol = 0;
-
-static unsigned char st07a_yure_vol = 0; /* derived name */
-
-INCLUDE_ASM(actSt07aChanChk);
-
-INCLUDE_ASM(func_002285E8);
 
 INCLUDE_ASM(actSt07aTsuroChk);
 

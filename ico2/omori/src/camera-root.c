@@ -358,8 +358,6 @@ int FixViewInGameCameraFlag;
 
 int monitorCameraHold; /* derived name */
 
-int insertCameraBlendTimer; /* derived name */
-
 INCLUDE_ASM(InitCamera);
 
 typedef struct { /* field names derived */
@@ -379,16 +377,10 @@ static inline void Camctrl_Exec(void) /* derived name */
     float pos[4];
     int last;
 
-    if (camctrl.pri != 0) {
-        insertCameraBlendTimer = 0;
-    }
-    if (insertCameraBlendTimer != 0) {
-        insertCameraBlendTimer = insertCameraBlendTimer - 1;
-    }
     if ((last = camctrl.lastPri) == 1 && camctrl.pri == 0 && default_cameratarget_gobj != 0 &&
         IsPointIsInScreen(pos, test_CURRENTROOT(default_cameratarget_gobj)) < 0.0f) {
-        insertCameraBlendTimer = (60 - systemStatus[0] * 10) / systemStatus[1];
         InsertCameraWorkingFlag = last;
+        gamecamCutBack = last;
     }
     CameraSetTargetGObj(camctrl.gobj, camctrl.subGObj);
     camctrl.lastPri = camctrl.pri;

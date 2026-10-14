@@ -87,17 +87,6 @@ static inline void fireFDSSlot(float t, int no, void *entry, int *done,
     }
 }
 
-static inline int *findSEPackage(int no, int id) /* derived name */
-{
-    while (progSELink[no].id != -1 && progSELink[no].id != id) {
-        no++;
-    }
-    if (debug_seslotdisp_flag != 0) {
-        debug_StdPrintfDummy("\033[36mRequested by program... \033[m");
-    }
-    return progSELink[no].se;
-}
-
 static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
 {
     char *w;
@@ -130,22 +119,9 @@ static void executeSEPackageByGObj(GObj *gobj, int no, int grp);
 
 INCLUDE_ASM(executeSEPackageByGObj);
 
-static void executeSEPackageWithNoGObj(int no)
-{
-    int *p;
-    int i;
+static void executeSEPackageWithNoGObj(int no);
 
-    p = findSEPackage(no, -1);
-    for (i = 0; i < 2; i++) {
-        if (p[i] != 0) {
-            soundSeDefPlay(p[i], 0xFFFFFFFF, 0, 1);
-            if (debug_seslotdisp_flag != 0) {
-                debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
-                                     &seDef[p[i]], 0xFFFFFFFF);
-            }
-        }
-    }
-}
+INCLUDE_ASM(executeSEPackageWithNoGObj);
 
 void ExecuteSEPackageWithGroupVariation(GObj *gobj, int id, int grp)
 {

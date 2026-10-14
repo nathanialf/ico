@@ -57,24 +57,15 @@ inline void UpdateRealTimeGeometryValue(GObj *self)
 }
 
 /* nonzero when lighting `other`'s torch from `gobj` must not happen: the
- * heroine's bomb, or the boy's weapon pair */
+ * boy's weapon pair */
 static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name */
 {
     Act *p;
-    Act *q;
     GObj *a;
     GObj *b;
 
     b = GOBJ_SUB(gobj)->parent.obj;
     a = GOBJ_SUB(other)->parent.obj;
-    if (girlGObj != 0) {
-        q = GOBJ_ACT(girlGObj);
-        if (b != 0 && b == q->curItem) {
-            /* tried to light the heroine's bomb */
-            debug_StdPrintfDummy("ヒロインの爆弾に点火しようとした\n");
-            return 1;
-        }
-    }
     if (b != 0 && a != 0) {
         p = GOBJ_ACT(boyGObj);
         if (ACTGame_NoWeapon(boyGObj) == 0 && a == p->weapon && b == p->curItem) {

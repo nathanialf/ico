@@ -151,11 +151,11 @@ typedef struct GirlBrainWork { /* field names derived */
     char pad57E4[12];
     float runawayGoal[4];      /* 0x57F0 the runaway goal */
     float hidePoint[4];        /* 0x5800 last accepted hide point */
-    float runawayFrom[4];      /* 0x5810 where the runaway search starts ("girl brain target") */
-    float girlRoot[4];         /* 0x5820 GetRootPosition of the girl */
-    float girlPos[4];          /* 0x5830 the girl's own position, GetRootProjectionPosOfGObj */
-    float boyRoot[4];          /* 0x5840 GetRootPosition of the boy */
-    float boyPos[4];           /* 0x5850 the boy's GetRootProjectionPosOfGObj */
+    float girlRoot[4];         /* 0x5810 GetRootPosition of the girl, where the runaway search starts */
+    float girlPos[4];          /* 0x5820 the girl's own position, GetRootProjectionPosOfGObj */
+    float boyRoot[4];          /* 0x5830 GetRootPosition of the boy */
+    float boyPos[4];           /* 0x5840 the boy's GetRootProjectionPosOfGObj */
+    char pad5850[16];          /* 0x5850, no reader in this build */
     WVTObj hideWay;            /* 0x5860, the way the girl tries to the hide point */
     unsigned char warn;        /* 0x58E0 a brain state asks the main loop to checkWarning */
     unsigned char pad58E1;     /* 0x58E1 cleared each frame, never read */
@@ -482,7 +482,7 @@ static inline void *girlBrainGetTarget(void) /* derived name */
 static __inline__ void girlBrainDebugPrint(void) /* derived name */
 {
 #ifdef DEBUG
-    float *t = brain_val.runawayFrom;
+    float *t = brain_val.girlRoot;
 
     scePrintf("girl brain target %f %f %f\n", t[0], t[1], t[2]);
 #endif

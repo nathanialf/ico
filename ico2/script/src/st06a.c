@@ -46,8 +46,6 @@ static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* deriv
 
 static const ConstVec kyomiPos = {{-985.0f, -177.0f, -696.0f, 0.0f}}; /* derived name */
 
-static const ConstVec farPos = {{0.0f, 0.0f, -1000000.0f, 1.0f}}; /* derived name */
-
 /* st06a.c's `inline` functions, in the order of their definitions'
    out-of-line copies at the end of the object (first-declaration order). */
 static inline void actSt06aSoundChk(GObj *volatile self);
