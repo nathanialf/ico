@@ -19,6 +19,7 @@
 #include "main.h"
 #include "gv.h"
 #include <assert.h>
+#include "include_asm.h"
 
 static void *ReadCameraSet(struct CamSetFile *f, int stage);
 
@@ -299,165 +300,9 @@ static void initMonitorCamera(unsigned char init)
  * `vDbg` is read at the writeback with nothing having written it, `vDiff` is
  * written and never read, `vSpare` is read only by the DEBUG build's report in
  * the second arm, and one loop keeps its counter with an empty body. */
-static void monitorMonitorCamera(CamWork *cam, CamWork *out)
-{
-    float vDiff[4];
-    float vDbg[4];
-    float vEye[4];
-    float vOut[4];
-    float vAt[4];
-    float vAt2[4];
-    float vSpare[4];
-    GObj *p1;
-    GObj *p2;
-    int flag;
-    int i;
-    int k;
-    int held;
-    int mode;
-    float len;
-    float t;
-    float d;
-    float d1;
-    float d2;
-    float r1;
-    float r2;
+static void monitorMonitorCamera(CamWork *cam, CamWork *out);
 
-    flag = 0;
-    for (i = 0; i < 3; i++) {
-        if (1000000.0f < cam->at.f[i] || cam->at.f[i] < -1000000.0f) {
-            flag = 1;
-            break;
-        }
-    }
-    if (monitorCamera.active != 0) {
-        monitorCamera.work = *cam;
-        monitorCamera.moveDist = 0.0f;
-        monitorCamera.atRate = 0.0f;
-        monitorCamera.active = 0;
-        if (flag != 0 && cameraFrames < 10) {
-            monitorCamera.active = 1;
-        }
-        monitorCamera.dbgA[0] = 0.0f;
-        monitorCamera.dbgA[1] = 0.0f;
-        monitorCamera.dbgA[2] = 0.0f;
-        monitorCamera.dbgB[0] = 0.0f;
-        monitorCamera.dbgB[1] = 0.0f;
-        monitorCamera.dbgB[2] = 0.0f;
-        *out = *cam;
-        return;
-    }
-    if (monitorCameraHold != 0) {
-        *cam = monitorCamera.work;
-    }
-    *out = *cam;
-    vDiff[0] = cam->eye.f[0] - monitorCamera.work.eye.f[0];
-    vDiff[1] = cam->eye.f[1] - monitorCamera.work.eye.f[1];
-    vDiff[2] = cam->eye.f[2] - monitorCamera.work.eye.f[2];
-    sceVu0SubVector(vEye, cam, &monitorCamera.work);
-    len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
-    if (handCameraEyeRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 11.0f <
-        len) {
-        if (handCameraEyeRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) <
-            monitorCamera.moveDist) {
-            monitorCamera.moveDist =
-                handCameraEyeRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
-        }
-        if (monitorCamera.moveDist < len) {
-            len = monitorCamera.moveDist +
-                  handCameraEyeRate * 30.0f /
-                      (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f;
-            sceVu0Normalize(vEye, vEye);
-            sceVu0ScaleVector(vEye, vEye, len);
-            sceVu0AddVector(out, &monitorCamera.work, vEye);
-        } else {
-            len =
-                handCameraEyeRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
-            sceVu0Normalize(vEye, vEye);
-            sceVu0ScaleVector(vEye, vEye, len);
-            sceVu0AddVector(out, &monitorCamera.work, vEye);
-        }
-    } else {
-        _InterGV(out->eye.f, cam->eye.f, monitorCamera.work.eye.f, 10.0f, 1.0f);
-        for (k = 0; k < 3; k++) {}
-    }
-    sceVu0SubVector(vOut, out, &monitorCamera.work);
-    t = FSqrt(vOut[0] * vOut[0] + vOut[1] * vOut[1] + vOut[2] * vOut[2]);
-    monitorCamera.moveDist = t;
-#ifdef DEBUG
-    sceVu0SubVector(vSpare, &cam->at, &monitorCamera.work.at);
-    scePrintf("monitor camera move %f at %f %f %f\n", t, vSpare[0], vSpare[1], vSpare[2]);
-#endif
-    held = 0;
-    d = handCameraAtRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
-    if (d < 0.0f) {
-        d = -d;
-    }
-    sceVu0SubVector(vAt, &cam->at, &monitorCamera.work.at);
-    len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
-    sceVu0Normalize(vAt, vAt);
-    CameraGetTargets(&p1, &p2);
-    if (p1 == boyGObj) {
-        held = (p2 == 0);
-    }
-    if (held == 0 && 95.0f <= d) {
-        d = (float)(600 / ((60 - systemStatus[0] * 10) / systemStatus[1]));
-    }
-    if (d * 9.0f < len) {
-        monitorCamera.atRate = monitorCamera.atRate + 0.5f;
-        if (d < monitorCamera.atRate) {
-            monitorCamera.atRate = d;
-        }
-        sceVu0ScaleVector(vAt, vAt, monitorCamera.atRate);
-        sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
-    } else {
-        mode = 8;
-        if (held != 0) {
-            if (115.0f <= d) {
-                mode = 1;
-            } else if (105.0f <= d) {
-                mode = 2;
-            } else if (95.0f <= d) {
-                mode = 4;
-            }
-        }
-        _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f,
-                 mode * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f,
-                 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-        sceVu0SubVector(vAt, &out->at, &monitorCamera.work.at);
-        len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
-        if (d < len) {
-            len = d;
-        }
-        sceVu0Normalize(vAt, vAt);
-        sceVu0ScaleVector(vAt, vAt, len);
-        sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
-        sceVu0SubVector(vAt2, &out->at, &monitorCamera.work.at);
-        len = FSqrt(vAt2[0] * vAt2[0] + vAt2[1] * vAt2[1] + vAt2[2] * vAt2[2]);
-        monitorCamera.atRate = len;
-        if (d < len) {
-            monitorCamera.atRate = d;
-        }
-    }
-    if (out->ext.f[0] - monitorCamera.work.ext.f[0] != 0.0f) {
-        d1 = _DistGV(out, cam);
-        d2 = _DistGV(out, &monitorCamera.work);
-        if (d1 + d2 != 0.0f) {
-            out->ext.f[0] = (out->ext.f[0] * d2 + monitorCamera.work.ext.f[0] * d1) / (d1 + d2);
-        }
-    }
-    if (insertCameraBlendTimer != 0) {
-        r1 = (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0;
-        r2 = 3.0 / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
-        _InterGV(out->eye.f, cam->eye.f, monitorCamera.work.eye.f, r1, r2);
-        _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f, r1, r2);
-        out->ext.f[0] = (cam->ext.f[0] * r2 + monitorCamera.work.ext.f[0] * r1) / (r1 + r2);
-    }
-    monitorCamera.work = *out;
-    monitorCamera.dbgA[0] = vDbg[0];
-    monitorCamera.dbgA[1] = vDbg[1];
-    monitorCamera.dbgA[2] = vDbg[2];
-}
+INCLUDE_ASM(monitorMonitorCamera);
 
 static void ChaseCamera(float *pos, float *cam)
 {
@@ -722,19 +567,7 @@ inline void MakeCameraSetBinary(CamGroup *src, int count, CamGroup *dst)
     }
 }
 
-void ReflectCameraSetBinary(CamGroup *src, int count)
-{
-    if (cameraSetBuf != 0) {
-        iosFree(cameraSetBuf);
-    }
-
-    cameraSetBuf =
-        iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count), __FILE__, 1577);
-    cameraSetGroups = cameraSetBuf;
-    cameraSetGroupsEnd = cameraSetBuf + count * 76;
-    cameraSetGroupNum = count;
-    MakeCameraSetBinary(src, count, (CamGroup *)cameraSetBuf);
-}
+INCLUDE_ASM(ReflectCameraSetBinary);
 
 void InitIco2Camera(void)
 {
@@ -929,38 +762,6 @@ void SetCameraMatrix_Ico2(int flag)
     cameraFrames = cameraFrames + 1;
 }
 
-inline void *GetPluralCameraSet(int id)
-{
-    int i;
-
-    for (i = 0; i < pluralCameraSetNum; i++) {
-        if (pluralCameraSet[i].id == id) {
-            return pluralCameraSet[i].set;
-        }
-    }
-    /* EUC-JP: "[%s] was not found\n" */
-    debug_StdPrintfDummy("[%s]が見つかりません\n", cameraSetList[id]);
-    debug_assert(__FILE__, 2036);
-    __assert(__FILE__, 2036, "0");
-    return 0;
-}
-
-inline void AddPluralCameraSet(int id, char *name)
-{
-    PluralCameraSet *p;
-
-    if (pluralCameraSetNum >= 10) {
-        /* EUC-JP: "at most [%d] camera sets can be registered in one stage." */
-        debug_StdPrintfDummy("１ステージに登録できるカメラセットは、最大[%d]個です。", 10);
-        debug_assert(__FILE__, 2045);
-        __assert(__FILE__, 2045, "0");
-    }
-    p = &pluralCameraSet[pluralCameraSetNum];
-    p->id = id;
-    p->set = ReadCameraSet((CamSetFile *)name, stage_no);
-    pluralCameraSetNum++;
-}
-
 inline void InitPluralCameraSet(void)
 {
     pluralCameraSetNum = 0;
@@ -980,138 +781,7 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
     return p;
 }
 
-static void *ReadCameraSet(CamSetFile *f, int stage)
-{
-    CamSetFile *p = 0;
-    int n = f->count;
-    int i;
-    int n_pin;
-
-    debug_StdPrintfDummy("camera data version = [%d]\n", f->ver);
-    switch (f->ver) {
-    case 0: {
-        CamGroup *og = (CamGroup *)((char *)f + 16);
-        char *oi = (char *)og + n * 76;
-        CamGroup *ng;
-        PinRec *ni;
-        int total;
-
-        total = 0;
-        for (i = 0; i < n; i++) {
-            total += og[i].end - og[i].first;
-        }
-        f->total = n_pin = total;
-        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
-        p = allocCameraSet(f);
-        ng = (CamGroup *)((char *)p + 16);
-        ni = (PinRec *)((char *)ng + n * 76);
-        for (i = 0; i < n; i++) {
-            ng[i] = og[i];
-        }
-        for (i = 0; i < total; i++) {
-            *(CamItemV0 *)&ni[i] = ((CamItemV0 *)oi)[i];
-        }
-        for (i = 0; i < total; i++) {
-            ni[i].eyeRate = stageData[stage].handCameraRate;
-            ni[i].atRate = 10.0f;
-            ni[i].limitP = 120.0f;
-            ni[i].limitV = 80.0f;
-            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
-        }
-        break;
-    }
-    case 1: {
-        CamGroup *og = (CamGroup *)((char *)f + 16);
-        char *oi = (char *)og + n * 76;
-        CamGroup *ng;
-        PinRec *ni;
-        int total;
-
-        total = 0;
-        for (i = 0; i < n; i++) {
-            total += og[i].end - og[i].first;
-        }
-        f->total = n_pin = total;
-        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
-        p = allocCameraSet(f);
-        ng = (CamGroup *)((char *)p + 16);
-        ni = (PinRec *)((char *)ng + n * 76);
-        for (i = 0; i < n; i++) {
-            ng[i] = og[i];
-        }
-        for (i = 0; i < total; i++) {
-            *(CamItemV1 *)&ni[i] = ((CamItemV1 *)oi)[i];
-        }
-        for (i = 0; i < total; i++) {
-            ni[i].limitP = 120.0f;
-            ni[i].limitV = 80.0f;
-            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
-        }
-        break;
-    }
-    case 2: {
-        CamGroup *og = (CamGroup *)((char *)f + 16);
-        char *oi = (char *)og + n * 76;
-        CamGroup *ng;
-        PinRec *ni;
-        int total;
-
-        total = 0;
-        for (i = 0; i < n; i++) {
-            total += og[i].end - og[i].first;
-        }
-        f->total = n_pin = total;
-        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
-        p = allocCameraSet(f);
-        ng = (CamGroup *)((char *)p + 16);
-        ni = (PinRec *)((char *)ng + n * 76);
-        for (i = 0; i < n; i++) {
-            ng[i] = og[i];
-        }
-        for (i = 0; i < total; i++) {
-            *(CamItemV2 *)&ni[i] = ((CamItemV2 *)oi)[i];
-        }
-        for (i = 0; i < total; i++) {
-            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
-        }
-        break;
-    }
-    case 3: {
-        CamGroup *og = (CamGroup *)((char *)f + 16);
-        char *oi = (char *)og + n * 76;
-        CamGroup *ng;
-        PinRec *ni;
-        int total;
-
-        total = 0;
-        for (i = 0; i < n; i++) {
-            total += og[i].end - og[i].first;
-        }
-        f->total = n_pin = total;
-        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
-        p = allocCameraSet(f);
-        ng = (CamGroup *)((char *)p + 16);
-        ni = (PinRec *)((char *)ng + n * 76);
-        for (i = 0; i < n; i++) {
-            ng[i] = og[i];
-        }
-        for (i = 0; i < total; i++) {
-            ni[i] = ((PinRec *)oi)[i];
-        }
-        for (i = 0; i < total; i++) {}
-        break;
-    }
-    default:
-        /* EUC-JP: "the camera data version is wrong. please tell Omori.\n" */
-        debug_StdPrintfDummy(
-            "カメラデータのバージョンに異常があります。大森まで知らせてください\n");
-        debug_StdPrintfDummy("illegal camera data version [%d]\n", f->ver);
-        debug_assert(__FILE__, 2355);
-        __assert(__FILE__, 2355, "0");
-        break;
-    }
-    return p;
-}
+INCLUDE_ASM(ReadCameraSet);
 
 inline int GetCameraGroupCurrent(void)
 {
@@ -1193,3 +863,7 @@ static int cameraIco2Word0 = 0; /* derived name */
 int current_group = 0;
 
 static int cameraIco2Word1 = 0; /* derived name */
+
+INCLUDE_ASM(AddPluralCameraSet);
+
+INCLUDE_ASM(GetPluralCameraSet);

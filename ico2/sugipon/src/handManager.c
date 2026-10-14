@@ -9,6 +9,7 @@
 #include "Matrix.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
+#include "include_asm.h"
 
 static void connectToTarget(struct GObj *obj, HandRec *hw, int na, int nb, int nc);
 
@@ -221,22 +222,4 @@ static inline void ResetHandTarget(GObj *obj, int off) /* derived name */
     ((IntFloat *)(h + 0x50))->f = GOBJ_SUB(obj)->root.handRate;
 }
 
-void HandManager(GObj *obj)
-{
-    float t = 1.0f;
-
-    if (debug_now_motion_viewer == 0) {
-        ResetHandTarget(obj, 0x310);
-        ResetHandTarget(obj, 0x2B0);
-        if (GOBJ_SUB(obj)->root.handIK != 0) {
-            const MotionDef *rec = &motionKind[GOBJ_SUB(obj)->ctrl.motion];
-            _handManager(obj, &GOBJ_SUB(obj)->root.hand0,
-                         motionIKEffKind + ((rec->modeBits.word >> 8) & 0xF0), XUnitVector,
-                         GetSkeltonFocusNode(obj, 19));
-            t = _handManager(obj, &GOBJ_SUB(obj)->root.hand1,
-                             motionIKEffKind + ((rec->modeBits.word >> 4) & 0xF0), XUnitVector,
-                             GetSkeltonFocusNode(obj, 3));
-        }
-        GOBJ_SUB(obj)->root.twistRate += (t - GOBJ_SUB(obj)->root.twistRate) * 0.1f;
-    }
-}
+INCLUDE_ASM(HandManager);

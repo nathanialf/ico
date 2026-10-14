@@ -27,6 +27,7 @@
 #include "ios.h"
 #include "sceneManager.h"
 #include "DObj.h"
+#include "include_asm.h"
 
 static void calcDynamicGeometry(struct GObj *g);
 
@@ -831,78 +832,7 @@ typedef union { /* field names derived */
     int i[4][4];
 } WeaponMatrix; /* derived name */
 
-void WeaponGeo(GObj *g)
-{
-    WeaponWork *w = GOBJ_SUB(g)->work;
-    int kind;
-    int i;
-    int n;
-    float t;
-    float a;
-
-    getGeometry(g);
-    checkHit(g);
-
-    kind = w->kind;
-    w->bladeOn = 0;
-    if (w->kind >= 10 || kind < 8) {
-        if (w->state == 1 ||
-            (w->holder != 0 && motionKind[w->holder->dobj->ctrl.motion].flags2.bits.weaponSwing)) {
-            calcBlur(g, weaponKind[kind].length);
-            w->bladeOn = 1;
-        }
-    } else {
-        weaponKind[kind].length = 40.0f;
-        for (i = 0; i < 2; i++) {
-            w->net[i] = random_signed_b();
-        }
-        if (w->holder != 0) {
-            if (w->holder == boyGObj && ACTGame_FLAG_TETSUNAGI_VISUAL()) {
-                weaponKind[w->kind].length = 270.0f;
-            }
-            if (w->bladeTimer >= 30.0f) {
-                w->bladeLength += (weaponKind[w->kind].length - w->bladeLength) * 0.4f;
-            } else {
-                w->bladeTimer = w->bladeTimer + 1.0f;
-                if (w->bladeTimer == 29.0f) {
-                    ExecuteDirectSE(g, 0x101E7);
-                }
-            }
-        } else {
-            w->bladeLength += (0.0f - w->bladeLength) * 0.1f;
-            w->bladeTimer = 0.0f;
-        }
-        calcBlur(g, w->bladeLength);
-        w->bladeOn = 1;
-        t = w->bladeLength;
-        stage_SetLoopFlag(473, 1);
-        if (t > 1.0f) {
-            n = (int)stage_PlayBgAnimation(473, (float)w->humAnim,
-                                           (char *)GOBJ_SUB(g)->nodeMtx + 0x30, IdentityQuaternion);
-            if (systemStatus[5] == 0) {
-                w->humAnim = n;
-            }
-        } else {
-            stage_PlayBgAnimation(473, 0.0f, (char *)GOBJ_SUB(g)->nodeMtx + 0x30,
-                                  IdentityQuaternion);
-            w->humAnim = 0;
-        }
-        stage_SetLoopFlag(473, 0);
-    }
-
-    GetRootMatrix(MatrixDrive_GetMatrix(), g);
-    CopyVector(w->tipPos, MatrixDrive_GetMatrix()[3]);
-    if (w->offsetMode != 0) {
-        float v[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-
-        v[3] = 0.0f;
-        sceVu0ApplyMatrix(v, MatrixDrive_GetMatrix(), v);
-        a = -atan2f(v[1], _Sqrt(1.0f - v[1] * v[1]));
-        ((WeaponMatrix *)MatrixDrive_GetMatrix())->f[3][1] -=
-            GetTableSin((short)(a * 10430.378f)) * 70.0f;
-        CopyMatrix((char *)GOBJ_SUB(g)->nodeMtx, MatrixDrive_GetMatrix());
-    }
-}
+INCLUDE_ASM(WeaponGeo);
 
 void WeaponDL(GObj *g)
 {

@@ -14,6 +14,7 @@
 #include "typedef.h"
 #include "script.h"
 #include "main.h"
+#include "include_asm.h"
 
 static void actSt04rDoor2Sub(GObj *volatile self);
 static void actSt04rDoorSub(GObj *volatile self);
@@ -41,158 +42,15 @@ static ActMail st04rDoor2_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail crestHint_mes[2] = {{430}, {429}}; /* derived name */
 
-void actSt05cDoorDownChk(GObj *volatile self)
-{
-    StVec pos;
+void actSt05cDoorDownChk(GObj *volatile self);
 
-    while (scpTriggerBall(self, boyGObj, 200.0f) == 0) {
-        _ACTWait(1);
-    }
+INCLUDE_ASM(actSt05cDoorDownChk);
 
-    scpBoyControlReadDisable = 1;
-    _ACTWait(30);
-    gflagOff(390);
-    actCreateSubThread(actSt05cDoorDownEffect, 21);
-    stage_SetAnimation(347, 1, 0);
+INCLUDE_ASM(actSt04rDoorChk);
 
-    pos = doorDownChkPos;
-    _ACTWait(30);
-    soundSeDefPlay(1221, 0, pos.f, 1);
-    _ACTWait(30);
-    soundSeDefPlay(1222, 0, pos.f, 1);
+INCLUDE_ASM(actSt04rDoor2Chk);
 
-    while (stage_CheckAnimationFinish(347) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-    gflagOn(165);
-    scpBoyControlReadDisable = 0;
-}
-
-void actSt04rDoorChk(GObj *volatile self)
-{
-    GObj *x = self;
-    GProc *th;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    while (gflagChk(255) == 0) {
-        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(1380))) {
-        case 0:
-            _ACTWait(1);
-            break;
-        case 1:
-            stage_SetAnimation(334, 1, 0);
-            while (stage_CheckAnimationFinish(334) == 0) {
-                _ACTWait(1);
-            }
-            _ACTWait(1);
-            break;
-        case 2:
-            scpSearchGobj(1380)->active = 0;
-            lt_switch_layout(55);
-            scpBoyControlReadDisable = 1;
-            scpSleepEnemyAll();
-            gflagOn(255);
-            demoEnd = 0;
-            th = actCreateSubThread(actSt04rDoorSub, 21);
-
-            while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-                _ACTWait(1);
-            }
-
-            iosThreadSetPri(&th->thread, 34);
-
-            if (demoEnd == 0) {
-                scpFadeOut(16.0f, 0, 0, 0);
-                while (scpFadeChk() != 0) {
-                    _ACTWait(1);
-                }
-                while (lt_fade_status() != 2) {
-                    _ACTWait(1);
-                }
-                stage_SetAnimation(332, 0, -1);
-                scpFadeIn(3.0f);
-            }
-
-            soundSeDefPlay(1331, 0, 0, 1);
-            scpWakeupEnemyAll();
-            scpBoyControlReadDisable = 0;
-            lt_switch_layout(54);
-            break;
-        }
-    }
-}
-
-void actSt04rDoor2Chk(GObj *volatile self)
-{
-    GObj *x = self;
-    GProc *th;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    while (gflagChk(256) == 0) {
-        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(1381))) {
-        case 0:
-            _ACTWait(1);
-            break;
-        case 1:
-            stage_SetAnimation(335, 1, 0);
-            while (stage_CheckAnimationFinish(335) == 0) {
-                _ACTWait(1);
-            }
-            _ACTWait(1);
-            break;
-        case 2:
-            scpSearchGobj(1381)->active = 0;
-            lt_switch_layout(55);
-            scpBoyControlReadDisable = 1;
-            scpSleepEnemyAll();
-            gflagOn(256);
-            demoEnd = 0;
-            th = actCreateSubThread(actSt04rDoor2Sub, 21);
-
-            while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-                _ACTWait(1);
-            }
-
-            iosThreadSetPri(&th->thread, 34);
-
-            if (demoEnd == 0) {
-                scpFadeOut(16.0f, 0, 0, 0);
-                while (scpFadeChk() != 0) {
-                    _ACTWait(1);
-                }
-                while (lt_fade_status() != 2) {
-                    _ACTWait(1);
-                }
-                stage_SetAnimation(333, 0, -1);
-                scpFadeIn(3.0f);
-            }
-
-            soundSeDefPlay(1331, 0, 0, 1);
-            scpWakeupEnemyAll();
-            scpBoyControlReadDisable = 0;
-            lt_switch_layout(54);
-            break;
-        }
-    }
-}
-
-void actSt05cSolarXL(GObj *volatile self)
-{
-    GObj *x = self;
-
-    actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(139) == 0) {
-        stage_SetAnimation(304, -1, -2);
-    }
-}
+INCLUDE_ASM(actSt05cSolarXL);
 
 void actSt05cWaterXL(GObj *volatile self)
 {
@@ -206,41 +64,9 @@ void actSt05cWaterXL(GObj *volatile self)
     }
 }
 
-void actSt04rDoor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSt04rDoor);
 
-    if (gflagChk(255) == 0) {
-        stage_SetAnimation(332, 0, 0);
-        st04rDoor_mes[0].func = actSt04rDoorChk;
-        act->mail = st04rDoor_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(332, 0, -1);
-        scpSearchGobj(1380)->active = 0;
-    }
-}
-
-void actSt04rDoor2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(256) == 0) {
-        stage_SetAnimation(333, 0, 0);
-        st04rDoor2_mes[0].func = actSt04rDoor2Chk;
-        act->mail = st04rDoor2_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(333, 0, -1);
-        scpSearchGobj(1381)->active = 0;
-    }
-}
+INCLUDE_ASM(actSt04rDoor2);
 
 void actSt05cDoorDown(GObj *volatile self)
 {
@@ -369,29 +195,9 @@ void actSt05cEneChk(GObj *volatile self)
     gflagOn(168);
 }
 
-static void actSt04rDoorSub(GObj *volatile self)
-{
-    int h;
+INCLUDE_ASM(actSt04rDoorSub);
 
-    stage_SetAnimation(332, 1, 0);
-    h = soundSeDefPlay(1330, 0, 0, 1);
-    _ACTWait(90);
-    soundSeDefStop(h);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-static void actSt04rDoor2Sub(GObj *volatile self)
-{
-    int h;
-
-    stage_SetAnimation(333, 1, 0);
-    h = soundSeDefPlay(1330, 0, 0, 1);
-    _ACTWait(90);
-    soundSeDefStop(h);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt04rDoor2Sub);
 
 static void actSt05cCrestHintChk(GObj *volatile self)
 {

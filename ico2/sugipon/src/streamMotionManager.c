@@ -9,6 +9,7 @@
 #include "main.h"
 #include <string.h>
 #include "thread.h"
+#include "include_asm.h"
 
 static int _closeHander(void);
 static int _handler(struct CdvdBgReq *self);
@@ -125,93 +126,9 @@ static inline void _advanceRing(int amt) /* derived name */
     }
 }
 
-static int _infoUpdate(void)
-{
-    int top;
-    int n;
-    int i;
+static int _infoUpdate(void);
 
-    if (headerRead == 0) {
-        if (_checkRing(4096)) {
-            headerSize = 0;
-            for (i = 0; i < streamNum; i++) {
-                int a = ringRead + headerSize;
-
-                streamEntry[i].nodeNum = *(unsigned char *)(ringBuf + (a + 2) % 163840);
-                streamEntry[i].shapeNum = *(unsigned char *)(ringBuf + (a + 3) % 163840);
-                streamEntry[i].size = 16 + streamEntry[i].nodeNum * 8 + streamEntry[i].shapeNum * 4;
-                headerSize += streamEntry[i].size;
-            }
-            n = 3619;
-            if (systemStatus[0] == 0) {
-                n = 2997;
-            }
-            headerRead = 1;
-            frameTime = n;
-        } else {
-            /* the data had not arrived in time when the stream motion started */
-            debug_StdPrintfDummy(
-                "ストリームモーション開始時にデータの転送が間に合っていませんでした。\n");
-            iosCdvdStDelayCnt++;
-            return 0;
-        }
-    }
-    top = ringRead;
-    framePlayed = 0;
-    while (frameTime >= 2997) {
-        if (!_checkRing(headerSize)) {
-            /* the stream motion data transfer is not keeping up */
-            debug_StdPrintfDummy("ストリームモーションのデータ転送が間に合っていません。\n");
-            iosCdvdStDelayCnt++;
-            return 0;
-        } else {
-            if (*(unsigned char *)(ringBuf + ringRead) == 0xFF) {
-                return 1;
-            }
-            top = ringRead;
-            _setEntryOffsets();
-            _advanceRing(headerSize);
-            if (_checkRing(headerSize) && *(unsigned char *)(ringBuf + ringRead) == 0) {
-                _setNextEntryOffsets(ringRead);
-            }
-            frameTime -= 2997;
-            frameCount++;
-            if (debug_font_flag3 != 0 || (debug_font_flag & 1)) {
-                debug_Printf(500, ScreenHeight / 2 - 48, 0xCCCCCC00, "S:%d", frameCount);
-            }
-            if (*(unsigned char *)(ringBuf + top) == 1) {
-                if (frameTime == 2997) {
-                    /* the motion divided evenly and the cut switched over */
-                    debug_StdPrintfDummy(
-                        "\033[33mキリ良くモーションが割り切れてカットが切り替わり\033[m\n");
-                } else {
-                    /* the next cut's data arrived, so a forced switch (remainder: %f) */
-                    debug_StdPrintfDummy(
-                        "\033[33m次のカットデータ来たので強制切り替わり(余り：%f)\033[m\n",
-                        (float)frameTime / 2997.0f);
-                }
-                break;
-            }
-        }
-    }
-    if (*(unsigned char *)(ringBuf + top) == 1) {
-        debug_StdPrintfDummy("\033[33mFIND HEADER FLAG\033[m\n");
-        if (bgaStreamSync != 0) {
-            debug_StdPrintfDummy("\033[36mSTREAM MOTION SYNCHRONIZE OK(%d)\033[m\n", frame_count);
-        } else {
-            debug_StdPrintfDummy("\033[33mSTREAM MOTION SYNCHRONIZE NG(%d)\033[m\n");
-        }
-    }
-    if (bgaStreamSync != 0) {
-        debug_StdPrintfDummy("\033[33mCLEAR FRAME MOD\033[m\n");
-        frameCount = 0;
-        frameTime = 0;
-        bgaStreamSync = 0;
-    }
-    framePlayed = frameTime;
-    frameTime += systemStatus[0] == 0 ? 2997 : 3619;
-    return 0;
-}
+INCLUDE_ASM(_infoUpdate);
 
 void PlayStreamMotion(void)
 {
@@ -331,19 +248,6 @@ typedef struct { /* field names derived */
 /* the four bytes GetStreamMotionData hands back while no data has arrived */
 static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
 
-inline float GetStreamMotionData(char *dst, int no)
-{
-    if (streamEntry[no].cur < 0) {
-        *(StreamMotionHead *)dst = *(const StreamMotionHead *)streamDummyHead;
-        /* "tried to get the stream motion before the data has arrived" */
-        debug_StdPrintfDummy(
-            "データがまだ来ていないのにストリームモーションの取得をしようとしました\n");
-        return -1.0f;
-    }
-    getStreamMotionData(dst, streamEntry[no].cur, no);
-    return (float)framePlayed / 2997.0f;
-}
-
 static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {
     int old_idx = *idx_p;
@@ -412,16 +316,7 @@ void ExecStreamMotionManager(void)
     }
 }
 
-void MallocStreamMotionBuffer(void)
-{
-    ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c", 602);
-    readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c", 604);
-    readBuf = (char *)((int)(readBufRaw + 63) & 0xFFFFFFC0);
-    if (ringBuf == 0 || readBuf == 0) {
-        /* "could not allocate the stream buffer memory" */
-        debug_StdPrintfDummy("ストリーム用のバッファメモリが確保できませんでした\n");
-    }
-}
+INCLUDE_ASM(MallocStreamMotionBuffer);
 
 inline void ClearAllStreamMotionEntry(void)
 {
@@ -551,3 +446,5 @@ static inline int _handler(CdvdBgReq *self)
     }
     return 0;
 }
+
+INCLUDE_ASM(GetStreamMotionData);

@@ -13,6 +13,7 @@
 #include "DObj.h"
 #include "DisplayP2O.h"
 #include "Light.h"
+#include "include_asm.h"
 
 /* The object initGeometryState builds on its stack to hand SetMotionDirection
    the display object at 0x15C.  The word there is a union, so each read of it
@@ -409,30 +410,7 @@ static inline void makeSlotTable(Sub15C *d) /* derived name */
     }
 }
 
-Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
-{
-    Sub15C *d;
-
-    d = iosMallocDebug(ios_partition_seki, sizeof(DObjRecord), __FILE__, 463);
-    *(DObjRecord *)d = emptyDObj;
-    if (id != 1552) {
-        CSVSYSTEM_ReadCharFiles(d, id);
-    }
-    debug_StdPrintfDummy("\x1b[35mALLOCED DOBJ\x1b[m\n");
-    if (d->model != 0 || d->skel != 0) {
-        initPolygonState(d, lay);
-    }
-    debug_StdPrintfDummy(" ------------------ allocate DOBJ %p: POBJ: %p\n", d, d->model);
-    debug_StdPrintfDummy("\x1b[35mINITED POLYGONSTATE\x1b[m\n");
-    initGeometryState(d, lay);
-    debug_StdPrintfDummy("\x1b[35mINITED GEOMETRYSTATE\x1b[m\n");
-    if (d->skel != 0) {
-        initInitialInverseMatrix(d);
-        makeSlotTable(d);
-    }
-    debug_StdPrintfDummy("\x1b[35mEND OF INIT DOBJ\x1b[m\n");
-    return d;
-}
+INCLUDE_ASM(CSVSYSTEM_InitDObj);
 
 inline void LinkParentOfDObj(void *obj, ObjNode *link)
 {

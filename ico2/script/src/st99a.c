@@ -5,6 +5,7 @@
 #include "StageAnimation.h"
 #include "typedef.h"
 #include "main.h"
+#include "include_asm.h"
 
 static void actSt17aTestChk(GObj *volatile self);
 
@@ -70,52 +71,13 @@ void actWave(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actSpider(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
+INCLUDE_ASM(actSpider);
 
-    stage_SetLoopFlag(160, 1);
-    stage_SetAnimation(160, 1, 0);
+INCLUDE_ASM(actDevilLightning);
 
-    spider_mes[0].func = actSpiderChk;
-    act->mail = spider_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actQueenLightning);
 
-void actDevilLightning(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3513, 0, 554, 0);
-}
-
-void actQueenLightning(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3512, 0, 555, 0);
-}
-
-void actSt17aTest(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    stage_SetAnimation(132, 0, 0);
-
-    st17aTest_mes[0].func = actSt17aTestChk;
-    act->mail = st17aTest_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt17aTest);
 
 void actSt27aWave(GObj *volatile self)
 {
@@ -129,89 +91,25 @@ void actSt27aWave(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actExplodeChk(GObj *volatile self)
-{
-    GOBJ_SUB(scpSearchGobj(3014))->ctrl.noStand = 1;
-    GOBJ_SUB(scpSearchGobj(3014))->ctrl.noStand = 0;
-    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
-    _ACTWait(60);
-    stage_SetAnimation(511, 1, 0);
-    scpLinkBGAtoLayoutedTarget(3014, 511);
-    while (stage_CheckAnimationFinish(511) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-}
+INCLUDE_ASM(actExplodeChk);
 
-void actSplash1Chk(GObj *volatile self)
-{
-    GOBJ_SUB(scpSearchGobj(3015))->ctrl.noStand = 1;
-    GOBJ_SUB(scpSearchGobj(3015))->ctrl.noStand = 0;
-    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
-    _ACTWait(60);
-    stage_SetAnimation(498, 1, 0);
-    scpLinkBGAtoLayoutedTarget(3015, 498);
-    while (stage_CheckAnimationFinish(498) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-}
+INCLUDE_ASM(actSplash1Chk);
 
-void actSplash2Chk(GObj *volatile self)
-{
-    GOBJ_SUB(scpSearchGobj(3016))->ctrl.noStand = 1;
-    GOBJ_SUB(scpSearchGobj(3016))->ctrl.noStand = 0;
-    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
-    _ACTWait(60);
-    stage_SetAnimation(499, 1, 0);
-    scpLinkBGAtoLayoutedTarget(3016, 499);
-    while (stage_CheckAnimationFinish(499) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-}
+INCLUDE_ASM(actSplash2Chk);
 
 void actWaveChk(GObj *volatile self)
 {
     actCreateSubThread(actWave1, 21);
 }
 
-void actWave1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    while (1) {
-        stage_SetAnimation(519, 1, 0);
-        _ACTWait(179);
-        stage_SetAnimation(520, 1, 0);
-        _ACTWait(179);
-        stage_SetAnimation(521, 1, 0);
-        _ACTWait(179);
-        stage_SetAnimation(522, 1, 0);
-        _ACTWait(179);
-    }
-}
+INCLUDE_ASM(actWave1);
 
 void actSt27aWaveChk(GObj *volatile self)
 {
     actCreateSubThread(actSt27aWave1, 21);
 }
 
-void actSt27aWave1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    while (1) {
-        stage_SetAnimation(194, 1, 0);
-        _ACTWait(200);
-        stage_SetAnimation(195, 1, 0);
-        _ACTWait(200);
-        stage_SetAnimation(196, 1, 0);
-        _ACTWait(200);
-        stage_SetAnimation(197, 1, 0);
-        _ACTWait(200);
-    }
-}
+INCLUDE_ASM(actSt27aWave1);
 
 void actSpiderChk(GObj *volatile self)
 {
@@ -224,13 +122,4 @@ void actSpiderChk(GObj *volatile self)
     }
 }
 
-static void actSt17aTestChk(GObj *volatile self)
-{
-    while (1) {
-        while ((pad[1].flags & 0x20) == 0) {
-            _ACTWait(1);
-        }
-        stage_SetAnimation(84, 1, 0);
-        _ACTWait(1);
-    }
-}
+INCLUDE_ASM(actSt17aTestChk);

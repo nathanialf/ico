@@ -14,107 +14,22 @@
 #include "commonact.h"
 #include "gv.h"
 #include "motionOrientManager.h"
+#include "include_asm.h"
 
 /* the two-word playback-rate pair the wait counters are scaled by */
 
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0}; /* derived name */
 
-static void DetourCheck(GObj *self, float *out)
-{
-    float orient[4];
-    float cur[4];
-    float o2[4];
-    float tmp[4];
-    float dir[4];
-    Act *act = GOBJ_ACT(self);
-    int i;
-    int wait = 0;
-    int ok = 0;
+static void DetourCheck(GObj *self, float *out);
 
-    if (debug_girl_detour_flag == 0) {
-        return;
-    }
-    GetSkeltonOrient(orient, self, 0x2C);
-    if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8E0) != 0) {
-        out[0] = *(float *)((char *)GOBJ_ACT(self)->work + 0x8F0);
-        out[1] = *(float *)((char *)GOBJ_ACT(self)->work + 0x8F4);
-        out[2] = *(float *)((char *)GOBJ_ACT(self)->work + 0x8F8);
-        *(int *)((char *)GOBJ_ACT(self)->work + 0x8E0) -= 1;
-        return;
-    }
-    /* two identical case bodies */
-    switch (act->actMode) {
-    case 2:
-        ok = 1;
-        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
-        break;
-    case 3:
-        ok = 1;
-        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
-        break;
-    }
-    /* the four tests are one statement */
-    if (ok == 0 || act->stick.mag == 0.0f || (GOBJ_SUB(self)->ctrl.flags & 2) == 0 ||
-        ((*(unsigned long long *)((char *)GOBJ_ACT(self)->work + 0x448) >> 33) & 1) == 0) {
-        return;
-    }
-    cur[0] = test_CURRENTROOT(self)[0];
-    cur[1] = test_CURRENTROOT(self)[1];
-    cur[2] = test_CURRENTROOT(self)[2];
-    GetSkeltonOrient(o2, self, 0x2C);
-    for (i = 0; detourAngle[i] != 0; i++) {
-        dir[0] = o2[0];
-        dir[1] = o2[1];
-        dir[2] = o2[2];
-        _ApplyRyGV(dir, (float)detourAngle[i] * 3.1415927f / 180.0f);
-        sceVu0ScaleVector(tmp, dir, 100.0f);
-        sceVu0AddVector(tmp, cur, tmp);
-        if (ACTCheckCollis_WAY(10.0f, cur, tmp, 0, 0) == 0) {
-            *(float *)((char *)GOBJ_ACT(self)->work + 0x8F0) = dir[0];
-            *(float *)((char *)GOBJ_ACT(self)->work + 0x8F4) = dir[1];
-            *(float *)((char *)GOBJ_ACT(self)->work + 0x8F8) = dir[2];
-            *(int *)((char *)GOBJ_ACT(self)->work + 0x8E0) = wait;
-            return;
-        }
-    }
-}
+INCLUDE_ASM(DetourCheck);
 
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
+static int checkPositionIllegal(GObj *self, float *pos);
 
-static int checkPositionIllegal(GObj *self, float *pos)
-{
-    float v[4];
-    float r[4];
-    float dy;
-    Act *act = GOBJ_ACT(self);
-
-    if (act->actMode == 0x70) {
-        return 1;
-    }
-    if (act->actMode == 0x26 ||
-        (((GOBJ_SUB(self)->ctrl.motion + motionKind)->flags.word >> 12) & 1)) {
-        return 1;
-    }
-    v[0] = pos[0];
-    v[1] = pos[1];
-    v[2] = pos[2];
-    debug_NMarker(v, 0, 255, 0, 100.0f);
-    r[0] = test_CURRENTROOT(self)[0];
-    r[1] = test_CURRENTROOT(self)[1];
-    r[2] = test_CURRENTROOT(self)[2];
-    r[1] = r[1] - GetDifferenceFromLastField(self, 0x2C);
-    debug_NMarker(r, 0, 0, 255, 100.0f);
-    dy = v[1] - r[1];
-    if (dy < 0.0f) {
-        if (-dy > 40.0f) {
-            return 1;
-        }
-        return 0;
-    }
-    return dy > 40.0f;
-}
+INCLUDE_ASM(checkPositionIllegal);
 
 inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *actor, void *posout)
 {
@@ -197,62 +112,9 @@ static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, WV
 }
 
 int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void *e,
-                           unsigned char sub)
-{
-    WVTObj way;
-    Act *act = GOBJ_ACT(self);
-    WVTObj *home;
-    WVTObj *wp;
-    int ret = 0;
-    WayPoint *w;
+                           unsigned char sub);
 
-    /* disabled in retail: the way-begin-position (WBP) report */
-    if (0) {
-        debug_StdPrintfDummy("WBP <<begin>>\n");
-    }
-    home = &act->way;
-    way = *home;
-    wp = &way;
-    act->wayFlags &= ~0x20000;
-    act->wayFlags &= ~0x40000;
-    act->wayState.flags = (act->wayState.flags & ~0x200000) |
-                          ((long long)(checkPositionIllegal(self, goal) & 1) << 21);
-    *(float *)((char *)act + 0x434) = goal[1];
-    w = RequestWayBegin(self, goal, from, wp, sub);
-    if (w != 0) {
-        act->wayState.st[1] = 0;
-        if (wp->flag3C == 0) {
-            if (WayMove_CheckCollis(goal, from, tgt, e) == 0) {
-                act->wayState.st[1] = 1;
-                DeleteGuideWay(wp);
-                ret = 3;
-            } else {
-                ret = 2;
-            }
-        } else {
-            ret = 1;
-        }
-        *home = way;
-        act->wayLast = 0;
-        *(int *)((char *)act + 0x404) = (int)tgt;
-        *(float *)((char *)act + 0x410) = from[0];
-        *(float *)((char *)act + 0x414) = from[1];
-        *(float *)((char *)act + 0x418) = from[2];
-        act->wayState.st[0] = 1;
-    } else {
-        act->wayState.st[0] = 0;
-    }
-    act->wayState.flags &= ~0x10000;
-    act->wayState.flags &= ~0x1E0000;
-    *(int *)((char *)act + 0x430) = 0;
-    *(int *)((char *)GOBJ_ACT(self)->work + 0x8E0) = 0;
-    if (act->way.chk.start != 0 && act->way.chk.cross == 0) {
-        if (_DistxzSqGV(act->way.chk.start->pos, goal) < 40000.0f) {
-            act->wayFlags |= 0x40000;
-        }
-    }
-    return ret;
-}
+INCLUDE_ASM(ACTWayMove_BeginDetail);
 
 /* the 0x20-byte way-step record the actor keeps at act + 0x3E0: the step
    direction, the 64-bit way state word and the two distances to the goal */

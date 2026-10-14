@@ -8,6 +8,7 @@
 #include "GsBase.h"
 #include "main.h"
 #include "Matrix.h"
+#include "include_asm.h"
 
 static void blur(int n, void *col);
 
@@ -1147,77 +1148,7 @@ static void dispFeedInfo(void)
     }
 }
 
-void FullScreenEffectBefore(void)
-{
-    if (debug_fullscreen_effect == 0) {
-        return;
-    }
-
-    postModeRequest = GlobalStageSetting.postEffect;
-    feedModeRequest = GlobalStageSetting.feedbackEffect;
-
-    blurCol.f[0] = GlobalStageSetting.feedbackCol[0];
-    blurCol.f[1] = GlobalStageSetting.feedbackCol[1];
-    blurCol.f[2] = GlobalStageSetting.feedbackCol[2];
-    blurCol.f[3] = GlobalStageSetting.feedbackCol[3];
-
-    if (postMode != postModeRequest) {
-        postMode = postModeRequest;
-    }
-    if (feedMode != feedModeRequest) {
-        feedMode = feedModeRequest;
-    }
-
-    dispPostInfo();
-    dispFeedInfo();
-
-    if (sunOn)
-        if (debug_font_flag & 1)
-            debug_Printf(250, 40, 0xFFFFFF00, "SUN");
-
-    workBase[0] = 0x2800;
-    workBase[1] = 0x2A00;
-    workBase[2] = 0x2E00;
-    workBase[3] = 0x3000;
-
-    if (systemStatus[0] == 1) {
-        tex_LockHeadTBP(0x3A00, 8);
-    } else {
-        tex_LockHeadTBP(0x3800, 8);
-    }
-
-    if (sunOn) {
-        calcSun();
-    }
-
-    switch (postMode) {
-    case 1:
-    case 3:
-        if (flareOn) {
-            makeFullScreenFlareBefore(0);
-        }
-        break;
-    case 4:
-    case 5:
-        if (flareOn) {
-            makeFullScreenFlareBefore(2);
-        }
-        break;
-    case 6:
-    case 7:
-        if (flareOn) {
-            makeFullScreenFlareBefore(1);
-        }
-        break;
-    case 2:
-    case 8:
-        break;
-    }
-
-    if (feedMode) {
-        auraInspireBefore();
-    }
-}
+INCLUDE_ASM(FullScreenEffectBefore);
 
 void FullScreenEffectAfter(void)
 {

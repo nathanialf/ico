@@ -44,6 +44,7 @@
 #include "Texture.h"
 #include "debug_exception.h"
 #include <assert.h>
+#include "include_asm.h"
 
 static int debug_CollisionTest(int reset);
 static int debug_DispBall(int on);
@@ -777,15 +778,7 @@ inline void ChangeGirlControlMode(int mode)
     }
 }
 
-void debug_Assert(char *fmt, ...)
-{
-    char buf[256];
-    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
-    debug_assertMessage("src/debug.c", 1392, buf);
-    __assert("src/debug.c", 1392, "e");
-    debug_assert("src/debug.c", 1393);
-    __assert("src/debug.c", 1393, "0");
-}
+INCLUDE_ASM(debug_Assert);
 
 /* the host log file (the DEBUG build opens it) */
 static int logFd = -1; /* derived name */
@@ -950,88 +943,7 @@ void debug_SetDmaCallback(void)
     EnableDmac(1);
 }
 
-void debug_VariableInit(void)
-{
-    debug_frame = 15;
-    debug_window_flag = 0;
-    debug_ignore_demo_camera = 0;
-    debug_bar_flag = 0;
-    debug_memory_bar = 0;
-    debug_font_flag = 0;
-    debug_font_flag2 = 0;
-    debug_font_flag3 = 0;
-    debug_printf_flag = 0;
-    debug_skel_flag = 0;
-    debug_seslotdisp_flag = 0;
-    debug_wallcheck_flag = 0;
-    debug_wallhitcoldisp = 0;
-    debug_fieldcollision_flag = 0;
-    debug_actnode_flag = 0;
-    debug_motion_interporate = 1;
-    debug_wayline = 1;
-    debug_mem_partition_flag = 0;
-    debug_camera_flag = 0;
-    debug_brain_bar_flag = 0;
-    debug_chara_target = 0;
-    debug_brain_flag = 1;
-    debug_bounding_flag = 0;
-    debug_wire_string = 0;
-    debug_gbrain_info_flag = 1;
-    debug_now_motion_viewer = 0;
-    fontWindowLine = 0;
-    debug_mot_debug_target = 0;
-    debug_debug_bar_multiply = 1;
-    debug_shadow_flag = 0;
-    debug_specular_flag = 1;
-    debug_zoom_per = 100;
-    debug_debug_bar_start_item = 0;
-    debug_ripple_roughness = 25;
-    debug_snapshot_num = 100;
-    debug_snapshot_size = 0;
-    debug_snapshot_format = 0;
-    debug_ambient_volume = 0;
-    debug_cloth_info = 0;
-    debug_hair_tight_level = 20;
-    debug_hair_gravity_level = 0;
-    debug_hair_bend_angle = 256;
-    debug_hair_collision = 0;
-    debug_face_chest_ratio = 0;
-    debug_face_rot_w_ratio = 0;
-    debug_def_smpmin = 4;
-    debug_scissor = 1;
-    debug_fullscreen_effect = 1;
-    debug_disp_cluster = 1;
-    debug_disp_normal = 1;
-    debug_disp_lws = 1;
-    debug_disp_particle = 1;
-    debug_disp_mesh = 1;
-    debug_col_ray_disp = 0;
-    debug_stick_input = 0;
-    debug_enemy_battle_type = 3;
-    debug_stick_simulate = 1;
-    debug_act_sub_thread = 0;
-    debug_use_new_queen_battle = 1;
-    debug_chain_cycle_speed = 4;
-    debug_chain_slow_speed = 4;
-    debug_mot_slope_interp = 5;
-    debug_enemy_fly_with_girl = 0;
-    debug_disp_enemy_state = 0;
-    debug_disp_escort_ball = 0;
-    debug_girl_detour_flag = 1;
-    debug_col_old_proc = 0;
-    debug_fly_limit_test = 0;
-    debug_lwskyomi_lookonly = 0;
-    debug_one_hit_only = 0;
-    debug_ignore_dodge = 0;
-    debug_hand_camera = 1;
-    debug_enemy_kidnap_timer = 1;
-    debug_girl_pad_control = 0;
-    debug_no_breast_hang = 0;
-    debug_snapshot_reserve = 0;
-    game_pause = 0;
-    ChangeFieldCollisionDebugMode(0);
-    ChangeGirlControlMode(debug_girl_pad_control);
-}
+INCLUDE_ASM(debug_VariableInit);
 
 void debug_Init(void)
 {
@@ -1076,101 +988,7 @@ inline float debug_GetTimerCount(void)
     return (float)(*(volatile unsigned int *)T1_COUNT);
 }
 
-int debug_Load(char **dst, char *name, int kind)
-{
-    char buf[256];
-    int size;
-    int sz;
-    int fd;
-
-    sprintf(buf, "ico2Data/%s", name);
-    fd = debugSceOpen(buf, 1);
-    if (fd < 0) {
-        debug_StdPrintfDummy("file is not exist(%s)\n", name);
-        return -1;
-    }
-    size = sceLseek(fd, 0, 2);
-    sceLseek(fd, 0, 0);
-    sz = (size / 16 + 1) * 16;
-    {
-        /* the line every arm prints once it has the file's address, a nested
-           function that reads dst, name and size from the enclosing frame;
-           the iosMallocDebug calls pass the source's own line numbers */
-        inline void loadReport(void)
-        {
-            debug_StdPrintfDummy(
-                "loading:\"\033[33m%s\033[m\"\n\t(address:\033[35m%p\033[m/size:\033[35m%d\033[m)",
-                name, *dst, size);
-        }
-        switch (kind) {
-        case 0:
-        default:
-            *dst = iosMallocDebug(ios_partition_seki, sz, "src/debug.c", 1958);
-            loadReport();
-            debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
-                                 (*dst + sz - ios_partition_seki->start) * 100.0f / 10059776.0f);
-            break;
-        case 1:
-            *dst = iosMallocDebug(ios_partition_sugipon, sz, "src/debug.c", 1965);
-            loadReport();
-            debug_StdPrintfDummy(" to sugi area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 524288.0f,
-                                 (*dst + sz - ios_partition_sugipon->start) * 100.0f / 524288.0f);
-            break;
-        case 2:
-            *dst = iosMallocDebug(ios_partition_common, sz, "src/debug.c", 1973);
-            loadReport();
-            debug_StdPrintfDummy(" to static object area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 2.0f,
-                                 (*dst + sz - ios_partition_common->start) * 100.0f / 2.0f);
-            break;
-        case 3:
-            *dst = iosMallocDebug(ios_partition_smotion, sz, "src/debug.c", 1982);
-            loadReport();
-            debug_StdPrintfDummy(" to static motion area.(%2.1f%%/%2.1f%%)\n",
-                                 sz * 100.0f / 1179648.0f,
-                                 (*dst + sz - ios_partition_smotion->start) * 100.0f / 1179648.0f);
-            break;
-        case 5:
-            *dst = iosMallocDebug(ios_partition_dmotion, sz, "src/debug.c", 1991);
-            loadReport();
-            debug_StdPrintfDummy(" to dynamic motion area.(%2.1f%%/%2.1f%%)\n",
-                                 sz * 100.0f / 3670016.0f,
-                                 (*dst + sz - ios_partition_dmotion->start) * 100.0f / 3670016.0f);
-            break;
-        case 6:
-            *dst = iosMallocDebug(ios_partition_hara, sz, "src/debug.c", 2000);
-            loadReport();
-            debug_StdPrintfDummy(" to hara-area.(%2.1f%%)\n",
-                                 (*dst + sz - ios_partition_hara->start) * 100.0f);
-            break;
-        case 7:
-            *dst = iosMallocDebug(ios_partition_oomori, sz, "src/debug.c", 2007);
-            loadReport();
-            debug_StdPrintfDummy(" to oomori area.(%2.1f%%)\n",
-                                 (*dst + sz - ios_partition_oomori->start) * 100.0f / 327680.0f);
-            break;
-        case 8:
-            *dst = iosMallocDebug(ios_partition_horagai, sz, "src/debug.c", 2014);
-            loadReport();
-            debug_StdPrintfDummy(" to horagai-area.\n");
-            break;
-        case 9:
-            *dst = iosMallocDebug(ios_partition_sound, sz, "src/debug.c", 2019);
-            loadReport();
-            debug_StdPrintfDummy(" to sound-area.\n");
-            break;
-        case 10:
-            *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c", 2024);
-            loadReport();
-            debug_StdPrintfDummy(" to sound_semi-area.\n");
-            break;
-        }
-    }
-    sceRead(fd, *dst, size);
-    debugSceClose(fd);
-    FlushCache(0);
-    sceGsSyncPath(0, 0);
-    return size;
-}
+INCLUDE_ASM(debug_Load);
 
 /* a GIF tag as the two 64-bit words the packet takes it in, on the
    quadword boundary the GIF reads it at */
@@ -1181,67 +999,7 @@ typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived na
 static GifTag debugFontTag = {0x2000400000008000LL, 0x51}; /* derived name */
 
 /* clang-format off */
-static void debug_MakeFont(void)
-{
-    int on = 1, off = 0;
-    struct { /* field names derived */ float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
-    char *base;
-    unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
-    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", 2069); w.ptr = base;
-    *((int *)w.ptr)++ = 0x1400000C;
-    *((int *)w.ptr)++ = 0;
-    *((long long *)w.ptr)++ = 0;
-
-    for (i = 0; i < 256; i++) {
-        a = &fontOutline[i * 16]; b = &fontGlyph[i * 8];
-
-        for (j = 0, n = 0; j < 9; j++) {
-            m1 = a[j];
-            m0 = b[j];
-            for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1)
-                if ((m0 & 1) || (m1 & 1)) n++;
-        }
-        if (n == 0) {
-            fontPacket[i].qwc = 1;
-            fontPacket[i].packet = base;
-        } else {
-
-
-            fontPacket[i].qwc = n + 3;
-            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", 2090);
-            *((long long *)w.ptr)++ = 0;
-            *((int *)w.ptr)++ = 0;
-            *((int *)w.ptr)++ = ((n + 1) << 16) | 0x6C008000;
-
-            *((long long *)w.ptr)++ = n | ((long long)0x8000 << 38) | debugFontTag[0];
-            *((long long *)w.ptr)++ = debugFontTag[1];
-            for (j = 0; j < 9; j++) {
-                m0 = b[j];
-                m1 = a[j];
-                for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1) {
-                    w.v[0] = (float)k;
-
-                    w.v[1] = (float)(j * 2);
-
-
-
-                    if (m0 & 1) {
-                        w.v[2] = 3.4028235e+38f;
-                        w.v[3] = *(float *)&off;
-                        *((Qw128 *)w.ptr)++ = *(Qw128 *)w.v;
-                    } else if (m1 & 1) {
-                        w.v[2] = 1.7014117e+38f;
-                        w.v[3] = *(float *)&on;
-                        *((Qw128 *)w.ptr)++ = *(Qw128 *)w.v;
-                    }
-                }
-            }
-            *((int *)w.ptr)++ = 0x1400000A;
-            *((int *)w.ptr)++ = 0;
-            *((long long *)w.ptr)++ = 0;
-        }
-    }
-}
+INCLUDE_ASM(debug_MakeFont);
 
 static void debug_makeBackImage(void)
 {
@@ -1592,215 +1350,7 @@ static DbgCol barScaleCol[1] = {{0xA0, 0xA0, 0xA0, 0xA0}}; /* derived name */
 static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 
 /* clang-format off */
-static void debug_DrawBar(void)
-{
-    long long sh;
-    long long x = -256;
-    FR rect0 = {-257, 93, 514, 10};
-    DbgCol col1 = barBackCol[0];
-    DbgCol col2 = barScaleCol[0];
-    DbgCol col3 = barLabelCol[0];
-    FR rect1 = {0, 100, 0, 2};
-    DbgVtx v0, v1;
-    int flip;
-    float scale;
-    int i;
-    int w;
-    int len;
-    inline int barTime(void) { return debugBars[i].count; } /* derived name */ /* the time stamp of bar i, read by both bar loops */
-
-
-    flip = 0;
-    scale = 1.0f / (270000.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-
-
-
-
-
-
-
-
-
-    if (debug_font_flag & 1) debug_Printf(ScreenWidth / 2 - 298, ScreenHeight / 2 + 92, 0xFFFFFF00u, "draw");
-    if (debug_font_flag & 1) { debug_Printf(ScreenWidth / 2 - 282, ScreenHeight / 2 + 102, 0xFFFFFF00u, "cpu"); debugBars[debug_debug_bar_start_item].count = debugBars[debug_debug_bar_start_item].count; }
-    /* the first set of sh on the next line is overwritten before any read, and the store-back after the "cpu" print writes a bar's count back unchanged: both are dead */
-    sh = debugBars[debug_debug_bar_start_item].count;
-    sh = debug_debug_bar_multiply;
-
-    gif_StartPacketPri(12);
-    gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 1, 0);
-
-    gif_SetZWrite(0);
-    gif_SetZTest(0);
-
-
-    gif_SetAlpha(1, 2, 64);
-    gif_Sprite(&rect0, 0xFFFFFFFFU, 0, &col1, 1);
-    v0.x = v1.x = -257;
-    v0.y = 92;
-    v1.y = 104;
-    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
-    v0.x = v1.x = 257;
-    v0.y = 92;
-    v1.y = 104;
-    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
-    if (sh > 0) {
-        gif_SetAlpha(1, 4, 64);
-        v0.y = 91;
-        v1.y = 105;
-        for (i = 0; i < (1 << sh) - 1; i++) {
-            v0.x = v1.x = (i + 1) * (512 / (1 << sh)) - 256;
-            gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col2, 1);
-        }
-    }
-
-    for (i = debug_debug_bar_start_item; i < debugBarCount && x < 320; i++) {
-
-        int t = barTime() - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0);
-
-        long long alpha;
-
-        DbgCol c0, c1;
-        if (sh > 0)
-            w = -256 + ((int)((float)(t << 9) * scale) >> sh);
-        else
-            w = -256 + (float)((t << -sh) << 9) * scale;
-        if (w > 320) w = 320;
-        alpha = (signed char)debugBars[i].col.a >= 0;
-        rect1.x = x;
-        rect1.w = w - x;
-        gif_SetAlpha(alpha, 2, debugBars[i].col.a);
-        if (i == debug_debug_bar_start_item) {
-            static unsigned char barBlink = 0; /* derived name */
-            c0 = debugBars[i].col;
-
-
-
-
-
-
-            c1 = (DbgCol){(c0.r + 255) >> 1, (c0.g + 255) >> 1, (c0.b + 255) >> 1, 0};
-            c0 = c1;
-            c0.r >>= 1;
-            c0.g >>= 1;
-            c0.b >>= 1;
-            gif_Sprite(&rect1, 0xFFFFFFFFU, 0, (barBlink & 1) ? &c1 : &c0, alpha);
-
-            barBlink++;
-        } else {
-            gif_Sprite(&rect1, 0xFFFFFFFFU, 0, &debugBars[i].col, alpha);
-        }
-        if (debug_bar_flag == 2) {
-            v0.x = w; v0.y = rect0.y;
-            v1.x = w; v1.y = rect0.y + rect0.h + 6;
-            gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
-        }
-
-        if (debug_font_flag & 1) {
-            len = strlen(debugBars[i].name);
-            if (len != 0) {
-                if (debug_bar_flag == 1) {
-                    v0.x = w; v0.y = rect0.y;
-                    v1.x = w; v1.y = rect0.y + rect0.h + 6;
-                    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
-                }
-                v0.x = w; v0.y = rect0.y + rect0.h + 7;
-                v1.x = w + 7; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
-                gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
-                v0.x = w + 7; v0.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
-                v1.x = w + 8 + len * 8; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
-                gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
-                flip ^= 1;
-            }
-        }
-
-        x = w;
-    }
-
-    gif_SetAlpha(1, 4, 64);
-    v0.x = -256; v0.y = 98;
-    if (sh > 0) {
-        v1.x = ((int)((float)(drawTimerCount << 9) * scale) >> sh) - 256;
-    } else {
-        v1.x = ((int)((float)(drawTimerCount << 9) * scale) << -sh) - 256;
-    }
-    v1.y = 98;
-    if (v1.x > 320) v1.x = 320;
-    col1.r = col1.g = col1.b = col1.a = 164;
-    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
-
-
-    v0.x = -256; v0.y = 94;
-    v1.x = (used_dma_memory << 9) / 100 - 256; v1.y = 94;
-    col1.r = 0;
-    col1.g = col1.b = col1.a = 164;
-    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
-
-
-    v0.x = -256; v0.y = 96;
-    v1.x = (used_dl_max << 9) / 100 - 256; v1.y = 96;
-    col1.b = 0; col1.r = col1.g = col1.a = 164;
-    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
-
-    gif_SetZTest(1);
-    gif_SetZWrite(1);
-    gif_EndPacket();
-
-    flip = 0;
-    for (i = debug_debug_bar_start_item; i < debugBarCount && x < 320; i++) {
-        int t = barTime() - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0);
-
-        int dpct;
-        int pct;
-        if (sh > 0)
-            w = -256 + ((int)((float)(t << 9) * scale) >> sh);
-        else
-            w = -256 + (float)((t << -sh) << 9) * scale;
-        if (w > 320) w = 320;
-        if (i > 0)
-            dpct = (float)((debugBars[i].count - debugBars[i - 1].count) * 10000) * scale;
-        else dpct = 0;
-        pct = (float)(t * 10000) * scale;
-        len = debug_MakeBarString((char *)&debugBars[i], dpct, pct, rect0, w, flip);
-        if (len != 0) flip ^= 1;
-    }
-
-    for (i = 0; i < used_dl_num; i++) {
-        char buf[16];
-        sprintf(buf, "%d", i);
-        v0.x = (used_dl_memory[i] << 9) / 100 - 256 + ScreenWidth / 2;
-        v0.y = ScreenHeight / 2 + 88;
-        if (debug_font_flag & 1) debug_Printf(v0.x, v0.y, 0xFFFFFF00u, buf);
-    }
-
-    if (debug_debug_bar_start_item < debugBarCount) {
-        static float barMax = 0.0f, barMin = 0.0f; /* derived name */
-        static int barItem = 0, barLine = 0;      /* derived name */
-        float val;
-        int line;
-        val = (float)(debugBars[debug_debug_bar_start_item].count - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0)) * 100.0f * scale;
-
-
-        line = debugBars[debug_debug_bar_start_item].line;
-        if (barItem != debug_debug_bar_start_item || line != barLine)
-            barMax = barMin = val;
-        else {
-            if (barMax < val) barMax = val;
-            if (val < barMin) barMin = val;
-        }
-        if (debug_font_flag & 1) debug_Printf(10, ScreenHeight / 2 - 28, 0xFFFFFF00u, "A:%p W:%1.2f%% W~%1.2f%% W_:%1.2f%%",
-                         debugBars[debug_debug_bar_start_item].line, val, barMax, barMin);
-
-
-        barItem = debug_debug_bar_start_item;
-        barLine = line;
-    }
-
-    if (debug_font_flag & 1) debug_Printf(ScreenWidth + 70, ScreenHeight / 2 - 14, 0xFFFFFF00u,
-                         (sh > 0 ? "/%d" : "x%d"), sh > 0 ? (1 << sh) : (1 << -sh));
-    if (debug_font_flag & 1) debug_Printf(ScreenWidth + 30, ScreenHeight / 2 - 24, 0xFFFFFF00u, "%.2f%%",
-                         sh > 0 ? (float)(100 << sh) : (float)(10000 >> -sh) * 0.01f);
-}
+INCLUDE_ASM(debug_DrawBar);
 
 inline void debug_SetBar(char *name, unsigned int col, char *file, int line)
 {
@@ -1836,31 +1386,7 @@ inline void debug_SetBar2(char *name, unsigned int col, char *file, int line)
     }
 }
 
-void debug_DispBar(void)
-{
-    float inv;
-    int va;
-    int vb;
-    int n;
-    inv = 1.0f / (270000.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
-    vb = (float)(debugBars[debugBarCount - 1].count * 100) * inv;
-    va = (float)(drawTimerCount * 100) * inv;
-
-    if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0)
-        debug_Printf(10, 10, 0xFFFFFF00u, "C%03d G%03d F%d", vb, va, frame_count);
-    if (debug_brain_bar_flag != 0)
-        debug_brainBar();
-    if (debug_bar_flag != 0)
-        debug_DrawBar();
-    if (strips != 0 || texturetranssize != 0) {
-        n = 1;
-        if (strips != 0)
-            n = strips;
-        if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0)
-            debug_Printf(10, 20, 0xFFFFFF00u, "P%d S%d A%d(%d) T%d(%d)", polygons, strips,
-                         polygons / n, packets, texturetranssize / 1024, textures);
-    }
-}
+INCLUDE_ASM(debug_DispBar);
 
 inline void debug_ResetBar(void)
 {
@@ -2002,87 +1528,9 @@ static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
 /* debug_SnapShot's first-call flag */
 static int snapFirst = 1; /* derived name */
 
-int debug_SnapShot(int idx)
-{
-    sceGsStoreImage si;
-    char name[256];
-    int size;
-    int mask;
-    unsigned int i;
-    int fd;
-    int *src;
-    int *dst;
-    int *buf;
-    unsigned int w;
-    int h;
-    unsigned int y;
+int debug_SnapShot(int idx);
 
-    size = ScreenWidth * ScreenHeight * 4;
-    if (debug_snapshot_size == 0) {
-        return -1;
-    }
-    mask = 1 << (debug_snapshot_size - 1);
-    debugBackGroundDisableFlag = 1;
-    if (snapFirst != 0) {
-        if (iosCdvdBackGroundMgrRunning != 0) {
-            return -1;
-        }
-        snapFirst = 0;
-    }
-    sceGsSyncPath(0, 0);
-    debug_StdPrintfDummy("Snap:%d:%p\n", idx, 0x2000000);
-    sceGsSetDefStoreImage(&si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
-    FlushCache(0);
-    sceGsExecStoreImage(&si, (void *)0x2000000);
-    sceGsSyncPath(0, 0);
-    src = (int *)0x2000000;
-    FlushCache(0);
-    if (debug_snapshot_size < 5) {
-        if (debug_snapshot_size > 0) {
-            w = ScreenWidth;
-            h = ScreenHeight;
-            buf = (int *)(0x2000000 + size);
-            dst = buf + ((idx / mask) * (w * mask) + idx % mask);
-            for (y = 0; y < h; y++) {
-                for (i = 0; i < w; i++) {
-                    *dst = *src++;
-                    dst += mask;
-                }
-                dst += (mask - 1) * (mask * w);
-            }
-            if (idx == mask * mask - 1) {
-                for (i = 0;; i++) {
-                    if (debug_snapshot_format == 0) {
-                        sprintf(name, "snapshot/snap%07d.tm2", i);
-                    } else {
-                        sprintf(name, "snapshot/snap%07d.bmp", i);
-                    }
-                    fd = debugSceOpen(name, 1);
-                    debugSceClose(fd);
-                    if (fd < 0) {
-                        break;
-                    }
-                }
-                if (debug_snapshot_format == 0) {
-                    sprintf(name, "snapshot/snap%07d.tm2", i);
-                } else {
-                    sprintf(name, "snapshot/snap%07d.bmp", i);
-                }
-                fd = debugSceOpen(name, 0x602);
-                if (debug_snapshot_format == 0) {
-                    debug_WriteTim2(fd, buf, w * mask, h * mask);
-                } else {
-                    debug_WriteBMP(fd, w * mask, h * mask, (unsigned int *)buf);
-                }
-                if (debugSceClose(fd) < 0) {
-                    debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
-                }
-            }
-        }
-    }
-    dma_init();
-    return 1;
-}
+INCLUDE_ASM(debug_SnapShot);
 
 void debug_DispQW(void *p, int size)
 {
@@ -2581,12 +2029,9 @@ static int debug_SelectStageMain(int ret, int stage)
     return ret;
 }
 
-int debug_SelectStage(void)
-{
-    return debug_SelectStageMain(debug_SelectCsvWindowWithLine("stage select", 10, 80, 11, stageData,
-                                                               404, 0x20, 0, 106, &stageSelectNo),
-                                 stageSelectNo);
-}
+int debug_SelectStage(void);
+
+INCLUDE_ASM(debug_SelectStage);
 
 static inline int debug_mcConfirm(char *msg) /* derived name */
 {

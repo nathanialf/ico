@@ -23,6 +23,7 @@
 #include "main.h"
 #include "DisplayP2O.h"
 #include "sceneManager.h"
+#include "include_asm.h"
 
 static void setGirlClothSetting(int lv);
 
@@ -1814,41 +1815,7 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     return w;
 }
 
-void GirlGeo(GObj *gobj)
-{
-    float v[4];
-    int n0;
-    int n1;
-    float len;
-    float ratio;
-    Sub15C *w;
-
-    HandManager(gobj);
-    ExecMotionOrient(gobj);
-    SetActressLight(gobj, 35, 44, 470);
-    if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.0f)) {
-        iosOmSendMail(gobj, 6, gobj);
-    }
-    if (CylinderCollision(gobj, 1, ACTGame_FLAG_TETSUNAGI() ? 15.0f : 30.0f, 50.0f, 0.3f)) {
-        iosOmSendMail(gobj, 6, gobj);
-        GirlAct_BoyAndMeCollisionMail(gobj);
-    } else {
-        w = GOBJ_SUB(gobj);
-        if (w->root.hand0.mode == 4 && w->cylinderOn != 0 && w->root.cylinder != 0) {
-            n0 = GetSkeltonFocusNode(boyGObj, 6);
-            n1 = GetSkeltonFocusNode(gobj, 22);
-            sceVu0SubVector(v, (char *)GOBJ_SUB(boyGObj)->nodeMtx + n0 * 64 + 48,
-                            (char *)GOBJ_SUB(gobj)->nodeMtx + n1 * 64 + 48);
-            len = FSqrt(sceVu0InnerProduct(v, v));
-            if (10.0f < len) {
-                ratio = 1.0f - len / 50.0f;
-                ratio = ratio < 0.75f ? 0.75f : ratio;
-                SetMotionPlaySpeedRatio(boyGObj, ratio);
-            }
-        }
-    }
-    execClothes(gobj);
-}
+INCLUDE_ASM(GirlGeo);
 
 void GirlAI(GObj *gobj)
 {

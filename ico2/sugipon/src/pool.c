@@ -25,6 +25,7 @@
 #include "Matrix.h"
 #include "ios.h"
 #include "Texture.h"
+#include "include_asm.h"
 
 static void copyToWork(int pri);
 
@@ -155,38 +156,7 @@ static void setNodePursueParticleEffectWithUpperLimit(int id, GObj *obj, int foc
     }
 }
 
-void SetFallDownSplash(GObj *pool, GObj *self)
-{
-    float pos[4];
-    float tmp[4];
-    PoolWork *w = GOBJ_SUB(pool)->work;
-
-    GetRootPosition(pos, self);
-    _ScaleVectorXYZ(tmp, GOBJ_SUB(self)->root.move, 2.0f);
-    _AddVector(pos, pos, tmp);
-    pos[1] = w->pos[1];
-
-    if (GOBJ_SUB(self)->skel != 0) {
-        setNodePursueParticleEffectWithUpperLimit(48, self, 51, pos[1]);
-        setNodePursueParticleEffectWithUpperLimit(48, self, 47, pos[1]);
-    }
-
-    stage_SetLoopFlag(499, 0);
-    stage_SetFrameStep(499, 1);
-
-    EntryMultiBgaManagerNoKind(w->splash, w->splashNo, pos);
-    w->splashNo = (w->splashNo + 1) % 2;
-
-    if (w->hasGrid != 0) {
-        setWaveCell(w, pos, &w->ripple[w->rippleNo], w->step, w->nx, w->ny, 0.5f);
-        w->rippleNo = w->rippleNo + 1;
-        if (w->rippleNo == 5) {
-            w->rippleNo = 0;
-        }
-    }
-
-    falldownSE(self);
-}
+INCLUDE_ASM(SetFallDownSplash);
 
 void GetPoolGlobalDrainVector(void *dst, GObj *pool)
 {
@@ -572,141 +542,9 @@ static float workLightNormal[4][4] = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
-static void dispPool(GObj *self)
-{
-    char m0[64];
-    char m1[64];
-    char m2[64];
-    char m3[64];
-    char m4[64];
-    PoolWork *w = GOBJ_SUB(self)->work;
+INCLUDE_ASM(dispPool);
 
-    gif_StartPacketPri(4);
-    copyToWork(4);
-    gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
-
-    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
-
-    gif_SetGsReg(0x14, 0x60);
-    gif_SetZWrite(0);
-    gif_SetZTest(1);
-    gif_SetAlpha(0, 4, 0x80);
-
-    gif_EndPacket();
-
-    _SetCurrentMatrix(matrixptr + 0x100);
-
-    prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
-
-    CopyMatrix((char *)GOBJ_SUB(self)->lightMtx + 0x40, workLightColor);
-    CopyMatrix((char *)GOBJ_SUB(self)->lightMtx, workLightNormal);
-
-    gif_StartPacketPri(4);
-    flushWork(4);
-
-    CopyMatrix(m0, (char *)(matrixptr + 0xC0));
-
-    CopyMatrix(m1, (char *)(matrixptr + 0x1C0));
-    CopyMatrix(m2, (char *)(matrixptr + 0x100));
-    CopyMatrix(m3, (char *)(matrixptr + 0x200));
-    CopyMatrix(m4, (char *)(matrixptr + 0x340));
-
-    gsb_SetVSMatrix(0xCC, 0xCC, (float)currentFocusDistance);
-
-    _MulMatrix((char *)(matrixptr + 0x100), (char *)(matrixptr + 0xC0), (char *)(matrixptr + 0x80));
-    _MulMatrix((char *)(matrixptr + 0x200), (char *)(matrixptr + 0x1C0),
-               (char *)(matrixptr + 0x80));
-
-    gif_SetZTest(1);
-    gif_SetAlpha(0, 4, 0x80);
-    gif_EndPacket();
-
-    _UnitMatrix(MatrixDrive_GetMatrix());
-    CopyMatrix((char *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix());
-    reg_RenderReflection(GOBJ_SUB(self), 4);
-
-    if (w->dobj != 0) {
-        CopyMatrix(MatrixDrive_GetMatrix(), &w->dobj->matrix);
-        switch (stage_no) {
-        case 101:
-            MatrixDrive_RotMatrixZ((w->spin << 16) / 1600);
-            break;
-        case 15:
-            MatrixDrive_RotMatrixZ(-(w->spin << 16) / 1600);
-        }
-
-        CopyMatrix((char *)w->dobj->nodeMtx, MatrixDrive_GetMatrix());
-
-        reg_RenderReflection(w->dobj, 4);
-
-        if (systemStatus[5] == 0) {
-            if (++w->spin > 1600) {
-                w->spin = 0;
-            }
-        }
-    }
-
-    gif_StartPacketPri(4);
-    gif_SetZWrite(0);
-    gif_SetZTest(0);
-    gif_SetAlpha(0, 4, 0x80);
-
-    CopyMatrix((char *)(matrixptr + 0xC0), m0);
-    CopyMatrix((char *)(matrixptr + 0x1C0), m1);
-    CopyMatrix((char *)(matrixptr + 0x340), m4);
-    CopyMatrix((char *)(matrixptr + 0x100), m2);
-    CopyMatrix((char *)(matrixptr + 0x200), m3);
-    vsWidth = ScreenWidth;
-    vsHeight = ScreenHeight;
-
-    gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
-
-    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
-
-    gif_SetGsReg(0x14, 0x60);
-    gif_SetZWrite(0);
-    gif_SetZTest(1);
-    gif_SetAlpha(1, 0, 0x40);
-
-    gif_EndPacket();
-
-    _SetCurrentMatrix(matrixptr + 0x100);
-
-    prim_DispMesh3D(w->reflect, dispLightColor, dispLightNormal, -1);
-
-    gif_StartPacketPri(4);
-    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
-
-    gif_SetGsReg(0x14, 0x60);
-    gif_SetZWrite(0);
-    gif_SetZTest(1);
-    gif_SetAlpha(1, 0, 0x40);
-
-    gif_EndPacket();
-
-    if (debug_skel_flag != 0) {
-        DispMeshWire(w->wire, w->nx, w->ny);
-    }
-}
-
-void PoolDL(GObj *self)
-{
-    PoolWork *w = GOBJ_SUB(self)->work;
-
-    DispMultiBgaManagerWithKind(498, w->bga, 10);
-    DispMultiBgaManagerWithKind(499, w->splash, 2);
-    if (systemStatus[5] == 0) {
-        w->phase =
-            (short)((float)w->phase +
-                    60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 2000.0f);
-    }
-    if (w->hasGrid != 0) {
-        updatePoolGeo(self);
-        dispPool(self);
-    } else {
-        p2o_DispVU1(self);
-    }
-}
+INCLUDE_ASM(PoolDL);
 
 void InitLimitedPoolReflactionMesh(PoolMesh *refl)
 {

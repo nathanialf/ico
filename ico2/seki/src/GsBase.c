@@ -26,6 +26,7 @@
 #include "main.h"
 #include <libgraph.h>
 #include <libcdvd.h>
+#include "include_asm.h"
 
 /* declared here with an int count, not through string.h, as in
    layout_action.c and puddle.c */
@@ -103,39 +104,9 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
  * interlaced, 512 by 512 in the tall mode and 512 by 448 otherwise, then set
  * the double buffer up, hand the first frame over and put the view scale back
  * to one. */
-void gsb_Init(void *db)
-{
-    int omode = 2;
+void gsb_Init(void *db);
 
-    sceGsSyncV(0);
-    fbClear = 1;
-    gsInitState = 0;
-    switch (systemStatus[0]) {
-    case 0:
-        ScreenWidth = 0x200;
-        ScreenHeight = 0x1C0;
-        break;
-    case 1:
-        ScreenWidth = 0x200;
-        ScreenHeight = 0x200;
-        omode = 3;
-        break;
-    }
-    sceGsResetGraph(0, systemStatus[1] == 1, omode, 1);
-    sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, fbClear);
-    gsb_SetFrame(db, 0, 0, 0x30, 2);
-    sceGsSyncV(0);
-    buffer_ID = 0;
-    FlushCache(0);
-    sceGsSwapDBuff(db, buffer_ID);
-    while (sceGsSyncPath(1, 0) != 0) {
-        debug_StdPrintfDummy("wait gs init\n");
-    }
-    gsb_SetVSMatrix(ScreenWidth, ScreenHeight, 512.0f);
-    zoomTarget = 1.0f;
-    zoomSpeed = 1000.0f;
-    zoomCurrent = 1.0f;
-}
+INCLUDE_ASM(gsb_Init);
 
 /* A frame buffer clear packet for the whole screen, 48 doublewords: a GIF tag
    of 23 A+D writes and the register pairs.  Nothing reads it: the send that
@@ -210,83 +181,9 @@ static int reductionBlue; /* derived name */
  * half height frame in black and then draws it back over itself through the
  * texture at 0x800 in the reduction tint, and last the tint this stage's
  * current target asks for. */
-void gsb_Reduction(void)
-{
-    long long pk[44] = {
-        0x1000000000008015LL,
-        0xE,
-        0,
-        0x4A,
-        0x8000000048LL,
-        0x42,
-        (long long)((ScreenWidth >> 6) & 0x3F) << 16,
-        0x4C,
-        ((long long)(0x800 - ScreenWidth / 2) << 4) | ((long long)(0x800 - ScreenHeight / 4) << 36),
-        0x18,
-        ((long long)(ScreenWidth - 1) << 16) | ((long long)(ScreenHeight / 2 - 1) << 48),
-        0x40,
-        0x30000,
-        0x47,
-        0x1300000C0LL,
-        0x4E,
-        0x106,
-        0,
-        0,
-        1,
-        (long long)(-ScreenWidth / 2 * 16 + 0x8000 - 4) |
-            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
-        5,
-        (long long)(-ScreenWidth / 2 * 16 + 0x8000 + ScreenWidth * 16 - 4) |
-            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
-            (-1LL << 32),
-        5,
-        ((long long)(ScreenWidth - 3) << 16) | 2 |
-            ((long long)(systemStatus[0] == 0 ? 2 : 8) << 32) |
-            ((long long)(ScreenHeight / 2 - 1 - (systemStatus[0] == 0 ? 2 : 8)) << 48),
-        0x40,
-        ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL,
-        6,
-        0x60,
-        0x14,
-        0x116,
-        0,
-        (long long)reductionRed |
-            ((long long)reductionBlue << 16 | (long long)reductionGreen << 8 | 0x80000000LL),
-        1,
-        0x80008,
-        3,
-        (long long)(-ScreenWidth / 2 * 16 + 0x8000 - 4) |
-            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
-        5,
-        (long long)(ScreenWidth * 16 + 8) | ((long long)(ScreenHeight * 16 + 8) << 16),
-        3,
-        (long long)(-ScreenWidth / 2 * 16 + 0x8000 + ScreenWidth * 16 - 4) |
-            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
-            (-1LL << 32),
-        5,
-        ((long long)ScreenWidth << 16) | ((long long)ScreenHeight << 48),
-        0x40,
-    };
+void gsb_Reduction(void);
 
-    sceGsSyncPath(0, 0);
-    FlushCache(0);
-    *D2_QWC = 22;
-    *D2_MADR = (int)pk & 0x0FFFFFFF;
-    *D2_CHCR = 0x101;
-    sceGsSyncPath(0, 0);
-    if (pad[0].flags & 0x20) {
-        debug_StdPrintfDummy("Film Noise:%d\n", optionScreenMode);
-    }
-    if (optionScreenMode) {
-        reductionRed = fbKeep ? 128 : GlobalStageSetting.targetCol[optionScreenMode - 1][0];
-        reductionGreen = fbKeep ? 128 : GlobalStageSetting.targetCol[optionScreenMode - 1][1];
-        reductionBlue = fbKeep ? 128 : GlobalStageSetting.targetCol[optionScreenMode - 1][2];
-    } else {
-        reductionRed = fbKeep ? 128 : GlobalStageSetting.reductionCol[0];
-        reductionGreen = fbKeep ? 128 : GlobalStageSetting.reductionCol[1];
-        reductionBlue = fbKeep ? 128 : GlobalStageSetting.reductionCol[2];
-    }
-}
+INCLUDE_ASM(gsb_Reduction);
 
 /* the colour the kept frame is drawn back in */
 static const unsigned char keepFrameColor[4] = {112, 112, 112, 128}; /* derived name */
@@ -467,58 +364,15 @@ static float scissorStep = 0.0f; /* derived name */
 
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_EndPacketPath1(void);
-
 /* The letterbox the demo scenes fade in: two black bars, top and bottom,
  * whose alpha eases to 128 while the scene is state 55 and back to 0
  * otherwise.  While the bars are visible they are drawn and the motion blur
  * is left alone; once they are gone the stage record's blur setting is
  * restored.  Each bar is drawn by a macro inside the two-iteration loop,
  * its first corner written before fx and fy are formed. */
-static void gsb_scissorOnDemo(void)
-{
-    GsbRect r[2] = {
-        {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16 - 4, ScreenWidth * 16, 58 * 16},
-        {-(ScreenWidth >> 1) * 16, ((ScreenHeight >> 1) - 58) * 16 + 4, ScreenWidth * 16, 58 * 16}};
-    unsigned char col[4];
-    int i;
+static void gsb_scissorOnDemo(void);
 
-    if (current_layout_id == 55 && scissorLastState != current_layout_id) {
-        scissorStep = 2.5f;
-    } else if (scissorLastState != current_layout_id) {
-        scissorStep = -2.5f;
-    }
-    scissorLastState = current_layout_id;
-
-    scissorLevel = scissorLevel + scissorStep;
-    if (scissorLevel <= 0.0f) {
-        scissorLevel = 0.0f;
-        scissorStep = 0.0f;
-    }
-    if (128.0f <= scissorLevel) {
-        scissorLevel = 128.0f;
-        scissorStep = 0.0f;
-    }
-    if (0.0f < scissorLevel && scissorLevel <= 128.0f) {
-        if (debug_font_flag & 1) {
-            debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, "D");
-        }
-        dl_SetDLPriority(11);
-        gif_StartPacketPriPath1(dl_GetPri());
-        memset(col, 0, 4);
-        col[3] = 0x80;
-        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
-        gif_SetGsReg(0x47, 0x30000);
-        gif_SetGsReg(0x4E, 0x300000C0);
-        gif_SetGsReg(0x49, 0);
-        gif_SetGsReg(0x42, ((long long)(int)scissorLevel << 32) | 0x64);
-        for (i = 0; i < 2; i++) {
-            spriteRect(r[i].x, r[i].y, r[i].w, r[i].h, -1LL, col, 0x446);
-        }
-        gif_EndPacketPath1();
-    } else {
-        SetMotionBlur(GlobalStageSetting.motionBlur);
-    }
-}
+INCLUDE_ASM(gsb_scissorOnDemo);
 
 /* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int alpha, int mode, int fix);
@@ -1134,44 +988,7 @@ static float vsParam[10]; /* derived name */
  * towards its target by a thousandth of the step, and the view record at
  * vsParam carries the centre, the aspect terms and the near and far
  * planes gsb_SetVSMatrixSub builds the matrices from. */
-void gsb_SetVSMatrix(int w, int h, float d)
-{
-    float zoom;
-
-    center_X = center_Y = 2048.0f;
-    if (d == 0.0f) {
-        d = (float)currentFocusDistance;
-    } else {
-        currentFocusDistance = d;
-    }
-    vsWidth = w;
-    vsHeight = h;
-    if (zoomTarget != zoomCurrent) {
-        zoomCurrent = zoomCurrent + (zoomTarget - zoomCurrent) * zoomSpeed * 0.001f;
-    }
-    if (staffRollStartFlag != 0) {
-        center_X = center_X - staffRollCenterOffsetX;
-    }
-    zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)debug_zoom_per *
-           (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
-    vsParam[0] = zoom;
-    if (debug_snapshot_reserve != 0 || (pad[1].now & 0x800) != 0) {
-        vsParam[0] = zoom * (float)debug_snapshot_num / 100.0f;
-    }
-    tex_UpdateMipMapLevel((float)GlobalStageSetting.viewScale * zoomCurrent *
-                          (float)debug_zoom_per * (float)ScreenWidth / 640.0f / 100.0f);
-    vsParam[3] = center_X;
-    vsParam[4] = center_Y;
-    vsParam[5] = 1.0f;
-    vsParam[6] = 536870880.0f;
-    vsParam[7] = 2.0f;
-    vsParam[1] = (float)w / (float)ScreenWidth;
-    vsParam[8] = 262144.0f;
-    vsParam[2] =
-        (float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f) * (float)h / (float)ScreenHeight;
-    gsb_SetVSMatrixSub(matrixptr + 0xC0, matrixptr + 0x1C0, matrixptr + 0x240, matrixptr + 0x340,
-                       vsParam);
-}
+INCLUDE_ASM(gsb_SetVSMatrix);
 
 /* Clip a box against the current matrix: transform its eight corners with the
  * matrix in $vf4 to $vf7 and read the clip flags out of $vi18.  All eight

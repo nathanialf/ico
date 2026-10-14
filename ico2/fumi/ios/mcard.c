@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "message.h"
 #include "typedef.h"
+#include "include_asm.h"
 
 /* the semaphore descriptor the card lock is created from, then the manager
    queue's 16-slot message ring */
@@ -151,26 +152,8 @@ typedef struct { /* field names derived */
     char b[64];
 } McBlk; /* derived name */
 
-static inline int product_write(McMgr *self)
-{
-    (IosMcProductFile + self->port)->soundMode = systemStatus[11];
-    (IosMcProductFile + self->port)->outputMode = soundOutputModeGet();
-    (IosMcProductFile + self->port)->vibration = iosPadActRequestEnable;
-    (IosMcProductFile + self->port)->controlType = optionControlType;
-    (IosMcProductFile + self->port)->cameraMove = NonLinearCameraMove;
-    (IosMcProductFile + self->port)->palMode = systemStatus[0];
-    *(McBlk *)(IosMcProductFile + self->port)->padConf = *(McBlk *)iosPadConfCustom.bit;
-    iosMcHandlerWrite(self, (unsigned char *)(IosMcProductFile + self->port),
-                      sizeof(McProductFile));
-    return 0;
-}
-
-static inline int product_read(McMgr *self)
-{
-    int idx = self->port;
-    iosMcHandlerRead(self, (unsigned char *)&IosMcProductFile[idx], sizeof(McProductFile));
-    return self->result;
-}
+static inline int product_write(McMgr *self);
+static inline int product_read(McMgr *self);
 
 static inline int gameblock_write(McMgr *self, void *buf)
 {
@@ -180,18 +163,7 @@ static inline int gameblock_write(McMgr *self, void *buf)
     return 0;
 }
 
-static inline int gameblock_read(McMgr *self, void *buf)
-{
-    iosMcHandlerRead(self, buf, 25588);
-    systemStatus[11] = (IosMcProductFile + self->port)->soundMode;
-    soundOutputModeSet((IosMcProductFile + self->port)->outputMode);
-    iosPadActRequestEnable = (IosMcProductFile + self->port)->vibration;
-    optionControlType = (IosMcProductFile + self->port)->controlType;
-    *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self->port)->padConf;
-    iosMcHandlerRead(self, (unsigned char *)&optionScreenMode, 4);
-    iosMcHandlerRead(self, (unsigned char *)&girlControlMode, 4);
-    return self->result;
-}
+static inline int gameblock_read(McMgr *self, void *buf);
 
 /* the product directory name, 17 bytes including the terminator, copied as
    a byte-aligned record */
@@ -856,3 +828,9 @@ void iosMcManager(void)
         mp->flags.ll = mp->flags.ll | 1;
     }
 }
+
+INCLUDE_ASM(product_write);
+
+INCLUDE_ASM(product_read);
+
+INCLUDE_ASM(gameblock_read);

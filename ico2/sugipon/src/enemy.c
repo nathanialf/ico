@@ -27,6 +27,7 @@
 #include <assert.h>
 #include "sceneManager.h"
 #include "Primitive.h"
+#include "include_asm.h"
 
 typedef struct { /* field names derived */
     float x;
@@ -171,42 +172,9 @@ static inline int enemyRandomizeID(int kind, int *ctr) /* derived name */
     return randomEnemyVariationKind[id];
 }
 
-static int setEnemyObject(GObj *self, int kind, int *ctr)
-{
-    struct DObjNode *p;
-    Sub15C *sub;
-    EnemyWork *w;
-    float sc;
-    int obj;
-    int pid;
+static int setEnemyObject(GObj *self, int kind, int *ctr);
 
-retry:
-    sub = GOBJ_SUB(self);
-    w = sub->work;
-    if (kind > 0xFFFF) {
-        kind = enemyRandomizeID(kind, ctr);
-        goto retry;
-    }
-    p = sub->nodes;
-    sc = enemyKind[kind].scale;
-    p->scale[2] = sc;
-    p->scale[1] = sc;
-    p->scale[0] = sc;
-    w->scale = sc;
-    obj = enemyKind[kind].model;
-    if (obj != 0x610) {
-        *(int *)&GOBJ_SUB(self)->model = GetPObjAddress(obj);
-        GOBJ_SUB(self)->modelId = obj;
-        debug_StdPrintfDummy("%p\n", GOBJ_SUB(self)->model);
-        w->loaded = 1;
-    }
-    pid = enemyKind[kind].particle;
-    if (pid != -1) {
-        setEnemyParticleObject(self, pid);
-    }
-    debug_StdPrintfDummy("\x1b[36mENEMY DESIGN ID: %d\x1b[m\n", kind);
-    return kind;
-}
+INCLUDE_ASM(setEnemyObject);
 
 /* One part's projected position: the sqc2 stores the integer x, y, z and w,
    and the part's index then takes the x word's place. */

@@ -5,6 +5,7 @@
 #include "typedef.h"
 #include "mv_vibuf.h"
 #include <eeregs.h>
+#include "include_asm.h"
 
 static void Free(int addr);
 
@@ -64,53 +65,7 @@ static void free_buf(ViBuf *self)
     Free((int)self->ts);
 }
 
-int viBufCreate(ViBuf *self)
-{
-    struct SemaParam sem;
-    int data;
-    int tag;
-    int ts;
-    /* the ring geometry: 256 sectors of 2048 bytes, and a 512-entry
-       timestamp ring */
-    int nSector = 256;
-    int tsMax = 512;
-
-    self->created = 0;
-
-    data = alloc_zeroed(524288, 64);
-    if (data == 0) {
-        return -1;
-    }
-    tag = alloc_zeroed(4112, 64);
-    if (tag == 0) {
-        return -1;
-    }
-    ts = alloc_zeroed(12288, 4);
-    if (ts == 0) {
-        return -1;
-    }
-
-    self->data = (char *)data;
-    self->dmaTag = (char *)uncached_accel_addr(tag);
-    self->nSector = nSector;
-    self->size = nSector << 11;
-
-    self->ts = (ViTs *)ts;
-    self->tsMax = tsMax;
-
-    sem.initCount = 1;
-    sem.maxCount = 1;
-
-    self->sema = CreateSema(&sem);
-
-    self->created = 1;
-
-    viBufReset(self);
-
-    self->total = 0;
-
-    return 0;
-}
+INCLUDE_ASM(viBufCreate);
 
 int viBufReset(ViBuf *self)
 {

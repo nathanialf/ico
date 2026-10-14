@@ -3,6 +3,7 @@
 #include "memory.h"
 #include <eekernel.h>
 #include "mv_vobuf.h"
+#include "include_asm.h"
 
 static void Free(int addr);
 
@@ -13,30 +14,7 @@ static void free_buf(VoBuf *self)
     Free((int)self->tag);
 }
 
-int voBufCreate(VoBuf *self)
-{
-    int data;
-    int tag;
-    int i;
-
-    data = alloc_zeroed(8294400, 64);
-    if (data == 0) {
-        return -1;
-    }
-    self->data = (VoData *)uncached_accel_addr(data);
-    tag = alloc_zeroed(3936320, 64);
-    self->tag = (VoTag *)tag;
-    if (tag == 0) {
-        return -1;
-    }
-    self->max = 5;
-    self->count = 0;
-    self->idx = 0;
-    for (i = 0; i < self->max; i++) {
-        self->tag[i].status = 0;
-    }
-    return 0;
-}
+INCLUDE_ASM(voBufCreate);
 
 void voBufDelete(VoBuf *self)
 {

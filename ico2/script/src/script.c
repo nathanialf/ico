@@ -51,6 +51,7 @@
 #include "main.h"
 #include "motionManager2.h"
 #include "weapon.h"
+#include "include_asm.h"
 
 /* .sdata.  The three words after scpSeEnvMasterVolRate are the girl's hint
    voice: its ADPCM handle and the distance range its volume follows. */
@@ -177,32 +178,6 @@ extern int CheckReadyAllSwitches(void);
 /* Before flag 332 this hands the actor queen_appear_mes and posts it; after
  * it, it shows object 2149, plays its motion and starts the face shadow
  * scrolls and the stage animations. */
-inline void actSubSekizoSe(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = (Act *)actInitialize(self);
-
-    _ACTWait(1);
-    if (gflagChk(332) == 0) {
-        ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-        scpSearchGobj(2149)->active = 0;
-        stage_SetLoopFlag(555, 0);
-        queen_appear_mes[0].func = actSt25aQueenAppearChk;
-        act->mail = queen_appear_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-        return;
-    }
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(47, 0, 555, 0);
-    scpSearchGobj(2149)->active = 1;
-    scpPlayMot(scpSearchGobj(2149), 1104);
-    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
-    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
-    ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-    stage_SetAnimation(156, 0, -1);
-    stage_SetAnimation(159, 1, 0);
-}
-
 inline void scpDispOffAllWithKind(int kind)
 {
     void *v0 = isysGObjSearchFromObjKindID_begin(kind);
@@ -432,14 +407,7 @@ void scpPlayMotDir(GObj *self, float *dir)
     SetMotionDirection(self, dir);
 }
 
-void scpPlayMotDirSmz(GObj *self, float *dir)
-{
-    sceVu0Normalize(dir, dir);
-    SetMotionDirectionSmooze(
-        self, dir,
-        (float)((struct MotTblRec *)(GOBJ_SUB(self)->ctrl.motion * 404 + (char *)motionKind))
-            ->smzAngle);
-}
+INCLUDE_ASM(scpPlayMotDirSmz);
 
 inline void scpPlayMotNode(void *self, int mot, void *obj, int node)
 {
@@ -1273,94 +1241,7 @@ found:
 /* where the stone statue's sound effects play */
 static const Vec16 sekizouSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 
-void scpSekizou(GObj *self, int flag, int anim, int anim2, int kind, float bx, float by, float bz,
-                float gx, float gy, float gz)
-{
-    int fade = 0;
-
-    if (gflagChk(flag) != 0) {
-        stage_SetAnimation(anim, 0, -1);
-        return;
-    }
-    stage_SetAnimation(anim, 0, 0);
-    if (girlGObj == 0) {
-        return;
-    }
-    for (;;) {
-        if (scpTriggerBall(self, girlGObj, 200.0f) == 0 ||
-            scpTriggerBall(self, boyGObj, 200.0f) == 0 || scpActStatusDeathFall(boyGObj) != 0) {
-            _ACTWait(1);
-        } else {
-            break;
-        }
-    }
-    if (gflagChk(394) != 0) {
-        fade = 1;
-        scpFadeOut(255.0f, 0, 0, 0);
-    }
-    stgmgrNextStagePreLoadForceStageSet(0);
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    scpAdpcmPlayRequestFunc(kind, &sekizo_common, 1, 1, 0);
-    while (sekizo_common == 0) {
-        _ACTWait(1);
-    }
-    AdpcmPlay(sekizo_common->stream);
-    if (fade != 0) {
-        scpFadeIn(8.0f);
-    }
-    stgmgrNextStagePreLoadDistBoyMode();
-    scpKillEnemyAll();
-    scpMaskGeneratorAll();
-    stage_SetAnimation(anim, 1, 0);
-    ReviveAllCarryableItemsWithNonSleepFrame(250);
-    sekizo_yure = iosPadActRequest(boyPad, 9);
-    sekizo_yure_vol = 128;
-    iosPadActVolumeSet(sekizo_yure, 128);
-    scpPlayStart(girlGObj);
-    scpPlayMot(girlGObj, 532);
-    scpPlayPosSet(girlGObj, gx, gy, gz);
-    scpPlayPosSet(boyGObj, bx, by, bz);
-    _ACTWait(1);
-    {
-        Vec16 v;
-
-        sceVu0SubVector(v.f, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
-        scpPlayMotDir(girlGObj, v.f);
-        scpBoyControlReadDisable = 1;
-        sceVu0SubVector(v.f, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
-        scpPlayMotDir(boyGObj, v.f);
-        scpSekizouCheckPoint();
-        scpPlayMot(girlGObj, 645);
-        scpPlayWaitMotEnd(girlGObj);
-        gflagOn(flag);
-        if (anim2 != 0) {
-            int h;
-
-            stage_SetAnimation(anim2, 1, 0);
-            v = sekizouSePos;
-            soundSeDefPlay(1220, 0, v.f, 1);
-            _ACTWait(30);
-            h = soundSeDefPlay(1221, 0, v.f, 1);
-            _ACTWait(38);
-            soundSeDefStop(h);
-            soundSeDefPlay(1222, 0, v.f, 1);
-        }
-    }
-    while (stage_CheckAnimationFrame(anim, 180, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    iosPadActStop(sekizo_yure);
-    while (stage_CheckAnimationFinish(anim) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    scpPlayMot(girlGObj, 532);
-    scpPlayEnd(girlGObj);
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-}
+INCLUDE_ASM(scpSekizou);
 
 inline void InitStageChange(void)
 {
@@ -1899,3 +1780,5 @@ inline void scpCheckDisconnectWallEnd(GObj *self)
 {
     GOBJ_ACT(self)->flags18.ll &= ~(1ULL << 58);
 }
+
+INCLUDE_ASM(actSubSekizoSe);

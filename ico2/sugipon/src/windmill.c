@@ -1,5 +1,6 @@
 #include "sceneManager.h"
 #include "main.h"
+#include "include_asm.h"
 
 /* int (void *, int, int) here, void (struct GObj *, int, int) in flag.h */
 extern int SetFlag4PointFixID(void *gobj, int turns, int id);
@@ -29,37 +30,7 @@ typedef struct { /* field names derived */
     int node;    /* 0x04, parent.node */
 } WmWork;        /* derived name */
 
-int InitWindMillGeo(int owner, WmLayout *src)
-{
-    WmLayout lay;
-    GObj *gobj;
-    GObj *gobj2;
-    int i;
-
-    lay = *src;
-    for (i = 0; i < 4; i++) {
-        if (stage_no == 101) {
-            lay.id = 20;
-        } else {
-            lay.id = 18;
-        }
-        gobj = CreateLayoutedGObj(46, 656, -1, 0, &lay, -1, 7, 0);
-        ((WmWork *)GOBJ_SUB(gobj))->owner = owner;
-        ((WmWork *)GOBJ_SUB(gobj))->node = 0;
-        SetFlag4PointFixID(gobj, i, 0);
-
-        if (stage_no == 101) {
-            lay.id = 21;
-        } else {
-            lay.id = 19;
-        }
-        gobj2 = CreateLayoutedGObj(46, 656, -1, 0, &lay, -1, 7, 0);
-        ((WmWork *)GOBJ_SUB(gobj2))->owner = owner;
-        ((WmWork *)GOBJ_SUB(gobj2))->node = 0;
-        SetFlag4PointFixID(gobj2, i, 1);
-    }
-    return 0;
-}
+INCLUDE_ASM(InitWindMillGeo);
 
 void WindMillGeo(void) {}
 

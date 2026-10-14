@@ -60,6 +60,7 @@ static int generatorPacket[2820]; /* derived name */
 #include <string.h>
 #include "ios.h"
 #include "main.h"
+#include "include_asm.h"
 
 static GObj *IsNeedGeneratorHard(GObj *mother);
 
@@ -270,99 +271,7 @@ static void endfunc_BGA(GObj *gobj)
     }
 }
 
-static GObj *IsNeedGeneratorHard(GObj *mother)
-{
-    GenWork *w = GOBJ_SUB(mother)->work;
-    GObj *g;
-    int count = 0;
-    int isCalling = (w->status == 1);
-
-    if (mother != 0 && mother->labelId == 3758) {
-        int found = 0;
-
-        g = isysGObjSearchFromObjLayoutID(3757);
-        if (g != 0) {
-            GenGeo *gv = &objLayout[g->labelId];
-
-            if (gv->reviveCount == -1 || gv->reviveCount > 0) {
-                found = 1;
-            }
-            if (isEnemyActive(g)) {
-                found = 1;
-            }
-        }
-        return found ? g : 0;
-    }
-
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        Act *p = GOBJ_ACT(g);
-
-        if ((unsigned int)(p->flags18.ll >> 34) & 1) {
-            continue;
-        }
-        if (mother == 0 || (mother->labelId != GetMotherGeneratorLabelAskEnemy(g) &&
-                            objLayout[g->labelId].parent != mother->labelId)) {
-            continue;
-        }
-        if (objLayout[g->labelId].reviveCount == -1 || objLayout[g->labelId].reviveCount > 0) {
-            return g;
-        }
-        if (isEnemyActive(g)) {
-            return g;
-        }
-    }
-
-    for (g = isysGObjSearchFromObjKindID_begin(33); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {}
-
-    for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        Act *p = GOBJ_ACT(g);
-
-        count += (int)(p->flags18.ll >> 32) & 1;
-    }
-
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        Act *p = GOBJ_ACT(g);
-        GenGeo *gv = &objLayout[g->labelId];
-
-        if (g->labelId == 3757) {
-            continue;
-        }
-        if ((unsigned int)(p->flags18.ll >> 34) & 1) {
-            if (count < 5) {
-                continue;
-            }
-            return g;
-        }
-        if (mother != 0) {
-            if (mother->labelId == GetMotherGeneratorLabelAskEnemy(g)) {
-                continue;
-            }
-            if (objLayout[g->labelId].parent == mother->labelId) {
-                continue;
-            }
-        }
-        if (isEnemyActive(g)) {
-            return g;
-        }
-        if (gv->reviveCount == -1 || gv->reviveCount > 0) {
-            if (!isCalling) {
-                return g;
-            }
-            {
-                GObj *m = GetMotherGeneratorGObjAskEnemy(g);
-
-                if (m != 0 && IsOpenGenerator(m)) {
-                    return g;
-                }
-            }
-        }
-    }
-    return 0;
-}
+INCLUDE_ASM(IsNeedGeneratorHard);
 
 inline int IsEnableCallEnemyByTargetGObj(GObj *gobj)
 {
@@ -376,35 +285,6 @@ inline int IsEnableCallEnemyByTargetGObj(GObj *gobj)
     }
     if (((g->flags >> 21) & 1) == 0 && (g->reviveCount == -1 || g->reviveCount > 0)) {
         return 1;
-    }
-    return 0;
-}
-
-inline GObj *IsEnableCallEnemy(GObj *self)
-{
-    GObj *g;
-
-    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
-         g = isysGObjSearchFromObjKindID_next(g)) {
-        Act *p = GOBJ_ACT(g);
-        int no = g->labelId;
-        GenGeo *gg = &objLayout[no];
-
-        if (self != 0 && self->labelId == 3758 && no != 3757) {
-            continue;
-        }
-        if (objLayout[no].parent != 0 && self != 0 && objLayout[no].parent != self->labelId) {
-            continue;
-        }
-        if ((unsigned int)(p->flags18.ll >> 34) & 1) {
-            continue;
-        }
-        if ((gg->flags >> 21) & 1) {
-            continue;
-        }
-        if (gg->reviveCount == -1 || gg->reviveCount > 0) {
-            return g;
-        }
     }
     return 0;
 }
@@ -429,15 +309,9 @@ inline GObj *DirectCallEnemy(GObj *gobj, GObj *mother, float *pos, float *dir, i
     return gobj;
 }
 
-GObj *CallEnemy(GObj *mother, float *pos, float *dir, int kind)
-{
-    GObj *gobj = IsEnableCallEnemy(mother);
+GObj *CallEnemy(GObj *mother, float *pos, float *dir, int kind);
 
-    if (gobj != 0) {
-        return DirectCallEnemy(gobj, mother, pos, dir, kind);
-    }
-    return 0;
-}
+INCLUDE_ASM(CallEnemy);
 
 inline void LockEnemyGenerate(GObj *gobj)
 {
@@ -454,20 +328,6 @@ inline void UnlockEnemyGenerate(GObj *gobj)
     debug_StdPrintfDummy("unlock! = %d\n", gobj->labelId);
     p->flags18.ll &= ~((unsigned long)0x8000 << 19);
     g->flags = (g->flags | 0x200000) & 0xFFFBFFFF;
-}
-
-inline void RestoreReviveCount(GObj *gobj)
-{
-    GenGeo *g = &objLayout[gobj->labelId];
-    if (g->reviveCount != -1) {
-        int n = (short)(g->reviveCount + 1);
-        int lim = ((g->flags >> 5) & 0x1F) + 1;
-        n = (lim < n) ? lim : n;
-        g->reviveCount = n;
-        if (gobj->labelId == 3757) {
-            g->reviveCount = (g->reviveCount < 0) ? 0 : ((g->reviveCount > 1) ? 1 : g->reviveCount);
-        }
-    }
 }
 
 void Generator_QuickCall(GObj *gobj)
@@ -512,78 +372,7 @@ void Generator_Delete(GObj *gobj)
     switch_MainStatus(gobj, 0);
 }
 
-int GetMotherGenerator(int label)
-{
-    int info[2];
-    int x;
-    int st;
-    int i;
-    int j;
-    int best;
-    int ret;
-
-    if (label == 3757) {
-        return 3758;
-    }
-
-    GetKidnapInfo(&info[0], &info[1]);
-    if (info[0] != -1 && info[0] == label) {
-        return info[1];
-    }
-
-    x = (int)((objLayout + label)->flags << 27) >> 27;
-    if (x != -1) {
-        st = GetStageFromLabel(label);
-        for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
-            GenGeo *g = &objLayout[i];
-
-            if (g->kind == 33) {
-                if (((int)(g->flags << 27) >> 27) == x) {
-                    return i;
-                }
-            }
-        }
-    }
-
-    best = 0;
-    ret = -1;
-    st = GetStageFromLabel(label);
-    for (j = stageData[st].labelTop; j < stageData[st].labelEnd; j++) {
-        GenGeo *g = &objLayout[j];
-
-        if (g->kind == 33) {
-            int v = (g->flags >> 17) & 1;
-
-            if (best < v) {
-                best = v;
-                ret = j;
-            }
-        }
-    }
-    return ret;
-}
-
-inline void SetMotherGenerator(int no, int label)
-{
-    int i;
-    int cnt;
-
-    if (no == 3757) {
-        return;
-    }
-    cnt = 0;
-    for (i = stageData[stage_no].labelTop; i < stageData[stage_no].labelEnd; i++) {
-        GenGeo *g = &objLayout[i];
-        if (g->kind == 33) {
-            if (i == label) {
-                GenGeo *m = &objLayout[no];
-                m->flags = ((int)m->flags & ~0x3C00) | ((cnt & 0xF) << 10);
-                return;
-            }
-            cnt++;
-        }
-    }
-}
+INCLUDE_ASM(GetMotherGenerator);
 
 inline void Generator_Init(void)
 {
@@ -628,55 +417,9 @@ inline int *GetbufpGeneratorPacket(void)
     return generatorPacket;
 }
 
-inline int GetsizeGeneratorPacket(void)
-{
-    return 11277;
-}
+INCLUDE_ASM(ReadGeneratorPacket);
 
-void ReadGeneratorPacket(void)
-{
-    unsigned char *p = (unsigned char *)GetbufpGeneratorPacket();
-    int i;
-
-    for (i = 0; i < 3759; i++) {
-        GenGeo *g = &objLayout[i];
-        unsigned int b = *p++;
-        unsigned int x = (b >> 4) << 10;
-
-        g->flags = ((int)g->flags & ~0x3C00) | x;
-        g->flags = (g->flags & ~0x200000) | ((b & 1) << 21);
-    }
-
-    for (i = 0; i < 3759; i++) {
-        GenGeo *g = &objLayout[i];
-        char c = *(char *)p++;
-
-        g->flags = (g->flags & ~0x40000) | ((c & 1) << 18);
-    }
-
-    for (i = 0; i < 3759; i++) {
-        objLayout[i].reviveCount = (char)*p;
-        p++;
-    }
-}
-
-void MakeGeneratorPacket(void)
-{
-    char *p = (char *)GetbufpGeneratorPacket();
-    int i;
-
-    for (i = 0; i < 3759; i++) {
-        *p++ = (((int)(objLayout[i].flags << 18) >> 28) << 4) | ((objLayout[i].flags >> 21) & 1);
-    }
-
-    for (i = 0; i < 3759; i++) {
-        *p++ = (objLayout[i].flags >> 18) & 1;
-    }
-
-    for (i = 0; i < 3759; i++) {
-        *p++ = objLayout[i].reviveCount;
-    }
-}
+INCLUDE_ASM(MakeGeneratorPacket);
 
 inline void ResetReviveCountEnemy(GObj *gobj)
 {
@@ -1011,32 +754,7 @@ static inline void SetGeneratorBgaRootPosition(GObj *gobj, GenBga *tbl) /* deriv
     }
 }
 
-void GeneratorDL(GObj *gobj)
-{
-    GenWork *w = GOBJ_SUB(gobj)->work;
-    GenBga *tbl = w->bga;
-    int idx;
-
-    SetGeneratorBgaRootPosition(gobj, tbl);
-
-    if (w->active) {
-        DispMultiBgaManagerWithKind(508, w->bga[1].p, 1);
-    } else {
-        DispMultiBgaManagerWithKind(507, w->bga[0].p, 1);
-        DispMultiBgaManagerWithKind(508, w->bga[1].p, 1);
-        DispMultiBgaManagerWithKind(509, w->bga[2].p, 1);
-        DispMultiBgaManagerWithKind(506, w->bga[3].p, 1);
-    }
-
-    idx = w->cur;
-    if (idx != -1) {
-        GenBga *e = &tbl[idx];
-
-        if (*(float *)e->p < 0.0f) {
-            endfunc_BGA(gobj);
-        }
-    }
-}
+INCLUDE_ASM(GeneratorDL);
 
 inline int GeneratorWorkEnd(GObj *gobj)
 {
@@ -1054,3 +772,11 @@ inline int IsOpenGenerator(GObj *gobj)
     }
     return ret;
 }
+
+INCLUDE_ASM(SetMotherGenerator);
+
+INCLUDE_ASM(GetsizeGeneratorPacket);
+
+INCLUDE_ASM(IsEnableCallEnemy);
+
+INCLUDE_ASM(RestoreReviveCount);

@@ -21,6 +21,7 @@
 #include "Matrix.h"
 #include "windField.h"
 #include "clothAnimation.h"
+#include "include_asm.h"
 
 typedef struct { /* field names derived */
     float v[4];
@@ -1709,52 +1710,9 @@ static void getCloth4D_postProcess(Cloth4D *c, int **rows)
 extern const MotionDef motionKind[];
 
 static void _getCloth4D(Cloth4D *c, float x, float y, float z, float w, int tight, void *qa,
-                        void *qb)
-{
-    float buf[4];
-    int i;
-    int j;
-    int i2;
-    int j2;
-    int ny = c->cfg->ny;
-    int nx = c->cfg->nx;
-    int data[nx][ny];
-    int *rows[nx];
-    Sub15C *obj;
-    Cloth4DCfg *cfg;
-    int *rows2;
-    int nx2;
-    int ny2;
-    Vec16 *plane;
+                        void *qb);
 
-    for (i = 0; i < nx; i++) {
-        rows[i] = data[i];
-        for (j = 0; j < ny; j++) {
-            rows[i][j] = -1;
-        }
-    }
-    getCloth4D_preProcess(c, x, y, z, w, tight, qa, qb);
-    getCloth4D(c, rows);
-    obj = GOBJ_SUB(c->gobj);
-    if (motionKind[obj->ctrl.motion].flags.bits.clothPlane) {
-        plane = &obj->root.plane;
-        cfg = c->cfg;
-        rows2 = (int *)c->pos;
-        nx2 = cfg->nx - (cfg->wrap != 0);
-        ny2 = cfg->ny;
-        for (i2 = 0; i2 < nx2; i2++) {
-            for (j2 = 1; j2 < ny2; j2++) {
-                char *p = (char *)(j2 * 16 + rows2[i2]);
-                float d = plane_distance(p, plane);
-                if (d < 0.0f) {
-                    _ScaleVector(buf, plane, d);
-                    _SubVectorXYZ(p, p, buf);
-                }
-            }
-        }
-    }
-    getCloth4D_postProcess(c, rows);
-}
+INCLUDE_ASM(_getCloth4D);
 
 void GetCloth4D(Cloth4D *c, float x, float y)
 {

@@ -19,6 +19,7 @@
 #include "main.h"
 #include "GifPacket.h"
 #include <libvu0.h>
+#include "include_asm.h"
 
 typedef struct MvMenuEnt { /* field names derived */
     char *name;            /* 0x00, csv window title */
@@ -119,63 +120,8 @@ static void setMotionSpeed(float ratio)
    debug_SelectCsvWindowWithLine takes its rows as void * */
 extern MotionDef motionKind[];
 
-static void dispMotFrameProgress(int obj, float cur)
-{
-    /* a nested function: dispMotFrameProgress passes it a static chain */
-    void dispProgressBar(int s, int e, int n, float c, GifColor *col)
-    {
-        float r0 = (float)s / (float)n;
-        float r1 = (float)e / (float)n;
-        float rc = c / (float)n;
-
-        gif_StartPacketPri(11);
-        gif_SetZTest(0);
-        gif_SetZWrite(0);
-        gif_SetAlpha(1, 5, 128);
-        if (r0 < rc && rc <= r1) {
-            GifColor dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
-            GifRect ra = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
-                          ((ScreenHeight << 4) * 6 / 20) & ~15,
-                          (int)(((ScreenWidth << 4) * (rc - r0)) * 8 / 10),
-                          (((ScreenHeight << 4) / 100) & ~15) + 24};
-            GifRect rb = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * rc) * 8 / 10), ra.y,
-                          (int)(((ScreenWidth << 4) * (r1 - rc)) * 8 / 10), ra.h};
-            gif_SpriteSensitiveOrg(&ra, 0, 0, col, 1);
-            gif_SpriteSensitiveOrg(&rb, 0, 0, &dark, 1);
-        } else {
-            GifRect rc2 = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
-                           ((ScreenHeight << 4) * 6 / 20) & ~15,
-                           (int)(((ScreenWidth << 4) * (r1 - r0)) * 8 / 10),
-                           (((ScreenHeight << 4) / 100) & ~15) + 24};
-            if (rc <= r0) {
-                GifColor dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
-                gif_SpriteSensitiveOrg(&rc2, 0, 0, &dark, 1);
-            } else {
-                gif_SpriteSensitiveOrg(&rc2, 0, 0, col, 1);
-            }
-        }
-        gif_SetZTest(1);
-        gif_SetZWrite(1);
-        gif_EndPacket();
-    }
-    GifColor colA = {52, 84, 192, 128};
-    GifColor colB = {192, 84, 52, 128};
-    float f1 = motionKind[obj].shiftStart;
-    float f2 = motionKind[obj].shiftLength;
-
-    if (f1 >= 0.0f && f2 >= 0.0f) {
-        float sum = f1 + f2;
-        int rev;
-
-        dispProgressBar(0, f1, GetNbMotionFrames(obj) - 1, cur,
-                        (rev = (motionKind + obj)->flags.bits.shiftInside) ? &colB : &colA);
-        dispProgressBar(f1, sum, GetNbMotionFrames(obj) - 1, cur, rev ? &colA : &colB);
-        dispProgressBar(sum, GetNbMotionFrames(obj) - 1, GetNbMotionFrames(obj) - 1, cur,
-                        rev ? &colB : &colA);
-    } else {
-        dispProgressBar(0, GetNbMotionFrames(obj) - 1, GetNbMotionFrames(obj) - 1, cur, &colA);
-    }
-}
+INCLUDE_ASM(dispProgressBar_45);
+INCLUDE_ASM(dispMotFrameProgress);
 
 static int lastObjSel = -1; /* derived name */
 
@@ -249,127 +195,15 @@ extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt,
 /* int (char *, int, int, int, void *, int, int, int, int, int *, int) here, int (char *, int, int, int, void *, int, int, int, int, int *) in debug.h */
 extern int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *tbl, int stride,
                                          int off, int deref, int count, int *cur, int extra);
+static int motKindMenuProc(void);
 
-static int motKindMenuProc(void)
-{
-    MvMenuEnt *ent = &objMenu[objSel];
-    int mot = ForMotionViewer_GetCurrentMotion(viewObj);
-    float speed = GetMotionPlaySpeedRatio(mot);
-    int ret;
-    int base;
-    int cur;
-
-    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
-    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 404, 192,
-                                        0, ent->motLast - ent->motFirst, &motSel, 0);
-    base = motSel;
-    cur = base + ent->motFirst;
-    if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 320 && motionTable[cur] == 0) {
-        base = 0;
-        if (((blinkCount >> 4) & 3) != 0) {
-            debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");
-        }
-    } else {
-        debug_PrintfDummy(10, 50, 0xC0FFFF00, "Frame : %1.1f/%d",
-                          ForMotionViewer_GetCurrentAnimationFrame(viewObj),
-                          GetNbMotionFrames(mot) - 1);
-        debug_PrintfDummy(10, 60, 0x80FFFF00, "x%1.3f: %1.1f/%d", speed,
-                          ForMotionViewer_GetCurrentAnimationFrame(viewObj) / speed,
-                          (int)((GetNbMotionFrames(mot) - 1) / speed));
-    }
-    if (motSel != lastMotSel) {
-        DisableChangeRootUpdateMode(viewObj);
-        DisableMotionOrientUpdate(viewObj);
-        InitMotionOrient(viewObj, base + ent->oriFrom, base + ent->oriTo, -1, -1,
-                         base + ent->motFirst);
-        lastMotSel = motSel;
-    }
-    if (pad[0].flags & 0x10) {
-        InitMotionOrient(viewObj, base + ent->oriFrom, base + ent->oriTo, -1, -1,
-                         base + ent->motFirst);
-    }
-    if (ret == 1) {
-        motionKindCount = makeMotionKindList(ent, base);
-        oriCsv.sel = 0;
-    }
-    if (ret == -1) {
-        InitMotionOrient(viewObj, ent->oriFrom, ent->oriTo, -1, -1, ent->motFirst);
-        EnableMotionOrientUpdate(viewObj);
-        EnableChangeRootUpdateMode(viewObj);
-        lastMotSel = ret;
-    }
-    return ret;
-}
+INCLUDE_ASM(motKindMenuProc);
 
 static int lastOriSel = -1; /* derived name */
 
-static int motOriMenuProc(void)
-{
-    MvMenuEnt *ent = &objMenu[objSel];
-    int cur = motSel + ent->motFirst;
-    int mot = ForMotionViewer_GetCurrentMotion(viewObj);
-    char buf[256];
-    int ret;
-    int now;
-    int m;
-    int i;
-    MotionOrientEntry *ori;
+static int motOriMenuProc(void);
 
-    /* a nested function, expanded at both of its call sites */
-    inline void initOrient(void) /* derived name */
-    {
-        DisableMotionOrientUpdate(viewObj);
-        InitMotionOrient(viewObj, motSel + ent->oriFrom, motSel + ent->oriTo, -1, -1,
-                         motSel + ent->motFirst);
-    }
-
-    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
-    if (motionKindCount != 0) {
-        sprintf(buf, "ORIENT for \"%s\" Frame: %1.1f/%d", motionKind[cur].name,
-                ForMotionViewer_GetCurrentAnimationFrame(viewObj), GetNbMotionFrames(mot));
-        ret = debug_SelectCsvWindow(buf, 10, 50, 11, oriCsv.rows, 8, 0, 1, motionKindCount,
-                                    &oriCsv.sel);
-        if (oriCsv.sel != lastOriSel) {
-            initOrient();
-        }
-        lastOriSel = oriCsv.sel;
-        m = cur;
-        now = ForMotionViewer_GetCurrentMotion(viewObj);
-        for (i = 0; i < 10; i++) {
-            ori = GetMotionOrient(ent->oriFrom, ent->oriTo, m, oriCsv.rows[oriCsv.sel].kind);
-            debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1145) ? 0x00FFFF00 : 0xFFFFFF00,
-                              "%c %s", m == now ? 62 : 32, motionKind[m].name);
-            if (m == 1145) {
-                break;
-            }
-            if (ori == 0) {
-                i++;
-                if (((blinkCount >> 4) & 3) != 0) {
-                    debug_PrintfDummy(430, i * 8 + 90, 0xFF000000, "  NO ORIENT.");
-                }
-                break;
-            }
-            m = ori->nextId;
-        }
-    } else {
-        debug_PrintfDummy(10, 50, 0xFF000000, "NO ORIENT for \"%s\"", motionKind[cur].name);
-        ret = (pad[0].flags & 0x40) ? -1 : 0;
-    }
-    if (pad[0].flags & 0x10) {
-        initOrient();
-    }
-    if (ret == 1) {
-        EnableMotionOrientUpdate(viewObj);
-        SetMotionRequest(viewObj, oriCsv.rows[oriCsv.sel].kind,
-                         *(MotOriReq *)&viewObj->dobj->root.wall);
-    }
-    if (ret == -1) {
-        if (oriCsv.rows != 0) {
-            iosFree(oriCsv.rows);
-        }
-    }
-    return ret;
-}
+INCLUDE_ASM(motOriMenuProc);
 
 void modeMessage(void)
 {

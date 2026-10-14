@@ -14,6 +14,7 @@
 #include "st04r.h"
 #include "typedef.h"
 #include "main.h"
+#include "include_asm.h"
 
 static void actSt18aDoorChkSub(GObj *volatile self);
 
@@ -56,190 +57,17 @@ void actSt18aEnd(void)
     }
 }
 
-void actSt18aIntroChk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 1000.0f) == 0) {
-        _ACTWait(1);
-    }
+void actSt18aIntroChk(GObj *volatile self);
 
-    lt_switch_layout(55);
+INCLUDE_ASM(actSt18aIntroChk);
 
-    gflagOn(55);
+INCLUDE_ASM(actSt18aSwitchLChk);
 
-    scpBoyControlReadDisable = 1;
+INCLUDE_ASM(actSt18aSwitchLUpChk);
 
-    _ACTWait(1);
+INCLUDE_ASM(actSt18aSwitchRChk);
 
-    stage_SetAnimation(354, 1, 0);
-
-    while (stage_CheckAnimationFinish(354) == 0) {
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            scpFadeOut(16.0f, 0, 0, 0);
-
-            while (scpFadeChk() != 0) {
-                _ACTWait(1);
-            }
-            while (lt_fade_status() != 2) {
-                _ACTWait(1);
-            }
-
-            stage_SetAnimation(354, 1, -1);
-            SetCameraFlag_LwsCutBack();
-            scpFadeIn(3.0f);
-            break;
-        }
-        _ACTWait(1);
-    }
-
-    lt_switch_layout(54);
-    scpBoyControlReadDisable = 0;
-}
-
-void actSt18aSwitchLChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    int i;
-
-    i = 0;
-    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
-        if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
-            scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
-            scpTriggerFloorAttr(boyGObj, 0x1000000) != 0 ||
-            (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x1000000) != 0)) {
-            i++;
-        } else {
-            i = 0;
-        }
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(121, 1, 0);
-
-    soundSeDefPlay(1220, 0, 0, 1);
-
-    while (stage_CheckAnimationFrame(121, 45, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
-        scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
-        scpTriggerFloorAttr(boyGObj, 0x1000000) != 0 ||
-        (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x1000000) != 0)) {
-        gflagOn(58);
-        FinishHint(7);
-    }
-
-    switchLChk_mes[0].func = actSt18aSwitchLUpChk;
-    sub->mail = switchLChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aSwitchLUpChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) != 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(15);
-    gflagOff(58);
-
-    stage_SetAnimation(121, 1, 46);
-    soundSeDefPlay(1220, 0, 0, 1);
-
-    while (stage_CheckAnimationFrame(121, 50, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpWakeupItemWithBoundary(3054.0f, 1530.0f, -3061.0f, 100.0f);
-
-    while (stage_CheckAnimationFrame(121, 90, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    switchLUpChk_mes[0].func = actSt18aSwitchLChk;
-    sub->mail = switchLUpChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aSwitchRChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    int i;
-
-    i = 0;
-    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
-        if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
-            scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
-            scpTriggerFloorAttr(boyGObj, 0x2000000) != 0 ||
-            (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0)) {
-            i++;
-        } else {
-            i = 0;
-        }
-        _ACTWait(1);
-    }
-
-    stage_SetAnimation(122, 1, 0);
-
-    soundSeDefPlay(1220, 0, 0, 1);
-
-    while (stage_CheckAnimationFrame(122, 45, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
-        scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
-        scpTriggerFloorAttr(boyGObj, 0x2000000) != 0 ||
-        (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0)) {
-        gflagOn(59);
-        FinishHint(7);
-    }
-
-    switchRChk_mes[0].func = actSt18aSwitchRUpChk;
-    sub->mail = switchRChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aSwitchRUpChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttrTargetMan(self, 0x2000000) != 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(15);
-    gflagOff(59);
-
-    stage_SetAnimation(122, 1, 46);
-    soundSeDefPlay(1220, 0, 0, 1);
-
-    while (stage_CheckAnimationFrame(122, 50, 0) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpWakeupItemWithBoundary(1451.0f, 1530.0f, -3039.0f, 100.0f);
-
-    while (stage_CheckAnimationFrame(122, 90, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    switchRUpChk_mes[0].func = actSt18aSwitchRChk;
-    sub->mail = switchRUpChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt18aSwitchRUpChk);
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for, and the flag actSt18aDoorChkSub raises when the door check is
@@ -248,86 +76,9 @@ static int demoEnd;
 
 static int doorChkDone; /* derived name */
 
-void actSt18aDoorChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    GProc *th;
+INCLUDE_ASM(actSt18aDoorChk);
 
-    while (gflagChk(58) == 0 || gflagChk(59) == 0) {
-        _ACTWait(1);
-    }
-
-    lt_switch_layout(55);
-    scpBoyControlReadDisable = 1;
-    scpSleepEnemyAll();
-
-    gflagOn(60);
-
-    th = actCreateSubThread(actSt18aDoorChkSub, 21);
-    demoEnd = 0;
-    doorChkDone = 0;
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&th->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-
-        stage_SetAnimation(123, 0, -1);
-
-        if (doorChkDone == 0) {
-            soundSeDefPlay(1222, 0, 0, 1);
-        }
-
-        scpFadeIn(3.0f);
-    }
-
-    scpWakeupEnemyAll();
-    lt_switch_layout(54);
-
-    doorChk_mes[0].func = actSt18aDoorDownChk;
-    sub->mail = doorChk_mes;
-    scpBoyControlReadDisable = 0;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aDoorDownChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (gflagChk(58) != 0 && gflagChk(59) != 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(15);
-    gflagOff(60);
-
-    stage_SetAnimation(124, 1, 0);
-
-    soundSeDefPlay(1221, 0, 0, 1);
-    _ACTWait(50);
-    soundSeDefPlay(1222, 0, 0, 1);
-    while (stage_CheckAnimationFinish(124) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    doorDownChk_mes[0].func = actSt18aDoorChk;
-    sub->mail = doorDownChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt18aDoorDownChk);
 
 void actSt18aEnemy1_1(GObj *volatile self)
 {
@@ -400,77 +151,11 @@ void actSt18aIntro(GObj *volatile self)
     }
 }
 
-void actSt18aDoor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
+INCLUDE_ASM(actSt18aDoor);
 
-    _ACTWait(1);
+INCLUDE_ASM(actSt18aSwitchL);
 
-    if (gflagChk(60) == 0) {
-        stage_SetAnimation(123, 0, 0);
-
-        door_mes[0].func = actSt18aDoorChk;
-        act->mail = door_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(123, 0, -1);
-
-        doorDown_mes[0].func = actSt18aDoorDownChk;
-        act->mail = doorDown_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt18aSwitchL(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(58) == 0) {
-        stage_SetAnimation(121, 0, 0);
-
-        switchL_mes[0].func = actSt18aSwitchLChk;
-        act->mail = switchL_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(121, 0, 45);
-
-        switchLUp_mes[0].func = actSt18aSwitchLUpChk;
-        act->mail = switchLUp_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt18aSwitchR(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(59) == 0) {
-        stage_SetAnimation(122, 0, 0);
-
-        switchR_mes[0].func = actSt18aSwitchRChk;
-        act->mail = switchR_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(122, 0, 45);
-
-        switchRUp_mes[0].func = actSt18aSwitchRUpChk;
-        act->mail = switchRUp_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
+INCLUDE_ASM(actSt18aSwitchR);
 
 void actSt18aEne(GObj *volatile self)
 {
@@ -557,27 +242,7 @@ void actSt18aCamera(int x)
     volatile int local = x;
 }
 
-static void actSt18aDoorChkSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-    stage_SetAnimation(123, 1, 0);
-
-    if (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0) {
-        SetCameraFlag_LwsCutBack();
-    }
-
-    soundSeDefPlay(1221, 0, 0, 1);
-    _ACTWait(50);
-    doorChkDone = 1;
-    soundSeDefPlay(1222, 0, 0, 1);
-    while (stage_CheckAnimationFinish(123) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt18aDoorChkSub);
 
 void actSt18aEneChk(GObj *volatile self)
 {

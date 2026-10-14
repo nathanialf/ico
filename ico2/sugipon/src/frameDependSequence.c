@@ -11,6 +11,7 @@
 #include "main.h"
 #include "motionManager2.h"
 #include "frameDependSequence.h"
+#include "include_asm.h"
 
 static int execSE(int no, void *entry);
 static int checkWaterDepth(struct GObj *gobj, int depth);
@@ -319,46 +320,7 @@ static inline void fireFDSSlot(float t, int no, void *entry, int *done,
     }
 }
 
-void ExecFrameDependSequence(GObj *gobj)
-{
-    Sub15C *w;
-    struct MotCtrl *p;
-    int i;
-
-    w = GOBJ_SUB(gobj);
-    p = &w->ctrl;
-    fdsGObj = (char *)gobj;
-    fdsLayout = p;
-    fdsWork = &w->root;
-    fdsFlags = (FDSFlags *)w->fdsFlags;
-    fdsRecord = &motionKind[p->motion];
-    fdsVolume = 1.0f;
-
-    for (i = 0; i < 12; i++) {
-        if (fdsFlags->seDone[i] == 0) {
-            fireFDSSlot(fdsRecord->se[i].t, fdsRecord->se[i].no, 0, &fdsFlags->seDone[i], execSE);
-        }
-    }
-    for (i = 0; i < 2; i++) {
-        if (fdsFlags->vibDone[i] == 0) {
-            fireFDSSlot(fdsRecord->vib[i].t, fdsRecord->vib[i].no, &fdsFlags->vibEntry[i],
-                        &fdsFlags->vibDone[i], execVib);
-        }
-    }
-    if (CheckFloorAttribute((GObj *)fdsGObj, 0x40000) == 0) {
-        for (i = 0; i < 12; i++) {
-            if (fdsFlags->effDone[i] == 0) {
-                fireFDSSlot(fdsRecord->eff[i].t, fdsRecord->eff[i].no, 0, &fdsFlags->effDone[i],
-                            execEff);
-            }
-        }
-    }
-    if (GOBJ_SUB(gobj)->ctrl.pickedWeapon != 0) {
-        if (fdsFlags->weaponDone == 0) {
-            fireFDSSlot(fdsRecord->weaponFrame, 0, 0, &fdsFlags->weaponDone, execWeaponLightOff);
-        }
-    }
-}
+INCLUDE_ASM(ExecFrameDependSequence);
 
 static inline int *findSEPackage(int no, int id) /* derived name */
 {
@@ -399,18 +361,9 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     return no;
 }
 
-static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
-{
-    int id;
-    int *p;
-    int i;
+static void executeSEPackageByGObj(GObj *gobj, int no, int grp);
 
-    id = setSEEnvironment(gobj, grp);
-    p = findSEPackage(no, id);
-    for (i = 0; i < 2; i++) {
-        execSE(p[i], 0);
-    }
-}
+INCLUDE_ASM(executeSEPackageByGObj);
 
 static void executeSEPackageWithNoGObj(int no)
 {
@@ -483,17 +436,9 @@ void InitFrameDependSequence(void *flags)
     }
 }
 
-static int ExecuteDirectSEWithGroupVariation(GObj *gobj, int id, int grp)
-{
-    setSEEnvironment(gobj, id);
-    return execSE(id, 0);
-}
+INCLUDE_ASM(ExecuteDirectSEWithGroupVariation);
 
-int ExecuteDirectSE(GObj *gobj, int id)
-{
-    setSEEnvironment(gobj, id);
-    return execSE(id, 0);
-}
+INCLUDE_ASM(ExecuteDirectSE);
 
 void StopFDSVibration(void *flags)
 {
@@ -527,30 +472,8 @@ static inline int checkWeaponType(GObj *gobj, int kind)
     return 0;
 }
 
-static inline int execVib(int no, void *entry)
-{
-    if (no <= 0xFFFF) {
-        if (no > 0) {
-            iosPadActRequest(boyPad, no);
-        }
-    } else if (no > 0x1FFFF) {
-        execVibCondition(no - 0x20000, entry);
-    }
-    return 1;
-}
-
 /* a frame slot's handler: it is passed the slot's number and entry, which it does not read */
-static inline int execWeaponLightOff(int no, void *entry)
-{
-    Sub15C *p;
-    GObj *q;
-    p = GOBJ_SUB(fdsGObj);
-    q = p->ctrl.pickedWeapon;
-    if (q != 0) {
-        if (CheckWeaponKind(q) == 1) {
-            Sub15C *r = GOBJ_SUB(fdsGObj);
-            LightTorchOffOfWeapon(r->ctrl.pickedWeapon);
-        }
-    }
-    return 1;
-}
+
+INCLUDE_ASM(execVib);
+
+INCLUDE_ASM(execWeaponLightOff);
