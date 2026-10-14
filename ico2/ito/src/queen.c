@@ -36,7 +36,6 @@
 #include "gather_effect.h"
 #include "boyact.h"
 #include "Texture.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     float v[4];
@@ -1022,9 +1021,85 @@ static const QueenGenTable genEnemyTable[2] = {
 
 static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d"; /* derived name */
 
-void gene_enemy(volatile int g);
+void gene_enemy(volatile int g)
+{
+    union { /* field names derived */
+        float f[4];
+        int i[4];
+    } pos;
 
-INCLUDE_ASM(gene_enemy_queen);
+    QueenWork *w = GOBJ_SUB(g)->work;
+    const QueenGenTable *tbl;
+    GObj *o;
+    GObj *c;
+    GObj *e;
+    int num;
+    int total;
+    int alive;
+    int timer;
+    int wait;
+    int k;
+    GObj *obj;
+
+    o = isysGObjSearchFromObjKindID_begin(54);
+    num = (o != 0) ? ((QueenBarrierWork *)GOBJ_SUB(o)->work)->damage : 0;
+    tbl = (stage_no == 37) ? &genEnemyTable[0] : &genEnemyTable[1];
+
+    timer = 0;
+    total = 0;
+    for (c = isysGObjSearchFromObjKindID_begin(4); c != 0;
+         c = isysGObjSearchFromObjKindID_next(c)) {
+        total++;
+    }
+    _ACTWait(1);
+
+    for (;;) {
+        if ((w->st.all & 0xFF0000FF) == 0 && w->st.f.attack != 0) {
+            alive = 0;
+            e = isysGObjSearchFromObjKindID_begin(4);
+            while (e != 0 && isEnemyHyde(e) == 0) {
+                alive++;
+                e = isysGObjSearchFromObjKindID_next(e);
+            }
+            if (debug_font_flag & 1) {
+                debug_Printf(10, 90, -1, genEnemyStatFmt, total, alive, timer);
+            }
+            if (alive < total) {
+                if (timer > ((stage_no == 37) ? genWaitRateSt25 : genWaitRateDefault)[num] *
+                                ((60 - systemStatus[0] * 10) / systemStatus[1])) {
+                    if (stage_no == 37) {
+                        obj =
+                            isysGObjSearchFromObjLayoutID(tbl->list[(int)(_GetRandom() * tbl->n)]);
+                        if (obj != 0) {
+                            lw_pos_to_ico_pos(pos.f, queenSpawnPos[(int)(_GetRandom() * 6.0f)]);
+                            SetRootPosition(obj, pos.f);
+                            wait = (int)(((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
+                            for (k = 0; k <= wait; k++) {
+                                _ACTWait(1);
+                            }
+                            Generator_Call(obj);
+                            _ACTWait(1);
+                            while (stage_CheckAnimationFinish(502) == 0) {
+                                _ACTWait(1);
+                            }
+                            for (k = 0; k <= wait; k++) {
+                                _ACTWait(1);
+                            }
+                            pos.f[0] = 4294967296.0f;
+                            pos.f[1] = 4294967296.0f;
+                            pos.f[2] = 4294967296.0f;
+                            pos.i[3] = 0;
+                            SetRootPosition(obj, pos.f);
+                        }
+                        timer = 0;
+                    }
+                }
+            }
+            timer++;
+        }
+        _ACTWait(1);
+    }
+}
 
 /* The position the queen is dropped at outside her own stage. */
 static const QVec queenStartPos = {{0.0f, 800.0f, 0.0f, 1.0f}}; /* derived name */
@@ -1329,7 +1404,22 @@ void *InitQueenGeo(GObj *g)
     return w;
 }
 
-INCLUDE_ASM(QueenGeo);
+void QueenGeo(GObj *g)
+{
+    QueenWork *w;
+
+    if (systemStatus[5] == 0) {
+        queenFrame++;
+    }
+    ExecMotionOrient(g);
+    SetActressLight(g, 35, 44, 468);
+    w = GOBJ_SUB(g)->work;
+    if (w->clothOn != 0) {
+        GetCloth4D(w->cloth, 3.0f, 0.98f);
+        GetCloth4D(w->cloth2, 5.0f, 0.9f);
+    }
+    CylinderCollision(g, 1, 100.0f, 100.0f, 0.001f);
+}
 
 void QueenDL(GObj *g)
 {
@@ -1539,9 +1629,157 @@ static inline int CheckQueenBallBox(QVec *pos, QVec *from, QVec *target, int xl,
     return hit;
 }
 
-INCLUDE_ASM(QueenBallGeo);
+void QueenBallGeo(GObj *g)
+{
+    /* the root matrix */
+    float m[4][4];
+    QVec queenPos;
+    int num;
+    int i;
+    GObj *weapon;
+    QueenBallWork *w;
+    GObj *barrier;
+    GObj *o;
+    GObj *sword;
+    Act *act;
+    BgaPlayNode **bga;
+    int hit;
+    float r;
 
-INCLUDE_ASM(QueenBallDL);
+    w = GOBJ_SUB(g)->work;
+    barrier = isysGObjSearchFromObjKindID_begin(54);
+    num = (barrier != 0) ? ((QueenBarrierWork *)GOBJ_SUB(barrier)->work)->damage : 0;
+    r = w->scale * 100.0f;
+    weapon = GOBJ_ACT(boyGObj)->weapon;
+    GetRootMatrix(m, g);
+    GetRootPosition(queenPos.f, boyGObj);
+    i = 0;
+    act = GOBJ_ACT(boyGObj);
+    hit = (act->actMode == 49);
+    if (w->live != 0) {
+        for (o = isysGObjSearchFromObjKindID_begin(17); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o), i++) {
+            QVec objPos;
+
+            GetRootPosition(objPos.f, o);
+            hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f, -120, 600.0f);
+            bga = &queenBga[i];
+            CheckQueenBallRing(bga, 478, (QVec *)m[3], &objPos, r);
+            if (*bga != 0) {
+                SetQueenBallOrient(*bga, (QVec *)m[3], &objPos);
+            }
+        }
+        if (w->live != 0) {
+            sword = isysGObjSearchFromObjKindID_begin(14);
+            if (weapon == 0 && sword != 0) {
+                QVec objPos;
+
+                GetRootPosition(objPos.f, sword);
+                hit |=
+                    CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f, -150, 500.0f);
+                CheckQueenBallRing(&queenBga[2], 480, (QVec *)m[3], &objPos, r);
+            }
+        }
+    }
+    if (hit) {
+        GOBJ_SUB(g)->disp = 0;
+    } else {
+        GOBJ_SUB(g)->disp = 1;
+    }
+    if (w->attacked != 0) {
+        w->attacked = 0;
+        w->live = 0;
+        pbga_start(&w->bga, 475);
+        _CopyVector(w->bga->pos, m[3]);
+        CopyQuaternion(w->bga->rot, IdentityQuaternion);
+        ExecuteSEPackage(g, 94);
+    }
+    if (w->cancel != 0) {
+        w->cancel = 0;
+        w->busy = 0;
+        w->live = 0;
+    }
+    if (w->live != 0) {
+        UnitMatrix33((QMat3 *)m);
+        scale_m34((LVec *)m, m, w->scale);
+        CopyMatrix((void *)GOBJ_SUB(g)->nodeMtx, m);
+        if (hit == 0 && w->hit == 0 && _AttackCenter(g, 16, m[3], 0, r, 0) != 0) {
+            w->hit = 1;
+            if (weapon != 0) {
+                ExecuteSEPackage(boyGObj, 97);
+            } else {
+                ExecuteSEPackage(boyGObj, 91);
+            }
+        }
+        if (r > 5000.0f) {
+            w->busy = 0;
+            w->live = 0;
+        }
+        {
+            /* per-barrier-index growth rate, one table per stage */
+            const float *rate;
+
+            if (stage_no == 37) {
+                rate = &ballSpeedRateSt25[num];
+            } else {
+                rate = &ballSpeedRateDefault[num];
+            }
+            w->scale += *rate;
+        }
+    } else {
+        m[3][0] = 4294967296.0f;
+        m[3][1] = 4294967296.0f;
+        m[3][2] = 4294967296.0f;
+        m[3][3] = 0.0f;
+        CopyMatrix((void *)GOBJ_SUB(g)->nodeMtx, m);
+    }
+}
+
+void QueenBallDL(GObj *g)
+{
+    QVec ballPos;
+    QVec selfPos;
+    QVec queenPos;
+    QueenBallWork *w;
+    BgaPlayNode *o;
+    BgaPlayNode **q;
+    int i;
+
+    w = GOBJ_SUB(g)->work;
+    if (w->live != 0) {
+        GetRootPosition(ballPos.f, g);
+        SetupDarkVolume(&ballPos, w->scale * 100.0f, 10.0f);
+        p2o_SetDefaultEnviroment();
+        p2o_DispVU1Default(g);
+    }
+    if (w->bga != 0) {
+        stage_SetScale(475, w->scale);
+        if (stage_DispBgAnimation(&w->bga) != 0) {
+            Act *act;
+
+            w->bga = 0;
+            w->busy = 0;
+            act = GOBJ_ACT(g);
+            act->attacker = 0;
+            act->hit = 0;
+        }
+    }
+    GetRootPosition(selfPos.f, g);
+    GetRootPosition(queenPos.f, boyGObj);
+    q = queenBga;
+    for (i = 0; i < 4; i++, q++) {
+        if ((o = *q) != 0) {
+            long long id = *(long long *)o & 0x3FFF;
+
+            if (id == 479 || id == 481) {
+                SetQueenBallOrient(o, &selfPos, &queenPos);
+            }
+            if (stage_DispBgAnimation(q) != 0) {
+                *q = 0;
+            }
+        }
+    }
+}
 
 void actQueenStart(GObj *g)
 {

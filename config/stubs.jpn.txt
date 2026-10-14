@@ -125,12 +125,6 @@ lit4 actItouQueenAttackChk 0x00632C6C 0x00632C78 ico2/script/src/st25a.c  # 3 fl
 text monitorMonitorCamera 0x0018F938 0x001900D8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 2; length:-99; extent-differs
 lit4 monitorMonitorCamera 0x00632C88 0x00632C94 ico2/omori/src/camera-ico2.c  # 3 floats; target side (DISAGREE)
 rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  # 2 doubles; target side (DISAGREE)
-text gene_enemy 0x001A21A0 0x001A24EC ico2/ito/src/queen.c file=gene_enemy_queen lines=79  # ordinal; first difference at insn 187; imm:1; extent-equal
-text QueenGeo 0x001A2E70 0x001A2F20 ico2/ito/src/queen.c lines=16  # ordinal; first difference at insn 17; imm:1; extent-equal
-lit4 QueenGeo 0x00632E4C 0x00632E58 ico2/ito/src/queen.c  # 3 floats
-text QueenBallGeo 0x001A3418 0x001A3BEC ico2/ito/src/queen.c lines=105  # ordinal; first difference at insn 155; imm:3; extent-equal
-lit4 QueenBallGeo 0x00632EA8 0x00632EAC ico2/ito/src/queen.c  # 1 float
-text QueenBallDL 0x001A3BF0 0x001A3DAC ico2/ito/src/queen.c lines=45  # ordinal; first difference at insn 34; imm:3; extent-equal
 text debug_Assert 0x001AB338 0x001AB3CC ico2/common/src/debug.c lines=9  # ordinal; first difference at insn 15; imm:4; extent-equal
 rdlit debug_Assert 0x00614810 0x0061481C ico2/common/src/debug.c align=16  # 1 string (the unreferenced log strings after it are debug_openLog's and debug_closeLog's, from the C)
 sdlit debug_Assert 0x00634930 0x0063493A ico2/common/src/debug.c  # 2 strings
