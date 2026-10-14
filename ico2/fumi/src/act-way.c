@@ -151,6 +151,10 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d,
     float dy;
     int n;
 
+    /* a disabled print, as the rechecks' below */
+    if (0) {
+        debug_StdPrintfDummy("WBP <<begin>>\n");
+    }
     *(WayStep *)((char *)act + 0x3E0) = wayStepClear;
     act->wayNodeX = node[0];
     act->wayNodeY = node[1];
