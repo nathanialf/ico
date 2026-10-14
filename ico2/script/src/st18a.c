@@ -58,13 +58,6 @@ INCLUDE_ASM(actSt18aSwitchRChk);
 
 INCLUDE_ASM(actSt18aSwitchRUpChk);
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for, and the flag actSt18aDoorChkSub raises when the door check is
-   done. */
-static int demoEnd;
-
-static int doorChkDone; /* derived name */
-
 INCLUDE_ASM(actSt18aDoorChk);
 
 INCLUDE_ASM(actSt18aDoorDownChk);

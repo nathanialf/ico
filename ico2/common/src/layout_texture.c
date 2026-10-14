@@ -24,7 +24,8 @@ typedef struct { /* field names derived */
    layout_action sets and op's countdown waits on; the two highlight colours;
    the current layout; the selected item; the item-select handler's flag; the
    fade state and type; lt_item_select_disable; the fade-end handler; the
-   highlight blink's count and length. */
+   highlight blink's count and length; the colour of display_texture's
+   sparkles. */
 int lt_continue_selected = 0; /* derived name */
 
 static unsigned char ltCursorColor[4] = {128, 128, 128, 127}; /* derived name */
@@ -49,27 +50,13 @@ static unsigned int ltBlinkCount = 0; /* derived name */
 
 static unsigned int ltBlinkLength = 0; /* derived name */
 
-/* .sbss, nine words: the pad buttons of the last
-   frame, the layout switched to and the fade state that follows the switch,
-   the selection glow's flag, count and length, the frame of the last
-   selection, and the switch fade's length and count. */
+static SprCol ltSparkleColor = {128, 128, 128, 127}; /* derived name */
+
+/* .sbss, two words: the pad buttons of the last frame and the layout
+   switched to. */
 static int lastButton; /* derived name */
 
 static int nextLayout; /* derived name */
-
-static int nextFadeState; /* derived name */
-
-static signed char glowOn; /* derived name */
-
-static unsigned int glowCount; /* derived name */
-
-static unsigned int glowLength; /* derived name */
-
-static int selectFrame; /* derived name */
-
-static unsigned int fadeLength; /* derived name */
-
-static unsigned int fadeCount; /* derived name */
 
 /* memset with an int count, which this TU's calls pin over <string.h>'s
    unsigned one */
@@ -165,7 +152,6 @@ static inline void lt_switch_layout_7(int no) /* derived name */
         if (fadeType == 1) {
             fadeState = 5;
         } else {
-            nextFadeState = 3;
             fadeState = 7;
         }
     }
@@ -179,7 +165,6 @@ static inline void lt_switch_layout_3(int no) /* derived name */
         if (fadeType == 1) {
             fadeState = 5;
         } else {
-            nextFadeState = 3;
             fadeState = 3;
         }
     }

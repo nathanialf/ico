@@ -34,10 +34,6 @@ INCLUDE_ASM(actSt04cDoorDownChk);
 
 INCLUDE_ASM(func_00218F98);
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 INCLUDE_ASM(actSt04cSolarXL);
 
 static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */

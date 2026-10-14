@@ -151,13 +151,6 @@ static ActMail sound2_mes[2] = {{430}, {429}}; /* derived name */
 
 static float sound2_chk_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f}; /* derived name */
 
-/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
-   below spin for, and its complement, true when the player skipped the demo
-   with START. */
-static int demoEnd;
-
-static int demoSkipped; /* derived name */
-
 /* .sdata: the sluice, shutter and spike stream handles. */
 SqEntry *suimon = 0;
 

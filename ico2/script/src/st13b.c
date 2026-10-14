@@ -22,18 +22,13 @@
 #include "script.h"
 #include "include_asm.h"
 
-/* .sbss: the demo's own end flag, the conte-02 end flag, the pad actuator
-   handle and volume byte the door-up subthread holds, and the flag
-   actSt13bDoorUpSub raises when the door is up. */
-static int demoEnd;
-
+/* .sbss: the conte-02 end flag, and the pad actuator handle and volume byte
+   the door-up subthread holds. */
 static int conte02End; /* derived name */
 
 static int padAct; /* derived name */
 
 static unsigned char padActVolume; /* derived name */
-
-static int doorUpDone; /* derived name */
 
 /* .data: actor mail packets. */
 static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */

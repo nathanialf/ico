@@ -66,13 +66,12 @@ struct McPreview { /* field names derived */
     int sofa;      /* 0x0C */
 }; /* derived name */
 
-/* .sbss, thirteen words: the port-0 lock state _la_set_current_port_2 records and the one
+/* .sbss, twelve words: the port-0 lock state _la_set_current_port_2 records and the one
    _la_set_current_port_lock_2 records, the lock results for port 0 and port 1
    of _la_set_current_port_new, the icoMisc lock saved by the logo, the title
    continue and the title new game actions, the progress bar's last step, the
    save select's ready flag, the system save's retry count, the last card
-   result, the load (1) or save (0) mode of the file select, and the progress
-   bar's total. */
+   result, and the progress bar's total. */
 static int portLockState; /* derived name */
 
 static int lock2PortState; /* derived name */
@@ -94,8 +93,6 @@ static int saveSelectReady; /* derived name */
 static int systemSaveRetry; /* derived name */
 
 static int mcLastResult; /* derived name */
-
-static int mcLoadMode; /* derived name */
 
 static int barTotal; /* derived name */
 

@@ -19,10 +19,6 @@ static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail demoCam_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}}; /* derived name */
 
 /* .sdata: the sword's object. */

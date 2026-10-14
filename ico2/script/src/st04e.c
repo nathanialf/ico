@@ -20,13 +20,6 @@
 
 static void actSt04eHint1Chk(GObj *volatile self);
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for, and its complement, true when the player skipped the demo with
-   START. */
-static int demoEnd;
-
-static int demoSkipped; /* derived name */
-
 static ActMail waterMain_mes[2] = {{406, actSt04eWaterSwitch}, {429}}; /* derived name */
 
 static ActMail water_mes[2] = {{430}, {429}}; /* derived name */

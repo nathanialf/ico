@@ -111,10 +111,6 @@ void actSt17aHasiEffect(GObj *volatile self)
     } while (t < 1000.0f);
 }
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 INCLUDE_ASM(actLinkTest);
 
 INCLUDE_ASM(actSt17aSekizo);

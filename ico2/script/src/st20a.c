@@ -73,10 +73,6 @@ INCLUDE_ASM(func_00237BD0);
 
 INCLUDE_ASM(func_00237C18);
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 /* .sdata: the bridge and gondola stream handles and the shake. */
 SqEntry *brg20a = 0;
 

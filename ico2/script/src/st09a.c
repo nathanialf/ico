@@ -16,10 +16,6 @@
 #include "main.h"
 #include "include_asm.h"
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 /* .data: actor mail packets. */
 
 static ActMail elvMain_mes[2] = {{406, actSt09aElvSwitch}, {429}}; /* derived name */

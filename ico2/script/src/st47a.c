@@ -97,10 +97,6 @@ static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail hint2On_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
-
 INCLUDE_ASM(actSt47aEnemy1);
 
 INCLUDE_ASM(actSt47aTorch);

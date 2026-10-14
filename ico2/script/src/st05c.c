@@ -19,10 +19,6 @@
 static void actSt04rDoor2Sub(GObj *volatile self);
 static void actSt04rDoorSub(GObj *volatile self);
 
-/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
-   below spin for. */
-static int demoEnd;
-
 static const StVec doorDownChkPos = {{0.0f, 84.0f, -1359.0f, 0.0f}}; /* derived name */
 
 static const StVec doorDownEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}}; /* derived name */

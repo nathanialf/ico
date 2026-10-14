@@ -50,13 +50,6 @@ static ActMail torch_on_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail torch_off_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sbss: the demo's own end flag, raised by the subthreads the wait loops
-   below spin for, and the flag actSt08aDoorUpSub raises when the door is all
-   the way up. */
-static int demoEnd;
-
-static int doorUpDone; /* derived name */
-
 INCLUDE_ASM(actSt08aEnd);
 
 INCLUDE_ASM(actSt08aEne1Chk);

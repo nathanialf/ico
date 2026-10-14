@@ -29,23 +29,6 @@
 #include "main.h"
 #include "include_asm.h"
 
-/* .sbss: the four arguments turnBall hands to the ball-turn actor through file
-   scope, the demo's own end flag, the crest-2 animation the room selects, and
-   the flag the stair subthread raises once it is past its setup. */
-static int turnFlag; /* derived name */
-
-static int turnAnim; /* derived name */
-
-static int turnGobj1; /* derived name */
-
-static int turnGobj2; /* derived name */
-
-static int demoEnd;
-
-static int crest2Anim; /* derived name */
-
-static int subStarted; /* derived name */
-
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
 

@@ -23,13 +23,6 @@ static ActMail waterSwitch_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail solar_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for, and its complement, true when the player skipped the demo with
-   START. */
-static int demoEnd;
-
-static int demoSkipped; /* derived name */
-
 /* .sdata: the solar stream handle. */
 struct SqEntry *solar = 0;
 

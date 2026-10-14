@@ -117,19 +117,6 @@ static ActMail torch2_1xl_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail torch2_2xl_mes[2] = {{430}, {429}}; /* derived name */
 
-/* .sbss: the pad actuator handle openGate holds, the demo's own end flag, the
-   gate animation and voice clip openGate plays, and the flag the stair
-   subthread raises once it is past its setup. */
-static int padAct; /* derived name */
-
-static int demoEnd;
-
-static int gateAnim; /* derived name */
-
-static int gateAdpcm; /* derived name */
-
-static int subStarted; /* derived name */
-
 /* The look-at point both characters face in the crest cutscene. */
 static const ConstVec crestFacePos = {{0.0f, 0.0f, -5000.0f, 1.0f}}; /* derived name */
 

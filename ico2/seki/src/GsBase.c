@@ -264,11 +264,8 @@ static void gsb_KeepFrameBuffer(void)
     gif_EndPacket();
 }
 
-/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints,
-   then one word nothing reads or writes */
+/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints */
 static float fadeLevel; /* derived name */
-
-static int gsbUnusedWord; /* derived name */
 
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPri(int pri);

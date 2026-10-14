@@ -58,8 +58,6 @@ static short boyYaw; /* derived name */ /* heading to the boy in local space */
 
 static short boyYawBack; /* derived name */ /* the opposite heading, boyYaw - 32768 */
 
-static int boySafe; /* derived name */ /* the boy is not in danger */
-
 static float lookDist; /* derived name */ /* distance to the object being watched */
 
 static short lookYaw; /* derived name */ /* heading to it in local space */

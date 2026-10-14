@@ -109,11 +109,8 @@ SqEntry *gate1st = 0;
 int gate1 = 0;
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loops below
-   spin for, and a running flag set for the length of the conte09_3 cutscene
-   that nothing reads back. */
+   spin for. */
 static int demoEnd;
-
-static int conte09_3Running; /* derived name */
 
 INCLUDE_ASM(func_00214280);
 

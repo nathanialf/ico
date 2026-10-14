@@ -99,11 +99,11 @@ static CamCtrl camctrl; /* derived name */
 
 static InsertCameraWork insertCamera; /* derived name */
 
-/* The two ends of the zoom range, the target object and its sub object, the
-   two cut-back requests, the zoom blend ratio, the camera mode, the zoom
-   distance and field of view, the lws cut-back request and the four demo
-   limits; handCameraLimitP and handCameraLimitV take the P and V of their
-   own exported setters. */
+/* The zoom base and the two ends of the zoom range, the target object and
+   its sub object, the two cut-back requests, the camera mode, the zoom
+   distance and field of view, and the lws cut-back request. */
+static int zoomBase; /* derived name */
+
 static int zoomRangeMin; /* derived name */
 
 static int zoomRangeMax; /* derived name */
@@ -116,8 +116,6 @@ static unsigned char gamecamCutBack; /* derived name */
 
 static unsigned char zoomRequest; /* derived name */
 
-static float zoomBlend; /* derived name */
-
 static int cameraMode; /* derived name */
 
 static float cameraZoom; /* derived name */
@@ -125,14 +123,6 @@ static float cameraZoom; /* derived name */
 static float cameraFov; /* derived name */
 
 static unsigned char lwsCutBack; /* derived name */
-
-static int handCameraLimitP; /* derived name */
-
-static int handCameraLimitV; /* derived name */
-
-static int zoomMaxInDemo; /* derived name */
-
-static int zoomBase; /* derived name */
 
 void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src);
 
@@ -434,7 +424,6 @@ static inline void InsertCamera_Step(void) /* derived name */
         if (insertCamera.count < insertCamera.frames) {
             insertCamera.count = insertCamera.count + 1;
             zoomRequest = insertCamera.zoom;
-            zoomBlend = insertCamera.blend;
         } else {
             insertCamera.enable = 0;
             gamecamCutBack = insertCamera.cutBack;
