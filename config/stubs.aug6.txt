@@ -2606,7 +2606,9 @@ text getRootMatrix 0x001E6BE0 0x001E6C44 ico2/sugipon/src/rotObject.c  # trfile;
 text RotObjectDL 0x001E6C48 0x001E6C7C ico2/sugipon/src/rotObject.c lines=5  # trfile; aug6-only in the census; PAL's RotObjectDL (212 B in PAL)
 text MoveRotObjectWithHoldPoint 0x001E6D78 0x001E7064 ico2/sugipon/src/rotObject.c lines=85  # trfile; aug6-only in the census; PAL's MoveRotObjectWithHoldPoint (892 B in PAL)
 lit4 MoveRotObjectWithHoldPoint 0x0062B524 0x0062B530 ico2/sugipon/src/rotObject.c # target side
+rdlit MoveRotObjectWithHoldPoint 0x006129F0 0x00612A0B ico2/sugipon/src/rotObject.c  # target side: its name, for a disabled trace
 text GetRotObjectGlobalHoldGeometry 0x001E7078 0x001E70E8 ico2/sugipon/src/rotObject.c lines=12  # trfile; aug6-only in the census; PAL's GetRotObjectGlobalHoldGeometry (272 B in PAL)
+rdlit GetRotObjectGlobalHoldGeometry 0x00612A10 0x00612A2F ico2/sugipon/src/rotObject.c  # target side: its name, for a disabled trace
 text InitRotObjectGeo 0x001E70E8 0x001E7210 ico2/sugipon/src/rotObject.c lines=28  # trfile; aug6-only in the census; PAL's InitRotObjectGeo (328 B in PAL)
 text GetRotObjectRotCount 0x001E7210 0x001E7230 ico2/sugipon/src/rotObject.c lines=6  # trfile; aug6-only in the census; PAL's GetRotObjectRotCount (32 B in PAL)
 text GetRotObjectZPlusDirection 0x001E7230 0x001E728C ico2/sugipon/src/rotObject.c lines=11  # trfile; aug6-only in the census; PAL's GetRotObjectZPlusDirection (244 B in PAL)
@@ -3552,6 +3554,7 @@ text actSt09aInit 0x00228230 0x00228270 ico2/script/src/st09a.c lines=8  # ordin
 text actSt09aElvDown 0x00228270 0x00228360 ico2/script/src/st09a.c lines=32  # ordinal; first difference at insn 3; imm:8; extent-equal
 text actSt09aSekizo 0x00228360 0x00228424 ico2/script/src/st09a.c lines=13  # trfile; aug6-only in the census; PAL's actSt09aSekizo (172 B in PAL)
 lit4 actSt09aSekizo 0x0062B7A8 0x0062B7B4 ico2/script/src/st09a.c # target side
+rdlit actSt09aSekizo 0x00614BB0 0x00614BC0 ico2/script/src/st09a.c align=16  # target side: a vector
 text actSt09aBrgDown 0x00228428 0x00228550 ico2/script/src/st09a.c lines=43  # trfile; aug6-only in the census; PAL's actSt09aBrgDown (396 B in PAL)
 text actSt09aElv 0x00228550 0x002285E8 ico2/script/src/st09a.c lines=18  # trfile; aug6-only in the census; PAL's actSt09aElv (152 B in PAL)
 text actSt09aIntro 0x002285E8 0x00228660 ico2/script/src/st09a.c lines=14  # trfile; aug6-only in the census; PAL's actSt09aIntro (120 B in PAL)
