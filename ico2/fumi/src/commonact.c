@@ -154,7 +154,6 @@ inline void afterCommonTruckLever(GObj *volatile self);
 #include "clipCollisionManager.h"
 #include "layout_texture.h"
 #include "flyManager.h"
-#include "include_asm.h"
 
 static void DamageFunc(GObj *self);
 static void TestCageUpDown(GObj *cage, GObj *gobj);
@@ -1863,7 +1862,115 @@ static inline int boxWallCheck(GObj *self, GObj *box, float dist, int h) /* deri
     return 1;
 }
 
-INCLUDE_ASM(actCommonBox);
+void actCommonBox(GObj *volatile self)
+{
+    GObj *box;
+    /* a helper defined at the head of this body */
+    inline void addGirlLevelForBox(GObj * b) /* derived name */
+    {
+        if (girlGObj != 0 && GOBJ_SUB(girlGObj)->parent.obj == b) {
+            brainAddLevelGirl(1000.0f);
+        }
+    }
+    Act *s = GOBJ_ACT(self);
+    GObj *sub;
+    float hold[4];
+    int dbg = 0; /* local debug switch, see the test after the hold point below */
+
+    s->after = afterCommonBox;
+    box = s->env.holdBoxObj;
+    if (stage_no == 16) {
+        sub = GOBJ_SUB(box)->parent.obj;
+        if (sub != 0) {
+            if (sub->kind == 17) {
+                box = sub;
+            }
+        }
+    }
+    ((Act *)(char *)s)->box = box;
+    actMotDirToWall(self);
+    while (1) {
+        int had = (int)s->pushDir != 0;
+        int f2 = 0;
+        int miss = 0;
+        int flag = 0;
+        unsigned char isTruck = IsThisBoxTruck(box);
+
+        addGirlLevelForBox(box);
+        GetBoxHoldPoint(hold, box, self);
+        if (!isTruck) {
+            if (boxWallCheck(self, box, 100.0f, 48)) {
+                ACTSendMailCorrect(self, 0xC7);
+                miss = 1;
+            }
+            if (s->pushDir == 0xFFFFFFFF) {
+                if (boxWallCheck(self, box, 150.0f, 48)) {
+                    miss = 1;
+                }
+            }
+        }
+        if (!miss && (isTruck == 0 ? *(int *)((char *)GOBJ_SUB(self) + 0x608)
+                                   : GOBJ_SUB(self)->ctrl.frameFlag1)) {
+            f2 = 1;
+            if ((int)s->pushDir == 1 && boxWallCheck(self, box, -25.0f, 30)) {
+                miss = 1;
+            } else {
+                float dir[4];
+                unsigned char ok;
+                if (s->pushDir == 0xFFFFFFFF) {
+                    dir[0] = s->env.wallOrient[0];
+                    dir[1] = s->env.wallOrient[1];
+                    dir[2] = s->env.wallOrient[2];
+                } else {
+                    sceVu0ScaleVector(dir, s->env.wallOrient, -1.0f);
+                }
+                if (!isTruck) {
+                    debug_StdPrintfDummy("A\n");
+                    AlignBox(box, 100.0f);
+                }
+                ok = MoveBoxWithHoldPoint(box, hold, self, 22, dir);
+                if (ok) {
+                    flag = 1;
+                } else {
+                    miss = 1;
+                }
+            }
+        }
+        if (GetMotionFrameFlag2((void *)self)) {
+            float pos[4];
+            GetBoxGlobalHoldPoint(pos, box, hold);
+            SetDirectRootPositionNoFittingWithNodePointXZ(
+                (void *)self, 22, pos, GOBJ_SUB(self)->ctrl.frameFlag1 != 0 ? 1.0f : 0.3f);
+            /* a local debug switch, off: mark the global hold point. The
+               bytes pin a block here that gcse sees and later passes delete
+               (9 insns at gcse give the slot order of &s->env and &hold); the
+               text is derived: the August TRFILE (3132-3136) and the January
+               listing (3379-3383) have five code-less lines after this call. */
+            if (dbg) {
+                debug_NMarker(pos, 255, 0, 0, 100.0f);
+            }
+        }
+        if (!had) {
+            _boxbar_set_sound(self, 0);
+            if (!isTruck) {
+                debug_StdPrintfDummy("B\n");
+            }
+        } else if (f2) {
+            _boxbar_set_sound(self, 1);
+        }
+        if (flag) {
+            _boxbar_set_sound(self, 3);
+        }
+        if (miss) {
+            _boxbar_set_sound(self, 2);
+        }
+        if (!isTruck && GetBoxMode(box) == 0) {
+            s->flags20.ll |= (1ULL << 40);
+            s->flags20.ll |= (1ULL << 41);
+        }
+        _ACTWait(1);
+    }
+}
 
 inline void afterCommonBar(GObj *volatile self)
 {

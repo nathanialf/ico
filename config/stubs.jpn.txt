@@ -100,15 +100,6 @@
 
 text findChainInJump 0x0014FB60 0x00150328 ico2/fumi/src/boyact.c local lines=143  # ordinal; first difference at insn 3; length:-6; extent-differs
 lit4 findChainInJump 0x006328A8 0x006328B0 ico2/fumi/src/boyact.c  # 2 floats
-text actCommonBox 0x0015CB38 0x0015D008 ico2/fumi/src/commonact.c lines=101  # December sets no boxDir before the loop (main has the PAL body); with that, it still differs at insn 40: the spill slots of &s->env and &hold are swapped
-lit4 actCommonBox 0x006329D8 0x006329DC ico2/fumi/src/commonact.c  # 1 float
-sdlit actCommonBox 0x006341F0 0x006341FB ico2/fumi/src/commonact.c  # 2 strings
-text ChangeBrain_ToAttack.272 0x00167C88 0x00167DD8 ico2/fumi/src/enemy_act.c local file=ChangeBrain_ToAttack_272  # nested in subEnemyBrain_ToBoy (a stub); equal, gone with its carved parent
-text subEnemyBrain_ToBoy 0x00167DD8 0x00168438 ico2/fumi/src/enemy_act.c lines=156  # ordinal; first difference at insn 0; length:-44; extent-differs
-lit4 subEnemyBrain_ToBoy 0x00632AB8 0x00632ABC ico2/fumi/src/enemy_act.c  # 1 float
-rdlit subEnemyBrain_ToBoy 0x0054E8C8 0x0054E984 ico2/fumi/src/enemy_act.c  # 6 strings, 1 jtbl
-rdlit subEnemyBrain_ToBoy 0x0054E990 0x0054E9A4 ico2/fumi/src/enemy_act.c align=16  # 1 jtbl
-sdlit subEnemyBrain_ToBoy 0x006342C0 0x006342C4 ico2/fumi/src/enemy_act.c  # 1 word
 text HandMgr_GetDistHand.289 0x00178D28 0x00178E38 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_289  # nested in actGirlHand (a stub); equal, gone with its carved parent
 text HandMgr_Update.297 0x00178E38 0x00178F2C ico2/fumi/src/girl_act.c local file=HandMgr_Update_297  # nested in actGirlHand (a stub); equal
 text HandMgr_Judge.301 0x00178F30 0x00179098 ico2/fumi/src/girl_act.c local file=HandMgr_Judge_301  # nested in actGirlHand (a stub); equal
