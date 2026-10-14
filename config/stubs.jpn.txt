@@ -109,19 +109,6 @@ lit4 actGirlHand 0x00632BB8 0x00632BCC ico2/fumi/src/girl_act.c  # 5 floats
 rdlit actGirlHand 0x0054F2A0 0x0054F2AC ico2/fumi/src/girl_act.c align=16  # 1 string
 sdlit actGirlHand 0x00634408 0x00634418 ico2/fumi/src/girl_act.c  # 1 string, 2 statics, 1 word
 text actGirlReadyMove 0x0017A3C8 0x0017A4FC ico2/fumi/src/girl_act.c lines=25  # ordinal; first difference at insn 0; length:-26; extent-differs
-text actConte11 0x00185A40 0x00185D08 ico2/script/src/st25a.c lines=60  # ordinal; first difference at insn 3; imm:12; extent-equal
-lit4 actConte11 0x00632C44 0x00632C54 ico2/script/src/st25a.c  # 4 floats
-text actSt25aQueenTalkChk 0x00185D08 0x00186238 ico2/script/src/st25a.c lines=128  # ordinal; first difference at insn 31; imm:11; extent-equal
-lit4 actSt25aQueenTalkChk 0x00632C54 0x00632C5C ico2/script/src/st25a.c  # 2 floats
-text actConte12 0x00186238 0x00186724 ico2/script/src/st25a.c lines=124  # ordinal; first difference at insn 16; imm:69; extent-equal
-text actSt25aQueenDeadChk 0x00186970 0x00186DE0 ico2/script/src/st25a.c lines=115  # ordinal; first difference at insn 19; imm:40; extent-equal
-text actSt25aElevChk 0x00186FB8 0x00187254 ico2/script/src/st25a.c local lines=47  # ordinal; first difference at insn 22; imm:8; extent-equal
-rdlit actSt25aElevChk 0x0054FCB0 0x0054FCB8 ico2/script/src/st25a.c align=16  # 1 double
-text actSt25aElev 0x001874C8 0x0018758C ico2/script/src/st25a.c lines=21  # ordinal; first difference at insn 15; imm:2; extent-equal
-text actSwordEff 0x00187590 0x001875CC ico2/script/src/st25a.c lines=9  # ordinal; first difference at insn 11; imm:1; extent-equal
-text actSwordEffXL 0x001875D0 0x00187634 ico2/script/src/st25a.c lines=13  # ordinal; first difference at insn 13; imm:2; extent-equal
-text actItouQueenAttackChk 0x001878D8 0x0018795C ico2/script/src/st25a.c lines=10  # ordinal; first difference at insn 15; imm:1; extent-equal
-lit4 actItouQueenAttackChk 0x00632C6C 0x00632C78 ico2/script/src/st25a.c  # 3 floats
 text monitorMonitorCamera 0x0018F938 0x001900D8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 2; length:-99; extent-differs
 lit4 monitorMonitorCamera 0x00632C88 0x00632C94 ico2/omori/src/camera-ico2.c  # 3 floats; target side (DISAGREE)
 rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  # 2 doubles; target side (DISAGREE)
