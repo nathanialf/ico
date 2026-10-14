@@ -115,7 +115,8 @@ ico2/fumi/src/fuzio.c
 ico2/fumi/src/girl_act.c
 ico2/fumi/src/jimaku.c
 ico2/fumi/src/way_sys.c
-ico2/fumi/src/way_util.c
+# ico2/fumi/src/way_util.c .rodata starts 16-aligned at 0x54F5D0 in the JPN ELF, 13 B after way_sys.o's last string; the object's section is 8-aligned
+ico2/fumi/src/way_util.c align.rodata=16
 ico2/script/src/gflag.c
 # ico2/script/src/script.c .data starts 16-aligned at 0x2A5100, 14 B after its predecessor; the object's section is 8-aligned
 ico2/script/src/script.c align.data=16

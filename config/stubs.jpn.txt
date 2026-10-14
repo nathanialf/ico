@@ -789,7 +789,7 @@ rdlit backStageProcessOutStage 0x00612570 0x006125D3 ico2/common/src/backStage.c
 text backStageProcessMain 0x001A8B90 0x001A8DB8 ico2/common/src/backStage.c lines=67  # ordinal; first difference at insn 11; imm:3; extent-equal
 rdlit backStageProcessMain 0x006125D8 0x00612600 ico2/common/src/backStage.c  # 1 string
 text debug_Assert 0x001AB338 0x001AB3CC ico2/common/src/debug.c lines=9  # ordinal; first difference at insn 15; imm:4; extent-equal
-rdlit debug_Assert 0x00614810 0x00614874 ico2/common/src/debug.c align=16  # 1 data
+rdlit debug_Assert 0x00614810 0x0061481C ico2/common/src/debug.c align=16  # 1 string (the unreferenced log strings after it are debug_openLog's and debug_closeLog's, from the C)
 sdlit debug_Assert 0x00634930 0x0063493A ico2/common/src/debug.c  # 2 strings
 text debug_VariableInit 0x001AB7C8 0x001AB950 ico2/common/src/debug.c lines=82  # ordinal; first difference at insn 1; other:15; extent-equal
 text debug_Load 0x001AB9A8 0x001ABF88 ico2/common/src/debug.c lines=95  # ordinal; first difference at insn 58; imm:10; extent-equal
@@ -943,10 +943,13 @@ text BreakItemFromOutside 0x001DFCC0 0x001DFE14 ico2/sugipon/src/item.c lines=18
 text BreakItemWithAttackHit 0x001E0278 0x001E03A4 ico2/sugipon/src/item.c lines=14  # ordinal; first difference at insn 22; imm:1; extent-equal
 text _getFinalMatrix 0x001E1C30 0x001E4674 ico2/sugipon/src/motionManager.c local lines=691  # ordinal; first difference at insn 2; length:-130; extent-differs
 lit4 _getFinalMatrix 0x006330E8 0x00633128 ico2/sugipon/src/motionManager.c  # 16 floats; target side (no PAL body to compile)
+rdlit _getFinalMatrix 0x00618FA0 0x00619070 ico2/sugipon/src/motionManager.c align=16  # 1 jtbl; target side (no PAL body to compile)
 text rootUpdateXZ 0x001E72B0 0x001E8398 ico2/sugipon/src/motionManager.c local lines=197  # ordinal; first difference at insn 65; length:-6; extent-differs
 lit4 rootUpdateXZ 0x00633164 0x00633174 ico2/sugipon/src/motionManager.c  # 4 floats; target side (no PAL body to compile)
+rdlit rootUpdateXZ 0x006191F8 0x0061923E ico2/sugipon/src/motionManager.c  # 1 string, unreferenced (a print the retail build compiles out); target side (no PAL body to compile)
 text rootUpdateXZ_MotPos 0x001E8398 0x001E8894 ico2/sugipon/src/motionManager.c local lines=83  # ordinal; first difference at insn 44; length:-12; extent-differs
 lit4 rootUpdateXZ_MotPos 0x00633174 0x00633178 ico2/sugipon/src/motionManager.c  # 1 float; target side (no PAL body to compile)
+rdlit rootUpdateXZ_MotPos 0x00619240 0x00619251 ico2/sugipon/src/motionManager.c  # 1 string; target side (no PAL body to compile)
 text UpdateFrameCounter 0x001ED678 0x001EDB04 ico2/sugipon/src/motionOrientManager.c lines=82  # ordinal; first difference at insn 15; length:-3; extent-differs
 lit4 UpdateFrameCounter 0x006331A4 0x006331A8 ico2/sugipon/src/motionOrientManager.c  # 1 float; target side (DISAGREE)
 text shiftMotionData 0x001EDE80 0x001EE2BC ico2/sugipon/src/motionOrientManager.c local lines=76  # ordinal; first difference at insn 51; length:-3; extent-differs
@@ -955,6 +958,7 @@ rdlit shiftMotionOrientEndFunc 0x006196C0 0x00619708 ico2/sugipon/src/motionOrie
 sdlit shiftMotionOrientEndFunc 0x00635468 0x0063546A ico2/sugipon/src/motionOrientManager.c  # 1 string
 text shiftMotionOrientBeginFunc 0x001EE3C0 0x001EE764 ico2/sugipon/src/motionOrientManager.c local lines=49  # ordinal; first difference at insn 5; other:3; extent-equal
 rdlit shiftMotionOrientBeginFunc 0x00619708 0x006197AB ico2/sugipon/src/motionOrientManager.c  # 4 strings
+sdlit shiftMotionOrientBeginFunc 0x00635470 0x00635471 ico2/sugipon/src/motionOrientManager.c  # 1 string (""), target side
 text normalMotionShift 0x001EE778 0x001EEA94 ico2/sugipon/src/motionOrientManager.c lines=34  # equal with getMotionOrient inlined; a stub because that is one for emission order
 lit4 normalMotionShift 0x006331A8 0x006331AC ico2/sugipon/src/motionOrientManager.c  # 1 float
 text getNodeBlendedFloatingMotion 0x001EF160 0x001EF424 ico2/sugipon/src/motionOrientManager.c local lines=39  # ordinal; first difference at insn 1; imm:7; extent-equal
@@ -976,24 +980,6 @@ rdlit motKindMenuProc 0x00619AE8 0x00619B31 ico2/sugipon/src/motionViewer.c  # 3
 text FullScreenEffectBefore 0x001FBCC8 0x001FBE48 ico2/sugipon/src/staticBlur.c lines=71  # ordinal; first difference at insn 2; length:-9; extent-differs
 rdlit FullScreenEffectBefore 0x0061A300 0x0061A320 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
 sdlit FullScreenEffectBefore 0x00635678 0x0063567C ico2/sugipon/src/staticBlur.c  # 1 string
-text _infoUpdate 0x001FCCF8 0x001FD0FC ico2/sugipon/src/streamMotionManager.c local lines=87  # ordinal; first difference at insn 0; length:-55; extent-differs
-rdlit _infoUpdate 0x0061A350 0x0061A41E ico2/sugipon/src/streamMotionManager.c  # 4 strings; target side (DISAGREE)
-text MallocStreamMotionBuffer 0x001FD720 0x001FD7B4 ico2/sugipon/src/streamMotionManager.c lines=10  # ordinal; first difference at insn 10; imm:2; extent-equal
-rdlit MallocStreamMotionBuffer 0x0061A588 0x0061A5DC ico2/sugipon/src/streamMotionManager.c  # 2 strings
-text StandbyStreamMotion 0x001FD7B8 0x001FD904 ico2/sugipon/src/streamMotionManager.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text StopStreamMotion 0x001FD908 0x001FD910 ico2/sugipon/src/streamMotionManager.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text DeleteStreamMotionManager 0x001FD910 0x001FD9D0 ico2/sugipon/src/streamMotionManager.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text EntryStreamMotion 0x001FD9D0 0x001FDA1C ico2/sugipon/src/streamMotionManager.c lines=13  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetDataSizeOfStreamMotion 0x001FDA20 0x001FDA6C ico2/sugipon/src/streamMotionManager.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetStreamMotionData 0x001FDA70 0x001FDB00 ico2/sugipon/src/streamMotionManager.c lines=12  # ordinal; first difference at insn 22; length:+1; extent-differs
-rdlit GetStreamMotionData 0x0061A4F8 0x0061A548 ico2/sugipon/src/streamMotionManager.c  # 1 word, 1 string; target side (DISAGREE)
-text InitStreamMotionManager 0x001FDB00 0x001FDB10 ico2/sugipon/src/streamMotionManager.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text CheckReadyStreamMotion 0x001FDB10 0x001FDB4C ico2/sugipon/src/streamMotionManager.c lines=13  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text SetStreamMotionFinishCallBackFunc 0x001FDB50 0x001FDB6C ico2/sugipon/src/streamMotionManager.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text FreeStreamMotionBuffer 0x001FDB70 0x001FDBA8 ico2/sugipon/src/streamMotionManager.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ClearAllStreamMotionEntry 0x001FDBA8 0x001FDC48 ico2/sugipon/src/streamMotionManager.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text _closeHander 0x001FDC48 0x001FDC68 ico2/sugipon/src/streamMotionManager.c local lines=5  # equal; its out-of-line copy served a stub, so gcc no longer emits it
-text _handler 0x001FDC68 0x001FDD34 ico2/sugipon/src/streamMotionManager.c local lines=29  # equal; its out-of-line copy served a stub
 text WeaponGeo 0x00200E40 0x002011EC ico2/sugipon/src/weapon.c lines=72  # ordinal; first difference at insn 28; other:8; extent-equal
 lit4 WeaponGeo 0x00633258 0x00633264 ico2/sugipon/src/weapon.c  # 3 floats
 text bga_InitData 0x00204190 0x00204538 ico2/seki/src/BgAnimation.c lines=80  # ordinal; first difference at insn 14; imm:2; extent-equal

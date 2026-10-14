@@ -548,6 +548,70 @@ typedef struct { /* field names derived */
    ReadShockFile; they are plain `inline`, so their out-of-line bodies come
    out at the end of the object. */
 
+inline void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int word08, int seg)
+{
+    /* the sound bank/mode pair the switch fills in and soundSQDataSet reads
+       back */
+    volatile SqInfo info;
+    char *buf;
+
+    systemStatus[8]++;
+    if (size == 0) {
+        return;
+    }
+    switch (kind) {
+    case 11:
+        info.mode = 0;
+        info.bank = 0;
+        break;
+    case 10:
+        info.mode = 1;
+        info.bank = sndInitBgmCancelFlag;
+        break;
+    default:
+        debug_assert(__FILE__, 696);
+        __assert(__FILE__, 696, "0");
+    }
+    if (info.bank == 0) {
+        if (seg == 0) {
+            buf = iosMallocDebug(ios_partition_smotion, size, __FILE__, 702);
+        } else {
+            buf = iosMallocDebug(ios_partition_sound, size, __FILE__, 704);
+        }
+    } else {
+        buf = 0;
+    }
+    iosCdvdHandlerRead(h, buf, size);
+    if (buf != 0) {
+        soundSQDataSet(buf, id, kind, info.mode, seg);
+    }
+    debug_StdPrintfDummy("ReadSoundSqFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
+}
+
+inline void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, int word08, int seg)
+{
+    int key;
+    int hi;
+    char *p;
+    SqEntry *q;
+
+    systemStatus[8]++;
+    if (size > 0x5C000)
+        size = 0x5C000;
+    hi = kind << 16;
+    key = (id & 0xFFFF) | hi;
+    if (soundDataAreaSearch(&key) == 0) {
+        p = iosMallocDebug(ios_partition_smotion, size, __FILE__, 744);
+        iosCdvdHandlerRead(h, p, size);
+        debug_StdPrintfDummy("ReadAdpcmFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
+        q = adpcmDataSet(p, id, kind, seg, size, AdpcmIopBuffAlloc(), 0);
+        iosFree(p);
+        AdpcmPlay(q->stream);
+    } else {
+        iosCdvdHandlerRead(h, 0, size);
+    }
+}
+
 void ReadShockFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {
     ShockVoiceFile *p;
@@ -671,69 +735,5 @@ void CSVSYSTEM_ReadCharFiles(Sub15C *rec, int id)
     } else {
         rec->skelNodeNum = 0;
         rec->morphNum = 0;
-    }
-}
-
-inline void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int word08, int seg)
-{
-    /* the sound bank/mode pair the switch fills in and soundSQDataSet reads
-       back */
-    volatile SqInfo info;
-    char *buf;
-
-    systemStatus[8]++;
-    if (size == 0) {
-        return;
-    }
-    switch (kind) {
-    case 11:
-        info.mode = 0;
-        info.bank = 0;
-        break;
-    case 10:
-        info.mode = 1;
-        info.bank = sndInitBgmCancelFlag;
-        break;
-    default:
-        debug_assert(__FILE__, 696);
-        __assert(__FILE__, 696, "0");
-    }
-    if (info.bank == 0) {
-        if (seg == 0) {
-            buf = iosMallocDebug(ios_partition_smotion, size, __FILE__, 702);
-        } else {
-            buf = iosMallocDebug(ios_partition_sound, size, __FILE__, 704);
-        }
-    } else {
-        buf = 0;
-    }
-    iosCdvdHandlerRead(h, buf, size);
-    if (buf != 0) {
-        soundSQDataSet(buf, id, kind, info.mode, seg);
-    }
-    debug_StdPrintfDummy("ReadSoundSqFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
-}
-
-inline void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, int word08, int seg)
-{
-    int key;
-    int hi;
-    char *p;
-    SqEntry *q;
-
-    systemStatus[8]++;
-    if (size > 0x5C000)
-        size = 0x5C000;
-    hi = kind << 16;
-    key = (id & 0xFFFF) | hi;
-    if (soundDataAreaSearch(&key) == 0) {
-        p = iosMallocDebug(ios_partition_smotion, size, __FILE__, 744);
-        iosCdvdHandlerRead(h, p, size);
-        debug_StdPrintfDummy("ReadAdpcmFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
-        q = adpcmDataSet(p, id, kind, seg, size, AdpcmIopBuffAlloc(), 0);
-        iosFree(p);
-        AdpcmPlay(q->stream);
-    } else {
-        iosCdvdHandlerRead(h, 0, size);
     }
 }

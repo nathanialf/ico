@@ -78,7 +78,7 @@ static const char streamWaitFmt[] =
 /* The eighteen stage animations the cancelled ending restores. */
 static const AnimSet18 cancelAnimSet = {
     /* derived name */
-    {784, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 801}};
+    {780, 781, 782, 783, 784, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797}};
 
 /* Where the boy is put back when the ending is cancelled. */
 static const Vec4St25A cancelBoyPos = {
