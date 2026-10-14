@@ -109,25 +109,7 @@ static void execClothes(GObj *gobj)
 }
 
 /* file-static: boy.c has a global function of the same name */
-static void dispCrown(GObj *gobj, Sub15C *acc)
-{
-    GirlWork *w;
-    int n;
-
-    w = GOBJ_SUB(gobj)->work;
-    n = GetSkeltonFocusNode(gobj, 35);
-    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + n * 64);
-    MatrixDrive_ScaleMatrix(1.1111112f, 1.1111112f, 1.1111112f);
-    if (w->ornamentDisp != 0) {
-        CopyMatrix(*(char **)((char *)w->ornament0 + 0xC), MatrixDrive_GetMatrix());
-        CopyMatrix(*(char **)((char *)w->ornament1 + 0xC), MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow((Sub15C *)w->ornament1, GOBJ_SUB(gobj));
-        reg_DispAccessoryWithShadow((Sub15C *)w->ornament0, GOBJ_SUB(gobj));
-    } else {
-        CopyMatrix((char *)acc->nodeMtx, MatrixDrive_GetMatrix());
-        reg_DispAccessoryWithShadow(acc, GOBJ_SUB(gobj));
-    }
-}
+static void dispCrown(GObj *gobj, Sub15C *acc);
 
 /* file-static: boy.c has a global function of the same name */
 static void dispClothes(GObj *gobj)
