@@ -14,7 +14,6 @@
 #include "st04r.h"
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt18aDoorChkSub(GObj *volatile self);
 
@@ -401,11 +400,77 @@ void actSt18aIntro(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt18aDoor);
+void actSt18aDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-INCLUDE_ASM(actSt18aSwitchL);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt18aSwitchR);
+    if (gflagChk(60) == 0) {
+        stage_SetAnimation(119, 0, 0);
+
+        door_mes[0].func = actSt18aDoorChk;
+        act->mail = door_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(119, 0, -1);
+
+        doorDown_mes[0].func = actSt18aDoorDownChk;
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+}
+
+void actSt18aSwitchL(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(58) == 0) {
+        stage_SetAnimation(117, 0, 0);
+
+        switchL_mes[0].func = actSt18aSwitchLChk;
+        act->mail = switchL_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(117, 0, 45);
+
+        switchLUp_mes[0].func = actSt18aSwitchLUpChk;
+        act->mail = switchLUp_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+}
+
+void actSt18aSwitchR(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(59) == 0) {
+        stage_SetAnimation(118, 0, 0);
+
+        switchR_mes[0].func = actSt18aSwitchRChk;
+        act->mail = switchR_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(118, 0, 45);
+
+        switchRUp_mes[0].func = actSt18aSwitchRUpChk;
+        act->mail = switchRUp_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+}
 
 void actSt18aEne(GObj *volatile self)
 {

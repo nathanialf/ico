@@ -13,7 +13,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static void actSt19aChainDownSub(GObj *volatile self);
 
@@ -300,7 +299,26 @@ void actSt19bIntro(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt19aOri);
+void actSt19aOri(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    ScpCallCameraSetTarget(4298.0f, -2342.0f, 1331.0f);
+
+    if (gflagChk(310) == 0) {
+        stage_SetAnimation(138, 0, 0);
+
+        ori_mes[0].func = actSt19aOriMain;
+        act->mail = ori_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(138, 0, 89);
+    }
+}
 
 void actSt19aOriXL(GObj *volatile self)
 {

@@ -15,7 +15,6 @@
 #include "layout_action.h"
 #include "script.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt10lEneKillChk(GObj *volatile self);
 
@@ -421,7 +420,27 @@ void actSt10lChainMove(GObj *volatile self)
     scpSearchGobj(985)->active = 1;
 }
 
-INCLUDE_ASM(actSt10lChain);
+void actSt10lChain(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(287) == 0) {
+        stage_SetAnimation(380, 0, 0);
+
+        scpSearchGobj(985)->active = 0;
+
+        chain_mes[0].func = actSt10lChainMain;
+        act->mail = chain_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(380, 0, 0);
+        FinishHint(13);
+    }
+}
 
 void actSt10lFloor(GObj *volatile self)
 {

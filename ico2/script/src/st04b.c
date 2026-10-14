@@ -14,7 +14,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
@@ -217,7 +216,25 @@ void actSt04bMonyoDoorXL(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt04bSekizo);
+void actSt04bSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(159) == 0) {
+        stage_SetAnimation(187, 0, 0);
+        sekizo_mes[0].func = actSt04bSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(187, 0, -1);
+        if (gflagChk(174) == 0) {
+            ScpCallCameraSetTarget(10793.0f, 2122.0f, 0.0f);
+        }
+    }
+}
 
 void actSt04bEne1(GObj *volatile self)
 {

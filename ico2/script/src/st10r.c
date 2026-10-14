@@ -22,7 +22,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static void actSt10rCageSub(GObj *volatile self);
 static void actSt10rChainMoveSub(GObj *volatile self);
@@ -87,7 +86,31 @@ static SqEntry *st10r_adpcm = 0; /* derived name */
 
 SqEntry *chain10r = 0;
 
-INCLUDE_ASM(actSt10rInit);
+void actSt10rInit(void)
+{
+    if (gflagChk(300) != 0) {
+        stage_SetAnimation(381, 0, -1);
+        SetWayGroupActive(15, 1);
+    } else {
+        stage_SetAnimation(381, 0, 0);
+    }
+
+    if (gflagChk(302) == 0) {
+        SetWayGroupActive(23, 0);
+        stage_SetAnimation(385, 0, 0);
+    } else {
+        SetWayGroupActive(23, 1);
+        stage_SetAnimation(385, 0, -1);
+        FinishHint(21);
+    }
+
+    if (gflagChk(301) == 0) {
+        stage_SetAnimation(384, 0, 0);
+    } else {
+        stage_SetAnimation(384, 0, -1);
+        FinishHint(22);
+    }
+}
 
 void actSt10rEnd(void)
 {

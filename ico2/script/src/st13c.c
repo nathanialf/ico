@@ -29,7 +29,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "jimaku.h"
-#include "include_asm.h"
 
 static void actSt13cHandSub(GObj *volatile self);
 
@@ -1282,7 +1281,26 @@ void actSt13cEnemyNull(GObj *volatile self)
     Generator_MaskOff(self);
 }
 
-INCLUDE_ASM(actSt13cSekizo);
+void actSt13cSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(31) == 0) {
+        stage_SetAnimation(73, 0, 0);
+        SetWayGroupActive(2, 0);
+
+        sekizo_mes[0].func = actSt13cSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(73, 0, -1);
+        SetWayGroupActive(2, 1);
+    }
+}
 
 void actSt13cSekizoJimaku(GObj *volatile self)
 {

@@ -21,7 +21,6 @@
 #include "typedef.h"
 #include "script.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt47aHint2OnChk(GObj *volatile self);
 static void actSt47aRopeSub(GObj *volatile self);
@@ -604,7 +603,26 @@ void actSt47aTorch(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt47aSekizo1);
+void actSt47aSekizo1(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(43) == 0) {
+        stage_SetAnimation(159, 0, 0);
+        sekizo1_mes[0].func = actSt47aSekizo1Chk;
+        act->mail = sekizo1_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(159, 0, -1);
+        if (gflagChk(137) == 0) {
+            ScpCallCameraSetTarget(-3000.0f, 272.0f, 0.0f);
+        }
+    }
+}
 
 void actSt47aSekizo2(GObj *volatile self)
 {

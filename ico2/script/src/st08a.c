@@ -18,7 +18,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static void actSt08aDoorUpSub(GObj *volatile self);
 static void actSt08aGirlPosChk(GObj *volatile self);
@@ -511,7 +510,24 @@ void actSt08aGirlPos(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt08aHasi);
+void actSt08aHasi(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(79) == 0) {
+        stage_SetAnimation(102, 0, 0);
+        hasi_mes[0].func = actSt08aHasiMain;
+        act->mail = hasi_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(102, 0, -1);
+        scpSearchGobj(369)->active = 0;
+        SetWayGroupActive(30, 1);
+    }
+}
 
 void actSt08aTorch(GObj *volatile self)
 {
