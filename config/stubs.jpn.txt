@@ -225,80 +225,12 @@ rdlit GetChainSlope 0x0054DAF8 0x0054DB19 ico2/fumi/src/boyact.c  # 2 strings
 text actCommonBox 0x0015CB38 0x0015D008 ico2/fumi/src/commonact.c lines=101  # December sets no boxDir before the loop (main has the PAL body); with that, it still differs at insn 40: the spill slots of &s->env and &hold are swapped
 lit4 actCommonBox 0x006329D8 0x006329DC ico2/fumi/src/commonact.c  # 1 float
 sdlit actCommonBox 0x006341F0 0x006341FB ico2/fumi/src/commonact.c  # 2 strings
-text setBattleStatus 0x00163CB8 0x00163DC8 ico2/fumi/src/enemy_act.c local lines=24  # ordinal; first difference at insn 15; imm:3; extent-equal
-rdlit setBattleStatus 0x0054E650 0x0054E660 ico2/fumi/src/enemy_act.c align=16  # 1 string
-sdlit setBattleStatus 0x006342B0 0x006342B2 ico2/fumi/src/enemy_act.c  # 1 string
-text _DoAwait 0x00164128 0x001641A0 ico2/fumi/src/enemy_act.c local lines=11  # ordinal; first difference at insn 9; other:3; extent-equal
-text _DoAwaitGirl 0x001641A0 0x00164218 ico2/fumi/src/enemy_act.c local lines=11  # ordinal; first difference at insn 9; other:3; extent-equal
-text subEnemyCollision 0x001646C0 0x00164C5C ico2/fumi/src/enemy_act.c lines=89  # ordinal; first difference at insn 232; imm:5; extent-equal
-lit4 subEnemyCollision 0x00632A8C 0x00632A98 ico2/fumi/src/enemy_act.c  # 3 floats
-text actEnemyRestart 0x00164D88 0x00165054 ico2/fumi/src/enemy_act.c lines=71  # ordinal; first difference at insn 80; imm:3; extent-equal
-text actEnemyKidnapEnd 0x00165390 0x00165AE4 ico2/fumi/src/enemy_act.c lines=149  # ordinal; first difference at insn 295; imm:1; extent-equal
-lit4 actEnemyKidnapEnd 0x00632A98 0x00632AA4 ico2/fumi/src/enemy_act.c  # 3 floats
-rdlit actEnemyKidnapEnd 0x0054E818 0x0054E830 ico2/fumi/src/enemy_act.c  # 1 string, 1 double
-text CheckEnemyBrainMode 0x00166408 0x001665B8 ico2/fumi/src/enemy_act.c local lines=54  # ordinal; first difference at insn 12; imm:1; extent-equal
-text BrainMode_Requset.217 0x001665B8 0x0016688C ico2/fumi/src/enemy_act.c local file=BrainMode_Requset_217  # ordinal; first difference at insn 168; imm:2; extent-equal
-rdlit BrainMode_Requset.217 0x0054E830 0x0054E845 ico2/fumi/src/enemy_act.c align=16 file=BrainMode_Requset_217  # 1 string
-rdlit BrainMode_Requset.217 0x0054E850 0x0054E880 ico2/fumi/src/enemy_act.c align=16 file=BrainMode_Requset_217  # 1 jtbl
-text subEnemyBrainMain 0x00166890 0x00166E80 ico2/fumi/src/enemy_act.c lines=177  # equal; a stub because its nested BrainMode_Requset.217 differs and a nested function is emitted with its parent
-sdlit subEnemyBrainMain 0x006342B8 0x006342BC ico2/fumi/src/enemy_act.c  # 1 word
-text NakaBoss 0x001679C0 0x00167C88 ico2/fumi/src/enemy_act.c local lines=61  # ordinal; first difference at insn 19; imm:3; extent-equal
-rdlit NakaBoss 0x0054E8A8 0x0054E8C8 ico2/fumi/src/enemy_act.c  # 1 string, 2 doubles
 text ChangeBrain_ToAttack.272 0x00167C88 0x00167DD8 ico2/fumi/src/enemy_act.c local file=ChangeBrain_ToAttack_272  # nested in subEnemyBrain_ToBoy (a stub); equal, gone with its carved parent
 text subEnemyBrain_ToBoy 0x00167DD8 0x00168438 ico2/fumi/src/enemy_act.c lines=156  # ordinal; first difference at insn 0; length:-44; extent-differs
 lit4 subEnemyBrain_ToBoy 0x00632AB8 0x00632ABC ico2/fumi/src/enemy_act.c  # 1 float
 rdlit subEnemyBrain_ToBoy 0x0054E8C8 0x0054E984 ico2/fumi/src/enemy_act.c  # 6 strings, 1 jtbl
 rdlit subEnemyBrain_ToBoy 0x0054E990 0x0054E9A4 ico2/fumi/src/enemy_act.c align=16  # 1 jtbl
 sdlit subEnemyBrain_ToBoy 0x006342C0 0x006342C4 ico2/fumi/src/enemy_act.c  # 1 word
-text flyMailCore 0x00168908 0x00168A5C ico2/fumi/src/enemy_act.c local lines=35  # ordinal; first difference at insn 29; imm:4; extent-equal
-rdlit flyMailCore 0x0054E660 0x0054E675 ico2/fumi/src/enemy_act.c align=16  # 1 string
-rdlit flyMailCore 0x0054E7F0 0x0054E811 ico2/fumi/src/enemy_act.c align=16  # 1 string
-text _ApproachTarget_Way 0x00168A60 0x001690C4 ico2/fumi/src/enemy_act.c local lines=104  # ordinal; first difference at insn 19; length:-16; extent-differs
-lit4 _ApproachTarget_Way 0x00632AC0 0x00632ACC ico2/fumi/src/enemy_act.c  # 3 floats
-text actEnemyStart 0x001690C8 0x001695A8 ico2/fumi/src/enemy_act.c lines=83  # ordinal; first difference at insn 27; imm:1; extent-equal
-lit4 actEnemyStart 0x00632ACC 0x00632AD4 ico2/fumi/src/enemy_act.c  # 2 floats
-rdlit actEnemyStart 0x0054E7E0 0x0054E7EC ico2/fumi/src/enemy_act.c align=16  # 1 data
-rdlit actEnemyStart 0x0054EA18 0x0054EA2A ico2/fumi/src/enemy_act.c  # 1 string
-sdlit actEnemyStart 0x006342C4 0x006342C8 ico2/fumi/src/enemy_act.c  # 1 word
-text funcEnemyAiGetGirl 0x00169A68 0x00169A84 ico2/fumi/src/enemy_act.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyStand 0x00169A88 0x00169ACC ico2/fumi/src/enemy_act.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyWalk 0x00169AD0 0x00169B14 ico2/fumi/src/enemy_act.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyRun 0x00169B18 0x00169B5C ico2/fumi/src/enemy_act.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyHang 0x00169B60 0x00169BA4 ico2/fumi/src/enemy_act.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyCarry 0x00169BA8 0x00169BF0 ico2/fumi/src/enemy_act.c lines=5  # ordinal; first difference at insn 1; imm:2; extent-equal
-text actEnemyBodyslam 0x00169BF0 0x00169C34 ico2/fumi/src/enemy_act.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyBodyslamFail 0x00169C38 0x00169C74 ico2/fumi/src/enemy_act.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyNest 0x00169C78 0x00169D34 ico2/fumi/src/enemy_act.c lines=19  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text funcEnemyCarryFail 0x00169D38 0x00169D54 ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyHyde 0x00169D58 0x00169DA8 ico2/fumi/src/enemy_act.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyFlagOnFree 0x00169DA8 0x00169DD8 ico2/fumi/src/enemy_act.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonCarry 0x00169DD8 0x00169E34 ico2/fumi/src/enemy_act.c lines=12  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyFlagOnDead 0x00169E38 0x00169E64 ico2/fumi/src/enemy_act.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text EnemyBrainStatus_Boy 0x00169E68 0x00169E7C ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text EnemyBrainStatus_Girl 0x00169E80 0x00169E94 ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyFlagCheckDead 0x00169E98 0x00169EC0 ico2/fumi/src/enemy_act.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemyFlagCheckActive 0x00169EC0 0x00169F0C ico2/fumi/src/enemy_act.c lines=16  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ACTEnemyForceSwitchToCarry 0x00169F10 0x00169F64 ico2/fumi/src/enemy_act.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemy_GetClingTarget 0x00169F68 0x00169F98 ico2/fumi/src/enemy_act.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemy_isNormalEnemy 0x00169F98 0x00169FB0 ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemy_isLargeEnemy 0x00169FB0 0x00169FC8 ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actEnemy_isSmallEnemy 0x00169FC8 0x00169FDC ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text IsEnemyBrainToGenerator 0x00169FE0 0x0016A050 ico2/fumi/src/enemy_act.c lines=12  # ordinal; first difference at insn 14; imm:2; extent-equal
-text IsEnemyBrainToBoy 0x0016A050 0x0016A090 ico2/fumi/src/enemy_act.c lines=13  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetEnemyTypeFromGObj 0x0016A090 0x0016A0A0 ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetEnemyType 0x0016A0A0 0x0016A0A8 ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text isEnemyKidnapEnable 0x0016A0A8 0x0016A108 ico2/fumi/src/enemy_act.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text isEnemyActive 0x0016A108 0x0016A174 ico2/fumi/src/enemy_act.c lines=8  # ordinal; first difference at insn 11; imm:2; extent-equal
-text GetMotherGeneratorLabelAskEnemy 0x0016A178 0x0016A188 ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetMotherGeneratorGObjAskEnemy 0x0016A188 0x0016A198 ico2/fumi/src/enemy_act.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text subEnemyBrain_Idle 0x0016A198 0x0016A1F8 ico2/fumi/src/enemy_act.c lines=14  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text subEnemyBrain_Await 0x0016A1F8 0x0016A2AC ico2/fumi/src/enemy_act.c lines=20  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text subEnemyBrain_FindGirl 0x0016A2B0 0x0016A448 ico2/fumi/src/enemy_act.c lines=23  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text subEnemyBrain_BodyGuard 0x0016A448 0x0016A524 ico2/fumi/src/enemy_act.c lines=25  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text subEnemyBrain_Shoulder 0x0016A528 0x0016A5B4 ico2/fumi/src/enemy_act.c lines=13  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text subEnemyBrain_Pickup 0x0016A5B8 0x0016A604 ico2/fumi/src/enemy_act.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text subEnemyBrain_Bodyslam 0x0016A608 0x0016A67C ico2/fumi/src/enemy_act.c lines=12  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text subEnemyBrain_Irregular 0x0016A680 0x0016A78C ico2/fumi/src/enemy_act.c lines=12  # equal with afterCommonCarry inlined; a stub because afterCommonCarry is one for emission order
 text ChangeRunMode.135 0x00170CC8 0x00170DB8 ico2/fumi/src/girl_act.c local file=ChangeRunMode_135  # nested in subGirlBrainMain (a stub); equal, gone with its carved parent
 text subGirlBrainMain 0x00170DB8 0x001720DC ico2/fumi/src/girl_act.c lines=465  # ordinal; first difference at insn 1182; other:4; extent-equal
 lit4 subGirlBrainMain 0x00632AEC 0x00632AFC ico2/fumi/src/girl_act.c  # 4 floats
@@ -1320,7 +1252,6 @@ text InitWindMillGeo 0x00258DE8 0x00258F50 ico2/sugipon/src/windmill.c lines=31 
 # Function-scope statics in .data that a carved function's C defined (gcc
 # names them name.N); the JPN addresses are the operands of the twin's
 # lui/addiu pairs at the PAL references' places.
-data col.304 0x0029B0C0 0x0029B0D0 ico2/fumi/src/enemy_act.c local file=col_304  # _ApproachTarget_Way's; PAL 0x29D1C0, JPN addiu at 0x168D78
 #
 # .data objects the December C of a carved function used and PAL's does not
 # (the PAL function computes the value inline); no PAL name, so D_<VMA>.
