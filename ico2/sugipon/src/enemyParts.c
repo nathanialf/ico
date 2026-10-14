@@ -13,7 +13,6 @@
 #include "matrixDrive.h"
 #include "Matrix.h"
 #include "ios.h"
-#include "include_asm.h"
 
 typedef struct PointBlur { /* field names derived */
     /* 0x00 */ int pri;
@@ -169,7 +168,59 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
     return p;
 }
 
-INCLUDE_ASM(InitEnemyFootPrint);
+EnemyFootPrintHead *InitEnemyFootPrint(int num)
+{
+    EnemyFootPrintHead *p;
+    Sub15C *d;
+    int i;
+    int j;
+
+    p = iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c", 226);
+    *p = footPrintHeadTemplate;
+    p->num = num;
+    p->buf = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 229);
+    d = CSVSYSTEM_InitDObj(1291, &InitialSObjSimpleSetting);
+    p->dobj = d;
+    if (d->nodeMtx != 0) {
+        iosFree(d->nodeMtx & 0xFFFFFFF);
+    }
+    if (p->dobj->nodeQuat != 0) {
+        iosFree(p->dobj->nodeQuat & 0xFFFFFFF);
+    }
+    p->dobj->nodeMtx = 0;
+    p->dobj->nodeQuat = 0;
+    p->dobj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num << 6, "src/enemyParts.c", 232);
+    p->dobj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c", 232);
+    p->dobj->nodeNum = num;
+    if ((int)p->dobj->nodes != 0) {
+        iosFree((int)p->dobj->nodes & 0xFFFFFFF);
+    }
+    p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 80, "src/enemyParts.c", 232);
+    for (i = 0; i < num; i++) {
+        p->dobj->nodes[i].flags.ll &= ~1;
+        p->dobj->nodes[i].flags.ll &= ~2;
+        p->dobj->nodes[i].pos[0] = 0.0f;
+        p->dobj->nodes[i].pos[1] = 0.0f;
+        p->dobj->nodes[i].pos[2] = 0.0f;
+        p->dobj->nodes[i].pos[3] = 1.0f;
+        p->dobj->nodes[i].flags.ll &= ~4;
+        p->dobj->nodes[i].fade = 0;
+        p->dobj->nodes[i].alpha = 1.0f;
+        *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x870) + 0x3A) = 0;
+        p->dobj->nodes[i].scale[0] = 1.0f;
+        p->dobj->nodes[i].scale[1] = 1.0f;
+        p->dobj->nodes[i].scale[2] = 1.0f;
+    }
+    p->dobj->dispType = 2;
+    for (j = 0; j < num; j++) {
+        p->buf[j] = footPrintVtxTemplate;
+        p->dobj->nodes[j].flags.ll |= 1;
+        p->dobj->nodes[j].fade = 1.0f;
+        p->dobj->nodes[j].flags.ll &= ~4;
+        p->dobj->nodes[j].scale[0] = p->dobj->nodes[j].scale[1] = p->dobj->nodes[j].scale[2] = 0.0f;
+    }
+    return p;
+}
 
 int ExecEnemyFootPrints(EnemyFootPrintHead *self)
 {

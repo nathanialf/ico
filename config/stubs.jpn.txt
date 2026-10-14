@@ -279,7 +279,6 @@ sdlit InitBoxGeo 0x006351F0 0x006351F4 ico2/sugipon/src/box.c  # 1 string
 text BoyGeo 0x001CBEF8 0x001CBFCC ico2/sugipon/src/boy.c lines=14  # ordinal; first difference at insn 18; imm:1; extent-equal
 lit4 BoyGeo 0x00632FD8 0x00632FDC ico2/sugipon/src/boy.c  # 1 float
 text BoyDL 0x001CC140 0x001CC288 ico2/sugipon/src/boy.c lines=34  # ordinal; first difference at insn 24; imm:1; extent-equal
-text InitEnemyFootPrint 0x001DA218 0x001DA4D8 ico2/sugipon/src/enemyParts.c lines=53  # ordinal; first difference at insn 34; imm:1; extent-equal
 text GirlGeo 0x001DD408 0x001DD5CC ico2/sugipon/src/girl.c lines=35  # ordinal; first difference at insn 11; imm:1; extent-equal
 lit4 GirlGeo 0x006330B0 0x006330B4 ico2/sugipon/src/girl.c  # 1 float
 text ThrowItem 0x001DE650 0x001DE6BC ico2/sugipon/src/item.c lines=11  # ordinal; first difference at insn 14; length:-19; extent-differs
