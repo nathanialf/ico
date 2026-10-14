@@ -592,9 +592,11 @@ int gsb_ClipBox(float *p)
 }
 
 int gsb_LoadStageSettings(void);
+
 INCLUDE_ASM_LIT(gsb_LoadStageSettings);
 
 int gsb_SaveStageSettings(void);
+
 INCLUDE_ASM_LIT(gsb_SaveStageSettings);
 
 /* one row of the stage setting page: a label, the word it edits, its

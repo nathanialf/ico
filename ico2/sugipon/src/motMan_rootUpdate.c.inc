@@ -1,3 +1,5 @@
+#include "include_asm.h"
+
 /* motMan_rootUpdate.c.inc: the motion manager's root update, the wall, floor and water passes; motionManager.c includes this file. */
 /* _wallHitReaction's helper */
 static inline int getWallSlideDirection(void *dir, void *hit, void *wall) /* derived name */

@@ -149,16 +149,16 @@ typedef struct GirlBrainWork { /* field names derived */
     int curMode;    /* 0x57DC the mode the brain last switched to */
     int targetFlag; /* 0x57E0 bit 16 of the winning BrainTarget's b18 word */
     char pad57E4[12];
-    float runawayGoal[4];      /* 0x57F0 the runaway goal */
-    float hidePoint[4];        /* 0x5800 last accepted hide point */
-    float girlRoot[4];         /* 0x5810 GetRootPosition of the girl, where the runaway search starts */
-    float girlPos[4];          /* 0x5820 the girl's own position, GetRootProjectionPosOfGObj */
-    float boyRoot[4];          /* 0x5830 GetRootPosition of the boy */
-    float boyPos[4];           /* 0x5840 the boy's GetRootProjectionPosOfGObj */
-    char pad5850[16];          /* 0x5850, no reader in this build */
-    WVTObj hideWay;            /* 0x5860, the way the girl tries to the hide point */
-    unsigned char warn;        /* 0x58E0 a brain state asks the main loop to checkWarning */
-    unsigned char pad58E1;     /* 0x58E1 cleared each frame, never read */
+    float runawayGoal[4];  /* 0x57F0 the runaway goal */
+    float hidePoint[4];    /* 0x5800 last accepted hide point */
+    float girlRoot[4];     /* 0x5810 GetRootPosition of the girl, where the runaway search starts */
+    float girlPos[4];      /* 0x5820 the girl's own position, GetRootProjectionPosOfGObj */
+    float boyRoot[4];      /* 0x5830 GetRootPosition of the boy */
+    float boyPos[4];       /* 0x5840 the boy's GetRootProjectionPosOfGObj */
+    char pad5850[16];      /* 0x5850, no reader in this build */
+    WVTObj hideWay;        /* 0x5860, the way the girl tries to the hide point */
+    unsigned char warn;    /* 0x58E0 a brain state asks the main loop to checkWarning */
+    unsigned char pad58E1; /* 0x58E1 cleared each frame, never read */
     unsigned char modeChanged; /* 0x58E2 set on the frame the mode changes */
     unsigned char lookHold;    /* 0x58E3 3 s after flags18 bit 62 while she faced the boy */
     int markerPulse;           /* 0x58E4 the runaway goal marker's pulse */

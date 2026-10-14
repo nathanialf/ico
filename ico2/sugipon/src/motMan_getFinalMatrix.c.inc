@@ -1,3 +1,5 @@
+#include "include_asm.h"
+
 /* motMan_getFinalMatrix.c.inc: the motion manager's final node matrices and their angle limits; motionManager.c includes this file. */
 /* Only _getFinalMatrix uses these two.  The first gives a point relative to
  * the root placed at the matrix's translation, the second the same vector in

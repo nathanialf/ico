@@ -1,3 +1,5 @@
+#include "include_asm.h"
+
 /* girl_brain_attract.c.inc: the girl brain's "attract" state, #included as
  * source into girl_act.c.  Its includer in the 2002 tree is
  * girl_brain_main.c.inc, which is not split out, so the include sits at the
