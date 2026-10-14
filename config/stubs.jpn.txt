@@ -362,9 +362,6 @@ text actInitialize_only_charcter 0x00210268 0x00210368 ico2/fumi/src/act.c lines
 text act_check_intr_list 0x00210750 0x00210934 ico2/fumi/src/act.c local lines=40  # ordinal; first difference at insn 89; imm:8; extent-equal
 text BeforeFunc 0x00210BC0 0x00211290 ico2/fumi/src/act.c lines=130  # ordinal; first difference at insn 252; length:-2; extent-differs
 rdlit BeforeFunc 0x0061AF48 0x0061AF58 ico2/fumi/src/act.c  # 1 data
-text actDejaDemo 0x002152F0 0x0021570C ico2/script/src/deja.c lines=80  # ordinal; first difference at insn 19; imm:43; extent-equal
-text actDejaAfterChk 0x00215860 0x00215984 ico2/script/src/deja.c lines=30  # ordinal; first difference at insn 11; imm:4; extent-equal
-text actDeja 0x00215988 0x00215A38 ico2/script/src/deja.c lines=17  # ordinal; first difference at insn 16; imm:2; extent-equal
 text actEndLogoChk 0x0021AFE8 0x0021B118 ico2/script/src/end.c lines=53  # December plays no logo animation before the fade (no NonLinearCameraMove switch) and clears 60 after it; written so, it still differs at insn 44: the mail record and its handler in s1 and s0 swapped
 text actOpDemo01 0x0021C330 0x0021C840 ico2/script/src/op.c lines=134  # ordinal; first difference at insn 0; length:-4; extent-differs
 sdlit actOpDemo01 0x006358B8 0x006358CF ico2/script/src/op.c  # 3 strings

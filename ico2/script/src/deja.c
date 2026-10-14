@@ -11,7 +11,6 @@
 #include <libvu0.h>
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* actDeja installs actDejaChk as the actor's next mail handler. */
 
@@ -36,6 +35,24 @@ inline void actEnemySleep(GObj *volatile self)
     while (1) {
         scpSleepEnemyAll();
         _ACTWait(1);
+    }
+}
+
+inline void actDeja(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(6) == 0) {
+        lt_switch_layout(52);
+        scpBoyControlReadDisable = 1;
+        scpFadeOut(255.0f, 0, 0, 0);
+        stage_SetAnimation(68, 0, 0);
+        _mes[0].func = actDejaChk;
+        act->mail = _mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
     }
 }
 
@@ -67,7 +84,86 @@ void actDejaChk(GObj *volatile self)
     RequestStageChange(1, boyGObj, 0, 0.025f, 1.0f);
 }
 
-INCLUDE_ASM(actDejaDemo);
+void actDejaDemo(GObj *volatile self)
+{
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].nextStage);
+    scpPlayStart(boyGObj);
+    stage_SetAnimation(604, 1, 0);
+    scpPlayMot(boyGObj, 298);
+    while (stage_ContinueAnimation(604, 605) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 299);
+    while (stage_ContinueAnimation(605, 606) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 300);
+    while (stage_ContinueAnimation(606, 607) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 301);
+    while (stage_ContinueAnimation(607, 608) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 302);
+    _ACTWait(1);
+    stage_SetAnimation(615, 1, 0);
+    while (stage_CheckAnimationFrame(608, 120, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpSearchGobj(54)->active = 0;
+    while (stage_ContinueAnimation(608, 609) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    stage_SetAnimation(615, -1, -2);
+    stage_SetAnimation(616, 1, 0);
+    while (stage_ContinueAnimation(609, 610) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(scpSearchGobj(2548), 724);
+    scpSearchGobj(2548)->active = 1;
+    _ACTWait(1);
+    stage_SetAnimation(616, -1, -2);
+    stage_SetAnimation(617, 1, 0);
+    shadow_DispCancel(74, 1);
+    while (stage_ContinueAnimation(610, 611) == 0) {
+        _ACTWait(1);
+    }
+    scpSearchGobj(54)->active = 1;
+    scpPlayMot(boyGObj, 303);
+    _ACTWait(1);
+    stage_SetAnimation(617, -1, -2);
+    while (stage_ContinueAnimation(611, 612) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 304);
+    scpPlayMot(scpSearchGobj(2548), 725);
+    _ACTWait(1);
+    stage_SetAnimation(618, 1, 0);
+    while (stage_ContinueAnimation(612, 613) == 0) {
+        _ACTWait(1);
+    }
+    scpSearchGobj(2549)->active = 1;
+    scpPlayMot(boyGObj, 305);
+    scpPlayStart(scpSearchGobj(2549));
+    scpPlayMot(scpSearchGobj(2549), 962);
+    _ACTWait(1);
+    stage_SetAnimation(618, -1, -2);
+    stage_SetAnimation(619, 1, 0);
+    while (stage_ContinueAnimation(613, 614) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 306);
+    scpPlayMot(scpSearchGobj(2549), 963);
+    shadow_DispCancel(74, 0);
+    while (stage_CheckAnimationFrame(614, 125, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    demoEnd = 1;
+}
 
 void actDejaAfter(GObj *volatile self)
 {
@@ -97,6 +193,33 @@ void actDejaAfter(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actDejaAfterChk);
+void actDejaAfterChk(GObj *volatile self)
+{
+    Vec16 target;
+    Vec16 dir;
 
-INCLUDE_ASM(actDeja);
+    CheckPoint();
+    gflagOn(7);
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    stage_SetAnimation(620, 1, 0);
+    scpPlayMot(boyGObj, 307);
+    while (stage_CheckAnimationFinish(620) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpPlayMot(boyGObj, 0);
+    target = afterChkPos;
+    sceVu0SubVector(dir.f, target.f, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir.f);
+    scpPlayEnd(boyGObj);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+    _ACTWait(60);
+    if (deja != 0) {
+        scpAdpcmFadeCloseFunc(&deja, 80);
+    }
+    deja = 0;
+    _ACTWait(0);
+}
