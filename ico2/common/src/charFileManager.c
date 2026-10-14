@@ -63,7 +63,6 @@ static int objSerial = 0; /* derived name */
 #include "charFileManager.h"
 #include <stdio.h>
 #include "main.h"
-#include "include_asm.h"
 
 /* declared here until enemy.c's call stores the pointer without its int
    view; then charFileManager.h declares it */
@@ -104,16 +103,137 @@ void ResetCharFileManager(void)
 extern PObjModel *InitPObj(void *buf, int name, int id);
 
 /* "Illegal Model ID number: %d (\"%s\")\n" / "ReadModelFile:Already loaded. (id:%d)%s\n" / "ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n" / sprintf above belong to ReadModelFile. */
-INCLUDE_ASM(ReadModelFile);
+void ReadModelFile(void *h, int name, int size, int id, int kind, int word08, int part)
+{
+    char buf[256];
+    char *p;
 
-INCLUDE_ASM(ReadVolumeModelFile);
+    systemStatus[8]++;
+    if (size == 0) {
+        return;
+    }
+
+    if (id >= MAX_CHARS) {
+        sprintf(buf, "Illegal Model ID number: %d (\"%s\")\n", id, name);
+        /* please raise MAX_CHARS in commmon/include/charFileName.h */
+        debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
+        debug_assertMessage(__FILE__, 129, buf);
+        __assert(__FILE__, 129, "e");
+    }
+
+    if (charFiles[id].pObj != 0) {
+        debug_StdPrintfDummy("ReadModelFile:Already loaded. (id:%d)%s\n", id, name);
+        iosCdvdHandlerRead(h, 0, size);
+        return;
+    }
+
+    if (part == 0) {
+        malloc_SetPartition(0);
+    } else {
+        malloc_SetPartition(1);
+    }
+
+    charFiles[id].state = part;
+    p = iosMallocDebug(ios_partition_seki, size, __FILE__, 144);
+    iosCdvdHandlerRead(h, p, size);
+    debug_StdPrintfDummy("ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, name, p, size);
+    charFiles[id].pObj = InitPObj(p, name, id);
+    charFiles[id].pObj->serial = objSerial++;
+    iosFree(p);
+}
+
+void ReadVolumeModelFile(void *h, int name, int size, int id, int kind, int word08, int seg)
+{
+    char *buf;
+
+    systemStatus[8]++;
+    if (size == 0) {
+        return;
+    }
+    if (seg == 0) {
+        malloc_SetPartition(0);
+    } else {
+        malloc_SetPartition(1);
+    }
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, 189);
+    if (id >= MAX_CHARS) {
+        debug_StdPrintfDummy("Illegal Volume ID number. %d\n", id);
+        debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
+        debug_assert(__FILE__, 194);
+        __assert(__FILE__, 194, "0");
+    }
+    if (charFiles[id].pObj != 0) {
+        debug_StdPrintfDummy("ReadVolumeModelFile:Already loaded. (id:%d)%s\n", id, name);
+        iosCdvdHandlerRead(h, 0, size);
+        return;
+    }
+    iosCdvdHandlerRead(h, buf, size);
+    debug_StdPrintfDummy("ReadVolumeModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, name, buf,
+                         size);
+    charFiles[id].pObj = InitPObj(buf, name, id);
+    charFiles[id].pObj->serial = objSerial++;
+    iosFree(buf);
+}
 
 /* PObj.c has no header; the definition is (ObjHdr *, char *, int) */
 extern PObjModel *AllocPObj(void *buf, int name, int id);
 
-INCLUDE_ASM(ReadShadowModelFile);
+void ReadShadowModelFile(void *h, int name, int size, int id, int kind, int word08, int seg)
+{
+    char *buf;
 
-INCLUDE_ASM(ReadTextureFile);
+    systemStatus[8]++;
+    if (size == 0) {
+        return;
+    }
+    if (seg == 0) {
+        malloc_SetPartition(0);
+    } else {
+        malloc_SetPartition(1);
+    }
+    if (id >= MAX_CHARS) {
+        debug_StdPrintfDummy("Illegal Shadow ID number. %d\n", id);
+        debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
+        debug_assert(__FILE__, 234);
+        __assert(__FILE__, 234, "0");
+    }
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, 238);
+    if (charFiles[id].pShadow != 0) {
+        debug_StdPrintfDummy("ReadShadowModelFile:Already loaded. (id:%d)%s\n", id, name);
+        iosCdvdHandlerRead(h, 0, size);
+        return;
+    }
+    iosCdvdHandlerRead(h, buf, size);
+    debug_StdPrintfDummy("ReadShadowModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, name, buf,
+                         size);
+    charFiles[id].pShadow = AllocPObj(buf, name, id);
+    charFiles[id].pShadow->serial = objSerial++;
+    shadow_MakeObjectData(charFiles[id].pShadow);
+    iosFree(buf);
+}
+
+void ReadTextureFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
+{
+    int rv;
+    char *buf;
+
+    systemStatus[8]++;
+    if (seg == 0) {
+        malloc_SetPartition(0);
+    } else {
+        malloc_SetPartition(1);
+    }
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, 274);
+    if (size == 0) {
+        debug_StdPrintfDummy("ReadTextureFile:texture size is zero.%s\n", name);
+        iosCdvdHandlerRead(h, 0, 0);
+        return;
+    }
+    iosCdvdHandlerRead(h, buf, size);
+    rv = tex_InitTexture(name, buf);
+    debug_StdPrintfDummy("ReadTextureFile:loaded::(%d)%s(addr:%p/size:%d)\n", rv, name, buf, size);
+    iosFree(buf);
+}
 
 /* sugipon/include/sugiCommon.h: byte checksum helper, inlined at its call site */
 static inline int SumBytes(unsigned char *p, int n) /* derived name */
@@ -269,13 +389,47 @@ void ReadStageAnimationFile(void *h, char *name, int size, int id, int kind, int
 typedef struct { /* field names derived */
     char pad0[308];
     int area; /* 0x134, the motion memory area: 0 static, 4 dynamic, else swap */
-    char pad138[92];
-} MotEnt; /* 0x194 */ /* derived name */
+    char pad138[88];
+} MotEnt; /* 0x190 */ /* derived name */
 
 /* motionOrientManager.h carries MotionDef and declares no motionKind */
 extern MotEnt motionKind[];
 
-INCLUDE_ASM(ReadMotionFile);
+void ReadMotionFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
+{
+    systemStatus[8]++;
+    if (size == 0) {
+        return;
+    }
+    switch (motionKind[id].area) {
+    case 0:
+        motionTable[id] = iosMallocDebug(ios_partition_smotion, size, __FILE__, 502);
+        break;
+    case 4:
+        motionTable[id] = iosMallocDebug(ios_partition_dmotion, size, __FILE__, 505);
+        if (motionTable[id] == 0) {
+            /* not enough memory in the dynamic motion area */
+            debug_StdPrintfDummy("ダイナミックモーション領域のメモリが足りません。\n");
+            debug_assertMessage(__FILE__, 508, "LACK OF DYNAMIC MOTION MEMORY.\n");
+            __assert(__FILE__, 508, "e");
+        }
+        break;
+    default:
+        motionTable[id] = iosMallocDebug(ios_partition_s2motion, size, __FILE__, 513);
+        if (motionTable[id] == 0) {
+            /* not enough memory in the motion swap area */
+            debug_StdPrintfDummy("モーションスワップ領域のメモリが足りません。\n");
+            debug_assertMessage(__FILE__, 516, "LACK OF SWAP MOTION MEMORY.\n");
+            __assert(__FILE__, 516, "e");
+        }
+        break;
+    }
+    iosCdvdHandlerRead(h, motionTable[id], size);
+    InitMotionFile(motionTable[id], name);
+    AddMotionMemorySize(size, seg);
+    debug_StdPrintfDummy("ReadMotionFile:[%d]%s (size:%d): \033[33m%1.2fMB\033[m\n", id, name, size,
+                         (float)GetMotionMemorySize(seg) / 1024.0f / 1024.0f);
+}
 
 void ReadParticleEffectFile(void *h, int name, int size, int id)
 {
@@ -423,7 +577,22 @@ void ReadShockFile(void *h, int name, int size, int id, int kind, int word08, in
     debug_StdPrintfDummy("ReadShockData:loaded::[%d]%s  (size:%d)\n", id, name, size);
 }
 
-INCLUDE_ASM(ReadCamerasetFile);
+void ReadCamerasetFile(void *h, int name, int size, int id)
+{
+    char *buf;
+
+    buf = iosMallocDebug(ios_partition_oomori, size, __FILE__, 807);
+    if (buf == 0) {
+        /* not enough memory to load the camera data */
+        debug_StdPrintfDummy("カメラデータをロードするためのメモリが足りません\n");
+        debug_assert(__FILE__, 812);
+        __assert(__FILE__, 812, "0");
+    }
+    systemStatus[8]++;
+    iosCdvdHandlerRead(h, buf, size);
+    AddPluralCameraSet(id, buf);
+    iosFree(buf);
+}
 
 void ReadEndCheckFile(void *h, int name, int size)
 {
@@ -445,7 +614,65 @@ void ReadStageSettingFile(void *h, int name, int size)
     tex_RemakeRegistersSampleMin(0);
 }
 
-INCLUDE_ASM(CSVSYSTEM_ReadCharFiles);
+void CSVSYSTEM_ReadCharFiles(Sub15C *rec, int id)
+{
+    int n = 0;
+    int sum;
+
+    if (id >= MAX_CHARS) {
+        debug_StdPrintfDummy("Illegal Char ID Number. %d\n");
+        debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
+        debug_assert(__FILE__, 914);
+        __assert(__FILE__, 914, "0");
+    }
+    rec->modelId = id;
+    debug_StdPrintfDummy("Link polygon & skelton & collision -> DObj. %d\n", id);
+    rec->model = charFiles[id].pObj;
+    debug_StdPrintfDummy("polygon %p.\n", rec->model);
+    if (rec->model != 0) {
+        debug_StdPrintfDummy("object name %s.\n", rec->model);
+    }
+    rec->shadow = charFiles[id].pShadow;
+    debug_StdPrintfDummy("shadow %p.\n", rec->shadow);
+    if (rec->shadow != 0) {
+        debug_StdPrintfDummy("shadow object name %s.\n", rec->shadow);
+    }
+    rec->skel = charFiles[id].pSkel;
+    debug_StdPrintfDummy("skelton %p.\n", rec->skel);
+    rec->colData = (int)charFiles[id].pColl;
+    debug_StdPrintfDummy("collision %p.\n", rec->colData);
+    if (rec->skel != 0) {
+        while (rec->skel[n].mirror != -1) {
+            n++;
+        }
+        rec->skelNodeNum = n;
+        rec->morphNum = rec->skel[n].kind;
+        if (rec->morphNum < 0) {
+            /* the shape data count information is old */
+            debug_StdPrintfDummy("\033[36m シェイプデータの数情報が古いです。%d\033[m\n",
+                                 rec->morphNum);
+            rec->morphNum = 0;
+        }
+        sum = SumBytes((unsigned char *)rec->skel, rec->skelNodeNum * 64);
+        if (sum == charFiles[id].skelSum) {
+            /* the skelton of "%s" is sound */
+            debug_StdPrintfDummy("\033[36m\"%s\"のスケルトンは正常(%x)\033[m\n", rec->model, sum);
+        } else {
+            debug_StdPrintfDummy(
+                "\033[33m --- W - A - R - N - I - N - G ------------------------\033[m\n");
+            /* the skelton of "%s" is damaged */
+            debug_StdPrintfDummy("\033[33m\"%s\"のスケルトンが破損しています(%x(NOW)!=%x)\033[m\n",
+                                 rec->model, sum, charFiles[id].skelSum);
+            /* it was broken between the load and the stage placement */
+            debug_StdPrintfDummy("\033[33mロード直後からステージ配置の間に壊されました\033[m\n");
+            debug_StdPrintfDummy(
+                "\033[33m ------------------------------------------------------\033[m\n");
+        }
+    } else {
+        rec->skelNodeNum = 0;
+        rec->morphNum = 0;
+    }
+}
 
 inline void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int word08, int seg)
 {

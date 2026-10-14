@@ -788,17 +788,6 @@ text backStageProcessOutStage 0x001A8660 0x001A8B90 ico2/common/src/backStage.c 
 rdlit backStageProcessOutStage 0x00612570 0x006125D3 ico2/common/src/backStage.c  # 3 strings
 text backStageProcessMain 0x001A8B90 0x001A8DB8 ico2/common/src/backStage.c lines=67  # ordinal; first difference at insn 11; imm:3; extent-equal
 rdlit backStageProcessMain 0x006125D8 0x00612600 ico2/common/src/backStage.c  # 1 string
-text ReadModelFile 0x001A96F8 0x001A98C8 ico2/common/src/charFileManager.c lines=38  # ordinal; first difference at insn 21; imm:4; extent-equal
-text ReadVolumeModelFile 0x001A98C8 0x001A9A94 ico2/common/src/charFileManager.c lines=32  # ordinal; first difference at insn 32; imm:4; extent-equal
-text ReadShadowModelFile 0x001A9A98 0x001A9C74 ico2/common/src/charFileManager.c lines=33  # ordinal; first difference at insn 23; imm:5; extent-equal
-rdlit ReadShadowModelFile 0x00612858 0x006128E0 ico2/common/src/charFileManager.c  # 3 strings
-text ReadTextureFile 0x001A9C78 0x001A9D7C ico2/common/src/charFileManager.c lines=30  # ordinal; first difference at insn 0; length:-38; extent-differs
-text ReadMotionFile 0x001AA450 0x001AA694 ico2/common/src/charFileManager.c lines=35  # ordinal; first difference at insn 21; imm:8; extent-equal
-rdlit ReadMotionFile 0x00612B30 0x00612C0A ico2/common/src/charFileManager.c  # 5 strings
-text ReadCamerasetFile 0x001AABD0 0x001AACA0 ico2/common/src/charFileManager.c lines=16  # ordinal; first difference at insn 16; imm:3; extent-equal
-rdlit ReadCamerasetFile 0x00612D00 0x00612D32 ico2/common/src/charFileManager.c  # 1 string
-text CSVSYSTEM_ReadCharFiles 0x001AADB8 0x001AB06C ico2/common/src/charFileManager.c lines=59  # ordinal; first difference at insn 9; imm:3; extent-equal
-rdlit CSVSYSTEM_ReadCharFiles 0x00612D38 0x00612F49 ico2/common/src/charFileManager.c  # 14 strings
 text debug_Assert 0x001AB338 0x001AB3CC ico2/common/src/debug.c lines=9  # ordinal; first difference at insn 15; imm:4; extent-equal
 rdlit debug_Assert 0x00614810 0x00614874 ico2/common/src/debug.c align=16  # 1 data
 sdlit debug_Assert 0x00634930 0x0063493A ico2/common/src/debug.c  # 2 strings
