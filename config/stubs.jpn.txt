@@ -457,10 +457,8 @@ text setDispEnv 0x00255290 0x00255488 ico2/ito/mpeg/mv_disp.c lines=27  # ordina
 text dispCreate 0x00255500 0x002555A4 ico2/ito/mpeg/mv_disp.c lines=15  # ordinal; first difference at insn 4; length:-4; extent-differs
 text dispSetTags 0x002555A8 0x00255B08 ico2/ito/mpeg/mv_disp.c lines=58  # ordinal; first difference at insn 0; length:+76; extent-differs
 text InitWindMillGeo 0x00258DE8 0x00258F50 ico2/sugipon/src/windmill.c lines=31  # PAL-only in the census (windmill.c moved), same size and order; differs at insn 16
-
-# Function-scope statics in .data that a carved function's C defined (gcc
-# names them name.N); the JPN addresses are the operands of the twin's
-# lui/addiu pairs at the PAL references' places.
 #
 # .data objects the December C of a carved function used and PAL's does not
 # (the PAL function computes the value inline); no PAL name, so D_<VMA>.
+data D_004E2EB0 0x004E2EB0 0x004E2EC0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's +Z push vector; JPN addiu at 0x1C9554, after box.c's last file-scope .data
+data D_004E2EC0 0x004E2EC0 0x004E2ED0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's -Z push vector; JPN addiu at 0x1C957C
