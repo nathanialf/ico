@@ -17,7 +17,9 @@ vusrc/<stem>.dsm with -I../build/ico2. The overlay section names dvp-as writes
 hash the file and line it is reading: the .dsm path for the first, and the
 name cpp gives the text after that, "" for standard input and vusrc/<name>.h
 for a shared include; -no-abicalls -mabi=64 leave the ABI bits of e_flags
-clear, the one setting the link merges with the game's EABI64 objects), the
+clear, the one setting the link merges with the game's EABI64 objects;
+`overlay-fill=N` on a .dsm line passes --overlay-fill=N, the byte the
+constant-address overlay sections carry, and is omitted when absent), the
 members config/data_schema.<slug>.txt lists as C (tools/gen_data_c.py: a zero
 stand-in per member, a layout link with the stand-ins that fixes every other
 address, the member's C written from the base ELF with its pointers named from
@@ -105,12 +107,18 @@ def parse_list():
         if kind not in ("src", "data"):
             fail(f"{LIST}:{n}: unknown line form '{f[0]}'")
         align = {}
+        fill = 0
         for tok in f[1:]:
             m = re.fullmatch(r"align\.(data|rodata)=(\d+)", tok)
-            if not m or kind != "src":
-                fail(f"{LIST}:{n}: bad token '{tok}'")
-            align[m.group(1)] = int(m.group(2))
-        entries.append(dict(kind=kind, name=name, align=align, line=n))
+            if m and kind == "src":
+                align[m.group(1)] = int(m.group(2))
+                continue
+            m = re.fullmatch(r"overlay-fill=(\d+)", tok)
+            if m and name.endswith(".dsm") and int(m.group(1)) <= 255:
+                fill = int(m.group(1))
+                continue
+            fail(f"{LIST}:{n}: bad token '{tok}'")
+        entries.append(dict(kind=kind, name=name, align=align, fill=fill, line=n))
     return entries
 
 
@@ -283,9 +291,17 @@ def main():
              "  description = CC $out\n\n")
     for r in ("as_old", "as_sdk"):
         w.append(f"rule {r}\n  command = ${r} $asflags -G $gnum -o $out $in\n  description = AS $out\n\n")
+    # vu: $fill is "--overlay-fill=N" for a .dsm line whose token gives a
+    # nonzero N and is otherwise unset, so a link order without the token
+    # (PAL's, whose overlay byte is 0) assembles with the same command line
+    # under both the unpatched dvp-as and the one
+    # tools/binutils-dvp-overlay-fill.patch builds. Two dashes: an unpatched
+    # dvp-as reads "-overlay-fill=N" as -o "verlay-fill=N", which the later
+    # -o overrides, and assembles on with the byte unset; "--overlay-fill"
+    # it rejects.
     w.append("rule vucpp\n  command = cd ico2 && ../tools/period_env.sh ../$cpp -Ivusrc < $vsm > ../$out\n"
              "  description = CPP $out\n\n"
-             "rule vu\n  command = cd ico2 && ../$dvp_as -no-abicalls -mabi=64 -I../build/ico2 -o ../$out $dsm\n"
+             "rule vu\n  command = cd ico2 && ../$dvp_as -no-abicalls -mabi=64 $fill -I../build/ico2 -o ../$out $dsm\n"
              "  description = VU $out\n\n"
              "rule datastub\n  command = $py tools/gen_data_c.py --stub $member --out $out\n"
              "  description = STUB $out\n  restat = 1\n\n"
@@ -341,6 +357,8 @@ def main():
                          f"  vsm = {vsm}\n"
                          f"build {o}: vu {e['name']} | {pre} {DVP_AS}\n"
                          f"  dsm = {dsm}\n")
+                if e["fill"]:
+                    w.append(f"  fill = --overlay-fill={e['fill']}\n")
             else:
                 rule, gnum = archive_as(e["name"])
                 w.append(f"build {o}: {rule} {e['name']}\n  gnum = {gnum}\n")

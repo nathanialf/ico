@@ -134,7 +134,12 @@ fi
 #   dvp-as                   ps2dev's binutils-gdb, branch dvp-v2.45.1
 #                            (GPL-3.0-or-later, the Cygnus "sky" DVP port
 #                            carried forward), pinned to one commit below,
-#                            configured --target=dvp, gas only.
+#                            with tools/binutils-dvp-overlay-fill.patch
+#                            applied (the overlay sections' fill byte,
+#                            written explicitly instead of left to the
+#                            host's heap; -overlay-fill=N sets it for the
+#                            constant-address overlays), configured
+#                            --target=dvp, gas only.
 #
 # Neither tree needs bison, flex or makeinfo on the host. The 2.10 release
 # tarball ships its generated parsers (ld/ldgram.c, ld/ldlex.c and the
@@ -146,7 +151,7 @@ fi
 # clone's copies (GNU config, same license) replace them.
 #
 # Measured on a 4-core host: dvp fetch ~20 s, dvp-as build ~30 s, ld 2.10
-# build ~17 s. Rebuilt when the pinned commit or the patch changes (stamp).
+# build ~17 s. Rebuilt when the pinned commit or a patch changes (stamp).
 
 BU210_URL="${BU210_URL:-https://ftp.gnu.org/gnu/binutils/binutils-2.10.tar.gz}"
 BU210_SHA256="fd7d227c0dd15cf5448385e56b8ad8313cd491839834b57c0c086ac7b7819a15"
@@ -155,11 +160,13 @@ BU210_DVP_PATCH="$ROOT/tools/binutils-2.10-dvp-ld.patch"
 BU210_DIR="$ROOT/tools/cc/binutils-2.10-ee"
 DVP_REPO="${DVP_REPO:-https://github.com/ps2dev/binutils-gdb}"
 DVP_COMMIT="3eb45ea37f0efd498d1de3cf9562de07197aefa8"   # dvp-v2.45.1 "DVP changes"
+DVP_PATCH="$ROOT/tools/binutils-dvp-overlay-fill.patch"
 DVP_DIR="$ROOT/tools/cc/dvp-as"
 CCSRC="$ROOT/tools/cc/src"
 
 build_dvp_as() {
-    local stamp="$DVP_DIR/.stamp" want="$DVP_COMMIT"
+    local stamp="$DVP_DIR/.stamp" want
+    want="$DVP_COMMIT $(sha256sum < "$DVP_PATCH" | cut -d' ' -f1)"
     if [[ -x "$DVP_DIR/bin/dvp-as" && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
         echo "==> dvp-as already at $DVP_DIR"
         return 0
@@ -170,7 +177,8 @@ build_dvp_as() {
     git -C "$CCSRC/dvp-binutils" init -q
     git -C "$CCSRC/dvp-binutils" fetch -q --depth 1 "$DVP_REPO" "$DVP_COMMIT"
     git -C "$CCSRC/dvp-binutils" checkout -q FETCH_HEAD
-    echo "==> building dvp-as"
+    ( cd "$CCSRC/dvp-binutils" && patch -s -p1 < "$DVP_PATCH" ) || return 1
+    echo "==> building dvp-as with tools/binutils-dvp-overlay-fill.patch"
     ( cd "$CCSRC/build-dvp" &&
       ../dvp-binutils/configure --target=dvp --prefix="$DVP_DIR" \
           --disable-nls --disable-werror --disable-gdb --disable-gdbserver \

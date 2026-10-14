@@ -20,7 +20,9 @@ sudo apt-get install git curl xz-utils make patch gcc gcc-multilib \
 `binutils-mips-linux-gnu` provides `mips-linux-gnu-objcopy`, which writes the
 ROM views (`tools/extract_elf.py`, `tools/compile_c.sh`, the ninja `rom`
 rule). Other distributions need the equivalent packages. The first run needs
-network access to fetch the tools listed below.
+network access to fetch the tools listed below. The other target branches
+read a `.bin` and its `.cue` instead of an ISO; `tools/extract_elf.py` reads
+the raw 2352-byte sectors itself, so those targets need no extra package.
 
 You also need your own image of the PAL disc, SCES-50760, as a plain ISO. The
 build accepts exactly one revision:
@@ -81,7 +83,7 @@ skips it.
 | tool | source | licence | built as |
 | --- | --- | --- | --- |
 | `tools/cc/binutils-2.10-ee/bin/ld` | GNU binutils 2.10, `https://ftp.gnu.org/gnu/binutils/binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`), with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | GPL-2.0-or-later | `--target=mipsel-elf`, `make all-ld` |
-| `tools/cc/dvp-as/bin/dvp-as` | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea37f0efd498d1de3cf9562de07197aefa8` (`https://github.com/ps2dev/binutils-gdb`) | GPL-3.0-or-later | `--target=dvp`, `make all-gas` |
+| `tools/cc/dvp-as/bin/dvp-as` | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea37f0efd498d1de3cf9562de07197aefa8` (`https://github.com/ps2dev/binutils-gdb`), with `tools/binutils-dvp-overlay-fill.patch` | GPL-3.0-or-later | `--target=dvp`, `make all-gas` |
 
 The first patch backports, from ps2dev's `binutils-2.14-PS2.patch`
 (`github.com/ps2dev/ps2toolchain` commit `aa984e7`), the R5900 machine (so
@@ -95,6 +97,22 @@ every `.DVP.overlay.*` orphan its own output section at address 0, as the
 retail ELF has them. Target `mipsel-elf` writes `elf32-littlemips`, the output
 format MAIN.MAP names.
 
+The dvp-as patch sets the one thing in an overlay section that is not code.
+dvp-as sizes each `.DVP.overlay.*` section as one byte repeated over the
+program's length and never writes that byte (`create_vuoverlay_section` in
+`gas/config/tc-dvp.c` drops the pointer `frag_var` returns), so the section
+carries whatever the assembler's heap held. The five constant-address
+overlays, one per program, are zero on the PAL disc and 0x6E on the JPN, USA
+and Aug-6-2001 discs; the seven continuation overlays are zero on all four.
+Assembling with `MALLOC_PERTURB_=145` (glibc then fills new memory with 0x6E)
+reproduces the second pattern in all twelve. The patch writes the byte
+explicitly: `--overlay-fill=N` (0 to 255, default 0) for an overlay whose VU
+address is a constant, 0 for the others. `tools/gen_ninja.py` passes the
+option only when a `.dsm` line of the link order carries an `overlay-fill=N`
+token; PAL's carries none, so its command line also works with an unpatched
+dvp-as. With the patch the build no longer depends on the host's heap;
+without it a host with `MALLOC_PERTURB_` set fails PAL's whole-file SHA-1.
+
 Neither build needs bison, flex or makeinfo. The 2.10 tarball ships its
 generated parsers, but its configure stops when it finds no lex or yacc, so
 the script answers that probe with cache variables and make never regenerates
@@ -102,8 +120,8 @@ the shipped files. The dvp target's gas has no generated parser, and
 `MAKEINFO=true` skips the manuals. The 2.10 tree's `config.sub` and
 `config.guess` predate x86_64 hosts; the dvp clone's copies replace them. The
 2.10 sources need `gcc -std=gnu89 -fcommon`. Each tool has a stamp keyed on
-its commit, or on the tarball and patch hashes, and is rebuilt when that
-changes.
+its commit and patch hash, or on the tarball and patch hashes, and is rebuilt
+when that changes.
 
 ## 2. The base ELF: `tools/extract_elf.sh`
 

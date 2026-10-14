@@ -63,7 +63,18 @@ match. The overlay names hash the file and line the DVP assembler was reading:
 each microprogram's `.dsm` for the first, then the text cpp read from standard
 input (an empty name) and, in normal_c and normal_l, the shared include
 `vusrc/scissorcommcut.h`, whose name is derived (the hash fixes it among the
-names of its form). `tools/check_elf.py --full-diff` prints the whole-file
+names of its form). The overlay contents are not code: each section is one
+byte repeated over the program's size, a byte the DVP assembler never set, so
+the five constant-address overlays (`.DVP.overlay..0x0.*`, one per program)
+carry whatever the assembler's heap held. On PAL's build machine that was
+zero; the JPN, USA and Aug-6-2001 discs carry 0x6E there, and every disc
+leaves the seven continuation overlays (`..unknvma.*`) zero.
+`tools/binutils-dvp-overlay-fill.patch` makes dvp-as write the byte
+explicitly (`--overlay-fill=N` for the five, 0 for the rest), taken from an
+`overlay-fill=N` token on the `.dsm` lines of the target's link order (none on
+PAL), so the build no longer depends on the host's heap: with the unpatched
+assembler, a host that sets `MALLOC_PERTURB_` (145 gives 0x6E) fails PAL's
+whole-file SHA-1. `tools/check_elf.py --full-diff` prints the whole-file
 comparison.
 
 ## Progress badges
@@ -147,7 +158,7 @@ from a Sony SDK.
 | ee-as 2.9-991111 (bundled with that compiler) | assembles the game, libc, libm and libgcc | same archive | GNU GPL (binutils) |
 | SCE ee-as 2.10-ee-001003-1 (bundled with ee-gcc 2.96) | assembles the SDK archives under `sce/` | `decompme/compilers` release `ee-gcc2.96.tar.xz`; only its assembler runs | GNU GPL (binutils) |
 | GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
-| dvp-as | assembles the VU1 microprograms | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea3` | GPL-3.0-or-later |
+| dvp-as with `tools/binutils-dvp-overlay-fill.patch` | assembles the VU1 microprograms | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea3` | GPL-3.0-or-later |
 
 The assembler follows the archive, as the disc's link did: MAIN.MAP takes
 libc, libm and libgcc from the compiler's install and every other library
@@ -166,10 +177,13 @@ The host's `mips-linux-gnu-objcopy` writes `build/ico.rom`.
 | branch | target | |
 | --- | --- | --- |
 | `main` | PAL retail, SCES-50760, `SCES_507.60` | this document |
+| `jpn` | Japanese retail, SCPS-11003, `SCPS_110.03` | the same game on the Japanese disc, with its own README |
 | `ntsc` | USA retail, SLUS-20218, `SCUS_971.13` | the same game on the USA disc, with its own README |
 | `aug6` | the August 6, 2001 prototype | an earlier build of the game, with its own README |
 
-The branches are separate trees and are never merged into each other.
+The branches are separate trees and are never merged into each other. The
+four share one build layer, file for file: `tools/`, `build.sh`, `.github/`
+and `docs/index.html` (`tools/check_shared_layer.sh` checks it).
 
 ## PC port
 

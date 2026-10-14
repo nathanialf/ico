@@ -1,0 +1,95 @@
+tools/binutils-dvp-overlay-fill.patch: the fill byte of the VU overlay
+sections, for ps2dev's binutils-gdb at the dvp-v2.45.1 commit tools/setup.sh
+pins (GPL-3.0-or-later), applied by tools/setup.sh before dvp-as is built.
+
+dvp-as gives each mpg's VU code an overlay section (.DVP.overlay.<...>) and
+sizes it in gas/config/tc-dvp.c create_vuoverlay_section with
+frag_var (rs_space, 1, 1, ...): one byte, repeated end - start times. The
+function drops the pointer frag_var returns, so that byte is never written
+and the section carries whatever the obstack's fresh memory held. On the
+retail discs this shows: the PAL ELF's twelve overlays are zero, while the
+JPN, USA and Aug-6-2001 ELFs fill the five constant-address overlays (one
+per VU1 program, named .DVP.overlay..0x0.<hash>.<line>.<n>) with 0x6E and
+leave the seven continuation overlays (..unknvma.<...>) zero. Assembling
+with glibc's MALLOC_PERTURB_=145 (malloc fills with 145 ^ 0xff = 0x6E)
+gives 0x6E in all twelve; without it, zero.
+
+This patch writes the byte through frag_var's pointer: the value of a new
+option -overlay-fill=N (decimal, 0 to 255, default 0; gas takes it with one
+dash or two, and tools/gen_ninja.py writes two, which an unpatched dvp-as
+rejects instead of reading one dash as -o) when the overlay's VU
+address expression is a constant, the test vuoverlay_section_name uses to
+choose the 0x<addr> name over the unknvma one, and 0 otherwise. With the
+option absent or 0 the objects are byte-identical to the unpatched
+assembler's on a zeroed heap, and no longer depend on the host's heap.
+
+Applied with `patch -p1` in the dvp-binutils clone. Nothing here comes from
+an SDK.
+
+--- a/gas/config/tc-dvp.c
++++ b/gas/config/tc-dvp.c
+@@ -269,6 +269,10 @@ expr_build_binary (operatorT op, symbolS *s1, symbolS *s2)
+    We default to N32_ABI since this is the default for the new toolchain.  */
+ static enum mips_abi_level mips_abi = N32_ABI;
+ 
++/* The byte -overlay-fill=N repeats over each overlay section whose vu
++   address is a constant (0 when not given).  */
++static int overlay_fill;
++
+ const char md_shortopts[] = "";
+ 
+ const struct option md_longopts[] =
+@@ -287,6 +291,8 @@ const struct option md_longopts[] =
+   { "64", no_argument, NULL, OPTION_64 },
+ #define OPTION_NO_ABICALLS (OPTION_MD_BASE + 7)
+   { "no-abicalls", no_argument, NULL, OPTION_NO_ABICALLS },
++#define OPTION_OVERLAY_FILL (OPTION_MD_BASE + 8)
++  { "overlay-fill", required_argument, NULL, OPTION_OVERLAY_FILL },
+ 
+   { NULL, no_argument, NULL, 0 }
+ };
+@@ -307,6 +313,16 @@ md_parse_option (int c, const char *arg)
+     case OPTION_NO_ABICALLS :
+       enable_abicalls = 0;
+       break;
++    case OPTION_OVERLAY_FILL :
++      {
++	char *end;
++	long val = strtol (arg, &end, 10);
++
++	if (*arg == '\0' || *end != '\0' || val < 0 || val > 255)
++	  as_fatal (_("invalid -overlay-fill=%s (want 0 to 255)"), arg);
++	overlay_fill = val;
++      }
++      break;
+       /* The -32, -n32 and -64 options are shortcuts for -mabi=32, -mabi=n32
+ 	 and -mabi=64.  */
+     case OPTION_32:
+@@ -377,6 +393,7 @@ DVP options:\n\
+ -no-dma			do not include DMA instructions in the output\n\
+ -no-dma-vif		do not include DMA or VIF instructions in the output\n\
+ -no-abicalls		do not mark header as PIC\n\
++-overlay-fill=N		fill constant-address overlay sections with byte N\n\
+ -mabi=ABI		create ABI conformant object file for:\n");
+ 
+   first = 1;
+@@ -2571,9 +2588,16 @@ create_vuoverlay_section (const char *section_name,
+      but we can compute it from the start and end labels.  */
+   /* FIXME: This causes the section to occupy space in the file.  */
+   if (start_label)
+-    frag_var (rs_space, 1, 1, (relax_substateT) 0,
+-	      expr_build_binary (O_subtract, end_label, start_label),
+-	      (offsetT) 0, (char *) 0);
++    {
++      /* frag_var returns the one byte rs_space repeats over the section.
++	 Write it: left alone it is whatever the obstack's memory held.  */
++      char *fill = frag_var (rs_space, 1, 1, (relax_substateT) 0,
++			     expr_build_binary (O_subtract, end_label,
++						start_label),
++			     (offsetT) 0, (char *) 0);
++      *fill = (symbol_get_value_expression (addr)->X_op == O_constant
++	       ? overlay_fill : 0);
++    }
+ 
+ #if 0 /* already done */
+   /* Initialize $.mpgloc.  */

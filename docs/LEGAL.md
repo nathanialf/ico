@@ -149,10 +149,23 @@ functions by instruction-stream correlation, never by copying an address.
 ## Prototype symbol maps (`aug6`)
 
 The `aug6` branch builds the August 6, 2001 ICO prototype (`SCUS_971.13`).
-That prototype disc shipped a `MAIN.MAP` and a `SRCFILE.TXT` of its own. The
-project uses the factual metadata in them (names, addresses, file boundaries,
-`__FILE__` paths) on the same terms as the retail maps above. This rests on
-common decompilation practice for symbol information present in a
+That prototype disc ships three build artifacts next to its boot ELF and no
+`SRCFILE.TXT`:
+
+- `MAIN.MAP`: the same file as the PAL disc's (582413 bytes), so it
+  describes a third link, neither the prototype's nor the PAL ELF's.
+- `TRFILE.TXT`: an address-to-function/file/line table whose addresses are
+  offset from the prototype ELF's by a shift that is constant within a
+  region but not across the whole file.
+- `TRTABLE.BIN`: the binary index of `TRFILE.TXT`, one eight-byte entry
+  per line (103258), as on the PAL disc.
+
+The names of functions that exist only in the prototype come from
+`TRFILE.TXT`, one fact at a time: a function's name, file or line is read
+from its entry once the shift for that region has placed the entry at the
+function's address. The project uses this factual metadata (names,
+addresses, file boundaries, `__FILE__` paths) on the same terms as the retail
+maps above. This rests on common decompilation practice for symbol information present in a
 distributed compiled binary: the Ocarina of Time decomp builds the
 symbol-bearing GameCube debug ROM, the Paper Mario TTYD decomp seeds names
 from a demo-disc symbol map. A review prototype that circulated through
