@@ -458,41 +458,6 @@ rdlit BeforeFunc 0x0061AF48 0x0061AF58 ico2/fumi/src/act.c  # 1 data
 text actDejaDemo 0x002152F0 0x0021570C ico2/script/src/deja.c lines=80  # ordinal; first difference at insn 19; imm:43; extent-equal
 text actDejaAfterChk 0x00215860 0x00215984 ico2/script/src/deja.c lines=30  # ordinal; first difference at insn 11; imm:4; extent-equal
 text actDeja 0x00215988 0x00215A38 ico2/script/src/deja.c lines=17  # ordinal; first difference at insn 16; imm:2; extent-equal
-text actE3WarningChk 0x00215A60 0x00215BF8 ico2/script/src/e3.c lines=24  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actE3TitleChk 0x00215DB0 0x00215EA8 ico2/script/src/e3.c lines=24  # ordinal; first difference at insn 25; imm:1; extent-equal
-rdlit actE3TitleChk 0x0061B770 0x0061B77C ico2/script/src/e3.c  # 1 string
-text actE3TitleFrameChk 0x00215EA8 0x00216060 ico2/script/src/e3.c lines=91  # ordinal; first difference at insn 0; length:-93; extent-differs
-rdlit actE3TitleFrameChk 0x0061B780 0x0061B78C ico2/script/src/e3.c  # 1 string; target side (DISAGREE)
-text actE3Inst1Chk 0x00216060 0x002161E8 ico2/script/src/e3.c lines=43  # ordinal; first difference at insn 2; length:-32; extent-differs
-text actE3Capsule 0x002161E8 0x0021636C ico2/script/src/e3.c lines=40  # ordinal; first difference at insn 32; imm:1; extent-equal
-text actE3CapsuleDemoCancel 0x00216370 0x00216514 ico2/script/src/e3.c lines=31  # ordinal; first difference at insn 57; imm:9; extent-equal
-text actE3CapsuleDemo 0x00216518 0x00216720 ico2/script/src/e3.c lines=58  # ordinal; first difference at insn 14; imm:24; extent-equal
-text actE3CageFall 0x00216760 0x0021685C ico2/script/src/e3.c lines=27  # ordinal; first difference at insn 14; imm:4; extent-equal
-text actE3CageFallChk 0x00216860 0x002169CC ico2/script/src/e3.c lines=40  # ordinal; first difference at insn 18; imm:6; extent-equal
-text actE3CageFallDemo 0x002169D0 0x00216D70 ico2/script/src/e3.c lines=111  # ordinal; first difference at insn 7; imm:32; extent-equal
-text actE3St09aSekizo 0x00217130 0x0021722C ico2/script/src/e3.c lines=23  # ordinal; first difference at insn 31; imm:2; extent-equal
-lit4 actE3St09aSekizo 0x0063332C 0x00633334 ico2/script/src/e3.c  # 2 floats
-text actE3St09aSekizoChk 0x00217230 0x002174DC ico2/script/src/e3.c lines=77  # ordinal; first difference at insn 55; imm:4; extent-equal
-lit4 actE3St09aSekizoChk 0x00633334 0x00633348 ico2/script/src/e3.c  # 5 floats
-text actE3GateChk 0x002174E0 0x00217658 ico2/script/src/e3.c lines=43  # ordinal; first difference at insn 40; imm:2; extent-equal
-lit4 actE3GateChk 0x00633348 0x0063334C ico2/script/src/e3.c  # 1 float
-rdlit actE3GateChk 0x0061B840 0x0061B874 ico2/script/src/e3.c  # 1 string
-text actE3GateDemo 0x00217658 0x002179B0 ico2/script/src/e3.c lines=87  # ordinal; first difference at insn 6; other:38; extent-equal
-lit4 actE3GateDemo 0x0063334C 0x00633350 ico2/script/src/e3.c  # 1 float
-text actE3St01bInit 0x00217B58 0x00217B68 ico2/script/src/e3.c lines=4  # ordinal; first difference at insn 0; imm:1; extent-equal
-text actE3St09aBrgDown 0x00217B68 0x00217C88 ico2/script/src/e3.c local lines=35  # ordinal; first difference at insn 4; imm:9; extent-equal
-text actE3Warning 0x00217C88 0x00217D48 ico2/script/src/e3.c lines=16  # ordinal; first difference at insn 2; length:+16; extent-differs
-text actE3Door 0x00217E00 0x00217E98 ico2/script/src/e3.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actE3St09aBrg 0x002183A0 0x00218438 ico2/script/src/e3.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actE3Gate 0x00218438 0x00218508 ico2/script/src/e3.c lines=25  # ordinal; first difference at insn 14; imm:3; extent-equal
-text actE3CapsuleDemoEnd 0x00218598 0x00218668 ico2/script/src/e3.c lines=27  # ordinal; first difference at insn 17; imm:2; extent-equal
-text actE3DoorMain 0x00218668 0x002186A0 ico2/script/src/e3.c lines=12  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actE3DoorSwitch 0x002186A0 0x002186F8 ico2/script/src/e3.c lines=13  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actE3DoorUp 0x002186F8 0x002187AC ico2/script/src/e3.c lines=24  # ordinal; first difference at insn 5; imm:4; extent-equal
-text actE3St13cIntroChk 0x002187B0 0x00218830 ico2/script/src/e3.c lines=19  # ordinal; first difference at insn 4; imm:4; extent-equal
-text actE3CageFallReadyChk 0x00218830 0x0021889C ico2/script/src/e3.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actE3St01bEneChk 0x002188A0 0x00218958 ico2/script/src/e3.c lines=28  # ordinal; first difference at insn 18; imm:4; extent-equal
-text actE3St09aGirlWay 0x00218958 0x002189E4 ico2/script/src/e3.c lines=15  # ordinal; first difference at insn 24; imm:2; extent-equal
 text actEndDemo01 0x00218A70 0x00218BA0 ico2/script/src/end.c lines=25  # ordinal; first difference at insn 20; imm:2; extent-equal
 text actConte14_1 0x00218BA0 0x00218E4C ico2/script/src/end.c lines=75  # ordinal; first difference at insn 6; imm:31; extent-equal
 text actEndDemo02 0x00218E50 0x00218F90 ico2/script/src/end.c lines=29  # ordinal; first difference at insn 17; imm:10; extent-equal
