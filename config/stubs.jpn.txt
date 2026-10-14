@@ -569,19 +569,6 @@ text actSt19aOri 0x0024D968 0x0024DA14 ico2/script/src/st19a.c lines=20  # ordin
 lit4 actSt19aOri 0x00633568 0x00633574 ico2/script/src/st19a.c  # 3 floats
 text actSt19aPipeXL 0x0024DB28 0x0024DB88 ico2/script/src/st19a.c lines=13  # ordinal; first difference at insn 12; imm:1; extent-equal
 text actSt20aInit 0x0024DE08 0x0024DE60 ico2/script/src/st20a.c lines=10  # ordinal; first difference at insn 5; imm:1; extent-equal
-text actSt20aBridgeDown 0x0024DEE8 0x0024E07C ico2/script/src/st20a.c lines=37  # ordinal; first difference at insn 5; imm:3; extent-equal
-text actSt20aGondolaDown 0x0024E080 0x0024E208 ico2/script/src/st20a.c lines=33  # ordinal; first difference at insn 24; imm:6; extent-equal
-text actSt20aGondolaUp 0x0024E208 0x0024E37C ico2/script/src/st20a.c lines=31  # ordinal; first difference at insn 22; imm:6; extent-equal
-text actSt20aFence 0x0024E380 0x0024E56C ico2/script/src/st20a.c lines=55  # ordinal; first difference at insn 49; imm:4; extent-equal
-lit4 actSt20aFence 0x00633574 0x00633580 ico2/script/src/st20a.c  # 3 floats
-text actSt20aFenceDownChk 0x0024E570 0x0024E6D0 ico2/script/src/st20a.c lines=28  # ordinal; first difference at insn 22; imm:5; extent-equal
-text actSt20aFenceUpChk 0x0024E6D0 0x0024E830 ico2/script/src/st20a.c lines=28  # ordinal; first difference at insn 25; imm:4; extent-equal
-text actSt20aFenceDownChk2 0x0024E830 0x0024E990 ico2/script/src/st20a.c lines=28  # ordinal; first difference at insn 22; imm:5; extent-equal
-text actSt20aFenceUpChk2 0x0024E990 0x0024EAF0 ico2/script/src/st20a.c lines=28  # ordinal; first difference at insn 25; imm:4; extent-equal
-text actSt20aGondola 0x0024EB68 0x0024EC18 ico2/script/src/st20a.c lines=18  # ordinal; first difference at insn 15; imm:3; extent-equal
-text actSt20aBridgeDownSub 0x0024F0D0 0x0024F184 ico2/script/src/st20a.c local lines=18  # ordinal; first difference at insn 16; imm:2; extent-equal
-text actSt20aGondolaMain 0x0024F188 0x0024F1D0 ico2/script/src/st20a.c lines=12  # ordinal; first difference at insn 3; imm:1; extent-equal
-text actSt20aGondolaSwitch 0x0024F1D0 0x0024F274 ico2/script/src/st20a.c lines=19  # ordinal; first difference at insn 3; imm:1; extent-equal
 text actSt47aInit 0x00250118 0x002501C0 ico2/script/src/st47a.c lines=18  # ordinal; first difference at insn 5; imm:4; extent-equal
 text actSt47aSekizo1Chk 0x002501F8 0x00250554 ico2/script/src/st47a.c lines=103  # ordinal; first difference at insn 38; imm:6; extent-equal
 lit4 actSt47aSekizo1Chk 0x006335B8 0x006335C0 ico2/script/src/st47a.c  # 2 floats
