@@ -412,6 +412,10 @@ static float bgaPos[4]; /* derived name */
 
 static float bgaScale[4]; /* derived name */
 
+/* the rotation bga_GetMotion returns in degrees, which bga_CalcObject
+   turns into the 16-bit angles of bgaRot */
+static float bgaRotDeg[4]; /* derived name */
+
 static int bgaRot[4]; /* derived name */
 
 static BgaLight bgaDummyLight; /* derived name */

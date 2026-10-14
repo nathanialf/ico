@@ -56,12 +56,28 @@ static const StageOrientDef stageOrientDefs[41] = {
 };
 
 /* the orient index each stage resolves to, -1 where the stage has none */
-static short stageOrientIdx[128]; /* derived name */
+static short stageOrientIdx[104]; /* derived name */
 
 #include "stage_orient.h"
 #include <stdio.h>
 #include <string.h>
-#include "include_asm.h"
+
+inline void StageOrientInit(void)
+{
+    int i, j;
+    char buf[64];
+
+    for (i = 0; i < 104; i++) {
+        sscanf(stageData[i].name, "%s", buf);
+        stageOrientIdx[i] = -1;
+        for (j = 0; j < sizeof(stageOrientDefs) / sizeof(stageOrientDefs[0]); j++) {
+            if (strcmp(buf, stageOrientDefs[j].name) == 0) {
+                stageOrientIdx[i] = j;
+                break;
+            }
+        }
+    }
+}
 
 /* the matrix that places a stage at its orient record's anchor and angle,
    for GetStageDifferenceMatrix and StageOrientGet2 */
@@ -236,5 +252,3 @@ int OtherStagePositionGet(float *ret, int stA, int stB, float *pos)
     ret[1] = -ret[1];
     return 1;
 }
-
-INCLUDE_ASM(StageOrientInit);

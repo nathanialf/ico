@@ -1277,7 +1277,7 @@ static const char queenBarrierAttackedMsg[] = "queen barrier attacked\n"; /* der
 /* the barrier's own spawn layout id, one per stage set */
 static const int barrierLayoutSt25[] = {2150}; /* derived name */
 
-static const int barrierLayoutDefault[] = {3527}; /* derived name */
+static const int barrierLayoutDefault[] = {3504}; /* derived name */
 
 static const char damageFmt[] = "damage:%d"; /* derived name */
 

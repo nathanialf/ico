@@ -1569,6 +1569,10 @@ static inline int checkItemHit(GObj *obj, float *dir) /* derived name */
     return _checkItemCollision(to);
 }
 
+INCLUDE_ASM(D_004E2EB0);
+
+INCLUDE_ASM(D_004E2EC0);
+
 INCLUDE_ASM(moveBoxAutoMatic);
 
 int MoveBoxWithHoldPoint(GObj *self, float *holdPoint, GObj *holder, int focus, float *dir)

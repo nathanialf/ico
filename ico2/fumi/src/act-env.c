@@ -42,6 +42,9 @@ static float ditchCheckBase[4] = {226.0f, -2328.0f, 343.0f, 1.0f}; /* derived na
 
 static float ditchCheckDir[4] = {0.642799f, 0.0f, -0.765893f, 0.0f}; /* derived name */
 
+/* where the first carrier stands in the stage 8 ditch below the -3000 line */
+static float ditchCarryPos[4] = {747.0f, -3775.0f, 2601.0f, 1.0f}; /* derived name */
+
 static float ditchCarryTarget[4] = {602.0f, -3775.0f, 2480.0f, 1.0f}; /* derived name */
 
 static float ditchSofaTarget[4] = {749.0f, -3775.0f, 2650.0f, 1.0f}; /* derived name */
@@ -74,10 +77,6 @@ inline void GetSofaPosition(GObj *self, GObj *sofa)
                       *(void **)((char *)((union ENVIF *)((char *)sofa + 0x15C))->i + 0xC), &v);
 }
 
-/* Where the first carrier stands in the stage 8 ditch below the -3000 line
-   (the .rodata's second object). */
-static const VECTOR ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f}; /* derived name */
-
 static inline int getDitchCarryMode(void) /* derived name */
 {
     void *a;
@@ -103,7 +102,66 @@ static inline int getDitchCarryModeStage8(void) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(getDitchDistTbl);
+static void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj, int *carry)
+{
+    VECTOR v;
+    int mode;
+
+    *tbl = ditchDistTbl;
+
+    *sofa = 0;
+    *carry = 0;
+    *range = 0.0f;
+    if (stage_no == 26) {
+        *tbl = ditchDistTblStage26;
+        if (getDitchCarryMode()) {
+            *range = 50.0f;
+        }
+    }
+    mode = getDitchCarryModeStage8();
+    if (mode) {
+        if (-3000.0f < test_CURRENTROOT(boyGObj)[1]) {
+            *tbl = ditchDistTblStage8;
+            if (mode == 1) {
+                v.x = test_CURRENTROOT(boyGObj)[0];
+                v.y = test_CURRENTROOT(boyGObj)[1];
+                v.z = test_CURRENTROOT(boyGObj)[2];
+                sceVu0SubVector(&v, &v, ditchCheckBase);
+                _ApplyRyGV(&v.x, (float)(int)(_GetDirection(ditchCheckDir) / 3.1415927f * 180.0f) *
+                                     3.1415927f / 180.0f);
+                if (v.z < -150.0f) {
+                    *tbl = ditchDistTblNone;
+                }
+            }
+            if (mode == 2) {
+                v.x = test_CURRENTROOT(boyGObj)[0];
+                v.y = test_CURRENTROOT(boyGObj)[1];
+                v.z = test_CURRENTROOT(boyGObj)[2];
+
+                if (520.0f < v.x) {
+                    *tbl = ditchDistTblNone;
+                }
+            }
+        } else {
+            if (mode == 1) {
+                *tbl = ditchDistTblCarry;
+                pos[0] = ditchCarryPos[0];
+                pos[1] = ditchCarryPos[1];
+                pos[2] = ditchCarryPos[2];
+                _OrientXZGV(obj, ditchCarryTarget, ditchCarryPos);
+
+                *carry = mode;
+            } else {
+                *tbl = ditchDistTblSofa;
+                pos[0] = ditchSofaPos[0];
+                pos[1] = ditchSofaPos[1];
+                pos[2] = ditchSofaPos[2];
+                _OrientXZGV(obj, ditchSofaTarget, ditchSofaPos);
+            }
+            *sofa = 1;
+        }
+    }
+}
 
 static int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
 {

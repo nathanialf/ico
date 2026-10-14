@@ -30,12 +30,12 @@
 #include <stdlib.h>
 #include "include_asm.h"
 
-/* main.c's .data globals, each with an initialiser. systemStatus starts in PAL mode (word 0)
+/* main.c's .data globals, each with an initialiser. systemStatus starts in NTSC mode (word 0)
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
    IosMsgQueue, 0x30 B). */
-int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
+int systemStatus[12] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 
 sceGsDBuff db = {{{0}}};
 

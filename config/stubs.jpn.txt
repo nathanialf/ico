@@ -607,7 +607,6 @@ text gene_eff_end_func 0x001A0950 0x001A0978 ico2/ito/src/itou_boss.c local line
 text QueenGeo 0x001A2E70 0x001A2F20 ico2/ito/src/queen.c lines=16  # ordinal; first difference at insn 17; imm:1; extent-equal
 text QueenBallGeo 0x001A3418 0x001A3BEC ico2/ito/src/queen.c lines=105  # ordinal; first difference at insn 155; imm:3; extent-equal
 text QueenBallDL 0x001A3BF0 0x001A3DAC ico2/ito/src/queen.c lines=45  # ordinal; first difference at insn 34; imm:3; extent-equal
-text StageOrientInit 0x001A5328 0x001A5418 ico2/ito/src/stage_orient.c lines=16  # ordinal; first difference at insn 45; imm:1; extent-equal
 text readBufCreate 0x001A5FA0 0x001A604C ico2/ito/mpeg/mv_readbuf.c lines=13  # ordinal; first difference at insn 13; imm:3; extent-equal
 text videoDecCreate 0x001A61B0 0x001A62F8 ico2/ito/mpeg/mv_videodec.c lines=18  # ordinal; first difference at insn 14; imm:3; extent-equal
 text decBitStrm0 0x001A64F8 0x001A670C ico2/ito/mpeg/mv_videodec.c local lines=47  # ordinal; first difference at insn 110; imm:1; extent-equal
@@ -652,9 +651,6 @@ text debug_DrawBar 0x001AD258 0x001ADFF8 ico2/common/src/debug.c local lines=209
 text debug_DispBar 0x001ADFF8 0x001AE154 ico2/common/src/debug.c lines=25  # ordinal; first difference at insn 0; length:-22; extent-differs
 text debug_SnapShot 0x001AE538 0x001AF488 ico2/common/src/debug.c lines=81  # ordinal; first difference at insn 1; length:+739; extent-differs
 text debug_SelectStage 0x001B07F0 0x001B0A2C ico2/common/src/debug.c lines=6  # ordinal; first difference at insn 34; imm:5; extent-equal
-text gamesysObjInfoInit 0x001B6878 0x001B68CC ico2/common/src/gamesys.c lines=12  # ordinal; first difference at insn 17; imm:1; extent-equal
-text gamesysObjInfoSave 0x001B68D0 0x001B6968 ico2/common/src/gamesys.c lines=18  # ordinal; first difference at insn 33; imm:1; extent-equal
-text gamesysObjInfoLoad 0x001B6968 0x001B69B8 ico2/common/src/gamesys.c lines=6  # ordinal; first difference at insn 17; imm:1; extent-equal
 text ExecIcoMisc 0x001B7EF8 0x001B820C ico2/common/src/icoMisc.c lines=95  # ordinal; first difference at insn 114; imm:3; extent-equal
 text InitIcoMisc 0x001B8210 0x001B8738 ico2/common/src/icoMisc.c lines=141  # ordinal; first difference at insn 211; imm:3; extent-equal
 text ExitIcoMisc 0x001B8900 0x001B8908 ico2/common/src/icoMisc.c lines=1  # equal; a deferred inline the jpn-only stub after it must follow
@@ -839,7 +835,6 @@ text bga_CheckAnimationFrameIn 0x00207B78 0x00207C18 ico2/seki/src/BgAnimation.c
 text bga_CheckSdfCameraFinish 0x00207C18 0x00207C90 ico2/seki/src/BgAnimation.c lines=11  # ordinal; first difference at insn 0; length:+9; extent-differs
 text bga_CheckSdfCameraFrame 0x00207C90 0x00207D18 ico2/seki/src/BgAnimation.c lines=17  # ordinal; first difference at insn 1; length:+13; extent-differs
 text bga_CheckSdfCameraFrameIn 0x00207D18 0x00207DB0 ico2/seki/src/BgAnimation.c lines=16  # ordinal; first difference at insn 0; other:35; extent-equal
-text getDitchDistTbl 0x00209850 0x00209B98 ico2/fumi/src/act-env.c local lines=62  # ordinal; first difference at insn 78; length:-4; extent-differs
 text ACTGetEnvironment 0x00209F08 0x0020E524 ico2/fumi/src/act-env.c lines=1078  # ordinal; first difference at insn 793; length:-1; extent-differs
 text DetourCheck 0x0020E7B8 0x0020EA5C ico2/fumi/src/act-way.c local lines=59  # ordinal; first difference at insn 23; imm:9; extent-equal
 text checkPositionIllegal 0x0020EA60 0x0020EBD0 ico2/fumi/src/act-way.c local lines=32  # ordinal; first difference at insn 13; other:3; extent-equal
@@ -1388,3 +1383,28 @@ data col.277 0x0029AE40 0x0029AE50 ico2/fumi/src/commonact.c local file=col_277 
 data col.278 0x0029AE50 0x0029AE60 ico2/fumi/src/commonact.c local file=col_278  # flyCoreLoop's; PAL 0x29CF50, JPN addiu at 0x15F228
 data col.279 0x0029AE60 0x0029AE70 ico2/fumi/src/commonact.c local file=col_279  # flyCoreLoop's; PAL 0x29CF60, JPN addiu at 0x15EB0C
 data col.304 0x0029B0C0 0x0029B0D0 ico2/fumi/src/enemy_act.c local file=col_304  # _ApproachTarget_Way's; PAL 0x29D1C0, JPN addiu at 0x168D78
+#
+# .data objects the December C of a carved function used and PAL's does not
+# (the PAL function computes the value inline); no PAL name, so D_<VMA>.
+data D_004E2EB0 0x004E2EB0 0x004E2EC0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's +Z push vector; JPN addiu at 0x1C9554, after box.c's last file-scope .data
+data D_004E2EC0 0x004E2EC0 0x004E2ED0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's -Z push vector; JPN addiu at 0x1C957C
+#
+# Function-scope statics in .sdata and .rodata that a carved function's C
+# defined (gcc names them name.N), found as above: the PAL references' places
+# in the twin, or for debug_DrawBar (whose extents differ) its $gp loads by
+# type (the byte, two floats, two ints, in PAL's order).
+sdata slowWalkTimer.73 0x006341B0 0x006341B4 ico2/fumi/src/boyact.c local align=4 file=slowWalkTimer_73  # subBoyControl's; PAL 0x63A6E8, JPN $gp store at 0x151DA0
+sdata pullLen.317 0x0063440C 0x00634410 ico2/fumi/src/girl_act.c local align=4 file=pullLen_317  # actGirlHand's; PAL 0x63A944, JPN $gp load at 0x179A34
+sdata pullTurn.318 0x00634410 0x00634414 ico2/fumi/src/girl_act.c local align=4 file=pullTurn_318  # actGirlHand's; PAL 0x63A948, JPN $gp store at 0x179B1C
+sdata barBlink.103 0x006349BC 0x006349BD ico2/common/src/debug.c local align=1 file=barBlink_103  # debug_DrawBar's; PAL 0x63AF04, JPN lbu/sb at 0x1AD6AC
+sdata barMax.104 0x006349C0 0x006349C4 ico2/common/src/debug.c local align=4 file=barMax_104  # debug_DrawBar's; PAL 0x63AF08, JPN $gp float at -23728
+sdata barMin.105 0x006349C4 0x006349C8 ico2/common/src/debug.c local align=4 file=barMin_105  # debug_DrawBar's; PAL 0x63AF0C, JPN $gp float at -23724
+sdata barItem.106 0x006349C8 0x006349CC ico2/common/src/debug.c local align=4 file=barItem_106  # debug_DrawBar's; PAL 0x63AF10, JPN $gp word at -23720
+sdata barLine.107 0x006349CC 0x006349D0 ico2/common/src/debug.c local align=4 file=barLine_107  # debug_DrawBar's; PAL 0x63AF14, JPN $gp word at -23716
+rodata stageGObjArg.15 0x0054B450 0x0054B490 ico2/seki/src/StageAnimation.c local align=16 file=stageGObjArg_15  # stage_Init's; PAL 0x550150, JPN lui/addiu at 0x12AB38
+rodata gateOpenAnims.9 0x0061BAF8 0x0061BB68 ico2/script/src/st04a.c local file=gateOpenAnims_9  # actSt04aGateChk's; PAL 0x622878, JPN lui/addiu at 0x223920; ids 4 lower
+rodata boyRootPos.10 0x0061BB70 0x0061BB80 ico2/script/src/st04a.c local align=16 file=boyRootPos_10  # actSt04aGateChk's; PAL 0x6228F0, JPN at 0x223AC0
+rodata girlRootPos.11 0x0061BB80 0x0061BB90 ico2/script/src/st04a.c local align=16 file=girlRootPos_11  # actSt04aGateChk's; PAL 0x622900, JPN at 0x223AE0
+rodata gateOpen2Anims.24 0x0061BBB8 0x0061BBEC ico2/script/src/st04a.c local file=gateOpen2Anims_24  # actSt04aGateOpenChk's; PAL 0x622938, JPN lui/addiu at 0x2249F8; ids 4 lower
+rodata boyRootPos2.25 0x0061BBF0 0x0061BC00 ico2/script/src/st04a.c local align=16 file=boyRootPos2_25  # actSt04aGateOpenChk's; PAL 0x622970, JPN at 0x224B30
+rodata girlRootPos2.26 0x0061BC00 0x0061BC10 ico2/script/src/st04a.c local align=16 file=girlRootPos2_26  # actSt04aGateOpenChk's; PAL 0x622980, JPN at 0x224B50

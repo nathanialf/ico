@@ -3,7 +3,7 @@
 #include "access.h"
 
 /* the path sprintf builds and this file hands back */
-static char accessPath[528]; /* derived name */
+static char accessPath[512]; /* derived name */
 
 /* Callers pass the stage and the DF flag (StageManager.c, icoMisc.c), which
    goes straight through to GetDataFileName2.  The DEBUG build reads the data

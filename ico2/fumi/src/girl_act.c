@@ -2631,6 +2631,10 @@ INCLUDE_ASM(HandMgr_Speed_309);
 
 INCLUDE_ASM(GetBoyMode_313);
 
+INCLUDE_ASM(pullLen_317);
+
+INCLUDE_ASM(pullTurn_318);
+
 INCLUDE_ASM(actGirlHand);
 
 void actGirlPulledReady(GObj *volatile self)

@@ -359,7 +359,8 @@ static char *debugBarName[] = {"Off", "Low-Deco", "High-Deco"}; /* derived name 
 
 static char *debugProfileName[] = {"Variable", "Process"}; /* derived name */
 
-static char *debugSnapSizeName[] = {"None", "1x1", "2x2", "4x4", "8x8"}; /* derived name */
+static char *debugSnapSizeName[] = {"Normal", "Half",     "Double",  "Double+Wide",
+                                    "4x4",    "4x4+Wide", "XYOFFSET"}; /* derived name */
 
 static char *debugSnapFormName[] = {"TIM2", "BMP"}; /* derived name */
 
@@ -430,8 +431,8 @@ static const DbgOpt debugOption[76] = {
     {" BrainOnOff         ", 0xFF80FF80, &debug_brain_flag, 0, 1, debugOffOnName, 0},
     {" GBrainInfo         ", 0xFF80FF80, &debug_gbrain_info_flag, 0, 1, debugOffOnName, 0},
     {" WayTool            ", 0xFF80FF80, &debug_wayline, 0, 1, debugOffOnName, 0},
-    {" SnapShotView       ", 0xC0C0C080, &debug_snapshot_num, 20, 500, 0, 0},
-    {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 4, debugSnapSizeName, 0},
+    {" SnapShotNum        ", 0xC0C0C080, &debug_snapshot_num, 0, 3000000, 0, 0},
+    {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 6, debugSnapSizeName, 0},
     {" SnapForm           ", 0xC0C0C080, &debug_snapshot_format, 0, 1, debugSnapFormName, 0},
     {" Jimaku Test        ", 0xC0C0C080, &debug_jimaku, 0, 1, debugOffOnName, 0},
     {" Camera             ", 0xC0C0C080, &debug_camera_flag, 0, 1, debugOffOnName, 0},
@@ -990,13 +991,10 @@ inline float debug_GetTimerCount(void)
 
 INCLUDE_ASM(debug_Load);
 
-/* a GIF tag as the two 64-bit words the packet takes it in, on the
-   quadword boundary the GIF reads it at */
-typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived name */
-
 /* the GIF tag debug_MakeFont copies ahead of each font packet, as
-   debug_exception's fontTag */
-static GifTag debugFontTag = {0x2000400000008000LL, 0x51}; /* derived name */
+   debug_exception's fontTag: the two 64-bit words the packet takes it in,
+   which the copy moves one doubleword at a time */
+static unsigned long long debugFontTag[2] = {0x2000400000008000LL, 0x51}; /* derived name */
 
 /* clang-format off */
 INCLUDE_ASM(debug_MakeFont);
@@ -1350,6 +1348,16 @@ static DbgCol barScaleCol[1] = {{0xA0, 0xA0, 0xA0, 0xA0}}; /* derived name */
 static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 
 /* clang-format off */
+INCLUDE_ASM(barBlink_103);
+
+INCLUDE_ASM(barMax_104);
+
+INCLUDE_ASM(barMin_105);
+
+INCLUDE_ASM(barItem_106);
+
+INCLUDE_ASM(barLine_107);
+
 INCLUDE_ASM(debug_DrawBar);
 
 inline void debug_SetBar(char *name, unsigned int col, char *file, int line)

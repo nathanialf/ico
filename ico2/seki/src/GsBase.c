@@ -268,11 +268,8 @@ static void gsb_KeepFrameBuffer(void)
     gif_EndPacket();
 }
 
-/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints,
-   then one word nothing reads or writes */
+/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints */
 static float fadeLevel; /* derived name */
-
-static int gsbUnusedWord; /* derived name */
 
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPri(int pri);
@@ -677,7 +674,7 @@ static void gsb_filmNoise(void)
 }
 
 /* the stage animation group each film noise target loops, -1 for none */
-static const int filmNoiseGroup[] = {-1, 67, 68, 69, 70}; /* derived name */
+static const int filmNoiseGroup[] = {-1, 63, 64, 65, 66}; /* derived name */
 
 inline void gsb_ResetFilmNoise(void)
 {

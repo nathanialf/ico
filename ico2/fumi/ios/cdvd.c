@@ -107,8 +107,8 @@ static IosMsgQueue stAckQ = {0}; /* derived name */
 static CdStReq stReq = {0}; /* derived name */
 
 /* .sdata, the objects before the first string: the sleep flag, the
-   directory cache count, the media mode (2, DVD), the disc type the drive
-   must report (20, a DVD video disc), the spindle control byte copied into
+   directory cache count, the media mode (1, CD), the disc type the drive
+   must report (18, a PlayStation 2 CD), the spindle control byte copied into
    each handle's read mode, the background read mode record (a record, so
    8-aligned after the byte), the background drive state and the stream
    load-end wait flag. */
@@ -116,9 +116,9 @@ int IosCdvdMgrSleep = 0;
 
 static int srhBuffCnt = 0; /* derived name */
 
-int iosCdvdMediaType = 2;
+int iosCdvdMediaType = 1;
 
-static int cdDiskType = 20; /* derived name */
+static int cdDiskType = 18; /* derived name */
 
 static unsigned char cdSpindlCtrl = 1; /* derived name */
 
@@ -205,9 +205,9 @@ static inline void iosCdvdDiskReadyBlock(void)
     if (sceCdDiskReady(1) != 2) {
         sceCdlFILE fp;
         char file[32];
-        strcpy(file, "SCES_507.60");
+        strcpy(file, "SCPS_110.03");
         iosCdvdChgFileName(file);
-        debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCES_507.60", file);
+        debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCPS_110.03", file);
         do {
             sceCdDiskReady(0);
         } while (sceCdGetDiskType() != cdDiskType || sceCdSearchFile(&fp, file) == 0);
@@ -656,7 +656,7 @@ static void cdWait(int *busy)
                 systemStatus[0x14 / 4] = 1;
                 cdWaitParamSet = 1;
             }
-            strcpy(file, "SCES_507.60");
+            strcpy(file, "SCPS_110.03");
             chgFileName(file);
             r = sceCdDiskReady(1);
             if (r == 2 && sceCdGetDiskType() == cdDiskType && sceCdSearchFile(&fp, file) != 0) {

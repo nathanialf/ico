@@ -75,7 +75,7 @@ typedef struct { /* field names derived */
 } DObjRecord; /* derived name */
 
 static DObjRecord emptyDObj = {
-    {0, -1}, {0}, 0, 1, 1, 1, 0, 1552, {0}, 0, -1, {0},
+    {0, -1}, {0}, 0, 1, 1, 1, 0, 1548, {0}, 0, -1, {0},
 }; /* derived name */
 
 /* One entry of the rotation element array at 0x80c: a zero vector then

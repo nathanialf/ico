@@ -449,10 +449,10 @@ static BoyKidnapWork characterPacketDefault = {{0, 0, 0, 0, 0, -1, -1}}; /* deri
 
 static BgaEntry boyBgaTable[] = {
     /* derived name */
-    {480, 0.0f, 7.0f, 1, 70, 1, 1, 1.0f},
-    {481, 0.0f, 0.0f, 0, 70, 0, 1, 1.0f},
-    {485, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
-    {486, -10.0f, 23.0f, 1, 70, 1, 1, -1.0f},
+    {476, 0.0f, 7.0f, 1, 70, 1, 1, 1.0f},
+    {477, 0.0f, 0.0f, 0, 70, 0, 1, 1.0f},
+    {481, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
+    {482, -10.0f, 23.0f, 1, 70, 1, 1, -1.0f},
     {-1},
 }; /* derived name */
 
@@ -615,6 +615,8 @@ int test_rope_slope = 0;
 float add_rope_val = 0.0f;
 
 void subBoyControl(GObj *volatile self);
+
+INCLUDE_ASM(slowWalkTimer_73);
 
 INCLUDE_ASM(subBoyControl);
 

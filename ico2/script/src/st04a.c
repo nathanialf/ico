@@ -119,6 +119,12 @@ static int demoEnd;
 
 static int conte09_3Running; /* derived name */
 
+INCLUDE_ASM(gateOpenAnims_9);
+
+INCLUDE_ASM(boyRootPos_10);
+
+INCLUDE_ASM(girlRootPos_11);
+
 INCLUDE_ASM(actSt04aGateChk);
 
 INCLUDE_ASM(actSt04aConte06);
@@ -263,6 +269,12 @@ typedef struct AnimList { /* field names derived */
 /* .rodata, used here and by actConte09_2: the first lift offset, declared
    ahead and defined with the second after actSt04aGateOpenChk. */
 static const ConstVec liftOfs1;
+
+INCLUDE_ASM(gateOpen2Anims_24);
+
+INCLUDE_ASM(boyRootPos2_25);
+
+INCLUDE_ASM(girlRootPos2_26);
 
 INCLUDE_ASM(actSt04aGateOpenChk);
 
