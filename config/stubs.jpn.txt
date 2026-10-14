@@ -103,8 +103,6 @@ lit4 Main 0x00632680 0x00632684 ico2/common/src/main.c  # 1 float; target side (
 sdlit Main 0x00633798 0x006337A4 ico2/common/src/main.c  # 2 strings; target side (DISAGREE: December prints the video mode)
 rdlit Main 0x00548820 0x005488C4 ico2/common/src/main.c  # 7 strings; target side (DISAGREE)
 text dispPool 0x0010C0B0 0x0010C57C ico2/sugipon/src/pool.c local lines=116  # ordinal; first difference at insn 1; length:+11; extent-differs
-text gsb_Init 0x00112648 0x001127A4 ico2/seki/src/GsBase.c lines=33  # ordinal; first difference at insn 0; length:+4; extent-differs
-rdlit gsb_Init 0x00549470 0x0054947E ico2/seki/src/GsBase.c align=16  # 1 string
 text gsb_Reduction 0x001127A8 0x00112C18 ico2/seki/src/GsBase.c lines=77  # ordinal; first difference at insn 0; length:-53; extent-differs
 rdlit gsb_Reduction 0x00549600 0x0054960F ico2/seki/src/GsBase.c align=16  # 1 string
 text gsb_SetVSMatrix 0x00114B08 0x00114CF0 ico2/seki/src/GsBase.c lines=38  # ordinal; first difference at insn 0; length:-37; extent-differs
@@ -174,7 +172,6 @@ rdlit ACTGetEnvironment 0x0061AD90 0x0061ADBC ico2/fumi/src/act-env.c align=16  
 sdlit ACTGetEnvironment 0x006357C0 0x006357CC ico2/fumi/src/act-env.c  # 1 string, 2 words
 text BeforeFunc 0x00210BC0 0x00211290 ico2/fumi/src/act.c lines=130  # ordinal; first difference at insn 252; length:-2; extent-differs
 rdlit BeforeFunc 0x0061AF48 0x0061AF58 ico2/fumi/src/act.c  # 1 data
-text actEndLogoChk 0x0021AFE8 0x0021B118 ico2/script/src/end.c lines=53  # December plays no logo animation before the fade (no NonLinearCameraMove switch) and clears 60 after it; written so, it still differs at insn 44: the mail record and its handler in s1 and s0 swapped
 text actOpDemo01 0x0021C330 0x0021C840 ico2/script/src/op.c lines=134  # ordinal; first difference at insn 0; length:-4; extent-differs
 sdlit actOpDemo01 0x006358B8 0x006358CF ico2/script/src/op.c  # 3 strings
 text actSt13bConte02 0x00244730 0x0024504C ico2/script/src/st13b.c lines=238  # ordinal; first difference at insn 0; length:-23; extent-differs
@@ -182,7 +179,6 @@ rdlit actSt13bConte02 0x0061C080 0x0061C088 ico2/script/src/st13b.c  # 1 double
 text dispClear 0x00255118 0x00255290 ico2/ito/mpeg/mv_disp.c lines=19  # ordinal; first difference at insn 1; length:+1; extent-differs
 text setDispEnv 0x00255290 0x00255488 ico2/ito/mpeg/mv_disp.c lines=27  # ordinal; first difference at insn 0; length:+7; extent-differs
 text dispSetTags 0x002555A8 0x00255B08 ico2/ito/mpeg/mv_disp.c lines=58  # ordinal; first difference at insn 0; length:+76; extent-differs
-text InitWindMillGeo 0x00258DE8 0x00258F50 ico2/sugipon/src/windmill.c lines=31  # PAL-only in the census (windmill.c moved), same size and order; differs at insn 16
 #
 # .data objects the December C of a carved function used and PAL's does not
 # (the PAL function computes the value inline); no PAL name, so D_<VMA>.

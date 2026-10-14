@@ -23,9 +23,8 @@
 #include "main.h"
 #include "script.h"
 #include "staffroll.h"
-#include "include_asm.h"
 
-static void actEndingSave(GObj *volatile self);
+static void actEndLogoChk(GObj *volatile self);
 
 /* .sdata: the ending scenes' stream handles (ed5 and happy_end unused), then
    the staff roll's, the fourteenth demo's and the st27a ending's. */
@@ -1191,9 +1190,41 @@ void actSt27aEndDemo(GObj *volatile self)
     }
 }
 
-void actEndLogoChk(GObj *volatile self);
+/* December's step between the logo and the save; January named it
+   actEndLogoChk and added the per-language logo animation before the wait. */
+void actEndLogoFade(GObj *volatile self) /* derived name */
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-INCLUDE_ASM(actEndLogoChk);
+    _ACTWait(1);
+
+    scpBoyControlReadDisable = 1;
+    enable_game_pause = 0;
+
+    SetHandCameraLimitInDemo(0, 0);
+
+    SetZoomMaxValInDemo(0);
+
+    preload(1);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 30);
+
+    scpFadeOut(6.0f, 0, 0, 0);
+
+    while (scpFadeChk() != 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(60, -1, -2);
+
+    scpFadeIn(6.0f);
+
+    end_mes[0].func = actEndLogoChk;
+    act->mail = end_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 void actEndDemo03(GObj *volatile self)
 {
@@ -1347,7 +1378,7 @@ void actEndLogo(GObj *volatile self)
 
     _ACTWait(1);
 
-    logo_mes[0].func = actEndLogoChk;
+    logo_mes[0].func = actEndLogoFade;
     act->mail = logo_mes;
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
@@ -1650,7 +1681,15 @@ void actEndDemo14Chk(GObj *volatile self)
     actCreateSubThread(actConte14_14, 21);
 }
 
-static void actEndingSave(GObj *volatile self)
+/* The ending's save step.  December still calls it actEndLogoChk, its name
+   in the Aug-6 disc's TRFILE (the last function of end.c there too);
+   January renamed it actEndingSave and gave the name to the step before it.
+   The bytes show the December name: actEndLogoFade hoists the %hi parts of
+   end_mes and of this function above its fade loop, and gcse numbers them
+   in hash-bucket order (31 buckets), which puts this one in s0 only when
+   its name hashes before end_mes's, as actEndLogoChk does and actEndingSave
+   (the last bucket) cannot. */
+static void actEndLogoChk(GObj *volatile self)
 {
     if (gFlagGameClear == 0) {
         int save;
