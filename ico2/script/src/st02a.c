@@ -19,7 +19,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static void actSt02aFenceOpenSub(GObj *volatile self);
 /* .data: one mail record per posting site. Word 0 of each entry is the mail id
@@ -77,9 +76,38 @@ static ActMail taki_off_mail[2] = {{430}, {429}}; /* derived name */
 
 static ActMail secret_item_mail[2] = {{430}, {429}}; /* derived name */
 
-INCLUDE_ASM(actSt02aInit);
+void actSt02aInit(void)
+{
+    if (gflagChk(118) == 0) {
+        SetWayGroupActive(26, 0);
+        stage_SetAnimation(95, 0, 0);
+    } else {
+        stage_SetAnimation(95, 0, -1);
+    }
+}
 
-INCLUDE_ASM(actSt02aDoor);
+void actSt02aDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+    if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
+        stage_SetAnimation(94, 0, 0);
+        _ACTWait(60);
+        door_down_start_mail[0].func = actSt02aDoorDownChk;
+        act->mail = door_down_start_mail;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(93, 0, 0);
+        door_up_start_mail[0].func = actSt02aDoorUpChk;
+        act->mail = door_up_start_mail;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+}
 
 /* The two-part door's SE position, copied into the local the sound call reads. */
 static const ConstVec doorSePos = {{-1823.0f, -1174.0f, 2429.0f, 0.0f}}; /* derived name */
@@ -113,9 +141,65 @@ static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
                                                  {920.0f, 0.0f, 700.0f, 1.0f},
                                                  {920.0f, 0.0f, 1200.0f, 1.0f}}};
 
-INCLUDE_ASM(actSt02aDoorUpChk);
+void actSt02aDoorUpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    ConstVec pos;
+    int h;
 
-INCLUDE_ASM(actSt02aDoorDownChk);
+    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+    actCreateSubThread(actSt02aDoorUpEffect, 21);
+    scpWakeupItemWithBoundary(-1827.0f, -1072.0f, 2285.0f, 100.0f);
+    stage_SetAnimation(93, 1, 0);
+    pos = doorSePos;
+    soundSeDefPlay(1220, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1221, 0, pos.f, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+    soundSeDefPlay(1222, 0, pos.f, 1);
+    while (stage_CheckAnimationFinish(93) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    door_up_chk_mail[0].func = actSt02aDoorDownChk;
+    sub->mail = door_up_chk_mail;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+void actSt02aDoorDownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    ConstVec pos;
+    int h;
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+    actCreateSubThread(actSt02aDoorDownEffect, 21);
+    scpWakeupItemWithBoundary(-1827.0f, -1072.0f, 2285.0f, 100.0f);
+    stage_SetAnimation(94, 1, 0);
+    pos = doorSePos;
+    soundSeDefPlay(1220, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1221, 0, pos.f, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+    soundSeDefPlay(1222, 0, pos.f, 1);
+    while (stage_CheckAnimationFinish(94) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    door_down_chk_mail[0].func = actSt02aDoorUpChk;
+    sub->mail = door_down_chk_mail;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 /* .sdata */
 SqEntry *st02a_fence = 0;
@@ -124,7 +208,47 @@ SqEntry *st02a_fence = 0;
    spins for. */
 static int demoEnd;
 
-INCLUDE_ASM(actSt02aFenceOpen);
+void actSt02aFenceOpen(GObj *volatile self)
+{
+    GProc *th;
+
+    scpSleepEnemyAll();
+    gflagOn(118);
+    scpAdpcmPlayRequestFunc(96, &st02a_fence, 1, 1, 1);
+    th = actCreateSubThread(actSt02aFenceOpenSub, 21);
+    demoEnd = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (st02a_fence == 0) {
+            _ACTWait(1);
+        }
+        scpAdpcmFadeCloseFunc(&st02a_fence, 512);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(95, 0, -1);
+        stage_SetAnimation(96, 0, -1);
+        SetCameraFlag_GamecamCutBack();
+        scpFadeIn(8.0f);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+    SetWayGroupActive(26, 1);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+    scpWakeupEnemyAll();
+}
 
 void actSt02WaterFallBoySplashCheck(GObj *volatile self)
 {
@@ -169,17 +293,112 @@ void actSt02aWaterFallReflactionEffect(GObj *volatile self)
     }
 }
 
-void actSt02aWaterFallChk(GObj *volatile self);
+void actSt02aWaterFallChk(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(boyGObj);
 
-INCLUDE_ASM(actSt02aWaterFallChk);
+    act->flags20.ll &= ~0x80000000000LL;
+    scpSearchGobj(1713)->active = 1;
+    scpSearchGobj(1670)->active = 0;
+    scpSearchGobj(1687)->active = 0;
+    scpSearchGobj(1688)->active = 0;
+    scpSearchGobj(1691)->active = 0;
+    DeleteParticleLayout(scpSearchGobj(1722));
+    DeleteParticleLayout(scpSearchGobj(1723));
+    DeleteParticleLayout(scpSearchGobj(1724));
+    DeleteParticleLayout(scpSearchGobj(1725));
+    stage_SetAnimation(387, -1, -2);
+    scpTransGObj(scpSearchGobj(1705), 0.0f, -200.0f, 0.0f);
+    scpTransGObj(scpSearchGobj(1707), 0.0f, -200.0f, 0.0f);
+    _ACTWait(5);
+    ReInitBoxGeo(scpSearchGobj(1705));
+    ReInitBoxGeo(scpSearchGobj(1707));
+}
 
 SqEntry *gondola = 0;
 
-INCLUDE_ASM(actSt02aGondolaUp);
+void actSt02aGondolaUp(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpAdpcmPlayRequestFunc(87, &gondola, 1, 1, 1);
+
+    while (gondola == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(16);
+    stage_SetAnimation(97, 1, 0);
+    gflagOn(119);
+
+    while (stage_CheckAnimationFrame(97, 140, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 16);
+
+    while (stage_CheckAnimationFrame(97, 149, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    _ACTWait(120);
+
+    if (gondola != 0) {
+        scpAdpcmCloseFunc(&gondola);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+
+    gondola_up_mail[0].func = actSt02aGondolaMain;
+    sub->mail = gondola_up_mail;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 SqEntry *gondola_test = 0;
 
-INCLUDE_ASM(actSt02aGondolaDown);
+void actSt02aGondolaDown(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpAdpcmPlayRequestFunc(87, &gondola_test, 1, 1, 1);
+
+    while (gondola_test == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(97, 1, 150);
+    gflagOff(119);
+
+    while (stage_CheckAnimationFrame(97, 295, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 16);
+
+    while (stage_CheckAnimationFrame(97, 300, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    _ACTWait(120);
+
+    if (gondola_test != 0) {
+        scpAdpcmCloseFunc(&gondola_test);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+
+    gondola_down_mail[0].func = actSt02aGondolaMain;
+    sub->mail = gondola_down_mail;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 void actSt02aBox(GObj *volatile self)
 {
@@ -207,7 +426,26 @@ void actSt02aBox(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aGondola);
+void actSt02aGondola(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(119) != 0) {
+        stage_SetAnimation(97, 0, 0);
+        _ACTWait(10);
+        stage_SetAnimation(97, 0, 149);
+    } else {
+        stage_SetAnimation(97, 0, 300);
+    }
+
+    gondola_mail[0].func = actSt02aGondolaMain;
+    act->mail = gondola_mail;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 void actSt02aFence(GObj *volatile self)
 {
@@ -316,7 +554,15 @@ void actSt02aEnemy2(GObj *volatile self)
     Generator_Call(scpSearchGobj(1703));
 }
 
-INCLUDE_ASM(actSt02aSekizo);
+void actSt02aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 123, 98, 0, 18, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
+}
 
 void actSt02aWay(GObj *volatile self)
 {
@@ -431,9 +677,35 @@ void actSt02aFenceMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aFenceSwitch);
+void actSt02aFenceSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt02aFenceOpenSub);
+    sub->mainMail = 0;
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+
+    fence_switch_mail[0].func = actSt02aFenceOpen;
+    sub->mail = fence_switch_mail;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
+
+static void actSt02aFenceOpenSub(GObj *volatile self)
+{
+    while (st02a_fence == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(95, 1, 0);
+    stage_SetAnimation(96, 1, 0);
+    while (stage_CheckAnimationFinish(96) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 void actSt02aGondolaMain(GObj *volatile self)
 {
@@ -445,7 +717,27 @@ void actSt02aGondolaMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aGondolaSwitch);
+void actSt02aGondolaSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyAll();
+
+    if (gflagChk(119) != 0) {
+        gondola_switch_down_mail[0].func = actSt02aGondolaDown;
+        sub->mail = gondola_switch_down_mail;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+
+    gondola_switch_up_mail[0].func = actSt02aGondolaUp;
+    sub->mail = gondola_switch_up_mail;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 void actSt02aEneChk(GObj *volatile self)
 {

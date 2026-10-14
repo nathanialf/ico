@@ -333,22 +333,6 @@ rdlit BeforeFunc 0x0061AF48 0x0061AF58 ico2/fumi/src/act.c  # 1 data
 text actEndLogoChk 0x0021AFE8 0x0021B118 ico2/script/src/end.c lines=53  # December plays no logo animation before the fade (no NonLinearCameraMove switch) and clears 60 after it; written so, it still differs at insn 44: the mail record and its handler in s1 and s0 swapped
 text actOpDemo01 0x0021C330 0x0021C840 ico2/script/src/op.c lines=134  # ordinal; first difference at insn 0; length:-4; extent-differs
 sdlit actOpDemo01 0x006358B8 0x006358CF ico2/script/src/op.c  # 3 strings
-text actSt02aInit 0x00220450 0x002204A0 ico2/script/src/st02a.c lines=9  # ordinal; first difference at insn 10; imm:2; extent-equal
-text actSt02aDoor 0x002204A0 0x002205A4 ico2/script/src/st02a.c lines=22  # the census paired PAL's actSt00aDoor2 here as equal; st02a.c's actSt02aDoor differs at insn 17 (imm:4)
-text actSt02aDoorUpChk 0x002205A8 0x00220730 ico2/script/src/st02a.c lines=29  # ordinal; first difference at insn 38; imm:2; extent-equal
-lit4 actSt02aDoorUpChk 0x00633370 0x00633378 ico2/script/src/st02a.c  # 2 floats
-text actSt02aDoorDownChk 0x00220730 0x002208B8 ico2/script/src/st02a.c lines=29  # ordinal; first difference at insn 38; imm:2; extent-equal
-lit4 actSt02aDoorDownChk 0x00633378 0x00633380 ico2/script/src/st02a.c  # 2 floats
-text actSt02aFenceOpen 0x002208B8 0x00220A64 ico2/script/src/st02a.c lines=41  # ordinal; first difference at insn 73; imm:3; extent-equal
-text actSt02aWaterFallChk 0x00220D48 0x00220E94 ico2/script/src/st02a.c lines=21  # ordinal; first difference at insn 53; imm:1; extent-equal
-text actSt02aGondolaUp 0x00220E98 0x00220FFC ico2/script/src/st02a.c lines=40  # ordinal; first difference at insn 28; imm:6; extent-equal
-text actSt02aGondolaDown 0x00221000 0x0022115C ico2/script/src/st02a.c lines=39  # ordinal; first difference at insn 22; imm:7; extent-equal
-text actSt02aGondola 0x00221248 0x002212F8 ico2/script/src/st02a.c lines=20  # ordinal; first difference at insn 15; imm:3; extent-equal
-text actSt02aSekizo 0x00221618 0x00221680 ico2/script/src/st02a.c lines=9  # ordinal; first difference at insn 12; imm:1; extent-equal
-lit4 actSt02aSekizo 0x00633380 0x00633388 ico2/script/src/st02a.c  # 2 floats
-text actSt02aFenceSwitch 0x00221A18 0x00221A80 ico2/script/src/st02a.c lines=13  # ordinal; first difference at insn 3; imm:1; extent-equal
-text actSt02aFenceOpenSub 0x00221A80 0x00221B0C ico2/script/src/st02a.c local lines=15  # ordinal; first difference at insn 5; imm:4; extent-equal
-text actSt02aGondolaSwitch 0x00221B40 0x00221BE4 ico2/script/src/st02a.c lines=21  # ordinal; first difference at insn 3; imm:1; extent-equal
 text actSt03tSwitchL 0x00221FE0 0x002220C4 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 14; imm:3; extent-equal
 text actSt03tSwitchR 0x002224C0 0x002225A4 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 14; imm:3; extent-equal
 text actSt04aGate 0x00223510 0x00223618 ico2/script/src/st04a.c lines=31  # ordinal; first difference at insn 19; imm:6; extent-equal
