@@ -67,10 +67,6 @@ lit4 Main 0x00632680 0x00632684 ico2/common/src/main.c  # 1 float; target side (
 sdlit Main 0x00633798 0x006337A4 ico2/common/src/main.c  # 2 strings; target side (DISAGREE: December prints the video mode)
 rdlit Main 0x00548820 0x005488C4 ico2/common/src/main.c  # 7 strings; target side (DISAGREE)
 text dispPool 0x0010C0B0 0x0010C57C ico2/sugipon/src/pool.c local lines=116  # ordinal; first difference at insn 1; length:+11; extent-differs
-text file_LoadCDFile 0x0010EF00 0x0010F624 ico2/seki/src/FileManager.c local lines=170  # ordinal; first difference at insn 80; imm:11; extent-equal
-lit4 file_LoadCDFile 0x00632748 0x0063274C ico2/seki/src/FileManager.c  # 1 float
-rdlit file_LoadCDFile 0x00548F50 0x005493B0 ico2/seki/src/FileManager.c align=16  # 24 strings, 2 jump tables
-sdlit file_LoadCDFile 0x00633A40 0x00633A4E ico2/seki/src/FileManager.c  # 2 strings
 text gsb_Init 0x00112648 0x001127A4 ico2/seki/src/GsBase.c lines=33  # ordinal; first difference at insn 0; length:+4; extent-differs
 rdlit gsb_Init 0x00549470 0x0054947E ico2/seki/src/GsBase.c align=16  # 1 string
 text gsb_Reduction 0x001127A8 0x00112C18 ico2/seki/src/GsBase.c lines=77  # ordinal; first difference at insn 0; length:-53; extent-differs
