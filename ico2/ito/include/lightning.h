@@ -8,18 +8,22 @@
 #ifndef LIGHTNING_H
 #define LIGHTNING_H
 
-/* the lightning's colour, as four channel words or the two doublewords the
-   packet takes */
+/* the lightning's colour, as four channel words, the two doublewords the
+   packet takes or one quadword (so it sits on 16 bytes, as lightning_test's
+   constants do in the August build) */
 typedef union { /* field names derived */
     unsigned int c[4];
     unsigned long long w[2];
+    unsigned int q __attribute__((mode(TI)));
 } LightningColor; /* derived name */
 
-/* one control point or strip vertex, read as floats, words or doublewords */
+/* one control point or strip vertex, read as floats, words, doublewords or
+   one quadword */
 typedef union { /* field names derived */
     float f[4];
     int i[4];
     unsigned long long w[2];
+    unsigned int q __attribute__((mode(TI)));
 } LightningVtx; /* derived name */
 
 /* one entry of the caller's node array: a 16-byte position and the sort key

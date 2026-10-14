@@ -147,37 +147,7 @@ void eBrainProcess(void)
     }
 }
 
-inline int eBrainGetTargetGeneratorFromLabelStage(int label, int stage)
-{
-    int pri = -1;
-    int GeneratorLabel = -1;
-    int i;
-    int ret;
-    int st;
-    int f;
-
-    ret = GetMotherGenerator(label);
-    if (ret != -1)
-        return ret;
-
-    st = stage;
-    for (i = stageData[st].labelTop; i < stageData[st].labelEnd; i++) {
-        GenGeo *g = &objLayout[i];
-        if (g->kind == 33) {
-            f = g->flags >> 17;
-            f &= 1;
-            if (pri < f) {
-                pri = f;
-                GeneratorLabel = i;
-            }
-        }
-    }
-    if (!(GeneratorLabel > 0)) {
-        debug_assert("src/ebrain.c", 506);
-        __assert("src/ebrain.c", 506, "GeneratorLabel>0");
-    }
-    return GeneratorLabel;
-}
+INCLUDE_ASM_LIT(eBrainGetTargetGeneratorFromLabelStage);
 
 int eBrainGetTargetGeneratorFromLabel(int label);
 
@@ -374,3 +344,5 @@ INCLUDE_ASM(eBrainStatusSet);
 INCLUDE_ASM(eBrainSendMes);
 
 INCLUDE_ASM(GetStageFromLabel);
+
+INCLUDE_ASM(eBrainGetTargetGeneratorFromLabelStage);

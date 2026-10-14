@@ -947,9 +947,9 @@ typedef struct QueenGenTable { /* field names derived */
 } QueenGenTable; /* derived name */
 
 /* The layout ids gene_enemy picks a spawn point from, one list per stage set. */
-static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157}; /* derived name */
+static const int genEnemyLayoutSt25[6] = {1945, 1946, 1947, 1948, 1949, 1950}; /* derived name */
 
-static const int genEnemyLayoutDefault[6] = {3535, 3536, 3537, 3538, 3539, 3540}; /* derived name */
+static const int genEnemyLayoutDefault[6] = {3234, 3235, 3236, 3237, 3238, 3239}; /* derived name */
 
 static const QueenGenTable genEnemyTable[2] = {
     /* derived name */
@@ -960,9 +960,6 @@ static const QueenGenTable genEnemyTable[2] = {
 static const char genEnemyStatFmt[] = "n_enemy_max:%d n_enemy:%d counter:%d"; /* derived name */
 
 INCLUDE_ASM(gene_enemy_queen);
-
-/* The position the queen is dropped at outside her own stage. */
-static const QVec queenStartPos = {{0.0f, 800.0f, 0.0f, 1.0f}}; /* derived name */
 
 static const char queenDeadMsg[] = "queen dead\n"; /* derived name */
 
@@ -1059,9 +1056,9 @@ static const char queenFile[] = __FILE__; /* derived name */
 static const char queenBarrierAttackedMsg[] = "queen barrier attacked\n"; /* derived name */
 
 /* the barrier's own spawn layout id, one per stage set */
-static const int barrierLayoutSt25[] = {2150}; /* derived name */
+static const int barrierLayoutSt25[] = {1943}; /* derived name */
 
-static const int barrierLayoutDefault[] = {3527}; /* derived name */
+static const int barrierLayoutDefault[] = {3226}; /* derived name */
 
 static const char damageFmt[] = "damage:%d"; /* derived name */
 

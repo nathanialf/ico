@@ -19,25 +19,23 @@ typedef struct AttackPack { /* field names derived */
     /* 0x01 */ unsigned char down; /* the hit knocks the target down */
     /* 0x02 */ char pad02[2];
     /* 0x04 */ void *actor;
-    /* 0x08 */ GObj *spare; /* an object the attack never hits */
-    /* 0x0C */ int group;
-    /* 0x10 */ int group2;
-    /* 0x14 */ char pad14[12];
-    /* 0x20 */ float center[4];
-    /* 0x30 */ float from[4];
-    /* 0x40 */ float to[4];
-    /* 0x50 */ float radius0;
-    /* 0x54 */ float radius1;
-    /* 0x58 */ float thickness;
-    /* 0x5C */ float power;
-    /* 0x60 */ char sweep; /* the weapon's swing sweeps the area round the actor */
-    /* 0x61 */ unsigned char hasDir;
-    /* 0x62 */ char pad62[14];
-    /* 0x70 */ float dir[4];
+    /* 0x08 */ int group;
+    /* 0x0C */ int group2;
+    /* 0x10 */ float center[4];
+    /* 0x20 */ float from[4];
+    /* 0x30 */ float to[4];
+    /* 0x40 */ float radius0;
+    /* 0x44 */ float radius1;
+    /* 0x48 */ float thickness;
+    /* 0x4C */ float power;
+    /* 0x50 */ char sweep; /* the weapon's swing sweeps the area round the actor */
+    /* 0x51 */ unsigned char hasDir;
+    /* 0x52 */ char pad52[14];
+    /* 0x60 */ float dir[4];
 } __attribute__((aligned(16))) AttackPack; /* derived name */
 
 /* the zeroed template every pack starts from; group and group2 start at -1 */
-static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1}; /* derived name */
+static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, -1, -1}; /* derived name */
 
 #include "attackhit.h"
 #include <libvu0.h>
@@ -152,7 +150,7 @@ static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float
 
     pack->radius1 = pack->radius0 = radius;
 
-    if (gop != 0 && gop->kind == 53) {
+    if (gop != 0 && gop->kind == 52) {
         pack->thickness = pack->radius1 - GetQueenBallThickness();
         if (pack->thickness < 0.0f) {
             pack->thickness = 0.0f;
@@ -176,7 +174,7 @@ typedef struct { /* field names derived */
 /* GObj kind -> attack class, terminated by kind -1 */
 static const AttackGroupTable attackGroupTable = {
     /* derived name */
-    {{1, 0}, {4, 1}, {47, 1}, {54, 1}, {53, 1}, {53, 1}, {62, 1}, {2, 3}, {63, 1}, {-1, 0}}};
+    {{1, 0}, {4, 1}, {46, 1}, {53, 1}, {52, 1}, {52, 1}, {60, 1}, {2, 3}, {61, 1}, {-1, 0}}};
 
 INCLUDE_ASM(AttackCheckSameGroup);
 

@@ -24,6 +24,16 @@
 #include <assert.h>
 #include "include_asm.h"
 
+/* the bga object kinds' names, in kind order, for the debug display */
+static char *bgaObjKindName[17] = {
+    /* derived name */
+    "ID_OBJECT",          "ID_NULLOBJECT", "ID_CAMERA",           "ID_ZOOM",
+    "ID_3D_SPRITE",       "ID_LIGHT",      "ID_STAGE_LIGHT",      "ID_AMBIENT_LIGHT",
+    "ID_SHADOW_BALL",     "ID_SHADOW_BOX", "ID_CAMERA_PARENT",    "ID_STAGE_LIGHT_NO_SHADOW",
+    "ID_KYOMI_NULL",      "ID_PARTICLE",   "ID_LIGHTNING_TARGET", "ID_LIGHTNING_START",
+    "ID_LIGHTNING_POINT",
+};
+
 /* bgaAnimDefault is the 0x30-byte default record
    bga_InitData block-copies into its mallocseki() allocation (two
    (0,0,0,1.0f) vectors then four words); bgaParticlePos is the (0,0,0,1.0f)
