@@ -220,78 +220,8 @@ text ACTGame_SetMotionPlaySpeedRatio_Clear 0x0014E580 0x0014E59C ico2/fumi/src/a
 text ACTGame_SetMotionPlaySpeedRatio_Exec 0x0014E5A0 0x0014E66C ico2/fumi/src/act-game.c lines=23  # ordinal; first difference at insn 17; other:6; extent-equal
 text findChainInJump 0x0014FB60 0x00150328 ico2/fumi/src/boyact.c local lines=143  # ordinal; first difference at insn 3; length:-6; extent-differs
 lit4 findChainInJump 0x006328A8 0x006328B0 ico2/fumi/src/boyact.c  # 2 floats
-text UpdateGeo.48 0x00151110 0x0015126C ico2/fumi/src/boyact.c local file=UpdateGeo_48  # nested in BoyBgaManager (a stub); equal, gone with its carved parent
-lit4 UpdateGeo.48 0x006328B0 0x006328B4 ico2/fumi/src/boyact.c file=UpdateGeo_48  # 1 float
-text BoyBgaManager 0x00151270 0x00151390 ico2/fumi/src/boyact.c local lines=62  # ordinal; first difference at insn 25; imm:2; extent-equal
-sdlit BoyBgaManager 0x00634198 0x0063419A ico2/fumi/src/boyact.c  # 1 string
 text GetChainSlope 0x001514C8 0x001516B4 ico2/fumi/src/boyact.c local lines=36  # ordinal; first difference at insn 19; length:-19; extent-differs
 rdlit GetChainSlope 0x0054DAF8 0x0054DB19 ico2/fumi/src/boyact.c  # 2 strings
-text subBoyControl 0x001516B8 0x00152F2C ico2/fumi/src/boyact.c lines=644  # ordinal; first difference at insn 621; imm:1; extent-equal
-lit4 subBoyControl 0x006328B4 0x00632968 ico2/fumi/src/boyact.c  # 45 floats
-rdlit subBoyControl 0x0054DB20 0x0054DCF8 ico2/fumi/src/boyact.c align=16  # 1 jtbl
-rdlit subBoyControl 0x0054DD00 0x0054DD14 ico2/fumi/src/boyact.c align=16  # 1 jtbl
-sdlit subBoyControl 0x006341A8 0x006341B4 ico2/fumi/src/boyact.c  # 1 string, 1 static
-text ACTDispLwsBoyStonize_InQueenStage 0x001532E0 0x00153370 ico2/fumi/src/boyact.c lines=8  # ordinal; first difference at insn 1; imm:5; extent-equal
-text subBoyCollision 0x00153560 0x00154904 ico2/fumi/src/boyact.c lines=446  # ordinal; first difference at insn 157; other:9; extent-equal
-lit4 subBoyCollision 0x00632970 0x00632978 ico2/fumi/src/boyact.c  # 2 floats
-rdlit subBoyCollision 0x0054DD40 0x0054DE50 ico2/fumi/src/boyact.c align=16  # 1 jtbl
-sdlit subBoyCollision 0x006341C0 0x006341C4 ico2/fumi/src/boyact.c  # 1 word
-text actBoyCliffHesitate 0x00155408 0x0015551C ico2/fumi/src/boyact.c lines=25  # ordinal; first difference at insn 10; imm:8; extent-equal
-text actBoyPullupReady 0x00155958 0x00155C04 ico2/fumi/src/boyact.c lines=44  # ordinal; first difference at insn 20; imm:2; extent-equal
-text actBoyDitch3mReady 0x001567D8 0x00156D84 ico2/fumi/src/boyact.c lines=111  # ordinal; first difference at insn 26; imm:1; extent-equal
-lit4 actBoyDitch3mReady 0x00632998 0x006329A8 ico2/fumi/src/boyact.c  # 4 floats
-text CorrectStickInfo 0x00157580 0x001575B4 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetBoyWeaponGObj 0x001575B8 0x001575D8 ico2/fumi/src/boyact.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyStand 0x001575D8 0x00157640 ico2/fumi/src/boyact.c lines=11  # ordinal; first difference at insn 1; other:12; extent-equal
-text actBoyHang 0x00157640 0x00157678 ico2/fumi/src/boyact.c lines=6  # ordinal; first difference at insn 8; imm:1; extent-equal
-text actBoyBHang 0x00157678 0x001576B0 ico2/fumi/src/boyact.c lines=6  # ordinal; first difference at insn 8; imm:1; extent-equal
-text actBoyFall 0x001576B0 0x001576F0 ico2/fumi/src/boyact.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyCall 0x001576F0 0x00157768 ico2/fumi/src/boyact.c lines=17  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyHangBefore 0x00157768 0x00157814 ico2/fumi/src/boyact.c lines=14  # ordinal; first difference at insn 11; imm:1; extent-equal
-text actBoyBeslam 0x00157818 0x0015786C ico2/fumi/src/boyact.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyRescueSrc 0x00157870 0x0015789C ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoySupportGBBegin 0x001578A0 0x001578E0 ico2/fumi/src/boyact.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoySupportGBLoop 0x001578E0 0x0015793C ico2/fumi/src/boyact.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoySupportGBEnd 0x00157940 0x00157980 ico2/fumi/src/boyact.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoySupportBGBegin 0x00157980 0x001579AC ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyDitch3mExec 0x001579B0 0x001579DC ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyHangG3M 0x001579E0 0x00157A64 ico2/fumi/src/boyact.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-lit4 actBoyHangG3M 0x006329A8 0x006329AC ico2/fumi/src/boyact.c  # 1 float
-text IsAbleBoyControl 0x00157A68 0x00157A70 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyHand50 0x00157A70 0x00157AEC ico2/fumi/src/boyact.c lines=17  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterBoyHand50 0x00157AF0 0x00157B28 ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyHand100 0x00157B28 0x00157BA4 ico2/fumi/src/boyact.c lines=17  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterBoyHand100 0x00157BA8 0x00157BE0 ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyHand200 0x00157BE0 0x00157C5C ico2/fumi/src/boyact.c lines=17  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterBoyHand200 0x00157C60 0x00157C98 ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ACTSearchEnemy 0x00157C98 0x00157E0C ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text DeleteBoyWeapon 0x00157E10 0x00157EA0 ico2/fumi/src/boyact.c lines=24  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-lit4 DeleteBoyWeapon 0x006329AC 0x006329B0 ico2/fumi/src/boyact.c  # 1 float
-text isLiftBoyEnable 0x00157EA0 0x00157EC4 ico2/fumi/src/boyact.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text SetKidnapInfo 0x00157EC8 0x00157EDC ico2/fumi/src/boyact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetKidnapInfo 0x00157EE0 0x00157EFC ico2/fumi/src/boyact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text PrivInsCamSet 0x00157F00 0x00157F5C ico2/fumi/src/boyact.c lines=17  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text BoyInfoUpdate_StageChange 0x00157F60 0x00158034 ico2/fumi/src/boyact.c lines=22  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text IsBoyStatus_EnemyMustWait 0x00158038 0x001580EC ico2/fumi/src/boyact.c lines=26  # ordinal; first difference at insn 6; imm:2; extent-equal
-text IsGirlEscortedInNextStage 0x001580F0 0x00158108 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text IsGirlEscortedInCurrentStage 0x00158108 0x00158110 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetSaveSofaLayoutID 0x00158110 0x0015815C ico2/fumi/src/boyact.c lines=22  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text OnGirlEscortFlag 0x00158160 0x00158180 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text SetBoyWeaponGObj 0x00158180 0x001581E4 ico2/fumi/src/boyact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text IsBoyStatus_NotDanger 0x001581E8 0x00158224 ico2/fumi/src/boyact.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text RequestStageChangeKidnapEnd 0x00158228 0x001582D4 ico2/fumi/src/boyact.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetEfStageCameraTargetID 0x001582D8 0x001582F8 ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text IsBackFromEfStage 0x001582F8 0x00158304 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text PrivInsCamChk 0x00158308 0x00158318 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text PrivInsCamChk_Control 0x00158318 0x00158324 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetbufpCharacterPacket 0x00158328 0x00158334 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text GetsizeCharacterPacket 0x00158338 0x00158340 ico2/fumi/src/boyact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text MakeCharacterPacket 0x00158340 0x00158484 ico2/fumi/src/boyact.c lines=31  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ReadCharacterPacket 0x00158488 0x0015854C ico2/fumi/src/boyact.c lines=12  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ACTSearchGObj 0x00158550 0x001586B4 ico2/fumi/src/boyact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterBoySwim 0x001586B8 0x00158724 ico2/fumi/src/boyact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actBoyJump 0x00158728 0x00158754 ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterBoyTakeWeapon 0x00158758 0x00158860 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 20; imm:2; extent-equal
 text actCommonBox 0x0015CB38 0x0015D008 ico2/fumi/src/commonact.c lines=101  # December sets no boxDir before the loop (main has the PAL body); with that, it still differs at insn 40: the spill slots of &s->env and &hold are swapped
 lit4 actCommonBox 0x006329D8 0x006329DC ico2/fumi/src/commonact.c  # 1 float
 sdlit actCommonBox 0x006341F0 0x006341FB ico2/fumi/src/commonact.c  # 2 strings
