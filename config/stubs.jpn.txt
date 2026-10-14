@@ -563,16 +563,7 @@ text actSt05bSekizo 0x00235D28 0x00235DE4 ico2/script/src/st05b.c lines=19  # or
 lit4 actSt05bSekizo 0x00633448 0x00633450 ico2/script/src/st05b.c  # 2 floats
 text actSt04rDoor 0x00236548 0x002365EC ico2/script/src/st05c.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt04rDoor2 0x002365F0 0x00236694 ico2/script/src/st05c.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt07aInit 0x0023AEB0 0x0023AFB8 ico2/script/src/st07a.c lines=30  # ordinal; first difference at insn 9; imm:6; extent-equal
-text actSt07aChanChk 0x0023B030 0x0023B3BC ico2/script/src/st07a.c lines=109  # ordinal; first difference at insn 53; imm:6; extent-equal
-text actSt07aTsuroChk 0x0023B578 0x0023B888 ico2/script/src/st07a.c lines=97  # ordinal; first difference at insn 38; imm:4; extent-equal
-text actSt07aSekizoChk 0x0023BC40 0x0023BF58 ico2/script/src/st07a.c lines=97  # ordinal; first difference at insn 31; imm:7; extent-equal
-lit4 actSt07aSekizoChk 0x0063346C 0x0063347C ico2/script/src/st07a.c  # 4 floats
-text actSt07aEneChk 0x0023C040 0x0023C198 ico2/script/src/st07a.c lines=52  # ordinal; first difference at insn 29; imm:6; extent-equal
 text actSt07aSekizo 0x0023C528 0x0023C5C0 ico2/script/src/st07a.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt07aChanFall 0x0023CB50 0x0023CBE4 ico2/script/src/st07a.c lines=17  # ordinal; first difference at insn 6; imm:3; extent-equal
-text actSt07aTsuroConte 0x0023CD00 0x0023CD7C ico2/script/src/st07a.c lines=16  # ordinal; first difference at insn 6; imm:3; extent-equal
-text actSt07aIntroChk 0x0023CDE8 0x0023CE98 ico2/script/src/st07a.c lines=21  # ordinal; first difference at insn 16; imm:4; extent-equal
 text actSt08aEne1Chk 0x0023CF58 0x0023D074 ico2/script/src/st08a.c lines=33  # ordinal; first difference at insn 26; imm:6; extent-equal
 text actSt08aEne2Chk 0x0023D078 0x0023D1DC ico2/script/src/st08a.c lines=47  # ordinal; first difference at insn 23; imm:6; extent-equal
 text actSt08aDoorUp 0x0023D1E0 0x0023D33C ico2/script/src/st08a.c lines=38  # ordinal; first difference at insn 5; imm:3; extent-equal
