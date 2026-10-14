@@ -31,7 +31,7 @@ mips-linux-gnu-objdump (the object's side names the relocation at each word),
 and correlate_elf.py's residue class: imm:N (N words of one length that
 differ only in an I-type immediate), other:N, or length:+D (the target has D
 more words). A function still carved (INCLUDE_ASM in the TU, or in its row's
-in=<file.c.inc>) is reported as a stub: its words come from the base and say nothing about the C.
+in=<file.c.inc> unless the row is inline) is reported as a stub: its words come from the base and say nothing about the C.
 
   tools/match_check.py TU FUNC...         the named functions
   tools/match_check.py TU --all           every function of the TU, one line each
@@ -259,8 +259,9 @@ def main():
             continue
         v, words, notes = fns[name]
         # the INCLUDE_ASM line lives in the TU, or in the row's in=<file.c.inc>
+        # (for an inline function of a .c.inc, in the TU: the row's asm file)
         stub = row is not None and asm_line(row["stem"]) in (
-            src if row["src"] == tu else (ROOT / row["src"]).read_bytes().splitlines(keepends=True))
+            src if row["asm"] == tu else (ROOT / row["asm"]).read_bytes().splitlines(keepends=True))
         if a.at is not None:
             lo, hi, label = a.at, a.at + 4 * len(words), f"--at 0x{a.at:08X}"
         elif twins.get(name):

@@ -11,7 +11,7 @@
 # of the PAL link is built from source.
 #
 # Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N] [file=<stem>]
-#          [in=<file.c.inc>] [def]
+#          [in=<file.c.inc>] [inline] [def]
 #   section   text, rodata, data or sdata: the base ELF section of the range;
 #             lit4, rdlit or sdlit: the constants a text row's function brings
 #             into .lit4, .rodata or .sdata (the assembler's li.s and li.d
@@ -34,6 +34,10 @@
 #             row's
 #   in=path   the .c.inc the TU includes where the function is defined: its
 #             INCLUDE_ASM line lives there (not on a literal row)
+#   inline    with in=: an inline function of that .c.inc, whose INCLUDE_ASM
+#             line stands at the end of the TU, where gcc emits it; its
+#             INCLUDE_ASM_LIT and kept declaration stay in the .c.inc
+#             (--carve writes it)
 #   def       an rdlit or sdlit row written where the function is defined,
 #             not after its text: build/stubs/<stem>.lit.s, which the file
 #             includes with `INCLUDE_ASM_LIT(stem);` in the definition's place
@@ -43,8 +47,11 @@
 #
 # tools/gen_stub_s.py --carve NAME replaces the function's definition in its
 # TU (or its in= file) with the INCLUDE_ASM line (an inline function's line
-# goes to the end of the file, and INCLUDE_ASM_LIT takes the definition's
+# goes to the end of the TU, and INCLUDE_ASM_LIT takes the definition's
 # place when the row has def rows), writes lines=N, and derives the literal
 # rows (--literals, from the compiled TU and the base ELF's words;
-# --no-literals leaves them alone); --restore NAME puts the definition back
-# from main; --carve-all and --restore-all do every text row.
+# --no-literals leaves them alone, and a later --literals that adds a def
+# row places the INCLUDE_ASM_LIT line); --restore NAME puts the definition
+# back from main; --carve-all and --restore-all do every text row.
+# tools/object_check.py compares each object's .text with the base and a
+# TU's function order with the target's after a link.

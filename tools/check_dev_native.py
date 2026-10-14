@@ -40,13 +40,18 @@ pins are fine only where the developers' own source was assembly).
      exact line `INCLUDE_ASM(stem);` at file scope, and only while the list
      has a row of that stem naming this file (the stem is the row's name, or
      its file=<stem> when two statics share a name; the file is the row's TU,
-     or its in=<file.c.inc>, which the TU must include); the row and the line
-     go together, so a listed stem whose file lacks the line is refused too.
-     A literal row (lit4, rdlit, sdlit: the function's constants) rides on
-     its function's line and has none of its own, except that a stem with a
-     def literal row (an inline function's strings, written where it is
-     defined) carries exactly one `INCLUDE_ASM_LIT(stem);` at file scope in
-     the same file as well, and no other stem carries one.  A file-scope
+     or its in=<file.c.inc>, which the TU must include, but the TU for a row
+     marked inline, an inline function of that .c.inc, whose stub stands at
+     the end of the TU); the row and the line go together, so a listed stem
+     whose file lacks the line is refused too.  A literal row (lit4, rdlit,
+     sdlit: the function's constants) rides on its function's line and has
+     none of its own, except that a stem with a def literal row (an inline
+     function's strings, written where it is defined) carries exactly one
+     `INCLUDE_ASM_LIT(stem);` at file scope in the file that defines it (the
+     TU, or the in= file) as well, and no other stem carries one.  Either
+     line needs `#include "include_asm.h"` above it in its own file: without
+     the macro the line compiles, with only a warning, as a K&R declaration
+     of a function named INCLUDE_ASM, and the stub is never read.  A file-scope
      line is one outside every function body: a prototype on one line or
      several and a one-line `{}` function above it leave it at file scope.
      An INCLUDE_ASM in any other spelling, one for a stem the list does not
@@ -274,7 +279,7 @@ def check_stubs(f, L, stubs, bad, lit=frozenset()):
     TU, or its in=<file.c.inc>) against its lines.  lit holds the stems with
     a def literal row, whose INCLUDE_ASM_LIT line stands at the definition."""
     seen, seen_lit = set(), set()
-    header = False
+    header = unheaded = False
     rel = os.path.relpath(STUB_LIST, ROOT)
     for i, l in enumerate(L):
         if 'INCLUDE_ASM' not in l and 'include_asm' not in l and '.include' not in l:
@@ -284,12 +289,23 @@ def check_stubs(f, L, stubs, bad, lit=frozenset()):
             name = m.group(1)
             form = 'INCLUDE_ASM_LIT' if l.startswith('INCLUDE_ASM_LIT') else 'INCLUDE_ASM'
             done = seen_lit if form == 'INCLUDE_ASM_LIT' else seen
+            # INCLUDE_ASM lives in the row's asm file (its in= file, or the
+            # TU for an inline function of a .c.inc), INCLUDE_ASM_LIT where
+            # the function is defined (its in= file, or the TU)
+            want = (stubs[name].get('asm', stubs[name]['src']) if form == 'INCLUDE_ASM' else stubs[name]['src']) \
+                if name in stubs else None
+            if not header and not unheaded:
+                # with the macro undefined, the line is a K&R declaration of
+                # a function named INCLUDE_ASM: a warning, and no stub read
+                unheaded = True
+                bad.append(f'{f}:{i+1}: {form}({name}) with no #include "include_asm.h" above it (without the'
+                           ' macro the line compiles, with only a warning, as a K&R declaration and reads no stub)')
             if not stubs:
                 bad.append(f'{f}:{i+1}: {form}({name}) on a tree whose stub list is empty ({rel})')
             elif name not in stubs:
                 bad.append(f'{f}:{i+1}: {form}({name}): no row of that stem in {rel}')
-            elif stubs[name]['src'] != f:
-                bad.append(f'{f}:{i+1}: {form}({name}): its row names {stubs[name]["src"]}, not this file')
+            elif want != f:
+                bad.append(f'{f}:{i+1}: {form}({name}): its row names {want}, not this file')
             elif form == 'INCLUDE_ASM_LIT' and name not in lit:
                 bad.append(f'{f}:{i+1}: INCLUDE_ASM_LIT({name}): {name} has no def literal row in {rel}')
             elif name in done:
@@ -306,7 +322,7 @@ def check_stubs(f, L, stubs, bad, lit=frozenset()):
     if header and not seen and not seen_lit:
         bad.append(f'{f}: includes include_asm.h with no listed stub')
     for name, r in stubs.items():
-        if r['src'] == f and name not in seen:
+        if r.get('asm', r['src']) == f and name not in seen:
             bad.append(f'{f}: {rel}:{r["line"]} lists {r["name"]} for this file, which has no INCLUDE_ASM({name}); line')
         if r['src'] == f and name in lit and name not in seen_lit:
             bad.append(f'{f}: {rel}:{r["line"]} gives {r["name"]} def literal rows, and this file has no'
@@ -321,60 +337,77 @@ def check_stubs(f, L, stubs, bad, lit=frozenset()):
 # prototype on one line or several, a one-line `{}` function, a declaration
 # with an attribute) and the ones rule 8 refuses, as (name, file, text, the
 # refusals expected, as substrings, in order)
+H = '#include "include_asm.h"\n\n'
 SELF_TEST = [
     ('multi-line prototype', 'ico2/a.c',
-     'int f(void)\n{\n    return 0;\n}\n\nint g(int a, float *b,\n      unsigned char c);\n\nINCLUDE_ASM(g);\n'
+     H + 'int f(void)\n{\n    return 0;\n}\n\nint g(int a, float *b,\n      unsigned char c);\n\nINCLUDE_ASM(g);\n'
      '\nINCLUDE_ASM(h);\n', []),
     ('static multi-line prototype, two stubs', 'ico2/a.c',
-     'static int g(int a, void *b, float r,\n             unsigned char c);\n\nINCLUDE_ASM(h);\n\nINCLUDE_ASM(g);\n',
+     H + 'static int g(int a, void *b, float r,\n             unsigned char c);\n\nINCLUDE_ASM(h);\n\nINCLUDE_ASM(g);\n',
      []),
     ('one-line {} function between stubs', 'ico2/a.c',
-     'INCLUDE_ASM(g);\n\ninline void f(int *p) {}\n\nINCLUDE_ASM(h);\n', []),
+     H + 'INCLUDE_ASM(g);\n\ninline void f(int *p) {}\n\nINCLUDE_ASM(h);\n', []),
     ('comment, extern and multi-line prototype', 'ico2/a.c',
-     '/* declared here:\n   a note */\nextern const int t[];\n\nstatic void g(int *c, float x, float y,\n'
+     H + '/* declared here:\n   a note */\nextern const int t[];\n\nstatic void g(int *c, float x, float y,\n'
      '              void *q);\n\nINCLUDE_ASM(g);\n\nINCLUDE_ASM(h);\n', []),
     ('multi-line extern, prototype, static data', 'ico2/a.c',
-     'static int n; /* derived name */\nextern int k(char *t, int x,\n             int y);\nstatic int g(void);\n\n'
+     H + 'static int n; /* derived name */\nextern int k(char *t, int x,\n             int y);\nstatic int g(void);\n\n'
      'INCLUDE_ASM(g);\n\nstatic int m = -1;\n\nstatic int h(void);\n\nINCLUDE_ASM(h);\n', []),
     ('declaration with an attribute', 'ico2/a.c',
-     'static int s __attribute__((aligned(16)));\n\nINCLUDE_ASM(g);\n\nINCLUDE_ASM(h);\n', []),
+     H + 'static int s __attribute__((aligned(16)));\n\nINCLUDE_ASM(g);\n\nINCLUDE_ASM(h);\n', []),
     ('INCLUDE_ASM inside a body', 'ico2/a.c',
-     'int f(int a,\n      int b)\n{\nINCLUDE_ASM(g);\n}\n\nINCLUDE_ASM(h);\n',
-     ['ico2/a.c:4: INCLUDE_ASM in a form other', 'lists g for this file']),
+     H + 'int f(int a,\n      int b)\n{\nINCLUDE_ASM(g);\n}\n\nINCLUDE_ASM(h);\n',
+     ['ico2/a.c:6: INCLUDE_ASM in a form other', 'lists g for this file']),
     ('INCLUDE_ASM inside a K&R body', 'ico2/a.c',
-     'int f(a, b)\nint a;\nint b;\n{\nINCLUDE_ASM(g);\n}\n\nINCLUDE_ASM(h);\n',
-     ['ico2/a.c:5: INCLUDE_ASM in a form other', 'lists g for this file']),
+     H + 'int f(a, b)\nint a;\nint b;\n{\nINCLUDE_ASM(g);\n}\n\nINCLUDE_ASM(h);\n',
+     ['ico2/a.c:7: INCLUDE_ASM in a form other', 'lists g for this file']),
+    ('INCLUDE_ASM with no include_asm.h', 'ico2/a.c', 'int f(void);\n\nINCLUDE_ASM(g);\n\nINCLUDE_ASM(h);\n',
+     ['ico2/a.c:3: INCLUDE_ASM(g) with no #include "include_asm.h" above it']),
+    ('include_asm.h below the first INCLUDE_ASM', 'ico2/a.c',
+     'INCLUDE_ASM(g);\n#include "include_asm.h"\nINCLUDE_ASM(h);\n',
+     ['ico2/a.c:1: INCLUDE_ASM(g) with no #include "include_asm.h" above it']),
+    ('INCLUDE_ASM_LIT with no include_asm.h', 'ico2/b.c',
+     'INCLUDE_ASM_LIT(i);\n\nint f(void);\n\nINCLUDE_ASM(j);\n\nINCLUDE_ASM(i);\n',
+     ['ico2/b.c:1: INCLUDE_ASM_LIT(i) with no #include "include_asm.h" above it']),
     ('INCLUDE_ASM_LIT at the definition, INCLUDE_ASM at the end', 'ico2/b.c',
-     'int f(void);\n\nINCLUDE_ASM_LIT(i);\n\nint f(void)\n{\n    return 0;\n}\n\nINCLUDE_ASM(j);\n'
+     H + 'int f(void);\n\nINCLUDE_ASM_LIT(i);\n\nint f(void)\n{\n    return 0;\n}\n\nINCLUDE_ASM(j);\n'
      '\nINCLUDE_ASM(i);\n', []),
     ('INCLUDE_ASM_LIT with no def row', 'ico2/b.c',
-     'INCLUDE_ASM_LIT(i);\nINCLUDE_ASM_LIT(j);\n\nINCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
+     H + 'INCLUDE_ASM_LIT(i);\nINCLUDE_ASM_LIT(j);\n\nINCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
      ['INCLUDE_ASM_LIT(j): j has no def literal row']),
-    ('def row with no INCLUDE_ASM_LIT', 'ico2/b.c', 'INCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
+    ('def row with no INCLUDE_ASM_LIT', 'ico2/b.c', H + 'INCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
      ['gives i def literal rows']),
     ('INCLUDE_ASM_LIT twice', 'ico2/b.c',
-     'INCLUDE_ASM_LIT(i);\nINCLUDE_ASM_LIT(i);\nINCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
+     H + 'INCLUDE_ASM_LIT(i);\nINCLUDE_ASM_LIT(i);\nINCLUDE_ASM(i);\nINCLUDE_ASM(j);\n',
      ['INCLUDE_ASM_LIT(i) a second time']),
-    ('a row in= its .c.inc: the line there', 'ico2/c_part.c.inc', 'INCLUDE_ASM(k);\n', []),
+    ('a row in= its .c.inc: the line there', 'ico2/c_part.c.inc', H + 'INCLUDE_ASM(k);\n', []),
     ('a row in= its .c.inc: the TU includes it', 'ico2/c.c', '#include "c_part.c.inc"\n', []),
-    ('a row in= its .c.inc: the line in the TU', 'ico2/c.c', '#include "c_part.c.inc"\nINCLUDE_ASM(k);\n',
-     ['INCLUDE_ASM(k): its row names ico2/c_part.c.inc, not this file']),
+    ('a row in= its .c.inc: the line in the TU', 'ico2/c.c', H + '#include "c_part.c.inc"\nINCLUDE_ASM(k);\n',
+     ['INCLUDE_ASM(k): its row names ico2/c_part.c.inc, not this file',
+      'includes include_asm.h with no listed stub']),
     ('a row in= a .c.inc the TU does not include', 'ico2/c.c', 'int x;\n',
      ['puts k in ico2/c_part.c.inc, which this file does not include']),
+    ('an inline row of a .c.inc: INCLUDE_ASM_LIT at its definition there', 'ico2/d_part.c.inc',
+     H + 'inline int m(void);\n\nINCLUDE_ASM_LIT(m);\n', []),
+    ('an inline row of a .c.inc: INCLUDE_ASM at the end of the TU', 'ico2/d.c',
+     H + '#include "d_part.c.inc"\n\nint f(void)\n{\n    return 0;\n}\n\nINCLUDE_ASM(m);\n', []),
+    ('an inline row of a .c.inc: INCLUDE_ASM in the .c.inc', 'ico2/d_part.c.inc',
+     H + 'INCLUDE_ASM_LIT(m);\n\nINCLUDE_ASM(m);\n', ['INCLUDE_ASM(m): its row names ico2/d.c, not this file']),
 ]
 
 
 def self_test():
-    """rule 8 on the shapes above, against a list of five rows."""
-    def row(stem, tu, src=None, line=1):
-        return dict(name=stem, stem=stem, tu=tu, src=src or tu, line=line)
+    """rule 8 on the shapes above, against a list of six rows."""
+    def row(stem, tu, src=None, line=1, inline=False):
+        return dict(name=stem, stem=stem, tu=tu, src=src or tu, line=line, asm=tu if inline else src or tu)
     stubs = {'g': row('g', 'ico2/a.c'), 'h': row('h', 'ico2/a.c', line=2), 'i': row('i', 'ico2/b.c', line=3),
-             'j': row('j', 'ico2/b.c', line=4), 'k': row('k', 'ico2/c.c', 'ico2/c_part.c.inc', line=5)}
+             'j': row('j', 'ico2/b.c', line=4), 'k': row('k', 'ico2/c.c', 'ico2/c_part.c.inc', line=5),
+             'm': row('m', 'ico2/d.c', 'ico2/d_part.c.inc', line=6, inline=True)}
     failed = 0
     for name, f, text, want in SELF_TEST:
         bad = []
         mine = {k: r for k, r in stubs.items() if f in (r['tu'], r['src'])}
-        check_stubs(f, text.split('\n'), mine, bad, {'i'})
+        check_stubs(f, text.split('\n'), mine, bad, {'i', 'm'})
         ok = len(bad) == len(want) and all(w in b for w, b in zip(want, bad))
         failed += not ok
         print(f'check_dev_native: self-test {"ok  " if ok else "FAIL"} {name}'
