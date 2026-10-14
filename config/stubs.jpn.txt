@@ -81,25 +81,10 @@ text gsb_scissorOnDemo 0x00113258 0x001135E0 ico2/seki/src/GsBase.c local lines=
 sdlit gsb_scissorOnDemo 0x00633AA0 0x00633AA2 ico2/seki/src/GsBase.c  # 1 string
 text gsb_SetVSMatrix 0x00114B08 0x00114CF0 ico2/seki/src/GsBase.c lines=38  # ordinal; first difference at insn 0; length:-37; extent-differs
 lit4 gsb_SetVSMatrix 0x0063274C 0x00632754 ico2/seki/src/GsBase.c  # 2 floats; target side (DISAGREE)
-text stage_MakeGObj 0x00129DD8 0x0012A060 ico2/seki/src/StageAnimation.c local lines=45  # ordinal; first difference at insn 69; imm:4; extent-equal
-rdlit stage_MakeGObj 0x0054B2A0 0x0054B363 ico2/seki/src/StageAnimation.c align=16  # 1 data, 4 strings (one run: the data's December size runs to the strings)
-sdlit stage_MakeGObj 0x00633C80 0x00633C82 ico2/seki/src/StageAnimation.c  # 1 string
-text stage_ApplyData 0x0012A060 0x0012A240 ico2/seki/src/StageAnimation.c lines=40  # ordinal; first difference at insn 51; imm:3; extent-equal
-rdlit stage_ApplyData 0x0054B368 0x0054B396 ico2/seki/src/StageAnimation.c  # 1 string
-sdlit stage_ApplyData 0x00633C88 0x00633C92 ico2/seki/src/StageAnimation.c  # 2 strings
-text stage_Init 0x0012A240 0x0012AD38 ico2/seki/src/StageAnimation.c lines=206  # ordinal; first difference at insn 108; imm:8; extent-equal
-rdlit stage_Init 0x0054B398 0x0054B445 ico2/seki/src/StageAnimation.c  # 4 strings
-rdlit stage_Init 0x0054B450 0x0054B490 ico2/seki/src/StageAnimation.c align=16  # 1 static
-text stage_ContinueAnimation 0x0012AF08 0x0012B00C ico2/seki/src/StageAnimation.c lines=31  # ordinal; first difference at insn 50; imm:2; extent-equal
-rdlit stage_ContinueAnimation 0x0054B4E0 0x0054B50F ico2/seki/src/StageAnimation.c align=16  # 1 string
 text stage_CalcAnimationNoParent 0x0012B040 0x0012B228 ico2/seki/src/StageAnimation.c lines=72  # ordinal; first difference at insn 0; length:-25; extent-differs
 text stage_CalcAnimationParent 0x0012B228 0x0012B3C0 ico2/seki/src/StageAnimation.c lines=54  # ordinal; first difference at insn 5; length:-6; extent-differs
-text stage_DispAnimation 0x0012B3C0 0x0012B4F8 ico2/seki/src/StageAnimation.c lines=42  # ordinal; first difference at insn 15; imm:1; extent-equal
 text stage_PlayBgAnimation 0x0012B600 0x0012B8B8 ico2/seki/src/StageAnimation.c lines=61  # ordinal; first difference at insn 20; length:+12; extent-differs
 text stage_PlayBgAnimationDissolve 0x0012B8B8 0x0012BBB4 ico2/seki/src/StageAnimation.c lines=62  # ordinal; first difference at insn 21; length:+10; extent-differs
-text stage_MakePlayBgAnimation 0x0012BBB8 0x0012BD3C ico2/seki/src/StageAnimation.c lines=53  # ordinal; first difference at insn 58; imm:1; extent-equal
-rdlit stage_MakePlayBgAnimation 0x0054B510 0x0054B597 ico2/seki/src/StageAnimation.c align=16  # 2 strings
-text stage_CheckAnimationFinish 0x0012C300 0x0012C3CC ico2/seki/src/StageAnimation.c lines=21  # ordinal; first difference at insn 37; imm:2; extent-equal
 text iosInitialize 0x00137CF8 0x00137ECC ico2/fumi/ios/ios.c lines=30  # census equal (immediates masked), but lui 0x76 -> 0x78 at insn 8 (iosMallocInitPartition's base)
 rdlit iosInitialize 0x0054C3A0 0x0054C3D1 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x00633EC0 0x00633EFF ico2/fumi/ios/ios.c  # 8 strings
