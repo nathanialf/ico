@@ -83,10 +83,12 @@ typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-        unsigned int : 26;
-        unsigned int handIK : 2;    /* MotCtrl handIK */
+        unsigned int : 22;
         unsigned int fuchiMode : 2; /* MotCtrl fuchiMode */
+        unsigned int : 2;
+        unsigned int handIK : 2;    /* MotCtrl handIK */
         unsigned int dirAdjust : 2; /* GetCurrentMotionDirectionAdjustFlag */
+        unsigned int : 2;
     } bits;
 } MotionModeBits; /* derived name */
 
@@ -94,25 +96,24 @@ typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-        unsigned int : 7;
+        unsigned int : 5;
+        unsigned int dropNode4Turn : 1; /* MotCtrl flag330 */
+        unsigned int : 4;
         unsigned int carried
             : 1; /* a carried pose: the girl's carry ends on it (commonact.c's becarry check) */
         unsigned int : 3;
-        unsigned int chainHang
-            : 1; /* the boy hangs on a chain: chain.c widens its hang range to 70 */
-        unsigned int : 4;
-        unsigned int jumpHit : 1;  /* actCommonJump's jump has hit and stops on a mode 1 motion */
         unsigned int parallel : 1; /* played as a parallel motion */
         unsigned int : 1;
-        unsigned int shiftInside : 1;  /* the shift range is the frames the shift may happen in */
-        unsigned int loop : 1;         /* the motion loops */
-        unsigned int clothPlane : 1;   /* cloth is pushed out of the object's floor plane */
+        unsigned int shiftInside : 1; /* the shift range is the frames the shift may happen in */
+        unsigned int stairStep : 1;   /* MotCtrl stairStep */
+        unsigned int intr10Live : 1;  /* actIntrList row 10 stays live (ACTRunIntrCorrect) */
+        unsigned int : 1;
         unsigned int avgWallPlane : 1; /* MotCtrl avgWallPlane */
-        unsigned int stairStep : 1;    /* MotCtrl stairStep */
-        unsigned int intr10Live : 1;   /* actIntrList row 10 stays live (ACTRunIntrCorrect) */
         unsigned int : 2;
         unsigned int adjustRoot : 1; /* the root is turned by adjustAngle */
-        unsigned int : 4;
+        unsigned int loop : 1;       /* the motion loops */
+        unsigned int clothPlane : 1; /* cloth is pushed out of the object's floor plane */
+        unsigned int : 6;
     } bits;
 } MotionFlags; /* derived name */
 
@@ -120,30 +121,30 @@ typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-        unsigned int : 4;
+        unsigned int : 1;
         unsigned int weaponSwing
             : 1; /* the held weapon's blade is drawn, its hand left to the motion */
-        unsigned int : 4;
-        unsigned int dropNode4Turn : 1; /* MotCtrl flag330 */
-        unsigned int : 22;
+        unsigned int : 30;
     } bits;
 } MotionFlags2; /* derived name */
 
-/* motion-def: one motion kind, 0x194 bytes, indexed by the motion id the
-   motion work carries (Sub15C+0x4A0): the effect, sound and vibration
-   triggers frameDependSequence.c fires, the name, the switches
-   SetMotionRequest copies into the motion work (MotCtrl), the root update
-   mode, the shift and trigger ranges, the play mode and the speed ratios
-   ExecMotionOrient plays it by, the slope rates, the input and direction
-   frames ico2/fumi's actors read, and three flag words, read whole or by bit
-   (modeBits' two nibbles at bits 8 and 12 pick handManager.c's motionIKEffKind
-   rows).  The generated motion-def member compiles against this record. */
-typedef struct {     /* field names derived */
-    FDSSlot eff[12]; /* 0x000, particle effects */
-    FDSSlot se[12];  /* 0x060, sound effects */
-    char name[48];   /* 0x0C0 */
-    FDSSlot vib[2];  /* 0x0F0, pad vibrations */
-    int word100;     /* 0x100 */
+/* motion-def: one motion kind, 0x190 bytes, indexed by the motion id the
+   motion work carries (Sub15C+0x4A0): the sound, effect and vibration
+   triggers frameDependSequence.c fires, the motion file, the name, the
+   switches SetMotionRequest copies into the motion work (MotCtrl), the root
+   update mode, the direction frames ico2/fumi's actors read, the shift and
+   trigger ranges, the play mode and the speed ratio ExecMotionOrient plays it
+   by, the slope rates, the input frames, and three flag words, read whole or
+   by bit (modeBits' two nibbles at bits 8 and 12 pick handManager.c's
+   motionIKEffKind rows).  The generated motion-def member compiles against
+   this record. */
+typedef struct {    /* field names derived */
+    FDSSlot se[12]; /* 0x000, sound effects */
+    FDSSlot eff[5]; /* 0x060, particle effects */
+    char path[64];  /* 0x088, derived name: the motion file, no C reader */
+    char name[48];  /* 0x0C8 */
+    FDSSlot vib[1]; /* 0x0F8, pad vibrations */
+    int word100;    /* 0x100 */
     int cylinder; /* 0x104, the motion pushes by cylinder collision, 0 for the standing ones (MotRoot 0x328) */
     int adjustAngle;    /* 0x108, degrees the root is turned by, 0 or 1 for none */
     int slopeIK;        /* 0x10C, MotCtrl slopeIK */
@@ -157,32 +158,30 @@ typedef struct {     /* field names derived */
         rootOffset[3]; /* 0x124, the root's offset the direct-play update takes off the position */
     int wallFeedback;  /* 0x130, the wall work is fed back to the brain */
     int area;          /* 0x134, the motion memory area: 0 static, 4 dynamic, else swap */
-    float weaponFrame; /* 0x138 */
-    int shiftStart;    /* 0x13C */
-    int shiftLength;   /* 0x140 */
-    int triggerStart;  /* 0x144 */
-    int triggerEnd;    /* 0x148 */
-    int trigger2Start; /* 0x14C */
-    int playMode;      /* 0x150, 1 loops */
-    int trigger2End;   /* 0x154 */
+    int dirFrames;     /* 0x138 */
+    float weaponFrame; /* 0x13C */
+    int shiftStart;    /* 0x140 */
+    int shiftLength;   /* 0x144 */
+    int blendKind;     /* 0x148, index into blendMotionKind, 228 for none */
+    float playSpeedRatio; /* 0x14C */
+    float rate1;          /* 0x150 */
+    float rate0;          /* 0x154 */
     float
         faceRotRatio; /* 0x158, the face turn's weight (the motion viewer's debug_face_rot_w_ratio) */
-    float palSpeedRatio;     /* 0x15C, applied when systemStatus[0] is set */
-    float rate0;             /* 0x160 */
-    float clipRadius;        /* 0x164, the clip radius a shift eases to, 5 at least */
-    float rate1;             /* 0x168 */
-    int fieldWall;           /* 0x16C, MotCtrl fieldWall */
-    int lookIK;              /* 0x170, MotCtrl lookIK */
-    float playSpeedRatio;    /* 0x174 */
-    int blendKind;           /* 0x178, index into blendMotionKind, 320 for none */
-    int handTurnIK;          /* 0x17C, MotCtrl handTurnIK */
-    short priInputBegin;     /* 0x180 */
-    short girlDirFrames;     /* 0x182 */
-    short priInputEnd;       /* 0x184 */
-    short dirFrames;         /* 0x186 */
-    MotionModeBits modeBits; /* 0x188 */
-    MotionFlags flags;       /* 0x18C */
-    MotionFlags2 flags2;     /* 0x190 */
+    int playMode;     /* 0x15C, 1 loops */
+    int handTurnIK;   /* 0x160, MotCtrl handTurnIK */
+    int triggerStart;        /* 0x164 */
+    int lookIK;              /* 0x168, MotCtrl lookIK */
+    int triggerEnd;          /* 0x16C */
+    int fieldWall;           /* 0x170, MotCtrl fieldWall */
+    int trigger2Start;       /* 0x174 */
+    int trigger2End;         /* 0x178 */
+    float clipRadius;        /* 0x17C, the clip radius a shift eases to, 5 at least */
+    short priInputEnd;       /* 0x180 */
+    short priInputBegin;     /* 0x182 */
+    MotionModeBits modeBits; /* 0x184 */
+    MotionFlags flags;       /* 0x188 */
+    MotionFlags2 flags2;     /* 0x18C */
 } MotionDef;                 /* derived name */
 
 extern const MotOriParallelEnt parallelMotionOrient[];

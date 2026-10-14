@@ -974,7 +974,7 @@ typedef struct {        /* field names derived */
                            the kind takes mail 47 */
 } ObjKindEnt; /* derived name */
 
-/* the 0x194-byte per-stage preset record at stageData */
+/* the 0x190-byte per-stage preset record at stageData */
 typedef struct {   /* field names derived */
     char key[32];  /* 0x00, the stage's short name ("gate"); no C reader */
     char name[32]; /* 0x20, the stage name icoMisc prints, "st04a (GATE_1ST)" */
@@ -1008,33 +1008,32 @@ typedef struct {   /* field names derived */
     void (*endproc)(void);  /* 0x150 */
     void (*initproc)(void); /* 0x154, the per-stage init hook */
     float windAmp;          /* 0x158, the wind speed's variance */
-    float windSpeed;        /* 0x15C, the wind's base speed */
-    int word160;            /* 0x160, no C reader */
-    int wayGroupEnd;        /* 0x164 */
-    int seSegData1;         /* 0x168, the sound data segment 1 keeps into the stage */
-    int seSegData2;         /* 0x16C, the same for segment 2 */
-    int wayGroupStart;      /* 0x170 */
-    int word174;            /* 0x174, no C reader */
-    int word178;            /* 0x178, no C reader */
-    int word17C;            /* 0x17C, no C reader */
-    float ledgeRange; /* 0x180, how near the girl must be across a ledge (act-env.c squares it) */
-    float handCameraRate; /* 0x184 */
-    short shadowDepth;    /* 0x188, copied into the stage setting's shadow depth */
+    int word160;            /* 0x15C, no C reader */
+    int seSegData1;         /* 0x160, the sound data segment 1 keeps into the stage */
+    int seSegData2;         /* 0x164, the same for segment 2 */
+    int wayGroupEnd;        /* 0x168 */
+    int wayGroupStart;      /* 0x16C */
+    int word174;            /* 0x170, no C reader */
+    int word178;            /* 0x174, no C reader */
+    int word17C;            /* 0x178, no C reader */
+    float handCameraRate;   /* 0x17C */
+    float windSpeed;        /* 0x180, the wind's base speed */
+    short shadowDepth;      /* 0x184, copied into the stage setting's shadow depth */
     unsigned char pad18A[2];
-    /* 0x18C, flag word whose low half is the reverb depth (soundManager reads
+    /* 0x188, flag word whose low half is the reverb depth (soundManager reads
      * that half at this offset) and whose bits 16-24 carry a count (10 to 300
      * in the shipped rows: backStage's way-kidnap time in seconds, 0 for no way
      * kidnap).  RECONSTRUCTION: bits 25-30 are a bitfield,
      * the stage's movie number StageManager copies into mpegPlay, because the
-     * ROM reads it as one: a whole-word field makes expand_expr fold the 0x18C
+     * ROM reads it as one: a whole-word field makes expand_expr fold the 0x188
      * into a constant table base (expr.c 6464-6482), where StageManager's three
-     * reads keep the table base, add the index product and load at 0x18C,
+     * reads keep the table base, add the index product and load at 0x188,
      * with the const table's unchanging flag on the load. */
     unsigned int reverbDepth : 16;
     unsigned int kidnapSeconds : 9;
     unsigned int mpegNo : 6;
     unsigned int attrTop : 1;
-    /* 0x190, a word of one-bit stage switches.  They are bitfields because the
+    /* 0x18C, a word of one-bit stage switches.  They are bitfields because the
      * ROM reads them as bitfields: a read off the record itself keeps the
      * const table's unchanging flag on the load and emits the index product
      * as the first operand of the address add (actCommonFall, actCommonEdgeHang). */

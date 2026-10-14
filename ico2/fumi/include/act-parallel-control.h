@@ -16,11 +16,11 @@ void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n);
    ActPara_MakeTbl picks from for a layout entry above 0xFFFF. */
 extern const int randomMotionKind[];
 
-/* parallel-motion-tbl: one parallel action's motions, 0xB0 bytes; motion[0]
+/* parallel-motion-tbl: one parallel action's motions, 0x94 bytes; motion[0]
  * is its id. Reader: ico2/fumi/src/act-parallel-control.c. Owner:
  * ico2/fumi/include/act-parallel-control.h. */
 typedef struct {     /* field names derived */
-    int motion[44];  /* 0x00, one per status bit */
+    int motion[37];  /* 0x00, one per status bit */
 } ParallelMotionRow; /* derived name */
 extern ParallelMotionRow parallelMotionTbl[];
 

@@ -50,25 +50,19 @@ typedef struct { /* field names derived */
     } ent[3];          /* 0x00, one per actor kind (Act+0x48) */
 
     char name[32];      /* 0x24, the debug name */
-    int intrList;       /* 0x44, the first actIntrList row */
-    int mail;           /* 0x48, ACTSendMailCorrect's mail */
+    int mail;           /* 0x44, ACTSendMailCorrect's mail */
+    int intrList;       /* 0x48, the first actIntrList row */
     /* 0x4C, the mode's flag bits */
-    unsigned int carried : 1;  /* bit 0, the girl is carried */
-    unsigned int bit1 : 1;
-    unsigned int onChain : 1;  /* bit 2, ACTGame_isHangChain */
-    unsigned int attractWait : 1; /* bit 3, the girl holds an attract turn 10 s */
-    unsigned int hintCount : 1; /* bit 4, the girl counts hint frames */
-    unsigned int bit5 : 1;
-    unsigned int keepHand : 1; /* bit 6, the boy keeps the girl's hand */
-    unsigned int bit7 : 1;
-    unsigned int softIk : 1; /* bit 8, the girl's soft IK rate */
-    unsigned int bit9 : 1;
-    unsigned int bit10 : 1;
-    unsigned int skipMarked : 1; /* bit 11, the flagged mail lists are skipped */
-    unsigned int bit12 : 1;
-    unsigned int escort : 1; /* bit 13, an escort status */
-    unsigned int bit14 : 1;
-    unsigned int : 17;
+    unsigned int escort : 1;     /* bit 0, an escort status */
+    unsigned int bit12 : 1;      /* bit 1 (PAL bit 12) */
+    unsigned int skipMarked : 1; /* bit 2, the flagged mail lists are skipped */
+    unsigned int bit10 : 1;      /* bit 3 (PAL bit 10) */
+    unsigned int bit9 : 1;       /* bit 4 (PAL bit 9) */
+    unsigned int softIk : 1;     /* bit 5, the girl's soft IK rate */
+    unsigned int onChain : 1;    /* bit 6, ACTGame_isHangChain */
+    unsigned int bit1 : 1;       /* bit 7 (PAL bit 1) */
+    unsigned int carried : 1;    /* bit 8, the girl is carried */
+    unsigned int : 23;
 } ActModeRec; /* derived name */
 extern const ActModeRec actModeTbl[];
 
