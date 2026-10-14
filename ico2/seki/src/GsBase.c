@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "staticBlur.h"
 #include <libvu0.h>
+#include <math.h>
 #include <eekernel.h>
 #include <sifdev.h>
 #include <stdio.h>
@@ -1044,7 +1045,48 @@ static float vsParam[10]; /* derived name */
  * towards its target by a thousandth of the step, and the view record at
  * vsParam carries the centre, the aspect terms and the near and far
  * planes gsb_SetVSMatrixSub builds the matrices from. */
-INCLUDE_ASM(gsb_SetVSMatrix);
+void gsb_SetVSMatrix(int w, int h, float d)
+{
+    float zoom;
+
+    center_X = center_Y = 2048.0f;
+    currentFocusDistance = d;
+    vsWidth = w;
+    vsHeight = h;
+    if (zoomTarget != zoomCurrent) {
+        zoomCurrent = zoomCurrent + (zoomTarget - zoomCurrent) * zoomSpeed * 0.001f;
+    }
+    if (staffRollStartFlag != 0) {
+        center_X = center_X - staffRollCenterOffsetX;
+    }
+    zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)debug_zoom_per *
+           (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
+    vsParam[0] = zoom;
+    tex_UpdateMipMapLevel((float)GlobalStageSetting.viewScale * zoomCurrent *
+                          (float)debug_zoom_per * (float)ScreenWidth / 640.0f / 100.0f);
+    vsParam[3] = center_X;
+    vsParam[4] = center_Y;
+    vsParam[5] = 1.0f;
+    vsParam[6] = 536870880.0f;
+    vsParam[7] = 2.0f;
+    vsParam[1] = (float)w / (float)ScreenWidth;
+    vsParam[8] = 262144.0f;
+    vsParam[2] =
+        (float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f) * (float)h / (float)ScreenHeight;
+    gsb_SetVSMatrixSub(matrixptr + 0xC0, matrixptr + 0x1C0, matrixptr + 0x240, matrixptr + 0x340,
+                       vsParam);
+    /* The field of view print of the January debug listing (SRCFILE.TXT,
+     * GsBase.c 2305-2306); its tests after the call keep it from being a
+     * tail call. The format text is on no disc. */
+    if (gsSystemReady != 0) {
+        if (debug_font_flag3 != 0 || (debug_font_flag & 1)) {
+#ifdef DEBUG
+            debug_Printf(340, ScreenHeight / 2 - 38, 0xFFFFFF80, "FOV %f",
+                         atan2f((float)ScreenWidth, vsParam[0]) * 180.0f / 3.1415927f);
+#endif
+        }
+    }
+}
 
 /* Clip a box against the current matrix: transform its eight corners with the
  * matrix in $vf4 to $vf7 and read the clip flags out of $vi18.  All eight

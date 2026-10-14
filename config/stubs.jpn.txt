@@ -105,10 +105,6 @@ rdlit Main 0x00548820 0x005488C4 ico2/common/src/main.c  # 7 strings; target sid
 text dispPool 0x0010C0B0 0x0010C57C ico2/sugipon/src/pool.c local lines=116  # ordinal; first difference at insn 1; length:+11; extent-differs
 text gsb_Reduction 0x001127A8 0x00112C18 ico2/seki/src/GsBase.c lines=77  # ordinal; first difference at insn 0; length:-53; extent-differs
 rdlit gsb_Reduction 0x00549600 0x0054960F ico2/seki/src/GsBase.c align=16  # 1 string
-text gsb_SetVSMatrix 0x00114B08 0x00114CF0 ico2/seki/src/GsBase.c lines=38  # ordinal; first difference at insn 0; length:-37; extent-differs
-lit4 gsb_SetVSMatrix 0x0063274C 0x00632754 ico2/seki/src/GsBase.c  # 2 floats
-text stage_PlayBgAnimation 0x0012B600 0x0012B8B8 ico2/seki/src/StageAnimation.c lines=61  # ordinal; first difference at insn 20; length:+12; extent-differs
-text stage_PlayBgAnimationDissolve 0x0012B8B8 0x0012BBB4 ico2/seki/src/StageAnimation.c lines=62  # ordinal; first difference at insn 21; length:+10; extent-differs
 text findChainInJump 0x0014FB60 0x00150328 ico2/fumi/src/boyact.c local lines=143  # ordinal; first difference at insn 3; length:-6; extent-differs
 lit4 findChainInJump 0x006328A8 0x006328B0 ico2/fumi/src/boyact.c  # 2 floats
 text actCommonBox 0x0015CB38 0x0015D008 ico2/fumi/src/commonact.c lines=101  # December sets no boxDir before the loop (main has the PAL body); with that, it still differs at insn 40: the spill slots of &s->env and &hold are swapped

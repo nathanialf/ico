@@ -73,7 +73,6 @@ static StageAnim stageAnimTable[87]; /* derived name */
 
 #include "ios.h"
 #include <stdio.h>
-#include "include_asm.h"
 
 /* objAction's row as this file reads it: the two stage animations the
    object plays (typedef.h's OaRecB carries them as baseMode and anim2) */
@@ -810,13 +809,118 @@ void stage_SetScale(int key, float scale)
     }
 }
 
-float stage_PlayBgAnimation(int key, float t, void *v, void *q);
+float stage_PlayBgAnimation(int key, float t, void *v, void *q)
+{
+    int i;
+    int k;
+    int n = stageAnimCount;
+    float r = t;
+    StageAnim *e;
 
-INCLUDE_ASM(stage_PlayBgAnimation);
+    if (n == 0) {
+        return 0.0f;
+    }
+    e = stageAnimTable;
+    for (i = 0; i < n; i++, e++) {
+        if (key != e->entry1->no) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        _CopyVector(e->entry2->anim->pos, v);
+        CopyQuaternion(e->entry2->anim->quat, q);
+        bga_SetFrame(e->entry2, (int)r, 1, e->entry1->loop);
+        for (k = 0; k < e->flags.b.count; k++) {
+            char *objs = (char *)e->obj;
 
-float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv);
+            *(int *)(*(int *)(*(char **)(objs + (k << 2)) + 0x15C) + 0x74) = 1;
+        }
+        if (systemStatus[0x14 / 4] != 0) {
+            break;
+        }
+        r = t + e->entry2->step * (30.0f / ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        if (e->entry2->end <= r) {
+            r = e->entry1->loop != 0 ? e->entry2->start : -1.0f;
+        }
+        break;
+    }
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        if (key != e->entry1->no) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        for (k = 0; k < e->flags.b.count; k++) {
+            char *objs = (char *)e->obj;
+            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->dobj;
 
-INCLUDE_ASM(stage_PlayBgAnimationDissolve);
+            reg_DispObj(d);
+            d->disp = 0;
+        }
+        e->entry2->mode = -1;
+    }
+    return r;
+}
+
+float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv)
+{
+    int i;
+    int k;
+    int m;
+    float r = t;
+    StageAnim *e;
+
+    if (stageAnimCount == 0) {
+        return 0.0f;
+    }
+    for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
+        if (key != e->entry1->no) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        _CopyVector(e->entry2->anim->pos, v);
+        CopyQuaternion(e->entry2->anim->quat, q);
+        bga_SetFrame(e->entry2, (int)r, 1, e->entry1->loop);
+        for (k = 0; k < e->flags.b.count; k++) {
+            e->obj[k]->dobj->disp = 1;
+        }
+        if (systemStatus[0x14 / 4] != 0) {
+            break;
+        }
+        r = t + e->entry2->step * (30.0f / ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        if (e->entry2->end <= r) {
+            r = e->entry1->loop != 0 ? e->entry2->start : -1.0f;
+        }
+        break;
+    }
+    for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
+        if (key != e->entry1->no) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        stageAnimDebugHook();
+        for (k = 0; k < e->flags.b.count; k++) {
+            Sub15C *d = e->obj[k]->dobj;
+
+            for (m = 0; m < d->nodeNum; m++) {
+                d->nodes[m].alpha = dv;
+            }
+            reg_DispObj(d);
+            d->disp = 0;
+            stageAnimDebugHook();
+        }
+        stageAnimDebugHook();
+        e->entry2->mode = -1;
+    }
+    return r;
+}
 
 BgaPlayNode *stage_MakePlayBgAnimation(int key)
 {
