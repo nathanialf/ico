@@ -65,7 +65,7 @@ static ActMail fenceUpChk2_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt20aInit);
 
-INCLUDE_ASM(func_00237BD0);
+INCLUDE_ASM(actSt20aEnd);
 
 INCLUDE_ASM(func_00237C18);
 

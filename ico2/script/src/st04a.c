@@ -108,7 +108,7 @@ int gate1 = 0;
    spin for. */
 static int demoEnd;
 
-INCLUDE_ASM(func_00214280);
+INCLUDE_ASM(actSt04aGate);
 
 INCLUDE_ASM(actSt04aGateChk);
 
@@ -291,7 +291,7 @@ INCLUDE_ASM(actSt04aTorchXL);
 
 INCLUDE_ASM(actSt04aGateOpen2);
 
-INCLUDE_ASM(func_00217C10);
+INCLUDE_ASM(actSt04aGateOpen2Ready);
 
 INCLUDE_ASM(actSt04aGirlSit);
 

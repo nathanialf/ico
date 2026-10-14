@@ -67,7 +67,7 @@ static ActMail door1Upchk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail door1Downchk_mes[2] = {{397}, {396}}; /* derived name */
 
-INCLUDE_ASM(func_0020FA98);
+INCLUDE_ASM(actSt00aInit);
 
 INCLUDE_ASM(actSt00aEnd);
 

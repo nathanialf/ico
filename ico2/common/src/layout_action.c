@@ -515,9 +515,9 @@ static inline void playTime(struct McPreview *p, int *hour, int *min, int *sec) 
 
 INCLUDE_ASM(_la_set_preview_info);
 
-INCLUDE_ASM(func_001B1EF0);
+INCLUDE_ASM(la_load_game_memory_card_check);
 
-INCLUDE_ASM(func_001B20C0);
+INCLUDE_ASM(la_mc_load_current_slot_select);
 
 static int loadCardChanged = 1; /* derived name */
 
@@ -745,7 +745,7 @@ static int keyConfigMask = 0xFF; /* derived name */
 
 INCLUDE_ASM(la_key_config);
 
-INCLUDE_ASM(func_001B4BF8);
+INCLUDE_ASM(la_game_option);
 
 /* the option screen's layout items: the five screen modes, the stage
    animation each mode plays (-1 for none), and the two choices of the control
@@ -785,7 +785,7 @@ INCLUDE_ASM(la_scei_logo);
 
 INCLUDE_ASM(la_title_demo);
 
-INCLUDE_ASM(func_001B4FC8);
+INCLUDE_ASM(la_mc_file_select);
 
 INCLUDE_ASM(la_mc_preview_info);
 

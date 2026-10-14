@@ -76,7 +76,7 @@ INCLUDE_ASM(actSt03tWay);
 
 INCLUDE_ASM(actSt03tEne);
 
-INCLUDE_ASM(func_00213DD8);
+INCLUDE_ASM(actSt03tGirlPos);
 
 void actSt03tGirlCamEvent(int x)
 {

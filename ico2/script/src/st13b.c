@@ -106,7 +106,7 @@ INCLUDE_ASM(actSt13bSekizo2Chk);
 
 INCLUDE_ASM(actSt13bMeetAgain);
 
-INCLUDE_ASM(func_00230A40);
+INCLUDE_ASM(actSt13bBoss);
 
 INCLUDE_ASM(func_00230B38);
 

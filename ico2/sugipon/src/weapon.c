@@ -212,7 +212,7 @@ typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 
 INCLUDE_ASM(InitWeaponGeo);
 
-INCLUDE_ASM(dispLaserSword);
+INCLUDE_ASM(WeaponGeo);
 
 /* the insect net's line colour and its handle, end to end */
 static int netColor[4] = {128, 128, 128, 128}; /* derived name */
@@ -246,7 +246,7 @@ void dispInsectNet(GObj *g)
     gif_EndPacket();
 }
 
-INCLUDE_ASM(func_001F3BD0);
+INCLUDE_ASM(WeaponDL);
 
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */

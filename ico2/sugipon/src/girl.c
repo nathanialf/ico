@@ -1533,6 +1533,6 @@ void GirlDL(GObj *gobj)
     debugWireStringGirl(gobj);
 }
 
-INCLUDE_ASM(func_001D1AD0);
+INCLUDE_ASM(GirlAI);
 
 INCLUDE_ASM(SetGirlClothDispSwitch);

@@ -457,9 +457,9 @@ void InitGameOverEffect(void)
     CopyVector(darkVolumeCenter, ZeroPoint);
 }
 
-INCLUDE_ASM(func_001CBD68);
+INCLUDE_ASM(InitDarkVolumeGeo);
 
-INCLUDE_ASM(func_001CBD70);
+INCLUDE_ASM(DarkVolumeGeo);
 
 INCLUDE_ASM(DarkVolumeDL);
 

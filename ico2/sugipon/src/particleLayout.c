@@ -11,6 +11,6 @@ INCLUDE_ASM(DeleteParticleLayout);
 
 INCLUDE_ASM(InitParticleLayoutGeo);
 
-INCLUDE_ASM(ParticleLayoutDL);
+INCLUDE_ASM(ParticleLayoutGeo);
 
-INCLUDE_ASM(func_001E8F30);
+INCLUDE_ASM(ParticleLayoutDL);

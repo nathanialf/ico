@@ -1012,7 +1012,7 @@ INCLUDE_ASM(actGirlRun);
 
 INCLUDE_ASM(actGirlHang);
 
-INCLUDE_ASM(func_00175740);
+INCLUDE_ASM(actGirlBHang);
 
 INCLUDE_ASM(actGirlAttack);
 

@@ -174,7 +174,7 @@ void actE3GateJimaku(GObj *volatile self)
 
 INCLUDE_ASM(actE3St01bInit);
 
-INCLUDE_ASM(func_00209AC0);
+INCLUDE_ASM(actE3Warning);
 
 INCLUDE_ASM(actE3Inst1);
 

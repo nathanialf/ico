@@ -11,7 +11,7 @@
 #include "brain.h"
 #include "include_asm.h"
 
-INCLUDE_ASM(func_0023D518);
+INCLUDE_ASM(LwsKyomiGeo);
 
 INCLUDE_ASM(func_0023D528);
 

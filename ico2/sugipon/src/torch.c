@@ -41,9 +41,9 @@ INCLUDE_ASM(moveTorch);
 
 INCLUDE_ASM(CheckTorchChainReactionReverse);
 
-INCLUDE_ASM(func_001F1CF0);
+INCLUDE_ASM(TorchGeo);
 
-INCLUDE_ASM(func_001F2048);
+INCLUDE_ASM(InitTorchGeo);
 
 inline void UpdateRealTimeGeometryValue(GObj *self)
 {

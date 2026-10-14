@@ -510,7 +510,7 @@ INCLUDE_ASM_LIT(actBoyCall);
 
 INCLUDE_ASM(ditch_check_heroin_position);
 
-INCLUDE_ASM(func_001522E0);
+INCLUDE_ASM(actBoyPullupReady);
 
 /* the boy is hauling the girl up: moving while the stick is pushed between
    0.1 and 0.99 of its range, or further with button 0x20 held */
@@ -590,15 +590,15 @@ INCLUDE_ASM(actBoyFall);
 
 INCLUDE_ASM(actBoyCall);
 
-INCLUDE_ASM(func_00153AA8);
+INCLUDE_ASM(actBoyItem);
 
-INCLUDE_ASM(func_00153AD8);
+INCLUDE_ASM(actBoyItemAfter);
 
-INCLUDE_ASM(func_00153B38);
+INCLUDE_ASM(actBoyCliffHesitate);
 
 INCLUDE_ASM(actBoyHangBefore);
 
-INCLUDE_ASM(func_00153C90);
+INCLUDE_ASM(actBoyReadyMove);
 
 INCLUDE_ASM(actBoyBeslam);
 

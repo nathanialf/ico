@@ -49,7 +49,7 @@ static SqEntry *st08a_adpcm = 0; /* derived name */
 
 INCLUDE_ASM(actSt08aDoor);
 
-INCLUDE_ASM(func_0022A440);
+INCLUDE_ASM(actSt08aEne1);
 
 INCLUDE_ASM(actSt08aEne2);
 

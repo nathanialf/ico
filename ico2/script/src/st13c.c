@@ -310,15 +310,15 @@ INCLUDE_ASM(actSt13cEnemyNull);
 
 INCLUDE_ASM(actE3St13cSekizo);
 
-INCLUDE_ASM(func_00233F80);
+INCLUDE_ASM(actSt13cSekizo);
 
-INCLUDE_ASM(func_00233FF8);
+INCLUDE_ASM(actSt13cHand);
 
-INCLUDE_ASM(func_00234070);
+INCLUDE_ASM(actSt13cGirlCarry);
 
-INCLUDE_ASM(func_002340E8);
+INCLUDE_ASM(actSt13cRescue);
 
-INCLUDE_ASM(func_00234170);
+INCLUDE_ASM(actSt13cBuki);
 
 void actSt13cBmg1Event(int x)
 {

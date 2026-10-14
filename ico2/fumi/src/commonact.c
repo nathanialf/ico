@@ -831,7 +831,7 @@ int E3_LeverCheck(GObj *self)
                                                       : _RotyGV(test_CURRENTORIENT(self), buf) < 45;
 }
 
-INCLUDE_ASM(func_0015C1F0);
+INCLUDE_ASM(actCommonBecarry);
 
 extern SlowrunRec motionOrient[];
 
@@ -1043,7 +1043,7 @@ INCLUDE_ASM(actCommonShoal);
 
 INCLUDE_ASM(actCommonSwim);
 
-INCLUDE_ASM(func_0015DF88);
+INCLUDE_ASM(actCommonTruckLever);
 
 INCLUDE_ASM(actCommonLever2);
 

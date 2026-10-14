@@ -45,7 +45,7 @@ INCLUDE_ASM(actSt05dDoor2UpChk);
 
 INCLUDE_ASM(actSt05dDoor2DownChk);
 
-INCLUDE_ASM(func_00225740);
+INCLUDE_ASM(actSt05dEne);
 
 INCLUDE_ASM(actSt05dEnemy1);
 
