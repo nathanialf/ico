@@ -281,7 +281,7 @@ INCLUDE_ASM(exec_layout_texture);
 /* init_textures_of_specified_property is a file static, as is
    ico2/common/src/kanban's function of the same name */
 /* texProperty's texNo column, &texProperty[0].texNo */
-extern char D_0030D014[];
+extern char D_002E3508[];
 /* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
 

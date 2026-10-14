@@ -2,7 +2,7 @@
  * the launcher they eret into and the TLB handler's return syscall, each
  * instruction on its own source line of tlbtrap.s. Every entry is 64-byte
  * aligned: _kTLBException, _xlaunch, _kExitTLBHandler and _kDebugException
- * sit at 0x265040, 0x265140, 0x265180 and 0x265280. Of _xlaunch's lines
+ * sit at 0x247A00, 0x247B00, 0x247B40 and 0x247C40. Of _xlaunch's lines
  * only 92 and 96 are known; the others are placed in order.
  */
 

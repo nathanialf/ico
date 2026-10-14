@@ -5,8 +5,12 @@ as part of another, and where every other declaration lives.
 
 The evidence is the PAL disc's January 2002 listing (`SRCFILE.TXT`, an
 `objdump -dl` of the game with a source path and line on every instruction)
-and its `MAIN.MAP`; both are copied into `baserom/pal/` by
-`tools/extract_elf.sh` and are never committed (`docs/LEGAL.md`). The listing
+and its `MAIN.MAP`; on `main`, `tools/extract_elf.sh` copies both into
+`baserom/pal/`, and neither is ever committed (`docs/LEGAL.md`). The
+prototype disc ships the same `MAIN.MAP` and no listing (its `TRFILE.TXT`
+gives a function, file and line per address, no instructions): this branch
+keeps the PAL tree's headers, changed where the prototype's records or
+declarations differ. The listing
 contains no source text. A header shows up in it only when code from the
 header was compiled into a caller: a header that only declares leaves no
 rows at all.
@@ -24,7 +28,7 @@ the listing records for it, under the programmer directory that owns it.
 | `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into `avoid_obstacle2` | the engine's shared object records (`GObj`, `Sub15C`, `Act`, ...) and the game's VU0 asm templates |
 | `ico2/omori/include/{b50,b100,b200}climb.h` | whole functions, emitted into `fumi/src/boyact.c`'s object | the boy's climb handlers |
 | `ico2/omori/include/{g50,g100,g200}climb.h` | whole functions, emitted into `fumi/src/girl_act.c`'s object | the girl's climb handlers |
-| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x00619370` names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1637), the size of `charFileManager.c`'s character-file table and the bound its four id checks compare against |
+| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x0060B4A0` names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1576 here, 1637 in PAL's build), the size of `charFileManager.c`'s character-file table and the bound its four id checks compare against |
 
 Things a reader of these files should know:
 

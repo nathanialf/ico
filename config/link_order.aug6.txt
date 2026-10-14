@@ -26,8 +26,9 @@
 #                      the record types config/data_schema.aug6.txt names. The
 #                      data: lines are PAL's members in the places
 #                      config/data_members.aug6.txt finds them: PAL's three
-#                      unmapped runs are absent, adpcmfile and texture-path
-#                      sit in .rodata where their lines say.
+#                      unmapped runs are absent, weapon-def and texture-path
+#                      are in .rodata (PAL's .data), adpcmfile moves inside
+#                      .rodata, and the three lines say where.
 #
 # Tokens after a path:
 #   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
@@ -37,24 +38,25 @@
 #                      input (build/<sec>.inputs.ld, which the script
 #                      INCLUDEs) with an ALIGN before the object; otherwise
 #                      the file is empty and the script's wildcards alone
-#                      place the section. The tokens below, and the addresses
-#                      in the comments above them, are PAL's measurements, not
-#                      yet re-measured against the aug6 base.
+#                      place the section. Each token below was measured on
+#                      the aug6 ELF, and its comment gives the aug6 addresses
+#                      and the fill before it.
 #   overlay-fill=N     on a .dsm line: the byte, decimal 0 to 255, that
 #                      dvp-as repeats over the program's constant-address
 #                      overlay section (--overlay-fill=N, from
 #                      tools/binutils-dvp-overlay-fill.patch). It is the
 #                      period assembler's uninitialised heap memory, measured
 #                      on the disc's ELF, not a feature of the source. The
-#                      aug6 ELF holds 0x6E (110) in all five, as JPN's does,
-#                      where PAL's are zero; the seven continuation overlays
-#                      are zero in all three.
+#                      aug6 ELF holds 0x6E (110) in all five, as the JPN and
+#                      USA ELFs do, where PAL's are zero; the seven
+#                      continuation overlays are zero in all four.
 #
 # No object owns these zero runs at the section boundaries (ROM offsets, VMA
 # minus 0x100000, from the aug6 ELF's section headers): 0x170A50, the 48 bytes
 # after .vutext (.reginfo is not allocated, the gap is fill); 0x44D978, past
-# the end of .data; 0x52BA38, past the end of .lit4. The pads inside sections
-# that PAL's file lists are not yet re-derived for the aug6 build.
+# the end of .data; 0x52BA38, past the end of .lit4. Every other run of fill
+# inside a section is reproduced by the next object's own alignment or a token
+# below.
 #
 # The aug6 build is the earliest of the four: 1561 of PAL's 5755 functions
 # have no twin in it and 1209 of its functions have none in PAL. The census
@@ -102,7 +104,7 @@ ico2/common/src/main.c
 ico2/sugipon/src/delayFreeManager.c
 ico2/sugipon/src/geometryManager.c
 ico2/sugipon/src/keyInput.c
-# ico2/sugipon/src/matrixDrive.c .data starts 16-aligned at 0x28FEF0, 8 B after its predecessor; the object's section is 8-aligned
+# ico2/sugipon/src/matrixDrive.c .data starts 16-aligned at 0x271BD0, 8 B after its predecessor; the object's section is 8-aligned
 ico2/sugipon/src/matrixDrive.c align.data=16
 ico2/sugipon/src/motionManager2.c
 ico2/sugipon/src/pool.c
@@ -113,7 +115,7 @@ ico2/seki/src/FileManager.c
 ico2/seki/src/GifPacket.c
 ico2/seki/src/GsBase.c
 ico2/seki/src/Light.c
-# ico2/seki/src/Matrix.c .data starts 16-aligned at 0x2908E0, 12 B after its predecessor; the object's section is 8-aligned
+# ico2/seki/src/Matrix.c .data starts 16-aligned at 0x272540, 12 B after its predecessor; the object's section is 8-aligned
 ico2/seki/src/Matrix.c align.data=16
 ico2/seki/src/MicroCode.c
 ico2/seki/src/Packet.c
@@ -154,8 +156,7 @@ ico2/fumi/src/jimaku.c
 ico2/fumi/src/way_sys.c
 ico2/fumi/src/way_util.c
 ico2/script/src/gflag.c
-# ico2/script/src/script.c .data starts 16-aligned at 0x2A5100, 14 B after its predecessor; the object's section is 8-aligned
-ico2/script/src/script.c align.data=16
+ico2/script/src/script.c
 ico2/script/src/st25a.c
 ico2/script/src/warpGirl.c
 ico2/omori/src/attackhit.c  # present, no twin: ten aug6 functions lie between warpGirl.c's and brain.c's .text (0x17E4E0..0x17F450) where PAL has its eleven, nine of them named attackhit.c's by TRFILE.TXT, with 8, 8 and 48 B in a row as Enemy/Boy/CommonAttackCenter; its PAL .rodata is not found
@@ -227,7 +228,7 @@ data:stage-anim-model
 data:stage-anim
 data:stream-motion-def
 data:tex-property
-data:weapon-def
+data:weapon-def  # in .rodata here, last in the first .rodata run (config/data_members.aug6.txt)
 ico2/common/src/DObj.c
 ico2/common/src/StageManager.c
 ico2/common/src/backStage.c
@@ -313,7 +314,7 @@ ico2/fumi/src/way_kidnap.c
 ico2/fumi/src/way_llf.c
 ico2/fumi/src/way_tool.c
 ico2/script/src/deja.c
-# ico2/script/src/e3.c .data starts 16-aligned at 0x4F79D0, 8 B after its predecessor; the object's section is 8-aligned
+# ico2/script/src/e3.c .data starts 16-aligned at 0x4CB5E0, 8 B after its predecessor; the object's section is 8-aligned
 ico2/script/src/e3.c align.data=16
 ico2/script/src/end.c
 ico2/script/src/op.c

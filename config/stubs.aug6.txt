@@ -1,32 +1,64 @@
 # config/stubs.aug6.txt -- the functions and data runs still built from the base ELF.
 #
 # Campaign scaffolding. A row names a range of the base ELF that no tracked
-# source produces yet; tools/gen_stub_s.py writes it as build/stubs/<name>.s
+# source produces yet; tools/gen_stub_s.py writes it as build/stubs/<stem>.s
 # from the user's own baserom/aug6/baseelf.elf at build time (nothing of the
 # ROM is tracked, docs/LEGAL.md), and the TU the row names includes it with
-# `INCLUDE_ASM(name);` (include/include_asm.h) at the function's place in the
-# file. tools/check_dev_native.py refuses an INCLUDE_ASM whose name has no row
-# here. With no rows the mechanism is idle.
+# `INCLUDE_ASM(stem);` at the function's place in the file, with the macro
+# from build/stubs/include_asm.h, which gen_stub_s.py writes beside the
+# stubs. tools/check_dev_native.py refuses an INCLUDE_ASM whose stem has no
+# row here. With no rows the mechanism is idle, as it is on main, where every
+# object of the PAL link is built from source.
 #
-# Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N]
-#          [file=F] [in=<file.c.inc>] [def]
-#   section   text, rodata, data or sdata; lit4, rdlit or sdlit for a text
-#             row's constants (tools/gen_stub_s.py's docstring)
-#   name      the symbol the stub defines
+# Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N] [file=<stem>]
+#          [in=<file.c.inc>] [inline] [def]
+#   section   text, rodata, data or sdata: the base ELF section of the range;
+#             lit4, rdlit or sdlit: the constants a text row's function brings
+#             into .lit4, .rodata or .sdata (the assembler's li.s and li.d
+#             pools, gcc's strings, constant runs, jump tables and the
+#             function's own statics), written after the function's text
+#             (a constant moved in a data section moves the code too: every
+#             address of one in an instruction is a relocated field)
+#   name      the symbol the stub defines (a literal row: its text row's name)
 #   vma_lo/hi the range [lo, hi) in the base ELF, hex (a text row ends at the
 #             function's last instruction, not at the fill after it)
-#   tu        the C source under ico2/ or sce/ that includes the stub
-#   local     the name is a static in the C (no .globl): set where PAL's
-#             object of the same source has the name as a static; a name PAL
-#             does not have carries no `local` until its C says so
+#   tu        the C source under ico2/ or sce/ that includes the stub (its
+#             object reads it, also when the line lives in an in= file)
+#   local     the name is a static in the C (no .globl; not on a literal row)
 #   align=N   the stub's alignment in bytes (default: the largest power of two
-#             dividing vma_lo, at most 8)
-#   file=F    the stub's file, build/stubs/F.s, for a name two TUs define as
-#             statics; F is <name>_<TU stem>. Eight names need it here
-#             (Debug_StickControl, disp, dispClothes, display_texture,
-#             effect_end_func, execClothes, gene_enemy,
-#             init_textures_of_specified_property), each on both or all of
-#             its rows.
+#             dividing vma_lo, at most 8; a lit4 row aligns to 4)
+#   lines=N   the stubbed body spanned N source lines (for the TU's `#line`
+#             after INCLUDE_ASM when it uses __LINE__; nothing reads it yet)
+#   file=stem the stub's file and INCLUDE_ASM name when two statics in two TUs
+#             share a name (default: the name); a literal row carries its text
+#             row's. Eight names need it here (Debug_StickControl, disp,
+#             dispClothes, display_texture, effect_end_func, execClothes,
+#             gene_enemy, init_textures_of_specified_property), each on
+#             both or all of its rows as <name>_<TU stem>, and every nested
+#             function's row carries <name>_<N> (below)
+#   in=path   the .c.inc the TU includes where the function is defined: its
+#             INCLUDE_ASM line lives there (not on a literal row)
+#   inline    with in=: an inline function of that .c.inc, whose INCLUDE_ASM
+#             line stands at the end of the TU, where gcc emits it; its
+#             INCLUDE_ASM_LIT and kept declaration stay in the .c.inc
+#             (--carve writes it)
+#   def       an rdlit or sdlit row written where the function is defined,
+#             not after its text: build/stubs/<stem>.lit.s, which the file
+#             includes with `INCLUDE_ASM_LIT(stem);` in the definition's place
+#             (a stubbed inline function's strings and gcc's other constants;
+#             its code, .lit4 floats, li.d doubles and jump tables follow
+#             INCLUDE_ASM at the end of the file)
+#
+# tools/gen_stub_s.py --carve NAME replaces the function's definition in its
+# TU (or its in= file) with the INCLUDE_ASM line (an inline function's line
+# goes to the end of the TU, and INCLUDE_ASM_LIT takes the definition's
+# place when the row has def rows), writes lines=N, and derives the literal
+# rows (--literals, from the compiled TU and the base ELF's words;
+# --no-literals leaves them alone, and a later --literals that adds a def
+# row places the INCLUDE_ASM_LIT line); --restore NAME puts the definition
+# back from main; --carve-all and --restore-all do every text row.
+# tools/object_check.py compares each object's .text with the base and a
+# TU's function order with the target's after a link.
 #
 # Seeded from the function census against the PAL build, tools/correlate_elf.py,
 # and the prototype disc's TRFILE.TXT. The disc's MAIN.MAP is the PAL disc's
@@ -53,20 +85,25 @@
 #     whether the extents agree. Every such pair is ordinal: paired by
 #     position inside a gap, so the census's name is provisional. Where
 #     TRFILE.TXT names the function otherwise, the row takes TRFILE.TXT's name
-#     and the comment (`trfile`) gives the census's pairing (29 rows); four
+#     and the comment (`trfile`) gives the census's pairing (29 rows); three
 #     more rows are twins whose bodies equal PAL's that TRFILE.TXT gives
-#     another PAL name whose body differs (`bodies equal`).
+#     another PAL name whose body differs (`bodies equal`; a fourth,
+#     gamesysCharacterInfoLoad, has since matched from C).
 #   - an aug6 function no PAL function claims, named by TRFILE.TXT (`trfile`):
 #     the name and the source file are TRFILE.TXT's (a .c.inc or switch.c is
-#     the PAL source that includes it). 1033 such names are a PAL function of
+#     the PAL source that includes it). 1028 such rows are a PAL function of
 #     that same source, an earlier form of it (all but torchOnOfWeaponSE
-#     PAL-only in the census), and the comment gives PAL's size; 29 are not in
+#     PAL-only in the census), and the comment gives PAL's size (1033 at the
+#     seed; iosMallocAlignDebug, ACTSetPositionWithFitting,
+#     ACTSetPositionNodeWithFitting, ExecRotObjectMoveStartReaction and
+#     ExecRotObjectMoveEndReaction have since matched from C); 29 are not in
 #     PAL's object. Six more such
 #     functions are byte-equal to the PAL function of their name, which the
 #     census lists as PAL-only because it gave a body-equal neighbour that
-#     name, and have no row (EnemyAttackCenter, BoyAttackCenter,
+#     name, and have no census row (EnemyAttackCenter, BoyAttackCenter,
 #     ParticleLayoutDL, adpcmOpenDiskNotReady, actSt47aSekizo1Event,
-#     actSt47aSekizo2Event).
+#     actSt47aSekizo2Event); adpcmOpenDiskNotReady has a row the carve added
+#     (below).
 #   - an aug6 function no PAL function claims and TRFILE.TXT does not name
 #     (`aug6-only`): a derived name func_<VMA> and the source that holds it by
 #     link order. Inside an object's span (between two of its twins) that is
@@ -90,7 +127,9 @@
 # data tables (act-mode-def, obj-kind-data) that hold it in the row where
 # PAL's holds the PAL function. Two more take the names TRFILE.TXT gives in
 # the same order (actBoyItem and actBoyItemAfter, which act-mode-def's ITEM
-# and ITEMAFTER rows hold). The other seven keep func_<VMA>. The row
+# and ITEMAFTER rows hold). The other seven keep func_<VMA>. Three of the
+# 128 (UpdateGeo.48, BoyBgaManager and GirlForceFieldGeo) have since matched
+# from C, so 134 rows remain of the 137. The row
 # 0x1E5688 is SetParticleEffect, which TRFILE.TXT names there and which the
 # census-equal callers call, not the census's SetParticleEffectByPartition.
 # A PAL function no row names and no twin keeps has no counterpart here and
@@ -122,9 +161,10 @@
 # tlbtrap.s's 860 bytes and their fill to it, those differ from PAL's only in
 # relocated fields, and _set_sreg at 0x247D60 is PAL's body; that pair has no
 # row. Two body-equal twins TRFILE.TXT names otherwise keep the census's
-# pairing and have no row: 0x1531B8 (afterBoyHangG3M; TRFILE.TXT says
+# pairing and have no census row: 0x1531B8 (afterBoyHangG3M; TRFILE.TXT says
 # afterCommonItem) and 0x230C00 (actE3St13cSekizoEvent; TRFILE.TXT says
-# actSt13cSekizoEvent), neither name being in PAL's object.
+# actSt13cSekizoEvent), neither name being in PAL's object; afterBoyHangG3M
+# has a row the carve added for emission order.
 
 text Main 0x00101C80 0x00101F50 ico2/common/src/main.c lines=95  # ordinal; first difference at insn 0; length:-26; extent-differs
 lit4 Main 0x0062AA80 0x0062AA84 ico2/common/src/main.c # target side
