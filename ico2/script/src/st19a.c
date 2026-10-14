@@ -336,7 +336,19 @@ void actSt19aPipe(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt19aPipeXL);
+void actSt19aPipeXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(312) == 0) {
+        stage_SetAnimation(139, 0, 0);
+    } else {
+        stage_SetAnimation(139, 0, -1);
+    }
+}
 
 void actSt19aChain(GObj *volatile self)
 {

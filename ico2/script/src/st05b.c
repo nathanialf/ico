@@ -92,9 +92,33 @@ void actSt05bSekizoChk(GObj *volatile self)
     scpBoyControlReadDisable = 0;
 }
 
-INCLUDE_ASM(actSt05bDoorXL);
+void actSt05bDoorXL(GObj *volatile self)
+{
+    GObj *x = self;
 
-INCLUDE_ASM(actSt05bMonyoDoorXL);
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(243) != 0 && gflagChk(139) == 0) {
+        stage_SetAnimation(341, 0, -1);
+    } else {
+        stage_SetAnimation(341, 0, 0);
+    }
+}
+
+void actSt05bMonyoDoorXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(234) == 0) {
+        stage_SetAnimation(247, 0, 0);
+    } else {
+        stage_SetAnimation(247, 0, -1);
+    }
+}
 
 INCLUDE_ASM(actSt05bSekizo);
 

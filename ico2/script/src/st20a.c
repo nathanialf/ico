@@ -19,7 +19,6 @@
 #include "StageAnimation.h"
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt20aBridgeDownSub(GObj *volatile self);
 static void actSt20aGirlPosChk(GObj *volatile self);
@@ -69,7 +68,16 @@ static ActMail girlPos_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
 
-INCLUDE_ASM(actSt20aInit);
+void actSt20aInit(void)
+{
+    if (gflagChk(315) == 0) {
+        stage_SetAnimation(144, 0, 0);
+        SetWayGroupActive(4, 0);
+    } else {
+        stage_SetAnimation(144, 0, -1);
+        SetWayGroupActive(4, 1);
+    }
+}
 
 void actSt20aEnd(void)
 {
