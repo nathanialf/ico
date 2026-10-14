@@ -339,7 +339,7 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
     if (5.0f < len) {
         int id = itemKind[p->kind].stayAnim;
 
-        if (id != 972) {
+        if (id != 949) {
             memset(&rot, 0, 16);
             rot[3] = 1.0f;
             CopyVector(d, vel);
@@ -384,9 +384,215 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
     return 0;
 }
 
-INCLUDE_ASM(floatGeo_75);
+static void uncarriedItemGeo(GObj *gobj)
+{
+    ObjNode link;  /* 0x00 */
+    float pos[4];  /* 0x10 */
+    float npos[4]; /* 0x20 */
+    float vel[4];  /* 0x30 */
+    ItemWork *p;   /* 0x40 */
 
-INCLUDE_ASM(uncarriedItemGeo);
+    void floatGeo(float t)
+    {
+        ClipWork w;
+
+        _ScaleVector(vel, vel, t);
+        _AddVectorXYZ(vel, vel, p->drain);
+        GetSlerpQuaternion(GOBJ_SUB(gobj)->root.itemQuat, GOBJ_SUB(gobj)->root.itemQuat,
+                           IdentityQuaternion, t);
+        RegularizeQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
+        CopyVector(w.pt[0], pos);
+        CopyVector(w.pt[1], w.pt[0]);
+        w.radius = 200.0f;
+        ClipWallWaveForce(&w);
+        if (w.wall.elem != 0) {
+            float d = GetDistanceFromPlane(w.normal.f, w.pt[0]);
+
+            d += w.radius;
+            if (0.0f < d) {
+                float k = 1.0f / (d + 50.0f);
+
+                vel[0] += w.normal.f[0] * 100.0f * k;
+                vel[2] += w.normal.f[2] * 100.0f * k;
+            }
+        }
+    }
+
+    float q[4];  /* 0x50 */
+    ClipWork cw; /* 0x60 */
+    int linked = 0;
+    float len0;
+    float len;
+    float spd;
+    float grav;
+
+    p = GOBJ_SUB(gobj)->work;
+    GOBJ_SUB(gobj)->ctrl.wallAttr = 0;
+    GOBJ_SUB(gobj)->ctrl.floorAttr = 0;
+    CopyVector(vel, GOBJ_SUB(gobj)->root.move);
+    len0 = VectorLength(vel);
+    UnlinkParentOfDObj(gobj);
+    GetRootPosition(pos, gobj);
+    vel[1] += ITEM_DT * 0.5f * ITEM_DT;
+    if (p->inPool == 1) {
+        float d = pos[1] - GOBJ_SUB(gobj)->ctrl.waterY;
+
+        if (d < 0.0f ? -d < 20.0f : d < 20.0f) {
+            float r = (d + 20.0f) / 40.0f;
+
+            vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f * r;
+            floatGeo(1.0f - r * 0.08f);
+            if (p->wave == 0) {
+                CopyVector(q, pos);
+                q[1] = GOBJ_SUB(gobj)->ctrl.waterY;
+                EntryStageMultiBgaManager(488, q, IdentityQuaternion);
+            }
+        } else if (0.0f < d) {
+            vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f;
+            floatGeo(0.92f);
+        }
+        vel[1] += GetTableSin(p->wave) * 0.1f;
+        p->wave += 1024;
+    }
+    sceVu0AddVector(npos, pos, vel);
+    GetRootQuaternion(q, gobj);
+    MultiQuaternion(q, GOBJ_SUB(gobj)->root.itemQuat, q);
+    RegularizeQuaternion(q);
+    SetRootQuaternion(gobj, q);
+    CopyVector(cw.pt[0], pos);
+    CopyVector(cw.pt[1], npos);
+    cw.radius = 20.0f;
+    ClipWall(&cw);
+    if (cw.wall.elem != 0) {
+        GOBJ_SUB(gobj)->ctrl.wallAttr = GetWallAttribute(&cw);
+        GetReflectionElement(&cw, 0.8f, 0.8f);
+        CopyVector(npos, cw.reflect.pos);
+        CopyVector(vel, cw.reflect.dir);
+        if (breakItemOnWallHit(gobj, VectorLength(cw.reflect.bounce), npos, vel)) {
+            setItemDead(gobj);
+        }
+    }
+    CopyVector(cw.pt[0], pos);
+    CopyVector(cw.pt[1], pos);
+    cw.pt[0][1] -= 20.0f;
+    cw.pt[1][1] += 20.0f;
+    ClipFloor(&cw);
+    if (cw.floor.elem != 0) {
+        CopyVector(pos, cw.pt[2]);
+        pos[1] -= 20.0f;
+    }
+    CopyVector(cw.pt[0], pos);
+    CopyVector(cw.pt[1], npos);
+    cw.pt[0][1] += 20.0f;
+    cw.pt[1][1] += 20.0f;
+    ClipFloor(&cw);
+    if (cw.floor.elem != 0) {
+        float axis[4];
+
+        GOBJ_SUB(gobj)->ctrl.floorAttr = GetFloorAttribute(&cw);
+        GetReflectionElement(&cw, 0.8f, 0.7f);
+        CopyVector(npos, cw.reflect.pos);
+        CopyVector(vel, cw.reflect.dir);
+        npos[1] -= 20.0f;
+        sceVu0OuterProduct(axis, cw.normal.f, cw.reflect.slide);
+        SetQuaternionByAxisRotate(GOBJ_SUB(gobj)->root.itemQuat,
+                                  (short)(int)(-VectorLength(cw.reflect.slide) * 521.5189209f),
+                                  axis[0], axis[1], axis[2]);
+        len = VectorLength(cw.reflect.bounce);
+        if (breakItemOnFloorHit(gobj, len, npos, vel)) {
+            setItemDead(gobj);
+        }
+        linked = 2;
+        link = cw.floor.o;
+    } else {
+        CopyVector(cw.pt[1], pos);
+        CopyVector(cw.pt[0], pos);
+        cw.pt[0][1] -= 20.0f;
+        cw.pt[1][1] += 20.0f;
+        cw.radius = 0;
+        ClipFloor(&cw);
+        if (cw.floor.elem != 0) {
+            float n[4];
+            float sv[4];
+
+            CopyVector(npos, cw.pt[2]);
+            npos[1] = cw.pt[2][1] - 21.0f;
+            cw.normal.f[3] = 0;
+            linked = 1;
+            CopyVector(n, cw.normal.f);
+            sceVu0ScaleVector(sv, n, GetDistanceFromPlane(cw.normal.f, vel) * -2.0f);
+            AddVectorXYZ(vel, vel, sv);
+            link = cw.floor.o;
+        } else {
+            cw.pt[1][1] += 10000.0f;
+            ClipFloor(&cw);
+            if (CheckFieldContact(&cw, gobj, npos, 20.0f) == 2) {
+                if (p->inPool != 1) {
+                    GOBJ_SUB(gobj)->ctrl.waterY = GetPoolGlobalHeight(cw.floor.o.obj);
+                    GetPoolGlobalDrainVector(p->drain, cw.floor.o.obj);
+                }
+                GOBJ_SUB(gobj)->ctrl.waterDepth = cw.pt[2][1] - GOBJ_SUB(gobj)->ctrl.waterY;
+                p->inPool = 1;
+            }
+        }
+    }
+    spd = VectorLength(vel);
+    grav = ITEM_DT * 0.5f * ITEM_DT;
+    if (len0 + (grav + grav) < spd) {
+        CopyVector(npos, pos);
+        p->released = 0;
+        /* emergency stop 2 */
+        debug_StdPrintfDummy("緊急停止2(%f←%f)\n", spd, len0);
+        p->holder = 0;
+        p->sleep = 0;
+    }
+    if (LimitExistGeometry(npos, vel)) {
+        p->released = 0;
+        p->holder = 0;
+        p->sleep = 0;
+        /* emergency stop 3 */
+        debug_StdPrintfDummy("緊急停止3\n");
+    }
+    npos[3] = 1.0f;
+    SetDirectRootPosition(gobj, npos);
+    CopyVector(GOBJ_SUB(gobj)->root.move, vel);
+    if (p->holder != 0) {
+        if (VectorLengthSquare(vel) > 100.0f) {
+            _AttackCenter((GObj *)p->holder, 18, npos, 0, 20.0f, gobj);
+        }
+    }
+    if (p->sleep != 0) {
+        p->sleep = p->sleep - 1;
+    }
+    if (linked != 0) {
+        if (p->spin < 8.0f && p->sleep == 0) {
+            int n = p->spinCount + 1;
+
+            p->spinCount = n;
+            if (n >= 6) {
+                p->spinCount = 0;
+                p->released = 0;
+                /* vibration sleep */
+                debug_StdPrintfDummy("振動睡眠\n");
+            }
+            p->spin = spd;
+        } else {
+            p->spin = 0;
+            p->spinCount = 0;
+        }
+    }
+    {
+        float v = p->spin;
+
+        if (v < spd) {
+            v = spd;
+        }
+        p->spin = v;
+    }
+    if (p->released == 0 && linked != 0) {
+        LinkParentOfDObj(gobj, &link);
+    }
+}
 
 static void execBombGeo(GObj *gobj)
 {

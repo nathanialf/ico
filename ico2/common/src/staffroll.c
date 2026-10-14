@@ -5,7 +5,6 @@
 #include "main.h"
 #include "debug_exception.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* staffroll.o's whole .data run: the roll's display area, centred on the
    origin, {x, y, width, height}.  Only the first word is read here, as the
@@ -48,7 +47,20 @@ float staffRollCenterOffsetX = 0.0f;
 
 float staffRollCenterOffsetXDest = 0.0f;
 
-INCLUDE_ASM(staffRollStart);
+void staffRollStart(float t, int alpha)
+{
+    staffRollStartFlag = 1;
+    rollSpeed = t + t;
+    staffRollAlpha = alpha;
+    rollNameIdx = 0;
+    rollOffset = 0.0f;
+    rollStep = 0;
+    rollWidth = 0;
+    closing = 0;
+    staffRollCenterOffsetX = staffRollCenterOffsetXDest = rollOffset;
+    staffRollArea[0] = 1280;
+    memset(rollLines, 0, sizeof(rollLines));
+}
 
 /* The scroll loop walks the 300-entry table by byte offset and spells the
    base at every use site. */

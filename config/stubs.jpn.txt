@@ -145,9 +145,6 @@ sdlit actGirlHand 0x00634408 0x00634418 ico2/fumi/src/girl_act.c  # 1 string, 2 
 text monitorMonitorCamera 0x0018F938 0x001900D8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 2; length:-99; extent-differs
 lit4 monitorMonitorCamera 0x00632C88 0x00632C94 ico2/omori/src/camera-ico2.c  # 3 floats; target side (DISAGREE)
 rdlit monitorMonitorCamera 0x00550320 0x00550330 ico2/omori/src/camera-ico2.c  # 2 doubles; target side (DISAGREE)
-text debug_Load 0x001AB9A8 0x001ABF88 ico2/common/src/debug.c lines=95  # ordinal; first difference at insn 58; imm:10; extent-equal
-lit4 debug_Load 0x00632EC0 0x00632EC4 ico2/common/src/debug.c  # 1 float
-rdlit debug_Load 0x00614BA8 0x00614D9C ico2/common/src/debug.c  # 13 strings, 1 jtbl
 text debug_DrawBar 0x001AD258 0x001ADFF8 ico2/common/src/debug.c local lines=209  # ordinal; first difference at insn 0; length:-22; extent-differs
 lit4 debug_DrawBar 0x00632EC4 0x00632ECC ico2/common/src/debug.c  # 2 floats
 rdlit debug_DrawBar 0x00614DA0 0x00614DE4 ico2/common/src/debug.c align=16  # 2 data runs, 1 string
@@ -158,7 +155,6 @@ rdlit debug_DispBar 0x00614DE8 0x00614E10 ico2/common/src/debug.c  # 2 strings
 text debug_SnapShot 0x001AE538 0x001AF488 ico2/common/src/debug.c lines=81  # ordinal; first difference at insn 1; length:+739; extent-differs
 rdlit debug_SnapShot 0x00614E10 0x00614EBA ico2/common/src/debug.c  # 6 strings; target side (DISAGREE: December's snapshot modes)
 text kanbanBootMcCheck 0x001B9490 0x001B96E8 ico2/common/src/kanbanBoot.c local lines=236  # ordinal; first difference at insn 3; length:-254; extent-differs
-text staffRollStart 0x001C1D20 0x001C1D74 ico2/common/src/staffroll.c lines=14  # ordinal; first difference at insn 0; length:-20; extent-differs
 text checkFieldContact 0x001C6718 0x001C683C ico2/sugipon/src/box.c local lines=34  # ordinal; first difference at insn 0; length:-11; extent-differs
 text action 0x001C8FC0 0x001C9158 ico2/sugipon/src/box.c local lines=45  # ordinal; first difference at insn 5; length:-16; extent-differs
 lit4 action 0x00632F74 0x00632F78 ico2/sugipon/src/box.c  # 1 float
@@ -167,10 +163,6 @@ rdlit action 0x00618420 0x00618440 ico2/sugipon/src/box.c align=16  # 1 jtbl
 text moveBoxAutoMatic 0x001C94F0 0x001C9610 ico2/sugipon/src/box.c local lines=42  # ordinal; first difference at insn 0; length:-42; extent-differs
 lit4 moveBoxAutoMatic 0x00632F78 0x00632F84 ico2/sugipon/src/box.c  # 3 floats
 text ThrowItem 0x001DE650 0x001DE6BC ico2/sugipon/src/item.c lines=11  # ordinal; first difference at insn 14; length:-19; extent-differs
-text floatGeo.75 0x001DEB58 0x001DEC98 ico2/sugipon/src/item.c local file=floatGeo_75  # nested in uncarriedItemGeo (a stub); equal, gone with its carved parent
-text uncarriedItemGeo 0x001DEC98 0x001DF864 ico2/sugipon/src/item.c local lines=209  # ordinal; first difference at insn 145; imm:3; extent-equal
-lit4 uncarriedItemGeo 0x006330B8 0x006330E8 ico2/sugipon/src/item.c  # 12 floats
-rdlit uncarriedItemGeo 0x00618E18 0x00618E4A ico2/sugipon/src/item.c  # 3 strings
 text _getFinalMatrix 0x001E1C30 0x001E4674 ico2/sugipon/src/motionManager.c local lines=691 in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc  # ordinal; first difference at insn 2; length:-130; extent-differs
 lit4 _getFinalMatrix 0x006330E8 0x00633128 ico2/sugipon/src/motionManager.c  # 16 floats; target side (no PAL body to compile)
 rdlit _getFinalMatrix 0x00618FA0 0x00619070 ico2/sugipon/src/motionManager.c align=16  # 1 jtbl; target side (no PAL body to compile)

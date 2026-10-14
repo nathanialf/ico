@@ -1078,7 +1078,101 @@ inline float debug_GetTimerCount(void)
     return (float)(*(volatile unsigned int *)T1_COUNT);
 }
 
-INCLUDE_ASM(debug_Load);
+int debug_Load(char **dst, char *name, int kind)
+{
+    char buf[256];
+    int size;
+    int sz;
+    int fd;
+
+    sprintf(buf, "ico2Data/%s", name);
+    fd = debugSceOpen(buf, 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy("file is not exist(%s)\n", name);
+        return -1;
+    }
+    size = sceLseek(fd, 0, 2);
+    sceLseek(fd, 0, 0);
+    sz = (size / 16 + 1) * 16;
+    {
+        /* the line every arm prints once it has the file's address, a nested
+           function that reads dst, name and size from the enclosing frame;
+           the iosMallocDebug calls pass the source's own line numbers */
+        inline void loadReport(void)
+        {
+            debug_StdPrintfDummy(
+                "loading:\"\033[33m%s\033[m\"\n\t(address:\033[35m%p\033[m/size:\033[35m%d\033[m)",
+                name, *dst, size);
+        }
+        switch (kind) {
+        case 0:
+        default:
+            *dst = iosMallocDebug(ios_partition_seki, sz, "src/debug.c", 1955);
+            loadReport();
+            debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
+                                 (*dst + sz - ios_partition_seki->start) * 100.0f / 10059776.0f);
+            break;
+        case 1:
+            *dst = iosMallocDebug(ios_partition_sugipon, sz, "src/debug.c", 1962);
+            loadReport();
+            debug_StdPrintfDummy(" to sugi area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 524288.0f,
+                                 (*dst + sz - ios_partition_sugipon->start) * 100.0f / 524288.0f);
+            break;
+        case 2:
+            *dst = iosMallocDebug(ios_partition_common, sz, "src/debug.c", 1970);
+            loadReport();
+            debug_StdPrintfDummy(" to static object area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 2.0f,
+                                 (*dst + sz - ios_partition_common->start) * 100.0f / 2.0f);
+            break;
+        case 3:
+            *dst = iosMallocDebug(ios_partition_smotion, sz, "src/debug.c", 1979);
+            loadReport();
+            debug_StdPrintfDummy(" to static motion area.(%2.1f%%/%2.1f%%)\n",
+                                 sz * 100.0f / 1179648.0f,
+                                 (*dst + sz - ios_partition_smotion->start) * 100.0f / 1179648.0f);
+            break;
+        case 5:
+            *dst = iosMallocDebug(ios_partition_dmotion, sz, "src/debug.c", 1988);
+            loadReport();
+            debug_StdPrintfDummy(" to dynamic motion area.(%2.1f%%/%2.1f%%)\n",
+                                 sz * 100.0f / 3670016.0f,
+                                 (*dst + sz - ios_partition_dmotion->start) * 100.0f / 3670016.0f);
+            break;
+        case 6:
+            *dst = iosMallocDebug(ios_partition_hara, sz, "src/debug.c", 1997);
+            loadReport();
+            debug_StdPrintfDummy(" to hara-area.(%2.1f%%)\n",
+                                 (*dst + sz - ios_partition_hara->start) * 100.0f);
+            break;
+        case 7:
+            *dst = iosMallocDebug(ios_partition_oomori, sz, "src/debug.c", 2004);
+            loadReport();
+            debug_StdPrintfDummy(" to oomori area.(%2.1f%%)\n",
+                                 (*dst + sz - ios_partition_oomori->start) * 100.0f / 327680.0f);
+            break;
+        case 8:
+            *dst = iosMallocDebug(ios_partition_horagai, sz, "src/debug.c", 2011);
+            loadReport();
+            debug_StdPrintfDummy(" to horagai-area.\n");
+            break;
+        case 9:
+            *dst = iosMallocDebug(ios_partition_sound, sz, "src/debug.c", 2016);
+            loadReport();
+            debug_StdPrintfDummy(" to sound-area.\n");
+            break;
+        case 10:
+            *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c", 2021);
+            loadReport();
+            debug_StdPrintfDummy(" to sound_semi-area.\n");
+            break;
+        }
+    }
+    sceRead(fd, *dst, size);
+    debugSceClose(fd);
+    FlushCache(0);
+    sceGsSyncPath(0, 0);
+    return size;
+}
 
 /* the GIF tag debug_MakeFont copies ahead of each font packet, as
    debug_exception's fontTag: the two 64-bit words the packet takes it in,
