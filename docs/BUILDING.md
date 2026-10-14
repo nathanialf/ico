@@ -187,22 +187,36 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   none, and this step does nothing). While another target is rebuilt from
   this tree, a function whose C does not yet give that target's bytes is
   listed there with its address range and its translation unit, and the C
-  carries `INCLUDE_ASM(name);` where the function stands in the file.
-  `tools/gen_stub_s.py` writes `build/stubs/<name>.s` from the user's own
-  base ELF, one `.word` per instruction with no relocations, and the
-  assembler reads it at that point of the compiler's output, so the stub
-  sits between the functions around it and the gate passes at every commit.
-  It writes the macro's header too, `build/stubs/include_asm.h`, which
+  carries `INCLUDE_ASM(stem);` where the function stands in the file (the
+  stem is the function's name, or the row's `file=<stem>` when two statics
+  in two TUs share a name). `tools/gen_stub_s.py` writes
+  `build/stubs/<stem>.s` from the user's own base ELF, one `.word` per
+  instruction with no relocations, and the assembler reads it at that point
+  of the compiler's output, so the stub sits between the functions around it
+  and the gate passes at every commit. The constants the function brought
+  into the TU's data sections (gcc's string literals and constants, the
+  assembler's `li.s` pool in .lit4 and `li.d` pool in .rodata) are not in the
+  stub's words; a `lit4`, `rdlit` or `sdlit` row gives the range of .lit4,
+  .rodata or .sdata they occupy, and the stub file writes them after the
+  function, so the TU's later constants keep their places. It writes the
+  macro's header too, `build/stubs/include_asm.h`, which
   `tools/compile_c.sh` searches last: the tree tracks no copy, so a TU that
-  includes it compiles only while stubs exist. The line shifts every later
-  line of the TU; a TU that uses `__LINE__` below it keeps its numbering with
-  a `#line` directive after the `INCLUDE_ASM` line, written by hand (a row's
-  `lines=N` records the span of the body it stands for), and the gate
-  decides. Nothing of it is tracked. `--check` names a stub
-  out of place; `tools/check_dev_native.py` refuses an `INCLUDE_ASM` the
-  list does not carry and a listed name whose file lacks it; the progress
-  figures count a stub's bytes as from the disc and its function as a stub,
-  not as matched;
+  includes it compiles only while stubs exist. `--carve NAME` and
+  `--restore NAME` (`--carve-all`, `--restore-all`) replace a definition
+  with its `INCLUDE_ASM` line and put it back from `main`, on the file's
+  bytes; an inline function's line goes to the end of the file, since gcc
+  2.9 emits inline functions after everything else. The line shifts every
+  later line of the TU; a TU that uses `__LINE__` below it keeps its
+  numbering with a `#line` directive after the `INCLUDE_ASM` line, written by
+  hand (a row's `lines=N` records the span of the body it stands for), and
+  the gate decides. Nothing of it is tracked. `--check` names a stub out of
+  place; `tools/check_dev_native.py` refuses an `INCLUDE_ASM` the list does
+  not carry and a listed stem whose file lacks it; the progress figures
+  count a stub's bytes as from the disc and its function as a stub, not as
+  matched. `tools/match_check.py TU FUNC` (or `--all`) compiles one TU into a
+  scratch object and compares each function with the target's words at its
+  range, relocated fields masked, so a function's state is known before the
+  link;
 - links with ld 2.10 and `config/link.pal.ld`, once to `build/ico.syms.elf`
   (symbols kept, with the map `build/ico.pal.map`) and once stripped to
   `build/ico.elf`, as the base is;

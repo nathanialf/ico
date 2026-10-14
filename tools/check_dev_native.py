@@ -36,10 +36,13 @@ pins are fine only where the developers' own source was assembly).
 
   8. The campaign stubs (config/stubs.<slug>.txt, tools/gen_stub_s.py).  The
      only asm a C file may carry for a function it does not yet compile is the
-     exact line `INCLUDE_ASM(name);` at file scope, and only while the list
-     has a row for that name naming this file; the row and the line go
-     together, so a listed name whose file lacks the line is refused too.  An
-     INCLUDE_ASM in any other spelling, one for a name the list does not
+     exact line `INCLUDE_ASM(stem);` at file scope, and only while the list
+     has a row of that stem naming this file (the stem is the row's name, or
+     its file=<stem> when two statics share a name); the row and the line go
+     together, so a listed stem whose file lacks the line is refused too.  A
+     literal row (lit4, rdlit, sdlit: the function's constants) rides on its
+     function's line and has none of its own.  An
+     INCLUDE_ASM in any other spelling, one for a stem the list does not
      carry, one on a tree whose list is empty, an `#include "include_asm.h"`
      with no listed stub beside it, and a `.include` in any other asm are
      refused.  The macro comes from build/stubs/include_asm.h, which
@@ -58,7 +61,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
-from gen_stub_s import LIST as STUB_LIST, parse_stubs  # noqa: E402
+from gen_stub_s import LIST as STUB_LIST, LITERALS, parse_stubs  # noqa: E402
 LISTING = os.path.join(ROOT, 'baserom', 'pal', 'SRCFILE.TXT')
 ALLOW = os.path.join(ROOT, 'tools', 'dev_native_allow.txt')
 
@@ -177,8 +180,8 @@ def check_one_assembler(bad):
 
 
 def check_stubs(f, L, stubs, bad):
-    """rule 8 on one file: each INCLUDE_ASM line against the stub list, and
-    each row naming this file against its lines."""
+    """rule 8 on one file: each INCLUDE_ASM line against the stub list (by
+    stem), and each row naming this file against its lines."""
     seen = set()
     header = False
     for i, l in enumerate(L):
@@ -190,7 +193,7 @@ def check_stubs(f, L, stubs, bad):
             if not stubs:
                 bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}) on a tree whose stub list is empty ({os.path.relpath(STUB_LIST, ROOT)})')
             elif name not in stubs:
-                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}): {name} has no row in {os.path.relpath(STUB_LIST, ROOT)}')
+                bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}): no row of that stem in {os.path.relpath(STUB_LIST, ROOT)}')
             elif stubs[name]['tu'] != f:
                 bad.append(f'{f}:{i+1}: INCLUDE_ASM({name}): its row names {stubs[name]["tu"]}, not this file')
             elif name in seen:
@@ -207,12 +210,14 @@ def check_stubs(f, L, stubs, bad):
         bad.append(f'{f}: includes include_asm.h with no listed stub')
     for name, r in stubs.items():
         if r['tu'] == f and name not in seen:
-            bad.append(f'{f}: {os.path.relpath(STUB_LIST, ROOT)}:{r["line"]} lists {name} for this file, which has no INCLUDE_ASM({name}); line')
+            bad.append(f'{f}: {os.path.relpath(STUB_LIST, ROOT)}:{r["line"]} lists {r["name"]} for this file, which has no INCLUDE_ASM({name}); line')
 
 
 def main(argv):
     files = staged_or_all(argv)
-    stubs = {r['name']: r for r in parse_stubs()}
+    # keyed by stem, the name INCLUDE_ASM spells; a literal row (lit4, rdlit,
+    # sdlit) has no line of its own
+    stubs = {r['stem']: r for r in parse_stubs() if r['section'] not in LITERALS}
     # a staged change to the stub list checks every file it names
     if '--all' not in argv and not os.environ.get('FILES'):
         staged = subprocess.run(['git', 'diff', '--cached', '--name-only'], cwd=ROOT,

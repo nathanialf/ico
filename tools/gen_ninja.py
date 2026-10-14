@@ -34,7 +34,7 @@ and once with -s to ico.elf, since the base carries no .symtab or .strtab but
 2.10's -s keeps their names in .shstrtab as the base does; ld 2.10 has no
 INCLUDE inside a section, so the script it reads is build/link.ld,
 config/link.<slug>.ld with its INCLUDE lines expanded; the map it writes is
-build/ico.<slug>.map), stubs (tools/gen_stub_s.py: build/stubs/<name>.s
+build/ico.<slug>.map), stubs (tools/gen_stub_s.py: build/stubs/<stem>.s
 for each row of config/stubs.<slug>.txt, from the base ELF, and the macro's
 header build/stubs/include_asm.h, implicit inputs of the object of the TU the
 row names, which includes the stub with INCLUDE_ASM), stubcheck
@@ -240,7 +240,9 @@ def main():
     stub_h = f"{OUT}/stubs/{STUB_HEADER}"
     stub_s = {}
     for r in stubs:
-        stub_s.setdefault(r["tu"], [stub_h]).append(f"{OUT}/stubs/{r['name']}.s")
+        stem_s = f"{OUT}/stubs/{r['stem']}.s"   # a literal row shares its function's file
+        if stem_s not in stub_s.setdefault(r["tu"], [stub_h]):
+            stub_s[r["tu"]].append(stem_s)
     members = table_members()
     cmembers = schema_members()
     check(entries, members)
