@@ -9,6 +9,8 @@
 
 static ActMail check_mes[2] = {{397}, {396}}; /* derived name */
 
+static ActMail D_004D3830[2] = {{397}, {396}}; /* derived name */
+
 /* .sdata: the lightning stream handle. */
 struct SqEntry *lightning2 = 0;
 

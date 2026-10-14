@@ -50,16 +50,6 @@ static ActMail wayOnChk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail wayOffChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail girlPos_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail girlUp_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hint1Sleep_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hint1OffChk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hint1OnChk_mes[2] = {{397}, {396}}; /* derived name */
-
 INCLUDE_ASM(actSt03tSwitchL);
 
 INCLUDE_ASM(actSt03tSwitchLChk);

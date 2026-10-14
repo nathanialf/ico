@@ -63,15 +63,11 @@ static ActMail rope2_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail brg1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail brg1_chk_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail rope3_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail rope4_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail brg2_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail brg2_chk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail brg1_way_mes[2] = {{397}, {396}}; /* derived name */
 

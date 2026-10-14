@@ -155,10 +155,6 @@ void actSt07aTsuroEffect(GObj *volatile self)
 
 INCLUDE_ASM(actSt07aSekizoChk);
 
-static ActMail chanReady_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail chanChain_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail chan_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail tsuro_mes[2] = {{397}, {396}}; /* derived name */

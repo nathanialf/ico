@@ -35,10 +35,6 @@ static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail hasi_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail fall_mes[2] = {{397}, {396}}; /* derived name */
 
 static const ConstVec doorChkSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */

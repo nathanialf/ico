@@ -740,6 +740,12 @@ static inline unsigned char IsFlyTimeOver(int self) /* derived name */
     return 0;
 }
 
+INCLUDE_ASM(col_268);
+
+INCLUDE_ASM(col_269);
+
+INCLUDE_ASM(col_270);
+
 INCLUDE_ASM(getLandOffset_265);
 
 INCLUDE_ASM(completeEmergency_280);

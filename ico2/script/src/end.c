@@ -51,13 +51,9 @@ static SqEntry *endDemo14 = 0; /* derived name */
 
 static SqEntry *st27aEnd = 0; /* derived name */
 
-static ActMail demo01_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail demo02_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail demo03_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail demo04_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail D_004D0BF0[2] = {{397}, {396}}; /* derived name */
 
 static ActMail demo05_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -73,19 +69,17 @@ static ActMail demo12_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail demo13_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail staff1_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail staff2_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail staff3_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail D_004D0D30[2] = {{397}, {396}}; /* derived name */
 
 static ActMail ed_demo14_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail st27aEnd_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail logo_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail end_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actEndDemo01);
 

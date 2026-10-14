@@ -149,30 +149,28 @@ typedef struct GirlBrainWork { /* field names derived */
     int curMode;    /* 0x57DC the mode the brain last switched to */
     int targetFlag; /* 0x57E0 bit 16 of the winning BrainTarget's b18 word */
     char pad57E4[12];
-    float runawayGoal[4]; /* 0x57F0 the runaway goal */
-    float hidePoint[4];   /* 0x5800 last accepted hide point */
-    float runawayFrom[4]; /* 0x5810 where the runaway search starts ("girl brain target") */
-    float girlRoot[4];    /* 0x5820 GetRootPosition of the girl */
-    float girlPos[4];     /* 0x5830 the girl's own position, GetRootProjectionPosOfGObj */
-    float boyRoot[4];     /* 0x5840 GetRootPosition of the boy */
-    float boyPos[4];      /* 0x5850 the boy's GetRootProjectionPosOfGObj */
-    WayPoint *lastWay;    /* 0x5860, the way point GetWay_next last returned */
-    char pad5864[12];
-    WVTObj hideWay;            /* 0x5870, the way the girl tries to the hide point */
-    unsigned char warn;        /* 0x58F0 a brain state asks the main loop to checkWarning */
-    unsigned char pad58F1;     /* 0x58F1 cleared each frame, never read */
-    unsigned char modeChanged; /* 0x58F2 set on the frame the mode changes */
-    unsigned char lookHold;    /* 0x58F3 3 s after flags18 bit 62 while she faced the boy */
-    int markerPulse;           /* 0x58F4 the runaway goal marker's pulse */
-    int runMode;               /* 0x58F8 */
+    float runawayGoal[4];      /* 0x57F0 the runaway goal */
+    float hidePoint[4];        /* 0x5800 last accepted hide point */
+    float runawayFrom[4];      /* 0x5810 where the runaway search starts ("girl brain target") */
+    float girlRoot[4];         /* 0x5820 GetRootPosition of the girl */
+    float girlPos[4];          /* 0x5830 the girl's own position, GetRootProjectionPosOfGObj */
+    float boyRoot[4];          /* 0x5840 GetRootPosition of the boy */
+    float boyPos[4];           /* 0x5850 the boy's GetRootProjectionPosOfGObj */
+    WVTObj hideWay;            /* 0x5860, the way the girl tries to the hide point */
+    unsigned char warn;        /* 0x58E0 a brain state asks the main loop to checkWarning */
+    unsigned char pad58E1;     /* 0x58E1 cleared each frame, never read */
+    unsigned char modeChanged; /* 0x58E2 set on the frame the mode changes */
+    unsigned char lookHold;    /* 0x58E3 3 s after flags18 bit 62 while she faced the boy */
+    int markerPulse;           /* 0x58E4 the runaway goal marker's pulse */
+    int runMode;               /* 0x58E8 */
     int wait;
     int timer;
     int limit;
-    int modeFrames;    /* 0x5908 frames since the last mode change */
-    int status31Timer; /* 0x590C frames the attract state keeps char status 31 set */
-    int unseenFrames;  /* 0x5910 frames no hide-list object has been in view */
-    int hideAdvWait;   /* 0x5914 frames before the hide state may advance */
-    int pad5918[2];    /* 0x5918, to the 0x5920 girlBrainMain_Init clears */
+    int modeFrames;    /* 0x58F8 frames since the last mode change */
+    int status31Timer; /* 0x58FC frames the attract state keeps char status 31 set */
+    int unseenFrames;  /* 0x5900 frames no hide-list object has been in view */
+    int hideAdvWait;   /* 0x5904 frames before the hide state may advance */
+    int pad5908[2];    /* 0x5908, to the 0x5910 girlBrainMain_Init clears */
 } GirlBrainWork;       /* derived name */
 
 /* The head of the TU's .data (the brain work record brain_val and the hand

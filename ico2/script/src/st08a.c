@@ -36,20 +36,6 @@ static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f}; /* deri
 
 static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail girl_pos_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hasi_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hasi_switch_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail torch_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail torch_on_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail torch_off_mes[2] = {{397}, {396}}; /* derived name */
-
 INCLUDE_ASM(actSt08aEnd);
 
 INCLUDE_ASM(actSt08aEne1Chk);

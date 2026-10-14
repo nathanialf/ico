@@ -55,6 +55,8 @@ int sekizo_e3_vol = 0;
 
 static unsigned char e3sekizo_yure_vol = 0; /* derived name */
 
+static ActMail warning_mes[2] = {{397}, {396}}; /* derived name */
+
 static ActMail title_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail inst1_mes[2] = {{397}, {396}}; /* derived name */

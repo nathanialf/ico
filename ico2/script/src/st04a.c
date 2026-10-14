@@ -66,9 +66,9 @@ typedef struct PObjGObjSt04A { /* field names derived */
     int active;                /* 0x16C */
 } PObjGObjSt04A;               /* derived name */
 
-/* .data, ahead of model_on and model_off: each action's mail pair, the check
-   handler stored into its first entry at run time, and the matrix
-   finishCallBackFunc writes into every joint. */
+/* .data: each action's mail pair, the check handler stored into its first
+   entry at run time, and the matrix finishCallBackFunc writes into every
+   joint. */
 static ActMail gate_mail[2] = {{397}, {396}}; /* derived name */
 
 static ActMail gate_open_mail[2] = {{397}, {396}}; /* derived name */
@@ -76,21 +76,17 @@ static ActMail gate_open_mail[2] = {{397}, {396}}; /* derived name */
 static Mtx44 jointMtxInit = {{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
                               1.0f, 0.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
-static ActMail gate_open2_ready_mail[2] = {{397}, {396}}; /* derived name */
+static ActMail girl_sit_mail[2] = {{397}, {396}}; /* derived name */
 
 static ActMail gate_open2_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gate_open3_mail[2] = {{397}, {396}}; /* derived name */
+static ActMail gate_open2_ready_mail[2] = {{397}, {396}}; /* derived name */
 
 static ActMail gate_l_mail[2] = {{397}, {396}}; /* derived name */
 
 static ActMail gate_r_mail[2] = {{397}, {396}}; /* derived name */
 
 static ActMail torch1_mail[2] = {{397}, {396}}; /* derived name */
-
-static ActMail girl_sit_mail[2] = {{397}, {396}}; /* derived name */
-
-static ActMail torch_hint_mail[2] = {{397}, {396}}; /* derived name */
 
 static ActMail model_mail[2] = {{397}, {396}}; /* derived name */
 
@@ -414,12 +410,3 @@ void actConte09_3Jimaku(GObj *volatile self)
 }
 
 INCLUDE_ASM(actSt04aGirlSitChk);
-
-/* The model-on watcher's mail record: it installs actSt04aModelOffChk here
-   and posts it. Word 0 of each entry is the mail id the entry answers (397
-   the actor post, 396 the trailing entry); .func is filled in at run time.
-   Named for the thread that owns and posts it. */
-static ActMail model_on[2] = {{397}, {396}}; /* derived name */
-
-/* The model-off watcher's own mail record (installs actSt04aModelOnChk). */
-static ActMail model_off[2] = {{397}, {396}}; /* derived name */

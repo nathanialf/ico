@@ -26,20 +26,6 @@ static ActMail water_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail waterSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail fuchi1_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail fuchi2_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail fuchi3_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail se_mes[2] = {{397}, {396}}; /* derived name */
-
-static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f}; /* derived name */
-
-static ActMail hint1WakeUp_mes[2] = {{397}, {396}}; /* derived name */
-
 INCLUDE_ASM(actSt04eWater);
 
 INCLUDE_ASM(actSt04eWaterMain);

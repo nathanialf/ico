@@ -778,6 +778,9 @@ lit4 emergencyCheck.284 0x00630C70 0x00630C74 ico2/fumi/src/commonact.c file=eme
 rdlit emergencyCheck.284 0x00558B10 0x00558B79 ico2/fumi/src/commonact.c align=16 file=emergencyCheck_284  # 3 strings
 sdlit emergencyCheck.284 0x00632308 0x0063230F ico2/fumi/src/commonact.c file=emergencyCheck_284  # 1 string
 text flyCoreLoop 0x0015A618 0x0015ADEC ico2/fumi/src/commonact.c local lines=355  # ordinal; first difference at insn 0; length:-360; extent-differs
+data col.268 0x002823D0 0x002823E0 ico2/fumi/src/commonact.c local file=col_268  # flyCoreLoop's (completeEmergency.280's) {0, 255, 128, 128}, after commonact.c's last file-scope .data; USA addiu at 0x15A1EC
+data col.269 0x002823E0 0x002823F0 ico2/fumi/src/commonact.c local file=col_269  # flyCoreLoop's (completeEmergency.280's) {0, 0, 128, 128}; USA addiu at 0x15A338
+data col.270 0x002823F0 0x00282400 ico2/fumi/src/commonact.c local file=col_270  # flyCoreLoop's {0, 128, 255, 128}; USA addiu at 0x15AA2C
 text actCommonFly 0x0015ADF0 0x0015AEC8 ico2/fumi/src/commonact.c lines=30  # ordinal; first difference at insn 1; length:-9; extent-differs
 text actCommonLadder 0x0015AEC8 0x0015B4B4 ico2/fumi/src/commonact.c lines=115  # ordinal; first difference at insn 16; length:-2; extent-differs
 text actCommonEdgeHang 0x0015B4B8 0x0015B61C ico2/fumi/src/commonact.c lines=29  # ordinal; first difference at insn 14; imm:4; extent-equal

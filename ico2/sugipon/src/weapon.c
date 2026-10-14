@@ -32,7 +32,7 @@
 static void calcDynamicGeometry(struct GObj *g);
 
 /* The work record InitWeaponGeo and InitDemoQueensSword allocate and the
-   template they initialise it from: 224 bytes, 8-aligned.  The fields are the
+   template they initialise it from: 176 bytes, 8-aligned.  The fields are the
    ones this file reads. */
 typedef struct {       /* field names derived */
     int kind;          /* 0x00: the switch in InitWeaponGeo */
@@ -48,20 +48,13 @@ typedef struct {       /* field names derived */
     int fumbleFrame;   /* 0x64 */
     float fumbleSpeed; /* 0x68 */
     char pad6C[4];
-    float fumbleFrom[4]; /* 0x70 */
-    float fumbleTo[4];   /* 0x80 */
-    float fumbleQuat[4]; /* 0x90 */
-    int fumbleSlot;      /* 0xA0: the drop-table row, 0 to 6 */
-    int bladeOn;         /* 0xA4: the laser blade is out */
-    float bladeLength;   /* 0xA8: the blade's drawn length */
-    float bladeTimer;    /* 0xAC: frames the blade has been growing */
-    float *net;          /* 0xB0, the insect net's sway, two floats */
-    Sub15C *model0;      /* 0xB4, the blade's DObj */
-    Sub15C *model1;      /* 0xB8, the blade tip's DObj */
-    int humAnim;         /* 0xBC: the blade's BG animation handle */
-    int offsetMode;      /* 0xC0: SetWeaponOffsetMode */
-    char padC4[12];
-    float tipPos[4];                      /* 0xD0: the blade tip */
+    float fumbleFrom[4];                  /* 0x70 */
+    float fumbleTo[4];                    /* 0x80 */
+    float fumbleQuat[4];                  /* 0x90 */
+    int fumbleSlot;                       /* 0xA0: the drop-table row, 0 to 6 */
+    int bladeOn;                          /* 0xA4: the laser blade is out */
+    float bladeLength;                    /* 0xA8: the blade's drawn length */
+    float bladeTimer;                     /* 0xAC: frames the blade has been growing */
 } __attribute__((aligned(8))) WeaponWork; /* derived name */
 
 void weaponHitReactionSE(GObj *g);
@@ -145,13 +138,6 @@ static WeaponWork swordWorkTemplate = {
     0,
     0.0f,
     0.0f,
-    0,
-    0,
-    0,
-    0,
-    0,
-    {0},
-    {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
 /* the offsets the two path helpers below set the z of and push along */
@@ -200,13 +186,6 @@ static __inline__ void dynGeoDebugHook(void) /* derived name */
 }
 
 INCLUDE_ASM(calcDynamicGeometry);
-
-/* the body of SetWeaponOffsetMode, which getGeometry and InitWeaponGeo
-   inline and SetWeaponOffsetMode calls */
-static inline void setWeaponOffsetMode(GObj *g, int v) /* derived name */
-{
-    ((WeaponWork *)GOBJ_SUB(g)->work)->offsetMode = v;
-}
 
 INCLUDE_ASM(getGeometry);
 

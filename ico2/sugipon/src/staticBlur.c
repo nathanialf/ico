@@ -32,8 +32,6 @@ static float sunScreenOffset[4] = {-2048.0f, -2048.0f, 0.0f, 0.0f}; /* derived n
 
 static int work0ToFeedBackRect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
 
-static int feedBackToWork0Rect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
-
 static float subWork1Point[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
 static int eyeGhostRect[4] = {-2048, -1024, 4096, 2048}; /* derived name */

@@ -81,25 +81,17 @@ static ActMail c1Ball_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail c1BallSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail c1BallTurn_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail turnBall_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail c2BallMain_mes[2] = {{376, actSt04lC2BallSwitch}, {396}}; /* derived name */
 
 static ActMail c2Ball_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail c2BallSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail c2BallTurn_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail c3BallMain_mes[2] = {{377, actSt04lC3BallSwitch}, {396}}; /* derived name */
 
 static ActMail c3Ball_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail c3BallSwitch_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail c3BallTurn_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail crest01_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -117,15 +109,11 @@ static ActMail rope2_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail brg1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail brg1Chk_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail rope3_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail rope4_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail brg2_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail brg2Chk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail brg1Way_mes[2] = {{397}, {396}}; /* derived name */
 

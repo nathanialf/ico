@@ -17,7 +17,7 @@ extern const MotionDef motionKind[];
 
 /* every motion's loaded data, indexed by motion number; charFileManager
    fills the entries, the resets clear them */
-int *motionTable[1150] = {0};
+int *motionTable[1086] = {0};
 
 /* the top of the motion file InitMotionFile relocates, the base every
    stored offset in it is added to */

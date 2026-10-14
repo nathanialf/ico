@@ -35,8 +35,6 @@ static ActMail st04rDoor_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail st04rDoor2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail crestHint_mes[2] = {{397}, {396}}; /* derived name */
-
 INCLUDE_ASM(actSt05cDoorDownChk);
 
 INCLUDE_ASM(actSt04rDoorChk);

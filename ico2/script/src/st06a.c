@@ -55,7 +55,9 @@ static inline void actSt06aSound2Chk(GObj *volatile self);
 
 static ActMail suimon_mes[2] = {{397}, {396}}; /* derived name */
 
-static float suimon_sound_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f}; /* derived name */
+static ActMail tree_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail jump_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail door_down_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -71,17 +73,17 @@ static ActMail shutter_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail shutter_switch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail exit_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail piston_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail exit_girl_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail piston_flag_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail box_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail piston_flag_onchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail box2_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail piston_flag_offchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail box3_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail sound_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ball_delete_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail D_004D2730[2] = {{397}, {396}}; /* derived name */
 
 static ActMail box_event2_in_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -113,43 +115,17 @@ static ActMail wall_way2_onchk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail wall_way2_offchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail statue_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail D_004D2930[2] = {{397}, {396}}; /* derived name */
 
-static ActMail head_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail sound2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail tree_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail D_004D2970[2] = {{397}, {396}}; /* derived name */
 
 static ActMail kyomi_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail kyomi_onchk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail kyomi_off_chk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail jump_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail jump_switch_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail piston_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail piston_ride_onchk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail piston_ride_offchk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail piston_flag_mes[2] = {{397}, {396}}; /* derived name */
-
-static float piston_flag_sound_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f}; /* derived name */
-
-static ActMail piston_flag_onchk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail piston_flag_offchk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail sound_mes[2] = {{397}, {396}}; /* derived name */
-
-static float sound_chk_pos[4] = {810.0f, -346.0f, 381.0f, 0.0f}; /* derived name */
-
-static ActMail sound2_mes[2] = {{397}, {396}}; /* derived name */
-
-static float sound2_chk_pos[4] = {87.0f, -772.0f, 1135.0f, 0.0f}; /* derived name */
 
 /* .sdata: the sluice, shutter and spike stream handles. */
 SqEntry *suimon = 0;

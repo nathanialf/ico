@@ -95,8 +95,6 @@ static ActMail exit2_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint2On_mes[2] = {{397}, {396}}; /* derived name */
-
 INCLUDE_ASM(actSt47aEnemy1);
 
 INCLUDE_ASM(actSt47aTorch);

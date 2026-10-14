@@ -47,11 +47,10 @@ typedef struct {       /* field names derived */
     int animMode;      /* 0x24 */
 } ItemFuse;            /* derived name */
 
-/* The 160-byte work record InitItemGeo allocates and fills from
+/* The 144-byte work record InitItemGeo allocates and fills from
    emptyItemWork: the dead flag, the kind (1 a bomb), the carry state and
    holder, the rotation relative to the holder, the bobbing spin, the fuse,
-   the explosion's animation slot, the pool drift and the wave phase.
-   8-aligned. */
+   the explosion's animation slot and the pool drift.  8-aligned. */
 typedef struct {                        /* field names derived */
     int dead;                           /* 0x00 */
     int kind;                           /* 0x04 */
@@ -70,9 +69,6 @@ typedef struct {                        /* field names derived */
     int sleep;                          /* 0x74 */
     int pad78[2];                       /* 0x78 */
     float drain[4];                     /* 0x80 */
-    short wave;                         /* 0x90 */
-    short pad92;                        /* 0x92 */
-    int pad94[3];                       /* 0x94 */
 } __attribute__((aligned(8))) ItemWork; /* derived name */
 
 static void bombSparkStartSE(GObj *gobj)
@@ -121,10 +117,7 @@ static float itemWork[12][4] = {
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
 }; /* derived name */
 
-/* Where a carried item sits relative to the focus node, the boy's hand and
-   every other carrier's. */
-static float carryOfsPlayer[4] = {-3.3333335f, -27.777779f, 0.0f, 1.0f}; /* derived name */
-
+/* Where a carried item sits relative to the focus node. */
 static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f}; /* derived name */
 
 static void avoidInsideOfWall(void *self, GObj *arg)

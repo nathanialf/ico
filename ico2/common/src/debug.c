@@ -359,7 +359,7 @@ static char *debugBarName[] = {"Off", "Low-Deco", "High-Deco"}; /* derived name 
 
 static char *debugProfileName[] = {"Variable", "Process"}; /* derived name */
 
-static char *debugSnapSizeName[] = {"None", "1x1", "2x2", "4x4", "8x8"}; /* derived name */
+static char *debugSnapSizeName[] = {"Normal", "Half", "Double", "Double+Wide"}; /* derived name */
 
 static char *debugSnapFormName[] = {"TIM2", "BMP"}; /* derived name */
 
@@ -839,13 +839,10 @@ INCLUDE_ASM_LIT(debug_GetTimerSec);
 
 INCLUDE_ASM(debug_Load);
 
-/* a GIF tag as the two 64-bit words the packet takes it in, on the
-   quadword boundary the GIF reads it at */
-typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived name */
-
 /* the GIF tag debug_MakeFont copies ahead of each font packet, as
-   debug_exception's fontTag */
-static GifTag debugFontTag = {0x2000400000008000LL, 0x51}; /* derived name */
+   debug_exception's fontTag: the two 64-bit words the packet takes it in,
+   which the copy moves one doubleword at a time */
+static unsigned long long debugFontTag[2] = {0x2000400000008000LL, 0x51}; /* derived name */
 
 /* clang-format off */
 INCLUDE_ASM(debug_MakeFont);
@@ -2141,7 +2138,8 @@ DbgMenuItem debugMenu[26] = {
 };
 
 /* the open bug list debug_MenuHelp prints beside the menu */
-static char *debugMenuHelp[] = {"B2850   TOO HARD TO PICK UP LASER", "B2890   ILLEGAL CAGE CHAIN DYNAMICS", 0}; /* derived name */
+static char *debugMenuHelp[] = {"B1897   SPIDER ALIVE", "B2373   ENEMY FAIL FLY", "B2421   FLARE CLAMP FAIL",
+                                "A553/A580/B2432 THROUGH FLOOR @ SLOPE", 0}; /* derived name */
 
 /* the menu's blink counter, state, cursor and the argument its entry gets */
 static int menuBlink = 0; /* derived name */
@@ -2213,7 +2211,7 @@ int used_dl_max = 0;
 
 int used_dl_num = 0;
 
-int used_dl_memory[34] = {0};
+int used_dl_memory[32] = {0};
 
 int debug_bar_flag = 0;
 

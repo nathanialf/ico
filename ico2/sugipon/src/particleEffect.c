@@ -37,7 +37,7 @@ typedef struct { /* field names derived */
 
 typedef struct {            /* field names derived */
     int used;               /* 0x00 */
-    int pause;              /* 0x04 */
+    int geoCtrl;            /* 0x04 */
     int sensing;            /* 0x08 */
     PEVector *sensPos;      /* 0x0C */
     PEQuaternion *sensQuat; /* 0x10 */
@@ -114,7 +114,7 @@ static PEPartRec blankParticle = {
     0.0f,
 }; /* derived name */
 
-static PEffect emptyEffect = {0, 0, 1, 0, 0, 0, 0}; /* derived name */
+static PEffect emptyEffect = {0, 1, 0, 0, 0, 0}; /* derived name */
 
 /* The scratch vector the spread offset is written into and the current
    matrix is applied to; its definition follows the default package. */

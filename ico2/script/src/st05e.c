@@ -15,13 +15,14 @@
 #include "main.h"
 #include "include_asm.h"
 
-/* .data: four 0x20-byte actor mail packets, one per thread hand-off. */
+/* the water switch thread the main mail starts */
+void func_00225DD0(GObj *self);
+
+/* .data: two 0x20-byte actor mail packets, one per thread hand-off. */
+
+static ActMail waterMain_mes[2] = {{376, func_00225DD0}, {396}}; /* derived name */
 
 static ActMail water_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail waterSwitch_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail solar_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sdata: the solar stream handle. */
 struct SqEntry *solar = 0;

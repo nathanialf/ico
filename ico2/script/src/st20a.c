@@ -63,10 +63,6 @@ static ActMail fenceDownChk2_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail fenceUpChk2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail girlPos_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
-
 INCLUDE_ASM(actSt20aInit);
 
 INCLUDE_ASM(func_00237BD0);

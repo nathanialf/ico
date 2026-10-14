@@ -30,6 +30,9 @@ static int padAct; /* derived name */
 
 static unsigned char padActVolume; /* derived name */
 
+/* the switch thread D_004D34C0 starts */
+void func_00231988(GObj *self);
+
 /* .data: actor mail packets. */
 static ActMail floor_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -43,27 +46,21 @@ static ActMail boss_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail bossAfter_mes[2] = {{397}, {396}}; /* derived name */
 
+static ActMail doorMain_mes[2] = {{376, actSt13bDoorSwitch}, {396}}; /* derived name */
+
 static ActMail elev_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail elevSwitch_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail elevUp_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail doorMain_mes[2] = {{377, actSt13bDoorSwitch}, {396}}; /* derived name */
-
-static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail doorSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
+static ActMail elevUp_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail D_004D34C0[2] = {{377, func_00231988}, {396}}; /* derived name */
+
+static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail D_004D3500[2] = {{397}, {396}}; /* derived name */
+
 static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
-
-static ActMail elev2Chk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail elev2Chk2_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail elev2Chara_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail elev2CharaChk_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sdata: the scene stream, the stream handles and shakes, then a further
    shake and volume. */

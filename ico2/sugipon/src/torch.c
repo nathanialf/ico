@@ -10,21 +10,17 @@
 
 typedef struct TorchGeoWork { /* field names derived */
     /* 0x00 */ int flags;
-    /* 0x04 */ int pad04[3];
-    /* 0x10 */ float pos[4];
-    /* 0x20 */ int lightOn;
-    /* 0x24 */ int burnTime; /* frames the torch has been alight */
-    /* 0x28 */ int life;
-    /* 0x2C */ int fadeStart; /* the burn time the flame starts to fade at */
-    /* 0x30 */ int chainFlag;
-    /* 0x34 */ int effect[5]; /* the particle effects a lit torch runs, -1 when off */
-    /* 0x48 */ int pad48[2];
-} __attribute__((aligned(16))) TorchGeoWork; /* derived name */
+    /* 0x04 */ int lightOn;
+    /* 0x08 */ int burnTime; /* frames the torch has been alight */
+    /* 0x0C */ int life;
+    /* 0x10 */ int chainFlag;
+    /* 0x14 */ int effect[5]; /* the particle effects a lit torch runs, -1 when off */
+} TorchGeoWork;               /* derived name */
 
-/* the torch work record InitTorchGeo starts every torch from (0x50 bytes,
+/* the torch work record InitTorchGeo starts every torch from (0x28 bytes,
    the size it allocates) */
 static TorchGeoWork emptyTorchWork = {
-    0, {0}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, 0, 65536, 65536, 0, {-1, -1, -1, -1, -1}, {0},
+    0, 0, 0, 65536, 0, {-1, -1, -1, -1, -1},
 }; /* derived name */
 
 #include "torch.h"

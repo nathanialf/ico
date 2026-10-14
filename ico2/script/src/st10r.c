@@ -26,13 +26,11 @@
 
 static void actSt10rTowerResqueChk(GObj *volatile self);
 
-static ActMail floor_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail floor_hit_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail cage_mes[2] = {{397}, {396}}; /* derived name */
-
 static ActMail tower_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail tower_resque_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail exit_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -55,14 +53,6 @@ static ActMail fence_up1_mes[2] = {{397}, {396}}; /* derived name */
 static ActMail fence_down2_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail fence_up2_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail way_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail way_onchk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail way_offchk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail tower_resque_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for. */

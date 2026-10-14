@@ -36,8 +36,6 @@ static ActMail door2DownChk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail crestHint_mes[2] = {{397}, {396}}; /* derived name */
-
 void actSt05dDoor2DownChk(GObj *volatile self);
 void actSt05dDoor2UpChk(GObj *volatile self);
 

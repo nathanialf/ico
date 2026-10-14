@@ -356,11 +356,11 @@ data:particle-effect
 data:spider-def
 data:way-group
 ico2/common/src/PObj.c
+data:unmapped_00533FC0  # first in its .data run here, before item-kind-def (data_members.us.txt)
 data:item-kind-def
 data:mirror-motion-def
 data:model-path
 data:prog-se-link
-data:unmapped_00533FC0
 data:texture-layout
 data:texture-path
 data:way-point

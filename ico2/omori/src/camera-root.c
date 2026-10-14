@@ -337,10 +337,10 @@ static inline void Camctrl_Init(GObj *gobj) /* derived name */
 static CamTgt cameraTargetDefault =
     /* derived name */ {{0.0f, 100.0f, 0.0f, 0.0f}, {0.0f, 52.0f, 0.0f, 0.0f}};
 
-/* the cleared insert-camera request: no target, no cut, cut type 1 */
+/* the cleared insert-camera request: no target, one cut pending */
 static InsertCameraWork insertCameraClear = {
     /* derived name */
-    0, 0, {0}, {0.0f, 0.0f, 0.0f}, {0}, {0.0f, 0.0f, 0.0f}, {0}, 0, 0, 1, 0, {0}};
+    0, 0, {0}, {0.0f, 0.0f, 0.0f}, {0}, {0.0f, 0.0f, 0.0f}, {0}, 0, 1, 0, 0, {0}};
 
 /* clear the insert-camera request */
 static inline void InsertCamera_Clear(void) /* derived name */
