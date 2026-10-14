@@ -17,13 +17,12 @@ void ResetCharFileManager(void);
 struct Sub15C;
 void CSVSYSTEM_ReadCharFiles(struct Sub15C *rec, int id);
 
-/* texture-path: one texture file, 0x34 bytes. Readers:
- * ico2/common/src/charFileManager.c (TexRec), kanban.c, layout_texture.c.
+/* texture-path: one texture file, 0x30 bytes, in .rodata. Readers:
+ * ico2/common/src/kanban.c, layout_texture.c.
  * Owner: ico2/common/include/charFileManager.h. */
-typedef struct {    /* field names derived */
-    char path[48];  /* 0x00 */
-    int cameraMove; /* 0x30, compared with NonLinearCameraMove */
-} TexRec;           /* derived name */
+typedef struct {   /* field names derived */
+    char path[48]; /* 0x00 */
+} TexRec;          /* derived name */
 
 /* model-path: one model, 0x8C bytes, indexed by the model id. Reader:
  * ico2/common/src/PObj.c (InitPObj, AllocPObj, MakePacket), charFileManager.c
@@ -43,7 +42,7 @@ typedef struct PObjMdl { /* field names derived */
 } PObjMdl; /* derived name */
 
 /* the data-only members texture-path and model-path */
-extern TexRec texFile[];
+extern const TexRec texFile[];
 extern PObjMdl modelData[];
 
 #endif /* CHARFILEMANAGER_H */
