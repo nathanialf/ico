@@ -2210,7 +2210,7 @@ text SetSwitchTriggerFunc 0x001BDBE8 0x001BDBF8 ico2/sugipon/src/box.c lines=4  
 text SetSwitchState 0x001BDBF8 0x001BDC40 ico2/sugipon/src/box.c lines=12  # ordinal; first difference at insn 6; imm:1; extent-equal
 text SetFloorLeverWithNodePoint 0x001BDC40 0x001BDD38 ico2/sugipon/src/box.c lines=16  # ordinal; first difference at insn 13; imm:1; extent-equal
 text CanFloorLeverPull 0x001BDD38 0x001BDD4C ico2/sugipon/src/box.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text InitFloorLeverGeo 0x001BDD50 0x001BDE60 ico2/sugipon/src/box.c lines=15  # ordinal; first difference at insn 44; imm:2; extent-equal
+text InitFloorLeverGeo 0x001BDD50 0x001BDE60 ico2/sugipon/src/box.c lines=15 in=ico2/sugipon/src/switch.c.inc inline  # ordinal; first difference at insn 44; imm:2; extent-equal
 rdlit InitFloorLeverGeo 0x00610F40 0x00610F4D ico2/sugipon/src/box.c def  # "src/switch.c", at its definition in switch.c.inc
 text GetFloorLeverAngle 0x001BDE60 0x001BDE70 ico2/sugipon/src/box.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text SetWallLeverWithNodePoint 0x001BDE70 0x001BDF68 ico2/sugipon/src/box.c lines=17  # ordinal; first difference at insn 13; imm:1; extent-equal
