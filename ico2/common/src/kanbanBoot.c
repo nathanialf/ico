@@ -47,8 +47,6 @@ static int mcKanbanId; /* derived name */
 
 static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
 
-static int bootVideoMode; /* derived name */ /* the video mode in force when the sign went up */
-
 /* mcard.c's request entry points; they return iosMsgSend's result, which
    this TU reads only from iosMcSync: it declares the others void, which its
    calls pin, so it does not include mcard.h */

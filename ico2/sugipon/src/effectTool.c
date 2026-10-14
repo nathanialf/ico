@@ -126,9 +126,9 @@ static int holdCount = 0; /* derived name */
 
 /* a change flag per tool row, then the position the tool's effect is placed
    at */
-static int effectToolDirty[64]; /* derived name */
+static int effectToolDirty[53]; /* derived name */
 
-static float effectToolPos[4]; /* derived name */
+static sceVu0FVECTOR effectToolPos; /* derived name */
 
 static int editParam(int id, int sel)
 {
@@ -460,7 +460,7 @@ static inline void initEffectTool(void) /* derived name */
     CameraSetMode(1);
     scpBoyControlReadDisable = 1;
     debug_StdPrintfDummy("initialize\n");
-    for (i = 0x3C; i >= 0; i--) {
+    for (i = 52; i >= 0; i--) {
         effectToolDirty[i] = 0;
     }
 }

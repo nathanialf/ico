@@ -64,8 +64,6 @@ static int boySafe; /* derived name */ /* the boy is not in danger */
 
 static float lookDist; /* derived name */ /* distance to the object being watched */
 
-static short lookYaw; /* derived name */ /* heading to it in local space */
-
 static AP1Vec boyLocalDir; /* derived name */ /* direction to the boy, in local space */
 
 static AP1Vec boyLocalFlat; /* derived name */ /* the same with y removed and normalised */

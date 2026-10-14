@@ -15,15 +15,13 @@ static inline int adpcmOpenProc(CdvdBgReq *bg, AdpcmOpenReq *open);
 static inline void adpcmOpenDiskNotReady(void);
 
 /* the 2 KB-aligned base of the IOP stream buffers, the two buffers' in-use
-   flags, the pause request and the IOP heap block the base was cut from;
-   then the two stream records and the four SPU slots the streams play on */
+   flags and the pause request; then the two stream records and the four SPU
+   slots the streams play on */
 static int adpcmIopBase; /* derived name */
 
 static int adpcmIopBuffUsed[2]; /* derived name */
 
 static int adpcmPause; /* derived name */
-
-static int adpcmIopHeap; /* derived name */
 
 static AdpcmStream adpcmStream[2]; /* derived name */
 

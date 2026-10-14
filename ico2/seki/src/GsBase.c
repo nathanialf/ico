@@ -259,11 +259,8 @@ static void gsb_KeepFrameBuffer(void)
     gif_EndPacket();
 }
 
-/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints,
-   then one word nothing reads or writes */
+/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints */
 static float fadeLevel; /* derived name */
-
-static int gsbUnusedWord; /* derived name */
 
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_StartPacketPri(int pri);
@@ -631,12 +628,6 @@ typedef struct sceCdCLOCK {
 } sceCdCLOCK;
 
 inline int gsb_LoadStageSettings(void);
-
-/* Scratch for the editing log: first the log file's name, then the line
- * appended to it. */
-static char logBuf[256]; /* derived name */
-
-static void appendLogFile(void);
 inline int gsb_SaveStageSettings(void);
 
 /* one row of the film noise debug menu (the same shape ico2/seki/src/ZFog.c
@@ -702,19 +693,6 @@ static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 int gsb_StageSettingTool(void);
 
 INCLUDE_ASM(gsb_StageSettingTool);
-
-/* The stage lock file's name, and the owner name read back out of it. */
-static char lockFileName[256]; /* derived name */
-
-static char lockOwner[72]; /* derived name */
-
-/* the lock file's name, built at the head of updateOtherEditingLockFlag,
- * createLockFile and removeLockFile */
-static inline char *makeLockFileName(void) /* derived name */
-{
-    sprintf(lockFileName, "object/stagesetting/%s.lock", stageData[stage_no].key2);
-    return lockFileName;
-}
 
 typedef struct { /* field names derived */
     char *name;  /* 0x0 */

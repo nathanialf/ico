@@ -480,9 +480,9 @@ typedef struct NigeEnt { /* field names derived */
     float d;
 } NigeEnt; /* derived name */
 
-/* The TU's whole .bss: one entry per way point (way_llf's 275), which
+/* The TU's whole .bss: one entry per way point (way_llf's 215), which
    GetNearNigePointN fills and sorts by path length. */
-static NigeEnt nigePointTbl[275]; /* derived name */
+static NigeEnt nigePointTbl[215]; /* derived name */
 
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
 {

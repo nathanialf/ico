@@ -30,30 +30,7 @@ INCLUDE_ASM(checkPositionIllegal);
 
 inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *actor, void *posout);
 
-/* three helpers inlined into ACTWayMove_BeginDetail and
-   ACTWayMove_NextDetail */
-
-/* the pull-up floor box's saved enable word and the box itself, held across
-   the way search */
-static int pullupBoxEnable; /* derived name */
-
-static void *pullupBox; /* derived name */
-
-static inline void SuspendGirlPullupFloorBox(void) /* derived name */
-{
-    pullupBox = FindGirlPullupFloorBoxGObj();
-    pullupBoxEnable = pullupBox != 0 ? GOBJ_SUB(pullupBox)->disp : 0;
-    if (pullupBoxEnable != 0) {
-        GOBJ_SUB(pullupBox)->disp = 0;
-    }
-}
-
-static inline void ResumeGirlPullupFloorBox(void) /* derived name */
-{
-    if (pullupBoxEnable != 0) {
-        GOBJ_SUB(pullupBox)->disp = 1;
-    }
-}
+/* a helper inlined into ACTWayMove_BeginDetail and ACTWayMove_NextDetail */
 
 static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, WVTObj *way,
                                         unsigned char sub) /* derived name */
@@ -84,13 +61,7 @@ static inline WayPoint *RequestWayBegin(char *self, float *goal, float *from, WV
         *way = ws->way;
         return w;
     }
-    if (self == (char *)girlGObj) {
-        SuspendGirlPullupFloorBox();
-    }
     w = GetWay_begin(from, way, goal);
-    if (self == (char *)girlGObj) {
-        ResumeGirlPullupFloorBox();
-    }
     return w;
 }
 

@@ -81,7 +81,7 @@ static float targetBPrev[3]; /* derived name */
 /* ten sets, the AddPluralCameraSet limit */
 static PluralCameraSet pluralCameraSet[10]; /* derived name */
 
-/* The camera-set binary this file reads in and the group window into it, the frame counter the warp guard tests, the current group,
+/* The camera-set binary this file reads in and the group window into it, the current group,
    the two hand-camera correction rates setHandCameraRates scales by the frame
    budget, the "group changed this frame" flag, and the number of plural camera
    sets held in pluralCameraSet. */
@@ -92,8 +92,6 @@ static char *cameraSetGroups; /* derived name */
 static char *cameraSetGroupsEnd; /* derived name */
 
 static int cameraSetGroupNum; /* derived name */
-
-static int cameraFrames; /* derived name */
 
 static int cameraGroupCurrent; /* derived name */
 

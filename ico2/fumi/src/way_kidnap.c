@@ -38,14 +38,14 @@ typedef struct WpPosEntry { /* field names derived */
    count the search clears; wpPosVec and wpPosInfo are the positions and the
    (waypoint, length) pairs add_wp_pos appends, CopyWpPos reading at most
    128. */
-static WayPoint *searchNodes[275]; /* derived name */
+static WayPoint *searchNodes[215]; /* derived name */
 
-static char edgeDone[94]; /* derived name */
+static char edgeDone[64]; /* derived name */
 
 static float wpPosVec[128][4]; /* derived name */
 
-/* 276 entries, one more than the loops' 275 */
-static WpPosEntry wpPosInfo[276]; /* derived name */
+/* 216 entries, one more than the loops' 215 */
+static WpPosEntry wpPosInfo[216]; /* derived name */
 
 static void add_wp_pos(WayPoint *wp, float *pos, float len)
 {

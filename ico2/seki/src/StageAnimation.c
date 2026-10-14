@@ -64,12 +64,20 @@ typedef struct {          /* field names derived */
 } StageAnim;              /* derived name */
 
 /* The number of loaded animation records, the head of the play-node list,
-   and the record table stage_Init fills, 87 records of 0x290 bytes. */
+   and the record table stage_Init fills, 82 records of 0x290 bytes. */
 static int stageAnimCount; /* derived name */
 
 static BgaPlayNode *bgaPlayList; /* derived name */
 
-static StageAnim stageAnimTable[87]; /* derived name */
+/* the number of play nodes stage_MakePlayBgAnimation has linked and
+   stage_KillPlayBgAnimation has not yet freed */
+static int bgaPlayCount; /* derived name */
+
+/* the objects stage_PlayBgAnimation and stage_DispAnimation count in a
+   frame, printed as "O:%d" and cleared at the end of stage_DispAnimation */
+static int stageAnimObjCount; /* derived name */
+
+static StageAnim stageAnimTable[82]; /* derived name */
 
 #include "ios.h"
 #include <stdio.h>

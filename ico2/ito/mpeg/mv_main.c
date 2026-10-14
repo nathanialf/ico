@@ -64,7 +64,9 @@ static int movieFrameNo = 0; /* derived name */
    audio decoder objects, the argument block the decode thread is started
    with, its 32 KB stack, and the DMA and interrupt enables saved per
    channel. */
-static char mpegStrFile[33216]; /* derived name */
+/* the stream file's 32 KB sector buffer is a DMA target, so the record is
+   64-byte aligned, as cdvd.c's iosCdvd */
+static char mpegStrFile[33216] __attribute__((aligned(64))); /* derived name */
 
 static ReadBuf mpegReadBuf; /* derived name */
 

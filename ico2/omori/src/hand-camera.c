@@ -9,11 +9,8 @@
 #include "main.h"
 #include "include_asm.h"
 
-/* the correction rate scaled by the frame budget, and the correction mode
-   HandCameraCorrect is called with */
+/* the correction rate scaled by the frame budget */
 static float handCameraRate; /* derived name */
-
-static unsigned char handCameraMode; /* derived name */
 
 /* the correction work area, two angles and the two limits
    SetLimitHandCameraCorrect writes */

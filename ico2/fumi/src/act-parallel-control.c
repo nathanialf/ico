@@ -5,7 +5,7 @@
 #include "include_asm.h"
 
 /* the parallel-action ids copied out of the layout table */
-static int parallelIds[86]; /* derived name */
+static int parallelIds[71]; /* derived name */
 
 /* Fill tbl from the parallel-motion table: for each bit set in mask, each
    row's motion for that bit, resolved by the nested helper (an id above

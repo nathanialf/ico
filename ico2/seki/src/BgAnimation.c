@@ -399,8 +399,8 @@ typedef struct BgaLight { /* field names derived */
 } BgaLight; /* derived name */
 
 /* Whether an SDF camera is running and the Z roll the object walk has
-   accumulated; then the camera matrix, the camera position at the last
-   frame jump, the pivot the light-vector objects rotate about and the
+   accumulated; then the camera matrix, the pivot the light-vector objects
+   rotate about and the
    matrix built around it, the position, scale and rotation the motion
    readers fill for the object being walked, and the light record the
    light objects use when the stage has none. */
@@ -409,8 +409,6 @@ static int bgaCameraActive; /* derived name */
 static short bgaRollZ; /* derived name */
 
 static float bgaCameraMatrix[4][4]; /* derived name */
-
-static float bgaLastCameraPos[4]; /* derived name */
 
 static float bgaPivot[4]; /* derived name */
 
@@ -554,12 +552,6 @@ static inline void bga_checkCameraDistance(void) /* derived name */
     if (bgaCameraActive != 0) {
         _InverseCurrentMatrix();
         _GetCurrentMatrix(bgaCameraMatrix);
-        if (GlobalTimer != 0) {
-            if (_GetLength(bgaCameraMatrix[3], bgaLastCameraPos) < 100.0f) {
-                GlobalTimer = 0;
-                currentScreenWidth = 0;
-            }
-        }
     }
 }
 

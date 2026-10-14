@@ -4,7 +4,7 @@
 #include <assert.h>
 
 /* three frames of pointers queued for a delayed iosFree */
-static void *delayFreeBuffer[3][384]; /* derived name */
+static void *delayFreeBuffer[3][128]; /* derived name */
 
 /* the frame being filled and its entry count */
 static int delayFreeNo = 0; /* derived name */
@@ -18,7 +18,7 @@ static inline void ClearDelayFreeBuffer(int no) /* derived name */
 {
     int i;
 
-    for (i = 384 - 1; i >= 0; i--) {
+    for (i = 128 - 1; i >= 0; i--) {
         delayFreeBuffer[no][i] = 0;
     }
 }

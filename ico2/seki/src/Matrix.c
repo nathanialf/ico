@@ -56,10 +56,6 @@ inline void _RotTransCurrentMatrix(void *dst, void *src)
    nothing addresses it (the saves go to VU0 memory through vi15). */
 static float vu0RegisterSave[32][4] = {{0.0f}}; /* derived name */
 
-/* a second save area of the same 32 quadwords, uninitialised; nothing
-   addresses it */
-static float vu0RegisterSaveWork[32][4]; /* derived name */
-
 /* the VU0 register save depth the push and pop check */
 static int vu0PushDepth = 0; /* derived name */
 

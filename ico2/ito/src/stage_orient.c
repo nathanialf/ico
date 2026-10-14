@@ -56,7 +56,7 @@ static const StageOrientDef stageOrientDefs[41] = {
 };
 
 /* the orient index each stage resolves to, -1 where the stage has none */
-static short stageOrientIdx[128]; /* derived name */
+static short stageOrientIdx[104]; /* derived name */
 
 #include "stage_orient.h"
 #include <stdio.h>

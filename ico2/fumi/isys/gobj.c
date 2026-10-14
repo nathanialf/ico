@@ -9,8 +9,8 @@
 #include <assert.h>
 #include "include_asm.h"
 
-/* the head of the free list for each of the 70 object kinds */
-static GObj *gobjKindHead[70]; /* derived name */
+/* the head of the free list for each of the 67 object kinds */
+static GObj *gobjKindHead[67]; /* derived name */
 
 /* defined `inline` below, and called before their definitions */
 inline void isysGObjAlloc(int n);
@@ -74,7 +74,7 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
 {
     int kind = g->kind;
     GObj *p;
-    if ((unsigned int)(kind - 1) < 69) {
+    if ((unsigned int)(kind - 1) < 66) {
         p = gobjKindHead[kind];
         if (p == g) {
             gobjKindHead[kind] = g->kindNext;

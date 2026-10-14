@@ -57,23 +57,21 @@ typedef struct {       /* field names derived */
     int fileMask;      /* 0x4, one bit for each save file on the card */
 } McPortInfo;          /* derived name */
 
-/* the save preview the file select shows, the five words of typedef.h's
+/* the save preview the file select shows, the four words of typedef.h's
    McFileInfo */
 struct McPreview { /* field names derived */
     int stage;     /* 0x00 */
     int cleared;   /* 0x04 */
     int playTime;  /* 0x08, in frames */
     int sofa;      /* 0x0C */
-    int word10;    /* 0x10, no C reader */
 }; /* derived name */
 
-/* .sbss, thirteen words: the port-0 lock state _la_set_current_port_2 records and the one
+/* .sbss, twelve words: the port-0 lock state _la_set_current_port_2 records and the one
    _la_set_current_port_lock_2 records, the lock results for port 0 and port 1
    of _la_set_current_port_new, the icoMisc lock saved by the logo, the title
    continue and the title new game actions, the progress bar's last step, the
    save select's ready flag, the system save's retry count, the last card
-   result, the load (1) or save (0) mode of the file select, and the progress
-   bar's total. */
+   result and the progress bar's total. */
 static int portLockState; /* derived name */
 
 static int lock2PortState; /* derived name */
@@ -95,8 +93,6 @@ static int saveSelectReady; /* derived name */
 static int systemSaveRetry; /* derived name */
 
 static int mcLastResult; /* derived name */
-
-static int mcLoadMode; /* derived name */
 
 static int barTotal; /* derived name */
 

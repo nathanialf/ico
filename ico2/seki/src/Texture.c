@@ -158,14 +158,11 @@ typedef struct VramPri { /* field names derived */
     short lastTex;
 } VramPri; /* derived name */
 
-/* the VRAM slot per display list priority, the 200 texture slots, the head
- * TBP tex_LockHeadTBP holds per priority, and the working copy of the
- * selected texture's ICO block tex_Tool edits */
+/* the VRAM slot per display list priority, the 200 texture slots, and the
+ * working copy of the selected texture's ICO block tex_Tool edits */
 static VramPri vramPri[13]; /* derived name */
 
 static TexEntry texTable[200]; /* derived name */
-
-static int headTbp[14]; /* derived name */
 
 static Tim2Ext toolExt; /* derived name */
 
@@ -826,19 +823,14 @@ int tex_FreeTexture(int id)
     return 0;
 }
 
-/* the reset of one priority's VRAM cursor, which tex_ResetVram,
- * tex_LockHeadTBP and tex_UnlockHeadTBP inline */
+/* the reset of one priority's VRAM cursor, which tex_ResetVram inlines */
 static inline void resetVramPri(int pri) /* derived name */
 {
     int i;
 
     dl_SetDLPriority(pri);
 
-    if (headTbp[pri] != 0) {
-        vramPri[pri].texAddr = headTbp[pri];
-    } else {
-        vramPri[pri].texAddr = 0x2800;
-    }
+    vramPri[pri].texAddr = 0x2800;
     vramPri[pri].clutAddr = 0x3E80;
     vramPri[pri].lastTex = -1;
     for (i = 0; i < texCount; i++) {

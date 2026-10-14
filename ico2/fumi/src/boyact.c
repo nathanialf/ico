@@ -114,11 +114,11 @@ INCLUDE_ASM(motBoyHand200);
 
 INCLUDE_ASM(handoff_heroin);
 
-static float pinchBoyPos[4]; /* derived name */
+static sceVu0FVECTOR pinchBoyPos; /* derived name */
 
-static float pinchCameraPos[4]; /* derived name */
+static sceVu0FVECTOR pinchCameraPos; /* derived name */
 
-static float pinchBoyPosLate[4]; /* derived name */
+static sceVu0FVECTOR pinchBoyPosLate; /* derived name */
 
 typedef struct { /* field names derived */
     int a;
@@ -385,9 +385,6 @@ INCLUDE_ASM(OtherStageGirlPinchCamera_After);
 
 static int characterPacket[8]; /* derived name */
 
-static PrivInsCam privInsCam; /* derived name */
-
-static void PrivInsCamProcess(void);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void Camctrl_SetTarget(GObj *gobj, GObj *subGObj, int pri);
 
@@ -397,13 +394,6 @@ typedef struct { /* field names derived */
 } ObjKindList; /* derived name */
 
 static const ObjKindList collisionKinds = {{4, 47, 62, -1}}; /* derived name */
-
-/* reset the private insert camera to its initial value; only
-   subBoyCollision calls it */
-static inline void PrivInsCamInit(void) /* derived name */
-{
-    privInsCam = privInsCamDefault;
-}
 
 /* the nearest object of a kind in front of the actor, which ACTSearchGObj,
    subBoyCollision and actBoyAttack inline */

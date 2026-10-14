@@ -128,31 +128,16 @@ static int bgDriveState = 0; /* derived name */
 
 static int stLoadEndWait = 0; /* derived name */
 
-/* unifileHandle is the cdvd handle iosCdvdUnifileInfoGet loads the unifile
-   through (a handle is 33216 bytes: the 0x180 header, the 32 KB sector
-   buffer and the size word at 0x8180, the same size iosCdvdManager's reply
-   buffer and mv_main's stream file take); bgReqTable the seven 300-byte
-   background requests; skipBuf the 1 KB sink iosCdvdHandlerRead reads into
-   when the caller passes no buffer; stThread, stStack and stReqQ the stream
-   manager's thread record, its 16 KB stack and its request queue. */
-static IosCdvdHandle unifileHandle; /* derived name */
-
+/* bgReqTable the seven 300-byte background requests; skipBuf the 1 KB sink
+   iosCdvdHandlerRead reads into when the caller passes no buffer. */
 static CdvdBgReq bgReqTable[7]; /* derived name */
 
 static unsigned char skipBuf[1024]; /* derived name */
 
-static char stThread[120]; /* derived name */
-
-static char stStack[16384]; /* derived name */
-
-static IosMsgQueue stReqQ; /* derived name */
-
 /* cdvdMsgRing and cdvdLoadEndRing are the two-slot rings of the manager's
    request queue and its load-end queue, stPreLoadCnt the preloaded sector
    count iosCdvdMgrStStart hands the stream, bgRunning the background request
-   iosCdvdBackGroundMgr is running, stReqRing and stAckRing the rings of the
-   stream manager's request and acknowledge queues.  stReqRing's queue is
-   created with one slot; no code reads its second word. */
+   iosCdvdBackGroundMgr is running. */
 static int cdvdMsgRing[2]; /* derived name */
 
 static int cdvdLoadEndRing[2]; /* derived name */
@@ -160,10 +145,6 @@ static int cdvdLoadEndRing[2]; /* derived name */
 static int stPreLoadCnt; /* derived name */
 
 static int bgRunning; /* derived name */
-
-static int stReqRing[2]; /* derived name */
-
-static int stAckRing[1]; /* derived name */
 
 /* The stream's TTY traces of a drive recovery, built only when DEBUG is
    defined; the retail build leaves each helper without a body.  The traces
@@ -353,9 +334,6 @@ typedef struct { /* field names derived */
 static void iosCdvdUnifileInfoGet(void);
 
 int iosCdvdBackGroundMgrRunning = 0;
-
-/* stThread is a 120-byte buffer, 8 bytes more than an IOSThread: typed as
-   one, the object's .bss is 8 bytes shorter (measured) */
 
 /* The cdvd manager thread, with iosCdvdDiskReadyBlock expanded in case 0.
    The reply buffer's block opens after the switch.  req is the request the
