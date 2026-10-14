@@ -46,9 +46,11 @@
 #   found after mv_vibuf's in the JPN sections too (windmill's three functions
 #   have no twin, but three functions of its sizes sit between waterDot's and
 #   GobjProc's in the JPN .text).
-#   sce/libscf/libscf.c stays listed, though none of its 21 functions has a
-#   twin and its .data and .rodata bytes are not in the JPN ELF: the member is
-#   not in the JPN link. The line goes when the source leaves this branch.
+#   sce/libscf/libscf.c, between ipuinit.c and sound.c in PAL's order, is not
+#   here: none of its 21 functions has a twin and its .data and .rodata bytes
+#   are not in the JPN ELF, so the member is not in the JPN link, and the
+#   source is not on this branch. sce/libscf/libscf.h stays for the one
+#   declaration kanbanBoot.c includes.
 
 sce/crt0.s
 sce/libkernl/klib.s
@@ -421,7 +423,6 @@ sce/libmpeg/csc.c
 sce/libmpeg/bit.c
 sce/libipu/libipu.c
 sce/libipu/ipuinit.c
-sce/libscf/libscf.c  # no JPN twins and no JPN data: not in the JPN link (see the header)
 sce/libsndn2/sound.c
 sce/libm/math/sf_sin.c
 sce/libm/math/wf_acos.c

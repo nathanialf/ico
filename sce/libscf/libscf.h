@@ -11,8 +11,6 @@
 #ifndef SCE_LIBSCF_LIBSCF_H
 #define SCE_LIBSCF_LIBSCF_H
 
-int sceScfGetLanguage(void);   /* definition in sce/ */
-int sceScfGetSummerTime(void); /* definition in sce/ */
-int sceScfGetTimeZone(void);   /* definition in sce/ */
+int sceScfGetLanguage(void); /* definition in sce/ */
 
 #endif /* SCE_LIBSCF_LIBSCF_H */

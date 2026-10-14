@@ -935,10 +935,6 @@ static int gsbUnused4 = 0; /* derived name */
 
 static int gsbUnused5 = 0; /* derived name */
 
-inline int gsb_ResetSnap(void) {}
-
-inline int gsb_TakeSnap(void) {}
-
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */
 
