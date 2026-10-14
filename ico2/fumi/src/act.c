@@ -234,15 +234,37 @@ typedef union { /* field names derived */
 } ActFWord; /* derived name */
 
 /* The extended work block hung off the work block at +0x688; the three
-   ten-entry histories at 0x900, 0x928 and 0x950 are read back in BeforeFunc. */
+   ten-entry histories at 0x8F0, 0x918 and 0x940 are read back in BeforeFunc. */
 typedef struct { /* field names derived */
-    char pad0[2304];
+    char pad0[2288];
     int a900[10];
     int a928[10];
     int a950[10];
 } ActExt; /* derived name */
 
-INCLUDE_ASM(actInitialize_only_charcter);
+void actInitialize_only_charcter(char *self)
+{
+    Act *g = GOBJ_ACT(self);
+    char *p = (char *)iosMallocDebug(ios_partition_seki, 0x970, __FILE__, 907);
+    Vec4 *q;
+    int i;
+
+    memset(p, 0, 0x970);
+    g->work = (int)p;
+    q = (Vec4 *)*(char **)(*(char **)(self + 0x164) + 0x688);
+    ((Vec4 *)((char *)q + 0x320))->f[0] = GOBJ_SUB(self)->root.ikRate0;
+    ((Vec4 *)((char *)q + 0x320))->f[1] = GOBJ_SUB(self)->root.ikRate1;
+    ((Vec4 *)((char *)q + 0x320))->f[2] = GOBJ_SUB(self)->root.ikRate2;
+    ((ActFWord *)((char *)q + 0x330))->f = -1.0f;
+    ((ActFWord *)((char *)q + 0x334))->f = 1.0f;
+    ((ActFWord *)((char *)q + 0x348))->f = 3.0f;
+    *(int *)((char *)q + 0x7F0) = 0;
+    for (i = 0; i < 10; i++) {
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i] = 0;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i] = 0;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i] = 0x1A2;
+    }
+}
 
 Act *actInitialize(GObj *self)
 {
@@ -350,9 +372,46 @@ typedef struct { /* field names derived */
     IntrEnt ent[1];
 } IntrList; /* derived name */
 
-static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out);
+static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
+{
+    IntrList *k = (IntrList *)(self + 0x54);
+    Act *w = GOBJ_ACT(self);
+    MotOriReq buf;
+    int i;
 
-INCLUDE_ASM(act_check_intr_list);
+    if (m != 0) {
+        while ((short)m->kind != 429) {
+            if ((m->flags >> 18) & 1) {
+                for (i = 0; i < k->n; i++) {
+                    int mot;
+                    char *p;
+                    if (w->reserved != 0 && w->reservedMail != k->ent[i].id) {
+                        continue;
+                    }
+                    if (k->ent[i].id != (short)m->kind) {
+                        continue;
+                    }
+                    mot = ACTGetOrientFromIntrK(self, k->ent[i].id, &buf, i);
+                    p = SetMotionRequest(self, mot, buf);
+                    *(char **)((char *)w + 0x130) = p;
+                    if (*(int *)(p + 0xC) == 0 &&
+                        (*(unsigned short *)((char *)m + 0x16) & 1) == 0 &&
+                        (w->actMode != 0 || m->mode == 0)) {
+                        continue;
+                    }
+                    w->intrMot = mot;
+                    *(void **)((char *)w + 0x2C) = k->ent[i].f4;
+                    *(char **)((char *)w + 0x30) = GetMailAdditionalData(self, i);
+                    *(MotOriReq *)(*(char **)((int)GOBJ_ACT(self) + 0x688) + 0x8A0) = buf;
+                    *out = &k->ent[i];
+                    return m;
+                }
+            }
+            m++;
+        }
+    }
+    return 0;
+}
 
 static void act_check_mail(void *self, IntrMail *m)
 {

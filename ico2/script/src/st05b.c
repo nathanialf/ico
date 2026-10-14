@@ -12,11 +12,37 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
 
-INCLUDE_ASM(actSt05bCrest01XL);
+void actSt05bCrest01XL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+    if (gflagChk(243) == 0) {
+        stage_SetAnimation(183, 0, 0);
+        stage_SetAnimation(185, 0, 0);
+    } else {
+        stage_SetAnimation(183, 0, -1);
+        stage_SetAnimation(185, 0, -1);
+        scpTorchLightOn(1343);
+        scpTorchLightOn(1344);
+    }
+    if (gflagChk(244) == 0) {
+        stage_SetAnimation(184, 0, 0);
+    } else {
+        stage_SetAnimation(184, 0, -1);
+        scpTorchLightOn(1345);
+        scpTorchLightOn(1346);
+    }
+    if (gflagChk(251) == 0) {
+        stage_SetAnimation(186, 0, 0);
+    } else {
+        stage_SetAnimation(186, 0, -1);
+    }
+}
 
 /* .sdata: the stone statue's stream handle, its shake and the shake's volume. */
 SqEntry *sekizo5b = 0;

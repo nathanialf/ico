@@ -310,7 +310,7 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
     float rot[4];
     float d[4];
 
-    if (id != 972) {
+    if (id != 949) {
         memset(&rot, 0, 16);
         rot[3] = 1.0f;
         CopyVector(d, dir);
@@ -479,7 +479,24 @@ static inline int GetItemKindInline(GObj *gobj) /* derived name */
     return p->kind;
 }
 
-INCLUDE_ASM(BreakItemFromOutside);
+int BreakItemFromOutside(GObj *gobj)
+{
+    float pos[4];
+    ItemWork *p = GOBJ_SUB(gobj)->work;
+
+    if (IsItemKindBomb(gobj)) {
+        p->fuse.state = 2;
+    } else {
+        GetRootPosition(pos, gobj);
+        entryBreakBgAnimation(itemKind[p->kind].dropAnim, pos, ZeroVector, 0);
+        ExecuteSEPackage(gobj, 43);
+        if (GetItemKindInline(gobj) == 6) {
+            _AttackCenter(gobj, 17, pos, 0, 200.0f, 0);
+        }
+        setItemDead(gobj);
+    }
+    return 0;
+}
 
 /* the body of CheckCarryableItem, which the four Revive walkers inline and
    CheckCarryableItem calls */
@@ -628,7 +645,20 @@ void StopItemExplodeAnimationAll(void)
     }
 }
 
-INCLUDE_ASM(BreakItemWithAttackHit);
+int BreakItemWithAttackHit(GObj *gobj, float *dir)
+{
+    float pos[4];
+    ItemWork *p = GOBJ_SUB(gobj)->work;
+
+    if (!IsItemKindBomb(gobj)) {
+        GetRootPosition(pos, gobj);
+        if (entryBreakBgAnimation(itemKind[p->kind].hitAnim, pos, dir, itemKind[p->kind].hitMode)) {
+            ExecuteSEPackage(gobj, 43);
+            setItemDead(gobj);
+        }
+    }
+    return 0;
+}
 
 int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame)
 {

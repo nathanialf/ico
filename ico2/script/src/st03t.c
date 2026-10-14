@@ -16,7 +16,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static void actSt03tGirlPosChk(GObj *volatile self);
 static void actSt03tGirlUpChk(GObj *volatile self);
@@ -64,7 +63,31 @@ static ActMail hint1OffChk_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail hint1OnChk_mes[2] = {{430}, {429}}; /* derived name */
 
-INCLUDE_ASM(actSt03tSwitchL);
+void actSt03tSwitchL(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(89) == 0) {
+        stage_SetAnimation(360, 0, 0);
+        stage_SetAnimation(362, 0, 0);
+
+        switchL_mes[0].func = actSt03tSwitchLChk;
+        act->mail = switchL_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(360, 0, 45);
+        stage_SetAnimation(362, 0, -1);
+
+        switchLUp_mes[0].func = actSt03tSwitchLUpChk;
+        act->mail = switchLUp_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+}
 
 void actSt03tSwitchLChk(GObj *volatile self)
 {
@@ -175,7 +198,31 @@ void actSt03tSwitchLUpChk(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt03tSwitchR);
+void actSt03tSwitchR(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(90) == 0) {
+        stage_SetAnimation(361, 0, 0);
+        stage_SetAnimation(364, 0, 0);
+
+        switchR_mes[0].func = actSt03tSwitchRChk;
+        act->mail = switchR_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(361, 0, 45);
+        stage_SetAnimation(364, 0, -1);
+
+        switchRUp_mes[0].func = actSt03tSwitchRUpChk;
+        act->mail = switchRUp_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    }
+}
 
 void actSt03tSwitchRChk(GObj *volatile self)
 {
