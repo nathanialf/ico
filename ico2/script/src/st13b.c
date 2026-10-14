@@ -108,7 +108,38 @@ static int st13b_boss_yure = 0; /* derived name */
 
 static unsigned char st13b_boss_yure_vol = 0; /* derived name */
 
-INCLUDE_ASM(actSt13bFloor);
+void actSt13bFloor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(5) == 0) {
+        scpFadeOut(255.0f, 0, 0, 0);
+        lt_switch_layout(52);
+        scpBoyControlReadDisable = 1;
+
+        stage_SetAnimation(30, 0, 0);
+        stage_SetAnimation(26, 0, 0);
+        stage_SetAnimation(33, 0, 0);
+        stage_SetAnimation(34, 0, 0);
+        stage_SetAnimation(36, 0, 0);
+        stage_SetAnimation(38, 0, 0);
+        stage_SetAnimation(40, 0, 235);
+        stage_SetAnimation(43, 0, 0);
+        stage_SetAnimation(35, 0, 0);
+
+        floor_mes[0].func = actSt13bFloorChk;
+        act->mail = floor_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(32, 0, -1);
+        stage_SetAnimation(26, 0, -1);
+        stage_SetAnimation(36, 0, 0);
+        stage_SetAnimation(38, 0, 0);
+    }
+}
 
 void actSt13bFloorChk(GObj *volatile self)
 {
@@ -142,13 +173,109 @@ void actSt13bFloorChk(GObj *volatile self)
 
 INCLUDE_ASM(actSt13bConte02);
 
-void actSt13bSekizoChk(GObj *volatile self);
+void actSt13bSekizoChk(GObj *volatile self)
+{
+    float dir[4];
 
-INCLUDE_ASM(actSt13bSekizoChk);
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 75) {
+        _ACTWait(1);
+    }
 
-void actSt13bSekizo2Chk(GObj *volatile self);
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpAdpcmPlayRequestFunc(19, &sekizo13b, 1, 1, 1);
 
-INCLUDE_ASM(actSt13bSekizo2Chk);
+    while (sekizo13b == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(33, 1, 0);
+
+    st13b_yure = iosPadActRequest(boyPad, 9);
+    st13b_yure_vol = 128;
+    iosPadActVolumeSet(st13b_yure, 128);
+
+    scpPlayStart(boyGObj);
+    scpPlayPosSet((void *)boyGObj, 3085.0f, -1338.0f, 0.0f);
+    _ACTWait(1);
+
+    sceVu0SubVector(dir, test_CURRENTROOT(self), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+    scpSekizouCheckPoint();
+    scpPlayMot((void *)boyGObj, 251);
+    scpPlayWaitMotEnd(boyGObj);
+    scpPlayMot((void *)boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    gflagOn(10);
+
+    while (stage_CheckAnimationFrame(33, 151, 0) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    iosPadActStop(st13b_yure);
+
+    while (stage_CheckAnimationFinish(33) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 0;
+}
+
+void actSt13bSekizo2Chk(GObj *volatile self)
+{
+    float dir[4];
+
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 75) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpAdpcmPlayRequestFunc(18, &sekizo13b2, 1, 1, 1);
+
+    while (sekizo13b2 == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(34, 1, 0);
+
+    st13b_yure = iosPadActRequest(boyPad, 9);
+    st13b_yure_vol = 128;
+    iosPadActVolumeSet(st13b_yure, 128);
+
+    scpPlayStart(boyGObj);
+    scpPlayPosSet((void *)boyGObj, -1563.0f, 527.0f, 0.0f);
+    _ACTWait(1);
+
+    sceVu0SubVector(dir, test_CURRENTROOT(self), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+    scpSekizouCheckPoint();
+    scpPlayMot((void *)boyGObj, 251);
+    scpPlayWaitMotEnd(boyGObj);
+    scpPlayMot((void *)boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    gflagOn(11);
+
+    while (stage_CheckAnimationFrame(34, 151, 0) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    iosPadActStop(st13b_yure);
+
+    while (stage_CheckAnimationFinish(34) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 0;
+}
 
 void actSt13bMeetAgain(GObj *volatile self)
 {
@@ -176,9 +303,89 @@ void actSt13bMeetAgain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt13bMeetAgainSub);
+static void actSt13bMeetAgainSub(GObj *volatile self)
+{
+    stage_SetAnimation(756, 1, 0);
 
-INCLUDE_ASM(actSt13bMeetAgainChk);
+    scpPlayMot((void *)boyGObj, 2);
+    scpPlayMot(scpSearchGobj(2464), 971);
+    scpPlayMot(scpSearchGobj(2465), 972);
+    scpPlayMot(scpSearchGobj(2466), 973);
+    scpPlayMot(scpSearchGobj(2467), 974);
+    scpPlayMot(scpSearchGobj(2468), 975);
+    scpPlayMot(scpSearchGobj(2469), 976);
+
+    while (stage_ContinueAnimation(756, 757) == 0) {
+        _ACTWait(1);
+    }
+
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFinish(757) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    demoEnd = 1;
+    _ACTWait(0);
+}
+
+void actSt13bMeetAgainChk(GObj *volatile self)
+{
+    GProc *th;
+
+    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    scpPlayMot((void *)boyGObj, 0);
+    gflagOn(12);
+    scpAdpcmPlayRequestFunc(35, &meets_again, 1, 1, 1);
+
+    while (meets_again == 0) {
+        _ACTWait(1);
+    }
+
+    th = actCreateSubThread(actSt13bMeetAgainSub, 21);
+    demoEnd = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(756, 0, -1);
+        scpFadeIn(3.0f);
+    }
+
+    scpPlayMot(scpSearchGobj(2464), 977);
+    scpPlayMot(scpSearchGobj(2465), 978);
+    scpPlayMot(scpSearchGobj(2466), 979);
+    scpPlayMot(scpSearchGobj(2467), 980);
+    scpPlayMot(scpSearchGobj(2468), 981);
+    scpPlayMot(scpSearchGobj(2469), 982);
+
+    scpPlayMot((void *)boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+    scpAdpcmFadeCloseFunc(&meets_again, 128);
+}
 
 void actSt13bBoss(GObj *volatile self)
 {
@@ -242,9 +449,60 @@ void actSt13bBossChk(GObj *volatile self)
     AdpcmPlay(boss->stream);
 }
 
-void actSt13bBossAfterChk(GObj *volatile self);
+void actSt13bBossAfterChk(GObj *volatile self)
+{
+    GProc *th;
 
-INCLUDE_ASM(actSt13bBossAfterChk);
+    while (InqCapsuleGhostBossEnd() == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    gflagOn(14);
+    scpAdpcmFadeCloseFunc(&boss, 128);
+
+    while (scpAdpcmCloseChkFunc(&boss) != 0) {
+        _ACTWait(1);
+    }
+
+    scpAdpcmPlayRequestFunc(38, &boss_dead, 1, 1, 1);
+
+    while (boss_dead == 0) {
+        _ACTWait(1);
+    }
+
+    th = actCreateSubThread(actConte10c, 21);
+    demoEnd = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        scpAdpcmFadeCloseFunc(&boss_dead, 512);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(759, 0, -1);
+        stage_SetAnimation(35, 0, -1);
+        scpFadeIn(3.0f);
+    }
+
+    scpPlayMot((void *)boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+}
 
 static void actSt13bElevDownSub(GObj *volatile self)
 {
@@ -272,21 +530,226 @@ static void actSt13bElevDownSub(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actSt13bElevDown(GObj *volatile self);
+void actSt13bElevDown(GObj *volatile self)
+{
+    GProc *th;
 
-INCLUDE_ASM(actSt13bElevDown);
+    lt_switch_layout(52);
+    gflagOn(15);
+    scpAdpcmPlayRequestFunc(79, &st13b_down, 0, 1, 1);
 
-INCLUDE_ASM(actSt13bElevUp);
+    while (st13b_down == 0) {
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(actSt13bElevUpChk);
+    preload(3);
+    st13b_boss_yure = -1;
+    th = actCreateSubThread(actSt13bElevDownSub, 21);
+    demoEnd = 0;
 
-void actSt13bDoorUp(GObj *volatile self);
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(actSt13bDoorUp);
+    iosThreadSetPri(&th->thread, 34);
 
-static void actSt13bElev2Chk(GObj *volatile self);
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        scpAdpcmFadeCloseFunc(&st13b_down, 512);
 
-INCLUDE_ASM(actSt13bElev2Chk);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+    }
+
+    if (st13b_boss_yure >= 0) {
+        iosPadActStop(st13b_boss_yure);
+    }
+
+    RequestStageChange(3, boyGObj, 0, 2.0f, 4.0f);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+}
+
+void actSt13bElevUp(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(325) != 0) {
+        lt_switch_layout(52);
+        scpBoyControlReadDisable = 1;
+        scpFadeOut(255.0f, 0, 0, 0);
+        stage_SetAnimation(40, 0, 235);
+        _ACTWait(10);
+        scpBoyControlReadDisable = 1;
+        stage_SetAnimation(40, 0, 0);
+        elevUp_mes[0].func = actSt13bElevUpChk;
+        act->mail = elevUp_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(40, 0, 235);
+    }
+}
+
+void actSt13bElevUpChk(GObj *volatile self)
+{
+    GProc *th;
+
+    scpAdpcmPlayRequestFunc(78, &st13b_up, 1, 1, 1);
+
+    while (st13b_up == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(6.0f);
+    th = actCreateSubThread(actSt13bElevUpSub, 21);
+
+    demoEnd = 0;
+    st13b_boss_yure = -1;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        scpAdpcmFadeCloseFunc(&st13b_up, 512);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(40, 0, 235);
+        _ACTWait(2);
+        scpPlayPosSet((void *)boyGObj, -772.0f, 527.0f, -226.0f);
+
+        if (st13b_boss_yure >= 0) {
+            iosPadActStop(st13b_boss_yure);
+        }
+
+        scpFadeIn(3.0f);
+    }
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+    gflagOff(325);
+}
+
+void actSt13bDoorUp(GObj *volatile self)
+{
+    GProc *th;
+
+    lt_switch_layout(52);
+    gflagOn(17);
+    th = actCreateSubThread(actSt13bDoorUpSub, 21);
+
+    demoEnd = 0;
+    doorUpDone = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+
+        stage_SetAnimation(43, 0, -1);
+        scpFadeIn(3.0f);
+    }
+
+    if (doorUpDone == 0) {
+        soundSeDefPlay(1222, 0, 0, 1);
+    }
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+}
+
+static void actSt13bElev2Chk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while (scpTriggerFloorAttr(boyGObj, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+
+    if (gflagChk(16) != 0) {
+        scpAdpcmPlayRequestFunc(100, &sekizo_13b_vol, 1, 1, 1);
+
+        while (sekizo_13b_vol == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1]);
+        stage_SetAnimation(42, 1, 0);
+
+        while (stage_CheckAnimationFrame(42, 50, 0) == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait(1);
+        iosPadActRequest(boyPad, 16);
+
+        while (stage_CheckAnimationFinish(42) == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait(1);
+        gflagOff(16);
+        scpBoyControlReadDisable = 0;
+    } else {
+        scpAdpcmPlayRequestFunc(99, &sekizo_13b, 0, 1, 1);
+
+        while (sekizo_13b == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 0.15);
+        stage_SetAnimation(41, 1, 0);
+
+        while (stage_CheckAnimationFinish(41) == 0) {
+            _ACTWait(1);
+        }
+
+        _ACTWait(1);
+        gflagOn(16);
+        RequestStageChange(2, boyGObj, 0, 2.0f, 8.0f);
+        scpBoyControlReadDisable = 0;
+    }
+
+    lt_switch_layout(51);
+
+    elev2Chara_mes[0].func = actSt13bElev2CharaChk;
+    sub->mail = elev2Chara_mes;
+    ACTSendMailCorrect(self, 430);
+    _ACTWait(0);
+}
 
 void actSt13bSekizo(GObj *volatile self)
 {
@@ -464,7 +927,27 @@ void actSt13bSekizo2Event(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actConte10c);
+void actConte10c(GObj *volatile self)
+{
+    stage_SetAnimation(759, 1, 0);
+
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFrame(759, 300, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetAnimation(35, 1, 0);
+
+    while (stage_CheckAnimationFinish(759) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 void actSt13bElevMain(GObj *volatile self)
 {
