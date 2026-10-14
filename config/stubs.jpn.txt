@@ -292,148 +292,9 @@ text ACTSearchGObj 0x00158550 0x001586B4 ico2/fumi/src/boyact.c lines=5  # equal
 text afterBoySwim 0x001586B8 0x00158724 ico2/fumi/src/boyact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
 text actBoyJump 0x00158728 0x00158754 ico2/fumi/src/boyact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
 text afterBoyTakeWeapon 0x00158758 0x00158860 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 20; imm:2; extent-equal
-text _ACTCorrectMsg 0x00158D20 0x00159844 ico2/fumi/src/commonact.c lines=297  # ordinal; first difference at insn 33; length:-2; extent-differs
-rdlit _ACTCorrectMsg 0x0054DF98 0x0054E054 ico2/fumi/src/commonact.c  # 6 strings, 1 data
-text ACTRunIntrCorrect 0x00159F70 0x0015A1EC ico2/fumi/src/commonact.c lines=45  # ordinal; first difference at insn 90; length:+1; extent-differs
-sdlit ACTRunIntrCorrect 0x006341D8 0x006341DF ico2/fumi/src/commonact.c  # 1 string
-text WithMailFunc_AttackRejectInQueen 0x0015A240 0x0015A2C4 ico2/fumi/src/commonact.c lines=15  # ordinal; first difference at insn 13; imm:1; extent-equal
-text actCommonRopeSpecial 0x0015B6A8 0x0015BAAC ico2/fumi/src/commonact.c lines=55  # ordinal; first difference at insn 33; imm:2; extent-equal
-lit4 actCommonRopeSpecial 0x006329C8 0x006329D0 ico2/fumi/src/commonact.c  # 2 floats
-sdlit actCommonRopeSpecial 0x006341E0 0x006341E8 ico2/fumi/src/commonact.c  # 1 string
-text actCommonDie 0x0015BF48 0x0015C2CC ico2/fumi/src/commonact.c lines=73  # ordinal; first difference at insn 35; imm:4; extent-equal
-lit4 actCommonDie 0x006329D4 0x006329D8 ico2/fumi/src/commonact.c  # 1 float
-rdlit actCommonDie 0x0054E128 0x0054E13C ico2/fumi/src/commonact.c  # 1 string
-text actCommonBox 0x0015CB38 0x0015D008 ico2/fumi/src/commonact.c lines=101  # ordinal; first difference at insn 32; length:-8; extent-differs
+text actCommonBox 0x0015CB38 0x0015D008 ico2/fumi/src/commonact.c lines=101  # December sets no boxDir before the loop (main has the PAL body); with that, it still differs at insn 40: the spill slots of &s->env and &hold are swapped
 lit4 actCommonBox 0x006329D8 0x006329DC ico2/fumi/src/commonact.c  # 1 float
 sdlit actCommonBox 0x006341F0 0x006341FB ico2/fumi/src/commonact.c  # 2 strings
-text actCommonBar 0x0015D008 0x0015D314 ico2/fumi/src/commonact.c lines=69  # ordinal; first difference at insn 60; imm:1; extent-equal
-lit4 actCommonBar 0x006329DC 0x006329E0 ico2/fumi/src/commonact.c  # 1 float
-sdlit actCommonBar 0x00634208 0x00634210 ico2/fumi/src/commonact.c  # 1 string
-text actCommonJump 0x0015D5A8 0x0015D82C ico2/fumi/src/commonact.c lines=55  # ordinal; first difference at insn 97; imm:4; extent-equal
-lit4 actCommonJump 0x006329E0 0x006329E4 ico2/fumi/src/commonact.c  # 1 float
-text actCommonFall 0x0015D830 0x0015DFD0 ico2/fumi/src/commonact.c lines=153  # ordinal; first difference at insn 89; imm:8; extent-equal
-rdlit actCommonFall 0x0054E1B8 0x0054E1D0 ico2/fumi/src/commonact.c  # 1 string, 1 double
-text getLandOffset.265 0x0015E190 0x0015E2D8 ico2/fumi/src/commonact.c local file=getLandOffset_265  # nested in flyCoreLoop (a stub); equal, gone with its carved parent
-rdlit getLandOffset.265 0x0054E1D0 0x0054E2D0 ico2/fumi/src/commonact.c align=16 file=getLandOffset_265  # flyCoreLoop's 2 strings and 1 data, which gcc writes as it reads the outer body before this first nested definition
-sdlit getLandOffset.265 0x00634218 0x0063421E ico2/fumi/src/commonact.c file=getLandOffset_265  # flyCoreLoop's 1 string, likewise
-text completeEmergency.280 0x0015E2D8 0x0015E404 ico2/fumi/src/commonact.c local file=completeEmergency_280  # ordinal; first difference at insn 25; imm:1; extent-equal
-lit4 completeEmergency.280 0x006329E4 0x006329E8 ico2/fumi/src/commonact.c file=completeEmergency_280  # 1 float
-rdlit completeEmergency.280 0x0054E2D0 0x0054E35E ico2/fumi/src/commonact.c align=16 file=completeEmergency_280  # 1 string; then flyCoreLoop's 4 strings, which gcc writes as it reads the outer body after this nested definition
-text emergencyCheck.284 0x0015E408 0x0015E6B4 ico2/fumi/src/commonact.c local file=emergencyCheck_284  # nested in flyCoreLoop (a stub); equal, gone with its carved parent
-lit4 emergencyCheck.284 0x006329E8 0x006329EC ico2/fumi/src/commonact.c file=emergencyCheck_284  # 1 float
-rdlit emergencyCheck.284 0x0054E360 0x0054E3C9 ico2/fumi/src/commonact.c align=16 file=emergencyCheck_284  # 3 strings
-sdlit emergencyCheck.284 0x00634220 0x00634227 ico2/fumi/src/commonact.c file=emergencyCheck_284  # 1 string
-text flyCoreLoop 0x0015E6B8 0x0015F42C ico2/fumi/src/commonact.c local lines=355  # ordinal; first difference at insn 30; imm:10; extent-equal
-lit4 flyCoreLoop 0x006329EC 0x00632A0C ico2/fumi/src/commonact.c  # 8 floats
-text actCommonEdgeHang 0x0015FB28 0x0015FC8C ico2/fumi/src/commonact.c lines=29  # ordinal; first difference at insn 16; imm:1; extent-equal
-text SetMotionDirectionSmooze 0x0015FDF0 0x0016003C ico2/fumi/src/commonact.c lines=39  # ordinal; first difference at insn 41; other:4; extent-equal
-lit4 SetMotionDirectionSmooze 0x00632A0C 0x00632A14 ico2/fumi/src/commonact.c  # 2 floats
-text _ACTCommonMailTest 0x001603C0 0x001607F8 ico2/fumi/src/commonact.c lines=85  # ordinal; first difference at insn 79; other:3; extent-equal
-lit4 _ACTCommonMailTest 0x00632A14 0x00632A48 ico2/fumi/src/commonact.c  # 13 floats
-text actCommonBecarry 0x001608B8 0x00160BB8 ico2/fumi/src/commonact.c lines=53  # ordinal; first difference at insn 96; length:+1; extent-differs
-rdlit actCommonBecarry 0x0054E5D0 0x0054E5E3 ico2/fumi/src/commonact.c align=16  # 1 string
-sdlit actCommonBecarry 0x00634238 0x0063423E ico2/fumi/src/commonact.c  # 1 string
-text actCommonSlowrun 0x001615E0 0x00161708 ico2/fumi/src/commonact.c lines=24  # ordinal; first difference at insn 21; length:-2; extent-differs
-lit4 actCommonSlowrun 0x00632A50 0x00632A58 ico2/fumi/src/commonact.c  # 2 floats
-text ACT_LAYOUT_GAMEOVER 0x00161848 0x00161868 ico2/fumi/src/commonact.c lines=7  # ordinal; first difference at insn 3; imm:1; extent-equal
-text ACTAcceptMail 0x00161878 0x001618CC ico2/fumi/src/commonact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text _ACTMotDirSmzDirect 0x001618D0 0x00161970 ico2/fumi/src/commonact.c lines=13  # ordinal; first difference at insn 17; imm:4; extent-equal
-text WithMailFunc_Idling 0x00161970 0x00161A1C ico2/fumi/src/commonact.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text WithMailFunc_BossDamaged 0x00161A20 0x00161A38 ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text WithMailFunc_FallDead 0x00161A38 0x00161AD0 ico2/fumi/src/commonact.c lines=14  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-rdlit WithMailFunc_FallDead 0x0054E5F8 0x0054E600 ico2/fumi/src/commonact.c  # 1 double
-text actCommonRevive 0x00161AD0 0x00161B50 ico2/fumi/src/commonact.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonReviveAir 0x00161B50 0x00161B9C ico2/fumi/src/commonact.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonPlay 0x00161BA0 0x00161BCC ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonOne 0x00161BD0 0x00161C5C ico2/fumi/src/commonact.c lines=14  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonDelete 0x00161C60 0x00161C80 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonCatchFire 0x00161C80 0x00161CF4 ico2/fumi/src/commonact.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonCatchFireBomb 0x00161CF8 0x00161D6C ico2/fumi/src/commonact.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonPutFire 0x00161D70 0x00161DE4 ico2/fumi/src/commonact.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonBoxReverbe 0x00161DE8 0x00161E1C ico2/fumi/src/commonact.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonItem 0x00161E20 0x00161E4C ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonClimb 0x00161E50 0x00161E94 ico2/fumi/src/commonact.c lines=8  # ordinal; first difference at insn 8; imm:1; extent-equal
-text actCommonCliffdown 0x00161E98 0x00161EE4 ico2/fumi/src/commonact.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonLadderBellow 0x00161EE8 0x0016201C ico2/fumi/src/commonact.c lines=26  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonLadderBellowHang 0x00162020 0x00162074 ico2/fumi/src/commonact.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonEdge 0x00162078 0x001620D8 ico2/fumi/src/commonact.c lines=10  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonDodge 0x001620D8 0x001621B0 ico2/fumi/src/commonact.c lines=21  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonDodgeJump 0x001621B0 0x00162240 ico2/fumi/src/commonact.c lines=16  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonGuard 0x00162240 0x001622FC ico2/fumi/src/commonact.c lines=19  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonFallDamage 0x00162300 0x00162378 ico2/fumi/src/commonact.c lines=14  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonDamage 0x00162378 0x001623F4 ico2/fumi/src/commonact.c lines=13  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonShoal 0x001623F8 0x00162424 ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonSwim 0x00162428 0x00162450 ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonLever2 0x00162450 0x001624E8 ico2/fumi/src/commonact.c lines=18  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonRopeTouchWall 0x001624E8 0x0016257C ico2/fumi/src/commonact.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonRopeSwing 0x00162580 0x00162678 ico2/fumi/src/commonact.c lines=29  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonRopeTurn 0x00162678 0x00162698 ico2/fumi/src/commonact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonRopeDownEnd 0x00162698 0x00162758 ico2/fumi/src/commonact.c lines=9  # ordinal; first difference at insn 7; imm:2; extent-equal
-text actCommonRopeJump 0x00162758 0x001627C4 ico2/fumi/src/commonact.c lines=15  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonRopeJumpBefore 0x001627C8 0x001627F4 ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonRopeTurnSpecial 0x001627F8 0x001628C8 ico2/fumi/src/commonact.c lines=19  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonRopeClimbEnd2 0x001628C8 0x001628F4 ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonCornered 0x001628F8 0x00162960 ico2/fumi/src/commonact.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonLookaround 0x00162960 0x0016298C ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonTurnWarn 0x00162990 0x00162A48 ico2/fumi/src/commonact.c lines=22  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonTurnStrict 0x00162A48 0x00162AB8 ico2/fumi/src/commonact.c lines=16  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonPPipe 0x00162AB8 0x00162AD8 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonHandrail 0x00162AD8 0x00162B38 ico2/fumi/src/commonact.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actCommonOneWall 0x00162B38 0x00162B6C ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonNull 0x00162B70 0x00162B98 ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonBoxPush 0x00162B98 0x00162BF0 ico2/fumi/src/commonact.c lines=14  # ordinal; first difference at insn 0; length:-13; extent-differs
-text motCommonBoxPull 0x00162BF0 0x00162C50 ico2/fumi/src/commonact.c lines=14  # ordinal; first difference at insn 0; length:-11; extent-differs
-text motCommonBarPush 0x00162C50 0x00162C80 ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonBarPull 0x00162C80 0x00162CB4 ico2/fumi/src/commonact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonLadderUp 0x00162CB8 0x00162D34 ico2/fumi/src/commonact.c lines=16  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonLadderDown 0x00162D38 0x00162DC4 ico2/fumi/src/commonact.c lines=16  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonSlip 0x00162DC8 0x00162E5C ico2/fumi/src/commonact.c lines=14  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonRopejumpDircorrect 0x00162E60 0x00162EDC ico2/fumi/src/commonact.c lines=16  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonHangNone 0x00162EE0 0x00162F0C ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonHangWall 0x00162F10 0x00162F3C ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonHangCliff 0x00162F40 0x00162F6C ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonRopeTurnSpecialR 0x00162F70 0x001630C4 ico2/fumi/src/commonact.c lines=21  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-lit4 motCommonRopeTurnSpecialR 0x00632A5C 0x00632A64 ico2/fumi/src/commonact.c  # 2 floats
-text motCommonRopeTurnSpecialL 0x001630C8 0x0016321C ico2/fumi/src/commonact.c lines=21  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-lit4 motCommonRopeTurnSpecialL 0x00632A64 0x00632A6C ico2/fumi/src/commonact.c  # 2 floats
-text motCommonTruckLeverLoop 0x00163220 0x00163274 ico2/fumi/src/commonact.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonTruckLeverPull 0x00163278 0x001632CC ico2/fumi/src/commonact.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text motCommonTruckLeverPush 0x001632D0 0x00163324 ico2/fumi/src/commonact.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text funcCommonRopeBefore 0x00163328 0x00163334 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonRope 0x00163338 0x00163390 ico2/fumi/src/commonact.c lines=11  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text extraCommonNull 0x00163390 0x001633B0 ico2/fumi/src/commonact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text extraCommonCall 0x001633B0 0x001633E8 ico2/fumi/src/commonact.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text funcCommonWayOn 0x001633E8 0x00163400 ico2/fumi/src/commonact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text funcCommonSofaWakeup 0x00163400 0x00163410 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text _ACTMotReqResult 0x00163410 0x00163444 ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text test_CURRENTORIENT 0x00163448 0x001634B4 ico2/fumi/src/commonact.c lines=12  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text test_CURRENTROOT 0x001634B8 0x00163574 ico2/fumi/src/commonact.c lines=27  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text StartCorrectPosition 0x00163578 0x001636C8 ico2/fumi/src/commonact.c lines=21  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text IsCorrectPosition 0x001636C8 0x001636E4 ico2/fumi/src/commonact.c lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ControlMotionOrient 0x001636E8 0x00163704 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text FloorIsTruck 0x00163708 0x00163754 ico2/fumi/src/commonact.c lines=12  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text _ACTMotDir_V 0x00163758 0x00163794 ico2/fumi/src/commonact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ACTMotDirToWall 0x00163798 0x001637DC ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text SetCorrectOrientOfChain 0x001637E0 0x00163818 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actAfterForceRope 0x00163818 0x00163880 ico2/fumi/src/commonact.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actAfterForceRopeSwing 0x00163880 0x001638E8 ico2/fumi/src/commonact.c lines=9  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actAfterRopeJump 0x001638E8 0x00163914 ico2/fumi/src/commonact.c local lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonRopeCliff 0x00163918 0x00163934 ico2/fumi/src/commonact.c local lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonRopeTurnSpecial 0x00163938 0x00163954 ico2/fumi/src/commonact.c local lines=5  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actAfterDown 0x00163958 0x001639BC ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonCling 0x001639C0 0x001639E4 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actAfterSlip 0x001639E8 0x001639F8 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonRevive 0x001639F8 0x00163A1C ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonStone 0x00163A20 0x00163A54 ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonBox 0x00163A58 0x00163A80 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonBar 0x00163A80 0x00163AD8 ico2/fumi/src/commonact.c lines=6  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actAfterJump 0x00163AD8 0x00163B04 ico2/fumi/src/commonact.c local lines=5  # equal; its out-of-line copy served a stub, so gcc no longer emits it
-text actAfterFall 0x00163B08 0x00163B70 ico2/fumi/src/commonact.c lines=8  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text actAfterFly 0x00163B70 0x00163BB8 ico2/fumi/src/commonact.c lines=7  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ClipCollisionWithField 0x00163BB8 0x00163C18 ico2/fumi/src/commonact.c local lines=9  # equal; its out-of-line copy served a stub
-text afterCommonOneWall 0x00163C18 0x00163C28 ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text ACTCheckFlagAttack 0x00163C28 0x00163C3C ico2/fumi/src/commonact.c lines=4  # equal; a stub for emission order: a deferred inline the JPN emits before a stubbed one
-text afterCommonBecarry 0x00163C40 0x00163C84 ico2/fumi/src/commonact.c local lines=7  # equal; its out-of-line copy served a stub
 text setBattleStatus 0x00163CB8 0x00163DC8 ico2/fumi/src/enemy_act.c local lines=24  # ordinal; first difference at insn 15; imm:3; extent-equal
 rdlit setBattleStatus 0x0054E650 0x0054E660 ico2/fumi/src/enemy_act.c align=16  # 1 string
 sdlit setBattleStatus 0x006342B0 0x006342B2 ico2/fumi/src/enemy_act.c  # 1 string
@@ -1529,9 +1390,6 @@ text InitWindMillGeo 0x00258DE8 0x00258F50 ico2/sugipon/src/windmill.c lines=31 
 # Function-scope statics in .data that a carved function's C defined (gcc
 # names them name.N); the JPN addresses are the operands of the twin's
 # lui/addiu pairs at the PAL references' places.
-data col.277 0x0029AE40 0x0029AE50 ico2/fumi/src/commonact.c local file=col_277  # flyCoreLoop's; PAL 0x29CF40, JPN addiu at 0x15F0E4
-data col.278 0x0029AE50 0x0029AE60 ico2/fumi/src/commonact.c local file=col_278  # flyCoreLoop's; PAL 0x29CF50, JPN addiu at 0x15F228
-data col.279 0x0029AE60 0x0029AE70 ico2/fumi/src/commonact.c local file=col_279  # flyCoreLoop's; PAL 0x29CF60, JPN addiu at 0x15EB0C
 data col.304 0x0029B0C0 0x0029B0D0 ico2/fumi/src/enemy_act.c local file=col_304  # _ApproachTarget_Way's; PAL 0x29D1C0, JPN addiu at 0x168D78
 #
 # .data objects the December C of a carved function used and PAL's does not

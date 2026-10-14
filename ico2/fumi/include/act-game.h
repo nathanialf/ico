@@ -113,7 +113,7 @@ typedef struct ActWork { /* field names derived */
     char pad638[232];
     ClipColReq view; /* 0x720, the clip ACTGameView_Loop runs to the object it looks at */
     int viewState; /* 0x800 */
-    char pad804[156];
+    char pad804[140];
     float emgPosX; /* 0x8A0 */
     float emgPosY; /* 0x8A4 */
     float emgPosZ; /* 0x8A8 */
