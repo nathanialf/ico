@@ -1762,24 +1762,12 @@ text debug_SnapShot 0x001A5EC0 0x001A6844 ico2/common/src/debug.c lines=81  # or
 rdlit debug_SnapShot 0x00614FB0 0x0061505A ico2/common/src/debug.c  # 6 strings, measured from the base
 text debug_Mode 0x001A7270 0x001A76B8 ico2/common/src/debug.c local lines=56  # ordinal; first difference at insn 29; imm:8; extent-equal
 rdlit debug_Mode 0x00615178 0x006151E7 ico2/common/src/debug.c  # 6 strings
-text debug_SelectCsvWindow 0x001A7848 0x001A7AD0 ico2/common/src/debug.c lines=6  # equal, a stub because it inlines _debug_SelectCsvWindow, a stub for emission order
-sdlit debug_SelectCsvWindow 0x00632B08 0x00632B0D ico2/common/src/debug.c  # 1 string, measured from the base; shared, first user
 text debug_SelectStageMain 0x001A7AD0 0x001A7BAC ico2/common/src/debug.c local lines=25  # ordinal; first difference at insn 39; imm:2; extent-equal
 rdlit debug_SelectStageMain 0x00615228 0x00615232 ico2/common/src/debug.c  # 1 string
 sdlit debug_SelectStageMain 0x00632B18 0x00632B1E ico2/common/src/debug.c  # 1 string
 rdlit debug_SelectStageMain 0x005F3038 0x005F303F ico2/common/src/debug.c  # 1 string, measured from the base
 text debug_SelectStage 0x001A7BB0 0x001A7DEC ico2/common/src/debug.c lines=6  # ordinal; first difference at insn 34; imm:5; extent-equal
 rdlit debug_SelectStage 0x00615238 0x00615245 ico2/common/src/debug.c  # 1 string
-text debug_mcSaveMainBlock 0x001A80D0 0x001A82AC ico2/common/src/debug.c local lines=67  # equal, a stub because it inlines debug_saveNumFunc, a stub for emission order
-rdlit debug_mcSaveMainBlock 0x00615400 0x00615488 ico2/common/src/debug.c align=16  # 2 strings, 1 jtbl
-sdlit debug_mcSaveMainBlock 0x00632B58 0x00632B68 ico2/common/src/debug.c  # 2 strings
-text debug_mcLoadMainBlock 0x001A82B0 0x001A84F4 ico2/common/src/debug.c local lines=75  # equal, a stub because it inlines debug_saveNumFunc, a stub for emission order
-rdlit debug_mcLoadMainBlock 0x00615488 0x006154D7 ico2/common/src/debug.c  # 2 strings
-rdlit debug_mcLoadMainBlock 0x006154E0 0x00615670 ico2/common/src/debug.c align=16  # 1 jtbl
-sdlit debug_mcLoadMainBlock 0x00632B70 0x00632B78 ico2/common/src/debug.c  # 1 string
-text debug_MemoryCard 0x001A8670 0x001A88F0 ico2/common/src/debug.c lines=63  # equal, a stub because it inlines debug_mcTest, a stub for emission order
-rdlit debug_MemoryCard 0x006156A8 0x00615756 ico2/common/src/debug.c  # 3 strings, 2 data, 1 string, measured from the base: the two menu tables and their strings
-sdlit debug_MemoryCard 0x00632B88 0x00632BBD ico2/common/src/debug.c  # 7 strings, measured from the base: six of them read through the menu tables
 text debug_SETest 0x001A88F0 0x001A8B8C ico2/common/src/debug.c lines=18  # ordinal; first difference at insn 37; imm:5; extent-equal
 sdlit debug_SETest 0x00632BC8 0x00632BD0 ico2/common/src/debug.c  # 1 string
 text debug_SelectActGobj 0x001A8E30 0x001A8F6C ico2/common/src/debug.c local lines=15  # ordinal; first difference at insn 27; imm:1; extent-equal
@@ -1787,53 +1775,6 @@ rdlit debug_SelectActGobj 0x006157C0 0x006157D5 ico2/common/src/debug.c align=16
 text debug_Menu 0x001A9B28 0x001A9D84 ico2/common/src/debug.c lines=55  # ordinal; first difference at insn 28; imm:1; extent-equal
 rdlit debug_Menu 0x00615B38 0x00615B43 ico2/common/src/debug.c  # 1 string
 rdlit debug_Menu 0x00615B00 0x00615B19 ico2/common/src/debug.c  # 2 strings, measured from the base
-text debug_BeginTimer 0x001A9D90 0x001A9DB4 ico2/common/src/debug.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_GetTimerSec
-text debug_GetTimerSec 0x001A9DB8 0x001A9E88 ico2/common/src/debug.c lines=13  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_GetTimerCount
-rdlit debug_GetTimerSec 0x00614D30 0x00614D40 ico2/common/src/debug.c align=16 def  # 1 data
-text debug_GetTimerCount 0x001A9E88 0x001A9EE8 ico2/common/src/debug.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_ClearFontWindow
-text debug_ClearFontWindow 0x001A9EE8 0x001A9F1C ico2/common/src/debug.c lines=11  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_ResizeFontWindowHeight
-text debug_ResizeFontWindowHeight 0x001A9F20 0x001A9F28 ico2/common/src/debug.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_SetBar
-text debug_SetBar 0x001A9F28 0x001A9FE0 ico2/common/src/debug.c lines=15  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_SetBar2
-sdlit debug_SetBar 0x00632AB0 0x00632AB4 ico2/common/src/debug.c def  # 1 string
-text debug_SetBar2 0x001A9FE0 0x001AA098 ico2/common/src/debug.c lines=15  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_ResetBar
-text debug_ResetBar 0x001AA098 0x001AA0C0 ico2/common/src/debug.c lines=11  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_DispVu1IReg
-text debug_DispVu1IReg 0x001AA0C0 0x001AA164 ico2/common/src/debug.c lines=18  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_DispVu1SReg
-rdlit debug_DispVu1IReg 0x00615130 0x0061514C ico2/common/src/debug.c align=16 def  # 1 string
-text debug_DispVu1SReg 0x001AA168 0x001AA20C ico2/common/src/debug.c lines=18  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_DispMatrix
-rdlit debug_DispVu1SReg 0x00615150 0x0061516C ico2/common/src/debug.c align=16 def  # 1 string
-text debug_DispMatrix 0x001AA210 0x001AA254 ico2/common/src/debug.c lines=9  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_SetBarDummy
-text debug_SetBarDummy 0x001AA258 0x001AA260 ico2/common/src/debug.c lines=1  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_SelectCsvWindowWithLine
-text debug_SelectCsvWindowWithLine 0x001AA260 0x001AA4E8 ico2/common/src/debug.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_TryToGetStartStage
-text debug_TryToGetStartStage 0x001AA4E8 0x001AA4F0 ico2/common/src/debug.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debugSceOpen
-text debugSceOpen 0x001AA4F0 0x001AA550 ico2/common/src/debug.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debugSceClose
-rdlit debugSceOpen 0x00615B48 0x00615B51 ico2/common/src/debug.c def  # 1 string
-sdlit debugSceOpen 0x00632C88 0x00632C8F ico2/common/src/debug.c def  # 1 string
-text debugSceClose 0x001AA550 0x001AA57C ico2/common/src/debug.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debugSceCloseFdNew
-text debugSceCloseFdNew 0x001AA580 0x001AA5B8 ico2/common/src/debug.c lines=11  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_closeLog
-text debug_closeLog 0x001AA5B8 0x001AA5C0 ico2/common/src/debug.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debugCdvdLoadInfoSegInit
-text debugCdvdLoadInfoSegInit 0x001AA5C0 0x001AA604 ico2/common/src/debug.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debugCdvdLoadInfoSegAdd
-text debugCdvdLoadInfoSegAdd 0x001AA608 0x001AA634 ico2/common/src/debug.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debugCdvdLoadInfoSegCls
-text debugCdvdLoadInfoSegCls 0x001AA638 0x001AA65C ico2/common/src/debug.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before gsResetFunc
-text gsResetFunc 0x001AA660 0x001AA684 ico2/common/src/debug.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_CallbackGsFinish
-text debug_CallbackGsFinish 0x001AA688 0x001AA69C ico2/common/src/debug.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_SaveStartStageFile
-text debug_SaveStartStageFile 0x001AA6A0 0x001AA74C ico2/common/src/debug.c lines=15  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before _debug_SelectCsvWindow
-rdlit debug_SaveStartStageFile 0x00614A10 0x00614A99 ico2/common/src/debug.c def  # 3 strings, measured from the base
-text _debug_SelectCsvWindow 0x001AA750 0x001AA9F8 ico2/common/src/debug.c lines=88  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_SelectCsvWindowWithLineColor
-text debug_SelectCsvWindowWithLineColor 0x001AA9F8 0x001AAC9C ico2/common/src/debug.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_mcFormat
-text debug_mcFormat 0x001AACA0 0x001AAD84 ico2/common/src/debug.c lines=26  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_mcUnformat
-sdlit debug_mcFormat 0x00632B28 0x00632B2F ico2/common/src/debug.c def  # 1 string, measured from the base
-rdlit debug_mcFormat 0x00615258 0x00615267 ico2/common/src/debug.c def  # 1 string, measured from the base
-text debug_mcUnformat 0x001AAD88 0x001AAE6C ico2/common/src/debug.c lines=26  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_saveNumFunc
-rdlit debug_mcUnformat 0x00615268 0x00615289 ico2/common/src/debug.c def  # 2 strings
-text debug_saveNumFunc 0x001AAE70 0x001AAE9C ico2/common/src/debug.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_mcTest
-sdlit debug_saveNumFunc 0x00632B48 0x00632B54 ico2/common/src/debug.c def  # 2 strings
-text debug_mcTest 0x001AAEA0 0x001AAEC0 ico2/common/src/debug.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_STAFFROLLTest
-text debug_STAFFROLLTest 0x001AAEC0 0x001AAEE8 ico2/common/src/debug.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_SETest_color
-text debug_SETest_color 0x001AAEE8 0x001AAF28 ico2/common/src/debug.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_reverbTest
-text debug_reverbTest 0x001AAF28 0x001AAFC8 ico2/common/src/debug.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before debug_AdpcmTest
-rdlit debug_reverbTest 0x00615758 0x0061576B ico2/common/src/debug.c def  # 1 string, measured from the base
-text debug_AdpcmTest 0x001AAFC8 0x001AB054 ico2/common/src/debug.c  # ordinal; first difference at insn 6; imm:1; extent-equal
-rdlit debug_AdpcmTest 0x00615770 0x0061577B ico2/common/src/debug.c def  # 1 string, measured from the base
 text gamesysObjInfoInit 0x001ADBC0 0x001ADC14 ico2/common/src/gamesys.c lines=12  # ordinal; first difference at insn 17; imm:1; extent-equal
 text gamesysObjInfoSave 0x001ADC18 0x001ADCB0 ico2/common/src/gamesys.c lines=18  # ordinal; first difference at insn 33; imm:1; extent-equal
 text gamesysObjInfoLoad 0x001ADCB0 0x001ADD00 ico2/common/src/gamesys.c lines=6  # ordinal; first difference at insn 17; imm:1; extent-equal

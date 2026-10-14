@@ -485,16 +485,6 @@ INCLUDE_ASM(la_title_new_game_only);
 
 static int filePort = -1; /* derived name */
 
-static int saveSerial = 0; /* derived name */
-
-static int loadSerial = 0; /* derived name */
-
-static int savedFileNo = 0; /* derived name */
-
-static int fileMoved = 0; /* derived name */
-
-static int fileFirst = 1; /* derived name */
-
 /* the play time of a save record split into hours, minutes and seconds and
    clamped to 99:59:59, inlined into _la_set_preview_info, la_load_processing
    and la_system_save_processing; the last two leave the results unused */
@@ -577,8 +567,6 @@ static inline int openLayoutVoice(int no) /* derived name */
 static int saveVoice = 0; /* derived name */
 
 static int saveVoiceOpened = 0; /* derived name */
-
-static int saveVoiceWait = 0; /* derived name */
 
 INCLUDE_ASM(la_mc_confirm_save_file);
 

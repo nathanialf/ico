@@ -788,6 +788,13 @@ void debug_openLog(void)
 }
 
 /* the close report, disabled in retail */
+inline void debug_closeLog(void)
+{
+    if (0) {
+        debug_StdPrintfDummy("log-file closed.\n");
+    }
+}
+
 void debug_LogPrintf(const char *fmt, ...)
 {
     char buf[256];
@@ -797,7 +804,26 @@ void debug_LogPrintf(const char *fmt, ...)
     sceWrite(logFd, buf, info);
 }
 
-INCLUDE_ASM_LIT(debug_SaveStartStageFile);
+inline void debug_SaveStartStageFile(int stage)
+{
+    char buf[256];
+    debug_StdPrintfDummy("==== Save start stage =======================================\n");
+    if (debugSceOpen("thisIsYourStartStage", 0x602) < 0) {
+        debug_StdPrintfDummy("debug_SaveStartStageFile: host file open error.\n");
+    } else {
+        sprintf(buf, "%d", stage);
+        sceWrite(0, buf, strlen(buf));
+        debug_StdPrintfDummy("Save start stage file. Setting to [ \033[36m%d\033[m ]\n", stage);
+        debugSceClose(0);
+    }
+    debug_StdPrintfDummy("=============================================================\n");
+    debug_openLog();
+}
+
+inline int debug_TryToGetStartStage(void)
+{
+    return -1;
+}
 
 INCLUDE_ASM(debug_SaveDebugOptionFile);
 
@@ -829,7 +855,33 @@ void debug_Init(void)
     debug_makeBackImage();
 }
 
-INCLUDE_ASM_LIT(debug_GetTimerSec);
+inline void debug_BeginTimer(int mode)
+{
+    *T1_COUNT = 0;
+    *T1_MODE = mode | 0x80;
+}
+
+inline float debug_GetTimerSec(void)
+{
+    float clock[4] = {2500000.0f, 156250.0f, 9000.0f, 260.0f};
+    int v;
+    float f2;
+
+    if (*T1_MODE & 0x800) {
+        return -1.0f;
+    }
+    v = *T1_COUNT;
+    f2 = (float)(unsigned int)v;
+    return f2 / clock[*T1_MODE & 3] / 60.0f;
+}
+
+inline float debug_GetTimerCount(void)
+{
+    if ((*T1_MODE) & 0x800) {
+        return -1.0f;
+    }
+    return (float)(*(volatile unsigned int *)T1_COUNT);
+}
 
 INCLUDE_ASM(debug_Load);
 
@@ -957,6 +1009,18 @@ static void debug_PrintFont(int x, int y, int col, char *str)
 
 int charNumH = 10;
 
+inline void debug_ClearFontWindow(void)
+{
+    char *p = (char *)fontLines;
+    int i;
+    p += 0x5B4;
+    for (i = 26; i >= 0; i--) {
+        *p = 0;
+        p -= 0x38;
+    }
+    fontWindowLine = 0;
+}
+
 static void debug_FlushFontWindow(void)
 {
     FR r = {16, (int)(224.0f - ((float)charNumH + 0.5f) * 8.0f), 50, charNumH};
@@ -992,6 +1056,12 @@ static void debug_FlushFontWindow(void)
 void debug_FlushFont(void)
 {
     debug_FlushFontWindow();
+}
+
+inline int debug_CallbackGsFinish(int channel)
+{
+    drawTimerCount = *T0_COUNT;
+    return 0;
 }
 
 /* The four corners of a marker box, inlined into draw_batsu and
@@ -1081,11 +1151,53 @@ static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 /* clang-format off */
 INCLUDE_ASM(debug_DrawBar);
 
-INCLUDE_ASM_LIT(debug_SetBar);
+inline void debug_SetBar(char *name, unsigned int col, char *file, int line)
+{
+    DebugBar *p = &debugBars[debugBarCount];
+    if (debug_profile_type == 0 && debugBarCount != 0x400) {
+        sprintf(p->name, "%8s", name);
+        p->count = *T0_COUNT;
+        p->col.r = col >> 24;
+        p->col.g = col >> 16;
+        p->col.b = col >> 8;
+        p->col.a = col;
+        p->file = file;
+        p->line = line;
+        debugBarCount++;
+    }
+}
 
 /* debug_SetBar with the inverted debug_profile_type gate (records only while the
    profiler flag is set). */
+inline void debug_SetBar2(char *name, unsigned int col, char *file, int line)
+{
+    DebugBar *p = &debugBars[debugBarCount];
+    if (debug_profile_type != 0 && debugBarCount != 0x400) {
+        sprintf(p->name, "%8s", name);
+        p->count = *T0_COUNT;
+        p->col.r = col >> 24;
+        p->col.g = col >> 16;
+        p->col.b = col >> 8;
+        p->col.a = col;
+        p->file = file;
+        p->line = line;
+        debugBarCount++;
+    }
+}
+
 INCLUDE_ASM(debug_DispBar);
+
+inline void debug_ResetBar(void)
+{
+    texregs = 0;
+    *T0_COUNT = 0;
+    textures = 0;
+    packets = 0;
+    strips = 0;
+    polygons = 0;
+    texturetranssize = 0;
+    debugBarCount = 0;
+}
 
 /* Halves a 32-bit snapshot with a 2x2 box filter; the clamp and the
    destination helper are nested functions. */
@@ -1217,6 +1329,16 @@ void debug_DispQW(void *p, int size)
     debug_StdPrintfDummy("\n");
 }
 
+inline void debug_DispMatrix(int *m)
+{
+    int *p = m;
+    int i;
+    for (i = 3; i >= 0; i--) {
+        debug_DispQW(p, 0);
+        p = (int *)((char *)p + 0x10);
+    }
+}
+
 void debug_Printf(int a, int b, unsigned int c, const char *fmt, ...)
 {
     char buf[256];
@@ -1269,6 +1391,13 @@ void debug_PrintFontWindow(int col, const char *fmt, ...)
         fontLines[charNumH - 1].text[0] = 0;
     }
 }
+
+inline void debug_ResizeFontWindowHeight(int val)
+{
+    charNumH = val;
+}
+
+inline void debug_SetBarDummy(void) {}
 
 void debug_PrintfDummy(int x, int y, unsigned int col, const char *fmt, ...) {}
 
@@ -1391,9 +1520,49 @@ static unsigned char modeBlink = 0; /* derived name */
 /* the colours the cursor line blinks between */
 static const unsigned int blinkColor[] = {0xFFFFFF00, 0xC0C0C000}; /* derived name */
 
-INCLUDE_ASM_LIT(debug_DispVu1IReg);
+inline void debug_DispVu1IReg(int no)
+{
+    int i;
+    int buf[4];
+    if (no >= 0) {
+        __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(no * 16 + 0x420));
+        __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
+        __asm__ __volatile__("sqc2 $vf2, %0" : "=m"(buf) : : "memory");
+        debug_StdPrintfDummy("VI%02d:%08x %08x %08x %08x\n", no, buf[0], buf[1], buf[2], buf[3]);
+    } else {
+        __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(0x420));
+        for (i = 0; i < 16; i++) {
+            __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
+            __asm__ __volatile__("sqc2 $vf2, %0" : "=m"(buf) : : "memory");
+            debug_StdPrintfDummy("VI%02d:%08x %08x %08x %08x\n", i, buf[0], buf[1], buf[2], buf[3]);
+        }
+    }
+}
 
-INCLUDE_ASM_LIT(debug_DispVu1SReg);
+inline void debug_DispVu1SReg(int no)
+{
+    int i;
+    int buf[4];
+    if (no >= 0) {
+        __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(no * 16 + 0x420));
+        __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
+        __asm__ __volatile__("sqc2 $vf2, %0" : "=m"(buf) : : "memory");
+        debug_StdPrintfDummy("VS%02d:%08x %08x %08x %08x\n", no, buf[0], buf[1], buf[2], buf[3]);
+    } else {
+        __asm__ __volatile__("ctc2.ni %0, $vi1" : : "r"(0x420));
+        for (i = 0; i < 16; i++) {
+            __asm__ __volatile__("vlqi.xyzw $vf2, ($vi1++)");
+            __asm__ __volatile__("sqc2 $vf2, %0" : "=m"(buf) : : "memory");
+            debug_StdPrintfDummy("VS%02d:%08x %08x %08x %08x\n", i, buf[0], buf[1], buf[2], buf[3]);
+        }
+    }
+}
+
+inline int gsResetFunc(int val)
+{
+    gsb_Init(&db);
+    return 1;
+}
 
 /* clang-format off */
 INCLUDE_ASM(debug_Mode);
@@ -1421,9 +1590,112 @@ int debug_SelectCsvWindowVal(char *title, int x, int y, int rows, int count, int
 /* the csv window's scroll counter */
 static int csvScroll = 0; /* derived name */
 
+inline int _debug_SelectCsvWindow(char *title, int x, int y, int rows, int base, int stride, int off,
+                           int deref, int n, int *psel, void (*getline)(), int (*colfunc)(int))
+{
+    char buf[256];
+    int sel;
+    int i;
+    int half;
+    int k;
+    int top;
+    int yy;
+    int len;
+    int v;
+    int col;
+
+    sel = *psel;
+    debug_PrintfDummy(x, y, 0xFFFFFF00u, "%s", title);
+    if ((pad[0].now & 2) == 0) {
+        if (pad[0].flags & 0x80) {
+            debug_font_flag ^= 2;
+        }
+        if (sel >= n) {
+            sel = n - 1;
+        }
+        if (pad[0].rep & 0x4000) {
+            sel++;
+            if (sel >= n) {
+                sel = 0;
+            }
+        }
+        if (pad[0].rep & 0x1000) {
+            sel--;
+            if (sel < 0) {
+                sel = n - 1;
+            }
+        }
+        if (n < rows) {
+            rows = n;
+        }
+        half = (int)(((float)rows - 0.5f) * 0.5f);
+        if (sel < half) {
+            k = sel;
+        } else if (n - (rows - half) < sel) {
+            k = rows - (n - sel);
+        } else {
+            k = half;
+        }
+        top = sel - k;
+        yy = y + 8;
+        for (i = top; i < top + rows; i++) {
+            if (i - top == k) {
+                col = 0xFF404000;
+            } else if (colfunc == 0) {
+                col = 0xFFFFFF00;
+            } else {
+                col = colfunc(i);
+            }
+            v = base + stride * i + off;
+            if (deref == 1) {
+                v = *(int *)v;
+            }
+            len = csvScroll;
+            getline(buf, i, v);
+            if (len >= 2) {
+                if (len >= 0x100) {
+                    len = 0xFF;
+                }
+                buf[len - 1] = -110;
+                buf[len] = 0;
+            } else {
+                buf[0] = 0;
+            }
+            debug_PrintfDummy(x, yy, col, "  %s", buf);
+            yy += 8;
+        }
+        if (csvScroll <= 0xFFFE) {
+            csvScroll += systemStatus[1];
+        }
+        *psel = sel;
+        if (pad[0].flags & 0x20) {
+            csvScroll = 0;
+            return 1;
+        } else if (pad[0].flags & 0x140) {
+            csvScroll = 0;
+            return -1;
+        }
+    }
+    return 0;
+}
+
 static void getLineBuffer(char *buf, int line, char *str)
 {
     sprintf(buf, "%02d:%s", line, str);
+}
+
+inline int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, const void *base, int stride,
+                                  int off, int deref, int n, int *psel)
+{
+    return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
+                                      getLineBuffer, 0);
+}
+
+inline int debug_SelectCsvWindowWithLineColor(char *title, int x, int y, int rows, const void *base, int stride,
+                                       int off, int deref, int n, int *psel, int (*colfunc)(int))
+{
+    return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
+                                      getLineBuffer, colfunc);
 }
 
 static void getBuffer(char *buf)
@@ -1431,7 +1703,12 @@ static void getBuffer(char *buf)
     sprintf(buf, "%s");
 }
 
-INCLUDE_ASM(debug_SelectCsvWindow);
+int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base, int stride, int off,
+                          int deref, int n, int *psel)
+{
+    return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
+                                      getBuffer, 0);
+}
 
 INCLUDE_ASM(debug_SelectStageMain);
 
@@ -1467,13 +1744,63 @@ static int formatState = 0; /* derived name */
 
 static int formatBlink = 0; /* derived name */
 
+inline int debug_mcFormat(int port)
+{
+    int r;
+    switch (formatState) {
+    case 0:
+        r = debug_mcConfirm("format");
+        if (r != 1) {
+            return r;
+        }
+        iosMcFormat(port);
+        formatState++;
+        break;
+    case 1:
+        if (formatBlink++ & 0x10) {
+            debug_PrintfDummy(120, 70, 0xFFFFFF00u, "now formatting");
+        }
+        if (iosMcSync(port) != 0) {
+            formatState++;
+        }
+        break;
+    default:
+        formatState = 0;
+        return 1;
+    }
+    return 0;
+}
+
 static int unformatState = 0; /* derived name */
 
 static int unformatBlink = 0; /* derived name */
 
-INCLUDE_ASM_LIT(debug_mcUnformat);
-
-INCLUDE_ASM_LIT(debug_mcFormat);
+inline int debug_mcUnformat(int port)
+{
+    int r;
+    switch (unformatState) {
+    case 0:
+        r = debug_mcConfirm("Unformat");
+        if (r != 1) {
+            return r;
+        }
+        iosMcUnformat(port);
+        unformatState++;
+        break;
+    case 1:
+        if (unformatBlink++ & 0x10) {
+            debug_PrintfDummy(120, 70, 0xFFFFFF00u, "now unformatting");
+        }
+        if (iosMcSync(port) != 0) {
+            unformatState++;
+        }
+        break;
+    default:
+        unformatState = 0;
+        return 1;
+    }
+    return 0;
+}
 
 static int debug_mcRetErrCheck(McMgr *mc)
 {
@@ -1579,13 +1906,159 @@ static int debug_selectFile(McMgr *mc)
 
 static int saveState = 0; /* derived name */
 
-INCLUDE_ASM_LIT(debug_saveNumFunc);
+inline void *debug_saveNumFunc(int no, void *mc)
+{
+    if ((1 << no) & ((McMgr *)mc)->mask) {
+        return "SAVED";
+    }
+    return "NEW";
+}
 
-INCLUDE_ASM(debug_mcSaveMainBlock);
+static int debug_mcSaveMainBlock(McMgr *mc)
+{
+    int r = 0;
+    int ret = 0;
+
+    switch (saveState) {
+    case 0:
+        *(McName6 *)mc->path = *(McName6 *)"game.";
+        iosMcGetBlockSaveInfo(mc);
+        saveState++;
+        break;
+    case 1:
+        if (iosMcSync(mc)) {
+            saveState++;
+        }
+        break;
+    case 2:
+    case 8:
+    case 13:
+        if ((ret = debug_mcRetErrCheck(mc)) != 0) {
+            saveState++;
+        }
+        break;
+    case 3:
+        if (mc->dirCount >= 11) {
+            debug_StdPrintfDummy("debug_mcSaveMainBlock:既に設定された数以上のデータを保存してる\n");
+        }
+        r = debug_SelectCsvWindowVal("SAVE NO.", 80, 70, 10, 10, &mc->fileNo,
+                                     (int (*)(int, int))debug_saveNumFunc, (int)mc);
+        if (r > 0) {
+            r = 0;
+            saveState++;
+        }
+        break;
+    case 4:
+        iosMcSaveIconBlock(mc);
+        saveState++;
+        break;
+    case 6:
+        iosMcSaveProductBlock(mc);
+        saveState++;
+        break;
+    case 5:
+    case 7:
+    case 12:
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "save %s", mc->path);
+        if (iosMcSync(mc)) {
+            saveState++;
+        }
+        break;
+    case 9:
+        gamesysMemorySave(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
+        iosMcSaveGameBlock(mc, gameSysMainSaveBuff);
+        saveState++;
+        break;
+    default:
+        r = 1;
+        break;
+    }
+    if (ret < 0) {
+        r = -1;
+    }
+    if (r) {
+        saveState = 0;
+    }
+    return r;
+}
 
 static int loadState = 0; /* derived name */
 
-INCLUDE_ASM(debug_mcLoadMainBlock);
+static int debug_mcLoadMainBlock(McMgr *mc)
+{
+    int r = 0;
+    int ret = 0;
+
+    switch (loadState) {
+    case 0:
+        *(McName6 *)mc->path = *(McName6 *)"game.";
+        iosMcGetBlockSaveInfo(mc);
+        loadState++;
+        break;
+    case 1:
+        if (iosMcSync(mc)) {
+            loadState++;
+        }
+        break;
+    case 2:
+    case 6:
+    case 10:
+        if ((ret = debug_mcRetErrCheck(mc)) != 0) {
+            loadState++;
+        }
+        break;
+    case 3:
+        if (mc->dirCount >= 11) {
+            debug_StdPrintfDummy("debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n");
+        }
+        r = debug_SelectCsvWindowVal("SAVE NO.", 80, 70, 10, 10, &mc->fileNo,
+                                     (int (*)(int, int))debug_saveNumFunc, (int)mc);
+        if (r > 0) {
+            r = 0;
+            loadState++;
+        }
+        break;
+    case 4:
+        if (((1 << mc->fileNo) & mc->mask) == 0) {
+            loadState = 99;
+            break;
+        }
+        iosMcLoadProductBlock(mc);
+        loadState++;
+        break;
+    case 5:
+    case 8:
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "load %s", mc->path);
+        if (iosMcSync(mc)) {
+            loadState++;
+        }
+        break;
+    case 7:
+        iosMcLoadGameBlock(mc, gameSysMainSaveBuff);
+        loadState++;
+        break;
+    case 9:
+        gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
+        scpBoyControlReadDisable = 0;
+        loadState++;
+        break;
+    case 99:
+        if (debug_mcAsk("DATA NOT FOUND")) {
+            loadState = 3;
+        }
+        break;
+    default:
+        r = 1;
+        break;
+    }
+    if (ret < 0) {
+        r = -1;
+    }
+    if (r) {
+        loadState = 0;
+    }
+    return r;
+}
 
 static int deleteState = 0; /* derived name */
 
@@ -1640,13 +2113,90 @@ static int debug_mcDeleteFile(McMgr *mc)
     return ret;
 }
 
+inline int debug_mcTest(void)
+{
+    iosMcTest();
+    return 1;
+}
+
 static int mcMenuSelect = 0; /* derived name */
 
 static int mcState = 0; /* derived name */
 
-int debug_MemoryCard(void);
+int debug_MemoryCard(void)
+{
+    McMenuItem menu[6] = {
+        {"LOAD", debug_mcLoadMainBlock}, {"SAVE", debug_mcSaveMainBlock},
+        {"DELETE", debug_mcDeleteFile},  {"FORMAT", debug_mcFormat},
+        {"UNFORMAT", debug_mcUnformat},  {"TEST", debug_mcTest},
+    };
+    McTypeMsg tm[3] = {
+        {-1, 0x00FFFF00, "Formatted"},
+        {-2, 0x00FFFF00, "Unformatted"},
+        {0, 0xFF222200, "No card"},
+    };
+    McTypeMsg *p;
+    int r;
+    int (*fn)();
 
-INCLUDE_ASM(debug_MemoryCard);
+    switch (mcState) {
+    case 0:
+        mc.slot = 0;
+        mc.port = 0;
+        iosMcGetInfo(&mc);
+        mcState++;
+        break;
+    case 1:
+        if (iosMcSync(&mc)) {
+            mcState++;
+        }
+        break;
+    case 2:
+        p = tm;
+        while (mc.cardState != p->type && p->type != 0) {
+            p++;
+        }
+        if (mc.type != 2) {
+            p = &tm[2];
+        }
+        debug_PrintfDummy(10, 60, p->col, "Memory card port 0: %s free:%d Kbytes", p->msg,
+                          mc.free);
+        if (mc.result >= -2) {
+            r = debug_SelectCsvWindow("MENU", 0xA, 0x44, 0xA, menu, 8, 0, 1, 6, &mcMenuSelect);
+            if (r == 1) {
+                mcState++;
+            } else if (r == -1) {
+                mcState = 0;
+                return -1;
+            }
+        } else if (pad[0].flags & 0x40) {
+            mcState = 0;
+            return -1;
+        }
+        break;
+    default:
+        fn = menu[mcMenuSelect].fn;
+        if (fn != 0) {
+            if (fn(&mc) != 0) {
+                mcState = 0;
+                return 1;
+            }
+        }
+        break;
+    }
+    return 0;
+}
+
+inline int debug_STAFFROLLTest(void)
+{
+    staffRollStart(1.0f, 0x80);
+    return 1;
+}
+
+inline int debug_SETest_color(int idx)
+{
+    return seKind[seDef[idx].kind] != 0 ? 0xFFFFFF00 : 0x80808000;
+}
 
 int debug_STAFFROLLTest(void);
 
@@ -1706,9 +2256,53 @@ static int adpcmHandle = -1; /* derived name */
 
 int debug_AdpcmTest(int first);
 
-INCLUDE_ASM_LIT(debug_reverbTest);
+inline int debug_reverbTest(void)
+{
+    int depth = soundReverbDepthGet();
+    if (pad[0].rep & 0x1000) {
+        if (depth <= 99) {
+            depth++;
+        }
+    }
+    if (pad[0].rep & 0x4000) {
+        depth -= (0 < depth);
+    }
+    soundReverbDepthSet(depth);
+    debug_PrintfDummy(10, 80, 0xFFFFFF00u, "REVERB DEPTH %d%%\n", soundReverbDepthGet());
+    return (pad[0].flags & 0x60) != 0;
+}
 
-INCLUDE_ASM_LIT(debug_AdpcmTest);
+inline int debug_AdpcmTest(int first)
+{
+    int r;
+    if (first != 0) {
+        adpcmHandle = -1;
+    }
+    r = debug_SelectCsvWindow("ADPCM LIST", 10, 60, 10, adpcmFile, 64, 0, 0, 96, &adpcmSelect);
+    if (r > 0) {
+        if (adpcmSelect != 0) {
+            scpAdpcmPlayRequestFunc(adpcmSelect, 0, 1, 1, 1);
+        }
+    }
+    return r;
+}
+
+inline void debugCdvdLoadInfoSegInit(int page)
+{
+    int i;
+    for (i = 25; i >= 0; i--)
+        loadInfoSeg[page][i][0] = 0;
+}
+
+inline void debugCdvdLoadInfoSegAdd(int page, int idx, int delta)
+{
+    *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) += delta;
+}
+
+inline void debugCdvdLoadInfoSegCls(int page, int idx)
+{
+    *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) = 0;
+}
 
 static char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {
@@ -2192,7 +2786,31 @@ void debug_Menu_off(void)
 /* the file debugSceOpen has open */
 static int sceFd = -1; /* derived name */
 
-INCLUDE_ASM_LIT(debugSceOpen);
+inline int debugSceOpen(const char *name, int mode)
+{
+    sprintf(sceOpenPath, "%s%s;1", "cdrom0:\\", name);
+    return sceFd = sceOpen(sceOpenPath, mode);
+}
+
+inline int debugSceClose(int fd)
+{
+    if (fd == sceFd) {
+        sceFd = -1;
+    }
+    return sceClose(fd);
+}
+
+inline int debugSceCloseFdNew(void)
+{
+    int r = 0;
+    int h = sceFd;
+    if (h != -1) {
+        sceFd = -1;
+        r = sceClose(h);
+        sceFd = -1;
+    }
+    return r;
+}
 
 /* debug.o's globals (see debug.h) */
 int polygons = 0;
@@ -2350,71 +2968,3 @@ int debug_lwskyomi_lookonly = 0; /* derived name */
 int debug_one_hit_only = 0; /* derived name */
 
 int debug_ignore_dodge = 0; /* derived name */
-
-INCLUDE_ASM(debug_BeginTimer);
-
-INCLUDE_ASM(debug_GetTimerSec);
-
-INCLUDE_ASM(debug_GetTimerCount);
-
-INCLUDE_ASM(debug_ClearFontWindow);
-
-INCLUDE_ASM(debug_ResizeFontWindowHeight);
-
-INCLUDE_ASM(debug_SetBar);
-
-INCLUDE_ASM(debug_SetBar2);
-
-INCLUDE_ASM(debug_ResetBar);
-
-INCLUDE_ASM(debug_DispVu1IReg);
-
-INCLUDE_ASM(debug_DispVu1SReg);
-
-INCLUDE_ASM(debug_DispMatrix);
-
-INCLUDE_ASM(debug_SetBarDummy);
-
-INCLUDE_ASM(debug_SelectCsvWindowWithLine);
-
-INCLUDE_ASM(debug_TryToGetStartStage);
-
-INCLUDE_ASM(debugSceOpen);
-
-INCLUDE_ASM(debugSceClose);
-
-INCLUDE_ASM(debugSceCloseFdNew);
-
-INCLUDE_ASM(debug_closeLog);
-
-INCLUDE_ASM(debugCdvdLoadInfoSegInit);
-
-INCLUDE_ASM(debugCdvdLoadInfoSegAdd);
-
-INCLUDE_ASM(debugCdvdLoadInfoSegCls);
-
-INCLUDE_ASM(gsResetFunc);
-
-INCLUDE_ASM(debug_CallbackGsFinish);
-
-INCLUDE_ASM(debug_SaveStartStageFile);
-
-INCLUDE_ASM(_debug_SelectCsvWindow);
-
-INCLUDE_ASM(debug_SelectCsvWindowWithLineColor);
-
-INCLUDE_ASM(debug_mcFormat);
-
-INCLUDE_ASM(debug_mcUnformat);
-
-INCLUDE_ASM(debug_saveNumFunc);
-
-INCLUDE_ASM(debug_mcTest);
-
-INCLUDE_ASM(debug_STAFFROLLTest);
-
-INCLUDE_ASM(debug_SETest_color);
-
-INCLUDE_ASM(debug_reverbTest);
-
-INCLUDE_ASM(debug_AdpcmTest);
