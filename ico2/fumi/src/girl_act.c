@@ -3934,7 +3934,29 @@ inline void actGirlBehanged(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actGirlReadyMove);
+void actGirlReadyMove(GObj *volatile self)
+{
+    float dst[4];
+    float dir[4];
+
+    dst[0] = GOBJ_ACT(self)->enemy->readyPosX;
+    dst[1] = GOBJ_ACT(self)->enemy->readyPosY;
+    dst[2] = GOBJ_ACT(self)->enemy->readyPosZ;
+    dir[0] = GOBJ_ACT(self)->enemy->readyDirX;
+    dir[1] = GOBJ_ACT(self)->enemy->readyDirY;
+    dir[2] = GOBJ_ACT(self)->enemy->readyDirZ;
+    dst[1] = test_CURRENTROOT((void *)self)[1];
+    StartCorrectPosition((void *)self, dst, dir, 1, 40.0f);
+    while (IsCorrectPosition((void *)self)) {
+        debug_Arrow(100.0f, test_CURRENTROOT((void *)self), dir, 0xFF, 0, 0xFF);
+        ContinueCorrectPosition((void *)self);
+        _ACTWait(1);
+    }
+    while (1) {
+        ACTSendMailCorrect((void *)self, 0x10C);
+        _ACTWait(1);
+    }
+}
 
 void actGirlRescueDst(GObj *volatile self)
 {

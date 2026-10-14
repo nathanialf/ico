@@ -5,7 +5,7 @@ The share of each section of the Japanese boot ELF that the rebuilt ELF holds id
 <!-- progress:begin -->
 | Section | From source | From the disc | Total bytes | Source % | Identical % |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `.text` | 1510284 | 94024 | 1604308 | 94.14 % | 100.00 % |
+| `.text` | 1510592 | 93716 | 1604308 | 94.16 % | 100.00 % |
 | `.vutext` | 20704 | 0 | 20704 | 100.00 % | 100.00 % |
 | `.data` | 2086880 | 778904 | 2865784 | 72.82 % | 100.00 % |
 | `.rodata` | 88257 | 870151 | 958408 | 9.21 % | 100.00 % |
