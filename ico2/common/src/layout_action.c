@@ -495,29 +495,6 @@ static int fileMoved = 0; /* derived name */
 
 static int fileFirst = 1; /* derived name */
 
-/* the selected port's current file number, 0 when the port has no card or
-   the file is empty; inlined into la_mc_file_select both directly and
-   through mcFileNoOfPort below */
-static inline int mcCurrentFileNo(void) /* derived name */
-{
-    int port = filePort;
-    int no = (IosMcProductFile + port)->fileNo;
-    if (mcPortInfo[port].fileMask == 0 || IosMcProductFile[port].file[no].stage == 0xFFFFFFFF)
-        return 0;
-    return no;
-}
-
-/* the saved file's number when the port holds the loaded save, else the
-   current file's; inlined once, into la_mc_file_select */
-static inline int mcFileNoOfPort(void) /* derived name */
-{
-    int port = filePort;
-
-    if (loadSerial == (IosMcProductFile + port)->serial)
-        return savedFileNo;
-    return mcCurrentFileNo();
-}
-
 static void _la_mask_preview_info(void);
 
 /* the play time of a save record split into hours, minutes and seconds and
@@ -540,17 +517,6 @@ static inline void playTime(struct McPreview *p, int *hour, int *min, int *sec) 
 
 INCLUDE_ASM(_la_set_preview_info);
 
-/* the load screen's default item; inlined once, into
-   la_load_game_memory_card_check */
-static inline void setLoadGameStartItem(void) /* derived name */
-{
-    if (loadSerial == IosMcProductFile[0].serial || saveSerial != IosMcProductFile[1].serial) {
-        texLayout[17].defaultItem = 186;
-    } else {
-        texLayout[17].defaultItem = 187;
-    }
-}
-
 INCLUDE_ASM(la_load_game_memory_card_check);
 
 static int loadCardChanged = 1; /* derived name */
@@ -566,17 +532,6 @@ INCLUDE_ASM(la_load_confirm_no_memory_card);
 INCLUDE_ASM(la_load_confirm_no_data);
 
 INCLUDE_ASM(la_load_start_check);
-
-/* the saved file's serial read from the port's record, with the file number
-   kept beside it; inlined into la_load_processing directly and into
-   la_save_processing through mcSetSavedFile */
-static inline int mcSetFileNo(int port, int no) /* derived name */
-{
-    int serial = (IosMcProductFile + port)->serial;
-
-    savedFileNo = no;
-    return serial;
-}
 
 /* the game flags the load carries across gflagInit, parked in keepFlags;
    inlined into la_load_processing */
@@ -628,17 +583,6 @@ static int saveVoiceOpened = 0; /* derived name */
 static int saveVoiceWait = 0; /* derived name */
 
 INCLUDE_ASM(la_mc_confirm_save_file);
-
-/* the save side of setLoadGameStartItem, inlined twice into
-   la_save_game_memory_card_check */
-static inline void setSaveGameStartItem(void) /* derived name */
-{
-    if (loadSerial == IosMcProductFile[0].serial || loadSerial != IosMcProductFile[1].serial) {
-        texLayout[18].defaultItem = 186;
-    } else {
-        texLayout[18].defaultItem = 187;
-    }
-}
 
 INCLUDE_ASM(la_save_game_memory_card_check);
 
@@ -715,16 +659,6 @@ static inline int mcMakeSerial(void) /* derived name */
 static int systemSaveStep = 0; /* derived name */
 
 INCLUDE_ASM(la_system_save_processing);
-
-/* the save side's readback, the serial kept as both the saved and the
-   current one; inlined into la_save_processing */
-static inline void mcSetSavedFile(void) /* derived name */
-{
-    int serial = mcSetFileNo(mc.port, mc.fileNo);
-
-    loadSerial = serial;
-    saveSerial = serial;
-}
 
 static int saveStep = 0; /* derived name */
 

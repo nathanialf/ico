@@ -7,9 +7,9 @@
 
 /* the way groups and the way points, zero-initialised; the points start on
    the 16-byte boundary their position vector gives them */
-WayGroup way_group[94] = {0};
+WayGroup way_group[64] = {0};
 
-WayPoint way_point[275] = {0};
+WayPoint way_point[215] = {0};
 
 /* way_llf.o's .sdata globals (declared in way_llf.h), tentative definitions */
 int first_waytool;
@@ -29,7 +29,7 @@ inline void SetWayGroupActive(int gno, int active);
 
 inline WayPoint *WayPoint_next(WayPoint *p)
 {
-    WayPoint *end = &way_point[274];
+    WayPoint *end = &way_point[214];
     if (p == 0)
         goto ret0;
     if (p == end)

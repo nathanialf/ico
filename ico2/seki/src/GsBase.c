@@ -697,7 +697,6 @@ INCLUDE_ASM(gsb_StageSettingTool);
 typedef struct { /* field names derived */
     char *name;  /* 0x0 */
     int (*fn)(); /* 0x4 */
-    int arg;     /* 0x8 */
 } GsbMenuItem;   /* derived name */
 
 /* The background colour the display list is cleared to, one component per
@@ -706,12 +705,12 @@ typedef struct { /* field names derived */
 static sceVu0IVECTOR bgColor; /* derived name */
 
 static GsbMenuItem stageSettingMenu[] = {
-    {"Light Tool", light_Tool, 0},
-    {"Shadow Tool", shadow_Tool, 0},
-    {"Fog Tool", fog_FogTool, 0},
-    {"Other Settings", gsb_StageSettingTool, 0},
-    {"Load Settings", gsb_LoadStageSettings, 0},
-    {"Save Settings", gsb_SaveStageSettings, 0},
+    {"Light Tool", light_Tool},
+    {"Shadow Tool", shadow_Tool},
+    {"Fog Tool", fog_FogTool},
+    {"Other Settings", gsb_StageSettingTool},
+    {"Load Settings", gsb_LoadStageSettings},
+    {"Save Settings", gsb_SaveStageSettings},
 }; /* derived name */
 
 /* the unselected and selected row colours, as filmNoiseRowColor */

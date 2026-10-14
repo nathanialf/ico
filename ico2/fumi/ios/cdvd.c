@@ -74,23 +74,10 @@ typedef struct IosCdvdHandle { /* field names derived */
     char pad8184[60];
 } IosCdvdHandle; /* derived name */
 
-/* The streaming request iosCdvdMgrStStart hands to the cdvd thread: the
- * request record stReq and the preload window it describes. */
-typedef struct {          /* field names derived */
-    IosCdvdHandle *owner; /* 0x00 */
-    int state;    /* 0x04, 0 stopped, 1 reading, 2 buffer full; printed as "stream mode error" */
-    int command;  /* 0x08, 0 start, 1 stop, 2 resume when the buffer drains */
-    char *buf;    /* 0x0C */
-    int size;     /* 0x10 */
-    int writePos; /* 0x14, the ring sector the next read lands at */
-    int count;    /* 0x18, sectors in the ring */
-    int readPos;  /* 0x1C, the ring sector iosCdStRead copies from */
-} CdStReq;        /* derived name */
-
 /* .data, all zero.  iosCdvd is the manager's cdvd handle (33216 bytes, as
    unifileHandle), the two queues take the 48-byte message queue record,
-   iosCdvdSrhBuff is the 200-entry directory cache; the stream manager's
-   acknowledge queue and its request record follow them. */
+   iosCdvdSrhBuff is the 200-entry directory cache.  This build has no
+   stream manager, so no acknowledge queue or request record follows them. */
 /* the handle's 32 KB sector buffer at 0x180 is a DMA target, so the handle
    is 64-byte aligned (as jimaku's buffers are); that alignment is the
    48 bytes of fill before this TU's .data */
@@ -101,10 +88,6 @@ IosMsgQueue CdvdMsgQ = {0};
 IosMsgQueue CdvdMsgQ_LoadEnd = {0};
 
 CdSrhEnt iosCdvdSrhBuff[200] = {0};
-
-static IosMsgQueue stAckQ = {0}; /* derived name */
-
-static CdStReq stReq = {0}; /* derived name */
 
 /* .sdata, the objects before the first string: the sleep flag, the
    directory cache count, the media mode (2, DVD), the disc type the drive

@@ -15,7 +15,7 @@
 extern int load_save_flag;
 
 /* The path-search work block WayUtilWorkAlloc allocates: per-group flags,
-   a 94-by-94 cost matrix with its row pointers, and two predecessor and two
+   a 64-by-64 cost matrix with its row pointers, and two predecessor and two
    distance arrays (shortest_path uses prev and dist, GetWgAll prev2 and dist2). */
 typedef struct WgAll { /* field names derived */
     char *visited;     /* 0x00 visited flag per group */

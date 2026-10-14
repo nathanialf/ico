@@ -50,7 +50,7 @@ static inline WayPoint *visible_waypoint_of_all_except_gid_sub(float *pos, int g
     int n;
     int i;
 
-    tbl = iosMallocDebug(ios_partition_sugipon, 275 * sizeof(WpSortEnt), wayUtilFile, 313);
+    tbl = iosMallocDebug(ios_partition_sugipon, 215 * sizeof(WpSortEnt), wayUtilFile, 313);
 
     n = 0;
     for (wp = WayPoint_begin(); wp != 0; wp = WayPoint_next(wp)) {
@@ -117,7 +117,7 @@ static inline WayPoint *visible_waypoint_of_all_except_temp_sub(float *pos, int 
     int n;
     int i;
 
-    tbl = iosMallocDebug(ios_partition_sugipon, 275 * sizeof(WpSortEnt), wayUtilFile, 383);
+    tbl = iosMallocDebug(ios_partition_sugipon, 215 * sizeof(WpSortEnt), wayUtilFile, 383);
 
     n = 0;
     for (wp = WayPoint_begin(); wp != 0; wp = WayPoint_next(wp)) {
@@ -342,8 +342,8 @@ static inline int shortest_path_sub(int from, int to, WgAll *w, int thread) /* d
     int i, j;
     int next, best;
 
-    for (i = 0; i < 94; i++) {
-        for (j = 93; j >= 0; j--) {
+    for (i = 0; i < 64; i++) {
+        for (j = 63; j >= 0; j--) {
             cost[i][j] = 0x7FFFFFFF;
         }
     }
@@ -367,7 +367,7 @@ static inline int shortest_path_sub(int from, int to, WgAll *w, int thread) /* d
         _ACTWait(1);
     }
 
-    for (i = 0; i < 94; i++) {
+    for (i = 0; i < 64; i++) {
         visited[i] = 0;
         dist[i] = 0x7FFFFFFF;
     }
@@ -382,7 +382,7 @@ static inline int shortest_path_sub(int from, int to, WgAll *w, int thread) /* d
         i = next;
         best = 0x7FFFFFFF;
         visited[i] = 1;
-        for (j = 0; j < 94; j++) {
+        for (j = 0; j < 64; j++) {
             if (visited[j]) {
                 continue;
             }

@@ -314,17 +314,18 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
 
 /* The motion geometry record the actor sub-object carries at its own +0xA0,
    and the default every actor starts from: the same block typedef.h's MotRoot
-   describes, and its fields carry MotRoot's names at the same offsets (the
-   readers and writers are motionManager.c's and the rootUpdates').
-   InitMotionGeoInfo writes the position at 0x0 and the root quaternion at
-   0x30, SetSimplePlane builds the field plane at 0x130, GetRootPosOfNextFrame
-   reads the next-frame position at 0x90 and AdjustMotionHeightToField
-   projects the field position at 0x1B0 onto that plane.  The two hand records
-   at 0x210 and 0x270 are typedef.h's HandRec.  MotRoot leaves 0x10C to 0x11F
-   and 0x1E0 to 0x1FF unread; this default puts -1 and -1.0f there, so those
-   words keep type-and-offset names.  The default is this record and not a
-   struct MotRoot because MotRoot is 16-byte aligned (its plane) and the
-   default is 8-byte aligned in the object's .data. */
+   describes, and its fields carry MotRoot's names (the readers and writers
+   are motionManager.c's and the rootUpdates').  This build's record has no
+   up vector at 0x60: InitMotionGeoInfo copies 0x3C0 bytes and copies the
+   position to savePos at 0x60, last at 0x140 and clipFrom at 0x150, so from
+   savePos on every field sits 0x10 below MotRoot's.  InitMotionGeoInfo
+   writes the position at 0x0 and the root quaternion at 0x30.  The two hand
+   records at 0x200 and 0x260 are typedef.h's HandRec.  MotRoot leaves the
+   words at 0xFC to 0x10F and 0x1D0 to 0x1EF here unread; this default puts
+   -1 and -1.0f there, so those words keep type-and-offset names.  The
+   default is this record and not a struct MotRoot because MotRoot is 16-byte
+   aligned (its plane) and the default is 8-byte aligned in the object's
+   .data. */
 typedef struct {     /* field names derived */
     Vec4 pos;        /* 0x0, the position InitMotionGeoInfo is handed */
     Vec4 trans;      /* 0x10 */
@@ -335,91 +336,90 @@ typedef struct {     /* field names derived */
     char pad52[2];
     float twistRate; /* 0x54 */
     char pad58[8];
-    Vec4 up;        /* 0x60 */
-    Vec4 savePos;   /* 0x70, takes a copy of the initial position */
-    ObjNode hitObj; /* 0x80 */
-    char pad88[8];
-    Vec4 nextPos;  /* 0x90, the root position of the next frame */
-    Vec4 step;     /* 0xA0 */
-    Vec4 itemQuat; /* 0xB0 */
-    float height;  /* 0xC0 */
-    char padC4[12];
-    Vec4 delta;         /* 0xD0 */
-    WallCfg wall;       /* 0xE0 */
-    int wallCount;      /* 0xEC */
-    WallCfg cliffWall;  /* 0xF0 */
-    int cliffWallCount; /* 0xFC */
-    WallCfg aheadWall;  /* 0x100 */
+    Vec4 savePos;   /* 0x60, takes a copy of the initial position */
+    ObjNode hitObj; /* 0x70 */
+    char pad78[8];
+    Vec4 nextPos;  /* 0x80, the root position of the next frame */
+    Vec4 step;     /* 0x90 */
+    Vec4 itemQuat; /* 0xA0 */
+    float height;  /* 0xB0 */
+    char padB4[12];
+    Vec4 delta;         /* 0xC0 */
+    WallCfg wall;       /* 0xD0 */
+    int wallCount;      /* 0xDC */
+    WallCfg cliffWall;  /* 0xE0 */
+    int cliffWallCount; /* 0xEC */
+    WallCfg aheadWall;  /* 0xF0 */
+    int wordFC;
+    WallCfg wall100;
     int word10C;
-    WallCfg wall110;
-    int word11C;
-    WallCfg filter; /* 0x120 */
-    char pad12C[4];
-    Vec4 plane;       /* 0x130, the field plane under the actor */
-    int lastField;    /* 0x140 */
-    void *cliffFloor; /* 0x144 */
-    char pad148[8];
-    Vec4 last;     /* 0x150, takes a copy of the initial position */
-    Vec4 clipFrom; /* 0x160, takes a copy of the initial position */
-    Vec4 stepMove; /* 0x170 */
-    int standNode; /* 0x180, -1 for none */
-    char pad184[12];
-    Vec4 focusPos;    /* 0x190 */
-    Vec4 focusLocal;  /* 0x1A0 */
-    Vec4 fieldPos;    /* 0x1B0, the position projected onto the field plane */
-    Vec4 reservePos;  /* 0x1C0 */
-    float projHeight; /* 0x1D0 */
-    char pad1D4[12];
+    WallCfg filter; /* 0x110 */
+    char pad11C[4];
+    Vec4 plane;       /* 0x120, the field plane under the actor */
+    int lastField;    /* 0x130 */
+    void *cliffFloor; /* 0x134 */
+    char pad138[8];
+    Vec4 last;     /* 0x140, takes a copy of the initial position */
+    Vec4 clipFrom; /* 0x150, takes a copy of the initial position */
+    Vec4 stepMove; /* 0x160 */
+    int standNode; /* 0x170, -1 for none */
+    char pad174[12];
+    Vec4 focusPos;    /* 0x180 */
+    Vec4 focusLocal;  /* 0x190 */
+    Vec4 fieldPos;    /* 0x1A0, the position projected onto the field plane */
+    Vec4 reservePos;  /* 0x1B0 */
+    float projHeight; /* 0x1C0 */
+    char pad1C4[12];
+    Vec4 vec1D0;
     Vec4 vec1E0;
-    Vec4 vec1F0;
-    int liftOn;    /* 0x200 */
-    int lifting;   /* 0x204 */
-    float lift[2]; /* 0x208 */
-    HandRec hand1; /* 0x210 */
-    HandRec hand0; /* 0x270 */
-    Vec4 armTwist; /* 0x2D0 */
-    int lookMode;  /* 0x2E0 */
-    char pad2E4[12];
-    Vec4 lookPos; /* 0x2F0 */
-    short h;      /* 0x300 */
-    short p;      /* 0x302 */
-    short b;      /* 0x304 */
-    char pad306[2];
-    int noStepSearch; /* 0x308 */
-    int gravity;      /* 0x30C */
-    int slopeIK;      /* 0x310 */
-    int stairStep;    /* 0x314 */
-    int lookIK;       /* 0x318 */
-    int handTurnIK;   /* 0x31C */
-    int fieldWall;    /* 0x320 */
-    int fuchiMode;    /* 0x324 */
-    int cylinder;     /* 0x328 */
-    int avgWallPlane; /* 0x32C */
-    int flag330;      /* 0x330 */
-    int flag334;      /* 0x334 */
-    float radius;     /* 0x338 */
-    float radiusTo;   /* 0x33C */
-    float radiusFrom; /* 0x340 */
-    char pad344[12];
-    Vec4 cliffPlane; /* 0x350 */
-    int handIK;      /* 0x360 */
-    int stepNode;    /* 0x364 */
-    char pad368[8];
-    Vec4 holdPoint; /* 0x370 */
-    int ropeState;  /* 0x380 */
-    int fixObj;     /* 0x384 */
-    int fixNode;    /* 0x388 */
-    char pad38C[4];
-    Vec4 fixQuat;         /* 0x390 */
-    Vec4 fixPos;          /* 0x3A0 */
-    float fixWeight;      /* 0x3B0 */
-    unsigned int fixMode; /* 0x3B4 */
-    float footIKRate;     /* 0x3B8 */
-    float ikRate0;        /* 0x3BC */
-    float handRate;       /* 0x3C0 */
-    float ikRate1;        /* 0x3C4 */
-    float ikRate2;        /* 0x3C8 */
-    char pad3CC[4];
+    int liftOn;    /* 0x1F0 */
+    int lifting;   /* 0x1F4 */
+    float lift[2]; /* 0x1F8 */
+    HandRec hand1; /* 0x200 */
+    HandRec hand0; /* 0x260 */
+    Vec4 armTwist; /* 0x2C0 */
+    int lookMode;  /* 0x2D0 */
+    char pad2D4[12];
+    Vec4 lookPos; /* 0x2E0 */
+    short h;      /* 0x2F0 */
+    short p;      /* 0x2F2 */
+    short b;      /* 0x2F4 */
+    char pad2F6[2];
+    int noStepSearch; /* 0x2F8 */
+    int gravity;      /* 0x2FC */
+    int slopeIK;      /* 0x300 */
+    int stairStep;    /* 0x304 */
+    int lookIK;       /* 0x308 */
+    int handTurnIK;   /* 0x30C */
+    int fieldWall;    /* 0x310 */
+    int fuchiMode;    /* 0x314 */
+    int cylinder;     /* 0x318 */
+    int avgWallPlane; /* 0x31C */
+    int flag330;      /* 0x320 */
+    int flag334;      /* 0x324 */
+    float radius;     /* 0x328 */
+    float radiusTo;   /* 0x32C */
+    float radiusFrom; /* 0x330 */
+    char pad334[12];
+    Vec4 cliffPlane; /* 0x340 */
+    int handIK;      /* 0x350 */
+    int stepNode;    /* 0x354 */
+    char pad358[8];
+    Vec4 holdPoint; /* 0x360 */
+    int ropeState;  /* 0x370 */
+    int fixObj;     /* 0x374 */
+    int fixNode;    /* 0x378 */
+    char pad37C[4];
+    Vec4 fixQuat;         /* 0x380 */
+    Vec4 fixPos;          /* 0x390 */
+    float fixWeight;      /* 0x3A0 */
+    unsigned int fixMode; /* 0x3A4 */
+    float footIKRate;     /* 0x3A8 */
+    float ikRate0;        /* 0x3AC */
+    float handRate;       /* 0x3B0 */
+    float ikRate1;        /* 0x3B4 */
+    float ikRate2;        /* 0x3B8 */
+    char pad3BC[4];
 } MotionGeoInfo; /* derived name */
 
 /* the record InitMotionGeoInfo copies over every new actor's geometry
@@ -434,7 +434,6 @@ static MotionGeoInfo motionGeoInfoTemplate = {
     {0},
     1.0f,
     {0},
-    {{0.0f, 0.0f, 0.0f, 1.0f}},
     {{0.0f, 0.0f, 0.0f, 1.0f}},
     {0, -1},
     {0},

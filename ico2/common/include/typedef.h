@@ -1507,32 +1507,26 @@ typedef struct { /* field names derived */
     float m[16];
 } Mtx44 __attribute__((aligned(16)));
 
-/* RECONSTRUCTION, names ours: one memory card's product file, 0x1F0 bytes,
+/* RECONSTRUCTION, names ours: one memory card's product file, 0x18C bytes,
  * the record mcard.c's product_write and product_read move whole: the twenty
- * save files' previews, then the options and the last save's place; 16-byte
- * aligned, a SIF DMA buffer for the card code.
- * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c,
- * common/src/kanbanBoot.c. */
+ * save files' previews, then the sound and vibration options and the pad
+ * configuration (product_write's stores at 0x140, 0x144, 0x148 and the
+ * 64-byte copy to 0x14C; the file select indexes the previews by 16).
+ * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c. */
 typedef struct {        /* field names derived */
     unsigned int stage; /* 0x00, the saved stage, 0xFFFFFFFF for an empty file */
     int cleared;        /* 0x04, gFlagGameClear at the save */
     int playTime;       /* 0x08, in frames */
     int sofa;           /* 0x0C, the save sofa's layout id (GetSaveSofaLayoutID) */
-    int word10;         /* 0x10, no C reader */
 } McFileInfo;           /* derived name */
 
-typedef struct {                              /* field names derived */
-    McFileInfo file[20];                      /* 0x000 */
-    int soundMode;                            /* 0x190, systemStatus[11] */
-    int outputMode;                           /* 0x194, soundOutputModeGet's */
-    int vibration;                            /* 0x198, iosPadActRequestEnable */
-    int controlType;                          /* 0x19C, optionControlType */
-    char padConf[64];                         /* 0x1A0, iosPadConfCustom's bits */
-    int fileNo;                               /* 0x1E0, the card's current file */
-    int serial;                               /* 0x1E4, the serial of the save it holds */
-    int cameraMove;                           /* 0x1E8, NonLinearCameraMove */
-    int palMode;                              /* 0x1EC, systemStatus[0] */
-} McProductFile __attribute__((aligned(16))); /* derived name */
+typedef struct {         /* field names derived */
+    McFileInfo file[20]; /* 0x000 */
+    int soundMode;       /* 0x140, systemStatus[11] */
+    int outputMode;      /* 0x144, soundOutputModeGet's */
+    int vibration;       /* 0x148, iosPadActRequestEnable */
+    char padConf[64];    /* 0x14C, iosPadConfCustom's bits */
+} McProductFile;         /* derived name */
 
 /* mcard.c's two product files, one per port */
 extern McProductFile IosMcProductFile[];
