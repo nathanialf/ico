@@ -1,25 +1,27 @@
-# config/link_order.pal.txt: the objects of the PAL link, one per line, in link order.
+# config/link_order.us.txt: the objects of the USA link, one per line, in link order.
 #
-# The order is the retail link's object order as MAIN.MAP gives it: every
-# output section of config/link.pal.ld takes its inputs in this one order.
-# Each object with no .text and each data-only member sits where its other
-# sections and MAIN.MAP's member order put it; the five VU microprograms are
-# listed as their sources. tools/gen_ninja.py reads this file and fails on any
-# tracked .c/.s/.dsm under ico2/ or sce/ that is missing here, and on any
-# listed file that does not exist. tools/ico_version.{py,sh} detect the
-# target (pal) by this file's existence.
+# The USA disc (SLUS-20218) ships no linker map, so this order is PAL's
+# (config/link_order.pal.txt on main, MAIN.MAP's object order) carried over by
+# the function census, tools/correlate_elf.py: each PAL object keeps its place
+# while its .text twins in the USA ELF keep the same relative order. A line
+# that departs from PAL's order says why in a comment on the line. Every output
+# section of config/link.us.ld takes its inputs in this one order.
+# tools/gen_ninja.py reads this file and fails on any tracked .c/.s/.dsm under
+# ico2/ or sce/ that is missing here, and on any listed file that does not
+# exist. tools/ico_version.{py,sh} detect the target (us) by this file's
+# existence.
 #
 # Line forms:
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
 #                      assembled per archive, ico2/vusrc/*.dsm by dvp-as)
 #   data:<member>      a data-only ico2000.a member: every row of
-#                      config/data_members.pal.txt for it, generated from the
+#                      config/data_members.us.txt for it, generated from the
 #                      user's base ELF at build time by tools/gen_data_c.py from
-#                      the record types config/data_schema.pal.txt names. Inside each
-#                      run of them the order is MAIN.MAP's: its sections keep
-#                      their ROM order and interleave by member name.
+#                      the record types config/data_schema.us.txt names. The
+#                      data: lines are still PAL's, in PAL's places, pending the
+#                      derivation of the USA members.
 #
-# Tokens after a path:
+# Token after a path:
 #   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
 #                      16-aligned after fill that its own section alignment
 #                      does not produce. While any line carries one,
@@ -27,21 +29,38 @@
 #                      input (build/<sec>.inputs.ld, which the script
 #                      INCLUDEs) with an ALIGN before the object; otherwise
 #                      the file is empty and the script's wildcards alone
-#                      place the section.
-#   overlay-fill=N     on a .dsm line: the byte, decimal 0 to 255, that
-#                      dvp-as repeats over the program's constant-address
-#                      overlay section (--overlay-fill=N, from
-#                      tools/binutils-dvp-overlay-fill.patch). It is the
-#                      period assembler's uninitialised heap memory, measured
-#                      on the disc's ELF, not a feature of the source.
-#                      Absent means 0, PAL's byte, so no line here has one.
+#                      place the section. The tokens below, and the addresses
+#                      in the comments above them, are PAL's measurements, not
+#                      yet re-measured against the USA base.
 #
-# No object owns these zero runs (ROM offsets, VMA minus 0x100000): 0x18ECB0,
-# the 80 bytes after .vutext (.reginfo is not allocated, the gap is fill);
-# 0x44D320, past the end of .data; 0x539C54, past the end of .lit4; and eight
-# pads that the next object's own section alignment reproduces (0x44A3CC in
-# .data; 0x44DB0C, 0x51EEC2, 0x51F182, 0x51F218, 0x51FA18 and 0x51FBD8 in
-# .rodata; 0x53B8D9 in .sdata). The run at 0x538848 in .rodata is empty.
+# No object owns these zero runs at the section boundaries (ROM offsets, VMA
+# minus 0x100000, from the USA ELF's section headers): 0x1746C0, the 64 bytes
+# after .vutext (.reginfo is not allocated, the gap is fill); 0x4536B8, past the
+# end of .data; 0x5318D0, past the end of .lit4. The pads inside sections that
+# PAL's file lists are not yet re-derived for the USA build.
+#
+# The USA build is older than the one PAL and JPN share: 1352 of PAL's 5755
+# functions have no twin in it and 1039 of its functions have none in PAL. The
+# census marks 15 PAL objects absent (no function with a twin). Each was looked
+# for in the USA ELF by its PAL object's .data, .rodata, .sdata and .lit4 with
+# every relocated field masked, and its .text by the sizes and order of the
+# USA functions no PAL function claims, where its link order puts it:
+#   present, in an earlier form (the line carries a comment saying why):
+#     act-wish.c, attackhit.c, mail-add-data.c, flag.c, girlForceField.c,
+#     handManager.c, st04e.c, st05e.c, st13a.c, st19a.c, st24a.c.
+#   absent: puddle.c, waterDot.c, windmill.c and sce/libscf/libscf.c. Their
+#     lines stay, each marked, until their sources leave this branch; until
+#     then they link PAL's code and data where the USA ELF has none.
+#
+# Departures from PAL's order:
+#   ico2/omori/src/lws_kyomi.c sits between ico2/omori/src/access.c and
+#   ico2/omori/src/objact.c, not between hand-camera.c and mail-add-data.c:
+#   its one twin, SetParamKyomiGObj (body equal), lies in the USA .text
+#   between access.c's last twin and objact.c's first, after two functions no
+#   PAL function claims; PAL's place for it holds no function of its size or
+#   order, and its PAL .rodata is not found there. Both places keep the
+#   omori objects in name order (access, lws_kyomi, objact; gv, hand-camera,
+#   mail-add-data, poly-flat).
 
 sce/crt0.s
 sce/libkernl/klib.s
@@ -97,7 +116,7 @@ ico2/fumi/sound/s_init.c
 ico2/fumi/sound/soundManager.c
 ico2/fumi/src/act-game.c
 ico2/fumi/src/act-parallel-control.c
-ico2/fumi/src/act-wish.c
+ico2/fumi/src/act-wish.c  # present, no twin: its PAL .rodata is at 0x5581D8 after act-parallel-control.c's; one USA function of 4336 B follows that object's .text
 ico2/fumi/src/boyact.c
 ico2/fumi/src/commonact.c
 ico2/fumi/src/enemy_act.c
@@ -112,7 +131,7 @@ ico2/script/src/gflag.c
 ico2/script/src/script.c align.data=16
 ico2/script/src/st25a.c
 ico2/script/src/warpGirl.c
-ico2/omori/src/attackhit.c
+ico2/omori/src/attackhit.c  # present, no twin: ten USA functions lie between warpGirl.c's and brain.c's .text where PAL has its eleven, with 8, 8 and 48 B in a row as Enemy/Boy/CommonAttackCenter (the last its body with immediates masked); its PAL .rodata is not found
 ico2/omori/src/brain.c
 ico2/omori/src/camera-editor.c
 ico2/omori/src/camera-ico2.c
@@ -125,8 +144,7 @@ ico2/omori/src/fightSound.c
 ico2/omori/src/generator.c
 ico2/omori/src/gv.c
 ico2/omori/src/hand-camera.c
-ico2/omori/src/lws_kyomi.c
-ico2/omori/src/mail-add-data.c
+ico2/omori/src/mail-add-data.c  # present, no twin: its PAL .rodata is at 0x55AF08 after generator.c's; four USA functions after hand-camera.c's .text have its four bodies with immediates masked
 ico2/omori/src/poly-flat.c
 ico2/ito/src/act_bird.c
 ico2/ito/src/gather_effect.c
@@ -220,12 +238,12 @@ ico2/sugipon/src/darkVolume.c
 ico2/sugipon/src/effectTool.c
 ico2/sugipon/src/enemy.c
 ico2/sugipon/src/enemyParts.c
-ico2/sugipon/src/flag.c
+ico2/sugipon/src/flag.c  # present, no twin: its PAL .rodata is at 0x618DC8 after enemyParts.c's; three USA functions follow enemyParts.c's .text
 ico2/sugipon/src/flyManager.c
 ico2/sugipon/src/frameDependSequence.c
 ico2/sugipon/src/girl.c
-ico2/sugipon/src/girlForceField.c
-ico2/sugipon/src/handManager.c
+ico2/sugipon/src/girlForceField.c  # present, no twin: its PAL .rodata is at 0x618F08; USA functions of 324, 128 and 8 B after girl.c's .text, the first two its bodies with immediates masked
+ico2/sugipon/src/handManager.c  # present, no twin: USA functions of 280, 668, 804 and 340 B follow girlForceField.c's, two of them its bodies with immediates masked
 ico2/sugipon/src/item.c
 ico2/sugipon/src/lineManager.c
 ico2/sugipon/src/lodManager.c
@@ -237,7 +255,7 @@ ico2/sugipon/src/moveColTest.c
 ico2/sugipon/src/multiBgaManager.c
 ico2/sugipon/src/particleEffect.c
 ico2/sugipon/src/particleLayout.c
-ico2/sugipon/src/puddle.c
+ico2/sugipon/src/puddle.c  # absent from the USA link: no USA function between particleLayout.c's and rope.c's .text, no run of its sizes anywhere, and none of its .data, .rodata, .sdata or .lit4 in the ELF
 ico2/sugipon/src/rope.c
 ico2/sugipon/src/ropeFix.c
 ico2/sugipon/src/rotObject.c
@@ -249,12 +267,12 @@ ico2/sugipon/src/stormTest.c
 ico2/sugipon/src/streamMotionManager.c
 ico2/sugipon/src/sugiTree.c
 ico2/sugipon/src/torch.c
-ico2/sugipon/src/waterDot.c
+ico2/sugipon/src/waterDot.c  # absent from the USA link: torch.c's last twin and waySystemManager.c's first touch, no run of its sizes anywhere, and none of its .data, .rodata or .lit4 in the ELF
 ico2/sugipon/src/waySystemManager.c
 ico2/sugipon/src/weapon.c
 ico2/sugipon/src/windField.c
 ico2/sugipon/src/windManager.c
-ico2/sugipon/src/windmill.c
+ico2/sugipon/src/windmill.c  # absent from the USA link: windManager.c's last twin and wireLetter.c's first touch, and no three functions of 360, 8 and 8 B in a row anywhere
 ico2/sugipon/src/wireLetter.c
 ico2/sugipon/src/worm.c
 ico2/seki/src/Basic.c
@@ -285,13 +303,13 @@ ico2/script/src/st04a.c
 ico2/script/src/st04b.c
 ico2/script/src/st04c.c
 ico2/script/src/st04d.c
-ico2/script/src/st04e.c
+ico2/script/src/st04e.c  # present, no twin: five USA functions after st04d.c's .text take its sizes (actSt04eWater's body with immediates masked, then 48 and 88 B); its PAL .rodata, a HINT1_FINISH string, is not there
 ico2/script/src/st04l.c
 ico2/script/src/st04r.c
 ico2/script/src/st05b.c
 ico2/script/src/st05c.c
 ico2/script/src/st05d.c
-ico2/script/src/st05e.c
+ico2/script/src/st05e.c  # present, no twin: after st05d.c's .text the USA ELF has actSt05eWater's body with immediates masked (0x225C60), the function before it of 320 B where PAL has actSt05eWaterStop (368 B)
 ico2/script/src/st06a.c
 ico2/script/src/st07a.c
 ico2/script/src/st08a.c
@@ -299,7 +317,7 @@ ico2/script/src/st08b.c
 ico2/script/src/st09a.c
 ico2/script/src/st10l.c
 ico2/script/src/st10r.c
-ico2/script/src/st13a.c
+ico2/script/src/st13a.c  # present, no twin: USA functions after st10r.c's .text take its sizes and order (228, 512, 156, 152, 120, 168, 48, 104, 48, 176, 176 B)
 ico2/script/src/st13b.c
 ico2/script/src/st13b2.c
 ico2/script/src/st13c.c
@@ -307,14 +325,15 @@ ico2/script/src/st13d.c
 ico2/script/src/st17a.c
 ico2/script/src/st17b.c
 ico2/script/src/st18a.c
-ico2/script/src/st19a.c
+ico2/script/src/st19a.c  # present, no twin: its PAL .rodata is at 0x61C310 between st18a.c's and st22a.c's
 ico2/script/src/st20a.c
 ico2/script/src/st22a.c
-ico2/script/src/st24a.c
+ico2/script/src/st24a.c  # present, no twin: its PAL .rodata is at 0x61C340 and its .lit4 at 0x631734, after st22a.c's
 ico2/script/src/st47a.c
 ico2/script/src/st99a.c
 ico2/script/src/stageSEProc.c
 ico2/omori/src/access.c
+ico2/omori/src/lws_kyomi.c  # moved from after hand-camera.c: its twin SetParamKyomiGObj is in the USA .text between access.c's and objact.c's
 ico2/omori/src/objact.c
 ico2/ito/mpeg/mv_audiodec.c
 ico2/ito/mpeg/mv_disp.c
@@ -414,7 +433,7 @@ sce/libmpeg/csc.c
 sce/libmpeg/bit.c
 sce/libipu/libipu.c
 sce/libipu/ipuinit.c
-sce/libscf/libscf.c
+sce/libscf/libscf.c  # absent from the USA link: ipuinit.c's last twin and sound.c's first touch, and its .data and .rodata are not in the ELF (as on JPN)
 sce/libsndn2/sound.c
 sce/libm/math/sf_sin.c
 sce/libm/math/wf_acos.c

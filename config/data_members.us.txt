@@ -1,3 +1,5 @@
+# PENDING DERIVATION: a copy of config/data_members.pal.txt on main. Every row, comment and address below
+# is still PAL's; the USA members' runs are not yet derived from the USA ELF.
 # config/data_members.pal.txt -- the ICO PAL retail ELF's data-only ico2000.a members.
 #
 # One row per (member, section) for every member that MAIN.MAP lists with

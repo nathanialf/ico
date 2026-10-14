@@ -1,3 +1,5 @@
+# PENDING DERIVATION: a copy of config/data_schema.pal.txt on main. Every row and comment below is
+# still PAL's; the USA members' record counts are not yet derived from the USA ELF.
 # config/data_schema.pal.txt -- the data-only members written as C.
 #
 # One row per (member, section) of config/data_members.pal.txt that
