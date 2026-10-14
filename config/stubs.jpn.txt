@@ -346,15 +346,6 @@ rdlit BeforeFunc 0x0061AF48 0x0061AF58 ico2/fumi/src/act.c  # 1 data
 text actEndLogoChk 0x0021AFE8 0x0021B118 ico2/script/src/end.c lines=53  # December plays no logo animation before the fade (no NonLinearCameraMove switch) and clears 60 after it; written so, it still differs at insn 44: the mail record and its handler in s1 and s0 swapped
 text actOpDemo01 0x0021C330 0x0021C840 ico2/script/src/op.c lines=134  # ordinal; first difference at insn 0; length:-4; extent-differs
 sdlit actOpDemo01 0x006358B8 0x006358CF ico2/script/src/op.c  # 3 strings
-text actTitleShortCut 0x0021C840 0x0021C998 ico2/script/src/op.c lines=41  # ordinal; first difference at insn 18; imm:3; extent-equal
-text actTitleReadTimeDemo0 0x0021C998 0x0021D17C ico2/script/src/op.c lines=190  # ordinal; first difference at insn 19; imm:24; extent-equal
-rdlit actTitleReadTimeDemo0 0x0061B8B0 0x0061B8F9 ico2/script/src/op.c  # 4 strings
-text actOpDemo01_2 0x0021D180 0x0021D2BC ico2/script/src/op.c lines=36  # ordinal; first difference at insn 16; imm:1; extent-equal
-text actOpDemo01_2Chk 0x0021D2C0 0x0021D5F0 ico2/script/src/op.c lines=76  # ordinal; first difference at insn 9; imm:11; extent-equal
-text actOpDemo02 0x0021D5F0 0x0021D700 ico2/script/src/op.c lines=29  # ordinal; first difference at insn 18; imm:2; extent-equal
-text actSt24aConte01_2 0x0021D700 0x0021DAB0 ico2/script/src/op.c lines=88  # ordinal; first difference at insn 21; imm:13; extent-equal
-text actSt13aConte01_3 0x0021DC10 0x0021DF54 ico2/script/src/op.c lines=74  # ordinal; first difference at insn 21; imm:14; extent-equal
-text actOpDemo03 0x0021DF58 0x0021DFF0 ico2/script/src/op.c lines=17  # ordinal; first difference at insn 12; imm:3; extent-equal
 text actSt02aInit 0x00220450 0x002204A0 ico2/script/src/st02a.c lines=9  # ordinal; first difference at insn 10; imm:2; extent-equal
 text actSt02aDoor 0x002204A0 0x002205A4 ico2/script/src/st02a.c lines=22  # the census paired PAL's actSt00aDoor2 here as equal; st02a.c's actSt02aDoor differs at insn 17 (imm:4)
 text actSt02aDoorUpChk 0x002205A8 0x00220730 ico2/script/src/st02a.c lines=29  # ordinal; first difference at insn 38; imm:2; extent-equal
