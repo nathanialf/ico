@@ -114,6 +114,12 @@ INCLUDE_ASM(motBoyHand200);
 
 INCLUDE_ASM(handoff_heroin);
 
+static float pinchBoyPos[4]; /* derived name */
+
+static float pinchCameraPos[4]; /* derived name */
+
+static float pinchBoyPosLate[4]; /* derived name */
+
 typedef struct { /* field names derived */
     int a;
     int b;
@@ -284,6 +290,9 @@ int test_rope_slope = 0;
 float add_rope_val = 0.0f;
 
 INCLUDE_ASM(subBoyControl);
+
+/* subBoyControl's countdown, set to a fifth of a second of frames */
+static int boyControlWait = 0; /* derived name */
 
 typedef struct {                      /* field names derived */
     int boyID;                        /* 0x00 */

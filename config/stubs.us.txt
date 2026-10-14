@@ -622,7 +622,7 @@ text ACTGame_GetMotOrientFromWeapon 0x0014B000 0x0014B044 ico2/fumi/src/act-game
 text ACTGame_NoWeapon 0x0014B048 0x0014B08C ico2/fumi/src/act-game.c lines=8  # ordinal; first difference at insn 4; imm:1; extent-equal
 text ACTGame_isWeaponCombustible 0x0014B090 0x0014B0B4 ico2/fumi/src/act-game.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_GetNearestGObj
 text ACTGame_GetNearestGObj 0x0014B0B8 0x0014B150 ico2/fumi/src/act-game.c lines=19  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTLookTarget_Init
-sdlit ACTGame_GetNearestGObj 0x0063226C 0x00632270 ico2/fumi/src/act-game.c def  # 1 word
+sdlit ACTGame_GetNearestGObj 0x0063226C 0x00632270 ico2/fumi/src/act-game.c  # 1 word: a constant pool entry, written with the text at the end of the file
 text ACTLookTarget_Init 0x0014B150 0x0014B164 ico2/fumi/src/act-game.c lines=7  # ordinal; first difference at insn 1; imm:3; extent-equal
 text _ACTLookTarget_Set 0x0014B168 0x0014B1CC ico2/fumi/src/act-game.c lines=20  # ordinal; first difference at insn 4; imm:10; extent-equal
 text ACTParaStatus_Init 0x0014B1D0 0x0014B224 ico2/fumi/src/act-game.c lines=8  # ordinal; first difference at insn 11; other:4; extent-equal
@@ -654,8 +654,6 @@ text ACTCheckViewClDetail 0x0014B970 0x0014BAFC ico2/fumi/src/act-game.c lines=2
 lit4 ACTCheckViewClDetail 0x00630B00 0x00630B04 ico2/fumi/src/act-game.c  # 1 float
 text ACTGame_SetMotionPlaySpeedRatio_Clear 0x0014BB00 0x0014BB1C ico2/fumi/src/act-game.c lines=6  # ordinal; first difference at insn 3; imm:1; extent-equal
 text ACTGame_SetMotionPlaySpeedRatio_Exec 0x0014BB20 0x0014BBEC ico2/fumi/src/act-game.c lines=23  # ordinal; first difference at insn 6; other:7; extent-equal
-text ActPara_MakeTbl 0x0014BC30 0x0014BD84 ico2/fumi/src/act-parallel-control.c lines=42  # ordinal; first difference at insn 10; other:7; extent-equal
-text ActPara_InitSystem 0x0014BD88 0x0014BDC4 ico2/fumi/src/act-parallel-control.c lines=15  # ordinal; first difference at insn 4; imm:2; extent-equal
 text ACTGetWish_FromPad 0x0014BDF8 0x0014CEE8 ico2/fumi/src/act-wish.c lines=300  # us-only (after act-parallel-control.c's span; PAL order suggests ACTGetWish_FromPad (4836 B in PAL)); named ACTGetWish_FromPad by call sites, callees (provisional)
 lit4 ACTGetWish_FromPad 0x00630B04 0x00630B20 ico2/fumi/src/act-wish.c  # 7 floats, measured from the base: the text loads them
 text findChainInJump 0x0014CEE8 0x0014D6B0 ico2/fumi/src/boyact.c local lines=143  # us-only (after act-parallel-control.c's span; PAL order suggests findChainInJump (2016 B in PAL)); named findChainInJump by callees, body alignment (provisional)
@@ -838,6 +836,7 @@ text actCommonJump 0x001594B0 0x001595CC ico2/fumi/src/commonact.c lines=55  # o
 lit4 actCommonJump 0x00630C54 0x00630C58 ico2/fumi/src/commonact.c  # 1 float, measured from the base: the text loads them
 text actCommonFall 0x001595D0 0x00159AEC ico2/fumi/src/commonact.c lines=153  # ordinal; first difference at insn 1; length:-161; extent-differs
 rdlit actCommonFall 0x00558998 0x005589A8 ico2/fumi/src/commonact.c  # 1 string, measured from the base
+sdlit actCommonFall 0x00632304 0x00632308 ico2/fumi/src/commonact.c  # 1 word, measured from the base: a constant pool entry the text loads
 text getLandOffset.265 0x00159CB0 0x00159DF8 ico2/fumi/src/commonact.c local file=getLandOffset_265  # nested in flyCoreLoop (a stub); equal, gone with its carved parent
 text completeEmergency.280 0x00159DF8 0x0015A364 ico2/fumi/src/commonact.c local file=completeEmergency_280  # ordinal; first difference at insn 0; length:+272; extent-differs
 lit4 completeEmergency.280 0x00630C58 0x00630C70 ico2/fumi/src/commonact.c file=completeEmergency_280  # 6 floats, measured from the base: the text loads them

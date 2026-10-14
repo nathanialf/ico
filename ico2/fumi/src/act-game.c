@@ -278,8 +278,6 @@ INCLUDE_ASM(ACTGameView_Loop);
 
 INCLUDE_ASM(ACTGame_LwsEffectProcess);
 
-INCLUDE_ASM_LIT(ACTGame_GetNearestGObj);
-
 /* both absolute values are written as `((x) < 0 ? -(x) : (x))` */
 int _ACTGame_SearchGObj(GObj *self, GObj *tgt, float range, float height, int angle, float *out)
 {
