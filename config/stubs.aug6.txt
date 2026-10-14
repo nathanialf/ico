@@ -88,7 +88,9 @@
 # the PAL function's, the share of mapped callees, the sizes, the call sites
 # that reach it from the counterparts of the PAL function's callers, and the
 # data tables (act-mode-def, obj-kind-data) that hold it in the row where
-# PAL's holds the PAL function. The other nine keep func_<VMA>. The row
+# PAL's holds the PAL function. Two more take the names TRFILE.TXT gives in
+# the same order (actBoyItem and actBoyItemAfter, which act-mode-def's ITEM
+# and ITEMAFTER rows hold). The other seven keep func_<VMA>. The row
 # 0x1E5688 is SetParticleEffect, which TRFILE.TXT names there and which the
 # census-equal callers call, not the census's SetParticleEffectByPartition.
 # A PAL function no row names and no twin keeps has no counterpart here and
@@ -828,9 +830,9 @@ text actBoyFall 0x00151F08 0x00151F48 ico2/fumi/src/boyact.c lines=10  # ordinal
 rdlit actBoyFall 0x00552940 0x00552958 ico2/fumi/src/boyact.c def  # target side
 text actBoyCall 0x00151F48 0x00151FC0 ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 12; imm:6; extent-equal
 rdlit actBoyCall 0x00552988 0x005529A0 ico2/fumi/src/boyact.c def  # target side
-text func_00151FC0 0x00151FC0 0x00151FEC ico2/fumi/src/boyact.c  # aug6-only; in boyact.c's span; PAL size and order suggest actBoyRescueSrc; act-mode-def's ITEM row holds it, where PAL's holds commonact.c's actCommonItem
-text func_00151FF0 0x00151FF0 0x0015204C ico2/fumi/src/boyact.c  # aug6-only; in boyact.c's span; PAL size and order suggest actBoySupportGBLoop; act-mode-def's ITEMAFTER row (a row PAL's table lacks) holds it
-rdlit func_00151FF0 0x005529A0 0x005529B8 ico2/fumi/src/boyact.c def  # target side
+text actBoyItem 0x00151FC0 0x00151FEC ico2/fumi/src/boyact.c  # aug6-only; TRFILE.TXT names actBoyItem between actBoyCall and actBoyItemAfter, and act-mode-def's ITEM row holds it, where PAL's holds commonact.c's actCommonItem
+text actBoyItemAfter 0x00151FF0 0x0015204C ico2/fumi/src/boyact.c  # aug6-only; TRFILE.TXT names actBoyItemAfter between actBoyItem and actBoyCliffHesitate, and act-mode-def's ITEMAFTER row (a row PAL's table lacks) holds it
+rdlit actBoyItemAfter 0x005529A0 0x005529B8 ico2/fumi/src/boyact.c def  # target side
 text actBoyCliffHesitate 0x00152050 0x001520F4 ico2/fumi/src/boyact.c lines=25  # trfile; aug6-only in the census; PAL's actBoyCliffHesitate (276 B in PAL)
 text actBoyHangBefore 0x001520F8 0x001521A4 ico2/fumi/src/boyact.c lines=14  # trfile; aug6-only in the census; PAL's actBoyHangBefore (172 B in PAL)
 text actBoyReadyMove 0x001521A8 0x001522B4 ico2/fumi/src/boyact.c lines=27  # trfile; aug6-only in the census; PAL's actBoyReadyMove (448 B in PAL)

@@ -30,7 +30,6 @@
 static void getMotionGeometry(void *self);
 static void getStreamShapeGeometry(void *self, void *sm);
 static void shiftMotionData(int obj, int motion, int request, int shiftMode);
-
 extern MotionOrientEntry motionOrient[];
 
 struct MotOriHead8 { /* field names derived */

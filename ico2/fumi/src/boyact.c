@@ -583,7 +583,7 @@ extern void InsertCamera_Set(float *pos, float *tgt, int frames);
 
 INCLUDE_ASM_LIT(actBoyCall);
 
-INCLUDE_ASM_LIT(func_00151FF0);
+INCLUDE_ASM_LIT(actBoyItemAfter);
 
 INCLUDE_ASM(actBoyBelift);
 
@@ -652,9 +652,9 @@ INCLUDE_ASM(actBoyFall);
 
 INCLUDE_ASM(actBoyCall);
 
-INCLUDE_ASM(func_00151FC0);
+INCLUDE_ASM(actBoyItem);
 
-INCLUDE_ASM(func_00151FF0);
+INCLUDE_ASM(actBoyItemAfter);
 
 INCLUDE_ASM(actBoyCliffHesitate);
 

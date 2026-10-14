@@ -162,7 +162,8 @@ static inline void iosCdvdDiskReadyBlock(void)
         debug_StdPrintfDummy("wait insert ico disk\n");
         do {
             sceCdDiskReady(0);
-        } while (sceCdGetDiskType() != 18 || sceCdSearchFile(&fp, file) == 0); /* a PlayStation CD */
+        } while (sceCdGetDiskType() != 18 ||
+                 sceCdSearchFile(&fp, file) == 0); /* a PlayStation CD */
     }
 }
 
@@ -364,7 +365,6 @@ static int cdWaitParamSet = 0; /* derived name */
 static int cdWaitParamSave = 0; /* derived name */
 
 float inflateSec = 0;
-
 
 static void cdWait(int *busy);
 
