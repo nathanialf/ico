@@ -199,17 +199,6 @@ text GetCurrentMotionDirectionAdjustFlag 0x001F1080 0x001F10AC ico2/sugipon/src/
 text FullScreenEffectBefore 0x001FBCC8 0x001FBE48 ico2/sugipon/src/staticBlur.c lines=71  # ordinal; first difference at insn 2; length:-9; extent-differs
 rdlit FullScreenEffectBefore 0x0061A300 0x0061A320 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
 sdlit FullScreenEffectBefore 0x00635678 0x0063567C ico2/sugipon/src/staticBlur.c  # 1 string
-text bga_GetMotion 0x00204B20 0x002050F0 ico2/seki/src/BgAnimation.c local lines=134  # December's one motion reader (PAL's bga_GetMotion, bga_GetMotionParticle and bga_GetMotionLightning in one): bga_CalcObject calls it for every object type with bgaPos, the degree rotation and bgaScale; not yet written
-text bga_GetExtMotion 0x002050F0 0x002053B4 ico2/seki/src/BgAnimation.c local lines=69  # called four times from bga_calcEnvelope; 708 bytes against PAL's 644; not yet written
-text bga_GetGizmoMotion 0x002053B8 0x00205714 ico2/seki/src/BgAnimation.c local lines=82  # called once from bga_calcEnvelope; 860 bytes against PAL's 796; not yet written
-text bga_calcEnvelope 0x00205980 0x00205C3C ico2/seki/src/BgAnimation.c local lines=81  # December calls bga_updateMotionFrame twice (PAL inlines bga_stepEnvelope); 700 bytes against PAL's 1084; not yet written
-lit4 bga_calcEnvelope 0x0063328C 0x00633290 ico2/seki/src/BgAnimation.c  # 1 float; target side (DISAGREE)
-rdlit bga_calcEnvelope 0x0061A978 0x0061A9C8 ico2/seki/src/BgAnimation.c  # 1 string, 1 jtbl; target side (DISAGREE)
-text bga_CalcObject 0x00205F10 0x002066C8 ico2/seki/src/BgAnimation.c local lines=170  # first difference at insn 0 (frame 208 bytes): December calls bga_GetMotion once for every type, converts the degree rotation to bgaRot with one constant, its particle case tests bgaScale against 4.0f and 0.0f and keeps the effect id in a 64-bit field of the particle record (dsra32/sra 17), and the end steps d->motion with bga_updateMotionFrame; not yet written
-lit4 bga_CalcObject 0x00633290 0x00633294 ico2/seki/src/BgAnimation.c  # 1 float; target side (DISAGREE)
-rdlit bga_CalcObject 0x0061A9C8 0x0061AA70 ico2/seki/src/BgAnimation.c  # 2 strings, 1 jtbl; target side (DISAGREE)
-sdlit bga_CalcObject 0x00635768 0x0063576C ico2/seki/src/BgAnimation.c  # 1 string; target side (DISAGREE)
-text bga_CalcAnimation 0x00206A00 0x00206D20 ico2/seki/src/BgAnimation.c lines=78  # equal in C with December's end test (p->frame += p->step; p->end * rate / 30.0f < p->frame, no bgaFrame) once bga_CalcObject is C: carved while bga_CalcObject is, since its call needs bga_CalcObject's definition above it
 text ACTGetEnvironment 0x00209F08 0x0020E524 ico2/fumi/src/act-env.c lines=1078  # ordinal; first difference at insn 793; length:-1; extent-differs
 lit4 ACTGetEnvironment 0x006332AC 0x006332F4 ico2/fumi/src/act-env.c  # 18 floats
 rdlit ACTGetEnvironment 0x0061AD90 0x0061ADBC ico2/fumi/src/act-env.c align=16  # 3 strings
