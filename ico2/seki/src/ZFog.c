@@ -19,7 +19,8 @@ typedef struct FogClutPacket { /* field names derived */
     unsigned int vifEnd[4];    /* 0x420 */
 } FogClutPacket;               /* derived name */
 
-static FogClutPacket fogClutPacket; /* derived name */
+/* a DMA source, so quadword aligned */
+static FogClutPacket fogClutPacket __attribute__((aligned(16))); /* derived name */
 
 void fog_MakeFogClut(void)
 {

@@ -74,23 +74,9 @@ typedef struct IosCdvdHandle { /* field names derived */
     char pad8184[60];
 } IosCdvdHandle; /* derived name */
 
-/* The streaming request iosCdvdMgrStStart hands to the cdvd thread: the
- * request record stReq and the preload window it describes. */
-typedef struct {          /* field names derived */
-    IosCdvdHandle *owner; /* 0x00 */
-    int state;    /* 0x04, 0 stopped, 1 reading, 2 buffer full; printed as "stream mode error" */
-    int command;  /* 0x08, 0 start, 1 stop, 2 resume when the buffer drains */
-    char *buf;    /* 0x0C */
-    int size;     /* 0x10 */
-    int writePos; /* 0x14, the ring sector the next read lands at */
-    int count;    /* 0x18, sectors in the ring */
-    int readPos;  /* 0x1C, the ring sector iosCdStRead copies from */
-} CdStReq;        /* derived name */
-
-/* .data, all zero.  iosCdvd is the manager's cdvd handle (33216 bytes, as
-   unifileHandle), the two queues take the 48-byte message queue record,
-   iosCdvdSrhBuff is the 200-entry directory cache; the stream manager's
-   acknowledge queue and its request record follow them. */
+/* .data, all zero.  iosCdvd is the manager's cdvd handle (33216 bytes), the
+   two queues take the 48-byte message queue record, iosCdvdSrhBuff is the
+   200-entry directory cache. */
 /* the handle's 32 KB sector buffer at 0x180 is a DMA target, so the handle
    is 64-byte aligned (as jimaku's buffers are); that alignment is the
    48 bytes of fill before this TU's .data */
@@ -102,57 +88,30 @@ IosMsgQueue CdvdMsgQ_LoadEnd = {0};
 
 CdSrhEnt iosCdvdSrhBuff[200] = {0};
 
-static IosMsgQueue stAckQ = {0}; /* derived name */
-
-static CdStReq stReq = {0}; /* derived name */
-
 /* .sdata, the objects before the first string: the sleep flag, the
-   directory cache count, the media mode (2, DVD), the disc type the drive
-   must report (20, a DVD video disc), the spindle control byte copied into
-   each handle's read mode, the background read mode record (a record, so
-   8-aligned after the byte), the background drive state and the stream
-   load-end wait flag. */
+   directory cache count, the media mode (1, CD), the background read mode
+   record (two tries; a record, so 8-aligned after the word) and the
+   background drive state. */
 int IosCdvdMgrSleep = 0;
 
 static int srhBuffCnt = 0; /* derived name */
 
-int iosCdvdMediaType = 2;
+int iosCdvdMediaType = 1;
 
-static int cdDiskType = 20; /* derived name */
-
-static unsigned char cdSpindlCtrl = 1; /* derived name */
-
-static CdRMode bgReadMode = {0}; /* derived name */
+static CdRMode bgReadMode = {2}; /* derived name */
 
 static int bgDriveState = 0; /* derived name */
 
-static int stLoadEndWait = 0; /* derived name */
-
-/* unifileHandle is the cdvd handle iosCdvdUnifileInfoGet loads the unifile
-   through (a handle is 33216 bytes: the 0x180 header, the 32 KB sector
-   buffer and the size word at 0x8180, the same size iosCdvdManager's reply
-   buffer and mv_main's stream file take); bgReqTable the seven 300-byte
-   background requests; skipBuf the 1 KB sink iosCdvdHandlerRead reads into
-   when the caller passes no buffer; stThread, stStack and stReqQ the stream
-   manager's thread record, its 16 KB stack and its request queue. */
-static IosCdvdHandle unifileHandle; /* derived name */
-
+/* bgReqTable the seven 300-byte background requests; skipBuf the 1 KB sink
+   iosCdvdHandlerRead reads into when the caller passes no buffer. */
 static CdvdBgReq bgReqTable[7]; /* derived name */
 
 static unsigned char skipBuf[1024]; /* derived name */
 
-static char stThread[120]; /* derived name */
-
-static char stStack[16384]; /* derived name */
-
-static IosMsgQueue stReqQ; /* derived name */
-
 /* cdvdMsgRing and cdvdLoadEndRing are the two-slot rings of the manager's
    request queue and its load-end queue, stPreLoadCnt the preloaded sector
-   count iosCdvdMgrStStart hands the stream, bgRunning the background request
-   iosCdvdBackGroundMgr is running, stReqRing and stAckRing the rings of the
-   stream manager's request and acknowledge queues.  stReqRing's queue is
-   created with one slot; no code reads its second word. */
+   count, bgRunning the background request iosCdvdBackGroundMgr is
+   running. */
 static int cdvdMsgRing[2]; /* derived name */
 
 static int cdvdLoadEndRing[2]; /* derived name */
@@ -160,10 +119,6 @@ static int cdvdLoadEndRing[2]; /* derived name */
 static int stPreLoadCnt; /* derived name */
 
 static int bgRunning; /* derived name */
-
-static int stReqRing[2]; /* derived name */
-
-static int stAckRing[1]; /* derived name */
 
 /* The stream's TTY traces of a drive recovery, built only when DEBUG is
    defined; the retail build leaves each helper without a body.  The traces
@@ -347,9 +302,6 @@ typedef struct { /* field names derived */
 } CdvdName16; /* derived name */
 
 int iosCdvdBackGroundMgrRunning = 0;
-
-/* stThread is a 120-byte buffer, 8 bytes more than an IOSThread: typed as
-   one, the object's .bss is 8 bytes shorter (measured) */
 
 /* The cdvd manager thread, with iosCdvdDiskReadyBlock expanded in case 0.
    The reply buffer's block opens after the switch.  req is the request the

@@ -48,16 +48,17 @@ IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
-/* .sbss: the one-entry buffer of the stage manager's message queue, and the
-   stage stgmgrNextStagePreLoadForceStageSet asks the preloader for. */
-static int stageMgrMsgBuf; /* derived name */
-
+/* .sbss: the stage stgmgrNextStagePreLoadForceStageSet asks the preloader
+   for. */
 static int stagePreLoadForceStageNo; /* derived name */
 
 /* .bss: the thread descriptor InitIcoMisc is started through, an IOSThread's
    28 words; InitIcoMisc's flag word at 0x3C is read here as an unsigned word,
    where IOSThread's flags is the int ios/thread.c tests */
 static unsigned int initIcoMiscThread[28]; /* derived name */
+
+/* the four-entry buffer of the stage manager's message queue */
+static int stageMgrMsgBuf[4]; /* derived name */
 
 #include "main.h"
 #include <libgraph.h>

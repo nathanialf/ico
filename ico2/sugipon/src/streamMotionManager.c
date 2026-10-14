@@ -53,23 +53,22 @@ static int frameTime = 0; /* derived name */
 static int frameCount = 0; /* derived name */
 
 /* One character's stream: the node and shape counts the frame header gives,
-   the frame's size, the ring offsets of the current and the next frame, the
-   object and the function called when the stream ends. */
+   the frame's size, the ring offset of the current frame, the object and the
+   function called when the stream ends. */
 typedef struct {  /* field names derived */
     int nodeNum;  /* 0x00, 8 bytes a node */
     int shapeNum; /* 0x04, 4 bytes a shape */
     int size;     /* 0x08, 16 + the two */
     int cur;      /* 0x0C, -1 until data arrives */
-    int next;     /* 0x10 */
 
     union {
         int i;
         GObj *p;
-    } obj; /* 0x14, stored as a word: EntryStreamMotion's store of it stays
+    } obj; /* 0x10, stored as a word: EntryStreamMotion's store of it stays
               behind the reads of the object it follows only under an
               any-type view */
 
-    void (*finishFunc)(GObj *); /* 0x18 */
+    void (*finishFunc)(GObj *); /* 0x14 */
 } SMotion;                      /* derived name */
 
 /* the ten stream-motion slots _deleteStreamMotionManager resets to
@@ -101,18 +100,7 @@ static inline void _setEntryOffsets(void) /* derived name */
     int i;
 
     for (i = 0; i < streamNum; i++) {
-        streamEntry[i].cur = streamEntry[i].next = (ringRead + off) % 163840;
-        off += streamEntry[i].size;
-    }
-}
-
-static inline void _setNextEntryOffsets(unsigned int base) /* derived name */
-{
-    unsigned int off = 0;
-    int i;
-
-    for (i = 0; i < streamNum; i++) {
-        streamEntry[i].next = (base + off) % 163840;
+        streamEntry[i].cur = (ringRead + off) % 163840;
         off += streamEntry[i].size;
     }
 }
@@ -155,7 +143,7 @@ void ClearStreamMotionEntry(GObj *gobj)
 }
 
 /* the cleared entry every slot is reset to */
-static SMotion emptyEntry = {0, 0, -1, -1, -1, {0}, 0}; /* derived name */
+static SMotion emptyEntry = {0, 0, -1, -1, {0}, 0}; /* derived name */
 
 INCLUDE_ASM(_deleteStreamMotionManager);
 

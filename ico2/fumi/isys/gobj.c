@@ -9,8 +9,8 @@
 #include <assert.h>
 #include "include_asm.h"
 
-/* the head of the free list for each of the 70 object kinds */
-static GObj *gobjKindHead[70]; /* derived name */
+/* the head of the free list for each of the 68 object kinds */
+static GObj *gobjKindHead[68]; /* derived name */
 
 /* defined `inline` below, and called before their definitions */
 inline void isysGObjAlloc(int n);

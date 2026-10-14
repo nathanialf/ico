@@ -620,23 +620,7 @@ int gsb_ClipBox(float *p)
     return (c & 0x20) ? 2 : 1;
 }
 
-/* libcdvd.h leaves sceCdCLOCK incomplete; its body, in BCD */
-typedef struct sceCdCLOCK {
-    unsigned char stat;
-    unsigned char second;
-    unsigned char minute;
-    unsigned char hour;
-    unsigned char pad;
-    unsigned char day;
-    unsigned char month;
-    unsigned char year;
-} sceCdCLOCK;
-
 int gsb_LoadStageSettings(void);
-
-/* Scratch for the editing log: first the log file's name, then the line
- * appended to it. */
-static char logBuf[256]; /* derived name */
 
 int gsb_SaveStageSettings(void);
 
@@ -778,19 +762,6 @@ static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 int gsb_StageSettingTool(void);
 
 INCLUDE_ASM(gsb_StageSettingTool);
-
-/* The stage lock file's name, and the owner name read back out of it. */
-static char lockFileName[256]; /* derived name */
-
-static char lockOwner[72]; /* derived name */
-
-/* the lock file's name, built at the head of updateOtherEditingLockFlag,
- * createLockFile and removeLockFile */
-static inline char *makeLockFileName(void) /* derived name */
-{
-    sprintf(lockFileName, "object/stagesetting/%s.lock", stageData[stage_no].key2);
-    return lockFileName;
-}
 
 typedef struct { /* field names derived */
     char *name;  /* 0x0 */

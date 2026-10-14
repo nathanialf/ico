@@ -52,9 +52,9 @@ typedef struct GenWork {        /* field names derived */
     int timer;     /* 0x64 */
 } GenWork;         /* derived name */
 
-/* the generator packet: 11277 bytes are read into it, which is what
+/* the generator packet: 10365 bytes are read into it, which is what
    GetsizeGeneratorPacket returns, three under the buffer */
-static int generatorPacket[2820]; /* derived name */
+static int generatorPacket[2592]; /* derived name */
 
 #include "generator.h"
 #include <string.h>

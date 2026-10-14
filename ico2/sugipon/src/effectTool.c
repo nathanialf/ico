@@ -31,13 +31,11 @@ typedef struct {       /* field names derived */
     int max;           /* 0x18 */
 } EffParamDef;         /* derived name */
 
-/* the three enum name tables the type-0 fields print through */
+/* the two enum name tables the type-0 fields print through */
 
 static char *drainTypeName[] = {"RELEASE", "LOOP"}; /* derived name */
 
 static char *alphaTypeName[] = {"BLEND", "ADD", "SUB"}; /* derived name */
-
-static char *upperLimitName[] = {"OFF", "ON"}; /* derived name */
 
 static EffParamDef effParam[] = {
     {"U OFFSET", 0x80, 0, 0, 0, 0, 3},
@@ -71,8 +69,6 @@ static EffParamDef effParam[] = {
     {"COLOR R", 0x70, 0, 0, 0, 0, 255},
     {"COLOR G", 0x74, 0, 0, 0, 0, 255},
     {"COLOR B", 0x78, 0, 0, 0, 0, 255},
-    {"UPPER LIMIT", 0x94, upperLimitName, 0, 0, 0, 1},
-    {"LIMIT HEIGHT", 0x98, 0, 0, 0, -100000, 100000},
     {0},
 }; /* derived name */
 
@@ -124,9 +120,9 @@ typedef union { /* field names derived */
 /* editParam's hold counter */
 static int holdCount = 0; /* derived name */
 
-/* a change flag per tool row, then the position the tool's effect is placed
+/* a change flag per effect, then the position the tool's effect is placed
    at */
-static int effectToolDirty[64]; /* derived name */
+static int effectToolDirty[56]; /* derived name */
 
 static float effectToolPos[4]; /* derived name */
 

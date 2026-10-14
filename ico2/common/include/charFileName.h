@@ -7,6 +7,6 @@
 #ifndef CHARFILENAME_H
 #define CHARFILENAME_H
 
-#define MAX_CHARS 1637
+#define MAX_CHARS 1582
 
 #endif

@@ -64,7 +64,6 @@ struct McPreview { /* field names derived */
     int cleared;   /* 0x04 */
     int playTime;  /* 0x08, in frames */
     int sofa;      /* 0x0C */
-    int word10;    /* 0x10, no C reader */
 }; /* derived name */
 
 /* .sbss, thirteen words: the port-0 lock state _la_set_current_port_2 records and the one

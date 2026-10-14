@@ -38,18 +38,17 @@ typedef struct { /* field names derived */
 typedef struct {            /* field names derived */
     int used;               /* 0x00 */
     int pause;              /* 0x04 */
-    int geoCtrl;            /* 0x08 */
-    int sensing;            /* 0x0C */
-    PEVector *sensPos;      /* 0x10 */
-    PEQuaternion *sensQuat; /* 0x14 */
-    PEGeo *geo;             /* 0x18 */
+    int sensing;            /* 0x08 */
+    PEVector *sensPos;      /* 0x0C */
+    PEQuaternion *sensQuat; /* 0x10 */
+    PEGeo *geo;             /* 0x14 */
 } PEffect;                  /* derived name */
 
-/* 128 effect slots of 0x1C bytes, then 61 parameter records of 160 bytes
+/* 128 effect slots of 0x18 bytes, then 53 parameter records of 160 bytes
    (the PE160 pool the effect slots index into) */
 static PEffect particleEffects[128]; /* derived name */
 
-static int particleParams[61 * 40]; /* derived name */
+static int particleParams[53 * 40]; /* derived name */
 
 /* the free-slot search, inlined at its one call site */
 static inline int searchFreeParticleEffect(void) /* derived name */
