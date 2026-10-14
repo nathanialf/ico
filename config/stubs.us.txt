@@ -958,6 +958,7 @@ text _ApproachTarget_Boss 0x00163B40 0x00163D60 ico2/fumi/src/enemy_act.c local 
 lit4 _ApproachTarget_Boss 0x00630D38 0x00630D3C ico2/fumi/src/enemy_act.c  # 1 float
 text flyMailCore 0x00163D60 0x00163EB4 ico2/fumi/src/enemy_act.c local lines=35  # us-only (in enemy_act.c's span; body equals PAL flyMailCore's with immediates and jump targets masked); named flyMailCore by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
 text _ApproachTarget_Way 0x00163EB8 0x0016443C ico2/fumi/src/enemy_act.c local lines=104  # us-only (in enemy_act.c's span; PAL order suggests _ApproachTarget_Way (1700 B in PAL)); named _ApproachTarget_Way by call sites, callees, body alignment (provisional)
+data col.304 0x00282650 0x00282660 ico2/fumi/src/enemy_act.c local file=col_304  # _ApproachTarget_Way's {255, 100, 0, 128}, after enemy_act.c's last file-scope .data; USA addiu at 0x1641C8
 text actEnemyStart 0x00164440 0x0016489C ico2/fumi/src/enemy_act.c lines=83  # us-only (in enemy_act.c's span; PAL order suggests actEnemyStart (1248 B in PAL)); named actEnemyStart by callees, body alignment (provisional)
 text subEnemyBrain_Irregular 0x001648A0 0x001649CC ico2/fumi/src/enemy_act.c lines=12  # us-only (in enemy_act.c's span; pairs with no PAL-only function there by size and order); named subEnemyBrain_Irregular by a data table (brainModeTable's IRREGULAR row) (provisional)
 text subEnemyBrain_Attack 0x001649D0 0x00164D30 ico2/fumi/src/enemy_act.c lines=27  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Attack's with immediates and jump targets masked); named subEnemyBrain_Attack by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
@@ -1912,6 +1913,8 @@ rdlit action 0x00618720 0x00618740 ico2/sugipon/src/box.c align=16  # 1 jtbl
 text GetBoxHoldPoint 0x001BF460 0x001BF6A0 ico2/sugipon/src/box.c lines=45  # ordinal; first difference at insn 22; imm:1; extent-equal
 text moveBoxAutoMatic 0x001BF7F8 0x001BF918 ico2/sugipon/src/box.c local lines=42  # ordinal; first difference at insn 0; length:-42; extent-differs
 lit4 moveBoxAutoMatic 0x00631190 0x0063119C ico2/sugipon/src/box.c  # 3 floats
+data D_004BF7D0 0x004BF7D0 0x004BF7E0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's +Z push vector; USA addiu at 0x1BF85C, after box.c's last file-scope .data
+data D_004BF7E0 0x004BF7E0 0x004BF7F0 ico2/sugipon/src/box.c local  # moveBoxAutoMatic's -Z push vector; USA addiu at 0x1BF884
 text MoveBoxWithHoldPoint 0x001BF918 0x001BFFE8 ico2/sugipon/src/box.c lines=79  # ordinal; first difference at insn 2; length:-3; extent-differs
 lit4 MoveBoxWithHoldPoint 0x0063119C 0x006311A0 ico2/sugipon/src/box.c  # 1 float
 rdlit MoveBoxWithHoldPoint 0x00618740 0x00618759 ico2/sugipon/src/box.c align=16  # 1 string
@@ -2072,6 +2075,7 @@ lit4 execEff 0x00631268 0x00631270 ico2/sugipon/src/frameDependSequence.c  # 2 f
 text func_001D0D18 0x001D0D18 0x001D0FA4 ico2/sugipon/src/frameDependSequence.c  # us-only; after flyManager.c's span; PAL order suggests ExecFrameDependSequence (680 B in PAL)
 text executeSEPackageByGObj 0x001D0FA8 0x001D1154 ico2/sugipon/src/frameDependSequence.c local lines=12  # us-only (after flyManager.c's span; PAL order suggests executeSEPackageByGObj (436 B in PAL)); named executeSEPackageByGObj by body alignment (provisional)
 text InitFrameDependSequence 0x001D12E0 0x001D13A4 ico2/sugipon/src/frameDependSequence.c lines=19  # us-only (in frameDependSequence.c's span; PAL order suggests InitFrameDependSequence (188 B in PAL)); named InitFrameDependSequence by call sites (provisional)
+data D_004C0F40 0x004C0F40 0x004C0F8C ico2/sugipon/src/frameDependSequence.c local  # InitFrameDependSequence's cleared flag record, copied whole into the caller's (0x4C bytes); USA addiu at 0x1D12E4, the TU's only .data
 text execSE 0x001D13A8 0x001D140C ico2/sugipon/src/frameDependSequence.c local lines=15  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text checkWaterDepth 0x001D1410 0x001D1428 ico2/sugipon/src/frameDependSequence.c local lines=4  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text checkModelDataID 0x001D1428 0x001D143C ico2/sugipon/src/frameDependSequence.c local lines=4  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it

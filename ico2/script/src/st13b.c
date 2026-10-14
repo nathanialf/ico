@@ -31,39 +31,39 @@ static int padAct; /* derived name */
 static unsigned char padActVolume; /* derived name */
 
 /* .data: actor mail packets. */
-static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floor_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail sekizo2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail meetAgain_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail meetAgain_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail boss_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail boss_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail bossAfter_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail bossAfter_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elev_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elev_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elevSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elevSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elevUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elevUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorMain_mes[2] = {{407, actSt13bDoorSwitch}, {429}}; /* derived name */
+static ActMail doorMain_mes[2] = {{377, actSt13bDoorSwitch}, {396}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
 
-static ActMail elev2Chk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elev2Chk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elev2Chk2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elev2Chk2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elev2Chara_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elev2Chara_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elev2CharaChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elev2CharaChk_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sdata: the scene stream, the stream handles and shakes, then a further
    shake and volume. */

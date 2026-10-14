@@ -52,10 +52,6 @@ inline void _RotTransCurrentMatrix(void *dst, void *src)
     VU0_V2OP(vmove.xy, 11, 10);
 }
 
-/* 32 quadwords, the size of the VU0 register file the push and pop save;
-   nothing addresses it (the saves go to VU0 memory through vi15). */
-static float vu0RegisterSave[32][4] = {{0.0f}}; /* derived name */
-
 /* the VU0 register save depth the push and pop check */
 static int vu0PushDepth = 0; /* derived name */
 

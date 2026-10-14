@@ -52,12 +52,11 @@ typedef union { /* field names derived */
     long long w[8];
 } DObjBlk40; /* derived name */
 
-/* The four DObj templates (names derived).  The record is 0x880 bytes, the
+/* The four DObj templates (names derived).  The record is 0x850 bytes, the
    size CSVSYSTEM_InitDObj allocates before the copy; its named fields are the
-   words the template sets.  The slot table pointer at 0x840 and the character
+   words the template sets.  The slot table pointer at 0x810 and the character
    file id at 0x84 are named from this file; the parent link at 0x00, the
-   collision words at 0x70 to 0x80 and the accessary row at 0x844 as Sub15C
-   (typedef.h) names the same offsets.  The long long pads give the record the
+   collision words at 0x70 to 0x80 and the accessary row at 0x814.  The long long pads give the record the
    8-byte alignment its copy loop uses. */
 typedef struct { /* field names derived */
     ObjNode parent;
@@ -68,14 +67,14 @@ typedef struct { /* field names derived */
     int cylinderOn;
     int colPerNode;
     int charFileId;
-    long long pad88[247];
+    long long pad88[241];
     char *slotTable;
     int accessary;
-    long long pad848[7];
+    long long pad818[7];
 } DObjRecord; /* derived name */
 
 static DObjRecord emptyDObj = {
-    {0, -1}, {0}, 0, 1, 1, 1, 0, 1552, {0}, 0, -1, {0},
+    {0, -1}, {0}, 0, 1, 1, 1, 0, 1515, {0}, 0, -1, {0},
 }; /* derived name */
 
 /* One entry of the rotation element array at 0x80c: a zero vector then

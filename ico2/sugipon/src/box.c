@@ -36,7 +36,7 @@
 #include "include_asm.h"
 #include "switch.c.inc"
 
-/* The 416-byte box work block InitBoxGeo allocates and seeds from the
+/* The 400-byte box work block InitBoxGeo allocates and seeds from the
    template below, aligned(8). */
 typedef struct BoxWork { /* field names derived */
     int serial;          /* 0x000, the box's number, mod 30 */
@@ -86,7 +86,6 @@ typedef struct BoxWork { /* field names derived */
     float floatAnchor[4]; /* 0x170, the floating box's resting X and Z */
     int subGObj;          /* 0x180, the layouted sub GObj, held as a word */
     char pad184[12];
-    float moveDir[4];                  /* 0x190, the direction of the last push */
 } __attribute__((aligned(8))) BoxWork; /* derived name */
 
 INCLUDE_ASM(switchOnSE);
@@ -466,7 +465,6 @@ static BoxWork boxWorkInit = {
     {0.0f, 0.0f, 0.0f, 1.0f},
     0,
     {0},
-    {0.0f, 0.0f, 1.0f, 0.0f},
 }; /* derived name */
 
 /* the Y axis the side plane is built from */
@@ -880,6 +878,10 @@ static int _checkItemCollision(void *pos)
     }
     return 1;
 }
+
+INCLUDE_ASM(D_004BF7D0);
+
+INCLUDE_ASM(D_004BF7E0);
 
 INCLUDE_ASM(moveBoxAutoMatic);
 

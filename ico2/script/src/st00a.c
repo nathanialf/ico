@@ -41,31 +41,31 @@ static const ConstVec door1UpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; 
 
 static const ConstVec door1UpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
-/* .data: eleven actor mail records, each the usual pair, the 430 entry whose
-   handler the sender fills in and the 429 terminator, named for the actor that
+/* .data: eleven actor mail records, each the usual pair, the 397 entry whose
+   handler the sender fills in and the 396 terminator, named for the actor that
    installs it. */
-static ActMail atr2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail atr2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail stair_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail stair_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door2Down_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2Down_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door2Up_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2Up_mes[2] = {{397}, {396}}; /* derived name */
 
 /* the four door checks' records */
-static ActMail door2Upchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2Upchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door2Downchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door2Downchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door1Down_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door1Down_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door1Up_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door1Up_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door1Upchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door1Upchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door1Downchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door1Downchk_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(func_0020FA98);
 

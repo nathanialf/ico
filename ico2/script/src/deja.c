@@ -15,9 +15,9 @@
 
 /* actDeja installs actDejaChk as the actor's next mail handler. */
 
-static ActMail _mes[2] = {{430}, {429}}; /* derived name */
+static ActMail _mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail after_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail after_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the handler the wait loop below
    is spinning for. */

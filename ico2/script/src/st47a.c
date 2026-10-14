@@ -59,43 +59,43 @@ INCLUDE_ASM(func_00239FE0);
 /* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
    pad, trg at 0x4. */
 
-static ActMail sekizo1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane1Main_mes[2] = {{406, actSt47aHane1Switch}, {429}}; /* derived name */
+static ActMail hane1Main_mes[2] = {{376, actSt47aHane1Switch}, {396}}; /* derived name */
 
-static ActMail hane1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane1SwitchUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane1SwitchUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane1SwitchDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane1SwitchDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane1Down_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane1Down_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane1Up_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane1Up_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane2Main_mes[2] = {{407, actSt47aHane2Switch}, {429}}; /* derived name */
+static ActMail hane2Main_mes[2] = {{377, actSt47aHane2Switch}, {396}}; /* derived name */
 
-static ActMail hane2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane2SwitchUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane2SwitchUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane2SwitchDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane2SwitchDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane2Down_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane2Down_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hane2Up_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hane2Up_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail rope_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail rope_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail barricade_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail barricade_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail exit_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail exit2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail exit2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint2On_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hint2On_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt47aEnemy1);
 

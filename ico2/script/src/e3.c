@@ -55,37 +55,37 @@ int sekizo_e3_vol = 0;
 
 static unsigned char e3sekizo_yure_vol = 0; /* derived name */
 
-static ActMail title_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail title_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail inst1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail inst1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail capsule_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail capsule_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorMain_mes[2] = {{406, actE3DoorSwitch}, {429}}; /* derived name */
+static ActMail doorMain_mes[2] = {{376, actE3DoorSwitch}, {396}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 static float doorUpPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
 
-static ActMail st13cIntro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st13cIntro_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail cageFallReady_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail cageFallReady_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail cageFall_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail cageFall_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail st01bEne_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st01bEne_mes[2] = {{397}, {396}}; /* derived name */
 
 static float st09aSekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f}; /* derived name */
 
-static ActMail st09aSekizo_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st09aSekizo_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gate_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gate_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail st09aBrg_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st09aBrg_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail st09aBrgSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st09aBrgSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actE3Title);
 

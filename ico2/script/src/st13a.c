@@ -24,29 +24,29 @@ void actSt13aElevDownChk(GObj *volatile self);
 
 /* The chain-OK watcher's mail record: it installs actSt13aChainNG here and
    posts it to hand the chain back to the NG (hang-disabled) watcher. Word 0
-   of each entry is the mail id the entry answers (430 the actor post,
-   429 the trailing entry); .func is filled in at run time. Named for the
+   of each entry is the mail id the entry answers (397 the actor post,
+   396 the trailing entry); .func is filled in at run time. Named for the
    thread that owns and posts it. */
 
-static ActMail elevMain_mes[2] = {{406, actSt13aElevSwitch}, {429}}; /* derived name */
+static ActMail elevMain_mes[2] = {{376, actSt13aElevSwitch}, {396}}; /* derived name */
 
-static ActMail elev_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elev_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elevSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elevSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elevDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elevDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail check_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail chainNg_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chainNg_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail chainOk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chainOk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail chainOK_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chainOK_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail chainNG_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chainNG_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sdata: the lift and statue stream handles and shakes. */
 SqEntry *st13a_up = 0;

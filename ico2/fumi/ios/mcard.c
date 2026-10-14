@@ -202,7 +202,7 @@ McSegEnt iOSMcSaveList[6] = {
 
 McProductFile IosMcProductFile[2] = {0};
 
-int IosMcPreviewInfo[6] = {0};
+int IosMcPreviewInfo[4] = {0};
 
 IosMsgQueue McMsgQ = {0};
 

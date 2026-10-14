@@ -17,11 +17,11 @@
 
 /* .data: four 0x20-byte actor mail packets, one per thread hand-off. */
 
-static ActMail water_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail water_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail waterSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail waterSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail solar_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail solar_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sdata: the solar stream handle. */
 struct SqEntry *solar = 0;

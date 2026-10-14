@@ -22,33 +22,33 @@
 
 static void actSt08aHasiSwitch(GObj *volatile self);
 
-static ActMail ene1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door_main_mes[2] = {{407, actSt08aDoorSwitch}, {429}}; /* derived name */
+static ActMail door_main_mes[2] = {{377, actSt08aDoorSwitch}, {396}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door_switch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_switch_mes[2] = {{397}, {396}}; /* derived name */
 
 static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail girl_pos_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail girl_pos_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hasi_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hasi_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hasi_switch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hasi_switch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail torch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail torch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail torch_on_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail torch_on_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail torch_off_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail torch_off_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt08aEnd);
 

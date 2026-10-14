@@ -20,26 +20,26 @@
 
 static void actSt17aFallChk(GObj *volatile self);
 
-static ActMail linkTest_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail linkTest_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorInit_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorInit_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorUpChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorUpChk_mes[2] = {{397}, {396}}; /* derived name */
 
 /* actSt17aDoorDownChk's record */
-static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hasi_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hasi_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fall_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fall_mes[2] = {{397}, {396}}; /* derived name */
 
 static const ConstVec doorChkSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 

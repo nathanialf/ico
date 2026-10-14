@@ -20,25 +20,25 @@
 
 static void actSt04eHint1Chk(GObj *volatile self);
 
-static ActMail waterMain_mes[2] = {{406, actSt04eWaterSwitch}, {429}}; /* derived name */
+static ActMail waterMain_mes[2] = {{376, actSt04eWaterSwitch}, {396}}; /* derived name */
 
-static ActMail water_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail water_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail waterSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail waterSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fuchi1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fuchi1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fuchi2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fuchi2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fuchi3_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fuchi3_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail se_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail se_mes[2] = {{397}, {396}}; /* derived name */
 
 static float seChkPos[4] = {0.0f, -171.0f, -8000.0f, 0.0f}; /* derived name */
 
-static ActMail hint1WakeUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hint1WakeUp_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt04eWater);
 

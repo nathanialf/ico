@@ -24,48 +24,48 @@
 static void actSt20aHint1Chk(GObj *volatile self);
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
-   entry answers (430 = the actor's own wake-up post, 429 = the trailing
+   entry answers (397 = the actor's own wake-up post, 396 = the trailing
    entry); the handler in .func is installed at run time just before the
    record is posted. The two main-thread records answer their own ids and
    carry their switch handler from the start. Each record is named for the
    actor thread that owns and posts it. */
-static ActMail bridgeMain_mes[2] = {{406, actSt20aBridgeSwitch}, {429}}; /* derived name */
+static ActMail bridgeMain_mes[2] = {{376, actSt20aBridgeSwitch}, {396}}; /* derived name */
 
-static ActMail bridge_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail bridge_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail bridgeSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail bridgeSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondolaMain_mes[2] = {{407, actSt20aGondolaSwitch}, {429}}; /* derived name */
+static ActMail gondolaMain_mes[2] = {{377, actSt20aGondolaSwitch}, {396}}; /* derived name */
 
-static ActMail gondola_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondola_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondolaSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondolaSwitchUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondolaSwitchDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondolaSwitchDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondolaDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondolaDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondolaUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail gondolaUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail exit_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fence_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fence2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fenceDownChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fenceDownChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fenceUpChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fenceUpChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fenceDownChk2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fenceDownChk2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fenceUpChk2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fenceUpChk2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail girlPos_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail girlPos_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt20aInit);
 

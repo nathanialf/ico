@@ -181,6 +181,8 @@ void StopSEPackage(GObj *gobj)
     StopSEPackageWithGroupVariation(gobj, 0);
 }
 
+INCLUDE_ASM(D_004C0F40);
+
 INCLUDE_ASM(InitFrameDependSequence);
 
 /* a frame slot's handler: it is passed the slot's number and entry, which it does not read */

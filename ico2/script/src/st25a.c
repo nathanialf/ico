@@ -86,29 +86,21 @@ static const char queenBallScrTexture[] = "queen_ball_scr"; /* derived name */
 
 static const char sekikaBoyTexture[] = "sekika_boy"; /* derived name */
 
-/* .data: ten actor mail records.  Each is
-   the usual pair, the 430 entry whose handler the sender fills in and the 429
+/* .data: six actor mail records.  Each is
+   the usual pair, the 397 entry whose handler the sender fills in and the 396
    terminator.  queen_appear_mes is the only one another TU sends, so it is the
-   only global of the ten. */
-static ActMail queen_before_mes[2] = {{430}, {429}}; /* derived name */
+   only global of the six. */
+static ActMail queen_before_mes[2] = {{397}, {396}}; /* derived name */
 
-ActMail queen_appear_mes[2] = {{430}, {429}};
+ActMail queen_appear_mes[2] = {{397}, {396}};
 
-static ActMail queen_talk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail queen_talk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail queen_dead_ready_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail queen_dead_ready_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail queen_dead_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail queen_dead_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail queen_attack_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail elev_up_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail elev_down_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail elev_chara_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail elev_end_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail queen_attack_mes[2] = {{397}, {396}}; /* derived name */
 
 void actSt25aQueenBeforeChk(GObj *volatile self);
 static void actSt25aQueenDeadReadyChk(GObj *volatile self);

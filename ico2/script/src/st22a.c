@@ -58,7 +58,7 @@ void actSt22aLightningVolime(GObj *volatile self)
     }
 }
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
 /* the point the boy turns to face when the intro is skipped */
 static const StVec introFacePos = {{-2000.0f, 0.0f, -1129.0f, 1.0f}}; /* derived name */

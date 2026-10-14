@@ -18,35 +18,35 @@
 
 static void actSt18aDoorChkSub(GObj *volatile self);
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail switchL_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchL_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail switchLUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchLUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail switchLChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchLChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail switchLUpChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchLUpChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail switchR_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchR_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail switchRUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchRUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail switchRChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchRChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail switchRUpChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchRUpChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorDownChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorDownChk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene2_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt18aEnd);
 

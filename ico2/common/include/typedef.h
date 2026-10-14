@@ -832,38 +832,6 @@ typedef struct StageSetting { /* field names derived */
     int feedbackCol[4];  /* 0x110, "Feedback Effect R, G, B, A" */
     int fogStrength;     /* 0x120 */
     char pad124[12];     /* 0x124 */
-
-    /* RECONSTRUCTION: each target row is a 16 byte aligned quadword (red,
-       green, blue, then the film grain tint), the ROM's own proof being
-       gsb_Reduction's tint reads in ico2/seki/src/GsBase.c.  expr.c folds
-       a member's constant offset onto the record's base before adding the
-       variable index only while the reference's alignment is exactly the
-       field's; with the row aligned to 16 it adds base and index first, cse
-       puts the index first, and the 0x130 stays the load's displacement,
-       which is the ROM's `addu index, index, base` / `lw 0x130`.  The row
-       is the typed quadword; it replaced a bare aligned(16) on an r, g, b, a
-       struct (re-audit, completeness pass 57), with every user's object
-       byte-identical. */
-    sceVu0IVECTOR targetCol[4]; /* 0x130 */
-
-    /* RECONSTRUCTION: the film grain's UV step, which
-       ico2/seki/src/GsBase.c's gsb_filmNoise passes as raw bits. */
-    float grainScale; /* 0x170 */
-    char pad174[12];  /* 0x174 */
-    /* the camera limits ico2/omori/src/camera-root.c loads per stage, named
-       after GsBase.c's menu labels */
-    int handCameraLimitP; /* 0x180, "HandCamera Limit P" */
-    int handCameraLimitV; /* 0x184, "HandCamera Limit V" */
-    char pad188[8];       /* 0x188 */
-    int zoomMaxInDemo;    /* 0x190, "ZOOM MAX IN DEMO" */
-    char pad194[8];       /* 0x194 */
-
-    struct {
-        int a;
-        int b;
-    } antiLevel[4]; /* 0x19C */
-
-    int subMotionBlur[5]; /* 0x1BC */
 } StageSetting; /* derived name */
 
 /* an RGBA colour as four words, 16-byte aligned */
@@ -1094,7 +1062,7 @@ typedef struct { /* field names derived */
     float targetLevel; /* 0x20, the chosen target's level over the threshold, 0 to 1 */
     short idx;
     char pad26[2];
-    BrainTarget tgt[40];
+    BrainTarget tgt[20];
 } Brain; /* derived name */
 
 /* a 64-bit actor status word with its two word halves */
@@ -1132,7 +1100,7 @@ typedef struct { /* field names derived */
 extern const ExitData exitData[]; /* exit-data, in .rodata */
 
 /* One row of an actor's mail table (Act.mail, Act.mainMail): the message id
-   the actor listens for and the three entry points it starts.  429 ends a
+   the actor listens for and the three entry points it starts.  396 ends a
    table.  act2.c's BeforeFunc2 walks it. */
 typedef struct ActMail {        /* field names derived */
     unsigned short mail;        /* 0x00, the message id */
@@ -1541,10 +1509,9 @@ typedef struct { /* field names derived */
     float m[16];
 } Mtx44 __attribute__((aligned(16)));
 
-/* RECONSTRUCTION, names ours: one memory card's product file, 0x1F0 bytes,
+/* RECONSTRUCTION, names ours: one memory card's product file, 0x18C bytes,
  * the record mcard.c's product_write and product_read move whole: the twenty
- * save files' previews, then the options and the last save's place; 16-byte
- * aligned, a SIF DMA buffer for the card code.
+ * save files' previews, then the sound, vibration and pad options.
  * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c,
  * common/src/kanbanBoot.c. */
 typedef struct {        /* field names derived */
@@ -1552,21 +1519,15 @@ typedef struct {        /* field names derived */
     int cleared;        /* 0x04, gFlagGameClear at the save */
     int playTime;       /* 0x08, in frames */
     int sofa;           /* 0x0C, the save sofa's layout id (GetSaveSofaLayoutID) */
-    int word10;         /* 0x10, no C reader */
 } McFileInfo;           /* derived name */
 
-typedef struct {                              /* field names derived */
-    McFileInfo file[20];                      /* 0x000 */
-    int soundMode;                            /* 0x190, systemStatus[11] */
-    int outputMode;                           /* 0x194, soundOutputModeGet's */
-    int vibration;                            /* 0x198, iosPadActRequestEnable */
-    int controlType;                          /* 0x19C, optionControlType */
-    char padConf[64];                         /* 0x1A0, iosPadConfCustom's bits */
-    int fileNo;                               /* 0x1E0, the card's current file */
-    int serial;                               /* 0x1E4, the serial of the save it holds */
-    int cameraMove;                           /* 0x1E8, NonLinearCameraMove */
-    int palMode;                              /* 0x1EC, systemStatus[0] */
-} McProductFile __attribute__((aligned(16))); /* derived name */
+typedef struct {         /* field names derived */
+    McFileInfo file[20]; /* 0x000 */
+    int soundMode;       /* 0x140, systemStatus[11] */
+    int outputMode;      /* 0x144, soundOutputModeGet's */
+    int vibration;       /* 0x148, iosPadActRequestEnable */
+    char padConf[64];    /* 0x14C, iosPadConfCustom's bits */
+} McProductFile;         /* derived name */
 
 /* mcard.c's two product files, one per port */
 extern McProductFile IosMcProductFile[];

@@ -137,20 +137,20 @@ extern void BossEnemyFunc(void *self);
 /* GetFlyPosition's points: the four the enemy measures against, the four it
    flies to (paired by index, 200 below), and the one it escapes to. */
 static sceVu0FVECTOR flyCheckPos[4] = {
-    {760.0f, 0.0f, 766.0f, 1.0f},
-    {708.0f, 0.0f, -806.0f, 1.0f},
-    {-1394.0f, 0.0f, -858.0f, 1.0f},
-    {-1383.0f, 0.0f, 645.0f, 1.0f},
+    {760.0f, -71.0f, 766.0f, 1.0f},
+    {708.0f, -71.0f, -806.0f, 1.0f},
+    {-1394.0f, -71.0f, -858.0f, 1.0f},
+    {-1383.0f, -71.0f, 645.0f, 1.0f},
 }; /* derived name */
 
 static sceVu0FVECTOR flyDestPos[4] = {
-    {842.0f, -200.0f, 1278.0f, 1.0f},
-    {734.0f, -200.0f, -1273.0f, 1.0f},
-    {-1394.0f, -200.0f, -1291.0f, 1.0f},
-    {-1383.0f, -200.0f, 1291.0f, 1.0f},
+    {842.0f, -271.0f, 1278.0f, 1.0f},
+    {734.0f, -271.0f, -1273.0f, 1.0f},
+    {-1394.0f, -271.0f, -1291.0f, 1.0f},
+    {-1383.0f, -271.0f, 1291.0f, 1.0f},
 }; /* derived name */
 
-static sceVu0FVECTOR flyEscapePos = {1712.0f, -600.0f, 0.0f, 1.0f}; /* derived name */
+static sceVu0FVECTOR flyEscapePos = {1712.0f, -690.0f, 0.0f, 1.0f}; /* derived name */
 
 /* The brain-mode target the ChangeBrain_ToAttack and ChangeBrain_ToKidnap
    children fill in from the default and hand to _BrainMode_SetDirect: one
@@ -610,6 +610,8 @@ INCLUDE_ASM(subEnemyBrain_ToGirl);
 INCLUDE_ASM(_ApproachTarget_Boss);
 
 INCLUDE_ASM(flyMailCore);
+
+INCLUDE_ASM(col_304);
 
 INCLUDE_ASM(_ApproachTarget_Way);
 

@@ -23,59 +23,59 @@
 
 static void actSt02aFenceOpenSub(GObj *volatile self);
 /* .data: one mail record per posting site. Word 0 of each entry is the mail id
- * the entry answers (430 the actor post, 429 the trailing entry); .func is
+ * the entry answers (397 the actor post, 396 the trailing entry); .func is
  * filled in at run time before the post, except in the two main-mail records,
- * which answer 406 and 407 with their switch threads. Each record is named for
+ * which answer 376 and 377 with their switch threads. Each record is named for
  * the thread that owns and posts it; where one thread owns two, for the
  * watcher it installs. */
 void actSt02aFenceSwitch(GObj *volatile self);
 void actSt02aGondolaSwitch(GObj *volatile self);
 
-static ActMail door_down_start_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail door_down_start_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door_up_start_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail door_up_start_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door_up_chk_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail door_up_chk_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door_down_chk_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail door_down_chk_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence_main_mail[2] = {{406, actSt02aFenceSwitch}, {429}}; /* derived name */
+static ActMail fence_main_mail[2] = {{376, actSt02aFenceSwitch}, {396}}; /* derived name */
 
-static ActMail fence_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail fence_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence_switch_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail fence_switch_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail waterfall_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail waterfall_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondola_main_mail[2] = {{407, actSt02aGondolaSwitch}, {429}}; /* derived name */
+static ActMail gondola_main_mail[2] = {{377, actSt02aGondolaSwitch}, {396}}; /* derived name */
 
-static ActMail gondola_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail gondola_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondola_switch_down_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail gondola_switch_down_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondola_switch_up_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail gondola_switch_up_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondola_up_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail gondola_up_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail gondola_down_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail gondola_down_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail way_off_start_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail way_off_start_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail way_on_start_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail way_on_start_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail way_on_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail way_on_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail way_off_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail way_off_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail taki_way_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail taki_way_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail taki_on_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail taki_on_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail taki_off_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail taki_off_mail[2] = {{397}, {396}}; /* derived name */
 
-static ActMail secret_item_mail[2] = {{430}, {429}}; /* derived name */
+static ActMail secret_item_mail[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt02aInit);
 

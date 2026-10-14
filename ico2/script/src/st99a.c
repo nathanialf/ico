@@ -9,19 +9,19 @@
 
 static void actSt17aTestChk(GObj *volatile self);
 
-static ActMail explode_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail explode_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail splash1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail splash1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail splash2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail splash2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail wave_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail wave_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail st27aWave_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st27aWave_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail spider_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail spider_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail st17aTest_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st17aTest_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actExplode);
 

@@ -18,31 +18,31 @@
 
 /* .data: actor mail packets. */
 
-static ActMail elvMain_mes[2] = {{406, actSt09aElvSwitch}, {429}}; /* derived name */
+static ActMail elvMain_mes[2] = {{376, actSt09aElvSwitch}, {396}}; /* derived name */
 
-static ActMail elv_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elv_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elvSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elvSwitchUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elvSwitchDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elvSwitchDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elvDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elvDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail elvUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail elvUp_mes[2] = {{397}, {396}}; /* derived name */
 
 static float sekizoPos[4] = {1548.0f, -412.0f, -608.0f, 0.0f}; /* derived name */
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail brgMain_mes[2] = {{407, actSt09aBrgSwitch}, {429}}; /* derived name */
+static ActMail brgMain_mes[2] = {{377, actSt09aBrgSwitch}, {396}}; /* derived name */
 
-static ActMail brg_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail brg_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail brgSwitch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail brgSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hint1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail hint2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail hint2_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sdata: the bridge stream handle. */
 SqEntry *st09a_brg = 0;

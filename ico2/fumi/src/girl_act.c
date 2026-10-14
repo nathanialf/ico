@@ -184,7 +184,6 @@ typedef struct { /* field names derived */
 
 typedef struct { /* field names derived */
     void (*proc)(GObj *self);
-    unsigned char flag;
 } GirlBrainMode; /* derived name */
 
 typedef struct { /* field names derived */
@@ -219,13 +218,13 @@ static GirlDangerEnv dangerEnvDefault = {0}; /* derived name */
 
 static GirlBrainMode girlBrainModeTable[10] = {
     /* derived name */
-    {subGirlBrain_Idle, 0},        {subGirlBrain_Attract, 0},  {subGirlBrain_Escape, 1},
-    {subGirlBrain_Hide, 1},        {subGirlBrain_Hesitate, 1}, {subGirlBrain_Becarry, 0},
-    {subGirlBrain_Busy, 0},        {subGirlBrain_Pulledup, 0}, {subGirlBrain_DangerEnv, 0},
-    {subGirlBrain_HideAdvance, 1},
+    {subGirlBrain_Idle},        {subGirlBrain_Attract},  {subGirlBrain_Escape},
+    {subGirlBrain_Hide},        {subGirlBrain_Hesitate}, {subGirlBrain_Becarry},
+    {subGirlBrain_Busy},        {subGirlBrain_Pulledup}, {subGirlBrain_DangerEnv},
+    {subGirlBrain_HideAdvance},
 }; /* derived name */
 
-static int othersKindList[3] = {4, 62, -1}; /* derived name */
+static int othersKindList[3] = {4, 61, -1}; /* derived name */
 
 /* The TU's .bss: sort_list's index/distance pairs and its copy of the sorted
    positions, CorrectList's compaction scratch and the runaway candidate list

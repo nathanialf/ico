@@ -27,15 +27,15 @@ static const StVec doorDownEffect2Pos = {{-2.0f, 250.0f, -1450.0f, 1.0f}}; /* de
 
 static const StVec doorDownEffect3Pos = {{5.0f, 260.0f, -1450.0f, 1.0f}}; /* derived name */
 
-static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail doorDown_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail st04rDoor_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st04rDoor_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail st04rDoor2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail st04rDoor2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail crestHint_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail crestHint_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt05cDoorDownChk);
 

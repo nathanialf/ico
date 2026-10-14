@@ -26,43 +26,43 @@
 
 static void actSt10rTowerResqueChk(GObj *volatile self);
 
-static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floor_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail floor_hit_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail floor_hit_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail cage_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail cage_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail tower_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail tower_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail exit_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail exit_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail chain_main_mes[2] = {{408, actSt10rChainSwitch}, {429}}; /* derived name */
+static ActMail chain_main_mes[2] = {{378, actSt10rChainSwitch}, {396}}; /* derived name */
 
-static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chain_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail chain_switch_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail chain_switch_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fence_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fence2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence_down1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fence_down1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence_up1_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fence_up1_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence_down2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fence_down2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fence_up2_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail fence_up2_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail way_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail way_onchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_onchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail way_offchk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail way_offchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail tower_resque_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail tower_resque_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for. */

@@ -14,7 +14,7 @@
 #include "script.h"
 #include "include_asm.h"
 
-static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sekizo_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actSt05bCrest01XL);
 

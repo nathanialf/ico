@@ -33,8 +33,7 @@
 extern void *memset(void *p, int c, int n);
 
 /* GsBase.c's globals, tentative definitions: the frame buffer flags, the
-   screen centre and size, then the XYOFFSET adjustment and the frame size
-   gsb_SetVSMatrix records. */
+   screen centre and size, then the frame size gsb_SetVSMatrix records. */
 int fbKeep;
 
 int fbClear;
@@ -49,23 +48,13 @@ int ScreenHeight;
 
 int currentScreenWidth;
 
-int currentScreenHeight;
-
-int screenOffsetX; /* derived name */
-
-int screenOffsetY; /* derived name */
-
 int vsWidth; /* derived name */
 
 int vsHeight; /* derived name */
 
-/* The stage lock state, the word gsb_Init clears (nothing reads it), the GS
-   system flag, the zoom easing (target, current, speed) and the last
-   projection distance gsb_SetVSMatrix was given. */
-static int otherEditingLocked = 0; /* derived name */
-
-static int editingSettings = 0; /* derived name */
-
+/* The word gsb_Init clears (nothing reads it), the GS system flag, the zoom
+   easing (target, current, speed) and the last projection distance
+   gsb_SetVSMatrix was given. */
 static int gsInitState = 0; /* derived name */
 
 static int gsSystemReady = 0; /* derived name */
@@ -280,7 +269,7 @@ INCLUDE_ASM(gsb_fade);
 
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */
-static int scissorLastState = 54; /* derived name */
+static int scissorLastState = 50; /* derived name */
 
 static float scissorLevel = 0.0f; /* derived name */
 
@@ -456,9 +445,6 @@ static void gsb_SetGsDefault(void);
 
 INCLUDE_ASM(gsb_SetGsDefault);
 
-/* the stage animation group each film noise target loops, -1 for none */
-static const int filmNoiseGroup[] = {-1, 67, 68, 69, 70}; /* derived name */
-
 /* set by gsb_UpdateGSSystem once the frame is up, tested by gsb_PostEffect */
 static int postEffectReady = 0; /* derived name */
 
@@ -472,20 +458,6 @@ INCLUDE_ASM(gsb_PostEffect);
 static int firstGsInit = 1; /* derived name */
 
 INCLUDE_ASM(gsb_InitGSSystem);
-
-/* Six zero words between gsb_InitGSSystem's flag and gsb_SyncGSSystem's
-   counter: nothing reads or writes them. */
-static int gsbUnused0 = 0; /* derived name */
-
-static int gsbUnused1 = 0; /* derived name */
-
-static int gsbUnused2 = 0; /* derived name */
-
-static int gsbUnused3 = 0; /* derived name */
-
-static int gsbUnused4 = 0; /* derived name */
-
-static int gsbUnused5 = 0; /* derived name */
 
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */
@@ -523,13 +495,13 @@ void gsb_ResetGSSystem(void)
     gsb_SetGsDefault();
 }
 
-/* the 1500 unit screen the projection proj is scaled to */
-static const float vsScreenSize[] = {1500.0f, 1500.0f, 0.0f, 0.0f}; /* derived name */
+/* the 768 unit screen the projection proj is scaled to */
+static const float vsScreenSize[] = {768.0f, 768.0f, 0.0f, 0.0f}; /* derived name */
 
 /* Build the view matrices from the record gsb_SetVSMatrix fills (vs[0] the
  * zoom, vs[1] and vs[2] the aspect terms, vs[3] and vs[4] the centre, vs[5]
  * and vs[6] the depth range, vs[7] and vs[8] the near and far planes): the
- * screen matrix screen, the perspective projection proj for the 1500 unit
+ * screen matrix screen, the perspective projection proj for the 768 unit
  * screen, the one projHalf for the half size screen, the viewport viewport,
  * and the pair built on a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
  * scale terms are locals of their own. */
@@ -621,139 +593,52 @@ int gsb_LoadStageSettings(void);
 
 int gsb_SaveStageSettings(void);
 
-/* one row of the film noise debug menu (the same shape ico2/seki/src/ZFog.c
-   carries for the fog tool): a label, the word it edits, whether that word is
-   a float, its range, its default and its step, and the callback to run once
-   the value has moved. */
+/* one row of the stage setting page: a label, the word it edits, its
+   range, its default and its step, and the callback to run once the value
+   has moved. */
 typedef struct GsbToolItem { /* field names derived */
     char *name;              /* 0x00 */
     void *val;               /* 0x04 */
-    int isFloat;             /* 0x08 */
-    float min;               /* 0x0C */
-    float max;               /* 0x10 */
-    float def;               /* 0x14 */
-    float step;              /* 0x18 */
-    int (*fn)();             /* 0x1C */
+    int min;                 /* 0x08 */
+    int max;                 /* 0x0C */
+    int def;                 /* 0x10 */
+    int step;                /* 0x14 */
+    int (*fn)();             /* 0x18 */
 } GsbToolItem;               /* derived name */
 
-/* the four pages of seven rows, one page per render target, each row naming
-   a word of the stage record */
-static const GsbToolItem filmNoiseItems[4][7] = {
-    /* derived name */
-    {
-        {" HighLight Color R ", &GlobalStageSetting.targetCol[0][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color G ", &GlobalStageSetting.targetCol[0][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color B ", &GlobalStageSetting.targetCol[0][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" Noise Level       ", &GlobalStageSetting.targetCol[0][3], 0, 0.0f, 255.0f, 8.0f, 1.0f,
-         0},
-        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[0], 0, 0.0f, 127.0f, 32.0f, 1.0f,
-         0},
-        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[0].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[0].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-    },
-    {
-        {" HighLight Color R ", &GlobalStageSetting.targetCol[1][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color G ", &GlobalStageSetting.targetCol[1][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color B ", &GlobalStageSetting.targetCol[1][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" Noise Level       ", &GlobalStageSetting.targetCol[1][3], 0, 0.0f, 255.0f, 16.0f, 1.0f,
-         0},
-        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[1], 0, 0.0f, 127.0f, 32.0f, 1.0f,
-         0},
-        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[1].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[1].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-    },
-    {
-        {" HighLight Color R ", &GlobalStageSetting.targetCol[2][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color G ", &GlobalStageSetting.targetCol[2][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color B ", &GlobalStageSetting.targetCol[2][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" Noise Level       ", &GlobalStageSetting.targetCol[2][3], 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[2], 0, 0.0f, 127.0f, 32.0f, 1.0f,
-         0},
-        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[2].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[2].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-    },
-    {
-        {" HighLight Color R ", &GlobalStageSetting.targetCol[3][0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color G ", &GlobalStageSetting.targetCol[3][1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" HighLight Color B ", &GlobalStageSetting.targetCol[3][2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-         0},
-        {" Noise Level       ", &GlobalStageSetting.targetCol[3][3], 0, 0.0f, 255.0f, 32.0f, 1.0f,
-         0},
-        {" Motion Blur       ", &GlobalStageSetting.subMotionBlur[3], 0, 0.0f, 127.0f, 32.0f, 1.0f,
-         0},
-        {" AntiLevel0        ", &GlobalStageSetting.antiLevel[3].a, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-        {" AntiLevel1        ", &GlobalStageSetting.antiLevel[3].b, 0, 0.0f, 255.0f, 24.0f, 1.0f,
-         0},
-    },
-};
-
-/* the unselected and selected row colours, as ZFog's fogRowColor */
-static const unsigned int filmNoiseRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
-
-/* the word a boolean row prints */
-static char *filmNoiseOnOffText[] = {"Off", "On"}; /* derived name */
-
-static int filmNoiseRow = 0; /* derived name */ /* the highlighted row */
-
-/* the twenty one rows of the stage setting page, each naming a word of the
-   stage record (the words at 0xE4..0xF0, 0xF8, 0x104..0x11C and 0x180..0x190
-   are still padding in typedef.h's StageSetting) */
+/* the seventeen rows of the stage setting page, each naming a word of the
+   stage record */
 static const GsbToolItem stageSettingItems[] = {
     /* derived name */
-    {" HighLight Color R   ", &GlobalStageSetting.reductionCol[0], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-     0},
-    {" HighLight Color G   ", &GlobalStageSetting.reductionCol[1], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-     0},
-    {" HighLight Color B   ", &GlobalStageSetting.reductionCol[2], 0, 0.0f, 255.0f, 128.0f, 1.0f,
-     0},
-    {" Zoom Offset         ", &GlobalStageSetting.viewScale, 0, 5e+01f, 4e+02f, 1e+02f, 1.0f, 0},
-    {" Def Tex Sample Mode ", &GlobalStageSetting.texSampleMode, 0, 0.0f, 5.0f, 5.0f, 1.0f,
+    {" HighLight Color R   ", &GlobalStageSetting.reductionCol[0], 0, 255, 128, 1, 0},
+    {" HighLight Color G   ", &GlobalStageSetting.reductionCol[1], 0, 255, 128, 1, 0},
+    {" HighLight Color B   ", &GlobalStageSetting.reductionCol[2], 0, 255, 128, 1, 0},
+    {" Zoom Offset         ", &GlobalStageSetting.viewScale, 50, 400, 100, 1, 0},
+    {" Def Tex Sample Mode ", &GlobalStageSetting.texSampleMode, 0, 5, 5, 1,
      tex_RemakeRegistersSampleMin},
-    {" Post Effect         ", &GlobalStageSetting.postEffect, 0, 0.0f, 8.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect     ", &GlobalStageSetting.feedbackEffect, 0, 0.0f, 3.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect R   ", &GlobalStageSetting.feedbackCol[0], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect G   ", &GlobalStageSetting.feedbackCol[1], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect B   ", &GlobalStageSetting.feedbackCol[2], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" Feedback Effect A   ", &GlobalStageSetting.feedbackCol[3], 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" DepthField Level    ", &GlobalStageSetting.depthFieldLevel, 0, 0.0f, 1e+03f, 1e+02f, 1.0f,
-     0},
-    {" DepthField Start    ", &GlobalStageSetting.depthFieldStart, 0, 0.0f, 2e+04f, 2e+03f, 2e+01f,
-     0},
-    {" DepthField Width    ", &GlobalStageSetting.depthFieldWidth, 0, 0.0f, 2e+04f, 1e+04f, 2e+01f,
-     0},
-    {" Motion Blur         ", &GlobalStageSetting.motionBlur, 0, 0.0f, 127.0f, 32.0f, 1.0f, 0},
-    {" AntiLevel0          ", &GlobalStageSetting.antiLevel0, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
-    {" AntiLevel1          ", &GlobalStageSetting.antiLevel1, 0, 0.0f, 255.0f, 0.0f, 1.0f, 0},
+    {" Post Effect         ", &GlobalStageSetting.postEffect, 0, 8, 0, 1, 0},
+    {" Feedback Effect     ", &GlobalStageSetting.feedbackEffect, 0, 3, 0, 1, 0},
+    {" Feedback Effect R   ", &GlobalStageSetting.feedbackCol[0], 0, 255, 0, 1, 0},
+    {" Feedback Effect G   ", &GlobalStageSetting.feedbackCol[1], 0, 255, 0, 1, 0},
+    {" Feedback Effect B   ", &GlobalStageSetting.feedbackCol[2], 0, 255, 0, 1, 0},
+    {" Feedback Effect A   ", &GlobalStageSetting.feedbackCol[3], 0, 255, 0, 1, 0},
+    {" DepthField Level    ", &GlobalStageSetting.depthFieldLevel, 0, 1000, 100, 1, 0},
+    {" DepthField Start    ", &GlobalStageSetting.depthFieldStart, 0, 20000, 2000, 20, 0},
+    {" DepthField Width    ", &GlobalStageSetting.depthFieldWidth, 0, 20000, 10000, 20, 0},
+    {" Motion Blur         ", &GlobalStageSetting.motionBlur, 0, 127, 32, 1, 0},
+    {" AntiLevel0          ", &GlobalStageSetting.antiLevel0, 0, 255, 24, 1, 0},
+    {" AntiLevel1          ", &GlobalStageSetting.antiLevel1, 0, 255, 24, 1, 0},
 };
 
-/* the unselected and selected row colours, as filmNoiseRowColor */
+/* the unselected and selected row colours */
 static const unsigned int stageSettingRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
-
-/* the stage setting page's own copy of the same pair */
-static char *stageSettingOnOffText[] = {"Off", "On"}; /* derived name */
 
 static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 
-/* The stage setting page of the debug menu: twenty one editable words of the
+/* the word a boolean row prints */
+static char *stageSettingOnOffText[] = {"Off", "On"}; /* derived name */
+
+/* The stage setting page of the debug menu: seventeen editable words of the
  * stage record, the pad keys that walk and change them, and the key that dumps
  * the page to the log. */
 int gsb_StageSettingTool(void);
@@ -763,7 +648,6 @@ INCLUDE_ASM(gsb_StageSettingTool);
 typedef struct { /* field names derived */
     char *name;  /* 0x0 */
     int (*fn)(); /* 0x4 */
-    int arg;     /* 0x8 */
 } GsbMenuItem;   /* derived name */
 
 /* The background colour the display list is cleared to, one component per
@@ -772,15 +656,15 @@ typedef struct { /* field names derived */
 static sceVu0IVECTOR bgColor; /* derived name */
 
 static GsbMenuItem stageSettingMenu[] = {
-    {"Light Tool", light_Tool, 0},
-    {"Shadow Tool", shadow_Tool, 0},
-    {"Fog Tool", fog_FogTool, 0},
-    {"Other Settings", gsb_StageSettingTool, 0},
-    {"Load Settings", gsb_LoadStageSettings, 0},
-    {"Save Settings", gsb_SaveStageSettings, 0},
+    {"Light Tool", light_Tool},
+    {"Shadow Tool", shadow_Tool},
+    {"Fog Tool", fog_FogTool},
+    {"Other Settings", gsb_StageSettingTool},
+    {"Load Settings", gsb_LoadStageSettings},
+    {"Save Settings", gsb_SaveStageSettings},
 }; /* derived name */
 
-/* the unselected and selected row colours, as filmNoiseRowColor */
+/* the unselected and selected row colours, as stageSettingRowColor */
 static const unsigned int menuRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
 /* the menu row under the cursor and the page it opened, -1 for none */
