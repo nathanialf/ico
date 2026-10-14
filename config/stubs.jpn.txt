@@ -106,14 +106,11 @@ text dispPool 0x0010C0B0 0x0010C57C ico2/sugipon/src/pool.c local lines=116  # o
 text gsb_Reduction 0x001127A8 0x00112C18 ico2/seki/src/GsBase.c lines=77  # ordinal; first difference at insn 0; length:-53; extent-differs
 rdlit gsb_Reduction 0x00549600 0x0054960F ico2/seki/src/GsBase.c align=16  # 1 string
 text gsb_SetVSMatrix 0x00114B08 0x00114CF0 ico2/seki/src/GsBase.c lines=38  # ordinal; first difference at insn 0; length:-37; extent-differs
-lit4 gsb_SetVSMatrix 0x0063274C 0x00632754 ico2/seki/src/GsBase.c  # 2 floats; target side (DISAGREE)
-text stage_CalcAnimationNoParent 0x0012B040 0x0012B228 ico2/seki/src/StageAnimation.c lines=72  # ordinal; first difference at insn 0; length:-25; extent-differs
+lit4 gsb_SetVSMatrix 0x0063274C 0x00632754 ico2/seki/src/GsBase.c  # 2 floats
 text stage_PlayBgAnimation 0x0012B600 0x0012B8B8 ico2/seki/src/StageAnimation.c lines=61  # ordinal; first difference at insn 20; length:+12; extent-differs
 text stage_PlayBgAnimationDissolve 0x0012B8B8 0x0012BBB4 ico2/seki/src/StageAnimation.c lines=62  # ordinal; first difference at insn 21; length:+10; extent-differs
 text findChainInJump 0x0014FB60 0x00150328 ico2/fumi/src/boyact.c local lines=143  # ordinal; first difference at insn 3; length:-6; extent-differs
 lit4 findChainInJump 0x006328A8 0x006328B0 ico2/fumi/src/boyact.c  # 2 floats
-text GetChainSlope 0x001514C8 0x001516B4 ico2/fumi/src/boyact.c local lines=36  # ordinal; first difference at insn 19; length:-19; extent-differs
-rdlit GetChainSlope 0x0054DAF8 0x0054DB19 ico2/fumi/src/boyact.c  # 2 strings
 text actCommonBox 0x0015CB38 0x0015D008 ico2/fumi/src/commonact.c lines=101  # December sets no boxDir before the loop (main has the PAL body); with that, it still differs at insn 40: the spill slots of &s->env and &hold are swapped
 lit4 actCommonBox 0x006329D8 0x006329DC ico2/fumi/src/commonact.c  # 1 float
 sdlit actCommonBox 0x006341F0 0x006341FB ico2/fumi/src/commonact.c  # 2 strings
@@ -145,7 +142,6 @@ rdlit debug_DrawBar 0x00614DA0 0x00614DE4 ico2/common/src/debug.c align=16  # 2 
 sdlit debug_DrawBar 0x006349B0 0x006349E7 ico2/common/src/debug.c  # 5 strings, 5 statics
 text debug_SnapShot 0x001AE538 0x001AF488 ico2/common/src/debug.c lines=81  # ordinal; first difference at insn 1; length:+739; extent-differs
 rdlit debug_SnapShot 0x00614E10 0x00614EBA ico2/common/src/debug.c  # 6 strings; target side (DISAGREE: December's snapshot modes)
-text kanbanBootMcCheck 0x001B9490 0x001B96E8 ico2/common/src/kanbanBoot.c local lines=236  # ordinal; first difference at insn 3; length:-254; extent-differs
 text _getFinalMatrix 0x001E1C30 0x001E4674 ico2/sugipon/src/motionManager.c local lines=691 in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc  # ordinal; first difference at insn 2; length:-130; extent-differs
 lit4 _getFinalMatrix 0x006330E8 0x00633128 ico2/sugipon/src/motionManager.c  # 16 floats; target side (no PAL body to compile)
 rdlit _getFinalMatrix 0x00618FA0 0x00619070 ico2/sugipon/src/motionManager.c align=16  # 1 jtbl; target side (no PAL body to compile)
@@ -165,7 +161,6 @@ text actOpDemo01 0x0021C330 0x0021C840 ico2/script/src/op.c lines=134  # ordinal
 sdlit actOpDemo01 0x006358B8 0x006358CF ico2/script/src/op.c  # 3 strings
 text actSt13bConte02 0x00244730 0x0024504C ico2/script/src/st13b.c lines=238  # ordinal; first difference at insn 0; length:-23; extent-differs
 rdlit actSt13bConte02 0x0061C080 0x0061C088 ico2/script/src/st13b.c  # 1 double
-text setDispEnv 0x00255290 0x00255488 ico2/ito/mpeg/mv_disp.c lines=27  # ordinal; first difference at insn 0; length:+7; extent-differs
 text dispSetTags 0x002555A8 0x00255B08 ico2/ito/mpeg/mv_disp.c lines=58  # ordinal; first difference at insn 0; length:+76; extent-differs
 #
 # .data objects the December C of a carved function used and PAL's does not

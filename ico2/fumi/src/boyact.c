@@ -672,9 +672,42 @@ static void E3_StageStartBoy(void *self)
 }
 
 extern int fptodp(float v);
-static int GetChainSlope(void);
 
-INCLUDE_ASM(GetChainSlope);
+static int GetChainSlope(void)
+{
+    float a;
+    float b;
+    float c;
+    float ratio;
+    GObj *g = boyGObj;
+    int up;
+    int down;
+
+    GetChainPendulum((void *)GOBJ_ACT(g)->chain, &a, &b, &c);
+    if (b < 5.0f) {
+        return 0;
+    }
+    ratio = (float)*motionTable[GOBJ_SUB(g)->ctrl.motion] / (c * 0.5f);
+    ACTGame_SetMotionPlaySpeedRatio_Reserve(g, ratio, 7);
+    if (debug_font_flag & 1) {
+        debug_Printf(10, 140, 0x0FFFFFFF, "speed = %f (%f)\n", fptodp(ratio), fptodp(c));
+    }
+    if (debug_font_flag & 1) {
+        debug_Printf(10, 150, 0x0FFFFFFF, "%f / %f\n", fptodp(GOBJ_SUB(g)->ctrl.animFrame),
+                     fptodp((float)*motionTable[GOBJ_SUB(g)->ctrl.motion]));
+    }
+    if ((b < 0.0f ? -b : b) < 30.0f) {
+        up = 1;
+        down = 2;
+    } else {
+        up = 3;
+        down = 4;
+    }
+    if (a < 0.0f) {
+        return up;
+    }
+    return down;
+}
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;

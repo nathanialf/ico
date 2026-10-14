@@ -114,9 +114,33 @@ void dispClear(MvDispEnv *self, unsigned int col)
     sceGsSyncPath(0, 0);
 }
 
-void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby);
+void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
+{
+    int *p;
+    int w = imageW;
+    int h = imageH / 2;
 
-INCLUDE_ASM(setDispEnv);
+    self->fbp[0] = 0;
+    self->fbp[1] = (w + 63) / 64 * 64 * ((h + 31) / 32 * 32) >> 11;
+    self->width = w;
+    self->height = h;
+    self->imageWidth = imageW;
+    self->imageHeight = imageH;
+
+    sceGsSetDefDispEnv(&self->env.gs, 0, imageW, imageH / 2, 0, 0);
+
+    p = (int *)uncached_accel_addr((int)mvDispPacket);
+    self->env.w.dispfbDB = (self->env.w.dispfbDB & ~0x7FF) | (dbx & 0x7FF);
+    self->env.w.dispfbDB = (self->env.w.dispfbDB & 0xFFC007FF) | ((dby & 0x7FF) << 11);
+
+    p = setGIFtag(p, 14, 1, 0, 0, 0, 1, 6);
+    p = setPRMODECONT(p, 1);
+    p = setFRAME_1(p, 0, (self->width + 63) / 64, 0, 0);
+    p = setTEST_1(p, 0, 0, 0, 0, 0, 0, 0, 0);
+    p = setSCISSOR_1(p, 0, self->width - 1, 0, (self->height + 31) / 32 * 64 + self->height * 3);
+    p = setXYOFFSET_1(p, 0, 0);
+    setCLAMP_1(p, 1, 1, 0, 0, 0, 0);
+}
 
 void setImageSize(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
 {

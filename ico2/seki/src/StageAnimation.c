@@ -541,7 +541,69 @@ void stage_ResetAnimation(void)
     light_KillAllFixLight();
 }
 
-INCLUDE_ASM(stage_CalcAnimationNoParent);
+void stage_CalcAnimationNoParent(void)
+{
+    int i;
+    StageAnim *e;
+
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (stageAnimCount == 0) {
+        return;
+    }
+    bga_SetUniqAnimationFlag(1);
+    _InitCurrentMatrix();
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        switch (e->flags.i >> 30) {
+        case 0: {
+            BgaHeader *entry2 = e->entry2;
+            signed char lock = entry2->cut;
+
+            if (lock == 0) {
+                if (entry2->anim->obj != 0) {
+                    continue;
+                }
+            }
+            if (systemStatus[0x14 / 4] != 0) {
+                continue;
+            }
+            switch (entry2->mode) {
+            case -1: {
+                int k;
+
+                for (k = 0; k < e->flags.b.count; k++) {
+                    char *objs = (char *)e->obj;
+                    char *o = *(char **)(objs + (k << 2));
+
+                    GOBJ_SUB(o)->disp = 0;
+                }
+                break;
+            }
+            case 0:
+                break;
+            case 1:
+                _InitCurrentMatrix();
+                bga_CalcAnimation(e->entry2, e->entry1->loop, 0);
+                break;
+            }
+            break;
+        }
+        case 1:
+            if (systemStatus[0x14 / 4] != 0) {
+                continue;
+            }
+            if (*(int *)(e->entry3 + 0xC) != 1) {
+                continue;
+            }
+            _InitCurrentMatrix();
+            bga_CalcSdfCamera(e->entry3, e->entry1->loop);
+            break;
+        }
+    }
+    bga_SetUniqAnimationFlag(0);
+}
 
 void stage_CalcAnimationParent(void)
 {
