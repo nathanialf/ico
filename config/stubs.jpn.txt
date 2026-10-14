@@ -378,14 +378,7 @@ text actSt02aFenceSwitch 0x00221A18 0x00221A80 ico2/script/src/st02a.c lines=13 
 text actSt02aFenceOpenSub 0x00221A80 0x00221B0C ico2/script/src/st02a.c local lines=15  # ordinal; first difference at insn 5; imm:4; extent-equal
 text actSt02aGondolaSwitch 0x00221B40 0x00221BE4 ico2/script/src/st02a.c lines=21  # ordinal; first difference at insn 3; imm:1; extent-equal
 text actSt03tSwitchL 0x00221FE0 0x002220C4 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 14; imm:3; extent-equal
-text actSt03tSwitchLChk 0x002220C8 0x00222324 ico2/script/src/st03t.c lines=59  # ordinal; first difference at insn 53; imm:9; extent-equal
-text actSt03tSwitchLUpChk 0x00222328 0x002224C0 ico2/script/src/st03t.c lines=48  # ordinal; first difference at insn 23; imm:6; extent-equal
 text actSt03tSwitchR 0x002224C0 0x002225A4 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 14; imm:3; extent-equal
-text actSt03tSwitchRChk 0x002225A8 0x0022279C ico2/script/src/st03t.c lines=47  # ordinal; first difference at insn 53; imm:5; extent-equal
-text actSt03tSwitchRUpChk 0x002227A0 0x00222938 ico2/script/src/st03t.c lines=38  # ordinal; first difference at insn 35; imm:5; extent-equal
-text actSt03tSekizo 0x00222CB8 0x00222D20 ico2/script/src/st03t.c lines=9  # ordinal; first difference at insn 13; imm:1; extent-equal
-lit4 actSt03tSekizo 0x00633388 0x00633394 ico2/script/src/st03t.c  # 3 floats
-text actSt03tEneChk 0x002230E0 0x002231B0 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 20; imm:6; extent-equal
 text actSt04aGate 0x00223510 0x00223618 ico2/script/src/st04a.c lines=31  # ordinal; first difference at insn 19; imm:6; extent-equal
 text actSt04aConte06 0x00223CC0 0x0022431C ico2/script/src/st04a.c lines=143  # ordinal; first difference at insn 12; imm:86; extent-equal
 lit4 actSt04aConte06 0x00633398 0x006333A8 ico2/script/src/st04a.c  # 4 floats
