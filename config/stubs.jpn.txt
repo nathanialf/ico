@@ -551,17 +551,9 @@ lit4 actSt05bSekizo 0x00633448 0x00633450 ico2/script/src/st05b.c  # 2 floats
 text actSt04rDoor 0x00236548 0x002365EC ico2/script/src/st05c.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt04rDoor2 0x002365F0 0x00236694 ico2/script/src/st05c.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt07aSekizo 0x0023C528 0x0023C5C0 ico2/script/src/st07a.c lines=17  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actSt08aEne1Chk 0x0023CF58 0x0023D074 ico2/script/src/st08a.c lines=33  # ordinal; first difference at insn 26; imm:6; extent-equal
-text actSt08aEne2Chk 0x0023D078 0x0023D1DC ico2/script/src/st08a.c lines=47  # ordinal; first difference at insn 23; imm:6; extent-equal
-text actSt08aDoorUp 0x0023D1E0 0x0023D33C ico2/script/src/st08a.c lines=38  # ordinal; first difference at insn 5; imm:3; extent-equal
-text actSt08aHasiUpSub 0x0023D340 0x0023D444 ico2/script/src/st08a.c local lines=32  # ordinal; first difference at insn 7; imm:7; extent-equal
-text actSt08aHasiUp 0x0023D448 0x0023D5CC ico2/script/src/st08a.c local lines=41  # ordinal; first difference at insn 5; imm:3; extent-equal
-text actSt08aDoor 0x0023D840 0x0023D8E8 ico2/script/src/st08a.c lines=17  # ordinal; first difference at insn 15; imm:2; extent-equal
 text actSt08aHasi 0x0023DE38 0x0023DEE8 ico2/script/src/st08a.c lines=18  # ordinal; first difference at insn 14; imm:1; extent-equal
 text actSt08aInit 0x0023DF50 0x0023DFC8 ico2/script/src/st08a.c lines=15  # ordinal; first difference at insn 13; imm:1; extent-equal
 lit4 actSt08aInit 0x0063347C 0x00633480 ico2/script/src/st08a.c  # 1 float
-text actSt08aDoorUpSub 0x0023E058 0x0023E108 ico2/script/src/st08a.c local lines=19  # ordinal; first difference at insn 6; imm:2; extent-equal
-text actSt08aIntroChk 0x0023E108 0x0023E1B0 ico2/script/src/st08a.c lines=20  # ordinal; first difference at insn 16; imm:4; extent-equal
 text actSt10lInit 0x0023FC38 0x0023FCAC ico2/script/src/st10l.c lines=12  # ordinal; first difference at insn 13; imm:2; extent-equal
 text actSt10lFloorLeft 0x0023FCB0 0x0023FF1C ico2/script/src/st10l.c lines=60  # ordinal; first difference at insn 70; imm:5; extent-equal
 lit4 actSt10lFloorLeft 0x0063349C 0x006334A0 ico2/script/src/st10l.c  # 1 float

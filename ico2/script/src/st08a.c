@@ -73,26 +73,204 @@ void actSt08aEnd(void)
     }
 }
 
-void actSt08aEne1Chk(GObj *volatile self);
+void actSt08aEne1Chk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
 
-INCLUDE_ASM(actSt08aEne1Chk);
+    while (gflagChk(71) == 0 || (scpTriggerFloorAttr(boyGObj, 0x6000000) == 0 &&
+                                 scpTriggerFloorAttr(girlGObj, 0x1000000) == 0)) {
+        _ACTWait(1);
+    }
 
-void actSt08aEne2Chk(GObj *volatile self);
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyOne(3734);
+    gflagOn(72);
+    gflagOn(74);
+    stage_SetAnimation(99, 1, 0);
 
-INCLUDE_ASM(actSt08aEne2Chk);
+    if (scpTriggerFloorAttr(boyGObj, 0x6000000) == 0 &&
+        scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
+        SetCameraFlag_LwsCutBack();
+    }
 
-void actSt08aDoorUp(GObj *volatile self);
+    while (stage_CheckAnimationFinish(99) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt08aDoorUp);
+    scpPlayMot(boyGObj, 0);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+    scpWakeupEnemyOne(3734);
+}
+
+void actSt08aEne2Chk(GObj *volatile self)
+{
+    int save;
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (gflagChk(72) == 0 || scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyOne(3734);
+    gflagOff(391);
+    gflagOn(73);
+    gflagOn(75);
+    _ACTWait(60);
+
+    save = iosPadActRequestEnable;
+    iosPadActRequestEnable = 0;
+
+    scpKillEnemyOne(334);
+    scpKillEnemyOne(335);
+    scpKillEnemyOne(336);
+    scpKillSpiderGroup(337);
+    Generator_Delete(scpSearchGobj(338));
+    Generator_Delete(scpSearchGobj(339));
+
+    stage_SetAnimation(100, 1, 0);
+
+    if (scpTriggerFloorAttr(boyGObj, 0x5000000) == 0) {
+        SetCameraFlag_LwsCutBack();
+    }
+
+    while (stage_CheckAnimationFinish(100) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequestEnable = save;
+    scpPlayMot(boyGObj, 0);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyOne(3734);
+}
+
+void actSt08aDoorUp(GObj *volatile self)
+{
+    GProc *th;
+
+    lt_switch_layout(52);
+    gflagOn(71);
+    scpSleepEnemyAll();
+
+    th = actCreateSubThread(actSt08aDoorUpSub, 21);
+    demoEnd = 0;
+    doorUpDone = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(101, 0, -1);
+        scpFadeIn(3.0f);
+        if (doorUpDone == 0) {
+            soundSeDefPlay(1222, 0, 0, 1);
+        }
+    }
+
+    SetWayGroupActive(11, 1);
+    scpWakeupEnemyAll();
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+}
 
 /* .sdata: the scene's stream handle. */
 static SqEntry *st08a_adpcm = 0; /* derived name */
 
-INCLUDE_ASM(actSt08aHasiUpSub);
+static void actSt08aHasiUpSub(GObj *volatile self)
+{
+    _ACTWait(60);
 
-static void actSt08aHasiUp(GObj *volatile self);
+    while (st08a_adpcm == 0) {
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(actSt08aHasiUp);
+    stage_SetAnimation(102, 1, 0);
+
+    while (stage_CheckAnimationFrame(102, 30, 0) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    AdpcmPlay(st08a_adpcm->stream);
+
+    while (stage_CheckAnimationFrame(102, 180, 0) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_CheckAnimationFinish(102) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    demoEnd = 1;
+    _ACTWait(0);
+}
+
+static void actSt08aHasiUp(GObj *volatile self)
+{
+    GProc *th;
+
+    lt_switch_layout(52);
+    gflagOn(79);
+    SetWayGroupActive(30, 1);
+    scpSleepEnemyAll();
+
+    demoEnd = 0;
+    scpAdpcmPlayRequestFunc(98, &st08a_adpcm, 1, 1, 0);
+
+    th = actCreateSubThread(actSt08aHasiUpSub, 21);
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&th->thread, 34);
+
+    if (demoEnd == 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (st08a_adpcm == 0) {
+            _ACTWait(1);
+        }
+        scpAdpcmFadeCloseFunc(&st08a_adpcm, 512);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        while (lt_fade_status() != 2) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(102, 0, -1);
+        scpFadeIn(3.0f);
+    }
+
+    scpWakeupEnemyAll();
+    scpSearchGobj(369)->active = 0;
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(51);
+}
 
 static void actSt08aTorchOnChk(GObj *volatile self)
 {
@@ -150,7 +328,23 @@ static void actSt08aTorchOffChk(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt08aDoor);
+void actSt08aDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(71) == 0) {
+        stage_SetAnimation(101, 0, 0);
+        door_mes[0].func = actSt08aDoorMain;
+        act->mail = door_mes;
+        ACTSendMailCorrect(self, 430);
+        _ACTWait(0);
+    } else {
+        SetWayGroupActive(11, 1);
+        stage_SetAnimation(101, 0, -1);
+    }
+}
 
 void actSt08aEne1(GObj *volatile self)
 {
@@ -358,9 +552,46 @@ void actSt08aDoorSwitch(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt08aDoorUpSub);
+static void actSt08aDoorUpSub(GObj *volatile self)
+{
+    _ACTWait(60);
 
-INCLUDE_ASM(actSt08aIntroChk);
+    stage_SetAnimation(101, 1, 0);
+
+    soundSeDefPlay(1221, 0, door_up_sound_pos, 1);
+    _ACTWait(30);
+    doorUpDone = 1;
+    soundSeDefPlay(1222, 0, door_up_sound_pos, 1);
+
+    while (stage_CheckAnimationFinish(101) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
+
+void actSt08aIntroChk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(52);
+    scpBoyControlReadDisable = 1;
+
+    gflagOn(76);
+
+    stage_SetAnimation(131, 1, 0);
+    while (stage_CheckAnimationFinish(131) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 0;
+}
 
 static void actSt08aGirlPosChk(GObj *volatile self)
 {
