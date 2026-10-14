@@ -11,17 +11,12 @@
 #include "include_asm.h"
 
 /* .sdata: the boot sequence's step, the
-   card check's step, the start request, the card retry count, the boot sign's
-   done flag and kanbanBootEnd. */
+   card check's step, the start request and kanbanBootEnd. */
 static int bootStep = 0; /* derived name */
 
 static int mcCheckStep = 0; /* derived name */
 
 static int bootStarted = 0; /* derived name */
-
-static int mcRetryCount = 10; /* derived name */
-
-static int bootKanbanDone = 0; /* derived name */
 
 int kanbanBootEnd = 0;
 

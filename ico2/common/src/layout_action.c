@@ -485,16 +485,6 @@ INCLUDE_ASM(la_title_new_game_only);
 
 static int filePort = -1; /* derived name */
 
-static int saveSerial = 0; /* derived name */
-
-static int loadSerial = 0; /* derived name */
-
-static int savedFileNo = 0; /* derived name */
-
-static int fileMoved = 0; /* derived name */
-
-static int fileFirst = 1; /* derived name */
-
 static void _la_mask_preview_info(void);
 
 /* the play time of a save record split into hours, minutes and seconds and
@@ -580,8 +570,6 @@ static int saveVoice = 0; /* derived name */
 
 static int saveVoiceOpened = 0; /* derived name */
 
-static int saveVoiceWait = 0; /* derived name */
-
 INCLUDE_ASM(la_mc_confirm_save_file);
 
 INCLUDE_ASM(la_save_game_memory_card_check);
@@ -628,33 +616,6 @@ INCLUDE_ASM(la_save_confirm_overwrite);
 INCLUDE_ASM(la_format_confirm);
 
 static int formatStep = 0; /* derived name */
-
-/* the CD real-time clock record sceCdReadClock fills in, declared here as
-   seki/src/GsBase.c declares it */
-typedef struct sceCdCLOCK {
-    unsigned char stat;
-    unsigned char second;
-    unsigned char minute;
-    unsigned char hour;
-    unsigned char pad;
-    unsigned char day;
-    unsigned char month;
-    unsigned char year;
-} sceCdCLOCK;
-
-/* the save serial, the clock packed into one word or a random number when
-   the clock cannot be read; inlined into la_system_save_processing */
-static inline int mcMakeSerial(void) /* derived name */
-{
-    sceCdCLOCK clock;
-
-    sceCdReadClock(&clock);
-    if (clock.stat != 0) {
-        return rand();
-    }
-    return ((clock.year & 7) << 26) + (clock.day << 20) + (clock.hour << 14) + (clock.minute << 7) +
-           clock.second;
-}
 
 static int systemSaveStep = 0; /* derived name */
 

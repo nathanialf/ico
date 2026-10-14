@@ -1945,6 +1945,7 @@ text ExecIcoMisc 0x001AC728 0x001ACA34 ico2/common/src/icoMisc.c lines=95  # ord
 rdlit ExecIcoMisc 0x0060F400 0x0060F433 ico2/common/src/icoMisc.c align=16  # 3 strings
 text InitIcoMisc 0x001ACA38 0x001ACF58 ico2/common/src/icoMisc.c lines=141  # ordinal; first difference at insn 25; length:-2; extent-differs
 rdlit InitIcoMisc 0x0060F434 0x0060F658 ico2/common/src/icoMisc.c # target side
+sdlit InitIcoMisc 0x0062D100 0x0062D11C ico2/common/src/icoMisc.c  # target side: four strings
 text init_textures_of_specified_property 0x001AD258 0x001AD3E0 ico2/common/src/kanban.c local file=init_textures_of_specified_property_kanban lines=13  # ordinal; first difference at insn 1; length:-8; extent-differs
 text kanbanInit 0x001AD3E0 0x001AD4DC ico2/common/src/kanban.c lines=10  # ordinal; first difference at insn 6; imm:2; extent-equal
 text display_texture 0x001AD4E0 0x001AD78C ico2/common/src/kanban.c local file=display_texture_kanban lines=68  # ordinal; first difference at insn 0; length:-9; extent-differs
@@ -1975,9 +1976,11 @@ text la_load_processing 0x001AFF98 0x001B0388 ico2/common/src/layout_action.c li
 rdlit la_load_processing 0x0060F938 0x0060F9D0 ico2/common/src/layout_action.c  # target side
 rdlit la_load_processing 0x0060F9D0 0x0060FA28 ico2/common/src/layout_action.c align=16  # jump table (target side)
 lit4 la_load_processing 0x0062B27C 0x0062B280 ico2/common/src/layout_action.c # target side
+sdlit la_load_processing 0x0062D210 0x0062D21F ico2/common/src/layout_action.c  # target side: two strings
 text la_mc_confirm_save_file 0x001B0388 0x001B067C ico2/common/src/layout_action.c lines=82  # trfile; aug6-only in the census; PAL's la_mc_confirm_save_file (532 B in PAL)
 text la_save_game_memory_card_check 0x001B0680 0x001B0898 ico2/common/src/layout_action.c lines=48  # trfile; aug6-only in the census; PAL's la_save_game_memory_card_check (480 B in PAL)
 rdlit la_save_game_memory_card_check 0x0060FA28 0x0060FA60 ico2/common/src/layout_action.c  # target side
+sdlit la_save_game_memory_card_check 0x0062D228 0x0062D22E ico2/common/src/layout_action.c  # target side: a string
 text progressive_bar 0x001B0898 0x001B0A90 ico2/common/src/layout_action.c local lines=43  # trfile; aug6-only in the census; PAL's progressive_bar (504 B in PAL)
 rdlit progressive_bar 0x0060FA60 0x0060FA80 ico2/common/src/layout_action.c  # target side
 sdlit progressive_bar 0x0062D238 0x0062D244 ico2/common/src/layout_action.c  # 1 string, 1 data
@@ -1995,6 +1998,7 @@ rdlit la_save_processing 0x0060FB30 0x0060FB40 ico2/common/src/layout_action.c  
 rdlit la_save_processing 0x0060FB40 0x0060FB70 ico2/common/src/layout_action.c align=16  # jump table (target side)
 text la_end_confirm 0x001B1760 0x001B18C4 ico2/common/src/layout_action.c lines=49  # trfile; aug6-only in the census; PAL's la_end_confirm (384 B in PAL)
 lit4 la_end_confirm 0x0062B280 0x0062B284 ico2/common/src/layout_action.c # target side
+sdlit la_end_confirm 0x0062D258 0x0062D25C ico2/common/src/layout_action.c  # target side: a string
 text la_delete_processing 0x001B18C8 0x001B19BC ico2/common/src/layout_action.c lines=31  # trfile; aug6-only in the census; PAL's la_delete_processing (244 B in PAL)
 text la_game_loop 0x001B19C0 0x001B1B30 ico2/common/src/layout_action.c lines=37  # trfile; aug6-only in the census; PAL's la_game_loop (348 B in PAL)
 text la_game_over_continue 0x001B1B30 0x001B1CE8 ico2/common/src/layout_action.c lines=59  # trfile; aug6-only in the census; PAL's la_game_over_continue (512 B in PAL)
@@ -2042,6 +2046,7 @@ text default_item_select 0x001B34D8 0x001B3748 ico2/common/src/layout_texture.c 
 text texture_fading 0x001B3748 0x001B39E0 ico2/common/src/layout_texture.c local lines=89  # ordinal; first difference at insn 0; length:-46; extent-differs
 rdlit texture_fading 0x0060FBE0 0x0060FC00 ico2/common/src/layout_texture.c align=16  # target side
 text display_texture 0x001B39E0 0x001B3D5C ico2/common/src/layout_texture.c local file=display_texture_layout_texture lines=106  # ordinal; first difference at insn 0; length:-449; extent-differs
+sdlit display_texture 0x0062D2B0 0x0062D2B4 ico2/common/src/layout_texture.c file=display_texture_layout_texture  # target side: a colour word
 text display_primary_texture_layout 0x001B3D60 0x001B3F70 ico2/common/src/layout_texture.c local lines=41  # ordinal; first difference at insn 0; length:-54; extent-differs
 text exec_layout_texture 0x001B3F70 0x001B41F8 ico2/common/src/layout_texture.c lines=54  # ordinal; first difference at insn 0; length:-22; extent-differs
 text init_textures_of_specified_property 0x001B41F8 0x001B4380 ico2/common/src/layout_texture.c local file=init_textures_of_specified_property_layout_texture lines=12  # ordinal; first difference at insn 13; length:-2; extent-differs
