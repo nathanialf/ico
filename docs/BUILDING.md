@@ -253,9 +253,15 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   `--restore NAME` (`--carve-all`, `--restore-all`) replace a definition
   with its `INCLUDE_ASM` line and put it back from `main`, on the file's
   bytes; an inline function's line goes to the end of the file, since gcc
-  2.9 emits inline functions after everything else, and an inline function
-  called after its definition is refused, while one whose later uses only
-  take its address keeps its declaration in place. The line shifts every
+  2.9 emits inline functions after everything else (for one defined in a
+  `.c.inc`, the end of the including TU, and the row is marked `inline`),
+  and an inline function called after its definition is refused, while one
+  whose later uses only take its address, or whose later callers never
+  reach the object, keeps its declaration in place. A function carved
+  without its literal rows gets its `INCLUDE_ASM_LIT` line from a later
+  `--literals` that adds a `def` row, and a row with no definition to put
+  back (no C, a nested function) is reported ABSENT with the target side
+  alone. The line shifts every
   later line of the TU; a TU that uses `__LINE__` below it keeps its
   numbering with a `#line` directive after the `INCLUDE_ASM` line, written by
   hand (a row's `lines=N` records the span of the body it stands for), and
@@ -267,7 +273,11 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   matched. `tools/match_check.py TU FUNC` (or `--all`) compiles one TU into a
   scratch object and compares each function with the target's words at its
   range, relocated fields masked, so a function's state is known before the
-  link;
+  link; `tools/object_check.py` compares each object's `.text` with the
+  target at the object's address in the link (or, when the link fails, in
+  `build/ico.layout.elf`), relocated fields masked, and with `--order` each
+  TU's function order with the target's, naming a stub placed before
+  functions the target emits earlier;
 - links with ld 2.10 and `config/link.jpn.ld`, once to `build/ico.syms.elf`
   (symbols kept, with the map `build/ico.jpn.map`) and once stripped to
   `build/ico.elf`, as the base is;
