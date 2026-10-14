@@ -123,7 +123,7 @@ typedef union { /* field names derived */
 } __attribute__((aligned(16))) ConstVecSt13c; /* derived name */
 
 /* The animations actSt13cConte04 steps through. */
-static const AnimSet conte04Anims = {{625, 626, 627, 628, 629}}; /* derived name */
+static const AnimSet conte04Anims = {{621, 622, 623, 624, 625}}; /* derived name */
 
 /* Where actSt13cSleepChk turns the sleeping girl to face. */
 static const ConstVecSt13c sleepFacePos = {{-800.0f, 0.0f, -1000.0f, 1.0f}}; /* derived name */
@@ -131,7 +131,7 @@ static const ConstVecSt13c sleepFacePos = {{-800.0f, 0.0f, -1000.0f, 1.0f}}; /* 
 /* The animations actSt13cConte05 steps through. */
 static const AnimSet16 conte05Anims = {
     /* derived name */
-    {630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645}};
+    {626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641}};
 
 /* actSt13cCageFallEffect's nine effect spawns, in the frame order it fires them. */
 static const EffectArg cageFallEffect1 = {{-88.0f, -50.0f, -1.0f, 1.0f}}; /* derived name */

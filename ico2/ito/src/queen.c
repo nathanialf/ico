@@ -1012,7 +1012,7 @@ typedef struct QueenGenTable { /* field names derived */
 /* The layout ids gene_enemy picks a spawn point from, one list per stage set. */
 static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157}; /* derived name */
 
-static const int genEnemyLayoutDefault[6] = {3535, 3536, 3537, 3538, 3539, 3540}; /* derived name */
+static const int genEnemyLayoutDefault[6] = {3512, 3513, 3514, 3515, 3516, 3517}; /* derived name */
 
 static const QueenGenTable genEnemyTable[2] = {
     /* derived name */

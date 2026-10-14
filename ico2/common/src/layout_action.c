@@ -937,13 +937,13 @@ INCLUDE_ASM(la_key_config);
 
 /* the option screen's layout items: the five screen modes, the stage
    animation each mode plays (-1 for none), and the two choices of the control
-   type (item 318) followed by the two of the setting item 325 toggles, in one
+   type (item 295) followed by the two of the setting item 302 toggles, in one
    table; the code reaches the second pair through an offset pointer */
-static const int screenModeItem[5] = {303, 304, 305, 306, 307}; /* derived name */
+static const int screenModeItem[5] = {280, 281, 282, 283, 284}; /* derived name */
 
-static const int screenModeAnim[5] = {-1, 67, 68, 69, 70}; /* derived name */
+static const int screenModeAnim[5] = {-1, 63, 64, 65, 66}; /* derived name */
 
-static const int choiceItem[4] = {321, 322, 328, 329}; /* derived name */
+static const int choiceItem[4] = {298, 299, 305, 306}; /* derived name */
 
 INCLUDE_ASM(la_game_option);
 
