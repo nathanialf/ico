@@ -202,6 +202,36 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2) /* deriv
 
 INCLUDE_ASM(UpdateFrameCounter);
 
+inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
+{
+    int found = -1;
+
+    for (; i < n; i++) {
+        if (motionOrient[i].kind == kind) {
+            if (motionOrient[i].id == id) {
+                return &motionOrient[i];
+            }
+            if (motionOrient[i].id == 1085) {
+                found = i;
+            }
+        }
+    }
+    if (found != -1) {
+        return &motionOrient[found];
+    }
+    return 0;
+}
+
+inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
+{
+    MotionOrientEntry *p = GetMotionOrient(i, n, id, kind);
+
+    if (p != 0) {
+        return p;
+    }
+    return &motionOrient[2165];
+}
+
 static void sendStateMail(void *self)
 {
     float m[4][4];
@@ -330,6 +360,25 @@ INCLUDE_ASM(shiftMotionData);
 
 INCLUDE_ASM(shiftMotionOrientEndFunc);
 
+inline void CopyBlendMotionDataSource(void *self, short ang)
+{
+    float quat[4];
+    StreamElem *mot = MOWORK(self)->blendBuf;
+    int i = 0;
+
+    CopyMotion(mot, MOWORK(self)->motionBuf, MOWORK(self)->skelNodeNum);
+    CopyVector(MOWORK(self)->localPos, MOWORK(self)->motionPos);
+    CopyVector(MOWORK(self)->localMove, MOWORK(self)->root.move);
+    *(struct MotOriFloat *)((char *)MOWORK(self) + 0x7D8) =
+        *(struct MotOriFloat *)((char *)MOWORK(self) + 0x160);
+    *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x7D0) = *(struct MotOriHead8 *)MOWORK(self);
+    while (MOWORK(self)->skel[i].parent == -1) {
+        SetQuaternionByAxisRotate(quat, ang, 0.0f, 1.0f, 0.0f);
+        MultiQuaternion(mot[i].q, quat, mot[i].q);
+        i = MOWORK(self)->skel[i].sibling;
+    }
+}
+
 INCLUDE_ASM(shiftMotionOrientBeginFunc);
 
 void ForTest_ForceShiftMotion(int obj, int motion)
@@ -403,6 +452,32 @@ typedef struct MotOriSpin { /* field names derived */
 } MotOriSpin; /* derived name */
 
 INCLUDE_ASM(SetMotionRequest);
+
+inline void SetParallelMotionTableWithNoRequest(void *self, int *next, int *req)
+{
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
+
+    if (m->shiftStop == 0) {
+        m->shiftReq = req;
+        m->shiftNext = next;
+    }
+}
+
+inline void SetParallelMotionTable(void *self, int *next, int *req, int from, int mode)
+{
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
+    int old = m->orientKind;
+
+    m->orientKind = 237;
+    SetParallelMotionTableWithNoRequest(self, next, req);
+    m->shiftFrom = from;
+    m->shiftMode = mode;
+    if (parallelMotionShift(self) != 0) {
+        m->playTime = 0;
+    } else {
+        m->orientKind = old;
+    }
+}
 
 INCLUDE_ASM(getNodeBlendedFloatingMotion);
 
@@ -520,6 +595,47 @@ void SetNodeRotationLimitDataTable(void *self, int from, int to);
 
 INCLUDE_ASM(SetNodeRotationLimitDataTable);
 
+inline void InitMotionOrient(void *self, int oriFrom, int oriTo, int limitFrom, int limitTo,
+                             int motion)
+{
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
+
+    if (limitFrom >= 0 && limitTo >= 0) {
+        SetNodeRotationLimitDataTable(self, limitFrom, limitTo);
+    }
+    m->oriFrom = oriFrom;
+    m->oriTo = oriTo;
+    shiftMotionData((int)self, motion, motion, 0);
+    m->seGroup[0] = soundSeGroupGet();
+    m->seGroup[1] = soundSeGroupGet();
+}
+
+inline unsigned int GetCurrentMotionDirectionAdjustFlag(GObj *self)
+{
+    return motionKind[GOBJ_SUB(self)->ctrl.motion].modeBits.bits.dirAdjust;
+}
+
+inline int ExecuteSlipProc(GObj *self)
+{
+    Sub15C *e = self->dobj;
+    if (e->ctrl.lastSlipFlags != e->ctrl.slipFlags) {
+        StopSEPackageWithGroupVariation(self, 1);
+        if (GOBJ_SUB(self)->ctrl.slipFlags & 0x100000) {
+            ExecuteSEPackageWithGroupVariation(self, 109, 1);
+        }
+        if (GOBJ_SUB(self)->ctrl.slipFlags & 0x200000) {
+            ExecuteSEPackageWithGroupVariation(self, 111, 1);
+        }
+        if (GOBJ_SUB(self)->ctrl.slipFlags & 0x400000) {
+            ExecuteSEPackageWithGroupVariation(self, 113, 1);
+        }
+        if (GOBJ_SUB(self)->ctrl.slipFlags & 0x800000) {
+            ExecuteSEPackageWithGroupVariation(self, 115, 1);
+        }
+    }
+    return 1;
+}
+
 inline int ExecutePauseSlipProc(GObj *self)
 {
     if (systemStatus[5] != 0) {
@@ -528,19 +644,3 @@ inline int ExecutePauseSlipProc(GObj *self)
     }
     return 1;
 }
-
-INCLUDE_ASM(GetMotionOrient);
-
-INCLUDE_ASM(getMotionOrient);
-
-INCLUDE_ASM(CopyBlendMotionDataSource);
-
-INCLUDE_ASM(SetParallelMotionTableWithNoRequest);
-
-INCLUDE_ASM(SetParallelMotionTable);
-
-INCLUDE_ASM(InitMotionOrient);
-
-INCLUDE_ASM(GetCurrentMotionDirectionAdjustFlag);
-
-INCLUDE_ASM(ExecuteSlipProc);
