@@ -2,7 +2,7 @@
 """match_check.py: one function's state against the target, without the link.
 
 Compiles a translation unit with tools/compile_c.sh into a scratch object
-(build/ is not touched), reads each function of it from the object's .symtab
+(build/<slug>/ is not touched), reads each function of it from the object's .symtab
 with its .text relocations, and compares its instruction words with the
 target ELF's words at that function's range. The fields the object's
 relocations fill are masked on both sides, and no other field: R_MIPS_26
@@ -11,17 +11,17 @@ R_MIPS_LITERAL keep the upper half, as tools/correlate_elf.py masks them
 (its RELOC_KIND table and its residue classes are used here). Trailing zero
 words are left out on both sides, as correlate_elf.py does.
 
-The target ELF is the branch's base ELF (tools/ico_version.py), and the range
+The target ELF is the detected target's base ELF (tools/ico_version.py), and the range
 of a function is, in this order:
   --at VMA          VMA, for the length of the object's function
   --twins FILE      the function's row of a correlate_elf.py twins.txt
                     (target_vma, target_size)
   the stub list     its text row in config/stubs.<slug>.txt for this TU
                     (vma_lo, vma_hi; the stem when two statics share a name)
-  the build         its symbol in build/ico.syms.elf, inside this TU's .text
+  the build         its symbol in build/<slug>/ico.syms.elf, inside this TU's .text
                     in the link map: the function's place in the last link,
                     which is the target's once the gate passes (only when
-                    the target is the branch's own base ELF)
+                    the target is the detected target's own base ELF)
 On main, with no rows, every function is found the last way and is compared
 with the PAL base at its own address: the self-test, every function equal.
 
@@ -36,13 +36,14 @@ in=<file.c.inc> unless the row is inline) is reported as a stub: its words come 
   tools/match_check.py TU FUNC...         the named functions
   tools/match_check.py TU --all           every function of the TU, one line each
   tools/match_check.py TU FUNC --at VMA
-  tools/match_check.py TU --all --twins build/correlate/<name>/twins.txt
+  tools/match_check.py TU --all --twins build/pal/correlate/<name>/twins.txt
 Exit 0 when every function compared is equal.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import struct
 import subprocess
 import sys
@@ -62,11 +63,12 @@ sys.path.insert(0, str(ROOT / "tools"))
 from check_elf import parse_map  # noqa: E402
 from correlate_elf import RELOC_KIND, describe_reloc, residue  # noqa: E402
 from gen_stub_s import LIST, asm_line, parse_stubs  # noqa: E402
-from ico_version import baseelf_path, detect_version, link_map_path  # noqa: E402
+from ico_version import baseelf_path, build_dir, detect_version, link_map_path, resolve_source  # noqa: E402
 
 VERSION = detect_version(ROOT)
 TARGET = baseelf_path(ROOT, VERSION)
-SYMS = ROOT / "build" / "ico.syms.elf"
+OUT = build_dir(ROOT, VERSION)
+SYMS = OUT / "ico.syms.elf"
 MAP = link_map_path(ROOT, VERSION)
 OBJDUMP = "mips-linux-gnu-objdump"
 CONTEXT = 5
@@ -95,7 +97,9 @@ class Side:
 
 def compile_tu(tu: str, out: Path) -> Path:
     obj = out / (Path(tu).stem + ".o")
-    p = subprocess.run(["tools/compile_c.sh", tu, str(obj)], cwd=ROOT, capture_output=True, text=True)
+    # the target this tool detected, so compile_c.sh compiles in its view
+    p = subprocess.run(["tools/compile_c.sh", tu, str(obj)], cwd=ROOT, capture_output=True, text=True,
+                       env={**os.environ, "VERSION": VERSION})
     if p.returncode:
         sys.stderr.write(p.stdout + p.stderr)
         fail(f"{tu} does not compile")
@@ -153,11 +157,11 @@ class Elf:
 
 
 def build_symbols(tu: str):
-    """{name: (vma, size)} of build/ico.syms.elf's functions inside this TU's
+    """{name: (vma, size)} of build/<slug>/ico.syms.elf's functions inside this TU's
     .text, by the link map."""
     if not SYMS.exists() or not MAP.exists():
         return {}
-    obj = "build/" + str(Path(tu).with_suffix(".o"))
+    obj = (OUT / Path(tu).with_suffix(".o")).relative_to(ROOT).as_posix()
     spans = [(r["addr"], r["addr"] + r["size"]) for r in parse_map(MAP)
              if r["sect"] == ".text" and r["obj"] == obj]
     out = {}
@@ -230,7 +234,7 @@ def main():
     ap.add_argument("--stubs", type=Path, default=LIST, help=f"the stub list (default {LIST.relative_to(ROOT)})")
     a = ap.parse_args()
     tu = a.tu
-    if not (ROOT / tu).is_file():
+    if not resolve_source(ROOT, VERSION, tu).is_file():
         fail(f"{tu}: no such source")
     if a.at is not None and len(a.funcs) != 1:
         fail("--at takes exactly one FUNC")
@@ -241,11 +245,11 @@ def main():
     for r in rows:
         by_key[r["stem"]] = r
         by_key.setdefault(r["name"], r)
-    src = (ROOT / tu).read_bytes().splitlines(keepends=True)
+    src = resolve_source(ROOT, VERSION, tu).read_bytes().splitlines(keepends=True)
     with tempfile.TemporaryDirectory(prefix="match_check.") as tmp:
         fns = object_functions(compile_tu(tu, Path(tmp)))
     twins = read_twins(a.twins) if a.twins else {}
-    # the last link's addresses are the target's only for the branch's own base
+    # the last link's addresses are the target's only for the detected target's own base
     built = build_symbols(tu) if a.elf.resolve() == TARGET.resolve() else {}
     target = Elf(a.elf)
     bad = equal = none = 0
@@ -261,7 +265,7 @@ def main():
         # the INCLUDE_ASM line lives in the TU, or in the row's in=<file.c.inc>
         # (for an inline function of a .c.inc, in the TU: the row's asm file)
         stub = row is not None and asm_line(row["stem"]) in (
-            src if row["asm"] == tu else (ROOT / row["asm"]).read_bytes().splitlines(keepends=True))
+            src if row["asm"] == tu else resolve_source(ROOT, VERSION, row["asm"]).read_bytes().splitlines(keepends=True))
         if a.at is not None:
             lo, hi, label = a.at, a.at + 4 * len(words), f"--at 0x{a.at:08X}"
         elif twins.get(name):

@@ -596,13 +596,14 @@ document.getElementById("expand").addEventListener("change", e=>{
 const VLABEL = {
   pal:  "PAL (SCES-50760, main branch)",
   us:   "NTSC (SLUS-20218, ntsc branch)",
-  jpn:  "JPN (SCPS-11003, jpn branch)",
+  jpn:  "JPN (SCPS-11003, main branch)",
   aug6: "Aug-6-2001 prototype (aug6 branch)",
 };
 
-// Each target is developed on its own branch, so the "repo" link follows the
-// selected view rather than always landing on the default branch.
-const VBRANCH = { pal: "main", us: "ntsc", jpn: "jpn", aug6: "aug6" };
+// `main` carries the finished targets (pal, jpn); the others are developed on
+// their own branches, so the "repo" link follows the selected view rather
+// than always landing on the default branch.
+const VBRANCH = { pal: "main", us: "ntsc", jpn: "main", aug6: "aug6" };
 
 // Function grouping differs by source layout: the retail targets ship a flat
 // repo-root src/ tree, the prototype the dev's per-programmer module dirs.
@@ -659,7 +660,7 @@ function loadVersion(v){
   syncSeg(v);
   // Per-version JSON lives at <v>/progress.json on the deployed site. The
   // deploy publishes every version, so a miss here means either a local
-  // preview (bare docs/ has no version dirs) or a deploy whose other-branch
+  // preview of a version this checkout has no docs/<v>/ for, or a deploy whose other-branch
   // ref was unreadable. Either way fall back to the root compat copy and SAY
   // SO in the footer, a silent fallback would show one version's numbers
   // under another version's tab.

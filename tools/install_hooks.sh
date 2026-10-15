@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Install the IP-safety scan and the byte gate as git hooks (opt-in):
 #   - pre-commit: refuses a local commit that breaks the build
-#   - pre-push:   refuses to push a ref whose tip does not rebuild the base,
+#   - pre-push:   refuses to push a ref whose tip does not rebuild every
+#                 configured target's base,
 #                 the backstop for commits made with --no-verify, or a branch
 #                 other than main whose shared layer (tools/, build.sh,
 #                 .github/, docs/index.html) differs from origin/main's
@@ -26,19 +27,26 @@ cat > "$HOOK" <<'EOF'
 # Auto-installed by tools/install_hooks.sh. Runs, in order:
 #   1. tools/check_no_rom.sh        IP-safety scan of the staged files
 #   2. tools/check_dev_native.py    refuses codegen-steering constructs in staged C
-#   3. tools/format.sh --check      staged C must be clang-formatted
-#   4. tools/build.sh setup         verify the base ELF and ROM SHA-1s, write build.ninja
-#   5. ninja                        build every object from source, link, and run
-#                                   tools/check_elf.py --gate --require-elf-sha
-#                                   (the byte gate and the whole ELF's SHA-1)
-#   6. tools/check_elf.py --progress
-#                                   refresh README.md, docs/PROGRESS.md and
-#                                   docs/progress.json from the built ELF and its
-#                                   link map, then `git add` them into this commit
+#   3. tools/check_layers.py        the source layers (ico2/, sce/, targets/<slug>/)
+#                                   against every configured target's link order
+#   4. tools/format.sh --check      staged C must be clang-formatted
+#   5. tools/build.sh gate-all      for EVERY configured target (a
+#                                   config/link_order.<slug>.txt exists): its base
+#                                   files are required, then build.sh setup
+#                                   (verify the base ELF and ROM SHA-1s, write
+#                                   build/<slug>/tree/ and build.ninja) and ninja
+#                                   (build every object from source, link, and run
+#                                   tools/check_elf.py --gate --require-elf-sha:
+#                                   the byte gate and the whole ELF's SHA-1)
+#   6. tools/build.sh progress-all  refresh docs/<slug>/PROGRESS.md,
+#                                   docs/<slug>/progress.json and README.md's
+#                                   progress block for every target, then
+#                                   `git add` them into this commit
 #
-# Steps 4 to 6 run only when a staged path can affect the build (ico2/, sce/,
-# config/, tools/, baserom/). `build.sh setup` deletes build/ first, so the gate
-# is always a from-scratch build of the staged tree.
+# Steps 5 and 6 run only when a staged path can affect the build (ico2/, sce/,
+# targets/, config/, tools/, baserom/). `build.sh setup` deletes build/<slug>/
+# first, so each gate is a from-scratch build of the staged tree, and a
+# missing baserom/<slug>/ of any configured target fails the commit.
 #
 # Bypass with --no-verify only for a commit that cannot touch the build and
 # when the build is known green.
@@ -53,10 +61,15 @@ ROOT="$(git rev-parse --show-toplevel)"
 # ROM-proven exceptions with their reasons.
 python3 "$ROOT/tools/check_dev_native.py"
 
+# The source layers: an overlay file differs from the shared one and is in its
+# target's link order, every shared source is compiled by some configured
+# target, and every link-order row resolves.
+python3 "$ROOT/tools/check_layers.py"
+
 # Staged C must be clang-formatted. Formatting can move bytes under -g, which
 # the byte gate below catches. Fix with: tools/format.sh FILE
 STAGED_C=$(git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' |
-    grep -E '^(ico2/[^/]+/[^/]+|sce(/[^/]+){0,3})/[^/]+\.c(\.inc)?$' || true)
+    grep -E '^(targets/[^/]+/)?(ico2/[^/]+/[^/]+|sce(/[^/]+){0,3})/[^/]+\.c(\.inc)?$' || true)
 if [[ -n "$STAGED_C" ]]; then
     # shellcheck disable=SC2086
     "$ROOT/tools/format.sh" --check $STAGED_C
@@ -65,49 +78,37 @@ fi
 # Pure-docs commits (docs/, README.md, .gitignore, ...) skip the build gate.
 BUILD_SENSITIVE=$(git diff --cached --name-only -z |
     tr '\0' '\n' |
-    grep -E '^(ico2/|sce/|config/|tools/|baserom/)' ||
+    grep -E '^(ico2/|sce/|targets/|config/|tools/|baserom/)' ||
     true)
 if [[ -z "$BUILD_SENSITIVE" ]]; then
     exit 0
 fi
 
-NINJA="$ROOT/.venv/bin/ninja"
-if [[ ! -x "$NINJA" ]]; then
-    NINJA="$(command -v ninja || true)"
-fi
-if [[ -z "$NINJA" ]]; then
-    echo "pre-commit: ninja not on PATH and .venv/bin/ninja missing: run tools/setup.sh" >&2
-    exit 1
-fi
-
-echo "pre-commit: tools/build.sh setup ..."
-if ! "$ROOT/tools/build.sh" setup >/dev/null; then
+# Every configured target's gate. gate-all refuses before building anything
+# when a configured target's baserom/<slug>/ files are missing; the build
+# output goes to the terminal so the gate table of each target is seen.
+echo "pre-commit: tools/build.sh gate-all ..."
+if ! "$ROOT/tools/build.sh" gate-all; then
     echo "" >&2
-    echo "pre-commit: SETUP FAILED: the base ELF or ROM SHA-1 check or the" >&2
-    echo "  build.ninja generation errored. Run \`tools/build.sh setup\` to see why." >&2
+    echo "pre-commit: GATE FAILED: a configured target's base files are missing," >&2
+    echo "  or the staged tree does not rebuild a target's base ELF byte for byte." >&2
+    echo "  Fix the build (or rebase) before committing; every configured target" >&2
+    echo "  must pass. Bypass with \`git commit --no-verify\` only if you understand" >&2
+    echo "  why and have a follow-up commit ready that fixes it." >&2
     exit 1
 fi
 
-echo "pre-commit: ninja (byte gate) ..."
-if ! "$NINJA" -C "$ROOT"; then
-    echo "" >&2
-    echo "pre-commit: BUILD FAILED: the staged tree does not rebuild the base ELF" >&2
-    echo "  byte for byte. Fix the build (or rebase) before committing." >&2
-    echo "  Bypass with \`git commit --no-verify\` only if you understand why" >&2
-    echo "  ninja is failing and have a follow-up commit ready that fixes it." >&2
-    exit 1
-fi
-
-# Build is green: refresh the progress tables and the dashboard's JSON and
-# stage them into THIS commit. They are derived files, so a failure here warns
-# and never blocks the commit (the byte gate above already passed). For a
-# path-scoped `git commit <file>` the re-staged files do not ride along.
-echo "pre-commit: tools/check_elf.py --progress (refresh + stage progress) ..."
-if "$ROOT/.venv/bin/python" "$ROOT/tools/check_elf.py" --progress >/dev/null 2>&1; then
-    git add "$ROOT/README.md" "$ROOT/docs/PROGRESS.md" "$ROOT/docs/progress.json" 2>/dev/null || true
+# Every gate is green: refresh the progress tables and the dashboard's JSON of
+# every target and stage them into THIS commit. They are derived files, so a
+# failure here warns and never blocks the commit (the byte gates above already
+# passed). For a path-scoped `git commit <file>` the re-staged files do not
+# ride along.
+echo "pre-commit: tools/build.sh progress-all (refresh + stage progress) ..."
+if "$ROOT/tools/build.sh" progress-all >/dev/null 2>&1; then
+    (cd "$ROOT" && git add README.md docs/*/PROGRESS.md docs/*/progress.json) 2>/dev/null || true
 else
     echo "pre-commit: progress regen failed (non-fatal): commit proceeds" >&2
-    echo "  without refreshed progress; run \`tools/check_elf.py --progress\` manually." >&2
+    echo "  without refreshed progress; run \`tools/build.sh progress-all\` manually." >&2
 fi
 EOF
 chmod +x "$HOOK"
@@ -123,15 +124,17 @@ cat > "$PUSH_HOOK" <<'EOF'
 #
 # For each branch being pushed other than main, tools/check_shared_layer.sh
 # requires its tip's tools/, build.sh, .github/ and docs/index.html to equal
-# origin/main's: the four target branches carry the same shared layer, and a
+# origin/main's: every branch that builds a target carries the same shared layer, and a
 # change to it lands on main first.
 #
 # For each ref being pushed whose commits touch the build, requires the
 # working tree to be at that ref's tip with no uncommitted change to a
-# build path, runs tools/build.sh setup + ninja
-# (which ends in tools/check_elf.py --gate --require-elf-sha), and refuses the
-# push if the rebuilt ELF differs from the base. This is the backstop against commits authored with
-# `git commit --no-verify` that broke the byte-identical round-trip.
+# build path, runs tools/build.sh gate-all (setup + ninja for every configured
+# target, each ending in tools/check_elf.py --gate --require-elf-sha; a
+# configured target without its baserom/<slug>/ files fails), and refuses the
+# push if a rebuilt ELF differs from its base. This is the backstop against
+# commits authored with `git commit --no-verify` that broke the
+# byte-identical round-trip.
 #
 # Bypass with `git push --no-verify` ONLY when pushing a known-broken
 # commit that has a follow-up fix queued.
@@ -140,15 +143,6 @@ ROOT="$(git rev-parse --show-toplevel)"
 
 remote="$1"
 url="$2"
-
-NINJA="$ROOT/.venv/bin/ninja"
-if [[ ! -x "$NINJA" ]]; then
-    NINJA="$(command -v ninja || true)"
-fi
-if [[ -z "$NINJA" ]]; then
-    echo "pre-push: ninja not on PATH and .venv/bin/ninja missing: run tools/setup.sh" >&2
-    exit 1
-fi
 
 # Read refs from stdin (git push protocol): "<local-ref> <local-sha> <remote-ref> <remote-sha>"
 push_failed=0
@@ -175,7 +169,7 @@ while read local_ref local_sha remote_ref remote_sha; do
         range="$remote_sha..$local_sha"
     fi
     BUILD_SENSITIVE=$(git diff --name-only "$range" 2>/dev/null |
-        grep -E '^(ico2/|sce/|config/|tools/|baserom/)' ||
+        grep -E '^(ico2/|sce/|targets/|config/|tools/|baserom/)' ||
         true)
     if [[ -z "$BUILD_SENSITIVE" ]]; then
         continue
@@ -191,22 +185,18 @@ while read local_ref local_sha remote_ref remote_sha; do
         push_failed=1
         continue
     fi
-    if ! git diff --quiet HEAD -- ico2 sce config tools; then
-        echo "pre-push: uncommitted changes under ico2/, sce/, config/ or tools/;" >&2
+    if ! git diff --quiet HEAD -- ico2 sce targets config tools; then
+        echo "pre-push: uncommitted changes under ico2/, sce/, targets/, config/ or tools/;" >&2
         echo "  the gate would build them instead of $local_sha. Commit or set them aside first." >&2
         push_failed=1
         continue
     fi
-    if ! "$ROOT/tools/build.sh" setup >/dev/null 2>&1; then
-        echo "pre-push: SETUP FAILED on $local_ref: refusing push." >&2
-        push_failed=1
-        continue
-    fi
-    if ! "$NINJA" -C "$ROOT" >/dev/null 2>&1; then
-        echo "pre-push: BYTE GATE FAILED on $local_ref: refusing push." >&2
-        echo "  The rebuilt ELF differs from the base. The commit being pushed" >&2
-        echo "  was likely authored with \`git commit --no-verify\`. Fix the build" >&2
-        echo "  (or rebase to drop the bad commit) before pushing." >&2
+    if ! "$ROOT/tools/build.sh" gate-all >/dev/null 2>&1; then
+        echo "pre-push: GATE FAILED on $local_ref: refusing push." >&2
+        echo "  A configured target's base files are missing, or a rebuilt ELF" >&2
+        echo "  differs from its base (run \`tools/build.sh gate-all\` to see which)." >&2
+        echo "  A commit being pushed was likely authored with \`git commit --no-verify\`." >&2
+        echo "  Fix the build (or rebase to drop the bad commit) before pushing." >&2
         push_failed=1
         continue
     fi

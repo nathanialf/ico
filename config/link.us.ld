@@ -17,7 +17,7 @@
  * The linker is GNU ld 2.10 with tools/binutils-2.10-ee.patch (built by
  * tools/setup.sh), writing elf32-littlemips as the PAL MAIN.MAP's OUTPUT line
  * does; the USA disc ships no map. ld 2.10 has no INCLUDE inside a section, so
- * tools/gen_ninja.py links with build/link.ld, this file with the INCLUDE lines
+ * tools/gen_ninja.py links with build/us/link.ld, this file with the INCLUDE lines
  * expanded.
  *
  * PAL's script also binds four TRANSITIONAL placeholders (D_0028F8F0,
@@ -46,14 +46,14 @@ SECTIONS
      * as in the base, so it takes no room in the image. */
     .reginfo 0x002746C0 : { *(.reginfo) }
     .data 0x00274700 : {
-        INCLUDE build/data.inputs.ld
+        INCLUDE build/us/data.inputs.ld
         *(.data .data.*)
     }
     /* The assignment keeps the output section when its inputs are empty,
      * as the base's .vudata and .vubss are. */
     .vudata 0x005536B8 : { *(.vudata) . = .; }
     .rodata 0x00553700 : {
-        INCLUDE build/rodata.inputs.ld
+        INCLUDE build/us/rodata.inputs.ld
         *(.rodata .rodata.*)
     }
     .lit4 0x00630900 : { *(.lit4) }
