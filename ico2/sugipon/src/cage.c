@@ -15,7 +15,6 @@
 #include "windField.h"
 #include "sceneManager.h"
 #include "DObj.h"
-#include "include_asm.h"
 
 /* the cage's 80-byte work record, InitCageGeo's allocation, kept at +0x830
    of the object's motion work: the cage and chain DObjs, the cage's rotation
@@ -73,6 +72,16 @@ void SetCageFixGeometry(GObj *self, void *pos, void *dir)
 
     CopyVector(w->chains->cfg->pm.root, pos);
     CopyVector(w->rot, dir);
+}
+
+inline int GetCageChainPoint(float *root, float *tip, GObj *self)
+{
+    CageWork *w = GOBJ_SUB(self)->work;
+    CopyVector(root, w->chains->nodes->pos[0]);
+    CopyVector(tip, w->chains->nodes->pos[1]);
+    root[1] = root[1] + 50.0f;
+    tip[1] = tip[1] - 150.0f;
+    return w->rideable;
 }
 
 /* the cage's one chain, 2 nodes 500 apart hanging from the cage root */
@@ -226,6 +235,22 @@ void HotInitCageGeo(GObj *self)
         w->chains->nodes->ex[w->lowerNode].v1.y + (w->linkLength * (float)w->linkCount + 500.0f);
 }
 
+inline void StabilizeAllLayoutedCage(void)
+{
+    void *gobj;
+
+    gobj = isysGObjSearchFromObjKindID_begin(43);
+    while (gobj != 0) {
+        HotInitCageGeo(gobj);
+        gobj = isysGObjSearchFromObjKindID_next(gobj);
+    }
+}
+
+inline void SetCageVelocityFriction(GObj *self, float friction)
+{
+    ((CageWork *)GOBJ_SUB(self)->work)->damping = friction;
+}
+
 /* the world down axis the chain's swing axis is taken against */
 static sceVu0FVECTOR cageDown = {0.0f, -1.0f, 0.0f, 0.0f}; /* derived name */
 
@@ -330,9 +355,3 @@ void CageDL(GObj *self)
     p2o_DispVU1(self);
     p2o_DispVU1DObjMulti(w->dobj);
 }
-
-INCLUDE_ASM(GetCageChainPoint);
-
-INCLUDE_ASM(SetCageVelocityFriction);
-
-INCLUDE_ASM(StabilizeAllLayoutedCage);

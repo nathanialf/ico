@@ -455,37 +455,6 @@ text adpcmDiskNotReady 0x00141128 0x00141130 ico2/fumi/sound/adpcm_init.c local 
 text adpcmDiskReturnReady 0x00141130 0x00141138 ico2/fumi/sound/adpcm_init.c local lines=1  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text adpcmOpenProc 0x00141138 0x00141160 ico2/fumi/sound/adpcm_init.c local lines=5  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text adpcmOpenDiskNotReady 0x00141160 0x00141168 ico2/fumi/sound/adpcm_init.c local lines=1  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text soundBDDataSet 0x00141980 0x00141C28 ico2/fumi/sound/s_init.c lines=28  # equal, a stub because it inlines soundDataAreaGet, a stub for emission order
-text soundDataOpen 0x00141C28 0x00141D18 ico2/fumi/sound/s_init.c lines=20  # ordinal; first difference at insn 12; imm:7; extent-equal
-text soundDataOpenSync 0x00141D18 0x00141DFC ico2/fumi/sound/s_init.c lines=19  # ordinal; first difference at insn 12; imm:7; extent-equal
-text _soundSeDefPlay 0x00142C60 0x00143138 ico2/fumi/sound/s_init.c local lines=115  # ordinal; first difference at insn 44; imm:1; extent-equal
-lit4 _soundSeDefPlay 0x00630AA8 0x00630AB4 ico2/fumi/sound/s_init.c  # 3 floats
-rdlit _soundSeDefPlay 0x00557E50 0x00557E75 ico2/fumi/sound/s_init.c align=16  # 2 strings
-text soundSeEnvPlay 0x00143290 0x001434B0 ico2/fumi/sound/s_init.c lines=17  # ordinal; first difference at insn 116; imm:1; extent-equal
-lit4 soundSeEnvPlay 0x00630AB4 0x00630ABC ico2/fumi/sound/s_init.c  # 2 floats
-text soundSeEnvNotUseClose 0x001434B0 0x00143948 ico2/fumi/sound/s_init.c lines=100  # ordinal; first difference at insn 268; imm:2; extent-equal
-text soundDataSegNextStageNotUseClose 0x00143948 0x00143AD0 ico2/fumi/sound/s_init.c lines=41  # ordinal; first difference at insn 68; imm:2; extent-equal
-text Ee2Iop 0x00143AD0 0x00143B84 ico2/fumi/sound/s_init.c lines=18  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundOutputModeGet
-rdlit Ee2Iop 0x00557C50 0x00557C9A ico2/fumi/sound/s_init.c align=16 def  # 3 strings
-text soundOutputModeGet 0x00143B88 0x00143B90 ico2/fumi/sound/s_init.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundReverbDepthGet
-text soundReverbDepthGet 0x00143B90 0x00143B98 ico2/fumi/sound/s_init.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundBufAdpcmChAlloc
-text soundBufAdpcmChAlloc 0x00143B98 0x00143CB0 ico2/fumi/sound/s_init.c lines=26  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundBufAdpcmFree
-rdlit soundBufAdpcmChAlloc 0x00557D60 0x00557D7B ico2/fumi/sound/s_init.c align=16 def  # 1 string
-text soundBufAdpcmFree 0x00143CB0 0x00143CCC ico2/fumi/sound/s_init.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundDataAreaSearch
-text soundDataAreaSearch 0x00143CD0 0x00143D14 ico2/fumi/sound/s_init.c lines=13  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundDataAreaGet
-text soundDataAreaGet 0x00143D18 0x00143E60 ico2/fumi/sound/s_init.c lines=23  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundHDDataSet
-text soundHDDataSet 0x00143E60 0x00143FC0 ico2/fumi/sound/s_init.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSQDataSet
-text soundSQDataSet 0x00143FC0 0x00144120 ico2/fumi/sound/s_init.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSeDefPlay
-text soundSeDefPlay 0x00144120 0x00144174 ico2/fumi/sound/s_init.c lines=8  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSeDefPlayWithVolumeRate
-text soundSeDefPlayWithVolumeRate 0x00144178 0x001441C4 ico2/fumi/sound/s_init.c lines=9  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSeDefVolumeRateGet
-text soundSeDefVolumeRateGet 0x001441C8 0x00144208 ico2/fumi/sound/s_init.c lines=16  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSeDefVolumeRateSet
-text soundSeDefVolumeRateSet 0x00144208 0x00144240 ico2/fumi/sound/s_init.c lines=11  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSeGroupStop
-text soundSeGroupStop 0x00144240 0x001442DC ico2/fumi/sound/s_init.c lines=19  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSeGroupGet
-text soundSeGroupGet 0x001442E0 0x00144308 ico2/fumi/sound/s_init.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSePlayModeStop
-text soundSePlayModeStop 0x00144308 0x0014438C ico2/fumi/sound/s_init.c lines=17  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundReqTickProc
-text soundReqTickProc 0x00144390 0x001444A0 ico2/fumi/sound/s_init.c lines=24  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundVBlank
-text soundVBlank 0x001444A0 0x00144500 ico2/fumi/sound/s_init.c lines=10  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSeKindBuild
-text soundSeKindBuild 0x00144500 0x001445BC ico2/fumi/sound/s_init.c lines=24  # ordinal; first difference at insn 1; imm:3; extent-equal
 text ACTGame_SaveActorInformation 0x001448D8 0x00144928 ico2/fumi/src/act-game.c lines=7  # ordinal; first difference at insn 3; other:3; extent-equal
 text ACTGame_SetActors_Debug 0x00144B58 0x00144DF0 ico2/fumi/src/act-game.c lines=63  # ordinal; first difference at insn 29; imm:9; extent-equal
 sdlit ACTGame_SetActors_Debug 0x00632248 0x00632255 ico2/fumi/src/act-game.c  # 2 strings
@@ -1495,20 +1464,6 @@ text queen_barrier_disp_proc 0x0019C280 0x0019C554 ico2/ito/src/queen_barrier_di
 text func_0019D9C8 0x0019D9C8 0x0019D9D0 ico2/ito/mpeg/mv_main.c  # us-only; after mv_main.c's span; pairs with no PAL-only function there by size and order
 text readBufDelete 0x0019D9D0 0x0019D9D8 ico2/ito/mpeg/mv_readbuf.c lines=1  # us-only (after mv_main.c's span; pairs with no PAL-only function there by size and order); named readBufDelete by call sites (provisional)
 text func_0019D9D8 0x0019D9D8 0x0019D9E8 ico2/ito/mpeg/mv_readbuf.c  # us-only; after mv_main.c's span; pairs with no PAL-only function there by size and order; mv_readbuf.c's, since readBufDelete (call sites) comes before it
-text readBufCreate 0x0019D9E8 0x0019DA94 ico2/ito/mpeg/mv_readbuf.c lines=13  # us-only (after mv_main.c's span; body equals PAL readBufCreate's with immediates and jump targets masked); named readBufCreate by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
-text videoDecCreate 0x0019DBF0 0x0019DD38 ico2/ito/mpeg/mv_videodec.c lines=18  # ordinal; first difference at insn 14; imm:3; extent-equal
-text decBitStrm0 0x0019DF38 0x0019E14C ico2/ito/mpeg/mv_videodec.c local lines=47  # ordinal; first difference at insn 110; imm:1; extent-equal
-rdlit decBitStrm0 0x0055CF58 0x0055CFA7 ico2/ito/mpeg/mv_videodec.c  # 3 strings
-text mpegError 0x0019E278 0x0019E2A0 ico2/ito/mpeg/mv_videodec.c local lines=7  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-sdlit mpegError 0x00632820 0x00632824 ico2/ito/mpeg/mv_videodec.c def  # 1 string
-text mpegNodata 0x0019E2A0 0x0019E2D0 ico2/ito/mpeg/mv_videodec.c local lines=8  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text mpegStopDMA 0x0019E2D0 0x0019E2F0 ico2/ito/mpeg/mv_videodec.c local lines=7  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text mpegRestartDMA 0x0019E2F0 0x0019E310 ico2/ito/mpeg/mv_videodec.c local lines=7  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text mpegTS 0x0019E310 0x0019E350 ico2/ito/mpeg/mv_videodec.c local lines=11  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text voBufCreate 0x0019E380 0x0019E4E0 ico2/ito/mpeg/mv_vobuf.c lines=24  # ordinal; first difference at insn 14; imm:6; extent-equal
-text voBufIncCount 0x0019E520 0x0019E598 ico2/ito/mpeg/mv_vobuf.c lines=9  # census-equal with immediates masked; immediates differ (match_check imm:2)
-text voBufGetData 0x0019E598 0x0019E5CC ico2/ito/mpeg/mv_vobuf.c lines=4  # census-equal with immediates masked; immediates differ (match_check imm:2)
-text voBufGetTag 0x0019E5D0 0x0019E624 ico2/ito/mpeg/mv_vobuf.c lines=4  # census-equal with immediates masked; immediates differ (match_check imm)
 text start_stage_Load_thread 0x0019F7A8 0x0019F8F8 ico2/common/src/StageManager.c local lines=36  # ordinal; first difference at insn 22; length:+2; extent-differs
 rdlit start_stage_Load_thread 0x00612790 0x006127BF ico2/common/src/StageManager.c  # 2 strings
 text StageManager 0x0019FC78 0x0019FF64 ico2/common/src/StageManager.c lines=94  # ordinal; first difference at insn 19; other:24; extent-equal
@@ -1771,9 +1726,6 @@ text SelectBoyCrown 0x001C2098 0x001C20A8 ico2/sugipon/src/boy.c lines=4  # ordi
 text LightLineGeo 0x001C20A8 0x001C216C ico2/sugipon/src/boy.c lines=12  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SetBoyStonizedVisual
 lit4 LightLineGeo 0x006311D8 0x006311E0 ico2/sugipon/src/boy.c  # 2 floats
 text SetBoyStonizedVisual 0x001C2170 0x001C21B8 ico2/sugipon/src/boy.c lines=8  # ordinal; first difference at insn 7; imm:3; extent-equal
-text GetCageChainPoint 0x001C2E28 0x001C2EB8 ico2/sugipon/src/cage.c lines=9  # ordinal; first difference at insn 8; imm:1; extent-equal
-text SetCageVelocityFriction 0x001C2EB8 0x001C2EC8 ico2/sugipon/src/cage.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text StabilizeAllLayoutedCage 0x001C2EC8 0x001C2F10 ico2/sugipon/src/cage.c lines=10  # ordinal; first difference at insn 4; imm:1; extent-equal
 text CandleGeo 0x001C3178 0x001C326C ico2/sugipon/src/candle.c lines=28  # us-only (in candle.c's span; no PAL-only function there); named CandleGeo by a data table (provisional)
 text bindExWeight.42 0x001C3988 0x001C3E08 ico2/sugipon/src/clothAnimation.c local file=bindExWeight_42  # nested in GetChainAnimation (a stub); equal, gone with its carved parent
 text bind2.46 0x001C3E08 0x001C414C ico2/sugipon/src/clothAnimation.c local file=bind2_46  # nested in GetChainAnimation (a stub); equal, gone with its carved parent
@@ -2309,20 +2261,8 @@ lit4 actStaff3RollChk 0x006314E4 0x006314E8 ico2/script/src/end.c  # 1 float
 text actEndingSave 0x0020D880 0x0020D940 ico2/script/src/end.c local lines=28  # ordinal; first difference at insn 0; length:-9; extent-differs
 text actOpDemo01 0x0020DAC8 0x0020DFC4 ico2/script/src/op.c lines=134  # ordinal; first difference at insn 0; length:-9; extent-differs
 sdlit actOpDemo01 0x00633930 0x00633947 ico2/script/src/op.c  # 3 strings, measured from the base
-text actTitleShortCut 0x0020DFC8 0x0020E108 ico2/script/src/op.c lines=41  # ordinal; first difference at insn 18; length:-6; extent-differs
 text actTitleReadTimeDemo0 0x0020E108 0x0020E8C4 ico2/script/src/op.c lines=190  # ordinal; first difference at insn 19; length:-10; extent-differs
 rdlit actTitleReadTimeDemo0 0x0061B930 0x0061B979 ico2/script/src/op.c  # 4 strings
-text actOpDemo01_2 0x0020E8C8 0x0020EA00 ico2/script/src/op.c lines=36  # ordinal; first difference at insn 16; length:-1; extent-differs
-text actOpDemo01_2Chk 0x0020EA00 0x0020ED30 ico2/script/src/op.c lines=76  # ordinal; first difference at insn 9; imm:42; extent-equal
-text actOpDemo02 0x0020ED30 0x0020EE40 ico2/script/src/op.c lines=29  # ordinal; first difference at insn 18; imm:4; extent-equal
-text actSt24aConte01_2 0x0020EE40 0x0020F1E0 ico2/script/src/op.c lines=88  # ordinal; first difference at insn 21; length:-4; extent-differs
-text actOpDemo03Chk 0x0020F1E0 0x0020F340 ico2/script/src/op.c lines=38  # ordinal; first difference at insn 43; other:15; extent-equal
-text actSt13aConte01_3 0x0020F340 0x0020F684 ico2/script/src/op.c lines=74  # ordinal; first difference at insn 21; imm:52; extent-equal
-text actOpDemo03 0x0020F688 0x0020F720 ico2/script/src/op.c lines=17  # ordinal; first difference at insn 12; imm:5; extent-equal
-text actSubMpegReturnPreload 0x0020F720 0x0020F79C ico2/script/src/op.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before actSt26aConte01_1_newgame
-text actSt26aConte01_1_newgame 0x0020F7A0 0x0020F82C ico2/script/src/op.c lines=16  # ordinal; first difference at insn 13; imm:1; extent-equal
-rdlit actSt26aConte01_1_newgame 0x0061B980 0x0061B99D ico2/script/src/op.c def  # 2 strings
-text actOpDemo02Chk 0x0020F830 0x0020F90C ico2/script/src/op.c lines=27  # ordinal; first difference at insn 21; length:-2; extent-differs
 text actSt00aInit 0x0020FA98 0x0020FAFC ico2/script/src/st00a.c  # us-only; after op.c's span; pairs with no PAL-only function there by size and order; named actSt00aInit: stage-all proto initproc; PAL actSt00aInit (provisional)
 text actSt00aEnd 0x0020FB00 0x0020FB38 ico2/script/src/st00a.c lines=8  # us-only (after op.c's span; body equals PAL actSt00aEnd's with immediates and jump targets masked); named actSt00aEnd by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text actSt00aEneChk 0x0020FB38 0x0020FC30 ico2/script/src/st00a.c lines=30  # us-only (after op.c's span; PAL order suggests actSt00aEneChk (328 B in PAL)); named actSt00aEneChk by callees, body alignment (provisional)
@@ -3085,16 +3025,8 @@ text ObjAction_Mail 0x0023D6E8 0x0023D750 ico2/omori/src/objact.c lines=8  # equ
 text ObjAction_MailCenter 0x0023D750 0x0023D848 ico2/omori/src/objact.c lines=19  # ordinal; first difference at insn 49; imm:1; extent-equal
 text ObjAction_Init 0x0023D848 0x0023D89C ico2/omori/src/objact.c lines=8  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before func_0023D8A0
 text func_0023D8A0 0x0023D8A0 0x0023D8A8 ico2/omori/src/objact.c  # us-only; after objact.c's span; no PAL-only function there
-text audioDecCreate 0x0023D8A8 0x0023DA5C ico2/ito/mpeg/mv_audiodec.c lines=59  # ordinal; first difference at insn 3; imm:3; extent-equal
-rdlit audioDecCreate 0x0061C430 0x0061C46C ico2/ito/mpeg/mv_audiodec.c  # 2 strings
 text func_0023E170 0x0023E170 0x0023E180 ico2/ito/mpeg/mv_audiodec.c  # us-only; in mv_audiodec.c's span; pairs with no PAL-only function there by size and order
 text audioDecDelete 0x0023E180 0x0023E228 ico2/ito/mpeg/mv_audiodec.c lines=20  # us-only (in mv_audiodec.c's span; PAL order suggests audioDecDelete (160 B in PAL)); named audioDecDelete by call sites, callees, body alignment (provisional)
 rdlit audioDecDelete 0x0061C470 0x0061C4A6 ico2/ito/mpeg/mv_audiodec.c def  # 2 strings
-text dispClear 0x0023E400 0x0023E578 ico2/ito/mpeg/mv_disp.c lines=19  # ordinal; first difference at insn 1; length:+1; extent-differs
-text setDispEnv 0x0023E578 0x0023E770 ico2/ito/mpeg/mv_disp.c lines=27  # ordinal; first difference at insn 0; length:+7; extent-differs
-text dispCreate 0x0023E7E8 0x0023E88C ico2/ito/mpeg/mv_disp.c lines=15  # ordinal; first difference at insn 4; length:-4; extent-differs
-text dispSetTags 0x0023E890 0x0023EDF0 ico2/ito/mpeg/mv_disp.c lines=58  # ordinal; first difference at insn 0; length:+76; extent-differs
-text vblankHandler 0x0023EE28 0x0023EFB0 ico2/ito/mpeg/mv_disp.c lines=35  # census-equal with immediates masked; an immediate differs (match_check imm:1)
-text viBufCreate 0x0023F960 0x0023FB20 ico2/ito/mpeg/mv_vibuf.c lines=47  # ordinal; first difference at insn 13; imm:9; extent-equal
 text MakePacket 0x002412D8 0x002413F0 ico2/common/src/PObj.c local lines=23  # ordinal; first difference at insn 0; imm:11; extent-equal
 rdlit MakePacket 0x0062DF08 0x0062DF21 ico2/common/src/PObj.c  # 1 string

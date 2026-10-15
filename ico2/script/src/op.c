@@ -103,7 +103,44 @@ int opTitleLogoMode = 0;
 
 struct SqEntry *titleAdpcm = 0;
 
-INCLUDE_ASM(actTitleShortCut);
+void actTitleShortCut(GObj *volatile self)
+{
+    GObj *x = self;
+
+    monitorCameraHold = 1;
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (boyGObj != 0) {
+        scpPlayStart(boyGObj);
+    }
+    if (titleAdpcm == 0) {
+        scpAdpcmPlayRequestFunc(54, &titleAdpcm, 0, 0, 1);
+    }
+    stage_SetAnimation(500, 1, 1351);
+
+    scpSearchGobj(41)->active = 1;
+    scpSearchGobj(42)->active = 1;
+    scpSearchGobj(43)->active = 1;
+    scpSearchGobj(45)->active = 1;
+    scpSearchGobj(46)->active = 1;
+    scpSearchGobj(47)->active = 1;
+    scpSearchGobj(48)->active = 1;
+
+    while (titleAdpcm != 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(3.0f);
+
+    while (stage_CheckAnimationFinish(500) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    titleSubEnd = 1;
+    _ACTWait(0);
+}
 
 /* .data: the two demo mail pairs, each the mail the demo thread answers and
    the 396 end marker. */
@@ -111,17 +148,290 @@ static ActMail opDemo02_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail opDemo03_mes[2] = {{397}, {396}}; /* derived name */
 
+inline void actSubMpegReturnPreload(GObj *volatile self)
+{
+    _ACTWait((int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 5.0f));
+    stgmgrNextStagePreLoadForceStageSet(1);
+    stgmgrNextStagePreLoadForceNoCancel(1);
+}
+
 INCLUDE_ASM(actTitleReadTimeDemo0);
 
-INCLUDE_ASM_LIT(actSt26aConte01_1_newgame);
+inline void actSt26aConte01_1_newgame(GObj *volatile self)
+{
+    _ACTWait(1);
 
-INCLUDE_ASM(actOpDemo01_2);
+    while (gflagChk(349) == 0) {
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(actOpDemo01_2Chk);
+    debug_StdPrintfDummy("newgame demo\n");
 
-INCLUDE_ASM(actOpDemo02);
+    debug_StdPrintfDummy("demo layout\n");
 
-INCLUDE_ASM(actSt24aConte01_2);
+    gflagOn(2);
+
+    RequestStageChange(1, boyGObj, 0, 0.25f, 2.0f);
+}
+
+void actOpDemo01_2(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpFadeOut(255.0f, 0, 0, 0);
+
+    adpcm_conte01_sea = 0;
+    op2 = 0;
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    scpAdpcmPlayRequestFunc(7, &adpcm_conte01_sea, 0, 0, 1);
+    while (adpcm_conte01_sea != 0) {
+        _ACTWait(1);
+    }
+    scpFadeIn(2.0f);
+
+    actCreateSubThread(actOpDemo01_2Chk, 21);
+
+    demoSubEnd = 0;
+    while (demoSubEnd == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    if (adpcm_conte01_sea != 0) {
+        scpAdpcmFadeCloseFunc(adpcm_conte01_sea, 128);
+    }
+
+    RequestStageChangeWithColor(1, boyGObj, 0, 1.0f, 4.0f, 255, 255, 255);
+}
+
+void actOpDemo01_2Chk(GObj *volatile self)
+{
+    stgmgrNextStagePreLoadForceStageSet(0);
+
+    scpPlayStart(boyGObj);
+
+    stage_SetAnimation(501, 1, 0);
+
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].nextStage);
+
+    stage_SetAnimation(7, 1, 0);
+
+    scpPlayMot(boyGObj, 263);
+    scpPlayMot(scpSearchGobj(2105), 928);
+    scpSearchGobj(2105)->active = 1;
+    scpPlayMot(scpSearchGobj(2106), 950);
+    scpSearchGobj(2106)->active = 1;
+    scpPlayMot(scpSearchGobj(2107), 973);
+    scpSearchGobj(2107)->active = 1;
+
+    while (stage_ContinueAnimation(501, 502) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 264);
+    scpPlayMot(scpSearchGobj(2105), 929);
+    scpPlayMot(scpSearchGobj(2106), 951);
+    scpPlayMot(scpSearchGobj(2107), 974);
+
+    _ACTWait(1);
+
+    stage_SetAnimation(8, 1, 0);
+
+    while (stage_CheckAnimationFrame(502, 340, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpFadeOut(3.0f, 255, 255, 255);
+    while (scpFadeChk() != 0) {
+        _ACTWait(45);
+    }
+    stage_SetAnimation(502, -1, -2);
+    scpFadeIn(3.0f);
+
+    stage_SetAnimation(503, 1, 0);
+
+    scpAdpcmPlayRequestFunc(10, &op2, 0, 1, 1);
+
+    stage_SetAnimation(9, 1, 0);
+
+    scpPlayMot(boyGObj, 265);
+    scpPlayMot(scpSearchGobj(2105), 930);
+    scpPlayMot(scpSearchGobj(2106), 952);
+    scpPlayMot(scpSearchGobj(2107), 975);
+
+    while (stage_ContinueAnimation(503, 504) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 266);
+    scpPlayMot(scpSearchGobj(2105), 931);
+    scpPlayMot(scpSearchGobj(2106), 953);
+    scpPlayMot(scpSearchGobj(2107), 976);
+
+    _ACTWait(1);
+
+    stage_SetAnimation(10, 1, 0);
+
+    while (stage_CheckAnimationFinish(504) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoSubEnd = 1;
+}
+
+void actOpDemo02(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (boyGObj != 0) {
+        scpPlayMot(boyGObj, 0);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    stage_SetAnimation(131, 0, 0);
+
+    scpAdpcmPlayRequestFunc(8, &demoAdpcm, 0, 1, 1);
+    while (demoAdpcm == 0) {
+        _ACTWait(1);
+    }
+
+    if (op2 == 0) {
+        scpAdpcmPlayRequestFunc(10, &op2, 0, 1, 1);
+    }
+
+    opDemo02_mes[0].func = actOpDemo02Chk;
+    act->mail = opDemo02_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+inline void actOpDemo02Chk(GObj *volatile self)
+{
+    gflagOn(3);
+
+    actCreateSubThread(actSt24aConte01_2, 21);
+
+    actCreateSubThread(actSt24aConte01_2_Jimaku, 21);
+
+    demoSubEnd = 0;
+    while (demoSubEnd == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    if (demoSubEnd == 0) {
+        if (demoAdpcm != 0) {
+            scpAdpcmFadeCloseFunc(demoAdpcm, 512);
+        }
+        if (op2 != 0) {
+            scpAdpcmFadeCloseFunc(op2, 64);
+        }
+    }
+
+    RequestStageChange(2, boyGObj, 0, 0.5f, 4.0f);
+}
+
+void actSt24aConte01_2(GObj *volatile self)
+{
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[1]].nextStage);
+
+    scpPlayStart(boyGObj);
+
+    stage_SetAnimation(505, 1, 0);
+
+    stage_SetAnimation(11, 1, 0);
+
+    scpPlayMot(boyGObj, 267);
+
+    scpPlayMot(scpSearchGobj(2129), 932);
+    scpSearchGobj(2129)->active = 1;
+    scpPlayMot(scpSearchGobj(2130), 954);
+    scpSearchGobj(2130)->active = 1;
+    scpPlayMot(scpSearchGobj(2131), 977);
+    scpSearchGobj(2131)->active = 1;
+
+    while (stage_ContinueAnimation(505, 506) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 268);
+    scpPlayMot(scpSearchGobj(2129), 933);
+    scpPlayMot(scpSearchGobj(2130), 955);
+
+    scpPlayMot(scpSearchGobj(2131), 980);
+
+    _ACTWait(1);
+
+    stage_SetAnimation(12, 1, 0);
+
+    _ACTWait(120);
+
+    stage_SetAnimation(131, 1, 0);
+
+    while (stage_ContinueAnimation(506, 507) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 269);
+    scpPlayMot(scpSearchGobj(2129), 934);
+    scpPlayMot(scpSearchGobj(2130), 956);
+    scpPlayMot(scpSearchGobj(2131), 978);
+
+    _ACTWait(1);
+
+    stage_SetAnimation(13, 1, 0);
+
+    while (stage_ContinueAnimation(507, 508) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 270);
+    scpPlayMot(scpSearchGobj(2129), 935);
+    scpPlayMot(scpSearchGobj(2130), 957);
+    scpPlayMot(scpSearchGobj(2131), 979);
+
+    _ACTWait(1);
+
+    stage_SetAnimation(14, 1, 0);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 10);
+
+    scpFadeOut(6.0f, 0, 0, 0);
+    while (scpFadeChk() != 0) {
+        _ACTWait(45);
+    }
+    stage_SetAnimation(508, -1, -2);
+    scpFadeIn(3.0f);
+
+    stage_SetAnimation(509, 1, 0);
+
+    scpPlayMot(boyGObj, 271);
+    scpPlayMot(scpSearchGobj(2129), 936);
+    scpPlayMot(scpSearchGobj(2130), 958);
+    scpPlayMot(scpSearchGobj(2131), 980);
+
+    while (stage_CheckAnimationFinish(509) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoSubEnd = 1;
+}
 
 inline void actSt24aConte01_2_Jimaku(GObj *volatile self)
 {
@@ -154,14 +464,134 @@ inline void actSt24aConte01_2_Jimaku(GObj *volatile self)
     } while (t < 2700.0f);
 }
 
-INCLUDE_ASM(actOpDemo03Chk);
+inline void actOpDemo03(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt13aConte01_3);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
 
-INCLUDE_ASM(actOpDemo03);
+    stage_SetAnimation(155, 0, 0);
+    stage_SetAnimation(151, 0, 0);
 
-INCLUDE_ASM(actSubMpegReturnPreload);
+    opDemo03_mes[0].func = actOpDemo03Chk;
+    act->mail = opDemo03_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
-INCLUDE_ASM(actSt26aConte01_1_newgame);
+void actOpDemo03Chk(GObj *volatile self)
+{
+    float t = 4.0f;
 
-INCLUDE_ASM(actOpDemo02Chk);
+    gflagOn(4);
+
+    scpFadeOut(255.0f, 0, 0, 0);
+
+    scpAdpcmPlayRequestFunc(9, &op2, 0, 1, 1);
+    while (op2 == 0) {
+        _ACTWait(1);
+    }
+    scpFadeIn(3.0f);
+
+    actCreateSubThread(actSt13aConte01_3, 21);
+
+    demoSubEnd = 0;
+    while (demoSubEnd == 0) {
+        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    if (demoSubEnd == 0) {
+        if (op2 != 0) {
+            scpAdpcmFadeCloseFunc(op2, 128);
+            t = 16.0f;
+        }
+    }
+
+    scpFadeOut(t, 0, 0, 0);
+    while (scpFadeChk() != 0) {
+        _ACTWait(1);
+    }
+
+    RequestStageChange(4, boyGObj, 0, 255.0f, 2.0f);
+}
+
+void actSt13aConte01_3(GObj *volatile self)
+{
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].nextStage);
+
+    scpPlayStart(boyGObj);
+
+    stage_SetAnimation(510, 1, 0);
+
+    scpPlayMot(boyGObj, 272);
+    scpPlayMot(scpSearchGobj(2156), 937);
+    scpSearchGobj(2156)->active = 1;
+    scpPlayMot(scpSearchGobj(2157), 959);
+    scpSearchGobj(2157)->active = 1;
+    scpPlayMot(scpSearchGobj(2158), 981);
+    scpSearchGobj(2158)->active = 1;
+
+    _ACTWait(1);
+    stage_SetAnimation(15, 1, 0);
+
+    while (stage_ContinueAnimation(510, 511) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(scpSearchGobj(2158), 982);
+
+    scpPlayMot(scpSearchGobj(2156), 938);
+    scpPlayMot(scpSearchGobj(2157), 960);
+
+    _ACTWait(1);
+    stage_SetAnimation(16, 1, 0);
+
+    while (stage_ContinueAnimation(511, 512) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 273);
+    scpPlayMot(scpSearchGobj(2158), 983);
+
+    _ACTWait(1);
+    stage_SetAnimation(17, 1, 0);
+    stage_SetAnimation(155, 1, 0);
+
+    while (stage_ContinueAnimation(512, 513) == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(3.0f);
+
+    scpPlayMot(boyGObj, 274);
+    scpPlayMot(scpSearchGobj(2156), 938);
+    scpPlayMot(scpSearchGobj(2157), 960);
+    scpPlayMot(scpSearchGobj(2158), 984);
+
+    _ACTWait(1);
+    stage_SetAnimation(18, 1, 0);
+    stage_SetAnimation(151, 1, 0);
+
+    while (stage_ContinueAnimation(513, 514) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 275);
+    scpPlayMot(scpSearchGobj(2156), 939);
+    scpPlayMot(scpSearchGobj(2157), 961);
+    scpPlayMot(scpSearchGobj(2158), 985);
+
+    _ACTWait(1);
+    stage_SetAnimation(19, 1, 0);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 8);
+
+    demoSubEnd = 1;
+    _ACTWait(0);
+}

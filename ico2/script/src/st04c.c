@@ -291,7 +291,7 @@ void actSt04cEneChk(GObj *volatile self)
 }
 
 /* .sdata: the stream handle actSt04cIntroChk fades out when the intro ends */
-static SqEntry **st04cIntro = 0; /* derived name */
+static SqEntry *st04cIntro = 0; /* derived name */
 
 void actSt04cIntroChk(GObj *volatile self)
 {

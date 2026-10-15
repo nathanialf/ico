@@ -13,12 +13,12 @@
 typedef struct VoTag {      /* field names derived */
     int status;             /* 0x00: 2 decoded, 1 field 0 shown, 0 free */
     char pad4[60];          /* 0x04 */
-    char packet[5][157440]; /* 0x40, the per-field image transfer packets */
+    char packet[5][131584]; /* 0x40, the per-field image transfer packets */
 } VoTag; /* derived name */
 
-/* One decoded picture: 720 x 576 RGBA32. */
+/* One decoded picture: 720 x 480 RGBA32. */
 typedef struct VoData { /* field names derived */
-    unsigned int pixel[414720];
+    unsigned int pixel[345600];
 } VoData; /* derived name */
 
 /* The video-out ring the decoder fills and mv_disp drains. */
