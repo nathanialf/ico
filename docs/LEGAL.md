@@ -19,7 +19,10 @@ respective owners.
 - Configuration that describes how the user's own disc image is checked and
   how the rebuilt ELF is linked: the link order, the linker script, the
   data-table index, the data-table schema (record types and counts, no
-  values) and the SHA-1s of the expected files.
+  values) and the SHA-1s of the expected files, each per target
+  (`config/*.<slug>.*`, `config/sha1sums.<slug>.txt`).
+- The files of `targets/<slug>/`: source in which a target's build differs
+  from the shared tree's, under the same rules as every other source.
 - `config/ico.pal.yaml`, `config/symbol_addrs.pal.txt` and
   `config/symbol_addrs.pal.data.txt`, kept as a record of the old split
   layout; nothing in the build reads them. The two symbol lists hold the
@@ -31,8 +34,8 @@ respective owners.
 
 - The ICO disc image (`.bin`, `.iso`, `.cue` or any other form), in whole or
   in part.
-- The boot ELF of any revision (`SCES_507.60`, `SCUS_971.13`, the
-  prototypes), or any part of it.
+- The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
+  `SCUS_971.13`, the prototypes), or any part of it.
 - Audio, images, textures, models, text or other assets from the disc.
 - The game's data tables (next section).
 - Symbol tables, map files or other identifier tables, and any debug string,
@@ -50,18 +53,19 @@ suspect a file in this repository breaks these rules, open an issue tagged
 
 ## The data tables are generated at build time
 
-The PAL link includes 70 members of the game's archive `ico2000.a` that have
-data sections and no code (MAIN.MAP), plus three data runs MAIN.MAP does not
-list; `config/data_members.pal.txt` lists them all. They are the game's
-content: stage object layouts, model and motion file tables, sound
-definitions, way points, the staff roll. There is no
-program in them to re-derive, and their values are never committed, as C,
-as assembly or in any other form.
+Each disc's link includes 70 members of the game's archive `ico2000.a` that
+have data sections and no code (MAIN.MAP of the PAL disc; the Japanese link
+has the same set), plus three data runs MAIN.MAP does not list;
+`config/data_members.<slug>.txt` lists them all for each target (73 runs). They
+are the game's content: stage object layouts, model and motion file tables,
+sound definitions, way points, the staff roll. There is no program in them to
+re-derive, and their values are never committed, as C, as assembly or in any
+other form.
 
-The build reads them from the user's own `baserom/pal/baseelf.elf` and
-writes them under `build/pal/data/`, which is gitignored. Each member is
-written as `build/pal/data/<member>.c`, an initialized array of its record type
-from `config/data_schema.pal.txt` that compiles with the game's flags
+The build reads them from the user's own `baserom/<slug>/baseelf.elf` and
+writes them under `build/<slug>/data/`, which is gitignored. Each member is
+written as `build/<slug>/data/<member>.c`, an initialized array of its record
+type from `config/data_schema.<slug>.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
 owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
@@ -118,7 +122,7 @@ These may never be used as inputs to this project, even indirectly:
 If you have ever read any of the above, say so on your first pull request so
 your contributions can be reviewed for provenance.
 
-## Retail PAL disc symbol maps (`main`)
+## Retail PAL disc symbol maps (`pal`)
 
 The PAL retail disc (`SCES-50760`, boot ELF `SCES_507.60`, `SYSTEM.CNF`
 `VER = 1.00`) ships three build artifacts next to the boot ELF, which the USA
@@ -145,6 +149,38 @@ it does not copy `TRTABLE.BIN`, which nothing in the build reads. None of
 them is ever committed or bulk-copied. Because the listing comes from a
 different link than the shipped ELF, names were attached to shipped
 functions by instruction-stream correlation, never by copying an address.
+
+## Japanese retail disc (`jpn`)
+
+The Japanese retail disc (`SCPS-11003`, boot ELF `SCPS_110.03`, `SYSTEM.CNF`
+`VER = 1.02`) ships no linker map, listing or address table next to its boot
+ELF. Its names come from the PAL disc's listing above, by instruction-stream
+correlation (`tools/correlate_elf.py`): each function of the Japanese ELF is
+paired with a PAL function whose instructions, relocated fields masked, are
+the same, and takes that function's name. Where the census paired two
+functions only by their position inside a run of unpaired ones (the ordinal
+tier), the pairing was checked by rebuilding the function from the PAL
+function's source. One name was corrected while the functions were rebuilt:
+the ending's save step keeps the name `actEndLogoChk` that the August 6, 2001
+prototype's `TRFILE.TXT` gives it (below), and the step before it, which
+PAL's map calls `actEndLogoChk`, carries a derived name. A function no PAL
+function claims also carries a derived name. The data-only members take
+PAL's names by member order. No address is copied from either PAL file:
+every address in `config/*.jpn.*` was found in the user's own
+ELF.
+
+Of the user's Japanese disc the build reads `SYSTEM.CNF`, to find the boot
+file, and `SCPS_110.03`: it checks the ELF's SHA-1 and generates the 73
+data-only members from it (above). Every function, the five VU1
+microprograms and Sony's libraries are compiled or assembled from the
+tracked sources; nothing of the code is read from the disc.
+`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/jpn/`.
+
+The Japanese string literals in the sources (the EUC-JP files
+`.gitattributes` lists) are the program's own text, the messages and names
+the compiled code prints or passes, written as the code that uses them. They
+are facts the program needs to be rebuilt, as in the shared tree, not assets of
+the disc.
 
 ## Prototype symbol maps (`aug6`)
 
@@ -177,7 +213,7 @@ source and leaked SDKs stay forbidden on every branch.
 
 You must legally own a copy of *ICO* for the PlayStation 2 and supply the
 disc image yourself. The build checks the extracted ELF's SHA-1 before it
-proceeds and refuses any other file (`config/sha1sums.pal.txt`,
+proceeds and refuses any other file (`config/sha1sums.<slug>.txt`,
 `docs/BUILDING.md`). A SHA-1 is a fingerprint, not a copy of the work; the
 disc image and the ELF remain the property of their rightsholders.
 

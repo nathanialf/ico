@@ -20,21 +20,20 @@
 #     branches' copies of docs/index.html (identical to main's once the
 #     change is copied over, tools/check_shared_layer.sh) are never read.
 #   - `main` carries several targets in one tree and contributes every
-#     docs/<slug>/ it has (docs/pal/, and docs/jpn/ once the Japanese target
-#     joins). Each other branch carries one target and contributes its
-#     docs/<slug>/; a branch that still keeps its files at docs/ is read
-#     there. Only the files in DATA_FILES are served.
+#     docs/<slug>/ it has (docs/pal/ and docs/jpn/). Each other branch
+#     carries one target and contributes its docs/<slug>/. Only the files in
+#     DATA_FILES are served.
 #
 # Branch -> version(s):
 #   main -> every docs/<slug>/ it has (pal PAL retail SCES-50760, jpn
-#           Japanese retail SCPS-11003)
+#           Japanese retail SCPS-11003, and the targets that join later)
 #   ntsc -> us     USA retail       (SLUS-20218)
 #   aug6 -> aug6   Aug-6-2001 prototype
 #
 # Layout produced:
 #   _site/index.html        version-toggle dashboard, `main`'s copy
 #   _site/pal/              `main`'s docs/pal/progress.json and PROGRESS.md
-#   _site/jpn/              `main`'s docs/jpn/ (when main has it)
+#   _site/jpn/              `main`'s docs/jpn/
 #   _site/us/               `ntsc`'s progress.json and PROGRESS.md
 #   _site/aug6/             `aug6`'s progress.json and PROGRESS.md
 #
@@ -136,11 +135,7 @@ if [ "$BRANCH" = "$MAIN_BRANCH" ]; then
     done
 else
     SELF="$(version_of "$BRANCH")"
-    if [ -f "docs/$SELF/progress.json" ]; then
-        copy_tree "$SELF" "" "docs/$SELF"
-    else
-        copy_tree "$SELF" "" docs
-    fi
+    copy_tree "$SELF" "" "docs/$SELF"
 fi
 
 # --- the other branches' data -----------------------------------------------
@@ -169,11 +164,7 @@ for ob in $OTHER_BRANCHES; do
         done
     else
         ov="$(version_of "$ob")"
-        if git cat-file -e "$oref:docs/$ov/progress.json" 2>/dev/null; then
-            copy_tree "$ov" "$oref" "docs/$ov"
-        else
-            copy_tree "$ov" "$oref" docs
-        fi
+        copy_tree "$ov" "$oref" "docs/$ov"
     fi
 done
 

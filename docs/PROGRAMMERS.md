@@ -28,8 +28,9 @@ directory they lived in is not recorded.
 ## Who the programmer directories belong to
 
 The source for the names is the game's own staff roll: the ending credits'
-text in the user's boot ELF (a table of string pointers at `0x004E4610`, read
-in table order, each role line followed by its names). Its programmers
+text in the user's boot ELF (a table of string pointers at `0x004E4610`
+(`0x004E1210` in the Japanese ELF), read in table order, each role line
+followed by its names). Its programmers
 section reads:
 
 | credited role | names, in the roll's order |
