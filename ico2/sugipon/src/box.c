@@ -160,13 +160,19 @@ static int checkFieldContact(GObj *self, float lim)
 {
     ClipWork w;
     float pos[4];
+#ifndef VERSION_JPN
     float v[4];
+#endif
     int r;
 
     GetRootPosition(pos, self);
+#ifdef VERSION_JPN
+    GetLowerPlaneCollision(&w, pos);
+#else
     CopyVector(v, pos);
     v[1] -= GOBJ_SUB(self)->root.move[1];
     GetLowerPlaneCollision(&w, v);
+#endif
     r = CheckFieldContact(&w, self, pos, lim);
     if (GOBJ_SUB(self)->parent.obj != 0) {
         UnlinkParentOfDObj(self);
@@ -420,8 +426,13 @@ static void initWheels(GObj *self, SObjSimpleSetting *lay)
     BoxWork *w = GOBJ_SUB(self)->work;
     int i;
 
+#ifdef VERSION_JPN
+    if (objLayout[self->labelId].accessary == 26 ||
+        accessary[GOBJ_SUB(self)->accessary].model == 1548) {
+#else
     if (objLayout[self->labelId].accessary == 26 ||
         accessary[GOBJ_SUB(self)->accessary].model == 0x610) {
+#endif
         w->wheelDObj = 0;
     } else {
         w->wheelDObj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, lay);
@@ -433,13 +444,15 @@ static void initWheels(GObj *self, SObjSimpleSetting *lay)
         }
         w->wheelDObj->nodeMtx = 0;
         w->wheelDObj->nodeQuat = 0;
-        w->wheelDObj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, 560);
-        w->wheelDObj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, 560);
+        w->wheelDObj->nodeMtx =
+            (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, LN(560, 557));
+        w->wheelDObj->nodeQuat =
+            (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, LN(560, 557));
         w->wheelDObj->nodeNum = 2;
         if (w->wheelDObj->nodes != 0) {
             iosFree((void *)((int)w->wheelDObj->nodes & 0x0FFFFFFF));
         }
-        w->wheelDObj->nodes = iosMallocDebug(ios_partition_seki, 160, __FILE__, 560);
+        w->wheelDObj->nodes = iosMallocDebug(ios_partition_seki, 160, __FILE__, LN(560, 557));
 
         for (i = 0; i < 2; i++) {
             {
@@ -1276,7 +1289,11 @@ static void execFloating(GObj *self)
     if (w->floatPhase == 0) {
         CopyVector(cw.pt[0], pos);
         cw.pt[0][1] = w->waterHeight[0];
+#ifdef VERSION_JPN
+        EntryStageMultiBgaManager(487, cw.pt[0], IdentityQuaternion);
+#else
         EntryStageMultiBgaManager(491, cw.pt[0], IdentityQuaternion);
+#endif
     }
 }
 
@@ -1464,12 +1481,16 @@ static void action(GObj *self)
             v.f[2] = 1.0f;
             _ApplyMatrix(GOBJ_SUB(self)->ctrl.dir, (void *)GOBJ_SUB(self)->nodeMtx, &v);
         }
+#ifndef VERSION_JPN
         CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+#endif
         break;
     case 1:
     case 6:
         execAutoMove(self);
+#ifndef VERSION_JPN
         CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+#endif
         break;
     case 2:
     case 3:
@@ -1477,7 +1498,9 @@ static void action(GObj *self)
         break;
     case 4:
         playBoxAnimation(self, v.f);
+#ifndef VERSION_JPN
         CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+#endif
         break;
     case 5:
         execFloating(self);
@@ -1485,7 +1508,9 @@ static void action(GObj *self)
     case -1:
     default:
         debug_StdPrintfDummy("box die!!!\n");
+#ifndef VERSION_JPN
         CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+#endif
         break;
     }
     if (p->mode != 6) {
@@ -1828,11 +1853,18 @@ static inline int checkItemHit(GObj *obj, float *dir) /* derived name */
 
 static int moveBoxAutoMatic(GObj *self, int dir)
 {
+#ifdef VERSION_JPN
+    static float v[4] = {0.0f, 0.0f, 0.5f, 0.0f};
+    static float v2[4] = {0.0f, 0.0f, -0.5f, 0.0f};
+#else
     float v[4];
     float v2[4];
+#endif
     BoxWork *p = GOBJ_SUB(self)->work;
+#ifndef VERSION_JPN
     float t = 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
     float w = t * t;
+#endif
     int r;
 
     switch (dir) {
@@ -1841,14 +1873,18 @@ static int moveBoxAutoMatic(GObj *self, int dir)
         AddVectorXYZ(p->vel, p->vel, ZeroVector);
         break;
     case 1:
+#ifndef VERSION_JPN
         memset(v, 0, 16);
         v[2] = w * 0.5f;
+#endif
         p->friction = 0.98f;
         AddVectorXYZ(p->vel, p->vel, v);
         break;
     case -1:
+#ifndef VERSION_JPN
         memset(v2, 0, 16);
         v2[2] = w * -0.5f;
+#endif
         p->friction = 0.98f;
         AddVectorXYZ(p->vel, p->vel, v2);
         break;
@@ -2030,7 +2066,7 @@ static unsigned char boxSerial = 0; /* derived name */
    and the sub-box model in its high half */
 BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
 {
-    BoxWork *w = iosMallocDebug(ios_partition_sugipon, 416, __FILE__, 2017);
+    BoxWork *w = iosMallocDebug(ios_partition_sugipon, 416, __FILE__, LN(2017, 2003));
     GObj *o;
     GObj *g;
     int sub;

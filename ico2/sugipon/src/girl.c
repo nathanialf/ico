@@ -1825,7 +1825,11 @@ void GirlGeo(GObj *gobj)
 
     HandManager(gobj);
     ExecMotionOrient(gobj);
+#ifdef VERSION_JPN
+    SetActressLight(gobj, 35, 44, 466);
+#else
     SetActressLight(gobj, 35, 44, 470);
+#endif
     if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.0f)) {
         iosOmSendMail(gobj, 6, gobj);
     }

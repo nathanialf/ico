@@ -76,7 +76,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from check_elf import parse_map  # noqa: E402
 from correlate_elf import RELOC_KIND, describe_reloc  # noqa: E402
 from gen_stub_s import LIST, asm_line, parse_stubs  # noqa: E402
-from ico_version import baseelf_path, build_dir, detect_version, link_map_path, resolve_source  # noqa: E402
+from ico_version import baseelf_path, build_dir, detect_version, link_map_path  # noqa: E402
 from match_check import KEEP, build_symbols, compile_tu, disasm, read_twins  # noqa: E402
 
 VERSION = detect_version(ROOT)
@@ -257,7 +257,7 @@ def tus_of(placed):
     out = []
     for o, _, _ in placed:
         src = Path(o).relative_to(OUT_REL).with_suffix(".c")
-        if resolve_source(ROOT, VERSION, str(src)).exists() and str(src) not in out:
+        if (ROOT / src).exists() and str(src) not in out:
             out.append(str(src))
     return out
 

@@ -38,7 +38,11 @@ void actSt24aSwordChk(GObj *volatile self)
     while ((GOBJ_ACT(boyGObj)->pad.trg & 0x20) == 0 || scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
     gflagOn(329);
@@ -62,7 +66,11 @@ void actSt24aSwordChk(GObj *volatile self)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
+#ifdef VERSION_JPN
+        stage_SetAnimation(149, 0, -1);
+#else
         stage_SetAnimation(153, 0, -1);
+#endif
         scpPlayPosSet(boyGObj, 1685.0f, -1080.0f, -550.0f);
         *(Vec16 *)v = swordChkPos;
         sceVu0SubVector(dir, v, test_CURRENTROOT(boyGObj));
@@ -73,7 +81,11 @@ void actSt24aSwordChk(GObj *volatile self)
     }
     scpPlayMot(boyGObj, 0);
     scpPlayEnd(boyGObj);
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
     scpBoyControlReadDisable = 0;
 }
 
@@ -82,12 +94,24 @@ static void actSt24aDemoCamChk(GObj *volatile self)
     while (scpTriggerBall(self, boyGObj, 700.0f) == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpBoyControlReadDisable = 1;
     gflagOn(330);
+#ifdef VERSION_JPN
+    stage_SetAnimation(150, 1, 0);
+#else
     stage_SetAnimation(154, 1, 0);
+#endif
     SetCameraFlag_LwsCutBack();
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(150) == 0) {
+#else
     while (stage_CheckAnimationFinish(154) == 0) {
+#endif
         if (pad[0].flags & 0x800) {
             if (scpAdpcmPlayRequestNum() == 0) {
                 scpFadeOut(16.0f, 0, 0, 0);
@@ -97,14 +121,22 @@ static void actSt24aDemoCamChk(GObj *volatile self)
                 while (lt_fade_status() != 2) {
                     _ACTWait(1);
                 }
+#ifdef VERSION_JPN
+                stage_SetAnimation(150, 0, -1);
+#else
                 stage_SetAnimation(154, 0, -1);
+#endif
                 scpFadeIn(3.0f);
                 break;
             }
         }
         _ACTWait(1);
     }
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
     scpBoyControlReadDisable = 0;
 }
 
@@ -130,7 +162,11 @@ void actSt24aSaku(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(147, 0, 0);
+#else
     stage_SetAnimation(151, 0, 0);
+#endif
 }
 
 void actSt24aDemoCam(GObj *volatile self)
@@ -154,18 +190,30 @@ static void actSt24aSwordSub(GObj *volatile self)
     }
     AdpcmPlay(sword->stream);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(149, 1, 0);
+#else
     stage_SetAnimation(153, 1, 0);
+#endif
 
     scpPlayMot(boyGObj, 250);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(149, 21, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(153, 21, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     scpSetBoyWeaponGObj(scpSearchGobj(2098));
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(149) == 0) {
+#else
     while (stage_CheckAnimationFinish(153) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);

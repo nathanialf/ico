@@ -42,6 +42,11 @@ static float ditchCheckBase[4] = {226.0f, -2328.0f, 343.0f, 1.0f}; /* derived na
 
 static float ditchCheckDir[4] = {0.642799f, 0.0f, -0.765893f, 0.0f}; /* derived name */
 
+#ifdef VERSION_JPN
+/* where the first carrier stands in the stage 8 ditch below the -3000 line */
+static float ditchCarryPos[4] = {747.0f, -3775.0f, 2601.0f, 1.0f}; /* derived name */
+#endif
+
 static float ditchCarryTarget[4] = {602.0f, -3775.0f, 2480.0f, 1.0f}; /* derived name */
 
 static float ditchSofaTarget[4] = {749.0f, -3775.0f, 2650.0f, 1.0f}; /* derived name */
@@ -73,9 +78,11 @@ inline void GetSofaPosition(GObj *self, GObj *sofa)
                       *(void **)((char *)((union ENVIF *)((char *)sofa + 0x15C))->i + 0xC), &v);
 }
 
+#ifndef VERSION_JPN
 /* Where the first carrier stands in the stage 8 ditch below the -3000 line
    (the .rodata's second object). */
 static const VECTOR ditchCarryPos = {767.0f, -3775.0f, 2621.0f, 1.0f}; /* derived name */
+#endif
 
 static inline int getDitchCarryMode(void) /* derived name */
 {
@@ -144,13 +151,22 @@ static void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, vo
             }
         } else {
             if (mode == 1) {
+#ifndef VERSION_JPN
                 v = ditchCarryPos;
 
+#endif
                 *tbl = ditchDistTblCarry;
+#ifdef VERSION_JPN
+                pos[0] = ditchCarryPos[0];
+                pos[1] = ditchCarryPos[1];
+                pos[2] = ditchCarryPos[2];
+                _OrientXZGV(obj, ditchCarryTarget, ditchCarryPos);
+#else
                 pos[0] = v.x;
                 pos[1] = v.y;
                 pos[2] = v.z;
                 _OrientXZGV(obj, ditchCarryTarget, &v.x);
+#endif
 
                 *carry = mode;
             } else {
@@ -674,15 +690,32 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             }
             row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
             g = 1;
+#ifdef VERSION_JPN
+            if ((row->modeBits.word >> 16) & 7) {
+#else
             if ((row->modeBits.word >> 19) & 7) {
+#endif
                 kk = 60.0f;
+#ifdef VERSION_JPN
+            } else if ((row->flags.word >> 30) & 1) {
+#else
             } else if ((row->flags.word >> 28) & 1) {
+#endif
                 kk = 50.0f;
             } else {
                 kk = 40.0f;
             }
             if (dist < 120.0f && t7) {
                 sceVu0ScaleVector(p60, env->wallOrient, dist);
+#ifdef VERSION_JPN
+                sceVu0AddVector((float *)((char *)GOBJ_ACT(self)->work + 0x830),
+                                pos, p60);
+                sceVu0ScaleVector((float *)((char *)GOBJ_ACT(self)->work + 0x840),
+                                  env->wallOrient, -1.0f);
+                *(float *)((char *)GOBJ_ACT(self)->work + 0x850) = 40.0f;
+                *(int *)((char *)GOBJ_ACT(self)->work + 0x854) = 20;
+                *(int *)((char *)GOBJ_ACT(self)->work + 0x858) = 1;
+#else
                 sceVu0AddVector((float *)((char *)GOBJ_ACT(self)->work + 0x840),
                                 pos, p60);
                 sceVu0ScaleVector((float *)((char *)GOBJ_ACT(self)->work + 0x850),
@@ -690,6 +723,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 *(float *)((char *)GOBJ_ACT(self)->work + 0x860) = 40.0f;
                 *(int *)((char *)GOBJ_ACT(self)->work + 0x864) = 20;
                 *(int *)((char *)GOBJ_ACT(self)->work + 0x868) = 1;
+#endif
                 flags[1].w |= 8;
             }
             if (self == girlGObj && _ACTCharStatus_Check(self, 0x1C)) {
@@ -807,8 +841,13 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     if (dist < 200.0f) {
         int b = (dist < 40.0f) ? 1 : 0;
 
+#ifdef VERSION_JPN
+        if (!((stage_no == 84 || stage_no == 3 || stage_no == 46) && *(int *)(self + 0xC) == 4) &&
+            CheckPureWallAttribute(self, 0x400)) {
+#else
         if (!((stage_no == 86 || stage_no == 3 || stage_no == 46) && *(int *)(self + 0xC) == 4) &&
             CheckPureWallAttribute(self, 0x400)) {
+#endif
             flags[2].bit.b24 = b;
             flags[2].w |= 0x800000;
             env->edgeOrient[0] = env->wallOrient[0];
@@ -828,7 +867,11 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             flags[2].w |= 0x20000;
         }
     }
+#ifdef VERSION_JPN
+    switch (((int)(&motionKind[GOBJ_SUB(self)->ctrl.motion])->modeBits.word << 4) >> 30) {
+#else
     switch (((int)(&motionKind[GOBJ_SUB(self)->ctrl.motion])->modeBits.word << 6) >> 30) {
+#endif
     default:
         kd = 60.0f;
         break;
@@ -1076,8 +1119,13 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             flags[0].w |= 0x8000000;
         }
         if (hh < 40.0f) {
+#ifdef VERSION_JPN
+            if (!((stage_no == 84 || stage_no == 3 || stage_no == 46) && *(int *)(self + 0xC) == 4) &&
+                CheckPureCliffAttribute(self, 0x400) && 60.0f < f26) {
+#else
             if (!((stage_no == 86 || stage_no == 3 || stage_no == 46) && *(int *)(self + 0xC) == 4) &&
                 CheckPureCliffAttribute(self, 0x400) && 60.0f < f26) {
+#endif
                 env->edgeOrient[0] = env->cliffOrient[0];
                 env->edgeOrient[1] = env->cliffOrient[1];
                 env->edgeOrient[2] = env->cliffOrient[2];
@@ -1203,6 +1251,15 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                                     GOBJ_WORK(self)->boxSidePos, p130);
                 GetRootPosition(p160, self);
                 sceVu0ScaleVector(p150, env->cliffOrient, hh - 30.0f);
+#ifdef VERSION_JPN
+                sceVu0AddVector((float *)((char *)GOBJ_ACT(self)->work + 0x800), p160, p150);
+                *(float *)((char *)GOBJ_ACT(self)->work + 0x810) = env->cliffOrient[0];
+                *(float *)((char *)GOBJ_ACT(self)->work + 0x814) = env->cliffOrient[1];
+                *(float *)((char *)GOBJ_ACT(self)->work + 0x818) = env->cliffOrient[2];
+                *(float *)((char *)GOBJ_ACT(self)->work + 0x820) = 30.0f;
+                *(int *)((char *)GOBJ_ACT(self)->work + 0x824) = 20;
+                *(int *)((char *)GOBJ_ACT(self)->work + 0x828) = 0;
+#else
                 sceVu0AddVector((float *)((char *)GOBJ_ACT(self)->work + 0x810), p160, p150);
                 *(float *)((char *)GOBJ_ACT(self)->work + 0x820) = env->cliffOrient[0];
                 *(float *)((char *)GOBJ_ACT(self)->work + 0x824) = env->cliffOrient[1];
@@ -1210,6 +1267,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 *(float *)((char *)GOBJ_ACT(self)->work + 0x830) = 30.0f;
                 *(int *)((char *)GOBJ_ACT(self)->work + 0x834) = 20;
                 *(int *)((char *)GOBJ_ACT(self)->work + 0x838) = 0;
+#endif
                 sub->wish1.ll |= 4;
                 if (v200) {
                     env->cliffSel = sel;
@@ -1224,8 +1282,8 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                         sub->wish2.ll |= 0x200;
                         break;
                     default:
-                        debug_assert("src/act-env.c", 2633);
-                        __assert("src/act-env.c", 2633, "0");
+                        debug_assert("src/act-env.c", LN(2633, 2623));
+                        __assert("src/act-env.c", LN(2633, 2623), "0");
                         break;
                     }
                 }
@@ -1275,6 +1333,19 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                             sub->wish2.ll |= 0x2000;
                         } else {
                             sceVu0ScaleVector(p180, env->cliffOrient, hh - 30.0f);
+#ifdef VERSION_JPN
+                            sceVu0AddVector((float *)((char *)GOBJ_ACT(self)->work + 0x860), pos,
+                                            p180);
+                            *(float *)((char *)GOBJ_ACT(self)->work + 0x870) =
+                                env->cliffOrient[0];
+                            *(float *)((char *)GOBJ_ACT(self)->work + 0x874) =
+                                env->cliffOrient[1];
+                            *(float *)((char *)GOBJ_ACT(self)->work + 0x878) =
+                                env->cliffOrient[2];
+                            *(float *)((char *)GOBJ_ACT(self)->work + 0x880) = 30.0f;
+                            *(int *)((char *)GOBJ_ACT(self)->work + 0x884) = 20;
+                            *(int *)((char *)GOBJ_ACT(self)->work + 0x888) = 0;
+#else
                             sceVu0AddVector((float *)((char *)GOBJ_ACT(self)->work + 0x870), pos,
                                             p180);
                             *(float *)((char *)GOBJ_ACT(self)->work + 0x880) =
@@ -1286,6 +1357,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                             *(float *)((char *)GOBJ_ACT(self)->work + 0x890) = 30.0f;
                             *(int *)((char *)GOBJ_ACT(self)->work + 0x894) = 20;
                             *(int *)((char *)GOBJ_ACT(self)->work + 0x898) = 0;
+#endif
                             sub->wish1.ll |= 0x10;
                         }
                         break;
@@ -1465,7 +1537,11 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         float rad;
         MotionDef *row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
 
+#ifdef VERSION_JPN
+        rad = ((row->modeBits.word >> 16) & 7) ? 100.0f : 90.0f;
+#else
         rad = ((row->modeBits.word >> 19) & 7) ? 100.0f : 90.0f;
+#endif
         c = CheckTorchChainReaction(self, 200.0f);
         if (c != 0) {
             GetRootPosition(p70, c);

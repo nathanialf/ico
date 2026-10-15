@@ -7,9 +7,9 @@ The evidence is the PAL disc's January 2002 listing (`SRCFILE.TXT`, an
 `objdump -dl` of the game with a source path and line on every instruction)
 and its `MAIN.MAP`; both are copied into `baserom/pal/` by
 `tools/extract_elf.sh` and are never committed (`docs/LEGAL.md`). The
-Japanese disc ships neither: the shared headers are the PAL tree's, and
-`targets/jpn/` carries the ones the Japanese build changes (per-target
-headers, below). The listing
+Japanese disc ships neither: the headers are the PAL tree's, with the
+Japanese build's declarations inline where they differ (per-target
+declarations, below). The listing
 contains no source text. A header shows up in it only when code from the
 header was compiled into a caller: a header that only declares leaves no
 rows at all.
@@ -101,14 +101,15 @@ it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
 header compiled code into the game. The Japanese link has no `libscf`
 member, so `sce/libscf/` is listed only in PAL's link order.
 
-## Per-target headers
+## Per-target declarations
 
-The shared headers are PAL's. Where the Japanese build lays out a record or
-declares something differently, `targets/jpn/` holds its own copy of the
-owner's header at the same relative path (`targets/jpn/ico2/common/include/{charFileManager,charFileName,typedef,icoMisc,kanban,layout_texture,main}.h`,
+The headers are PAL's. Where the Japanese build lays out a record or
+declares something differently, the owner's header holds the Japanese
+declaration in a `VERSION_JPN` block beside PAL's
+(`ico2/common/include/{charFileManager,charFileName,typedef,icoMisc,main}.h`,
 `fumi/include/act-game.h`, `ito/include/{mv_defs,mv_vobuf}.h`, `script/include/end.h`,
-`seki/include/{BgAnimation,GsBase}.h`, `sugipon/include/{enemy,item,motionOrientManager}.h`),
-and every reader of the Japanese build uses it. The records:
+`seki/include/{BgAnimation,GsBase}.h`, `sugipon/include/motionOrientManager.h`),
+and every reader of the Japanese build compiles that block. The records:
 
 | record | header | the Japanese layout |
 | --- | --- | --- |

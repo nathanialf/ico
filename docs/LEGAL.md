@@ -21,8 +21,8 @@ respective owners.
   data-table index, the data-table schema (record types and counts, no
   values) and the SHA-1s of the expected files, each per target
   (`config/*.<slug>.*`, `config/sha1sums.<slug>.txt`).
-- The files of `targets/<slug>/`: source in which a target's build differs
-  from the shared tree's, under the same rules as every other source.
+- The `VERSION_<SLUG>` blocks in which a target's build differs from PAL's,
+  under the same rules as every other source.
 - `config/ico.pal.yaml`, `config/symbol_addrs.pal.txt` and
   `config/symbol_addrs.pal.data.txt`, kept as a record of the old split
   layout; nothing in the build reads them. The two symbol lists hold the

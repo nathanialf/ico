@@ -87,6 +87,10 @@ static char printBuf[128]; /* derived name */
 
 inline void ExitIcoMisc(void) {}
 
+#ifdef VERSION_JPN
+inline void DummyIcoMisc(void) {} /* derived name */
+#endif
+
 /* two-dimensional screen position handed to Draw2DLine */
 typedef struct { /* field names derived */
     int x;
@@ -295,7 +299,11 @@ void ExecIcoMisc(void)
         ExecGameOverEffect();
         seEnvMute = 0;
     } else {
+#ifdef VERSION_JPN
+        if (current_layout_id == 25) {
+#else
         if (current_layout_id == 28) {
+#endif
             seEnvMute = 1;
         }
         if (seEnvMute != 0) {
@@ -326,12 +334,20 @@ void ExecIcoMisc(void)
     if (fall_death_active != 0) {
         if (boyGObj != 0) {
             if (GOBJ_SUB(boyGObj)->ctrl.fallHeight > 1000.0f) {
+#ifdef VERSION_JPN
+                lt_switch_layout(59);
+#else
                 lt_switch_layout(62);
+#endif
             }
         }
         if (girlGObj != 0) {
             if (GOBJ_SUB(girlGObj)->ctrl.fallHeight > 1000.0f) {
+#ifdef VERSION_JPN
+                lt_switch_layout(59);
+#else
                 lt_switch_layout(62);
+#endif
             }
         }
     }
@@ -347,7 +363,11 @@ typedef struct { /* field names derived */
     } ent[12];
 
     char pad60[0xC0 - 0x60];
+#ifdef VERSION_JPN
+    char name[0x190 - 0xC0];
+#else
     char name[0x194 - 0xC0];
+#endif
 } ScnPre; /* derived name */
 
 /* particle-effect entry: package id at 0x18, attribute word at 0x20 whose

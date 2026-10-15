@@ -79,13 +79,12 @@ done
 
 # --- 3. size cap ---
 # Non-source files keep the tight 256 KiB cap (catches stray binary/asset
-# dumps). Tracked C source (ico2/ and sce/ *.c/*.h/*.c.inc, and a target's
-# overlay copies of them under targets/<slug>/) gets a
+# dumps). Tracked C source (ico2/ and sce/ *.c/*.h/*.c.inc) gets a
 # higher 8 MiB ceiling: some TUs hold their data as typed C (word arrays,
 # strings, structs), which pushes them past 256 KiB. Their CONTENT is still
 # gated by rule #5 below (raw byte-array dumps banned), so a large .c is
 # typed source, not laundered ROM. The 8 MiB ceiling stays as a backstop.
-src_large_re='^(targets/[^/]+/)?(ico2|sce)/.*\.(c|h|c\.inc|inc)$'
+src_large_re='^(ico2|sce)/.*\.(c|h|c\.inc|inc)$'
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue
@@ -160,10 +159,9 @@ raw_byte_re="^[[:space:]]*${attr_opt_re}(const[[:space:]]+)?${byte_type_re}[[:sp
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue
-    # Only tracked C under ico2/ and sce/ (and their overlay copies under
-    # targets/<slug>/), and the stub lists.
+    # Only tracked C under ico2/ and sce/, and the stub lists.
     case "$f" in
-        ico2/*.c|ico2/*.c.inc|sce/*.c|targets/*/ico2/*.c|targets/*/ico2/*.c.inc|targets/*/sce/*.c|config/stubs.*.txt) ;;
+        ico2/*.c|ico2/*.c.inc|sce/*.c|config/stubs.*.txt) ;;
         *) continue ;;
     esac
     if grep -nE "${raw_byte_re}" "$f" >/dev/null 2>&1; then

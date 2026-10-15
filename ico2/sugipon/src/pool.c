@@ -171,8 +171,13 @@ void SetFallDownSplash(GObj *pool, GObj *self)
         setNodePursueParticleEffectWithUpperLimit(48, self, 47, pos[1]);
     }
 
+#ifdef VERSION_JPN
+    stage_SetLoopFlag(495, 0);
+    stage_SetFrameStep(495, 1);
+#else
     stage_SetLoopFlag(499, 0);
     stage_SetFrameStep(499, 1);
+#endif
 
     EntryMultiBgaManagerNoKind(w->splash, w->splashNo, pos);
     w->splashNo = (w->splashNo + 1) % 2;
@@ -596,7 +601,13 @@ static void dispPool(GObj *self)
 
     _SetCurrentMatrix(matrixptr + 0x100);
 
+#ifdef VERSION_JPN
+    if (debug_snapshot_reserve == 0) {
+        prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
+    }
+#else
     prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
+#endif
 
     CopyMatrix((char *)GOBJ_SUB(self)->lightMtx + 0x40, workLightColor);
     CopyMatrix((char *)GOBJ_SUB(self)->lightMtx, workLightNormal);
@@ -611,6 +622,9 @@ static void dispPool(GObj *self)
     CopyMatrix(m3, (char *)(matrixptr + 0x200));
     CopyMatrix(m4, (char *)(matrixptr + 0x340));
 
+#ifdef VERSION_JPN
+    debug_snapshot_reserve--;
+#endif
     gsb_SetVSMatrix(0xCC, 0xCC, (float)currentFocusDistance);
 
     _MulMatrix((char *)(matrixptr + 0x100), (char *)(matrixptr + 0xC0), (char *)(matrixptr + 0x80));
@@ -628,7 +642,11 @@ static void dispPool(GObj *self)
     if (w->dobj != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), &w->dobj->matrix);
         switch (stage_no) {
+#ifdef VERSION_JPN
+        case 99:
+#else
         case 101:
+#endif
             MatrixDrive_RotMatrixZ((w->spin << 16) / 1600);
             break;
         case 15:
@@ -658,6 +676,9 @@ static void dispPool(GObj *self)
     CopyMatrix((char *)(matrixptr + 0x200), m3);
     vsWidth = ScreenWidth;
     vsHeight = ScreenHeight;
+#ifdef VERSION_JPN
+    debug_snapshot_reserve++;
+#endif
 
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
 
@@ -693,8 +714,13 @@ void PoolDL(GObj *self)
 {
     PoolWork *w = GOBJ_SUB(self)->work;
 
+#ifdef VERSION_JPN
+    DispMultiBgaManagerWithKind(494, w->bga, 10);
+    DispMultiBgaManagerWithKind(495, w->splash, 2);
+#else
     DispMultiBgaManagerWithKind(498, w->bga, 10);
     DispMultiBgaManagerWithKind(499, w->splash, 2);
+#endif
     if (systemStatus[5] == 0) {
         w->phase =
             (short)((float)w->phase +

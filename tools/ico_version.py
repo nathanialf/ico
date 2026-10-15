@@ -17,14 +17,9 @@ baserom/<slug>/baseelf.{elf,rom} (`baserom/` is gitignored and holds every
 target's files side by side); its build is under build/<slug>/; its progress
 files are under docs/<slug>/.
 
-The sources are two layers. The shared tree, ico2/ and sce/, is every
-configured target's source unless the target's overlay, targets/<slug>/,
-holds a file at the same relative path, which replaces it for that target
-alone. A link-order row names the shared path (ico2/fumi/src/boyact.c);
-resolve_source() gives the file a target compiles. The build compiles from a
-merged view of the two layers, build/<slug>/tree/ (tools/gen_ninja.py
---tree), so every relative path a compile spells is the same for every
-target.
+The sources, ico2/ and sce/, are one tree for every configured target:
+where the targets differ, a file holds each one's lines inline in
+#ifdef VERSION_<SLUG> blocks, which tools/compile_c.sh defines.
 
 An explicit `VERSION` environment variable wins; otherwise the slug is the
 first configured one in VERSIONS order.
@@ -132,18 +127,6 @@ def build_dir(repo_root: Path, version: str) -> Path:
     return repo_root / "build" / version
 
 
-def tree_dir(repo_root: Path, version: str) -> Path:
-    """The merged source view of this target, build/<version>/tree: one
-    symlink per source file at its shared path, to the overlay's copy when
-    targets/<version>/ has one and to the shared file otherwise."""
-    return build_dir(repo_root, version) / "tree"
-
-
-def overlay_dir(repo_root: Path, version: str) -> Path:
-    """This target's overlay, targets/<version>."""
-    return repo_root / "targets" / version
-
-
 def link_map_path(repo_root: Path, version: str) -> Path:
     """The link map the build writes, build/<version>/ico.<version>.map."""
     return build_dir(repo_root, version) / f"ico.{version}.map"
@@ -161,35 +144,12 @@ def docs_dir(repo_root: Path, version: str) -> Path:
     return repo_root / "docs" / version
 
 
-def layer_rel(rel: str) -> str:
-    """The shared path of a repo-relative source path: targets/<slug>/<rel>
-    gives <rel>, any other path is returned as it is."""
-    parts = rel.split("/", 2)
-    if len(parts) == 3 and parts[0] == "targets":
-        return parts[2]
-    return rel
-
-
-def resolve_source(repo_root: Path, version: str, rel: str) -> Path:
-    """The file a target compiles for the shared path rel:
-    targets/<version>/<rel> when it exists, else <rel>."""
-    p = overlay_dir(repo_root, version) / rel
-    return p if p.exists() else repo_root / rel
-
-
-def source_rel(repo_root: Path, version: str, rel: str) -> str:
-    """resolve_source() as a repo-relative path."""
-    return resolve_source(repo_root, version, rel).relative_to(repo_root).as_posix()
-
-
-def layer_files(repo_root: Path, version: str | None = None) -> list[str]:
-    """The repo-relative paths of the source files in the shared layer
-    (ico2/, sce/) and, with a version, in targets/<version>/: every file git
-    tracks there or would track (untracked files not ignored), so a file
-    added and not yet staged is part of the view."""
+def layer_files(repo_root: Path) -> list[str]:
+    """The repo-relative paths of the source files (ico2/, sce/): every file
+    git tracks there or would track (untracked files not ignored), so a file
+    added and not yet staged is counted."""
     import subprocess
-    roots = ["ico2", "sce"] + ([f"targets/{version}"] if version else [])
-    out = subprocess.run(["git", "ls-files", "-co", "--exclude-standard", "--", *roots],
+    out = subprocess.run(["git", "ls-files", "-co", "--exclude-standard", "--", "ico2", "sce"],
                          cwd=repo_root, capture_output=True, text=True, check=True).stdout
     return [p for p in dict.fromkeys(out.splitlines()) if p and (repo_root / p).is_file()]
 
@@ -229,7 +189,6 @@ _KEYS = {
     "disc_name": lambda root, v: disc_name(v),
     "disc_where": lambda root, v: DISCS[v]["where"] if v in DISCS else "",
     "build_dir": lambda root, v: build_dir(root, v).relative_to(root),
-    "tree": lambda root, v: tree_dir(root, v).relative_to(root),
     "sha1sums": lambda root, v: sha1sums_path(root, v).relative_to(root),
     "docs_dir": lambda root, v: docs_dir(root, v).relative_to(root),
     "versions": lambda root, v: " ".join(configured_versions(root)),

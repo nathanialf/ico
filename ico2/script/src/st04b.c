@@ -61,11 +61,19 @@ void actSt04bSekizoChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpBoyControlReadDisable = 1;
     brainLockGirl();
 
+#ifdef VERSION_JPN
+    scpKillEnemyOne(3734);
+#else
     scpKillEnemyOne(3757);
+#endif
     scpMaskGeneratorAll();
 
     scpAdpcmPlayRequestFunc(18, &sekizo4b, 1, 1, 1);
@@ -75,7 +83,11 @@ void actSt04bSekizoChk(GObj *volatile self)
 
     gflagOn(390);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(187, 1, 0);
+#else
     stage_SetAnimation(191, 1, 0);
+#endif
 
     ReviveAllCarryableItemsWithNonSleepFrame(250);
 
@@ -109,7 +121,11 @@ void actSt04bSekizoChk(GObj *volatile self)
 
     soundSeDefStop(se);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(187, 151, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(191, 151, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -130,12 +146,20 @@ void actSt04bSekizoChk(GObj *volatile self)
 
     ScpCallCameraSetTarget(10793.0f, 2122.0f, 0.0f);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(187) == 0) {
+#else
     while (stage_CheckAnimationFinish(191) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
     scpBoyControlReadDisable = 0;
 }
 
@@ -150,10 +174,18 @@ void actSt04bEne1Chk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpBoyControlReadDisable = 1;
 
+#ifdef VERSION_JPN
+    scpSleepEnemyOne(3734);
+#else
     scpSleepEnemyOne(3757);
+#endif
 
     gflagOff(391);
 
@@ -162,17 +194,33 @@ void actSt04bEne1Chk(GObj *volatile self)
     gflagOn(157);
     gflagOn(158);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(180, 1, 0);
+#else
     stage_SetAnimation(184, 1, 0);
+#endif
     SetCameraFlag_LwsCutBack();
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(180) == 0) {
+#else
     while (stage_CheckAnimationFinish(184) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
     scpBoyControlReadDisable = 0;
 
+#ifdef VERSION_JPN
+    scpWakeupEnemyOne(3734);
+#else
     scpWakeupEnemyOne(3757);
+#endif
 }
 
 void actSt04bCrest01XL(GObj *volatile self)
@@ -183,11 +231,21 @@ void actSt04bCrest01XL(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(174) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(181, 0, 0);
+        stage_SetAnimation(182, 0, 0);
+#else
         stage_SetAnimation(185, 0, 0);
         stage_SetAnimation(186, 0, 0);
+#endif
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(181, 0, -1);
+        stage_SetAnimation(182, 0, -1);
+#else
         stage_SetAnimation(185, 0, -1);
         stage_SetAnimation(186, 0, -1);
+#endif
         scpTorchLightOn(1056);
         scpTorchLightOn(1057);
     }
@@ -199,7 +257,11 @@ void actSt04bDoorXL(GObj *volatile self)
 
     actInitialize(self);
     _ACTWait(1);
+#ifdef VERSION_JPN
+    stage_SetAnimation(245, 0, 0);
+#else
     stage_SetAnimation(249, 0, 0);
+#endif
 }
 
 void actSt04bMonyoDoorXL(GObj *volatile self)
@@ -210,9 +272,17 @@ void actSt04bMonyoDoorXL(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(174) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(246, 0, 0);
+#else
         stage_SetAnimation(250, 0, 0);
+#endif
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(246, 0, -1);
+#else
         stage_SetAnimation(250, 0, -1);
+#endif
     }
 }
 
@@ -223,13 +293,21 @@ void actSt04bSekizo(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(159) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(187, 0, 0);
+#else
         stage_SetAnimation(191, 0, 0);
+#endif
         sekizo_mes[0].func = actSt04bSekizoChk;
         act->mail = sekizo_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(187, 0, -1);
+#else
         stage_SetAnimation(191, 0, -1);
+#endif
         if (gflagChk(174) == 0) {
             ScpCallCameraSetTarget(10793.0f, 2122.0f, 0.0f);
         }
@@ -298,9 +376,17 @@ void actSt04bBallXL(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(138) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(295, -1, -2);
+#else
         stage_SetAnimation(299, -1, -2);
+#endif
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(293, -1, -2);
+#else
         stage_SetAnimation(297, -1, -2);
+#endif
     }
 }
 
@@ -312,8 +398,13 @@ void actSt04bSolarXL(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(138) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(297, -1, -2);
+#endif
         stage_SetAnimation(301, -1, -2);
+#ifndef VERSION_JPN
         stage_SetAnimation(305, -1, -2);
+#endif
     }
 }
 

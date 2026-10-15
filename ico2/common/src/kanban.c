@@ -34,7 +34,12 @@ int kanbanCommonRead = 0;
 static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
 /* texProperty's texNo column, &texProperty[0].texNo */
+#ifdef VERSION_JPN
+extern char D_0030A66C[];
+#else
 extern char D_0030D014[];
+#endif
+
 /* a file static, as are the functions of the same name in
    ico2/fumi/src/jimaku and ico2/common/src/layout_texture */
 static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col);
@@ -58,7 +63,11 @@ extern void gif_StartPacketPri(int pri);
 
 static void init_textures_of_specified_property(int first, int last);
 
+#ifdef VERSION_JPN
+static inline char *get_texture_base_name(const char *src) /* derived name */
+#else
 static inline char *get_texture_base_name(char *src) /* derived name */
+#endif
 {
     char buf[256];
     char *p;
@@ -84,7 +93,11 @@ static inline char *get_texture_base_name(char *src) /* derived name */
 static inline int get_texture_no_of_property(int idx) /* derived name */
 {
     int n;
+#ifdef VERSION_JPN
+    const char *src;
+#else
     char *src;
+#endif
     char *name;
     int no;
 
@@ -95,10 +108,12 @@ static inline int get_texture_no_of_property(int idx) /* derived name */
     no = tex_GetTextureNo(name);
 
     if (no < 0) {
+#ifndef VERSION_JPN
         debug_StdPrintfDummy("tex_id %d\n", n);
+#endif
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
-        debug_assert(__FILE__, 272);
-        __assert(__FILE__, 272, "0");
+        debug_assert(__FILE__, LN(272, 265));
+        __assert(__FILE__, LN(272, 265), "0");
     }
     return no;
 }
@@ -128,10 +143,18 @@ static inline int kanban_layout_key(LtProp *pr) /* derived name */
     } else {
         unsigned long button = pad[0].flags;
 
+#ifdef VERSION_JPN
+        if (button & 0x20) {
+#else
         if (button & 0x40) {
+#endif
             ret = 1;
         } else {
+#ifdef VERSION_JPN
+            ret = (button & 0x40) ? 2 : 0;
+#else
             ret = (button & 0x10) ? 2 : 0;
+#endif
         }
     }
     return ret;
@@ -255,11 +278,19 @@ static void init_textures_of_specified_property(int first, int last)
     int no;
 
     for (i = first; i < last; i++) {
+#ifndef VERSION_JPN
         debug_StdPrintfDummy("propertyId %d\n", i);
+#endif
         no = get_texture_no_of_property(i);
+#ifdef VERSION_JPN
+        *(int *)(D_0030A66C + i * 0x70) = no;
+        *(void **)(D_0030A66C + i * 0x70 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_0030A66C + i * 0x70 - 4), 1, 1);
+#else
         *(int *)(D_0030D014 + i * 0x70) = no;
         *(void **)(D_0030D014 + i * 0x70 - 4) = tex_GetTextureData(no);
         tex_SetSamplingType(*(void **)(D_0030D014 + i * 0x70 - 4), 1, 1);
+#endif
     }
 }
 
@@ -268,7 +299,11 @@ void kanbanInit(int no)
     if (no != 0) {
         init_textures_of_property_range(stageData[no].layoutFirst, stageData[no].layoutLast);
     } else {
+#ifdef VERSION_JPN
+        init_textures_of_property_range(0, 4);
+#else
         init_textures_of_property_range(0, 1);
+#endif
         kanbanReqAllDel();
         kanbanCommonRead = 1;
     }
@@ -328,7 +363,11 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
         gif_StartPacketPri(11);
         gif_SetZTest(0);
 
+#ifdef VERSION_JPN
+        for (i = 0; i < r[2] * r[3] / 1200; i++) {
+#else
         for (i = 0; i < r[2] * r[3] / 300; i++) {
+#endif
             pt[0] = r[0] + rand() % r[2];
             pt[1] = r[1] + rand() % r[3];
             alpha = rand() % 127 + 32;

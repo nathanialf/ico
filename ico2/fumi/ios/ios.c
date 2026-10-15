@@ -78,7 +78,11 @@ void iosInitialize(void)
 {
     debug_StdPrintfDummy("iosInitialize()\n");
     iosThreadInit();
+#ifdef VERSION_JPN
+    ios_partition_root = iosMallocInitPartition(0x780000, 0x1FEFFF0);
+#else
     ios_partition_root = iosMallocInitPartition(0x760000, 0x1FEFFF0);
+#endif
     ios_partition_common = iosMallocSetPartition(ios_partition_root, 4227072, 16);
     ios_partition_smotion = iosMallocSetPartition(ios_partition_root, 1179648, 16);
     ios_partition_s2motion = iosMallocSetPartition(ios_partition_root, 3145728, 16);
@@ -89,8 +93,13 @@ void iosInitialize(void)
     ios_partition_sound_semi = iosMallocSetPartition(ios_partition_root, 20480, 16);
     ios_partition_shock = iosMallocSetPartition(ios_partition_root, 10240, 16);
     ios_partition_hara = iosMallocSetPartition(ios_partition_root, 1, 16);
+#ifdef VERSION_JPN
+    ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
+        iosMallocSetPartition(ios_partition_root, 15695872, 16);
+#else
     ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
         iosMallocSetPartition(ios_partition_root, 15826944, 16);
+#endif
     iosMallocSetPartitionName(ios_partition_isys, "stage");
     iosMallocSetPartitionName(ios_partition_smotion, "stat mot");
     iosMallocSetPartitionName(ios_partition_s2motion, "demo mot");

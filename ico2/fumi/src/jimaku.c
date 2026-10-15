@@ -41,7 +41,7 @@ static IosSema jimakuShownSema; /* derived name */
 static IosSema jimakuFrameSema; /* derived name */
 
 #include "jimaku.h"
-#include "layout_texture.h" /* texProperty: jimaku's entries are 434 and 435 */
+#include "layout_texture.h" /* texProperty: jimaku's entries are 434 and 435 (JPN 410 and 411) */
 #include "gflag.h"
 
 typedef struct JimCol { /* field names derived */
@@ -174,7 +174,11 @@ static int jimakuHandler(CdvdBgReq *self, JimakuArg *p)
 static void jimakuMgrBegin(JimakuArg *p)
 {
     JimakuSub *sub = &p->sub;
+#ifdef VERSION_JPN
+    int st;
+#else
     int st = 0;
+#endif
     int i;
     struct jWayGroup *g;
 
@@ -195,6 +199,9 @@ static void jimakuMgrBegin(JimakuArg *p)
     jimakuRing[0].state = 3;
     jimakuRing[0].tex = -1;
     sub->ringPos = 1;
+#ifdef VERSION_JPN
+    st = gFlagGameClear != 0;
+#else
     switch (NonLinearCameraMove) {
     case 2:
         st = 0;
@@ -215,6 +222,7 @@ static void jimakuMgrBegin(JimakuArg *p)
     if (gFlagGameClear != 0) {
         st = st + 1;
     }
+#endif
     sub->bg =
         (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st].path, jimakuHandler, p, 0, 0, 0, 0, 0);
     {
@@ -261,8 +269,8 @@ static void jimakuMgrNext(JimakuArg *p)
     g->node->stamp = lock_execIcoMisc;
     if (g->node->tex == -1) {
         debug_StdPrintfDummy("already exist\n");
-        debug_assert(__FILE__, 688);
-        __assert(__FILE__, 688, "0");
+        debug_assert(__FILE__, LN(688, 655));
+        __assert(__FILE__, LN(688, 655), "0");
     }
     sub->n = (sub->n + 1) % 4;
     if (iosSemaWait(&jimakuShownSema) < 0) {
@@ -408,14 +416,24 @@ void jimakuDisp(JimakuArg *msg)
     }
     if (jimakuDispOn != 0) {
         int v = g->tex;
+#ifdef VERSION_JPN
+        texProperty[411].texNo = v;
+        texProperty[410].texNo = v;
+#else
         texProperty[435].texNo = v;
         texProperty[434].texNo = v;
+#endif
         if (v < 0) {
             return;
         }
         if (jimakuOn != 0) {
+#ifdef VERSION_JPN
+            display_texture(&texProperty[410]);
+            display_texture(&texProperty[411]);
+#else
             display_texture(&texProperty[434]);
             display_texture(&texProperty[435]);
+#endif
         }
     }
 }

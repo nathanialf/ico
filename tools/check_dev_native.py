@@ -70,12 +70,10 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import Path
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
-from gen_stub_s import LIST as STUB_LIST, LITERALS, VERSION, parse_stubs  # noqa: E402
-from ico_version import config_path, layer_rel  # noqa: E402
+from gen_stub_s import LIST as STUB_LIST, LITERALS, parse_stubs  # noqa: E402
 # Rule 4's listing is the PAL disc's, the only disc that ships one; the
 # shared tree is the PAL revision.
 LISTING = os.path.join(ROOT, 'baserom', 'pal', 'SRCFILE.TXT')
@@ -109,19 +107,19 @@ ASM_ONLY = re.compile(r'\b(break|teq|tne|tge|tlt|tgeu|tltu)\b')
 
 def staged_or_all(argv):
     if '--all' in argv or os.environ.get('FILES') == 'all':
-        out = subprocess.run(['git', 'ls-files', 'ico2', 'sce', 'targets', '--', '*.c', '*.inc'],
+        out = subprocess.run(['git', 'ls-files', 'ico2', 'sce', '--', '*.c', '*.inc'],
                              cwd=ROOT, capture_output=True, text=True).stdout.split()
         return out
     if os.environ.get('FILES'):
         out = []
         for f in os.environ['FILES'].split():
             # an absolute path, in this checkout or a worktree, keys the same repo-relative name
-            m = re.search(r'(?:^|/)((?:targets/[^/]+/)?(?:ico2|sce)/.*)$', f)
+            m = re.search(r'(?:^|/)((?:ico2|sce)/.*)$', f)
             out.append((m.group(1), f) if m else (f, f))
         return out
     out = subprocess.run(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACMR'],
                          cwd=ROOT, capture_output=True, text=True).stdout.split()
-    return [f for f in out if re.search(r'\.(c|inc)$', f) and re.match(r'(targets/[^/]+/)?(ico2|sce)/', f)]
+    return [f for f in out if re.search(r'\.(c|inc)$', f) and re.match(r'(ico2|sce)/', f)]
 
 
 def load_listing():
@@ -420,25 +418,6 @@ def self_test():
     return 1 if failed else 0
 
 
-_STUBS_BY_SLUG = {}
-
-
-def stubs_of(f, stubs, lit):
-    """The stub rows rule 8 checks a file against: its own target's list for
-    a file under targets/<slug>/, the detected target's for the shared
-    tree."""
-    m = re.match(r'targets/([^/]+)/', f)
-    if not m or m.group(1) == VERSION:
-        return stubs, lit
-    slug = m.group(1)
-    if slug not in _STUBS_BY_SLUG:
-        path = config_path(Path(ROOT), slug, 'stubs', 'txt')
-        rows = parse_stubs(path) if os.path.exists(path) else []
-        _STUBS_BY_SLUG[slug] = ({r['stem']: r for r in rows if r['section'] not in LITERALS},
-                                {r['stem'] for r in rows if r['at_def']})
-    return _STUBS_BY_SLUG[slug]
-
-
 def main(argv):
     if '--self-test' in argv:
         return self_test()
@@ -471,11 +450,8 @@ def main(argv):
             L = open(path, errors='replace').read().split('\n')
         except OSError:
             continue
-        # an overlay file is judged by its shared path, against its own
-        # target's stub list; the allowlist keys keep the file's own path
-        rel = layer_rel(f)
-        st, lt = stubs_of(f, stubs, lit)
-        check_stubs(rel, L, st, bad, lt)
+        rel = f
+        check_stubs(rel, L, stubs, bad, lit)
         newlib = rel.startswith('sce/libc/')
         for i, l in enumerate(L):
             m = KNR_HDR.match(l)

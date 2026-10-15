@@ -71,16 +71,29 @@ static void actSt13aElevUpSub(GObj *volatile self)
 {
     AdpcmPlay(st13a_up->stream);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(169, 1, 0);
+    stage_SetAnimation(170, 1, 0);
+#else
     stage_SetAnimation(173, 1, 0);
     stage_SetAnimation(174, 1, 0);
+#endif
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(169, 86, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(173, 86, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(169, 140, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(173, 140, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -88,13 +101,21 @@ static void actSt13aElevUpSub(GObj *volatile self)
     st13a_yure_vol = 128;
     iosPadActVolumeSet(st13a_yure, 128);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(169, 200, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(173, 200, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     st13a_yure_vol = 64;
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(169, 380, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(173, 380, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -149,13 +170,22 @@ void actSt13aElevDown(GObj *volatile self)
 
     if (gflagChk(15) != 0) {
         scpFadeOut(255.0f, 0, 0, 0);
+#ifdef VERSION_JPN
+        stage_SetAnimation(169, 0, 0);
+        lt_switch_layout(52);
+#else
         stage_SetAnimation(173, 0, 0);
         lt_switch_layout(55);
+#endif
         scpBoyControlReadDisable = 1;
         scpPlayStart(boyGObj);
         scpAdpcmPlayRequestFunc(80, &st13a_down, 1, 1, 0);
         _ACTWait(10);
+#ifdef VERSION_JPN
+        stage_SetAnimation(169, 0, 451);
+#else
         stage_SetAnimation(173, 0, 451);
+#endif
 
         elevDown_mes[0].func = actSt13aElevDownChk;
         act->mail = elevDown_mes;
@@ -166,8 +196,13 @@ void actSt13aElevDown(GObj *volatile self)
 
 static void actSt13aElevDownSub(GObj *volatile self)
 {
+#ifdef VERSION_JPN
+    stage_SetAnimation(169, 1, 451);
+    stage_SetAnimation(171, 1, 0);
+#else
     stage_SetAnimation(173, 1, 451);
     stage_SetAnimation(175, 1, 0);
+#endif
 
     scpPlayPosSet(boyGObj, -4871.0f, -2800.0f, 2699.0f);
 
@@ -175,7 +210,11 @@ static void actSt13aElevDownSub(GObj *volatile self)
     st13a_yure_vol = 128;
     iosPadActVolumeSet(st13a_yure, 128);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(169, 850, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(173, 850, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -183,7 +222,11 @@ static void actSt13aElevDownSub(GObj *volatile self)
     iosPadActStop(st13a_yure);
     st13a_yure = -1;
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(169) == 0) {
+#else
     while (stage_CheckAnimationFinish(173) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -222,8 +265,13 @@ void actSt13aElevDownChk(GObj *volatile self)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
+#ifdef VERSION_JPN
+        stage_SetAnimation(171, 0, -1);
+        stage_SetAnimation(169, 0, -1);
+#else
         stage_SetAnimation(175, 0, -1);
         stage_SetAnimation(173, 0, -1);
+#endif
         _ACTWait(2);
         scpPlayPosSet(boyGObj, -4871.0f, 3527.0f, 2699.0f);
         iosPadActStop(st13a_yure);
@@ -232,7 +280,11 @@ void actSt13aElevDownChk(GObj *volatile self)
 
     scpPlayMot(boyGObj, 0);
     scpPlayEnd(boyGObj);
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
     scpBoyControlReadDisable = 0;
     gflagOff(15);
 }
@@ -246,7 +298,11 @@ void actSt13aSekizoChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpBoyControlReadDisable = 1;
 
     scpAdpcmPlayRequestFunc(18, &sekizo13a, 1, 1, 1);
@@ -254,7 +310,11 @@ void actSt13aSekizoChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(172, 1, 0);
+#else
     stage_SetAnimation(176, 1, 0);
+#endif
 
     sekizo_13a = iosPadActRequest(boyPad, 9);
     sekizo_13a_vol = 128;
@@ -277,18 +337,30 @@ void actSt13aSekizoChk(GObj *volatile self)
 
     gflagOn(326);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(172, 151, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(176, 151, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActStop(sekizo_13a);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(172) == 0) {
+#else
     while (stage_CheckAnimationFinish(176) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
     scpBoyControlReadDisable = 0;
 }
 
@@ -302,7 +374,11 @@ void actSt13aElev(GObj *volatile self)
     ScpCallCameraSetTarget(4729.0f, 2715.0f, -2504.0f);
 
     if (gflagChk(325) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(169, 0, 0);
+#else
         stage_SetAnimation(173, 0, 0);
+#endif
 
         elev_mes[0].func = actSt13aElevMain;
         act->mail = elev_mes;
@@ -319,14 +395,22 @@ void actSt13aSekizo(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(326) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(172, 0, 0);
+#else
         stage_SetAnimation(176, 0, 0);
+#endif
 
         sekizo_mes[0].func = actSt13aSekizoChk;
         act->mail = sekizo_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(172, 0, -1);
+#else
         stage_SetAnimation(176, 0, -1);
+#endif
     }
 }
 
@@ -380,7 +464,11 @@ void actSt13aElevSwitch(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = 0;
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpBoyControlReadDisable = 1;
 
     elevSwitch_mes[0].func = actSt13aElevUp;

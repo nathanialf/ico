@@ -1531,22 +1531,25 @@ typedef struct GenGeo { /* field names derived */
 /* one stage-animation mode record: the base mode, the second animation and the held mode */
 typedef struct { /* field names derived */
     int baseMode; /* 0x00, the mode the record returns to, also its BG animation: the first stage-animation id */
-    int anim2; /* 0x04, the second stage-animation id, 972 (no animation) in most rows */
+    int anim2; /* 0x04, the second stage-animation id, 972 (JPN 949, no animation) in most rows */
     int word8; /* 0x08, no C reader */
-    int mode;  /* 0x0C, 972 while held */
-    int flags; /* 0x10, bit 0 holds the mode at 972 */
+    int mode;  /* 0x0C, 972 (JPN 949) while held */
+    int flags; /* 0x10, bit 0 holds the mode at 972 (JPN 949) */
 } OaRecB; /* derived name */
 
 typedef struct { /* field names derived */
     float m[16];
 } Mtx44 __attribute__((aligned(16)));
 
-/* RECONSTRUCTION, names ours: one memory card's product file, 0x1F0 bytes,
+/* RECONSTRUCTION, names ours: one memory card's product file, 0x1F0 bytes (JPN 0x1E8),
  * the record mcard.c's product_write and product_read move whole: the twenty
- * save files' previews, then the options and the last save's place; 16-byte
- * aligned, a SIF DMA buffer for the card code.
+ * save files' previews, then the options and the last save's place. PAL's
+ * record is 16-byte aligned, a SIF DMA buffer for the card code. JPN's, the
+ * November 2001 record, is 8-byte aligned and ends before cameraMove and
+ * palMode at 0x1E8; there product_write and product_read move 488 bytes and
+ * index the two files 488 apart.
  * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c,
- * common/src/kanbanBoot.c. */
+ * common/src/kanbanBoot.c (PAL). */
 typedef struct {        /* field names derived */
     unsigned int stage; /* 0x00, the saved stage, 0xFFFFFFFF for an empty file */
     int cleared;        /* 0x04, gFlagGameClear at the save */
@@ -1555,6 +1558,18 @@ typedef struct {        /* field names derived */
     int word10;         /* 0x10, no C reader */
 } McFileInfo;           /* derived name */
 
+#ifdef VERSION_JPN
+typedef struct {         /* field names derived */
+    McFileInfo file[20]; /* 0x000 */
+    int soundMode;       /* 0x190, systemStatus[11] */
+    int outputMode;      /* 0x194, soundOutputModeGet's */
+    int vibration;       /* 0x198, iosPadActRequestEnable */
+    int controlType;     /* 0x19C, optionControlType */
+    char padConf[64];    /* 0x1A0, iosPadConfCustom's bits */
+    int fileNo;          /* 0x1E0, the card's current file */
+    int serial;          /* 0x1E4, the serial of the save it holds */
+} McProductFile __attribute__((aligned(8))); /* derived name */
+#else
 typedef struct {                              /* field names derived */
     McFileInfo file[20];                      /* 0x000 */
     int soundMode;                            /* 0x190, systemStatus[11] */
@@ -1567,6 +1582,7 @@ typedef struct {                              /* field names derived */
     int cameraMove;                           /* 0x1E8, NonLinearCameraMove */
     int palMode;                              /* 0x1EC, systemStatus[0] */
 } McProductFile __attribute__((aligned(16))); /* derived name */
+#endif
 
 /* mcard.c's two product files, one per port */
 extern McProductFile IosMcProductFile[];

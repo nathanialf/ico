@@ -192,17 +192,31 @@ void actSt06aSuimon(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(106) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(103, 0, 0);
+#else
         stage_SetAnimation(107, 0, 0);
+#endif
         scpSearchGobj(1751)->active = 0;
+#ifdef VERSION_JPN
+        stage_SetLoopFlag(104, 1);
+        stage_SetAnimation(104, 1, 0);
+#else
         stage_SetLoopFlag(108, 1);
         stage_SetAnimation(108, 1, 0);
+#endif
         suimon_mes[0].func = actSt06aSuimonChk;
         act->mail = suimon_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(103, 0, -1);
+        stage_SetAnimation(105, 0, -1);
+#else
         stage_SetAnimation(107, 0, -1);
         stage_SetAnimation(109, 0, -1);
+#endif
         scpSearchGobj(1752)->active = 0;
         SetRotObjectLockFlag(scpSearchGobj(1774), 1);
         _ACTWait(1);
@@ -226,14 +240,24 @@ void actSt06aSuimonChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     FinishHint(19);
 
     SetRotObjectLockFlag(scpSearchGobj(1774), 1);
 
+#ifdef VERSION_JPN
+    stage_SetLoopFlag(104, 0);
+    stage_SetLoopFlag(109, 0);
+    stage_SetAnimation(109, 0, 0);
+#else
     stage_SetLoopFlag(108, 0);
     stage_SetLoopFlag(113, 0);
     stage_SetAnimation(113, 0, 0);
+#endif
 
     soundSeDefPlay(1359, 0, suimon_sound_pos, 1);
 
@@ -276,14 +300,23 @@ void actSt06aSuimonChk(GObj *volatile self)
             _ACTWait(1);
         }
 
+#ifdef VERSION_JPN
+        stage_SetAnimation(103, 0, -1);
+        stage_SetAnimation(105, 0, -1);
+#else
         stage_SetAnimation(107, 0, -1);
         stage_SetAnimation(109, 0, -1);
+#endif
         scpFadeIn(3.0f);
     }
 
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
 
     scpSearchGobj(1751)->active = 1;
     scpSearchGobj(1752)->active = 0;
@@ -301,14 +334,22 @@ void actSt06aDoor(GObj *volatile self)
 
     if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(108, 0, 0);
+#else
         stage_SetAnimation(112, 0, 0);
+#endif
         _ACTWait(60);
         door_down_mes[0].func = actSt06aDoorDownChk;
         act->mail = door_down_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(107, 0, 0);
+#else
         stage_SetAnimation(111, 0, 0);
+#endif
         door_up_mes[0].func = actSt06aDoorUpChk;
         act->mail = door_up_mes;
         ACTSendMailCorrect(self, 430);
@@ -330,7 +371,11 @@ void actSt06aDoorUpChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(107, 1, 0);
+#else
     stage_SetAnimation(111, 1, 0);
+#endif
 
     buf[0] = suimonSubPos.d[0];
     buf[1] = suimonSubPos.d[1];
@@ -340,7 +385,11 @@ void actSt06aDoorUpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(107) == 0) {
+#else
     while (stage_CheckAnimationFinish(111) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -365,7 +414,11 @@ void actSt06aDoorDownChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(108, 1, 0);
+#else
     stage_SetAnimation(112, 1, 0);
+#endif
 
     buf[0] = suimonSubPos.d[0];
     buf[1] = suimonSubPos.d[1];
@@ -375,7 +428,11 @@ void actSt06aDoorDownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(108) == 0) {
+#else
     while (stage_CheckAnimationFinish(112) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -390,7 +447,11 @@ void actSt06aShutterOpen(GObj *volatile self)
 {
     GProc *h;
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     gflagOn(107);
     WakeupHint(19);
     scpSleepEnemyAll();
@@ -423,7 +484,11 @@ void actSt06aShutterOpen(GObj *volatile self)
             _ACTWait(1);
         }
 
+#ifdef VERSION_JPN
+        stage_SetAnimation(106, 0, -1);
+#else
         stage_SetAnimation(110, 0, -1);
+#endif
         SetCameraFlag_LwsCutBack();
         scpFadeIn(3.0f);
     }
@@ -432,7 +497,11 @@ void actSt06aShutterOpen(GObj *volatile self)
     scpSearchGobj(1743)->active = 1;
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
     SetWayGroupActive(12, 1);
 }
 
@@ -444,7 +513,11 @@ void actSt06aBoxChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     gflagOn(109);
     scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
@@ -470,7 +543,11 @@ void actSt06aBoxChk(GObj *volatile self)
         }
 
         scpSearchGobj(1773)->active = 0;
+#ifdef VERSION_JPN
+        stage_SetAnimation(111, 0, -1);
+#else
         stage_SetAnimation(115, 0, -1);
+#endif
         SetCameraFlag_GamecamCutBack();
         scpFadeIn(8.0f);
 
@@ -481,7 +558,11 @@ void actSt06aBoxChk(GObj *volatile self)
 
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
 }
 
 void actSt06aStatueChk(GObj *volatile self)
@@ -497,17 +578,30 @@ void actSt06aStatueChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
     scpSearchGobj(1813)->active = 0;
+#ifdef VERSION_JPN
+    stage_SetAnimation(255, -1, -2);
+    stage_SetAnimation(113, 1, 0);
+#else
     stage_SetAnimation(259, -1, -2);
     stage_SetAnimation(117, 1, 0);
+#endif
 
     handle = soundSeDefPlay(1357, 0, 0, 1);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(113, 50, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(117, 50, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -516,21 +610,33 @@ void actSt06aStatueChk(GObj *volatile self)
         ReviveAllCarryableItemsWithRandomVelocity(-50.0f, 0.0f);
     }
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(113, 109, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(117, 109, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     soundSeDefStop(handle);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(113) == 0) {
+#else
     while (stage_CheckAnimationFinish(117) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
 
     _ACTWait(120);
 
@@ -543,7 +649,11 @@ void actSt06aHeadChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
     gflagOn(114);
@@ -557,56 +667,88 @@ void actSt06aHeadChk(GObj *volatile self)
     }
 
     if (gFlagGameClear == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(115, 1, 0);
+#else
         stage_SetAnimation(119, 1, 0);
+#endif
 
         if (scpTriggerFloorAttr(boyGObj, 0x7000000) == 0 &&
             scpTriggerFloorAttr(boyGObj, 0xB000000) == 0) {
             SetCameraFlag_LwsCutBack();
         }
 
+#ifdef VERSION_JPN
+        while (stage_CheckAnimationFrame(115, 130, 0) == 0) {
+#else
         while (stage_CheckAnimationFrame(119, 130, 0) == 0) {
+#endif
             _ACTWait(1);
         }
         _ACTWait(1);
 
         soundSeDefPlay(859, 0, 0, 1);
 
+#ifdef VERSION_JPN
+        while (stage_CheckAnimationFrame(115, 208, 0) == 0) {
+#else
         while (stage_CheckAnimationFrame(119, 208, 0) == 0) {
+#endif
             _ACTWait(1);
         }
         _ACTWait(1);
 
         scpSearchGobj(1771)->active = 1;
 
+#ifdef VERSION_JPN
+        while (stage_CheckAnimationFinish(115) == 0) {
+#else
         while (stage_CheckAnimationFinish(119) == 0) {
+#endif
             _ACTWait(1);
         }
         _ACTWait(1);
     }
 
     if (gFlagGameClear != 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(116, 1, 0);
+#else
         stage_SetAnimation(120, 1, 0);
+#endif
 
         if (scpTriggerFloorAttr(boyGObj, 0x7000000) == 0 &&
             scpTriggerFloorAttr(boyGObj, 0xB000000) == 0) {
             SetCameraFlag_LwsCutBack();
         }
 
+#ifdef VERSION_JPN
+        while (stage_CheckAnimationFrame(116, 130, 0) == 0) {
+#else
         while (stage_CheckAnimationFrame(120, 130, 0) == 0) {
+#endif
             _ACTWait(1);
         }
         _ACTWait(1);
 
         soundSeDefPlay(859, 0, 0, 1);
 
+#ifdef VERSION_JPN
+        while (stage_CheckAnimationFrame(116, 208, 0) == 0) {
+#else
         while (stage_CheckAnimationFrame(120, 208, 0) == 0) {
+#endif
             _ACTWait(1);
         }
         _ACTWait(1);
 
         scpSearchGobj(1772)->active = 1;
 
+#ifdef VERSION_JPN
+        while (stage_CheckAnimationFinish(116) == 0) {
+#else
         while (stage_CheckAnimationFinish(120) == 0) {
+#endif
             _ACTWait(1);
         }
         _ACTWait(1);
@@ -624,14 +766,22 @@ void actSt06aHeadChk(GObj *volatile self)
 
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
 }
 
 static void actSt06aJumpMove(GObj *volatile self)
 {
     GProc *h;
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
     scpSleepEnemyAll();
 
     h = actCreateSubThread(actSt06aJumpSub, 21);
@@ -654,10 +804,19 @@ static void actSt06aJumpMove(GObj *volatile self)
             _ACTWait(1);
         }
 
+#ifdef VERSION_JPN
+        stage_SetLoopFlag(109, 1);
+        stage_SetAnimation(109, 1, 0);
+#else
         stage_SetLoopFlag(113, 1);
         stage_SetAnimation(113, 1, 0);
+#endif
         gflagOn(116);
+#ifdef VERSION_JPN
+        stage_SetAnimation(110, 0, -1);
+#else
         stage_SetAnimation(114, 0, -1);
+#endif
         SetCameraFlag_LwsCutBack();
         scpFadeIn(8.0f);
 
@@ -668,7 +827,11 @@ static void actSt06aJumpMove(GObj *volatile self)
 
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
 }
 
 static inline void actSt06aPistonRideOffChk(GObj *volatile self)
@@ -697,7 +860,11 @@ static void actSt06aPistonFlagOnChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(109, 122, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(113, 122, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -706,7 +873,11 @@ static void actSt06aPistonFlagOnChk(GObj *volatile self)
     gflagOn(117);
     debug_StdPrintfDummy("PISTON_FLAG_ON!\n");
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(109, 124, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(113, 124, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -725,7 +896,11 @@ void actSt06aShutter(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(107) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(106, 0, 0);
+#else
         stage_SetAnimation(110, 0, 0);
+#endif
         scpSearchGobj(1743)->active = 0;
         SleepHint(19);
         shutter_mes[0].func = actSt06aShutterMain;
@@ -733,7 +908,11 @@ void actSt06aShutter(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(106, 0, -1);
+#else
         stage_SetAnimation(110, 0, -1);
+#endif
         scpSearchGobj(1742)->active = 0;
     }
 }
@@ -896,15 +1075,27 @@ void actSt06aStatue(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(113) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(113, 0, 0);
+#else
         stage_SetAnimation(117, 0, 0);
+#endif
         statue_mes[0].func = actSt06aStatueChk;
         act->mail = statue_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(113, 0, -1);
+#else
         stage_SetAnimation(117, 0, -1);
+#endif
         scpSearchGobj(1813)->active = 0;
+#ifdef VERSION_JPN
+        stage_SetAnimation(255, -1, -2);
+#else
         stage_SetAnimation(259, -1, -2);
+#endif
     }
 }
 
@@ -984,16 +1175,29 @@ void actSt06aJump(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(116) == 0) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(109, 0, 0);
+#else
         stage_SetAnimation(113, 0, 0);
+#endif
         jump_mes[0].func = actSt06aJumpMain;
         act->mail = jump_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else if (gflagChk(106) == 0) {
+#ifdef VERSION_JPN
+        stage_SetLoopFlag(109, 1);
+        stage_SetAnimation(109, 1, 0);
+#else
         stage_SetLoopFlag(113, 1);
         stage_SetAnimation(113, 1, 0);
+#endif
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(109, 0, 0);
+#else
         stage_SetAnimation(113, 0, 0);
+#endif
     }
 }
 
@@ -1106,10 +1310,19 @@ void actSt06aSuimonFlagOn(GObj *volatile self)
 
 static void actSt06aSuimonSub(GObj *volatile self)
 {
+#ifdef VERSION_JPN
+    stage_SetAnimation(103, 1, 0);
+    stage_SetAnimation(105, 1, 0);
+#else
     stage_SetAnimation(107, 1, 0);
     stage_SetAnimation(109, 1, 0);
+#endif
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(103) == 0) {
+#else
     while (stage_CheckAnimationFinish(107) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1208,9 +1421,17 @@ static void actSt06aShutterOpenSub(GObj *volatile self)
 
     AdpcmPlay(shutter->stream);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(106, 1, 0);
+#else
     stage_SetAnimation(110, 1, 0);
+#endif
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(106) == 0) {
+#else
     while (stage_CheckAnimationFinish(110) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1257,11 +1478,19 @@ static void actSt06aBoxSub(GObj *volatile self)
 {
     _ACTWait(60);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(111, 1, 0);
+#else
     stage_SetAnimation(115, 1, 0);
+#endif
 
     scpSearchGobj(1773)->active = 0;
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(111) == 0) {
+#else
     while (stage_CheckAnimationFinish(115) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1533,19 +1762,36 @@ static void actSt06aJumpSwitch(GObj *volatile self)
 
 static void actSt06aJumpSub(GObj *volatile self)
 {
+#ifdef VERSION_JPN
+    stage_SetAnimation(110, 1, 0);
+#else
     stage_SetAnimation(114, 1, 0);
+#endif
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(110, 60, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(114, 60, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_JPN
+    stage_SetLoopFlag(109, 1);
+    stage_SetAnimation(109, 1, 0);
+#else
     stage_SetLoopFlag(113, 1);
     stage_SetAnimation(113, 1, 0);
+#endif
     gflagOn(116);
     SetCameraFlag_LwsCutBack();
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(110) == 0) {
+#else
     while (stage_CheckAnimationFinish(114) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1572,7 +1818,11 @@ static inline void actSt06aPistonFlagOffChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(109, 125, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(113, 125, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1580,7 +1830,11 @@ static inline void actSt06aPistonFlagOffChk(GObj *volatile self)
     gflagOff(117);
     debug_StdPrintfDummy("PISTON_FLAG_OFF!\n");
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(109, 199, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(113, 199, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);

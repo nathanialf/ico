@@ -194,7 +194,11 @@ retry:
     p->scale[0] = sc;
     w->scale = sc;
     obj = enemyKind[kind].model;
+#ifdef VERSION_JPN
+    if (obj != 1548) {
+#else
     if (obj != 0x610) {
+#endif
         *(int *)&GOBJ_SUB(self)->model = GetPObjAddress(obj);
         GOBJ_SUB(self)->modelId = obj;
         debug_StdPrintfDummy("%p\n", GOBJ_SUB(self)->model);

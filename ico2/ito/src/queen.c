@@ -1011,7 +1011,11 @@ typedef struct QueenGenTable { /* field names derived */
 /* The layout ids gene_enemy picks a spawn point from, one list per stage set. */
 static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157}; /* derived name */
 
+#ifdef VERSION_JPN
+static const int genEnemyLayoutDefault[6] = {3512, 3513, 3514, 3515, 3516, 3517}; /* derived name */
+#else
 static const int genEnemyLayoutDefault[6] = {3535, 3536, 3537, 3538, 3539, 3540}; /* derived name */
+#endif
 
 static const QueenGenTable genEnemyTable[2] = {
     /* derived name */
@@ -1079,7 +1083,11 @@ void gene_enemy(volatile int g)
                             }
                             Generator_Call(obj);
                             _ACTWait(1);
+#ifdef VERSION_JPN
+                            while (stage_CheckAnimationFinish(502) == 0) {
+#else
                             while (stage_CheckAnimationFinish(506) == 0) {
+#endif
                                 _ACTWait(1);
                             }
                             for (k = 0; k <= wait; k++) {
@@ -1352,7 +1360,11 @@ static const char queenBarrierAttackedMsg[] = "queen barrier attacked\n"; /* der
 /* the barrier's own spawn layout id, one per stage set */
 static const int barrierLayoutSt25[] = {2150}; /* derived name */
 
+#ifdef VERSION_JPN
+static const int barrierLayoutDefault[] = {3504}; /* derived name */
+#else
 static const int barrierLayoutDefault[] = {3527}; /* derived name */
+#endif
 
 static const char damageFmt[] = "damage:%d"; /* derived name */
 
@@ -1412,7 +1424,11 @@ void QueenGeo(GObj *g)
         queenFrame++;
     }
     ExecMotionOrient(g);
+#ifdef VERSION_JPN
+    SetActressLight(g, 35, 44, 468);
+#else
     SetActressLight(g, 35, 44, 472);
+#endif
     w = GOBJ_SUB(g)->work;
     if (w->clothOn != 0) {
         GetCloth4D(w->cloth, 3.0f, 0.98f);
@@ -1664,7 +1680,11 @@ void QueenBallGeo(GObj *g)
             GetRootPosition(objPos.f, o);
             hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f, -120, 600.0f);
             bga = &queenBga[i];
+#ifdef VERSION_JPN
+            CheckQueenBallRing(bga, 478, (QVec *)m[3], &objPos, r);
+#else
             CheckQueenBallRing(bga, 482, (QVec *)m[3], &objPos, r);
+#endif
             if (*bga != 0) {
                 SetQueenBallOrient(*bga, (QVec *)m[3], &objPos);
             }
@@ -1677,7 +1697,11 @@ void QueenBallGeo(GObj *g)
                 GetRootPosition(objPos.f, sword);
                 hit |=
                     CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f, -150, 500.0f);
+#ifdef VERSION_JPN
+                CheckQueenBallRing(&queenBga[2], 480, (QVec *)m[3], &objPos, r);
+#else
                 CheckQueenBallRing(&queenBga[2], 484, (QVec *)m[3], &objPos, r);
+#endif
             }
         }
     }
@@ -1689,7 +1713,11 @@ void QueenBallGeo(GObj *g)
     if (w->attacked != 0) {
         w->attacked = 0;
         w->live = 0;
+#ifdef VERSION_JPN
+        pbga_start(&w->bga, 475);
+#else
         pbga_start(&w->bga, 479);
+#endif
         _CopyVector(w->bga->pos, m[3]);
         CopyQuaternion(w->bga->rot, IdentityQuaternion);
         ExecuteSEPackage(g, 94);
@@ -1753,7 +1781,11 @@ void QueenBallDL(GObj *g)
         p2o_DispVU1Default(g);
     }
     if (w->bga != 0) {
+#ifdef VERSION_JPN
+        stage_SetScale(475, w->scale);
+#else
         stage_SetScale(479, w->scale);
+#endif
         if (stage_DispBgAnimation(&w->bga) != 0) {
             Act *act;
 
@@ -1771,7 +1803,11 @@ void QueenBallDL(GObj *g)
         if ((o = *q) != 0) {
             long long id = *(long long *)o & 0x3FFF;
 
+#ifdef VERSION_JPN
+            if (id == 479 || id == 481) {
+#else
             if (id == 483 || id == 485) {
+#endif
                 SetQueenBallOrient(o, &selfPos, &queenPos);
             }
             if (stage_DispBgAnimation(q) != 0) {

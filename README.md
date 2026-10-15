@@ -10,10 +10,11 @@ matches), and so is the ELF file itself (its SHA-1 matches the disc's).
 
 The Japanese build is an earlier link of the same program as the PAL one: its
 debug menu's `DISC VER.` line reads `Nov  2 2001` (`debug.c`), PAL's
-`Jan 17 2002`. The shared tree (`ico2/`, `sce/`) is the PAL revision, and
-`targets/jpn/` holds exactly the files in which the Japanese build differs;
+`Jan 17 2002`. One tree (`ico2/`, `sce/`) builds both: its base text is the
+PAL revision, and where the Japanese build differs the same file holds its
+lines inline in `#ifdef VERSION_JPN` blocks;
 [`docs/TARGETS.md`](docs/TARGETS.md) lists those differences and
-[`docs/BUILDING.md`](docs/BUILDING.md) explains the layering.
+[`docs/BUILDING.md`](docs/BUILDING.md) explains the blocks.
 
 <!-- progress:begin -->
 | Target | Sections identical to the base |
@@ -149,11 +150,6 @@ sce/<archive>/              Sony's runtime libraries (libkernl, libgraph,
                             libpkt, libscf, libsndn2, libvu0) and the
                             compiler's newlib libc and libm and libgcc, plus
                             crt0.s
-targets/<slug>/             the overlay of a target other than PAL: exactly
-                            the files of ico2/ and sce/ that its build
-                            changed, at the same relative paths (targets/jpn/
-                            holds 121); a target builds from the shared tree
-                            with these in place of the files they replace
 config/                     per target <slug>: link_order.<slug>.txt (every
                             object in link order), link.<slug>.ld (the linker
                             script), data_members.<slug>.txt (the data-only
@@ -169,14 +165,11 @@ docs/                       documentation, indexed by docs/README.md;
 baserom/<slug>/  build/<slug>/
                             local only and gitignored: the user's disc image
                             and extracted ELF, and the build output
-                            (build/<slug>/tree/ is the merged source view)
 ```
 
 Each game file compiles from inside its programmer's directory with relative
 `-I../<other>/include` entries, because ee-gcc writes the path it is given
-into `__FILE__` strings the ROM contains (`tools/compile_c.sh`); with an
-overlay in play, that place is `build/<slug>/tree/`, a view of the shared tree
-with the target's files in place (`docs/BUILDING.md`).
+into `__FILE__` strings the ROM contains (`tools/compile_c.sh`).
 [`docs/HEADERS.md`](docs/HEADERS.md) says which headers the disc attests
 and where the other declarations live, and
 [`docs/PROGRAMMERS.md`](docs/PROGRAMMERS.md) who wrote which subsystem.
@@ -211,9 +204,9 @@ The host's `mips-linux-gnu-objcopy` writes `build/<slug>/ico.rom`.
 A target is a slug: `pal`, `jpn`, `us` (USA retail) or `aug6` (the prototype).
 A tree builds the targets that have a `config/link_order.<slug>.txt`; the
 target is chosen by `VERSION=<slug>`. Each target has its own
-`config/*.<slug>.*`, `config/sha1sums.<slug>.txt`, `targets/<slug>/` (none for
-PAL, whose sources are the shared tree), `baserom/<slug>/`, `build/<slug>/` and
-`docs/<slug>/`.
+`config/*.<slug>.*`, `config/sha1sums.<slug>.txt`, `baserom/<slug>/`,
+`build/<slug>/` and `docs/<slug>/`; its source differences are the
+`VERSION_<SLUG>` blocks of the shared files.
 
 | branch | targets | |
 | --- | --- | --- |

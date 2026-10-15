@@ -24,7 +24,7 @@
 #include <assert.h>
 
 /* int (float) here, short (float) in tableSin.h: the ROM needs int, as
-   declared short this object differs at 0x001C37D8 (quaternion.c's slerp
+   declared short this object differs at 0x001C37D8 (JPN 0x001C3550; quaternion.c's slerp
    declares it short and matches) */
 extern int GetTableArcCos(float x);
 /* as in tableSin.h, which this file does not include */

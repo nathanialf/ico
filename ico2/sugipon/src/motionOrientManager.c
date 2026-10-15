@@ -274,9 +274,11 @@ int UpdateFrameCounter(void *self)
     if (motionFrameUpdate == 1) {
         t = w->speedRatio * motionKind[w->motion].playSpeedRatio * w->playRate *
             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
+#ifndef VERSION_JPN
         if (systemStatus[0] != 0) {
             t = t * motionKind[w->motion].palSpeedRatio;
         }
+#endif
         if (w->waterDrag != 0) {
             switch (w->rootUpdateMode) {
             case 1:
@@ -531,7 +533,11 @@ static void shiftMotionData(int obj, int motion, int request, int shiftMode)
     mw->fieldWall = motionKind[mot].fieldWall;
     mw->cylinder = motionKind[mot].cylinder;
     mw->avgWallPlane = motionKind[mot].flags.bits.avgWallPlane;
+#ifdef VERSION_JPN
+    mw->flag330 = motionKind[mot].flags.bits.dropNode4Turn;
+#else
     mw->flag330 = motionKind[mot].flags2.bits.dropNode4Turn;
+#endif
     w->updateModeChanged = 0;
     if (w->keepUpdateMode == 0) {
         if (w->rootUpdateMode != motionKind[mot].rootUpdateMode) {
@@ -580,8 +586,8 @@ static void shiftMotionOrientEndFunc(void *self)
         /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
         debug_StdPrintfDummy(
             "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n");
-        debug_assert(__FILE__, 745);
-        __assert(__FILE__, 745, "0");
+        debug_assert(__FILE__, LN(745, 739));
+        __assert(__FILE__, LN(745, 739), "0");
     }
     StopSEPackageWithGroupVariation(self, 0);
     StopSEPackageWithGroupVariation(self, 1);
@@ -924,8 +930,8 @@ static void getNodeBlendedFloatingMotion(StreamElem *dst, float *root, int id, i
     if (i == 0) {
         /* EUC-JP: "(%s) the motion to blend is not defined" */
         debug_StdPrintfDummy("(%s)混ぜるモーションが定義されていません。\n", motionKind[id].name);
-        debug_assert(__FILE__, 1228);
-        __assert(__FILE__, 1228, "0");
+        debug_assert(__FILE__, LN(1228, 1222));
+        __assert(__FILE__, LN(1228, 1222), "0");
     }
 }
 
@@ -951,8 +957,8 @@ static inline void assertMotionLoaded(struct MotCtrl *w, int *md) /* derived nam
 
         sprintf(buf, "THE MOTION \"%s\"(%d)\nDID NOT LOAD IN THIS STAGE\nOR IS INVALID ID.\n",
                 motionKind[w->motion].name, w->motion);
-        debug_assertMessage(__FILE__, 1275, buf);
-        __assert(__FILE__, 1275, "e");
+        debug_assertMessage(__FILE__, LN(1275, 1269), buf);
+        __assert(__FILE__, LN(1275, 1269), "e");
     }
 }
 
@@ -971,8 +977,8 @@ static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n) /* d
             buf,
             "THE NUMBER OF NODE DATAS OF MOTION\n\"%s\"(%d SKELTONS) DOES NOT MATCH\nTHE NUMBER OF SKELTON NODES(%d SKELTONS)\n",
             motionKind[w->motion].name, i - 1, n);
-        debug_assertMessage(__FILE__, 1287, buf);
-        __assert(__FILE__, 1287, "e");
+        debug_assertMessage(__FILE__, LN(1287, 1281), buf);
+        __assert(__FILE__, LN(1287, 1281), "e");
     }
 }
 
@@ -1427,8 +1433,8 @@ void SetNodeRotationLimitDataTable(void *self, int from, int to)
             /* EUC-JP: "the node the node rotation limit data names is not in the skeleton" */
             debug_StdPrintfDummy(
                 "ノード回転リミットデータの示すノードがスケルトン中にありません。\n");
-            debug_assert(__FILE__, 1838);
-            __assert(__FILE__, 1838, "0");
+            debug_assert(__FILE__, LN(1838, 1832));
+            __assert(__FILE__, LN(1838, 1832), "0");
         }
         MOWORK(self)->nodeLimit[node] = (int)&motionLimitDef[i];
         if (motionLimitDef[i].mid.y < motionLimitDef[i + 2].mid.y) {

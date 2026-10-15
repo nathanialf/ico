@@ -192,8 +192,13 @@ inline int IsEnemyBrainToGenerator(GObj *self, GObj **out)
         return 0;
     *out = ((ActWork *)b->work)->genTarget;
     if (*out == 0) {
+#ifdef VERSION_JPN
+        debug_assert("src/enemy_act.c", 830);
+        __assert("src/enemy_act.c", 830, "*generator_gop!=NULL");
+#else
         debug_assert("src/enemy_act.c", 0x341);
         __assert("src/enemy_act.c", 0x341, "*generator_gop!=NULL");
+#endif
     }
     return 1;
 }
@@ -232,8 +237,13 @@ static void setBattleStatus(GObj *self)
         GOBJ_ACT(self)->enemy->flags.ll |= 2LL;
         break;
     default:
+#ifdef VERSION_JPN
+        debug_assert("src/enemy_act.c", 872);
+        __assert("src/enemy_act.c", 872, "0");
+#else
         debug_assert("src/enemy_act.c", 0x36B);
         __assert("src/enemy_act.c", 0x36B, "0");
+#endif
     }
 }
 
@@ -339,7 +349,11 @@ static void _DoAwait(GObj *self)
     if (boyGObj != 0) {
         _ACTParaStatus_Set(self, 0x1C);
         row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
+#ifdef VERSION_JPN
+        if ((row->flags.word >> 5) & 1) {
+#else
         if ((row->flags.word >> 3) & 1) {
+#endif
             EnemyUtil_TurnToBoy(self, boyGObj, 5);
         }
     }
@@ -351,7 +365,11 @@ static void _DoAwaitGirl(GObj *self)
     if ((char *)girlGObj != 0) {
         _ACTParaStatus_Set(self, 0x1C);
         row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
+#ifdef VERSION_JPN
+        if ((row->flags.word >> 5) & 1) {
+#else
         if ((row->flags.word >> 3) & 1) {
+#endif
             EnemyUtil_TurnToBoy(self, girlGObj, 5);
         }
     }
@@ -631,7 +649,11 @@ void subEnemyCollision(GObj *volatile self)
                 }
             }
         }
+#ifdef VERSION_JPN
+        DispMultiBgaManagerWithKind(502, GOBJ_WORK(self)->bga, 1);
+#else
         DispMultiBgaManagerWithKind(0x1FA, GOBJ_WORK(self)->bga, 1);
+#endif
         idx = (int)GetEnemyDefParaIndex((void *)self);
         if ((unsigned int)(idx - 1) < 4) {
             _ACTParaStatus_Set(self, idx + 0x1C);
@@ -789,8 +811,13 @@ inline int actEnemyFlagCheckDead(GObj *self)
 inline int isEnemyActive(GObj *self)
 {
     if (self == 0 || self->kind != 4) {
+#ifdef VERSION_JPN
+        debug_assert("src/enemy_act.c", 2084);
+        __assert("src/enemy_act.c", 2084, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
+#else
         debug_assert("src/enemy_act.c", 0x827);
         __assert("src/enemy_act.c", 0x827, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
+#endif
     }
     return actEnemyFlagCheckActive(self);
 }
@@ -893,8 +920,8 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
         idx = 3;
         break;
     default:
-        debug_assert("src/enemy_act.c", 2161);
-        __assert("src/enemy_act.c", 2161, "0");
+        debug_assert("src/enemy_act.c", LN(2161, 2158));
+        __assert("src/enemy_act.c", LN(2161, 2158), "0");
     }
     GOBJ_ACT(self)->enemy->battleType = idx;
     setBattleStatus(self);
@@ -1122,7 +1149,11 @@ void actEnemyKidnapEnd(GObj *volatile self)
                             if ((char *)girlGObj != 0) {
                                 *(int *)((char *)girlGObj + 0x16C) = 0;
                             }
+#ifdef VERSION_JPN
+                            stage_SetParentOfGObj(498, &q);
+#else
                             stage_SetParentOfGObj(502, &q);
+#endif
                             n = (GetEfStageCameraTargetID() != 0) ? 120 : 300;
                             r = n * ((60 - systemStatus[0] * 10) / systemStatus[1]) / 60;
                             StartGameOverEffect(test_CURRENTROOT(target),
@@ -1443,8 +1474,13 @@ void actEnemyPickupBegin(GObj *volatile self)
 
 inline void actEnemyCarry(GObj *volatile self)
 {
+#ifdef VERSION_JPN
+    debug_assert("src/enemy_act.c", 2930);
+    __assert("src/enemy_act.c", 2930, "0");
+#else
     debug_assert("src/enemy_act.c", 0xB75);
     __assert("src/enemy_act.c", 0xB75, "0");
+#endif
 }
 
 inline int EnemyBrainStatus_Boy(GObj *self)
@@ -1588,8 +1624,8 @@ void subEnemyBrainMain(GObj *volatile self)
             break;
         default:
             debug_StdPrintfDummy("undefined mode [%d]\n", req);
-            debug_assert("src/enemy_act.c", 3102);
-            __assert("src/enemy_act.c", 3102, "0");
+            debug_assert("src/enemy_act.c", LN(3102, 3099));
+            __assert("src/enemy_act.c", LN(3102, 3099), "0");
             break;
         }
     }
@@ -2136,7 +2172,11 @@ static void NakaBoss(GObj *self, void *tgt, float dist)
     float dist;
     Act *sub;
 
+#ifdef VERSION_JPN
+    if (stage_no != 84 && stage_no != 3 && stage_no != 46) {
+#else
     if (stage_no != 86 && stage_no != 3 && stage_no != 46) {
+#endif
         if (tgt != 0) {
             enemy_dodge_to_boy(self);
         }
@@ -2147,8 +2187,13 @@ static void NakaBoss(GObj *self, void *tgt, float dist)
             return;
         }
         dist = _DistGV(test_CURRENTROOT(boy), test_CURRENTROOT(self));
+#ifdef VERSION_JPN
+        if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x890), test_CURRENTROOT(self),
+                           test_CURRENTROOT(boy)) == 2) {
+#else
         if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x8A0), test_CURRENTROOT(self),
                            test_CURRENTROOT(boy)) == 2) {
+#endif
             ACTSendMailCorrect(self, 0x1D);
         }
         if (dist < 360.0) {
@@ -2160,8 +2205,13 @@ static void NakaBoss(GObj *self, void *tgt, float dist)
             ori[2] = test_CURRENTORIENT(boy)[2];
             if (_AbsRotyGV(ori, dir) < 60) {
                 if (dist < 270.0) {
+#ifdef VERSION_JPN
+                    if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x890), mpos,
+                                       bpos) == 0) {
+#else
                     if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x8A0), mpos,
                                        bpos) == 0) {
+#endif
                         debug_StdPrintfDummy("not found");
                     }
                     inc = 1;
@@ -2317,7 +2367,11 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
         }
     result:
         debug_StdPrintfDummy("toboy ra is [%d]\n", mode);
+#ifdef VERSION_JPN
+        if (stage_no == 84 || stage_no == 3 || stage_no == 46) {
+#else
         if (stage_no == 86 || stage_no == 3 || stage_no == 46) {
+#endif
             if (mode == 4 || mode == 5) {
                 mode = 3;
             }
@@ -2352,7 +2406,11 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
         sub->dir[0] = 0.0f;
         sub->dir[1] = 0.0f;
         sub->dir[2] = 0.0f;
+#ifdef VERSION_JPN
+        for (j = 0; j < 45; j++) {
+#else
         for (j = 0; j < (60 - systemStatus[0] * 10) / systemStatus[1] * 90 / 60; j++) {
+#endif
             if (mode == 5) {
                 if (EnemyUtil_isOtherStatus(self, 0) == 0) {
                     ChangeBrain_ToAttack();
@@ -2566,7 +2624,11 @@ static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float
 
     GetRootProjectionPosOfGObj(p0, tgt);
     GetRootProjectionPosOfGObj(p1, self);
+#ifdef VERSION_JPN
+    for (i = 0; i < 20; i++) {
+#else
     for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60; i++) {
+#endif
         if (IsSelectID_EnemyCtrl(*(int *)((char *)self + 8)) != 0) {
             break;
         }
@@ -2617,7 +2679,11 @@ static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float
             }
             FlyMail(self);
         }
+#ifdef VERSION_JPN
+        if (*(int *)((char *)self + 8) == 3734 && (((int)(sub->flags20.ll >> 39)) & 1)) {
+#else
         if (*(int *)((char *)self + 8) == 0xEAD && (((int)(sub->flags20.ll >> 39)) & 1)) {
+#endif
             FlyMail(self);
         }
         if (stage_no == 9 && CheckFloorAttribute(self, 0x100000) != 0 &&
@@ -2711,7 +2777,11 @@ void actEnemyStart(GObj *self)
     actInitialize_ext_charcter(self);
     actInitialize_only_charcter(self);
     actInitialize_geo(self);
+#ifdef VERSION_JPN
+    if (*(int *)((char *)self + 8) == 3734) {
+#else
     if (*(int *)((char *)self + 8) == 3757) {
+#endif
         *(long long *)(act + 0x20) = *(long long *)(act + 0x20) | 0x40000000;
     }
     ACTGame_LwsEffectInit(self);

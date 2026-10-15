@@ -15,11 +15,10 @@
 #
 # Subcommands:
 #   setup         Delete build/<slug>/, verify the base ELF and ROM SHA-1s,
-#                 write build/<slug>/tree/ and build.ninja.
+#                 write build.ninja.
 #   verify        Just verify the base ELF and ROM SHA-1s (and regen when
 #                 build.ninja was written for another target).
-#   regen         Just rewrite build/<slug>/tree/ and build.ninja (after adding
-#                 a source file or a header).
+#   regen         Just rewrite build.ninja (after adding a source file).
 #   clean         rm -rf build/<slug>/.
 #   distclean     rm -rf build/ and build.ninja (every target).
 #   progress      Regenerate the progress files (docs/<slug>/PROGRESS.md,
@@ -45,8 +44,7 @@ BASEELF="${BASEELF:-${ICO_BASEELF}}"
 BASEROM="${BASEROM:-${ICO_ROM}}"
 
 regen_ninja() {
-    echo "==> writing ${ICO_TREE}/ and build.ninja (VERSION=${VERSION})"
-    "${VENV_PY}" tools/gen_ninja.py --tree
+    echo "==> writing build.ninja (VERSION=${VERSION})"
     "${VENV_PY}" tools/gen_ninja.py
 }
 
@@ -142,9 +140,9 @@ case "$cmd" in
         cat <<USAGE
 usage: [VERSION=<slug>] $0 <subcommand>      (configured: ${ICO_VERSIONS:-none}; now ${VERSION})
 
-  setup         delete ${ICO_BUILD_DIR}/, verify the base ELF and ROM, write ${ICO_TREE}/ and build.ninja
+  setup         delete ${ICO_BUILD_DIR}/, verify the base ELF and ROM, write build.ninja
   verify        verify the base ELF and ROM SHA-1s only
-  regen         rewrite ${ICO_TREE}/ and build.ninja from config/link_order.${VERSION}.txt
+  regen         rewrite build.ninja from config/link_order.${VERSION}.txt
   clean         rm -rf ${ICO_BUILD_DIR}/
   distclean     rm -rf build/ and delete build.ninja
   progress      regenerate ${ICO_DOCS_DIR}/PROGRESS.md, ${ICO_DOCS_DIR}/progress.json and README's block

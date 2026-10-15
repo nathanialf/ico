@@ -1,17 +1,18 @@
 # Targets
 
-What differs between the targets of this tree. The shared tree (`ico2/`,
-`sce/`) is the PAL revision; each other target is built from it with the files
-of its overlay, `targets/<slug>/`, in place of the ones they replace
-(`docs/BUILDING.md`, "Targets, overlays and the merged view"). This file
+What differs between the targets of this tree. One tree (`ico2/`, `sce/`)
+builds every target: its base text is the PAL revision, and where another
+target differs the file holds that target's lines inline in
+`#ifdef VERSION_<SLUG>` blocks (`docs/BUILDING.md`, "Targets and version
+blocks"); `grep -rn VERSION_JPN ico2` lists every place. This file
 records, per target, where its build differs from PAL's and why; the file or
 function named at each line is where to read the detail. A target that joins
 later gets its own section here.
 
 ## Japanese retail (`jpn`): how the build differs from PAL's
 
-`targets/jpn/` holds the Japanese build's differences from the shared (PAL) tree. The
-debug menu's `DISC VER.` line (`debug.c`) dates the Japanese build
+The `VERSION_JPN` blocks hold the Japanese build's differences from the PAL
+text. The debug menu's `DISC VER.` line (`debug.c`) dates the Japanese build
 `Nov  2 2001 17:26:01` and PAL's `Jan 17 2002 15:37:26`; comments in the
 sources call them the November and the January build. Each line names
 where the difference lives; the comment at that place has the detail.

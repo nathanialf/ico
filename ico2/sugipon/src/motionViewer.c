@@ -260,8 +260,13 @@ static int motKindMenuProc(void)
     int cur;
 
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
+#ifdef VERSION_JPN
+    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 400, 192,
+                                        0, ent->motLast - ent->motFirst, &motSel, 0);
+#else
     ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 404, 192,
                                         0, ent->motLast - ent->motFirst, &motSel, 0);
+#endif
     base = motSel;
     cur = base + ent->motFirst;
     if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 320 && motionTable[cur] == 0) {

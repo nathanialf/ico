@@ -177,15 +177,14 @@ runs read directly.
 rewrites itself when `tools/gen_ninja.py` or one of its inputs changes.
 
 `setup` deletes `build/<slug>/`, verifies the SHA-1s of the base ELF and ROM
-(`tools/verify_elf.py`), writes the merged source view `build/<slug>/tree/`
-(below) and `build.ninja` with `tools/gen_ninja.py` from these inputs:
+(`tools/verify_elf.py`) and writes `build.ninja` with `tools/gen_ninja.py`
+from these inputs:
 
 - `config/link_order.<slug>.txt`: every object of the link in the retail
   link's order, one source per line, with the data-only members as `data:`
-  lines. The rows name shared-tree paths; the target's overlay file is the one
-  compiled when it has one. The Japanese disc has no map, so `jpn`'s order is
+  lines. The Japanese disc has no map, so `jpn`'s order is
   PAL's carried over by the function census, and each line that departs from
-  it says why. `tools/gen_ninja.py` runs `tools/check_layers.py` first (below)
+  it says why. `tools/gen_ninja.py` runs `tools/check_targets.py` first (below)
   and fails if a source is missing from every configured target's order.
 - `config/link.<slug>.ld`: the hand-written linker script, which places each
   section at the base ELF's addresses and defines the symbols the link needs.
@@ -195,8 +194,8 @@ rewrites itself when `tools/gen_ninja.py` or one of its inputs changes.
   section, element type, the game header that defines it, element count,
   MAIN.MAP's names).
 
-`tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite the
-view and `build.ninja`; needed after adding a file, below), `clean` (delete
+`tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
+`build.ninja`; needed after adding a source), `clean` (delete
 `build/<slug>/`), `distclean` (delete `build/` and `build.ninja`), `progress`
 (below) and, for every configured target, `gate-all` (each target's base files
 are required first, and the command fails naming any that is missing; then
@@ -207,11 +206,13 @@ are required first, and the command fails naming any that is missing; then
 `.venv/bin/ninja`, or any ninja on the PATH. `build.ninja` does the following
 (`tools/gen_ninja.py`):
 
-- compiles every C source of the link order (the shared tree's file, or the
-  overlay's) with `tools/compile_c.sh`, run inside `build/<slug>/tree/`:
-  ee-gcc 2.9-991111 with the flags of the source's origin (the game
+- compiles every C source of the link order with `tools/compile_c.sh`, from
+  the source's own directory (`ico2/<programmer>`, `sce/<archive>`), so
+  `__FILE__` and the include paths are spelled as the original build spelled
+  them: ee-gcc 2.9-991111 with the flags of the source's origin (the game
   `-g -G 8 -fno-common`; Sony's archives `-G 0`; libc, libm and libgcc
-  `-G 0 -fno-builtin`), then the assembler of its archive. Both run through
+  `-G 0 -fno-builtin`) and the target's `-DVERSION_<SLUG>` and `LN` (below),
+  then the assembler of its archive. Both run through
   `tools/period_env.sh`, which preloads `tools/period_obstack.c` to restore
   the obstack chunk size of the machine that built the game; ee-as's R5900
   short-loop padding depends on it;
@@ -331,70 +332,84 @@ track header or `.c.inc` dependencies (the VU includes under `ico2/vusrc/`
 are listed on the cpp step): after editing one, run
 `tools/build.sh clean` before `ninja`.
 
-## Targets, overlays and the merged view
+## Targets and version blocks
 
 One tree builds every configured target. A target is configured when
 `config/link_order.<slug>.txt` exists; `VERSION=<slug>` picks which one a
 command works on.
 
-**Layers.** The shared tree, `ico2/` and `sce/`, is the PAL revision, the one
-the PAL disc's maps and listing describe; PAL has no overlay. `targets/<slug>/`
-is a target's overlay: exactly the files whose bytes differ from the shared
-tree for that target, at the same relative path (`targets/jpn/ico2/common/src/main.c`
-replaces `ico2/common/src/main.c` for `jpn`, and `targets/jpn/` holds 121
-files). The resolver (`resolve_source` in `tools/ico_version.py`, with its
-shell twin in `tools/ico_version.sh`) is one rule: `targets/<slug>/<path>` if
-that file exists, else `<path>`. The link order's rows keep the shared path
-spelling, and the shared file `sce/libscf/libscf.c` stays shared even though
-only PAL's link order lists it.
+**One file per name.** `ico2/` and `sce/` are the source of every target. The
+base text is the PAL revision, the one the PAL disc's maps and listing
+describe; where another target's build differs, the same file holds that
+target's lines inline, so the two read side by side:
 
-**The five rules.** `tools/check_layers.py` (run by `tools/gen_ninja.py`, so by
-every `setup`, and by the pre-commit hook) holds the layers to them. It reads
-the files git tracks or would track (untracked, not ignored), the same set
-the merged view is built from, so a file not yet staged is checked too.
+```c
+#ifdef VERSION_JPN
+    thisIsYourStartStage = n < 104 ? n : 103;
+#else
+    thisIsYourStartStage = n < 106 ? n : 105;
+#endif
+```
 
-1. An overlay file sits at a shared-tree path (`targets/<slug>/ico2/...` or
-   `targets/<slug>/sce/...`) and is not byte-equal to the shared file there: a
-   file the target does not change stays shared.
-2. Every overlay source (`.c`, `.s`, `.S`, `.dsm`) is a row of its own
-   target's link order.
-3. Every shared source is a row of the link order of at least one configured
-   target that compiles it, that is, one whose overlay does not replace it.
-4. `targets/<slug>/` exists only for a configured slug.
-5. Every source row of every configured link order resolves to a file.
+`#ifndef VERSION_JPN` marks lines only PAL has, and `#ifdef VERSION_JPN`
+with no `#else` lines only the Japanese build has. `tools/compile_c.sh`
+defines `VERSION_<SLUG>` for the target it compiles (`-DVERSION_PAL`,
+`-DVERSION_JPN`). A block covers whole statements, and where most of a
+function or declaration differs the block holds each target's whole
+definition rather than interleaving them line by line. A comment that differs
+only in a value names both (`0x194 bytes (JPN 0x190)`). The `.dsm` files
+are not preprocessed and have no blocks; their header comments name both
+targets' addresses. Every object is built from its row's path
+(`build/jpn/ico2/script/src/st02a.o`), and the link order's rows name the
+same files for every target; `sce/libscf/libscf.c` is compiled only for PAL,
+whose link order alone lists it.
 
-**The merged view.** `tools/gen_ninja.py --tree` writes `build/<slug>/tree/`:
-for every file of the shared tree and of the target's overlay (sources,
-headers, `.c.inc` files) a symlink at the shared path to the file the resolver
-picks. Every compile, VU
-and data step runs with its working directory inside the view
-(`tree/ico2/<programmer>/<kind>`, `tree/sce/<archive>`), so the path an
-include or a `__FILE__` is spelled with is the one the original build used.
-That is why it exists: the ROM holds those spellings (`../ito/include/mv_defs.h`
-in `mv_defs.h`'s allocator, `src/girl_brain_attract.c.inc` in `girl_act`), and ee-gcc 2.9's cpp records a path as it was given, so
-compiling `targets/jpn/ico2/ito/include/mv_defs.h` through its real location
-would change bytes. The view is a build artifact under `build/`, never
-committed, and made for every target, also one without an overlay. Objects
-stay keyed by the row's path (`build/jpn/ico2/script/src/st02a.o`). ninja
-does not track headers or `.c.inc` files; adding a file to either layer needs
-`tools/build.sh regen`, which writes the view and `build.ninja` again, and
-editing a header needs `tools/build.sh clean`.
+**Line numbers.** The original build passed `__LINE__` to its debug
+allocators and asserts, so those lines are part of each build's data, and
+they differ between builds. The repository's lines are not the original
+files' lines, so such a call spells the number, and `LN(pal, jpn)` picks the
+target's: `iosMallocDebug(ios_partition_seki, asize, "src/FileManager.c",
+LN(349, 331))`. `tools/compile_c.sh` defines `LN` with `VERSION_<SLUG>`;
+`ico2/ito/include/mv_defs.h`'s `alloc_zeroed` is the header case (lines 43 and
+44 on PAL, 42 and 43 on JPN). This is the convention zeldaret/oot's
+`include/line_numbers.h` uses for the same problem.
 
-**Joining a later target.** `us` (branch `ntsc`) and `aug6` join by the same
-steps `jpn` did; no tool changes.
+**The rules.** `tools/check_targets.py` (run by `tools/gen_ninja.py`, so by
+every `setup`, and by the pre-commit hook) reads the files git tracks or
+would track (untracked, not ignored), so a file not yet staged is checked
+too:
+
+1. Every source (`.c`, `.s`, `.S`, `.dsm`) is a row of at least one
+   configured target's link order.
+2. Every source row of every configured link order is a file.
+3. There is no `targets/` directory: a target's differences are inline.
+4. A `VERSION_<SLUG>` name appears only in C sources and headers, and only
+   for a configured slug.
+
+`tools/gen_data_c.py` reads a record header's version blocks for the target
+it writes (`version_lines`), and `tools/format_layout.py` keeps a block's
+arms tight (no blank line after the opening line or `#else`, none before
+`#else` or `#endif`). ninja does not track headers or `.c.inc` files; adding
+a source needs `tools/build.sh regen`, and editing a header needs
+`tools/build.sh clean`.
+
+**Joining a later target.** `us` (branch `ntsc`) and `aug6` join by these
+steps.
 
 1. Copy the branch's `config/*.<slug>.*` files and its
    `config/sha1sums.<slug>.txt`, with `link.<slug>.ld`'s `INCLUDE` paths under
    `build/<slug>/`, and its `docs/<slug>/` progress files.
-2. Make `targets/<slug>/` hold the files that differ from `main`'s shared tree
-   (`git diff --name-only main <branch> -- ico2 sce`), leaving out the ones
-   that differ only in encoding (store those once, shared). A file identical
-   to the shared one fails rule 1.
-3. Add `.gitattributes` rows for the target's EUC-JP files, under both the
-   shared and the `targets/<slug>/` paths where both exist (the rows are exact
-   paths, so add them before the files).
+2. For each file that differs from `main`'s (`git diff --name-only main
+   <branch> -- ico2 sce`, leaving out the ones that differ only in
+   encoding), write the target's lines into the shared file as version blocks.
+   With a third target the blocks take `#elif defined(VERSION_<SLUG>)` arms;
+   `version_lines` in `tools/gen_data_c.py`, the version-block handling in
+   `tools/format_layout.py` and `tools/check_targets.py` read
+   `#ifdef`/`#ifndef`/`#else`/`#endif` today and learn `#elif` then.
+3. Add the target to `VERSION_DEFS` in `tools/compile_c.sh`, give `LN` its
+   argument there, and add the target's number to every `LN(...)` call.
 4. Move the branch's `tools/dev_native_allow.txt` rows for sites in the
-   overlay files under `targets/<slug>/`.
+   files it changed onto the shared files' lines.
 5. Run `tools/build.sh gate-all`. A target's stubs are per slug
    (`config/stubs.<slug>.txt`, `build/<slug>/stubs/`), so a target can gate in
    the combined tree with stubs remaining; joining at 0 stubs is the project's
@@ -410,11 +425,8 @@ are the ROM's bytes. `.gitattributes` lists each of them with
 `working-tree-encoding=EUC-JP`: git stores the file as UTF-8 and checks it
 out as EUC-JP, which is what the compiler reads. An editor or a pipe that
 rewrites one of these files as UTF-8 changes its bytes; change them with an
-ASCII patch and `git apply`. Under `targets/` the rows name the overlay path
-(`targets/jpn/ico2/fumi/src/boyact.c`, `targets/jpn/ico2/sugipon/src/box.c`
-and the other EUC-JP files of the Japanese build); a file that is byte-equal
-in both builds and EUC-JP stays shared and keeps its one row. Check that the
-count of high bytes in the file is unchanged after any edit.
+ASCII patch and `git apply`. Check that the count of high bytes in the file
+is unchanged after any edit.
 
 ## Progress and the dashboard
 
@@ -446,9 +458,9 @@ its `progress.json` and `PROGRESS.md`.
 - **pre-commit**: `tools/check_no_rom.sh` (refuses disc images, executables,
   extracted assets and large binaries), `tools/check_dev_native.py` (refuses
   constructs that only steer the compiler, with the ROM-proven exceptions in
-  `tools/dev_native_allow.txt`), `tools/check_layers.py`, and
-  `tools/format.sh --check` on the staged C (`targets/` included). When a
-  staged path is under `ico2/`, `sce/`, `targets/`, `config/`, `tools/` or
+  `tools/dev_native_allow.txt`), `tools/check_targets.py`, and
+  `tools/format.sh --check` on the staged C. When a
+  staged path is under `ico2/`, `sce/`, `config/`, `tools/` or
   `baserom/`, it then runs `tools/build.sh gate-all` (every configured target
   from scratch; a missing `baserom/<slug>/` of any of them fails the commit)
   and `tools/build.sh progress-all`, and adds the refreshed README block and
@@ -462,7 +474,7 @@ its `progress.json` and `PROGRESS.md`.
   branch's own sources, so each branch keeps its own. Then, for each pushed
   ref whose commits touch the build, it requires the working tree to be at
   that ref's tip with no uncommitted changes under `ico2/`, `sce/`,
-  `targets/`, `config/` or `tools/`, and runs `tools/build.sh gate-all` on it.
+  `config/` or `tools/`, and runs `tools/build.sh gate-all` on it.
 
 `tools/format.sh` formats the tracked C with the tracked `.clang-format` and
 then `tools/format_layout.py`'s top-level blank-line layout. The game

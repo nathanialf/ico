@@ -171,8 +171,13 @@ static inline int lt_property_visible(int no) /* derived name */
 {
     int vis = 1;
 
+#ifdef VERSION_JPN
+    if (gFlagGameClear == 0 && current_layout_id == 55 && no >= 277 &&
+        (no < 285 || (no < 307 ? no >= 302 : 0))) {
+#else
     if (gFlagGameClear == 0 && current_layout_id == 58 && no >= 300 &&
         (no < 308 || (no < 330 ? no >= 325 : 0))) {
+#endif
         vis = 0;
     }
     return vis;
@@ -195,7 +200,11 @@ static inline void lt_draw_layout(int no) /* derived name */
    out-of-line function and the second site set 3. */
 static inline void lt_switch_layout_7(int no) /* derived name */
 {
+#ifdef VERSION_JPN
+    if ((fadeState == 2 && no != current_layout_id) || no == 59) {
+#else
     if ((fadeState == 2 && no != current_layout_id) || no == 62) {
+#endif
         nextLayout = no;
         display_texture_fade_cancel_chk(current_layout_id, no);
         if (fadeType == 1) {
@@ -209,7 +218,11 @@ static inline void lt_switch_layout_7(int no) /* derived name */
 
 static inline void lt_switch_layout_3(int no) /* derived name */
 {
+#ifdef VERSION_JPN
+    if ((fadeState == 2 && no != current_layout_id) || no == 59) {
+#else
     if ((fadeState == 2 && no != current_layout_id) || no == 62) {
+#endif
         nextLayout = no;
         display_texture_fade_cancel_chk(current_layout_id, no);
         if (fadeType == 1) {
@@ -239,7 +252,11 @@ static void default_item_select(int no)
     if (fadeCallback == 0) {
         lt_analog2Pad();
         prev = p->curItem;
+#ifdef VERSION_JPN
+        if ((pad[0].flags & 0x60) == 0) {
+#else
         if ((pad[0].flags & 0x50) == 0) {
+#endif
             if ((pad[0].flags & 0x1000) && e->upItem >= 0) {
                 p->curItem = e->upItem;
                 while (!lt_property_visible(p->curItem)) {
@@ -269,7 +286,11 @@ static void default_item_select(int no)
     }
 
     e = &texProperty[p->curItem];
+#ifdef VERSION_JPN
+    if (pad[0].flags & 0x20) {
+#else
     if (pad[0].flags & 0x40) {
+#endif
         if (e->right >= 0) {
             if (fadeState == 2) {
                 soundSeDefPlay(412, 0xFFFFFFFE, 0, 0);
@@ -278,7 +299,11 @@ static void default_item_select(int no)
             }
         }
     }
+#ifdef VERSION_JPN
+    if (pad[0].flags & 0x40) {
+#else
     if (pad[0].flags & 0x10) {
+#endif
         if (e->left >= 0) {
             if (fadeState == 2) {
                 soundSeDefPlay(413, 0xFFFFFFFE, 0, 0);
@@ -577,10 +602,18 @@ static void display_primary_texture_layout(int no, int sel)
         sel = p->proc(ltSelectFlag, sel);
         if (sel != -1) {
             flag = 0;
+#ifdef VERSION_JPN
+            if ((pad[0].flags & 0x20) != 0) {
+#else
             if ((pad[0].flags & 0x40) != 0) {
+#endif
                 flag = m == 1;
             }
+#ifdef VERSION_JPN
+            if ((fadeState == 2 && sel != current_layout_id) || sel == 59) {
+#else
             if ((fadeState == 2 && sel != current_layout_id) || sel == 62) {
+#endif
                 nextLayout = sel;
                 display_texture_fade_cancel_chk(current_layout_id, sel);
                 if (fadeType == 1) {
@@ -590,7 +623,11 @@ static void display_primary_texture_layout(int no, int sel)
                     fadeState = flag ? 7 : 3;
                 }
             }
+#ifdef VERSION_JPN
+        } else if ((pad[0].flags & 0x20) != 0) {
+#else
         } else if ((pad[0].flags & 0x40) != 0) {
+#endif
             if (m == 2) {
                 nextFadeState = m;
                 fadeState = 7;
@@ -660,11 +697,20 @@ void exec_layout_texture(void)
 /* init_textures_of_specified_property is a file static, as is
    ico2/common/src/kanban's function of the same name */
 /* texProperty's texNo column, &texProperty[0].texNo */
+#ifdef VERSION_JPN
+extern char D_0030A66C[];
+#else
 extern char D_0030D014[];
+#endif
+
 /* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
 
+#ifdef VERSION_JPN
+static inline char *lt_texture_base_name(const char *src) /* derived name */
+#else
 static inline char *lt_texture_base_name(char *src) /* derived name */
+#endif
 {
     char buf[256];
     char *p;
@@ -690,7 +736,11 @@ static inline char *lt_texture_base_name(char *src) /* derived name */
 static inline int lt_texture_no_of_property(int idx) /* derived name */
 {
     int n;
+#ifdef VERSION_JPN
+    const char *src;
+#else
     char *src;
+#endif
     char *name;
     int no;
 
@@ -715,9 +765,15 @@ static void init_textures_of_specified_property(int first, int last)
 
     for (i = first; i < last; i++) {
         no = lt_texture_no_of_property(i);
+#ifdef VERSION_JPN
+        *(int *)(D_0030A66C + i * 0x70) = no;
+        *(void **)(D_0030A66C + i * 0x70 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_0030A66C + i * 0x70 - 4), 1, 1);
+#else
         *(int *)(D_0030D014 + i * 0x70) = no;
         *(void **)(D_0030D014 + i * 0x70 - 4) = tex_GetTextureData(no);
         tex_SetSamplingType(*(void **)(D_0030D014 + i * 0x70 - 4), 1, 1);
+#endif
     }
 }
 
@@ -738,23 +794,47 @@ void init_layout_texture(int stage)
     if (stage == 1) {
         gflagInit();
         if (layout_boot_flag == 0) {
+#ifdef VERSION_JPN
+            current_layout_id = 4;
+#else
             current_layout_id = 7;
+#endif
         } else if (mpegPlayReturnStage == stage) {
             mpegPlayReturnStage = 0;
             if (stage_after_skipping_demo == 0xFFFFFFFE) {
                 title_demo_mode = title_demo_mode ^ 1;
-                current_layout_id = 13;
-            } else if (stage_after_skipping_demo == 0xFFFFFFFF) {
+#ifdef VERSION_JPN
                 current_layout_id = 10;
+#else
+                current_layout_id = 13;
+#endif
+            } else if (stage_after_skipping_demo == 0xFFFFFFFF) {
+#ifdef VERSION_JPN
+                current_layout_id = 7;
+#else
+                current_layout_id = 10;
+#endif
                 title_demo_mode = title_demo_mode ^ 1;
             } else {
+#ifdef VERSION_JPN
+                current_layout_id = 10;
+#else
                 current_layout_id = 13;
+#endif
             }
         } else {
+#ifdef VERSION_JPN
+            current_layout_id = 10;
+#else
             current_layout_id = 13;
+#endif
         }
     } else {
+#ifdef VERSION_JPN
+        current_layout_id = 51;
+#else
         current_layout_id = 54;
+#endif
     }
     lt_init_stage_textures(stage);
     texLayout[current_layout_id].curItem = texLayout[current_layout_id].defaultItem;
@@ -765,7 +845,11 @@ void init_layout_texture(int stage)
 
 inline void lt_switch_layout(int no)
 {
+#ifdef VERSION_JPN
+    if ((fadeState == 2 && no != current_layout_id) || no == 59) {
+#else
     if ((fadeState == 2 && no != current_layout_id) || no == 62) {
+#endif
         nextLayout = no;
         display_texture_fade_cancel_chk(current_layout_id, no);
         if (fadeType == 1) {

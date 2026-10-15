@@ -63,7 +63,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from check_elf import parse_map  # noqa: E402
 from correlate_elf import RELOC_KIND, describe_reloc, residue  # noqa: E402
 from gen_stub_s import LIST, asm_line, parse_stubs  # noqa: E402
-from ico_version import baseelf_path, build_dir, detect_version, link_map_path, resolve_source  # noqa: E402
+from ico_version import baseelf_path, build_dir, detect_version, link_map_path  # noqa: E402
 
 VERSION = detect_version(ROOT)
 TARGET = baseelf_path(ROOT, VERSION)
@@ -234,7 +234,7 @@ def main():
     ap.add_argument("--stubs", type=Path, default=LIST, help=f"the stub list (default {LIST.relative_to(ROOT)})")
     a = ap.parse_args()
     tu = a.tu
-    if not resolve_source(ROOT, VERSION, tu).is_file():
+    if not (ROOT / tu).is_file():
         fail(f"{tu}: no such source")
     if a.at is not None and len(a.funcs) != 1:
         fail("--at takes exactly one FUNC")
@@ -245,7 +245,7 @@ def main():
     for r in rows:
         by_key[r["stem"]] = r
         by_key.setdefault(r["name"], r)
-    src = resolve_source(ROOT, VERSION, tu).read_bytes().splitlines(keepends=True)
+    src = (ROOT / tu).read_bytes().splitlines(keepends=True)
     with tempfile.TemporaryDirectory(prefix="match_check.") as tmp:
         fns = object_functions(compile_tu(tu, Path(tmp)))
     twins = read_twins(a.twins) if a.twins else {}
@@ -265,7 +265,7 @@ def main():
         # the INCLUDE_ASM line lives in the TU, or in the row's in=<file.c.inc>
         # (for an inline function of a .c.inc, in the TU: the row's asm file)
         stub = row is not None and asm_line(row["stem"]) in (
-            src if row["asm"] == tu else resolve_source(ROOT, VERSION, row["asm"]).read_bytes().splitlines(keepends=True))
+            src if row["asm"] == tu else (ROOT / row["asm"]).read_bytes().splitlines(keepends=True))
         if a.at is not None:
             lo, hi, label = a.at, a.at + 4 * len(words), f"--at 0x{a.at:08X}"
         elif twins.get(name):

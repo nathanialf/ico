@@ -104,7 +104,11 @@ void actSt08bKurenSwitch(GObj *volatile self)
         }
     }
 
+#ifdef VERSION_JPN
+    lt_switch_layout(52);
+#else
     lt_switch_layout(55);
+#endif
 
     if (gflagChk(80) != 0) {
         scpAdpcmPlayRequestFunc(58, &h, 1, 1, 1);
@@ -140,7 +144,11 @@ void actSt08bKurenSwitch(GObj *volatile self)
         while (scpFadeChk() != 0) {
             _ACTWait(1);
         }
+#ifdef VERSION_JPN
+        stage_SetAnimation(366, 1, frame - 60);
+#else
         stage_SetAnimation(370, 1, frame - 60);
+#endif
         _ACTWait(1);
         HotInitCageGeo(scpSearchGobj(365));
         HotInitCageGeo(scpSearchGobj(364));
@@ -166,12 +174,20 @@ void actSt08bKurenSwitch(GObj *volatile self)
         GOBJ_SUB(girlGObj)->root.footPos[1] = p1.f[1];
     }
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(366, frame, 1) == 0) {
+#else
     while (stage_CheckAnimationFrame(370, frame, 1) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_JPN
+    lt_switch_layout(51);
+#else
     lt_switch_layout(54);
+#endif
 
     if (gflagChk(80) != 0) {
         scpSearchGobj(365)->active = 1;
@@ -192,24 +208,40 @@ void actSt08bKurenLeft(GObj *volatile self)
 {
     ReviveAllCarryableItemsWithNonSleepFrame(300);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(366, 1, 0);
+#else
     stage_SetAnimation(370, 1, 0);
+#endif
 
     scpSearchGobj(365)->active = 0;
     scpSearchGobj(364)->active = 1;
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(366, 5, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(370, 5, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(boyPad, 16);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(366, 215, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(370, 215, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(366, 465, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(370, 465, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -223,21 +255,37 @@ void actSt08bKurenRight(GObj *volatile self)
 {
     ReviveAllCarryableItemsWithNonSleepFrame(300);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(366, 1, 511);
+#else
     stage_SetAnimation(370, 1, 511);
+#endif
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(366, 732, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(370, 732, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(366, 822, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(370, 822, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFrame(366, 995, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(370, 995, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -271,14 +319,22 @@ void actSt08bDoor(GObj *volatile self)
 
     if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
+#ifdef VERSION_JPN
+        stage_SetAnimation(368, 0, 0);
+#else
         stage_SetAnimation(372, 0, 0);
+#endif
         _ACTWait(60);
         doorDown_mes[0].func = actSt08bDoorDownChk;
         act->mail = doorDown_mes;
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
+#ifdef VERSION_JPN
+        stage_SetAnimation(367, 0, 0);
+#else
         stage_SetAnimation(371, 0, 0);
+#endif
         doorUp_mes[0].func = actSt08bDoorUpChk;
         act->mail = doorUp_mes;
         ACTSendMailCorrect(self, 430);
@@ -300,7 +356,11 @@ void actSt08bDoorUpChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(367, 1, 0);
+#else
     stage_SetAnimation(371, 1, 0);
+#endif
 
     buf[0] = doorUpChkPos.d[0];
     buf[1] = doorUpChkPos.d[1];
@@ -310,7 +370,11 @@ void actSt08bDoorUpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(367) == 0) {
+#else
     while (stage_CheckAnimationFinish(371) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -383,7 +447,11 @@ void actSt08bDoorDownChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
 
+#ifdef VERSION_JPN
+    stage_SetAnimation(368, 1, 0);
+#else
     stage_SetAnimation(372, 1, 0);
+#endif
 
     buf[0] = doorUpChkPos.d[0];
     buf[1] = doorUpChkPos.d[1];
@@ -393,7 +461,11 @@ void actSt08bDoorDownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
+#ifdef VERSION_JPN
+    while (stage_CheckAnimationFinish(368) == 0) {
+#else
     while (stage_CheckAnimationFinish(372) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
