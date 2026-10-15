@@ -44,7 +44,6 @@
 #include "Texture.h"
 #include "debug_exception.h"
 #include <assert.h>
-#include "include_asm.h"
 
 static int debug_CollisionTest(int reset);
 static int debug_DispBall(int on);
@@ -1591,7 +1590,215 @@ static DbgCol barScaleCol[1] = {{0xA0, 0xA0, 0xA0, 0xA0}}; /* derived name */
 static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 
 /* clang-format off */
-INCLUDE_ASM(debug_DrawBar);
+static void debug_DrawBar(void)
+{
+    long long sh;
+    long long x = -256;
+    FR rect0 = {-257, 93, 514, 10};
+    DbgCol col1 = barBackCol[0];
+    DbgCol col2 = barScaleCol[0];
+    DbgCol col3 = barLabelCol[0];
+    FR rect1 = {0, 100, 0, 2};
+    DbgVtx v0, v1;
+    int flip;
+    float scale;
+    int i;
+    int w;
+    int len;
+    inline int barTime(void) { return debugBars[i].count; } /* derived name */ /* the time stamp of bar i, read by both bar loops */
+
+
+    flip = 0;
+    scale = 1.0f / (270000.0f / 30.0f);
+
+
+
+
+
+
+
+
+
+    if (debug_font_flag & 1) debug_Printf(ScreenWidth / 2 - 298, ScreenHeight / 2 + 92, 0xFFFFFF00u, "draw");
+    if (debug_font_flag & 1) { debug_Printf(ScreenWidth / 2 - 282, ScreenHeight / 2 + 102, 0xFFFFFF00u, "cpu"); debugBars[debug_debug_bar_start_item].count = debugBars[debug_debug_bar_start_item].count; }
+    /* the first set of sh on the next line is overwritten before any read, and the store-back after the "cpu" print writes a bar's count back unchanged: both are dead */
+    sh = debugBars[debug_debug_bar_start_item].count;
+    sh = debug_debug_bar_multiply;
+
+    gif_StartPacketPri(12);
+    gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 1, 0);
+
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+
+
+    gif_SetAlpha(1, 2, 64);
+    gif_Sprite(&rect0, 0xFFFFFFFFU, 0, &col1, 1);
+    v0.x = v1.x = -257;
+    v0.y = 92;
+    v1.y = 104;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    v0.x = v1.x = 257;
+    v0.y = 92;
+    v1.y = 104;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    if (sh > 0) {
+        gif_SetAlpha(1, 4, 64);
+        v0.y = 91;
+        v1.y = 105;
+        for (i = 0; i < (1 << sh) - 1; i++) {
+            v0.x = v1.x = (i + 1) * (512 / (1 << sh)) - 256;
+            gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col2, 1);
+        }
+    }
+
+    for (i = debug_debug_bar_start_item; i < debugBarCount && x < 320; i++) {
+
+        int t = barTime() - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0);
+
+        long long alpha;
+
+        DbgCol c0, c1;
+        if (sh > 0)
+            w = -256 + ((int)((float)(t << 9) * scale) >> sh);
+        else
+            w = -256 + (float)((t << -sh) << 9) * scale;
+        if (w > 320) w = 320;
+        alpha = (signed char)debugBars[i].col.a >= 0;
+        rect1.x = x;
+        rect1.w = w - x;
+        gif_SetAlpha(alpha, 2, debugBars[i].col.a);
+        if (i == debug_debug_bar_start_item) {
+            static unsigned char barBlink = 0; /* derived name */
+            c0 = debugBars[i].col;
+
+
+
+
+
+
+            c1 = (DbgCol){(c0.r + 255) >> 1, (c0.g + 255) >> 1, (c0.b + 255) >> 1, 0};
+            c0 = c1;
+            c0.r >>= 1;
+            c0.g >>= 1;
+            c0.b >>= 1;
+            gif_Sprite(&rect1, 0xFFFFFFFFU, 0, (barBlink & 1) ? &c1 : &c0, alpha);
+
+            barBlink++;
+        } else {
+            gif_Sprite(&rect1, 0xFFFFFFFFU, 0, &debugBars[i].col, alpha);
+        }
+        if (debug_bar_flag == 2) {
+            v0.x = w; v0.y = rect0.y;
+            v1.x = w; v1.y = rect0.y + rect0.h + 6;
+            gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
+        }
+
+        if (debug_font_flag & 1) {
+            len = strlen(debugBars[i].name);
+            if (len != 0) {
+                if (debug_bar_flag == 1) {
+                    v0.x = w; v0.y = rect0.y;
+                    v1.x = w; v1.y = rect0.y + rect0.h + 6;
+                    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
+                }
+                v0.x = w; v0.y = rect0.y + rect0.h + 7;
+                v1.x = w + 7; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
+                v0.x = w + 7; v0.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                v1.x = w + 8 + len * 8; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
+                flip ^= 1;
+            }
+        }
+
+        x = w;
+    }
+
+    gif_SetAlpha(1, 4, 64);
+    v0.x = -256; v0.y = 98;
+    if (sh > 0) {
+        v1.x = ((int)((float)(drawTimerCount << 9) * scale) >> sh) - 256;
+    } else {
+        v1.x = ((int)((float)(drawTimerCount << 9) * scale) << -sh) - 256;
+    }
+    v1.y = 98;
+    if (v1.x > 320) v1.x = 320;
+    col1.r = col1.g = col1.b = col1.a = 164;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+
+    v0.x = -256; v0.y = 94;
+    v1.x = (used_dma_memory << 9) / 100 - 256; v1.y = 94;
+    col1.r = 0;
+    col1.g = col1.b = col1.a = 164;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+
+    v0.x = -256; v0.y = 96;
+    v1.x = (used_dl_max << 9) / 100 - 256; v1.y = 96;
+    col1.b = 0; col1.r = col1.g = col1.a = 164;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+    gif_SetZTest(1);
+    gif_SetZWrite(1);
+    gif_EndPacket();
+
+    flip = 0;
+    for (i = debug_debug_bar_start_item; i < debugBarCount && x < 320; i++) {
+        int t = barTime() - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0);
+
+        int dpct;
+        int pct;
+        if (sh > 0)
+            w = -256 + ((int)((float)(t << 9) * scale) >> sh);
+        else
+            w = -256 + (float)((t << -sh) << 9) * scale;
+        if (w > 320) w = 320;
+        if (i > 0)
+            dpct = (float)((debugBars[i].count - debugBars[i - 1].count) * 10000) * scale;
+        else dpct = 0;
+        pct = (float)(t * 10000) * scale;
+        len = debug_MakeBarString((char *)&debugBars[i], dpct, pct, rect0, w, flip);
+        if (len != 0) flip ^= 1;
+    }
+
+    for (i = 0; i < used_dl_num; i++) {
+        char buf[16];
+        sprintf(buf, "%d", i);
+        v0.x = (used_dl_memory[i] << 9) / 100 - 256 + ScreenWidth / 2;
+        v0.y = ScreenHeight / 2 + 88;
+        if (debug_font_flag & 1) debug_Printf(v0.x, v0.y, 0xFFFFFF00u, buf);
+    }
+
+    if (debug_debug_bar_start_item < debugBarCount) {
+        static float barMax = 0.0f, barMin = 0.0f; /* derived name */
+        static int barItem = 0, barLine = 0;      /* derived name */
+        float val;
+        int line;
+        val = (float)(debugBars[debug_debug_bar_start_item].count - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0)) * 100.0f * scale;
+
+
+        line = debugBars[debug_debug_bar_start_item].line;
+        if (barItem != debug_debug_bar_start_item || line != barLine)
+            barMax = barMin = val;
+        else {
+            if (barMax < val) barMax = val;
+            if (val < barMin) barMin = val;
+        }
+        if (debug_font_flag & 1) debug_Printf(10, ScreenHeight / 2 - 28, 0xFFFFFF00u, "A:%p W:%1.2f%% W~%1.2f%% W_:%1.2f%%",
+                         debugBars[debug_debug_bar_start_item].line, val, barMax, barMin);
+
+
+        barItem = debug_debug_bar_start_item;
+        barLine = line;
+    }
+
+    if (debug_font_flag & 1) debug_Printf(ScreenWidth + 70, ScreenHeight / 2 - 14, 0xFFFFFF00u,
+                         (sh > 0 ? "/%d" : "x%d"), sh > 0 ? (1 << sh) : (1 << -sh));
+    if (debug_font_flag & 1) debug_Printf(ScreenWidth + 30, ScreenHeight / 2 - 24, 0xFFFFFF00u, "%.2f%%",
+                         sh > 0 ? (float)(100 << sh) : (float)(10000 >> -sh) * 0.01f);
+}
 
 inline void debug_SetBar(char *name, unsigned int col, char *file, int line)
 {
@@ -1793,9 +2000,226 @@ static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
 /* debug_SnapShot's first-call flag */
 static int snapFirst = 1; /* derived name */
 
-int debug_SnapShot(int idx);
+int debug_SnapShot(int idx)
+{
+    sceGsStoreImage si;
+    char name[256];
+    int size = ScreenWidth * ScreenHeight * 4;
+    int ofs = size * idx;
+    int i;
+    int fd;
+    int *src;
+    int *dst;
+    int w;
+    int h;
+    int y;
 
-INCLUDE_ASM(debug_SnapShot);
+    debugBackGroundDisableFlag = 1;
+    if (snapFirst != 0) {
+        if (iosCdvdBackGroundMgrRunning != 0) {
+            return 1;
+        }
+        snapFirst = 0;
+    }
+    sceGsSyncPath(0, 0);
+    src = (int *)(0x2000000 + ofs);
+    debug_StdPrintfDummy("Snapx4:%d:%p\n", idx, src);
+    sceGsSetDefStoreImage(&si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
+    FlushCache(0);
+    sceGsExecStoreImage(&si, src);
+    sceGsSyncPath(0, 0);
+    switch (idx) {
+    case 0:
+        for (i = 0;; i++) {
+            if (debug_snapshot_format == 0)
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            else
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            fd = debugSceOpen(name, 1);
+            debugSceClose(fd);
+            if (fd < 0)
+                break;
+        }
+        if (debug_snapshot_format == 0)
+            sprintf(name, "snapshot/snap%07d.tm2", i);
+        else
+            sprintf(name, "snapshot/snap%07d.bmp", i);
+        fd = debugSceOpen(name, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+            break;
+        }
+        dst = src + size * 4;
+        if (debug_snapshot_size == 1) {
+            debug_ResizeSnapShot((int)dst, (int)src, ScreenWidth, ScreenHeight);
+            w = ScreenWidth / 2;
+            h = ScreenHeight / 2;
+        } else {
+            dst = src;
+            w = ScreenWidth;
+            h = ScreenHeight;
+        }
+        if (debug_snapshot_format == 0)
+            debug_WriteTim2(fd, dst, w, h);
+        else
+            debug_WriteBMP(fd, w, h, (unsigned int *)dst);
+        if (debugSceClose(fd) < 0)
+            debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        break;
+    case 5:
+        if (debug_snapshot_size == 2 || debug_snapshot_size == 3) {
+            int *p[16];
+            int *out;
+            int *d;
+            int w;
+            int h;
+            int j;
+
+            for (i = 0;; i++) {
+                if (debug_snapshot_format == 0)
+                    sprintf(name, "snapshot/snap%07d.tm2", i);
+                else
+                    sprintf(name, "snapshot/snap%07d.bmp", i);
+                fd = debugSceOpen(name, 1);
+                debugSceClose(fd);
+                if (fd < 0)
+                    break;
+            }
+            if (debug_snapshot_format == 0)
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            else
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            fd = debugSceOpen(name, 0x602);
+            if (fd < 0) {
+                debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+                break;
+            }
+            FlushCache(0);
+            w = ScreenWidth;
+            h = ScreenHeight;
+            p[0] = (int *)(0x2000000 + size);
+            p[1] = (int *)(0x2000000 + size * 2);
+            p[2] = (int *)(0x2000000 + size * 3);
+            p[3] = (int *)(0x2000000 + size * 4);
+            out = (int *)(0x2000000 + size * 5);
+            d = out;
+            debug_StdPrintfDummy("%p (%p %p %p %p)\n", out, p[0], p[1], p[2], p[3]);
+            for (y = 0; y < h * 2; y++) {
+                if (y < 4) {
+                    for (i = 0; i < w * 2; i++)
+                        *d++ = 0;
+                } else if (y >= h - 2 && y < h) {
+                    for (j = 0; j < 2; j++)
+                        for (i = 0; i < w; i++)
+                            p[j]++;
+                } else if (y > h - 1 && y <= h + 1) {
+                    for (j = 2; j < 4; j++)
+                        for (i = 0; i < w; i++)
+                            p[j]++;
+                } else if (y < h) {
+                    for (j = 0; j < 4; j++)
+                        *d++ = 0;
+                    for (j = 0; j < 2; j++) {
+                        if (j % 2 == 1)
+                            p[j] += 4;
+                        for (i = 0; i < w - 4; i++)
+                            *d++ = *p[j]++;
+                        if (j % 2 == 0)
+                            p[j] += 4;
+                    }
+                    for (j = 0; j < 4; j++)
+                        *d++ = 0;
+                } else {
+                    for (j = 0; j < 4; j++)
+                        *d++ = 0;
+                    for (j = 2; j < 4; j++) {
+                        if (j % 2 == 1)
+                            p[j] += 4;
+                        for (i = 4; i < w; i++)
+                            *d++ = *p[j]++;
+                        if (j % 2 == 0)
+                            p[j] += 4;
+                    }
+                    for (j = 0; j < 4; j++)
+                        *d++ = 0;
+                }
+            }
+            if (debug_snapshot_format == 0)
+                debug_WriteTim2(fd, out, w * 2, h * 2);
+            else
+                debug_WriteBMP(fd, w * 2, h * 2, (unsigned int *)out);
+            if (debugSceClose(fd) < 0)
+                debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
+        break;
+    case 17: {
+        int *p[16];
+        int *out;
+        int *d;
+        int w;
+        int h;
+
+        for (i = 0;; i++) {
+            if (debug_snapshot_format == 0)
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            else
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            fd = debugSceOpen(name, 1);
+            debugSceClose(fd);
+            if (fd < 0)
+                break;
+        }
+        if (debug_snapshot_format == 0)
+            sprintf(name, "snapshot/snap%07d.tm2", i);
+        else
+            sprintf(name, "snapshot/snap%07d.bmp", i);
+        fd = debugSceOpen(name, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+            break;
+        }
+        FlushCache(0);
+        w = ScreenWidth;
+        h = ScreenHeight;
+        for (i = 0; i < 16; i++)
+            p[i] = (int *)(0x2000000 + size * (i + 1));
+        out = (int *)(0x2000000 + size * 17);
+        d = out;
+        if (debug_snapshot_size == 4 || debug_snapshot_size == 5) {
+            for (y = 0; y < h * 4; y++) {
+                if (y % h < 4 || y % h >= h - 4) {
+                    for (i = 0; i < w * 4; i++)
+                        p[(y / h) * 4 + i / w]++;
+                } else {
+                    for (i = 0; i < w * 4; i++) {
+                        if (i % w < 4 || i % w >= w - 4)
+                            p[(y / h) * 4 + i / w]++;
+                        else
+                            *d++ = *p[(y / h) * 4 + i / w]++;
+                    }
+                }
+            }
+            if (debug_snapshot_format == 0)
+                debug_WriteTim2(fd, out, w * 4 - 32, h * 4 - 32);
+            else
+                debug_WriteBMP(fd, w * 4 - 32, h * 4 - 32, (unsigned int *)out);
+        } else {
+            for (y = 0; y < h * 4; y++)
+                for (i = 0; i < w * 4; i++)
+                    *d++ = *p[i % 4 + (y % 4) * 4]++;
+            if (debug_snapshot_format == 0)
+                debug_WriteTim2(fd, out, w * 4, h * 4);
+            else
+                debug_WriteBMP(fd, w * 4, h * 4, (unsigned int *)out);
+        }
+        if (debugSceClose(fd) < 0)
+            debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        break;
+    }
+    }
+    dma_init();
+    return 1;
+}
 
 void debug_DispQW(void *p, int size)
 {

@@ -98,12 +98,6 @@
 #   - data rows for function-scope statics in .data that a carved
 #     function defined.
 
-text debug_DrawBar 0x001AD258 0x001ADFF8 ico2/common/src/debug.c local lines=209  # ordinal; first difference at insn 0; length:-22; extent-differs
-lit4 debug_DrawBar 0x00632EC4 0x00632ECC ico2/common/src/debug.c  # 2 floats
-rdlit debug_DrawBar 0x00614DA0 0x00614DE4 ico2/common/src/debug.c align=16  # 2 data runs, 1 string
-sdlit debug_DrawBar 0x006349B0 0x006349E7 ico2/common/src/debug.c  # 5 strings, 5 statics
-text debug_SnapShot 0x001AE538 0x001AF488 ico2/common/src/debug.c lines=81  # ordinal; first difference at insn 1; length:+739; extent-differs
-rdlit debug_SnapShot 0x00614E10 0x00614EBA ico2/common/src/debug.c  # 6 strings; target side (DISAGREE: December's snapshot modes)
 text _getFinalMatrix 0x001E1C30 0x001E4674 ico2/sugipon/src/motionManager.c local lines=691 in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc  # ordinal; first difference at insn 2; length:-130; extent-differs
 lit4 _getFinalMatrix 0x006330E8 0x00633128 ico2/sugipon/src/motionManager.c  # 16 floats; target side (no PAL body to compile)
 rdlit _getFinalMatrix 0x00618FA0 0x00619070 ico2/sugipon/src/motionManager.c align=16  # 1 jtbl; target side (no PAL body to compile)
