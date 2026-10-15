@@ -1384,7 +1384,7 @@ typedef struct Act { /* field names derived */
     void *box;            /* 0x148, the box/truck GObj the actor is holding: commonact.c
                   stores it here in actCommonBox and reads it back through
                   `*(void **)(s + 0x148)` in the boxbar helpers */
-    char pad14C[4];
+    GObj *bar;            /* 0x14C, the bar actCommonBar holds */
     char *sofa; /* 0x150, the sofa the actor sits on */
     char pad154[12];
     float restartPosX; /* 0x160, the enemy restart position, x */

@@ -50,7 +50,38 @@ void actSt09aInit(void)
     }
 }
 
-INCLUDE_ASM(actSt09aElvDown);
+void actSt09aElvDown(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    /* the sound handle, which the sound subsystem owns; it is kept across
+       the animation wait and read again for soundSeDefStop */
+    volatile int se;
+
+    lt_switch_layout(51);
+    LockForceGroundParent(boyGObj);
+
+    stage_SetAnimation(340, 1, 0);
+
+    se = soundSeDefPlay(1193, 0, 0, 1);
+
+    gflagOn(76);
+
+    while (stage_CheckAnimationFrame(340, 210, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(se);
+
+    UnlockForceGroundParent(boyGObj);
+
+    lt_switch_layout(50);
+
+    elvDown_mes[0].func = actSt09aElvMain;
+    act->mail = elvDown_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt09aProc_0022B9A8);
 
@@ -109,16 +140,81 @@ void actSt09aElvMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt09aElvSwitch);
+void actSt09aElvSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt09aElvUp);
+    scpBoyControlReadDisable = 1;
+
+    sub->mainMail = 0;
+
+    if (gflagChk(76) != 0) {
+        elvSwitchUp_mes[0].func = actSt09aElvUp;
+        sub->mail = elvSwitchUp_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+
+    elvSwitchDown_mes[0].func = actSt09aElvDown;
+    sub->mail = elvSwitchDown_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt09aElvUp(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    /* the sound handle, which the sound subsystem owns; it is kept across
+       the animation wait and read again for soundSeDefStop */
+    volatile int se;
+
+    lt_switch_layout(51);
+
+    stage_SetAnimation(340, 1, 211);
+
+    se = soundSeDefPlay(1193, 0, 0, 1);
+
+    gflagOff(76);
+
+    while (stage_CheckAnimationFrame(340, 420, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(se);
+
+    lt_switch_layout(50);
+
+    elvUp_mes[0].func = actSt09aElvMain;
+    act->mail = elvUp_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt09aSekizoEvent(int x)
 {
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt09aIntroChk);
+void actSt09aIntroChk(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    gflagOn(78);
+
+    scpBoyControlReadDisable = 1;
+    _ACTWait(1);
+
+    stage_SetAnimation(342, 1, 0);
+
+    while (stage_CheckAnimationFinish(342) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(50);
+
+    scpBoyControlReadDisable = 0;
+}
 
 void actSt09aBrgMain(GObj *volatile self)
 {

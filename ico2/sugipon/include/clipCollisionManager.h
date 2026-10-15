@@ -15,7 +15,7 @@ struct GObj;
 /* A clip run on the clip-collision thread: the clip, the function that runs
  * it (ClipWall, ClipFloor or one of the actors' own pairs), the object kept
  * out of it while it runs, and the flag set when it is done.  The actors keep
- * one in their work (act-game.c's view clip at ActWork 0x720, the flyer's at
+ * one in their work (act-game.c's view clip at ActWork 0x650, the flyer's at
  * 0x690 of its actor record). */
 typedef struct ClipColReq {       /* field names derived */
     int done;                     /* 0x00 */

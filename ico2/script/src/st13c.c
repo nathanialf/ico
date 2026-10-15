@@ -384,7 +384,27 @@ void actSt13cSleep(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt13cCageDown);
+void actSt13cCageDown(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(19) == 0) {
+        stage_SetAnimation(59, 0, 0);
+        stage_SetAnimation(63, 0, 0);
+
+        cageDown_mes[0].func = actSt13cCageDownMain;
+        act->mail = cageDown_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+
+    if (gflagChk(19) != 0) {
+        CameraSetCameraSet(37);
+    }
+}
 
 void actSt13cCageFallReady(GObj *volatile self)
 {
@@ -594,9 +614,48 @@ void actSt13cSekizoJimakuEff(GObj *volatile self)
     } while (t < 500.0f);
 }
 
-INCLUDE_ASM(actSt13cGirlCarryAgainChk);
+void actSt13cGirlCarryAgainChk(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt13cRescueChk);
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (GOBJ_ACT(girlGObj)->actMode != 107) {
+        _ACTWait(1);
+    }
+
+    gflagOff(25);
+
+    girlCarryAgainChk_mes[0].func = actSt13cGirlCarryChk;
+    act->mail = girlCarryAgainChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+
+    _ACTWait(1);
+}
+
+void actSt13cRescueChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (GOBJ_ACT(girlGObj)->actMode != 106) {
+        _ACTWait(1);
+    }
+
+    gflagOn(27);
+    scpBoyControlReadDisable = 1;
+    _ACTWait(200);
+
+    scpPlayStart(girlGObj);
+    scpPlayMot(girlGObj, 552);
+    _ACTWait(120);
+
+    gflagOn(28);
+}
 
 void actSt13cBukiEvent(int x)
 {

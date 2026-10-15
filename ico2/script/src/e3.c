@@ -161,7 +161,33 @@ void actE3St13cInit(void)
     }
 }
 
-INCLUDE_ASM(actE3CageFall);
+void actE3CageFall(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = (Act *)actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(328) == 0) {
+        stage_SetAnimation(63, 0, 0);
+        stage_SetAnimation(59, 0, -1);
+
+        if ((int)girlGObj == 0) {
+            _ACTWait(0);
+        }
+
+        scpPlayPosSet(girlGObj, -30.0f, -436.0f, -1.0f);
+
+        cageFall_mes[0].func = actE3CageFallChk;
+        sub->mail = cageFall_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(63, 0, 0);
+        stage_SetAnimation(61, 0, -1);
+        stage_SetAnimation(62, 0, -1);
+    }
+}
 
 INCLUDE_ASM(actE3CageFallChk);
 
@@ -416,7 +442,31 @@ INCLUDE_ASM(actE3St01bGene2);
 
 INCLUDE_ASM(actE3St01bGene3);
 
-INCLUDE_ASM(actE3Gate);
+void actE3Gate(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = (Act *)actInitialize(self);
+
+    _ACTWait(1);
+
+    MallocStreamMotionBuffer();
+
+    scpSearchGobj(3127)->active = 0;
+
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    scpPlayMot(boyGObj, 0);
+
+    scpFadeOut(255.0f, 0, 0, 0);
+
+    stage_SetAnimation(238, 0, 0);
+    stage_SetAnimation(241, 0, 0);
+
+    gate_mes[0].func = actE3GateChk;
+    sub->mail = gate_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actE3CapsuleChk(GObj *volatile self)
 {

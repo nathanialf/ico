@@ -1754,7 +1754,62 @@ inline int gsResetFunc(int val)
 static const unsigned int blinkColor[] = {0xFFFFFF00, 0xC0C0C000}; /* derived name */
 
 /* clang-format off */
-INCLUDE_ASM(debug_Mode);
+static int debug_Mode(void)
+{
+    int i, end, j;
+    int ret = 0;
+
+    modeBlink++;
+
+    debug_PrintfDummy(10, 50, 0xFFFFFF00u, "DEBUG MODE");
+    debug_PrintfDummy(138, 50, 0x00FFFF00u, "Push '\202' to save debug options.");
+
+    i = (modeSelect + 63) % 69;
+    end = (modeSelect + 76) % 69;
+    j = 1;
+    while (i != end) {
+        if (debugOption[i].strs != 0) {
+            debug_PrintfDummy(18, j * 8 + 50, modeSelect == i ? (((modeBlink >> 3) & 1) ? blinkColor[0] : debugOption[i].col) : debugOption[i].col, "%c%s : %s(%d)", modeSelect == i ? 62 : 32, debugOption[i].name, debugOption[i].strs[*debugOption[i].val - debugOption[i].min], *debugOption[i].val);
+        } else {
+            debug_PrintfDummy(18, j * 8 + 50, modeSelect == i ? (((modeBlink >> 3) & 1) ? blinkColor[0] : debugOption[i].col) : debugOption[i].col, "%c%s : %d", modeSelect == i ? 62 : 32, debugOption[i].name, *debugOption[i].val);
+        }
+        if (++i == 69) i = 0;
+        j++;
+    }
+
+    if (pad[0].rep & 0x4000) {
+        if (++modeSelect >= 69) modeSelect = 0;
+    }
+    if (pad[0].rep & 0x1000) {
+        if (--modeSelect < 0) modeSelect = 68;
+    }
+    if (pad[0].rep & 0x2000) {
+        if (++*debugOption[modeSelect].val > debugOption[modeSelect].max)
+            *debugOption[modeSelect].val = debugOption[modeSelect].min;
+        if (debugOption[modeSelect].func != 0)
+            debugOption[modeSelect].func(*debugOption[modeSelect].val);
+    }
+    if (pad[0].rep & 0x8000) {
+        if (--*debugOption[modeSelect].val < debugOption[modeSelect].min)
+            *debugOption[modeSelect].val = debugOption[modeSelect].max;
+        if (debugOption[modeSelect].func != 0)
+            debugOption[modeSelect].func(*debugOption[modeSelect].val);
+    }
+    if (pad[0].flags & 0x20) {
+        for (i = 0; i < 69; i++) {
+            if (debugOption[i].min == 0 && debugOption[i].max == 1)
+                debug_StdPrintfDummy("debug%s => %s\n", debugOption[i].name, modeValueName[*debugOption[i].val]);
+            else
+                debug_StdPrintfDummy("debug%s => %d\n", debugOption[i].name, *debugOption[i].val);
+        }
+        ret = 1;
+    }
+    if (pad[0].flags & 0x40) ret = -1;
+    if (pad[0].flags & 0x10) debug_SaveDebugOptionFile();
+    if (ret != 0) modeSelect = 0;
+
+    return ret;
+}
 
 int debug_SelectCsvWindowVal(char *title, int x, int y, int rows, int count, int *psel,
                              int (*fn)(int, int), int arg)
@@ -1925,9 +1980,12 @@ static int debug_SelectStageMain(int ret, int stage)
     return ret;
 }
 
-int debug_SelectStage(void);
-
-INCLUDE_ASM(debug_SelectStage);
+int debug_SelectStage(void)
+{
+    return debug_SelectStageMain(debug_SelectCsvWindowWithLine("stage select", 10, 80, 11, stageData,
+                                                               404, 0x20, 0, 104, &stageSelectNo),
+                                 stageSelectNo);
+}
 
 static inline int debug_mcConfirm(char *msg) /* derived name */
 {
@@ -2417,9 +2475,24 @@ static int seSelect = 0; /* derived name */
 
 static int seHandle = -1; /* derived name */
 
-int debug_SETest(int reset);
+int debug_SETest(int reset)
+{
+    int r;
 
-INCLUDE_ASM(debug_SETest);
+    if (reset != 0) {
+        seHandle = -1;
+    }
+    r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
+                                               0, 0x56D, &seSelect, debug_SETest_color);
+    if (r > 0) {
+        seHandle = soundSeDefPlay(seSelect, 0, GOBJ_SUB(boyGObj)->nodeMtx + 0x30, 1);
+        return 0;
+    }
+    if (r < 0) {
+        soundSeGroupStop(1);
+    }
+    return r;
+}
 
 void debug_SESlotDisp(void)
 {

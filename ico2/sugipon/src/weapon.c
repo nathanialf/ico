@@ -242,7 +242,36 @@ static void checkHit(GObj *g)
 /* the queen's sword offset, its z set per sword */
 static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-INCLUDE_ASM(initializeQueenzSword);
+static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
+{
+    WeaponWork *w = GOBJ_SUB(g)->work;
+    ObjNode lnk = {g, index};
+    SObjSimpleSetting r;
+    SObjSimpleSetting r2;
+    int i;
+    GObj *o;
+    GObj *o2;
+
+    r = *lay;
+    r.obj = (lay->obj & 0xFF00) ? 5 : 4;
+
+    w->count = 1;
+    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 711);
+
+    for (i = 0; i < 1; i++) {
+        queenSwordOfs[2] = weaponKind[w->kind].length * (float)i / 0.0f;
+        o = CreateLayoutedGObj(10, 69, -1, i == 0, &r, -1, 7, 0);
+        LinkParentOfDObj(o, &lnk);
+        CopyVector(GOBJ_SUB(o)->root.pos, queenSwordOfs);
+        w->objs[i] = o;
+    }
+
+    r2 = *lay;
+    r2.obj = 13;
+    o2 = CreateLayoutedGObj(45, 9, -1, 0, &r2, -1, 7, 0);
+    GOBJ_SUB(o2)->parent = lnk;
+    w->sword = o2;
+}
 
 typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 

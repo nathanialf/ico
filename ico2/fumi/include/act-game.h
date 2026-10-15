@@ -8,12 +8,12 @@
 #ifndef ACT_GAME_H
 #define ACT_GAME_H
 
-#include "typedef.h" /* WayRequest, which ActWork carries at 0x580 */
+#include "typedef.h" /* WayRequest, which ActWork carries at 0x4B0 */
 #include "clipCollisionManager.h"
 
 struct GObj;
 
-/* The actor's character work, the record at Act+0x688 (held there as a
+/* The actor's character work, the record at Act+0x678 (held there as a
  * word, like the object's own actor slot): the boy's, the girl's and the
  * enemies' per-character state. */
 typedef struct ActWork { /* field names derived */
@@ -46,79 +46,52 @@ typedef struct ActWork { /* field names derived */
     int nakaBossCount;   /* 0x398 */
     int carryGirlFrames; /* 0x39C */
     int sofaTimer;       /* 0x3A0, frames since the actor sat on the sofa (actCommonSofa) */
-    int sofaRestTimer;   /* 0x3A4, the longer sofa rest the girl's attract waits out */
-    int orientFrames;    /* 0x3A8 */
-    int timer3AC;        /* 0x3AC */
-    int turnMailWait;    /* 0x3B0, the girl holds back girlAttractTurnMailR while it runs */
-    int jumpTimer;       /* 0x3B4 */
-    int footIkFrames;    /* 0x3B8 */
-    int bit37Frames;     /* 0x3BC */
-    int bit38Frames;     /* 0x3C0 */
-    int mailB1Timer;     /* 0x3C4 */
-    int ditchTimer;      /* 0x3C8 */
-    MotOriTarget bellowWall400;  /* 0x3CC, the wall of attribute 0x400 actCommonLadderBellow
+    int orientFrames;    /* 0x3A4 */
+    MotOriTarget bellowWall400;  /* 0x3A8, the wall of attribute 0x400 actCommonLadderBellow
                                     found below, which mail 144 turns to */
-    MotOriTarget bellowWall3000; /* 0x3D8, the same for attribute 0x3000 and mail 145 */
-    struct GObj *dangerObj; /* 0x3E4, the object SetGirlDangerGObj marks for the girl */
-    char pad3E8[8];
-    float hideDirX; /* 0x3F0 */
-    float hideDirY; /* 0x3F4 */
-    float hideDirZ; /* 0x3F8 */
+    MotOriTarget bellowWall3000; /* 0x3B4, the same for attribute 0x3000 and mail 145 */
+    struct GObj *dangerObj; /* 0x3C0, the object SetGirlDangerGObj marks for the girl */
+    char pad3C4[12];
+    float hideDirX; /* 0x3D0 */
+    float hideDirY; /* 0x3D4 */
+    float hideDirZ; /* 0x3D8 */
+    char pad3DC[20];
+    float velX; /* 0x3F0 */
+    float velY; /* 0x3F4 */
+    float velZ; /* 0x3F8 */
     char pad3FC[4];
-    void *ropeCage; /* 0x400 */
-    char pad404[16];
-    float handPosY; /* 0x414 */
-    char pad418[24];
-    float velX; /* 0x430 */
-    float velY; /* 0x434 */
-    float velZ; /* 0x438 */
+    float speed;    /* 0x400 */
+    int slowFrames; /* 0x404 */
+    int stopFrames; /* 0x408 */
+    char pad40C[4];
+    int noMoveFrames;        /* 0x410 */
+    unsigned int enemyFlags; /* 0x414 */
+    char pad418[8];
+    GObj *genTarget;         /* 0x420, the generator the enemy heads for */
+    int motherLabel;         /* 0x424 */
+    struct GObj *motherGObj; /* 0x428, the generator object motherLabel names */
+    char pad42C[4];
+    float hangOrient[3]; /* 0x430, the cliff orientation actBoyHangBefore keeps */
     char pad43C[4];
-    float speed;    /* 0x440 */
-    int slowFrames; /* 0x444 */
-    int stopFrames; /* 0x448 */
+    MotOriTarget cliffReq; /* 0x440, the target actBoyHangBefore keeps: the
+                              actor's motion request's b */
     char pad44C[4];
-    int noMoveFrames;        /* 0x450 */
-    unsigned int enemyFlags; /* 0x454 */
-    char pad458[8];
-    GObj *genTarget;         /* 0x460, the generator the enemy heads for */
-    int motherLabel;         /* 0x464 */
-    struct GObj *motherGObj; /* 0x468, the generator object motherLabel names */
-    char pad46C[4];
-    float hangOrient[3]; /* 0x470, the cliff orientation actBoyHangBefore keeps */
-    char pad47C[4];
-    MotOriReq cliffReq; /* 0x480, the request mails 140 and 305 turn to: b the
-                           wall under the cliff edge (actBoyCliffHesitate),
-                           a the actor's motion request's b (actBoyHangBefore) */
-    float pinchPosX; /* 0x4A0 */
-    float pinchPosY; /* 0x4A4 */
-    float pinchPosZ; /* 0x4A8 */
-    char pad4AC[4];
-    int pinchFrames; /* 0x4B0 */
-    char pad4B4[12];
-    float handrailOrient[4]; /* 0x4C0, the wall orientation actCommonHandrail keeps */
-    int basePosSet;          /* 0x4D0 */
-    char pad4D4[12];
-    float basePos[4]; /* 0x4E0, the position the enemy guards when basePosSet */
-    unsigned char boxSideSet; /* 0x4F0, set when the cliff edge is at a box side (ACTGetEnvironment) */
-    char pad4F1[15];
-    float boxSidePos[4]; /* 0x500, where the actor stands at that box side */
-    float boyOrient[4]; /* 0x510, the girl's direction to the boy (ACTGetEnvironment) */
-    float hintPosX;     /* 0x520 */
-    float hintPosY;     /* 0x524 */
-    float hintPosZ;     /* 0x528 */
-    char pad52C[4];
-    float boxDir[4]; /* 0x530, the direction a box is pushed and pulled in (actCommonBox) */
-    char pad540[64];
-    WayRequest wayReq; /* 0x580, the way search RequestWayBegin hands to the way system manager */
-    char pad638[232];
-    ClipColReq view; /* 0x720, the clip ACTGameView_Loop runs to the object it looks at */
-    int viewState; /* 0x800 */
-    char pad804[156];
-    float emgPosX; /* 0x8A0 */
-    float emgPosY; /* 0x8A4 */
-    float emgPosZ; /* 0x8A8 */
-    char pad8AC[4];
-    MotOriReq intrReq; /* 0x8B0, the orient request of the interrupt motion
+    float pinchPosX; /* 0x450 */
+    float pinchPosY; /* 0x454 */
+    float pinchPosZ; /* 0x458 */
+    char pad45C[4];
+    int pinchFrames; /* 0x460 */
+    char pad464[76];
+    WayRequest wayReq; /* 0x4B0, the way search RequestWayBegin hands to the way system manager */
+    char pad568[232];
+    ClipColReq view; /* 0x650, the clip ACTGameView_Loop runs to the object it looks at */
+    int viewState; /* 0x730 */
+    char pad734[156];
+    float emgPosX; /* 0x7D0 */
+    float emgPosY; /* 0x7D4 */
+    float emgPosZ; /* 0x7D8 */
+    char pad7DC[4];
+    MotOriReq intrReq; /* 0x7E0, the orient request of the interrupt motion
                           act_check_intr_list started; the hang and climb acts
                           lay the root against its walls, b's element the wall
                           under the cliff edge */

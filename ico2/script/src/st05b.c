@@ -55,7 +55,25 @@ void actSt05bMonyoDoorXL(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt05bSekizo);
+void actSt05bSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(143) == 0) {
+        stage_SetAnimation(171, 0, 0);
+        sekizo_mes[0].func = actSt05bSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(171, 0, -1);
+        if (gflagChk(218) == 0) {
+            ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
+        }
+    }
+}
 
 void actSt05bBallXL(GObj *volatile self)
 {

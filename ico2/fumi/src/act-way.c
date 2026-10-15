@@ -21,7 +21,65 @@
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0}; /* derived name */
 
-INCLUDE_ASM(DetourCheck);
+static void DetourCheck(GObj *self, float *out)
+{
+    float orient[4];
+    float cur[4];
+    float o2[4];
+    float tmp[4];
+    float dir[4];
+    Act *act = GOBJ_ACT(self);
+    int i;
+    int wait = 0;
+    int ok = 0;
+
+    if (debug_girl_detour_flag == 0) {
+        return;
+    }
+    GetSkeltonOrient(orient, self, 0x2C);
+    if (*(int *)((char *)GOBJ_ACT(self)->work + 0x810) != 0) {
+        out[0] = *(float *)((char *)GOBJ_ACT(self)->work + 0x820);
+        out[1] = *(float *)((char *)GOBJ_ACT(self)->work + 0x824);
+        out[2] = *(float *)((char *)GOBJ_ACT(self)->work + 0x828);
+        *(int *)((char *)GOBJ_ACT(self)->work + 0x810) -= 1;
+        return;
+    }
+    /* two identical case bodies */
+    switch (act->actMode) {
+    case 2:
+        ok = 1;
+        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
+        break;
+    case 3:
+        ok = 1;
+        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
+        break;
+    }
+    /* the four tests are one statement */
+    if (ok == 0 || act->stick.mag == 0.0f || (GOBJ_SUB(self)->ctrl.flags & 2) == 0 ||
+        ((*(unsigned long long *)((char *)GOBJ_ACT(self)->work + 0x408) >> 33) & 1) == 0) {
+        return;
+    }
+    cur[0] = test_CURRENTROOT(self)[0];
+    cur[1] = test_CURRENTROOT(self)[1];
+    cur[2] = test_CURRENTROOT(self)[2];
+    GetSkeltonOrient(o2, self, 0x2C);
+    for (i = 0; detourAngle[i] != 0; i++) {
+        dir[0] = o2[0];
+        dir[1] = o2[1];
+        dir[2] = o2[2];
+        _ApplyRyGV(dir, (float)detourAngle[i] * 3.1415927f / 180.0f);
+        sceVu0ScaleVector(tmp, dir, 100.0f);
+        sceVu0AddVector(tmp, cur, tmp);
+        if (ACTCheckCollis_WAY(10.0f, cur, tmp, 0, 0) == 0) {
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x820) = dir[0];
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x824) = dir[1];
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x828) = dir[2];
+            *(int *)((char *)GOBJ_ACT(self)->work + 0x810) = wait;
+            return;
+        }
+    }
+}
 
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];

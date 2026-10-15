@@ -50,7 +50,31 @@ static ActMail wayOnChk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail wayOffChk_mes[2] = {{397}, {396}}; /* derived name */
 
-INCLUDE_ASM(actSt03tSwitchL);
+void actSt03tSwitchL(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(80) == 0) {
+        stage_SetAnimation(329, 0, 0);
+        stage_SetAnimation(331, 0, 0);
+
+        switchL_mes[0].func = actSt03tSwitchLChk;
+        act->mail = switchL_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(329, 0, 45);
+        stage_SetAnimation(331, 0, -1);
+
+        switchLUp_mes[0].func = actSt03tSwitchLUpChk;
+        act->mail = switchLUp_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM(actSt03tSwitchLChk);
 
@@ -110,7 +134,31 @@ void actSt03tSekizoEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt03tEneChk);
+void actSt03tEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyOne(3453);
+    gflagOn(93);
+    gflagOn(94);
+    stage_SetAnimation(68, 1, 0);
+
+    while (stage_CheckAnimationFinish(68) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyOne(3453);
+}
 
 void actSt03tWayOnChk(GObj *volatile self)
 {

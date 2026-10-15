@@ -71,7 +71,113 @@ inline void backStageDebugTimeZero(void)
     kidnapTime = 0;
 }
 
-INCLUDE_ASM(backStageProcessOutStage);
+void backStageProcessOutStage(void)
+{
+    Vec16 a;
+    Vec16 b;
+    int done;
+    int i;
+    int gen;
+    void *p;
+    GObj *o;
+
+    done = 0;
+    if (gflagChk(361) != 0) {
+        kidnapState = 0;
+        done = 1;
+    }
+    if (gameSysObjInfo[1].stage == stage_no && done == 0) {
+        debug_StdPrintfDummy("girl nokori");
+        pinchTold = 0;
+        kidnapObjIdx = -1;
+        for (i = 2; i < 22; i++) {
+            if (gameSysObjInfo[i].no == 0) {
+                continue;
+            }
+            if (gameSysObjInfo[i].stage != stage_no) {
+                continue;
+            }
+            if (gameSysObjInfo[i].work[0] == 4) {
+                kidnapObjIdx = i;
+                break;
+            }
+        }
+        kidnapState = 0;
+        wayKidnap = 0;
+        if (kidnapObjIdx < 0) {
+            GObj *e = NearestEnemyFromGirl(&enemyDist);
+
+            if (e != 0) {
+                Act *m;
+
+                kidnapState = 1;
+                enemySec = enemyDist / 160.0f;
+                kidnapTime =
+                    (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+                m = GOBJ_ACT(e);
+                kidnapObjIdx =
+                    (unsigned int)((char *)gamesysObjInfoPosSetStage(e, m->infoPos, 0, stage_no) -
+                                   (char *)gameSysObjInfo) >>
+                    6;
+            }
+        } else {
+            kidnapState = 2;
+            pinchTold = 1;
+        }
+        if (kidnapState == 1 || kidnapState == 2) {
+            gen = eBrainGetTargetGeneratorFromLabel(gameSysObjInfo[kidnapObjIdx].no);
+            p = isysGObjSearchFromObjLayoutID(gen);
+            if (p == 0) {
+                kidnapState = 0;
+            } else {
+                GetRootPosition(a.f, p);
+                GetRootPosition(b.f, girlGObj);
+                nestDist = WayLengthOfPos_Pos(a.f, b.f);
+                nestSec = nestDist / 100.0f;
+                carryTime = (int)(nestSec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+            }
+        } else if (stageData[stage_no].kidnapSeconds != 0) {
+            GetRootProjectionPosOfGObj(a.f, girlGObj);
+            wayKidnap = 1;
+            kidnapState = 1;
+            enemySec = (float)stageData[stage_no].kidnapSeconds;
+            kidnapTime = (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+            if (WayPointWithRangeFromPos2(a.f, &GOBJ_ACT(girlGObj)->way, nestPos, 1) == 0) {
+                /* no ACTIVE connection was found */
+                debug_StdPrintfDummy("繋がりACTIVEでみつからなかった");
+                if (WayPointWithRangeFromPos2(a.f, &GOBJ_ACT(girlGObj)->way, nestPos, 0) == 0) {
+                    /* no connection was found, so the nest is placed at the heroine */
+                    debug_StdPrintfDummy("繋がりみつからなかったのでヒロインの位置に巣を配置");
+                    sceVu0CopyVector(nestPos, a.f);
+                }
+            }
+            nestDist = WayLengthOfPos_Pos(nestPos, a.f);
+            nestSec = nestDist / 100.0f;
+            carryTime = (int)(nestSec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+            if ((float)carryTime < (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f) {
+                carryTime = (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f);
+            }
+        }
+        if ((float)carryTime < (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 10.0f) {
+            carryTime = (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 10.0f);
+        }
+    } else {
+        o = isysGObjSearchFromObjKindID_begin(4);
+        while (o != 0) {
+            if (o->labelId == 3453) {
+                gamesysObjInfoCls(4, 3453);
+            }
+            o = isysGObjSearchFromObjKindID_next(o);
+        }
+        o = isysGObjSearchFromObjKindID_begin(33);
+        while (o != 0) {
+            if (o->labelId == 3454) {
+                gamesysObjInfoCls(33, 3454);
+            }
+            o = isysGObjSearchFromObjKindID_next(o);
+        }
+    }
+}
 
 INCLUDE_ASM(backStageProcessMain);
 
@@ -146,7 +252,84 @@ static inline void kidnapWarpToWaypoint(GObj *gobj, float range) /* derived name
     SetDirectRootPosition(gobj, wp.f);
 }
 
-INCLUDE_ASM(backStageProcessInStage);
+void backStageProcessInStage(float arg)
+{
+    float range;
+    float limit;
+    float rest;
+    GObj *gobj;
+    GObj *t;
+
+    range = (float)((unsigned int)(gamesysTimeCount - gamesysStageExitTime[stage_no]) /
+                    ((60 - systemStatus[0] * 10) / systemStatus[1])) *
+            40.0f;
+    if (arg != 0.0f) {
+        range = arg;
+        debug_StdPrintfDummy("%d\n", (int)(*(long long *)&gameSysObjInfo[1] >> 1) & 1);
+    } else {
+        if (gamesysStageExitTime[stage_no] == 0) {
+            return;
+        }
+        if (gflagChk(357) != 0) {
+            return;
+        }
+    }
+    limit = 10000000.0f;
+    if (limit < range) {
+        range = limit;
+    }
+    if (backStageGirlTargetEnemyGop == 0 && IsGirlEscortedInCurrentStage() == 0 &&
+        gflagChk(361) == 0 && gameSysObjInfo[1].stage == stage_no && warpGirlInStageSet == 0) {
+        /* the heroine is not held, so the position is changed at random */
+        debug_StdPrintfDummy("ヒロイン捕まっていないのでランダムで位置変更");
+        if (gflagChk(358) == 0) {
+            kidnapWarpToWaypoint(girlGObj, range);
+        }
+    }
+    gobj = isysGObjSearchFromObjKindID_begin(4);
+    while (gobj != 0) {
+        if (isEnemyKidnapEnable(gobj) != 0) {
+            if (backStageGirlTargetEnemyGop != gobj) {
+                /* the heroine is not held */
+                debug_StdPrintfDummy("ヒロイン捕まってない");
+                if (gflagChk(358) == 0 && InqCapsuleGhostBossStage() == 0) {
+                    kidnapWarpToWaypoint(gobj, range);
+                }
+            } else {
+                t = isysGObjSearchFromObjLayoutID(eBrainGetTargetGeneratorFromLabel(gobj->labelId));
+                if (t != 0) {
+                    Vec16 pos;
+                    Vec16 root;
+                    float ratio;
+
+                    if (carryTime > 0) {
+                        ratio = (float)carryTime /
+                                (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 100.0f;
+                    } else {
+                        ratio = 0.0f;
+                    }
+                    rest = 0.0f;
+                    if (ratio <= nestDist) {
+                        rest = nestDist - ratio;
+                    }
+                    GetRootPosition(root.f, girlGObj);
+                    SetDirectRootPosition(backStageGirlTargetEnemyGop, root.f);
+                    if (0.0f < nestDist) {
+                        routeSetPos(backStageGirlTargetEnemyGop, t, pos.f, rest / nestDist);
+                    } else {
+                        /* no route to the nest was found, so it is placed at the nest directly */
+                        debug_StdPrintfDummy("巣までの経路がみつからないので直接巣に配置");
+                        routeSetPos(backStageGirlTargetEnemyGop, t, pos.f, 1.0f);
+                    }
+                    debug_StdPrintfDummy("set pos %f %f %f\n", pos.f[0], pos.f[1], pos.f[2]);
+                    pos.f[1] = pos.f[1] - GOBJ_SUB(backStageGirlTargetEnemyGop)->skel->pos[1];
+                    SetDirectRootPosition(backStageGirlTargetEnemyGop, pos.f);
+                }
+            }
+        }
+        gobj = isysGObjSearchFromObjKindID_next(gobj);
+    }
+}
 
 void backStageSave(GamesysMemCursor *h)
 {

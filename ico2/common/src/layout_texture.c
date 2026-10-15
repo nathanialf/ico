@@ -332,7 +332,36 @@ static inline void lt_init_stage_textures(int stage) /* derived name */
     ltCurrentItem = texLayout[current_layout_id].defaultItem;
 }
 
-INCLUDE_ASM(init_layout_texture);
+void init_layout_texture(int stage)
+{
+    fadeCallback = 0;
+    if (stage == 1) {
+        gflagInit();
+        if (layout_boot_flag == 0) {
+            current_layout_id = 4;
+        } else if (mpegPlayReturnStage == stage) {
+            mpegPlayReturnStage = 0;
+            if (stage_after_skipping_demo == 0xFFFFFFFE) {
+                title_demo_mode = title_demo_mode ^ 1;
+                current_layout_id = 10;
+            } else if (stage_after_skipping_demo == 0xFFFFFFFF) {
+                current_layout_id = 7;
+                title_demo_mode = title_demo_mode ^ 1;
+            } else {
+                current_layout_id = 10;
+            }
+        } else {
+            current_layout_id = 10;
+        }
+    } else {
+        current_layout_id = 50;
+    }
+    lt_init_stage_textures(stage);
+    texLayout[current_layout_id].curItem = texLayout[current_layout_id].defaultItem;
+    ltSelectFlag = 1;
+    fadeState = 0;
+    lt_reset_property_chain(current_layout_id);
+}
 
 inline int lt_fade_status(void)
 {

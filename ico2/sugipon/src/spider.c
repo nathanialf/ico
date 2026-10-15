@@ -17,7 +17,6 @@
 #include "main.h"
 #include "GifPacket.h"
 #include "ios.h"
-#include "include_asm.h"
 
 /* the file name and the two group-wake messages */
 static const char spiderFile[] = __FILE__; /* derived name */
@@ -182,7 +181,84 @@ static inline void setAllSpiderPositions(GObj *self, float *pos) /* derived name
     }
 }
 
-INCLUDE_ASM(SpiderLayoutGeo);
+void SpiderLayoutGeo(GObj *self)
+{
+    float pos[4];
+    SpiderWork *w;
+    int i;
+
+    w = GOBJ_SUB(self)->work;
+    switch (w->state) {
+    case -1: {
+        GObj *host = self->dobj->parent.obj;
+
+        if (host != 0 && host->kind != 33) {
+            setSpiderGroupHost(self, host);
+        } else {
+            callSpidersToBoy(self);
+            if (spiderDef[w->kind].targetGirl == 1) {
+                if (callSpidersToGirl(self) == 0) {
+                    /* an order came to target the heroine, but this stage has no heroine */
+                    debug_StdPrintfDummy(
+                        "蜘蛛のターゲットをヒロインにせよと言う命令がありましたが\nこのステージにヒロインはいません。\n");
+                }
+            }
+        }
+        if (w->entryWait++ >= 11) {
+            if (w->revived == 0) {
+                debug_StdPrintfDummy("entry %d\n", spiderEntryCount++);
+                EntrySpiderGroupManager(self);
+                w->state = 0;
+            } else {
+                debug_StdPrintfDummy("entry revived %d\n", spiderEntryCount++);
+                EntryRevivedSpiderGroupManager(self);
+                w->state = 0;
+            }
+        }
+        break;
+    }
+    case 0:
+        if (w->wakeFrom != -1) {
+            wakeSpiderGroup(self);
+            for (i = w->wakeFrom; i < w->n; i++) {
+                iosOmSendMail(w->members[i], 207, w->members[i]);
+                SetAP1VisualState(w->members[i], 0);
+            }
+            w->state = 1;
+        } else {
+            GObj *gen = self->dobj->parent.obj;
+
+            if (gen != 0 && gen->kind != 33 && IsActCharDead(gen) == 0) {
+                if (GOBJ_ACT(gen)->mother != 0) {
+                    GetGeneratorSafePosition(pos, GOBJ_ACT(gen)->mother);
+                    setAllSpiderPositions(self, pos);
+                }
+                WakeUpLayoutedSpiders(self);
+                w->state = 1;
+            }
+        }
+        break;
+    case 2:
+    case 3:
+        break;
+    case 1:
+    default: {
+        GObj *dead = self->dobj->parent.obj;
+
+        if (dead != 0 && dead->kind != 33) {
+            if (IsActCharDead(dead) != 0) {
+                CallSpidersToReviveEnemy(self);
+            }
+        }
+        break;
+    }
+    }
+
+    if (w->infoWait++ >= 31) {
+        w->infoWait = 0;
+        gamesysObjInfoUniqDataSet(self);
+    }
+}
 
 /* the debug display's selected line */
 int sgSelLine = 0;

@@ -44,7 +44,128 @@ typedef struct RegStripVtx { /* field names derived */
     short texSlot;
 } RegStripVtx; /* derived name */
 
-INCLUDE_ASM(reg_setShape);
+static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *mat)
+{
+    float vec[4];
+    PObjModel *mdl;
+    PObjPart *s;
+    char *p;
+    PObjMorph *m;
+    char *v;
+    PacHeader *pk;
+    char *t;
+    int base;
+    int i;
+    int n;
+
+    mdl = o->model;
+    s = &mdl->parts[idx];
+    {
+        char *dst = s->vtx;
+
+        for (i = 0; i < s->vtxCount; i++) {
+            _CopyVector(dst + i * 0x10, s->vtxSave + i * 0x10);
+        }
+    }
+    {
+        char *dst = s->nrm;
+
+        if (dst != 0) {
+            for (i = 0; i < s->nrmCount; i++) {
+                _CopyVector(dst + i * 0x10, s->nrmSave + i * 0x10);
+            }
+        }
+    }
+    for (i = 0; i < s->morphCount; i++) {
+        if (o->morphWeight[i] != 0.0f) {
+            m = s->morphs[i];
+            if (m != 0) {
+                while (m->index != -1) {
+                    _ScaleVectorXYZ(vec, m->delta, o->morphWeight[i]);
+                    if (m->isVertex == 1.0f) {
+                        if (m->index >= s->vtxCount) {
+                            debug_StdPrintfDummy("reg_setShape:illegal vertex index. %d/%d\n",
+                                                 m->index, s->vtxCount);
+                            debug_assert("src/RegistPacket.c", 629);
+                            __assert("src/RegistPacket.c", 629, "0");
+                        }
+                        t = s->vtx;
+                        t += m->index * 0x10;
+                        _AddVectorXYZ(t, t, vec);
+                    } else if (m->isVertex == 0.0f) {
+                        if ((((int)(mat->attr.bits >> 5)) & 3) == 0) {
+                            switch (mat->attr.word & 1) {
+                            case 1:
+                                break;
+                            default:
+                                goto nextbone;
+                            }
+                        }
+                        if (m->index >= s->nrmCount) {
+                            debug_StdPrintfDummy("reg_setShape:illegal normal index. %d/%d\n",
+                                                 m->index, s->nrmCount);
+                            debug_assert("src/RegistPacket.c", 636);
+                            __assert("src/RegistPacket.c", 636, "0");
+                        }
+                        t = s->nrm;
+                        t += m->index * 0x10;
+                        _AddVectorXYZ(t, t, vec);
+                    } else {
+                        debug_assert("src/RegistPacket.c", 641);
+                        __assert("src/RegistPacket.c", 641, "0");
+                    }
+                nextbone:
+                    m++;
+                }
+            }
+        }
+    }
+    for (i = 0; i < s->stripCount; i++) {
+        v = ((char **)s->strips)[i];
+        while (((RegStripHead *)v)->count != -1) {
+            pk = pkt;
+            n = ((RegStripHead *)v)->count;
+            v += 0x10;
+            while (pk != 0) {
+                if (((RegStripVtx *)v)->texSlot == pk->texSlot &&
+                    ((RegStripVtx *)v)->mat == pk->mat) {
+                    break;
+                }
+                pk = pk->next;
+            }
+            if (pk == 0) {
+                break;
+            }
+            base = (int)pk->data;
+            p = (char *)(((RegStripHead *)(v - 0x10))->ofs + base);
+            if (((RegStripHead *)(v - 0x10))->ofs != 0) {
+                if (n != 0) {
+                    do {
+                        _CopyVector(p, s->vtx + ((RegStripVtx *)v)->vtx * 0x10);
+                        p += 0x10;
+                        if ((((int)(mat->attr.bits >> 5)) & 3) == 0) {
+                            switch (mat->attr.word & 1) {
+                            case 1:
+                                break;
+                            default:
+                                goto nocopy;
+                            }
+                        }
+                        _CopyVector(p, s->nrm + ((RegStripVtx *)v)->nrm * 0x10);
+                        p += 0x10;
+                    nocopy:
+                        if (mdl->disp != 0) {
+                            p += 0x10;
+                        }
+                        n--;
+                        v += 0x10;
+                        p += 0x20;
+                    } while (n != 0);
+                }
+            }
+        }
+    }
+}
 
 typedef union { /* field names derived */
     sceVu0IVECTOR c;

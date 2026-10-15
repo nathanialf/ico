@@ -609,7 +609,41 @@ INCLUDE_ASM(subGirlBrain_Pulledup);
 
 INCLUDE_ASM(_girlBrainHide_MakeHidePoint);
 
-INCLUDE_ASM(girlBrainHide_GoalTurn);
+static void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
+{
+    float mo[4];
+    float eye[4];
+    GObj *girl;
+    ActWork *p;
+    int r;
+
+    girl = girlGObj;
+    GetRootMotionOrient(mo, girl);
+    r = _RotyGV(mo, dir);
+    r = (r < 0) ? -r : r;
+    if (r >= 0x2E) {
+        p = GOBJ_WORK(girl);
+        p->hideDirX = dir[0];
+        p->hideDirY = dir[1];
+        p->hideDirZ = dir[2];
+        GetEyeDirection((char *)eye, girl);
+        if (_RotyGV(eye, dir) > 0) {
+            debug_StdPrintfDummy("turnL mail\n");
+            if (sendMail) {
+                ACTSendMailCorrect(girl, 0xDC);
+            } else {
+                ACTSendMailCorrect(girl, 0xDE);
+            }
+        } else {
+            debug_StdPrintfDummy("turnR mail\n");
+            if (sendMail) {
+                ACTSendMailCorrect(girl, 0xDB);
+            } else {
+                ACTSendMailCorrect(girl, 0xDD);
+            }
+        }
+    }
+}
 
 /* A static inline: hands the girl's sub a move direction at the full run
    ratio.  `run` is declared ahead of the two loads, as this TU's

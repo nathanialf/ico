@@ -613,7 +613,38 @@ extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutTy
 
 INCLUDE_ASM_LIT(RequestStageChangeKidnapEnd);
 
-INCLUDE_ASM(SetStatusBoy_OtherStageGirlPinch);
+void SetStatusBoy_OtherStageGirlPinch(void)
+{
+    float buf[4];
+    float cam[4];
+    float pos[4];
+    GObj *g = boyGObj;
+    ActWork *w;
+    float a;
+    float b;
+    float t;
+    int frames;
+
+    a = _ACTGame_GetParamF(0xD);
+    b = _ACTGame_GetParamF(0xE);
+    t = a * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f +
+        b * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
+    ExecuteSEPackage(0, 0x7A);
+    GetOtherStageGirlOrient(buf, GetCurrentCameraSet2());
+    w = GOBJ_WORK(g);
+    frames = (int)t;
+    w->pinchFrames = frames;
+    w->pinchPosX = buf[0];
+    w->pinchPosY = buf[1];
+    w->pinchPosZ = buf[2];
+    cam[0] = GetCurrentCameraSet2()[0];
+    cam[1] = GetCurrentCameraSet2()[1];
+    cam[2] = GetCurrentCameraSet2()[2];
+    pos[0] = test_CURRENTROOT(boyGObj)[0];
+    pos[1] = test_CURRENTROOT(boyGObj)[1];
+    pos[2] = test_CURRENTROOT(boyGObj)[2];
+    InsertCamera_SetNoraml(cam, pos, frames, 0);
+}
 
 void *gopp_subBoyControl;
 

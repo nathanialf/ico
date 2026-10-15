@@ -311,7 +311,73 @@ typedef struct BgaLightEnv { /* field names derived */
 
 INCLUDE_ASM_LIT(bga_InitSdfCamera);
 
-INCLUDE_ASM(bga_initLightEnvelope);
+static void bga_initLightEnvelope(BgaDObjEnt *p)
+{
+    BgaEnvEnt *e;
+    unsigned char *d;
+
+    e = (BgaEnvEnt *)p->env;
+    if (e == 0) {
+        return;
+    }
+    while ((d = e->data) != 0) {
+        switch (e->type) {
+        case 4:
+            switch (p->type) {
+            case 6:
+            case 11:
+                if (p->u.light != 0) {
+                    p->u.light->col[0] = (float)d[0] / 255.0f;
+                    p->u.light->col[1] = (float)d[1] / 255.0f;
+                    p->u.light->col[2] = (float)d[2] / 255.0f;
+                    p->u.light->col[3] = 1.0f;
+                } else {
+                    debug_Assert("Light Object not exists.\n");
+                    debug_assert(__FILE__, 1040);
+                    __assert(__FILE__, 1040, "0");
+                }
+                break;
+            case 7:
+            case 8:
+            case 9:
+                if (p->u.light != 0) {
+                    p->u.light->col2[0] = (float)d[0] / 255.0f;
+                    p->u.light->col2[1] = (float)d[1] / 255.0f;
+                    p->u.light->col2[2] = (float)d[2] / 255.0f;
+                    p->u.light->col2[3] = 1.0f;
+                } else {
+                    debug_Assert("Shadow Object not exists.\n");
+                    debug_assert(__FILE__, 1060);
+                    __assert(__FILE__, 1060, "0");
+                }
+                break;
+            }
+            break;
+        case 5:
+            switch (p->type) {
+            case 8:
+            case 9:
+                if (p->u.light != 0) {
+                    p->u.light->inner[0] = 1.0f / (((float *)d)[0] * 50.0f);
+                    p->u.light->inner[1] = 1.0f / (((float *)d)[1] * 50.0f);
+                    p->u.light->inner[2] = 1.0f / (((float *)d)[2] * 50.0f);
+                    p->u.light->outer[0] = 1.0f / (((float *)d)[3] * 50.0f);
+                    p->u.light->outer[1] = 1.0f / (((float *)d)[4] * 50.0f);
+                    p->u.light->outer[2] = 1.0f / (((float *)d)[5] * 50.0f);
+                } else {
+                    debug_assert(__FILE__, 1092);
+                    __assert(__FILE__, 1092, "0");
+                }
+                break;
+            }
+            break;
+        /* the next envelope type, nothing to do */
+        case 6:
+            break;
+        }
+        e++;
+    }
+}
 
 INCLUDE_ASM(bga_ApplyDObject);
 
@@ -832,7 +898,71 @@ static inline float bga_ntscFrame(float f) /* derived name */
  * their own, fov first. */
 INCLUDE_ASM(bga_CalcSdfCamera);
 
-INCLUDE_ASM(bga_addLightning);
+static void bga_addLightning(int kind, BgaLightningDef *def, float *vec, int id, int t0, float f)
+{
+    BgaLightning *p;
+
+    for (p = bgaLightningList; p != 0; p = p->next) {
+        if (p->id == id) {
+            switch (kind) {
+            case 15:
+                def->kind = -1;
+                /* FALLTHROUGH */
+            case 14:
+                p->def = def;
+                p->frame = f;
+                p->t0 = t0;
+                p->seg[0].key = -1;
+                _CopyVector(p->seg[0].pos.f, vec);
+                return;
+            case 16: {
+                LightningNode *e = &p->seg[p->n];
+
+                e->key = def->kind;
+                _CopyVector(p->seg[p->n].pos.f, vec);
+                p->n = p->n + 1;
+                return;
+            }
+            default:
+                debug_StdPrintfDummy("illegal lightning data set.\n");
+                debug_assert(__FILE__, 2517);
+                __assert(__FILE__, 2517, "0");
+                return;
+            }
+        }
+    }
+    p = iosMallocDebug(ios_partition_seki, 352, __FILE__, 2525);
+    p->next = bgaLightningList;
+    p->id = id;
+    p->n = 1;
+    bgaLightningList = p;
+    switch (kind) {
+    case 15:
+        def->kind = -1;
+        /* FALLTHROUGH */
+    case 14:
+        p->def = def;
+        p->frame = f;
+        p->t0 = t0;
+        _CopyVector(p->seg[0].pos.f, vec);
+        break;
+    case 16: {
+        LightningNode *e = &p->seg[p->n];
+
+        e->key = def->kind;
+        _CopyVector(p->seg[p->n].pos.f, vec);
+        p->def = 0;
+        _UnitVector(p->seg[0].pos.f);
+        p->n = p->n + 1;
+        break;
+    }
+    default:
+        debug_StdPrintfDummy("illegal lightning data set.\n");
+        debug_assert(__FILE__, 2551);
+        __assert(__FILE__, 2551, "0");
+        break;
+    }
+}
 
 /* DrawLightningN reads the colour as four words, so it is a 16-byte record
    here and not four separate ints. */
@@ -853,7 +983,135 @@ static inline BgaLightningCol bga_lightningColor(BgaLightningDef *g) /* derived 
     return c;
 }
 
-INCLUDE_ASM(bga_DispLightning);
+void bga_DispLightning(void)
+{
+    BgaLightning *p;
+    BgaLightningDef *g;
+    GObj *o;
+    int cnt;
+    int i;
+    int num;
+    int k;
+    float z;
+    BgaLightning *list[100];
+    BgaLightningCol col;
+
+    cnt = 0;
+    num = 0;
+    for (p = bgaLightningList; p != 0; p = p->next) {
+        if (p->def->kind == 0) {
+            list[num++] = p;
+        }
+    }
+    if (num > 0) {
+        z = 0.0f;
+        i = 0;
+        for (o = isysGObjSearchFromObjKindID_begin(4); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o)) {
+            if (isEnemyHyde(o) != 0) {
+                continue;
+            }
+            if (((GObj *)o)->active == 0) {
+                continue;
+            }
+            cnt++;
+            if (cnt >= 5) {
+                continue;
+            }
+            p = list[i++];
+            i %= num;
+            g = p->def;
+            if (systemStatus[5] == 0) {
+                k = p->n;
+                if (k < 10) {
+                    p->n = k + 1;
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
+                }
+            }
+            col.c[0] = g->col[0];
+            col.c[1] = g->col[1];
+            col.c[2] = g->col[2];
+            col.c[3] = g->col[3];
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame + z, g->c);
+            z += 0.01f;
+        }
+    }
+    for (p = bgaLightningList; p != 0; p = p->next) {
+        g = p->def;
+        if (g == 0) {
+            debug_StdPrintfDummy(
+                "Lightning data does not found! maybe, start point < end point.\n");
+            debug_assert(__FILE__, 2624);
+            __assert(__FILE__, 2624, "0");
+            continue;
+        }
+        col = bga_lightningColor(g);
+        if (p->t0 != 0) {
+            continue;
+        }
+        switch (g->kind) {
+        case 1:
+            o = isysGObjSearchFromObjKindID_begin(2);
+            if (o == 0) {
+                continue;
+            }
+            if (systemStatus[5] == 0) {
+                k = p->n;
+                if (k < 10) {
+                    p->n = k + 1;
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
+                }
+            }
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame, g->c);
+            break;
+        case 2:
+            for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
+                if (objLayout[o->labelId].mdl == 66) {
+                    if (systemStatus[5] == 0) {
+                        k = p->n;
+                        if (k < 10) {
+                            p->n = k + 1;
+                            _CopyVector(&p->seg[k],
+                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
+                        }
+                    }
+                    DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                                   g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                                   g->texLen, p->frame, g->c);
+                }
+            }
+            break;
+        case 3:
+            for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
+                if (objLayout[o->labelId].mdl == 68) {
+                    if (systemStatus[5] == 0) {
+                        k = p->n;
+                        if (k < 10) {
+                            p->n = k + 1;
+                            _CopyVector(&p->seg[k],
+                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
+                        }
+                    }
+                    DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                                   g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                                   g->texLen, p->frame, g->c);
+                }
+            }
+            break;
+        case 0:
+            break;
+        default:
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame, g->c);
+            break;
+        }
+    }
+}
 
 inline void bga_SetCameraForceOff(void)
 {

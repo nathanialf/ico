@@ -54,7 +54,7 @@ typedef struct { /* field names derived */
     long long w;
 } __attribute__((packed)) U64ag; /* derived name */
 
-/* The 0x194-byte-per-entry motion record table, indexed by the object's
+/* The 0x190-byte-per-entry motion record table, indexed by the object's
    current motion id (obj->0x15C->0x4A0); the fields this TU reads, named as
    motionOrientManager.h's MotionDef. */
 typedef struct { /* field names derived */
@@ -62,9 +62,7 @@ typedef struct { /* field names derived */
     int playMode;
     char pad154[44];
     short priInputBegin;
-    short girlDirFrames;
     short priInputEnd;
-    char pad186[2];
 
     union {
         unsigned int w;
@@ -305,7 +303,80 @@ INCLUDE_ASM_LIT(ACTGameView_Add);
    100-entry int arrays at +0x190 and +0x320, and the entry count at +0x4B0. */
 /* The view work record is reached as `self->act->view`, its two chase loads
    read as int. */
-INCLUDE_ASM(ACTGameView_Loop);
+void ACTGameView_Loop(GObj *self)
+{
+    float pos[4];
+    int i;
+
+    i = actGameView.cur;
+    if (actGameView.simple[i] != 0) {
+        GetRootPosition(pos, actGameView.obj[i]);
+        actGameView.view[i] = ACTCheckView(self, actGameView.obj[i], pos, 150, 300.0f);
+    } else {
+        actGameView.view[i] = 0;
+    }
+
+    switch (GOBJ_WORK(self)->viewState) {
+    case 0:
+        if (5000.0f < _DistGV(test_CURRENTROOT(self), test_CURRENTROOT(actGameView.obj[i]))) {
+            GOBJ_WORK(self)->viewState = 6;
+        } else {
+            GOBJ_WORK(self)->viewState = 1;
+        }
+        break;
+    case 1:
+        GOBJ_WORK(self)->view.func = ClipWall;
+        GOBJ_WORK(self)->view.obj = actGameView.obj[i];
+        GOBJ_WORK(self)->view.clip.radius = 0.0f;
+        GetSkeltonPosition(GOBJ_WORK(self)->view.clip.pt[0], self, 0x23);
+        GetRootPosition(GOBJ_WORK(self)->view.clip.pt[1], actGameView.obj[i]);
+        RequestClipCollision(&GOBJ_WORK(self)->view);
+        GOBJ_WORK(self)->viewState = 2;
+        break;
+    case 2:
+        if (GOBJ_WORK(self)->view.done != 0) {
+            if (GOBJ_WORK(self)->view.clip.wall.elem != 0) {
+                GOBJ_WORK(self)->viewState = 6;
+            } else {
+                GOBJ_WORK(self)->viewState = 3;
+            }
+        }
+        break;
+    case 3:
+        GOBJ_WORK(self)->view.func = ClipFloor;
+        GOBJ_WORK(self)->view.obj = actGameView.obj[i];
+        GOBJ_WORK(self)->view.clip.radius = 0.0f;
+        GetSkeltonPosition(GOBJ_WORK(self)->view.clip.pt[0], self, 0x23);
+        GetRootPosition(GOBJ_WORK(self)->view.clip.pt[1], actGameView.obj[i]);
+        RequestClipCollision(&GOBJ_WORK(self)->view);
+        GOBJ_WORK(self)->viewState = 4;
+        break;
+    case 4:
+        if (GOBJ_WORK(self)->view.done != 0) {
+            if (GOBJ_WORK(self)->view.clip.floor.elem != 0) {
+                GOBJ_WORK(self)->viewState = 6;
+            } else {
+                GOBJ_WORK(self)->viewState = 5;
+            }
+        }
+        break;
+    case 5:
+        actGameView.simple[i] = 1;
+        GOBJ_WORK(self)->viewState = 7;
+        break;
+    case 6:
+        actGameView.simple[i] = 0;
+        GOBJ_WORK(self)->viewState = 7;
+        break;
+    case 7:
+        actGameView.cur++;
+        if (!(actGameView.cur < actGameView.num)) {
+            actGameView.cur = 0;
+        }
+        GOBJ_WORK(self)->viewState = 0;
+        break;
+    }
+}
 
 static void ACTGame_LwsEffectProcess(GObj *self)
 {
@@ -471,7 +542,74 @@ static inline void actGame_SendMailToBirds(GObj *self) /* derived name */
 /* The speed is computed before the parameter block is fetched, both hops of
    that fetch going through one pointer variable; the pos stores go through
    it and the two thresholds test the speed itself. */
-INCLUDE_ASM(ACTGame_InnerVelocityUpdate);
+static void ACTGame_InnerVelocityUpdate(GObj *self)
+{
+    float pos[4];
+    int slow;
+    int stop;
+    int nomove;
+    char *p;
+    float speed;
+
+    slow = 0;
+    stop = 0;
+    pos[0] = test_CURRENTROOT(self)[0];
+    pos[1] = test_CURRENTROOT(self)[1];
+    pos[2] = test_CURRENTROOT(self)[2];
+    sceVu0SubVector((char *)GOBJ_ACT(self)->work + 0x3F0, pos,
+                    (char *)GOBJ_ACT(self)->work + 0x3E0);
+    speed = FSqrt(GOBJ_WORK(self)->velX * GOBJ_WORK(self)->velX +
+                  GOBJ_WORK(self)->velY * GOBJ_WORK(self)->velY +
+                  GOBJ_WORK(self)->velZ * GOBJ_WORK(self)->velZ);
+    p = (char *)GOBJ_ACT(self);
+    p = (char *)*(int *)(p + 0x678);
+    *(float *)(p + 0x400) = speed;
+    *(float *)(p + 0x3E0) = pos[0];
+    *(float *)(p + 0x3E4) = pos[1];
+    *(float *)(p + 0x3E8) = pos[2];
+    if (speed < 6.0f) {
+        slow = 1;
+    }
+    if (speed < 2.0f) {
+        stop = 1;
+    }
+    if (slow != 0) {
+        GOBJ_WORK(self)->slowFrames += 1;
+    } else {
+        GOBJ_WORK(self)->slowFrames = 0;
+    }
+    if (stop != 0) {
+        GOBJ_WORK(self)->stopFrames += 1;
+    } else {
+        GOBJ_WORK(self)->stopFrames = 0;
+    }
+    if (4 <= GOBJ_WORK(self)->slowFrames) {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->work + 0x408))->q |= 1ULL << 32;
+    } else {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->work + 0x408))->q &= ~(1ULL << 32);
+    }
+    if (4 <= GOBJ_WORK(self)->stopFrames) {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->work + 0x408))->q |= 1ULL << 33;
+    } else {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->work + 0x408))->q &= ~(1ULL << 33);
+    }
+    nomove = 0;
+    if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 13) & 1) {
+        if (GOBJ_WORK(self)->speed < 4.0f) {
+            nomove = 1;
+        }
+    }
+    if (nomove != 0) {
+        GOBJ_WORK(self)->noMoveFrames += 1;
+    } else {
+        GOBJ_WORK(self)->noMoveFrames = 0;
+    }
+    if (GOBJ_WORK(self)->noMoveFrames > (60 - systemStatus[0] * 10) / systemStatus[1] * 5) {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->work + 0x410))->q |= 1ULL << 32;
+    } else {
+        ((ActStatusWord *)((char *)GOBJ_ACT(self)->work + 0x410))->q &= ~(1ULL << 32);
+    }
+}
 
 INCLUDE_ASM(ACTGame_BeforeFunc);
 

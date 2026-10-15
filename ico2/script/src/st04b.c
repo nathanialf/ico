@@ -40,7 +40,23 @@ INCLUDE_ASM(actSt04bSekizoChk);
 
 INCLUDE_ASM(actSt04bEne1Chk);
 
-INCLUDE_ASM(actSt04bCrest01XL);
+void actSt04bCrest01XL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(155) == 0) {
+        stage_SetAnimation(164, 0, 0);
+        stage_SetAnimation(165, 0, 0);
+    } else {
+        stage_SetAnimation(164, 0, -1);
+        stage_SetAnimation(165, 0, -1);
+        scpTorchLightOn(968);
+        scpTorchLightOn(969);
+    }
+}
 
 void actSt04bDoorXL(GObj *volatile self)
 {
@@ -65,7 +81,25 @@ void actSt04bMonyoDoorXL(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt04bSekizo);
+void actSt04bSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(142) == 0) {
+        stage_SetAnimation(170, 0, 0);
+        sekizo_mes[0].func = actSt04bSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(170, 0, -1);
+        if (gflagChk(155) == 0) {
+            ScpCallCameraSetTarget(10793.0f, 2122.0f, 0.0f);
+        }
+    }
+}
 
 void actSt04bEne1(GObj *volatile self)
 {

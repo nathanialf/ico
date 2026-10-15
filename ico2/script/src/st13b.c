@@ -144,7 +144,19 @@ void actSt13bDoor(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actBossTest);
+void actBossTest(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    stage_SetAnimation(31, 0, -1);
+    stage_SetAnimation(25, 0, 0);
+    stage_SetAnimation(34, 0, 0);
+    stage_SetAnimation(35, 0, 0);
+    stage_SetAnimation(37, 0, 0);
+}
 
 void actSt13bConte02Jimaku(GObj *volatile self)
 {

@@ -513,7 +513,7 @@ static void SetDirectRootPositionXZ(void *self, void *pos)
 static inline void actMotDirToWall(GObj *self) /* derived name */
 {
     float local[4];
-    sceVu0ScaleVector(local, *(char **)((char *)self + 0x164) + 0x4B0, -1.0f);
+    sceVu0ScaleVector(local, *(char **)((char *)self + 0x164) + 0x4A0, -1.0f);
     SetMotionDirection(self, local);
 }
 
@@ -635,7 +635,75 @@ typedef struct { /* field names derived */
 
 INCLUDE_ASM_LIT(afterCommonBar);
 
-INCLUDE_ASM(actCommonBar);
+void actCommonBar(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    GObj *bar;
+    float pos[4];
+    float ori[4];
+    float hold[4];
+    float hold2[4];
+
+    bar = s->env.barObj;
+    actMotDirToWall(self);
+    pos[0] = *(float *)((char *)test_CURRENTROOT((void *)self) + 0);
+    pos[1] = *(float *)((char *)test_CURRENTROOT((void *)self) + 4);
+    pos[2] = *(float *)((char *)test_CURRENTROOT((void *)self) + 8);
+    ori[0] = *(float *)((char *)test_CURRENTORIENT(self) + 0);
+    ori[1] = *(float *)((char *)test_CURRENTORIENT(self) + 4);
+    ori[2] = *(float *)((char *)test_CURRENTORIENT(self) + 8);
+    GetRotObjectHoldPoint(hold, hold2, &GOBJ_WORK(self)->intrReq.a.wall, (void *)self);
+    s->bar = bar;
+    s->after = (void *)afterCommonBar;
+    debug_StdPrintfDummy("set %p\n", bar);
+    ((BarHold *)(int)GOBJ_SUB(self))->f1C0 = (int)bar;
+    ((BarHold *)(int)GOBJ_SUB(self))->f1C4 = -1;
+    ((BarHold *)(int)GOBJ_SUB(self))->f1C8 = 0;
+    while (1) {
+        int had = (int)s->pushDir != 0;
+        int lit = 0;
+        int miss = 0;
+        int flag = 0;
+        if (GetMotionFrameFlag1((void *)self)) {
+            float dir[4];
+            float up[4];
+            int node = GetSkeltonFocusNode((void *)self, 32);
+            unsigned char ok;
+            lit = 1;
+            CopyVector(dir, (char *)GOBJ_SUB(self)->nodeMtx + node * 64 + 0x30);
+            if (s->pushDir == 0xFFFFFFFF) {
+                sceVu0ScaleVector(up, test_CURRENTORIENT(self), -1.0f);
+            } else {
+                up[0] = *(float *)((char *)test_CURRENTORIENT(self) + 0);
+                up[1] = *(float *)((char *)test_CURRENTORIENT(self) + 4);
+                up[2] = *(float *)((char *)test_CURRENTORIENT(self) + 8);
+            }
+            ok = MoveRotObjectWithHoldPoint(bar, hold, (void *)self, dir, up);
+            if (ok) {
+                flag = 1;
+            } else {
+                miss = 1;
+            }
+        }
+        if (GetMotionFrameFlag2((void *)self)) {
+            GetRotObjectGlobalHoldGeometry(pos, ori, bar, hold, hold2);
+            SetDirectRootPositionNoFittingWithNodePoint((void *)self, 0x20, pos, lit ? 1.0f : 0.3f);
+            SetMotionDirection(self, ori);
+        }
+        if (!had) {
+            _boxbar_set_sound(self, 0);
+        } else if (lit && !miss) {
+            _boxbar_set_sound(self, 1);
+        }
+        if (flag) {
+            _boxbar_set_sound(self, 3);
+        }
+        if (miss) {
+            _boxbar_set_sound(self, 2);
+        }
+        _ACTWait(1);
+    }
+}
 
 void funcCommonJumpDircorrect(GObj *self)
 {
@@ -902,7 +970,35 @@ INCLUDE_ASM_LIT(actCommonDodge);
 
 INCLUDE_ASM_LIT(actCommonGuard);
 
-INCLUDE_ASM(actCommonEdgeHang);
+void actCommonEdgeHang(GObj *volatile self)
+{
+    ClipWork work;
+    float p1[4];
+    float p2[4];
+
+    ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.a.wall);
+    while (1) {
+        if (CheckWallAttributeEdegWall(self) == 0) {
+            ACTSendMailCorrect(self, 0xD2);
+        }
+        if (-GOBJ_SUB(self)->ctrl.cliffDepth > 250.0f) {
+            ACTSendMailCorrect(self, 0x18);
+        }
+        if (stageData[stage_no].flag2) {
+            memset(&work, 0, 0xC0);
+            GetSkeltonPosition(work.pt[0], self, 0x2C);
+            GetSkeltonPosition(p1, self, 0x33);
+            GetSkeltonPosition(p2, self, 0x2F);
+            sceVu0AddVector(work.pt[1], p1, p2);
+            sceVu0ScaleVector(work.pt[1], work.pt[1], 0.5f);
+            ClipFloor(&work);
+            if (work.floor.elem != 0) {
+                ACTSendMailCorrect(self, 0xD2);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM_LIT(motCommonHangNone);
 

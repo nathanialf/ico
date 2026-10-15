@@ -62,15 +62,158 @@ static int demoEnd;
 
 INCLUDE_ASM(actSt08bKurenSwitch);
 
-INCLUDE_ASM(actSt08bKurenLeft);
+void actSt08bKurenLeft(GObj *volatile self)
+{
+    ReviveAllCarryableItemsWithNonSleepFrame(300);
 
-INCLUDE_ASM(actSt08bKurenRight);
+    stage_SetAnimation(335, 1, 0);
 
-INCLUDE_ASM(actSt08bDoor);
+    scpSearchGobj(336)->active = 0;
+    scpSearchGobj(335)->active = 1;
 
-INCLUDE_ASM(actSt08bDoorUpChk);
+    while (stage_CheckAnimationFrame(335, 5, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 16);
 
-INCLUDE_ASM(actSt08bDoorDownChk);
+    while (stage_CheckAnimationFrame(335, 215, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_CheckAnimationFrame(335, 465, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
+
+void actSt08bKurenRight(GObj *volatile self)
+{
+    ReviveAllCarryableItemsWithNonSleepFrame(300);
+
+    stage_SetAnimation(335, 1, 511);
+
+    while (stage_CheckAnimationFrame(335, 732, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_CheckAnimationFrame(335, 822, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_CheckAnimationFrame(335, 995, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
+
+void actSt08bDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
+        (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
+        stage_SetAnimation(337, 0, 0);
+        _ACTWait(60);
+        doorDown_mes[0].func = actSt08bDoorDownChk;
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(336, 0, 0);
+        doorUp_mes[0].func = actSt08bDoorUpChk;
+        act->mail = doorUp_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt08bDoorUpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt08bDoorUpEffect, 21);
+
+    scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
+
+    stage_SetAnimation(336, 1, 0);
+
+    buf[0] = doorUpChkPos.d[0];
+    buf[1] = doorUpChkPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(336) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    doorUpChk_mes[0].func = actSt08bDoorDownChk;
+    sub->mail = doorUpChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt08bDoorDownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x4000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt08bDoorDownEffect, 21);
+
+    scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
+
+    stage_SetAnimation(337, 1, 0);
+
+    buf[0] = doorUpChkPos.d[0];
+    buf[1] = doorUpChkPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(337) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    doorDownChk_mes[0].func = actSt08bDoorUpChk;
+    sub->mail = doorDownChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt08bKuren);
 

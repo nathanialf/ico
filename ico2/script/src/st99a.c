@@ -5,7 +5,6 @@
 #include "StageAnimation.h"
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 static void actSt17aTestChk(GObj *volatile self);
 
@@ -130,25 +129,89 @@ void actSt27aWave(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actExplodeChk);
+void actExplodeChk(GObj *volatile self)
+{
+    GOBJ_SUB(scpSearchGobj(2791))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(2791))->ctrl.noStand = 0;
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(60);
+    stage_SetAnimation(440, 1, 0);
+    scpLinkBGAtoLayoutedTarget(2791, 440);
+    while (stage_CheckAnimationFinish(440) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
 
-INCLUDE_ASM(actSplash1Chk);
+void actSplash1Chk(GObj *volatile self)
+{
+    GOBJ_SUB(scpSearchGobj(2792))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(2792))->ctrl.noStand = 0;
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(60);
+    stage_SetAnimation(428, 1, 0);
+    scpLinkBGAtoLayoutedTarget(2792, 428);
+    while (stage_CheckAnimationFinish(428) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
 
-INCLUDE_ASM(actSplash2Chk);
+void actSplash2Chk(GObj *volatile self)
+{
+    GOBJ_SUB(scpSearchGobj(2793))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(2793))->ctrl.noStand = 0;
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(60);
+    stage_SetAnimation(429, 1, 0);
+    scpLinkBGAtoLayoutedTarget(2793, 429);
+    while (stage_CheckAnimationFinish(429) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
 
 void actWaveChk(GObj *volatile self)
 {
     actCreateSubThread(actWave1, 21);
 }
 
-INCLUDE_ASM(actWave1);
+void actWave1(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    while (1) {
+        stage_SetAnimation(448, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(449, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(450, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(451, 1, 0);
+        _ACTWait(179);
+    }
+}
 
 void actSt27aWaveChk(GObj *volatile self)
 {
     actCreateSubThread(actSt27aWave1, 21);
 }
 
-INCLUDE_ASM(actSt27aWave1);
+void actSt27aWave1(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    while (1) {
+        stage_SetAnimation(173, 1, 0);
+        _ACTWait(200);
+        stage_SetAnimation(174, 1, 0);
+        _ACTWait(200);
+        stage_SetAnimation(175, 1, 0);
+        _ACTWait(200);
+        stage_SetAnimation(176, 1, 0);
+        _ACTWait(200);
+    }
+}
 
 void actSpiderChk(GObj *volatile self)
 {

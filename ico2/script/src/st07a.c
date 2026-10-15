@@ -263,7 +263,27 @@ void actSt07aCamera2(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt07aIntroChk);
+void actSt07aIntroChk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    gflagOn(115);
+
+    scpBoyControlReadDisable = 1;
+    _ACTWait(1);
+
+    stage_SetAnimation(320, 1, 0);
+    while (stage_CheckAnimationFinish(320) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
 
 void actSt07aSekizoEvent(int x)
 {

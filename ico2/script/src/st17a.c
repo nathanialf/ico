@@ -47,9 +47,90 @@ static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}}; /* de
 
 INCLUDE_ASM(actSt17aDoor);
 
-INCLUDE_ASM(actSt17aDoorUpChk);
+void actSt17aDoorUpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+    int h;
 
-INCLUDE_ASM(actSt17aDoorDownChk);
+    while (scpTriggerFloorAttrTargetMan(self, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(15);
+
+    actCreateSubThread(actSt17aDoorUpEffect, 21);
+
+    scpWakeupItemWithBoundary(6573.0f, -2077.0f, 1089.0f, 100.0f);
+
+    stage_SetAnimation(109, 1, 0);
+
+    buf[0] = doorChkSePos.d[0];
+    buf[1] = doorChkSePos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+
+    h = soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(60);
+    soundSeDefStop(h);
+
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(109) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetLoopFlag(111, 1);
+    stage_SetAnimation(111, 1, 0);
+
+    doorUpChk_mes[0].func = actSt17aDoorDownChk;
+    sub->mail = doorUpChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt17aDoorDownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+    int h;
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x3000000) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(15);
+
+    actCreateSubThread(actSt17aDoorDownEffect, 21);
+
+    scpWakeupItemWithBoundary(6573.0f, -2077.0f, 1089.0f, 100.0f);
+
+    stage_SetLoopFlag(111, 0);
+
+    stage_SetAnimation(110, 1, 0);
+
+    buf[0] = doorChkSePos.d[0];
+    buf[1] = doorChkSePos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+
+    h = soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(38);
+    soundSeDefStop(h);
+
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(110) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door_mes[0].func = actSt17aDoorUpChk;
+    sub->mail = door_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt17aHasiChk);
 
