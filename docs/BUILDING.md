@@ -45,8 +45,9 @@ cp "/path/to/Ico (Japan).cue" baserom/Ico_JPN.cue
 `./build.sh` runs the steps below that are not already done, in order, and
 stops with a non-zero exit at the first failure. On a four-core host with
 the toolchain already installed and `baserom/jpn/` already extracted,
-`tools/build.sh setup && .venv/bin/ninja` took 34 s and 47 s in two runs
-and ended with `check_elf: gate PASS`. A second `./build.sh` on the built tree rebuilds
+`tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 51 s
+and 47 s in two runs and ended with `check_elf: gate PASS`. A second
+`./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
 below describe each step; each can also be run on its own. The scripts are
 the same on every target branch and take the target, and with it every
@@ -61,7 +62,7 @@ exists: `config/link_order.jpn.txt` on this branch).
 skips it.
 
 1. Creates `.venv/` and installs `tools/requirements.txt`: pyelftools (ELF
-   reading), pycdlib (the ISO9660 reader), ninja and clang-format.
+   reading), pycdlib (the ISO reader), ninja and clang-format.
 2. Fetches **ee-gcc 2.9-991111-01** into `tools/cc/ee-gcc2.9-991111/` from
    the `decompme/compilers` releases. Its bundled `as` (ee-as 2.9-991111)
    assembles the game, libc, libm and libgcc. It also fetches **ee-gcc 2.96**
@@ -110,8 +111,10 @@ explicitly: `--overlay-fill=N` (0 to 255, default 0) for an overlay whose VU
 address is a constant, 0 for the others. `tools/gen_ninja.py` passes the
 option only when a `.dsm` line of the link order carries an `overlay-fill=N`
 token; PAL's carries none, so its command line also works with an unpatched
-dvp-as. With the patch the build no longer depends on the host's heap;
-without it a host with `MALLOC_PERTURB_` set fails PAL's whole-file SHA-1.
+dvp-as. On this branch the five `.dsm` lines of `config/link_order.jpn.txt`
+carry `overlay-fill=110` (0x6E), so the build needs the patched dvp-as. With
+the patch the build no longer depends on the host's heap; without it a host
+with `MALLOC_PERTURB_` set fails PAL's whole-file SHA-1.
 
 Neither build needs bison, flex or makeinfo. The 2.10 tarball ships its
 generated parsers, but its configure stops when it finds no lex or yacc, so

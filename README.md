@@ -2,13 +2,18 @@
 
 A source tree for the PlayStation 2 game **ICO** (Sony Computer Entertainment,
 2001) that rebuilds the boot ELF of the Japanese retail disc, SCPS-11003
-(`SCPS_110.03`, `VER = 1.02`), with the toolchain the game was built with.
-Every byte the console loads is identical to the disc's (the ROM image SHA-1
-matches), and so is the ELF file itself (its SHA-1 matches the disc's). The
-tree was seeded from `main`, the PAL build's finished tree; the Japanese
-build is an earlier link of the same program (its build stamp reads
-`Nov  2 2001`, PAL's `Jan 17 2002`), and this branch carries the functions
-and tables in which the two differ.
+(`SCPS_110.03`; `SYSTEM.CNF` reads `VER = 1.02`, `VMODE = NTSC`), with the
+toolchain the game was built with. Every byte the console loads is identical
+to the disc's (the ROM image SHA-1 matches), and so is the ELF file itself
+(its SHA-1 matches the disc's). Every object of the link is built from the
+sources under `ico2/` and `sce/`, or, for the game's code-less data members,
+generated from the user's own disc at build time, as on `main`.
+
+The Japanese build is an earlier link of the same program as the PAL one on
+`main`: its debug menu's `DISC VER.` line reads `Nov  2 2001` (`debug.c`),
+PAL's `Jan 17 2002`. This branch is `main`'s tree with the functions,
+records and tables in which the two builds differ;
+[`docs/README.md`](docs/README.md) lists those differences.
 
 <!-- progress:begin -->
 ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
@@ -183,15 +188,14 @@ The host's `mips-linux-gnu-objcopy` writes `build/ico.rom`.
 
 | branch | target | |
 | --- | --- | --- |
-| `main` | PAL retail, SCES-50760, `SCES_507.60` | the finished PAL tree this branch was seeded from, with its own README |
+| `main` | PAL retail, SCES-50760, `SCES_507.60` | the PAL tree this branch is built on, with its own README |
 | `jpn` | Japanese retail, SCPS-11003, `SCPS_110.03` | this document |
 | `ntsc` | USA retail, SLUS-20218, `SCUS_971.13` | the same game on the USA disc, with its own README |
 | `aug6` | the August 6, 2001 prototype | an earlier build of the game, with its own README |
 
 The branches are separate trees and are never merged into each other. The
 four share one build layer, file for file: `tools/`, `build.sh`, `.github/`
-and `docs/index.html` (`tools/check_shared_layer.sh` checks it); a change to
-it lands on `main` first.
+and `docs/index.html` (`tools/check_shared_layer.sh` checks it).
 
 ## PC port
 
