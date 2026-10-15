@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# build.sh: build the branch's boot ELF from a clean clone in one command.
+# build.sh: build a target's boot ELF from a clean clone in one command.
 #
-# The target is the one tools/ico_version.sh detects (main: pal, jpn: jpn,
-# ntsc: us, aug6: aug6), and so are the paths below.
+# The target is the one tools/ico_version.sh detects: VERSION=<slug>, or the
+# first configured one (a config/link_order.<slug>.txt exists; pal on main),
+# and so are the paths below. Its outputs are under build/<slug>/.
 #
 #   1. tools/setup.sh, when the toolchain under tools/cc/ or the venv is
 #      missing. Then a check for mips-linux-gnu-objcopy, a host package.
@@ -10,14 +11,16 @@
 #      reads the user's own image of the target's disc: baserom/Ico_PAL.iso
 #      on PAL, a .bin and its .cue (baserom/Ico_JPN.bin, Ico_USA.bin,
 #      Ico_AUG6.bin) on the others.
-#   3. tools/build.sh setup when build.ninja is missing (delete build/, verify
-#      the base ELF and ROM SHA-1s, write build.ninja); otherwise
-#      tools/build.sh verify, the SHA-1s alone. build.ninja rewrites itself
-#      when gen_ninja.py or its config inputs change.
+#   3. tools/build.sh setup when build.ninja is missing (delete build/<slug>/,
+#      verify the base ELF and ROM SHA-1s, write build.ninja); otherwise
+#      tools/build.sh verify, the SHA-1s alone, which also writes build.ninja
+#      again when its first line names another target. build.ninja rewrites
+#      itself when gen_ninja.py or its config inputs change.
 #   4. ninja: compile, assemble, link, and run tools/check_elf.py --gate.
 #      On a tree that is already built this does nothing but the gate.
 #      ninja does not track header or .c.inc dependencies: after editing one,
-#      run tools/build.sh clean (or setup) before ./build.sh.
+#      run tools/build.sh clean (or setup) before ./build.sh. tools/build.sh
+#      gate-all builds and gates every configured target.
 #   5. Print check_elf's gate table once more, as the last thing on screen.
 #
 # Exits non-zero when any step fails. tools/build.sh keeps the individual
@@ -102,4 +105,4 @@ fi
 
 echo
 echo "==> build.sh: gate"
-.venv/bin/python tools/check_elf.py --gate --require-elf-sha
+VERSION="$ICO_VERSION" .venv/bin/python tools/check_elf.py --gate --require-elf-sha

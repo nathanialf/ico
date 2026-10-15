@@ -20,5 +20,5 @@ The share of each section of the PAL boot ELF that the rebuilt ELF holds identic
 <!-- progress:end -->
 
 Per-directory, per-TU and per-function breakdowns are on the progress dashboard
-(`docs/index.html` reading `docs/progress.json`, which `tools/check_elf.py --progress`
+(`docs/index.html` reading `docs/pal/progress.json`, which `tools/check_elf.py --progress`
 writes); the link is at the top of `README.md`.

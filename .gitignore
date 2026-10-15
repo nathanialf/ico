@@ -27,7 +27,7 @@ SCES-*
 SCPS-*
 baserom/
 baseelf*
-# The PAL disc's reference files (tools/extract_elf.py copies them to baserom/pal/)
+# The discs' reference files (tools/extract_elf.py copies them to baserom/<slug>/)
 MAIN.MAP
 SRCFILE.TXT
 TRFILE.TXT
@@ -35,6 +35,7 @@ TRTABLE.BIN
 SYSTEM.CNF
 
 # --- Build outputs that may embed disc-derived data ---
+# (build/<slug>/ per target, its merged source view build/<slug>/tree/ included)
 build/
 *.o
 *.a
@@ -93,8 +94,9 @@ tools/ghidra/
 CLAUDE.md
 .claude/
 # Ninja build files: the manifest is written by tools/gen_ninja.py from
-# config/link_order.pal.txt on every `tools/build.sh setup`. The .ninja_log
-# and .ninja_deps are runtime state.
+# config/link_order.<slug>.txt on every `tools/build.sh setup`, for one
+# target at a time. Ninja's .ninja_log and .ninja_deps are runtime state, kept
+# under build/<slug>/; the root ones are from before that.
 build.ninja
 .ninja_log
 .ninja_deps

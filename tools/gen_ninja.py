@@ -3,17 +3,35 @@
 
 Every object from its own source, linked by the hand-written
 config/link.<slug>.ld in the one object order of config/link_order.<slug>.txt.
-<slug> is the branch's target as tools/ico_version.py detects it (pal on
-main), and the base ELF is baserom/<slug>/baseelf.elf.
+<slug> is the target as tools/ico_version.py detects it (VERSION, or the
+first configured one), the base ELF is baserom/<slug>/baseelf.elf, and every
+output is under build/<slug>/ (OUT below), ninja's own log and deps included,
+so two targets built one after the other each stay incremental. build.ninja
+at the root is the manifest of one target at a time: its first line names
+the slug, every rule command runs with VERSION set to it, and tools/build.sh
+and ./build.sh write it again when the slug asked for is another.
+
+The sources are the shared tree (ico2/, sce/) and the target's overlay
+(targets/<slug>/), whose file at a shared path replaces the shared one for
+that target (tools/ico_version.py, resolve_source). A link-order row names
+the shared path, and so does the object: build/<slug>/<row>.o. Every
+compile runs inside the merged view build/<slug>/tree/ (--tree below), one
+symlink per file at its shared path, so the relative paths a compile spells
+(the source argument, ../<prog>/include/x.h, src/x.c.inc, vusrc/x.dsm) are
+the same for every target, and gcc records them as spelled. The `tree` edge
+rewrites the view when a source directory of either layer changes (restat:
+the stamp changes only when a link does), and every source edge takes it as
+an order-only input; tools/build.sh regen writes it too.
 
 Rules: cc (tools/compile_c.sh), as (the .s sources, assembler and -G per
 archive as compile_c.sh chooses them for C), vucpp and vu (each VU1
 microprogram is two files: ico2/vusrc/<stem>.vsm, the program text, which the
-period cpp reads from standard input in ico2/ with -Ivusrc and writes to
-build/ico2/vusrc/<stem>.i, and ico2/vusrc/<stem>.dsm, the DMA tags around
-`.include "vusrc/<stem>.i"`, which dvp-as, ps2dev's DVP assembler built by
-tools/setup.sh under tools/cc/dvp-as/, assembles from ico2/ on the path
-vusrc/<stem>.dsm with -I../build/ico2. The overlay section names dvp-as writes
+period cpp reads from standard input in the view's ico2/ with -Ivusrc and
+writes to build/<slug>/ico2/vusrc/<stem>.i, and ico2/vusrc/<stem>.dsm, the
+DMA tags around `.include "vusrc/<stem>.i"`, which dvp-as, ps2dev's DVP
+assembler built by tools/setup.sh under tools/cc/dvp-as/, assembles from the
+view's ico2/ on the path vusrc/<stem>.dsm with -I naming
+build/<slug>/ico2. The overlay section names dvp-as writes
 hash the file and line it is reading: the .dsm path for the first, and the
 name cpp gives the text after that, "" for standard input and vusrc/<name>.h
 for a shared include; -no-abicalls -mabi=64 leave the ABI bits of e_flags
@@ -34,11 +52,12 @@ tools/cc/binutils-2.10-ee/, writing the IRIX-compatible elf32-littlemips output
 the PAL disc's MAIN.MAP names: once to ico.syms.elf, which keeps the symbols,
 and once with -s to ico.elf, since the base carries no .symtab or .strtab but
 2.10's -s keeps their names in .shstrtab as the base does; ld 2.10 has no
-INCLUDE inside a section, so the script it reads is build/link.ld,
+INCLUDE inside a section, so the script it reads is build/<slug>/link.ld,
 config/link.<slug>.ld with its INCLUDE lines expanded; the map it writes is
-build/ico.<slug>.map), stubs (tools/gen_stub_s.py: build/stubs/<stem>.s
-for each row of config/stubs.<slug>.txt, from the base ELF, <stem>.lit.s for
-a row with def literal rows, and the macro's header build/stubs/include_asm.h,
+build/<slug>/ico.<slug>.map), stubs (tools/gen_stub_s.py:
+build/<slug>/stubs/<stem>.s for each row of config/stubs.<slug>.txt, from
+the base ELF, <stem>.lit.s for a row with def literal rows, and the macro's
+header build/<slug>/stubs/include_asm.h,
 implicit inputs of the object of the TU the row names, which includes the
 stub with INCLUDE_ASM and INCLUDE_ASM_LIT; a row's in=<file.c.inc> is an
 implicit input of that object too), stubcheck
@@ -48,8 +67,10 @@ before the gate), rom, verify (tools/check_elf.py --gate
 SHA-1).
 
     tools/build.sh setup && ninja
+    tools/gen_ninja.py --tree       write build/<slug>/tree/ alone
 """
 
+import os
 import re
 import subprocess
 import sys
@@ -60,8 +81,10 @@ sys.path.insert(0, str(ROOT / "tools"))
 # The member table's and the schema's one parser each.
 from gen_data_c import parse_schema, parse_table  # noqa: E402
 from ico_version import (  # noqa: E402
-    detect_version, baseelf_path, config_path, link_map_path,
+    detect_version, baseelf_path, build_dir, config_path, layer_files,
+    link_map_path, overlay_dir, source_rel, tree_dir,
 )
+from check_layers import problems as layer_problems  # noqa: E402
 # The stub list's one parser (config/stubs.<slug>.txt).
 from gen_stub_s import HEADER as STUB_HEADER, LIST as STUB_LIST_PATH, parse_stubs, stub_files  # noqa: E402
 
@@ -79,7 +102,10 @@ SCHEMA = _rel(config_path(ROOT, VERSION, "data_schema", "txt"))
 BASE_ELF = _rel(baseelf_path(ROOT, VERSION))
 LINK_MAP = _rel(link_map_path(ROOT, VERSION))
 STUB_LIST = _rel(STUB_LIST_PATH)
-OUT = "build"
+OUT = _rel(build_dir(ROOT, VERSION))
+TREE = _rel(tree_dir(ROOT, VERSION))
+TREE_STAMP = f"{TREE}/.stamp"
+OVERLAY = _rel(overlay_dir(ROOT, VERSION))
 NINJA = "build.ninja"
 LD = "tools/cc/binutils-2.10-ee/bin/ld"
 DVP_AS = "tools/cc/dvp-as/bin/dvp-as"
@@ -130,8 +156,9 @@ def table_members():
 
 
 def schema_members():
-    """The members tools/gen_data_c.py writes as C, with the headers their rows name."""
-    return {m: " ".join(dict.fromkeys(r["header"] for r in rs))
+    """The members tools/gen_data_c.py writes as C, with the headers their
+    rows name, as this target resolves them."""
+    return {m: " ".join(dict.fromkeys(src_of(r["header"]) for r in rs))
             for m, rs in parse_schema(ROOT / SCHEMA).items()}
 
 
@@ -149,29 +176,104 @@ def archive_as(src):
 
 
 def check(entries, members):
+    """The link order's own rows, then the source layers against every
+    configured target (tools/check_layers.py): a tracked source must be a row
+    of the link order of at least one configured target that compiles it,
+    so a source only another target lists is not missing from this one."""
     listed = set()
     for e in entries:
         where = f"{LIST}:{e['line']}"
         if e["kind"] == "src":
-            if not (ROOT / e["name"]).is_file():
-                fail(f"{where}: {e['name']} does not exist")
+            if not (ROOT / src_of(e["name"])).is_file():
+                fail(f"{where}: {e['name']} does not exist (nor {OVERLAY}/{e['name']})")
             if e["name"] in listed:
                 fail(f"{where}: {e['name']} is listed twice")
             listed.add(e["name"])
         elif e["name"] not in members:
             fail(f"{where}: {e['name']} is not a member in {TABLE}")
-    tracked = subprocess.run(["git", "ls-files", "--", "ico2", "sce"], cwd=ROOT,
-                             capture_output=True, text=True, check=True).stdout.split()
-    missing = [p for p in tracked if p.endswith((".c", ".s", ".S", ".dsm")) and p not in listed]
-    if missing:
-        fail(f"tracked sources missing from {LIST}:\n  " + "\n  ".join(missing))
+    bad = layer_problems(ROOT)
+    if bad:
+        fail("the source layers do not fit the configured link orders"
+             " (tools/check_layers.py):\n  " + "\n  ".join(bad))
+
+
+def src_of(row):
+    """The repo-relative file this target compiles for a row path."""
+    return source_rel(ROOT, VERSION, row)
+
+
+def source_view():
+    """{row path: repo-relative real file} of the merged view: every file
+    of the shared layer, and of this target's overlay at its shared path in
+    place of the shared one."""
+    view = {}
+    over = {}
+    for p in layer_files(ROOT, VERSION):
+        if p.startswith("targets/"):
+            over[p.split("/", 2)[2]] = p
+        else:
+            view[p] = p
+    view.update(over)
+    return dict(sorted(view.items()))
+
+
+def write_tree():
+    """build/<slug>/tree/: one symlink per row path of the view, to the real
+    file by absolute path. Links that already point right are left alone,
+    links to nothing the view holds are removed, and the stamp is rewritten
+    only when the view changed (the tree edge's restat)."""
+    view = source_view()
+    tree = ROOT / TREE
+    want = {tree / row: str(ROOT / real) for row, real in view.items()}
+    if tree.is_dir():
+        for dirpath, dirnames, filenames in os.walk(tree, topdown=False):
+            for f in filenames:
+                q = Path(dirpath) / f
+                if q != ROOT / TREE_STAMP and q not in want:
+                    q.unlink()
+            for d in dirnames:
+                q = Path(dirpath) / d
+                if not q.is_symlink() and not any(q.iterdir()):
+                    q.rmdir()
+    for q, real in want.items():
+        if q.is_symlink() and os.readlink(q) == real:
+            continue
+        q.parent.mkdir(parents=True, exist_ok=True)
+        if q.is_symlink() or q.exists():
+            q.unlink()
+        q.symlink_to(real)
+    stamp = ROOT / TREE_STAMP
+    text = "".join(f"{row} {real}\n" for row, real in view.items())
+    if not stamp.exists() or stamp.read_text() != text:
+        stamp.write_text(text)
+    print(f"gen_ninja: wrote {TREE} ({len(view)} files,"
+          f" {sum(r.startswith('targets/') for r in view.values())} from {OVERLAY})")
+
+
+def tree_dirs():
+    """The directories whose entries the view reflects: every directory of
+    the shared layer and of this target's overlay that holds a file of it,
+    and the overlay roots that exist, so adding or removing a file there
+    reruns the tree edge."""
+    dirs = set()
+    for real in source_view().values():
+        d = Path(real).parent
+        while d != Path("."):
+            dirs.add(d.as_posix())
+            d = d.parent
+    for d in ("targets", OVERLAY):
+        if (ROOT / d).is_dir():
+            dirs.add(d)
+    return sorted(dirs)
 
 
 def label_sources():
-    """The files write_labels scans: every tracked C, header and assembly source."""
-    tracked = subprocess.run(["git", "ls-files", "--", "ico2", "sce"], cwd=ROOT,
+    """The files write_labels scans: every tracked C, header and assembly
+    source of this target's view, by its real path."""
+    tracked = subprocess.run(["git", "ls-files", "--", "ico2", "sce", OVERLAY], cwd=ROOT,
                              capture_output=True, text=True, check=True).stdout.split()
-    return [p for p in tracked if p.endswith((".c", ".h", ".inc", ".s", ".S"))]
+    rows = dict.fromkeys(p.split("/", 2)[2] if p.startswith("targets/") else p for p in tracked)
+    return [src_of(p) for p in rows if p.endswith((".c", ".h", ".inc", ".s", ".S"))]
 
 
 def write_labels(out):
@@ -195,8 +297,9 @@ def write_labels(out):
 
 
 def vu_headers():
-    """The VU programs' shared includes (ninja does not track cpp's includes)."""
-    return sorted(str(p.relative_to(ROOT)) for p in (ROOT / "ico2/vusrc").glob("*.h"))
+    """The VU programs' shared includes (ninja does not track cpp's
+    includes), as this target resolves them."""
+    return sorted(src_of(str(p.relative_to(ROOT))) for p in (ROOT / "ico2/vusrc").glob("*.h"))
 
 
 def objects(e, layout=False):
@@ -208,7 +311,7 @@ def objects(e, layout=False):
 
 
 def inputs_ld(entries, sec, layout=False):
-    """build/<sec>.inputs.ld: the section input by input, or empty when no
+    """build/<slug>/<sec>.inputs.ld: the section input by input, or empty when no
     line needs more than the script's wildcard."""
     if not any(sec in e["align"] for e in entries):
         return ""
@@ -240,6 +343,9 @@ def expand_includes(script, swap=None):
 def main():
     if sys.argv[1:2] == ["--labels"]:
         write_labels(sys.argv[2])
+        return 0
+    if sys.argv[1:2] == ["--tree"]:
+        write_tree()
         return 0
     entries = parse_list()
     stubs = parse_stubs()
@@ -274,28 +380,41 @@ def main():
     (ROOT / LINK_LD).write_text(expand_includes(SCRIPT))
     (ROOT / LAYOUT_LD).write_text(expand_includes(SCRIPT, swap))
     w = []
-    w.append(f"# Generated by tools/gen_ninja.py from {LIST}; do not edit.\n"
-             f"ninja_required_version = 1.10\nbuilddir = {OUT}\n"
+    # The first line names the slug: tools/build.sh and ./build.sh read it
+    # to tell whether this manifest is the target asked for.
+    w.append(f"# ico build.ninja for VERSION={VERSION}: generated by tools/gen_ninja.py from {LIST}; do not edit.\n"
+             f"ninja_required_version = 1.10\nbuilddir = {OUT}\nversion = {VERSION}\n"
+             f"root = {ROOT.as_posix()}\ntree = {TREE}\n"
              f"ld = {LD}\ndvp_as = {DVP_AS}\ncpp = {CPP}\nobjcopy = mips-linux-gnu-objcopy\npy = .venv/bin/python\n"
              "as_old = tools/period_env.sh tools/cc/ee-gcc2.9-991111/bin/as\n"
              "as_sdk = tools/period_env.sh tools/cc/ee-gcc2.96/bin/as\n"
              "asflags = -EL -mcpu=5900 -mabi=eabi\n"
              f"ldcmd = $ld -EL --oformat elf32-littlemips -T {LINK_LD} --no-warn-mismatch\n"
              f"ldlayout = $ld -EL --oformat elf32-littlemips -T {LAYOUT_LD} --no-warn-mismatch\n\n")
-    w.append(f"rule gen\n  command = $py tools/gen_ninja.py\n  generator = 1\n"
+    # Every command runs with VERSION set to this manifest's slug, so no
+    # tool it calls detects another target.
+    w.append("rule gen\n  command = VERSION=$version $py tools/gen_ninja.py\n  generator = 1\n"
              "  description = GEN $out\n\n"
-             "rule cc\n  command = tools/compile_c.sh $in $out\n  description = CC $out\n\n"
+             "rule tree\n  command = VERSION=$version $py tools/gen_ninja.py --tree\n"
+             "  description = TREE $out\n  restat = 1\n\n"
+             # $in is the file this target compiles (the overlay's copy or the
+             # shared one), the edge's dependency; $src is the row path
+             # compile_c.sh is given, which it compiles inside the merged
+             # view, so __FILE__ and every relative include are spelled as
+             # for any other target.
+             "rule cc\n  command = VERSION=$version tools/compile_c.sh $src $out\n  description = CC $out\n\n"
              # A data member's generated C is a game TU and compiles as one:
-             # from inside a programmer directory (common, which owns
-             # typedef.h), so compile_c.sh gives it the game's flags,
-             # assembler and the relative -I list of every ico2 include
-             # directory its headers reach into. No header name repeats
-             # across the include directories, so the directory chosen
-             # changes no lookup.
-             "rule ccdata\n  command = tools/compile_c.sh ico2/common/../../$in $out\n"
+             # compile_c.sh compiles build/<slug>/data/<member>.c from inside
+             # a programmer directory of the view (common, which owns
+             # typedef.h), so it gets the game's flags, assembler and the
+             # relative -I list of every ico2 include directory its headers
+             # reach into. No header name repeats across the include
+             # directories, so the directory chosen changes no lookup.
+             "rule ccdata\n  command = VERSION=$version tools/compile_c.sh $in $out\n"
              "  description = CC $out\n\n")
     for r in ("as_old", "as_sdk"):
-        w.append(f"rule {r}\n  command = ${r} $asflags -G $gnum -o $out $in\n  description = AS $out\n\n")
+        w.append(f"rule {r}\n  command = VERSION=$version ${r} $asflags -G $gnum -o $out $in\n"
+                 "  description = AS $out\n\n")
     # vu: $fill is "--overlay-fill=N" for a .dsm line whose token gives a
     # nonzero N and is otherwise unset, so a link order without the token
     # (PAL's, whose overlay byte is 0) assembles with the same command line
@@ -304,30 +423,37 @@ def main():
     # dvp-as reads "-overlay-fill=N" as -o "verlay-fill=N", which the later
     # -o overrides, and assembles on with the byte unset; "--overlay-fill"
     # it rejects.
-    w.append("rule vucpp\n  command = cd ico2 && ../tools/period_env.sh ../$cpp -Ivusrc < $vsm > ../$out\n"
+    # The VU rules run in the view's ico2/ (the paths cpp and dvp-as are
+    # given, vusrc/<stem>.vsm, -Ivusrc and vusrc/<stem>.dsm, stay relative
+    # there); the tools and the outputs are named from $root.
+    w.append("rule vucpp\n  command = cd $tree/ico2 && VERSION=$version $root/tools/period_env.sh $root/$cpp"
+             " -Ivusrc < $vsm > $root/$out\n"
              "  description = CPP $out\n\n"
-             "rule vu\n  command = cd ico2 && ../$dvp_as -no-abicalls -mabi=64 $fill -I../build/ico2 -o ../$out $dsm\n"
+             "rule vu\n  command = cd $tree/ico2 && VERSION=$version $root/$dvp_as -no-abicalls -mabi=64 $fill"
+             f" -I$root/{OUT}/ico2 -o $root/$out $dsm\n"
              "  description = VU $out\n\n"
-             "rule datastub\n  command = $py tools/gen_data_c.py --stub $member --out $out\n"
+             "rule datastub\n  command = VERSION=$version $py tools/gen_data_c.py --stub $member --out $out\n"
              "  description = STUB $out\n  restat = 1\n\n"
-             f"rule dataalias\n  command = $py tools/gen_data_c.py --alias $member --labels {LABELS} --out $out\n"
+             f"rule dataalias\n  command = VERSION=$version $py tools/gen_data_c.py --alias $member --labels {LABELS} --out $out\n"
              "  description = ALIAS $out\n  restat = 1\n\n"
-             f"rule datac\n  command = $py tools/gen_data_c.py --c $member --layout {LAYOUT_ELF} --out $out\n"
+             f"rule datac\n  command = VERSION=$version $py tools/gen_data_c.py --c $member --layout {LAYOUT_ELF} --out $out\n"
              "  description = DATAC $out\n  restat = 1\n\n"
-             f"rule datacheck\n  command = $py tools/gen_data_c.py --check $member --obj $obj"
+             f"rule datacheck\n  command = VERSION=$version $py tools/gen_data_c.py --check $member --obj $obj"
              f" --layout {LAYOUT_ELF} --out $out\n  description = CHECK $obj\n\n"
-             "rule layout\n  command = $ldlayout -o $out $in\n  description = LD $out\n\n"
-             "rule labels\n  command = $py tools/gen_ninja.py --labels $out\n"
+             "rule layout\n  command = VERSION=$version $ldlayout -o $out $in\n  description = LD $out\n\n"
+             "rule labels\n  command = VERSION=$version $py tools/gen_ninja.py --labels $out\n"
              "  description = LABELS $out\n\n"
-             f"rule link\n  command = $ldcmd -Map {LINK_MAP} -o {OUT}/ico.syms.elf $in"
-             f" && $ldcmd -s -o {OUT}/ico.elf $in\n  description = LD $out\n\n"
-             "rule stubs\n  command = $py tools/gen_stub_s.py\n"
+             f"rule link\n  command = VERSION=$version $ldcmd -Map {LINK_MAP} -o {OUT}/ico.syms.elf $in"
+             f" && VERSION=$version $ldcmd -s -o {OUT}/ico.elf $in\n  description = LD $out\n\n"
+             "rule stubs\n  command = VERSION=$version $py tools/gen_stub_s.py\n"
              "  description = STUBS $out\n  restat = 1\n\n"
-             f"rule stubcheck\n  command = $py tools/gen_stub_s.py --check {OUT}/ico.syms.elf > $out\n"
+             f"rule stubcheck\n  command = VERSION=$version $py tools/gen_stub_s.py --check {OUT}/ico.syms.elf > $out\n"
              "  description = CHECK stubs\n\n"
-             "rule rom\n  command = $objcopy -O binary --gap-fill=0 $in $out\n  description = ROM $out\n\n"
-             f"rule verify\n  command = $py tools/check_elf.py --gate --require-elf-sha --elf {OUT}/ico.elf"
-             f" --map {LINK_MAP} --rom $in && touch $out\n  description = VERIFY $in\n\n")
+             "rule rom\n  command = VERSION=$version $objcopy -O binary --gap-fill=0 $in $out\n"
+             "  description = ROM $out\n\n"
+             f"rule verify\n  command = VERSION=$version $py tools/check_elf.py --gate --require-elf-sha --elf {OUT}/ico.elf"
+             f" --map {LINK_MAP} --rom $in && touch $out\n  description = VERIFY $in\n\n"
+             f"build {TREE_STAMP}: tree | {' '.join(tree_dirs())} tools/gen_ninja.py tools/ico_version.py\n\n")
     link = []
     layout = []
     stamps = []
@@ -341,7 +467,7 @@ def main():
                      f"build {stub}: as_old {OUT}/data/stub/{m}.s\n  gnum = 8\n"
                      f"build {alias}: dataalias | {LABELS} {gen_deps}\n  member = {m}\n"
                      f"build {src}: datac | {LAYOUT_ELF} {BASE_ELF} {gen_deps} {cmembers[m]}\n  member = {m}\n"
-                     f"build {obj}: ccdata {src}\n"
+                     f"build {obj}: ccdata {src} || {TREE_STAMP}\n"
                      f"build {ok}: datacheck | {obj} {LAYOUT_ELF} {BASE_ELF} {gen_deps}\n"
                      f"  member = {m}\n  obj = {obj}\n")
             link.append(obj)
@@ -352,21 +478,23 @@ def main():
             link.append(o)
             layout.append(o)
             if e["name"].endswith(".c"):
-                deps = stub_s.get(e["name"], []) + stub_src.get(e["name"], [])
-                w.append(f"build {o}: cc {e['name']}{' | ' + ' '.join(deps) if deps else ''}\n")
+                deps = stub_s.get(e["name"], []) + [src_of(f) for f in stub_src.get(e["name"], [])]
+                w.append(f"build {o}: cc {src_of(e['name'])}{' | ' + ' '.join(deps) if deps else ''}"
+                         f" || {TREE_STAMP}\n  src = {e['name']}\n")
             elif e["name"].endswith(".dsm"):
                 dsm = Path(e["name"]).relative_to("ico2")
                 vsm = dsm.with_suffix(".vsm")
                 pre = f"{OUT}/ico2/{dsm.with_suffix('.i')}"
-                w.append(f"build {pre}: vucpp ico2/{vsm} | {CPP} {' '.join(vu_headers())}\n"
+                w.append(f"build {pre}: vucpp {src_of('ico2/' + vsm.as_posix())} | {CPP} {' '.join(vu_headers())}"
+                         f" || {TREE_STAMP}\n"
                          f"  vsm = {vsm}\n"
-                         f"build {o}: vu {e['name']} | {pre} {DVP_AS}\n"
+                         f"build {o}: vu {src_of(e['name'])} | {pre} {DVP_AS} || {TREE_STAMP}\n"
                          f"  dsm = {dsm}\n")
                 if e["fill"]:
                     w.append(f"  fill = --overlay-fill={e['fill']}\n")
             else:
                 rule, gnum = archive_as(e["name"])
-                w.append(f"build {o}: {rule} {e['name']}\n  gnum = {gnum}\n")
+                w.append(f"build {o}: {rule} {src_of(e['name'])} || {TREE_STAMP}\n  gnum = {gnum}\n")
     w.append(f"build {LABELS}: labels {' '.join(label_sources())} | {LIST} {TABLE}"
              " tools/gen_ninja.py\n")
     if stubs:
@@ -382,7 +510,7 @@ def main():
              f"{' ' + OUT + '/stubs.ok' if stubs else ''}\n"
              f"default {OUT}/.verified\n"
              f"build {NINJA} {OUT}/data.inputs.ld {OUT}/rodata.inputs.ld {LINK_LD} {LAYOUT_LD}: gen | "
-             f"tools/gen_ninja.py tools/gen_data_c.py tools/gen_stub_s.py tools/ico_version.py"
+             f"tools/gen_ninja.py tools/gen_data_c.py tools/gen_stub_s.py tools/ico_version.py tools/check_layers.py"
              f" {LIST} {TABLE} {SCHEMA} {SCRIPT}{' ' + STUB_LIST if STUB_LIST_PATH.exists() else ''}\n")
     (ROOT / NINJA).write_text("".join(w))
     n = {k: sum(e["kind"] == k for e in entries) for k in ("src", "data")}

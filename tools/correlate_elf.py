@@ -2,7 +2,7 @@
 """correlate_elf.py: find each PAL function in another ICO boot ELF.
 
 For every function of the PAL build (the STT_FUNC symbols of .text in
-build/ico.syms.elf, each with its object from the link map build/ico.pal.map,
+build/pal/ico.syms.elf, each with its object from the link map build/pal/ico.pal.map,
 in link order) decide whether the same function is present in another boot
 ELF of the game, and where, so the PAL source and its name can be carried to
 that target. The target is stripped: its function boundaries come from a
@@ -73,7 +73,7 @@ METHOD
    ambiguity allowed is functions whose normalized bodies are identical,
    which are listed) and once with the scanned boundaries.
 
-OUTPUTS (under --out, default build/correlate/<name>/; never committed)
+OUTPUTS (under --out, default build/pal/correlate/<name>/; never committed)
 -------
   twins.txt       PAL name, PAL VMA, PAL size, target VMA, target size, tier,
                   equal or differs-at:<index> with the PAL and target words
@@ -87,8 +87,8 @@ OUTPUTS (under --out, default build/correlate/<name>/; never committed)
   selftest.txt    (--self-test) the relocation check and the ambiguous groups
 
 Usage:
-  tools/correlate_elf.py TARGET.elf [--pal-syms build/ico.syms.elf]
-                         [--pal-map build/ico.pal.map] [--out DIR]
+  tools/correlate_elf.py TARGET.elf [--pal-syms build/pal/ico.syms.elf]
+                         [--pal-map build/pal/ico.pal.map] [--out DIR]
   tools/correlate_elf.py --self-test
 """
 
@@ -112,10 +112,12 @@ except ImportError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from check_elf import parse_map  # noqa: E402
+from ico_version import build_dir, link_map_path  # noqa: E402
 
-PAL_SYMS = REPO_ROOT / "build" / "ico.syms.elf"
-PAL_MAP = REPO_ROOT / "build" / "ico.pal.map"
-OUT_ROOT = REPO_ROOT / "build" / "correlate"
+# The PAL build, whatever target the tree detects: the names come from it.
+PAL_SYMS = build_dir(REPO_ROOT, "pal") / "ico.syms.elf"
+PAL_MAP = link_map_path(REPO_ROOT, "pal")
+OUT_ROOT = build_dir(REPO_ROOT, "pal") / "correlate"
 
 ANCHOR_MIN = 3      # instructions, for the anchor and gap tiers
 FREE_MIN = 8        # instructions, for the order-free tier
