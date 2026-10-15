@@ -339,7 +339,7 @@ static void _getFinalMatrix(int id)
     float v[4];
     float dq[4];
     float q[4];
-    int dbg = 0; /* local debug switch, see the test before the kind switch below */
+    int dbg = 0;
 
     if (node->parent != -1) {
         sceVu0ScaleVectorXYZ(v, node->pos, skelScale);
@@ -347,11 +347,11 @@ static void _getFinalMatrix(int id)
     } else {
         ikRotZ = ikRotY = ikBend0 = ikBend1 = 0;
     }
-    /* a local debug switch, off: dump the node's IK quaternion.
-       The bytes pin a block here that gcse sees and later passes delete
-       (it orders ik->q's address after ik, which gives the Japanese
-       register assignment); the text is derived: the August TRFILE has
-       three code-less lines (416-418) between the else and the switch. */
+
+    /* the function's local debug switch, off: a dump of the node's IK
+       quaternion.  The ROM's register assignment needs the block here, and
+       the August TRFILE has three code-less lines (416-418) in its place;
+       the text is derived. */
     if (dbg) {
         debug_DispQW(ik->q, 0);
     }

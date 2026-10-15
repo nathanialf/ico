@@ -418,7 +418,7 @@ static void initWheels(GObj *self, SObjSimpleSetting *lay)
     int i;
 
     if (objLayout[self->labelId].accessary == 26 ||
-        accessary[GOBJ_SUB(self)->accessary].model == 0x60C) {
+        accessary[GOBJ_SUB(self)->accessary].model == 1548) {
         w->wheelDObj = 0;
     } else {
         w->wheelDObj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, lay);

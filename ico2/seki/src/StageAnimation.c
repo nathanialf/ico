@@ -671,7 +671,7 @@ void stage_DispAnimation(void)
         signed char lv;
         int k;
 
-        if (entry1->no == 0x3E) {
+        if (entry1->no == 62) {
             continue;
         }
         if ((e->flags.i >> 30) != 0) {

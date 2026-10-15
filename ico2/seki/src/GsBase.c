@@ -100,10 +100,10 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }
 
-/* Bring the GS up for the frame size the stage record asks for: 512 by 448
- * interlaced, 512 by 512 in the tall mode and 512 by 448 otherwise, then set
- * the double buffer up, hand the first frame over and put the view scale back
- * to one. */
+/* Set the double buffer up for the frame size the stage record asks for:
+ * 512 by 448 interlaced, 512 by 512 in the tall mode and 512 by 448
+ * otherwise, then bring the GS up, hand the first frame over and put the
+ * view scale back to one. */
 void gsb_Init(void *db)
 {
     int omode = 2;
@@ -1146,8 +1146,8 @@ void gsb_SetVSMatrix(int w, int h, float d)
     gsb_SetVSMatrixSub(matrixptr + 0xC0, matrixptr + 0x1C0, matrixptr + 0x240, matrixptr + 0x340,
                        vsParam);
     /* The field of view print of the January debug listing (SRCFILE.TXT,
-     * GsBase.c 2305-2306); its tests after the call keep it from being a
-     * tail call. The format text is on no disc. */
+     * GsBase.c 2305-2306); the release build keeps its two tests.  The
+     * format text is derived: it is on no disc. */
     if (gsSystemReady != 0) {
         if (debug_font_flag3 != 0 || (debug_font_flag & 1)) {
 #ifdef DEBUG
