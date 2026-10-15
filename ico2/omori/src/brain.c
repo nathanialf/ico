@@ -304,7 +304,22 @@ float brainGetLevel(Brain *b, BrainTarget *t)
     return t->level;
 }
 
-INCLUDE_ASM(brainClsTargetLevel);
+void brainClsTargetLevel(Brain *b)
+{
+    BrainTarget *t;
+
+    if (b->idx == -1) {
+        return;
+    }
+    t = &b->tgt[b->idx];
+    t->level = 0.0f;
+    b->targetType = 0;
+    t->levelCap = t->levelCap - t->capStep;
+    if (t->levelCap < t->level) {
+        t->levelCap = t->level;
+    }
+    brainSetTargetTimer(t);
+}
 
 void brainInitGirlSet(GObj *girl, GObj *cur)
 {

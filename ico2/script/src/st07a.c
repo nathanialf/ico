@@ -196,7 +196,21 @@ void actSt07ChanEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt07aChanFall);
+void actSt07aChanFall(GObj *volatile self)
+{
+    stage_SetAnimation(322, 1, 0);
+
+    while (stage_CheckAnimationFinish(322) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    DeleteLayoutedCandleParticleEffect();
+    _ACTWait(120);
+    scpTorchLightOn(394);
+    scpTorchLightOn(395);
+    _ACTWait(0);
+}
 
 void actSt07aChanMot(GObj *volatile self)
 {

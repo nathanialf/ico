@@ -388,7 +388,26 @@ void actSt02aEnemy1(GObj *volatile self)
     Generator_Call(self);
 }
 
-INCLUDE_ASM(actSt02aEnemy2);
+void actSt02aEnemy2(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+
+    _ACTWait(1);
+
+    Generator_Mask(self);
+
+    while (gflagChk(109) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    Generator_MaskOff(self);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+}
 
 void actSt02aSekizo(GObj *volatile self)
 {

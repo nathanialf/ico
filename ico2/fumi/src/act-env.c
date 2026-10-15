@@ -99,7 +99,44 @@ static inline int getDitchCarryModeStage8(void) /* derived name */
 
 INCLUDE_ASM(getDitchDistTbl);
 
-INCLUDE_ASM(GetDitchPosition);
+static int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
+{
+    ClipWork work;
+    float tmp[4];
+    /* work2 and tmp2 are read only by the DEBUG build's second probe in the
+       hit branch */
+    ClipWork work2;
+    float tmp2[4];
+
+    sceVu0ScaleVector(tmp, dir, d0 + d1);
+    sceVu0AddVector(work.pt[0], org, tmp);
+    work.pt[1][0] = work.pt[0][0];
+    work.pt[1][1] = work.pt[0][1];
+    work.pt[1][2] = work.pt[0][2];
+    work.pt[0][1] -= 100.0f;
+    work.pt[1][1] += 100.0f;
+    ClipFloor(&work);
+    if (work.floor.elem != 0) {
+#ifdef DEBUG
+        sceVu0ScaleVector(tmp2, dir, d0);
+        sceVu0AddVector(work2.pt[0], org, tmp2);
+        work2.pt[1][0] = work2.pt[0][0];
+        work2.pt[1][1] = work2.pt[0][1];
+        work2.pt[1][2] = work2.pt[0][2];
+        work2.pt[0][1] -= 100.0f;
+        work2.pt[1][1] += h + 100.0f;
+        ClipFloor(&work2);
+        if (work2.floor.elem == 0) {
+            scePrintf("env: ditch without floor at its near edge\n");
+        }
+#endif
+        out[0] = work.pt[2][0];
+        out[1] = work.pt[2][1];
+        out[2] = work.pt[2][2];
+        return 1;
+    }
+    return 0;
+}
 
 inline void GetCollisCenterPositionSimple(void *out, void *obj, void *corners)
 {

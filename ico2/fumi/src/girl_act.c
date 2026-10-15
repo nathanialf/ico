@@ -99,7 +99,43 @@ INCLUDE_ASM_LIT(afterGirlHand50);
 
 INCLUDE_ASM_LIT(actGirlHand50);
 
-INCLUDE_ASM(motGirlHand50);
+void motGirlHand50(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    debug_StdPrintfDummy("enter motGirlHand50\n");
+    while (1) {
+        iosOmSendMail(boyGObj, 85, isysCurrentGObj);
+        if (sub->readyFlags & 1)
+            break;
+        _ACTWait(1);
+    }
+    while (GOBJ_SUB(self)->ctrl.motion < 514 || !(GOBJ_SUB(self)->ctrl.motion < 521)) {
+        sub->motReq = SetMotionRequest((void *)self, 1, sub->env.motOriReq);
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    while (1) {
+        iosOmSendMail(boyGObj, 86, isysCurrentGObj);
+        if (sub->readyFlags & 2)
+            break;
+        _ACTWait(1);
+    }
+    if ((((int)(sub->flags18.ll >> 39)) & 1) == 0) {
+        iosOmSendMail(boyGObj, 0x10, isysCurrentGObj);
+        ACTSendMailCorrect((void *)self, 7);
+    }
+    iosOmSendMail(boyGObj, 87, isysCurrentGObj);
+    sub->motReq = SetMotionRequest((void *)self, 85, sub->env.motOriReq);
+    while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+    sub->after = 0;
+    for (;;) {
+        ACTSendMailCorrect((void *)self, 67);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM_LIT(actGirlHand100);
 
@@ -881,7 +917,42 @@ INCLUDE_ASM(GetSafePosition_247);
 
 INCLUDE_ASM(Danger_Box);
 
-INCLUDE_ASM(subGirlBrain_HideAdvance);
+void subGirlBrain_HideAdvance(GObj *volatile self)
+{
+    float self_pos[4];
+    float boy_pos[4];
+    Act *sub = GOBJ_ACT(self);
+    unsigned char hit;
+
+    GetRootProjectionPosOfGObj(self_pos, (void *)self);
+    GetRootProjectionPosOfGObj(boy_pos, boyGObj);
+    ACTWayMove_BeginDetail((void *)self, self_pos, boy_pos, 0, 0, 0);
+    for (;;) {
+        brain_val.hideAdvWait = (60 - systemStatus[0] * 10) / systemStatus[1];
+        GetRootProjectionPosOfGObj(boy_pos, boyGObj);
+        hit = ACTWayMove_NextDetail((void *)self, sub->dir, boy_pos, 0);
+        debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
+        if (!hit ||
+            (sub->wayGoalDist < 100.0f &&
+             (sub->wayGoalHeight < 0.0f ? -sub->wayGoalHeight : sub->wayGoalHeight) < 100.0f)) {
+            sub->stick.mag = 0;
+            _ACTWait(1);
+            continue;
+        }
+        {
+            /* the actor-entry home is `volatile` (the scheduler rewrites the GObj
+             * slot between waits), so the arm reads it once at its top and
+             * works from the captured pointer */
+            void *g = (void *)self;
+
+            sub->dir[0] = sub->wayNodeX;
+            sub->dir[1] = sub->wayNodeY;
+            sub->dir[2] = sub->wayNodeZ;
+            girlBrainSetWalkRatio(g, 1.0f);
+        }
+        _ACTWait(1);
+    }
+}
 
 static int isEnterHideadv_EnemyLocation(float *bpos, float *gpos)
 {

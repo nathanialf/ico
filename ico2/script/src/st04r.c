@@ -299,7 +299,14 @@ INCLUDE_ASM(actSt04rC3BallMain);
 
 INCLUDE_ASM(actSt04rC3BallSwitch);
 
-INCLUDE_ASM(actSt04rSolarStageChangeChk);
+void actSt04rSolarStageChangeChk(GObj *volatile self)
+{
+    while (gflagChk(218) == 0 || gflagChk(219) == 0 || gflagChk(220) == 0 || gflagChk(207) == 0) {
+        _ACTWait(1);
+    }
+
+    RequestStageChange(8, boyGObj, girlGObj, 2.0f, 8.0f);
+}
 
 void actSt04rStairEvent(int x)
 {

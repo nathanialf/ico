@@ -128,7 +128,58 @@ float iosPadNormalizeStick(IosPadStick *st)
     return (len - 48.0f) / 72.0f;
 }
 
-INCLUDE_ASM(iosPadGetStick);
+int iosPadGetStick(IosPadCtx *ctx, void *out, int mode, int a3, int a4, int simulate)
+{
+    IosPadStick *st = out;
+    IosPadDevRec *rec = ctx->dev;
+    IosPadBuf *buf = &rec->buf[rec->idx];
+    float ox;
+    float oy;
+
+    if (rec->error == 1) {
+        st->x = 127;
+        st->y = 127;
+        st->mag = 0.0f;
+        return 0;
+    }
+    switch (mode) {
+    case 1:
+        st->x = buf->rx;
+        st->y = buf->ry;
+        st->mag = iosPadNormalizeStick(st);
+        break;
+    case 0:
+        ox = (float)st->x;
+        oy = (float)st->y;
+
+        st->x = buf->lx;
+        st->y = buf->ly;
+        st->mag = iosPadNormalizeStick(st);
+
+        if (st->mag == 0.0f && simulate != 0) {
+            st->x = (int)ox;
+            st->y = (int)oy;
+
+            if (ctx->now & 0x2000) {
+                st->x = (int)((float)(st->x + 255) * 0.5f);
+            } else if (ctx->now & 0x8000) {
+                st->x = (int)((float)st->x * 0.5f);
+            } else {
+                st->x = (int)((float)(st->x + 127) * 0.5f);
+            }
+            if (ctx->now & 0x1000) {
+                st->y = (int)((float)st->y * 0.5f);
+            } else if (ctx->now & 0x4000) {
+                st->y = (int)((float)(st->y + 255) * 0.5f);
+            } else {
+                st->y = (int)((float)(st->y + 127) * 0.5f);
+            }
+            st->mag = iosPadNormalizeStick(st);
+        }
+        break;
+    }
+    return 0;
+}
 
 /* the device manager's message queue buffer and the sixteen actuator
    requests iosPadActRequest hands out */

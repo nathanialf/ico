@@ -18,7 +18,7 @@ int ACTWayExec_Position(GObj *self, int tgt, float *dir, float speed, int flags)
 int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void *e,
                            unsigned char sub);
 
-int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d, unsigned char e);
+int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d);
 int ACTWay_IsMustWalkFromWay(GObj *self);
 void ACTWay_SetBeginPositionIllegal(GObj *self);
 

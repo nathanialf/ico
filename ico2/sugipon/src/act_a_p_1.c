@@ -90,7 +90,56 @@ static AP1Vec lookDeltaFlat; /* derived name */ /* lookDelta with y removed */
 
 static AP1Vec selfPos; /* derived name */ /* this actor's own root position */
 
-INCLUDE_ASM(standAI);
+static int standAI(GObj *self)
+{
+    Act *p = GOBJ_ACT(self);
+
+    if ((int)(p->flags20.ll >> 10) & 1) {
+        short r = boyYaw;
+        r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
+        AP1Turn(self, r);
+        return -1;
+    }
+
+    if (boyDist < 500.0f) {
+        if (p->lookPri != 0) {
+            if (AP1MotReq(self, 1))
+                return 1;
+        }
+        if (lookDist > 100.0f) {
+            if (AP1MotReq(self, 1))
+                return 1;
+        }
+        if (boyPitch < 16384 && boyDist > 300.0f) {
+            short r = boyYaw;
+            r = r > 4096 ? 4096 : (r < -4096 ? -4096 : r);
+            AP1Turn(self, r);
+            return -1;
+        }
+        if (AP1MotReq(self, 1))
+            return 1;
+    }
+
+    if (p->lookPri != 0) {
+        if (lookDist < 50.0f) {
+            short r = lookYaw;
+            r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
+            AP1Turn(self, r);
+            return -1;
+        }
+        if (AP1MotReq(self, 1))
+            return 1;
+    }
+
+    if (lookDist < 100.0f) {
+        short r = boyYaw;
+        r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
+        AP1Turn(self, r);
+        return -1;
+    }
+
+    return AP1MotReq(self, 1) ? 1 : -1;
+}
 
 INCLUDE_ASM(walkAI);
 

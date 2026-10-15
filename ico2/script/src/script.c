@@ -96,9 +96,9 @@ static float scriptCameraTarget[4]; /* derived name */
 /* sugipon's motionKind (MotionDef, motionOrientManager.h), read here through
    this file's own view of the record */
 extern struct MotTblRec { /* derived name */ /* field names derived */
-    char pad0[390];
-    short smzAngle;
-    char pad188[12];
+    char pad0[312];
+    int smzAngle;
+    char pad13C[84];
 } motionKind[];
 
 /* .data: the colour packet prim_DispWireBox draws the debug trigger box
@@ -207,7 +207,11 @@ void scpPlayMotDir(GObj *self, float *dir)
     SetMotionDirection(self, dir);
 }
 
-INCLUDE_ASM(scpPlayMotDirSmz);
+void scpPlayMotDirSmz(GObj *self, float *dir)
+{
+    sceVu0Normalize(dir, dir);
+    SetMotionDirectionSmooze(self, dir, (float)motionKind[GOBJ_SUB(self)->ctrl.motion].smzAngle);
+}
 
 INCLUDE_ASM(scpPlayMot);
 

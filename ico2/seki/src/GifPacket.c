@@ -688,7 +688,18 @@ void gif_SetZWrite(int on)
         setGsReg(0x4E, 0x1300000C0LL);
 }
 
-INCLUDE_ASM(gif_SetHalfOffset);
+/* the XYOFFSET for a half-pixel field: the odd field of an interlaced frame
+   sits half a line (8 in 12.4) lower */
+void gif_SetHalfOffset(int interlace, int odd) /* parameter names derived */
+{
+    int x = (0x800 - ScreenWidth / 2) << 4;
+    int y = (0x800 - ScreenHeight / 2) << 4;
+
+    if (interlace == 0) {
+        odd = 0;
+    }
+    setGsReg(0x18, (long long)x | ((long long)(odd ? y + 8 : y) << 32));
+}
 
 int _IsInScreen(volatile int *v)
 {

@@ -938,7 +938,35 @@ typedef struct { /* field names derived */
     int f5F8;
 } FlyCtlJ; /* derived name */
 
-INCLUDE_ASM(actCommonFly);
+void actCommonFly(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    GObj *target;
+    GObj *gen = 0;
+
+    s->flags18.afterProc = actAfterFly;
+
+    ((FlyCtlJ *)(char *)GOBJ_SUB(self))->f5F8 = 0;
+
+    if (IsEnemyBrainToGenerator(self, &gen)) {
+        target = gen;
+    } else if (IsEnemyBrainToBoy(self) && boyGObj != 0) {
+        target = boyGObj;
+    } else if (girlGObj != 0) {
+        target = girlGObj;
+    } else if (boyGObj != 0) {
+        target = boyGObj;
+    } else {
+        target = 0;
+    }
+
+    SetEnemyFootPrintSwitch(self, 0);
+
+    flyCoreLoop(self, target,
+                (girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 107 &&
+                 GOBJ_ACT(girlGObj)->carrier == self) ||
+                    debug_fly_limit_test != 0);
+}
 
 typedef struct { /* field names derived */
     char pad0[656];
@@ -1043,7 +1071,19 @@ extern MotOriName motionOriKind[];
 
 INCLUDE_ASM(_ACTDebugPrint);
 
-INCLUDE_ASM(ACTSendMailCorrect);
+void ACTSendMailCorrect(GObj *self, int mail)
+{
+    Act *s = GOBJ_ACT(self);
+    if ((mail == 168 || mail == 173) && self->kind == 1) {
+        unsigned long long f = s->wish1.ll;
+        if (((int)(f >> 61) & 1) && ((int)(s->wish3.ll >> 61) & 1)) {
+            mail = 169;
+        } else if ((int)(f >> 59) & 1) {
+            mail = ((int)(s->wish3.ll >> 59) & 1) ? 170 : mail;
+        }
+    }
+    iosOmSendMail(self, mail, self);
+}
 
 INCLUDE_ASM(_ACTCommonMailTest);
 

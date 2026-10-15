@@ -279,9 +279,27 @@ void actStaff2Chk(GObj *volatile self)
     actCreateSubThread(actStaff2Demo, 21);
 }
 
-INCLUDE_ASM(actStaff3Chk);
+void actStaff3Chk(GObj *volatile self)
+{
+    actCreateSubThread(actStaff3Demo, 21);
 
-INCLUDE_ASM(actStaff3RollChk);
+    actCreateSubThread(actStaff3RollChk, 21);
+}
+
+void actStaff3RollChk(GObj *volatile self)
+{
+    preload(1);
+
+    while (staffRollStartFlag != 0) {
+        _ACTWait(1);
+    }
+
+    if (ed6 != 0) {
+        scpAdpcmFadeCloseFunc(ed6, 80);
+    }
+
+    RequestStageChange(1, boyGObj, 0, 16.0f, 0.001f);
+}
 
 void actEndDemo14Chk(GObj *volatile self)
 {

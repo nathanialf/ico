@@ -277,7 +277,11 @@ typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 
 INCLUDE_ASM(InitWeaponGeo);
 
-INCLUDE_ASM(WeaponGeo);
+void WeaponGeo(GObj *g)
+{
+    getGeometry(g);
+    checkHit(g);
+}
 
 /* the insect net's line colour and its handle, end to end */
 static int netColor[4] = {128, 128, 128, 128}; /* derived name */

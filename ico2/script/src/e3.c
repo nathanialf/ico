@@ -307,7 +307,32 @@ void actE3CageFallEffect(GObj *volatile self)
     } while (t < 400.0f);
 }
 
-INCLUDE_ASM(actE3St09aSekizo);
+void actE3St09aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = (Act *)actInitialize(self);
+
+    _ACTWait(1);
+
+    soundSeDefPlay(1319, 0, st09aSekizoPos, 1);
+    soundSeDefPlay(1320, 0, st09aSekizoPos, 1);
+    soundSeDefPlay(1321, 0, st09aSekizoPos, 1);
+
+    if (gflagChk(333) == 0) {
+        if (girlGObj == 0) {
+            ScpCallCameraOff();
+        }
+        stage_SetAnimation(341, 0, 0);
+
+        st09aSekizo_mes[0].func = actE3St09aSekizoChk;
+        sub->mail = st09aSekizo_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        ScpCallCameraSetTarget(1421.0f, 97.0f, -1885.0f);
+        stage_SetAnimation(341, 0, -1);
+    }
+}
 
 inline void actE3St09aGirlWay(GObj *volatile self)
 {
