@@ -664,7 +664,7 @@ extern char D_0030A66C[];
 /* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
 
-static inline char *lt_texture_base_name(char *src) /* derived name */
+static inline char *lt_texture_base_name(const char *src) /* derived name */
 {
     char buf[256];
     char *p;
@@ -690,7 +690,7 @@ static inline char *lt_texture_base_name(char *src) /* derived name */
 static inline int lt_texture_no_of_property(int idx) /* derived name */
 {
     int n;
-    char *src;
+    const char *src;
     char *name;
     int no;
 
