@@ -89,7 +89,7 @@ if [[ -f "$EEGCC_BIN" ]] && ! "$EEGCC_BIN" --version >/dev/null 2>&1; then
 EOF
 fi
 
-# --- 2b. MIPS objcopy (build/ico.rom, the ROM view of the linked ELF) -------
+# --- 2b. MIPS objcopy (build/<slug>/ico.rom, the ROM view of the linked ELF) ---
 
 if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
     :
@@ -104,7 +104,7 @@ Quickest fix on Debian/Ubuntu:
 
     sudo apt-get install binutils-mips-linux-gnu
 
-That gives you mips-linux-gnu-objcopy, which writes build/ico.rom from the
+That gives you mips-linux-gnu-objcopy, which writes build/<slug>/ico.rom from the
 linked ELF. Assembly and linking are not its job: every object is assembled by
 the period assemblers under tools/cc/, fetched above, and the link is GNU ld
 2.10, built below.
@@ -247,10 +247,10 @@ if [[ "${ICO_FROM_BUILD_SH:-0}" == "1" ]]; then
     exit 0
 fi
 echo "Setup complete. Next steps:"
-# The disc image the extractor wants depends on this branch's target: PAL retail
-# (main) reads a plain ISO, the others a .bin/.cue pair. Ask
-# tools/ico_version.sh which target this working tree carries and what its
-# disc image is called.
+# The disc image the extractor wants depends on the target: PAL retail reads
+# a plain ISO, the others a .bin/.cue pair. Ask tools/ico_version.sh which
+# target is detected (VERSION, or the first configured one) and what its disc
+# image is called.
 # shellcheck source=tools/ico_version.sh
 . "$(dirname "$0")/ico_version.sh"
 ico_version_init "$(cd "$(dirname "$0")/.." && pwd)"

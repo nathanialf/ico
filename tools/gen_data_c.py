@@ -18,16 +18,18 @@ Four modes, one member each (MEMBER is the name in the schema):
 
   --stub MEMBER --out F.s
       a zero-filled stand-in of the member's ROM ranges carrying its symbols,
-      for the layout link (build/ico.layout.elf) that fixes every other
+      for the layout link (build/<slug>/ico.layout.elf) that fixes every other
       object's address before the C exists
-  --alias MEMBER --labels build/data_labels.txt --out F.ld
+  --alias MEMBER --labels build/<slug>/data_labels.txt --out F.ld
       the linker assignments that bind each placeholder label a source spells
       inside the member (D_<VMA>) to the member's symbol plus its offset
-  --c MEMBER --layout build/ico.layout.elf --out F.c
+  --c MEMBER --layout build/<slug>/ico.layout.elf --out F.c
       the member's C: every pointer word resolved to the symbol the layout
       link places at that address, floats as the shortest decimal that reads
-      back to the same bits, strings as literals
-  --check MEMBER --obj F.o --layout build/ico.layout.elf --out STAMP
+      back to the same bits, strings as literals; the record headers are
+      included through the target's merged source view, build/<slug>/tree,
+      so a header the target's overlay replaces is the overlay's copy
+  --check MEMBER --obj F.o --layout build/<slug>/ico.layout.elf --out STAMP
       each section of the compiled object, with its relocations applied
       against the layout link, must equal the member's ROM range for that
       section (zero fill after it); otherwise the first differing offset and
@@ -41,11 +43,14 @@ pointers and ints, 8-byte long long and double, bit-fields from the low bit
 of their declared type's unit). A base type with a trailing [N] is an array
 element (char[32]: the C defines `char name[count][32]`).
 
-<slug> is the branch's target as tools/ico_version.py detects it (pal on
-main); the member table is config/data_members.<slug>.txt.
+<slug> is the target as tools/ico_version.py detects it (VERSION, or the
+first configured one); the member table is config/data_members.<slug>.txt,
+and a header a schema row names is read as the target compiles it
+(resolve_source: targets/<slug>/<header> when the overlay has it).
 """
 
 import argparse
+import os
 import re
 import struct
 import sys
@@ -56,12 +61,13 @@ from elftools.elf.relocation import RelocationSection
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
-from ico_version import detect_version, baseelf_path, config_path  # noqa: E402
+from ico_version import detect_version, baseelf_path, config_path, resolve_source, tree_dir  # noqa: E402
 
 VERSION = detect_version(ROOT)
 SCHEMA = config_path(ROOT, VERSION, "data_schema", "txt")
 TABLE = config_path(ROOT, VERSION, "data_members", "txt")
 BASE_ELF = baseelf_path(ROOT, VERSION)
+TREE = tree_dir(ROOT, VERSION)
 
 
 def fail(msg):
@@ -219,7 +225,7 @@ def tokenize(text):
 class Header:
     def __init__(self, path):
         self.path = path
-        self.toks = tokenize(strip_c((ROOT / path).read_text(encoding="latin-1")))
+        self.toks = tokenize(strip_c(resolve_source(ROOT, VERSION, path).read_text(encoding="latin-1")))
         self.cache = {}
 
     def typedef(self, name):
@@ -703,7 +709,7 @@ def c_type(ty, spelled):
     return getattr(ty, "name", None) or spelled, "", ""
 
 
-def write_c(member, rows, datas, layout):
+def write_c(member, rows, datas, layout, out_path):
     pool = [(r["lo"], r["hi"], datas[r["section"]]) for _, r in rows]
     defs, headers, funcs, objs = [], [], {}, {}
     arrays = {}
@@ -760,7 +766,10 @@ def write_c(member, rows, datas, layout):
         f" * and {SCHEMA.relative_to(ROOT)}. Generated: do not commit. */",
         "",
     ]
-    out += [f'#include "{(Path("../..") / h).as_posix()}"' for h in headers]
+    # each header by its path in the merged view, relative to the C's own
+    # directory (build/<slug>/data/ -> ../tree/<header>)
+    out += [f'#include "{Path(os.path.relpath(TREE / h, out_path.resolve().parent)).as_posix()}"'
+            for h in headers]
     out.append("")
     for f in sorted(funcs):
         out.append(f"extern {funcs[f]}{f}();")
@@ -907,7 +916,7 @@ def main():
                  for _, r in rows}
     layout = Layout(a.layout)
     if a.c:
-        write_if_changed(a.out, write_c(member, rows, datas, layout))
+        write_if_changed(a.out, write_c(member, rows, datas, layout, a.out))
         return 0
     a.out.write_text(f"{member}: {check(member, rows, datas, a.obj, layout)}\n")
     return 0

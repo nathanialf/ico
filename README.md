@@ -12,14 +12,9 @@ build stamp reads `Aug  7 2001` `15:03:20`, the USA retail build's
 and tables in which it differs from PAL's.
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-100.00%20%25%20%2836.88%20%25%20source%20%2B%2063.12%20%25%20disc%29-brightgreen.svg)
-![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
-![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2869.24%20%25%20source%20%2B%2030.76%20%25%20disc%29-brightgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%285.68%20%25%20source%20%2B%2094.32%20%25%20disc%29-brightgreen.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20%2823.56%20%25%20source%20%2B%2076.44%20%25%20disc%29-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2881.20%20%25%20source%20%2B%2018.80%20%25%20disc%29-brightgreen.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg)
-![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
+| Target | Sections identical to the base |
+| --- | --- |
+| [Aug-6-2001 prototype](https://nathanialf.github.io/ico/#aug6) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25%20%2836.88%20%25%20source%20%2B%2063.12%20%25%20disc%29-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2869.24%20%25%20source%20%2B%2030.76%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%285.68%20%25%20source%20%2B%2094.32%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20%2823.56%20%25%20source%20%2B%2076.44%20%25%20disc%29-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2881.20%20%25%20source%20%2B%2018.80%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#aug6)**: every
