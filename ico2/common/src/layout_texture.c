@@ -79,9 +79,46 @@ typedef struct { /* field names derived */
    pixels centred on the origin */
 static const SprRect primarySpriteRect = {-5120, -1808, 10240, 3616}; /* derived name */
 
-static void display_texture_fade_cancel_chk(int from, int to);
+static void display_texture_fade_cancel_chk(int from, int to)
+{
+    short list1[256];
+    short list2[256];
+    int i, j;
+    int k, l;
+    int n1 = 0;
+    int n2 = 0;
 
-INCLUDE_ASM(display_texture_fade_cancel_chk);
+    for (i = from; i >= 0; i = texLayout[i].link) {
+        for (j = texLayout[i].first; j < texLayout[i].last; j++) {
+            LtProperty *pr = &texProperty[j];
+
+            pr->fade_cancel = 0;
+            list1[n1++] = j;
+        }
+    }
+    for (i = to; i >= 0; i = texLayout[i].link) {
+        for (j = texLayout[i].first; j < texLayout[i].last; j++) {
+            LtProperty *pr = &texProperty[j];
+
+            pr->fade_cancel = 0;
+            list2[n2++] = j;
+        }
+    }
+    for (k = 0; k < n1; k++) {
+        LtProperty *p = &texProperty[list1[k]];
+
+        for (l = 0; l < n2; l++) {
+            LtProperty *q = &texProperty[list2[l]];
+
+            if (p->texFileNo == q->texFileNo && p->texU == q->texU && p->texV == q->texV &&
+                p->texW == q->texW && p->texH == q->texH && p->dispX == q->dispX &&
+                p->dispY == q->dispY && p->dispW == q->dispW && p->dispH == q->dispH) {
+                q->fade_cancel = 1;
+                p->fade_cancel = 1;
+            }
+        }
+    }
+}
 
 void lt_analog2Pad(void)
 {

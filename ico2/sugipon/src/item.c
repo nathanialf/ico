@@ -321,4 +321,17 @@ static const char bombAnimStopMsg[] = "爆発アニメーション停止処理�
 
 INCLUDE_ASM(StopItemExplodeAnimationAll);
 
-INCLUDE_ASM(ReviveAllCarryableItemsWithNonSleepFrame);
+int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame)
+{
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(19); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (CheckCarryableItemInline(g)) {
+            ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
+            UnlinkParentOfDObj(g);
+            p->released = 1;
+            p->sleep = nonSleepFrame;
+        }
+    }
+    return 1;
+}

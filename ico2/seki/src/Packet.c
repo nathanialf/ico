@@ -11,7 +11,6 @@
 #include "debug_exception.h"
 #include "memory.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* the largest packet pac_MakePacket has built so far */
 static int maxPacketSize = 0; /* derived name */
@@ -1283,7 +1282,11 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
     }
 }
 
-INCLUDE_ASM(pac_MakePacket);
+void pac_MakePacket(Sub15C *o)
+{
+    PObjModel *p = o->model;
+    pac_makePacket(p, o->lightMtx->mode, p->disp > 0);
+}
 
 inline void pac_Init(void)
 {

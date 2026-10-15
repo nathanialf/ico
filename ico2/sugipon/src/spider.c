@@ -145,7 +145,22 @@ static inline int callSpidersToGirl(GObj *self) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(CallSpidersToReviveEnemy);
+int CallSpidersToReviveEnemy(GObj *self)
+{
+    SpiderWork *w;
+
+    w = GOBJ_SUB(self)->work;
+    if (w->state == 1) {
+        if (callSpidersToGirl(self)) {
+            EntryToSpiderGroupManagerForReviveMaster(self, girlGObj);
+            w->state = 2;
+            setSpiderGroupPrior(self);
+        } else {
+            callSpidersToBoy(self);
+        }
+    }
+    return 1;
+}
 
 /* the layout entry count SpiderLayoutGeo prints */
 static int spiderEntryCount = 0; /* derived name */
@@ -182,7 +197,54 @@ static const char spiderAliveFmt[] = "    ALIVE: %d\n"; /* derived name */
 
 static const char spiderReviveFmt[] = "   REVIVE: %d\n"; /* derived name */
 
-INCLUDE_ASM(DispAllMemberOfSpider);
+void DispAllMemberOfSpider(GObj *self, int *col)
+{
+    SpiderWork *g;
+    GObj *p;
+    int i;
+
+    g = GOBJ_SUB(self)->work;
+    for (i = 0; i < g->n; i++) {
+        if (g->members[i] != 0) {
+            _UnitMatrix(MatrixDrive_GetMatrix());
+            GetRootPosition(MatrixDrive_GetMatrix()[3], g->members[i]);
+            MatrixDrive_RotMatrixX((short)rand());
+            MatrixDrive_RotMatrixY((short)rand());
+            MatrixDrive_RotMatrixZ((short)rand());
+            gif_StartPacketPri(11);
+            gif_SetZTest(1);
+            gif_SetAlpha(1, 5, 128);
+            prim_DispWireSphere(50.0f, col, 4, 4);
+            gif_EndPacket();
+            debug_PrintfDummy(400, sgInfoLine * 10 + 50,
+                              (col[0] << 24) | (col[1] << 16) | (col[2] << 8) | 0xFF,
+                              spiderStatusFmt, sgInfoLine == sgSelLine ? 62 : 32,
+                              GetAP1Mode(g->members[i]), GetAP1AIMode(g->members[i]));
+            if (sgInfoLine == sgSelLine) {
+                gif_StartPacketPri(11);
+                gif_SetZTest(1);
+                gif_SetAlpha(1, 5, 128);
+                prim_DispWireSphere(100.0f, spiderWireColor, 4, 4);
+                gif_EndPacket();
+            }
+            sgInfoLine++;
+        }
+    }
+
+    p = self->dobj->parent.obj;
+    if (p != 0 && p->kind != 33) {
+        _UnitMatrix(MatrixDrive_GetMatrix());
+        GetRootPosition(MatrixDrive_GetMatrix()[3], self->dobj->parent.obj);
+        MatrixDrive_RotMatrixX((short)rand());
+        MatrixDrive_RotMatrixY((short)rand());
+        MatrixDrive_RotMatrixZ((short)rand());
+        gif_StartPacketPri(11);
+        gif_SetZTest(1);
+        gif_SetAlpha(1, 5, 128);
+        prim_DispWireSphere(100.0f, col, 4, 4);
+        gif_EndPacket();
+    }
+}
 
 void SetSpiderGroupReviveStatus(GObj *self)
 {
@@ -222,7 +284,20 @@ static inline int CountAliveSpiders(GObj *gp) /* derived name */
     return n;
 }
 
-INCLUDE_ASM(GetAliveSpiders);
+int GetAliveSpiders(GObj *gp)
+{
+    Sub15C *oi = gp->dobj;
+    SpiderWork *sg = oi->work;
+    GObj *own = oi->parent.obj;
+
+    if (own != 0 && own->kind != 33 && IsActCharDead(own) == 0) {
+        return sg->n;
+    }
+    if (sg->awake) {
+        return CountAliveSpiders(gp);
+    }
+    return -1;
+}
 
 /* the body of DeleteSpiderFromLayoutGroup, which DeleteAllSpidersOfLayoutGroup
    inlines and DeleteSpiderFromLayoutGroup calls */
@@ -327,7 +402,20 @@ int RestoreSpiderLayoutExtGeo(GObj *self, GamesysObjInfo *info)
 /* the debug display's line counter */
 int sgInfoLine = 0;
 
-INCLUDE_ASM(MemorySpiderLayout);
+int MemorySpiderLayout(SpiderMemory *dst, GObj *gp)
+{
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    int awake = sg->awake;
+
+    dst->awake = awake;
+    if (awake) {
+        dst->alive = CountAliveSpiders(gp);
+    } else {
+        dst->alive = 0;
+    }
+    dst->revived = sg->revived;
+    return 1;
+}
 
 /* shared by WakeUpSpidersFromGenerator and SpiderLayoutGeo */
 static inline void SetLayoutedSpidersRootPosition(GObj *gp, void *pos) /* derived name */
@@ -359,7 +447,19 @@ void WakeUpSpidersFromGenerator(GObj *gp)
     WakeUpLayoutedSpiders(gp);
 }
 
-INCLUDE_ASM(DeleteAllSpidersOfLayoutGroup);
+void DeleteAllSpidersOfLayoutGroup(GObj *gp)
+{
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    int i;
+    for (i = 0; i < sg->n; i++) {
+        GObj *o = sg->members[i];
+        if (o != 0) {
+            SetAP1DeadStatus(o);
+            DeleteSpiderFromLayoutGroup_inl(gp, i);
+        }
+    }
+    sg->n = 0;
+}
 
 void SleepSpiderGroup(GObj *gp)
 {

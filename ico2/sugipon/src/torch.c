@@ -31,15 +31,96 @@ static TorchGeoWork emptyTorchWork = {
 #include "sceneManager.h"
 #include "include_asm.h"
 
+inline void SetTorchChainReactionFlag(GObj *torch, int flag)
+{
+    TorchGeoWork *w = GOBJ_SUB(torch)->work;
+
+    w->chainFlag = flag;
+}
+
 void torchOffSE(GObj *torch)
 {
     StopSEPackage(torch);
     ExecuteSEPackage(torch, 65);
 }
 
-INCLUDE_ASM(LightTorchOn);
+void LightTorchOn(GObj *gobj)
+{
+    float pos[4];
+    TorchGeoWork *w;
+    GObj *o;
+    int n;
 
-INCLUDE_ASM(LightTorchOff);
+    w = GOBJ_SUB(gobj)->work;
+    if (w->lightOn != 0) {
+        return;
+    }
+    GetRootPosition(pos, gobj);
+    switch (w->flags) {
+    case 2:
+        n = 0;
+        o = isysGObjSearchFromObjKindID_begin(10);
+        while (o != 0) {
+            TorchGeoWork *ow = GOBJ_SUB(o)->work;
+            if (o != gobj && ow->flags == 2) {
+                if (IsTorchLightOn(o)) {
+                    n++;
+                }
+            }
+            o = isysGObjSearchFromObjKindID_next(o);
+        }
+        if (n > 0) {
+            return;
+        }
+        w->effect[1] =
+            SetParticleEffectByPartition(21, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[4] =
+            SetParticleEffectByPartition(19, pos, IdentityQuaternion, ios_partition_seki);
+        break;
+    case 4:
+        w->effect[0] =
+            SetParticleEffectByPartition(23, pos, IdentityQuaternion, ios_partition_seki);
+        break;
+    default:
+        w->effect[3] = SetParticleEffectByPartition(7, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[0] = SetParticleEffectByPartition(5, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[1] = SetParticleEffectByPartition(9, pos, IdentityQuaternion, ios_partition_seki);
+        w->effect[4] =
+            SetParticleEffectByPartition(19, pos, IdentityQuaternion, ios_partition_seki);
+        break;
+    }
+    w->burnTime = 0;
+    w->lightOn = 1;
+    GOBJ_SUB(gobj)->lightId = 1;
+}
+
+void LightTorchOff(GObj *gobj)
+{
+    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
+
+    if (w->lightOn != 0) {
+        if (w->effect[3] != -1) {
+            DeleteParticleEffect(w->effect[3]);
+        }
+        if (w->effect[2] != -1) {
+            DeleteParticleEffect(w->effect[2]);
+        }
+        if (w->effect[0] != -1) {
+            DeleteParticleEffect(w->effect[0]);
+        }
+        if (w->effect[1] != -1) {
+            DeleteParticleEffect(w->effect[1]);
+        }
+        if (w->effect[4] != -1) {
+            DeleteParticleEffect(w->effect[4]);
+        }
+        w->effect[2] = w->effect[3] = w->effect[0] = w->effect[1] = w->effect[4] = -1;
+        w->burnTime = 0;
+        w->lightOn = 0;
+        GOBJ_SUB(gobj)->lightId = 0;
+        torchOffSE(gobj);
+    }
+}
 
 INCLUDE_ASM(moveTorch);
 
@@ -88,5 +169,3 @@ INCLUDE_ASM(IsTorchLightOn);
 INCLUDE_ASM(CheckTorchChainReaction);
 
 INCLUDE_ASM(SetTorchLife);
-
-INCLUDE_ASM(SetTorchChainReactionFlag);

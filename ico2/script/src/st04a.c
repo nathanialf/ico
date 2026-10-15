@@ -348,7 +348,19 @@ typedef struct { /* field names derived */
     float m[4];
 } Vec4St04A; /* derived name */
 
-INCLUDE_ASM(finishCallBackFunc);
+static void finishCallBackFunc(GObj *obj)
+{
+    Vec4St04A v;
+    int i;
+
+    _ApplyMatrix(&v, GOBJ_SUB(obj)->nodeMtx, YUnitVector);
+    v.m[1] = 0.0f;
+    _NormalizeVector(GOBJ_SUB(obj)->ctrl.dir, &v);
+
+    for (i = 0; i < GOBJ_SUB(obj)->skelNodeNum; i++) {
+        *(Mtx44 *)&GOBJ_SUB(obj)->nodeRotElem[i] = jointMtxInit;
+    }
+}
 
 INCLUDE_ASM(actSt04aGateOpen2ReadyChk);
 

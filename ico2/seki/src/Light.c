@@ -136,7 +136,85 @@ static inline void light_setLinkLight(Light *p) /* derived name */
     lastLight = (int)p;
 }
 
-INCLUDE_ASM(light_AddLight);
+Light *light_AddLight(GObj *self, int b, int kind)
+{
+    int i;
+    float d;
+    const ObjLight *t;
+
+    switch (kind) {
+    case 0: {
+        Light *l;
+
+        if (flatLightNum != 0) {
+            debug_StdPrintfDummy("Flat Lights already exist.\n");
+            light_resetFlatLight();
+            return 0;
+        }
+        for (i = 0; i < 3; i++) {
+            l = &flatLight[i];
+            _CopyVector(l->col, GlobalStageSetting.flatLightCol[i]);
+            _NormalizeVector(l->dir, GlobalStageSetting.flatLightDir[i]);
+            l->scale = 1.0f;
+            l->range = 0.0f;
+            l->falloff = 1.0f;
+            d = (l->col[0] + l->col[1] + l->col[2]) * 0.3333f;
+            if (d < 0.0f) {
+                d = -d;
+            }
+            l->strength = d;
+            light_setLinkLight(l);
+            flatLightSlot[(flatLightNum)++] = (int)l;
+        }
+        return 0;
+    }
+    case 1: {
+        Light *q;
+
+        if (b == 0) {
+            return 0;
+        }
+        if (self->dobj == 0) {
+            return 0;
+        }
+        q = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c", 620);
+        self->dobj->lightId = b;
+        q->owner = self;
+        q->kind = kind;
+        t = &objectLight[b];
+        q->col[0] = t->col[0] * 0.00390625f;
+        q->col[1] = t->col[1] * 0.00390625f;
+        q->col[2] = t->col[2] * 0.00390625f;
+        q->col[3] = 1.0f;
+        q->scale = 1.0f;
+        q->range = (0.0f < t->range) ? t->range : 1.0f;
+        q->falloff = 1.0f;
+        d = q->col[0] + q->col[1] + q->col[2];
+        if (d < 0.0f) {
+            d = -d;
+        }
+        q->strength = d;
+        light_setLinkLight(q);
+        return q;
+    }
+    case 2:
+    case 3: {
+        Light *r;
+
+        r = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c", 685);
+        r->kind = kind;
+        r->scale = 1.0f;
+        r->range = 32768.0f;
+        light_setLinkLight(r);
+        return r;
+    }
+    default:
+        debug_StdPrintfDummy("Added Light is illegal.\n");
+        debug_assert("src/Light.c", 705);
+        __assert("src/Light.c", 705, "0");
+    }
+    return 0;
+}
 
 /* Each switch arm writes its own abs and weight store; the range tests are
    nested ifs. */
@@ -146,9 +224,138 @@ INCLUDE_ASM(light_getNearLight);
    each arm */
 #define LIGHT_ABS(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
 
-INCLUDE_ASM(light_getAmbientLight);
+static void light_getAmbientLight(Sub15C *self, int idx)
+{
+    float pos[4];
+    float p[4];
+    float q[4];
+    float s0[4];
+    float s1[4];
+    AmbientVolume *v;
+    float best;
+    float scale;
+    /* mx/my carry the largest inner-ellipsoid component and its outer
+       partner in the kind-1 arm; the kind-2 arm reuses my as its own blend
+       total. */
+    float mx;
+    float my;
 
-INCLUDE_ASM(light_MakeLightMatrix);
+    scale = 1.0f;
+    if (lastAmbient == 0) {
+        _CopyVector(self->lightMtx->ambient, GlobalStageSetting.ambientCol);
+        return;
+    }
+    _CopyVector(self->lightMtx->ambient, GlobalStageSetting.ambientCol);
+    best = 3.0f;
+    if (self->dispType == 2) {
+        _CopyVector(pos, (char *)self->nodeMtx + (idx << 6) + 48);
+    } else {
+        _CopyVector(pos, (char *)self->nodeMtx + 48);
+    }
+    for (v = lastAmbient; v != 0; v = v->prev) {
+        if (v->shape == 0) {
+            continue;
+        }
+        _SetCurrentMatrix(v);
+        _InverseCurrentMatrix();
+        _ApplyCurrentMatrix(p, pos);
+        _ApplyCurrentMatrix(q, pos);
+        _ScaleVector2XYZ(p, p, v->size);
+        _ScaleVector2XYZ(q, q, v->size);
+        _ScaleVector2XYZ(p, p, v->inner);
+        _ScaleVector2XYZ(q, q, v->outer);
+        switch (v->shape) {
+        case 2: {
+            float nx;
+            float ny;
+            float rx;
+            float ry;
+
+            nx = LIGHT_ABS(_GetNorm(p));
+            ny = LIGHT_ABS(_GetNorm(q));
+            if (nx <= 1.0f) {
+                _CopyVector(self->lightMtx->ambient, v->col);
+                scale = v->lightScale;
+                goto found;
+            }
+            if (ny <= 1.0f) {
+                rx = nx - 1.0f;
+                ry = 1.0f - ny;
+                _SubVectorXYZ(s0, GlobalStageSetting.ambientCol, v->col);
+                _ScaleVectorXYZ(s0, s0, rx / (rx + ry));
+                _AddVector(s0, v->col, s0);
+                my = s0[0] + s0[1] + s0[2];
+                if (my < best) {
+                    _CopyVector(self->lightMtx->ambient, s0);
+                    best = my;
+                    scale = v->lightScale + (1.0f - v->lightScale) * rx / (rx + ry);
+                }
+            }
+            break;
+        }
+        case 1: {
+            float sum;
+
+            if (LIGHT_ABS(p[0]) <= 1.0f && LIGHT_ABS(p[1]) <= 1.0f && LIGHT_ABS(p[2]) <= 1.0f) {
+                _CopyVector(self->lightMtx->ambient, v->col);
+                scale = v->lightScale;
+                goto found;
+            }
+            if (LIGHT_ABS(q[0]) <= 1.0f && LIGHT_ABS(q[1]) <= 1.0f && LIGHT_ABS(q[2]) <= 1.0f) {
+                mx = LIGHT_ABS(p[0]);
+                my = LIGHT_ABS(q[0]);
+                if (mx < LIGHT_ABS(p[1])) {
+                    mx = LIGHT_ABS(p[1]);
+                    my = LIGHT_ABS(q[1]);
+                }
+                if (mx < LIGHT_ABS(p[2])) {
+                    mx = LIGHT_ABS(p[2]);
+                    my = LIGHT_ABS(q[2]);
+                }
+                mx = mx - 1.0f;
+                my = 1.0f - my;
+                _SubVectorXYZ(s1, GlobalStageSetting.ambientCol, v->col);
+                _ScaleVectorXYZ(s1, s1, mx / (mx + my));
+                _AddVector(s1, v->col, s1);
+                sum = s1[0] + s1[1] + s1[2];
+                if (sum < best) {
+                    /* the kind-1 arm copies the volume colour here where the
+                       kind-2 arm copies its blended vector */
+                    _CopyVector(self->lightMtx->ambient, v->col);
+                    best = sum;
+                    scale = v->lightScale + (1.0f - v->lightScale) * mx / (mx + my);
+                }
+            }
+            break;
+        }
+        }
+    }
+found:
+    _ScaleVectorXYZ(self->lightMtx->col[0], self->lightMtx->col[0], scale);
+    _ScaleVectorXYZ(self->lightMtx->col[1], self->lightMtx->col[1], scale);
+    _ScaleVectorXYZ(self->lightMtx->col[2], self->lightMtx->col[2], scale);
+    self->lightMtx->ambient[3] = 1.0f;
+}
+
+void light_MakeLightMatrix(Sub15C *self, int idx)
+{
+    int i;
+
+    if (self->lightMtx->mode == 0) {
+        return;
+    }
+    light_getNearLight(self, idx);
+    light_getAmbientLight(self, idx);
+    for (i = 0; i < 3; i++) {
+        _ScaleVectorXYZ(self->lightMtx->col[i], self->lightMtx->col[i],
+                        self->model->mode.s.lightScale);
+    }
+    _ScaleVectorXYZ(self->lightMtx->ambient, self->lightMtx->ambient, self->model->ambientScale);
+    _MakeNormalLightMatrix(self->lightMtx->normal, self->lightMtx->dir[0], self->lightMtx->dir[1],
+                           self->lightMtx->dir[2]);
+    _MakeLightColorMatrix(self->lightMtx->color, self->lightMtx->col[0], self->lightMtx->col[1],
+                          self->lightMtx->col[2], self->lightMtx->ambient);
+}
 
 /* The light and ambient volume debug view.  The slot search that would set
    `i` is not in the retail build, so the test below reads what the previous
@@ -156,7 +363,132 @@ INCLUDE_ASM(light_MakeLightMatrix);
    `p = head; while (p != 0) { ...; p = p->prev; }`, and the ambient colour is
    built by its initializer. */
 
-INCLUDE_ASM(light_DispVolume);
+void light_DispVolume(void)
+{
+    int i;
+
+    if (debug_ambient_volume & 1) {
+        sceVu0FMATRIX m;
+        char buf[256];
+        int col[4];
+        int black[4];
+        int dir[4];
+        float pos[4];
+        float p0[4];
+        float p1[4];
+        Light *lp;
+
+        lp = (Light *)lastLight;
+        while (lp != 0) {
+            switch (lp->kind) {
+            case 1:
+                if (lp == 0) {
+                    break;
+                }
+                if (lp->owner == 0) {
+                    break;
+                }
+                if (lp->owner->dobj->lightId == 0) {
+                    break;
+                }
+            case 2:
+            case 3:
+                if (lp->range == 0.0f) {
+                    break;
+                }
+                _UnitMatrix(MatrixDrive_GetMatrix());
+                _CopyVector(MatrixDrive_GetMatrix()[3], lp);
+                _TransposeMatrix(m, matrixptr + 0x80);
+                m[0][3] = m[1][3] = m[2][3] = 0.0f;
+                _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
+                if (lp->kind == 1) {
+                    sprintf(buf, "OBJ");
+                } else {
+                    sprintf(buf, "FIX");
+                }
+                DispWireString(buf);
+                gif_StartPacketPri(11);
+                col[0] = lp->col[0] * 255.0f;
+                col[1] = lp->col[1] * 255.0f;
+                col[2] = lp->col[2] * 255.0f;
+                col[3] = 128;
+                black[0] = black[1] = black[2] = 0;
+                black[3] = 128;
+                _UnitMatrix(MatrixDrive_GetMatrix());
+                _CopyVector(MatrixDrive_GetMatrix()[3], lp);
+                gif_SetZTest(1);
+                gif_SetAlpha(1, 2, 64);
+                prim_DispWireSphere(lp->range * 0.1f, col, 6, 6);
+                if (i != 0) {
+                    GetRootPosition(pos, boyGObj);
+                    _SubVector(pos, pos, lp);
+                    pos[3] = 1.0f;
+                    _NormalizeVector(pos, pos);
+                    _ScaleVectorXYZ(pos, pos, lp->range);
+                    _UnitVector(dir);
+                    DrawLineG(dir, col, pos, black, 0);
+                }
+                for (i = 0; i < 3; i++) {
+                    _UnitVector(p0);
+                    _UnitVector(p1);
+                    p0[i] -= lp->range;
+                    p1[i] += lp->range;
+                    p0[3] = p1[3] = 1.0f;
+                    DrawLineG(p0, col, p1, col, 0);
+                }
+                gif_EndPacket();
+                break;
+            }
+            lp = lp->prev;
+        }
+    }
+    if (debug_ambient_volume & 2) {
+        AmbientVolume *av;
+
+        av = lastAmbient;
+        while (av != 0) {
+            Col4 col = {{av->col[0] * 255.0f, av->col[1] * 255.0f, av->col[2] * 255.0f, 128}};
+            float ext[4];
+
+            /* a second null test of av, which the loop test already makes;
+               the first loop re-tests its light pointer the same way */
+            if (av == 0) {
+                break;
+            }
+            switch (av->shape) {
+            case 2:
+                _SetCurrentMatrix(av);
+                _ScaleCurrentMatrix(1.0f / av->size[0], 1.0f / av->size[1], 1.0f / av->size[2]);
+                _GetCurrentMatrix(MatrixDrive_GetMatrix());
+                gif_StartPacketPri(11);
+                gif_SetZTest(1);
+                gif_SetAlpha(1, 2, 64);
+                prim_DispWireSphere(1.0f / av->outer[0], &col, 6, 6);
+                prim_DispWireSphere(1.0f / av->inner[0], &col, 6, 6);
+                gif_EndPacket();
+                break;
+            case 1:
+                _SetCurrentMatrix(av);
+                _ScaleCurrentMatrix(1.0f / av->size[0], 1.0f / av->size[1], 1.0f / av->size[2]);
+                _GetCurrentMatrix(MatrixDrive_GetMatrix());
+                gif_StartPacketPri(11);
+                gif_SetZTest(1);
+                gif_SetAlpha(1, 2, 64);
+                ext[0] = 1.0f / av->inner[0];
+                ext[1] = 1.0f / av->inner[1];
+                ext[2] = 1.0f / av->inner[2];
+                prim_DispWireBox(ext, &col);
+                ext[0] = 1.0f / av->outer[0];
+                ext[1] = 1.0f / av->outer[1];
+                ext[2] = 1.0f / av->outer[2];
+                prim_DispWireBox(ext, &col);
+                gif_EndPacket();
+                break;
+            }
+            av = av->prev;
+        }
+    }
+}
 
 /* Declared `inline`: light_Tool expands it and the out-of-line copy goes to
    the end of the object.  light_AddLight sits above this definition and so

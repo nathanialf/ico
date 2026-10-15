@@ -68,4 +68,13 @@ inline void _deleteLayoutedCandleParticleEffect(void *gobj)
 
 INCLUDE_ASM(CandleGeo);
 
-INCLUDE_ASM(DeleteLayoutedCandleParticleEffect);
+inline void DeleteLayoutedCandleParticleEffect(void)
+{
+    void *gobj;
+
+    gobj = isysGObjSearchFromObjKindID_begin(34);
+    while (gobj != 0) {
+        _deleteLayoutedCandleParticleEffect(gobj);
+        gobj = isysGObjSearchFromObjKindID_next(gobj);
+    }
+}

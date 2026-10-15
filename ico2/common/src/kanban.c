@@ -251,7 +251,16 @@ inline void kanbanReqAllDelFade(void)
 
 INCLUDE_ASM(init_textures_of_specified_property_kanban);
 
-INCLUDE_ASM(kanbanInit);
+void kanbanInit(int no)
+{
+    if (no != 0) {
+        init_textures_of_property_range(stageData[no].layoutFirst, stageData[no].layoutLast);
+    } else {
+        init_textures_of_property_range(0, 4);
+        kanbanReqAllDel();
+        kanbanCommonRead = 1;
+    }
+}
 
 INCLUDE_ASM(display_texture_kanban);
 

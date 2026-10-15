@@ -249,9 +249,105 @@ static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n) /* derived name
     p->shadowLength = modelData[n].shadowLength;
 }
 
-INCLUDE_ASM(AllocPObj);
+PObj *AllocPObj(ObjHdr *h, char *name, int n)
+{
+    PObj *p;
+    int *tex;
+    int *list;
+    ObjRec *o;
+    unsigned int i;
+    unsigned int j;
 
-INCLUDE_ASM(InitPObj);
+    h->objTbl += (int)h;
+
+    if (h->texTbl != 0)
+        h->texTbl += (int)h;
+    tex = (int *)h->texTbl;
+
+    list = (int *)h->objTbl;
+
+    debug_StdPrintfDummy("\033[33mobject info : adrs(%p) objnum(%d) clstnum(%d)\n", h, h->objNum,
+                         h->clstNum);
+
+    p = (PObj *)mallocseki(0xD0);
+    sprintf((char *)p, "%s", name);
+    TidyPObjName((char *)p);
+
+    debug_StdPrintfDummy("            : object name (%s)\n", (char *)p);
+    debug_StdPrintfDummy("            : object table (%p)\033\n", list);
+    if (tex != 0)
+        debug_StdPrintfDummy("            : texture table (%p)\033[m\n", tex);
+    else
+        debug_StdPrintfDummy("\033[m");
+
+    if (tex != 0) {
+        for (i = 0; i < h->texNum; i++)
+            tex[i] += (int)h;
+    }
+
+    debug_StdPrintfDummy("Solve object address. %p\n", list);
+
+    for (i = 0; i < h->objNum; i++) {
+        list[i] += (int)h;
+        o = (ObjRec *)list[i];
+
+        if (o->magic != *(int *)"OBJH") {
+            debug_StdPrintfDummy("allocPObj:Invalid Object.\n");
+            debug_assert(__FILE__, 249);
+            __assert(__FILE__, 249, "FALSE");
+        }
+
+        o->vtx += (int)h;
+        o->nrm += (int)h;
+        o->uv += (int)h;
+        o->col += (int)h;
+        o->mats += (int)h;
+        o->texDefs += (int)h;
+        o->polys += (int)h;
+        for (j = 0; j < o->polyCount; j++)
+            ((ObjEnt *)o->polys)[j].p = (void *)((int)((ObjEnt *)o->polys)[j].p + (int)h);
+        o->strips += (int)h;
+        for (j = 0; j < o->stripCount; j++)
+            ((void **)o->strips)[j] = (void *)((int)((void **)o->strips)[j] + (int)h);
+        o->lines += (int)h;
+        o->morphs += (int)h;
+        for (j = 0; j < o->morphCount; j++) {
+            if (((void **)o->morphs)[j] != 0)
+                ((void **)o->morphs)[j] = (void *)((int)((void **)o->morphs)[j] + (int)h);
+        }
+    }
+
+    InitPObjHeader(p, h, n);
+    AllocPObjSubs(p, list);
+
+    MakeBoundingBox(p);
+
+    return p;
+}
+
+PObj *InitPObj(int h, int name, int n)
+{
+    PObj *p;
+    Vec v;
+    int num;
+    int i;
+    int j;
+
+    p = AllocPObj((ObjHdr *)h, (char *)name, n);
+    SetPObjVector(v, modelData[n].offset[0], modelData[n].offset[1], modelData[n].offset[2]);
+    num = p->partCount;
+    for (i = 0; i < num; i++) {
+        PObjSub *g = &p->sub[i];
+        int cnt = g->vtxCount;
+
+        for (j = 0; j < cnt; j++)
+            _AddVector(g->vtx[j], g->vtx[j], v);
+        for (j = 0; j < 8; j++)
+            _AddVector(p->boxes[i][j], p->boxes[i][j], v);
+    }
+    MakePacket(p, n);
+    return p;
+}
 
 /* The DEBUG build's report of the model file image FreePObj releases, in
    AllocPObj's terms; built only under DEBUG (the text derived). */

@@ -357,9 +357,51 @@ static inline void setCorrectOrientOfChain(void *self) /* derived name */
     SetMotionDirection(self, local);
 }
 
-INCLUDE_ASM(motCommonRopeTurnR);
+void motCommonRopeTurnR(GObj *volatile self)
+{
+    int i = 0;
+    int base = (int)(_GetDirection(test_CURRENTORIENT(self)) / 3.1415927f * 180.0f);
+    float dir[4];
+    int wait = 18, deg = 0;
 
-INCLUDE_ASM(motCommonRopeTurnL);
+    while (1) {
+        i++;
+        memset(dir, 0, 16);
+        dir[2] = 1.0f;
+        _ApplyRyGV(dir, (float)RoundDegGV(base + deg) * 3.1415927f / 180.0f);
+        debug_Arrow(200.0f, test_CURRENTROOT((void *)self), dir, 0xFF, 0, 0xFF);
+        SetMotionDirection(self, dir);
+        deg += 5;
+        if (i % wait == 0) {
+            setCorrectOrientOfChain((void *)self);
+            ACTSendMailCorrect(self, 0x13A);
+        }
+        _ACTWait(1);
+    }
+}
+
+void motCommonRopeTurnL(GObj *volatile self)
+{
+    int i = 0;
+    int base = (int)(_GetDirection(test_CURRENTORIENT(self)) / 3.1415927f * 180.0f);
+    float dir[4];
+    int wait = 18, deg = 0;
+
+    while (1) {
+        i++;
+        memset(dir, 0, 16);
+        dir[2] = 1.0f;
+        _ApplyRyGV(dir, (float)RoundDegGV(base - deg) * 3.1415927f / 180.0f);
+        debug_Arrow(200.0f, test_CURRENTROOT((void *)self), dir, 0xFF, 0, 0xFF);
+        SetMotionDirection(self, dir);
+        deg += 5;
+        if (i % wait == 0) {
+            setCorrectOrientOfChain((void *)self);
+            ACTSendMailCorrect(self, 0x13A);
+        }
+        _ACTWait(1);
+    }
+}
 
 typedef union { /* field names derived */
     float f[4];

@@ -276,7 +276,152 @@ static inline void makeWaveGrid(PoolWork *w, float **grid, int ang) /* derived n
 /* The GS drawing-area origin, the centre of the 4096-unit primitive space. */
 static const ConstVec screenOrigin = {{2048.0f, 2048.0f, 0.0f, 0.0f}}; /* derived name */
 
-INCLUDE_ASM(updatePoolGeo);
+static void updatePoolGeo(GObj *self)
+{
+    ConstVec org;
+    float out[4];
+    float nrm[4];
+    float eye[4];
+    char mat[64];
+    float ref[4];
+    float dir[4];
+    float tmp[4];
+    float pos[4];
+    float sub[4];
+    PoolWork *w = GOBJ_SUB(self)->work;
+    Mesh3D *mesh0 = w->reflect;
+    Mesh3D *mesh1 = w->surface;
+    float step = w->step;
+    float **grid = w->height;
+    float sx;
+    float sy;
+    float *pc;
+    float *pa;
+    float *pb;
+    float *pd;
+    int ang;
+    float *row;
+    Prim3DVec *q;
+    Prim3DVec *uv;
+    Prim3DVec *q2;
+    float *row2;
+    Prim3DVec *uv2;
+    Prim3DVec *qq;
+    float h;
+    float iw;
+    float usc;
+    float vsc;
+    int k;
+    int i;
+    int j;
+
+    org = screenOrigin;
+    sx = 1.0f / (float)ScreenWidth;
+    sy = 1.0f / (float)ScreenHeight;
+
+    pc = (float *)(matrixptr + 0x4C0);
+    pa = (float *)(matrixptr + 0x400);
+    pb = (float *)(matrixptr + 0x440);
+    pd = (float *)(matrixptr + 0x480);
+
+    CopyVector(pa, w->pos);
+    CopyVector(pb, &org);
+    CopyVector(pd, ZeroVector);
+
+    _InitCurrentMatrix();
+    _SetCurrentMatrix(matrixptr + 0x100);
+
+    if (systemStatus[5] == 0) {
+        for (k = 0; k < 5; k++) {
+            decayRipple(&w->ripple[k]);
+        }
+    }
+
+    ang = w->phase;
+
+    makeWaveGrid(w, grid, ang);
+
+    for (k = 0; k < 5; k++) {
+        addRippleToGrid(w, &w->ripple[k], grid);
+    }
+
+    for (i = 0; i < w->nx; i++) {
+        q = mesh1->pos + i * w->ny;
+        uv = mesh1->st + i * w->ny;
+        row = grid[i];
+
+        pd[0] = (float)(((1 - w->nx) >> 1) + i) * step;
+
+        j = 0;
+
+        for (; j < w->ny; j++, row++, q++, uv++) {
+            h = *row;
+
+            pd[1] = h * 30.0f;
+            pd[2] = (float)(((1 - w->ny) >> 1) + j) * step;
+            _AddVector(q, pa, pd);
+
+            _ApplyCurrentMatrix(out, q);
+            iw = 1.0f / out[3];
+            _ScaleVector(pc, out, iw);
+            _SubVector(out, pc, pb);
+            uv->x = out[0] * sx + 0.5f + h * 30.0f * iw;
+            uv->y = out[1] * sy + 0.5f + h * 30.0f * iw;
+        }
+    }
+
+    memset(nrm, 0, 16);
+    nrm[1] = -1.0f;
+
+    usc = 1.0f / (float)ScreenWidth * 0.8f;
+    vsc = 1.0f / (float)ScreenHeight * 0.8f;
+
+    MatrixDrive_SetTransposeMatrix(mat, (char *)(matrixptr + 0x80));
+    CopyVector(eye, mat + 0x30);
+
+    _SetCurrentMatrix(matrixptr + 0x100);
+
+    for (i = 0; i < w->nx; i++) {
+        q2 = mesh1->pos + i * w->ny;
+        qq = mesh0->pos + i * w->ny;
+        uv2 = mesh0->st + i * w->ny;
+        row2 = grid[i];
+
+        for (j = 0; j < w->ny; j++, row2++, q2++, uv2++) {
+            nrm[0] = nrm[2] = *row2 * 0.1f;
+
+            CopyVector(qq, q2);
+
+            _SubVector(dir, qq, eye);
+
+            _NormalizeVector(dir, dir);
+            _ScaleVector(tmp, nrm, _InnerProduct(dir, nrm) * -2.0f);
+
+            _AddVectorXYZ(ref, dir, tmp);
+
+            ref[1] = -ref[1];
+
+            _ApplyCurrentMatrix(out, qq);
+            _ScaleVectorXYZ(pc, out, 1.0f / out[3]);
+
+            _AddVector(pos, qq, ref);
+            qq++;
+            _ApplyCurrentMatrix(pos, pos);
+            _ScaleVectorXYZ(pos, pos, 1.0f / pos[3]);
+
+            _SubVector(sub, pos, pc);
+
+            _SubVector(out, pc, pb);
+
+            uv2->x = (out[0] + sub[0] * 1000.0f) * usc + 0.5f;
+            uv2->y = (out[1] + sub[1] * 1000.0f) * vsc + 0.5f;
+        }
+    }
+
+    prim_UpdateMesh3D(mesh1, 9, buffer_ID);
+
+    prim_UpdateMesh3D(mesh0, 9, buffer_ID);
+}
 
 /* The fixed lighting the pool surface is drawn under, in the two matrices
    light_MakeLightMatrix otherwise builds at +0x40 and +0x00 of the object's
@@ -377,7 +522,88 @@ void SetLayoutedPoolReflactionMesh(PoolMesh *refl)
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
 
-INCLUDE_ASM(SetLimitedPoolReflactionMesh);
+void SetLimitedPoolReflactionMesh(PoolMesh *refl, GObj *pool, GObj *obj)
+{
+    PoolWork *w = GOBJ_SUB(pool)->work;
+    float pos[4];
+    float v1[4];
+    float v2[4];
+    ConstVec vec;
+    float out[4];
+    Mesh3D *mesh;
+    char *tmp;
+    char *base;
+    Prim3DVec *q;
+    Prim3DVec *uv;
+    float dist;
+    float dz;
+    float sx;
+    float sy;
+    float iw;
+    float h;
+    int i;
+    int j;
+
+    if (systemStatus[5] == 0) {
+        for (i = 0; i < refl->nrow; i++) {
+            for (j = 0; j < refl->ncol; j++) {
+                refl->height[i][j] -= (refl->height[i][j] - random_signed() * 0.3f) * 0.5f;
+            }
+        }
+    }
+    GetRootPosition(pos, obj);
+    CopyVector(v1, pos);
+    v1[1] = w->pos[1];
+    CopyVector(v2, pos);
+    v2[1] += GOBJ_SUB(obj)->root.projHeight;
+
+    pos[1] = (v1[1] + v2[1]) * 0.5f;
+    _InterVectorXYZ(pos, pos, (char *)(matrixptr + 944),
+                    (v1[1] - *(float *)(matrixptr + 948)) / (pos[1] - *(float *)(matrixptr + 948)));
+
+    _InterVectorXYZ(v2, v2, (char *)(matrixptr + 944),
+                    (v1[1] - *(float *)(matrixptr + 948)) / (v2[1] - *(float *)(matrixptr + 948)));
+
+    dist = GetPointDistance(v1, v2) + 100.0f;
+
+    pos[0] -= dist * 0.5f;
+    pos[2] -= dist * 0.5f;
+
+    mesh = refl->mesh;
+    vec = screenOrigin;
+    sx = 1.0f / (float)ScreenWidth;
+    sy = 1.0f / (float)ScreenHeight;
+    tmp = (char *)(matrixptr + 0x4C0);
+    base = (char *)(matrixptr + 0x440);
+
+    dz = dist / (float)refl->nrow;
+
+    CopyVector(base, &vec);
+
+    _InitCurrentMatrix();
+    _SetCurrentMatrix(matrixptr + 0x100);
+
+    for (i = 0; i < refl->nrow; i++) {
+        q = mesh->pos + i * refl->ncol;
+        uv = mesh->st + i * refl->ncol;
+        for (j = 0; j < refl->ncol; j++) {
+            h = refl->height[i][j];
+            q->x = pos[0] + (float)i * dz;
+            q->y = pos[1];
+            q->z = pos[2] + (float)j * dz;
+            q->w = 1.0f;
+            _ApplyCurrentMatrix(out, q);
+            iw = 1.0f / out[3];
+            _ScaleVector(tmp, out, iw);
+            _SubVector(out, tmp, base);
+            uv->x = out[0] * sx + 0.5f + h * 50.0f * iw;
+            uv->y = out[1] * sy + 0.5f + h * 50.0f * iw;
+            q++;
+            uv++;
+        }
+    }
+    prim_UpdateMesh3D(mesh, 9, buffer_ID);
+}
 
 INCLUDE_ASM(DispLimitedPoolReflactionMesh);
 

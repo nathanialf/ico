@@ -173,7 +173,62 @@ static void getAnimation(GObj *act)
     }
 }
 
-INCLUDE_ASM(disp);
+static void disp(GObj *act)
+{
+    unsigned short ax;
+    unsigned short az;
+    WormWork *w = GOBJ_SUB(act)->work;
+    ChainSet *r = w->route;
+    int i;
+    int j;
+    int k;
+
+    p2o_SetDefaultEnviroment();
+
+    for (i = 0; i < r->num; i++) {
+        int num = r->cfg[i].num;
+        float (*pos)[4] = r->nodes[i].pos;
+        float *len = r->nodes[i].len;
+
+        for (j = 1; j < num; j++) {
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_TransMatrix(pos[j][0], pos[j][1], pos[j][2]);
+            MatrixDrive_GetTurnYAngleXZ(&ax, &az, pos[j][0] - pos[j - 1][0],
+                                        pos[j][1] - pos[j - 1][1], pos[j][2] - pos[j - 1][2]);
+            MatrixDrive_RotMatrixX(-ax);
+            MatrixDrive_RotMatrixZ(-az);
+            MatrixDrive_PushMatrix();
+            MatrixDrive_ScaleMatrix(2.0f, len[j - 1] * 0.02f, 2.0f);
+            MatrixDrive_RotMatrixX(-32768);
+            CopyMatrix((char *)GOBJ_SUB(act)->nodeMtx + (j * 64 - 64), MatrixDrive_GetMatrix());
+            MatrixDrive_PopMatrix();
+
+            if (j == num - 1) {
+                float col[4];
+                Vec16 c1;
+                Color16 c2;
+
+                gif_StartPacketPri(2);
+                memset(col, 0, 16);
+                col[3] = 1.0f;
+                c1 = tipLineTo;
+                c2 = tipLineColor;
+                MatrixDrive_TransMatrix(0.0f, len[num - 2] * 0.02f, 0.0f);
+                for (k = 0; k <= 65535; k += 16384) {
+                    MatrixDrive_PushMatrix();
+                    MatrixDrive_RotMatrixY(k);
+                    MatrixDrive_TransMatrix(0.0f, 0.0f, -5.0f);
+                    MatrixDrive_RotMatrixX(w->ratio * 32768.0f);
+                    gif_SetAlpha(1, 7, 128);
+                    DrawLine(col, c1.f, c2.f, 0);
+                    MatrixDrive_PopMatrix();
+                }
+                gif_EndPacket();
+            }
+        }
+        p2o_DispVU1DObjMulti((char *)GOBJ_SUB(act));
+    }
+}
 
 /* the work record's reduce word as SetWormReduceRatio stores it; a store
    through WormWork moves WormGeo's reload of the work pointer (measured) */
@@ -182,7 +237,56 @@ typedef union { /* field names derived */
     int i;
 } WormFI; /* derived name */
 
-INCLUDE_ASM(GetWormRoute);
+inline void SetWormReduceRatio(GObj *act, float ratio)
+{
+    ((WormFI *)((char *)GOBJ_SUB(act)->work + 8))->f = ratio;
+}
+
+void GetWormRoute(GObj *act, void *target)
+{
+    WormVec d;
+    WormWork *w = GOBJ_SUB(act)->work;
+    ChainSet *r = w->route;
+    int i;
+    int j;
+    float len;
+
+    for (i = 0; i < r->num; i++) {
+        CopyVector(w->src[i], r->nodes[i].pos);
+        CopyVector(&w->src[i][9], target);
+
+        for (j = 1; j < 9; j++) {
+            sceVu0InterVectorXYZ(&w->src[i][j], &w->src[i][9], &w->src[i][0], j * 0.125f);
+            w->src[i][j].w = 1.0f;
+        }
+
+        sceVu0SubVector(&d, &w->src[i][1], &w->src[i][0]);
+        len = VectorLength(&d);
+
+        for (j = 1; j < 9; j++) {
+            WormVec v = {len * (_GetRandom() * 2.0f - 1.0f), len * (_GetRandom() * 2.0f - 1.0f),
+                         len * (_GetRandom() * 2.0f - 1.0f), 0.0f};
+
+            sceVu0AddVector(&w->src[i][j], &w->src[i][j], &v);
+        }
+    }
+
+    w->ratio = 0.0f;
+}
+
+inline void SetDirectWormTargetPos(GObj *act, void *pos)
+{
+    WormWork *w = GOBJ_SUB(act)->work;
+    ChainSet *r = w->route;
+    int i;
+
+    for (i = 0; i < r->num; i++) {
+        int n = r->cfg[i].num;
+        CopyVector(&r->nodes[i].pos[n - 1], pos);
+        r->nodes[i].pos[n - 1][3] = 1.0f;
+    }
+    w->ratio = 1.0f;
+}
 
 inline void TraceWormRoute(GObj *act, float t)
 {
@@ -233,13 +337,30 @@ void GetWormCaptureVector(void *out, GObj *act, void *node, float scale)
     sceVu0ScaleVector(out, out, scale);
 }
 
-INCLUDE_ASM(WormGeo);
+void WormGeo(GObj *act)
+{
+    WormWork *w = GOBJ_SUB(act)->work;
+
+    if (wormFirst != 0) {
+        ResetWormRoute(act, w);
+        wormFirst = 0;
+    }
+
+    outerProcess(act);
+
+    if (w->ratio < 1.0f) {
+        w->ratio = w->ratio + 0.05f;
+        if (1.0f < w->ratio) {
+            w->ratio = 1.0f;
+        }
+        SetWormReduceRatio(act, 1.0f);
+        TraceWormRoute(act, w->ratio);
+    }
+
+    getAnimation(act);
+}
 
 void WormDL(GObj *act)
 {
     disp(act);
 }
-
-INCLUDE_ASM(SetDirectWormTargetPos);
-
-INCLUDE_ASM(SetWormReduceRatio);

@@ -264,7 +264,34 @@ INCLUDE_ASM(AP1BeforeFunc);
 
 void subAP1Control(int x);
 
-INCLUDE_ASM(actAP1Start);
+void actAP1Start(GObj *g)
+{
+    Act *s = actInitialize(g);
+
+    actInitialize_ext_charcter(g);
+    s->flags18.ll &= ~(1LL << 32);
+    s->actMode = 5;
+    s->lookPri = 0;
+    s->lookTarget = 0;
+    GOBJ_ACT(g)->hit = 1;
+
+    ACTGameView_Add(girlGObj, g);
+
+    _ACTWait(1);
+
+    s->actKind = GetAP1SpecType(g);
+
+    {
+        AP1Vec v = {spiderDef[s->actKind].jump[0], spiderDef[s->actKind].jump[1],
+                    spiderDef[s->actKind].jump[2], 0};
+
+        CopyVector(s->jump, &v);
+    }
+
+    s->attack = (unsigned int)spiderDef[s->actKind].attack;
+    actCreateSubThread(subAP1BrainMain, 20);
+    actCreateSubThread(subAP1Control, 21);
+}
 
 int IsActCharDead(GObj *self)
 {

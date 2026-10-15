@@ -93,7 +93,18 @@ INCLUDE_ASM(reg_clipPacketBoundingBox);
 extern void
 mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in reg_DispAccessoryWithShadow */
 
-INCLUDE_ASM(reg_transMicroCode);
+static void reg_transMicroCode(Sub15C *o, int mask)
+{
+    if (o->model->disp != 0) {
+        mc_TransMicroCode(3);
+        return;
+    }
+    if (o->lightMtx->mode == 0) {
+        mc_TransMicroCode(1);
+        return;
+    }
+    mc_TransMicroCode(2);
+}
 
 /* MicroCode.h is not included: its mc_TransMicroCode does not agree with this file */
 extern void mc_SetMicroCode();
@@ -121,11 +132,114 @@ typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 /* PacketBufferStruct (DmaPacket.h): every packet address (dma, ptr, tail,
  * gif, end) is one pointer union, read and written through its members. */
 
-INCLUDE_ASM(setMatrix_27);
+static char *reg_setNMatrixPacket(Sub15C *o, int idx)
+{
+    void setMatrix(void)
+    {
+        char *c;
+        char *m;
 
-INCLUDE_ASM(setLight_31);
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x1000000D;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+        PacketBufferStruct.ptr.c = c + 0x50;
+        _CopyMatrix(c + 0x10, matrixptr + 0x140);
+        _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x200, matrixptr + 0x40);
+        PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+        _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x80, matrixptr + 0x40);
+        m = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.ptr.c = m + 0x40;
+        ((GifPkWord *)(m + 0x40))->w[0] = 0x15000010;
+        PacketBufferStruct.ptr.c = m + 0x44;
+        ((GifPkWord *)(m + 0x40))->w[1] = 0;
+        PacketBufferStruct.ptr.c = m + 0x48;
+        ((GifPkWord *)(m + 0x48))->d = 0;
+        PacketBufferStruct.ptr.c = m + 0x50;
+    }
+    void setLight(void)
+    {
+        char *c;
+        char *m;
+        char *n;
 
-INCLUDE_ASM(reg_setNMatrixPacket);
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x10000009;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C088000;
+        PacketBufferStruct.ptr.c = c + 0x10;
+        _GetCurrentMatrix(c + 0x10);
+        m = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.ptr.c = m + 0x80;
+        _CopyMatrix(m + 0x40, (char *)o->lightMtx + 64);
+        n = PacketBufferStruct.ptr.c;
+        ((GifPkWord *)n)->w[0] = 0x15000012;
+        n += 4;
+        PacketBufferStruct.ptr.c = n;
+        ((GifPkWord *)n)->w[0] = 0;
+        PacketBufferStruct.ptr.c = n + 4;
+        ((GifPkWord *)(n + 4))->d = 0;
+        PacketBufferStruct.ptr.c = n + 0xC;
+    }
+    char *pkt;
+    float *box;
+    struct DObjNode *scl;
+    int mode;
+
+    scl = (struct DObjNode *)(idx * 80 + (int)o->nodes);
+    mode = o->lightMtx->mode;
+    if (scl->scale[0] != 1.0f || scl->scale[1] != 1.0f || scl->scale[2] != 1.0f) {
+        _InitCurrentMatrix();
+        _SetCurrentMatrix((char *)o->nodeMtx + idx * 64);
+        _ScaleCurrentMatrix(o->nodes[idx].scale[0], o->nodes[idx].scale[1], o->nodes[idx].scale[2]);
+        _GetCurrentMatrix(matrixptr + 0x40);
+    } else {
+        _CopyMatrix(matrixptr + 0x40, (char *)o->nodeMtx + idx * 64);
+    }
+    _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
+    _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
+    box = o->model->box[0];
+    _SetCurrentMatrix(matrixptr + 0x300);
+    if (gsb_ClipBox(box) == 0) {
+        if (o->shadow != 0) {
+            light_MakeLightMatrix(o, idx);
+        }
+        return 0;
+    }
+    pkt = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.dma.c = pkt;
+    PacketBufferStruct.tail.c = 0;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
+    setMatrix();
+    if (mode != 0 && mode != 3) {
+        light_MakeLightMatrix(o, idx);
+        _SetCurrentMatrix(matrixptr + 0x40);
+        _ClearTransCurrentMatrix();
+        _MulCurrentMatrixL((char *)o->lightMtx);
+        setLight();
+    }
+    {
+        char *c = PacketBufferStruct.ptr.c;
+
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = c + 0x10;
+    }
+    return pkt;
+}
 
 typedef struct { /* field names derived */
     float x;
@@ -333,7 +447,79 @@ static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx, TexExt *ext,
     return pri;
 }
 
-INCLUDE_ASM(reg_dispNObj);
+static void reg_dispNObj(Sub15C *o)
+{
+    PObjModel *mdl;
+    PObjGroup *grp;
+    char *pk;
+    PacHeader *pkt;
+    float *box;
+    int i;
+    int j;
+    int r;
+    int pri;
+    int mode;
+
+    mdl = o->model;
+    grp = mdl->groups;
+    reg_transMicroCode(o, 0x3B5);
+    pk = reg_setNMatrixPacket(o, 0);
+    if (pk != 0) {
+        int prilist = 0x3B5;
+
+        for (i = 0; i < 13; i++) {
+            if ((prilist >> i) & 1) {
+                dl_SetDLPriority(i);
+                dl_OpenDma(5, pk, 0);
+                dl_CloseDma();
+            }
+        }
+        for (j = 0; j < mdl->partCount; j++, grp++) {
+            box = (float *)(j * 128 + (int)o->model->boxes);
+            _SetCurrentMatrix(matrixptr + 0x300);
+            if (gsb_ClipBox(box) != 0) {
+                pkt = grp->packets;
+                while (pkt != 0) {
+                    r = reg_clipPacketBoundingBox(pkt);
+                    if (r != 0) {
+                        pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+                        regTransTexturePacket(pkt->tex, pri);
+                        reg_transMaterialPacket(pkt, grp);
+                        reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
+                        dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                        dl_CloseDma();
+                        if (o->lightMtx->mode == 2) {
+                            if (pkt->tex1 != -1) {
+                                reg_dispSpecular(pkt, r, 0);
+                            }
+                        }
+                        mode = o->lightMtx->mode;
+                        if (pkt->tex2 != -1) {
+                            if (mode == 0) {
+                                debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
+                                mc_TransMicroCode(2, 0x10);
+                            }
+                            dl_SetDLPriority(4);
+                            regTransTexturePacket(pkt->tex2, 4);
+                            dl_OpenDma(2, regReflectionPacket, 6);
+                            dl_CloseDma();
+                            reg_chooseReflectionMicroCode(0, r, 4);
+                            dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                            dl_CloseDma();
+                            if (mode == 0) {
+                                mc_TransMicroCode(1, 0x10);
+                            }
+                        }
+                    }
+                    pkt = pkt->next;
+                }
+            }
+        }
+    }
+    if (o->shadow != 0) {
+        shadow_RenderVolume(o);
+    }
+}
 
 /* the packet that resets the dissolve state */
 static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16))) = {
@@ -344,11 +530,175 @@ static const unsigned int regDissolveResetPacket[4][4] __attribute__((aligned(16
     {0x15000000, 0, 0, 0},
 };
 
-INCLUDE_ASM(reg_dispMObj);
+static void reg_dispMObj(Sub15C *o)
+{
+    PObjModel *mdl;
+    PObjGroup *grp;
+    PacHeader *pkt;
+    char *pk;
+    struct DObjNode *w;
+    float alpha;
+    int i;
+    int j;
+    int r;
+    int dis;
+    int fade;
+    int pri;
+    int mode;
+    int prilist;
 
-static void reg_dispSObj(Sub15C *o, int idx);
+    mdl = o->model;
+    grp = mdl->groups;
+    reg_transMicroCode(o, 0x3B5);
+    for (i = 0; i < o->nodeNum; i++) {
+        w = (struct DObjNode *)(i * 80 + (int)o->nodes);
+        alpha = 1.0f - (1.0f - w->fade) * w->alpha;
+        if ((alpha < 0.0f ? -alpha : alpha) == 1.0f) {
+            continue;
+        }
+        pk = reg_setMMatrixPacket(o, i);
+        if (pk != 0) {
+            prilist = 0x3B5;
+            for (j = 0; j < 13; j++) {
+                if ((prilist >> j) & 1) {
+                    dl_SetDLPriority(j);
+                    dl_OpenDma(5, pk, 0);
+                    dl_CloseDma();
+                }
+            }
+            if (mdl->parts[i].morphCount != 0) {
+                if (grp->morph != 0) {
+                    if (buffer_ID != 0) {
+                        pkt = grp->packets;
+                    } else {
+                        pkt = grp->morph;
+                    }
+                    reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
+                } else {
+                    pkt = grp->packets;
+                }
+            } else {
+                pkt = grp->packets;
+            }
+            while (pkt != 0) {
+                r = reg_clipPacketBoundingBox(pkt);
+                if (r != 0) {
+                    fade = 0;
+                    if ((o->nodes[i].flags.ll & 1) == 1) {
+                        if (alpha != 0.0f) {
+                            fade = 1;
+                        }
+                    }
+                    pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), fade);
+                    regTransTexturePacket(pkt->tex, pri);
+                    reg_transMaterialPacket(pkt, grp);
+                    dis = 0;
+                    if (fade != 0) {
+                        dis = reg_setDissolve(alpha, pri);
+                    }
+                    if (dis != -1) {
+                        reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
+                        dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                        dl_CloseDma();
+                        if (o->lightMtx->mode == 2) {
+                            if (pkt->tex1 != -1) {
+                                reg_dispSpecular(pkt, r, 0);
+                            }
+                        }
+                        mode = o->lightMtx->mode;
+                        if (pkt->tex2 != -1) {
+                            if (mode == 0) {
+                                debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
+                                mc_TransMicroCode(2, 0x10);
+                            }
+                            dl_SetDLPriority(4);
+                            regTransTexturePacket(pkt->tex2, 4);
+                            dl_OpenDma(2, regReflectionPacket, 6);
+                            dl_CloseDma();
+                            reg_chooseReflectionMicroCode(0, r, 4);
+                            dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                            dl_CloseDma();
+                            if (mode == 0) {
+                                mc_TransMicroCode(1, 0x10);
+                            }
+                        }
+                    }
+                    if (dis == 1) {
+                        reg_resetDissolve(pri);
+                    }
+                }
+                pkt = pkt->next;
+            }
+        }
+        if (o->shadow != 0) {
+            shadow_RenderVolumeMulti(o, i);
+        }
+    }
+}
 
-INCLUDE_ASM(reg_dispSObj);
+static void reg_dispSObj(Sub15C *o, int idx)
+{
+    PObjGroup *grp;
+    PacHeader *pkt;
+    char *pk;
+    int i;
+    int r;
+    int pri;
+    int mode;
+
+    grp = o->model->groups;
+    pkt = grp->packets;
+    reg_transMicroCode(o, 0x3B5);
+    pk = reg_setMMatrixPacket(o, idx);
+    if (pk != 0) {
+        int prilist = 0x3B5;
+
+        for (i = 0; i < 13; i++) {
+            if ((prilist >> i) & 1) {
+                dl_SetDLPriority(i);
+                dl_OpenDma(5, pk, 0);
+                dl_CloseDma();
+            }
+        }
+        while (pkt != 0) {
+            r = reg_clipPacketBoundingBox(pkt);
+            if (r != 0) {
+                pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, grp);
+                reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
+                dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                dl_CloseDma();
+                if (o->lightMtx->mode == 2) {
+                    if (pkt->tex1 != -1) {
+                        reg_dispSpecular(pkt, r, 0);
+                    }
+                }
+                mode = o->lightMtx->mode;
+                if (pkt->tex2 != -1) {
+                    if (mode == 0) {
+                        debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
+                        mc_TransMicroCode(2, 0x10);
+                    }
+                    dl_SetDLPriority(4);
+                    regTransTexturePacket(pkt->tex2, 4);
+                    dl_OpenDma(2, regReflectionPacket, 6);
+                    dl_CloseDma();
+                    reg_chooseReflectionMicroCode(0, r, 4);
+                    dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                    dl_CloseDma();
+                    if (mode == 0) {
+                        mc_TransMicroCode(1, 0x10);
+                    }
+                }
+            }
+            pkt = pkt->next;
+        }
+    }
+    if (o->shadow != 0) {
+        shadow_RenderVolume(o);
+    }
+}
 
 INCLUDE_ASM(reg_dispCObj);
 
@@ -625,15 +975,243 @@ static void reg_dispLine(PacLine *node, float alpha)
     }
 }
 
-INCLUDE_ASM(reg_dispPointLineObj);
+static void reg_dispPointLineObj(Sub15C *o)
+{
+    PObjModel *mdl;
+    PObjGroup *grp;
+    char *hdr;
+    PacLine *node;
+    PacLineSet *set;
+    struct DObjNode *w;
+    long long h;
+    float alpha;
+    int idx;
+    int flag;
+    int i;
 
-INCLUDE_ASM(setMatrix_106);
+    mdl = o->model;
+    grp = mdl->groups;
+    hdr = o->lineHdr;
+    if (hdr != 0) {
+        idx = *(unsigned short *)(hdr + 2) % 3;
+    } else {
+        idx = -1;
+    }
+    flag = 0;
+    if (hdr != 0) {
+        flag = ((int)(*(long long *)hdr >> 14)) & 1;
+    }
+    if (currentScreenWidth != 0 || GlobalTimer != 0) {
+        flag = 1;
+    }
+    for (i = 0; i < o->nodeNum; i++) {
+        w = (struct DObjNode *)(i * 80 + (int)o->nodes);
+        set = grp->packets;
+        alpha = 1.0f - (1.0f - w->fade) * w->alpha;
+        if (!flag && (alpha < 0.0f ? -alpha : alpha) == 1.0f) {
+            continue;
+        }
+        _SetCurrentMatrix((char *)o->nodeMtx + i * 64);
+        _MulCurrentMatrixL(matrixptr + 0x100);
+        node = set->lines;
+        h = node->attr.word;
+        while (h & 0xE000) {
+            switch ((short)h >> 13) {
+            case 1:
+                reg_dispPoint(node, alpha, idx, flag);
+                break;
+            case 2:
+                reg_dispLine(node, alpha);
+                break;
+            }
+            node++;
+            h = node->attr.word;
+        }
+    }
+}
 
-INCLUDE_ASM(setLight_110);
+void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
+{
+    char *reg_setNMatrixPacketNoLightCalc(Sub15C * o, Sub15C * src, int idx)
+    {
+        void setMatrix(void)
+        {
+            char *c;
+            char *m;
 
-INCLUDE_ASM(reg_setNMatrixPacketNoLightCalc_102);
+            c = PacketBufferStruct.ptr.c;
+            PacketBufferStruct.tail.c = c;
+            ((GifPkWord *)c)->d = 0x1000000D;
+            PacketBufferStruct.ptr.c = c + 8;
+            ((GifPkWord *)(c + 8))->w[0] = 0;
+            PacketBufferStruct.ptr.c = c + 0xC;
+            PacketBufferStruct.gif.c = c + 0xC;
+            ((GifPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+            PacketBufferStruct.ptr.c = c + 0x50;
+            _CopyMatrix(c + 0x10, matrixptr + 0x140);
+            _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x200, matrixptr + 0x40);
+            PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+            _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x80, matrixptr + 0x40);
+            m = PacketBufferStruct.ptr.c;
+            PacketBufferStruct.ptr.c = m + 0x40;
+            ((GifPkWord *)(m + 0x40))->w[0] = 0x15000010;
+            PacketBufferStruct.ptr.c = m + 0x44;
+            ((GifPkWord *)(m + 0x40))->w[1] = 0;
+            PacketBufferStruct.ptr.c = m + 0x48;
+            ((GifPkWord *)(m + 0x48))->d = 0;
+            PacketBufferStruct.ptr.c = m + 0x50;
+        }
+        void setLight(void)
+        {
+            char *c;
+            char *m;
+            char *n;
 
-INCLUDE_ASM(reg_DispAccessoryWithShadow);
+            c = PacketBufferStruct.ptr.c;
+            PacketBufferStruct.tail.c = c;
+            ((GifPkWord *)c)->d = 0x10000009;
+            PacketBufferStruct.ptr.c = c + 8;
+            ((GifPkWord *)(c + 8))->w[0] = 0;
+            PacketBufferStruct.ptr.c = c + 0xC;
+            PacketBufferStruct.gif.c = c + 0xC;
+            ((GifPkWord *)(c + 8))->w[1] = 0x6C088000;
+            PacketBufferStruct.ptr.c = c + 0x10;
+            _GetCurrentMatrix(c + 0x10);
+            m = PacketBufferStruct.ptr.c;
+            PacketBufferStruct.ptr.c = m + 0x80;
+            _CopyMatrix(m + 0x40, (char *)o->lightMtx + 64);
+            n = PacketBufferStruct.ptr.c;
+            ((GifPkWord *)n)->w[0] = 0x15000012;
+            n += 4;
+            PacketBufferStruct.ptr.c = n;
+            ((GifPkWord *)n)->w[0] = 0;
+            PacketBufferStruct.ptr.c = n + 4;
+            ((GifPkWord *)(n + 4))->d = 0;
+            PacketBufferStruct.ptr.c = n + 0xC;
+        }
+        char *pkt;
+        float *box;
+        struct DObjNode *scl;
+        int mode;
+
+        scl = (struct DObjNode *)(idx * 80 + (int)o->nodes);
+        mode = o->lightMtx->mode;
+        if (scl->scale[0] != 1.0f || scl->scale[1] != 1.0f || scl->scale[2] != 1.0f) {
+            _InitCurrentMatrix();
+            _SetCurrentMatrix((char *)o->nodeMtx + idx * 64);
+            _ScaleCurrentMatrix(o->nodes[idx].scale[0], o->nodes[idx].scale[1],
+                                o->nodes[idx].scale[2]);
+            _GetCurrentMatrix(matrixptr + 0x40);
+        } else {
+            _CopyMatrix(matrixptr + 0x40, (char *)o->nodeMtx + idx * 64);
+        }
+        _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
+        box = o->model->box[0];
+        _SetCurrentMatrix(matrixptr + 0x300);
+        if (gsb_ClipBox(box) == 0) {
+            return 0;
+        }
+        pkt = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.dma.c = pkt;
+        PacketBufferStruct.tail.c = 0;
+        PacketBufferStruct.gif.c = 0;
+        PacketBufferStruct.end.c = 0;
+        setMatrix();
+        if (mode != 0 && mode != 3) {
+            o->model->shadowLength = src->model->shadowLength;
+            _CopyVector((char *)o + 0x830, (char *)src + 0x830);
+            _CopyMatrix((char *)o->lightMtx, (char *)src->lightMtx);
+            _CopyMatrix((char *)o->lightMtx + 64, (char *)src->lightMtx + 64);
+            _SetCurrentMatrix(matrixptr + 0x40);
+            _ClearTransCurrentMatrix();
+            _MulCurrentMatrixL((char *)o->lightMtx);
+            setLight();
+        }
+        {
+            char *c = PacketBufferStruct.ptr.c;
+
+            PacketBufferStruct.tail.c = c;
+            ((GifPkWord *)c)->d = 0x60000000;
+            PacketBufferStruct.ptr.c = c + 8;
+            ((GifPkWord *)(c + 8))->w[0] = 0;
+            PacketBufferStruct.ptr.c = c + 0xC;
+            ((GifPkWord *)(c + 8))->w[1] = 0;
+            PacketBufferStruct.ptr.c = c + 0x10;
+        }
+        return pkt;
+    }
+    PObjModel *mdl;
+    PObjGroup *grp;
+    char *pk;
+    PacHeader *pkt;
+    float *box;
+    int i;
+    int j;
+    int r;
+    int pri;
+    int mode;
+
+    mdl = o->model;
+    grp = mdl->groups;
+    reg_transMicroCode(o, 0x3B5);
+    pk = reg_setNMatrixPacketNoLightCalc(o, src, 0);
+    if (pk != 0) {
+        int prilist = 0x3B5;
+
+        for (i = 0; i < 13; i++) {
+            if ((prilist >> i) & 1) {
+                dl_SetDLPriority(i);
+                dl_OpenDma(5, pk, 0);
+                dl_CloseDma();
+            }
+        }
+        for (j = 0; j < mdl->partCount; j++, grp++) {
+            box = (float *)(j * 128 + (int)o->model->boxes);
+            _SetCurrentMatrix(matrixptr + 0x300);
+            if (gsb_ClipBox(box) != 0) {
+                pkt = grp->packets;
+                while (pkt != 0) {
+                    r = reg_clipPacketBoundingBox(pkt);
+                    if (r != 0) {
+                        pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+                        regTransTexturePacket(pkt->tex, pri);
+                        reg_transMaterialPacket(pkt, grp);
+                        reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
+                        dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                        dl_CloseDma();
+                        if (o->lightMtx->mode == 2) {
+                            if (pkt->tex1 != -1) {
+                                reg_dispSpecular(pkt, r, 0);
+                            }
+                        }
+                        mode = o->lightMtx->mode;
+                        if (pkt->tex2 != -1) {
+                            if (mode == 0) {
+                                debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
+                                mc_TransMicroCode(2, 0x10);
+                            }
+                            dl_SetDLPriority(4);
+                            regTransTexturePacket(pkt->tex2, 4);
+                            dl_OpenDma(2, regReflectionPacket, 6);
+                            dl_CloseDma();
+                            reg_chooseReflectionMicroCode(0, r, 4);
+                            dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                            dl_CloseDma();
+                            if (mode == 0) {
+                                mc_TransMicroCode(1, 0x10);
+                            }
+                        }
+                    }
+                    pkt = pkt->next;
+                }
+            }
+        }
+        if (o->shadow != 0) {
+            shadow_RenderVolume(o);
+        }
+    }
+}
 
 void reg_RenderReflection(Sub15C *o, int pri)
 {
@@ -676,13 +1254,247 @@ void reg_RenderReflection(Sub15C *o, int pri)
    code and three zero words, copied as one quadword. */
 static const sceVu0IVECTOR regEnemyEndTag = {0x15000010, 0, 0, 0}; /* derived name */
 
-INCLUDE_ASM(reg_setEMatrixPacket_120);
+void reg_DispEnemy(void *sub)
+{
+    Sub15C *o = sub;
+    PObjModel *mdl;
+    PObjGroup *grp;
+    PacHeader *pkt;
+    float alpha;
+    int i;
+    int pri;
 
-INCLUDE_ASM(reg_DispEnemy);
+    void reg_setEMatrixPacket(Sub15C * o, int prilist, float alpha)
+    {
+        int i;
 
-INCLUDE_ASM(reg_DispMultiPri);
+        inline void pack(void)
+        {
+            char *c;
+            char *m;
+            int n;
 
-INCLUDE_ASM(reg_DispObj);
+            /* the object's matrix count through the object record, the view
+             * reg_setMMatrixPacket takes of o */
+            n = o->nodeNum * 4;
+            c = PacketBufferStruct.ptr.c;
+            PacketBufferStruct.tail.c = c;
+            ((RegClusterHead *)c)->dma.tag = n | 0x10000002;
+            PacketBufferStruct.ptr.c = c + 8;
+            ((RegClusterHead *)c)->dma.vif[0] = 0x11000000;
+            PacketBufferStruct.ptr.c = c + 0xC;
+            PacketBufferStruct.gif.c = c + 0xC;
+            ((RegClusterHead *)c)->dma.vif[1] = ((n + 1) << 16) | 0x6C008000;
+            PacketBufferStruct.ptr.c = c + 0x10;
+            ((RegClusterHead *)c)->qwc = n + 1;
+            PacketBufferStruct.ptr.c = c + 0x14;
+            *(int *)(c + 0x14) = 0;
+            PacketBufferStruct.ptr.c = c + 0x18;
+            *(int *)(c + 0x18) = 0;
+            PacketBufferStruct.ptr.c = c + 0x1C;
+            ((RegClusterHead *)c)->alpha = alpha;
+            PacketBufferStruct.ptr.c = c + 0x20;
+            for (i = 0; i < o->nodeNum; i++) {
+                _MulMatrix(PacketBufferStruct.ptr.c, (char *)o->nodeMtx + i * 64,
+                           o->clusterMtx + i * 64);
+                PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+            }
+            m = PacketBufferStruct.ptr.c;
+            *(Qw128 *)m = *(Qw128 *)&regEnemyEndTag;
+            m += 0x10;
+            PacketBufferStruct.ptr.c = m;
+        }
+
+        PacketBufferStruct.dma.c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = 0;
+        PacketBufferStruct.gif.c = 0;
+        PacketBufferStruct.end.c = 0;
+        pack();
+        {
+            char *c = PacketBufferStruct.ptr.c;
+
+            PacketBufferStruct.tail.c = c;
+            ((DpkTag *)c)->tag = 0x60000000;
+            PacketBufferStruct.ptr.c = c + 8;
+            ((DpkTag *)c)->vif[0] = 0;
+            PacketBufferStruct.ptr.c = c + 0xC;
+            ((DpkTag *)c)->vif[1] = 0;
+            PacketBufferStruct.ptr.c = c + 0x10;
+        }
+        for (i = 0; i < 13; i++) {
+            if ((prilist >> i) & 1) {
+                dl_SetDLPriority(i);
+                dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+                dl_CloseDma();
+            }
+        }
+    }
+
+    mdl = o->model;
+    grp = mdl->groups;
+    alpha = 1.0f - o->nodes->fade;
+    reg_transMicroCode(o, 0x3A0);
+    reg_setEMatrixPacket(o, 0x3A0, alpha);
+    if ((alpha < 0.0f ? -alpha : alpha) == 0.0f) {
+        goto done;
+    }
+    {
+        for (i = 0; i < mdl->partCount; i++, grp++) {
+            if (mdl->parts[i].morphCount != 0) {
+                if (grp->morph != 0) {
+                    if (buffer_ID != 0) {
+                        pkt = grp->packets;
+                    } else {
+                        pkt = grp->morph;
+                    }
+                    reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
+                } else {
+                    pkt = grp->packets;
+                }
+            } else {
+                pkt = grp->packets;
+            }
+            while (pkt != 0) {
+                pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, grp);
+                reg_chooseMicroCode(&grp->materials[pkt->mat], 0, pri);
+                dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                dl_CloseDma();
+                pkt = pkt->next;
+            }
+        }
+    }
+done:
+    if (o->shadow != 0) {
+        shadow_RenderVolume(o);
+    }
+}
+
+void reg_DispMultiPri(Sub15C *o, int pri)
+{
+    PObjModel *mdl;
+    PObjGroup *grp;
+    PacHeader *pkt;
+    PacHeader *node;
+    char *pk;
+    struct DObjNode *w;
+    float alpha;
+    int i;
+    int j;
+    int r;
+    int dis;
+    int fade;
+    int mode;
+    int prilist;
+
+    mdl = o->model;
+    grp = mdl->groups;
+    reg_transMicroCode(o, 1 << pri);
+    for (i = 0; i < o->nodeNum; i++) {
+        w = (struct DObjNode *)(i * 80 + (int)o->nodes);
+        alpha = 1.0f - (1.0f - w->fade) * w->alpha;
+        if ((alpha < 0.0f ? -alpha : alpha) == 1.0f) {
+            continue;
+        }
+        pk = reg_setMMatrixPacket(o, i);
+        if (pk == 0) {
+            return;
+        }
+        prilist = 1 << pri;
+        for (j = 0; j < 13; j++) {
+            if ((prilist >> j) & 1) {
+                dl_SetDLPriority(j);
+                dl_OpenDma(5, pk, 0);
+                dl_CloseDma();
+            }
+        }
+        if (mdl->parts[i].morphCount != 0 && (node = grp->morph) != 0) {
+            pkt = node;
+            if (buffer_ID != 0) {
+                pkt = grp->packets;
+            }
+            reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
+        } else {
+            pkt = grp->packets;
+        }
+        while (pkt != 0) {
+            r = reg_clipPacketBoundingBox(pkt);
+            if (r != 0) {
+                fade = 0;
+                if ((o->nodes[i].flags.ll & 1) == 1) {
+                    if (alpha != 0.0f) {
+                        fade = 1;
+                    }
+                }
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, grp);
+                dis = 0;
+                if (fade != 0) {
+                    dis = reg_setDissolve(alpha, pri);
+                }
+                if (dis != -1) {
+                    reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
+                    dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                    dl_CloseDma();
+                    if (o->lightMtx->mode == 2) {
+                        if (pkt->tex1 != -1) {
+                            reg_dispSpecular(pkt, r, 0);
+                        }
+                    }
+                    mode = o->lightMtx->mode;
+                    if (pkt->tex2 != -1) {
+                        if (mode == 0) {
+                            debug_StdPrintfDummy("光源オフでリフレクションを表示.\n");
+                            mc_TransMicroCode(2, 0x10);
+                        }
+                        dl_SetDLPriority(4);
+                        regTransTexturePacket(pkt->tex2, 4);
+                        dl_OpenDma(2, regReflectionPacket, 6);
+                        dl_CloseDma();
+                        reg_chooseReflectionMicroCode(0, r, 4);
+                        dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                        dl_CloseDma();
+                        if (mode == 0) {
+                            mc_TransMicroCode(1, 0x10);
+                        }
+                    }
+                }
+                if (dis == 1) {
+                    reg_resetDissolve(pri);
+                }
+            }
+            pkt = pkt->next;
+        }
+    }
+}
+
+void reg_DispObj(Sub15C *o)
+{
+    if (o->dispType == 2) {
+        unsigned short type = o->model->mode.bits >> 16;
+
+        if ((type & 3) == 2) {
+            reg_dispPointLineObj(o);
+        } else {
+            reg_dispMObj(o);
+        }
+    } else {
+        unsigned short type = o->model->mode.bits >> 16;
+
+        switch (type & 3) {
+        case 0:
+            reg_dispNObj(o);
+            break;
+        case 1:
+            reg_dispCObj(o);
+            break;
+        case 2:
+            reg_dispPointLineObj(o);
+            break;
+        }
+    }
+}
 
 void reg_DispObj2(Sub15C *o, int idx)
 {

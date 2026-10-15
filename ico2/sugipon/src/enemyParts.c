@@ -138,7 +138,40 @@ INCLUDE_ASM(InitEnemyEye);
 
 INCLUDE_ASM(InitEnemyFootPrint);
 
-INCLUDE_ASM(ExecEnemyFootPrints);
+int ExecEnemyFootPrints(EnemyFootPrintHead *self)
+{
+    float q[4];
+    int i;
+    EnemyFootPrint *base;
+
+    base = self->buf;
+    for (i = 0; i < self->num; i++) {
+        EnemyFootPrint *fp = &base[i];
+        struct DObjNode *dl; /* the node address as an int sum, as EntryEnemyFootPrint's slot */
+        /* the free marker, set before the calls below and stored when the
+           footprint runs out */
+        int dead;
+
+        if (fp->life < 0) {
+            continue;
+        }
+        dl = (struct DObjNode *)(i * 80 + (int)self->dobj->nodes);
+        dl->fade = -(float)(fp->life + 1) / 30.0f;
+        dl->scale[0] = dl->scale[0] + fp->speed;
+        fp->speed = fp->speed * 0.9f;
+        dl->scale[1] = dl->scale[2] = dl->scale[0];
+        dead = -1;
+        SetQuaternionByAxisRotateVWithNoRegularize(q, rand(), YUnitVector);
+        GetMatrixFromQuaternionPos((char *)(self->dobj->nodeMtx + i * 0x40), q, fp->pos);
+        fp->life = fp->life + 1;
+        if (fp->life == 30) {
+            fp->life = dead;
+            /* node 1's fade, whichever footprint ran out */
+            self->dobj->nodes[1].fade = 1.0f;
+        }
+    }
+    return 1;
+}
 
 int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos)
 {

@@ -332,7 +332,32 @@ void itou_boss_gflag_init(void)
     memset(gflag, 0, sizeof(gflag) + sizeof(capsule));
 }
 
-INCLUDE_ASM(BossCtrlDL);
+void BossCtrlDL(void)
+{
+    CapsuleRec *base;
+    CapsuleRec *e;
+    unsigned int k;
+    int n;
+
+    n = 0;
+    base = capsule;
+    for (k = 0; k < 53; k++) {
+        e = &base[k];
+        if (e->state >= 2) {
+            if (stage_DispBgAnimation(&e->bga) != 0) {
+                pbga_start(&e->bga, 482);
+                _CopyVector(e->bga->pos, e->pos);
+                CopyQuaternion(e->bga->rot, e->quat);
+            }
+        }
+        if (e->state != 0) {
+            n++;
+        }
+    }
+    if ((debug_font_flag & 1) != 0) {
+        debug_Printf(10, 60, 0xFFFFFFFF, "capsule %d/%d", n, 53);
+    }
+}
 
 INCLUDE_ASM(InqCapsuleGhostBossStage);
 

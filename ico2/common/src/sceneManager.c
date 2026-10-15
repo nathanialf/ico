@@ -151,6 +151,27 @@ plain:
    line. */
 INCLUDE_ASM(InitStageLight);
 
+inline GObj *CreateLayoutedGObj(int id, int model, int accessary, int light, void *lay, int label,
+                                int key, int useStart)
+{
+    ObjKindEnt *layout = &objKindData[id];
+    GObj *gobj = CreateGObj(layout, id, label, key, useStart);
+    Sub15C *dobj = CSVSYSTEM_InitDObj(model, lay);
+    void *(*fn)(GObj *, void *);
+
+    /* the 0x15C slot is the int handle GOBJ_SUB reads (typedef.h) */
+    *(int *)&gobj->dobj = (int)dobj;
+    dobj->accessary = accessary;
+
+    light_AddLight(gobj, light, 1);
+
+    fn = layout->create;
+    if (fn != 0) {
+        GOBJ_SUB(gobj)->work = fn(gobj, lay);
+    }
+    return gobj;
+}
+
 typedef union { /* field names derived */
     long long flag;
     GamesysObjInfo info;
@@ -168,9 +189,123 @@ static inline void MoveNextStage_Get(SObjSimpleSetting *a, int kind) /* derived 
     }
 }
 
-static void initSceneGObj(int stage, int no);
+static void initSceneGObj(int stage, int no)
+{
+    SObjSimpleSetting a;
+    GenGeo *gen = &objLayout[no];
+    ObjKindEnt *lay = &objKindData[gen->kind];
+    GamesysObjInfo *info = gamesysObjInfoGet(gen->kind, no);
+    int mdl = gen->mdl;
+    int st;
+    GObj *gobj;
+    float ry;
+    int sno;
+    long long pri;
+    unsigned short fld;
 
-INCLUDE_ASM(initSceneGObj);
+    if (info != 0) {
+        sno = info->stage;
+        if (sno != stage) {
+            return;
+        }
+
+        ((GamesysObjInfoFlag *)info)->flag |= 1;
+
+        if (stageData[sno].flag1 == 1 && gamesysGirlStageGet() != sno) {
+            switch (gen->kind) {
+            case 4:
+                ReturnEnemyToGenerator(no);
+            case 15:
+            case 33:
+                gamesysObjInfoCls(gen->kind, no);
+                info = 0;
+                break;
+            }
+        }
+    }
+
+    debug_StdPrintfDummy("try layout index=[%d] model_id=[%d]------------\n", no, mdl);
+
+    st = 0;
+
+    if (lay->layouted != 0) {
+        /* one statement: a constructor built in a temporary and assigned
+           (the construct ico2/ito/src/lightning.c uses for its
+           LightningVtx) */
+        a = (SObjSimpleSetting){
+            {-gen->pos[0], -gen->pos[1], -gen->pos[2], 1.0f},
+            {gen->rot[0] * 3.1415927f / 180.0f, 0.0f, gen->rot[2] * 3.1415927f / 180.0f, 0.0f},
+            {gen->scale[0], gen->scale[1], gen->scale[2], 1.0f},
+            gen->initArg};
+
+        ry = gen->rot[1];
+        if (ry > 180.0f) {
+            ry -= 360.0f;
+        }
+        if (gen->rot[1] < -180.0f) {
+            ry += 360.0f;
+        }
+        a.rot[1] = ry * 3.1415927f / 180.0f;
+
+        if (info != 0) {
+            if (lay->infoInit != 0) {
+                lay->infoInit(&a, info);
+            } else {
+                a.pos[0] = info->pos[0];
+                a.pos[1] = info->pos[1];
+                a.pos[2] = info->pos[2];
+                a.rot[0] = info->rot[0];
+                a.rot[1] = info->rot[1];
+                a.rot[2] = info->rot[2];
+                st = info->work[0];
+            }
+        }
+
+        MoveNextStage_Get(&a, gen->kind);
+
+        gobj = CreateLayoutedGObj(gen->kind, mdl, gen->accessary, gen->light & 0x1F, &a, no,
+                                  (gen->flags >> 14) & 7, 0);
+
+        fld = gen->procPri;
+        pri = 0x1800;
+        if (fld != 0) {
+            pri = (long long)fld << 10;
+        }
+
+        if (gen->proc != 0) {
+            isysGObjProcAddS(gobj, gen->proc, 0, 0x13, pri);
+        } else if (lay->start != 0) {
+            isysGObjProcAddS(gobj, lay->start, 0, 0x13, pri);
+        }
+
+        if (gen->kind == 1) {
+            boyGObj = gobj;
+        }
+        if (gen->kind == 2) {
+            girlGObj = gobj;
+        }
+
+        if (info != 0 && lay->infoLoad != 0) {
+            lay->infoLoad(gobj, info);
+        }
+
+        if (st == 4) {
+            backStageGirlTargetEnemyGop = gobj;
+        }
+
+        if (gen->outGObj != 0) {
+            *gen->outGObj = (char *)gobj;
+        }
+
+        brainStatusDefaultSet(&brainGirl, gobj, no);
+
+        eBrainStatusSet(gobj, gen->kind);
+
+        ActSetStartBrainStatus(gobj, st);
+    }
+
+    MakeCollisionDependGObjList();
+}
 
 static void initParentLink(int id);
 
@@ -291,5 +426,3 @@ int HotInitSceneObjects(int a0)
 }
 
 INCLUDE_ASM(ChangeStageStartInfo);
-
-INCLUDE_ASM(CreateLayoutedGObj);

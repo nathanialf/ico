@@ -174,7 +174,57 @@ static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
     memcpy(dst + old_idx, src, amt);
 }
 
-INCLUDE_ASM(ExecStreamMotionManager);
+void ExecStreamMotionManager(void)
+{
+    int i;
+    int pct;
+
+    switch (streamState) {
+    case 0:
+        break;
+    case 1:
+        if (_infoUpdate() != 0) {
+            /* "detected the end of the stream motion" */
+            debug_StdPrintfDummy("ストリームモーションの終了を検知\n");
+            streamState = 0;
+            if (streamIdle != 0) {
+                if (bgMgrId != 0) {
+                    iosCdvdBackGroundMgrDelete(bgMgrId);
+                } else {
+                    _deleteStreamMotionManager();
+                }
+                if (streamNum != 0) {
+                    for (i = 0; i < streamNum; i++) {
+                        ClearStreamMotionEntry(streamEntry[i].obj.p);
+                        if (streamEntry[i].finishFunc != 0) {
+                            streamEntry[i].finishFunc(streamEntry[i].obj.p);
+                        }
+                    }
+                    streamNum = 0;
+                }
+            }
+        }
+        break;
+    }
+    if (bgMgrId != 0) {
+        unsigned int wp = ringWrite;
+        unsigned int rp = ringRead;
+
+        if (wp < rp) {
+            pct = wp + 163840 - rp;
+        } else {
+            pct = wp - rp;
+        }
+        pct = pct * 100 / 163840;
+        if (debug_font_flag & 1) {
+            debug_Printf(0, ScreenHeight / 2 - 16, 0xFF404000, " %d%%", pct);
+        }
+        if (debug_font_flag & 1) {
+            debug_Printf(58, ScreenHeight / 2 - 16, 0x40FF4000, "STANDBY %d CHARS %s", streamNum,
+                         streamOwner);
+        }
+    }
+}
 
 INCLUDE_ASM(MallocStreamMotionBuffer);
 

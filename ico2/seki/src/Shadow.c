@@ -695,6 +695,34 @@ void shadow_MakeObjectData(PObjModel *mdl)
     }
 }
 
+inline void shadow_SetLength(Sub15C *o, float len)
+{
+    if (0.0f < len) {
+        o->shadow->shadowLength = len;
+    } else {
+        o->shadow->shadowLength = o->model->shadowLength;
+    }
+}
+
+inline void shadow_Init(void)
+{
+    GObj *obj;
+    killShadow = 0;
+    killShadowRequest = 0;
+    for (obj = isysGObjGetExist_begin(); obj != 0; obj = isysGObjGetExist_next(obj)) {
+        Sub15C *node = GOBJ_SUB(obj);
+        if (node != 0) {
+            PObjModel *dl = node->model;
+            if (dl != 0) {
+                PObjModel *x = node->shadow;
+                if (x != 0) {
+                    x->mode.bits &= ~0x04000000;
+                }
+            }
+        }
+    }
+}
+
 /* one row of the shadow tool: the name it prints, the variable it edits and
  * the range it wraps that variable through */
 typedef struct ShadowToolRow { /* field names derived */
@@ -791,7 +819,3 @@ int shadow_Tool(void)
 INCLUDE_ASM(shadow_KillShadow);
 
 INCLUDE_ASM(shadow_DispCancel);
-
-INCLUDE_ASM(shadow_SetLength);
-
-INCLUDE_ASM(shadow_Init);

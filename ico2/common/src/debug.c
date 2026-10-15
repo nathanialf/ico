@@ -825,7 +825,28 @@ inline int debug_TryToGetStartStage(void)
     return -1;
 }
 
-INCLUDE_ASM(debug_SaveDebugOptionFile);
+static void debug_SaveDebugOptionFile(void)
+{
+    char buf[256];
+    int i;
+    int fd;
+    debug_StdPrintfDummy("==== Save Debug Option ======================================\n");
+    fd = debugSceOpen("thisIsYourDebugOption", 0x602) < 0;
+    if (fd) {
+        debug_StdPrintfDummy("debug_SaveDebugOptionFile: host file open error.\n");
+    } else {
+        for (i = 0; i < 69; i++) {
+            sprintf(buf, "#%s\n", debugOption[i].name);
+            sceWrite(fd, buf, strlen(buf));
+            sprintf(buf, "%d\n", *debugOption[i].val);
+            sceWrite(fd, buf, strlen(buf));
+        }
+        debugSceClose(fd);
+        debug_StdPrintfDummy("Save Debug Option file.\n");
+    }
+    debug_StdPrintfDummy("=============================================================\n");
+    debug_openLog();
+}
 
 INCLUDE_ASM(debug_GetDebugOption);
 
@@ -2379,7 +2400,7 @@ static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
         case 1:
         case 2:
         case 4:
-        case 0x2F:
+        case 0x2E:
             list[n].name = objKindData[kind].name;
             list[n].obj = g;
             n++;
@@ -2406,9 +2427,21 @@ static inline int debug_ListPadControlGobj(DbgGobjEnt *list) /* derived name */
 
 static int actGobjSelect = 0; /* derived name */
 
-static int debug_SelectActGobj(int reset);
-
-INCLUDE_ASM(debug_SelectActGobj);
+static int debug_SelectActGobj(int reset)
+{
+    DbgGobjEnt list[10];
+    int n;
+    int r;
+    n = debug_ListActGobj(list);
+    if (reset != 0) {
+        actGobjSelect = 0;
+    }
+    r = debug_SelectCsvWindow("CHARACTER DEBUG INFO", 0xA, 0x32, 0xB, list, 8, 0, 1, n, &actGobjSelect);
+    if (actGobjSelect >= 0) {
+        _ACTDebugPrint(list[actGobjSelect].obj);
+    }
+    return (r == -1) ? -1 : 0;
+}
 
 static int pad2GobjSelect = 0; /* derived name */
 

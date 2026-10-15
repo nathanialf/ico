@@ -148,7 +148,36 @@ INCLUDE_ASM(GetNbMotionFrames);
 
 INCLUDE_ASM(GetMotionPlaySpeedRatio);
 
-INCLUDE_ASM(execFrameTrigger);
+static void execFrameTrigger(void *self)
+{
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
+    float t;
+
+    t = (float)motionKind[w->motion].triggerStart;
+    if (0.0f <= t) {
+        if (w->trigger1Done == 0) {
+            if (t < w->animFrame) {
+                w->trigger1 = 1;
+                w->trigger1Done = 1;
+            } else {
+                w->trigger1 = 0;
+            }
+        } else {
+            w->trigger1 = 0;
+        }
+    }
+    t = (float)motionKind[w->motion].trigger2Start;
+    if (0.0f <= t) {
+        if (w->trigger2Done != 0) {
+            w->trigger2 = 0;
+        } else if (t < w->animFrame) {
+            w->trigger2 = 1;
+            w->trigger2Done = 1;
+        } else {
+            w->trigger2 = 0;
+        }
+    }
+}
 
 /* inlined here and in UpdateFrameCounter; the store order is the
  * source's own */

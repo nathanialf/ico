@@ -85,9 +85,92 @@ typedef struct { /* field names derived */
 extern StgBgaSet objAction[];
 extern StageAnimDef stageTable[];
 
-INCLUDE_ASM(stage_MakeGObj);
+static void stage_MakeGObj(int *dat, int no)
+{
+    SObjSimpleSetting init = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}};
+    int i;
+    GObj *g;
+    Sub15C *d;
+    int w;
+    int kind = dat[0];
+    int aux = dat[1];
+    StageAnim *e = &stageAnimTable[no];
 
-INCLUDE_ASM(stage_ApplyData);
+    for (i = 0; i < e->flags.b.count; i++) {
+        if (e->kind[i] == kind) {
+            debug_StdPrintfDummy("Bga Object Already %d %d %d\n", kind, kind, no);
+            return;
+        }
+    }
+    g = isysGObjAdd(0, 0, 0);
+    if (g == 0) {
+        debug_StdPrintfDummy("stage_MakeGObj:can't alloc gobj %d\n", no);
+        debug_assert(__FILE__, 501);
+        __assert(__FILE__, 501, "0");
+    }
+    e->kind[e->flags.b.count] = kind;
+    g->labelType = 1;
+    g->labelId = 0;
+    isysGObjKindTableAdd(g, aux);
+    isysGObjProcAdd(g, 0, 1, 0x16);
+    isysGObjProcAdd(g, 0, 1, 0x17);
+    isysGObjProcAdd(g, 0, 1, 0x18);
+    isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
+    g->word24 = 0;
+    e->obj[e->flags.b.count] = g;
+    d = CSVSYSTEM_InitDObj(kind, &init);
+    *(int *)&g->dobj = (int)d;
+    d->colPerNode = 1;
+    e->data[e->flags.b.count] = dat;
+    w = (e->flags.i & ~0x3FF) | ((e->flags.b.count + 1) & 0x3FF);
+    e->flags.i = w;
+    if (((w << 22) >> 22) >= 64) {
+        debug_Assert("Too much Stage Animation Objects.\n");
+        debug_assert(__FILE__, 522);
+        __assert(__FILE__, 522, "0");
+    }
+}
+
+void stage_ApplyData(char *name, char *data)
+{
+    const int *tbl[2] = {&stageData[stage_no].animLayoutFirst, &stageData[stage_no].labelTop};
+    char buf[1024];
+    int m;
+    int i;
+    int j;
+    int n;
+    int id;
+    GenGeo *rec;
+    StgBgaSet *ent;
+    StageAnimDef *obj;
+
+    for (m = 0; m < 2; m++) {
+        for (i = tbl[m][0]; i < tbl[m][1]; i++) {
+            rec = &objLayout[i];
+            n = rec->action;
+            if (n != 0) {
+                ent = &objAction[n];
+                for (j = 0; j < 2; j++) {
+                    id = ent->anim[j];
+                    obj = &stageTable[id];
+                    if (id != 815) {
+                        if (strcmp(name, obj->path) == 0) {
+                            if (strncmp(data, "BGA", 3) == 0) {
+                                obj->data = bga_InitData(data);
+                            } else {
+                                obj->data = data;
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    sprintf(buf, "stage_ApplyData:Data is not registered. \n\n%s\n", name);
+    debug_assertMessage(__FILE__, 577, buf);
+    __assert(__FILE__, 577, "e");
+}
 
 /* stage_Init reaches the table's records through a pointer */
 #define STG ((StageAnim *)stageAnimTable) /* derived name */
@@ -153,9 +236,59 @@ void stage_SetAnimation(int key, int mode, int frame)
     }
 }
 
-INCLUDE_ASM_LIT(stage_CheckAnimationFinish);
+inline int stage_CheckAnimationFinish(int key)
+{
+    int i;
+    StageAnim *e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        StageAnimDef *entry1 = e->entry1;
+        if (key == entry1->no) {
+            int mode = e->flags.i >> 30;
+            switch (mode) {
+            case 0:
+                return bga_CheckAnimationFinish(e->entry2);
+            case 1:
+                return bga_CheckSdfCameraFinish(e->entry3);
+            }
+        }
+    }
+    debug_StdPrintfDummy("stage_CheckAnimationFinish:illegal Animation No.\n");
+    debug_assert(__FILE__, 864);
+    __assert(__FILE__, 864, "0");
+    return 0;
+}
 
-INCLUDE_ASM(stage_ContinueAnimation);
+int stage_ContinueAnimation(int key, int next)
+{
+    int i;
+    StageAnim *e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        StageAnimDef *entry1 = e->entry1;
+        if (key == entry1->no) {
+            int mode = e->flags.i >> 30;
+            switch (mode) {
+            case 0:
+                if (bga_CheckAnimationFinish(e->entry2) != 0) {
+                    stage_SetAnimation(key, 0, -1);
+                    stage_SetAnimation(next, 1, 0);
+                    return 1;
+                }
+                return 0;
+            case 1:
+                if (bga_CheckSdfCameraFinish(e->entry3) == 0) {
+                    return 0;
+                }
+                stage_SetAnimation(key, 0, -1);
+                stage_SetAnimation(next, 1, 0);
+                return 1;
+            }
+        }
+    }
+    debug_StdPrintfDummy("stage_ContinueAnimation:illegal Animation No.\n");
+    debug_assert(__FILE__, 909);
+    __assert(__FILE__, 909, "0");
+    return 0;
+}
 
 inline int stage_CheckAnimationFrame(int key, int frame, int reset)
 {
@@ -323,7 +456,59 @@ INCLUDE_ASM(stage_PlayBgAnimation);
 
 INCLUDE_ASM(stage_PlayBgAnimationDissolve);
 
-INCLUDE_ASM(stage_MakePlayBgAnimation);
+BgaPlayNode *stage_MakePlayBgAnimation(int key)
+{
+    int i;
+    int found = -1;
+    float f = 1.0f;
+    short num = 0;
+    StageAnim *e = stageAnimTable;
+    BgaPlayNode *p;
+
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        StageAnimDef *entry1 = e->entry1;
+
+        if (key == entry1->no) {
+            found = i;
+            {
+                int w = e->flags.i;
+
+                int t = (w << 2) >> 22;
+
+                e->flags.i = (w & 0xC00FFFFF) | (((t + 1) & 0x3FF) << 20);
+                num = (short)t;
+            }
+            f = e->entry2->start;
+            break;
+        }
+    }
+
+    if (found == -1) {
+        /* "the given ID does not exist, or its animation is not loaded" */
+        debug_StdPrintfDummy("指定したIDが存在しないか、アニメーションが読み込まれていません.\n");
+        return 0;
+    }
+
+    p = iosMallocDebug(ios_partition_seki, 64, __FILE__, 1450);
+    if (p == 0) {
+        /* "cannot allocate memory for the stage segment (heap exhausted)" */
+        debug_StdPrintfDummy("ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n");
+        return 0;
+    }
+
+    ((PlayWord *)p)->l = ((((PlayWord *)p)->l & ~0x3FFF) | (key & 0x3FFF) | 0x4000) & ~0x8000;
+    p->num = num;
+    p->frame = f;
+    p->speed = 1.0f;
+    p->scale = 1.0f;
+    if (bgaPlayList != 0) {
+        bgaPlayList->prev = p;
+    }
+    p->prev = 0;
+    p->next = bgaPlayList;
+    bgaPlayList = p;
+    return p;
+}
 
 void stage_KillPlayBgAnimation(BgaPlayNode **self)
 {
@@ -367,8 +552,7 @@ inline void stage_KillPlayBgAnimationIfOverMaxCount(int key, int maxCount)
     }
 }
 
-/* Inlined twice in stage_DispBgAnimation and twice in
- * stage_DispBgAnimationNoFinish. */
+/* Inlined twice in stage_DispBgAnimation. */
 static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key) /* derived name */
 {
     int i;
@@ -379,18 +563,45 @@ static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key) /* d
         if (key == e->entry1->no) {
             if ((e->flags.i >> 30) == 0) {
                 for (k = 0; k < e->flags.b.count; k++) {
-                    *(void **)(*(char **)&e->obj[k]->dobj + 0x850) = node;
+                    *(void **)(*(char **)&e->obj[k]->dobj + 0x81C) = node;
                 }
             }
         }
     }
 }
 
-INCLUDE_ASM(stage_DispBgAnimation);
+int stage_DispBgAnimation(BgaPlayNode **self)
+{
+    if (*self == 0) {
+        return -1;
+    }
+    if ((*self)->kill) {
+        stage_KillPlayBgAnimation(self);
+        *self = 0;
+        return -1;
+    }
+    if ((*self)->scale != 1.0f) {
+        stage_SetScale((*self)->no, (*self)->scale);
+    }
+    if ((*self)->speed == 1.0f) {
+        stage_SetBgAnimationPlayNode(*self, (*self)->no);
+        (*self)->frame =
+            stage_PlayBgAnimation((*self)->no, (*self)->frame, (*self)->pos, (*self)->rot);
+    } else {
+        stage_SetBgAnimationPlayNode(*self, (*self)->no);
+        (*self)->frame = stage_PlayBgAnimationDissolve((*self)->no, (*self)->pos, (*self)->rot,
+                                                       (*self)->frame, (*self)->speed);
+    }
+    (*self)->play = 0;
+    if ((*self)->frame == -1.0f) {
+        stage_KillPlayBgAnimation(self);
+        *self = 0;
+        return -1;
+    }
+    return 0;
+}
 
 static void stage_SetCameraForceOff(void)
 {
     bga_SetCameraForceOff();
 }
-
-INCLUDE_ASM(stage_CheckAnimationFinish);
