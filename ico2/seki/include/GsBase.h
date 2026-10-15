@@ -32,8 +32,6 @@ int gsb_SyncGSSystem(void);
 int gsb_LoadStageSettings(void);
 int gsb_SaveStageSettings(void);
 void gsb_ClearFrameBuffer(void);
-int gsb_ResetSnap(void);
-int gsb_TakeSnap(void);
 int lockOtherEditing(void);
 int unlockOtherEditing(void);
 int gsb_ClipBox(float *p);

@@ -57,8 +57,8 @@
 #   sce/libscf/libscf.c, between ipuinit.c and sound.c in PAL's order, is not
 #   here: none of its 21 functions has a twin and its .data and .rodata bytes
 #   are not in the JPN ELF, so the member is not in the JPN link, and the
-#   source is not on this branch. sce/libscf/libscf.h stays for the one
-#   declaration kanbanBoot.c includes.
+#   source is not on this branch, and neither is its header: the December
+#   kanbanBoot.c calls nothing of it.
 
 sce/crt0.s
 sce/libkernl/klib.s

@@ -162,7 +162,6 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 - `config/data_schema.jpn.txt`: the data-only members written as C (member,
   section, element type, the game header that defines it, element count,
   MAIN.MAP's names).
-- `config/stubs.jpn.txt`: the campaign stubs (section 4).
 
 `tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
 `build.ninja` only), `clean` (delete `build/`), `distclean` (also
@@ -207,9 +206,11 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
   its offset by `build/data/<member>.alias.ld`;
-- writes the stubs from `config/stubs.jpn.txt`. While this target is
-  rebuilt from the tree seeded from `main`, a function whose C does not yet
-  give the Japanese bytes is listed there with its address range and its translation unit, and the C
+- writes the stubs, when `config/stubs.jpn.txt` has rows (on this branch it
+  has none, as on `main`, and this step does nothing). While a target is
+  rebuilt from a tree seeded from another, a function whose C does not yet
+  give that target's bytes is listed there with its address range and its
+  translation unit, and the C
   carries `INCLUDE_ASM(stem);` where the function stands in the file (the
   stem is the function's name, or the row's `file=<stem>` when two statics
   in two TUs share a name; a function defined in a `.c.inc` the TU includes

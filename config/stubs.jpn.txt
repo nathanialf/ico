@@ -7,8 +7,8 @@
 # `INCLUDE_ASM(stem);` at the function's place in the file, with the macro
 # from build/stubs/include_asm.h, which gen_stub_s.py writes beside the
 # stubs. tools/check_dev_native.py refuses an INCLUDE_ASM whose stem has no
-# row here. With no rows the mechanism is idle, as it is on main, where every
-# object of the PAL link is built from source.
+# row here. The list has no rows, so the mechanism is idle, as it is on main:
+# every object of the Japanese link is built from source.
 #
 # Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N] [file=<stem>]
 #          [in=<file.c.inc>] [inline] [def]
@@ -55,49 +55,3 @@
 # back from main; --carve-all and --restore-all do every text row.
 # tools/object_check.py compares each object's .text with the base and a
 # TU's function order with the target's after a link.
-#
-# Seeded from the function census against the PAL build, tools/correlate_elf.py
-# (the JPN disc ships no map: a name is the PAL listing's name of the twin the
-# census found). Two kinds of row:
-#   - a PAL function whose JPN twin's body differs: the PAL name, the twin's
-#     JPN range, and the PAL source that defines it. The trailing comment gives
-#     the census tier (anchor, gap, window, free or ordinal), the first
-#     differing instruction, the residue class and whether the extents agree.
-#     Every such pair is ordinal: paired by position inside a gap, so its name
-#     is provisional until the function matches from the PAL source.
-#   - a JPN function no PAL function claims (`jpn-only`): a derived name
-#     func_<VMA> and the source whose span holds it by link order; the
-#     comment says what PAL size and order suggest, which is not a name.
-#
-# Left out of the census's JPN-only list: 0x1000C0 (80 bytes) is PAL's _root,
-# its fill and RFU000_FullReset, byte-identical, merged by the boundary scan
-# (crt0.s and klib.s, a function ending in a syscall); 0x2642F8, 0x2643A4 and
-# 0x2643AC are PAL's sceSifWriteBackDCache and CB_DelayTh, byte-identical,
-# split elsewhere by the scan (a dead jr after a return). The census also
-# pairs actSt00aDoor2 (free tier, bodies equal) with 0x2204A0, which by order
-# and size is st02a.c's actSt02aDoor; that pair is equal and has no row.
-#
-# A name that two TUs define (gene_enemy) takes file=<stem> on its second
-# row; a nested function's row (name.N) takes file=<stem> as well, since a
-# stem is a C identifier.
-#
-# Rows added after the census, each with its reason on the line:
-#   - the census's PAL-only and jpn-only lists hold the same functions in
-#     layout_action.c, st00a.c, BgAnimation.c and windmill.c (same size and
-#     order): those rows carry the PAL name;
-#   - a nested function (name.N) whose enclosing function is a stub, and
-#     a function equal in C whose nested function is a stub;
-#   - a static inline function whose out-of-line copy only a stubbed
-#     caller needed, so gcc no longer emits it;
-#   - "a stub for emission order": gcc 2.9 emits an inline function after
-#     everything the file defines in place and after every INCLUDE_ASM, so
-#     every inline function the JPN emits before a stubbed one is a stub
-#     too; and a function equal in C that inlines one of those;
-#   - functions the census counted equal with immediates masked, whose
-#     immediates differ;
-#   - data rows for function-scope statics in .data that a carved
-#     function defined.
-
-#
-# .data objects the December C of a carved function used and PAL's does not
-# (the PAL function computes the value inline); no PAL name, so D_<VMA>.

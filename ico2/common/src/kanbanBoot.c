@@ -2,7 +2,6 @@
 #include "layout_texture.h"
 #include "gobj.h"
 #include "kanbanBoot.h"
-#include <libscf.h>
 #include "kanban.h"
 #include "GsBase.h"
 #include "main.h"

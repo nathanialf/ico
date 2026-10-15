@@ -30,19 +30,6 @@ the base ELF.
 > Ico. *ICO* is a trademark of its owners. No disc data is in this repository;
 > you supply your own disc image. Read [`docs/LEGAL.md`](docs/LEGAL.md).
 
-## Status
-
-271 of the build's 5736 functions are still campaign stubs: the C for them
-does not yet give the Japanese bytes, so the build writes each one from the
-user's own `baserom/jpn/baseelf.elf` at its place in its translation unit
-(`config/stubs.jpn.txt`, `tools/gen_stub_s.py`; nothing of them is
-committed). The gate passes with them in place, so every badge above reads
-100 %, and the badges split each figure into the share built from the tracked
-sources and the share from the disc: the stubs and the data tables. The
-`.text` source share is the matched code; the rest of it is the stubs. When
-the list is empty the mechanism is idle and the branch is finished in
-`main`'s shape.
-
 ## Quickstart
 
 ```sh
@@ -102,13 +89,12 @@ There is one badge per section of the base ELF, in link order.
 `docs/progress.json` from the built ELF and its link map.
 
 A badge reads `100 %` when the whole section equals the base. Where part of a
-section comes from the user's ELF, the badge splits the figure: `source` is
-the share placed by objects compiled or assembled from the tracked sources
-under `ico2/` and `sce/`, and `disc` is the share of the data-only members the
-build generates from the user's own ELF (next section) and of the campaign
-stubs (Status, above). `.sbss` and `.bss` hold no file bytes, so their figure
-is the share of the range that an object defines and the link places at the
-base's addresses.
+section comes from the data tables (next section), the badge splits the
+figure: `source` is the share placed by objects compiled or assembled from
+the tracked sources under `ico2/` and `sce/`, and `disc` is the share of the
+data-only members the build generates from the user's own ELF. `.sbss` and
+`.bss` hold no file bytes, so their figure is the share of the range that an
+object defines and the link places at the base's addresses.
 
 ## Data tables
 
@@ -145,14 +131,13 @@ sce/<archive>/              Sony's runtime libraries (libkernl, libgraph,
                             libdma, libpad, libmc, libcdvd, libmpeg, libipu,
                             libpkt, libsndn2, libvu0) and the compiler's
                             newlib libc and libm and libgcc, plus crt0.s;
-                            the Japanese link has no libscf member, so
-                            sce/libscf/ keeps only its header
+                            the Japanese link has no libscf member
 config/                     link_order.jpn.txt (every object in link order),
                             link.jpn.ld (the linker script),
                             data_members.jpn.txt (the data-only members),
                             data_schema.jpn.txt (the record type, count and
                             names of each member built as C),
-                            stubs.jpn.txt (the campaign stubs), sha1sums.txt
+                            sha1sums.txt
 tools/                      setup, extraction, build and gate scripts, the
                             same on every target branch, listed in
                             tools/README.md
