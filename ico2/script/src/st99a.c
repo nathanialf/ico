@@ -23,23 +23,87 @@ static ActMail spider_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail st17aTest_mes[2] = {{397}, {396}}; /* derived name */
 
-INCLUDE_ASM(actExplode);
+void actExplode(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSplash1);
+    explode_mes[0].func = actExplodeChk;
+    act->mail = explode_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
-INCLUDE_ASM(actSplash2);
+void actSplash1(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actWave);
+    splash1_mes[0].func = actSplash1Chk;
+    act->mail = splash1_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSplash2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    splash2_mes[0].func = actSplash2Chk;
+    act->mail = splash2_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actWave(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    wave_mes[0].func = actWaveChk;
+    act->mail = wave_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSpider);
 
-INCLUDE_ASM(actDevilLightning);
+void actDevilLightning(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actQueenLightning);
+    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3242, 0, 483, 0);
+}
+
+void actQueenLightning(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3241, 0, 484, 0);
+}
 
 INCLUDE_ASM(actSt17aTest);
 
-INCLUDE_ASM(actSt27aWave);
+void actSt27aWave(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    st27aWave_mes[0].func = actSt27aWaveChk;
+    act->mail = st27aWave_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actExplodeChk);
 
@@ -72,4 +136,13 @@ void actSpiderChk(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt17aTestChk);
+static void actSt17aTestChk(GObj *volatile self)
+{
+    while (1) {
+        while ((pad[1].flags & 0x20) == 0) {
+            _ACTWait(1);
+        }
+        stage_SetAnimation(71, 1, 0);
+        _ACTWait(1);
+    }
+}

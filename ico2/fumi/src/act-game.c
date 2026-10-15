@@ -307,7 +307,13 @@ INCLUDE_ASM_LIT(ACTGameView_Add);
    read as int. */
 INCLUDE_ASM(ACTGameView_Loop);
 
-INCLUDE_ASM(ACTGame_LwsEffectProcess);
+static void ACTGame_LwsEffectProcess(GObj *self)
+{
+    BgaDisp *m = GOBJ_ACT(self)->enemy->lwsEffect;
+    if (m != 0) {
+        DispMultiBgaManagerWithKind(0x1B1, m, 1);
+    }
+}
 
 /* both absolute values are written as `((x) < 0 ? -(x) : (x))` */
 int _ACTGame_SearchGObj(GObj *self, GObj *tgt, float range, float height, int angle, float *out)

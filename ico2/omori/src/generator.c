@@ -140,7 +140,44 @@ static inline unsigned char IsGeneratorSafePosition(float *pos) /* derived name 
     return 1;
 }
 
-INCLUDE_ASM(GetGeneratorSafePosition);
+void GetGeneratorSafePosition(float *dst, GObj *gobj)
+{
+    float pos[4];
+    int i;
+
+    GetRootPosition(pos, gobj);
+    if (IsGeneratorSafePosition(pos)) {
+        dst[0] = pos[0];
+        dst[1] = pos[1];
+        dst[2] = pos[2];
+        return;
+    }
+
+    {
+        float probe[4];
+
+        for (i = 0; i < 6; i++) {
+            const SafePosOffset *e = &generatorSubPosition[i];
+
+            if (e->kind != gobj->labelId) {
+                continue;
+            }
+            probe[0] = -e->x;
+            probe[1] = -e->y;
+            probe[2] = -e->z;
+            if (IsGeneratorSafePosition(probe)) {
+                dst[0] = probe[0];
+                dst[1] = probe[1];
+                dst[2] = probe[2];
+                return;
+            }
+        }
+        GetRootPosition(probe, gobj);
+        dst[0] = probe[0];
+        dst[1] = probe[1];
+        dst[2] = probe[2];
+    }
+}
 
 /* stop the current animation slot's manager (ResetCurrentBga) and start the
    manager of a slot (EntryBga), for endfunc_BGA and GeneratorGeo */

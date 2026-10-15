@@ -2809,7 +2809,61 @@ static inline void debug_MenuHelp(void) /* derived name */
     }
 }
 
-INCLUDE_ASM(debug_Menu);
+void debug_Menu(void)
+{
+    int state;
+    int r;
+    int (*fn)(int);
+
+    if ((pad[0].now & 2) == 0) {
+        if (pad[0].flags & 0x100) {
+            if (menuState == 0) {
+                debugBackGroundDisableFlag = 1;
+                menuState = 1;
+                menuSelect = 0;
+                return;
+            }
+        }
+    }
+    state = menuState;
+    if (state == 1) {
+        r = debug_SelectCsvWindow("DEBUG MENU", 0xA, 0x32, 0xB, debugMenu, 0xC, 0, 1, 0x1A,
+                                  &menuSelect);
+        switch (r) {
+        case 0:
+            break;
+        case -1:
+            menuState = 0;
+            debugBackGroundDisableFlag = 0;
+            break;
+        default:
+            menuState = 2;
+            menuArg = state;
+            break;
+        }
+        debug_MenuHelp();
+        debug_MenuBlink();
+    } else if (state == 2) {
+        fn = debugMenu[menuSelect].fn;
+        if (fn == 0) {
+            menuState = 0;
+            debugBackGroundDisableFlag = 0;
+        } else {
+            r = fn(menuArg);
+            menuArg = 0;
+            if (r == -1) {
+                menuState = 1;
+            } else if (r != 0) {
+                if (debugMenu[menuSelect].stay == 0) {
+                    menuState = 1;
+                } else {
+                    menuState = 0;
+                    debugBackGroundDisableFlag = 0;
+                }
+            }
+        }
+    }
+}
 
 void debug_Menu_off(void)
 {

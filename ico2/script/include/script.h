@@ -42,7 +42,7 @@ inline void scpDoorTypeUpSwitch(struct GObj *volatile self);
 void scpAdpcmPlayRequestFunc(int kind, struct SqEntry **id, int ch, int loopNum, int play);
 int scpAdpcmPlayRequestNum(void);
 int scpAdpcmFadeCloseFunc(struct SqEntry *p, short fade);
-int scpAdpcmCloseChkFunc(struct SqEntry **h);
+int scpAdpcmCloseChkFunc(struct SqEntry *p);
 void scpDeamon(struct GObj *volatile self);
 void scpWoodBox(struct GObj *volatile self);
 int scpIsTorchLightOn(int id);

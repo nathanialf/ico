@@ -963,6 +963,17 @@ static inline const EscortPoint *searchEscortPoint(int area, int point) /* deriv
 
 INCLUDE_ASM(IsGirlStatusEscortEnable);
 
+inline int isMustCheckCylinder(void *a, void *b)
+{
+    if ((a == (void *)((int *)boyGObj) && b == (void *)girlGObj) ||
+        (a == (void *)girlGObj && b == (void *)((int *)boyGObj))) {
+        if (GOBJ_ACT(girlGObj)->actMode == 0x4E) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static inline void dispEscortSphere(void *pos, float r, unsigned char in) /* derived name */
 {
     Col4 col;
@@ -1069,5 +1080,3 @@ INCLUDE_ASM(afterGirlPulledGo);
 INCLUDE_ASM(actGirlJump);
 
 INCLUDE_ASM(afterGirlSupportBGBegin);
-
-INCLUDE_ASM(isMustCheckCylinder);

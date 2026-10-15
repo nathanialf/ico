@@ -143,7 +143,18 @@ INCLUDE_ASM(actSt10lGondolaSwitch);
 
 INCLUDE_ASM(actSt10lEneCam1Chk);
 
-INCLUDE_ASM(actSt10lBoxChk);
+void actSt10lBoxChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerFloorAttr(scpSearchGobj(902), 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(266);
+}
 
 void actSt10lSekizoEvent(int x)
 {

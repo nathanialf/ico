@@ -19,6 +19,16 @@ extern const MotionDef motionKind[];
    fills the entries, the resets clear them */
 int *motionTable[1086] = {0};
 
+inline void ResetStatic2MotionManager(int seg)
+{
+    int i;
+    for (i = 0; i <= 1085; i++) {
+        if (motionKind[i].area == seg) {
+            motionTable[i] = 0;
+        }
+    }
+}
+
 /* the top of the motion file InitMotionFile relocates, the base every
    stored offset in it is added to */
 static char *motionFileBase = 0; /* derived name */
@@ -161,5 +171,3 @@ int GetMotionMemorySize(int seg)
 }
 
 INCLUDE_ASM(ResetDynamicMotionManager);
-
-INCLUDE_ASM(ResetStatic2MotionManager);

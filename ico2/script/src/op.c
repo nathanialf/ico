@@ -16,7 +16,6 @@
 #include "gobj_process.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 /* .sbss: titleSubEnd and demoSubEnd are the flags a title or demo sub-thread
    raises when it is done and its parent waits on, titleSubAdpcm and demoAdpcm
@@ -90,7 +89,137 @@ void actTitleShortCut(GObj *volatile self);
    of the body: it reads and writes the parent's `t` and is inlined at both of
    its calls.  The tail after each demo (the thread priority and the fade out)
    is written out in case 0 and again in case 1. */
-INCLUDE_ASM(actOpDemo01);
+void actOpDemo01(GObj *volatile self)
+{
+    GObj *x = self;
+    GProc *th;
+    int t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
+
+    inline int tick(void) /* derived name */
+    {
+        if ((current_layout_id == 9 || current_layout_id == 10) && lt_continue_selected == 0) {
+            t--;
+        } else {
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
+        }
+        if (t < 0) {
+            current_layout_id = 51;
+            return 1;
+        }
+        return 0;
+    }
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    stgmgrNextStagePreLoadForceStageSet(0);
+
+    actCreateSubThread(actSubMpegReturnPreload, 21);
+
+    actCreateSubThread(actSt26aConte01_1_newgame, 21);
+
+    scpBoyControlReadDisable = 1;
+
+    while (kanbanBootEnd == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeOut(255.0f, 0, 0, 0);
+    titleAdpcm = 0;
+
+    while (1) {
+        titleSubEnd = 0;
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+        opTitleLogoMode = 0;
+
+        stage_SetAnimation(500, -1, -2);
+        stage_SetAnimation(492, -1, -2);
+        stage_SetAnimation(493, -1, -2);
+        stage_SetAnimation(494, -1, -2);
+        stage_SetAnimation(496, -1, -2);
+        stage_SetAnimation(497, -1, -2);
+        stage_SetAnimation(498, -1, -2);
+
+        switch (opDemoMode) {
+        case 0:
+            debug_StdPrintfDummy("mode 0");
+            current_layout_id = 51;
+
+            if (titleAdpcm != 0) {
+                scpAdpcmFadeCloseFunc(titleAdpcm, 288);
+            }
+            titleAdpcm = 0;
+            titleSubAdpcm = 0;
+            th = actCreateSubThread(actTitleReadTimeDemo0, 21);
+
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
+            while (titleSubAdpcm == 0) {
+                _ACTWait(1);
+            }
+            _ACTWait(30);
+
+            while (1) {
+                _ACTWait(1);
+                if (titleSubEnd == 0) {
+                    if (pad[0].flags & 0x800) {
+                        opDemoMode = 1;
+                        opDemoNextMode = 2;
+                        break;
+                    }
+                } else if (tick()) {
+                    opDemoMode = 2;
+                    break;
+                }
+            }
+
+            if (titleSubAdpcm != 0) {
+                soundDataClose(titleSubAdpcm);
+            }
+            iosThreadSetPri(&((GProc *)th)->thread, 34);
+            scpFadeOut(16.0f, 0, 0, 0);
+            break;
+
+        case 1:
+            debug_StdPrintfDummy("mode 1");
+            opTitleLogoMode = 1;
+            lt_switch_layout(9);
+            th = actCreateSubThread(actTitleShortCut, 21);
+
+            t = (60 - systemStatus[0] * 10) / systemStatus[1] * 10;
+
+            while (1) {
+                _ACTWait(1);
+                if (titleSubEnd != 0 && tick()) {
+                    lt_switch_layout(51);
+                    opDemoMode = opDemoNextMode;
+                    break;
+                }
+            }
+            iosThreadSetPri(&((GProc *)th)->thread, 34);
+            scpFadeOut(16.0f, 0, 0, 0);
+            break;
+
+        case 2:
+            debug_StdPrintfDummy("mode 2");
+            opDemoMode = 1;
+            opDemoNextMode = 0;
+            mpegPlayReturnStage = 1;
+            if (titleAdpcm != 0) {
+                scpAdpcmFadeCloseFunc(titleAdpcm, 1024);
+                while (scpAdpcmCloseChkFunc(titleAdpcm) != 0) {
+                    _ACTWait(1);
+                }
+            }
+            titleAdpcm = 0;
+            _ACTWait(1);
+            stgmgrForceSwitchWithFade(57, 256.0f, 4.0f);
+            _ACTWait(0);
+            break;
+        }
+    }
+}
 
 /* .sdata, after actOpDemo01's traces: the second demo's and the first
    scene's stream handles, the title logo's step and the title's stream handle
@@ -155,7 +284,190 @@ inline void actSubMpegReturnPreload(GObj *volatile self)
     stgmgrNextStagePreLoadForceNoCancel(1);
 }
 
-INCLUDE_ASM(actTitleReadTimeDemo0);
+void actTitleReadTimeDemo0(GObj *volatile self)
+{
+    debug_StdPrintfDummy("realtime demo %d\n", frame_count);
+
+    stage_SetAnimation(2, 0, -1);
+
+    monitorCameraHold = 0;
+
+    _ACTWait(1);
+    lt_switch_layout(51);
+
+    _ACTWait(1);
+
+    scpSearchGobj(41)->active = 0;
+    scpSearchGobj(42)->active = 0;
+    scpSearchGobj(43)->active = 0;
+    scpSearchGobj(45)->active = 0;
+    scpSearchGobj(46)->active = 0;
+    scpSearchGobj(47)->active = 0;
+    scpSearchGobj(48)->active = 0;
+
+    scpSearchGobj(44)->active = 1;
+
+    scpAdpcmPlayRequestFunc(6, &titleSubAdpcm, 1, 1, 1);
+    while (titleSubAdpcm == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(3.0f);
+
+    stage_SetAnimation(492, 1, 0);
+
+    while (stage_ContinueAnimation(492, 493) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(scpSearchGobj(56), 990);
+    scpSearchGobj(56)->active = 1;
+    scpPlayMot(scpSearchGobj(57), 997);
+    scpSearchGobj(57)->active = 1;
+    scpPlayMot(scpSearchGobj(58), 1004);
+    scpSearchGobj(58)->active = 1;
+
+    while (stage_ContinueAnimation(493, 494) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayStart(boyGObj);
+
+    scpPlayMot(boyGObj, 257);
+
+    scpPlayMot(scpSearchGobj(53), 922);
+    scpSearchGobj(53)->active = 1;
+    scpPlayMot(scpSearchGobj(54), 944);
+    scpSearchGobj(54)->active = 1;
+    scpPlayMot(scpSearchGobj(55), 967);
+    scpSearchGobj(55)->active = 1;
+    scpPlayMot(scpSearchGobj(56), 991);
+    scpPlayMot(scpSearchGobj(57), 998);
+    scpPlayMot(scpSearchGobj(58), 1005);
+
+    while (stage_ContinueAnimation(494, 495) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 258);
+    scpPlayMot(scpSearchGobj(53), 923);
+    scpPlayMot(scpSearchGobj(54), 945);
+    scpPlayMot(scpSearchGobj(55), 968);
+    scpPlayMot(scpSearchGobj(56), 992);
+    scpPlayMot(scpSearchGobj(57), 999);
+    scpPlayMot(scpSearchGobj(58), 1006);
+
+    while (stage_CheckAnimationFrame(495, 60, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpSearchGobj(57)->active = 0;
+    scpSearchGobj(54)->active = 0;
+
+    while (stage_ContinueAnimation(495, 496) == 0) {
+        _ACTWait(1);
+    }
+
+    scpSearchGobj(57)->active = 1;
+    scpSearchGobj(54)->active = 1;
+
+    scpPlayMot(boyGObj, 259);
+    scpPlayMot(scpSearchGobj(53), 924);
+    scpPlayMot(scpSearchGobj(54), 946);
+    scpPlayMot(scpSearchGobj(55), 969);
+    scpPlayMot(scpSearchGobj(56), 993);
+    scpPlayMot(scpSearchGobj(57), 1000);
+    scpPlayMot(scpSearchGobj(58), 1007);
+
+    while (stage_CheckAnimationFrame(496, 90, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpSearchGobj(51)->active = 0;
+
+    while (stage_ContinueAnimation(496, 497) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(scpSearchGobj(53), 925);
+    scpPlayMot(scpSearchGobj(54), 947);
+    scpPlayMot(scpSearchGobj(55), 970);
+    scpPlayMot(scpSearchGobj(56), 994);
+    scpPlayMot(scpSearchGobj(57), 1001);
+    scpPlayMot(scpSearchGobj(58), 1008);
+
+    _ACTWait(1);
+
+    scpSearchGobj(54)->active = 0;
+
+    while (stage_ContinueAnimation(497, 498) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 261);
+    scpPlayMot(scpSearchGobj(53), 926);
+    scpPlayMot(scpSearchGobj(54), 948);
+    scpPlayMot(scpSearchGobj(55), 971);
+    scpPlayMot(scpSearchGobj(56), 995);
+    scpPlayMot(scpSearchGobj(57), 1002);
+    scpPlayMot(scpSearchGobj(58), 1009);
+
+    _ACTWait(1);
+
+    scpSearchGobj(51)->active = 1;
+    scpSearchGobj(54)->active = 1;
+
+    scpSearchGobj(41)->active = 1;
+    scpSearchGobj(42)->active = 1;
+    scpSearchGobj(43)->active = 1;
+    scpSearchGobj(45)->active = 1;
+    scpSearchGobj(46)->active = 1;
+    scpSearchGobj(47)->active = 1;
+    scpSearchGobj(48)->active = 1;
+
+    scpSearchGobj(44)->active = 0;
+
+    while (stage_ContinueAnimation(498, 500) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 262);
+    scpPlayMot(scpSearchGobj(53), 927);
+    scpPlayMot(scpSearchGobj(54), 949);
+    scpPlayMot(scpSearchGobj(55), 972);
+    scpPlayMot(scpSearchGobj(56), 996);
+    scpPlayMot(scpSearchGobj(57), 1003);
+    scpPlayMot(scpSearchGobj(58), 1010);
+
+    debug_StdPrintfDummy("finish anim %d\n", frame_count);
+
+    debug_StdPrintfDummy("frame anim %d\n", frame_count);
+
+    _ACTWait(900);
+
+    _ACTWait(1000);
+
+    opTitleLogoMode = 1;
+    while (stage_CheckAnimationFrame(500, 1300, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    monitorCameraHold = 1;
+
+    debug_StdPrintfDummy("game mode %d %d\n", frame_count, gflagChk(353));
+
+    lt_switch_layout(9);
+
+    if (titleAdpcm == 0) {
+        scpAdpcmPlayRequestFunc(54, &titleAdpcm, 0, 0, 1);
+    }
+    titleSubEnd = 1;
+
+    _ACTWait(0);
+}
 
 inline void actSt26aConte01_1_newgame(GObj *volatile self)
 {

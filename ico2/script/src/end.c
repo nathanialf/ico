@@ -206,7 +206,21 @@ void actEndDemo11Chk(GObj *volatile self)
     actCreateSubThread(actConte14_11, 21);
 }
 
-INCLUDE_ASM(actConte14_11);
+void actConte14_11(GObj *volatile self)
+{
+    preload(2);
+
+    scpPlayStart(boyGObj);
+
+    stage_SetAnimation(778, 1, 0);
+
+    while (stage_CheckAnimationFinish(778) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    RequestStageChange(2, boyGObj, girlGObj, 1.0f, 8.0f);
+}
 
 void actEndDemo12Chk(GObj *volatile self)
 {
@@ -215,7 +229,19 @@ void actEndDemo12Chk(GObj *volatile self)
     actCreateSubThread(actConte14_12, 21);
 }
 
-INCLUDE_ASM(actConte14_12);
+void actConte14_12(GObj *volatile self)
+{
+    stage_SetAnimation(779, 1, 0);
+
+    preload(4);
+
+    while (stage_CheckAnimationFinish(779) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    RequestStageChangeWithColor(4, boyGObj, girlGObj, 16.0f, 16.0f, 255, 255, 255);
+}
 
 void actEndDemo13Chk(GObj *volatile self)
 {

@@ -181,7 +181,18 @@ INCLUDE_ASM(actSt02aFence);
 
 INCLUDE_ASM(actSt02aWaterFall);
 
-INCLUDE_ASM(actSt02aBoxEvent2);
+void actSt02aBoxEvent2(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(99) == 0) {
+        scpSearchGobj(1588)->active = 0;
+    }
+}
 
 INCLUDE_ASM(actSt02aEne);
 
@@ -208,7 +219,15 @@ void actSt02aEnemy1(GObj *volatile self)
 
 INCLUDE_ASM(actSt02aEnemy2);
 
-INCLUDE_ASM(actSt02aSekizo);
+void actSt02aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 110, 88, 0, 18, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
+}
 
 INCLUDE_ASM(actSt02aWay);
 
@@ -295,7 +314,19 @@ void actSt02aGondolaMain(GObj *volatile self)
 
 INCLUDE_ASM(actSt02aGondolaSwitch);
 
-INCLUDE_ASM(actSt02aEneChk);
+void actSt02aEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    gflagOn(108);
+    gflagOn(109);
+}
 
 void actSt02aSekizoEvent(int x)
 {

@@ -194,7 +194,76 @@ static inline void applyWeightedVtx(void *dst, void *src, float w) /* derived na
                          : "$8");
 }
 
-INCLUDE_ASM(shadow_EntryClusterShadow);
+static void shadow_EntryClusterShadow(Sub15C *o, float len)
+{
+    VECTOR zero = {0.0f, 0.0f, 0.0f, 1.0f};
+    float v[4];
+    float sa[4];
+    float sb[4];
+    PObjModel *x = o->shadow;
+    PObjPart *p;
+    int i;
+    unsigned int k;
+
+    _InitCurrentMatrix();
+    shadow_getShadowVectorAverage(v, o);
+    _ScaleVectorXYZ(sa, v, len);
+    _ScaleVectorXYZ(sb, v, 4.5f);
+
+    for (i = 0; i < o->nodeNum; i++) {
+        _SetCurrentMatrix((char *)o->nodeMtx + i * 0x40);
+        _MulCurrentMatrixR(o->clusterMtx + i * 0x40);
+        _MulCurrentMatrixL(matrixptr + 0x80);
+        _GetCurrentMatrix(clusterMatrix + i * 0x40);
+    }
+
+    __asm__ __volatile__("lq $8, 0(%0)" : : "r"(&zero) : "$8");
+    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
+        for (k = 0; k < p->vtxCount; k++) {
+            __asm__ __volatile__("sq $8, 0(%0)" : : "r"((Qw128 *)p->vtxSave + k) : "$8");
+        }
+    }
+
+    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
+        for (k = 0; k < p->polyCount; k++) {
+            ClusterWeight *e;
+            VECTOR *dst;
+            VECTOR *src;
+
+            _SetCurrentMatrix(clusterMatrix + ((ClusterPoly *)p->polys)[k].matrix * 0x40);
+            e = ((ClusterPoly *)p->polys)[k].run;
+            /* both bases are read once here, ahead of the loop */
+            dst = (VECTOR *)p->vtxSave;
+            src = (VECTOR *)p->vtx;
+            do {
+                applyWeightedVtx(dst + e->idx, src + e->idx, e->w);
+            } while ((++e)->idx != -1);
+        }
+        for (k = 0; k < p->vtxCount; k++) {
+            _AddVectorXYZ(p->nrmSave + k * 16, p->vtxSave + k * 16, sa);
+            _AddVectorXYZ(p->vtxSave + k * 16, p->vtxSave + k * 16, sb);
+        }
+    }
+
+    for (i = 0, p = x->parts; i < x->partCount; i++, p++) {
+        VECTOR *va = (VECTOR *)p->vtxSave;
+        VECTOR *vb = (VECTOR *)p->nrmSave;
+
+        for (k = 0; k < p->vtxCount; k++) {
+            if (1.0f <= va[k].z && 1.0f <= vb[k].z) {
+            } else if (va[k].z < 1.0f && vb[k].z < 1.0f) {
+                vb[k].w = -1.0f;
+                va[k].w = -1.0f;
+            } else if (vb[k].z < 1.0f) {
+                _InterVectorXYZ(&vb[k], &va[k], &vb[k],
+                                1.0f - (va[k].z - 1.0f) / (va[k].z - vb[k].z));
+            } else if (va[k].z < 1.0f) {
+                _InterVectorXYZ(&va[k], &vb[k], &va[k],
+                                1.0f - (vb[k].z - 1.0f) / (vb[k].z - va[k].z));
+            }
+        }
+    }
+}
 
 /* Transform a vertex by the current matrix through VU0: one asm block, the
  * two vnop runs placed by hand around the multiply, both addresses "r"
@@ -217,7 +286,53 @@ static inline void applyCurrentMatrixV(void *dst, void *src) /* derived name */
                          : "r"(dst), "r"(src));
 }
 
-INCLUDE_ASM(shadow_EntryNormalShadow);
+static void shadow_EntryNormalShadow(Sub15C *o, int idx, float len)
+{
+    float v[4];
+    float sa[4];
+    float sb[4];
+    PObjModel *x = o->shadow;
+    int i;
+    int j;
+    PObjPart *p;
+
+    shadow_getShadowVectorAverage(v, o);
+    _ScaleVectorXYZ(sa, v, len);
+    _ScaleVectorXYZ(sb, v, 4.5f);
+    _SetCurrentMatrix((char *)o->nodeMtx + idx * 0x40);
+    _MulCurrentMatrixL(matrixptr + 0x80);
+
+    p = x->parts;
+    for (i = 0; i < x->partCount; i++, p++) {
+        for (j = 0; j < p->vtxCount; j++) {
+            applyCurrentMatrixV(p->vtxSave + j * 16, p->vtx + j * 16);
+        }
+        for (j = 0; j < p->vtxCount; j++) {
+            _AddVectorXYZ(p->nrmSave + j * 16, p->vtxSave + j * 16, sa);
+            _AddVectorXYZ(p->vtxSave + j * 16, p->vtxSave + j * 16, sb);
+        }
+    }
+
+    p = x->parts;
+    for (i = 0; i < x->partCount; i++, p++) {
+        VECTOR *va = (VECTOR *)p->vtxSave;
+        VECTOR *vb = (VECTOR *)p->nrmSave;
+
+        for (j = 0; j < p->vtxCount; j++) {
+            if (1.0f <= va[j].z && 1.0f <= vb[j].z) {
+            } else if (va[j].z < 1.0f && vb[j].z < 1.0f) {
+                vb[j].w = -1.0f;
+                va[j].w = -1.0f;
+            } else if (vb[j].z < 1.0f) {
+                _InterVectorXYZ(&vb[j], &va[j], &vb[j],
+                                1.0f - (va[j].z - 1.0f) / (va[j].z - vb[j].z));
+            } else if (va[j].z < 1.0f) {
+                _InterVectorXYZ(&va[j], &vb[j], &va[j],
+                                1.0f - (vb[j].z - 1.0f) / (vb[j].z - va[j].z));
+            }
+        }
+    }
+}
 
 /* The static helpers shadow_RenderVolume and shadow_RenderVolumeMulti share;
  * both inline every one of them. */

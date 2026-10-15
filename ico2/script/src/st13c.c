@@ -99,7 +99,13 @@ void actSt13cInit(void)
     }
 }
 
-INCLUDE_ASM(actSt13cEnd);
+void actSt13cEnd(void)
+{
+    if (gflagChk(29) == 0) {
+        debug_StdPrintfDummy("BackStageOff\n");
+        gflagOn(357);
+    }
+}
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
@@ -248,7 +254,73 @@ void actSt13cConte05Jimaku(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt13cCageFallEffect);
+void actSt13cCageFallEffect(GObj *volatile self)
+{
+    EffectArg b1;
+    EffectArg b2;
+    EffectArg b3;
+    EffectArg b4;
+    EffectArg b5;
+    EffectArg b6;
+    EffectArg b7;
+    EffectArg b8;
+    EffectArg b9;
+    float t;
+    float tn;
+    int n;
+
+    t = 0.0f;
+    do {
+        switch ((int)t) {
+        case 0:
+            gflagOn(21);
+            break;
+        case 64:
+            iosPadActRequest(boyPad, 17);
+            b1 = cageFallEffect1;
+            scpEffectStart(&b1, 0);
+            b2 = cageFallEffect2;
+            scpEffectStart(&b2, 0);
+            break;
+        case 68:
+            b3 = cageFallEffect3;
+            scpEffectStart(&b3, 0);
+            b4 = cageFallEffect4;
+            scpEffectStart(&b4, 0);
+            break;
+        case 96:
+            b5 = cageFallEffect5;
+            scpEffectStart(&b5, 0);
+            b6 = cageFallEffect6;
+            scpEffectStart(&b6, 0);
+            b7 = cageFallEffect7;
+            scpEffectStart(&b7, 0);
+            break;
+        case 180:
+            iosPadActRequest(boyPad, 15);
+            break;
+        case 300:
+            b8 = cageFallEffect8;
+            scpEffectStart(&b8, 0);
+            b9 = cageFallEffect9;
+            scpEffectStart(&b9, 0);
+            break;
+        case 380:
+            iosPadActRequest(boyPad, 16);
+            break;
+        }
+
+        n = (int)t;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
+        if (n != (int)tn) {
+            _ACTWait(1);
+            t = tn;
+        } else {
+            t = tn + 1.0f;
+        }
+    } while (t < 400.0f);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt13cGirlCarryChk);
 
@@ -415,7 +487,21 @@ static void actE3St13cSekizoEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt13cSekizoJimakuChk);
+void actSt13cSekizoJimakuChk(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+
+    _ACTWait(1);
+
+    while (gflagChk(29) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOff(357);
+    actCreateSubThread(actSt13cSekizoJimakuEff, 21);
+}
 
 void actSt13cSekizoJimakuEff(GObj *volatile self)
 {
@@ -457,4 +543,10 @@ void actSt13cBukiEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt13cBukiChk);
+void actSt13cBukiChk(GObj *volatile self)
+{
+    while (ForMotionViewer_GetCurrentMotion(boyGObj) != 227) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(63, -1, -2);
+}

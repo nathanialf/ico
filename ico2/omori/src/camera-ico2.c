@@ -558,7 +558,19 @@ inline void MakeCameraSetBinary(CamGroup *src, int count, CamGroup *dst)
     }
 }
 
-INCLUDE_ASM(ReflectCameraSetBinary);
+void ReflectCameraSetBinary(CamGroup *src, int count)
+{
+    if (cameraSetBuf != 0) {
+        iosFree(cameraSetBuf);
+    }
+
+    cameraSetBuf =
+        iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count), __FILE__, 1543);
+    cameraSetGroups = cameraSetBuf;
+    cameraSetGroupsEnd = cameraSetBuf + count * 76;
+    cameraSetGroupNum = count;
+    MakeCameraSetBinary(src, count, (CamGroup *)cameraSetBuf);
+}
 
 INCLUDE_ASM(InitIco2Camera);
 

@@ -556,7 +556,70 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-INCLUDE_ASM(debug_WayTool);
+int debug_WayTool(void)
+{
+    static int menuState = 1; /* derived name */
+    static int menuSel = 0;   /* derived name */
+    float pos[4];
+    int r;
+    int (*f)(int);
+    int state;
+
+    cursorGObj = isysGObjSearchFromObjLayoutID(2);
+    if (cursorGObj != 0) {
+        if (first_waytool == 0) {
+            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__, 0x4AA);
+            isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
+            isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);
+            first_waytool = 1;
+        }
+    }
+
+    if (first_waytool == 1) {
+        savedCamTarget = CurrentTargetGObj;
+        CurrentTargetGObj = cursorGObj;
+        GetRootPosition(pos, savedCamTarget);
+        SetDirectRootPosition(CurrentTargetGObj, pos);
+        Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
+        first_waytool = 2;
+    }
+
+    iosPadConnect(&wayToolPad, 0, 0, &iosPadConfDefault);
+    iosPadRead(&wayToolPad);
+    iosPadGetStick(&wayToolPad, wayToolStick, 1, 0, 0, 0);
+
+    state = menuState;
+    if (state == 1) {
+        r = debug_SelectCsvWindow("Way Tool", 0x12, 0x36, 0xB, debugWayMenu, 8, 0, 1, 9, &menuSel);
+        switch (r) {
+        case 0:
+            return 0;
+        case -1:
+            first_waytool = 1;
+            menuState = 1;
+            CurrentTargetGObj = savedCamTarget;
+            Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
+            return -1;
+        default:
+            first_waytool = 1;
+            menuState = 2;
+            break;
+        }
+    } else if (state == 2) {
+        f = debugWayMenu[menuSel].fn;
+        if (f == 0) {
+            menuState = 1;
+        } else {
+            r = f(first_waytool);
+            if (r == -1) {
+                menuState = 1;
+            } else if (r != 0) {
+                menuState = 1;
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM(play_way);
 

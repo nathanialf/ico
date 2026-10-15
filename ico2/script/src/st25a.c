@@ -259,17 +259,67 @@ INCLUDE_ASM(actSt25aQueenBefore);
 
 INCLUDE_ASM(actSt25aQueenTalk);
 
-INCLUDE_ASM(actSt25aQueenDeadReady);
+void actSt25aQueenDeadReady(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
 
-INCLUDE_ASM(actSt25aQueenDead);
+    _ACTWait(1);
 
-INCLUDE_ASM(actItouQueenAttack);
+    queen_dead_ready_mes[0].func = actSt25aQueenDeadReadyChk;
+    sub->mail = queen_dead_ready_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
-INCLUDE_ASM(actSwordEff);
+void actSt25aQueenDead(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
+
+    _ACTWait(1);
+
+    queen_dead_mes[0].func = actSt25aQueenDeadChk;
+    sub->mail = queen_dead_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actItouQueenAttack(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
+
+    _ACTWait(1);
+
+    queen_attack_mes[0].func = actItouQueenAttackChk;
+    sub->mail = queen_attack_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSwordEff(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpLinkBGAtoLayoutedTarget(1926, 423);
+}
 
 INCLUDE_ASM(actSwordEffXL);
 
-INCLUDE_ASM(actSt25aQueenBeforeChk);
+void actSt25aQueenBeforeChk(GObj *volatile self)
+{
+    conte11 = 0;
+    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    gflagOn(301);
+    jimakuBegin(&jimaku_msg);
+    scpAdpcmPlayRequestFunc(38, &conte11, 1, 1, 0);
+}
 
 void actConte11Jimaku(GObj *volatile self)
 {
@@ -308,4 +358,13 @@ void actSt25aQueenDeadEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actItouQueenAttackChk);
+void actItouQueenAttackChk(GObj *volatile self)
+{
+    while (1) {
+        while (ForMotionViewer_GetCurrentMotion(scpSearchGobj(3255)) != 1017) {
+            _ACTWait(1);
+        }
+        tex_SetUVScroll(queenBallScrTexture, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 1);
+        _ACTWait(1);
+    }
+}

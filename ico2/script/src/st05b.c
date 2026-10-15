@@ -29,7 +29,19 @@ INCLUDE_ASM(actSt05bSekizoChk);
 
 INCLUDE_ASM(actSt05bDoorXL);
 
-INCLUDE_ASM(actSt05bMonyoDoorXL);
+void actSt05bMonyoDoorXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(209) == 0) {
+        stage_SetAnimation(223, 0, 0);
+    } else {
+        stage_SetAnimation(223, 0, -1);
+    }
+}
 
 INCLUDE_ASM(actSt05bSekizo);
 

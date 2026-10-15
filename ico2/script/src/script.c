@@ -405,9 +405,22 @@ INCLUDE_ASM(scpAdpcmPlayRequestFunc);
 
 INCLUDE_ASM(scpAdpcmPlayRequestNum);
 
-INCLUDE_ASM(scpAdpcmFadeCloseFunc);
+int scpAdpcmFadeCloseFunc(SqEntry *p, short fade)
+{
+    if (p == 0 || p->stream == 0) {
+        return 0;
+    }
+    p->stream->fadeStep = fade;
+    return 1;
+}
 
-INCLUDE_ASM(func_0017D0F8);
+int scpAdpcmCloseChkFunc(SqEntry *p)
+{
+    if (p == 0 || p->stream == 0 || p->stream->bg == 0) {
+        return 0;
+    }
+    return 1;
+}
 
 INCLUDE_ASM(scpDeamon);
 

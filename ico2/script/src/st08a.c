@@ -36,7 +36,14 @@ static float door_up_sound_pos[4] = {-3092.0f, -2727.0f, 3711.0f, 0.0f}; /* deri
 
 static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
-INCLUDE_ASM(actSt08aEnd);
+void actSt08aEnd(void)
+{
+    if (girlGObj != 0) {
+        if (gflagChk(69) == 0) {
+            gflagOn(358);
+        }
+    }
+}
 
 INCLUDE_ASM(actSt08aEne1Chk);
 

@@ -1195,7 +1195,21 @@ INCLUDE_ASM(QueenBallRadius);
 
 INCLUDE_ASM(queenBallBeforeFunc);
 
-INCLUDE_ASM(InitQueenBallGeo);
+void *InitQueenBallGeo(GObj *g)
+{
+    QueenBallWork *w;
+
+    Sub15C *ext = GOBJ_SUB(g);
+
+    w = iosMallocDebug(ios_partition_sugipon, sizeof(QueenBallWork), queenFile, 1268);
+    ext->work = w;
+    memset(w, 0, sizeof(QueenBallWork));
+    w->scale = 0.0f;
+    GetRootPosition(w->pos, g);
+    actInitialize(g);
+    actInitialize_ext_charcter(g);
+    return w;
+}
 
 void subQueenControl(volatile int g)
 {

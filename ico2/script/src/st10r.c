@@ -144,4 +144,18 @@ void actSt10rSekizoEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt10rEneChk);
+void actSt10rEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 ||
+           scpTriggerFloorAttr(boyGObj, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+
+    gflagOn(279);
+    gflagOn(280);
+}

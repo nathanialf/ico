@@ -198,7 +198,16 @@ void actSt07ChanEvent(int x)
 
 INCLUDE_ASM(actSt07aChanFall);
 
-INCLUDE_ASM(actSt07aChanMot);
+void actSt07aChanMot(GObj *volatile self)
+{
+    scpPlayMot(boyGObj, 464);
+    scpPlayWaitMotEnd(boyGObj);
+    scpPlayMot(boyGObj, 465);
+    scpPlayWaitMotEnd(boyGObj);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 void actSt07aChanWay1(volatile unsigned int self)
 {
