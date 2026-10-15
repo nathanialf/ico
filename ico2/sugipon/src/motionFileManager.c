@@ -62,7 +62,7 @@ static void pursueNodeList(void **node, unsigned char *type)
         default:
             debug_StdPrintfDummy("Invalid node formatID: (%d)\n", type[i]);
             /* "this MOB file is broken, or its version is old." */
-            debug_StdPrintfDummy("¤³¤ÎMOB¥Õ¥¡¥¤¥ë¤Ï²õ¤ì¤Æ¤¤¤ë¤«¡¢¥Ğ¡¼¥¸¥ç¥ó¤¬¸Å¤¤¤Ç¤¹¡£\n");
+            debug_StdPrintfDummy("ã“ã®MOBãƒ•ã‚¡ã‚¤ãƒ«ã¯å£Šã‚Œã¦ã„ã‚‹ã‹ã€ãƒãƒ¼ã‚¸ãƒ§ãƒ³ãŒå¤ã„ã§ã™ã€‚\n");
             break;
         case 1:
         case 4:

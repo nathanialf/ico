@@ -3302,7 +3302,7 @@ void actBoyStart(GObj *self)
             ClipWall(&cw);
             if (cw.wall.elem == 0) {
                 /* "!!! cannot find the sofa's wall !!!" */
-                debug_StdPrintfDummy("¡ª¡ª¡ª¥½¥Õ¥¡¤ÎÊÉ¤ò¸«ÉÕ¤±¤ë¤³¤È¤¬¤Ç¤­¤Ş¤»¤ó¡ª¡ª¡ª\n");
+                debug_StdPrintfDummy("ï¼ï¼ï¼ã‚½ãƒ•ã‚¡ã®å£ã‚’è¦‹ä»˜ã‘ã‚‹ã“ã¨ãŒã§ãã¾ã›ã‚“ï¼ï¼ï¼\n");
             } else {
                 startOnSofa = 1;
                 sitLayoutDone = 1;

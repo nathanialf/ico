@@ -1,0 +1,28 @@
+; ico2/vusrc/normal_l.dsm /* derived name */: NormalLMicroProgram, ico2000.a(normal_l.o).
+; The listing has no source rows for the VU objects; the path is the one
+; whose hash the base's overlay section .DVP.overlay..0x0.<hash>.11.0
+; carries (tc-dvp.c vuoverlay_section_name), assembled from ico2/.
+;
+; The program text is vusrc/normal_l.vsm, which the period cpp reads from standard
+; input into vusrc/normal_l.i, the file included here (the vucpp and vu rules).
+	.global NormalLMicroProgram
+NormalLMicroProgram:
+	DMAret *
+	MPG 0, *
+	.include "vusrc/normal_l.i"
+	.EndMPG
+	.EndDmaData
+	DMAend
+;
+; One of ICO's five VU1 microprograms (0x0028A970, 7328 bytes), sent to
+; VU1 by mc_TransMicroCode (MicroCode.o): a DMAret tag whose VIF half
+; carries MPG 0, the program, then a DMAend tag. dvp-as writes the tags,
+; a new MPG every 256 instructions and the .DVP overlay tables. Each overlay
+; is named with the hash of the file and the line dvp-as is reading where
+; it starts: this file at the MPG on line 11, then the name cpp writes for
+; the text it is in, "" for standard input, vusrc/<name>.h in an include.
+;
+; Re-derived from published VU0/VU1 documentation; .vutext is identical
+; in the Aug-6-2001 prototype and the USA, PAL and Japanese retail. The
+; labels are the DVP assembler's own, from the PAL listing's .vutext table
+; (spelled _$NAME there, the copy dvp-as makes), each at the listing's address.

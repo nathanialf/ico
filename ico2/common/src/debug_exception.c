@@ -226,7 +226,7 @@ static void initLineTraceTable(void)
     sceFsReset();
     if ((fd = debugSceOpen("TRTABLE.BIN", 1)) < 0) {
         /* "cannot read the function-trace table file [%s]" */
-        scePrintf("´Ø¿ô¥È¥ì¡¼¥¹ÍÑ¤Î¥Æ¡¼¥Ö¥ë¥Õ¥¡¥¤¥ë[\x1b[36m%s\x1b[m]¤¬ÆÉ¤á¤Þ¤»¤ó¡£(0x%x)\n",
+        scePrintf("é–¢æ•°ãƒˆãƒ¬ãƒ¼ã‚¹ç”¨ã®ãƒ†ãƒ¼ãƒ–ãƒ«ãƒ•ã‚¡ã‚¤ãƒ«[\x1b[36m%s\x1b[m]ãŒèª­ã‚ã¾ã›ã‚“ã€‚(0x%x)\n",
                   "TRTABLE.BIN", -fd);
         putString(0xFF000000, "No information.(\"%s\" can't read.)\n", "TRTABLE.BIN");
         return;
@@ -297,7 +297,7 @@ static SrcRef traceLine(char *out, unsigned int addr)
 
     if ((fd = debugSceOpen("TRFILE.TXT", 1)) < 0) {
         /* "cannot read the function-trace file [%s]" */
-        scePrintf("´Ø¿ô¥È¥ì¡¼¥¹¤Î¥Õ¥¡¥¤¥ë[\x1b[36m%s\x1b[m]¤¬ÆÉ¤á¤Þ¤»¤ó¡£(0x%x)\n", "TRFILE.TXT",
+        scePrintf("é–¢æ•°ãƒˆãƒ¬ãƒ¼ã‚¹ã®ãƒ•ã‚¡ã‚¤ãƒ«[\x1b[36m%s\x1b[m]ãŒèª­ã‚ã¾ã›ã‚“ã€‚(0x%x)\n", "TRFILE.TXT",
                   -fd);
 
         putString(0xFF000000, "No information.(\"%s\" can't read.)\n", "TRFILE.TXT");
@@ -371,7 +371,7 @@ static void dispSource(SrcRef ref, int lines)
 
     if ((fd = debugSceOpen("SRCFILE.TXT", 1)) < 0) {
         /* "cannot read the source file [%s]" */
-        scePrintf("¥½¡¼¥¹¥Õ¥¡¥¤¥ë[\x1b[36m%s\x1b[m]¤¬ÆÉ¤á¤Þ¤»¤ó¡£(0x%x)\n", "SRCFILE.TXT", -fd);
+        scePrintf("ã‚½ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«[\x1b[36m%s\x1b[m]ãŒèª­ã‚ã¾ã›ã‚“ã€‚(0x%x)\n", "SRCFILE.TXT", -fd);
 
         putString(0xFF000000, "No information.(\"%s\" can't read.)\n", "SRCFILE.TXT");
 
@@ -682,7 +682,7 @@ void debug_SetExceptionMessage(char *mes)
 {
     strcpy(exceptionMessage, mes);
     /* "the forced hang handler was called; the details follow" */
-    debug_StdPrintfDummy("\x1b[36m¶¯À©¥Ï¥ó¥°½èÍý¤¬¸Æ¤Ð¤ì¤Þ¤·¤¿¡£¾ðÊó¤Ï¼¡¤ÎÄÌ¤ê¡£\n");
+    debug_StdPrintfDummy("\x1b[36må¼·åˆ¶ãƒãƒ³ã‚°å‡¦ç†ãŒå‘¼ã°ã‚Œã¾ã—ãŸã€‚æƒ…å ±ã¯æ¬¡ã®é€šã‚Šã€‚\n");
     debug_StdPrintfDummy("----------------------------------------------\n");
     debug_StdPrintfDummy("%s\n", mes);
     debug_StdPrintfDummy("----------------------------------------------\x1b[m\n");
