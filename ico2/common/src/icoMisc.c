@@ -50,7 +50,6 @@
 #include "flyManager.h"
 #include "staticBlur.h"
 #include <assert.h>
-#include "include_asm.h"
 
 static void disp_memory_partition_bar(void);
 /* debug.h leaves it out (see there) */
@@ -243,7 +242,100 @@ static int seEnvMute = 0; /* derived name */
 
 static int diskErrorBlink = 0; /* derived name */
 
-INCLUDE_ASM(ExecIcoMisc);
+void ExecIcoMisc(void)
+{
+    int total;
+    int used;
+    void *cam;
+
+    if (debug_mem_partition_flag == 1) {
+        disp_memory_partition();
+    }
+    if (debug_seslotdisp_flag == 1) {
+        debug_SESlotDisp();
+    }
+    if (iosCdvdDiskStatusGet() != 0) {
+        if (diskErrorBlink++ < 15) {
+            debug_PrintfDummy(250, 100, 0xFF000000, "DISK ERROR");
+        } else if (diskErrorBlink >= 31) {
+            diskErrorBlink = 0;
+        }
+    }
+    if (iopBuffOver != 0) {
+        debug_PrintfDummy(250, 100, 0xFF000000, "IOP BUFF OVER -%d bytes", iopBuffOver);
+    }
+    iosOmGetGObjStatus(&total, &used);
+    if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0) {
+        debug_Printf(470, 10, (used * 100 / total > 90) ? 0xFF300080 : 0xC0FF80, "GObj %d/%d", used,
+                     total);
+    }
+    if (debug_memory_bar != 0) {
+        disp_memory_partition_bar();
+    }
+    if (graphics_ready == 0) {
+        if (iosCdvdDiskStatusGet() == 0) {
+            exec_layout_texture();
+        }
+    }
+    if (kanbanCommonRead != 0) {
+        if (stage_no == 1) {
+            kanbanBootMain();
+        }
+    }
+    kanbanExec();
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (systemStatus[5] == 0) {
+        ExecParticleEffects();
+        ExecStreamMotionManager();
+        ExecWindManager();
+        soundSeEnvMasterVolRate = scpSeEnvMasterVolRate;
+        ExecSpiderGroupManager();
+        ExecGameOverEffect();
+        seEnvMute = 0;
+    } else {
+        if (current_layout_id == 25) {
+            seEnvMute = 1;
+        }
+        if (seEnvMute != 0) {
+            soundSeEnvMasterVolRate = 0.0f;
+        } else if (scpSeEnvMasterVolRate > 0.5f) {
+            soundSeEnvMasterVolRate = 0.5f;
+        }
+    }
+    if (systemStatus[6] == 0) {
+        gamesysBackStageProcess();
+        if (debug_wallcheck_flag == 1) {
+            warpGirlOutStage(stage_no, 1);
+        }
+        cam = GetCameraPos();
+        if (prevCameraPos == 0) {
+            if (cam != 0) {
+                soundSeEnvPlay();
+            }
+        }
+        prevCameraPos = cam;
+        if (cam != 0) {
+            soundReqTickProc();
+        }
+        fightSoundProcess();
+    }
+    eBrainProcess();
+    if (fall_death_active != 0) {
+        if (boyGObj != 0) {
+            if (GOBJ_SUB(boyGObj)->ctrl.fallHeight > 1000.0f) {
+                lt_switch_layout(58);
+            }
+        }
+        if (girlGObj != 0) {
+            if (GOBJ_SUB(girlGObj)->ctrl.fallHeight > 1000.0f) {
+                lt_switch_layout(58);
+            }
+        }
+    }
+    jimakuDisp(&jimaku_msg);
+}
 
 /* per-scene preset: twelve sound slots, then five (time, effect id) pairs at
    0x60 and the scene label at 0xC8 */

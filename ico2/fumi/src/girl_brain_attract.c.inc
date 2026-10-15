@@ -5,7 +5,7 @@
  * girl_brain_main.c.inc, which is not split out, so the include sits at the
  * point of girl_act.c that girl_brain_main.c.inc's text occupies. */
 
-static int ATGoalTurnMail(void *actor, float *dir, int node);
+static int ATGoalTurnMail(void *actor, float *dir);
 /* void (void *, int, void *, void *) here, int (char *, int, void *, void *) in mail-add-data.h */
 extern void ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
 
@@ -20,7 +20,7 @@ static inline int girlAttractTurnMailL(void *actor, void *obj, float *from,
     float dir[4];
 
     _OrientXZGV(dir, from, to);
-    if (ATGoalTurnMail(actor, dir, 0x2C)) {
+    if (ATGoalTurnMail(actor, dir)) {
         return 1;
     }
     attractMailData = obj;
@@ -34,14 +34,55 @@ static inline int girlAttractTurnMailR(void *actor, float *from, float *to) /* d
     float dir[4];
 
     _OrientXZGV(dir, from, to);
-    if (!ATGoalTurnMail(actor, dir, 0x2C)) {
+    if (!ATGoalTurnMail(actor, dir)) {
         ACTSendMailCorrect(actor, 0x158);
         return 0;
     }
     return 1;
 }
 
-INCLUDE_ASM(ATGoalTurnMail);
+static int ATGoalTurnMail(void *actor, float *dir)
+{
+    float o1[4];
+    float v[4];
+    float o2[4];
+    int r1;
+    int m;
+    int r2;
+    int d;
+    int ret;
+
+    ret = 0;
+    v[0] = dir[0];
+    v[1] = dir[1];
+    v[2] = dir[2];
+    GetSkeltonOrient(o1, actor, 0x2C);
+    r1 = _RotyGV(o1, v);
+    m = (r1 < 0) ? -r1 : r1;
+    if (m >= 0x15) {
+        GetSkeltonOrient(o2, actor, 35);
+        r2 = _RotyGV(o2, v);
+        if (m >= 0x5A) {
+            goto use_r2;
+        }
+        if (r1 * r2 < 0) {
+            goto set_r1;
+        }
+    use_r2:
+        d = r2;
+        goto have_d;
+    set_r1:
+        d = r1;
+    have_d:
+        if (d > 0) {
+            ATGoalTurnSet(actor, 2, 2, v);
+        } else {
+            ATGoalTurnSet(actor, 2, 1, v);
+        }
+        ret = 1;
+    }
+    return ret;
+}
 
 static int checkWaterfallResult(float *out)
 {

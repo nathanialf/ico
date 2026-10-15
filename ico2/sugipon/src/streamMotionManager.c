@@ -139,7 +139,35 @@ void ClearStreamMotionEntry(GObj *gobj)
 /* the cleared entry every slot is reset to */
 static SMotion emptyEntry = {0, 0, -1, -1, {0}, 0}; /* derived name */
 
-INCLUDE_ASM(_deleteStreamMotionManager);
+static void _deleteStreamMotionManager(void)
+{
+    int i;
+
+    if (streamNum != 0) {
+        for (i = 0; i < streamNum; i++) {
+            ClearStreamMotionEntry(streamEntry[i].obj.p);
+            if (streamEntry[i].finishFunc != 0) {
+                streamEntry[i].finishFunc(streamEntry[i].obj.p);
+            }
+        }
+        streamNum = 0;
+    }
+    for (i = 0; i < 10; i++) {
+        streamEntry[i] = emptyEntry;
+    }
+    streamState = 0;
+    readState = 0;
+    ringRead = 0;
+    ringWrite = 0;
+    streamIdle = 1;
+    headerRead = 0;
+    headerSize = 0;
+    ringUsed = 0;
+    if (bgMgrId != 0) {
+        bgMgrId = 0;
+    }
+    debug_StdPrintfDummy("delete stream motion manager\n");
+}
 
 void DisableStreamMotionManagerAutomaticDelete(void)
 {

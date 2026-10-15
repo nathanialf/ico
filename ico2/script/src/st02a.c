@@ -19,7 +19,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 /* .data: one mail record per posting site. Word 0 of each entry is the mail id
  * the entry answers (397 the actor post, 396 the trailing entry); .func is
@@ -247,15 +246,104 @@ void actSt02aWaterFallReflactionEffect(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aWaterFallChk);
+void actSt02aWaterFallChk(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(boyGObj);
+
+    act->flags20.ll &= ~0x4000000LL;
+    scpSearchGobj(1562)->active = 1;
+    scpSearchGobj(1558)->active = 0;
+    scpSearchGobj(1567)->active = 0;
+    scpSearchGobj(1568)->active = 0;
+    scpSearchGobj(1571)->active = 0;
+    DeleteParticleLayout(scpSearchGobj(1600));
+    DeleteParticleLayout(scpSearchGobj(1601));
+    DeleteParticleLayout(scpSearchGobj(1602));
+    DeleteParticleLayout(scpSearchGobj(1603));
+    stage_SetAnimation(355, -1, -2);
+    scpTransGObj(scpSearchGobj(1584), 0.0f, -200.0f, 0.0f);
+    scpTransGObj(scpSearchGobj(1586), 0.0f, -200.0f, 0.0f);
+    _ACTWait(5);
+    ReInitBoxGeo(scpSearchGobj(1584));
+    ReInitBoxGeo(scpSearchGobj(1586));
+}
 
 SqEntry *gondola = 0;
 
-INCLUDE_ASM(actSt02aGondolaUp);
+void actSt02aGondolaUp(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpAdpcmPlayRequestFunc(85, &gondola, 1, 1, 1);
+
+    while (gondola == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(16);
+    stage_SetAnimation(87, 1, 0);
+    gflagOn(106);
+
+    while (stage_CheckAnimationFrame(87, 149, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 16);
+
+    _ACTWait(120);
+
+    if (gondola != 0) {
+        soundDataClose(gondola);
+    }
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+
+    gondola_up_mail[0].func = actSt02aGondolaMain;
+    sub->mail = gondola_up_mail;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 SqEntry *gondola_test = 0;
 
-INCLUDE_ASM(actSt02aGondolaDown);
+void actSt02aGondolaDown(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpAdpcmPlayRequestFunc(85, &gondola_test, 1, 1, 1);
+
+    while (gondola_test == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(87, 1, 150);
+    gflagOff(106);
+
+    while (stage_CheckAnimationFrame(87, 300, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 16);
+
+    _ACTWait(120);
+
+    if (gondola_test != 0) {
+        soundDataClose(gondola_test);
+    }
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+
+    gondola_down_mail[0].func = actSt02aGondolaMain;
+    sub->mail = gondola_down_mail;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt02aBox(GObj *volatile self)
 {

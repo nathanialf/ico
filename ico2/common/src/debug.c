@@ -934,7 +934,78 @@ void debug_SetDmaCallback(void)
     EnableDmac(1);
 }
 
-INCLUDE_ASM(debug_VariableInit);
+void debug_VariableInit(void)
+{
+    debug_frame = 15;
+    debug_window_flag = 0;
+    debug_ignore_demo_camera = 0;
+    debug_bar_flag = 0;
+    debug_memory_bar = 0;
+    debug_font_flag = 0;
+    debug_font_flag2 = 0;
+    debug_font_flag3 = 0;
+    debug_printf_flag = 0;
+    debug_skel_flag = 0;
+    debug_seslotdisp_flag = 0;
+    debug_wallcheck_flag = 0;
+    debug_wallhitcoldisp = 0;
+    debug_fieldcollision_flag = 0;
+    debug_actnode_flag = 0;
+    debug_motion_interporate = 1;
+    debug_wayline = 1;
+    debug_mem_partition_flag = 0;
+    debug_camera_flag = 0;
+    debug_brain_bar_flag = 0;
+    debug_chara_target = 0;
+    debug_brain_flag = 1;
+    debug_bounding_flag = 0;
+    debug_wire_string = 0;
+    debug_gbrain_info_flag = 1;
+    debug_now_motion_viewer = 0;
+    fontWindowLine = 0;
+    debug_mot_debug_target = 0;
+    debug_debug_bar_multiply = 1;
+    debug_shadow_flag = 0;
+    debug_specular_flag = 1;
+    debug_zoom_per = 100;
+    debug_debug_bar_start_item = 0;
+    debug_ripple_roughness = 25;
+    debug_snapshot_num = 0;
+    debug_snapshot_size = 0;
+    debug_snapshot_format = 0;
+    debug_ambient_volume = 0;
+    debug_cloth_info = 0;
+    debug_face_chest_ratio = 0;
+    debug_face_rot_w_ratio = 0;
+    debug_def_smpmin = 4;
+    debug_scissor = 1;
+    debug_fullscreen_effect = 1;
+    debug_disp_cluster = 1;
+    debug_disp_normal = 1;
+    debug_disp_lws = 1;
+    debug_disp_particle = 1;
+    debug_disp_mesh = 1;
+    debug_col_ray_disp = 0;
+    debug_stick_input = 0;
+    debug_enemy_battle_type = 3;
+    debug_stick_simulate = 1;
+    debug_act_sub_thread = 0;
+    debug_use_new_queen_battle = 1;
+    debug_chain_cycle_speed = 4;
+    debug_chain_slow_speed = 4;
+    debug_mot_slope_interp = 5;
+    debug_enemy_fly_with_girl = 0;
+    debug_disp_enemy_state = 0;
+    debug_disp_escort_ball = 0;
+    debug_girl_detour_flag = 1;
+    debug_col_old_proc = 0;
+    debug_fly_limit_test = 0;
+    debug_lwskyomi_lookonly = 0;
+    debug_one_hit_only = 0;
+    debug_ignore_dodge = 0;
+    game_pause = 0;
+    ChangeFieldCollisionDebugMode(0);
+}
 
 void debug_Init(void)
 {

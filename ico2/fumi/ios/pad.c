@@ -89,7 +89,64 @@ static int iosPadDevReadFunc(void);
 
 INCLUDE_ASM(iosPadDevReadFunc);
 
-INCLUDE_ASM(iosPadRead);
+int iosPadRead(IosPadCtx *ctx)
+{
+    IosPadDevRec *dev = ctx->dev;
+    IosPadBuf *prev;
+    IosPadBuf *cur;
+    int pbits;
+    int cbits;
+    int old;
+    int now;
+    int i;
+
+    prev = &dev->buf[dev->idx ^ 1];
+    cur = &dev->buf[dev->idx];
+
+    pbits = ((prev->hi << 8) | prev->lo) ^ 0xFFFF;
+    cbits = ((cur->hi << 8) | cur->lo) ^ 0xFFFF;
+
+    old = 0;
+    now = 0;
+
+    for (i = 0; i < 16; i++) {
+        if ((pbits >> i) & 1) {
+            old |= ctx->conf->bit[i];
+        }
+        if ((cbits >> i) & 1) {
+            now |= ctx->conf->bit[i];
+        }
+    }
+
+    ctx->now = now;
+    ctx->trg = (now ^ old) & now;
+    ctx->rel = (now ^ old) & old;
+
+    ctx->now2 = now;
+    ctx->trg2 = ctx->trg;
+    ctx->rel2 = ctx->rel;
+    ctx->word24 = ctx->word14;
+
+    if (dev->error == 1) {
+        ctx->now = 0;
+        ctx->trg = 0;
+        ctx->rel = 0;
+        ctx->word14 = 0;
+
+        ctx->now2 = 0;
+        ctx->trg2 = 0;
+        ctx->rel2 = 0;
+        ctx->word24 = 0;
+        return 0;
+    }
+    if (padEnabled == 0) {
+        ctx->now = 0;
+        ctx->trg = 0;
+        ctx->rel = 0;
+        ctx->word14 = 0;
+    }
+    return 0;
+}
 
 float iosPadNormalizeStick(IosPadStick *st)
 {

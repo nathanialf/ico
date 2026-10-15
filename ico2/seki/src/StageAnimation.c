@@ -340,7 +340,44 @@ INCLUDE_ASM(stage_CalcAnimationNoParent);
 
 INCLUDE_ASM(stage_CalcAnimationParent);
 
-INCLUDE_ASM(stage_DispAnimation);
+void stage_DispAnimation(void)
+{
+    int i;
+    StageAnim *e;
+
+    if (stageAnimCount == 0) {
+        return;
+    }
+
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        signed char lv;
+        int k;
+
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        lv = e->entry2->mode;
+        if (lv == -1) {
+            continue;
+        }
+        if (lv < -1) {
+            continue;
+        }
+        if (lv >= 2) {
+            continue;
+        }
+        for (k = 0; k < e->flags.b.count; k++) {
+            char *objs = (char *)e->obj;
+            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->dobj;
+
+            if (d->disp != 0) {
+                reg_DispObj(d);
+            }
+        }
+    }
+    bga_DispLightning();
+}
 
 inline void stage_SetLoopFlag(int key, int loop)
 {

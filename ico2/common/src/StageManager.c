@@ -19,6 +19,7 @@
 #include "warpGirl.h"
 #include "DisplayP2O.h"
 #include "GsBase.h"
+#include "staticBlur.h"
 #include "Matrix.h"
 #include "darkVolume.h"
 #include "delayFreeManager.h"
@@ -68,7 +69,6 @@ static int stageMgrMsgBuf[4]; /* derived name */
 #include <libdma.h>
 #include <string.h>
 #include "typedef.h"
-#include "include_asm.h"
 
 /* .sdata: the movie switches main.c's loop reads, defined before
    stop_free_resources; the preload state before stgmgrNextStagePreLoad; the
@@ -169,7 +169,42 @@ typedef struct MpegRec { /* field names derived */
     int stageChange;
 } MpegRec; /* derived name */
 
-INCLUDE_ASM(start_stage_Load_thread);
+static void start_stage_Load_thread(int stage)
+{
+    before_stage_no = stage_no;
+    stage_no = stage;
+    gsb_SetBGColor(&db, 1, 1, 1);
+    sceGsSyncPath(0, 0);
+    stageManagerFreeResourceFlag = 1;
+    stop_free_resources();
+    if (mpegPlay == 0) {
+        long flags;
+
+        stage_initialize();
+        stageManagerFreeResourceFlag = 0;
+        iosThreadCancelWakeup(0);
+        SetMotionBlur(GlobalStageSetting.motionBlur);
+        current_stage_no = stage;
+        iosThreadCreateS(initIcoMiscThread, 1, InitIcoMisc, &stage_no, ios_partition_root, 0x18000,
+                         27);
+        iosThreadStart(initIcoMiscThread);
+        flags = initIcoMiscThread[15];
+        debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
+        game_pause = 1;
+        debug_StdPrintfDummy("-----------------Enable VSync\n");
+    } else {
+        isysInitialize();
+        sceGsResetPath();
+        sceVpu0Reset();
+        sceDmaReset(1);
+        mpegInitDone = 1;
+        ((MpegRec *)systemStatus)->pause = 0;
+        ((MpegRec *)systemStatus)->stageChange = 0;
+        girlGObj = 0;
+        boyGObj = 0;
+        stageManagerFreeResourceFlag = 0;
+    }
+}
 
 /* The DEBUG build's preload report and hold (the report's text derived): a
    debug build reports the stage it is about to preload and, while the debug

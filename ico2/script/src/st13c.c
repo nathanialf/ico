@@ -144,7 +144,35 @@ static const EffectArg cageFallEffect8 = {{-10.0f, 0.0f, 466.0f, 1.0f}}; /* deri
 
 static const EffectArg cageFallEffect9 = {{-25.0f, 0.0f, 450.0f, 1.0f}}; /* derived name */
 
-INCLUDE_ASM(actSt13cBmg1);
+void actSt13cBmg1(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (girlGObj == 0) {
+        return;
+    }
+    if (gflagChk(20) != 0) {
+        return;
+    }
+
+    if (gflagChk(19) != 0) {
+        scpPlayPosSet(girlGObj, -30.0f, -436.0f, -1.0f);
+        scpPlayStart(girlGObj);
+    } else if (gflagChk(17) == 0) {
+        ScpCallCameraOff();
+        scpPlayPosSet(girlGObj, -7.0f, -5725.0f, 18.0f);
+
+        bmg1_mes[0].func = actSt13cBmg1Chk;
+        act->mail = bmg1_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        scpPlayPosSet(girlGObj, -7.0f, -5725.0f, 18.0f);
+    }
+}
 
 void actSt13cBmg1Chk(GObj *volatile self)
 {
@@ -305,7 +333,42 @@ void actSt13cConte04Jimaku(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt13cCage1stDownDemoCancel);
+void actSt13cCage1stDownDemoCancel(GObj *volatile self)
+{
+    float ofs[4];
+    float dir[4];
+    GProc *proc;
+
+    demoEnd = 0;
+
+    proc = (GProc *)actCreateSubThread(actSt13cCage1stDownDemo, 21);
+
+    while (demoEnd == 0) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&proc->thread, 34);
+
+    scpPlayMot(boyGObj, 308);
+    scpPlayWaitMotEnd(boyGObj);
+
+    while (stage_CheckAnimationFrame(60, 0, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(boyGObj, 0);
+
+    memset(ofs, 0, 16);
+    ofs[3] = 1.0f;
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+    scpPlayEnd(boyGObj);
+
+    CameraSetCameraSet(37);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
 
 INCLUDE_ASM(actSt13cCage1stDown);
 

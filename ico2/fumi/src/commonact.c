@@ -780,7 +780,44 @@ typedef struct { /* field names derived */
     unsigned short f18E;
 } MotRecJ; /* derived name */
 
-INCLUDE_ASM(actCommonJump);
+void actCommonJump(GObj *volatile self)
+{
+    float dir[4];
+    Act *s = GOBJ_ACT(self);
+    int chk = 0;
+    int n;
+
+    s->flags18.afterProc = actAfterJump;
+    if (s->intrKind == 245) {
+        if (self == girlGObj && boyGObj != 0) {
+            _OrientXZGV(dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT((void *)self));
+            SetMotionDirection(self, dir);
+        }
+    }
+    n = *(int *)((char *)GOBJ_ACT(self)->work + 0x830);
+    if (n < 4) {
+        if (0 < n) {
+            switch ((unsigned int)s->intrKind) {
+            case 178:
+            case 179:
+                chk = 1;
+                break;
+            case 176:
+                if (0.1f < s->stick.mag) {
+                    chk = 1;
+                }
+                break;
+            }
+            if (chk != 0) {
+                correctJumpOrientByChain(self);
+            }
+        }
+    }
+    while (1) {
+        ACTSendMailCorrect(self, 176);
+        _ACTWait(1);
+    }
+}
 
 /* The 0x15C slot is the engine's sub-object handle, read here as the SubHandle
  * union the way geometryManager.c's SUBOF reads it; the other readers use
