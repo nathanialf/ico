@@ -848,7 +848,74 @@ static void debug_SaveDebugOptionFile(void)
     debug_openLog();
 }
 
-INCLUDE_ASM(debug_GetDebugOption);
+static int debug_GetDebugOption(void)
+{
+    char buf[256];
+    int fd;
+    int size;
+    int i;
+    int n;
+    int cnt;
+    const DbgOpt *o;
+    const DbgOpt *p;
+
+    debug_StdPrintfDummy("==== Try to read Debug Option file. =========================\n");
+    fd = debugSceOpen("thisIsYourDebugOption", 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy("debug_GetDebugOption:No Debug Option file. Setting to default.\n");
+        fd = -1;
+    } else {
+        cnt = 0;
+        size = sceLseek(fd, 0, 2);
+        sceLseek(fd, 0, 0);
+        /* clang-format off */
+        n = 0; i = 0;
+        p = o = debugOption; do {
+            /* clang-format on */
+            sceRead(fd, &buf[n], 1);
+            if (buf[n++] == '\n') {
+                switch (buf[0]) {
+                default:
+                    if (buf[0] != '\n') {
+                        /* clang-format off */
+                        *o->val = atoi(buf); o++; p++; cnt++;
+                        /* clang-format on */
+                    } else {
+                        debug_StdPrintfDummy(
+                            "\033[36mInvalid line appeard.\n    Use default one.\033[m\n");
+                        cnt = -1;
+                        goto done;
+                    }
+                    break;
+                case '#':
+                    buf[strlen(buf) - 1] = 0;
+                    if (strcmp(o->name, &buf[1]) != 0) {
+                        debug_StdPrintfDummy(
+                            "\033[36mInvalid name appeard.(%s!=%s)\n    Use default one.\033[m\n",
+                            p->name, &buf[1]);
+                        cnt = -1;
+                        goto done;
+                    }
+                }
+                n = 0;
+            }
+        } while (++i < size);
+    done:
+        debugSceClose(fd);
+        if (cnt != 69) {
+            fd = -1;
+            debug_StdPrintfDummy("debug_GetDebugOption:Found Debug Option file, But illegal.\n");
+        } else {
+            debug_StdPrintfDummy("Found Debug Option file.\n");
+            for (i = 0; i < 69; i++) {
+                debug_StdPrintfDummy("%s => %d\n", debugOption[i].name, *debugOption[i].val);
+            }
+        }
+    }
+    debug_StdPrintfDummy("=============================================================\n");
+    debug_openLog();
+    return fd;
+}
 
 void debug_SetDmaCallback(void)
 {
@@ -1119,11 +1186,104 @@ static DbgCol brainColHigh[1] = {{0xFF, 0x40, 0x40, 0xFF}}; /* derived name */
 
 static DbgCol brainColMax[1] = {{0xFF, 0xFF, 0xFF, 0xFF}}; /* derived name */
 
-INCLUDE_ASM(draw_batsu_85);
+static void debug_brainBar(void)
+{
+    void draw_batsu(DbgPos * p)
+    {
+        DbgCol col = markCol[0];
+        DbgVtx v[4];
 
-INCLUDE_ASM(draw_shikaku_89);
+        make_mark_points(v, p, 3);
+        gif_Line(&v[0].x, &v[3].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[1].x, &v[2].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+    }
+    void draw_shikaku(DbgPos * p)
+    {
+        DbgCol col = markCol[0];
+        DbgVtx v[4];
 
-INCLUDE_ASM(debug_brainBar);
+        make_mark_points(v, p, 3);
+        gif_Line(&v[0].x, &v[1].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[1].x, &v[3].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[3].x, &v[2].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[2].x, &v[0].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+    }
+    DbgCol c0 = brainColLow[0];
+    DbgCol c1 = brainColMid[0];
+    DbgCol c2 = brainColHigh[0];
+    DbgCol c3 = brainColMax[0];
+    DbgPos a;
+    DbgPos b;
+    DbgPos c;
+    Brain *brain;
+    DbgCol *col;
+    int i;
+    int y;
+    int ytop;
+
+    ytop = -100;
+    y = ytop;
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 2, c3.a);
+    brain = &brainGirl;
+    for (i = 0; i < 20; i++) {
+        b.x = 300;
+        a.y = b.y = y;
+        if (brain->tgt[i].gobj == 0) {
+            continue;
+        }
+        y += 4;
+        a.y = b.y = y;
+        a.x = 300.0f - brainGetLevel(brain, &brain->tgt[i]) * 20.0f;
+        if (brain->idx == i) {
+            col = &c2;
+        } else if (brainGetLevel(brain, &brain->tgt[i]) < brain->threshold) {
+            col = &c0;
+        } else {
+            col = &c1;
+        }
+        gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
+        if (brain->tgt[i].gobj->kind == 0x3C) {
+            /* a.z is never written: the copy reads it uninitialised */
+            c.x = a.x;
+            c.y = a.y;
+            c.z = a.z;
+            c.x -= 15;
+            if (brain->tgt[i].alwaysSeen) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+            c.x += 10;
+            if (brainCheckView(brain, &brain->tgt[i])) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+            c.x += 15;
+            if (brain->tgt[i].lookOnly) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+        }
+        y += 4;
+    }
+    b.x = 300.0f - brain->threshold * 20.0f;
+    a.x = b.x;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c2, 1);
+    a.x = b.x = 260;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c1, 1);
+    a.x = b.x = 220;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c0, 1);
+    gif_EndPacket();
+}
 
 static int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
 {
@@ -1731,7 +1891,31 @@ int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base,
                                       getBuffer, 0);
 }
 
-INCLUDE_ASM(debug_SelectStageMain);
+static int debug_SelectStageMain(int ret, int stage)
+{
+    if (systemStatus[6] != 0) {
+        return 0;
+    }
+    if (ret > 0) {
+        debug_StdPrintfDummy("stage:%d\n", stage);
+        if (stage != 0) {
+            int on = 1;
+            if (strstr(stageData[stage].dataFile, "NOCD_") == 0) {
+                mpegPlayReturnStage = stage_no;
+                soundDataSegAllClose(0, 2);
+                seEnvForceClose = on;
+                enable_game_pause = on;
+                kanbanInit(0);
+                gflagOn(361);
+                scpBoyControlReadDisable = 0;
+                stgmgrForceSwitch(stage);
+                gflagOff(355);
+                ACTGame_SetActors_Debug(stage, on);
+            }
+        }
+    }
+    return ret;
+}
 
 int debug_SelectStage(void);
 

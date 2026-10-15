@@ -226,7 +226,16 @@ void ExecStreamMotionManager(void)
     }
 }
 
-INCLUDE_ASM(MallocStreamMotionBuffer);
+void MallocStreamMotionBuffer(void)
+{
+    ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c", 502);
+    readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c", 504);
+    readBuf = (char *)((int)(readBufRaw + 63) & 0xFFFFFFC0);
+    if (ringBuf == 0 || readBuf == 0) {
+        /* "could not allocate the stream buffer memory" */
+        debug_StdPrintfDummy("ストリーム用のバッファメモリが確保できませんでした\n");
+    }
+}
 
 INCLUDE_ASM_LIT(StandbyStreamMotion);
 

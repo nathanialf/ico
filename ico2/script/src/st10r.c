@@ -125,7 +125,22 @@ void actSt10rGirlWay(volatile unsigned int self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt10rExitChk);
+void actSt10rExitChk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, boyGObj, 400.0f) == 0 ||
+           scpTriggerFloorAttr(boyGObj, 0x2000000) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(282);
+    gflagOff(290);
+
+    if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0) {
+        OnGirlEscortFlag();
+        RequestStageChange(1, boyGObj, girlGObj, 2.0f, 8.0f);
+    }
+    RequestStageChange(1, boyGObj, 0, 2.0f, 8.0f);
+}
 
 void actSt10rChainMain(GObj *volatile self)
 {

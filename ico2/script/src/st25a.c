@@ -351,7 +351,23 @@ void actConte11Jimaku(GObj *volatile self)
     } while (t < 1500.0f);
 }
 
-INCLUDE_ASM(actSt25aQueenDeadReadyChk);
+static void actSt25aQueenDeadReadyChk(GObj *volatile self)
+{
+    int i;
+
+    dead = 0;
+    while (InqQueenBarrierExist() != 0 || gflagChk(304) == 0) {
+        _ACTWait(1);
+    }
+    StandbyStreamMotion(streamMotion[8].path);
+    i = 0;
+    while (CheckReadyStreamMotion() == 0) {
+        i++;
+        debug_StdPrintfDummy(streamWaitFmt, i);
+        _ACTWait(1);
+    }
+    scpAdpcmPlayRequestFunc(41, &dead, 0, 1, 0);
+}
 
 void actSt25aQueenDeadEvent(int x)
 {

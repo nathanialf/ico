@@ -214,7 +214,36 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
     adpcmIopBuffUsed[no] = 0;
 }
 
-INCLUDE_ASM(AdpcmClose);
+void AdpcmClose(SqEntry *obj)
+{
+    AdpcmStream *self = obj->stream;
+    int i;
+    int j;
+
+    if (self != 0 && self->bg != 0) {
+        iosCdvdBackGroundMgrDelete(self->bg);
+        self->bg = 0;
+        AdpcmStop(self);
+        for (i = 0; i < self->n; i++) {
+            char *ch = (char *)self->ch;
+            int ofs = i * 4;
+            SgStAdpcmClose(*(int *)(ch + ofs));
+        }
+        AdpcmIopBuffFree(self);
+        soundBufAdpcmFree(obj);
+        for (j = 0; j < 2; j++) {
+            AdpcmStream *p = &adpcmStream[j];
+            if (p->used != 0 && p == self) {
+                goto found;
+            }
+        }
+        debug_assert(adpcmSrcFile, 600);
+        __assert(adpcmSrcFile, 600, "0");
+    found:
+        adpcmStream[j].used = 0;
+        self->mask = 0;
+    }
+}
 
 /* the levels come back out of the record the caller just wrote */
 void AdpcmInterStereoVolumeSet(void *stream, int ch)

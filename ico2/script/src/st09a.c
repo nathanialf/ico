@@ -41,7 +41,14 @@ static ActMail brgSwitch_mes[2] = {{397}, {396}}; /* derived name */
 /* .sdata: the bridge stream handle. */
 SqEntry *st09a_brg = 0;
 
-INCLUDE_ASM(actSt09aInit);
+void actSt09aInit(void)
+{
+    if (gflagChk(79) == 0) {
+        stage_SetAnimation(343, 0, 0);
+    } else {
+        stage_SetAnimation(343, 0, -1);
+    }
+}
 
 INCLUDE_ASM(actSt09aElvDown);
 

@@ -111,7 +111,30 @@ static ActMail st09aBrgSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 INCLUDE_ASM(actE3Title);
 
-INCLUDE_ASM(actE3TitleChk);
+void actE3TitleChk(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+
+    actCreateSubThread(actE3TitleFrameChk, 21);
+
+    while (gflagChk(324) != 0 || (pad[0].flags & 0x840) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(325);
+    debug_StdPrintfDummy("game_start\n");
+
+    AdpcmPlay(e3title->stream);
+
+    scpFadeOut(4.0f, 0, 0, 0);
+    while (scpFadeChk() != 0) {
+        _ACTWait(1);
+    }
+
+    RequestStageChange(1, boyGObj, 0, 255.0f, 16.0f);
+}
 
 INCLUDE_ASM(actE3TitleFrameChk);
 

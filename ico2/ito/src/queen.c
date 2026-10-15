@@ -1193,7 +1193,25 @@ INCLUDE_ASM(InitQueenBarrierGeo);
 
 INCLUDE_ASM(QueenBallRadius);
 
-INCLUDE_ASM(queenBallBeforeFunc);
+void queenBallBeforeFunc(GObj *g)
+{
+    GObjMailQueue *q = (GObjMailQueue *)&g->mailBox;
+    QueenBallWork *w = GOBJ_SUB(g)->work;
+    int i;
+
+    for (i = 0; i < q->num; i++) {
+        GObjMailEntry *e = &q->e[i];
+
+        if (e->mail != 13) {
+            debug_StdPrintfDummy(mailFmt, e->mail);
+        } else if (scpGameStat_BoyWeaponkind() == 5) {
+            debug_StdPrintfDummy(queenBallAttackedMsg);
+            w->attacked = 1;
+            iosOmSendMail(boyGObj, 395, g);
+        }
+    }
+    q->num = 0;
+}
 
 void *InitQueenBallGeo(GObj *g)
 {

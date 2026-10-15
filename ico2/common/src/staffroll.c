@@ -90,9 +90,33 @@ static int staffRollScroll(void)
     return count;
 }
 
-static int staffRollNameOut(void);
+static int staffRollNameOut(void)
+{
+    StaffRollEntry *e;
+    char **s;
+    int i;
 
-INCLUDE_ASM(staffRollNameOut);
+    if (rollOffset / (float)(font_GetHeight() + 1) >= (float)rollNameIdx) {
+        for (i = 0; i < 300; i++) {
+            if (rollLines[i].str == 0)
+                goto found;
+        }
+        /* staff roll: out of area */
+        debug_StdPrintfDummy("staff roll 領域不足\n");
+        debug_assert(__FILE__, 189);
+        __assert(__FILE__, 189, "0");
+    found:
+
+        e = &rollLines[i];
+        s = &staffRollNameData[rollNameIdx++];
+        if (*s != 0)
+            e->str = s;
+
+        e->y = (float)(font_GetHeight() + 449);
+        e->align = font_CheckAlign(&e->col, *e->str);
+    }
+    return rollNameIdx >= staffRollNameDataNum;
+}
 
 /* the roll's colour; only its alpha byte is read and written, fading toward
    staffRollAlpha.  A 4-byte array is 8-aligned, which leaves the zero word

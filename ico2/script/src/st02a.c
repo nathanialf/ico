@@ -77,7 +77,15 @@ static ActMail taki_off_mail[2] = {{397}, {396}}; /* derived name */
 
 static ActMail secret_item_mail[2] = {{397}, {396}}; /* derived name */
 
-INCLUDE_ASM(actSt02aInit);
+void actSt02aInit(void)
+{
+    if (gflagChk(105) == 0) {
+        SetWayGroupActive(26, 0);
+        stage_SetAnimation(85, 0, 0);
+    } else {
+        stage_SetAnimation(85, 0, -1);
+    }
+}
 
 INCLUDE_ASM(actSt02aDoor);
 
@@ -337,9 +345,45 @@ INCLUDE_ASM(actSt02aWayOnChk);
 
 INCLUDE_ASM(actSt02aWayOffChk);
 
-INCLUDE_ASM(actSt02aTakiWayOnChk);
+void actSt02aTakiWayOnChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt02aTakiWayOffChk);
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x6000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(35, 1);
+    SetWayGroupActive(59, 1);
+
+    taki_on_mail[0].func = actSt02aTakiWayOffChk;
+    sub->mail = taki_on_mail;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt02aTakiWayOffChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(35, 0);
+    SetWayGroupActive(59, 0);
+
+    taki_off_mail[0].func = actSt02aTakiWayOnChk;
+    sub->mail = taki_off_mail;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt02aSecretItemChk(GObj *volatile self)
 {

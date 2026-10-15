@@ -664,7 +664,21 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
     return p;
 }
 
-INCLUDE_ASM_LIT(GetPluralCameraSet);
+inline void *GetPluralCameraSet(int id)
+{
+    int i;
+
+    for (i = 0; i < pluralCameraSetNum; i++) {
+        if (pluralCameraSet[i].id == id) {
+            return pluralCameraSet[i].set;
+        }
+    }
+    /* EUC-JP: "[%s] was not found\n" */
+    debug_StdPrintfDummy("[%s]が見つかりません\n", cameraSetList[id]);
+    debug_assert(__FILE__, 1975);
+    __assert(__FILE__, 1975, "0");
+    return 0;
+}
 
 INCLUDE_ASM_LIT(AddPluralCameraSet);
 
@@ -688,5 +702,3 @@ INCLUDE_ASM(GetCameraGroupFromPosition);
 INCLUDE_ASM(AddPluralCameraSet);
 
 INCLUDE_ASM(InitPluralCameraSet);
-
-INCLUDE_ASM(GetPluralCameraSet);

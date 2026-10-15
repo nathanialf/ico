@@ -101,7 +101,11 @@ static inline void wakeSpiderGroup(GObj *self) /* derived name */
     }
 }
 
-INCLUDE_ASM(WakeUpLayoutedSpiders);
+void WakeUpLayoutedSpiders(GObj *self)
+{
+    wakeSpiderGroup(self);
+    ExecuteSEPackage(self, 101);
+}
 
 static inline void setSpiderGroupHost(GObj *self, GObj *host) /* derived name */
 {

@@ -163,7 +163,86 @@ static inline void bga_makeRootList(BgaHeader *p) /* derived name */
     } while (1);
 }
 
-INCLUDE_ASM(bga_InitData);
+char *bga_InitData(char *data)
+{
+    BgaHeader *p = (BgaHeader *)data;
+    BgaDObjEnt *d;
+    int i;
+    unsigned int j;
+    int k;
+
+    if (strncmp(p->magic, "BGA", 3) != 0) {
+        debug_StdPrintfDummy("this is not bga file.\n");
+        debug_assert(__FILE__, 903);
+        __assert(__FILE__, 903, "FALSE");
+    }
+    p->dobjs += (int)p;
+    p->mode = -1;
+    p->anim = mallocseki(sizeof(BgaAnim));
+    *p->anim = bgaAnimDefault;
+    d = (BgaDObjEnt *)p->dobjs;
+    while (1) {
+        d->motion += (int)p;
+        if (d->env != 0) {
+            i = 0;
+            d->env += (int)p;
+            while (((BgaEnvEnt *)d->env)[i].data != 0) {
+                ((BgaEnvEnt *)d->env)[i].data += (int)p;
+                switch (((BgaEnvEnt *)d->env)[i].type) {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                    *(int *)((BgaEnvEnt *)d->env)[i].data += (int)p;
+                    break;
+                case 6:
+                    *(int *)((BgaEnvEnt *)d->env)[i].data += (int)p;
+                    for (j = 0; j < ((BgaMotion *)((BgaEnvEnt *)d->env)[i].data)->n; j++) {
+                        float sum = 0.0f;
+                        float scale = 1.0f;
+                        float *v = ((BgaMotion *)((BgaEnvEnt *)d->env)[i].data)->key[j].v;
+
+                        for (k = 0; k < 6; k++) {
+                            if (v[k] < 0.0f) {
+                                sum -= v[k];
+                            } else {
+                                sum += v[k];
+                            }
+                        }
+                        if (sum != 0.0f) {
+                            scale = 1.0f / sum;
+                        }
+                        for (k = 0; k < 6; k++) {
+                            float t = v[k] * scale;
+
+                            if (t < 0.0f) {
+                                v[k] = v[k] * -t;
+                            } else {
+                                v[k] = v[k] * t;
+                            }
+                        }
+                    }
+                    break;
+                case 4:
+                case 5:
+                case 7:
+                case 8:
+                case 9:
+                    break;
+                }
+                i++;
+            }
+        }
+        if (d->u.next == 0) {
+            break;
+        }
+        d->u.next += (int)p;
+        d = (BgaDObjEnt *)d->u.next;
+    }
+    bga_makeRootList(p);
+    bga_linkTree(p);
+    return data;
+}
 
 typedef struct BgaSdfKey { /* field names derived */
     /* 0x00 */ char pad00[4];

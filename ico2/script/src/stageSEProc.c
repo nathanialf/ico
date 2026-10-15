@@ -93,7 +93,7 @@ static float river06aLevel; /* derived name */
  * stageSE06ariver */
 static inline int SEFadeOut(SeSlot *self, float *lvl) /* derived name */
 {
-    float v = *lvl - riverFadeSpeed;
+    float v = *lvl - 0.005f;
 
     *lvl = v;
     self->volumeRate = v;
@@ -105,9 +105,76 @@ static inline int SEFadeOut(SeSlot *self, float *lvl) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(stageSE04eriver);
+int stageSE04eriver(SeSlot *self)
+{
+    float *p = (float *)GetCameraPos();
+    float z = p[2];
+    float r;
 
-INCLUDE_ASM(stageSE06ariver);
+    if (stage_no == 21) {
+        if (gflagChk(205)) {
+            return SEFadeOut(self, &river04eLevelA);
+        }
+        river04eLevelA = 1.0f;
+    } else {
+        if (gflagChk(206)) {
+            return SEFadeOut(self, &river04eLevelB);
+        }
+        river04eLevelB = 1.0f;
+    }
+    if (-5500.0f < z) {
+        if (z < -5500.0f) {
+            r = 0.0f;
+        } else if (-2000.0f < z) {
+            r = 1.0f;
+        } else {
+            r = (z - -5500.0f) / 3500.0f;
+        }
+        self->volumeRate = 1.0f - r;
+    } else {
+        if (z < -5750.0f) {
+            r = 0.0f;
+        } else if (-5500.0f < z) {
+            r = 1.0f;
+        } else {
+            r = (z - -5750.0f) / 250.0f;
+        }
+        self->volumeRate = r;
+    }
+    if (self->volumeRate < 0.5f && p[1] < -1000.0f && -6500.0f < p[2]) {
+        self->volumeRate = 0.5f;
+    }
+    return -1;
+}
+
+int stageSE06ariver(SeSlot *self)
+{
+    float *p = (float *)GetCameraPos();
+
+    if (gflagChk(95)) {
+        return SEFadeOut(self, &river06aLevel);
+    }
+    river06aLevel = 1.0f;
+    if (p[0] < 300.0f && 848.0f < p[2]) {
+        if (gflagChk(96) == 0) {
+            self->volumeRate = 0.05f;
+        } else {
+            self->volumeRate = 0.4f;
+        }
+        self->stereoRate = 0.1f;
+        self->pos[0] = -490.0f;
+        self->pos[1] = -757.0f;
+        self->pos[2] = 759.0f;
+        return 1;
+    }
+    self->volumeRate = 0.7f;
+    self->flag.all &= 0xEFFFFFFF;
+    self->stereoRate = 0.75f;
+    self->pos[0] = 740.0f;
+    self->pos[1] = p[1];
+    self->pos[2] = p[2];
+    return 1;
+}
 
 int stageSE10lstrong2(SeSlot *self)
 {
@@ -195,8 +262,8 @@ int stageSE02astrong(SeSlot *self)
     return 1;
 }
 
-/* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
-   (0.005f, or 1000.0f to cut the river at once) */
+/* the river fade step; SEFadeOut walks the level down by a fixed 0.005f and
+   nothing reads this word */
 float riverFadeSpeed = 0.0f; /* derived name */
 
 int stageSE02ataki(SeSlot *self)
@@ -298,7 +365,29 @@ int stageSE04ewind(SeSlot *self)
     return -1;
 }
 
-INCLUDE_ASM(stageSE04eriverDown);
+int stageSE04eriverDown(SeSlot *self)
+{
+    float x = ((float *)GetCameraPos(self))[2];
+    float f;
+    if (stage_no == 21) {
+        if (gflagChk(205)) {
+            return 0;
+        }
+    } else {
+        if (gflagChk(206)) {
+            return 0;
+        }
+    }
+    if (x < -5770.0f) {
+        f = 0.0f;
+    } else if (-3680.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -5770.0f) / 2090.0f;
+    }
+    self->volumeRate = f;
+    return -1;
+}
 
 int stageSE06astrong(SeSlot *self)
 {

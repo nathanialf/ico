@@ -106,7 +106,102 @@ static __inline__ void partitionBarDebugDisp(void) /* derived name */
 #endif
 }
 
-INCLUDE_ASM(disp_memory_partition_bar);
+static void disp_memory_partition_bar(void)
+{
+    IosMemPart *parts[5] = {ios_partition_isys, ios_partition_s2motion, ios_partition_smotion,
+                            ios_partition_common, 0};
+    D2Pos st;
+    D2Pos ed;
+    char buf[1024];
+    IosMemPart *p;
+    IosMemNode *e;
+    int i = 0;
+    int j;
+    int k;
+    int size;
+    int total;
+    int used;
+    int max;
+    int x;
+
+    if (fbKeep != 0) {
+        return;
+    }
+    max = 0;
+    gif_StartPacketPri(12);
+    for (; parts[i] != 0; i++) {
+        p = parts[i];
+        size = p->end - p->start + 0x10;
+        if (max < size) {
+            max = size;
+        }
+    }
+    st.z = ed.z = 0;
+    st.w = ed.w = 0;
+    st.y = (ScreenHeight / 2 + 1898) << 4;
+    ed.y = st.y + 1280;
+    if (debug_bar_flag == 2) {
+        gif_SetAlpha(1, 2, 32);
+        gif_MakeSpriteNoTexture((-(ScreenWidth >> 1) + 2178) << 4, (ScreenHeight / 2 + 1898) << 4,
+                                (ScreenWidth - 200) << 4, 768, 0xFFFFFFFF, &partitionBarTint, 1);
+    }
+    gif_SetAlpha(1, 2, 112);
+    for (j = 0, k = 0; j < max; j += 0x100000) {
+        st.x = ed.x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f +
+                            (float)j * (float)(ScreenWidth - 200) / (float)max * 16.0f);
+        if (k % 10) {
+            Draw2DLine((int *)&st, (int *)&ed, partitionUsedColor, -1);
+        } else {
+            Draw2DLine((int *)&st, (int *)&ed, partitionFreeColor, -1);
+        }
+        k++;
+    }
+    for (i = 0; parts[i] != 0; i++) {
+        used = 0;
+        p = parts[i];
+        e = p->head;
+        total = p->end - p->start + 0x10;
+        if (e != 0) {
+            do {
+                used += e->size << 4;
+                e = e->free_next;
+                if ((unsigned int)e > 0x1FEFFF0) {
+                    sprintf(
+                        buf,
+                        "DISP_MEMORY_PARTITION_BAR():\n\tINVALID MEMORY FREE AREA INDICATED IN PARTITION \"%s\"\n\tMALLOCED MEMORY'S NEXT_FREE: %p\n",
+                        p->name, e);
+                    debug_assertMessage(__FILE__, 572, buf);
+                    __assert(__FILE__, 572, "e");
+                }
+            } while (e != 0);
+        }
+        gif_SetAlpha(0, 2, 112);
+        gif_SetAlpha(1, 2, 112);
+        st.y = ed.y = (ScreenHeight / 2 + i * 18 + 1907) << 4;
+        st.x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f);
+        ed.x = (int)((float)st.x +
+                     (float)(total - used) * (float)(ScreenWidth - 200) / (float)max * 16.0f);
+        Draw2DLine((int *)&st, (int *)&ed, partitionFreeColor, -1);
+        x = (int)(((float)(-(ScreenWidth >> 1) + 130) + 2048.0f) * 16.0f);
+        st.x = (int)((float)x + (float)total * (float)(ScreenWidth - 200) / (float)max * 16.0f);
+        ed.x = (int)((float)x +
+                     (float)(total - used) * (float)(ScreenWidth - 200) / (float)max * 16.0f);
+        Draw2DLine((int *)&st, (int *)&ed, partitionUsedColor, -1);
+    }
+    gif_SetAlpha(1, 4, 128);
+    partitionBarDebugDisp();
+    /* a draw in white, compiled out of the retail build (the call derived) */
+    if (0) {
+        Draw2DLine((int *)&st, (int *)&ed, (sceVu0IVECTOR){255, 255, 255, 128}, -1);
+    }
+    gif_EndPacket();
+    for (i = 0; parts[i] != 0; i++) {
+        p = parts[i];
+        debug_PrintfDummy(ScreenWidth / 2 - (ScreenWidth >> 1) + 30,
+                          (ScreenHeight / 2 - 150 + ScreenHeight / 2 + i * 18) / 2, 0xFFFFFF80,
+                          "%10s", p->name);
+    }
+}
 
 static void disp_memory_partition(void)
 {
