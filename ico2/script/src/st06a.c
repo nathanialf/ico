@@ -254,7 +254,18 @@ void actSt06aDoorDownEffect(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt06aShutterMain);
+void actSt06aShutterMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+
+    sub->mainMail = shutter_main_mes;
+
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt06aShutterSwitch);
 

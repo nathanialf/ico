@@ -326,7 +326,15 @@ void actSt13cSleepEvent(int x)
 
 INCLUDE_ASM(actSt13cSleepChk);
 
-INCLUDE_ASM(actSt13cCageDownMain);
+void actSt13cCageDownMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = cageDownMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt13cCageDownSwitch);
 

@@ -29,7 +29,10 @@
 
 static void copyToWork(int pri);
 
-INCLUDE_ASM(falldownSE);
+static void falldownSE(GObj *self)
+{
+    ExecuteSEPackage(self, 81);
+}
 
 /* The whole drawing area as a sprite rectangle in GS primitive coordinates,
    a corner and a size: copyToWork and flushWork blit the frame through it. */

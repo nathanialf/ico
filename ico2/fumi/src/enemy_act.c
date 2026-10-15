@@ -200,11 +200,72 @@ INCLUDE_ASM_LIT(IsEnemyBrainToGenerator);
 
 INCLUDE_ASM(setBattleStatus);
 
-INCLUDE_ASM(boss_effect_start);
+static void boss_effect_start(GObj *self, int id)
+{
+    int i;
 
-INCLUDE_ASM(boss_effect_check_parts);
+    for (i = 0; i < 5; i++) {
+        if (*(char *)(i * 0x20 + BOSS_START_WORK(self) + 0x37D) == 0) {
+            float buf[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-INCLUDE_ASM(boss_effect_process);
+            bossEffectSetNodePos(self, (float *)(i * 0x20 + BOSS_START_WORK(self) + 0x360), id);
+            *(int *)(i * 0x20 + BOSS_START_WORK(self) + 0x370) =
+                GatherEffect_Set(12, (char *)BOSS_START_WORK(self) + (i * 0x20 + 0x360), buf,
+                                 (char *)BOSS_START_WORK(self) + (i * 0x20 + 0x360), 1.0f,
+                                 (void *)boss_effect_callback);
+            *(int *)(i * 0x20 + BOSS_START_WORK(self) + 0x374) = id;
+            *(int *)(i * 0x20 + BOSS_START_WORK(self) + 0x378) =
+                (60 - systemStatus[0] * 10) / systemStatus[1];
+            *(char *)(i * 0x20 + BOSS_START_WORK(self) + 0x37C) = 1;
+            *(char *)(i * 0x20 + BOSS_START_WORK(self) + 0x37D) = 1;
+            return;
+        }
+    }
+    ReviveEnemyParticle(self, id);
+}
+
+static void boss_effect_check_parts(GObj *self, int id)
+{
+    char *p = (char *)GOBJ_ACT(self)->enemy + 0x360;
+    int i;
+    for (i = 0; i < 5; i++, p += 0x20) {
+        if (p[0x1D] != 0 && *(int *)(p + 0x14) == id) {
+            return;
+        }
+    }
+    boss_effect_start(self, id);
+}
+
+static void boss_effect_process(GObj *self)
+{
+    float tmp[4];
+    int n;
+    int i;
+
+    n = GOBJ_SUB(self)->skelNodeNum;
+    for (i = 0; i < n; i++) {
+        if (isExistEnemyParticle(self, i) == 0) {
+            boss_effect_check_parts(self, i);
+        }
+    }
+    for (i = 0; i < 5; i++) {
+        if (BOSS_EFFECT_PARTS(self, i)->alive == 0) {
+            continue;
+        }
+        if (BOSS_EFFECT_PARTS(self, i)->busy != 0) {
+            bossEffectSetNodePos(self, tmp, BOSS_EFFECT_PARTS(self, i)->id);
+            GatherEffect_SetGoal(*(int *)((char *)(i * 0x20 + BOSS_EFFECT_WORK(self)) + 0x370),
+                                 tmp);
+        }
+        if (BOSS_EFFECT_PARTS(self, i)->timer == 0) {
+            ReviveEnemyParticle(self, BOSS_EFFECT_PARTS(self, i)->id);
+        }
+        if (BOSS_EFFECT_PARTS(self, i)->busy == 0 && BOSS_EFFECT_PARTS(self, i)->timer < 0) {
+            BOSS_EFFECT_PARTS(self, i)->alive = 0;
+        }
+        BOSS_EFFECT_PARTS(self, i)->timer -= 1;
+    }
+}
 
 INCLUDE_ASM(_DoAwait);
 

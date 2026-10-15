@@ -241,9 +241,28 @@ INCLUDE_ASM(WithMailFunc_AttackFail);
 
 INCLUDE_ASM(WithMailFunc_AttackRejectInQueen);
 
-void GetCorrectOrientOfChain(void *buf, void *obj);
+void GetCorrectOrientOfChain(void *buf, void *obj)
+{
+    float q[4];
+    int deg;
 
-INCLUDE_ASM(GetCorrectOrientOfChain);
+    if (GetChainDirCorrectVal(GOBJ_ACT(obj)->chain, &deg) != 0) {
+        memset(q, 0, 16);
+        q[2] = 1.0f;
+        _ApplyRyGV(q, (float)RoundDegGV(
+                          deg + AlignDegGV(RoundDegGV((int)(_GetDirection(test_CURRENTORIENT(obj)) /
+                                                            3.1415927f * 180.0f) -
+                                                      deg))) *
+                          3.1415927f / 180.0f);
+        ((float *)buf)[0] = q[0];
+        ((float *)buf)[1] = q[1];
+        ((float *)buf)[2] = q[2];
+    } else {
+        ((float *)buf)[0] = *(float *)((char *)test_CURRENTORIENT(obj) + 0);
+        ((float *)buf)[1] = *(float *)((char *)test_CURRENTORIENT(obj) + 4);
+        ((float *)buf)[2] = *(float *)((char *)test_CURRENTORIENT(obj) + 8);
+    }
+}
 
 static int CollisCheckInRope(void *self, GObj *chain)
 {
@@ -453,9 +472,28 @@ static void EBRAIN_SEND_MES(void *enemy, int mes)
 
 INCLUDE_ASM_LIT(actCommonPlay);
 
-INCLUDE_ASM(DamageFunc);
+static void DamageFunc(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    debug_StdPrintfDummy("damage\n");
+    if (self != girlGObj) {
+        s->life -= (float)GOBJ_ACT(self)->damage;
+    }
+    if (self->kind == 4) {
+        EnemyBattleWork *b;
+        EBRAIN_SEND_MES(self, 5);
+        b = GOBJ_ACT(self)->enemy;
+        EnemyDeleteParticle(self, b->hitDir, b->hitNodes);
+    }
+}
 
-INCLUDE_ASM(DownFunc);
+static void DownFunc(GObj *self)
+{
+    DamageFunc(self);
+    if (self->kind == 1) {
+        EBRAIN_SEND_MES((void *)GOBJ_ACT(self)->attacker, 6);
+    }
+}
 
 INCLUDE_ASM_LIT(actCommonDamage);
 
@@ -531,9 +569,15 @@ INCLUDE_ASM_LIT(afterCommonBar);
 
 INCLUDE_ASM(actCommonBar);
 
-INCLUDE_ASM(funcCommonJumpDircorrect);
+void funcCommonJumpDircorrect(GObj *self)
+{
+    SetMotionDirection(self, GOBJ_WORK(self)->padWish);
+}
 
-INCLUDE_ASM(funcCommonFallDircorrect);
+void funcCommonFallDircorrect(GObj *self)
+{
+    SetMotionDirection(self, GOBJ_WORK(self)->fallDir);
+}
 
 static void correctJumpOrientByChain(GObj *self)
 {
@@ -800,13 +844,33 @@ INCLUDE_ASM_LIT(motCommonHangCliff);
 
 INCLUDE_ASM_LIT(motCommonNull);
 
-INCLUDE_ASM(funcCommonBeginReady);
+void funcCommonBeginReady(char *self, int mail, char *from)
+{
+    GOBJ_ACT(self)->readyFlags |= 1;
+    debug_StdPrintfDummy("ready begin %s to %s\n", from == (char *)boyGObj ? "boy" : "girl",
+                         self == (char *)boyGObj ? "boy" : "girl");
+}
 
-INCLUDE_ASM(funcCommonEndReady);
+void funcCommonEndReady(char *self, int mail, char *from)
+{
+    GOBJ_ACT(self)->readyFlags |= 2;
+    debug_StdPrintfDummy("ready end %s to %s\n", from == (char *)boyGObj ? "boy" : "girl",
+                         self == (char *)boyGObj ? "boy" : "girl");
+}
 
-INCLUDE_ASM(funcCommonEndExec);
+void funcCommonEndExec(char *self, int mail, char *from)
+{
+    GOBJ_ACT(self)->readyFlags |= 8;
+    debug_StdPrintfDummy("exec end %s to %s\n", from == (char *)boyGObj ? "boy" : "girl",
+                         self == (char *)boyGObj ? "boy" : "girl");
+}
 
-INCLUDE_ASM(funcCommonError);
+void funcCommonError(char *self, int mail, char *from)
+{
+    GOBJ_ACT(self)->readyFlags |= 0x10;
+    debug_StdPrintfDummy("????error %s to %s\n", from == (char *)boyGObj ? "boy" : "girl",
+                         self == (char *)boyGObj ? "boy" : "girl");
+}
 
 INCLUDE_ASM(SetMotionDirectionSmooze);
 

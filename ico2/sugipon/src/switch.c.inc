@@ -1,6 +1,16 @@
 /* switch.c: the floor and wall levers and the switches; box.c includes this
    file. */
 
+void switchOnSE(GObj *self)
+{
+    ExecuteSEPackage(self, 61);
+}
+
+void switchReleaseSE(GObj *self)
+{
+    ExecuteSEPackage(self, 62);
+}
+
 /* the zeroed template both lever inits copy into a new geometry block */
 static LeverGeoWork leverGeoInit = {0}; /* derived name */
 

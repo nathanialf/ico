@@ -191,7 +191,32 @@ static void EXITDATA_GetNextPosition(int idx, float *pos, float *rot)
     sceVu0ScaleVector(rot, rot, 0.017453292f);
 }
 
-INCLUDE_ASM(ACTGame_StageChangeGObj);
+void ACTGame_StageChangeGObj(GObj *self, int idx)
+{
+    float tmp_a[4];
+    float tmp_b[4];
+    float buf[4];
+    Vec4S buf2;
+    Vec4S buf3;
+
+    EXITDATA_GetNextPosition(idx, tmp_a, tmp_b);
+    if (self->kind == 0x11) {
+        memset(buf, 0, 0x10);
+        buf[2] = 250.0f;
+        _ApplyRyGV(buf, -tmp_b[1]);
+        sceVu0AddVector(tmp_a, tmp_a, buf);
+    }
+    if (self == girlGObj) {
+        if (0.0f <= GOBJ_WORK(self)->escortOffset) {
+            memset(&buf3, 0, 0x10);
+            buf3.z = -GOBJ_WORK(girlGObj)->escortOffset;
+            buf2 = buf3;
+            _ApplyRyGV(&buf2.x, -tmp_b[1]);
+            sceVu0AddVector(tmp_a, tmp_a, &buf2);
+        }
+    }
+    gamesysObjInfoPosNewStageSet(self->labelId, self->kind, exitData[idx].nextStage, tmp_a, tmp_b);
+}
 
 /* the first exit whose next stage is this one */
 static inline int getExitIndexOfStage(int stage) /* derived name */
@@ -303,7 +328,43 @@ int _ACTGame_SearchGObj(GObj *self, GObj *tgt, float range, float height, int an
     return 0;
 }
 
-INCLUDE_ASM(ACTLookTarget_Exec);
+int ACTLookTarget_Exec(GObj *self)
+{
+    float pos[4];
+    Act *s = GOBJ_ACT(self);
+    GObj *t = s->lookTarget;
+    int rv;
+    int b0;
+
+    if (debug_font_flag & 1) {
+        debug_Printf(10, 170, 0x0FFFFFFF, "mode=[%d]\n", GOBJ_SUB(self)->root.lookMode);
+    }
+    rv = 0;
+    if (s->lookPri == 0) {
+        GOBJ_SUB(self)->root.lookMode = 0;
+    } else {
+        if (t == 0) {
+            pos[0] = s->lookPosX;
+            pos[1] = s->lookPosY;
+            pos[2] = s->lookPosZ;
+        } else if (t == boyGObj) {
+            /* the boy's skeleton position read in place */
+            int idx = GetSkeltonFocusNode(t, 35) << 6;
+            pos[0] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x30);
+            pos[1] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x34);
+            pos[2] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x38);
+        } else {
+            GetRootPosition(pos, t);
+        }
+        b0 = s->lookMode;
+        rv = 1;
+        ((IntFloat *)((char *)(int)GOBJ_SUB(self) + 0x390))->f = pos[0];
+        ((IntFloat *)((char *)(int)GOBJ_SUB(self) + 0x394))->f = pos[1];
+        ((IntFloat *)((char *)(int)GOBJ_SUB(self) + 0x398))->f = pos[2];
+        GOBJ_SUB(self)->root.lookMode = b0;
+    }
+    return rv;
+}
 
 INCLUDE_ASM(ACTParaStatus_Clear);
 

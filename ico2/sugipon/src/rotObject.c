@@ -47,7 +47,10 @@ typedef struct RotObjMemory { /* field names derived */
     int turnCount; /* 0x4 */
 } RotObjMemory;    /* derived name */
 
-INCLUDE_ASM(moveStartSE);
+static void moveStartSE(GObj *self)
+{
+    ExecuteSEPackage(self, 51);
+}
 
 INCLUDE_ASM(moveEndSE);
 

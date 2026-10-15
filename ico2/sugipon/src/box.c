@@ -88,10 +88,6 @@ typedef struct BoxWork { /* field names derived */
     char pad184[12];
 } __attribute__((aligned(8))) BoxWork; /* derived name */
 
-INCLUDE_ASM(switchOnSE);
-
-INCLUDE_ASM(switchReleaseSE);
-
 INCLUDE_ASM(GetFloorLeverGlobalHoldPoint);
 
 INCLUDE_ASM_LIT(InitFloorLeverGeo);

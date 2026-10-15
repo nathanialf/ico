@@ -250,13 +250,29 @@ void actSt02aDoorDownEffect(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aFenceMain);
+void actSt02aFenceMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = fence_main_mail;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt02aFenceSwitch);
 
 INCLUDE_ASM(actSt02aFenceOpenSub);
 
-INCLUDE_ASM(actSt02aGondolaMain);
+void actSt02aGondolaMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = gondola_main_mail;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt02aGondolaSwitch);
 

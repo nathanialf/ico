@@ -229,9 +229,15 @@ int IsActCharDead(GObj *self)
     return ((int)(GOBJ_ACT(self)->flags18.ll >> 32) & 1) ^ 1;
 }
 
-INCLUDE_ASM(SetAP1HostGObj);
+void SetAP1HostGObj(GObj *self, GObj *host)
+{
+    GOBJ_ACT(self)->lookTarget = host;
+}
 
-INCLUDE_ASM(SetAP1PriorLevel);
+void SetAP1PriorLevel(GObj *self, int val)
+{
+    GOBJ_ACT(self)->lookPri = val;
+}
 
 static inline int jumpAI(GObj *self)
 {

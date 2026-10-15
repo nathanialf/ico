@@ -151,7 +151,15 @@ void actSt47aSekizo2Event(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt47aHane1Main);
+void actSt47aHane1Main(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = hane1Main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt47aHane1Switch);
 
@@ -171,7 +179,15 @@ void actSt47aHane1_2Girl(GObj *volatile self)
     _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
 }
 
-INCLUDE_ASM(actSt47aHane2Main);
+void actSt47aHane2Main(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = hane2Main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt47aHane2Switch);
 

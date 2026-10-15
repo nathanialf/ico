@@ -154,7 +154,15 @@ INCLUDE_ASM(actSt10lBoxAChk);
 
 INCLUDE_ASM(actSt10lBoxBChk);
 
-INCLUDE_ASM(actSt10lChainMain);
+void actSt10lChainMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = chainMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt10lChainSwitch);
 

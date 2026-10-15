@@ -55,7 +55,18 @@ INCLUDE_ASM(actSt09aIntro);
 
 INCLUDE_ASM(actSt09aBrg);
 
-INCLUDE_ASM(actSt09aElvMain);
+void actSt09aElvMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+
+    sub->mainMail = elvMain_mes;
+
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt09aElvSwitch);
 
@@ -68,6 +79,15 @@ void actSt09aSekizoEvent(int x)
 
 INCLUDE_ASM(actSt09aIntroChk);
 
-INCLUDE_ASM(actSt09aBrgMain);
+void actSt09aBrgMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = brgMain_mes;
+
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt09aBrgSwitch);

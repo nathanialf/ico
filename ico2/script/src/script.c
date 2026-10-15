@@ -211,7 +211,12 @@ INCLUDE_ASM(scpPlayMotDirSmz);
 
 INCLUDE_ASM(scpPlayMot);
 
-INCLUDE_ASM(scpPlayJump);
+void scpPlayJump(GObj *self, int orient)
+{
+    ACTItemForceDrop(self);
+    GOBJ_ACT(self)->enemy->jumpOrient = orient;
+    iosOmSendMail(self, 45, self);
+}
 
 void scpPlayStart(GObj *self)
 {

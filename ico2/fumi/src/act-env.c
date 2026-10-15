@@ -54,6 +54,22 @@ static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f}; /* derived nam
 #include "gv.h"
 #include "fieldCollision.h"
 #include "motionOrientManager.h"
+
+inline void GetSofaPosition(GObj *self, GObj *sofa)
+{
+    Act *w = GOBJ_ACT(self);
+    VECTOR v = sofaSeatOffset;
+    w->env.sofaOrient[0] = w->env.wallOrient[0];
+    w->env.sofaOrient[1] = w->env.wallOrient[1];
+    w->env.sofaOrient[2] = w->env.wallOrient[2];
+    if (self == boyGObj) {
+        v.x = -v.x;
+    }
+    v.w = 1.0f;
+    sceVu0ApplyMatrix(w->env.sofaPos,
+                      *(void **)((char *)((union ENVIF *)((char *)sofa + 0x15C))->i + 0xC), &v);
+}
+
 #include "include_asm.h"
 
 static inline int getDitchCarryMode(void) /* derived name */
@@ -287,5 +303,3 @@ INCLUDE_ASM(ACTGetEnvironment);
 /* clang-format on */
 
 INCLUDE_ASM(ACTSetEnvAllmighty);
-
-INCLUDE_ASM(GetSofaPosition);

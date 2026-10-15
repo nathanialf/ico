@@ -178,7 +178,6 @@ sdlit GetDifferenceFromLowerField 0x00631B60 0x00631B64 ico2/sugipon/src/motionM
 text GetDifferenceFromWallLowerPlane 0x0010A200 0x0010A26C ico2/sugipon/src/motionManager2.c lines=10  # ordinal; first difference at insn 9; imm:1; extent-equal
 text GetDifferenceFromWallUpperPlane 0x0010A270 0x0010A2DC ico2/sugipon/src/motionManager2.c lines=10  # ordinal; first difference at insn 9; imm:1; extent-equal
 text SetMotionNodeFixModeParameter 0x0010A3F0 0x0010A494 ico2/sugipon/src/motionManager2.c lines=12  # ordinal; first difference at insn 20; imm:1; extent-equal
-text falldownSE 0x0010ADC8 0x0010ADD0 ico2/sugipon/src/pool.c local lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text SetFallDownSplash 0x0010B0D8 0x0010B2BC ico2/sugipon/src/pool.c lines=32  # ordinal; first difference at insn 13; imm:3; extent-equal
 text GetPoolGlobalDrainVector 0x0010B2C0 0x0010B2D0 ico2/sugipon/src/pool.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text InitPoolGeo 0x0010B2D0 0x0010B76C ico2/sugipon/src/pool.c lines=87  # ordinal; first difference at insn 1; imm:11; extent-equal
@@ -551,7 +550,6 @@ text soundReqTickProc 0x00144390 0x001444A0 ico2/fumi/sound/s_init.c lines=24  #
 text soundVBlank 0x001444A0 0x00144500 ico2/fumi/sound/s_init.c lines=10  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before soundSeKindBuild
 text soundSeKindBuild 0x00144500 0x001445BC ico2/fumi/sound/s_init.c lines=24  # ordinal; first difference at insn 1; imm:3; extent-equal
 text ACTGame_SaveActorInformation 0x001448D8 0x00144928 ico2/fumi/src/act-game.c lines=7  # ordinal; first difference at insn 3; other:3; extent-equal
-text ACTGame_StageChangeGObj 0x00144A08 0x00144B58 ico2/fumi/src/act-game.c lines=26  # ordinal; first difference at insn 38; imm:2; extent-equal
 text ACTGame_SetActors_Debug 0x00144B58 0x00144DF0 ico2/fumi/src/act-game.c lines=63  # ordinal; first difference at insn 29; imm:9; extent-equal
 sdlit ACTGame_SetActors_Debug 0x00632248 0x00632255 ico2/fumi/src/act-game.c  # 2 strings
 text ACTGame_TryConnectHand 0x00144DF0 0x00144E10 ico2/fumi/src/act-game.c lines=4  # ordinal; first difference at insn 3; imm:1; extent-equal
@@ -560,8 +558,6 @@ text ACTGameView_Loop 0x00145048 0x001452FC ico2/fumi/src/act-game.c lines=74  #
 lit4 ACTGameView_Loop 0x00630AD0 0x00630AD4 ico2/fumi/src/act-game.c  # 1 float
 rdlit ACTGameView_Loop 0x00557F10 0x00557F30 ico2/fumi/src/act-game.c align=16  # 1 jtbl
 text ACTGame_LwsEffectProcess 0x00145300 0x00145324 ico2/fumi/src/act-game.c local lines=7  # ordinal; first difference at insn 1; imm:2; extent-equal
-text ACTLookTarget_Exec 0x001454F8 0x00145634 ico2/fumi/src/act-game.c lines=37  # ordinal; first difference at insn 10; imm:6; extent-equal
-rdlit ACTLookTarget_Exec 0x00557F30 0x00557F3B ico2/fumi/src/act-game.c align=16  # 1 string
 text ACTParaStatus_Clear 0x00145638 0x00145648 ico2/fumi/src/act-game.c lines=5  # ordinal; first difference at insn 3; other:1; extent-equal
 text ACTParaStatus_Exec 0x00145648 0x001457A4 ico2/fumi/src/act-game.c lines=37  # ordinal; first difference at insn 6; length:-22; extent-differs
 text ACTGame_InnerVelocityUpdate 0x00145988 0x00145C40 ico2/fumi/src/act-game.c local lines=68  # ordinal; first difference at insn 20; other:42; extent-equal
@@ -799,8 +795,6 @@ text ACTRunIntrCorrect 0x00156200 0x0015647C ico2/fumi/src/commonact.c lines=45 
 sdlit ACTRunIntrCorrect 0x006322D8 0x006322DF ico2/fumi/src/commonact.c  # 1 string
 text WithMailFunc_AttackFail 0x00156488 0x001564CC ico2/fumi/src/commonact.c lines=13  # ordinal; first difference at insn 2; imm:3; extent-equal
 text WithMailFunc_AttackRejectInQueen 0x001564D0 0x00156554 ico2/fumi/src/commonact.c lines=15  # ordinal; first difference at insn 6; imm:4; extent-equal
-text GetCorrectOrientOfChain 0x00156558 0x00156684 ico2/fumi/src/commonact.c lines=22  # ordinal; first difference at insn 11; imm:1; extent-equal
-lit4 GetCorrectOrientOfChain 0x00630C28 0x00630C2C ico2/fumi/src/commonact.c  # 1 float
 text actCommonRope 0x00156840 0x00156BA0 ico2/fumi/src/commonact.c lines=70  # ordinal; first difference at insn 60; length:-1; extent-differs
 lit4 actCommonRope 0x00630C2C 0x00630C30 ico2/fumi/src/commonact.c  # 1 float
 rdlit actCommonRope 0x00558880 0x00558895 ico2/fumi/src/commonact.c align=16  # 1 string
@@ -817,9 +811,6 @@ lit4 actCommonRopeSpecial 0x00630C3C 0x00630C44 ico2/fumi/src/commonact.c  # 2 f
 sdlit actCommonRopeSpecial 0x006322E0 0x006322E8 ico2/fumi/src/commonact.c  # 1 string
 text actCommonLever 0x00157C38 0x00157DA0 ico2/fumi/src/commonact.c lines=25  # ordinal; first difference at insn 3; length:-19; extent-differs
 lit4 actCommonLever 0x00630C44 0x00630C48 ico2/fumi/src/commonact.c  # 1 float, measured from the base: the text loads them
-text DamageFunc 0x00157DC8 0x00157E64 ico2/fumi/src/commonact.c local lines=14  # ordinal; first difference at insn 13; imm:4; extent-equal
-sdlit DamageFunc 0x006322E8 0x006322F0 ico2/fumi/src/commonact.c  # 1 string
-text DownFunc 0x00157E68 0x00157EB0 ico2/fumi/src/commonact.c local lines=7  # ordinal; first difference at insn 11; imm:1; extent-equal
 text actCommonDown 0x00157EB0 0x00157FA0 ico2/fumi/src/commonact.c lines=32  # us-only (in commonact.c's span; PAL order suggests actCommonDown (324 B in PAL)); named actCommonDown by callees (provisional)
 rdlit actCommonDown 0x005588F0 0x00558905 ico2/fumi/src/commonact.c align=16  # 1 string
 text actCommonDie 0x00157FA0 0x00158324 ico2/fumi/src/commonact.c lines=73  # us-only (in commonact.c's span; PAL size and order suggest actCommonDie); named actCommonDie by PAL size and order, callees, body alignment (provisional)
@@ -840,8 +831,6 @@ lit4 actCommonBox 0x00630C4C 0x00630C50 ico2/fumi/src/commonact.c  # 1 float, me
 text actCommonBar 0x00158F10 0x0015921C ico2/fumi/src/commonact.c lines=69  # ordinal; first difference at insn 19; imm:8; extent-equal
 lit4 actCommonBar 0x00630C50 0x00630C54 ico2/fumi/src/commonact.c  # 1 float
 sdlit actCommonBar 0x006322F8 0x00632300 ico2/fumi/src/commonact.c  # 1 string
-text funcCommonJumpDircorrect 0x00159220 0x00159230 ico2/fumi/src/commonact.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text funcCommonFallDircorrect 0x00159230 0x00159240 ico2/fumi/src/commonact.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text actCommonJump 0x001594B0 0x001595CC ico2/fumi/src/commonact.c lines=55  # ordinal; first difference at insn 0; length:-90; extent-differs
 lit4 actCommonJump 0x00630C54 0x00630C58 ico2/fumi/src/commonact.c  # 1 float, measured from the base: the text loads them
 text actCommonFall 0x001595D0 0x00159AEC ico2/fumi/src/commonact.c lines=153  # ordinal; first difference at insn 1; length:-161; extent-differs
@@ -863,15 +852,6 @@ data col.270 0x002823F0 0x00282400 ico2/fumi/src/commonact.c local file=col_270 
 text actCommonFly 0x0015ADF0 0x0015AEC8 ico2/fumi/src/commonact.c lines=30  # ordinal; first difference at insn 1; length:-9; extent-differs
 text actCommonLadder 0x0015AEC8 0x0015B4B4 ico2/fumi/src/commonact.c lines=115  # ordinal; first difference at insn 16; length:-2; extent-differs
 text actCommonEdgeHang 0x0015B4B8 0x0015B61C ico2/fumi/src/commonact.c lines=29  # ordinal; first difference at insn 14; imm:4; extent-equal
-text funcCommonBeginReady 0x0015B620 0x0015B674 ico2/fumi/src/commonact.c lines=6  # ordinal; first difference at insn 4; imm:2; extent-equal
-rdlit funcCommonBeginReady 0x00558C70 0x00558C86 ico2/fumi/src/commonact.c align=16  # 1 string
-sdlit funcCommonBeginReady 0x00632310 0x0063231D ico2/fumi/src/commonact.c  # 2 strings
-text funcCommonEndReady 0x0015B678 0x0015B6CC ico2/fumi/src/commonact.c lines=6  # ordinal; first difference at insn 4; imm:2; extent-equal
-rdlit funcCommonEndReady 0x00558C88 0x00558C9C ico2/fumi/src/commonact.c  # 1 string
-text funcCommonEndExec 0x0015B6D0 0x0015B724 ico2/fumi/src/commonact.c lines=6  # ordinal; first difference at insn 4; imm:2; extent-equal
-rdlit funcCommonEndExec 0x00558CA0 0x00558CB3 ico2/fumi/src/commonact.c align=16  # 1 string
-text funcCommonError 0x0015B728 0x0015B77C ico2/fumi/src/commonact.c lines=6  # ordinal; first difference at insn 4; imm:2; extent-equal
-rdlit funcCommonError 0x00558CB8 0x00558CCC ico2/fumi/src/commonact.c  # 1 string
 text SetMotionDirectionSmooze 0x0015B780 0x0015B9D0 ico2/fumi/src/commonact.c lines=39  # ordinal; first difference at insn 13; length:+1; extent-differs
 lit4 SetMotionDirectionSmooze 0x00630C7C 0x00630C84 ico2/fumi/src/commonact.c  # 2 floats
 text _ACTDebugPrint 0x0015B9D0 0x0015BCC4 ico2/fumi/src/commonact.c lines=56  # ordinal; first difference at insn 7; length:+1; extent-differs
@@ -1009,9 +989,6 @@ text ACTCheckFlagAttack 0x0015F6A8 0x0015F6BC ico2/fumi/src/commonact.c lines=4 
 text afterCommonTruckLever 0x0015F6C0 0x0015F6EC ico2/fumi/src/commonact.c lines=5  # ordinal; first difference at insn 7; imm:1; extent-equal
 text setBattleStatus 0x0015F6F0 0x0015F800 ico2/fumi/src/enemy_act.c local lines=24  # ordinal; first difference at insn 5; imm:17; extent-equal
 sdlit setBattleStatus 0x00632398 0x0063239A ico2/fumi/src/enemy_act.c  # 1 string
-text boss_effect_start 0x0015F800 0x0015F9AC ico2/fumi/src/enemy_act.c local lines=23  # ordinal; first difference at insn 24; imm:8; extent-equal
-text boss_effect_check_parts 0x0015F9B0 0x0015F9F4 ico2/fumi/src/enemy_act.c local lines=11  # ordinal; first difference at insn 2; imm:1; extent-equal
-text boss_effect_process 0x0015F9F8 0x0015FB5C ico2/fumi/src/enemy_act.c local lines=30  # ordinal; first difference at insn 26; imm:8; extent-equal
 text _DoAwait 0x0015FB60 0x0015FBD8 ico2/fumi/src/enemy_act.c local lines=11  # ordinal; first difference at insn 7; other:4; extent-equal
 text _DoAwaitGirl 0x0015FBD8 0x0015FC50 ico2/fumi/src/enemy_act.c local lines=11  # ordinal; first difference at insn 7; other:4; extent-equal
 text subEnemyControl 0x0015FD58 0x001600F4 ico2/fumi/src/enemy_act.c lines=96  # ordinal; first difference at insn 19; length:-1; extent-differs
@@ -1278,7 +1255,6 @@ text gflagSave 0x0017B1A8 0x0017B1EC ico2/script/src/gflag.c lines=7  # ordinal;
 text gflagLoad 0x0017B1F0 0x0017B22C ico2/script/src/gflag.c lines=6  # ordinal; first difference at insn 8; length:-4; extent-differs
 text scpPlayMotDirSmz 0x0017B398 0x0017B3F8 ico2/script/src/script.c lines=8  # ordinal; first difference at insn 8; length:-1; extent-differs
 text scpPlayMot 0x0017B3F8 0x0017B4DC ico2/script/src/script.c lines=22  # ordinal; first difference at insn 13; imm:10; extent-equal
-text scpPlayJump 0x0017B4E0 0x0017B528 ico2/script/src/script.c lines=6  # ordinal; first difference at insn 11; imm:1; extent-equal
 text scpTriggerBallTargetMan 0x0017B5B0 0x0017B760 ico2/script/src/script.c lines=17  # equal, a stub because it inlines scpTriggerBall, a stub for emission order
 text scpDoorTypeUpDown 0x0017B760 0x0017B8B0 ico2/script/src/script.c lines=22  # ordinal; first difference at insn 11; imm:8; extent-equal
 rdlit scpDoorTypeUpDown 0x0055A030 0x0055A046 ico2/script/src/script.c align=16  # 1 string
@@ -1948,8 +1924,6 @@ rdlit subAP1BrainMain 0x006185D8 0x006185E2 ico2/sugipon/src/act_a_p_1.c  # 1 st
 text SetAP1DeadStatus 0x001BB398 0x001BB3DC ico2/sugipon/src/act_a_p_1.c lines=8  # ordinal; first difference at insn 11; imm:2; extent-equal
 text AP1BeforeFunc 0x001BB3E0 0x001BB6AC ico2/sugipon/src/act_a_p_1.c lines=46  # ordinal; first difference at insn 13; length:-1; extent-differs
 text actAP1Start 0x001BB6B0 0x001BB7DC ico2/sugipon/src/act_a_p_1.c lines=28  # ordinal; first difference at insn 16; imm:10; extent-equal
-text SetAP1HostGObj 0x001BB800 0x001BB80C ico2/sugipon/src/act_a_p_1.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text SetAP1PriorLevel 0x001BB810 0x001BB81C ico2/sugipon/src/act_a_p_1.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
 text GetAP1AIMode 0x001BB820 0x001BB85C ico2/sugipon/src/act_a_p_1.c lines=9  # ordinal; first difference at insn 3; imm:1; extent-equal
 sdlit GetAP1AIMode 0x00633248 0x0063324B ico2/sugipon/src/act_a_p_1.c def  # 1 string
 text AttackCheckBoundaryBeforeFunc 0x001BB988 0x001BBB1C ico2/sugipon/src/attackCheckBoundary.c lines=46  # ordinal; first difference at insn 2; length:+3; extent-differs
@@ -1965,8 +1939,6 @@ text GetAttackCheckBoundaryRadius 0x001BBFD0 0x001BBFE0 ico2/sugipon/src/attackC
 text CreateAttackCheckBoundary 0x001BBFE0 0x001BC084 ico2/sugipon/src/attackCheckBoundary.c lines=12  # ordinal; first difference at insn 7; imm:2; extent-equal
 text GetAttackCheckBoundaryManagerStatus 0x001BC088 0x001BC098 ico2/sugipon/src/attackCheckBoundary.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
 text SetAttackCheckBoundaryAttribute 0x001BC098 0x001BC0A8 ico2/sugipon/src/attackCheckBoundary.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
-text switchOnSE 0x001BC0A8 0x001BC0B0 ico2/sugipon/src/box.c  # ordinal; first difference at insn 1; imm:1; extent-equal
-text switchReleaseSE 0x001BC0B0 0x001BC0B8 ico2/sugipon/src/box.c  # ordinal; first difference at insn 1; imm:1; extent-equal
 text GetFloorLeverGlobalHoldPoint 0x001BC0B8 0x001BC130 ico2/sugipon/src/box.c  # ordinal; first difference at insn 9; imm:1; extent-equal
 text FloorLeverTriStateGeo 0x001BC130 0x001BC1A8 ico2/sugipon/src/box.c  # ordinal; first difference at insn 6; imm:1; extent-equal
 text FloorLeverGeo 0x001BC1A8 0x001BC434 ico2/sugipon/src/box.c  # ordinal; first difference at insn 10; imm:1; extent-equal
@@ -2343,7 +2315,6 @@ text RopeDL 0x001E9630 0x001E97F4 ico2/sugipon/src/rope.c lines=33  # ordinal; f
 text CheckRopeUpperWallClimbable 0x001E97F8 0x001E9808 ico2/sugipon/src/rope.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
 text ReleaseRope 0x001E9808 0x001E9810 ico2/sugipon/src/rope.c lines=1  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before RopeGeo
 text RopeGeo 0x001E9810 0x001E9888 ico2/sugipon/src/rope.c lines=5  # ordinal; first difference at insn 11; imm:1; extent-equal
-text moveStartSE 0x001E9918 0x001E9920 ico2/sugipon/src/rotObject.c local lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text moveEndSE 0x001E9920 0x001E994C ico2/sugipon/src/rotObject.c local lines=5  # ordinal; first difference at insn 8; imm:1; extent-equal
 text RotObjectGeo 0x001E9950 0x001E9980 ico2/sugipon/src/rotObject.c lines=8  # ordinal; first difference at insn 1; imm:1; extent-equal
 text MoveRotObjectWithHoldPoint 0x001E9A78 0x001E9DE4 ico2/sugipon/src/rotObject.c lines=85  # us-only (in rotObject.c's span; PAL order suggests MoveRotObjectWithHoldPoint (892 B in PAL)); named MoveRotObjectWithHoldPoint by call sites, callees, body alignment (provisional)
@@ -2571,7 +2542,6 @@ lit4 ACTGetEnvironment 0x0063144C 0x00631478 ico2/fumi/src/act-env.c  # 11 float
 rdlit ACTGetEnvironment 0x0061AE10 0x0061AE3C ico2/fumi/src/act-env.c  # 3 strings, measured from the base
 sdlit ACTGetEnvironment 0x00633840 0x00633858 ico2/fumi/src/act-env.c  # 2 strings, 2 words, measured from the base
 text ACTSetEnvAllmighty 0x00200848 0x00200970 ico2/fumi/src/act-env.c lines=24  # ordinal; first difference at insn 2; other:27; extent-equal
-text GetSofaPosition 0x00200970 0x002009EC ico2/fumi/src/act-env.c lines=14  # ordinal; first difference at insn 10; imm:7; extent-equal
 text DetourCheck 0x00200AD8 0x00200D7C ico2/fumi/src/act-way.c local lines=59  # ordinal; first difference at insn 22; imm:15; extent-equal
 lit4 DetourCheck 0x00631478 0x0063147C ico2/fumi/src/act-way.c  # 1 float
 text checkPositionIllegal 0x00200D80 0x00200EB0 ico2/fumi/src/act-way.c local lines=32  # us-only (after act-way.c's span; PAL order suggests checkPositionIllegal (368 B in PAL)); named checkPositionIllegal by callees, body alignment (provisional)
@@ -2604,7 +2574,6 @@ text actCreateSubThread 0x00203B78 0x00203C34 ico2/fumi/src/act.c lines=24  # us
 rdlit actCreateSubThread 0x0061AF70 0x0061AF9A ico2/fumi/src/act.c align=16 def  # 3 strings, measured from the base
 text actSetInterrupt 0x00203C38 0x00203C40 ico2/fumi/src/act.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ConvertStickToAbsCoord
 text ConvertStickToAbsCoord 0x00203C40 0x00203CB8 ico2/fumi/src/act.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ActSetStartBrainStatus
-text ActSetStartBrainStatus 0x00203CB8 0x00203CCC ico2/fumi/src/act.c lines=7  # ordinal; first difference at insn 2; imm:1; extent-equal
 text BeforeFunc2 0x00203D90 0x00203EE4 ico2/fumi/src/act2.c lines=43  # ordinal; first difference at insn 8; imm:5; extent-equal
 text debug_WayTool 0x00206D18 0x00206F38 ico2/fumi/src/way_tool.c lines=64  # ordinal; first difference at insn 14; imm:1; extent-equal
 rdlit debug_WayTool 0x0061B7C0 0x0061B7D9 ico2/fumi/src/way_tool.c  # 2 strings
@@ -2798,10 +2767,8 @@ lit4 actSt02aSekizo 0x006314FC 0x00631504 ico2/script/src/st02a.c  # 2 floats
 text actSt02aWay 0x00212760 0x00212808 ico2/script/src/st02a.c lines=19  # ordinal; first difference at insn 12; imm:5; extent-equal
 text actSt02aTakiWay 0x00212808 0x0021287C ico2/script/src/st02a.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
 text actSt02aSecretItem 0x00212880 0x002128F8 ico2/script/src/st02a.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
-text actSt02aFenceMain 0x00212AC8 0x00212AF8 ico2/script/src/st02a.c lines=9  # ordinal; first difference at insn 7; imm:1; extent-equal
 text actSt02aFenceSwitch 0x00212AF8 0x00212B60 ico2/script/src/st02a.c lines=13  # ordinal; first difference at insn 3; imm:4; extent-equal
 text actSt02aFenceOpenSub 0x00212B60 0x00212C24 ico2/script/src/st02a.c local lines=15  # ordinal; first difference at insn 1; length:+14; extent-differs
-text actSt02aGondolaMain 0x00212C28 0x00212C58 ico2/script/src/st02a.c lines=9  # ordinal; first difference at insn 7; imm:1; extent-equal
 text actSt02aGondolaSwitch 0x00212C58 0x00212CFC ico2/script/src/st02a.c lines=21  # ordinal; first difference at insn 3; imm:7; extent-equal
 text actSt02aEneChk 0x00212D00 0x00212D68 ico2/script/src/st02a.c lines=13  # ordinal; first difference at insn 20; imm:2; extent-equal
 text actSt02aWayOnChk 0x00212D78 0x00212E50 ico2/script/src/st02a.c lines=22  # ordinal; first difference at insn 38; imm:3; extent-equal
@@ -3164,7 +3131,6 @@ text actSt06aProc_00227280 0x00227280 0x002272E8 ico2/script/src/st06a.c  # us-o
 text actSt06aKyomi 0x002272E8 0x00227350 ico2/script/src/st06a.c  # us-only; after st05d.c's span; pairs with no PAL-only function there by size and order; named actSt06aKyomi: addresses kyomi_mes, PAL actSt06aKyomi's (provisional)
 text actSt06aSuimonEffect 0x00227360 0x00227478 ico2/script/src/st06a.c lines=29  # us-only (in st06a.c's span; PAL order suggests actSt06aSuimonEffect (264 B in PAL)); named actSt06aSuimonEffect by callees (provisional)
 text func_00227478 0x00227478 0x002274F0 ico2/script/src/st06a.c  # us-only; in st06a.c's span; PAL order suggests actSt06aSuimonSub (116 B in PAL)
-text actSt06aShutterMain 0x002276C0 0x002276F8 ico2/script/src/st06a.c lines=12  # ordinal; first difference at insn 8; imm:1; extent-equal
 text actSt06aShutterSwitch 0x002276F8 0x00227750 ico2/script/src/st06a.c lines=13  # ordinal; first difference at insn 11; imm:3; extent-equal
 text actSt06aExitChk 0x00227750 0x002277C0 ico2/script/src/st06a.c lines=9  # us-only (after st06a.c's span; PAL order suggests actSt06aExitChk (116 B in PAL)); named actSt06aExitChk by callees, body alignment (provisional)
 text func_002277C0 0x002277C0 0x00227864 ico2/script/src/st06a.c  # us-only; after st06a.c's span; PAL order suggests actSt06aBoxSub (184 B in PAL)
@@ -3252,11 +3218,9 @@ text func_0022BA70 0x0022BA70 0x0022BB98 ico2/script/src/st09a.c  # us-only; in 
 text actSt09aElv 0x0022BB98 0x0022BC30 ico2/script/src/st09a.c lines=18  # us-only (in st09a.c's span; body equals PAL actSt09aElv's with immediates and jump targets masked); named actSt09aElv by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text actSt09aIntro 0x0022BC30 0x0022BCA8 ico2/script/src/st09a.c lines=14  # us-only (in st09a.c's span; PAL size and order suggest actSt09aIntro); named actSt09aIntro by PAL size and order, callees, body alignment (provisional)
 text actSt09aBrg 0x0022BCA8 0x0022BD20 ico2/script/src/st09a.c lines=14  # us-only (in st09a.c's span; PAL size and order suggest actSt09aBrg); named actSt09aBrg by PAL size and order, callees, body alignment (provisional)
-text actSt09aElvMain 0x0022BD20 0x0022BD58 ico2/script/src/st09a.c lines=12  # ordinal; first difference at insn 8; imm:1; extent-equal
 text actSt09aElvSwitch 0x0022BD58 0x0022BDF0 ico2/script/src/st09a.c lines=20  # ordinal; first difference at insn 4; imm:6; extent-equal
 text actSt09aElvUp 0x0022BDF0 0x0022BED0 ico2/script/src/st09a.c lines=29  # ordinal; first difference at insn 3; imm:8; extent-equal
 text actSt09aIntroChk 0x0022BEE0 0x0022BF60 ico2/script/src/st09a.c lines=19  # ordinal; first difference at insn 4; imm:5; extent-equal
-text actSt09aBrgMain 0x0022BF60 0x0022BF90 ico2/script/src/st09a.c lines=10  # ordinal; first difference at insn 7; imm:1; extent-equal
 text actSt09aBrgSwitch 0x0022BF90 0x0022BFE8 ico2/script/src/st09a.c lines=13  # ordinal; first difference at insn 11; imm:3; extent-equal
 text actSt10lInit 0x0022BFE8 0x0022C05C ico2/script/src/st10l.c lines=12  # us-only (after st09a.c's span; body equals PAL actSt10lInit's with immediates and jump targets masked); named actSt10lInit by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text actSt10lFloorLeft 0x0022C060 0x0022C2CC ico2/script/src/st10l.c lines=60  # us-only (after st09a.c's span; body equals PAL actSt10lFloorLeft's with immediates and jump targets masked); named actSt10lFloorLeft by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
@@ -3295,7 +3259,6 @@ text actSt10lEneCam1Chk 0x0022D5C8 0x0022D650 ico2/script/src/st10l.c lines=14  
 text actSt10lBoxChk 0x0022D650 0x0022D6B0 ico2/script/src/st10l.c lines=12  # ordinal; first difference at insn 13; imm:2; extent-equal
 text actSt10lBoxAChk 0x0022D6C0 0x0022D740 ico2/script/src/st10l.c lines=11  # ordinal; first difference at insn 9; imm:4; extent-equal
 text actSt10lBoxBChk 0x0022D740 0x0022D7C0 ico2/script/src/st10l.c lines=11  # ordinal; first difference at insn 9; imm:4; extent-equal
-text actSt10lChainMain 0x0022D7C0 0x0022D7F0 ico2/script/src/st10l.c lines=9  # ordinal; first difference at insn 7; imm:1; extent-equal
 text actSt10lChainSwitch 0x0022D7F0 0x0022D848 ico2/script/src/st10l.c lines=12  # ordinal; first difference at insn 11; imm:3; extent-equal
 text actSt10lEneKillChk 0x0022D848 0x0022D8F4 ico2/script/src/st10l.c local lines=25  # us-only (after st10l.c's span; PAL order suggests actSt10lEneKillChk (164 B in PAL)); named actSt10lEneKillChk by callees, body alignment (provisional)
 text actSt10rInit 0x0022D8F8 0x0022D9BC ico2/script/src/st10r.c lines=25  # us-only (after st10l.c's span; PAL order suggests actSt10rInit (212 B in PAL)); named actSt10rInit by callees, body alignment (provisional)
@@ -3323,7 +3286,6 @@ text actSt10rEnemy2 0x0022EC00 0x0022EC70 ico2/script/src/st10r.c lines=16  # us
 text actSt10rElv 0x0022EC70 0x0022ECF0 ico2/script/src/st10r.c lines=15  # us-only (after st10l.c's span; body equals PAL actSt10rElv's with immediates and jump targets masked); named actSt10rElv by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text actSt10rGateXL 0x0022ECF0 0x0022ED40 ico2/script/src/st10r.c lines=12  # us-only (after st10l.c's span; body equals PAL actSt10rGateXL's with immediates and jump targets masked); named actSt10rGateXL by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text actSt10rExitChk 0x0022ED98 0x0022EE64 ico2/script/src/st10r.c lines=16  # ordinal; first difference at insn 20; imm:2; extent-equal
-text actSt10rChainMain 0x0022EE68 0x0022EE98 ico2/script/src/st10r.c lines=9  # ordinal; first difference at insn 7; imm:1; extent-equal
 text actSt10rChainSwitch 0x0022EE98 0x0022EEF0 ico2/script/src/st10r.c lines=11  # ordinal; first difference at insn 11; imm:3; extent-equal
 text actSt10rEneChk 0x0022EF00 0x0022EF78 ico2/script/src/st10r.c lines=15  # ordinal; first difference at insn 24; imm:2; extent-equal
 text func_0022EF78 0x0022EF78 0x0022F130 ico2/script/src/st13a.c  # us-only; after st10r.c's span; PAL order suggests actSt13aElevUp (356 B in PAL)
@@ -3404,7 +3366,6 @@ text actSt13cGirlCarry 0x00234070 0x002340E8 ico2/script/src/st13c.c  # us-only;
 text actSt13cRescue 0x002340E8 0x00234170 ico2/script/src/st13c.c  # us-only; in st13c.c's span; pairs with no PAL-only function there by size and order; named actSt13cRescue: addresses rescue_mes, PAL actSt13cRescue's (provisional)
 text actSt13cBuki 0x00234170 0x002341D8 ico2/script/src/st13c.c  # us-only; in st13c.c's span; pairs with no PAL-only function there by size and order; named actSt13cBuki: addresses buki_mes, PAL actSt13cBuki's (provisional)
 text actSt13cSleepChk 0x002341F8 0x002342C4 ico2/script/src/st13c.c lines=23  # ordinal; first difference at insn 44; imm:1; extent-equal
-text actSt13cCageDownMain 0x002342C8 0x002342F8 ico2/script/src/st13c.c lines=9  # ordinal; first difference at insn 7; imm:1; extent-equal
 text actSt13cCageDownSwitch 0x002342F8 0x00234368 ico2/script/src/st13c.c lines=14  # ordinal; first difference at insn 4; imm:4; extent-equal
 text actSt13cCage1stDownDemo 0x00234368 0x002343B8 ico2/script/src/st13c.c lines=9  # ordinal; first difference at insn 8; imm:1; extent-equal
 text actSt13cCageFallReadyChk 0x002343B8 0x00234434 ico2/script/src/st13c.c lines=14  # ordinal; first difference at insn 20; imm:1; extent-equal
@@ -3541,9 +3502,7 @@ text actSt47aSekizo1Event 0x0023A9E0 0x0023A9F0 ico2/script/src/st47a.c lines=4 
 text actSt47aGirlWay 0x0023A9F0 0x0023AA84 ico2/script/src/st47a.c lines=13  # us-only (after st22a.c's span; PAL order suggests actSt47aGirlWay (132 B in PAL)); named actSt47aGirlWay by callees, body alignment (provisional)
 text func_0023AA88 0x0023AA88 0x0023AA98 ico2/script/src/st47a.c  # us-only; after st22a.c's span; pairs with no PAL-only function there by size and order
 text func_0023AA98 0x0023AA98 0x0023AAA8 ico2/script/src/st47a.c  # us-only; after st22a.c's span; pairs with no PAL-only function there by size and order
-text actSt47aHane1Main 0x0023AAB8 0x0023AAE8 ico2/script/src/st47a.c lines=9  # ordinal; first difference at insn 7; imm:1; extent-equal
 text actSt47aHane1Switch 0x0023AAE8 0x0023AB8C ico2/script/src/st47a.c lines=21  # ordinal; first difference at insn 3; imm:7; extent-equal
-text actSt47aHane2Main 0x0023AC30 0x0023AC60 ico2/script/src/st47a.c lines=9  # ordinal; first difference at insn 7; imm:1; extent-equal
 text actSt47aHane2Switch 0x0023AC60 0x0023AD04 ico2/script/src/st47a.c lines=21  # ordinal; first difference at insn 3; imm:7; extent-equal
 text actSt47aExitChk 0x0023AD68 0x0023AE28 ico2/script/src/st47a.c lines=12  # ordinal; first difference at insn 1; length:+18; extent-differs
 text actSt47aExit2Chk 0x0023AE28 0x0023AEA0 ico2/script/src/st47a.c lines=5  # ordinal; first difference at insn 4; length:+17; extent-differs
@@ -3563,7 +3522,6 @@ text actSplash1Chk 0x0023B390 0x0023B43C ico2/script/src/st99a.c lines=13  # ord
 text actSplash2Chk 0x0023B440 0x0023B4EC ico2/script/src/st99a.c lines=13  # ordinal; first difference at insn 4; imm:6; extent-equal
 text actWave1 0x0023B518 0x0023B59C ico2/script/src/st99a.c lines=15  # ordinal; first difference at insn 7; imm:5; extent-equal
 text actSt27aWave1 0x0023B5C8 0x0023B64C ico2/script/src/st99a.c lines=15  # ordinal; first difference at insn 7; imm:5; extent-equal
-text actSpiderChk 0x0023B650 0x0023B6B8 ico2/script/src/st99a.c lines=10  # ordinal; first difference at insn 12; imm:1; extent-equal
 text actSt17aTestChk 0x0023B6B8 0x0023B724 ico2/script/src/st99a.c local lines=10  # ordinal; first difference at insn 12; imm:2; extent-equal
 text stageSEtaimatsu 0x0023B728 0x0023B8B8 ico2/script/src/stageSEProc.c lines=59  # ordinal; first difference at insn 21; imm:3; extent-equal
 sdlit stageSEtaimatsu 0x00633B50 0x00633B54 ico2/script/src/stageSEProc.c align=4  # 1 word
