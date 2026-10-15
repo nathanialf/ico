@@ -752,7 +752,23 @@ void SetLimitedPoolReflactionMesh(PoolMesh *refl, GObj *pool, GObj *obj)
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
 
-INCLUDE_ASM(DispLimitedPoolReflactionMesh);
+void DispLimitedPoolReflactionMesh(PoolMesh *refl)
+{
+    gif_StartPacketPri(4);
+    copyToWork(4);
+    gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetZWrite(0);
+    gif_SetZTest(1);
+    gif_SetAlpha(0, 4, 0x80);
+    gif_EndPacket();
+    _SetCurrentMatrix(matrixptr + 0x100);
+    prim_DispMesh3D(refl->mesh, dispLightColor, dispLightNormal, -1);
+    if (debug_skel_flag != 0) {
+        DispMeshWire(refl->row, refl->nrow, refl->ncol);
+    }
+}
 
 void PoolGeo(void) {}
 

@@ -309,7 +309,17 @@ typedef struct BgaLightEnv { /* field names derived */
     /* 0x60 */ float outer[3];
 } BgaLightEnv; /* derived name */
 
-INCLUDE_ASM_LIT(bga_InitSdfCamera);
+inline char *bga_InitSdfCamera(char *data)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+
+    if (strncmp(p->id, "SDF", 3) != 0) {
+        debug_StdPrintfDummy("this is not sdf camera file.\n");
+        debug_assert(__FILE__, 996);
+        __assert(__FILE__, 996, "FALSE");
+    }
+    return data;
+}
 
 static void bga_initLightEnvelope(BgaDObjEnt *p)
 {
@@ -1113,6 +1123,119 @@ void bga_DispLightning(void)
     }
 }
 
+inline void bga_ResetCamera(void)
+{
+    bgaCameraActive = 0;
+}
+
+inline int bga_GetCameraMatrix(void *p)
+{
+    int v = bgaCameraActive;
+    if (v != 0) {
+        _CopyMatrix(p, bgaCameraMatrix);
+        v = bgaCameraActive;
+    } else {
+        bgaZoom = 0;
+    }
+    return v != 0 && bgaCameraForceOff == 0;
+}
+
+inline void bga_SetCamFrame(char *data, int frame, int mode, int loop)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+
+    p->mode = mode;
+    bgaCameraActive = 1;
+    if (mode == 1) {
+        GlobalTimer = mode;
+        _CopyVector(bgaLastCameraPos, bgaCameraMatrix[3]);
+    }
+    if (frame == -1) {
+        p->frame = p->num;
+    } else {
+        p->frame = frame;
+    }
+}
+
+inline int bga_CheckAnimationFinish(BgaHeader *p)
+{
+    float f = p->end;
+    int r = 0;
+
+    if (f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) < p->frame ||
+        p->mode != 1) {
+        r = 1;
+    }
+    return r;
+}
+
+inline int bga_CheckAnimationFrame(BgaHeader *p, int frame, int reset)
+{
+    float f = frame;
+    int r = 0;
+
+    if (f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) < p->frame ||
+        p->mode != 1) {
+        r = 1;
+    }
+    if (r && reset) {
+        p->mode = 0;
+    }
+    return r;
+}
+
+inline int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out)
+{
+    float a = in;
+    int r = 0;
+
+    if (a * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) < p->frame) {
+        float b = out;
+
+        if (p->frame < b * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f)) {
+            r = p->mode == 1;
+        }
+    }
+    return r;
+}
+
+inline int bga_CheckSdfCameraFinish(char *data)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    float f = p->num;
+
+    return f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <= p->frame;
+}
+
+inline int bga_CheckSdfCameraFrame(char *data, int frame, int reset)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    float f = frame;
+    int r;
+
+    r = f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <= p->frame;
+    if (r && reset) {
+        p->mode = 0;
+    }
+    return r;
+}
+
+inline int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    float a = in;
+    int r = 0;
+
+    if (a * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <= p->frame) {
+        float b = out;
+
+        if (p->frame < b * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f)) {
+            r = 1;
+        }
+    }
+    return r;
+}
+
 inline void bga_SetCameraForceOff(void)
 {
     bgaCameraForceOff = 1;
@@ -1152,23 +1275,3 @@ inline float bga_GetZoom(void)
 {
     return bgaZoom;
 }
-
-INCLUDE_ASM(bga_ResetCamera);
-
-INCLUDE_ASM(bga_GetCameraMatrix);
-
-INCLUDE_ASM(bga_InitSdfCamera);
-
-INCLUDE_ASM(bga_SetCamFrame);
-
-INCLUDE_ASM(bga_CheckAnimationFinish);
-
-INCLUDE_ASM(bga_CheckAnimationFrame);
-
-INCLUDE_ASM(bga_CheckAnimationFrameIn);
-
-INCLUDE_ASM(bga_CheckSdfCameraFinish);
-
-INCLUDE_ASM(bga_CheckSdfCameraFrame);
-
-INCLUDE_ASM(bga_CheckSdfCameraFrameIn);

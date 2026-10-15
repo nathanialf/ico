@@ -267,9 +267,29 @@ static void boss_effect_process(GObj *self)
     }
 }
 
-INCLUDE_ASM(_DoAwait);
+static void _DoAwait(GObj *self)
+{
+    MotionDef *row;
+    if (boyGObj != 0) {
+        _ACTParaStatus_Set(self, 0x1B);
+        row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
+        if ((row->flags.word >> 1) & 1) {
+            EnemyUtil_TurnToBoy(self, boyGObj, 5);
+        }
+    }
+}
 
-INCLUDE_ASM(_DoAwaitGirl);
+static void _DoAwaitGirl(GObj *self)
+{
+    MotionDef *row;
+    if ((char *)girlGObj != 0) {
+        _ACTParaStatus_Set(self, 0x1B);
+        row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
+        if ((row->flags.word >> 1) & 1) {
+            EnemyUtil_TurnToBoy(self, girlGObj, 5);
+        }
+    }
+}
 
 static int _MustChase(GObj *self)
 {

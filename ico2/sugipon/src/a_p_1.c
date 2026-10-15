@@ -809,7 +809,10 @@ check:
     return 0;
 }
 
-INCLUDE_ASM(MakeAP1GObj);
+GObj *MakeAP1GObj(SObjSimpleSetting *setting)
+{
+    return CreateLayoutedGObj(61, spiderDef[setting->obj].layout, -1, 0, setting, -1, 7, 1);
+}
 
 int GetAP1Mode(GObj *self)
 {

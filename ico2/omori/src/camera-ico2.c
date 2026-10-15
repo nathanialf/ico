@@ -572,7 +572,16 @@ void ReflectCameraSetBinary(CamGroup *src, int count)
     MakeCameraSetBinary(src, count, (CamGroup *)cameraSetBuf);
 }
 
-INCLUDE_ASM(InitIco2Camera);
+void InitIco2Camera(void)
+{
+    cameraSetBuf = 0;
+    CameraSetCameraSet_Default();
+    initMonitorCamera(1);
+    cameraGroupCurrent = -1;
+    cameraGroupChanged = 1;
+    setHandCameraRates(stageData[stage_no].handCameraRate, 10.0f);
+    InitHandCameraCorrect();
+}
 
 /* the target offset the smoothing test measures the new one against, reset
    whenever the actor asks for no offset */

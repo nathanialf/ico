@@ -265,7 +265,65 @@ extern void gif_SetDrawEnviroment(int fbp, int psm, int w, int h, int useoffset,
  * it to 0 to 128, stop or hand over to the continue state at the ends, and
  * draw the whole screen as one sprite in the fade colour.  The two end tests
  * are `&&` chains. */
-INCLUDE_ASM(gsb_fade);
+static void gsb_fade(void)
+{
+    GsbRect r = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
+                 ScreenHeight * 16};
+
+    switch (fadeStatus) {
+    case 1:
+        if (0.0f < fadeSpeed) {
+            fadeLevel = 0.0f;
+            fadeStatus = 2;
+        } else if (fadeSpeed < 0.0f) {
+            fadeStatus = 2;
+            fadeLevel = 144.0f;
+        }
+        /* FALLTHROUGH */
+    case 2:
+        fadeLevel = fadeLevel + fadeSpeed * 0.5f;
+        break;
+    case 3:
+        break;
+    default:
+        goto clear;
+    }
+    if (0.0f < fadeSpeed && 128.0f <= fadeLevel) {
+        if (fadeContinue != 0) {
+            fadeStatus = 3;
+        } else {
+            fadeStatus = 0;
+        }
+    } else if (fadeSpeed < 0.0f && fadeLevel < 0.0f) {
+        if (fadeContinue != 0) {
+            fadeStatus = 3;
+        } else {
+            fadeStatus = 0;
+        }
+    }
+    if (128.0f <= fadeLevel) {
+        fadeColor[3] = 128;
+    } else if (fadeLevel < 0.0f) {
+        fadeColor[3] = 0;
+    } else {
+        fadeColor[3] = fadeLevel;
+    }
+    gif_StartPacketPri(0xB);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+    gif_SetGsReg(0x47, 0x30000);
+    gif_SetGsReg(0x4E, 0x1300000C0LL);
+    setGsReg(0x49, 0);
+    setGsReg(0x42, 0x44);
+    spriteRect(r.x, r.y, r.w, r.h, -1LL, fadeColor, 0x446);
+    gif_EndPacket();
+    if (debug_font_flag & 1) {
+        debug_Printf(0x208, ScreenHeight / 2 - 8, 0xCCCCCC00, "F");
+    }
+    return;
+clear:
+    fadeColor[3] = 0;
+    fadeStatus = 0;
+}
 
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */

@@ -39,13 +39,12 @@ typedef struct RotObjWork { /* field names derived */
     float armScale; /* 0x3C, 100 over the arm radius */
 } RotObjWork;       /* derived name */
 
-/* the two words MemoryRotObject saves in the object's gamesys info record and
+/* the two halfwords MemoryRotObject saves in the object's gamesys info record and
    RestoreRotObjectExtGeo and GetRotObjectGameSysObjInfoExtData read back */
 typedef struct RotObjMemory { /* field names derived */
     unsigned short angle;     /* 0x0 */
-    short pad02;
-    int turnCount; /* 0x4 */
-} RotObjMemory;    /* derived name */
+    short turnCount;          /* 0x2, the low half of the work's turn count */
+} RotObjMemory;               /* derived name */
 
 static void moveStartSE(GObj *self)
 {
@@ -154,9 +153,23 @@ int RestoreRotObjectGeo(void)
     return 1;
 }
 
-INCLUDE_ASM(RestoreRotObjectExtGeo);
+int RestoreRotObjectExtGeo(GObj *self, GamesysObjInfo *info)
+{
+    RotObjWork *p = GOBJ_SUB(self)->work;
+    RotObjMemory *m = (RotObjMemory *)info->work;
 
-INCLUDE_ASM(MemoryRotObject);
+    p->angle = m->angle;
+    p->turnCount = m->turnCount;
+    return 1;
+}
+
+int MemoryRotObject(RotObjMemory *mem, GObj *self)
+{
+    RotObjWork *p = GOBJ_SUB(self)->work;
+    mem->angle = p->angle;
+    mem->turnCount = p->turnCount;
+    return 1;
+}
 
 void SetRotObjectLockFlag(GObj *self, int lock)
 {

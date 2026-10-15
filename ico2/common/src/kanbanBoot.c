@@ -55,7 +55,58 @@ static Kanban *waitKanban; /* derived name */ /* the "please wait" sign */
 
 static int waitTimer; /* derived name */ /* frames left on that sign */
 
-INCLUDE_ASM(kanbanBootMain);
+void kanbanBootMain(void)
+{
+    switch (bootStep) {
+    case 0:
+        isysGObjActiveLink(0, 1);
+        systemStatus[5] = 0;
+        mcCheckStep = 0;
+        bootStep++;
+        /* fallthrough */
+    case 1:
+        if (bootStarted != 0) {
+            bootStep++;
+        }
+        break;
+    case 2:
+        if (kanbanBootMcCheck() == 0) {
+            return;
+        }
+        kanbanReqAllDelFade();
+        waitKanban = kanbanReqAdd(0, 1);
+        bootStep++;
+        break;
+    case 3:
+        waitTimer = (60 - systemStatus[0] * 10) / systemStatus[1] * 5;
+        bootStep++;
+        /* fallthrough */
+    case 4:
+        waitTimer--;
+        if (waitTimer != -1) {
+            break;
+        }
+        bootStep++;
+        /* fallthrough */
+    case 5:
+        if (systemStatus[6] != 0) {
+            return;
+        }
+        bootStep++;
+        break;
+    case 6:
+        kanbanReqAllDelFade();
+        bootStep++;
+        break;
+    case 7:
+        if (waitKanban->layout != 0) {
+            return;
+        }
+        kanbanBootEnd = 1;
+        bootStep++;
+        break;
+    }
+}
 
 inline void kanbanBootStart(void)
 {

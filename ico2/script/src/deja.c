@@ -57,7 +57,33 @@ inline void actDeja(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actDejaChk);
+void actDejaChk(GObj *volatile self)
+{
+    gflagOn(6);
+    scpSearchGobj(2340)->active = 0;
+    scpSearchGobj(2341)->active = 0;
+    actCreateSubThread(actEnemySleep, 21);
+    scpAdpcmPlayRequestFunc(12, &deja, 0, 1, 1);
+    while (deja == 0) {
+        _ACTWait(1);
+    }
+    scpFadeIn(6.0f);
+    actCreateSubThread(actDejaDemo, 21);
+    fightSoundProcessRequestPause();
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+    demoEnd = 0;
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+    if (demoEnd == 0 && deja != 0) {
+        shadow_DispCancel(68, 0);
+        scpAdpcmFadeCloseFunc(deja, 128);
+        deja = 0;
+    }
+    RequestStageChange(1, boyGObj, 0, 0.025f, 1.0f);
+}
 
 void actDejaDemo(GObj *volatile self)
 {

@@ -363,6 +363,71 @@ void init_layout_texture(int stage)
     lt_reset_property_chain(current_layout_id);
 }
 
+inline void lt_switch_layout(int no)
+{
+    if ((fadeState == 2 && no != current_layout_id) || no == 58) {
+        nextLayout = no;
+        display_texture_fade_cancel_chk(current_layout_id, no);
+        if (fadeType == 1) {
+            fadeState = 5;
+        } else {
+            fadeState = 3;
+        }
+    }
+}
+
+inline int lt_current_property_item(void)
+{
+    return ltCurrentItem;
+}
+
+inline int lt_link_layout(int dir)
+{
+    switch (dir) {
+    case 0:
+        return texProperty[lt_current_property_item()].right;
+    case 1:
+        return texProperty[lt_current_property_item()].left;
+    case 2:
+        return texProperty[lt_current_property_item()].down;
+    case 3:
+        return texProperty[lt_current_property_item()].up;
+    }
+    return -1;
+}
+
+inline int lt_prev_layout(int stage)
+{
+    current_layout_id = current_layout_id - 1;
+    if (current_layout_id < stageData[stage].layoutFirst) {
+        current_layout_id = stageData[stage].layoutLast - 1;
+    }
+    lt_switch_layout(current_layout_id);
+    return current_layout_id;
+}
+
+inline int lt_next_layout(int stage)
+{
+    current_layout_id = current_layout_id + 1;
+    if (current_layout_id >= stageData[stage].layoutLast) {
+        current_layout_id = stageData[stage].layoutFirst;
+    }
+    lt_switch_layout(current_layout_id);
+    return current_layout_id;
+}
+
+inline void lt_mask_property(int idx, int flag)
+{
+    LtProperty *p = &texProperty[idx];
+    p->masked = flag & 1;
+}
+
+inline void lt_default_mask_property(int idx, int flag)
+{
+    LtProperty *p = &texProperty[idx];
+    p->defaultMask = flag & 1;
+}
+
 inline int lt_fade_status(void)
 {
     return fadeState;
@@ -377,17 +442,3 @@ inline void lt_set_fade_mode(int val)
 {
     fadeType = val;
 }
-
-INCLUDE_ASM(lt_switch_layout);
-
-INCLUDE_ASM(lt_current_property_item);
-
-INCLUDE_ASM(lt_link_layout);
-
-INCLUDE_ASM(lt_prev_layout);
-
-INCLUDE_ASM(lt_next_layout);
-
-INCLUDE_ASM(lt_mask_property);
-
-INCLUDE_ASM(lt_default_mask_property);

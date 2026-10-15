@@ -165,7 +165,13 @@ typedef struct { /* field names derived */
 extern int GetTorchGObjOfWeapon(GObj *weapon);
 extern WeaponEntry weaponKind[];
 
-INCLUDE_ASM(ACTGame_SaveActorInformation);
+void ACTGame_SaveActorInformation(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    if (((int)(s->flags18.ll >> 35) & 1) && s->modeFrame % 30 == 0) {
+        gamesysObjInfoPosSetStage(self, s->infoPos, 0, stage_no);
+    }
+}
 
 void ACTGame_DeleteActorInformation(GObj *self)
 {
@@ -449,7 +455,11 @@ int ACTLookTarget_Exec(GObj *self)
     return rv;
 }
 
-INCLUDE_ASM(ACTParaStatus_Clear);
+void ACTParaStatus_Clear(GObj *self)
+{
+    GOBJ_ACT(self)->paraStatus = 0;
+    _ACTParaStatus_Set(self, 0);
+}
 
 INCLUDE_ASM(ACTParaStatus_Exec);
 
@@ -486,6 +496,13 @@ void _ACTCharStatus_Clear(void *self)
     }
 }
 
+inline void ACTGame_SetMotionPlaySpeedRatio_Clear(GObj *self)
+{
+    EnemyBattleWork *p = GOBJ_ACT(self)->enemy;
+    p->speedRatio = 1.0f;
+    *(MpsrMode *)((char *)p + 0x54) = MPSR_OFF;
+}
+
 /* The play-speed ratio's debug override, built only when DEBUG is defined:
    the debug build can fix the ratio from the debugger before it is applied;
    the retail build leaves the helper without a body. */
@@ -496,6 +513,30 @@ static __inline__ void speedRatioDebugOverride(float *ratio) /* derived name */
         *ratio = dbgSpeedRatio;
     }
 #endif
+}
+
+inline void ACTGame_SetMotionPlaySpeedRatio_Exec(GObj *self)
+{
+    float ratio;
+    int keep;
+
+    ratio = 1.0f;
+    keep = (unsigned int)(int)GOBJ_ACT(self)->enemy->speedRatioPri < 3 && self == girlGObj;
+    if ((int)GOBJ_ACT(self)->enemy->speedRatioPri == 1) {
+        if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 22) & 1) {
+            ratio = GOBJ_ACT(self)->enemy->speedRatio;
+            keep = 0;
+        }
+    } else {
+        if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 21) & 1) == 0) {
+            ratio = GOBJ_ACT(self)->enemy->speedRatio;
+        }
+    }
+    if (keep) {
+        ratio = 1.0f;
+    }
+    speedRatioDebugOverride(&ratio);
+    SetMotionPlaySpeedRatio(self, ratio);
 }
 
 void GetSkeltonOrient(float *out, void *obj, int node)
@@ -794,7 +835,3 @@ INCLUDE_ASM(ACTChkAttackIgnore_ENEMY);
 INCLUDE_ASM(ACTCheckCollis_VIEW);
 
 INCLUDE_ASM(ACTCheckViewClDetail);
-
-INCLUDE_ASM(ACTGame_SetMotionPlaySpeedRatio_Clear);
-
-INCLUDE_ASM(ACTGame_SetMotionPlaySpeedRatio_Exec);

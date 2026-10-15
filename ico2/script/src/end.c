@@ -166,7 +166,22 @@ INCLUDE_ASM(func_0020D2B8);
 
 INCLUDE_ASM(actEndDemo07Chk);
 
-INCLUDE_ASM(actEndDemo10Chk);
+void actEndDemo10Chk(GObj *volatile self)
+{
+    scpAdpcmPlayRequestFunc(47, &ed6, 0, 1, 1);
+
+    while (ed6 == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(6.0f);
+
+    gflagOn(317);
+
+    actCreateSubThread(actConte14_10, 21);
+
+    actCreateSubThread(actConte14_10_Jimaku, 21);
+}
 
 void actConte14_10_Jimaku(GObj *volatile self)
 {

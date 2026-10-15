@@ -21,8 +21,6 @@
 #include "main.h"
 #include "include_asm.h"
 
-static void actSt20aHint1Chk(GObj *volatile self);
-
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (397 = the actor's own wake-up post, 396 = the trailing
    entry); the handler in .func is installed at run time just before the
@@ -121,4 +119,15 @@ INCLUDE_ASM(actSt20aGondolaSwitch);
 
 INCLUDE_ASM(actSt20aExitChk);
 
-INCLUDE_ASM(actSt20aHint1Chk);
+void actSt20aEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (gflagChk(288) == 0 || scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    gflagOn(291);
+    gflagOn(292);
+}

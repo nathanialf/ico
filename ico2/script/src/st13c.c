@@ -146,7 +146,84 @@ static const EffectArg cageFallEffect9 = {{-25.0f, 0.0f, 450.0f, 1.0f}}; /* deri
 
 INCLUDE_ASM(actSt13cBmg1);
 
-INCLUDE_ASM(actSt13cBmg1Chk);
+void actSt13cBmg1Chk(GObj *volatile self)
+{
+    GProc *th1;
+    GProc *th2;
+    unsigned int i;
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    ScpCallCameraOn();
+    lt_switch_layout(51);
+    gflagOn(17);
+
+    scpAdpcmPlayRequestFunc(13, &bmg, 1, 1, 1);
+
+    while (bmg == 0) {
+        _ACTWait(1);
+    }
+
+    scpBoyControlReadDisable = 1;
+    _ACTWait(1);
+
+    th1 = actCreateSubThread(actSt13cConte04, 21);
+    th2 = actCreateSubThread(actSt13cConte04Jimaku, 21);
+
+    demoEnd = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    if (demoEnd == 0) {
+        scpAdpcmFadeCloseFunc(bmg, 256);
+
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        iosThreadSetPri(&((GProc *)th1)->thread, 34);
+        iosThreadSetPri(&((GProc *)th2)->thread, 34);
+
+        {
+            AnimSet w = conte04Anims;
+
+            for (i = 0; i < 5; i++) {
+                stage_SetAnimation(w.anim[i], 1, -1);
+                _ACTWait(1);
+            }
+        }
+
+        jimakuUndisp(&jimaku_msg);
+
+        stage_SetAnimation(558, 1, -1);
+        scpFadeIn(3.0f);
+    } else {
+        iosThreadSetPri(&((GProc *)th1)->thread, 34);
+        iosThreadSetPri(&((GProc *)th2)->thread, 34);
+    }
+
+    scpPlayMot(boyGObj, 0);
+
+    {
+        sceVu0FVECTOR dir;
+
+        sceVu0SubVector(dir, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
+    }
+    scpPlayEnd(boyGObj);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
 
 void actSt13cConte04(GObj *volatile self)
 {
