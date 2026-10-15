@@ -1027,7 +1027,7 @@ void actE3Warning(GObj *volatile self)
 
     scpFadeIn(6.0f);
 
-    if (boyGObj != 0) {
+    if ((int)boyGObj != 0) {
         scpPlayMot(boyGObj, 0);
     }
 
