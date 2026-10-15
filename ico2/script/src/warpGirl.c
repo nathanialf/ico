@@ -9,7 +9,6 @@
 #include <string.h>
 #include <libvu0.h>
 #include "main.h"
-#include "include_asm.h"
 
 int warpGirlInStageSet = 0;
 
@@ -115,4 +114,41 @@ void warpGirlOutStage(int stage, int noSet)
     }
 }
 
-INCLUDE_ASM(warpGirlInStage);
+void warpGirlInStage(int stageNo)
+{
+    float pos[4];
+    float rot[4];
+    float ry;
+    const WarpRec *w = &girlWarpList[warpGirlId];
+
+    warpGirlInStageSet = 0;
+    if (IsGirlEscortedInNextStage() != 0) {
+        return;
+    }
+    warpGirlInStageSet = 1;
+    if (w->to0 == stageNo) {
+        pos[0] = -w->arrive0[3];
+        pos[1] = -w->arrive0[2];
+        pos[2] = -w->arrive0[1];
+        ry = w->arrive0[0];
+    } else if (w->to1 == stageNo) {
+        pos[0] = -w->arrive1[3];
+        pos[1] = -w->arrive1[2];
+        pos[2] = -w->arrive1[1];
+        ry = w->arrive1[0];
+    } else if (w->to2 == stageNo) {
+        pos[0] = -w->arrive2[3];
+        pos[1] = -w->arrive2[2];
+        pos[2] = -w->arrive2[1];
+        ry = w->arrive2[0];
+    } else {
+        warpGirlInStageSet = 0;
+        return;
+    }
+    rot[0] = 0.0f;
+    rot[1] = ry;
+    rot[2] = 0.0f;
+    sceVu0ScaleVector(rot, rot, 0.017453292f);
+    debug_StdPrintfDummy("girl %p\n", girlGObj);
+    gamesysObjInfoPosNewStageSet(131, 2, stageNo, pos, rot);
+}

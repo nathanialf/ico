@@ -34,7 +34,8 @@
 
 static const ConstVec stairSubPos = {{0.0f, 0.0f, -5000.0f, 1.0f}}; /* derived name */
 
-/* .sdata: the room's stream handles and shakes (solar4l unused). */
+/* .sdata: the room's stream handles, the shake and its volume, and the
+   sekizo's pad shake and its volume (aug6 MAIN.MAP order). */
 SqEntry *ball1_4l = 0;
 
 SqEntry *ball2_4l = 0;
@@ -47,10 +48,7 @@ SqEntry *crest2 = 0;
 
 SqEntry *crest3 = 0;
 
-int solar4l = 0;
-
-/* the stream the rope checks (actSt04lRope1Chk, func_0021BD80) open */
-static SqEntry *ropeChk4l = 0; /* derived name */
+SqEntry *solar4l = 0;
 
 SqEntry *stair4d = 0;
 
@@ -58,13 +56,17 @@ SqEntry *st04d_hasi = 0;
 
 SqEntry *sekizo4c = 0;
 
-unsigned int oriup4c = 0;
+SqEntry *oriup4c = 0;
 
-unsigned char oridown4c = 0;
+SqEntry *oridown4c = 0;
 
 unsigned int st04l_yure = 0;
 
 unsigned char st04l_yure_vol = 0;
+
+unsigned int sekizo_4l = 0;
+
+unsigned char sekizo_4l_vol = 0;
 
 INCLUDE_ASM(actSt04cInit);
 

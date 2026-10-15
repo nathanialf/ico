@@ -747,7 +747,11 @@ static void forceFallDown(void)
     CopyVector(skelRoot->last, skelRoot->pos);
 }
 
-INCLUDE_ASM(forceReset);
+static void forceReset(void)
+{
+    iosOmSendMail(skelGObj, 0xf3, skelGObj);
+    CopyVector(skelRoot->last, (char *)skelRoot);
+}
 
 static void checkWallUpperWall(void)
 {

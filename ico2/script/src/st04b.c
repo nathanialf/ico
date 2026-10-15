@@ -42,7 +42,14 @@ INCLUDE_ASM(actSt04bEne1Chk);
 
 INCLUDE_ASM(actSt04bCrest01XL);
 
-INCLUDE_ASM(actSt04bDoorXL);
+void actSt04bDoorXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+    stage_SetAnimation(221, 0, 0);
+}
 
 INCLUDE_ASM(actSt04bMonyoDoorXL);
 
@@ -50,9 +57,45 @@ INCLUDE_ASM(actSt04bSekizo);
 
 INCLUDE_ASM(actSt04bEne1);
 
-INCLUDE_ASM(actSt04bEnemy1);
+void actSt04bEnemy1(GObj *volatile self)
+{
+    GObj *x = self;
 
-INCLUDE_ASM(actSt04bEnemy2);
+    actInitialize(self);
+    _ACTWait(1);
+
+    Generator_Mask(self);
+    while (gflagChk(141) == 0) {
+        _ACTWait(1);
+    }
+    Generator_MaskOff(self);
+
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+}
+
+void actSt04bEnemy2(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    Generator_Mask(self);
+    while (gflagChk(141) == 0) {
+        _ACTWait(1);
+    }
+    Generator_MaskOff(self);
+
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+}
 
 INCLUDE_ASM(actSt04bBallXL);
 

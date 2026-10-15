@@ -336,7 +336,14 @@ void actSt04rBrg2Event(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt04rBrg1WayChk);
+void actSt04rBrg1WayChk(GObj *volatile self)
+{
+    while (gflagChk(234) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(3, 1);
+}
 
 INCLUDE_ASM(actSt04rBrg2WayChk);
 

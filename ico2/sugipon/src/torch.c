@@ -31,7 +31,11 @@ static TorchGeoWork emptyTorchWork = {
 #include "sceneManager.h"
 #include "include_asm.h"
 
-INCLUDE_ASM(torchOffSE);
+void torchOffSE(GObj *torch)
+{
+    StopSEPackage(torch);
+    ExecuteSEPackage(torch, 65);
+}
 
 INCLUDE_ASM(LightTorchOn);
 

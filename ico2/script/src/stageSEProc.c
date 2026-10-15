@@ -199,9 +199,30 @@ int stageSE02astrong(SeSlot *self)
    (0.005f, or 1000.0f to cut the river at once) */
 float riverFadeSpeed = 0.0f; /* derived name */
 
-INCLUDE_ASM(stageSE02ataki);
+int stageSE02ataki(SeSlot *self)
+{
+    float *p = self->pos;
+    p[0] = 785.0f;
+    p[2] = 482.0f;
+    self->stereoRate = 0.5f;
+    if (gflagChk(95)) {
+        self->volumeRate = 0.0f;
+    }
+    return 1;
+}
 
-INCLUDE_ASM(stageSE02atakib);
+int stageSE02atakib(SeSlot *self)
+{
+    float *p = self->pos;
+    p[0] = 785.0f;
+    p[1] = 1786.0f;
+    p[2] = 482.0f;
+    self->stereoRate = 0.5f;
+    if (gflagChk(95)) {
+        self->volumeRate = 0.0f;
+    }
+    return 1;
+}
 
 int stageSE03tsuiro(void)
 {
@@ -222,7 +243,31 @@ int stageSE03tnotSuiro(void)
     return -1;
 }
 
-INCLUDE_ASM(stageSE04agate);
+int stageSE04agate(SeSlot *self)
+{
+    float x = ((float *)GetCameraPos(self))[2];
+    float ratio = 1.0f;
+    float w;
+    if (x < -1300.0f) {
+        return 0;
+    }
+    if (gflagChk(126) == 0) {
+        return 0;
+    }
+    if (x < 750.0f) {
+        ratio = (x - -1300.0f) / 2050.0f;
+    }
+    if (windCacheFrame == frame_count) {
+        w = windCache;
+    } else {
+        windCacheFrame = frame_count;
+        w = GetRegularizedWindSpeed((void *)GetCameraPos());
+        w = w * 0.5f + 0.5f;
+        windCache = w;
+    }
+    self->volumeRate = ratio * w;
+    return -1;
+}
 
 int stageSE04bstrong(SeSlot *self)
 {

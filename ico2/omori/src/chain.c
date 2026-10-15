@@ -144,7 +144,40 @@ static inline void initPendulum(GObj *gobj) /* derived name */
 
 /* the hold starts the swing: the holder and its hand position fix the hold
    node and the swing plane */
-INCLUDE_ASM(StartPendulum);
+static void StartPendulum(GObj *gobj, GObj *owner, float *pos)
+{
+    float d[4];
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
+    int nearestNode = -1;
+    float min = 3.40282347e+38f; /* FLT_MAX */
+    int i;
+
+    sceVu0SubVector(d, pos, cw->node);
+    cw->owner = owner;
+
+    for (i = 0; i < cw->nodes; i++) {
+        int n = (int)(pos[1] - (cw->node)[i].y);
+        float t = (float)(n < 0 ? -n : n);
+
+        if (t < min) {
+            min = t;
+            nearestNode = i;
+        }
+    }
+    if (nearestNode == -1) {
+        debug_assert(__FILE__, 516);
+        __assert(__FILE__, 516, "nearestNode!=-1");
+    }
+    cw->holdNode = nearestNode;
+    cw->holdNode =
+        cw->holdNode < 2 ? 2 : (cw->nodes - 1 < cw->holdNode ? cw->nodes - 1 : cw->holdNode);
+
+    _GetCorrectOrientOfChain(cw->pdl.orient, gobj, test_CURRENTORIENT(owner));
+
+    ((ChainVal *)&cw->pdl.length)->f = (float)cw->holdNode * 50.0f;
+
+    initPendulum(gobj);
+}
 
 /* the debug trace line: every chain trace steps it by 10 and ChainGeo resets
  * it */
@@ -667,7 +700,12 @@ INCLUDE_ASM(TestChainUpDown);
 
 /* clang-format on */
 
-INCLUDE_ASM(HoldChain);
+void HoldChain(GObj *chain, GObj *owner, float *pos)
+{
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    StartPendulum(chain, owner, pos);
+    p->hold = 1;
+}
 
 void ReleaseChain(GObj *chain, GObj *owner)
 {

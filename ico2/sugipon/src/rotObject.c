@@ -52,7 +52,11 @@ static void moveStartSE(GObj *self)
     ExecuteSEPackage(self, 51);
 }
 
-INCLUDE_ASM(moveEndSE);
+static void moveEndSE(GObj *self)
+{
+    StopSEPackage(self);
+    ExecuteSEPackage(self, 56);
+}
 
 void RotObjectGeo(GObj *self)
 {

@@ -32,7 +32,30 @@
 #include "main.h"
 #include "include_asm.h"
 
-INCLUDE_ASM(actE3WarningChk);
+void actE3WarningChk(GObj *volatile self)
+{
+    GObj *x = self;
+    int i;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    stgmgrNextStagePreLoadForceStageSet(93);
+
+    i = 0;
+    while (i++ < (60 - systemStatus[0] * 10) / systemStatus[1] * 5) {
+        _ACTWait(1);
+    }
+
+    scpFadeOut(6.0f, 0, 0, 0);
+    while (scpFadeChk() != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait((int)(float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+
+    RequestStageChange(1, boyGObj, 0, 255.0f, 0.0f);
+}
 
 #include "e3.h"
 
@@ -106,7 +129,14 @@ INCLUDE_ASM(actE3CapsuleDemoCancel);
 
 INCLUDE_ASM(actE3CapsuleDemo);
 
-INCLUDE_ASM(actE3St13cInit);
+void actE3St13cInit(void)
+{
+    SetWayGroupActive(7, 0);
+
+    if (gflagChk(328) != 0) {
+        SetWayGroupActive(9, 0);
+    }
+}
 
 INCLUDE_ASM(actE3CageFall);
 
@@ -184,9 +214,42 @@ INCLUDE_ASM(actE3CageFallReady);
 
 INCLUDE_ASM(actE3St13cIntro);
 
-INCLUDE_ASM(actE3St13cGene1);
+void actE3St13cGene1(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(332) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(400);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+    Generator_MaskOff(self);
+}
 
-INCLUDE_ASM(actE3St13cGene2);
+void actE3St13cGene2(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(332) == 0) {
+        _ACTWait(1);
+    }
+    Generator_Call(self);
+    _ACTWait(120);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+    Generator_MaskOff(self);
+}
 
 void actE3Floor(GObj *volatile self)
 {
@@ -205,7 +268,21 @@ INCLUDE_ASM(actE3St01bGene3);
 
 INCLUDE_ASM(actE3Gate);
 
-INCLUDE_ASM(actE3CapsuleChk);
+void actE3CapsuleChk(GObj *volatile self)
+{
+    scpSekizouCheckPoint();
+
+    gflagOn(326);
+
+    scpAdpcmPlayRequestFunc(2, &e3capsule, 1, 1, 1);
+    while (e3capsule == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(6.0f);
+
+    capsuleDemoThread = actCreateSubThread(actE3CapsuleDemo, 21);
+}
 
 INCLUDE_ASM(actE3CapsuleDemoEnd);
 

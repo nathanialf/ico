@@ -92,7 +92,12 @@ static SqEntry *st13c_adpcm2 = 0; /* derived name */
 
 static SqEntry *st13c_reserved = 0; /* derived name */
 
-INCLUDE_ASM(actSt13cInit);
+void actSt13cInit(void)
+{
+    if (gflagChk(20)) {
+        SetWayGroupActive(9, 0);
+    }
+}
 
 INCLUDE_ASM(actSt13cEnd);
 
@@ -300,7 +305,22 @@ INCLUDE_ASM(actSt13cCageFallReady);
 
 INCLUDE_ASM(actSt13cEnemy);
 
-INCLUDE_ASM(actSt13cEnemyNull);
+void actSt13cEnemyNull(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+
+    _ACTWait(1);
+
+    Generator_Mask(self);
+
+    while (gflagChk(24) == 0) {
+        _ACTWait(1);
+    }
+
+    Generator_MaskOff(self);
+}
 
 INCLUDE_ASM(actE3St13cSekizo);
 
@@ -324,7 +344,29 @@ void actSt13cSleepEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt13cSleepChk);
+void actSt13cSleepChk(GObj *volatile self)
+{
+    long long ofs[2];
+    float dir[4];
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(self, girlGObj, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayStart(girlGObj);
+    _ACTWait(1);
+
+    ofs[0] = sleepFacePos.d[0];
+    ofs[1] = sleepFacePos.d[1];
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, dir);
+
+    scpPlayMotReq(girlGObj, 253);
+}
 
 void actSt13cCageDownMain(GObj *volatile self)
 {
@@ -338,9 +380,30 @@ void actSt13cCageDownMain(GObj *volatile self)
 
 INCLUDE_ASM(actSt13cCageDownSwitch);
 
-INCLUDE_ASM(actSt13cCage1stDownDemo);
+void actSt13cCage1stDownDemo(GObj *volatile self)
+{
+    scpPlayStart(boyGObj);
+    scpPlayMot(boyGObj, 307);
+    scpPlayWaitMotEnd(boyGObj);
+    _ACTWait(240);
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM(actSt13cCageFallReadyChk);
+void actSt13cCageFallReadyChk(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+
+    _ACTWait(1);
+
+    while (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0 || gflagChk(19) == 0) {
+        _ACTWait(1);
+    }
+
+    scpAdpcmPlayRequestFunc(15, &st13c_adpcm2, 1, 1, 0);
+}
 
 void actSt13cCageFallEvent(int x)
 {

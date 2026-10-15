@@ -199,15 +199,30 @@ void actConte14_10_Jimaku(GObj *volatile self)
     } while (t < 1800.0f);
 }
 
-INCLUDE_ASM(actEndDemo11Chk);
+void actEndDemo11Chk(GObj *volatile self)
+{
+    gflagOn(318);
+
+    actCreateSubThread(actConte14_11, 21);
+}
 
 INCLUDE_ASM(actConte14_11);
 
-INCLUDE_ASM(actEndDemo12Chk);
+void actEndDemo12Chk(GObj *volatile self)
+{
+    gflagOn(319);
+
+    actCreateSubThread(actConte14_12, 21);
+}
 
 INCLUDE_ASM(actConte14_12);
 
-INCLUDE_ASM(actEndDemo13Chk);
+void actEndDemo13Chk(GObj *volatile self)
+{
+    gflagOn(320);
+
+    actCreateSubThread(actConte14_13, 21);
+}
 
 void actStaff1Chk(GObj *volatile self)
 {
@@ -227,6 +242,11 @@ INCLUDE_ASM(actStaff3Chk);
 
 INCLUDE_ASM(actStaff3RollChk);
 
-INCLUDE_ASM(actEndDemo14Chk);
+void actEndDemo14Chk(GObj *volatile self)
+{
+    gflagOn(321);
+
+    actCreateSubThread(actConte14_14, 21);
+}
 
 INCLUDE_ASM(actEndingSave);
