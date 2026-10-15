@@ -322,9 +322,28 @@ static inline void deleteParticleEffectGeo(int no) /* derived name */
     particleEffects[no].geo = 0;
 }
 
-INCLUDE_ASM(SetParticleEffectGeometry);
+void SetParticleEffectGeometry(int id, void *pos, void *quat)
+{
+    if (id >= 0) {
+        if (particleEffects[id].used == 0) {
+            debug_StdPrintfDummy(
+                "\033[36mError!!! Set geometry for release type particle.\033[m\n");
+        } else {
+            setParticleEffectGeometry(particleEffects[id].geo, pos, quat);
+        }
+    }
+}
 
-INCLUDE_ASM(SetParticleEffectUpperLimit);
+void SetParticleEffectUpperLimit(int no, float f)
+{
+    PEGeo *o;
+    if (no >= 0) {
+        o = particleEffects[no].geo;
+        o->floorOn = 1;
+        o->floor = f;
+        execParticleEffect(o);
+    }
+}
 
 /* the per-particle vector setup, shared by setParticleEffect,
  * execParticleEffect and ExecParticleEffect */
@@ -408,11 +427,33 @@ void SetParticleEffectPackage(int no, int *data, int size)
     memcpy(((unsigned char *)particleParams + no * 160), data, size);
 }
 
-INCLUDE_ASM(InitParticleEffects);
+void InitParticleEffects(void)
+{
+    int i;
 
-INCLUDE_ASM(DispParticleEffects);
+    for (i = 0; i < 128; i++) {
+        particleEffects[i] = emptyEffect;
+    }
+}
 
-INCLUDE_ASM(DeleteParticleEffect);
+void DispParticleEffects(void)
+{
+    int i;
+
+    for (i = 0; i < 128; i++) {
+        if (particleEffects[i].used != 0) {
+            dispParticleEffect(particleEffects[i].geo);
+        }
+    }
+}
+
+void DeleteParticleEffect(int no)
+{
+    if (particleEffects[no].used != 0 || particleEffects[no].geo != 0) {
+        deleteParticleEffectGeo(no);
+        particleEffects[no].used = 0;
+    }
+}
 
 /* the body of SetParticleEffect, which SetParticleEffectActiveSensing
  * inlines and SetParticleEffect calls */
@@ -426,7 +467,18 @@ int SetParticleEffect(int no, void *pos, void *quat)
     return SetParticleEffect_inl(no, pos, quat);
 }
 
-INCLUDE_ASM(SetParticleEffectActiveSensing);
+int SetParticleEffectActiveSensing(int no, void *pos, void *quat)
+{
+    int id;
+
+    id = SetParticleEffect_inl(no, pos, quat);
+    if (id != -1) {
+        particleEffects[id].sensing = 1;
+        particleEffects[id].sensPos = pos;
+        particleEffects[id].sensQuat = quat;
+    }
+    return id;
+}
 
 /* the bodies of GetParticleEffectPackage and DeleteParticleEffectsByPackage,
  * which DeleteParticleEffectsByID inlines and the two exported functions
@@ -453,15 +505,36 @@ int *GetParticleEffectPackage(int idx)
     return GetParticleEffectPackage_inl(idx);
 }
 
-INCLUDE_ASM(DeleteParticleEffectsByPackage);
+void DeleteParticleEffectsByPackage(int *pkg)
+{
+    DeleteParticleEffectsByPackage_inl(pkg);
+}
 
-INCLUDE_ASM(DeleteParticleEffectsByID);
+void DeleteParticleEffectsByID(int id)
+{
+    DeleteParticleEffectsByPackage_inl(GetParticleEffectPackage_inl(id));
+}
 
-INCLUDE_ASM(GetParticleEffectData);
+PEGeo *GetParticleEffectData(int id)
+{
+    return particleEffects[id].geo;
+}
 
-INCLUDE_ASM(DisableParticleEffectGeometryControl);
+void DisableParticleEffectGeometryControl(int id)
+{
+    particleEffects[id].geoCtrl = 0;
+}
 
-INCLUDE_ASM(GetParticleIDWithName);
+int GetParticleIDWithName(char *name)
+{
+    int i;
+    for (i = 0; i < 53; i++) {
+        if (strcmp(particleEffectFile[i].name, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 int GetParticleLoopFlag(int id)
 {
@@ -475,4 +548,9 @@ int GetParticleLoopFlag(int id)
 
 INCLUDE_ASM(ParticleEffects_SetAllGoal);
 
-INCLUDE_ASM(SetParticleEffectClipEnableFlag);
+void SetParticleEffectClipEnableFlag(int id, int on)
+{
+    if (id >= 0) {
+        particleEffects[id].geo->clip = on;
+    }
+}

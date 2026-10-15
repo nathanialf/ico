@@ -1575,42 +1575,6 @@ text backStageProcessInStage 0x001A0A38 0x001A0EB8 ico2/common/src/backStage.c l
 lit4 backStageProcessInStage 0x006310DC 0x006310E0 ico2/common/src/backStage.c  # 1 float
 rdlit backStageProcessInStage 0x00612978 0x00612A02 ico2/common/src/backStage.c  # 4 strings
 sdlit backStageProcessInStage 0x00632890 0x00632894 ico2/common/src/backStage.c  # 1 string
-text ReadModelFile 0x001A1138 0x001A1308 ico2/common/src/charFileManager.c lines=38  # ordinal; first difference at insn 21; imm:4; extent-equal
-rdlit ReadModelFile 0x00612A08 0x00612AEA ico2/common/src/charFileManager.c  # 5 strings
-sdlit ReadModelFile 0x006328A0 0x006328A2 ico2/common/src/charFileManager.c  # 1 string
-text ReadVolumeModelFile 0x001A1308 0x001A14D4 ico2/common/src/charFileManager.c lines=32  # ordinal; first difference at insn 32; imm:4; extent-equal
-rdlit ReadVolumeModelFile 0x00612AF0 0x00612B78 ico2/common/src/charFileManager.c  # 3 strings
-sdlit ReadVolumeModelFile 0x006328A8 0x006328AA ico2/common/src/charFileManager.c  # 1 string
-text ReadShadowModelFile 0x001A14D8 0x001A16B4 ico2/common/src/charFileManager.c lines=33  # ordinal; first difference at insn 23; imm:5; extent-equal
-rdlit ReadShadowModelFile 0x00612B78 0x00612C00 ico2/common/src/charFileManager.c  # 3 strings
-text ReadTextureFile 0x001A16B8 0x001A17BC ico2/common/src/charFileManager.c lines=25  # ordinal; first difference at insn 0; length:-38; extent-differs
-rdlit ReadTextureFile 0x00612C00 0x00612C61 ico2/common/src/charFileManager.c  # 2 strings
-text ReadSkeltonFile 0x001A17C0 0x001A1A18 ico2/common/src/charFileManager.c lines=49  # ordinal; first difference at insn 35; imm:5; extent-equal
-rdlit ReadSkeltonFile 0x00612C68 0x00612CE9 ico2/common/src/charFileManager.c  # 3 strings
-sdlit ReadSkeltonFile 0x006328B0 0x006328B6 ico2/common/src/charFileManager.c  # 1 string
-text ReadCollisionFile 0x001A1A18 0x001A1D88 ico2/common/src/charFileManager.c lines=67  # ordinal; first difference at insn 30; imm:5; extent-equal
-rdlit ReadCollisionFile 0x00612CF0 0x00612E15 ico2/common/src/charFileManager.c  # 12 strings
-text ReadStageAnimationFile 0x001A1D88 0x001A1E90 ico2/common/src/charFileManager.c lines=20  # ordinal; first difference at insn 22; imm:2; extent-equal
-rdlit ReadStageAnimationFile 0x00612E18 0x00612E49 ico2/common/src/charFileManager.c  # 1 string
-text ReadMotionFile 0x001A1E90 0x001A20D4 ico2/common/src/charFileManager.c lines=35  # ordinal; first difference at insn 21; imm:8; extent-equal
-rdlit ReadMotionFile 0x00612E50 0x00612F2A ico2/common/src/charFileManager.c  # 5 strings
-text ReadParticleEffectFile 0x001A20D8 0x001A216C ico2/common/src/charFileManager.c lines=8  # ordinal; first difference at insn 11; imm:1; extent-equal
-text ReadSoundBdFile 0x001A2170 0x001A231C ico2/common/src/charFileManager.c lines=36  # ordinal; first difference at insn 28; imm:3; extent-equal
-rdlit ReadSoundBdFile 0x00612F30 0x00612F5B ico2/common/src/charFileManager.c  # 1 string
-text ReadSoundHdFile 0x001A2320 0x001A24FC ico2/common/src/charFileManager.c lines=52  # ordinal; first difference at insn 36; imm:5; extent-equal
-rdlit ReadSoundHdFile 0x00612F60 0x00612F8B ico2/common/src/charFileManager.c  # 1 string
-text ReadShockFile 0x001A2500 0x001A2610 ico2/common/src/charFileManager.c lines=28  # ordinal; first difference at insn 27; imm:1; extent-equal
-rdlit ReadShockFile 0x00612FF0 0x00613019 ico2/common/src/charFileManager.c  # 1 string
-text ReadCamerasetFile 0x001A2610 0x001A26E0 ico2/common/src/charFileManager.c lines=16  # ordinal; first difference at insn 16; imm:3; extent-equal
-rdlit ReadCamerasetFile 0x00613020 0x00613052 ico2/common/src/charFileManager.c  # 1 string
-text ReadEndCheckFile 0x001A26E0 0x001A2758 ico2/common/src/charFileManager.c lines=7  # ordinal; first difference at insn 1; imm:1; extent-equal
-text ReadStageSettingFile 0x001A2758 0x001A27F4 ico2/common/src/charFileManager.c lines=11  # ordinal; first difference at insn 14; imm:1; extent-equal
-text CSVSYSTEM_ReadCharFiles 0x001A27F8 0x001A2AAC ico2/common/src/charFileManager.c lines=59  # ordinal; first difference at insn 9; imm:12; extent-equal
-rdlit CSVSYSTEM_ReadCharFiles 0x00613058 0x00613269 ico2/common/src/charFileManager.c  # 14 strings
-text ReadSoundSqFile 0x001A2AB0 0x001A2C18 ico2/common/src/charFileManager.c lines=39  # ordinal; first difference at insn 36; imm:4; extent-equal
-rdlit ReadSoundSqFile 0x00612F90 0x00612FBB ico2/common/src/charFileManager.c def  # 1 string
-text ReadSoundAdpcmFile 0x001A2C18 0x001A2D54 ico2/common/src/charFileManager.c lines=23  # ordinal; first difference at insn 37; imm:1; extent-equal
-rdlit ReadSoundAdpcmFile 0x00612FC0 0x00612FE9 ico2/common/src/charFileManager.c def  # 1 string
 text debug_Assert 0x001A2D78 0x001A2E0C ico2/common/src/debug.c lines=9  # ordinal; first difference at insn 15; imm:4; extent-equal
 rdlit debug_Assert 0x006149A8 0x006149B4 ico2/common/src/debug.c  # 1 string, measured from the base
 sdlit debug_Assert 0x006329F8 0x00632A02 ico2/common/src/debug.c  # 2 strings
@@ -2135,22 +2099,9 @@ text execParticleEffect 0x001E73A8 0x001E80D8 ico2/sugipon/src/particleEffect.c 
 lit4 execParticleEffect 0x006313A4 0x006313AC ico2/sugipon/src/particleEffect.c  # 2 floats, measured from the base: the text loads them
 text SetParticleEffectByPartition 0x001E83F8 0x001E8598 ico2/sugipon/src/particleEffect.c lines=30  # ordinal; first difference at insn 23; imm:10; extent-equal
 rdlit SetParticleEffectByPartition 0x00619E20 0x00619E3C ico2/sugipon/src/particleEffect.c  # 1 string
-text SetParticleEffectGeometry 0x001E8598 0x001E85D8 ico2/sugipon/src/particleEffect.c lines=11  # ordinal; first difference at insn 1; imm:2; extent-equal
-rdlit SetParticleEffectGeometry 0x00619E40 0x00619E7A ico2/sugipon/src/particleEffect.c  # 1 string
-text SetParticleEffectUpperLimit 0x001E85D8 0x001E8614 ico2/sugipon/src/particleEffect.c lines=10  # ordinal; first difference at insn 2; imm:2; extent-equal
 text ExecParticleEffect 0x001E8618 0x001E880C ico2/sugipon/src/particleEffect.c lines=30  # ordinal; first difference at insn 0; length:+15; extent-differs
 text ResetParticleEffectPackages 0x001E8810 0x001E892C ico2/sugipon/src/particleEffect.c lines=21  # ordinal; first difference at insn 10; imm:14; extent-equal
-text InitParticleEffects 0x001E89F8 0x001E8A5C ico2/sugipon/src/particleEffect.c lines=8  # us-only (in particleEffect.c's span; PAL order suggests InitParticleEffects (108 B in PAL)); named InitParticleEffects by body alignment (provisional)
-text DispParticleEffects 0x001E8A60 0x001E8AB4 ico2/sugipon/src/particleEffect.c lines=10  # us-only (in particleEffect.c's span; body equals PAL DispParticleEffects's with immediates and jump targets masked); named DispParticleEffects by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
-text DeleteParticleEffect 0x001E8AB8 0x001E8B44 ico2/sugipon/src/particleEffect.c lines=7  # us-only (in particleEffect.c's span; body equals PAL DeleteParticleEffect's with immediates and jump targets masked); named DeleteParticleEffect by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
-text SetParticleEffectActiveSensing 0x001E8B68 0x001E8BD8 ico2/sugipon/src/particleEffect.c lines=12  # ordinal; first difference at insn 11; imm:4; extent-equal
-text DeleteParticleEffectsByPackage 0x001E8BF0 0x001E8C88 ico2/sugipon/src/particleEffect.c lines=4  # ordinal; first difference at insn 7; imm:8; extent-equal
-text DeleteParticleEffectsByID 0x001E8C88 0x001E8D30 ico2/sugipon/src/particleEffect.c lines=4  # ordinal; first difference at insn 12; imm:8; extent-equal
-text GetParticleEffectData 0x001E8D30 0x001E8D4C ico2/sugipon/src/particleEffect.c lines=4  # ordinal; first difference at insn 0; imm:2; extent-equal
-text DisableParticleEffectGeometryControl 0x001E8D50 0x001E8D6C ico2/sugipon/src/particleEffect.c lines=4  # ordinal; first difference at insn 0; imm:2; extent-equal
-text GetParticleIDWithName 0x001E8D70 0x001E8DDC ico2/sugipon/src/particleEffect.c lines=10  # ordinal; first difference at insn 17; imm:1; extent-equal
 text ParticleEffects_SetAllGoal 0x001E8E10 0x001E8E7C ico2/sugipon/src/particleEffect.c lines=13  # ordinal; first difference at insn 6; imm:5; extent-equal
-text SetParticleEffectClipEnableFlag 0x001E8E80 0x001E8EA8 ico2/sugipon/src/particleEffect.c lines=6  # ordinal; first difference at insn 1; imm:2; extent-equal
 text DeleteParticleLayout 0x001E8EA8 0x001E8EB8 ico2/sugipon/src/particleLayout.c lines=8  # us-only (after particleEffect.c's span; pairs with no PAL-only function there by size and order); named DeleteParticleLayout by call sites (provisional)
 text InitParticleLayoutGeo 0x001E8EB8 0x001E8F24 ico2/sugipon/src/particleLayout.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ParticleLayoutDL
 rdlit InitParticleLayoutGeo 0x00619EC0 0x00619ED5 ico2/sugipon/src/particleLayout.c def  # 1 string
@@ -2536,21 +2487,7 @@ text actSt00aEnemy2 0x002107E0 0x00210870 ico2/script/src/st00a.c lines=15  # us
 text actSt00aStair 0x00210870 0x00210908 ico2/script/src/st00a.c lines=16  # us-only (after op.c's span; body equals PAL actSt00aStair's with immediates and jump targets masked); named actSt00aStair by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text actSt00aAtr2 0x00210908 0x00210980 ico2/script/src/st00a.c lines=13  # us-only (after op.c's span; PAL size and order suggest actSt00aAtr2); named actSt00aAtr2 by PAL size and order, callees, body alignment (provisional)
 text actSt00aAtr2Chk 0x00210980 0x002109D8 ico2/script/src/st00a.c lines=10  # us-only (after op.c's span; body equals PAL actSt00aAtr2Chk's with immediates and jump targets masked); named actSt00aAtr2Chk by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actSt01bInit 0x00210D78 0x00210DF0 ico2/script/src/st01b.c lines=12  # us-only (after st00a.c's span; PAL order suggests actSt01bInit (128 B in PAL)); named actSt01bInit by callees, body alignment (provisional)
-text actSt01bEneChk 0x00210DF0 0x00210F20 ico2/script/src/st01b.c lines=29  # us-only (after st00a.c's span; body equals PAL actSt01bEneChk's with immediates and jump targets masked); named actSt01bEneChk by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text func_00210F20 0x00210F20 0x002110F0 ico2/script/src/st01b.c  # us-only; after st00a.c's span; PAL order suggests actSt01bFloorChk (620 B in PAL)
-text actSt01bSekizo 0x002110F0 0x00211160 ico2/script/src/st01b.c lines=9  # ordinal; first difference at insn 11; imm:2; extent-equal
-text actSt01bEne 0x00211160 0x002111D8 ico2/script/src/st01b.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
-text actSt01bEnemy1 0x002111D8 0x00211290 ico2/script/src/st01b.c lines=22  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actSt01bEnemy2 0x00211290 0x00211334 ico2/script/src/st01b.c lines=20  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actSt01bEnemy3 0x00211338 0x002113C8 ico2/script/src/st01b.c lines=18  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actSt01bEnemy4 0x002113C8 0x00211438 ico2/script/src/st01b.c lines=15  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actSt01bEnemy5 0x00211438 0x002114A8 ico2/script/src/st01b.c lines=15  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actSt01bEnemy6 0x002114A8 0x00211518 ico2/script/src/st01b.c lines=15  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actSt01bFloor 0x00211518 0x00211590 ico2/script/src/st01b.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
-text actSt01bWay 0x00211590 0x002115F8 ico2/script/src/st01b.c lines=12  # ordinal; first difference at insn 16; imm:2; extent-equal
 text actSt01bWayOnChk 0x00211620 0x002116D0 ico2/script/src/st01b.c lines=18  # ordinal; first difference at insn 12; other:7; extent-equal
-text actSt01bWayOffChk 0x002116D0 0x00211780 ico2/script/src/st01b.c lines=18  # ordinal; first difference at insn 24; imm:3; extent-equal
 text actSt02aInit 0x00211780 0x002117D0 ico2/script/src/st02a.c lines=9  # ordinal; first difference at insn 3; imm:3; extent-equal
 text actSt02aDoor 0x002117D0 0x002118D4 ico2/script/src/st02a.c lines=22  # ordinal; first difference at insn 17; imm:8; extent-equal
 text actSt02aDoorUpChk 0x002118D8 0x00211A60 ico2/script/src/st02a.c lines=29  # ordinal; first difference at insn 38; imm:7; extent-equal
