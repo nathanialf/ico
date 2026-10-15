@@ -56,7 +56,10 @@ typedef struct {                       /* field names derived */
 
 INCLUDE_ASM(InitRopeGeo);
 
-INCLUDE_ASM(SetRopeFixPoint);
+void SetRopeFixPoint(GObj *rope, void *pos, int flag)
+{
+    CopyVector(**(char ***)((char *)GOBJ_SUB(rope)->work) + 0x20, pos);
+}
 
 extern float GetChainNodeID(void *cfg);
 extern int SetChainExtendedWeight(void *node, int idx, float w0, float w1);

@@ -191,7 +191,11 @@ INCLUDE_ASM(getGeometry);
 
 INCLUDE_ASM(WeaponCurPos);
 
-INCLUDE_ASM(WeaponHitEffect);
+void WeaponHitEffect(GObj *self, void *enemy)
+{
+    WeaponWork *p = GOBJ_SUB(self)->work;
+    CheckEnemyHit(enemy, p->hit[1], p->hit[2], p->hit[3]);
+}
 
 void ExecWeaponHitReaction(GObj *self)
 {

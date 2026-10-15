@@ -158,7 +158,10 @@ static void setNodePursueParticleEffectWithUpperLimit(int id, GObj *obj, int foc
 
 INCLUDE_ASM(SetFallDownSplash);
 
-INCLUDE_ASM(GetPoolGlobalDrainVector);
+void GetPoolGlobalDrainVector(void *dst, GObj *pool)
+{
+    CopyVector(dst, ((PoolWork *)GOBJ_SUB(pool)->work)->drain);
+}
 
 typedef union { /* field names derived */
     int i[4];
@@ -380,11 +383,17 @@ INCLUDE_ASM(DispLimitedPoolReflactionMesh);
 
 void PoolGeo(void) {}
 
-INCLUDE_ASM(GetPoolGlobalHeight);
+float GetPoolGlobalHeight(GObj *pool)
+{
+    return ((PoolWork *)GOBJ_SUB(pool)->work)->pos[1];
+}
 
 INCLUDE_ASM(GetPoolGlobalHeightDetail);
 
-INCLUDE_ASM(CheckPoolHasGridMesh);
+int CheckPoolHasGridMesh(GObj *pool)
+{
+    return ((PoolWork *)GOBJ_SUB(pool)->work)->hasGrid != 0;
+}
 
 void InitLayoutedPoolReflactionMesh(PoolMesh *refl, PoolMeshQuad *quad)
 {
@@ -405,7 +414,13 @@ void InitLayoutedPoolReflactionMesh(PoolMesh *refl, PoolMeshQuad *quad)
     }
 }
 
-INCLUDE_ASM(poolRideFunc);
+static int poolRideFunc(ObjNode *on, GObj *rider)
+{
+    Sub15C *e = GOBJ_SUB(rider);
+    PoolWork *p = GOBJ_SUB(on->obj)->work;
+    e->ctrl.waterDepth = e->root.pos[1] - p->pos[1];
+    return 1;
+}
 
 float getWave(float t)
 {

@@ -112,7 +112,12 @@ INCLUDE_ASM(InitRotObjectGeo);
 
 INCLUDE_ASM(RotObjectDL);
 
-INCLUDE_ASM(GetRotObjectRotCount);
+float GetRotObjectRotCount(GObj *self)
+{
+    RotObjWork *w = GOBJ_SUB(self)->work;
+
+    return (float)w->turnCount * (1.0f / 65536.0f);
+}
 
 /* the +Z unit vector the drive matrix is applied to */
 static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
@@ -128,4 +133,9 @@ INCLUDE_ASM(RestoreRotObjectExtGeo);
 
 INCLUDE_ASM(MemoryRotObject);
 
-INCLUDE_ASM(SetRotObjectLockFlag);
+void SetRotObjectLockFlag(GObj *self, int lock)
+{
+    RotObjWork *w = GOBJ_SUB(self)->work;
+
+    w->lock = lock;
+}

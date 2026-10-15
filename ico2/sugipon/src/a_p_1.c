@@ -377,9 +377,15 @@ INCLUDE_ASM(AP1Geo);
 
 INCLUDE_ASM(AP1DL);
 
-INCLUDE_ASM(GetAP1SpecType);
+int GetAP1SpecType(GObj *self)
+{
+    return ((AP1Work *)GOBJ_SUB(self)->work)->layout;
+}
 
-INCLUDE_ASM(SetAP1VisualState);
+void SetAP1VisualState(GObj *self, int visible)
+{
+    ((AP1Work *)GOBJ_SUB(self)->work)->visible = visible;
+}
 
 /* the angle passes as an int here (quaternion.h: short) */
 extern void RotQuaternionY(void *q, int ang);
@@ -396,7 +402,10 @@ INCLUDE_ASM(AP1JumpReq);
 
 INCLUDE_ASM(MakeAP1GObj);
 
-INCLUDE_ASM(GetAP1Mode);
+int GetAP1Mode(GObj *self)
+{
+    return (int)ap1ModeName[((AP1Work *)GOBJ_SUB(self)->work)->mode];
+}
 
 INCLUDE_ASM(standMot);
 

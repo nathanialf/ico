@@ -1316,19 +1316,18 @@ typedef struct Act { /* field names derived */
                   of the doubleword */
 
     ActStatus flags20;    /* 0x20 */
-    int handFreeFrame;    /* 0x28, frames since the boy and girl let go of each other's hands */
-    GObj *intrArg;        /* 0x2C, the argument of the mail that interrupted this frame */
-    int intrData;         /* 0x30, the mail additional data of that mail */
-    int actMode;          /* 0x34, the current action mode; it indexes actModeTbl */
-    unsigned int pushDir; /* 0x38, 1 while a box or bar is pushed, -1 while pulled, 0 otherwise */
-    int intrMot;          /* 0x3C, the motion the interrupting mail chose */
-    int curMot;           /* 0x40, the motion number copied from the display object each frame */
-    int orientMot;        /* 0x44, the motion the pull-up mails orient to */
-    int actKind;          /* 0x48, the actor's column in actModeTbl */
-    int modeFrame;        /* 0x4C, frames since the action mode changed */
-    int msgBlockTimer;    /* 0x50, while nonzero, mail 205 is turned away */
-    GObj *mother; /* 0x54, the generator the enemy was called from (actEnemyRestart), 0 for none */
-    char pad58[16];
+    GObj *intrArg;        /* 0x28, the argument of the mail that interrupted this frame */
+    int intrData;         /* 0x2C, the mail additional data of that mail */
+    int actMode;          /* 0x30, the current action mode; it indexes actModeTbl */
+    unsigned int pushDir; /* 0x34, 1 while a box or bar is pushed, -1 while pulled, 0 otherwise */
+    int intrMot;          /* 0x38, the motion the interrupting mail chose */
+    int curMot;           /* 0x3C, the motion number copied from the display object each frame */
+    int orientMot;        /* 0x40, the motion the pull-up mails orient to */
+    int actKind;          /* 0x44, the actor's column in actModeTbl */
+    int modeFrame;        /* 0x48, frames since the action mode changed */
+    int msgBlockTimer;    /* 0x4C, while nonzero, mail 205 is turned away */
+    GObj *mother; /* 0x50, the generator the enemy was called from (actEnemyRestart), 0 for none */
+    char pad54[20];
     float statusWait8; /* 0x68, the value char status bit 8 carries (a wait) */
     float statusWait5; /* 0x6C, the value char status bit 5 carries (a wait) */
     float statusVal17; /* 0x70, the value char status bit 17 carries */

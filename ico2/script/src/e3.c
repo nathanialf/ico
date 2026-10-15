@@ -169,7 +169,10 @@ void actE3GateJimaku(GObj *volatile self)
     } while (t < 7300.0f);
 }
 
-INCLUDE_ASM(actE3St01bInit);
+void actE3St01bInit(void)
+{
+    stage_SetAnimation(162, 0, -1);
+}
 
 INCLUDE_ASM(actE3Warning);
 

@@ -26,7 +26,7 @@ static inline GObj *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay) /* der
 }
 
 /* The 12-byte work record this function allocates and the other members
-   reach through the sub-object's 0x830: 0x4 is the hit flag AttackCheckBoundaryDL
+   reach through the sub-object's 0x800: 0x4 is the hit flag AttackCheckBoundaryDL
    tests and the manager reads back and clears, 0x8 the attribute SetAttackCheckBoundaryAttribute stores, and 0x0
    the caller's int that CreateAttackCheckBoundary passed in the layout's
    handle, cleared again through it here. */
@@ -36,11 +36,18 @@ typedef struct { /* field names derived */
     int attr;    /* 0x8 */
 } AcbWork;       /* derived name */
 
+inline void SetAttackCheckBoundaryAttribute(GObj *self, int attr)
+{
+    /* the work pointer, read through the int-typed sub-object handle */
+    AcbWork *w = GOBJ_SUB(self)->work;
+    w->attr = attr;
+}
+
 INCLUDE_ASM_LIT(InitAttackCheckBoundaryGeo);
 
 INCLUDE_ASM(AttackCheckBoundaryBeforeFunc);
 
-/* the manager's 8-byte roster entries and its work block at sub+0x830 */
+/* the manager's 8-byte roster entries and its work block at sub+0x800 */
 typedef struct AcbEntry { /* field names derived */
     int obj;              /* 0x00, the boundary object, kept as a word */
     int hit;              /* 0x04 */
@@ -62,6 +69,13 @@ INCLUDE_ASM(AttackCheckBoundaryManagerGeo);
 
 void AttackCheckBoundaryManagerDL(void) {}
 
+inline int GetAttackCheckBoundaryManagerStatus(GObj *self)
+{
+    AcbMgr *m = GOBJ_SUB(self)->work;
+
+    return m->prev;
+}
+
 INCLUDE_ASM(InitAttackCheckBoundaryGeo);
 
 INCLUDE_ASM(AttackCheckBoundaryGeo);
@@ -73,7 +87,3 @@ INCLUDE_ASM(actAttackCheckBoundaryStart);
 INCLUDE_ASM(GetAttackCheckBoundaryRadius);
 
 INCLUDE_ASM(CreateAttackCheckBoundary);
-
-INCLUDE_ASM(GetAttackCheckBoundaryManagerStatus);
-
-INCLUDE_ASM(SetAttackCheckBoundaryAttribute);

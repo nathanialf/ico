@@ -893,7 +893,12 @@ INCLUDE_ASM(BoxGeo);
 
 INCLUDE_ASM_LIT(BoxGeoRestore);
 
-INCLUDE_ASM(GetBoxMode);
+int GetBoxMode(GObj *self)
+{
+    BoxWork *q = GOBJ_SUB(self)->work;
+
+    return q->mode;
+}
 
 INCLUDE_ASM(CanHoldBox);
 

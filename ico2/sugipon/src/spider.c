@@ -217,7 +217,10 @@ static inline GObj *DeleteSpiderFromLayoutGroup_inl(GObj *gp, int idx) /* derive
     return r;
 }
 
-INCLUDE_ASM(DeleteSpiderFromLayoutGroup);
+GObj *DeleteSpiderFromLayoutGroup(GObj *self, int idx)
+{
+    return DeleteSpiderFromLayoutGroup_inl(self, idx);
+}
 
 /* clear the dead members out of a spider group */
 static inline void RemoveDeadLayoutSpiders(SpiderWork *sg) /* derived name */

@@ -237,7 +237,19 @@ void WithMailFunc_WayBeginPosError(void *self)
     ACTWay_SetBeginPositionIllegal(self);
 }
 
-INCLUDE_ASM(WithMailFunc_AttackFail);
+void WithMailFunc_AttackFail(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    char *p = (char *)s->intrData;
+    int v = p != 0 ? *(int *)p : s->env.wallWord;
+    if (self == boyGObj) {
+        GObj *t = s->weapon;
+        if (t != 0) {
+            GOBJ_SUB(t)->ctrl.wallAttr = v;
+            ExecWeaponHitReaction(t);
+        }
+    }
+}
 
 INCLUDE_ASM(WithMailFunc_AttackRejectInQueen);
 

@@ -537,7 +537,27 @@ INCLUDE_ASM(InsertCamera_Set);
 
 INCLUDE_ASM(InsertCamera_SetNoraml);
 
-INCLUDE_ASM(InsertCamera_Exec);
+void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable)
+{
+    *cut = 0;
+    *cutType = 0;
+    *enable = 0;
+    if (insertCamera.enable) {
+        if (insertCamera.cut) {
+            *cut = 1;
+            *cutType = insertCamera.cutType;
+            insertCamera.cut = 0;
+            insertCamera.cutType = 0;
+        }
+        cam[0] = insertCamera.pos[0];
+        cam[1] = insertCamera.pos[1];
+        cam[2] = insertCamera.pos[2];
+        cam[4] = insertCamera.tgt[0];
+        cam[5] = insertCamera.tgt[1];
+        cam[6] = insertCamera.tgt[2];
+        *enable = 1;
+    }
+}
 
 int *GetCurrentCameraSet2(void)
 {

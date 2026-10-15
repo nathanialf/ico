@@ -540,27 +540,71 @@ INCLUDE_ASM(TestChainUpDown);
 
 INCLUDE_ASM(HoldChain);
 
-INCLUDE_ASM(ReleaseChain);
+void ReleaseChain(GObj *chain, GObj *owner)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
+
+    cw->hold = 0;
+}
 
 INCLUDE_ASM(GetChainPendulum);
 
-INCLUDE_ASM(IncreasePdlChain);
+void IncreasePdlChain(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
+
+    cw->pdl.ampSpeed = 0.1f;
+}
 
 INCLUDE_ASM(DecreasePdlChain);
 
-INCLUDE_ASM(PlumbOrientUpdateChain);
+void PlumbOrientUpdateChain(GObj *chain, float *src)
+{
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    p->pdl.orient[0] = src[0];
+    p->pdl.orient[1] = src[1];
+    p->pdl.orient[2] = src[2];
+}
 
-INCLUDE_ASM(isBottomOfChain);
+int isBottomOfChain(GObj *chain)
+{
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    return p->holdNode == p->nodes - 1;
+}
 
-INCLUDE_ASM(isStopChain);
+int isStopChain(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
-INCLUDE_ASM(GetChainClimbOrient);
+    return cw->stopped;
+}
 
-INCLUDE_ASM(CheckChainClimbablePos);
+void GetChainClimbOrient(float *dst, GObj *chain)
+{
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    dst[0] = p->wallOrient[0];
+    dst[1] = p->wallOrient[1];
+    dst[2] = p->wallOrient[2];
+}
 
-INCLUDE_ASM(GetChainClimbCollision);
+int CheckChainClimbablePos(GObj *chain)
+{
+    ChainRecord *p = GOBJ_SUB(chain)->work;
 
-INCLUDE_ASM(SetChainParentGObj);
+    if (p->wallHit != 0 && p->holdNode < 3)
+        return 1;
+    return 0;
+}
+
+void GetChainClimbCollision(ClimbCol *dst, GObj *chain)
+{
+    *dst = ((ChainRecord *)GOBJ_SUB(chain)->work)->climb;
+}
+
+void SetChainParentGObj(GObj *chain, void *parent)
+{
+    ((ChainRecord *)GOBJ_SUB(chain)->work)->root = parent;
+}
 
 /* the chain's direction correction in degrees, and whether it has one;
  * getChainDirCorrectVal below is the same body, for _GetCorrectOrientOfChain */
@@ -583,19 +627,54 @@ void GetRootPositionHandExtra(void *gobj, float *out)
 
 INCLUDE_ASM(InitPendulum);
 
-INCLUDE_ASM(LockChainGeo);
+void LockChainGeo(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
-INCLUDE_ASM(UnLockChainGeo);
+    cw->locked = 1;
+}
 
-INCLUDE_ASM(GetChainHangRange);
+void UnLockChainGeo(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
-INCLUDE_ASM(GetChainLength);
+    cw->locked = 0;
+}
 
-INCLUDE_ASM(EnableChainHang);
+float GetChainHangRange(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
 
-INCLUDE_ASM(UnableChainHang);
+    return cw->hangRange;
+}
 
-INCLUDE_ASM(IsAbleChainHang);
+float GetChainLength(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
+
+    return (float)(cw->nodes - 1) * 50.0f;
+}
+
+void EnableChainHang(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
+
+    cw->hangable = 1;
+}
+
+void UnableChainHang(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
+
+    cw->hangable = 0;
+}
+
+int IsAbleChainHang(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
+
+    return cw->hangable;
+}
 
 INCLUDE_ASM(_GetCorrectOrientOfChain);
 

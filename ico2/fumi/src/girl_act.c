@@ -360,7 +360,12 @@ static inline void girlDispHidePoint(float *pos, int c, char *str) /* derived na
     girlDispWire(r, g, b, pos, str);
 }
 
-INCLUDE_ASM(SetTurnSpeedInEscape);
+static void SetTurnSpeedInEscape(GObj *self)
+{
+    if (GOBJ_ACT(self)->actMode == 10) {
+        ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 1.5f, 5);
+    }
+}
 
 static inline int girlListIsOnBoy(void *gobj) /* derived name */
 {
@@ -538,7 +543,10 @@ static void girlBrainMain_PositionUpdate(void)
     GetRootProjectionPosOfGObj(brain_val.boyPos, boyGObj);
 }
 
-INCLUDE_ASM(girlBrainMain_Init);
+static void girlBrainMain_Init(void)
+{
+    memset(&brain_val, 0, sizeof(brain_val));
+}
 
 /* the run-mode rows ChangeRunMode indexes */
 static int runModeTable[4][4] = {

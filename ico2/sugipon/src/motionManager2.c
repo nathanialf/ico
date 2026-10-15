@@ -1584,7 +1584,10 @@ void InitMotionStateInfo(struct MotCtrl *self)
     self->seGroup[1] = soundSeGroupGet();
 }
 
-INCLUDE_ASM(GetSkeltonFocusNode);
+int GetSkeltonFocusNode(GObj *self, int focus)
+{
+    return getSkeltonFocusNode(self, focus);
+}
 
 int AdjustMotionHeightToNearestField(GObj *self)
 {
