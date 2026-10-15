@@ -39,6 +39,24 @@ inline void actEnemySleep(GObj *volatile self)
     }
 }
 
+inline void actDeja(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(6) == 0) {
+        lt_switch_layout(51);
+        scpBoyControlReadDisable = 1;
+        scpFadeOut(255.0f, 0, 0, 0);
+        stage_SetAnimation(59, 0, 0);
+        _mes[0].func = actDejaChk;
+        act->mail = _mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
 INCLUDE_ASM(actDejaChk);
 
 INCLUDE_ASM(actDejaDemo);
@@ -46,5 +64,3 @@ INCLUDE_ASM(actDejaDemo);
 INCLUDE_ASM(actDejaAfter);
 
 INCLUDE_ASM(actDejaAfterChk);
-
-INCLUDE_ASM(actDeja);

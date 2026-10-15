@@ -22,7 +22,22 @@ void actSt17bTest(GObj *volatile self)
     _ACTWait(1);
 }
 
-INCLUDE_ASM(actSt17bCheck);
+void actSt17bCheck(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = (Act *)actInitialize(self);
+
+    _ACTWait(1);
+    ScpCallCameraSetTarget(14990.0f, 7074.0f, -4694.0f);
+    scpAdpcmPlayRequestFunc(92, &lightning2, 1, 0, 1);
+
+    if (gflagChk(33) == 0) {
+        check_mes[0].func = actSt17bCheckChk;
+        act->mail = check_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM(func_00235AF0);
 

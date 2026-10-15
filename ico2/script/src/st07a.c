@@ -270,4 +270,17 @@ void actSt07aSekizoEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt07aEne2Chk);
+void actSt07aEne2Chk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (gflagChk(155) == 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOff(358);
+    gflagOn(120);
+    gflagOn(121);
+}

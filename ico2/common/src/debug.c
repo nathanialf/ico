@@ -761,7 +761,15 @@ extern void DebugDisp1Collision(void *hit);
    +0x14 samples the EE timer T0_COUNT at 0x10000000, volatile because it is a
    hardware counter. */
 
-INCLUDE_ASM(debug_Assert);
+void debug_Assert(char *fmt, ...)
+{
+    char buf[256];
+    vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
+    debug_assertMessage("src/debug.c", 1283, buf);
+    __assert("src/debug.c", 1283, "e");
+    debug_assert("src/debug.c", 1284);
+    __assert("src/debug.c", 1284, "0");
+}
 
 /* the host log file (the DEBUG build opens it) */
 static int logFd = -1; /* derived name */

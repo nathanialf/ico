@@ -156,7 +156,38 @@ static void setNodePursueParticleEffectWithUpperLimit(int id, GObj *obj, int foc
     }
 }
 
-INCLUDE_ASM(SetFallDownSplash);
+void SetFallDownSplash(GObj *pool, GObj *self)
+{
+    float pos[4];
+    float tmp[4];
+    PoolWork *w = GOBJ_SUB(pool)->work;
+
+    GetRootPosition(pos, self);
+    _ScaleVectorXYZ(tmp, GOBJ_SUB(self)->root.move, 2.0f);
+    _AddVector(pos, pos, tmp);
+    pos[1] = w->pos[1];
+
+    if (GOBJ_SUB(self)->skel != 0) {
+        setNodePursueParticleEffectWithUpperLimit(48, self, 51, pos[1]);
+        setNodePursueParticleEffectWithUpperLimit(48, self, 47, pos[1]);
+    }
+
+    stage_SetLoopFlag(429, 0);
+    stage_SetFrameStep(429, 1);
+
+    EntryMultiBgaManagerNoKind(w->splash, w->splashNo, pos);
+    w->splashNo = (w->splashNo + 1) % 2;
+
+    if (w->hasGrid != 0) {
+        setWaveCell(w, pos, &w->ripple[w->rippleNo], w->step, w->nx, w->ny, 0.5f);
+        w->rippleNo = w->rippleNo + 1;
+        if (w->rippleNo == 5) {
+            w->rippleNo = 0;
+        }
+    }
+
+    falldownSE(self);
+}
 
 void GetPoolGlobalDrainVector(void *dst, GObj *pool)
 {
@@ -176,7 +207,93 @@ typedef struct {    /* field names derived */
 
 static int poolRideFunc(ObjNode *on, GObj *rider);
 
-INCLUDE_ASM(InitPoolGeo);
+char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
+{
+    PoolWork *w = iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", 315);
+    int i;
+    int j;
+    int k;
+
+    CopyVector(w->pos, lay->pos);
+    w->pos[3] = 1.0f;
+    CopyVector(w->drain, ZeroVector);
+    w->drain[0] = -lay->rot[0] * 180.0f / 3.1415927f;
+    w->drain[2] = -lay->rot[2] * 180.0f / 3.1415927f;
+
+    if (lay->obj != 0) {
+        w->hasGrid = 1;
+        w->nx = (int)lay->scale[0];
+        w->ny = (int)lay->scale[2];
+        w->step = lay->scale[1];
+
+        w->height = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c", 329);
+
+        for (i = 0; i < w->nx; i++) {
+            w->height[i] = iosMallocDebug(ios_partition_sugipon, w->ny * 4, "src/pool.c", 333);
+        }
+
+        w->surface = prim_InitMesh3D(w->ny, w->nx, 1, 0x1C, (lay->obj & 0xFFFFFF00) | 0x80, 1);
+
+        w->reflect = prim_InitMesh3D(w->ny, w->nx, 1, 0x5C, 0x80808080, 1);
+
+        w->phase = 0;
+        w->wire = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c", 356);
+
+        for (j = 0; j < w->nx; j++) {
+            w->wire[j] = w->reflect->pos + j * w->ny;
+        }
+
+        for (k = 0; k < 5; k++) {
+            setWaveCell(w, w->pos, &w->ripple[k], w->step, w->nx, w->ny, 1.0f);
+            w->ripple[k].amp = -1.0f;
+        }
+
+        w->rippleNo = 0;
+
+        if (GOBJ_SUB(self)->accessary != 21) {
+            SObjSimpleSetting obj = InitialSObjSimpleSetting;
+
+            obj.pos[0] = -accessary[GOBJ_SUB(self)->accessary].pivot[0];
+            obj.pos[1] = -accessary[GOBJ_SUB(self)->accessary].pivot[1];
+            obj.pos[2] = -accessary[GOBJ_SUB(self)->accessary].pivot[2];
+            w->dobj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, &obj);
+
+            w->spin = 0;
+        } else {
+            w->dobj = 0;
+
+            w->spin = 0;
+        }
+    } else {
+        w->hasGrid = 0;
+    }
+
+    {
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
+        q->pos.i[0] = q->pos.i[1] = q->pos.i[2] = 0;
+    }
+    {
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
+        q->scale.f[0] = q->scale.f[1] = q->scale.f[2] = 1.0f;
+    }
+    {
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
+        q->rot.f[0] = q->rot.f[1] = q->rot.f[2] = 0.0f;
+    }
+
+    _UnitMatrix(&GOBJ_SUB(self)->matrix);
+    _UnitMatrix((char *)GOBJ_SUB(self)->nodeMtx);
+
+    w->word28 = 0;
+    w->bga = InitMultiBgaManager(10);
+
+    w->splashNo = 0;
+    w->splash = InitMultiBgaManager(2);
+
+    ((SubHandle *)(self + 0x15C))->sub->rideFunc = poolRideFunc;
+
+    return (char *)w;
+}
 
 static inline void decayRipple(PoolRipple *c) /* derived name */
 {
@@ -458,11 +575,41 @@ static float workLightNormal[4][4] = {
 
 INCLUDE_ASM(dispPool);
 
-INCLUDE_ASM(PoolDL);
+void PoolDL(GObj *self)
+{
+    PoolWork *w = GOBJ_SUB(self)->work;
 
-void InitLimitedPoolReflactionMesh(PoolMesh *refl);
+    DispMultiBgaManagerWithKind(428, w->bga, 10);
+    DispMultiBgaManagerWithKind(429, w->splash, 2);
+    if (systemStatus[5] == 0) {
+        w->phase =
+            (short)((float)w->phase +
+                    60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 2000.0f);
+    }
+    if (w->hasGrid != 0) {
+        updatePoolGeo(self);
+        dispPool(self);
+    } else {
+        p2o_DispVU1(self);
+    }
+}
 
-INCLUDE_ASM(InitLimitedPoolReflactionMesh);
+void InitLimitedPoolReflactionMesh(PoolMesh *refl)
+{
+    int i;
+    int j;
+
+    refl->mesh = prim_InitMesh3D(refl->ncol, refl->nrow, 1, 0x1C, refl->color, 1);
+    refl->height = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c", 899);
+    refl->row = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c", 900);
+    for (i = 0; i < refl->nrow; i++) {
+        refl->row[i] = refl->mesh->pos + i * refl->ncol;
+        refl->height[i] = iosMallocDebug(ios_partition_sugipon, refl->ncol * 4, "src/pool.c", 905);
+        for (j = 0; j < refl->ncol; j++) {
+            refl->height[i][j] = 0.0f;
+        }
+    }
+}
 
 void SetLayoutedPoolReflactionMesh(PoolMesh *refl)
 {

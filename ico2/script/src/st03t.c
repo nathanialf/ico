@@ -83,7 +83,25 @@ void actSt03tGirlCamEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt03tGirlCamStartChk);
+void actSt03tGirlCamStartChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) != 198) {
+        _ACTWait(1);
+    }
+
+    CameraGetTarget();
+    Camctrl_SetTarget(girlGObj, 0, 3);
+    _ACTWait(15);
+    CameraSetCameraSet(48);
+
+    girlCamStartChk_mes[0].func = actSt03tGirlCamEndChk;
+    sub->mail = girlCamStartChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt03tGirlCamEndChk);
 

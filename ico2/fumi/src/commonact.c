@@ -251,7 +251,21 @@ void WithMailFunc_AttackFail(GObj *self)
     }
 }
 
-INCLUDE_ASM(WithMailFunc_AttackRejectInQueen);
+void WithMailFunc_AttackRejectInQueen(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    GObj *w = s->weapon;
+    if (w != 0) {
+        ReleaseWeaponWithFumbleSequential(w);
+        s->weapon = 0;
+    }
+    if (stage_no == 83 || debug_use_new_queen_battle != 0) {
+        void *e = isysGObjSearchFromObjKindID_begin(53);
+        if (e != 0) {
+            iosOmSendMail(e, 0xD, self);
+        }
+    }
+}
 
 void GetCorrectOrientOfChain(void *buf, void *obj)
 {

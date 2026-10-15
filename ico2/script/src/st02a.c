@@ -21,7 +21,6 @@
 #include "script.h"
 #include "include_asm.h"
 
-static void actSt02aFenceOpenSub(GObj *volatile self);
 /* .data: one mail record per posting site. Word 0 of each entry is the mail id
  * the entry answers (397 the actor post, 396 the trailing entry); .func is
  * filled in at run time before the post, except in the two main-mail records,
@@ -200,7 +199,25 @@ void actSt02aFence(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aWaterFall);
+void actSt02aWaterFall(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(95) != 0) {
+        waterfall_mail[0].func = actSt02aWaterFallChk;
+        act->mail = waterfall_mail;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+
+    scpSearchGobj(1562)->active = 0;
+
+    actCreateSubThread(actSt02WaterFallBoySplashCheck, 21);
+    actCreateSubThread(actSt02aWaterFallReflactionEffect, 21);
+}
 
 void actSt02aBoxEvent2(GObj *volatile self)
 {
@@ -358,9 +375,39 @@ void actSt02aFenceMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aFenceSwitch);
+void actSt02aFenceSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt02aFenceOpenSub);
+    sub->mainMail = 0;
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    fence_switch_mail[0].func = actSt02aFenceOpen;
+    sub->mail = fence_switch_mail;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt02aFenceOpen(GObj *volatile self)
+{
+    scpSleepEnemyAll();
+    gflagOn(105);
+    scpAdpcmPlayRequestFunc(94, &st02a_fence, 1, 1, 1);
+    while (st02a_fence == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(85, 1, 0);
+    stage_SetAnimation(86, 1, 0);
+    while (stage_CheckAnimationFinish(86) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    SetWayGroupActive(26, 1);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+    scpWakeupEnemyAll();
+}
 
 void actSt02aGondolaMain(GObj *volatile self)
 {
@@ -393,9 +440,51 @@ void actSt02aSekizoEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt02aWayOnChk);
+void actSt02aWayOnChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt02aWayOffChk);
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(53, 1);
+    SetWayGroupActive(55, 1);
+    SetWayGroupActive(56, 1);
+    SetWayGroupActive(57, 1);
+    gflagOff(111);
+
+    way_on_mail[0].func = actSt02aWayOffChk;
+    sub->mail = way_on_mail;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt02aWayOffChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(53, 0);
+    SetWayGroupActive(55, 0);
+    SetWayGroupActive(56, 0);
+    SetWayGroupActive(57, 0);
+    gflagOn(111);
+
+    way_off_mail[0].func = actSt02aWayOnChk;
+    sub->mail = way_off_mail;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt02aTakiWayOnChk(GObj *volatile self)
 {

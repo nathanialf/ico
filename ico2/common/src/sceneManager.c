@@ -307,9 +307,39 @@ static void initSceneGObj(int stage, int no)
     MakeCollisionDependGObjList();
 }
 
-static void initParentLink(int id);
+static void initParentLink(int id)
+{
+    GenGeo *gen = &objLayout[id];
+    int parentId = gen->parent;
+    ObjKindEnt *lay = &objKindData[gen->kind];
+    int self;
+    int parent;
 
-INCLUDE_ASM(initParentLink);
+    if (lay->layouted != 0 && parentId != 0 && gen->kind != 4) {
+        self = (int)isysGObjSearchFromObjLayoutID(id);
+        parent = (int)isysGObjSearchFromObjLayoutID(parentId);
+        if (parent != 0) {
+            if (parent == self) {
+                /* tried to make "%s" a parent-child link, but it is trying to be its own
+                   parent */
+                debug_StdPrintfDummy(
+                    "\"%s\"の親子関係づけをしようとしましたが、自分を親にしようとしています。\n",
+                    lay);
+                debug_assert(__FILE__, 487);
+                __assert(__FILE__, 487, "0");
+            }
+            debug_StdPrintfDummy("Parentize \"%s\"\n", lay);
+            *(int *)((int)GOBJ_SUB(self)) = parent;
+            *(int *)((int)GOBJ_SUB(self) + 4) = 0;
+        } else {
+            /* tried to make "%s" a parent-child link, but the parent cannot be found */
+            debug_StdPrintfDummy("\"%s\"の親子関係づけをしようとしましたが、親が見つかりません。\n",
+                                 lay);
+            debug_assert(__FILE__, 496);
+            __assert(__FILE__, 496, "0");
+        }
+    }
+}
 
 /* three static helpers inlined into InitSceneObjects */
 

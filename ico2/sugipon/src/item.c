@@ -84,7 +84,32 @@ static inline int IsItemKindBomb(GObj *gobj) /* derived name */
     return p->kind == 1;
 }
 
-INCLUDE_ASM(HoldItem);
+void HoldItem(GObj *gobj, GObj *holder)
+{
+    float q[4];
+    float hq[4];
+    ItemWork *p;
+
+    if (gobj == 0) {
+        /* lost sight of the small barrel but is still trying to grab it */
+        debug_StdPrintfDummy("小樽を見失ったのにつかもうとしてます。\n");
+        debug_assert(__FILE__, 344);
+        __assert(__FILE__, 344, "0");
+    }
+    p = GOBJ_SUB(gobj)->work;
+    p->released = 0;
+    p->held = 1;
+    p->holder = (int)holder;
+    GOBJ_SUB(gobj)->disp = 0;
+    SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
+    if (IsItemKindBomb(gobj)) {
+        SetRootQuaternion(gobj, IdentityQuaternion);
+    }
+    GetRootQuaternion(q, gobj);
+    GetRootQuaternion(hq, holder);
+    GetInverseQuaternion(hq, hq);
+    MultiQuaternion(p->rot, hq, q);
+}
 
 /* mark the item dead; uncarriedItemGeo, ItemDL, BreakItemFromOutside and
    BreakItemWithAttackHit use it */

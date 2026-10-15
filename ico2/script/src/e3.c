@@ -266,7 +266,49 @@ INCLUDE_ASM(actE3St09aSekizoChk);
    record, does not declare it */
 extern StreamMotionFile streamMotion[];
 
-INCLUDE_ASM(actE3GateChk);
+void actE3GateChk(GObj *volatile self)
+{
+    int i;
+
+    if ((int)girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(self, boyGObj, 3000.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    StandbyStreamMotion(streamMotion[9].path);
+
+    i = 0;
+    while (CheckReadyStreamMotion() == 0) {
+        i++;
+        debug_StdPrintfDummy("Now waiting for standby stream motion system... %d\n", i);
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+
+    SetWindManager(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 5.0f, 0.0f);
+
+    scpPlayStart(girlGObj);
+
+    reg_SetScissorSw(1);
+    SetStaticBlur(0);
+
+    scpAdpcmPlayRequestFunc(4, &e3gate1st, 1, 1, 0);
+    while (e3gate1st == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(329);
+    _ACTWait(1);
+
+    actCreateSubThread(actE3GateDemo, 21);
+    actCreateSubThread(actE3GateJimaku, 21);
+
+    stage_SetAnimation(238, 1, 0);
+}
 
 INCLUDE_ASM(actE3GateDemo);
 

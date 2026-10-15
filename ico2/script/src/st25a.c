@@ -272,7 +272,23 @@ void actSt25aQueenBefore(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt25aQueenTalk);
+void actSt25aQueenTalk(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
+
+    _ACTWait(1);
+
+    fightSoundProcessRequestPause();
+
+    if (gflagChk(303) == 0) {
+        scpSearchGobj(1975)->active = 0;
+        queen_talk_mes[0].func = actSt25aQueenTalkChk;
+        sub->mail = queen_talk_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 void actSt25aQueenDeadReady(GObj *volatile self)
 {

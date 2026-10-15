@@ -71,7 +71,20 @@ void actWave(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSpider);
+void actSpider(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    stage_SetLoopFlag(139, 1);
+    stage_SetAnimation(139, 1, 0);
+
+    spider_mes[0].func = actSpiderChk;
+    act->mail = spider_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actDevilLightning(GObj *volatile self)
 {

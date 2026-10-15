@@ -156,7 +156,31 @@ typedef struct { /* field names derived */
 /* the four bytes GetStreamMotionData hands back while no data has arrived */
 static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
 
-INCLUDE_ASM(func_001F0A38);
+void GetStreamMotionData(char *dst, int no)
+{
+    int off;
+    int size;
+    int over;
+
+    if (streamEntry[no].cur < 0) {
+        *(StreamMotionHead *)dst = *(const StreamMotionHead *)streamDummyHead;
+        /* "tried to get the stream motion before the data has arrived" */
+        debug_StdPrintfDummy(
+            "データがまだ来ていないのにストリームモーションの取得をしようとしました\n");
+        return;
+    }
+    off = streamEntry[no].cur;
+    size = streamEntry[no].size;
+    over = off + size - 163840;
+    if (over > 0) {
+        int first = 163840 - off;
+
+        memcpy(dst, ringBuf + off, first);
+        memcpy(dst + first, ringBuf, over);
+    } else {
+        memcpy(dst, ringBuf + off, size);
+    }
+}
 
 static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {

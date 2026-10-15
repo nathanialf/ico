@@ -26,6 +26,7 @@ void StopStreamMotion(void);
 void DeleteStreamMotionManager(void);
 int EntryStreamMotion(struct GObj *gobj);
 int GetDataSizeOfStreamMotion(int no);
+void GetStreamMotionData(char *dst, int no);
 void InitStreamMotionManager(void);
 int CheckReadyStreamMotion(void);
 void SetStreamMotionFinishCallBackFunc(int no, void (*func)(struct GObj *));

@@ -520,7 +520,65 @@ static void moveEffectToolGeometry(int idx)
     }
 }
 
-INCLUDE_ASM(execEffectTool);
+static int execEffectTool(void)
+{
+    int q[4];
+    int r;
+
+    switch (targetMemo) {
+    default:
+    case 0:
+        r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
+                                  0xB, particleEffectFile, 0x50, 0, 0, 0x35, &effectId);
+        if (effectId != lastEffectId) {
+            setQ(q);
+            if (effectHandle != -1) {
+                DeleteParticleEffect(effectHandle);
+            }
+            effectHandle = SetParticleEffect(effectId, effectToolPos, q);
+            lastEffectId = effectId;
+            paramCursor = 0;
+        }
+        if (pad[1].flags & 0x10) {
+            saveEffectData(effectId);
+        }
+        if (pad[1].flags & 0x20) {
+            r = 1;
+        }
+        if (pad[1].rep & 0x1000) {
+            effectId--;
+            if (effectId < 0) {
+                effectId = 0x34;
+            }
+        }
+        if (pad[1].rep & 0x4000) {
+            effectId++;
+            if (effectId >= 0x35) {
+                effectId = 0;
+            }
+        }
+        if (r == 1) {
+            r = 0;
+            targetMemo++;
+        }
+        break;
+    case 1:
+        r = EditTarget(effectId);
+        if (r == -1) {
+            targetMemo--;
+        }
+        r = 0;
+        break;
+    }
+    moveEffectToolGeometry(effectId);
+    if ((pad[0].flags & 0x80) || (pad[1].flags & 0x80)) {
+        fieldDisp = (fieldDisp == 0);
+    }
+    if (fieldDisp) {
+        dispEffectToolField(effectId);
+    }
+    return r;
+}
 
 static void exitEffectTool(void)
 {

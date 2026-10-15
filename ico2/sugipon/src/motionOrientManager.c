@@ -128,7 +128,7 @@ static void orientDebug(void *self, int idx, int y)
 
 static inline void checkMotionKind(int i, int j) /* derived name */
 {
-    if (motionKind[i].blendKind != 320) {
+    if (motionKind[i].blendKind != 228) {
         char buf[256];
 
         /* EUC-JP: "the node-blending motion (%s) uses a node-blending motion again" */
@@ -142,11 +142,34 @@ static inline void checkMotionKind(int i, int j) /* derived name */
     }
 }
 
-int GetNbMotionFrames(int id);
+int GetNbMotionFrames(int id)
+{
+    int m;
+    int n;
 
-INCLUDE_ASM(GetNbMotionFrames);
+    if (motionKind[id].blendKind == 228) {
+        return *motionTable[id];
+    }
+    m = blendMotionKind[motionKind[id].blendKind].motion;
+    n = blendMotionKind[motionKind[id].blendKind].frames;
+    checkMotionKind(m, id);
+    if (n != -1) {
+        return n;
+    }
+    return *motionTable[m];
+}
 
-INCLUDE_ASM(GetMotionPlaySpeedRatio);
+float GetMotionPlaySpeedRatio(int id)
+{
+    int m;
+
+    if (motionKind[id].blendKind == 228) {
+        return motionKind[id].playSpeedRatio;
+    }
+    m = blendMotionKind[motionKind[id].blendKind].motion;
+    checkMotionKind(m, id);
+    return motionKind[m].playSpeedRatio;
+}
 
 static void execFrameTrigger(void *self)
 {
@@ -363,7 +386,7 @@ static inline int searchMotionShift(void *self, int id, int cur) /* derived name
         for (i = 0; (m->shiftReq)[i] != -1; i++) {
             if ((m->shiftReq)[i] == id) {
                 if ((m->shiftNext)[i] == cur) {
-                    return 0x479;
+                    return 1084;
                 }
                 return (m->shiftNext)[i];
             }
@@ -387,7 +410,37 @@ static __inline__ int searchAltMotion(int req) /* derived name */
 
 INCLUDE_ASM(shiftMotionData);
 
-INCLUDE_ASM(shiftMotionOrientEndFunc);
+static void shiftMotionOrientEndFunc(void *self)
+{
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
+    int x;
+
+    if (w->seGroup[0] == -1) {
+        /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
+        debug_StdPrintfDummy(
+            "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n");
+        debug_assert(__FILE__, 739);
+        __assert(__FILE__, 739, "0");
+    }
+    StopSEPackageWithGroupVariation(self, 0);
+    StopSEPackageWithGroupVariation(self, 1);
+    w->lastSlipFlags = 0;
+    x = w->rootUpdateMode;
+    if (x < 9) {
+        if (x >= 7) {
+            goto ok;
+        }
+        return;
+    }
+    if (x != 16) {
+        return;
+    }
+ok:
+    if (motionKind[w->motion].wallFeedback == 0) {
+        return;
+    }
+    FeedbackWallWorkInfoToBrainSystem(self);
+}
 
 inline void CopyBlendMotionDataSource(void *self, short ang)
 {
@@ -416,7 +469,7 @@ void ForTest_ForceShiftMotion(int obj, int motion)
 }
 
 /* Clear the pending-shift words and report whether the entry may start.
- * The 0x479 arm's refusal goes to the guard's `return 0`. */
+ * The 1084 arm's refusal goes to the guard's `return 0`. */
 static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p) /* derived name */
 {
     int kind;
@@ -429,7 +482,7 @@ static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
     }
     kind = p->nextId;
     m->orientReq = kind;
-    if (kind == 0x479) {
+    if (kind == 1084) {
         if (m->frameEnd == 0) {
             goto fail;
         }
@@ -444,18 +497,51 @@ static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
     return p->shiftFrom != -1 && (float)p->shiftFrom < m->animFrame;
 }
 
-INCLUDE_ASM(normalMotionShift);
+static int normalMotionShift(void *self, int force)
+{
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
+    MotionOrientEntry *p = getMotionOrient(w->oriFrom, w->oriTo, w->request, w->orientKind);
 
-/* parallelMotionOrient is 54 rows of five words, keyed on the current and
+    if (force == 0) {
+        if (p->id == 1085) {
+            return 0;
+        }
+    }
+    if (checkMotionShiftReady(&MOWORK(self)->ctrl, p) != 0) {
+        int kind = p->nextId;
+        int mode = p->shiftMode;
+        int next;
+        int r = -1; /* no pairing found; the else arm searches with it as cur */
+
+        if (kind == 0x43C) {
+            kind = p->id;
+            mode = 5;
+            r = searchMotionShift(self, kind, w->motion);
+            if (r == -1 || r == 0x43C) {
+                return 0;
+            }
+            next = r;
+        } else {
+            r = searchMotionShift(self, kind, r);
+            next = (r == -1) ? kind : r;
+        }
+        shiftMotionOrientEndFunc(self);
+        shiftMotionOrientBeginFunc(self, next, kind, mode);
+        return 1;
+    }
+    return 0;
+}
+
+/* parallelMotionOrient is 41 rows of five words, keyed on the current and
  * the requested motion. */
 static inline MotionOrientEntry *findParallelMotion(int cur, int next) /* derived name */
 {
     int i;
 
     if (cur == next) {
-        return &motionOrient[2467];
+        return &motionOrient[2165];
     }
-    for (i = 0; i < 54; i++) {
+    for (i = 0; i < 41; i++) {
         if (parallelMotionOrient[i].id == cur) {
             if (parallelMotionOrient[i].kind == next) {
                 return (MotionOrientEntry *)&parallelMotionOrient[i];
@@ -467,7 +553,33 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next) /* derive
 
 /* the -1 test encloses the body and every refusal falls to the one
  * `return 0` at the end */
-INCLUDE_ASM(parallelMotionShift);
+static int parallelMotionShift(void *self)
+{
+    struct MotCtrl *m = &MOWORK(self)->ctrl;
+    int next = searchMotionShift(self, m->request, m->motion);
+    MotionOrientEntry *p;
+
+    if (next != -1) {
+        p = findParallelMotion(m->motion, next);
+
+        if (p != 0) {
+            if (checkMotionShiftReady(&MOWORK(self)->ctrl, p) != 0) {
+                shiftMotionOrientEndFunc(self);
+                shiftMotionOrientBeginFunc(self, p->nextId, m->request, p->shiftMode);
+                return 1;
+            }
+        } else if (next != 1084) {
+            MotionOrientEntry e = {m->motion, m->orientKind, next, m->shiftFrom, m->shiftMode};
+
+            if (checkMotionShiftReady(&MOWORK(self)->ctrl, &e) != 0) {
+                shiftMotionOrientEndFunc(self);
+                shiftMotionOrientBeginFunc(self, next, m->request, m->shiftMode);
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 /* The ignored-request report: how many times in a row, and for which
    motion. */
@@ -480,7 +592,67 @@ typedef struct MotOriSpin { /* field names derived */
     char *s[4];
 } MotOriSpin; /* derived name */
 
-INCLUDE_ASM(SetMotionRequest);
+char *SetMotionRequest(void *self, int mot, MotOriReq req)
+{
+    char *w = (char *)GOBJ_SUB(self) + 0x470;
+    int old = *(int *)(w + 0xD0);
+
+    *(int *)(w + 0xD0) = mot;
+    if (normalMotionShift(self, 1) != 0) {
+        *(int *)(w + 0x44) = 0;
+        switch (*(int *)(w + 0x68)) {
+        case 3:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 13:
+        case 15:
+        case 16:
+            *(MotOriReq *)&GOBJ_SUB(self)->root.wall = req;
+            debug_StdPrintfDummy("\033[36mUpdate with collision info that act memorized.\033[m\n");
+            break;
+        }
+        if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+            (debug_mot_debug_target == 1 && self == girlGObj) ||
+            (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(46))) {
+            if (ignoreCount != 0 && debug_window_flag != 0) {
+                debug_PrintFontWindow(0xC0FF20, "\n ");
+            }
+            orientDebug(self, mot, 0xFFFFFF80);
+            ignoreCount = 0;
+        }
+    } else {
+        *(int *)(w + 0xD0) = old;
+        if (pad[0].now & 0x2) {
+            if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+                (debug_mot_debug_target == 1 && self == girlGObj) ||
+                (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+                (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+                (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(46))) {
+                MotOriSpin spin = {{"-", "\\", "|", "/"}};
+
+                if (ignoreMotion != mot && ignoreCount != 0) {
+                    ignoreCount = 0;
+                    if (debug_window_flag != 0) {
+                        debug_PrintFontWindow(0xC0FF20, "\n ");
+                    }
+                }
+                if (debug_window_flag != 0) {
+                    MotOriName name = motionOriKind[mot];
+
+                    debug_PrintFontWindow(0x3080FF20, "%s %s at %s ignore %d times",
+                                          spin.s[frame_count & 3], name.s,
+                                          motionKind[*(int *)(w + 0x30)].name, ++ignoreCount);
+                }
+                ignoreMotion = mot;
+            }
+        }
+    }
+    return w;
+}
 
 inline void SetParallelMotionTableWithNoRequest(void *self, int *next, int *req)
 {
@@ -508,7 +680,45 @@ inline void SetParallelMotionTable(void *self, int *next, int *req, int from, in
     }
 }
 
-INCLUDE_ASM(getNodeBlendedFloatingMotion);
+static void getNodeBlendedFloatingMotion(StreamElem *dst, float *root, int id, int n,
+                                         unsigned char *mask, void *self, float t)
+{
+    float v[4];
+    StreamElem mot[n];
+    int i;
+    int j;
+    int prev = -1;
+    SkelNode *skel = MOWORK(self)->skel;
+
+    for (i = 0, j = motionKind[id].blendKind; blendMotionKind[j].motion != 0x43E; i++, j++) {
+        int node = blendMotionKind[j].motion;
+
+        checkMotionKind(node, id);
+        if (i == 0) {
+            GetFloatingMotion(dst, t, root, motionTable[node], n, mask, skel);
+            CopyMotion(mot, dst, n);
+            prev = node;
+        } else {
+            int fn;
+
+            if (prev != node) {
+                GetFloatingMotion(mot, t * blendMotionKind[j].rate, v, motionTable[node], n, mask,
+                                  skel);
+                prev = node;
+            }
+            fn = GetSkeltonFocusNode(self, blendMotionKind[j].node);
+            if (fn != -1) {
+                CopyMotionWithNodeHrc(dst, mot, skel, fn, 0);
+            }
+        }
+    }
+    if (i == 0) {
+        /* EUC-JP: "(%s) the motion to blend is not defined" */
+        debug_StdPrintfDummy("(%s)混ぜるモーションが定義されていません。\n", motionKind[id].name);
+        debug_assert(__FILE__, 1221);
+        __assert(__FILE__, 1221, "0");
+    }
+}
 
 /* the slope vector getMotionGeometry normalises for its pitch angle */
 static sceVu0FVECTOR slopeVector = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
@@ -578,7 +788,77 @@ enum DebugDisplayMode {
 
 extern enum DebugDisplayMode debug_bar_flag;
 
-INCLUDE_ASM(getShapeGeometry);
+static void getShapeGeometry(void *self)
+{
+    struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
+
+    if (motionKind[m->motion].blendKind == 228) {
+        void *mot = motionTable[m->motion];
+
+        if (CheckMotionIncludeFacialData(mot) == 0) {
+            int n = **(int **)((char *)mot + 0x10);
+            float buf[n];
+            int i;
+
+            GetFloatingShapeMotion(buf, mot, m->animFrame, n);
+            if (n != 0) {
+                int cnt = GOBJ_SUB(self)->morphNum;
+
+                if (cnt != 0) {
+                    if (cnt != n) {
+                        /* EUC-JP: "the shape motion data and the number of targets differ; motion: %d target: %d" */
+                        debug_StdPrintfDummy(
+                            "シェイプモーションデータとターゲットの数が違います。\nモーション:%d ターゲット:%d\n",
+                            n, cnt);
+                    }
+                    for (i = 0; i < n; i++) {
+                        float x = buf[i] * 0.01f;
+                        int *p = (int *)(i * 4 + *(int *)((char *)GOBJ_SUB(self) + 0x808));
+
+                        if (x < 0.0f) {
+                            if (0.0001f < -x) {
+                                *(float *)p = x;
+                            } else {
+                                *p = 0;
+                            }
+                        } else {
+                            if (0.0001f < x) {
+                                *(float *)p = x;
+                            } else {
+                                *p = 0;
+                            }
+                        }
+                    }
+                } else {
+                    /* EUC-JP: "no place is reserved to store the handover data" */
+                    debug_StdPrintfDummy("受渡しデータを格納する場所が確保されていません。\n");
+                }
+                if (debug_bar_flag != 0) {
+                    gif_StartPacketPri(11);
+                    {
+                        int p1[4];
+                        int p2[4];
+                        MotOriCol4 c0 = {{64, 32, 0, 128}};
+                        MotOriCol4 c1 = {{255, 128, 0, 128}};
+
+                        gif_SetAlpha(1, 5, 128);
+                        for (i = 0; i < n; i++) {
+                            p1[0] = (ScreenWidth / 2 + 1824) << 4;
+                            p2[0] = (ScreenWidth / 2 + 2024) << 4;
+                            p1[1] = p2[1] = (ScreenHeight / 2 - n * 6 + 2024 + i * 6) << 4;
+                            Draw2DLine(p1, p2, (int *)c0.c, -1);
+                            p1[0] = p2[0] = (ScreenWidth / 2 + (int)buf[i] + 1924) << 4;
+                            p1[1] = (ScreenHeight / 2 - n * 6 + 2025 + i * 6) << 4;
+                            p2[1] = (ScreenHeight / 2 - n * 6 + 2028 + i * 6) << 4;
+                            Draw2DLine(p1, p2, (int *)c1.c, -1);
+                        }
+                        gif_EndPacket();
+                    }
+                }
+            }
+        }
+    }
+}
 
 /* both stream-geometry functions inline it (once and twice) */
 static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* derived name */
@@ -605,7 +885,7 @@ INCLUDE_ASM(getStreamMotionGeometry);
  * motionManager.c). */
 #define SET_SHAPE_VALUE(self, i, x) /* derived name */                                             \
     {                                                                                              \
-        int *p = (int *)((i) * 4 + *(int *)((char *)*(int *)((char *)(self) + 0x15C) + 0x838));    \
+        int *p = (int *)((i) * 4 + *(int *)((char *)*(int *)((char *)(self) + 0x15C) + 0x808));    \
                                                                                                    \
         if (0.0001f < ((x) < 0.0f ? -(x) : (x))) {                                                 \
             *(float *)p = (x);                                                                     \
@@ -614,15 +894,113 @@ INCLUDE_ASM(getStreamMotionGeometry);
         }                                                                                          \
     }
 
-INCLUDE_ASM(getStreamShapeGeometry);
+static void getStreamShapeGeometry(void *self, void *sm)
+{
+    int n = GOBJ_SUB(self)->morphNum;
 
-INCLUDE_ASM(func_001E3F40);
+    if (n != 0) {
+        float buf[n];
+        int i;
 
-INCLUDE_ASM(ExecMotionOrient);
+        if (GetStreamShapeMotion(buf, sm) != 0) {
+            for (i = 0; i < n; i++) {
+                float x = buf[i] * 0.01f;
+                SET_SHAPE_VALUE(self, i, x);
+            }
+        } else {
+            for (i = 0; i < n; i++) {
+                *(int *)(*(int *)((char *)GOBJ_SUB(self) + 0x808) + i * 4) = 0;
+            }
+        }
+    }
+}
 
-void SetNodeRotationLimitDataTable(void *self, int from, int to);
+static void getStreamMotion(void *self)
+{
+    int s = MOWORK(self)->ctrl.stream;
+    char a[GetDataSizeOfStreamMotion(s)];
 
-INCLUDE_ASM(SetNodeRotationLimitDataTable);
+    GetStreamMotionData(a, s);
+    getStreamMotionGeometry(self, a);
+    getStreamShapeGeometry(self, a);
+}
+
+void ExecMotionOrient(void *self)
+{
+    struct MotCtrl *w = &GOBJ_SUB(self)->ctrl;
+
+    if (w->shiftStop != 0) {
+        /* EUC-JP: "the motion replacement function is stopped" */
+        debug_StdPrintfDummy("\033[36mモーション置き換え機能が停止しています。\033[m: %p\n", self);
+    }
+    if (w->stream == -1) {
+        if (w->orientKind != 237) {
+            normalMotionShift(self, 0);
+        } else {
+            parallelMotionShift(self);
+        }
+        if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+            (debug_mot_debug_target == 1 && self == girlGObj) ||
+            (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(46))) {
+            if (w->shifted != 0) {
+                if (ignoreCount != 0 && debug_window_flag != 0) {
+                    debug_PrintFontWindow(0xC0FF20, "\n ");
+                }
+                orientDebug(self, w->orientKind, 0xE0FF20);
+                ignoreCount = 0;
+            }
+        }
+        if (w->justShifted != 0) {
+            int n = GOBJ_SUB(self)->morphNum;
+            int i;
+
+            for (i = 0; i < n; i++) {
+                *(int *)(i * 4 + *(int *)((char *)GOBJ_SUB(self) + 0x808)) = 0;
+            }
+        }
+        getMotionGeometry(self);
+        getShapeGeometry(self);
+    } else {
+        getStreamMotion(self);
+    }
+}
+
+void SetNodeRotationLimitDataTable(void *self, int from, int to)
+{
+    int i;
+
+    for (i = from; i < to;) {
+        MotOriLimit tmp;
+        int node = GetSkeltonFocusNode(self, motionLimitDef[i].node);
+
+        if (node < 0) {
+            /* EUC-JP: "the node the node rotation limit data names is not in the skeleton" */
+            debug_StdPrintfDummy(
+                "ノード回転リミットデータの示すノードがスケルトン中にありません。\n");
+            debug_assert(__FILE__, 1756);
+            __assert(__FILE__, 1756, "0");
+        }
+        MOWORK(self)->nodeLimit[node] = (int)&motionLimitDef[i];
+        if (motionLimitDef[i].mid.y < motionLimitDef[i + 2].mid.y) {
+            tmp = motionLimitDef[i];
+            *(MotOriLimit *)&motionLimitDef[i] = motionLimitDef[i + 2];
+            *(MotOriLimit *)&motionLimitDef[i + 2] = tmp;
+        }
+        if (motionLimitDef[i + 1].hi.x < motionLimitDef[i + 1].lo.x) {
+            int j;
+
+            for (j = 0; j < 3; j++) {
+                tmp.lo = motionLimitDef[i + j].hi;
+                tmp.mid = motionLimitDef[i + j].mid;
+                tmp.hi = motionLimitDef[i + j].lo;
+                *(MotOriLimit *)&motionLimitDef[i + j] = tmp;
+            }
+        }
+        i += 3;
+    }
+}
 
 inline void InitMotionOrient(void *self, int oriFrom, int oriTo, int limitFrom, int limitTo,
                              int motion)

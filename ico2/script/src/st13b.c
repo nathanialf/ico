@@ -30,8 +30,9 @@ static int padAct; /* derived name */
 
 static unsigned char padActVolume; /* derived name */
 
-/* the switch thread D_004D34C0 starts */
-void func_00231988(GObj *self);
+/* the elevator-down and door-up threads the switches start */
+void func_00230D18(GObj *volatile self);
+void func_002319E0(GObj *volatile self);
 
 /* .data: actor mail packets. */
 static ActMail floor_mes[2] = {{397}, {396}}; /* derived name */
@@ -46,19 +47,19 @@ static ActMail boss_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail bossAfter_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorMain_mes[2] = {{376, actSt13bDoorSwitch}, {396}}; /* derived name */
+static ActMail elevMain_mes[2] = {{376, actSt13bElevSwitch}, {396}}; /* derived name */
 
 static ActMail elev_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail doorSwitch_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail elevSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail elevUp_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail D_004D34C0[2] = {{377, func_00231988}, {396}}; /* derived name */
+static ActMail doorMain_mes[2] = {{377, actSt13bDoorSwitch}, {396}}; /* derived name */
 
 static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail D_004D3500[2] = {{397}, {396}}; /* derived name */
+static ActMail doorSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
 
@@ -124,7 +125,24 @@ INCLUDE_ASM(actSt13bStoneGirl);
 
 INCLUDE_ASM(actSt13bElev);
 
-INCLUDE_ASM(actSt13bDoor);
+void actSt13bDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(16) == 0) {
+        stage_SetAnimation(40, 0, 0);
+
+        door_mes[0].func = actSt13bDoorMain;
+        act->mail = door_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(40, 0, -1);
+    }
+}
 
 INCLUDE_ASM(actBossTest);
 
@@ -172,12 +190,50 @@ INCLUDE_ASM(func_00231748);
 
 INCLUDE_ASM(func_00231818);
 
-INCLUDE_ASM(actSt13bDoorMain);
+void actSt13bElevMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt13bDoorSwitch);
+    sub->mainMail = elevMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM(func_00231958);
+void actSt13bElevSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(func_00231988);
+    sub->mainMail = 0;
+    scpBoyControlReadDisable = 1;
+
+    elevSwitch_mes[0].func = func_00230D18;
+    sub->mail = elevSwitch_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt13bDoorMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = doorMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+void actSt13bDoorSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    scpBoyControlReadDisable = 1;
+
+    doorSwitch_mes[0].func = func_002319E0;
+    sub->mail = doorSwitch_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(func_002319E0);

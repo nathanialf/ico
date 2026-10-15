@@ -27,7 +27,19 @@ unsigned char sekizo_5b_vol = 0;
 
 INCLUDE_ASM(actSt05bSekizoChk);
 
-INCLUDE_ASM(actSt05bDoorXL);
+void actSt05bDoorXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(218) != 0 && gflagChk(125) == 0) {
+        stage_SetAnimation(312, 0, -1);
+    } else {
+        stage_SetAnimation(312, 0, 0);
+    }
+}
 
 void actSt05bMonyoDoorXL(GObj *volatile self)
 {

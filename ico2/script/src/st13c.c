@@ -401,7 +401,28 @@ void actSt13cCageFallReady(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt13cEnemy);
+void actSt13cEnemy(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+
+    _ACTWait(1);
+
+    bossGenerator = self;
+    Generator_Mask(self);
+
+    while (gflagChk(22) == 0) {
+        _ACTWait(1);
+    }
+
+    Generator_Call(scpSearchGobj(135));
+    _ACTWait(180);
+
+    Generator_Call(self);
+    scpSleepEnemyAll();
+    gflagOff(22);
+}
 
 void actSt13cEnemyNull(GObj *volatile self)
 {
@@ -476,7 +497,20 @@ void actSt13cCageDownMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt13cCageDownSwitch);
+void actSt13cCageDownSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    scpBoyControlReadDisable = 1;
+
+    if (gflagChk(19) == 0) {
+        cageDownSwitch_mes[0].func = actSt13cCage1stDown;
+        sub->mail = cageDownSwitch_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 void actSt13cCage1stDownDemo(GObj *volatile self)
 {
