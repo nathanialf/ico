@@ -985,7 +985,7 @@ static void ACTGame_LwsEffectProcess(GObj *self)
 {
     BgaDisp *m = GOBJ_ACT(self)->enemy->lwsEffect;
     if (m != 0) {
-        DispMultiBgaManagerWithKind(0x1F4, m, 1);
+        DispMultiBgaManagerWithKind(500, m, 1);
     }
 }
 
@@ -1004,7 +1004,7 @@ inline void ACTGame_LwsEffect_Guard(GObj *self)
     ActGame_GetOrientQ(q, v, 0);
 
     stage_SetLoopFlag(500, 0);
-    stage_SetFrameStep(0x1F4, 1);
+    stage_SetFrameStep(500, 1);
     p = GOBJ_ACT(self)->enemy;
     EntryMultiBgaManager(p->lwsEffect, 0, -1, test_CURRENTROOT(self), q);
 }
@@ -1701,7 +1701,7 @@ void ACTGame_BeforeFunc(GObj *self)
         ACTGame_GirlBeforeFunc(self);
     }
 
-    if (*(int *)((char *)self + 0x8) == 0xE96) {
+    if (*(int *)((char *)self + 0x8) == 3734) {
         if ((60 - systemStatus[0] * 10) / systemStatus[1] * 2 < s->frame) {
             if (!(((char *)girlGObj) != 0 && GOBJ_ACT(((char *)girlGObj))->actMode == 0x6F &&
                   GOBJ_ACT(girlGObj)->carrier == self)) {
@@ -3240,8 +3240,7 @@ inline int ACTChkAttackIgnore_ENEMY(GObj *self, GObj *actor)
         break;
 
     case 6:
-        if (((int)(s->flags18.ll >> 57) & 1) && stage_no != 0x54 && stage_no != 3 &&
-            stage_no != 0x2E) {
+        if (((int)(s->flags18.ll >> 57) & 1) && stage_no != 84 && stage_no != 3 && stage_no != 46) {
             return 1;
         }
         break;

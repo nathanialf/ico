@@ -1536,8 +1536,8 @@ void actCommonDie(GObj *volatile self)
         void *g;
 
         if (self->labelId == 3734) {
-            gamesysObjInfoCls(4, 0xE96);
-            gamesysObjInfoCls(0x21, 0xE97);
+            gamesysObjInfoCls(4, 3734);
+            gamesysObjInfoCls(33, 3735);
         }
         g = isysGObjSearchFromObjKindID_begin(0x2F);
         if (g == 0) {
@@ -1942,10 +1942,9 @@ void actCommonBox(GObj *volatile self)
             SetDirectRootPositionNoFittingWithNodePointXZ(
                 (void *)self, 22, pos, GOBJ_SUB(self)->ctrl.frameFlag1 != 0 ? 1.0f : 0.3f);
             /* a local debug switch, off: mark the global hold point. The
-               bytes pin a block here that gcse sees and later passes delete
-               (9 insns at gcse give the slot order of &s->env and &hold); the
-               text is derived: the August TRFILE (3132-3136) and the January
-               listing (3379-3383) have five code-less lines after this call. */
+               ROM's stack slot order needs the block here, and the August
+               TRFILE (3132-3136) and the January listing (3379-3383) have five
+               code-less lines in its place; the text is derived. */
             if (dbg) {
                 debug_NMarker(pos, 255, 0, 0, 100.0f);
             }
@@ -2126,11 +2125,6 @@ static void correctJumpOrientByChain(GObj *self)
     SetMotionDirectionSmooze(self, dir, t);
 }
 
-typedef struct { /* field names derived */
-    char pad0[394];
-    unsigned short f18A;
-} MotRecJ; /* derived name */
-
 void actCommonJump(GObj *volatile self)
 {
     float dir[4];
@@ -2176,7 +2170,7 @@ void actCommonJump(GObj *volatile self)
         }
     }
     while (1) {
-        if (((MotRecJ *)&motionKind[GOBJ_SUB(self)->ctrl.motion])->f18A & 1) {
+        if (motionKind[GOBJ_SUB(self)->ctrl.motion].flags.bits.jumpHit) {
             hit = 1;
         }
         if (hit != 0 && motionKind[GOBJ_SUB(self)->ctrl.motion].playMode == 1) {
@@ -2475,8 +2469,6 @@ static inline unsigned char IsFlyTimeOver(int self) /* derived name */
     }
     return 0;
 }
-
-static void flyCoreLoop(GObj *self, GObj *target, int checkStuck);
 
 static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
 {

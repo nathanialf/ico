@@ -236,10 +236,10 @@ typedef union { /* field names derived */
    ten-entry histories at 0x8F0, 0x918 and 0x940 are read back in BeforeFunc. */
 typedef struct { /* field names derived */
     char pad0[2288];
-    int a900[10];
-    int a928[10];
-    int a950[10];
-} ActExt; /* derived name */
+    int modeHist[10];     /* 0x8F0, the act modes left, newest first */
+    int frameHist[10];    /* 0x918, their frames */
+    int intrKindHist[10]; /* 0x940, the interrupt kinds they ran under */
+} ActExt;                 /* derived name */
 
 void actInitialize_only_charcter(char *self)
 {
@@ -259,9 +259,9 @@ void actInitialize_only_charcter(char *self)
     ((ActFWord *)((char *)q + 0x348))->f = 3.0f;
     *(int *)((char *)q + 0x7F0) = 0;
     for (i = 0; i < 10; i++) {
-        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i] = 0;
-        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i] = 0;
-        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i] = 0x1A2;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->modeHist[i] = 0;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->frameHist[i] = 0;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->intrKindHist[i] = 418;
     }
 }
 
@@ -576,16 +576,16 @@ void BeforeFunc(GObj *self)
             }
             w->modeFrame = 0;
             for (i = 9; i > 0; i--) {
-                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i] =
-                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[i - 1];
-                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i] =
-                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[i - 1];
-                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i] =
-                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->modeHist[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->modeHist[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->frameHist[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->frameHist[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->intrKindHist[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->intrKindHist[i - 1];
             }
-            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a900[0] = w->actMode;
-            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a928[0] = w->frame;
-            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[0] = old;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->modeHist[0] = w->actMode;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->frameHist[0] = w->frame;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->intrKindHist[0] = old;
             w->actMode = intr->mode;
             w->flags18.ll = (w->flags18.ll & ~(1LL << 39)) |
                             ((unsigned long long)actModeTbl[w->actMode].bit10 << 39);

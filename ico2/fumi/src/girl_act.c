@@ -3760,7 +3760,7 @@ void actGirlHand(GObj *volatile self)
     float turn;
     float h;
     float rate;
-    int dbg = 0; /* local debug switch, see the test after the look point below */
+    int dbg = 0; /* local debug switch, see the test after v60 is set below */
 
     sub = GOBJ_ACT(self);
     cnt = 0;
@@ -3880,12 +3880,10 @@ void actGirlHand(GObj *volatile self)
             }
             sceVu0ScaleVector(v60, dir, 300.0f);
             sceVu0AddVector(v60, test_CURRENTROOT((void *)self), v60);
-            /* a local debug switch, off: mark v60, the point 300 ahead along the
-               pull direction (nothing else reads it).
-               The bytes pin a block here that gcse sees and later passes delete
-               (9 insns at gcse give the spill slot order of the env vector
-               address); the text is derived: the January listing has eleven
-               code-less lines (3261-3271) after this call. */
+            /* a local debug switch, off: mark v60, the point 300 ahead along
+               the pull direction (nothing else reads it). The ROM's stack slot
+               order needs the block here, and the January listing has eleven
+               code-less lines (3261-3271) in its place; the text is derived. */
             if (dbg) {
                 debug_NMarker(v60, 255, 0, 0, 100.0f);
             }
@@ -4212,7 +4210,7 @@ inline void actGirlHang(GObj *volatile self)
     /* rope-hang detected from the ACT parameter block */
     int hang = 0;
 
-    if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F4) == 0x5A) {
+    if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F4) == 90) {
         hang = *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 4;
     }
     /* the debug/free camera forces the pull mail on regardless */
@@ -4236,7 +4234,7 @@ inline void actGirlBHang(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
     int rope = 0;
 
-    if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F4) == 0x5A) {
+    if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F4) == 90) {
         rope = *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 4;
     }
     ACTAdjustPlane((void *)self, &GOBJ_WORK(self)->intrReq.a.wall);

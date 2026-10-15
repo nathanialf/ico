@@ -289,7 +289,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d,
     float dy;
     int n;
 
-    /* a disabled print, as the rechecks' below */
+    /* disabled in retail: the way-begin-position (WBP) report */
     if (0) {
         debug_StdPrintfDummy("WBP <<begin>>\n");
     }

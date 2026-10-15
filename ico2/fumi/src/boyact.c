@@ -1704,11 +1704,11 @@ static void OtherStageGirlPinchCamera_After(float t)
 
 void ACTDispLwsBoyStonize_InQueenStage(void *self)
 {
-    BoyBgaManager(self, 0x1DC, (char *)GOBJ_ACT(self)->enemy + 0x2A0);
-    BoyBgaManager(self, 0x1DD, (char *)GOBJ_ACT(self)->enemy + 0x2A4);
-    BoyBgaManager(self, 0x1E1, (char *)GOBJ_ACT(self)->enemy + 0x2B0);
-    BoyBgaManager(self, 0x1E1, (char *)GOBJ_ACT(self)->enemy + 0x2AC);
-    BoyBgaManager(self, 0x1E2, (char *)GOBJ_ACT(self)->enemy + 0x2A8);
+    BoyBgaManager(self, 476, (char *)GOBJ_ACT(self)->enemy + 0x2A0);
+    BoyBgaManager(self, 477, (char *)GOBJ_ACT(self)->enemy + 0x2A4);
+    BoyBgaManager(self, 481, (char *)GOBJ_ACT(self)->enemy + 0x2B0);
+    BoyBgaManager(self, 481, (char *)GOBJ_ACT(self)->enemy + 0x2AC);
+    BoyBgaManager(self, 482, (char *)GOBJ_ACT(self)->enemy + 0x2A8);
 }
 
 static int characterPacket[8]; /* derived name */
@@ -2052,7 +2052,7 @@ void subBoyCollision(GObj *volatile self)
                     ((float *)tgt2)[2] = test_CURRENTROOT(girlGObj)[2];
                     see = 1;
                     onGirl = 1;
-                } else if ((stage_no == 0x54 || stage_no == 0x3 || stage_no == 0x2E) &&
+                } else if ((stage_no == 84 || stage_no == 3 || stage_no == 46) &&
                            ((int)(sub->flags20.ll >> 24) & 3)) {
                     see = 1;
                     onGirl = 0;
@@ -2242,7 +2242,7 @@ void subBoyCollision(GObj *volatile self)
                 GOBJ_ACT(girlGObj)->actMode == GOBJ_ACT(boyGObj)->actMode) {
                 if (0x3C < sitCount++) {
                     if (sitLayoutDone == 0) {
-                        lt_switch_layout(0x19);
+                        lt_switch_layout(25);
                         sitLayoutDone = 1;
                     }
                 }

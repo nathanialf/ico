@@ -192,8 +192,8 @@ inline int IsEnemyBrainToGenerator(GObj *self, GObj **out)
         return 0;
     *out = ((ActWork *)b->work)->genTarget;
     if (*out == 0) {
-        debug_assert("src/enemy_act.c", 0x33E);
-        __assert("src/enemy_act.c", 0x33E, "*generator_gop!=NULL");
+        debug_assert("src/enemy_act.c", 830);
+        __assert("src/enemy_act.c", 830, "*generator_gop!=NULL");
     }
     return 1;
 }
@@ -232,8 +232,8 @@ static void setBattleStatus(GObj *self)
         GOBJ_ACT(self)->enemy->flags.ll |= 2LL;
         break;
     default:
-        debug_assert("src/enemy_act.c", 0x368);
-        __assert("src/enemy_act.c", 0x368, "0");
+        debug_assert("src/enemy_act.c", 872);
+        __assert("src/enemy_act.c", 872, "0");
     }
 }
 
@@ -631,7 +631,7 @@ void subEnemyCollision(GObj *volatile self)
                 }
             }
         }
-        DispMultiBgaManagerWithKind(0x1F6, GOBJ_WORK(self)->bga, 1);
+        DispMultiBgaManagerWithKind(502, GOBJ_WORK(self)->bga, 1);
         idx = (int)GetEnemyDefParaIndex((void *)self);
         if ((unsigned int)(idx - 1) < 4) {
             _ACTParaStatus_Set(self, idx + 0x1C);
@@ -789,8 +789,8 @@ inline int actEnemyFlagCheckDead(GObj *self)
 inline int isEnemyActive(GObj *self)
 {
     if (self == 0 || self->kind != 4) {
-        debug_assert("src/enemy_act.c", 0x824);
-        __assert("src/enemy_act.c", 0x824, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
+        debug_assert("src/enemy_act.c", 2084);
+        __assert("src/enemy_act.c", 2084, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
     }
     return actEnemyFlagCheckActive(self);
 }
@@ -1443,8 +1443,8 @@ void actEnemyPickupBegin(GObj *volatile self)
 
 inline void actEnemyCarry(GObj *volatile self)
 {
-    debug_assert("src/enemy_act.c", 0xB72);
-    __assert("src/enemy_act.c", 0xB72, "0");
+    debug_assert("src/enemy_act.c", 2930);
+    __assert("src/enemy_act.c", 2930, "0");
 }
 
 inline int EnemyBrainStatus_Boy(GObj *self)
@@ -2555,9 +2555,6 @@ static inline int flyLimitMail(GObj *self, float *rp) /* derived name */
 }
 
 static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
-                               unsigned char flag);
-
-static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
                                unsigned char flag)
 {
     float p0[4];
@@ -2620,7 +2617,7 @@ static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float
             }
             FlyMail(self);
         }
-        if (*(int *)((char *)self + 8) == 0xE96 && (((int)(sub->flags20.ll >> 39)) & 1)) {
+        if (*(int *)((char *)self + 8) == 3734 && (((int)(sub->flags20.ll >> 39)) & 1)) {
             FlyMail(self);
         }
         if (stage_no == 9 && CheckFloorAttribute(self, 0x100000) != 0 &&

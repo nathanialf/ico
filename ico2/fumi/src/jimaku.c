@@ -41,7 +41,7 @@ static IosSema jimakuShownSema; /* derived name */
 static IosSema jimakuFrameSema; /* derived name */
 
 #include "jimaku.h"
-#include "layout_texture.h" /* texProperty: jimaku's entries are 434 and 435 */
+#include "layout_texture.h" /* texProperty: jimaku's entries are 410 and 411 */
 #include "gflag.h"
 
 typedef struct JimCol { /* field names derived */
