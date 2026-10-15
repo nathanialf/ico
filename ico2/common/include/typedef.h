@@ -1531,10 +1531,10 @@ typedef struct GenGeo { /* field names derived */
 /* one stage-animation mode record: the base mode, the second animation and the held mode */
 typedef struct { /* field names derived */
     int baseMode; /* 0x00, the mode the record returns to, also its BG animation: the first stage-animation id */
-    int anim2; /* 0x04, the second stage-animation id, 972 (no animation) in most rows */
+    int anim2; /* 0x04, the second stage-animation id, 949 (no animation) in most rows */
     int word8; /* 0x08, no C reader */
-    int mode;  /* 0x0C, 972 while held */
-    int flags; /* 0x10, bit 0 holds the mode at 972 */
+    int mode;  /* 0x0C, 949 while held */
+    int flags; /* 0x10, bit 0 holds the mode at 949 */
 } OaRecB; /* derived name */
 
 typedef struct { /* field names derived */
@@ -1547,8 +1547,7 @@ typedef struct { /* field names derived */
  * aligned. The December 2001 record: PAL's adds cameraMove and palMode at
  * 0x1E8 and aligns the record to 16 (0x1F0); here product_write and
  * product_read move 488 bytes and index the two files 488 apart.
- * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c,
- * common/src/kanbanBoot.c. */
+ * Writers: ico2/fumi/ios/mcard.c; reader: common/src/layout_action.c. */
 typedef struct {        /* field names derived */
     unsigned int stage; /* 0x00, the saved stage, 0xFFFFFFFF for an empty file */
     int cleared;        /* 0x04, gFlagGameClear at the save */

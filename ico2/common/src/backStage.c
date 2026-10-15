@@ -210,14 +210,13 @@ void backStageProcessMain(void)
                 tmp.f[1] = objLayout[3735].rot[1];
                 tmp.f[2] = objLayout[3735].rot[2];
                 rot = tmp;
-                g1 = gamesysObjInfoPosNewStageSet(0xE96, 4, gameSysObjInfo[1].stage,
+                g1 = gamesysObjInfoPosNewStageSet(3734, 4, gameSysObjInfo[1].stage,
                                                   gameSysObjInfo[1].pos, gameSysObjInfo[1].rot);
                 kidnapObjIdx = (unsigned int)((char *)g1 - (char *)gameSysObjInfo) >> 6;
                 pos.f[0] = nestPos[0];
                 pos.f[2] = nestPos[2];
                 pos.f[1] = nestPos[1] - 10.0f;
-                g2 = gamesysObjInfoPosNewStageSet(0xE97, 0x21, gameSysObjInfo[1].stage, pos.f,
-                                                  rot.f);
+                g2 = gamesysObjInfoPosNewStageSet(3735, 33, gameSysObjInfo[1].stage, pos.f, rot.f);
                 SetInfoSpKidnapGenerator(g2->work);
                 SetInfoSpKidnapEnemy(g1->work);
                 if (g1 != 0 && g2 != 0) {

@@ -2000,6 +2000,11 @@ static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
 /* debug_SnapShot's first-call flag */
 static int snapFirst = 1; /* derived name */
 
+/* Stores the frame as shot idx, idx frame sizes above 0x2000000, and writes
+   the next free snapshot/snapNNNNNNN file: shot 0 on its own (halved for
+   Half), shot 5 shots 1-4 joined two by two (Double, Double+Wide), shot 17
+   shots 1-16 joined four by four (cropped for 4x4 and 4x4+Wide, interleaved
+   pixel by pixel otherwise). */
 int debug_SnapShot(int idx)
 {
     sceGsStoreImage si;
@@ -2031,19 +2036,22 @@ int debug_SnapShot(int idx)
     switch (idx) {
     case 0:
         for (i = 0;; i++) {
-            if (debug_snapshot_format == 0)
+            if (debug_snapshot_format == 0) {
                 sprintf(name, "snapshot/snap%07d.tm2", i);
-            else
+            } else {
                 sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
             fd = debugSceOpen(name, 1);
             debugSceClose(fd);
-            if (fd < 0)
+            if (fd < 0) {
                 break;
+            }
         }
-        if (debug_snapshot_format == 0)
+        if (debug_snapshot_format == 0) {
             sprintf(name, "snapshot/snap%07d.tm2", i);
-        else
+        } else {
             sprintf(name, "snapshot/snap%07d.bmp", i);
+        }
         fd = debugSceOpen(name, 0x602);
         if (fd < 0) {
             debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
@@ -2059,12 +2067,14 @@ int debug_SnapShot(int idx)
             w = ScreenWidth;
             h = ScreenHeight;
         }
-        if (debug_snapshot_format == 0)
+        if (debug_snapshot_format == 0) {
             debug_WriteTim2(fd, dst, w, h);
-        else
+        } else {
             debug_WriteBMP(fd, w, h, (unsigned int *)dst);
-        if (debugSceClose(fd) < 0)
+        }
+        if (debugSceClose(fd) < 0) {
             debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
         break;
     case 5:
         if (debug_snapshot_size == 2 || debug_snapshot_size == 3) {
@@ -2076,19 +2086,22 @@ int debug_SnapShot(int idx)
             int j;
 
             for (i = 0;; i++) {
-                if (debug_snapshot_format == 0)
+                if (debug_snapshot_format == 0) {
                     sprintf(name, "snapshot/snap%07d.tm2", i);
-                else
+                } else {
                     sprintf(name, "snapshot/snap%07d.bmp", i);
+                }
                 fd = debugSceOpen(name, 1);
                 debugSceClose(fd);
-                if (fd < 0)
+                if (fd < 0) {
                     break;
+                }
             }
-            if (debug_snapshot_format == 0)
+            if (debug_snapshot_format == 0) {
                 sprintf(name, "snapshot/snap%07d.tm2", i);
-            else
+            } else {
                 sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
             fd = debugSceOpen(name, 0x602);
             if (fd < 0) {
                 debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
@@ -2106,50 +2119,67 @@ int debug_SnapShot(int idx)
             debug_StdPrintfDummy("%p (%p %p %p %p)\n", out, p[0], p[1], p[2], p[3]);
             for (y = 0; y < h * 2; y++) {
                 if (y < 4) {
-                    for (i = 0; i < w * 2; i++)
+                    for (i = 0; i < w * 2; i++) {
                         *d++ = 0;
+                    }
                 } else if (y >= h - 2 && y < h) {
-                    for (j = 0; j < 2; j++)
-                        for (i = 0; i < w; i++)
-                            p[j]++;
-                } else if (y > h - 1 && y <= h + 1) {
-                    for (j = 2; j < 4; j++)
-                        for (i = 0; i < w; i++)
-                            p[j]++;
-                } else if (y < h) {
-                    for (j = 0; j < 4; j++)
-                        *d++ = 0;
                     for (j = 0; j < 2; j++) {
-                        if (j % 2 == 1)
-                            p[j] += 4;
-                        for (i = 0; i < w - 4; i++)
-                            *d++ = *p[j]++;
-                        if (j % 2 == 0)
-                            p[j] += 4;
+                        for (i = 0; i < w; i++) {
+                            p[j]++;
+                        }
                     }
-                    for (j = 0; j < 4; j++)
-                        *d++ = 0;
-                } else {
-                    for (j = 0; j < 4; j++)
-                        *d++ = 0;
+                } else if (y > h - 1 && y <= h + 1) {
                     for (j = 2; j < 4; j++) {
-                        if (j % 2 == 1)
-                            p[j] += 4;
-                        for (i = 4; i < w; i++)
-                            *d++ = *p[j]++;
-                        if (j % 2 == 0)
-                            p[j] += 4;
+                        for (i = 0; i < w; i++) {
+                            p[j]++;
+                        }
                     }
-                    for (j = 0; j < 4; j++)
+                } else if (y < h) {
+                    for (j = 0; j < 4; j++) {
                         *d++ = 0;
+                    }
+                    for (j = 0; j < 2; j++) {
+                        if (j % 2 == 1) {
+                            p[j] += 4;
+                        }
+                        for (i = 0; i < w - 4; i++) {
+                            *d++ = *p[j]++;
+                        }
+                        if (j % 2 == 0) {
+                            p[j] += 4;
+                        }
+                    }
+                    for (j = 0; j < 4; j++) {
+                        *d++ = 0;
+                    }
+                } else {
+                    for (j = 0; j < 4; j++) {
+                        *d++ = 0;
+                    }
+                    for (j = 2; j < 4; j++) {
+                        if (j % 2 == 1) {
+                            p[j] += 4;
+                        }
+                        for (i = 4; i < w; i++) {
+                            *d++ = *p[j]++;
+                        }
+                        if (j % 2 == 0) {
+                            p[j] += 4;
+                        }
+                    }
+                    for (j = 0; j < 4; j++) {
+                        *d++ = 0;
+                    }
                 }
             }
-            if (debug_snapshot_format == 0)
+            if (debug_snapshot_format == 0) {
                 debug_WriteTim2(fd, out, w * 2, h * 2);
-            else
+            } else {
                 debug_WriteBMP(fd, w * 2, h * 2, (unsigned int *)out);
-            if (debugSceClose(fd) < 0)
+            }
+            if (debugSceClose(fd) < 0) {
                 debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+            }
         }
         break;
     case 17: {
@@ -2160,19 +2190,22 @@ int debug_SnapShot(int idx)
         int h;
 
         for (i = 0;; i++) {
-            if (debug_snapshot_format == 0)
+            if (debug_snapshot_format == 0) {
                 sprintf(name, "snapshot/snap%07d.tm2", i);
-            else
+            } else {
                 sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
             fd = debugSceOpen(name, 1);
             debugSceClose(fd);
-            if (fd < 0)
+            if (fd < 0) {
                 break;
+            }
         }
-        if (debug_snapshot_format == 0)
+        if (debug_snapshot_format == 0) {
             sprintf(name, "snapshot/snap%07d.tm2", i);
-        else
+        } else {
             sprintf(name, "snapshot/snap%07d.bmp", i);
+        }
         fd = debugSceOpen(name, 0x602);
         if (fd < 0) {
             debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
@@ -2181,39 +2214,47 @@ int debug_SnapShot(int idx)
         FlushCache(0);
         w = ScreenWidth;
         h = ScreenHeight;
-        for (i = 0; i < 16; i++)
+        for (i = 0; i < 16; i++) {
             p[i] = (int *)(0x2000000 + size * (i + 1));
+        }
         out = (int *)(0x2000000 + size * 17);
         d = out;
         if (debug_snapshot_size == 4 || debug_snapshot_size == 5) {
             for (y = 0; y < h * 4; y++) {
                 if (y % h < 4 || y % h >= h - 4) {
-                    for (i = 0; i < w * 4; i++)
+                    for (i = 0; i < w * 4; i++) {
                         p[(y / h) * 4 + i / w]++;
+                    }
                 } else {
                     for (i = 0; i < w * 4; i++) {
-                        if (i % w < 4 || i % w >= w - 4)
+                        if (i % w < 4 || i % w >= w - 4) {
                             p[(y / h) * 4 + i / w]++;
-                        else
+                        } else {
                             *d++ = *p[(y / h) * 4 + i / w]++;
+                        }
                     }
                 }
             }
-            if (debug_snapshot_format == 0)
+            if (debug_snapshot_format == 0) {
                 debug_WriteTim2(fd, out, w * 4 - 32, h * 4 - 32);
-            else
+            } else {
                 debug_WriteBMP(fd, w * 4 - 32, h * 4 - 32, (unsigned int *)out);
+            }
         } else {
-            for (y = 0; y < h * 4; y++)
-                for (i = 0; i < w * 4; i++)
+            for (y = 0; y < h * 4; y++) {
+                for (i = 0; i < w * 4; i++) {
                     *d++ = *p[i % 4 + (y % 4) * 4]++;
-            if (debug_snapshot_format == 0)
+                }
+            }
+            if (debug_snapshot_format == 0) {
                 debug_WriteTim2(fd, out, w * 4, h * 4);
-            else
+            } else {
                 debug_WriteBMP(fd, w * 4, h * 4, (unsigned int *)out);
+            }
         }
-        if (debugSceClose(fd) < 0)
+        if (debugSceClose(fd) < 0) {
             debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
         break;
     }
     }

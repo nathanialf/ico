@@ -38,13 +38,13 @@ static Kanban *bootKanban; /* derived name */ /* the sign the boot sequence is s
 
 static Kanban *bootKanbanSub; /* derived name */ /* the second sign shown beside it */
 
-/* the sign id the card check picked: 3 none, 0 ok, 4 full, -1 clear */
+/* the sign id the card check picked: 1 no card, 2 full */
 static int mcKanbanId; /* derived name */
 
 static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
 
 /* mcard.c's request entry points; they return iosMsgSend's result, which
-   this TU reads only from iosMcSync: it declares the others void, which its
+   this TU reads only from iosMcSync: it declares the other void, which its
    calls pin, so it does not include mcard.h */
 extern void iosMcChdirProduct(McMgr *mp);
 extern int iosMcSync(McMgr *mp);
