@@ -98,19 +98,6 @@
 #   - data rows for function-scope statics in .data that a carved
 #     function defined.
 
-text HandMgr_GetDistHand.289 0x00178D28 0x00178E38 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_289  # nested in actGirlHand (a stub); equal, gone with its carved parent
-text HandMgr_Update.297 0x00178E38 0x00178F2C ico2/fumi/src/girl_act.c local file=HandMgr_Update_297  # nested in actGirlHand (a stub); equal
-text HandMgr_Judge.301 0x00178F30 0x00179098 ico2/fumi/src/girl_act.c local file=HandMgr_Judge_301  # nested in actGirlHand (a stub); equal
-text HandMgr_Print.305 0x00179098 0x001791A0 ico2/fumi/src/girl_act.c local file=HandMgr_Print_305  # nested in actGirlHand (a stub); equal
-rdlit HandMgr_Print.305 0x0054F140 0x0054F187 ico2/fumi/src/girl_act.c align=16 file=HandMgr_Print_305  # 3 strings
-text HandMgr_Speed.309 0x001791A0 0x0017937C ico2/fumi/src/girl_act.c local file=HandMgr_Speed_309  # nested in actGirlHand (a stub); equal in C with December's girl_act_hand.c.inc (the speed above 90 is 2.0f with an item, else 1.3f: no 50 Hz branch), carved with its parent
-lit4 HandMgr_Speed.309 0x00632BB0 0x00632BB8 ico2/fumi/src/girl_act.c file=HandMgr_Speed_309  # 2 floats; target side (DISAGREE)
-text GetBoyMode.313 0x00179380 0x001794F0 ico2/fumi/src/girl_act.c local file=GetBoyMode_313  # nested in actGirlHand (a stub); equal in C, carved with its parent
-rdlit GetBoyMode.313 0x0054F190 0x0054F29C ico2/fumi/src/girl_act.c align=16 file=GetBoyMode_313  # 1 jtbl
-text actGirlHand 0x001794F0 0x00179FD0 ico2/fumi/src/girl_act.c lines=355  # first difference at insn 41: the spill slots only (sub + 0x4B0, the env vector _AbsRotyGV reads, takes the first of the hoisted addresses' slots, 220, where PAL's C gives it the last, 256); with the motion flag test (rec->flags.word >> 31) & 1 (PAL >> 29) every other word is equal; the December expression for that address is not found
-lit4 actGirlHand 0x00632BB8 0x00632BCC ico2/fumi/src/girl_act.c  # 5 floats
-rdlit actGirlHand 0x0054F2A0 0x0054F2AC ico2/fumi/src/girl_act.c align=16  # 1 string
-sdlit actGirlHand 0x00634408 0x00634418 ico2/fumi/src/girl_act.c  # 1 string, 2 statics, 1 word
 text debug_DrawBar 0x001AD258 0x001ADFF8 ico2/common/src/debug.c local lines=209  # ordinal; first difference at insn 0; length:-22; extent-differs
 lit4 debug_DrawBar 0x00632EC4 0x00632ECC ico2/common/src/debug.c  # 2 floats
 rdlit debug_DrawBar 0x00614DA0 0x00614DE4 ico2/common/src/debug.c align=16  # 2 data runs, 1 string
