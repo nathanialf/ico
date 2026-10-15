@@ -98,8 +98,6 @@
 #   - data rows for function-scope statics in .data that a carved
 #     function defined.
 
-text findChainInJump 0x0014FB60 0x00150328 ico2/fumi/src/boyact.c local lines=143  # ordinal; first difference at insn 3; length:-6; extent-differs
-lit4 findChainInJump 0x006328A8 0x006328B0 ico2/fumi/src/boyact.c  # 2 floats
 text HandMgr_GetDistHand.289 0x00178D28 0x00178E38 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_289  # nested in actGirlHand (a stub); equal, gone with its carved parent
 text HandMgr_Update.297 0x00178E38 0x00178F2C ico2/fumi/src/girl_act.c local file=HandMgr_Update_297  # nested in actGirlHand (a stub); equal
 text HandMgr_Judge.301 0x00178F30 0x00179098 ico2/fumi/src/girl_act.c local file=HandMgr_Judge_301  # nested in actGirlHand (a stub); equal
@@ -129,8 +127,6 @@ text ACTGetEnvironment 0x00209F08 0x0020E524 ico2/fumi/src/act-env.c lines=1078 
 lit4 ACTGetEnvironment 0x006332AC 0x006332F4 ico2/fumi/src/act-env.c  # 18 floats
 rdlit ACTGetEnvironment 0x0061AD90 0x0061ADBC ico2/fumi/src/act-env.c align=16  # 3 strings
 sdlit ACTGetEnvironment 0x006357C0 0x006357CC ico2/fumi/src/act-env.c  # 1 string, 2 words
-text actSt13bConte02 0x00244730 0x0024504C ico2/script/src/st13b.c lines=238  # ordinal; first difference at insn 0; length:-23; extent-differs
-rdlit actSt13bConte02 0x0061C080 0x0061C088 ico2/script/src/st13b.c  # 1 double
 #
 # .data objects the December C of a carved function used and PAL's does not
 # (the PAL function computes the value inline); no PAL name, so D_<VMA>.

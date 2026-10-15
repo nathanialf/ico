@@ -126,7 +126,8 @@ typedef union { /* field names derived */
         unsigned int : 5;
         unsigned int weaponSwing
             : 1; /* the held weapon's blade is drawn, its hand left to the motion */
-        unsigned int : 26;
+        unsigned int chainIkRate : 1; /* findChainInJump sets the IK rates to 0.8 by a chain */
+        unsigned int : 25;
     } bits;
 } MotionFlags2; /* derived name */
 
@@ -189,7 +190,6 @@ extern const MotOriParallelEnt parallelMotionOrient[];
 extern MotOriAlt mirrorMotionTable[];
 extern const MotOriSub blendMotionKind[];
 extern const MotOriLimit motionLimitDef[];
-
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order motionOrientManager.c's inline tail has. */

@@ -44,7 +44,6 @@
 #include "fieldCollision.h"
 #include "motionManager2.h"
 #include "box.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     int a, b, c;
@@ -64,9 +63,148 @@ extern MotionDef motionKind[];
 /* the motion-def row of an actor's current motion */
 #define CHAINROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
 
-static void findChainInJump(void *self);
+static void findChainInJump(void *self)
+{
+    float p[4];
+    float q[4];
+    float w[4];
+    float sk[4];
+    float rt[4];
+    float lp[4];
+    float lv[4];
+    float mtx[16];
+    float hp0[4];
+    float hp1[4];
+    float cp[4];
+    float ce[4];
+    float pos[4];
+    float hx[4];
+    float cp2[4];
+    float ce2[4];
+    Act *sub;
+    void *g;
+    void *cage;
+    float r;
+    float r2;
+    float ang;
+    int rside = 0;
+    int lside = 0;
 
-INCLUDE_ASM(findChainInJump);
+    sub = GOBJ_ACT(self);
+    r = ((CHAINROW(self)->flags2.word >> 9) & 1) ? 300.0f : 100.0f;
+    r2 = ((CHAINROW(self)->flags2.word >> 9) & 1) ? 90.0f : 120.0f;
+
+    for (g = isysGObjSearchFromObjKindID_begin(0x15); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (*(int *)((char *)g + 0x16C) != 0) {
+            GetRootPosition(p, g);
+            q[0] = p[0];
+            q[1] = p[1];
+            q[2] = p[2];
+            q[1] += GetChainLength(g) + 50.0f;
+            if (_DistxzSqGV(test_CURRENTROOT(self), p) < r * r &&
+                p[1] < test_CURRENTROOT(self)[1] && test_CURRENTROOT(self)[1] < q[1]) {
+                _OrientXZGV(rt, p, test_CURRENTROOT(self));
+                ang = (float)_RotyGV(rt, test_CURRENTORIENT(self));
+                if ((ang < 0.0f ? -ang : ang) < r2) {
+                    if (sub->actMode == 4) {
+                        if (0.0f < ang) {
+                            rside = 1;
+                        } else {
+                            lside = 1;
+                        }
+                    }
+                }
+                GetSkeltonPosition(sk, self, 18);
+                w[0] = 0.0f;
+                w[1] = sk[1] - p[1];
+                w[2] = 0.0f;
+                break;
+            }
+        }
+    }
+
+    rt[0] = test_CURRENTROOT(self)[0];
+    rt[1] = test_CURRENTROOT(self)[1];
+    rt[2] = test_CURRENTROOT(self)[2];
+    GetMatrixDirectionToZ(mtx, test_CURRENTORIENT(self));
+    lp[0] = p[0];
+    lp[1] = p[1];
+    lp[2] = p[2];
+    sceVu0SubVector(lv, (float *)lp, (float *)rt);
+    lv[3] = 0.0f;
+    sceVu0ApplyMatrix(lv, mtx, lv);
+
+    if (((CHAINROW(self)->flags2.word >> 7) & 1) == 0 && (rside != 0 || lside != 0) &&
+        (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
+        RequestChangeHandMode(self, 0, 2, 1, g, 0, w);
+        RequestChangeHandMode(self, 1, 2, 1, g, 0, w);
+    } else {
+        RequestChangeHandMode(self, 0, 2, 0, 0, 0, 0);
+        RequestChangeHandMode(self, 1, 2, 0, 0, 0, 0);
+    }
+
+    if ((rside != 0 || lside != 0) &&
+        motionKind[GOBJ_SUB(self)->ctrl.motion].flags2.bits.chainIkRate) {
+        ((BoyVal *)((char *)GOBJ_SUB(self) + 0x45C))->f = 0.8f;
+        ((BoyVal *)((char *)GOBJ_SUB(self) + 0x464))->f = 0.8f;
+        ((BoyVal *)((char *)GOBJ_SUB(self) + 0x468))->f = 0.8f;
+    }
+
+    if (rside != 0 || lside != 0) {
+        _ACTCharStatus_Set(self, 18, -1.0f, g);
+    }
+
+    if (rside != 0) {
+        GetSkeltonPosition(hp0, self, 22);
+        if ((lv[0] < 0.0f ? -lv[0] : lv[0]) < 60.0f && (lv[2] < 0.0f ? -lv[2] : lv[2]) < 100.0f) {
+            iosOmSendMail(self, 20, g);
+        }
+    }
+
+    if (lside != 0) {
+        GetSkeltonPosition(hp1, self, 6);
+        if ((lv[0] < 0.0f ? -lv[0] : lv[0]) < 60.0f && (lv[2] < 0.0f ? -lv[2] : lv[2]) < 100.0f) {
+            iosOmSendMail(self, 20, g);
+        }
+    }
+
+    if (g != 0 && sub->actMode == 65) {
+        GetSkeltonPosition(hp0, self, 6);
+        GetChainNearestNodePosition(hp1, g, hp0);
+        if ((hp0[1] - hp1[1] < 0.0f ? -(hp0[1] - hp1[1]) : (hp0[1] - hp1[1])) < 5.0f) {
+            iosOmSendMail(self, 20, g);
+        }
+    }
+
+    if (sub->actMode == 65) {
+        void *o;
+
+        cage = 0;
+        pos[0] = test_CURRENTROOT(self)[0];
+        pos[1] = test_CURRENTROOT(self)[1];
+        pos[2] = test_CURRENTROOT(self)[2];
+        for (o = isysGObjSearchFromObjKindID_begin(0x2C); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o)) {
+            if (*(int *)((char *)o + 0x16C) != 0) {
+                if (GetCageChainPoint(cp, ce, o) != 0) {
+                    if (_DistxzSqGV(test_CURRENTROOT(self), cp) < 4.9e+03f && ce[1] > pos[1]) {
+                        cage = o;
+                        break;
+                    }
+                }
+            }
+        }
+        if (cage != 0) {
+            GetRootPositionHandExtra(self, hx);
+            GetCageChainPoint(cp2, ce2, cage);
+            if (cp2[1] + 150.0f < hx[1]) {
+                ACTSendMailCorrect(self, 0xAE);
+                ACTSendMailCorrect(self, 0xAD);
+            }
+        }
+    }
+}
 
 /* dir: subBoyCollision passes the motion direction (sub + 0x120); this body
    never reads it */

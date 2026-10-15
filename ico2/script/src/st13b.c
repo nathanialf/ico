@@ -20,7 +20,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static void actSt13bDoorUpSub(GObj *volatile self);
 static void actSt13bElev2CharaChk(GObj *volatile self);
@@ -171,7 +170,240 @@ void actSt13bFloorChk(GObj *volatile self)
     RequestStageChange(4, boyGObj, 0, 0.025f, 2.0f);
 }
 
-INCLUDE_ASM(actSt13bConte02);
+void actSt13bConte02(GObj *volatile self)
+{
+    scpPlayStart(boyGObj);
+    stgmgrNextStagePreLoadForceStageSet(0);
+    scpAdpcmPlayRequestFunc(11, &st13b_adpcm, 0, 1, 0);
+
+    while (st13b_adpcm == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(8.0f);
+
+    stgmgrNextStagePreLoadForceStageSet(exitData[(&stageData[stage_no])->ent[3]].nextStage);
+    stgmgrNextStagePreLoadForceNoCancel(1);
+
+    stage_SetAnimation(582, 1, 0);
+    scpPlayMot((void *)boyGObj, 282);
+    scpPlayMot(scpSearchGobj(2403), 1001);
+    scpSearchGobj(2403)->active = 1;
+    scpPlayMot(scpSearchGobj(2404), 1023);
+    scpSearchGobj(2404)->active = 1;
+    scpPlayMot(scpSearchGobj(2405), 1047);
+    scpSearchGobj(2405)->active = 1;
+    _ACTWait(1);
+
+    stage_SetAnimation(34, 1, 0);
+    stage_SetAnimation(21, 1, 0);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 0.15);
+
+    AdpcmPlay(st13b_adpcm->stream);
+
+    while (stage_ContinueAnimation(582, 583) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 283);
+    scpPlayMot(scpSearchGobj(2403), 1002);
+    scpPlayMot(scpSearchGobj(2404), 1024);
+    scpPlayMot(scpSearchGobj(2405), 1048);
+    _ACTWait(1);
+
+    stage_SetAnimation(27, 1, 0);
+    stage_SetAnimation(22, 1, 0);
+
+    while (stage_ContinueAnimation(583, 584) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    stage_SetAnimation(28, 1, 0);
+
+    while (stage_ContinueAnimation(584, 585) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 284);
+    scpPlayMot(scpSearchGobj(2403), 1003);
+    scpPlayMot(scpSearchGobj(2404), 1025);
+    scpPlayMot(scpSearchGobj(2405), 1049);
+    _ACTWait(1);
+
+    stage_SetAnimation(29, 1, 0);
+    stage_SetAnimation(23, 1, 0);
+
+    while (stage_ContinueAnimation(585, 586) == 0) {
+        _ACTWait(1);
+    }
+
+    scpFadeIn(3.0f);
+
+    scpPlayMot((void *)boyGObj, 285);
+    scpPlayMot(scpSearchGobj(2404), 1026);
+    _ACTWait(1);
+
+    stage_SetAnimation(30, 1, 0);
+
+    while (stage_ContinueAnimation(586, 587) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 286);
+    scpPlayMot(scpSearchGobj(2403), 1002);
+    scpPlayMot(scpSearchGobj(2404), 1024);
+    scpPlayMot(scpSearchGobj(2405), 1048);
+    _ACTWait(1);
+
+    stage_SetAnimation(31, 1, 0);
+
+    while (stage_ContinueAnimation(587, 588) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(scpSearchGobj(2403), 1004);
+    scpPlayMot(scpSearchGobj(2404), 1027);
+    scpPlayMot(scpSearchGobj(2405), 1050);
+    _ACTWait(1);
+
+    stage_SetAnimation(24, 1, 0);
+
+    while (stage_ContinueAnimation(588, 589) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 287);
+    scpSearchGobj(2403)->active = 0;
+    scpSearchGobj(2404)->active = 0;
+    scpSearchGobj(2405)->active = 0;
+
+    stage_SetAnimation(34, 0, 0);
+
+    while (stage_CheckAnimationFrame(589, 200, 0) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    scpFadeOut(3.0f, 0, 0, 0);
+
+    while (scpFadeChk() != 0) {
+        _ACTWait(45);
+    }
+
+    stage_SetAnimation(589, -1, -2);
+    scpFadeIn(3.0f);
+    stage_SetAnimation(590, 1, 0);
+
+    while (stage_ContinueAnimation(590, 591) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 288);
+    _ACTWait(1);
+
+    stage_SetAnimation(26, 1, 0);
+    _ACTWait(60);
+
+    padAct = iosPadActRequest(boyPad, 9);
+    padActVolume = 128;
+    iosPadActVolumeSet(padAct, 128);
+
+    while (stage_ContinueAnimation(591, 592) == 0) {
+        _ACTWait(1);
+    }
+
+    while (stage_ContinueAnimation(592, 593) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(25, 1, 0);
+
+    while (stage_ContinueAnimation(593, 594) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 289);
+    _ACTWait(130);
+
+    stage_SetAnimation(32, 1, 0);
+
+    while (stage_ContinueAnimation(594, 595) == 0) {
+        _ACTWait(1);
+    }
+
+    while (stage_ContinueAnimation(595, 596) == 0) {
+        _ACTWait(1);
+    }
+
+    iosPadActStop(padAct);
+    scpPlayMot((void *)boyGObj, 290);
+
+    while (stage_ContinueAnimation(596, 597) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 288);
+
+    while (stage_ContinueAnimation(597, 598) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 292);
+    _ACTWait(1);
+
+    stage_SetAnimation(32, 1, 208);
+
+    while (stage_ContinueAnimation(598, 599) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 293);
+    iosPadActRequest(boyPad, 16);
+
+    while (stage_ContinueAnimation(599, 600) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 294);
+
+    _ACTWait(30);
+    iosPadActRequest(boyPad, 15);
+    _ACTWait(30);
+    iosPadActRequest(boyPad, 17);
+    _ACTWait(15);
+    iosPadActRequest(boyPad, 17);
+    _ACTWait(5);
+    iosPadActRequest(boyPad, 16);
+    _ACTWait(15);
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_ContinueAnimation(600, 601) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 295);
+
+    while (stage_ContinueAnimation(601, 602) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 296);
+
+    while (stage_ContinueAnimation(602, 603) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot((void *)boyGObj, 297);
+
+    while (stage_CheckAnimationFrame(603, 150, 0) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    conte02End = 1;
+}
 
 void actSt13bSekizoChk(GObj *volatile self)
 {
