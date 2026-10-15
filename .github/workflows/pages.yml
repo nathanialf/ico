@@ -3,7 +3,7 @@ name: Deploy progress dashboard
 # Publish the FOUR-VERSION static progress dashboard to GitHub Pages.
 #
 # main carries the finished targets in one tree (pal, PAL retail SCES-50760;
-# jpn, Japanese retail SCPS-11003, once it joins) and publishes every
+# jpn, Japanese retail SCPS-11003) and publishes every
 # docs/<slug>/ it has; ntsc -> us (USA retail, SLUS-20218) and aug6 -> aug6
 # (Aug-6-2001 prototype) are single-target branches.
 #
@@ -29,9 +29,6 @@ on:
       - docs/index.html
       - docs/*/progress.json
       - docs/*/PROGRESS.md
-      # ntsc and aug6 until they move theirs under docs/<slug>/
-      - docs/progress.json
-      - docs/PROGRESS.md
       - .github/workflows/pages.yml
       - .github/scripts/build_pages_site.sh
   workflow_dispatch:
