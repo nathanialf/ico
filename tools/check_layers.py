@@ -17,7 +17,9 @@ when config/link_order.<slug>.txt exists. Five rules:
   4. targets/<slug> exists only for a configured slug.
   5. Every source row of every configured link order resolves to a file.
 
-The files are the ones git tracks. With no targets/ directory rules 1, 2 and
+The files are the ones git tracks or would track (untracked, not ignored),
+the same set the farm builds from (tools/ico_version.py, layer_files), so a
+file not yet staged is checked too. With no targets/ directory rules 1, 2 and
 4 hold trivially and 3 reads as "every tracked source is in a link order".
 
     python3 tools/check_layers.py      exit 0 when every rule holds
@@ -54,8 +56,11 @@ def link_rows(root: Path, slug: str) -> list[tuple[int, str]]:
 
 
 def tracked(root: Path, *paths: str) -> list[str]:
-    return subprocess.run(["git", "ls-files", "--", *paths], cwd=root,
-                          capture_output=True, text=True, check=True).stdout.splitlines()
+    """The files under paths that git tracks or would track: the
+    `git ls-files -co --exclude-standard` set of layer_files()."""
+    out = subprocess.run(["git", "ls-files", "-co", "--exclude-standard", "--", *paths], cwd=root,
+                         capture_output=True, text=True, check=True).stdout
+    return [p for p in dict.fromkeys(out.splitlines()) if p and (root / p).is_file()]
 
 
 def problems(root: Path = ROOT) -> list[str]:
