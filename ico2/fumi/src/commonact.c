@@ -981,7 +981,13 @@ typedef struct { /* field names derived */
     int f14;
 } TruckLeverWork; /* derived name */
 
-INCLUDE_ASM(ACT_LAYOUT_GAMEOVER);
+void ACT_LAYOUT_GAMEOVER(void)
+{
+    if (gameover_layout_flag == 0) {
+        gameover_layout_flag = 1;
+        lt_switch_layout(58);
+    }
+}
 
 void ACTAdjustPlane(GObj *self, void *wall)
 {

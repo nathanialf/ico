@@ -134,7 +134,18 @@ static void avoidInsideOfWall(void *self, GObj *arg)
     SetDirectRootPositionNoFitting(self, p->pt[2]);
 }
 
-INCLUDE_ASM(ReleaseItem);
+void ReleaseItem(GObj *gobj)
+{
+    ItemWork *p = GOBJ_SUB(gobj)->work;
+    avoidInsideOfWall(gobj, p->holder);
+    p->released = 1;
+    p->held = 0;
+    p->holder = 0;
+    p->thrown = 0;
+    GOBJ_SUB(gobj)->disp = 1;
+    CopyVector(GOBJ_SUB(gobj)->root.move, zeroVelocity);
+    SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
+}
 
 INCLUDE_ASM(ThrowItem);
 

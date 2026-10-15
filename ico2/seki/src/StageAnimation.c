@@ -297,7 +297,27 @@ inline void stage_SetLocalizeGeometry(int key, float *pos, float *rot)
     } while (i < count);
 }
 
-INCLUDE_ASM(stage_SetScale);
+void stage_SetScale(int key, float scale)
+{
+    int i;
+    int j;
+    int k;
+    StageAnim *e = stageAnimTable;
+
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        if (key == e->entry1->no) {
+            if ((e->flags.i >> 30) == 0) {
+                for (j = 0; j < e->flags.b.count; j++) {
+                    for (k = 0; k < STG_SUB(e->obj[j])->nodeNum; k++) {
+                        STG_SUB(e->obj[j])->nodes[k].scale[0] =
+                            STG_SUB(e->obj[j])->nodes[k].scale[1] =
+                                STG_SUB(e->obj[j])->nodes[k].scale[2] = scale;
+                    }
+                }
+            }
+        }
+    }
+}
 
 INCLUDE_ASM(stage_PlayBgAnimation);
 

@@ -635,7 +635,42 @@ INCLUDE_ASM(reg_setNMatrixPacketNoLightCalc_102);
 
 INCLUDE_ASM(reg_DispAccessoryWithShadow);
 
-INCLUDE_ASM(reg_RenderReflection);
+void reg_RenderReflection(Sub15C *o, int pri)
+{
+    PObjModel *mdl;
+    PObjGroup *grp;
+    PacHeader *pkt;
+    char *pk;
+    int i;
+    int r;
+
+    mdl = o->model;
+    grp = mdl->groups;
+    dl_SetDLPriority(pri);
+    reg_transMicroCode(o, 1 << pri);
+    pk = reg_setNMatrixPacket(o, 0);
+    if (pk == 0) {
+        return;
+    }
+    dl_SetDLPriority(pri);
+    dl_OpenDma(5, pk, 0);
+    dl_CloseDma();
+    for (i = 0; i < mdl->partCount; i++) {
+        pkt = grp->packets;
+        while (pkt != 0) {
+            r = reg_clipPacketBoundingBox(pkt);
+            if (r != 0) {
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, grp);
+                reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
+                dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                dl_CloseDma();
+            }
+            pkt = pkt->next;
+        }
+        grp++;
+    }
+}
 
 /* The sixteen bytes that close the enemy matrix packet: the VIF MSCAL 0x10
    code and three zero words, copied as one quadword. */

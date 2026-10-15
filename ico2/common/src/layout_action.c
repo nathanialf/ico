@@ -107,11 +107,20 @@ static AdpcmOpenReq voiceOpenReq; /* derived name */
 
 static signed char keepFlags[20]; /* derived name */
 
-INCLUDE_ASM(POSITIVE_SE);
+void POSITIVE_SE(void)
+{
+    soundSeDefPlay(400, 0xFFFFFFFE, 0, 0);
+}
 
-INCLUDE_ASM(NEGATIVE_SE);
+void NEGATIVE_SE()
+{
+    soundSeDefPlay(401, 0xFFFFFFFE, 0, 0);
+}
 
-INCLUDE_ASM(CUR_SE);
+void CUR_SE(void)
+{
+    soundSeDefPlay(399, 0xFFFFFFFE, 0, 0);
+}
 
 void la_TESTFUNCTION(void)
 {

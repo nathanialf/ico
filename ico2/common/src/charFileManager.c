@@ -74,9 +74,31 @@ inline PObjModel *GetPObjAddress(int id)
     return charFiles[id].pObj;
 }
 
-INCLUDE_ASM(InitCharFileManager);
+void InitCharFileManager(void)
+{
+    int i;
 
-INCLUDE_ASM(ResetCharFileManager);
+    objSerial = 0;
+    for (i = 0; i < MAX_CHARS; i++) {
+        charFiles[i] = charFileEmpty;
+    }
+    InitPluralCameraSet();
+    InitCameraSetManager();
+}
+
+void ResetCharFileManager(void)
+{
+    int i;
+
+    objSerial = 0;
+    for (i = 0; i < MAX_CHARS; i++) {
+        if (charFiles[i].state == 1) {
+            charFiles[i] = charFileEmpty;
+        }
+    }
+    InitPluralCameraSet();
+    InitCameraSetManager();
+}
 
 /* PObj.c has no header; the definition is (int, int, int) */
 extern PObjModel *InitPObj(void *buf, int name, int id);

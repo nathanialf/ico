@@ -38,9 +38,42 @@ typedef struct {   /* field names derived */
     char pad44[12];
 } CageWork; /* derived name */
 
-INCLUDE_ASM(CageRideFunc);
+int CageRideFunc(ObjNode *self, GObj *rider)
+{
+    float v[4];
+    float n[4];
+    CageWork *w;
+    float d;
+    float t;
 
-INCLUDE_ASM(SetCageFixGeometry);
+    w = GOBJ_SUB(self->obj)->work;
+    CopyVector(v, GOBJ_SUB(rider)->root.pos);
+    v[1] = v[1] - 250.0f;
+    sceVu0Normalize(n, v);
+    d = FSqrt(n[0] * n[0] + n[2] * n[2]) * 50.0f;
+    t = VectorLength(v) * d / 250.0f;
+    if (t < 0.0f) {
+        t = -t;
+    }
+    v[1] = 0.0f;
+    sceVu0ScaleVector(v, v, t * 0.06f / w->mass);
+
+    sceVu0AddVector(&w->chains->nodes->ex[w->upperNode].v2, &w->chains->nodes->ex[w->upperNode].v2,
+                    v);
+
+    sceVu0SubVector(&w->chains->nodes->ex[w->lowerNode].v2, &w->chains->nodes->ex[w->lowerNode].v2,
+                    v);
+
+    return 1;
+}
+
+void SetCageFixGeometry(GObj *self, void *pos, void *dir)
+{
+    CageWork *w = GOBJ_SUB(self)->work;
+
+    CopyVector(w->chains->cfg->pm.root, pos);
+    CopyVector(w->rot, dir);
+}
 
 /* the cage's one chain, 2 nodes 500 apart hanging from the cage root */
 static ChainCfg cageChainParam[2] = {
@@ -50,7 +83,27 @@ static ChainCfg cageChainParam[2] = {
 
 INCLUDE_ASM(InitCageGeo);
 
-INCLUDE_ASM(HotInitCageGeo);
+void HotInitCageGeo(GObj *self)
+{
+    CageWork *w = GOBJ_SUB(self)->work;
+
+    CopyVector(&w->chains->nodes->ex[w->upperNode].v2, ZeroVector);
+    CopyVector(&w->chains->nodes->ex[w->lowerNode].v2, ZeroVector);
+
+    CopyVector(&w->chains->nodes->ex[w->upperNode].v1, w->chains->cfg->pm.root);
+    CopyVector(&w->chains->nodes->ex[w->lowerNode].v1, w->chains->cfg->pm.root);
+
+    CopyVector(w->chains->nodes->pos[0], w->chains->cfg->pm.root);
+    CopyVector(w->chains->nodes->pos[1], w->chains->cfg->pm.root);
+
+    w->chains->nodes->pos[1][1] = w->chains->nodes->pos[1][1] + w->linkLength * (float)w->linkCount;
+
+    w->chains->nodes->ex[w->upperNode].v1.y =
+        w->chains->nodes->ex[w->upperNode].v1.y + w->linkLength * (float)w->linkCount;
+
+    w->chains->nodes->ex[w->lowerNode].v1.y =
+        w->chains->nodes->ex[w->lowerNode].v1.y + (w->linkLength * (float)w->linkCount + 500.0f);
+}
 
 /* the world down axis the chain's swing axis is taken against */
 static sceVu0FVECTOR cageDown = {0.0f, -1.0f, 0.0f, 0.0f}; /* derived name */
@@ -81,7 +134,13 @@ static inline void AddCageWindForce(ExW *n, float k) /* derived name */
 
 INCLUDE_ASM(CageGeo);
 
-INCLUDE_ASM(CageDL);
+void CageDL(GObj *self)
+{
+    CageWork *w = GOBJ_SUB(self)->work;
+
+    p2o_DispVU1(self);
+    p2o_DispVU1DObjMulti(w->dobj);
+}
 
 INCLUDE_ASM(GetCageChainPoint);
 

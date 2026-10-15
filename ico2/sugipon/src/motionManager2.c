@@ -1567,7 +1567,15 @@ void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color)
 
 INCLUDE_ASM(SetMotionBlendlessNode);
 
-INCLUDE_ASM(ClearMotionBlendlessNode);
+void ClearMotionBlendlessNode(GObj *self)
+{
+    int i = 0;
+    char *arr = self->dobj->blendless;
+    while (i < GOBJ_SUB(self)->skelNodeNum) {
+        arr[i] = 0;
+        i++;
+    }
+}
 
 /* the body of GetSkeltonFocusNode, which SetMotionBlendlessNode, the two
    GetDifferenceFromWall*Plane and the node fix mode setter inline and
@@ -1663,15 +1671,55 @@ int GetStreamShapeMotion(float *dst, StreamShapeHdr *hdr)
     return 0;
 }
 
-INCLUDE_ASM(GetDifferenceFromWallUpperField);
+float GetDifferenceFromWallUpperField(GObj *self, int node)
+{
+    Sub15C *e = self->dobj;
+    int idx = (e->focusNodes)[node];
+    return GetYDistanceFromPlane(e->root.cliffPlane, (char *)e->nodeMtx + idx * 0x40 + 0x30);
+}
 
-INCLUDE_ASM(GetDifferenceFromLastField);
+float GetDifferenceFromLastField(GObj *self, int node)
+{
+    Sub15C *e = self->dobj;
+    int idx = (e->focusNodes)[node];
+    return GetYDistanceFromPlane(e->root.plane.f, (char *)e->nodeMtx + idx * 0x40 + 0x30);
+}
 
-INCLUDE_ASM(GetDifferenceFromLowerField);
+float GetDifferenceFromLowerField(GObj *self, int node)
+{
+    ClipWork buf;
+    Sub15C *ctrl;
+    int idx;
+    ctrl = self->dobj;
+    idx = ((signed char *)ctrl->focusNodes)[node];
+    GetLowerPlaneCollision(&buf, ctrl->nodeMtx + (idx << 6) + 0x30);
+    if (buf.floor.elem == 0) {
+        return 3.40282347e+38f;
+    }
+    return buf.pt[2][1] - buf.pt[0][1];
+}
 
-INCLUDE_ASM(GetDifferenceFromWallLowerPlane);
+float GetDifferenceFromWallLowerPlane(GObj *self, int node)
+{
+    float pos[4];
+    float pts[4][4];
+    int idx;
 
-INCLUDE_ASM(GetDifferenceFromWallUpperPlane);
+    idx = getSkeltonFocusNode(self, node);
+    GetPureVerticalPlane(pos, 0, pts[0], &self->dobj->root.wall, 1);
+    return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
+}
+
+float GetDifferenceFromWallUpperPlane(GObj *self, int node)
+{
+    float pos[4];
+    float pts[4][4];
+    int idx;
+
+    idx = getSkeltonFocusNode(self, node);
+    GetPureVerticalPlane(pos, 0, pts[0], &self->dobj->root.wall, 0);
+    return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
+}
 
 void DisableChangeRootUpdateMode(GObj *self)
 {
@@ -1748,7 +1796,18 @@ loop:
         goto loop;
 }
 
-INCLUDE_ASM(SetMotionNodeFixModeParameter);
+void SetMotionNodeFixModeParameter(GObj *self, GObj *obj, int mode, int node, void *quat, float x,
+                                   float y, float z, float w)
+{
+    float vec[4] = {x, y, z, 1.0f};
+
+    GOBJ_SUB(self)->root.fixObj = (int)obj;
+    GOBJ_SUB(self)->root.fixNode = getSkeltonFocusNode(obj, node);
+    GOBJ_SUB(self)->root.fixMode = mode;
+    CopyVector(GOBJ_SUB(self)->root.fixPos, vec);
+    CopyQuaternion(GOBJ_SUB(self)->root.fixQuat, quat);
+    GOBJ_SUB(self)->root.fixWeight = w;
+}
 
 void GetRootProjectionPosOfGObj(float *pos, GObj *obj)
 {

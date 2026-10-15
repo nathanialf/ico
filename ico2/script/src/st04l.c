@@ -364,18 +364,66 @@ void actSt04lBrg2Event(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt04lBrg1WayChk);
+void actSt04lBrg1WayChk(GObj *volatile self)
+{
+    while (gflagChk(163) == 0) {
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(actSt04lBrg2WayChk);
+    SetWayGroupActive(3, 1);
+}
+
+void actSt04lBrg2WayChk(GObj *volatile self)
+{
+    while (gflagChk(163) == 0 || gflagChk(164) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(4, 1);
+}
 
 void actSt04lTuriEvent(int x)
 {
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt04lTuriChk);
+void actSt04lTuriChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
 
-INCLUDE_ASM(actSt04lGondolaCharaChk);
+    while (scpTriggerBall(self, girlGObj, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    gflagOn(170);
+    _ACTWait(10);
+
+    stage_SetAnimation(202, 1, 0);
+
+    while (stage_CheckAnimationFinish(202) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    lt_switch_layout(50);
+}
+
+void actSt04lGondolaCharaChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while (scpTriggerFloorAttr(boyGObj, 0xA000000)) {
+        _ACTWait(1);
+    }
+
+    gondola_chara[0].func = actSt04lGondolaChk;
+    sub->mail = gondola_chara;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt04lMonyou01Event(int x)
 {
@@ -422,7 +470,10 @@ void actSt04lOri2Event(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt04lSwordChk);
+void actSt04lSwordChk(GObj *volatile self)
+{
+    scpSearchGobj(1034)->active = 0;
+}
 
 INCLUDE_ASM(actSt04lTorch1_1Chk);
 

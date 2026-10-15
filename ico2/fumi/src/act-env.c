@@ -127,6 +127,31 @@ typedef struct { /* field names derived */
 
 INCLUDE_ASM(DebugActOrientFlag);
 
+inline void ACTSetEnvAllmighty(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    s->wish0.ll |= (1ULL << 37);
+    s->wish0.ll |= (1ULL << 38);
+    s->wish0.ll |= (1ULL << 39);
+    s->wish0.ll |= (1ULL << 40);
+    s->wish0.ll |= (1ULL << 42);
+    s->wish0.ll |= (1ULL << 43);
+    if (ACTGame_FLAG_TETSUNAGI()) {
+        s->flags18.ll &= ~(1ULL << 38);
+        s->flags20.w.handFreeFrame = 0;
+    } else {
+        if ((int)(s->flags18.ll >> 38) & 1)
+            s->wish0.ll |= (1ULL << 44);
+        s->flags20.w.handFreeFrame += 1;
+    }
+    s->wish0.ll |= (1ULL << 47);
+    s->wish0.ll |= (1ULL << 48);
+    s->wish0.ll |= (1ULL << 49);
+    s->wish0.ll |= (1ULL << 50);
+    s->wish0.ll |= (1ULL << 46);
+    s->wish1.ll |= (1ULL << 36);
+}
+
 inline int CheckWallAttributeEdegWall(GObj *obj)
 {
     if (stage_no == 4) {
@@ -301,5 +326,3 @@ static __inline__ void envDebugPrint(void) /* derived name */
 INCLUDE_ASM(ACTGetEnvironment);
 
 /* clang-format on */
-
-INCLUDE_ASM(ACTSetEnvAllmighty);

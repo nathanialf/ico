@@ -91,7 +91,37 @@ typedef struct {             /* field names derived */
     /* 0xD0 */ ChainNode *node;
 } ChainRecord; /* derived name */
 
-INCLUDE_ASM(UpdateRootPosition);
+static int UpdateRootPosition(GObj *gobj)
+{
+    float pos[4];
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
+    ChainNode *nd;
+    int moved = 0;
+
+    if (cw->root != 0) {
+        /* the translation row of the parent node's 64-byte matrix */
+        SetDirectRootPosition(gobj, (char *)GOBJ_SUB(cw->root)->nodeMtx + (cw->rootNode << 6) + 48);
+    }
+    GetRootPosition(pos, gobj);
+    if (_DistSqGV(pos, cw->rootPos) < 1.0f) {
+    } else {
+        moved = 1;
+    }
+    cw->rootPos[0] = pos[0];
+    cw->rootPos[1] = pos[1];
+    cw->rootPos[2] = pos[2];
+    nd = cw->node;
+    nd[0].x = cw->rootPos[0];
+    nd[0].y = cw->rootPos[1];
+    nd[0].z = cw->rootPos[2];
+    cw->node2Pos[0] = nd[2].x;
+    cw->node2Pos[1] = nd[2].y;
+    cw->node2Pos[2] = nd[2].z;
+    cw->endPos[0] = nd[cw->nodes - 1].x;
+    cw->endPos[1] = nd[cw->nodes - 1].y;
+    cw->endPos[2] = nd[cw->nodes - 1].z;
+    return moved;
+}
 
 /* InitPendulum's body, for StartPendulum above its definition */
 static inline void initPendulum(GObj *gobj) /* derived name */
@@ -120,7 +150,38 @@ INCLUDE_ASM(StartPendulum);
  * it */
 static int chainDebugY; /* derived name */
 
-INCLUDE_ASM(collisionCheck);
+static int collisionCheck(GObj *gobj)
+{
+    ClipWork w;
+    float v[4];
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
+
+    if (cw->pdl.swing) {
+        v[0] = cw->pdl.orient[0];
+        v[1] = cw->pdl.orient[1];
+        v[2] = cw->pdl.orient[2];
+    } else {
+        sceVu0ScaleVector(v, cw->pdl.orient, -1.0f);
+    }
+    v[1] = 0.0f;
+    sceVu0Normalize(v, v);
+    debug_Arrow(200.0f, &cw->node[cw->holdNode], v, 0xFF, 0, 0xFF);
+    sceVu0ScaleVector(v, v, 140.0f);
+    w.pt[0][0] = cw->node[cw->holdNode].x;
+    w.pt[0][1] = cw->node[cw->holdNode].y;
+    w.pt[0][2] = cw->node[cw->holdNode].z;
+    sceVu0AddVector(w.pt[1], w.pt[0], v);
+    w.radius = 10.0f;
+    ClipWall(&w);
+    if (w.wall.elem) {
+        if (debug_font_flag & 1) {
+            chainDebugY = chainDebugY + 10;
+            debug_Printf(10, chainDebugY, 0x0FFFFFFF, "collision!!!\n");
+        }
+        return 1;
+    }
+    return 0;
+}
 
 static inline void ChainPendulumSwing(float *dst, ChainRecord *cw, float *orient) /* derived name */
 {
@@ -142,9 +203,17 @@ static inline void ChainPendulumSwing(float *dst, ChainRecord *cw, float *orient
     sceVu0ApplyMatrix(dst, m1, v);
 }
 
-static void chain_simulate_term_simple(GObj *gobj);
+static void chain_simulate_term_simple(GObj *gobj)
+{
+    float pos[4];
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
-INCLUDE_ASM(chain_simulate_term_simple);
+    pendulum_Process(&cw->pdl, collisionCheck(gobj));
+    ChainPendulumSwing(pos, cw, cw->pdl.orient);
+    sceVu0AddVector(pos, cw->node, pos);
+    chain_sub_pendulum(cw->node, cw->holdNode, pos);
+    chain_sub_simulate(gobj, cw->node, cw->holdNode, cw->nodes, 1, 0, 20.0f, 50.0f, 0.6f);
+}
 
 INCLUDE_ASM(chain_simulate_term_loop);
 
@@ -185,9 +254,36 @@ static inline void ResetChainNodes(ChainRecord *cw, float *pos) /* derived name 
     }
 }
 
-INCLUDE_ASM(chain_simulate_stop);
+static void chain_simulate_stop(GObj *gobj)
+{
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
 
-INCLUDE_ASM(chain_simulate_free);
+    ResetChainNodes(cw, cw->rootPos);
+    if (debug_font_flag & 1) {
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_stop\n");
+    }
+}
+
+static void chain_simulate_free(GObj *gobj)
+{
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
+    int i;
+
+    if (debug_font_flag & 1) {
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_free\n");
+    }
+    chain_sub_simulate(gobj, cw->node, 0, cw->nodes, 1, 0, 10.0f, 50.0f, 0.675f);
+    cw->pdl.amp = 0.0f;
+    for (i = 1; i < cw->nodes; i++) {
+        ChainNode *nd = cw->node;
+        if (nd[i].y < nd[i - 1].y) {
+            nd[i].x += 3.0f;
+            nd[i].y += 3.0f;
+        }
+    }
+}
 
 void correct_vector(float *out, float *v)
 {
@@ -357,7 +453,40 @@ typedef union { /* field names derived */
 
 INCLUDE_ASM(InitChainGeo);
 
-INCLUDE_ASM(chain_set_charachara);
+static void chain_set_charachara(GObj *gobj, float amp)
+{
+    float v[4];
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
+    int deg;
+    int idx;
+    float c;
+    float s;
+    char *p;
+
+    memset(v, 0, 16);
+
+    deg = (int)(_GetDirection(test_CURRENTORIENT(boyGObj)) / 3.1415927f * 180.0f);
+    idx = cw->holdNode + 2;
+
+    if (cw->nodes - 2 < idx) {
+        return;
+    }
+
+    c = GetTableCos(cw->count * 2000) * amp;
+    s = GetTableSin(cw->count * 1500) * amp;
+
+    v[0] = c;
+    v[1] = 0.0f;
+    v[2] = s;
+    _ApplyRyGV(v, (float)deg * 3.1415927f / 180.0f);
+
+    p = (char *)((idx << 5) + (int)cw->node);
+    *(float *)p = *(float *)(p - 32) + v[0];
+
+    *(float *)(p + 8) = *(float *)(p - 24) + v[2];
+
+    cw->count = cw->count + 1;
+}
 
 /* The enemy parameter table, one 404-byte row per motion id; ChainGeo reads
  * only the flag word at 0x18C.  Same record enemy_act.c reads as EnemyParaRow. */
@@ -547,7 +676,16 @@ void ReleaseChain(GObj *chain, GObj *owner)
     cw->hold = 0;
 }
 
-INCLUDE_ASM(GetChainPendulum);
+void GetChainPendulum(GObj *chain, float *angle, float *amp, float *cycle)
+{
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    *angle = p->pdl.angle;
+    *amp = p->pdl.amp;
+    if (p->pdl.ampLimit < p->pdl.amp) {
+        *amp = p->pdl.ampLimit;
+    }
+    *cycle = p->pdl.cycle;
+}
 
 void IncreasePdlChain(GObj *chain)
 {
@@ -556,7 +694,12 @@ void IncreasePdlChain(GObj *chain)
     cw->pdl.ampSpeed = 0.1f;
 }
 
-INCLUDE_ASM(DecreasePdlChain);
+void DecreasePdlChain(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
+
+    cw->pdl.ampSpeed = (float)debug_chain_slow_speed * 0.5f * -0.1f;
+}
 
 void PlumbOrientUpdateChain(GObj *chain, float *src)
 {
@@ -608,7 +751,12 @@ void SetChainParentGObj(GObj *chain, void *parent)
 
 /* the chain's direction correction in degrees, and whether it has one;
  * getChainDirCorrectVal below is the same body, for _GetCorrectOrientOfChain */
-INCLUDE_ASM(GetChainDirCorrectVal);
+int GetChainDirCorrectVal(GObj *chain, int *deg)
+{
+    ChainRecord *p = GOBJ_SUB(chain)->work;
+    *deg = (int)(p->dirCorrect * 180.0f / 3.1415927f);
+    return p->hasDirCorrect;
+}
 
 static inline int getChainDirCorrectVal(GObj *chain, int *deg) /* derived name */
 {
@@ -625,7 +773,23 @@ void GetRootPositionHandExtra(void *gobj, float *out)
     out[1] -= 50.0f;
 }
 
-INCLUDE_ASM(InitPendulum);
+void InitPendulum(GObj *chain)
+{
+    ChainRecord *cw = GOBJ_SUB(chain)->work;
+    float a = (float)debug_chain_cycle_speed * -0.2f + 2.0f;
+    float y;
+
+    a = a < 0.1f ? 0.1f : (a > 2.0f ? 2.0f : a);
+
+    y = (float)(int)(a * 6.0f * FSqrt(cw->pdl.length / 2.5f) * 8.0f / 10.0f);
+
+    cw->pdl.cycle = y;
+    cw->pdl.cycle = cw->pdl.cycle < 1.0f ? 1.0f : (cw->pdl.cycle > 255.0f ? 255.0f : cw->pdl.cycle);
+
+    cw->pdl.phase = cw->pdl.cycle * 0.5f;
+    cw->pdl.ampLimit = 360.0f;
+    cw->pdl.swing = 1;
+}
 
 void LockChainGeo(GObj *chain)
 {
@@ -676,7 +840,31 @@ int IsAbleChainHang(GObj *chain)
     return cw->hangable;
 }
 
-INCLUDE_ASM(_GetCorrectOrientOfChain);
+void _GetCorrectOrientOfChain(float *out, GObj *gobj, float *dir)
+{
+    float v[4];
+    int deg;
+
+    if (getChainDirCorrectVal(gobj, &deg) != 0) {
+        float pi = 3.1415927f;
+        int d;
+
+        memset(v, 0, 16);
+        v[2] = 1.0f;
+        d = (int)(_GetDirection(dir) / pi * 180.0f);
+        d = RoundDegGV(d - deg);
+        d = AlignDegGV(d);
+        d = RoundDegGV(deg + d);
+        _ApplyRyGV(v, (float)d * pi / 180.0f);
+        out[0] = v[0];
+        out[1] = v[1];
+        out[2] = v[2];
+    } else {
+        out[0] = dir[0];
+        out[1] = dir[1];
+        out[2] = dir[2];
+    }
+}
 
 static void chain_sub_simulate(GObj *gobj, ChainNode *nd, int from, int to, unsigned char flag,
                                int flag2, float grav, float len, float damp)
@@ -733,4 +921,25 @@ static void chain_sub_pendulum(ChainNode *base, int n, float *pos)
     } while (i <= n);
 }
 
-INCLUDE_ASM(GetChainNearestNodePosition);
+int GetChainNearestNodePosition(float *out, GObj *gobj, float *p)
+{
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
+
+    float best = 3.40282347e+38f; /* FLT_MAX */
+    int ret = 0;
+    int i;
+
+    for (i = 2; i <= cw->nodes - 1; i++) {
+        float d = _DistSqGV(p, &cw->node[i]);
+
+        if (d < best) {
+            float *e = (float *)(i * 32 + (int)cw->node);
+            out[0] = e[0];
+            out[1] = e[1];
+            out[2] = e[2];
+            best = d;
+            ret = 1;
+        }
+    }
+    return ret;
+}

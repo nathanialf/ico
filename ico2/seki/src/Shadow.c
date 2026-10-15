@@ -133,7 +133,14 @@ void shadow_Render(Sub15C *o)
 #endif
 }
 
-INCLUDE_ASM(shadow_getShadowVectorAverage);
+static void shadow_getShadowVectorAverage(void *dir, Sub15C *o)
+{
+    _CopyVector(dir, o->shadowDir);
+    _SetCurrentMatrix(matrixptr + 0x80);
+    _ClearTransCurrentMatrix();
+    _ApplyCurrentMatrix(dir, dir);
+    _NormalizeVector(dir, dir);
+}
 
 /* the same quadword copy type src/Primitive.c uses: the accumulator reset is
  * one lq/sq pair per vertex */

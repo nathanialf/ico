@@ -189,7 +189,13 @@ INCLUDE_ASM(calcDynamicGeometry);
 
 INCLUDE_ASM(getGeometry);
 
-INCLUDE_ASM(WeaponCurPos);
+void WeaponCurPos(GObj *self, void *center, void *from, void *to)
+{
+    WeaponWork *p = GOBJ_SUB(self)->work;
+    CopyVector(center, p->hit[1]);
+    CopyVector(from, p->hit[2]);
+    CopyVector(to, p->hit[3]);
+}
 
 void WeaponHitEffect(GObj *self, void *enemy)
 {
@@ -205,7 +211,33 @@ void ExecWeaponHitReaction(GObj *self)
 /* the blade tip in the sword's own frame */
 static float swordTip[4] = {0.0f, 0.0f, 80.0f, 1.0f}; /* derived name */
 
-INCLUDE_ASM(checkHit);
+static void checkHit(GObj *g)
+{
+    float pos[4];
+    float quat[4];
+    float v0[4];
+    float v1[4];
+    Sub15C *p = GOBJ_SUB(g);
+    WeaponWork *w = (WeaponWork *)p->work;
+
+    if (w->holder == 0) {
+        return;
+    }
+    MatrixDrive_PushMatrix();
+    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), p->root.quat, p->root.pos);
+    MatrixDrive_TransMatrixV((char *)swordTip);
+    CopyVector(v0, MatrixDrive_GetMatrix()[3]);
+    GetInverseQuaternion(quat, p->root.itemQuat);
+    MultiQuaternion(quat, p->root.quat, quat);
+    SubVectorXYZ(pos, p->root.pos, p->root.move);
+    GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), quat, pos);
+    MatrixDrive_TransMatrixV((char *)swordTip);
+    CopyVector(v1, MatrixDrive_GetMatrix()[3]);
+    MatrixDrive_PopMatrix();
+    CopyVector(w->hit[1], v0);
+    CopyVector(w->hit[2], v1);
+    CopyVector(w->hit[3], p->root.pos);
+}
 
 /* the queen's sword offset, its z set per sword */
 static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */

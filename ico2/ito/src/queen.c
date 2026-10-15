@@ -1197,4 +1197,15 @@ INCLUDE_ASM(queenBallBeforeFunc);
 
 INCLUDE_ASM(InitQueenBallGeo);
 
-INCLUDE_ASM(subQueenControl);
+void subQueenControl(volatile int g)
+{
+    QueenWork *w = GOBJ_SUB(g)->work;
+
+    _ACTWait(1);
+    for (;;) {
+        if (w->st.f.pause == 0) {
+            Debug_StickControl((GObj *)g);
+        }
+        _ACTWait(1);
+    }
+}

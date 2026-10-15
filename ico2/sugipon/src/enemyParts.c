@@ -140,7 +140,27 @@ INCLUDE_ASM(InitEnemyFootPrint);
 
 INCLUDE_ASM(ExecEnemyFootPrints);
 
-INCLUDE_ASM(EntryEnemyFootPrint);
+int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos)
+{
+    int i = self->idx;
+    /* the slot address as an int sum */
+    EnemyFootPrint *fp = (EnemyFootPrint *)(i * 32 + (int)self->buf);
+    struct DObjNode *vt;
+
+    fp->speed = 0.05f;
+    fp->life = 0;
+    _CopyVector(fp->pos, pos);
+
+    self->buf[i].pos[1] += -5.0f;
+    vt = (struct DObjNode *)(i * 80 + (int)self->dobj->nodes);
+    vt->scale[0] = vt->scale[1] = vt->scale[2] = 0.0f;
+
+    self->idx = self->idx + 1;
+    if (self->idx == self->num) {
+        self->idx = 0;
+    }
+    return 0;
+}
 
 int DispEnemyFootPrints(EnemyFootPrintHead *self)
 {

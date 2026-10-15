@@ -388,7 +388,23 @@ float GetPoolGlobalHeight(GObj *pool)
     return ((PoolWork *)GOBJ_SUB(pool)->work)->pos[1];
 }
 
-INCLUDE_ASM(GetPoolGlobalHeightDetail);
+float GetPoolGlobalHeightDetail(GObj *pool, float *pos)
+{
+    PoolWork *p = GOBJ_SUB(pool)->work;
+    float inv;
+    int ix;
+    int iz;
+
+    if (p->hasGrid != 0) {
+        inv = 1.0f / p->step;
+        ix = (int)((pos[0] - p->pos[0]) * inv + (float)(p->nx >> 1));
+        iz = (int)((pos[2] - p->pos[2]) * inv + (float)(p->ny >> 1));
+        ix = ix >= 0 ? (ix < p->nx ? ix : p->nx - 1) : 0;
+        iz = iz >= 0 ? (iz < p->ny ? iz : p->ny - 1) : 0;
+        return p->height[ix][iz] * 100.0f + p->pos[1];
+    }
+    return p->pos[1];
+}
 
 int CheckPoolHasGridMesh(GObj *pool)
 {

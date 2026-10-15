@@ -220,7 +220,52 @@ static void initWayData(int stage)
     ExtractWayData(stage);
 }
 
-INCLUDE_ASM(InitSceneObjects);
+void InitSceneObjects(int stage)
+{
+    GObj *cam;
+
+    ResetGObjProc();
+    boyGObj = girlGObj = 0;
+    boyPad = 0;
+    gameover_flag = 0;
+    gameover_layout_flag = 0;
+
+    debug_StdPrintfDummy("[\033[42m scene %d \033[m ]\n", stage);
+
+    gsb_SetZoom(1.0f, 1000.0f);
+    brainInit();
+    ACTGameView_Init();
+
+    gamesysObjInfoStageInitFlagCls();
+
+    backStageGirlTargetEnemyGop = 0;
+    fightSoundProcessRequestStart();
+
+    CreateClipCollisionManagerGObj();
+
+    CreateWaySystemManagerGObj();
+
+    cam = InitCameraGObjs(stage, 0, 1);
+
+    initSceneGObjRange(stage, 2, 6);
+    initSceneGObjRange(stage, stageData[stage].labelTop, stageData[stage].labelEnd);
+    initGamesysSceneGObjs(stage);
+
+    if (girlGObj != 0) {
+        isysGObjMoveAfterGObj(girlGObj, cam);
+    }
+    if (boyGObj != 0) {
+        isysGObjMoveAfterGObj(boyGObj, cam);
+    }
+
+    setEnemyGeneratorDispFlag();
+
+    InitCamera();
+
+    initWayData(stage);
+
+    MakeExitAttributeIndex();
+}
 
 int HotInitSceneObjects(int a0)
 {

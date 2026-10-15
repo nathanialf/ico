@@ -49,8 +49,23 @@ void CandleDL(GObj *self)
     }
 }
 
+inline void _deleteLayoutedCandleParticleEffect(void *gobj)
+{
+    CandleFlame *flame;
+    int i;
+
+    flame = GOBJ_SUB(gobj)->work;
+    if (GOBJ_SUB(gobj)->nodeNum >= 2) {
+        for (i = 0; i < GOBJ_SUB(gobj)->nodeNum; i++) {
+            if (flame[i].off == 0) {
+                DeleteParticleEffect(flame[i].effect);
+                flame[i].effect = -1;
+                flame[i].off = 1;
+            }
+        }
+    }
+}
+
 INCLUDE_ASM(CandleGeo);
 
 INCLUDE_ASM(DeleteLayoutedCandleParticleEffect);
-
-INCLUDE_ASM(_deleteLayoutedCandleParticleEffect);

@@ -1315,7 +1315,14 @@ typedef struct Act { /* field names derived */
                   in the high word, which every reader tests as bits 32-63
                   of the doubleword */
 
-    ActStatus flags20;    /* 0x20 */
+    union {
+        unsigned long long ll;
+        struct {
+            unsigned int flags; /* 0x20, the state flags, bits 0-31 of ll */
+            int handFreeFrame;  /* 0x24, frames since the boy and girl let go of each other's hands */
+        } w;
+    } flags20; /* 0x20, a 64-bit word: the state flags in the low word, the
+                  hand-free count in the high word */
     GObj *intrArg;        /* 0x28, the argument of the mail that interrupted this frame */
     int intrData;         /* 0x2C, the mail additional data of that mail */
     int actMode;          /* 0x30, the current action mode; it indexes actModeTbl */

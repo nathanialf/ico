@@ -279,11 +279,11 @@ GObj *girlGObj = 0;
 /* the boy's and the girl's pad handles, the Act.pad each actor connects */
 IosPadCtx *boyPad = 0;
 
-IosPadCtx *girlPad = 0; /* derived name */
-
 int gameover_flag = 0;
 
 int gameover_layout_flag = 0;
+
+IosPadCtx *girlPad = 0; /* derived name */
 
 /* ACTItemWatchMotion runs for the boy only while it is 0 */
 int itemWatchOff = 0; /* derived name */

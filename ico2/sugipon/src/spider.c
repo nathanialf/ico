@@ -184,9 +184,26 @@ static const char spiderReviveFmt[] = "   REVIVE: %d\n"; /* derived name */
 
 INCLUDE_ASM(DispAllMemberOfSpider);
 
-INCLUDE_ASM(SetSpiderGroupReviveStatus);
+void SetSpiderGroupReviveStatus(GObj *self)
+{
+    SpiderWork *p = GOBJ_SUB(self)->work;
+    p->revived = 1;
+    gamesysObjInfoUniqDataSet(self);
+    debug_StdPrintfDummy("SET %d\n", self->labelId);
+}
 
-INCLUDE_ASM(DeadAllSpiders);
+int DeadAllSpiders(GObj *gp)
+{
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    int i;
+    for (i = 0; i < sg->n; i++) {
+        GObj *o = sg->members[i];
+        if (o != 0) {
+            iosOmSendMail(o, 38, o);
+        }
+    }
+    return 0;
+}
 
 /* shared by GetAliveSpiders and MemorySpiderLayout */
 static inline int CountAliveSpiders(GObj *gp) /* derived name */
@@ -236,16 +253,76 @@ static inline void RemoveDeadLayoutSpiders(SpiderWork *sg) /* derived name */
     }
 }
 
-INCLUDE_ASM(GetNearestOfLayoutSpiders);
+int GetNearestOfLayoutSpiders(float *dist, GObj *gp, void *center)
+{
+    float pos[4];
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    int nearest = -1;
+    int i;
 
-INCLUDE_ASM(CheckSpidersInsideOfReviveRange);
+    RemoveDeadLayoutSpiders(sg);
+
+    for (i = 0; i < sg->n; i++) {
+        GObj *o = sg->members[i];
+        if (o != 0) {
+            float d;
+
+            GetRootPosition(pos, o);
+            d = distance_squared(center, pos);
+            if (d < *dist) {
+                nearest = i;
+                *dist = d;
+            }
+        }
+    }
+    return nearest;
+}
+
+int CheckSpidersInsideOfReviveRange(int *out, GObj *gp, void *center)
+{
+    float pos[4];
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    GObj **p = sg->members;
+    int i;
+    int n = 0;
+
+    for (i = 0; i < sg->n; i++, p++) {
+        if (*p != 0) {
+            if (IsActCharDead(*p) == 0) {
+                GetRootPosition(pos, *p);
+
+                if (distance_squared(pos, center) < 10000.0f) {
+                    out[n] = i;
+                    n++;
+                }
+            }
+        }
+    }
+    return n;
+}
 
 int RestoreSpiderLayoutGeo(void)
 {
     return 1;
 }
 
-INCLUDE_ASM(RestoreSpiderLayoutExtGeo);
+int RestoreSpiderLayoutExtGeo(GObj *self, GamesysObjInfo *info)
+{
+    SpiderWork *p = GOBJ_SUB(self)->work;
+    int *ex = info->work;
+
+    if (info->work[0]) {
+        p->wakeFrom = ex[1];
+    }
+    if (ex[2]) {
+        p->revived = 1;
+    }
+    debug_StdPrintfDummy(spiderRestoreFmt, self);
+    debug_StdPrintfDummy(spiderWakeFmt, info->work[0] ? "YES" : "NO");
+    debug_StdPrintfDummy(spiderAliveFmt, ex[1]);
+    debug_StdPrintfDummy(spiderReviveFmt, ex[2]);
+    return 1;
+}
 
 /* the debug display's line counter */
 int sgInfoLine = 0;
@@ -263,10 +340,47 @@ static inline void SetLayoutedSpidersRootPosition(GObj *gp, void *pos) /* derive
     }
 }
 
-INCLUDE_ASM(WakeUpSpidersFromGenerator);
+void WakeUpSpidersFromGenerator(GObj *gp)
+{
+    float pos[4];
+    GObj *gen = gp->dobj->parent.obj;
+
+    if (gen != 0) {
+        if (gen->kind != 33) {
+            debug_StdPrintfDummy(spiderWakeHasParentMsg);
+            return;
+        }
+    } else {
+        debug_StdPrintfDummy(spiderWakeNoParentMsg);
+        return;
+    }
+    GetGeneratorSafePosition(pos, gen);
+    SetLayoutedSpidersRootPosition(gp, pos);
+    WakeUpLayoutedSpiders(gp);
+}
 
 INCLUDE_ASM(DeleteAllSpidersOfLayoutGroup);
 
-INCLUDE_ASM(SleepSpiderGroup);
+void SleepSpiderGroup(GObj *gp)
+{
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    int i;
+    for (i = 0; i < sg->n; i++) {
+        GObj *o = sg->members[i];
+        if (o != 0) {
+            iosOmSendMail(o, 32, o);
+        }
+    }
+}
 
-INCLUDE_ASM(WakeupSpiderGroup);
+void WakeupSpiderGroup(GObj *gp)
+{
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    int i;
+    for (i = 0; i < sg->n; i++) {
+        GObj *o = sg->members[i];
+        if (o != 0) {
+            iosOmSendMail(o, 31, o);
+        }
+    }
+}

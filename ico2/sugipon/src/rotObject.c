@@ -54,7 +54,14 @@ static void moveStartSE(GObj *self)
 
 INCLUDE_ASM(moveEndSE);
 
-INCLUDE_ASM(RotObjectGeo);
+void RotObjectGeo(GObj *self)
+{
+    RotObjWork *p = GOBJ_SUB(self)->work;
+    if (p->saveCount++ >= 31) {
+        p->saveCount = 0;
+        gamesysObjInfoUniqDataSet(self);
+    }
+}
 
 static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived name */
 {
@@ -110,7 +117,11 @@ INCLUDE_ASM(GetRotObjectGlobalHoldGeometry);
 
 INCLUDE_ASM(InitRotObjectGeo);
 
-INCLUDE_ASM(RotObjectDL);
+void RotObjectDL(GObj *gobj)
+{
+    getRotObjectDriveMatrix(gobj, (void *)GOBJ_SUB(gobj)->nodeMtx);
+    p2o_DispVU1(gobj);
+}
 
 float GetRotObjectRotCount(GObj *self)
 {
@@ -122,7 +133,17 @@ float GetRotObjectRotCount(GObj *self)
 /* the +Z unit vector the drive matrix is applied to */
 static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
-INCLUDE_ASM(GetRotObjectZPlusDirection);
+int GetRotObjectZPlusDirection(GObj *gobj)
+{
+    float m[16];
+    float v[4];
+
+    getRotObjectDriveMatrix(gobj, m);
+    sceVu0ApplyMatrix(v, m, zPlusVector);
+    v[1] = 0.0f;
+    sceVu0Normalize(v, v);
+    return GetTableArcTan2(v[0], v[2]);
+}
 
 int RestoreRotObjectGeo(void)
 {

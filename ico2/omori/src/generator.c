@@ -64,7 +64,56 @@ static int generatorPacket[2592]; /* derived name */
 
 static GObj *IsNeedGeneratorHard(GObj *mother);
 
-INCLUDE_ASM(CheckGeneratorCollision);
+inline int SearchActiveGenerator(void)
+{
+    GObj *g;
+
+    g = isysGObjSearchFromObjKindID_begin(33);
+    while (g != 0) {
+        GenWork *w = GOBJ_SUB(g)->work;
+
+        if (g->active != 0) {
+            if (w->status == 1) {
+                return 1;
+            }
+        }
+        g = isysGObjSearchFromObjKindID_next(g);
+    }
+    return 0;
+}
+
+int CheckGeneratorCollision(GObj *gobj, float *dir)
+{
+    float pos[4];
+    float tmp[4];
+    float p[4];
+    GObj *g;
+
+    g = isysGObjSearchFromObjKindID_begin(33);
+    GetRootPosition(pos, gobj);
+    sceVu0ScaleVector(tmp, dir, 100.0f);
+    sceVu0AddVector(pos, pos, tmp);
+
+    for (; g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+        GenWork *w = GOBJ_SUB(g)->work;
+
+        if (g->active == 0) {
+            continue;
+        }
+        if (w->status != 1) {
+            continue;
+        }
+        GetRootPosition(p, g);
+        if (_DistxzSqGV(p, pos) < 22500.0f) {
+            float d = p[1] - 50.0f - pos[1];
+
+            if ((d < 0.0f ? -d : d) < 100.0f) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
 
 /* whether no live enemy stands close to pos; GetGeneratorSafePosition uses it
    twice and reads the result as a byte */
@@ -313,5 +362,3 @@ INCLUDE_ASM(RestoreReviveCount);
 INCLUDE_ASM(ReturnEnemyToGenerator);
 
 INCLUDE_ASM(GeneratorWorkEnd);
-
-INCLUDE_ASM(SearchActiveGenerator);

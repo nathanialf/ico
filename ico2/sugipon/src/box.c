@@ -143,7 +143,25 @@ INCLUDE_ASM(AlignBox);
 
 INCLUDE_ASM(initWheels);
 
-INCLUDE_ASM(dispWheels);
+static void dispWheels(GObj *self)
+{
+    BoxWork *p = GOBJ_SUB(self)->work;
+
+    if (p->wheelDObj == 0) {
+        return;
+    }
+    CopyMatrix(MatrixDrive_GetMatrix(), *(void **)&GOBJ_SUB(self)->nodeMtx);
+    MatrixDrive_TransMatrix(0.0f, p->wheelHeight, 0.0f);
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrix(0.0f, 0.0f, p->wheelFront);
+    MatrixDrive_RotMatrixX(p->wheelAngle);
+    CopyMatrix((void *)p->wheelDObj->nodeMtx, MatrixDrive_GetMatrix());
+    MatrixDrive_PopMatrix();
+    MatrixDrive_TransMatrix(0.0f, 0.0f, p->wheelRear);
+    MatrixDrive_RotMatrixX((short)(*(unsigned short *)&p->wheelAngle + 0x4000));
+    CopyMatrix((char *)p->wheelDObj->nodeMtx + 0x40, MatrixDrive_GetMatrix());
+    p2o_DispVU1DObjMulti(p->wheelDObj);
+}
 
 /* inlined into onPath and into ExecBoxMoveEndReaction */
 static inline void stopBoxMoveSE(GObj *self) /* derived name */
@@ -554,7 +572,31 @@ static int getNearestPosition(float *out, int *pidx, int *path)
     return 1;
 }
 
-INCLUDE_ASM(onPathInitialize);
+static void onPathInitialize(GObj *self)
+{
+    BoxWork *p = GOBJ_SUB(self)->work;
+    float front[4];
+    float rear[4];
+    /* the wheel offset, one variable assigned on each wheel's line */
+    float ofs;
+    Vec16 fv = {{0.0f, 0.0f, p->scaleZ * (ofs = 50.0f), 1.0f}};
+    Vec16 rv = {{0.0f, 0.0f, p->scaleZ * (ofs = -50.0f), 1.0f}};
+    float quat[4];
+
+    p->frontPoint = p->rearPoint = -1;
+    sceVu0ApplyMatrix(front, (void *)GOBJ_SUB(self)->nodeMtx, &fv);
+    sceVu0ApplyMatrix(rear, (void *)GOBJ_SUB(self)->nodeMtx, &rv);
+    getNearestPosition(front, (int *)&p->frontPoint, (int *)&p->route);
+    getNearestPosition(rear, (int *)&p->rearPoint, (int *)&p->route);
+    debug_StdPrintfDummy("front pos: %f, %f, %f\n", front[0], front[1], front[2]);
+    debug_StdPrintfDummy("rear  pos: %f, %f, %f\n", rear[0], rear[1], rear[2]);
+    if (distance_squared(front, rear) < 0.010000001f) {
+        GetRootQuaternion(quat, self);
+        RotQuaternionY(quat, 16384);
+        SetRootQuaternion(self, quat);
+        UpdateRootMatrix(self);
+    }
+}
 
 INCLUDE_ASM(onPath);
 
@@ -889,7 +931,17 @@ INCLUDE_ASM(ReInitBoxGeo);
 
 INCLUDE_ASM(InitBoxGeo);
 
-INCLUDE_ASM(BoxGeo);
+void BoxGeo(GObj *self)
+{
+    BoxWork *p = GOBJ_SUB(self)->work;
+
+    action(self);
+    UpdateRootMatrix(self);
+    if ((*(int *)p)++ >= 0x1F) {
+        *(int *)p = 0;
+        gamesysObjInfoUniqDataSet(self);
+    }
+}
 
 INCLUDE_ASM_LIT(BoxGeoRestore);
 
