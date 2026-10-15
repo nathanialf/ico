@@ -66,7 +66,47 @@ static const StVec introFacePos = {{-2000.0f, 0.0f, -1129.0f, 1.0f}}; /* derived
 /* no header declares it; gamesys.c defines it */
 void actSt22aIntroChk(GObj *volatile self);
 
-INCLUDE_ASM(actSt22aIntro);
+void actSt22aIntro(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    StVec pos;
+    float dir[4];
+
+    _ACTWait(1);
+    lightning = 0;
+    scpAdpcmPlayRequestFunc(92, &lightning, 1, 0, 1);
+    actCreateSubThread(actSt22aLightningVolime, 21);
+    ScpCallCameraSetTarget(7000.0f, 280.0f, 4938.0f);
+    SetCageChainHangableFlag(scpSearchGobj(1704), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1705), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1706), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1707), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1708), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1709), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1710), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1711), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1712), 0);
+    if (gflagChk(295) != 0) {
+        return;
+    }
+    scpPlayPosSet(boyGObj, -808.0f, 148.0f, -1053.0f);
+    if (gflagChk(294) == 0) {
+        scpFadeOut(255.0f, 0, 0, 0);
+        gamesysNObjInfoInit();
+        intro_mes[0].func = actSt22aIntroChk;
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        gflagOn(295);
+        pos = introFacePos;
+        sceVu0SubVector(dir, &pos, test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
+        _ACTWait(1);
+        SetCameraFlag_GamecamCutBack();
+    }
+}
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */

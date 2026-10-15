@@ -148,7 +148,41 @@ INCLUDE_ASM(actSt13cBmg1);
 
 INCLUDE_ASM(actSt13cBmg1Chk);
 
-INCLUDE_ASM(actSt13cConte04);
+void actSt13cConte04(GObj *volatile self)
+{
+    scpPlayStart(boyGObj);
+
+    stage_SetAnimation(554, 1, 0);
+
+    scpPlayMot(boyGObj, 302);
+    while (stage_ContinueAnimation(554, 555) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 303);
+    while (stage_ContinueAnimation(555, 556) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 304);
+    while (stage_ContinueAnimation(556, 557) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 305);
+    while (stage_ContinueAnimation(557, 558) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 306);
+    while (stage_CheckAnimationFinish(558) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 void actSt13cConte04Jimaku(GObj *volatile self)
 {
@@ -198,7 +232,44 @@ INCLUDE_ASM(actSt13cCage1stDownDemoCancel);
 
 INCLUDE_ASM(actSt13cCage1stDown);
 
-INCLUDE_ASM(actSt13cCageFall);
+void actSt13cCageFall(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(19) == 0) {
+        stage_SetAnimation(59, -1, -2);
+
+        scpSearchGobj(111)->active = 0;
+        SetWeaponTorchChainReactionFlagAll(1);
+
+        cageFall_mes[0].func = actSt13cCageFallChk;
+        act->mail = cageFall_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        if (gflagChk(21) == 0) {
+            scpSearchGobj(111)->active = 0;
+            SetWeaponTorchChainReactionFlagAll(1);
+
+            stage_SetAnimation(59, 0, -1);
+            stage_SetAnimation(63, 0, 0);
+
+            cageFall2_mes[0].func = actSt13cCageFallChk;
+            act->mail = cageFall2_mes;
+            ACTSendMailCorrect(self, 397);
+            _ACTWait(0);
+        }
+
+        scpSearchGobj(127)->active = 0;
+
+        stage_SetAnimation(63, 0, -1);
+        stage_SetAnimation(61, 0, -1);
+        stage_SetAnimation(62, 0, -1);
+    }
+}
 
 INCLUDE_ASM(actSt13cCageFallChk);
 

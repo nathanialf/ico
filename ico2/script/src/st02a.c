@@ -257,7 +257,31 @@ SqEntry *gondola_test = 0;
 
 INCLUDE_ASM(actSt02aGondolaDown);
 
-INCLUDE_ASM(actSt02aBox);
+void actSt02aBox(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+    if (gflagChk(98) != 0) {
+        scpSearchGobj(1584)->active = 0;
+        if (gflagChk(95) != 0) {
+            scpSearchGobj(1584)->active = 0;
+            scpSearchGobj(1585)->active = 0;
+        } else {
+            scpSearchGobj(1586)->active = 0;
+        }
+    }
+    if (gflagChk(97) != 0) {
+        scpSearchGobj(1585)->active = 0;
+        scpSearchGobj(1586)->active = 0;
+    }
+    if (gflagChk(97) == 0 && gflagChk(98) == 0) {
+        scpSearchGobj(1584)->active = 0;
+        scpSearchGobj(1585)->active = 0;
+        scpSearchGobj(1586)->active = 0;
+    }
+}
 
 void actSt02aGondola(GObj *volatile self)
 {

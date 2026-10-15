@@ -20,6 +20,7 @@ extern struct SqEntry *hane1down;
 extern struct SqEntry *hane2down;
 extern int sekizo_47a;
 extern unsigned char sekizo_47a_vol;
+void actSt47aBarricadeChk(GObj *volatile self);
 void actSt47aEneChk(GObj *volatile self);
 void actSt47aExit2Chk(GObj *volatile self);
 void actSt47aExitChk(GObj *volatile self);

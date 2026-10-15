@@ -208,7 +208,44 @@ static void reg_dispBoxLine(PacHeader *pk)
     gif_EndPacket();
 }
 
-INCLUDE_ASM(reg_clipPacketBoundingBox);
+static int reg_clipPacketBoundingBox(PacHeader *pk)
+{
+    int ret = 1;
+    int type;
+
+    _SetCurrentMatrix(matrixptr + 0x300);
+
+    type = pk->clip;
+    switch (type) {
+    case 0:
+        ret = -1;
+        break;
+    case 1:
+        ret = gsb_ClipBox(pk->box[0]);
+        if (ret == 2) {
+            ret = 1;
+        }
+        break;
+    case 2:
+        ret = gsb_ClipBox(pk->box[0]);
+        break;
+    case 3:
+        ret = gsb_ClipBox(pk->box[0]);
+        if (ret == 1) {
+            ret = 2;
+        }
+        break;
+    default:
+        debug_StdPrintfDummy("illegal clip type. %d\n", type);
+        debug_assert("src/RegistPacket.c", 815);
+        __assert("src/RegistPacket.c", 815, "0");
+        break;
+    }
+    if (debug_bounding_flag & 2) {
+        reg_dispBoxLine(pk);
+    }
+    return ret;
+}
 
 /* MicroCode.h is not included: its mc_TransMicroCode does not agree with this file */
 extern void
@@ -391,7 +428,111 @@ typedef struct { /* field names derived */
     float alpha;
 } RegClusterHead; /* derived name */
 
-INCLUDE_ASM(reg_setCMatrixPacket);
+static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
+{
+    int i;
+    int haslight;
+
+    inline void pack(void)
+    {
+        char *c;
+        char *m;
+        int n;
+
+        n = o->nodeNum * 4;
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((RegClusterHead *)c)->dma.tag = n | 0x10000002;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((RegClusterHead *)c)->dma.vif[0] = 0x11000000;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((RegClusterHead *)c)->dma.vif[1] = ((n + 1) << 16) | 0x6C008000;
+        PacketBufferStruct.ptr.c = c + 0x10;
+        ((RegClusterHead *)c)->qwc = n + 1;
+        PacketBufferStruct.ptr.c = c + 0x14;
+        *(int *)(c + 0x14) = 0;
+        PacketBufferStruct.ptr.c = c + 0x18;
+        *(int *)(c + 0x18) = 0;
+        PacketBufferStruct.ptr.c = c + 0x1C;
+        ((RegClusterHead *)c)->alpha = alpha;
+        PacketBufferStruct.ptr.c = c + 0x20;
+        for (i = 0; i < o->nodeNum; i++) {
+            _MulMatrix(PacketBufferStruct.ptr.c, (char *)o->nodeMtx + i * 64,
+                       o->clusterMtx + i * 64);
+            PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+        }
+        m = PacketBufferStruct.ptr.c;
+        *(int *)m = 0x15000010;
+        m += 4;
+        PacketBufferStruct.ptr.c = m;
+        *(int *)m = 0;
+        PacketBufferStruct.ptr.c = m + 4;
+        *(long long *)(m + 4) = 0;
+        PacketBufferStruct.ptr.c = m + 0xC;
+    }
+    inline void light(void)
+    {
+        char *c;
+        char *n;
+
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        *(long long *)c = 0x10000009;
+        PacketBufferStruct.ptr.c = c + 8;
+        *(int *)PacketBufferStruct.ptr.c = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        *(int *)PacketBufferStruct.gif.c = 0x6C088000;
+        /* the two light matrices go in through the cursor post-increment
+         * src/Primitive.c's setLight uses; the c + 0x10 store is overwritten
+         * by the first increment's store */
+        PacketBufferStruct.ptr.c = c + 0x10;
+        _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, (char *)o->lightMtx);
+        _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, (char *)o->lightMtx + 64);
+        n = PacketBufferStruct.ptr.c;
+        *(int *)n = 0x15000012;
+        n += 4;
+        PacketBufferStruct.ptr.c = n;
+        *(int *)n = 0;
+        PacketBufferStruct.ptr.c = n + 4;
+        *(long long *)(n + 4) = 0;
+        PacketBufferStruct.ptr.c = n + 0xC;
+    }
+
+    haslight = o->lightMtx->mode != 0;
+    light_MakeLightMatrix(o, 0);
+    PacketBufferStruct.dma.c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = 0;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
+    pack();
+    if (haslight) {
+        light();
+    } else {
+        debug_StdPrintfDummy("no light calc cluster model %s\n", o->model);
+        debug_assert("src/RegistPacket.c", 1230);
+        __assert("src/RegistPacket.c", 1230, "0");
+    }
+    {
+        char *c = PacketBufferStruct.ptr.c;
+
+        PacketBufferStruct.tail.c = c;
+        ((DpkTag *)c)->tag = 0x60000000;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((DpkTag *)c)->vif[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        ((DpkTag *)c)->vif[1] = 0;
+        PacketBufferStruct.ptr.c = c + 0x10;
+    }
+    for (i = 0; i < 13; i++) {
+        if ((prilist >> i) & 1) {
+            dl_SetDLPriority(i);
+            dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+            dl_CloseDma();
+        }
+    }
+}
 
 /* The GS state the specular pass draws in: a VIF DIRECT of three qwords, a
    GIF A+D tag with PABE and ALPHA_1, then the VIF MSCNT; qword aligned because

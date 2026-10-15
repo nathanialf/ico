@@ -196,7 +196,127 @@ typedef union { /* field names derived */
     long long ll;
 } AP1Flag; /* derived name */
 
-INCLUDE_ASM(InitAP1);
+AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
+{
+    AP1Work *p;
+    Sub15C *d;
+    int i;
+
+    p = iosMallocDebug(ios_partition_sugipon, sizeof(AP1Work), a_p_1File, 228);
+    GOBJ_SUB(self)->work = p;
+    p->layout = arg->obj;
+    p->skel = 1;
+    p->word16C = 0;
+    p->mode = 7;
+    p->word168 = 0;
+    p->roll = 0.0f;
+    p->sink = 0.0f;
+    p->tilt = 0.0f;
+    p->blink = rand() & 0x1F;
+    p->settleCount = 0;
+    p->visible = 1;
+    ap1LayoutUp[2] = spiderDef[p->layout].upZ;
+    CopyVector(&p->up, ap1LayoutUp);
+    _UnitMatrix(p->mtx);
+    _UnitMatrix(p->root);
+    GetRootQuaternion(&p->quat, self);
+    GetRootPosition(p->pos.m, self);
+    for (i = 0; i < 4; i++) {
+        p->part[i] = ap1PartInit;
+    }
+    for (i = 0; i < 2; i++) {
+        p->hit[i] = InitialColInfo;
+    }
+    applyPartOrients(self);
+    if (p->skel == 0) {
+        d = CSVSYSTEM_InitDObj(5, arg);
+        p->arm[0] = d;
+        if (d->nodeMtx != 0) {
+            iosFree(d->nodeMtx & 0xFFFFFFF);
+        }
+        if (p->arm[0]->nodeQuat != 0) {
+            iosFree(p->arm[0]->nodeQuat & 0xFFFFFFF);
+        }
+        p->arm[0]->nodeMtx = 0;
+        p->arm[0]->nodeQuat = 0;
+        p->arm[0]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File, 261);
+        p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 261);
+        p->arm[0]->nodeNum = 4;
+        if (p->arm[0]->nodes != 0) {
+            iosFree((int)p->arm[0]->nodes & 0xFFFFFFF);
+        }
+        p->arm[0]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 261);
+        {
+            int n;
+
+            for (n = 0; n < 4; n++) {
+                p->arm[0]->nodes[n].flags.ll &= ~1;
+                p->arm[0]->nodes[n].flags.ll &= ~2;
+                p->arm[0]->nodes[n].pos[0] = 0.0f;
+                p->arm[0]->nodes[n].pos[1] = 0.0f;
+                p->arm[0]->nodes[n].pos[2] = 0.0f;
+                p->arm[0]->nodes[n].pos[3] = 1.0f;
+                p->arm[0]->nodes[n].flags.ll &= ~4;
+                p->arm[0]->nodes[n].fade = 0;
+                p->arm[0]->nodes[n].alpha = 1.0f;
+                ((short *)&p->arm[0]->nodes[n].flags)[1] = 0;
+                p->arm[0]->nodes[n].scale[0] = 1.0f;
+                p->arm[0]->nodes[n].scale[1] = 1.0f;
+                p->arm[0]->nodes[n].scale[2] = 1.0f;
+            }
+        }
+        p->arm[0]->dispType = 2;
+        d = CSVSYSTEM_InitDObj(6, arg);
+        p->arm[1] = d;
+        if (d->nodeMtx != 0) {
+            iosFree(d->nodeMtx & 0xFFFFFFF);
+        }
+        if (p->arm[1]->nodeQuat != 0) {
+            iosFree(p->arm[1]->nodeQuat & 0xFFFFFFF);
+        }
+        p->arm[1]->nodeMtx = 0;
+        p->arm[1]->nodeQuat = 0;
+        p->arm[1]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File, 264);
+        p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 264);
+        p->arm[1]->nodeNum = 4;
+        if (p->arm[1]->nodes != 0) {
+            iosFree((int)p->arm[1]->nodes & 0xFFFFFFF);
+        }
+        p->arm[1]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 264);
+        {
+            int n;
+
+            for (n = 0; n < 4; n++) {
+                p->arm[1]->nodes[n].flags.ll &= ~1;
+                p->arm[1]->nodes[n].flags.ll &= ~2;
+                p->arm[1]->nodes[n].pos[0] = 0.0f;
+                p->arm[1]->nodes[n].pos[1] = 0.0f;
+                p->arm[1]->nodes[n].pos[2] = 0.0f;
+                p->arm[1]->nodes[n].pos[3] = 1.0f;
+                p->arm[1]->nodes[n].flags.ll &= ~4;
+                p->arm[1]->nodes[n].fade = 0;
+                p->arm[1]->nodes[n].alpha = 1.0f;
+                ((short *)&p->arm[1]->nodes[n].flags)[1] = 0;
+                p->arm[1]->nodes[n].scale[0] = 1.0f;
+                p->arm[1]->nodes[n].scale[1] = 1.0f;
+                p->arm[1]->nodes[n].scale[2] = 1.0f;
+            }
+        }
+        p->arm[1]->dispType = 2;
+    } else {
+        for (i = 0; i < 9; i++) {
+            p->focus[i] = GetSkeltonFocusNode(self, *(int *)((char *)ap1FocusNode + i * 4));
+            if (p->focus[i] == -1) {
+                debug_assertMessage(a_p_1File, 269, warningBanner);
+                __assert(a_p_1File, 269, "e");
+            }
+        }
+        p->arm[1] = 0;
+        p->arm[0] = 0;
+    }
+    p->eye = InitEnemyEye(10, 0, 10);
+    return p;
+}
 
 /* quaternion.h is not included here: this file's SetQuaternionByAxisRotateV
  * and RotQuaternionY calls pass the angle as an int (quaternion.h: short) */

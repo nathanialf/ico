@@ -45,7 +45,38 @@ static const ConstVec doorDownEffect2Pos = {{6600.0f, -2000.0f, 1100.0f, 1.0f}};
 
 static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}}; /* derived name */
 
-INCLUDE_ASM(actSt17aDoor);
+void actSt17aDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(30) == 0) {
+        stage_SetLoopFlag(111, 1);
+        stage_SetAnimation(111, 1, 0);
+
+        doorInit_mes[0].func = actSt17aDoorUpChk;
+        act->mail = doorInit_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
+               ((void *)girlGObj != 0 && scpTriggerBall(self, (void *)girlGObj, 400.0f) != 0)) {
+        stage_SetLoopFlag(111, 1);
+        stage_SetAnimation(111, 1, 0);
+
+        _ACTWait(60);
+        doorDown_mes[0].func = actSt17aDoorDownChk;
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(109, 0, 0);
+        doorUp_mes[0].func = actSt17aDoorUpChk;
+        act->mail = doorUp_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 void actSt17aDoorUpChk(GObj *volatile self)
 {

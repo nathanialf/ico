@@ -19,7 +19,6 @@
 #include "GifPacket.h"
 #include <stdio.h>
 #include <assert.h>
-#include "include_asm.h"
 
 /* one light on the list: where it is, the direction a flat light shines,
    its colour, the scale and range the stage gives it, the falloff and the
@@ -218,7 +217,137 @@ Light *light_AddLight(GObj *self, int b, int kind)
 
 /* Each switch arm writes its own abs and weight store; the range tests are
    nested ifs. */
-INCLUDE_ASM(light_getNearLight);
+static void light_getNearLight(Sub15C *self, int idx)
+{
+    Light *near[3];
+    float pos[4];
+    float dir[4];
+    float tmp[4];
+    Light *p;
+    float d;
+    int i;
+    int j;
+    int k;
+
+    memset(dir, 0, 16);
+    if (lastLight == 0) {
+        return;
+    }
+    for (i = 0; i < 3; i++) {
+        near[i] = 0;
+    }
+    if (self->dispType == 2) {
+        _CopyVector(pos, (char *)self->nodeMtx + idx * 64 + 48);
+    } else {
+        _CopyVector(pos, (char *)self->nodeMtx + 48);
+    }
+    for (p = (Light *)lastLight; p != 0; p = p->prev) {
+        switch (p->kind) {
+        case 0:
+            p->scale = 1.0f;
+            p->range = 0.0f;
+            p->falloff = 1.0f;
+            d = (p->col[0] + p->col[1] + p->col[2]) * 0.3333f;
+            if (d < 0.0f) {
+                d = -d;
+            }
+            p->strength = d;
+            break;
+        case 1:
+            /* the dobj's light number, in j, the insert loop's index;
+               GetRootPositionByDObj takes the dobj as its second argument
+               (geometryManager.c) */
+            j = p->owner->dobj->lightId;
+            if (j == 0) {
+                p->falloff = 0.0f;
+                p->strength = 0.0f;
+                continue;
+            }
+            GetRootPositionByDObj(p->pos, p->owner->dobj);
+            d = _GetLength(pos, p);
+            if (p->range < d) {
+                p->falloff = 0.0f;
+                p->strength = 0.0f;
+                continue;
+            }
+            p->falloff = (p->range - d) / p->range;
+            d = p->falloff * p->scale * ((p->col[0] + p->col[1] + p->col[2]) * 0.3333f);
+            if (d < 0.0f) {
+                d = -d;
+            }
+            p->strength = d;
+            break;
+        case 2:
+        case 3:
+            d = _GetLength(pos, p);
+            if (p->range < d) {
+                p->falloff = 0.0f;
+                p->strength = 0.0f;
+                continue;
+            }
+            p->falloff = (p->range - d) / p->range;
+            d = p->falloff * p->scale * ((p->col[0] + p->col[1] + p->col[2]) * 0.3333f);
+            if (d < 0.0f) {
+                d = -d;
+            }
+            p->strength = d;
+            break;
+        default:
+            continue;
+        }
+    }
+    for (p = (Light *)lastLight; p != 0; p = p->prev) {
+        if (p->strength == 0.0f) {
+            continue;
+        }
+        for (j = 0; j < 3; j++) {
+            if (near[j] == 0 || near[j]->strength < p->strength) {
+                for (k = 2; k > j; k--) {
+                    near[k] = near[k - 1];
+                }
+                near[j] = p;
+                break;
+            }
+        }
+    }
+    for (p = (Light *)lastLight; p != 0; p = p->prev) {
+        if (p->strength == 0.0f) {
+            continue;
+        }
+        if (p->kind == 0) {
+            _ScaleVectorXYZ(tmp, p->dir, p->strength);
+            _AddVector(dir, dir, tmp);
+        } else if (p->kind >= 0) {
+            if (p->kind < 3) {
+                _SubVector(tmp, pos, p);
+                _NormalizeVector(tmp, tmp);
+                _ScaleVectorXYZ(tmp, tmp, p->strength);
+                _AddVector(dir, dir, tmp);
+            }
+        }
+    }
+    _NormalizeVector((char *)self + 0x830, dir);
+    for (i = 0; i < 3; i++) {
+        if (near[i] != 0) {
+            if (near[i]->kind == 0) {
+                _NormalizeVector(self->lightMtx->dir[i], near[i]->dir);
+                _CopyVector(self->lightMtx->col[i], near[i]->col);
+            } else if (near[i]->kind >= 0) {
+                if (near[i]->kind < 4) {
+                    _SubVector(self->lightMtx->dir[i], pos, near[i]);
+                    _NormalizeVector(self->lightMtx->dir[i], self->lightMtx->dir[i]);
+                    _ScaleVectorXYZ(self->lightMtx->col[i], near[i]->col,
+                                    near[i]->falloff * near[i]->scale);
+                }
+            }
+        } else {
+            _UnitVector(self->lightMtx->dir[i]);
+            _UnitVector(self->lightMtx->col[i]);
+        }
+        self->lightMtx->dir[i][3] = 0.0f;
+        self->lightMtx->col[i][3] = 1.0f;
+    }
+}
 
 /* a macro, so each use calls _GetNorm once for the sign test and once in
    each arm */

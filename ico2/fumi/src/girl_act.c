@@ -103,11 +103,100 @@ INCLUDE_ASM(motGirlHand50);
 
 INCLUDE_ASM_LIT(actGirlHand100);
 
-INCLUDE_ASM(motGirlHand100);
+void motGirlHand100(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    debug_StdPrintfDummy("enter motGirlHand100\n");
+    while (1) {
+        iosOmSendMail(boyGObj, 0x5A, isysCurrentGObj);
+        if (sub->readyFlags & 1)
+            break;
+        _ACTWait(1);
+    }
+    while (GOBJ_SUB(self)->ctrl.motion < 0x202 || !(GOBJ_SUB(self)->ctrl.motion < 0x209)) {
+        sub->motReq = SetMotionRequest((void *)self, 1, sub->env.motOriReq);
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    while (1) {
+        iosOmSendMail(boyGObj, 0x5B, isysCurrentGObj);
+        if (sub->readyFlags & 2)
+            break;
+        _ACTWait(1);
+    }
+    iosOmSendMail(boyGObj, 0x5C, isysCurrentGObj);
+    sub->motReq = SetMotionRequest((void *)self, 0x5C, sub->env.motOriReq);
+    while (GOBJ_SUB(self)->ctrl.motion < 0x202 || !(GOBJ_SUB(self)->ctrl.motion < 0x209)) {
+        sub->motReq = SetMotionRequest((void *)self, 1, sub->env.motOriReq);
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    while (1) {
+        iosOmSendMail(boyGObj, 0x5D, isysCurrentGObj);
+        if (sub->readyFlags & 8)
+            break;
+        _ACTWait(1);
+    }
+    sub->after = 0;
+    for (;;) {
+        ACTSendMailCorrect((void *)self, 0x43);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM_LIT(actGirlHand200);
 
-INCLUDE_ASM(motGirlHand200);
+void motGirlHand200(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    int n;
+
+    debug_StdPrintfDummy("enter motGirlHand200\n");
+    n = (60 - systemStatus[0] * 10) / systemStatus[1] / 2;
+    while (1) {
+        if (n <= 0)
+            goto expired;
+        n--;
+        iosOmSendMail(boyGObj, 0x5F, isysCurrentGObj);
+        if (sub->readyFlags & 1)
+            break;
+        _ACTWait(1);
+    }
+    goto held;
+expired:
+    ACTSendMailCorrect((void *)self, 0x63);
+    debug_StdPrintfDummy("%s sync error\n",
+                         (void *)self == (void *)((int *)boyGObj) ? "boy" : "girl");
+held:
+    while (GOBJ_SUB(self)->ctrl.motion < 0x202 || !(GOBJ_SUB(self)->ctrl.motion < 0x209)) {
+        sub->motReq = SetMotionRequest((void *)self, 1, sub->env.motOriReq);
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    while (1) {
+        iosOmSendMail(boyGObj, 0x60, isysCurrentGObj);
+        if (sub->readyFlags & 2)
+            break;
+        _ACTWait(1);
+    }
+    iosOmSendMail(boyGObj, 0x61, isysCurrentGObj);
+    sub->motReq = SetMotionRequest((void *)self, 0x5D, sub->env.motOriReq);
+    while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+    while (1) {
+        iosOmSendMail(boyGObj, 0x62, isysCurrentGObj);
+        if (sub->readyFlags & 8)
+            break;
+        _ACTWait(1);
+    }
+    sub->after = 0;
+    for (;;) {
+        ACTSendMailCorrect((void *)self, 0x43);
+        _ACTWait(1);
+    }
+}
 
 /* actGirlHand and the attract brain pass the girl and a target, which it does not read */
 static void GirlBrainClearTarget(void *self, void *target)

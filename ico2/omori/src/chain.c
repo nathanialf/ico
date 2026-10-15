@@ -484,7 +484,116 @@ typedef union { /* field names derived */
     int i[2];
 } ChainDObjFlags; /* derived name */
 
-INCLUDE_ASM(InitChainGeo);
+ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
+{
+    ChainRecord *cw;
+    int n;
+    int i;
+
+    n = (int)(req->length / 50.0f + 0.5f);
+
+    if (n < 2) {
+        /* "the chain is too short (set it with the Y-scale of the placement table)" */
+        debug_StdPrintfDummy("鎖の長さが短かすぎます(配置表のY-scaleで指定します)");
+        debug_assert(__FILE__, 1121);
+        __assert(__FILE__, 1121, "0");
+    }
+
+    cw = iosMallocDebug(ios_partition_sugipon, (n << 5) + sizeof(ChainRecord), __FILE__, 1124);
+
+    *(ChainRecTemplate *)cw = *(ChainRecTemplate *)&chainRecordDefault;
+
+    cw->nodes = n;
+    cw->node = (ChainNode *)(cw + 1);
+    cw->holdNode = -1;
+    if (req->hangRange != -1.0f) {
+        cw->hangRange = req->hangRange;
+    }
+
+    *(ChainPendTemplate *)&cw->pdl = *(ChainPendTemplate *)&chainPendulumDefault;
+
+    cw->pdl.limit = req->limit;
+    cw->pdl.limit = cw->pdl.limit < 5.0f ? 5.0f : (90.0f < cw->pdl.limit ? 90.0f : cw->pdl.limit);
+
+    ResetChainNodes(cw, (float *)req);
+
+    if (req->wallCheck != 0.0f) {
+        sceVu0FVECTOR p0 = {0.0f, 0.0f, -25.0f, 1.0f};
+        sceVu0FVECTOR p1 = {0.0f, 0.0f, 25.0f, 1.0f};
+        ClipWork w;
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrix(req->pos[0], req->pos[1] + 10.0f, req->pos[2]);
+        MatrixDrive_RotMatrixY((short)(req->wallDir * 32768.0f / 3.1415927f));
+        sceVu0ApplyMatrix(w.pt[0], MatrixDrive_GetMatrix(), p0);
+        sceVu0ApplyMatrix(w.pt[1], MatrixDrive_GetMatrix(), p1);
+        ClipWall(&w);
+        if (w.wall.elem == 0) {
+            /* "cannot find the wall above the chain. / is the direction wrong, or is
+             * it placed where there is no wall?" (in yellow) */
+            debug_StdPrintfDummy(
+                "\033[33m鎖の上の壁を見付けることができません。\n方向が間違っているか、壁が無いところに置いていませんか?\033[m\n");
+        } else {
+            memcpy(&cw->climb.wallSrc, &w.wall.o, sizeof(w.wall.o));
+            cw->climb.wall = w.wall.elem;
+            GetOrientOfWall(cw->wallOrient, w.wall.elem, &w.wall.o);
+            cw->wallHit = 1;
+        }
+    } else {
+        cw->climb.wallSrc.obj = 0;
+        cw->climb.wallSrc.node = 0;
+        cw->climb.wall = 0;
+        cw->wallHit = 0;
+    }
+
+    if (req->dirCorrect < 0.0f) {
+        cw->hasDirCorrect = 0;
+    } else {
+        cw->hasDirCorrect = 1;
+        cw->dirCorrect = req->dirCorrect;
+    }
+
+    if (((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx != 0) {
+        iosFree((void *)(((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx & 0x0FFFFFFF));
+    }
+    if (((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat != 0) {
+        iosFree((void *)(((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat & 0x0FFFFFFF));
+    }
+    /* the node matrix and quaternion buffers are stored here as the pointers
+       iosMallocDebug returns; typedef.h's Sub15C holds them as words */
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx = 0;
+
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat = 0;
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 6, __FILE__, 1188);
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 4, __FILE__, 1188);
+    ((ChainExtPtr *)&gobj->dobj)->sub->nodeNum = cw->nodes - 1;
+    if (((ChainExtPtr *)&gobj->dobj)->sub->nodes != 0) {
+        iosFree((void *)((int)((ChainExtPtr *)&gobj->dobj)->sub->nodes & 0x0FFFFFFF));
+    }
+    ((ChainExtPtr *)&gobj->dobj)->sub->nodes =
+        iosMallocDebug(ios_partition_seki, (cw->nodes - 1) * 80, __FILE__, 1188);
+
+    for (i = 0; i < cw->nodes - 1; i++) {
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags.ll &= ~1;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags.ll &= ~2;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].pos[0] = 0.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].pos[1] = 0.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].pos[2] = 0.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].pos[3] = 1.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags.ll &= ~4;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].fade = 0.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].alpha = 1.0f;
+        ((short *)&((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags)[1] = 0;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].scale[0] = 1.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].scale[1] = 1.0f;
+        ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].scale[2] = 1.0f;
+    }
+
+    ((ChainExtPtr *)&gobj->dobj)->sub->dispType = 2;
+
+    return cw;
+}
 
 static void chain_set_charachara(GObj *gobj, float amp)
 {

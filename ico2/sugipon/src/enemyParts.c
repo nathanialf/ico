@@ -134,7 +134,40 @@ static inline PointBlur *initPointBlurAt(int num, int pri, int *col, float *rate
     return p;
 }
 
-INCLUDE_ASM(InitEnemyEye);
+EnemyEye *InitEnemyEye(int num, int mode, int pri)
+{
+    EnemyEye *p;
+
+    p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c", 137);
+    *p = enemyEyeTemplate;
+
+    p->dobj[0] = CSVSYSTEM_InitDObj(1286, &InitialSObjSimpleSetting);
+    p->dobj[0]->nodes->flags.ll |= 1;
+    p->dobj[0]->nodes->fade = 1e-5f;
+    p->dobj[0]->nodes->flags.ll |= 4;
+    p->dobj[0]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
+    p->dobj[0]->dispType = 2;
+
+    p->dobj[1] = CSVSYSTEM_InitDObj(1287, &InitialSObjSimpleSetting);
+    p->dobj[1]->nodes->flags.ll |= 1;
+    p->dobj[1]->nodes->fade = 1e-5f;
+    p->dobj[1]->nodes->flags.ll &= ~4;
+    p->dobj[1]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
+    p->dobj[1]->dispType = 2;
+
+    p->dobj[2] = CSVSYSTEM_InitDObj(1288, &InitialSObjSimpleSetting);
+    p->dobj[2]->nodes->flags.ll |= 1;
+    p->dobj[2]->nodes->fade = 1e-5f;
+    p->dobj[2]->nodes->flags.ll &= ~4;
+    p->dobj[2]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
+    p->dobj[2]->dispType = 2;
+
+    if (num != 0) {
+        p->blurOn = 1;
+        p->blur = initPointBlurAt(num, pri, enemyEyeBlurColor, enemyEyeBlurRate);
+    }
+    return p;
+}
 
 INCLUDE_ASM(InitEnemyFootPrint);
 

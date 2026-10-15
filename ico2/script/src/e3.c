@@ -140,7 +140,46 @@ INCLUDE_ASM(actE3TitleFrameChk);
 
 INCLUDE_ASM(actE3Inst1Chk);
 
-INCLUDE_ASM(actE3Capsule);
+void actE3Capsule(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = (Act *)actInitialize(self);
+
+    _ACTWait(1);
+
+    if ((int)girlGObj == 0) {
+        ScpCallCameraOff();
+    }
+
+    if (gflagChk(326) == 0) {
+        if ((int)boyGObj != 0) {
+            scpPlayMot(boyGObj, 0);
+        }
+
+        scpFadeOut(255.0f, 0, 0, 0);
+
+        lt_switch_layout(51);
+
+        stage_SetAnimation(31, 0, 0);
+        stage_SetAnimation(25, 0, -1);
+        stage_SetAnimation(34, 0, 0);
+        stage_SetAnimation(32, 0, 0);
+        stage_SetAnimation(35, 0, 0);
+        stage_SetAnimation(37, 0, 0);
+
+        capsule_mes[0].func = actE3CapsuleChk;
+        sub->mail = capsule_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(31, 0, -1);
+        stage_SetAnimation(25, 0, -1);
+        stage_SetAnimation(34, 0, 0);
+        stage_SetAnimation(32, 0, 0);
+        stage_SetAnimation(35, 0, 0);
+        stage_SetAnimation(37, 0, 0);
+    }
+}
 
 /* .sbss: the capsule demo's sub-thread and the flag that thread raises when
    the demo has finished. */
