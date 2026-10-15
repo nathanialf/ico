@@ -6,7 +6,6 @@
 #include "GsBase.h"
 #include "main.h"
 #include "Basic.h"
-#include "debug.h"
 
 /* .sdata: the boot sequence's step, the
    card check's step, the start request, the card retry count and

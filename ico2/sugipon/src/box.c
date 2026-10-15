@@ -316,7 +316,7 @@ static int execNormalMove(GObj *self, int stop)
                         GetSlerpQuaternion(p->tiltQuat, rot, p->tiltQuat, 0.5f);
                     } else {
                         /* EUC-JP: "this terrain is wrong (it is not divided into 100 cm)" */
-                        debug_StdPrintfDummy("¤³¤ÎÃÏ·Á¤Ï¤ª¤«¤·¤¤¤Ç¤¹(100cm¤Ë¶èÀÚ¤é¤ì¤Æ¤¤¤Ş¤»¤ó)\n");
+                        debug_StdPrintfDummy("ã“ã®åœ°å½¢ã¯ãŠã‹ã—ã„ã§ã™(100cmã«åŒºåˆ‡ã‚‰ã‚Œã¦ã„ã¾ã›ã‚“)\n");
                         GetSlerpQuaternion(p->tiltQuat, IdentityQuaternion, p->tiltQuat, 0.5f);
                     }
                 }
@@ -1990,7 +1990,7 @@ void ReInitBoxGeo(GObj *self)
     if (checkFieldContact(self, 100000.0f) == 0) {
         /* EUC-JP: "the box is placed where there is no ground; its behaviour cannot be guaranteed (is the box before the collision definition?)" */
         debug_StdPrintfDummy(
-            "\033[36mÈ¢¤¬ÃÏÌÌ¤ÎÌµ¤¤¤È¤³¤í¤Ë½é´üÇÛÃÖ¤µ¤ì¤Æ¤¤¤Ş¤¹¡£\nÆ°ºî¤¬Êİ¾Ú¤Ç¤­¤Ş¤»¤ó(¥³¥ê¥¸¥ç¥óÄêµÁ¤è¤êÁ°¤ËÈ¢¤¬¤¢¤ê¤Ş¤»¤ó¤«?)\033[m\n");
+            "\033[36mç®±ãŒåœ°é¢ã®ç„¡ã„ã¨ã“ã‚ã«åˆæœŸé…ç½®ã•ã‚Œã¦ã„ã¾ã™ã€‚\nå‹•ä½œãŒä¿è¨¼ã§ãã¾ã›ã‚“(ã‚³ãƒªã‚¸ãƒ§ãƒ³å®šç¾©ã‚ˆã‚Šå‰ã«ç®±ãŒã‚ã‚Šã¾ã›ã‚“ã‹?)\033[m\n");
     } else {
         int m = GOBJ_SUB(self)->ctrl.floorAttr;
 
@@ -1998,13 +1998,13 @@ void ReInitBoxGeo(GObj *self)
             initFloating(self);
             p->mode = 5;
             /* EUC-JP: "box initially placed on the water bottom" */
-            debug_StdPrintfDummy("È¢½é´ü¿åÄìÇÛÃÖ\n");
+            debug_StdPrintfDummy("ç®±åˆæœŸæ°´åº•é…ç½®\n");
         } else {
             p->mode = 0;
             AlignBox(self, 100.0f);
             execNormalMove(self, 1);
             /* EUC-JP: "box initially placed normally" */
-            debug_StdPrintfDummy("È¢½é´üÄÌ¾ïÇÛÃÖ\n");
+            debug_StdPrintfDummy("ç®±åˆæœŸé€šå¸¸é…ç½®\n");
         }
     }
     UpdateRootMatrix(self);
