@@ -54,7 +54,41 @@ INCLUDE_ASM(actSt09aElvDown);
 
 INCLUDE_ASM(actSt09aProc_0022B9A8);
 
-INCLUDE_ASM(func_0022BA70);
+void actSt09aBrgDown(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    gflagOn(79);
+    _ACTWait(60);
+    scpAdpcmPlayRequestFunc(88, &st09a_brg, 1, 1, 1);
+
+    while (st09a_brg == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(343, 1, 0);
+
+    while (stage_CheckAnimationFrame(343, 115, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_CheckAnimationFrame(343, 165, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActRequest(boyPad, 16);
+
+    while (stage_CheckAnimationFinish(343) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
 
 INCLUDE_ASM(actSt09aElv);
 
@@ -97,4 +131,16 @@ void actSt09aBrgMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt09aBrgSwitch);
+void actSt09aBrgSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 1;
+
+    sub->mainMail = 0;
+
+    brgSwitch_mes[0].func = actSt09aBrgDown;
+    sub->mail = brgSwitch_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}

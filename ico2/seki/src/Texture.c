@@ -1361,9 +1361,17 @@ static inline void resetVramPri(int pri) /* derived name */
    recount the loaded entries. */
 static int texTableReady = 0; /* derived name */
 
-void tex_ResetVram(void);
+void tex_ResetVram(void)
+{
+    int i;
 
-INCLUDE_ASM(tex_ResetVram);
+    for (i = 0; i < 13; i++) {
+        resetVramPri(i);
+    }
+    if (systemStatus[5] == 0) {
+        tex_textureAnimation();
+    }
+}
 
 /* the GS register payloads, spelled as ico2/seki/src/GifPacket.c spells them */
 #define GIF_RGBA(c) /* derived name */                                                             \
@@ -1911,9 +1919,35 @@ short tex_GetVramFreeAddress(int pri)
     return vramPri[pri].texAddr;
 }
 
-INCLUDE_ASM(tex_UpdateMipMapLevel);
+void tex_UpdateMipMapLevel(float lv)
+{
+    int i;
+    for (i = 0; i < texCount; i++) {
+        TexData *tex = &texTable[i].rec;
+        int mxl = tex->levelNum;
+        int k, l;
+        int mmag, mmin;
+        if (tex->ext.animated != 0) {
+            k = tex->ext.file.mipmapK;
+            l = tex->ext.file.mipmapL;
+            mmag = tex->ext.file.smpMag;
+            mmin = tex->ext.file.smpMin;
+        } else {
+            k = -165;
+            l = 0;
+            mmag = 1;
+            mmin = GlobalStageSetting.texSampleMode;
+        }
+        k = k * lv / 80.0f;
+        tex->pkt.tex1.data = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) |
+                             ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
+    }
+}
 
-INCLUDE_ASM(tex_ResetVramPri);
+void tex_ResetVramPri(int pri)
+{
+    resetVramPri(pri);
+}
 
 int tex_GetTextureNum(void)
 {

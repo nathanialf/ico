@@ -18,8 +18,6 @@
 #include "main.h"
 #include "include_asm.h"
 
-static void actSt17aFallChk(GObj *volatile self);
-
 static ActMail linkTest_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail doorInit_mes[2] = {{397}, {396}}; /* derived name */
@@ -35,7 +33,7 @@ static ActMail door_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail hasi_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail fall_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
 static const ConstVec doorChkSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 
@@ -113,7 +111,19 @@ INCLUDE_ASM(actSt17aSekizo);
 
 INCLUDE_ASM(actSt17aHasi);
 
-INCLUDE_ASM(actSt17aFall);
+void actSt17aIntro(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(32) == 0) {
+        intro_mes[0].func = actSt17aIntroChk;
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 void actSt17aSekizoEvent(int x)
 {
@@ -189,7 +199,27 @@ void actSt17aHasiEvent(int x)
 /* .sdata: the camera stream handle. */
 SqEntry *cam = 0;
 
-INCLUDE_ASM(actSt17aIntroChk);
+void actSt17aIntroChk(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(32);
+    if (girlGObj != 0) {
+        iosOmSendMail(girlGObj, 59, boyGObj);
+        actCreateSubThread(actSt17aGirlWay, 21);
+    }
+    scpAdpcmPlayRequestFunc(51, &cam, 1, 1, 1);
+    _ACTWait(1);
+    stage_SetAnimation(70, 1, 0);
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFinish(70) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
 
 void actSt17aGirlWay(GObj *volatile self)
 {

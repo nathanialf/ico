@@ -67,7 +67,19 @@ void actSt04bMonyoDoorXL(GObj *volatile self)
 
 INCLUDE_ASM(actSt04bSekizo);
 
-INCLUDE_ASM(actSt04bEne1);
+void actSt04bEne1(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(140) == 0) {
+        ene1_mes[0].func = actSt04bEne1Chk;
+        act->mail = ene1_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 void actSt04bEnemy1(GObj *volatile self)
 {
@@ -109,9 +121,32 @@ void actSt04bEnemy2(GObj *volatile self)
     Generator_Call(self);
 }
 
-INCLUDE_ASM(actSt04bBallXL);
+void actSt04bBallXL(GObj *volatile self)
+{
+    GObj *x = self;
 
-INCLUDE_ASM(actSt04bSolarXL);
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(124) == 0) {
+        stage_SetAnimation(266, -1, -2);
+    } else {
+        stage_SetAnimation(264, -1, -2);
+    }
+}
+
+void actSt04bSolarXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(124) == 0) {
+        stage_SetAnimation(268, -1, -2);
+        stage_SetAnimation(272, -1, -2);
+    }
+}
 
 void actSt04bSekizoEvent(int x)
 {

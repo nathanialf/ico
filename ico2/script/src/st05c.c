@@ -86,4 +86,17 @@ void actSt05cDoorDownEffect(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt05cEneChk);
+void actSt05cEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (girlGObj == 0 || gflagChk(230) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(600);
+    gflagOn(150);
+    gflagOn(151);
+}

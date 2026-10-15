@@ -91,7 +91,19 @@ void actQueenLightning(GObj *volatile self)
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3241, 0, 484, 0);
 }
 
-INCLUDE_ASM(actSt17aTest);
+void actSt17aTest(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    stage_SetAnimation(112, 0, 0);
+
+    st17aTest_mes[0].func = actSt17aTestChk;
+    act->mail = st17aTest_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt27aWave(GObj *volatile self)
 {

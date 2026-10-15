@@ -345,7 +345,14 @@ void actSt04rBrg1WayChk(GObj *volatile self)
     SetWayGroupActive(3, 1);
 }
 
-INCLUDE_ASM(actSt04rBrg2WayChk);
+void actSt04rBrg2WayChk(GObj *volatile self)
+{
+    while (gflagChk(234) == 0 || gflagChk(235) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(4, 1);
+}
 
 void actSt04rMonyou01Event(int x)
 {

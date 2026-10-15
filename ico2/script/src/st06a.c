@@ -154,13 +154,155 @@ INCLUDE_ASM(func_00226300);
 
 INCLUDE_ASM(func_00226478);
 
-INCLUDE_ASM(func_002265F0);
+void actSt06aShutterOpen(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    gflagOn(96);
+    scpSleepEnemyAll();
+    _ACTWait(60);
 
-INCLUDE_ASM(func_002266D0);
+    scpAdpcmPlayRequestFunc(81, &shutter, 1, 1, 1);
 
-INCLUDE_ASM(func_002267E8);
+    while (shutter == 0) {
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(func_00226958);
+    stage_SetAnimation(93, 1, 0);
+
+    while (stage_CheckAnimationFinish(93) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpSearchGobj(1620)->active = 0;
+    scpSearchGobj(1621)->active = 1;
+    scpWakeupEnemyAll();
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+    SetWayGroupActive(12, 1);
+}
+
+void actSt06aBoxChk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, scpSearchGobj(1643), 300.0f) == 0 || gflagChk(95) != 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    gflagOn(98);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyAll();
+
+    _ACTWait(60);
+
+    stage_SetAnimation(96, 1, 0);
+
+    scpSearchGobj(1643)->active = 0;
+
+    while (stage_CheckAnimationFinish(96) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 7);
+
+    scpWakeupEnemyAll();
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
+
+void actSt06aStatueChk(GObj *volatile self)
+{
+    int handle;
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerFloorAttr(boyGObj, 0xB000000) == 0 ||
+           scpTriggerFloorAttr(girlGObj, 0xB000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyAll();
+
+    scpSearchGobj(1678)->active = 0;
+    stage_SetAnimation(231, -1, -2);
+    stage_SetAnimation(98, 1, 0);
+
+    handle = soundSeDefPlay(1330, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(98, 70, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpWakeupItemWithBoundary(-3855.0f, -470.0f, 1392.0f, 200.0f);
+
+    while (stage_CheckAnimationFinish(98) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(handle);
+
+    scpWakeupEnemyAll();
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+
+    _ACTWait(120);
+
+    gflagOn(102);
+}
+
+void actSt06aHeadChk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, scpSearchGobj(1639), 70.0f) == 0 || gflagChk(102) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyAll();
+    gflagOn(103);
+
+    _ACTWait(120);
+
+    scpAdpcmPlayRequestFunc(53, &toge, 1, 1, 1);
+
+    while (toge == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(100, 1, 0);
+
+    while (stage_CheckAnimationFrame(100, 150, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefPlay(847, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(100, 210, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpSearchGobj(1640)->active = 1;
+    stage_SetAnimation(100, 0, -1);
+
+    scpSearchGobj(1639)->active = 0;
+
+    if (toge != 0) {
+        scpAdpcmFadeCloseFunc(toge, 80);
+    }
+
+    scpWakeupEnemyAll();
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
 
 INCLUDE_ASM(actSt06aShutter);
 
@@ -267,7 +409,19 @@ void actSt06aShutterMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt06aShutterSwitch);
+void actSt06aShutterSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 1;
+
+    sub->mainMail = 0;
+
+    shutter_switch_mes[0].func = actSt06aShutterOpen;
+    sub->mail = shutter_switch_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt06aExitChk);
 

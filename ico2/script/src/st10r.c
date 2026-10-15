@@ -82,7 +82,44 @@ INCLUDE_ASM(func_0022DBC8);
 
 INCLUDE_ASM(actSt10rTowerConte);
 
-INCLUDE_ASM(func_0022DF60);
+void actSt10rChainMove(GObj *volatile self)
+{
+    int se;
+
+    lt_switch_layout(51);
+
+    scpSleepEnemyAll();
+
+    gflagOn(277);
+
+    scpSearchGobj(1516)->active = 1;
+
+    _ACTWait(30);
+
+    scpAdpcmPlayRequestFunc(91, &chain10r, 1, 1, 1);
+
+    while (chain10r == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(351, 1, 0);
+
+    se = soundSeDefPlay(1263, 0, 0, 1);
+
+    _ACTWait(180);
+
+    soundSeDefStop(se);
+
+    soundSeDefPlay(1264, 0, 0, 1);
+
+    iosPadActRequest(boyPad, 17);
+
+    scpWakeupEnemyAll();
+
+    scpBoyControlReadDisable = 0;
+
+    lt_switch_layout(50);
+}
 
 INCLUDE_ASM(actSt10rFence);
 
@@ -152,7 +189,17 @@ void actSt10rChainMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt10rChainSwitch);
+void actSt10rChainSwitch(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 1;
+    act->mainMail = 0;
+    chain_switch_mes[0].func = actSt10rChainMove;
+    act->mail = chain_switch_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt10rSekizoEvent(int x)
 {

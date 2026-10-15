@@ -93,7 +93,35 @@ INCLUDE_ASM(actSt10lEneCam2Chk);
 
 INCLUDE_ASM(actSt10lEneCam3Chk);
 
-INCLUDE_ASM(func_0022C9F0);
+void actSt10lChainMove(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    scpSleepEnemyAll();
+
+    gflagOn(261);
+
+    _ACTWait(30);
+
+    scpAdpcmPlayRequestFunc(95, &chain10l, 1, 1, 1);
+
+    while (chain10l == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(349, 1, 0);
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFrame(349, 240, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpSearchGobj(899)->active = 1;
+
+    scpWakeupEnemyAll();
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
 
 INCLUDE_ASM(actSt10lChain);
 
@@ -175,6 +203,17 @@ void actSt10lChainMain(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt10lChainSwitch);
+void actSt10lChainSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    scpBoyControlReadDisable = 1;
+
+    chainSwitch_mes[0].func = actSt10lChainMove;
+    sub->mail = chainSwitch_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt10lEneKillChk);

@@ -94,6 +94,42 @@ void actSt03tSekizoEvent(int x)
 
 INCLUDE_ASM(actSt03tEneChk);
 
-INCLUDE_ASM(actSt03tWayOnChk);
+void actSt03tWayOnChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actSt03tWayOffChk);
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(17, 1);
+    gflagOn(91);
+
+    wayOnChk_mes[0].func = actSt03tWayOffChk;
+    sub->mail = wayOnChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt03tWayOffChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(17, 0);
+    gflagOff(91);
+
+    wayOffChk_mes[0].func = actSt03tWayOnChk;
+    sub->mail = wayOffChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}

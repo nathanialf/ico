@@ -185,7 +185,20 @@ INCLUDE_ASM(actSt02aBox);
 
 INCLUDE_ASM(actSt02aGondola);
 
-INCLUDE_ASM(actSt02aFence);
+void actSt02aFence(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(105) == 0) {
+        fence_mail[0].func = actSt02aFenceMain;
+        act->mail = fence_mail;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM(actSt02aWaterFall);
 
@@ -202,7 +215,20 @@ void actSt02aBoxEvent2(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aEne);
+void actSt02aEne(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(108) == 0) {
+        ene_mail[0].func = actSt02aEneChk;
+        act->mail = ene_mail;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 void actSt02aEnemy1(GObj *volatile self)
 {
@@ -239,9 +265,35 @@ void actSt02aSekizo(GObj *volatile self)
 
 INCLUDE_ASM(actSt02aWay);
 
-INCLUDE_ASM(actSt02aTakiWay);
+void actSt02aTakiWay(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-INCLUDE_ASM(actSt02aSecretItem);
+    _ACTWait(1);
+
+    if (gflagChk(95) != 0) {
+        taki_way_mail[0].func = actSt02aTakiWayOnChk;
+        act->mail = taki_way_mail;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt02aSecretItem(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(103) == 0) {
+        secret_item_mail[0].func = actSt02aSecretItemChk;
+        act->mail = secret_item_mail;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 void actSt02aDoorEvent(int x)
 {

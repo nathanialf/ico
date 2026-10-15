@@ -369,11 +369,37 @@ void actSt13cHandJimaku(GObj *volatile self)
     } while (t < 800.0f);
 }
 
-INCLUDE_ASM(actSt13cSleep);
+void actSt13cSleep(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(18) == 0) {
+        sleep_mes[0].func = actSt13cSleepChk;
+        act->mail = sleep_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM(actSt13cCageDown);
 
-INCLUDE_ASM(actSt13cCageFallReady);
+void actSt13cCageFallReady(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(21) == 0) {
+        cageFallReady_mes[0].func = actSt13cCageFallReadyChk;
+        act->mail = cageFallReady_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM(actSt13cEnemy);
 

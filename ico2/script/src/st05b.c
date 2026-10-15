@@ -45,9 +45,32 @@ void actSt05bMonyoDoorXL(GObj *volatile self)
 
 INCLUDE_ASM(actSt05bSekizo);
 
-INCLUDE_ASM(actSt05bBallXL);
+void actSt05bBallXL(GObj *volatile self)
+{
+    GObj *x = self;
 
-INCLUDE_ASM(actSt05bSolarXL);
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(125) == 0) {
+        stage_SetAnimation(267, -1, -2);
+    } else {
+        stage_SetAnimation(265, -1, -2);
+    }
+}
+
+void actSt05bSolarXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(125) == 0) {
+        stage_SetAnimation(270, -1, -2);
+        stage_SetAnimation(273, -1, -2);
+    }
+}
 
 void actSt05bSekizoEvent(int x)
 {

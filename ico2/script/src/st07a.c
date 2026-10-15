@@ -232,7 +232,22 @@ void actSt07TsuroEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt07aTsuroConte);
+void actSt07aTsuroConte(GObj *volatile self)
+{
+    stage_SetAnimation(323, 1, 0);
+    stage_SetAnimation(324, 1, 0);
+
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFinish(324) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 void actSt07aGirlWay(volatile unsigned int self)
 {

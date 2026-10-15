@@ -255,7 +255,22 @@ void actSt25aGenerator(GObj *volatile self)
     Generator_Mask(self);
 }
 
-INCLUDE_ASM(actSt25aQueenBefore);
+void actSt25aQueenBefore(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
+
+    _ACTWait(1);
+
+    MallocStreamMotionBuffer();
+
+    if (gflagChk(301) == 0) {
+        queen_before_mes[0].func = actSt25aQueenBeforeChk;
+        sub->mail = queen_before_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM(actSt25aQueenTalk);
 
@@ -308,7 +323,19 @@ void actSwordEff(GObj *volatile self)
     scpLinkBGAtoLayoutedTarget(1926, 423);
 }
 
-INCLUDE_ASM(actSwordEffXL);
+void actSwordEffXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (scpGameStat_BoyWeaponkind() == 5) {
+        scpLinkBGAtoLayoutedTarget(1926, 423);
+    } else {
+        stage_SetAnimation(423, -1, -2);
+    }
+}
 
 void actSt25aQueenBeforeChk(GObj *volatile self)
 {
