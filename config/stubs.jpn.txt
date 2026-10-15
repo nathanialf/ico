@@ -101,10 +101,6 @@
 text _getFinalMatrix 0x001E1C30 0x001E4674 ico2/sugipon/src/motionManager.c local lines=691 in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc  # ordinal; first difference at insn 2; length:-130; extent-differs
 lit4 _getFinalMatrix 0x006330E8 0x00633128 ico2/sugipon/src/motionManager.c  # 16 floats; target side (no PAL body to compile)
 rdlit _getFinalMatrix 0x00618FA0 0x00619070 ico2/sugipon/src/motionManager.c align=16  # 1 jtbl; target side (no PAL body to compile)
-text ACTGetEnvironment 0x00209F08 0x0020E524 ico2/fumi/src/act-env.c lines=1078  # ordinal; first difference at insn 793; length:-1; extent-differs
-lit4 ACTGetEnvironment 0x006332AC 0x006332F4 ico2/fumi/src/act-env.c  # 18 floats
-rdlit ACTGetEnvironment 0x0061AD90 0x0061ADBC ico2/fumi/src/act-env.c align=16  # 3 strings
-sdlit ACTGetEnvironment 0x006357C0 0x006357CC ico2/fumi/src/act-env.c  # 1 string, 2 words
 #
 # .data objects the December C of a carved function used and PAL's does not
 # (the PAL function computes the value inline); no PAL name, so D_<VMA>.
