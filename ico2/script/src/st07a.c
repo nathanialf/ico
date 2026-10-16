@@ -27,6 +27,28 @@
 #include "main.h"
 #include "include_asm.h"
 
+void actSt07aInit(void)
+{
+    if (gflagChk(113) != 0) {
+        if (gflagChk(114) != 0) {
+            SetWayGroupActive(11, 0);
+            SetWayGroupActive(12, 0);
+            stage_SetAnimation(323, 0, -1);
+        } else {
+            SetWayGroupActive(13, 0);
+            SetWayGroupActive(14, 0);
+            SetWayGroupActive(15, 0);
+            stage_SetAnimation(322, 0, -1);
+        }
+    } else {
+        SetWayGroupActive(13, 0);
+        SetWayGroupActive(14, 0);
+        SetWayGroupActive(15, 0);
+
+        stage_SetAnimation(322, 0, 0);
+    }
+}
+
 INCLUDE_ASM(actSt07aEnd);
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
