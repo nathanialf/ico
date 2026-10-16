@@ -55,14 +55,14 @@ typedef struct { /* field names derived */
     /* 0x4C, the mode's flag bits */
     unsigned int carried : 1;  /* bit 0, the girl is carried */
     unsigned int bit1 : 1;
-    unsigned int onChain : 1;  /* bit 2, ACTGame_isHangChain */
+    unsigned int bit2 : 1;
     unsigned int attractWait : 1; /* bit 3, the girl holds an attract turn 10 s */
     unsigned int hintCount : 1; /* bit 4, the girl counts hint frames */
     unsigned int softIk : 1; /* bit 5, the girl's soft IK rate */
     unsigned int keepHand : 1; /* bit 6, the boy keeps the girl's hand */
     unsigned int bit7 : 1;
     unsigned int bit8 : 1;
-    unsigned int bit9 : 1;
+    unsigned int onChain : 1;  /* bit 9, ACTGame_isHangChain */
     unsigned int bit10 : 1;
     unsigned int skipMarked : 1; /* bit 11, the flagged mail lists are skipped */
     unsigned int bit12 : 1;

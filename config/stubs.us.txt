@@ -324,109 +324,13 @@ text adpcmDiskNotReady 0x00141128 0x00141130 ico2/fumi/sound/adpcm_init.c local 
 text adpcmDiskReturnReady 0x00141130 0x00141138 ico2/fumi/sound/adpcm_init.c local lines=1  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text adpcmOpenProc 0x00141138 0x00141160 ico2/fumi/sound/adpcm_init.c local lines=5  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text adpcmOpenDiskNotReady 0x00141160 0x00141168 ico2/fumi/sound/adpcm_init.c local lines=1  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text ACTGame_SetActors_Debug 0x00144B58 0x00144DF0 ico2/fumi/src/act-game.c lines=63  # ordinal; first difference at insn 29; imm:9; extent-equal
-sdlit ACTGame_SetActors_Debug 0x00632248 0x00632255 ico2/fumi/src/act-game.c  # 2 strings
-text ACTParaStatus_Exec 0x00145648 0x001457A4 ico2/fumi/src/act-game.c lines=37  # ordinal; first difference at insn 6; length:-22; extent-differs
 text ACTGame_BeforeFunc 0x00145C40 0x00145FB0 ico2/fumi/src/act-game.c lines=146  # ordinal; first difference at insn 0; length:-133; extent-differs
-text FunctionAboutClingedStatus 0x00145FB0 0x001461FC ico2/fumi/src/act-game.c local lines=70  # ordinal; first difference at insn 26; length:-8; extent-differs
-text ACTEnvGetTest 0x00146200 0x001466AC ico2/fumi/src/act-game.c local lines=90  # ordinal; first difference at insn 1; length:-10; extent-differs
-rdlit ACTEnvGetTest 0x00557F40 0x005580BC ico2/fumi/src/act-game.c align=16  # 1 jump table, measured from the base
-text ActOrientTest 0x001466B0 0x00147E84 ico2/fumi/src/act-game.c local lines=425  # ordinal; first difference at insn 12; length:-57; extent-differs
-lit4 ActOrientTest 0x00630AD4 0x00630ADC ico2/fumi/src/act-game.c  # 2 floats, measured from the base: the text loads them
-rdlit ActOrientTest 0x005580C0 0x005580CC ico2/fumi/src/act-game.c  # 1 string, measured from the base
-text GetGirlHandlinkClInfo 0x00147E88 0x00148274 ico2/fumi/src/act-game.c local lines=63  # ordinal; first difference at insn 13; other:33; extent-equal
-lit4 GetGirlHandlinkClInfo 0x00630ADC 0x00630AE0 ico2/fumi/src/act-game.c  # 1 float
-text hand_able_connect.267 0x00148278 0x0014833C ico2/fumi/src/act-game.c local file=hand_able_connect_267  # ordinal; first difference at insn 0; length:-35; extent-differs
-rdlit hand_able_connect.267 0x005580D0 0x005580EA ico2/fumi/src/act-game.c file=hand_able_connect_267  # 1 string, measured from the base
-text ACTGame_CommonLoop 0x00148340 0x00148E60 ico2/fumi/src/act-game.c lines=288  # ordinal; first difference at insn 17; length:-86; extent-differs
-lit4 ACTGame_CommonLoop 0x00630AE0 0x00630AE4 ico2/fumi/src/act-game.c  # 1 float, measured from the base: the text loads them
-text GetTarget.280 0x00148E60 0x0014920C ico2/fumi/src/act-game.c local file=GetTarget_280  # ordinal; first difference at insn 13; length:-9; extent-differs
-lit4 GetTarget.280 0x00630AE4 0x00630AE8 ico2/fumi/src/act-game.c file=GetTarget_280  # 1 float, measured from the base: the text loads them
-rdlit GetTarget.280 0x005580F0 0x00558124 ico2/fumi/src/act-game.c file=GetTarget_280 align=16  # 1 jump table, measured from the base
-text ACTLookTargetSystem_Exec 0x00149210 0x00149764 ico2/fumi/src/act-game.c lines=242  # ordinal; first difference at insn 10; length:-86; extent-differs
 text ACTItemThrow.301 0x00149768 0x00149894 ico2/fumi/src/act-game.c local file=ACTItemThrow_301  # ordinal; first difference at insn 7; length:+19; extent-differs
 sdlit ACTItemThrow.301 0x00632260 0x00632268 ico2/fumi/src/act-game.c file=ACTItemThrow_301  # 1 string
 text ACTItemWatchMotion 0x00149898 0x00149ADC ico2/fumi/src/act-game.c local lines=132  # ordinal; first difference at insn 0; length:-55; extent-differs
 lit4 ACTItemWatchMotion 0x00630AE8 0x00630AEC ico2/fumi/src/act-game.c  # 1 float, measured from the base: the text loads them
 sdlit ACTItemWatchMotion 0x00632268 0x0063226C ico2/fumi/src/act-game.c  # 1 string, measured from the base
 rdlit ACTItemWatchMotion 0x00558130 0x00558144 ico2/fumi/src/act-game.c align=16  # 1 jump table, measured from the base
-text ACTGame_InsertCamera_GirlIsPinch 0x00149AE0 0x00149C28 ico2/fumi/src/act-game.c lines=24  # ordinal; first difference at insn 0; length:+5; extent-differs
-lit4 ACTGame_InsertCamera_GirlIsPinch 0x00630AEC 0x00630AF0 ico2/fumi/src/act-game.c  # 1 float, measured from the base: the text loads them
-text updateHMC.314 0x00149C28 0x00149D60 ico2/fumi/src/act-game.c local file=updateHMC_314  # nested in RequestChangeHandMode (a stub); equal, gone with its carved parent
-text RequestChangeHandMode 0x00149D60 0x00149E6C ico2/fumi/src/act-game.c lines=62  # ordinal; first difference at insn 16; imm:4; extent-equal
-text ACTNotNeedCameraOffset 0x00149E70 0x00149EA8 ico2/fumi/src/act-game.c lines=11  # ordinal; first difference at insn 0; length:+1; extent-differs
-text ACTGameCollisionOn 0x00149EA8 0x00149ED0 ico2/fumi/src/act-game.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGameCollisionOff
-text ACTGameCollisionOff 0x00149ED0 0x00149EF4 ico2/fumi/src/act-game.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_CheckItemMotion
-text ACTGame_CheckItemMotion 0x00149EF8 0x00149F20 ico2/fumi/src/act-game.c lines=5  # ordinal; first difference at insn 2; length:-1; extent-differs
-text ACTGame_CheckHandMotion 0x00149F20 0x00149F6C ico2/fumi/src/act-game.c lines=8  # ordinal; first difference at insn 1; other:5; extent-equal
-text ACTGame_StageChangeGObjID 0x00149F70 0x00149FF0 ico2/fumi/src/act-game.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_StageChangeGObjDirect
-text ACTGame_StageChangeGObjDirect 0x00149FF0 0x0014A0A4 ico2/fumi/src/act-game.c lines=9  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_FLAG_LIFEPINCH
-lit4 ACTGame_StageChangeGObjDirect 0x00630AF0 0x00630AF4 ico2/fumi/src/act-game.c  # 1 float
-text ACTGame_FLAG_LIFEPINCH 0x0014A0A8 0x0014A0D4 ico2/fumi/src/act-game.c lines=6  # ordinal; first difference at insn 3; imm:1; extent-equal
-text ACTGame_FLAG_TETSUNAGI 0x0014A0D8 0x0014A0FC ico2/fumi/src/act-game.c lines=9  # ordinal; first difference at insn 6; other:1; extent-equal
-text GetSkeltonPosition 0x0014A100 0x0014A178 ico2/fumi/src/act-game.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SetDirectRootPositionWithNodePointLimit
-text SetDirectRootPositionWithNodePointLimit 0x0014A178 0x0014A2B0 ico2/fumi/src/act-game.c lines=21  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGameView_Init
-text ACTGameView_Init 0x0014A2B0 0x0014A2C4 ico2/fumi/src/act-game.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTCharctrl_Lock
-text ACTCharctrl_Lock 0x0014A2C8 0x0014A308 ico2/fumi/src/act-game.c lines=6  # ordinal; first difference at insn 1; length:-2; extent-differs
-text ACTCharctrl_Unlock 0x0014A308 0x0014A330 ico2/fumi/src/act-game.c lines=6  # ordinal; first difference at insn 2; other:2; extent-equal
-text ACTGame_ConnectHand 0x0014A330 0x0014A3A8 ico2/fumi/src/act-game.c lines=7  # ordinal; first difference at insn 5; other:3; extent-equal
-text ACTGame_DisconnectHand 0x0014A3A8 0x0014A42C ico2/fumi/src/act-game.c lines=7  # ordinal; first difference at insn 5; imm:3; extent-equal
-text PAIR_GetPosition_BOY 0x0014A430 0x0014A46C ico2/fumi/src/act-game.c lines=10  # ordinal; first difference at insn 2; imm:6; extent-equal
-text PAIR_IsStatus_BOY_PULL 0x0014A470 0x0014A4DC ico2/fumi/src/act-game.c lines=17  # ordinal; first difference at insn 2; other:4; extent-equal
-text PAIR_IsStatus_GIRL_PULL 0x0014A4E0 0x0014A55C ico2/fumi/src/act-game.c lines=19  # ordinal; first difference at insn 1; length:-2; extent-differs
-text PAIR_IsStatus_BOY_WAIT 0x0014A560 0x0014A5C0 ico2/fumi/src/act-game.c lines=16  # ordinal; first difference at insn 2; imm:5; extent-equal
-text PAIR_GetPosition_BOY_DITCH 0x0014A5C0 0x0014A5FC ico2/fumi/src/act-game.c lines=10  # ordinal; first difference at insn 2; imm:6; extent-equal
-text PAIR_IsStatus_BOY_DITCH 0x0014A600 0x0014A6B4 ico2/fumi/src/act-game.c lines=24  # ordinal; first difference at insn 1; other:8; extent-equal
-text ACTGame_isHangChain 0x0014A6B8 0x0014A700 ico2/fumi/src/act-game.c lines=11  # ordinal; first difference at insn 3; other:3; extent-equal
-text ACTGame_isWeaponEnableCatchfire 0x0014A700 0x0014A748 ico2/fumi/src/act-game.c lines=9  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTCheckCollis_WF
-text ACTCheckCollis_WF 0x0014A748 0x0014A84C ico2/fumi/src/act-game.c lines=32  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTCheckCollis_W
-text ACTCheckCollis_W 0x0014A850 0x0014A97C ico2/fumi/src/act-game.c lines=38  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTCheckCollis_CI
-text ACTCheckCollis_CI 0x0014A980 0x0014AA24 ico2/fumi/src/act-game.c lines=17  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTCheckCollis_WELL
-text ACTCheckCollis_WELL 0x0014AA28 0x0014AB2C ico2/fumi/src/act-game.c lines=32  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTCheckCollis_WAY
-text ACTCheckCollis_WAY 0x0014AB30 0x0014AC74 ico2/fumi/src/act-game.c lines=46  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTCheckViewCl
-text ACTCheckViewCl 0x0014AC78 0x0014ADF8 ico2/fumi/src/act-game.c lines=19  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGameView_FirstSet
-lit4 ACTCheckViewCl 0x00630AF4 0x00630AF8 ico2/fumi/src/act-game.c  # 1 float
-text ACTGameView_FirstSet 0x0014ADF8 0x0014AEC8 ico2/fumi/src/act-game.c lines=11  # ordinal; first difference at insn 23; imm:2; extent-equal
-text ACTGameView_Add 0x0014AEC8 0x0014AF6C ico2/fumi/src/act-game.c lines=12  # ordinal; first difference at insn 18; imm:2; extent-equal
-rdlit ACTGameView_Add 0x00557EE0 0x00557F0F ico2/fumi/src/act-game.c align=16 def  # 2 strings
-sdlit ACTGameView_Add 0x00632258 0x0063225A ico2/fumi/src/act-game.c def  # 1 string
-text ACTGameView_Check 0x0014AF70 0x0014AFB8 ico2/fumi/src/act-game.c lines=10  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGameViewSimple_Check
-text ACTGameViewSimple_Check 0x0014AFB8 0x0014B000 ico2/fumi/src/act-game.c lines=10  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_GetMotOrientFromWeapon
-text ACTGame_GetMotOrientFromWeapon 0x0014B000 0x0014B044 ico2/fumi/src/act-game.c lines=10  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_NoWeapon
-text ACTGame_NoWeapon 0x0014B048 0x0014B08C ico2/fumi/src/act-game.c lines=8  # ordinal; first difference at insn 4; imm:1; extent-equal
-text ACTGame_isWeaponCombustible 0x0014B090 0x0014B0B4 ico2/fumi/src/act-game.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_GetNearestGObj
-text ACTGame_GetNearestGObj 0x0014B0B8 0x0014B150 ico2/fumi/src/act-game.c lines=19  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTLookTarget_Init
-sdlit ACTGame_GetNearestGObj 0x0063226C 0x00632270 ico2/fumi/src/act-game.c  # 1 word: a constant pool entry, written with the text at the end of the file
-text ACTLookTarget_Init 0x0014B150 0x0014B164 ico2/fumi/src/act-game.c lines=7  # ordinal; first difference at insn 1; imm:3; extent-equal
-text _ACTLookTarget_Set 0x0014B168 0x0014B1CC ico2/fumi/src/act-game.c lines=20  # ordinal; first difference at insn 4; imm:10; extent-equal
-text ACTParaStatus_Init 0x0014B1D0 0x0014B224 ico2/fumi/src/act-game.c lines=8  # ordinal; first difference at insn 11; other:4; extent-equal
-text _ACTParaStatus_Set 0x0014B228 0x0014B244 ico2/fumi/src/act-game.c lines=5  # ordinal; first difference at insn 2; length:-3; extent-differs
-text _ACTParaStatus_Check 0x0014B248 0x0014B25C ico2/fumi/src/act-game.c lines=5  # ordinal; first difference at insn 1; other:2; extent-equal
-text _ACTCharStatus_Init 0x0014B260 0x0014B270 ico2/fumi/src/act-game.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before _ACTCharStatus_Set
-text _ACTCharStatus_Set 0x0014B270 0x0014B2EC ico2/fumi/src/act-game.c lines=36  # ordinal; first difference at insn 2; other:3; extent-equal
-rdlit _ACTCharStatus_Set 0x00558150 0x0055818C ico2/fumi/src/act-game.c align=16  # 1 jump table, measured from the base
-text _ACTCharStatus_Check 0x0014B2F0 0x0014B318 ico2/fumi/src/act-game.c lines=13  # ordinal; first difference at insn 1; length:+2; extent-differs
-text _ACTCharStatus_Exec 0x0014B318 0x0014B320 ico2/fumi/src/act-game.c lines=1  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before _ACTSetEnemyDisappearSpeed
-text _ACTSetEnemyDisappearSpeed 0x0014B320 0x0014B330 ico2/fumi/src/act-game.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text ACTGame_SetMotionPlaySpeedRatio_Reserve 0x0014B330 0x0014B358 ico2/fumi/src/act-game.c lines=8  # ordinal; first difference at insn 1; imm:1; extent-equal
-text _ACTGame_GetParamF 0x0014B358 0x0014B370 ico2/fumi/src/act-game.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_GetCurrentCallStatus
-text ACTGame_GetCurrentCallStatus 0x0014B370 0x0014B430 ico2/fumi/src/act-game.c lines=26  # ordinal; first difference at insn 0; length:-1; extent-differs
-text ACTGame_CheckPriInputFrame 0x0014B430 0x0014B4C8 ico2/fumi/src/act-game.c lines=15  # ordinal; first difference at insn 2; imm:4; extent-equal
-text ACTGame_SendSoundMail 0x0014B4C8 0x0014B57C ico2/fumi/src/act-game.c lines=28  # ordinal; first difference at insn 1; imm:9; extent-equal
-text ACTGame_LwsEffectInit 0x0014B580 0x0014B5B4 ico2/fumi/src/act-game.c lines=4  # ordinal; first difference at insn 8; imm:1; extent-equal
-text ACTGame_LwsEffect_Guard 0x0014B5B8 0x0014B660 ico2/fumi/src/act-game.c lines=14  # ordinal; first difference at insn 20; imm:3; extent-equal
-text ActGame_GetOrientQ 0x0014B660 0x0014B704 ico2/fumi/src/act-game.c lines=10  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before _GetRootObjectOrient
-lit4 ActGame_GetOrientQ 0x00630AF8 0x00630AFC ico2/fumi/src/act-game.c  # 1 float
-text _GetRootObjectOrient 0x0014B708 0x0014B764 ico2/fumi/src/act-game.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTItemForceDrop
-text ACTItemForceDrop 0x0014B768 0x0014B7A4 ico2/fumi/src/act-game.c lines=10  # ordinal; first difference at insn 4; imm:3; extent-equal
-text GetOtherStageGirlOrient 0x0014B7A8 0x0014B800 ico2/fumi/src/act-game.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTChkAttackIgnore_BOY
-text ACTChkAttackIgnore_BOY 0x0014B800 0x0014B83C ico2/fumi/src/act-game.c lines=10  # ordinal; first difference at insn 2; length:-5; extent-differs
-text ACTChkAttackIgnore_GIRL 0x0014B840 0x0014B854 ico2/fumi/src/act-game.c lines=15  # ordinal; first difference at insn 1; length:-11; extent-differs
-text ACTChkAttackIgnore_ENEMY 0x0014B858 0x0014B86C ico2/fumi/src/act-game.c lines=20  # ordinal; first difference at insn 0; length:-37; extent-differs
-text ACTCheckCollis_VIEW 0x0014B870 0x0014B970 ico2/fumi/src/act-game.c lines=32  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTCheckViewClDetail
-lit4 ACTCheckCollis_VIEW 0x00630AFC 0x00630B00 ico2/fumi/src/act-game.c  # 1 float
-text ACTCheckViewClDetail 0x0014B970 0x0014BAFC ico2/fumi/src/act-game.c lines=24  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTGame_SetMotionPlaySpeedRatio_Clear
-lit4 ACTCheckViewClDetail 0x00630B00 0x00630B04 ico2/fumi/src/act-game.c  # 1 float
 text ACTGetWish_FromPad 0x0014BDF8 0x0014CEE8 ico2/fumi/src/act-wish.c lines=300  # us-only (after act-parallel-control.c's span; PAL order suggests ACTGetWish_FromPad (4836 B in PAL)); named ACTGetWish_FromPad by call sites, callees (provisional)
 lit4 ACTGetWish_FromPad 0x00630B04 0x00630B20 ico2/fumi/src/act-wish.c  # 7 floats, measured from the base: the text loads them
 rdlit ACTGetWish_FromPad 0x005581E8 0x005581F0 ico2/fumi/src/act-wish.c  # 1 double, measured from the base
