@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
 verify_elf.py: confirm the SHA-1 of an extracted or built artifact matches
-the value recorded in config/sha1sums.txt.
+the value recorded in config/sha1sums.<ver>.txt.
 
 tools/build.sh setup runs it on the base ELF and ROM. Exits 0 on match,
 non-zero on mismatch or missing target.
 
-config/sha1sums.txt is keyed by BASENAME (baseelf.elf / baseelf.rom) on every
-branch, each branch recording only its own target's hashes, so the same
-lookup works for every target's baserom/<ver>/ (tools/ico_version.py). (The
-built ROM's SHA-1 is checked by tools/check_elf.py --gate.)
+Each target records its own hashes in config/sha1sums.<ver>.txt, keyed by
+BASENAME (baseelf.elf / baseelf.rom), so the same lookup works for every
+target's baserom/<ver>/ (tools/ico_version.py; <ver> is VERSION, or the first
+configured target). (The built ROM's SHA-1 is checked by tools/check_elf.py
+--gate.)
 
     verify_elf.py --target baserom/<ver>/baseelf.elf
     verify_elf.py --target baserom/<ver>/baseelf.rom
@@ -23,11 +24,12 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SHA1SUMS = REPO_ROOT / "config" / "sha1sums.txt"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from ico_version import detect_version, link_map_path  # noqa: E402
+from ico_version import detect_version, link_map_path, sha1sums_path  # noqa: E402
 
-LINK_MAP = link_map_path(REPO_ROOT, detect_version(REPO_ROOT)).relative_to(REPO_ROOT)
+VERSION = detect_version(REPO_ROOT)
+SHA1SUMS = sha1sums_path(REPO_ROOT, VERSION)
+LINK_MAP = link_map_path(REPO_ROOT, VERSION).relative_to(REPO_ROOT)
 
 
 def load_recorded(name: str) -> str | None:

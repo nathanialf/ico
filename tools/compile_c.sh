@@ -4,6 +4,11 @@
 # Compile one C source: ee-gcc 2.9-991111 to a .s, then the assembler of the
 # source's archive to the object. build.ninja's cc rule (tools/gen_ninja.py)
 # runs it per object.
+#
+# <src.c> is the source's path (the link-order row, ico2/... or sce/...), or
+# a generated data member build/<slug>/data/<member>.c. The target is VERSION
+# (tools/ico_version.sh); the compile defines VERSION_<SLUG> and LN for it
+# (VERSION_DEFS below).
 
 set -eu
 
@@ -12,6 +17,28 @@ SRC="$1"
 OUT="$2"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+# shellcheck source=tools/ico_version.sh
+. "${ROOT}/tools/ico_version.sh"
+ico_version_init "${ROOT}"
+SRCROOT="${ROOT}"
+
+# One source tree builds every target; where the targets' code differs, the
+# file holds each target's lines in #ifdef VERSION_<SLUG> blocks (PAL's in the
+# #else), and the compile defines VERSION_<SLUG> for the one it builds. LN
+# picks a hand-written source line number for the target, LN(pal, jpn): the
+# original build passed __LINE__ to its debug allocators and asserts, and
+# those lines are part of each build's data (mv_defs.h's alloc_zeroed,
+# FileManager.c's iosMallocDebug calls). A joining target appends its own
+# argument. Measured 2026-10-15: with them every object equals its build
+# without them outside .mdebug, which the link does not keep.
+# A target still on its own branch (us, aug6) gets VERSION_<SLUG> and no LN:
+# its sources do not use it until it joins main.
+VERSION_DEFS="-DVERSION_$(printf '%s' "${ICO_VERSION}" | tr '[:lower:]' '[:upper:]')"
+case "${ICO_VERSION}" in
+    pal) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn)=pal" ;;
+    jpn) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn)=jpn" ;;
+esac
 
 EEGCC_DIR="${EEGCC_DIR:-${ROOT}/tools/cc/ee-gcc2.9-991111}"
 EEGCC_LIB="${EEGCC_DIR}/gcc-lib/ee/2.9-ee-991111-01/"
@@ -89,16 +116,16 @@ esac
 # by public naming (the members and the game TUs include them as <libdma.h>).
 SCE_INCS=""
 for _a in libc libm libvu0 libkernl libpkt libgraph libdma libpad libscf libmpeg libmc libipu libcdvd libsndn2; do
-    SCE_INCS="${SCE_INCS} -I${ROOT}/sce/${_a}"
+    SCE_INCS="${SCE_INCS} -I${SRCROOT}/sce/${_a}"
 done
-# build/stubs/ holds include_asm.h, the campaign's stub scaffolding, which
+# build/<slug>/stubs/ holds include_asm.h, the campaign's stub scaffolding, which
 # tools/gen_stub_s.py writes with the stubs (config/stubs.<slug>.txt); nothing
 # tracked provides it, so a TU that includes it compiles only while stubs exist.
 # Searched last and absolute so it is the same from every compile directory. A
 # search path is not recorded in the object; an object whose source does not
 # include the header is byte-identical with or without it, and with or without
 # the directory.
-CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS} -I${ROOT}/build/stubs"
+CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS} -I${ROOT}/${ICO_BUILD_DIR}/stubs ${VERSION_DEFS}"
 # DUMP MODE: `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
 # pass dump) under the SAME per-origin flags and assembler, then moves the dumps gcc wrote
 # beside the source into DUMP_DIR so nothing lands under ico2/ or sce/. DUMP_FLAGS may add
@@ -142,33 +169,47 @@ mkdir -p "$(dirname "${OUT}")"
 # into __FILE__, so both the source argument (`src/main.c`, not
 # `ico2/common/src/main.c`) and the header spelling (`../ito/include/mv_defs.h`)
 # have to match what the 2002 link recorded.
+# A data member's generated C (build/<slug>/data/<member>.c) compiles as a
+# game TU from ico2/common, which owns typedef.h, given by its absolute path:
+# its headers are included by their place in the tree, relative to the C's
+# own directory (tools/gen_data_c.py), and it spells no __FILE__.
 ICO2_PROG=""
 case "${SRC}" in
     /*) echo "compile_c.sh: give the source as a repo-relative path (ico2/..., sce/...), run from the tree root; got '${SRC}'" >&2; exit 2 ;;
+    build/*/data/*.c) ICO2_PROG=common ;;
     ico2/*/*) ICO2_PROG="${SRC#ico2/}"; ICO2_PROG="${ICO2_PROG%%/*}" ;;
 esac
+case "${SRC}" in
+    build/*) ;;
+    *) if [ ! -e "${SRCROOT}/${SRC}" ]; then
+           echo "compile_c.sh: ${SRC} does not exist" >&2
+           exit 2
+       fi ;;
+esac
 if [ -n "${ICO2_PROG}" ]; then
-    SRC_REL="${SRC#ico2/${ICO2_PROG}/}"
-    SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
+    case "${SRC}" in
+        build/*) SRC_ABS="${ROOT}/${SRC}"; SRC_REL="${SRC_ABS}" ;;
+        *) SRC_ABS="${SRCROOT}/${SRC}"; SRC_REL="${SRC#ico2/${ICO2_PROG}/}" ;;
+    esac
     S_ABS="${S}"; case "${S_ABS}" in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # Search order: the programmer's own include dir first, then the
     # cross-programmer dirs the listing shows their TUs reaching into, then
     # (from CFLAGS) the sce/ archive headers.
     ICO2_INCS=""
     for _p in "${ICO2_PROG}" sugipon omori common ito fumi seki script; do
-        [ -d "${ROOT}/ico2/${_p}/include" ] || continue
+        [ -d "${SRCROOT}/ico2/${_p}/include" ] || continue
         case " ${ICO2_INCS} " in *" -I../${_p}/include "*) continue ;; esac
         ICO2_INCS="${ICO2_INCS} -I../${_p}/include"
     done
     # shellcheck disable=SC2086
-    DUMP_CWD="${ROOT}/ico2/${ICO2_PROG}"
-    ( cd "${ROOT}/ico2/${ICO2_PROG}" \
+    DUMP_CWD="${SRCROOT}/ico2/${ICO2_PROG}"
+    ( cd "${SRCROOT}/ico2/${ICO2_PROG}" \
       && "${ROOT}/tools/period_env.sh" "${CC}" -B "${EEGCC_LIB}" ${ICO2_INCS} ${CFLAGS} -o "${S_ABS}" "${SRC_REL}" )
 else
     # sce/<archive>/<member>.c : the vendor archives were built member by member
     # from inside the member's own directory, so __FILE__ is the bare name
     # (measured 2026-09-16: libscf.o's assert strings carry "libscf.c").
-    SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
+    SRC_ABS="${SRCROOT}/${SRC}"
     S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
     # shellcheck disable=SC2086
     DUMP_CWD="$(dirname "${SRC_ABS}")"

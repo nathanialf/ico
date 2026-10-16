@@ -10,7 +10,11 @@ top-level items sit together. This pass normalises, at brace depth 0 only:
   * preprocessor lines (#define, #if...) form contiguous blocks;
   * every other item (function, struct/union/enum/typedef definition,
     data definition, standalone comment) is separated by exactly one blank
-    line from its neighbours, as is every change of kind.
+    line from its neighbours, as is every change of kind;
+  * a target's version block (#ifdef/#ifndef VERSION_<SLUG>, its #else and
+    #endif) holds its arms tight: no blank line after the opening line or
+    the #else, none before the #else or the #endif. The items inside an arm
+    follow the rules above.
 
 A comment that sits directly above an item (no blank line between) belongs to
 that item and moves with it. Nothing inside a function body is touched.
@@ -21,6 +25,10 @@ that item and moves with it. Nothing inside a function body is touched.
 import re, sys
 
 INCLUDE = re.compile(r"^#\s*include\b")
+VER_OPEN = re.compile(r"^#\s*ifn?def\s+VERSION_\w+\s*$")
+COND_OPEN = re.compile(r"^#\s*if")
+COND_ELSE = re.compile(r"^#\s*else\b")
+COND_END = re.compile(r"^#\s*endif\b")
 PP = re.compile(r"^#")
 DECL_START = re.compile(r"^(extern\b|static\s+inline\b[^{]*\)\s*;|inline\b[^{]*\)\s*;|[A-Za-z_][\w \*]*\b[A-Za-z_]\w*\s*\([^;{]*\)\s*;)")
 
@@ -71,6 +79,10 @@ def items(lines):
     cur_kind = None
     pending_comment = []
     in_comment_item = False
+    conds = []  # one entry per open top-level conditional: is it a version block
+    # brace depth at each open conditional: an #else arm is an alternative to
+    # the arm before it, so it starts from the depth its #if started from
+    cond_depth = []
 
     def flush():
         nonlocal cur, cur_kind
@@ -83,6 +95,13 @@ def items(lines):
         raw = lines[i]
         code = strip_code(raw, state)
         stripped = raw.strip()
+        directive = code.strip()
+        if COND_OPEN.match(directive):
+            cond_depth.append(depth)
+        elif COND_ELSE.match(directive) and cond_depth:
+            depth = cond_depth[-1]
+        elif COND_END.match(directive) and cond_depth:
+            cond_depth.pop()
         if depth == 0 and not cur:
             if stripped == "":
                 # a blank line ends a standalone comment
@@ -99,8 +118,20 @@ def items(lines):
             # start of an item; attach any pending comment
             if INCLUDE.match(stripped):
                 kind = "include"
+            elif VER_OPEN.match(stripped):
+                kind = "ver_open"
+                conds.append(True)
+            elif COND_ELSE.match(stripped) and conds and conds[-1]:
+                kind = "ver_else"
+            elif COND_END.match(stripped) and conds and conds[-1]:
+                kind = "ver_end"
+                conds.pop()
             elif PP.match(stripped):
                 kind = "pp"
+                if COND_OPEN.match(stripped):
+                    conds.append(False)
+                elif COND_END.match(stripped) and conds:
+                    conds.pop()
             elif DECL_START.match(stripped) and "{" not in code:
                 kind = "decl"
             else:
@@ -110,7 +141,8 @@ def items(lines):
             cur_kind = kind
             depth += code.count("{") - code.count("}")
             # single-line items end here unless a statement continues
-            ends = (kind in ("include", "pp") and not stripped.endswith("\\")) or \
+            ends = (kind in ("include", "pp", "ver_open", "ver_else", "ver_end")
+                    and not stripped.endswith("\\")) or \
                    (kind == "decl" and code.rstrip().endswith(";")) or \
                    (kind == "def" and depth == 0 and (code.rstrip().endswith(";") or code.rstrip().endswith("}")))
             if kind == "def" and depth == 0 and not ends and not code.strip():
@@ -151,6 +183,8 @@ def render(its):
             ls = ls[:-1]
         if prev is not None:
             if kind in CONTIG and prev == kind:
+                pass
+            elif prev in ("ver_open", "ver_else") or kind in ("ver_else", "ver_end"):
                 pass
             else:
                 out.append("")

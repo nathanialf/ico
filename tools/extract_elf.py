@@ -3,8 +3,8 @@
 extract_elf.py: pull the EE-side boot ELF out of the user's ICO disc image,
 record its SHA-1, and dump a hint about the compiler fingerprint.
 
-Version-aware (tools/ico_version.py picks the branch's target, and its DISCS
-table names each target's disc):
+Version-aware (tools/ico_version.py picks the target, VERSION or the first
+configured one, and its DISCS table names each target's disc):
 
     slug  disc image the user supplies   outputs under baserom/<slug>/
     ----  ----------------------------   -----------------------------------
@@ -46,7 +46,7 @@ import pycdlib
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ico_version import (  # noqa: E402
     DISCS, detect_version, baserom_dir, baseelf_path, rom_path,
-    disc_name, disc_image, disc_cue,
+    disc_name, disc_image, disc_cue, sha1sums_path,
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -57,7 +57,7 @@ VERSION = detect_version(REPO_ROOT)
 OUT_DIR = baserom_dir(REPO_ROOT, VERSION)
 ELF = baseelf_path(REPO_ROOT, VERSION)
 ROM = rom_path(REPO_ROOT, VERSION)     # objcopy -O binary view, the ROM SHA-1's subject
-SHA1SUMS = REPO_ROOT / "config" / "sha1sums.txt"
+SHA1SUMS = sha1sums_path(REPO_ROOT, VERSION)
 
 
 def disc_recipe(version: str) -> dict | None:
@@ -206,12 +206,27 @@ def sha1_of(path: Path) -> str:
     return h.hexdigest()
 
 
+def sha1sums_header() -> list[str]:
+    """The five comment lines a new config/sha1sums.<ver>.txt starts with."""
+    d = DISCS.get(VERSION, {})
+    return [
+        "# Format: <SHA-1>  <filename>",
+        f"# Target {VERSION}. ICO {disc_name(VERSION) or VERSION}.",
+        f"# Files live under baserom/{VERSION}/ (gitignored); the names below are basenames.",
+        f"# baseelf.elf: EE boot ELF extracted from the {d.get('region', VERSION)} disc.",
+        f"# baseelf.rom: objcopy -O binary --gap-fill=0x00 view; build/{VERSION}/ico.rom must have this SHA-1.",
+    ]
+
+
 def update_sha1sums(name: str, sha1: str) -> str | None:
-    """Record (or verify) sha1 for `name` in config/sha1sums.txt.
+    """Record (or verify) sha1 for `name` in config/sha1sums.<ver>.txt,
+    creating the file with its header when the target has none.
     Returns the existing hash if there was a mismatch, else None.
     """
     lines: list[str] = []
-    if SHA1SUMS.exists():
+    if not SHA1SUMS.exists():
+        lines = sha1sums_header()
+    else:
         for line in SHA1SUMS.read_text().splitlines():
             stripped = line.strip()
             if not stripped or stripped.startswith("#"):
@@ -349,8 +364,8 @@ def main() -> int:
         print("extract_elf: extraction produced empty ELF", file=sys.stderr)
         return 2
 
-    # 3. SHA-1 record / verify. sha1sums.txt is keyed by BASENAME on every
-    #    branch (each branch records only its own target's hashes).
+    # 3. SHA-1 record / verify. config/sha1sums.<ver>.txt is keyed by
+    #    BASENAME, one file per target.
     sha1 = sha1_of(ELF)
     print(f"==> {ELF.name} SHA-1: {sha1}")
     mismatch = update_sha1sums("baseelf.elf", sha1)

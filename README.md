@@ -16,14 +16,9 @@ records and tables in which the two builds differ;
 [`docs/README.md`](docs/README.md) lists those differences.
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
-![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
-![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.82%20%25%20source%20%2B%2027.18%20%25%20disc%29-brightgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.50%20%25%20source%20%2B%2090.50%20%25%20disc%29-brightgreen.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg)
-![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
+| Target | Sections identical to the base |
+| --- | --- |
+| [Japanese retail (SCPS-11003)](https://nathanialf.github.io/ico/#jpn) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.82%20%25%20source%20%2B%2027.18%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.50%20%25%20source%20%2B%2090.50%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#jpn)**: every
@@ -57,18 +52,18 @@ fails. The host needs a 64-bit Linux with 32-bit libraries, a host gcc,
 [`docs/BUILDING.md`](docs/BUILDING.md) lists the packages and describes each
 step.
 
-The build checks the SHA-1s from `config/sha1sums.txt`: the extracted ELF
+The build checks the SHA-1s from `config/sha1sums.jpn.txt`: the extracted ELF
 before it starts, and the rebuilt ROM image and the rebuilt ELF at the end.
 
 | file | SHA-1 |
 | --- | --- |
 | `baserom/jpn/baseelf.elf` (the disc's `SCPS_110.03`) | `580da1dcc4c239a1608a10300e7e220fe5d35525` |
-| `baserom/jpn/baseelf.rom` and `build/ico.rom` (`objcopy -O binary`) | `58ef44cfeeacd060ffb2acfbf42d8a21bbffd318` |
+| `baserom/jpn/baseelf.rom` and `build/jpn/ico.rom` (`objcopy -O binary`) | `58ef44cfeeacd060ffb2acfbf42d8a21bbffd318` |
 
 The gate (`tools/check_elf.py --gate`) also compares every allocated section
-of `build/ico.elf` with the base ELF by address and checks that `.sbss` and
+of `build/jpn/ico.elf` with the base ELF by address and checks that `.sbss` and
 `.bss` cover the base's ranges, and that the whole-file SHA-1 of
-`build/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
+`build/jpn/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
 the symbol-name strings ld keeps and the `.DVP` overlay names and tables all
 match. The overlay names hash the file and line the DVP assembler was reading
 and are the same as PAL's: each microprogram's `.dsm` for the first, then the
@@ -90,8 +85,8 @@ so the build does not depend on the host's heap. `tools/check_elf.py
 
 There is one badge per section of the base ELF, in link order.
 `tools/check_elf.py --progress` (`tools/build.sh progress`) rewrites them,
-[`docs/PROGRESS.md`](docs/PROGRESS.md) and the dashboard's
-`docs/progress.json` from the built ELF and its link map.
+[`docs/jpn/PROGRESS.md`](docs/jpn/PROGRESS.md) and the dashboard's
+`docs/jpn/progress.json` from the built ELF and its link map.
 
 A badge reads `100 %` when the whole section equals the base. Where part of a
 section comes from the data tables (next section), the badge splits the
@@ -112,8 +107,8 @@ run's place in this ELF was found from the code that reads it, and each
 member keeps PAL's name by member order; the file's header gives the method,
 and each row says how its content compares with PAL's. They are the game's
 content, and nothing of that content is committed. The build generates them
-from the user's own `baserom/jpn/baseelf.elf` into `build/data/`. Each member
-becomes `build/data/<member>.c`, an initialized array of its record type
+from the user's own `baserom/jpn/baseelf.elf` into `build/jpn/data/`. Each member
+becomes `build/jpn/data/<member>.c`, an initialized array of its record type
 compiled with the game's flags (`tools/gen_data_c.py`);
 `config/data_schema.jpn.txt` holds only the record type, its header, the
 element count, MAIN.MAP's symbol names and which fields are masks. A count
@@ -168,7 +163,7 @@ from a Sony SDK.
 | ee-gcc 2.9-991111-01 | compiles every C file | `decompme/compilers` release `ee-gcc2.9-991111-01.tar.xz` | GNU GPL (GCC) |
 | ee-as 2.9-991111 (bundled with that compiler) | assembles the game, libc, libm and libgcc | same archive | GNU GPL (binutils) |
 | SCE ee-as 2.10-ee-001003-1 (bundled with ee-gcc 2.96) | assembles the SDK archives under `sce/` | `decompme/compilers` release `ee-gcc2.96.tar.xz`; only its assembler runs | GNU GPL (binutils) |
-| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
+| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/jpn/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
 | dvp-as with `tools/binutils-dvp-overlay-fill.patch` | assembles the VU1 microprograms | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea3` | GPL-3.0-or-later |
 
 The assembler follows the archive, as the disc's link did: the PAL disc's
@@ -182,7 +177,7 @@ DVP overlay sections from ps2dev's `binutils-2.14-PS2.patch`; the second
 places each VU overlay at address 0, the rule of the Cygnus linker shipped
 with the GPL ee-gcc 2.9-991111 sources. The licence notices are the tools'
 own (`--version` for the assemblers and ld; the source trees for the rest).
-The host's `mips-linux-gnu-objcopy` writes `build/ico.rom`.
+The host's `mips-linux-gnu-objcopy` writes `build/jpn/ico.rom`.
 
 ## Branches
 

@@ -28,7 +28,7 @@ You also need your own image of the Japanese disc, SCPS-11003, as the raw
 disc), so no extra package is needed. The build accepts exactly one revision,
 `VER = 1.02` in the disc's `SYSTEM.CNF`:
 
-| file | SHA-1 (`config/sha1sums.txt`) |
+| file | SHA-1 (`config/sha1sums.jpn.txt`) |
 | --- | --- |
 | `baserom/jpn/baseelf.elf`, the disc's `SCPS_110.03` | `580da1dcc4c239a1608a10300e7e220fe5d35525` |
 | `baserom/jpn/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `58ef44cfeeacd060ffb2acfbf42d8a21bbffd318` |
@@ -137,7 +137,7 @@ runs read directly. It then reads that ISO9660 filesystem with pycdlib
 (`tools/extract_elf.py`), extracts the boot file named by `SYSTEM.CNF`'s
 `BOOT2` line (`SCPS_110.03`), and writes `baserom/jpn/baseelf.elf` and its
 `objcopy -O binary` view `baserom/jpn/baseelf.rom`. It checks both SHA-1s
-against `config/sha1sums.txt` and stops on a mismatch. It also copies the
+against `config/sha1sums.jpn.txt` and stops on a mismatch. It also copies the
 disc's `SYSTEM.CNF` into `baserom/jpn/`; the Japanese disc ships no map or
 listing (`docs/LEGAL.md`). Everything under `baserom/` is gitignored.
 
@@ -194,7 +194,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   dvp-as writes hash the name of the file it is reading and the line: the
   `.dsm` path for the first overlay of each program, the empty name cpp gives
   standard input and the include's path for the others;
-- writes the data-only members from the base ELF into `build/data/`. Each
+- writes the data-only members from the base ELF into `build/jpn/data/`. Each
   of the 73, all listed in `config/data_schema.jpn.txt`, is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
   with every pointer named after the symbol at its address, floats as the
@@ -203,12 +203,12 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   literals its pointers name, and the compiler lays it out; a count the
   schema marks `count-of=` (staffroll_dat's line count) is written as
   `sizeof` over the table, not read from the ELF. The addresses
-  come from a first link, `build/ico.layout.elf`, in which a zero stand-in of
+  come from a first link, `build/jpn/ico.layout.elf`, in which a zero stand-in of
   the member's size takes its place. The C compiles with the game's flags
   like any `ico2/` source, each section of the object is checked against the
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
-  its offset by `build/data/<member>.alias.ld`;
+  its offset by `build/jpn/data/<member>.alias.ld`;
 - writes the stubs, when `config/stubs.jpn.txt` has rows (on this branch it
   has none, as on `main`, and this step does nothing). While a target is
   rebuilt from a tree seeded from another, a function whose C does not yet
@@ -219,7 +219,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   in two TUs share a name; a function defined in a `.c.inc` the TU includes
   has its line there, named by the row's `in=<file.c.inc>`, and the TU's
   object depends on that file). `tools/gen_stub_s.py` writes
-  `build/stubs/<stem>.s` from the user's own base ELF, one `.word` per
+  `build/jpn/stubs/<stem>.s` from the user's own base ELF, one `.word` per
   instruction with no relocations, and the assembler reads it at that point
   of the compiler's output, so the stub sits between the functions around it
   and the gate passes at every commit. The constants the function brought
@@ -236,7 +236,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   split in two: gcc writes its strings and other constants where the
   function is defined, among its neighbours', and its code after the whole
   file, so its `rdlit` and `sdlit` rows for those carry `def`,
-  `gen_stub_s.py` writes them to `build/stubs/<stem>.lit.s`, and the file
+  `gen_stub_s.py` writes them to `build/jpn/stubs/<stem>.lit.s`, and the file
   reads them with `INCLUDE_ASM_LIT(stem);` in the definition's place, while
   the code, the .lit4 floats, the `li.d` doubles and the jump tables (the
   assembler interns .lit4 in load order, and a jump table is referenced
@@ -251,7 +251,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   `%hi`/`%lo` pairs), and the two lists must pair one to one; what cannot be
   placed by a row is printed as HAND and a pair that differs as DISAGREE,
   for the hand. It writes the
-  macro's header too, `build/stubs/include_asm.h`, which
+  macro's header too, `build/jpn/stubs/include_asm.h`, which
   `tools/compile_c.sh` searches last: the tree tracks no copy, so a TU that
   includes it compiles only while stubs exist. `--carve NAME` and
   `--restore NAME` (`--carve-all`, `--restore-all`) replace a definition
@@ -279,17 +279,17 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   range, relocated fields masked, so a function's state is known before the
   link; `tools/object_check.py` compares each object's `.text` with the
   target at the object's address in the link (or, when the link fails, in
-  `build/ico.layout.elf`), relocated fields masked, and with `--order` each
+  `build/jpn/ico.layout.elf`), relocated fields masked, and with `--order` each
   TU's function order with the target's, naming a stub placed before
   functions the target emits earlier;
-- links with ld 2.10 and `config/link.jpn.ld`, once to `build/ico.syms.elf`
-  (symbols kept, with the map `build/ico.jpn.map`) and once stripped to
-  `build/ico.elf`, as the base is;
-- writes `build/ico.rom` with `objcopy -O binary`;
+- links with ld 2.10 and `config/link.jpn.ld`, once to `build/jpn/ico.syms.elf`
+  (symbols kept, with the map `build/jpn/ico.jpn.map`) and once stripped to
+  `build/jpn/ico.elf`, as the base is;
+- writes `build/jpn/ico.rom` with `objcopy -O binary`;
 - runs `tools/check_elf.py --gate`: every allocated section of
-  `build/ico.elf` must hold the base ELF's bytes at the base's addresses,
+  `build/jpn/ico.elf` must hold the base ELF's bytes at the base's addresses,
   `.sbss` and `.bss` must be allocated over the base's ranges, and
-  `build/ico.rom` and `build/ico.elf` must have the recorded SHA-1s
+  `build/jpn/ico.rom` and `build/jpn/ico.elf` must have the recorded SHA-1s
   (`--require-elf-sha`). A second, informational table compares `.reginfo`,
   the `.DVP.*` sections, `e_flags`, `e_entry` and the program and section
   headers. The build fails when a gated check fails.
@@ -311,17 +311,17 @@ ASCII patch and `git apply`.
 ## Progress and the dashboard
 
 `tools/build.sh progress` runs `tools/check_elf.py --progress`, which
-rewrites the README's badge block, the table in `docs/PROGRESS.md` and
-`docs/progress.json` from the built ELF, its link map and the function
-symbols of `build/ico.syms.elf`. A byte counts for its section when the map
+rewrites the README's badge block, the table in `docs/jpn/PROGRESS.md` and
+`docs/jpn/progress.json` from the built ELF, its link map and the function
+symbols of `build/jpn/ico.syms.elf`. A byte counts for its section when the map
 row that places it belongs to an object built from `ico2/` or `sce/` and the
-byte equals the base's; bytes from `build/data/` are counted separately as
+byte equals the base's; bytes from `build/jpn/data/` are counted separately as
 extracted tables. The count is by object, so `staffroll_dat`'s count word
 (4 bytes of `.sdata`) counts as from the disc although the generator
 computes it from the table's element count.
 
 The dashboard is `docs/index.html`, which reads `progress.json`. On a push
-that changes `docs/index.html`, `docs/progress.json`, `docs/PROGRESS.md`,
+that changes `docs/index.html`, `docs/jpn/progress.json`, `docs/jpn/PROGRESS.md`,
 the workflow or its script, `.github/workflows/pages.yml` runs
 `.github/scripts/build_pages_site.sh`, which assembles one site and deploys
 it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
@@ -358,6 +358,6 @@ gate after formatting.
 
 ## Running the rebuilt ELF (optional)
 
-Any PS2 emulator can run `build/ico.elf` as a sanity check, with
+Any PS2 emulator can run `build/jpn/ico.elf` as a sanity check, with
 the cooked `baserom/Ico_JPN.iso` (or the `.bin` and `.cue`) as the disc for
 the game's data files.
