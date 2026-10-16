@@ -277,7 +277,7 @@ static int tex_loadImage(unsigned int addr, TexData *tex, int idx, short dbp, sh
     gif_EndPacket();
     dl_OpenDma(2, &tex->levelPkt[idx], 5);
     dl_CloseDma();
-    dl_OpenDma(2, addr & 0x0FFFFFFF, size + 3);
+    dl_OpenDma(2, (void *)(addr & 0x0FFFFFFF), size + 3);
     dl_CloseDma();
     dl_OpenDma(2, texFlushPacket, 3);
     dl_CloseDma();

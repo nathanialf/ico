@@ -410,7 +410,7 @@ static void iosCdvdMgrStStart(IosCdvdHandle *self)
     rest = lsn - self->file.lsn - 1;
     self->left = total - rest;
     stReq.command = 0;
-    iosMsgSend(&stReqQ, &stReq, 1);
+    iosMsgSend(&stReqQ, (int)&stReq, 1);
     self->inflate = open_inflate_handler(inflate_cd_read_func, self);
 }
 
@@ -423,7 +423,7 @@ static void iosCdvdMgrStStop(IosCdvdHandle *self)
     pri = iosThreadGetPri(0);
     iosThreadSetPri(0, 27);
     stReq.command = 1;
-    iosMsgSend(&stReqQ, &stReq, 1);
+    iosMsgSend(&stReqQ, (int)&stReq, 1);
     if (stReq.state == 1) {
         sceCdBreak();
     }
@@ -681,7 +681,7 @@ static int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *se
             total += size;
             if (stReq.state == 2) {
                 stReq.command = 2;
-                iosMsgSend(&stReqQ, &stReq, 1);
+                iosMsgSend(&stReqQ, (int)&stReq, 1);
             }
         }
         iosThreadSetPri(0, pri);
@@ -842,8 +842,8 @@ void iosCdvdManager(void)
     sceCdMmode(iosCdvdMediaType);
     sceFsReset();
 
-    iosThreadCreate(stThread, 6, iosCdvdStManager, 0, stStack, 16384, 27);
-    iosThreadStart(stThread);
+    iosThreadCreate((IOSThread *)stThread, 6, iosCdvdStManager, 0, stStack, 16384, 27);
+    iosThreadStart((IOSThread *)stThread);
 
     iosCdvdBackGroundMgrInit();
     /* the start banner, compiled out; its string stays in .rodata */
@@ -859,7 +859,7 @@ void iosCdvdManager(void)
     SignalSema(IosCdLock);
 
     while (1) {
-        while (iosMsgRecv(&CdvdMsgQ, &msg, 0) == -1) {
+        while (iosMsgRecv(&CdvdMsgQ, (int *)&msg, 0) == -1) {
             iosCdvdBackGroundMgrRunning = 1;
             iosCdvdBackGroundMgr();
             iosCdvdBackGroundMgrRunning = 0;
@@ -890,7 +890,7 @@ void iosCdvdManager(void)
         }
         {
             char reply[33216];
-            iosMsgSend(&CdvdMsgQ_LoadEnd, reply, 0);
+            iosMsgSend(&CdvdMsgQ_LoadEnd, (int)reply, 0);
         }
     }
 }
@@ -913,7 +913,7 @@ void iosCdvdLoad(int req, int inflate)
 static void iosCdvdPackLoad(IosCdvdHandle *cdvd)
 {
     cdvd->ctl.i[1] = 2;
-    iosMsgSend(&CdvdMsgQ, cdvd, 0);
+    iosMsgSend(&CdvdMsgQ, (int)cdvd, 0);
 }
 
 CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, void *readArg, void *readyFunc,

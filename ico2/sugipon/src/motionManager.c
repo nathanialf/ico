@@ -487,7 +487,7 @@ static void checkCliffState(int first)
 
     memset(&buf, 0, sizeof(buf));
     p = &buf;
-    k = (skelGObj == boyGObj) ? -20.0f : 0.0f;
+    k = ((GObj *)skelGObj == boyGObj) ? -20.0f : 0.0f;
     cliffCheckBase[2] = k;
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(cliffCheckBase);
@@ -642,7 +642,7 @@ static void _checkCliffAndWall(void)
                 skelMotCtrl->wallTopHeight += 30.0f;
             }
         }
-        if (skelGObj == boyGObj && GOBJ_SUB(skelGObj)->ctrl.cliffEdge == 0) {
+        if ((GObj *)skelGObj == boyGObj && GOBJ_SUB(skelGObj)->ctrl.cliffEdge == 0) {
             _SubVectorXYZ(v, skelRoot->pos, skelRoot->last);
             v[1] = 0.0f;
             d = VectorLengthSquare(v);
@@ -935,7 +935,7 @@ static void execPositionReserver(GObj *self, ObjNode m)
         }
     }
     if (debug_skel_flag != 0) {
-        if (skelGObj == boyGObj) {
+        if ((GObj *)skelGObj == boyGObj) {
             CopyVector(buf2, skelRoot->savePos);
             _UnitMatrix(MatrixDrive_GetMatrix());
             if (m.obj != 0) {
@@ -970,7 +970,8 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
         MOWORK(self)->localPos[3] = 1.0f;
         CopyVector(v2, MOWORK(self)->localPos);
         sceVu0ApplyMatrix(
-            (int *)v2, GOBJ_SUB(MOWORK(self)->local.obj)->nodeMtx + MOWORK(self)->local.node * 64,
+            (int *)v2,
+            (void *)(GOBJ_SUB(MOWORK(self)->local.obj)->nodeMtx + MOWORK(self)->local.node * 64),
             (char *)v2);
     } else {
         AddVectorXYZ(MOWORK(self)->localPos, MOWORK(self)->localPos, MOWORK(self)->localMove);
@@ -1018,7 +1019,7 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
         gif_SetAlpha(1, 5, 128);
         gif_SetZTest(0);
         gif_EndPacket();
-        dispPlane(MOWORK(self)->root.plane.f, MOWORK(self)->root.pos);
+        dispPlane((Vec4 *)MOWORK(self)->root.plane.f, MOWORK(self)->root.pos);
         gif_StartPacketPri(11);
         gif_SetZTest(1);
         gif_EndPacket();
@@ -1039,7 +1040,8 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
     MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] - skelRoot->height;
     if (sh.obj != 0) {
         float m[16];
-        MatrixDrive_SetTransposeMatrix((void *)m, GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 64);
+        MatrixDrive_SetTransposeMatrix((void *)m,
+                                       (void *)(GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 64));
         sceVu0ApplyMatrix((MOWORK(self)->motionPos), m, MOWORK(self)->motionPos);
     }
     execPositionReserver(self, sh);
@@ -1244,7 +1246,7 @@ void SkelTestGeo(GObj *self)
         s2 = GOBJ_SUB(self);
         for (i = 0; i < s2->skelNodeNum; i++) {
             int e = s2->nodeMtx + i * 64;
-            sceVu0MulMatrix(e, &s2->matrix, e);
+            sceVu0MulMatrix((void *)e, &s2->matrix, (void *)e);
             s2 = GOBJ_SUB(self);
         }
         if (debug_skel_flag != 0) {

@@ -502,7 +502,7 @@ inline int adpcmTickProc(CdvdBgReq *self, SqEntry *obj)
             size = st->ringSize - st->seekSize;
         }
         if (size > 0x1EAAA || cur < st->seekSize) {
-            iosCdvdBackGroundReadIOPm(self, st->iopBuf + st->seekSize, size);
+            iosCdvdBackGroundReadIOPm(self, (void *)(st->iopBuf + st->seekSize), size);
         } else {
             size = 0;
         }
@@ -523,7 +523,7 @@ static inline void adpcmDiskReturnReady(void) {}
 
 static inline int adpcmOpenProc(CdvdBgReq *bg, AdpcmOpenReq *open)
 {
-    iosCdvdBackGroundReadIOPm(bg, open->iopBuf, 376832);
+    iosCdvdBackGroundReadIOPm(bg, (void *)open->iopBuf, 376832);
     return 1;
 }
 

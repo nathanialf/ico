@@ -4,6 +4,11 @@
 #include "matrixDrive.h"
 #include "Matrix.h"
 
+inline void MultiQuaternion(void *out, void *qa, void *qb);
+inline void RotQuaternionX(void *self, short ang);
+inline void RotQuaternionY(void *self, short ang);
+inline void RotQuaternionZ(void *self, short ang);
+
 /* the current depth of the quaternion stack below */
 static int quatStackIndex = -1; /* derived name */
 
@@ -377,7 +382,7 @@ inline void DivQuaternion(void *self, void *qa, void *qb)
     float buf[4];
     GetInverseQuaternion(buf, qb);
     /* the call goes through a cast of MultiQuaternion's declaration */
-    ((void (*)(int, int, int))MultiQuaternion)(self, buf, qa);
+    ((void (*)(void *, float *, void *))MultiQuaternion)(self, buf, qa);
 }
 
 inline void GetMatrixFromQuaternionRotElem(void *mtx, void *q)

@@ -1576,7 +1576,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         if (!ACTGame_NoWeapon(self)) {
             x = ACTGame_isWeaponEnableCatchfire(sub->weapon);
             if (x != 0) {
-                if (!IsTorchLightOn(x)) {
+                if (!IsTorchLightOn((GObj *)x)) {
                     if (t30 != 0)
                         *(unsigned long long *)((char *)sub + 0x480) |= (1ULL << 33);
                 } else {

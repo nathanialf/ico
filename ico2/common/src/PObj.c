@@ -190,7 +190,7 @@ static void MakePacket(PObj *p, int n)
     q->nodes = mallocseki(p->partCount * 80);
     if (q->lightMtx->kind != 4) {
         if (p->image != 0)
-            p2o_MakePacket(q);
+            p2o_MakePacket((Sub15C *)q);
     }
     debug_StdPrintfDummy("end of packet making...\n");
 }

@@ -407,11 +407,11 @@ static void execClothes(GObj *gobj)
     BoyWork *w = GOBJ_SUB(gobj)->work;
 
     if (w->wet != 0) {
-        GetCloth4DWithDetail(w->mantle, 0.0f, 0.5f, 1.0f, 0.0f);
-        GetCloth4DWithDetail(w->tape, 0.0f, 0.5f, 1.0f, 0.0f);
-        GetCloth4D(w->tapeB, 5.0f, 0.98f);
-        GetCloth4D(w->tapeBoro1, 5.0f, 0.98f);
-        GetCloth4D(w->tapeBoro2, 5.0f, 0.98f);
+        GetCloth4DWithDetail((Cloth4D *)w->mantle, 0.0f, 0.5f, 1.0f, 0.0f);
+        GetCloth4DWithDetail((Cloth4D *)w->tape, 0.0f, 0.5f, 1.0f, 0.0f);
+        GetCloth4D((Cloth4D *)w->tapeB, 5.0f, 0.98f);
+        GetCloth4D((Cloth4D *)w->tapeBoro1, 5.0f, 0.98f);
+        GetCloth4D((Cloth4D *)w->tapeBoro2, 5.0f, 0.98f);
         w->detail = 1.0f;
     } else {
         float f = w->detail;
@@ -597,10 +597,10 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     w->head = (Sub15C *)CSVSYSTEM_InitDObj(2, csv);
     w->body = (Sub15C *)CSVSYSTEM_InitDObj(3, csv);
     if (w->body->nodeMtx != 0) {
-        iosFree(w->body->nodeMtx & 0xFFFFFFF);
+        iosFree((void *)(w->body->nodeMtx & 0xFFFFFFF));
     }
     if (w->body->nodeQuat != 0) {
-        iosFree(w->body->nodeQuat & 0xFFFFFFF);
+        iosFree((void *)(w->body->nodeQuat & 0xFFFFFFF));
     }
     w->body->nodeMtx = 0;
     w->body->nodeQuat = 0;
@@ -608,7 +608,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     w->body->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 32, "src/boy.c", 291);
     w->body->nodeNum = 2;
     if (w->body->nodes != 0) {
-        iosFree((int)w->body->nodes & 0xFFFFFFF);
+        iosFree((void *)((int)w->body->nodes & 0xFFFFFFF));
     }
     w->body->nodes = iosMallocDebug(ios_partition_seki, 160, "src/boy.c", 291);
     for (i = 0; i < 2; i++) {
@@ -627,9 +627,9 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
         w->body->nodes[i].scale[2] = 1.0f;
     }
     w->body->dispType = 2;
-    w->crown0 = CSVSYSTEM_InitDObj(1, csv);
-    w->crown1 = CSVSYSTEM_InitDObj(15, csv);
-    w->crown2 = CSVSYSTEM_InitDObj(16, csv);
+    w->crown0 = (char *)CSVSYSTEM_InitDObj(1, csv);
+    w->crown1 = (char *)CSVSYSTEM_InitDObj(15, csv);
+    w->crown2 = (char *)CSVSYSTEM_InitDObj(16, csv);
     (*(BoyWork **)(*(char **)(((char *)gobj) + 0x15C) + 0x830))->crown = 0;
     sceVu0UnitMatrix(w->crown0 + 0x20);
     InitMotionOrient(gobj, 0, 0x503, 0, 0xC, 0);

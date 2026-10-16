@@ -1710,7 +1710,7 @@ inline void subGirlBrain_Busy(GObj *volatile self)
     sub->stick.mag = 0;
     while (1) {
         if (w->others.num) {
-            _ACTCharStatus_Set((void *)self, 2, -1.0f, w->others.ent[0].obj);
+            _ACTCharStatus_Set((void *)self, 2, -1.0f, (int)w->others.ent[0].obj);
         }
         if (((60 - systemStatus[0] * 10) / systemStatus[1] < i &&
              ACTGameView_Check(self, boyGObj)) ||
@@ -3695,7 +3695,7 @@ inline void afterGirlHand(unsigned int self)
     ACTGame_DisconnectHand();
     debug_StdPrintfDummy("after func\n");
     iosPadActStop(7);
-    ACTWay_SetBeginPositionIllegal(local);
+    ACTWay_SetBeginPositionIllegal((GObj *)local);
 }
 
 /* the hand manager's record, all zero and explicitly initialised so that it
@@ -4542,7 +4542,7 @@ void actGirlStart(void *self)
     GirlInfo[1] = 0;
     GirlInfo[0] = (60 - systemStatus[0] * 10) / systemStatus[1] * 30;
     debug_StdPrintfDummy("actGirlStart:%p\n", self);
-    p = actInitialize(self);
+    p = (char *)actInitialize(self);
     actInitialize_ext_charcter(self);
     actInitialize_only_charcter(self);
     actInitialize_geo(self);

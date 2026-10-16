@@ -87,7 +87,7 @@ void SetCorrectOrientOfChain(void *self);
 void actAfterForceRope(GObj *volatile self);
 inline void actAfterForceRopeSwing(GObj *volatile self);
 static inline void actAfterRopeJump(GObj *volatile self);
-static inline void afterCommonRopeCliff(char *self);
+static inline void afterCommonRopeCliff(GObj *self);
 static inline void afterCommonRopeTurnSpecial(GObj *volatile self);
 inline void actAfterDown(GObj *volatile self);
 void afterCommonCling(volatile unsigned int self);
@@ -934,7 +934,7 @@ inline void afterCommonRope(GObj *volatile self)
     ReleaseChain(s->chain, self);
     {
         GObj *g = self;
-        *(int *)((int)s + 0x194) = s->chain;
+        *(int *)((int)s + 0x194) = (int)s->chain;
         GOBJ_SUB(g)->root.ropeState = 0;
     }
 }
@@ -1716,7 +1716,7 @@ void actCommonCling(GObj *volatile self)
     tgt = GOBJ_ACT(self)->enemy->clingReq;
 
     GOBJ_ACT(self)->enemy->clingTarget = tgt;
-    ACTGameCollisionOff(self);
+    ACTGameCollisionOff((void *)self);
     Cling(no, tgt);
     _ACTWait(0);
 }
@@ -1778,7 +1778,7 @@ inline void actCommonRevive(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
 
     debug_StdPrintfDummy("enter actCommonRevive\n");
-    ACTGameCollisionOff(self);
+    ACTGameCollisionOff((void *)self);
     ((ReviveSub *)s)->f14 = (int)afterCommonRevive;
     SetDirectRootPositionNoFitting((void *)self, &s->restartPosX);
     EnemySetfAppearAll((void *)self);
@@ -4769,9 +4769,9 @@ static inline void actAfterRopeJump(GObj *volatile self)
     GOBJ_ACT(g)->flags20.ll |= (1ULL << 31);
 }
 
-static inline void afterCommonRopeCliff(char *self)
+static inline void afterCommonRopeCliff(GObj *self)
 {
-    char *volatile local = self;
+    char *volatile local = (char *)self;
     char *g = *(char **)((char *)boyGObj + 0x15C);
     *(int *)(g + 0x420) = 0;
 }
@@ -4789,7 +4789,7 @@ inline void actAfterDown(GObj *volatile self)
 
 inline void afterCommonCling(volatile unsigned int self)
 {
-    ACTGameCollisionOn(self);
+    ACTGameCollisionOn((void *)self);
 }
 
 inline void actAfterSlip(int x)
@@ -4799,7 +4799,7 @@ inline void actAfterSlip(int x)
 
 inline void afterCommonRevive(volatile unsigned int self)
 {
-    ACTGameCollisionOn(self);
+    ACTGameCollisionOn((void *)self);
 }
 
 inline void afterCommonStone(GObj *volatile self)
@@ -4872,7 +4872,7 @@ static inline void afterCommonBecarry(GObj *volatile self)
 {
     SetKidnapInfo(-1, -1);
     ((BecSub *)(int)GOBJ_SUB(self))->coll = 1;
-    ACTGameCollisionOn(self);
+    ACTGameCollisionOn((void *)self);
     gflagOff(393);
 }
 

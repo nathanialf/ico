@@ -198,10 +198,10 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
 #endif
     p->dobj = d;
     if (d->nodeMtx != 0) {
-        iosFree(d->nodeMtx & 0xFFFFFFF);
+        iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
     }
     if (p->dobj->nodeQuat != 0) {
-        iosFree(p->dobj->nodeQuat & 0xFFFFFFF);
+        iosFree((void *)(p->dobj->nodeQuat & 0xFFFFFFF));
     }
     p->dobj->nodeMtx = 0;
     p->dobj->nodeQuat = 0;
@@ -209,7 +209,7 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
     p->dobj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c", 232);
     p->dobj->nodeNum = num;
     if ((int)p->dobj->nodes != 0) {
-        iosFree((int)p->dobj->nodes & 0xFFFFFFF);
+        iosFree((void *)((int)p->dobj->nodes & 0xFFFFFFF));
     }
     p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 80, "src/enemyParts.c", 232);
     for (i = 0; i < num; i++) {
@@ -326,7 +326,7 @@ int UpdateEnemyEye(EnemyEye *self, void *m, float rate)
 
 int DispEnemyEye(EnemyEye *self)
 {
-    _CopyMatrix(self->dobj[0]->nodeMtx, self->mtx);
+    _CopyMatrix((void *)self->dobj[0]->nodeMtx, self->mtx);
     reg_DispMultiPri(self->dobj[0], 10);
     if (self->blurOn != 0) {
         PointBlur *fobj = self->blur;
