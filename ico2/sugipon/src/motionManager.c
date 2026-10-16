@@ -187,7 +187,6 @@ static void getInitialMatrix(Sub15C *obj, int idx);
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
-#include "include_asm.h"
 
 static inline void dispSquare(int alpha) /* derived name */
 {
@@ -207,6 +206,12 @@ static void dispSquare2(int alpha)
 }
 
 #include "motMan_getFinalMatrix.c.inc"
+
+inline void SetHitCollisionDisplay(int a, int b)
+{
+    hitColDisp = a;
+    hitColRayDisp = b;
+}
 
 static inline int findActPointOrder(int *list, int kind) /* derived name */
 {
@@ -745,9 +750,126 @@ static inline void calcMaxNodeHeight(int n) /* derived name */
     }
 }
 
-static void _getGeometryOfMotion(ObjNode *out, int second);
+static void _getGeometryOfMotion(ObjNode *out, int second)
+{
+    float v[4];
+    char q[16];
+    int save180 = skelRoot->standNode;
 
-INCLUDE_ASM(_getGeometryOfMotion);
+    MatrixDrive_PushMatrix();
+    PushQuaternion();
+    CopyVector((void *)v, (void *)skelMotCtrl->dir);
+    SetIdentityQuaternion(q);
+    sceVu0Normalize((void *)v, (void *)v);
+    RotQuaternionY(q, atan2f(v[0], v[2]) * 10430.378f);
+    CopyQuaternion(skelRoot->quat, q);
+    GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(), skelRoot->quat);
+    SetCurrentQuaternion(skelRoot->quat);
+
+    naturalMotion = skelMotion;
+    naturalNodePos = nodePos;
+    pursueNaturalGeometry(0);
+
+    if (second) {
+        naturalMotion = skelMotion2;
+        naturalNodePos = nodePos2;
+        pursueNaturalGeometry(0);
+    } else {
+        int i;
+        for (i = 0; i < skelNodeNum; i++) {
+            CopyVector((void *)(nodePos2 + i * 16), (void *)(nodePos + i * 16));
+        }
+    }
+    calcMaxNodeHeight(skelNodeNum);
+
+    clearCollisionStatus();
+    {
+        skelRoot->lifting = 0;
+        skelRoot->lift[0] = 0.0f;
+        skelRoot->lift[1] = 0.0f;
+        CopyVector(skelRoot->up, skelRoot->pos);
+    }
+
+    if (skelMotCtrl->stream != -1) {
+        *out = rootUpdateDirectPlayForStream();
+    } else {
+        struct MotCtrl *pm;
+        MatrixDrive_PushMatrix();
+        pm = skelMotCtrl;
+        switch (pm->rootUpdateMode) {
+        default: {
+            char buf[1024];
+            sprintf(
+                buf,
+                "MAY BE MOTION ORIENT DATA WAS BROKEN\n(MOTIONNAME:\"%s\" ID:%d: rootUpdateMode:%d)\n",
+                skelMotDef->name, pm->motion, pm->rootUpdateMode);
+            debug_assertMessage(__FILE__, 991, buf);
+            __assert(__FILE__, 991, "e");
+        } break;
+        case 1:
+        case 20:
+            *out = rootUpdateXZ(pm->rootUpdateMode, findActPoint(footActPoints));
+            break;
+        case 2:
+        case 17:
+            *out = rootUpdateXZ_MotPos(pm->rootUpdateMode, findActPoint(footActPoints));
+            break;
+        case 7:
+        case 8:
+        case 9:
+        case 13:
+        case 16:
+            *out = rootUpdateStepSolution(pm->rootUpdateMode);
+            break;
+        case 10:
+        case 15:
+            *out = rootUpdateHang(pm->rootUpdateMode, checkActPointWithHeight(6, 10.0f),
+                                  checkActPointWithHeight(22, 10.0f));
+            break;
+        case 11:
+            *out = rootUpdateSwim();
+            break;
+        case 5:
+            *out = rootUpdateNodeFix();
+            break;
+        case 4:
+            rootUpdateY_Rope(findActPoint(ropeActPoints));
+            break;
+        case 3:
+            *out = rootUpdateY();
+            break;
+        case 0:
+        case 19:
+            *out = rootUpdateTrueMotion(pm->rootUpdateMode);
+            break;
+        case 6:
+        case 14:
+            *out = rootUpdateDirectPlay(pm->rootUpdateMode);
+            break;
+        case 12:
+            *out = rootUpdateFly();
+            break;
+        case 18:
+            *out = rootUpdateEnemyFly();
+            break;
+        }
+        MatrixDrive_PopMatrix();
+    }
+
+    skelMotCtrl->groundHeight = skelRoot->pos[1] + skelNode->pos[1] - skelRoot->footPos[1];
+
+    MatrixDrive_PushMatrix();
+    MatrixDrive_SetTransposeMatrix((void *)MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
+    sceVu0ApplyMatrix(skelRoot->stepMove, MatrixDrive_GetMatrix(), skelRoot->move);
+    MatrixDrive_PopMatrix();
+
+    MatrixDrive_PopMatrix();
+    PopQuaternion();
+
+    if (skelRoot->standNode != -1 && save180 == -1) {
+        skelMotCtrl->landed = 1;
+    }
+}
 
 inline void getGeometryOfMotion(ObjNode *out, int second)
 {
@@ -831,14 +953,178 @@ typedef struct MotHdrTag MotHdr; /* derived name */
    union, as motionOrientManager.c reads it */
 #define MOWORK(self) (((SubHandle *)&((GObj *)(self))->dobj)->sub) /* derived name */
 
-INCLUDE_ASM(GetGeometryOfMotion);
+void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, float *step, int k)
+{
+    ObjNode sh;
+    float v2[4];
+
+    sh = MOWORK(self)->parent;
+    stepFocusNode = k;
+    if ((char *)MOWORK(self)->local.obj != 0) {
+        MOWORK(self)->localPos[3] = 1.0f;
+        CopyVector(v2, MOWORK(self)->localPos);
+        sceVu0ApplyMatrix(
+            (int *)v2,
+            (void *)(GOBJ_SUB(MOWORK(self)->local.obj)->nodeMtx + MOWORK(self)->local.node * 64),
+            (char *)v2);
+    } else {
+        AddVectorXYZ(MOWORK(self)->localPos, MOWORK(self)->localPos, MOWORK(self)->localMove);
+        CopyVector(v2, MOWORK(self)->localPos);
+    }
+    v2[1] = v2[1] + MOWORK(self)->localHeight;
+    v2[3] = 1.0f;
+    UnlinkParentOfDObj(self);
+
+    skelNodeNum = MOWORK(self)->skelNodeNum;
+    {
+        float wk0[skelNodeNum][4], wk1[skelNodeNum][4];
+
+        skelGObj = (int)self;
+        nodePos = (char *)wk0;
+        nodePos2 = (char *)wk1;
+        skelMotion = m0;
+        skelMotion2 = m1;
+        skelScale = MOWORK(self)->nodes->scale[0];
+        skelRoot = &MOWORK(self)->root;
+        skelMotCtrl = &MOWORK(self)->ctrl;
+        skelNode = MOWORK(self)->skel;
+        skelMotDef = &motionKind[skelMotCtrl->motion];
+        CopyVector(rootMove, v);
+        CopyVector(rootStep, step);
+        skelMotCtrl->flags = 0;
+        sceVu0SubVector(rootDelta, skelRoot->last, skelRoot->clipFrom);
+        if (MOWORK(self)->ctrl.keepStand != 0) {
+            ObjNode tmp;
+            getGeometryOfMotion(&tmp, r != 1.0f);
+        } else {
+            getGeometryOfMotion(&sh, r != 1.0f);
+        }
+        CopyVector(skelRoot->clipFrom, skelRoot->last);
+        if (MOWORK(self)->ctrl.noStand == 1) {
+            sh = InitialObjPointer;
+        }
+        AddVectorXYZ(MOWORK(self)->motionPos, skelRoot->pos, skelRoot->trans);
+        MOWORK(self)->motionPos[3] = 1.0f;
+        MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] * r + v2[1] * (1.0f - r);
+        GetMatrixOfMotion(self, m1, MOWORK(self)->motionPos);
+    }
+    if (debug_wallcheck_flag != 0) {
+        gif_StartPacketPri(11);
+        gif_SetAlpha(1, 5, 128);
+        gif_SetZTest(0);
+        gif_EndPacket();
+        dispPlane((Vec4 *)MOWORK(self)->root.plane.f, MOWORK(self)->root.pos);
+        gif_StartPacketPri(11);
+        gif_SetZTest(1);
+        gif_EndPacket();
+    }
+    skelRoot->last[3] = 1.0f;
+    skelRoot->clipFrom[3] = 1.0f;
+    skelRoot->pos[3] = 1.0f;
+    skelRoot->move[3] = 0.0f;
+    if (sh.obj != 0) {
+        LinkParentOfDObj(self, &sh);
+        if (GOBJ_SUB(sh.obj)->rideFunc != 0) {
+            GOBJ_SUB(sh.obj)->rideFunc(&sh, self);
+        }
+    } else {
+        MOWORK(self)->root.pos[1] = MOWORK(self)->root.pos[1] - MOWORK(self)->root.height;
+        MOWORK(self)->root.last[1] = MOWORK(self)->root.last[1] - MOWORK(self)->root.height;
+    }
+    MOWORK(self)->motionPos[1] = MOWORK(self)->motionPos[1] - skelRoot->height;
+    if (sh.obj != 0) {
+        float m[16];
+        MatrixDrive_SetTransposeMatrix((void *)m,
+                                       (void *)(GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 64));
+        sceVu0ApplyMatrix((MOWORK(self)->motionPos), m, MOWORK(self)->motionPos);
+    }
+    execPositionReserver(self, sh);
+}
 
 /* GObj+8 is the index into objLayout, the 76-byte GenGeo table (ebrain.c
    types that array `GenGeo objLayout[]`; enemy_act.c indexes it with the same
    `obj[2]` field), read as an enumerated kind. */
 typedef enum { GENGEO_KIND_0 = 0 } GenGeoKind; /* derived name */
 
-INCLUDE_ASM(GetMatrixOfMotion);
+void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
+{
+    float v[4];
+    float w[4];
+    float p1[4];
+    float p2[4];
+    int i;
+
+    /* the sub-object fields are read as int addresses */
+    skelMotion = tbl;
+    skelQuat = (char *)GOBJ_SUB(self)->nodeQuat;
+    skelNode = GOBJ_SUB(self)->skel;
+    skelScale = GOBJ_SUB(self)->nodes->scale[0];
+    skelRoot = &GOBJ_SUB(self)->root;
+    skelMotCtrl = &GOBJ_SUB(self)->ctrl;
+    skelNodeNum = GOBJ_SUB(self)->skelNodeNum;
+    skelGeoType = objLayout[*(GenGeoKind *)(((char *)self) + 8) * 76 + 70];
+    skelGObj = (int)self;
+    MatrixDrive_PushMatrix();
+    PushQuaternion();
+
+    GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(), skelRoot->quat);
+    SetCurrentQuaternion(skelRoot->quat);
+
+    MatrixDrive_PushMatrix();
+
+    rootHeightVec[1] = skelRoot->height;
+    MatrixDrive_RotMatrixZ(skelRoot->twist);
+
+    sceVu0ApplyMatrix(v, MatrixDrive_GetMatrix(), rootHeightVec);
+
+    v[1] -= skelRoot->height;
+    v[0] *= 0.5f;
+    v[2] *= 0.5f;
+    MatrixDrive_PopMatrix();
+
+    if (skelMotCtrl->catchBoy != 0) {
+        getFinalMatrix(0);
+    } else {
+        getFinalMatrixWithNaturalGeometry(0);
+    }
+
+    scaleMatrix[0] = scaleMatrix[5] = scaleMatrix[10] = skelScale;
+
+    AddVectorXYZ(w, ofs, v);
+    for (i = 0; i < skelNodeNum; i++) {
+        char *nd = (char *)GOBJ_SUB(skelGObj)->nodeMtx + i * 64;
+        char *pos = nd + 48;
+        sceVu0MulMatrix(nd, nd, scaleMatrix);
+        AddVectorXYZ(pos, pos, w);
+    }
+    MatrixDrive_PopMatrix();
+    PopQuaternion();
+
+    if (debug_actnode_flag != 0) {
+        dispActNode(skelRoot->standNode);
+        dispLastNode();
+    }
+    if (debug_skel_flag != 0) {
+        int n;
+
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        gif_StartPacketPri(11);
+        n = GetSkeltonFocusNode(self, 35);
+        CopyVector(w, (char *)GOBJ_SUB(skelGObj)->nodeMtx + n * 64 + 48);
+        CopyVector(p1, skelRoot->lookPos);
+        _SubVector(p2, p1, w);
+        _NormalizeVector(p2, p2);
+        _ScaleVector(p2, p2, 100.0f);
+        _AddVector(p1, w, p2);
+        gif_SetAlpha(1, 5, 128);
+        if (skelRoot->lookIK != 0 && skelRoot->lookMode != 0) {
+            DrawLineG(w, dirColor, p1, dirColor, -1);
+        } else {
+            DrawLineG(w, dirColor2, p1, dirColor2, -1);
+        }
+        gif_EndPacket();
+    }
+}
 
 /* a file static; ico2/sugipon/src/motionManager2.c has its own of the same
    name */
@@ -962,13 +1248,3 @@ void SkelTestGeo(GObj *self)
         }
     }
 }
-
-INCLUDE_ASM(SetHitCollisionDisplay);
-
-INCLUDE_ASM(ResetMotionProgramInterpInfo);
-
-INCLUDE_ASM(SetDirectMotionProgramInterpInfo);
-
-INCLUDE_ASM(getFinalMatrixCore);
-
-INCLUDE_ASM(pursueNaturalGeometry);

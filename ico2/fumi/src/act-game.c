@@ -2612,7 +2612,7 @@ inline void _ACTSetEnemyDisappearSpeed(GObj *self, float speed)
     GOBJ_WORK(self)->disappearSpeed = speed;
 }
 
-inline int ACTChkAttackIgnore_BOY(GObj *self, GObj *actor)
+inline int ACTChkAttackIgnore_BOY(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
     if (s->actMode == 0x35 ||
@@ -2622,7 +2622,7 @@ inline int ACTChkAttackIgnore_BOY(GObj *self, GObj *actor)
     return 0;
 }
 
-inline int ACTChkAttackIgnore_GIRL(GObj *self, GObj *actor)
+inline int ACTChkAttackIgnore_GIRL(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
     if (s->actMode == 107) {
@@ -2631,7 +2631,7 @@ inline int ACTChkAttackIgnore_GIRL(GObj *self, GObj *actor)
     return 0;
 }
 
-inline int ACTChkAttackIgnore_ENEMY(GObj *self, GObj *actor)
+inline int ACTChkAttackIgnore_ENEMY(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
 

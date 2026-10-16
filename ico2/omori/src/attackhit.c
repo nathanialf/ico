@@ -41,41 +41,6 @@ static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, -1, -1}; /* derived n
 #include "main.h"
 #include "include_asm.h"
 
-/* whether d1 and d2 lie on opposite sides of d0, both ahead of it */
-static inline int inner_check_core(float *d0, float *d1, float *d2) /* derived name */
-{
-    float c1[4];
-    float c2[4];
-
-    if (0.0f <= sceVu0InnerProduct(d0, d1) && 0.0f <= sceVu0InnerProduct(d0, d2)) {
-        sceVu0OuterProduct(c1, d0, d1);
-        sceVu0OuterProduct(c2, d0, d2);
-        if (sceVu0InnerProduct(c1, c2) < 0.0f) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-static inline int inner_check_sub(float *p, float *o, float *a, float *b) /* derived name */
-{
-    float d0[4];
-    float d1[4];
-    float d2[4];
-    /* the fourth difference vector, computed and reported only by the DEBUG
-       build */
-    float d3[4];
-
-    sceVu0SubVector(d0, p, o);
-    sceVu0SubVector(d1, a, o);
-    sceVu0SubVector(d2, b, o);
-#ifdef DEBUG
-    sceVu0SubVector(d3, b, a);
-    scePrintf("inner check edge %f %f %f\n", d3[0], d3[1], d3[2]);
-#endif
-    return inner_check_core(d0, d1, d2);
-}
-
 typedef struct { /* field names derived */
     /* 0x00 */ float radius;
     char pad04[4];
@@ -101,7 +66,7 @@ static inline int GetAttackKindIndex(Sub15C *p) /* derived name */
     int id = p->ctrl.motion;
     int i;
 
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i < 19; i++) {
         if (id == attackData[i].motion) {
             return i;
         }
@@ -118,6 +83,8 @@ static inline void GetFocusNodePos(GObj *gobj, int node, float *out) /* derived 
     out[1] = m[13];
     out[2] = m[14];
 }
+
+INCLUDE_ASM(func_00180F40);
 
 /* shared by _AttackCenter and AttackCenter_WithDir */
 static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float *pos, float *ofs,
@@ -168,24 +135,279 @@ static const AttackGroupTable attackGroupTable = {
     /* derived name */
     {{1, 0}, {4, 1}, {46, 1}, {53, 1}, {52, 1}, {52, 1}, {61, 1}, {2, 3}, {62, 1}, {-1, 0}}};
 
-INCLUDE_ASM(func_00180F40);
+static int AttackCheckSameGroup(GObj *self, GObj *other)
+{
+    AttackGroupTable tbl = attackGroupTable;
+    unsigned int g0 = 2;
+    unsigned int g1 = 2;
+    int i;
 
-INCLUDE_ASM(func_001811D0);
+    for (i = 0; tbl.p[i].kind >= 0; i++) {
+        if (self->kind == tbl.p[i].kind) {
+            g0 = tbl.p[i].cls;
+        }
+    }
+    for (i = 0; tbl.p[i].kind >= 0; i++) {
+        if (other->kind == tbl.p[i].kind) {
+            g1 = tbl.p[i].cls;
+        }
+    }
+    switch (g1) {
+    case 2:
+        return 1;
+    case 3:
+        return g0 < 2;
+    }
+    return g1 == g0;
+}
 
-INCLUDE_ASM(func_00181368);
+/* whether the attack's nodes include the target's focus node 35 */
+static inline int AttackHitFocusNode(GObj *self) /* derived name */
+{
+    int node = GetSkeltonFocusNode(self, 35);
+    int i;
 
-INCLUDE_ASM(AttackCheckHit);
+    for (i = 0; GOBJ_ACT(self)->enemy->hitNodes[i] != -1; i++) {
+        if (GOBJ_ACT(self)->enemy->hitNodes[i] == node) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
-INCLUDE_ASM(AttackGenerate);
+static void AttackMail(GObj *self, AttackPack *pack)
+{
+    float v0[4];
+    float v1[4];
+    float v2[4];
+    GObj *attacker;
+    Act *aext;
+    GObj *weapon;
+    int group;
+    int kind;
+    int hard;
+    int mail;
+    float power;
 
-INCLUDE_ASM_LIT(_AttackCenter);
+    attacker = pack->actor;
+    aext = GOBJ_ACT(attacker);
+    group = pack->group;
+    weapon = 0;
+    if (aext != 0) {
+        weapon = aext->weapon;
+    }
+    hard = 0;
+    if (group < 0) {
+        power = 10.0f;
+    } else if (weapon == 0) {
+        power = attackData[group].power;
+    } else {
+        kind = CheckWeaponKind(weapon);
+        power = attackData[group].power * weaponKind[kind].power;
+        hard = (weaponKind + kind)->flags & 1;
+    }
+    mail = 13;
+    if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+        if (AttackHitFocusNode(self)) {
+            mail = 14;
+        }
+    }
+    iosOmSendMail(self, mail, attacker);
 
-INCLUDE_ASM(EnemyAttackCenter);
+    GOBJ_ACT(self)->attacker = attacker;
+    GOBJ_ACT(self)->damage = (int)power;
+    GOBJ_ACT(self)->hitGroup = pack->group2;
+    GOBJ_ACT(self)->downHit = attackData[group].down || pack->down;
+    GOBJ_ACT(self)->unguardable = attackData[group].unguardable || hard;
+    GOBJ_ACT(self)->stoneHit = attackData[group].stone;
+    if (attacker == boyGObj) {
+        aext->flags20.ll &= ~0x80000ULL;
+    }
+    GetRootPosition(v0, attacker);
+    GetRootPosition(v1, self);
+    sceVu0SubVector(v2, v0, v1);
+    sceVu0Normalize(v2, v2);
+    GOBJ_ACT(self)->attackDir[0] = v2[0];
+    GOBJ_ACT(self)->attackDir[1] = v2[1];
+    GOBJ_ACT(self)->attackDir[2] = v2[2];
+    if (pack->hasDir != 0) {
+        sceVu0ScaleVector(GOBJ_ACT(self)->attackDir, pack->dir, -1.0f);
+    }
+}
 
-INCLUDE_ASM(BoyAttackCenter);
+static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
+{
+    float w[4];
+    unsigned char flags[112];
+    Sub15C *sk;
+    int n;
+    int i;
+    int j;
+    int hitR;
+    float rad;
+    float t;
+
+    sk = GOBJ_SUB(gobj);
+    n = sk->skelNodeNum;
+    if (n == 0) {
+        n = 1;
+    }
+    switch (gobj->kind) {
+    case 52:
+        rad = QueenBallRadius(gobj);
+        rad = rad + _ACTGame_GetParamF(29);
+        hitR = (int)rad;
+        i = 0;
+        break;
+
+    case 53:
+        if (QueenBarrierInqBreakable() == 0) {
+            hitR = 0;
+            i = 0;
+            break;
+        }
+        rad = QueenBarrierRadius(gobj);
+        rad = rad + _ACTGame_GetParamF(30);
+        hitR = (int)rad;
+        i = 0;
+        break;
+
+    case 62:
+        hitR = (int)GetAttackCheckBoundaryRadius(gobj);
+        i = 0;
+        break;
+
+    case 61:
+        hitR = 50;
+        i = 0;
+        break;
+
+    case 4:
+        hitR = (int)(GOBJ_ACT(gobj)->enemy->bodySize * 30.0f);
+        i = 0;
+        break;
+
+    default:
+        hitR = 30;
+        i = 0;
+        break;
+    }
+    for (i = 0; i < n; i++) {
+        flags[i] = 0;
+    }
+    for (t = 0.0f; t < pack->radius0; t += pack->radius1) {
+        _InterGV(w, pack->to, pack->center, t, pack->radius0 - t);
+        for (i = 0; i < n; i++) {
+            if (_DistSqGV((float *)(sk->nodeMtx + (i << 6) + 48), w) <
+                ((float)hitR + pack->radius1) * ((float)hitR + pack->radius1)) {
+                if (!(_DistSqGV((float *)(sk->nodeMtx + (i << 6) + 48), w) <
+                      ((float)hitR + pack->thickness) * ((float)hitR + pack->thickness))) {
+                    flags[i] = 1;
+                }
+            }
+        }
+    }
+    for (i = 0, j = 0; i < n; i++) {
+        if (flags[i] != 0) {
+            out[j] = i;
+            j++;
+        }
+    }
+    out[j] = -1;
+    return j;
+}
+
+static GObj *AttackGenerate(AttackPack *pack)
+{
+    GObj *g;
+    GObj *hit;
+
+    hit = 0;
+    if (pack->active == 0) {
+        return 0;
+    }
+    debug_StdPrintfDummy("flag ok\n");
+    for (g = isysGObjGetExist_begin(); g != 0; g = isysGObjGetExist_next(g)) {
+        if (g->active == 0) {
+            continue;
+        }
+        if (AttackCheckSameGroup(pack->actor, g) != 0) {
+            continue;
+        }
+        debug_StdPrintfDummy("group ok\n");
+        if (!(GOBJ_ACT(g) != 0 && GOBJ_ACT(g)->enemy != 0)) {
+            continue;
+        }
+        if (GOBJ_ACT(g)->hit != 0) {
+            continue;
+        }
+        debug_StdPrintfDummy("invincible ok\n");
+        if (g == boyGObj && ACTChkAttackIgnore_BOY(g) != 0) {
+            continue;
+        }
+        if (g == girlGObj && ACTChkAttackIgnore_GIRL(g) != 0) {
+            continue;
+        }
+        if (g->kind == 4 && ACTChkAttackIgnore_ENEMY(g) != 0) {
+            continue;
+        }
+        /* the enemy work records the nodes the attack hits */
+        if (AttackCheckHit(pack, g, GOBJ_ACT(g)->enemy->hitNodes) == 0) {
+            continue;
+        }
+        debug_StdPrintfDummy("geometry ok\n");
+        if (GOBJ_ACT(g) != 0 && GOBJ_ACT(g)->attacker != 0 &&
+            GOBJ_ACT(g)->hitGroup == pack->group2) {
+            debug_StdPrintfDummy("id equal error\n");
+            continue;
+        }
+        if (debug_one_hit_only != 0 && pack->actor == boyGObj && g->kind == 4 &&
+            ((int)(GOBJ_ACT(pack->actor)->flags20.ll >> 19) & 1) == 0) {
+            continue;
+        }
+        AttackMail(g, pack);
+        hit = g;
+        debug_StdPrintfDummy("mail send ok [%d]\n", pack->group2);
+        if (GOBJ_ACT(hit) != 0 && GOBJ_ACT(hit)->attacker != 0 && hit->kind == 4) {
+            /* the enemy work records the direction the attack came from */
+            _OrientGV(GOBJ_ACT(hit)->enemy->hitDir, pack->center, pack->from);
+        }
+    }
+    return hit;
+}
+
+inline GObj *_AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius)
+{
+    AttackPack pack;
+
+    if (gop == 0) {
+        debug_assert(__FILE__, 749);
+        __assert(__FILE__, 749, "gop!=NULL");
+    }
+    SetupAttackPack(&pack, gop, group, pos, ofs, radius);
+    return AttackGenerate(&pack);
+}
+
+inline void AttackCenter_WithDir(GObj *gop, int group, float *pos, float *dir, float radius)
+{
+    AttackPack pack;
+
+    if (gop == 0) {
+        debug_assert(__FILE__, 768);
+        __assert(__FILE__, 768, "gop!=NULL");
+    }
+    SetupAttackPack(&pack, gop, group, pos, dir, radius);
+    if (dir != 0) {
+        pack.hasDir = 1;
+        pack.dir[0] = dir[0];
+        pack.dir[1] = dir[1];
+        pack.dir[2] = dir[2];
+    }
+    AttackGenerate(&pack);
+}
+
+void EnemyAttackCenter(GObj *gobj) {}
+
+void BoyAttackCenter(GObj *gobj) {}
 
 INCLUDE_ASM(CommonAttackCenter);
-
-INCLUDE_ASM(_AttackCenter);
-
-INCLUDE_ASM(AttackCenter_WithDir);
