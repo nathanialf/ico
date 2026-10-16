@@ -17,7 +17,7 @@ extern struct SqEntry *ed1;
 extern struct SqEntry *ed2;
 extern struct SqEntry *ed3;
 extern struct SqEntry *ed4;
-extern int ed5;
+extern struct SqEntry *ed5;
 extern struct SqEntry *ed6;
 void actConte14_1(GObj *volatile self);
 void actConte14_10(GObj *volatile self);

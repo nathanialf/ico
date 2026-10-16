@@ -105,10 +105,6 @@ static ActMail st09aSekizo_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail gate_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail st09aBrg_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail st09aBrgSwitch_mes[2] = {{397}, {396}}; /* derived name */
-
 void actE3Title(GObj *volatile self)
 {
     GObj *x = self;
