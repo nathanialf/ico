@@ -150,12 +150,6 @@
 text shadow_Reset 0x00122CD8 0x0012313C ico2/seki/src/Shadow.c lines=67  # ordinal; first difference at insn 0; length:-140; extent-differs
 text tex_initClutTexture 0x0012BEB0 0x0012C050 ico2/seki/src/Texture.c local lines=20  # ordinal; first difference at insn 0; length:+8; extent-differs
 rdlit tex_initClutTexture 0x005560D0 0x005562AC ico2/seki/src/Texture.c align=16  # 2 jump tables
-text ACTItemThrow.301 0x00149768 0x00149894 ico2/fumi/src/act-game.c local file=ACTItemThrow_301  # ordinal; first difference at insn 7; length:+19; extent-differs
-sdlit ACTItemThrow.301 0x00632260 0x00632268 ico2/fumi/src/act-game.c file=ACTItemThrow_301  # 1 string
-text ACTItemWatchMotion 0x00149898 0x00149ADC ico2/fumi/src/act-game.c local lines=132  # ordinal; first difference at insn 0; length:-55; extent-differs
-lit4 ACTItemWatchMotion 0x00630AE8 0x00630AEC ico2/fumi/src/act-game.c  # 1 float, measured from the base: the text loads them
-sdlit ACTItemWatchMotion 0x00632268 0x0063226C ico2/fumi/src/act-game.c  # 1 string, measured from the base
-rdlit ACTItemWatchMotion 0x00558130 0x00558144 ico2/fumi/src/act-game.c align=16  # 1 jump table, measured from the base
 text getLandOffset.265 0x00159CB0 0x00159DF8 ico2/fumi/src/commonact.c local file=getLandOffset_265  # nested in flyCoreLoop (a stub); equal, gone with its carved parent
 text completeEmergency.280 0x00159DF8 0x0015A364 ico2/fumi/src/commonact.c local file=completeEmergency_280  # ordinal; first difference at insn 0; length:+272; extent-differs
 lit4 completeEmergency.280 0x00630C58 0x00630C70 ico2/fumi/src/commonact.c file=completeEmergency_280  # 6 floats, measured from the base: the text loads them

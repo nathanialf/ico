@@ -41,7 +41,6 @@
 #include "poly-flat.h"
 #include "act.h"
 #include "brain.h"
-#include "include_asm.h"
 
 /* weapon.h's WeaponDef, which this TU does not include (CheckWeaponKind
    differs): the weapon kind's motion orient at 0x1C */
@@ -79,7 +78,10 @@ typedef struct { /* field names derived */
     unsigned int flags2;
 } MotionRec; /* derived name */
 
-extern MotionRec motionKind[];
+/* const: the table is in .rodata (sugipon's TUs declare it so); the array
+   reads in ACTItemWatchMotion are read-only loads, which lets the delay slot
+   of its switch range test take the `self` home store */
+extern const MotionRec motionKind[];
 
 typedef struct { /* field names derived */
     float x, y, z, w;
@@ -181,8 +183,8 @@ inline void ACTGameCollisionOn(volatile int *self)
 
 inline int ACTGame_CheckHandMotion(GObj *boy, GObj *girl)
 {
-    MotionRec *rec0 = &motionKind[GOBJ_SUB(boy)->ctrl.motion];
-    MotionRec *rec1 = &motionKind[GOBJ_SUB(girl)->ctrl.motion];
+    const MotionRec *rec0 = &motionKind[GOBJ_SUB(boy)->ctrl.motion];
+    const MotionRec *rec1 = &motionKind[GOBJ_SUB(girl)->ctrl.motion];
     int b0 = (rec0->flags >> 15) & 1;
     int b1 = (rec1->flags >> 15) & 1;
     return b0 & b1;
@@ -190,7 +192,7 @@ inline int ACTGame_CheckHandMotion(GObj *boy, GObj *girl)
 
 inline int ACTGame_CheckItemMotion(GObj *self)
 {
-    MotionRec *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
+    const MotionRec *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
     return rec->modeBits.h.hi & 7;
 }
 
@@ -2868,9 +2870,107 @@ void ACTLookTargetSystem_Exec(GObj *self)
     }
 }
 
-INCLUDE_ASM(ACTItemThrow_301);
+static void ACTItemWatchMotion(GObj *self)
+{
+    Act *sub = GOBJ_ACT(self);
+    int mode;
+    int frame;
 
-INCLUDE_ASM(ACTItemWatchMotion);
+    /* nested inline: the "take the pending item" request, expanded at the four
+       motion arms below */
+    inline void ItemHold(void) /* derived name */
+    {
+        if (sub->heldItem.i != 0) {
+            return;
+        }
+        if ((sub->heldItem.i = sub->nextItem.i) == 0) {
+            return;
+        }
+        HoldItem(sub->heldItem.p, self);
+    }
+
+    /* nested inline: drop whatever is held, read through the slots' pointer
+       member */
+    inline void ItemRelease(void) /* derived name */
+    {
+        if (sub->heldItem.p == 0) {
+            return;
+        }
+        ReleaseItem(sub->heldItem.p);
+        sub->nextItem.p = sub->heldItem.p = 0;
+    }
+
+    /* a GNU nested function, reading `sub` and `self` through the static
+       chain */
+    void ACTItemThrow(void)
+    {
+        float v[4];
+        int kind;
+
+        if (sub->heldItem.i == 0) {
+            return;
+        }
+        sceVu0ScaleVector(v, test_CURRENTORIENT(self),
+                          _ACTGame_GetParamF(9) * 60.0f /
+                              (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        kind = GetItemKind(sub->heldItem.p);
+        if (kind == 1 || kind == 6) {
+            debug_StdPrintfDummy("BOMB!!\n");
+            v[0] *= 0.5f;
+            v[1] -= 25.0f;
+            v[2] *= 0.5f;
+        }
+        ThrowItem(sub->heldItem.p, v);
+        sub->nextItem.i = sub->heldItem.i = 0;
+    }
+
+    /* the line maps put `sub` on the body's first line and these two
+       statements after the nested functions */
+    mode = motionKind[GOBJ_SUB(self)->ctrl.motion].modeBits.h.hi & 7;
+    frame = motionKind[GOBJ_SUB(self)->ctrl.motion].modeBits.b;
+
+    switch (mode) {
+    case 2:
+        if ((float)frame < GOBJ_SUB(self)->ctrl.animFrame) {
+            ItemHold();
+        } else {
+            float pos[4];
+            GetRootPosition(pos, sub->heldItem.p);
+            SetDirectRootPositionNoFittingWithNodePoint(self, 0x16, pos, 0.2f);
+            debug_StdPrintfDummy("!!\n");
+        }
+        break;
+
+    case 4:
+        if (GOBJ_SUB(self)->ctrl.animFrame < (float)frame) {
+            ItemHold();
+        } else {
+            ItemRelease();
+        }
+        break;
+
+    case 3:
+        if (GOBJ_SUB(self)->ctrl.animFrame < (float)frame) {
+            ItemHold();
+        } else {
+            ACTItemThrow();
+        }
+        break;
+
+    case 1:
+        ItemHold();
+        break;
+
+    case 0:
+        ItemRelease();
+        break;
+    }
+
+    if (self == boyGObj) {
+        *(int *)((char *)sub + 0x144) = sub->heldItem.i;
+        SetBoyInfo(sub->weapon, (void *)sub->heldItem.p);
+    }
+}
 
 void ACTGame_InsertCamera_GirlIsPinch(void)
 {
