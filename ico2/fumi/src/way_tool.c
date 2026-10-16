@@ -23,7 +23,6 @@
 #include "way_util.h"
 #include "way_tool.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
@@ -283,15 +282,125 @@ int play_way(void);
 int point_nige(void);
 int quick_save_wpfile(void);
 
-INCLUDE_ASM_LIT(play_way);
+inline int play_way(void)
+{
+    static int playMode = 0; /* derived name */
+    GObj *g;
+    int f;
 
-INCLUDE_ASM_LIT(point_nige);
+    if (debug_font_flag & 1) {
+        debug_Printf(18, 54, 0xFF000000, "to boy\n");
+    }
+    f = wayToolPad.trg;
+    if (f & 0x20) {
+        g = isysGObjSearchFromObjKindID_begin(2);
+        switch (playMode) {
+        case 0:
+            while (g != 0) {
+                GOBJ_ACT(g)->wayMode = 1;
+                g = isysGObjSearchFromObjKindID_next(g);
+            }
+            break;
+        case 1:
+            while (g != 0) {
+                GOBJ_ACT(g)->wayMode = 0;
+                g = isysGObjSearchFromObjKindID_next(g);
+            }
+            break;
+        }
+        playMode ^= 1;
+    } else if (f & 0x40) {
+        return -1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM_LIT(quick_save_wpfile);
+inline int point_nige(void)
+{
+    WayPoint *p;
+    int v;
 
-static int quick_load_wpfile(void);
+    if (debug_font_flag & 1) {
+        unsigned int color = 0xFF000000;
+        debug_Printf(18, 54, color, "point + nige\n");
+    }
+    v = wayToolPad.trg;
+    if (v & 0x20) {
+        p = waypoint_with_range(wayWorkPos, 60.0f);
+        if (p == 0) {
+            return 0;
+        }
+        wayPointSel = p->index;
+        if (p->index >= 0) {
+            p->escape ^= 1;
+        }
+    } else if (v & 0x40) {
+        return -1;
+    }
+    return 0;
+}
 
-INCLUDE_ASM(quick_load_wpfile);
+inline int quick_save_wpfile(void)
+{
+    char buf[112];
+    int s0;
+    int i;
+    unsigned char *p;
+    load_save_flag = 1;
+    sprintf(buf, "test.wp");
+    s0 = debugSceOpen(buf, 0x202);
+    if (s0 < 0) {
+        debug_StdPrintfDummy("cannot save wp file");
+        load_save_flag = 0;
+        return 0;
+    }
+    i = 0xF;
+    p = &wpBuf[i];
+    do {
+        *p = i;
+        p--;
+        i--;
+    } while (i >= 0);
+    sceWrite(s0, wpBuf, 0x10);
+    debugSceClose(s0);
+    debug_StdPrintfDummy("saved\n");
+    load_save_flag = 0;
+    return 1;
+}
+
+static int quick_load_wpfile(void)
+{
+    char buf[112];
+    int s0;
+    int i;
+    char *p;
+
+    load_save_flag = 1;
+    sprintf(buf, "test.wp");
+    s0 = debugSceOpen(buf, 1);
+    if (s0 < 0) {
+        debug_StdPrintfDummy("cannot load wp file\n");
+        load_save_flag = 0;
+        return 0;
+    }
+    FlushCache(0);
+    i = 0x1F;
+    p = (char *)&wpBuf[i];
+    do {
+        *p = -1;
+        p--;
+        i--;
+    } while (i >= 0);
+    sceRead(s0, &wpBuf[15], 0x10);
+    debugSceClose(s0);
+    for (i = -15; i < 17; i++) {
+        debug_StdPrintfDummy("%d ", ((char *)wpBuf)[i + 15]);
+    }
+    debug_StdPrintfDummy("\n");
+    debug_StdPrintfDummy("loaded\n");
+    load_save_flag = 0;
+    return 1;
+}
 
 /* the authored way group table: one 0x3C record per group */
 /* the authored way point table: one 0x1C record per point */
@@ -621,10 +730,18 @@ int debug_WayTool(void)
     return 0;
 }
 
-INCLUDE_ASM(play_way);
+inline void cursor_control(GObj *volatile self)
+{
+    Act *w = GOBJ_ACT(self);
 
-INCLUDE_ASM(point_nige);
+    iosPadConnect(&w->pad, 0, 0, &iosPadConfDefault);
 
-INCLUDE_ASM(quick_save_wpfile);
+    while (1) {
+        iosPadRead(&w->pad);
 
-INCLUDE_ASM(cursor_control);
+        if (self == CurrentTargetGObj && (w->pad.trg & 1)) {
+            ACTDebugMove(self, 1);
+        }
+        _ACTWait(1);
+    }
+}

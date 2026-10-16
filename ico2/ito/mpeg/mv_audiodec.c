@@ -5,7 +5,15 @@
 #include <eekernel.h>
 #include <sifrpc.h>
 #include <sound.h>
-#include "include_asm.h"
+#include "memory.h"
+
+static void Free(int addr);
+
+/* the EE side ring audioDecCreate allocated */
+static void free_buf(AudioDec *self)
+{
+    Free(self->ring);
+}
 
 int audioDecCreate(AudioDec *self, int mono, int volume)
 {
@@ -81,7 +89,27 @@ inline void audioDecReset(AudioDec *self)
     *(volatile int *)&self->iopPos = 0;
 }
 
-INCLUDE_ASM_LIT(audioDecDelete);
+inline int audioDecDelete(AudioDec *self)
+{
+    if (self->iopBuf) {
+        if (sceSifFreeIopHeap(self->iopBuf) < 0) {
+            debug_StdPrintfDummy("iop heap free failed 0x%08x\n", self->iopBuf);
+        }
+        debug_StdPrintfDummy("free iop heap 0x%08x\n", self->iopBuf);
+        self->iopBuf = 0;
+    }
+    free_buf(self);
+    if (self->ch0Open) {
+        SgStPcmClose(0);
+    }
+    if (self->ch1Open) {
+        SgStPcmClose(1);
+    }
+    if (self->pcmInited) {
+        SgStPcmQuit();
+    }
+    return 1;
+}
 
 static void audioDecEndPut(AudioDec *self, int n)
 {
@@ -333,6 +361,10 @@ int pcmCallback(sceMpeg *mp, void *cbdata, void *anyData)
     return 0 < k;
 }
 
-INCLUDE_ASM(func_0023E170);
-
-INCLUDE_ASM(audioDecDelete);
+static void Free(int addr)
+{
+    /* the buffers are kept as addresses (alloc_zeroed), some at their
+       uncached-accelerated alias; the heap takes the block back with the
+       segment bits off */
+    iosFree((void *)phys_addr(addr));
+}
