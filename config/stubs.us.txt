@@ -197,5 +197,4 @@ lit4 calcSubMission 0x00631124 0x00631128 ico2/sugipon/src/a_p_1.c  # 1 float
 text getMotionGeometry 0x001E3030 0x001E39E4 ico2/sugipon/src/motionOrientManager.c local lines=179  # us-only (in motionOrientManager.c's span; PAL order suggests getMotionGeometry (2536 B in PAL)); named getMotionGeometry by call sites, callees, body alignment (provisional)
 lit4 getMotionGeometry 0x0063137C 0x00631388 ico2/sugipon/src/motionOrientManager.c  # 3 floats
 sdlit getMotionGeometry 0x0063352C 0x00633530 ico2/sugipon/src/motionOrientManager.c  # 1 word
-text actSt03tGirlCamEndChk 0x00213F60 0x0021402C ico2/script/src/st03t.c lines=19  # ordinal; first difference at insn 23; length:+2; extent-differs
 text actSt18aDoorChk 0x00236340 0x00236478 ico2/script/src/st18a.c lines=53  # us-only (after st17b.c's span; PAL order suggests actSt18aDoorChk (452 B in PAL)); named actSt18aDoorChk by callees (provisional)
