@@ -57,10 +57,11 @@ typedef struct AnimSet18 { /* field names derived */
     int anim[18];          /* 0x00 */
 } AnimSet18;               /* derived name */
 
-/* the two face-shadow textures ConteQueenDead scrolls the UVs of. */
-const char faceShadowTex[] = "face_sadow_sd"; /* script.c scrolls it too */
+/* the two face-shadow textures actSt25aQueenAppear and actConte11
+   scroll the UVs of. */
+static const char faceShadowTex[] = "face_sadow_sd"; /* derived name */
 
-const char faceShadowTex00[] = "face_sadow_sd_00";
+static const char faceShadowTex00[] = "face_sadow_sd_00"; /* derived name */
 
 /* The offset the sekika boy is dropped by. */
 static const Vec4St25A sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
@@ -83,11 +84,10 @@ static const char sekikaBoyTexture[] = "sekika_boy"; /* derived name */
 
 /* .data: six actor mail records.  Each is
    the usual pair, the 397 entry whose handler the sender fills in and the 396
-   terminator.  queen_appear_mes is the only one another TU sends, so it is the
-   only global of the six. */
+   terminator. */
 static ActMail queen_before_mes[2] = {{397}, {396}}; /* derived name */
 
-ActMail queen_appear_mes[2] = {{397}, {396}};
+static ActMail queen_appear_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail queen_talk_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -102,6 +102,35 @@ static void actSt25aQueenDeadReadyChk(GObj *volatile self);
 void actItouQueenAttackChk(GObj *volatile self);
 void actConte11(GObj *volatile self);
 void actConte11Jimaku(GObj *volatile self);
+
+/* Before flag 302 this hands the actor queen_appear_mes and posts it; after
+ * it, it shows object 1966, plays its motion and starts the face shadow
+ * scrolls and the stage animations. */
+void actSt25aQueenAppear(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = (Act *)actInitialize(self);
+
+    _ACTWait(1);
+    if (gflagChk(302) == 0) {
+        ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
+        scpSearchGobj(1966)->active = 0;
+        stage_SetLoopFlag(484, 0);
+        queen_appear_mes[0].func = actSt25aQueenAppearChk;
+        act->mail = queen_appear_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+        return;
+    }
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(46, 0, 484, 0);
+    scpSearchGobj(1966)->active = 1;
+    scpPlayMot(scpSearchGobj(1966), 1043);
+    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+    ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
+    stage_SetAnimation(135, 0, -1);
+    stage_SetAnimation(138, 1, 0);
+}
 
 void actSt25aQueenAppearChk(GObj *volatile self)
 {

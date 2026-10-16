@@ -12,7 +12,6 @@
 #include "generator.h"
 #include "gv.h"
 #include "gflag.h"
-#include "st25a.h"
 #include "Primitive.h"
 #include "StageAnimation.h"
 #include "Texture.h"
@@ -161,35 +160,6 @@ static SObjSimpleSetting spiderLayout = {{0.0f}, {0.0f}, {1.0f, 1.0f, 1.0f}}; /*
 
 /* box.c's, defined in switch.c.inc */
 extern int CheckReadyAllSwitches(void);
-
-/* Before flag 302 this hands the actor queen_appear_mes and posts it; after
- * it, it shows object 1966, plays its motion and starts the face shadow
- * scrolls and the stage animations. */
-inline void actSubSekizoSe(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = (Act *)actInitialize(self);
-
-    _ACTWait(1);
-    if (gflagChk(302) == 0) {
-        ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-        scpSearchGobj(1966)->active = 0;
-        stage_SetLoopFlag(484, 0);
-        queen_appear_mes[0].func = actSt25aQueenAppearChk;
-        act->mail = queen_appear_mes;
-        ACTSendMailCorrect(self, 397);
-        _ACTWait(0);
-        return;
-    }
-    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(46, 0, 484, 0);
-    scpSearchGobj(1966)->active = 1;
-    scpPlayMot(scpSearchGobj(1966), 1043);
-    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
-    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
-    ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-    stage_SetAnimation(135, 0, -1);
-    stage_SetAnimation(138, 1, 0);
-}
 
 inline void scpDispOffAllWithKind(int kind)
 {

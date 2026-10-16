@@ -109,11 +109,8 @@ int scpCheckExistAliveEnemy(void);
 int scpCheckExistAliveSpider(void);
 void scpLockMaxRotate(struct GObj *self, float rot);
 void scpUnLockMaxRotate(struct GObj *self);
-void scpCheckDisconnectWallStart(struct GObj *self);
-void scpCheckDisconnectWallEnd(struct GObj *self);
 int scpTriggerIgnore(struct GObj *self);
 inline void scpDoorTypeUpMain(struct GObj *volatile self);
-void actSubSekizoSe(struct GObj *volatile self);
 /* The entry points script.o compiles in place, in its own parse order. */
 void scpTorchLightOn(int id);
 void scpTorchLightOff(int id);
@@ -126,8 +123,6 @@ void scpPlayEnd(struct GObj *self);
 void scpDoorTypeUpDown(struct GObj *volatile self);
 void scpDoorTypeUpUp(struct GObj *volatile self);
 void scpSubAdpcmPlay(struct GObj *volatile self);
-void scpAdpcmCloseFunc(struct SqEntry **h);
-void scpGirlHintVoiceTickProc(void *cam);
 
 void scpSekizou(struct GObj *self, int flag, int anim, int anim2, int kind, float bx, float by,
                 float bz, float gx, float gy, float gz);

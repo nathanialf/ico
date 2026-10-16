@@ -58,8 +58,6 @@ void actE3WarningChk(GObj *volatile self)
 
 #include "e3.h"
 
-static inline void actE3St09aBrgSwitch(GObj *volatile self);
-
 /* .sdata: the title stream's handle, the capsule's, the cage fall's, the
    first gate's, and the stone statue's and its volume word. */
 static SqEntry *e3title = 0; /* derived name */
@@ -659,7 +657,7 @@ void actE3St09aSekizo(GObj *volatile self)
     soundSeDefPlay(1321, 0, st09aSekizoPos, 1);
 
     if (gflagChk(333) == 0) {
-        if (girlGObj == 0) {
+        if ((int)girlGObj == 0) {
             ScpCallCameraOff();
         }
         stage_SetAnimation(341, 0, 0);
@@ -1035,7 +1033,7 @@ void actE3St13cIntro(GObj *volatile self)
 
     _ACTWait(1);
 
-    if (girlGObj == 0) {
+    if ((int)girlGObj == 0) {
         ScpCallCameraOff();
     }
 
@@ -1098,7 +1096,7 @@ void actE3St01bEne(GObj *volatile self)
 
     _ACTWait(1);
 
-    if (girlGObj == 0) {
+    if ((int)girlGObj == 0) {
         ScpCallCameraOff();
     }
 
