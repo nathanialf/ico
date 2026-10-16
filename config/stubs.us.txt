@@ -210,27 +210,6 @@ lit4 calcSubMission 0x00631124 0x00631128 ico2/sugipon/src/a_p_1.c  # 1 float
 text proc.162 0x001C6998 0x001C6DEC ico2/sugipon/src/clothAnimation.c local file=proc_162  # nested in getCloth4D (a stub); equal, gone with its carved parent
 text getCloth4D 0x001C6DF0 0x001C7FAC ico2/sugipon/src/clothAnimation.c local lines=337  # ordinal; first difference at insn 2; length:-12; extent-differs
 lit4 getCloth4D 0x00631204 0x0063120C ico2/sugipon/src/clothAnimation.c  # 2 floats
-text playSE 0x001D0558 0x001D0660 ico2/sugipon/src/frameDependSequence.c local lines=39  # us-only (after flyManager.c's span; PAL order suggests playSE (300 B in PAL)); named playSE by call sites, callees, body alignment (provisional)
-lit4 playSE 0x00631258 0x0063125C ico2/sugipon/src/frameDependSequence.c  # 1 float, measured from the base: the text loads them
-rdlit playSE 0x00618DD8 0x00618E56 ico2/sugipon/src/frameDependSequence.c  # 3 strings, measured from the base
-text playSERandomID 0x001D0660 0x001D0818 ico2/sugipon/src/frameDependSequence.c local lines=37  # us-only (after flyManager.c's span; PAL order suggests playSERandomID (464 B in PAL)); named playSERandomID by call sites, callees, body alignment (provisional)
-lit4 playSERandomID 0x0063125C 0x00631268 ico2/sugipon/src/frameDependSequence.c  # 3 floats
-text playSEConditionID 0x001D0818 0x001D0918 ico2/sugipon/src/frameDependSequence.c local lines=36  # us-only (after flyManager.c's span; PAL order suggests playSEConditionID (288 B in PAL)); named playSEConditionID by call sites, callees (provisional)
-text playEff 0x001D0918 0x001D0B5C ico2/sugipon/src/frameDependSequence.c local lines=43  # us-only (after flyManager.c's span; PAL order suggests playEff (624 B in PAL)); named playEff by callees, body alignment (provisional)
-rdlit playEff 0x00618E58 0x00618E9E ico2/sugipon/src/frameDependSequence.c  # 1 string, measured from the base
-text execEff 0x001D0B60 0x001D0D14 ico2/sugipon/src/frameDependSequence.c local lines=58  # us-only (after flyManager.c's span; PAL order suggests execEff (464 B in PAL)); named execEff by body alignment (provisional)
-lit4 execEff 0x00631268 0x00631270 ico2/sugipon/src/frameDependSequence.c  # 2 floats
-text func_001D0D18 0x001D0D18 0x001D0FA4 ico2/sugipon/src/frameDependSequence.c  # us-only; after flyManager.c's span; PAL order suggests ExecFrameDependSequence (680 B in PAL)
-text executeSEPackageByGObj 0x001D0FA8 0x001D1154 ico2/sugipon/src/frameDependSequence.c local lines=12  # us-only (after flyManager.c's span; PAL order suggests executeSEPackageByGObj (436 B in PAL)); named executeSEPackageByGObj by body alignment (provisional)
-rdlit executeSEPackageByGObj 0x00618EA0 0x00618EC1 ico2/sugipon/src/frameDependSequence.c  # 1 string, measured from the base
-text executeSEPackageWithNoGObj 0x001D1158 0x001D1284 ico2/sugipon/src/frameDependSequence.c local lines=16  # equal; a stub because it shares the SE strings playSE and executeSEPackageByGObj (stubs) write first, and gcc would write its own copies
-text InitFrameDependSequence 0x001D12E0 0x001D13A4 ico2/sugipon/src/frameDependSequence.c lines=19  # us-only (in frameDependSequence.c's span; PAL order suggests InitFrameDependSequence (188 B in PAL)); named InitFrameDependSequence by call sites (provisional)
-data D_004C0F40 0x004C0F40 0x004C0F8C ico2/sugipon/src/frameDependSequence.c local  # InitFrameDependSequence's cleared flag record, copied whole into the caller's (0x4C bytes); USA addiu at 0x1D12E4, the TU's only .data
-text execSE 0x001D13A8 0x001D140C ico2/sugipon/src/frameDependSequence.c local lines=15  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text checkWaterDepth 0x001D1410 0x001D1428 ico2/sugipon/src/frameDependSequence.c local lines=4  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text checkModelDataID 0x001D1428 0x001D143C ico2/sugipon/src/frameDependSequence.c local lines=4  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text func_001D1440 0x001D1440 0x001D1468 ico2/sugipon/src/frameDependSequence.c  # us-only; in frameDependSequence.c's span; PAL order suggests checkWeaponType (68 B in PAL)
-text execWeaponLightOff 0x001D1468 0x001D14B8 ico2/sugipon/src/frameDependSequence.c local lines=14  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text getMotionGeometry 0x001E3030 0x001E39E4 ico2/sugipon/src/motionOrientManager.c local lines=179  # us-only (in motionOrientManager.c's span; PAL order suggests getMotionGeometry (2536 B in PAL)); named getMotionGeometry by call sites, callees, body alignment (provisional)
 lit4 getMotionGeometry 0x0063137C 0x00631388 ico2/sugipon/src/motionOrientManager.c  # 3 floats
 sdlit getMotionGeometry 0x0063352C 0x00633530 ico2/sugipon/src/motionOrientManager.c  # 1 word
