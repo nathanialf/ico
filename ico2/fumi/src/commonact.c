@@ -167,7 +167,10 @@ typedef struct { /* field names derived */
 
 INCLUDE_ASM(ACTSetPositionNoFitting);
 
-INCLUDE_ASM(ACTSetPositionNodeWithFitting);
+void ACTSetPositionNodeWithFitting(void *self, int node, float *pos, float t)
+{
+    SetDirectRootPositionWithNodePoint(self, node, pos, t);
+}
 
 INCLUDE_ASM(ChangeMailInLadder);
 
@@ -611,7 +614,101 @@ typedef struct { /* field names derived */
 static CageUD cageUpDown = {
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0, 0, -1}; /* derived name */
 
-INCLUDE_ASM(TestCageUpDown);
+static void TestCageUpDown(GObj *cage, GObj *gobj)
+{
+    inline void initCage(GObj * o, int down) /* derived name */
+    {
+        int n;
+
+        cageUpDown.cnt = 0;
+        cageUpDown.lim = (float)*motionTable[*(int *)(((CagePtr *)&o->dobj)->p + 0x4A0)];
+        n = GetSkeltonFocusNode(o, 35);
+        cageUpDown.a[0] = *(float *)(*(char **)(((CagePtr *)&o->dobj)->p + 0xC) + n * 0x40 + 0x30);
+        cageUpDown.a[1] = *(float *)(*(char **)(((CagePtr *)&o->dobj)->p + 0xC) + n * 0x40 + 0x34);
+        cageUpDown.a[2] = *(float *)(*(char **)(((CagePtr *)&o->dobj)->p + 0xC) + n * 0x40 + 0x38);
+        cageUpDown.b[0] = cageUpDown.a[0];
+        cageUpDown.b[2] = cageUpDown.a[2];
+        if (down) {
+            cageUpDown.b[1] = cageUpDown.a[1] - 100.0f;
+        } else {
+            cageUpDown.b[1] = cageUpDown.a[1] + 200.0f;
+        }
+    }
+
+    inline void cageMove(GObj * o, float *dst, float *lo, float *hi, float *res, float x, float y,
+                         float z) /* derived name */
+    {
+        dst[0] = x;
+        dst[1] = y;
+        dst[2] = z;
+        GetCageChainPoint(lo, hi, cage);
+        _InterGV(dst, lo, hi, dst[1] - lo[1], hi[1] - dst[1]);
+        sceVu0ScaleVector(res, test_CURRENTORIENT(o), -15.0f);
+        sceVu0AddVector(res, dst, res);
+        ACTSetPositionNodeWithFitting(o, 0x23, res, 1.0f);
+    }
+
+    float vA[4];
+    float vB[4];
+    float vC[4];
+    float vD[4];
+    float vE[4];
+    float vF[4];
+    float vG[4];
+    float vH[4];
+    int mot = *(int *)(((CagePtr *)((char *)gobj + 0x15C))->p + 0x4A0);
+    int n;
+
+    GetCageChainPoint(vB, vC, cage);
+    *(int *)(((CagePtr *)((char *)boyGObj + 0x15C))->p + 0x420) = 0;
+    switch (mot) {
+    case 118:
+        break;
+    case 117:
+        if (GOBJ_ACT(gobj)->actMode == 63) {
+            if (cageUpDown.last != mot) {
+                initCage(gobj, 1);
+            }
+            _InterGV(vA, cageUpDown.a, cageUpDown.b, (float)cageUpDown.cnt,
+                     (float)(cageUpDown.lim - cageUpDown.cnt));
+            cageMove(gobj, vF, vG, vH, vE, vA[0], vA[1], vA[2]);
+            cageUpDown.cnt = cageUpDown.cnt + 1;
+        } else {
+            if (cageUpDown.last != mot) {
+                initCage(gobj, 1);
+            }
+            _InterGV(vA, cageUpDown.a, cageUpDown.b, (float)cageUpDown.cnt,
+                     (float)(cageUpDown.lim - cageUpDown.cnt));
+            vA[1] = vA[1] < vB[1] ? vB[1] : (vC[1] < vA[1] ? vC[1] : vA[1]);
+            cageMove(gobj, vF, vG, vH, vE, vA[0], vA[1], vA[2]);
+            cageUpDown.cnt = cageUpDown.cnt + 1;
+        }
+        break;
+    case 119:
+    case 120:
+        if (cageUpDown.last != mot) {
+            initCage(gobj, 0);
+        }
+        _InterGV(vA, cageUpDown.a, cageUpDown.b, (float)cageUpDown.cnt,
+                 (float)(cageUpDown.lim - cageUpDown.cnt));
+        vA[1] = vA[1] < vB[1] ? vB[1] : (vC[1] < vA[1] ? vC[1] : vA[1]);
+        cageMove(gobj, vF, vG, vH, vE, vA[0], vA[1], vA[2]);
+        cageUpDown.cnt = cageUpDown.cnt + 1;
+        break;
+    default:
+        n = GetSkeltonFocusNode(boyGObj, 22);
+        vA[0] = *(float *)(*(char **)(((CagePtr *)&boyGObj->dobj)->p + 0xC) + n * 0x40 + 0x30);
+        vA[1] = *(float *)(*(char **)(((CagePtr *)&boyGObj->dobj)->p + 0xC) + n * 0x40 + 0x34);
+        vA[2] = *(float *)(*(char **)(((CagePtr *)&boyGObj->dobj)->p + 0xC) + n * 0x40 + 0x38);
+        _InterGV(vA, vB, vC, vA[1] - vB[1], vC[1] - vA[1]);
+        ((SubHandle *)((char *)boyGObj + 0x15C))->sub->root.holdPoint[0] = vA[0];
+        ((SubHandle *)((char *)boyGObj + 0x15C))->sub->root.holdPoint[1] = vA[1];
+        ((SubHandle *)((char *)boyGObj + 0x15C))->sub->root.holdPoint[2] = vA[2];
+        ((SubHandle *)((char *)boyGObj + 0x15C))->sub->root.ropeState = 1;
+        break;
+    }
+    cageUpDown.last = mot;
+}
 
 typedef union { /* field names derived */
     float f[4];
@@ -1061,8 +1158,8 @@ static inline int IsFallStuckOnStep(GObj *self, int state, int mot, int need,
     int *q;
     int i, n, d;
 
-    for (i = 0, n = 1, q = (int *)((char *)s->work + 0x928); i < 10; i++, q++) {
-        if (q[-10] == state && (mot == 418 || mot == q[10])) {
+    for (i = 0, n = 1, q = (int *)((char *)s->work + 0x858); i < 10; i++, q++) {
+        if (q[-10] == state && (mot == 388 || mot == q[10])) {
             if (n >= need) {
                 d = s->frame - *q;
 
@@ -1079,7 +1176,117 @@ static inline int IsFallStuckOnStep(GObj *self, int state, int mot, int need,
     return n;
 }
 
-INCLUDE_ASM(actCommonFall);
+void actCommonFall(GObj *volatile self)
+{
+    float pa[4];
+    float pb[4];
+    float hit[4];
+    float lo[4];
+    float hi[4];
+    Act *s = GOBJ_ACT(self);
+    int noVel;
+    int wasHigh;
+    unsigned int mot;
+    int keep;
+    int n;
+
+    wasHigh = 0;
+    noVel = 0;
+    ((Act *)(char *)s)->flags18.afterProc = actAfterFall;
+    if (stageData[stage_no].flag3) {
+        keep = FALL_SUB(self)->ctrl.floorAttr & 0xF;
+        debug_StdPrintfDummy("0x%8x -> 0x%8x\n", FALL_SUB(self)->ctrl.floorAttr, keep);
+        FALL_SUB(self)->ctrl.floorAttr = 0;
+        FALL_SUB(self)->ctrl.floorAttr = keep;
+    } else {
+        FALL_SUB(self)->ctrl.floorAttr = 0;
+    }
+    mot = (unsigned int)s->intrKind;
+    switch (mot) {
+    case 154:
+        FALL_SUB(self)->root.move[0] = 0;
+        FALL_SUB(self)->root.move[1] = 0;
+        FALL_SUB(self)->root.move[2] = 0;
+        break;
+    case 24:
+        FALL_SUB(self)->root.move[0] = 0;
+        FALL_SUB(self)->root.move[1] = 0;
+        FALL_SUB(self)->root.move[2] = 0;
+        wasHigh = 1;
+        noVel = 1;
+        break;
+    case 49:
+        sceVu0ScaleVector(&FALL_SUB(self)->root.move[0], test_CURRENTORIENT(self), -5.0f);
+        FALL_SUB(self)->root.move[1] = 3.0f;
+        wasHigh = 1;
+        ((ActStatus *)((char *)s + 0x18))->ll |= (1ULL << 48);
+        GOBJ_WORK(self)->fallDamageHeight = 200.0f;
+        break;
+    case 48:
+        GetSkeltonPosition(pa, s->intrArg, 44);
+        GetSkeltonPosition(pb, self, 44);
+        lo[0] = pb[0];
+        lo[1] = pb[1];
+        lo[2] = pb[2];
+        if (ACTCheckCollis_WAY(40.0f, pa, pb, 0, hit)) {
+            lo[0] = pa[0];
+            lo[1] = pa[1];
+            lo[2] = pa[2];
+            SetRootPosition(self, pa);
+        }
+        hi[0] = lo[0];
+        hi[1] = lo[1];
+        hi[2] = lo[2];
+        lo[1] = lo[1] - 100.0f;
+        hi[1] = hi[1] + 100.0f;
+        if (ACTCheckCollis_WELL(lo, hi, 0, hit, 0.0f)) {
+            hit[1] = hit[1] - 105.0f;
+            SetRootPosition(self, hit);
+        }
+        break;
+    case 297:
+        wasHigh = 1;
+        ((ActStatus *)((char *)s + 0x18))->ll |= (1ULL << 48);
+        if (*(int *)((char *)GOBJ_ACT(self)->work + 0x830) == 38) {
+            GOBJ_WORK(self)->fallDamageHeight = 500.0f;
+        } else {
+            GOBJ_WORK(self)->fallDamageHeight = 3.40282347e+38f; /* FLT_MAX */
+        }
+        break;
+    default:
+        n = *(int *)((char *)GOBJ_ACT(self)->work + 0x830);
+        if (19 <= n) {
+            if (22 <= n) {
+                if (n < 29) {
+                    if (27 <= n) {
+                        FALL_SUB(self)->root.move[0] = 0;
+                        FALL_SUB(self)->root.move[1] = 0;
+                        FALL_SUB(self)->root.move[2] = 0;
+                        noVel = 1;
+                    }
+                }
+            } else {
+                wasHigh = 1;
+            }
+        }
+        if ((unsigned char)IsFallStuckOnStep(self, 5, 388, 2, 60)) {
+            ((Act *)(char *)s)->flags20.ll |= (1ULL << 25);
+        }
+        break;
+    }
+    while (1) {
+        if (s->modeFrame < ((60 - systemStatus[0] * 10) / systemStatus[1]) / 6) {
+            if (wasHigh) {
+                ((ActStatus *)((char *)s + 0x18))->ll |= (1ULL << 47);
+            }
+            if (noVel) {
+                FALL_SUB(self)->root.move[0] = FALL_SUB(self)->root.move[2] = 0.0f;
+            }
+        }
+        ACTSendMailCorrect(self, 295);
+        _ACTWait(1);
+    }
+}
 
 /* the sub-object's fly-limit flag at 0x654 */
 typedef struct { /* field names derived */
@@ -1242,9 +1449,123 @@ typedef struct { /* field names derived */
     } moveFlags; /* 0x298 */
 } LadderWork;    /* derived name */
 
-#define LADW ((LadderWork *)*(int *)(self->act + 0x680)) /* derived name */
+#define LADW ((LadderWork *)*(int *)(self->act + 0x670)) /* derived name */
 
-INCLUDE_ASM(actCommonLadder);
+void actCommonLadder(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    int mot = s->intrMot;
+    float pos[4];
+    int uf22;
+    int uf6;
+    int lf52;
+    int lf48;
+    int up22;
+    int up6;
+    int lp52;
+    int lp48;
+    GObj *o;
+
+    if (s->env.edgePos[3] != 0.0f) {
+        pos[0] = test_CURRENTROOT((void *)self)[0];
+        pos[1] = test_CURRENTROOT((void *)self)[1];
+        pos[2] = test_CURRENTROOT((void *)self)[2];
+        pos[0] = s->env.edgePos[0];
+        pos[2] = s->env.edgePos[2];
+        s->env.edgePos[3] = 0.0f;
+    }
+    LADW->upEnd = 0;
+    LADW->downEnd = 0;
+    LADW->moveFlags.ll &= ~1ULL;
+    LADW->moveFlags.ll &= ~2ULL;
+    LADW->moveFlags.ll &= ~4ULL;
+    if (self == boyGObj) {
+        GOBJ_ACT(self)->hit = 1;
+    }
+    if (mot == 113 || mot == 114) {
+        while (1) {
+            if (self == boyGObj && GOBJ_SUB(self)->ctrl.animFrame > 40.0f) {
+                break;
+            }
+            if (motionKind[GOBJ_SUB(self)->ctrl.motion].playMode == 1) {
+                break;
+            }
+            _ACTWait(1);
+        }
+    }
+    while (1) {
+        uf22 = (int)GetDifferenceFromWallUpperField((void *)self, 22);
+        uf6 = (int)GetDifferenceFromWallUpperField((void *)self, 6);
+        lf52 = (int)GetDifferenceFromLastField((void *)self, 52);
+        lf48 = (int)GetDifferenceFromLastField((void *)self, 48);
+        up22 = (int)GetDifferenceFromWallUpperPlane((void *)self, 22);
+        up6 = (int)GetDifferenceFromWallUpperPlane((void *)self, 6);
+        lp52 = (int)GetDifferenceFromWallLowerPlane((void *)self, 52);
+        lp48 = (int)GetDifferenceFromWallLowerPlane((void *)self, 48);
+        LADW->upEnd = 0;
+        LADW->downEnd = 0;
+        LADW->moveFlags.ll &= ~4ULL;
+        LADW->moveFlags.ll |= 1ULL;
+        LADW->moveFlags.ll |= 2ULL;
+        if ((uf22 - up22 < 0 ? up22 - uf22 : uf22 - up22) < 30) {
+            if (uf22 < 10) {
+                LADW->upEnd = 1;
+            }
+            if (uf6 < 10) {
+                LADW->upEnd = 2;
+            }
+        } else {
+            if (up22 < 40) {
+                LADW->moveFlags.ll &= ~1ULL;
+            }
+            if (up6 < 40) {
+                LADW->moveFlags.ll &= ~1ULL;
+            }
+        }
+        if ((lf52 - lp52 < 0 ? lp52 - lf52 : lf52 - lp52) < 30) {
+            if (lf52 >= -9) {
+                LADW->downEnd = 1;
+            }
+            if (lf48 >= -9) {
+                LADW->downEnd = 2;
+            }
+        } else {
+            if (lp52 >= 31) {
+                LADW->moveFlags.ll |= 4ULL;
+            }
+            if (lp48 >= 31) {
+                LADW->moveFlags.ll |= 4ULL;
+            }
+        }
+        if (s->pushDir == 0xFFFFFFFF && ((int)((long long)LADW->moveFlags.ll >> 2) & 1)) {
+            ACTSendMailCorrect(self, 132);
+            if (self != boyGObj) {
+                ACTSendMailCorrect(self, 133);
+            }
+        }
+        if (self == boyGObj && girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 38) {
+            if (_DistSqGV(test_CURRENTROOT((void *)self), test_CURRENTROOT(girlGObj)) < 3600.0f) {
+                ACTSendMailCorrect(self, 0x31);
+            }
+        }
+        if (self == boyGObj || self == girlGObj) {
+            pos[0] = test_CURRENTROOT((void *)self)[0];
+            pos[1] = test_CURRENTROOT((void *)self)[1];
+            pos[2] = test_CURRENTROOT((void *)self)[2];
+            for (o = isysGObjSearchFromObjKindID_begin(4); o != 0;
+                 o = isysGObjSearchFromObjKindID_next(o)) {
+                if (o->active != 0) {
+                    if (GOBJ_ACT(o)->actMode == 38 &&
+                        _DistSqGV(pos, test_CURRENTROOT(o)) < 6400.0f) {
+                        ACTSendMailCorrect(self, 0x31);
+                        break;
+                    }
+                }
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 /* inline tail members, defined here: their strings come between the
    flyCoreLoop unit's and funcCommonBeginReady's in .rodata, while their code

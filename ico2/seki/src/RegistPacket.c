@@ -410,11 +410,170 @@ typedef struct { /* field names derived */
     RegVec r[4];
 } RegMtx; /* derived name */
 
-INCLUDE_ASM(setMatrix_38);
+static char *reg_setMMatrixPacket(Sub15C *o, int idx)
+{
+    RegVec s;
+    RegVec v;
+    char *pkt;
+    float *box;
+    struct DObjNode *w;
+    int mode;
 
-INCLUDE_ASM(setLight_42);
+    void setMatrix(void)
+    {
+        char *c;
+        char *m;
 
-INCLUDE_ASM(reg_setMMatrixPacket);
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x1000000D;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+        PacketBufferStruct.ptr.c = c + 0x50;
+        _CopyMatrix(c + 0x10, matrixptr + 0x140);
+        if ((o->nodes[idx].flags.ll & 6) != 0) {
+            _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x1C0, matrixptr + 0x180);
+        } else {
+            _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, matrixptr + 0x40);
+            _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x200, matrixptr + 0x40);
+        }
+        PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+        _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x80, matrixptr + 0x40);
+        m = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.ptr.c = m + 0x40;
+        ((GifPkWord *)(m + 0x40))->w[0] = 0x15000010;
+        PacketBufferStruct.ptr.c = m + 0x44;
+        ((GifPkWord *)(m + 0x40))->w[1] = 0;
+        PacketBufferStruct.ptr.c = m + 0x48;
+        ((GifPkWord *)(m + 0x48))->d = 0;
+        PacketBufferStruct.ptr.c = m + 0x50;
+    }
+    void setLight(void)
+    {
+        char *c;
+        char *m;
+        char *n;
+
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x10000009;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C088000;
+        PacketBufferStruct.ptr.c = c + 0x10;
+        _GetCurrentMatrix(c + 0x10);
+        m = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.ptr.c = m + 0x80;
+        _CopyMatrix(m + 0x40, (char *)o->lightMtx + 64);
+        n = PacketBufferStruct.ptr.c;
+        ((GifPkWord *)n)->w[0] = 0x15000012;
+        n += 4;
+        PacketBufferStruct.ptr.c = n;
+        ((GifPkWord *)n)->w[0] = 0;
+        PacketBufferStruct.ptr.c = n + 4;
+        ((GifPkWord *)(n + 4))->d = 0;
+        PacketBufferStruct.ptr.c = n + 0xC;
+    }
+    w = (struct DObjNode *)(idx * 80 + (int)o->nodes);
+    mode = o->lightMtx->mode;
+    if ((w->flags.ll & 2) != 0) {
+        RegMtx um;
+
+        _SetCurrentMatrix((char *)o->nodeMtx + idx * 64);
+        _ClearTransCurrentMatrix();
+        _UnitMatrix(&um);
+        _ApplyCurrentMatrix(&v, &um.r[0]);
+        s.x = _GetLength(&v, &um.r[3]);
+        _ApplyCurrentMatrix(&v, &um.r[1]);
+        s.y = _GetLength(&v, &um.r[3]);
+        _ApplyCurrentMatrix(&v, &um.r[2]);
+        s.z = _GetLength(&v, &um.r[3]);
+        _InitCurrentMatrix();
+        if (o->nodes[idx].pos[2] < 5.0f) {
+            _ScaleVectorXYZ(&s, &s, 5.0f);
+            _ScaleCurrentMatrix(s.x, s.y, s.z);
+            _ScaleVectorXYZ(&s, o->nodes[idx].pos, 5.0f);
+            s.w = 1.0f;
+            _SetTransCurrentMatrix(&s);
+        } else {
+            _ScaleCurrentMatrix(s.x, s.y, s.z);
+            _SetTransCurrentMatrix(o->nodes[idx].pos);
+        }
+        _GetCurrentMatrix(matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x300, matrixptr + 0x240, matrixptr + 0x180);
+    } else if ((w->flags.ll & 4) != 0) {
+        RegMtx um2;
+
+        _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, (char *)o->nodeMtx + idx * 64);
+        _UnitMatrix(&um2);
+        _SetCurrentMatrix(matrixptr + 0x180);
+        _ClearTransCurrentMatrix();
+        _ApplyCurrentMatrix(&v, &um2.r[0]);
+        s.x = _GetLength(&v, &um2.r[3]);
+        _ApplyCurrentMatrix(&v, &um2.r[1]);
+        s.y = _GetLength(&v, &um2.r[3]);
+        _ApplyCurrentMatrix(&v, &um2.r[2]);
+        s.z = _GetLength(&v, &um2.r[3]);
+        _InitCurrentMatrix();
+        _TransCurrentMatrix(matrixptr + 0x1B0);
+        _RotCurrentMatrixZ(*(short *)((char *)&o->nodes[idx] + 58));
+        _ScaleCurrentMatrix(s.x, s.y, s.z);
+        _GetCurrentMatrix(matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x300, matrixptr + 0x240, matrixptr + 0x180);
+    } else {
+        if (w->scale[0] != 1.0f || w->scale[1] != 1.0f || w->scale[2] != 1.0f) {
+            _InitCurrentMatrix();
+            _SetCurrentMatrix((char *)o->nodeMtx + idx * 64);
+            _ScaleCurrentMatrix(o->nodes[idx].scale[0], o->nodes[idx].scale[1],
+                                o->nodes[idx].scale[2]);
+            _GetCurrentMatrix(matrixptr + 0x40);
+        } else {
+            _CopyMatrix(matrixptr + 0x40, (char *)o->nodeMtx + idx * 64);
+        }
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
+        _MulMatrix(matrixptr + 0x300, matrixptr + 0x280, matrixptr + 0x40);
+    }
+    box = o->model->box[0];
+    _SetCurrentMatrix(matrixptr + 0x300);
+    if (gsb_ClipBox(box) == 0) {
+        if (o->shadow != 0) {
+            light_MakeLightMatrix(o, idx);
+        }
+        return 0;
+    }
+    pkt = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.dma.c = pkt;
+    PacketBufferStruct.tail.c = 0;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
+    setMatrix();
+    if (mode != 0 && mode != 3) {
+        light_MakeLightMatrix(o, idx);
+        _SetCurrentMatrix(matrixptr + 0x40);
+        _ClearTransCurrentMatrix();
+        _MulCurrentMatrixL((char *)o->lightMtx);
+        setLight();
+    }
+    {
+        char *c = PacketBufferStruct.ptr.c;
+
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = c + 0x10;
+    }
+    return pkt;
+}
 
 /* the head of a cluster matrix packet: the DMA tag with FLUSH and the
    UNPACK, then the first quadword unpacked, the unpack's quadword count and

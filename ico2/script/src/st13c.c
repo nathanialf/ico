@@ -457,9 +457,305 @@ void actSt13cCageFall(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt13cCageFallChk);
+void actSt13cCageFallChk(GObj *volatile self)
+{
+    GProc *th1;
+    GProc *th2;
+    GProc *th3;
+    int cancel;
+    unsigned int i;
 
-INCLUDE_ASM(actSt13cConte05);
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(self, boyGObj, 160.0f) == 0 || gflagChk(19) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(348);
+    CheckPoint();
+    gflagOff(348);
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    fightSoundProcessRequestPause();
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(20);
+
+    while (st13c_adpcm2 == 0) {
+        _ACTWait(1);
+    }
+
+    AdpcmPlay(st13c_adpcm2->stream);
+
+    th1 = actCreateSubThread(actSt13cConte05, 21);
+    th2 = actCreateSubThread(actSt13cConte05Jimaku, 21);
+    th3 = actCreateSubThread(actSt13cCageFallEffect, 21);
+
+    SetWayGroupActive(9, 0);
+    _ACTWait(1);
+
+    stage_SetAnimation(61, 1, 0);
+    stage_SetAnimation(62, 1, 0);
+    stage_SetAnimation(63, 1, 0);
+
+    demoEnd = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    cancel = demoEnd ^ 1;
+
+    if (cancel) {
+        scpAdpcmFadeCloseFunc(st13c_adpcm2, 256);
+
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+
+    iosThreadSetPri(&((GProc *)th1)->thread, 34);
+    iosThreadSetPri(&((GProc *)th2)->thread, 34);
+    iosThreadSetPri(&((GProc *)th3)->thread, 34);
+
+    if (cancel) {
+        {
+            AnimSet16 w = conte05Anims;
+
+            for (i = 0; i < 16; i++) {
+                stage_SetAnimation(w.anim[i], 1, -1);
+                _ACTWait(1);
+            }
+        }
+
+        jimakuUndisp(&jimaku_msg);
+
+        scpSearchGobj(111)->active = 1;
+        scpSearchGobj(112)->active = 1;
+        scpSearchGobj(113)->active = 1;
+        scpSearchGobj(51)->active = 1;
+
+        scpTorchLightOn(127);
+        gflagOn(22);
+        _ACTWait(10);
+
+        Generator_QuickCall(bossGenerator);
+        Generator_MaskOff(bossGenerator);
+
+        if (isEnemyActive(scpSearchGobj(133)) == 0) {
+            sceVu0FVECTOR zero;
+
+            memset(zero, 0, 16);
+            DirectCallEnemy(scpSearchGobj(133), bossGenerator, zero, zero, 0);
+            iosOmSendMail(scpSearchGobj(133), 242, scpSearchGobj(133));
+            _ACTWait(1);
+        }
+
+        scpPlayStart(boyGObj);
+        scpPlayStart(girlGObj);
+        scpPlayStart(scpSearchGobj(133));
+
+        fightSoundProcessRequestStart();
+
+        stage_SetAnimation(61, 0, -1);
+        stage_SetAnimation(62, 0, -1);
+        stage_SetAnimation(63, 0, -1);
+        stage_SetAnimation(576, 1, 0);
+
+        scpPlayMot(scpSearchGobj(133), 887);
+        SetCameraFlag_LwsCutBack();
+        scpPlayEnd(scpSearchGobj(133));
+        scpWakeupEnemyAll();
+
+        _ACTWait(10);
+
+        scpPlayMot(boyGObj, 317);
+        stage_SetAnimation(575, 1, 0);
+        scpTorchLightOff(127);
+        scpFadeIn(3.0f);
+    } else {
+        Generator_MaskOff(bossGenerator);
+    }
+
+    scpPlayMot(girlGObj, 691);
+    scpPlayMot(scpSearchGobj(133), 919);
+
+    while (stage_ContinueAnimation(575, 576) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 318);
+    scpPlayMot(scpSearchGobj(133), 887);
+
+    while (stage_CheckAnimationFinish(576) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(scpSearchGobj(133));
+    scpWakeupEnemyAll();
+    ACTEnemyForceSwitchToCarry(scpSearchGobj(133));
+    scpTorchLightOff(127);
+
+    scpSearchGobj(127)->active = 0;
+
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+
+    _ACTWait(30);
+    gflagOn(24);
+    SetWeaponTorchChainReactionFlagAll(0);
+}
+
+void actSt13cConte05(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+
+    stage_SetAnimation(559, 1, 0);
+
+    scpPlayMot(boyGObj, 309);
+
+    while (stage_ContinueAnimation(559, 560) == 0) {
+        _ACTWait(1);
+    }
+
+    while (stage_ContinueAnimation(560, 561) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 681);
+
+    while (stage_ContinueAnimation(561, 562) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 682);
+
+    while (stage_ContinueAnimation(562, 563) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 310);
+
+    while (stage_ContinueAnimation(563, 564) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 311);
+
+    while (stage_ContinueAnimation(564, 565) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 683);
+    _ACTWait(1);
+
+    scpSearchGobj(111)->active = 1;
+    scpSearchGobj(112)->active = 0;
+    scpSearchGobj(113)->active = 0;
+    scpSearchGobj(51)->active = 0;
+
+    while (stage_ContinueAnimation(565, 566) == 0) {
+        _ACTWait(1);
+    }
+
+    scpTorchLightOn(127);
+
+    scpPlayMot(girlGObj, 684);
+
+    while (stage_ContinueAnimation(566, 567) == 0) {
+        _ACTWait(1);
+    }
+
+    scpSearchGobj(51)->active = 1;
+
+    scpPlayMot(boyGObj, 312);
+    scpPlayMot(girlGObj, 685);
+
+    while (stage_ContinueAnimation(567, 568) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 313);
+    scpPlayMot(girlGObj, 686);
+
+    scpSearchGobj(112)->active = 1;
+    scpSearchGobj(113)->active = 1;
+
+    _ACTWait(300);
+    gflagOn(22);
+
+    while (stage_ContinueAnimation(568, 569) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayStart(scpSearchGobj(133));
+    scpPlayMot(scpSearchGobj(133), 915);
+
+    while (stage_ContinueAnimation(569, 570) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 314);
+    scpPlayMot(girlGObj, 687);
+    scpPlayMot(scpSearchGobj(133), 915);
+
+    while (stage_ContinueAnimation(570, 571) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 315);
+    scpPlayMot(girlGObj, 688);
+    scpPlayMot(scpSearchGobj(133), 916);
+
+    while (stage_ContinueAnimation(571, 572) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 316);
+    scpPlayMot(girlGObj, 689);
+    scpPlayMot(scpSearchGobj(133), 917);
+
+    while (stage_ContinueAnimation(572, 573) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 690);
+    scpPlayMot(scpSearchGobj(133), 918);
+
+    while (stage_ContinueAnimation(573, 574) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 317);
+
+    while (stage_ContinueAnimation(574, 575) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 691);
+    scpPlayMot(scpSearchGobj(133), 919);
+
+    fightSoundProcessRequestStart();
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 void actSt13cConte05Jimaku(GObj *volatile self)
 {

@@ -14,7 +14,6 @@
 #include "gv.h"
 #include "main.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* the terminal id the reconnect check compares against, which nothing in the
    retail build writes, and the enable flag iosPadEnable and iosPadDisable
@@ -78,11 +77,207 @@ IOSThread th_iosPadDevManager = {{0}};
 
 IosMsgQueue padDevMgrMsgQ = {0};
 
-INCLUDE_ASM(controler_stable_check);
+static int controler_stable_check(IosPadDevRec *dev)
+{
+    int port = dev->port;
+    int slot = dev->slot;
+    int prev = dev->state;
+    int phase = dev->phase;
+    int cnt = dev->errCount;
+    int id = dev->lastTermId;
+    int state;
+    int mode;
+    int exid;
+    int i;
+
+    state = scePadGetState(port, slot);
+    if ((unsigned int)state < 8) {
+        if (state != prev) {
+            debug_StdPrintfDummy("pad:port:%d slot:%d %s\n", port, slot, padStateName[state]);
+        }
+    } else {
+        debug_StdPrintfDummy("pad:?%d\n", state);
+    }
+    if (state == 0) {
+        cnt = 0;
+        phase = 0;
+    }
+    if (port == 0 && slot == 0) {
+        debug_StdPrintfDummy("phase %d\n", phase);
+    }
+    switch (phase) {
+    case 0:
+        dev->flags &= ~0x40000;
+        phase++;
+    case 1:
+        if (state != 6 && state != 2) {
+            break;
+        }
+        mode = scePadInfoMode(port, slot, 1, 0);
+        debug_StdPrintfDummy("pad id:%d\n", mode);
+        debug_StdPrintfDummy("pad id:%d\n", mode);
+        if (mode == 0) {
+            break;
+        }
+        exid = scePadInfoMode(port, slot, 2, 0);
+        debug_StdPrintfDummy("pad: exid %d\n", exid);
+        debug_StdPrintfDummy("pad: exid %d\n", exid);
+        if (exid >= 1) {
+            mode = exid;
+        }
+        switch (mode) {
+        default:
+            debug_StdPrintfDummy("pad:default 0x%x\n", mode);
+            phase = 99;
+            break;
+        case 4:
+            debug_StdPrintfDummy("pad:4\n");
+            phase = 40;
+            dev->flags |= 0x40000;
+            break;
+        case 7:
+            debug_StdPrintfDummy("pad:7\n");
+            if ((int)(dev->flags >> 18) & 1) {
+                phase = 70;
+            }
+            break;
+        }
+        debug_StdPrintfDummy("pad:%03x\n", mode);
+        break;
+    case 40:
+        if (scePadInfoMode(port, slot, 4, -1) == 0) {
+            phase = 99;
+            break;
+        }
+        phase++;
+    case 41:
+        debug_StdPrintfDummy("pad:41\n");
+        if (scePadSetMainMode(port, slot, 1, 3) == 1) {
+            phase++;
+        }
+        break;
+    case 42:
+        debug_StdPrintfDummy("pad:42\n");
+        if (scePadGetReqState(port, slot) == 1) {
+            phase--;
+        }
+        if (scePadGetReqState(port, slot) != 0) {
+            break;
+        }
+        phase = 1;
+        debug_StdPrintfDummy("pad:switch to ANALOG mode\n");
+        break;
+    case 70:
+        debug_StdPrintfDummy("pad:70\n");
+        if (scePadInfoPressMode(port, slot) == 1) {
+            phase++;
+        } else {
+            phase = 75;
+        }
+        break;
+    case 71:
+        debug_StdPrintfDummy("pad:71\n");
+        if (scePadEnterPressMode(port, slot) == 1) {
+            phase++;
+        }
+        break;
+    case 72:
+        debug_StdPrintfDummy("pad:72\n");
+        if (scePadGetReqState(port, slot) == 1) {
+            phase--;
+        }
+        if (scePadGetReqState(port, slot) != 0) {
+            break;
+        }
+        phase = 75;
+        debug_StdPrintfDummy("pad:switch to PRESSURE SENSE mode\n");
+        break;
+    case 75:
+        debug_StdPrintfDummy("pad:75\n");
+        if (scePadInfoAct(port, slot, -1, 0) == 0) {
+            phase = 99;
+        }
+        dev->act[0] = 0;
+        dev->act[1] = 1;
+        for (i = 2; i < 6; i++) {
+            dev->act[i] = 255;
+        }
+        if (scePadSetActAlign(port, slot, dev->act) != 0) {
+            phase++;
+        }
+        break;
+    case 76:
+        debug_StdPrintfDummy("pad:76\n");
+        if (scePadGetState(port, slot) != 5) {
+            phase = 99;
+        }
+        break;
+    default:
+        if (state == 7) {
+            cnt++;
+            dev->state = prev;
+            dev->phase = -1;
+            dev->errCount = cnt;
+            dev->lastTermId = id;
+            debug_assert(__FILE__, 422);
+            __assert(__FILE__, 422, "0");
+            return -1;
+        }
+        if (state == 6 || state == 2) {
+            unsigned char data[32];
+
+            if (scePadRead(port, slot, data) != 0) {
+                padTermId = data[1];
+            }
+            /* the line after assigns id again; the object keeps this arm's
+               own copy of the assignment */
+            if (id != 0 && padTermId != id) {
+                phase = 0;
+                id = padTermId;
+            }
+            dev->termId = id = padTermId;
+        }
+        break;
+    }
+    dev->state = state;
+    dev->phase = phase;
+    dev->errCount = cnt;
+    dev->lastTermId = id;
+    return phase;
+}
 
 static void iosPadDevManager(void);
 
-INCLUDE_ASM(iosPadDevInit);
+int iosPadDevInit(void *desc)
+{
+    int i;
+
+    iosThreadCreateS(&th_iosPadDevManager, 10, iosPadDevManager, 0, ios_partition_root, 4096, 17);
+    iosThreadStart(&th_iosPadDevManager);
+
+    if (scePadInit(0) != 1) {
+        debug_StdPrintfDummy("pad:init error\n");
+        debug_assert(__FILE__, 508);
+        __assert(__FILE__, 508, "0");
+        return 0;
+    }
+    for (i = 0; i < 2; i++) {
+        IosPadDevRec *dev = &iosPadDev[i];
+
+        dev->port = i;
+        dev->slot = 0;
+        dev->phase = 0;
+        dev->error = 1;
+        dev->state = 0xFFFF;
+        if (scePadPortOpen(i, 0, dev->dmaBuf) == 0) {
+            debug_StdPrintfDummy("ERROR: scePadPortOpen port%d slot%d\n", i, 0);
+            debug_assert(__FILE__, 523);
+            __assert(__FILE__, 523, "0");
+        }
+    }
+    iosPadConfCustom = iosPadConfDefault;
+    return 1;
+}
 
 static void iosPadActTickProc(void);
 

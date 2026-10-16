@@ -252,7 +252,85 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2) /* deriv
     return 1;
 }
 
-INCLUDE_ASM(UpdateFrameCounter);
+int UpdateFrameCounter(void *self)
+{
+    char *m = (char *)MOWORK(self);
+    struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
+    int nf = GetNbMotionFrames(w->motion);
+    float t;
+    float r;
+    float frame;
+
+    if (w->justShifted != 0) {
+        w->justShifted = 0;
+    }
+    w->frameEnd = 0;
+    w->loopFlag = 0;
+    if (motionFrameUpdate == 1) {
+        t = w->speedRatio * motionKind[w->motion].playSpeedRatio * w->playRate *
+            (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
+        if (w->waterDrag != 0) {
+            switch (w->rootUpdateMode) {
+            case 1:
+            case 2:
+            case 17:
+            case 20:
+                if (MOWORK(self)->skel != 0) {
+                    float a = 1.0f - MOWORK(self)->ctrl.waterDepth * MOWORK(self)->scaleRatio;
+
+                    if (a < 0.1f) {
+                        a = 0.1f;
+                    }
+                    if (1.0f < a) {
+                        a = 1.0f;
+                    }
+                    t = t * a;
+                }
+                break;
+            }
+        }
+        w->lastFrame = w->animFrame;
+        w->animFrame = w->animFrame + t;
+        switch (motionKind[w->motion].playMode) {
+        case 1:
+            if ((float)(nf - 1) <= w->animFrame) {
+                w->animFrame = w->animFrame - (float)(nf - 1);
+                w->frameEnd = motionKind[w->motion].playMode;
+                InitFrameDependSequence(m + 0x740);
+                clearFrameTriggerState(self);
+                if (motionKind[w->motion].flags.bits.loop != 0) {
+                    w->loopFlag = 1;
+                }
+            }
+            break;
+        case 4:
+            r = w->frameRatio;
+            r = r < 0.0f ? 0.0f : (1.0f < r ? 1.0f : r);
+            w->animFrame = (float)(nf - 1) * r;
+            break;
+        default:
+            if ((float)(nf - 1) <= w->animFrame) {
+                w->animFrame = w->lastFrame;
+                w->frameEnd = 1;
+            }
+            break;
+        }
+        w->playTime =
+            w->playTime +
+            w->speedRatio * (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
+        w->step = w->step + 1;
+        if (!(w->blendFrames < w->blendCount)) {
+            w->blendCount = w->blendCount + 1;
+        }
+        /* the two-frame range tests take a second frame value; here it is
+           the same frame, held in a local */
+        frame = w->animFrame;
+        w->frameFlag1 = checkFrameInRange(w->motion, w->animFrame);
+        w->frameFlag2 = checkFrameInRange2(w->motion, w->animFrame, frame);
+        w->shiftReady = checkMotionShiftRange(w->motion, w->animFrame, frame);
+    }
+    return w->frameEnd;
+}
 
 inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
 {

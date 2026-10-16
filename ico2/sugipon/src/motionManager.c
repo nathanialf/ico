@@ -473,9 +473,133 @@ static void checkWallState(int flag)
     }
 }
 
-static void checkCliffState(void);
+static void checkCliffState(void)
+{
+    ClipWork buf;
+    float mv[4];
+    ClipWork *p;
+    float k;
 
-INCLUDE_ASM(checkCliffState);
+    memset(&buf, 0, sizeof(buf));
+    p = &buf;
+    k = (skelGObj == boyGObj) ? -20.0f : 0.0f;
+    cliffCheckBase[2] = k;
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(cliffCheckBase);
+    CopyVector(p, (void *)(MatrixDrive_GetMatrix()[3]));
+    sceVu0ApplyMatrix(p->pt[1], MatrixDrive_GetMatrix(), cliffCheckAhead);
+    _ApplyMatrix(mv, MatrixDrive_GetMatrix(), ZUnitVector);
+    MatrixDrive_PopMatrix();
+    if (hitColRayDisp != 0) {
+        DrawCollisionRay(p);
+    }
+    ClipWallR(p);
+    if (p->wall.elem != 0) {
+        float wv[4];
+        float sc[4];
+        float hit[4];
+        ClipWork fp;
+        float plane[4];
+        WallCfg pl;
+        WallCfg t;
+        float d;
+        float dd;
+
+        GetWallVector(wv, p);
+        sceVu0ScaleVector(sc, wv, 300.0f);
+        AddVectorXYZ(p->pt[1], p, sc);
+        ClipWallR(p);
+        if (hitColRayDisp != 0) {
+            DrawCollisionRay(p);
+        }
+        if (p->wall.elem != 0) {
+            sceVu0ScaleVector(sc, wv, 10.0f);
+            sceVu0AddVector(fp.pt[1], p->pt[2], sc);
+            CopyVector(&fp, fp.pt[1]);
+            pl = (t.o = p->wall.o, t.elem = p->wall.elem, t);
+            GetPureVerticalPlane(plane, 0, 0, &pl, 0);
+            d = GetDistanceFromPlane(plane, p->pt[2]);
+            fp.pt[0][1] += d - 10.0f;
+            ClipFloor(&fp);
+            if (hitColRayDisp != 0) {
+                DrawCollisionRay(&fp);
+            }
+            CopyVector(hit, p->pt[2]);
+            if (fp.floor.elem == 0) {
+                float dv[4];
+                float nv[4];
+                ClipWork w2;
+                float ip;
+
+                CopyVector(dv, wv);
+                sc[1] = 0.0f;
+                _NormalizeVector(nv, dv);
+                ip = _InnerProduct(nv, mv);
+                skelMotCtrl->cliffDist = GetPointDistance(p->pt[2], p) + k * ip;
+                skelMotCtrl->cliffWallHit = 1;
+                /* the wall-hit word is copied as the pointer it is, as
+                   checkWallState reads it */
+                skelRoot->cliffWall.elem = p->wall.elem;
+                skelRoot->cliffWall.o = p->wall.o;
+                skelRoot->cliffWallCount = -1;
+                w2 = *p;
+                d = GetPointDistance(p->pt[2], p);
+                _ScaleVector(sc, wv, d + 10.0f);
+                _AddVectorXYZ((w2.pt[1]), &w2, sc);
+                w2.pt[0][1] = w2.pt[0][1] - 30.0f;
+                w2.pt[1][1] = w2.pt[1][1] - 30.0f;
+                ClipWall(&w2);
+                if (hitColRayDisp != 0) {
+                    DrawCollisionRay(&w2);
+                }
+                if (w2.wall.elem == 0) {
+                    skelMotCtrl->cliffEdge = 1;
+                    skelMotCtrl->flags |= 0x10;
+                }
+            }
+            skelMotCtrl->pureCliffAttr = skelMotCtrl->wallAttr = GetWallAttribute(p);
+            GetOrientOfWall(skelMotCtrl->cliffNormal, p->wall.elem, &p->wall.o);
+            if (skelMotCtrl->cliffDist < 30.0f) {
+                sceVu0ScaleVector(sc, wv, 10.0f);
+                SubVectorXYZ(p, hit, sc);
+                sceVu0ScaleVector(sc, wv, 300.0f);
+                AddVectorXYZ(p->pt[1], p, sc);
+                ClipWall(p);
+                if (hitColRayDisp != 0) {
+                    DrawCollisionRay(p);
+                }
+                if (p->wall.elem != 0) {
+                    dd = distance_squared(p->pt[2], p);
+                    skelMotCtrl->cliffBack = 1;
+                    d = FSqrt(dd);
+                    skelMotCtrl->wallDist = d;
+                    sceVu0ScaleVector(sc, wv, 10.0f);
+                    AddVectorXYZ(p, p->pt[2], sc);
+                    CopyVector(p->pt[1], p);
+                    p->pt[1][1] = p->pt[1][1] - 10000.0f;
+                    ClipFloorR(p);
+                    if (hitColRayDisp != 0) {
+                        DrawCollisionRay(p);
+                    }
+                    if (p->floor.elem != 0) {
+                        skelMotCtrl->wallFloorHeight = (p->pt[2][1] - p->pt[0][1]) + 10.0f;
+                    }
+                }
+            }
+            sceVu0ScaleVector(sc, wv, 10.0f);
+            AddVectorXYZ(p, hit, sc);
+            CopyVector(p->pt[1], p);
+            p->pt[1][1] = p->pt[1][1] + 10000.0f;
+            ClipFloorIH(p);
+            if (hitColRayDisp != 0) {
+                DrawCollisionRay(p);
+            }
+            if (p->floor.elem != 0) {
+                skelMotCtrl->cliffHeight = (p->pt[2][1] - p->pt[0][1]) + 10.0f;
+            }
+        }
+    }
+}
 
 static void _checkCliffAndWall(void)
 {

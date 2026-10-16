@@ -115,9 +115,6 @@ extern MotionDef motionKind[];
 #define ENEMY_DEBUG_HOLD 0 /* derived name */
 #endif
 
-/* enemy.c's; no header declares it */
-extern float GetEnemyDefParaIndex(void *self);
-
 /* The point the lifting enemy turns to: three vectors (the first two equal),
    of which only the first is addressed. */
 static sceVu0FVECTOR bodyliftTarget[3] = {
@@ -331,7 +328,136 @@ end:
 
 INCLUDE_ASM(subEnemyControl);
 
-INCLUDE_ASM(subEnemyCollision);
+/* A static inline, a helper defined above EnemyUtil_TurnToBoy,
+   _ApproachTarget_Boss and subEnemyCollision and inlined at each call. */
+static inline unsigned char enemyCheckTurnAngle(GObj *self) /* derived name */
+{
+    float mot[4];
+    float cur[4];
+    Act *s = GOBJ_ACT(self);
+    int limit = (s->actMode == 3) ? 0x5A : 0x69;
+    int ang;
+    int aang;
+
+    cur[0] = s->dir[0];
+    cur[1] = s->dir[1];
+    cur[2] = s->dir[2];
+    GetRootMotionOrient(mot, self);
+    ang = _RotyGV(mot, cur);
+    aang = ang < 0 ? -ang : ang;
+    if (limit < aang) {
+        s->env.turnDir.f[0] = cur[0];
+        s->env.turnDir.f[1] = cur[1];
+        s->env.turnDir.f[2] = cur[2];
+        if (ang > 0) {
+            ACTSendMailCorrect(self, 216);
+        } else {
+            ACTSendMailCorrect(self, 215);
+        }
+        return 1;
+    } else if (aang < 0xF) {
+        ACTSendMailCorrect(self, 225);
+    }
+    return 0;
+}
+
+/* a static inline helper, inlined here and in subEnemyBrain_Irregular */
+static inline unsigned char isEnemyCarriedByGirl(GObj *self) /* derived name */
+{
+    Act *gsub;
+    if (GOBJ_ACT(self)->carried == 0 || (char *)girlGObj == 0) {
+        return 0;
+    }
+    gsub = GOBJ_ACT(girlGObj);
+    if ((char *)gsub == 0 || gsub->actMode != 107) {
+        return 0;
+    }
+    if (gsub->carrier == self) {
+        return 1;
+    }
+    return 0;
+}
+
+void subEnemyCollision(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while ((int)sub->motReq == 0) {
+        _ACTWait(1);
+    }
+    while (1) {
+        float *dir = (float *)((char *)sub + 0x110);
+        if (actEnemyFlagCheckActive(self) != 0) {
+            *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll | (1LL << 32);
+        } else {
+            *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll & ~(1LL << 32);
+        }
+        if ((((int)((long long)sub->flags18.ll >> 32)) & 1) == 0 && sub->actMode != 0x16) {
+            *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll & ~(1LL << 33);
+        } else {
+            *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll | (1LL << 33);
+        }
+        if (GOBJ_ACT(self)->enemy->paraStatus != 0) {
+            _ACTParaStatus_Set(self, GOBJ_ACT(self)->enemy->paraStatus);
+        }
+        if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+            GOBJ_ACT(self)->enemy->slowTimer -= 1;
+            if (0 < GOBJ_ACT(self)->enemy->slowTimer) {
+                float rate = (60 - GOBJ_ACT(self)->enemy->slowTimer) / 60.0f;
+                float speed = (rate < 0.1f) ? 0.1f : ((1.0f < rate) ? 1.0f : rate);
+                ACTGame_SetMotionPlaySpeedRatio_Reserve(self, speed, 8);
+            }
+        }
+        ACTGame_CommonLoop((void *)self);
+        CommonAttackCenter(self);
+        if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+            boss_effect_process(self);
+        }
+        if (sub->actMode == 5 && 400.0f < GOBJ_SUB(self)->ctrl.groundHeight) {
+            FlyMail((void *)self);
+        }
+        if (sub->stick.mag != 0.0f) {
+            enemyCheckTurnAngle(self);
+        }
+        if (0.1f < sub->stick.mag && sub->actMode != 111) {
+            SetMotionDirectionSmooze(self, dir,
+                                     (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
+        }
+        if (actEnemyFlagCheckDead(self) == 0) {
+            ACTGame_SaveActorInformation(self);
+        }
+        if (sub->actMode != 108) {
+            /* the actor-entry parameter, reloaded for the DEBUG build's state
+               report */
+            GObj *obj = self;
+#ifdef DEBUG
+            scePrintf("enemy %08x state %x\n", obj, sub->actMode);
+#endif
+        }
+        if (sub->actMode != 0x16) {
+            if (0x16 < (unsigned int)sub->actMode) {
+                if (sub->actMode == 0x1C) {
+                    if (0.1f < sub->stick.mag &&
+                        (sub->stick.angle < -134 || 134 < sub->stick.angle)) {
+                        ACTSendMailCorrect((void *)self, 210);
+                    } else if (0.1f < sub->stick.mag &&
+                               (-45 <= sub->stick.angle && sub->stick.angle <= 45)) {
+                        if ((pad[0].now & 4) == 0) {
+                            ACTSendMailCorrect((void *)self, 183);
+                        }
+                    }
+                    ACTSendMailCorrect((void *)self, 314);
+                }
+            }
+        }
+        DispMultiBgaManagerWithKind(435, GOBJ_WORK(self)->bga, 1);
+        ACTParaStatus_Exec((void *)self);
+        if (isEnemyActive(self) == 0 && isEnemyCarriedByGirl(self)) {
+            afterCommonCarry(self);
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM_LIT(actEnemyStand);
 
@@ -361,7 +487,142 @@ INCLUDE_ASM(PairSetGeometry_150);
 
 INCLUDE_ASM(actEnemyForceSwitchToCarry);
 
-INCLUDE_ASM(actEnemyKidnapEnd);
+static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */
+
+void actEnemyKidnapEnd(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    float mypos[4];
+    float gpos[4];
+
+    union { /* field names derived */
+        float f[4];
+        int i[4];
+    } q;
+
+    float pos[4];
+    float tmp[4];
+    int revived = 0;
+    GObj *target = 0;
+    GObj *g;
+    float best;
+    float d;
+    float dist = 0.0f;
+    float ratio;
+
+    if (gflagChk(360) == 0) {
+        ACTGame_InsertCamera_GirlIsPinch();
+    }
+    g = isysGObjSearchFromObjKindID_begin(33);
+    best = 10000.0f;
+    mypos[0] = test_CURRENTROOT((void *)self)[0];
+    mypos[1] = test_CURRENTROOT((void *)self)[1];
+    mypos[2] = test_CURRENTROOT((void *)self)[2];
+    while (g != 0) {
+        GetRootPosition(gpos, g);
+        d = _DistGV(mypos, gpos);
+        if (d < best) {
+            best = d;
+            target = g;
+        }
+        g = isysGObjSearchFromObjKindID_next(g);
+    }
+    if (target != 0) {
+        memset(&q, 0, 0x10);
+        q.f[3] = 1.0f;
+        EntryMultiBgaManager(GOBJ_WORK(self)->bga, 0, -1, test_CURRENTROOT(target), q.f);
+    }
+    gflagOn(360);
+    kidnapEndCount = 0;
+    while (1) {
+        if (((int)((long long)sub->flags20.ll >> 10)) & 1) {
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0.0001f, 9);
+        }
+        if (gflagChk(359) != 0) {
+            stgmgrNextStagePreLoadForceStageSet(gFlagSaveStage);
+            if ((60 - systemStatus[0] * 10) / systemStatus[1] * 3 < sub->modeFrame) {
+                backStageTsuresariReturn();
+                _ACTWait(0);
+            }
+        }
+        if (5 <= sub->modeFrame) {
+            if (GOBJ_ACT(girlGObj)->actMode != 107 || GOBJ_ACT(girlGObj)->carrier != self) {
+                if (revived == 0) {
+                    revived = 1;
+                    RestoreReviveCount(self);
+                }
+                sub->infoPos = 0;
+                gamesysObjInfoPosSetStage(self, 0, 0, stage_no);
+            }
+        }
+        if (GetEfStageCameraTargetID() != 0) {
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
+            if ((60 - systemStatus[0] * 10) / systemStatus[1] * 5 < sub->modeFrame) {
+                goto gameover;
+            }
+        }
+        if (GOBJ_SUB(self)->ctrl.motion == 903) {
+            /* the girl's record and her action are read before the null test,
+               with the carried action's id in a local */
+            Act *gsub = GOBJ_ACT(girlGObj);
+            int act = gsub->actMode;
+            int carriedAct = 107;
+
+            if ((char *)girlGObj == 0 || act != carriedAct || gsub->carrier != self) {
+                ratio = dist / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
+                SetEnemyDissolve(self, (ratio < 0.01) ? 0.01f : ((1.0f < ratio) ? 1.0f : ratio));
+                dist = dist + 1.0f;
+            }
+            if (50.0f < GOBJ_SUB(self)->ctrl.animFrame) {
+                if ((((int)((long long)sub->flags20.ll >> 10)) & 1) == 0) {
+                gameover:
+                    if (GOBJ_ACT(girlGObj)->actMode == 107 && GOBJ_ACT(girlGObj)->carrier == self) {
+                        if (target != 0) {
+                            q.i[0] = (int)target;
+                            q.i[1] = 0;
+                            gameover_flag = 1;
+                            if ((char *)girlGObj != 0) {
+                                *(int *)((char *)girlGObj + 0x16C) = 0;
+                            }
+                            stage_SetParentOfGObj(431, &q);
+                            StartGameOverEffect(test_CURRENTROOT(target), 50.0f);
+                            if (GetEfStageCameraTargetID() != 0) {
+                                _ACTWait(120);
+                            } else {
+                                _ACTWait(300);
+                            }
+                        }
+                        ACT_LAYOUT_GAMEOVER();
+                        _ACTWait(0);
+                    } else {
+                        ACTSendMailCorrect(self, 325);
+                    }
+                }
+            }
+        }
+        if ((void *)boyGObj != 0) {
+            if (GOBJ_ACT(boyGObj)->actMode == 105) {
+                _OrientXZGV(q.f, test_CURRENTROOT((void *)boyGObj), test_CURRENTROOT((void *)self));
+                sceVu0ScaleVector(q.f, q.f, -1.0f);
+                SetMotionDirectionSmooze(self, q.f, 3.0f);
+                ACTSendMailCorrect(self, 331);
+                ACTSendMailCorrect(self, 332);
+                ACTSendMailCorrect(self, 333);
+                ACTSendMailCorrect(self, 334);
+            }
+        }
+        if (target != 0) {
+            pos[0] = test_CURRENTROOT(target)[0];
+            pos[1] = test_CURRENTROOT(target)[1];
+            pos[2] = test_CURRENTROOT(target)[2];
+            pos[1] = test_CURRENTROOT((void *)self)[1];
+            _InterGV(tmp, pos, test_CURRENTROOT((void *)self), 5.0f, 1.0f);
+            SetRootPosition(self, tmp);
+        }
+        ACTSendMailCorrect(self, 335);
+        _ACTWait(1);
+    }
+}
 
 /* A static inline inside actEnemyKidnapBegin, the same construction as
    enemyPickupCheckGirl above.  pos, declared ahead of buf, is read only by
@@ -443,60 +704,8 @@ static inline void enemyPollHitNodes(GObj *self) /* derived name */
     }
 }
 
-/* A static inline, a helper defined above EnemyUtil_TurnToBoy,
-   _ApproachTarget_Boss and subEnemyCollision and inlined at each call. */
-static inline unsigned char enemyCheckTurnAngle(GObj *self) /* derived name */
-{
-    float mot[4];
-    float cur[4];
-    Act *s = GOBJ_ACT(self);
-    int limit = (s->actMode == 3) ? 0x5A : 0x69;
-    int ang;
-    int aang;
-
-    cur[0] = s->dir[0];
-    cur[1] = s->dir[1];
-    cur[2] = s->dir[2];
-    GetRootMotionOrient(mot, self);
-    ang = _RotyGV(mot, cur);
-    aang = ang < 0 ? -ang : ang;
-    if (limit < aang) {
-        s->env.turnDir.f[0] = cur[0];
-        s->env.turnDir.f[1] = cur[1];
-        s->env.turnDir.f[2] = cur[2];
-        if (ang > 0) {
-            ACTSendMailCorrect(self, 0xE8);
-        } else {
-            ACTSendMailCorrect(self, 0xE7);
-        }
-        return 1;
-    } else if (aang < 0xF) {
-        ACTSendMailCorrect(self, 0xF1);
-    }
-    return 0;
-}
-
-/* a static inline helper, inlined here and in subEnemyBrain_Irregular */
-static inline unsigned char isEnemyCarriedByGirl(GObj *self) /* derived name */
-{
-    Act *gsub;
-    if (GOBJ_ACT(self)->carried == 0 || (char *)girlGObj == 0) {
-        return 0;
-    }
-    gsub = GOBJ_ACT(girlGObj);
-    if ((char *)gsub == 0 || gsub->actMode != 0x6F) {
-        return 0;
-    }
-    if (gsub->carrier == self) {
-        return 1;
-    }
-    return 0;
-}
-
 /* PairSetGeometry is a GNU nested function, reading its parent's frame
    through the static chain. */
-static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */
-
 static void MoveChestForCatchBoy(GObj *self)
 {
     float p0[4];
