@@ -92,7 +92,3 @@ static inline void ResetHandTarget(GObj *obj, int off) /* derived name */
 }
 
 INCLUDE_ASM(HandManager);
-
-INCLUDE_ASM(func_001D2538);
-
-INCLUDE_ASM(func_001D2540);
