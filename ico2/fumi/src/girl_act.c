@@ -728,7 +728,94 @@ static inline void girlBrainSetWalkRatio(GObj *g, float ratio) /* derived name *
     }
 }
 
-INCLUDE_ASM(subGirlBrain_Pulledup);
+void subGirlBrain_Pulledup(GObj *volatile self)
+{
+    float self_pos[4];
+    float boy_pos[4];
+    float ofs[4];
+    float base[4];
+    float top[4];
+    float well[4];
+    float cur[4];
+    float sk[4];
+    float oz[4];
+    Act *sub = GOBJ_ACT(self);
+    int hit;
+    float d;
+    float dy;
+    float lim;
+    int ry;
+
+    GetRootProjectionPosOfGObj(self_pos, (void *)self);
+    GetRootProjectionPosOfGObj(boy_pos, boyGObj);
+    *(int *)((char *)GOBJ_ACT(self)->work + 0x374) = 0;
+    sceVu0ScaleVector(ofs, test_CURRENTORIENT((boyGObj)), 60.0f);
+    sceVu0AddVector(base, boy_pos, ofs);
+    base[1] = base[1] - 50.0f;
+    top[0] = base[0];
+    top[2] = base[2];
+    top[1] = base[1] + 1000.0f;
+    if (ACTCheckCollis_WELL(base, top, ((int *)boyGObj), well, 0.0f)) {
+        boy_pos[0] = well[0];
+        boy_pos[1] = well[1];
+        boy_pos[2] = well[2];
+        if (floorGObj_ACTCheckCollis_WELL != 0 &&
+            *(int *)((char *)floorGObj_ACTCheckCollis_WELL + 0xC) == 0x11) {
+            GOBJ_WORK(self)->floorObj = floorGObj_ACTCheckCollis_WELL;
+        }
+        boy_pos[1] = boy_pos[1] - 10.0f;
+    }
+    if (GOBJ_ACT(((int *)boyGObj))->actMode == 85) {
+        boy_pos[0] = GOBJ_ACT(((int *)boyGObj))->env.ditchPos[0];
+        boy_pos[1] = GOBJ_ACT(((int *)boyGObj))->env.ditchPos[1];
+        boy_pos[2] = GOBJ_ACT(((int *)boyGObj))->env.ditchPos[2];
+    }
+    if (!ACTWayMove_BeginDetail((void *)self, self_pos, boy_pos, 0, 0, 0)) {
+        while (1) {
+            _ACTWait(1);
+        }
+    }
+    for (;;) {
+        cur[0] = test_CURRENTROOT((void *)self)[0];
+        cur[1] = test_CURRENTROOT((void *)self)[1];
+        cur[2] = test_CURRENTROOT((void *)self)[2];
+        hit = ACTWayMove_NextDetail((void *)self, sub->dir, boy_pos, 0);
+        debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
+        if (!hit) {
+            sub->stick.mag = 0;
+        } else {
+            sub->dir[0] = sub->wayNodeX;
+            sub->dir[1] = sub->wayNodeY;
+            sub->dir[2] = sub->wayNodeZ;
+            girlBrainSetWalkRatio((void *)self, 1.0f);
+        }
+        d = _DistxzGV(boy_pos, cur);
+        dy = boy_pos[1] - cur[1];
+        dy = (dy < 0.0f) ? -dy : dy;
+        lim = (GOBJ_ACT(((int *)boyGObj))->actMode == 85) ? 200.0f : 100.0f;
+        if (d < 30.0f && dy < 200.0f) {
+            sub->stick.mag = 0;
+            GetSkeltonOrient(sk, (void *)self, 0x2C);
+            _OrientXZGV(oz, test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)self));
+            ry = _RotyGV(sk, oz);
+            if (0x15 <= ((ry < 0) ? -ry : ry)) {
+                if (0 < ry) {
+                    ATGoalTurnSet((void *)self, 3, 2, oz);
+                } else {
+                    ATGoalTurnSet((void *)self, 3, 1, oz);
+                }
+            } else {
+                sub->flags18.ll |= 0x2000000000000;
+            }
+        } else if (d < lim) {
+            sub->stick.mag =
+                (sub->stick.mag < 0.0f) ? 0.0f : ((0.5f < sub->stick.mag) ? 0.5f : sub->stick.mag);
+        }
+        _ACTCharStatus_Set((void *)self, 26, -1.0f, 0);
+        GOBJ_WORK(self)->boyDist = _DistGV(test_CURRENTROOT((void *)self), boy_pos);
+        _ACTWait(1);
+    }
+}
 
 #include "girl_brain_attract.c.inc"
 

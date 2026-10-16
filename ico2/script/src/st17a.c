@@ -45,6 +45,10 @@ static const ConstVec doorDownEffect2Pos = {{6600.0f, -2000.0f, 1100.0f, 1.0f}};
 
 static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}}; /* derived name */
 
+static const ConstVec hasiChkGirlDir = {{10000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
+
+static const ConstVec hasiChkGirlWay = {{3830.0f, -2072.0f, 1113.0f, 0.0f}}; /* derived name */
+
 void actSt17aDoor(GObj *volatile self)
 {
     GObj *x = self;
@@ -163,7 +167,71 @@ void actSt17aDoorDownChk(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt17aHasiChk);
+void actSt17aHasiChk(GObj *volatile self)
+{
+    long long buf[2];
+    ConstVec pos;
+    float dir[4];
+
+    if ((void *)girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (1) {
+        if ((GOBJ_ACT(girlGObj)->actMode != 107 && (void *)girlGObj != 0 &&
+             scpTriggerFloorAttr((void *)girlGObj, 0x1000000) != 0 &&
+             scpTriggerFloorAttr(boyGObj, 0x2000000) != 0) ||
+            (GOBJ_ACT(girlGObj)->actMode != 107 && (void *)girlGObj != 0 &&
+             scpTriggerFloorAttr((void *)girlGObj, 0x4000000) != 0 &&
+             scpTriggerFloorAttr(boyGObj, 0x2000000) != 0)) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    iosPadActRequest(boyPad, 15);
+    gflagOn(31);
+    SetWayGroupActive(3, 0);
+
+    scpSearchGobj(220)->active = 0;
+    scpSearchGobj(221)->active = 1;
+
+    stage_SetAnimation(113, 1, 0);
+    SetCameraFlag_LwsCutBack();
+
+    actCreateSubThread(actSt17aHasiEffect, 21);
+
+    if (ACTGame_FLAG_TETSUNAGI() == 0) {
+        stage_SetAnimation(112, 1, 0);
+
+        buf[0] = hasiChkSePos.d[0];
+        buf[1] = hasiChkSePos.d[1];
+        soundSeDefPlay(1266, 0, (float *)buf, 1);
+
+        scpPlayMot((void *)girlGObj, 514);
+        _ACTWait(10);
+        pos = hasiChkGirlDir;
+        sceVu0SubVector(dir, pos.f, test_CURRENTROOT((void *)girlGObj));
+        scpPlayMotDir((void *)girlGObj, dir);
+        _ACTWait(10);
+        scpPlayJump((void *)girlGObj, 272);
+        _ACTWait(330);
+        pos = hasiChkGirlWay;
+        _SCPMoveCharactorByWay((void *)girlGObj, 0, pos.f, 100.0f, 2);
+    } else {
+        _SCPBoySupportGirl(-3713.0f, 1907.0f, -1095.0f, -4713.0f, 1907.0f, -1095.0f);
+
+        stage_SetAnimation(112, 1, 0);
+
+        pos = hasiChkSePos;
+        soundSeDefPlay(1266, 0, pos.f, 1);
+    }
+
+    while (stage_CheckAnimationFinish(112) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
 
 /* The seven spawn positions are initialised block locals, as in e3.c's
  * actE3CageFallEffect. */

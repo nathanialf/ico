@@ -28,7 +28,6 @@
 #include "geometryManager.h"
 #include "libgraph.h"
 #include <stdlib.h>
-#include "include_asm.h"
 
 /* main.c's .data globals, each with an initialiser. systemStatus starts in NTSC mode (word 0)
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
@@ -107,12 +106,99 @@ static void scheduler(void);
 /* motionOrientManager.h carries MotOriName and declares no movieFile */
 extern char movieFile[];
 int movie_abort_check(void);
+
 /* the development build's Main also called debug_Menu, debug_SetBar and
    debug_SetBar2 and carried a frame-step block; the retail build compiled
    them out. */
-void Main(void);
+void Main(void)
+{
+    int ret;
+    int n;
 
-INCLUDE_ASM(Main);
+    debug_StdPrintfDummy("VSYNC_TIMING    : \x1b[33m%s\x1b[m\n",
+                         systemStatus[0] == 0 ? "NTSC" : "PAL");
+    debug_StdPrintfDummy("FRAME_STEP      : \x1b[33m%d\x1b[m\n", systemStatus[1]);
+    debug_StdPrintfDummy("SYSTEM_FRAMERATE: \x1b[33m%d\x1b[m\n",
+                         (60 - systemStatus[0] * 10) / systemStatus[1]);
+    *T0_COUNT = 0;
+    stage_no = 0;
+    exit_no = 0;
+    interlace = 1;
+    GlobalTimer = 0;
+    systemFault = 0;
+    lock_execIcoMisc = 0;
+    n = debug_TryToGetStartStage();
+    thisIsYourStartStage = n < 104 ? n : 103;
+    if (thisIsYourStartStage <= 0) {
+        thisIsYourStartStage = 1;
+    }
+    debug_VariableInit();
+    InitDelayFree();
+    debug_StdPrintfDummy("Main() in\n");
+    debug_StdPrintfDummy("Main() in\n");
+    debug_StdPrintfDummy("IosPadLock %d\n", IosPadLock);
+    WaitSema(IosPadLock);
+    DeleteSema(IosPadLock);
+    debug_StdPrintfDummy("IosstgMgrLock %d\n", IosStgMgrLock);
+    WaitSema(IosStgMgrLock);
+    DeleteSema(IosStgMgrLock);
+    stgmgrForceSwitchWithFade(thisIsYourStartStage < 0 ? 1 : thisIsYourStartStage, 255.0f, 0.0f);
+    iosThreadCancelWakeup(0);
+    systemStatus[5] = 0;
+    _InitRandom(1.2345678f);
+    gsb_InitGSSystem();
+    debug_StdPrintfDummy("main start\n");
+    while (1) {
+        iosThreadCancelWakeup(0);
+        iosThreadSleep();
+        if (mpegPlay != 0) {
+            if (mpegInitDone == 0) {
+                continue;
+            }
+            if (iosCdvdBackGroundMgrRunning != 0) {
+                continue;
+            }
+            ios_partition_mpeg = ios_partition_isys;
+            AdpcmStreamFree();
+            soundAllocIopFree();
+            movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
+                       mpegPlayInitColor);
+            ret = movie_proc(movie_abort_check);
+            mpegPlay = 0;
+            soundAllocIopHeap();
+            AdpcmStreamHeap();
+            ACTGame_SetActors_Debug(mpegPlayReturnStage, 1);
+            gsb_Init(&db);
+            stgmgrForceSwitchWithFade(mpegPlayReturnStage, 255.0f, mpegPlayFadeInSpeed);
+            if (ret == 1) {
+                stage_after_skipping_demo = 0xFFFFFFFE;
+            }
+            continue;
+        }
+        debug_ResetBar();
+        MakeCollisionDependGObjList();
+        MakeCharGObjList();
+        ExecKeyInput();
+        ExecIcoMisc();
+        if (graphics_ready == 0) {
+            stage_ResetAnimation();
+            stage_CalcAnimationNoParent();
+        }
+        iosOmMain();
+        if (graphics_ready == 0) {
+            stage_CalcAnimationParent();
+        }
+        iosOmCreateDL();
+        ExecDelayFree();
+        frameReady = 1;
+        if (systemFault != 0) {
+            break;
+        }
+    }
+    while (1) {
+        iosThreadSleep();
+    }
+}
 
 /* .sbss: the idle thread's spin counters */
 static int idleCount; /* derived name */

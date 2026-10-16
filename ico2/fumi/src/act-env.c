@@ -188,7 +188,33 @@ typedef struct { /* field names derived */
     char *name;
 } OrientFlagRow; /* derived name */
 
-INCLUDE_ASM(DebugActOrientFlag);
+void DebugActOrientFlag(unsigned int *f)
+{
+    OrientFlagRow tbl[16] = {
+        {(f[1] >> 11) & 1, "climb_50  "},   {(f[1] >> 12) & 1, "climb_100 "},
+        {(f[1] >> 13) & 1, "climb_200 "},   {(f[1] >> 14) & 1, "climb_300 "},
+        {(f[1] >> 29) & 1, "hold_box  "},   {(f[2] >> 6) & 1, "hang_hand "},
+        {(f[2] >> 7) & 1, "hang_breas"},    {(f[2] >> 16) & 1, "ladder_up "},
+        {(f[2] >> 17) & 1, "ladder_dow"},   {(f[2] >> 25) & 1, "down_cliff"},
+        {(f[2] >> 27) & 1, "walk_wall"},    {(f[2] >> 29) & 1, "walk_stair"},
+        {(f[2] >> 30) & 1, "pulledup_50 "}, {(f[2] >> 31) & 1, "pulledup_100"},
+        {f[3] & 1, "pulledup_200"},         {-1},
+    };
+    int y = 40;
+    int i;
+
+    for (i = 0; tbl[i].on != -1; i++) {
+        if (tbl[i].on) {
+            if (debug_font_flag & 1) {
+                debug_Printf(10, y += 8, 0x0FFFFFFF, "%s=on\n", tbl[i].name);
+            }
+        } else {
+            if (debug_font_flag & 1) {
+                debug_Printf(10, y += 8, 0x0FFFFFFF, "%s=off\n", tbl[i].name);
+            }
+        }
+    }
+}
 
 inline void ACTSetEnvAllmighty(GObj *self)
 {

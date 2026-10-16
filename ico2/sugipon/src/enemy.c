@@ -27,7 +27,6 @@
 #include <assert.h>
 #include "sceneManager.h"
 #include "Primitive.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     float x;
@@ -478,7 +477,61 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
     return w;
 }
 
-INCLUDE_ASM(EnemyGeo);
+void EnemyGeo(GObj *self)
+{
+    Sub15C *sub = GOBJ_SUB(self);
+    Act *node = GOBJ_ACT(self);
+    unsigned long long flag = node->flags18.ll;
+    EnemyWork *w = sub->work;
+    float ratio;
+    float buf[4];
+
+    if ((int)(flag >> 33) & 1) {
+        w->timer = 0;
+    } else {
+        if (w->timer >= 0xB)
+            return;
+        w->timer = w->timer + 1;
+    }
+
+    GOBJ_SUB(self)->ctrl.catchBoy = 0;
+    GOBJ_SUB(self)->ctrl.cliffWallCheck = 2;
+    GOBJ_SUB(self)->ctrl.wallReact = 0;
+    if (GetEnemyTypeFromGObj(self) == 3)
+        GOBJ_SUB(self)->ctrl.catchBoy = 1;
+
+    ExecMotionOrient(self);
+
+    CylinderCollisionWithControlDynamics(self, 4, 0, w->scale * 70.0f, w->scale * 50.0f, 0.5f);
+
+    if (isEnemyActive(self) != 0) {
+        Sub15C *s = GOBJ_SUB(self);
+        if (s->ctrl.landed != 0) {
+            if (w->footSwitch != 0) {
+                GetProjectionOfPlane(
+                    buf, s->root.plane.f,
+                    (float *)((char *)s->nodeMtx + s->root.standNode * 0x40 + 0x30));
+                EntryEnemyFootPrint(w->foot, buf);
+            }
+        }
+    }
+    ExecEnemyFootPrints(w->foot);
+
+    GOBJ_SUB(self)->ctrl.variation = (GOBJ_SUB(self)->ctrl.variation + 1) % 10;
+
+    ratio = (GOBJ_SUB(self)->nodes->scale[0] + GOBJ_SUB(self)->nodes->scale[1] +
+             GOBJ_SUB(self)->nodes->scale[2]) /
+            3.0f;
+
+    _MulMatrix(MatrixDrive_GetMatrix(),
+               (char *)GOBJ_SUB(self)->nodeMtx + GetSkeltonFocusNode(self, 0x24) * 0x40,
+               (char *)offsetMatrix);
+    UpdateEnemyEye(w->eye0, MatrixDrive_GetMatrix(), ratio);
+    _MulMatrix(MatrixDrive_GetMatrix(),
+               (char *)GOBJ_SUB(self)->nodeMtx + GetSkeltonFocusNode(self, 0x25) * 0x40,
+               (char *)offsetMatrix);
+    UpdateEnemyEye(w->eye1, MatrixDrive_GetMatrix(), ratio);
+}
 
 void DisplayEnemy(GObj *self)
 {

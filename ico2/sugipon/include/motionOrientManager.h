@@ -141,7 +141,7 @@ typedef union { /* field names derived */
 typedef struct {    /* field names derived */
     FDSSlot se[12]; /* 0x000, sound effects */
     FDSSlot eff[5]; /* 0x060, particle effects */
-    char path[64];  /* 0x088, derived name: the motion file, no C reader */
+    char path[64];  /* 0x088, derived name: the motion file (_ACTDebugPrint prints it) */
     char name[48];  /* 0x0C8 */
     FDSSlot vib[1]; /* 0x0F8, pad vibrations */
     int word100;    /* 0x100 */

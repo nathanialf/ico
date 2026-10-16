@@ -227,7 +227,124 @@ int layout_boot_flag = 0;
 
 int enable_game_pause = 1;
 
-INCLUDE_ASM(_la_memory_card_check);
+static int _la_memory_card_check(McMgr *p, int step)
+{
+    int r;
+    int i;
+
+    curPortInfo = &mcPortInfo[p->port];
+    switch (step) {
+    case 0:
+        curPortInfo->fileMask = 0;
+        p->slot = 0;
+        memset(&mcPortInfo[p->port], 0, 8);
+        p->result = 0;
+        iosMcGetInfo(p);
+        mcLastResult = 0;
+        step++;
+        break;
+    case 10:
+        iosMcLoadProductBlock(p);
+        step++;
+        break;
+    case 20:
+        strcpy((char *)p + 0x47C, "game.");
+        iosMcGetBlockSaveInfo(p);
+        step++;
+        break;
+    case 1:
+    case 11:
+    case 21:
+        if (iosMcSync(p)) {
+            step++;
+        }
+        break;
+    case 12:
+    case 22:
+        r = _la_mcard_error_check(p);
+        if (r > 0) {
+            step++;
+        }
+        switch (p->result) {
+        case -16:
+        case -15:
+        case -4:
+            p->result = -14;
+            step = 99;
+            r = 0;
+            break;
+        }
+        if (r >= 0) {
+            return step;
+        }
+        mcLastResult = p->result;
+        if (p->result == -9 || r == -2) {
+            curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x20;
+            curPortInfo->flags.w = (int)curPortInfo->flags.w & ~2;
+            curPortInfo->flags.w = (int)curPortInfo->flags.w & ~1;
+        }
+        /* falls through */
+    case 2:
+        step++;
+        break;
+    case 3:
+        switch (p->type) {
+        case 0:
+            return 99;
+        case 1:
+        case 3:
+            curPortInfo->flags.w |= 1;
+            return 99;
+        case 2:
+            curPortInfo->flags.w |= 3;
+            break;
+        }
+        switch (p->format) {
+        case 0:
+            return 99;
+        case 1:
+            curPortInfo->flags.w |= 8;
+            break;
+        }
+        if (p->free >= 360) {
+            curPortInfo->flags.w |= 0x10;
+        } else {
+            curPortInfo->flags.w = (int)curPortInfo->flags.w & ~0x10;
+        }
+        step = 10;
+        break;
+    case 13:
+        step = 20;
+        break;
+    case 23:
+        if (p->dirCount >= 11) {
+            debug_StdPrintfDummy(
+                "debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n");
+        }
+        for (i = 0; i < 10; i++) {
+            if ((1 << i) & p->mask) {
+                break;
+            }
+        }
+        step = 99;
+        if (i == 10) {
+            break;
+        }
+        for (i = 0; i < 10; i++) {
+            if (IosMcProductFile[p->port].file[i].stage != 0xFFFFFFFF) {
+                break;
+            }
+        }
+        if (i < 10) {
+            if (p->dirCount == 10) {
+                curPortInfo->flags.w |= 0x20;
+                curPortInfo->fileMask = p->mask;
+            }
+        }
+        break;
+    }
+    return step;
+}
 
 /* the current port's lock state: 1 when its record's bit 1 is set and bits
    3..5 are not 1, else -1; inlined three times into _la_set_current_port_2

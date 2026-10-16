@@ -26,11 +26,9 @@ typedef struct ActWork { /* field names derived */
     float escortOffset;     /* 0x330 */
     float disappearSpeed;   /* 0x334 */
     float fallDamageHeight; /* 0x338 */
-    float ropeClimbHeight;  /* 0x33C, the chain top over the actor, sent with mail 316 */
-    float stickMag;        /* 0x340 */
-    float lockedMaxRotate; /* 0x344 */
-    float parallelInterp;  /* 0x348 */
-    char pad34C[4];
+    float stickMag;         /* 0x33C */
+    float lockedMaxRotate;  /* 0x340 */
+    char pad344[12];
     float padWish[4]; /* 0x350, the pad wish direction a jump turns to (funcCommonJumpDircorrect) */
     float fallDir[4]; /* 0x360, the direction a fall turns to (funcCommonFallDircorrect) */
     char *hideObj;    /* 0x370 */

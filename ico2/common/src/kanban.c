@@ -55,7 +55,6 @@ extern void gif_StartPacketPri(int pri);
 #include <string.h>
 #include <stdlib.h>
 #include "main.h"
-#include "include_asm.h"
 
 static void init_textures_of_specified_property(int first, int last);
 
@@ -274,7 +273,69 @@ void kanbanInit(int no)
     }
 }
 
-INCLUDE_ASM(display_texture_kanban);
+static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
+{
+    int uv[4];
+    int r[4];
+    int pt[4];
+    int i;
+
+    uv[0] = (e->texU << 4) + 8;
+    uv[1] = (e->texV << 4) + 8;
+    uv[2] = e->texW << 4;
+    uv[3] = e->texH << 4;
+
+    r[2] = e->dispW << 4;
+    r[3] = e->dispH << 3;
+    if (r[2] == 0) {
+        r[2] = uv[2];
+    }
+    if (r[3] == 0) {
+        r[3] = uv[3] >> 1;
+    }
+
+    if (e->centerX) {
+        r[0] = (0x2800 - r[2]) / 2 - 0x1400;
+    } else {
+        r[0] = (e->dispX - 320) << 4;
+    }
+    r[1] = (e->dispY - 112) << 4;
+
+    if (e->masked == 0) {
+        tex_TransTexture(e->texNo, 11);
+
+        gif_StartPacketPri(11);
+
+        gif_SetAlpha(1, 7, 0);
+
+        gif_SetZWrite(0);
+
+        r[1] += 8;
+
+        r[3] -= 8;
+        uv[3] -= 8;
+
+        gif_SpriteSensitiveOffset(r, 0xFFFFFF9B, uv, col->b, 1);
+        gif_SetZWrite(1);
+        gif_EndPacket();
+    }
+
+    if (e == &texProperty[pr->curItem]) {
+        KanbanCol col2 = {{0x80, 0x80, 0x80, 0x7F}};
+
+        gif_StartPacketPri(11);
+        gif_SetZTest(0);
+
+        for (i = 0; i < r[2] * r[3] / 1200; i++) {
+            pt[0] = r[0] + rand() % r[2];
+            pt[1] = r[1] + rand() % r[3];
+            col2.b[3] = rand() % 127 + 32;
+
+            gif_PointOffset(pt, 0x800000, col2.b, 1);
+        }
+        gif_EndPacket();
+    }
+}
 
 static int fade_exec(Kanban *p)
 {

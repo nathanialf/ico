@@ -200,7 +200,71 @@ static int reductionBlue; /* derived name */
  * half height frame in black and then draws it back over itself through the
  * texture at 0x800 in the reduction tint, and last the tint this stage's
  * current target asks for. */
-INCLUDE_ASM(gsb_Reduction);
+void gsb_Reduction(void)
+{
+    long long pk[44] = {
+        0x1000000000008015LL,
+        0xE,
+        0,
+        0x4A,
+        0x8000000048LL,
+        0x42,
+        (long long)((ScreenWidth >> 6) & 0x3F) << 16,
+        0x4C,
+        ((long long)(0x800 - ScreenWidth / 2) << 4) | ((long long)(0x800 - ScreenHeight / 4) << 36),
+        0x18,
+        ((long long)(ScreenWidth - 1) << 16) | ((long long)(ScreenHeight / 2 - 1) << 48),
+        0x40,
+        0x106,
+        0,
+        0,
+        1,
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
+        5,
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 + ScreenWidth * 16 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
+            (-1LL << 32),
+        5,
+        ((long long)(ScreenWidth - 3) << 16) | 2 | ((long long)(ScreenHeight / 2 - 1) << 48),
+        0x40,
+        ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL,
+        6,
+        0x60,
+        0x14,
+        0x30000,
+        0x47,
+        0x1300000C0LL,
+        0x4E,
+        0x116,
+        0,
+        (long long)reductionRed |
+            ((long long)reductionBlue << 16 | (long long)reductionGreen << 8 | 0x80000000LL),
+        1,
+        0x80008,
+        3,
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
+        5,
+        (long long)(ScreenWidth * 16 + 8) | ((long long)(ScreenHeight * 16 + 8) << 16),
+        3,
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 + ScreenWidth * 16 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
+            (-1LL << 32),
+        5,
+        ((long long)ScreenWidth << 16) | ((long long)ScreenHeight << 48),
+        0x40,
+    };
+
+    FlushCache(0);
+    *D2_QWC = 22;
+    *D2_MADR = (int)pk & 0x0FFFFFFF;
+    *D2_CHCR = 0x101;
+    sceGsSyncPath(0, 0);
+    reductionRed = fbKeep ? 128 : GlobalStageSetting.reductionCol[0];
+    reductionGreen = fbKeep ? 128 : GlobalStageSetting.reductionCol[1];
+    reductionBlue = fbKeep ? 128 : GlobalStageSetting.reductionCol[2];
+}
 
 /* the colour the kept frame is drawn back in */
 static const unsigned char keepFrameColor[4] = {112, 112, 112, 128}; /* derived name */
@@ -409,7 +473,52 @@ extern void gif_SpriteSensitiveOrg(GsbRect *r, long long z, GsbRect *uv, GsbColo
  * record (or the current sub target's row) turns on is blended back over the
  * 512 square buffer through the sensitive sprite.  Every TEX0 write is one
  * expression in field order, as Texture.c spells it. */
-INCLUDE_ASM(gsb_antiAlias);
+static void gsb_antiAlias(void)
+{
+    GsbColor col = {128, 128, 128, 128};
+    GsbRect s0 = {4, 4, 8192, 8192};
+    GsbRect s1 = {4, 4, 4096, 4096};
+    GsbRect s2 = {4, 4, 2048, 2048};
+    GsbRect d0 = {-4100, -4100, 8192, 8192};
+    GsbRect d1 = {-2052, -2052, 4096, 4096};
+    GsbRect d2 = {-1028, -1028, 2048, 2048};
+    int lv[2] = {GlobalStageSetting.antiLevel0, GlobalStageSetting.antiLevel1};
+
+    if (lv[0] == 0 && lv[1] == 0) {
+        return;
+    }
+    gif_StartPacketPri(10);
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+    gif_SetDrawEnviroment(0x2800, 0, 256, 256, 0, 0);
+    gif_SetGsReg(6, 0x800 | ((long long)8 << 14) | ((long long)tex_GetTWTH(512) << 26) |
+                        ((long long)tex_GetTWTH(512) << 30) | ((long long)1 << 34));
+    gif_SetAlpha(0, 2, 128);
+    gif_SpriteSensitiveOrg(&d1, 0, &s0, &col, 0);
+    if (lv[1] != 0) {
+        gif_SetGsReg(6, 0x2800 | ((long long)4 << 14) | ((long long)tex_GetTWTH(256) << 26) |
+                            ((long long)tex_GetTWTH(256) << 30) | ((long long)1 << 34));
+        gif_SetDrawEnviroment(0x2C00, 0, 128, 128, 0, 0);
+        gif_SpriteSensitiveOrg(&d2, 0, &s1, &col, 0);
+    }
+    gif_SetDrawEnviroment(0x800, 0, 512, 512, 0, 0);
+    if (lv[1] != 0) {
+        gif_SetAlpha(1, 2, lv[1]);
+        gif_SetGsReg(6, 0x2C00 | ((long long)2 << 14) | ((long long)tex_GetTWTH(128) << 26) |
+                            ((long long)tex_GetTWTH(128) << 30) | ((long long)1 << 34));
+        gif_SpriteSensitiveOrg(&d0, 0, &s2, &col, 1);
+    }
+    if (lv[0] != 0) {
+        gif_SetAlpha(1, 2, lv[0]);
+        gif_SetGsReg(6, 0x2800 | ((long long)4 << 14) | ((long long)tex_GetTWTH(256) << 26) |
+                            ((long long)tex_GetTWTH(256) << 30) | ((long long)1 << 34));
+        gif_SpriteSensitiveOrg(&d0, 0, &s1, &col, 1);
+    }
+    gif_SetZWrite(1);
+    gif_SetZTest(1);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+    gif_EndPacket();
+}
 
 static void gsb_setNormalReg(int ctx)
 {
@@ -597,7 +706,68 @@ static const float vsScreenSize[] = {768.0f, 768.0f, 0.0f, 0.0f}; /* derived nam
  * screen, the one projHalf for the half size screen, the viewport viewport,
  * and the pair built on a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
  * scale terms are locals of their own. */
-INCLUDE_ASM(gsb_SetVSMatrixSub);
+static void gsb_SetVSMatrixSub(float *screen, float *proj, float *projHalf, float *viewport,
+                               float *vs)
+{
+    sceVu0FVECTOR v = {ScreenWidth / 2, ScreenHeight / 2, 0.0f, 0.0f};
+    float m0[16];
+    float sx;
+    float sy;
+    float cx;
+    float cy;
+    float zn;
+    float zf;
+
+    sx = vs[7] * vsScreenSize[0] / vs[0];
+    sy = vs[7] * vsScreenSize[1] / vs[0];
+
+    cx = vs[7] * v[0] / vs[0];
+    cy = vs[7] * v[1] / vs[0];
+
+    zn = (-vs[6] * vs[7] + vs[5] * vs[8]) / (-vs[7] + vs[8]);
+
+    zf = vs[8] * vs[7] * (-vs[5] + vs[6]) / (-vs[7] + vs[8]);
+
+    _UnitMatrix(screen);
+    screen[0] = vs[0];
+    screen[5] = vs[0];
+    screen[10] = 0.0f;
+    screen[15] = 0.0f;
+    screen[14] = 1.0f;
+    screen[11] = 1.0f;
+
+    _UnitMatrix(m0);
+    /* clang-format off */
+    m0[0] = vs[1]; m0[5] = vs[2]; m0[10] = zf;
+    m0[12] = vs[3]; m0[13] = vs[4]; m0[14] = zn;
+    /* clang-format on */
+    _MulMatrix(screen, m0, screen);
+
+    _UnitMatrix(proj);
+    proj[0] = (vs[7] + vs[7]) / (sx + sx);
+    proj[5] = (vs[7] + vs[7]) / (sy + sy);
+    proj[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    proj[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    proj[11] = 1.0f;
+    proj[15] = 0.0f;
+
+    _UnitMatrix(viewport);
+    viewport[0] = vs[0] * vs[1] * sx / vs[7];
+    viewport[5] = vs[0] * vs[2] * sy / vs[7];
+    viewport[10] = (-vs[6] + vs[5]) * 0.5f;
+    viewport[12] = vs[3];
+    viewport[13] = vs[4];
+    viewport[14] = (vs[6] + vs[5]) * 0.5f;
+    viewport[15] = 1.0f;
+
+    _UnitMatrix(projHalf);
+    projHalf[0] = (vs[7] + vs[7]) / (cx + cx);
+    projHalf[5] = (vs[7] + vs[7]) / (cy + cy);
+    projHalf[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    projHalf[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    projHalf[11] = 1.0f;
+    projHalf[15] = 0.0f;
+}
 
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices
  * from: the zoom, the two aspect terms, the centre, and the near and far
@@ -609,7 +779,37 @@ static float vsParam[10]; /* derived name */
  * towards its target by a thousandth of the step, and the view record at
  * vsParam carries the centre, the aspect terms and the near and far
  * planes gsb_SetVSMatrixSub builds the matrices from. */
-INCLUDE_ASM(gsb_SetVSMatrix);
+void gsb_SetVSMatrix(int w, int h, float d)
+{
+    float zoom;
+
+    center_X = center_Y = 2048.0f;
+    currentFocusDistance = d;
+    vsWidth = w;
+    vsHeight = h;
+    if (zoomTarget != zoomCurrent) {
+        zoomCurrent = zoomCurrent + (zoomTarget - zoomCurrent) * zoomSpeed * 0.001f;
+    }
+    if (staffRollStartFlag != 0) {
+        center_X = center_X - staffRollCenterOffsetX;
+    }
+    zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)debug_zoom_per *
+           (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
+    vsParam[0] = zoom;
+    tex_UpdateMipMapLevel((float)GlobalStageSetting.viewScale * zoomCurrent *
+                          (float)debug_zoom_per * (float)ScreenWidth / 640.0f / 100.0f);
+    vsParam[3] = center_X;
+    vsParam[4] = center_Y;
+    vsParam[5] = 1.0f;
+    vsParam[6] = 536870880.0f;
+    vsParam[7] = 2.0f;
+    vsParam[1] = (float)w / (float)ScreenWidth;
+    vsParam[8] = 262144.0f;
+    vsParam[2] =
+        (float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f) * (float)h / (float)ScreenHeight;
+    gsb_SetVSMatrixSub(matrixptr + 0xC0, matrixptr + 0x1C0, matrixptr + 0x240, matrixptr + 0x340,
+                       vsParam);
+}
 
 /* Clip a box against the current matrix: transform its eight corners with the
  * matrix in $vf4 to $vf7 and read the clip flags out of $vi18.  All eight

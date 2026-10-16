@@ -206,7 +206,121 @@ void actConte12Jimaku(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt25aQueenDeadChk);
+void actSt25aQueenDeadChk(GObj *volatile self)
+{
+    while (QueenInqDead() == 0) {
+        _ACTWait(1);
+    }
+
+    iosPadActRequest(boyPad, 16);
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    scpPlayStart(scpSearchGobj(1966));
+
+    if (sd2 != 0) {
+        scpAdpcmFadeCloseFunc(sd2, 256);
+    }
+
+    scpKillEnemyAll();
+
+    gflagOn(307);
+    gflagOn(5);
+
+    while (dead == 0) {
+        _ACTWait(1);
+    }
+    AdpcmPlay(dead->stream);
+
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].nextStage);
+    stgmgrNextStagePreLoadForceNoCancel(1);
+
+    scpSearchGobj(1966)->active = 1;
+    EntryStreamMotion(boyGObj);
+    EntryStreamMotion(scpSearchGobj(1966));
+    PlayStreamMotion();
+
+    actCreateSubThread(actConte13Jimaku, 21);
+
+    stage_SetAnimation(728, 1, 0);
+
+    scpSearchGobj(2042)->active = 0;
+    scpSearchGobj(2043)->active = 0;
+
+    while (stage_ContinueAnimation(728, 729) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(729, 730) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(730, 731) == 0) {
+        _ACTWait(1);
+    }
+
+    GOBJ_SUB(scpSearchGobj(1966))->streamScale = 0;
+    while (stage_ContinueAnimation(731, 732) == 0) {
+        _ACTWait(1);
+    }
+
+    GOBJ_SUB(scpSearchGobj(1966))->streamScale = 1;
+    while (stage_ContinueAnimation(732, 733) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(733, 734) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(414, 1, 0);
+    iosPadActRequest(boyPad, 15);
+    DeleteBoyWeapon();
+    stage_SetAnimation(423, -1, -2);
+    stage_SetAnimation(137, 1, 0);
+
+    while (stage_ContinueAnimation(734, 735) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(735, 736) == 0) {
+        _ACTWait(1);
+    }
+
+    SelectBoyCrown(boyGObj, 2);
+    stage_SetAnimation(486, 1, 0);
+
+    while (stage_CheckAnimationFrame(736, 15, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_ContinueAnimation(736, 737) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(487, 1, 0);
+
+    while (stage_CheckAnimationFrame(737, 10, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 15);
+
+    scpSearchGobj(1966)->active = 0;
+    stage_SetLoopFlag(484, 0);
+
+    while (stage_ContinueAnimation(737, 739) == 0) {
+        _ACTWait(1);
+    }
+
+    while (stage_CheckAnimationFinish(739) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    DeleteStreamMotionManager();
+
+    RequestStageChange(4, boyGObj, 0, 1.0f, 8.0f);
+}
 
 void actConte13Jimaku(GObj *volatile self)
 {

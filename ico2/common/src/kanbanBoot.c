@@ -8,7 +8,6 @@
 #include "main.h"
 #include "Basic.h"
 #include "debug.h"
-#include "include_asm.h"
 
 /* .sdata: the boot sequence's step, the card check's step, the start request
    and kanbanBootEnd. */
@@ -37,7 +36,7 @@ static Kanban *bootKanban; /* derived name */ /* the sign the boot sequence is s
 
 static Kanban *bootKanbanSub; /* derived name */ /* the second sign shown beside it */
 
-/* the sign id the card check picked: 3 none, 0 ok, 4 full, -1 clear */
+/* the sign id the card check picked: 1 no card, 2 full */
 static int mcKanbanId; /* derived name */
 
 static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
@@ -49,7 +48,78 @@ extern void iosMcChdirProduct(McMgr *mp);
 extern int iosMcSync(McMgr *mp);
 extern void iosMcLoadProductBlock(McMgr *mp);
 
-INCLUDE_ASM(kanbanBootMcCheck);
+static int kanbanBootMcCheck(void)
+{
+    McMgr *mc = &bootMcReq;
+    int ret = 0;
+
+    switch (mcCheckStep) {
+    case 0:
+        bootKanbanSub = 0;
+        /* fallthrough */
+    case 1:
+        mcPort = 0;
+        mcKanbanId = 1;
+        mcCheckStep++;
+        /* fallthrough */
+    case 2:
+        fbKeep = 1;
+        mc->port = mcPort;
+        mc->slot = 0;
+        mc->flags.ll &= ~2;
+        iosMcChdirProduct(mc);
+        mcCheckStep++;
+        /* fallthrough */
+    case 3:
+        if (iosMcSync(mc) != 0) {
+            mcCheckStep++;
+        }
+        break;
+    case 4:
+        if (mc->type == 2) {
+            if (mc->format == 0 || mc->result == 0 || mc->free >= 360) {
+                mcCheckStep = -1;
+                break;
+            }
+            mcKanbanId = 2;
+        }
+        if (mcPort == 0) {
+            mcPort = 1;
+            mcCheckStep = 2;
+        } else {
+            mcCheckStep = 100;
+        }
+        break;
+    case 100:
+        fbKeep = 0;
+        fadeStatus = 0;
+        bootKanban = kanbanReqAdd(3, 2);
+        if (bootKanbanSub != 0) {
+            kanbanReqDel(bootKanbanSub);
+        }
+        bootKanbanSub = kanbanReqAdd(mcKanbanId, 1);
+        mcCheckStep++;
+        break;
+    case 101:
+        if (bootKanban->key != 1) {
+            break;
+        }
+        if (bootKanban->layout->curItem == 5) {
+            mcCheckStep = -1;
+            break;
+        }
+        kanbanReqDelFade(bootKanbanSub);
+        kanbanReqDelFade(bootKanban);
+        mcCheckStep = 1;
+        break;
+    default:
+        fbKeep = 0;
+        fadeStatus = 0;
+        ret = 1;
+        break;
+    }
+    return ret;
+}
 
 static Kanban *waitKanban; /* derived name */ /* the "please wait" sign */
 

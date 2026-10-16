@@ -1058,7 +1058,68 @@ INCLUDE_ASM(debug_Load);
 static unsigned long long debugFontTag[2] = {0x2000400000008000LL, 0x51}; /* derived name */
 
 /* clang-format off */
-INCLUDE_ASM(debug_MakeFont);
+static void debug_MakeFont(void)
+{
+    int on = 1, off = 0;
+    float v[4];
+    char *ptr;
+    char *base;
+    unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", 1928); ptr = base;
+    *((int *)ptr)++ = 0x1400000C;
+    *((int *)ptr)++ = 0;
+    *((long long *)ptr)++ = 0;
+
+    for (i = 0; i < 256; i++) {
+        a = &fontOutline[i * 16]; b = &fontGlyph[i * 8];
+
+        for (j = 0, n = 0; j < 9; j++) {
+            m1 = a[j];
+            m0 = b[j];
+            for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1)
+                if ((m0 & 1) || (m1 & 1)) n++;
+        }
+        if (n == 0) {
+            fontPacket[i].qwc = 1;
+            fontPacket[i].packet = base;
+        } else {
+
+
+            fontPacket[i].qwc = n + 3;
+            ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", 1949);
+            *((long long *)ptr)++ = 0;
+            *((int *)ptr)++ = 0;
+            *((int *)ptr)++ = ((n + 1) << 16) | 0x6C008000;
+
+            *((long long *)ptr)++ = n | ((long long)0x8000 << 38) | debugFontTag[0];
+            *((long long *)ptr)++ = debugFontTag[1];
+            for (j = 0; j < 9; j++) {
+                m0 = b[j];
+                m1 = a[j];
+                for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1) {
+                    v[0] = (float)k;
+
+                    v[1] = (float)(j * 2);
+
+
+
+                    if (m0 & 1) {
+                        v[2] = 3.4028235e+38f;
+                        v[3] = *(float *)&off;
+                        *((Qw128 *)ptr)++ = *(Qw128 *)v;
+                    } else if (m1 & 1) {
+                        v[2] = 1.7014117e+38f;
+                        v[3] = *(float *)&on;
+                        *((Qw128 *)ptr)++ = *(Qw128 *)v;
+                    }
+                }
+            }
+            *((int *)ptr)++ = 0x1400000A;
+            *((int *)ptr)++ = 0;
+            *((long long *)ptr)++ = 0;
+        }
+    }
+}
 
 static void debug_makeBackImage(void)
 {

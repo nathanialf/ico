@@ -275,7 +275,55 @@ static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
 
 typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 
-INCLUDE_ASM(InitWeaponGeo);
+void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
+{
+    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 772);
+    int i;
+
+    GOBJ_SUB(g)->work = w;
+
+    *w = swordWorkTemplate;
+    w->kind = lay->obj & 0xFF;
+
+    for (i = 0; i < GOBJ_SUB(g)->nodeNum; i++) {
+        switch (w->kind) {
+        case 0:
+            break;
+
+        case 1: {
+            ObjNode lnk = {g, i};
+            WeaponVec v = {0.0f, 0.0f, weaponKind[w->kind].length, 1.0f};
+            GObj *o;
+            SObjSimpleSetting r = *lay;
+
+            r.obj = (lay->obj & 0xFF00) != 0;
+            o = CreateLayoutedGObj(10, 69, -1, 1, &r, -1, 7, 1);
+            LinkParentOfDObj(o, &lnk);
+            CopyVector(GOBJ_SUB(o)->root.pos, v);
+            SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15);
+            w->count = 1;
+            w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 800);
+            w->objs[0] = o;
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 808);
+            break;
+        }
+
+        case 5:
+            initializeQueenzSword(g, i, lay);
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 813);
+            break;
+
+        case 7:
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 817);
+            break;
+
+        default:
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 821);
+            break;
+        }
+    }
+    return w;
+}
 
 void WeaponGeo(GObj *g)
 {

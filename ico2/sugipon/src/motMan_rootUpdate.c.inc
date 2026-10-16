@@ -1316,8 +1316,102 @@ static ObjNode rootUpdateY(void)
 }
 
 /* the parameter is unused */
-INCLUDE_ASM(rootUpdateY_Rope);
+static ObjNode rootUpdateY_Rope(int actPt)
+{
+    Vec16 v;
+    Vec16 cur;
+    float save;
 
-INCLUDE_ASM(rootUpdateFly);
+    CopyVector(skelRoot->footPos, skelRoot->pos);
+    if (skelRoot->ropeState != 0) {
+        int node = GetSkeltonFocusNode((GObj *)skelGObj, 22);
 
-INCLUDE_ASM(rootUpdateEnemyFly);
+        v.f[0] = skelRoot->pos[0];
+        v.f[1] = skelRoot->pos[1];
+        v.f[2] = skelRoot->pos[2];
+        _SubVector(skelRoot->pos, skelRoot->holdPoint, nodePos2 + node * 16);
+        if (skelRoot->ropeState < 0) {
+            _InterGV(skelRoot->pos, v.f, skelRoot->pos, 1.0f, 2.0f);
+        }
+    }
+    save = skelRoot->radius;
+    CopyVector(&cur, skelRoot->pos);
+    CopyVector(&v, skelRoot->last);
+    skelRoot->radius = 60.0f;
+    wallCollisionAndFloorFit(cur.f, v.f, 5.0f);
+    skelRoot->radius = save;
+    skelMotCtrl->fallHeight = 0.0f;
+    skelRoot->height = 0.0f;
+    SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
+    CopyVector(skelRoot->trans, ZeroPoint);
+    CopyVector(skelRoot->footPos, skelRoot->pos);
+    AddVectorXYZ(skelRoot->footPos, skelRoot->footPos, skelRoot->delta);
+    CopyVector(skelRoot->last, skelRoot->pos);
+    skelRoot->standNode = -1;
+    return InitialObjPointer;
+}
+
+static ObjNode rootUpdateFly(void)
+{
+    ObjNode shift = {0, -1};
+    ClipWork w;
+    int contact;
+    float h;
+    float d;
+
+    skelMotCtrl->floorAttr = 0;
+    contact = getFlyFieldCollision(&w);
+    switch (contact) {
+    case 1:
+        skelMotCtrl->flags |= 8;
+        h = skelRoot->footPos[1];
+        CopyVector(&skelRoot->plane, &w.normal);
+        d = GetYProjectionOfPlane(w.normal.f, skelRoot->pos);
+        d = d - h;
+        skelMotCtrl->fallHeight = d;
+        break;
+    case 2:
+        markPoolContact(&w);
+        break;
+    }
+    wallCollisionAndReact(skelNode->pos[1]);
+    skelRoot->height = 0.0f;
+    SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
+    CopyVector(skelRoot->trans, ZeroPoint);
+    AddVectorXYZ(skelRoot->footPos, skelRoot->footPos, skelRoot->delta);
+    CopyVector(skelRoot->move, ZeroVector);
+    CopyVector(skelRoot->last, skelRoot->pos);
+    skelRoot->standNode = -1;
+    return shift;
+}
+
+static ObjNode rootUpdateEnemyFly(void)
+{
+    ObjNode shift = {0, -1};
+    ClipWork w;
+    int contact;
+
+    AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->move);
+    if (GOBJ_SUB(skelGObj)->ctrl.noFieldClip == 0) {
+        wallCollisionAndReact(0.0f);
+        contact = getFlyFieldCollision(&w);
+        switch (contact) {
+        case 1:
+            CopyVector(skelRoot->footPos, skelRoot->pos);
+            skelMotCtrl->fallHeight = 0.0f;
+            CopyVector(&skelRoot->plane, &w.normal);
+            skelMotCtrl->flags |= 8;
+            break;
+        case 2:
+            markPoolContact(&w);
+            break;
+        }
+    }
+    skelRoot->height = 0.0f;
+    SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
+    CopyVector(skelRoot->trans, ZeroPoint);
+    AddVectorXYZ(skelRoot->footPos, skelRoot->footPos, skelRoot->delta);
+    CopyVector(skelRoot->last, skelRoot->pos);
+    skelRoot->standNode = -1;
+    return shift;
+}

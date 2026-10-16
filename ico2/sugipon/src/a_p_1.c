@@ -589,7 +589,68 @@ static int walkMot(GObj *self)
     return 1;
 }
 
-INCLUDE_ASM(rolling);
+static int rolling(GObj *self)
+{
+    WallCfg info;
+
+    if (GOBJ_SUB(self)->parent.obj != 0) {
+        UnlinkParentOfDObj(self);
+    }
+    ((AP1Val *)((char *)GOBJ_SUB(self) + 0x134))->f +=
+        60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+        (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+    _AddVectorXYZ(GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.move);
+    {
+        ClipWork *col = &ap1RollClip;
+        CopyVector(col->pt[0], GOBJ_SUB(self)->root.last);
+        CopyVector(col->pt[1], GOBJ_SUB(self)->root.pos);
+        col->pt[0][1] -= 50.0f;
+        if (clipAndTakeHit(&info, col)) {
+            CopyVector(GOBJ_SUB(self)->root.pos, ap1RollClip.pt[2]);
+            CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+            yAxisRotFitting(self, &ap1RollClip.normal);
+            LinkParentOfDObj(self, &info.o);
+            UpdateRootMatrix(self);
+            applyPartOrients(self);
+            {
+                ClipWork *col = &ap1RollClip;
+                if (col->wall.elem != 0) {
+                    GOBJ_SUB(self)->ctrl.floorAttr = GetWallAttribute(col);
+                }
+                if (CheckWallAttribute(self, 0x40) != 0 || CheckWallAttribute(self, 0x50) != 0) {
+                    if (GetPoolGlobalHeight(col->wall.o.obj) <
+                        GOBJ_SUB(self)->root.pos[1] + 50.0f) {
+                        iosOmSendMail(self, 0x26, self);
+                    }
+                }
+            }
+            {
+                ClipWork *col = &ap1RollClip;
+                if (col->floor.elem != 0) {
+                    GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(col);
+                    if (CheckFloorAttribute(self, 0x40) != 0 ||
+                        CheckFloorAttribute(self, 0x50) != 0) {
+                        if (GetPoolGlobalHeight(col->floor.o.obj) <
+                            GOBJ_SUB(self)->root.pos[1] + 50.0f) {
+                            iosOmSendMail(self, 0x26, self);
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+    }
+    {
+        ClipWork *col = &ap1RollClip;
+        col->pt[1][1] += 500.0f;
+        ClipFloor(col);
+        if (CheckFieldContact(col, self, GOBJ_SUB(self)->root.pos, 50.0f) == 2) {
+            CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+            iosOmSendMail(self, 0x1A, self);
+        }
+    }
+    return -1;
+}
 
 /* the point the spider's bite attack is centred on, 50 units down its own arm */
 static const Vec4A_P_1 attackCenterOffset = {50.0f, 0.0f, 0.0f, 1.0f}; /* derived name */

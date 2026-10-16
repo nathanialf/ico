@@ -24,8 +24,7 @@ typedef struct { /* field names derived */
    layout_action sets and op's countdown waits on; the two highlight colours;
    the current layout; the selected item; the item-select handler's flag; the
    fade state and type; lt_item_select_disable; the fade-end handler; the
-   highlight blink's count and length; the colour of display_texture's
-   sparkles. */
+   highlight blink's count and length. */
 int lt_continue_selected = 0; /* derived name */
 
 static unsigned char ltCursorColor[4] = {128, 128, 128, 127}; /* derived name */
@@ -50,8 +49,6 @@ static unsigned int ltBlinkCount = 0; /* derived name */
 
 static unsigned int ltBlinkLength = 0; /* derived name */
 
-static SprCol ltSparkleColor = {128, 128, 128, 127}; /* derived name */
-
 /* .sbss, two words: the pad buttons of the last frame and the layout
    switched to. */
 static int lastButton; /* derived name */
@@ -63,7 +60,6 @@ static int nextLayout; /* derived name */
 extern void *memset(void *dst, int c, int n);
 
 #include "Texture.h"
-#include "include_asm.h"
 
 static void default_item_select(int no);
 
@@ -163,25 +159,10 @@ static inline void lt_draw_layout(int no) /* derived name */
     }
 }
 
-/* lt_switch_layout's body as default_item_select's two call sites have it.
-   The copies differ: the first site's else arm sets fadeState to 7 where the
-   out-of-line function and the second site set 3. */
-static inline void lt_switch_layout_7(int no) /* derived name */
-{
-    if ((fadeState == 2 && no != current_layout_id) || no == 62) {
-        nextLayout = no;
-        display_texture_fade_cancel_chk(current_layout_id, no);
-        if (fadeType == 1) {
-            fadeState = 5;
-        } else {
-            fadeState = 7;
-        }
-    }
-}
-
+/* lt_switch_layout's body as default_item_select's two call sites have it */
 static inline void lt_switch_layout_3(int no) /* derived name */
 {
-    if ((fadeState == 2 && no != current_layout_id) || no == 62) {
+    if ((fadeState == 2 && no != current_layout_id) || no == 58) {
         nextLayout = no;
         display_texture_fade_cancel_chk(current_layout_id, no);
         if (fadeType == 1) {
@@ -192,7 +173,58 @@ static inline void lt_switch_layout_3(int no) /* derived name */
     }
 }
 
-INCLUDE_ASM(default_item_select);
+static void default_item_select(int no)
+{
+    LtProp *p = &texLayout[no];
+    LtProperty *e = &texProperty[p->curItem];
+    int prev;
+
+    if (p->curItem < 0) {
+        return;
+    }
+    if (lt_item_select_disable != 0) {
+        return;
+    }
+    if (fadeState != 2) {
+        return;
+    }
+    if (fadeCallback == 0) {
+        lt_analog2Pad();
+        prev = p->curItem;
+        if ((pad[0].flags & 0x1000) && e->upItem >= 0) {
+            p->curItem = e->upItem;
+        } else if ((pad[0].flags & 0x4000) && e->downItem >= 0) {
+            p->curItem = e->downItem;
+        } else if ((pad[0].flags & 0x8000) && e->leftItem >= 0) {
+            p->curItem = e->leftItem;
+        } else if ((pad[0].flags & 0x2000) && e->rightItem >= 0) {
+            p->curItem = e->rightItem;
+        }
+        if (p->curItem != prev) {
+            soundSeDefPlay(399, 0xFFFFFFFE, 0, 0);
+        }
+    } else {
+        p->curItem = ((int (*)(int))fadeCallback)(p->curItem);
+        fadeCallback = 0;
+    }
+    if (pad[0].flags & 0x40) {
+        if (e->right >= 0) {
+            if (fadeState == 2) {
+                soundSeDefPlay(400, 0xFFFFFFFE, 0, 0);
+                lt_switch_layout_3(e->right);
+                return;
+            }
+        }
+    }
+    if (pad[0].flags & 0x10) {
+        if (e->left >= 0) {
+            if (fadeState == 2) {
+                soundSeDefPlay(401, 0xFFFFFFFE, 0, 0);
+                lt_switch_layout_3(e->left);
+            }
+        }
+    }
+}
 
 static inline void lt_reset_property_chain(int no) /* derived name */
 {
@@ -209,7 +241,80 @@ static inline void lt_reset_property_chain(int no) /* derived name */
 
 /* the layout fade's state machine; fadeState is read and written as the
    file static itself, as in the rest of this TU */
-INCLUDE_ASM(texture_fading);
+static void texture_fading(LtProp *p)
+{
+    unsigned char *col = ltCursorColor;
+    int *cur;
+
+    switch (fadeType) {
+    case 1:
+        if (fadeState < 2) {
+            if (fadeState >= 0) {
+                fadeState = 2;
+            }
+        }
+        break;
+    case 0:
+        switch (fadeState) {
+        case 0:
+            if (p->fadeInTime == 0.0f) {
+                fadeState = 2;
+            }
+            break;
+        case 3:
+            if (p->fadeOutTime == 0.0f) {
+                fadeState = 6;
+                col[3] = 127;
+            }
+            break;
+        }
+        break;
+    }
+    switch (fadeState) {
+    case 0:
+        fadeState = 1;
+        ltBlinkLength = (int)(p->fadeInTime * ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        ltBlinkCount = ltBlinkLength;
+        /* fall through */
+    case 1:
+        col[3] = (ltBlinkLength - ltBlinkCount) * 127 / ltBlinkLength;
+        ltBlinkCount--;
+        if (ltBlinkCount == 0) {
+            fadeState = 2;
+        }
+        break;
+    case 2:
+        col[3] = 127;
+        break;
+    case 3:
+        fadeState = 4;
+        ltBlinkLength = (int)(p->fadeOutTime * ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        ltBlinkCount = ltBlinkLength;
+        break;
+    case 4:
+        col[3] = ltBlinkCount * 127 / ltBlinkLength;
+        ltBlinkCount--;
+        if (ltBlinkCount == 0) {
+            fadeState = 5;
+        }
+        break;
+    case 5:
+        col[3] = 0;
+        /* fall through */
+    case 6:
+        current_layout_id = nextLayout;
+        cur = &texLayout[current_layout_id].curItem;
+        *cur = texLayout[current_layout_id].defaultItem;
+        ltSelectFlag = 1;
+        fadeState = 0;
+        if (texLayout[current_layout_id].fadeInTime == 0.0f) {
+            lt_item_select_disable = 1;
+            fadeState = 2;
+        }
+        lt_reset_property_chain(current_layout_id);
+        break;
+    }
+}
 
 /* GifPacket.h's entry points, which this TU does not include: its calls pass
    the sprites' z as a 32-bit unsigned int, where the header takes a long
@@ -245,7 +350,78 @@ static inline void lt_glow_sprite(SprRect *box, SprRect *ofs, int r, int g, int 
 }
 
 /* a file static */
-INCLUDE_ASM(display_texture_layout_texture);
+static void display_texture(int no, LtProperty *e)
+{
+    SprRect ofs;
+    SprRect box;
+
+    union { /* field names derived */
+        int pt[2];
+        SprCol col;
+    } u;
+
+    int sel;
+    int i;
+
+    ofs.x = (e->texU << 4) + 8;
+    ofs.y = (e->texV << 4) + 8;
+    ofs.w = e->texW << 4;
+    ofs.h = e->texH << 4;
+
+    box.w = e->dispW << 4;
+    box.h = e->dispH << 3;
+    if (box.w == 0) {
+        box.w = ofs.w;
+    }
+    if (box.h == 0) {
+        box.h = ofs.h >> 1;
+    }
+    if (e->centerX != 0) {
+        box.x = (10240 - box.w) / 2 - 5120;
+    } else {
+        box.x = (e->dispX - 320) * 16;
+    }
+    box.y = (e->dispY - 113) * 16;
+
+    sel = (e == &texProperty[texLayout[no].curItem]);
+    if (sel && lt_item_select_disable == 0 && fadeState == 2) {
+        SprCol pcol = {128, 128, 128, 127};
+
+        gif_StartPacketPri(11);
+        gif_SetZTest(0);
+        for (i = 0; i < box.w * box.h / 1200; i++) {
+            u.pt[0] = box.x + rand() % box.w;
+            u.pt[1] = box.y + rand() % box.h;
+            pcol.a = rand() % 127 + 32;
+            gif_PointOffset(u.pt, 0x800000, &pcol, 1);
+        }
+        gif_EndPacket();
+    }
+    if (e->masked == 0) {
+        tex_TransTexture(e->texNo, 11);
+
+        gif_StartPacketPri(11);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(1, 7, 0);
+        box.y = box.y + 8;
+        box.h = box.h - 8;
+        ofs.h = ofs.h - 8;
+        if (e->fade_cancel == 0) {
+            ltCursorColor[0] = ~GlobalStageSetting.reductionCol[0];
+            ltCursorColor[1] = ~GlobalStageSetting.reductionCol[1];
+            ltCursorColor[2] = ~GlobalStageSetting.reductionCol[2];
+            gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, (SprCol *)ltCursorColor, 1);
+        } else {
+            ltHighlightColor.r = ~GlobalStageSetting.reductionCol[0];
+            ltHighlightColor.g = ~GlobalStageSetting.reductionCol[1];
+            ltHighlightColor.b = ~GlobalStageSetting.reductionCol[2];
+            gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, &ltHighlightColor, 1);
+        }
+        gif_SetZWrite(1);
+        gif_EndPacket();
+    }
+}
 
 static inline void lt_draw_primary_sprite(SprCol *col) /* derived name */
 {
@@ -262,9 +438,78 @@ static inline void lt_draw_primary_sprite(SprCol *col) /* derived name */
     gif_EndPacket();
 }
 
-INCLUDE_ASM(display_primary_texture_layout);
+static void display_primary_texture_layout(int no, int sel)
+{
+    SprCol col;
+    LtProp *p = &texLayout[no];
 
-INCLUDE_ASM(exec_layout_texture);
+    col.r = (int)(p->colR * 255.0f);
+    col.g = (int)(p->colG * 255.0f);
+    col.b = (int)(p->colB * 255.0f);
+    col.a = (int)(p->colA * 127.0f);
+    lt_draw_primary_sprite(&col);
+    if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
+        sel = p->proc(ltSelectFlag, sel);
+        if (sel != -1) {
+            lt_switch_layout_3(sel);
+        }
+        ltSelectFlag = 0;
+    }
+    texture_fading(p);
+    lt_draw_layout(no);
+}
+
+void exec_layout_texture(void)
+{
+    int n = 0;
+    int list[16];
+    int ret = -1;
+    LtProp *p;
+    int v;
+    int j;
+    int k;
+
+    p = &texLayout[current_layout_id];
+    for (;;) {
+        for (j = p->first; j < p->last; j++) {
+            LtProperty *e = &texProperty[j];
+
+            e->masked = e->defaultMask;
+        }
+        if (p->link >= 0) {
+            list[n++] = p->link;
+            p = &texLayout[p->link];
+        } else {
+            break;
+        }
+    }
+    list[n] = -1;
+    for (n--; n != -1; n--) {
+        p = &texLayout[list[n]];
+        v = p->curItem;
+        ltCurrentItem = v;
+        if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
+            ret = p->proc(p->procFirst, ret);
+            p->procFirst = 0;
+            v = p->curItem;
+        } else {
+            ret = -1;
+        }
+        if (v >= 0 && lt_item_select_disable == 0) {
+            default_item_select(list[n]);
+        }
+    }
+    p = &texLayout[current_layout_id];
+    ltCurrentItem = p->curItem;
+    display_primary_texture_layout(current_layout_id, ret);
+    if (p->curItem >= 0 && lt_item_select_disable == 0) {
+        default_item_select(current_layout_id);
+    }
+    for (k = 0; list[k] >= 0; k++) {
+        lt_draw_layout(list[k]);
+    }
+    lt_item_select_disable = 0;
+}
 
 /* init_textures_of_specified_property is a file static, as is
    ico2/common/src/kanban's function of the same name */

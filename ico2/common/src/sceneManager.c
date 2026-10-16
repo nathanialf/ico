@@ -149,7 +149,86 @@ plain:
 /* GlobalStageSetting is the system's StageSetting record (typedef.h).  The
    stage-preset record is read through the stageData[stage] subscript on every
    line. */
-INCLUDE_ASM(InitStageLight);
+void InitStageLight(int stage)
+{
+    int i;
+
+    /* using the Excel data for the stage information */
+    debug_StdPrintfDummy("ステージ情報にエクセルのデータを使用します.\n");
+
+    for (i = 0; i < 3; i++) {
+        GlobalStageSetting.flatLightDir[0][i] = -stageData[stage].flatLightDir[i];
+
+        GlobalStageSetting.flatLightCol[0][i] = stageData[stage].flatLightCol[i] * 0.0078125f;
+    }
+
+    _NormalizeVector(GlobalStageSetting.flatLightDir[0], GlobalStageSetting.flatLightDir[0]);
+
+    for (i = 0; i < 3; i++) {
+        GlobalStageSetting.flatLightDir[1][i] = GlobalStageSetting.flatLightDir[2][i] =
+            stageData[stage].flatLightDir[i];
+
+        GlobalStageSetting.flatLightCol[1][i] = GlobalStageSetting.flatLightCol[2][i] =
+            stageData[stage].flatLightCol[i] * 0.0078125f * 0.25f;
+    }
+
+    _NormalizeVector(GlobalStageSetting.flatLightDir[1], GlobalStageSetting.flatLightDir[1]);
+
+    _NormalizeVector(GlobalStageSetting.flatLightDir[2], GlobalStageSetting.flatLightDir[2]);
+
+    for (i = 0; i < 3; i++) {
+        GlobalStageSetting.ambientCol[i] = stageData[stage].ambientCol[i] * 0.0078125f;
+
+        GlobalStageSetting.bgCol[i] = stageData[stage].bgCol[i];
+    }
+    GlobalStageSetting.ambientCol[3] = GlobalStageSetting.bgCol[3] = 1.0f;
+
+    light_AddLight(0, 0, 0);
+
+    GlobalStageSetting.fogOn = (int)stageData[stage].fog[0];
+    GlobalStageSetting.fogColR = (int)stageData[stage].fog[1];
+    GlobalStageSetting.fogColG = (int)stageData[stage].fog[2];
+    GlobalStageSetting.fogColB = (int)stageData[stage].fog[3];
+    GlobalStageSetting.fogColA = (int)stageData[stage].fog[4];
+    GlobalStageSetting.fogOffsetA = (int)stageData[stage].fog[5];
+    GlobalStageSetting.fogNear = (int)stageData[stage].fog[6];
+    GlobalStageSetting.fogFar = (int)stageData[stage].fog[7];
+    GlobalStageSetting.fogStrength = 128;
+
+    gsb_SetBGColor(&db, (int)GlobalStageSetting.bgCol[0], (int)GlobalStageSetting.bgCol[1],
+                   (int)GlobalStageSetting.bgCol[2]);
+
+    GlobalStageSetting.shadowDepth = stageData[stage].shadowDepth;
+    GlobalStageSetting.shadowBlend[0] = 0;
+    GlobalStageSetting.shadowBlend[1] = 40;
+    GlobalStageSetting.shadowBlend[2] = 80;
+    GlobalStageSetting.shadowBlend[3] = 120;
+    GlobalStageSetting.shadowColR = 0;
+    GlobalStageSetting.shadowColG = 0;
+    GlobalStageSetting.shadowColB = 0;
+
+    GlobalStageSetting.reductionCol[0] = 128;
+    GlobalStageSetting.reductionCol[1] = 128;
+    GlobalStageSetting.reductionCol[2] = 128;
+
+    GlobalStageSetting.viewScale = 100;
+
+    GlobalStageSetting.postEffect = 0;
+    GlobalStageSetting.feedbackEffect = 2;
+    GlobalStageSetting.depthFieldStart = 100;
+    GlobalStageSetting.depthFieldWidth = 500;
+    GlobalStageSetting.motionBlur = 32;
+
+    GlobalStageSetting.feedbackCol[0] = 64;
+    GlobalStageSetting.feedbackCol[1] = 64;
+    GlobalStageSetting.feedbackCol[2] = 64;
+    GlobalStageSetting.feedbackCol[3] = 128;
+
+    GlobalStageSetting.antiLevel0 = 24;
+    GlobalStageSetting.antiLevel1 = 24;
+
+    tex_RemakeRegistersSampleMin(0);
+}
 
 inline GObj *CreateLayoutedGObj(int id, int model, int accessary, int light, void *lay, int label,
                                 int key, int useStart)

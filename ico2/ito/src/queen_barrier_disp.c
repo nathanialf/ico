@@ -12,7 +12,6 @@
 #include "main.h"
 #include "Matrix.h"
 #include "DmaPacket.h"
-#include "include_asm.h"
 
 /* The barrier mesh, the damage flash timer queen_barrier_set_damage starts
    at 60, and the ripple phase the animation advances each frame. */
@@ -148,7 +147,48 @@ static __inline__ void updateBarrierColor(void) /* derived name */
     barrierMesh->col = packBarrierColor(c.f[0], c.f[1], c.f[2]);
 }
 
-INCLUDE_ASM(queen_barrier_disp_proc);
+void queen_barrier_disp_proc(GObj *g, float k)
+{
+    int vram;
+
+    gif_StartPacketPriPath1(10);
+    tex_ResetVramPri(10);
+    vram = tex_AllocVramAuto(0, 2048);
+    MakeRefractTexture(vram >> 5);
+
+    setGsReg(0x4C, ((long long)((ScreenWidth >> 6) & 0x3F) << 16) | 64);
+    setGsReg(0x40, ((long long)(ScreenWidth - 1) << 16) | ((long long)(ScreenHeight - 1) << 48));
+    setGsReg(0x18, ((2048LL - ScreenWidth / 2) << 4) | (((2048LL - ScreenHeight / 2) << 4) << 32));
+
+    gif_SetGsReg(0x4E, 0x300000C0);
+    gif_SetGsReg(0x47, 0x50000);
+    gif_SetGsReg(0x06, (vram | 0x24020000) | 0x600000000LL);
+    gif_SetGsReg(0x14, 0x60);
+
+    setGsReg(0x49, 1);
+    setGsReg(0x42, ((long long)128 << 32) | 0x44);
+
+    gif_EndPacketPath1();
+
+    updateBarrierColor();
+
+    {
+        QVec m1[4];
+        QVec root[4];
+        QVec m2[4];
+
+        sceVu0InversMatrix(m1, (char *)matrixptr + 0x80);
+        GetRootMatrix(root, g);
+        sceVu0CopyVector(&m1[3], &root[3]);
+        sceVu0MulMatrix(m2, (char *)matrixptr + 0x100, m1);
+        _SetCurrentMatrix(m2);
+    }
+
+    makeRefractST(k);
+
+    prim_UpdateMesh3D(barrierMesh, 24, buffer_ID);
+    prim_DispMesh3D(barrierMesh, 0, 0, -1);
+}
 
 void queen_barrier_disp_init(void)
 {

@@ -473,11 +473,72 @@ static void checkWallState(int flag)
     }
 }
 
+static void checkCliffState(void);
+
 INCLUDE_ASM(checkCliffState);
 
-static void _checkCliffAndWall(void);
+static void _checkCliffAndWall(void)
+{
+    float v[4];
+    float d;
+    float t;
 
-INCLUDE_ASM(_checkCliffAndWall);
+    if (skelMotCtrl->cliffWallCheck == 1 ||
+        (skelMotCtrl->cliffWallCheck == 2 && skelMotCtrl->variation == 0)) {
+        MatrixDrive_PushMatrix();
+        checkCliffState();
+        MatrixDrive_PopMatrix();
+    }
+    if (skelMotCtrl->cliffWallCheck == 1 ||
+        (skelMotCtrl->cliffWallCheck == 2 && skelMotCtrl->variation == 1)) {
+        MatrixDrive_PushMatrix();
+        checkWallState(3);
+        MatrixDrive_PopMatrix();
+    }
+    if (skelMotCtrl->cliffWallCheck == 1) {
+        if ((skelMotCtrl->flags & 0x20) == 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, -30.0f, 0.0f);
+            checkWallState(3);
+            MatrixDrive_PopMatrix();
+
+            if ((skelMotCtrl->flags & 0x20) != 0) {
+                skelMotCtrl->wallFloorHeight += 30.0f;
+                skelMotCtrl->wallTopHeight += 30.0f;
+            }
+        }
+        if (skelGObj == boyGObj && GOBJ_SUB(skelGObj)->ctrl.cliffEdge == 0) {
+            _SubVectorXYZ(v, skelRoot->pos, skelRoot->last);
+            v[1] = 0.0f;
+            d = VectorLengthSquare(v);
+            if (0.01f < d) {
+                MatrixDrive_PushMatrix();
+                UnitRotation(MatrixDrive_GetMatrix());
+                _ScaleVectorXYZ(v, v, 1.0f / _Sqrt(d));
+                MatrixDrive_GetMatrix()[0][0] = MatrixDrive_GetMatrix()[2][2] = v[2];
+                MatrixDrive_GetMatrix()[0][2] = -v[0];
+                MatrixDrive_GetMatrix()[2][0] = -MatrixDrive_GetMatrix()[0][2];
+                checkCliffState();
+                MatrixDrive_PopMatrix();
+            }
+        }
+        if (skelMotCtrl->wallHit != 0 && skelMotCtrl->cliffEdge != 0) {
+            t = skelMotCtrl->wallDist - skelMotCtrl->cliffDist;
+            if ((t < 0.0f ? -t : t) < 10.0f) {
+                clearCliffStatus();
+            }
+        }
+    }
+    if (hitColRayDisp != 0) {
+        if (skelMotCtrl->wallHit != 0) {
+            DrawGObjWallCollision(skelRoot->wall.o.obj, 0);
+        }
+    }
+    if (GOBJ_SUB(skelGObj)->ctrl.wallHit != 0 && GOBJ_SUB(skelGObj)->root.wall.elem == 0) {
+        debug_assertMessage(__FILE__, 816, "NOT ENTRY WCL\n");
+        __assert(__FILE__, 816, "e");
+    }
+}
 
 static void checkCliffAndWallStateOfLastPlane(void)
 {
