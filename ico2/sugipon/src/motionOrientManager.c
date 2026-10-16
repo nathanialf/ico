@@ -713,11 +713,11 @@ static int normalMotionShift(void *self, int force)
         int next;
         int r = -1; /* no pairing found; the else arm searches with it as cur */
 
-        if (kind == 0x43C) {
+        if (kind == 1084) {
             kind = p->id;
             mode = 5;
             r = searchMotionShift(self, kind, w->motion);
-            if (r == -1 || r == 0x43C) {
+            if (r == -1 || r == 1084) {
                 return 0;
             }
             next = r;
@@ -890,7 +890,7 @@ static void getNodeBlendedFloatingMotion(StreamElem *dst, float *root, int id, i
     int prev = -1;
     SkelNode *skel = MOWORK(self)->skel;
 
-    for (i = 0, j = motionKind[id].blendKind; blendMotionKind[j].motion != 0x43E; i++, j++) {
+    for (i = 0, j = motionKind[id].blendKind; blendMotionKind[j].motion != 1086; i++, j++) {
         int node = blendMotionKind[j].motion;
 
         checkMotionKind(node, id);

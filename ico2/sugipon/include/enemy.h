@@ -23,7 +23,7 @@ typedef struct { /* field names derived */
    the attribute word: the fly type in bits 0-1 and the battle type in bits
    2-3. */
 typedef struct {  /* field names derived */
-    int model;    /* 0x00, the model id, 0x5EB for none */
+    int model;    /* 0x00, the model id, 1515 for none */
     int particle; /* 0x04, the particle object, -1 for none */
     float life;   /* 0x08 */
     float scale;  /* 0x0C */

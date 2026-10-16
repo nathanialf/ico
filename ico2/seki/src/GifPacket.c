@@ -711,7 +711,7 @@ void gif_SetZWrite(int on)
 
 /* the XYOFFSET for a half-pixel field: the odd field of an interlaced frame
    sits half a line (8 in 12.4) lower */
-void gif_SetHalfOffset(int interlace, int odd) /* parameter names derived */
+void gif_SetHalfOffset(int interlace, int odd)
 {
     int x = (0x800 - ScreenWidth / 2) << 4;
     int y = (0x800 - ScreenHeight / 2) << 4;

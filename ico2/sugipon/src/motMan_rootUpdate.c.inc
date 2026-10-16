@@ -1027,13 +1027,13 @@ side_probe:
 
 static void forceFallDown(void)
 {
-    iosOmSendMail(skelGObj, 0x18, skelGObj);
+    iosOmSendMail(skelGObj, 24, skelGObj);
     CopyVector(skelRoot->last, skelRoot->pos);
 }
 
 static void forceReset(void)
 {
-    iosOmSendMail(skelGObj, 0xf3, skelGObj);
+    iosOmSendMail(skelGObj, 243, skelGObj);
     CopyVector(skelRoot->last, (char *)skelRoot);
 }
 

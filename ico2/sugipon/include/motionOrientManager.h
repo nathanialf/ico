@@ -142,7 +142,7 @@ typedef union { /* field names derived */
 typedef struct {    /* field names derived */
     FDSSlot se[12]; /* 0x000, sound effects */
     FDSSlot eff[5]; /* 0x060, particle effects */
-    char path[64];  /* 0x088, derived name: the motion file (_ACTDebugPrint prints it) */
+    char path[64];  /* 0x088, the motion file (_ACTDebugPrint prints it) */
     char name[48];  /* 0x0C8 */
     FDSSlot vib[1]; /* 0x0F8, pad vibrations */
     int word100;    /* 0x100 */
@@ -211,7 +211,6 @@ int GetNbMotionFrames(int id);
 int UpdateFrameCounter(void *self);
 char *SetMotionRequest(void *self, int mot, MotOriReq req);
 void SetNodeRotationLimitDataTable(void *self, int from, int to);
-/* the rope interpolation rate the chain sets (motionOrientManager.c) */
 void ForTest_ForceShiftMotion(int obj, int motion);
 
 #endif /* MOTIONORIENTMANAGER_H */

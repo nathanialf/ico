@@ -1185,8 +1185,9 @@ static void getCloth4D(Cloth4D *c, int **rows)
     sceVu0FMATRIX *pE;
     sceVu0FMATRIX mtx;
     VECTOR clip[3];
-    /* read only by the DEBUG build's drawing of each cylinder's clip planes
-       after the collision pass */
+    /* read by nothing in this build, but the frame keeps its 144 bytes: the
+       debug build has statements after the collision pass (the aug6 TRFILE
+       gives them 8 instructions on the line after gif_EndPacket) */
     VECTOR work[9];
     float t1;
     float tk;
@@ -1262,16 +1263,6 @@ static void getCloth4D(Cloth4D *c, int **rows)
         }
     }
     gif_EndPacket();
-#ifdef DEBUG
-    for (i = 0; i < cnt; i++) {
-        _ScaleVector(&work[0], &vG[i], 100.0f);
-        _AddVectorXYZ(&work[1], mD[i][3], &work[0]);
-        _ScaleVector(&work[2], &vH[i], 100.0f);
-        _AddVectorXYZ(&work[3], mD[i][3], &work[2]);
-        DrawLine((char *)mD[i][3], (char *)&work[1], (LineColor *)&chainLineColor0, 0);
-        DrawLine((char *)mD[i][3], (char *)&work[3], (LineColor *)&chainLineColor1, 0);
-    }
-#endif
     {
         /* proc reads only p, q and k.  Each caller also passes own, the
            owner of q's point that its test has just loaded. */

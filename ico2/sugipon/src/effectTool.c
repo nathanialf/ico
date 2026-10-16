@@ -528,7 +528,7 @@ static int execEffectTool(void)
     default:
     case 0:
         r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
-                                  0xB, particleEffectFile, 0x50, 0, 0, 0x35, &effectId);
+                                  0xB, particleEffectFile, 0x50, 0, 0, 53, &effectId);
         if (effectId != lastEffectId) {
             setQ(q);
             if (effectHandle != -1) {
@@ -547,12 +547,12 @@ static int execEffectTool(void)
         if (pad[1].rep & 0x1000) {
             effectId--;
             if (effectId < 0) {
-                effectId = 0x34;
+                effectId = 52;
             }
         }
         if (pad[1].rep & 0x4000) {
             effectId++;
-            if (effectId >= 0x35) {
+            if (effectId >= 53) {
                 effectId = 0;
             }
         }

@@ -48,7 +48,6 @@ void LightTorchOnOfWeaponWithNoSE(struct GObj *self);
 void PickupWeapon(struct GObj *self, struct GObj *holder, int focus);
 void ReleaseWeapon(struct GObj *self);
 int ReleaseWeaponWithFumbleSequential(struct GObj *g);
-void SetWeaponOffsetMode(struct GObj *self, int mode);
 void SetWeaponTorchChainReactionFlagAll(int flag);
 void WeaponCurPos(struct GObj *self, void *center, void *from, void *to);
 void dispInsectNet(struct GObj *g);
@@ -58,11 +57,15 @@ float GetWeaponWeight(struct GObj *self);
 
 struct SObjSimpleSetting;
 
+void torchOnOfWeaponSE(struct GObj *torch);
+void torchOffOfWeaponSE(struct GObj *torch);
 void weaponFumbleSE(struct GObj *g);
 void weaponStickSE(struct GObj *g);
 void ReleaseWeaponWithFumbleTargetPos(struct GObj *g, void *pos, void *quat, void *rot, float t);
 void WeaponHitEffect(struct GObj *self, void *enemy);
 void *InitWeaponGeo(struct GObj *g, struct SObjSimpleSetting *lay);
+void WeaponGeo(struct GObj *g);
+void WeaponDL(struct GObj *g);
 void ReleaseWeaponWithFumble(struct GObj *self, float *move, float *quat);
 int InitWeaponFumbleSequence(struct GObj *self);
 void *InitDemoQueensSword(struct GObj *g, struct SObjSimpleSetting *lay);

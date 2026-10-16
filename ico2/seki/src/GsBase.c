@@ -712,8 +712,6 @@ static int postEffectReady = 0; /* derived name */
 /* Open the frame's first display list: one DMA tag, the two VIF words that
  * hand path 1 to the GS, a second tag for the register run, and then the
  * default register set for each of the thirteen contexts. */
-static void gsb_SetGsDefault(void);
-
 static void gsb_SetGsDefault(void)
 {
     DpkCtl *d = &PacketBufferStruct;
@@ -758,9 +756,9 @@ static void gsb_SetGsDefault(void)
 }
 
 /* Everything the frame still owes after the scene is drawn: the debug read
- * outs, the full screen effect, the shadow and fog passes, the motion blur,
- * the anti alias pass, the film grain and the brightness step, the kept frame
- * buffer, the staff roll and last the fade and the demo scissor. */
+ * outs, the shadow and fog passes once the frame is up, the motion blur, the
+ * brightness step, the full screen effect, the kept frame buffer, the staff
+ * roll with its demo scissor, the anti alias pass and last the fade. */
 static int gsb_PostEffect(void)
 {
     if (debug_font_flag & 1) {
@@ -1099,8 +1097,6 @@ int gsb_ClipBox(float *p)
     return (c & 0x20) ? 2 : 1;
 }
 
-int gsb_LoadStageSettings(void);
-
 inline int gsb_LoadStageSettings(void)
 {
     char buf[256];
@@ -1116,8 +1112,6 @@ inline int gsb_LoadStageSettings(void)
     }
     return -1;
 }
-
-int gsb_SaveStageSettings(void);
 
 inline int gsb_SaveStageSettings(void)
 {
@@ -1183,8 +1177,6 @@ static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 /* The stage setting page of the debug menu: seventeen editable words of the
  * stage record, the pad keys that walk and change them, and the key that dumps
  * the page to the log. */
-int gsb_StageSettingTool(void);
-
 int gsb_StageSettingTool(void)
 {
     int i;

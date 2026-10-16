@@ -32,7 +32,7 @@ static void calcDynamicGeometry(struct GObj *g);
 
 /* The work record InitWeaponGeo and InitDemoQueensSword allocate and the
    template they initialise it from: 176 bytes, 8-aligned.  The fields are the
-   ones this file reads. */
+   ones this file reads; the blade's three from 0xA4 only the template sets. */
 typedef struct {       /* field names derived */
     int kind;          /* 0x00: the switch in InitWeaponGeo */
     int state;         /* 0x04: 2 while the weapon falls from a fumble */

@@ -1,7 +1,5 @@
 #include "typedef.h"
 #include "tableSin.h"
-#include "debug_exception.h"
-#include <assert.h>
 
 /* Quadword copy of 64 bytes, parallel form: four lq into four distinct
    scratch GPRs, then four sq.  Only this file has it, so it is defined here
