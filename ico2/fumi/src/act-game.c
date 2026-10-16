@@ -1544,7 +1544,103 @@ inline int ACTNotNeedCameraOffset(GObj *self)
     return 0;
 }
 
-INCLUDE_ASM(ACTGame_BeforeFunc);
+void ACTGame_BeforeFunc(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+
+    ACTGame_InnerVelocityUpdate(self);
+
+    switch ((unsigned int)s->actMode) {
+    case 1: {
+        Act *p = GOBJ_ACT(self);
+        p->attacker = 0;
+        p->hit = 0;
+        break;
+    }
+    }
+
+    if (((int)(s->flags20.ll >> 23) & 1) == 0 &&
+        ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 28) & 1) == 0 ||
+         GOBJ_SUB(self)->ctrl.reserveMoved != 0)) {
+        GetRootPosition((char *)s + 0x100, self);
+    }
+
+    s->flags20.ll &= ~(1ULL << 24);
+    s->flags20.ll &= ~(1ULL << 23);
+
+    ACTParaStatus_Clear(self);
+    _ACTCharStatus_Clear(self);
+    ACTLookTarget_Init(self);
+
+    memset((char *)s + 0x46C, 0, 0x10);
+    memset((char *)s + 0x47C, 0, 0x10);
+
+    ACTGame_SetMotionPlaySpeedRatio_Clear(self);
+
+    if (GOBJ_WORK(self)->downTimer > 0) {
+        (GOBJ_WORK(self)->downTimer)--;
+    }
+    if (s->soundWait > 0) {
+        (s->soundWait)--;
+    }
+    if (GOBJ_WORK(self)->turnTimer > 0) {
+        (GOBJ_WORK(self)->turnTimer)--;
+    }
+    if (GOBJ_WORK(self)->turnTimer2 > 0) {
+        (GOBJ_WORK(self)->turnTimer2)--;
+    }
+    if (GOBJ_WORK(self)->wishHoldTimer != 0) {
+        (GOBJ_WORK(self)->wishHoldTimer)--;
+
+        switch ((unsigned int)s->actMode) {
+        case 2:
+        case 3:
+            break;
+
+        default:
+            GOBJ_WORK(self)->wishHoldTimer = 0;
+            break;
+        }
+        if (scpBoyControlReadDisable != 0) {
+            GOBJ_WORK(self)->wishHoldTimer = 0;
+        }
+    }
+
+    if (((char *)girlGObj) != 0 && GOBJ_ACT(((char *)girlGObj))->actMode == 107 &&
+        GOBJ_ACT(girlGObj)->carrier == self && ((int)(s->flags20.ll >> 10) & 1) == 0) {
+        (GOBJ_WORK(self)->carryGirlFrames)++;
+    } else {
+        GOBJ_WORK(self)->carryGirlFrames = 0;
+    }
+
+    if (GOBJ_WORK(self)->leverTimer != 0) {
+        (GOBJ_WORK(self)->leverTimer)--;
+    }
+    if (GOBJ_WORK(self)->noInterpTimer > 0) {
+        (GOBJ_WORK(self)->noInterpTimer)--;
+        SetDirectMotionProgramInterpInfo(self, 0x2C, 0.0f);
+        SetDirectMotionProgramInterpInfo(self, 0, 0.0f);
+        SetDirectMotionProgramInterpInfo(self, 1, 0.0f);
+        SetDirectMotionProgramInterpInfo(self, 0x22, 0.0f);
+        SetDirectMotionProgramInterpInfo(self, 0x23, 0.0f);
+    }
+    if (GOBJ_WORK(self)->sofaTimer != 0) {
+        (GOBJ_WORK(self)->sofaTimer)--;
+    }
+
+    if (self == (girlGObj)) {
+        ACTGame_GirlBeforeFunc(self);
+    }
+
+    if (*(int *)((char *)self + 0x8) == 3453) {
+        if ((60 - systemStatus[0] * 10) / systemStatus[1] * 2 < s->frame) {
+            if (!(((char *)girlGObj) != 0 && GOBJ_ACT(((char *)girlGObj))->actMode == 107 &&
+                  GOBJ_ACT(girlGObj)->carrier == self)) {
+                s->flags20.ll &= ~(1ULL << 17);
+            }
+        }
+    }
+}
 
 /* OR the 16 pending-request bytes into the live request bytes. */
 static inline void actEnv_OrRequestBytes(unsigned char *dst, unsigned char *src) /* derived name */

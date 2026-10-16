@@ -324,7 +324,6 @@ text adpcmDiskNotReady 0x00141128 0x00141130 ico2/fumi/sound/adpcm_init.c local 
 text adpcmDiskReturnReady 0x00141130 0x00141138 ico2/fumi/sound/adpcm_init.c local lines=1  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text adpcmOpenProc 0x00141138 0x00141160 ico2/fumi/sound/adpcm_init.c local lines=5  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text adpcmOpenDiskNotReady 0x00141160 0x00141168 ico2/fumi/sound/adpcm_init.c local lines=1  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text ACTGame_BeforeFunc 0x00145C40 0x00145FB0 ico2/fumi/src/act-game.c lines=146  # ordinal; first difference at insn 0; length:-133; extent-differs
 text ACTItemThrow.301 0x00149768 0x00149894 ico2/fumi/src/act-game.c local file=ACTItemThrow_301  # ordinal; first difference at insn 7; length:+19; extent-differs
 sdlit ACTItemThrow.301 0x00632260 0x00632268 ico2/fumi/src/act-game.c file=ACTItemThrow_301  # 1 string
 text ACTItemWatchMotion 0x00149898 0x00149ADC ico2/fumi/src/act-game.c local lines=132  # ordinal; first difference at insn 0; length:-55; extent-differs
@@ -451,7 +450,6 @@ text SetBoyInfo 0x00154CE8 0x00154D20 ico2/fumi/src/boyact.c lines=17  # equal, 
 text GetBoyRootPositionForCamera 0x00154D20 0x00154DCC ico2/fumi/src/boyact.c lines=19  # ordinal; first difference at insn 12; imm:4; extent-equal
 lit4 GetBoyRootPositionForCamera 0x00630C24 0x00630C28 ico2/fumi/src/boyact.c  # 1 float
 text Boy_Init 0x00154DD0 0x00154E60 ico2/fumi/src/boyact.c lines=5  # us-only (after boyact.c's span; PAL order suggests Boy_Init (160 B in PAL)); named Boy_Init by call sites, body alignment (provisional)
-text ACTSetPositionNoFitting 0x00154E60 0x00154E68 ico2/fumi/src/commonact.c local lines=4  # us-only (after boyact.c's span; PAL size and order suggest ACTSetPositionNoFitting); named ACTSetPositionNoFitting by PAL size and order, body alignment (provisional)
 text ChangeMailInLadder 0x00154E70 0x001550BC ico2/fumi/src/commonact.c local lines=58  # us-only (after boyact.c's span; PAL order suggests ChangeMailInLadder (720 B in PAL)); named ChangeMailInLadder by callees (provisional)
 text _ACTCorrectMsg 0x001550C0 0x00155B54 ico2/fumi/src/commonact.c lines=297  # us-only (after boyact.c's span; PAL order suggests _ACTCorrectMsg (2860 B in PAL)); named _ACTCorrectMsg by callees, body alignment (provisional)
 sdlit _ACTCorrectMsg 0x006322D0 0x006322D7 ico2/fumi/src/commonact.c  # 1 string, measured from the base
@@ -720,30 +718,6 @@ rdlit actEnemyJump 0x00558F68 0x00558F7C ico2/fumi/src/enemy_act.c def  # 1 stri
 text EnemyUtil_isOtherStatus 0x00165F00 0x00165F84 ico2/fumi/src/enemy_act.c lines=17  # ordinal; first difference at insn 13; other:2; extent-equal
 text isEnemyHyde 0x00165F88 0x00165FB4 ico2/fumi/src/enemy_act.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before _ApproachTarget
 text _ApproachTarget 0x00165FB8 0x00166000 ico2/fumi/src/enemy_act.c lines=9  # ordinal; first difference at insn 5; imm:2; extent-equal
-text sort_list.78 0x0016AC50 0x0016AE48 ico2/fumi/src/girl_act.c local file=sort_list_78  # nested in girlBrainMain_MakeOthersList (a stub); equal, gone with its carved parent
-text girlBrainMain_MakeOthersList 0x0016AE48 0x0016B3BC ico2/fumi/src/girl_act.c local lines=148  # us-only (in girl_act.c's span; PAL order suggests girlBrainMain_MakeOthersList (1720 B in PAL)); named girlBrainMain_MakeOthersList by call sites, callees, body alignment (provisional)
-rdlit girlBrainMain_MakeOthersList 0x00559510 0x00559542 ico2/fumi/src/girl_act.c align=16  # 2 strings
-sdlit girlBrainMain_MakeOthersList 0x00632450 0x0063245C ico2/fumi/src/girl_act.c  # 1 data
-text girlBrainMain_CheckWarningMode 0x0016B3C0 0x0016B78C ico2/fumi/src/girl_act.c local lines=41  # us-only (in girl_act.c's span; PAL order suggests girlBrainMain_CheckWarningMode (692 B in PAL)); named girlBrainMain_CheckWarningMode by call sites, callees, body alignment (provisional)
-lit4 girlBrainMain_CheckWarningMode 0x00630D54 0x00630D5C ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
-sdlit girlBrainMain_CheckWarningMode 0x00632470 0x00632472 ico2/fumi/src/girl_act.c  # 1 string, measured from the base: no code reads it; it stands between groupRelationName's strings and moveStateName's, and this is the first stub after groupRelationName
-text girlBrainMain_DecideMode 0x0016B790 0x0016BCA0 ico2/fumi/src/girl_act.c local lines=151  # us-only (in girl_act.c's span; PAL order suggests girlBrainMain_DecideMode (1672 B in PAL)); named girlBrainMain_DecideMode by call sites, callees (provisional)
-lit4 girlBrainMain_DecideMode 0x00630D5C 0x00630D64 ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
-rdlit girlBrainMain_DecideMode 0x00559570 0x005595A0 ico2/fumi/src/girl_act.c align=16  # 1 jump table, measured from the base
-text ChangeRunMode.135 0x0016BD08 0x0016BDF8 ico2/fumi/src/girl_act.c local file=ChangeRunMode_135  # ordinal; first difference at insn 9; imm:4; extent-equal
-text subGirlBrainMain 0x0016BDF8 0x0016CED0 ico2/fumi/src/girl_act.c lines=465  # ordinal; first difference at insn 12; length:-147; extent-differs
-lit4 subGirlBrainMain 0x00630D64 0x00630D74 ico2/fumi/src/girl_act.c  # 4 floats, measured from the base: the text loads them
-rdlit subGirlBrainMain 0x005595A0 0x00559620 ico2/fumi/src/girl_act.c align=16  # 3 jump tables, measured from the base
-text subGirlBrain_Attract 0x0016D708 0x0016E90C ico2/fumi/src/girl_act.c in=ico2/fumi/src/girl_brain_attract.c.inc  # ordinal; first difference at insn 0; length:-359; extent-differs
-lit4 subGirlBrain_Attract 0x00630D98 0x00630DA4 ico2/fumi/src/girl_act.c  # 3 floats, measured from the base: the text loads them
-rdlit subGirlBrain_Attract 0x00559620 0x00559670 ico2/fumi/src/girl_act.c  # 1 string, 1 jump table, 1 double, measured from the base
-text _girlBrainHide_MakeHidePoint 0x0016E910 0x0016EB68 ico2/fumi/src/girl_act.c local lines=53  # ordinal; first difference at insn 28; imm:4; extent-equal
-text CorrectList.208 0x0016F2A8 0x0016F410 ico2/fumi/src/girl_act.c local file=CorrectList_208  # nested in girlBrainRunawaySearchPoint (a stub); equal, gone with its carved parent
-lit4 CorrectList.208 0x00630DA8 0x00630DAC ico2/fumi/src/girl_act.c file=CorrectList_208  # 1 float
-text girlBrainRunawaySearchPoint 0x0016F410 0x0016F9A8 ico2/fumi/src/girl_act.c local lines=90  # ordinal; first difference at insn 25; imm:4; extent-equal
-lit4 girlBrainRunawaySearchPoint 0x00630DAC 0x00630DB4 ico2/fumi/src/girl_act.c  # 2 floats
-text girlBrainRunawayMoveByWay 0x0016F9A8 0x0016FC44 ico2/fumi/src/girl_act.c local lines=60  # ordinal; first difference at insn 12; imm:12; extent-equal
-lit4 girlBrainRunawayMoveByWay 0x00630DB4 0x00630DB8 ico2/fumi/src/girl_act.c  # 1 float
 text subGirlBrain_Escape 0x0016FC48 0x00170380 ico2/fumi/src/girl_act.c lines=124  # ordinal; first difference at insn 3; length:+63; extent-differs
 lit4 subGirlBrain_Escape 0x00630DB8 0x00630DC0 ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
 sdlit subGirlBrain_Escape 0x00632490 0x00632493 ico2/fumi/src/girl_act.c  # 1 string, measured from the base
@@ -752,94 +726,10 @@ text GetSafePosition.233 0x00170438 0x001706DC ico2/fumi/src/girl_act.c local fi
 lit4 GetSafePosition.233 0x00630DC0 0x00630DC4 ico2/fumi/src/girl_act.c file=GetSafePosition_233  # 1 float
 text Danger_Bomb 0x001706E0 0x00170950 ico2/fumi/src/girl_act.c local lines=112  # ordinal; first difference at insn 18; length:-1; extent-differs
 lit4 Danger_Bomb 0x00630DC4 0x00630DC8 ico2/fumi/src/girl_act.c  # 1 float
-text GetSafePosition.240 0x00170950 0x00170C1C ico2/fumi/src/girl_act.c local file=GetSafePosition_240  # nested in Danger_Gondola (a stub); equal, gone with its carved parent
-lit4 GetSafePosition.240 0x00630DC8 0x00630DCC ico2/fumi/src/girl_act.c file=GetSafePosition_240  # 1 float
-text Danger_Gondola 0x00170C20 0x00170ED8 ico2/fumi/src/girl_act.c local lines=119  # us-only (in girl_act.c's span; PAL order suggests Danger_Gondola (712 B in PAL)); named Danger_Gondola by callees, body alignment (provisional)
-lit4 Danger_Gondola 0x00630DCC 0x00630DD0 ico2/fumi/src/girl_act.c  # 1 float
-rdlit Danger_Gondola 0x005596C8 0x005596D2 ico2/fumi/src/girl_act.c  # 1 string
-text GetSafePosition.247 0x00170ED8 0x001712C8 ico2/fumi/src/girl_act.c local file=GetSafePosition_247  # us-only (in girl_act.c's span; body equals PAL GetSafePosition.247's with immediates and jump targets masked); named GetSafePosition.247 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-lit4 GetSafePosition.247 0x00630DD0 0x00630DD4 ico2/fumi/src/girl_act.c file=GetSafePosition_247  # 1 float
-text Danger_Box 0x001712C8 0x00171734 ico2/fumi/src/girl_act.c local lines=173  # us-only (in girl_act.c's span; PAL order suggests Danger_Box (1136 B in PAL)); named Danger_Box by callees, body alignment (provisional)
-rdlit Danger_Box 0x005596D8 0x005596F6 ico2/fumi/src/girl_act.c  # 1 string
-text WayTest 0x00171BC8 0x00171E48 ico2/fumi/src/girl_act.c lines=47  # ordinal; first difference at insn 0; length:+30; extent-differs
-sdlit WayTest 0x00632498 0x0063249E ico2/fumi/src/girl_act.c  # 1 string, measured from the base
-rdlit WayTest 0x005596F8 0x00559720 ico2/fumi/src/girl_act.c  # 1 string, 1 data, measured from the base
 text subGirlControl 0x00171E48 0x001725C4 ico2/fumi/src/girl_act.c lines=230  # ordinal; first difference at insn 0; length:-163; extent-differs
 lit4 subGirlControl 0x00630DE0 0x00630E14 ico2/fumi/src/girl_act.c  # 13 floats, measured from the base: the text loads them
 rdlit subGirlControl 0x00559770 0x00559888 ico2/fumi/src/girl_act.c  # 5 strings, 1 jump table, measured from the base
 sdlit subGirlControl 0x006324C8 0x006324E7 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base: no code reads them, the compiled-out debug code's
-text HandMgr_GetDistHand.289 0x00173060 0x00173170 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_289  # nested in actGirlHand (a stub); equal, gone with its carved parent
-text HandMgr_Update.297 0x00173170 0x00173264 ico2/fumi/src/girl_act.c local file=HandMgr_Update_297  # nested in actGirlHand (a stub); equal, gone with its carved parent
-text HandMgr_Judge.301 0x00173268 0x001733D0 ico2/fumi/src/girl_act.c local file=HandMgr_Judge_301  # nested in actGirlHand (a stub); equal, gone with its carved parent
-text HandMgr_Print.305 0x001733D0 0x001734D8 ico2/fumi/src/girl_act.c local file=HandMgr_Print_305  # nested in actGirlHand (a stub); equal, gone with its carved parent
-rdlit HandMgr_Print.305 0x00559900 0x00559947 ico2/fumi/src/girl_act.c align=16 file=HandMgr_Print_305  # 3 strings
-text HandMgr_Speed.309 0x001734D8 0x001736B4 ico2/fumi/src/girl_act.c local file=HandMgr_Speed_309  # us-only (in girl_act.c's span; PAL order suggests HandMgr_Speed.309 (604 B in PAL)); named HandMgr_Speed.309 by callees, body alignment (provisional)
-lit4 HandMgr_Speed.309 0x00630E1C 0x00630E24 ico2/fumi/src/girl_act.c file=HandMgr_Speed_309  # 2 floats, measured from the base: the text loads them
-text GetBoyMode.313 0x001736B8 0x0017381C ico2/fumi/src/girl_act.c local file=GetBoyMode_313  # us-only (in girl_act.c's span; PAL order suggests GetBoyMode.313 (368 B in PAL)); named GetBoyMode.313 by body alignment (provisional)
-rdlit GetBoyMode.313 0x00559950 0x00559A5C ico2/fumi/src/girl_act.c align=16 file=GetBoyMode_313  # 1 jtbl
-text actGirlHand 0x00173820 0x0017429C ico2/fumi/src/girl_act.c lines=353  # us-only (in girl_act.c's span; PAL order suggests actGirlHand (2792 B in PAL)); named actGirlHand by callees, body alignment (provisional)
-lit4 actGirlHand 0x00630E24 0x00630E38 ico2/fumi/src/girl_act.c  # 5 floats, measured from the base: the text loads them
-sdlit actGirlHand 0x006324F0 0x00632500 ico2/fumi/src/girl_act.c  # 1 string, the function's two static floats and 1 pool word, measured from the base
-rdlit actGirlHand 0x00559A60 0x00559A6C ico2/fumi/src/girl_act.c  # 1 string, measured from the base
-text actGirlPulledReady 0x001742A0 0x001743EC ico2/fumi/src/girl_act.c lines=29  # us-only (in girl_act.c's span; body equals PAL actGirlPulledReady's with immediates and jump targets masked); named actGirlPulledReady by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actGirlPulledGo 0x001743F0 0x00174558 ico2/fumi/src/girl_act.c lines=33  # us-only (in girl_act.c's span; PAL order suggests actGirlPulledGo (444 B in PAL)); named actGirlPulledGo by callees (provisional)
-text actGirlDitch3mReady 0x00174558 0x0017463C ico2/fumi/src/girl_act.c lines=22  # us-only (in girl_act.c's span; body equals PAL actGirlDitch3mReady's with immediates and jump targets masked); named actGirlDitch3mReady by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actGirlReadyMove 0x00174640 0x00174774 ico2/fumi/src/girl_act.c lines=25  # us-only (in girl_act.c's span; PAL order suggests actGirlReadyMove (412 B in PAL)); named actGirlReadyMove by callees (provisional)
-text actGirlRescueDst 0x00174778 0x00174A44 ico2/fumi/src/girl_act.c lines=56  # us-only (in girl_act.c's span; body equals PAL actGirlRescueDst's with immediates and jump targets masked); named actGirlRescueDst by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actGirlSupportBGBegin 0x00174A48 0x00174BA0 ico2/fumi/src/girl_act.c lines=31  # us-only (in girl_act.c's span; body equals PAL actGirlSupportBGBegin's with immediates and jump targets masked); named actGirlSupportBGBegin by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actGirlStart 0x00174BA0 0x00174D78 ico2/fumi/src/girl_act.c lines=38  # us-only (in girl_act.c's span; PAL order suggests actGirlStart (480 B in PAL)); named actGirlStart by callees, body alignment (provisional)
-rdlit actGirlStart 0x00559B18 0x00559B29 ico2/fumi/src/girl_act.c  # 1 string, measured from the base
-text GirlAct_BoyAndMeCollisionMail 0x00174D78 0x00174F00 ico2/fumi/src/girl_act.c lines=33  # us-only (in girl_act.c's span; body equals PAL GirlAct_BoyAndMeCollisionMail's with immediates and jump targets masked); named GirlAct_BoyAndMeCollisionMail by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text IsGirlStatusEscortEnable 0x00174F00 0x00175094 ico2/fumi/src/girl_act.c lines=26  # us-only (in girl_act.c's span; PAL size and order suggest IsGirlStatusEscortEnable); named IsGirlStatusEscortEnable by PAL size and order, callees, body alignment (provisional)
-text func_00175098 0x00175098 0x001752D0 ico2/fumi/src/girl_act.c  # us-only; in girl_act.c's span; PAL order suggests actGirlHintPoint (556 B in PAL)
-rdlit func_00175098 0x00559B40 0x00559B50 ico2/fumi/src/girl_act.c  # 1 data, measured from the base
-text func_001752D0 0x001752D0 0x00175308 ico2/fumi/src/girl_act.c  # us-only; in girl_act.c's span; pairs with no PAL-only function there by size and order
-text FindGirlPullupFloorBoxGObj 0x00175308 0x0017534C ico2/fumi/src/girl_act.c lines=8  # us-only (in girl_act.c's span; body equals PAL FindGirlPullupFloorBoxGObj's with immediates and jump targets masked); named FindGirlPullupFloorBoxGObj by its body equals PAL's with immediates and jump targets masked, body alignment (provisional)
-text actGirlSupportGBBegin 0x00175350 0x00175420 ico2/fumi/src/girl_act.c lines=20  # us-only (in girl_act.c's span; body equals PAL actGirlSupportGBBegin's with immediates and jump targets masked); named actGirlSupportGBBegin by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actGirlSupportGBLoop 0x00175420 0x0017547C ico2/fumi/src/girl_act.c lines=9  # us-only (in girl_act.c's span; body equals PAL actGirlSupportGBLoop's with immediates and jump targets masked); named actGirlSupportGBLoop by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actGirlSupportGBEnd 0x00175480 0x001754AC ico2/fumi/src/girl_act.c lines=7  # us-only (in girl_act.c's span; body equals PAL actGirlSupportGBEnd's with immediates and jump targets masked); named actGirlSupportGBEnd by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actGirlHangG3M 0x001754B0 0x001754F4 ico2/fumi/src/girl_act.c lines=10  # us-only (in girl_act.c's span; body equals PAL actGirlHangG3M's with immediates and jump targets masked); named actGirlHangG3M by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actGirlDitch3mExec 0x001754F8 0x001755F8 ico2/fumi/src/girl_act.c lines=31  # us-only (in girl_act.c's span; body equals PAL actGirlDitch3mExec's with immediates and jump targets masked); named actGirlDitch3mExec by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit actGirlDitch3mExec 0x00559A70 0x00559AA0 ico2/fumi/src/girl_act.c align=16 def  # 1 data
-text actGirlStand 0x001755F8 0x0017563C ico2/fumi/src/girl_act.c lines=8  # us-only (in girl_act.c's span; PAL size and order suggest actGirlStand); named actGirlStand by PAL size and order, callees, body alignment (provisional)
-rdlit actGirlStand 0x00559AA0 0x00559AB4 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text actGirlWalk 0x00175640 0x00175684 ico2/fumi/src/girl_act.c lines=8  # us-only (in girl_act.c's span; PAL size and order suggest actGirlWalk); named actGirlWalk by PAL size and order, callees, body alignment (provisional)
-rdlit actGirlWalk 0x00559AB8 0x00559ACB ico2/fumi/src/girl_act.c def  # 1 string
-text actGirlRun 0x00175688 0x001756CC ico2/fumi/src/girl_act.c lines=8  # us-only (in girl_act.c's span; PAL size and order suggest actGirlRun); named actGirlRun by PAL size and order, callees, body alignment (provisional)
-rdlit actGirlRun 0x00559AD0 0x00559AE2 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text actGirlHang 0x001756D0 0x0017573C ico2/fumi/src/girl_act.c lines=25  # us-only (in girl_act.c's span; pairs with no PAL-only function there by size and order); named actGirlHang by a data table (provisional)
-text actGirlBHang 0x00175740 0x001757B8 ico2/fumi/src/girl_act.c  # us-only; in girl_act.c's span; pairs with no PAL-only function there by size and order; named actGirlBHang: act-mode-def BHANG's girl act; PAL actGirlBHang (provisional)
-text actGirlAttack 0x001757B8 0x001757FC ico2/fumi/src/girl_act.c lines=8  # ordinal; first difference at insn 12; imm:1; extent-equal
-rdlit actGirlAttack 0x00559B00 0x00559B15 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text actGirlBecall 0x00175800 0x001758F8 ico2/fumi/src/girl_act.c lines=11  # ordinal; first difference at insn 51; imm:1; extent-equal
-text actGirlBehanged 0x001758F8 0x0017597C ico2/fumi/src/girl_act.c lines=12  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before actGirlAttractAction
-text actGirlAttractAction 0x00175980 0x001759AC ico2/fumi/src/girl_act.c lines=7  # ordinal; first difference at insn 6; imm:1; extent-equal
-text actGirlHand50 0x001759B0 0x00175A54 ico2/fumi/src/girl_act.c lines=20  # us-only (in girl_act.c's span; body equals PAL actGirlHand50's with immediates and jump targets masked); named actGirlHand50 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit actGirlHand50 0x00559458 0x00559484 ico2/fumi/src/girl_act.c def  # 2 strings
-text afterGirlHand50 0x00175A58 0x00175A94 ico2/fumi/src/girl_act.c lines=6  # us-only (in girl_act.c's span; PAL size and order suggest afterGirlHand50); named afterGirlHand50 by PAL size and order, callees, body alignment (provisional)
-rdlit afterGirlHand50 0x00559440 0x00559451 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text actGirlHand100 0x00175A98 0x00175B14 ico2/fumi/src/girl_act.c lines=17  # us-only (in girl_act.c's span; PAL size and order suggest actGirlHand100); named actGirlHand100 by PAL size and order, callees, body alignment (provisional)
-rdlit actGirlHand100 0x005594A0 0x005594B6 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text afterGirlHand100 0x00175B18 0x00175B54 ico2/fumi/src/girl_act.c lines=6  # us-only (in girl_act.c's span; PAL size and order suggest afterGirlHand100); named afterGirlHand100 by PAL size and order, callees, body alignment (provisional)
-text actGirlHand200 0x00175B58 0x00175BD4 ico2/fumi/src/girl_act.c lines=17  # us-only (in girl_act.c's span; PAL size and order suggest actGirlHand200); named actGirlHand200 by PAL size and order, callees, body alignment (provisional)
-rdlit actGirlHand200 0x005594D0 0x005594E6 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text afterGirlHand200 0x00175BD8 0x00175C14 ico2/fumi/src/girl_act.c lines=6  # us-only (in girl_act.c's span; PAL size and order suggest afterGirlHand200); named afterGirlHand200 by PAL size and order, callees, body alignment (provisional)
-text NotNeedBackHand 0x00175C18 0x00175C6C ico2/fumi/src/girl_act.c lines=13  # us-only (in girl_act.c's span; PAL size and order suggest NotNeedBackHand); named NotNeedBackHand by PAL size and order, body alignment (provisional)
-text SetGirlDangerGObj 0x00175C70 0x00175C90 ico2/fumi/src/girl_act.c lines=7  # us-only (in girl_act.c's span; body equals PAL SetGirlDangerGObj's with immediates and jump targets masked); named SetGirlDangerGObj by its body equals PAL's with immediates and jump targets masked, body alignment (provisional)
-text ClearGirlDangerGObj 0x00175C90 0x00175CB0 ico2/fumi/src/girl_act.c lines=7  # us-only (in girl_act.c's span; body equals PAL ClearGirlDangerGObj's with immediates and jump targets masked); named ClearGirlDangerGObj by its body equals PAL's with immediates and jump targets masked, body alignment (provisional)
-text subGirlBrain_Idle 0x00175CB0 0x00175CDC ico2/fumi/src/girl_act.c lines=6  # us-only (in girl_act.c's span; PAL size and order suggest subGirlBrain_Idle); named subGirlBrain_Idle by PAL size and order, callees, body alignment (provisional)
-text subGirlBrain_Hesitate 0x00175CE0 0x00175D8C ico2/fumi/src/girl_act.c lines=14  # us-only (in girl_act.c's span; body equals PAL subGirlBrain_Hesitate's with immediates and jump targets masked); named subGirlBrain_Hesitate by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subGirlBrain_Becarry 0x00175D90 0x00175DBC ico2/fumi/src/girl_act.c lines=6  # us-only (in girl_act.c's span; PAL size and order suggest subGirlBrain_Becarry); named subGirlBrain_Becarry by PAL size and order, callees, body alignment (provisional)
-text subGirlBrain_Busy 0x00175DC0 0x00175EC8 ico2/fumi/src/girl_act.c lines=20  # us-only (in girl_act.c's span; body equals PAL subGirlBrain_Busy's with immediates and jump targets masked); named subGirlBrain_Busy by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subGirlBrain_DangerEnv 0x00175EC8 0x00175F5C ico2/fumi/src/girl_act.c lines=18  # us-only (in girl_act.c's span; PAL order suggests subGirlBrain_DangerEnv (176 B in PAL)); named subGirlBrain_DangerEnv by body alignment (provisional)
-text enemy_list_compare 0x00175F60 0x00175F7C ico2/fumi/src/girl_act.c local lines=5  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text ACTCheckCollis_SAFE 0x00175F80 0x001760F0 ico2/fumi/src/girl_act.c lines=58  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before afterGirlHand
-text afterGirlHand 0x001760F0 0x00176130 ico2/fumi/src/girl_act.c lines=8  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before afterGirlPulledGo
-rdlit afterGirlHand 0x005598F0 0x005598FC ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text afterGirlPulledGo 0x00176130 0x0017614C ico2/fumi/src/girl_act.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before actGirlJump
-text actGirlJump 0x00176150 0x00176194 ico2/fumi/src/girl_act.c lines=8  # ordinal; first difference at insn 12; imm:1; extent-equal
-rdlit actGirlJump 0x00559AE8 0x00559AFB ico2/fumi/src/girl_act.c def  # 1 string
-text afterGirlSupportBGBegin 0x00176198 0x001761B8 ico2/fumi/src/girl_act.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before isMustCheckCylinder
 text display_texture 0x00176200 0x00176394 ico2/fumi/src/jimaku.c local file=display_texture_jimaku lines=36  # ordinal; first difference at insn 4; imm:10; extent-equal
 sdlit display_texture 0x00632520 0x00632525 ico2/fumi/src/jimaku.c file=display_texture_jimaku  # 1 string
 text jimakuMgrNext 0x00176808 0x001769D0 ico2/fumi/src/jimaku.c local lines=45  # ordinal; first difference at insn 69; imm:2; extent-equal

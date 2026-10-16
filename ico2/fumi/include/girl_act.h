@@ -25,6 +25,7 @@ void actGirlStand(struct GObj *volatile self);
 void actGirlWalk(struct GObj *volatile self);
 void actGirlRun(struct GObj *volatile self);
 void actGirlHang(struct GObj *volatile self);
+void actGirlBHang(struct GObj *volatile self);
 void actGirlAttack(struct GObj *volatile self);
 void actGirlBecall(struct GObj *volatile self);
 void actGirlBehanged(struct GObj *volatile self);

@@ -165,7 +165,10 @@ typedef struct { /* field names derived */
     int w[6];
 } SlowrunRec; /* derived name */
 
-INCLUDE_ASM(ACTSetPositionNoFitting);
+void ACTSetPositionWithFitting(void *self, float *pos)
+{
+    SetDirectRootPosition(self, pos);
+}
 
 void ACTSetPositionNodeWithFitting(void *self, int node, float *pos, float t)
 {

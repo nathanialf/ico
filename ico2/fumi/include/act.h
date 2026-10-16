@@ -53,7 +53,7 @@ typedef struct { /* field names derived */
     int intrList;       /* 0x44, the first actIntrList row */
     int mail;           /* 0x48, ACTSendMailCorrect's mail */
     /* 0x4C, the mode's flag bits */
-    unsigned int carried : 1;  /* bit 0, the girl is carried */
+    unsigned int escort : 1;   /* bit 0, an escort status (IsGirlStatusEscortEnable) */
     unsigned int bit1 : 1;
     unsigned int bit2 : 1;
     unsigned int attractWait : 1; /* bit 3, the girl holds an attract turn 10 s */
@@ -66,7 +66,7 @@ typedef struct { /* field names derived */
     unsigned int bit10 : 1;
     unsigned int skipMarked : 1; /* bit 11, the flagged mail lists are skipped */
     unsigned int bit12 : 1;
-    unsigned int escort : 1; /* bit 13, an escort status */
+    unsigned int bit13 : 1;
     unsigned int bit14 : 1;
     unsigned int : 17;
 } ActModeRec; /* derived name */
