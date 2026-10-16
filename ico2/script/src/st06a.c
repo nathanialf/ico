@@ -24,9 +24,6 @@
 #include "main.h"
 #include "include_asm.h"
 
-/* the door's two checks, still in the base's words */
-void func_00226300(GObj *volatile self);
-void func_00226478(GObj *volatile self);
 static void actSt06aExitGirlChk(GObj *volatile self);
 static void actSt06aKyomiOffChk(GObj *volatile self);
 
@@ -55,7 +52,7 @@ static ActMail door_up_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail door_upchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail door_dnchk_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail door_downchk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail shutter_main_mes[2] = {{376, actSt06aShutterSwitch}, {396}}; /* derived name */
 
@@ -81,7 +78,7 @@ static ActMail box_event2_out_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail box_event2_inchk_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail box_event2_out_chk_mes[2] = {{397}, {396}}; /* derived name */
+static ActMail box_event2_outchk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail way_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -217,22 +214,88 @@ void actSt06aDoor(GObj *volatile self)
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
         stage_SetAnimation(95, 0, 0);
         _ACTWait(60);
-        door_down_mes[0].func = func_00226478;
+        door_down_mes[0].func = actSt06aDoorDownChk;
         act->mail = door_down_mes;
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
     } else {
         stage_SetAnimation(94, 0, 0);
-        door_up_mes[0].func = func_00226300;
+        door_up_mes[0].func = actSt06aDoorUpChk;
         act->mail = door_up_mes;
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
     }
 }
 
-INCLUDE_ASM(func_00226300);
+void actSt06aDoorUpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
 
-INCLUDE_ASM(func_00226478);
+    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt06aDoorUpEffect, 21);
+
+    scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
+
+    stage_SetAnimation(94, 1, 0);
+
+    buf[0] = suimonSubPos.d[0];
+    buf[1] = suimonSubPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(94) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door_upchk_mes[0].func = actSt06aDoorDownChk;
+    sub->mail = door_upchk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt06aDoorDownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt06aDoorDownEffect, 21);
+
+    scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
+
+    stage_SetAnimation(95, 1, 0);
+
+    buf[0] = suimonSubPos.d[0];
+    buf[1] = suimonSubPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(95) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door_downchk_mes[0].func = actSt06aDoorUpChk;
+    sub->mail = door_downchk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt06aShutterOpen(GObj *volatile self)
 {
@@ -822,7 +885,21 @@ void actSt06aBoxEvent2InChk(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt06aBoxEvent2OutChk);
+void actSt06aBoxEvent2OutChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while (scpTriggerFloorAttr(scpSearchGobj(1643), 0x2000000) != 0) {
+        _ACTWait(1);
+    }
+
+    gflagOff(99);
+
+    box_event2_outchk_mes[0].func = actSt06aBoxEvent2InChk;
+    sub->mail = box_event2_outchk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt06aWayOnChk);
 

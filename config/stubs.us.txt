@@ -761,11 +761,6 @@ text actSt05dDoor2DownChk 0x002255E0 0x00225740 ico2/script/src/st05d.c lines=34
 text actSt05dEne 0x00225740 0x002257B8 ico2/script/src/st05d.c  # us-only; after st05c.c's span; PAL order suggests actSt05dEne (224 B in PAL); named actSt05dEne: addresses ene_mes, PAL actSt05dEne's (provisional)
 text actSt05dEnemy1 0x002257B8 0x00225850 ico2/script/src/st05d.c lines=20  # us-only (after st05c.c's span; PAL order suggests actSt05dEnemy1 (216 B in PAL)); named actSt05dEnemy1 by callees, body alignment (provisional)
 text actSt05dEnemy2 0x00225850 0x002258E0 ico2/script/src/st05d.c lines=15  # us-only (after st05c.c's span; body equals PAL actSt05dEnemy2's with immediates and jump targets masked); named actSt05dEnemy2 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text func_00226300 0x00226300 0x00226478 ico2/script/src/st06a.c  # us-only; after st05d.c's span; pairs with no PAL-only function there by size and order
-lit4 func_00226300 0x00631604 0x0063160C ico2/script/src/st06a.c  # 2 floats, measured from the base: the text loads them
-text func_00226478 0x00226478 0x002265F0 ico2/script/src/st06a.c  # us-only; after st05d.c's span; pairs with no PAL-only function there by size and order
-lit4 func_00226478 0x0063160C 0x00631614 ico2/script/src/st06a.c  # 2 floats, measured from the base: the text loads them
-text actSt06aBoxEvent2OutChk 0x00227A48 0x00227AE0 ico2/script/src/st06a.c lines=15  # us-only (after st06a.c's span; PAL size and order suggest actSt06aBoxEvent2OutChk); named actSt06aBoxEvent2OutChk by PAL size and order, callees, body alignment (provisional)
 text actSt06aWayOnChk 0x00227AE0 0x00227BA4 ico2/script/src/st06a.c lines=19  # us-only (after st06a.c's span; PAL order suggests actSt06aWayOnChk (172 B in PAL)); named actSt06aWayOnChk by callees, body alignment (provisional)
 text actSt06aWayOffChk 0x00227BA8 0x00227C70 ico2/script/src/st06a.c lines=19  # us-only (after st06a.c's span; PAL order suggests actSt06aWayOffChk (176 B in PAL)); named actSt06aWayOffChk by callees, body alignment (provisional)
 text actSt06aWallWayOffChk 0x00227D18 0x00227DC0 ico2/script/src/st06a.c lines=17  # us-only (after st06a.c's span; PAL size and order suggest actSt06aWallWayOffChk); named actSt06aWallWayOffChk by PAL size and order, callees, body alignment (provisional)
