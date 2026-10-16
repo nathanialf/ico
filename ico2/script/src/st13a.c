@@ -15,9 +15,7 @@
 #include <libvu0.h>
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
-static void actSt13aElevDownSub(GObj *volatile self);
 void actSt13aElevDownChk(GObj *volatile self);
 
 /* .data: actor mail packets. */
@@ -63,28 +61,303 @@ int sekizo_13a = 0;
 
 unsigned char sekizo_13a_vol = 0;
 
-INCLUDE_ASM(func_0022EF78);
+void actSt13aElevUp(GObj *volatile self)
+{
+    scpAdpcmPlayRequestFunc(75, &st13a_up, 0, 1, 0);
 
-INCLUDE_ASM(actSt13aElevDown);
+    preload(15);
 
-INCLUDE_ASM(actSt13aElevDownSub);
+    _ACTWait(60);
+    while (st13a_up == 0) {
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(actSt13aSekizoChk);
+    AdpcmPlay(st13a_up->stream);
 
-INCLUDE_ASM(actSt13aElev);
+    stage_SetAnimation(152, 1, 0);
+    stage_SetAnimation(153, 1, 0);
 
-INCLUDE_ASM(actSt13aSekizo);
+    while (stage_CheckAnimationFrame(152, 86, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
 
-INCLUDE_ASM(actSt13aCheck);
+    while (stage_CheckAnimationFrame(152, 140, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    st13a_yure = iosPadActRequest(boyPad, 9);
+    st13a_yure_vol = 128;
+    iosPadActVolumeSet(st13a_yure, 128);
 
-INCLUDE_ASM(actSt13aChain);
+    while (stage_CheckAnimationFrame(152, 200, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    st13a_yure_vol = 64;
 
-INCLUDE_ASM(actSt13aElevMain);
+    while (stage_CheckAnimationFrame(152, 380, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt13aElevSwitch);
+    iosPadActStop(st13a_yure);
+    gflagOn(296);
+    RequestStageChange(15, boyGObj, 0, 0.025f, 8.0f);
+}
 
-INCLUDE_ASM(actSt13aCheckChk);
+void actSt13aElevDown(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-INCLUDE_ASM(actSt13aChainOK);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt13aChainNG);
+    if (gflagChk(15) != 0) {
+        scpFadeOut(255.0f, 0, 0, 0);
+        stage_SetAnimation(152, 0, 0);
+        lt_switch_layout(51);
+        scpBoyControlReadDisable = 1;
+        scpPlayStart(boyGObj);
+        scpAdpcmPlayRequestFunc(78, &st13a_down, 1, 1, 0);
+        _ACTWait(10);
+        stage_SetAnimation(152, 0, 451);
+
+        elevDown_mes[0].func = actSt13aElevDownChk;
+        act->mail = elevDown_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt13aElevDownChk(GObj *volatile self)
+{
+    while (st13a_down == 0) {
+        _ACTWait(1);
+    }
+
+    AdpcmPlay(st13a_down->stream);
+    scpFadeIn(6.0f);
+
+    stage_SetAnimation(152, 1, 451);
+    stage_SetAnimation(154, 1, 0);
+
+    scpPlayPosSet(boyGObj, -4871.0f, -2800.0f, 2699.0f);
+
+    st13a_yure = iosPadActRequest(boyPad, 9);
+    st13a_yure_vol = 128;
+    iosPadActVolumeSet(st13a_yure, 128);
+
+    while (stage_CheckAnimationFrame(152, 850, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+    iosPadActStop(st13a_yure);
+
+    while (stage_CheckAnimationFinish(152) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+    gflagOff(15);
+}
+
+void actSt13aSekizoChk(GObj *volatile self)
+{
+    float d[4];
+
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 || scpGameStat_BoyWeaponkind() != 5 ||
+           scpActStatusDeathFall(boyGObj) != 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    scpAdpcmPlayRequestFunc(18, &sekizo13a, 1, 1, 1);
+    while (sekizo13a == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(155, 1, 0);
+
+    sekizo_13a = iosPadActRequest(boyPad, 9);
+    sekizo_13a_vol = 128;
+    iosPadActVolumeSet(sekizo_13a, 128);
+
+    scpPlayStart(boyGObj);
+    scpPlayPosSet(boyGObj, -3688.0f, 3527.0f, 2502.0f);
+    scpPlayMot(boyGObj, 0);
+    _ACTWait(1);
+
+    sceVu0SubVector(d, test_CURRENTROOT(self), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, d);
+
+    scpSekizouCheckPoint();
+
+    scpPlayMot(boyGObj, 246);
+    scpPlayWaitMotEnd(boyGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+
+    gflagOn(297);
+
+    while (stage_CheckAnimationFrame(155, 151, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActStop(sekizo_13a);
+
+    while (stage_CheckAnimationFinish(155) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
+
+void actSt13aElev(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    ScpCallCameraSetTarget(4729.0f, 2715.0f, -2504.0f);
+
+    if (gflagChk(296) == 0) {
+        stage_SetAnimation(152, 0, 0);
+
+        elev_mes[0].func = actSt13aElevMain;
+        act->mail = elev_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt13aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(297) == 0) {
+        stage_SetAnimation(155, 0, 0);
+
+        sekizo_mes[0].func = actSt13aSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(155, 0, -1);
+    }
+}
+
+void actSt13aCheck(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(298) == 0) {
+        check_mes[0].func = actSt13aCheckChk;
+        act->mail = check_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt13aChain(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(299) == 0) {
+        chainNg_mes[0].func = actSt13aChainNG;
+        act->mail = chainNg_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        chainOk_mes[0].func = actSt13aChainOK;
+        act->mail = chainOk_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt13aElevMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = elevMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+void actSt13aElevSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    elevSwitch_mes[0].func = actSt13aElevUp;
+    sub->mail = elevSwitch_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt13aCheckChk(GObj *volatile self)
+{
+    _ACTWait(1);
+
+    CheckPoint();
+    gflagOn(298);
+}
+
+void actSt13aChainOK(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while (scpTriggerBall(self, scpSearchGobj(1900), 200.0f) != 0) {
+        _ACTWait(1);
+    }
+
+    EnableChainHang(scpSearchGobj(1899));
+    gflagOff(299);
+
+    chainOK_mes[0].func = actSt13aChainNG;
+    sub->mail = chainOK_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt13aChainNG(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while (scpTriggerBall(self, scpSearchGobj(1900), 200.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    UnableChainHang(scpSearchGobj(1899));
+    gflagOn(299);
+
+    chainNG_mes[0].func = actSt13aChainOK;
+    sub->mail = chainNG_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}

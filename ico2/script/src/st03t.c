@@ -76,31 +76,354 @@ void actSt03tSwitchL(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt03tSwitchLChk);
+void actSt03tSwitchLChk(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    int i;
 
-INCLUDE_ASM(actSt03tSwitchLUpChk);
+    i = 0;
+    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
+        if (scpTriggerFloorAttrTargetMan(self, 0x1000000) != 0) {
+            i++;
+        } else {
+            i = 0;
+        }
+        _ACTWait(1);
+    }
 
-INCLUDE_ASM(actSt03tSwitchR);
+    stage_SetAnimation(329, 1, 0);
+    soundSeDefPlay(1196, 0, 0, 1);
 
-INCLUDE_ASM(actSt03tSwitchRChk);
+    while (stage_CheckAnimationFrame(329, 45, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt03tSwitchRUpChk);
+    gflagOn(80);
 
-INCLUDE_ASM(actSt03tBoxA);
+    stage_SetAnimation(331, 1, 0);
 
-INCLUDE_ASM(actSt03tBoxB);
+    SetWayGroupActive(7, 1);
 
-INCLUDE_ASM(actSt03tInit);
+    gflagOn(82);
 
-INCLUDE_ASM(actSt03tGirlCam);
+    while (stage_CheckAnimationFrame(331, 75, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt03tSekizo);
+    soundSeDefPlay(1194, 0, 0, 1);
 
-INCLUDE_ASM(actSt03tWay);
+    while (stage_CheckAnimationFrame(331, 90, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt03tEne);
+    soundSeDefPlay(1195, 0, 0, 1);
 
-INCLUDE_ASM(actSt03tGirlPos);
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFinish(331) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    switchLChk_mes[0].func = actSt03tSwitchLUpChk;
+    act->mail = switchLChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt03tSwitchLUpChk(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(60);
+
+    gflagOff(80);
+
+    stage_SetAnimation(329, 1, 46);
+    soundSeDefPlay(1196, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(329, 90, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetAnimation(332, 1, 0);
+
+    SetWayGroupActive(7, 0);
+
+    soundSeDefPlay(1194, 0, 0, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1195, 0, 0, 1);
+
+    SetCameraFlag_LwsCutBack();
+
+    while (stage_CheckAnimationFrame(332, 120, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    switchLUpChk_mes[0].func = actSt03tSwitchLChk;
+    act->mail = switchLUpChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt03tSwitchR(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(81) == 0) {
+        stage_SetAnimation(330, 0, 0);
+        stage_SetAnimation(333, 0, 0);
+
+        switchR_mes[0].func = actSt03tSwitchRChk;
+        act->mail = switchR_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(330, 0, 45);
+        stage_SetAnimation(333, 0, -1);
+
+        switchRUp_mes[0].func = actSt03tSwitchRUpChk;
+        act->mail = switchRUp_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt03tSwitchRChk(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    int i;
+
+    i = 0;
+    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
+        if (scpTriggerFloorAttrTargetMan(self, 0x2000000) != 0) {
+            i++;
+        } else {
+            i = 0;
+        }
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(330, 1, 0);
+    soundSeDefPlay(1196, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(330, 45, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetAnimation(333, 1, 0);
+
+    SetWayGroupActive(5, 1);
+
+    gflagOn(82);
+
+    soundSeDefPlay(1194, 0, 0, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1195, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(333) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    gflagOn(81);
+
+    switchRChk_mes[0].func = actSt03tSwitchRUpChk;
+    act->mail = switchRChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt03tSwitchRUpChk(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x2000000) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(((60 - systemStatus[0] * 10) / systemStatus[1]) * 10);
+
+    gflagOff(81);
+
+    stage_SetAnimation(330, 1, 46);
+    soundSeDefPlay(1196, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(330, 90, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    stage_SetAnimation(334, 1, 0);
+
+    SetWayGroupActive(5, 0);
+
+    soundSeDefPlay(1194, 0, 0, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1195, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(334) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    switchRUpChk_mes[0].func = actSt03tSwitchRChk;
+    act->mail = switchRUpChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt03tBoxA(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(272) == 0) {
+        scpSearchGobj(806)->active = 0;
+    } else {
+        scpSearchGobj(793)->active = 0;
+        scpSearchGobj(804)->active = 0;
+        scpSearchGobj(806)->active = 1;
+
+        scpTransGObj(scpSearchGobj(806), 0.0f, -200.0f, 0.0f);
+        _ACTWait(1);
+        ReInitBoxGeo(scpSearchGobj(806));
+    }
+}
+
+void actSt03tBoxB(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(273) == 0) {
+        scpSearchGobj(807)->active = 0;
+    } else {
+        scpSearchGobj(794)->active = 0;
+        scpSearchGobj(805)->active = 0;
+        scpSearchGobj(807)->active = 1;
+
+        gflagOn(89);
+
+        scpTransGObj(scpSearchGobj(807), 0.0f, -400.0f, 0.0f);
+        _ACTWait(1);
+        ReInitBoxGeo(scpSearchGobj(807));
+    }
+}
+
+void actSt03tInit(void)
+{
+    if (gflagChk(82) != 0) {
+        SetWayGroupActive(7, 1);
+    } else {
+        SetWayGroupActive(7, 0);
+    }
+
+    if (gflagChk(83) != 0) {
+        SetWayGroupActive(5, 1);
+    } else {
+        SetWayGroupActive(5, 0);
+    }
+}
+
+void actSt03tGirlCam(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    girlCam_mes[0].func = actSt03tGirlCamStartChk;
+    act->mail = girlCam_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt03tSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 86, 67, 0, 18, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
+}
+
+void actSt03tWay(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(91) == 0) {
+        wayOn_mes[0].func = actSt03tWayOnChk;
+        act->mail = wayOn_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        wayOff_mes[0].func = actSt03tWayOffChk;
+        act->mail = wayOff_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt03tEne(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(93) == 0) {
+        ene_mes[0].func = actSt03tEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt03tGene(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    Generator_Mask(self);
+
+    Generator_Mask(scpSearchGobj(818));
+
+    while (gflagChk(94) == 0) {
+        _ACTWait(1);
+    }
+
+    Generator_MaskOff(self);
+
+    Generator_Call(self);
+    _ACTWait(20);
+    Generator_Call(self);
+
+    Generator_Call(scpSearchGobj(818));
+}
 
 void actSt03tGirlCamEvent(int x)
 {
