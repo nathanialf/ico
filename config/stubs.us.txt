@@ -198,8 +198,5 @@ text getMotionGeometry 0x001E3030 0x001E39E4 ico2/sugipon/src/motionOrientManage
 lit4 getMotionGeometry 0x0063137C 0x00631388 ico2/sugipon/src/motionOrientManager.c  # 3 floats
 sdlit getMotionGeometry 0x0063352C 0x00633530 ico2/sugipon/src/motionOrientManager.c  # 1 word
 text actSt03tGirlCamEndChk 0x00213F60 0x0021402C ico2/script/src/st03t.c lines=19  # ordinal; first difference at insn 23; length:+2; extent-differs
-text actSt06aWayOnChk 0x00227AE0 0x00227BA4 ico2/script/src/st06a.c lines=19  # us-only (after st06a.c's span; PAL order suggests actSt06aWayOnChk (172 B in PAL)); named actSt06aWayOnChk by callees, body alignment (provisional)
-text actSt06aWayOffChk 0x00227BA8 0x00227C70 ico2/script/src/st06a.c lines=19  # us-only (after st06a.c's span; PAL order suggests actSt06aWayOffChk (176 B in PAL)); named actSt06aWayOffChk by callees, body alignment (provisional)
-text actSt06aWallWayOffChk 0x00227D18 0x00227DC0 ico2/script/src/st06a.c lines=17  # us-only (after st06a.c's span; PAL size and order suggest actSt06aWallWayOffChk); named actSt06aWallWayOffChk by PAL size and order, callees, body alignment (provisional)
 text actSt13cGirlCarryChk 0x002335E0 0x002336E0 ico2/script/src/st13c.c lines=32  # us-only (in st13c.c's span; PAL order suggests actSt13cGirlCarryChk (372 B in PAL)); named actSt13cGirlCarryChk by callees (provisional)
 text actSt18aDoorChk 0x00236340 0x00236478 ico2/script/src/st18a.c lines=53  # us-only (after st17b.c's span; PAL order suggests actSt18aDoorChk (452 B in PAL)); named actSt18aDoorChk by callees (provisional)
