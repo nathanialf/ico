@@ -173,7 +173,6 @@ text actCommonBecarry 0x0015C1F0 0x0015C7C4 ico2/fumi/src/commonact.c  # us-only
 lit4 actCommonBecarry 0x00630CBC 0x00630CC0 ico2/fumi/src/commonact.c  # 1 float, measured from the base: the text loads them
 sdlit actCommonBecarry 0x00632320 0x00632326 ico2/fumi/src/commonact.c  # 1 string, measured from the base
 rdlit actCommonBecarry 0x00558D90 0x00558DA3 ico2/fumi/src/commonact.c  # 1 string, measured from the base
-text _ACTMotDirSmzDirect 0x0015D358 0x0015D3BC ico2/fumi/src/commonact.c lines=10  # us-only (in commonact.c's span; PAL order suggests ACTAcceptMail (84 B in PAL)); named _ACTMotDirSmzDirect by call sites (provisional)
 text Battle_isCurrentStatus 0x001626D0 0x00162AC4 ico2/fumi/src/enemy_act.c local lines=48  # us-only (in enemy_act.c's span; PAL order suggests Battle_isCurrentStatus (812 B in PAL)); named Battle_isCurrentStatus by callees, body alignment (provisional)
 lit4 Battle_isCurrentStatus 0x00630D20 0x00630D30 ico2/fumi/src/enemy_act.c  # 4 floats, measured from the base: the text loads them
 rdlit Battle_isCurrentStatus 0x00559048 0x00559060 ico2/fumi/src/enemy_act.c  # 3 doubles, measured from the base

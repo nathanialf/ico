@@ -3264,6 +3264,19 @@ typedef struct { /* field names derived */
     int coll;
 } BecSub; /* derived name */
 
+/* This build turns over the motion's dirFrames alone; PAL's girl-control
+   arm (girlDirFrames) is not in it. */
+inline int _ACTMotDirSmzDirect(GObj *self, float *dir)
+{
+    Act *s = GOBJ_ACT(self);
+
+    s->dir[0] = dir[0];
+    s->dir[1] = dir[1];
+    s->dir[2] = dir[2];
+    return SetMotionDirectionSmooze(self, dir,
+                                    (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
+}
+
 inline void WithMailFunc_Idling(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
@@ -4041,5 +4054,3 @@ inline void afterCommonTruckLever(GObj *volatile self)
     char *g = (char *)self;
     SetSwitchState(GOBJ_ACT(g)->env.pullObj, 0);
 }
-
-INCLUDE_ASM(_ACTMotDirSmzDirect);
