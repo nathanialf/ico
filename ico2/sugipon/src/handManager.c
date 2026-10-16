@@ -9,15 +9,100 @@
 #include "Matrix.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
-#include "include_asm.h"
 
 static void connectToTarget(struct GObj *obj, HandRec *hw, int na, int nb, int nc);
 
 /* getBone is defined as a nested function inside connectToTarget below. */
 
-INCLUDE_ASM(getBone_6);
+static void connectToTarget(GObj *obj, HandRec *hw, int na, int nb, int nc)
+{
+    /* getBone reads connectToTarget's frame through the static chain, which
+     * its prologue saves at 0(sp). */
+    void getBone(float *out, GObj *o)
+    {
+        Sub15C *sub = GOBJ_SUB(o);
+        float scale = sub->nodes->scale[0];
+        SkelNode *nodes = sub->skel;
+        float a;
+        float b;
+        float c;
 
-INCLUDE_ASM(connectToTarget);
+        a = nodes[nodes[GetSkeltonFocusNode(o, 19)].child].pos[0];
+        if (a < 0.0f) {
+            a = -a;
+        }
+        a *= scale;
+        out[0] = a;
+
+        a = nodes[nodes[GetSkeltonFocusNode(o, 20)].child].pos[0];
+        if (a < 0.0f) {
+            a = -a;
+        }
+        out[1] = a;
+
+        a = nodes[nodes[GetSkeltonFocusNode(o, 22)].child].pos[0];
+        b = out[1];
+        if (a < 0.0f) {
+            c = b - a;
+        } else {
+            c = b + a;
+        }
+        c *= scale;
+        out[1] = c;
+    }
+    float b0[4];
+    float b1[4];
+    float d[4];
+    float n[4];
+    float ax[4];
+    float u[4];
+    float q[4];
+    float m[16];
+    float v[4];
+    GObj *tgt;
+    float sa;
+    float sb;
+    float len;
+
+    tgt = hw->obj;
+    getBone(b0, obj);
+    getBone(b1, tgt);
+    sa = b0[0] + b0[1];
+    sb = b1[0] + b1[1];
+    _SubVector(d, (char *)GOBJ_SUB(obj)->nodeMtx + (na << 6) + 0x30,
+               (char *)GOBJ_SUB(tgt)->nodeMtx + (nc << 6) + 0x30);
+    len = VectorLength(d);
+    CopyVector(n, d);
+    n[1] = 0.0f;
+    _NormalizeVector(n, n);
+    _OuterProduct(ax, n, YUnitVector);
+    if (sa + sb < len) {
+        _SubVector(u, (char *)GOBJ_SUB(tgt)->nodeMtx + (nb << 6) + 0x30,
+                   (char *)GOBJ_SUB(obj)->nodeMtx + (na << 6) + 0x30);
+        _NormalizeVector(u, u);
+        _ScaleVector(u, u, sb);
+        _SubVector(hw->ikDir, (char *)GOBJ_SUB(tgt)->nodeMtx + (nb << 6) + 0x30, u);
+    } else {
+        float ex = (sa + sb - len) * 0.0f;
+        float l = len - ex * 0.0f;
+        float ll = l * l;
+        float s = sa - ex * 0.5f;
+        float t = sb - ex * 0.5f;
+        float ss = s * s;
+        float tt = t * t;
+        float l2 = l + l;
+
+        sa = s;
+        SetQuaternionByAxisRotateV(q, GetTableArcCos((ll + ss - tt) / (l2 * sa)), ax);
+        GetMatrixFromQuaternion(m, q);
+        _SubVector(v, (char *)GOBJ_SUB(tgt)->nodeMtx + (nb << 6) + 0x30,
+                   (char *)GOBJ_SUB(obj)->nodeMtx + (na << 6) + 0x30);
+        _NormalizeVector(v, v);
+        _ScaleVector(v, v, sa);
+        _ApplyMatrix(v, m, v);
+        _AddVector(hw->ikDir, (char *)GOBJ_SUB(obj)->nodeMtx + (na << 6) + 0x30, v);
+    }
+}
 
 static inline void SetHandQuaternion(HandRec *hw, char *vec, float *ref) /* derived name */
 {
@@ -69,11 +154,45 @@ static inline int PutHandOnLadder(HandRec *hw, int node) /* derived name */
     if (hw->ikReached == 0) {
         return 0;
     }
-    ExecuteSEPackage(hw->obj, 102);
+    ExecuteSEPackage(hw->obj, 97);
     return 1;
 }
 
-INCLUDE_ASM(_handManager);
+static float _handManager(GObj *obj, HandRec *hw, char *vec, float *ref, int node)
+{
+    switch (hw->mode) {
+    case 2:
+        if (SetHandOnWall(obj, hw, vec, ref, node) != 0) {
+            hw->ikMode = 2;
+        }
+        break;
+    case 3:
+        FollowHandMatrix(hw, vec, ref);
+        hw->ikMode = 2;
+        break;
+    case 6:
+        PutHandOnLadder(hw, GetSkeltonFocusNode(obj, 6));
+        if (hw->ikFlag != 0) {
+            hw->ikRate = 0.5f;
+            hw->ikLock = 1;
+        }
+        hw->ikMode = 1;
+        break;
+    case 5:
+        connectToTarget(obj, hw, node, GetSkeltonFocusNode(obj, 19), GetSkeltonFocusNode(obj, 19));
+        hw->ikMode = 1;
+        break;
+    case 1:
+        _ApplyMatrix(hw->ikDir, (char *)GOBJ_SUB(hw->obj)->nodeMtx + (hw->node << 6), hw->pos);
+        if (hw->ikReached != 0) {
+            hw->ikRate = 0.5f;
+            hw->ikLock = 1;
+        }
+        hw->ikMode = 1;
+        break;
+    }
+    return 1.0f;
+}
 
 /* not from motionOrientManager.h, which reaches ico2/fumi's files through
    typedef.h, where commonact.c declares the table char [] */
@@ -91,4 +210,22 @@ static inline void ResetHandTarget(GObj *obj, int off) /* derived name */
     ((IntFloat *)(h + 0x50))->f = GOBJ_SUB(obj)->root.handRate;
 }
 
-INCLUDE_ASM(HandManager);
+void HandManager(GObj *obj)
+{
+    float t = 1.0f;
+
+    if (debug_now_motion_viewer == 0) {
+        ResetHandTarget(obj, 0x310);
+        ResetHandTarget(obj, 0x2B0);
+        if (GOBJ_SUB(obj)->root.handIK != 0) {
+            const MotionDef *rec = &motionKind[GOBJ_SUB(obj)->ctrl.motion];
+            _handManager(obj, &GOBJ_SUB(obj)->root.hand0,
+                         motionIKEffKind + ((rec->modeBits.word >> 4) & 0xF0), XUnitVector,
+                         GetSkeltonFocusNode(obj, 19));
+            t = _handManager(obj, &GOBJ_SUB(obj)->root.hand1,
+                             motionIKEffKind + ((rec->modeBits.word >> 8) & 0xF0), XUnitVector,
+                             GetSkeltonFocusNode(obj, 3));
+        }
+        GOBJ_SUB(obj)->root.twistRate += (t - GOBJ_SUB(obj)->root.twistRate) * 0.1f;
+    }
+}

@@ -147,11 +147,6 @@
 # .c.inc, and their row gives in=<file.c.inc>; the .c.inc includes
 # include_asm.h itself.
 
-text EntryDelayFree 0x00102558 0x001025E8 ico2/sugipon/src/delayFreeManager.c lines=9  # ordinal; first difference at insn 0; length:-1; extent-differs
-rdlit EntryDelayFree 0x00553A78 0x00553ACF ico2/sugipon/src/delayFreeManager.c  # 2 strings
-sdlit EntryDelayFree 0x00631B28 0x00631B2A ico2/sugipon/src/delayFreeManager.c  # 1 string
-text InitDelayFree 0x001025E8 0x00102680 ico2/sugipon/src/delayFreeManager.c lines=8  # ordinal; first difference at insn 1; imm:6; extent-equal
-text ExecDelayFree 0x00102680 0x0010278C ico2/sugipon/src/delayFreeManager.c lines=9  # ordinal; first difference at insn 2; length:+3; extent-differs
 text prim_DispParticle 0x0011DD08 0x0011DEDC ico2/seki/src/Primitive.c lines=31  # ordinal; first difference at insn 28; imm:2; extent-equal
 rdlit prim_DispParticle 0x00555578 0x005555B3 ico2/seki/src/Primitive.c  # 1 string
 text reg_dispCObj 0x00120B28 0x00120DF8 ico2/seki/src/RegistPacket.c local lines=47  # ordinal; first difference at insn 14; imm:3; extent-equal
@@ -230,23 +225,12 @@ text subGirlControl 0x00171E48 0x001725C4 ico2/fumi/src/girl_act.c lines=230  # 
 lit4 subGirlControl 0x00630DE0 0x00630E14 ico2/fumi/src/girl_act.c  # 13 floats, measured from the base: the text loads them
 rdlit subGirlControl 0x00559770 0x00559888 ico2/fumi/src/girl_act.c  # 5 strings, 1 jump table, measured from the base
 sdlit subGirlControl 0x006324C8 0x006324E7 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base: no code reads them, the compiled-out debug code's
-text display_texture 0x00176200 0x00176394 ico2/fumi/src/jimaku.c local file=display_texture_jimaku lines=36  # ordinal; first difference at insn 4; imm:10; extent-equal
-sdlit display_texture 0x00632520 0x00632525 ico2/fumi/src/jimaku.c file=display_texture_jimaku  # 1 string
-text jimakuMgrNext 0x00176808 0x001769D0 ico2/fumi/src/jimaku.c local lines=45  # ordinal; first difference at insn 69; imm:2; extent-equal
-rdlit jimakuMgrNext 0x00559B68 0x00559B95 ico2/fumi/src/jimaku.c  # 3 strings
-sdlit jimakuMgrNext 0x00632528 0x00632544 ico2/fumi/src/jimaku.c  # 1 data
-text jimakuDisp 0x00176BC8 0x00176CE4 ico2/fumi/src/jimaku.c lines=37  # ordinal; first difference at insn 53; imm:2; extent-equal
 text func_00180F40 0x00180F40 0x001811CC ico2/omori/src/attackhit.c  # us-only; after warpGirl.c's span; PAL order suggests inner_check (524 B in PAL)
 text CommonAttackCenter 0x00181BC8 0x00181BF8 ico2/omori/src/attackhit.c lines=6  # us-only (after warpGirl.c's span; body equals PAL CommonAttackCenter's with immediates and jump targets masked); named CommonAttackCenter by its body equals PAL's with immediates and jump targets masked, call sites, body alignment (provisional)
 text brainStatusDefaultSet 0x00182000 0x00182154 ico2/omori/src/brain.c lines=12  # us-only (in brain.c's span; PAL order suggests brainStatusDefaultSet (328 B in PAL)); named brainStatusDefaultSet by call sites, body alignment (provisional)
 text func_00182758 0x00182758 0x0018285C ico2/omori/src/brain.c  # us-only; in brain.c's span; pairs with no PAL-only function there by size and order
 text SetCameraMatrix_Ico2 0x00189D68 0x0018A3FC ico2/omori/src/camera-ico2.c lines=88  # us-only (in camera-ico2.c's span; PAL order suggests SetCameraMatrix_Ico2 (1420 B in PAL)); named SetCameraMatrix_Ico2 by call sites, callees, body alignment (provisional)
 lit4 SetCameraMatrix_Ico2 0x00630EDC 0x00630EF0 ico2/omori/src/camera-ico2.c  # 5 floats, measured from the base: the text loads them
-text InitMailAdditionalData 0x00194FE8 0x00194FF4 ico2/omori/src/mail-add-data.c lines=5  # us-only (after hand-camera.c's span; PAL size and order suggest InitMailAdditionalData); named InitMailAdditionalData by PAL size and order, body alignment (provisional)
-text ActSendMail_WithAdditionalData 0x00194FF8 0x001950F8 ico2/omori/src/mail-add-data.c lines=19  # us-only (after hand-camera.c's span; body equals PAL ActSendMail_WithAdditionalData's with immediates and jump targets masked); named ActSendMail_WithAdditionalData by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
-rdlit ActSendMail_WithAdditionalData 0x0055AF30 0x0055AF60 ico2/omori/src/mail-add-data.c def  # 1 string
-text GetMailAdditionalData 0x001950F8 0x0019519C ico2/omori/src/mail-add-data.c lines=14  # us-only (after hand-camera.c's span; body equals PAL GetMailAdditionalData's with immediates and jump targets masked); named GetMailAdditionalData by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text ClearMailAdditionalData 0x001951A0 0x00195208 ico2/omori/src/mail-add-data.c lines=7  # us-only (after hand-camera.c's span; body equals PAL ClearMailAdditionalData's with immediates and jump targets masked); named ClearMailAdditionalData by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text func_0019D9C8 0x0019D9C8 0x0019D9D0 ico2/ito/mpeg/mv_main.c  # us-only; after mv_main.c's span; pairs with no PAL-only function there by size and order
 text readBufDelete 0x0019D9D0 0x0019D9D8 ico2/ito/mpeg/mv_readbuf.c lines=1  # us-only (after mv_main.c's span; pairs with no PAL-only function there by size and order); named readBufDelete by call sites (provisional)
 text func_0019D9D8 0x0019D9D8 0x0019D9E8 ico2/ito/mpeg/mv_readbuf.c  # us-only; after mv_main.c's span; pairs with no PAL-only function there by size and order; mv_readbuf.c's, since readBufDelete (call sites) comes before it
@@ -277,12 +261,6 @@ text InitFlagGeo 0x001CFB58 0x001D00F4 ico2/sugipon/src/flag.c lines=142  # us-o
 rdlit InitFlagGeo 0x00618DC8 0x00618DD3 ico2/sugipon/src/flag.c  # 1 string
 text FlagGeo 0x001D00F8 0x001D01E8 ico2/sugipon/src/flag.c lines=31  # us-only (after enemyParts.c's span; PAL order suggests FlagGeo (288 B in PAL)); named FlagGeo by callees, body alignment (provisional)
 text FlagDL 0x001D01E8 0x001D039C ico2/sugipon/src/flag.c lines=54  # us-only (after enemyParts.c's span; PAL order suggests FlagDL (508 B in PAL)); named FlagDL by callees, body alignment (provisional)
-text InitFlyInfo 0x001D03C8 0x001D03DC ico2/sugipon/src/flyManager.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before InitFlyManager
-text InitFlyManager 0x001D03E0 0x001D03E8 ico2/sugipon/src/flyManager.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetFlyLimitHeight
-text GetFlyLimitHeight 0x001D03E8 0x001D04B8 ico2/sugipon/src/flyManager.c lines=16  # us-only (after flyManager.c's span; PAL order suggests GetFlyLimitHeight (248 B in PAL)); named GetFlyLimitHeight by callees (provisional)
-lit4 GetFlyLimitHeight 0x00631250 0x00631254 ico2/sugipon/src/flyManager.c  # 1 float, measured from the base: the text loads them
-text GetFlyLimitClearance 0x001D04B8 0x001D0554 ico2/sugipon/src/flyManager.c lines=12  # us-only (after flyManager.c's span; PAL order suggests GetFlyLimitClearance (200 B in PAL)); named GetFlyLimitClearance by callees, body alignment (provisional)
-lit4 GetFlyLimitClearance 0x00631254 0x00631258 ico2/sugipon/src/flyManager.c  # 1 float, measured from the base: the text loads them
 text playSE 0x001D0558 0x001D0660 ico2/sugipon/src/frameDependSequence.c local lines=39  # us-only (after flyManager.c's span; PAL order suggests playSE (300 B in PAL)); named playSE by call sites, callees, body alignment (provisional)
 lit4 playSE 0x00631258 0x0063125C ico2/sugipon/src/frameDependSequence.c  # 1 float, measured from the base: the text loads them
 rdlit playSE 0x00618DD8 0x00618E56 ico2/sugipon/src/frameDependSequence.c  # 3 strings, measured from the base
@@ -317,12 +295,6 @@ text GirlForceFieldDL 0x001D1B30 0x001D1C74 ico2/sugipon/src/girlForceField.c li
 text InitGirlForceFieldGeo 0x001D1C78 0x001D1CF8 ico2/sugipon/src/girlForceField.c lines=12  # us-only (after girl.c's span; body equals PAL InitGirlForceFieldGeo's with immediates and jump targets masked); named InitGirlForceFieldGeo by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 rdlit InitGirlForceFieldGeo 0x00618F08 0x00618F1D ico2/sugipon/src/girlForceField.c def  # 1 string
 text GirlForceFieldGeo 0x001D1CF8 0x001D1D00 ico2/sugipon/src/girlForceField.c lines=1  # us-only (after girl.c's span; PAL size and order suggest GirlForceFieldGeo); named GirlForceFieldGeo by PAL size and order, body alignment (provisional)
-text getBone.6 0x001D1D00 0x001D1E18 ico2/sugipon/src/handManager.c local file=getBone_6  # us-only (after girl.c's span; body equals PAL getBone.6's with immediates and jump targets masked); named getBone.6 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text connectToTarget 0x001D1E18 0x001D20B4 ico2/sugipon/src/handManager.c local lines=100  # us-only (after girl.c's span; PAL order suggests connectToTarget (812 B in PAL)); named connectToTarget by callees (provisional)
-text _handManager 0x001D20B8 0x001D23DC ico2/sugipon/src/handManager.c local lines=35  # us-only (after girl.c's span; body equals PAL _handManager's with immediates and jump targets masked); named _handManager by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit _handManager 0x00618F20 0x00618F38 ico2/sugipon/src/handManager.c align=16  # 1 jtbl
-text HandManager 0x001D23E0 0x001D2534 ico2/sugipon/src/handManager.c lines=19  # us-only (after girl.c's span; PAL size and order suggest HandManager); named HandManager by PAL size and order, callees, body alignment (provisional)
-lit4 HandManager 0x00631284 0x00631288 ico2/sugipon/src/handManager.c  # 1 float
 text ResetDynamicMotionManager 0x001D4DE8 0x001D4E2C ico2/sugipon/src/motionFileManager.c lines=10  # ordinal; first difference at insn 6; imm:2; extent-equal
 text getMotionGeometry 0x001E3030 0x001E39E4 ico2/sugipon/src/motionOrientManager.c local lines=179  # us-only (in motionOrientManager.c's span; PAL order suggests getMotionGeometry (2536 B in PAL)); named getMotionGeometry by call sites, callees, body alignment (provisional)
 lit4 getMotionGeometry 0x0063137C 0x00631388 ico2/sugipon/src/motionOrientManager.c  # 3 floats
@@ -333,11 +305,6 @@ rdlit motKindMenuProc 0x00619C28 0x00619C71 ico2/sugipon/src/motionViewer.c  # 3
 text motOriMenuProc 0x001E54E0 0x001E5848 ico2/sugipon/src/motionViewer.c local lines=67  # ordinal; first difference at insn 31; imm:4; extent-equal
 rdlit motOriMenuProc 0x00619C78 0x00619CBB ico2/sugipon/src/motionViewer.c  # 3 strings
 sdlit motOriMenuProc 0x00633570 0x00633576 ico2/sugipon/src/motionViewer.c  # 1 string
-text DeleteParticleLayout 0x001E8EA8 0x001E8EB8 ico2/sugipon/src/particleLayout.c lines=8  # us-only (after particleEffect.c's span; pairs with no PAL-only function there by size and order); named DeleteParticleLayout by call sites (provisional)
-text InitParticleLayoutGeo 0x001E8EB8 0x001E8F24 ico2/sugipon/src/particleLayout.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ParticleLayoutDL
-rdlit InitParticleLayoutGeo 0x00619EC0 0x00619ED5 ico2/sugipon/src/particleLayout.c def  # 1 string
-text ParticleLayoutGeo 0x001E8F28 0x001E8F30 ico2/sugipon/src/particleLayout.c lines=1  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before func_001E8F30; named func_001E8F28: the empty function before the one obj-kind-data PARTLAYOUT names (provisional); named ParticleLayoutGeo: obj-kind-data PARTLAYOUT geo; PAL ParticleLayoutGeo (provisional)
-text ParticleLayoutDL 0x001E8F30 0x001E8F38 ico2/sugipon/src/particleLayout.c  # us-only; after particleLayout.c's span; pairs with no PAL-only function there by size and order; named ParticleLayoutDL: obj-kind-data PARTLAYOUT dl; PAL ParticleLayoutDL (provisional)
 text CheckRopeUpperWallClimbable 0x001E97F8 0x001E9808 ico2/sugipon/src/rope.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
 text ReleaseRope 0x001E9808 0x001E9810 ico2/sugipon/src/rope.c lines=1  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before RopeGeo
 text MoveRotObjectWithHoldPoint 0x001E9A78 0x001E9DE4 ico2/sugipon/src/rotObject.c lines=85  # us-only (in rotObject.c's span; PAL order suggests MoveRotObjectWithHoldPoint (892 B in PAL)); named MoveRotObjectWithHoldPoint by call sites, callees, body alignment (provisional)
@@ -349,10 +316,6 @@ text GetRotObjectGlobalHoldGeometry 0x001E9DF8 0x001E9F08 ico2/sugipon/src/rotOb
 lit4 GetRotObjectGlobalHoldGeometry 0x006313C4 0x006313C8 ico2/sugipon/src/rotObject.c  # 1 float
 rdlit GetRotObjectGlobalHoldGeometry 0x0061A020 0x0061A03F ico2/sugipon/src/rotObject.c  # 1 string, measured from the base: a print compiled out
 text InitRotObjectGeo 0x001E9F08 0x001EA030 ico2/sugipon/src/rotObject.c lines=28  # us-only (in rotObject.c's span; PAL order suggests InitRotObjectGeo (328 B in PAL)); named InitRotObjectGeo by callees, body alignment (provisional)
-text InitStageMultiBgaManager 0x001EBB70 0x001EBC0C ico2/sugipon/src/stageMultiBgaManager.c lines=10  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before EntryStageMultiBgaManager
-text EntryStageMultiBgaManager 0x001EBC10 0x001EBCCC ico2/sugipon/src/stageMultiBgaManager.c lines=4  # us-only (after stageMultiBgaManager.c's span; PAL order suggests EntryStageMultiBgaManager (212 B in PAL)); named EntryStageMultiBgaManager by call sites, callees, body alignment (provisional)
-text EntryStageMultiBgaManagerSensitive 0x001EBCD0 0x001EBD9C ico2/sugipon/src/stageMultiBgaManager.c lines=4  # us-only (after stageMultiBgaManager.c's span; PAL order suggests EntryStageMultiBgaManagerSensitive (228 B in PAL)); named EntryStageMultiBgaManagerSensitive by callees, body alignment (provisional)
-text DispStageMultiBgaManager 0x001EBDA0 0x001EBE44 ico2/sugipon/src/stageMultiBgaManager.c lines=21  # us-only (after stageMultiBgaManager.c's span; PAL order suggests EntryStageMultiBgaManagerWithStay (224 B in PAL)); named DispStageMultiBgaManager by call sites (provisional)
 text InitSugiLeafGeo 0x001F16A0 0x001F16F4 ico2/sugipon/src/sugiTree.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SugiLeafGeo
 rdlit InitSugiLeafGeo 0x0061A6D8 0x0061A6E7 ico2/sugipon/src/sugiTree.c def  # 1 string
 text SugiLeafGeo 0x001F16F8 0x001F17AC ico2/sugipon/src/sugiTree.c lines=11  # ordinal; first difference at insn 9; imm:1; extent-equal

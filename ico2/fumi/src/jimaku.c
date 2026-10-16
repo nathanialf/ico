@@ -43,7 +43,6 @@ static IosSema jimakuFrameSema; /* derived name */
 #include "jimaku.h"
 #include "layout_texture.h" /* texProperty: jimaku's entries are 434 and 435 */
 #include "gflag.h"
-#include "include_asm.h"
 
 typedef struct JimCol { /* field names derived */
     unsigned char r;
@@ -86,7 +85,42 @@ extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, JimCol *c
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_EndPacket(void);
 
-INCLUDE_ASM(display_texture_jimaku);
+static void display_texture(LtProperty *t)
+{
+    JimCol col = {128, 128, 128, 128};
+    int dst[4];
+    int src[4];
+
+    src[0] = (t->texU << 4) + 8;
+    src[1] = (t->texV << 4) + 8;
+    src[2] = t->texW << 4;
+    src[3] = t->texH << 4;
+    dst[2] = t->dispW << 4;
+    dst[3] = t->dispH << 3;
+    if (dst[2] == 0)
+        dst[2] = src[2];
+    if (dst[3] == 0)
+        dst[3] = src[3] >> 1;
+    dst[3] = dst[3] * 2;
+    if (t->centerX != 0)
+        dst[0] = (10240 - dst[2]) / 2 - 5120;
+    else
+        dst[0] = (t->dispX - 320) << 4;
+    dst[1] = (t->dispY - 112) << 4;
+    tex_TransTexture(t->texNo, 11);
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 7, 0);
+    gif_SetGsReg(74, 0);
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+    col.r = ~GlobalStageSetting.reductionCol[0];
+    col.g = ~GlobalStageSetting.reductionCol[1];
+    col.b = ~GlobalStageSetting.reductionCol[2];
+    gif_SpriteSensitiveOffset(dst, 0xFFFFFF9B, src, &col, 1);
+    gif_SetZWrite(1);
+    gif_SetZTest(1);
+    gif_EndPacket();
+}
 
 void iosCdvdBackGroundReadJimaku(CdvdBgReq *self, void *buf, int size)
 {
@@ -185,9 +219,51 @@ static void jimakuMgrBegin(JimakuArg *p)
 #define JIMAKU_DEBUG_DUMP 0 /* derived name */
 #endif
 
-static void jimakuMgrNext(JimakuArg *p);
+static void jimakuMgrNext(JimakuArg *p)
+{
+    char buf[16];
+    JimakuSub *sub = &p->sub;
+    struct jWayGroup *g = &jimakuRing[sub->n];
 
-INCLUDE_ASM(jimakuMgrNext);
+    while (g->node->state != 4) {
+        if (iosSemaWait(&jimakuReadSema) < 0) {
+            return;
+        }
+    }
+    if (iosSemaWait(&jimakuReadSema) < 0) {
+        return;
+    }
+    g->node->state = 1;
+    sprintf(buf, "jimaku%02d.tm2", (sub->n + 1) % 4);
+    g->node->tex = tex_InitTexture(buf, g->node->buf);
+    tex_SetSamplingType(tex_GetTextureData(g->node->tex), 1, 1);
+    g->node->stamp = lock_execIcoMisc;
+    if (g->node->tex == -1) {
+        debug_StdPrintfDummy("already exist\n");
+        debug_assert(__FILE__, 626);
+        __assert(__FILE__, 626, "0");
+    }
+    sub->n = (sub->n + 1) % 4;
+    if (iosSemaWait(&jimakuShownSema) < 0) {
+        return;
+    }
+    g->state = 2;
+    if (g->tex >= 0) {
+        tex_FreeTexture(g->tex);
+    }
+    sub->cur = jimakuBuf[sub->n];
+    jimakuDispOn = 1;
+    /* the DEBUG build's dump of the four groups' states, the current one
+     * marked */
+    if (JIMAKU_DEBUG_DUMP) {
+        int m;
+
+        for (m = 0; m < 4; m++) {
+            debug_StdPrintfDummy(m == sub->n ? ">%d" : " %d", jimakuRing[m].state);
+        }
+        debug_StdPrintfDummy("\n");
+    }
+}
 
 static void jimakuMgrJump(JimakuArg *p)
 {
@@ -285,7 +361,43 @@ void jimakuEnd(JimakuArg *msg)
     jimakuMgrEnd((int *)msg);
 }
 
-INCLUDE_ASM(jimakuDisp);
+void jimakuDisp(JimakuArg *msg)
+{
+    struct jWayGroup *g = &jimakuRing[msg->sub.n];
+    int c;
+
+    if (systemStatus[10] == 0) {
+        return;
+    }
+    c = g->stamp;
+    if ((unsigned int)(c + jimakuDispTime) < (unsigned int)lock_execIcoMisc) {
+        jimakuDispOn = 0;
+    }
+    if ((unsigned int)(c + 5) < (unsigned int)lock_execIcoMisc) {
+        iosSemaReferStatus(&jimakuShownSema);
+        if (jimakuShownSema.status.numWaitThreads > 0) {
+            iosSemaSignal(&jimakuShownSema);
+        }
+    }
+    if (systemStatus[10] != 0) {
+        iosSemaReferStatus(&jimakuFrameSema);
+        if (jimakuFrameSema.status.numWaitThreads > 0) {
+            iosSemaSignal(&jimakuFrameSema);
+        }
+    }
+    if (jimakuDispOn != 0) {
+        int v = g->tex;
+        texProperty[383].texNo = v;
+        texProperty[382].texNo = v;
+        if (v < 0) {
+            return;
+        }
+        if (jimakuOn != 0) {
+            display_texture(&texProperty[382]);
+            display_texture(&texProperty[383]);
+        }
+    }
+}
 
 inline void jimakuUndisp(JimakuArg *msg)
 {
