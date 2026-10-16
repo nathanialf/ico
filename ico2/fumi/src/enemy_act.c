@@ -2037,9 +2037,164 @@ static inline int isNearestEnemyToBoy(GObj *self, GObj *boy, float *pos) /* deri
     return self == found;
 }
 
-INCLUDE_ASM(ChangeBrain_ToAttack_272);
+void subEnemyBrain_ToBoy(GObj *volatile self)
+{
+    float v[4];
+    float w[4];
+    Act *sub = GOBJ_ACT(self);
+    GObj *boy = boyGObj;
+    int cnt = 0;
+    int i, j;
+    int mode;
+    int r;
+    unsigned char ret;
+    int dbg = 0; /* local debug switch, see case 1 of the status switch */
 
-INCLUDE_ASM(subEnemyBrain_ToBoy);
+    void ChangeBrain_ToAttack(void)
+    {
+        if (isLiftBoyEnable() != 0) {
+            if (GOBJ_ACT(self)->enemy->sizeClass == 2) {
+                BrainModeTarget *tgt = &brainTarget;
+
+                /* the default target, then the boy; the same shape sits in
+                   the other four arms (here and in ChangeBrain_ToKidnap) */
+                brainTarget = brainTargetNone;
+                brainTarget.gobj = boyGObj;
+                if ((int)(random_unit() * 10.0f) % 100 < GOBJ_ACT(self)->enemy->attackChance2) {
+                    _BrainMode_SetDirect(self, 12, tgt);
+                } else {
+                    _BrainMode_SetDirect(self, 9, tgt);
+                }
+            } else {
+                /* the default target first, see the kind == 2 arm above */
+                brainTarget = brainTargetNone;
+                brainTarget.gobj = boyGObj;
+                _BrainMode_SetDirect(self, 9, &brainTarget);
+            }
+        }
+    }
+
+    while (1) {
+        mode = 0;
+        r = (int)(random_unit() * 10.0f) % 100;
+        debug_StdPrintfDummy("**toboy function start :: count=[%d]\n", cnt++);
+        ret = _ApproachTarget(self, boy, (char *)sub + 0x110, NakaBoss,
+                              battleRangeScale(self, 220.0f), 0);
+        v[0] = test_CURRENTROOT((void *)self)[0];
+        v[1] = test_CURRENTROOT((void *)self)[1];
+        v[2] = test_CURRENTROOT((void *)self)[2];
+        if (ret != 0) {
+            debug_StdPrintfDummy("await start\n");
+            for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] * 75 / 60; i++) {
+                mode = 0;
+                switch (Battle_isCurrentStatus(self, boy, v)) {
+                case 0:
+                    break;
+                case 1:
+                    mode = 4;
+                    /* a local debug switch, off: mark the position the status
+                       test was given; the August TRFILE (4037-4041) and the
+                       January listing (4282-4293) keep code-less lines here */
+                    if (dbg) {
+                        debug_NMarker(v, 255, 0, 0, 100.0f);
+                    }
+                    if (r < GOBJ_ACT(self)->enemy->attackChance) {
+                        mode = 3;
+                    }
+                    if (((int)(*(long long *)((char *)GOBJ_ACT(self)->enemy + 0x208) >> 1)) & 1) {
+                        mode = 3;
+                    }
+                    if (debug_ignore_dodge != 0) {
+                        mode = 4;
+                    }
+                    break;
+                case 2:
+                    mode = 2;
+                    break;
+                case 3:
+                    mode = 3;
+                    if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+                        mode = 4;
+                    }
+                    if (debug_ignore_dodge != 0) {
+                        mode = 4;
+                    }
+                    debug_StdPrintfDummy("!!! wwarning !!!\n");
+                    break;
+                case 4:
+                    mode = 5;
+                    break;
+                default:
+                    debug_StdPrintfDummy("return value error :: [Battle_isCurrentStatus]\n");
+                    break;
+                }
+                if (mode != 0) {
+                    goto result;
+                }
+                sub->stick.mag = 0.0f;
+                sub->dir[0] = 0.0f;
+                sub->dir[1] = 0.0f;
+                sub->dir[2] = 0.0f;
+                _DoAwait(self);
+                NakaBoss(self, 0, 0.0f);
+                _ACTWait(1);
+            }
+            debug_StdPrintfDummy("await end\n");
+            if ((((int)(*(long long *)((char *)GOBJ_ACT(self)->enemy + 0x208) >> 1)) & 1) == 0) {
+                mode = 4;
+            }
+        } else {
+            mode = 1;
+        }
+    result:
+        debug_StdPrintfDummy("toboy ra is [%d]\n", mode);
+        if (stage_no == 84 || stage_no == 3 || stage_no == 46) {
+            if (mode == 4 || mode == 5) {
+                mode = 3;
+            }
+        }
+        switch (mode - 1) {
+        case 0:
+            ACTSendMailCorrect(self, 240);
+            break;
+        case 1:
+            break;
+        case 2:
+            if (IsBoyStatus_NotDanger() != 0) {
+                if ((char *)girlGObj != 0) {
+                    if (GOBJ_ACT(girlGObj)->actMode != 107) {
+                        break;
+                    }
+                }
+            }
+            ACTSendMailCorrect(self, 259);
+            break;
+        case 3:
+            if (isNearestEnemyToBoy(self, boyGObj, w) && EnemyUtil_isOtherStatus(self, 0) == 0) {
+                ChangeBrain_ToAttack();
+            }
+            break;
+        case 4:
+            if (EnemyUtil_isOtherStatus(self, 0) == 0) {
+                ChangeBrain_ToAttack();
+            }
+        }
+        sub->stick.mag = 0.0f;
+        sub->dir[0] = 0.0f;
+        sub->dir[1] = 0.0f;
+        sub->dir[2] = 0.0f;
+        for (j = 0; j < 45; j++) {
+            if (mode == 5) {
+                if (EnemyUtil_isOtherStatus(self, 0) == 0) {
+                    ChangeBrain_ToAttack();
+                }
+            }
+            _DoAwait(self);
+            NakaBoss(self, 0, 0.0f);
+            _ACTWait(1);
+        }
+    }
+}
 
 inline void subEnemyBrain_BodyGuard(GObj *volatile self)
 {

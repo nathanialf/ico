@@ -27,7 +27,6 @@
 #include "ios.h"
 #include "sceneManager.h"
 #include "DObj.h"
-#include "include_asm.h"
 
 static void calcDynamicGeometry(struct GObj *g);
 
@@ -140,8 +139,8 @@ static inline int fumbleTargetBlocked(FumbleVec *p) /* derived name */
 }
 
 /* declared here: ico2/omori/src/attackhit.c declares the table with its
-   own record and includes weapon.h */
-extern WeaponDef weaponKind[];
+   own record and includes weapon.h; const, as the table sits in .rodata */
+extern const WeaponDef weaponKind[];
 /* declared here as three rows to a weapon slot, the way it is read; the
    definition (weapon-fumble-def) is the flat row array */
 extern FumbleRow weaponFumbleGeo[][3];
@@ -290,7 +289,152 @@ static __inline__ void dynGeoDebugHook(void) /* derived name */
 #endif
 }
 
-INCLUDE_ASM(calcDynamicGeometry);
+static void calcDynamicGeometry(GObj *g)
+{
+    Sub15C *p = g->dobj;
+    WeaponWork *w = p->work;
+    struct MotRoot *rp = &p->root;
+    float d = weaponKind[w->kind].grip;
+    float r = weaponKind[w->kind].length - d;
+    ClipWork cc = collWorkInit;
+    int hitA;
+    int hitB;
+
+    addWeaponPathOffset(p, rp, d);
+    {
+        sceVu0FMATRIX m1;
+        sceVu0FVECTOR v1;
+        sceVu0FMATRIX m2;
+        sceVu0FVECTOR v2;
+        sceVu0FVECTOR dir1;
+        sceVu0FVECTOR dir2;
+        sceVu0FVECTOR nrm;
+        sceVu0FVECTOR tan;
+        sceVu0FVECTOR axis;
+
+        hitA = 0;
+        hitB = 0;
+        GetMatrixFromQuaternionPos(m1, p->root.quat, rp->pos);
+        rp->move[1] =
+            rp->move[1] + 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        _AddVectorXYZ(rp->pos, rp->pos, rp->move);
+        MultiQuaternion(p->root.quat, rp->itemQuat, p->root.quat);
+        GetMatrixFromQuaternionPos(m2, p->root.quat, rp->pos);
+
+        hitOfs[2] = r;
+        _ApplyMatrix(cc.pt[0], m1, hitOfs);
+        _ApplyMatrix(cc.pt[1], m2, hitOfs);
+        CopyVector(v1, cc.pt[1]);
+        _SubVector(dir1, cc.pt[1], cc.pt[0]);
+
+        ClipCollision(&cc);
+        if (cc.wall.elem != 0 || cc.floor.elem != 0) {
+            hitA = 1;
+            GetReflectionElement(&cc, 0.7f, 0.7f);
+            CopyVector(v1, cc.reflect.pos);
+            CopyVector(dir1, cc.reflect.dir);
+            if (36.0f < VectorLengthSquare(cc.reflect.bounce)) {
+                if (cc.wall.elem) {
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetWallAttribute(&cc);
+                } else {
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetFloorAttribute(&cc);
+                }
+                weaponHitReactionSE(g);
+            }
+        }
+
+        hitOfs[2] = -r;
+        _ApplyMatrix(cc.pt[0], m1, hitOfs);
+        _ApplyMatrix(cc.pt[1], m2, hitOfs);
+        CopyVector(v2, cc.pt[1]);
+        _SubVector(dir2, cc.pt[1], cc.pt[0]);
+
+        ClipCollision(&cc);
+        if (cc.wall.elem != 0 || cc.floor.elem != 0) {
+            hitB = 1;
+            GetReflectionElement(&cc, 0.7f, 0.7f);
+            CopyVector(v2, cc.reflect.pos);
+            CopyVector(dir2, cc.reflect.dir);
+            if (36.0f < VectorLengthSquare(cc.reflect.bounce)) {
+                if (cc.wall.elem) {
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetWallAttribute(&cc);
+                } else {
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetFloorAttribute(&cc);
+                }
+                weaponHitReactionSE(g);
+            }
+        }
+
+        if (cc.floor.elem) {
+            w->state = 0;
+            CopyVector(rp->move, ZeroVector);
+            CopyQuaternion(p->root.quat, IdentityQuaternion);
+        } else {
+            dynGeoDebugHook();
+            if (hitA || hitB) {
+                _InterVector(rp->move, dir1, dir2, 0.5f);
+                _InterVector(rp->pos, v1, v2, 0.5f);
+                *(int *)&rp->move[3] = 0;
+                rp->pos[3] = 1.0f;
+                if (hitA) {
+                    _SubVector(tan, dir1, rp->move);
+                } else {
+                    _SubVector(tan, rp->move, dir2);
+                }
+                _SubVector(nrm, v1, rp->pos);
+                _NormalizeVector(nrm, nrm);
+                _OuterProduct(axis, nrm, tan);
+                {
+                    sceVu0FVECTOR qr;
+
+                    {
+                        sceVu0FVECTOR sc = {0.0f, VectorLength(tan), r, 0.0f};
+
+                        _NormalizeVector(sc, sc);
+                        SetQuaternionByAxisRotateV(qr, (short)-GetTableArcTan2(sc[1], sc[2]), axis);
+                    }
+                    CopyQuaternion(rp->itemQuat, qr);
+                    MultiQuaternion(p->root.quat, qr, p->root.quat);
+                    {
+                        sceVu0FMATRIX m3;
+                        sceVu0FVECTOR v5;
+                        sceVu0FVECTOR v6;
+                        float eA;
+                        float eB;
+                        float e;
+
+                        eA = 0.0f;
+                        eB = 0.0f;
+                        GetMatrixFromQuaternionPos(m3, p->root.quat, rp->pos);
+                        hitOfs[2] = r;
+                        _ApplyMatrix(v5, m3, hitOfs);
+                        if (v5[1] > v1[1]) {
+                            eA = v5[1] - v1[1];
+                        }
+                        hitOfs[2] = -r;
+                        _ApplyMatrix(v6, m3, hitOfs);
+                        if (v6[1] > v2[1]) {
+                            eB = v6[1] - v2[1];
+                        }
+                        e = (eB < eA) ? eA : eB;
+                        if (0.0f < e) {
+                            rp->pos[1] = rp->pos[1] - (e + 1.0f);
+                            GetSlerpQuaternion(rp->itemQuat, rp->itemQuat, IdentityQuaternion,
+                                               0.9f);
+                        }
+                    }
+                }
+            }
+            dynGeoDebugHook();
+            RegularizeQuaternion(p->root.quat);
+            VectorLengthSquare(rp->move);
+            dynGeoDebugHook();
+        }
+        subWeaponPathOffset(p, rp, d);
+        UpdateRootMatrix(g);
+    }
+}
 
 static void getGeometry(GObj *g)
 {
