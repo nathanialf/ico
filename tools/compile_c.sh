@@ -5,13 +5,10 @@
 # source's archive to the object. build.ninja's cc rule (tools/gen_ninja.py)
 # runs it per object.
 #
-# <src.c> is the source's shared path (the link-order row, ico2/... or
-# sce/...), or a generated data member build/<slug>/data/<member>.c. The
-# target is VERSION (tools/ico_version.sh), and the compile runs inside its
-# merged source view build/<slug>/tree/ (SRCROOT below), where the row path
-# names the overlay's copy when targets/<slug>/ has one and the shared file
-# otherwise, so every relative path the compile spells is the same for every
-# target.
+# <src.c> is the source's path (the link-order row, ico2/... or sce/...), or
+# a generated data member build/<slug>/data/<member>.c. The target is VERSION
+# (tools/ico_version.sh); the compile defines VERSION_<SLUG> and LN for it
+# (VERSION_DEFS below).
 
 set -eu
 
@@ -24,18 +21,24 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck source=tools/ico_version.sh
 . "${ROOT}/tools/ico_version.sh"
 ico_version_init "${ROOT}"
-# The tree the compile reads: the target's merged view (tools/gen_ninja.py
-# --tree, which build.ninja's tree edge and tools/build.sh regen write). With
-# no view and no overlay for the target, as for an ad-hoc compile on a tree
-# that was never built, the repository itself is the same view.
-SRCROOT="${ROOT}/${ICO_TREE}"
-if [ ! -d "${SRCROOT}" ]; then
-    if [ -d "${ROOT}/targets/${ICO_VERSION}" ]; then
-        echo "compile_c.sh: ${ICO_TREE} is missing and targets/${ICO_VERSION}/ exists; run VERSION=${ICO_VERSION} tools/build.sh regen" >&2
-        exit 2
-    fi
-    SRCROOT="${ROOT}"
-fi
+SRCROOT="${ROOT}"
+
+# One source tree builds every target; where the targets' code differs, the
+# file holds each target's lines in #ifdef VERSION_<SLUG> blocks (PAL's in the
+# #else), and the compile defines VERSION_<SLUG> for the one it builds. LN
+# picks a hand-written source line number for the target, LN(pal, jpn): the
+# original build passed __LINE__ to its debug allocators and asserts, and
+# those lines are part of each build's data (mv_defs.h's alloc_zeroed,
+# FileManager.c's iosMallocDebug calls). A joining target appends its own
+# argument. Measured 2026-10-15: with them every object equals its build
+# without them outside .mdebug, which the link does not keep.
+# A target still on its own branch (us, aug6) gets VERSION_<SLUG> and no LN:
+# its sources do not use it until it joins main.
+VERSION_DEFS="-DVERSION_$(printf '%s' "${ICO_VERSION}" | tr '[:lower:]' '[:upper:]')"
+case "${ICO_VERSION}" in
+    pal) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn)=pal" ;;
+    jpn) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn)=jpn" ;;
+esac
 
 EEGCC_DIR="${EEGCC_DIR:-${ROOT}/tools/cc/ee-gcc2.9-991111}"
 EEGCC_LIB="${EEGCC_DIR}/gcc-lib/ee/2.9-ee-991111-01/"
@@ -122,7 +125,7 @@ done
 # search path is not recorded in the object; an object whose source does not
 # include the header is byte-identical with or without it, and with or without
 # the directory.
-CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS} -I${ROOT}/${ICO_BUILD_DIR}/stubs"
+CFLAGS="-S ${DBG} ${COMMON} -G ${GNUM} -O2 -mips3 -EL ${BUILTIN} -nostdinc${SCE_INCS} -I${ROOT}/${ICO_BUILD_DIR}/stubs ${VERSION_DEFS}"
 # DUMP MODE: `DUMP_DIR=<dir> tools/compile_c.sh <src> <obj>` adds -da (every RTL
 # pass dump) under the SAME per-origin flags and assembler, then moves the dumps gcc wrote
 # beside the source into DUMP_DIR so nothing lands under ico2/ or sce/. DUMP_FLAGS may add
@@ -168,7 +171,7 @@ mkdir -p "$(dirname "${OUT}")"
 # have to match what the 2002 link recorded.
 # A data member's generated C (build/<slug>/data/<member>.c) compiles as a
 # game TU from ico2/common, which owns typedef.h, given by its absolute path:
-# its headers are included by their place in the view, relative to the C's
+# its headers are included by their place in the tree, relative to the C's
 # own directory (tools/gen_data_c.py), and it spells no __FILE__.
 ICO2_PROG=""
 case "${SRC}" in
@@ -179,7 +182,7 @@ esac
 case "${SRC}" in
     build/*) ;;
     *) if [ ! -e "${SRCROOT}/${SRC}" ]; then
-           echo "compile_c.sh: ${SRC} is not in ${SRCROOT#"${ROOT}"/}; run VERSION=${ICO_VERSION} tools/build.sh regen after adding a file" >&2
+           echo "compile_c.sh: ${SRC} does not exist" >&2
            exit 2
        fi ;;
 esac

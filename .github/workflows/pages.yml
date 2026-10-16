@@ -3,9 +3,10 @@ name: Deploy progress dashboard
 # Publish the FOUR-VERSION static progress dashboard to GitHub Pages.
 #
 # main carries the finished targets in one tree (pal, PAL retail SCES-50760;
-# jpn, Japanese retail SCPS-11003) and publishes every
-# docs/<slug>/ it has; ntsc -> us (USA retail, SLUS-20218) and aug6 -> aug6
-# (Aug-6-2001 prototype) are single-target branches.
+# jpn, Japanese retail SCPS-11003) and publishes every docs/<slug>/ it has
+# except pal's, whose numbers come from the frozen `pal` branch's docs/pal/;
+# ntsc -> us (USA retail, SLUS-20218) and aug6 -> aug6 (Aug-6-2001
+# prototype) are single-target branches.
 #
 # Each branch runs its own copy of this workflow and of
 # .github/scripts/build_pages_site.sh; the copies are identical (the shared
