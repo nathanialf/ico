@@ -9,7 +9,6 @@
 #include "main.h"
 #include <string.h>
 #include "thread.h"
-#include "include_asm.h"
 
 static int _closeHander(void);
 static int _handler(struct CdvdBgReq *self);
@@ -211,7 +210,15 @@ void DisableStreamMotionManagerAutomaticDelete(void)
     debug_StdPrintfDummy("disable automatic delete\n");
 }
 
-INCLUDE_ASM_LIT(GetDataSizeOfStreamMotion);
+inline int GetDataSizeOfStreamMotion(int no)
+{
+    if (streamEntry[no].cur < 0) {
+        /* tried to get the work size before the data has arrived */
+        debug_StdPrintfDummy("データがまだ来ていないのにワークサイズの取得をしようとしました\n");
+        return 4;
+    }
+    return streamEntry[no].size;
+}
 
 typedef struct { /* field names derived */
     char c[4];
@@ -325,28 +332,131 @@ void MallocStreamMotionBuffer(void)
     }
 }
 
-INCLUDE_ASM_LIT(StandbyStreamMotion);
+inline void ClearAllStreamMotionEntry(void)
+{
+    int i;
 
-INCLUDE_ASM(StandbyStreamMotion);
+    if (streamNum == 0) {
+        return;
+    }
+    for (i = 0; i < streamNum; i++) {
+        ClearStreamMotionEntry(streamEntry[i].obj.p);
+        if (streamEntry[i].finishFunc != 0) {
+            streamEntry[i].finishFunc(streamEntry[i].obj.p);
+        }
+    }
+    streamNum = 0;
+}
 
-INCLUDE_ASM(StopStreamMotion);
+inline void DeleteStreamMotionManager(void)
+{
+    if (bgMgrId != 0) {
+        iosCdvdBackGroundMgrDelete(bgMgrId);
+    } else {
+        _deleteStreamMotionManager();
+    }
+    ClearAllStreamMotionEntry();
+}
 
-INCLUDE_ASM(DeleteStreamMotionManager);
+inline void StandbyStreamMotion(char *file)
+{
+    DeleteStreamMotionManager();
+    while (bgMgrId != 0) {
+        debug_StdPrintfDummy("\033[36mWait!!!\033[m\n");
+        iosThreadSleep();
+    }
+    bgMgrId = iosCdvdBackGroundMgrAdd(file, _handler, 0, 0, 0, 0, _closeHander, 0);
+    streamOwner = file;
+}
 
-INCLUDE_ASM(EntryStreamMotion);
+inline void StopStreamMotion(void)
+{
+    streamState = 0;
+}
 
-INCLUDE_ASM(GetDataSizeOfStreamMotion);
+inline int EntryStreamMotion(GObj *gobj)
+{
+    int no = streamNum;
 
-INCLUDE_ASM(InitStreamMotionManager);
+    streamEntry[no].obj.p = gobj;
 
-INCLUDE_ASM(CheckReadyStreamMotion);
+    GOBJ_SUB(gobj)->ctrl.stream = no;
+    GOBJ_SUB(gobj)->ctrl.loopFlag = 0;
+    GOBJ_SUB(gobj)->ctrl.posReserve = 0;
+    GOBJ_SUB(gobj)->ctrl.catchBoy = 0;
+    streamNum = no + 1;
+    return no;
+}
 
-INCLUDE_ASM(SetStreamMotionFinishCallBackFunc);
+inline void InitStreamMotionManager(void)
+{
+    readBufRaw = 0;
+    ringBuf = 0;
+    readBuf = 0;
+}
 
-INCLUDE_ASM(FreeStreamMotionBuffer);
+inline int CheckReadyStreamMotion(void)
+{
+    unsigned int p = ringRead;
+    unsigned int q = ringWrite;
+    unsigned int end = p + 4096;
+    int r;
+    if (q < p)
+        q += 163840;
+    r = 1;
+    if (!(q < p) && (int)q < (int)end)
+        r = 0;
+    return r;
+}
 
-INCLUDE_ASM(ClearAllStreamMotionEntry);
+inline void SetStreamMotionFinishCallBackFunc(int no, void (*func)(GObj *))
+{
+    streamEntry[no].finishFunc = func;
+}
 
-INCLUDE_ASM(_closeHander);
+inline void FreeStreamMotionBuffer(void)
+{
+    if (ringBuf != 0) {
+        iosFree(ringBuf);
+        iosFree(readBufRaw);
+        readBufRaw = 0;
+        ringBuf = 0;
+        readBuf = 0;
+    }
+}
 
-INCLUDE_ASM(_handler);
+static inline int _closeHander(void)
+{
+    _deleteStreamMotionManager();
+    return 1;
+}
+
+static inline int _handler(CdvdBgReq *self)
+{
+    unsigned int wp = ringWrite;
+    unsigned int rp = ringRead;
+    int rest;
+    int size;
+
+    if (wp < rp) {
+        rest = wp + 163840 - rp;
+    } else {
+        rest = wp - rp;
+    }
+    switch (readState) {
+    default:
+    case 0:
+        if (rest > 81919) {
+            break;
+        }
+        readState = 1;
+    case 1:
+        size = 163840 - rest;
+        size = ((size - 1) / 2048) * 2048;
+        iosCdvdBackGroundRead(self, readBuf, size);
+        _transRingBuf(&ringWrite, ringBuf, 163840, readBuf, size);
+        readState = 0;
+        break;
+    }
+    return 0;
+}
