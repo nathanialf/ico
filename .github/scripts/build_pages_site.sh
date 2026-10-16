@@ -20,19 +20,23 @@
 #     branches' copies of docs/index.html (identical to main's once the
 #     change is copied over, tools/check_shared_layer.sh) are never read.
 #   - `main` carries several targets in one tree and contributes every
-#     docs/<slug>/ it has (docs/pal/ and docs/jpn/). Each other branch
-#     carries one target and contributes its docs/<slug>/. Only the files in
-#     DATA_FILES are served.
+#     docs/<slug>/ it has (docs/jpn/), except a target a frozen branch
+#     publishes (FROZEN below): PAL's numbers come from the `pal` branch's
+#     docs/, not from main's docs/pal/. Each other branch carries one target
+#     and contributes its docs/<slug>/. Only the files in DATA_FILES are
+#     served.
 #
 # Branch -> version(s):
-#   main -> every docs/<slug>/ it has (pal PAL retail SCES-50760, jpn
-#           Japanese retail SCPS-11003, and the targets that join later)
+#   main -> every docs/<slug>/ it has but the frozen ones (jpn Japanese
+#           retail SCPS-11003, and the targets that join later)
+#   pal  -> pal    PAL retail (SCES-50760), frozen: read from origin/pal's
+#           docs/ (its single-target layout), never deployed from
 #   ntsc -> us     USA retail       (SLUS-20218)
 #   aug6 -> aug6   Aug-6-2001 prototype
 #
 # Layout produced:
 #   _site/index.html        version-toggle dashboard, `main`'s copy
-#   _site/pal/              `main`'s docs/pal/progress.json and PROGRESS.md
+#   _site/pal/              the `pal` branch's docs/progress.json and PROGRESS.md
 #   _site/jpn/              `main`'s docs/jpn/
 #   _site/us/               `ntsc`'s progress.json and PROGRESS.md
 #   _site/aug6/             `aug6`'s progress.json and PROGRESS.md
@@ -68,6 +72,13 @@ VERSION_OF_aug6=aug6
 BRANCHES="main ntsc aug6"
 MAIN_BRANCH=main
 
+# Frozen branches that publish a target in main's place: <slug> read from
+# branch FROZEN_BRANCH_<slug>, directory FROZEN_DIR_<slug>. They take no new
+# commits and do not run this workflow, so they are only ever fetched.
+FROZEN_SLUGS="pal"
+FROZEN_BRANCH_pal=pal
+FROZEN_DIR_pal=docs
+
 # The branch whose docs/index.html is the dashboard page.
 PAGE_BRANCH=main
 
@@ -75,6 +86,7 @@ PAGE_BRANCH=main
 DATA_FILES="progress.json PROGRESS.md"
 
 version_of() { eval "printf '%s\n' \"\${VERSION_OF_$1-}\""; }
+is_frozen() { case " $FROZEN_SLUGS " in *" $1 "*) return 0 ;; esac; return 1; }
 
 case " $BRANCHES " in
     *" $BRANCH "*) ;;
@@ -131,6 +143,7 @@ copy_tree() {
 if [ "$BRANCH" = "$MAIN_BRANCH" ]; then
     for d in docs/*/; do
         d="${d%/}"
+        is_frozen "${d#docs/}" && continue
         [ -f "$d/progress.json" ] && copy_tree "${d#docs/}" "" "$d"
     done
 else
@@ -159,6 +172,7 @@ for ob in $OTHER_BRANCHES; do
     if [ "$ob" = "$MAIN_BRANCH" ]; then
         # every docs/<slug>/ main carries
         for slug in $(git ls-tree -d --name-only "$oref:docs" 2>/dev/null); do
+            is_frozen "$slug" && continue
             git cat-file -e "$oref:docs/$slug/progress.json" 2>/dev/null &&
                 copy_tree "$slug" "$oref" "docs/$slug"
         done
@@ -166,6 +180,19 @@ for ob in $OTHER_BRANCHES; do
         ov="$(version_of "$ob")"
         copy_tree "$ov" "$oref" "docs/$ov"
     fi
+done
+
+# --- the frozen branches' data -----------------------------------------------
+for slug in $FROZEN_SLUGS; do
+    fb="$(eval "printf '%s' \"\${FROZEN_BRANCH_$slug}\"")"
+    fd="$(eval "printf '%s' \"\${FROZEN_DIR_$slug}\"")"
+    fref="refs/remotes/origin/$fb"
+    # shellcheck disable=SC2086
+    if ! git fetch --no-tags $DEPTH origin "+refs/heads/$fb:$fref"; then
+        echo "::warning title=Pages::could not fetch frozen branch '$fb'; '$slug' is not published this run."
+        continue
+    fi
+    copy_tree "$slug" "$fref" "$fd"
 done
 
 # --- root compat copies -----------------------------------------------------
