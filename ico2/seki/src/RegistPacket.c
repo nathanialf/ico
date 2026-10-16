@@ -16,7 +16,6 @@
 #include "Matrix.h"
 #include "DmaPacket.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* the scissor switch reg_SetScissorSw sets and reg_Init clears */
 static int scissorSw = 0; /* derived name */
@@ -1121,7 +1120,53 @@ static void reg_dispSObj(Sub15C *o, int idx)
     }
 }
 
-INCLUDE_ASM(reg_dispCObj);
+static void reg_dispCObj(Sub15C *o)
+{
+    PObjModel *mdl;
+    PObjGroup *grp;
+    PacHeader *pkt;
+    PacHeader *node;
+    int i;
+    int pri;
+
+    mdl = o->model;
+    grp = mdl->groups;
+    reg_transMicroCode(o, 0x3B3);
+    reg_setCMatrixPacket(o, 1.0f, 0x3B3);
+    for (i = 0; i < mdl->partCount; i++, grp++) {
+        if (mdl->parts[i].morphCount != 0) {
+            node = grp->morph;
+            if (node != 0) {
+                pkt = node;
+                if (buffer_ID != 0) {
+                    pkt = grp->packets;
+                }
+                reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
+            } else {
+                pkt = grp->packets;
+            }
+        } else {
+            pkt = grp->packets;
+        }
+        while (pkt != 0) {
+            pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+            regTransTexturePacket(pkt->tex, pri);
+            reg_transMaterialPacket(pkt, grp);
+            reg_chooseMicroCode(&grp->materials[pkt->mat], 0, pri);
+            dl_OpenDma(2, pkt->data, pkt->size >> 4);
+            dl_CloseDma();
+            if (debug_specular_flag == 2 && o->lightMtx->mode == 2) {
+                if (pkt->tex1 != -1) {
+                    reg_dispSpecular(pkt, 0, 1);
+                }
+            }
+            pkt = pkt->next;
+        }
+    }
+    if (o->shadow != 0) {
+        shadow_RenderVolume(o);
+    }
+}
 
 static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
 {

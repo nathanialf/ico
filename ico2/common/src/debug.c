@@ -1937,9 +1937,189 @@ INCLUDE_ASM(debug_WriteBMP);
 /* debug_SnapShot's first-call flag */
 static int snapFirst = 1; /* derived name */
 
-int debug_SnapShot(int idx);
+/* Stores the frame as shot idx, idx frame sizes above 0x2000000, and writes
+   the next free snapshot/snapNNNNNNN file: shot 0 on its own (halved for
+   Half), shot 5 shots 1-4 joined two by two. */
+int debug_SnapShot(int idx)
+{
+    sceGsStoreImage si;
+    char name[256];
+    int size = ScreenWidth * ScreenHeight * 4;
+    int ofs = size * idx;
+    int i;
+    int fd;
+    int *src;
+    int *dst;
+    int w;
+    int h;
+    int y;
 
-INCLUDE_ASM(debug_SnapShot);
+    debugBackGroundDisableFlag = 1;
+    if (snapFirst != 0) {
+        if (iosCdvdBackGroundMgrRunning != 0) {
+            return 1;
+        }
+        snapFirst = 0;
+    }
+    sceGsSyncPath(0, 0);
+    src = (int *)(0x2000000 + ofs);
+    debug_StdPrintfDummy("Snapx4:%d:%p\n", idx, src);
+    sceGsSetDefStoreImage(&si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
+    FlushCache(0);
+    sceGsExecStoreImage(&si, src);
+    sceGsSyncPath(0, 0);
+    switch (idx) {
+    case 0:
+        for (i = 0;; i++) {
+            if (debug_snapshot_format == 0) {
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            } else {
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
+            fd = debugSceOpen(name, 1);
+            debugSceClose(fd);
+            if (fd < 0) {
+                break;
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            sprintf(name, "snapshot/snap%07d.tm2", i);
+        } else {
+            sprintf(name, "snapshot/snap%07d.bmp", i);
+        }
+        fd = debugSceOpen(name, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+            break;
+        }
+        dst = src + size * 4;
+        if (debug_snapshot_size == 1) {
+            debug_ResizeSnapShot((int)dst, (int)src, ScreenWidth, ScreenHeight);
+            w = ScreenWidth / 2;
+            h = ScreenHeight / 2;
+        } else {
+            dst = src;
+            w = ScreenWidth;
+            h = ScreenHeight;
+        }
+        if (debug_snapshot_format == 0) {
+            debug_WriteTim2(fd, dst, w, h);
+        } else {
+            debug_WriteBMP(fd, w, h, (unsigned int *)dst);
+        }
+        if (debugSceClose(fd) < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
+        break;
+    case 5: {
+        int *p[16];
+        int *out;
+        int *d;
+        int w;
+        int h;
+        int j;
+
+        for (i = 0;; i++) {
+            if (debug_snapshot_format == 0) {
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            } else {
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
+            fd = debugSceOpen(name, 1);
+            debugSceClose(fd);
+            if (fd < 0) {
+                break;
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            sprintf(name, "snapshot/snap%07d.tm2", i);
+        } else {
+            sprintf(name, "snapshot/snap%07d.bmp", i);
+        }
+        fd = debugSceOpen(name, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+            break;
+        }
+        FlushCache(0);
+        w = ScreenWidth;
+        h = ScreenHeight;
+        p[0] = (int *)(0x2000000 + size);
+        p[1] = (int *)(0x2000000 + size * 2);
+        p[2] = (int *)(0x2000000 + size * 3);
+        p[3] = (int *)(0x2000000 + size * 4);
+        out = (int *)(0x2000000 + size * 5);
+        d = out;
+        debug_StdPrintfDummy("%p (%p %p %p %p)\n", out, p[0], p[1], p[2], p[3]);
+        for (y = 0; y < h * 2; y++) {
+            if (y < 4) {
+                for (i = 0; i < w * 2; i++) {
+                    *d++ = 0;
+                }
+            } else if (y >= h - 2 && y < h) {
+                for (j = 0; j < 2; j++) {
+                    for (i = 0; i < w; i++) {
+                        p[j]++;
+                    }
+                }
+            } else if (y > h - 1 && y <= h + 1) {
+                for (j = 2; j < 4; j++) {
+                    for (i = 0; i < w; i++) {
+                        p[j]++;
+                    }
+                }
+            } else if (y < h) {
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+                for (j = 0; j < 2; j++) {
+                    if (j % 2 == 1) {
+                        p[j] += 4;
+                    }
+                    for (i = 0; i < w - 4; i++) {
+                        *d++ = *p[j]++;
+                    }
+                    if (j % 2 == 0) {
+                        p[j] += 4;
+                    }
+                }
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+            } else {
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+                for (j = 2; j < 4; j++) {
+                    if (j % 2 == 1) {
+                        p[j] += 4;
+                    }
+                    for (i = 4; i < w; i++) {
+                        *d++ = *p[j]++;
+                    }
+                    if (j % 2 == 0) {
+                        p[j] += 4;
+                    }
+                }
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            debug_WriteTim2(fd, out, w * 2, h * 2);
+        } else {
+            debug_WriteBMP(fd, w * 2, h * 2, (unsigned int *)out);
+        }
+        if (debugSceClose(fd) < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
+        break;
+    }
+    }
+    dma_init();
+    return 1;
+}
 
 void debug_DispQW(void *p, int size)
 {

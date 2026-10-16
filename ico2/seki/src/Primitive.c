@@ -19,7 +19,6 @@
 #include "DmaPacket.h"
 #include "ios.h"
 #include <assert.h>
-#include "include_asm.h"
 
 Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc)
 {
@@ -758,7 +757,37 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     return p;
 }
 
-INCLUDE_ASM(prim_DispParticle);
+void prim_DispParticle(PrimParticle *p, void *mtx)
+{
+    int pri = dl_GetPri();
+
+    if (debug_disp_particle != 0) {
+        if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
+            /* "the specified texture number is invalid" */
+            debug_StdPrintfDummy("prim_DispParticle:指定したテクスチャ番号が異常です. %s:%d\n",
+                                 p->name, p->tex);
+            debug_assert("src/Primitive.c", 1036);
+            __assert("src/Primitive.c", 1036, "FALSE");
+            return;
+        }
+        if (p->num < 0x51) {
+            texturetranssize += tex_TransTexture(p->tex, pri);
+            _CopyMatrix(p->buf[p->cur].mtx, mtx);
+            _CopyMatrix(p->buf[p->cur].lmtx, matrixptr + 0xC0);
+            mc_TransMicroCode(5, 1 << pri);
+            dl_OpenDma(2, &p->buf[p->cur], p->headQwc);
+            dl_CloseDma();
+            mc_SetMicroCode(3, 0, 0, 0, pri);
+            dl_OpenDma(2, p->objs[p->cur], p->objSize);
+            dl_CloseDma();
+            if (systemStatus[5] == 0) {
+                p->cur ^= 1;
+            }
+            p->vtx = p->objs[p->cur]->vtx;
+            p->vtxNext = p->objs[p->cur ? 0 : 1]->vtx;
+        }
+    }
+}
 
 void prim_DeleteParticle(PrimParticle *p)
 {

@@ -5,7 +5,6 @@
 #include "Matrix.h"
 #include "GifPacket.h"
 #include "Texture.h"
-#include "include_asm.h"
 
 /* each character's first and last column in its 20-pixel cell of the "font"
    texture, {0, 0} where the font has no glyph */
@@ -115,6 +114,138 @@ int font_CheckAlign(SprCol *col, unsigned char *str)
     return fontAlign;
 }
 
-INCLUDE_ASM(func_001FAE98);
+void font_Print(unsigned int color, unsigned char *str, float x, float y, int align, SprCol col)
+{
+    unsigned char buf[256];
+    unsigned char *p;
+    int r;
+    int g;
+    int b;
+    int a;
+    float cx;
+    float cy;
+    float fw;
 
-INCLUDE_ASM(font_Print);
+    float disp(float px, float py, int c, int cw, int fontw, int u, int v)
+    {
+        float fcw = (float)cw, fh = (float)(fontw * 640 / ScreenWidth);
+        int gsofs = 0x8000;
+        int uv[4] = {u * 16, v * 16, (u + cw + 1) * 16, (v + fontw) * 16}, iv[4];
+        float pos[4] = {px, py, fcw, fh};
+        int ofs[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 4 * 16, 0, 0};
+
+        _FTOI4Vector(iv, pos);
+        gif_SetGsReg(0, 0x156);
+        gif_SetGsReg(3, uv[0] | ((long long)uv[1] << 16));
+        /* clang-format off */
+        gif_SetGsReg(5, (ofs[0] + (iv[0] + gsofs)) | ((long long)(ofs[1] + (iv[1] + gsofs)) << 16) | ((long long)-1 << 32));
+        gif_SetGsReg(3, uv[2] | ((long long)uv[3] << 16));
+        gif_SetGsReg(5, (ofs[0] + (iv[0] + gsofs) + iv[2]) | ((long long)(ofs[1] + (iv[1] + gsofs) + iv[3]) << 16) | ((long long)-1 << 32));
+        /* clang-format on */
+        return px + fcw + 1.0f;
+    }
+
+    inline int measure(unsigned char *s, unsigned char *d) /* derived name */
+    {
+        int brace = 0;
+        int width = 0;
+        int ch;
+
+        while ((ch = *s++) != 0) {
+            if (ch == '{') {
+                brace = 1;
+            } else if (ch == '}') {
+                brace = 0;
+            } else if (brace == 0) {
+                int ca = fontKerning[ch][0];
+                int cb = fontKerning[ch][1];
+                int w = cb - ca;
+
+                int cw = w + 1;
+
+                if (cw < 7) {
+                    cw = w + 3;
+                }
+                if (ca == 0 && cb == 0) {
+                    width += 8;
+                } else {
+                    width += 1 + cw;
+                }
+                *d++ = ch;
+            }
+        }
+        *d++ = 0;
+        return width;
+    }
+
+    texturetranssize += tex_TransTexture(tex_GetTextureNo("font"), 12);
+    gif_StartPacketPriPath1(12);
+
+    cy = cx = 0.0f;
+
+    r = (color >> 24) * col.f[0] / 255;
+    g = ((color >> 16) & 0xFF) * col.f[1] / 255;
+    b = ((color >> 8) & 0xFF) * col.f[2] / 255;
+    a = ((color & 0xFF) * col.f[3]) >> 7;
+    gif_SetGsReg(0x4E, 0x300000C0);
+    gif_SetGsReg(0x47, 0x30000);
+    gif_SetGsReg(0x42, 0x44);
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetGsReg(1, r | ((long long)g << 8) | ((long long)b << 16) | ((long long)a << 24) |
+                        ((long long)0xFE00 << 46));
+
+    fw = (float)measure(str, buf);
+    p = buf;
+
+    switch (align) {
+    case 0:
+        cy = y;
+        cx = x * (float)ScreenWidth / 640.0f + (float)(ScreenWidth / 2) - fw * 0.5f;
+        break;
+    case 1:
+        cy = y;
+        cx = x * (float)ScreenWidth / 640.0f + 4.0f;
+        break;
+    case 2:
+        cy = y;
+        cx = x * (float)ScreenWidth / 640.0f + (float)ScreenWidth - fw - 4.0f;
+        break;
+    }
+
+    for (;;) {
+        int c = *p++;
+        int ca;
+        int cb;
+        int w;
+        int cw;
+        int fontw;
+        int u;
+        int v;
+
+        /* clang-format off */
+        if (c == 0) break;
+        /* clang-format on */
+        if (c == ' ') {
+            cx += 8.0f;
+            continue;
+        }
+        ca = fontKerning[c][0];
+        cb = fontKerning[c][1];
+        u = (c - ' ') % 12 * 20 + ca;
+        v = (c - ' ') / 12 * 20;
+        w = cb - ca;
+        cw = w + 1;
+        fontw = font_GetWidth();
+        if (cw < 7) {
+            cx += 1.0f;
+            cw = w + 2;
+        }
+        if (ca == 0 && cb == 0) {
+            cx += 8.0f;
+        } else {
+            cx = disp(cx, cy, c, cw, fontw, u, v);
+        }
+    }
+
+    gif_EndPacketPath1();
+}
