@@ -50,7 +50,6 @@ int SearchActiveGenerator(void);
 void ResetReviveCountEnemy(struct GObj *gobj);
 void SetInfoSpKidnapGenerator(short *info);
 void SetInfoSpKidnapEnemy(short *work);
-inline int IsOpenGenerator(struct GObj *gobj);
 int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
 int CheckGeneratorCollision(struct GObj *gobj, float *dir);
 void Generator_QuickCall(struct GObj *gobj);

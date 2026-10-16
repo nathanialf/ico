@@ -494,41 +494,6 @@ text PlumbPointUpdateChain 0x0018F8E8 0x0018FA6C ico2/omori/src/chain.c local li
 sdlit PlumbPointUpdateChain 0x0063276C 0x00632770 ico2/omori/src/chain.c  # 1 word
 text TestChainUpDown 0x0018FA70 0x00190294 ico2/omori/src/chain.c local lines=139  # us-only (in chain.c's span; PAL order suggests TestChainUpDown (2352 B in PAL)); named TestChainUpDown by callees, body alignment (provisional)
 rdlit TestChainUpDown 0x0055ADC0 0x0055ADD4 ico2/omori/src/chain.c align=16  # 1 jump table, measured from the base
-text endfunc_BGA 0x00192478 0x001925E0 ico2/omori/src/generator.c local lines=34  # us-only (in generator.c's span; body equals PAL endfunc_BGA's with immediates and jump targets masked); named endfunc_BGA by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit endfunc_BGA 0x0055AEA0 0x0055AEB0 ico2/omori/src/generator.c  # 1 string
-sdlit endfunc_BGA 0x00632798 0x0063279A ico2/omori/src/generator.c  # 1 string
-text IsNeedGeneratorHard 0x001925E0 0x00192904 ico2/omori/src/generator.c local lines=93  # us-only (in generator.c's span; PAL order suggests IsNeedGeneratorHard (748 B in PAL)); named IsNeedGeneratorHard by callees (provisional)
-text CallEnemy 0x00192908 0x00192B54 ico2/omori/src/generator.c lines=9  # us-only (in generator.c's span; body equals PAL CallEnemy's with immediates and jump targets masked); named CallEnemy by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text Generator_QuickCall 0x00192B58 0x00192B98 ico2/omori/src/generator.c lines=8  # us-only (in generator.c's span; body equals PAL Generator_QuickCall's with immediates and jump targets masked); named Generator_QuickCall by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
-text GetMotherGenerator 0x00192B98 0x00192D20 ico2/omori/src/generator.c lines=50  # us-only (in generator.c's span; PAL order suggests GetMotherGenerator (432 B in PAL)); named GetMotherGenerator by call sites, callees, body alignment (provisional)
-text ReadGeneratorPacket 0x00192D20 0x00192E08 ico2/omori/src/generator.c lines=26  # us-only (in generator.c's span; body equals PAL ReadGeneratorPacket's with immediates and jump targets masked); named ReadGeneratorPacket by its body equals PAL's with immediates and jump targets masked, body alignment (provisional)
-text MakeGeneratorPacket 0x00192E08 0x00192EB4 ico2/omori/src/generator.c lines=17  # us-only (in generator.c's span; body equals PAL MakeGeneratorPacket's with immediates and jump targets masked); named MakeGeneratorPacket by its body equals PAL's with immediates and jump targets masked, call sites, body alignment (provisional)
-text generatorBeforeFunc 0x00192EB8 0x001930AC ico2/omori/src/generator.c lines=35  # us-only (in generator.c's span; body equals PAL generatorBeforeFunc's with immediates and jump targets masked); named generatorBeforeFunc by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text GeneratorGeo 0x001930B0 0x00193600 ico2/omori/src/generator.c lines=115  # us-only (in generator.c's span; PAL order suggests GeneratorGeo (1244 B in PAL)); named GeneratorGeo by callees (provisional)
-text GeneratorDL 0x00193600 0x00193730 ico2/omori/src/generator.c lines=26  # us-only (in generator.c's span; body equals PAL GeneratorDL's with immediates and jump targets masked); named GeneratorDL by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text InitGeneratorGeo 0x00193730 0x00193814 ico2/omori/src/generator.c lines=35  # us-only (in generator.c's span; PAL order suggests InitGeneratorGeo (236 B in PAL)); named InitGeneratorGeo by callees, body alignment (provisional)
-text Generator_Call 0x00193818 0x00193830 ico2/omori/src/generator.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
-text Generator_ResetCount 0x00193830 0x00193844 ico2/omori/src/generator.c lines=6  # ordinal; first difference at insn 2; imm:2; extent-equal
-text Generator_Mask 0x00193848 0x0019385C ico2/omori/src/generator.c lines=6  # ordinal; first difference at insn 2; imm:2; extent-equal
-text Generator_MaskOff 0x00193860 0x00193870 ico2/omori/src/generator.c lines=6  # ordinal; first difference at insn 1; imm:2; extent-equal
-text SetMotherGenerator 0x00193870 0x0019392C ico2/omori/src/generator.c lines=21  # ordinal; first difference at insn 1; imm:1; extent-equal
-text Generator_Init 0x00193930 0x001939C8 ico2/omori/src/generator.c lines=21  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetbufpGeneratorPacket
-text GetbufpGeneratorPacket 0x001939C8 0x001939D4 ico2/omori/src/generator.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetsizeGeneratorPacket
-text GetsizeGeneratorPacket 0x001939D8 0x001939E0 ico2/omori/src/generator.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text RestoreGeneratorGeo 0x001939E0 0x00193A00 ico2/omori/src/generator.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before RestoreGeneratorExtGeo
-text RestoreGeneratorExtGeo 0x00193A00 0x00193A54 ico2/omori/src/generator.c lines=11  # ordinal; first difference at insn 6; imm:1; extent-equal
-text MemoryGenerator 0x00193A58 0x00193A78 ico2/omori/src/generator.c lines=7  # ordinal; first difference at insn 2; imm:1; extent-equal
-text IsEnableCallEnemy 0x00193A78 0x00193B74 ico2/omori/src/generator.c lines=28  # ordinal; first difference at insn 19; imm:2; extent-equal
-text DirectCallEnemy 0x00193B78 0x00193CE8 ico2/omori/src/generator.c lines=19  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before LockEnemyGenerate
-rdlit DirectCallEnemy 0x0055AEB0 0x0055AEE7 ico2/omori/src/generator.c def  # 2 strings
-sdlit DirectCallEnemy 0x006327A0 0x006327A7 ico2/omori/src/generator.c def  # 1 string
-text LockEnemyGenerate 0x00193CE8 0x00193D30 ico2/omori/src/generator.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before UnlockEnemyGenerate
-rdlit LockEnemyGenerate 0x0055AEE8 0x0055AEF4 ico2/omori/src/generator.c def  # 1 string
-text UnlockEnemyGenerate 0x00193D30 0x00193DBC ico2/omori/src/generator.c lines=8  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before RestoreReviveCount
-rdlit UnlockEnemyGenerate 0x0055AEF8 0x0055AF06 ico2/omori/src/generator.c def  # 1 string
-text RestoreReviveCount 0x00193DC0 0x00193E48 ico2/omori/src/generator.c lines=13  # ordinal; first difference at insn 13; imm:1; extent-equal
-text ReturnEnemyToGenerator 0x00193E48 0x00193EC8 ico2/omori/src/generator.c lines=15  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GeneratorWorkEnd
-text GeneratorWorkEnd 0x00193EC8 0x00193EDC ico2/omori/src/generator.c lines=5  # ordinal; first difference at insn 1; imm:1; extent-equal
 text RotateAccordingToStick_PatternThree 0x00194A08 0x00194BD8 ico2/omori/src/hand-camera.c local lines=49  # us-only (after gv.c's span; PAL order suggests RotateAccordingToStick_PatternThree (496 B in PAL)); named RotateAccordingToStick_PatternThree by callees, body alignment (provisional)
 lit4 RotateAccordingToStick_PatternThree 0x00630FC4 0x00630FD0 ico2/omori/src/hand-camera.c  # 3 floats
 text ClearHandCameraCorrect 0x00194DC0 0x00194E24 ico2/omori/src/hand-camera.c lines=12  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before InitHandCameraCorrect
