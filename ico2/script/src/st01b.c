@@ -16,22 +16,13 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
-/* This stage's actor mail records. Word 0 of each entry is the mail id the
-   entry answers (397 = the actor's own wake-up post, 396 = the trailing
-   entry); the handler in .func is installed at run time just before the
-   record is posted. Each record is named for the actor thread that owns
-   and posts it. */
-static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail floor_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail way_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail way_on_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail way_off_mes[2] = {{397}, {396}}; /* derived name */
+/* This stage's actor mail records are static locals of the function that
+   posts each one (.data holds the five in the order of their posters, and
+   each takes gcc's local name.N symbol). Word 0 of each entry is the
+   mail id the entry answers (397 = the actor's own wake-up post, 396 = the
+   trailing entry); the handler in .func is installed at run time just
+   before the record is posted. */
 
 void actSt01bInit(void)
 {
@@ -147,6 +138,8 @@ void actSt01bEne(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(64) == 0) {
+        static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
+
         ene_mes[0].func = actSt01bEneChk;
         act->mail = ene_mes;
         ACTSendMailCorrect(self, 397);
@@ -268,6 +261,7 @@ void actSt01bEnemy6(GObj *volatile self)
 void actSt01bFloor(GObj *volatile self)
 {
     GObj *x = self;
+    static ActMail floor_mes[2] = {{397}, {396}}; /* derived name */
     Act *act = actInitialize(self);
 
     _ACTWait(1);
@@ -283,6 +277,7 @@ void actSt01bFloor(GObj *volatile self)
 void actSt01bWay(GObj *volatile self)
 {
     GObj *x = self;
+    static ActMail way_mes[2] = {{397}, {396}}; /* derived name */
     Act *act = actInitialize(self);
 
     _ACTWait(1);
@@ -305,11 +300,30 @@ void actSt01bFloorEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt01bWayOnChk);
+void actSt01bWayOnChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail way_on_mes[2] = {{397}, {396}}; /* derived name */
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 || gflagChk(66) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(4, 1);
+
+    way_on_mes[0].func = actSt01bWayOffChk;
+    sub->mail = way_on_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
 void actSt01bWayOffChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+    static ActMail way_off_mes[2] = {{397}, {396}}; /* derived name */
 
     if (girlGObj == 0) {
         _ACTWait(0);
