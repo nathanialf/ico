@@ -242,52 +242,11 @@ text brainStatusDefaultSet 0x00182000 0x00182154 ico2/omori/src/brain.c lines=12
 text func_00182758 0x00182758 0x0018285C ico2/omori/src/brain.c  # us-only; in brain.c's span; pairs with no PAL-only function there by size and order
 text SetCameraMatrix_Ico2 0x00189D68 0x0018A3FC ico2/omori/src/camera-ico2.c lines=88  # us-only (in camera-ico2.c's span; PAL order suggests SetCameraMatrix_Ico2 (1420 B in PAL)); named SetCameraMatrix_Ico2 by call sites, callees, body alignment (provisional)
 lit4 SetCameraMatrix_Ico2 0x00630EDC 0x00630EF0 ico2/omori/src/camera-ico2.c  # 5 floats, measured from the base: the text loads them
-text ReadCameraSet 0x0018A400 0x0018B094 ico2/omori/src/camera-ico2.c local lines=132  # us-only (in camera-ico2.c's span; body equals PAL ReadCameraSet's with immediates and jump targets masked); named ReadCameraSet by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
-rdlit ReadCameraSet 0x0055A9A8 0x0055AA4A ico2/omori/src/camera-ico2.c  # 4 strings
-text SetCameraZoomOffsetRatio 0x0018B098 0x0018B0A0 ico2/omori/src/camera-ico2.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetCameraGroupCurrent
-text GetCameraGroupCurrent 0x0018B0A0 0x0018B0A8 ico2/omori/src/camera-ico2.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetCameraGroupFromGObj
-text GetCameraGroupFromGObj 0x0018B0A8 0x0018B180 ico2/omori/src/camera-ico2.c lines=34  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetCameraGroupFromPosition
-text GetCameraGroupFromPosition 0x0018B180 0x0018B248 ico2/omori/src/camera-ico2.c lines=33  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before AddPluralCameraSet
-text AddPluralCameraSet 0x0018B248 0x0018B2F4 ico2/omori/src/camera-ico2.c lines=15  # ordinal; first difference at insn 15; imm:2; extent-equal
-rdlit AddPluralCameraSet 0x0055A970 0x0055A9A7 ico2/omori/src/camera-ico2.c def  # 1 string
-text InitPluralCameraSet 0x0018B2F8 0x0018B300 ico2/omori/src/camera-ico2.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetPluralCameraSet
-text ConvertCameraSet 0x0018B738 0x0018B880 ico2/omori/src/camera-root.c lines=17  # us-only (in camera-root.c's span; PAL order suggests ConvertCameraSet (332 B in PAL)); named ConvertCameraSet by call sites, callees, body alignment (provisional)
-lit4 ConvertCameraSet 0x00630EF0 0x00630EF4 ico2/omori/src/camera-root.c  # 1 float
-text MakeCameraMatrix 0x0018B880 0x0018B9CC ico2/omori/src/camera-root.c lines=13  # us-only (in camera-root.c's span; PAL order suggests MakeCameraMatrix (272 B in PAL)); named MakeCameraMatrix by call sites (provisional)
-text SetCameraMatrix 0x0018C210 0x0018CA78 ico2/omori/src/camera-root.c lines=223  # ordinal; first difference at insn 0; length:-165; extent-differs
-lit4 SetCameraMatrix 0x00630EF4 0x00630EFC ico2/omori/src/camera-root.c  # 2 floats, measured from the base: the text loads them
-sdlit SetCameraMatrix 0x00632708 0x00632730 ico2/omori/src/camera-root.c  # 4 strings and the function's two statics, measured from the base
-rdlit SetCameraMatrix 0x0055AA50 0x0055AA84 ico2/omori/src/camera-root.c  # 1 string, 1 data, 1 jump table, measured from the base
-text InsertCamera_Set 0x0018CD00 0x0018CD94 ico2/omori/src/camera-root.c lines=19  # us-only (in camera-root.c's span; PAL order suggests InsertCamera_Set (164 B in PAL)); named InsertCamera_Set by callees, body alignment (provisional)
-text InsertCamera_SetNoraml 0x0018CD98 0x0018CE40 ico2/omori/src/camera-root.c lines=15  # us-only (in camera-root.c's span; PAL order suggests InsertCamera_SetNoraml (176 B in PAL)); named InsertCamera_SetNoraml by call sites, callees, body alignment (provisional)
-text RotateAccordingToStick_PatternThree 0x00194A08 0x00194BD8 ico2/omori/src/hand-camera.c local lines=49  # us-only (after gv.c's span; PAL order suggests RotateAccordingToStick_PatternThree (496 B in PAL)); named RotateAccordingToStick_PatternThree by callees, body alignment (provisional)
-lit4 RotateAccordingToStick_PatternThree 0x00630FC4 0x00630FD0 ico2/omori/src/hand-camera.c  # 3 floats
-text ClearHandCameraCorrect 0x00194DC0 0x00194E24 ico2/omori/src/hand-camera.c lines=12  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before InitHandCameraCorrect
-text InitHandCameraCorrect 0x00194E28 0x00194EA4 ico2/omori/src/hand-camera.c lines=14  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SetLimitHandCameraCorrect
-text SetLimitHandCameraCorrect 0x00194EA8 0x00194EBC ico2/omori/src/hand-camera.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before func_00194EC0
-text func_00194EC0 0x00194EC0 0x00194FE4 ico2/omori/src/hand-camera.c  # us-only; after hand-camera.c's span; pairs with no PAL-only function there by size and order
-lit4 func_00194EC0 0x00630FD4 0x00630FD8 ico2/omori/src/hand-camera.c  # 1 float, measured from the base: the text loads them
 text InitMailAdditionalData 0x00194FE8 0x00194FF4 ico2/omori/src/mail-add-data.c lines=5  # us-only (after hand-camera.c's span; PAL size and order suggest InitMailAdditionalData); named InitMailAdditionalData by PAL size and order, body alignment (provisional)
 text ActSendMail_WithAdditionalData 0x00194FF8 0x001950F8 ico2/omori/src/mail-add-data.c lines=19  # us-only (after hand-camera.c's span; body equals PAL ActSendMail_WithAdditionalData's with immediates and jump targets masked); named ActSendMail_WithAdditionalData by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
 rdlit ActSendMail_WithAdditionalData 0x0055AF30 0x0055AF60 ico2/omori/src/mail-add-data.c def  # 1 string
 text GetMailAdditionalData 0x001950F8 0x0019519C ico2/omori/src/mail-add-data.c lines=14  # us-only (after hand-camera.c's span; body equals PAL GetMailAdditionalData's with immediates and jump targets masked); named GetMailAdditionalData by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text ClearMailAdditionalData 0x001951A0 0x00195208 ico2/omori/src/mail-add-data.c lines=7  # us-only (after hand-camera.c's span; body equals PAL ClearMailAdditionalData's with immediates and jump targets masked); named ClearMailAdditionalData by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text birdBeforeFunc 0x001956E8 0x0019590C ico2/ito/src/act_bird.c lines=70  # ordinal; first difference at insn 16; imm:23; extent-equal
-text subBirdBrainMain 0x00195A40 0x00196E74 ico2/ito/src/act_bird.c lines=522  # ordinal; first difference at insn 30; imm:46; extent-equal
-lit4 subBirdBrainMain 0x00630FE0 0x00631034 ico2/ito/src/act_bird.c  # 21 floats
-rdlit subBirdBrainMain 0x0055AF60 0x0055AFA4 ico2/ito/src/act_bird.c align=16  # 4 strings
-rdlit subBirdBrainMain 0x0055AFB0 0x0055AFD4 ico2/ito/src/act_bird.c align=16  # 1 jtbl
-sdlit subBirdBrainMain 0x006327B8 0x006327EF ico2/ito/src/act_bird.c  # 7 strings
-text Debug_StickControl 0x00196F78 0x00197074 ico2/ito/src/act_bird.c local lines=20  # ordinal; first difference at insn 10; imm:9; extent-equal
-lit4 Debug_StickControl 0x00631034 0x00631038 ico2/ito/src/act_bird.c  # 1 float
-text BirdDL 0x00197080 0x001970E0 ico2/ito/src/act_bird.c lines=15  # ordinal; first difference at insn 6; imm:2; extent-equal
-text vector_angle_degree 0x001970E8 0x0019715C ico2/ito/src/act_bird.c lines=8  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before subBirdControl
-lit4 vector_angle_degree 0x00631038 0x0063103C ico2/ito/src/act_bird.c  # 1 float
-text subBirdControl 0x00197160 0x00197194 ico2/ito/src/act_bird.c lines=8  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before subBirdCollision
-text subBirdCollision 0x00197198 0x001971C0 ico2/ito/src/act_bird.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before actBirdStart
-text actBirdStart 0x001971C0 0x0019723C ico2/ito/src/act_bird.c lines=11  # ordinal; first difference at insn 22; imm:3; extent-equal
-text InitBirdGeo 0x00197240 0x0019732C ico2/ito/src/act_bird.c lines=22  # ordinal; first difference at insn 24; imm:3; extent-equal
-rdlit InitBirdGeo 0x0055AFD8 0x0055AFE7 ico2/ito/src/act_bird.c def  # 1 string
 text func_0019D9C8 0x0019D9C8 0x0019D9D0 ico2/ito/mpeg/mv_main.c  # us-only; after mv_main.c's span; pairs with no PAL-only function there by size and order
 text readBufDelete 0x0019D9D0 0x0019D9D8 ico2/ito/mpeg/mv_readbuf.c lines=1  # us-only (after mv_main.c's span; pairs with no PAL-only function there by size and order); named readBufDelete by call sites (provisional)
 text func_0019D9D8 0x0019D9D8 0x0019D9E8 ico2/ito/mpeg/mv_readbuf.c  # us-only; after mv_main.c's span; pairs with no PAL-only function there by size and order; mv_readbuf.c's, since readBufDelete (call sites) comes before it

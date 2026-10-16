@@ -7,7 +7,6 @@
 #include <string.h>
 #include <libvu0.h>
 #include "main.h"
-#include "include_asm.h"
 
 /* the correction rate scaled by the frame budget */
 static float handCameraRate; /* derived name */
@@ -16,7 +15,76 @@ static float handCameraRate; /* derived name */
    SetLimitHandCameraCorrect writes */
 static float handCameraWork[7]; /* derived name */
 
-INCLUDE_ASM(RotateAccordingToStick_PatternThree);
+static void RotateAccordingToStick_PatternThree(float *pitch, float *yaw, float x, float y)
+{
+    float *p = handCameraWork;
+    float len = FSqrt(x * x + y * y);
+    float ang = atan2f(y, x);
+    float v[4] = {len, 0.0f, 0.0f, 0.0f};
+    float spd;
+    float da;
+    float db;
+    float t;
+    float d;
+
+    _ApplyRyGV(v, -ang);
+    x = v[0];
+    y = v[2];
+
+    if (len < 0.1f)
+        spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(16);
+    else
+        spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(15);
+
+    db = x * (p[5] * 3.1415927f / 180.0f) - *yaw;
+
+    if (y > 0.0f) {
+        t = p[2];
+    } else {
+        t = p[3];
+        if (t < 0.0f)
+            t = -t;
+    }
+    da = y * t - *pitch;
+
+    d = FSqrt(da * da + db * db);
+
+    if (d < spd * 10.0f) {
+        da = da / 10.0f;
+        db = db / 10.0f;
+    } else if (spd < d) {
+        da = da * spd / d;
+        db = db * spd / d;
+    }
+    *pitch += da;
+    *yaw += db;
+}
+
+static inline void SetCurrentInfo(void *eye, void *at)
+{
+    float *p = handCameraWork;
+    float v[4];
+    float w[4];
+    float ang;
+    float t;
+    float mx;
+    float mn;
+
+    sceVu0SubVector(v, at, eye);
+    w[0] = v[0];
+    w[1] = 0.0f;
+    w[2] = v[2];
+    ang = _RotGVF(w, v);
+    p[4] = ang;
+    if (v[1] > 0.0f)
+        p[4] = -ang;
+
+    t = p[6] * 3.1415927f / 180.0f;
+    mx = (t < p[4]) ? p[4] : t;
+    p[2] = mx - p[4];
+    mn = (p[4] < -t) ? p[4] : -t;
+    p[3] = mn - p[4];
+}
 
 static void HandyCamera_TargetMoveType(void *eye, void *at)
 {
@@ -60,10 +128,49 @@ static void HandyCamera_TargetMoveType(void *eye, void *at)
     sceVu0AddVector(at, eye, d);
 }
 
-INCLUDE_ASM(ClearHandCameraCorrect);
+inline void ClearHandCameraCorrect(void)
+{
+    int a = systemStatus[0];
+    int b = systemStatus[1];
+    int t = a * 10;
+    int diff = 60 - t;
+    int q;
+    *(int *)&handCameraWork[0] = 0;
+    *(int *)&handCameraWork[1] = 0;
+    q = diff / b;
+    handCameraRate = 60.0f / (float)q;
+}
 
-INCLUDE_ASM(InitHandCameraCorrect);
+inline void InitHandCameraCorrect(void)
+{
+    int a = systemStatus[0];
+    int b = systemStatus[1];
+    int t = a * 10;
+    int diff = 60 - t;
+    int q;
+    *(int *)&handCameraWork[0] = 0;
+    *(int *)&handCameraWork[1] = 0;
+    q = diff / b;
+    handCameraWork[5] = 120.0f;
+    handCameraWork[6] = 80.0f;
+    handCameraRate = 60.0f / (float)q;
+}
 
-INCLUDE_ASM(SetLimitHandCameraCorrect);
+inline void SetLimitHandCameraCorrect(float limitP, float limitV)
+{
+    handCameraWork[5] = limitP;
+    handCameraWork[6] = limitV;
+}
 
-INCLUDE_ASM(func_00194EC0);
+inline void HandCameraCorrect(void *eye, void *at, float stickX, float stickZ, float rate)
+{
+    float *p = handCameraWork;
+
+    handCameraRate = rate;
+
+    SetCurrentInfo(eye, at);
+
+    RotateAccordingToStick_PatternThree(p, p + 1, stickX, -stickZ);
+
+    HandyCamera_TargetMoveType(eye, at);
+}
