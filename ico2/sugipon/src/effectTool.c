@@ -15,7 +15,6 @@
 #include "main.h"
 #include "GifPacket.h"
 #include "debug.h"
-#include "include_asm.h"
 
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
@@ -456,7 +455,7 @@ static inline void initEffectTool(void) /* derived name */
     CameraSetMode(1);
     scpBoyControlReadDisable = 1;
     debug_StdPrintfDummy("initialize\n");
-    for (i = 0x3C; i >= 0; i--) {
+    for (i = 52; i >= 0; i--) {
         effectToolDirty[i] = 0;
     }
 }
@@ -592,4 +591,21 @@ static void exitEffectTool(void)
 /* EffectTool's entered flag */
 static int toolEntered = 0; /* derived name */
 
-INCLUDE_ASM(EffectTool);
+int EffectTool(void)
+{
+    int r;
+
+    if (toolEntered == 0) {
+        initEffectTool();
+        toolEntered = 1;
+        fieldDisp = 1;
+    }
+    r = execEffectTool();
+    if (r == -1) {
+        exitEffectTool();
+        toolEntered = 0;
+        lastEffectId = r;
+        paramCursor = 0;
+    }
+    return r;
+}

@@ -942,8 +942,8 @@ static inline void assertMotionLoaded(struct MotCtrl *w, int *md) /* derived nam
 
         sprintf(buf, "THE MOTION \"%s\"(%d)\nDID NOT LOAD IN THIS STAGE\nOR IS INVALID ID.\n",
                 motionKind[w->motion].name, w->motion);
-        debug_assertMessage(__FILE__, 1275, buf);
-        __assert(__FILE__, 1275, "e");
+        debug_assertMessage(__FILE__, 1268, buf);
+        __assert(__FILE__, 1268, "e");
     }
 }
 
@@ -962,8 +962,8 @@ static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n) /* d
             buf,
             "THE NUMBER OF NODE DATAS OF MOTION\n\"%s\"(%d SKELTONS) DOES NOT MATCH\nTHE NUMBER OF SKELTON NODES(%d SKELTONS)\n",
             motionKind[w->motion].name, i - 1, n);
-        debug_assertMessage(__FILE__, 1287, buf);
-        __assert(__FILE__, 1287, "e");
+        debug_assertMessage(__FILE__, 1280, buf);
+        __assert(__FILE__, 1280, "e");
     }
 }
 
@@ -1060,9 +1060,10 @@ static void getShapeGeometry(void *self)
     }
 }
 
-/* both stream-geometry functions inline it (once and twice) */
-static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* derived name */
+static void getStreamMotionGeometry(void *self, void *sm)
 {
+    float v[4];
+    StreamElem mot[MOWORK(self)->skelNodeNum];
     float s = MOWORK(self)->nodes->scale[0];
 
     if (GetStreamMotion(mot, v, sm, MOWORK(self)->skel) != 0) {
@@ -1072,12 +1073,12 @@ static inline int getStreamVec(void *self, void *sm, float *v, void *mot) /* der
         v[0] -= MOWORK(self)->streamOfs[0];
         v[1] -= MOWORK(self)->streamOfs[1];
         v[2] += MOWORK(self)->streamOfs[2];
-        return 1;
+        GetGeometryOfMotion(self, mot, mot, v, 1.0f, ZeroVector, -1);
+        CopyMotion(MOWORK(self)->motionBuf, mot, MOWORK(self)->skelNodeNum);
+        CopyVector(MOWORK(self)->motionPos, v);
+        DispSkelton(self, mot);
     }
-    return 0;
 }
-
-INCLUDE_ASM(getStreamMotionGeometry);
 
 /* The clamp and its own `int *p` declaration, a macro with a block body
  * shared by getStreamBlendShapeGeometry and getStreamShapeGeometry.  The test

@@ -218,17 +218,9 @@ text debug_WriteBMP 0x001A5D30 0x001A5EC0 ico2/common/src/debug.c local lines=38
 text ChangeStageStartInfo 0x001B7FC8 0x001B7FE8 ico2/common/src/sceneManager.c lines=12  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before CreateLayoutedGObj
 text calcSubMission 0x001B99B0 0x001BA090 ico2/sugipon/src/a_p_1.c local lines=131  # ordinal; first difference at insn 19; length:-1; extent-differs
 lit4 calcSubMission 0x00631124 0x00631128 ico2/sugipon/src/a_p_1.c  # 1 float
-text CandleGeo 0x001C3178 0x001C326C ico2/sugipon/src/candle.c lines=28  # us-only (in candle.c's span; no PAL-only function there); named CandleGeo by a data table (provisional)
 text proc.162 0x001C6998 0x001C6DEC ico2/sugipon/src/clothAnimation.c local file=proc_162  # nested in getCloth4D (a stub); equal, gone with its carved parent
 text getCloth4D 0x001C6DF0 0x001C7FAC ico2/sugipon/src/clothAnimation.c local lines=337  # ordinal; first difference at insn 2; length:-12; extent-differs
 lit4 getCloth4D 0x00631204 0x0063120C ico2/sugipon/src/clothAnimation.c  # 2 floats
-text InitCloth4D 0x001C8478 0x001C8954 ico2/sugipon/src/clothAnimation.c lines=65  # us-only (in clothAnimation.c's span; PAL order suggests InitCloth4D (1252 B in PAL)); named InitCloth4D by callees, body alignment (provisional)
-text EffectTool 0x001CD4D8 0x001CD5C0 ico2/sugipon/src/effectTool.c lines=18  # ordinal; first difference at insn 28; imm:2; extent-equal
-text InitEnemyFootPrint 0x001CF288 0x001CF548 ico2/sugipon/src/enemyParts.c lines=53  # ordinal; first difference at insn 34; imm:11; extent-equal
-text InitFlagGeo 0x001CFB58 0x001D00F4 ico2/sugipon/src/flag.c lines=142  # us-only (after enemyParts.c's span; PAL order suggests InitFlagGeo (2028 B in PAL)); named InitFlagGeo by callees (provisional)
-rdlit InitFlagGeo 0x00618DC8 0x00618DD3 ico2/sugipon/src/flag.c  # 1 string
-text FlagGeo 0x001D00F8 0x001D01E8 ico2/sugipon/src/flag.c lines=31  # us-only (after enemyParts.c's span; PAL order suggests FlagGeo (288 B in PAL)); named FlagGeo by callees, body alignment (provisional)
-text FlagDL 0x001D01E8 0x001D039C ico2/sugipon/src/flag.c lines=54  # us-only (after enemyParts.c's span; PAL order suggests FlagDL (508 B in PAL)); named FlagDL by callees, body alignment (provisional)
 text playSE 0x001D0558 0x001D0660 ico2/sugipon/src/frameDependSequence.c local lines=39  # us-only (after flyManager.c's span; PAL order suggests playSE (300 B in PAL)); named playSE by call sites, callees, body alignment (provisional)
 lit4 playSE 0x00631258 0x0063125C ico2/sugipon/src/frameDependSequence.c  # 1 float, measured from the base: the text loads them
 rdlit playSE 0x00618DD8 0x00618E56 ico2/sugipon/src/frameDependSequence.c  # 3 strings, measured from the base
@@ -250,30 +242,11 @@ text checkWaterDepth 0x001D1410 0x001D1428 ico2/sugipon/src/frameDependSequence.
 text checkModelDataID 0x001D1428 0x001D143C ico2/sugipon/src/frameDependSequence.c local lines=4  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text func_001D1440 0x001D1440 0x001D1468 ico2/sugipon/src/frameDependSequence.c  # us-only; in frameDependSequence.c's span; PAL order suggests checkWeaponType (68 B in PAL)
 text execWeaponLightOff 0x001D1468 0x001D14B8 ico2/sugipon/src/frameDependSequence.c local lines=14  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text GirlForceFieldDL 0x001D1B30 0x001D1C74 ico2/sugipon/src/girlForceField.c lines=28  # us-only (after girl.c's span; body equals PAL GirlForceFieldDL's with immediates and jump targets masked); named GirlForceFieldDL by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text InitGirlForceFieldGeo 0x001D1C78 0x001D1CF8 ico2/sugipon/src/girlForceField.c lines=12  # us-only (after girl.c's span; body equals PAL InitGirlForceFieldGeo's with immediates and jump targets masked); named InitGirlForceFieldGeo by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit InitGirlForceFieldGeo 0x00618F08 0x00618F1D ico2/sugipon/src/girlForceField.c def  # 1 string
-text GirlForceFieldGeo 0x001D1CF8 0x001D1D00 ico2/sugipon/src/girlForceField.c lines=1  # us-only (after girl.c's span; PAL size and order suggest GirlForceFieldGeo); named GirlForceFieldGeo by PAL size and order, body alignment (provisional)
-text ResetDynamicMotionManager 0x001D4DE8 0x001D4E2C ico2/sugipon/src/motionFileManager.c lines=10  # ordinal; first difference at insn 6; imm:2; extent-equal
 text getMotionGeometry 0x001E3030 0x001E39E4 ico2/sugipon/src/motionOrientManager.c local lines=179  # us-only (in motionOrientManager.c's span; PAL order suggests getMotionGeometry (2536 B in PAL)); named getMotionGeometry by call sites, callees, body alignment (provisional)
 lit4 getMotionGeometry 0x0063137C 0x00631388 ico2/sugipon/src/motionOrientManager.c  # 3 floats
 sdlit getMotionGeometry 0x0063352C 0x00633530 ico2/sugipon/src/motionOrientManager.c  # 1 word
-text getStreamMotionGeometry 0x001E3D08 0x001E3E20 ico2/sugipon/src/motionOrientManager.c local lines=12  # us-only (in motionOrientManager.c's span; PAL order suggests getStreamMotionGeometry (300 B in PAL)); named getStreamMotionGeometry by callees (provisional)
-text motKindMenuProc 0x001E50C8 0x001E54DC ico2/sugipon/src/motionViewer.c local lines=50  # ordinal; first difference at insn 15; imm:8; extent-equal
-rdlit motKindMenuProc 0x00619C28 0x00619C71 ico2/sugipon/src/motionViewer.c  # 3 strings
-text motOriMenuProc 0x001E54E0 0x001E5848 ico2/sugipon/src/motionViewer.c local lines=67  # ordinal; first difference at insn 31; imm:4; extent-equal
-rdlit motOriMenuProc 0x00619C78 0x00619CBB ico2/sugipon/src/motionViewer.c  # 3 strings
-sdlit motOriMenuProc 0x00633570 0x00633576 ico2/sugipon/src/motionViewer.c  # 1 string
-text CheckRopeUpperWallClimbable 0x001E97F8 0x001E9808 ico2/sugipon/src/rope.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
-text ReleaseRope 0x001E9808 0x001E9810 ico2/sugipon/src/rope.c lines=1  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before RopeGeo
-text InitSugiLeafGeo 0x001F16A0 0x001F16F4 ico2/sugipon/src/sugiTree.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SugiLeafGeo
-rdlit InitSugiLeafGeo 0x0061A6D8 0x0061A6E7 ico2/sugipon/src/sugiTree.c def  # 1 string
-text SugiLeafGeo 0x001F16F8 0x001F17AC ico2/sugipon/src/sugiTree.c lines=11  # ordinal; first difference at insn 9; imm:1; extent-equal
-text InitSugiLeafGeo2 0x001F17B0 0x001F1834 ico2/sugipon/src/sugiTree.c lines=12  # ordinal; first difference at insn 11; imm:1; extent-equal
 text calcDynamicGeometry 0x001F2B08 0x001F3184 ico2/sugipon/src/weapon.c local lines=146  # us-only (in weapon.c's span; PAL size and order suggest calcDynamicGeometry); named calcDynamicGeometry by PAL size and order, callees, body alignment (provisional)
 lit4 calcDynamicGeometry 0x006313FC 0x00631408 ico2/sugipon/src/weapon.c  # 3 floats
-text InitWormGeo 0x001F62E8 0x001F669C ico2/sugipon/src/worm.c lines=90  # ordinal; first difference at insn 131; imm:7; extent-equal
-rdlit InitWormGeo 0x0061A880 0x0061A88B ico2/sugipon/src/worm.c align=16  # 1 string
 text ACTGetEnvironment 0x001FCA20 0x00200844 ico2/fumi/src/act-env.c lines=1078  # ordinal; first difference at insn 0; length:-511; extent-differs
 lit4 ACTGetEnvironment 0x0063144C 0x00631478 ico2/fumi/src/act-env.c  # 11 floats, measured from the base: the text loads them
 rdlit ACTGetEnvironment 0x0061AE10 0x0061AE3C ico2/fumi/src/act-env.c  # 3 strings, measured from the base

@@ -11,7 +11,6 @@
 #include "DisplayP2O.h"
 #include "ios.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* The chain functions are declared here, not through clothAnimation.h:
    HoldRope calls GetChainNodeID with the parameter record alone (it writes
@@ -198,6 +197,13 @@ void *InitRopeGeo(GObj *o, const float *p)
     return w;
 }
 
+inline int CheckRopeUpperWallClimbable(int unused, GObj *rope)
+{
+    RopeGeoWork *w = GOBJ_SUB(rope)->work;
+
+    return w->upperWallClimbable;
+}
+
 void SetRopeFixPoint(GObj *rope, void *pos, int flag)
 {
     CopyVector(**(char ***)((char *)GOBJ_SUB(rope)->work) + 0x20, pos);
@@ -234,6 +240,8 @@ void HoldRope(GObj *rope, GObj *holder)
     CopyVector(((SubHandle *)&holder->dobj)->sub->root.move, ropeZeroVector);
     debug_StdPrintfDummy("HOLD ROPE\n");
 }
+
+inline void ReleaseRope(void) {}
 
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
@@ -314,7 +322,3 @@ void RopeDL(GObj *rope)
         TestDispChainAnimation(w->chains);
     }
 }
-
-INCLUDE_ASM(CheckRopeUpperWallClimbable);
-
-INCLUDE_ASM(ReleaseRope);

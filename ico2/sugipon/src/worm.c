@@ -56,7 +56,6 @@ void GetWormRoute(GObj *act, void *target);
 #include "main.h"
 #include "GifPacket.h"
 #include "ios.h"
-#include "include_asm.h"
 
 static void outerProcess(GObj *act)
 {
@@ -328,7 +327,96 @@ static inline void ResetWormRoute(GObj *act, WormWork *w) /* derived name */
     w->ratio = 0.0f;
 }
 
-INCLUDE_ASM(InitWormGeo);
+void *InitWormGeo(GObj *act, WormInit *ini)
+{
+    Sub15C *d = GOBJ_SUB(act);
+    WormWork *w;
+    ChainCfg *seg;
+    int nseg;
+    int num;
+    int i;
+
+    w = (WormWork *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 328);
+    seg = iosMallocDebug(ios_partition_sugipon, 880, __FILE__, 329);
+
+    nseg = (int)ini->nseg;
+    if (nseg == 0) {
+        nseg = 10;
+    }
+    num = (int)ini->num;
+    if (num == 0) {
+        num = 20;
+    }
+
+    w->src = (WormVec **)iosMallocDebug(ios_partition_sugipon, nseg * 4, __FILE__, 334);
+
+    for (i = 0; i < nseg; i++) {
+        WormVec pos = {ini->pos[0] + (_GetRandom() * 2.0f - 1.0f) * 50.0f,
+                       ini->pos[1] + (_GetRandom() * 2.0f - 1.0f) * 50.0f,
+                       ini->pos[2] + (_GetRandom() * 2.0f - 1.0f) * 50.0f, 1.0f};
+
+        seg[i].num = num;
+        seg[i].pm.node = -1;
+        CopyVector(seg[i].pm.root, &pos);
+        seg[i].pm.step = (int)ini->rate != 0 ? ini->rate : 20.0f;
+        seg[i].pm.weight = 10.0f;
+
+        w->src[i] = (WormVec *)iosMallocDebug(ios_partition_sugipon, 160, __FILE__, 350);
+    }
+
+    seg[nseg].num = -1;
+    w->reduce = 1.0f;
+    w->ratio = 1.0f;
+    w->route = InitChains(seg);
+
+    /* the first node's angle words cleared as floats; int stores through
+       d->nodes->rot move InitWormGeo's schedule (measured) */
+    *(float *)(*(char **)((char *)d + 0x840) + 0x8) = 0.0f;
+    *(float *)(*(char **)((char *)d + 0x840) + 0x4) = 0.0f;
+    *(float *)(*(char **)((char *)d + 0x840) + 0x0) = 0.0f;
+
+    d->nodes->scale[2] = 1.0f;
+    d->nodes->scale[1] = 1.0f;
+    d->nodes->scale[0] = 1.0f;
+
+    if (d->nodeMtx != 0) {
+        iosFree(d->nodeMtx & 0xFFFFFFF);
+    }
+    if (d->nodeQuat != 0) {
+        iosFree(d->nodeQuat & 0xFFFFFFF);
+    }
+    d->nodeMtx = 0;
+    d->nodeQuat = 0;
+    d->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num * 64, __FILE__, 367);
+    d->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num * 16, __FILE__, 367);
+    d->nodeNum = num;
+    if ((int)d->nodes != 0) {
+        iosFree((int)d->nodes & 0xFFFFFFF);
+    }
+    d->nodes = iosMallocDebug(ios_partition_seki, num * 80, __FILE__, 367);
+    {
+        int n;
+
+        for (n = 0; n < num; n++) {
+            d->nodes[n].flags.ll &= ~1;
+            d->nodes[n].flags.ll &= ~2;
+            d->nodes[n].pos[0] = 0.0f;
+            d->nodes[n].pos[1] = 0.0f;
+            d->nodes[n].pos[2] = 0.0f;
+            d->nodes[n].pos[3] = 1.0f;
+            d->nodes[n].flags.ll &= ~4;
+            d->nodes[n].fade = 0.0f;
+            d->nodes[n].alpha = 1.0f;
+            *(short *)((char *)&d->nodes[n] + 0x3A) = 0;
+            d->nodes[n].scale[0] = 1.0f;
+            d->nodes[n].scale[1] = 1.0f;
+            d->nodes[n].scale[2] = 1.0f;
+        }
+    }
+    d->dispType = 2;
+
+    return w;
+}
 
 void GetWormCaptureVector(void *out, GObj *act, void *node, float scale)
 {

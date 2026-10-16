@@ -2,7 +2,6 @@
 #include "motionFileManager.h"
 #include "motionOrientManager.h"
 #include <eekernel.h>
-#include "include_asm.h"
 
 /* the two running totals AddMotionMemorySize keeps, one per motion class
    (its second argument picks the class; the reset of the area-4, dynamic,
@@ -18,6 +17,17 @@ extern const MotionDef motionKind[];
 /* every motion's loaded data, indexed by motion number; charFileManager
    fills the entries, the resets clear them */
 int *motionTable[1086] = {0};
+
+inline void ResetDynamicMotionManager(void)
+{
+    int i;
+    for (i = 0; i <= 1085; i++) {
+        if (motionKind[i].area == 4) {
+            motionTable[i] = 0;
+        }
+    }
+    motionMemorySizeStatic2 = 0;
+}
 
 inline void ResetStatic2MotionManager(int seg)
 {
@@ -169,5 +179,3 @@ int GetMotionMemorySize(int seg)
 {
     return seg ? motionMemorySizeStatic2 : motionMemorySize;
 }
-
-INCLUDE_ASM(ResetDynamicMotionManager);

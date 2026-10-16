@@ -14,7 +14,6 @@ typedef struct CandleFlame { /* field names derived */
 
 #include "candle.h"
 #include "ios.h"
-#include "include_asm.h"
 
 int InitCandleGeo(void *self, void *mtx)
 {
@@ -66,7 +65,23 @@ inline void _deleteLayoutedCandleParticleEffect(void *gobj)
     }
 }
 
-INCLUDE_ASM(CandleGeo);
+void CandleGeo(void *self)
+{
+    Sub15C *w = GOBJ_SUB(self);
+    CandleFlame *flame = w->work;
+    int i;
+
+    if (w->disp != 0 && w->nodeNum >= 2) {
+        for (i = 0; i < w->nodeNum; i++) {
+            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeMtx + i * 64);
+            MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
+            if (flame[i].effect != -1) {
+                SetParticleEffectGeometry(flame[i].effect, MatrixDrive_GetMatrix()[3],
+                                          IdentityQuaternion);
+            }
+        }
+    }
+}
 
 inline void DeleteLayoutedCandleParticleEffect(void)
 {

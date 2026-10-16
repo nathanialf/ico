@@ -6,9 +6,39 @@
 #include <stdlib.h>
 #include <libvu0.h>
 #include "ios.h"
-#include "include_asm.h"
 
-INCLUDE_ASM_LIT(InitSugiLeafGeo);
+inline short *InitSugiLeafGeo(void)
+{
+    short *h = iosMallocDebug(ios_partition_sugipon, sizeof(short), "src/sugiTree.c", 12);
+    int r = rand();
+    *h = r % 65536;
+    return h;
+}
+
+inline void SugiLeafGeo(GObj *gobj)
+{
+    Sub15C *p = GOBJ_SUB(gobj);
+    short *ang = p->work;
+
+    CopyMatrix(MatrixDrive_GetMatrix(), &p->matrix);
+    MatrixDrive_RotMatrixY(GetTableSin(*ang) * 256.0f);
+    MatrixDrive_RotMatrixX(GetTableSin(*ang * 2) * 256.0f);
+    CopyMatrix((void *)p->nodeMtx, MatrixDrive_GetMatrix());
+    *ang += 128;
+}
+
+inline short *InitSugiLeafGeo2(GObj *gobj)
+{
+    Sub15C *p = GOBJ_SUB(gobj);
+    int n = p->model->partCount;
+    short *buf = iosMallocDebug(ios_partition_sugipon, n * 2, "src/sugiTree.c", 35);
+    int i;
+
+    for (i = 0; i < n; i++) {
+        buf[i] = rand() % 65536;
+    }
+    return buf;
+}
 
 void SugiLeafGeo2(GObj *gobj)
 {
@@ -60,9 +90,3 @@ void SugiLeafDL2(GObj *gobj)
         CopyMatrix((char *)p->model->parts[i].mtx, save[i]);
     }
 }
-
-INCLUDE_ASM(InitSugiLeafGeo);
-
-INCLUDE_ASM(SugiLeafGeo);
-
-INCLUDE_ASM(InitSugiLeafGeo2);

@@ -1256,7 +1256,70 @@ typedef struct { /* field names derived */
     long long q[8];
 } Blob64; /* derived name */
 
-INCLUDE_ASM(InitCloth4D);
+Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
+{
+    Cloth4D *r;
+    int i;
+    int j;
+    float sc;
+
+    r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, sizeof(Cloth4D), "src/clothAnimation.c",
+                                  1897);
+    r->gobj = gobj;
+    r->cfg = cfg;
+    r->sweepRight = 0;
+    if (cfg->tex != 0) {
+        r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x5C, 0x80808080, 1);
+        r->tex = *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg->tex));
+    } else {
+        r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
+    }
+    r->pos = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 1932);
+    r->vel = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 1933);
+    r->nrm = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 1934);
+    for (i = 0; i < cfg->nx; i++) {
+        r->pos[i] = r->mesh->pos + i * cfg->ny;
+        r->vel[i] = (Prim3DVec *)iosMallocDebug(ios_partition_sugipon, cfg->ny * 16,
+                                                "src/clothAnimation.c", 1938);
+        r->nrm[i] = r->mesh->nrm + i * cfg->ny;
+        for (j = 0; j < cfg->ny; j++) {
+            CopyVector(&r->pos[i][j], ZeroPoint);
+            CopyVector(&r->vel[i][j], ZeroVector);
+            r->mesh->st[i * cfg->ny + j].x = cfg->cols[i].uv[j][0];
+            r->mesh->st[i * cfg->ny + j].y = 1.0f - cfg->cols[i].uv[j][1];
+        }
+    }
+    prim_UpdateMesh3D(r->mesh, 8, buffer_ID);
+    prim_UpdateMesh3D(r->mesh, 8, (buffer_ID + 1) & 1);
+    if (tbl != 0) {
+        i = 0;
+        sc = GOBJ_SUB(r->gobj)->nodes->scale[0];
+        while (tbl[i].enable != -1) {
+            i++;
+        }
+        r->colNum = i;
+        r->col = iosMallocDebug(ios_partition_sugipon, i * 0x40, "src/clothAnimation.c", 1967);
+        r->colMtx =
+            iosMallocDebug(ios_partition_sugipon, r->colNum * 0x40, "src/clothAnimation.c", 1968);
+        r->colNode =
+            iosMallocDebug(ios_partition_sugipon, r->colNum * 4, "src/clothAnimation.c", 1969);
+        for (i = 0; tbl[i].enable != -1; i++) {
+            *(Blob64 *)&r->col[i] = *(Blob64 *)&tbl[i];
+            r->col[i].radius = r->col[i].radius * sc;
+            r->col[i].top = r->col[i].top * sc;
+            r->col[i].bottom = r->col[i].bottom * sc;
+            r->col[i].invDiameter = 1.0f / (r->col[i].radius + r->col[i].radius);
+            sceVu0UnitMatrix(r->colMtx[i]);
+            r->colNode[i] = GetSkeltonFocusNode(gobj, tbl[i].node);
+        }
+    } else {
+        r->colNum = 0;
+    }
+    return r;
+}
 
 void GetChainNodeGlobalQuaternion(void *q, ChainNode *node, int count)
 {
