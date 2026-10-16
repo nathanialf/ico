@@ -448,8 +448,8 @@ On a push that changes `docs/index.html`, a `docs/<slug>/progress.json` or
 `.github/scripts/build_pages_site.sh`, which assembles one site and deploys
 it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
 `origin/main` on the other branches). PAL's numbers come from the frozen
-`pal` branch's `docs/progress.json` and `docs/PROGRESS.md`, not from `main`'s
-`docs/pal/`; `main` supplies every other `docs/<slug>/` it has (`jpn`);
+`pal` branch's `docs/pal/progress.json` and `docs/pal/PROGRESS.md`, not from
+`main`'s; `main` supplies every other `docs/<slug>/` it has (`jpn`);
 `ntsc` supplies `us` and `aug6` supplies `aug6`, each only its
 `progress.json` and `PROGRESS.md`.
 

@@ -22,7 +22,7 @@
 #   - `main` carries several targets in one tree and contributes every
 #     docs/<slug>/ it has (docs/jpn/), except a target a frozen branch
 #     publishes (FROZEN below): PAL's numbers come from the `pal` branch's
-#     docs/, not from main's docs/pal/. Each other branch carries one target
+#     docs/pal/, not from main's. Each other branch carries one target
 #     and contributes its docs/<slug>/. Only the files in DATA_FILES are
 #     served.
 #
@@ -30,13 +30,13 @@
 #   main -> every docs/<slug>/ it has but the frozen ones (jpn Japanese
 #           retail SCPS-11003, and the targets that join later)
 #   pal  -> pal    PAL retail (SCES-50760), frozen: read from origin/pal's
-#           docs/ (its single-target layout), never deployed from
+#           docs/pal/, never deployed from
 #   ntsc -> us     USA retail       (SLUS-20218)
 #   aug6 -> aug6   Aug-6-2001 prototype
 #
 # Layout produced:
 #   _site/index.html        version-toggle dashboard, `main`'s copy
-#   _site/pal/              the `pal` branch's docs/progress.json and PROGRESS.md
+#   _site/pal/              the `pal` branch's docs/pal/progress.json and PROGRESS.md
 #   _site/jpn/              `main`'s docs/jpn/
 #   _site/us/               `ntsc`'s progress.json and PROGRESS.md
 #   _site/aug6/             `aug6`'s progress.json and PROGRESS.md
@@ -77,7 +77,7 @@ MAIN_BRANCH=main
 # commits and do not run this workflow, so they are only ever fetched.
 FROZEN_SLUGS="pal"
 FROZEN_BRANCH_pal=pal
-FROZEN_DIR_pal=docs
+FROZEN_DIR_pal=docs/pal
 
 # The branch whose docs/index.html is the dashboard page.
 PAGE_BRANCH=main
