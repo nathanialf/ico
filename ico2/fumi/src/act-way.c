@@ -35,7 +35,7 @@ static void DetourCheck(GObj *self, float *out)
     if (debug_girl_detour_flag == 0) {
         return;
     }
-    GetSkeltonOrient(orient, self, 0x2C);
+    GetSkeltonOrient(orient, self, 44);
     if (*(int *)((char *)GOBJ_ACT(self)->work + 0x810) != 0) {
         out[0] = *(float *)((char *)GOBJ_ACT(self)->work + 0x820);
         out[1] = *(float *)((char *)GOBJ_ACT(self)->work + 0x824);
@@ -62,7 +62,7 @@ static void DetourCheck(GObj *self, float *out)
     cur[0] = test_CURRENTROOT(self)[0];
     cur[1] = test_CURRENTROOT(self)[1];
     cur[2] = test_CURRENTROOT(self)[2];
-    GetSkeltonOrient(o2, self, 0x2C);
+    GetSkeltonOrient(o2, self, 44);
     for (i = 0; detourAngle[i] != 0; i++) {
         dir[0] = o2[0];
         dir[1] = o2[1];
@@ -241,7 +241,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     return ret;
 }
 
-/* the 0x20-byte way-step record the actor keeps at act + 0x3E0: the step
+/* the 0x20-byte way-step record the actor keeps at act + 0x3D0: the step
    direction, the 64-bit way state word and the two distances to the goal */
 typedef struct {     /* field names derived */
     float dir[4];    /* 0x00 */
@@ -308,7 +308,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d)
     if (((int)(act->wayState.flags >> 16) & 1) == 0) {
         if (_DistGV(goal, (char *)act + 0x400) > 300.0f) {
             if (((int)(act->wayState.flags >> 17) & 0xF) == 0) {
-                if (act->actMode != 0x26) {
+                if (act->actMode != 38) {
                     if (0) {
                         debug_StdPrintfDummy("WBP recheck second");
                     }
@@ -333,7 +333,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d)
             }
         }
     }
-    if (act->actMode == 0x26) {
+    if (act->actMode == 38) {
         float v0[4];
         float v1[4];
 
@@ -412,7 +412,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d)
         }
         if (act->way.flag3C == 0 &&
             WayMove_CheckCollis(pos, goal, *(void **)((char *)act + 0x3F4), 0) == 0 &&
-            act->actMode != 0x26) {
+            act->actMode != 38) {
             act->wayState.st[1] = 1;
             DeleteGuideWay(way);
             *(short *)((char *)act + 0x3E0) = 2;

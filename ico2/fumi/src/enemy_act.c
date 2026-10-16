@@ -347,7 +347,7 @@ static void _DoAwait(GObj *self)
 {
     MotionDef *row;
     if (boyGObj != 0) {
-        _ACTParaStatus_Set(self, 0x1B);
+        _ACTParaStatus_Set(self, 27);
         row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
         if ((row->flags.word >> 1) & 1) {
             EnemyUtil_TurnToBoy(self, boyGObj, 5);
@@ -359,7 +359,7 @@ static void _DoAwaitGirl(GObj *self)
 {
     MotionDef *row;
     if ((char *)girlGObj != 0) {
-        _ACTParaStatus_Set(self, 0x1B);
+        _ACTParaStatus_Set(self, 27);
         row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
         if ((row->flags.word >> 1) & 1) {
             EnemyUtil_TurnToBoy(self, girlGObj, 5);
@@ -579,7 +579,7 @@ void subEnemyCollision(GObj *volatile self)
         } else {
             *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll & ~(1LL << 32);
         }
-        if ((((int)((long long)sub->flags18.ll >> 32)) & 1) == 0 && sub->actMode != 0x16) {
+        if ((((int)((long long)sub->flags18.ll >> 32)) & 1) == 0 && sub->actMode != 22) {
             *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll & ~(1LL << 33);
         } else {
             *(long long *)((char *)sub + 0x18) = (long long)sub->flags18.ll | (1LL << 33);
@@ -621,9 +621,9 @@ void subEnemyCollision(GObj *volatile self)
             scePrintf("enemy %08x state %x\n", obj, sub->actMode);
 #endif
         }
-        if (sub->actMode != 0x16) {
+        if (sub->actMode != 22) {
             if (0x16 < (unsigned int)sub->actMode) {
-                if (sub->actMode == 0x1C) {
+                if (sub->actMode == 28) {
                     if (0.1f < sub->stick.mag &&
                         (sub->stick.angle < -134 || 134 < sub->stick.angle)) {
                         ACTSendMailCorrect((void *)self, 210);
@@ -849,7 +849,7 @@ inline int actEnemy_GetClingTarget(GObj *self)
 {
     Act *b = GOBJ_ACT(self);
     EnemyBattleWork *e = b->enemy;
-    if (e->sizeClass == 0 && b->actMode == 0x10) {
+    if (e->sizeClass == 0 && b->actMode == 16) {
         return e->clingTarget;
     }
     return 0;
@@ -1587,8 +1587,8 @@ void subEnemyBrainMain(GObj *volatile self)
     while (1) {
         if ((char *)girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 107 &&
             GOBJ_ACT(girlGObj)->carrier == self && EA_CHKBIT(GOBJ_WORK(self)->enemyFlags, 0)) {
-            ACTSendMailCorrect((void *)self, 0x1E);
-            ACTSendMailCorrect((void *)self, 0x1D);
+            ACTSendMailCorrect((void *)self, 30);
+            ACTSendMailCorrect((void *)self, 29);
         }
         CheckEnemyBrainMode((char *)self, &mode, &data);
         BrainMode_Requset(mode, data);
@@ -1646,7 +1646,7 @@ void subEnemyBrainMain(GObj *volatile self)
             while (1) {
                 if ((char *)girlGObj == 0 || GOBJ_ACT(girlGObj)->actMode != 107 ||
                     GOBJ_ACT(girlGObj)->carrier != self) {
-                    if (actModeTbl[GOBJ_ACT(self)->actMode].bit8) {
+                    if (actModeTbl[GOBJ_ACT(self)->actMode].stopMail) {
                         ACTSendMailCorrect((void *)self, 242);
                     }
                 }
@@ -1731,7 +1731,7 @@ inline void subEnemyBrain_FindGirl(GObj *volatile self)
         *(int *)((char *)sub + 0x114) = 0;
         *(int *)((char *)sub + 0x118) = 0;
         ACTSendMailCorrect((void *)self, 214);
-        if (sub->actMode == 0x47) {
+        if (sub->actMode == 71) {
             break;
         }
         _ACTWait(1);
@@ -1873,7 +1873,7 @@ inline int EnemyUtil_isOtherStatus(GObj *self, int mode)
          g = isysGObjSearchFromObjKindID_next(g)) {
         if (g != self) {
             Act *sub = GOBJ_ACT(g);
-            if (sub->actMode == 0xF) {
+            if (sub->actMode == 15) {
                 return (int)g;
             }
             if ((int)((long long)sub->flags20.ll >> 1) & 1) {
@@ -1978,7 +1978,7 @@ static void NakaBoss(GObj *self, void *tgt, float dist)
         dist = _DistGV(test_CURRENTROOT(boy), test_CURRENTROOT(self));
         if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x7D0), test_CURRENTROOT(self),
                            test_CURRENTROOT(boy)) == 2) {
-            ACTSendMailCorrect(self, 0x1D);
+            ACTSendMailCorrect(self, 29);
         }
         if (dist < 360.0) {
             GetRootPosition(bpos, boy);
@@ -1995,7 +1995,7 @@ static void NakaBoss(GObj *self, void *tgt, float dist)
                     }
                     inc = 1;
                     if (half < GOBJ_WORK(self)->nakaBossCount) {
-                        ACTSendMailCorrect(self, 0x1D);
+                        ACTSendMailCorrect(self, 29);
                     } else if (dist < 120.0) {
                         ACTSendMailCorrect(self, 259);
                     }
@@ -2094,7 +2094,7 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
                     mode = 4;
                     /* a local debug switch, off: mark the position the status
                        test was given; the August TRFILE (4037-4041) and the
-                       January listing (4282-4293) keep code-less lines here */
+                       PAL listing (4282-4293) have code-less lines here */
                     if (dbg) {
                         debug_NMarker(v, 255, 0, 0, 100.0f);
                     }
@@ -2333,13 +2333,13 @@ static int flyMailCore(void *self)
         if (flyHigh == 0 && debug_enemy_fly_with_girl == 0) {
             goto end;
         }
-        ACTSendMailCorrect(self, 0x1E);
+        ACTSendMailCorrect(self, 30);
         ret = 1;
     } else {
         if (flyLow == 0) {
             goto end;
         }
-        ACTSendMailCorrect(self, 0x1D);
+        ACTSendMailCorrect(self, 29);
         ret = 1;
     }
 end:
@@ -2510,6 +2510,8 @@ inline int GetEnemyTypeFromGObj(GObj *obj)
     return GOBJ_ACT(obj)->enemy->liftKind;
 }
 
+/* the bit-46 store to the actor word is a union access, and the four 0.05f
+ * stores go through a union view of the gobj+0x15C slot */
 void actEnemyStart(GObj *self)
 {
     char *act;
@@ -2647,7 +2649,7 @@ void subEnemyBrain_Cling(GObj *volatile self)
     _ACTWait(1);
     _ACTWait(1);
     while (1) {
-        if (sub->actMode == 4 || sub->actMode == 0x10) {
+        if (sub->actMode == 4 || sub->actMode == 16) {
             if (_DistSqGV(test_CURRENTROOT(tgt), test_CURRENTROOT(self)) < 3600.0f) {
                 ACTSendMailCorrect((void *)self, 192);
             }
@@ -2694,7 +2696,3 @@ inline void subEnemyBrain_Bodyslam(GObj *volatile self)
         _BrainMode_SetDirect(self, 0, 0);
     }
 }
-
-/* the bit-51 store to the actor word is a union access, the four 0.05f
- * stores go through a union view of the gobj+0x15C slot, and each life pair
- * is one chained assignment */

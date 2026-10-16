@@ -536,7 +536,7 @@ void handoff_heroin(void)
 
     if (girlGObj != 0) {
         if (GOBJ_SUB(girlGObj)->root.hand0.mode == 6) {
-            if (actModeTbl[GOBJ_ACT(boy)->actMode].keepHand) {
+            if (actModeTbl[GOBJ_ACT(boy)->actMode].pullUp) {
             } else {
                 iosOmSendMail(girlGObj, 59, isysCurrentGObj);
             }
@@ -581,7 +581,7 @@ static void CheckCollisionAttr(void *self)
     if (_ACTGame_GetParamF(2) < stage->ctrl.groundHeight) {
         return;
     }
-    if (GOBJ_ACT(self)->actMode == 0x16) {
+    if (GOBJ_ACT(self)->actMode == 22) {
         return;
     }
     if (gameover_flag != 0) {
@@ -1063,8 +1063,8 @@ void subBoyControl(GObj *volatile self)
         }
         /* a local debug switch, off: the cursor_control idiom of way_tool.c,
            moving the current target object; the August TRFILE (2052-2056)
-           and the January listing (2323-2327) keep five code-less lines
-           after the loop's brace, this block's length */
+           and the PAL listing (2323-2327) have five code-less lines after
+           the loop's brace, this block's length; the text is derived */
         if (dbg) {
             if ((void *)self == CurrentTargetGObj && (s->pad.trg & 1)) {
                 ACTDebugMove(self, 1);
@@ -1753,7 +1753,7 @@ void subBoyCollision(GObj *volatile self)
         _ACTWait(1);
     }
     if (200.0f < GetDifferenceFromLowerField(self, 0x2C)) {
-        ACTSendMailCorrect(self, 0x7);
+        ACTSendMailCorrect(self, 7);
     }
     while (1) {
         float vec[4];
@@ -1909,7 +1909,7 @@ void subBoyCollision(GObj *volatile self)
             }
             break;
         /* the table runs from 1, with this arm empty */
-        case 0x1:
+        case 1:
             break;
         }
         {
@@ -1923,7 +1923,7 @@ void subBoyCollision(GObj *volatile self)
                 girlLookStarted = 0;
                 girlLookInScreen = 0;
             }
-            if (girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 0x45) {
+            if (girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 69) {
                 sceVu0ScaleVector(vec, test_CURRENTORIENT((void *)self), 200.0f);
                 vec[1] = 0.0f;
                 sceVu0AddVector(vec, test_CURRENTROOT((void *)self), vec);
@@ -1974,7 +1974,7 @@ void subBoyCollision(GObj *volatile self)
                     _ACTLookTarget_Set((void *)self, girlGObj, 0, 4, 2);
                     if (girlLookInScreen == 0 && ((int)(sub->flags20.ll >> 12) & 1)) {
                         if ((int)(sub->flags20.ll >> 13) & 1) {
-                            void *lo = isysGObjSearchFromObjLayoutID(0x4);
+                            void *lo = isysGObjSearchFromObjLayoutID(4);
 
                             if (lo != 0) {
                                 ScpCallCameraGetTarget((float *)tgt);
@@ -2014,10 +2014,10 @@ void subBoyCollision(GObj *volatile self)
                 }
                 if (ACTGame_NoWeapon((void *)self) == 0) {
                     if (near < 1000.0f) {
-                        _ACTParaStatus_Set((void *)self, 0x2);
+                        _ACTParaStatus_Set((void *)self, 2);
                     }
                     if (near < 300.0f) {
-                        _ACTParaStatus_Set((void *)self, 0x3);
+                        _ACTParaStatus_Set((void *)self, 3);
                     }
                 }
                 if (near < 1000.0f) {
@@ -2034,7 +2034,7 @@ void subBoyCollision(GObj *volatile self)
                 }
             }
             if (ACTGame_NoWeapon((void *)self)) {
-                _ACTParaStatus_Set((void *)self, 0x4);
+                _ACTParaStatus_Set((void *)self, 4);
             }
             ACTParaStatus_Exec((void *)self);
             {
@@ -2072,7 +2072,7 @@ void subBoyCollision(GObj *volatile self)
                 }
             }
             if (camOn == 0 && girlGObj == 0) {
-                void *lo = isysGObjSearchFromObjLayoutID(0x4);
+                void *lo = isysGObjSearchFromObjLayoutID(4);
 
                 /* In retail camOn and looking are dead from here on; the DEBUG
                build's camera report at the end of this block reads them. */
@@ -2091,14 +2091,14 @@ void subBoyCollision(GObj *volatile self)
                     sceVu0ScaleVector(ofs, ofs, _DistGV((float *)scr, (float *)tgt));
                     sceVu0AddVector(work, scr, ofs);
                     SetRootPosition(lo, work);
-                    /* a local debug switch, off (see dbg in the declarations): mark
-                   the helper position just set */
+                    /* a local debug switch, off (see dbg in the declarations):
+                       mark the helper position just set */
                     if (dbg) {
-                        debug_NMarker(work, 0xFF, 0, 0, 100.0f);
+                        debug_NMarker(work, 255, 0, 0, 100.0f);
                     }
                     if ((int)(sub->flags20.ll >> 12) & 1) {
                         if ((int)(sub->flags20.ll >> 13) & 1) {
-                            lo = isysGObjSearchFromObjLayoutID(0x4);
+                            lo = isysGObjSearchFromObjLayoutID(4);
                             if (lo != 0) {
                                 ScpCallCameraGetTarget((float *)cpos);
                                 SetRootPosition(lo, cpos);
@@ -2113,7 +2113,7 @@ void subBoyCollision(GObj *volatile self)
             }
         }
         ACTLookTargetSystem_Exec((void *)self);
-        if (boyGObj != 0 && girlGObj != 0 && GOBJ_ACT(boyGObj)->actMode == 0x2D &&
+        if (boyGObj != 0 && girlGObj != 0 && GOBJ_ACT(boyGObj)->actMode == 45 &&
             GOBJ_ACT(girlGObj)->actMode == GOBJ_ACT(boyGObj)->actMode) {
             if (0x3C < sitCount++) {
                 if (sitLayoutDone == 0) {
@@ -2208,7 +2208,7 @@ void actBoyWalk(GObj *volatile self)
             float ratio;
 
             GetSkeltonPosition(bp, boyGObj, 2);
-            GetSkeltonPosition(gp, girlGObj, 0x12);
+            GetSkeltonPosition(gp, girlGObj, 18);
             d = _DistGV((float *)gp, (float *)bp);
             if ((60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60 < sub->modeFrame &&
                 80.0f < d) {
@@ -2234,7 +2234,7 @@ void actBoyRun(GObj *volatile self)
             float ratio;
 
             GetSkeltonPosition(bp, boyGObj, 2);
-            GetSkeltonPosition(gp, girlGObj, 0x12);
+            GetSkeltonPosition(gp, girlGObj, 18);
             d = _DistGV((float *)gp, (float *)bp);
             if ((60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60 < sub->modeFrame &&
                 90.0f < d) {
@@ -2444,19 +2444,19 @@ static inline void ACTSendMail_PULLUP_START(void) /* derived name */
     Act *sub = GOBJ_ACT(boyGObj);
 
     switch (sub->env.cliffSel) {
-    case 0x64:
+    case 100:
         if (girlGObj != 0) {
             iosOmSendMail(girlGObj, 77, isysCurrentGObj);
         }
         GOBJ_ACT(girlGObj)->orientMot = 92;
         break;
-    case 0xC8:
+    case 200:
         if (girlGObj != 0) {
             iosOmSendMail(girlGObj, 77, isysCurrentGObj);
         }
         GOBJ_ACT(girlGObj)->orientMot = 93;
         break;
-    case 0x12C:
+    case 300:
         if (girlGObj != 0) {
             iosOmSendMail(girlGObj, 77, isysCurrentGObj);
         }
@@ -2635,8 +2635,8 @@ void actBoyBelift(GObj *volatile self)
             lv = lv < 0 ? 0 : (10.0f < lv ? 10.0f : lv);
             lv = lv * 0.5f;
             dist = lv * 100.0f + 500.0f;
-            GetSkeltonPosition(boypos, boyGObj, 0x23);
-            GetSkeltonPosition(girlpos, girl, 0x23);
+            GetSkeltonPosition(boypos, boyGObj, 35);
+            GetSkeltonPosition(girlpos, girl, 35);
             _OrientXZGV(dir, girlpos, boypos);
             sceVu0ScaleVector(ofs, dir, -dist);
             sceVu0AddVector(p, ofs, boypos);
@@ -2653,7 +2653,7 @@ void actBoyBelift(GObj *volatile self)
             cam[0] = p[0];
             cam[1] = p[1];
             cam[2] = p[2];
-            GetSkeltonPosition(girlpos, boyGObj, 0x2C);
+            GetSkeltonPosition(girlpos, boyGObj, 44);
             sceVu0ScaleVector(p, p, -1.0f);
             sceVu0ScaleVector(girlpos, girlpos, -1.0f);
             InsertCamera_Set(p, girlpos, (60 - systemStatus[0] * 10) / systemStatus[1] / 6);
@@ -2913,7 +2913,7 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     b = _ACTGame_GetParamF(0xE);
     t = a * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f +
         b * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
-    ExecuteSEPackage(0, 0x7A);
+    ExecuteSEPackage(0, 122);
     GetOtherStageGirlOrient(buf, GetCurrentCameraSet2());
     w = GOBJ_WORK(g);
     frames = (int)t;
@@ -2995,7 +2995,7 @@ void actBoyStart(GObj *self)
     if (BOYINFO.girlID != 0) {
         g = isysGObjSearchFromObjLayoutID(BOYINFO.girlID);
         if (g != 0) {
-            ACTSendMailCorrect(self, 0x35);
+            ACTSendMailCorrect(self, 53);
             *(void **)(work + 0x174) = *(void **)(work + 0x144) = g;
         } else {
             BOYINFO.girlID = 0;
@@ -3025,9 +3025,9 @@ void actBoyStart(GObj *self)
                 sofaWallHit.o = cw.wall.o;
                 sofaWallHit.elem = cw.wall.elem;
                 scpBoyControlReadDisable = 0;
-                ActSendMail_WithAdditionalData((void *)self, 0x36, (void *)self, &sofaWallHit);
+                ActSendMail_WithAdditionalData((void *)self, 54, (void *)self, &sofaWallHit);
                 if (BOYINFO.bit32 && girlGObj != 0) {
-                    ActSendMail_WithAdditionalData(girlGObj, 0x36, girlGObj, &sofaWallHit);
+                    ActSendMail_WithAdditionalData(girlGObj, 54, girlGObj, &sofaWallHit);
                 }
             }
         } else {
@@ -3361,11 +3361,11 @@ inline void MakeCharacterPacket(void)
         if (sub->curItem != 0) {
             *(int *)(pkt + 0xC) = sub->curItem->labelId;
         }
-        if (sub->actMode == 0x2D) {
+        if (sub->actMode == 45) {
             *(int *)(pkt + 0x10) = *(int *)(sub->flags150.sofa + 0x8);
         }
         g = (char *)girlGObj;
-        if (g != 0 && GOBJ_ACT(g)->actMode == 0x2D) {
+        if (g != 0 && GOBJ_ACT(g)->actMode == 45) {
             *(int *)(pkt + 0x14) |= 1;
         }
         BoyInfoUpdate_StageChange();

@@ -745,7 +745,7 @@ void WithMailFunc_AttackRejectInQueen(GObj *self)
     if (stage_no == 83 || debug_use_new_queen_battle != 0) {
         void *e = isysGObjSearchFromObjKindID_begin(53);
         if (e != 0) {
-            iosOmSendMail(e, 0xD, self);
+            iosOmSendMail(e, 13, self);
         }
     }
 }
@@ -957,7 +957,7 @@ void motCommonRopeTurnR(GObj *volatile self)
         deg += 5;
         if (i % wait == 0) {
             setCorrectOrientOfChain((void *)self);
-            ACTSendMailCorrect(self, 0x13A);
+            ACTSendMailCorrect(self, 314);
         }
         _ACTWait(1);
     }
@@ -980,7 +980,7 @@ void motCommonRopeTurnL(GObj *volatile self)
         deg += 5;
         if (i % wait == 0) {
             setCorrectOrientOfChain((void *)self);
-            ACTSendMailCorrect(self, 0x13A);
+            ACTSendMailCorrect(self, 314);
         }
         _ACTWait(1);
     }
@@ -1438,14 +1438,14 @@ void actCommonDie(GObj *volatile self)
 
         if (self->labelId == 3453) {
             gamesysObjInfoCls(4, 3453);
-            gamesysObjInfoCls(0x21, 3454);
+            gamesysObjInfoCls(33, 3454);
         }
         g = isysGObjSearchFromObjKindID_begin(46);
         if (g == 0) {
             g = isysGObjSearchFromObjKindID_begin(64);
         }
         if (self->kind == 4 && g != 0) {
-            iosOmSendMail(g, 0x12, self);
+            iosOmSendMail(g, 18, self);
         }
     }
     Act *s = GOBJ_ACT(self);
@@ -1602,15 +1602,15 @@ void actCommonStoneDead(GObj *volatile self)
 
 typedef struct { /* field names derived */
     char pad0[20];
-    int f14;
-} ReviveSub; /* derived name */
+    int after; /* 0x14, Act's after function */
+} ReviveSub;   /* derived name */
 
 typedef struct { /* field names derived */
     char pad0[20];
-    int f14;
+    int after; /* 0x14, Act's after function */
     char pad18[48];
-    int f48;
-} StoneSub; /* derived name */
+    int modeFrame; /* 0x48, Act's frames since the mode changed */
+} StoneSub;        /* derived name */
 
 inline void actCommonRevive(GObj *volatile self)
 {
@@ -1618,7 +1618,7 @@ inline void actCommonRevive(GObj *volatile self)
 
     debug_StdPrintfDummy("enter actCommonRevive\n");
     ACTGameCollisionOff(self);
-    ((ReviveSub *)s)->f14 = (int)afterCommonRevive;
+    ((ReviveSub *)s)->after = (int)afterCommonRevive;
     SetDirectRootPositionNoFitting((void *)self, &s->restartPosX);
     EnemySetfAppearAll((void *)self);
     for (;;) {
@@ -1632,7 +1632,7 @@ void actCommonStone(GObj *volatile self)
 {
     StoneSub *s = (StoneSub *)(char *)GOBJ_ACT(self);
 
-    s->f14 = (int)afterCommonStone;
+    s->after = (int)afterCommonStone;
     *(int *)(*(char **)(*(char **)((char *)self + 0x164) + 0x670) + 0x2A0) = 0;
     while (1) {
         if (debug_font_flag & 1) {
@@ -1656,7 +1656,7 @@ void actCommonStone(GObj *volatile self)
             ACTSendMailCorrect(self, 183);
             GOBJ_ACT(self)->enemy->stoneLevel = 0;
         }
-        if (s->f48 >= 0x3D && GOBJ_ACT(self)->enemy->stoneLevel >= 3) {
+        if (s->modeFrame >= 61 && GOBJ_ACT(self)->enemy->stoneLevel >= 3) {
             ACT_LAYOUT_GAMEOVER();
             _ACTWait(0);
         }
@@ -1688,10 +1688,10 @@ static void BoxBarSoundOn(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
     switch (s->actMode) {
-    case 0x31:
+    case 49:
         ExecBoxMoveStartReaction(s->box, (int)s->pushDir);
         break;
-    case 0x33:
+    case 51:
         ExecRotObjectMoveStartReaction(s->env.barObj);
         break;
     }
@@ -1701,10 +1701,10 @@ static void BoxBarSoundOff(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
     switch (s->actMode) {
-    case 0x31:
+    case 49:
         ExecBoxMoveEndReaction(s->box);
         break;
-    case 0x33:
+    case 51:
         ExecRotObjectMoveEndReaction(s->env.barObj);
         break;
     }
@@ -1841,9 +1841,9 @@ void actCommonBox(GObj *volatile self)
             SetDirectRootPositionNoFittingWithNodePointXZ(
                 (void *)self, 22, pos, GOBJ_SUB(self)->ctrl.frameFlag1 != 0 ? 1.0f : 0.3f);
             /* a local debug switch, off: mark the global hold point. The
-               ROM's stack slot order needs the block here, and the August
-               TRFILE (3132-3136) and the January listing (3379-3383) have five
-               code-less lines in its place; the text is derived. */
+               August TRFILE (3132-3136) and the PAL listing (3379-3383) have
+               five code-less lines here, this block's length; the text is
+               derived. */
             if (dbg) {
                 debug_NMarker(pos, 255, 0, 0, 100.0f);
             }
@@ -2075,7 +2075,7 @@ void actCommonJump(GObj *volatile self)
 
 /* A static inline that actCommonFall and flyCoreLoop call: whether the
  * actor has been stuck on a step for `need` hits.  flyCoreLoop passes a
- * motion that is not 418 and needs three hits where actCommonFall needs
+ * motion that is not 388 and needs three hits where actCommonFall needs
  * two. */
 static inline int IsFallStuckOnStep(GObj *self, int state, int mot, int need,
                                     int time) /* derived name */
@@ -2471,7 +2471,7 @@ void actCommonLadder(GObj *volatile self)
         }
         if (self == boyGObj && girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 38) {
             if (_DistSqGV(test_CURRENTROOT((void *)self), test_CURRENTROOT(girlGObj)) < 3600.0f) {
-                ACTSendMailCorrect(self, 0x31);
+                ACTSendMailCorrect(self, 49);
             }
         }
         if (self == boyGObj || self == girlGObj) {
@@ -2483,7 +2483,7 @@ void actCommonLadder(GObj *volatile self)
                 if (o->active != 0) {
                     if (GOBJ_ACT(o)->actMode == 38 &&
                         _DistSqGV(pos, test_CURRENTROOT(o)) < 6400.0f) {
-                        ACTSendMailCorrect(self, 0x31);
+                        ACTSendMailCorrect(self, 49);
                         break;
                     }
                 }
@@ -2575,21 +2575,21 @@ void actCommonEdgeHang(GObj *volatile self)
     ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.a.wall);
     while (1) {
         if (CheckWallAttributeEdegWall(self) == 0) {
-            ACTSendMailCorrect(self, 0xD2);
+            ACTSendMailCorrect(self, 210);
         }
         if (-GOBJ_SUB(self)->ctrl.cliffDepth > 250.0f) {
-            ACTSendMailCorrect(self, 0x18);
+            ACTSendMailCorrect(self, 24);
         }
         if (stageData[stage_no].flag2) {
             memset(&work, 0, 0xC0);
-            GetSkeltonPosition(work.pt[0], self, 0x2C);
-            GetSkeltonPosition(p1, self, 0x33);
-            GetSkeltonPosition(p2, self, 0x2F);
+            GetSkeltonPosition(work.pt[0], self, 44);
+            GetSkeltonPosition(p1, self, 51);
+            GetSkeltonPosition(p2, self, 47);
             sceVu0AddVector(work.pt[1], p1, p2);
             sceVu0ScaleVector(work.pt[1], work.pt[1], 0.5f);
             ClipFloor(&work);
             if (work.floor.elem != 0) {
-                ACTSendMailCorrect(self, 0xD2);
+                ACTSendMailCorrect(self, 210);
             }
         }
         _ACTWait(1);
@@ -3135,7 +3135,7 @@ void actCommonSlowrun(GObj *volatile self)
 
 typedef struct { /* field names derived */
     char pad0[20];
-    int f14;
+    int after;    /* 0x14, Act's after function */
 } TruckLeverWork; /* derived name */
 
 inline void actCommonTruckLever(GObj *volatile self)
@@ -3143,7 +3143,7 @@ inline void actCommonTruckLever(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
     GObj *lev = s->env.pullObj;
 
-    ((TruckLeverWork *)s)->f14 = (int)afterCommonTruckLever;
+    ((TruckLeverWork *)s)->after = (int)afterCommonTruckLever;
     actMotDirToWall(self);
     while (1) {
         if (lev != 0) {
@@ -3214,8 +3214,8 @@ static inline int isRopeDownEndOnFloor(GObj *self) /* derived name */
     MotionDef *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
 
     if (rec->flags.word & 1) {
-        GetSkeltonPosition(work.pt[0], self, 0x2C);
-        GetSkeltonPosition(work.pt[1], self, 0x33);
+        GetSkeltonPosition(work.pt[0], self, 44);
+        GetSkeltonPosition(work.pt[1], self, 51);
         work.pt[1][1] = work.pt[1][1] - 5.0f;
         ClipFloor(&work);
         if (work.floor.elem != 0) {
@@ -3234,13 +3234,13 @@ typedef struct { /* field names derived */
 
 typedef struct { /* field names derived */
     char pad0[52];
-    int f34;
+    int pushDir; /* 0x34, Act's pushDir: 1 up the ladder */
 } LadderMotWork; /* derived name */
 
 typedef struct { /* field names derived */
     char pad0[52];
-    unsigned int f34;
-} LadderDownMotWork; /* derived name */
+    unsigned int pushDir; /* 0x34, Act's pushDir: -1 down the ladder */
+} LadderDownMotWork;      /* derived name */
 
 /* StartCorrectPosition and IsCorrectPosition precede test_CURRENTORIENT and
    test_CURRENTROOT, so their calls to the two accessors stay calls. */
@@ -3412,7 +3412,7 @@ inline void actCommonLadderBellow(GObj *volatile self)
     int attr[4];
 
     while (1) {
-        GetSkeltonPosition(p, self, 0x2C);
+        GetSkeltonPosition(p, self, 44);
         sceVu0ScaleVector(dir, test_CURRENTORIENT(self), 50.0f);
         sceVu0AddVector(q, p, dir);
         if (ACTCheckCollis_CI(p, q, attr, &hit) != 0) {
@@ -3445,7 +3445,7 @@ inline void actCommonEdge(GObj *volatile self)
     for (;;) {
         ACTSendMailCorrect(self, 314);
         if (-GOBJ_SUB(self)->ctrl.cliffDepth > 250.0f) {
-            ACTSendMailCorrect(self, 0x18);
+            ACTSendMailCorrect(self, 24);
         }
         _ACTWait(1);
     }
@@ -3716,7 +3716,7 @@ inline void motCommonLadderUp(GObj *volatile self)
     LadderMotWork *s = (LadderMotWork *)(char *)GOBJ_ACT(self);
 
     while (1) {
-        s->f34 = 1;
+        s->pushDir = 1;
         switch (GOBJ_ACT(self)->enemy->ladderUpStep) {
         case 1:
             ACTSendMailCorrect(self, 129);
@@ -3733,7 +3733,7 @@ inline void motCommonLadderDown(GObj *volatile self)
     LadderDownMotWork *s = (LadderDownMotWork *)(char *)GOBJ_ACT(self);
 
     while (1) {
-        s->f34 = -1;
+        s->pushDir = -1;
         switch (GOBJ_ACT(self)->enemy->ladderDownStep) {
         case 1:
             ACTSendMailCorrect(self, 129);

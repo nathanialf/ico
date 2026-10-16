@@ -146,7 +146,7 @@ void motGirlHand50(GObj *volatile self)
         _ACTWait(1);
     }
     if ((((int)(sub->flags18.ll >> 39)) & 1) == 0) {
-        iosOmSendMail(boyGObj, 0x10, isysCurrentGObj);
+        iosOmSendMail(boyGObj, 16, isysCurrentGObj);
         ACTSendMailCorrect((void *)self, 7);
     }
     iosOmSendMail(boyGObj, 87, isysCurrentGObj);
@@ -192,7 +192,7 @@ void motGirlHand100(GObj *volatile self)
 
     debug_StdPrintfDummy("enter motGirlHand100\n");
     while (1) {
-        iosOmSendMail(boyGObj, 0x5A, isysCurrentGObj);
+        iosOmSendMail(boyGObj, 90, isysCurrentGObj);
         if (sub->readyFlags & 1)
             break;
         _ACTWait(1);
@@ -203,27 +203,27 @@ void motGirlHand100(GObj *volatile self)
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(boyGObj, 0x5B, isysCurrentGObj);
+        iosOmSendMail(boyGObj, 91, isysCurrentGObj);
         if (sub->readyFlags & 2)
             break;
         _ACTWait(1);
     }
-    iosOmSendMail(boyGObj, 0x5C, isysCurrentGObj);
-    sub->motReq = SetMotionRequest((void *)self, 0x5C, sub->env.motOriReq);
+    iosOmSendMail(boyGObj, 92, isysCurrentGObj);
+    sub->motReq = SetMotionRequest((void *)self, 92, sub->env.motOriReq);
     while (GOBJ_SUB(self)->ctrl.motion < 0x202 || !(GOBJ_SUB(self)->ctrl.motion < 0x209)) {
         sub->motReq = SetMotionRequest((void *)self, 1, sub->env.motOriReq);
         _ACTWait(1);
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(boyGObj, 0x5D, isysCurrentGObj);
+        iosOmSendMail(boyGObj, 93, isysCurrentGObj);
         if (sub->readyFlags & 8)
             break;
         _ACTWait(1);
     }
     sub->after = 0;
     for (;;) {
-        ACTSendMailCorrect((void *)self, 0x43);
+        ACTSendMailCorrect((void *)self, 67);
         _ACTWait(1);
     }
 }
@@ -264,14 +264,14 @@ void motGirlHand200(GObj *volatile self)
         if (n <= 0)
             goto expired;
         n--;
-        iosOmSendMail(boyGObj, 0x5F, isysCurrentGObj);
+        iosOmSendMail(boyGObj, 95, isysCurrentGObj);
         if (sub->readyFlags & 1)
             break;
         _ACTWait(1);
     }
     goto held;
 expired:
-    ACTSendMailCorrect((void *)self, 0x63);
+    ACTSendMailCorrect((void *)self, 99);
     debug_StdPrintfDummy("%s sync error\n",
                          (void *)self == (void *)((int *)boyGObj) ? "boy" : "girl");
 held:
@@ -281,25 +281,25 @@ held:
     }
     _ACTWait(1);
     while (1) {
-        iosOmSendMail(boyGObj, 0x60, isysCurrentGObj);
+        iosOmSendMail(boyGObj, 96, isysCurrentGObj);
         if (sub->readyFlags & 2)
             break;
         _ACTWait(1);
     }
-    iosOmSendMail(boyGObj, 0x61, isysCurrentGObj);
-    sub->motReq = SetMotionRequest((void *)self, 0x5D, sub->env.motOriReq);
+    iosOmSendMail(boyGObj, 97, isysCurrentGObj);
+    sub->motReq = SetMotionRequest((void *)self, 93, sub->env.motOriReq);
     while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
     }
     while (1) {
-        iosOmSendMail(boyGObj, 0x62, isysCurrentGObj);
+        iosOmSendMail(boyGObj, 98, isysCurrentGObj);
         if (sub->readyFlags & 8)
             break;
         _ACTWait(1);
     }
     sub->after = 0;
     for (;;) {
-        ACTSendMailCorrect((void *)self, 0x43);
+        ACTSendMailCorrect((void *)self, 67);
         _ACTWait(1);
     }
 }
@@ -371,14 +371,14 @@ typedef struct GirlBrainWork { /* field names derived */
     unsigned char warn;        /* 0x58E0 a brain state asks the main loop to checkWarning */
     unsigned char pad58E1;     /* 0x58E1 cleared each frame, never read */
     unsigned char modeChanged; /* 0x58E2 set on the frame the mode changes */
-    unsigned char lookHold;    /* 0x58E3 3 s after flags18 bit 62 while she faced the boy */
+    unsigned char lookHold;    /* 0x58E3 3 s after flags18 bit 53 while she faced the boy */
     int markerPulse;           /* 0x58E4 the runaway goal marker's pulse */
     int runMode;               /* 0x58E8 */
     int wait;
     int timer;
     int limit;
     int modeFrames;    /* 0x58F8 frames since the last mode change */
-    int status31Timer; /* 0x58FC frames the attract state keeps char status 31 set */
+    int status28Timer; /* 0x58FC frames the attract state keeps char status 28 set */
     int unseenFrames;  /* 0x5900 frames no hide-list object has been in view */
     int hideAdvWait;   /* 0x5904 frames before the hide state may advance */
     int pad5908[2];    /* 0x5908, to the 0x5910 girlBrainMain_Init clears */
@@ -1201,7 +1201,7 @@ void subGirlBrainMain(GObj *volatile self)
 
     ChangeRunMode(0);
     for (;;) {
-        int carry = act->actMode == 0x45;
+        int carry = act->actMode == 69;
 
         act->flags20.ll = (act->flags20.ll & ~(1LL << 14)) | ((long long)carry << 14);
         if (brain_val.hideAdvWait) {
@@ -1221,10 +1221,10 @@ void subGirlBrainMain(GObj *volatile self)
             }
         }
         if (((int)(act->flags18.ll >> 63)) & 1) {
-            brain_val.status31Timer = (60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60;
+            brain_val.status28Timer = (60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60;
         }
-        if (brain_val.status31Timer > 0) {
-            brain_val.status31Timer -= 1;
+        if (brain_val.status28Timer > 0) {
+            brain_val.status28Timer -= 1;
         }
         turned = 0;
         {
@@ -1701,7 +1701,7 @@ void subGirlBrain_Pulledup(GObj *volatile self)
         lim = (GOBJ_ACT(((int *)boyGObj))->actMode == 85) ? 200.0f : 100.0f;
         if (d < 30.0f && dy < 200.0f) {
             sub->stick.mag = 0;
-            GetSkeltonOrient(sk, (void *)self, 0x2C);
+            GetSkeltonOrient(sk, (void *)self, 44);
             _OrientXZGV(oz, test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)self));
             ry = _RotyGV(sk, oz);
             if (0x15 <= ((ry < 0) ? -ry : ry)) {
@@ -1800,16 +1800,16 @@ static void girlBrainHide_GoalTurn(float *dir, unsigned char sendMail)
         if (_RotyGV(eye, dir) > 0) {
             debug_StdPrintfDummy("turnL mail\n");
             if (sendMail) {
-                ACTSendMailCorrect(girl, 0xDC);
+                ACTSendMailCorrect(girl, 220);
             } else {
-                ACTSendMailCorrect(girl, 0xDE);
+                ACTSendMailCorrect(girl, 222);
             }
         } else {
             debug_StdPrintfDummy("turnR mail\n");
             if (sendMail) {
-                ACTSendMailCorrect(girl, 0xDB);
+                ACTSendMailCorrect(girl, 219);
             } else {
-                ACTSendMailCorrect(girl, 0xDD);
+                ACTSendMailCorrect(girl, 221);
             }
         }
     }
@@ -2931,7 +2931,7 @@ void subGirlCollision(GObj *volatile self)
             }
         }
         switch ((unsigned int)sub->actMode) {
-        case 0x2C: {
+        case 44: {
             sceVu0FVECTOR home = {814.0f, 1827.0f, 865.0f, 1.0f};
             sceVu0FVECTOR gate = {608.0f, 1600.0f, -775.0f, 1.0f};
 
@@ -2981,7 +2981,7 @@ inline int NotNeedBackHand(void)
     if ((((int)(w->flags18.ll >> 36)) & 1) == 0) {
         return 1;
     }
-    if (w->actMode == 0x45 && handmgr.near90 != 0 && handmgr.still == 0) {
+    if (w->actMode == 69 && handmgr.near90 != 0 && handmgr.still == 0) {
         return 1;
     }
     return 0;
@@ -3217,9 +3217,9 @@ void actGirlHand(GObj *volatile self)
             sceVu0ScaleVector(v60, dir, 300.0f);
             sceVu0AddVector(v60, test_CURRENTROOT((void *)self), v60);
             /* a local debug switch, off: mark v60, the point 300 ahead along
-               the pull direction (nothing else reads it). The ROM's stack slot
-               order needs the block here, and the January listing has eleven
-               code-less lines (3261-3271) in its place; the text is derived. */
+               the pull direction (nothing else reads it). The PAL listing has
+               eleven code-less lines here (3261-3271); the text is
+               derived. */
             if (dbg) {
                 debug_NMarker(v60, 255, 0, 0, 100.0f);
             }
@@ -3247,7 +3247,7 @@ void actGirlHand(GObj *volatile self)
             case 3:
                 cnt = 0;
                 break;
-            case 0x37:
+            case 55:
                 st = 0;
                 break;
             }
@@ -3895,7 +3895,7 @@ inline int isMustCheckCylinder(void *a, void *b)
 {
     if ((a == (void *)((int *)boyGObj) && b == (void *)girlGObj) ||
         (a == (void *)girlGObj && b == (void *)((int *)boyGObj))) {
-        if (GOBJ_ACT(girlGObj)->actMode == 0x4E) {
+        if (GOBJ_ACT(girlGObj)->actMode == 78) {
             return 1;
         }
     }
@@ -3951,14 +3951,3 @@ void DebugDispAutoEscort(void)
         }
     }
 }
-
-/* the *(sub+0x688) ACT parameter block, viewed as a struct whose stores are
-   member stores */
-typedef struct { /* field names derived */
-    char pad0[944];
-    int turnMailWait; /* 0x3B0 : ActWork's turnMailWait, set by "cannot reach" */
-    char pad3B4[364];
-    float hintPosX; /* 0x520 : hint-point target position */
-    float hintPosY;
-    float hintPosZ;
-} ActPara; /* derived name */

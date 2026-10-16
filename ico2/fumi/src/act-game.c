@@ -105,13 +105,13 @@ typedef struct {     /* field names derived */
    reaches the 0x440 bytes ahead of it */
 static ActGameViewTbl actGameView; /* derived name */
 
-/* One 0x50-byte record per act status, indexed by sub->0x34. */
+/* One 0x50-byte record per act status, indexed by sub->0x30. */
 
 /* the motion-play-speed-ratio mode at work+0x54, which
    ACTGame_SetMotionPlaySpeedRatio_Exec dispatches on */
 typedef enum { MPSR_OFF, MPSR_ONESHOT, MPSR_HOLD } MpsrMode;
 
-/* self->0x164->0x688, the per-actor motion work block, re-derived at every
+/* self->0x164->0x678, the per-actor motion work block, re-derived at every
    use */
 #define ACTWORK(g) ((char *)GOBJ_ACT(g)->work) /* derived name */
 
@@ -455,13 +455,13 @@ inline int PAIR_IsStatus_BOY_DITCH(void)
     char *b = (char *)boyGObj;
 
     switch ((unsigned int)GOBJ_ACT(b)->actMode) {
-    case 0x55:
+    case 85:
         if (motionKind[GOBJ_SUB(b)->ctrl.motion].playMode != 1) {
             break;
         }
         /* fall through */
-    case 0x56:
-    case 0x59:
+    case 86:
+    case 89:
         return 1;
 
     case 1:
@@ -489,8 +489,8 @@ inline void PAIR_GetPosition_BOY(float *pos, float *dir)
 inline int PAIR_IsStatus_BOY_PULL(void)
 {
     switch ((unsigned int)GOBJ_ACT(boyGObj)->actMode) {
-    case 0x4B:
-    case 0x4C:
+    case 75:
+    case 76:
         return 1;
 
     case 1:
@@ -507,9 +507,9 @@ inline int PAIR_IsStatus_BOY_PULL(void)
 inline int PAIR_IsStatus_GIRL_PULL(void)
 {
     switch ((unsigned int)GOBJ_ACT(((char *)girlGObj))->actMode) {
-    case 0x45:
-    case 0x4D:
-    case 0x4E:
+    case 69:
+    case 77:
+    case 78:
         return 1;
 
     case 1:
@@ -529,8 +529,8 @@ inline int PAIR_IsStatus_BOY_WAIT(void)
 
     if (b != 0) {
         switch ((unsigned int)GOBJ_ACT(b)->actMode) {
-        case 0x4B:
-        case 0x55:
+        case 75:
+        case 85:
             if (motionKind[GOBJ_SUB(b)->ctrl.motion].playMode == 1) {
                 return 1;
             }
@@ -897,7 +897,7 @@ void ACTGameView_Loop(GObj *self)
         GOBJ_WORK(self)->view.func = ClipWall;
         GOBJ_WORK(self)->view.obj = actGameView.obj[i];
         GOBJ_WORK(self)->view.clip.radius = 0.0f;
-        GetSkeltonPosition(GOBJ_WORK(self)->view.clip.pt[0], self, 0x23);
+        GetSkeltonPosition(GOBJ_WORK(self)->view.clip.pt[0], self, 35);
         GetRootPosition(GOBJ_WORK(self)->view.clip.pt[1], actGameView.obj[i]);
         RequestClipCollision(&GOBJ_WORK(self)->view);
         GOBJ_WORK(self)->viewState = 2;
@@ -915,7 +915,7 @@ void ACTGameView_Loop(GObj *self)
         GOBJ_WORK(self)->view.func = ClipFloor;
         GOBJ_WORK(self)->view.obj = actGameView.obj[i];
         GOBJ_WORK(self)->view.clip.radius = 0.0f;
-        GetSkeltonPosition(GOBJ_WORK(self)->view.clip.pt[0], self, 0x23);
+        GetSkeltonPosition(GOBJ_WORK(self)->view.clip.pt[0], self, 35);
         GetRootPosition(GOBJ_WORK(self)->view.clip.pt[1], actGameView.obj[i]);
         RequestClipCollision(&GOBJ_WORK(self)->view);
         GOBJ_WORK(self)->viewState = 4;
@@ -973,7 +973,7 @@ static void ACTGame_LwsEffectProcess(GObj *self)
 {
     BgaDisp *m = GOBJ_ACT(self)->enemy->lwsEffect;
     if (m != 0) {
-        DispMultiBgaManagerWithKind(0x1B1, m, 1);
+        DispMultiBgaManagerWithKind(433, m, 1);
     }
 }
 
@@ -992,7 +992,7 @@ inline void ACTGame_LwsEffect_Guard(GObj *self)
     ActGame_GetOrientQ(q, v, 0);
 
     stage_SetLoopFlag(433, 0);
-    stage_SetFrameStep(0x1B1, 1);
+    stage_SetFrameStep(433, 1);
     p = GOBJ_ACT(self)->enemy;
     EntryMultiBgaManager(p->lwsEffect, 0, -1, test_CURRENTROOT(self), q);
 }
@@ -1724,7 +1724,7 @@ static void FunctionAboutClingedStatus(GObj *self)
         g = isysGObjSearchFromObjKindID_begin(4);
         while (g != 0) {
             if (self == actEnemy_GetClingTarget(g)) {
-                iosOmSendMail(g, 0xC6, self);
+                iosOmSendMail(g, 198, self);
                 break;
             }
             g = isysGObjSearchFromObjKindID_next(g);
@@ -2129,8 +2129,8 @@ static void ActOrientTest(GObj *self)
     if (((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 31) & 1) {
         if (GetMotionFrameFlag1(self)) {
             memset(&w1, 0, sizeof(w1));
-            GetSkeltonPosition(sk1, self, 0x33);
-            GetSkeltonPosition(sk2, self, 0x2F);
+            GetSkeltonPosition(sk1, self, 51);
+            GetSkeltonPosition(sk2, self, 47);
             sceVu0AddVector(p1, sk1, sk2);
             sceVu0ScaleVector(p1, p1, 0.5f);
             p1[1] = p1[1] + 50.0f;
@@ -2194,8 +2194,8 @@ static void ActOrientTest(GObj *self)
             continue;
         }
         memset(&w3, 0, sizeof(w3));
-        GetSkeltonPosition(sk3, self, 0x33);
-        GetSkeltonPosition(sk4, self, 0x2F);
+        GetSkeltonPosition(sk3, self, 51);
+        GetSkeltonPosition(sk4, self, 47);
         sceVu0AddVector(c1, sk3, sk4);
         sceVu0ScaleVector(c1, c1, 0.5f);
         c1[1] = c1[1] + 50.0f;
@@ -2570,11 +2570,11 @@ inline float _ACTGame_GetParamF(int idx)
 inline void ACTGame_SendSoundMail(GObj *self, int mail, GObj *from, int mot, int waitSkip)
 {
     switch (mail) {
-    case 0x182:
+    case 386:
         if (waitSkip != 0 && GOBJ_ACT(self)->soundWait > 0) {
             break;
         }
-        iosOmSendMail(self, 0x182, from);
+        iosOmSendMail(self, 386, from);
         if (mot == 0) {
             break;
         }
@@ -2586,8 +2586,8 @@ inline void ACTGame_SendSoundMail(GObj *self, int mail, GObj *from, int mot, int
         }
         break;
 
-    case 0x183:
-        iosOmSendMail(self, 0x183, from);
+    case 387:
+        iosOmSendMail(self, 387, from);
         {
             Act *act = GOBJ_ACT(self);
             act->soundMot = mot;
@@ -2615,7 +2615,7 @@ inline void _ACTSetEnemyDisappearSpeed(GObj *self, float speed)
 inline int ACTChkAttackIgnore_BOY(GObj *self)
 {
     Act *s = GOBJ_ACT(self);
-    if (s->actMode == 0x35 ||
+    if (s->actMode == 53 ||
         (((ActWork *)s->work)->leverTimer != 0 && scpBoyControlReadDisable != 0)) {
         return 1;
     }
@@ -2656,7 +2656,7 @@ void ACTLookTargetSystem_Exec(GObj *self)
 
         switch (kind) {
         case 13:
-            GetSkeltonPosition(p, self, 0x23);
+            GetSkeltonPosition(p, self, 35);
             sceVu0ScaleVector(dir, (char *)GOBJ_ACT(self)->work + 0x450, 300.0f);
             sceVu0AddVector(pos, p, dir);
             GOBJ_SUB(self)->root.ikRate0 = 0.3f;

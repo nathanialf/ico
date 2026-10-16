@@ -230,10 +230,10 @@ typedef union { /* field names derived */
    ten-entry histories at 0x830, 0x858 and 0x880 are read back in BeforeFunc. */
 typedef struct { /* field names derived */
     char pad0[2096];
-    int a900[10];
-    int a928[10];
-    int a950[10];
-} ActExt; /* derived name */
+    int modeHist[10];     /* 0x830, the act modes left, newest first */
+    int frameHist[10];    /* 0x858, their frames */
+    int intrKindHist[10]; /* 0x880, the interrupt kinds they ran under */
+} ActExt;                 /* derived name */
 
 inline void actInitialize_only_charcter(char *self)
 {
@@ -252,9 +252,9 @@ inline void actInitialize_only_charcter(char *self)
     ((ActFWord *)((char *)q + 0x334))->f = 1.0f;
     *(int *)((char *)q + 0x730) = 0;
     for (i = 0; i < 10; i++) {
-        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a900[i] = 0;
-        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a928[i] = 0;
-        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a950[i] = 388;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->modeHist[i] = 0;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->frameHist[i] = 0;
+        ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->intrKindHist[i] = 388;
     }
 }
 
@@ -421,10 +421,10 @@ static void act_check_mail(void *self, IntrMail *m)
         case 253:
             w->flags18.ll |= 0x8000LL << 48;
             break;
-        case 0x1F:
+        case 31:
             w->flags18.ll |= 0x8000LL << 44;
             break;
-        case 0x20:
+        case 32:
             w->flags18.ll |= 0x8000LL << 45;
             break;
         case 58:
@@ -433,16 +433,16 @@ static void act_check_mail(void *self, IntrMail *m)
         case 395:
             GOBJ_ACT(self)->enemy->word2B0 = 0;
             break;
-        case 0xF:
+        case 15:
             w->flags18.ll |= 0x8000LL << 40;
             break;
-        case 0x10:
+        case 16:
             w->flags18.ll |= 0x8000LL << 39;
             break;
-        case 0x7:
+        case 7:
             w->flags20.ll |= 0x800;
             break;
-        case 0x22:
+        case 34:
             w->flags18.ll |= 0x8000LL << 46;
             break;
         }
@@ -564,21 +564,21 @@ void BeforeFunc(GObj *self)
             }
             w->modeFrame = 0;
             for (i = 9; i > 0; i--) {
-                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a900[i] =
-                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a900[i - 1];
-                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a928[i] =
-                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a928[i - 1];
-                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a950[i] =
-                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a950[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->modeHist[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->modeHist[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->frameHist[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->frameHist[i - 1];
+                ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->intrKindHist[i] =
+                    ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->intrKindHist[i - 1];
             }
-            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a900[0] = w->actMode;
-            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a928[0] = w->frame;
-            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->a950[0] = old;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->modeHist[0] = w->actMode;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->frameHist[0] = w->frame;
+            ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x678))->intrKindHist[0] = old;
             w->actMode = intr->mode;
             w->flags18.ll = (w->flags18.ll & ~(1LL << 35)) |
-                            ((unsigned long long)actModeTbl[w->actMode].attractWait << 35);
+                            ((unsigned long long)actModeTbl[w->actMode].saveInfo << 35);
             w->flags18.ll = (w->flags18.ll & ~(1LL << 45)) |
-                            ((unsigned long long)actModeTbl[intr->mode].bit1 << 45);
+                            ((unsigned long long)actModeTbl[intr->mode].holdDir << 45);
             w->flags20.ll &= ~(1LL << 2);
             *(IntrMail **)((char *)w + 0xC4) = &actIntrList[actModeTbl[w->actMode].intrList];
             actChangeActMain(isysCurrentGObj, act, &w->actProc);

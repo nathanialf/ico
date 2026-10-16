@@ -313,7 +313,7 @@ static inline unsigned char ditchProbe(GObj *o, float h) /* derived name */
     s = GOBJ_ACT(o);
     if (o == boyGObj && stageData[stage_no].flag2 && (s->actMode == 4 || s->actMode == 5)) {
         memset(&work, 0, 0xC0);
-        GetSkeltonPosition(work.pt[0], o, 0x2C);
+        GetSkeltonPosition(work.pt[0], o, 44);
         work.pt[1][0] = work.pt[0][0];
         work.pt[1][2] = work.pt[0][2];
         work.pt[1][1] = work.pt[0][1] + 200.0f;
@@ -458,7 +458,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     }
     GetRootProjectionPosOfGObj(prj, self);
     GetRootPosition(pos, self);
-    GetSkeltonOrient(ori, self, 0x2C);
+    GetSkeltonOrient(ori, self, 44);
     env->motOriReq = *(MotOriReq *)&GOBJ_SUB(self)->root.wall;
     sub->flags18.ll &= ~(1ULL << 39);
     sub->flags18.ll &= ~(1ULL << 40);
@@ -526,7 +526,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                 if (self == girlGObj)
                     c1 = 0;
             }
-            GetSkeltonOrient(p60, self, 0x2C);
+            GetSkeltonOrient(p60, self, 44);
             r = rotyFromBack(p60, env->wallOrient);
             if (c2 && 30 < r)
                 flags[0].w |= 0x10;
@@ -1000,7 +1000,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         float hdif;
 
         if (self == boyGObj && girlGObj != 0 &&
-            GOBJ_ACT(girlGObj)->actMode != 0x26 && hh < 200.0f &&
+            GOBJ_ACT(girlGObj)->actMode != 38 && hh < 200.0f &&
             !ACTGame_FLAG_TETSUNAGI() && !CheckPureCliffAttribute(self, 0x7000) &&
             !CheckPureCliffAttribute(self, 0x400) &&
             _AbsRotyGV(env->cliffOrient, ori) < 60) {

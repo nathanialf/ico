@@ -76,5 +76,3 @@ inline int iosMcIconWriteIcon(struct McMgr *self, const IconFile *p)
 {
     return iosMcIconWriteIconsys(self, p);
 }
-
-static int _iosMcIconWriteIconsys(CdvdBgReq *self, struct McIconWork *p);

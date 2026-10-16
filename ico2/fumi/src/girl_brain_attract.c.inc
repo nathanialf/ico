@@ -1,5 +1,5 @@
 /* girl_brain_attract.c.inc: the girl brain's "attract" state, #included as
- * source into girl_act.c.  Its includer in the 2002 tree is
+ * source into girl_act.c.  Its includer in the source listings is
  * girl_brain_main.c.inc, which is not split out, so the include sits at the
  * point of girl_act.c that girl_brain_main.c.inc's text occupies. */
 
@@ -18,7 +18,7 @@ static int ATGoalTurnMail(void *actor, float *dir)
     v[0] = dir[0];
     v[1] = dir[1];
     v[2] = dir[2];
-    GetSkeltonOrient(o1, actor, 0x2C);
+    GetSkeltonOrient(o1, actor, 44);
     r1 = _RotyGV(o1, v);
     m = (r1 < 0) ? -r1 : r1;
     if (m >= 0x15) {
@@ -123,7 +123,7 @@ static int checkWaterfallResult(float *out)
 }
 
 /* The record Act.enemy points at, as far as this file uses it: the sofa
-   position the attract state hands over (copied from the actor's 0x5B0) and
+   position the attract state hands over (copied from the actor's 0x5A0) and
    the facing _GetRootObjectOrient fills for it. */
 typedef struct { /* field names derived */
     char pad0[560];
@@ -257,7 +257,7 @@ restart:
         if ((int)(sub->flags20.ll >> 22) & 1) {
             hint = 1;
         }
-        if (0 < brain_val.status31Timer) {
+        if (0 < brain_val.status28Timer) {
             _ACTCharStatus_Set((void *)self, 28, -1.0f, 0);
         }
         if (kind != getKind()) {

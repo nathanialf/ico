@@ -201,7 +201,7 @@ typedef union { /* field names derived */
 void ACTGameView_Loop(struct GObj *self);
 
 /* look-target-data: the look target kinds of one entry, 0x0C bytes, 27
- * rows, one column per character kind (Act+0x48). Reader:
+ * rows, one column per character kind (Act+0x44). Reader:
  * ico2/fumi/src/act-game.c. Owner: ico2/fumi/include/act-game.h. */
 typedef struct { /* field names derived */
     int kind[3]; /* 0x00, one per column */

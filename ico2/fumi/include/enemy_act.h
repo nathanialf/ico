@@ -16,11 +16,11 @@ typedef struct { /* field names derived */
     GObj *gobj;
 } BrainModeTarget; /* derived name */
 
-/* A 64-bit flag word with a byte view (the enemy work's +0x210 status word and
+/* A 64-bit flag word with a byte view (the enemy work's +0x208 status word and
    the sub record's +0x20 word).  A write through the byte view may alias the
    pointers that reach it, so each arm below re-reads self->sub->enemy for its
-   second assignment.  The two-word view is the enemy work's: +0x210 is one
-   64-bit word and +0x214, the requested brain target, a record inside it. */
+   second assignment.  The two-word view is the enemy work's: +0x208 is one
+   64-bit word and +0x20C, the requested brain target, a record inside it. */
 
 typedef union { /* field names derived */
     char c[8];
