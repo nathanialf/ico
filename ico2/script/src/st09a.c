@@ -14,7 +14,6 @@
 #include "motionManager2.h"
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* .data: actor mail packets. */
 
@@ -40,6 +39,10 @@ static ActMail brgSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sdata: the bridge stream handle. */
 SqEntry *st09a_brg = 0;
+
+/* The stone statue's sound position, a 16-byte constant vector template: the
+   float view carries the values, the long long view is the one the copy reads. */
+static const ConstVec sekizoPos = {{1548.0f, -412.0f, -608.0f, 0.0f}}; /* derived name */
 
 void actSt09aInit(void)
 {
@@ -83,7 +86,22 @@ void actSt09aElvDown(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt09aProc_0022B9A8);
+void actSt09aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    long long buf[2];
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    buf[0] = sekizoPos.d[0];
+    buf[1] = sekizoPos.d[1];
+    soundSeDefPlay(1319, 0, (float *)buf, 1);
+    soundSeDefPlay(1320, 0, (float *)buf, 1);
+    soundSeDefPlay(1321, 0, (float *)buf, 1);
+
+    scpSekizou(self, 77, 341, 0, 18, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
+}
 
 void actSt09aBrgDown(GObj *volatile self)
 {
@@ -121,11 +139,54 @@ void actSt09aBrgDown(GObj *volatile self)
     lt_switch_layout(50);
 }
 
-INCLUDE_ASM(actSt09aElv);
+void actSt09aElv(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-INCLUDE_ASM(actSt09aIntro);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt09aBrg);
+    if (gflagChk(76) != 0) {
+        stage_SetAnimation(340, 0, 210);
+    } else {
+        stage_SetAnimation(340, 0, 0);
+    }
+
+    elv_mes[0].func = actSt09aElvMain;
+    act->mail = elv_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt09aIntro(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(78) == 0) {
+        intro_mes[0].func = actSt09aIntroChk;
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt09aBrg(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(79) == 0) {
+        brg_mes[0].func = actSt09aBrgMain;
+        act->mail = brg_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
 void actSt09aElvMain(GObj *volatile self)
 {

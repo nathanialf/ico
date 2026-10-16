@@ -14,7 +14,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static ActMail sekizo_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -27,7 +26,16 @@ static const ConstVec girlWayPos = {{-10750.0f, -2122.0f, 0.0f, 0.0f}}; /* deriv
 
 static const ConstVec girlWay2Pos = {{-139.0f, -177.0f, 1670.0f, 0.0f}}; /* derived name */
 
-INCLUDE_ASM(actSt04bEnd);
+void actSt04bEnd(void)
+{
+    if (girlGObj != 0) {
+        if (gflagChk(124) != 0) {
+            if (gflagChk(140) == 0) {
+                gflagOn(358);
+            }
+        }
+    }
+}
 
 /* .sdata: the stone statue's stream handle, its shake and the shake's volume. */
 SqEntry *sekizo4b = 0;
@@ -36,9 +44,128 @@ int sekizo_4b = 0;
 
 unsigned char sekizo_4b_vol = 0;
 
-INCLUDE_ASM(actSt04bSekizoChk);
+void actSt04bSekizoChk(GObj *volatile self)
+{
+    /* soundSeDefPlay hands back a slot id the sound side keeps updating, so
+       the handle is read again at the stop site */
+    volatile int se;
+    float v[4];
+    int key;
 
-INCLUDE_ASM(actSt04bEne1Chk);
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    brainLockGirl();
+
+    scpKillEnemyOne(3453);
+    scpMaskGeneratorAll();
+
+    scpAdpcmPlayRequestFunc(18, &sekizo4b, 1, 1, 1);
+    while (sekizo4b == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(357);
+    _ACTWait(60);
+
+    stage_SetAnimation(170, 1, 0);
+
+    ReviveAllCarryableItemsWithNonSleepFrame(250);
+
+    key = iosPadActRequest(boyPad, 9);
+    sekizo_4b_vol = 128;
+    iosPadActVolumeSet(sekizo_4b = key, 128);
+
+    se = soundSeDefPlay(1193, 0, 0, 1);
+
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayMot(girlGObj, 514);
+
+    scpPlayPosSet(girlGObj, -10325.0f, -2150.0f, 0.0f);
+    scpPlayPosSet(boyGObj, -10325.0f, -2150.0f, -100.0f);
+    _ACTWait(1);
+    sceVu0SubVector(v, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, v);
+    scpBoyControlReadDisable = 1;
+    sceVu0SubVector(v, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, v);
+
+    scpSekizouCheckPoint();
+
+    scpPlayMot(girlGObj, 572);
+    scpPlayWaitMotEnd(girlGObj);
+
+    gflagOn(142);
+
+    soundSeDefStop(se);
+
+    while (stage_CheckAnimationFrame(170, 151, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActStop(sekizo_4b);
+
+    scpPlayMot(girlGObj, 514);
+    scpPlayEnd(girlGObj);
+
+    actCreateSubThread(actSt04bGirlWay, 21);
+
+    _ACTWait(30);
+    scpPlayMot(boyGObj, 247);
+    scpPlayWaitMotEnd(boyGObj);
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+
+    ScpCallCameraSetTarget(10793.0f, 2122.0f, 0.0f);
+}
+
+void actSt04bEne1Chk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (gflagChk(124) == 0 || scpTriggerFloorAttr(girlGObj, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    scpSleepEnemyOne(3453);
+
+    gflagOff(358);
+
+    _ACTWait(60);
+
+    gflagOn(140);
+    gflagOn(141);
+
+    stage_SetAnimation(163, 1, 0);
+    SetCameraFlag_LwsCutBack();
+    while (stage_CheckAnimationFinish(163) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+
+    scpWakeupEnemyOne(3453);
+}
 
 void actSt04bCrest01XL(GObj *volatile self)
 {
@@ -187,4 +314,21 @@ void actSt04bSekizoEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actSt04bGirlWay);
+void actSt04bGirlWay(GObj *volatile self)
+{
+    long long buf[2];
+    long long way[2];
+
+    buf[0] = girlWayPos.d[0];
+    buf[1] = girlWayPos.d[1];
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
+
+    way[0] = girlWay2Pos.d[0];
+    way[1] = girlWay2Pos.d[1];
+    RequestStageChangeDirect(girlGObj, 19, way, 180);
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+
+    brainUnlockGirl();
+}
