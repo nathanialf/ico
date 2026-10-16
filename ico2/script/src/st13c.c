@@ -29,7 +29,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "jimaku.h"
-#include "include_asm.h"
 
 /* the stage-animation number sets the contes play; two functions keep one
    in their frame as the scratch vector they hand scpPlayMotDir or
@@ -70,15 +69,8 @@ static ActMail sekizoJimaku_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail girlCarry_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail girlCarryChk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail girlCarryAgainChk_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail hand_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail rescue_mes[2] = {{397}, {396}}; /* derived name */
-
-static ActMail buki_mes[2] = {{397}, {396}}; /* derived name */
+/* girlCarryChk_mes is actSt13cGirlCarryChk's own; the four tables after it
+   in .data follow that function. */
 
 /* .sdata: bmg, the two scene streams, and the stream actSt13cHandChk
    waits on. */
@@ -873,7 +865,44 @@ void actSt13cCageFallEffect(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt13cGirlCarryChk);
+void actSt13cGirlCarryChk(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    static ActMail girlCarryChk_mes[2] = {{397}, {396}}; /* derived name */
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (gflagChk(24) == 0 || GOBJ_ACT(girlGObj)->actMode == 107 ||
+           GOBJ_ACT(girlGObj)->actMode == 106 || gflagChk(27) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(15);
+
+    scpPlayStart(girlGObj);
+    scpPlayMot(girlGObj, 569);
+    scpPlayWaitMotEnd(girlGObj);
+    scpPlayMot(girlGObj, 552);
+
+    gflagOn(25);
+
+    girlCarryChk_mes[0].func = actSt13cGirlCarryAgainChk;
+    act->mail = girlCarryChk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+
+    _ACTWait(1);
+}
+
+static ActMail girlCarryAgainChk_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail hand_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail rescue_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail buki_mes[2] = {{397}, {396}}; /* derived name */
 
 void actSt13cHandChk(GObj *volatile self)
 {
