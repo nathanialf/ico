@@ -844,7 +844,7 @@ inline void afterCommonRope(GObj *volatile self)
     ReleaseChain(s->chain, self);
     {
         GObj *g = self;
-        *(int *)((int)s + 0x184) = s->chain;
+        *(int *)((int)s + 0x184) = (int)s->chain;
         GOBJ_SUB(g)->root.ropeState = 0;
     }
 }
@@ -1546,7 +1546,7 @@ void actCommonCling(GObj *volatile self)
     tgt = GOBJ_ACT(self)->enemy->clingReq;
 
     GOBJ_ACT(self)->enemy->clingTarget = tgt;
-    ACTGameCollisionOff(self);
+    ACTGameCollisionOff((void *)self);
     Cling(no, tgt);
     _ACTWait(0);
 }
@@ -1615,7 +1615,7 @@ inline void actCommonRevive(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
 
     debug_StdPrintfDummy("enter actCommonRevive\n");
-    ACTGameCollisionOff(self);
+    ACTGameCollisionOff((void *)self);
     ((ReviveSub *)s)->after = (int)afterCommonRevive;
     SetDirectRootPositionNoFitting((void *)self, &s->restartPosX);
     EnemySetfAppearAll((void *)self);
@@ -3987,7 +3987,7 @@ inline void actAfterDown(GObj *volatile self)
 
 inline void afterCommonCling(volatile unsigned int self)
 {
-    ACTGameCollisionOn(self);
+    ACTGameCollisionOn((void *)self);
 }
 
 inline void actAfterSlip(int x)
@@ -3997,7 +3997,7 @@ inline void actAfterSlip(int x)
 
 inline void afterCommonRevive(volatile unsigned int self)
 {
-    ACTGameCollisionOn(self);
+    ACTGameCollisionOn((void *)self);
 }
 
 inline void afterCommonStone(GObj *volatile self)

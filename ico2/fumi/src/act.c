@@ -212,7 +212,8 @@ void actInitialize_ext_charcter(GObj *self)
     *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x670) + 0x2A8) = -1;
     *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x670) + 0x2AC) = -1;
     *(int *)(*(char **)((int)GOBJ_ACT(self) + 0x670) + 0x2B0) = -1;
-    InitMailAdditionalData(self, *(char **)((int)GOBJ_ACT(self) + 0x670));
+    InitMailAdditionalData(self,
+                           (struct MailAdditionalData *)*(char **)((int)GOBJ_ACT(self) + 0x670));
 }
 
 /* The actor object: only the work pointer at +0x164 matters here. */
@@ -342,7 +343,7 @@ inline int ACTReserveTarget(GObj *self, void *arg, int mail)
 {
     Act *g = GOBJ_ACT(self);
     if (g->reserved == 0) {
-        *(char **)((char *)g + 0x12C) = self;
+        *(char **)((char *)g + 0x12C) = (char *)self;
         g->reservedMail = mail;
         iosOmSendMail(self, mail, arg);
         return 1;
@@ -559,7 +560,7 @@ void BeforeFunc(GObj *self)
         if (act != 0) {
             after_func_exec(self, w->actMode, intr->mode);
             if (*(int *)((char *)w + 0x18) != 0) {
-                (*(void (**)(char *))((char *)w + 0x18))(self);
+                (*(void (**)(GObj *))((char *)w + 0x18))(self);
                 *(int *)((char *)w + 0x18) = 0;
             }
             w->modeFrame = 0;
@@ -591,7 +592,7 @@ void BeforeFunc(GObj *self)
             actCreateMotionThread(intr->extra, 22, &w->motProc2);
         }
         if (intr->accept != 0) {
-            intr->accept(self, ent->id, ent->f4);
+            intr->accept((char *)self, ent->id, ent->f4);
         }
     }
     ((ActStatusWord *)((char *)w + 0x128))->q &= ~(1LL << 0);

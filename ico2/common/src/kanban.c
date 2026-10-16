@@ -58,7 +58,7 @@ extern void gif_StartPacketPri(int pri);
 
 static void init_textures_of_specified_property(int first, int last);
 
-static inline char *get_texture_base_name(char *src) /* derived name */
+static inline char *get_texture_base_name(const char *src) /* derived name */
 {
     char buf[256];
     char *p;
@@ -84,7 +84,7 @@ static inline char *get_texture_base_name(char *src) /* derived name */
 static inline int get_texture_no_of_property(int idx) /* derived name */
 {
     int n;
-    char *src;
+    const char *src;
     char *name;
     int no;
 

@@ -659,7 +659,7 @@ void iosCdvdManager(void)
     SignalSema(IosCdLock);
 
     while (1) {
-        while (iosMsgRecv(&CdvdMsgQ, &msg, 0) == -1) {
+        while (iosMsgRecv(&CdvdMsgQ, (int *)&msg, 0) == -1) {
             iosCdvdBackGroundMgrRunning = 1;
             iosCdvdBackGroundMgr();
             iosCdvdBackGroundMgrRunning = 0;
@@ -686,7 +686,7 @@ void iosCdvdManager(void)
         }
         {
             char reply[33216];
-            iosMsgSend(&CdvdMsgQ_LoadEnd, reply, 0);
+            iosMsgSend(&CdvdMsgQ_LoadEnd, (int)reply, 0);
         }
     }
 }
@@ -709,7 +709,7 @@ void iosCdvdLoad(int req, int inflate)
 static void iosCdvdPackLoad(IosCdvdHandle *cdvd)
 {
     cdvd->ctl.i[1] = 2;
-    iosMsgSend(&CdvdMsgQ, cdvd, 0);
+    iosMsgSend(&CdvdMsgQ, (int)cdvd, 0);
 }
 
 CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, void *readArg, void *readyFunc,

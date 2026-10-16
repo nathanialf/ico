@@ -408,7 +408,7 @@ end:
 /* a static inline */
 static inline int getEnemyBrainMes(char *self, int *data) /* derived name */
 {
-    EBSlot *t = eBrainGetTarget(self);
+    EBSlot *t = eBrainGetTarget((GObj *)self);
 
     if (t == 0) {
         *data = 0;
@@ -845,12 +845,12 @@ inline int actEnemy_isNormalEnemy(GObj *self)
     return GOBJ_ACT(self)->enemy->sizeClass == 1;
 }
 
-inline int actEnemy_GetClingTarget(GObj *self)
+inline GObj *actEnemy_GetClingTarget(GObj *self)
 {
     Act *b = GOBJ_ACT(self);
     EnemyBattleWork *e = b->enemy;
     if (e->sizeClass == 0 && b->actMode == 16) {
-        return e->clingTarget;
+        return (GObj *)e->clingTarget;
     }
     return 0;
 }
@@ -972,7 +972,7 @@ static int actEnemyForceSwitchToCarry(void *self)
                                   0.0f, 0.0f, 1.0f);
     sub->carried = girlGObj;
     GOBJ_ACT(girlGObj)->carrier = self;
-    ACTGameCollisionOff(girlGObj);
+    ACTGameCollisionOff((void *)girlGObj);
     eBrainSendMes(self, 9);
     eBrainSendMes(self, 7);
     return 1;
@@ -1480,7 +1480,7 @@ inline void _BrainMode_SetDirect(GObj *self, int mode, BrainModeTarget *tgt)
 }
 
 /* A static inline between _BrainMode_SetDirect and subEnemyBrainMain. */
-static inline void _BrainMode_Set(GObj *self, int mode, int *tgt) /* derived name */
+static inline void _BrainMode_Set(GObj *self, int mode, BrainModeTarget *tgt) /* derived name */
 {
     if (brainModeTable[mode].pri < brainModeTable[GOBJ_ACT(self)->enemy->reqMode].pri) {
         return;
@@ -1521,14 +1521,14 @@ void subEnemyBrainMain(GObj *volatile self)
             _BrainMode_Set(self, 13, 0);
             break;
         case 5:
-            _BrainMode_Set(self, 7, &arg);
+            _BrainMode_Set(self, 7, (BrainModeTarget *)&arg);
             break;
         case 4:
         case 6:
-            _BrainMode_Set(self, 5, &arg);
+            _BrainMode_Set(self, 5, (BrainModeTarget *)&arg);
             break;
         case 8:
-            _BrainMode_SetDirect(self, 2, &arg);
+            _BrainMode_SetDirect(self, 2, (BrainModeTarget *)&arg);
             break;
         default:
             debug_StdPrintfDummy("undefined mode [%d]\n", req);
@@ -1596,7 +1596,7 @@ void subEnemyBrainMain(GObj *volatile self)
             (((int)(sub->flags20.ll >> 0)) & 1) != 0) {
             sub->flags20.ll &= ~1LL;
             GOBJ_ACT(self)->enemy->mode = GOBJ_ACT(self)->enemy->reqMode;
-            GOBJ_ACT(self)->enemy->target = GOBJ_ACT(self)->enemy->flags.w.reqTarget.gobj;
+            GOBJ_ACT(self)->enemy->target = (int)GOBJ_ACT(self)->enemy->flags.w.reqTarget.gobj;
             sub->brainTarget = (GObj *)GOBJ_ACT(self)->enemy->target;
             sub->brainAim = brainModeTable[GOBJ_ACT(self)->enemy->mode].aim;
             sub->infoPos = brainModeTable[GOBJ_ACT(self)->enemy->mode].infoPos;
@@ -1671,7 +1671,7 @@ inline void afterCommonCarry(GObj *volatile self)
     sub->carried = girl;
     iosOmSendMail(girl, 48, obj);
     GOBJ_SUB(sub->carried)->disp = 1;
-    ACTGameCollisionOn(sub->carried);
+    ACTGameCollisionOn((void *)sub->carried);
     gflagOff(360);
     sub->carried = 0;
     if (sub->actMode == 5) {
@@ -1956,7 +1956,7 @@ static int GetFlyPosition(float *out, float *me, float *tgt)
     return ret;
 }
 
-static void NakaBoss(GObj *self, void *tgt, float dist)
+static void NakaBoss(GObj *self, void *tgt, float tgtDist)
 {
     float bpos[4];
     float mpos[4];
@@ -2519,9 +2519,9 @@ void actEnemyStart(GObj *self)
     float life;
 
     debug_StdPrintfDummy("actEnemyStart:%p\n", self);
-    act = actInitialize(self);
+    act = (char *)actInitialize(self);
     actInitialize_ext_charcter(self);
-    actInitialize_only_charcter(self);
+    actInitialize_only_charcter((char *)self);
     actInitialize_geo(self);
     if (*(int *)((char *)self + 8) == 3453) {
         *(long long *)(act + 0x20) = *(long long *)(act + 0x20) | 0x20000;
@@ -2640,7 +2640,7 @@ void subEnemyBrain_Cling(GObj *volatile self)
     float v[4];
 
     GOBJ_ACT(self)->enemy->clingReq = tgt;
-    _OrientXZGV(v, test_CURRENTROOT(tgt), test_CURRENTROOT(self));
+    _OrientXZGV(v, test_CURRENTROOT((GObj *)tgt), test_CURRENTROOT(self));
     sub->dir[0] = v[0];
     sub->dir[1] = v[1];
     sub->dir[2] = v[2];
@@ -2650,7 +2650,7 @@ void subEnemyBrain_Cling(GObj *volatile self)
     _ACTWait(1);
     while (1) {
         if (sub->actMode == 4 || sub->actMode == 16) {
-            if (_DistSqGV(test_CURRENTROOT(tgt), test_CURRENTROOT(self)) < 3600.0f) {
+            if (_DistSqGV(test_CURRENTROOT((GObj *)tgt), test_CURRENTROOT(self)) < 3600.0f) {
                 ACTSendMailCorrect((void *)self, 192);
             }
         } else {

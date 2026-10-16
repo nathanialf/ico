@@ -683,7 +683,7 @@ void WeaponDL(GObj *g)
         MultiQuaternion(q1, e->root.quat, q1);
         SubVectorXYZ(d, e->root.pos, e->root.move);
         if (weaponKind[w->kind].blur != -1) {
-            WeaponDef *k = &weaponKind[w->kind];
+            const WeaponDef *k = &weaponKind[w->kind];
             GifColor c = {k->color[0], k->color[1], k->color[2], k->color[3]};
             float m[4][4];
             float n[4];

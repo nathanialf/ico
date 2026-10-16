@@ -248,7 +248,7 @@ void ACTGetWish_FromPad(GObj *self, float *dir)
     }
 
     if (s->pad.now & 0x20) {
-        ACTSearchGObj(self, 19, 45, &o, u, 100.0f);
+        ACTSearchGObj(self, 19, 45, (int *)&o, u, 100.0f);
 
         if (o != 0 && CheckCarryableItem(o)) {
             p[0] = test_CURRENTROOT(o)[0];

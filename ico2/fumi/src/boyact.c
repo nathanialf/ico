@@ -1137,7 +1137,7 @@ void subBoyControl(GObj *volatile self)
             int back = 0;
 
             if (0.1f < s->stick.mag) {
-                int r = _RotyGV(stick, (char *)GOBJ_ACT(self)->work + 0x430);
+                int r = _RotyGV(stick, (float *)((char *)GOBJ_ACT(self)->work + 0x430));
 
                 r = r < 0 ? -r : r;
                 back = r >= 136;
@@ -2080,7 +2080,7 @@ void subBoyCollision(GObj *volatile self)
                     /* a local debug switch, off (see dbg in the declarations):
                        mark the helper position just set */
                     if (dbg) {
-                        debug_NMarker(work, 255, 0, 0, 100.0f);
+                        debug_NMarker((float *)work, 255, 0, 0, 100.0f);
                     }
                     if ((int)(sub->flags20.ll >> 12) & 1) {
                         if ((int)(sub->flags20.ll >> 13) & 1) {
@@ -2165,8 +2165,8 @@ void actBoySwim(GObj *volatile self)
             sceVu0ApplyMatrix(pos, *(void **)(GOBJ_SUBSLOT(box) + 0xC), BOY_EXT(self)->grip);
             debug_NMarker(pos, 0xFF, 0, 0, 100.0f);
             MoveFloatingBox(box, self,
-                            *(char **)(GOBJ_SUBSLOT(self) + 0xC) +
-                                GetSkeltonFocusNode(self, 0x13) * 0x40 + 0x30,
+                            (float *)(*(char **)(GOBJ_SUBSLOT(self) + 0xC) +
+                                      GetSkeltonFocusNode(self, 0x13) * 0x40 + 0x30),
                             BOY_EXT(self)->grip, 30.0f);
             if (!(_DistSqGV(test_CURRENTROOT((void *)self), pos) < 4e+04f)) {
                 BOY_EXT(self)->holdBox = 0;
@@ -2937,13 +2937,13 @@ void actBoyStart(GObj *self)
     sitCount = 0;
     debug_StdPrintfDummy("actBoyStart:%p\n", self);
 
-    work = actInitialize(self);
+    work = (char *)actInitialize(self);
     *(void **)(work + 0x67C) = attrWallHit;
 
     GetRootPosition(work + 0x100, (void *)self);
 
     actInitialize_ext_charcter(self);
-    actInitialize_only_charcter(self);
+    actInitialize_only_charcter((char *)self);
     actInitialize_geo(self);
 
     GOBJ_ACT(self)->enemy->sofaWakeTime =
@@ -2956,7 +2956,7 @@ void actBoyStart(GObj *self)
 
     gopp_subBoyControl = 0;
     ACTParaStatus_Init(self);
-    _ACTCharStatus_Init(self);
+    _ACTCharStatus_Init((int **)self);
 
     _ACTWait(1);
 
@@ -3376,7 +3376,7 @@ inline void BoyInfoUpdate_StageChange(void)
     if (w != 0) {
         x = ACTGame_isWeaponEnableCatchfire(w);
         if (x != 0) {
-            if (IsTorchLightOn(x)) {
+            if (IsTorchLightOn((GObj *)x)) {
                 BOYINFO.torch = 1;
             }
         }
@@ -3462,7 +3462,7 @@ inline void SetBoyInfo(GObj *weapon, GObj *item)
     }
     i = 0;
     n = 1;
-    if (item != i) {
+    if ((int)item != i) {
         ((int *)boyInfo)[n] = item->labelId;
     } else {
         ((int *)boyInfo)[n] = i;

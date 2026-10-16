@@ -185,9 +185,9 @@ static void start_stage_Load_thread(int stage)
         iosThreadCancelWakeup(0);
         SetMotionBlur(GlobalStageSetting.motionBlur);
         current_stage_no = stage;
-        iosThreadCreateS(initIcoMiscThread, 1, InitIcoMisc, &stage_no, ios_partition_root, 0x18000,
-                         27);
-        iosThreadStart(initIcoMiscThread);
+        iosThreadCreateS((IOSThread *)initIcoMiscThread, 1, InitIcoMisc, &stage_no,
+                         ios_partition_root, 0x18000, 27);
+        iosThreadStart((IOSThread *)initIcoMiscThread);
         flags = initIcoMiscThread[15];
         debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
         game_pause = 1;
@@ -379,14 +379,14 @@ void StageManager(void)
     StgMgrMsg *msg;
 
     debug_StdPrintfDummy("stage manager() in\n");
-    iosMsgQueueCreate(&stageMgrMsgQ, &stageMgrMsgBuf, 4);
+    iosMsgQueueCreate(&stageMgrMsgQ, stageMgrMsgBuf, 4);
     debug_StdPrintfDummy("IosCdLock %d\n", IosCdLock);
     WaitSema(IosCdLock);
     DeleteSema(IosCdLock);
     SignalSema(IosStgMgrLock);
     debug_StdPrintfDummy("STAGE MANAGER START\n");
     while (1) {
-        iosMsgRecv(&stageMgrMsgQ, &msg, 1);
+        iosMsgRecv(&stageMgrMsgQ, (int *)&msg, 1);
         mpegPlayFadeInSpeed = 128.0f;
         fadeSpeed = 0;
         switch (msg->cmd) {
@@ -483,7 +483,7 @@ void stgmgrForceSwitch(int stage)
     stageMgrMsg.stage = stage;
     graphics_ready = 1;
     stageMgrMsg.fadeOut = 0;
-    iosMsgSend(&stageMgrMsgQ, &stageMgrMsg, 0);
+    iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
 }
 
 void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut)
@@ -503,5 +503,5 @@ void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsi
     stageMgrMsg.b = b;
     mpegPlayInitColor = 0x80000000 | (b << 16) | (g << 8) | r;
     graphics_ready = 1;
-    iosMsgSend(&stageMgrMsgQ, &stageMgrMsg, 0);
+    iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
 }

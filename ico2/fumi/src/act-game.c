@@ -1265,14 +1265,14 @@ void _ACTCharStatus_Clear(void *self)
         sel = 0;
         g = isysGObjSearchFromObjKindID_begin(4);
         while (g != 0) {
-            d = _DistGV(test_CURRENTROOT(self), test_CURRENTROOT(g));
-            if (actEnemyFlagCheckActive(g)) {
+            d = _DistGV(test_CURRENTROOT(self), test_CURRENTROOT((GObj *)g));
+            if (actEnemyFlagCheckActive((GObj *)g)) {
                 if (d < nearest) {
                     sel = g;
                     nearest = d;
                 }
             }
-            g = isysGObjSearchFromObjKindID_next(g);
+            g = isysGObjSearchFromObjKindID_next((GObj *)g);
         }
         *(int **)((char *)s + 0x7C) = sel;
         if (self == (char *)boyGObj) {
@@ -1755,7 +1755,8 @@ static void ACTEnvGetTest(GObj *self, void *dir)
         s->env.motOriReq = old.motOriReq;
         s->env.supportReq = old.supportReq;
         s->env.cliffContact = old.cliffContact;
-        ACTGetEnvironment(self, dir, test_CURRENTORIENT(self), (char *)s + 0x46C, &s->env);
+        ACTGetEnvironment(self, dir, test_CURRENTORIENT(self), (EnvFlag *)((char *)s + 0x46C),
+                          &s->env);
         break;
 
     case 10:

@@ -395,11 +395,11 @@ static void execClothes(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
 
-    GetCloth4D(w->mantle, 3.0f, 0.98f);
-    GetCloth4D(w->tape, 3.0f, 0.98f);
-    GetCloth4D(w->tapeB, 3.0f, 0.98f);
-    GetCloth4D(w->tapeBoro1, 3.0f, 0.98f);
-    GetCloth4D(w->tapeBoro2, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->mantle, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->tape, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->tapeB, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->tapeBoro1, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->tapeBoro2, 3.0f, 0.98f);
 }
 
 /* the one LightLineExt InitLightLineGeo fills */
@@ -546,9 +546,9 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     p->tapeBoro1 = (char *)InitCloth4D(gobj, &tapeBoro1Mesh, 0);
     p->tapeBoro2 = (char *)InitCloth4D(gobj, &tapeBoro2Mesh, 0);
     *(int *)(*(char **)(((char *)gobj) + 0x15C) + 0x554) = 1;
-    w->crown0 = CSVSYSTEM_InitDObj(1, csv);
-    w->crown1 = CSVSYSTEM_InitDObj(11, csv);
-    w->crown2 = CSVSYSTEM_InitDObj(12, csv);
+    w->crown0 = (char *)CSVSYSTEM_InitDObj(1, csv);
+    w->crown1 = (char *)CSVSYSTEM_InitDObj(11, csv);
+    w->crown2 = (char *)CSVSYSTEM_InitDObj(12, csv);
     (*(BoyWork **)(*(char **)(((char *)gobj) + 0x15C) + 0x800))->crown = 0;
     sceVu0UnitMatrix(w->crown0 + 0x20);
     InitMotionOrient(gobj, 0, 1216, 0, 0xC, 0);

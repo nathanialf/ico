@@ -487,7 +487,7 @@ static void checkCliffState(void)
 
     memset(&buf, 0, sizeof(buf));
     p = &buf;
-    k = (skelGObj == boyGObj) ? -20.0f : 0.0f;
+    k = ((GObj *)skelGObj == boyGObj) ? -20.0f : 0.0f;
     cliffCheckBase[2] = k;
     MatrixDrive_PushMatrix();
     MatrixDrive_TransMatrixV(cliffCheckBase);
@@ -636,7 +636,7 @@ static void _checkCliffAndWall(void)
                 skelMotCtrl->wallTopHeight += 30.0f;
             }
         }
-        if (skelGObj == boyGObj && GOBJ_SUB(skelGObj)->ctrl.cliffEdge == 0) {
+        if ((GObj *)skelGObj == boyGObj && GOBJ_SUB(skelGObj)->ctrl.cliffEdge == 0) {
             _SubVectorXYZ(v, skelRoot->pos, skelRoot->last);
             v[1] = 0.0f;
             d = VectorLengthSquare(v);
@@ -929,7 +929,7 @@ static void execPositionReserver(GObj *self, ObjNode m)
         }
     }
     if (debug_skel_flag != 0) {
-        if (skelGObj == girlGObj) {
+        if ((GObj *)skelGObj == girlGObj) {
             CopyVector(buf2, skelRoot->savePos);
             _UnitMatrix(MatrixDrive_GetMatrix());
             if (m.obj != 0) {
@@ -1240,7 +1240,7 @@ void SkelTestGeo(GObj *self)
         s2 = GOBJ_SUB(self);
         for (i = 0; i < s2->skelNodeNum; i++) {
             int e = s2->nodeMtx + i * 64;
-            sceVu0MulMatrix(e, &s2->matrix, e);
+            sceVu0MulMatrix((void *)e, &s2->matrix, (void *)e);
             s2 = GOBJ_SUB(self);
         }
         if (debug_skel_flag != 0) {

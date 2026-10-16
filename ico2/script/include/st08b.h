@@ -20,7 +20,7 @@ inline void actSt08bKurenMain(GObj *volatile self);
 inline void actSt08aGirlYoro(GObj *volatile self);
 void actSt08bDoorEvent(int x);
 inline void actSt08bDoorUpEffect(GObj *volatile self);
-void actSt08bDoorDownEffect(GObj *volatile self);
+inline void actSt08bDoorDownEffect(GObj *volatile self);
 inline void actSt08bEneChk(GObj *volatile self);
 void actSt08bKurenSwitch(GObj *volatile self);
 
