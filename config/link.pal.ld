@@ -18,7 +18,7 @@
  * that era's BFD gives the base's .shstrtab order, NOBITS file offsets and
  * .reginfo entsize 1, the patch the R5900 e_flags and the .DVP.ovlytab link.
  * ld 2.10 has no INCLUDE inside a section, so tools/gen_ninja.py links
- * with build/link.ld, this file with the INCLUDE lines expanded.
+ * with build/pal/link.ld, this file with the INCLUDE lines expanded.
  *
  * What the link still does not give the file, measured with
  * tools/check_elf.py --full-diff (report B-6): .bss's 128 (debug_exception.c's
@@ -55,14 +55,14 @@ SECTIONS
      * as in the base, so it takes no room in the image. */
     .reginfo 0x0028ECB0 : { *(.reginfo) }
     .data 0x0028ED00 : {
-        INCLUDE build/data.inputs.ld
+        INCLUDE build/pal/data.inputs.ld
         *(.data .data.*)
     }
     /* The assignment keeps the output section when its inputs are empty,
      * as the base's .vudata and .vubss are. */
     .vudata 0x0054D320 : { *(.vudata) . = .; }
     .rodata 0x0054D380 : {
-        INCLUDE build/rodata.inputs.ld
+        INCLUDE build/pal/rodata.inputs.ld
         *(.rodata .rodata.*)
     }
     .lit4 0x00638B00 : { *(.lit4) }

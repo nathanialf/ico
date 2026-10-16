@@ -7,14 +7,9 @@ console loads is identical to the disc's (the ROM image SHA-1 matches), and
 so is the ELF file itself (its SHA-1 matches the disc's).
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg)
-![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
-![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.54%20%25%20source%20%2B%2027.46%20%25%20disc%29-brightgreen.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.49%20%25%20source%20%2B%2090.51%20%25%20disc%29-brightgreen.svg)
-![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg)
-![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg)
-![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg)
+| Target | Sections identical to the base |
+| --- | --- |
+| [PAL retail (SCES-50760)](https://nathanialf.github.io/ico/#pal) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.54%20%25%20source%20%2B%2027.46%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.49%20%25%20source%20%2B%2090.51%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#pal)**: every
@@ -46,18 +41,18 @@ host needs a 64-bit Linux with 32-bit libraries, a host gcc,
 `mips-linux-gnu-objcopy` and network access for the first run; [`docs/BUILDING.md`](docs/BUILDING.md)
 lists the packages and describes each step.
 
-The build checks the SHA-1s from `config/sha1sums.txt`: the extracted ELF
+The build checks the SHA-1s from `config/sha1sums.pal.txt`: the extracted ELF
 before it starts, and the rebuilt ROM image and the rebuilt ELF at the end.
 
 | file | SHA-1 |
 | --- | --- |
 | `baserom/pal/baseelf.elf` (the disc's `SCES_507.60`) | `da3644c54c26fe760f3b6a591a5fc2eab396ed2b` |
-| `baserom/pal/baseelf.rom` and `build/ico.rom` (`objcopy -O binary`) | `a401d1e5a20b1659189a8b1026a8eb35811dc9ca` |
+| `baserom/pal/baseelf.rom` and `build/pal/ico.rom` (`objcopy -O binary`) | `a401d1e5a20b1659189a8b1026a8eb35811dc9ca` |
 
 The gate (`tools/check_elf.py --gate`) also compares every allocated section
-of `build/ico.elf` with the base ELF by address and checks that `.sbss` and
+of `build/pal/ico.elf` with the base ELF by address and checks that `.sbss` and
 `.bss` cover the base's ranges, and that the whole-file SHA-1 of
-`build/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
+`build/pal/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
 the symbol-name strings ld keeps and the `.DVP` overlay names and tables all
 match. The overlay names hash the file and line the DVP assembler was reading:
 each microprogram's `.dsm` for the first, then the text cpp read from standard
@@ -81,8 +76,8 @@ comparison.
 
 There is one badge per section of the base ELF, in link order.
 `tools/check_elf.py --progress` (`tools/build.sh progress`) rewrites them,
-[`docs/PROGRESS.md`](docs/PROGRESS.md) and the dashboard's
-`docs/progress.json` from the built ELF and its link map.
+[`docs/pal/PROGRESS.md`](docs/pal/PROGRESS.md) and the dashboard's
+`docs/pal/progress.json` from the built ELF and its link map.
 
 A badge reads `100 %` when the whole section equals the base. Where part of a
 section comes from the data tables (next section), the badge splits the
@@ -100,7 +95,7 @@ definitions, way points (MAIN.MAP; the list is `config/data_members.pal.txt`,
 which also carries three data runs MAIN.MAP does not list). They are the
 game's content, and nothing of that content is committed. The build
 generates them from the user's own `baserom/pal/baseelf.elf` into
-`build/data/`. Each member becomes `build/data/<member>.c`, an initialized
+`build/pal/data/`. Each member becomes `build/pal/data/<member>.c`, an initialized
 array of its record type compiled with the game's flags
 (`tools/gen_data_c.py`); `config/data_schema.pal.txt` holds only the record
 type, its header, the element count, MAIN.MAP's symbol names and which
@@ -157,7 +152,7 @@ from a Sony SDK.
 | ee-gcc 2.9-991111-01 | compiles every C file | `decompme/compilers` release `ee-gcc2.9-991111-01.tar.xz` | GNU GPL (GCC) |
 | ee-as 2.9-991111 (bundled with that compiler) | assembles the game, libc, libm and libgcc | same archive | GNU GPL (binutils) |
 | SCE ee-as 2.10-ee-001003-1 (bundled with ee-gcc 2.96) | assembles the SDK archives under `sce/` | `decompme/compilers` release `ee-gcc2.96.tar.xz`; only its assembler runs | GNU GPL (binutils) |
-| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
+| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/pal/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
 | dvp-as with `tools/binutils-dvp-overlay-fill.patch` | assembles the VU1 microprograms | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea3` | GPL-3.0-or-later |
 
 The assembler follows the archive, as the disc's link did: MAIN.MAP takes
@@ -170,7 +165,7 @@ DVP overlay sections from ps2dev's `binutils-2.14-PS2.patch`; the second
 places each VU overlay at address 0, the rule of the Cygnus linker shipped
 with the GPL ee-gcc 2.9-991111 sources. The licence notices are the tools'
 own (`--version` for the assemblers and ld; the source trees for the rest).
-The host's `mips-linux-gnu-objcopy` writes `build/ico.rom`.
+The host's `mips-linux-gnu-objcopy` writes `build/pal/ico.rom`.
 
 ## Branches
 

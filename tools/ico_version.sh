@@ -12,19 +12,30 @@
 #                    "PAL retail disc (SCES-50760)"
 #   ICO_DISC_WHERE   the region in the name a dump usually goes by, as in
 #                    "Ico (Europe).iso"
-# All paths are repo-root-relative. An explicit VERSION environment variable
-# wins; otherwise the slug is the first one whose config/link_order.<ver>.txt
-# exists. No python and no .venv dependency, so the shell tools can source it
+#   ICO_BUILD_DIR    build/<ver>, the target's build directory
+#   ICO_SHA1SUMS     config/sha1sums.<ver>.txt
+#   ICO_DOCS_DIR     docs/<ver>, the target's progress files
+#   ICO_VERSIONS     every configured slug (a config/link_order.<ver>.txt
+#                    exists), space-separated, in detection order
+# All paths are repo-root-relative. One tree may carry several targets; an
+# explicit VERSION environment variable wins, otherwise the slug is the first
+# configured one. No python and no .venv dependency, so the shell tools can source it
 # before the venv exists. Keep in sync with tools/ico_version.py, whose DISCS
 # table ico_version_disc mirrors.
+
+# ico_version_configured [repo_root]: the configured slugs, one per line.
+ico_version_configured() {
+    local root="${1:-.}" v
+    for v in pal jpn us aug6; do
+        if [ -f "$root/config/link_order.$v.txt" ]; then printf '%s\n' "$v"; fi
+    done
+}
 
 ico_version_detect() {
     local root="${1:-.}" v
     if [ -n "${VERSION:-}" ]; then printf '%s\n' "$VERSION"; return 0; fi
-    for v in pal jpn us aug6; do
-        if [ -f "$root/config/link_order.$v.txt" ]; then printf '%s\n' "$v"; return 0; fi
-    done
-    printf 'us\n'
+    v="$(ico_version_configured "$root" | head -n 1)"
+    printf '%s\n' "${v:-us}"
 }
 
 ico_version_baserom_dir() {  # <version>
@@ -57,7 +68,13 @@ ico_version_init() {
     ICO_BASEROM_DIR="$(ico_version_baserom_dir "$ICO_VERSION")"
     ICO_BASEELF="${ICO_BASEROM_DIR}/baseelf.elf"
     ICO_ROM="${ICO_BASEROM_DIR}/baseelf.rom"
+    ICO_BUILD_DIR="build/${ICO_VERSION}"
+    ICO_SHA1SUMS="config/sha1sums.${ICO_VERSION}.txt"
+    ICO_DOCS_DIR="docs/${ICO_VERSION}"
+    ICO_VERSIONS="$(ico_version_configured "$root" | tr '\n' ' ')"
+    ICO_VERSIONS="${ICO_VERSIONS% }"
     ico_version_disc "$ICO_VERSION"
     export ICO_VERSION ICO_BASEROM_DIR ICO_BASEELF ICO_ROM
     export ICO_DISC ICO_DISC_CUE ICO_DISC_NAME ICO_DISC_WHERE
+    export ICO_BUILD_DIR ICO_SHA1SUMS ICO_DOCS_DIR ICO_VERSIONS
 }

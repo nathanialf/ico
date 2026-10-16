@@ -1,21 +1,28 @@
 """Shared version-slug detection and per-version paths for ICO tooling.
 
-One branch per target:
+The targets:
 
-    branch   slug   disc                                 boot ELF
-    ------   ----   ----------------------------------   -----------
-    main     pal    PAL retail, SCES-50760               SCES_507.60
-    jpn      jpn    Japanese retail, SCPS-11003 (1.02)   SCPS_110.03
-    ntsc     us     USA retail, SLUS-20218               SCUS_971.13
-    aug6     aug6   Aug-6-2001 prototype                 SCUS_971.13
+    slug   disc                                 boot ELF
+    ----   ----------------------------------   -----------
+    pal    PAL retail, SCES-50760               SCES_507.60
+    jpn    Japanese retail, SCPS-11003 (1.02)   SCPS_110.03
+    us     USA retail, SLUS-20218               SCUS_971.13
+    aug6   Aug-6-2001 prototype                 SCUS_971.13
 
-Each slug's link order is config/link_order.<slug>.txt on its own branch, and
-its extracted base files are baserom/<slug>/baseelf.{elf,rom}. `baserom/` is
-gitignored and can hold every target's files side by side.
+One tree may carry several targets. A target is configured in a tree when
+config/link_order.<slug>.txt exists (configured_versions()). Its other
+per-target files are config/<stem>.<slug>.<ext> and
+config/sha1sums.<slug>.txt; its extracted base files are
+baserom/<slug>/baseelf.{elf,rom} (`baserom/` is gitignored and holds every
+target's files side by side); its build is under build/<slug>/; its progress
+files are under docs/<slug>/.
+
+The sources, ico2/ and sce/, are one tree for every configured target:
+where the targets differ, a file holds each one's lines inline in
+#ifdef VERSION_<SLUG> blocks, which tools/compile_c.sh defines.
 
 An explicit `VERSION` environment variable wins; otherwise the slug is the
-first one whose `config/link_order.<slug>.txt` exists. A working tree only
-carries its own target's link order.
+first configured one in VERSIONS order.
 
 DISCS is the one table of what each target's disc image is called and how
 tools name it in messages: the file the user copies under baserom/ (a plain
@@ -82,14 +89,18 @@ DISCS = {
 }
 
 
+def configured_versions(repo_root: Path) -> list[str]:
+    """The slugs this tree carries a link order for, in VERSIONS order."""
+    return [v for v in VERSIONS
+            if (repo_root / "config" / f"link_order.{v}.txt").exists()]
+
+
 def detect_version(repo_root: Path) -> str:
     v = os.environ.get("VERSION")
     if v:
         return v
-    for ver in VERSIONS:
-        if (repo_root / "config" / f"link_order.{ver}.txt").exists():
-            return ver
-    return "us"
+    have = configured_versions(repo_root)
+    return have[0] if have else "us"
 
 
 def baserom_dir(repo_root: Path, version: str) -> Path:
@@ -111,9 +122,36 @@ def config_path(repo_root: Path, version: str, stem: str, ext: str) -> Path:
     return repo_root / "config" / f"{stem}.{version}.{ext}"
 
 
+def build_dir(repo_root: Path, version: str) -> Path:
+    """This target's build directory, build/<version>."""
+    return repo_root / "build" / version
+
+
 def link_map_path(repo_root: Path, version: str) -> Path:
-    """The link map the build writes, build/ico.<version>.map."""
-    return repo_root / "build" / f"ico.{version}.map"
+    """The link map the build writes, build/<version>/ico.<version>.map."""
+    return build_dir(repo_root, version) / f"ico.{version}.map"
+
+
+def sha1sums_path(repo_root: Path, version: str) -> Path:
+    """The recorded SHA-1s of this target's base files,
+    config/sha1sums.<version>.txt (keyed by basename)."""
+    return repo_root / "config" / f"sha1sums.{version}.txt"
+
+
+def docs_dir(repo_root: Path, version: str) -> Path:
+    """This target's progress files, docs/<version>/ (PROGRESS.md,
+    progress.json)."""
+    return repo_root / "docs" / version
+
+
+def layer_files(repo_root: Path) -> list[str]:
+    """The repo-relative paths of the source files (ico2/, sce/): every file
+    git tracks there or would track (untracked files not ignored), so a file
+    added and not yet staged is counted."""
+    import subprocess
+    out = subprocess.run(["git", "ls-files", "-co", "--exclude-standard", "--", "ico2", "sce"],
+                         cwd=repo_root, capture_output=True, text=True, check=True).stdout
+    return [p for p in dict.fromkeys(out.splitlines()) if p and (repo_root / p).is_file()]
 
 
 def disc_name(version: str) -> str:
@@ -150,6 +188,10 @@ _KEYS = {
     "disc_cue": lambda root, v: _rel(disc_cue(root, v), root),
     "disc_name": lambda root, v: disc_name(v),
     "disc_where": lambda root, v: DISCS[v]["where"] if v in DISCS else "",
+    "build_dir": lambda root, v: build_dir(root, v).relative_to(root),
+    "sha1sums": lambda root, v: sha1sums_path(root, v).relative_to(root),
+    "docs_dir": lambda root, v: docs_dir(root, v).relative_to(root),
+    "versions": lambda root, v: " ".join(configured_versions(root)),
 }
 
 

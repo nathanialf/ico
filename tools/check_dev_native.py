@@ -57,7 +57,7 @@ pins are fine only where the developers' own source was assembly).
      An INCLUDE_ASM in any other spelling, one for a stem the list does not
      carry, one on a tree whose list is empty, an `#include "include_asm.h"`
      with no listed stub beside it, and a `.include` in any other asm are
-     refused.  The macro comes from build/stubs/include_asm.h, which
+     refused.  The macro comes from build/<slug>/stubs/include_asm.h, which
      gen_stub_s.py writes with the stubs and the tree never tracks, so a file
      that includes it does not compile once the list is empty.  A `#line`
      after the INCLUDE_ASM line, which keeps a TU's __LINE__ numbering, is
@@ -74,6 +74,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 from gen_stub_s import LIST as STUB_LIST, LITERALS, parse_stubs  # noqa: E402
+# Rule 4's listing is the PAL disc's, the only disc that ships one; the
+# shared tree is the PAL revision.
 LISTING = os.path.join(ROOT, 'baserom', 'pal', 'SRCFILE.TXT')
 ALLOW = os.path.join(ROOT, 'tools', 'dev_native_allow.txt')
 
@@ -448,8 +450,9 @@ def main(argv):
             L = open(path, errors='replace').read().split('\n')
         except OSError:
             continue
-        check_stubs(f, L, stubs, bad, lit)
-        newlib = f.startswith('sce/libc/')
+        rel = f
+        check_stubs(rel, L, stubs, bad, lit)
+        newlib = rel.startswith('sce/libc/')
         for i, l in enumerate(L):
             m = KNR_HDR.match(l)
             if m and m.group(1) not in ('if', 'while', 'for', 'switch', 'return', 'sizeof'):
@@ -472,7 +475,7 @@ def main(argv):
                 # as `path:asm:function | reason` AND a RECONSTRUCTION comment sits within
                 # the twelve lines above it; the allowlist row names the evidence.
                 fn = enclosing_function(L, i)
-                sdk = f.startswith('sce/') and not f.startswith(('sce/libc/', 'sce/libm/', 'sce/libgcc/'))
+                sdk = rel.startswith('sce/') and not rel.startswith(('sce/libc/', 'sce/libm/', 'sce/libgcc/'))
                 marked = any('RECONSTRUCTION' in L[k] for k in range(max(0, i - 12), i))
                 if not (sdk and fn and marked and f'{f}:asm:{fn}' in allow):
                     bad.append(f'{f}:{i+1}: empty inline asm')

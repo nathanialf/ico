@@ -12,8 +12,8 @@ opcode of a j or jal; R_MIPS_HI16, R_MIPS_LO16, R_MIPS_GPREL16 and
 R_MIPS_LITERAL keep the upper half; tools/correlate_elf.py's RELOC_KIND). A
 relocation of another kind in .text masks its whole word and is counted.
 The object's address is its .text row in the link map
-(build/ico.<slug>.map, tools/check_elf.py's parse_map). When the real link
-failed and wrote no map, the layout link build/ico.layout.elf (the same
+(build/<slug>/ico.<slug>.map, tools/check_elf.py's parse_map). When the real link
+failed and wrote no map, the layout link build/<slug>/ico.layout.elf (the same
 objects with a zero stand-in for each data member, tools/gen_ninja.py) gives
 it: the objects of config/link_order.<slug>.txt in order, each placed by a
 function symbol it defines whose name is unique in that ELF (a global first),
@@ -27,12 +27,12 @@ differs differs in its C or in a stub's place.
 Order (--order [TU...]). gcc writes a TU's functions in definition order,
 then the inline functions it must emit after the whole file is read (and a
 stub of an inline function stands at the end of the file, before every
-inline function still in C). The functions of each TU's object (build/<tu>.o,
+inline function still in C). The functions of each TU's object (build/<slug>/<tu>.o,
 or the TU compiled into a scratch object when there is none, --compile to
 always compile) are read in their order in the object, and each is given
 its target address: a --twins row (tools/correlate_elf.py's twins.txt, the
 function's target_vma), else its text row in config/stubs.<slug>.txt
-(vma_lo), else its symbol in the last link (build/ico.syms.elf), which is
+(vma_lo), else its symbol in the last link (build/<slug>/ico.syms.elf), which is
 the target's only once the gate passes. The target addresses must rise in
 object order. A function placed before others the target emits earlier is
 named with them; when it is a stub (its INCLUDE_ASM line stands in its
@@ -41,16 +41,16 @@ end of the file the functions named are inline functions the target emits
 before it, still in C, which are carved too.
 
 On main the stub list is empty and the target is the PAL base: --self-test
-runs both over every object against build/ico.syms.elf (the last link,
+runs both over every object against build/<slug>/ico.syms.elf (the last link,
 whose symbols also give the order its addresses), and every object compares
 equal and every TU's order rises.
 
   tools/object_check.py                      every object of the map
   tools/object_check.py ico2/x/y.c ...       those TUs' objects (a path or an object)
-  tools/object_check.py --layout             objects placed from build/ico.layout.elf
+  tools/object_check.py --layout             objects placed from build/<slug>/ico.layout.elf
   tools/object_check.py --order [TU ...] [--twins FILE] [--compile]
   tools/object_check.py --self-test
-Options: --elf ELF (the target, default the branch's base ELF), -v (print the
+Options: --elf ELF (the target, default the detected target's base ELF), -v (print the
 equal objects too). Exit 0 when every object compared is equal and every
 order rises.
 """
@@ -76,13 +76,15 @@ sys.path.insert(0, str(ROOT / "tools"))
 from check_elf import parse_map  # noqa: E402
 from correlate_elf import RELOC_KIND, describe_reloc  # noqa: E402
 from gen_stub_s import LIST, asm_line, parse_stubs  # noqa: E402
-from ico_version import baseelf_path, detect_version, link_map_path  # noqa: E402
+from ico_version import baseelf_path, build_dir, detect_version, link_map_path  # noqa: E402
 from match_check import KEEP, build_symbols, compile_tu, disasm, read_twins  # noqa: E402
 
 VERSION = detect_version(ROOT)
 TARGET = baseelf_path(ROOT, VERSION)
-SYMS = ROOT / "build" / "ico.syms.elf"
-LAYOUT = ROOT / "build" / "ico.layout.elf"
+OUT = build_dir(ROOT, VERSION)
+OUT_REL = OUT.relative_to(ROOT).as_posix()
+SYMS = OUT / "ico.syms.elf"
+LAYOUT = OUT / "ico.layout.elf"
 MAP = link_map_path(ROOT, VERSION)
 
 
@@ -254,14 +256,14 @@ def tus_of(placed):
     """The C sources of the placed objects, in link order."""
     out = []
     for o, _, _ in placed:
-        src = Path(o).relative_to("build").with_suffix(".c")
+        src = Path(o).relative_to(OUT_REL).with_suffix(".c")
         if (ROOT / src).exists() and str(src) not in out:
             out.append(str(src))
     return out
 
 
 def object_of(tu: str, fresh: bool, tmp: Path):
-    o = ROOT / "build" / Path(tu).with_suffix(".o")
+    o = OUT / Path(tu).with_suffix(".o")
     return Obj(o if o.exists() and not fresh else compile_tu(tu, tmp))
 
 
@@ -354,14 +356,14 @@ def main():
     else:
         placed = from_map(MAP)
     if a.tus:
-        want = {("build/" + str(Path(t).with_suffix(".o"))) if t.endswith(".c") else t for t in a.tus}
+        want = {f"{OUT_REL}/{Path(t).with_suffix('.o')}" if t.endswith(".c") else t for t in a.tus}
         placed = [p for p in placed if p[0] in want]
         if not placed:
             fail("none of the named TUs has an object with .text in the link")
     if a.order:
         rows = parse_stubs(a.stubs)
         twins = read_twins(a.twins) if a.twins else {}
-        # the last link's addresses are the target's only for the branch's own base
+        # the last link's addresses are the target's only for the detected target's own base
         use_link = SYMS.exists() and MAP.exists() and a.elf.resolve() == TARGET.resolve()
         return 1 if check_order(tus_of(placed), rows, twins, use_link, a.compile, a.verbose) else 0
     return 1 if check_objects(placed, Target(a.elf), a.verbose) else 0

@@ -24,7 +24,7 @@ respective owners.
   `config/symbol_addrs.pal.data.txt`, kept as a record of the old split
   layout; nothing in the build reads them. The two symbol lists hold the
   names this tree defines and the addresses the link places them at, the
-  same facts `nm` prints over `build/ico.elf`; they are a record of the
+  same facts `nm` prints over `build/pal/ico.elf`; they are a record of the
   rebuilt ELF, not a copy of a disc file.
 
 ## What is not in this repository, and must never be added
@@ -59,8 +59,8 @@ program in them to re-derive, and their values are never committed, as C,
 as assembly or in any other form.
 
 The build reads them from the user's own `baserom/pal/baseelf.elf` and
-writes them under `build/data/`, which is gitignored. Each member is
-written as `build/data/<member>.c`, an initialized array of its record type
+writes them under `build/pal/data/`, which is gitignored. Each member is
+written as `build/pal/data/<member>.c`, an initialized array of its record type
 from `config/data_schema.pal.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
 owners' headers hold only types, element counts and symbol names. The
@@ -177,7 +177,7 @@ source and leaked SDKs stay forbidden on every branch.
 
 You must legally own a copy of *ICO* for the PlayStation 2 and supply the
 disc image yourself. The build checks the extracted ELF's SHA-1 before it
-proceeds and refuses any other file (`config/sha1sums.txt`,
+proceeds and refuses any other file (`config/sha1sums.pal.txt`,
 `docs/BUILDING.md`). A SHA-1 is a fingerprint, not a copy of the work; the
 disc image and the ELF remain the property of their rightsholders.
 

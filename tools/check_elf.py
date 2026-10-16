@@ -8,20 +8,25 @@ derive progress from that comparison and the link map.
               the same bytes at the same addresses. The built ELF's section
               names do not matter, only addresses. For the NOBITS sections
               (.sbss .bss) the built ELF must allocate the base's address
-              range; the share of it owned by an object under build/ico2/ or
-              build/sce/ is reported. Then the ROM SHA-1 against
-              config/sha1sums.txt (gated) and the ELF SHA-1 (gated with
+              range; the share of it owned by an object under
+              build/<ver>/ico2/ or build/<ver>/sce/ is reported. Then the ROM
+              SHA-1 against config/sha1sums.<ver>.txt (gated) and the ELF
+              SHA-1 (gated with
               --require-elf-sha, which the build's verify step passes). A second, informational table compares
               .reginfo, the .DVP.* sections, e_flags, e_entry, program and
               section headers. Exit 0 only when every gated check passes.
 
-  --progress  Rewrite README.md's badge block, docs/PROGRESS.md's table and
-              docs/progress.json (schema 2) from the same comparison, in two
-              shares. From source: a byte counts for its section when the
-              map row that places it belongs to an object under build/ico2/
-              or build/sce/ AND the byte equals the base's (NOBITS: ownership
-              only, there is nothing to compare). From the disc (`extracted`):
-              the same count for the objects under build/data/, the data-only
+  --progress  Rewrite docs/<ver>/PROGRESS.md's table and
+              docs/<ver>/progress.json (schema 2) from the same comparison,
+              and README.md's progress block, one table row of section badges
+              per target whose docs/<slug>/progress.json is present (this
+              target's from the new figures, the others' from their files),
+              in two shares. From source: a byte counts for its section when
+              the map row that places it belongs to an object under
+              build/<ver>/ico2/ or build/<ver>/sce/ AND the byte equals the
+              base's (NOBITS: ownership only, there is nothing to compare).
+              From the disc (`extracted`): the same count for the objects
+              under build/<ver>/data/, the data-only
               members generated at build time from the user's own base ELF (as
               C for the members config/data_schema.<ver>.txt lists, as assembly
               for the rest), whose content is not in the repository.
@@ -43,12 +48,12 @@ derive progress from that comparison and the link map.
               section name present in both whether the bytes are equal. It
               reports; it gates nothing and needs no map.
 
-Inputs: build/ico.elf, build/ico.<ver>.map (written by the link, see
-tools/gen_ninja.py), the base ELF (baserom/<ver>/baseelf.elf) and
-config/sha1sums.txt, where <ver> is the branch's target as
-tools/ico_version.py detects it (pal on main). --progress also reads the
-function symbols from build/ico.syms.elf, the same link with its symbol table
-kept (build/ico.elf is stripped, as the base is).
+Inputs: build/<ver>/ico.elf, build/<ver>/ico.<ver>.map (written by the
+link, see tools/gen_ninja.py), the base ELF (baserom/<ver>/baseelf.elf) and
+config/sha1sums.<ver>.txt, where <ver> is the target as tools/ico_version.py
+detects it (VERSION, or the first configured one). --progress also reads the
+function symbols from build/<ver>/ico.syms.elf, the same link with its symbol
+table kept (build/<ver>/ico.elf is stripped, as the base is).
 """
 
 from __future__ import annotations
@@ -70,27 +75,31 @@ except ImportError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ico_version import (  # noqa: E402
-    detect_version, baseelf_path, config_path, link_map_path,
+    DISCS, VERSIONS, detect_version, baseelf_path, build_dir, config_path,
+    docs_dir, link_map_path, sha1sums_path,
 )
 from gen_stub_s import parse_stubs  # noqa: E402
 
 VERSION = detect_version(REPO_ROOT)
 BASE_ELF = baseelf_path(REPO_ROOT, VERSION)
-BUILT_ELF = REPO_ROOT / "build" / "ico.elf"
-BUILT_ROM = REPO_ROOT / "build" / "ico.rom"
-BUILT_SYMS = REPO_ROOT / "build" / "ico.syms.elf"
+OUT = build_dir(REPO_ROOT, VERSION)
+OUT_REL = OUT.relative_to(REPO_ROOT).as_posix()
+BUILT_ELF = OUT / "ico.elf"
+BUILT_ROM = OUT / "ico.rom"
+BUILT_SYMS = OUT / "ico.syms.elf"
 LINK_MAP = link_map_path(REPO_ROOT, VERSION)
-SHA1SUMS = REPO_ROOT / "config" / "sha1sums.txt"
+SHA1SUMS = sha1sums_path(REPO_ROOT, VERSION)
 README = REPO_ROOT / "README.md"
-PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
-PROGRESS_JSON = REPO_ROOT / "docs" / "progress.json"
+PROGRESS_DOC = docs_dir(REPO_ROOT, VERSION) / "PROGRESS.md"
+PROGRESS_JSON = docs_dir(REPO_ROOT, VERSION) / "progress.json"
+DASHBOARD = "https://nathanialf.github.io/ico/"
 
 NOBITS = (".sbss", ".bss")
 # Badge / table order: ELF link order.
 REPORT_ORDER = [".text", ".vutext", ".data", ".vudata", ".rodata",
                 ".lit4", ".sdata", ".sbss", ".bss"]
-OWNED_ROOTS = ("build/ico2/", "build/sce/")
-EXTRACTED_ROOT = "build/data/"
+OWNED_ROOTS = (f"{OUT_REL}/ico2/", f"{OUT_REL}/sce/")
+EXTRACTED_ROOT = f"{OUT_REL}/data/"
 VUTEXT_GROUP = ".vutext"
 VUTEXT_NOTE = (
     "VU1 microprograms in the .vutext ELF section: ico2/vusrc/*.dsm, "
@@ -695,7 +704,7 @@ def _strip_suffix(name: str) -> str:
 
 
 def _tu_of(obj: str) -> str:
-    p = obj[len("build/"):] if obj.startswith("build/") else obj
+    p = obj[len(OUT_REL) + 1:] if obj.startswith(OUT_REL + "/") else obj
     return p[:-2] if p.endswith(".o") else p
 
 
@@ -914,6 +923,52 @@ def _table(sections: dict, extracted: dict) -> str:
 
 BEGIN, END = "<!-- progress:begin -->", "<!-- progress:end -->"
 
+# A target's PROGRESS.md the first time --progress writes it: the table goes
+# between the markers.
+PROGRESS_SKELETON = """# Progress: {name}
+
+How much of the built ELF is identical to the base, by section. Generated by
+`tools/check_elf.py --progress`; the dashboard is `docs/index.html`.
+
+<!-- progress:begin -->
+<!-- progress:end -->
+"""
+
+
+def _target_name(slug: str) -> str:
+    """A target as the README's table names it: the disc's region and its
+    product code."""
+    d = DISCS.get(slug)
+    if d is None:
+        return slug
+    return d["region"] + (f" ({d['product']})" if d["product"] else "")
+
+
+def _readme_block(tree: dict) -> str:
+    """README.md's progress block: one row per target with a
+    docs/<slug>/progress.json, the target linked to its dashboard view and
+    its section badges after it; this target's row from the figures just
+    computed."""
+    rows = {}
+    for js in sorted((REPO_ROOT / "docs").glob("*/progress.json")):
+        slug = js.parent.name
+        if slug == VERSION:
+            continue
+        try:
+            t = json.loads(js.read_text())["totals"]
+        except (OSError, ValueError, KeyError):
+            continue
+        rows[slug] = (t.get("sections", {}), t.get("extracted", {}))
+    t = tree["totals"]
+    rows[VERSION] = (t["sections"], t["extracted"])
+    order = sorted(rows, key=lambda v: (VERSIONS.index(v) if v in VERSIONS else len(VERSIONS), v))
+    lines = ["| Target | Sections identical to the base |", "| --- | --- |"]
+    for slug in order:
+        secs, ext = rows[slug]
+        badges = _badges({k: tuple(v) for k, v in secs.items()}, ext).replace("\n", " ")
+        lines.append(f"| [{_target_name(slug)}]({DASHBOARD}#{slug}) | {badges} |")
+    return "\n".join(lines)
+
 
 def _splice(path: Path, body: str) -> bool:
     text = path.read_text()
@@ -930,7 +985,7 @@ def _splice(path: Path, body: str) -> bool:
 def run_progress(args) -> int:
     base, built = Elf(BASE_ELF), Elf(BUILT_ELF)
     if not built.funcs and BUILT_SYMS.exists():
-        # build/ico.elf is stripped; the function symbols are in the
+        # build/<ver>/ico.elf is stripped; the function symbols are in the
         # unstripped image of the same link.
         built.funcs = Elf(BUILT_SYMS).funcs
     cmp_ = Comparison(base, built, parse_map(LINK_MAP))
@@ -954,8 +1009,11 @@ def run_progress(args) -> int:
         out.mkdir(parents=True, exist_ok=True)
         readme.write_text(README.read_text())
         doc.write_text(PROGRESS_DOC.read_text())
+    elif not doc.exists():
+        doc.parent.mkdir(parents=True, exist_ok=True)
+        doc.write_text(PROGRESS_SKELETON.format(name=_target_name(VERSION)))
     extracted = tree["totals"]["extracted"]
-    for path, body in ((readme, _badges(sections, extracted)),
+    for path, body in ((readme, _readme_block(tree)),
                        (doc, _table(sections, extracted))):
         print(f"check_elf: {'rewrote' if _splice(path, body) else 'unchanged'} {path}")
     js.write_text(json.dumps(tree, separators=(",", ":")) + "\n")
@@ -972,12 +1030,12 @@ def main() -> int:
     ap.add_argument("--require-elf-sha", action="store_true",
                     help="--gate: also require the built ELF's SHA-1 to equal baseelf.elf's")
     ap.add_argument("--out-dir", help="--progress: write the three files here "
-                    "instead of README.md, docs/PROGRESS.md, docs/progress.json")
-    ap.add_argument("--elf", help="built ELF (default build/ico.elf)")
-    ap.add_argument("--map", help="link map (default build/ico.<ver>.map)")
-    ap.add_argument("--rom", help="built ROM (default build/ico.rom)")
+                    "instead of README.md, docs/<ver>/PROGRESS.md, docs/<ver>/progress.json")
+    ap.add_argument("--elf", help="built ELF (default build/<ver>/ico.elf)")
+    ap.add_argument("--map", help="link map (default build/<ver>/ico.<ver>.map)")
+    ap.add_argument("--rom", help="built ROM (default build/<ver>/ico.rom)")
     ap.add_argument("--syms", help="--progress: built ELF with symbols "
-                    "(default build/ico.syms.elf)")
+                    "(default build/<ver>/ico.syms.elf)")
     args = ap.parse_args()
     global BUILT_ELF, LINK_MAP, BUILT_ROM, BUILT_SYMS
     if args.elf:

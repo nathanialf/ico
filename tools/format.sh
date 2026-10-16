@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Format (or check) the repo's C with clang-format and the tracked .clang-format.
 #   tools/format.sh            # rewrite every tracked .c under the source roots
+#                              # (ico2/, sce/)
 #   tools/format.sh --check    # exit 1 if any tracked .c is not formatted (pre-commit)
 #   tools/format.sh FILE...    # format just these files
 # Whitespace and line breaks only. The game compiles with -g, where a moved

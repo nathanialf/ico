@@ -5,13 +5,17 @@ During a target's campaign the functions whose C does not yet give the base's
 bytes still have to sit at the base's addresses, so the byte gate passes at
 every commit. Each one is listed in config/stubs.<slug>.txt (slug from
 tools/ico_version.py) and its translation unit carries `INCLUDE_ASM(stem);`
-where the function stands in the file. This tool writes build/stubs/<stem>.s
-for every row from the user's own base ELF, as build/data/ is written by
-tools/gen_data_c.py: nothing of the ROM is tracked (docs/LEGAL.md). It also
-writes the macro's header, build/stubs/include_asm.h, every time it runs; the
-tree tracks no copy of it, and tools/compile_c.sh searches build/stubs last,
-so a TU that includes "include_asm.h" compiles only while stubs exist. With
-the list empty the mechanism is idle.
+where the function stands in the file. This tool writes
+build/<slug>/stubs/<stem>.s for every row from the user's own base ELF, as
+build/<slug>/data/ is written by tools/gen_data_c.py: nothing of the ROM is
+tracked (docs/LEGAL.md). It also writes the macro's header,
+build/<slug>/stubs/include_asm.h, every time it runs; the tree tracks no copy
+of it, and tools/compile_c.sh searches build/<slug>/stubs last, so a TU that
+includes "include_asm.h" compiles only while stubs exist. With the list empty
+the mechanism is idle.
+
+A row names a source by its path (ico2/..., sce/...), the file every target
+compiles, and a file read from a revision is <rev>:<path>.
 
 The list, one row per stub, `#` starts a comment:
 
@@ -24,7 +28,7 @@ The list, one row per stub, `#` starts a comment:
   vma_lo/hi the range [lo, hi) in the base ELF, hex; a text row ends at the
             function's last instruction, not at the fill after it
   tu        the tracked C source whose INCLUDE_ASM(stem) includes the stub
-            (ninja makes that object depend on build/stubs/<stem>.s)
+            (ninja makes that object depend on build/<slug>/stubs/<stem>.s)
   local     the name is file-local in the C (a static), so no .globl
   align=N   the stub's alignment in bytes; by default the largest power of
             two dividing vma_lo, at most 8 (ee-gcc's .p2align 3 per function
@@ -32,7 +36,7 @@ The list, one row per stub, `#` starts a comment:
   lines=N   the stubbed body spanned N source lines in the TU; nothing in
             the build reads it yet (the parser accepts it, --list prints it,
             --carve writes it)
-  file=stem the stub's file is build/stubs/<stem>.s and the TU spells
+  file=stem the stub's file is build/<slug>/stubs/<stem>.s and the TU spells
             INCLUDE_ASM(stem), while the symbol stays <name>: two statics of
             one name in two TUs get a row each (default: stem = name; stems
             are unique, and a name is global in one row at most)
@@ -47,7 +51,7 @@ The list, one row per stub, `#` starts a comment:
             has def rows, and the declaration carve keeps stay in the
             .c.inc; --carve writes it
   def       on an rdlit or sdlit row: the run is written where the function
-            is defined, to build/stubs/<stem>.lit.s, which the file reads
+            is defined, to build/<slug>/stubs/<stem>.lit.s, which the file reads
             with INCLUDE_ASM_LIT(stem); at that place (an inline function's
             strings and gcc's other constants, below)
 
@@ -123,7 +127,7 @@ A stubbed inline function's strings and gcc's other constants in .rodata and
 while its code, and with it the assembler's .lit4 floats and li.d doubles
 and its jump tables (referenced from that code), comes out at the end of the
 file. Its rdlit and sdlit rows for gcc's constants carry `def`: the stub
-writes them to build/stubs/<stem>.lit.s, and --carve puts
+writes them to build/<slug>/stubs/<stem>.lit.s, and --carve puts
 
     INCLUDE_ASM_LIT(stem);
 
@@ -158,9 +162,9 @@ words are absolute: there are no relocations, the stub is right only at its
 own address, and the gate proves the layout. Each stub returns to the section
 it was included from (`.previous`), so the compiler's own section state holds.
 
-    tools/gen_stub_s.py                      write build/stubs/<stem>.s for every row
+    tools/gen_stub_s.py                      write build/<slug>/stubs/<stem>.s for every row
     tools/gen_stub_s.py --list               print the rows
-    tools/gen_stub_s.py --check build/ico.syms.elf
+    tools/gen_stub_s.py --check build/<slug>/ico.syms.elf
         every row's bytes in the built ELF equal the base's at that range (and,
         when the ELF keeps its symbols, the stub's symbol sits at vma_lo with
         size vma_hi - vma_lo); the gate checks the bytes too, this names the stub
@@ -264,19 +268,23 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 # pyelftools is imported where an ELF is read, so parse_stubs serves
 # tools/check_dev_native.py under the hook's plain python3.
-from ico_version import baseelf_path, config_path, detect_version  # noqa: E402
+from ico_version import baseelf_path, build_dir, config_path, detect_version  # noqa: E402
 
 VERSION = detect_version(ROOT)
 LIST = config_path(ROOT, VERSION, "stubs", "txt")
 BASE_ELF = baseelf_path(ROOT, VERSION)
-OUT_DIR = ROOT / "build/stubs"
+OUT_DIR = build_dir(ROOT, VERSION) / "stubs"
+# the stub directory as the assembler is given it: relative to the
+# repository root, where tools/compile_c.sh runs it
+STUBS_REL = OUT_DIR.relative_to(ROOT).as_posix()
 HEADER = "include_asm.h"
 SECTIONS = ("text", "rodata", "data", "sdata", "lit4", "rdlit", "sdlit")
 # a text row's constants: kind -> the base ELF section
 LITERALS = {"lit4": ".lit4", "rdlit": ".rodata", "sdlit": ".sdata"}
 INCLUDE_LINE = b'#include "include_asm.h"\n'
 
-# build/stubs/include_asm.h, written with the stubs; never tracked.
+# build/<slug>/stubs/include_asm.h, written with the stubs; never tracked. Its
+# build/stubs/ spellings become the target's stub directory (STUBS_REL).
 HEADER_TEXT = """\
 #ifndef INCLUDE_ASM_H
 #define INCLUDE_ASM_H
@@ -316,7 +324,17 @@ HEADER_TEXT = """\
 #define INCLUDE_ASM_LIT(NAME) __asm__(".include \\"build/stubs/" #NAME ".lit.s\\"")
 
 #endif /* INCLUDE_ASM_H */
-"""
+""".replace("build/stubs/", f"{STUBS_REL}/")
+
+
+def src_path(rel):
+    """The file a row's path names."""
+    return ROOT / rel
+
+
+def rev_spec(rev, rel):
+    """The object name of rel at rev."""
+    return f"{rev}:{rel}"
 
 
 def fail(msg):
@@ -423,7 +441,7 @@ def parse_stubs(path=LIST):
 
 
 def stub_files(rows):
-    """{tu: [the files under build/stubs/ the TU's object reads]}: each
+    """{tu: [the files under build/<slug>/stubs/ the TU's object reads]}: each
     stem's .s, and its .lit.s when a def row asks for INCLUDE_ASM_LIT."""
     out = {}
     for r in rows:
@@ -685,9 +703,9 @@ def include_lines(where, inc):
     there."""
     rev, sep, _ = where.rpartition(":")
     if sep:
-        p = subprocess.run(["git", "cat-file", "--filters", f"{rev}:{inc}"], cwd=ROOT, capture_output=True)
+        p = subprocess.run(["git", "cat-file", "--filters", rev_spec(rev, inc)], cwd=ROOT, capture_output=True)
         return p.stdout.splitlines(keepends=True) if not p.returncode else []
-    return (ROOT / inc).read_bytes().splitlines(keepends=True) if (ROOT / inc).is_file() else []
+    return src_path(inc).read_bytes().splitlines(keepends=True) if src_path(inc).is_file() else []
 
 
 def find_definition(lines, name, where):
@@ -738,7 +756,7 @@ def context(row, tu_lines=None):
     if row["src"] == row["tu"]:
         return [], []
     if tu_lines is None:
-        tu_lines = (ROOT / row["tu"]).read_bytes().splitlines(keepends=True)
+        tu_lines = src_path(row["tu"]).read_bytes().splitlines(keepends=True)
     k = include_at(row["tu"], tu_lines, row["src"])
     return tu_lines[:k], tu_lines[k + 1:]
 
@@ -800,12 +818,12 @@ def call_sites(lines, name, start):
 def emitted_functions(tu, cache={}):
     """The names of the functions the TU's object holds as it stands on disk
     (an inline function no emitted code calls is not written), compiled
-    with its stub lines left out, so build/stubs need not exist: a stub
+    with its stub lines left out, so build/<slug>/stubs need not exist: a stub
     calls no C."""
     if tu not in cache:
         from elftools.elf.elffile import ELFFile
-        tu_lines = (ROOT / tu).read_bytes().splitlines(keepends=True)
-        files = {f: [l for l in (ROOT / f).read_bytes().splitlines(keepends=True)
+        tu_lines = src_path(tu).read_bytes().splitlines(keepends=True)
+        files = {f: [l for l in src_path(f).read_bytes().splitlines(keepends=True)
                      if not is_stub_line(l) and l != INCLUDE_LINE] for f in [tu] + included(tu, tu_lines)}
         with tempfile.TemporaryDirectory(prefix="gen_stub_s.") as tmp:
             with open(compile_files(tu, files, Path(tmp)), "rb") as fh:
@@ -821,8 +839,8 @@ def live_functions(tu, cache={}):
     initializer, makes it live too). A function outside the set is an
     inline helper nothing written uses, whose body says nothing."""
     if tu not in cache:
-        tu_lines = (ROOT / tu).read_bytes().splitlines(keepends=True)
-        files = [tu_lines] + [(ROOT / f).read_bytes().splitlines(keepends=True) for f in included(tu, tu_lines)]
+        tu_lines = src_path(tu).read_bytes().splitlines(keepends=True)
+        files = [tu_lines] + [src_path(f).read_bytes().splitlines(keepends=True) for f in included(tu, tu_lines)]
         names, sites = set(), {}
         for lines in files:
             defs = definitions(lines)
@@ -1064,10 +1082,10 @@ def place_lits(rows, results, rev):
         by_src.setdefault(r["src"], []).append((r, w))
     bad = 0
     for src, rs in by_src.items():
-        path = ROOT / src
+        path = src_path(src)
         lines = path.read_bytes().splitlines(keepends=True)
         carved = [(r, w) for r, w in rs if asm_line(r["stem"]) in (
-            lines if r["asm"] == src else (ROOT / r["asm"]).read_bytes().splitlines(keepends=True))]
+            lines if r["asm"] == src else src_path(r["asm"]).read_bytes().splitlines(keepends=True))]
         if not carved:
             continue
         old = list(lines)
@@ -1114,7 +1132,7 @@ def text_row(rows, key):
 
 def rev_file(rev, tu):
     """tu at rev with the working-tree filters (EUC-JP files stay EUC-JP)."""
-    p = subprocess.run(["git", "cat-file", "--filters", f"{rev}:{tu}"], cwd=ROOT, capture_output=True)
+    p = subprocess.run(["git", "cat-file", "--filters", rev_spec(rev, tu)], cwd=ROOT, capture_output=True)
     if p.returncode:
         fail(f"{rev}:{tu}: {p.stderr.decode(errors='replace').strip()}")
     return p.stdout.splitlines(keepends=True)
@@ -1143,7 +1161,7 @@ def carve_rows(rows, todo, list_path, back, rev):
 
     def read(path):
         if path not in files:
-            files[path] = (ROOT / path).read_bytes().splitlines(keepends=True)
+            files[path] = src_path(path).read_bytes().splitlines(keepends=True)
             old[path] = list(files[path])
             # a file in the layout format.sh keeps stays in it (a
             # declaration carve leaves can join the block above it);
@@ -1187,7 +1205,7 @@ def carve_rows(rows, todo, list_path, back, rev):
         if clean[path]:
             lines = layout(lines)
         if lines != old[path]:
-            (ROOT / path).write_bytes(b"".join(lines))
+            src_path(path).write_bytes(b"".join(lines))
     if toks:
         set_tokens(list_path, toks)
     for m in errors:
@@ -1429,7 +1447,7 @@ class TargetRefs:
         return out, amb
 
 
-SYMS_ELF = ROOT / "build/ico.syms.elf"
+SYMS_ELF = build_dir(ROOT, VERSION) / "ico.syms.elf"
 PLURAL = {"float": "floats", "double": "doubles", "string": "strings", "jtbl": "jump tables",
           "word": "words", "data": "data runs", "static": "statics"}
 
@@ -1466,15 +1484,15 @@ def compile_files(tu, files, out):
     includes) written in place for the compile, so the compiler sees each
     file's own name and directory, and put back after."""
     from match_check import compile_tu
-    orig = {f: (ROOT / f).read_bytes() for f in files}
+    orig = {f: src_path(f).read_bytes() for f in files}
     changed = [f for f, lines in files.items() if b"".join(lines) != orig[f]]
     try:
         for f in changed:
-            (ROOT / f).write_bytes(b"".join(files[f]))
+            src_path(f).write_bytes(b"".join(files[f]))
         return compile_tu(tu, out)
     finally:
         for f in changed:
-            (ROOT / f).write_bytes(orig[f])
+            src_path(f).write_bytes(orig[f])
 
 
 def whole_files(tu, rows_tu, rev, keep=frozenset()):
@@ -1486,7 +1504,7 @@ def whole_files(tu, rows_tu, rev, keep=frozenset()):
     stem of keep."""
     files, absent = {}, {}
     for src in dict.fromkeys([tu] + [r["src"] for r in rows_tu]):
-        files[src] = (ROOT / src).read_bytes().splitlines(keepends=True)
+        files[src] = src_path(src).read_bytes().splitlines(keepends=True)
     for src in list(files):
         lines = files[src]
         # an inline function of a .c.inc has its INCLUDE_ASM line in the TU
@@ -1526,7 +1544,7 @@ def compile_whole(tu, rows_tu, rev, out):
     except SystemExit:
         pass
     back = [r["stem"] for r in rows_tu if r["stem"] not in absent
-            and asm_line(r["stem"]) in (ROOT / r["asm"]).read_bytes().splitlines(keepends=True)]
+            and asm_line(r["stem"]) in src_path(r["asm"]).read_bytes().splitlines(keepends=True)]
     why = f"put back from {rev} at its INCLUDE_ASM line, the TU does not compile"
     keep = {s: why for s in back}
     for stem in back:
@@ -1569,8 +1587,8 @@ def reading_order(tu, files):
     tu_lines = files[tu]
     items = [(d["s"], 0, d["name"]) for d in definitions(tu_lines)]
     for inc in included(tu, tu_lines):
-        lines = files.get(inc) or ((ROOT / inc).read_bytes().splitlines(keepends=True)
-                                   if (ROOT / inc).exists() else [])
+        lines = files.get(inc) or (src_path(inc).read_bytes().splitlines(keepends=True)
+                                   if src_path(inc).exists() else [])
         k = include_at(tu, tu_lines, inc)
         items += [(k, d["s"], d["name"]) for d in definitions(lines)]
     return {n: i for i, (_, _, n) in enumerate(sorted(items))}
@@ -1864,7 +1882,7 @@ def main():
             # derived while the functions are still C
             src = {}
             fresh = [r for r in todo if asm_line(r["stem"]) not in src.setdefault(
-                r["asm"], (ROOT / r["asm"]).read_bytes().splitlines(keepends=True))]
+                r["asm"], src_path(r["asm"]).read_bytes().splitlines(keepends=True))]
             if fresh:
                 results = derive(rows, fresh, a.elf, a.syms, a.rev)
                 rc = report_literals(rows, results, True)
