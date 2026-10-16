@@ -71,7 +71,7 @@ static float savedMatrix340[16]; /* derived name */
 extern void memset(void *p, int c, int n);
 void PuddleGeo(GObj *self);
 void EntryRippleToPuddle(GObj *self, void *vec);
-int puddleRideFunc(ObjNode *on, GObj *rider);
+inline int puddleRideFunc(ObjNode *on, GObj *rider);
 
 PuddleWork *InitPuddleGeo(GObj *self, SObjSimpleSetting *setting)
 {

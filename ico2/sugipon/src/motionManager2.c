@@ -920,11 +920,11 @@ static void dispSkeltonHierarchy(int node)
 /* SetSkeltonDispSwitch's switch for DispSkelton's debug draw */
 static int skeltonDispSwitch = 0; /* derived name */
 
-void DispSkelton(GObj *self, int motion)
+void DispSkelton(GObj *self, void *motion)
 {
     /* the skeleton, read as a void * word */
     skelNodes = *(void **)((char *)GOBJ_SUB(self) + 0x8C);
-    skelMotion = motion;
+    skelMotion = (int)motion;
     skelGObj = self;
 
     if (skeltonDispSwitch) {
@@ -1083,7 +1083,7 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     sh = cfg->o.node << 6;
     p15c = obj->dobj;
     v_c = p15c->nodeMtx;
-    GetWallGlobalInfo(pts, nrm, cfg->elem, v_c + sh);
+    GetWallGlobalInfo(pts, nrm, cfg->elem, (void *)(v_c + sh));
     nrm[1] = 0;
     sceVu0Normalize((int *)nrm, (int *)nrm);
     t = tbl;
@@ -1131,7 +1131,7 @@ static void getVerticalElementOfWallNormal(int *self, int *p, WallCfg *cfg)
     Sub15C *p15c = obj->dobj;
     int v_c = p15c->nodeMtx;
 
-    GetWallGlobalInfo(self, p, cfg->elem, v_c + sh);
+    GetWallGlobalInfo(self, p, cfg->elem, (void *)(v_c + sh));
     p[1] = 0;
     _NormalizeVector(p, p);
 }
@@ -1748,7 +1748,7 @@ static inline void debugDisp1CollisionWithColor(WallCfg *cfg, void *color) /* de
     int *p15c = (int *)obj->dobj;
     int v_c = p15c[0xC / 4];
 
-    GetWallGlobalInfo(pts, pts[4], cfg->elem, v_c + sh);
+    GetWallGlobalInfo(pts, pts[4], cfg->elem, (void *)(v_c + sh));
     gif_StartPacketPri(11);
     gif_SetAlpha(1, 5, 0x80);
     MatrixDrive_PushMatrix();
@@ -1893,14 +1893,16 @@ float GetDifferenceFromWallUpperField(GObj *self, int node)
 {
     Sub15C *e = self->dobj;
     int idx = (e->focusNodes)[node];
-    return GetYDistanceFromPlane(e->root.cliffPlane, (char *)e->nodeMtx + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(e->root.cliffPlane,
+                                 (float *)((char *)e->nodeMtx + idx * 0x40 + 0x30));
 }
 
 float GetDifferenceFromLastField(GObj *self, int node)
 {
     Sub15C *e = self->dobj;
     int idx = (e->focusNodes)[node];
-    return GetYDistanceFromPlane(e->root.plane.f, (char *)e->nodeMtx + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(e->root.plane.f,
+                                 (float *)((char *)e->nodeMtx + idx * 0x40 + 0x30));
 }
 
 float GetDifferenceFromLowerField(GObj *self, int node)
@@ -1910,7 +1912,7 @@ float GetDifferenceFromLowerField(GObj *self, int node)
     int idx;
     ctrl = self->dobj;
     idx = ((signed char *)ctrl->focusNodes)[node];
-    GetLowerPlaneCollision(&buf, ctrl->nodeMtx + (idx << 6) + 0x30);
+    GetLowerPlaneCollision(&buf, (float *)(ctrl->nodeMtx + (idx << 6) + 0x30));
     if (buf.floor.elem == 0) {
         return 3.40282347e+38f;
     }
@@ -1925,7 +1927,8 @@ float GetDifferenceFromWallLowerPlane(GObj *self, int node)
 
     idx = getSkeltonFocusNode(self, node);
     GetPureVerticalPlane(pos, 0, pts[0], &self->dobj->root.wall, 1);
-    return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(pos,
+                                 (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
 }
 
 float GetDifferenceFromWallUpperPlane(GObj *self, int node)
@@ -1936,7 +1939,8 @@ float GetDifferenceFromWallUpperPlane(GObj *self, int node)
 
     idx = getSkeltonFocusNode(self, node);
     GetPureVerticalPlane(pos, 0, pts[0], &self->dobj->root.wall, 0);
-    return GetYDistanceFromPlane(pos, (char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30);
+    return GetYDistanceFromPlane(pos,
+                                 (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
 }
 
 void DisableChangeRootUpdateMode(GObj *self)

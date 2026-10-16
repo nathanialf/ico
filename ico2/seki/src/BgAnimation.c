@@ -1851,7 +1851,7 @@ void bga_CalcAnimation(BgaHeader *p, int loop, int reset)
         if (p->anim->root) {
             _SetCurrentMatrix(p->anim->obj->geom->mtx[p->anim->idx]);
         } else {
-            GetRootMatrix(rm, p->anim->obj);
+            GetRootMatrix(rm, (GObj *)p->anim->obj);
             CopyVector(rm[3], p->anim->obj->geom->mtx[p->anim->idx][3]);
             _SetCurrentMatrix(rm);
         }
@@ -1864,7 +1864,7 @@ void bga_CalcAnimation(BgaHeader *p, int loop, int reset)
         if (p->anim->root) {
             CopyQuaternion(GetCurrentQuaternion(), p->anim->obj->geom->quat[p->anim->idx]);
         } else {
-            GetRootQuaternion(GetCurrentQuaternion(), p->anim->obj);
+            GetRootQuaternion(GetCurrentQuaternion(), (GObj *)p->anim->obj);
         }
     } else {
         SetIdentityQuaternion(GetCurrentQuaternion());

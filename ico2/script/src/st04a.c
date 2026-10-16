@@ -1662,7 +1662,7 @@ void actSt04aTorch1(GObj *volatile self)
 void actSt04aTorch1Chk(GObj *volatile self)
 {
     GObj *x = self;
-    ActSt04A *act = actInitialize(self);
+    ActSt04A *act = (ActSt04A *)actInitialize(self);
     _ACTWait(1);
 
     switch (self->labelId) {
@@ -2041,7 +2041,7 @@ static void finishCallBackFunc(GObj *obj)
     Vec4St04A v;
     int i;
 
-    _ApplyMatrix(&v, GOBJ_SUB(obj)->nodeMtx, YUnitVector);
+    _ApplyMatrix(&v, (float *)GOBJ_SUB(obj)->nodeMtx, YUnitVector);
     v.m[1] = 0.0f;
     _NormalizeVector(GOBJ_SUB(obj)->ctrl.dir, &v);
 

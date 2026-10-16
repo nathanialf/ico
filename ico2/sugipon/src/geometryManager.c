@@ -713,7 +713,7 @@ void GetRootMatrixTransOffsetByDObj(float *dst, Sub15C *src)
 {
     float tmp[4][4];
     MatrixDrive_SetTransposeMatrix(tmp, &src->matrix);
-    sceVu0MulMatrix(tmp, tmp, src->nodeMtx);
+    sceVu0MulMatrix(tmp, tmp, (void *)src->nodeMtx);
     CopyVector(dst, tmp[3]);
 }
 
@@ -722,7 +722,7 @@ void GetRootMatrixTransOffset(float *dst, GObj *src)
     float tmp[4][4];
     Sub15C *p = GOBJ_SUB(src);
     MatrixDrive_SetTransposeMatrix(tmp, &p->matrix);
-    sceVu0MulMatrix(tmp, tmp, p->nodeMtx);
+    sceVu0MulMatrix(tmp, tmp, (void *)p->nodeMtx);
     CopyVector(dst, tmp[3]);
 }
 

@@ -178,7 +178,7 @@ static void avoidInsideOfWall(void *self, GObj *arg)
 void ReleaseItem(GObj *gobj)
 {
     ItemWork *p = GOBJ_SUB(gobj)->work;
-    avoidInsideOfWall(gobj, p->holder);
+    avoidInsideOfWall(gobj, (GObj *)p->holder);
     p->released = 1;
     p->held = 0;
     p->holder = 0;
@@ -191,7 +191,7 @@ void ReleaseItem(GObj *gobj)
 void ThrowItem(GObj *gobj, void *vel)
 {
     ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
-    avoidInsideOfWall(gobj, p->holder);
+    avoidInsideOfWall(gobj, (GObj *)p->holder);
     p->released = 1;
     p->held = 0;
     p->thrown = 1;

@@ -274,7 +274,7 @@ void ACTGetWish_FromPad(GObj *self, float *dir)
     }
 
     if (s->pad.now & 0x20) {
-        ACTSearchGObj(self, 0x13, 0x2D, &o, u, 100.0f);
+        ACTSearchGObj(self, 0x13, 0x2D, (int *)&o, u, 100.0f);
 
         if (o != 0 && CheckCarryableItem(o)) {
             deg = self == boyGObj ? 60.0f : 80.0f;

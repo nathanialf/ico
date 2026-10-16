@@ -2616,7 +2616,7 @@ static int formatState = 0; /* derived name */
 
 static int formatBlink = 0; /* derived name */
 
-inline int debug_mcFormat(int port)
+inline int debug_mcFormat(McMgr *mc)
 {
     int r;
     switch (formatState) {
@@ -2625,14 +2625,14 @@ inline int debug_mcFormat(int port)
         if (r != 1) {
             return r;
         }
-        iosMcFormat(port);
+        iosMcFormat(mc);
         formatState++;
         break;
     case 1:
         if (formatBlink++ & 0x10) {
             debug_PrintfDummy(120, 70, 0xFFFFFF00u, "now formatting");
         }
-        if (iosMcSync(port) != 0) {
+        if (iosMcSync(mc) != 0) {
             formatState++;
         }
         break;
@@ -2647,7 +2647,7 @@ static int unformatState = 0; /* derived name */
 
 static int unformatBlink = 0; /* derived name */
 
-inline int debug_mcUnformat(int port)
+inline int debug_mcUnformat(McMgr *mc)
 {
     int r;
     switch (unformatState) {
@@ -2656,14 +2656,14 @@ inline int debug_mcUnformat(int port)
         if (r != 1) {
             return r;
         }
-        iosMcUnformat(port);
+        iosMcUnformat(mc);
         unformatState++;
         break;
     case 1:
         if (unformatBlink++ & 0x10) {
             debug_PrintfDummy(120, 70, 0xFFFFFF00u, "now unformatting");
         }
-        if (iosMcSync(port) != 0) {
+        if (iosMcSync(mc) != 0) {
             unformatState++;
         }
         break;
@@ -3084,7 +3084,7 @@ int debug_SETest(int reset)
     r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
                                                0, 0x592, &seSelect, debug_SETest_color);
     if (r > 0) {
-        seHandle = soundSeDefPlay(seSelect, 0, GOBJ_SUB(boyGObj)->nodeMtx + 0x30, 1);
+        seHandle = soundSeDefPlay(seSelect, 0, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + 0x30), 1);
         return 0;
     }
     if (r < 0) {

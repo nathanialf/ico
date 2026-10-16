@@ -998,10 +998,11 @@ static void getMotionGeometry(void *self)
         Vec16 rv;
 
         if (motionKind[w->motion].blendKind == 320) {
-            GetFloatingMotion(mot, w->animFrame, v.f, md, n, blendless, skel);
+            GetFloatingMotion((StreamElem *)mot, w->animFrame, v.f, md, n, blendless, skel);
             GetFloatingMotionRootPos(rv.f, md, w->lastFrame);
         } else {
-            getNodeBlendedFloatingMotion(mot, v.f, w->motion, n, blendless, self, w->animFrame);
+            getNodeBlendedFloatingMotion((StreamElem *)mot, v.f, w->motion, n, blendless, self,
+                                         w->animFrame);
             getMotionRootPos(w, rv.f);
         }
         if (w->motion == 102) {
@@ -1015,10 +1016,10 @@ static void getMotionGeometry(void *self)
             sceVu0SubVector(mo->step, &v, &rv);
         }
         if (w->noAlt != 0) {
-            MakeMirrorMotion(mot, skel);
+            MakeMirrorMotion((StreamElem *)mot, skel);
         }
         if (w->catchBoy != 0) {
-            SlopeIKControl(self, mot, v.f, mo->step, n);
+            SlopeIKControl(self, mot, v.f, (Vec4 *)mo->step, n);
         }
         {
             Vec16 fv;
@@ -1105,12 +1106,12 @@ static void getMotionGeometry(void *self)
             if (flag != 0) {
                 float s = (float)w->blendCount / (float)w->blendFrames;
 
-                GetBlendedMotion(MOWORK(self)->motionBuf, tmp.f, mot, v.f, MOWORK(self)->blendBuf,
-                                 MOWORK(self)->localPos, s, blendless, n);
+                GetBlendedMotion(MOWORK(self)->motionBuf, tmp.f, (StreamElem *)mot, v.f,
+                                 MOWORK(self)->blendBuf, MOWORK(self)->localPos, s, blendless, n);
                 mo->radius = mo->radiusFrom * (1.0f - s) + mo->radiusTo * s;
                 GetGeometryOfMotion(self, mot, MOWORK(self)->motionBuf, v.f, s, mo->step, k);
             } else {
-                CopyMotion(MOWORK(self)->motionBuf, mot, n);
+                CopyMotion(MOWORK(self)->motionBuf, (StreamElem *)mot, n);
                 mo->radius = mo->radiusTo;
                 GetGeometryOfMotion(self, mot, MOWORK(self)->motionBuf, v.f, 1.0f, mo->step,
                                     w->justShifted ? k : -1);

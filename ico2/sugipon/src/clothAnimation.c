@@ -378,7 +378,7 @@ int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1)
 }
 
 /* push a point back to the inner side of a wall plane */
-static __inline__ void pushInsidePlane(void *p, const void *plane) /* derived name */
+static __inline__ void pushInsidePlane(void *p, void *plane) /* derived name */
 {
     VECTOR tv;
     float d = plane_distance(p, plane);
@@ -593,14 +593,14 @@ void GetClothAnimation(VECTOR **pos, VECTOR **vel, GObj *obj, void *m, ClothCfg 
             q[3] = {wallOwner, 0, *(int *)(*(int *)(sub + 0x70) + 0x10) + n * 80};
         VECTOR pl;
 
-        GetGlobalWallPlane(&pl.x, q);
+        GetGlobalWallPlane(&pl.x, (WallCfg *)q);
         for (i = 0; i < n0; i++) {
             for (j = 1; j < nx; j++) {
                 pushInsidePlane(((char **)pos)[i] + j * 16, &pl);
             }
         }
     }
-    wind = GetWindVector(&pw, ((char **)pos)[0]);
+    wind = GetWindVector(&pw, ((float **)pos)[0]);
     pw = pw / 40960.0f;
     for (i = 0; i < n0; i++) {
         for (j = 1; j < nx; j++) {
@@ -1048,7 +1048,7 @@ void DispCloth4D(Cloth4D *c, void *la, void *lb)
     p2o_SetDefaultEnviroment();
     prim_UpdateMesh3D(c->mesh, 3, buffer_ID);
     if (c->cfg->tex != 0) {
-        t = tex_GetTextureNo(&c->tex);
+        t = tex_GetTextureNo((char *)&c->tex);
     } else {
         t = -1;
     }
@@ -1070,7 +1070,7 @@ void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb)
     p2o_SetDefaultEnviroment();
     prim_UpdateMesh3D(c->mesh, 3, buffer_ID);
     if (c->cfg->tex != 0) {
-        t = tex_GetTextureNo(&c->tex);
+        t = tex_GetTextureNo((char *)&c->tex);
     } else {
         t = -1;
     }
@@ -1105,7 +1105,7 @@ static sceVu0FMATRIX procMatrix = {
 }; /* derived name */
 
 /* the two point writers: add, or set, a scaled transformed vector */
-static __inline__ void clothAddPoint(void *dst, const void *src, float f) /* derived name */
+static __inline__ void clothAddPoint(void *dst, void *src, float f) /* derived name */
 {
     VECTOR tv;
 
@@ -1114,7 +1114,7 @@ static __inline__ void clothAddPoint(void *dst, const void *src, float f) /* der
     _AddVectorXYZ(dst, dst, &tv);
 }
 
-static __inline__ void clothSetPoint(void *dst, const void *src, float f) /* derived name */
+static __inline__ void clothSetPoint(void *dst, void *src, float f) /* derived name */
 {
     VECTOR tv;
 
