@@ -27,8 +27,8 @@ Four modes, one member each (MEMBER is the name in the schema):
       the member's C: every pointer word resolved to the symbol the layout
       link places at that address, floats as the shortest decimal that reads
       back to the same bits, strings as literals; the record headers are
-      included through the target's merged source view, build/<slug>/tree,
-      so a header the target's overlay replaces is the overlay's copy
+      included by their path in the tree, and the compile's VERSION_<SLUG>
+      picks the target's lines of them
   --check MEMBER --obj F.o --layout build/<slug>/ico.layout.elf --out STAMP
       each section of the compiled object, with its relocations applied
       against the layout link, must equal the member's ROM range for that
@@ -45,8 +45,8 @@ element (char[32]: the C defines `char name[count][32]`).
 
 <slug> is the target as tools/ico_version.py detects it (VERSION, or the
 first configured one); the member table is config/data_members.<slug>.txt,
-and a header a schema row names is read as the target compiles it
-(resolve_source: targets/<slug>/<header> when the overlay has it).
+and a header a schema row names is read as the target compiles it: its
+#ifdef VERSION_<SLUG> blocks keep the target's lines (version_lines).
 """
 
 import argparse
@@ -61,13 +61,12 @@ from elftools.elf.relocation import RelocationSection
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
-from ico_version import detect_version, baseelf_path, config_path, resolve_source, tree_dir  # noqa: E402
+from ico_version import detect_version, baseelf_path, config_path  # noqa: E402
 
 VERSION = detect_version(ROOT)
 SCHEMA = config_path(ROOT, VERSION, "data_schema", "txt")
 TABLE = config_path(ROOT, VERSION, "data_members", "txt")
 BASE_ELF = baseelf_path(ROOT, VERSION)
-TREE = tree_dir(ROOT, VERSION)
 
 
 def fail(msg):
@@ -212,6 +211,38 @@ def c_base(name):
     return name.replace("_", " ")
 
 
+_DIRECTIVE = re.compile(r"\s*#\s*(ifdef|ifndef|if|else|endif)\b\s*(\S*)")
+
+
+def version_lines(text, version=VERSION):
+    """text with its #ifdef/#ifndef VERSION_<SLUG> blocks resolved for this
+    target: the arm it compiles is kept, the other arm and the directives go.
+    Other conditionals are left for strip_c, as before."""
+    out = []
+    stack = []  # (is a VERSION_ block, this arm is live, an arm was taken)
+    want = f"VERSION_{version.upper()}"
+    for line in text.splitlines():
+        m = _DIRECTIVE.match(line)
+        live = all(f[1] for f in stack)
+        if m:
+            kw, arg = m.groups()
+            if kw in ("ifdef", "ifndef") and arg.startswith("VERSION_"):
+                taken = (arg == want) == (kw == "ifdef")
+                stack.append((True, taken, taken))
+                continue
+            if kw in ("if", "ifdef", "ifndef"):
+                stack.append((False, True, True))
+            elif kw == "else" and stack and stack[-1][0]:
+                stack[-1] = (True, not stack[-1][2], True)
+                continue
+            elif kw == "endif" and stack:
+                if stack.pop()[0]:
+                    continue
+        if live:
+            out.append(line)
+    return "\n".join(out)
+
+
 def strip_c(text):
     text = re.sub(r"/\*.*?\*/", " ", text, flags=re.S)
     text = re.sub(r"//[^\n]*", " ", text)
@@ -225,7 +256,7 @@ def tokenize(text):
 class Header:
     def __init__(self, path):
         self.path = path
-        self.toks = tokenize(strip_c(resolve_source(ROOT, VERSION, path).read_text(encoding="latin-1")))
+        self.toks = tokenize(strip_c(version_lines((ROOT / path).read_text(encoding="latin-1"))))
         self.cache = {}
 
     def typedef(self, name):
@@ -766,9 +797,9 @@ def write_c(member, rows, datas, layout, out_path):
         f" * and {SCHEMA.relative_to(ROOT)}. Generated: do not commit. */",
         "",
     ]
-    # each header by its path in the merged view, relative to the C's own
-    # directory (build/<slug>/data/ -> ../tree/<header>)
-    out += [f'#include "{Path(os.path.relpath(TREE / h, out_path.resolve().parent)).as_posix()}"'
+    # each header by its path in the tree, relative to the C's own directory
+    # (build/<slug>/data/ -> ../../../<header>)
+    out += [f'#include "{Path(os.path.relpath(ROOT / h, out_path.resolve().parent)).as_posix()}"'
             for h in headers]
     out.append("")
     for f in sorted(funcs):

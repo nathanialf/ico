@@ -13,15 +13,13 @@
 #   ICO_DISC_WHERE   the region in the name a dump usually goes by, as in
 #                    "Ico (Europe).iso"
 #   ICO_BUILD_DIR    build/<ver>, the target's build directory
-#   ICO_TREE         build/<ver>/tree, the target's merged source view
 #   ICO_SHA1SUMS     config/sha1sums.<ver>.txt
 #   ICO_DOCS_DIR     docs/<ver>, the target's progress files
 #   ICO_VERSIONS     every configured slug (a config/link_order.<ver>.txt
 #                    exists), space-separated, in detection order
 # All paths are repo-root-relative. One tree may carry several targets; an
 # explicit VERSION environment variable wins, otherwise the slug is the first
-# configured one. ico_version_resolve gives the file a target compiles for a
-# shared source path (targets/<ver>/<path> when it exists, else <path>). No python and no .venv dependency, so the shell tools can source it
+# configured one. No python and no .venv dependency, so the shell tools can source it
 # before the venv exists. Keep in sync with tools/ico_version.py, whose DISCS
 # table ico_version_disc mirrors.
 
@@ -38,12 +36,6 @@ ico_version_detect() {
     if [ -n "${VERSION:-}" ]; then printf '%s\n' "$VERSION"; return 0; fi
     v="$(ico_version_configured "$root" | head -n 1)"
     printf '%s\n' "${v:-us}"
-}
-
-# ico_version_resolve <repo_root> <version> <path>: the repo-relative file the
-# target compiles for the shared path.
-ico_version_resolve() {
-    if [ -e "$1/targets/$2/$3" ]; then printf 'targets/%s/%s\n' "$2" "$3"; else printf '%s\n' "$3"; fi
 }
 
 ico_version_baserom_dir() {  # <version>
@@ -77,7 +69,6 @@ ico_version_init() {
     ICO_BASEELF="${ICO_BASEROM_DIR}/baseelf.elf"
     ICO_ROM="${ICO_BASEROM_DIR}/baseelf.rom"
     ICO_BUILD_DIR="build/${ICO_VERSION}"
-    ICO_TREE="${ICO_BUILD_DIR}/tree"
     ICO_SHA1SUMS="config/sha1sums.${ICO_VERSION}.txt"
     ICO_DOCS_DIR="docs/${ICO_VERSION}"
     ICO_VERSIONS="$(ico_version_configured "$root" | tr '\n' ' ')"
@@ -85,5 +76,5 @@ ico_version_init() {
     ico_version_disc "$ICO_VERSION"
     export ICO_VERSION ICO_BASEROM_DIR ICO_BASEELF ICO_ROM
     export ICO_DISC ICO_DISC_CUE ICO_DISC_NAME ICO_DISC_WHERE
-    export ICO_BUILD_DIR ICO_TREE ICO_SHA1SUMS ICO_DOCS_DIR ICO_VERSIONS
+    export ICO_BUILD_DIR ICO_SHA1SUMS ICO_DOCS_DIR ICO_VERSIONS
 }

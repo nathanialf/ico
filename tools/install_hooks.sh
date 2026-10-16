@@ -27,14 +27,14 @@ cat > "$HOOK" <<'EOF'
 # Auto-installed by tools/install_hooks.sh. Runs, in order:
 #   1. tools/check_no_rom.sh        IP-safety scan of the staged files
 #   2. tools/check_dev_native.py    refuses codegen-steering constructs in staged C
-#   3. tools/check_layers.py        the source layers (ico2/, sce/, targets/<slug>/)
-#                                   against every configured target's link order
+#   3. tools/check_targets.py       the source tree (ico2/, sce/) against every
+#                                   configured target's link order
 #   4. tools/format.sh --check      staged C must be clang-formatted
 #   5. tools/build.sh gate-all      for EVERY configured target (a
 #                                   config/link_order.<slug>.txt exists): its base
 #                                   files are required, then build.sh setup
 #                                   (verify the base ELF and ROM SHA-1s, write
-#                                   build/<slug>/tree/ and build.ninja) and ninja
+#                                   build.ninja) and ninja
 #                                   (build every object from source, link, and run
 #                                   tools/check_elf.py --gate --require-elf-sha:
 #                                   the byte gate and the whole ELF's SHA-1)
@@ -44,7 +44,7 @@ cat > "$HOOK" <<'EOF'
 #                                   `git add` them into this commit
 #
 # Steps 5 and 6 run only when a staged path can affect the build (ico2/, sce/,
-# targets/, config/, tools/, baserom/). `build.sh setup` deletes build/<slug>/
+# config/, tools/, baserom/). `build.sh setup` deletes build/<slug>/
 # first, so each gate is a from-scratch build of the staged tree, and a
 # missing baserom/<slug>/ of any configured target fails the commit.
 #
@@ -61,15 +61,15 @@ ROOT="$(git rev-parse --show-toplevel)"
 # ROM-proven exceptions with their reasons.
 python3 "$ROOT/tools/check_dev_native.py"
 
-# The source layers: an overlay file differs from the shared one and is in its
-# target's link order, every shared source is compiled by some configured
-# target, and every link-order row resolves.
-python3 "$ROOT/tools/check_layers.py"
+# The source tree: every source is compiled by some configured target, every
+# link-order row is a file, no per-target tree, and VERSION_ blocks name
+# configured targets.
+python3 "$ROOT/tools/check_targets.py"
 
 # Staged C must be clang-formatted. Formatting can move bytes under -g, which
 # the byte gate below catches. Fix with: tools/format.sh FILE
 STAGED_C=$(git diff --cached --name-only --diff-filter=ACMR -z | tr '\0' '\n' |
-    grep -E '^(targets/[^/]+/)?(ico2/[^/]+/[^/]+|sce(/[^/]+){0,3})/[^/]+\.c(\.inc)?$' || true)
+    grep -E '^(ico2/[^/]+/[^/]+|sce(/[^/]+){0,3})/[^/]+\.c(\.inc)?$' || true)
 if [[ -n "$STAGED_C" ]]; then
     # shellcheck disable=SC2086
     "$ROOT/tools/format.sh" --check $STAGED_C
@@ -78,7 +78,7 @@ fi
 # Pure-docs commits (docs/, README.md, .gitignore, ...) skip the build gate.
 BUILD_SENSITIVE=$(git diff --cached --name-only -z |
     tr '\0' '\n' |
-    grep -E '^(ico2/|sce/|targets/|config/|tools/|baserom/)' ||
+    grep -E '^(ico2/|sce/|config/|tools/|baserom/)' ||
     true)
 if [[ -z "$BUILD_SENSITIVE" ]]; then
     exit 0
@@ -169,7 +169,7 @@ while read local_ref local_sha remote_ref remote_sha; do
         range="$remote_sha..$local_sha"
     fi
     BUILD_SENSITIVE=$(git diff --name-only "$range" 2>/dev/null |
-        grep -E '^(ico2/|sce/|targets/|config/|tools/|baserom/)' ||
+        grep -E '^(ico2/|sce/|config/|tools/|baserom/)' ||
         true)
     if [[ -z "$BUILD_SENSITIVE" ]]; then
         continue
@@ -185,8 +185,8 @@ while read local_ref local_sha remote_ref remote_sha; do
         push_failed=1
         continue
     fi
-    if ! git diff --quiet HEAD -- ico2 sce targets config tools; then
-        echo "pre-push: uncommitted changes under ico2/, sce/, targets/, config/ or tools/;" >&2
+    if ! git diff --quiet HEAD -- ico2 sce config tools; then
+        echo "pre-push: uncommitted changes under ico2/, sce/, config/ or tools/;" >&2
         echo "  the gate would build them instead of $local_sha. Commit or set them aside first." >&2
         push_failed=1
         continue

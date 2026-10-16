@@ -14,11 +14,8 @@ of it, and tools/compile_c.sh searches build/<slug>/stubs last, so a TU that
 includes "include_asm.h" compiles only while stubs exist. With the list empty
 the mechanism is idle.
 
-A row names a source by its shared path (ico2/..., sce/...). Every file this
-tool reads or writes for a row is the one the target compiles
-(tools/ico_version.py, resolve_source: targets/<slug>/<path> when the
-target's overlay has it), and a file read from a revision is
-<rev>:targets/<slug>/<path> when that revision has it, else <rev>:<path>.
+A row names a source by its path (ico2/..., sce/...), the file every target
+compiles, and a file read from a revision is <rev>:<path>.
 
 The list, one row per stub, `#` starts a comment:
 
@@ -271,7 +268,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 # pyelftools is imported where an ELF is read, so parse_stubs serves
 # tools/check_dev_native.py under the hook's plain python3.
-from ico_version import baseelf_path, build_dir, config_path, detect_version, resolve_source  # noqa: E402
+from ico_version import baseelf_path, build_dir, config_path, detect_version  # noqa: E402
 
 VERSION = detect_version(ROOT)
 LIST = config_path(ROOT, VERSION, "stubs", "txt")
@@ -331,16 +328,12 @@ HEADER_TEXT = """\
 
 
 def src_path(rel):
-    """The file the target compiles for a row's shared path."""
-    return resolve_source(ROOT, VERSION, rel)
+    """The file a row's path names."""
+    return ROOT / rel
 
 
 def rev_spec(rev, rel):
-    """The object name of rel at rev for this target: its overlay copy
-    (<rev>:targets/<slug>/<rel>) when rev has one, else <rev>:<rel>."""
-    over = f"{rev}:targets/{VERSION}/{rel}"
-    if not subprocess.run(["git", "cat-file", "-e", over], cwd=ROOT, capture_output=True).returncode:
-        return over
+    """The object name of rel at rev."""
     return f"{rev}:{rel}"
 
 
