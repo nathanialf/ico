@@ -15,7 +15,6 @@
 #include "typedef.h"
 #include "gamesys.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* declared ahead with no size for actSt22aIntroChk; the sized definition
    follows the stream handle in .sdata */
@@ -116,6 +115,80 @@ typedef struct St22Anims { /* field names derived */
     int id[2];
 } St22Anims; /* derived name */
 
-INCLUDE_ASM(actSt22aIntroChk);
+void actSt22aIntroChk(GObj *volatile self)
+{
+    St22Anims anims;
+    StVec pos;
+    float dir[4];
+    GProc *th;
+    int fin;
+    unsigned int i;
 
-INCLUDE_ASM(actSt22aIntroSub);
+    gflagOn(294);
+    scpSekizouCheckPoint();
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    gflagOn(295);
+    stage_SetAnimation(684, 1, 0);
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 10);
+    scpFadeIn(6.0f);
+    th = actCreateSubThread(actSt22aIntroSub, 21);
+    demoEnd = 0;
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+    fin = demoEnd ^ 1;
+    if (fin != 0) {
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+    iosThreadSetPri(&th->thread, 34);
+    if (fin != 0) {
+        anims = *(St22Anims *)lightningAnims;
+        for (i = 0; i < 2; i++) {
+            stage_SetAnimation(anims.id[i], 1, -1);
+            _ACTWait(1);
+        }
+        stage_SetAnimation(685, 1, -1);
+        StabilizeAllLayoutedCage();
+        scpPlayPosSet(boyGObj, -808.0f, 148.0f, -1053.0f);
+        pos = introFacePos;
+        sceVu0SubVector(dir, &pos, test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, dir);
+        scpPlayMot(boyGObj, 0);
+        _ACTWait(1);
+        SetCameraFlag_GamecamCutBack();
+        scpFadeIn(3.0f);
+    } else {
+        scpPlayMot(boyGObj, 0);
+    }
+    scpPlayEnd(boyGObj);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
+
+void actSt22aIntroSub(GObj *volatile self)
+{
+    StVec pos;
+    float dir[4];
+
+    stage_SetAnimation(684, 1, 0);
+    scpPlayMot(boyGObj, 391);
+    while (stage_ContinueAnimation(684, 685) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayPosSet(boyGObj, -707.0f, 148.0f, -1112.0f);
+    pos = introFacePos;
+    sceVu0SubVector(dir, &pos, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+    scpPlayMot(boyGObj, 392);
+    while (stage_CheckAnimationFinish(685) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    demoEnd = 1;
+    _ACTWait(0);
+}

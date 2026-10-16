@@ -12,7 +12,6 @@
 #include <string.h>
 #include "stageSEProc.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* where a stage sound plays from, the three floats SeSlot.pos points at */
 typedef struct { /* field names derived */
@@ -77,9 +76,65 @@ static float windCache = 0.0f; /* derived name */
 
 static int windCacheFrame = 0; /* derived name */
 
-int stageSEtaimatsu(SeSlot *self);
+int stageSEtaimatsu(SeSlot *self)
+{
+    Blk16 v;
+    Blk16 d;
+    GObj *g = isysGObjSearchFromObjKindID_begin(10);
+    GObj *best = 0;
+    GObj *torch = 0;
+    float bd = 3.40282347e+38f; /* FLT_MAX */
+    int rv = 1;
+    float *campos;
+    int i;
 
-INCLUDE_ASM(stageSEtaimatsu);
+    if (gflagChk(356)) {
+        return 0;
+    }
+    campos = (float *)GetCameraPos();
+    self->stereoRate = 0.5f;
+    if (boyGObj != 0) {
+        GObj *w = GetBoyWeaponGObj();
+
+        if (w != 0) {
+            torch = GetTorchGObjOfWeapon(w);
+        }
+    }
+    for (i = 0; g != 0; i++, g = isysGObjSearchFromObjKindID_next(g)) {
+        int id;
+        float t;
+
+        if (IsTorchLightOn(g) == 0) {
+            continue;
+        }
+        if (g == torch) {
+            continue;
+        }
+        id = self->env->se;
+        if ((i & 1) == 0) {
+            id -= 414;
+        } else {
+            id -= 416;
+        }
+        if ((unsigned int)id >= 2) {
+            continue;
+        }
+        GetRootPosition(&v, g);
+        sceVu0SubVector(&d, campos, &v);
+        t = sceVu0InnerProduct(&d, &d);
+        if (t < bd) {
+            bd = t;
+            best = g;
+        }
+    }
+    if (best != 0) {
+        /* the translation row of the torch's first node matrix */
+        sceVu0CopyVector(self->pos, (float *)GOBJ_SUB(best)->nodeMtx + 12);
+    } else {
+        rv = 0;
+    }
+    return rv;
+}
 
 /* .sbss: the running level of each river sound effect, held across frames so
    SEFadeOut can walk it down to silence. */
@@ -241,7 +296,19 @@ typedef struct { /* field names derived */
     float w;
 } __attribute__((aligned(16))) SEVec; /* derived name */
 
-INCLUDE_ASM(stageSE19ataki);
+int stageSE19ataki(SeSlot *self)
+{
+    float *p = (float *)GetCameraPos();
+    SEVec pts[6] = {
+        {-1227.0f, p[1], 759.0f}, {-1194.0f, p[1], -208.0f}, {-171.0f, p[1], -1837.0f},
+        {114.0f, p[1], -1526.0f}, {114.0f, p[1], -1526.0f},  {-987.0f, p[1], -2788.0f},
+    };
+
+    self->stereoRate = 0.8f;
+    self->flag.all &= 0xEFFFFFFF;
+    sceVu0CopyVector(self->pos, SENearestPoint((Blk16 *)pts, 6));
+    return 1;
+}
 
 int stageSE02astrong(SeSlot *self)
 {

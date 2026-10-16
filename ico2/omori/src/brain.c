@@ -7,7 +7,6 @@
 #include "main.h"
 #include "gv.h"
 #include "gamesys.h"
-#include "include_asm.h"
 
 static inline void brainSetTargetTimer(BrainTarget *t) /* derived name */
 {
@@ -55,10 +54,9 @@ void brainInit(void)
     eBrainInit();
 }
 
-static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* derived name */
+static inline BrainTarget *brainSetTargetSub(Brain *b, GObj *gobj, float levelCap, float capStep,
+                                             float rate) /* derived name */
 {
-    float capStep = objKindData[k].brainCapStep;
-    float rate = objKindData[k].brainRate;
     BrainTarget *t;
     int i;
 
@@ -69,19 +67,18 @@ static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* 
     }
     if (i == 20) {
         debug_StdPrintfDummy("brainStatusDefaultSet: brain target area over\n");
-        return;
+        return 0;
     }
     t = &b->tgt[i];
     t->gobj = gobj;
     t->level = 0.0f;
-    t->levelCap = lvl;
+    t->levelCap = levelCap;
     t->capStep = capStep;
     t->rate = rate;
-
     t->lookOnly = 0;
     t->alwaysSeen = 0;
-    *(int *)&t->lookOnly &= ~0x10000;
     brainSetTargetTimer(t);
+    return t;
 }
 
 void OverrideBrainStatusByGObj(Brain *b, GObj *gobj, float levelCap, float rate, float capStep)
@@ -103,7 +100,19 @@ void OverrideBrainStatusByGObj(Brain *b, GObj *gobj, float levelCap, float rate,
     debug_StdPrintfDummy("ブレインレベルのオーバーライドに失敗しました\n");
 }
 
-INCLUDE_ASM(brainStatusDefaultSet);
+void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx)
+{
+    GenGeo *d = objLayout + idx;
+    int k = d->kind;
+
+    /* bit 20 of the layout row's flags puts the object in the girl's brain */
+    if ((d->flags >> 20) & 1) {
+        if (objKindData[k].brainLevel != 0) {
+            brainSetTargetSub(b, gobj, (float)objKindData[k].brainLevel,
+                              objKindData[k].brainCapStep, objKindData[k].brainRate);
+        }
+    }
+}
 
 static inline void brainLevelUp(BrainTarget *t) /* derived name */
 {
@@ -289,7 +298,10 @@ void brainGetTarget(Brain *b)
     }
 }
 
-INCLUDE_ASM(func_00182758);
+BrainTarget *brainStatusSet(Brain *b, GObj *gobj, float levelCap, float capStep, float rate)
+{
+    return brainSetTargetSub(b, gobj, levelCap, capStep, rate);
+}
 
 void brainStatusDel(char *self)
 {

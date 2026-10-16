@@ -13,7 +13,6 @@
 #include "typedef.h"
 #include "script.h"
 #include "main.h"
-#include "include_asm.h"
 
 static ActMail sword_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -22,8 +21,62 @@ static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}}; /* deriv
 /* .sdata: the sword's object. */
 SqEntry *sword = 0;
 
-INCLUDE_ASM(func_002394D8);
+void actSt24aSwordChk(GObj *volatile self)
+{
+    float v[4];
+    float dir[4];
 
-INCLUDE_ASM(actSt24aSword);
+    while (scpGameStat_BoyWeaponkind() != 5 || scpTriggerBall(self, boyGObj, 300.0f) == 0) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    gflagOn(300);
+    soundSeDefPlay(1316, 0, 0, 1);
+    _ACTWait(60);
+    scpAdpcmPlayRequestFunc(33, &sword, 1, 1, 1);
+    while (sword == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(133, 1, 0);
+    scpPlayPosSet(boyGObj, 1685.0f, -1080.0f, -550.0f);
+    *(Vec16 *)v = swordChkPos;
+    sceVu0SubVector(dir, v, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+    _ACTWait(300);
+    scpPlayMot(boyGObj, 246);
+    while (stage_CheckAnimationFinish(133) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
 
-INCLUDE_ASM(actSt24aSaku);
+void actSt24aSword(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    ScpCallCameraSetTarget(363.0f, 1307.0f, -3297.0f);
+
+    if (gflagChk(300) == 0) {
+        sword_mes[0].func = actSt24aSwordChk;
+        act->mail = sword_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt24aSaku(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+
+    stage_SetAnimation(131, 0, 0);
+}

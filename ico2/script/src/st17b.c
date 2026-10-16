@@ -1,15 +1,17 @@
 #include "st17b.h"
+#include "layout_texture.h"
 #include "act.h"
 #include "commonact.h"
 #include "gflag.h"
+#include "StageAnimation.h"
 #include "StageManager.h"
 #include "script.h"
 #include "typedef.h"
-#include "include_asm.h"
+#include "main.h"
 
 static ActMail check_mes[2] = {{397}, {396}}; /* derived name */
 
-static ActMail D_004D3830[2] = {{397}, {396}}; /* derived name */
+static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 
 /* .sdata: the lightning stream handle. */
 struct SqEntry *lightning2 = 0;
@@ -39,8 +41,40 @@ void actSt17bCheck(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(func_00235AF0);
+void actSt17bIntro(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt17bCheckChk);
+    if (gflagChk(34) == 0) {
+        intro_mes[0].func = actSt17bIntroChk;
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
 
-INCLUDE_ASM(func_00235B98);
+void actSt17bCheckChk(GObj *volatile self)
+{
+    _ACTWait(1);
+    CheckPoint();
+    gflagOn(32);
+}
+
+void actSt17bIntroChk(GObj *volatile self)
+{
+    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(34);
+    stage_SetAnimation(116, 1, 0);
+    while (stage_CheckAnimationFinish(116) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}

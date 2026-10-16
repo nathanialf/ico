@@ -6,7 +6,6 @@
 #include "Matrix.h"
 #include "charFileManager.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* a 16-byte aligned float[4], the shape of libvu0's sceVu0FVECTOR */
 typedef float Vec[4] __attribute__((aligned(16))); /* derived name */
@@ -17,11 +16,11 @@ typedef struct PktHdr { /* field names derived */
 } PktHdr;     /* derived name */
 
 typedef struct PObjPkt { /* field names derived */
-    char pad0[2132];
-    struct PObj *owner; /* 0x854 */
-    char pad858[24];
-    void *nodes;      /* 0x870, one 80-byte node record a part */
-    PktHdr *lightMtx; /* 0x874, the light matrices (Light.h), their mode at 0xF0 */
+    char pad0[2080];
+    struct PObj *owner; /* 0x820 */
+    char pad824[28];
+    void *nodes;      /* 0x840, one 80-byte node record a part */
+    PktHdr *lightMtx; /* 0x844, the light matrices (Light.h), their mode at 0xF0 */
 } PObjPkt;            /* derived name */
 
 typedef struct PObjSub { /* field names derived */ /* 0x180 stride, hung off the PObj at 0x40 */
@@ -172,7 +171,29 @@ static void MakeBoundingBox(PObj *self)
     }
 }
 
-INCLUDE_ASM(MakePacket);
+static void MakePacket(PObj *p, int n)
+{
+    PObjPkt *q;
+
+    p->tag.v.nloop = n;
+    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].shade << 18);
+    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].lod << 22);
+    p->tag.v.lightScale = modelData[n].lightScale;
+    p->ambientScale = modelData[n].ambientScale;
+
+    q = (PObjPkt *)mallocseki(0x850);
+    p->pkt = q;
+    q->lightMtx = (PktHdr *)mallocseki(0x100);
+    q->lightMtx->kind = modelData[n].pktKind;
+
+    q->owner = p;
+    q->nodes = mallocseki(p->partCount * 80);
+    if (q->lightMtx->kind != 4) {
+        if (p->image != 0)
+            p2o_MakePacket(q);
+    }
+    debug_StdPrintfDummy("end of packet making...\n");
+}
 
 /* the file's own vector setter, inlined into InitPObj */
 static __inline__ void SetPObjVector(Vec v, float x, float y, float z) /* derived name */

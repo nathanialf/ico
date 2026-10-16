@@ -20,7 +20,6 @@
 #include "way_kidnap.h"
 #include "main.h"
 #include "gamesys.h"
-#include "include_asm.h"
 
 /* the enemy the heroine is carried off by */
 GObj *backStageGirlTargetEnemyGop = 0;
@@ -179,7 +178,73 @@ void backStageProcessOutStage(void)
     }
 }
 
-INCLUDE_ASM(backStageProcessMain);
+void backStageProcessMain(void)
+{
+    Vec16 pos;
+    Vec16 rot;
+    Vec16 tmp;
+    GamesysObjInfo *g1;
+    GamesysObjInfo *g2;
+
+    gamesysAnotherStageTsuresari = 0;
+    if (gflagChk(357) != 0) {
+        return;
+    }
+    if (current_layout_id != 50) {
+        return;
+    }
+    if (stage_no == gameSysObjInfo[1].stage) {
+        return;
+    }
+    switch (kidnapState) {
+    case 1:
+        if (kidnapTime-- < 0) {
+            kidnapState = 2;
+            if (wayKidnap == 0) {
+                GamesysObjInfo *s = &gameSysObjInfo[kidnapObjIdx];
+                sceVu0CopyVector(s->pos, gameSysObjInfo[1].pos);
+                s->work[0] = 4;
+            } else {
+                memset(&tmp, 0, sizeof(tmp));
+                tmp.f[0] = objLayout[3454].rot[0];
+                tmp.f[1] = objLayout[3454].rot[1];
+                tmp.f[2] = objLayout[3454].rot[2];
+                rot = tmp;
+                g1 = gamesysObjInfoPosNewStageSet(3453, 4, gameSysObjInfo[1].stage,
+                                                  gameSysObjInfo[1].pos, gameSysObjInfo[1].rot);
+                kidnapObjIdx = (unsigned int)((char *)g1 - (char *)gameSysObjInfo) >> 6;
+                pos.f[0] = nestPos[0];
+                pos.f[2] = nestPos[2];
+                pos.f[1] = nestPos[1] - 10.0f;
+                g2 =
+                    gamesysObjInfoPosNewStageSet(3454, 0x21, gameSysObjInfo[1].stage, pos.f, rot.f);
+                SetInfoSpKidnapGenerator(g2->work);
+                SetInfoSpKidnapEnemy(g1->work);
+                if (g1 != 0 && g2 != 0) {
+                    g1->work[0] = 4;
+                } else {
+                    debug_StdPrintfDummy("backstage timeLimit gamesys area error\n");
+                    kidnapState = 1;
+                }
+            }
+        }
+        break;
+    case 2:
+        if (CameraGetMode() != 4) {
+            if (pinchTold == 0) {
+                SetStatusBoy_OtherStageGirlPinch();
+                pinchTold = 1;
+            }
+            gamesysAnotherStageTsuresari = 1;
+            if (carryTime-- < 0) {
+                int st = gameSysObjInfo[1].stage;
+                RequestStageChangeKidnapEnd(
+                    st, eBrainGetTargetGeneratorFromLabel(gameSysObjInfo[kidnapObjIdx].no));
+            }
+        }
+        break;
+    }
+}
 
 static void routeSetPos(GObj *gobj0, GObj *gobj1, float *out, float ratio)
 {

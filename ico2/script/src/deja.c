@@ -11,7 +11,6 @@
 #include <libvu0.h>
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* actDeja installs actDejaChk as the actor's next mail handler. */
 
@@ -194,4 +193,33 @@ void actDejaAfter(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actDejaAfterChk);
+void actDejaAfterChk(GObj *volatile self)
+{
+    Vec16 target;
+    Vec16 dir;
+
+    CheckPoint();
+    gflagOn(7);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    stage_SetAnimation(553, 1, 0);
+    scpPlayMot(boyGObj, 301);
+    while (stage_CheckAnimationFinish(553) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpPlayMot(boyGObj, 0);
+    target = afterChkPos;
+    sceVu0SubVector(dir.f, target.f, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir.f);
+    scpPlayEnd(boyGObj);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+    _ACTWait(60);
+    if (deja != 0) {
+        scpAdpcmFadeCloseFunc(deja, 80);
+    }
+    deja = 0;
+    _ACTWait(0);
+}

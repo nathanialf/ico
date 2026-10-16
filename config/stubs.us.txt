@@ -150,18 +150,12 @@
 text shadow_Reset 0x00122CD8 0x0012313C ico2/seki/src/Shadow.c lines=67  # ordinal; first difference at insn 0; length:-140; extent-differs
 text tex_initClutTexture 0x0012BEB0 0x0012C050 ico2/seki/src/Texture.c local lines=20  # ordinal; first difference at insn 0; length:+8; extent-differs
 rdlit tex_initClutTexture 0x005560D0 0x005562AC ico2/seki/src/Texture.c align=16  # 2 jump tables
-text iosInitialize 0x00135CE8 0x00135EB4 ico2/fumi/ios/ios.c lines=30  # ordinal; first difference at insn 14; length:-2; extent-differs
-rdlit iosInitialize 0x00556BD0 0x00556C01 ico2/fumi/ios/ios.c  # 3 strings
-sdlit iosInitialize 0x00631FC0 0x00631FFF ico2/fumi/ios/ios.c  # 8 strings
 text ACTItemThrow.301 0x00149768 0x00149894 ico2/fumi/src/act-game.c local file=ACTItemThrow_301  # ordinal; first difference at insn 7; length:+19; extent-differs
 sdlit ACTItemThrow.301 0x00632260 0x00632268 ico2/fumi/src/act-game.c file=ACTItemThrow_301  # 1 string
 text ACTItemWatchMotion 0x00149898 0x00149ADC ico2/fumi/src/act-game.c local lines=132  # ordinal; first difference at insn 0; length:-55; extent-differs
 lit4 ACTItemWatchMotion 0x00630AE8 0x00630AEC ico2/fumi/src/act-game.c  # 1 float, measured from the base: the text loads them
 sdlit ACTItemWatchMotion 0x00632268 0x0063226C ico2/fumi/src/act-game.c  # 1 string, measured from the base
 rdlit ACTItemWatchMotion 0x00558130 0x00558144 ico2/fumi/src/act-game.c align=16  # 1 jump table, measured from the base
-text ACTGetWish_FromPad 0x0014BDF8 0x0014CEE8 ico2/fumi/src/act-wish.c lines=300  # us-only (after act-parallel-control.c's span; PAL order suggests ACTGetWish_FromPad (4836 B in PAL)); named ACTGetWish_FromPad by call sites, callees (provisional)
-lit4 ACTGetWish_FromPad 0x00630B04 0x00630B20 ico2/fumi/src/act-wish.c  # 7 floats, measured from the base: the text loads them
-rdlit ACTGetWish_FromPad 0x005581E8 0x005581F0 ico2/fumi/src/act-wish.c  # 1 double, measured from the base
 text subBoyControl 0x0014EA30 0x0015019C ico2/fumi/src/boyact.c lines=644  # us-only (after act-parallel-control.c's span; PAL order suggests subBoyControl (6260 B in PAL)); named subBoyControl by callees, body alignment (provisional)
 lit4 subBoyControl 0x00630B2C 0x00630BE8 ico2/fumi/src/boyact.c  # 47 floats, measured from the base: the text loads them
 sdlit subBoyControl 0x006322A0 0x006322A8 ico2/fumi/src/boyact.c  # 1 string, measured from the base
@@ -208,14 +202,9 @@ rdlit subGirlControl 0x00559770 0x00559888 ico2/fumi/src/girl_act.c  # 5 strings
 sdlit subGirlControl 0x006324C8 0x006324E7 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base: no code reads them, the compiled-out debug code's
 text func_00180F40 0x00180F40 0x001811CC ico2/omori/src/attackhit.c  # us-only; after warpGirl.c's span; PAL order suggests inner_check (524 B in PAL)
 text CommonAttackCenter 0x00181BC8 0x00181BF8 ico2/omori/src/attackhit.c lines=6  # us-only (after warpGirl.c's span; body equals PAL CommonAttackCenter's with immediates and jump targets masked); named CommonAttackCenter by its body equals PAL's with immediates and jump targets masked, call sites, body alignment (provisional)
-text brainStatusDefaultSet 0x00182000 0x00182154 ico2/omori/src/brain.c lines=12  # us-only (in brain.c's span; PAL order suggests brainStatusDefaultSet (328 B in PAL)); named brainStatusDefaultSet by call sites, body alignment (provisional)
-text func_00182758 0x00182758 0x0018285C ico2/omori/src/brain.c  # us-only; in brain.c's span; pairs with no PAL-only function there by size and order
 text SetCameraMatrix_Ico2 0x00189D68 0x0018A3FC ico2/omori/src/camera-ico2.c lines=88  # us-only (in camera-ico2.c's span; PAL order suggests SetCameraMatrix_Ico2 (1420 B in PAL)); named SetCameraMatrix_Ico2 by call sites, callees, body alignment (provisional)
 lit4 SetCameraMatrix_Ico2 0x00630EDC 0x00630EF0 ico2/omori/src/camera-ico2.c  # 5 floats, measured from the base: the text loads them
-text backStageProcessMain 0x001A05D0 0x001A07F8 ico2/common/src/backStage.c lines=67  # ordinal; first difference at insn 3; imm:4; extent-equal
-rdlit backStageProcessMain 0x006128F8 0x00612920 ico2/common/src/backStage.c  # 1 string
 text debug_WriteBMP 0x001A5D30 0x001A5EC0 ico2/common/src/debug.c local lines=38  # ordinal; first difference at insn 1; length:+5; extent-differs
-text ChangeStageStartInfo 0x001B7FC8 0x001B7FE8 ico2/common/src/sceneManager.c lines=12  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before CreateLayoutedGObj
 text calcSubMission 0x001B99B0 0x001BA090 ico2/sugipon/src/a_p_1.c local lines=131  # ordinal; first difference at insn 19; length:-1; extent-differs
 lit4 calcSubMission 0x00631124 0x00631128 ico2/sugipon/src/a_p_1.c  # 1 float
 text proc.162 0x001C6998 0x001C6DEC ico2/sugipon/src/clothAnimation.c local file=proc_162  # nested in getCloth4D (a stub); equal, gone with its carved parent
@@ -247,42 +236,10 @@ lit4 getMotionGeometry 0x0063137C 0x00631388 ico2/sugipon/src/motionOrientManage
 sdlit getMotionGeometry 0x0063352C 0x00633530 ico2/sugipon/src/motionOrientManager.c  # 1 word
 text calcDynamicGeometry 0x001F2B08 0x001F3184 ico2/sugipon/src/weapon.c local lines=146  # us-only (in weapon.c's span; PAL size and order suggest calcDynamicGeometry); named calcDynamicGeometry by PAL size and order, callees, body alignment (provisional)
 lit4 calcDynamicGeometry 0x006313FC 0x00631408 ico2/sugipon/src/weapon.c  # 3 floats
-text ACTGetEnvironment 0x001FCA20 0x00200844 ico2/fumi/src/act-env.c lines=1078  # ordinal; first difference at insn 0; length:-511; extent-differs
-lit4 ACTGetEnvironment 0x0063144C 0x00631478 ico2/fumi/src/act-env.c  # 11 floats, measured from the base: the text loads them
-rdlit ACTGetEnvironment 0x0061AE10 0x0061AE3C ico2/fumi/src/act-env.c  # 3 strings, measured from the base
-sdlit ACTGetEnvironment 0x00633840 0x00633858 ico2/fumi/src/act-env.c  # 2 strings, 2 words, measured from the base
-text actDejaAfterChk 0x002078B8 0x002079D8 ico2/script/src/deja.c lines=30  # ordinal; first difference at insn 11; length:-1; extent-differs
 text actSt01bWayOnChk 0x00211620 0x002116D0 ico2/script/src/st01b.c lines=18  # ordinal; first difference at insn 12; other:7; extent-equal
 text actSt03tGirlCamEndChk 0x00213F60 0x0021402C ico2/script/src/st03t.c lines=19  # ordinal; first difference at insn 23; length:+2; extent-differs
-text actSt05bCrest01XL 0x00224300 0x00224400 ico2/script/src/st05b.c lines=28  # us-only (after st04r.c's span; body equals PAL actSt05bCrest01XL's with immediates and jump targets masked); named actSt05bCrest01XL by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actSt05bSekizoChk 0x00224400 0x00224704 ico2/script/src/st05b.c lines=66  # us-only (after st04r.c's span; PAL order suggests actSt05bSekizoChk (820 B in PAL)); named actSt05bSekizoChk by callees, body alignment (provisional)
-lit4 actSt05bSekizoChk 0x006315EC 0x006315FC ico2/script/src/st05b.c  # 4 floats
-text actSt05bGirlWay 0x00224970 0x002249F8 ico2/script/src/st05b.c lines=14  # us-only (after st05b.c's span; PAL order suggests actSt05bGirlWay (128 B in PAL)); named actSt05bGirlWay by callees, body alignment (provisional)
 text actSt06aWayOnChk 0x00227AE0 0x00227BA4 ico2/script/src/st06a.c lines=19  # us-only (after st06a.c's span; PAL order suggests actSt06aWayOnChk (172 B in PAL)); named actSt06aWayOnChk by callees, body alignment (provisional)
 text actSt06aWayOffChk 0x00227BA8 0x00227C70 ico2/script/src/st06a.c lines=19  # us-only (after st06a.c's span; PAL order suggests actSt06aWayOffChk (176 B in PAL)); named actSt06aWayOffChk by callees, body alignment (provisional)
 text actSt06aWallWayOffChk 0x00227D18 0x00227DC0 ico2/script/src/st06a.c lines=17  # us-only (after st06a.c's span; PAL size and order suggest actSt06aWallWayOffChk); named actSt06aWallWayOffChk by PAL size and order, callees, body alignment (provisional)
 text actSt13cGirlCarryChk 0x002335E0 0x002336E0 ico2/script/src/st13c.c lines=32  # us-only (in st13c.c's span; PAL order suggests actSt13cGirlCarryChk (372 B in PAL)); named actSt13cGirlCarryChk by callees (provisional)
-text actLinkTest 0x002354B0 0x00235518 ico2/script/src/st17a.c lines=11  # us-only (in st17a.c's span; body equals PAL actLinkTest's with immediates and jump targets masked); named actLinkTest by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actSt17aSekizo 0x00235518 0x0023557C ico2/script/src/st17a.c lines=9  # us-only (in st17a.c's span; body equals PAL actSt17aSekizo's with immediates and jump targets masked); named actSt17aSekizo by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-lit4 actSt17aSekizo 0x006316D4 0x006316E0 ico2/script/src/st17a.c  # 3 floats
-text actSt17aHasi 0x00235580 0x00235644 ico2/script/src/st17a.c lines=19  # us-only (in st17a.c's span; body equals PAL actSt17aHasi's with immediates and jump targets masked); named actSt17aHasi by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text func_00235AF0 0x00235AF0 0x00235B68 ico2/script/src/st17b.c  # us-only; after st17b.c's span; pairs with no PAL-only function there by size and order
-text actSt17bCheckChk 0x00235B68 0x00235B98 ico2/script/src/st17b.c lines=6  # us-only (after st17b.c's span; body equals PAL actSt17bCheckChk's with immediates and jump targets masked); named actSt17bCheckChk by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text func_00235B98 0x00235B98 0x00235C38 ico2/script/src/st17b.c  # us-only; after st17b.c's span; pairs with no PAL-only function there by size and order
 text actSt18aDoorChk 0x00236340 0x00236478 ico2/script/src/st18a.c lines=53  # us-only (after st17b.c's span; PAL order suggests actSt18aDoorChk (452 B in PAL)); named actSt18aDoorChk by callees (provisional)
-text actSt22aIntroChk 0x00239138 0x002393C0 ico2/script/src/st22a.c lines=57  # us-only (after st22a.c's span; PAL order suggests actSt22aIntroChk (680 B in PAL)); named actSt22aIntroChk by callees, body alignment (provisional)
-lit4 actSt22aIntroChk 0x0063172C 0x00631730 ico2/script/src/st22a.c  # 1 float
-text actSt22aIntroSub 0x002393C0 0x002394D8 ico2/script/src/st22a.c lines=22  # us-only (after st22a.c's span; body equals PAL actSt22aIntroSub's with immediates and jump targets masked); named actSt22aIntroSub by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-lit4 actSt22aIntroSub 0x00631730 0x00631734 ico2/script/src/st22a.c  # 1 float
-text func_002394D8 0x002394D8 0x00239680 ico2/script/src/st24a.c  # us-only; after st22a.c's span; PAL order suggests actSt24aDemoCamChk (320 B in PAL)
-lit4 func_002394D8 0x00631734 0x0063173C ico2/script/src/st24a.c  # 2 floats, measured from the base: the text loads them
-text actSt24aSword 0x00239680 0x0023970C ico2/script/src/st24a.c lines=15  # us-only (after st22a.c's span; body equals PAL actSt24aSword's with immediates and jump targets masked); named actSt24aSword by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-lit4 actSt24aSword 0x0063173C 0x00631748 ico2/script/src/st24a.c  # 3 floats
-text actSt24aSaku 0x00239710 0x00239750 ico2/script/src/st24a.c lines=8  # us-only (after st22a.c's span; body equals PAL actSt24aSaku's with immediates and jump targets masked); named actSt24aSaku by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text stageSEtaimatsu 0x0023B728 0x0023B8B8 ico2/script/src/stageSEProc.c lines=59  # ordinal; first difference at insn 21; imm:3; extent-equal
-sdlit stageSEtaimatsu 0x00633B50 0x00633B54 ico2/script/src/stageSEProc.c align=4  # 1 word
-text stageSE19ataki 0x0023BD50 0x0023BF70 ico2/script/src/stageSEProc.c lines=13  # census-equal with immediates masked; differs (match_check other:17)
-lit4 stageSE19ataki 0x006317C0 0x006317E0 ico2/script/src/stageSEProc.c  # 8 floats
-sdlit stageSE19ataki 0x00633B54 0x00633B58 ico2/script/src/stageSEProc.c  # 1 word
-text MakePacket 0x002412D8 0x002413F0 ico2/common/src/PObj.c local lines=23  # ordinal; first difference at insn 0; imm:11; extent-equal
-rdlit MakePacket 0x0062DF08 0x0062DF21 ico2/common/src/PObj.c  # 1 string

@@ -16,7 +16,6 @@
 #include "typedef.h"
 #include "script.h"
 #include "main.h"
-#include "include_asm.h"
 
 static ActMail linkTest_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -285,11 +284,47 @@ void actSt17aHasiEffect(GObj *volatile self)
     } while (t < 1000.0f);
 }
 
-INCLUDE_ASM(actLinkTest);
+void actLinkTest(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt17aSekizo);
+    linkTest_mes[0].func = actLinkTestChk;
+    act->mail = linkTest_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
 
-INCLUDE_ASM(actSt17aHasi);
+void actSt17aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 30, 69, 110, 18, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
+}
+
+void actSt17aHasi(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(31) == 0) {
+        scpSearchGobj(221)->active = 0;
+        stage_SetAnimation(112, 0, 0);
+        SetWayGroupActive(3, 1);
+        hasi_mes[0].func = actSt17aHasiChk;
+        act->mail = hasi_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(220)->active = 0;
+        stage_SetAnimation(112, 0, -1);
+    }
+}
 
 void actSt17aIntro(GObj *volatile self)
 {

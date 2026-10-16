@@ -28,6 +28,7 @@ void brainLockGirl(void);
 void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen);
 void brainSetSpMode(void);
 void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx);
+BrainTarget *brainStatusSet(Brain *b, GObj *gobj, float levelCap, float capStep, float rate);
 void brainSubLevelGop(GObj *gobj, float lv);
 void brainUnlockGirl(void);
 

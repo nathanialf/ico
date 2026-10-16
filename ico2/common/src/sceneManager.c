@@ -48,7 +48,6 @@ static sceVu0FVECTOR nextStageRot; /* derived name */
 #include "sceneManager.h"
 #include "backStage.h"
 #include "typedef.h"
-#include "include_asm.h"
 
 /* .data, owned by sceneManager.o: the default layout a scene object is
    created with, at the origin, unrotated, at unit scale. */
@@ -103,6 +102,19 @@ inline int GetStageStartInfo(GObj *self, int a1, int a2, int *wait1, int *wait2,
     }
     *wait2 = 0x32;
     return ret;
+}
+
+inline void ChangeStageStartInfo(int a0, int a1, int wait1, int wait2, int wait3)
+{
+    if (wait1 >= 0) {
+        stageStartWait1 = wait1;
+    }
+    if (wait2 >= 0) {
+        stageStartWait2 = wait2;
+    }
+    if (wait3 >= 0) {
+        stageStartWait3 = wait3;
+    }
 }
 
 inline void MoveNextStage_Clear(void)
@@ -533,5 +545,3 @@ int HotInitSceneObjects(int a0)
     }
     return 1;
 }
-
-INCLUDE_ASM(ChangeStageStartInfo);
