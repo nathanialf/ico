@@ -170,6 +170,7 @@ int GetMotherGeneratorLabelAskEnemy(struct GObj *enemy);
 struct GObj *GetMotherGeneratorGObjAskEnemy(struct GObj *enemy);
 inline void subEnemyBrain_Idle(GObj *volatile self);
 void subEnemyBrain_Await(GObj *volatile self);
+void subEnemyBrain_ToGenerator(GObj *self);
 void subEnemyBrain_FindGirl(GObj *volatile self);
 void subEnemyBrain_BodyGuard(GObj *volatile self);
 void subEnemyBrain_Shoulder(GObj *volatile self);

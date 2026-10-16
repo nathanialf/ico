@@ -55,7 +55,6 @@ unsigned char IsGirlEscortedInCurrentStage(void);
 int GetSaveSofaLayoutID(void);
 void OnGirlEscortFlag(void);
 void SetBoyWeaponGObj(void *w);
-int IsBoyStatus_NotDanger(void);
 int RequestStageChangeKidnapEnd(int stage, int targetId);
 int GetEfStageCameraTargetID(void);
 int IsBackFromEfStage(void);

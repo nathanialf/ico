@@ -1385,8 +1385,13 @@ typedef struct Act { /* field names derived */
                   stores it here in actCommonBox and reads it back through
                   `*(void **)(s + 0x148)` in the boxbar helpers */
     GObj *bar;            /* 0x14C, the bar actCommonBar holds */
-    char *sofa; /* 0x150, the sofa the actor sits on */
-    char pad154[12];
+    union {
+        unsigned long long ll;
+        char *sofa; /* the sofa the actor sits on */
+    } flags150;     /* 0x150, a 64-bit word: the sofa in the low word, enemy_act.c's
+                       carry-failed flag in bit 32 (funcEnemyCarryFail sets it,
+                       CheckEnemyBrainMode and subEnemyBrain_Irregular clear it) */
+    char pad158[8];
     float restartPosX; /* 0x160, the enemy restart position, x */
     float restartPosY; /* 0x164, the enemy restart position, y */
     float restartPosZ; /* 0x168, the enemy restart position, z */

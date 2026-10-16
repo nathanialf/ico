@@ -193,9 +193,88 @@ static inline void bossEffectSetNodePos(GObj *self, float *dst, int idx) /* deri
     dst[3] = 1.0f;
 }
 
-INCLUDE_ASM_LIT(IsEnemyBrainToGenerator);
+inline int IsEnemyBrainToGenerator(GObj *self, GObj **out)
+{
+    Act *b = GOBJ_ACT(self);
+    if (b->enemy->mode != 5)
+        return 0;
+    *out = ((ActWork *)b->work)->genTarget;
+    if (*out == 0) {
+        debug_assert("src/enemy_act.c", 762);
+        __assert("src/enemy_act.c", 762, "*generator_gop!=NULL");
+    }
+    return 1;
+}
 
-INCLUDE_ASM(setBattleStatus);
+inline int IsEnemyBrainToBoy(GObj *self)
+{
+    Act *sub;
+    EnemyBattleWork *sub2;
+    if ((char *)girlGObj != 0) {
+        Act *sub_d = GOBJ_ACT(girlGObj);
+        if (sub_d->actMode != 107)
+            return 0;
+    }
+    sub = GOBJ_ACT(self);
+    sub2 = sub->enemy;
+    return sub2->mode == 3;
+}
+
+static void setBattleStatus(GObj *self)
+{
+    switch (GOBJ_ACT(self)->enemy->battleType) {
+    case 0:
+        GOBJ_ACT(self)->enemy->flags.ll &= ~1LL;
+        GOBJ_ACT(self)->enemy->flags.ll &= ~2LL;
+        break;
+    case 1:
+        GOBJ_ACT(self)->enemy->flags.ll &= ~1LL;
+        GOBJ_ACT(self)->enemy->flags.ll |= 2LL;
+        break;
+    case 2:
+        GOBJ_ACT(self)->enemy->flags.ll |= 1LL;
+        GOBJ_ACT(self)->enemy->flags.ll &= ~2LL;
+        break;
+    case 3:
+        GOBJ_ACT(self)->enemy->flags.ll |= 1LL;
+        GOBJ_ACT(self)->enemy->flags.ll |= 2LL;
+        break;
+    default:
+        debug_assert("src/enemy_act.c", 804);
+        __assert("src/enemy_act.c", 804, "0");
+    }
+}
+
+/* A static inline between setBattleStatus and boss_effect_callback, expanded
+   only in subEnemyControl. */
+static inline void enemyPollHitNodes(GObj *self) /* derived name */
+{
+    int n = GOBJ_SUB(self)->skelNodeNum;
+    int i;
+
+    for (i = 0; i < n; i++) {
+        GetEnemyHitNodeFlag(self);
+    }
+}
+
+inline void boss_effect_callback(int id)
+{
+    GObj *g;
+    int i;
+    char *p;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (GOBJ_ACT(g)->enemy->liftKind == 3) {
+            for (i = 0; i < 5; i++) {
+                p = (char *)(i * 0x20 + (int)GOBJ_ACT(g)->enemy + 0x360);
+                if (p[0x1D] != 0 && *(int *)(p + 0x10) == id) {
+                    p[0x1C] = 0;
+                    return;
+                }
+            }
+        }
+    }
+}
 
 static void boss_effect_start(GObj *self, int id)
 {
@@ -326,7 +405,115 @@ end:
     return rv;
 }
 
-INCLUDE_ASM(subEnemyControl);
+/* a static inline */
+static inline int getEnemyBrainMes(char *self, int *data) /* derived name */
+{
+    EBSlot *t = eBrainGetTarget(self);
+
+    if (t == 0) {
+        *data = 0;
+        return 0;
+    }
+    *data = (int)t->target;
+    return t->status;
+}
+
+void subEnemyControl(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    float pos[4];
+    float dir[4];
+    int runCnt = 0;
+    int walkCnt = 0;
+    int stopCnt = 0;
+
+    iosPadConnect(&sub->pad, 0, 1, &sub->padConf);
+    while (1) {
+        enemyPollHitNodes(self);
+        /* the stick poll loop, subBoyControl's shape, repeating only under the
+           DEBUG hold (retail breaks after one pass) */
+        for (;;) {
+            if (((int)(sub->flags18.ll >> 43)) & 1) {
+                if (self == CurrentTargetGObj) {
+                    iosPadConnect(&sub->pad, 0, 0, &sub->padConf);
+                    iosPadRead(&sub->pad);
+                    iosPadGetStick(&sub->pad, &sub->stick, 0, 2, 2, 0);
+                    _GetMotionDirection(dir, self);
+                    sub->stick.angle = CorrectStickInfo(dir, &sub->stick);
+                    if (0.001f < sub->stick.mag) {
+                        ConvertStickToAbsCoord(pos, &sub->stick);
+                        sub->dir[0] = pos[0];
+                        sub->dir[1] = pos[1];
+                        sub->dir[2] = pos[2];
+                    }
+                } else if (self == CurrentTargetGObjSub) {
+                    iosPadConnect(&sub->pad, 0, 1, &sub->padConf);
+                } else {
+                    iosPadConnect(&sub->pad, 0, 1, &sub->padConf);
+                }
+            }
+            if (!ENEMY_DEBUG_HOLD) {
+                break;
+            }
+            _ACTWait(1);
+        }
+        /* the whole counter update */
+        stopCnt++;
+        if (0.1f < sub->stick.mag) {
+            stopCnt = 0;
+        }
+        if (0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->pad.now & 0x20))) {
+            walkCnt++;
+        } else {
+            walkCnt = 0;
+        }
+        /* moving and not walking, with the walking predicate repeated whole
+           inside the negation, as commonact.c's _ACTCommonMailTest writes
+           it */
+        if (0.1f < sub->stick.mag &&
+            !(0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->pad.now & 0x20)))) {
+            runCnt++;
+        } else {
+            runCnt = 0;
+        }
+        pos[0] = sub->dir[0];
+        pos[1] = sub->dir[1];
+        pos[2] = sub->dir[2];
+        _ACTCommonMailTest(self, stopCnt, walkCnt, runCnt);
+        switch (sub->actMode) {
+        case 1:
+            ACTSendMailCorrect((void *)self, 183);
+            break;
+        case 2:
+            if (0.1f < sub->stick.mag && (sub->stick.mag < 0.99f || (sub->pad.now & 0x20)) &&
+                !(walkCnt < 4)) {
+                if (CheckFloorAttribute(self, 0x200)) {
+                    ACTSendMailCorrect((void *)self, 169);
+                } else {
+                    ACTSendMailCorrect((void *)self, 168);
+                }
+            }
+            break;
+        case 3:
+            ACTSendMailCorrect((void *)self, 173);
+            break;
+        /* a fifth case label, its value unknown: every index from 4 to 37 of
+           the jump table goes to the break */
+        case 4:
+            break;
+        case 38:
+            if (100 < sub->stick.y - 128) {
+                ACTSendMailCorrect((void *)self, 309);
+            } else if (sub->stick.y - 128 < -100) {
+                ACTSendMailCorrect((void *)self, 308);
+            } else {
+                ACTSendMailCorrect((void *)self, 314);
+            }
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 
 /* A static inline, a helper defined above EnemyUtil_TurnToBoy,
    _ApproachTarget_Boss and subEnemyCollision and inlined at each call. */
@@ -459,33 +646,365 @@ void subEnemyCollision(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM_LIT(actEnemyStand);
+inline void actEnemyStand(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    debug_StdPrintfDummy("enter actEnemyStand\n");
+    sub->actMode = 1;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM_LIT(motEnemyStand);
+inline void motEnemyStand(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    debug_StdPrintfDummy("enter motEnemyStand\n");
+    *(char **)((char *)sub + 0x120) = SetMotionRequest(self, 1, sub->env.motOriReq);
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM_LIT(actEnemyWalk);
+inline void actEnemyWalk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    debug_StdPrintfDummy("enter actEnemyWalk\n");
+    sub->actMode = 2;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM_LIT(motEnemyWalk);
+inline void motEnemyWalk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    char *mot;
+    debug_StdPrintfDummy("enter motEnemyWalk\n");
+    mot = SetMotionRequest(self, 7, sub->env.motOriReq);
+    *(char **)((char *)sub + 0x120) = mot;
+    *(int *)(mot + 0x114) = 0;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM_LIT(actEnemyRun);
+inline void actEnemyRun(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    debug_StdPrintfDummy("enter actEnemyRun\n");
+    sub->actMode = 3;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM_LIT(motEnemyRun);
+inline void motEnemyRun(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    char *mot;
+    debug_StdPrintfDummy("enter motEnemyRun\n");
+    mot = SetMotionRequest(self, 12, sub->env.motOriReq);
+    *(char **)((char *)sub + 0x120) = mot;
+    *(int *)(mot + 0x114) = 0;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM_LIT(actEnemyJump);
+inline void actEnemyJump(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    debug_StdPrintfDummy("enter actEnemyJump\n");
+    sub->actMode = 4;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM(actEnemyAttack);
+void actEnemyAttack(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    int hit = 0;
+    float buf[4];
+    float v[4];
 
-INCLUDE_ASM_LIT(actEnemyHang);
+    _ACTWait(2);
+    ACTSearchEnemy((void *)self, (int *)((char *)sub + 0x178), buf);
+    _OrientXZGV(v, test_CURRENTROOT(((void *)boyGObj)), test_CURRENTROOT(self));
+    sub->dir[0] = v[0];
+    sub->dir[1] = v[1];
+    sub->dir[2] = v[2];
+    SetMotionDirection((void *)self, v);
+    while (1) {
+        if (GetMotionFrameFlag2((void *)self) != 0 && sub->attackTurn != 0) {
+            SetMotionDirectionWithLimit((void *)self, buf, 10.0f, 90.0f);
+        }
+        if (sub->pad.trg & 0x80) {
+            hit = 1;
+        }
+        if (hit != 0) {
+            ACTSendMailCorrect((void *)self, 189);
+        }
+        ACTSendMailCorrect((void *)self, 183);
+        EnemyAttackCenter(self);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM_LIT(actEnemyHyde);
+/* A static inline.  `sub` is computed inside the helper; in enemy_dodge the
+   caller already holds it. */
+static inline void enemyDodgeSendMail(GObj *self) /* derived name */
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM_LIT(isEnemyActive);
+    if (EnemyUtil_isOtherStatus(self, 0) != 0) {
+        return;
+    }
+    if (((int)(_GetRandom() * 10.0f)) & 1) {
+        ACTSendMailCorrect(self, 191);
+    }
+    ACTSendMailCorrect(self, 189);
+    *(long long *)((char *)sub + 0x20) |= 2;
+}
 
-INCLUDE_ASM(actEnemyRestart);
+inline void actEnemyHang(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    debug_StdPrintfDummy("enter actEnemyHang\n");
+    sub->actMode = 0x1C;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM(PairSetGeometry_150);
+inline void funcEnemyAiGetGirl(GObj *self)
+{
+    Act *sub = GOBJ_ACT(self);
+    if (sub->wayMode == 0) {
+        sub->wayMode = 1;
+    }
+}
 
-INCLUDE_ASM(actEnemyForceSwitchToCarry);
+inline void actEnemyHyde(GObj *self)
+{
+    sceVu0FVECTOR hide = {0.0f, 0.0f, -1000000.0f};
+    SetDirectRootPositionNoFitting(self, hide);
+    ResetEnemyPositionInfo(self);
+    actEnemyFlagOnFree(self);
+}
+
+inline int isEnemyHyde(GObj *self)
+{
+    GenGeo *g = &objLayout[self->labelId];
+    return ((g->flags >> 21) & 1) ^ 1;
+}
+
+inline void actEnemyFlagOnFree(GObj *self)
+{
+    GenGeo *g = &objLayout[self->labelId];
+    g->flags &= ~0x200000;
+}
+
+inline void actEnemyFlagOnDead(GObj *self)
+{
+    GenGeo *g = &objLayout[self->labelId];
+    g->flags |= 0x40000;
+}
+
+inline int actEnemyFlagCheckDead(GObj *self)
+{
+    GenGeo *g = &objLayout[self->labelId];
+    return (g->flags >> 18) & 1;
+}
+
+inline int isEnemyActive(GObj *self)
+{
+    if (self == 0 || self->kind != 4) {
+        debug_assert("src/enemy_act.c", 2002);
+        __assert("src/enemy_act.c", 2002, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
+    }
+    return actEnemyFlagCheckActive(self);
+}
+
+inline int actEnemyFlagCheckActive(GObj *self)
+{
+    GenGeo *g = &objLayout[self->labelId];
+    unsigned int field = g->flags;
+    unsigned int v0 = (field >> 18) & 1;
+    if (v0 != 0)
+        goto zero;
+    v0 = (field >> 21) & 1;
+    v0 = v0 ^ 1;
+    if (v0 == 0)
+        goto one;
+zero:
+    return 0;
+one:
+    return 1;
+}
+
+inline int actEnemy_isSmallEnemy(GObj *self)
+{
+    return GOBJ_ACT(self)->enemy->sizeClass == 0;
+}
+
+inline int actEnemy_isLargeEnemy(GObj *self)
+{
+    return GOBJ_ACT(self)->enemy->sizeClass == 2;
+}
+
+inline int actEnemy_isNormalEnemy(GObj *self)
+{
+    return GOBJ_ACT(self)->enemy->sizeClass == 1;
+}
+
+inline int actEnemy_GetClingTarget(GObj *self)
+{
+    Act *b = GOBJ_ACT(self);
+    EnemyBattleWork *e = b->enemy;
+    if (e->sizeClass == 0 && b->actMode == 0x10) {
+        return e->clingTarget;
+    }
+    return 0;
+}
+
+void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
+{
+    float v[4];
+    Act *sub;
+    int mail;
+    int idx;
+    float life;
+
+    sub = GOBJ_ACT(self);
+    mail = 50;
+    v[0] = pos[0];
+    v[2] = pos[2];
+    v[1] = pos[1] - 100.0f;
+    SetDirectRootPositionNoFitting(self, (char *)v);
+    gamesysObjInfoPosSetStage(self, sub->infoPos, 0, stage_no);
+    switch (kind) {
+    case 0:
+        pos[1] = pos[1] + GOBJ_ACT(self)->enemy->bodySize * 100.0f;
+        break;
+    case 1:
+        mail = 51;
+        break;
+    case 2:
+        mail = 52;
+        break;
+    }
+    if (((int)((long long)sub->flags20.ll >> 16)) & 1) {
+        *(long long *)((char *)sub + 0x20) = (long long)sub->flags20.ll & ~0x10000;
+    } else {
+        RandomizeEnemy(self);
+    }
+    idx = 0;
+    switch (GetEnemyBattleType(self)) {
+    case 0:
+        break;
+    case 1:
+        idx = 1;
+        break;
+    case 2:
+        idx = 2;
+        break;
+    case 3:
+        idx = 3;
+        break;
+    default:
+        debug_assert("src/enemy_act.c", 2066);
+        __assert("src/enemy_act.c", 2066, "0");
+    }
+    GOBJ_ACT(self)->enemy->battleType = idx;
+    setBattleStatus(self);
+    life = GetEnemyDefLife(self);
+    sub->maxLife = life;
+    sub->life = life;
+    sub->wayMode = 0;
+    if (mother != 0) {
+        sub->mother = mother;
+    } else {
+        sub->mother = 0;
+    }
+    sub->mail = (ActMail *)&actIntrList[72];
+    ACTSendMailCorrect(self, mail);
+    InitMotionGeoInfo(&GOBJ_SUB(self)->root, pos[0], pos[1], pos[2], 0.0f, 0.0f, 0.0f);
+    ResetEnemyPositionInfo(self);
+    SetEnemyDissolve(self, 0.0f);
+    sub->restartPosX = pos[0];
+    sub->restartPosY = pos[1];
+    sub->restartPosZ = pos[2];
+    SetMotionDirection(self, dir);
+    eBrainSendMes(self, 4);
+}
+
+static int actEnemyForceSwitchToCarry(void *self)
+{
+    void PairSetGeometry(void *me, void *pair, float dist)
+    {
+        float p0[4];
+        float p1[4];
+        float dir[4];
+        float ofs[4];
+
+        p0[0] = test_CURRENTROOT(me)[0];
+        p0[1] = test_CURRENTROOT(me)[1];
+        p0[2] = test_CURRENTROOT(me)[2];
+        p1[0] = test_CURRENTROOT(pair)[0];
+        p1[1] = test_CURRENTROOT(pair)[1];
+        p1[2] = test_CURRENTROOT(pair)[2];
+        _OrientXZGV(dir, p1, p0);
+        sceVu0ScaleVector(ofs, dir, dist);
+        sceVu0AddVector(p1, p0, ofs);
+        SetDirectRootPositionNoFitting(pair, (char *)p1);
+        GOBJ_ACT(me)->dir[0] = dir[0];
+        GOBJ_ACT(me)->dir[1] = dir[1];
+        GOBJ_ACT(me)->dir[2] = dir[2];
+        sceVu0ScaleVector((float *)((char *)GOBJ_ACT(pair) + 0x110), dir, -1.0f);
+        SetMotionDirection(me, (float *)((char *)GOBJ_ACT(me) + 0x110));
+        SetMotionDirection(pair, (float *)((char *)GOBJ_ACT(pair) + 0x110));
+    }
+    float q[4];
+    Act *sub = GOBJ_ACT(self);
+
+    if ((char *)girlGObj == 0) {
+        return 0;
+    }
+    if (ACTReserveTarget(girlGObj, self, 239) == 0) {
+        return 0;
+    }
+    if (GOBJ_ACT(girlGObj)->actMode == 107) {
+        return 0;
+    }
+    PairSetGeometry(self, (char *)girlGObj, 50.0f);
+    memset(q, 0, 0x10);
+    q[3] = 1.0f;
+    RotQuaternionY(q, -0x8000);
+    SetMotionNodeFixModeParameter(girlGObj, self, 2, GOBJ_ACT(self)->enemy->clingNode, q, 18.0f,
+                                  0.0f, 0.0f, 1.0f);
+    sub->carried = girlGObj;
+    GOBJ_ACT(girlGObj)->carrier = self;
+    ACTGameCollisionOff(girlGObj);
+    eBrainSendMes(self, 9);
+    eBrainSendMes(self, 7);
+    return 1;
+}
+
+inline int ACTEnemyForceSwitchToCarry(GObj *self)
+{
+    int r = actEnemyForceSwitchToCarry(self);
+    if (r != 0) {
+        _BrainMode_SetDirect(self, 0, 0);
+    }
+    ACTSendMailCorrect(self, 244);
+    return r;
+}
+
+inline void actEnemyNest(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    int stg;
+    GObj *x2;
+
+    *(int *)((char *)sub + 0x138) = 0;
+    actChangeActBrain(isysCurrentGObj, (void *)subEnemyBrain_Idle, &sub->brainProc);
+    actEnemyHyde(self);
+    eBrainSendMes(self, 10);
+    stg = stage_no;
+    *(int *)((char *)sub + 0x430) = 0;
+    x2 = self;
+    sub->infoPos = 7;
+    gamesysObjInfoPosSetStage(x2, 7, 0, stg);
+    _ACTWait(0);
+}
 
 static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */
 
@@ -692,16 +1211,11 @@ void actEnemyKidnapBegin(GObj *volatile self)
     }
 }
 
-/* A static inline between setBattleStatus and boss_effect_callback, expanded
-   only in subEnemyControl. */
-static inline void enemyPollHitNodes(GObj *self) /* derived name */
+/* a `static inline` defined outside this function */
+static inline void enemyBodyliftClearBoy(char *self) /* derived name */
 {
-    int n = GOBJ_SUB(self)->skelNodeNum;
-    int i;
-
-    for (i = 0; i < n; i++) {
-        GetEnemyHitNodeFlag(self);
-    }
+    GOBJ_SUB(self)->ctrl.catchBoy = 0;
+    GOBJ_SUB(self)->root.lookMode = 0;
 }
 
 /* PairSetGeometry is a GNU nested function, reading its parent's frame
@@ -750,77 +1264,220 @@ static void MoveChestForCatchBoy(GObj *self)
     debug_NMarker((float *)((char *)GOBJ_SUB(self) + 0x390), 255, 0, 0, 200.0f);
 }
 
-INCLUDE_ASM(actEnemyBodylift);
-
-INCLUDE_ASM(actEnemyPickupBegin);
-
-INCLUDE_ASM(CheckEnemyBrainMode);
-
-INCLUDE_ASM(BrainMode_Requset_217);
-
-INCLUDE_ASM_LIT(subEnemyBrain_ToGenerator);
-
-INCLUDE_ASM(subEnemyBrainMain);
-
-INCLUDE_ASM(enemy_dodge);
-
-INCLUDE_ASM(Battle_isCurrentStatus);
-
 inline void afterEnemyBodylift(GObj *volatile self)
 {
-    GObj *x = self;
-    GOBJ_SUB(x)->ctrl.catchBoy = 0;
-    GOBJ_SUB(x)->root.lookMode = 0;
+    enemyBodyliftClearBoy((char *)self);
 }
 
-/* a `static inline` defined outside this function */
-static inline void enemyBodyliftClearBoy(char *self) /* derived name */
+void actEnemyBodylift(GObj *volatile self)
 {
-    GOBJ_SUB(self)->ctrl.catchBoy = 0;
-    GOBJ_SUB(self)->root.lookMode = 0;
-}
-
-/* A static inline inside actEnemyPickupBegin.  A second 16-byte vector is
-   declared ahead of buf; its reader is the DEBUG build's report of the girl's
-   position, as in enemyKidnapCheckGirl. */
-static inline int enemyPickupCheckGirl(GObj *self) /* derived name */
-{
+    float dir[4];
     float pos[4];
-    float buf[4];
-    int ang;
+    float bpos[4];
+    float mtx[16];
+    float lv[4];
+    Act *sub;
+    int hit;
+
+    sub = GOBJ_ACT(self);
+    hit = 0;
+    GOBJ_ACT(self)->enemy->flags.ll &= ~4LL;
+    _OrientXZGV(dir, bodyliftTarget[0], test_CURRENTROOT(self));
+    sub->after = (void *)afterEnemyBodylift;
+    if (GOBJ_ACT(self)->enemy->liftKind != 3) {
+        _OrientXZGV(sub->dir, test_CURRENTROOT(((void *)boyGObj)), test_CURRENTROOT(self));
+        SetMotionDirection((void *)self, sub->dir);
+    }
+    for (;;) {
+        GOBJ_ACT(self)->enemy->flags.ll &= ~4LL;
+        if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+            if (GOBJ_ACT(boyGObj)->actMode == 91) {
+                enemyBodyliftClearBoy((char *)self);
+            } else {
+                MoveChestForCatchBoy(self);
+            }
+        }
+        GetSkeltonPosition(pos, self, 22);
+        bpos[0] = test_CURRENTROOT(((void *)boyGObj))[0];
+        bpos[1] = test_CURRENTROOT(((void *)boyGObj))[1];
+        bpos[2] = test_CURRENTROOT(((void *)boyGObj))[2];
+        if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+            sceVu0SubVector(lv, test_CURRENTROOT(((void *)boyGObj)), pos);
+            GetMatrixDirectionToZ(mtx, test_CURRENTORIENT(self));
+            lv[3] = 0.0f;
+            sceVu0ApplyMatrix(lv, mtx, lv);
+            if (((lv[0] < 0.0f) ? -lv[0] : lv[0]) < 100.0f &&
+                ((lv[1] < 0.0f) ? -lv[1] : lv[1]) < 100.0f && -300.0f < lv[2] && lv[2] < 200.0f) {
+                hit = 1;
+            }
+        } else {
+            if (_DistSqGV(pos, bpos) < GOBJ_ACT(self)->enemy->bodySize * 45.0f *
+                                           (GOBJ_ACT(self)->enemy->bodySize * 45.0f)) {
+                hit = 1;
+            }
+        }
+        /* a volatile read of the actor-entry home whose value nothing
+           consumes: what is left of a compiled-out statement */
+        (void)self;
+        if (GetMotionFrameFlag1((void *)self) != 0 && hit != 0) {
+            iosOmSendMail(((void *)boyGObj), 340, self);
+        }
+        if (GetMotionFrameFlag2((void *)self) != 0) {
+            _OrientXZGV(bpos, test_CURRENTROOT(((void *)boyGObj)), test_CURRENTROOT(self));
+            _ACTMotDirSmzDirect((void *)self, bpos);
+        }
+        if (GOBJ_ACT(boyGObj)->actMode == 91 && GOBJ_ACT(boyGObj)->enemy->liftedObj == (int)self) {
+            if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+                if (0 < GOBJ_ACT(boyGObj)->enemy->liftLevel) {
+                    ACTSendMailCorrect((void *)self, 346);
+                } else {
+                    ACTSendMailCorrect((void *)self, 347);
+                }
+            } else {
+                ACTSendMailCorrect((void *)self, 344);
+            }
+        } else {
+            ACTSendMailCorrect((void *)self, 183);
+        }
+        _ACTWait(1);
+    }
+}
+
+inline void actEnemyBodyslamFail(GObj *volatile self)
+{
+    iosOmSendMail(((void *)boyGObj), 210, self);
+    while (1) {
+        ACTSendMailCorrect((void *)self, 183);
+        _ACTWait(1);
+    }
+}
+
+inline void actEnemyBodyslam(GObj *volatile self)
+{
+    iosOmSendMail(((void *)boyGObj), GOBJ_ACT(self)->enemy->bodyslamMail, self);
+    while (1) {
+        ACTSendMailCorrect((void *)self, 183);
+        _ACTWait(1);
+    }
+}
+
+void actEnemyPickupBegin(GObj *volatile self)
+{
+    inline int pickupCheckGirl(void) /* derived name */
+    {
+        float buf[4];
+        int ang;
+        int mode;
+
+        if (_ACTGame_SearchGObj(self, girlGObj, 170.0f, 100.0f, 45, buf) != 0) {
+            ang = _RotyGV(buf, test_CURRENTORIENT((girlGObj)));
+            ang = (ang < 0) ? -ang : ang;
+            mode = 2;
+            if (ang <= 89) {
+                mode = 1;
+            }
+        } else {
+            mode = 0;
+        }
+#ifdef DEBUG
+        {
+            float pos[4];
+
+            GetRootProjectionPosOfGObj(pos, (char *)((char *)girlGObj));
+            scePrintf("pickup check %d girl %f %f %f\n", mode, pos[0], pos[1], pos[2]);
+        }
+#endif
+        return mode;
+    }
+    float *dir = (float *)((char *)GOBJ_ACT(self) + 0x110);
+    float *girl = test_CURRENTROOT((girlGObj));
+    float *me = test_CURRENTROOT(self);
     int mode;
 
-    if (_ACTGame_SearchGObj(self, girlGObj, 170.0f, 100.0f, 45, buf) != 0) {
-        ang = _RotyGV(buf, test_CURRENTORIENT((girlGObj)));
-        ang = (ang < 0) ? -ang : ang;
-        mode = 2;
-        if (ang <= 89) {
-            mode = 1;
+    _OrientXZGV(dir, girl, me);
+    SetMotionDirection((void *)self, dir);
+    while (1) {
+        mode = pickupCheckGirl();
+        if (mode < 3 && mode != 0) {
+            if (actEnemyForceSwitchToCarry((void *)self) != 0) {
+                ACTGame_InsertCamera_GirlIsPinch();
+                while (1) {
+                    ACTSendMailCorrect((void *)self, 337);
+                    _ACTWait(1);
+                }
+            }
         }
-    } else {
-        mode = 0;
+        ACTSendMailCorrect((void *)self, 338);
+        _ACTWait(1);
     }
-#ifdef DEBUG
-    GetRootProjectionPosOfGObj(pos, (char *)((char *)girlGObj));
-    scePrintf("pickup check %d girl %f %f %f\n", mode, pos[0], pos[1], pos[2]);
-#endif
-    return mode;
 }
 
-/* a static inline */
-static inline int getEnemyBrainMes(char *self, int *data) /* derived name */
+inline void actEnemyCarry(GObj *volatile self)
 {
-    EBSlot *t = eBrainGetTarget(self);
-
-    if (t == 0) {
-        *data = 0;
-        return 0;
-    }
-    *data = (int)t->target;
-    return t->status;
+    debug_assert("src/enemy_act.c", 2803);
+    __assert("src/enemy_act.c", 2803, "0");
 }
 
-void _BrainMode_SetDirect(GObj *self, int mode, BrainModeTarget *tgt);
+inline int EnemyBrainStatus_Boy(GObj *self)
+{
+    return GOBJ_ACT(self)->brainAim == 2;
+}
+
+inline int EnemyBrainStatus_Girl(GObj *self)
+{
+    return GOBJ_ACT(self)->brainAim == 1;
+}
+
+static void CheckEnemyBrainMode(char *self, int *outMode, int *outData)
+{
+    char *sub = *(char **)(self + 0x164);
+    int mode;
+
+    *outData = 0;
+    if (*(int *)(sub + 0x138) != 0 && motionKind[GOBJ_SUB(self)->ctrl.motion].word100 == 0) {
+        *outMode = -1;
+        return;
+    }
+    if (((*(unsigned long long *)(sub + 0x18) >> 44) & 1) == 0) {
+        *outMode = -1;
+        return;
+    }
+    if (actEnemyFlagCheckActive((GObj *)self) == 0) {
+        *outMode = -1;
+        return;
+    }
+    switch (*(unsigned int *)(sub + 0x30)) {
+    case 7:
+    case 19:
+    case 20:
+    case 21:
+    case 22:
+    case 110:
+    case 111:
+        *outMode = -1;
+        return;
+    }
+    if (((*(long long *)(sub + 0x150) >> 32) & 1) == 0) {
+        goto no_bit;
+    }
+    *(long long *)(sub + 0x150) &= ~(1LL << 32);
+    mode = -2;
+    goto store;
+no_bit:
+    mode = getEnemyBrainMes(self, outData);
+store:
+    *outMode = mode;
+}
+
+inline void _BrainMode_SetDirect(GObj *self, int mode, BrainModeTarget *tgt)
+{
+    GOBJ_ACT(self)->enemy->reqMode = mode;
+    if (tgt != 0) {
+        GOBJ_ACT(self)->enemy->flags.w.reqTarget = *tgt;
+    } else {
+        GOBJ_ACT(self)->enemy->flags.w.reqTarget = brainTargetNone;
+    }
+}
 
 /* A static inline between _BrainMode_SetDirect and subEnemyBrainMain. */
 static inline void _BrainMode_Set(GObj *self, int mode, int *tgt) /* derived name */
@@ -831,20 +1488,343 @@ static inline void _BrainMode_Set(GObj *self, int mode, int *tgt) /* derived nam
     _BrainMode_SetDirect(self, mode, tgt);
 }
 
-/* A static inline.  `sub` is computed inside the helper; in enemy_dodge the
-   caller already holds it. */
-static inline void enemyDodgeSendMail(GObj *self) /* derived name */
+void subEnemyBrainMain(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+    int mode;
+    int data;
+    int i;
 
-    if (EnemyUtil_isOtherStatus(self, 0) != 0) {
+    /* BrainMode_Requset is a GNU nested function: it reads self out of
+       subEnemyBrainMain's frame through the static chain. */
+    void BrainMode_Requset(int req, int arg)
+    {
+        switch (req) {
+        case 0:
+            _BrainMode_Set(self, 1, 0);
+            break;
+        case -2:
+            _BrainMode_Set(self, 1, 0);
+            break;
+        case 1:
+            _BrainMode_Set(self, 3, 0);
+            break;
+        case 2:
+            _BrainMode_Set(self, 4, 0);
+            break;
+        case 3:
+            _BrainMode_Set(self, 6, 0);
+            break;
+        case -3:
+        case -1:
+        case 7:
+            _BrainMode_Set(self, 13, 0);
+            break;
+        case 5:
+            _BrainMode_Set(self, 7, &arg);
+            break;
+        case 4:
+        case 6:
+            _BrainMode_Set(self, 5, &arg);
+            break;
+        case 8:
+            _BrainMode_SetDirect(self, 2, &arg);
+            break;
+        default:
+            debug_StdPrintfDummy("undefined mode [%d]\n", req);
+            debug_assert("src/enemy_act.c", 2965);
+            __assert("src/enemy_act.c", 2965, "0");
+            break;
+        }
+    }
+
+    GOBJ_ACT(self)->enemy->reqMode = GOBJ_ACT(self)->enemy->mode = 0;
+    GOBJ_ACT(self)->enemy->waitCount = 2;
+    _ACTWait(1);
+    _ACTWait(1);
+    _ACTWait(1);
+    switch (sub->brainStatus) {
+    case 4:
+        if ((char *)girlGObj != 0) {
+            eBrainSendMes(self, 9);
+            i = 0;
+            eBrainSendMes(self, 7);
+            actEnemyForceSwitchToCarry((void *)self);
+            for (; i < 5; i++) {
+                if (sub->actMode == 5) {
+                    sub->motReq = SetMotionRequest(self, 233, sub->env.motOriReq);
+                } else {
+                    sub->motReq = SetMotionRequest(self, 231, sub->env.motOriReq);
+                }
+                if (*(int *)((char *)sub->motReq + 0xC) != 0) {
+                    break;
+                }
+                _ACTWait(1);
+            }
+            if (gflagChk(360) != 0) {
+                sub->motReq = SetMotionRequest(self, 232, sub->env.motOriReq);
+            }
+        }
+        break;
+    case 1:
+        if ((char *)girlGObj != 0 &&
+            ACTCheckViewCl((void *)self, (char *)girlGObj, test_CURRENTROOT((girlGObj)), 0x168,
+                           3.40282347e+38f /* FLT_MAX */) != 0) {
+            eBrainSendMes(self, 2);
+        } else {
+            eBrainSendMes(self, 1);
+        }
+        break;
+    case 2:
+        if ((char *)girlGObj != 0) {
+            eBrainSendMes(self, 2);
+        }
+        break;
+    case 5:
+        eBrainSendMes(self, 3);
+        break;
+    }
+    while (1) {
+        if ((char *)girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 107 &&
+            GOBJ_ACT(girlGObj)->carrier == self && EA_CHKBIT(GOBJ_WORK(self)->enemyFlags, 0)) {
+            ACTSendMailCorrect((void *)self, 0x1E);
+            ACTSendMailCorrect((void *)self, 0x1D);
+        }
+        CheckEnemyBrainMode((char *)self, &mode, &data);
+        BrainMode_Requset(mode, data);
+        if (GOBJ_ACT(self)->enemy->reqMode != GOBJ_ACT(self)->enemy->mode ||
+            (((int)(sub->flags20.ll >> 0)) & 1) != 0) {
+            sub->flags20.ll &= ~1LL;
+            GOBJ_ACT(self)->enemy->mode = GOBJ_ACT(self)->enemy->reqMode;
+            GOBJ_ACT(self)->enemy->target = GOBJ_ACT(self)->enemy->flags.w.reqTarget.gobj;
+            sub->brainTarget = (GObj *)GOBJ_ACT(self)->enemy->target;
+            sub->brainAim = brainModeTable[GOBJ_ACT(self)->enemy->mode].aim;
+            sub->infoPos = brainModeTable[GOBJ_ACT(self)->enemy->mode].infoPos;
+            if (sub->infoPos == 4) {
+                gamesysObjInfoPosSetStage(self, 4, 0, stage_no);
+            }
+            actChangeActBrain(isysCurrentGObj,
+                              (void *)brainModeTable[GOBJ_ACT(self)->enemy->mode].brain,
+                              &sub->brainProc);
+        }
+        if (sub->carried != 0) {
+            _ACTCharStatus_Set((void *)self, 14, -1.0f, 0);
+        }
+        if (GOBJ_ACT(self)->enemy->waitCount != 0) {
+            GOBJ_ACT(self)->enemy->waitCount -= 1;
+        }
+        if (((int)(sub->flags18.ll >> 61)) & 1) {
+            char *g = *(char **)(char *)sub;
+
+            if (sub->actMode != 100) {
+                SetEnemyStonizedVisual((void *)self);
+            }
+            *(long long *)((char *)sub + 0x20) |= 0x400LL;
+            sub->stick.mag = 0;
+            *(int *)((char *)sub + 0x110) = 0;
+            *(int *)((char *)sub + 0x114) = 0;
+            *(int *)((char *)sub + 0x118) = 0;
+            sub->stick.y = 127;
+            sub->stick.x = 127;
+            isysGObjProcPause(g);
+            while (1) {
+                _ACTWait(1);
+            }
+        }
+        if (brainModeTable[GOBJ_ACT(self)->enemy->mode].stoppable != 0 &&
+            (((int)(sub->flags18.ll >> 60)) & 1)) {
+            char *g = *(char **)(char *)sub;
+
+            isysGObjProcPause(g);
+            *(long long *)((char *)sub + 0x20) |= 0x400LL;
+            sub->stick.mag = 0;
+            *(int *)((char *)sub + 0x110) = 0;
+            *(int *)((char *)sub + 0x114) = 0;
+            *(int *)((char *)sub + 0x118) = 0;
+            sub->stick.y = 127;
+            sub->stick.x = 127;
+            while (1) {
+                if ((char *)girlGObj == 0 || GOBJ_ACT(girlGObj)->actMode != 107 ||
+                    GOBJ_ACT(girlGObj)->carrier != self) {
+                    if (actModeTbl[GOBJ_ACT(self)->actMode].bit8) {
+                        ACTSendMailCorrect((void *)self, 242);
+                    }
+                }
+                if (((int)(sub->flags18.ll >> 59)) & 1) {
+                    isysGObjProcActive(g);
+                    *(long long *)((char *)sub + 0x20) &= ~0x400LL;
+                    break;
+                }
+                _ACTWait(1);
+            }
+        }
+        BossEnemyFunc((void *)self);
+        _ACTWait(1);
+    }
+}
+
+inline void afterCommonCarry(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    GObj *girl = girlGObj;
+    GObj *obj = self;
+    sub->carried = girl;
+    iosOmSendMail(girl, 48, obj);
+    GOBJ_SUB(sub->carried)->disp = 1;
+    ACTGameCollisionOn(sub->carried);
+    gflagOff(360);
+    sub->carried = 0;
+    if (sub->actMode == 5) {
+        eBrainSendMes(self, 4);
+    }
+}
+
+inline void funcEnemyCarryFail(GObj *self)
+{
+    GOBJ_ACT(self)->flags150.ll |= (1ULL << 32);
+}
+
+inline void subEnemyBrain_Idle(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    sub->stick.mag = 0;
+    *(int *)((char *)sub + 0x110) = 0;
+    *(int *)((char *)sub + 0x114) = 0;
+    *(int *)((char *)sub + 0x118) = 0;
+    while (1) {
+        if (GOBJ_ACT(self)->enemy->target == (int)((void *)boyGObj)) {
+            _DoAwait(self);
+        }
+        _ACTWait(1);
+    }
+}
+
+inline void subEnemyBrain_Await(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    sub->stick.mag = 0;
+    *(int *)((char *)sub + 0x110) = 0;
+    *(int *)((char *)sub + 0x114) = 0;
+    *(int *)((char *)sub + 0x118) = 0;
+    if ((void *)boyGObj != 0) {
+        _ApproachTarget(self, (void *)boyGObj, (char *)sub + 0x110, 0,
+                        (float)((int)(_GetRandom() * 10.0f) % 200 + 300), 0);
+    }
+    sub->stick.mag = 0;
+    *(int *)((char *)sub + 0x110) = 0;
+    *(int *)((char *)sub + 0x114) = 0;
+    *(int *)((char *)sub + 0x118) = 0;
+    while (1) {
+        _DoAwait(self);
+        _ACTWait(1);
+    }
+}
+
+inline void subEnemyBrain_FindGirl(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    int i;
+
+    for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] / 2; i++) {
+        *(int *)((char *)sub + 0x33C) = 0;
+        *(int *)((char *)sub + 0x110) = 0;
+        *(int *)((char *)sub + 0x114) = 0;
+        *(int *)((char *)sub + 0x118) = 0;
+        ACTSendMailCorrect((void *)self, 214);
+        if (sub->actMode == 0x47) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] * 250 / 60; i++) {
+        _DoAwait(self);
+        _ACTWait(1);
+    }
+    eBrainSendMes(self, 1);
+    _ACTWait(0);
+}
+
+inline void subEnemyBrain_ToGenerator(GObj *self)
+{
+    /* The actor handle is kept in a `volatile` local: this brain thread is
+       resumed by the actor scheduler at every _ACTWait, so the frame slot,
+       not a register, is the live copy of the handle. */
+    GObj *volatile gobj = self;
+    Act *sub = GOBJ_ACT(gobj);
+    GObj *target = sub->brainTarget;
+
+    GOBJ_WORK(gobj)->genTarget = target;
+    if ((unsigned char)_ApproachTarget(gobj, target, (char *)sub + 0x110, 0, 50.0f,
+                                       *(unsigned char *)((char *)GOBJ_ACT(gobj)->enemy + 0x21C)) ==
+        0) {
+        debug_StdPrintfDummy("to generator way error!");
+        sub->stick.mag = 0;
+        *(int *)((char *)sub + 0x110) = 0;
+        *(int *)((char *)sub + 0x114) = 0;
+        *(int *)((char *)sub + 0x118) = 0;
+        _ACTWait(30);
+        ACTSendMailCorrect((void *)gobj, 240);
+        _ACTWait(0);
+    }
+    while (1) {
+        ACTSendMailCorrect((void *)gobj, 330);
+        _ACTWait(1);
+    }
+}
+
+/* The boy is down or in one of the actMode 20..22 states: no dodge then.  A
+   static inline of this file (expanded in enemy_dodge and subEnemyBrain_ToBoy). */
+static inline unsigned char IsBoyStatus_NotDanger(void)
+{
+    unsigned int st = (unsigned int)GOBJ_ACT(boyGObj)->actMode;
+    if (st < 23) {
+        if (st >= 20) {
+            return 1;
+        }
+    }
+    if (GOBJ_WORK(boyGObj)->downTimer > 0) {
+        return 1;
+    }
+    return 0;
+}
+
+static void enemy_dodge(GObj *self)
+{
+    float a[4];
+    float b[4];
+    float c[4];
+    GObj *boy = boyGObj;
+    Act *sub;
+    int ang;
+
+    if (boy == 0) {
         return;
     }
-    if (((int)(_GetRandom() * 10.0f)) & 1) {
-        ACTSendMailCorrect(self, 0xCF);
+    if (_DistGV(test_CURRENTROOT(boy), test_CURRENTROOT(self)) < 200.0f) {
+        GetRootPosition(a, self);
+        GetRootPosition(b, boy);
+        sceVu0SubVector(c, b, a);
+        sceVu0Normalize(c, c);
+        ang = _RotyGV(c, test_CURRENTORIENT(boy));
+        ang = (ang < 0) ? -ang : ang;
+        if (ang < 114) {
+            return;
+        }
+        ang = _RotyGV(c, test_CURRENTORIENT(self));
+        ang = (ang < 0) ? -ang : ang;
+        if ((float)ang < 45.0f) {
+            if (IsBoyStatus_NotDanger() != 0) {
+                return;
+            }
+            sub = GOBJ_ACT(self);
+            if (sub->enemy->sizeClass != 0 &&
+                (((int)(*(long long *)((char *)sub->enemy + 0x208) >> 1)) & 1) == 0) {
+                enemyDodgeSendMail(self);
+            } else if (debug_ignore_dodge == 0) {
+                ACTSendMailCorrect(self, 259);
+            }
+        }
     }
-    ACTSendMailCorrect(self, 0xCD);
-    *(long long *)((char *)sub + 0x20) |= 0x400;
 }
 
 /* a `static inline` defined outside this function, expanded twice here */
@@ -856,7 +1836,7 @@ static inline float battleRangeScale(GObj *self, float v) /* derived name */
     case 0:
     case 1:
         v = work->bodySize * v;
-        if (((int)(*(long long *)((char *)work + 0x210) >> 1)) & 1) {
+        if (((int)(*(long long *)((char *)work + 0x208) >> 1)) & 1) {
             v = v * 1.2;
         }
         break;
@@ -865,6 +1845,43 @@ static inline float battleRangeScale(GObj *self, float v) /* derived name */
         break;
     }
     return v;
+}
+
+INCLUDE_ASM(Battle_isCurrentStatus);
+
+inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze)
+{
+    float dir[4];
+    Act *sub = GOBJ_ACT(self);
+
+    _OrientXZGV(dir, test_CURRENTROOT(tgt), test_CURRENTROOT(self));
+    sub->dir[0] = dir[0];
+    sub->dir[1] = dir[1];
+    sub->dir[2] = dir[2];
+    enemyCheckTurnAngle(self);
+    if (smooze == 0) {
+        SetMotionDirection(self, dir);
+    } else {
+        SetMotionDirectionSmooze(self, dir, (float)smooze);
+    }
+}
+
+inline int EnemyUtil_isOtherStatus(GObj *self, int mode)
+{
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (g != self) {
+            Act *sub = GOBJ_ACT(g);
+            if (sub->actMode == 0xF) {
+                return (int)g;
+            }
+            if ((int)((long long)sub->flags20.ll >> 1) & 1) {
+                return (int)g;
+            }
+        }
+    }
+    return 0;
 }
 
 static int GetFlyPosition(float *out, float *me, float *tgt)
@@ -939,130 +1956,65 @@ static int GetFlyPosition(float *out, float *me, float *tgt)
     return ret;
 }
 
-INCLUDE_ASM(NakaBoss);
+static void NakaBoss(GObj *self, void *tgt, float dist)
+{
+    float bpos[4];
+    float mpos[4];
+    float ori[4];
+    float dir[4];
+    GObj *boy = boyGObj;
+    int inc = 0;
+    int half = (60 - systemStatus[0] * 10) / systemStatus[1] / 4;
+    float dist;
+    Act *sub;
 
-INCLUDE_ASM(ChangeBrain_ToAttack_272);
+    if (stage_no != 84 && stage_no != 3 && stage_no != 46) {
+        return;
+    }
+    {
+        if (boy == 0) {
+            return;
+        }
+        dist = _DistGV(test_CURRENTROOT(boy), test_CURRENTROOT(self));
+        if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x7D0), test_CURRENTROOT(self),
+                           test_CURRENTROOT(boy)) == 2) {
+            ACTSendMailCorrect(self, 0x1D);
+        }
+        if (dist < 360.0) {
+            GetRootPosition(bpos, boy);
+            GetRootPosition(mpos, self);
+            _OrientXZGV(dir, mpos, bpos);
+            ori[0] = test_CURRENTORIENT(boy)[0];
+            ori[1] = test_CURRENTORIENT(boy)[1];
+            ori[2] = test_CURRENTORIENT(boy)[2];
+            if (_AbsRotyGV(ori, dir) < 60) {
+                if (dist < 270.0) {
+                    if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x7D0), mpos,
+                                       bpos) == 0) {
+                        debug_StdPrintfDummy("not found");
+                    }
+                    inc = 1;
+                    if (half < GOBJ_WORK(self)->nakaBossCount) {
+                        ACTSendMailCorrect(self, 0x1D);
+                    } else if (dist < 120.0) {
+                        ACTSendMailCorrect(self, 259);
+                    }
+                } else {
+                    ACTSendMailCorrect(self, 259);
+                }
+            } else if (dist < 200.0f) {
+                ACTSendMailCorrect(self, 259);
+            }
+        }
+        sub = GOBJ_ACT(self);
+        if (inc != 0) {
+            ((ActWork *)sub->work)->nakaBossCount = ((ActWork *)sub->work)->nakaBossCount + 1;
+        } else {
+            ((ActWork *)sub->work)->nakaBossCount = 0;
+        }
+    }
+}
 
-INCLUDE_ASM(subEnemyBrain_ToBoy);
-
-INCLUDE_ASM(ChangeBrain_ToKidnap_282);
-
-INCLUDE_ASM(subEnemyBrain_ToGirl);
-
-INCLUDE_ASM(_ApproachTarget_Boss);
-
-INCLUDE_ASM(flyMailCore);
-
-INCLUDE_ASM(col_304);
-
-INCLUDE_ASM(_ApproachTarget_Way);
-
-INCLUDE_ASM(actEnemyStart);
-
-INCLUDE_ASM(subEnemyBrain_Irregular);
-
-INCLUDE_ASM(subEnemyBrain_Attack);
-
-INCLUDE_ASM(subEnemyBrain_Cling);
-
-INCLUDE_ASM(funcEnemyAiGetGirl);
-
-INCLUDE_ASM(actEnemyStand);
-
-INCLUDE_ASM(actEnemyWalk);
-
-INCLUDE_ASM(actEnemyRun);
-
-INCLUDE_ASM(actEnemyHang);
-
-INCLUDE_ASM(actEnemyCarry);
-
-INCLUDE_ASM(actEnemyBodyslam);
-
-INCLUDE_ASM(actEnemyBodyslamFail);
-
-INCLUDE_ASM(actEnemyNest);
-
-INCLUDE_ASM(funcEnemyCarryFail);
-
-INCLUDE_ASM(actEnemyHyde);
-
-INCLUDE_ASM(actEnemyFlagOnFree);
-
-INCLUDE_ASM(afterCommonCarry);
-
-INCLUDE_ASM(actEnemyFlagOnDead);
-
-INCLUDE_ASM(EnemyBrainStatus_Boy);
-
-INCLUDE_ASM(EnemyBrainStatus_Girl);
-
-INCLUDE_ASM(actEnemyFlagCheckDead);
-
-INCLUDE_ASM(actEnemyFlagCheckActive);
-
-INCLUDE_ASM(ACTEnemyForceSwitchToCarry);
-
-INCLUDE_ASM(actEnemy_GetClingTarget);
-
-INCLUDE_ASM(actEnemy_isNormalEnemy);
-
-INCLUDE_ASM(actEnemy_isLargeEnemy);
-
-INCLUDE_ASM(actEnemy_isSmallEnemy);
-
-INCLUDE_ASM(IsEnemyBrainToGenerator);
-
-INCLUDE_ASM(IsEnemyBrainToBoy);
-
-INCLUDE_ASM(GetEnemyTypeFromGObj);
-
-INCLUDE_ASM(GetEnemyType);
-
-INCLUDE_ASM(isEnemyKidnapEnable);
-
-INCLUDE_ASM(isEnemyActive);
-
-INCLUDE_ASM(subEnemyBrain_Idle);
-
-INCLUDE_ASM(subEnemyBrain_Await);
-
-INCLUDE_ASM(subEnemyBrain_ToGenerator);
-
-INCLUDE_ASM(subEnemyBrain_FindGirl);
-
-INCLUDE_ASM(subEnemyBrain_BodyGuard);
-
-INCLUDE_ASM(subEnemyBrain_Shoulder);
-
-INCLUDE_ASM(subEnemyBrain_Pickup);
-
-INCLUDE_ASM(subEnemyBrain_Bodyslam);
-
-INCLUDE_ASM(_BrainMode_SetDirect);
-
-INCLUDE_ASM(EnemyUtil_TurnToBoy);
-
-INCLUDE_ASM(FlyMail);
-
-INCLUDE_ASM(boss_effect_callback);
-
-INCLUDE_ASM(motEnemyStand);
-
-INCLUDE_ASM(motEnemyWalk);
-
-INCLUDE_ASM(motEnemyRun);
-
-INCLUDE_ASM(actEnemyJump);
-
-INCLUDE_ASM(EnemyUtil_isOtherStatus);
-
-INCLUDE_ASM(isEnemyHyde);
-
-INCLUDE_ASM(_ApproachTarget);
-
-/* An _ApproachTarget callback: _ApproachTarget_Way calls its `fn` through
-   (void (*)(char *, void *, float)).  `dist` is unused here. */
 /* a file-scope helper expanded once inside subEnemyBrain_ToBoy */
 static inline int isNearestEnemyToBoy(GObj *self, GObj *boy, float *pos) /* derived name */
 {
@@ -1085,8 +2037,168 @@ static inline int isNearestEnemyToBoy(GObj *self, GObj *boy, float *pos) /* deri
     return self == found;
 }
 
-static int flyMailCore(void *self);
-int FlyMail(void *self);
+INCLUDE_ASM(ChangeBrain_ToAttack_272);
+
+INCLUDE_ASM(subEnemyBrain_ToBoy);
+
+inline void subEnemyBrain_BodyGuard(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    GObj *tgt = sub->brainTarget;
+    float *pos = (float *)((char *)sub + 0x110);
+
+    while (1) {
+        if (_DistGV(test_CURRENTROOT(self), test_CURRENTROOT(tgt)) < 200.0f) {
+            _ACTWait(1);
+        } else {
+            if ((unsigned char)_ApproachTarget(self, tgt, pos, 0, 100.0f, 0) == 0) {
+                sub->stick.mag = 0;
+                *(int *)((char *)sub + 0x110) = 0;
+                *(int *)((char *)sub + 0x114) = 0;
+                *(int *)((char *)sub + 0x118) = 0;
+                _ACTWait(30);
+            }
+            sub->stick.mag = 0;
+            *(int *)((char *)sub + 0x110) = 0;
+            *(int *)((char *)sub + 0x114) = 0;
+            *(int *)((char *)sub + 0x118) = 0;
+            _ACTWait(60);
+        }
+    }
+}
+
+void subEnemyBrain_ToGirl(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    float p0[4];
+    float p1[4];
+    int i;
+    int found;
+
+    void ChangeBrain_ToKidnap(void)
+    {
+        switch (GOBJ_ACT(self)->enemy->sizeClass) {
+        case 0:
+            /* the default target first, see ChangeBrain_ToAttack */
+            brainTarget = brainTargetNone;
+            brainTarget.gobj = girlGObj;
+            _BrainMode_SetDirect(self, 8, &brainTarget);
+            break;
+        case 2:
+            brainTarget = brainTargetNone;
+            brainTarget.gobj = girlGObj;
+            _BrainMode_SetDirect(self, 11, &brainTarget);
+            break;
+        default:
+            brainTarget = brainTargetNone;
+            brainTarget.gobj = girlGObj;
+            _BrainMode_SetDirect(self, 10, &brainTarget);
+            break;
+        }
+    }
+
+    GObj *girl = girlGObj;
+
+    sub->stick.mag = 0.0f;
+    sub->dir[0] = 0.0f;
+    sub->dir[1] = 0.0f;
+    sub->dir[2] = 0.0f;
+    for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1]; i++) {
+        _DoAwaitGirl(self);
+        _ACTWait(1);
+    }
+    found = (unsigned char)_ApproachTarget(self, girl, (char *)sub + 0x110, (void *)enemy_dodge,
+                                           130.0f, 0);
+    GetRootProjectionPosOfGObj(p0, girl);
+    GetRootProjectionPosOfGObj(p1, self);
+    if (50.0f < (p0[1] - p1[1] < 0.0f ? -(p0[1] - p1[1]) : p0[1] - p1[1])) {
+        found = 0;
+    }
+    if (found == 0) {
+        sub->stick.mag = 0.0f;
+        sub->dir[0] = 0.0f;
+        sub->dir[1] = 0.0f;
+        sub->dir[2] = 0.0f;
+        _ACTWait(30);
+        eBrainSendMes((void *)self, 5);
+        ACTSendMailCorrect(self, 240);
+        _ACTWait(0);
+    }
+    while (1) {
+        debug_StdPrintfDummy("change to kidnap");
+        ChangeBrain_ToKidnap();
+        _ACTWait(1);
+    }
+}
+
+static int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, float range,
+                                unsigned char flag)
+{
+    float p0[4];
+    float p1[4];
+    Act *sub = GOBJ_ACT(self);
+
+    for (;;) {
+        GetRootProjectionPosOfGObj(p0, tgt);
+        GetRootProjectionPosOfGObj(p1, self);
+        if (fn != 0) {
+            ((void (*)(GObj *, void *, float))fn)(
+                self, tgt, _DistGV(test_CURRENTROOT(self), test_CURRENTROOT(tgt)));
+        }
+        sub->stick.mag = 1.0f;
+        _OrientXZGV((float *)pos, p0, p1);
+        if (_DistxzSqGV(p0, p1) < 160000.0f && -50.0f < -(p0[1] - p1[1]) &&
+            p1[1] - p0[1] < 500.0f && enemyCheckTurnAngle(self) == 0 && sub->actMode != 10) {
+            return 1;
+        }
+        _ACTWait(1);
+    }
+}
+
+static int flyMailCore(void *self)
+{
+    int flyLow = 0;
+    int flyHigh = 0;
+    int ret = 0;
+    GObj *gen;
+
+    switch (CanThisEnemyFly(self)) {
+    case 1:
+        flyLow = 1;
+        break;
+    case 2:
+        flyLow = 1;
+        flyHigh = 1;
+        break;
+    }
+    if (isEnemyActive(self) == 0) {
+        goto end;
+    }
+    if (IsEnemyBrainToGenerator(self, &gen)) {
+        if (flyHigh == 0 && debug_enemy_fly_with_girl == 0) {
+            goto end;
+        }
+        ACTSendMailCorrect(self, 0x1E);
+        ret = 1;
+    } else {
+        if (flyLow == 0) {
+            goto end;
+        }
+        ACTSendMailCorrect(self, 0x1D);
+        ret = 1;
+    }
+end:
+    return ret;
+}
+
+inline int FlyMail(void *self)
+{
+    int x = GOBJ_ACT(self)->frame;
+    if (x < 0xC) {
+        return -1;
+    }
+    return flyMailCore(self);
+}
 
 /* a static inline, expanded twice inside _ApproachTarget_Way */
 static inline unsigned char waitEnemyFly(GObj *self) /* derived name */
@@ -1116,6 +2228,316 @@ static inline int flyLimitMail(GObj *self, float *rp) /* derived name */
     }
     flyMailCore(self);
     return 1;
+}
+
+static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
+                               unsigned char flag)
+{
+    float p0[4];
+    float p1[4];
+    float rp[4];
+    Act *sub = GOBJ_ACT(self);
+    int i;
+    int ret;
+
+    GetRootProjectionPosOfGObj(p0, tgt);
+    GetRootProjectionPosOfGObj(p1, self);
+    for (i = 0; i < 20; i++) {
+        if (IsSelectID_EnemyCtrl(*(int *)((char *)self + 8)) != 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    ret = ACTWayMove_BeginDetail(self, p1, p0, tgt, 0, 0);
+    if (ret == 0) {
+        ret = waitEnemyFly(self);
+        if (ret == 0) {
+            return 0;
+        }
+    }
+    while (1) {
+        GetRootProjectionPosOfGObj(p0, tgt);
+        GetRootProjectionPosOfGObj(p1, self);
+        if (!(_DistSqGV(p1, p0) < 1440000.0f) ||
+            240.0f < ((p1[1] - p0[1] < 0.0f) ? -(p1[1] - p0[1]) : (p1[1] - p0[1]))) {
+            flyLimitMail(self, rp);
+        }
+        if (fn != 0) {
+            ((void (*)(GObj *, void *, float))fn)(
+                self, tgt, _DistGV(test_CURRENTROOT(self), test_CURRENTROOT(tgt)));
+        }
+        if (sub->actMode == 6) {
+            _ACTWait(1);
+            continue;
+        }
+        if (ACTWayMove_NextDetail(self, pos, p0, 0) == 0) {
+            if (waitEnemyFly(self) == 0) {
+                return 0;
+            }
+        }
+        *(float *)((char *)pos + 0) = sub->wayNodeX;
+        *(float *)((char *)pos + 4) = sub->wayNodeY;
+        *(float *)((char *)pos + 8) = sub->wayNodeZ;
+        if (((int)(((ActStatusWord *)((char *)sub + 0x3E0))->q >> 16)) & 1) {
+            if (debug_fly_limit_test != 0) {
+                static int col[4] = {255, 100, 0, 128};
+
+                MatrixDrive_PushMatrix();
+                GetRootPosition(rp, self);
+                _UnitMatrix(MatrixDrive_GetMatrix());
+                MatrixDrive_TransMatrixV((char *)rp);
+                gif_StartPacketPri(11);
+                prim_DispWireSphere(100.0f, col, 4, 4);
+                gif_EndPacket();
+                MatrixDrive_PopMatrix();
+            }
+            FlyMail(self);
+        }
+        if (stage_no == 9 && CheckFloorAttribute(self, 0x100000) != 0 &&
+            (tgt == (void *)boyGObj || tgt == (void *)((char *)girlGObj)) &&
+            _DistxzSqGV(test_CURRENTROOT(self), test_CURRENTROOT(tgt)) < 40000.0f &&
+            ((test_CURRENTROOT(self)[1] - test_CURRENTROOT(tgt)[1] < 0.0f)
+                 ? -(test_CURRENTROOT(self)[1] - test_CURRENTROOT(tgt)[1])
+                 : (test_CURRENTROOT(self)[1] - test_CURRENTROOT(tgt)[1])) < 150.0f) {
+            return 1;
+        }
+        if ((((int)(((ActStatusWord *)((char *)sub + 0x3E0))->q >> 16)) & 1) == 0 &&
+            sub->wayGoalDist < range && sub->wayGoalHeight < 100.0f &&
+            ((sub->wayGoalHeight < 0.0f) ? -sub->wayGoalHeight : sub->wayGoalHeight) < 200.0f) {
+            return 1;
+        }
+        if (sub->wayGoalDist < 200.0f) {
+            sub->stick.mag = 0.5f;
+        } else if (ACTWay_IsMustWalkFromWay(self) != 0) {
+            sub->stick.mag = 0.5f;
+        } else {
+            sub->stick.mag = 1.0f;
+        }
+        if (flag != 0) {
+            SetMotionDirection(self, (float *)((char *)sub + 0x110));
+            flag = 0;
+        }
+        _ACTWait(1);
+    }
+    /* disabled in retail: the motion-request timer and mail reports */
+    if (0) {
+        debug_StdPrintfDummy("_ACTMotReqTimer wait\n");
+        debug_StdPrintfDummy("_ACTMotReqTimer error loop\n");
+        debug_StdPrintfDummy("\tmail[%d] can not accept\n");
+    }
+}
+
+inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float range,
+                           unsigned char flag)
+{
+    if (GOBJ_ACT(self)->enemy->liftKind != 3) {
+        return _ApproachTarget_Way(self, tgt, pos, fn, range, flag);
+    } else {
+        return _ApproachTarget_Boss(self, tgt, pos, fn, range, flag);
+    }
+}
+
+inline int isEnemyKidnapEnable(GObj *self)
+{
+    if (GOBJ_ACT(self)->enemy->liftKind == 0) {
+        return 0;
+    }
+    return actEnemyFlagCheckActive(self);
+}
+
+inline int GetEnemyType(float x, float y, float z)
+{
+    return 1;
+}
+
+inline int GetEnemyTypeFromGObj(GObj *obj)
+{
+    return GOBJ_ACT(obj)->enemy->liftKind;
+}
+
+void actEnemyStart(GObj *self)
+{
+    char *act;
+    int alive;
+    float life;
+
+    debug_StdPrintfDummy("actEnemyStart:%p\n", self);
+    act = actInitialize(self);
+    actInitialize_ext_charcter(self);
+    actInitialize_only_charcter(self);
+    actInitialize_geo(self);
+    if (*(int *)((char *)self + 8) == 3453) {
+        *(long long *)(act + 0x20) = *(long long *)(act + 0x20) | 0x20000;
+    }
+    ACTGame_LwsEffectInit(self);
+    ACTParaStatus_Init(self);
+    _ACTCharStatus_Init((int **)self);
+    GOBJ_WORK(self)->bga = InitMultiBgaManager(1);
+    {
+        EnemyStartRec p[4] = {
+            {0, 30, 18, 90, 0, _ACTGame_GetParamF(18), 341.0f, 1},
+            {1, 0, 18, 50, 0, _ACTGame_GetParamF(19), 341.0f, 0},
+            {2, 29, 22, 25, 50, _ACTGame_GetParamF(20), 341.0f, 0},
+            {2, 28, 22, 0, 100, 3.40282347e+38f /* FLT_MAX */, 342.0f, 1},
+        };
+        unsigned long long bit;
+
+        GOBJ_ACT(self)->enemy->bodySize = *(float *)((int)GOBJ_SUB(self)->nodes + 0x20);
+        GOBJ_ACT(self)->enemy->liftKind = 1;
+        GOBJ_ACT(self)->enemy->sizeClass = p[1].sizeClass;
+        GOBJ_ACT(self)->enemy->paraStatus = p[1].paraStatus;
+        GOBJ_ACT(self)->enemy->clingNode = p[1].clingNode;
+        GOBJ_ACT(self)->enemy->attackChance = p[1].attackChance;
+        GOBJ_ACT(self)->enemy->attackChance2 = p[1].attackChance2;
+        *(float *)(act + 0x1D4) = p[1].maxLife;
+        GOBJ_ACT(self)->enemy->bodyslamMail = (int)p[1].bodyslamMail;
+        GOBJ_ACT(self)->enemy->bossLife = 3;
+        bit = p[1].noGuard;
+        ((ActStatusWord *)(act + 0x18))->q =
+            (((ActStatusWord *)(act + 0x18))->q & ~(1ULL << 46)) | ((bit & 1) << 46);
+    }
+    if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+        *(float *)(((EnemySubSlot *)((char *)self + 0x15C))->p + 0x45C) = 0.05f;
+        *(float *)(((EnemySubSlot *)((char *)self + 0x15C))->p + 0x460) = 0.05f;
+        *(float *)(((EnemySubSlot *)((char *)self + 0x15C))->p + 0x464) = 0.05f;
+        *(float *)(((EnemySubSlot *)((char *)self + 0x15C))->p + 0x468) = 0.05f;
+    }
+    GOBJ_ACT(self)->enemy->battleType = debug_enemy_battle_type;
+    setBattleStatus(self);
+    alive = 0;
+    if (actEnemyFlagCheckDead(self) != 0) {
+        alive = 1;
+    }
+    if (alive != 0) {
+        *(long long *)(act + 0x18) = *(long long *)(act + 0x18) & ~(1LL << 32);
+        *(long long *)(act + 0x18) = *(long long *)(act + 0x18) & ~(1LL << 33);
+    }
+    _ACTWait(1);
+    *(IntrMail **)(act + 0xC0) = &actIntrList[67];
+    if (debug_brain_flag != 0) {
+        actCreateSubThread((void *)subEnemyBrainMain, 20);
+    }
+    actCreateSubThread((void *)subEnemyControl, 21);
+    actCreateSubThread((void *)subEnemyCollision, 21);
+    actCreateSubThread((void *)subCommonIdle, 21);
+    *(IntrMail **)(act + 0xC4) = &actIntrList[72];
+    *(ActKind *)(act + 0x44) = ACT_KIND_ENEMY;
+    life = GetEnemyDefLife(self);
+    *(float *)(act + 0x1D0) = *(float *)(act + 0x1D4) = life;
+    if (life < 10.0f) {
+        *(float *)(act + 0x1D0) = *(float *)(act + 0x1D4) = 10.0f;
+    }
+    *(int *)(act + 0x340) = 0;
+    ACTSendMailCorrect(self, 183);
+    if (alive != 0) {
+        actEnemyHyde(self);
+    }
+    _ACTWait(0);
+}
+
+void subEnemyBrain_Irregular(GObj *volatile self)
+{
+    GOBJ_ACT(self)->flags150.ll &= ~(1ULL << 32);
+    eBrainSendMes(self, 4);
+    if (isEnemyCarriedByGirl(self)) {
+        afterCommonCarry(self);
+    }
+    while (1) {
+        _ACTWait(30);
+        _BrainMode_SetDirect(self, 0, 0);
+    }
+}
+
+void subEnemyBrain_Attack(GObj *volatile self)
+{
+    int i;
+
+    for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] / 6; i++) {
+        enemyDodgeSendMail(self);
+        _DoAwait(self);
+        if (_MustChase(self) != 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60; i++) {
+        if (i < (60 - systemStatus[0] * 10) / systemStatus[1] * 50 / 60) {
+            enemyDodgeSendMail(self);
+        }
+        _DoAwait(self);
+        if ((60 - systemStatus[0] * 10) / systemStatus[1] * 80 / 60 < i) {
+            if (_MustChase(self) != 0) {
+                break;
+            }
+        }
+        _ACTWait(1);
+    }
+    _BrainMode_SetDirect(self, 0, 0);
+    _ACTWait(0);
+}
+
+void subEnemyBrain_Cling(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    int tgt = GOBJ_ACT(self)->enemy->target;
+    float v[4];
+
+    GOBJ_ACT(self)->enemy->clingReq = tgt;
+    _OrientXZGV(v, test_CURRENTROOT(tgt), test_CURRENTROOT(self));
+    sub->dir[0] = v[0];
+    sub->dir[1] = v[1];
+    sub->dir[2] = v[2];
+    SetMotionDirection((void *)self, v);
+    ACTSendMailCorrect((void *)self, 181);
+    _ACTWait(1);
+    _ACTWait(1);
+    while (1) {
+        if (sub->actMode == 4 || sub->actMode == 0x10) {
+            if (_DistSqGV(test_CURRENTROOT(tgt), test_CURRENTROOT(self)) < 3600.0f) {
+                ACTSendMailCorrect((void *)self, 192);
+            }
+        } else {
+            _ACTWait(30);
+            _BrainMode_SetDirect(self, 0, 0);
+        }
+        _ACTWait(1);
+    }
+}
+
+inline void subEnemyBrain_Shoulder(GObj *volatile self)
+{
+    float *dir = (float *)((char *)GOBJ_ACT(self) + 0x110);
+    float *girl = test_CURRENTROOT((girlGObj));
+    float *me = test_CURRENTROOT(self);
+    _OrientXZGV(dir, girl, me);
+    SetMotionDirection((void *)self, dir);
+    ACTSendMailCorrect((void *)self, 326);
+    while (1) {
+        _ACTWait(120);
+        _BrainMode_SetDirect(self, 0, 0);
+    }
+}
+
+inline void subEnemyBrain_Pickup(GObj *volatile self)
+{
+    ACTSendMailCorrect((void *)self, 336);
+    while (1) {
+        _ACTWait(120);
+        _BrainMode_SetDirect(self, 0, 0);
+    }
+}
+
+inline void subEnemyBrain_Bodyslam(GObj *volatile self)
+{
+    if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+        ACTSendMailCorrect((void *)self, 345);
+    } else {
+        ACTSendMailCorrect((void *)self, 343);
+    }
+    while (1) {
+        _ACTWait(120);
+        _BrainMode_SetDirect(self, 0, 0);
+    }
 }
 
 /* the bit-51 store to the actor word is a union access, the four 0.05f

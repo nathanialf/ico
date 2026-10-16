@@ -267,110 +267,14 @@ lit4 actCommonBecarry 0x00630CBC 0x00630CC0 ico2/fumi/src/commonact.c  # 1 float
 sdlit actCommonBecarry 0x00632320 0x00632326 ico2/fumi/src/commonact.c  # 1 string, measured from the base
 rdlit actCommonBecarry 0x00558D90 0x00558DA3 ico2/fumi/src/commonact.c  # 1 string, measured from the base
 text _ACTMotDirSmzDirect 0x0015D358 0x0015D3BC ico2/fumi/src/commonact.c lines=10  # us-only (in commonact.c's span; PAL order suggests ACTAcceptMail (84 B in PAL)); named _ACTMotDirSmzDirect by call sites (provisional)
-text setBattleStatus 0x0015F6F0 0x0015F800 ico2/fumi/src/enemy_act.c local lines=24  # ordinal; first difference at insn 5; imm:17; extent-equal
-sdlit setBattleStatus 0x00632398 0x0063239A ico2/fumi/src/enemy_act.c  # 1 string
-text subEnemyControl 0x0015FD58 0x001600F4 ico2/fumi/src/enemy_act.c lines=96  # ordinal; first difference at insn 19; length:-1; extent-differs
-lit4 subEnemyControl 0x00630CE4 0x00630D00 ico2/fumi/src/enemy_act.c  # 7 floats
-rdlit subEnemyControl 0x00558E40 0x00558ED8 ico2/fumi/src/enemy_act.c align=16  # 1 jtbl
-text actEnemyAttack 0x001605F8 0x0016071C ico2/fumi/src/enemy_act.c lines=29  # ordinal; first difference at insn 17; imm:9; extent-equal
-text actEnemyRestart 0x00160720 0x001609A0 ico2/fumi/src/enemy_act.c lines=71  # ordinal; first difference at insn 29; length:-19; extent-differs
-text PairSetGeometry.150 0x001609A0 0x00160AF8 ico2/fumi/src/enemy_act.c local file=PairSetGeometry_150  # ordinal; first difference at insn 59; imm:6; extent-equal
-text actEnemyForceSwitchToCarry 0x00160AF8 0x00160C04 ico2/fumi/src/enemy_act.c local lines=63  # ordinal; first difference at insn 11; length:-53; extent-differs
-text actEnemyBodylift 0x00161598 0x001619A4 ico2/fumi/src/enemy_act.c lines=73  # ordinal; first difference at insn 25; imm:29; extent-equal
-text actEnemyPickupBegin 0x001619A8 0x00161AC8 ico2/fumi/src/enemy_act.c lines=24  # ordinal; first difference at insn 13; imm:3; extent-equal
-text CheckEnemyBrainMode 0x00161AC8 0x00161C34 ico2/fumi/src/enemy_act.c local lines=54  # us-only (in enemy_act.c's span; PAL order suggests CheckEnemyBrainMode (432 B in PAL)); named CheckEnemyBrainMode by callees, body alignment (provisional)
-text BrainMode_Requset.217 0x00161C38 0x00161F0C ico2/fumi/src/enemy_act.c local file=BrainMode_Requset_217  # us-only (in enemy_act.c's span; body equals PAL BrainMode_Requset.217's with immediates and jump targets masked); named BrainMode_Requset.217 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit BrainMode_Requset.217 0x00558FE0 0x00558FF5 ico2/fumi/src/enemy_act.c align=16 file=BrainMode_Requset_217  # 1 string
-rdlit BrainMode_Requset.217 0x00559000 0x00559030 ico2/fumi/src/enemy_act.c align=16 file=BrainMode_Requset_217  # 1 jtbl
-text subEnemyBrainMain 0x00161F10 0x001624D8 ico2/fumi/src/enemy_act.c lines=177  # us-only (in enemy_act.c's span; PAL order suggests subEnemyBrainMain (1520 B in PAL)); named subEnemyBrainMain by callees, body alignment (provisional)
-sdlit subEnemyBrainMain 0x006323A0 0x006323A4 ico2/fumi/src/enemy_act.c  # 1 word
-text enemy_dodge 0x001624D8 0x001626D0 ico2/fumi/src/enemy_act.c local lines=41  # us-only (in enemy_act.c's span; PAL order suggests enemy_dodge (476 B in PAL)); named enemy_dodge by callees (provisional)
 text Battle_isCurrentStatus 0x001626D0 0x00162AC4 ico2/fumi/src/enemy_act.c local lines=48  # us-only (in enemy_act.c's span; PAL order suggests Battle_isCurrentStatus (812 B in PAL)); named Battle_isCurrentStatus by callees, body alignment (provisional)
 lit4 Battle_isCurrentStatus 0x00630D20 0x00630D30 ico2/fumi/src/enemy_act.c  # 4 floats, measured from the base: the text loads them
 rdlit Battle_isCurrentStatus 0x00559048 0x00559060 ico2/fumi/src/enemy_act.c  # 3 doubles, measured from the base
-text NakaBoss 0x00162DB8 0x00163068 ico2/fumi/src/enemy_act.c local lines=61  # us-only (in enemy_act.c's span; PAL order suggests NakaBoss (712 B in PAL)); named NakaBoss by callees, body alignment (provisional)
-rdlit NakaBoss 0x00559060 0x00559080 ico2/fumi/src/enemy_act.c align=16  # 1 string, 2 doubles
 text ChangeBrain_ToAttack.272 0x00163068 0x001631B8 ico2/fumi/src/enemy_act.c local file=ChangeBrain_ToAttack_272  # us-only (in enemy_act.c's span; body equals PAL ChangeBrain_ToAttack.272's with immediates and jump targets masked); named ChangeBrain_ToAttack.272 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
 text subEnemyBrain_ToBoy 0x001631B8 0x00163890 ico2/fumi/src/enemy_act.c lines=156  # us-only (in enemy_act.c's span; PAL order suggests subEnemyBrain_ToBoy (1808 B in PAL)); named subEnemyBrain_ToBoy by callees (provisional)
 lit4 subEnemyBrain_ToBoy 0x00630D34 0x00630D38 ico2/fumi/src/enemy_act.c  # 1 float, measured from the base: the text loads them
 rdlit subEnemyBrain_ToBoy 0x00559080 0x00559164 ico2/fumi/src/enemy_act.c  # 6 strings, 1 double, 2 jump tables, measured from the base
 sdlit subEnemyBrain_ToBoy 0x006323A8 0x006323AC ico2/fumi/src/enemy_act.c  # 1 word, measured from the base: a constant pool entry the text loads
-text ChangeBrain_ToKidnap.282 0x00163890 0x0016394C ico2/fumi/src/enemy_act.c local file=ChangeBrain_ToKidnap_282  # us-only (in enemy_act.c's span; body equals PAL ChangeBrain_ToKidnap.282's with immediates and jump targets masked); named ChangeBrain_ToKidnap.282 by its body equals PAL's with immediates and jump targets masked, body alignment (provisional)
-text subEnemyBrain_ToGirl 0x00163950 0x00163B40 ico2/fumi/src/enemy_act.c lines=63  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_ToGirl's with immediates and jump targets masked); named subEnemyBrain_ToGirl by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit subEnemyBrain_ToGirl 0x00559168 0x005591D4 ico2/fumi/src/enemy_act.c  # 1 data
-text _ApproachTarget_Boss 0x00163B40 0x00163D60 ico2/fumi/src/enemy_act.c local lines=23  # us-only (in enemy_act.c's span; body equals PAL _ApproachTarget_Boss's with immediates and jump targets masked); named _ApproachTarget_Boss by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
-lit4 _ApproachTarget_Boss 0x00630D38 0x00630D3C ico2/fumi/src/enemy_act.c  # 1 float
-text flyMailCore 0x00163D60 0x00163EB4 ico2/fumi/src/enemy_act.c local lines=35  # us-only (in enemy_act.c's span; body equals PAL flyMailCore's with immediates and jump targets masked); named flyMailCore by its body equals PAL's with immediates and jump targets masked, call sites, callees, body alignment (provisional)
-text _ApproachTarget_Way 0x00163EB8 0x0016443C ico2/fumi/src/enemy_act.c local lines=104  # us-only (in enemy_act.c's span; PAL order suggests _ApproachTarget_Way (1700 B in PAL)); named _ApproachTarget_Way by call sites, callees, body alignment (provisional)
-lit4 _ApproachTarget_Way 0x00630D3C 0x00630D44 ico2/fumi/src/enemy_act.c  # 2 floats, measured from the base: the text loads them
-data col.304 0x00282650 0x00282660 ico2/fumi/src/enemy_act.c local file=col_304  # _ApproachTarget_Way's {255, 100, 0, 128}, after enemy_act.c's last file-scope .data; USA addiu at 0x1641C8
-text actEnemyStart 0x00164440 0x0016489C ico2/fumi/src/enemy_act.c lines=83  # us-only (in enemy_act.c's span; PAL order suggests actEnemyStart (1248 B in PAL)); named actEnemyStart by callees, body alignment (provisional)
-lit4 actEnemyStart 0x00630D44 0x00630D4C ico2/fumi/src/enemy_act.c  # 2 floats, measured from the base: the text loads them
-rdlit actEnemyStart 0x005591D8 0x005591EA ico2/fumi/src/enemy_act.c  # 1 string, measured from the base
-sdlit actEnemyStart 0x006323AC 0x006323B0 ico2/fumi/src/enemy_act.c  # 1 word, measured from the base: a constant pool entry the text loads
-text subEnemyBrain_Irregular 0x001648A0 0x001649CC ico2/fumi/src/enemy_act.c lines=12  # us-only (in enemy_act.c's span; pairs with no PAL-only function there by size and order); named subEnemyBrain_Irregular by a data table (brainModeTable's IRREGULAR row) (provisional)
-text subEnemyBrain_Attack 0x001649D0 0x00164D30 ico2/fumi/src/enemy_act.c lines=27  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Attack's with immediates and jump targets masked); named subEnemyBrain_Attack by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subEnemyBrain_Cling 0x00164D30 0x00164E8C ico2/fumi/src/enemy_act.c lines=27  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Cling's with immediates and jump targets masked); named subEnemyBrain_Cling by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text funcEnemyAiGetGirl 0x00164E90 0x00164EAC ico2/fumi/src/enemy_act.c lines=7  # us-only (in enemy_act.c's span; body equals PAL funcEnemyAiGetGirl's with immediates and jump targets masked); named funcEnemyAiGetGirl by its body equals PAL's with immediates and jump targets masked, body alignment (provisional)
-text actEnemyStand 0x00164EB0 0x00164EF4 ico2/fumi/src/enemy_act.c lines=7  # us-only (in enemy_act.c's span; PAL size and order suggest actEnemyStand); named actEnemyStand by PAL size and order, callees, body alignment (provisional)
-rdlit actEnemyStand 0x00558ED8 0x00558EED ico2/fumi/src/enemy_act.c def  # 1 string
-text actEnemyWalk 0x00164EF8 0x00164F3C ico2/fumi/src/enemy_act.c lines=7  # us-only (in enemy_act.c's span; PAL size and order suggest actEnemyWalk); named actEnemyWalk by PAL size and order, callees, body alignment (provisional)
-rdlit actEnemyWalk 0x00558F08 0x00558F1C ico2/fumi/src/enemy_act.c def  # 1 string
-text actEnemyRun 0x00164F40 0x00164F84 ico2/fumi/src/enemy_act.c lines=7  # us-only (in enemy_act.c's span; PAL size and order suggest actEnemyRun); named actEnemyRun by PAL size and order, callees, body alignment (provisional)
-rdlit actEnemyRun 0x00558F38 0x00558F4B ico2/fumi/src/enemy_act.c def  # 1 string
-text actEnemyHang 0x00164F88 0x00164FCC ico2/fumi/src/enemy_act.c lines=7  # us-only (in enemy_act.c's span; PAL size and order suggest actEnemyHang); named actEnemyHang by PAL size and order, callees, body alignment (provisional)
-rdlit actEnemyHang 0x00558F80 0x00558F94 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text actEnemyCarry 0x00164FD0 0x00165018 ico2/fumi/src/enemy_act.c lines=5  # us-only (in enemy_act.c's span; body equals PAL actEnemyCarry's with immediates and jump targets masked); named actEnemyCarry by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actEnemyBodyslam 0x00165018 0x0016505C ico2/fumi/src/enemy_act.c lines=8  # us-only (in enemy_act.c's span; body equals PAL actEnemyBodyslam's with immediates and jump targets masked); named actEnemyBodyslam by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actEnemyBodyslamFail 0x00165060 0x0016509C ico2/fumi/src/enemy_act.c lines=8  # us-only (in enemy_act.c's span; body equals PAL actEnemyBodyslamFail's with immediates and jump targets masked); named actEnemyBodyslamFail by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actEnemyNest 0x001650A0 0x00165154 ico2/fumi/src/enemy_act.c lines=19  # us-only (in enemy_act.c's span; PAL order suggests actEnemyNest (188 B in PAL)); named actEnemyNest by callees, body alignment (provisional)
-text funcEnemyCarryFail 0x00165158 0x00165174 ico2/fumi/src/enemy_act.c lines=4  # ordinal; first difference at insn 2; other:3; extent-equal
-text actEnemyHyde 0x00165178 0x001651C8 ico2/fumi/src/enemy_act.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before actEnemyFlagOnFree
-rdlit actEnemyHyde 0x00558FA0 0x00558FAC ico2/fumi/src/enemy_act.c align=16 def  # 1 data
-text actEnemyFlagOnFree 0x001651C8 0x001651F8 ico2/fumi/src/enemy_act.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before afterCommonCarry
-text afterCommonCarry 0x001651F8 0x00165270 ico2/fumi/src/enemy_act.c lines=12  # ordinal; first difference at insn 11; length:+7; extent-differs
-text actEnemyFlagOnDead 0x00165270 0x0016529C ico2/fumi/src/enemy_act.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before EnemyBrainStatus_Boy
-text EnemyBrainStatus_Boy 0x001652A0 0x001652B4 ico2/fumi/src/enemy_act.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text EnemyBrainStatus_Girl 0x001652B8 0x001652CC ico2/fumi/src/enemy_act.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text actEnemyFlagCheckDead 0x001652D0 0x001652F8 ico2/fumi/src/enemy_act.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before actEnemyFlagCheckActive
-text actEnemyFlagCheckActive 0x001652F8 0x00165344 ico2/fumi/src/enemy_act.c lines=16  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before ACTEnemyForceSwitchToCarry
-text ACTEnemyForceSwitchToCarry 0x00165348 0x0016539C ico2/fumi/src/enemy_act.c lines=9  # ordinal; first difference at insn 14; imm:1; extent-equal
-text actEnemy_GetClingTarget 0x001653A0 0x001653D0 ico2/fumi/src/enemy_act.c lines=9  # ordinal; first difference at insn 1; imm:4; extent-equal
-text actEnemy_isNormalEnemy 0x001653D0 0x001653E8 ico2/fumi/src/enemy_act.c lines=4  # ordinal; first difference at insn 1; imm:2; extent-equal
-text actEnemy_isLargeEnemy 0x001653E8 0x00165400 ico2/fumi/src/enemy_act.c lines=4  # ordinal; first difference at insn 1; imm:2; extent-equal
-text actEnemy_isSmallEnemy 0x00165400 0x00165414 ico2/fumi/src/enemy_act.c lines=4  # ordinal; first difference at insn 1; imm:2; extent-equal
-text IsEnemyBrainToGenerator 0x00165418 0x00165488 ico2/fumi/src/enemy_act.c lines=12  # ordinal; first difference at insn 5; imm:6; extent-equal
-rdlit IsEnemyBrainToGenerator 0x00558E10 0x00558E35 ico2/fumi/src/enemy_act.c align=16 def  # 2 strings
-text IsEnemyBrainToBoy 0x00165488 0x001654C8 ico2/fumi/src/enemy_act.c lines=13  # ordinal; first difference at insn 4; imm:4; extent-equal
-text GetEnemyTypeFromGObj 0x001654C8 0x001654D8 ico2/fumi/src/enemy_act.c lines=4  # ordinal; first difference at insn 1; imm:2; extent-equal
-text GetEnemyType 0x001654D8 0x001654E0 ico2/fumi/src/enemy_act.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before isEnemyKidnapEnable
-text isEnemyKidnapEnable 0x001654E0 0x00165540 ico2/fumi/src/enemy_act.c lines=7  # ordinal; first difference at insn 2; imm:2; extent-equal
-text isEnemyActive 0x00165540 0x001655AC ico2/fumi/src/enemy_act.c lines=8  # ordinal; first difference at insn 11; imm:2; extent-equal
-rdlit isEnemyActive 0x00558FB0 0x00558FD1 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text subEnemyBrain_Idle 0x001655B0 0x00165610 ico2/fumi/src/enemy_act.c lines=14  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Idle's with immediates and jump targets masked); named subEnemyBrain_Idle by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subEnemyBrain_Await 0x00165610 0x001656C4 ico2/fumi/src/enemy_act.c lines=20  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Await's with immediates and jump targets masked); named subEnemyBrain_Await by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subEnemyBrain_ToGenerator 0x001656C8 0x0016577C ico2/fumi/src/enemy_act.c lines=48  # us-only (in enemy_act.c's span; pairs with no PAL-only function there by size and order); named subEnemyBrain_ToGenerator by a data table (provisional)
-rdlit subEnemyBrain_ToGenerator 0x00559030 0x00559048 ico2/fumi/src/enemy_act.c align=16 def  # 1 string, measured from the base
-text subEnemyBrain_FindGirl 0x00165780 0x00165918 ico2/fumi/src/enemy_act.c lines=23  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_FindGirl's with immediates and jump targets masked); named subEnemyBrain_FindGirl by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subEnemyBrain_BodyGuard 0x00165918 0x001659F4 ico2/fumi/src/enemy_act.c lines=25  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_BodyGuard's with immediates and jump targets masked); named subEnemyBrain_BodyGuard by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subEnemyBrain_Shoulder 0x001659F8 0x00165A84 ico2/fumi/src/enemy_act.c lines=13  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Shoulder's with immediates and jump targets masked); named subEnemyBrain_Shoulder by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subEnemyBrain_Pickup 0x00165A88 0x00165AD4 ico2/fumi/src/enemy_act.c lines=8  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Pickup's with immediates and jump targets masked); named subEnemyBrain_Pickup by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subEnemyBrain_Bodyslam 0x00165AD8 0x00165B4C ico2/fumi/src/enemy_act.c lines=12  # us-only (in enemy_act.c's span; body equals PAL subEnemyBrain_Bodyslam's with immediates and jump targets masked); named subEnemyBrain_Bodyslam by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text _BrainMode_SetDirect 0x00165B50 0x00165B80 ico2/fumi/src/enemy_act.c  # ordinal; first difference at insn 1; imm:4; extent-equal
-text EnemyUtil_TurnToBoy 0x00165B80 0x00165CE4 ico2/fumi/src/enemy_act.c lines=16  # ordinal; first difference at insn 24; imm:13; extent-equal
-text FlyMail 0x00165CE8 0x00165D18 ico2/fumi/src/enemy_act.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before boss_effect_callback
-text boss_effect_callback 0x00165D18 0x00165DC0 ico2/fumi/src/enemy_act.c lines=18  # ordinal; first difference at insn 12; imm:4; extent-equal
-text motEnemyStand 0x00165DC0 0x00165E08 ico2/fumi/src/enemy_act.c lines=9  # ordinal; first difference at insn 12; imm:2; extent-equal
-rdlit motEnemyStand 0x00558EF0 0x00558F05 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text motEnemyWalk 0x00165E08 0x00165E5C ico2/fumi/src/enemy_act.c lines=10  # ordinal; first difference at insn 10; imm:3; extent-equal
-rdlit motEnemyWalk 0x00558F20 0x00558F34 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text motEnemyRun 0x00165E60 0x00165EB4 ico2/fumi/src/enemy_act.c lines=10  # ordinal; first difference at insn 10; imm:3; extent-equal
-rdlit motEnemyRun 0x00558F50 0x00558F63 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text actEnemyJump 0x00165EB8 0x00165EFC ico2/fumi/src/enemy_act.c lines=7  # ordinal; first difference at insn 12; imm:1; extent-equal
-rdlit actEnemyJump 0x00558F68 0x00558F7C ico2/fumi/src/enemy_act.c def  # 1 string
-text EnemyUtil_isOtherStatus 0x00165F00 0x00165F84 ico2/fumi/src/enemy_act.c lines=17  # ordinal; first difference at insn 13; other:2; extent-equal
-text isEnemyHyde 0x00165F88 0x00165FB4 ico2/fumi/src/enemy_act.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before _ApproachTarget
-text _ApproachTarget 0x00165FB8 0x00166000 ico2/fumi/src/enemy_act.c lines=9  # ordinal; first difference at insn 5; imm:2; extent-equal
 text subGirlBrain_Escape 0x0016FC48 0x00170380 ico2/fumi/src/girl_act.c lines=124  # ordinal; first difference at insn 3; length:+63; extent-differs
 lit4 subGirlBrain_Escape 0x00630DB8 0x00630DC0 ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
 sdlit subGirlBrain_Escape 0x00632490 0x00632493 ico2/fumi/src/girl_act.c  # 1 string, measured from the base

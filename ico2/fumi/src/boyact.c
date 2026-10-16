@@ -2602,7 +2602,7 @@ inline void MakeCharacterPacket(void)
             *(int *)(pkt + 0xC) = sub->curItem->labelId;
         }
         if (sub->actMode == 0x2D) {
-            *(int *)(pkt + 0x10) = *(int *)(sub->sofa + 0x8);
+            *(int *)(pkt + 0x10) = *(int *)(sub->flags150.sofa + 0x8);
         }
         g = (char *)girlGObj;
         if (g != 0 && GOBJ_ACT(g)->actMode == 0x2D) {
