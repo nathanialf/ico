@@ -213,40 +213,6 @@ sdlit fog_DrawFog 0x00631F28 0x00631F2A ico2/seki/src/ZFog.c  # 1 string, measur
 text iosInitialize 0x00135CE8 0x00135EB4 ico2/fumi/ios/ios.c lines=30  # ordinal; first difference at insn 14; length:-2; extent-differs
 rdlit iosInitialize 0x00556BD0 0x00556C01 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x00631FC0 0x00631FFF ico2/fumi/ios/ios.c  # 8 strings
-text iosMcHandlerWrite 0x00136280 0x00136674 ico2/fumi/ios/mcard.c lines=61  # equal, a stub because it inlines iosMcMgrSync, a stub for emission order
-sdlit iosMcHandlerWrite 0x00632068 0x0063206C ico2/fumi/ios/mcard.c  # 1 string, measured from the base; shared, first user
-text iosMcHandlerRead 0x00136678 0x00136A08 ico2/fumi/ios/mcard.c lines=65  # equal, a stub because it inlines iosMcMgrRead, which inlines iosMcMgrSync, a stub for emission order
-rdlit iosMcHandlerRead 0x00556DB0 0x00556E0A ico2/fumi/ios/mcard.c align=16  # 1 string
-text iosMcMgrChdirProduct 0x00136A08 0x00136D50 ico2/fumi/ios/mcard.c local lines=46  # ordinal; first difference at insn 0; length:+42; extent-differs
-rdlit iosMcMgrChdirProduct 0x00556E10 0x00556E21 ico2/fumi/ios/mcard.c  # 1 string, measured from the base
-text iosMcMgrSaveSeg 0x00136D50 0x00137180 ico2/fumi/ios/mcard.c local lines=73  # equal, a stub because it inlines iosMcMgrSync, a stub for emission order
-rdlit iosMcMgrSaveSeg 0x00556E28 0x00556E3C ico2/fumi/ios/mcard.c  # 1 string
-text iosMcMgrLoadSeg 0x00137180 0x00137534 ico2/fumi/ios/mcard.c local lines=66  # equal, a stub because it inlines iosMcMgrSync, a stub for emission order
-rdlit iosMcMgrLoadSeg 0x00556E40 0x00556E69 ico2/fumi/ios/mcard.c align=16  # 2 strings
-text iosMcMgrGetBlockSaveInfo 0x00137558 0x00137714 ico2/fumi/ios/mcard.c local lines=31  # equal, a stub because it inlines iosMcMgrSync, a stub for emission order
-sdlit iosMcMgrGetBlockSaveInfo 0x00632078 0x0063207A ico2/fumi/ios/mcard.c  # 1 string
-text iosMcManager 0x00137718 0x00137E48 ico2/fumi/ios/mcard.c lines=92  # ordinal; first difference at insn 6; length:+50; extent-differs
-sdlit iosMcManager 0x00632080 0x006320AD ico2/fumi/ios/mcard.c  # 6 strings, measured from the base
-rdlit iosMcManager 0x00556E70 0x00556F50 ico2/fumi/ios/mcard.c  # 8 strings, 1 jump table, measured from the base
-text iosMcMgrSync 0x00137E48 0x00137EE8 ico2/fumi/ios/mcard.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcTest
-text iosMcTest 0x00137EE8 0x00137EF0 ico2/fumi/ios/mcard.c lines=1  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcSync
-text iosMcSync 0x00137EF0 0x00137F04 ico2/fumi/ios/mcard.c lines=8  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcGetInfo
-text iosMcGetInfo 0x00137F08 0x00137F48 ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcFormat
-text iosMcFormat 0x00137F48 0x00137F8C ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcUnformat
-text iosMcUnformat 0x00137F90 0x00137FD4 ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcGetDir
-text iosMcGetDir 0x00137FD8 0x0013801C ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcDelete
-text iosMcDelete 0x00138020 0x00138064 ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcSaveIconBlock
-text iosMcSaveIconBlock 0x00138068 0x001380AC ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcSaveProductBlock
-text iosMcSaveProductBlock 0x001380B0 0x001380F4 ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcLoadProductBlock
-text iosMcLoadProductBlock 0x001380F8 0x0013813C ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcSaveGameBlock
-text iosMcSaveGameBlock 0x00138140 0x00138188 ico2/fumi/ios/mcard.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcLoadGameBlock
-text iosMcLoadGameBlock 0x00138188 0x001381D0 ico2/fumi/ios/mcard.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcChdirProduct
-text iosMcChdirProduct 0x001381D0 0x00138214 ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before iosMcGetBlockSaveInfo
-text iosMcGetBlockSaveInfo 0x00138218 0x0013825C ico2/fumi/ios/mcard.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before product_write
-text product_write 0x00138260 0x00138390 ico2/fumi/ios/mcard.c local  # ordinal; first difference at insn 0; length:-18; extent-differs
-text product_read 0x00138390 0x001383D4 ico2/fumi/ios/mcard.c local  # ordinal; first difference at insn 1; imm:2; extent-equal
-text gameblock_write 0x001383D8 0x001383F8 ico2/fumi/ios/mcard.c local  # ordinal; first difference at insn 0; length:-11; extent-differs
-text gameblock_read 0x001383F8 0x00138510 ico2/fumi/ios/mcard.c local  # ordinal; first difference at insn 1; length:-10; extent-differs
 text AdpcmOpen 0x00140748 0x00140888 ico2/fumi/sound/adpcm_init.c lines=22  # equal, a stub because it inlines AdpcmIopBuffAlloc, a stub for emission order
 rdlit AdpcmOpen 0x00557C08 0x00557C19 ico2/fumi/sound/adpcm_init.c  # 1 string
 sdlit AdpcmOpen 0x006321F8 0x006321FC ico2/fumi/sound/adpcm_init.c  # 1 string
