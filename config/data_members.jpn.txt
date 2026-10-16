@@ -5,7 +5,7 @@
 # .data/.rodata/.sdata but no .text, plus the three unmapped runs (member name
 # unmapped_<VMA>, the VMA being PAL's, kept as the member's name). Each member,
 # typed by config/data_schema.jpn.txt, is written as one C translation unit by
-# tools/gen_data_c.py (build/data/<member>.c, its rows the sections of that
+# tools/gen_data_c.py (build/jpn/data/<member>.c, its rows the sections of that
 # one object), which reads this table and the user's own
 # baserom/jpn/baseelf.elf; the bytes are never committed.
 #
