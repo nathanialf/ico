@@ -26,7 +26,6 @@
 #include "main.h"
 #include <libgraph.h>
 #include <libcdvd.h>
-#include "include_asm.h"
 
 /* declared here with an int count, not through string.h, as in
    layout_action.c and puddle.c */
@@ -433,12 +432,56 @@ static float scissorStep = 0.0f; /* derived name */
 extern void gif_EndPacketPath1(void);
 
 /* The letterbox the demo scenes fade in: two black bars, top and bottom,
- * whose alpha eases to 128 while the scene is state 55 and back to 0
+ * whose alpha eases to 128 while the scene is layout 51 and back to 0
  * otherwise.  While the bars are visible they are drawn and the motion blur
  * is left alone; once they are gone the stage record's blur setting is
  * restored.  Each bar is drawn by a macro inside the two-iteration loop,
  * its first corner written before fx and fy are formed. */
-INCLUDE_ASM(gsb_scissorOnDemo);
+static void gsb_scissorOnDemo(void)
+{
+    GsbRect r[2] = {
+        {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16 - 4, ScreenWidth * 16, 58 * 16},
+        {-(ScreenWidth >> 1) * 16, ((ScreenHeight >> 1) - 58) * 16 + 4, ScreenWidth * 16, 58 * 16}};
+    unsigned char col[4];
+    int i;
+
+    if (current_layout_id == 51 && scissorLastState != current_layout_id) {
+        scissorStep = 2.5f;
+    } else if (scissorLastState != current_layout_id) {
+        scissorStep = -2.5f;
+    }
+    scissorLastState = current_layout_id;
+
+    scissorLevel = scissorLevel + scissorStep;
+    if (scissorLevel <= 0.0f) {
+        scissorLevel = 0.0f;
+        scissorStep = 0.0f;
+    }
+    if (128.0f <= scissorLevel) {
+        scissorLevel = 128.0f;
+        scissorStep = 0.0f;
+    }
+    if (0.0f < scissorLevel && scissorLevel <= 128.0f) {
+        if (debug_font_flag & 1) {
+            debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, "D");
+        }
+        dl_SetDLPriority(12);
+        gif_StartPacketPriPath1(dl_GetPri());
+        memset(col, 0, 4);
+        col[3] = 0x80;
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+        gif_SetGsReg(0x47, 0x30000);
+        gif_SetGsReg(0x4E, 0x1300000C0LL);
+        gif_SetGsReg(0x49, 0);
+        gif_SetGsReg(0x42, ((long long)(int)scissorLevel << 32) | 0x64);
+        for (i = 0; i < 2; i++) {
+            spriteRect(r[i].x, r[i].y, r[i].w, r[i].h, -1LL, col, 0x446);
+        }
+        gif_EndPacketPath1();
+    } else {
+        SetMotionBlur(GlobalStageSetting.motionBlur);
+    }
+}
 
 /* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int alpha, int mode, int fix);
@@ -449,7 +492,33 @@ extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, 
 /* Darken the whole frame by the stage record's brightness step: a full screen
  * white sprite in destination-alpha blend whose alpha is the step, clamped to
  * 0 to 15 and skipped at 0. */
-INCLUDE_ASM(gsb_controlBrightness);
+static void gsb_controlBrightness(void)
+{
+    int v = systemStatus[0x2C / 4];
+
+    if (v < 0) {
+        v = systemStatus[0x2C / 4] = 0;
+    }
+    if (v >= 0x10) {
+        v = systemStatus[0x2C / 4] = 0xF;
+    }
+    if (v != 0) {
+        if (debug_font_flag & 1) {
+            debug_Printf(0x212, ScreenHeight / 2 - 8, 0xCCCCCC00, "B");
+        }
+        gif_StartPacketPri(0xB);
+        {
+            unsigned char col[4] = {0xFF, 0xFF, 0xFF, systemStatus[0x2C / 4]};
+
+            gif_SetGsReg(0x47, 0x30000);
+            gif_SetGsReg(0x4E, 0x1300000C0LL);
+            gif_SetAlpha(1, 7, 0);
+            gif_MakeSpriteNoTexture((0x800 - ScreenWidth / 2) << 4, (0x800 - ScreenHeight / 2) << 4,
+                                    ScreenWidth << 4, ScreenHeight << 4, 0xFFFFFFFF, col, 1);
+            gif_EndPacketPath1();
+        }
+    }
+}
 
 /* A colour as the sprite family takes it, four bytes in RGBA order; the same
    record as Texture.c's TexColor. */
@@ -637,36 +706,185 @@ void gsb_MakeCommonMatrix(void)
     } while (i < 0xD);
 }
 
+/* set by gsb_SetGsDefault once the frame is up, tested by gsb_PostEffect */
+static int postEffectReady = 0; /* derived name */
+
 /* Open the frame's first display list: one DMA tag, the two VIF words that
  * hand path 1 to the GS, a second tag for the register run, and then the
  * default register set for each of the thirteen contexts. */
 static void gsb_SetGsDefault(void);
 
-INCLUDE_ASM(gsb_SetGsDefault);
+static void gsb_SetGsDefault(void)
+{
+    DpkCtl *d = &PacketBufferStruct;
+    GifPkWord *p = (GifPkWord *)d->ptr.d;
 
-/* set by gsb_UpdateGSSystem once the frame is up, tested by gsb_PostEffect */
-static int postEffectReady = 0; /* derived name */
+    d->gif.c = 0;
+    d->tail.c = (char *)p;
+    d->dma.c = (char *)p;
+    d->end.c = 0;
+    p[0].d = 0x10000000;
+    d->ptr.c = (char *)p + 8;
+    p[1].w[0] = 0x3000100;
+    d->ptr.c = (char *)p + 0xC;
+    p[1].w[1] = 0x2000180;
+    d->ptr.c = (char *)p + 0x10;
+    d->tail.c = (char *)p + 0x10;
+    p[2].d = 0x60000000;
+    d->ptr.c = (char *)p + 0x18;
+    p[3].w[0] = 0;
+    d->ptr.c = (char *)p + 0x1C;
+    p[3].w[1] = 0;
+    d->ptr.c = (char *)p + 0x20;
+    dl_SetDLPriority(0);
+    dl_OpenDma(5, d->dma.c, 0);
+    dl_CloseDma();
+    gsb_MakeCommonMatrix();
+    gsb_setNormalReg(0);
+    gsb_setSemitransReg(1);
+    gsb_setSemitransReg(2);
+    gsb_setParticleReg(6);
+    gsb_setSpecularReg(4);
+    gsb_setNormalReg(7);
+    gsb_setNormalReg(8);
+    gsb_setNormalReg(9);
+    gsb_setNormalReg(0xA);
+    gsb_setNormalReg(0xB);
+    gsb_setNormalReg(0xC);
+    postEffectReady = 0;
+    shadow_Reset();
+    postEffectReady = 1;
+    FullScreenEffectBefore();
+}
 
 /* Everything the frame still owes after the scene is drawn: the debug read
  * outs, the full screen effect, the shadow and fog passes, the motion blur,
  * the anti alias pass, the film grain and the brightness step, the kept frame
  * buffer, the staff roll and last the fade and the demo scissor. */
-INCLUDE_ASM(gsb_PostEffect);
+static int gsb_PostEffect(void)
+{
+    if (debug_font_flag & 1) {
+        debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, "LID:%3d / FADE%d:%3.0f(%d)",
+                     current_layout_id, fadeStatus, fadeLevel, fadeColor[3]);
+    }
+    if (systemStatus[0x18 / 4] != 0 && (debug_font_flag & 1)) {
+        debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, "L");
+    }
+    if (systemStatus[0x14 / 4] != 0 && (debug_font_flag & 1)) {
+        debug_Printf(0x23A, ScreenHeight / 2 - 8, 0xCCCCCC00, "P");
+    }
+    if (postEffectReady != 0) {
+        shadow_Draw();
+        fog_DrawFog();
+    }
+    MotionBlur();
+    gsb_controlBrightness();
+    FullScreenEffectAfter();
+    if (fbKeep != 0) {
+        gsb_KeepFrameBuffer();
+        if (debug_font_flag & 1) {
+            debug_Printf(0x226, ScreenHeight / 2 - 8, 0xCCCCCC00, "K");
+        }
+    }
+    if (staffRollStartFlag != 0) {
+        staffRollMain();
+        if (staffRollStartFlag != 0) {
+            gsb_scissorOnDemo();
+        }
+    }
+    gsb_antiAlias();
+    gsb_fade();
+    return fbKeep;
+}
 
 /* gsb_InitGSSystem's first call brings every module up */
 static int firstGsInit = 1; /* derived name */
 
-INCLUDE_ASM(gsb_InitGSSystem);
+void gsb_InitGSSystem(void)
+{
+    screen_offset_y = 0;
+    screen_offset_x = 0;
+    if (firstGsInit != 0) {
+        sceGsResetPath();
+        sceVpu0Reset();
+        debug_StdPrintfDummy("dma init\n");
+        dma_init();
+        debug_StdPrintfDummy("matrix init\n");
+        matrix_init();
+        debug_StdPrintfDummy("texture init\n");
+        tex_Init();
+        debug_StdPrintfDummy("gs init\n");
+        sceGsSyncV(0);
+        gsb_Init(&db);
+        sceGsSyncV(0);
+        dl_Init();
+        firstGsInit = 0;
+    } else {
+        debug_StdPrintfDummy("dma init\n");
+        dma_init();
+        debug_StdPrintfDummy("texture init\n");
+        tex_Init();
+    }
+    resetmallocseki();
+    pac_Init();
+    reg_Init();
+    shadow_Init();
+    gsSystemReady = 1;
+}
 
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */
 
-INCLUDE_ASM_LIT(gsb_SyncGSSystem);
+inline int gsb_SyncGSSystem(void)
+{
+    if (sceGsSyncPath(1, 0)) {
+        syncRetry++;
+        if (syncRetry >= 11) {
+            debug_StdPrintfDummy("reset gs\n");
+            gsb_ResetGSSystem();
+            syncRetry = 0;
+        }
+        return 1;
+    }
+    syncRetry = 0;
+    return 0;
+}
 
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
  * either swapped or cleared, then reopen the frame's register set. */
-INCLUDE_ASM(gsb_UpdateGSSystem);
+void gsb_UpdateGSSystem(void)
+{
+    sceGsDrawEnv *draw;
+
+    odd_even = (*GS_CSR >> 13) & 1;
+    gsb_PostEffect();
+    gsb_Reduction();
+    if (gsSystemReady == 0) {
+        dl_Clear();
+        return;
+    }
+    debug_FlushFont();
+    frame_count++;
+    buffer_ID = frame_count & 1;
+    FlushCache(0);
+    sceGsSwapDBuff(&db, buffer_ID);
+    if (buffer_ID != 0) {
+        draw = &db.draw1;
+    } else {
+        draw = &db.draw0;
+    }
+    sceGsSetHalfOffset(draw, (short)((float)screen_offset_x + 2048.0f),
+                       (short)((float)screen_offset_y + 2048.0f), odd_even == 0);
+    tex_ResetVram();
+    dl_Swap();
+    gsb_SetGsDefault();
+    if (staffRollStartFlag == 0) {
+        gsb_scissorOnDemo();
+    }
+    currentScreenWidth = GlobalTimer;
+    light_ResetLight();
+}
 
 /* Reset the GS between stages: reopen the paths, reset the VU0 and the DMA,
  * put the graphics mode back, take the field parity out of the GS CSR and
@@ -883,11 +1101,39 @@ int gsb_ClipBox(float *p)
 
 int gsb_LoadStageSettings(void);
 
-INCLUDE_ASM_LIT(gsb_LoadStageSettings);
+inline int gsb_LoadStageSettings(void)
+{
+    char buf[256];
+    int fd;
+    sprintf(buf, "object/stagesetting/%s.ssb", stageData[stage_no].key2);
+    fd = debugSceOpen(buf, 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy("gsb_LoadStageSettings: host file open error.\n");
+    } else {
+        debug_StdPrintfDummy("Load stage settings file. %s\n", buf);
+        sceRead(fd, &GlobalStageSetting, 0x130);
+        debugSceClose(fd);
+    }
+    return -1;
+}
 
 int gsb_SaveStageSettings(void);
 
-INCLUDE_ASM_LIT(gsb_SaveStageSettings);
+inline int gsb_SaveStageSettings(void)
+{
+    char buf[256];
+    int fd;
+    sprintf(buf, "object/stagesetting/%s.ssb", stageData[stage_no].key2);
+    fd = debugSceOpen(buf, 0x602);
+    if (fd < 0) {
+        debug_StdPrintfDummy("gsb_SaveStageSettings: host file open error.\n");
+    } else {
+        sceWrite(fd, &GlobalStageSetting, 0x130);
+        debug_StdPrintfDummy("Save stage settings file. %s\n", buf);
+        debugSceClose(fd);
+    }
+    return -1;
+}
 
 /* one row of the stage setting page: a label, the word it edits, its
    range, its default and its step, and the callback to run once the value
@@ -929,17 +1175,93 @@ static const GsbToolItem stageSettingItems[] = {
 /* the unselected and selected row colours */
 static const unsigned int stageSettingRowColor[] = {0xFFFFFF00, 0xFF000000}; /* derived name */
 
-static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
-
 /* the word a boolean row prints */
 static char *stageSettingOnOffText[] = {"Off", "On"}; /* derived name */
+
+static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 
 /* The stage setting page of the debug menu: seventeen editable words of the
  * stage record, the pad keys that walk and change them, and the key that dumps
  * the page to the log. */
 int gsb_StageSettingTool(void);
 
-INCLUDE_ASM(gsb_StageSettingTool);
+int gsb_StageSettingTool(void)
+{
+    int i;
+    int ret = 0;
+
+    debug_PrintfDummy(10, 50, 0xFF800000, "StageSetting Tool");
+
+    for (i = 0; i < 17; i++) {
+        if (stageSettingItems[i].min == 0 && stageSettingItems[i].max == 1) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 50,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %s",
+                              stageSettingItems[i].name,
+                              stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
+        } else {
+            debug_PrintfDummy(18, (i + 1) * 8 + 50,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %d",
+                              stageSettingItems[i].name, *(int *)stageSettingItems[i].val);
+        }
+    }
+
+    if (pad[0].rep & 0x4000) {
+        if (++stageSettingRow >= 17) {
+            stageSettingRow = 0;
+        }
+    }
+    if (pad[0].rep & 0x1000) {
+        if (--stageSettingRow < 0) {
+            stageSettingRow = 16;
+        }
+    }
+    if (pad[0].rep & 0x2000) {
+        int v = *(int *)stageSettingItems[stageSettingRow].val +
+                stageSettingItems[stageSettingRow].step;
+
+        *(int *)stageSettingItems[stageSettingRow].val = v;
+        if (stageSettingItems[stageSettingRow].max < v) {
+            *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].min;
+        }
+        if (stageSettingItems[stageSettingRow].fn != 0) {
+            stageSettingItems[stageSettingRow].fn(0);
+        }
+    }
+    if (pad[0].rep & 0x8000) {
+        int v = *(int *)stageSettingItems[stageSettingRow].val -
+                stageSettingItems[stageSettingRow].step;
+
+        *(int *)stageSettingItems[stageSettingRow].val = v;
+        if (v < stageSettingItems[stageSettingRow].min) {
+            *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].max;
+        }
+        if (stageSettingItems[stageSettingRow].fn != 0) {
+            stageSettingItems[stageSettingRow].fn(0);
+        }
+    }
+    if (pad[0].flags & 0x10) {
+        *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].def;
+    }
+    if (pad[0].flags & 0x20) {
+        for (i = 0; i < 17; i++) {
+            if (stageSettingItems[i].min == 0 && stageSettingItems[i].max == 1) {
+                debug_StdPrintfDummy("StageSetting %s => %s\n", stageSettingItems[i].name,
+                                     stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
+            } else {
+                debug_StdPrintfDummy("StageSetting %s => %d\n", stageSettingItems[i].name,
+                                     *(int *)stageSettingItems[i].val);
+            }
+        }
+        ret = 1;
+    }
+    if (pad[0].flags & 0x40) {
+        ret = -1;
+    }
+    if (ret != 0) {
+        stageSettingRow = 0;
+    }
+    return ret;
+}
 
 typedef struct { /* field names derived */
     char *name;  /* 0x0 */
@@ -968,16 +1290,62 @@ static int menuCursor = 0; /* derived name */
 
 static int menuSelected = -1; /* derived name */
 
-INCLUDE_ASM(gsb_StageSetting);
+int gsb_StageSetting(void)
+{
+    int i;
+    if (menuSelected >= 0) {
+        if (stageSettingMenu[menuSelected].fn != 0) {
+            int r = stageSettingMenu[menuSelected].fn(0);
+            if (r == -1) {
+                menuSelected = r;
+            }
+            return 0;
+        }
+    }
+    for (i = 0; i < 6; i++) {
+        debug_PrintfDummy(18, (i + 1) * 8 + 50, menuRowColor[(menuCursor == i) ? 1 : 0], "%s",
+                          stageSettingMenu[i].name);
+    }
+    if (pad[0].rep & 0x4000) {
+        menuCursor++;
+        if (menuCursor >= 6)
+            menuCursor = 0;
+    }
+    if (pad[0].rep & 0x1000) {
+        menuCursor--;
+        if (menuCursor < 0)
+            menuCursor = 5;
+    }
+    if (pad[0].flags & 0x20) {
+        menuSelected = menuCursor;
+    }
+    return (pad[0].flags & 0x40) ? -1 : 0;
+}
 
-INCLUDE_ASM(gsb_SetBGColor);
+inline void gsb_SetBGColor(void *db, int r, int g, int b)
+{
+    unsigned long long bg = ((long long)b << 16) | ((long long)g << 8);
+    unsigned long long v = r | 0x3F80000000000000ULL;
+    v |= bg;
+    bgColor[0] = r;
+    v |= 0x80000000;
+    bgColor[1] = g;
+    bgColor[2] = b;
+    bgColor[3] = 0x80;
+    *(unsigned long long *)((char *)db + 0x1F0) = v;
+    *(unsigned long long *)((char *)db + 0x100) = v;
+}
 
-INCLUDE_ASM(gsb_GetBGColor);
+inline void gsb_GetBGColor(unsigned char *col)
+{
+    col[0] = bgColor[0];
+    col[1] = bgColor[1];
+    col[2] = bgColor[2];
+    col[3] = bgColor[3];
+}
 
-INCLUDE_ASM(gsb_SetZoom);
-
-INCLUDE_ASM(gsb_SyncGSSystem);
-
-INCLUDE_ASM(gsb_LoadStageSettings);
-
-INCLUDE_ASM(gsb_SaveStageSettings);
+inline void gsb_SetZoom(float target, float speed)
+{
+    zoomTarget = target;
+    zoomSpeed = speed;
+}

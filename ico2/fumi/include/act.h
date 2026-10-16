@@ -19,10 +19,12 @@ struct IosPadStick;
 /* act.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void actInitialize_geo(void *self);
+void actInitialize_only_charcter(char *self);
 int ACTReserveTarget(struct GObj *self, void *arg, int mail);
 void _ACTRun(int n);
 void _ACTWait(int frames);
 struct GProc *actCreateSubThreadGOppArg(void (*fn)(), int pri);
+struct GProc *actCreateSubThread(void (*fn)(), int pri);
 void actSetInterrupt(char *self, int val);
 void ConvertStickToAbsCoord(void *out, struct IosPadStick *stick);
 void ActSetStartBrainStatus(struct GObj *self, int status);
@@ -32,10 +34,8 @@ void ACTDebugMove(struct GObj *self, int a1);
 void actChangeActBrain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actChangeActMain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actCreateMotionThread(void (*fn)(), int pri, struct GProc **slot);
-struct GProc *actCreateSubThread(void (*fn)(), int pri);
 struct Act *actInitialize(struct GObj *self);
 void actInitialize_ext_charcter(struct GObj *self);
-void actInitialize_only_charcter(char *self);
 
 /* act-mode-def: one act mode, 0x50 bytes, indexed by Act+0x34. Readers:
  * ico2/fumi/src/act.c (the act per actor kind, the mail, the intr-list
@@ -50,12 +50,12 @@ typedef struct { /* field names derived */
     } ent[3];          /* 0x00, one per actor kind (Act+0x48) */
 
     char name[32];      /* 0x24, the debug name */
-    int intrList;       /* 0x44, the first actIntrList row */
-    int mail;           /* 0x48, ACTSendMailCorrect's mail */
+    int mail;           /* 0x44, ACTSendMailCorrect's mail */
+    int intrList;       /* 0x48, the first actIntrList row */
     /* 0x4C, the mode's flag bits */
     unsigned int escort : 1;   /* bit 0, an escort status (IsGirlStatusEscortEnable) */
     unsigned int bit1 : 1;
-    unsigned int bit2 : 1;
+    unsigned int skipMarked : 1; /* bit 2, the flagged mail lists are skipped */
     unsigned int attractWait : 1; /* bit 3, the girl holds an attract turn 10 s */
     unsigned int hintCount : 1; /* bit 4, the girl counts hint frames */
     unsigned int softIk : 1; /* bit 5, the girl's soft IK rate */
@@ -64,7 +64,7 @@ typedef struct { /* field names derived */
     unsigned int bit8 : 1;
     unsigned int onChain : 1;  /* bit 9, ACTGame_isHangChain */
     unsigned int bit10 : 1;
-    unsigned int skipMarked : 1; /* bit 11, the flagged mail lists are skipped */
+    unsigned int bit11 : 1;
     unsigned int bit12 : 1;
     unsigned int bit13 : 1;
     unsigned int bit14 : 1;
