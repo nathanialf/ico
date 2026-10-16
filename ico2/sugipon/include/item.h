@@ -25,7 +25,6 @@ extern ItemBreakRec itemKind[];
 int BreakItemFromOutside(struct GObj *gobj);
 int CheckCarryableItem(struct GObj *gobj);
 int CheckItemDead(struct GObj *gobj);
-int GetCharHeldItem(struct GObj *chara);
 int GetItemKind(struct GObj *gobj);
 void HoldItem(struct GObj *gobj, struct GObj *holder);
 int IsBombExplode(struct GObj *gobj);

@@ -85,9 +85,9 @@ typedef struct { /* field names derived */
     float x, y, z, w;
 } __attribute__((aligned(16))) Vec4S; /* derived name */
 
-/* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
+/* as in boyact.h, which this TU does not include */
 extern void SetBoyInfo(GObj *weapon, GObj *item);
-/* as in boyact.h, which this TU does not include (PrivInsCamSet differs) */
+/* as in boyact.h, which this TU does not include */
 extern void BoyInfoUpdate_StageChange(void);
 
 /* One table: a 100-entry object list, two parallel per-entry int arrays
@@ -151,9 +151,6 @@ typedef struct { /* field names derived */
 
 extern HandModeRow motionIKEffKind[];
 static void ACTItemWatchMotion(GObj *self);
-/* as in boyact.h, which this TU does not include */
-extern void PrivInsCamSet(float *pos, float *tgt, GObj *track, int inFrames, int outFrames,
-                          float inRate, float blend, unsigned char control);
 
 /* The pending hand-mode command record: two ints at +0x314 (connect) and
    +0x31C (disconnect) of the actor's hand work block. */

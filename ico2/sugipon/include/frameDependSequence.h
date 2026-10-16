@@ -64,7 +64,6 @@ void ExecuteSEPackage(struct GObj *gobj, int id);
 void ExecuteSEPackageWithGroupVariation(struct GObj *gobj, int id, int grp);
 void ExecuteSEPackageWithVolumeRate(struct GObj *gobj, int id, float rate);
 void InitFrameDependSequence(void *flags);
-void StopFDSVibration(void *flags);
 void StopSEPackage(struct GObj *gobj);
 void StopSEPackageWithGroupVariation(struct GObj *gobj, int grp);
 void ExecFrameDependSequence(struct GObj *gobj);

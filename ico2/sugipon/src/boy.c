@@ -16,7 +16,6 @@
 #include "motionOrientManager.h"
 #include "pool.h"
 #include "quaternion.h"
-#include "waterDot.h"
 #include <libvu0.h>
 #include "Matrix.h"
 

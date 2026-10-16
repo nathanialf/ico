@@ -12,16 +12,15 @@
 
 struct GObj;
 
-void SetFlag4PointFixID(struct GObj *self, int turns, int id);
-
 typedef struct { /* field names derived */
     float m[4];
 } Vec4Flag; /* derived name */
 
 /* The flag's work record, InitFlagGeo's 20-byte allocation: the cloth
    type (the layout kind's low four bits), the clothes InitClothes builds,
-   their config, whether the object collides, and SetFlag4PointFixID's
-   quarter turns. */
+   their config, whether the object collides, and a fifth word nothing in
+   this build writes or reads (PAL's SetFlag4PointFixID keeps quarter
+   turns there). */
 typedef struct { /* field names derived */
     int type;
     ClothSet *clothes;

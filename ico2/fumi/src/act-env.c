@@ -247,9 +247,9 @@ inline int CheckWallAttributeEdegWall(GObj *obj)
     return (unsigned char)CheckWallAttribute(obj, 0x1000);
 }
 
-/* The motion record at actor + 0x130 and the two sub-object words
-   ACTGetEnvironment's head reads that Sub15C does not name yet (the wall
-   record at 0x574, the wall height at 0x5A4). */
+/* The motion record at actor + 0x130, and the two words of Sub15C's motion
+   control block ACTGetEnvironment's head reads through a view of its own:
+   ctrl.fieldWallHit at 0x574, as a char *, and ctrl.wallTopHeight at 0x5A4. */
 typedef struct { /* field names derived */
     char pad000[272];
     float cliffDepth; /* 0x110 */
@@ -262,10 +262,10 @@ typedef struct { /* field names derived */
 
 typedef struct { /* field names derived */
     char pad000[1396];
-    char *wallRec; /* 0x574 */
+    char *fieldWallHit; /* 0x574 */
     char pad578[44];
-    float wallTop; /* 0x5A4 */
-} EnvSub;          /* derived name */
+    float wallTopHeight; /* 0x5A4 */
+} EnvSub;                /* derived name */
 
 /* motionOrientManager.h declares none of the motion tables */
 extern MotionDef motionKind[];
@@ -408,15 +408,15 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
     GObj *parent = GOBJ_SUB(self)->parent.obj;
     float dist = ((EnvMotion *)(char *)sub->motReq)->wallDist;
     float hgt = -((EnvMotion *)(char *)sub->motReq)->height;
-    float wallh = -((EnvSub *)(char *)GOBJ_SUB(self))->wallTop;
+    float wallh = -((EnvSub *)(char *)GOBJ_SUB(self))->wallTopHeight;
     float hh = ((EnvMotion *)(char *)sub->motReq)->cliffDist;
     float f26 = ((EnvMotion *)(char *)sub->motReq)->cliffDepth;
     int v1D8 = 1;
     int v1DC = 1;
     int v1E0;
     int v1E4 = 0;
-    char *w564 = (char *)GOBJ_SUB(self)->ctrl.wallHit;
-    char *w574 = ((EnvSub *)(char *)GOBJ_SUB(self))->wallRec;
+    char *wallHit = (char *)GOBJ_SUB(self)->ctrl.wallHit;
+    char *fieldWallHit = ((EnvSub *)(char *)GOBJ_SUB(self))->fieldWallHit;
     GObj *v1EC = 0;
     float k;
     float kk;
@@ -443,10 +443,10 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
 
     memset(prj, 0, 16);
     if ((char *)GOBJ_SUB(self)->root.wall.elem == 0) {
-        w574 = 0;
-        w564 = 0;
+        fieldWallHit = 0;
+        wallHit = 0;
     }
-    if (w574 == 0 && w564 == 0)
+    if (fieldWallHit == 0 && wallHit == 0)
         dist = 3.40282347e+38f /* FLT_MAX */;
     if (GOBJ_SUB(self)->ctrl.cliffEdge == 0)
         hh = 3.40282347e+38f /* FLT_MAX */;
@@ -501,7 +501,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             debug_NMarker(p70, 0, 0, 0xFF, 100.0f);
         }
     }
-    if (w564 != 0) {
+    if (wallHit != 0) {
         if (CheckPureWallAttribute(self, 0x300) || CheckPureWallAttribute(self, 0x500) ||
             CheckPureWallAttribute(self, 0x600))
             hgt = wallh = 3.40282347e+38f /* FLT_MAX */;
@@ -511,10 +511,10 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             CheckPureCliffAttribute(self, 0x600))
             hh = 3.40282347e+38f /* FLT_MAX */;
     }
-    if ((w574 != 0 || w564 != 0) && (char *)GOBJ_SUB(self)->root.wall.elem != 0) {
+    if ((fieldWallHit != 0 || wallHit != 0) && (char *)GOBJ_SUB(self)->root.wall.elem != 0) {
         GetOrientOfWall(env->wallOrient, GOBJ_SUB(self)->root.wall.elem, &GOBJ_SUB(self)->root.wall.o);
         env->wallOrient[3] = 1.0f;
-        if (w564 != 0) {
+        if (wallHit != 0) {
             float p60[4];
             int c1 = 1;
             int c2 = 1;
@@ -533,7 +533,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             if (c1 && r < -30)
                 flags[0].w |= 8;
         }
-        if (w574 != 0) {
+        if (fieldWallHit != 0) {
             if (dist < k) {
                 int ry = absRotyFromBack(dir, env->wallOrient);
 
@@ -543,7 +543,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             }
         }
     }
-    if (w564 == 0 && GOBJ_SUB(self)->ctrl.sideWall) {
+    if (wallHit == 0 && GOBJ_SUB(self)->ctrl.sideWall) {
         if (GOBJ_SUB(self)->ctrl.sideWallDist < 100.0f) {
             if (absRotyFromBack(dir, (float *)((char *)GOBJ_SUB(self) + 0x5D0)) < 40) {
                 sub->flags18.ll |= (1ULL << 39);
@@ -551,13 +551,13 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
             }
         }
     }
-    if (dist != 3.40282347e+38f /* FLT_MAX */ && w564 != 0 && v1D8) {
+    if (dist != 3.40282347e+38f /* FLT_MAX */ && wallHit != 0 && v1D8) {
         void *ori2 = test_CURRENTORIENT(self);
         int wallDeg;
 
         wallDeg = absRotyFromBack(ori2, env->wallOrient);
         env->wallWord = ((FcWallEnt *)env->motOriReq.a.wall.elem)->attr;
-        w564 = (char *)(CheckPureWallAttribute(self, 0x1000) & 0xFF);
+        wallHit = (char *)(CheckPureWallAttribute(self, 0x1000) & 0xFF);
         env->wallObj = obj;
         flags[0].w |= 1;
         if (hgt < wallh && hgt != -3.40282347e+38f /* -FLT_MAX */)
@@ -600,7 +600,7 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
         }
         {
             float p60[4];
-            int t7 = 90.0f < hgt && hgt < 110.0f && w564 == 0;
+            int t7 = 90.0f < hgt && hgt < 110.0f && wallHit == 0;
             int t3;
             char t16;
             char t17;
@@ -644,11 +644,11 @@ void ACTGetEnvironment(void *self, void *dir, float *orient, EnvFlag *flags, Act
                         g = 0;
                 }
             }
-            t3 = 10.0f < hgt && hgt < 75.0f && w564 == 0;
-            t17 = 75.0f < hgt && hgt < 150.0f && w564 == 0;
+            t3 = 10.0f < hgt && hgt < 75.0f && wallHit == 0;
+            t17 = 75.0f < hgt && hgt < 150.0f && wallHit == 0;
             t16 = 150.0f < hgt && hgt < 250.0f;
             if (self != boyGObj) {
-                if (w564 != 0)
+                if (wallHit != 0)
                     t16 = 0;
             }
             if (dist < kk && g) {

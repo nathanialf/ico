@@ -1919,19 +1919,6 @@ int la_format_confirm(int first, int item)
 
 static int formatStep = 0; /* derived name */
 
-/* the CD real-time clock record sceCdReadClock fills in, declared here as
-   seki/src/GsBase.c declares it */
-typedef struct sceCdCLOCK {
-    unsigned char stat;
-    unsigned char second;
-    unsigned char minute;
-    unsigned char hour;
-    unsigned char pad;
-    unsigned char day;
-    unsigned char month;
-    unsigned char year;
-} sceCdCLOCK;
-
 inline int la_format_processing(int first)
 {
     if (first) {

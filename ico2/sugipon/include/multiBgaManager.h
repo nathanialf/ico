@@ -11,8 +11,8 @@
 /* One multi-BGA slot: the frame its animation has reached (below 0 while the
    slot is idle), the position, the drift added to the position every frame
    (zero unless entered sensitive), the rotation quaternion, the animation and
-   whether it stays on its last frame.  The record is quadword aligned, as its
-   vectors are. */
+   a stay word.  Only the reset copy writes stay (0) and nothing in this build
+   reads it.  The record is quadword aligned, as its vectors are. */
 typedef struct BgaDisp {                /* field names derived */
     float frame;                        /* 0x00 */
     float pad04[3];                     /* 0x04 */
@@ -20,7 +20,7 @@ typedef struct BgaDisp {                /* field names derived */
     float vel[4];                       /* 0x20 */
     float rot[4];                       /* 0x30 */
     int kind;                           /* 0x40, -1 for none */
-    int stay;                           /* 0x44 */
+    int stay;                           /* 0x44, unread */
     int pad48[2];                       /* 0x48 */
 } __attribute__((aligned(16))) BgaDisp; /* derived name */
 
@@ -34,7 +34,7 @@ BgaDisp *InitMultiBgaManager(int n);
 void EntryMultiBgaManagerSensitive(BgaDisp *bga, int no, int kind, void *pos, void *rot, void *vel);
 
 /* the state every slot starts from: idle, at the origin, not drifting,
-   unrotated, no animation, not staying.  It is the slot's fields without the
+   unrotated, no animation, stay 0.  It is the slot's fields without the
    slot's quadword alignment, and a slot is reset by copying it through the
    slot's type. */
 typedef struct {    /* field names derived */

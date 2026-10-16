@@ -76,7 +76,7 @@ the point the listing puts it, and its assert strings still name it
 
 ## Headers placed by this project
 
-**One header per game file.** The other 217 headers under
+**One header per game file.** The other 215 headers under
 `ico2/<programmer>/include/` are each named after the source file whose
 definitions they declare (`gobj.h` for `isys/gobj.c`, `switch.h` for
 `switch.c.inc`); the disc records none of them. They hold one prototype

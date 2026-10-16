@@ -1,5 +1,4 @@
 #include "st10r.h"
-#include "gamesys.h"
 #include "layout_texture.h"
 #include "pad.h"
 #include "thread.h"
@@ -18,7 +17,6 @@
 #include "StageAnimation.h"
 #include "cage.h"
 #include "motionManager2.h"
-#include "rotObject.h"
 #include "typedef.h"
 #include "main.h"
 #include "script.h"

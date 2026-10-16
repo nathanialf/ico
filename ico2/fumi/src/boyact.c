@@ -846,20 +846,6 @@ static inline int correctStick(void *dir, IosPadStick *stick) /* derived name */
     return _RotyGV(buf, dir);
 }
 
-/* the private-camera gate */
-static __inline__ unsigned char boyPrivInsCamInScreen(void) /* derived name */
-{
-    float scr[4];
-
-    if (PrivInsCamChk_Control() == 0) {
-        return 0;
-    }
-    if (0.0f < IsPointIsInScreen(scr, test_CURRENTROOT(boyGObj))) {
-        return 1;
-    }
-    return 0;
-}
-
 /* the stick snap the boy's walk control applies when the camera-relative
    wish and the stick agree closely enough */
 static __inline__ int snapStickToCamera(float *stick, float *wish, float *sabs,

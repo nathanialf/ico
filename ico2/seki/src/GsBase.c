@@ -28,7 +28,7 @@
 #include <libcdvd.h>
 
 /* declared here with an int count, not through string.h, as in
-   layout_action.c and puddle.c */
+   layout_texture.c and way_util.c */
 extern void *memset(void *p, int c, int n);
 
 /* GsBase.c's globals, tentative definitions: the frame buffer flags, the

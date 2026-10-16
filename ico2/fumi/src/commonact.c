@@ -8,7 +8,6 @@
 /* prototypes: their order is the inline tail's emission order (gcc emits every
    inline at the end of the object in first-declaration order). They precede
    commonact.h, whose alphabetical list would otherwise fix that order. */
-void ACTAcceptMail(GObj *self, int mail);
 inline int _ACTMotDirSmzDirect(GObj *self, float *dir);
 void WithMailFunc_Idling(GObj *self);
 void WithMailFunc_BossDamaged(GObj *self);
@@ -98,7 +97,6 @@ void afterCommonBar(GObj *volatile self);
 static inline void actAfterJump(GObj *volatile self);
 inline void actAfterFall(GObj *volatile self);
 inline void actAfterFly(GObj *volatile self);
-static inline void ClipCollisionWithField(ClipWork *work);
 inline void afterCommonOneWall(int x);
 int ACTCheckFlagAttack(GObj *self);
 inline void afterCommonTruckLever(GObj *volatile self);
@@ -1870,11 +1868,13 @@ void actCommonBox(GObj *volatile self)
     }
 }
 
+/* Sub15C's root.filter (0x1C0), set word by word to the bar the actor
+   holds; afterCommonBar resets it */
 typedef struct { /* field names derived */
     char pad0[448];
-    int f1C0;
-    int f1C4;
-    int f1C8;
+    int filterObj;
+    int filterNode;
+    int filterElem;
 } BarHold; /* derived name */
 
 inline void afterCommonBar(GObj *volatile self)
@@ -1905,9 +1905,9 @@ void actCommonBar(GObj *volatile self)
     s->bar = bar;
     s->after = (void *)afterCommonBar;
     debug_StdPrintfDummy("set %p\n", bar);
-    ((BarHold *)(int)GOBJ_SUB(self))->f1C0 = (int)bar;
-    ((BarHold *)(int)GOBJ_SUB(self))->f1C4 = -1;
-    ((BarHold *)(int)GOBJ_SUB(self))->f1C8 = 0;
+    ((BarHold *)(int)GOBJ_SUB(self))->filterObj = (int)bar;
+    ((BarHold *)(int)GOBJ_SUB(self))->filterNode = -1;
+    ((BarHold *)(int)GOBJ_SUB(self))->filterElem = 0;
     while (1) {
         int had = (int)s->pushDir != 0;
         int lit = 0;
@@ -2023,11 +2023,6 @@ static void correctJumpOrientByChain(GObj *self)
     }
     SetMotionDirectionSmooze(self, dir, t);
 }
-
-typedef struct { /* field names derived */
-    char pad0[398];
-    unsigned short f18E;
-} MotRecJ; /* derived name */
 
 void actCommonJump(GObj *volatile self)
 {
@@ -2329,9 +2324,10 @@ INCLUDE_ASM(emergencyCheck_284);
 
 INCLUDE_ASM(flyCoreLoop);
 
+/* Sub15C's ctrl.floorAttr (0x5F8) */
 typedef struct { /* field names derived */
     char pad0[1528];
-    int f5F8;
+    int floorAttr;
 } FlyCtlJ; /* derived name */
 
 void actCommonFly(GObj *volatile self)
@@ -2342,7 +2338,7 @@ void actCommonFly(GObj *volatile self)
 
     s->flags18.afterProc = actAfterFly;
 
-    ((FlyCtlJ *)(char *)GOBJ_SUB(self))->f5F8 = 0;
+    ((FlyCtlJ *)(char *)GOBJ_SUB(self))->floorAttr = 0;
 
     if (IsEnemyBrainToGenerator(self, &gen)) {
         target = gen;
@@ -3225,11 +3221,12 @@ static inline int isRopeDownEndOnFloor(GObj *self) /* derived name */
     return 0;
 }
 
+/* Sub15C's root.move (0x130), cleared word by word for a rope jump */
 typedef struct { /* field names derived */
     char pad0[304];
-    int f130;
-    int f134;
-    int f138;
+    int moveX;
+    int moveY;
+    int moveZ;
 } RopeJumpWork; /* derived name */
 
 typedef struct { /* field names derived */
@@ -3567,9 +3564,9 @@ inline void actCommonRopeJump(GObj *volatile self)
 
     *(int *)((char *)s + 0x18) = (int)actAfterRopeJump;
     if (s->intrKind == 155) {
-        ((RopeJumpWork *)(int)GOBJ_SUB(self))->f130 = 0;
-        ((RopeJumpWork *)(int)GOBJ_SUB(self))->f134 = 0;
-        ((RopeJumpWork *)(int)GOBJ_SUB(self))->f138 = 0;
+        ((RopeJumpWork *)(int)GOBJ_SUB(self))->moveX = 0;
+        ((RopeJumpWork *)(int)GOBJ_SUB(self))->moveY = 0;
+        ((RopeJumpWork *)(int)GOBJ_SUB(self))->moveZ = 0;
     }
     for (;;) {
         ACTSendMailCorrect(self, 176);
