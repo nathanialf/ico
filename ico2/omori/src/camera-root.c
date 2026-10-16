@@ -10,7 +10,6 @@
 #include <math.h>
 #include <string.h>
 #include <libvu0.h>
-#include "hand-camera.h"
 #include "BgAnimation.h"
 #include "act-game.h"
 #include "main.h"

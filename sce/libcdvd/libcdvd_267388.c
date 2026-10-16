@@ -1,7 +1,8 @@
 /* libcdvd.a: sceCdStatus and sceCdBreak, which this build's archive revision
  * adds between cdvd015 and cdvd047 (the PAL build's revision has
  * sceCdReadClock after them; this one does not).  Their member names are not
- * known, so the two share one file named by their address. */
+ * known, so the two share one file named by sceCdStatus's address in the PAL
+ * build, 0x267388 (0x24D848 in this one). */
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>

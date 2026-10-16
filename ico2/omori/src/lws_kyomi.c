@@ -1,12 +1,8 @@
 #include "sceneManager.h"
-#include "memory.h"
-#include "StageAnimation.h"
 #include "debug.h"
 #include <string.h>
 #include "typedef.h"
-#include "ios.h"
 #include "lws_kyomi.h"
-#include "main.h"
 #include "geometryManager.h"
 #include "brain.h"
 

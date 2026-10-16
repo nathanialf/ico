@@ -24,11 +24,13 @@ typedef struct GenBga { /* field names derived */
     char pad5[3];
 } GenBga; /* derived name */
 
-/* The generator's work record: three state bytes, the enemy kind it calls,
-   the direction it sends enemies off in, its four multi-BGA managers (each
-   with its active byte), the main status, the current animation slot and the
-   timers.  The direction is three floats: the byte at 0x2C follows it, and
-   sceVu0ApplyMatrix writes a whole quadword there. */
+/* The generator's work record: its frame count, the automatic call's timer
+   and the calls waiting, three state bytes, the enemy kind it calls, three
+   words no function of this build reads or writes, the direction it sends
+   enemies off in, its four multi-BGA managers (each with its active byte),
+   the main status, the call state, the current animation slot and the call
+   and second-BGA delays.  The direction is three floats: the byte at 0x2C
+   follows it, and sceVu0ApplyMatrix writes a whole quadword there. */
 typedef struct GenWork {        /* field names derived */
     int count;                  /* 0x00, frames since the generator started */
     int autoCallTimer;          /* 0x04, counts up to the automatic call */

@@ -1,13 +1,9 @@
-#include "StageManager.h"
-#include "layout_texture.h"
 #include "gobj.h"
 #include "kanbanBoot.h"
-#include <libscf.h>
 #include "kanban.h"
 #include "GsBase.h"
 #include "main.h"
 #include "Basic.h"
-#include "debug.h"
 
 /* .sdata: the boot sequence's step, the card check's step, the start request
    and kanbanBootEnd. */
@@ -42,11 +38,10 @@ static int mcKanbanId; /* derived name */
 static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
 
 /* mcard.c's request entry points; they return iosMsgSend's result, which
-   this TU reads only from iosMcSync: it declares the others void, which its
-   calls pin, so it does not include mcard.h */
+   this TU reads only from iosMcSync: it declares the other void, which its
+   call pins, so it does not include mcard.h */
 extern void iosMcChdirProduct(McMgr *mp);
 extern int iosMcSync(McMgr *mp);
-extern void iosMcLoadProductBlock(McMgr *mp);
 
 static int kanbanBootMcCheck(void)
 {

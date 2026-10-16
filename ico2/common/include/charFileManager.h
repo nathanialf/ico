@@ -27,8 +27,8 @@ typedef struct {   /* field names derived */
  * ico2/common/src/PObj.c (InitPObj, AllocPObj, MakePacket), charFileManager.c
  * (ReadSkeltonFile, ReadCollisionFile: the skeleton and collision paths). */
 typedef struct PObjMdl { /* field names derived */
-    char modelPath[64];  /* 0x00, derived name: the model file, no C reader */
-    char shadowPath[64]; /* 0x40, derived name: the shadow model file, no C reader */
+    char modelPath[64];  /* 0x00, the model file, no C reader */
+    char shadowPath[64]; /* 0x40, the shadow model file, no C reader */
     char path[48];       /* 0x80, the skeleton file, "NULL" for none */
     char collPath[64];   /* 0xB0, the collision file */
     float offset[3];     /* 0xF0, InitPObj adds it to every vertex and box corner */

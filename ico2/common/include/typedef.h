@@ -848,8 +848,7 @@ typedef struct { /* field names derived */
     int timer;
     unsigned char lookOnly;   /* 0x18, the girl only looks at the target; nonzero holds the target type at 1 */
     unsigned char alwaysSeen; /* 0x19, nonzero skips the view check */
-    unsigned char detail;     /* 0x1A, bit 0 set by brainAddLevelGirlDetail */
-    char pad1B[1];
+    char pad1A[2];
 } BrainTarget; /* derived name */
 
 /* the GIF packet builder's double buffer and its write pointers */
@@ -1507,10 +1506,10 @@ typedef struct GenGeo { /* field names derived */
 /* one stage-animation mode record: the base mode, the second animation and the held mode */
 typedef struct { /* field names derived */
     int baseMode; /* 0x00, the mode the record returns to, also its BG animation: the first stage-animation id */
-    int anim2; /* 0x04, the second stage-animation id, 972 (no animation) in most rows */
+    int anim2; /* 0x04, the second stage-animation id, 815 (no animation) in most rows */
     int word8; /* 0x08, no C reader */
-    int mode;  /* 0x0C, 972 while held */
-    int flags; /* 0x10, bit 0 holds the mode at 972 */
+    int mode;  /* 0x0C, 815 while held */
+    int flags; /* 0x10, bit 0 holds the mode at 815 */
 } OaRecB; /* derived name */
 
 typedef struct { /* field names derived */
@@ -1520,13 +1519,13 @@ typedef struct { /* field names derived */
 /* RECONSTRUCTION, names ours: one memory card's product file, 0x18C bytes,
  * the record mcard.c's product_write and product_read move whole: the twenty
  * save files' previews, then the sound, vibration and pad options.
- * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c,
- * common/src/kanbanBoot.c. */
+ * Writers: ico2/fumi/ios/mcard.c, common/src/layout_action.c (a file's
+ * preview); reader: common/src/layout_action.c. */
 typedef struct {        /* field names derived */
     unsigned int stage; /* 0x00, the saved stage, 0xFFFFFFFF for an empty file */
-    int cleared;        /* 0x04, gFlagGameClear at the save */
-    int playTime;       /* 0x08, in frames */
-    int sofa;           /* 0x0C, the save sofa's layout id (GetSaveSofaLayoutID) */
+    int playTime;       /* 0x04, in frames */
+    int sofa;           /* 0x08, the save sofa's layout id (GetSaveSofaLayoutID) */
+    int word0C;         /* 0x0C, no C reader */
 } McFileInfo;           /* derived name */
 
 typedef struct {         /* field names derived */

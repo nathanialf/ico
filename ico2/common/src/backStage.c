@@ -52,9 +52,9 @@ static float nestPos[4]; /* derived name */
 /* the carrier walks the waypoint route instead of a generator */
 static int wayKidnap; /* derived name */
 
-/* as in generator.h, which this TU does not include */
-extern void SetInfoSpKidnapGenerator(short *info);
-/* this TU passes an int *; generator.h declares a short * */
+/* generator.h, which this TU does not include, declares both with a
+   short *; this TU passes the int * work words of a GamesysObjInfo */
+extern void SetInfoSpKidnapGenerator(int *info);
 extern void SetInfoSpKidnapEnemy(int *work);
 
 inline void backStageProcessInit(void)
@@ -216,8 +216,7 @@ void backStageProcessMain(void)
                 pos.f[0] = nestPos[0];
                 pos.f[2] = nestPos[2];
                 pos.f[1] = nestPos[1] - 10.0f;
-                g2 =
-                    gamesysObjInfoPosNewStageSet(3454, 0x21, gameSysObjInfo[1].stage, pos.f, rot.f);
+                g2 = gamesysObjInfoPosNewStageSet(3454, 33, gameSysObjInfo[1].stage, pos.f, rot.f);
                 SetInfoSpKidnapGenerator(g2->work);
                 SetInfoSpKidnapEnemy(g1->work);
                 if (g1 != 0 && g2 != 0) {

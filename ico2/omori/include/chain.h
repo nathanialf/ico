@@ -40,7 +40,6 @@ void LockChainGeo(struct GObj *chain);
 void PlumbOrientUpdateChain(struct GObj *chain, float *src);
 void ReleaseChain(struct GObj *chain, struct GObj *owner);
 void SetChainParentGObj(struct GObj *chain, void *parent);
-void SetChainRootUpdateMode(struct GObj *gobj, int mode, float *pos);
 void UnLockChainGeo(struct GObj *chain);
 void UnableChainHang(struct GObj *chain);
 void _GetCorrectOrientOfChain(float *out, struct GObj *gobj, float *dir);

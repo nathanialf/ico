@@ -133,7 +133,6 @@ void debugCdvdLoadInfoSegInit(int page);
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta);
 void debugCdvdLoadInfoSegCls(int page, int idx);
 inline int gsResetFunc(int val);
-inline void ChangeGirlControlMode(int mode);
 inline int debug_CallbackGsFinish(int channel);
 void debug_SaveStartStageFile(int stage);
 
@@ -157,7 +156,6 @@ int debug_GameOver(void);
 int debug_EndingDemo(void);
 int debug_BackStageTest(void);
 int debug_tsuresariTimeZero(void);
-int debug_hintStart(void);
 int debug_SelectPad2ControlGobj(int reset);
 void debug_Assert(char *fmt, ...);
 void debug_DispQW(void *p, int size);

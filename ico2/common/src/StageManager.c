@@ -423,7 +423,7 @@ void StageManager(void)
         stagePreLoadMgrEntry = 0;
         if (msg->stage <= 0xFFFF) {
             exit_stage(msg->stage);
-            lt_switch_layout(0x31);
+            lt_switch_layout(49);
             systemStatus[6] = 1;
             systemStatus[5] = 1;
             stgMgrWakeupRequest = 1;

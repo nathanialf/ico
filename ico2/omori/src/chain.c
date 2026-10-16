@@ -785,17 +785,6 @@ static void chain_set_charachara(GObj *gobj, float amp)
     cw->count = cw->count + 1;
 }
 
-/* The enemy parameter table, one 404-byte row per motion id; ChainGeo reads
- * only the flag word at 0x18C.  Same record enemy_act.c reads as EnemyParaRow. */
-typedef struct { /* field names derived */
-    char pad00[396];
-    unsigned int flags; /* bit 11: a motion the hand hangs on the chain from */
-    char pad190[4];
-} ChainParaRow; /* derived name */
-
-/* the data-only member motion-def.o, read through this file's view of its
-   rows; no header declares it */
-extern ChainParaRow motionKind[];
 static void TestChainUpDown(GObj *gobj, GObj *boy);
 
 /* the simulation mode the boy's motion selects, for ChainGeo */

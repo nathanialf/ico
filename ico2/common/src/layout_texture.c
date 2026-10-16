@@ -7,7 +7,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "debug_exception.h"
-#include "tableSin.h"
 #include "s_init.h"
 #include <assert.h>
 #include "charFileManager.h"
@@ -328,26 +327,6 @@ extern void gif_EndPacket(void);
 extern void gif_SpriteSensitiveOffset(SprRect *r, unsigned int z, SprRect *uv, SprCol *col,
                                       int prim);
 extern void gif_PointOffset(int *v, long long z, SprCol *col, int prim);
-extern void gif_SetGsReg(long long reg, long long data);
-
-/* the pulsing highlight sprite, inlined three times by display_texture */
-static inline void lt_glow_sprite(SprRect *box, SprRect *ofs, int r, int g, int b, float t, int dx,
-                                  int dy) /* derived name */
-{
-    SprRect rr = *box;
-    SprCol c = {r, g, b, 127};
-    float s = GetTableSin((short)(t * 3.1415926535897932 * 10430.3779296875));
-
-    c.r = c.r * s;
-    c.g = c.g * s;
-    c.b = c.b * s;
-    rr.x = rr.x - s * dx;
-    rr.y = rr.y - s * dy;
-    rr.w = rr.w + s * dx * 2;
-    rr.h = rr.h + s * dy * 2;
-    gif_SetAlpha(1, 5, 0);
-    gif_SpriteSensitiveOffset(&rr, 0xFFFFFF9B, ofs, &c, 1);
-}
 
 /* a file static */
 static void display_texture(int no, LtProperty *e)
@@ -355,10 +334,7 @@ static void display_texture(int no, LtProperty *e)
     SprRect ofs;
     SprRect box;
 
-    union { /* field names derived */
-        int pt[2];
-        SprCol col;
-    } u;
+    int pt[2];
 
     int sel;
     int i;
@@ -390,10 +366,10 @@ static void display_texture(int no, LtProperty *e)
         gif_StartPacketPri(11);
         gif_SetZTest(0);
         for (i = 0; i < box.w * box.h / 1200; i++) {
-            u.pt[0] = box.x + rand() % box.w;
-            u.pt[1] = box.y + rand() % box.h;
+            pt[0] = box.x + rand() % box.w;
+            pt[1] = box.y + rand() % box.h;
             pcol.a = rand() % 127 + 32;
-            gif_PointOffset(u.pt, 0x800000, &pcol, 1);
+            gif_PointOffset(pt, 0x800000, &pcol, 1);
         }
         gif_EndPacket();
     }

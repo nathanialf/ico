@@ -13,8 +13,6 @@
 #include "GsBase.h"
 #include <libcdvd.h>
 #include <string.h>
-#include "StageAnimation.h"
-#include "Basic.h"
 #include <stdlib.h>
 #include "boyact.h"
 #include "act-game.h"

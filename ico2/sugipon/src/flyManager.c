@@ -1,6 +1,5 @@
 #include "fieldCollision.h"
 #include "matrixDrive.h"
-#include "main.h"
 
 /* the flying object the manager tracks */
 static GObj *flyGObj = 0; /* derived name */

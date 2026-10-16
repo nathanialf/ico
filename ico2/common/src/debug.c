@@ -3150,8 +3150,6 @@ inline int debug_SETest_color(int idx)
     return seKind[seDef[idx].kind] != 0 ? 0xFFFFFF00 : 0x80808000;
 }
 
-int debug_STAFFROLLTest(void);
-
 static int seSelect = 0; /* derived name */
 
 static int seHandle = -1; /* derived name */
@@ -3215,13 +3213,9 @@ void debug_SESlotDisp(void)
     }
 }
 
-int debug_reverbTest(void);
-
 static int adpcmSelect = 0; /* derived name */
 
 static int adpcmHandle = -1; /* derived name */
-
-int debug_AdpcmTest(int first);
 
 inline int debug_reverbTest(void)
 {
@@ -3346,7 +3340,7 @@ static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
         case 1:
         case 2:
         case 4:
-        case 0x2E:
+        case 46:
             list[n].name = objKindData[kind].name;
             list[n].obj = g;
             n++;
