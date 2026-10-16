@@ -333,123 +333,12 @@ rdlit ACTItemWatchMotion 0x00558130 0x00558144 ico2/fumi/src/act-game.c align=16
 text ACTGetWish_FromPad 0x0014BDF8 0x0014CEE8 ico2/fumi/src/act-wish.c lines=300  # us-only (after act-parallel-control.c's span; PAL order suggests ACTGetWish_FromPad (4836 B in PAL)); named ACTGetWish_FromPad by call sites, callees (provisional)
 lit4 ACTGetWish_FromPad 0x00630B04 0x00630B20 ico2/fumi/src/act-wish.c  # 7 floats, measured from the base: the text loads them
 rdlit ACTGetWish_FromPad 0x005581E8 0x005581F0 ico2/fumi/src/act-wish.c  # 1 double, measured from the base
-text findChainInJump 0x0014CEE8 0x0014D6B0 ico2/fumi/src/boyact.c local lines=143  # us-only (after act-parallel-control.c's span; PAL order suggests findChainInJump (2016 B in PAL)); named findChainInJump by callees, body alignment (provisional)
-lit4 findChainInJump 0x00630B20 0x00630B28 ico2/fumi/src/boyact.c  # 2 floats
-text CorrectOrient_RopeCliff 0x0014D6B0 0x0014D868 ico2/fumi/src/boyact.c local lines=48  # us-only (after act-parallel-control.c's span; body equals PAL CorrectOrient_RopeCliff's with immediates and jump targets masked); named CorrectOrient_RopeCliff by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text motBoyHand50 0x0014D868 0x0014D974 ico2/fumi/src/boyact.c lines=34  # us-only (after act-parallel-control.c's span; body equals PAL motBoyHand50's with immediates and jump targets masked); named motBoyHand50 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit motBoyHand50 0x00558230 0x00558244 ico2/fumi/src/boyact.c align=16  # 1 string
-text motBoyHand100 0x0014D978 0x0014DC24 ico2/fumi/src/boyact.c lines=63  # us-only (after act-parallel-control.c's span; body equals PAL motBoyHand100's with immediates and jump targets masked); named motBoyHand100 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit motBoyHand100 0x00558270 0x00558297 ico2/fumi/src/boyact.c align=16  # 2 strings
-sdlit motBoyHand100 0x00632280 0x0063228D ico2/fumi/src/boyact.c  # 2 strings
-text motBoyHand200 0x0014DC28 0x0014DF14 ico2/fumi/src/boyact.c lines=67  # us-only (after act-parallel-control.c's span; body equals PAL motBoyHand200's with immediates and jump targets masked); named motBoyHand200 by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-rdlit motBoyHand200 0x005582B0 0x005582C5 ico2/fumi/src/boyact.c align=16  # 1 string
-text handoff_heroin 0x0014DF18 0x0014E2FC ico2/fumi/src/boyact.c lines=21  # us-only (after act-parallel-control.c's span; PAL order suggests handoff_heroin (992 B in PAL)); named handoff_heroin by call sites, callees, body alignment (provisional)
-text CheckCollisionAttr 0x0014E300 0x0014E488 ico2/fumi/src/boyact.c local lines=50  # us-only (after act-parallel-control.c's span; PAL order suggests CheckCollisionAttr (412 B in PAL)); named CheckCollisionAttr by callees, body alignment (provisional)
-text E3_StageStartBoy 0x0014E708 0x0014E840 ico2/fumi/src/boyact.c local lines=34  # us-only (after act-parallel-control.c's span; body equals PAL E3_StageStartBoy's with immediates and jump targets masked); named E3_StageStartBoy by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text GetChainSlope 0x0014E840 0x0014EA2C ico2/fumi/src/boyact.c local lines=36  # us-only (after act-parallel-control.c's span; PAL order suggests GetChainSlope (568 B in PAL)); named GetChainSlope by callees, body alignment (provisional)
-rdlit GetChainSlope 0x005582D8 0x005582F9 ico2/fumi/src/boyact.c  # 2 strings
 text subBoyControl 0x0014EA30 0x0015019C ico2/fumi/src/boyact.c lines=644  # us-only (after act-parallel-control.c's span; PAL order suggests subBoyControl (6260 B in PAL)); named subBoyControl by callees, body alignment (provisional)
 lit4 subBoyControl 0x00630B2C 0x00630BE8 ico2/fumi/src/boyact.c  # 47 floats, measured from the base: the text loads them
 sdlit subBoyControl 0x006322A0 0x006322A8 ico2/fumi/src/boyact.c  # 1 string, measured from the base
 rdlit subBoyControl 0x00558300 0x005584E4 ico2/fumi/src/boyact.c align=16  # 2 jump tables, measured from the base
-text InitSwapWeapon 0x001501A0 0x001502D4 ico2/fumi/src/boyact.c local lines=32  # us-only (after act-parallel-control.c's span; body equals PAL InitSwapWeapon's with immediates and jump targets masked); named InitSwapWeapon by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-lit4 InitSwapWeapon 0x00630BE8 0x00630BEC ico2/fumi/src/boyact.c  # 1 float
-text PutWeapon 0x001502D8 0x00150348 ico2/fumi/src/boyact.c local lines=14  # us-only (after act-parallel-control.c's span; PAL order suggests PutWeapon (140 B in PAL)); named PutWeapon by call sites, body alignment (provisional)
-text OtherStageGirlPinchCamera_After 0x00150348 0x001504D4 ico2/fumi/src/boyact.c local lines=22  # us-only (after act-parallel-control.c's span; PAL order suggests OtherStageGirlPinchCamera_After (488 B in PAL)); named OtherStageGirlPinchCamera_After by callees (provisional)
-text ACTDispLwsBoyStonize_InQueenStage 0x001504D8 0x00150568 ico2/fumi/src/boyact.c lines=8  # us-only (after act-parallel-control.c's span; body equals PAL ACTDispLwsBoyStonize_InQueenStage's with immediates and jump targets masked); named ACTDispLwsBoyStonize_InQueenStage by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text subBoyCollision 0x00150568 0x00151678 ico2/fumi/src/boyact.c lines=443  # us-only (after act-parallel-control.c's span; PAL order suggests subBoyCollision (5028 B in PAL)); named subBoyCollision by callees, body alignment (provisional)
-lit4 subBoyCollision 0x00630BEC 0x00630BF4 ico2/fumi/src/boyact.c  # 2 floats
-rdlit subBoyCollision 0x00558510 0x00558620 ico2/fumi/src/boyact.c align=16  # 1 jtbl
-sdlit subBoyCollision 0x006322B8 0x006322BC ico2/fumi/src/boyact.c  # 1 word
-text actBoySwim 0x00151678 0x00151864 ico2/fumi/src/boyact.c lines=46  # us-only (after act-parallel-control.c's span; PAL order suggests actBoySwim (628 B in PAL)); named actBoySwim by callees (provisional)
-lit4 actBoySwim 0x00630BF4 0x00630BF8 ico2/fumi/src/boyact.c  # 1 float, measured from the base: the text loads them
-text actBoyWalk 0x00151868 0x001519D4 ico2/fumi/src/boyact.c lines=25  # us-only (after act-parallel-control.c's span; PAL size and order suggest actBoyWalk); named actBoyWalk by PAL size and order, callees, body alignment (provisional)
-rdlit actBoyWalk 0x00558620 0x00558630 ico2/fumi/src/boyact.c align=16  # 2 doubles
-text actBoyRun 0x001519D8 0x00151B44 ico2/fumi/src/boyact.c lines=25  # us-only (after act-parallel-control.c's span; PAL size and order suggest actBoyRun); named actBoyRun by PAL size and order, callees, body alignment (provisional)
-rdlit actBoyRun 0x00558630 0x00558640 ico2/fumi/src/boyact.c align=16  # 2 doubles
-text actBoyAttack 0x00151B48 0x00151D74 ico2/fumi/src/boyact.c lines=25  # us-only (after act-parallel-control.c's span; PAL order suggests actBoyAttack (564 B in PAL)); named actBoyAttack by callees, body alignment (provisional)
-rdlit actBoyAttack 0x00558658 0x00558684 ico2/fumi/src/boyact.c  # 2 strings
-text actBoyTakeWeaponReady 0x00151D78 0x00151F00 ico2/fumi/src/boyact.c lines=32  # us-only (after act-parallel-control.c's span; body equals PAL actBoyTakeWeaponReady's with immediates and jump targets masked); named actBoyTakeWeaponReady by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actBoyTakeWeapon 0x00151F00 0x001520E4 ico2/fumi/src/boyact.c lines=48  # us-only (after act-parallel-control.c's span; body equals PAL actBoyTakeWeapon's with immediates and jump targets masked); named actBoyTakeWeapon by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text func_001520E8 0x001520E8 0x001521F0 ico2/fumi/src/boyact.c  # us-only; after act-parallel-control.c's span; PAL order suggests actBoyCliffHesitate (276 B in PAL)
-text ditch_check_heroin_position 0x001521F0 0x001522E0 ico2/fumi/src/boyact.c local lines=14  # us-only (after act-parallel-control.c's span; body equals PAL ditch_check_heroin_position's with immediates and jump targets masked); named ditch_check_heroin_position by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actBoyPullupReady 0x001522E0 0x00152504 ico2/fumi/src/boyact.c  # us-only; after act-parallel-control.c's span; PAL order suggests actBoyPullupReady (684 B in PAL); named actBoyPullupReady: act-mode-def PULLUP_READY's boy act; PAL actBoyPullupReady (provisional)
-text actBoyPullupGo 0x00152508 0x001526A0 ico2/fumi/src/boyact.c lines=20  # us-only (after act-parallel-control.c's span; body equals PAL actBoyPullupGo's with immediates and jump targets masked); named actBoyPullupGo by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-lit4 actBoyPullupGo 0x00630BF8 0x00630C04 ico2/fumi/src/boyact.c  # 3 floats
-text actBoyBelift 0x001526A0 0x00152A6C ico2/fumi/src/boyact.c lines=81  # us-only (after act-parallel-control.c's span; body equals PAL actBoyBelift's with immediates and jump targets masked); named actBoyBelift by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-lit4 actBoyBelift 0x00630C04 0x00630C0C ico2/fumi/src/boyact.c  # 2 floats
-rdlit actBoyBelift 0x005586B8 0x005586D3 ico2/fumi/src/boyact.c  # 1 string
-text actBoyRescueReady 0x00152A70 0x00152F14 ico2/fumi/src/boyact.c lines=95  # us-only (after act-parallel-control.c's span; body equals PAL actBoyRescueReady's with immediates and jump targets masked); named actBoyRescueReady by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-lit4 actBoyRescueReady 0x00630C0C 0x00630C10 ico2/fumi/src/boyact.c  # 1 float
-text actBoyDitch3mReady 0x00152F18 0x00153314 ico2/fumi/src/boyact.c lines=111  # us-only (after act-parallel-control.c's span; PAL order suggests actBoyDitch3mReady (1452 B in PAL)); named actBoyDitch3mReady by callees (provisional)
-lit4 actBoyDitch3mReady 0x00630C10 0x00630C1C ico2/fumi/src/boyact.c  # 3 floats, measured from the base: the text loads them
 text actBoyStart 0x00153478 0x001538BC ico2/fumi/src/boyact.c lines=123  # ordinal; first difference at insn 41; imm:16; extent-equal
 rdlit actBoyStart 0x005586F0 0x0055876C ico2/fumi/src/boyact.c align=16  # 3 strings, 2 data runs
-text CorrectStickInfo 0x001538C0 0x001538F4 ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetBoyWeaponGObj
-text GetBoyWeaponGObj 0x001538F8 0x00153918 ico2/fumi/src/boyact.c lines=8  # ordinal; first difference at insn 5; imm:1; extent-equal
-text actBoyStand 0x00153918 0x00153980 ico2/fumi/src/boyact.c lines=11  # ordinal; first difference at insn 1; other:5; extent-equal
-text actBoyHang 0x00153980 0x001539B8 ico2/fumi/src/boyact.c lines=6  # ordinal; first difference at insn 6; imm:2; extent-equal
-text actBoyBHang 0x001539B8 0x001539F0 ico2/fumi/src/boyact.c lines=6  # ordinal; first difference at insn 6; imm:2; extent-equal
-text actBoyFall 0x001539F0 0x00153A30 ico2/fumi/src/boyact.c lines=10  # ordinal; first difference at insn 10; imm:1; extent-equal
-rdlit actBoyFall 0x00558640 0x00558652 ico2/fumi/src/boyact.c align=16 def  # 1 string
-text actBoyCall 0x00153A30 0x00153AA8 ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 12; imm:6; extent-equal
-rdlit actBoyCall 0x00558688 0x0055869A ico2/fumi/src/boyact.c def  # 1 string
-text actBoyItem 0x00153AA8 0x00153AD4 ico2/fumi/src/boyact.c  # us-only; in boyact.c's span; pairs with no PAL-only function there by size and order; named actBoyItem: act-mode-def ITEM's boy act (PAL actCommonItem) (provisional)
-text actBoyItemAfter 0x00153AD8 0x00153B34 ico2/fumi/src/boyact.c  # us-only; in boyact.c's span; pairs with no PAL-only function there by size and order; named actBoyItemAfter: act-mode-def ITEMAFTER's boy act (no PAL row) (provisional)
-rdlit actBoyItemAfter 0x005586A0 0x005586B7 ico2/fumi/src/boyact.c def  # 1 string, measured from the base
-text actBoyCliffHesitate 0x00153B38 0x00153BDC ico2/fumi/src/boyact.c  # us-only; in boyact.c's span; pairs with no PAL-only function there by size and order; named actBoyCliffHesitate: act-mode-def CLIFF_HESITATE's boy act; PAL actBoyCliffHesitate (provisional)
-text actBoyHangBefore 0x00153BE0 0x00153C8C ico2/fumi/src/boyact.c lines=14  # us-only (in boyact.c's span; PAL size and order suggest actBoyHangBefore); named actBoyHangBefore by PAL size and order, callees, body alignment (provisional)
-text actBoyReadyMove 0x00153C90 0x00153D9C ico2/fumi/src/boyact.c  # us-only; in boyact.c's span; pairs with no PAL-only function there by size and order; named actBoyReadyMove: act-mode-def BOYREADYMOVE's act; PAL actBoyReadyMove (provisional)
-text actBoyBeslam 0x00153DA0 0x00153DF4 ico2/fumi/src/boyact.c lines=10  # us-only (in boyact.c's span; body equals PAL actBoyBeslam's with immediates and jump targets masked); named actBoyBeslam by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actBoyRescueSrc 0x00153DF8 0x00153E24 ico2/fumi/src/boyact.c lines=7  # us-only (in boyact.c's span; PAL size and order suggest actBoyRescueSrc); named actBoyRescueSrc by PAL size and order, callees, body alignment (provisional)
-text actBoySupportGBBegin 0x00153E28 0x00153E68 ico2/fumi/src/boyact.c lines=10  # us-only (in boyact.c's span; PAL size and order suggest actBoySupportGBBegin); named actBoySupportGBBegin by PAL size and order, callees, body alignment (provisional)
-text actBoySupportGBLoop 0x00153E68 0x00153EC4 ico2/fumi/src/boyact.c lines=9  # us-only (in boyact.c's span; body equals PAL actBoySupportGBLoop's with immediates and jump targets masked); named actBoySupportGBLoop by its body equals PAL's with immediates and jump targets masked, callees, body alignment (provisional)
-text actBoySupportGBEnd 0x00153EC8 0x00153F08 ico2/fumi/src/boyact.c lines=10  # us-only (in boyact.c's span; PAL size and order suggest actBoySupportGBEnd); named actBoySupportGBEnd by PAL size and order, callees, body alignment (provisional)
-text actBoySupportBGBegin 0x00153F08 0x00153F34 ico2/fumi/src/boyact.c lines=7  # us-only (in boyact.c's span; PAL size and order suggest actBoySupportBGBegin); named actBoySupportBGBegin by PAL size and order, callees, body alignment (provisional)
-text actBoyDitch3mExec 0x00153F38 0x00153F64 ico2/fumi/src/boyact.c lines=7  # us-only (in boyact.c's span; PAL size and order suggest actBoyDitch3mExec); named actBoyDitch3mExec by PAL size and order, callees, body alignment (provisional)
-text actBoyHangG3M 0x00153F68 0x00153FE4 ico2/fumi/src/boyact.c lines=15  # us-only (in boyact.c's span; PAL order suggests actBoyHangG3M (132 B in PAL)); named actBoyHangG3M by callees, body alignment (provisional)
-lit4 actBoyHangG3M 0x00630C1C 0x00630C20 ico2/fumi/src/boyact.c  # 1 float
-text IsAbleBoyControl 0x00153FE8 0x00153FF0 ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before actBoyHand50
-text actBoyHand50 0x00153FF0 0x0015406C ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 10; imm:5; extent-equal
-rdlit actBoyHand50 0x00558200 0x0055822B ico2/fumi/src/boyact.c align=16 def  # 2 strings
-text afterBoyHand50 0x00154070 0x001540A8 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 10; imm:1; extent-equal
-rdlit afterBoyHand50 0x005581F0 0x00558200 ico2/fumi/src/boyact.c align=16 def  # 1 string
-text actBoyHand100 0x001540A8 0x00154124 ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 10; imm:5; extent-equal
-rdlit actBoyHand100 0x00558248 0x0055826B ico2/fumi/src/boyact.c def  # 2 strings
-text afterBoyHand100 0x00154128 0x00154160 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 10; imm:1; extent-equal
-text actBoyHand200 0x00154160 0x001541DC ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 10; imm:5; extent-equal
-rdlit actBoyHand200 0x00558298 0x005582AD ico2/fumi/src/boyact.c def  # 1 string
-text afterBoyHand200 0x001541E0 0x00154218 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 10; imm:1; extent-equal
-text ACTSearchEnemy 0x00154218 0x0015438C ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before DeleteBoyWeapon
-text DeleteBoyWeapon 0x00154390 0x00154420 ico2/fumi/src/boyact.c lines=24  # ordinal; first difference at insn 6; imm:5; extent-equal
-lit4 DeleteBoyWeapon 0x00630C20 0x00630C24 ico2/fumi/src/boyact.c  # 1 float
-text isLiftBoyEnable 0x00154420 0x00154444 ico2/fumi/src/boyact.c lines=11  # ordinal; first difference at insn 2; imm:3; extent-equal
-text BoyInfoUpdate_StageChange 0x00154448 0x0015451C ico2/fumi/src/boyact.c lines=22  # ordinal; first difference at insn 16; imm:1; extent-equal
-text IsBoyStatus_EnemyMustWait 0x00154520 0x001545D4 ico2/fumi/src/boyact.c lines=26  # ordinal; first difference at insn 6; imm:5; extent-equal
-text IsGirlEscortedInNextStage 0x001545D8 0x001545F0 ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before IsGirlEscortedInCurrentStage
-text IsGirlEscortedInCurrentStage 0x001545F0 0x001545F8 ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetSaveSofaLayoutID
-text GetSaveSofaLayoutID 0x001545F8 0x00154644 ico2/fumi/src/boyact.c lines=22  # ordinal; first difference at insn 7; imm:3; extent-equal
-text OnGirlEscortFlag 0x00154648 0x00154668 ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SetBoyWeaponGObj
-text SetBoyWeaponGObj 0x00154668 0x001546BC ico2/fumi/src/boyact.c lines=6  # us-only (in boyact.c's span; PAL order suggests SetBoyWeaponGObj (100 B in PAL)); named SetBoyWeaponGObj by callees, body alignment (provisional)
-text RequestStageChangeKidnapEnd 0x001546C0 0x0015476C ico2/fumi/src/boyact.c lines=15  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetEfStageCameraTargetID
-rdlit RequestStageChangeKidnapEnd 0x005586E0 0x005586E4 ico2/fumi/src/boyact.c align=16 def  # 1 data
-text GetEfStageCameraTargetID 0x00154770 0x00154790 ico2/fumi/src/boyact.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before IsBackFromEfStage
-text IsBackFromEfStage 0x00154790 0x0015479C ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetbufpCharacterPacket
-text GetbufpCharacterPacket 0x001547A0 0x001547AC ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetsizeCharacterPacket
-text GetsizeCharacterPacket 0x001547B0 0x001547B8 ico2/fumi/src/boyact.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text MakeCharacterPacket 0x001547B8 0x001548EC ico2/fumi/src/boyact.c lines=31  # ordinal; first difference at insn 18; length:-4; extent-differs
-text ReadCharacterPacket 0x001548F0 0x001549B4 ico2/fumi/src/boyact.c lines=12  # ordinal; first difference at insn 10; imm:3; extent-equal
-text ACTSearchGObj 0x001549B8 0x00154B1C ico2/fumi/src/boyact.c lines=5  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before afterBoySwim
-text afterBoySwim 0x00154B20 0x00154B8C ico2/fumi/src/boyact.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before actBoyJump
-sdlit afterBoySwim 0x006322C0 0x006322C6 ico2/fumi/src/boyact.c def  # 1 string
-text actBoyJump 0x00154B90 0x00154BBC ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 6; imm:1; extent-equal
-text afterBoyTakeWeapon 0x00154BC0 0x00154CB8 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 15; length:-4; extent-differs
-text afterBoyHangG3M 0x00154CB8 0x00154CC8 ico2/fumi/src/boyact.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before subBoyBrainMain
-text subBoyBrainMain 0x00154CC8 0x00154CE8 ico2/fumi/src/boyact.c lines=7  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SetBoyInfo
-text SetBoyInfo 0x00154CE8 0x00154D20 ico2/fumi/src/boyact.c lines=17  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetBoyRootPositionForCamera
-text GetBoyRootPositionForCamera 0x00154D20 0x00154DCC ico2/fumi/src/boyact.c lines=19  # ordinal; first difference at insn 12; imm:4; extent-equal
-lit4 GetBoyRootPositionForCamera 0x00630C24 0x00630C28 ico2/fumi/src/boyact.c  # 1 float
-text Boy_Init 0x00154DD0 0x00154E60 ico2/fumi/src/boyact.c lines=5  # us-only (after boyact.c's span; PAL order suggests Boy_Init (160 B in PAL)); named Boy_Init by call sites, body alignment (provisional)
 text ChangeMailInLadder 0x00154E70 0x001550BC ico2/fumi/src/commonact.c local lines=58  # us-only (after boyact.c's span; PAL order suggests ChangeMailInLadder (720 B in PAL)); named ChangeMailInLadder by callees (provisional)
 text _ACTCorrectMsg 0x001550C0 0x00155B54 ico2/fumi/src/commonact.c lines=297  # us-only (after boyact.c's span; PAL order suggests _ACTCorrectMsg (2860 B in PAL)); named _ACTCorrectMsg by callees, body alignment (provisional)
 sdlit _ACTCorrectMsg 0x006322D0 0x006322D7 ico2/fumi/src/commonact.c  # 1 string, measured from the base
