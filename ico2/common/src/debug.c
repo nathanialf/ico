@@ -44,7 +44,6 @@
 #include "Texture.h"
 #include "debug_exception.h"
 #include <assert.h>
-#include "include_asm.h"
 
 static int debug_CollisionTest(int reset);
 static int debug_DispBall(int on);
@@ -1932,7 +1931,51 @@ static inline void debug_WriteTim2(int fd, int *img, int w, int h) /* derived na
     }
 }
 
-INCLUDE_ASM(debug_WriteBMP);
+static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
+{
+    unsigned char line[w * 3];
+    BmpHeader hdr;
+    unsigned char *s;
+    unsigned char *d;
+    int x;
+    int y;
+    hdr.pad[0] = 0;
+    hdr.pad[1] = 0;
+    hdr.bfType[0] = 0x42;
+    hdr.bfType[1] = 0x4D;
+    hdr.bfOffBits = 0x36;
+    hdr.biSize = 0x28;
+    hdr.biPlanes = 1;
+    hdr.biBitCount = 24;
+    hdr.biCompression = 0;
+    hdr.biXPelsPerMeter = 0;
+    hdr.biYPelsPerMeter = 0;
+    hdr.biClrUsed = 0;
+    hdr.biClrImportant = 0;
+    /* both arms store the same: the test's load and its 1 stay in the ROM
+       (aug6 TRFILE debug.c:2885-2891, the 2886-2888 lines code-less) */
+    if (debug_snapshot_size == 1) {
+        hdr.biWidth = w;
+        hdr.biHeight = h;
+    } else {
+        hdr.biWidth = w;
+        hdr.biHeight = h;
+    }
+    hdr.biSizeImage = hdr.biWidth * hdr.biHeight * 3;
+    hdr.bfSize = hdr.biSizeImage + hdr.bfOffBits;
+    sceWrite(fd, hdr.bfType, hdr.bfOffBits);
+    for (y = h - 1; y >= 0; y--) {
+        s = (unsigned char *)&src[y * w];
+        d = line;
+        for (x = 0; x < w; x++, d += 3) {
+            d[0] = s[2];
+            d[1] = s[1];
+            d[2] = s[0];
+            s += 4;
+        }
+        sceWrite(fd, line, w * 3);
+    }
+}
 
 /* debug_SnapShot's first-call flag */
 static int snapFirst = 1; /* derived name */
