@@ -33,7 +33,6 @@
 #include "particleEffect.h"
 #include "objact.h"
 #include "gobj.h"
-#include "include_asm.h"
 #include "switch.c.inc"
 
 /* The 400-byte box work block InitBoxGeo allocates and seeds from the
@@ -88,24 +87,6 @@ typedef struct BoxWork { /* field names derived */
     char pad184[12];
 } __attribute__((aligned(8))) BoxWork; /* derived name */
 
-INCLUDE_ASM(GetFloorLeverGlobalHoldPoint);
-
-INCLUDE_ASM_LIT(InitFloorLeverGeo);
-
-INCLUDE_ASM(FloorLeverTriStateGeo);
-
-INCLUDE_ASM(FloorLeverGeo);
-
-INCLUDE_ASM(FloorLeverDL);
-
-INCLUDE_ASM(GetWallLeverGlobalHoldPoint);
-
-INCLUDE_ASM(WallLeverGeo);
-
-INCLUDE_ASM(WallLeverDL);
-
-INCLUDE_ASM(CheckReadyAllSwitches);
-
 static void landingSE(GObj *self)
 {
     ExecuteSEPackage(self, 0x2);
@@ -129,6 +110,21 @@ static void pullStartSE(GObj *self)
 static void wallHitSE(GObj *self)
 {
     ExecuteSEPackage(self, 0x1E);
+}
+
+/* inlined into onPath and into ExecBoxMoveEndReaction */
+static inline void stopBoxMoveSE(GObj *self) /* derived name */
+{
+    BoxWork *q = GOBJ_SUB(self)->work;
+
+    StopSEPackage(self);
+    StopSEPackageWithGroupVariation(self, 1);
+
+    ExecuteSEPackage(self, 0x16);
+    if (q->stopWall != 0) {
+        wallHitSE(self);
+        q->stopWall = 0;
+    }
 }
 
 static void initFallDown(GObj *self)
@@ -191,21 +187,6 @@ static int checkFieldContact(GObj *self, float lim)
     return 0;
 }
 
-/* inlined into onPath and into ExecBoxMoveEndReaction */
-static inline void stopBoxMoveSE(GObj *self) /* derived name */
-{
-    BoxWork *q = GOBJ_SUB(self)->work;
-
-    StopSEPackage(self);
-    StopSEPackageWithGroupVariation(self, 1);
-
-    ExecuteSEPackage(self, 0x16);
-    if (q->stopWall != 0) {
-        wallHitSE(self);
-        q->stopWall = 0;
-    }
-}
-
 /* Inlined into execNormalMove twice (once with ClipWall, once with
    ClipWallBoxStop) and into inertiaMove once; the two constant arguments
    fold, so each inlining carries only one of the two clip calls.  The work
@@ -252,42 +233,6 @@ typedef struct { /* field names derived */
     BoxWallPt pt;
     int hit;
 } BoxWallRec; /* derived name */
-
-/* inlined once, into execAutoMove */
-static inline void setBoxStopWallFlag(GObj *self, float *vel) /* derived name */
-{
-    ClipWork w;
-    float dir[4];
-    BoxWork *p = GOBJ_SUB(self)->work;
-
-    memset(&w, 0, 0xC0);
-    _NormalizeVector(dir, vel);
-    _ScaleVector(dir, dir, (p->scaleX < p->scaleZ ? p->scaleX : p->scaleZ) * 50.0f + 25.0f);
-    GetRootPosition(w.pt[0], self);
-    AddVectorXYZ(w.pt[1], w.pt[0], dir);
-    ClipWallBoxStop(&w);
-    if (w.wall.elem != 0) {
-        p->stopWall = 1;
-    } else {
-        p->stopWall = 0;
-    }
-}
-
-static float getAlign(float v, float g);
-
-static inline void alignPosition(GObj *self, float *dst, float *src, float grid) /* derived name */
-{
-    float npos[4];
-    char *n = (char *)(int)GOBJ_SUB(self);
-    float cx = *(float *)(n + 0x50);
-    float cz = *(float *)(n + 0x58);
-
-    CopyVector(npos, src);
-    npos[0] = getAlign(src[0] - cx, grid) + cx;
-    npos[2] = getAlign(src[2] - cz, grid) + cz;
-
-    CopyVector(dst, npos);
-}
 
 static int execNormalMove(GObj *self, int stop)
 {
@@ -388,6 +333,26 @@ static int execNormalMove(GObj *self, int stop)
     return ret;
 }
 
+/* inlined once, into execAutoMove */
+static inline void setBoxStopWallFlag(GObj *self, float *vel) /* derived name */
+{
+    ClipWork w;
+    float dir[4];
+    BoxWork *p = GOBJ_SUB(self)->work;
+
+    memset(&w, 0, 0xC0);
+    _NormalizeVector(dir, vel);
+    _ScaleVector(dir, dir, (p->scaleX < p->scaleZ ? p->scaleX : p->scaleZ) * 50.0f + 25.0f);
+    GetRootPosition(w.pt[0], self);
+    AddVectorXYZ(w.pt[1], w.pt[0], dir);
+    ClipWallBoxStop(&w);
+    if (w.wall.elem != 0) {
+        p->stopWall = 1;
+    } else {
+        p->stopWall = 0;
+    }
+}
+
 static int execAutoMove(GObj *self)
 {
     float pos[4];
@@ -404,8 +369,48 @@ static int execAutoMove(GObj *self)
     return 1;
 }
 
-INCLUDE_ASM(AlignBox);
+static inline float getAlign(float v, float g)
+{
+    if (0.0f <= v) {
+        return (float)(int)((v + g * 0.5f) / g) * g;
+    }
+    return -getAlign(-v, g);
+}
 
+static inline void alignPosition(GObj *self, float *dst, float *src, float grid) /* derived name */
+{
+    float npos[4];
+    char *n = (char *)(int)GOBJ_SUB(self);
+    float cx = *(float *)(n + 0x50);
+    float cz = *(float *)(n + 0x58);
+
+    CopyVector(npos, src);
+    npos[0] = getAlign(src[0] - cx, grid) + cx;
+    npos[2] = getAlign(src[2] - cz, grid) + cz;
+
+    CopyVector(dst, npos);
+}
+
+int AlignBox(GObj *self, float grid)
+{
+    float pos[4];
+    float quat[4];
+    Sub15C *sub = GOBJ_SUB(self);
+    BoxWork *q = sub->work;
+
+    GetInverseQuaternion(quat, (char *)sub + 0x60);
+    SetRootQuaternion(self, quat);
+    GetRootPosition(pos, self);
+    alignPosition(self, pos, pos, grid);
+    SetDirectRootPosition(self, pos);
+    q->mode = 0;
+    return 0;
+}
+
+/* Lines 549 to 551 are one call-site line, the same DObj-buffer setup
+   ico2/omori/src/chain.c expands by hand in InitChainGeo: the wheel count is
+   2 here, so the three allocation sizes are 2<<6, 2<<4 and 2*80 bytes, and
+   the 551 the allocator records is the line of the call. */
 static void initWheels(GObj *self, SObjSimpleSetting *lay)
 {
     BoxWork *w = GOBJ_SUB(self)->work;
@@ -499,6 +504,18 @@ static void initWheels(GObj *self, SObjSimpleSetting *lay)
     }
 }
 
+/* inlined once, into action's case 0.  10430.3779f is 65536 / (2 * pi),
+   the radian-to-angle-table factor (ico2/seki/src/Primitive.c spells it the
+   same way). */
+static inline void updateBoxWheelAngle(GObj *self) /* derived name */
+{
+    BoxWork *p = GOBJ_SUB(self)->work;
+
+    if (p->wheelDObj != 0) {
+        p->wheelAngle = (short)((float)p->wheelAngle - p->vel[2] * 10430.3779f / p->wheelRadius);
+    }
+}
+
 static void dispWheels(GObj *self)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
@@ -517,22 +534,6 @@ static void dispWheels(GObj *self)
     MatrixDrive_RotMatrixX((short)(*(unsigned short *)&p->wheelAngle + 0x4000));
     CopyMatrix((char *)p->wheelDObj->nodeMtx + 0x40, MatrixDrive_GetMatrix());
     p2o_DispVU1DObjMulti(p->wheelDObj);
-}
-
-/* Lines 549 to 551 are one call-site line, the same DObj-buffer setup
-   ico2/omori/src/chain.c expands by hand in InitChainGeo: the wheel count is
-   2 here, so the three allocation sizes are 2<<6, 2<<4 and 2*80 bytes, and
-   the 551 the allocator records is the line of the call. */
-/* inlined once, into action's case 0.  10430.3779f is 65536 / (2 * pi),
-   the radian-to-angle-table factor (ico2/seki/src/Primitive.c spells it the
-   same way). */
-static inline void updateBoxWheelAngle(GObj *self) /* derived name */
-{
-    BoxWork *p = GOBJ_SUB(self)->work;
-
-    if (p->wheelDObj != 0) {
-        p->wheelAngle = (short)((float)p->wheelAngle - p->vel[2] * 10430.3779f / p->wheelRadius);
-    }
 }
 
 /* one 16-byte route point */
@@ -856,12 +857,22 @@ static void onPathInitialize(GObj *self)
     }
 }
 
+/* this file's uses of these do not fit the prototypes in the headers that
+   declare them */
+
+/* the debug switch the wall-fit trace is printed under */
+
+/* the four trace lines */
+
 /* the two route colours onPath draws the route and its end points in, one
    word per channel, RGBA */
 static int routeFrontColor[4] = {0, 128, 255, 128}; /* derived name */
 
 static int routeRearColor[4] = {255, 128, 0, 128}; /* derived name */
 
+/* 10430.378 is 32768 / pi, the radian-to-angle-table factor.  The
+   quaternion's initialiser is mostly zero, and each wheel offset is a VECTOR
+   record built by an initialiser, as onPathInitialize's are. */
 static int onPath(GObj *self)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
@@ -940,6 +951,17 @@ static int onPath(GObj *self)
     return hitFront | hitRear;
 }
 
+/* no caller; float as sugipon's scalar getters */
+inline float GetDistanceOfGObj(void *from, void *to)
+{
+    float v[4];
+    float w[4];
+    GetRootPosition(v, to);
+    GetRootPosition(w, from);
+    sceVu0SubVector(v, v, w);
+    return FSqrt(sceVu0InnerProduct(v, v));
+}
+
 static int playAnimationCore(GObj *self)
 {
     StreamElem mot;
@@ -964,19 +986,6 @@ static int playAnimationCore(GObj *self)
     return UpdateFrameCounter(self);
 }
 
-/* this file's uses of these do not fit the prototypes in the headers that
-   declare them */
-
-/* the debug switch the wall-fit trace is printed under */
-
-/* the four trace lines */
-
-/* 10430.378 is 32768 / pi, the radian-to-angle-table factor.  The
-   quaternion's initialiser is mostly zero, and each wheel offset is a VECTOR
-   record built by an initialiser, as onPathInitialize's are. */
-/* no caller; float as sugipon's scalar getters */
-static int playAnimationCore(GObj *self);
-
 /* inlined once, into execFallDown's case 3; the frame-rate divisor is the
    one moveBoxAutoMatic uses */
 static inline void execBoxFall(GObj *self) /* derived name */
@@ -997,6 +1006,7 @@ static inline void execBoxFall(GObj *self) /* derived name */
 /* the local Z axis the floating box's facing is rebuilt from */
 static float floatFacingAxis[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
+/* 0.31830987 is 1 / pi */
 int MoveFloatingBox(GObj *self, GObj *other, float *dst, void *src, float lim)
 {
     float pos[4];
@@ -1071,7 +1081,6 @@ int MoveFloatingBox(GObj *self, GObj *other, float *dst, void *src, float lim)
     return 1;
 }
 
-/* 0.31830987 is 1 / pi */
 /* the eight horizontal push-out directions the floating box is tested along */
 static float floatPushDir[8][4] = {
     {0.0f, 0.0f, 1.0f, 1.0f},  {0.0f, 0.0f, -1.0f, 1.0f},  {1.0f, 0.0f, 0.0f, 1.0f},
@@ -1145,6 +1154,9 @@ static void avoidCharGObj(GObj *self, GObj *chara)
         }
     }
 }
+
+/* the two characters the floating box has to keep clear of, the boy and the
+   girl, as sceneManager.c sets them */
 
 /* the world Y axis the box's tilt is measured around */
 static float floatTiltAxis[4] = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
@@ -1262,9 +1274,6 @@ static void initFloating(GObj *self)
     execFloating(self);
 }
 
-/* the two characters the floating box has to keep clear of, the boy and the
-   girl, as sceneManager.c sets them */
-
 static int _checkItemBreak(void *pos)
 {
     float p[4];
@@ -1318,6 +1327,25 @@ static void initLanding(GObj *self)
     }
     _checkItemBreak(pos);
     GetMatrixFromQuaternionPos(p->mtx[0], GOBJ_SUB(self)->root.baseQuat, (char *)pos);
+}
+
+/* both are inlined once, into action's case 4, the inner one inside the
+   outer one */
+static inline void resetBoxRootQuaternion(GObj *self, float *q) /* derived name */
+{
+    GetInverseQuaternion(q, (char *)GOBJ_SUB(self) + 0x60);
+    SetRootQuaternion(self, q);
+    GOBJ_SUB(self)->colRotate = 1;
+}
+
+static inline void playBoxAnimation(GObj *self, float *q) /* derived name */
+{
+    if (playAnimationCore(self) != 0) {
+        BoxWork *p = GOBJ_SUB(self)->work;
+
+        p->mode = 0;
+        resetBoxRootQuaternion(self, q);
+    }
 }
 
 /* inlined once, into execFallDown */
@@ -1388,23 +1416,11 @@ static void inertiaMove(GObj *self)
     }
 }
 
-/* both are inlined once, into action's case 4, the inner one inside the
-   outer one */
-static inline void resetBoxRootQuaternion(GObj *self, float *q) /* derived name */
+inline int IsThisBoxTruck(GObj *self)
 {
-    GetInverseQuaternion(q, (char *)GOBJ_SUB(self) + 0x60);
-    SetRootQuaternion(self, q);
-    GOBJ_SUB(self)->colRotate = 1;
-}
+    BoxWork *p = GOBJ_SUB(self)->work;
 
-static inline void playBoxAnimation(GObj *self, float *q) /* derived name */
-{
-    if (playAnimationCore(self) != 0) {
-        BoxWork *p = GOBJ_SUB(self)->work;
-
-        p->mode = 0;
-        resetBoxRootQuaternion(self, q);
-    }
+    return p->route;
 }
 
 static void action(GObj *self)
@@ -1449,11 +1465,69 @@ static void action(GObj *self)
     }
 }
 
-INCLUDE_ASM(GetBoxHoldPoint);
+inline void GetBoxGlobalHoldPoint(float *out, GObj *self, float *local)
+{
+    float buf[16];
+    GetRootMatrix(buf, self);
+    sceVu0ApplyMatrix(out, buf, local);
+}
 
 /* The clip work buffer is declared in a block of its own after the
    candidate loop.  The first iteration measures with sugiCommon.h's
    distance_squared_b, the rest with distance_squared. */
+int GetBoxHoldPoint(float *out, GObj *self, GObj *chara)
+{
+    float pos[4];
+    float p[4];
+    BoxWork *q = GOBJ_SUB(self)->work;
+    int best = 0;
+    float min = 0.0f;
+    float d;
+    int i;
+
+    GetRootPosition(pos, chara);
+    for (i = 0; i < 4; i++) {
+        GetBoxGlobalHoldPoint(p, self, holdPointLocal[i]);
+        if (i == 0) {
+            min = distance_squared_b(p, pos);
+            best = 0;
+        } else {
+            if ((d = distance_squared(p, pos)) < min) {
+                min = d;
+                best = i;
+            }
+        }
+    }
+    CopyVector(out, holdPointLocal[best]);
+    out[0] *= q->scaleX;
+    out[2] *= q->scaleZ;
+    AddVectorXYZ(out, out, holdPointOffset[best]);
+    q->holder = chara;
+    CopyVector(q->holdPoint, out);
+    {
+        ClipWork w;
+
+        memset(&w, 0, 0xC0);
+        GetBoxGlobalHoldPoint(w.pt[1], self, ZeroPoint);
+        GetBoxGlobalHoldPoint(w.pt[0], self, out);
+        ClipWall(&w);
+        if (w.wall.elem != 0) {
+            if (CompareAttribute(GetWallAttribute(&w), 0xB00) ||
+                CompareAttribute(GetWallAttribute(&w), 0x400)) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+inline int CanHoldBox(GObj *self)
+{
+    BoxWork *p = GOBJ_SUB(self)->work;
+
+    return p->mode == 0;
+}
+
 static inline void setupClipWork(ClipWork *w, GObj *obj, float *dir, float len,
                                  float h) /* derived name */
 {
@@ -1493,10 +1567,157 @@ static inline int checkMoveWall(GObj *obj, float *dir) /* derived name */
     return r;
 }
 
-static int moveXPlus(float *ofs, float dist, float half, float radius);
-static int moveXMinus(float *ofs, float dist, float half, float radius);
-static int moveZPlus(float *ofs, float dist, float half, float radius);
-static int moveZMinus(float *ofs, float dist, float half, float radius);
+static inline int moveXPlus(float *ofs, float dist, float half, float radius)
+{
+    float w;
+    float f0;
+    int rv;
+    half = half + radius;
+    w = ofs[2];
+    if (w < 0.0f) {
+        if (-w < half)
+            goto p4;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < half))
+        goto end;
+p4:
+    w = ofs[1];
+    if (w < 0.0f) {
+        if (-w < half)
+            goto rng;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < half))
+        goto end;
+rng:
+    f0 = dist - half;
+    if (!(f0 + radius < ofs[0])) {
+        rv = 0;
+        goto end;
+    }
+    if (ofs[0] < dist + half)
+        return 1;
+    rv = 0;
+end:
+    return rv;
+}
+
+static inline int moveXMinus(float *ofs, float dist, float half, float radius)
+{
+    float w;
+    float f0;
+    int rv;
+    half = half + radius;
+    w = ofs[2];
+    if (w < 0.0f) {
+        if (-w < half)
+            goto p4;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < half))
+        goto end;
+p4:
+    w = ofs[1];
+    if (w < 0.0f) {
+        if (-w < half)
+            goto rng;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < half))
+        goto end;
+rng:
+    f0 = dist - half;
+    if (!(f0 + radius < -ofs[0])) {
+        rv = 0;
+        goto end;
+    }
+    if (-ofs[0] < dist + half)
+        return 1;
+    rv = 0;
+end:
+    return rv;
+}
+
+static inline int moveZPlus(float *ofs, float dist, float half, float radius)
+{
+    float w;
+    float f0;
+    int rv;
+    half = half + radius;
+    w = ofs[0];
+    if (w < 0.0f) {
+        if (-w < half)
+            goto p4;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < half))
+        goto end;
+p4:
+    w = ofs[1];
+    if (w < 0.0f) {
+        if (-w < half)
+            goto rng;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < half))
+        goto end;
+rng:
+    f0 = dist - half;
+    if (!(f0 + radius < ofs[2])) {
+        rv = 0;
+        goto end;
+    }
+    if (ofs[2] < dist + half)
+        return 1;
+    rv = 0;
+end:
+    return rv;
+}
+
+static inline int moveZMinus(float *ofs, float dist, float half, float radius)
+{
+    float w;
+    float f0;
+    int rv;
+    half = half + radius;
+    w = ofs[0];
+    if (w < 0.0f) {
+        if (-w < half)
+            goto p4;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < half))
+        goto end;
+p4:
+    w = ofs[1];
+    if (w < 0.0f) {
+        if (-w < half)
+            goto rng;
+        return 0;
+    }
+    rv = 0;
+    if (!(w < half))
+        goto end;
+rng:
+    f0 = dist - half;
+    if (!(f0 + radius < -ofs[2])) {
+        rv = 0;
+        goto end;
+    }
+    if (-ofs[2] < dist + half)
+        return 1;
+    rv = 0;
+end:
+    return rv;
+}
 
 static inline int checkCharGObjs(GObj *obj, GObj *holder, float *dir) /* derived name */
 {
@@ -1563,6 +1784,18 @@ static int _checkItemCollision(void *pos)
     return 1;
 }
 
+static inline int checkItemHit(GObj *obj, float *dir) /* derived name */
+{
+    float pos[4];
+    float d[4];
+    float to[4];
+
+    _ScaleVectorXYZ(d, dir, 100.0f);
+    GetRootPosition(pos, obj);
+    _AddVectorXYZ(to, pos, d);
+    return _checkItemCollision(to);
+}
+
 static int moveBoxAutoMatic(GObj *self, int dir)
 {
     static float pushPlusZ[4] = {0.0f, 0.0f, 0.5f, 0.0f};   /* derived name */
@@ -1600,7 +1833,129 @@ static int moveBoxAutoMatic(GObj *self, int dir)
     return r;
 }
 
-INCLUDE_ASM(MoveBoxWithHoldPoint);
+int MoveBoxWithHoldPoint(GObj *self, float *holdPoint, GObj *holder, int focus, float *dir)
+{
+    float plane[4];
+    float nv[4];
+    float hp[4];
+    float pos[4];
+    float mv[4];
+    BoxWork *q = GOBJ_SUB(self)->work;
+    int idx;
+    int hit;
+    float dot;
+    float dist;
+
+    GetBoxGlobalHoldPoint(hp, self, holdPoint);
+    GetRootPosition(pos, self);
+    sceVu0SubVector(nv, hp, pos);
+    sceVu0Normalize(nv, nv);
+
+    dot = sceVu0InnerProduct(nv, hp);
+    SetSimplePlane(plane, nv[0], nv[1], nv[2], -dot);
+
+    idx = GetSkeltonFocusNode(holder, focus);
+    dist = GetDistanceFromPlane(plane, (char *)GOBJ_SUB(holder)->nodeMtx + (idx << 6) + 0x30);
+
+    sceVu0ScaleVector(mv, nv, dist);
+
+    if (((BoxWork *)GOBJ_SUB(self)->work)->route != 0) {
+        float m[16];
+
+        _ScaleVector(mv, mv, 0.05f);
+        MatrixDrive_SetTransposeMatrix(m, (void *)GOBJ_SUB(self)->nodeMtx);
+        sceVu0ApplyMatrix(mv, m, mv);
+        AddVectorXYZ(q->vel, q->vel, mv);
+        if (onPath(self) != 0) {
+            CopyVector(q->vel, ZeroVector);
+        }
+        if (stage_no == 8) {
+            if (q->serial == 0 && q->seStopped == 0) {
+                pushStartSE(self);
+            }
+        }
+    } else if (checkCharGObjs(self, holder, dir) && checkBoxStopWall(self, dir) &&
+               CheckGeneratorCollision(self, dir) && checkItemHit(self, dir)) {
+        q->moveFrames = GetNbMotionFrames(GOBJ_SUB(holder)->ctrl.motion) - 1;
+        _ScaleVectorXYZ(q->vel, dir,
+                        100.0f / ((float)q->moveFrames * 2.0f) *
+                            (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])));
+
+        hit = checkMoveWall(self, dir);
+        if (hit) {
+            q->mode = 1;
+        } else {
+            float npos[4];
+            float d[4];
+
+            GetRootPosition(npos, self);
+            _ScaleVector(d, dir, 100.0f);
+            _AddVectorXYZ(npos, npos, d);
+            q->mode = 6;
+            alignPosition(self, npos, npos, 100.0f);
+            npos[1] -= 1.0f;
+            debug_StdPrintfDummy("near wall to %f, %f, %f\n", npos[0], npos[1], npos[2]);
+            CopyVector(*(char **)(*(char **)(q->subGObj + 0x15C) + 0xC) + 0x30, npos);
+            *(int *)(q->subGObj + 0x16C) = 1;
+        }
+        if (GOBJ_SUB(holder)->ctrl.cliffWallHit != 0) {
+            q->wall = GOBJ_SUB(holder)->root.cliffWall;
+        }
+    } else {
+        return 0;
+    }
+    UpdateRootMatrix(self);
+    {
+        int rv = execNormalMove(self, 1);
+        UpdateRootMatrix(self);
+        return rv;
+    }
+}
+
+inline int BoxRideFunc(ObjNode *node, GObj *rider)
+{
+    GObj *obj = node->obj;
+    Sub15C *p15c = GOBJ_SUB(obj);
+    BoxWork *s0 = p15c->work;
+    char buf[32];
+    if (s0->mode != 5) {
+        return 0;
+    }
+    p15c->root.move[1] += 0.5f;
+    GetRootPosition(buf + 0x10, obj);
+    CopyVector(buf, GOBJ_SUB(rider)->root.pos);
+    *(int *)(buf + 4) = 0;
+    sceVu0AddVector(s0->tiltVel, s0->tiltVel, buf);
+    return 1;
+}
+
+inline void ExecBoxMoveStartReaction(GObj *self, int dir)
+{
+    BoxWork *q = GOBJ_SUB(self)->work;
+    if (q->route != 0) {
+        if (q->moving != 0) {
+            goto end;
+        }
+    }
+    if (dir >= 0) {
+        pushStartSE(self);
+        q->seStopped = 0;
+    } else {
+        pullStartSE(self);
+        q->seStopped = 0;
+    }
+end:
+    q->moving = 1;
+}
+
+inline void ExecBoxMoveEndReaction(GObj *self)
+{
+    BoxWork *q = GOBJ_SUB(self)->work;
+    if (q->route == 0 || q->moving != 0) {
+        stopBoxMoveSE(self);
+    }
+    q->moving = 0;
+}
 
 void ReInitBoxGeo(GObj *self)
 {
@@ -1631,7 +1986,98 @@ void ReInitBoxGeo(GObj *self)
     UpdateRootMatrix(self);
 }
 
-INCLUDE_ASM(InitBoxGeo);
+/* the box serial counter */
+static unsigned char boxSerial = 0; /* derived name */
+
+/* the layout record's object word packs the route number in its low half
+   and the sub-box model in its high half */
+BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
+{
+    BoxWork *w = iosMallocDebug(ios_partition_sugipon, 400, __FILE__, 1964);
+    GObj *o;
+    GObj *g;
+    int sub;
+
+    GOBJ_SUB(self)->work = w;
+
+    *w = boxWorkInit;
+
+    w->serial = boxSerial;
+    boxSerial = (boxSerial + 1) % 30;
+
+    ((IntFloat *)&w->scaleX)->f = lay->scale[0];
+    ((IntFloat *)&w->scaleZ)->f = lay->scale[2];
+    ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x20))->f =
+        ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x24))->f =
+            ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x28))->f = 1.0f;
+
+    w->colData = GOBJ_SUB(self)->colData;
+
+    w->effectDObj = CSVSYSTEM_InitDObj(58, &InitialSObjSimpleSetting);
+
+    w->route = lay->obj & 0xFFFF;
+    GOBJ_SUB(self)->rideFunc = BoxRideFunc;
+
+    g = CreateLayoutedGObj(0, 59, -1, 0, lay, 0, 7, 0);
+    w->subGObj = (int)g;
+
+    GOBJ_SUB(g)->disp = 1;
+    g->active = 0;
+
+    if (w->route != 0) {
+        w->pointCount = countPathPoints(w->route);
+        w->friction = 0.98f;
+        onPathInitialize(self);
+        onPath(self);
+        initWheels(self, lay);
+        execNormalMove(self, 1);
+        debug_StdPrintfDummy("%d\n", w->pointCount);
+
+        if ((lay->obj & 0xFFFF0000) != 0) {
+            SObjSimpleSetting r = *lay;
+            ObjNode lnk = {self, 0};
+            Vec4 v;
+            Vec4 q;
+
+            r.scale[0] = 1.0f;
+            r.scale[1] = 1.0f;
+            r.scale[2] = 1.0f;
+            r.scale[3] = 1.0f;
+            r.obj = 1;
+
+            sub = accessary[GOBJ_SUB(self)->accessary].subModel;
+            o = CreateLayoutedGObj(23, accessary[sub].model, sub, 0, &r, 0, 7, 0);
+
+            LinkParentOfDObj(o, &lnk);
+
+            q.f[0] = accessary[GOBJ_SUB(self)->accessary].subPos[0];
+            q.f[1] = accessary[GOBJ_SUB(self)->accessary].subPos[1];
+            q.f[2] = accessary[GOBJ_SUB(self)->accessary].subPos[2];
+            q.f[3] = 1.0f;
+            v = q;
+
+            CopyVector(GOBJ_SUB(o)->root.pos, &v);
+
+            memset(&q, 0, 16);
+            q.f[3] = 1.0f;
+            RotQuaternionY(
+                &q, (short)(accessary[GOBJ_SUB(self)->accessary].subRotY * 32768.0f / 180.0f));
+            CopyVector(GOBJ_SUB(o)->root.quat, &q);
+
+            SetSwitchTriggerFunc(o, moveBoxAutoMatic);
+
+            w->friction = 0.85f;
+        }
+        UpdateRootMatrix(self);
+        return w;
+    }
+
+    w->tiltForce[0] = random_signed() * 50.0f * 0.5f;
+    w->tiltForce[1] = random_signed() * 50.0f * 0.5f;
+    ReInitBoxGeo(self);
+
+    return w;
+}
 
 void BoxGeo(GObj *self)
 {
@@ -1645,7 +2091,41 @@ void BoxGeo(GObj *self)
     }
 }
 
-INCLUDE_ASM_LIT(BoxGeoRestore);
+inline void BoxDL(GObj *self)
+{
+    BoxWork *q = GOBJ_SUB(self)->work;
+    p2o_SetDefaultEnviroment();
+    p2o_DispVU1(self);
+    if (q->route != 0) {
+        dispWheels(self);
+    }
+    if (systemStatus[5] != 0) {
+        StopSEPackageWithGroupVariation(self, 1);
+        ((BoxWork *)GOBJ_SUB(self)->work)->autoDir = 0;
+    }
+}
+
+inline int BoxGeoRestore(float *dst, float *src)
+{
+    dst[0] = src[4];
+    dst[1] = src[5];
+    dst[2] = src[6];
+    dst[4] = src[8];
+    dst[5] = src[9];
+    dst[6] = src[10];
+    debug_StdPrintfDummy("%f, %f, %f\n", dst[8], dst[9], dst[10]);
+    return 1;
+}
+
+inline int BoxExtGeoRestore(void)
+{
+    return 1;
+}
+
+inline int BoxMemoryFunc(void)
+{
+    return 1;
+}
 
 int GetBoxMode(GObj *self)
 {
@@ -1653,83 +2133,3 @@ int GetBoxMode(GObj *self)
 
     return q->mode;
 }
-
-INCLUDE_ASM(CanHoldBox);
-
-INCLUDE_ASM(BoxDL);
-
-INCLUDE_ASM(GetBoxGlobalHoldPoint);
-
-INCLUDE_ASM(IsThisBoxTruck);
-
-INCLUDE_ASM(ExecBoxMoveStartReaction);
-
-INCLUDE_ASM(ExecBoxMoveEndReaction);
-
-INCLUDE_ASM(BoxGeoRestore);
-
-INCLUDE_ASM(BoxExtGeoRestore);
-
-INCLUDE_ASM(BoxMemoryFunc);
-
-INCLUDE_ASM(InitSwitchGeo);
-
-INCLUDE_ASM(SwitchGeo);
-
-INCLUDE_ASM(SwitchDL);
-
-INCLUDE_ASM(SetSwitchTriggerFunc);
-
-INCLUDE_ASM(SetSwitchState);
-
-INCLUDE_ASM(SetFloorLeverWithNodePoint);
-
-INCLUDE_ASM(CanFloorLeverPull);
-
-INCLUDE_ASM(InitFloorLeverGeo);
-
-INCLUDE_ASM(GetFloorLeverAngle);
-
-INCLUDE_ASM(SetWallLeverWithNodePoint);
-
-INCLUDE_ASM(CanWallLeverPull);
-
-INCLUDE_ASM(IsWallLeverStatus);
-
-INCLUDE_ASM(InitWallLeverGeo);
-
-INCLUDE_ASM(GetWallLeverAngle);
-
-INCLUDE_ASM(initParentize);
-
-INCLUDE_ASM(getAlign);
-
-INCLUDE_ASM(GetDistanceOfGObj);
-
-INCLUDE_ASM(moveXPlus);
-
-INCLUDE_ASM(moveXMinus);
-
-INCLUDE_ASM(moveZPlus);
-
-INCLUDE_ASM(moveZMinus);
-
-INCLUDE_ASM(BoxRideFunc);
-
-static inline int checkItemHit(GObj *obj, float *dir) /* derived name */
-{
-    float pos[4];
-    float d[4];
-    float to[4];
-
-    _ScaleVectorXYZ(d, dir, 100.0f);
-    GetRootPosition(pos, obj);
-    _AddVectorXYZ(to, pos, d);
-    return _checkItemCollision(to);
-}
-
-/* the box serial counter */
-static unsigned char boxSerial = 0; /* derived name */
-
-/* the layout record's object word packs the route number in its low half
-   and the sub-box model in its high half */

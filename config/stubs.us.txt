@@ -604,57 +604,6 @@ text AttackCheckBoundaryDL 0x001BBEC8 0x001BBF78 ico2/sugipon/src/attackCheckBou
 text actAttackCheckBoundaryStart 0x001BBF78 0x001BBFCC ico2/sugipon/src/attackCheckBoundary.c lines=8  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetAttackCheckBoundaryRadius
 text GetAttackCheckBoundaryRadius 0x001BBFD0 0x001BBFE0 ico2/sugipon/src/attackCheckBoundary.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text CreateAttackCheckBoundary 0x001BBFE0 0x001BC084 ico2/sugipon/src/attackCheckBoundary.c lines=12  # ordinal; first difference at insn 7; imm:2; extent-equal
-text GetFloorLeverGlobalHoldPoint 0x001BC0B8 0x001BC130 ico2/sugipon/src/box.c  # ordinal; first difference at insn 9; imm:1; extent-equal
-text FloorLeverTriStateGeo 0x001BC130 0x001BC1A8 ico2/sugipon/src/box.c  # ordinal; first difference at insn 6; imm:1; extent-equal
-text FloorLeverGeo 0x001BC1A8 0x001BC434 ico2/sugipon/src/box.c  # ordinal; first difference at insn 10; imm:1; extent-equal
-lit4 FloorLeverGeo 0x00631140 0x00631144 ico2/sugipon/src/box.c  # 1 float
-text FloorLeverDL 0x001BC438 0x001BC4B4 ico2/sugipon/src/box.c  # ordinal; first difference at insn 7; imm:1; extent-equal
-text GetWallLeverGlobalHoldPoint 0x001BC4B8 0x001BC530 ico2/sugipon/src/box.c  # ordinal; first difference at insn 9; imm:1; extent-equal
-text WallLeverGeo 0x001BC530 0x001BC7F0 ico2/sugipon/src/box.c  # ordinal; first difference at insn 10; imm:2; extent-equal
-lit4 WallLeverGeo 0x00631144 0x00631148 ico2/sugipon/src/box.c  # 1 float
-text WallLeverDL 0x001BC7F0 0x001BC86C ico2/sugipon/src/box.c  # ordinal; first difference at insn 7; imm:1; extent-equal
-text CheckReadyAllSwitches 0x001BC870 0x001BC99C ico2/sugipon/src/box.c  # ordinal; first difference at insn 8; imm:4; extent-equal
-text AlignBox 0x001BD278 0x001BD404 ico2/sugipon/src/box.c lines=15  # ordinal; first difference at insn 14; imm:1; extent-equal
-text GetBoxHoldPoint 0x001BF460 0x001BF6A0 ico2/sugipon/src/box.c lines=45  # ordinal; first difference at insn 22; imm:1; extent-equal
-text MoveBoxWithHoldPoint 0x001BF918 0x001BFFE8 ico2/sugipon/src/box.c lines=79  # ordinal; first difference at insn 2; length:-3; extent-differs
-lit4 MoveBoxWithHoldPoint 0x0063119C 0x006311A0 ico2/sugipon/src/box.c  # 1 float
-rdlit MoveBoxWithHoldPoint 0x00618740 0x00618759 ico2/sugipon/src/box.c align=16  # 1 string
-text InitBoxGeo 0x001C00C0 0x001C0538 ico2/sugipon/src/box.c lines=87  # ordinal; first difference at insn 9; length:+4; extent-differs
-lit4 InitBoxGeo 0x006311A4 0x006311AC ico2/sugipon/src/box.c  # 2 floats
-sdlit InitBoxGeo 0x00633290 0x00633294 ico2/sugipon/src/box.c  # 1 string
-text CanHoldBox 0x001C05B8 0x001C05CC ico2/sugipon/src/box.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
-text BoxDL 0x001C05D0 0x001C0644 ico2/sugipon/src/box.c lines=13  # ordinal; first difference at insn 7; imm:2; extent-equal
-text GetBoxGlobalHoldPoint 0x001C0648 0x001C068C ico2/sugipon/src/box.c lines=6  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before IsThisBoxTruck
-text IsThisBoxTruck 0x001C0690 0x001C06A0 ico2/sugipon/src/box.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
-text ExecBoxMoveStartReaction 0x001C06A0 0x001C0708 ico2/sugipon/src/box.c lines=18  # ordinal; first difference at insn 4; imm:1; extent-equal
-text ExecBoxMoveEndReaction 0x001C0708 0x001C078C ico2/sugipon/src/box.c lines=8  # ordinal; first difference at insn 6; imm:1; extent-equal
-text BoxGeoRestore 0x001C0790 0x001C0838 ico2/sugipon/src/box.c lines=11  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before BoxExtGeoRestore
-rdlit BoxGeoRestore 0x00618808 0x00618814 ico2/sugipon/src/box.c def  # 1 string
-text BoxExtGeoRestore 0x001C0838 0x001C0840 ico2/sugipon/src/box.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before BoxMemoryFunc
-text BoxMemoryFunc 0x001C0840 0x001C0848 ico2/sugipon/src/box.c lines=4  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before InitSwitchGeo
-text InitSwitchGeo 0x001C0848 0x001C0850 ico2/sugipon/src/box.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SwitchGeo
-text SwitchGeo 0x001C0850 0x001C0858 ico2/sugipon/src/box.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SwitchDL
-text SwitchDL 0x001C0858 0x001C0860 ico2/sugipon/src/box.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before SetSwitchTriggerFunc
-text SetSwitchTriggerFunc 0x001C0860 0x001C0870 ico2/sugipon/src/box.c  # ordinal; first difference at insn 1; imm:1; extent-equal
-text SetSwitchState 0x001C0870 0x001C08B8 ico2/sugipon/src/box.c  # ordinal; first difference at insn 6; imm:1; extent-equal
-text SetFloorLeverWithNodePoint 0x001C08B8 0x001C09B0 ico2/sugipon/src/box.c  # ordinal; first difference at insn 13; imm:1; extent-equal
-text CanFloorLeverPull 0x001C09B0 0x001C09C4 ico2/sugipon/src/box.c  # ordinal; first difference at insn 1; imm:1; extent-equal
-text InitFloorLeverGeo 0x001C09C8 0x001C0AD8 ico2/sugipon/src/box.c  # ordinal; first difference at insn 44; imm:2; extent-equal
-rdlit InitFloorLeverGeo 0x00618630 0x0061863D ico2/sugipon/src/box.c def  # 1 string, measured from the base
-text GetFloorLeverAngle 0x001C0AD8 0x001C0AE8 ico2/sugipon/src/box.c  # ordinal; first difference at insn 1; imm:1; extent-equal
-text SetWallLeverWithNodePoint 0x001C0AE8 0x001C0BE0 ico2/sugipon/src/box.c  # ordinal; first difference at insn 13; imm:1; extent-equal
-text CanWallLeverPull 0x001C0BE0 0x001C0BF4 ico2/sugipon/src/box.c  # ordinal; first difference at insn 1; imm:1; extent-equal
-text IsWallLeverStatus 0x001C0BF8 0x001C0C3C ico2/sugipon/src/box.c  # ordinal; first difference at insn 1; imm:1; extent-equal
-text InitWallLeverGeo 0x001C0C40 0x001C0D50 ico2/sugipon/src/box.c  # ordinal; first difference at insn 44; imm:2; extent-equal
-text GetWallLeverAngle 0x001C0D50 0x001C0D60 ico2/sugipon/src/box.c  # ordinal; first difference at insn 1; imm:1; extent-equal
-text initParentize 0x001C0D60 0x001C0DDC ico2/sugipon/src/box.c  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before GetDistanceOfGObj
-text getAlign 0x001C0DE0 0x001C0E44 ico2/sugipon/src/box.c local  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text GetDistanceOfGObj 0x001C0E48 0x001C0EAC ico2/sugipon/src/box.c lines=9  # equal, a stub for emission order: gcc 2.9 emits an inline function after every INCLUDE_ASM, and the USA emits this one before BoxRideFunc
-text moveXPlus 0x001C0EB0 0x001C0F70 ico2/sugipon/src/box.c local  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text moveXMinus 0x001C0F70 0x001C1034 ico2/sugipon/src/box.c local  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text moveZPlus 0x001C1038 0x001C10F8 ico2/sugipon/src/box.c local  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text moveZMinus 0x001C10F8 0x001C11BC ico2/sugipon/src/box.c local  # equal; a static inline whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text BoxRideFunc 0x001C11C0 0x001C1250 ico2/sugipon/src/box.c lines=16  # ordinal; first difference at insn 7; imm:1; extent-equal
 text dispClothes 0x001C1250 0x001C12F0 ico2/sugipon/src/boy.c local lines=16  # ordinal; first difference at insn 6; imm:11; extent-equal
 text InitLightLineGeo 0x001C1380 0x001C16A4 ico2/sugipon/src/boy.c lines=36  # ordinal; first difference at insn 14; imm:4; extent-equal
 lit4 InitLightLineGeo 0x006311B0 0x006311BC ico2/sugipon/src/boy.c  # 3 floats
