@@ -232,10 +232,10 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         d = CSVSYSTEM_InitDObj(5, arg);
         p->arm[0] = d;
         if (d->nodeMtx != 0) {
-            iosFree(d->nodeMtx & 0xFFFFFFF);
+            iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
         }
         if (p->arm[0]->nodeQuat != 0) {
-            iosFree(p->arm[0]->nodeQuat & 0xFFFFFFF);
+            iosFree((void *)(p->arm[0]->nodeQuat & 0xFFFFFFF));
         }
         p->arm[0]->nodeMtx = 0;
         p->arm[0]->nodeQuat = 0;
@@ -243,7 +243,7 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 261);
         p->arm[0]->nodeNum = 4;
         if (p->arm[0]->nodes != 0) {
-            iosFree((int)p->arm[0]->nodes & 0xFFFFFFF);
+            iosFree((void *)((int)p->arm[0]->nodes & 0xFFFFFFF));
         }
         p->arm[0]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 261);
         {
@@ -269,10 +269,10 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         d = CSVSYSTEM_InitDObj(6, arg);
         p->arm[1] = d;
         if (d->nodeMtx != 0) {
-            iosFree(d->nodeMtx & 0xFFFFFFF);
+            iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
         }
         if (p->arm[1]->nodeQuat != 0) {
-            iosFree(p->arm[1]->nodeQuat & 0xFFFFFFF);
+            iosFree((void *)(p->arm[1]->nodeQuat & 0xFFFFFFF));
         }
         p->arm[1]->nodeMtx = 0;
         p->arm[1]->nodeQuat = 0;
@@ -280,7 +280,7 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 264);
         p->arm[1]->nodeNum = 4;
         if (p->arm[1]->nodes != 0) {
-            iosFree((int)p->arm[1]->nodes & 0xFFFFFFF);
+            iosFree((void *)((int)p->arm[1]->nodes & 0xFFFFFFF));
         }
         p->arm[1]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 264);
         {

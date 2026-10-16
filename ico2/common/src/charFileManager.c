@@ -461,12 +461,12 @@ void ReadSoundBdFile(void *h, int name, int size, int id, int kind, int word08, 
             }
         }
         if (ok != 0) {
-            soundBDDataSet(buf, id, 11, 0, seg, size);
+            soundBDDataSet((int)buf, id, 11, 0, seg, size);
         }
     } break;
     case 10:
         if (sndInitBgmCancelFlag == 0) {
-            soundBDDataSet(buf, id, 10, 1, seg, size);
+            soundBDDataSet((int)buf, id, 10, 1, seg, size);
         }
         break;
     default:
@@ -604,7 +604,7 @@ inline void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, in
         p = iosMallocDebug(ios_partition_smotion, size, __FILE__, 744);
         iosCdvdHandlerRead(h, p, size);
         debug_StdPrintfDummy("ReadAdpcmFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
-        q = adpcmDataSet(p, id, kind, seg, size, AdpcmIopBuffAlloc(), 0);
+        q = adpcmDataSet((int)p, id, kind, seg, size, AdpcmIopBuffAlloc(), 0);
         iosFree(p);
         AdpcmPlay(q->stream);
     } else {

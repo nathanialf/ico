@@ -142,11 +142,11 @@ void FlagGeo(GObj *self)
     case 0:
     case 1:
         GetClothAnimation(o->rec->pos, o->rec->vel, 0, MatrixDrive_GetMatrix(), gd->cfg,
-                          gd->collide, gd->collide != 0 ? self : 0, 0);
+                          gd->collide, gd->collide != 0 ? (int)self : 0, 0);
         break;
     case 2:
         GetClothAnimation(o->rec->pos, o->rec->vel, 0, MatrixDrive_GetMatrix(), gd->cfg,
-                          gd->collide, gd->collide != 0 ? self : 0, 1);
+                          gd->collide, gd->collide != 0 ? (int)self : 0, 1);
         break;
     }
 }

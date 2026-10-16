@@ -285,7 +285,7 @@ static void jimakuMgrEnd(int *p)
 {
     int val = p[0x4C / 4];
     if (val != 0) {
-        iosCdvdBackGroundMgrDelete(val);
+        iosCdvdBackGroundMgrDelete((CdvdBgReq *)val);
     }
     iosSemaDelete(&jimakuFrameSema);
     iosSemaDelete(&jimakuShownSema);
@@ -300,7 +300,7 @@ inline void jimakuManager(void)
 
     iosMsgQueueCreate(&jimakuMsgQ, jimakuMsgBuf, 2);
     while (1) {
-        iosMsgRecv(&jimakuMsgQ, &msg, 1);
+        iosMsgRecv(&jimakuMsgQ, (int *)&msg, 1);
         msg->done = 0;
         switch (msg->cmd) {
         case 0:
@@ -326,14 +326,14 @@ inline void jimakuManager(void)
 void jimakuBegin(JimakuArg *msg)
 {
     msg->cmd = 0;
-    iosMsgSend(&jimakuMsgQ, msg, 1);
+    iosMsgSend(&jimakuMsgQ, (int)msg, 1);
 }
 
 void jimakuNext(JimakuArg *msg)
 {
     if (systemStatus[10] != 0) {
         msg->cmd = 1;
-        iosMsgSend(&jimakuMsgQ, msg, 0);
+        iosMsgSend(&jimakuMsgQ, (int)msg, 0);
     }
 }
 
@@ -352,7 +352,7 @@ void jimakuJump(JimakuArg *msg)
         }
     }
     msg->cmd = 2;
-    iosMsgSend(&jimakuMsgQ, msg, 0);
+    iosMsgSend(&jimakuMsgQ, (int)msg, 0);
 }
 
 void jimakuEnd(JimakuArg *msg)

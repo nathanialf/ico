@@ -700,7 +700,7 @@ inline void stage_SetLoopFlag(int key, int loop)
         int *p = (int *)e->entry1;
         if (key == p[0x58 / 4]) {
             p[0x50 / 4] = loop;
-            p = &(*((volatile int *)(&stageAnimCount)));
+            p = &stageAnimCount;
             count = *p;
         }
     }

@@ -1,9 +1,7 @@
 #include "debug.h"
 #include "Matrix.h"
 #include <assert.h>
-
-/* declared here unprototyped, not through string.h */
-extern void memcpy();
+#include <string.h>
 
 /* The allocator's partition (none selected yet) and the running total of
    what partition 0 has handed out. */

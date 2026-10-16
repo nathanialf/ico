@@ -655,12 +655,12 @@ static inline int pac_moveToSeki(int src, int size) /* derived name */
 {
     int p;
 
-    p = mallocseki(size);
+    p = (int)mallocseki(size);
     if (p == 0)
         debug_Assert("pac_copyStrip:No Enough Memory for Packet.\n");
     debug_StdPrintfDummy("ALL:src:%p => dst:%p (size:%x)\n", src, p, size);
     if (src != p)
-        malloc_MemCpy(p, src, size);
+        malloc_MemCpy((void *)p, (void *)src, size);
     return p;
 }
 
@@ -739,7 +739,7 @@ static int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, i
         tex = &tbl->texs[texno];
     }
     pac_countOneVertexPacketSize(mat, tex);
-    pkt = mallocsekistage(1048576);
+    pkt = (int)mallocsekistage(1048576);
     if (pkt == 0)
         debug_Assert("pac_makeStrip:No Memory To Convert.\n");
     pac_openDmaTag(pkt);
@@ -792,12 +792,12 @@ static int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, i
     if (size > 0) {
         if (malloc_GetPartition() == 0) {
             dst = pac_moveToSeki(pkt & 0x0FFFFFFF, size);
-            iosFree(pkt & 0x0FFFFFFF);
+            iosFree((void *)(pkt & 0x0FFFFFFF));
         } else {
             dst = reallocseki(pkt & 0x0FFFFFFF, size);
         }
     } else {
-        iosFree(pkt & 0x0FFFFFFF);
+        iosFree((void *)(pkt & 0x0FFFFFFF));
     }
     *out = (char *)dst;
     return size;

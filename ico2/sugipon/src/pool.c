@@ -150,7 +150,8 @@ static void setNodePursueParticleEffectWithUpperLimit(int id, GObj *obj, int foc
     int ret = GetSkeltonFocusNode(obj, focus);
     if (ret != -1) {
         Sub15C *p = GOBJ_SUB(obj);
-        int r = SetParticleEffectActiveSensing(id, p->nodeMtx + ret * 64 + 48, IdentityQuaternion);
+        int r = SetParticleEffectActiveSensing(id, (void *)(p->nodeMtx + ret * 64 + 48),
+                                               IdentityQuaternion);
         SetParticleEffectUpperLimit(r, limit);
     }
 }
