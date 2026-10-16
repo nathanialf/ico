@@ -93,7 +93,39 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
  * interlaced, 512 by 512 in the tall mode and 512 by 448 otherwise, then set
  * the double buffer up, hand the first frame over and put the view scale back
  * to one. */
-INCLUDE_ASM(gsb_Init);
+void gsb_Init(void *db)
+{
+    int omode = 2;
+
+    sceGsSyncV(0);
+    fbClear = 1;
+    gsInitState = 0;
+    switch (systemStatus[0]) {
+    case 0:
+        ScreenWidth = 0x200;
+        ScreenHeight = 0x1C0;
+        break;
+    case 1:
+        ScreenWidth = 0x200;
+        ScreenHeight = 0x200;
+        omode = 3;
+        break;
+    }
+    sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, fbClear);
+    gsb_SetFrame(db, 0, 0, 0x30, 2);
+    sceGsResetGraph(0, systemStatus[1] == 1, omode, 1);
+    sceGsSyncV(0);
+    buffer_ID = 0;
+    FlushCache(0);
+    sceGsSwapDBuff(db, buffer_ID);
+    while (sceGsSyncPath(1, 0) != 0) {
+        debug_StdPrintfDummy("wait gs init\n");
+    }
+    gsb_SetVSMatrix(ScreenWidth, ScreenHeight, 512.0f);
+    zoomTarget = 1.0f;
+    zoomSpeed = 1000.0f;
+    zoomCurrent = 1.0f;
+}
 
 /* A frame buffer clear packet for the whole screen, 48 doublewords: a GIF tag
    of 23 A+D writes and the register pairs.  Nothing reads it: the send that

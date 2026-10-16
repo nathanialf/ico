@@ -363,7 +363,73 @@ INCLUDE_ASM(actEnemyForceSwitchToCarry);
 
 INCLUDE_ASM(actEnemyKidnapEnd);
 
-INCLUDE_ASM(actEnemyKidnapBegin);
+/* A static inline inside actEnemyKidnapBegin, the same construction as
+   enemyPickupCheckGirl above.  pos, declared ahead of buf, is read only by
+   the DEBUG build's report of the girl's position. */
+static inline int enemyKidnapCheckGirl(GObj *self) /* derived name */
+{
+    float pos[4];
+    float buf[4];
+    int ang;
+    int mode;
+
+    if (_ACTGame_SearchGObj(self, girlGObj, 60.0f, 100.0f, 45, buf) != 0) {
+        ang = _RotyGV(buf, test_CURRENTORIENT((girlGObj)));
+        ang = (ang < 0) ? -ang : ang;
+        mode = 2;
+        if (ang <= 89) {
+            mode = 1;
+        }
+    } else {
+        mode = 0;
+    }
+#ifdef DEBUG
+    GetRootProjectionPosOfGObj(pos, (char *)((char *)girlGObj));
+    scePrintf("kidnap check %d girl %f %f %f\n", mode, pos[0], pos[1], pos[2]);
+#endif
+    return mode;
+}
+
+void actEnemyKidnapBegin(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    float *dir = (float *)((char *)sub + 0x110);
+    int mail = 327;
+    int mode;
+
+    while (1) {
+        if (GOBJ_SUB(self)->ctrl.motion == 896) {
+            _OrientXZGV(dir, test_CURRENTROOT((girlGObj)), test_CURRENTROOT(self));
+            if (0.1f < sub->stick.mag && sub->actMode != 111) {
+                SetMotionDirectionSmooze((void *)self, dir,
+                                         (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
+            }
+            mode = enemyKidnapCheckGirl(self);
+            switch (mode) {
+            case 1:
+                mail = 328;
+                /* fallthrough */
+            case 2:
+                if (actEnemyForceSwitchToCarry((void *)self) != 0) {
+                    if (mode == 1) {
+                        sceVu0ScaleVector((float *)((char *)GOBJ_ACT(girlGObj) + 0x110),
+                                          (float *)((char *)GOBJ_ACT(girlGObj) + 0x110), -1.0f);
+                        SetMotionDirection((void *)((char *)girlGObj),
+                                           (float *)((char *)GOBJ_ACT(girlGObj) + 0x110));
+                    }
+                    ACTGame_InsertCamera_GirlIsPinch();
+                    while (1) {
+                        ACTSendMailCorrect((void *)self, mail);
+                        _ACTWait(1);
+                    }
+                }
+                break;
+            }
+            ACTSendMailCorrect((void *)self, 329);
+        }
+        _ACTWait(1);
+    }
+}
 
 /* A static inline between setBattleStatus and boss_effect_callback, expanded
    only in subEnemyControl. */
@@ -430,33 +496,6 @@ static inline unsigned char isEnemyCarriedByGirl(GObj *self) /* derived name */
 /* PairSetGeometry is a GNU nested function, reading its parent's frame
    through the static chain. */
 static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */
-
-/* A static inline inside actEnemyKidnapBegin, the same construction as
-   enemyPickupCheckGirl above.  pos, declared ahead of buf, is read only by
-   the DEBUG build's report of the girl's position. */
-static inline int enemyKidnapCheckGirl(GObj *self) /* derived name */
-{
-    float pos[4];
-    float buf[4];
-    int ang;
-    int mode;
-
-    if (_ACTGame_SearchGObj(self, girlGObj, 60.0f, 100.0f, 45, buf) != 0) {
-        ang = _RotyGV(buf, test_CURRENTORIENT((girlGObj)));
-        ang = (ang < 0) ? -ang : ang;
-        mode = 2;
-        if (ang <= 89) {
-            mode = 1;
-        }
-    } else {
-        mode = 0;
-    }
-#ifdef DEBUG
-    GetRootProjectionPosOfGObj(pos, (char *)((char *)girlGObj));
-    scePrintf("kidnap check %d girl %f %f %f\n", mode, pos[0], pos[1], pos[2]);
-#endif
-    return mode;
-}
 
 static void MoveChestForCatchBoy(GObj *self)
 {

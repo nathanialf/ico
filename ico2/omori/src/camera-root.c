@@ -358,7 +358,26 @@ int FixViewInGameCameraFlag;
 
 int monitorCameraHold; /* derived name */
 
-INCLUDE_ASM(InitCamera);
+void InitCamera(void)
+{
+    GObj *gobj = getCameraDefaultTargetGObj();
+    InsertCamera_Clear();
+    default_cameratarget_gobj = gobj;
+    cameraMode = 3;
+    *(CamTgt *)&targetCameraSet = *(CamTgt *)&cameraSet = cameraTargetDefault;
+    Camctrl_Init(gobj);
+    InitIco2Camera();
+    InitCameraEditor();
+    targetCameraSet.moving = 0;
+    gamecamCutBack = 0;
+    zoomRequest = 0;
+    lwsCutBack = 0;
+    CameraCalclated_f = 0;
+    FixViewInGameCameraFlag = 0;
+    InsertCameraWorkingFlag = 0;
+    monitorCameraHold = 0;
+    debug_zoom_per = 100;
+}
 
 typedef struct { /* field names derived */
     int step;    /* 0x00 */

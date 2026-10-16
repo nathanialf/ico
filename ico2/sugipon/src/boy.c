@@ -362,33 +362,38 @@ static Cloth4DCol tapeBoro2MeshCols[2] = {
    runs. */
 typedef struct BoyWork { /* field names derived */
     int crown;           /* 0x00, 1 or 2 picks crown1 or crown2, else crown0 */
-    Sub15C *head;        /* 0x04 */
-    Sub15C *body;        /* 0x08 */
-    char *crown0;        /* 0x0C */
-    char *crown1;        /* 0x10 */
-    char *crown2;        /* 0x14 */
-    int stone;           /* 0x18 */
-    int stoneAnim;       /* 0x1C */
+    char *crown0;        /* 0x04 */
+    char *crown1;        /* 0x08 */
+    char *crown2;        /* 0x0C */
+    int stone;           /* 0x10 */
+    int stoneAnim;       /* 0x14 */
     /* the cloth handles InitCloth4D returns, held as char * */
-    char *mantle;           /* 0x20 */
-    char *tape;             /* 0x24 */
-    char *tapeBoro1;        /* 0x28 */
-    char *tapeB;            /* 0x2C */
-    char *tapeBoro2;        /* 0x30 */
-    PoolMesh refl;          /* 0x34 */
-    WaterDotWork *waterDot; /* 0x54 */
-    int wet;                /* 0x58 */
-    float dripVel;          /* 0x5C */
-    float drip;             /* 0x60 */
-    float detail;           /* 0x64 */
+    char *mantle;           /* 0x18 */
+    char *tape;             /* 0x1C */
+    char *tapeBoro1;        /* 0x20 */
+    char *tapeB;            /* 0x24 */
+    char *tapeBoro2;        /* 0x28 */
+    PoolMesh refl;          /* 0x2C */
+    WaterDotWork *waterDot; /* 0x4C */
+    int wet;                /* 0x50 */
+    float dripVel;          /* 0x54 */
+    float drip;             /* 0x58 */
+    float detail;           /* 0x5C */
 } BoyWork;                  /* derived name */
 
 INCLUDE_ASM(dispClothes);
 
-/* A file static; girl.c has its own of the same name.  The five else-arm
- * calls go through one nested inline helper, as clothAnimation.c's
- * interHalf does. */
-INCLUDE_ASM(execClothes);
+/* A file static; girl.c has its own of the same name. */
+static void execClothes(GObj *gobj)
+{
+    BoyWork *w = GOBJ_SUB(gobj)->work;
+
+    GetCloth4D(w->mantle, 3.0f, 0.98f);
+    GetCloth4D(w->tape, 3.0f, 0.98f);
+    GetCloth4D(w->tapeB, 3.0f, 0.98f);
+    GetCloth4D(w->tapeBoro1, 3.0f, 0.98f);
+    GetCloth4D(w->tapeBoro2, 3.0f, 0.98f);
+}
 
 /* the one LightLineExt InitLightLineGeo fills */
 static LightLineExt lightLineExt; /* derived name */

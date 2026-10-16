@@ -1445,7 +1445,31 @@ inline void debug_SetBar2(char *name, unsigned int col, char *file, int line)
     }
 }
 
-INCLUDE_ASM(debug_DispBar);
+void debug_DispBar(void)
+{
+    float inv;
+    int va;
+    int vb;
+    int n;
+    inv = 1.0f / (270000.0f / 30.0f);
+    vb = (float)(debugBars[debugBarCount - 1].count * 100) * inv;
+    va = (float)(drawTimerCount * 100) * inv;
+
+    if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0)
+        debug_Printf(10, 10, 0xFFFFFF00u, "C%03d G%03d F%d", vb, va, frame_count);
+    if (debug_brain_bar_flag != 0)
+        debug_brainBar();
+    if (debug_bar_flag != 0)
+        debug_DrawBar();
+    if (strips != 0 || texturetranssize != 0) {
+        n = 1;
+        if (strips != 0)
+            n = strips;
+        if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0)
+            debug_Printf(10, 20, 0xFFFFFF00u, "P%d S%d A%d(%d) T%d(%d)", polygons, strips,
+                         polygons / n, packets, texturetranssize / 1024, textures);
+    }
+}
 
 inline void debug_ResetBar(void)
 {

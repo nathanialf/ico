@@ -45,7 +45,51 @@ inline void SetAttackCheckBoundaryAttribute(GObj *self, int attr)
 
 INCLUDE_ASM_LIT(InitAttackCheckBoundaryGeo);
 
-INCLUDE_ASM(AttackCheckBoundaryBeforeFunc);
+void AttackCheckBoundaryBeforeFunc(GObj *self)
+{
+    IosMailBox *box = &self->mailBox;
+    IosMail *e = box->mail;
+    int i;
+
+    for (i = 0; i < box->num; i++, e++) {
+        if (e->type == 13) {
+            if (e->arg == boyGObj) {
+                AcbWork *b = GOBJ_SUB(self)->work;
+                void *g = GetBoyWeaponGObj();
+
+                if (g != 0) {
+                    if (CheckWeaponKind(g) == 5 || CheckWeaponKind(g) == 4 ||
+                        CheckWeaponKind(g) == 6) {
+                        if (*b->handle < 2) {
+                            GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
+                            ExecuteSEPackage(g, 71);
+                            b->hit = 2;
+                            *b->handle = 2;
+                            /* " - cut by the sword" */
+                            debug_StdPrintfDummy(" - 剣で切られた\n");
+                        }
+                        goto done;
+                    }
+                }
+                if (*b->handle <= 0) {
+                    ActSendMail_WithAdditionalData(boyGObj, 193, self, &b->attr);
+                    b->hit = 1;
+                    *b->handle = 1;
+                    /* " - cannot cut" */
+                    debug_StdPrintfDummy(" - きれない\n");
+                }
+            }
+        done:
+            {
+                Act *q = GOBJ_ACT(self);
+
+                q->attacker = 0;
+                q->hit = 0;
+            }
+        }
+    }
+    box->num = 0;
+}
 
 /* the manager's 8-byte roster entries and its work block at sub+0x800 */
 typedef struct AcbEntry { /* field names derived */

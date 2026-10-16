@@ -21,7 +21,7 @@ struct HintDef { /* field names derived */
 };
 
 extern struct HintDef hintTable[]; /* derived name */
-struct GObj *CreateKyomiGObj(int no);
+struct GObj *CreateKyomiGObj(void);
 void FinishHint(int no);
 void Hint_Init(void);
 int IsTopHint(struct GObj *gobj);

@@ -680,7 +680,90 @@ static __inline__ void clothSetPoint(void *dst, const void *src, float f) /* der
     _ScaleVectorXYZ(dst, &tv, f);
 }
 
-INCLUDE_ASM(getCloth4D_preProcess);
+static void getCloth4D_preProcess(Cloth4D *c, float g, float damp)
+{
+    VECTOR dv;
+    float work[4][4];
+    int i;
+    int j;
+    Prim3DVec **pos = c->pos;
+    Prim3DVec **nrm = c->nrm;
+    Prim3DVec **vel = c->vel;
+    Cloth4DCfg *cfg = c->cfg;
+    int nx = cfg->nx - (cfg->wrap != 0);
+    int ny = cfg->ny;
+    VECTOR va[nx];
+    float rz;
+    float t;
+
+    for (i = 0; i < nx; i++) {
+        for (j = 1; j < ny; j++) {
+            sceVu0ScaleVector(&dv, &vel[i][j], damp);
+            CopyVector(&vel[i][j], &pos[i][j]);
+            AddVectorXYZ(&pos[i][j], &pos[i][j], &dv);
+        }
+    }
+    for (i = 0; i < nx; i++) {
+        for (j = 0; j < 2; j++) {
+            int n = cfg->cols[i].link[j].node;
+            Cloth4DCol *pt;
+            float f;
+            Sub15C *sk;
+
+            if (n == -1) {
+                break;
+            }
+            pt = &cfg->cols[i];
+            f = pt->link[j].weight;
+            sk = GOBJ_SUB(c->gobj);
+            _MulMatrix(work, (char *)sk->nodeMtx + n * 64, sk->clusterMtx + n * 64);
+            _SetCurrentMatrix(work);
+            if (j == 0) {
+                clothSetPoint(pos[i], pt->pos, f);
+                clothSetPoint(nrm[i], pt->dir, f);
+                clothSetPoint(&va[i], pt->restDir, f);
+            } else {
+                clothAddPoint(pos[i], pt->pos, f);
+                clothAddPoint(nrm[i], pt->dir, f);
+                clothAddPoint(&va[i], pt->restDir, f);
+            }
+        }
+        pos[i]->w = 1.0f;
+        nrm[i]->w = 1.0f;
+        va[i].w = 0.0f;
+    }
+    {
+        float *wind;
+        float wpow;
+        int c;
+
+        c = 0;
+        wind = GetWindVector(&wpow, &pos[0]->x);
+        wpow = wpow / 40960.0f;
+        for (i = 0; i < 11; i++) {
+            for (j = 0; j < 3; j++) {
+                windNoise[i][j] = wpow * (float)((rand() & 0x7FFF) - 16383);
+            }
+        }
+        rz = 1.0f / (float)(ny - 1);
+        for (j = 1; j < ny; j++) {
+            t = (float)(ny - j) * rz;
+            t = t * t;
+            for (i = 0; i < nx; i++) {
+                SubVectorXYZ(&work[0], &pos[i][j], &pos[i][j - 1]);
+                AddVectorXYZ(&work[0], &work[0], wind);
+                AddVectorXYZ(&work[0], &work[0], windNoise[c]);
+                c = c + 1;
+                if (c == 11) {
+                    c = 0;
+                }
+                _InterVectorXYZ(&work[0], &va[i], &work[0], t);
+                work[0][1] = work[0][1] + g;
+                AddVectorXYZ(&pos[i][j], &pos[i][j - 1], &work[0]);
+            }
+        }
+    }
+}
 
 /* the four procMatrix elements proc writes its Y rotation through */
 static float *procCosXX = &procMatrix[0][0]; /* derived name */
@@ -839,7 +922,52 @@ static void getCloth4D_postProcess(Cloth4D *c, int **rows)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-INCLUDE_ASM(_getCloth4D);
+void GetCloth4D(Cloth4D *c, float x, float y)
+{
+    float buf[4];
+    int i;
+    int j;
+    int i2;
+    int j2;
+    int nx = c->cfg->nx;
+    int ny = c->cfg->ny;
+    int data[nx][ny];
+    int *rows[nx];
+    Sub15C *obj;
+    Cloth4DCfg *cfg;
+    int *rows2;
+    int nx2;
+    int ny2;
+    Vec16 *plane;
+
+    for (i = 0; i < nx; i++) {
+        rows[i] = data[i];
+        for (j = 0; j < ny; j++) {
+            rows[i][j] = -1;
+        }
+    }
+    getCloth4D_preProcess(c, x, y);
+    getCloth4D(c, rows);
+    obj = GOBJ_SUB(c->gobj);
+    if (motionKind[obj->ctrl.motion].flags.bits.clothPlane) {
+        plane = &obj->root.plane;
+        cfg = c->cfg;
+        rows2 = (int *)c->pos;
+        nx2 = cfg->nx - (cfg->wrap != 0);
+        ny2 = cfg->ny;
+        for (i2 = 0; i2 < nx2; i2++) {
+            for (j2 = 1; j2 < ny2; j2++) {
+                char *p = (char *)(j2 * 16 + rows2[i2]);
+                float d = plane_distance(p, plane);
+                if (d < 0.0f) {
+                    _ScaleVector(buf, plane, d);
+                    _SubVectorXYZ(p, p, buf);
+                }
+            }
+        }
+    }
+    getCloth4D_postProcess(c, rows);
+}
 
 typedef struct { /* field names derived */
     long long q[8];

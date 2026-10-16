@@ -87,7 +87,6 @@ void SetCorrectOrientOfChain(void *self);
 void actAfterForceRope(GObj *volatile self);
 inline void actAfterForceRopeSwing(GObj *volatile self);
 static inline void actAfterRopeJump(GObj *volatile self);
-static inline void afterCommonRopeCliff(char *self);
 static inline void afterCommonRopeTurnSpecial(GObj *volatile self);
 inline void actAfterDown(GObj *volatile self);
 void afterCommonCling(volatile unsigned int self);
@@ -436,7 +435,36 @@ typedef union { /* field names derived */
     float *f;
 } CagePtr; /* derived name */
 
-INCLUDE_ASM(actCommonRopeCliff);
+void actCommonRopeCliff(GObj *volatile self)
+{
+    float dst[4];
+    float root[4];
+    float cur[4];
+    float p[4];
+    int n = ((60 - systemStatus[0] * 10) / systemStatus[1]) / 2;
+    int i = 0;
+
+    ((CagePtr *)(((CagePtr *)((char *)boyGObj + 0x15C))->p + 0x420))->p = 0;
+    dst[0] = GOBJ_ACT(self)->enemy->ropeCliffX;
+    dst[1] = GOBJ_ACT(self)->enemy->ropeCliffY;
+    dst[2] = GOBJ_ACT(self)->enemy->ropeCliffZ;
+    GetRootPosition(root, (void *)self);
+    while (1) {
+        i++;
+        if (i <= n) {
+            _InterGV(cur, root, dst, (float)i, (float)(n - i));
+            SetDirectRootPositionNoFitting((void *)self, cur);
+        }
+        if (GOBJ_SUB(self)->ctrl.motion == 116) {
+            p[0] = test_CURRENTROOT((void *)self)[0];
+            p[1] = test_CURRENTROOT((void *)self)[1];
+            p[2] = test_CURRENTROOT((void *)self)[2];
+            p[1] = p[1] + 5.0f;
+            SetDirectRootPositionNoFitting((void *)self, p);
+        }
+        _ACTWait(1);
+    }
+}
 
 typedef struct { /* field names derived */
     float a[4];
@@ -530,7 +558,31 @@ static inline void correctLeverHoldPoint(GObj *self, GObj *lev) /* derived name 
     SetDirectRootPositionNoFittingWithNodePointXZ(self, 0x16, w, 0.2f);
 }
 
-INCLUDE_ASM(actCommonLever);
+void actCommonLever(GObj *volatile self)
+{
+    float p[4];
+    Act *s = GOBJ_ACT(self);
+    GObj *lev = s->env.pullObj;
+
+    GOBJ_WORK(self)->leverTimer = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 5;
+    p[0] = s->env.pullPos[0];
+    p[1] = s->env.pullPos[1];
+    p[2] = s->env.pullPos[2];
+    p[1] = test_CURRENTROOT((void *)self)[1];
+    SetDirectRootPositionNoFitting((void *)self, s->env.pullPos);
+    actMotDirToWall(self);
+    while (1) {
+        if (lev != 0) {
+            if (GOBJ_SUB(self)->ctrl.frameFlag2 != 0) {
+                correctLeverHoldPoint((void *)self, lev);
+            }
+            if (GOBJ_SUB(self)->ctrl.frameFlag1 != 0) {
+                lever_nego1((void *)self, lev);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 static void EBRAIN_SEND_MES(void *enemy, int mes)
 {

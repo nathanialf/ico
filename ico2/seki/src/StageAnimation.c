@@ -336,9 +336,121 @@ void stage_ResetAnimation(void)
     light_KillAllFixLight();
 }
 
-INCLUDE_ASM(stage_CalcAnimationNoParent);
+void stage_CalcAnimationNoParent(void)
+{
+    int i;
+    StageAnim *e;
 
-INCLUDE_ASM(stage_CalcAnimationParent);
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (stageAnimCount == 0) {
+        return;
+    }
+    bga_SetUniqAnimationFlag(1);
+    _InitCurrentMatrix();
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        switch (e->flags.i >> 30) {
+        case 0: {
+            BgaHeader *entry2 = e->entry2;
+            signed char lock = entry2->cut;
+
+            if (lock == 0) {
+                if (entry2->anim->obj != 0) {
+                    continue;
+                }
+            }
+            if (systemStatus[0x14 / 4] != 0) {
+                continue;
+            }
+            switch (entry2->mode) {
+            case -1: {
+                int k;
+
+                for (k = 0; k < e->flags.b.count; k++) {
+                    char *objs = (char *)e->obj;
+                    char *o = *(char **)(objs + (k << 2));
+
+                    GOBJ_SUB(o)->disp = 0;
+                }
+                break;
+            }
+            case 0:
+                break;
+            case 1:
+                _InitCurrentMatrix();
+                bga_CalcAnimation(e->entry2, e->entry1->loop, 0);
+                break;
+            }
+            break;
+        }
+        case 1:
+            if (systemStatus[0x14 / 4] != 0) {
+                continue;
+            }
+            if (*(int *)(e->entry3 + 0xC) != 1) {
+                continue;
+            }
+            _InitCurrentMatrix();
+            bga_CalcSdfCamera(e->entry3, e->entry1->loop);
+            break;
+        }
+    }
+    bga_SetUniqAnimationFlag(0);
+}
+
+void stage_CalcAnimationParent(void)
+{
+    int i;
+    StageAnim *e;
+    BgaHeader *entry2;
+
+    if (graphics_ready != 0) {
+        return;
+    }
+    if (stageAnimCount == 0) {
+        return;
+    }
+    bga_SetUniqAnimationFlag(1);
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        entry2 = e->entry2;
+        if (entry2->cut != 0) {
+            continue;
+        }
+        if (entry2->anim->obj == 0) {
+            continue;
+        }
+        if (systemStatus[0x14 / 4] != 0) {
+            continue;
+        }
+        switch (entry2->mode) {
+        case -1: {
+            int k;
+
+            for (k = 0; k < e->flags.b.count; k++) {
+                char *objs = (char *)e->obj;
+                char *o = *(char **)(objs + (k << 2));
+                GOBJ_SUB(o)->disp = 0;
+            }
+            break;
+        }
+        case 1:
+            _InitCurrentMatrix();
+            bga_CalcAnimation(e->entry2, e->entry1->loop, 0);
+            break;
+        case 0:
+            _InitCurrentMatrix();
+            bga_CalcAnimation(e->entry2, e->entry1->loop, 1);
+            break;
+        }
+    }
+    bga_SetUniqAnimationFlag(0);
+}
 
 void stage_DispAnimation(void)
 {
@@ -489,9 +601,118 @@ void stage_SetScale(int key, float scale)
     }
 }
 
-INCLUDE_ASM(stage_PlayBgAnimation);
+float stage_PlayBgAnimation(int key, float t, void *v, void *q)
+{
+    int i;
+    int k;
+    int n = stageAnimCount;
+    float r = t;
+    StageAnim *e;
 
-INCLUDE_ASM(stage_PlayBgAnimationDissolve);
+    if (n == 0) {
+        return 0.0f;
+    }
+    e = stageAnimTable;
+    for (i = 0; i < n; i++, e++) {
+        if (key != e->entry1->no) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        _CopyVector(e->entry2->anim->pos, v);
+        CopyQuaternion(e->entry2->anim->quat, q);
+        bga_SetFrame(e->entry2, (int)r, 1, e->entry1->loop);
+        for (k = 0; k < e->flags.b.count; k++) {
+            char *objs = (char *)e->obj;
+
+            *(int *)(*(int *)(*(char **)(objs + (k << 2)) + 0x15C) + 0x74) = 1;
+        }
+        if (systemStatus[0x14 / 4] != 0) {
+            break;
+        }
+        r = t + e->entry2->step * (30.0f / ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        if (e->entry2->end <= r) {
+            r = e->entry1->loop != 0 ? e->entry2->start : -1.0f;
+        }
+        break;
+    }
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        if (key != e->entry1->no) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        for (k = 0; k < e->flags.b.count; k++) {
+            char *objs = (char *)e->obj;
+            Sub15C *d = ((GObj *)*(char **)(objs + (k << 2)))->dobj;
+
+            reg_DispObj(d);
+            d->disp = 0;
+        }
+        e->entry2->mode = -1;
+    }
+    return r;
+}
+
+float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv)
+{
+    int i;
+    int k;
+    int m;
+    float r = t;
+    StageAnim *e;
+
+    if (stageAnimCount == 0) {
+        return 0.0f;
+    }
+    for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
+        if (key != e->entry1->no) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        _CopyVector(e->entry2->anim->pos, v);
+        CopyQuaternion(e->entry2->anim->quat, q);
+        bga_SetFrame(e->entry2, (int)r, 1, e->entry1->loop);
+        for (k = 0; k < e->flags.b.count; k++) {
+            e->obj[k]->dobj->disp = 1;
+        }
+        if (systemStatus[0x14 / 4] != 0) {
+            break;
+        }
+        r = t + e->entry2->step * (30.0f / ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        if (e->entry2->end <= r) {
+            r = e->entry1->loop != 0 ? e->entry2->start : -1.0f;
+        }
+        break;
+    }
+    for (i = 0, e = stageAnimTable; i < stageAnimCount; i++, e++) {
+        if (key != e->entry1->no) {
+            continue;
+        }
+        if ((e->flags.i >> 30) != 0) {
+            continue;
+        }
+        stageAnimDebugHook();
+        for (k = 0; k < e->flags.b.count; k++) {
+            Sub15C *d = e->obj[k]->dobj;
+
+            for (m = 0; m < d->nodeNum; m++) {
+                d->nodes[m].alpha = dv;
+            }
+            reg_DispObj(d);
+            d->disp = 0;
+            stageAnimDebugHook();
+        }
+        stageAnimDebugHook();
+        e->entry2->mode = -1;
+    }
+    return r;
+}
 
 BgaPlayNode *stage_MakePlayBgAnimation(int key)
 {

@@ -85,9 +85,51 @@ static void iosPadDevManager(void);
 INCLUDE_ASM(iosPadDevInit);
 
 static void iosPadActTickProc(void);
-static int iosPadDevReadFunc(void);
 
-INCLUDE_ASM(iosPadDevReadFunc);
+static int iosPadDevReadFunc(void)
+{
+    int i;
+
+    for (i = 0; i < 2; i++) {
+        IosPadDevRec *dev = &iosPadDev[i];
+        IosPadShock *sh;
+        int port;
+
+        dev->idx ^= 1;
+        if (dev->phase == 99) {
+            dev->error = 0;
+        }
+        if (dev->error == 1) {
+            controler_stable_check(dev);
+            if (((unsigned int)frame_count) % 120 == 0) {
+                debug_StdPrintfDummy("pad:checking controler... ");
+                debug_StdPrintfDummy("port:%d, slot:%d\n", dev->port, dev->slot);
+            }
+        } else {
+            if (scePadRead(dev->port, dev->slot, &dev->buf[dev->idx]) == 0) {
+                dev->error = 1;
+                dev->phase = 0;
+            } else {
+                IosPadBuf *b = &dev->buf[dev->idx];
+                unsigned int t = (*(unsigned int *)b >> 12) & 0xF;
+
+                if (t != 7 && t != 5) {
+                    b->rx = b->ry = b->lx = b->ly = 127;
+                }
+            }
+        }
+        sh = &dev->shock;
+        port = dev->port;
+        Shock_Decode(&sh->box, &dev->shock.motor0, &dev->shock.motor1);
+        if (((*(unsigned int *)((char *)dev + (dev->idx << 5) + 0x10) >> 12) & 0xF) != 7 ||
+            dev->error == 1) {
+            port = -1;
+        }
+        Shock_SetMotor(sh->motor0, sh->motor1, &dev->shock.motor, port, dev->slot);
+    }
+    iosPadActTickProc();
+    return 0;
+}
 
 int iosPadRead(IosPadCtx *ctx)
 {

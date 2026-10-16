@@ -370,7 +370,53 @@ void actSt13cCage1stDownDemoCancel(GObj *volatile self)
     lt_switch_layout(50);
 }
 
-INCLUDE_ASM(actSt13cCage1stDown);
+void actSt13cCage1stDown(GObj *volatile self)
+{
+    int se;
+
+    lt_switch_layout(51);
+    gflagOn(19);
+
+    scpAdpcmPlayRequestFunc(14, &st13c_adpcm, 1, 1, 1);
+
+    while (st13c_adpcm == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(59, 1, 0);
+    stage_SetAnimation(60, 1, 0);
+
+    actCreateSubThread(actSt13cCage1stDownDemoCancel, 21);
+
+    scpPlayStart(girlGObj);
+
+    while (stage_CheckAnimationFrame(59, 15, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMotReq(girlGObj, 254);
+
+    while (stage_CheckAnimationFrame(59, 45, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    se = soundSeDefPlay(1328, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(59) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(se);
+
+    while (stage_CheckAnimationFinish(59) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpPlayEnd(girlGObj);
+}
 
 void actSt13cCageFall(GObj *volatile self)
 {

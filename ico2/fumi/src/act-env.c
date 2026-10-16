@@ -72,32 +72,58 @@ inline void GetSofaPosition(GObj *self, GObj *sofa)
 
 #include "include_asm.h"
 
-static inline int getDitchCarryMode(void) /* derived name */
+static inline int getDitchCarryModeStage8(void) /* derived name */
 {
     void *a;
     void *b;
 
-    if (boyGObj != 0 && girlGObj != 0) {
+    if (boyGObj != 0 && girlGObj != 0 && stage_no == 8) {
         a = *(void **)(char *)GOBJ_SUB(boyGObj);
         b = *(void **)(char *)GOBJ_SUB(girlGObj);
 
-        if (a != 0 && *(int *)((char *)a + 0xC) == 0x2C)
+        if (a != 0 && *(int *)((char *)a + 0xC) == 43)
             return 1;
-        if (b != 0 && *(int *)((char *)b + 0xC) == 0x2C)
+        if (b != 0 && *(int *)((char *)b + 0xC) == 43)
             return 2;
     }
     return 0;
 }
 
-static inline int getDitchCarryModeStage8(void) /* derived name */
+static void getDitchDistTbl(float **tbl, int *sofa, float *pos, void *obj, int *carry)
 {
-    if (stage_no == 8) {
-        return getDitchCarryMode();
-    }
-    return 0;
-}
+    int mode;
 
-INCLUDE_ASM(getDitchDistTbl);
+    *tbl = ditchDistTbl;
+
+    *sofa = 0;
+    *carry = 0;
+    if (stage_no == 26) {
+        *tbl = ditchDistTblStage26;
+    }
+    mode = getDitchCarryModeStage8();
+    if (mode) {
+        if (-3000.0f < test_CURRENTROOT(boyGObj)[1]) {
+            *tbl = ditchDistTblStage8;
+        } else {
+            if (mode == 1) {
+                *tbl = ditchDistTblCarry;
+                pos[0] = ditchCarryPos[0];
+                pos[1] = ditchCarryPos[1];
+                pos[2] = ditchCarryPos[2];
+                _OrientXZGV(obj, ditchCarryTarget, ditchCarryPos);
+
+                *carry = mode;
+            } else {
+                *tbl = ditchDistTblSofa;
+                pos[0] = ditchSofaPos[0];
+                pos[1] = ditchSofaPos[1];
+                pos[2] = ditchSofaPos[2];
+                _OrientXZGV(obj, ditchSofaTarget, ditchSofaPos);
+            }
+            *sofa = 1;
+        }
+    }
+}
 
 static int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1, float h)
 {

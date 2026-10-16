@@ -78,8 +78,7 @@ typedef struct {              /* field names derived */
     float wing;     /* 0x44 */
     float scale;    /* 0x48 */
     int timer;      /* 0x4C */
-    float flyXZAccel; /* 0x50, the fly XZ acceleration, from the enemyKind row */
-} EnemyWork;          /* derived name */
+} EnemyWork;        /* derived name */
 
 static void setEnemyParticleObject(GObj *self, int pid)
 {
@@ -440,7 +439,7 @@ static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* de
     /* the work-record entry is read as an int and cast */
     w = (EnemyWork *)*(int *)&SUBOF(self)->work;
 
-    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 285);
+    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 260);
     w->broken = parts;
     clearEnemyParticleFlags(parts, n);
     w->kind = kind;
@@ -448,7 +447,36 @@ static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* de
     return setEnemyObject(self, kind, &w->ctr);
 }
 
-INCLUDE_ASM(InitEnemyGeo);
+void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
+{
+    EnemyWork *w;
+    int kind;
+    int no;
+
+    w = iosMallocDebug(ios_partition_sugipon, 80, "src/enemy.c", 605);
+    SUBOF(self)->work = w;
+    w->word1C = 0;
+    w->eye0 = InitEnemyEye(10, 0, 10);
+    w->word24 = 0;
+    w->eye1 = InitEnemyEye(10, 0, 10);
+    w->foot = InitEnemyFootPrint(6);
+    w->footSwitch = 1;
+    w->particle = 0;
+    w->loaded = 0;
+    w->float3C = 0.0f;
+    w->short40 = 0;
+    w->wing = 0.0f;
+    w->timer = 0;
+    kind = enemyInitPartsList(self, param);
+    w->def = kind;
+    InitMotionOrient(self, 1820, 2105, 24, 36, 788);
+    no = enemyVariation;
+    SUBOF(self)->ctrl.variation = no;
+    enemyVariation = (no + 2) % 10;
+    SUBOF(self)->ctrl.catchBoy = 0;
+    SetLodLevel(self, 2);
+    return w;
+}
 
 INCLUDE_ASM(EnemyGeo);
 

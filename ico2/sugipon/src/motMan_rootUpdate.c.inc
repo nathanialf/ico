@@ -325,14 +325,36 @@ static inline void checkPoolFloor(ClipWork *w) /* derived name */
 {
     int attr = GetFloorAttribute(w);
 
-    if (CompareAttribute(attr, 0x50) != 0) {
+    if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
         if (w->pt[2][1] - skelRoot->pos[1] < skelRoot->projHeight) {
             setPoolHeightOfFloor(w);
         }
     }
 }
 
-INCLUDE_ASM(getFieldCollision);
+static int getFieldCollision(ClipWork *w)
+{
+    float d;
+
+    CopyVector(w, skelRoot->pos);
+    CopyVector(w->pt[1], w);
+    w->pt[0][1] = w->pt[0][1] - 50.0f;
+    w->pt[1][1] = w->pt[1][1] + 50000.0f;
+    if (skelRoot->filter.o.obj != 0) {
+        w->filter = skelRoot->filter;
+        ClipFloorE(w);
+    } else {
+        ClipFloor(w);
+    }
+    if (w->floor.elem != 0) {
+        checkPoolFloor(w);
+        d = GetYDistanceFromPlane(skelRoot->plane.f, w->pt[2]);
+        if (d <= 35.0f) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 /* setIKAndAdjustRootHeight's two helpers */
 

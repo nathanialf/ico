@@ -120,9 +120,63 @@ static void setMotionSpeed(float ratio)
    debug_SelectCsvWindowWithLine takes its rows as void * */
 extern MotionDef motionKind[];
 
-INCLUDE_ASM(dispProgressBar_45);
+static void dispMotFrameProgress(int obj, float cur)
+{
+    /* a nested function: dispMotFrameProgress passes it a static chain */
+    void dispProgressBar(int s, int e, int n, float c, GifColor *col)
+    {
+        float r0 = (float)s / (float)n;
+        float r1 = (float)e / (float)n;
+        float rc = c / (float)n;
 
-INCLUDE_ASM(dispMotFrameProgress);
+        gif_StartPacketPri(11);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(1, 5, 128);
+        if (r0 < rc && rc <= r1) {
+            GifColor dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
+            GifRect ra = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
+                          ((ScreenHeight << 4) * 6 / 20) & ~15,
+                          (int)(((ScreenWidth << 4) * (rc - r0)) * 8 / 10),
+                          (((ScreenHeight << 4) / 100) & ~15) + 24};
+            GifRect rb = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * rc) * 8 / 10), ra.y,
+                          (int)(((ScreenWidth << 4) * (r1 - rc)) * 8 / 10), ra.h};
+            gif_SpriteSensitiveOrg(&ra, 0, 0, col, 1);
+            gif_SpriteSensitiveOrg(&rb, 0, 0, &dark, 1);
+        } else {
+            GifRect rc2 = {(int)((-(ScreenWidth << 4) / 2 + (ScreenWidth << 4) * r0) * 8 / 10),
+                           ((ScreenHeight << 4) * 6 / 20) & ~15,
+                           (int)(((ScreenWidth << 4) * (r1 - r0)) * 8 / 10),
+                           (((ScreenHeight << 4) / 100) & ~15) + 24};
+            if (rc <= r0) {
+                GifColor dark = {col->r / 2, col->g / 2, col->b / 2, 0x80};
+                gif_SpriteSensitiveOrg(&rc2, 0, 0, &dark, 1);
+            } else {
+                gif_SpriteSensitiveOrg(&rc2, 0, 0, col, 1);
+            }
+        }
+        gif_SetZTest(1);
+        gif_SetZWrite(1);
+        gif_EndPacket();
+    }
+    GifColor colA = {52, 84, 192, 128};
+    GifColor colB = {192, 84, 52, 128};
+    float f1 = motionKind[obj].shiftStart;
+    float f2 = motionKind[obj].shiftLength;
+
+    if (f1 >= 0.0f && f2 >= 0.0f) {
+        float sum = f1 + f2;
+        int rev;
+
+        dispProgressBar(0, f1, GetNbMotionFrames(obj) - 1, cur,
+                        (rev = (motionKind + obj)->flags.bits.shiftInside) ? &colB : &colA);
+        dispProgressBar(f1, sum, GetNbMotionFrames(obj) - 1, cur, rev ? &colA : &colB);
+        dispProgressBar(sum, GetNbMotionFrames(obj) - 1, GetNbMotionFrames(obj) - 1, cur,
+                        rev ? &colB : &colA);
+    } else {
+        dispProgressBar(0, GetNbMotionFrames(obj) - 1, GetNbMotionFrames(obj) - 1, cur, &colA);
+    }
+}
 
 static int lastObjSel = -1; /* derived name */
 
@@ -131,9 +185,51 @@ static void *savedFn = 0; /* derived name */
 /* as in debug.h, which this file does not include */
 extern int debug_SelectCsvWindow(char *title, int x, int y, int rows, void *tbl, int stride,
                                  int off, int deref, int count, int *cur);
-static int objMenuProc(void);
 
-INCLUDE_ASM(objMenuProc);
+static int objMenuProc(void)
+{
+    int ret = debug_SelectCsvWindow("Motion Viewer", 10, 50, 11, objMenu, 24, 0, 1, 5, &objSel);
+
+    if (lastObjSel != objSel) {
+        if (viewObj) {
+            viewObj->fn = savedFn;
+            viewObj->dobj->ctrl.shiftStop = 0;
+        }
+        viewObj = isysGObjSearchFromObjKindID_begin(objMenu[objSel].kind);
+        if (viewObj) {
+            CurrentTargetGObj = viewObj;
+            Camctrl_SetTarget(viewObj, 0, 3);
+            savedFn = viewObj->fn;
+            viewObj->fn = 0;
+            SetParallelMotionTableWithNoRequest(viewObj, 0, 0);
+            viewObj->dobj->ctrl.shiftStop = 1;
+        }
+        lastObjSel = objSel;
+        CameraSetMode(2);
+    }
+    if (ret == 1) {
+        motionSpeed = 1.0f;
+        setMotionSpeed(motionSpeed);
+        if (viewObj != 0) {
+            motSel = 0;
+        } else {
+            ret = 0;
+        }
+    }
+    if (ret == -1) {
+        CurrentTargetGObj = isysGObjSearchFromObjKindID_begin(1);
+        Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
+        if (viewObj) {
+            viewObj->fn = savedFn;
+            viewObj->dobj->ctrl.shiftStop = 0;
+        }
+        viewObj = 0;
+        savedFn = 0;
+        lastObjSel = ret;
+        CameraSetMode(3);
+    }
+    return ret;
+}
 
 static int lastMotSel = -1; /* derived name */
 

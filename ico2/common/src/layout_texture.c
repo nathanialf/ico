@@ -311,15 +311,24 @@ static inline int lt_texture_no_of_property(int idx) /* derived name */
 
     if (no < 0) {
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
-        debug_assert(__FILE__, 1287);
-        __assert(__FILE__, 1287, "0");
+        debug_assert(__FILE__, 1054);
+        __assert(__FILE__, 1054, "0");
     }
     return no;
 }
 
-static void init_textures_of_specified_property(int first, int last);
+static void init_textures_of_specified_property(int first, int last)
+{
+    int i;
+    int no;
 
-INCLUDE_ASM(init_textures_of_specified_property_layout_texture);
+    for (i = first; i < last; i++) {
+        no = lt_texture_no_of_property(i);
+        *(int *)(D_002E8208 + i * 108) = no;
+        *(void **)(D_002E8208 + i * 108 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_002E8208 + i * 108 - 4), 1, 1);
+    }
+}
 
 static inline void lt_init_stage_textures(int stage) /* derived name */
 {
