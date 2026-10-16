@@ -1035,13 +1035,13 @@ side_probe:
 
 static void forceFallDown(void)
 {
-    iosOmSendMail(skelGObj, 0x18, skelGObj);
+    iosOmSendMail((GObj *)skelGObj, 0x18, (void *)skelGObj);
     CopyVector(skelRoot->last, skelRoot->pos);
 }
 
 static void forceReset(void)
 {
-    iosOmSendMail(skelGObj, 0x103, skelGObj);
+    iosOmSendMail((GObj *)skelGObj, 0x103, (void *)skelGObj);
     CopyVector(skelRoot->last, (char *)skelRoot);
 }
 
@@ -1347,14 +1347,14 @@ static int avoidSideAdjustWall(void)
     GetMatrixFromQuaternionPos(mtx, skelRoot->quat, skelRoot->pos);
     _ApplyMatrix(w, mtx, avoidLeft);
     _ApplyMatrix(w + 0x10, mtx, avoidRight);
-    if (clipSideWallAndHit(w) == 0) {
+    if (clipSideWallAndHit((ClipWork *)w) == 0) {
         _ApplyMatrix(w, mtx, avoidRight);
         _ApplyMatrix(w + 0x10, mtx, avoidLeft);
-        if (clipSideWallAndHit(w) == 0) {
+        if (clipSideWallAndHit((ClipWork *)w) == 0) {
             return 0;
         }
     }
-    pushRootAlongSideWall(w);
+    pushRootAlongSideWall((ClipWork *)w);
     return 1;
 }
 
@@ -1644,7 +1644,7 @@ static ObjNode rootUpdateNodeFix(void)
     case 1:
         break;
     case 3:
-        GetRootQuaternion(&rq, skelRoot->fixObj);
+        GetRootQuaternion(&rq, (GObj *)skelRoot->fixObj);
         MultiQuaternion(&rq, &rq, GOBJ_SUB(skelRoot->fixObj)->root.motionQuat);
         /* fall through */
     case 2:

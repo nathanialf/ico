@@ -135,6 +135,8 @@ static inline void light_setLinkLight(Light *p) /* derived name */
     lastLight = (int)p;
 }
 
+inline void light_resetFlatLight(void);
+
 Light *light_AddLight(GObj *self, int b, int kind)
 {
     int i;

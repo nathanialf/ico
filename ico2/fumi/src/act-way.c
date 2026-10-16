@@ -218,7 +218,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     act->wayState.flags = (act->wayState.flags & ~0x200000) |
                           ((long long)(checkPositionIllegal(self, goal) & 1) << 21);
     *(float *)((char *)act + 0x434) = goal[1];
-    w = RequestWayBegin(self, goal, from, wp, sub);
+    w = RequestWayBegin((char *)self, goal, from, wp, sub);
     if (w != 0) {
         act->wayState.st[1] = 0;
         if (wp->flag3C == 0) {
@@ -534,7 +534,7 @@ int ACTWayExec_Position(GObj *self, int tgt, float *dir, float speed, int flags)
         v[2] = dir[2];
     }
     if (way_flag(4)) {
-        GetRootProjectionPosOfGObj(pos, tgt);
+        GetRootProjectionPosOfGObj(pos, (GObj *)tgt);
         if (WayMove_CheckCollis(pos, v, 0, 0)) {
             v[0] = pos[0];
             v[1] = pos[1];

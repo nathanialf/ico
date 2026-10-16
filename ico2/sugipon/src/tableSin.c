@@ -8,7 +8,7 @@ float GetTableSin(short angle);
 float GetTableCos(short angle);
 void InitTableSin(void);
 short GetTableArcSin(float x);
-short GetTableArcCos(float x);
+inline short GetTableArcCos(float x);
 int GetTableArcTan2(float y, float x);
 
 /* the two lookup tables: a quarter-turn of sine at 16385 steps, then the
