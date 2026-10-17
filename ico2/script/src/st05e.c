@@ -52,7 +52,7 @@ void actSt05eSolarChk(GObj *volatile self)
         _ACTWait(1);
 
         if (solar != 0) {
-            scpAdpcmFadeCloseFunc(solar, 80);
+            scpAdpcmFadeClose(solar, 80);
         }
 
         lt_switch_layout(50);

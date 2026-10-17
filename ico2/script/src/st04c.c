@@ -291,7 +291,7 @@ void actSt04cEneChk(GObj *volatile self)
 }
 
 /* .sdata: the stream handle actSt04cIntroChk fades out when the intro ends */
-static SqEntry *st04cIntro = 0; /* derived name */
+SqEntry *intro = 0;
 
 void actSt04cIntroChk(GObj *volatile self)
 {
@@ -313,8 +313,8 @@ void actSt04cIntroChk(GObj *volatile self)
     }
     _ACTWait(1);
 
-    if (st04cIntro != 0) {
-        scpAdpcmFadeCloseFunc(st04cIntro, 80);
+    if (intro != 0) {
+        scpAdpcmFadeClose(intro, 80);
     }
 
     lt_switch_layout(50);

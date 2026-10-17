@@ -38,9 +38,9 @@ SqEntry *ed5 = 0;
 
 SqEntry *ed6 = 0;
 
-static SqEntry *endDemo14 = 0; /* derived name */
+SqEntry *sea = 0;
 
-static SqEntry *st27aEnd = 0; /* derived name */
+SqEntry *happy_end = 0;
 
 static ActMail demo01_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -883,9 +883,9 @@ void actEndDemo14(GObj *volatile self)
     fbKeep = 0;
     ScpCallCameraSetTarget(7046.0f, -77.0f, 1678.0f);
 
-    scpAdpcmPlayRequestFunc(93, &endDemo14, 1, 0, 1);
+    scpAdpcmPlayRequestFunc(93, &sea, 1, 0, 1);
 
-    while (endDemo14 == 0) {
+    while (sea == 0) {
         _ACTWait(1);
     }
 
@@ -985,11 +985,11 @@ void actSt27aEndChk(GObj *volatile self)
     scpPlayStart(boyGObj);
     scpPlayMot(boyGObj, 0);
 
-    if (endDemo14 != 0) {
-        scpAdpcmFadeCloseFunc(endDemo14, 27);
+    if (sea != 0) {
+        scpAdpcmFadeClose(sea, 27);
     }
-    scpAdpcmPlayRequestFunc(49, &st27aEnd, 0, 1, 1);
-    while (st27aEnd == 0) {
+    scpAdpcmPlayRequestFunc(49, &happy_end, 0, 1, 1);
+    while (happy_end == 0) {
         _ACTWait(1);
     }
 
@@ -1502,7 +1502,7 @@ void actStaff3RollChk(GObj *volatile self)
     }
 
     if (ed6 != 0) {
-        scpAdpcmFadeCloseFunc(ed6, 80);
+        scpAdpcmFadeClose(ed6, 80);
     }
 
     RequestStageChange(1, boyGObj, 0, 16.0f, 0.001f);

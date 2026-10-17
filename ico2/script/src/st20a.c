@@ -137,9 +137,9 @@ void actSt20aGondolaDown(GObj *volatile self)
     _ACTWait(1);
     iosPadActRequest(boyPad, 16);
     if (gondola_down != 0) {
-        scpAdpcmFadeCloseFunc(gondola_down, 256);
+        scpAdpcmFadeClose(gondola_down, 256);
     }
-    while (scpAdpcmCloseChkFunc(gondola_down) != 0) {
+    while (scpAdpcmCloseChk(gondola_down) != 0) {
         _ACTWait(1);
     }
     ClearGirlDangerGObj();
@@ -170,9 +170,9 @@ void actSt20aGondolaUp(GObj *volatile self)
     _ACTWait(1);
     iosPadActRequest(boyPad, 16);
     if (gondola_up != 0) {
-        scpAdpcmFadeCloseFunc(gondola_up, 256);
+        scpAdpcmFadeClose(gondola_up, 256);
     }
-    while (scpAdpcmCloseChkFunc(gondola_up) != 0) {
+    while (scpAdpcmCloseChk(gondola_up) != 0) {
         _ACTWait(1);
     }
     gondolaUp_mes[0].func = actSt20aGondolaMain;

@@ -530,7 +530,7 @@ done:
     (test_CURRENTROOT(boyGObj)[1] - test_CURRENTROOT(girlGObj)[1]) /* derived name */
 #define ABSF(x) ((x) < 0.0f ? -(x) : (x))                          /* derived name */
 
-void handoff_heroin(void)
+void handoff_heroin(void) /* derived name */
 {
     void *boy = boyGObj;
 

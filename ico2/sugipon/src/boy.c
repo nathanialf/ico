@@ -403,7 +403,7 @@ static void execClothes(GObj *gobj)
 }
 
 /* the one LightLineExt InitLightLineGeo fills */
-static LightLineExt lightLineExt; /* derived name */
+extern LightLineExt _llExtGeo;
 
 LightLineExt *InitLightLineGeo(GObj *gobj, float *pos)
 {
@@ -413,7 +413,7 @@ LightLineExt *InitLightLineGeo(GObj *gobj, float *pos)
     int n;
     float f;
 
-    llExtGeo = &lightLineExt;
+    llExtGeo = &_llExtGeo;
     llExtGeo->phase = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 135);
     llExtGeo->speed = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 136);
     llExtGeo->line = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 137);
@@ -571,7 +571,7 @@ static int girlSyncMarkerColor[4] = {64, 96, 128, 128}; /* derived name */
 
 static int boySyncMarkerColor[4] = {255, 96, 64, 128}; /* derived name */
 
-static LightLineExt lightLineExt = {0, 0, 0}; /* derived name */
+LightLineExt _llExtGeo = {0, 0, 0};
 
 static void synchronizeMotionOutputOriginForGirl(GObj *gobj)
 {

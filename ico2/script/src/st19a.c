@@ -78,7 +78,7 @@ void actSt19aOriDown(GObj *volatile self)
     _ACTWait(1);
     _ACTWait(120);
     if (fence_down_19a != 0) {
-        scpAdpcmFadeCloseFunc(fence_down_19a, 256);
+        scpAdpcmFadeClose(fence_down_19a, 256);
     }
     lt_switch_layout(50);
     _ACTWait(60);
@@ -200,7 +200,7 @@ void actSt19aChainDown(GObj *volatile self)
     scpSearchGobj(1796)->active = 1;
     stage_SetAnimation(124, 0, 361);
     if (chain19a != 0) {
-        scpAdpcmFadeCloseFunc(chain19a, 256);
+        scpAdpcmFadeClose(chain19a, 256);
     }
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);
@@ -221,7 +221,7 @@ void actSt19aChainUp(GObj *volatile self)
     }
     _ACTWait(1);
     if (chain19a != 0) {
-        scpAdpcmFadeCloseFunc(chain19a, 256);
+        scpAdpcmFadeClose(chain19a, 256);
     }
     _ACTWait(60);
     lt_switch_layout(50);
@@ -388,7 +388,7 @@ void actSt19aOriUp(GObj *volatile self)
     _ACTWait(1);
     _ACTWait(120);
     if (fence_up_19a != 0) {
-        scpAdpcmFadeCloseFunc(fence_up_19a, 256);
+        scpAdpcmFadeClose(fence_up_19a, 256);
     }
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);

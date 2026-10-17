@@ -109,7 +109,7 @@ void actSt08bKurenSwitch(GObj *volatile self)
     }
 
     if (demoEnd == 0) {
-        scpAdpcmFadeCloseFunc(h, 128);
+        scpAdpcmFadeClose(h, 128);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);

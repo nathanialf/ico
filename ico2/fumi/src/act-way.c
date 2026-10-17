@@ -253,8 +253,7 @@ typedef struct {     /* field names derived */
 /* the two templates act-way.o keeps in .data: the cleared way-walker record
    (its waypoint id starts at -1) and the cleared way-step record (its two
    distances start at the largest float) */
-static WVTObj wayWorkClear = {{0}, {0}, {0}, 0,   0,   0, 0,
-                              0,   {0}, 0,   {0}, {0}, 0, -1}; /* derived name */
+WVTObj INITIAL_ACTMYWAY = {{0}, {0}, {0}, 0, 0, 0, 0, 0, {0}, 0, {0}, {0}, 0, -1};
 
 static WayStep wayStepClear = {
     {0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.4028235e38f}; /* derived name */
@@ -298,7 +297,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d)
         if (checkPositionIllegal(self, pos) == 0) {
             act->wayState.flags &= ~0x200000;
             DeleteGuideWay(&act->way);
-            act->way = wayWorkClear;
+            act->way = INITIAL_ACTMYWAY;
             if (0) {
                 debug_StdPrintfDummy("WBP recheck first");
             }

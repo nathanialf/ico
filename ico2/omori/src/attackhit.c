@@ -141,7 +141,7 @@ static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, GObj *weapon)
     }
 }
 
-/* shared by _AttackCenter and AttackCenter_WithDir */
+/* shared by AttackCenter and AttackCenter_WithDir */
 static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float *pos, float *ofs,
                                    float radius) /* derived name */
 {
@@ -438,7 +438,7 @@ inline void CommonAttackCenter(GObj *gobj)
     AttackGenerate(&pack);
 }
 
-inline GObj *_AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius)
+inline GObj *AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius)
 {
     AttackPack pack;
 

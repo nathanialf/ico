@@ -878,7 +878,7 @@ void actE3GateDemo(GObj *volatile self)
     _ACTWait(1);
 
     if (e3gate1st != 0) {
-        scpAdpcmFadeCloseFunc(e3gate1st, 80);
+        scpAdpcmFadeClose(e3gate1st, 80);
     }
 
     ReinitWindManager();

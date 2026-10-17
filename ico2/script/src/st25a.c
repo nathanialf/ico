@@ -271,7 +271,7 @@ void actSt25aQueenTalkChk(GObj *volatile self)
     cancel = demoEnd ^ 1;
 
     if (cancel != 0) {
-        scpAdpcmFadeCloseFunc(conte12, 256);
+        scpAdpcmFadeClose(conte12, 256);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -567,7 +567,7 @@ void actSt25aQueenDeadChk(GObj *volatile self)
     scpPlayStart(scpSearchGobj(1966));
 
     if (sd2 != 0) {
-        scpAdpcmFadeCloseFunc(sd2, 256);
+        scpAdpcmFadeClose(sd2, 256);
     }
 
     scpKillEnemyAll();

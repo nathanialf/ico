@@ -225,10 +225,10 @@ void actSt10lGondolaUp(GObj *volatile self)
     gflagOn(265);
 
     if (st10l_gondola_up != 0) {
-        scpAdpcmFadeCloseFunc(st10l_gondola_up, 256);
+        scpAdpcmFadeClose(st10l_gondola_up, 256);
     }
 
-    while (scpAdpcmCloseChkFunc(st10l_gondola_up) != 0) {
+    while (scpAdpcmCloseChk(st10l_gondola_up) != 0) {
         _ACTWait(1);
     }
 
@@ -271,10 +271,10 @@ void actSt10lGondolaDown(GObj *volatile self)
     gflagOff(265);
 
     if (st10l_gondola_down != 0) {
-        scpAdpcmFadeCloseFunc(st10l_gondola_down, 256);
+        scpAdpcmFadeClose(st10l_gondola_down, 256);
     }
 
-    while (scpAdpcmCloseChkFunc(st10l_gondola_down) != 0) {
+    while (scpAdpcmCloseChk(st10l_gondola_down) != 0) {
         _ACTWait(1);
     }
 

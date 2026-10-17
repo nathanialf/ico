@@ -90,7 +90,7 @@ static SqEntry *st13c_adpcm = 0; /* derived name */
 
 static SqEntry *st13c_adpcm2 = 0; /* derived name */
 
-static SqEntry *st13c_reserved = 0; /* derived name */
+SqEntry *hand = 0;
 
 void actSt13cInit(void)
 {
@@ -218,7 +218,7 @@ void actSt13cBmg1Chk(GObj *volatile self)
     }
 
     if (demoEnd == 0) {
-        scpAdpcmFadeCloseFunc(bmg, 256);
+        scpAdpcmFadeClose(bmg, 256);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -670,7 +670,7 @@ void actSt13cCageFallChk(GObj *volatile self)
     cancel = demoEnd ^ 1;
 
     if (cancel) {
-        scpAdpcmFadeCloseFunc(st13c_adpcm2, 256);
+        scpAdpcmFadeClose(st13c_adpcm2, 256);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -1055,7 +1055,7 @@ inline void actSt13cEnemy(GObj *volatile self)
     gflagOff(22);
 }
 
-inline void actE3St13cSekizoEvent(int x)
+inline void actE3St13cSekizoEvent(int x) /* derived name */
 {
     volatile int local = x;
 }
@@ -1278,8 +1278,8 @@ void actSt13cHandChk(GObj *volatile self)
     sceVu0SubVector(dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, dir);
 
-    scpAdpcmPlayRequestFunc(16, &st13c_reserved, 1, 1, 1);
-    while (st13c_reserved == 0) {
+    scpAdpcmPlayRequestFunc(16, &hand, 1, 1, 1);
+    while (hand == 0) {
         _ACTWait(1);
     }
 

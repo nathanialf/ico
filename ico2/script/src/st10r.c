@@ -199,7 +199,7 @@ void actSt10rTowerChk(GObj *volatile self)
     f = demoEnd ^ 1;
 
     if (f) {
-        scpAdpcmFadeCloseFunc(st10r_adpcm, 192);
+        scpAdpcmFadeClose(st10r_adpcm, 192);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);

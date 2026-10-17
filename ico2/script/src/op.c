@@ -148,7 +148,7 @@ void actOpDemo01(GObj *volatile self)
             current_layout_id = 51;
 
             if (titleAdpcm != 0) {
-                scpAdpcmFadeCloseFunc(titleAdpcm, 288);
+                scpAdpcmFadeClose(titleAdpcm, 288);
             }
             titleAdpcm = 0;
             titleSubAdpcm = 0;
@@ -207,8 +207,8 @@ void actOpDemo01(GObj *volatile self)
             opDemoNextMode = 0;
             mpegPlayReturnStage = 1;
             if (titleAdpcm != 0) {
-                scpAdpcmFadeCloseFunc(titleAdpcm, 1024);
-                while (scpAdpcmCloseChkFunc(titleAdpcm) != 0) {
+                scpAdpcmFadeClose(titleAdpcm, 1024);
+                while (scpAdpcmCloseChk(titleAdpcm) != 0) {
                     _ACTWait(1);
                 }
             }
@@ -517,7 +517,7 @@ void actOpDemo01_2(GObj *volatile self)
     }
 
     if (adpcm_conte01_sea != 0) {
-        scpAdpcmFadeCloseFunc(adpcm_conte01_sea, 128);
+        scpAdpcmFadeClose(adpcm_conte01_sea, 128);
     }
 
     RequestStageChangeWithColor(1, boyGObj, 0, 1.0f, 4.0f, 255, 255, 255);
@@ -648,10 +648,10 @@ inline void actOpDemo02Chk(GObj *volatile self)
 
     if (demoSubEnd == 0) {
         if (demoAdpcm != 0) {
-            scpAdpcmFadeCloseFunc(demoAdpcm, 512);
+            scpAdpcmFadeClose(demoAdpcm, 512);
         }
         if (op2 != 0) {
-            scpAdpcmFadeCloseFunc(op2, 64);
+            scpAdpcmFadeClose(op2, 64);
         }
     }
 
@@ -820,7 +820,7 @@ void actOpDemo03Chk(GObj *volatile self)
 
     if (demoSubEnd == 0) {
         if (op2 != 0) {
-            scpAdpcmFadeCloseFunc(op2, 128);
+            scpAdpcmFadeClose(op2, 128);
             t = 16.0f;
         }
     }

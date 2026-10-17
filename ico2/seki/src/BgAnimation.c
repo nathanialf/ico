@@ -915,8 +915,7 @@ static int bgaPivotFlag = 0; /* derived name */
    or step it by dt and, once it runs past the length, wrap it to 0 when
    looping or hold it at the end; the length is in 30 Hz frames, scaled to
    the display rate. */
-static void bga_updateMotionFrame(BgaExtMotion *m, float dt, int set, float f,
-                                  int loop) /* derived name */
+static void bga_setCounter(BgaExtMotion *m, float dt, int set, float f, int loop)
 {
     if (set == 1) {
         if (f >= 0.0f) {
@@ -969,7 +968,7 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
                 ((Sub15C *)p->u.obj)->nodes[p->num].fade =
                     bga_GetExtMotion((BgaExtMotion *)e->data);
                 ((Sub15C *)p->u.obj)->nodes[p->num].flags.ll |= 1;
-                bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
             }
             break;
         case 1:
@@ -979,7 +978,7 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
                         bga_GetExtMotion((BgaExtMotion *)e->data) * (float)ScreenWidth / 2.66f;
                 }
             }
-            bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
+            bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
             break;
         case 2:
             v = bga_GetExtMotion((BgaExtMotion *)e->data);
@@ -987,12 +986,12 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
             case 6:
             case 11:
                 *(float *)((char *)p->u.obj + 0x30) = v;
-                bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
                 break;
             case 8:
             case 9:
                 *(float *)((char *)p->u.obj + 0x80) = v;
-                bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
                 break;
             }
             break;
@@ -1002,7 +1001,7 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
             case 6:
             case 11:
                 *(float *)((char *)p->u.obj + 0x34) = v;
-                bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
                 break;
             }
             break;
@@ -1012,7 +1011,7 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
         case 6:
             if (p->u.obj != 0) {
                 bga_GetGizmoMotion((BgaMotion *)e->data, ((Sub15C *)p->u.obj)->morphWeight);
-                bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
             }
             break;
         case 7:
@@ -1389,7 +1388,7 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float frame, int cut, int pl
     if (d->sibling != 0) {
         bga_CalcObject(d->sibling, dt, frame, cut, play, loop);
     }
-    bga_updateMotionFrame((BgaExtMotion *)m, dt, 0, frame, loop);
+    bga_setCounter((BgaExtMotion *)m, dt, 0, frame, loop);
 }
 
 typedef struct { /* field names derived */
@@ -1419,7 +1418,7 @@ static void bga_resetObjectCounter(BgaCntNode *o, float f, int loop)
     e = o->ents;
     if (e != 0) {
         while (e->obj != 0) {
-            bga_updateMotionFrame((BgaExtMotion *)e->obj, 0.0f, 1, f, loop);
+            bga_setCounter((BgaExtMotion *)e->obj, 0.0f, 1, f, loop);
             e++;
         }
     }
@@ -1429,7 +1428,7 @@ static void bga_resetObjectCounter(BgaCntNode *o, float f, int loop)
     if (o->sibling != 0) {
         bga_resetObjectCounter(o->sibling, f, loop);
     }
-    bga_updateMotionFrame((BgaExtMotion *)&o->count, 0.0f, 1, f, loop);
+    bga_setCounter((BgaExtMotion *)&o->count, 0.0f, 1, f, loop);
 }
 
 void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop)

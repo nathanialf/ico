@@ -1692,7 +1692,7 @@ void QueenBallGeo(GObj *g)
         UnitMatrix33((QMat3 *)m);
         scale_m34((LVec *)m, m, w->scale);
         CopyMatrix((void *)GOBJ_SUB(g)->nodeMtx, m);
-        if (hit == 0 && w->hit == 0 && _AttackCenter(g, 16, m[3], 0, r) != 0) {
+        if (hit == 0 && w->hit == 0 && AttackCenter(g, 16, m[3], 0, r) != 0) {
             w->hit = 1;
             if (weapon != 0) {
                 ExecuteSEPackage(boyGObj, 92);

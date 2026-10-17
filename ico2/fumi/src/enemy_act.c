@@ -114,13 +114,14 @@ extern MotionDef motionKind[];
 #define ENEMY_DEBUG_HOLD 0 /* derived name */
 #endif
 
-/* The point the lifting enemy turns to: three vectors (the first two equal),
-   of which only the first is addressed. */
-static sceVu0FVECTOR bodyliftTarget[3] = {
-    {-311.0f, -89.0f, -147.0f, 0.0f},
-    {-311.0f, -89.0f, -147.0f, 0.0f},
-    {-770.0f, -1445.0f, -749.0f, 0.0f},
-}; /* derived name */
+/* The boss's throw position, which the lifting enemy turns to, and two look
+   positions, the first equal to the throw position; only the throw position
+   is addressed. */
+sceVu0FVECTOR boss_throw_position = {-311.0f, -89.0f, -147.0f, 0.0f};
+
+sceVu0FVECTOR boss_look_position1 = {-311.0f, -89.0f, -147.0f, 0.0f};
+
+sceVu0FVECTOR boss_look_position2 = {-770.0f, -1445.0f, -749.0f, 0.0f};
 
 /* FLT_MAX word in .sdata, declared as an incomplete array */
 extern void SetEnemyStonizedVisual(void *self);
@@ -1005,7 +1006,7 @@ inline void actEnemyNest(GObj *volatile self)
     _ACTWait(0);
 }
 
-static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */
+static int kidnapEndCount = 0; /* derived name */ /* cleared as actEnemyKidnapEnd starts its wait */
 
 void actEnemyKidnapEnd(GObj *volatile self)
 {
@@ -1281,7 +1282,7 @@ void actEnemyBodylift(GObj *volatile self)
     sub = GOBJ_ACT(self);
     hit = 0;
     GOBJ_ACT(self)->enemy->flags.ll &= ~4LL;
-    _OrientXZGV(dir, bodyliftTarget[0], test_CURRENTROOT(self));
+    _OrientXZGV(dir, boss_throw_position, test_CURRENTROOT(self));
     sub->after = (void *)afterEnemyBodylift;
     if (GOBJ_ACT(self)->enemy->liftKind != 3) {
         _OrientXZGV(sub->dir, test_CURRENTROOT(((void *)boyGObj)), test_CURRENTROOT(self));
@@ -2481,7 +2482,7 @@ static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float
         *(float *)((char *)pos + 8) = sub->wayNodeZ;
         if (((int)(((ActStatusWord *)((char *)sub + 0x3E0))->q >> 16)) & 1) {
             if (debug_fly_limit_test != 0) {
-                static int col[4] = {255, 100, 0, 128};
+                static int col[4] = {255, 100, 0, 128}; /* derived name */
 
                 MatrixDrive_PushMatrix();
                 GetRootPosition(rp, self);

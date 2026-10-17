@@ -2389,7 +2389,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
             RequestClipCollision(req);
         }
 
-        void FlyStep(void) /* derived name */
+        void getAvoidCollisionFlyLevel(void)
         {
             if (needInit) {
                 RequestFlyClip((ClipColReq *)((char *)act + 0x680), ClipCollision);
@@ -2447,7 +2447,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
                             fc = info.limitY;
                         }
                         if (debug_fly_limit_test) {
-                            static int col[4] = {0, 255, 128, 128};
+                            static int col[4] = {0, 255, 128, 128}; /* derived name */
                             debugDispSphere(mat[3], col, 100.0f);
                         }
                     } else {
@@ -2610,7 +2610,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
                 return 0;
             }
 
-            FlyStep();
+            getAvoidCollisionFlyLevel();
             if (checkStuck && ((int)(act->flags20.ll >> 10) & 1) == 0 && emergencyCheck()) {
                 SetFlyLimit(self);
                 stuck = 1;

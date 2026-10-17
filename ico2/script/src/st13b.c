@@ -58,8 +58,8 @@ static ActMail doorSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 static float doorUpSubPos[4] = {-3434.0f, -200.0f, 0.0f, 0.0f}; /* derived name */
 
-/* .sdata: the scene stream, the stream handles and shakes, then a further
-   shake and volume. */
+/* .sdata: the scene stream, the stream handles, then the statue's shake and
+   volume and the elevators' shake and volume. */
 static SqEntry *st13b_adpcm = 0; /* derived name */
 
 SqEntry *sekizo13b = 0;
@@ -78,13 +78,13 @@ SqEntry *st13b_up = 0;
 
 SqEntry *st13b_down = 0;
 
+int sekizo_13b = 0;
+
+unsigned char sekizo_13b_vol = 0;
+
 int st13b_yure = 0;
 
 unsigned char st13b_yure_vol = 0;
-
-static int st13b_boss_yure = 0; /* derived name */
-
-static unsigned char st13b_boss_yure_vol = 0; /* derived name */
 
 void actSt13bFloor(GObj *volatile self)
 {
@@ -142,7 +142,7 @@ void actSt13bFloorChk(GObj *volatile self)
     }
 
     if (st13b_adpcm != 0) {
-        scpAdpcmFadeCloseFunc(st13b_adpcm, v);
+        scpAdpcmFadeClose(st13b_adpcm, v);
     }
 
     RequestStageChange(4, boyGObj, 0, 0.025f, 2.0f);
@@ -398,9 +398,9 @@ void actSt13bSekizoChk(GObj *volatile self)
 
     stage_SetAnimation(32, 1, 0);
 
-    st13b_yure = iosPadActRequest(boyPad, 9);
-    st13b_yure_vol = 128;
-    iosPadActVolumeSet(st13b_yure, 128);
+    sekizo_13b = iosPadActRequest(boyPad, 9);
+    sekizo_13b_vol = 128;
+    iosPadActVolumeSet(sekizo_13b, 128);
 
     scpPlayStart(boyGObj);
     scpPlayPosSet((void *)boyGObj, 3085.0f, -1338.0f, 0.0f);
@@ -420,7 +420,7 @@ void actSt13bSekizoChk(GObj *volatile self)
     }
 
     _ACTWait(1);
-    iosPadActStop(st13b_yure);
+    iosPadActStop(sekizo_13b);
 
     while (stage_CheckAnimationFinish(32) == 0) {
         _ACTWait(1);
@@ -450,9 +450,9 @@ void actSt13bSekizo2Chk(GObj *volatile self)
 
     stage_SetAnimation(33, 1, 0);
 
-    st13b_yure = iosPadActRequest(boyPad, 9);
-    st13b_yure_vol = 128;
-    iosPadActVolumeSet(st13b_yure, 128);
+    sekizo_13b = iosPadActRequest(boyPad, 9);
+    sekizo_13b_vol = 128;
+    iosPadActVolumeSet(sekizo_13b, 128);
 
     scpPlayStart(boyGObj);
     scpPlayPosSet((void *)boyGObj, -1563.0f, 527.0f, 0.0f);
@@ -472,7 +472,7 @@ void actSt13bSekizo2Chk(GObj *volatile self)
     }
 
     _ACTWait(1);
-    iosPadActStop(st13b_yure);
+    iosPadActStop(sekizo_13b);
 
     while (stage_CheckAnimationFinish(33) == 0) {
         _ACTWait(1);
@@ -554,7 +554,7 @@ void actSt13bBossChk(GObj *volatile self)
     scpSeEnvMasterVolRate = 0.5f;
     actCreateSubThread(actConte10b, 21);
 
-    while (scpAdpcmCloseChkFunc(meets_again) == 0) {
+    while (scpAdpcmCloseChk(meets_again) == 0) {
         _ACTWait(1);
     }
 
@@ -610,16 +610,16 @@ void actSt13bElevDown(GObj *volatile self)
         _ACTWait(1);
     }
     _ACTWait(1);
-    st13b_boss_yure = iosPadActRequest(boyPad, 9);
-    st13b_boss_yure_vol = 128;
-    iosPadActVolumeSet(st13b_boss_yure, 128);
+    st13b_yure = iosPadActRequest(boyPad, 9);
+    st13b_yure_vol = 128;
+    iosPadActVolumeSet(st13b_yure, 128);
 
     while (stage_CheckAnimationFrame(39, 450, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
 
-    iosPadActStop(st13b_boss_yure);
+    iosPadActStop(st13b_yure);
 
     RequestStageChange(3, boyGObj, 0, 2.0f, 4.0f);
     scpBoyControlReadDisable = 0;
@@ -660,15 +660,15 @@ void actSt13bElevUpChk(GObj *volatile self)
     scpFadeIn(6.0f);
 
     stage_SetAnimation(39, 1, 0);
-    st13b_boss_yure = iosPadActRequest(boyPad, 9);
-    st13b_boss_yure_vol = 128;
-    iosPadActVolumeSet(st13b_boss_yure, 128);
+    st13b_yure = iosPadActRequest(boyPad, 9);
+    st13b_yure_vol = 128;
+    iosPadActVolumeSet(st13b_yure, 128);
     while (stage_CheckAnimationFrame(39, 200, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
-    iosPadActStop(st13b_boss_yure);
+    iosPadActStop(st13b_yure);
     while (stage_CheckAnimationFrame(39, 234, 1) == 0) {
         _ACTWait(1);
     }
@@ -874,7 +874,7 @@ void actConte10a(GObj *volatile self)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);
 
-    scpAdpcmFadeCloseFunc(meets_again, 128);
+    scpAdpcmFadeClose(meets_again, 128);
 }
 
 void actSt13bBossAfterChk(GObj *volatile self)

@@ -361,7 +361,7 @@ static inline void fireWeaponSlot(void) /* derived name */
 
 inline void InitFrameDependSequence(void *flags)
 {
-    static FDSFlags clear = {{0}};
+    static FDSFlags clear = {{0}}; /* derived name */
 
     *(FDSFlags *)flags = clear;
 }

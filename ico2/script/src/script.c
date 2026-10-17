@@ -1422,7 +1422,7 @@ inline int scpCheckExistAliveSpider(void)
     return 0;
 }
 
-inline int scpAdpcmFadeCloseFunc(SqEntry *p, short fade)
+inline int scpAdpcmFadeClose(SqEntry *p, short fade)
 {
     if (p == 0 || p->stream == 0) {
         return 0;
@@ -1431,7 +1431,7 @@ inline int scpAdpcmFadeCloseFunc(SqEntry *p, short fade)
     return 1;
 }
 
-inline int scpAdpcmCloseChkFunc(SqEntry *p)
+inline int scpAdpcmCloseChk(SqEntry *p)
 {
     if (p == 0 || p->stream == 0 || p->stream->bg == 0) {
         return 0;

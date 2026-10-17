@@ -128,7 +128,7 @@ void actSt07aChanChk(GObj *volatile self)
     }
 
     if (demoEnd == 0) {
-        scpAdpcmFadeCloseFunc(chan, 192);
+        scpAdpcmFadeClose(chan, 192);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);
@@ -335,7 +335,7 @@ void actSt07aTsuroChk(GObj *volatile self)
     wk = demoEnd ^ 1;
 
     if (wk != 0) {
-        scpAdpcmFadeCloseFunc(bridge, 192);
+        scpAdpcmFadeClose(bridge, 192);
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
             _ACTWait(1);

@@ -217,7 +217,7 @@ void actSt04aGateChk(GObj *volatile self)
     n = demoEnd ^ 1;
 
     if (n != 0) {
-        scpAdpcmFadeCloseFunc(gate1st, 192);
+        scpAdpcmFadeClose(gate1st, 192);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -689,7 +689,7 @@ void actSt04aGateOpenChk(GObj *volatile self)
     n = demoEnd ^ 1;
 
     if (n != 0) {
-        scpAdpcmFadeCloseFunc(gate1, 192);
+        scpAdpcmFadeClose(gate1, 192);
 
         scpFadeOut(16.0f, 0, 0, 0);
         while (scpFadeChk() != 0) {
@@ -1115,7 +1115,7 @@ void actSt04aGateOpen3Chk(GObj *volatile self)
     scpPlayStart(girlGObj);
 
     if (gate_open2 != 0) {
-        scpAdpcmFadeCloseFunc(gate_open2, 80);
+        scpAdpcmFadeClose(gate_open2, 80);
     }
 
     while (conte09_2 == 0) {

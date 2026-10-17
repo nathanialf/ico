@@ -1012,7 +1012,7 @@ void actSt06aHeadChk(GObj *volatile self)
     scpSearchGobj(1639)->active = 0;
 
     if (toge != 0) {
-        scpAdpcmFadeCloseFunc(toge, 80);
+        scpAdpcmFadeClose(toge, 80);
     }
 
     scpWakeupEnemyAll();

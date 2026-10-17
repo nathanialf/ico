@@ -521,7 +521,7 @@ static void uncarriedItemGeo(GObj *gobj)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
     if (p->holder != 0) {
         if (VectorLengthSquare(vel) > 100.0f) {
-            _AttackCenter((GObj *)p->holder, -1, npos, 0, 20.0f);
+            AttackCenter((GObj *)p->holder, -1, npos, 0, 20.0f);
         }
     }
     if (p->sleep != 0) {
@@ -591,7 +591,7 @@ static void execBombGeo(GObj *gobj)
         stage_SetLoopFlag(440, 0);
         stage_SetFrameStep(440, 1);
         GetRootPosition(q->pos, gobj);
-        _AttackCenter(gobj, 17, q->pos, 0, 100.0f);
+        AttackCenter(gobj, 17, q->pos, 0, 100.0f);
         LightTorchOff(q->torch);
         q->torch->active = 0;
         rec->released = 0;
@@ -699,7 +699,7 @@ int BreakItemFromOutside(GObj *gobj)
         entryBreakBgAnimation(itemKind[p->kind].dropAnim, pos, ZeroVector);
         ExecuteSEPackage(gobj, 42);
         if (GetItemKindInline(gobj) == 6) {
-            _AttackCenter(gobj, 17, pos, 0, 100.0f);
+            AttackCenter(gobj, 17, pos, 0, 100.0f);
         }
         setItemDead(gobj);
     }
