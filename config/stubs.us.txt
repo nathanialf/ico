@@ -147,19 +147,6 @@
 # .c.inc, and their row gives in=<file.c.inc>; the .c.inc includes
 # include_asm.h itself.
 
-text getLandOffset.265 0x00159CB0 0x00159DF8 ico2/fumi/src/commonact.c local file=getLandOffset_265  # nested in flyCoreLoop (a stub); equal, gone with its carved parent
-text completeEmergency.280 0x00159DF8 0x0015A364 ico2/fumi/src/commonact.c local file=completeEmergency_280  # ordinal; first difference at insn 0; length:+272; extent-differs
-lit4 completeEmergency.280 0x00630C58 0x00630C70 ico2/fumi/src/commonact.c file=completeEmergency_280  # 6 floats, measured from the base: the text loads them
-rdlit completeEmergency.280 0x005589A8 0x00558B09 ico2/fumi/src/commonact.c file=completeEmergency_280  # 5 strings, 1 data, measured from the base: flyCoreLoop's strings around its nested completeEmergency.280's table, in the order gcc writes a nested function inside its parent
-text emergencyCheck.284 0x0015A368 0x0015A614 ico2/fumi/src/commonact.c local file=emergencyCheck_284  # ordinal; first difference at insn 11; imm:24; extent-equal
-lit4 emergencyCheck.284 0x00630C70 0x00630C74 ico2/fumi/src/commonact.c file=emergencyCheck_284  # 1 float
-rdlit emergencyCheck.284 0x00558B10 0x00558B79 ico2/fumi/src/commonact.c align=16 file=emergencyCheck_284  # 3 strings
-sdlit emergencyCheck.284 0x00632308 0x0063230F ico2/fumi/src/commonact.c file=emergencyCheck_284  # 1 string
-text flyCoreLoop 0x0015A618 0x0015ADEC ico2/fumi/src/commonact.c local lines=355  # ordinal; first difference at insn 0; length:-360; extent-differs
-lit4 flyCoreLoop 0x00630C74 0x00630C7C ico2/fumi/src/commonact.c  # 2 floats, measured from the base: the text loads them
-data col.268 0x002823D0 0x002823E0 ico2/fumi/src/commonact.c local file=col_268  # flyCoreLoop's (completeEmergency.280's) {0, 255, 128, 128}, after commonact.c's last file-scope .data; USA addiu at 0x15A1EC
-data col.269 0x002823E0 0x002823F0 ico2/fumi/src/commonact.c local file=col_269  # flyCoreLoop's (completeEmergency.280's) {0, 0, 128, 128}; USA addiu at 0x15A338
-data col.270 0x002823F0 0x00282400 ico2/fumi/src/commonact.c local file=col_270  # flyCoreLoop's {0, 128, 255, 128}; USA addiu at 0x15AA2C
 text subGirlBrain_Escape 0x0016FC48 0x00170380 ico2/fumi/src/girl_act.c lines=124  # ordinal; first difference at insn 3; length:+63; extent-differs
 lit4 subGirlBrain_Escape 0x00630DB8 0x00630DC0 ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
 sdlit subGirlBrain_Escape 0x00632490 0x00632493 ico2/fumi/src/girl_act.c  # 1 string, measured from the base

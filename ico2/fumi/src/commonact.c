@@ -150,7 +150,6 @@ inline void afterCommonTruckLever(GObj *volatile self);
 #include "clipCollisionManager.h"
 #include "layout_texture.h"
 #include "flyManager.h"
-#include "include_asm.h"
 
 static void DamageFunc(GObj *self);
 static void TestCageUpDown(GObj *cage, GObj *gobj);
@@ -2310,19 +2309,342 @@ static inline unsigned char IsFlyTimeOver(int self) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(col_268);
+static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
+{
+    Act *act = GOBJ_ACT(self);
+    float lenSq;
+    float spd;
+    unsigned long stuck =
+        checkStuck && IsFallStuckOnStep(self, 6, debug_fly_limit_test ? 29 : 30, 3, 600);
+    int flags = 0;
+    int ringidx;
+    int landCnt = 0;
+    short ang = 0;
+    int landed = 0;
+    float off[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    float acc = 0.0f;
+    float emgpos[4];
+    int needInit = 1;
+    int mode = 0;
+    float fc = 0.0f;
+    float ring[5][4];
+    float mat[4][4];
+    int wait = 0;
+    int dbg = 0; /* local debug switch, see the tests after spd and after the thrust below */
+    float root[4];
+    int cnt114 = 0;
+    float vC0[4];
+    float dir[4];
+    int ringcnt = 0;
+    for (ringidx = 0; ringidx < 5; ringidx++) {
+        CopyVector(ring[ringidx], ZeroPoint);
+    }
+    ringidx = 0;
+    if (stuck) {
+        debug_StdPrintfDummy("\x1b[36mEMERGENCY WITH DANGER LOOP\x1b[m\n");
+        flags |= 1;
+        SetFlyLimit(self);
+    }
+    if (stage_no == 84 || stage_no == 3 || stage_no == 46) {
+        emgpos[0] = GOBJ_WORK(self)->emgPosX;
+        emgpos[1] = GOBJ_WORK(self)->emgPosY;
+        emgpos[2] = GOBJ_WORK(self)->emgPosZ;
+    }
+    while (1) {
+        int getLandOffset(float *out, float *pos, short ang, float h)
+        {
+            ClipWork w;
 
-INCLUDE_ASM(col_269);
+            memset(&w, 0, 0xC0);
+            _UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_TransMatrixV((char *)pos);
+            MatrixDrive_RotMatrixY(ang);
+            MatrixDrive_TransMatrix(0.0f, 0.0f, h);
+            CopyVector(w.pt[1], (char *)MatrixDrive_GetMatrix() + 0x30);
+            CopyVector(w.pt[0], pos);
+            w.pt[0][3] = w.pt[1][3] = 1.0f;
+            w.pt[0][1] -= 50.0f;
+            w.pt[1][1] -= 50.0f;
+            ClipWall(&w);
+            if (w.wall.elem) {
+                return 0;
+            }
+            CopyVector(w.pt[0], w.pt[1]);
+            w.pt[1][1] += 100.0f;
+            ClipFloor(&w);
+            if (w.floor.elem) {
+                _SubVectorXYZ(out, w.pt[2], pos);
+                return 1;
+            }
+            return 0;
+        }
 
-INCLUDE_ASM(col_270);
+        inline void RequestFlyClip(ClipColReq * req, void (*func)(ClipWork *)) /* derived name */
+        {
+            req->func = func;
+            req->clip.radius = 50.0f;
+            CopyVector(req->clip.pt[0], mat[3]);
+            CopyVector(req->clip.pt[1], root);
+            req->obj = 0;
+            RequestClipCollision(req);
+        }
 
-INCLUDE_ASM(getLandOffset_265);
+        void FlyStep(void) /* derived name */
+        {
+            if (needInit) {
+                RequestFlyClip((ClipColReq *)((char *)act + 0x680), ClipCollision);
+                needInit = 0;
+            } else if (((ClipColReq *)((char *)act + 0x680))->done) {
+                if (((ClipColReq *)((char *)act + 0x680))->clip.wall.elem ||
+                    ((ClipColReq *)((char *)act + 0x680))->clip.floor.elem) {
+                    if (10000.0f < VectorLengthSquare(dir)) {
+                        acc = -1.0f;
+                    } else if (0.0f < vC0[1]) {
+                        acc = 1.0f;
+                    } else {
+                        acc = -1.0f;
+                    }
+                } else {
+                    acc = calcFlyAccel(root, mat[3]);
+                }
+                RequestFlyClip((ClipColReq *)((char *)act + 0x680), ClipCollision);
+            }
+            {
+                FlyLimitInfo info;
 
-INCLUDE_ASM(completeEmergency_280);
+                if (GetFlyLimitHeight(&info, mat[3])) {
+                    if (debug_fly_limit_test) {
+                        debugDispFlyLimit(mat[3], info.limitY, info.floorY);
+                    }
+                    if (lenSq < 90000.0f && (info.floorY < root[1] || root[1] < info.limitY)) {
+                        ClipWork w = {{{0.0f}}, {{0.0f}}, 50.0f};
 
-INCLUDE_ASM(emergencyCheck_284);
+                        CopyVector(w.pt[0], mat[3]);
+                        w.pt[0][1] += 100.0f;
+                        _ApplyMatrix(w.pt[1], mat, ZUnitVector);
+                        w.pt[1][1] = 0.0f;
+                        _NormalizeVector(w.pt[1], w.pt[1]);
+                        _ScaleVectorXYZ(w.pt[1], w.pt[1], 200.0f);
+                        _AddVectorXYZ(w.pt[1], w.pt[0], w.pt[1]);
+                        ClipWall(&w);
+                        if (w.wall.elem) {
+                            MatrixDrive_PushMatrix();
+                            CopyMatrix(MatrixDrive_GetMatrix(), mat);
+                            MatrixDrive_RotMatrixY(4096);
+                            _ApplyMatrix(dir, MatrixDrive_GetMatrix(), ZUnitVector);
+                            dir[1] = 0.0f;
+                            _NormalizeVector(dir, dir);
+                            MatrixDrive_PopMatrix();
+                            SetMotionDirection(self, dir);
+                            acc = -1.0f;
+                        } else if (info.floorY < root[1]) {
+                            acc = 1.0f;
+                            mode = 1;
+                            fc = info.floorY;
+                        } else {
+                            acc = -1.0f;
+                            mode = 2;
+                            fc = info.limitY;
+                        }
+                        if (debug_fly_limit_test) {
+                            static int col[4] = {0, 255, 128, 128};
+                            debugDispSphere(mat[3], col, 100.0f);
+                        }
+                    } else {
+                        _ACTMotDirSmzDirect(self, dir);
+                    }
+                    if (info.limitY > mat[3][1]) {
+                        acc = clampUnit((info.limitY - mat[3][1]) * 0.05f);
+                    }
+                } else if (mode == 0) {
+                    _NormalizeVector(dir, dir);
+                    _ACTMotDirSmzDirect(self, dir);
+                } else {
+                    acc = clampUnit((root[1] - mat[3][1]) * 0.005f);
+                    if (360000.0f < lenSq) {
+                        mode = 0;
+                    }
+                    if (mode == 1) {
+                        acc = 1.0f;
+                        if (fc < mat[3][1]) {
+                            mode = 0;
+                        }
+                    } else {
+                        acc = -1.0f;
+                        if (mat[3][1] < fc) {
+                            mode = 0;
+                        }
+                    }
+                    if (debug_fly_limit_test) {
+                        static int col[4] = {0, 0, 128, 128};
+                        debugDispSphere(mat[3], col, 100.0f);
+                    }
+                }
+            }
+        }
 
-INCLUDE_ASM(flyCoreLoop);
+        GetRootMotionMatrix(mat, self);
+        if (target) {
+            GetRootPosition(root, target);
+            if (stage_no == 84 || stage_no == 3 || stage_no == 46) {
+                root[0] = emgpos[0];
+                root[1] = emgpos[1];
+                root[2] = emgpos[2];
+            }
+            if (stuck) {
+                root[1] += -100.0f;
+            } else {
+                root[1] += GOBJ_SUB(target)->root.projHeight;
+                if ((60 - systemStatus[0] * 10) / systemStatus[1] < landCnt++ || !landed) {
+                    landed = getLandOffset(off, root, ang, 100.0f);
+                    if (!landed) {
+                        ang += 4096;
+                    }
+                    landCnt = 0;
+                }
+                if (landed) {
+                    _AddVectorXYZ(root, root, off);
+                }
+                root[1] -= 10.0f;
+            }
+            if (debug_fly_limit_test) {
+                static int col[4] = {0, 128, 255, 128};
+                debugDispSphere(root, col, 10.0f);
+            }
+        } else {
+            CopyVector(root, ZeroPoint);
+        }
+        _SubVector(vC0, root, mat[3]);
+        CopyVector(dir, vC0);
+        dir[1] = 0.0f;
+        lenSq = VectorLengthSquare(dir);
+        spd = distance_squared(root, mat[3]);
+        /* a local debug switch, off: print the distance */
+        if (dbg) {
+            debug_StdPrintfDummy("%1.1f ", lenSq);
+        }
+        if (stuck) {
+            inline int completeEmergency(void)
+            {
+                if (debug_fly_limit_test) {
+                    debug_StdPrintfDummy("EMERGENCY COMPLETE CHECK : SPEEDSQ:%f LENSQ:%f\n",
+                                         VectorLengthSquare((char *)GOBJ_SUB(self) + 0x130), spd);
+                }
+                if (VectorLengthSquare((char *)GOBJ_SUB(self) + 0x130) < 50.0f && spd < 1000.0f) {
+                    return 1;
+                }
+                return 0;
+            }
+
+            int y = 30;
+
+            if (flags & 2)
+                debug_PrintfDummy(10, y += 10, 0x80FF0080, "EMERGENCY BY NOMOVE");
+            if (flags & 4)
+                debug_PrintfDummy(10, y += 10, 0x80FF0080, "EMERGENCY BY TIMEOUT");
+            if (flags & 1)
+                debug_PrintfDummy(10, y += 10, 0x80FF0080, "EMERGENCY BY DANGER LOOP");
+            acc = calcVertAccel(root, mat[3]);
+            _ACTMotDirSmzDirect(self, dir);
+            if (stage_no != 84 && stage_no != 3 && stage_no != 46) {
+                SetDarkVolumeEffect(mat[3], 100.0f);
+            }
+            if (completeEmergency()) {
+                ResetFlyLimit(self);
+                stuck = 0;
+            }
+        } else {
+            int emergencyCheck(void)
+            {
+                float prev[4];
+                float mx;
+                float d;
+                int i;
+
+                if (wait == 0) {
+                    mx = 0.0f;
+                    CopyVector(prev, ring[ringidx]);
+                    CopyVector(ring[ringidx], mat[3]);
+                    if (ringcnt < 5) {
+                        for (i = 0; i < ringcnt; i++) {
+                            d = distance_squared(ring[0], ring[i]);
+                            if (mx < d) {
+                                mx = d;
+                            }
+                        }
+                    } else {
+                        for (i = 0; i < 5; i++) {
+                            d = distance_squared(prev, ring[i]);
+                            if (debug_fly_limit_test) {
+                                debug_StdPrintfDummy("%1.1f ", d);
+                            }
+                            if (mx < d) {
+                                mx = d;
+                            }
+                        }
+                    }
+                    ringcnt = ringcnt + 1;
+                    ringidx = ringidx + 1;
+                    if (ringidx == 5) {
+                        ringidx = 0;
+                    }
+                    if (debug_fly_limit_test) {
+                        debug_StdPrintfDummy("EMERGENCY CHECK %d(%d): MAX: %f\n", cnt114, ringcnt,
+                                             mx);
+                    }
+                    if (ringcnt >= 5 && mx < 10000.0f) {
+                        debug_StdPrintfDummy("\x1b[36mEMERGENCY WITH NO MOVE\x1b[m\n");
+                        flags |= 2;
+                        return 1;
+                    }
+                    if (debug_fly_limit_test == 0 && IsFlyTimeOver((int)self)) {
+                        debug_StdPrintfDummy("\x1b[36mEMERGENCY WITH TIME OUT\x1b[m\n");
+                        flags |= 4;
+                        return 1;
+                    }
+                }
+                wait = wait + 1;
+                if (wait == 30) {
+                    wait = 0;
+                }
+                return 0;
+            }
+
+            FlyStep();
+            if (checkStuck && ((int)(act->flags20.ll >> 10) & 1) == 0 && emergencyCheck()) {
+                SetFlyLimit(self);
+                stuck = 1;
+            }
+        }
+        _ScaleVectorXYZ((char *)GOBJ_SUB(self) + 0x130, (char *)GOBJ_SUB(self) + 0x130, 0.92f);
+        if (((int)(act->flags20.ll >> 10) & 1) == 0) {
+            FlyPt v = {{0.0f, 0.0f, stage_no == 84 || stage_no == 3 || stage_no == 46 ? 3.0f : 1.0f,
+                        0.0f}};
+
+            _ApplyMatrix(&v, mat, &v);
+            v.f[1] = 0.0f;
+            _AddVectorXYZ((char *)GOBJ_SUB(self) + 0x130, (char *)GOBJ_SUB(self) + 0x130, &v);
+            GOBJ_SUB(self)->root.move[1] += acc * 2.0f;
+        }
+        /* the local debug switch again, off: mark the goal and the fly. The
+           August TRFILE (4077-4080) and the PAL listing (4480-4483) have
+           four code-less lines here, this block's length; the text is
+           derived. */
+        if (dbg) {
+            debug_NMarker(root, 255, 0, 0, 100.0f);
+            debug_NMarker(mat[3], 0, 255, 0, 100.0f);
+        }
+        /* modeFrame on the left: this build loads act ahead of the divide's
+           zero trap */
+        if ((stage_no == 84 || stage_no == 3 || stage_no == 46) &&
+            act->modeFrame > (60 - systemStatus[0] * 10) / systemStatus[1] * 10) {
+            SetFlyLimit(self);
+            stuck = 1;
+        }
+        _ACTWait(1);
+        cnt114++;
+    }
+}
 
 /* Sub15C's ctrl.floorAttr (0x5F8) */
 typedef struct { /* field names derived */
