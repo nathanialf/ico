@@ -13,9 +13,6 @@
 struct SqEntry;
 
 /* st04l.o's .sdata globals */
-extern struct SqEntry *ball1_4l;
-extern struct SqEntry *ball2_4l;
-extern struct SqEntry *ball3_4l;
 extern struct SqEntry *crest1;
 extern struct SqEntry *crest2;
 extern int solar4l;

@@ -17,9 +17,6 @@ extern float center_Y;
 extern int ScreenWidth;
 extern int ScreenHeight;
 extern int currentScreenWidth;
-extern int currentScreenHeight;
-extern int screenOffsetX;
-extern int screenOffsetY;
 extern int vsWidth;
 extern int vsHeight;
 /* GsBase.c's `inline` functions, in the order of their definitions'
@@ -32,10 +29,8 @@ int gsb_SyncGSSystem(void);
 int gsb_LoadStageSettings(void);
 int gsb_SaveStageSettings(void);
 void gsb_ClearFrameBuffer(void);
-#ifndef VERSION_JPN
 int gsb_ResetSnap(void);
 int gsb_TakeSnap(void);
-#endif
 int lockOtherEditing(void);
 int unlockOtherEditing(void);
 int gsb_ClipBox(float *p);

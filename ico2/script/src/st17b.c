@@ -5,8 +5,9 @@
 #include "StageManager.h"
 #include "script.h"
 #include "typedef.h"
+#include "include_asm.h"
 
-static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail check_mes[2] = {{377}, {376}}; /* derived name */
 
 /* .sdata: the lightning stream handle. */
 struct SqEntry *lightning2 = 0;
@@ -19,26 +20,6 @@ void actSt17bTest(GObj *volatile self)
     _ACTWait(1);
 }
 
-void actSt17bCheck(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = (Act *)actInitialize(self);
+INCLUDE_ASM(actSt17bObj1642);
 
-    _ACTWait(1);
-    ScpCallCameraSetTarget(14990.0f, 7074.0f, -4694.0f);
-    scpAdpcmPlayRequestFunc(94, &lightning2, 1, 0, 1);
-
-    if (gflagChk(36) == 0) {
-        check_mes[0].func = actSt17bCheckChk;
-        act->mail = check_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt17bCheckChk(GObj *volatile self)
-{
-    _ACTWait(1);
-    CheckPoint();
-    gflagOn(34);
-}
+INCLUDE_ASM(actSt17bCheckChk);

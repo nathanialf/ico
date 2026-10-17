@@ -10,6 +10,7 @@
 #include "spider.h"
 #include "main.h"
 #include <assert.h>
+#include "include_asm.h"
 
 /* the manager's counters and the revive state */
 static int reviveNext = 0; /* derived name */
@@ -97,26 +98,7 @@ inline void EntryRevivedSpiderGroupManager(GObj *group)
     spiderGroupIds[idx] = (int)group;
 }
 
-void EntrySpiderGroupManager(GObj *gobj)
-{
-    GObj *p;
-
-    spiderGroups[spiderGroupCount].gobj = gobj;
-    p = getReviveEnemyGObj(spiderGroupIdCount);
-    if (p != 0) {
-        debug_StdPrintfDummy("LOCK %p for LABEL %d, ID:%d\n", p, p->labelId, spiderGroupCount);
-        LockEnemyGenerate(p);
-        p->active = 0;
-    } else {
-        debug_assertMessage(
-            "src/spiderGroupManager.c", 85,
-            "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n");
-        __assert("src/spiderGroupManager.c", 85, "e");
-    }
-    spiderGroups[spiderGroupCount].rev = (int)p;
-    spiderGroupCount = spiderGroupCount + 1;
-    EntryRevivedSpiderGroupManager(gobj);
-}
+INCLUDE_ASM(EntrySpiderGroupManager);
 
 inline void EntryToSpiderGroupManagerForReviveMaster(GObj *group, GObj *master)
 {
@@ -124,102 +106,9 @@ inline void EntryToSpiderGroupManagerForReviveMaster(GObj *group, GObj *master)
     reviveMaster = master;
 }
 
-static int tryToRevive(void)
-{
-    float pos[4];
-    int k = 0;
-    int i;
-    int j;
-    int n;
-    GObj *p;
+INCLUDE_ASM(tryToRevive);
 
-    if (reviveMaster != 0) {
-        GetRootPosition(pos, reviveMaster);
-        pos[1] -= GOBJ_SUB(reviveMaster)->root.height;
-        for (i = 0; i < reviveGroupIdCount; i++) {
-            n = CheckSpidersInsideOfReviveRange(spidersInRange, reviveGroupIds[i], pos);
-            if (n != 0) {
-                for (j = 0; j < n; j++) {
-                    spiderPairs[k].group = reviveGroupIds[i];
-                    spiderPairs[k].spider = spidersInRange[j];
-                    k++;
-                    if (k == 5) {
-                        if (reviveNext < spiderGroupCount) {
-                            int m;
-
-                            p = (GObj *)spiderGroups[reviveNext].rev;
-                            UnlockEnemyGenerate(p);
-                            debug_StdPrintfDummy("UNLOCK %p: (id:%d)\n", p, reviveNext);
-                            p->active = 1;
-                            if (DirectCallEnemy(p, 0, pos, ZUnitVector, 0) == 0) {
-                                return 0;
-                            }
-                            ExecuteSEPackage(p, 107);
-                            for (m = 0; m < 5; m++) {
-                                SetAP1DeadStatus(DeleteSpiderFromLayoutGroup(
-                                    spiderPairs[m].group, spiderPairs[m].spider));
-                            }
-                            SetSpiderGroupReviveStatus(spiderGroups[reviveNext].gobj);
-                            reviveNext++;
-                            return 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-void ExecSpiderGroupManager(void)
-{
-    int i;
-    int total;
-    int groups;
-
-    if ((execFrame & 0xF) == 0) {
-        tryToRevive();
-    }
-
-    if (spiderGroupIdCount != 0 && reviveDone == 0) {
-        groups = 0;
-        total = 0;
-        for (i = 0; i < spiderGroupIdCount; i++) {
-            int n = GetAliveSpiders((GObj *)spiderGroupIds[i]);
-            if (n >= 0) {
-                total += n;
-                groups++;
-            }
-        }
-
-        if (groups != 0 && total > 0 && total < 5) {
-            reviveCounter = reviveCounter + 1;
-            if (debug_brain_bar_flag != 0) {
-                debug_PrintfDummy(400, 120, 0xFFFFFFFF, "COUNTER %d/%d", reviveCounter,
-                                  (60 - systemStatus[0] * 10) / systemStatus[1] * 45);
-            }
-        }
-
-        if ((60 - systemStatus[0] * 10) / systemStatus[1] * 45 < reviveCounter) {
-            for (i = 0; i < spiderGroupIdCount; i++) {
-                if (GetAliveSpiders((GObj *)spiderGroupIds[i]) >= 0) {
-                    DeadAllSpiders((GObj *)spiderGroupIds[i]);
-                }
-            }
-            reviveDone = 1;
-        }
-
-        if (debug_brain_bar_flag != 0) {
-            if (groups != 0) {
-                debug_PrintfDummy(400, 110, 0xFFFFFFFF, "REMAIN %d", total);
-            } else {
-                debug_PrintfDummy(400, 110, 0xFFFFFFFF, "NO GROUP WAKEUPED");
-            }
-        }
-    }
-
-    execFrame = execFrame + 1;
-}
+INCLUDE_ASM(ExecSpiderGroupManager);
 
 inline void DispAllSpiderGroups(void)
 {

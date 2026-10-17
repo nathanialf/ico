@@ -1,6 +1,7 @@
 #include "EnemyInit.h"
 #include "ios.h"
 #include "memory.h"
+#include "include_asm.h"
 
 /* the number of enemy sets enemy_Initialize sets up, the rows of
    enemyPositionTable */
@@ -8,7 +9,7 @@ int EnemyKindNum = 0;
 
 /* One row per enemy set and one slot per enemy kind, each holding the
    position table enemy_Initialize allocates for that kind, or 0. */
-static float (*enemyPositionTable[1][27])[4]; /* derived name */
+static float (*enemyPositionTable[9][27])[4]; /* derived name */
 
 typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
@@ -830,8 +831,8 @@ EnemyModelSet enemy_enemymodel01_enemymodel04 = {enemymodel01Kinds, 27, enemymod
 /* the sets stage model 01 places, closed by 0 */
 EnemyModelSet *enemymodel01[] = {&enemy_enemymodel01_enemymodel04, 0};
 
-/* the stages' set lists and their counts, enemy_Initialize's table */
-static EnemySet enemySetTable[] = {{enemymodel01, 1}}; /* derived name */
+/* the other eight stage models' kind lists, positions and set lists, then the stages' set lists and their counts, enemy_Initialize's table (nine rows in this build: its loop runs to 9) */
+INCLUDE_ASM(D_004EB318);
 
 /* Debug report of the number of positions enemy_Initialize copied, built only
    under DEBUG. */
@@ -842,72 +843,7 @@ static __inline__ void enemyInitDebugPrint(int copyNum) /* derived name */
 #endif
 }
 
-void enemy_Initialize(void)
-{
-    int cnt[27];
-    int e;
-    int k;
-    int i;
-    int j;
-    EnemyModelSet **tbl;
-    int *q;
-    float (*dst)[4];
-    /* the slot count */
-    int kindNum = 27;
-    /* counted once per copied quadword for the DEBUG report at the end; the
-       retail build never reads it */
-    int copyNum = 0;
-
-    EnemyKindNum = 1;
-    for (e = 0; e < EnemyKindNum; e++) {
-        tbl = enemySetTable[e].list;
-        for (k = 0; k < kindNum; k++) {
-            cnt[k] = 0;
-            for (i = 0; i < enemySetTable[e].n; i++) {
-                for (j = 0; j < tbl[i]->kindNum; j++) {
-                    /* the set's j-th EnemyKindRec, as {list, kind} words */
-                    int *rec = (int *)(j * 8 + *(int *)tbl[i]);
-
-                    if (rec[1] == k) {
-                        q = (int *)rec[0];
-                        do {
-                            cnt[k]++;
-                        } while (*++q != -1);
-                    }
-                }
-            }
-        }
-        for (k = 0; k < kindNum; k++) {
-            if (cnt[k] > 0) {
-                enemyPositionTable[e][k] =
-                    iosMallocDebug(ios_partition_seki, (cnt[k] + 1) << 4, __FILE__, 124);
-            } else {
-                enemyPositionTable[e][k] = 0;
-                continue;
-            }
-            dst = enemyPositionTable[e][k];
-            for (i = 0; i < enemySetTable[e].n; i++) {
-                for (j = 0; j < tbl[i]->kindNum; j++) {
-                    int *rec = (int *)(j * 8 + *(int *)tbl[i]);
-
-                    if (rec[1] == k) {
-                        q = (int *)rec[0];
-                        for (;;) {
-                            *(Qw128 *)dst++ = *(Qw128 *)tbl[i]->pos[*q];
-                            /* the break shares the if's line */
-                            /* clang-format off */
-                            if (*++q == -1) break;
-                            /* clang-format on */
-                            copyNum++;
-                        }
-                    }
-                }
-            }
-            (*dst)[0] = (*dst)[1] = (*dst)[2] = (*dst)[3] = -1.0f;
-        }
-    }
-    enemyInitDebugPrint(copyNum);
-}
+INCLUDE_ASM(enemy_Initialize);
 
 float (*enemy_GetPositionTable(int idx, int sub_idx))[4]
 {

@@ -148,51 +148,49 @@ START_NORMAL_C:
 	nop                              lq.xyzw vf15, 0(vi02)
 	sub.w       vf21, vf21, vf21     lq.xyzw vf17, 1(vi02)
 	nop                              lq.xyzw vf18, 2(vi02)
-	nop                              move.z vf23, vf00                      ; vf23.z = 0 (lane mask)
+	nop                              nop
 	mulax.xyzw acc, vf01, vf15x      nop
 	madday.xyzw acc, vf02, vf15y     nop
 	maddaz.xyzw acc, vf03, vf15z     nop
 	maddw.xyzw vf28, vf04, vf00w     nop
 	sub.w       vf00, vf17, vf00     lq.xyzw vf15, 3(vi02)
-	add.xyz     vf21, vf17, vf23     iaddiu vi07, vi00, 208                 ; vi07 = 0xD0 clip mask
+	nop                              iaddiu vi07, vi00, 0xd0
 	nop                              nop
 	nop                              div q, vf00w, vf28w
 	nop                              fsand vi15, 0x2
-	nop                              nop
-	mulax.xyzw acc, vf01, vf15x      nop
-	madday.xyzw acc, vf02, vf15y     nop
-
 LOOP_NORMAL_C:
-	maddaz.xyzw acc, vf03, vf15z     lq.xyzw vf17, 4(vi02)
-	maddw.xyzw vf29, vf04, vf00w     ibeq vi15, vi00, CONT_NORMAL_C
-	nop                              iaddi vi04, vi04, -1                   ; (delay slot)
+	add.xy vf17, vf17, vf23          lq.xyzw vf25, 4(vi02)
+	mulax.xyzw acc, vf01, vf15x      iaddiu vi02, vi02, 3
+	madday.xyzw acc, vf02, vf15y     ibeq vi15, vi00, CONT_NORMAL_C
+	maddaz.xyzw acc, vf03, vf15z     iaddi vi04, vi04, -1
+
 	nop                              iaddiu vi05, vi00, 3
 CONT_NORMAL_C:
-	mulq.xyz vf28, vf28, q           iaddi vi05, vi05, -1
-	mulq.xyz vf21, vf21, q           iaddiu vi02, vi02, 3
+	mulq.xyz vf28, vf28, q           waitq
+	mulq.xyz vf21, vf17, q           iaddi vi05, vi05, -1
 	ftoi0.xyzw  vf22, vf18           lq.xyzw vf24, 3(vi02)
-	sub.w       vf00, vf17, vf00     div q, vf00w, vf29w
+	sub.w vf00, vf25, vf00           lq.xyzw vf17, 1(vi02)
 	sub.xyw     vf00, vf13, vf28     lq.xyzw vf18, 2(vi02)
 	sub.xyw     vf00, vf28, vf14     sq.xyzw vf21, 0(vi03)
-	ftoi4.xyz   vf19, vf28           sq.xyzw vf22, 1(vi03)
+	ftoi4.xyz vf19, vf28             nop
 	ftoi4.xyz   vf20, vf28           fsand vi15, 0x2
-	mulw.xyzw vf15, vf24, vf00w      fmand vi14, vi07
-	mulw.xyzw vf28, vf29, vf00w      fmand vi14, vi14
-	add.xyz     vf21, vf17, vf23     ibne vi14, vi07, CLIP_NORMAL_C
-	nop                              iaddiu vi03, vi03, 3
+	maddw.xyzw vf28, vf04, vf00w     fmand vi14, vi07
+	mulw.xyzw vf15, vf24, vf00w      fmand vi14, vi14
+	nop                              sq.xyzw vf22, 1(vi03)
+	nop                              ibne vi14, vi07, CLIP_NORMAL_C
+	nop                              div q, vf00w, vf28w
 	nop                              ibgtz vi05, CLIP_NORMAL_C_SET
 	nop                              nop                                    ; (delay slot)
-	mulax.xyzw acc, vf01, vf15x      ibne vi04, vi00, LOOP_NORMAL_C
-	madday.xyzw acc, vf02, vf15y     sq.xyzw vf19, -1(vi03)
-	nop                              xgkick vi01
-	nop                              nop
-	nop                              b BEGIN_NORMAL_C                       ; -> BEGIN_NORMAL_C E-bit
+	nop                              sq.xyzw vf19, 2(vi03)
+	nop                              b NEXT_NORMAL_C                        ; -> the loop test
 	nop                              nop                                    ; (branch delay slot)
 CLIP_NORMAL_C:
 	nop                              iaddiu vi05, vi00, 3
 CLIP_NORMAL_C_SET:
-	mulax.xyzw acc, vf01, vf15x      ibne vi04, vi00, LOOP_NORMAL_C
-	madday.xyzw acc, vf02, vf15y     sq.xyzw vf20, -1(vi03)
+	nop                              sq.xyzw vf20, 2(vi03)
+NEXT_NORMAL_C:
+	nop                              ibne vi04, vi00, LOOP_NORMAL_C
+	nop                              iaddiu vi03, vi03, 3
 	nop                              xgkick vi01
 	nop                              nop
 	nop                              b BEGIN_NORMAL_C                       ; -> BEGIN_NORMAL_C E-bit
@@ -207,8 +205,6 @@ BEGIN_NORMAL_C_NOCLIP:
 	nop                              lq.xyzw vf23, 2(vi00)
 	nop[e]                           nop                                    ; upper: E-bit pad (END)
 	nop                              nop                                    ; E-bit delay slot
-; --- BEGIN_NORMAL_C_NOCLIP transform body: the loop tail branches back into
-; the I-setup tail above, which ends on the E-bit. ---
 START_NORMAL_C_NOCLIP:
 	nop                              xtop vi13
 	nop                              iaddiu vi14, vi00, 32767
@@ -222,47 +218,52 @@ START_NORMAL_C_NOCLIP:
 	nop                              iaddiu vi03, vi01, 1
 	nop                              mfir.w vf19, vi00
 	nop                              mfir.w vf20, vi14
-	nop                              lq.xyzw vf15, 0(vi02)
-	sub.w       vf21, vf21, vf21     lq.xyzw vf17, 1(vi02)
+	sub.w vf21, vf21, vf21           lq.xyzw vf15, 0(vi02)
+	nop                              lq.xyzw vf17, 1(vi02)
 	nop                              lq.xyzw vf18, 2(vi02)
-	nop                              move.z vf23, vf00
 	mulax.xyzw acc, vf01, vf15x      nop
 	madday.xyzw acc, vf02, vf15y     nop
 	maddaz.xyzw acc, vf03, vf15z     nop
 	maddw.xyzw vf28, vf04, vf00w     nop
 	sub.w       vf00, vf17, vf00     lq.xyzw vf15, 3(vi02)
-	nop                              iaddiu vi07, vi00, 208
+	add.xy vf17, vf17, vf23          nop
 	nop                              nop
 	nop                              div q, vf00w, vf28w
-	add.xyz     vf21, vf17, vf23     fsand vi15, 0x2
-	nop                              nop
-	mulax.xyzw acc, vf01, vf15x      nop
+	nop                              fsand vi15, 2
 LOOP_NORMAL_C_NOCLIP:
-	madday.xyzw acc, vf02, vf15y     lq.xyzw vf17, 4(vi02)
+	mulax.xyzw acc, vf01, vf15x      lq.xyzw vf25, 4(vi02)
+	madday.xyzw acc, vf02, vf15y     iaddiu vi02, vi02, 3
 
 	maddaz.xyzw acc, vf03, vf15z     ibeq vi15, vi00, CONT_NORMAL_C_NOCLIP
-	maddw.xyzw vf29, vf04, vf00w     iaddiu vi02, vi02, 3
+	nop                              iaddi vi04, vi04, -1
 	nop                              iaddiu vi05, vi00, 3
 CONT_NORMAL_C_NOCLIP:
-	mulq.xyz vf28, vf28, q           iaddi vi05, vi05, -1
-	mulq.xyz vf21, vf21, q           lq.xyzw vf24, 3(vi02)
-	ftoi0.xyzw  vf22, vf18           iaddi vi04, vi04, -1
-	ftoi4.xyz   vf19, vf28           div q, vf00w, vf29w
-	sub.w       vf00, vf17, vf00     lq.xyzw vf18, 2(vi02)
-	ftoi4.xyz   vf20, vf28           sqi.xyzw vf21, (vi03++)
-	mulw.xyzw vf15, vf24, vf00w      sqi.xyzw vf22, (vi03++)
-	mulw.xyzw vf28, vf29, vf00w      ibgtz vi05, CLIP_NORMAL_C_NOCLIP_SET
-	nop                              fsand vi15, 0x2
+	mulq.xyz vf29, vf28, q           iaddi vi05, vi05, -1
+	mulq.xyz vf21, vf17, q           lq.xyzw vf24, 3(vi02)
+	ftoi0.xyzw vf22, vf18            ibgtz vi05, CLIP_NORMAL_C_NOCLIP_SET
+	sub.w vf00, vf25, vf00           lq.xyzw vf17, 1(vi02)
+	maddw.xyzw vf28, vf04, vf00w     lq.xyzw vf18, 2(vi02)
+	ftoi4.xyz vf19, vf29             sq.xyzw vf21, 0(vi03)
+	mulw.xyzw vf15, vf24, vf00w      sq.xyzw vf22, 1(vi03)
+	add.xy vf17, vf17, vf23          fsand vi15, 2
+	nop                              div q, vf00w, vf28w
+	nop                              sq.xyzw vf19, 2(vi03)
+	nop                              ibne vi04, vi00, LOOP_NORMAL_C_NOCLIP
+	nop                              iaddiu vi03, vi03, 3
 NOCLIP_NORMAL_C_NOCLIP_SET:
-	add.xyz     vf21, vf17, vf23     ibne vi04, vi00, LOOP_NORMAL_C_NOCLIP
-	mulax.xyzw acc, vf01, vf15x      sqi.xyzw vf19, (vi03++)
 	nop                              xgkick vi01
 	nop                              nop
 	nop                              b BEGIN_NORMAL_C_NOCLIP                               ; -> BEGIN_NORMAL_C_NOCLIP E-bit
 	nop                              nop                                    ; (branch delay slot)
 CLIP_NORMAL_C_NOCLIP_SET:
-	add.xyz     vf21, vf17, vf23     ibne vi04, vi00, LOOP_NORMAL_C_NOCLIP
-	mulax.xyzw acc, vf01, vf15x      sqi.xyzw vf20, (vi03++)
+	maddw.xyzw vf28, vf04, vf00w     lq.xyzw vf18, 2(vi02)
+	ftoi4.xyz vf20, vf29             sq.xyzw vf21, 0(vi03)
+	mulw.xyzw vf15, vf24, vf00w      sq.xyzw vf22, 1(vi03)
+	add.xy vf17, vf17, vf23          fsand vi15, 2
+	nop                              div q, vf00w, vf28w
+	nop                              sq.xyzw vf20, 2(vi03)
+	nop                              ibne vi04, vi00, LOOP_NORMAL_C_NOCLIP
+	nop                              iaddiu vi03, vi03, 3
 	nop                              xgkick vi01
 	nop                              nop
 	nop                              b BEGIN_NORMAL_C_NOCLIP                               ; -> BEGIN_NORMAL_C_NOCLIP E-bit

@@ -1,8 +1,8 @@
 #include "GobjProc.h"
 #include "way_sys.h"
 
-/* the manager object */
-static GObj *waySystemManagerGObj = 0; /* derived name */
+/* PAL's manager object word is not in this build: the TU has no .sdata in
+   the demo */
 
 /* void * (void *, int) here, void (int, int) in act.h */
 extern void *actCreateSubThreadGOppArg(void *entry, int arg);
@@ -10,6 +10,7 @@ extern void *actCreateSubThreadGOppArg(void *entry, int arg);
 extern void _ACTWait(int frames);
 
 #include "waySystemManager.h"
+#include "include_asm.h"
 
 static void actWaySystemCore(volatile unsigned int self);
 static void thStart(void);
@@ -22,14 +23,6 @@ static inline void actWaySystemCore(volatile unsigned int self)
     s->proc = 0;
 }
 
-inline struct GProc *RequestGetWayBegin(WayRequest *req)
-{
-    struct GProc *t = actCreateSubThreadGOppArg(actWaySystemCore, 21);
-    *(WayRequest **)((char *)t + 0x20) = req;
-    req->done = 0;
-    return t;
-}
-
 static inline void thStart(void)
 {
     for (;;) {
@@ -37,9 +30,4 @@ static inline void thStart(void)
     }
 }
 
-GObj *CreateWaySystemManagerGObj(void)
-{
-    GObj *v = CreateGObjByFuncSet(0, 0, 0, 0, thStart, 0, 0);
-    waySystemManagerGObj = v;
-    return v;
-}
+INCLUDE_ASM(RequestGetWayBegin);

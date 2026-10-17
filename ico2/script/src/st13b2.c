@@ -1,8 +1,5 @@
 #include "typedef.h"
 #include "generator.h"
+#include "include_asm.h"
 
-void actSt13b2Generator(GObj *volatile self)
-{
-    Generator_Mask(self);
-    Generator_ResetCount(self);
-}
+INCLUDE_ASM(actSt13b2Generator);

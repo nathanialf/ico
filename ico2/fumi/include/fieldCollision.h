@@ -72,6 +72,8 @@ void ClipFloorR(ClipWork *work);
 void ClipFloorIH(ClipWork *work);
 void ClipFloorCheckCB(ClipWork *work, int filter);
 void ClipCollision(ClipWork *self);
+/* the wall clip ClipWall dispatches through (__ClipWall) */
+extern void (*clipWallFunc)(ClipWork *work, int mode); /* derived name */
 int ChangeFieldCollisionDebugMode(int drawRay);
 void LoadCollision(void **self, char *fname);
 void DrawCollision(int mode);

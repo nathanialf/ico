@@ -15,6 +15,7 @@
 #include "main.h"
 #include "GifPacket.h"
 #include "debug.h"
+#include "include_asm.h"
 
 /* the effect-parameter descriptor table _dispParam/editParam walk: 0x1C per
  * entry, name pointer first, NULL-terminated.  `off` is the byte offset of the
@@ -30,13 +31,11 @@ typedef struct {       /* field names derived */
     int max;           /* 0x18 */
 } EffParamDef;         /* derived name */
 
-/* the three enum name tables the type-0 fields print through */
+/* the two enum name tables the type-0 fields print through */
 
 static char *drainTypeName[] = {"RELEASE", "LOOP"}; /* derived name */
 
 static char *alphaTypeName[] = {"BLEND", "ADD", "SUB"}; /* derived name */
-
-static char *upperLimitName[] = {"OFF", "ON"}; /* derived name */
 
 static EffParamDef effParam[] = {
     {"U OFFSET", 0x80, 0, 0, 0, 0, 3},
@@ -70,8 +69,6 @@ static EffParamDef effParam[] = {
     {"COLOR R", 0x70, 0, 0, 0, 0, 255},
     {"COLOR G", 0x74, 0, 0, 0, 0, 255},
     {"COLOR B", 0x78, 0, 0, 0, 0, 255},
-    {"UPPER LIMIT", 0x94, upperLimitName, 0, 0, 0, 1},
-    {"LIMIT HEIGHT", 0x98, 0, 0, 0, -100000, 100000},
     {0},
 }; /* derived name */
 
@@ -123,9 +120,10 @@ typedef union { /* field names derived */
 /* editParam's hold counter */
 static int holdCount = 0; /* derived name */
 
-/* a change flag per tool row, then the position the tool's effect is placed
-   at */
-static int effectToolDirty[64]; /* derived name */
+/* a change flag per tool row (52 in this build: effectToolPos follows at
+   +0xD0, so the initialiser's clear of 61 words below runs over it), then the
+   position the tool's effect is placed at */
+static int effectToolDirty[52]; /* derived name */
 
 static float effectToolPos[4]; /* derived name */
 
@@ -523,65 +521,7 @@ static void moveEffectToolGeometry(int idx)
     }
 }
 
-static int execEffectTool(void)
-{
-    int q[4];
-    int r;
-
-    switch (targetMemo) {
-    default:
-    case 0:
-        r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
-                                  0xB, particleEffectFile, 0x50, 0, 0, 0x3D, &effectId);
-        if (effectId != lastEffectId) {
-            setQ(q);
-            if (effectHandle != -1) {
-                DeleteParticleEffect(effectHandle);
-            }
-            effectHandle = SetParticleEffect(effectId, effectToolPos, q);
-            lastEffectId = effectId;
-            paramCursor = 0;
-        }
-        if (pad[1].flags & 0x10) {
-            saveEffectData(effectId);
-        }
-        if (pad[1].flags & 0x20) {
-            r = 1;
-        }
-        if (pad[1].rep & 0x1000) {
-            effectId--;
-            if (effectId < 0) {
-                effectId = 0x3C;
-            }
-        }
-        if (pad[1].rep & 0x4000) {
-            effectId++;
-            if (effectId >= 0x3D) {
-                effectId = 0;
-            }
-        }
-        if (r == 1) {
-            r = 0;
-            targetMemo++;
-        }
-        break;
-    case 1:
-        r = EditTarget(effectId);
-        if (r == -1) {
-            targetMemo--;
-        }
-        r = 0;
-        break;
-    }
-    moveEffectToolGeometry(effectId);
-    if ((pad[0].flags & 0x80) || (pad[1].flags & 0x80)) {
-        fieldDisp = (fieldDisp == 0);
-    }
-    if (fieldDisp) {
-        dispEffectToolField(effectId);
-    }
-    return r;
-}
+INCLUDE_ASM(execEffectTool);
 
 static void exitEffectTool(void)
 {
@@ -595,21 +535,4 @@ static void exitEffectTool(void)
 /* EffectTool's entered flag */
 static int toolEntered = 0; /* derived name */
 
-int EffectTool(void)
-{
-    int r;
-
-    if (toolEntered == 0) {
-        initEffectTool();
-        toolEntered = 1;
-        fieldDisp = 1;
-    }
-    r = execEffectTool();
-    if (r == -1) {
-        exitEffectTool();
-        toolEntered = 0;
-        lastEffectId = r;
-        paramCursor = 0;
-    }
-    return r;
-}
+INCLUDE_ASM(EffectTool);

@@ -36,11 +36,9 @@ extern int used_dl_num;
 extern int used_dl_memory[];
 /* debug_bar_flag is not declared here: motionOrientManager.c declares it as
    its display-mode enum, and debug.c declares it itself. */
-extern int debug_ignore_demo_camera;
 extern int debug_brain_bar_flag;
 extern int debug_font_flag;
 extern int debug_font_flag2;
-extern int debug_font_flag3;
 extern int debug_skel_flag;
 extern int debug_seslotdisp_flag;
 extern int debug_wallcheck_flag;
@@ -98,19 +96,9 @@ extern int debug_mot_slope_interp;
 extern int debug_enemy_fly_with_girl;
 extern int debug_disp_enemy_state;
 extern int debug_disp_escort_ball;
-extern int debug_girl_detour_flag;
+/* read only by motMan_rootUpdate.c.inc's inline helpers, which have no C
+   caller here; the demo's .sdata has no such word */
 extern int debug_col_old_proc;
-extern int debug_fly_limit_test;
-extern int debug_lwskyomi_lookonly;
-extern int debug_one_hit_only;
-extern int debug_ignore_dodge;
-extern int debug_hand_camera;
-extern int debug_enemy_kidnap_timer;
-extern int debug_hair_tight_level;
-extern int debug_hair_gravity_level;
-extern int debug_hair_bend_angle;
-extern int debug_hair_collision;
-extern int debug_no_breast_hang;
 /* debug.c's `inline` functions, in the order of their out-of-line copies at
    the end of the object (first-declaration order).  Callers after a
    definition inline it; the out-of-line copies serve the rest of the game

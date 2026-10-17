@@ -26,20 +26,20 @@ void SetAttackCheckBoundaryAttribute(struct GObj *self, int attr);
    here */
 typedef enum { CLOTH_ATTR_NONE = 0 } ClothAttr;
 
-/* one record of layoutClothDef, the cloth layout table: its name, the four
+/* one record of layoutClothDef, the cloth layout table: its name, the two
    corner points, the attribute and the boundary count.  This file reads the
-   first two corners, the attribute and the boundary count, and InitFlagGeo
-   reads the rest. */
+   corners, the attribute and the boundary count, and InitFlagGeo reads the
+   rest. */
 typedef struct {    /* field names derived */
     char name[32];  /* 0x00 */
-    float pt[4][3]; /* 0x20 */
-    int kind;       /* 0x50, the cloth type in the low four bits (InitFlagGeo's switch) */
-    ClothAttr attr; /* 0x54 */
-    int rows;       /* 0x58, the cloth's rows (ClothCfg num) */
-    int count;      /* 0x5C, the columns, and the boundaries a manager lays out */
-    float length;   /* 0x60, the cloth's length, shared out over the columns */
-    float weight;   /* 0x64, the fall added to each point a step (ClothCfg weight) */
-} LayoutClothDef; /* derived name */
+    float pt[2][3]; /* 0x20 */
+    int kind;       /* 0x38, the cloth type in the low four bits (InitFlagGeo's switch) */
+    ClothAttr attr; /* 0x3C */
+    int rows;       /* 0x40, the cloth's rows (ClothCfg num) */
+    int count;      /* 0x44, the columns, and the boundaries a manager lays out */
+    float length;   /* 0x48, the cloth's length, shared out over the columns */
+    float weight;   /* 0x4C, the fall added to each point a step (ClothCfg weight) */
+} LayoutClothDef;   /* derived name */
 
 extern const LayoutClothDef layoutClothDef[];
 

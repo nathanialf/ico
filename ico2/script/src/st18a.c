@@ -14,707 +14,82 @@
 #include "st04r.h"
 #include "typedef.h"
 #include "main.h"
+#include "include_asm.h"
 
 static void actSt18aDoorChkSub(GObj *volatile self);
 
-static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail intro_mes[2] = {{377}, {376}}; /* derived name */
 
-static ActMail switchL_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchL_mes[2] = {{377}, {376}}; /* derived name */
 
-static ActMail switchLUp_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchLUp_mes[2] = {{377}, {376}}; /* derived name */
 
-static ActMail switchLChk_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail switchLChk_mes[2] = {{377}, {376}}; /* derived name */
 
-static ActMail switchLUpChk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail switchR_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail switchRUp_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail switchRChk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail switchRUpChk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail door_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail doorChk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail doorDownChk_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
-
-static ActMail ene2_mes[2] = {{430}, {429}}; /* derived name */
-
-void actSt18aEnd(void)
-{
-    if (girlGObj != 0) {
-        if (gflagChk(61) == 0) {
-            gflagOn(391);
-        }
-    }
-}
-
-void actSt18aIntroChk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 1000.0f) == 0) {
-        _ACTWait(1);
-    }
-
-#ifdef VERSION_JPN
-    lt_switch_layout(52);
-#else
-    lt_switch_layout(55);
-#endif
-
-    gflagOn(55);
-
-    scpBoyControlReadDisable = 1;
-
-    _ACTWait(1);
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(350, 1, 0);
-#else
-    stage_SetAnimation(354, 1, 0);
-#endif
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFinish(350) == 0) {
-#else
-    while (stage_CheckAnimationFinish(354) == 0) {
-#endif
-        if ((pad[0].flags & 0x800) && scpAdpcmPlayRequestNum() == 0) {
-            scpFadeOut(16.0f, 0, 0, 0);
-
-            while (scpFadeChk() != 0) {
-                _ACTWait(1);
-            }
-            while (lt_fade_status() != 2) {
-                _ACTWait(1);
-            }
-
-#ifdef VERSION_JPN
-            stage_SetAnimation(350, 1, -1);
-#else
-            stage_SetAnimation(354, 1, -1);
-#endif
-            SetCameraFlag_LwsCutBack();
-            scpFadeIn(3.0f);
-            break;
-        }
-        _ACTWait(1);
-    }
-
-#ifdef VERSION_JPN
-    lt_switch_layout(51);
-#else
-    lt_switch_layout(54);
-#endif
-    scpBoyControlReadDisable = 0;
-}
-
-void actSt18aSwitchLChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    int i;
-
-    i = 0;
-    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
-        if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
-            scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
-            scpTriggerFloorAttr(boyGObj, 0x1000000) != 0 ||
-            (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x1000000) != 0)) {
-            i++;
-        } else {
-            i = 0;
-        }
-        _ACTWait(1);
-    }
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(117, 1, 0);
-#else
-    stage_SetAnimation(121, 1, 0);
-#endif
-
-    soundSeDefPlay(1220, 0, 0, 1);
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFrame(117, 45, 1) == 0) {
-#else
-    while (stage_CheckAnimationFrame(121, 45, 1) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    if (scpTriggerFloorAttr(scpSearchGobj(773), 0x1000000) != 0 ||
-        scpTriggerFloorAttr(scpSearchGobj(774), 0x1000000) != 0 ||
-        scpTriggerFloorAttr(boyGObj, 0x1000000) != 0 ||
-        (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x1000000) != 0)) {
-        gflagOn(58);
-        FinishHint(7);
-    }
-
-    switchLChk_mes[0].func = actSt18aSwitchLUpChk;
-    sub->mail = switchLChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aSwitchLUpChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) != 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(15);
-    gflagOff(58);
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(117, 1, 46);
-#else
-    stage_SetAnimation(121, 1, 46);
-#endif
-    soundSeDefPlay(1220, 0, 0, 1);
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFrame(117, 50, 0) == 0) {
-#else
-    while (stage_CheckAnimationFrame(121, 50, 0) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpWakeupItemWithBoundary(3054.0f, 1530.0f, -3061.0f, 100.0f);
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFrame(117, 90, 1) == 0) {
-#else
-    while (stage_CheckAnimationFrame(121, 90, 1) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    switchLUpChk_mes[0].func = actSt18aSwitchLChk;
-    sub->mail = switchLUpChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aSwitchRChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    int i;
-
-    i = 0;
-    while (i < (60 - systemStatus[0] * 10) / systemStatus[1]) {
-        if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
-            scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
-            scpTriggerFloorAttr(boyGObj, 0x2000000) != 0 ||
-            (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0)) {
-            i++;
-        } else {
-            i = 0;
-        }
-        _ACTWait(1);
-    }
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(118, 1, 0);
-#else
-    stage_SetAnimation(122, 1, 0);
-#endif
-
-    soundSeDefPlay(1220, 0, 0, 1);
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFrame(118, 45, 1) == 0) {
-#else
-    while (stage_CheckAnimationFrame(122, 45, 1) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    if (scpTriggerFloorAttr(scpSearchGobj(773), 0x2000000) != 0 ||
-        scpTriggerFloorAttr(scpSearchGobj(774), 0x2000000) != 0 ||
-        scpTriggerFloorAttr(boyGObj, 0x2000000) != 0 ||
-        (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x2000000) != 0)) {
-        gflagOn(59);
-        FinishHint(7);
-    }
-
-    switchRChk_mes[0].func = actSt18aSwitchRUpChk;
-    sub->mail = switchRChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aSwitchRUpChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (scpTriggerFloorAttrTargetMan(self, 0x2000000) != 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(15);
-    gflagOff(59);
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(118, 1, 46);
-#else
-    stage_SetAnimation(122, 1, 46);
-#endif
-    soundSeDefPlay(1220, 0, 0, 1);
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFrame(118, 50, 0) == 0) {
-#else
-    while (stage_CheckAnimationFrame(122, 50, 0) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpWakeupItemWithBoundary(1451.0f, 1530.0f, -3039.0f, 100.0f);
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFrame(118, 90, 1) == 0) {
-#else
-    while (stage_CheckAnimationFrame(122, 90, 1) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    switchRUpChk_mes[0].func = actSt18aSwitchRChk;
-    sub->mail = switchRUpChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for, and the flag actSt18aDoorChkSub raises when the door check is
-   done. */
-static int demoEnd;
-
-static int doorChkDone; /* derived name */
-
-void actSt18aDoorChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-    GProc *th;
-
-    while (gflagChk(58) == 0 || gflagChk(59) == 0) {
-        _ACTWait(1);
-    }
-
-#ifdef VERSION_JPN
-    lt_switch_layout(52);
-#else
-    lt_switch_layout(55);
-#endif
-    scpBoyControlReadDisable = 1;
-    scpSleepEnemyAll();
-
-    gflagOn(60);
-
-    th = actCreateSubThread(actSt18aDoorChkSub, 21);
-    demoEnd = 0;
-    doorChkDone = 0;
-
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-
-    iosThreadSetPri(&th->thread, 34);
-
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-
-#ifdef VERSION_JPN
-        stage_SetAnimation(119, 0, -1);
-#else
-        stage_SetAnimation(123, 0, -1);
-#endif
-
-        if (doorChkDone == 0) {
-            soundSeDefPlay(1222, 0, 0, 1);
-        }
-
-        scpFadeIn(3.0f);
-    }
-
-    scpWakeupEnemyAll();
-#ifdef VERSION_JPN
-    lt_switch_layout(51);
-#else
-    lt_switch_layout(54);
-#endif
-
-    doorChk_mes[0].func = actSt18aDoorDownChk;
-    sub->mail = doorChk_mes;
-    scpBoyControlReadDisable = 0;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aDoorDownChk(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    while (gflagChk(58) != 0 && gflagChk(59) != 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(15);
-    gflagOff(60);
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(120, 1, 0);
-#else
-    stage_SetAnimation(124, 1, 0);
-#endif
-
-    soundSeDefPlay(1221, 0, 0, 1);
-    _ACTWait(50);
-    soundSeDefPlay(1222, 0, 0, 1);
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFinish(120) == 0) {
-#else
-    while (stage_CheckAnimationFinish(124) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    doorDownChk_mes[0].func = actSt18aDoorChk;
-    sub->mail = doorDownChk_mes;
-    ACTSendMailCorrect(self, 430);
-    _ACTWait(0);
-}
-
-void actSt18aEnemy1_1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    Generator_Mask(self);
-
-    Generator_Mask(scpSearchGobj(765));
-    Generator_Mask(scpSearchGobj(766));
-
-    while (gflagChk(62) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-
-    Generator_MaskOff(self);
-
-    Generator_Call(self);
-    _ACTWait(30);
-    Generator_Call(self);
-    _ACTWait(30);
-    Generator_Call(self);
-    _ACTWait(30);
-    Generator_Call(self);
-    Generator_Call(scpSearchGobj(765));
-    Generator_Call(scpSearchGobj(766));
-}
-
-void actSt18aEnemy2_1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    Generator_Mask(self);
-
-    Generator_Mask(scpSearchGobj(766));
-
-    while (gflagChk(64) == 0) {
-        _ACTWait(1);
-    }
-
-    Generator_MaskOff(self);
-
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    Generator_Call(scpSearchGobj(766));
-}
-
-void actSt18aIntro(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(55) == 0) {
-        intro_mes[0].func = actSt18aIntroChk;
-        act->mail = intro_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt18aDoor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(60) == 0) {
-#ifdef VERSION_JPN
-        stage_SetAnimation(119, 0, 0);
-#else
-        stage_SetAnimation(123, 0, 0);
-#endif
-
-        door_mes[0].func = actSt18aDoorChk;
-        act->mail = door_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-#ifdef VERSION_JPN
-        stage_SetAnimation(119, 0, -1);
-#else
-        stage_SetAnimation(123, 0, -1);
-#endif
-
-        doorDown_mes[0].func = actSt18aDoorDownChk;
-        act->mail = doorDown_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt18aSwitchL(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(58) == 0) {
-#ifdef VERSION_JPN
-        stage_SetAnimation(117, 0, 0);
-#else
-        stage_SetAnimation(121, 0, 0);
-#endif
-
-        switchL_mes[0].func = actSt18aSwitchLChk;
-        act->mail = switchL_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-#ifdef VERSION_JPN
-        stage_SetAnimation(117, 0, 45);
-#else
-        stage_SetAnimation(121, 0, 45);
-#endif
-
-        switchLUp_mes[0].func = actSt18aSwitchLUpChk;
-        act->mail = switchLUp_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt18aSwitchR(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(59) == 0) {
-#ifdef VERSION_JPN
-        stage_SetAnimation(118, 0, 0);
-#else
-        stage_SetAnimation(122, 0, 0);
-#endif
-
-        switchR_mes[0].func = actSt18aSwitchRChk;
-        act->mail = switchR_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    } else {
-#ifdef VERSION_JPN
-        stage_SetAnimation(118, 0, 45);
-#else
-        stage_SetAnimation(122, 0, 45);
-#endif
-
-        switchRUp_mes[0].func = actSt18aSwitchRUpChk;
-        act->mail = switchRUp_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt18aEne(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(61) == 0) {
-        ene_mes[0].func = actSt18aEneChk;
-        act->mail = ene_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt18aEnemy1_2(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    Generator_Mask(self);
-
-    while (gflagChk(62) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-
-    Generator_MaskOff(self);
-
-    Generator_Call(self);
-    _ACTWait(30);
-    Generator_Call(self);
-    _ACTWait(30);
-    Generator_Call(self);
-    _ACTWait(30);
-    Generator_Call(self);
-}
-
-void actSt18aEne2(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(63) == 0) {
-        ene2_mes[0].func = actSt18aEne2Chk;
-        act->mail = ene2_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt18aEnemy2_2(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-    Generator_Mask(self);
-
-    while (gflagChk(64) == 0) {
-        _ACTWait(1);
-    }
-
-    _ACTWait(1);
-
-    Generator_MaskOff(self);
-
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-}
-
-void actSt18aCamera(int x)
-{
-    volatile int local = x;
-}
-
-static void actSt18aDoorChkSub(GObj *volatile self)
-{
-    _ACTWait(60);
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(119, 1, 0);
-#else
-    stage_SetAnimation(123, 1, 0);
-#endif
-
-    if (scpTriggerFloorAttr(boyGObj, 0x5000000) != 0) {
-        SetCameraFlag_LwsCutBack();
-    }
-
-    soundSeDefPlay(1221, 0, 0, 1);
-    _ACTWait(50);
-    doorChkDone = 1;
-    soundSeDefPlay(1222, 0, 0, 1);
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFinish(119) == 0) {
-#else
-    while (stage_CheckAnimationFinish(123) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    demoEnd = 1;
-    _ACTWait(0);
-}
-
-void actSt18aEneChk(GObj *volatile self)
-{
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-    while (scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    gflagOff(391);
-    gflagOn(61);
-    gflagOn(62);
-}
-
-void actSt18aEne2Chk(GObj *volatile self)
-{
-    if (girlGObj == 0) {
-        _ACTWait(0);
-    }
-    while (girlGObj == 0 || scpTriggerFloorAttr(scpSearchGobj(774), 0x4000000) == 0) {
-        _ACTWait(1);
-    }
-    FinishHint(8);
-    _ACTWait(300);
-    gflagOn(63);
-    gflagOn(64);
-}
+static ActMail switchLUpChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchR_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchRUp_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchRChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchRUpChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail door_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail doorDown_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail doorChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail doorDownChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail ene2_mes[2] = {{377}, {376}}; /* derived name */
+
+void actSt18aSwitchLChk(GObj *volatile self);
+
+INCLUDE_ASM(actSt18aSwitchLUpChk);
+
+void actSt18aSwitchRChk(GObj *volatile self);
+
+INCLUDE_ASM(actSt18aSwitchRUpChk);
+
+/* No .sbss here in this build: no function of the demo addresses these flags. */
+
+INCLUDE_ASM(actSt18aDoorChk);
+
+INCLUDE_ASM(actSt18aDoorDownChk);
+
+INCLUDE_ASM(actSt18aEnemy1_1);
+
+INCLUDE_ASM(actSt18aEnemy2_1);
+
+INCLUDE_ASM(actSt18aIntro);
+
+INCLUDE_ASM(actSt18aDoor);
+
+INCLUDE_ASM(actSt18aSwitchL);
+
+INCLUDE_ASM(actSt18aSwitchR);
+
+INCLUDE_ASM(actSt18aEne);
+
+INCLUDE_ASM(actSt18aEnemy1_2);
+
+INCLUDE_ASM(actSt18aEne2);
+
+INCLUDE_ASM(actSt18aEnemy2_2);
+
+INCLUDE_ASM(actSt18aCamera);
+
+INCLUDE_ASM(actSt18aIntroChk);
+
+INCLUDE_ASM(func_0021E040);
+
+INCLUDE_ASM(func_0021E130);
+
+INCLUDE_ASM(actSt18aEneChk);
+
+INCLUDE_ASM(actSt18aEne2Chk);

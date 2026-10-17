@@ -1,23 +1,27 @@
-# config/link_order.pal.txt: the objects of the PAL link, one per line, in link order.
+# config/link_order.jun26.txt: the objects of the Jun-26-2001 demo link, one per line, in link order.
 #
-# The order is the retail link's object order as MAIN.MAP gives it: every
-# output section of config/link.pal.ld takes its inputs in this one order.
-# Each object with no .text and each data-only member sits where its other
-# sections and MAIN.MAP's member order put it; the five VU microprograms are
-# listed as their sources. tools/gen_ninja.py reads this file and fails on any
-# tracked .c/.s/.dsm under ico2/ or sce/ that is missing here, and on any
-# listed file that does not exist. tools/ico_version.{py,sh} detect the
-# target (pal) by this file's existence.
+# The demo directory (CUS97113 on the Official U.S. PlayStation Magazine's
+# disc SCUS-97158, issue 49) ships no map or listing. This order is PAL's
+# (config/link_order.pal.txt on main, MAIN.MAP's object order) carried over by
+# the function census, tools/correlate_elf.py, run against the PAL build and
+# against the Aug-6-2001 prototype's build (the aug6 branch, whose names come
+# from that disc's TRFILE.TXT): each object keeps its place while its .text
+# twins in the demo ELF keep the same relative order. A line that departs
+# from PAL's order says why in a comment on the line. Every output section of
+# config/link.jun26.ld takes its inputs in this one order. tools/gen_ninja.py
+# reads this file and fails on any tracked .c/.s/.dsm under ico2/ or sce/
+# that is missing here, and on any listed file that does not exist.
+# tools/ico_version.{py,sh} detect the target (jun26) by this file's
+# existence.
 #
 # Line forms:
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
 #                      assembled per archive, ico2/vusrc/*.dsm by dvp-as)
 #   data:<member>      a data-only ico2000.a member: every row of
-#                      config/data_members.pal.txt for it, generated from the
-#                      user's base ELF at build time by tools/gen_data_c.py from
-#                      the record types config/data_schema.pal.txt names. Inside each
-#                      run of them the order is MAIN.MAP's: its sections keep
-#                      their ROM order and interleave by member name.
+#                      config/data_members.jun26.txt for it, generated from
+#                      the user's base ELF at build time by
+#                      tools/gen_data_c.py from the record types
+#                      config/data_schema.jun26.txt names.
 #
 # Tokens after a path:
 #   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
@@ -33,15 +37,14 @@
 #                      overlay section (--overlay-fill=N, from
 #                      tools/binutils-dvp-overlay-fill.patch). It is the
 #                      period assembler's uninitialised heap memory, measured
-#                      on the disc's ELF, not a feature of the source.
-#                      Absent means 0, PAL's byte, so no line here has one.
+#                      on the disc's ELF, not a feature of the source. The
+#                      demo ELF holds 0x6E (110) in all five, as the JPN, USA
+#                      and Aug-6-2001 ELFs do; the seven continuation
+#                      overlays are zero.
 #
-# No object owns these zero runs (ROM offsets, VMA minus 0x100000): 0x18ECB0,
-# the 80 bytes after .vutext (.reginfo is not allocated, the gap is fill);
-# 0x44D320, past the end of .data; 0x539C54, past the end of .lit4; and eight
-# pads that the next object's own section alignment reproduces (0x44A3CC in
-# .data; 0x44DB0C, 0x51EEC2, 0x51F182, 0x51F218, 0x51FA18 and 0x51FBD8 in
-# .rodata; 0x53B8D9 in .sdata). The run at 0x538848 in .rodata is empty.
+# Absent from the demo, as from the Aug-6-2001 prototype: puddle.c,
+# waterDot.c, windmill.c, sce/libcdvd/libcdvd_267388.c and
+# sce/libscf/libscf.c (no function of them is found in the demo ELF).
 
 sce/crt0.s
 sce/libkernl/klib.s
@@ -55,7 +58,7 @@ ico2/common/src/main.c
 ico2/sugipon/src/delayFreeManager.c
 ico2/sugipon/src/geometryManager.c
 ico2/sugipon/src/keyInput.c
-# ico2/sugipon/src/matrixDrive.c .data starts 16-aligned at 0x28FEF0, 8 B after its predecessor; the object's section is 8-aligned
+# ico2/sugipon/src/matrixDrive.c .data starts 16-aligned at 0x25DED0, 8 B after its predecessor; the object's section is 8-aligned
 ico2/sugipon/src/matrixDrive.c align.data=16
 ico2/sugipon/src/motionManager2.c
 ico2/sugipon/src/pool.c
@@ -66,7 +69,7 @@ ico2/seki/src/FileManager.c
 ico2/seki/src/GifPacket.c
 ico2/seki/src/GsBase.c
 ico2/seki/src/Light.c
-# ico2/seki/src/Matrix.c .data starts 16-aligned at 0x2908E0, 12 B after its predecessor; the object's section is 8-aligned
+# ico2/seki/src/Matrix.c .data starts 16-aligned at 0x25E7E0 (scaleWorkMatrix, _ScaleMatrixV's address), 0xC B after Light.c's; the object's section is 8-aligned
 ico2/seki/src/Matrix.c align.data=16
 ico2/seki/src/MicroCode.c
 ico2/seki/src/Packet.c
@@ -84,7 +87,8 @@ ico2/fumi/ios/mcard.c
 ico2/fumi/ios/mcdata.c
 ico2/fumi/ios/memory.c
 ico2/fumi/ios/message.c
-ico2/fumi/ios/pad.c
+# ico2/fumi/ios/pad.c .rodata starts 16-aligned at 0x5A0900 (its first string), 0xE B after message.c's; the object's section is 8-aligned
+ico2/fumi/ios/pad.c align.rodata=16
 ico2/fumi/ios/shockdriver.c
 ico2/fumi/ios/thread.c
 ico2/fumi/isys/gobj.c
@@ -92,7 +96,6 @@ ico2/fumi/isys/gobj_dl.c
 ico2/fumi/isys/gobj_process.c
 ico2/fumi/isys/isys.c
 ico2/fumi/isys/obj_manager.c
-ico2/fumi/sound/adpcm_init.c
 ico2/fumi/sound/s_init.c
 ico2/fumi/sound/soundManager.c
 ico2/fumi/src/act-game.c
@@ -106,10 +109,10 @@ ico2/fumi/src/fuzio.c
 ico2/fumi/src/girl_act.c
 ico2/fumi/src/jimaku.c
 ico2/fumi/src/way_sys.c
-ico2/fumi/src/way_util.c
+# ico2/fumi/src/way_util.c .rodata starts 16-aligned at 0x5A2D00 (axisColor), 0xD B after way_sys.c's last string; the object's section is 8-aligned
+ico2/fumi/src/way_util.c align.rodata=16
 ico2/script/src/gflag.c
-# ico2/script/src/script.c .data starts 16-aligned at 0x2A5100, 14 B after its predecessor; the object's section is 8-aligned
-ico2/script/src/script.c align.data=16
+ico2/script/src/script.c
 ico2/script/src/st25a.c
 ico2/script/src/warpGirl.c
 ico2/omori/src/attackhit.c
@@ -125,15 +128,12 @@ ico2/omori/src/fightSound.c
 ico2/omori/src/generator.c
 ico2/omori/src/gv.c
 ico2/omori/src/hand-camera.c
-ico2/omori/src/lws_kyomi.c
 ico2/omori/src/mail-add-data.c
 ico2/omori/src/poly-flat.c
-ico2/ito/src/act_bird.c
+# ico2/ito/src/act_bird.c .rodata starts 16-aligned at 0x5A3BE0 (func_0018B778's first string), 0xA B after mail-add-data.c's; the object's section is 8-aligned
+ico2/ito/src/act_bird.c align.rodata=16
 ico2/ito/src/gather_effect.c
-ico2/ito/src/itou_boss.c
-ico2/ito/src/itou_gflag.c
 ico2/ito/src/itou_sub.c
-ico2/ito/src/lightning.c
 ico2/ito/src/queen.c
 ico2/ito/src/queen_barrier_disp.c
 ico2/ito/src/stage_orient.c
@@ -146,19 +146,16 @@ data:accessary
 data:act-data-tbl
 data:act-intrlist
 data:act-mode-def
-data:adpcmfile
 data:attack-def
 data:auto-escort
 data:camera-set
 data:exit-data
 data:game-param
-data:unmapped_002ADBA0
 data:generator-sub-position
 data:girl-warp-list
 data:iconfile
 data:idle-mot-def
 data:init-func
-data:unmapped_0055FBD0
 data:look-target-data
 data:motion-def
 data:motion-ik-eff-def
@@ -185,8 +182,9 @@ data:stage-anim-model
 data:stage-anim
 data:stream-motion-def
 data:tex-property
-data:weapon-def
-ico2/common/src/DObj.c
+data:weapon-def  # in .rodata here, last in the first .rodata run (config/data_members.jun26.txt)
+# ico2/common/src/DObj.c .rodata starts 16-aligned at 0x659C20 (its file name), 8 B after weapon-def's; the object's section is 8-aligned
+ico2/common/src/DObj.c align.rodata=16
 ico2/common/src/StageManager.c
 ico2/common/src/backStage.c
 ico2/common/src/charFileManager.c
@@ -199,7 +197,8 @@ ico2/common/src/icoMisc.c
 ico2/common/src/kanban.c
 ico2/common/src/kanbanBoot.c
 ico2/common/src/layout_action.c
-ico2/common/src/layout_texture.c
+# ico2/common/src/layout_texture.c .rodata starts 16-aligned at 0x65E450 (display_primary_texture_layout's sprite), 0xC B after layout_action.c's; the object's section is 8-aligned
+ico2/common/src/layout_texture.c align.rodata=16
 ico2/common/src/sceneManager.c
 ico2/common/src/staffroll.c
 data:staffroll_dat
@@ -207,7 +206,8 @@ ico2/sugipon/src/a_p_1.c
 ico2/sugipon/src/act_a_p_1.c
 ico2/sugipon/src/actressLight.c
 ico2/sugipon/src/attackCheckBoundary.c
-ico2/sugipon/src/box.c
+# ico2/sugipon/src/box.c .rodata starts 16-aligned at 0x65F360 (func_001B25B0's file name), 0xB B after attackCheckBoundary.c's; the object's section is 8-aligned
+ico2/sugipon/src/box.c align.rodata=16
 ico2/sugipon/src/boy.c
 ico2/sugipon/src/cage.c
 ico2/sugipon/src/cageFix.c
@@ -237,7 +237,6 @@ ico2/sugipon/src/moveColTest.c
 ico2/sugipon/src/multiBgaManager.c
 ico2/sugipon/src/particleEffect.c
 ico2/sugipon/src/particleLayout.c
-ico2/sugipon/src/puddle.c
 ico2/sugipon/src/rope.c
 ico2/sugipon/src/ropeFix.c
 ico2/sugipon/src/rotObject.c
@@ -249,12 +248,10 @@ ico2/sugipon/src/stormTest.c
 ico2/sugipon/src/streamMotionManager.c
 ico2/sugipon/src/sugiTree.c
 ico2/sugipon/src/torch.c
-ico2/sugipon/src/waterDot.c
 ico2/sugipon/src/waySystemManager.c
 ico2/sugipon/src/weapon.c
 ico2/sugipon/src/windField.c
 ico2/sugipon/src/windManager.c
-ico2/sugipon/src/windmill.c
 ico2/sugipon/src/wireLetter.c
 ico2/sugipon/src/worm.c
 ico2/seki/src/Basic.c
@@ -264,6 +261,7 @@ ico2/seki/src/DisplayList.c
 ico2/seki/src/DmaPacket.c
 ico2/seki/src/EnemyInit.c
 ico2/fumi/isys/gobj_cam_dl.c
+ico2/fumi/sound/adpcm_init.c  # moved from before s_init.c: its twins lie in the demo .text after gobj_cam_dl.c's (0x1EB388..), as in the Aug-6-2001 prototype
 ico2/fumi/src/act-env.c
 ico2/fumi/src/act-way.c
 ico2/fumi/src/act.c
@@ -273,7 +271,7 @@ ico2/fumi/src/way_kidnap.c
 ico2/fumi/src/way_llf.c
 ico2/fumi/src/way_tool.c
 ico2/script/src/deja.c
-# ico2/script/src/e3.c .data starts 16-aligned at 0x4F79D0, 8 B after its predecessor; the object's section is 8-aligned
+# ico2/script/src/e3.c .data starts 16-aligned at 0x50BD40 (title_mes, actE3Warning's address), 8 B after deja.c's; the object's section is 8-aligned
 ico2/script/src/e3.c align.data=16
 ico2/script/src/end.c
 ico2/script/src/op.c
@@ -315,12 +313,17 @@ ico2/script/src/st47a.c
 ico2/script/src/st99a.c
 ico2/script/src/stageSEProc.c
 ico2/omori/src/access.c
+ico2/omori/src/lws_kyomi.c  # moved from after hand-camera.c: between access.c's and objact.c's .text, as in the USA and Aug-6-2001 builds
 ico2/omori/src/objact.c
+ico2/ito/src/itou_boss.c  # moved from after gather_effect.c: its functions (the string "src/itou_boss.c" at 0x664080) follow objact.c's .text at 0x224000
+ico2/ito/src/itou_gflag.c  # with itou_boss.c, its PAL neighbour; no function of it is found in the demo
+ico2/ito/src/lightning.c  # moved from after itou_sub.c: its twins lie at 0x224BA8..0x225DF8, after itou_boss.c's
 ico2/ito/mpeg/mv_audiodec.c
 ico2/ito/mpeg/mv_disp.c
 ico2/ito/mpeg/mv_sub.c
 ico2/ito/mpeg/mv_vibuf.c
 ico2/common/src/GobjProc.c
+data:adpcmfile  # in .rodata here, first in the run after mv_vibuf.o .rodata, before blend-motion-def (config/data_members.jun26.txt)
 data:blend-motion-def
 data:enemy-def
 data:enemy-model-grp
@@ -339,15 +342,14 @@ data:obj-trigger
 data:parallel-motion-orient
 data:particle-effect
 data:spider-def
+data:texture-path  # in .rodata here, between spider-def and way-group (config/data_members.jun26.txt)
 data:way-group
 ico2/common/src/PObj.c
 data:item-kind-def
 data:mirror-motion-def
 data:model-path
 data:prog-se-link
-data:unmapped_00533FC0
 data:texture-layout
-data:texture-path
 data:way-point
 data:weapon-fumble-def
 ico2/fumi/src/vobj.c
@@ -387,6 +389,7 @@ sce/libpkt/vifpk044.c
 sce/libpkt/vifpk053.c
 sce/libkernl/glue.c
 sce/libkernl/tty.c
+sce/libkernl/sifcmd.c  # moved from after tlbtrap.s: its twins lie at 0x22E2E8.., between tty.c's and sifrpc.c's
 sce/libkernl/sifrpc.c
 sce/libkernl/filestub.c
 sce/libkernl/iopheap.c
@@ -394,13 +397,11 @@ sce/libkernl/eeloadfile.c
 sce/libkernl/iopreset.c
 sce/libkernl/tlbfunc.c
 sce/libkernl/tlbtrap.s
-sce/libkernl/sifcmd.c
 sce/libcdvd/cdvd000.c
 sce/libcdvd/cdvd005.c
 sce/libcdvd/cdvd006.c
 sce/libcdvd/cdvd014.c
 sce/libcdvd/cdvd015.c
-sce/libcdvd/libcdvd_267388.c
 sce/libcdvd/cdvd047.c
 sce/libpad/libpad.c
 sce/libmc/libmc.c
@@ -414,8 +415,8 @@ sce/libmpeg/csc.c
 sce/libmpeg/bit.c
 sce/libipu/libipu.c
 sce/libipu/ipuinit.c
-sce/libscf/libscf.c
 sce/libsndn2/sound.c
+ico2/common/src/demoDisc.c  # the demo disc's menu hand-back: -G 8 code ($gp words in .sdata/.sbss) right after sound.o in .text, .rodata, .sdata and .sbss
 sce/libm/math/sf_sin.c
 sce/libm/math/wf_acos.c
 sce/libm/math/wf_asin.c
@@ -516,8 +517,8 @@ sce/libc/stdlib/reallocr.c
 sce/libc/s_infconst.c
 sce/libkernl/cache.c
 sce/libgcc/_fixdfdi.c
-ico2/vusrc/cluster.dsm
-ico2/vusrc/mesh.dsm
-ico2/vusrc/normal_c.dsm
-ico2/vusrc/normal_l.dsm
-ico2/vusrc/particle.dsm
+ico2/vusrc/cluster.dsm overlay-fill=110
+ico2/vusrc/mesh.dsm overlay-fill=110
+ico2/vusrc/normal_c.dsm overlay-fill=110
+ico2/vusrc/normal_l.dsm overlay-fill=110
+ico2/vusrc/particle.dsm overlay-fill=110

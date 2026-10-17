@@ -160,12 +160,12 @@ START_MESH_LIGHT:
 	nop                              iaddiu vi07, vi00, 208                 ; vi07 = clip mask 0xD0
 	nop                              lqi.xyzw vf18, (vi02++)
 	nop                              lq.xyzw vf23, 2(vi00)
-	sub.w       vf21, vf21, vf21     lq.xyzw vf16, 1(vi02)                  ; vf21.w = 0; load weight quad
-	nop                              lq.xyzw vf15, 0(vi02)
-	nop                              lq.xyzw vf17, 2(vi02)
-	nop                              iaddiu vi02, vi02, 3
+LOOP_MESH_LIGHT:
+	sub.w vf21, vf21, vf21           lqi.xyzw vf15, (vi02++)
+	nop                              lqi.xyzw vf16, (vi02++)
+	nop                              lqi.xyzw vf17, (vi02++)
+	mulax.xyzw acc, vf05, vf16x      iaddi vi04, vi04, -1
 
-	mulax.xyzw acc, vf05, vf16x      nop
 	madday.xyzw acc, vf06, vf16y     nop
 	maddaz.xyzw acc, vf07, vf16z     nop
 	maddw.xyzw vf29, vf08, vf16w     nop
@@ -174,35 +174,32 @@ START_MESH_LIGHT:
 	maddaz.xyzw acc, vf03, vf15z     nop
 	maddw.xyzw vf28, vf04, vf00w     nop
 	maxx.xyzw vf29, vf29, vf00x      nop
-	add.xy      vf17, vf17, vf23     nop
-	nop                              nop
-	nop                              div q, vf00w, vf28w
 	nop                              nop
 	nop                              nop
+	add.xy vf17, vf17, vf23          div q, vf00w, vf28w
+	mulax.xyzw acc, vf09, vf29x      nop
+	madday.xyzw acc, vf10, vf29y     nop
 
-LOOP_MESH_LIGHT:
-	mulax.xyzw acc, vf09, vf29x      lqi.xyzw vf15, (vi02++)
-	madday.xyzw acc, vf10, vf29y     lqi.xyzw vf16, (vi02++)
 	maddaz.xyzw acc, vf11, vf29z     nop
-	maddw.xyzw vf29, vf12, vf29w     iaddi vi04, vi04, -1
+	maddw.xyzw vf29, vf12, vf29w     nop
+	nop                              nop
+	nop                              nop
 	mulq.xyz vf28, vf28, q           waitq
-	mulq.xyz vf21, vf17, q           nop
-	mulax.xyzw acc, vf01, vf15x      move.w vf22, vf18
 ; I-bit bundle: upper mul.xyz vf22,vf18,vf29 + I-bit; lower = 255.0f -> I
 	mul.xyz vf22, vf18, vf29         loi 0x437f0000
-	madday.xyzw acc, vf02, vf15y     lqi.xyzw vf17, (vi02++)
-	ftoi4.xyz   vf19, vf28           sq.xyzw vf21, 0(vi03)
-	ftoi4.xyz   vf20, vf28           nop
+	mulq.xyz vf21, vf17, q           move.w vf22, vf18
+	nop                              nop
+	ftoi4.xyz vf19, vf28             nop
+	ftoi4.xyz vf20, vf28             sq.xyzw vf21, 0(vi03)
 	minii.xyzw vf22, vf22, i         nop
 	sub.xyw     vf00, vf13, vf28     nop
 	sub.xyw     vf00, vf28, vf14     nop
-	maddaz.xyzw acc, vf03, vf15z     nop
+	nop                              nop
 	ftoi0.xyzw  vf22, vf22           iaddi vi05, vi05, -1
-	maddw.xyzw vf28, vf04, vf00w     fmand vi14, vi07
-	mulax.xyzw acc, vf05, vf16x      fmand vi14, vi14
-	madday.xyzw acc, vf06, vf16y     nop
-	maddaz.xyzw acc, vf07, vf16z     ibne vi14, vi07, CLIP_MESH_LIGHT
-	maddw.xyzw vf29, vf08, vf16w     sq.xyzw vf22, 1(vi03)
+	nop                              fmand vi14, vi07
+	nop                              fmand vi14, vi14
+	nop                              ibne vi14, vi07, CLIP_MESH_LIGHT
+	nop                              sq.xyzw vf22, 1(vi03)
 	nop                              ibgtz vi05, CLIP_MESH_LIGHT_SET
 	nop                              sq.xyzw vf19, 2(vi03)
 	nop                              b CLIP_MESH_LIGHT_END
@@ -212,9 +209,9 @@ CLIP_MESH_LIGHT:
 CLIP_MESH_LIGHT_SET:
 	nop                              sq.xyzw vf20, 2(vi03)
 CLIP_MESH_LIGHT_END:
-	nop                              div q, vf00w, vf28w
-	maxx.xyzw vf29, vf29, vf00x      ibne vi04, vi00, LOOP_MESH_LIGHT
 	nop                              iaddiu vi03, vi03, 3
+	nop                              ibne vi04, vi00, LOOP_MESH_LIGHT
+	nop                              nop
 	nop                              xgkick vi01
 END_MESH_LIGHT:
 	nop                              b BEGIN_MESH_LIGHT
@@ -253,12 +250,12 @@ START_MESH_LIGHT_SPEC:
 	nop                              iaddiu vi07, vi00, 208
 	nop                              lqi.xyzw vf18, (vi02++)
 	nop                              lq.xyzw vf23, 2(vi00)
-	sub.w       vf21, vf21, vf21     lq.xyzw vf16, 1(vi02)
-	nop                              lq.xyzw vf15, 0(vi02)
-	nop                              lq.xyzw vf17, 2(vi02)
-	nop                              iaddiu vi02, vi02, 3
+LOOP_MESH_LIGHT_SPEC:
+	sub.w vf21, vf21, vf21           lqi.xyzw vf15, (vi02++)
+	nop                              lqi.xyzw vf16, (vi02++)
+	nop                              lqi.xyzw vf17, (vi02++)
+	mulax.xyzw acc, vf05, vf16x      iaddi vi04, vi04, -1
 
-	mulax.xyzw acc, vf05, vf16x      nop
 	madday.xyzw acc, vf06, vf16y     nop
 	maddaz.xyzw acc, vf07, vf16z     nop
 	maddw.xyzw vf29, vf08, vf16w     nop
@@ -267,38 +264,36 @@ START_MESH_LIGHT_SPEC:
 	maddaz.xyzw acc, vf03, vf15z     nop
 	maddw.xyzw vf28, vf04, vf00w     nop
 	maxx.xyzw vf29, vf29, vf00x      nop
-	add.xy      vf17, vf17, vf23     nop
-	nop                              nop
-	nop                              div q, vf00w, vf28w
 	nop                              nop
 	nop                              nop
+	add.xy vf17, vf17, vf23          div q, vf00w, vf28w
+	mulax.xyzw acc, vf09, vf29x      nop
+	madday.xyzw acc, vf10, vf29y     nop
+	maddaz.xyzw acc, vf11, vf29z     nop
 
-LOOP_MESH_LIGHT_SPEC:
-	mulax.xyzw acc, vf09, vf29x      iaddi vi04, vi04, -1
-	madday.xyzw acc, vf10, vf29y     lqi.xyzw vf15, (vi02++)
-	maddaz.xyzw acc, vf11, vf29z     lqi.xyzw vf16, (vi02++)
 	maddw.xyzw vf29, vf12, vf29w     nop
+	nop                              nop
+	nop                              nop
 	mulq.xyz vf28, vf28, q           waitq
+	mul.xyz vf29, vf29, vf29         nop
 	mulq.xyz vf21, vf17, q           nop
-	mulax.xyzw acc, vf01, vf15x      lqi.xyzw vf17, (vi02++)
-	mul.xyz     vf29, vf29, vf29     nop                                    ; vf29^2
+	nop                              nop
 	ftoi4.xyz   vf19, vf28           move.w vf22, vf18
+	mul[i].xyz vf22, vf18, vf29      loi 255
 	ftoi4.xyz   vf20, vf28           sq.xyzw vf21, 0(vi03)
 	sub.xyw     vf00, vf13, vf28     nop
 ; I-bit bundle: upper mul.xyz vf22,vf18,vf29 + I-bit; lower = 255.0f -> I
-	mul.xyz vf22, vf18, vf29         loi 0x437f0000
 	sub.xyw     vf00, vf28, vf14     nop
-	madday.xyzw acc, vf02, vf15y     nop
-	maddaz.xyzw acc, vf03, vf15z     fmand vi14, vi07
 	minii.xyzw vf22, vf22, i         nop
-	maddw.xyzw vf28, vf04, vf00w     fmand vi14, vi14
-	mulax.xyzw acc, vf05, vf16x      nop
-	madday.xyzw acc, vf06, vf16y     nop
+	nop                              nop
+	nop                              fmand vi14, vi07
+	nop                              fmand vi14, vi14
 	ftoi0.xyzw  vf22, vf22           iaddi vi05, vi05, -1
-	maddaz.xyzw acc, vf07, vf16z     div q, vf00w, vf28w
-	maddw.xyzw vf29, vf08, vf16w     nop
-	add.xy      vf17, vf17, vf23     ibne vi14, vi07, CLIP_MESH_LIGHT_SPEC
+	nop                              nop
+	nop                              nop
+	nop                              ibne vi14, vi07, CLIP_MESH_LIGHT_SPEC
 	nop                              sq.xyzw vf22, 1(vi03)
+	nop                              nop
 	nop                              ibgtz vi05, CLIP_MESH_LIGHT_SPEC_SET
 	nop                              sq.xyzw vf19, 2(vi03)
 	nop                              b CLIP_MESH_LIGHT_SPEC_END
@@ -308,7 +303,7 @@ CLIP_MESH_LIGHT_SPEC:
 CLIP_MESH_LIGHT_SPEC_SET:
 	nop                              sq.xyzw vf20, 2(vi03)
 CLIP_MESH_LIGHT_SPEC_END:
-	maxx.xyzw vf29, vf29, vf00x      iaddiu vi03, vi03, 3
+	nop                              iaddiu vi03, vi03, 3
 	nop                              ibne vi04, vi00, LOOP_MESH_LIGHT_SPEC
 	nop                              nop                                    ; (branch delay slot)
 	nop                              xgkick vi01
@@ -325,15 +320,8 @@ BEGIN_MESH_NOLIGHT:
 	nop                              nop                                    ; START_MESH_NOLIGHT `b BEGIN_MESH_NOLIGHT` lands here
 	nop[e]                           nop                                    ; upper: E-bit pad (END)
 	nop                              nop                                    ; E-bit delay slot
-
-; -----------------------------------------------------------------------
-; START_MESH_NOLIGHT - program-2 skinned vertex transform (variant 6).
-;
-; Near-clone of START_MESH_LIGHT_SPEC with one additional `move.w vf29, vf28` /
-; `ftoi0.xyzw vf22, vf18` bundle at LOOP_MESH_NOLIGHT, and a different loop-exit
-; pattern that branches to BEGIN_MESH_NOLIGHT (one bundle past sub_15D8 entry)
-; for the END.
-; -----------------------------------------------------------------------
+; START_MESH_NOLIGHT - the unlit skinned vertex transform; its loop exits to
+; BEGIN_MESH_NOLIGHT, one bundle past the shared terminator, for the END.
 START_MESH_NOLIGHT:
 	nop                              xtop vi13
 	nop                              iaddiu vi14, vi00, 32767
@@ -350,34 +338,31 @@ START_MESH_NOLIGHT:
 	nop                              iaddiu vi07, vi00, 208
 	nop                              lqi.xyzw vf18, (vi02++)
 	nop                              lq.xyzw vf23, 2(vi00)
+LOOP_MESH_NOLIGHT:
 	sub.w       vf21, vf21, vf21     lqi.xyzw vf15, (vi02++)
 	nop                              lqi.xyzw vf17, (vi02++)
-	nop                              nop
-	nop                              nop
-
-	mulax.xyzw acc, vf01, vf15x      nop
+	mulax.xyzw acc, vf01, vf15x      iaddi vi04, vi04, -1
 	madday.xyzw acc, vf02, vf15y     nop
-	maddaz.xyzw acc, vf03, vf15z     nop
+	maddaz.xyzw acc, vf03, vf15z     move.xyzw vf22, vf18
 	maddw.xyzw vf28, vf04, vf00w     nop
-	nop                              lqi.xyzw vf15, (vi02++)
 	nop                              nop
 	nop                              nop
-	add.xy      vf17, vf17, vf23     div q, vf00w, vf28w
 
-LOOP_MESH_NOLIGHT:
-	ftoi0.xyzw  vf22, vf18           move.w vf29, vf28
-	mulq.xyz vf29, vf28, q           waitq
-	mulq.xyz vf21, vf17, q           iaddi vi05, vi05, -1
-	mulax.xyzw acc, vf01, vf15x      lqi.xyzw vf17, (vi02++)
-	madday.xyzw acc, vf02, vf15y     sq.xyzw vf22, 1(vi03)
-	sub.xyw     vf00, vf13, vf29     iaddi vi04, vi04, -1
-	sub.xyw     vf00, vf29, vf14     sq.xyzw vf21, 0(vi03)
-	maddaz.xyzw acc, vf03, vf15z     nop
-	maddw.xyzw vf28, vf04, vf00w     lqi.xyzw vf15, (vi02++)
-	ftoi4.xyz   vf19, vf29           fmand vi14, vi07
-	ftoi4.xyz   vf20, vf29           fmand vi14, vi14
-	add.xy      vf17, vf17, vf23     ibne vi14, vi07, CLIP_MESH_NOLIGHT
-	nop                              div q, vf00w, vf28w
+	ftoi0.xyzw vf22, vf22            nop
+	add.xy vf17, vf17, vf23          div q, vf00w, vf28w
+	mulq.xyz vf28, vf28, q           waitq
+	mulq.xyz vf21, vf17, q           sq.xyzw vf22, 1(vi03)
+	nop                              nop
+	nop                              nop
+	sub.xyw vf00, vf13, vf28         nop
+	sub.xyw vf00, vf28, vf14         sq.xyzw vf21, 0(vi03)
+	ftoi4.xyz vf19, vf28             nop
+	ftoi4.xyz vf20, vf28             iaddi vi05, vi05, -1
+	nop                              fmand vi14, vi07
+	nop                              fmand vi14, vi14
+	nop                              ibne vi14, vi07, CLIP_MESH_NOLIGHT
+	nop                              nop
+
 	nop                              ibgtz vi05, CLIP_MESH_NOLIGHT_SET
 	nop                              sq.xyzw vf19, 2(vi03)
 	nop                              b CLIP_MESH_NOLIGHT_END
@@ -403,3 +388,4 @@ END_MESH_NOLIGHT:
 ; Program-3 pre-header filler (one bundle of true-zero halves) +
 ; control-flag prologue (parallels program 2 0x0DB0..0x0DC8 with a
 ; different FCSET immediate).
+

@@ -10,19 +10,16 @@
 
 struct GObj;
 
-/* item-kind-def: one item kind's break animations, 0x20 bytes, seven kinds:
-   the stage BG animations (972 for none, JPN 949) and their modes the item plays
-   while it stays, breaks, drops and is hit, and whether the break plays SE
-   package 43. */
+/* item-kind-def: one item kind's break animations, 0x10 bytes, six kinds:
+   the stage BG animations (763 for none) the item plays while it stays,
+   breaks and drops, and whether the break plays an SE package.
+   uncarriedItemGeo multiplies the kind by 16 and reads 0x00, 0x04 and the
+   flags at 0x0C; the later builds' hit animation has no field. */
 typedef struct {        /* field names derived */
     int stayAnim;       /* 0x00 */
-    int stayMode;       /* 0x04 */
-    int breakAnim;      /* 0x08 */
-    int breakMode;      /* 0x0C */
-    int dropAnim;       /* 0x10 */
-    int hitAnim;        /* 0x14 */
-    int hitMode;        /* 0x18 */
-    unsigned int flags; /* 0x1C, bit 0: play SE package 43 */
+    int breakAnim;      /* 0x04 */
+    int dropAnim;       /* 0x08 */
+    unsigned int flags; /* 0x0C, bit 0: play the break SE package */
 } ItemBreakRec;         /* derived name */
 
 extern ItemBreakRec itemKind[];

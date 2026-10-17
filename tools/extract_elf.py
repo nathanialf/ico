@@ -15,13 +15,18 @@ configured one, and its DISCS table names each target's disc):
     us    baserom/Ico_USA.bin + .cue     baseelf.{elf,rom} + SYSTEM.CNF
     aug6  baserom/Ico_AUG6.bin + .cue    baseelf.{elf,rom}
                                            + MAIN.MAP TRFILE.TXT SYSTEM.CNF
+    jun26 baserom/Ico_JUN26.iso          baseelf.{elf,rom} + SYSTEM.CNF
+          (plain 2048-byte-sector ISO)
 
 A raw .bin (MODE1/2352 or MODE2/2352, as its .cue says) is cooked once into
 baserom/Ico_<REGION>.iso beside it, which is then read like the PAL image.
 
 The boot ELF's name is never hard-coded: it comes from the disc's SYSTEM.CNF
 `BOOT2` line (SCES_507.60 on PAL, SCPS_110.03 on the Japanese disc,
-SCUS_971.13 on the USA disc and the prototype).
+SCUS_971.13 on the USA disc and the prototype). A demo on a disc shared with
+other games is started by the disc's menu, which SYSTEM.CNF boots instead,
+so its DISCS row names the ELF's path on the disc as `boot` (jun26:
+CUS97113/SCPS_000.00).
 
 Raw .bin sectors are cooked by extracting the 2048-byte user data of each
 sector and feeding the resulting ISO9660 image to pycdlib; an image that is
@@ -72,6 +77,8 @@ def disc_recipe(version: str) -> dict | None:
               reference material (linker map, source listings, SYSTEM.CNF).
     name, where : how messages name the disc, and the region in the name a
               dump of it usually goes by.
+    boot    : the ELF's path on the disc when SYSTEM.CNF does not name it
+              (a demo on a disc shared with other games), else None.
     """
     if version not in DISCS:
         return None
@@ -84,6 +91,7 @@ def disc_recipe(version: str) -> dict | None:
         "extras": DISCS[version]["extras"],
         "name": disc_name(version),
         "where": DISCS[version]["where"],
+        "boot": DISCS[version].get("boot"),
     }
 
 
@@ -351,10 +359,15 @@ def main() -> int:
         return 1
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # 2. pull the boot ELF (its name comes from SYSTEM.CNF and varies by region)
+    # 2. pull the boot ELF (its name comes from SYSTEM.CNF and varies by
+    #    region; a demo on a shared disc names its own in the DISCS row)
     if not ELF.exists():
-        boot_name = boot_path_from_system_cnf(iso)
-        print(f"==> SYSTEM.CNF BOOT2: {boot_name}")
+        boot_name = disc["boot"]
+        if boot_name is not None:
+            print(f"==> boot file (DISCS row): {boot_name}")
+        else:
+            boot_name = boot_path_from_system_cnf(iso)
+            print(f"==> SYSTEM.CNF BOOT2: {boot_name}")
         print(f"==> extracting {boot_name} -> {ELF}")
         extract_iso_file(iso, boot_name, ELF)
     else:

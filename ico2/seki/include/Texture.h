@@ -10,9 +10,10 @@
 
 /* the 0x40-byte block the ICO tools append to the TIM2 header, recognised by
  * its "ICO" magic and copied whole into the first 0x40 bytes of the record's
- * TexExt at 0x268. The two ints at 0x28 and 0x2C are the mag and min filter
- * terms tex_UpdateMipMapLevel reads back as x290 and x294, and the two shorts
- * at 0x3C and 0x3E the terms it reads back as x2A4 and x2A6. */
+ * TexExt (at 0x2B0 in this build's record, PAL's 0x268). The two ints at 0x28
+ * and 0x2C are the mag and min filter terms PAL's tex_UpdateMipMapLevel reads
+ * back as x290 and x294, and the two shorts at 0x3C and 0x3E the terms it
+ * reads back as x2A4 and x2A6 (this build has no tex_UpdateMipMapLevel). */
 typedef struct Tim2Ext { /* field names derived */
     char magic[4];
     /* the U and V scroll speeds, and behind them the U and V amplitudes the

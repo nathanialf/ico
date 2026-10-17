@@ -42,7 +42,7 @@ typedef struct SqEntry { /* field names derived */
     unsigned long long seMask;     /* 0x20, the SE slots playing from it */
     int vab;                       /* 0x28, the VAB handle, -1 while closed */
     struct AdpcmStreamTag *stream; /* 0x2C */
-} SqEntry; /* derived name */
+} SqEntry;                         /* derived name */
 
 /* s_init.c's `inline` functions, in the order of their definitions'
    out-of-line copies at the end of the object (first-declaration order), from
@@ -58,7 +58,8 @@ SqEntry *soundDataAreaGet(int no, int bank, int mode, int seg);
 SqEntry *soundHDDataSet(void *hd, int no, int bank, int mode, int seg);
 SqEntry *soundSQDataSet(void *sq, int no, int bank, int mode, int seg);
 int soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMode);
-int soundSeDefPlayWithVolumeRate(int kind, unsigned int owner, float *pos, int playMode, float rate);
+int soundSeDefPlayWithVolumeRate(int kind, unsigned int owner, float *pos, int playMode,
+                                 float rate);
 float soundSeDefVolumeRateGet(int id);
 void soundSeDefVolumeRateSet(int id, float rate);
 void soundSeGroupStop(int arg);
@@ -184,9 +185,9 @@ extern const SeEnvDef seEnv[];
  * the first loaded bank of each stage, compared by name), ico2/common/src/
  * charFileManager.c (ReadSoundBdFile). */
 typedef struct SeBank {      /* field names derived */
-    char hdPath[48];         /* 0x00, the .hd header file */
-    char bdPath[48];         /* 0x30, the .bd body file */
-    unsigned int loaded : 1; /* 0x60 bit 0, set while the bank is loaded */
+    char hdPath[32];         /* 0x00, the .hd header file */
+    char bdPath[48];         /* 0x20, the .bd body file */
+    unsigned int loaded : 1; /* 0x50 bit 0, set while the bank is loaded */
     unsigned int : 31;
 } SeBank; /* derived name */
 

@@ -9,7 +9,6 @@
 #define WARPGIRL_H
 
 /* warpGirl.o's globals */
-extern int warpGirlInStageSet;
 extern int warpGirlId;
 
 /* warpGirl.c's `inline` functions, in the order of their definitions'

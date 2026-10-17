@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "gobj_dl.h"
 #include "isys.h"
+#include "include_asm.h"
 
 static void add_gobj_to_head(GObj *self, int kind, int key);
 
@@ -48,104 +49,15 @@ void isysGObjRemoveObjDL(GObj *self)
 }
 
 /* this list's own add_gobj_to_tail, as in isys/gobj */
-static void add_gobj_to_tail(GObj *self, int kind, int key)
-{
-    unsigned char idx = kind & 0xFF;
-    GObj *head;
-    GObj *tail;
-    GObj *cur;
+static void add_gobj_to_tail(GObj *self, int kind, int key);
 
-    debug_StdPrintfDummy("gobj dl added to tail\n");
-    self->dlLinkId = idx;
-    self->dlKey = key;
-    head = gobj_dl_link_head[idx];
-    if (head == 0) {
-        gobj_dl_link_head[idx] = self;
-        self->dlPrev = 0;
-        self->dlNext = 0;
-        gobj_dl_link_tail[idx] = self;
-        debug_StdPrintfDummy("no_entry %p\n", self->dlNext);
-        return;
-    }
-    if ((unsigned int)key < (unsigned int)head->dlKey) {
-        self->dlPrev = 0;
-        self->dlNext = head;
-        head->dlPrev = self;
-        gobj_dl_link_head[idx] = self;
-        debug_StdPrintfDummy("add to head %p\n", self->dlNext);
-        return;
-    }
-    tail = gobj_dl_link_tail[idx];
-    if ((unsigned int)key >= (unsigned int)tail->dlKey) {
-        self->dlPrev = tail;
-        self->dlNext = 0;
-        tail->dlNext = self;
-        gobj_dl_link_tail[idx] = self;
-        debug_StdPrintfDummy("add to tail %p\n", self->dlNext);
-        return;
-    }
-    cur = head;
-    while ((unsigned int)cur->dlNext->dlKey <= (unsigned int)key) {
-        cur = cur->dlNext;
-    }
-    self->dlPrev = cur;
-    self->dlNext = cur->dlNext;
-    cur->dlNext = self;
-    self->dlNext->dlPrev = self;
-}
+INCLUDE_ASM(add_gobj_to_tail_gobj_dl);
 
-static void add_gobj_to_head(GObj *self, int kind, int key)
-{
-    unsigned char idx = kind & 0xFF;
-    GObj *head;
-    GObj *tail;
-    GObj *cur;
-    self->dlLinkId = idx;
-    self->dlKey = key;
-    head = gobj_dl_link_head[idx];
-    if (head == 0) {
-        gobj_dl_link_head[idx] = self;
-        self->dlPrev = 0;
-        self->dlNext = 0;
-        gobj_dl_link_tail[idx] = self;
-        return;
-    }
-    if ((unsigned int)head->dlKey >= (unsigned int)key) {
-        self->dlPrev = 0;
-        self->dlNext = head;
-        head->dlPrev = self;
-        gobj_dl_link_head[idx] = self;
-        return;
-    }
-    tail = gobj_dl_link_tail[idx];
-    if ((unsigned int)tail->dlKey < (unsigned int)key) {
-        self->dlPrev = tail;
-        self->dlNext = 0;
-        tail->dlNext = self;
-        gobj_dl_link_tail[idx] = self;
-        return;
-    }
-    cur = head;
-    while ((unsigned int)cur->dlNext->dlKey < (unsigned int)key) {
-        cur = cur->dlNext;
-    }
-    self->dlPrev = cur;
-    self->dlNext = cur->dlNext;
-    cur->dlNext = self;
-    self->dlNext->dlPrev = self;
-}
+INCLUDE_ASM(add_gobj_to_head_gobj_dl);
 
-void isysGObjMoveObjDL(GObj *self, unsigned char kind, int key)
-{
-    cut_gobj_dl_link(self);
-    return add_gobj_to_tail(self, kind, key);
-}
+INCLUDE_ASM(isysGObjMoveObjDL);
 
-void isysGObjMoveObjDLHead(GObj *self, unsigned char kind, int key)
-{
-    cut_gobj_dl_link(self);
-    return add_gobj_to_head(self, kind, key);
-}
+INCLUDE_ASM(isysGObjMoveObjDLHead);
 
 inline void isysGObjMoveObjDLAfterGObj(GObj *self, GObj *obj)
 {
@@ -173,25 +85,9 @@ inline void isysGObjMoveObjDLBeforeGObj(GObj *self, GObj *obj)
     }
 }
 
-void isysGObjLinkObjDL(void *self, void *dl, unsigned char kind, int key, unsigned int drawMask)
-{
-    debug_StdPrintfDummy("GObjLinkDL in\n");
-    if (dl != 0) {
-        ((GObj *)self)->dl = dl;
-        ((GObj *)self)->drawMask = drawMask;
-        add_gobj_to_tail(self, kind, key);
-        debug_StdPrintfDummy("GObjLinkDL out\n");
-    }
-}
+INCLUDE_ASM(isysGObjLinkObjDL);
 
-void isysGObjLinkObjDLHead(void *self, void *dl, unsigned char kind, int key, unsigned int drawMask)
-{
-    if (dl != 0) {
-        ((GObj *)self)->dl = dl;
-        ((GObj *)self)->drawMask = drawMask;
-        add_gobj_to_head(self, kind, key);
-    }
-}
+INCLUDE_ASM(isysGObjLinkObjDLHead);
 
 void isysGObjLinkObjDLAfterGObj(GObj *self, void *dl, int drawMask, GObj *obj)
 {

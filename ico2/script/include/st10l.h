@@ -13,10 +13,8 @@
 struct SqEntry;
 
 /* st10l.o's .sdata globals */
-extern struct SqEntry *floor10l;
 extern struct SqEntry *st10l_gondola_up;
 extern struct SqEntry *st10l_gondola_down;
-extern struct SqEntry *chain10l;
 void actSt10lBoxAChk(GObj *volatile self);
 void actSt10lBoxBChk(GObj *volatile self);
 void actSt10lBoxChk(GObj *volatile self);

@@ -1,10 +1,10 @@
 /* libkernl.a(initsys.o) */
 #include <libkernl_internal.h>
+#include "include_asm.h"
 
-void setup(int num, int handler)
-{
-    __asm__ __volatile__("addiu $3, $0, 116\n\tsyscall 0" : : : "$3", "memory");
-}
+void setup(int num, int handler);
+
+INCLUDE_ASM(setup_initsys);
 
 void InitSysCall(void)
 {

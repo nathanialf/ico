@@ -19,25 +19,25 @@ respective owners.
 - Configuration that describes how the user's own disc image is checked and
   how the rebuilt ELF is linked: the link order, the linker script, the
   data-table index, the data-table schema (record types and counts, no
-  values) and the SHA-1s of the expected files, each per target
-  (`config/*.<slug>.*`, `config/sha1sums.<slug>.txt`).
-- The `VERSION_<SLUG>` blocks in which a target's build differs from PAL's,
-  under the same rules as every other source.
-- `config/ico.pal.yaml`, `config/symbol_addrs.pal.txt` and
-  `config/symbol_addrs.pal.data.txt`, kept as a record of the old split
-  layout; nothing in the build reads them. The two symbol lists hold the
-  names this tree defines and the addresses the link places them at, the
-  same facts `nm` prints over `build/pal/ico.elf`; they are a record of the
-  rebuilt ELF, not a copy of a disc file.
+  values), the campaign stub list (names and address ranges, no bytes) and
+  the SHA-1s of the expected files.
 
 ## What is not in this repository, and must never be added
 
-- The ICO disc image (`.bin`, `.iso`, `.cue` or any other form), in whole or
-  in part.
+- The disc image (`.iso`, `.bin`, `.cue` or any other form), in whole or in
+  part: on this branch `baserom/Ico_JUN26.iso`, and any copy of it under
+  another extension (`Ico_JUN26.elf`, `Ico_JUN26.bin` and every other
+  `Ico_JUN26.*` name, which `tools/check_no_rom.sh` refuses).
+- Anything the build extracts from it: everything under `baserom/jun26/`
+  (`baseelf.elf`, `baseelf.rom` and the disc's `SYSTEM.CNF`), or the build
+  output under `build/jun26/`.
 - The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
-  `SCUS_971.13`, the prototypes), or any part of it.
+  `SCUS_971.13`, the demo's `CUS97113/SCPS_000.00`, the prototypes), or any
+  part of it, and any other file of the demo disc (its menu `SCUS_971.58`,
+  the other games' directories).
 - Audio, images, textures, models, text or other assets from the disc.
-- The game's data tables (next section).
+- The game's data tables, and the code and constants of any function built
+  as a campaign stub (next section).
 - Symbol tables, map files or other identifier tables, and any debug string,
   asset or code blob, copied verbatim or in bulk out of the binary, the disc
   or any leaked development material. Using an individual fact (a name, an
@@ -51,25 +51,35 @@ harder to commit such material by accident. They do not replace care. If you
 suspect a file in this repository breaks these rules, open an issue tagged
 `legal`.
 
-## The data tables are generated at build time
+## The data tables and the campaign stubs are generated at build time
 
-Each disc's link includes 70 members of the game's archive `ico2000.a` that
-have data sections and no code (MAIN.MAP of the PAL disc; the Japanese link
-has the same set), plus three data runs MAIN.MAP does not list;
-`config/data_members.<slug>.txt` lists them all for each target (73 runs). They
-are the game's content: stage object layouts, model and motion file tables,
-sound definitions, way points, the staff roll. There is no program in them to
+The demo's link includes the same 70 members of the game's archive
+`ico2000.a` that have data sections and no code as the PAL link (the PAL
+disc's MAIN.MAP), and none of the three data runs MAIN.MAP does not list (the
+hint table, the motion sync pairs and the subtitle file names are not in this
+build). `config/data_members.jun26.txt` lists them all. They are the game's
+content: stage object layouts, model and motion file tables, sound
+definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
 other form.
 
-The build reads them from the user's own `baserom/<slug>/baseelf.elf` and
-writes them under `build/<slug>/data/`, which is gitignored. Each member is
-written as `build/<slug>/data/<member>.c`, an initialized array of its record
-type from `config/data_schema.<slug>.txt` that compiles with the game's flags
+The build reads them from the user's own `baserom/jun26/baseelf.elf` and
+writes them under `build/jun26/data/`, which is gitignored. Each member is
+written as `build/jun26/data/<member>.c`, an initialized array of its record type
+from `config/data_schema.jun26.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
 owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
 names MAIN.MAP gives the symbols, and nothing of the tables' content.
+
+The campaign stubs are handled the same way. While a function's C does not
+yet give the demo's bytes, `config/stubs.jun26.txt` names it with its address
+range and its translation unit, and `tools/gen_stub_s.py` writes its
+instructions and constants from the user's own ELF to `build/jun26/stubs/` at
+build time, where the C includes them. The list holds names, ranges and notes
+on how each function differs from PAL's or the prototype's, never a word of the code; nothing
+under `build/jun26/stubs/` is committed. When the list is empty, nothing is
+generated.
 
 The line drawn is between content and facts about its shape. The names,
 tables and strings are content and are never committed. A count or size
@@ -122,10 +132,10 @@ These may never be used as inputs to this project, even indirectly:
 If you have ever read any of the above, say so on your first pull request so
 your contributions can be reviewed for provenance.
 
-## Retail PAL disc symbol maps (`pal`)
+## Retail PAL disc symbol maps (`main`)
 
 The PAL retail disc (`SCES-50760`, boot ELF `SCES_507.60`, `SYSTEM.CNF`
-`VER = 1.00`) ships three build artifacts next to the boot ELF, which the USA
+`VER = 1.00`) ships three build artifacts next to the boot ELF, which the demo
 disc does not:
 
 - `MAIN.MAP`: a GNU ld linker map (member load order and symbol table).
@@ -150,43 +160,56 @@ them is ever committed or bulk-copied. Because the listing comes from a
 different link than the shipped ELF, names were attached to shipped
 functions by instruction-stream correlation, never by copying an address.
 
-## Japanese retail disc (`jpn`)
+## The June 26, 2001 demo disc (`jun26`)
 
-The Japanese retail disc (`SCPS-11003`, boot ELF `SCPS_110.03`, `SYSTEM.CNF`
-`VER = 1.02`) ships no linker map, listing or address table next to its boot
-ELF. Its names come from the PAL disc's listing above, by instruction-stream
-correlation (`tools/correlate_elf.py`): each function of the Japanese ELF is
-paired with a PAL function whose instructions, relocated fields masked, are
-the same, and takes that function's name. Where the census paired two
-functions only by their position inside a run of unpaired ones (the ordinal
-tier), the pairing was checked by rebuilding the function from the PAL
-function's source. One name was corrected while the functions were rebuilt:
-the ending's save step keeps the name `actEndLogoChk` that the August 6, 2001
-prototype's `TRFILE.TXT` gives it (below), and the step before it, which
-PAL's map calls `actEndLogoChk`, carries a derived name. A function no PAL
-function claims also carries a derived name. The data-only members take
-PAL's names by member order. No address is copied from either PAL file:
-every address in `config/*.jpn.*` was found in the user's own
-ELF.
+The demo is one of the games on the Official U.S. PlayStation Magazine demo
+disc 49 (`SCUS-97158`, a DVD). The disc's `SYSTEM.CNF` (`VER = 1.00`) boots
+the magazine's menu, `SCUS_971.58`, which starts the ICO demo from its own
+directory: the boot ELF is `CUS97113/SCPS_000.00`, named by the `boot` key of
+the target's `DISCS` row (`tools/ico_version.py`). That directory ships no
+`SYSTEM.CNF`, linker map, listing or address table, and the ELF has no symbol
+table. The demo's names come from the PAL disc's listing above, by
+instruction-stream correlation (`tools/correlate_elf.py`): each function of
+the demo ELF is paired with a PAL function whose instructions, relocated
+fields masked, are the same, and takes that function's name. Where the PAL
+census left a function unpaired, the same correlation against the August 6,
+2001 prototype's tree (`aug6`, below) gives the prototype's name. A name
+paired only by position inside a run of unpaired functions (the ordinal tier),
+or tied by other evidence (a data table's slot, a caller, the record it
+addresses), is provisional, with its evidence on its stub-list row, until the
+function is rebuilt from source with the demo build's changes and the gate
+passes. A function with no counterpart in either build carries a derived
+name. The data-only members take PAL's names by member order. No address is
+copied from any of those files: every address in `config/*.jun26.*` was found
+in the user's own ELF.
 
-Of the user's Japanese disc the build reads `SYSTEM.CNF`, to find the boot
-file, and `SCPS_110.03`: it checks the ELF's SHA-1 and generates the 73
-data-only members from it (above). Every function, the five VU1
-microprograms and Sony's libraries are compiled or assembled from the
-tracked sources; nothing of the code is read from the disc.
-`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/jpn/`.
+Of the user's disc image the build reads the disc's `SYSTEM.CNF` and
+`CUS97113/SCPS_000.00`: it checks the ELF's SHA-1, generates the 70
+data-only members from it (above), and writes the campaign stubs
+`config/stubs.jun26.txt` lists. Every other function, the five VU1
+microprograms and Sony's libraries are compiled or assembled from the tracked
+sources. `tools/extract_elf.sh` copies the disc's `SYSTEM.CNF` into
+gitignored `baserom/jun26/`; nothing else of the disc (the menu, the other
+games) is read.
+
+Where the demo build lays out a record differently from PAL's (several of the
+data tables' record types among them), the layout was derived from the code
+that reads it (the field offsets the demo's loads and stores use, compared
+with the twin function's in PAL's or the prototype's build), not from any
+other source.
 
 The Japanese string literals in the sources (the EUC-JP files
 `.gitattributes` lists) are the program's own text, the messages and names
 the compiled code prints or passes, written as the code that uses them. They
-are facts the program needs to be rebuilt, as in the shared tree, not assets of
+are facts the program needs to be rebuilt, as on the PAL tree, not assets of
 the disc.
 
 ## Prototype symbol maps (`aug6`)
 
 The `aug6` branch builds the August 6, 2001 ICO prototype (`SCUS_971.13`).
-That prototype disc ships three build artifacts next to its boot ELF and no
-`SRCFILE.TXT`:
+Names of the demo's functions that PAL's listing does not give come from that
+prototype's files and that branch's tree. The prototype disc ships three
+build artifacts next to its boot ELF and no `SRCFILE.TXT`:
 
 - `MAIN.MAP`: the same file as the PAL disc's (582413 bytes), so it
   describes a third link, neither the prototype's nor the PAL ELF's.
@@ -211,10 +234,11 @@ source and leaked SDKs stay forbidden on every branch.
 
 ## What you need to build
 
-You must legally own a copy of *ICO* for the PlayStation 2 and supply the
-disc image yourself. The build checks the extracted ELF's SHA-1 before it
-proceeds and refuses any other file (`config/sha1sums.<slug>.txt`,
-`docs/BUILDING.md`). A SHA-1 is a fingerprint, not a copy of the work; the
+You must legally own the disc this branch builds from, the Official U.S.
+PlayStation Magazine demo disc 49 that carries the ICO demo, and supply its
+image yourself. The build checks the extracted ELF's SHA-1 before it proceeds
+and refuses any other file (`config/sha1sums.jun26.txt`, `docs/BUILDING.md`).
+A SHA-1 is a fingerprint, not a copy of the work; the
 disc image and the ELF remain the property of their rightsholders.
 
 This project gives no instructions for obtaining a disc image. The only

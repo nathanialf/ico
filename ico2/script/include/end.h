@@ -14,13 +14,6 @@ struct SqEntry;
 
 /* end.o's .sdata globals */
 extern struct SqEntry *ed1;
-extern struct SqEntry *ed2;
-extern struct SqEntry *ed3;
-extern struct SqEntry *ed4;
-extern int ed5;
-extern struct SqEntry *ed6;
-extern struct SqEntry *sea;
-extern int happy_end;
 void actConte14_1(GObj *volatile self);
 void actConte14_10(GObj *volatile self);
 void actConte14_10_Jimaku(GObj *volatile self);
@@ -46,11 +39,7 @@ void actEndDemo11Chk(GObj *volatile self);
 void actEndDemo12Chk(GObj *volatile self);
 void actEndDemo13Chk(GObj *volatile self);
 void actEndDemo14Chk(GObj *volatile self);
-#ifdef VERSION_JPN
-void actEndLogoFade(GObj *volatile self);
-#else
 void actEndLogoChk(GObj *volatile self);
-#endif
 void actSt27aEndChk(GObj *volatile self);
 void actSt27aEndDemo(GObj *volatile self);
 void actStaff1Chk(GObj *volatile self);

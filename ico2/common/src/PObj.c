@@ -6,6 +6,7 @@
 #include "Matrix.h"
 #include "charFileManager.h"
 #include <assert.h>
+#include "include_asm.h"
 
 /* a 16-byte aligned float[4], the shape of libvu0's sceVu0FVECTOR */
 typedef float Vec[4] __attribute__((aligned(16))); /* derived name */
@@ -84,116 +85,9 @@ static __inline__ void TidyPObjName(char *name) /* derived name */
 
 /* MakeBoundingBox: one axis-aligned box per sub-object into the block it
    allocates at boxes, plus the whole object's box in self->bb. */
-static void MakeBoundingBox(PObj *self)
-{
-    Vec mn;
-    Vec mx;
-    Vec gmn;
-    Vec gmx;
-    Vec *out;
-    float *p;
-    PObjSub *sub;
-    int i;
-    unsigned int j;
-    int l;
+INCLUDE_ASM(MakeBoundingBox);
 
-    self->boxes = (Vec(*)[8])mallocseki(self->partCount << 7);
-
-    gmn[0] = gmn[1] = gmn[2] = 16777215.0f;
-    gmx[0] = gmx[1] = gmx[2] = -16777215.0f;
-
-    for (i = 0; i < self->partCount; i++) {
-        sub = &self->sub[i];
-        out = self->boxes[i];
-
-        mn[0] = mn[1] = mn[2] = 16777215.0f;
-        mx[0] = mx[1] = mx[2] = -16777215.0f;
-
-        for (j = 0; j < sub->vtxCount; j++) {
-            p = sub->vtx[j];
-            if (p[0] < mn[0])
-                mn[0] = p[0];
-            if (mx[0] < p[0])
-                mx[0] = p[0];
-            if (p[1] < mn[1])
-                mn[1] = p[1];
-            if (mx[1] < p[1])
-                mx[1] = p[1];
-            if (p[2] < mn[2])
-                mn[2] = p[2];
-            if (mx[2] < p[2])
-                mx[2] = p[2];
-            if (p[0] < gmn[0])
-                gmn[0] = p[0];
-            if (gmx[0] < p[0])
-                gmx[0] = p[0];
-            if (p[1] < gmn[1])
-                gmn[1] = p[1];
-            if (gmx[1] < p[1])
-                gmx[1] = p[1];
-            if (p[2] < gmn[2])
-                gmn[2] = p[2];
-            if (gmx[2] < p[2])
-                gmx[2] = p[2];
-        }
-
-        for (l = 0; l < 8; l++) {
-            if (l & 1)
-                out[l][0] = mn[0];
-            else
-                out[l][0] = mx[0];
-            if (l & 2)
-                out[l][1] = mn[1];
-            else
-                out[l][1] = mx[1];
-            if (l & 4)
-                out[l][2] = mn[2];
-            else
-                out[l][2] = mx[2];
-            out[l][3] = 1.0f;
-        }
-    }
-
-    for (l = 0; l < 8; l++) {
-        if (l & 1)
-            self->bb[l][0] = gmn[0];
-        else
-            self->bb[l][0] = gmx[0];
-        if (l & 2)
-            self->bb[l][1] = gmn[1];
-        else
-            self->bb[l][1] = gmx[1];
-        if (l & 4)
-            self->bb[l][2] = gmn[2];
-        else
-            self->bb[l][2] = gmx[2];
-        self->bb[l][3] = 1.0f;
-    }
-}
-
-static void MakePacket(PObj *p, int n)
-{
-    PObjPkt *q;
-
-    p->tag.v.nloop = n;
-    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].shade << 18);
-    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].lod << 22);
-    p->tag.v.lightScale = modelData[n].lightScale;
-    p->ambientScale = modelData[n].ambientScale;
-
-    q = (PObjPkt *)mallocseki(0x880);
-    p->pkt = q;
-    q->lightMtx = (PktHdr *)mallocseki(0x100);
-    q->lightMtx->kind = modelData[n].pktKind;
-
-    q->owner = p;
-    q->nodes = mallocseki(p->partCount * 80);
-    if (q->lightMtx->kind != 4) {
-        if (p->image != 0)
-            p2o_MakePacket((Sub15C *)q);
-    }
-    debug_StdPrintfDummy("end of packet making...\n");
-}
+INCLUDE_ASM(MakePacket);
 
 /* the file's own vector setter, inlined into InitPObj */
 static __inline__ void SetPObjVector(Vec v, float x, float y, float z) /* derived name */
@@ -270,105 +164,9 @@ static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n) /* derived name
     p->shadowLength = modelData[n].shadowLength;
 }
 
-PObj *AllocPObj(ObjHdr *h, char *name, int n)
-{
-    PObj *p;
-    int *tex;
-    int *list;
-    ObjRec *o;
-    unsigned int i;
-    unsigned int j;
+INCLUDE_ASM(AllocPObj);
 
-    h->objTbl += (int)h;
-
-    if (h->texTbl != 0)
-        h->texTbl += (int)h;
-    tex = (int *)h->texTbl;
-
-    list = (int *)h->objTbl;
-
-    debug_StdPrintfDummy("\033[33mobject info : adrs(%p) objnum(%d) clstnum(%d)\n", h, h->objNum,
-                         h->clstNum);
-
-    p = (PObj *)mallocseki(0xD0);
-    sprintf((char *)p, "%s", name);
-    TidyPObjName((char *)p);
-
-    debug_StdPrintfDummy("            : object name (%s)\n", (char *)p);
-    debug_StdPrintfDummy("            : object table (%p)\033\n", list);
-    if (tex != 0)
-        debug_StdPrintfDummy("            : texture table (%p)\033[m\n", tex);
-    else
-        debug_StdPrintfDummy("\033[m");
-
-    if (tex != 0) {
-        for (i = 0; i < h->texNum; i++)
-            tex[i] += (int)h;
-    }
-
-    debug_StdPrintfDummy("Solve object address. %p\n", list);
-
-    for (i = 0; i < h->objNum; i++) {
-        list[i] += (int)h;
-        o = (ObjRec *)list[i];
-
-        if (o->magic != *(int *)"OBJH") {
-            debug_StdPrintfDummy("allocPObj:Invalid Object.\n");
-            debug_assert(__FILE__, 249);
-            __assert(__FILE__, 249, "FALSE");
-        }
-
-        o->vtx += (int)h;
-        o->nrm += (int)h;
-        o->uv += (int)h;
-        o->col += (int)h;
-        o->mats += (int)h;
-        o->texDefs += (int)h;
-        o->polys += (int)h;
-        for (j = 0; j < o->polyCount; j++)
-            ((ObjEnt *)o->polys)[j].p = (void *)((int)((ObjEnt *)o->polys)[j].p + (int)h);
-        o->strips += (int)h;
-        for (j = 0; j < o->stripCount; j++)
-            ((void **)o->strips)[j] = (void *)((int)((void **)o->strips)[j] + (int)h);
-        o->lines += (int)h;
-        o->morphs += (int)h;
-        for (j = 0; j < o->morphCount; j++) {
-            if (((void **)o->morphs)[j] != 0)
-                ((void **)o->morphs)[j] = (void *)((int)((void **)o->morphs)[j] + (int)h);
-        }
-    }
-
-    InitPObjHeader(p, h, n);
-    AllocPObjSubs(p, list);
-
-    MakeBoundingBox(p);
-
-    return p;
-}
-
-PObj *InitPObj(int h, int name, int n)
-{
-    PObj *p;
-    Vec v;
-    int num;
-    int i;
-    int j;
-
-    p = AllocPObj((ObjHdr *)h, (char *)name, n);
-    SetPObjVector(v, modelData[n].offset[0], modelData[n].offset[1], modelData[n].offset[2]);
-    num = p->partCount;
-    for (i = 0; i < num; i++) {
-        PObjSub *g = &p->sub[i];
-        int cnt = g->vtxCount;
-
-        for (j = 0; j < cnt; j++)
-            _AddVector(g->vtx[j], g->vtx[j], v);
-        for (j = 0; j < 8; j++)
-            _AddVector(p->boxes[i][j], p->boxes[i][j], v);
-    }
-    MakePacket(p, n);
-    return p;
-}
+INCLUDE_ASM(InitPObj);
 
 /* The DEBUG build's report of the model file image FreePObj releases, in
    AllocPObj's terms; built only under DEBUG (the text derived). */
@@ -384,3 +182,7 @@ void FreePObj(PObj *p)
     debug_StdPrintfDummy("free object\n");
     FreePObjDebugInfo((ObjHdr *)p->image);
 }
+
+/* .sdata: a short string and a word pointing at it, which no code of the
+   demo reads (the stub-owned row D_0067B4E8) */
+INCLUDE_ASM(D_0067B4E8);

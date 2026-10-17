@@ -7,10 +7,6 @@
 #ifndef CHARFILENAME_H
 #define CHARFILENAME_H
 
-#ifdef VERSION_JPN
-#define MAX_CHARS 1621
-#else
-#define MAX_CHARS 1637
-#endif
+#define MAX_CHARS 1500 /* InitCharFileManager clears 30000 bytes of 20-byte entries */
 
 #endif

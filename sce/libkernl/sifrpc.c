@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sifcmd.h>
 #include <libkernl_internal.h>
+#include "include_asm.h"
 
 /* sifrpc.o's .data: set once sceSifInitRpc has run, cleared by sceSifExitRpc */
 static int rpc_inited = 0; /* derived name */
@@ -80,43 +81,7 @@ static int rpc_client_table[512] __attribute__((aligned(64))); /* derived name *
 
 static SifRpcData rpc_data; /* derived name */
 
-void sceSifInitRpc(int mode)
-{
-    SifCmdHeader *hdr;
-
-    DIntr();
-    if (rpc_inited != 0) {
-        EIntr();
-        return;
-    }
-    rpc_inited = 1;
-    EIntr();
-    sceSifInitCmd();
-    DIntr();
-    rpc_data.pkt_table = (void *)((unsigned int)rpc_pkt_table | 0x20000000);
-    rpc_data.pkt_table_len = 32;
-    rpc_data.unused1 = 0;
-    rpc_data.unused2 = 0;
-    rpc_data.rdata_table = (unsigned char *)((unsigned int)rpc_rdata_table | 0x20000000);
-    rpc_data.rdata_table_len = 32;
-    rpc_data.client_table = (unsigned char *)((unsigned int)rpc_client_table | 0x20000000);
-    rpc_data.client_table_len = 32;
-    rpc_data.rdata_table_idx = 0;
-    rpc_data.pid = 1;
-    sceSifAddCmdHandler(0x80000008, _request_end, &rpc_data);
-    sceSifAddCmdHandler(0x80000009, _request_bind, &rpc_data);
-    sceSifAddCmdHandler(0x8000000A, _request_call, &rpc_data);
-    sceSifAddCmdHandler(0x8000000C, _request_rdata, &rpc_data);
-    EIntr();
-    if (sceSifGetReg(0x80000002) != 0) {
-        return;
-    }
-    hdr = &rpc_pkt_table[1].rpch.header;
-    hdr->opt = 1;
-    sceSifSendCmd(0x80000002, hdr, 0x10, 0, 0, 0);
-    while (sceSifGetSreg(0) == 0) {}
-    sceSifSetReg(0x80000002, 1);
-}
+INCLUDE_ASM(sceSifInitRpc);
 
 void sceSifExitRpc(void)
 {

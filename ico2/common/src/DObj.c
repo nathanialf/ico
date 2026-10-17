@@ -13,6 +13,7 @@
 #include "DObj.h"
 #include "DisplayP2O.h"
 #include "Light.h"
+#include "include_asm.h"
 
 /* The object initGeometryState builds on its stack to hand SetMotionDirection
    the display object at 0x15C.  The word there is a union, so each read of it
@@ -51,12 +52,13 @@ typedef union { /* field names derived */
     long long w[8];
 } DObjBlk40; /* derived name */
 
-/* The four DObj templates (names derived).  The record is 0x880 bytes, the
-   size CSVSYSTEM_InitDObj allocates before the copy; its named fields are the
-   words the template sets.  The slot table pointer at 0x840 and the character
-   file id at 0x84 are named from this file; the parent link at 0x00, the
-   collision words at 0x70 to 0x80 and the accessary row at 0x844 as Sub15C
-   (typedef.h) names the same offsets.  The long long pads give the record the
+/* The four DObj templates (names derived).  The record is 0x820 bytes in
+   this build (0x60 fewer than PAL's), the size CSVSYSTEM_InitDObj allocates
+   before the copy; its named fields are the words the template sets.  The
+   slot table pointer at 0x7E0 and the character file id at 0x84 are named
+   from this file; the parent link at 0x00, the collision words at 0x70 to
+   0x80 and the accessary row at 0x7E4 as Sub15C (typedef.h) names PAL's
+   offsets.  The long long pads give the record the
    8-byte alignment its copy loop uses. */
 typedef struct { /* field names derived */
     ObjNode parent;
@@ -67,21 +69,15 @@ typedef struct { /* field names derived */
     int cylinderOn;
     int colPerNode;
     int charFileId;
-    long long pad88[247];
+    long long pad88[235];
     char *slotTable;
     int accessary;
     long long pad848[7];
 } DObjRecord; /* derived name */
 
-#ifdef VERSION_JPN
 static DObjRecord emptyDObj = {
-    {0, -1}, {0}, 0, 1, 1, 1, 0, 1548, {0}, 0, -1, {0},
+    {0, -1}, {0}, 0, 1, 1, 1, 0, 1425, {0}, 0, -1, {0},
 }; /* derived name */
-#else
-static DObjRecord emptyDObj = {
-    {0, -1}, {0}, 0, 1, 1, 1, 0, 1552, {0}, 0, -1, {0},
-}; /* derived name */
-#endif
 
 /* One entry of the rotation element array at 0x80c: a zero vector then
    three identity quaternions. */
@@ -120,81 +116,7 @@ static inline void initGeometryScaleRatio(Sub15C *d) /* derived name */
     d->scaleRatio = r;
 }
 
-static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
-{
-    DObjGObj g;
-    DObjGObj *p;
-    int i;
-    int j;
-    int k;
-    int m;
-    int n;
-
-    p = &g;
-    g.data.d = self;
-    InitMotionGeoInfo(&self->root, lay->pos[0], lay->pos[1], lay->pos[2], lay->rot[0], lay->rot[1],
-                      lay->rot[2]);
-    InitMotionStateInfo(&p->data.d->ctrl);
-    InitFrameDependSequence(p->data.d->fdsFlags);
-    p->data.d->motion = initialGeoWork;
-
-    if (p->data.d->skel != 0) {
-        p->data.d->root.plane.f[3] =
-            p->data.d->root.plane.f[3] + p->data.d->skel->pos[1] * self->nodes->scale[0];
-        p->data.d->blendBuf =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 125);
-        p->data.d->motionBuf =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 127);
-        InitMotionRotElem(p->data.d->blendBuf, p->data.d->skelNodeNum);
-        InitMotionRotElem(p->data.d->motionBuf, p->data.d->skelNodeNum);
-        CopyVector(p->data.d->localPos, ZeroPoint);
-        CopyVector(p->data.d->localPos, ZeroPoint);
-        CopyVector(p->data.d->localMove, ZeroVector);
-        p->data.d->localHeight = 0.0f;
-        p->data.d->local = InitialObjPointer;
-        p->data.d->nodeRotElem =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 137);
-        for (i = 0; i < p->data.d->skelNodeNum; i++) {
-            *(DObjBlk40 *)&p->data.d->nodeRotElem[i] = initialRotElem;
-        }
-        p->data.d->nodeLimit =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 2, __FILE__, 145);
-        for (j = 0; j < p->data.d->skelNodeNum; j++) {
-            p->data.d->nodeLimit[j] = 0;
-        }
-        p->data.d->nodeVec =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 4, __FILE__, 153);
-        for (k = 0; k < p->data.d->skelNodeNum; k++) {
-            CopyVector(p->data.d->nodeVec[k], ZeroVector);
-        }
-        p->data.d->blendRot =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 161);
-        for (m = 0; m < p->data.d->skelNodeNum; m++) {
-            *(DObjBlk40 *)p->data.d->blendRot[m] = initialBlendRot;
-        }
-        p->data.d->blendless =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum, __FILE__, 169);
-        for (n = 0; n < p->data.d->skelNodeNum; n++) {
-            p->data.d->blendless[n] = 0;
-        }
-
-        {
-            DObjVec dir = {{0.0f, 0.0f, 1.0f, 1.0f}};
-            _ApplyRyGV(dir.f, -lay->rot[1]);
-            SetMotionDirection((GObj *)p, dir.f);
-        }
-    } else {
-        p->data.d->blendBuf = 0;
-        p->data.d->nodeRotElem = 0;
-        p->data.d->nodeLimit = 0;
-        p->data.d->nodeVec = 0;
-        p->data.d->blendRot = 0;
-        p->data.d->blendless = 0;
-    }
-    p->data.d->rideFunc = 0;
-    *(DObjBlk20 *)&p->data.d->streamScale = initialGeoState;
-    initGeometryScaleRatio(p->data.d);
-}
+INCLUDE_ASM(initGeometryState);
 
 static void initMatrixDObj(Sub15C *self, SObjSimpleSetting *lay)
 {
@@ -223,63 +145,9 @@ typedef struct DObjNode DObjNode; /* derived name */
 
 /* A block's node is addressed as an int sum, the index first: the ROM adds
    in that order, and &nodes[i] or nodes + i put the base first (measured). */
-static void allocObjectData(Sub15C *self, SObjSimpleSetting *lay, int n)
-{
-    int i;
-    int j;
-    int k;
+INCLUDE_ASM(allocObjectData);
 
-    self->nodes = iosMallocDebug(ios_partition_seki, n * 80, __FILE__, 299);
-    for (i = 0; i < n; i++) {
-        self->nodes[i].flags.ll &= ~1;
-        self->nodes[i].flags.ll &= ~2;
-        {
-            DObjNode *e = (DObjNode *)(i * 80 + (int)self->nodes);
-            e->flags.ll &= ~4;
-            e->pos[1] = 0.0f;
-            e->pos[2] = 0.0f;
-            e->pos[3] = 1.0f;
-            e->pos[0] = 0.0f;
-        }
-        {
-            DObjNode *e = (DObjNode *)(i * 80 + (int)self->nodes);
-            e->fade = 0.0f;
-            e->alpha = 1.0f;
-            *(short *)((char *)e + 0x3A) = 0;
-            e->scale[0] = 1.0f;
-            e->scale[1] = 1.0f;
-            e->scale[2] = 1.0f;
-        }
-    }
-    for (j = 0; j < n; j++) {
-        for (k = 0; k < 4; k++) {
-            self->nodes[j].rot[k] = 0;
-            self->nodes[j].word10[k] = 0;
-        }
-        self->nodes[j].flags.ll &= ~2;
-        {
-            DObjNode *e = (DObjNode *)(j * 80 + (int)self->nodes);
-            e->pos[0] = e->pos[1] = e->pos[2] = 0.0f;
-            e->pos[3] = 1.0f;
-            e->flags.ll &= ~4;
-        }
-        self->nodes[j].flags.ll &= ~1;
-        {
-            DObjNode *e = (DObjNode *)(j * 80 + (int)self->nodes);
-            e->fade = 0.0f;
-            e->alpha = 1.0f;
-            *(short *)((char *)e + 0x3A) = 0;
-            _CopyVector(e->scale, lay->scale);
-        }
-    }
-}
-
-static void initInitialInverseMatrix(Sub15C *d)
-{
-    char *m = iosMallocDebug(ios_partition_sugipon, d->skelNodeNum << 6, __FILE__, 333);
-    d->clusterMtx = m;
-    GetInitialInverseMatrixByDObj(m, d);
-}
+INCLUDE_ASM(initInitialInverseMatrix);
 
 static inline void initPolyHead(Sub15C *d) /* derived name */
 {
@@ -333,57 +201,9 @@ static inline void allocMorphWeights(Sub15C *d, int n) /* derived name */
     }
 }
 
-static void initPolygonState(Sub15C *d, SObjSimpleSetting *lay)
-{
-    PObjModel *p;
-    PObjPart *e;
-    unsigned int mx;
-    int j;
-    int k;
+INCLUDE_ASM_LIT(initGeometryState);
 
-    mx = 0;
-    p = d->model;
-    initMatrixDObj(d, lay);
-    initPolyHead(d);
-
-    k = p->mode.s.type;
-    switch (k) {
-    case 1:
-        d->dispType = k;
-        d->nodeNum = d->skelNodeNum;
-        allocMatrixArrays(d, d->skelNodeNum);
-        allocObjectData(d, lay, p->partCount);
-        applySkeltonMatrices(d);
-        break;
-    case 0:
-    case 2:
-    case 3:
-        d->dispType = 0;
-        d->nodeNum = d->skelNodeNum < p->partCount ? p->partCount : d->skelNodeNum;
-        allocMatrixArrays(d, d->nodeNum);
-        allocObjectData(d, lay, p->partCount);
-        break;
-    }
-
-    for (j = 0; j < p->partCount; j++) {
-        e = &p->parts[j];
-        if (mx < e->morphCount) {
-            mx = e->morphCount;
-        }
-    }
-
-    if (p->mode.s.type == 1) {
-        if (mx != 0) {
-            allocMorphWeights(d, mx);
-        }
-        d->morphNum = mx;
-    } else {
-        if (mx != 0) {
-            allocMorphWeights(d, 6);
-        }
-        d->morphNum = mx;
-    }
-}
+INCLUDE_ASM(initPolygonState);
 
 inline void FreeDObj(void) {}
 
@@ -415,34 +235,7 @@ static inline void makeSlotTable(Sub15C *d) /* derived name */
     }
 }
 
-Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
-{
-    Sub15C *d;
-
-    d = iosMallocDebug(ios_partition_seki, sizeof(DObjRecord), __FILE__, 463);
-    *(DObjRecord *)d = emptyDObj;
-#ifdef VERSION_JPN
-    if (id != 1548) {
-#else
-    if (id != 1552) {
-#endif
-        CSVSYSTEM_ReadCharFiles(d, id);
-    }
-    debug_StdPrintfDummy("\x1b[35mALLOCED DOBJ\x1b[m\n");
-    if (d->model != 0 || d->skel != 0) {
-        initPolygonState(d, lay);
-    }
-    debug_StdPrintfDummy(" ------------------ allocate DOBJ %p: POBJ: %p\n", d, d->model);
-    debug_StdPrintfDummy("\x1b[35mINITED POLYGONSTATE\x1b[m\n");
-    initGeometryState(d, lay);
-    debug_StdPrintfDummy("\x1b[35mINITED GEOMETRYSTATE\x1b[m\n");
-    if (d->skel != 0) {
-        initInitialInverseMatrix(d);
-        makeSlotTable(d);
-    }
-    debug_StdPrintfDummy("\x1b[35mEND OF INIT DOBJ\x1b[m\n");
-    return d;
-}
+INCLUDE_ASM(CSVSYSTEM_InitDObj);
 
 inline void LinkParentOfDObj(void *obj, ObjNode *link)
 {

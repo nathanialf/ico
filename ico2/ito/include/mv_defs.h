@@ -24,20 +24,32 @@
 /* the physical address under a segment-mapped one, which the DMA
    controller takes */
 static __inline__ int phys_addr(int p) /* derived name */
-{ return p & 0x0FFFFFFF; }
+{
+    return p & 0x0FFFFFFF;
+}
 
 /* the same address in the uncached-accelerated segment, ORed onto the
    physical one */
 static __inline__ int uncached_accel_addr(int p) /* derived name */
-{ return (p & 0x0FFFFFFF) | 0x20000000; }
+{
+    return (p & 0x0FFFFFFF) | 0x20000000;
+}
+
 #include <string.h>
 #include <assert.h>
 #include "ios.h"
 void *iosMallocAlignDebug(struct IosMemPart *part, int size, int align, const char *file, int line);
-void debug_assert(const char *file, int line);   /* assert reporter */
+void debug_assert(const char *file, int line); /* assert reporter */
+
 static __inline__ int alloc_zeroed(int size, int align) /* derived name */
-{ int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, LN(43, 42));
-  if (p == 0) { debug_assert(__FILE__, LN(44, 43)); __assert(__FILE__, LN(44, 43), "p != NULL"); }
-  memset((void *)p, 0, size); return p; }
+{
+    int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, 43);
+    if (p == 0) {
+        debug_assert(__FILE__, 44);
+        __assert(__FILE__, 44, "p != NULL");
+    }
+    memset((void *)p, 0, size);
+    return p;
+}
 
 #endif /* MV_DEFS_H */

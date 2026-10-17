@@ -13,6 +13,7 @@
 #include "matrixDrive.h"
 #include "Matrix.h"
 #include "ios.h"
+#include "include_asm.h"
 
 typedef struct PointBlur { /* field names derived */
     /* 0x00 */ int pri;
@@ -49,45 +50,9 @@ static inline void resetPointBlurTrail(PointBlur *p) /* derived name */
     }
 }
 
-int UpdatePointBlur(PointBlur *p, void *mtx, void *tint, float f)
-{
-    float a[4];
-    float b[4];
-    float c[4];
-    float scale;
-    GifColor *t;
+int UpdatePointBlur(PointBlur *p, void *mtx, void *tint, float f);
 
-    if (currentScreenWidth != 0 || GlobalTimer != 0) {
-        p->dirty = 1;
-    }
-    if (p->dirty == 0) {
-        moveDataElements(p);
-    }
-    _ApplyMatrix(a, matrixptr + 0x80, mtx);
-    _SetCurrentMatrix(matrixptr + 0xC0);
-    _RotTransPersCurrentMatrix(p->screenPos, a);
-    a[0] = a[0] + f;
-    _RotTransPersCurrentMatrix(b, a);
-    scale = b[0] - *(float *)p->screenPos;
-    _SubVector(c, (char *)p->screenPos + 0x10, p->screenPos);
-    c[2] = 0.0f;
-    _OuterProduct(c, c, ZUnitVector);
-    _NormalizeVector(c, c);
-    _ScaleVector(c, c, scale);
-    c[2] = 0.0f;
-    _AddVectorXYZ(b, p->screenPos, c);
-    _FTOI4Vector(p->strip, b);
-    _SubVectorXYZ(b, p->screenPos, c);
-    _FTOI4Vector((char *)p->strip + 0x10, b);
-    t = p->stripCol;
-    t[1] = p->col;
-    t[0] = t[1];
-    if (p->dirty != 0) {
-        resetPointBlurTrail(p);
-        p->dirty = 0;
-    }
-    return 1;
-}
+INCLUDE_ASM(UpdatePointBlur);
 
 /* the templates the loops and struct assignments copy out of */
 
@@ -133,167 +98,13 @@ static inline PointBlur *initPointBlurAt(int num, int pri, int *col, float *rate
     return p;
 }
 
-EnemyEye *InitEnemyEye(int num, int mode, int pri)
-{
-    EnemyEye *p;
+INCLUDE_ASM(InitEnemyEye);
 
-    p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c", 137);
-    *p = enemyEyeTemplate;
+INCLUDE_ASM(InitEnemyFootPrint);
 
-#ifdef VERSION_JPN
-    p->dobj[0] = CSVSYSTEM_InitDObj(1318, &InitialSObjSimpleSetting);
-#else
-    p->dobj[0] = CSVSYSTEM_InitDObj(1322, &InitialSObjSimpleSetting);
-#endif
-    p->dobj[0]->nodes->flags.ll |= 1;
-    p->dobj[0]->nodes->fade = 1e-5f;
-    p->dobj[0]->nodes->flags.ll |= 4;
-    p->dobj[0]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
-    p->dobj[0]->dispType = 2;
+INCLUDE_ASM(ExecEnemyFootPrints);
 
-#ifdef VERSION_JPN
-    p->dobj[1] = CSVSYSTEM_InitDObj(1319, &InitialSObjSimpleSetting);
-#else
-    p->dobj[1] = CSVSYSTEM_InitDObj(1323, &InitialSObjSimpleSetting);
-#endif
-    p->dobj[1]->nodes->flags.ll |= 1;
-    p->dobj[1]->nodes->fade = 1e-5f;
-    p->dobj[1]->nodes->flags.ll &= ~4;
-    p->dobj[1]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
-    p->dobj[1]->dispType = 2;
-
-#ifdef VERSION_JPN
-    p->dobj[2] = CSVSYSTEM_InitDObj(1320, &InitialSObjSimpleSetting);
-#else
-    p->dobj[2] = CSVSYSTEM_InitDObj(1324, &InitialSObjSimpleSetting);
-#endif
-    p->dobj[2]->nodes->flags.ll |= 1;
-    p->dobj[2]->nodes->fade = 1e-5f;
-    p->dobj[2]->nodes->flags.ll &= ~4;
-    p->dobj[2]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
-    p->dobj[2]->dispType = 2;
-
-    if (num != 0) {
-        p->blurOn = 1;
-        p->blur = initPointBlurAt(num, pri, enemyEyeBlurColor, enemyEyeBlurRate);
-    }
-    return p;
-}
-
-EnemyFootPrintHead *InitEnemyFootPrint(int num)
-{
-    EnemyFootPrintHead *p;
-    Sub15C *d;
-    int i;
-    int j;
-
-    p = iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c", 226);
-    *p = footPrintHeadTemplate;
-    p->num = num;
-    p->buf = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 229);
-#ifdef VERSION_JPN
-    d = CSVSYSTEM_InitDObj(1291, &InitialSObjSimpleSetting);
-#else
-    d = CSVSYSTEM_InitDObj(1295, &InitialSObjSimpleSetting);
-#endif
-    p->dobj = d;
-    if (d->nodeMtx != 0) {
-        iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
-    }
-    if (p->dobj->nodeQuat != 0) {
-        iosFree((void *)(p->dobj->nodeQuat & 0xFFFFFFF));
-    }
-    p->dobj->nodeMtx = 0;
-    p->dobj->nodeQuat = 0;
-    p->dobj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num << 6, "src/enemyParts.c", 232);
-    p->dobj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c", 232);
-    p->dobj->nodeNum = num;
-    if ((int)p->dobj->nodes != 0) {
-        iosFree((void *)((int)p->dobj->nodes & 0xFFFFFFF));
-    }
-    p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 80, "src/enemyParts.c", 232);
-    for (i = 0; i < num; i++) {
-        p->dobj->nodes[i].flags.ll &= ~1;
-        p->dobj->nodes[i].flags.ll &= ~2;
-        p->dobj->nodes[i].pos[0] = 0.0f;
-        p->dobj->nodes[i].pos[1] = 0.0f;
-        p->dobj->nodes[i].pos[2] = 0.0f;
-        p->dobj->nodes[i].pos[3] = 1.0f;
-        p->dobj->nodes[i].flags.ll &= ~4;
-        p->dobj->nodes[i].fade = 0;
-        p->dobj->nodes[i].alpha = 1.0f;
-        *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x870) + 0x3A) = 0;
-        p->dobj->nodes[i].scale[0] = 1.0f;
-        p->dobj->nodes[i].scale[1] = 1.0f;
-        p->dobj->nodes[i].scale[2] = 1.0f;
-    }
-    p->dobj->dispType = 2;
-    for (j = 0; j < num; j++) {
-        p->buf[j] = footPrintVtxTemplate;
-        p->dobj->nodes[j].flags.ll |= 1;
-        p->dobj->nodes[j].fade = 1.0f;
-        p->dobj->nodes[j].flags.ll &= ~4;
-        p->dobj->nodes[j].scale[0] = p->dobj->nodes[j].scale[1] = p->dobj->nodes[j].scale[2] = 0.0f;
-    }
-    return p;
-}
-
-int ExecEnemyFootPrints(EnemyFootPrintHead *self)
-{
-    float q[4];
-    int i;
-    EnemyFootPrint *base;
-
-    base = self->buf;
-    for (i = 0; i < self->num; i++) {
-        EnemyFootPrint *fp = &base[i];
-        struct DObjNode *dl; /* the node address as an int sum, as EntryEnemyFootPrint's slot */
-        /* the free marker, set before the calls below and stored when the
-           footprint runs out */
-        int dead;
-
-        if (fp->life < 0) {
-            continue;
-        }
-        dl = (struct DObjNode *)(i * 80 + (int)self->dobj->nodes);
-        dl->fade = -(float)(fp->life + 1) / 30.0f;
-        dl->scale[0] = dl->scale[0] + fp->speed;
-        fp->speed = fp->speed * 0.9f;
-        dl->scale[1] = dl->scale[2] = dl->scale[0];
-        dead = -1;
-        SetQuaternionByAxisRotateVWithNoRegularize(q, rand(), YUnitVector);
-        GetMatrixFromQuaternionPos((char *)(self->dobj->nodeMtx + i * 0x40), q, fp->pos);
-        fp->life = fp->life + 1;
-        if (fp->life == 30) {
-            fp->life = dead;
-            /* node 1's fade, whichever footprint ran out */
-            self->dobj->nodes[1].fade = 1.0f;
-        }
-    }
-    return 1;
-}
-
-int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos)
-{
-    int i = self->idx;
-    /* the slot address as an int sum */
-    EnemyFootPrint *fp = (EnemyFootPrint *)(i * 32 + (int)self->buf);
-    struct DObjNode *vt;
-
-    fp->speed = 0.05f;
-    fp->life = 0;
-    _CopyVector(fp->pos, pos);
-
-    self->buf[i].pos[1] += -5.0f;
-    vt = (struct DObjNode *)(i * 80 + (int)self->dobj->nodes);
-    vt->scale[0] = vt->scale[1] = vt->scale[2] = 0.0f;
-
-    self->idx = self->idx + 1;
-    if (self->idx == self->num) {
-        self->idx = 0;
-    }
-    return 0;
-}
+INCLUDE_ASM(EntryEnemyFootPrint);
 
 int DispEnemyFootPrints(EnemyFootPrintHead *self)
 {
@@ -301,10 +112,7 @@ int DispEnemyFootPrints(EnemyFootPrintHead *self)
     return 1;
 }
 
-PointBlur *InitPointBlur(int num, int pri, int *col, float *rate)
-{
-    return initPointBlurAt(num, pri, col, rate);
-}
+INCLUDE_ASM(InitPointBlur);
 
 int DispPointBlur(PointBlur *self)
 {
@@ -324,19 +132,7 @@ int UpdateEnemyEye(EnemyEye *self, void *m, float rate)
     return 1;
 }
 
-int DispEnemyEye(EnemyEye *self)
-{
-    _CopyMatrix((void *)self->dobj[0]->nodeMtx, self->mtx);
-    reg_DispMultiPri(self->dobj[0], 10);
-    if (self->blurOn != 0) {
-        PointBlur *fobj = self->blur;
-        gif_StartPacketPri(fobj->pri);
-        gif_SetAlpha(1, fobj->alpha, 128);
-        gif_Draw2DStripG(fobj->strip, fobj->stripCol, fobj->num << 1, 1);
-        gif_EndPacket();
-    }
-    return 1;
-}
+INCLUDE_ASM(DispEnemyEye);
 
 int ResetEnemyEye(EnemyEye *self)
 {

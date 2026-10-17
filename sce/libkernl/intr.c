@@ -2,6 +2,7 @@
 #include <eekernel.h>
 #include <eeregs.h>
 #include <libkernl_internal.h>
+#include "include_asm.h"
 
 /* R5900 opcodes with no C spelling.  Defined in this member. */
 #define SYNC() __asm__ __volatile__("sync" : : : "memory")
@@ -108,10 +109,9 @@ int iDisableDmac(int channel)
 
 /* intr.o's own file static setup (initsys.o holds the global of the same
    name); InitAlarm calls it. */
-static void setup(int num, int addr)
-{
-    __asm__ __volatile__("addiu $3, $0, 116\n\tsyscall 0" : : : "$3", "memory");
-}
+static void setup(int num, int addr);
+
+INCLUDE_ASM(setup_intr);
 
 /* syscall 90 is Copy(dst, src, len); the leaf ignores its arguments, the
    kernel reads them out of $a0..$a2. */

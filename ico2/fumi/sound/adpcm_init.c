@@ -7,31 +7,33 @@
 #include "cdvd.h"
 #include <assert.h>
 #include <sound.h>
+#include "include_asm.h"
 
 static inline void adpcmDiskNotReady(void);
 static inline void adpcmDiskReturnReady(void);
 static inline int adpcmOpenProc(CdvdBgReq *bg, AdpcmOpenReq *open);
 static inline void adpcmOpenDiskNotReady(void);
 
-/* the 2 KB-aligned base of the IOP stream buffers, the two buffers' in-use
-   flags, the pause request and the IOP heap block the base was cut from;
+/* the 2 KB-aligned base of the IOP stream buffers, the IOP heap block the
+   base was cut from, the two buffers' in-use flags and the pause request;
    then the two stream records and the four SPU slots the streams play on */
 static int adpcmIopBase; /* derived name */
+
+static int adpcmIopHeap; /* derived name */
 
 static int adpcmIopBuffUsed[2]; /* derived name */
 
 static int adpcmPause; /* derived name */
 
-static int adpcmIopHeap; /* derived name */
-
 static AdpcmStream adpcmStream[2]; /* derived name */
 
 static int adpcmSpuSlot[4]; /* derived name */
 
-void AdpcmStreamFree(void)
-{
-    sceSifFreeIopHeap(adpcmIopHeap);
-}
+/* adpcm_init.o's .rodata opens with the file name, before AdpcmStreamInit's
+   string */
+static const char adpcmSrcFile[] = __FILE__; /* derived name */
+
+INCLUDE_ASM(AdpcmStreamInit);
 
 void adpcmTickProc2(SqEntry *obj)
 {
@@ -89,104 +91,15 @@ void adpcmTickProc2(SqEntry *obj)
     }
 }
 
-/* adpcm_init.o's .rodata opens with these three named objects: the two
-   messages are printed further down the file than the strings that follow
-   them. */
-static const char adpcmSrcFile[] = __FILE__; /* derived name */
-
+/* the message AdpcmIopBuffAlloc and AdpcmNotUseIopAreaFree print (PAL's
+   third message, for an IOP area freed unused, is not in this build) */
 static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n"; /* derived name */
-
-/* the IOP area is reserved but unused, so it is being freed */
-static const char adpcmFreeIopMsg[] =
-    "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n"; /* derived name */
 
 int debugAdpcmOn = 1;
 
-SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, int loopNum)
-{
-    AdpcmChReq req;
-    SqEntry *obj;
-    AdpcmStream *p;
-    int i;
-    int j;
+SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, int loopNum);
 
-    if (size > 0x5C000) {
-        size = 0x5C000;
-    }
-    obj = soundDataAreaGet(no, bank, 2, ch);
-    for (i = 0; i < 2; i++) {
-        int *q = (int *)((char *)adpcmStream + i * 0x58);
-        if (q[0] == 0) {
-            goto found;
-        }
-    }
-    debug_assert(adpcmSrcFile, 363);
-    __assert(adpcmSrcFile, 363, "0");
-found:
-    p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
-    p->used = 1;
-    obj->stream = p;
-    p->n = adpcmFile[no].channels;
-    switch (p->n) {
-    case 1:
-        p->chAttr = 0x10000;
-        break;
-    case 2:
-        p->chAttr = 0x20000;
-        break;
-    case 4:
-        p->chAttr = 0x40000;
-        break;
-    default:
-        debug_assert(adpcmSrcFile, 381);
-        __assert(adpcmSrcFile, 381, "0");
-    }
-    p->mask = 0;
-    for (j = 0; j < p->n; j++) {
-        req.spuAddr = soundBufAdpcmChAlloc(obj, &req.ch);
-        p->ch[j] = req.ch = adpcmSpuSlot[req.ch];
-        req.attr = p->chAttr | 2;
-        req.iopAddr = iopBuf + (0x800 / p->n) * j;
-        req.iopSize = 0x5C000;
-        req.vol = 0x4000;
-        SgStAdpcmOpen(&req);
-        if (p->chAttr == 0x10000) {
-            p->volR[j] = 0x3FFF;
-            p->volL[j] = 0x3FFF;
-        } else if ((j & 1) == 0) {
-            p->volL[j] = 0x3FFF;
-            p->volR[j] = 0;
-        } else {
-            p->volR[j] = 0x3FFF;
-            p->volL[j] = 0;
-        }
-        p->fadeStep = 0;
-        SgStAdpcmChannelVolume(1LL << p->ch[j], p->volL[j], p->volR[j]);
-        SgStAdpcmChannelPitch(1LL << p->ch[j], adpcmFile[no].pitch);
-        p->mask |= 1LL << p->ch[j];
-    }
-    if (size < 0x5C000) {
-        p->seekSize = size;
-    } else {
-        p->seekSize = 0;
-    }
-    p->pitch = adpcmFile[no].pitch;
-    p->iopBuf = iopBuf;
-    p->ringSize = 0x5C000;
-    p->dataSize = adpcmFile[no].sectors << 11;
-    p->loopStart = adpcmFile[no].loopStart << 11;
-    p->lastAddr = 0;
-    p->remain = adpcmFile[no].sectors << 11;
-    p->loopNum = loopNum;
-    p->loopCount = 0;
-    if (size != 0) {
-        Ee2Iop(src, iopBuf, size);
-    }
-    p->bg = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmTickProc, obj, adpcmDiskNotReady,
-                                    adpcmDiskReturnReady, obj, 0, 0);
-    iosCdvdBackGroundMgrSeek(p->bg, size);
-    return obj;
-}
+INCLUDE_ASM(adpcmDataSet);
 
 void AdpcmPlay(AdpcmStream *self)
 {
@@ -197,44 +110,6 @@ void AdpcmPlay(AdpcmStream *self)
 void AdpcmStop(AdpcmStream *self)
 {
     SgStAdpcmStop(self->mask);
-}
-
-inline int AdpcmIopBuffAlloc(void)
-{
-    int i;
-    for (i = 0; i < 2; i++) {
-        if (adpcmIopBuffUsed[i] == 0) {
-            goto found;
-        }
-    }
-    debug_StdPrintfDummy(adpcmNoAllocMsg);
-    return 0;
-found:
-    adpcmIopBuffUsed[i] = 1;
-    return adpcmIopBase + i * 0x5C000;
-}
-
-void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum)
-{
-    int req;
-
-    debug_StdPrintfDummy("AdpcmOpen id%d \n", no);
-    req = (no & 0xFFFF) | 0x110000;
-    if (soundDataAreaSearch(&req) != 0) {
-        self->bg = 0;
-        return;
-    }
-    self->ch = ch;
-    self->id = no;
-    self->iopBuf = AdpcmIopBuffAlloc();
-    if (self->iopBuf != 0) {
-        self->bg = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmOpenProc, self,
-                                           adpcmOpenDiskNotReady, 0, self, 0, 0);
-    } else {
-        self->bg = 0;
-        debug_StdPrintfDummy("%s\n", (char *)&adpcmFile[no]);
-    }
-    self->loopNum = loopNum;
 }
 
 static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
@@ -249,36 +124,7 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
     adpcmIopBuffUsed[no] = 0;
 }
 
-void AdpcmClose(SqEntry *obj)
-{
-    AdpcmStream *self = obj->stream;
-    int i;
-    int j;
-
-    if (self != 0 && self->bg != 0) {
-        iosCdvdBackGroundMgrDelete(self->bg);
-        self->bg = 0;
-        AdpcmStop(self);
-        for (i = 0; i < self->n; i++) {
-            char *ch = (char *)self->ch;
-            int ofs = i * 4;
-            SgStAdpcmClose(*(int *)(ch + ofs));
-        }
-        AdpcmIopBuffFree(self);
-        soundBufAdpcmFree(obj);
-        for (j = 0; j < 2; j++) {
-            AdpcmStream *p = &adpcmStream[j];
-            if (p->used != 0 && p == self) {
-                goto found;
-            }
-        }
-        debug_assert(adpcmSrcFile, 605);
-        __assert(adpcmSrcFile, 605, "0");
-    found:
-        adpcmStream[j].used = 0;
-        self->mask = 0;
-    }
-}
+INCLUDE_ASM(AdpcmClose);
 
 /* the levels come back out of the record the caller just wrote */
 void AdpcmInterStereoVolumeSet(void *stream, int ch)
@@ -327,204 +173,28 @@ void AdpcmVolumeSet(SqEntry *self, int vol)
     AdpcmInterLeaveVolumeSet(self, 0, vol);
 }
 
-inline void adpcmPauseRequest(int val)
-{
-    adpcmPause = val;
-}
+inline void AdpcmStreamHeap(void);
 
-inline void AdpcmStreamHeap(void)
-{
-    int r = iosSifAllocIopHeapDebug(0xB8800, adpcmSrcFile, 68);
-    adpcmIopHeap = r;
-    if (r & 0x7FF) {
-        adpcmIopBase = (r / 0x800 + 1) * 0x800;
-    } else {
-        adpcmIopBase = r;
-    }
-}
+INCLUDE_ASM(adpcmPauseRequest);
 
-inline void AdpcmStreamInit(void)
-{
-    int i;
-    int *p;
+INCLUDE_ASM(AdpcmIopBuffAlloc);
 
-    for (i = 0, p = adpcmSpuSlot; i < 4; i++, p++) {
-        *p = SgGetSpuSlotMalloc(1);
-    }
-    AdpcmStreamHeap();
-    SgStAdpcmInit();
-    for (i = 0; i < 2; i++) {
-        *(int *)((char *)adpcmStream + i * 0x58) = 0;
-    }
-    for (i = 0; i < 2; i++) {
-        adpcmIopBuffUsed[i] = 0;
-    }
-    adpcmPause = 0;
-}
+INCLUDE_ASM(AdpcmNotUseIopAreaFree);
 
-inline int AdpcmNotUseIopAreaFree(void)
-{
-    int cnt = 0;
-    int i;
-    unsigned char buf[2];
-    AdpcmStream *p = adpcmStream;
-    AdpcmStream *end = p + 2;
+INCLUDE_ASM(AdpcmOpenSync);
 
-    *(short *)buf = 0;
+INCLUDE_ASM(AdpcmInterStereoVolumeSetAll);
 
-    do {
-        if (p->used != 0) {
-            int no = (p->iopBuf - adpcmIopBase) / 0x5C000;
-            if (no < 3) {
-                buf[no] = 1;
-            }
-        }
-        p++;
-    } while ((int)p < (int)end);
+INCLUDE_ASM(AdpcmInterLeaveVolumeGet);
 
-    i = 0;
-    do {
-        if (buf[i] == 0) {
-            if (adpcmIopBuffUsed[i] != 0) {
-                debug_StdPrintfDummy(adpcmFreeIopMsg);
-                cnt++;
-                adpcmIopBuffUsed[i] = 0;
-            }
-        }
-        i++;
-    } while (i < 2);
-    return cnt;
-}
+INCLUDE_ASM(AdpcmVolumeGet);
 
-inline SqEntry *AdpcmOpenSync(AdpcmOpenReq *self)
-{
-    SqEntry *r;
-    debug_StdPrintfDummy("AdpcmOpensync\n");
-    if (self->bg != 0)
-        goto body;
-    return 0;
-body:
-    if (self->bg->readFunc != 0) {
-        return (SqEntry *)-1;
-    }
-    debug_StdPrintfDummy("AdpcmOpensync done\n");
-    iosCdvdBackGroundMgrDelete(self->bg);
-    r = adpcmDataSet(0, self->id, 0x11, self->ch, 0, self->iopBuf, self->loopNum);
-    iosCdvdBackGroundMgrSeek(r->stream->bg, 0x5C000);
-    return r;
-}
+INCLUDE_ASM(adpcmTickProc);
 
-inline void AdpcmFadeCloseAll(short step)
-{
-    AdpcmStream *p = adpcmStream;
-    AdpcmStream *end = p + 2;
-    do {
-        if (p->used != 0) {
-            p->fadeStep = step;
-        }
-        p++;
-    } while ((int)p < (int)end);
-}
+INCLUDE_ASM(adpcmDiskNotReady);
 
-inline int AdpcmUseAreaGet(void)
-{
-    int count = 0;
-    int *p = adpcmIopBuffUsed;
-    int n = 1;
-    do {
-        int v = *p;
-        int next = count + 1;
-        p++;
-        n--;
-        if (v != 0)
-            count = next;
-    } while (n >= 0);
-    return count;
-}
+INCLUDE_ASM(adpcmDiskReturnReady);
 
-inline int AdpcmFreeAreaGet(void)
-{
-    int count = 0;
-    int *p = adpcmIopBuffUsed;
-    int n = 1;
-    do {
-        int v = *p;
-        int next = count + 1;
-        p++;
-        n--;
-        if (v == 0)
-            count = next;
-    } while (n >= 0);
-    return count;
-}
+INCLUDE_ASM(adpcmOpenProc);
 
-inline void AdpcmInterStereoVolumeSetAll(void)
-{
-    int i;
-    for (i = 0; i < 176; i += 0x58) {
-        int *p = (int *)((char *)adpcmStream + i);
-        if (*p != 0) {
-            int v = *(int *)((char *)p + 0x38);
-            if (v == 0x20000)
-                goto call0;
-            if (v != 0x40000)
-                goto skip;
-            AdpcmInterStereoVolumeSet(p, 2);
-        call0:
-            AdpcmInterStereoVolumeSet(p, 0);
-        skip:;
-        }
-    }
-}
-
-inline short AdpcmInterLeaveVolumeGet(SqEntry *self, int idx)
-{
-    char *base = (char *)self->stream;
-    base += idx * 4;
-    return *(short *)(base + 0x3C);
-}
-
-inline short AdpcmVolumeGet(SqEntry *self)
-{
-    return self->stream->volL[0];
-}
-
-inline int adpcmTickProc(CdvdBgReq *self, SqEntry *obj)
-{
-    AdpcmStream *st = obj->stream;
-    int size;
-    int cur = SgStAdpcmIopReadAddr(st->ch[0]);
-
-    if (cur != st->seekSize) {
-        if (cur > st->seekSize) {
-            size = cur - st->seekSize;
-        } else {
-            size = st->ringSize - st->seekSize;
-        }
-        if (size > 0x1EAAA || cur < st->seekSize) {
-            iosCdvdBackGroundReadIOPm(self, (void *)(st->iopBuf + st->seekSize), size);
-        } else {
-            size = 0;
-        }
-        if (self->pos >= st->dataSize) {
-            iosCdvdBackGroundMgrSeek(self, st->loopStart + (self->pos - st->dataSize));
-        }
-        st->seekSize = st->seekSize + size;
-        if (st->seekSize >= st->ringSize) {
-            st->seekSize = 0;
-        }
-    }
-    return 0;
-}
-
-static inline void adpcmDiskNotReady(void) {}
-
-static inline void adpcmDiskReturnReady(void) {}
-
-static inline int adpcmOpenProc(CdvdBgReq *bg, AdpcmOpenReq *open)
-{
-    iosCdvdBackGroundReadIOPm(bg, (void *)open->iopBuf, 376832);
-    return 1;
-}
-
-static inline void adpcmOpenDiskNotReady(void) {}
+INCLUDE_ASM(adpcmOpenDiskNotReady);

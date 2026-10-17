@@ -13,211 +13,23 @@
 #include "typedef.h"
 #include "script.h"
 #include "main.h"
+#include "include_asm.h"
 
 static void actSt24aSwordSub(GObj *volatile self);
 
-static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
+static ActMail sword_mes[2] = {{377}, {376}}; /* derived name */
 
-static ActMail demoCam_mes[2] = {{430}, {429}}; /* derived name */
-
-/* .sbss: the demo's own end flag, raised by the subthread the wait loop below
-   spins for. */
-static int demoEnd;
+/* No .sbss here in this build: no function of the demo addresses such a flag. */
 
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}}; /* derived name */
 
-/* .sdata: the sword's object. */
+/* .sdata: the sword's stream handle and the fence's (actSt24aSaku's). */
 SqEntry *sword = 0;
 
-void actSt24aSwordChk(GObj *volatile self)
-{
-    float v[4];
-    float dir[4];
-    GProc *th;
+SqEntry *saku = 0; /* derived name */
 
-    while ((GOBJ_ACT(boyGObj)->pad.trg & 0x20) == 0 || scpTriggerBall(self, boyGObj, 100.0f) == 0) {
-        _ACTWait(1);
-    }
-#ifdef VERSION_JPN
-    lt_switch_layout(52);
-#else
-    lt_switch_layout(55);
-#endif
-    scpBoyControlReadDisable = 1;
-    scpPlayStart(boyGObj);
-    gflagOn(329);
-    soundSeDefPlay(1343, 0, 0, 1);
-    scpAdpcmPlayRequestFunc(34, &sword, 1, 1, 0);
-    th = actCreateSubThread(actSt24aSwordSub, 21);
-    demoEnd = 0;
-    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
-        _ACTWait(1);
-    }
-    iosThreadSetPri(&th->thread, 34);
-    if (demoEnd == 0) {
-        scpFadeOut(16.0f, 0, 0, 0);
-        while (sword == 0) {
-            _ACTWait(1);
-        }
-        scpAdpcmFadeCloseFunc(&sword, 512);
-        while (scpFadeChk() != 0) {
-            _ACTWait(1);
-        }
-        while (lt_fade_status() != 2) {
-            _ACTWait(1);
-        }
-#ifdef VERSION_JPN
-        stage_SetAnimation(149, 0, -1);
-#else
-        stage_SetAnimation(153, 0, -1);
-#endif
-        scpPlayPosSet(boyGObj, 1685.0f, -1080.0f, -550.0f);
-        *(Vec16 *)v = swordChkPos;
-        sceVu0SubVector(dir, v, test_CURRENTROOT(boyGObj));
-        scpPlayMotDir(boyGObj, dir);
-        SetCameraFlag_LwsCutBack();
-        scpSetBoyWeaponGObj(scpSearchGobj(2098));
-        scpFadeIn(3.0f);
-    }
-    scpPlayMot(boyGObj, 0);
-    scpPlayEnd(boyGObj);
-#ifdef VERSION_JPN
-    lt_switch_layout(51);
-#else
-    lt_switch_layout(54);
-#endif
-    scpBoyControlReadDisable = 0;
-}
+INCLUDE_ASM(actSt24aSwordChk);
 
-static void actSt24aDemoCamChk(GObj *volatile self)
-{
-    while (scpTriggerBall(self, boyGObj, 700.0f) == 0) {
-        _ACTWait(1);
-    }
-#ifdef VERSION_JPN
-    lt_switch_layout(52);
-#else
-    lt_switch_layout(55);
-#endif
-    scpBoyControlReadDisable = 1;
-    gflagOn(330);
-#ifdef VERSION_JPN
-    stage_SetAnimation(150, 1, 0);
-#else
-    stage_SetAnimation(154, 1, 0);
-#endif
-    SetCameraFlag_LwsCutBack();
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFinish(150) == 0) {
-#else
-    while (stage_CheckAnimationFinish(154) == 0) {
-#endif
-        if (pad[0].flags & 0x800) {
-            if (scpAdpcmPlayRequestNum() == 0) {
-                scpFadeOut(16.0f, 0, 0, 0);
-                while (scpFadeChk() != 0) {
-                    _ACTWait(1);
-                }
-                while (lt_fade_status() != 2) {
-                    _ACTWait(1);
-                }
-#ifdef VERSION_JPN
-                stage_SetAnimation(150, 0, -1);
-#else
-                stage_SetAnimation(154, 0, -1);
-#endif
-                scpFadeIn(3.0f);
-                break;
-            }
-        }
-        _ACTWait(1);
-    }
-#ifdef VERSION_JPN
-    lt_switch_layout(51);
-#else
-    lt_switch_layout(54);
-#endif
-    scpBoyControlReadDisable = 0;
-}
+INCLUDE_ASM(actSt24aSword);
 
-void actSt24aSword(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    ScpCallCameraSetTarget(363.0f, 1307.0f, -3297.0f);
-
-    if (gflagChk(329) == 0) {
-        sword_mes[0].func = actSt24aSwordChk;
-        act->mail = sword_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-void actSt24aSaku(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(147, 0, 0);
-#else
-    stage_SetAnimation(151, 0, 0);
-#endif
-}
-
-void actSt24aDemoCam(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(330) == 0) {
-        demoCam_mes[0].func = actSt24aDemoCamChk;
-        act->mail = demoCam_mes;
-        ACTSendMailCorrect(self, 430);
-        _ACTWait(0);
-    }
-}
-
-static void actSt24aSwordSub(GObj *volatile self)
-{
-    while (sword == 0) {
-        _ACTWait(1);
-    }
-    AdpcmPlay(sword->stream);
-
-#ifdef VERSION_JPN
-    stage_SetAnimation(149, 1, 0);
-#else
-    stage_SetAnimation(153, 1, 0);
-#endif
-
-    scpPlayMot(boyGObj, 250);
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFrame(149, 21, 0) == 0) {
-#else
-    while (stage_CheckAnimationFrame(153, 21, 0) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    scpSetBoyWeaponGObj(scpSearchGobj(2098));
-
-#ifdef VERSION_JPN
-    while (stage_CheckAnimationFinish(149) == 0) {
-#else
-    while (stage_CheckAnimationFinish(153) == 0) {
-#endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    demoEnd = 1;
-    _ACTWait(0);
-}
+INCLUDE_ASM(actSt24aSaku);

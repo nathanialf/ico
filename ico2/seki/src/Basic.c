@@ -24,6 +24,7 @@ extern int iosReallocDebug(int size, int align, const char *file, int line);
 #include "main.h"
 #include "debug_exception.h"
 #include <libdma.h>
+#include "include_asm.h"
 
 void dma_init(void)
 {
@@ -50,62 +51,7 @@ void matrix_init(void)
     _UnitMatrix(matrixptr);
 }
 
-inline void malloc_SetPartition(int val)
-{
-    mallocPartition = val;
-}
-
-inline int malloc_GetPartition(void)
-{
-    return mallocPartition;
-}
-
-inline void resetmallocseki(void) {}
-
-inline void *mallocseki(int size)
-{
-    void *ptr = 0;
-
-    if (mallocPartition == -1) {
-        debug_StdPrintfDummy("set partition first!\n");
-        debug_assert("src/Basic.c", 372);
-        __assert("src/Basic.c", 372, "0");
-    }
-
-    switch (mallocPartition) {
-    case 0:
-        mallocTotal += size + 0x30;
-        ptr = iosMallocDebug(ios_partition_common, size, "src/Basic.c", 379);
-        break;
-    case 1:
-        ptr = iosMallocDebug(ios_partition_seki, size, "src/Basic.c", 382);
-        break;
-    }
-    return ptr;
-}
-
-inline void *mallocsekistage(int size)
-{
-    int save = mallocPartition;
-    void *r;
-
-    mallocPartition = 1;
-    r = mallocseki(size);
-    mallocPartition = save;
-    return r;
-}
-
-inline int reallocseki(int size, int align)
-{
-    return iosReallocDebug(size, align, "src/Basic.c", 424);
-}
-
-inline int freeseki(void *ptr)
-{
-    if (ptr != 0) {
-        return iosFree(ptr);
-    }
-}
+INCLUDE_ASM_LIT(mallocseki);
 
 void malloc_MemCpy(void *dst, void *src, int size)
 {
@@ -126,3 +72,17 @@ float fadeSpeed = 0.0f;
 int fadeContinue = 0;
 
 unsigned char fadeColor[4] = {0};
+
+INCLUDE_ASM(malloc_SetPartition);
+
+INCLUDE_ASM(malloc_GetPartition);
+
+INCLUDE_ASM(mallocseki);
+
+INCLUDE_ASM(freeseki);
+
+INCLUDE_ASM(resetmallocseki);
+
+INCLUDE_ASM(mallocsekistage);
+
+INCLUDE_ASM(reallocseki);

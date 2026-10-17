@@ -49,8 +49,8 @@ typedef struct WayGroup { /* field names derived */
 } WayGroup; /* derived name */
 
 /* way_llf.o's .data globals, the way-group and way-point tables */
-extern WayGroup way_group[94];
-extern WayPoint way_point[275];
+extern WayGroup way_group[64];
+extern WayPoint way_point[192];
 /* way_llf.c's functions, in the order the file defines them, which is also
    the order of the `inline` functions' out-of-line copies at the end of the
    object (first-declaration order). */

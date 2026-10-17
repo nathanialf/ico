@@ -1,7 +1,7 @@
 # tools/ico_version.sh: shell twin of tools/ico_version.py.
 #
 # Source it and call `ico_version_init [repo_root]`; it exports:
-#   ICO_VERSION      version slug (pal | jpn | us | aug6)
+#   ICO_VERSION      version slug (pal | jpn | us | aug6 | jun26)
 #   ICO_BASEROM_DIR  baserom/<ver>
 #   ICO_BASEELF      <baserom dir>/baseelf.elf
 #   ICO_ROM          <baserom dir>/baseelf.rom   (objcopy -O binary view)
@@ -26,7 +26,7 @@
 # ico_version_configured [repo_root]: the configured slugs, one per line.
 ico_version_configured() {
     local root="${1:-.}" v
-    for v in pal jpn us aug6; do
+    for v in pal jpn us aug6 jun26; do
         if [ -f "$root/config/link_order.$v.txt" ]; then printf '%s\n' "$v"; fi
     done
 }
@@ -56,6 +56,8 @@ ico_version_disc() {
               image="Ico_USA.bin";  cue="Ico_USA.cue" ;;
         aug6) region="Aug-6-2001 prototype"; product="";           ICO_DISC_WHERE="prototype"
               image="Ico_AUG6.bin"; cue="Ico_AUG6.cue" ;;
+        jun26) region="Jun-26-2001 demo";   product="SCUS-97158"; ICO_DISC_WHERE="demo"
+              image="Ico_JUN26.iso" ;;
     esac
     ICO_DISC="${image:+baserom/$image}"
     ICO_DISC_CUE="${cue:+baserom/$cue}"

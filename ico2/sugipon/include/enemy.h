@@ -13,23 +13,20 @@ struct GObj;
 /* enemy-random-def: one random enemy kind range, 8 bytes, for the kinds from
    0x10000 on: the first and the last row of randomEnemyVariationKind the
    kind draws from. */
-typedef struct { /* field names derived */
-    int first;   /* 0x00 */
-    int last;    /* 0x04 */
+typedef struct {  /* field names derived */
+    int first;    /* 0x00 */
+    int last;     /* 0x04 */
 } EnemyKindRange; /* derived name */
 
-/* enemy-def: one enemy kind, 0x1C bytes, by kind: the model and the particle
-   object it is drawn with, its life, the scale its model is drawn at, the
-   dodge range, then the attribute word: the parameter row in bits 0-7, the
-   fly type in bits 8-9 and the battle type in bits 10-11. */
-typedef struct {    /* field names derived */
-    int model;      /* 0x00, the model id, 0x610 for none */
-    int particle;   /* 0x04, the particle object, -1 for none */
-    float life;     /* 0x08 */
-    float float0C;  /* 0x0C */
-    float scale;    /* 0x10 */
-    float dodge;    /* 0x14 */
-    int paraIndex : 8;
+/* enemy-def: one enemy kind, 0x14 bytes, by kind: the model and the particle
+   object it is drawn with, its life, the scale its model is drawn at, then
+   the attribute word: the fly type in bits 0-1 and the battle type in bits
+   2-3. */
+typedef struct {  /* field names derived */
+    int model;    /* 0x00, the model id, 0x5E6 for none */
+    int particle; /* 0x04, the particle object, -1 for none */
+    float life;   /* 0x08 */
+    float scale;  /* 0x0C */
     unsigned int flyType : 2;
     unsigned int battleType : 2;
 } EnemyDef; /* derived name */

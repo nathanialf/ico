@@ -3,6 +3,8 @@
 #include "quaternion.h"
 #include "matrixDrive.h"
 #include "Matrix.h"
+#include "include_asm.h"
+#include <stdio.h>
 
 inline void MultiQuaternion(void *out, void *qa, void *qb);
 inline void RotQuaternionX(void *self, short ang);
@@ -52,14 +54,14 @@ void PushQuaternion(void)
 {
     int v = quatStackIndex;
     if (v < 0) {
-        debug_StdPrintfDummy("Quaternion stack not initialized.\n");
+        printf("Quaternion stack not initialized.\n");
         InitQuaternionDrive();
         v = quatStackIndex;
     }
     v++;
     quatStackIndex = v;
     if (v >= 0x40) {
-        debug_StdPrintfDummy("Quaternion stack overflow!!\n");
+        printf("Quaternion stack overflow!!\n");
         v = 0x3F;
         quatStackIndex = v;
     }
@@ -228,43 +230,9 @@ extern short GetTableArcCos(float c);
 /* float (int) here, float (short) in tableSin.h */
 extern float GetTableSin(int x);
 
-void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t)
-{
-    float tmp[4];
-    float tq[4];
-    float c;
-    int ang;
-    float s;
-    float inv;
-    float sa, sb;
-
-    CopyQuaternion(tmp, qb);
-    c = GetQuaternionCosRadian(qa, tmp);
-    if (c < 0.0f) {
-        _ScaleVector(tmp, tmp, -1.0f);
-        c = GetQuaternionCosRadian(qa, tmp);
-    }
-    ang = GetTableArcCos(c);
-    s = GetTableSin(ang);
-    if (s < 0.05f) {
-        _InterVector(out, qa, tmp, t);
-        return;
-    }
-    inv = 1.0f / s;
-    sa = GetTableSin((short)((float)ang * t)) * inv;
-    sb = GetTableSin((short)((float)ang * (1.0f - t))) * inv;
-    _ScaleVector(out, qa, sa);
-    _ScaleVector(tq, tmp, sb);
-    _AddVector(out, out, tq);
-}
+INCLUDE_ASM(GetSlerpQuaternionNoRegularize);
 
 /* The slerp, then the result put back to unit length. */
-void GetSlerpQuaternion(void *out, void *qa, void *qb, float t)
-{
-    GetSlerpQuaternionNoRegularize(out, qa, qb, t);
-    RegularizeQuaternion(out);
-}
-
 inline float *GetCurrentQuaternion(void)
 {
     return quatStack[quatStackIndex];
@@ -279,14 +247,14 @@ inline void PushQuaternionWithNoCopy(void)
 {
     int v = quatStackIndex;
     if (v < 0) {
-        debug_StdPrintfDummy("Quaternion stack not initialized.\n");
+        printf("Quaternion stack not initialized.\n");
         InitQuaternionDrive();
         v = quatStackIndex;
     }
     v++;
     quatStackIndex = v;
     if (v >= 0x40) {
-        debug_StdPrintfDummy("Quaternion stack overflow!!\n");
+        printf("Quaternion stack overflow!!\n");
         v = 0x3F;
         quatStackIndex = v;
     }
@@ -296,7 +264,7 @@ inline void PopQuaternion(void)
 {
     quatStackIndex -= 1;
     if (quatStackIndex < 0) {
-        debug_StdPrintfDummy("Quaternion stack underflow!!\n");
+        printf("Quaternion stack underflow!!\n");
         quatStackIndex = 0;
     }
 }

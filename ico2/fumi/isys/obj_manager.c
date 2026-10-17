@@ -6,6 +6,7 @@
 #include "obj_manager.h"
 #include "gobj_process.h"
 #include "thread.h"
+#include "include_asm.h"
 
 /* A debug frame-rate selector that nothing reads any more: the selected entry
    (.sdata), each entry's wait and its name (.data). */
@@ -16,19 +17,7 @@ static int omSpeedWait[8] = {9999, 60, 30, 20, 12, 8, 4, 2}; /* derived name */
 static char omSpeedName[8][8] = {"STOP", "1/1",   "1/2",  "1/3",
                                  "1/5",  "1/7.5", "1/15", "1/30"}; /* derived name */
 
-void iosOmInit(void)
-{
-    isysGObjInit(320);
-    isysGObjProcessInit(1280);
-    isysGObjDlInit();
-    return isysGObjCameraDlInit();
-}
-
-inline void iosOmGetGObjStatus(int *total, int *used)
-{
-    *total = 320;
-    *used = isysGetNbAllocedGObjs();
-}
+INCLUDE_ASM(iosOmInit);
 
 inline void iosOmExeEachGObj(int idx, void (*fn)(GObj *, int), int arg)
 {
@@ -170,66 +159,9 @@ inline int iosOmExeMail(void (*func)(IosMail))
     return 0;
 }
 
-static void _iosOmMain(void)
-{
-    GObj *g;
-    GObj *g2;
-    GProc *p;
-    int k;
-    int pri;
+static void _iosOmMain(void);
 
-    for (k = 0; k < 8; k++) {
-        g = gobj_link_head[k];
-        if ((active_gobj_link >> k) & 1) {
-            for (; g != 0; g = g->next) {
-                isysCurrentGObj = g;
-                if (systemStatus[5] == 0 || g->pauseExempt != 0) {
-                    if (g->active != 0) {
-                        if (g->fn != 0) {
-                            g->fn(g);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    for (k = 0; k < 8; k++) {
-        g2 = gobj_link_head[k];
-        if ((active_gobj_link >> k) & 1) {
-            for (; g2 != 0; g2 = g2->next) {
-                isysCurrentGObj = g2;
-                if (systemStatus[5] == 0 || g2->pauseExempt != 0) {
-                    if (g2->active != 0) {
-                        for (pri = 0x13; pri < 27; pri++) {
-                            p = g2->procHead;
-                            while (p != 0) {
-                                if (p->priority == pri) {
-                                    if (p->active != 0) {
-                                        isysCurrentGObjProcess = p;
-                                        if (p->noThread == 0) {
-                                            if (iosThreadGetPri(&p->thread) != 0x22) {
-                                                iosThreadWakeup(&p->thread);
-                                            } else {
-                                                isysGObjProcRemove(p);
-                                            }
-                                            isysCurrentGObjProcess = 0;
-                                        } else {
-                                            if (p->func != 0) {
-                                                p->func(g2);
-                                            }
-                                            isysCurrentGObjProcess = 0;
-                                        }
-                                    }
-                                }
-                                p = p->prev;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+INCLUDE_ASM(_iosOmMain);
 
 void iosOmMain(void)
 {

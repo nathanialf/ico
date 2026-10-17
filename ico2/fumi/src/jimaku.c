@@ -26,13 +26,17 @@ struct jWayGroup { /* field names derived */ /* jimakuRing element, stride 0x18 
     char *buf;                               /* 0x14 its 0x8C40 read buffer */
 }; /* derived name */
 
-/* the four-group read ring, the groups' CD read buffers (64-byte aligned as
-   DMA targets) and three semaphore records of iosSemaCreate's 13 words: read
-   done (signalled by jimakuHandler), shown five frames (jimakuDisp) and one
-   per frame (jimakuDisp) */
+/* the four-group read ring, the groups' CD read buffers (16-byte aligned DMA
+   targets in this build) and three semaphore records of iosSemaCreate's 13
+   words: read done (signalled by jimakuHandler), shown five frames
+   (jimakuDisp) and one per frame (jimakuDisp).  This object's .bss opens with
+   the ring at 0x6F64B0 (four 0x18-byte groups) and the buffers follow it
+   directly at 0x6F6510, which is 16- but not 64-aligned: the 64 of the
+   Aug-6-2001 and PAL builds (buffers at 0x6A5980 and 0x6C1F00, after a
+   0x20-byte gap) would put them at 0x6F6540. */
 static struct jWayGroup jimakuRing[4];
 
-static char jimakuBuf[4][0x8C40] __attribute__((aligned(64))); /* derived name */
+static char jimakuBuf[4][0x8C40] __attribute__((aligned(16))); /* derived name */
 
 static IosSema jimakuReadSema; /* derived name */
 
@@ -43,6 +47,7 @@ static IosSema jimakuFrameSema; /* derived name */
 #include "jimaku.h"
 #include "layout_texture.h" /* texProperty: jimaku's entries are 434 and 435 (JPN 410 and 411) */
 #include "gflag.h"
+#include "include_asm.h"
 
 typedef struct JimCol { /* field names derived */
     unsigned char r;
@@ -85,42 +90,7 @@ extern void gif_SpriteSensitiveOffset(int *r, unsigned int z, int *uv, JimCol *c
 /* as in GifPacket.h, which this TU does not include (gif_SpriteSensitiveOffset differs) */
 extern void gif_EndPacket(void);
 
-static void display_texture(LtProperty *t)
-{
-    JimCol col = {128, 128, 128, 128};
-    int dst[4];
-    int src[4];
-
-    src[0] = (t->texU << 4) + 8;
-    src[1] = (t->texV << 4) + 8;
-    src[2] = t->texW << 4;
-    src[3] = t->texH << 4;
-    dst[2] = t->dispW << 4;
-    dst[3] = t->dispH << 3;
-    if (dst[2] == 0)
-        dst[2] = src[2];
-    if (dst[3] == 0)
-        dst[3] = src[3] >> 1;
-    dst[3] = dst[3] * 2;
-    if (t->centerX != 0)
-        dst[0] = (10240 - dst[2]) / 2 - 5120;
-    else
-        dst[0] = (t->dispX - 320) << 4;
-    dst[1] = (t->dispY - 112) << 4;
-    tex_TransTexture(t->texNo, 11);
-    gif_StartPacketPri(11);
-    gif_SetAlpha(1, 7, 0);
-    gif_SetGsReg(74, 0);
-    gif_SetZWrite(0);
-    gif_SetZTest(0);
-    col.r = ~GlobalStageSetting.reductionCol[0];
-    col.g = ~GlobalStageSetting.reductionCol[1];
-    col.b = ~GlobalStageSetting.reductionCol[2];
-    gif_SpriteSensitiveOffset(dst, 0xFFFFFF9B, src, &col, 1);
-    gif_SetZWrite(1);
-    gif_SetZTest(1);
-    gif_EndPacket();
-}
+INCLUDE_ASM(display_texture_jimaku);
 
 void iosCdvdBackGroundReadJimaku(CdvdBgReq *self, void *buf, int size)
 {
@@ -171,74 +141,9 @@ static int jimakuHandler(CdvdBgReq *self, JimakuArg *p)
     return 0;
 }
 
-static void jimakuMgrBegin(JimakuArg *p)
-{
-    JimakuSub *sub = &p->sub;
-#ifdef VERSION_JPN
-    int st;
-#else
-    int st = 0;
-#endif
-    int i;
-    struct jWayGroup *g;
+static void jimakuMgrBegin(JimakuArg *p);
 
-    if (systemStatus[10] != 0) {
-        return;
-    }
-    systemStatus[10] = 1;
-    iosSemaCreate(&jimakuReadSema, 0, 1, 0);
-    iosSemaCreate(&jimakuShownSema, 0, 1, 0);
-    iosSemaCreate(&jimakuFrameSema, 0, 1, 0);
-    for (i = 0; i < 4; i++) {
-        g = &jimakuRing[i];
-        g->node = &jimakuRing[(i + 1) % 4];
-        g->buf = jimakuBuf[i];
-    }
-    sub->n = 0;
-    jimakuRing[0].block = -1;
-    jimakuRing[0].state = 3;
-    jimakuRing[0].tex = -1;
-    sub->ringPos = 1;
-#ifdef VERSION_JPN
-    st = gFlagGameClear != 0;
-#else
-    switch (NonLinearCameraMove) {
-    case 2:
-        st = 0;
-        break;
-    case 3:
-        st = 2;
-        break;
-    case 4:
-        st = 4;
-        break;
-    case 5:
-        st = 6;
-        break;
-    case 6:
-        st = 8;
-        break;
-    }
-    if (gFlagGameClear != 0) {
-        st = st + 1;
-    }
-#endif
-    sub->bg =
-        (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st].path, jimakuHandler, p, 0, 0, 0, 0, 0);
-    {
-        JimakuSub *q = &p->sub;
-        int m;
-
-        iosCdvdBackGroundMgrSeek(q->bg, q->block * 0x8800);
-        m = (q->ringPos = (q->n + 1) % 4);
-        while (m != q->n) {
-            jimakuRing[m].block = -1;
-            jimakuRing[m].state = 3;
-            jimakuRing[m].tex = -1;
-            m = (m + 1) % 4;
-        }
-    }
-}
+INCLUDE_ASM(jimakuMgrBegin);
 
 /* The DEBUG build's switch to print the read ring's states after each Next;
    retail builds it as 0. */
@@ -248,51 +153,9 @@ static void jimakuMgrBegin(JimakuArg *p)
 #define JIMAKU_DEBUG_DUMP 0 /* derived name */
 #endif
 
-static void jimakuMgrNext(JimakuArg *p)
-{
-    char buf[16];
-    JimakuSub *sub = &p->sub;
-    struct jWayGroup *g = &jimakuRing[sub->n];
+static void jimakuMgrNext(JimakuArg *p);
 
-    while (g->node->state != 4) {
-        if (iosSemaWait(&jimakuReadSema) < 0) {
-            return;
-        }
-    }
-    if (iosSemaWait(&jimakuReadSema) < 0) {
-        return;
-    }
-    g->node->state = 1;
-    sprintf(buf, "jimaku%02d.tm2", (sub->n + 1) % 4);
-    g->node->tex = tex_InitTexture(buf, g->node->buf);
-    tex_SetSamplingType(tex_GetTextureData(g->node->tex), 1, 1);
-    g->node->stamp = lock_execIcoMisc;
-    if (g->node->tex == -1) {
-        debug_StdPrintfDummy("already exist\n");
-        debug_assert(__FILE__, LN(688, 655));
-        __assert(__FILE__, LN(688, 655), "0");
-    }
-    sub->n = (sub->n + 1) % 4;
-    if (iosSemaWait(&jimakuShownSema) < 0) {
-        return;
-    }
-    g->state = 2;
-    if (g->tex >= 0) {
-        tex_FreeTexture(g->tex);
-    }
-    sub->cur = jimakuBuf[sub->n];
-    jimakuDispOn = 1;
-    /* the DEBUG build's dump of the four groups' states, the current one
-     * marked */
-    if (JIMAKU_DEBUG_DUMP) {
-        int m;
-
-        for (m = 0; m < 4; m++) {
-            debug_StdPrintfDummy(m == sub->n ? ">%d" : " %d", jimakuRing[m].state);
-        }
-        debug_StdPrintfDummy("\n");
-    }
-}
+INCLUDE_ASM(jimakuMgrNext);
 
 static void jimakuMgrJump(JimakuArg *p)
 {
@@ -390,53 +253,7 @@ void jimakuEnd(JimakuArg *msg)
     jimakuMgrEnd((int *)msg);
 }
 
-void jimakuDisp(JimakuArg *msg)
-{
-    struct jWayGroup *g = &jimakuRing[msg->sub.n];
-    int c;
-
-    if (systemStatus[10] == 0) {
-        return;
-    }
-    c = g->stamp;
-    if ((unsigned int)(c + jimakuDispTime) < (unsigned int)lock_execIcoMisc) {
-        jimakuDispOn = 0;
-    }
-    if ((unsigned int)(c + 5) < (unsigned int)lock_execIcoMisc) {
-        iosSemaReferStatus(&jimakuShownSema);
-        if (jimakuShownSema.status.numWaitThreads > 0) {
-            iosSemaSignal(&jimakuShownSema);
-        }
-    }
-    if (systemStatus[10] != 0) {
-        iosSemaReferStatus(&jimakuFrameSema);
-        if (jimakuFrameSema.status.numWaitThreads > 0) {
-            iosSemaSignal(&jimakuFrameSema);
-        }
-    }
-    if (jimakuDispOn != 0) {
-        int v = g->tex;
-#ifdef VERSION_JPN
-        texProperty[411].texNo = v;
-        texProperty[410].texNo = v;
-#else
-        texProperty[435].texNo = v;
-        texProperty[434].texNo = v;
-#endif
-        if (v < 0) {
-            return;
-        }
-        if (jimakuOn != 0) {
-#ifdef VERSION_JPN
-            display_texture(&texProperty[410]);
-            display_texture(&texProperty[411]);
-#else
-            display_texture(&texProperty[434]);
-            display_texture(&texProperty[435]);
-#endif
-        }
-    }
-}
+INCLUDE_ASM(jimakuDisp);
 
 inline void jimakuUndisp(JimakuArg *msg)
 {

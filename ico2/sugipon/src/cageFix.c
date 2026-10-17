@@ -4,20 +4,14 @@
 #include "gobj.h"
 #include "DisplayP2O.h"
 #include "matrixDrive.h"
+#include "include_asm.h"
 
 inline int InitCageFixGeo(void)
 {
     return 0;
 }
 
-void CageFixGeo(GObj *self)
-{
-    GObj *g = isysGObjSearchFromObjKindID_begin(44);
-    if (g != 0) {
-        CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeMtx);
-        SetCageFixGeometry(g, MatrixDrive_GetMatrix()[3], (void *)GOBJ_SUB(self)->nodeQuat);
-    }
-}
+INCLUDE_ASM(CageFixGeo);
 
 void CageFixDL(GObj *self)
 {

@@ -13,11 +13,6 @@
 struct SqEntry;
 
 /* st47a.o's .sdata globals */
-extern struct SqEntry *sekizo47a;
-extern struct SqEntry *hane1up;
-extern struct SqEntry *hane2up;
-extern struct SqEntry *hane1down;
-extern struct SqEntry *hane2down;
 extern int sekizo_47a;
 extern unsigned char sekizo_47a_vol;
 void actSt47aBarricadeChk(GObj *volatile self);

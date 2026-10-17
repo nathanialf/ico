@@ -24,7 +24,6 @@ extern struct SqEntry *sekizo_common;
 extern char *scpDummyGObj;
 extern char *scpDummyGObj2;
 extern int sekizo_yure;
-extern unsigned char sekizo_yure_vol;
 /* script.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order),
  * from scpDispOffAllWithKind on. */

@@ -18,6 +18,7 @@ static unsigned int acbSphereColor[4] = {0, 128, 255, 128}; /* derived name */
 #include "ios.h"
 #include "main.h"
 #include "GifPacket.h"
+#include "include_asm.h"
 
 inline float GetAttackCheckBoundaryRadius(GObj *self);
 
@@ -37,129 +38,9 @@ typedef struct { /* field names derived */
     int attr;    /* 0x8 */
 } AcbWork;       /* derived name */
 
-inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
-{
-    AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 12, __FILE__, 27);
+INCLUDE_ASM_LIT(InitAttackCheckBoundaryManagerGeo);
 
-    w->handle = (int *)((SObjSimpleSetting *)obj)->obj;
-    w->hit = 0;
-    *w->handle = 0;
-    w->attr = 0;
-    return (int)w;
-}
-
-inline void AttackCheckBoundaryGeo(GObj *self)
-{
-    GObj *owner = GOBJ_SUB(self)->parent.obj;
-    if (owner == 0)
-        return;
-    if (owner->active == 0) {
-        self->active = 0;
-    }
-}
-
-inline void AttackCheckBoundaryDL(GObj *obj)
-{
-    AcbWork *m = GOBJ_SUB(obj)->work;
-    float r;
-
-    if (debug_skel_flag == 0) {
-        return;
-    }
-    /* the boundary is drawn only while nothing has hit it */
-    if (m->hit == 0) {
-        gif_StartPacketPri(11);
-
-        gif_SetZTest(1);
-        gif_SetAlpha(1, 5, 128);
-        _UnitMatrix(MatrixDrive_GetMatrix());
-        CopyVector(MatrixDrive_GetMatrix()[3], (char *)GOBJ_SUB(obj)->nodeMtx + 0x30);
-        r = GetAttackCheckBoundaryRadius(obj);
-        prim_DispWireSphere(r, acbSphereColor, 4, 4);
-        gif_EndPacket();
-    }
-}
-
-inline void SetAttackCheckBoundaryAttribute(GObj *self, int attr)
-{
-    /* the work pointer, read through the int-typed sub-object handle */
-    AcbWork *w = GOBJ_SUB(self)->work;
-    w->attr = attr;
-}
-
-inline float GetAttackCheckBoundaryRadius(GObj *self)
-{
-    return GOBJ_SUB(self)->nodes->scale[0];
-}
-
-inline GObj *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r)
-{
-    SObjSimpleSetting lay = InitialSObjSimpleSetting;
-
-    lay.pos[0] = x;
-    lay.pos[1] = y;
-    lay.pos[2] = z;
-    lay.scale[0] = r;
-    lay.obj = (int)obj;
-    *obj = 0;
-    return createAttackCheckBoundaryGObj(&lay);
-}
-
-inline void actAttackCheckBoundaryStart(GObj *self)
-{
-    Act *p = actInitialize(self);
-
-    actInitialize_ext_charcter(self);
-    _ACTWait(1);
-    p->flags18.ll |= 1LL << 32;
-}
-
-void AttackCheckBoundaryBeforeFunc(GObj *self)
-{
-    IosMailBox *box = &self->mailBox;
-    IosMail *e = box->mail;
-    int i;
-
-    for (i = 0; i < box->num; i++, e++) {
-        if (e->type == 13) {
-            if (e->arg == boyGObj) {
-                AcbWork *b = GOBJ_SUB(self)->work;
-                void *g = GetBoyWeaponGObj();
-
-                if (g != 0) {
-                    int k = CheckWeaponKind(g);
-
-                    if (k == 4 || k == 5 || k == 6 || k == 9 || k == 8) {
-                        if (*b->handle < 2) {
-                            GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
-                            ExecuteSEPackage(g, 74);
-                            b->hit = 2;
-                            *b->handle = 2;
-                            /* " - cut by the sword" */
-                            debug_StdPrintfDummy(" - 剣で切られた\n");
-                        }
-                        goto done;
-                    }
-                }
-                if (*b->handle <= 0) {
-                    ActSendMail_WithAdditionalData(boyGObj, 209, self, &b->attr);
-                    b->hit = 1;
-                    *b->handle = 1;
-                    /* " - cannot cut" */
-                    debug_StdPrintfDummy(" - きれない\n");
-                }
-            }
-        done:
-            {
-                Act *q = GOBJ_ACT(self);
-
-                q->attacker = 0;
-                q->hit = 0;
-            }
-        }
-    }
-    box->num = 0;
-}
+INCLUDE_ASM(AttackCheckBoundaryBeforeFunc);
 
 /* the manager's 8-byte roster entries and its work block at sub+0x830 */
 typedef struct AcbEntry { /* field names derived */
@@ -177,72 +58,24 @@ typedef struct AcbMgr { /* field names derived */
 /* the blank roster entry each slot starts from */
 static AcbEntry acbBlankEntry = {0, 0}; /* derived name */
 
-AcbMgr *InitAttackCheckBoundaryManagerGeo(GObj *self, SObjSimpleSetting *lay)
-{
-    float v0[4];
-    float v1[4];
-    float v2[4];
-    float p[4];
-    AcbMgr *mgr;
-    const LayoutClothDef *rec;
-    float len;
-    int i;
-    GObj *g;
+INCLUDE_ASM(InitAttackCheckBoundaryManagerGeo);
 
-    rec = &layoutClothDef[lay->obj];
-    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 180);
-    mgr->prev = mgr->cur;
-    mgr->cur = 0;
-    mgr->count = rec->count;
-    mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__, 189);
-    v0[0] = rec->pt[0][0];
-    v0[1] = -rec->pt[0][1];
-    v0[2] = rec->pt[0][2];
-    v0[3] = 1.0f;
-    v1[0] = rec->pt[1][0];
-    v1[1] = -rec->pt[1][1];
-    v1[2] = rec->pt[1][2];
-    v1[3] = 1.0f;
-    _SubVector(v2, v1, v0);
-    _ScaleVector(v2, v2, 0.5f / (float)mgr->count);
-    _AddVectorXYZ(v0, v0, v2);
-    _SubVectorXYZ(v1, v1, v2);
-    len = VectorLength(v2);
-    for (i = 0; i < mgr->count; i++) {
-        _InterVector(p, v1, v0, (float)i / (float)(mgr->count - 1));
-        mgr->list[i] = acbBlankEntry;
-        g = CreateAttackCheckBoundary(&mgr->cur, p[0], p[1], p[2], len);
-        mgr->list[i].obj = (int)g;
-        SetAttackCheckBoundaryAttribute(g, rec->attr);
-        /* the boundary hangs from the manager: AttackCheckBoundaryGeo
-           deactivates it with its owner */
-        GOBJ_SUB(g)->parent.obj = self;
-    }
-    return mgr;
-}
-
-void AttackCheckBoundaryManagerGeo(GObj *self)
-{
-    AcbMgr *m = GOBJ_SUB(self)->work;
-    int i;
-
-    for (i = 0; i < m->count; i++) {
-        GObj *e = (GObj *)m->list[i].obj;
-
-        /* whether the member's work says it has been hit */
-        m->list[i].hit = ((AcbWork *)GOBJ_SUB(e)->work)->hit;
-        ((AcbWork *)GOBJ_SUB(e)->work)->hit = 0;
-        e->active = 1;
-    }
-    m->prev = m->cur;
-    m->cur = 0;
-}
+INCLUDE_ASM(AttackCheckBoundaryManagerGeo);
 
 void AttackCheckBoundaryManagerDL(void) {}
 
-inline int GetAttackCheckBoundaryManagerStatus(GObj *self)
-{
-    AcbMgr *m = GOBJ_SUB(self)->work;
+INCLUDE_ASM(InitAttackCheckBoundaryGeo);
 
-    return m->prev;
-}
+INCLUDE_ASM(AttackCheckBoundaryGeo);
+
+INCLUDE_ASM(AttackCheckBoundaryDL);
+
+INCLUDE_ASM(actAttackCheckBoundaryStart);
+
+INCLUDE_ASM(GetAttackCheckBoundaryRadius);
+
+INCLUDE_ASM(CreateAttackCheckBoundary);
+
+INCLUDE_ASM(GetAttackCheckBoundaryManagerStatus);
+
+INCLUDE_ASM(SetAttackCheckBoundaryAttribute);

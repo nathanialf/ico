@@ -3,8 +3,9 @@
 #include "debug_exception.h"
 #include <assert.h>
 
-/* three frames of pointers queued for a delayed iosFree */
-static void *delayFreeBuffer[3][384]; /* derived name */
+/* three frames of pointers queued for a delayed iosFree, 128 a frame in this
+   build (InitDelayFree clears entries 127 down to 0) */
+static void *delayFreeBuffer[3][128]; /* derived name */
 
 /* the frame being filled and its entry count */
 static int delayFreeNo = 0; /* derived name */
@@ -12,12 +13,13 @@ static int delayFreeNo = 0; /* derived name */
 static int delayFreeCount = 0; /* derived name */
 
 #include "delayFreeManager.h"
+#include "include_asm.h"
 
 static inline void ClearDelayFreeBuffer(int no) /* derived name */
 {
     int i;
 
-    for (i = 384 - 1; i >= 0; i--) {
+    for (i = 128 - 1; i >= 0; i--) {
         delayFreeBuffer[no][i] = 0;
     }
 }
@@ -31,31 +33,8 @@ static inline void FreeDelayFreeBuffer(int no) /* derived name */
     }
 }
 
-inline void InitDelayFree(void)
-{
-    ClearDelayFreeBuffer(0);
-    ClearDelayFreeBuffer(1);
-    ClearDelayFreeBuffer(2);
-    delayFreeCount = 0;
-    delayFreeNo = 0;
-}
+INCLUDE_ASM(EntryDelayFree);
 
-inline void ExecDelayFree(void)
-{
-    int no = (delayFreeNo + 2) % 3;
+INCLUDE_ASM(InitDelayFree);
 
-    FreeDelayFreeBuffer(no);
-    ClearDelayFreeBuffer(no);
-    delayFreeCount = 0;
-    delayFreeNo = no;
-}
-
-void EntryDelayFree(void *p)
-{
-    delayFreeBuffer[delayFreeNo][delayFreeCount++] = p;
-    if (delayFreeCount >= 384) {
-        debug_StdPrintfDummy("[33mERROR!!! TOO MANY DELAY FREE LIST ENTRY!!! EXIT...[m\n");
-        debug_assert("src/delayFreeManager.c", 51);
-        __assert("src/delayFreeManager.c", 51, "0");
-    }
-}
+INCLUDE_ASM(ExecDelayFree);

@@ -13,9 +13,6 @@
 struct SqEntry;
 
 /* st06a.o's .sdata globals */
-extern struct SqEntry *suimon;
-extern struct SqEntry *shutter;
-extern struct SqEntry *toge;
 void actSt06aBallDeleteChk(GObj *volatile self);
 void actSt06aBox2Chk(GObj *volatile self);
 void actSt06aBox3Chk(GObj *volatile self);

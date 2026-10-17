@@ -13,9 +13,7 @@
 struct SqEntry;
 
 /* st10r.o's .sdata globals */
-extern struct SqEntry *st10r_floor;
 extern struct SqEntry *cage10r;
-extern struct SqEntry *chain10r;
 void actSt10rCageMain(GObj *volatile self);
 void actSt10rChainMain(GObj *volatile self);
 void actSt10rChainMove(GObj *volatile self);

@@ -5,6 +5,7 @@
 #include <libc_internal.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "include_asm.h"
 
 struct __siov {
     const void *iov_base; /* 0x0 */
@@ -17,51 +18,16 @@ struct __suio {
     int uio_resid;          /* 0x8 */
 };
 
-int __sprint(Fil *fp, struct __suio *uio)
-{
-    int err;
+int __sprint(Fil *fp, struct __suio *uio);
 
-    if (uio->uio_resid == 0) {
-        uio->uio_iovcnt = 0;
-        return 0;
-    }
-    err = __sfvwrite(fp, uio);
-    uio->uio_resid = 0;
-    uio->uio_iovcnt = 0;
-    return err;
-}
+INCLUDE_ASM(__sprint);
 
 /* newlib's struct __sFILE for this build; the tail padding is what puts
    __sbprintf's 0x400-byte buffer at sp+0x60 behind the fake Fil at sp+0. */
 
-int __sbprintf(Fil *fp, char *fmt, void *ap)
-{
-    Fil fake;
-    unsigned char buf[0x400];
-    int ret;
+int __sbprintf(Fil *fp, char *fmt, void *ap);
 
-    /* copy the important variables */
-    fake.data = fp->data;
-    fake.flags = fp->flags & ~2;
-    fake.file = fp->file;
-    fake.cookie = fp->cookie;
-    fake.write = fp->write;
-
-    /* set up the buffer */
-    fake.bf.base = fake.p = (char *)buf;
-    fake.bf.size = fake.w = sizeof(buf);
-    fake.lbfsize = 0;
-
-    /* do the work, then copy any error status */
-    ret = vfiprintf((char *)&fake, fmt, ap);
-    if (ret >= 0 && fflush(&fake)) {
-        ret = -1;
-    }
-    if (fake.flags & 0x40) {
-        fp->flags |= 0x40;
-    }
-    return ret;
-}
+INCLUDE_ASM(__sbprintf);
 
 int vfiprintf(char *fp, char *fmt0, void *ap)
 {

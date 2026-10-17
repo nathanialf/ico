@@ -11,6 +11,7 @@
 #include "GsBase.h"
 #include "Matrix.h"
 #include "keyInput.h"
+#include "pad.h"
 #include <eekernel.h>
 #include "main.h"
 #include <eeregs.h>
@@ -28,6 +29,7 @@
 #include "geometryManager.h"
 #include "libgraph.h"
 #include <stdlib.h>
+#include "include_asm.h"
 
 /* main.c's .data globals, each with an initialiser. systemStatus starts in PAL mode (word 0;
    NTSC on JPN)
@@ -35,11 +37,7 @@
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
    IosMsgQueue, 0x30 B). */
-#ifdef VERSION_JPN
 int systemStatus[12] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
-#else
-int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
-#endif
 
 sceGsDBuff db = {{{0}}};
 
@@ -100,6 +98,14 @@ static char soundThreadStack[8192] __attribute__((aligned(16))); /* derived name
 
 static int schedulerMsgBuff[8]; /* derived name */
 
+/* the pad handle and the two stick readings func_00102618 reads each frame
+   for the demo disc's idle countdown */
+static IosPadCtx demoIdlePad; /* derived name */
+
+static IosPadStick demoIdleStickL; /* derived name */
+
+static IosPadStick demoIdleStickR; /* derived name */
+
 /* the six threads Emergency_DestroyAllThread tears down, every thread boot
    starts except idle; first in this object's .rodata, ahead of Main's
    strings, so it is defined here with the records it points at */
@@ -111,120 +117,12 @@ static void scheduler(void);
 /* motionOrientManager.h carries MotOriName and declares no movieFile */
 extern char movieFile[];
 int movie_abort_check(void);
-
 /* the development build's Main also called debug_Menu, debug_SetBar and
    debug_SetBar2 and carried a frame-step block; the retail build compiled
    them out. */
-void Main(void)
-{
-    int ret;
-    int n;
+void Main(void);
 
-    debug_StdPrintfDummy("VSYNC_TIMING    : \x1b[33m%s\x1b[m\n",
-                         systemStatus[0] == 0 ? "NTSC" : "PAL");
-    debug_StdPrintfDummy("FRAME_STEP      : \x1b[33m%d\x1b[m\n", systemStatus[1]);
-    debug_StdPrintfDummy("SYSTEM_FRAMERATE: \x1b[33m%d\x1b[m\n",
-                         (60 - systemStatus[0] * 10) / systemStatus[1]);
-    *T0_COUNT = 0;
-#ifndef VERSION_JPN
-    NonLinearCameraMove = 3;
-#endif
-    stage_no = 0;
-    exit_no = 0;
-    interlace = 1;
-    GlobalTimer = 0;
-    systemFault = 0;
-    lock_execIcoMisc = 0;
-    n = debug_TryToGetStartStage();
-#ifdef VERSION_JPN
-    thisIsYourStartStage = n < 104 ? n : 103;
-#else
-    thisIsYourStartStage = n < 106 ? n : 105;
-#endif
-    if (thisIsYourStartStage <= 0) {
-        thisIsYourStartStage = 1;
-    }
-    debug_VariableInit();
-    InitDelayFree();
-    debug_StdPrintfDummy("Main() in\n");
-    debug_StdPrintfDummy("Main() in\n");
-    debug_StdPrintfDummy("IosPadLock %d\n", IosPadLock);
-    WaitSema(IosPadLock);
-    DeleteSema(IosPadLock);
-    debug_StdPrintfDummy("IosstgMgrLock %d\n", IosStgMgrLock);
-    WaitSema(IosStgMgrLock);
-    DeleteSema(IosStgMgrLock);
-    stgmgrForceSwitchWithFade(thisIsYourStartStage < 0 ? 1 : thisIsYourStartStage, 255.0f, 0.0f);
-    iosThreadCancelWakeup(0);
-    systemStatus[5] = 0;
-    _InitRandom(1.2345678f);
-    gsb_InitGSSystem();
-    debug_StdPrintfDummy("main start\n");
-    while (1) {
-        iosThreadCancelWakeup(0);
-        iosThreadSleep();
-#ifndef VERSION_JPN
-        gsb_ResetSnap();
-#endif
-        if (mpegPlay != 0) {
-            if (mpegInitDone == 0) {
-                continue;
-            }
-            if (iosCdvdBackGroundMgrRunning != 0) {
-                continue;
-            }
-            ios_partition_mpeg = ios_partition_isys;
-            AdpcmStreamFree();
-            soundAllocIopFree();
-#ifdef VERSION_JPN
-            movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
-                       mpegPlayInitColor);
-#else
-            movie_init(&movieFile[mpegPlay * 0x20], 720, systemStatus[0] ? 576 : 480, 36, 12,
-                       soundOutputModeGet() == 1, mpegPlayInitColor);
-#endif
-            ret = movie_proc(movie_abort_check);
-            sceGsSyncV(0);
-            soundAllocIopHeap();
-            AdpcmStreamHeap();
-            ACTGame_SetActors_Debug(mpegPlayReturnStage, 1);
-            gsb_UpdateGSSystem(1);
-            gsb_UpdateGSSystem(1);
-            gsb_Init(&db);
-            mpegPlay = 0;
-            stgmgrForceSwitchWithFade(mpegPlayReturnStage, 255.0f, mpegPlayFadeInSpeed);
-            if (ret == 1) {
-                stage_after_skipping_demo = 0xFFFFFFFE;
-            }
-            continue;
-        }
-        debug_ResetBar();
-        MakeCollisionDependGObjList();
-        MakeCharGObjList();
-        ExecKeyInput();
-        ExecIcoMisc();
-        if (graphics_ready == 0) {
-            stage_ResetAnimation();
-            stage_CalcAnimationNoParent();
-        }
-        iosOmMain();
-        if (graphics_ready == 0) {
-            stage_CalcAnimationParent();
-        }
-        iosOmCreateDL();
-        ExecDelayFree();
-#ifndef VERSION_JPN
-        gsb_TakeSnap();
-#endif
-        frameReady = 1;
-        if (systemFault != 0) {
-            break;
-        }
-    }
-    while (1) {
-        iosThreadSleep();
-    }
-}
+INCLUDE_ASM(Main);
 
 /* .sbss: the idle thread's spin counters */
 static int idleCount; /* derived name */
@@ -266,69 +164,7 @@ static void idle(void)
 /* vsyncs counted toward systemStatus[1], the frame step */
 static int frameStepCount = 0; /* derived name */
 
-static void scheduler(void)
-{
-    int msg[4];
-
-    debug_StdPrintfDummy("scheduler() in\n");
-    sceGsSyncV(0);
-    iosMsgQueueCreate(&SchedulerMsgQ, schedulerMsgBuff, 8);
-    iosMsgSetEvent(2, &SchedulerMsgQ, 2);
-    while (1) {
-        iosMsgRecv(&SchedulerMsgQ, msg, 1);
-        if (msg[0] == 2) {
-            vsyncCount++;
-            frameStepCount++;
-            if (frameStepCount >= systemStatus[1] && stageManagerFreeResourceFlag == 0) {
-                if (frameReady > 0) {
-                    if (mpegPlay != 0) {
-                        frameReady = 0;
-                        goto wake;
-                    }
-                    if (gsb_SyncGSSystem() != 0) {
-                        goto skip;
-                    }
-                    _PushVu0Registers();
-                    gsb_UpdateGSSystem(0);
-                    _PopVu0Registers();
-                    if (systemStatus[5] != 0) {
-                        if (iosCdvdDiskStatusGet() != 0) {
-                            frameReady = 0;
-                            goto wake;
-                        }
-                    }
-                    lock_execIcoMisc++;
-                }
-                frameReady = 0;
-            wake:
-                iosThreadCancelWakeup(&mainThread);
-                startStagePauseDisableTimer++;
-                if (iosThreadWakeup(&mainThread) < 0) {
-                    /* failed to start the main thread */
-                    debug_StdPrintfDummy("メーンスレッドの起動失敗しました\n");
-                }
-                frameStepCount = 0;
-            }
-        skip:
-            iosThreadWakeup(&soundThread);
-            if (IosMcLock >= 0) {
-                SignalSema(IosMcLock);
-            }
-            if (IosCdvdMgrSleep != 0 && (mpegPlay == 0 || iosCdvdBackGroundMgrRunning != 0)) {
-                iosThreadWakeup(&cdvdThread);
-            }
-            if (stgMgrWakeupRequest != 0) {
-                iosThreadWakeup(&stageManagerThread);
-            }
-            la_playtime_count();
-        } else {
-            /* an unknown message arrived */
-            debug_StdPrintfDummy("不明なメッセージの着信を確認しました in Scheduler\n");
-        }
-    }
-    /* unreachable: the loop above never exits */
-    debug_StdPrintfDummy("scheduler() out\n");
-}
+INCLUDE_ASM(scheduler);
 
 static void boot(void)
 {
@@ -348,6 +184,8 @@ static void boot(void)
     iosThreadStart(&schedulerThread);
     iosThreadSleep();
 }
+
+INCLUDE_ASM(main);
 
 void Emergency_DestroyAllThread(void)
 {
@@ -374,22 +212,25 @@ int movie_abort_check(void)
     return ret;
 }
 
-#ifndef VERSION_JPN
-void demoEnd(void) {}
-#endif
+INCLUDE_ASM(func_001025F0);
+
+INCLUDE_ASM(func_00102618);
+
+INCLUDE_ASM(func_00102758);
+
+INCLUDE_ASM(func_00102790);
+
+INCLUDE_ASM(func_001027C8);
+
+INCLUDE_ASM(func_00102838);
 
 /* the boot thread's kernel id */
 static int bootThreadId; /* derived name */
 
-int main(void)
-{
-    debug_StdPrintfDummy("main\n");
-    debug_StdPrintfDummy("main\n");
-    ChangeThreadPriority(GetThreadId(), 14);
-    bootThreadId = GetThreadId();
-    boot();
-    return 0;
-}
+/* the demo disc's idle countdown: func_00102618 counts it down each frame
+   the pads are idle and resets it from the timeout setting on input;
+   func_001027C8 and func_00102838 read and set it */
+static int demoIdleTimeout; /* derived name */
 
 /* main.c's .sdata globals.  Both builds add six to the January map's (marked
    derived): one quadword after game_pause and the girl-control block before
@@ -419,22 +260,20 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
-#ifndef VERSION_JPN
-int NonLinearCameraMove QWORD = 0;
-#endif
+/* the screen width GsBase and the effects read: this build keeps it here, in
+   main.o's .sdata (0x679470), where PAL has NonLinearCameraMove */
+int currentScreenWidth QWORD = 0;
 
 int GlobalTimer QWORD = 0;
 
 int lock_execIcoMisc QWORD = 0;
 
-int graphics_ready QWORD = 0;
-
+/* game_pause comes first in this build (0x6794A0) */
 int game_pause QWORD = 0;
 
-int data_loading QWORD = 0;
+int graphics_ready QWORD = 0;
 
-/* the inserted, unreferenced quadword */
-static int reservedWord QWORD = 0; /* derived name */
+int data_loading QWORD = 0;
 
 int screen_offset_x QWORD = 0;
 
@@ -456,23 +295,16 @@ int IosStgMgrLock QWORD = 0;
 
 int systemFault QWORD = 0;
 
-/* the 0/1 game option that selects the pad word, held or pressed, the actions read */
-int optionControlType QWORD = 0; /* derived name */
-
-/* the five-way game option GsBase indexes its per-mode tint and blur rows with */
-int optionScreenMode QWORD = 0; /* derived name */
-
-/* ChangeGirlControlMode's flag, the game option that hands the girl to pad 2 */
-int girlControlMode QWORD = 0; /* derived name */
-
+/* This build has none of PAL's option words (optionControlType,
+   optionScreenMode, girlControlMode), nor its girlPad or reserved quadword:
+   no word of the demo's .text addresses them, and boyGObj follows systemFault
+   in the demo's .sdata. */
 GObj *boyGObj = 0;
 
 GObj *girlGObj = 0;
 
-/* the boy's and the girl's pad handles, the Act.pad each actor connects */
+/* the boy's pad handle, the Act.pad his actor connects */
 IosPadCtx *boyPad = 0;
-
-IosPadCtx *girlPad = 0; /* derived name */
 
 int gameover_flag = 0;
 
@@ -481,7 +313,8 @@ int gameover_layout_flag = 0;
 /* ACTItemWatchMotion runs for the boy only while it is 0 */
 int itemWatchOff = 0; /* derived name */
 
-GObj *CurrentTargetGObj = 0;
+/* 16-aligned in the demo (0x679580, after zero fill) */
+GObj *CurrentTargetGObj QWORD = 0;
 
 GObj *CurrentTargetGObjSub QWORD = 0;
 
@@ -489,4 +322,5 @@ int current_stage_no = 0;
 
 void (*system_stage_func)(void) = 0;
 
-int InterStageSwitchLock = 0;
+/* 16-aligned in the demo (0x6795A0) */
+int InterStageSwitchLock QWORD = 0;

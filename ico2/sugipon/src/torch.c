@@ -21,376 +21,52 @@ typedef struct TorchGeoWork { /* field names derived */
     /* 0x48 */ int pad48[2];
 } __attribute__((aligned(16))) TorchGeoWork; /* derived name */
 
-/* the torch work record InitTorchGeo starts every torch from (0x50 bytes,
-   the size it allocates) */
-static TorchGeoWork emptyTorchWork = {
-    0, {0}, {0.0f, 0.0f, 0.0f, 1.0f}, 0, 0, 65536, 65536, 0, {-1, -1, -1, -1, -1}, {0},
-}; /* derived name */
-
 #include "torch.h"
 #include <libvu0.h>
 #include "particleEffect.h"
 #include "ios.h"
 #include "main.h"
 #include "sceneManager.h"
+#include "include_asm.h"
+
+/* the torch work record InitTorchGeo starts every torch from: 0x28 bytes,
+   8-aligned, in this build */
+INCLUDE_ASM(emptyTorchWork);
 
 inline int IsTorchLightOn(GObj *torch);
 
-inline void SetTorchChainReactionFlag(GObj *torch, int flag)
-{
-    TorchGeoWork *w = GOBJ_SUB(torch)->work;
+INCLUDE_ASM(torchOffSE);
 
-    w->chainFlag = flag;
-}
+INCLUDE_ASM(LightTorchOn);
 
-void torchOffSE(GObj *torch)
-{
-    StopSEPackage(torch);
-    ExecuteSEPackage(torch, 67);
-}
+INCLUDE_ASM(LightTorchOff);
 
-void LightTorchOn(GObj *gobj)
-{
-    float pos[4];
-    TorchGeoWork *w;
-    GObj *o;
-    int n;
+static void torchDrainControl(GObj *gobj, float level);
 
-    w = GOBJ_SUB(gobj)->work;
-    if (w->lightOn != 0) {
-        return;
-    }
-    GetRootPosition(pos, gobj);
-    switch (w->flags) {
-    case 2:
-        n = 0;
-        o = isysGObjSearchFromObjKindID_begin(10);
-        while (o != 0) {
-            TorchGeoWork *ow = GOBJ_SUB(o)->work;
-            if (o != gobj && ow->flags == 2) {
-                if (IsTorchLightOn(o)) {
-                    n++;
-                }
-            }
-            o = isysGObjSearchFromObjKindID_next(o);
-        }
-        if (n > 0) {
-            return;
-        }
-        w->effect[1] =
-            SetParticleEffectByPartition(21, pos, IdentityQuaternion, ios_partition_seki);
-        w->effect[4] =
-            SetParticleEffectByPartition(19, pos, IdentityQuaternion, ios_partition_seki);
-        break;
-    case 4:
-        w->effect[0] =
-            SetParticleEffectByPartition(23, pos, IdentityQuaternion, ios_partition_seki);
-        break;
-    default:
-        w->effect[3] = SetParticleEffectByPartition(7, pos, IdentityQuaternion, ios_partition_seki);
-        w->effect[0] = SetParticleEffectByPartition(5, pos, IdentityQuaternion, ios_partition_seki);
-        w->effect[1] = SetParticleEffectByPartition(9, pos, IdentityQuaternion, ios_partition_seki);
-        w->effect[4] =
-            SetParticleEffectByPartition(19, pos, IdentityQuaternion, ios_partition_seki);
-        break;
-    }
-    w->burnTime = 0;
-    w->lightOn = 1;
-    GOBJ_SUB(gobj)->lightId = 1;
-}
+INCLUDE_ASM(moveTorch);
 
-void LightTorchOff(GObj *gobj)
-{
-    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
+static void setPauseFlag(GObj *gobj, int flag);
 
-    if (w->lightOn != 0) {
-        if (w->effect[3] != -1) {
-            DeleteParticleEffect(w->effect[3]);
-        }
-        if (w->effect[2] != -1) {
-            DeleteParticleEffect(w->effect[2]);
-        }
-        if (w->effect[0] != -1) {
-            DeleteParticleEffect(w->effect[0]);
-        }
-        if (w->effect[1] != -1) {
-            DeleteParticleEffect(w->effect[1]);
-        }
-        if (w->effect[4] != -1) {
-            DeleteParticleEffect(w->effect[4]);
-        }
-        w->effect[2] = w->effect[3] = w->effect[0] = w->effect[1] = w->effect[4] = -1;
-        w->burnTime = 0;
-        w->lightOn = 0;
-        GOBJ_SUB(gobj)->lightId = 0;
-        torchOffSE(gobj);
-    }
-}
+INCLUDE_ASM(CheckTorchChainReactionReverse);
 
-static void torchDrainControl(GObj *gobj, float level)
-{
-    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
+/* The chain-reaction functions are stubs, and PAL's inline check they share
+   (chainReactionBlocked) is not carried: the demo's torch.o .rodata holds
+   only the file name, none of that check's two messages. */
 
-    if (w->effect[3] != -1) {
-        SetParticleEffectDrainLevel(w->effect[3], level);
-    }
-    if (w->effect[2] != -1) {
-        SetParticleEffectDrainLevel(w->effect[2], level);
-    }
-    if (w->effect[0] != -1) {
-        SetParticleEffectDrainLevel(w->effect[0], level);
-    }
-    if (w->effect[1] != -1) {
-        SetParticleEffectDrainLevel(w->effect[1], level);
-    }
-    if (w->effect[4] != -1) {
-        SetParticleEffectDrainLevel(w->effect[4], level);
-    }
-}
+static void procChainReaction(GObj *gobj);
 
-static void moveTorch(GObj *gobj, void *mtx)
-{
-    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
+INCLUDE_ASM(TorchGeo);
 
-    if (w->effect[3] != -1) {
-        SetParticleEffectGeometry(w->effect[3], mtx, IdentityQuaternion);
-    }
-    if (w->effect[2] != -1) {
-        SetParticleEffectGeometry(w->effect[2], mtx, IdentityQuaternion);
-    }
-    if (w->effect[0] != -1) {
-        SetParticleEffectGeometry(w->effect[0], mtx, IdentityQuaternion);
-    }
-    if (w->effect[1] != -1) {
-        SetParticleEffectGeometry(w->effect[1], mtx, IdentityQuaternion);
-    }
-    if (w->effect[4] != -1) {
-        SetParticleEffectGeometry(w->effect[4], mtx, IdentityQuaternion);
-    }
-}
+INCLUDE_ASM(InitTorchGeo);
 
-static void setPauseFlag(GObj *gobj, int flag)
-{
-    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
+INCLUDE_ASM(TorchDL);
 
-    if (w->effect[3] != -1) {
-        SetParticleEffectPauseFlag(w->effect[3], flag);
-    }
-    if (w->effect[2] != -1) {
-        SetParticleEffectPauseFlag(w->effect[2], flag);
-    }
-    if (w->effect[0] != -1) {
-        SetParticleEffectPauseFlag(w->effect[0], flag);
-    }
-    if (w->effect[1] != -1) {
-        SetParticleEffectPauseFlag(w->effect[1], flag);
-    }
-    if (w->effect[4] != -1) {
-        SetParticleEffectPauseFlag(w->effect[4], flag);
-    }
-}
+INCLUDE_ASM(IsTorchLightOn);
 
-inline int IsTorchLightOn(GObj *torch)
-{
-    TorchGeoWork *w = GOBJ_SUB(torch)->work;
+INCLUDE_ASM(CheckTorchChainReaction);
 
-    return w->lightOn;
-}
+INCLUDE_ASM(SetTorchLife);
 
-inline void SetTorchLife(GObj *torch, int life, int fadeTime)
-{
-    TorchGeoWork *p = GOBJ_SUB(torch)->work;
-    p->life = life;
-    p->fadeStart = life - fadeTime;
-}
+INCLUDE_ASM(SetTorchChainReactionFlag);
 
-inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
-{
-    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__, 232);
-    *p = emptyTorchWork;
-    /* the display object read through the SubHandle union each time: the
-       light store reads the slot again after the work store, which three
-       Sub15C * reads of it do not (measured) */
-    sceVu0UnitMatrix(&((SubHandle *)&self->dobj)->sub->matrix);
-    ((SubHandle *)&self->dobj)->sub->work = p;
-    if (lay->obj & 1) {
-        LightTorchOn(self);
-    } else {
-        ((SubHandle *)&self->dobj)->sub->lightId = 0;
-    }
-    p->flags = lay->obj & ~1;
-    GetRootPosition(p->pos, self);
-    return p;
-}
-
-inline GObj *CheckTorchChainReaction(GObj *self, float dist)
-{
-    float pos[4];
-    float pos2[4];
-    GObj *o;
-    float dist2;
-
-    GetRootPosition(pos, self);
-
-    o = isysGObjSearchFromObjKindID_begin(10);
-    dist2 = dist * dist;
-    while (o != 0) {
-        TorchGeoWork *w = GOBJ_SUB(o)->work;
-        if (o != self && IsTorchLightOn(o) && o->active != 0 && w->flags != 2) {
-            GetRootPosition(pos2, o);
-            if (distance_squared(pos2, pos) < dist2) {
-                return o;
-            }
-        }
-        o = isysGObjSearchFromObjKindID_next(o);
-    }
-    return 0;
-}
-
-GObj *CheckTorchChainReactionReverse(GObj *self, float dist)
-{
-    float pos[4];
-    float pos2[4];
-    GObj *o;
-    GObj *p;
-    int n;
-    int lit;
-
-    n = 0;
-    GetRootPosition(pos, self);
-
-    o = isysGObjSearchFromObjKindID_begin(10);
-    while (o != 0) {
-        TorchGeoWork *w = GOBJ_SUB(o)->work;
-        if (w->flags == 2) {
-            if (IsTorchLightOn(o)) {
-                n++;
-            }
-        }
-        o = isysGObjSearchFromObjKindID_next(o);
-    }
-
-    dist = dist * dist;
-    lit = 0 < n;
-    p = isysGObjSearchFromObjKindID_begin(10);
-    while (p != 0) {
-        if (p != self && IsTorchLightOn(p) == 0 && p->active != 0 &&
-            (((TorchGeoWork *)GOBJ_SUB(p)->work)->flags != 2 || lit == 0)) {
-            GetRootPosition(pos2, p);
-            if (distance_squared(pos2, pos) < dist) {
-                return p;
-            }
-        }
-        p = isysGObjSearchFromObjKindID_next(p);
-    }
-    return 0;
-}
-
-inline void UpdateRealTimeGeometryValue(GObj *self)
-{
-    int buf[4];
-    Sub15C *sub;
-    GetRootPosition(buf, self);
-    sub = self->dobj;
-    sceVu0SubVector(sub->root.move, buf, sub->root.last);
-    sub = self->dobj;
-    CopyVector(sub->root.last, buf);
-}
-
-/* nonzero when lighting `other`'s torch from `gobj` must not happen: the
- * heroine's bomb, or the boy's weapon pair */
-static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name */
-{
-    Act *p;
-    Act *q;
-    GObj *a;
-    GObj *b;
-
-    b = GOBJ_SUB(gobj)->parent.obj;
-    a = GOBJ_SUB(other)->parent.obj;
-    if (girlGObj != 0) {
-        q = GOBJ_ACT(girlGObj);
-        if (b != 0 && b == q->curItem) {
-            /* tried to light the heroine's bomb */
-            debug_StdPrintfDummy("ヒロインの爆弾に点火しようとした\n");
-            return 1;
-        }
-    }
-    if (b != 0 && a != 0) {
-        p = GOBJ_ACT(boyGObj);
-        if (ACTGame_NoWeapon(boyGObj) == 0 && a == p->weapon && b == p->curItem) {
-            /* an exception came up while lighting */
-            debug_StdPrintfDummy("点火の例外処理発生\n");
-            return 1;
-        }
-    }
-    return 0;
-}
-
-static void procChainReaction(GObj *gobj)
-{
-    TorchGeoWork *w;
-    GObj *o;
-
-    w = GOBJ_SUB(gobj)->work;
-    if (w->chainFlag == 0) {
-        return;
-    }
-    o = CheckTorchChainReaction(gobj, 20.0f);
-    if (o != 0 && chainReactionBlocked(gobj, o) == 0) {
-        LightTorchOn(gobj);
-    }
-}
-
-void TorchGeo(GObj *gobj)
-{
-    TorchGeoWork *w;
-    Sub15C *sub;
-    GObj *o;
-    float drain;
-    int id;
-
-    sub = gobj->dobj;
-    o = sub->parent.obj;
-    w = sub->work;
-    if (o != 0) {
-        if (o->active == 0) {
-            LightTorchOff(gobj);
-            return;
-        }
-        GetRootPosition(w->pos, gobj);
-    }
-    if (IsTorchLightOn(gobj) == 0) {
-        procChainReaction(gobj);
-        return;
-    }
-    if (gobj->drawMask != 0) {
-        setPauseFlag(gobj, 0);
-    } else {
-        setPauseFlag(gobj, 1);
-    }
-    if (w->burnTime < 65535) {
-        w->burnTime = w->burnTime + 1;
-    }
-    if (o != 0) {
-        UpdateRealTimeGeometryValue(gobj);
-        moveTorch(gobj, w->pos);
-    }
-    if (w->life < w->burnTime) {
-        LightTorchOff(gobj);
-        procChainReaction(gobj);
-        return;
-    }
-    if (w->chainFlag == 0 && w->fadeStart < w->burnTime) {
-        drain = (float)(w->burnTime - w->fadeStart) / (float)(w->life - w->fadeStart);
-        torchDrainControl(gobj, 1.0f - drain);
-        if (w->burnTime == w->life - 1) {
-            id = SetParticleEffectActiveSensing(54, w->pos, IdentityQuaternion);
-            if (id != -1) {
-                ExecParticleEffect(id);
-            }
-        }
-    }
-}
-
-inline void TorchDL(void) {}
+INCLUDE_ASM(UpdateRealTimeGeometryValue);

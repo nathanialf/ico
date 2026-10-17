@@ -19,10 +19,6 @@
 extern int startStagePauseDisableTimer;
 extern int layout_boot_flag;
 extern int enable_game_pause;
-extern int title_demo_mode;
-extern int laoutActionPauseRequest;
-extern unsigned int stage_after_skipping_demo;
-extern int layoutActPushStartNew;
 /* the memory-card request block the layout actions and the debug menu
    drive */
 extern McMgr mc;
