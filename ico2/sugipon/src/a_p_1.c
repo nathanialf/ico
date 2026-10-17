@@ -22,7 +22,6 @@
 #include "attackhit.h"
 #include "spider.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* int (float) here, short (float) in tableSin.h: PAL's ROM needs int, as
    declared short PAL's object differs in calcSubMission at 0x001C37D8
@@ -72,8 +71,9 @@ typedef struct {     /* field names derived */
     int word168;     /* 0x168 */
     int word16C;     /* 0x16C */
     int focus[9];    /* 0x170, the skeleton nodes of ap1FocusNode: the
-                           body's, then each limb's pair; calcSubMission
-                           reaches a pair from &focus[1] and &focus[2] */
+                           body's, then each limb's pair, which
+                           calcSubMission reads as focus[i * 2 + 1] and
+                           focus[i * 2 + 2] */
     Sub15C *arm[2];  /* 0x194, the two arm objects when skel is 0 */
     EnemyEye *eye;   /* 0x19C */
     int pad1A0[4];   /* 0x1A0 */
@@ -666,7 +666,148 @@ static inline short armCosine(float a, float b, float c) /* derived name */
     return (short)(int)GetTableArcCos((aa + bb - cc) / (2.0f * a * b));
 }
 
-INCLUDE_ASM(calcSubMission);
+static void calcSubMission(GObj *self)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
+    Vec4A_P_1 base;
+    Vec4A_P_1 axis;
+    Vec4A_P_1 rq;
+    Mtx44 tm;
+    Vec4A_P_1 q;
+    Vec4A_P_1 w;
+    Vec4A_P_1 dir;
+    Vec4A_P_1 v;
+    Vec4A_P_1 v2;
+    Mtx44 rm;
+    Vec4A_P_1 lv;
+    Vec4A_P_1 save;
+    Vec4A_P_1 save2;
+    Vec4A_P_1 atk;
+    int i;
+    int ang;
+    int dbg = 0; /* the function's local debug switch, off (case 1) */
+
+    CopyMatrix(MatrixDrive_GetMatrix(), p->mtx);
+    MatrixDrive_RotMatrixZ(0x4000);
+    MatrixDrive_RotMatrixX(0x4000);
+    CopyVector(&base, MatrixDrive_GetMatrix()[3]);
+    GetRootQuaternion(&rq, self);
+    _ApplyMatrix(&axis, MatrixDrive_GetMatrix(), &ap1AttackAxis);
+    MatrixDrive_SetTransposeMatrix(tm.m, MatrixDrive_GetMatrix());
+
+    for (i = 0; i < 4; i++) {
+        AP1Part *part = &p->part[i];
+        float len;
+
+        switch (part->state) {
+        case 1: {
+            float t = (float)part->count / 10.0f;
+
+            CopyVector(&w, &part->home);
+            w.m[1] -= (t < 0.5f) ? t * 2.0f * 20.0f : (1.0f - t) * 2.0f * 20.0f;
+            _ApplyMatrix(&q, p->root, &w);
+            _InterVectorXYZ(&part->pos, &q, &part->pos, t);
+            /* the local debug switch's window: a dump of the root matrix
+               the step is placed in.  Pinned: three to five instructions
+               here at the first GCSE pass (its expression table of 219
+               buckets orders the three spilled frame addresses as the ROM
+               has them); the August TRFILE and PAL's have three code-less
+               lines (664-666) in its place.  Not pinned: the body's text,
+               which is derived. */
+            if (dbg) {
+                debug_DispMatrix((int *)p->root);
+            }
+            if ((part->count += 1) >= 10) {
+                part->state = 0;
+            }
+            break;
+        }
+        case 2: {
+            float t = (float)part->count / 10.0f;
+
+            MatrixDrive_PushMatrix();
+            _UnitMatrix(MatrixDrive_GetMatrix());
+            {
+                float f = t * 49152.0f + -32768.0f;
+
+                MatrixDrive_RotMatrixY((short)(i == 0 ? -f : f));
+            }
+            _ApplyMatrix(&v, MatrixDrive_GetMatrix(), &part->home);
+            v.m[3] = 1.0f;
+            _ApplyMatrix(&dir, p->root, &v);
+            _InterVectorXYZ(&part->pos, &dir, &part->pos, t);
+            MatrixDrive_PopMatrix();
+            if ((part->count += 1) >= 10) {
+                ExecuteSEPackage(self, 99);
+                CopyVector(&part->home, (char *)ap1PartOffset + i * 0x10);
+                part->state = 1;
+                part->count = 0;
+            }
+            break;
+        }
+        }
+
+        MatrixDrive_PushMatrix();
+
+        len = _GetLength(&base, &part->pos);
+        ang = armCosine(len, 50.0f, 50.0f);
+        _SubVector(&dir, &part->pos, &base);
+        _NormalizeVector(&dir, &dir);
+
+        if (part->state == 2) {
+            _OuterProduct(&w, &dir, &axis);
+        } else {
+            _OuterProduct(&w, &dir, &axis);
+        }
+        _ApplyMatrix(&lv, &tm, &dir);
+        MatrixDrive_TurnXObjectMatrixYZ(lv.m[0], lv.m[1], lv.m[2]);
+
+        _ScaleVector(&v, &dir, 50.0f);
+        SetQuaternionByAxisRotateV(&q, (short)-ang, &w);
+        GetMatrixFromQuaternion(&rm, &q);
+        _ApplyMatrix(&v, &rm, &v);
+        _AddVectorXYZ(&part->knee, &base, &v);
+
+        CopyVector(&save, MatrixDrive_GetMatrix()[3]);
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        CopyVector(MatrixDrive_GetMatrix()[3], &save);
+
+        if (p->skel != 0) {
+            _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + (p->focus[i * 2 + 1] << 6),
+                       MatrixDrive_GetMatrix(), ap1ArmScale);
+        } else {
+            _MulMatrix((char *)p->arm[0]->nodeMtx + (i << 6), MatrixDrive_GetMatrix(), ap1ArmScale);
+        }
+
+        _ScaleVector(&v2, &dir, 50.0f);
+        SetQuaternionByAxisRotateV(&q, (short)ang, &w);
+        GetMatrixFromQuaternion(&rm, &q);
+        _ApplyMatrix(&v2, &rm, &v2);
+        _AddVectorXYZ(&part->tip, &part->knee, &v2);
+
+        _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), ap1ArmOffset);
+
+        CopyVector(&save2, MatrixDrive_GetMatrix()[3]);
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        CopyVector(MatrixDrive_GetMatrix()[3], &save2);
+
+        if (part->state == 2) {
+            atk = attackCenterOffset;
+            _ApplyMatrix(&atk, MatrixDrive_GetMatrix(), &atk);
+            _AttackCenter(self, -1, atk.m, 0, 30.0f);
+        }
+
+        if (p->skel != 0) {
+            _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + (p->focus[i * 2 + 2] << 6),
+                       MatrixDrive_GetMatrix(), ap1ArmScale);
+        } else {
+            _MulMatrix((char *)p->arm[1]->nodeMtx + (i << 6), MatrixDrive_GetMatrix(), ap1ArmScale);
+        }
+
+        MatrixDrive_PopMatrix();
+    }
+}
 
 /* as in quaternion.h, which this file does not include */
 extern void RotQuaternionX(void *q, short ang);

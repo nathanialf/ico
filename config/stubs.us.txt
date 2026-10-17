@@ -157,8 +157,6 @@ rdlit subGirlControl 0x00559770 0x00559888 ico2/fumi/src/girl_act.c  # 5 strings
 sdlit subGirlControl 0x006324C8 0x006324E7 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base: no code reads them, the compiled-out debug code's
 text SetCameraMatrix_Ico2 0x00189D68 0x0018A3FC ico2/omori/src/camera-ico2.c lines=88  # us-only (in camera-ico2.c's span; PAL order suggests SetCameraMatrix_Ico2 (1420 B in PAL)); named SetCameraMatrix_Ico2 by call sites, callees, body alignment (provisional)
 lit4 SetCameraMatrix_Ico2 0x00630EDC 0x00630EF0 ico2/omori/src/camera-ico2.c  # 5 floats, measured from the base: the text loads them
-text calcSubMission 0x001B99B0 0x001BA090 ico2/sugipon/src/a_p_1.c local lines=131  # ordinal; first difference at insn 19; length:-1; extent-differs
-lit4 calcSubMission 0x00631124 0x00631128 ico2/sugipon/src/a_p_1.c  # 1 float
 text getMotionGeometry 0x001E3030 0x001E39E4 ico2/sugipon/src/motionOrientManager.c local lines=179  # us-only (in motionOrientManager.c's span; PAL order suggests getMotionGeometry (2536 B in PAL)); named getMotionGeometry by call sites, callees, body alignment (provisional)
 lit4 getMotionGeometry 0x0063137C 0x00631388 ico2/sugipon/src/motionOrientManager.c  # 3 floats
 sdlit getMotionGeometry 0x0063352C 0x00633530 ico2/sugipon/src/motionOrientManager.c  # 1 word
