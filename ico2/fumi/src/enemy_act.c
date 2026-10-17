@@ -40,7 +40,6 @@
 #include "attackhit.h"
 #include "pad.h"
 #include "flyManager.h"
-#include "include_asm.h"
 
 int entesty;
 
@@ -1827,8 +1826,10 @@ static void enemy_dodge(GObj *self)
     }
 }
 
-/* a `static inline` defined outside this function, expanded twice here */
-static inline float battleRangeScale(GObj *self, float v) /* derived name */
+/* a `static inline` defined outside its callers, expanded four times in
+   Battle_isCurrentStatus and once in subEnemyBrain_ToBoy; grow is a float
+   flag (1.0f or 0.0f, like vflag below): 0.0f leaves out the 1.2 */
+static inline float battleRangeScale(GObj *self, float v, float grow) /* derived name */
 {
     EnemyBattleWork *work = GOBJ_ACT(self)->enemy;
 
@@ -1836,7 +1837,7 @@ static inline float battleRangeScale(GObj *self, float v) /* derived name */
     case 0:
     case 1:
         v = work->bodySize * v;
-        if (((int)(*(long long *)((char *)work + 0x208) >> 1)) & 1) {
+        if ((((int)(*(long long *)((char *)work + 0x208) >> 1)) & 1) && grow != 0.0f) {
             v = v * 1.2;
         }
         break;
@@ -1847,7 +1848,52 @@ static inline float battleRangeScale(GObj *self, float v) /* derived name */
     return v;
 }
 
-INCLUDE_ASM(Battle_isCurrentStatus);
+static int Battle_isCurrentStatus(GObj *self, GObj *tgt, float *pos)
+{
+    float ori[4];
+    float dir[4];
+    int ret;
+    float xz;
+    float dy;
+    float vflag;
+    float a;
+    float b;
+    int ang;
+    int far;
+
+    ret = 0;
+    xz = _DistxzGV(pos, test_CURRENTROOT(tgt));
+    dy = ((pos[1] - test_CURRENTROOT(tgt)[1]) < 0.0f) ? -(pos[1] - test_CURRENTROOT(tgt)[1])
+                                                      : (pos[1] - test_CURRENTROOT(tgt)[1]);
+    vflag = 0.0f;
+    if (battleRangeScale(self, 270.0f, 1.0f) < xz || battleRangeScale(self, 200.0f, 1.0f) < dy) {
+        vflag = 1.0f;
+    }
+    if (xz < battleRangeScale(self, 120.0f, 0.0f) && dy < battleRangeScale(self, 100.0f, 1.0f)) {
+        vflag = -1.0f;
+    }
+    ori[0] = test_CURRENTORIENT(tgt)[0];
+    ori[1] = test_CURRENTORIENT(tgt)[1];
+    ori[2] = test_CURRENTORIENT(tgt)[2];
+    _OrientXZGV(dir, test_CURRENTROOT(self), test_CURRENTROOT(tgt));
+    ang = _AbsRotyGV(ori, dir);
+    a = (ang < 75) ? 1.0f : 0.0f;
+    far = (101 <= ang);
+    b = (a != 0.0f && GOBJ_ACT(tgt)->actMode == 15) ? 1.0f : 0.0f;
+    if (vflag < 0.0f) {
+        ret = 1;
+    }
+    if (0.0f < vflag) {
+        ret = 2;
+    }
+    if (b != 0.0f) {
+        ret = 3;
+    }
+    if (vflag <= 0.0f) {
+        ret = far ? 4 : ret;
+    }
+    return ret;
+}
 
 inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze)
 {
@@ -2079,7 +2125,7 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
         r = (int)(random_unit() * 10.0f) % 100;
         debug_StdPrintfDummy("**toboy function start :: count=[%d]\n", cnt++);
         ret = _ApproachTarget(self, boy, (char *)sub + 0x110, NakaBoss,
-                              battleRangeScale(self, 220.0f), 0);
+                              battleRangeScale(self, 220.0f, 1.0f), 0);
         v[0] = test_CURRENTROOT((void *)self)[0];
         v[1] = test_CURRENTROOT((void *)self)[1];
         v[2] = test_CURRENTROOT((void *)self)[2];
