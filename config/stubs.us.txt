@@ -147,10 +147,6 @@
 # .c.inc, and their row gives in=<file.c.inc>; the .c.inc includes
 # include_asm.h itself.
 
-text subGirlBrain_Escape 0x0016FC48 0x00170380 ico2/fumi/src/girl_act.c lines=124  # ordinal; first difference at insn 3; length:+63; extent-differs
-lit4 subGirlBrain_Escape 0x00630DB8 0x00630DC0 ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
-sdlit subGirlBrain_Escape 0x00632490 0x00632493 ico2/fumi/src/girl_act.c  # 1 string, measured from the base
-rdlit subGirlBrain_Escape 0x005596B0 0x005596C4 ico2/fumi/src/girl_act.c align=16  # 1 jump table, measured from the base
 text subGirlControl 0x00171E48 0x001725C4 ico2/fumi/src/girl_act.c lines=230  # ordinal; first difference at insn 0; length:-163; extent-differs
 lit4 subGirlControl 0x00630DE0 0x00630E14 ico2/fumi/src/girl_act.c  # 13 floats, measured from the base: the text loads them
 rdlit subGirlControl 0x00559770 0x00559888 ico2/fumi/src/girl_act.c  # 5 strings, 1 jump table, measured from the base

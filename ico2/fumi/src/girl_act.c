@@ -912,7 +912,7 @@ static inline void *girlBrainGetTarget(void) /* derived name */
 
 /* The girl brain's TTY trace of its escape target, built only when DEBUG is
    defined; the retail build leaves the helper without a body.
-   subGirlBrain_Escape's four calls are commented at that function. */
+   subGirlBrain_Escape's six calls are commented at that function. */
 static __inline__ void girlBrainDebugPrint(void) /* derived name */
 {
 #ifdef DEBUG
@@ -2164,13 +2164,152 @@ static inline void girlBrainEscapeFaceCheck(float *p, float *dir, Vec4u *v) /* d
 
 /* girlBrainDebugPrint in subGirlBrain_Escape: called in arm 1 after
    `mode = 2` and after `mode = 3`, and in cases 1 and 2 after
-   girlBrainRunawayMoveByWay. */
+   girlBrainRunawayMoveByWay (January's four); in this build also in the
+   start-up wait loop and when the hide list blocks the run. Those two sit
+   on code-less lines of both listings (August TRFILE 2514 and 2640, one
+   line each between two statements; January 2636 and 2762). PINNED: each
+   inlined call leaves one zero-code insn that gcse counts; with six, gcse's
+   expression table has 213 buckets and the frame addresses' spill homes
+   come out in this build's order (ppos, rp, mk, cnt, mtx, pos); with four
+   it has 211 and pos's home is first. NOT PINNED: which code-less lines
+   hold the two (by the hash arithmetic six to nine calls give 213, where
+   the extra ones leave the code unchanged), or the prints' text. */
 
 /* The move-state names subGirlBrain_Escape prints, defined here before it. */
 static char *moveStateName[5] = {"IDLE", "MOVE START", "MOVE LOOP", "END",
                                  "WAIT"}; /* derived name */
 
-INCLUDE_ASM(subGirlBrain_Escape);
+void subGirlBrain_Escape(GObj *volatile self)
+{
+    float pos[4];
+    float ppos[4];
+    float rp[4];
+    Vec4u v;
+    Act *sub;
+    int cnt;
+    int mode;
+    int i;
+    int ret;
+
+    cnt = 1;
+    sub = GOBJ_ACT(self);
+    mode = 0;
+    for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] / 2; i++) {
+        sub->stick.mag = 0;
+        girlBrainDebugPrint();
+        _ACTWait(1);
+    }
+    while (1) {
+        if (sub->actMode == 107) {
+            mode = 4;
+        }
+        if (brain_val.listB.num == 0 ||
+            cnt++ % ((60 - systemStatus[0] * 10) / systemStatus[1] / 2) == 0) {
+            brain_val.warn = 1;
+        }
+        GetRootPosition(pos, (void *)self);
+        GetRootProjectionPosOfGObj(ppos, (void *)self);
+        switch (mode) {
+        case 0:
+            mode = 1;
+            GetRootProjectionPosOfGObj(rp, (void *)self);
+            brain_val.runawayFrom[0] = rp[0];
+            brain_val.runawayFrom[1] = rp[1];
+            brain_val.runawayFrom[2] = rp[2];
+            sub->stick.mag = 0;
+            break;
+        case 1:
+            mode = 2;
+            girlBrainDebugPrint();
+            GetRootProjectionPosOfGObj(rp, (void *)self);
+            if (girlBrainRunawaySearchPoint(rp, brain_val.runawayGoal, brain_val.runawayFrom) ==
+                0) {
+                mode = 3;
+                girlBrainDebugPrint();
+            }
+            sub->stick.mag = 0;
+            break;
+        case 2:
+            ret = girlBrainRunawayMoveByWay(self, (float *)&sub->dir[0], brain_val.runawayGoal);
+            switch (ret) {
+            case 0:
+                break;
+            case 1:
+                girlBrainDebugPrint();
+                brain_val.runawayFrom[0] = brain_val.runawayGoal[0];
+                brain_val.runawayFrom[1] = brain_val.runawayGoal[1];
+                brain_val.runawayFrom[2] = brain_val.runawayGoal[2];
+                mode = 1;
+                break;
+            case 2:
+                girlBrainDebugPrint();
+                brain_val.runawayFrom[0] = ppos[0];
+                brain_val.runawayFrom[1] = ppos[1];
+                brain_val.runawayFrom[2] = ppos[2];
+                mode = 1;
+                break;
+            }
+            girlBrainEscapeFaceCheck(pos, (float *)&sub->dir[0], &v);
+            switch (brain_val.runMode) {
+            case 0:
+                girlBrainSetWalkRatio((void *)self, 1.0f);
+                break;
+            case 1:
+                sub->stick.mag = 0.5f;
+                break;
+            }
+            if (sub->stick.mag != 0.0f) {
+                sceVu0ScaleVector(v.f, (float *)&sub->dir[0], 300.0f);
+                sceVu0AddVector(v.f, brain_val.girlPos, v.f);
+                if (girlBrainHideCheckIntercept(brain_val.girlPos, v.f, (char *)brain_val.hide.ent,
+                                                brain_val.hide.num)) {
+                    girlBrainDebugPrint();
+                    sub->stick.mag = 0.0f;
+                    brain_val.warn = 1;
+                }
+            }
+            {
+                float mk[4];
+
+                sceVu0ScaleVector(mk, brain_val.runawayGoal, -1.0f);
+                debug_Marker(mk, 255, 0, 0, 200.0f, (float)brain_val.markerPulse);
+                brain_val.markerPulse = brain_val.markerPulse + 5;
+            }
+            break;
+        case 3:
+            sub->stick.mag = 0;
+            ACTSendMailCorrect((void *)self, 213);
+            brainGirl.minThreshold = 9.0f;
+            if ((sub->flags18.ll & (1ULL << 55)) || (sub->flags18.ll & (1ULL << 54))) {
+                sub->flags18.ll |= 1ULL << 57;
+            }
+            break;
+        case 4:
+            sub->stick.mag = 0;
+            if (sub->actMode != 107) {
+                mode = 0;
+            }
+            break;
+        }
+        {
+            float mtx[16];
+
+            MatrixDrive_PushMatrix();
+            sceVu0TransposeMatrix(mtx, ((float *)((float *)matrixptr)) + 32);
+            mtx[3] = mtx[7] = mtx[11] = 0.0f;
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_TransMatrix(pos[0], pos[1], pos[2]);
+            sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), mtx);
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+            sprintf(escapeDebugString, "%s", moveStateName[mode]);
+            DispWireString(escapeDebugString);
+            MatrixDrive_PopMatrix();
+            MatrixDrive_PopMatrix();
+        }
+        _ACTWait(1);
+    }
+}
 
 void ClipTwinVector(float *out, float *from, float *to, float max)
 {
