@@ -9,8 +9,8 @@
 #      missing. Then a check for mips-linux-gnu-objcopy, a host package.
 #   2. tools/extract_elf.sh, when baserom/<slug>/baseelf.elf is missing. It
 #      reads the user's own image of the target's disc: baserom/Ico_PAL.iso
-#      on PAL, a .bin and its .cue (baserom/Ico_JPN.bin, Ico_USA.bin,
-#      Ico_AUG6.bin) on the others.
+#      on PAL and baserom/Ico_JUN26.iso on the demo, a .bin and its .cue
+#      (baserom/Ico_JPN.bin, Ico_USA.bin, Ico_AUG6.bin) on the others.
 #   3. tools/build.sh setup when build.ninja is missing (delete build/<slug>/,
 #      verify the base ELF and ROM SHA-1s, write build.ninja); otherwise
 #      tools/build.sh verify, the SHA-1s alone, which also writes build.ninja
