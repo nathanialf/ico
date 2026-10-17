@@ -11,7 +11,6 @@
 #include "DisplayList.h"
 #include "Basic.h"
 #include "gobj.h"
-#include "include_asm.h"
 
 /* One skinning matrix per cluster, 64 of 64 bytes, built by
  * shadow_EntryClusterShadow. */
@@ -23,8 +22,9 @@ static int killShadow = 0; /* derived name */
 
 static int killShadowRequest = 0; /* derived name */
 
-/* the colour shadow_Reset fills the shadow buffer with, read a byte at a time */
-static unsigned char shadowFillColor[4] = {0}; /* derived name */
+/* the colour shadow_Reset fills the shadow buffer with, read a byte at a time;
+   const, as GsBase.c's keepFrameColor: the reads depend on no packet store */
+static const unsigned char shadowFillColor[4] = {0}; /* derived name */
 
 /* The shadow display opens, fills and closes a PATH1 packet of its own
  * through PacketBufferStruct (DmaPacket.h), whose packet addresses are one
@@ -88,7 +88,62 @@ static unsigned char shadowFillColor[4] = {0}; /* derived name */
         }                                                                                          \
     }
 
-INCLUDE_ASM(shadow_Reset);
+void shadow_Reset(void)
+{
+    char *c;
+    char *p;
+    char *q;
+    int full[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                   ScreenHeight * 16};
+
+    if (killShadowRequest != killShadow) {
+        killShadow = killShadowRequest;
+    }
+    dl_SetDLPriority(3);
+    gifStartPacketPath1(c);
+    setFrame(0x140, ScreenWidth, ScreenHeight);
+    setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
+    setGsReg(0x47, 0x30000);
+    spriteRect(full, shadowFillColor, 0x406);
+
+    setGsReg(0x4A, 0);
+    setGsReg(0x3B, 0x80 | ((long long)0x80 << 32));
+    setGsReg(0x47, 0x50000);
+    setGsReg(0x42, 0x68 | ((long long)0x80 << 32));
+    setGsReg(0x46, 0);
+    ((GifPkWord *)PacketBufferStruct.end.c)->d =
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> 4) -
+                       1) |
+        0x1000000000008000LL;
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+        0x6C008000;
+    p = PacketBufferStruct.ptr.c;
+    ((GifPkWord *)p)->w[0] = 0x15000000;
+    p += 4;
+    PacketBufferStruct.ptr.c = p;
+    ((GifPkWord *)p)->w[0] = 0;
+    PacketBufferStruct.ptr.c = (p + 4);
+    ((GifPkWord *)(p + 4))->w[0] = 0;
+    PacketBufferStruct.ptr.c = (p + 8);
+    ((GifPkWord *)(p + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = (p + 0xC);
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                         4) -
+                        1) |
+                       0x10000000);
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
+    ((GifPkWord *)q)->d = 0x60000000;
+    PacketBufferStruct.ptr.c = (q + 8);
+    ((GifPkWord *)(q + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = (q + 0xC);
+    ((GifPkWord *)(q + 8))->w[1] = 0;
+    PacketBufferStruct.ptr.c = (q + 0x10);
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+    dl_CloseDma();
+}
 
 /* The textured sprite: PRIM, RGBAQ, then a UV and an XYZ2 pair for each
  * corner, the far corner as spriteRect holds it. */
