@@ -14,7 +14,6 @@
 #include "FileManager.h"
 #include <assert.h>
 #include <stdio.h>
-#include "include_asm.h"
 
 /* One mipmap level of a texture record, 0x24 bytes: the address, the buffer
  * width and the VRAM size, and a 13-entry short table indexed by the display
@@ -518,7 +517,41 @@ static inline int texTBW(TexClutEnt *e, int w) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(tex_initClutTexture);
+static void tex_initClutTexture(Tim2Picture *pic, TexData *t)
+{
+    int i;
+    int dbw;
+
+    /* The CLUT's VRAM size from its colour count, then the fixed 8 over it
+     * (PAL keeps only the 8): the size is dead, so of its divide only the
+     * division-by-zero trap on sizeDiv stays.  Both line maps leave lines
+     * without code between the size and the 8 (three in August's, seven in
+     * PAL's), and the bytes need a branch there whose arm is dead: it keeps
+     * the 8 in a block of its own until flow drops the emptied arm, so the 8
+     * is loaded after the trap, into v0 once sizeDiv dies.  Pinned: a test
+     * between the two stores whose arm only sets a dead register.  Not
+     * pinned: the test and the arm, written as this file's CSM2 test
+     * (tex_convertClutCSM2ToCSM1) and the width of a one-row CSM2 CLUT. */
+    t->clut.vramSize = (pic->clutColors / psmTable[pic->clutType & 0x3F].sizeDiv / 2) *
+                           psmTable[pic->clutType & 0x3F].sizeMul >>
+                       6;
+    if ((pic->clutType >> 7) != 0)
+        dbw = pic->clutColors;
+    t->clut.vramSize = 8;
+
+    t->clut.dbw = texTBW(&psmTable[pic->clutType & 0x3F], pic->imageWidth);
+
+    for (i = 0; i < t->levelNum; i++) {
+        t->lv[i].vramSize = ((pic->imageWidth >> i) * (pic->imageHeight >> i) /
+                             psmTable[pic->imageType].sizeDiv / 2) *
+                                psmTable[pic->imageType].sizeMul >>
+                            6;
+
+        dbw = texTBW(&psmTable[pic->imageType], pic->imageWidth >> i);
+
+        t->lv[i].dbw = dbw;
+    }
+}
 
 static void tex_setRegisters(Tim2Picture *pic, TexData *t)
 {

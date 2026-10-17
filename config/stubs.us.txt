@@ -148,8 +148,6 @@
 # include_asm.h itself.
 
 text shadow_Reset 0x00122CD8 0x0012313C ico2/seki/src/Shadow.c lines=67  # ordinal; first difference at insn 0; length:-140; extent-differs
-text tex_initClutTexture 0x0012BEB0 0x0012C050 ico2/seki/src/Texture.c local lines=20  # ordinal; first difference at insn 0; length:+8; extent-differs
-rdlit tex_initClutTexture 0x005560D0 0x005562AC ico2/seki/src/Texture.c align=16  # 2 jump tables
 text getLandOffset.265 0x00159CB0 0x00159DF8 ico2/fumi/src/commonact.c local file=getLandOffset_265  # nested in flyCoreLoop (a stub); equal, gone with its carved parent
 text completeEmergency.280 0x00159DF8 0x0015A364 ico2/fumi/src/commonact.c local file=completeEmergency_280  # ordinal; first difference at insn 0; length:+272; extent-differs
 lit4 completeEmergency.280 0x00630C58 0x00630C70 ico2/fumi/src/commonact.c file=completeEmergency_280  # 6 floats, measured from the base: the text loads them

@@ -5,10 +5,10 @@ The share of each section of the USA boot ELF that the rebuilt ELF holds identic
 <!-- progress:begin -->
 | Section | From source | From the disc | Total bytes | Source % | Identical % |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `.text` | 1485884 | 18840 | 1504724 | 98.75 % | 100.00 % |
+| `.text` | 1486300 | 18424 | 1504724 | 98.78 % | 100.00 % |
 | `.vutext` | 20704 | 0 | 20704 | 100.00 % | 100.00 % |
 | `.data` | 2080896 | 929592 | 3010488 | 69.12 % | 100.00 % |
-| `.rodata` | 85195 | 820445 | 905640 | 9.41 % | 100.00 % |
+| `.rodata` | 85671 | 819969 | 905640 | 9.46 % | 100.00 % |
 | `.lit4` | 3896 | 152 | 4048 | 96.25 % | 100.00 % |
 | `.sdata` | 8835 | 67 | 8902 | 99.25 % | 100.00 % |
 | `.sbss` (owned) | 1012 | 0 | 1012 | 100.00 % | 100.00 % |
