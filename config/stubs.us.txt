@@ -160,10 +160,6 @@ lit4 flyCoreLoop 0x00630C74 0x00630C7C ico2/fumi/src/commonact.c  # 2 floats, me
 data col.268 0x002823D0 0x002823E0 ico2/fumi/src/commonact.c local file=col_268  # flyCoreLoop's (completeEmergency.280's) {0, 255, 128, 128}, after commonact.c's last file-scope .data; USA addiu at 0x15A1EC
 data col.269 0x002823E0 0x002823F0 ico2/fumi/src/commonact.c local file=col_269  # flyCoreLoop's (completeEmergency.280's) {0, 0, 128, 128}; USA addiu at 0x15A338
 data col.270 0x002823F0 0x00282400 ico2/fumi/src/commonact.c local file=col_270  # flyCoreLoop's {0, 128, 255, 128}; USA addiu at 0x15AA2C
-text actCommonBecarry 0x0015C1F0 0x0015C7C4 ico2/fumi/src/commonact.c  # us-only; in commonact.c's span; PAL order suggests actCommonBecarry (764 B in PAL); named actCommonBecarry: act-mode-def BECARRY's act; PAL actCommonBecarry (provisional)
-lit4 actCommonBecarry 0x00630CBC 0x00630CC0 ico2/fumi/src/commonact.c  # 1 float, measured from the base: the text loads them
-sdlit actCommonBecarry 0x00632320 0x00632326 ico2/fumi/src/commonact.c  # 1 string, measured from the base
-rdlit actCommonBecarry 0x00558D90 0x00558DA3 ico2/fumi/src/commonact.c  # 1 string, measured from the base
 text subGirlBrain_Escape 0x0016FC48 0x00170380 ico2/fumi/src/girl_act.c lines=124  # ordinal; first difference at insn 3; length:+63; extent-differs
 lit4 subGirlBrain_Escape 0x00630DB8 0x00630DC0 ico2/fumi/src/girl_act.c  # 2 floats, measured from the base: the text loads them
 sdlit subGirlBrain_Escape 0x00632490 0x00632493 ico2/fumi/src/girl_act.c  # 1 string, measured from the base

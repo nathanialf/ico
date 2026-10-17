@@ -2882,7 +2882,102 @@ static __inline__ unsigned char requestBecarryMotion(GObj *self, int mot, int wa
     return 0;
 }
 
-INCLUDE_ASM(actCommonBecarry);
+void actCommonBecarry(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    int cur = -1;
+    GObj *g;
+    int old;
+    unsigned char done;
+    int n;
+    float p[4];
+    float q[4];
+    float pos[4];
+    float o[4];
+    float v[4];
+    float r0[4];
+    float r1[4];
+    float ori[4];
+    float put[4];
+
+    g = s->carrier;
+    s->flags18.ll &= ~(1ULL << 41);
+    n = (int)((50.0f - _DistxzGV(test_CURRENTROOT(g), test_CURRENTROOT((void *)self))) / 5.0f);
+    n = n < 0 ? -n : n;
+    _ACTWait(1);
+    while (1) {
+        _ACTCharStatus_Set(self, 9, -1.0f, 0);
+        old = cur;
+        cur = GOBJ_SUB(g)->ctrl.motion;
+        if (old != cur) {
+            done = requestBecarryMotion(self, cur, (GOBJ_ACT(g)->actMode == 100) ? 30 : 0, 1816);
+            if (!done) {
+                s->flags18.ll |= (1ULL << 41);
+            }
+        }
+        if (6 <= s->modeFrame) {
+            if (actModeTbl[GOBJ_ACT(g)->actMode].carried ||
+                motionKind[GOBJ_SUB(g)->ctrl.motion].flags.bits.carried) {
+                afterCommonCarry(g);
+                debug_StdPrintfDummy("girl becarry error");
+            }
+        }
+        switch (GOBJ_SUB(self)->ctrl.motion) {
+        case 618:
+        case 620:
+            if (n > 0) {
+                n--;
+                p[0] = test_CURRENTROOT((void *)self)[0];
+                p[1] = test_CURRENTROOT((void *)self)[1];
+                p[2] = test_CURRENTROOT((void *)self)[2];
+                q[0] = test_CURRENTROOT(g)[0];
+                q[1] = test_CURRENTROOT(g)[1];
+                q[2] = test_CURRENTROOT(g)[2];
+                o[0] = test_CURRENTORIENT(g)[0];
+                o[1] = test_CURRENTORIENT(g)[1];
+                o[2] = test_CURRENTORIENT(g)[2];
+                sceVu0ScaleVector(v, o, 5.0f);
+                sceVu0AddVector(pos, p, v);
+                SetDirectRootPositionNoFitting((void *)self, pos);
+            } else if (GOBJ_SUB(self)->ctrl.animFrame < 20.0f) {
+                _OrientXZGV(q, test_CURRENTROOT(girlGObj), test_CURRENTROOT(g));
+                SetMotionDirection(g, q);
+            }
+            if (FloorIsTruck(g)) {
+                r0[0] = test_CURRENTROOT((void *)self)[0];
+                r0[1] = test_CURRENTROOT((void *)self)[1];
+                r0[2] = test_CURRENTROOT((void *)self)[2];
+                r1[0] = test_CURRENTROOT(g)[0];
+                r1[1] = test_CURRENTROOT(g)[1];
+                r1[2] = test_CURRENTROOT(g)[2];
+                GetSkeltonOrient(ori, g, 44);
+                if (!(_DistSqGV(r0, r1) < 4225.0f)) {
+                    sceVu0ScaleVector(ori, ori, -60.0f);
+                    sceVu0AddVector(put, r1, ori);
+                    put[1] = r0[1];
+                    SetRootPosition(self, put);
+                }
+            }
+            break;
+        }
+        if (actModeTbl[GOBJ_ACT(boyGObj)->actMode].keepHand == 0) {
+            ACTGame_DisconnectHand();
+        }
+        if (debug_font_flag & 1) {
+            debug_Printf(100, 150, 0xFFFFFFF, "[%s]\n",
+                         (motionKind + GOBJ_SUB(girlGObj)->ctrl.motion)->name);
+        }
+        if (debug_font_flag & 1) {
+            debug_Printf(100, 160, 0xFFFFFFF, "[%s]\n",
+                         motionKind[GOBJ_SUB(s->carrier)->ctrl.motion].name);
+        }
+        if (debug_font_flag & 1) {
+            debug_Printf(100, 170, 0xFFFFFFF, "[%s]\n",
+                         actModeTbl[GOBJ_ACT(s->carrier)->actMode].name);
+        }
+        _ACTWait(1);
+    }
+}
 
 static inline void SetIdleMotionRange(int k, int mot, int mot2) /* derived name */
 {
