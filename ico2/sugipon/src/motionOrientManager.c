@@ -25,7 +25,6 @@
 #include "lineManager.h"
 #include "main.h"
 #include "Matrix.h"
-#include "include_asm.h"
 
 static void getMotionGeometry(void *self);
 static void getStreamShapeGeometry(void *self, void *sm);
@@ -967,7 +966,181 @@ static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n) /* d
     }
 }
 
-INCLUDE_ASM(getMotionGeometry);
+static void getMotionGeometry(void *self)
+{
+    SkelNode *skel = MOWORK(self)->skel;
+    struct MotRoot *mo = &MOWORK(self)->root;
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
+    int n = MOWORK(self)->skelNodeNum;
+    char *blendless = MOWORK(self)->blendless;
+    StreamElem mot[n];
+    float scale = MOWORK(self)->nodes->scale[0];
+    int *md = motionTable[w->motion];
+
+    if (motionKind[w->motion].blendKind == 228) {
+        assertMotionLoaded(w, md);
+        assertMotionNodeCount(w, md, n);
+    }
+    RegularizeQuaternion(MOWORK(self)->root.quat);
+    MatrixDrive_PushMatrix();
+    {
+        Vec16 v;
+        Vec16 rv;
+
+        if (motionKind[w->motion].blendKind == 228) {
+            GetFloatingMotion(mot, w->animFrame, v.f, md, n, blendless, skel);
+            GetFloatingMotionRootPos(rv.f, md, w->lastFrame);
+        } else {
+            getNodeBlendedFloatingMotion(mot, v.f, w->motion, n, blendless, self, w->animFrame);
+            getMotionRootPos(w, rv.f);
+        }
+        if (w->motion == 101) {
+            v.f[0] = v.f[0] + 1.0f;
+        }
+        sceVu0ScaleVector(&v, &v, scale);
+        if (w->animFrame < w->lastFrame) {
+            CopyVector(mo->step, ZeroVector);
+        } else {
+            sceVu0ScaleVector(&rv, &rv, scale);
+            sceVu0SubVector(mo->step, &v, &rv);
+        }
+        if (w->noAlt != 0) {
+            MakeMirrorMotion(mot, skel);
+        }
+        if (w->catchBoy != 0) {
+            SlopeIKControl(self, mot, v.f, mo->step, n);
+        }
+        {
+            Vec16 fv;
+            Vec16 tv;
+            Vec16 tmp;
+            float len;
+            float ang;
+            float r;
+            int flag;
+            int k;
+
+            /* a nested function, inlined into the arm that uses it */
+            inline void rotateNodes(StreamElem * m, SkelNode * s, void *q) /* derived name */
+            {
+                int i = 0;
+
+                do {
+                    MultiQuaternion(m[i].q, q, m[i].q);
+                    i = s[i].sibling;
+                } while (i != -1);
+            }
+
+            len = VectorLength(mo->move) *
+                  ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f);
+            CopyVector(&fv, w->dir);
+            CopyVector(&tv, w->lastDir);
+            if (MOWORK(self)->parent.obj != 0) {
+                sceVu0ApplyMatrix(&fv,
+                                  (char *)MOWORK(MOWORK(self)->parent.obj)->nodeMtx +
+                                      MOWORK(self)->parent.node * 0x40,
+                                  &fv);
+                sceVu0ApplyMatrix(&tv,
+                                  (char *)MOWORK(MOWORK(self)->parent.obj)->nodeMtx +
+                                      MOWORK(self)->parent.node * 0x40,
+                                  &tv);
+            }
+            ang = acosf(tv.f[0] * fv.f[0] + tv.f[2] * fv.f[2]) *
+                  ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 10430.378f);
+            if (0.0f < tv.f[0] * fv.f[2] - tv.f[2] * fv.f[0]) {
+                ang = -ang;
+            }
+            r = ang * 0.1f * len * len;
+            if (6144.0f < r) {
+                r = 6144.0f;
+            }
+            if (r < -6144.0f) {
+                r = -6144.0f;
+            }
+            if (debug_now_motion_viewer == 0) {
+                float t = 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.2f;
+                /* two statements with an int between them: both line maps have
+                 * code on both lines, the narrowing to short on the second, and
+                 * the expression-table size the spill-slot order needs counts it */
+                int tw = mo->twist * (1.0f - t);
+                mo->twist = (short)tw + r * t;
+            }
+            if (w->rootUpdateMode == 20) {
+                Vec16 up;
+                float mtx[4][4];
+                Vec16 rot;
+                short a;
+
+                tmp = mo->plane;
+                GetMatrixFromQuaternion((char *)mtx, mo->quat);
+                _ApplyMatrix(&up, mtx, ZUnitVector);
+                tmp.f[3] = 0.0f;
+                slopeVector[1] = GetYDistanceFromPlane(tmp.f, up.f);
+                slopeVector[2] = 1.0f;
+                _NormalizeVector(slopeVector, slopeVector);
+                a = GetTableArcTan2(slopeVector[1], slopeVector[2]);
+                SetIdentityQuaternion(&rot);
+                RotQuaternionX(&rot, a);
+                rotateNodes(mot, skel, &rot);
+            }
+            flag = 0;
+            if (debug_motion_interporate != 0) {
+                flag = w->blendFrames >= w->blendCount;
+            }
+            k = motionKind[w->motion].stepNode;
+            if (flag != 0) {
+                float s = (float)w->blendCount / (float)w->blendFrames;
+
+                GetBlendedMotion(MOWORK(self)->motionBuf, tmp.f, mot, v.f, MOWORK(self)->blendBuf,
+                                 MOWORK(self)->localPos, s, blendless, n);
+                mo->radius = mo->radiusFrom * (1.0f - s) + mo->radiusTo * s;
+                GetGeometryOfMotion(self, mot, MOWORK(self)->motionBuf, v.f, s, mo->step, k);
+            } else {
+                CopyMotion(MOWORK(self)->motionBuf, mot, n);
+                mo->radius = mo->radiusTo;
+                GetGeometryOfMotion(self, mot, MOWORK(self)->motionBuf, v.f, 1.0f, mo->step,
+                                    w->justShifted ? k : -1);
+            }
+            SetIdentityQuaternion(&tmp);
+            RotQuaternionX(&tmp, -32768);
+            RotQuaternionY(&tmp, -32768);
+            MultiQuaternion(&tmp, &tmp, skel->quat);
+            GetInverseQuaternion(&tmp, &tmp);
+            MultiQuaternion(mo->motionQuat, mot[0].q, &tmp);
+            CopyVector(w->lastDir, w->dir);
+        }
+    }
+    MatrixDrive_PopMatrix();
+    if (w->mailDelay <= 0) {
+        w->mailDelay = w->mailDelay + 1;
+    } else {
+        sendStateMail(self);
+    }
+    DispSkelton(self, mot);
+    ExecFrameDependSequence(self);
+    execFrameTrigger(self);
+    UpdateFrameCounter(self);
+    if (stage_no == 16 && MOWORK(self)->ctrl.wallHit != 0) {
+        void *g = isysGObjSearchFromObjLayoutID(806);
+
+        if (g != 0) {
+            void *o;
+            void *t;
+
+            if ((void *)MOWORK(self)->root.wall.o.obj == g) {
+                g = isysGObjSearchFromObjLayoutID(807);
+            }
+            o = MOWORK(g)->parent.obj;
+            t = (void *)MOWORK(self)->root.wall.o.obj;
+            if (*(int *)((char *)o + 0xC) == 17) {
+                if (o == t) {
+                    MOWORK(self)->ctrl.wallFloorHeight = 3.40282347e+38f;
+                    MOWORK(self)->ctrl.wallTopHeight = 3.40282347e+38f;
+                }
+            }
+        }
+    }
+}
 
 /* The two line colours the debug bar graph draws with: 16-byte records,
  * 8-byte aligned; ico2/omori/src/camera-editor.c spells the union the same

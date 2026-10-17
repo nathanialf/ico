@@ -151,6 +151,3 @@ text subGirlControl 0x00171E48 0x001725C4 ico2/fumi/src/girl_act.c lines=230  # 
 lit4 subGirlControl 0x00630DE0 0x00630E14 ico2/fumi/src/girl_act.c  # 13 floats, measured from the base: the text loads them
 rdlit subGirlControl 0x00559770 0x00559888 ico2/fumi/src/girl_act.c  # 5 strings, 1 jump table, measured from the base
 sdlit subGirlControl 0x006324C8 0x006324E7 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base: no code reads them, the compiled-out debug code's
-text getMotionGeometry 0x001E3030 0x001E39E4 ico2/sugipon/src/motionOrientManager.c local lines=179  # us-only (in motionOrientManager.c's span; PAL order suggests getMotionGeometry (2536 B in PAL)); named getMotionGeometry by call sites, callees, body alignment (provisional)
-lit4 getMotionGeometry 0x0063137C 0x00631388 ico2/sugipon/src/motionOrientManager.c  # 3 floats
-sdlit getMotionGeometry 0x0063352C 0x00633530 ico2/sugipon/src/motionOrientManager.c  # 1 word
