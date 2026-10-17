@@ -3019,10 +3019,26 @@ int padtimer_run = 0;
 /* the motion-def row of an actor's current motion (boyact.c's CHAINROW) */
 #define MOTDIRROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
 
-/* The girl's control thread.  A block of compiled-out debug code sits in
-   it; the strings it printed ("src/girl_act.c", "NOTARGET",
-   "[%s] %4d %4d %4d", "delete wg 2\n") stay in .rodata between this
-   function's "girl no!!\n" and its jump table. */
+/* The girl's control thread, built from the user's disc.  Its text is known
+   but for one region: every other statement is the PAL text with this
+   build's values (the mail numbers, the slow-walk test's flags18 mask
+   0x4018000000000000, and the test of flags20 bit 3 that case 45 adds), and
+   it compiles to this build's 479 words except the register choice at two
+   sites (&mdir and &dir in s3/s4, %hi(motionKind) and the jump table's %hi
+   in s6/s7).  The region is the slow-walk block's debug display, about 709
+   source lines that the August and the January line maps both leave without
+   code.  In the June 26, Aug 7 and Aug 20 builds it held roughly 150 live
+   zero-byte statements: calls to this file's debug helpers whose bodies are
+   empty in a retail build, one instruction each until register allocation.
+   Their count lies in a window and their place in the block is fixed, both
+   pinned by the two register choices; their text is not.  By November the
+   region compiles to nothing, and PAL and JPN match with it as `if (0)`.
+   Eight strings of the display survive with no code reading them: in
+   .rodata "src/girl_act.c", "NOTARGET", "[%s] %4d %4d %4d" and
+   "delete wg 2\n" (after the live "girl no!!\n"), in .sdata "SLOW", "HURRY",
+   "STOP" and "target".  No debug build or symbol table of this program is
+   known; the function returns to C when such evidence names the
+   statements. */
 INCLUDE_ASM(subGirlControl);
 
 extern int fptodp(float v);
