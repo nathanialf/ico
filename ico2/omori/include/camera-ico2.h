@@ -14,7 +14,6 @@ extern char cameraSetList[][32];
 struct CamGroup;
 struct CamSetFile;
 
-void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
 void SetCameraZoomOffsetRatio(float val);
 int GetCameraGroupCurrent(void);
 int GetCameraGroupFromGObj(void *obj);
