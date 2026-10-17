@@ -39,26 +39,21 @@ static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, -1, -1}; /* derived n
 #include "attackhit.h"
 #include <libvu0.h>
 #include "main.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     /* 0x00 */ float radius;
     char pad04[4];
     /* 0x08 */ float power; /* the attack power multiplier */
     char pad0C[20];
-    /* 0x20 */ unsigned int flags; /* bit 0 unguardable, bit 1 the swing sweeps */
-} WeaponKindEntry;                 /* derived name */
+    /* 0x20 */ unsigned int unguardable : 1; /* bit fields, as attackData's flag word */
+    unsigned int sweep : 1;                  /* the swing sweeps; nothing in this build reads it */
+    unsigned int padBits : 30;
+} WeaponKindEntry; /* derived name */
 
 /* the data-only member weapon-def.o, read through this file's view of its
-   rows; no header declares it */
-extern WeaponKindEntry weaponKind[];
-
-/* the 0x5C word as a float or an int, written through this view at one site */
-union PackPowerWord { /* field names derived */
-    float f;
-    int i;
-    int m;
-};
+   rows; no header declares it. const, as the table sits in .rodata (weapon.c
+   declares it so) */
+extern const WeaponKindEntry weaponKind[];
 
 /* the attack table row of the actor's current motion, 0 when none matches */
 static inline int GetAttackKindIndex(Sub15C *p) /* derived name */
@@ -84,7 +79,67 @@ static inline void GetFocusNodePos(GObj *gobj, int node, float *out) /* derived 
     out[2] = m[14];
 }
 
-INCLUDE_ASM(func_00180F40);
+static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, GObj *weapon)
+{
+    float v0[4];
+    Act *ext;
+    int k;
+    int wk;
+
+    ext = GOBJ_ACT(gobj);
+    k = GetAttackKindIndex(GOBJ_SUB(gobj));
+    *pack = attackPackInit;
+    pack->actor = gobj;
+    if (k == 0) {
+        return;
+    }
+    if (GetMotionFrameFlag1(gobj) == 0) {
+        return;
+    }
+    pack->group = k;
+    pack->group2 = ext->attackGroup | (k << 16);
+    switch (attackData[k].weapon) {
+    case 1:
+        if (weapon == 0) {
+            return;
+        }
+        wk = CheckWeaponKind(weapon);
+        WeaponCurPos(weapon, pack->center, pack->from, pack->to);
+        pack->radius0 = weaponKind[wk].radius;
+        pack->radius1 = 20.0f;
+        pack->power = attackData[k].power * weaponKind[wk].power;
+        pack->active = 1;
+        break;
+
+    case 0:
+        GetFocusNodePos(gobj, attackData[k].focusNode, v0);
+        pack->center[0] = v0[0];
+        pack->center[1] = v0[1];
+        pack->center[2] = v0[2];
+        pack->from[0] = v0[0];
+        pack->from[1] = v0[1];
+        pack->from[2] = v0[2];
+        pack->to[0] = v0[0];
+        pack->to[1] = v0[1];
+        pack->to[2] = v0[2];
+        pack->radius0 = attackData[k].radius;
+        pack->radius1 = attackData[k].radius;
+        pack->power = attackData[k].power;
+        pack->active = 1;
+        if (gobj->kind == 4) {
+            if (actEnemy_isLargeEnemy(gobj) != 0) {
+                pack->radius0 = pack->radius0 * 4.0f;
+                pack->radius1 = pack->radius1 * 4.0f;
+            }
+            if (gobj->kind == 4) {
+                if ((GOBJ_ACT(gobj)->enemy->flags.w.bits & 1) != 0) {
+                    pack->down = 1;
+                }
+            }
+        }
+        break;
+    }
+}
 
 /* shared by _AttackCenter and AttackCenter_WithDir */
 static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float *pos, float *ofs,
@@ -204,7 +259,7 @@ static void AttackMail(GObj *self, AttackPack *pack)
     } else {
         kind = CheckWeaponKind(weapon);
         power = attackData[group].power * weaponKind[kind].power;
-        hard = (weaponKind + kind)->flags & 1;
+        hard = weaponKind[kind].unguardable;
     }
     mail = 13;
     if (GOBJ_ACT(self)->enemy->liftKind == 3) {
@@ -376,6 +431,13 @@ static GObj *AttackGenerate(AttackPack *pack)
     return hit;
 }
 
+inline void CommonAttackCenter(GObj *gobj)
+{
+    AttackPack pack;
+    MakeAttackPack_Actor(&pack, gobj, GOBJ_ACT(gobj)->weapon);
+    AttackGenerate(&pack);
+}
+
 inline GObj *_AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius)
 {
     AttackPack pack;
@@ -409,5 +471,3 @@ inline void AttackCenter_WithDir(GObj *gop, int group, float *pos, float *dir, f
 void EnemyAttackCenter(GObj *gobj) {}
 
 void BoyAttackCenter(GObj *gobj) {}
-
-INCLUDE_ASM(CommonAttackCenter);
