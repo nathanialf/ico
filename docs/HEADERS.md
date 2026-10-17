@@ -26,7 +26,7 @@ the listing records for it, under the programmer directory that owns it.
 | `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into `avoid_obstacle2` | the engine's shared object records (`GObj`, `Sub15C`, `Act`, ...) and the game's VU0 asm templates |
 | `ico2/omori/include/{b50,b100,b200}climb.h` | whole functions, emitted into `fumi/src/boyact.c`'s object | the boy's climb handlers |
 | `ico2/omori/include/{g50,g100,g200}climb.h` | whole functions, emitted into `fumi/src/girl_act.c`'s object | the girl's climb handlers |
-| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x00612A30` names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1582 here, 1637 in PAL's build), the size of `charFileManager.c`'s character-file table and the bound its four id checks compare against |
+| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x00612A30` (PAL `0x00619370`) names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1582 here, 1637 in PAL's build), the size of `charFileManager.c`'s character-file table and the bound its four id checks compare against |
 
 Things a reader of these files should know:
 
@@ -87,6 +87,23 @@ defined in the owner's header or, for the engine's records (`GObj`,
 a shared record under a comment saying so (`st04a.c`'s `Act` and `GObj`,
 `item.c`'s `ClipWork`). Records only one file uses stay in that file.
 
+**The USA build's records.** Where the USA build lays out a record
+differently from PAL's, the owner's header holds the USA layout, and every
+reader uses it. Among them:
+
+| record | header | the USA layout |
+| --- | --- | --- |
+| `Act` | `common/include/typedef.h` | `actMode` at 0x30 (PAL 0x34), `env` at 0x4A0 (PAL 0x4B0) |
+| `Sub15C` | `common/include/typedef.h` | `motionBuf` at 0x78C (PAL 0x7B4) |
+| `ActWork` | `fumi/include/act-game.h` | no `boxDir`: `wayReq` 0x4B0, `viewState` 0x730, `intrReq` 0x7E0 (PAL 0x580, 0x800, 0x8B0) |
+| `MotionDef` (motion-def) | `sugipon/include/motionOrientManager.h` | 0x190 bytes (PAL 0x194) |
+| `TexRec` (texture-path) | `common/include/charFileManager.h` | `char path[32]`, 0x20 bytes (PAL `char path[48]` and `cameraMove`, 0x34 bytes) |
+| `PObjMdl` (model-path) | `common/include/charFileManager.h` | 0x10C bytes: a model path and a shadow model path before the skeleton path (PAL 0x8C, without the two) |
+| `McProductFile` | `common/include/typedef.h` | 0x18C bytes (PAL 0x1F0) |
+| `VoTag`, `VoData` | `ito/include/mv_vobuf.h` | sized for a 720 x 480 picture (PAL 720 x 576) |
+
+Each header's comment at the record gives the readers and the offsets.
+
 **Sony's and newlib's headers.** The headers under `sce/<archive>/` carry the
 SDK's public header names (`eekernel.h`, `libgraph.h`, `libdma.h`, ...) and
 newlib's (`stdio.h`, `math.h`, ...). Each declaration is the signature of the
@@ -97,7 +114,8 @@ Files named `*_internal.h` hold declarations that are not public API, and their 
 are this project's, as is `sce/libsndn2/sound.h`, named after its member
 `sound.o`; the movie player's audio decoder takes the stream PCM calls from
 it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
-header compiled code into the game.
+header compiled code into the game. The USA link has no `libscf` member,
+so this branch has no `sce/libscf/` and no `libscf.h`.
 
 ## Derived names
 
@@ -106,7 +124,26 @@ derived from context instead of read from the disc's maps is marked with a
 `/* derived name */` token on its definition line. A record of the game
 whose field names are derived carries one `/* field names derived */` token
 on its opening line rather than one per field. Sony's public types keep
-their public names.
+their public names. Besides PAL's derived names, this branch derives names
+for objects and functions only this build has or splits differently
+(`git grep -n 'derived name'` lists every one).
+
+**Nested functions.** gcc names a nested function `<name>.<N>`, with `N`
+taken from its declaration numbering in that compile. The USA ELF is
+stripped and records no symbols, so a `.N` suffix the tree's config or
+comments give a nested function (`Cling.176` and `ChangeRunMode.135` in
+`config/data_members.us.txt`) is the PAL disc's `MAIN.MAP` suffix, carried
+over by the census. This build's own link may number the same function
+differently (its symbol map has `Cling.165`); the suffix is no part of the
+stripped ELF's bytes.
+
+**Names the two maps spell differently.** Where the PAL disc's `TRFILE.TXT`
+and the August 6, 2001 prototype's spell a function differently, the tree
+keeps PAL's: `_AttackCenter` (`omori/src/attackhit.c`; the prototype's
+`TRFILE.TXT` and both discs' `MAIN.MAP` say `AttackCenter`), and
+`scpAdpcmFadeCloseFunc` and `scpAdpcmCloseChkFunc` (`script/src/script.c`;
+the prototype and the maps say `scpAdpcmFadeClose` and `scpAdpcmCloseChk`).
+The USA disc ships no map, so neither spelling is attested for this build.
 
 ## Search order
 

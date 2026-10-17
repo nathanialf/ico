@@ -28,7 +28,7 @@ sectors itself (the `.cue` gives the mode, MODE2/2352 on this disc), so no
 extra package is needed. The build accepts exactly one revision,
 `VER = 1.00` in the disc's `SYSTEM.CNF`:
 
-| file | SHA-1 (`config/sha1sums.txt`) |
+| file | SHA-1 (`config/sha1sums.us.txt`) |
 | --- | --- |
 | `baserom/us/baseelf.elf`, the disc's `SCUS_971.13` | `a4d8fc1948fb2da2395f3863a94a3b93de55de14` |
 | `baserom/us/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `fbf50c75cd5911273511c4f9af90503ff8423582` |
@@ -42,17 +42,23 @@ cp "/path/to/Ico (USA).cue" baserom/Ico_USA.cue
 ./build.sh
 ```
 
+A hard link or a symbolic link in place of each copy works as well; the
+build only reads the image.
+
 `./build.sh` runs the steps below that are not already done, in order, and
-stops with a non-zero exit at the first failure. On a four-core host with
-the toolchain already installed and `baserom/us/` already extracted,
-`tools/build.sh setup && .venv/bin/ninja` took 56 s and ended with
-`check_elf: gate PASS`. A second `./build.sh` on the built tree rebuilds
+stops with a non-zero exit at the first failure. On a four-core host, a
+fresh clone with the toolchain downloads and builds of section 1 took
+2 min 54 s and ended with `check_elf: gate PASS`. With the toolchain
+already installed and `baserom/us/` already extracted,
+`tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 48 s
+and 50 s in two runs. A second `./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
 below describe each step; each can also be run on its own. The scripts are
 the same on every target branch and take the target, and with it every
-`config/*.us.*` and `baserom/us/` path below, from
-`tools/ico_version.py` (the first `config/link_order.<slug>.txt` that
-exists: `config/link_order.us.txt` on this branch).
+`config/*.us.*`, `baserom/us/` and `build/us/` path below, from
+`tools/ico_version.py` (`VERSION=<slug>`, else the first
+`config/link_order.<slug>.txt` that exists: `config/link_order.us.txt` on
+this branch, its only target).
 
 ## 1. Host setup: `tools/setup.sh`
 
@@ -135,7 +141,7 @@ runs read directly. It then reads that ISO9660 filesystem with pycdlib
 (`tools/extract_elf.py`), extracts the boot file named by `SYSTEM.CNF`'s
 `BOOT2` line (`SCUS_971.13`), and writes `baserom/us/baseelf.elf` and its
 `objcopy -O binary` view `baserom/us/baseelf.rom`. It checks both SHA-1s
-against `config/sha1sums.txt` and stops on a mismatch. It also copies the
+against `config/sha1sums.us.txt` and stops on a mismatch. It also copies the
 disc's `SYSTEM.CNF` into `baserom/us/`; the USA disc ships no map or listing
 (`docs/LEGAL.md`). Everything under `baserom/` is gitignored.
 
@@ -145,16 +151,16 @@ disc's `SYSTEM.CNF` into `baserom/us/`; the USA disc ships no map or listing
 `tools/build.sh verify`, which only checks the two SHA-1s; `build.ninja`
 rewrites itself when `tools/gen_ninja.py` or one of its inputs changes.
 
-`setup` deletes `build/` and ninja's state, verifies the SHA-1s of the base
-ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
-`tools/gen_ninja.py` from these inputs:
+`setup` deletes `build/us/`, verifies the SHA-1s of the base ELF and ROM
+(`tools/verify_elf.py`), and writes `build.ninja` with `tools/gen_ninja.py`
+from these inputs:
 
 - `config/link_order.us.txt`: every object of the link in the retail link's
   order, one source per line, with the data-only members as `data:` lines.
   The disc has no map, so the order is PAL's carried over by the function
   census, and each line that departs from it says why.
-  `tools/gen_ninja.py` fails if a tracked `.c`, `.s`, `.S` or `.dsm` under
-  `ico2/` or `sce/` is missing from it.
+  `tools/gen_ninja.py` runs `tools/check_targets.py` first and fails if a
+  tracked source under `ico2/` or `sce/` is missing from it.
 - `config/link.us.ld`: the hand-written linker script, which places each
   section at the base ELF's addresses and defines the symbols the link needs.
 - `config/data_members.us.txt`: the data-only members (member, section,
@@ -163,21 +169,26 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 - `config/data_schema.us.txt`: the data-only members written as C (member,
   section, element type, the game header that defines it, element count,
   MAIN.MAP's names).
-- `config/stubs.us.txt`: the campaign stubs (section 4).
+- `config/stubs.us.txt`: the campaign stubs, while it has rows (section 4).
 
 `tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
-`build.ninja` only), `clean` (delete `build/`), `distclean` (also
-`build.ninja` and ninja's state) and `progress` (below).
+`build.ninja`; needed after adding a source), `clean` (delete `build/us/`),
+`distclean` (delete `build/` and `build.ninja`), `progress` (below) and
+`gate-all` and `progress-all`, which do the same for every configured
+target, here the one.
 
 ## 4. `ninja`
 
 `.venv/bin/ninja`, or any ninja on the PATH. `build.ninja` does the following
 (`tools/gen_ninja.py`):
 
-- compiles every C source under `ico2/` and `sce/` with `tools/compile_c.sh`:
-  ee-gcc 2.9-991111 with the flags of the source's origin (the game
+- compiles every C source of the link order with `tools/compile_c.sh`, from
+  the source's own directory (`ico2/<programmer>`, `sce/<archive>`), so
+  `__FILE__` and the include paths are spelled as the original build spelled
+  them: ee-gcc 2.9-991111 with the flags of the source's origin (the game
   `-g -G 8 -fno-common`; Sony's archives `-G 0`; libc, libm and libgcc
-  `-G 0 -fno-builtin`), then the assembler of its archive. Both run through
+  `-G 0 -fno-builtin`) and `-DVERSION_US`, then the assembler of its
+  archive. Both run through
   `tools/period_env.sh`, which preloads `tools/period_obstack.c` to restore
   the obstack chunk size of the machine that built the game; ee-as's R5900
   short-loop padding depends on it;
@@ -187,13 +198,13 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 - assembles the five VU1 microprograms: the period cpp reads each program's
   text, `ico2/vusrc/<stem>.vsm`, from standard input in `ico2/` with
   `-Ivusrc` (it includes `vusrc/vu1_common.h` and, in normal_c and normal_l,
-  `vusrc/scissorcommcut.h`) and writes `build/ico2/vusrc/<stem>.i`; dvp-as,
-  run from `ico2/` with `-I../build/ico2`, assembles `vusrc/<stem>.dsm`, the
-  DMA tags around `.include "vusrc/<stem>.i"`. The overlay section names
+  `vusrc/scissorcommcut.h`) and writes `build/us/ico2/vusrc/<stem>.i`;
+  dvp-as, run from `ico2/` with `-I` naming `build/us/ico2`, assembles
+  `vusrc/<stem>.dsm`, the DMA tags around `.include "vusrc/<stem>.i"`. The overlay section names
   dvp-as writes hash the name of the file it is reading and the line: the
   `.dsm` path for the first overlay of each program, the empty name cpp gives
   standard input and the include's path for the others;
-- writes the data-only members from the base ELF into `build/data/`. Each
+- writes the data-only members from the base ELF into `build/us/data/`. Each
   of the 71, all listed in `config/data_schema.us.txt`, is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
   with every pointer named after the symbol at its address, floats as the
@@ -202,21 +213,22 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   literals its pointers name, and the compiler lays it out; a count the
   schema marks `count-of=` (staffroll_dat's line count) is written as
   `sizeof` over the table, not read from the ELF. The addresses
-  come from a first link, `build/ico.layout.elf`, in which a zero stand-in of
+  come from a first link, `build/us/ico.layout.elf`, in which a zero stand-in of
   the member's size takes its place. The C compiles with the game's flags
   like any `ico2/` source, each section of the object is checked against the
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
-  its offset by `build/data/<member>.alias.ld`;
-- writes the stubs from `config/stubs.us.txt`. While this target is
-  rebuilt from the tree seeded from `main`, a function whose C does not yet
-  give the USA bytes is listed there with its address range and its translation unit, and the C
+  its offset by `build/us/data/<member>.alias.ld`;
+- writes the stubs, when `config/stubs.us.txt` has rows (with none, this
+  step does nothing). While this target is rebuilt from the tree seeded
+  from `main`, a function whose C does not yet give the USA bytes is listed
+  there with its address range and its translation unit, and the C
   carries `INCLUDE_ASM(stem);` where the function stands in the file (the
   stem is the function's name, or the row's `file=<stem>` when two statics
   in two TUs share a name; a function defined in a `.c.inc` the TU includes
   has its line there, named by the row's `in=<file.c.inc>`, and the TU's
   object depends on that file). `tools/gen_stub_s.py` writes
-  `build/stubs/<stem>.s` from the user's own base ELF, one `.word` per
+  `build/us/stubs/<stem>.s` from the user's own base ELF, one `.word` per
   instruction with no relocations, and the assembler reads it at that point
   of the compiler's output, so the stub sits between the functions around it
   and the gate passes at every commit. The constants the function brought
@@ -233,7 +245,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   split in two: gcc writes its strings and other constants where the
   function is defined, among its neighbours', and its code after the whole
   file, so its `rdlit` and `sdlit` rows for those carry `def`,
-  `gen_stub_s.py` writes them to `build/stubs/<stem>.lit.s`, and the file
+  `gen_stub_s.py` writes them to `build/us/stubs/<stem>.lit.s`, and the file
   reads them with `INCLUDE_ASM_LIT(stem);` in the definition's place, while
   the code, the .lit4 floats, the `li.d` doubles and the jump tables (the
   assembler interns .lit4 in load order, and a jump table is referenced
@@ -248,7 +260,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   `%hi`/`%lo` pairs), and the two lists must pair one to one; what cannot be
   placed by a row is printed as HAND and a pair that differs as DISAGREE,
   for the hand. It writes the
-  macro's header too, `build/stubs/include_asm.h`, which
+  macro's header too, `build/us/stubs/include_asm.h`, which
   `tools/compile_c.sh` searches last: the tree tracks no copy, so a TU that
   includes it compiles only while stubs exist. `--carve NAME` and
   `--restore NAME` (`--carve-all`, `--restore-all`) replace a definition
@@ -276,17 +288,17 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   range, relocated fields masked, so a function's state is known before the
   link; `tools/object_check.py` compares each object's `.text` with the
   target at the object's address in the link (or, when the link fails, in
-  `build/ico.layout.elf`), relocated fields masked, and with `--order` each
+  `build/us/ico.layout.elf`), relocated fields masked, and with `--order` each
   TU's function order with the target's, naming a stub placed before
   functions the target emits earlier;
-- links with ld 2.10 and `config/link.us.ld`, once to `build/ico.syms.elf`
-  (symbols kept, with the map `build/ico.us.map`) and once stripped to
-  `build/ico.elf`, as the base is;
-- writes `build/ico.rom` with `objcopy -O binary`;
+- links with ld 2.10 and `config/link.us.ld`, once to `build/us/ico.syms.elf`
+  (symbols kept, with the map `build/us/ico.us.map`) and once stripped to
+  `build/us/ico.elf`, as the base is;
+- writes `build/us/ico.rom` with `objcopy -O binary`;
 - runs `tools/check_elf.py --gate`: every allocated section of
-  `build/ico.elf` must hold the base ELF's bytes at the base's addresses,
+  `build/us/ico.elf` must hold the base ELF's bytes at the base's addresses,
   `.sbss` and `.bss` must be allocated over the base's ranges, and
-  `build/ico.rom` and `build/ico.elf` must have the recorded SHA-1s
+  `build/us/ico.rom` and `build/us/ico.elf` must have the recorded SHA-1s
   (`--require-elf-sha`). A second, informational table compares `.reginfo`,
   the `.DVP.*` sections, `e_flags`, `e_entry` and the program and section
   headers. The build fails when a gated check fails.
@@ -303,27 +315,31 @@ are the ROM's bytes. `.gitattributes` lists each of them with
 `working-tree-encoding=EUC-JP`: git stores the file as UTF-8 and checks it
 out as EUC-JP, which is what the compiler reads. An editor or a pipe that
 rewrites one of these files as UTF-8 changes its bytes; change them with an
-ASCII patch and `git apply`.
+ASCII patch and `git apply`. Check that the count of high bytes in the file
+is unchanged after any edit.
 
 ## Progress and the dashboard
 
 `tools/build.sh progress` runs `tools/check_elf.py --progress`, which
-rewrites the README's badge block, the table in `docs/PROGRESS.md` and
-`docs/progress.json` from the built ELF, its link map and the function
-symbols of `build/ico.syms.elf`. A byte counts for its section when the map
+rewrites the README's badge block, the table in `docs/us/PROGRESS.md` and
+`docs/us/progress.json` from the built ELF, its link map and the function
+symbols of `build/us/ico.syms.elf`. A byte counts for its section when the map
 row that places it belongs to an object built from `ico2/` or `sce/` and the
-byte equals the base's; bytes from `build/data/` and the campaign stubs'
-bytes are counted separately, as from the disc. The count is by object, so `staffroll_dat`'s count word
+byte equals the base's; bytes from `build/us/data/` and any campaign stub's
+bytes are counted separately, as from the disc. The count is by object, so
+`staffroll_dat`'s count word
 (4 bytes of `.sdata`) counts as from the disc although the generator
 computes it from the table's element count.
 
-The dashboard is `docs/index.html`, which reads `progress.json`. On a push
-that changes `docs/index.html`, `docs/progress.json`, `docs/PROGRESS.md`,
+The dashboard is `docs/index.html`, which reads each target's
+`progress.json`. On a push that changes `docs/index.html`,
+`docs/us/progress.json`, `docs/us/PROGRESS.md`,
 the workflow or its script, `.github/workflows/pages.yml` runs
 `.github/scripts/build_pages_site.sh`, which assembles one site and deploys
 it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
-`origin/main` on the other branches); each target branch supplies only its
-`progress.json` and `PROGRESS.md`.
+`origin/main` on the other branches); this branch supplies only
+`docs/us/progress.json` and `docs/us/PROGRESS.md`, the dashboard's `us`
+tab.
 
 ## Hooks
 
@@ -332,11 +348,16 @@ it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
 - **pre-commit**: `tools/check_no_rom.sh` (refuses disc images, executables,
   extracted assets and large binaries), `tools/check_dev_native.py` (refuses
   constructs that only steer the compiler, with the ROM-proven exceptions in
-  `tools/dev_native_allow.txt`), and `tools/format.sh --check` on the staged
-  C. When a staged path is under `ico2/`, `sce/`, `config/`, `tools/` or
-  `baserom/`, it then runs `tools/build.sh setup`, `ninja` and
-  `tools/check_elf.py --progress`, and adds the refreshed progress files to
-  the commit.
+  `tools/dev_native_allow.txt`), `tools/check_targets.py`, and
+  `tools/format.sh --check` on the staged C. When a staged path is under
+  `ico2/`, `sce/`, `config/`, `tools/` or `baserom/`, it then runs
+  `tools/build.sh gate-all` (every configured target from scratch, here
+  `us`; a missing `baserom/us/` fails the commit) and
+  `tools/build.sh progress-all`, and adds the refreshed README block and
+  `docs/us/` progress files to the commit. `check_dev_native.py` checks an
+  asm block against the PAL disc's listing, `baserom/pal/SRCFILE.TXT`; on a
+  checkout without it, the blocks it would check are reported as
+  unverified instead, so the unverified count is higher there.
 - **pre-push**: for each pushed branch other than `main`,
   `tools/check_shared_layer.sh` fetches `origin/main` and refuses the push
   when the branch's `tools/`, `build.sh`, `.github/` or `docs/index.html`
@@ -346,7 +367,7 @@ it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
   branch's own sources, so each branch keeps its own. Then, for each pushed
   ref whose commits touch the build, it requires the working tree to be at
   that ref's tip with no uncommitted changes under `ico2/`, `sce/`,
-  `config/` or `tools/`, and runs `tools/build.sh setup` and `ninja` on it.
+  `config/` or `tools/`, and runs `tools/build.sh gate-all` on it.
 
 `tools/format.sh` formats the tracked C with the tracked `.clang-format` and
 then `tools/format_layout.py`'s top-level blank-line layout. The game
@@ -355,6 +376,6 @@ gate after formatting.
 
 ## Running the rebuilt ELF (optional)
 
-Any PS2 emulator can run `build/ico.elf` as a sanity check, with
+Any PS2 emulator can run `build/us/ico.elf` as a sanity check, with
 the cooked `baserom/Ico_USA.iso` (or the `.bin` and `.cue`) as the disc for
 the game's data files.

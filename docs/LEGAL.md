@@ -25,12 +25,16 @@ respective owners.
 ## What is not in this repository, and must never be added
 
 - The ICO disc image (`.bin`, `.iso`, `.cue` or any other form), in whole or
-  in part.
+  in part: on this branch `baserom/Ico_USA.bin`, `baserom/Ico_USA.cue` and
+  the cooked `baserom/Ico_USA.iso`.
+- Anything the build extracts from it: `baserom/us/baseelf.elf`,
+  `baserom/us/baseelf.rom` and `baserom/us/SYSTEM.CNF`, or the build output
+  under `build/us/`.
 - The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
   `SCUS_971.13`, the prototypes), or any part of it.
 - Audio, images, textures, models, text or other assets from the disc.
-- The game's data tables, and the code and constants of the functions this
-  branch still builds as campaign stubs (next section).
+- The game's data tables, and the code and constants of any function built
+  as a campaign stub (next section).
 - Symbol tables, map files or other identifier tables, and any debug string,
   asset or code blob, copied verbatim or in bulk out of the binary, the disc
   or any leaked development material. Using an individual fact (a name, an
@@ -57,8 +61,8 @@ re-derive, and their values are never committed, as C, as assembly or in any
 other form.
 
 The build reads them from the user's own `baserom/us/baseelf.elf` and
-writes them under `build/data/`, which is gitignored. Each member is
-written as `build/data/<member>.c`, an initialized array of its record type
+writes them under `build/us/data/`, which is gitignored. Each member is
+written as `build/us/data/<member>.c`, an initialized array of its record type
 from `config/data_schema.us.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
 owners' headers hold only types, element counts and symbol names. The
@@ -68,10 +72,11 @@ names MAIN.MAP gives the symbols, and nothing of the tables' content.
 The campaign stubs are handled the same way. While a function's C does not
 yet give the USA bytes, `config/stubs.us.txt` names it with its address
 range and its translation unit, and `tools/gen_stub_s.py` writes its
-instructions and constants from the user's own ELF to `build/stubs/` at build
-time, where the C includes them. The list holds names, ranges and notes on
-how each function differs from PAL's, never a word of the code; nothing under
-`build/stubs/` is committed.
+instructions and constants from the user's own ELF to `build/us/stubs/` at
+build time, where the C includes them. The list holds names, ranges and notes
+on how each function differs from PAL's, never a word of the code; nothing
+under `build/us/stubs/` is committed. When the list is empty, nothing is
+generated.
 
 The line drawn is between content and facts about its shape. The names,
 tables and strings are content and are never committed. A count or size
@@ -159,23 +164,28 @@ The USA retail disc (`SLUS-20218`, boot ELF `SCUS_971.13`, `SYSTEM.CNF`
 ELF. Its names come from the PAL disc's listing above, by instruction-stream
 correlation (`tools/correlate_elf.py`): each function of the USA ELF is paired
 with a PAL function whose instructions, relocated fields masked, are the
-same, and takes that function's name. Where the census paired two functions
-only by their position inside a run of unpaired ones (the ordinal tier), the
-name is provisional until the function matches from the PAL source. A USA
-function no PAL function claims carries a derived name, `func_<VMA>`, unless
-other evidence ties it to a PAL function the census left without a twin: 855
-such functions were renamed after the PAL function they are (a body equal
-with immediates and jump targets masked, PAL's size and order, call sites,
-data tables, callees or body alignment), and the ones a data member points
-at were named by that member's key or by the record they address, or given a
-derived name where no counterpart was found. Each of those names is marked
-provisional in the stub list, with its evidence on the row, until the
-function matches. The data-only members take PAL's names by member order. No
-address is copied from either PAL file: every address in this branch's
-configuration was found in the user's own ELF.
+same, and takes that function's name. Two kinds of pairing needed more
+than that. Where the census paired two functions only by their position
+inside a run of unpaired ones (the ordinal tier), and where a USA function
+no PAL function claimed was tied by other evidence to a PAL function the
+census left without a twin (a body equal with immediates and jump targets
+masked, PAL's size and order, call sites, data tables, callees or body
+alignment), the name is provisional, with its evidence on its stub-list
+row, until the function is rebuilt from the PAL function's source with the
+USA build's changes and the gate passes; every function that has left the
+list was confirmed that way. Functions a data member points at
+were named by that member's key or by the record they address. A function
+with no PAL counterpart carries a derived name. The data-only members take
+PAL's names by member order. No address is copied from either PAL file:
+every address in `config/*.us.*` was found in the user's own ELF.
 
-The functions still built as campaign stubs are generated from the user's
-own ELF at build time (above); the tree holds their names and ranges only.
+Of the user's USA disc the build reads `SYSTEM.CNF`, to find the boot file,
+and `SCUS_971.13`: it checks the ELF's SHA-1, generates the 71 data-only
+members from it (above), and writes any campaign stub `config/stubs.us.txt`
+still lists. Every other function, the five VU1 microprograms and Sony's
+libraries are compiled or assembled from the tracked sources.
+`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/us/`.
+
 Where the USA build lays out a record differently from PAL's (eight of the
 data tables' record types among them), the layout was derived from the code
 that reads it in both builds (the field offsets each twin function's loads
@@ -218,7 +228,7 @@ source and leaked SDKs stay forbidden on every branch.
 
 You must legally own a copy of *ICO* for the PlayStation 2 and supply the
 disc image yourself. The build checks the extracted ELF's SHA-1 before it
-proceeds and refuses any other file (`config/sha1sums.txt`,
+proceeds and refuses any other file (`config/sha1sums.us.txt`,
 `docs/BUILDING.md`). A SHA-1 is a fingerprint, not a copy of the work; the
 disc image and the ELF remain the property of their rightsholders.
 

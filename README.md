@@ -6,9 +6,10 @@ A source tree for the PlayStation 2 game **ICO** (Sony Computer Entertainment,
 Every byte the console loads is identical to the disc's (the ROM image SHA-1
 matches), and so is the ELF file itself (its SHA-1 matches the disc's). The
 tree was seeded from `main`, the PAL build's finished tree; the USA build is
-an earlier link of the same program (its build stamp reads `Aug 20 2001`,
-PAL's `Jan 17 2002`), and this branch carries the functions and tables in
-which the two differ.
+an earlier link of the same program (its debug menu's `DISC VER.` line
+reads `Aug 20 2001`, PAL's `Jan 17 2002`; `debug.c`), and this branch
+carries the functions, records and tables in which the two differ;
+[`docs/README.md`](docs/README.md) lists those differences.
 
 <!-- progress:begin -->
 | Target | Sections identical to the base |
@@ -60,18 +61,18 @@ fails. The host needs a 64-bit Linux with 32-bit libraries, a host gcc,
 [`docs/BUILDING.md`](docs/BUILDING.md) lists the packages and describes each
 step.
 
-The build checks the SHA-1s from `config/sha1sums.txt`: the extracted ELF
+The build checks the SHA-1s from `config/sha1sums.us.txt`: the extracted ELF
 before it starts, and the rebuilt ROM image and the rebuilt ELF at the end.
 
 | file | SHA-1 |
 | --- | --- |
 | `baserom/us/baseelf.elf` (the disc's `SCUS_971.13`) | `a4d8fc1948fb2da2395f3863a94a3b93de55de14` |
-| `baserom/us/baseelf.rom` and `build/ico.rom` (`objcopy -O binary`) | `fbf50c75cd5911273511c4f9af90503ff8423582` |
+| `baserom/us/baseelf.rom` and `build/us/ico.rom` (`objcopy -O binary`) | `fbf50c75cd5911273511c4f9af90503ff8423582` |
 
 The gate (`tools/check_elf.py --gate`) also compares every allocated section
-of `build/ico.elf` with the base ELF by address and checks that `.sbss` and
+of `build/us/ico.elf` with the base ELF by address and checks that `.sbss` and
 `.bss` cover the base's ranges, and that the whole-file SHA-1 of
-`build/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
+`build/us/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
 the symbol-name strings ld keeps and the `.DVP` overlay names and tables all
 match. The overlay names hash the file and line the DVP assembler was reading
 and are the same as PAL's: each microprogram's `.dsm` for the first, then the
@@ -93,17 +94,17 @@ so the build does not depend on the host's heap. `tools/check_elf.py
 
 There is one badge per section of the base ELF, in link order.
 `tools/check_elf.py --progress` (`tools/build.sh progress`) rewrites them,
-[`docs/PROGRESS.md`](docs/PROGRESS.md) and the dashboard's
-`docs/progress.json` from the built ELF and its link map.
+[`docs/us/PROGRESS.md`](docs/us/PROGRESS.md) and the dashboard's
+`docs/us/progress.json` from the built ELF and its link map.
 
 A badge reads `100 %` when the whole section equals the base. Where part of a
 section comes from the user's ELF, the badge splits the figure: `source` is
 the share placed by objects compiled or assembled from the tracked sources
 under `ico2/` and `sce/`, and `disc` is the share of the data-only members the
-build generates from the user's own ELF (next section) and of the campaign
-stubs (Status, above). `.sbss` and `.bss` hold no file bytes, so their figure
-is the share of the range that an object defines and the link places at the
-base's addresses.
+build generates from the user's own ELF (next section) and of any campaign
+stubs `config/stubs.us.txt` still lists (Status, above). `.sbss` and `.bss`
+hold no file bytes, so their figure is the share of the range that an
+object defines and the link places at the base's addresses.
 
 ## Data tables
 
@@ -120,7 +121,7 @@ build's tables hold fewer rows, and eight record types have another
 layout). They are the
 game's content, and nothing of that content is committed. The build
 generates them from the user's own `baserom/us/baseelf.elf` into
-`build/data/`. Each member becomes `build/data/<member>.c`, an initialized
+`build/us/data/`. Each member becomes `build/us/data/<member>.c`, an initialized
 array of its record type compiled with the game's flags
 (`tools/gen_data_c.py`); `config/data_schema.us.txt` holds only the record
 type, its header, the element count, MAIN.MAP's symbol names and which
@@ -144,18 +145,19 @@ sce/<archive>/              Sony's runtime libraries (libkernl, libgraph,
                             libdma, libpad, libmc, libcdvd, libmpeg, libipu,
                             libpkt, libsndn2, libvu0) and the compiler's
                             newlib libc and libm and libgcc, plus crt0.s;
-                            the USA link has no libscf member, so
-                            sce/libscf/ keeps only its header
+                            the USA link has no libscf member
 config/                     link_order.us.txt (every object in link order),
                             link.us.ld (the linker script),
                             data_members.us.txt (the data-only members),
                             data_schema.us.txt (the record type, count and
                             names of each member built as C),
-                            stubs.us.txt (the campaign stubs), sha1sums.txt
+                            stubs.us.txt (the campaign stubs, while any
+                            remain), sha1sums.us.txt
 tools/                      setup, extraction, build and gate scripts, the
                             same on every target branch, listed in
                             tools/README.md
-docs/                       documentation, indexed by docs/README.md
+docs/                       documentation, indexed by docs/README.md;
+                            docs/us/ holds the generated progress files
 baserom/  build/            local only and gitignored: the user's disc image
                             and extracted ELF, and the build output
 ```
@@ -177,7 +179,7 @@ from a Sony SDK.
 | ee-gcc 2.9-991111-01 | compiles every C file | `decompme/compilers` release `ee-gcc2.9-991111-01.tar.xz` | GNU GPL (GCC) |
 | ee-as 2.9-991111 (bundled with that compiler) | assembles the game, libc, libm and libgcc | same archive | GNU GPL (binutils) |
 | SCE ee-as 2.10-ee-001003-1 (bundled with ee-gcc 2.96) | assembles the SDK archives under `sce/` | `decompme/compilers` release `ee-gcc2.96.tar.xz`; only its assembler runs | GNU GPL (binutils) |
-| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
+| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/us/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
 | dvp-as with `tools/binutils-dvp-overlay-fill.patch` | assembles the VU1 microprograms | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea3` | GPL-3.0-or-later |
 
 The assembler follows the archive, as the disc's link did: the PAL disc's
@@ -190,21 +192,24 @@ DVP overlay sections from ps2dev's `binutils-2.14-PS2.patch`; the second
 places each VU overlay at address 0, the rule of the Cygnus linker shipped
 with the GPL ee-gcc 2.9-991111 sources. The licence notices are the tools'
 own (`--version` for the assemblers and ld; the source trees for the rest).
-The host's `mips-linux-gnu-objcopy` writes `build/ico.rom`.
+The host's `mips-linux-gnu-objcopy` writes `build/us/ico.rom`.
 
 ## Branches
 
-| branch | target | |
+| branch | targets | |
 | --- | --- | --- |
-| `main` | PAL retail, SCES-50760, `SCES_507.60` | the finished PAL tree this branch was seeded from, with its own README |
-| `jpn` | Japanese retail, SCPS-11003, `SCPS_110.03` | the same game on the Japanese disc, with its own README |
-| `ntsc` | USA retail, SLUS-20218, `SCUS_971.13` | this document |
-| `aug6` | the August 6, 2001 prototype | an earlier build of the game, with its own README |
+| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`) and `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`) | the shared tree this branch was seeded from, with its own README; finished targets join there |
+| `ntsc` | `us` (USA retail, SLUS-20218, `SCUS_971.13`) | this document: a single-target tree, until it joins `main` |
+| `aug6` | `aug6` (the August 6, 2001 prototype) | a single-target tree with its own README, until it joins `main` |
+| `pal` | `pal` | the single-target PAL tree, frozen |
+| `jpn` | `jpn` | the single-target Japanese tree, frozen |
 
-The branches are separate trees and are never merged into each other. The
-four share one build layer, file for file: `tools/`, `build.sh`, `.github/`
-and `docs/index.html` (`tools/check_shared_layer.sh` checks it); a change to
-it lands on `main` first.
+`ntsc` and `aug6` are separate trees that are never merged into each other or
+into `main`. Every branch carries one build layer, file for file: `tools/`,
+`build.sh`, `.github/` and `docs/index.html` (`tools/check_shared_layer.sh`
+checks it against `main`); a change to it lands on `main` first. A finished
+target joins `main` by the recipe in `main`'s `docs/BUILDING.md`
+("Targets and version blocks").
 
 ## PC port
 
