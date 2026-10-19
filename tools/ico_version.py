@@ -23,7 +23,8 @@ files are under docs/<slug>/.
 
 The sources, ico2/ and sce/, are one tree for every configured target:
 where the targets differ, a file holds each one's lines inline in
-#ifdef VERSION_<SLUG> blocks, which tools/compile_c.sh defines.
+VERSION_<SLUG> blocks (tools/check_targets.py's forms), which
+tools/compile_c.sh defines.
 
 An explicit `VERSION` environment variable wins; otherwise the slug is the
 first configured one in VERSIONS order.
