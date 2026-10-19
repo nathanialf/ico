@@ -211,13 +211,14 @@ target is chosen by `VERSION=<slug>`. Each target has its own
 | branch | targets | |
 | --- | --- | --- |
 | `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`) and `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`) | this document; both gate here, and finished targets join here |
+| `kor` | `kor` (Korean retail, SCPS-56001, `SCPS_560.01`) | a single-target tree with its own README, until it joins `main` |
 | `ntsc` | `us` (USA retail, SLUS-20218, `SCUS_971.13`) | a single-target tree with its own README, until it joins `main` |
 | `aug6` | `aug6` (the August 6, 2001 prototype) | a single-target tree with its own README, until it joins `main` |
 | `pal` | `pal` | the single-target PAL tree as it was at `738b77d1f`, frozen |
 | `jpn` | `jpn` | the single-target Japanese tree as it was at `4506374a6`, frozen |
 
-`pal` and `jpn` are history: new work lands on `main`. `ntsc` and `aug6` are
-separate trees that are never merged into each other or into `main`; they
+`pal` and `jpn` are history: new work lands on `main`. `kor`, `ntsc` and
+`aug6` are separate trees that are never merged into each other or into `main`; they
 carry the shared build layer, file for file (`tools/`, `build.sh`, `.github/`
 and `docs/index.html`, which `tools/check_shared_layer.sh` checks against
 `main`), and join by the recipe in [`docs/BUILDING.md`](docs/BUILDING.md).
