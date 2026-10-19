@@ -12,12 +12,18 @@
 #                                           TRFILE.TXT SYSTEM.CNF
 #   jpn  : baserom/Ico_JPN.bin + .cue  -> baserom/jpn/baseelf.{elf,rom}
 #                                         + SYSTEM.CNF
+#   kor  : baserom/Ico_KOR.iso         -> baserom/kor/baseelf.{elf,rom}
+#                                         + SYSTEM.CNF
 #   us   : baserom/Ico_USA.bin + .cue  -> baserom/us/baseelf.{elf,rom}
 #                                         + SYSTEM.CNF
 #   aug6 : baserom/Ico_AUG6.bin + .cue -> baserom/aug6/baseelf.{elf,rom}
 #                                         + MAIN.MAP TRFILE.TXT
 #                                           SYSTEM.CNF
-# The boot file name comes from the disc's SYSTEM.CNF BOOT2 line.
+#   jun26: baserom/Ico_JUN26.iso       -> baserom/jun26/baseelf.{elf,rom}
+#                                         + SYSTEM.CNF
+# The boot file name comes from the disc's SYSTEM.CNF BOOT2 line, or for a
+# demo on a disc shared with other games from its DISCS row's `boot`
+# (jun26: CUS97113/SCPS_000.00; SYSTEM.CNF boots the disc's menu).
 #
 # Wrapper that delegates to tools/extract_elf.py: pure-Python implementation
 # that handles MODE1/2352 and MODE2/2352 .bin/.cue images (and already-cooked
