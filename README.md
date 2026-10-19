@@ -1,27 +1,28 @@
 # ico
 
 A source tree for the PlayStation 2 game **ICO** (Sony Computer Entertainment,
-2001) that rebuilds the boot ELF of the Japanese retail disc, SCPS-11003
-(`SCPS_110.03`; `SYSTEM.CNF` reads `VER = 1.02`, `VMODE = NTSC`), with the
+2001) that rebuilds the boot ELF of the Korean retail disc, SCPS-56001
+(`SCPS_560.01`; `SYSTEM.CNF` reads `VER = 1.00`, `VMODE = NTSC`), with the
 toolchain the game was built with. Every byte the console loads is identical
 to the disc's (the ROM image SHA-1 matches), and so is the ELF file itself
 (its SHA-1 matches the disc's). Every object of the link is built from the
 sources under `ico2/` and `sce/`, or, for the game's code-less data members,
 generated from the user's own disc at build time, as on `main`.
 
-The Japanese build is an earlier link of the same program as the PAL one on
-`main`: its debug menu's `DISC VER.` line reads `Nov  2 2001` (`debug.c`),
-PAL's `Jan 17 2002`. This branch is `main`'s tree with the functions,
-records and tables in which the two builds differ;
-[`docs/README.md`](docs/README.md) lists those differences.
+The Korean build is a link of the same program as the Japanese one on the
+`jpn` branch and the PAL one on `main`, made between them: its debug menu's
+`DISC VER.` line reads `Jan  9 2002` (`debug.c`), the Japanese build's
+`Nov  2 2001` and PAL's `Jan 17 2002`. This branch is the `jpn` branch's
+tree with the functions, records and tables in which the Korean build
+differs; [`docs/TARGETS.md`](docs/TARGETS.md) lists those differences.
 
 <!-- progress:begin -->
 | Target | Sections identical to the base |
 | --- | --- |
-| [Japanese retail (SCPS-11003)](https://nathanialf.github.io/ico/#jpn) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.82%20%25%20source%20%2B%2027.18%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.50%20%25%20source%20%2B%2090.50%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
+| [Korean retail (SCPS-56001)](https://nathanialf.github.io/ico/#kor) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.84%20%25%20source%20%2B%2027.16%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.50%20%25%20source%20%2B%2090.50%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
-**[Progress dashboard](https://nathanialf.github.io/ico/#jpn)**: every
+**[Progress dashboard](https://nathanialf.github.io/ico/#kor)**: every
 section, directory, translation unit and function of the build compared with
 the base ELF.
 
@@ -33,18 +34,17 @@ the base ELF.
 ## Quickstart
 
 ```sh
-git clone -b jpn https://github.com/nathanialf/ico.git
+git clone -b kor https://github.com/nathanialf/ico.git
 cd ico
 mkdir -p baserom
-cp "/path/to/Ico (Japan).bin" baserom/Ico_JPN.bin
-cp "/path/to/Ico (Japan).cue" baserom/Ico_JPN.cue
+cp "/path/to/Ico (Korea).iso" baserom/Ico_KOR.iso
 ./build.sh
 ```
 
 `./build.sh` runs `tools/setup.sh` when the Python environment or the
-toolchain under `tools/cc/` is missing, extracts `baserom/jpn/baseelf.elf`
-from the disc image when it is missing (`tools/extract_elf.sh`, which first
-cooks the raw `.bin` into `baserom/Ico_JPN.iso` beside it, once), then runs
+toolchain under `tools/cc/` is missing, extracts `baserom/kor/baseelf.elf`
+from the disc image when it is missing (`tools/extract_elf.sh`; the image is
+a plain 2048-byte-sector ISO, read directly), then runs
 `tools/build.sh setup` (or `verify` when `build.ninja` already exists),
 `ninja` and `tools/check_elf.py --gate`, and exits non-zero if any step
 fails. The host needs a 64-bit Linux with 32-bit libraries, a host gcc,
@@ -52,18 +52,18 @@ fails. The host needs a 64-bit Linux with 32-bit libraries, a host gcc,
 [`docs/BUILDING.md`](docs/BUILDING.md) lists the packages and describes each
 step.
 
-The build checks the SHA-1s from `config/sha1sums.jpn.txt`: the extracted ELF
+The build checks the SHA-1s from `config/sha1sums.kor.txt`: the extracted ELF
 before it starts, and the rebuilt ROM image and the rebuilt ELF at the end.
 
 | file | SHA-1 |
 | --- | --- |
-| `baserom/jpn/baseelf.elf` (the disc's `SCPS_110.03`) | `580da1dcc4c239a1608a10300e7e220fe5d35525` |
-| `baserom/jpn/baseelf.rom` and `build/jpn/ico.rom` (`objcopy -O binary`) | `58ef44cfeeacd060ffb2acfbf42d8a21bbffd318` |
+| `baserom/kor/baseelf.elf` (the disc's `SCPS_560.01`) | `f9b00596d133c698df20c8ffe4ca2d7107e236bb` |
+| `baserom/kor/baseelf.rom` and `build/kor/ico.rom` (`objcopy -O binary`) | `f438c8f841a84837231d79cab0c761bfb211259b` |
 
 The gate (`tools/check_elf.py --gate`) also compares every allocated section
-of `build/jpn/ico.elf` with the base ELF by address and checks that `.sbss` and
+of `build/kor/ico.elf` with the base ELF by address and checks that `.sbss` and
 `.bss` cover the base's ranges, and that the whole-file SHA-1 of
-`build/jpn/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
+`build/kor/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
 the symbol-name strings ld keeps and the `.DVP` overlay names and tables all
 match. The overlay names hash the file and line the DVP assembler was reading
 and are the same as PAL's: each microprogram's `.dsm` for the first, then the
@@ -73,20 +73,20 @@ normal_l, the shared include `vusrc/scissorcommcut.h`, whose name is derived
 code: each section is one byte repeated over the program's size, a byte the
 DVP assembler never set, so the five constant-address overlays
 (`.DVP.overlay..0x0.*`, one per program) carry whatever the assembler's heap
-held. On the Japanese disc that byte is 0x6E (on PAL's it is zero), and the
-seven continuation overlays (`..unknvma.*`) are zero.
+held. On the Korean disc that byte is zero, as on PAL's (the Japanese disc
+has 0x6E), and the seven continuation overlays (`..unknvma.*`) are zero.
 `tools/binutils-dvp-overlay-fill.patch` makes dvp-as write the byte
-explicitly (`--overlay-fill=N` for the five, 0 for the rest), taken from the
-`overlay-fill=110` token on each `.dsm` line of `config/link_order.jpn.txt`,
-so the build does not depend on the host's heap. `tools/check_elf.py
+explicitly (`--overlay-fill=N` for the five, 0 for the rest); the `.dsm`
+lines of `config/link_order.kor.txt` carry no `overlay-fill` token, so it
+is 0, and the build does not depend on the host's heap. `tools/check_elf.py
 --full-diff` prints the whole-file comparison.
 
 ## Progress badges
 
 There is one badge per section of the base ELF, in link order.
 `tools/check_elf.py --progress` (`tools/build.sh progress`) rewrites them,
-[`docs/jpn/PROGRESS.md`](docs/jpn/PROGRESS.md) and the dashboard's
-`docs/jpn/progress.json` from the built ELF and its link map.
+[`docs/kor/PROGRESS.md`](docs/kor/PROGRESS.md) and the dashboard's
+`docs/kor/progress.json` from the built ELF and its link map.
 
 A badge reads `100 %` when the whole section equals the base. Where part of a
 section comes from the data tables (next section), the badge splits the
@@ -102,15 +102,16 @@ The game links 73 data-only runs of its own archive, `ico2000.a`: the 70
 members with data sections and no code that the PAL disc's MAIN.MAP lists
 (stage layouts, model paths, motion and sound definitions, way points) and
 three runs it does not list, the same set as PAL's
-(`config/data_members.jpn.txt`). The Japanese disc ships no map, so each
-run's place in this ELF was found from the code that reads it, and each
-member keeps PAL's name by member order; the file's header gives the method,
-and each row says how its content compares with PAL's. They are the game's
+(`config/data_members.kor.txt`). The Korean disc ships no map; each run's
+place in this ELF was found from the Japanese build's table (whose places
+were found from the code that reads each run), and each member keeps PAL's
+name by member order; the file's header gives the method, and each row says
+how its content compares with PAL's. They are the game's
 content, and nothing of that content is committed. The build generates them
-from the user's own `baserom/jpn/baseelf.elf` into `build/jpn/data/`. Each member
-becomes `build/jpn/data/<member>.c`, an initialized array of its record type
+from the user's own `baserom/kor/baseelf.elf` into `build/kor/data/`. Each member
+becomes `build/kor/data/<member>.c`, an initialized array of its record type
 compiled with the game's flags (`tools/gen_data_c.py`);
-`config/data_schema.jpn.txt` holds only the record type, its header, the
+`config/data_schema.kor.txt` holds only the record type, its header, the
 element count, MAIN.MAP's symbol names and which fields are masks. A count
 derived from a table is a fact about it, not content: the staff roll's line
 count is written by the generator as `sizeof` over the table.
@@ -131,13 +132,14 @@ sce/<archive>/              Sony's runtime libraries (libkernl, libgraph,
                             libdma, libpad, libmc, libcdvd, libmpeg, libipu,
                             libpkt, libsndn2, libvu0) and the compiler's
                             newlib libc and libm and libgcc, plus crt0.s;
-                            the Japanese link has no libscf member
-config/                     link_order.jpn.txt (every object in link order),
-                            link.jpn.ld (the linker script),
-                            data_members.jpn.txt (the data-only members),
-                            data_schema.jpn.txt (the record type, count and
+                            the Korean link has no libscf member
+config/                     link_order.kor.txt (every object in link order),
+                            link.kor.ld (the linker script),
+                            data_members.kor.txt (the data-only members),
+                            data_schema.kor.txt (the record type, count and
                             names of each member built as C),
-                            sha1sums.txt
+                            stubs.kor.txt (the campaign stub list, empty),
+                            sha1sums.kor.txt
 tools/                      setup, extraction, build and gate scripts, the
                             same on every target branch, listed in
                             tools/README.md
@@ -163,7 +165,7 @@ from a Sony SDK.
 | ee-gcc 2.9-991111-01 | compiles every C file | `decompme/compilers` release `ee-gcc2.9-991111-01.tar.xz` | GNU GPL (GCC) |
 | ee-as 2.9-991111 (bundled with that compiler) | assembles the game, libc, libm and libgcc | same archive | GNU GPL (binutils) |
 | SCE ee-as 2.10-ee-001003-1 (bundled with ee-gcc 2.96) | assembles the SDK archives under `sce/` | `decompme/compilers` release `ee-gcc2.96.tar.xz`; only its assembler runs | GNU GPL (binutils) |
-| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/jpn/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
+| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/kor/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
 | dvp-as with `tools/binutils-dvp-overlay-fill.patch` | assembles the VU1 microprograms | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea3` | GPL-3.0-or-later |
 
 The assembler follows the archive, as the disc's link did: the PAL disc's
@@ -177,20 +179,22 @@ DVP overlay sections from ps2dev's `binutils-2.14-PS2.patch`; the second
 places each VU overlay at address 0, the rule of the Cygnus linker shipped
 with the GPL ee-gcc 2.9-991111 sources. The licence notices are the tools'
 own (`--version` for the assemblers and ld; the source trees for the rest).
-The host's `mips-linux-gnu-objcopy` writes `build/jpn/ico.rom`.
+The host's `mips-linux-gnu-objcopy` writes `build/kor/ico.rom`.
 
 ## Branches
 
 | branch | target | |
 | --- | --- | --- |
-| `main` | PAL retail, SCES-50760, `SCES_507.60` | the PAL tree this branch is built on, with its own README |
-| `jpn` | Japanese retail, SCPS-11003, `SCPS_110.03` | this document |
+| `main` | PAL retail, SCES-50760, `SCES_507.60`, and Japanese retail, SCPS-11003, `SCPS_110.03` | the PAL tree with the Japanese build inline, with its own README |
+| `kor` | Korean retail, SCPS-56001, `SCPS_560.01` | this document |
 | `ntsc` | USA retail, SLUS-20218, `SCUS_971.13` | the same game on the USA disc, with its own README |
 | `aug6` | the August 6, 2001 prototype | an earlier build of the game, with its own README |
+| `jun26` | the June 26, 2001 demo | an earlier build of the game, with its own README |
+| `jpn` | Japanese retail, SCPS-11003, `SCPS_110.03` | the single-target Japanese tree this branch was seeded from, frozen |
 
-The branches are separate trees and are never merged into each other. The
-four share one build layer, file for file: `tools/`, `build.sh`, `.github/`
-and `docs/index.html` (`tools/check_shared_layer.sh` checks it).
+The branches are separate trees and are never merged into each other. They
+share one build layer, file for file: `tools/`, `build.sh`, `.github/` and
+`docs/index.html` (`tools/check_shared_layer.sh` checks it against `main`).
 
 ## PC port
 

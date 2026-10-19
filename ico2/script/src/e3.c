@@ -1023,7 +1023,6 @@ void actE3Warning(GObj *volatile self)
 
     scpBoyControlReadDisable = 1;
     InitStageLight(stage_no);
-    GlobalStageSetting.viewScale = 150;
 
     scpFadeIn(6.0f);
 

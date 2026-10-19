@@ -171,8 +171,8 @@ static inline int lt_property_visible(int no) /* derived name */
 {
     int vis = 1;
 
-    if (gFlagGameClear == 0 && current_layout_id == 55 && no >= 277 &&
-        (no < 285 || (no < 307 ? no >= 302 : 0))) {
+    if (gFlagGameClear == 0 && current_layout_id == 55 && no >= 271 &&
+        (no < 279 || (no < 301 ? no >= 296 : 0))) {
         vis = 0;
     }
     return vis;
@@ -660,7 +660,7 @@ void exec_layout_texture(void)
 /* init_textures_of_specified_property is a file static, as is
    ico2/common/src/kanban's function of the same name */
 /* texProperty's texNo column, &texProperty[0].texNo */
-extern char D_0030A66C[];
+extern char D_0030A6EC[];
 /* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
 
@@ -715,9 +715,9 @@ static void init_textures_of_specified_property(int first, int last)
 
     for (i = first; i < last; i++) {
         no = lt_texture_no_of_property(i);
-        *(int *)(D_0030A66C + i * 0x70) = no;
-        *(void **)(D_0030A66C + i * 0x70 - 4) = tex_GetTextureData(no);
-        tex_SetSamplingType(*(void **)(D_0030A66C + i * 0x70 - 4), 1, 1);
+        *(int *)(D_0030A6EC + i * 0x70) = no;
+        *(void **)(D_0030A6EC + i * 0x70 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_0030A6EC + i * 0x70 - 4), 1, 1);
     }
 }
 

@@ -30,7 +30,7 @@ int IosMcLock = -1;
 
 char *iconName[3] = {"boy_blk.ico", "boy_blk.ico", "boy_blk.ico"};
 
-char *iOSMcSaveSeg[6] = {"BISCPS-11003ico", "icon.sys",    "boy_blk.ico",
+char *iOSMcSaveSeg[6] = {"BISCPS-56001ico", "icon.sys",    "boy_blk.ico",
                          "boy_blk.ico",     "boy_blk.ico", "game."};
 
 static int mcLockCount = 0; /* derived name */
@@ -492,14 +492,14 @@ retry:
     }
 
     if (mp->flags.ll & 2) {
-        *(McName *)mp->path = *(McName *)"/BISCPS-11003ico";
+        *(McName *)mp->path = *(McName *)"/BISCPS-56001ico";
         iosMcMgrMkdir(mp);
         if (mp->result != 0 && mp->result != -4) {
             return;
         }
     }
 
-    *(McName *)mp->dirName = *(McName *)"/BISCPS-11003ico";
+    *(McName *)mp->dirName = *(McName *)"/BISCPS-56001ico";
     iosMcMgrChdir(mp);
 
     if (mp->result != 0) {

@@ -114,7 +114,7 @@ static int kanbanBootMcCheck(void)
         if (bootKanban->key != 1) {
             break;
         }
-        if (bootKanban->layout->curItem == 11) {
+        if (bootKanban->layout->curItem == 5) {
             mcCheckStep = -1;
             kanbanReqDelFade(bootKanbanSub);
             kanbanReqDelFade(bootKanban);

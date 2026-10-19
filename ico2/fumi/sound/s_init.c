@@ -1292,7 +1292,7 @@ void soundSeEnvPlay(void)
 }
 
 /* &stageData[0].seEnvFirst, the range soundSeEnvNotUseClose walks */
-extern char D_005EFE10[];
+extern char D_005EFC20[];
 
 void soundSeEnvNotUseClose(int a, int b)
 {
@@ -1349,9 +1349,9 @@ void soundSeEnvNotUseClose(int a, int b)
     for (m = 0; m < 48; m++) {
         e = &seSlotTbl[m];
         req = e->req;
-        first = (int *)&D_005EFE10[a * 404];
+        first = (int *)&D_005EFC20[a * 404];
         if (req != 0 && req->mode == 0 && e->owner == 0xFFFFFFFF) {
-            for (j = *first; j < *(int *)&D_005EFE10[a * 404 + 4]; j++) {
+            for (j = *first; j < *(int *)&D_005EFC20[a * 404 + 4]; j++) {
                 if (e->src == &seDef[seEnv[j].se]) {
                     if (ok == 0 || seFile[seList[seKind[e->src->kind]].num].loaded != 1) {
                         goto next;

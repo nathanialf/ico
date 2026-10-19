@@ -13,6 +13,7 @@
 #include "quaternion.h"
 #include "generator.h"
 #include "sugiCommon.h"
+#include <stdio.h>
 #include <string.h>
 #include <libvu0.h>
 #include "main.h"
@@ -533,7 +534,7 @@ inline void actBossCtrlStart(void *gobj)
         no++;
         o = isysGObjSearchFromObjKindID_next(o);
     }
-    debug_StdPrintfDummy("n generator %d\n", no);
+    printf("n generator %d\n", no);
     for (i = 0; i < no; i++) {
         actCreateSubThread(gene_enemy, 21);
     }
@@ -553,7 +554,7 @@ inline int InitBossCtrlGeo(void *gobj)
     ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__, 350);
     actInitialize(gobj);
     actInitialize_ext_charcter(gobj);
-    debug_StdPrintfDummy("N_CAPSULE %d\n", 53);
+    printf("N_CAPSULE %d\n", 53);
 
     base = capsule;
     m = (char *)base->pos;

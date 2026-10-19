@@ -22,38 +22,35 @@ ROM views (`tools/extract_elf.py`, `tools/compile_c.sh`, the ninja `rom`
 rule). Other distributions need the equivalent packages. The first run needs
 network access to fetch the tools listed below.
 
-You also need your own image of the Japanese disc, SCPS-11003, as the raw
-`.bin` a dump writes and its `.cue`. `tools/extract_elf.py` reads the raw
-2352-byte sectors itself (the `.cue` gives the mode, MODE2/2352 on this
-disc), so no extra package is needed. The build accepts exactly one revision,
-`VER = 1.02` in the disc's `SYSTEM.CNF`:
+You also need your own image of the Korean disc, SCPS-56001, as the plain
+2048-byte-sector ISO a DVD dump writes (no `.cue`). The build accepts exactly
+one revision, `VER = 1.00` in the disc's `SYSTEM.CNF`:
 
-| file | SHA-1 (`config/sha1sums.jpn.txt`) |
+| file | SHA-1 (`config/sha1sums.kor.txt`) |
 | --- | --- |
-| `baserom/jpn/baseelf.elf`, the disc's `SCPS_110.03` | `580da1dcc4c239a1608a10300e7e220fe5d35525` |
-| `baserom/jpn/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `58ef44cfeeacd060ffb2acfbf42d8a21bbffd318` |
+| `baserom/kor/baseelf.elf`, the disc's `SCPS_560.01` | `f9b00596d133c698df20c8ffe4ca2d7107e236bb` |
+| `baserom/kor/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `f438c8f841a84837231d79cab0c761bfb211259b` |
 
 ## One command
 
 ```sh
 mkdir -p baserom
-cp "/path/to/Ico (Japan).bin" baserom/Ico_JPN.bin
-cp "/path/to/Ico (Japan).cue" baserom/Ico_JPN.cue
+cp "/path/to/Ico (Korea).iso" baserom/Ico_KOR.iso
 ./build.sh
 ```
 
 `./build.sh` runs the steps below that are not already done, in order, and
 stops with a non-zero exit at the first failure. On a four-core host with
-the toolchain already installed and `baserom/jpn/` already extracted,
-`tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 51 s
-and 47 s in two runs and ended with `check_elf: gate PASS`. A second
+the toolchain already installed and `baserom/kor/` already extracted,
+`tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 43 s
+and 36 s in two runs and ended with `check_elf: gate PASS`. A second
 `./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
 below describe each step; each can also be run on its own. The scripts are
 the same on every target branch and take the target, and with it every
-`config/*.jpn.*` and `baserom/jpn/` path below, from
+`config/*.kor.*` and `baserom/kor/` path below, from
 `tools/ico_version.py` (the first `config/link_order.<slug>.txt` that
-exists: `config/link_order.jpn.txt` on this branch).
+exists: `config/link_order.kor.txt` on this branch).
 
 ## 1. Host setup: `tools/setup.sh`
 
@@ -103,16 +100,17 @@ dvp-as sizes each `.DVP.overlay.*` section as one byte repeated over the
 program's length and never writes that byte (`create_vuoverlay_section` in
 `gas/config/tc-dvp.c` drops the pointer `frag_var` returns), so the section
 carries whatever the assembler's heap held. The five constant-address
-overlays, one per program, are zero on the PAL disc and 0x6E on the JPN, USA
-and Aug-6-2001 discs; the seven continuation overlays are zero on all four.
+overlays, one per program, are zero on the PAL and Korean discs and 0x6E on
+the JPN, USA and Aug-6-2001 discs; the seven continuation overlays are zero
+on all five.
 Assembling with `MALLOC_PERTURB_=145` (glibc then fills new memory with 0x6E)
 reproduces the second pattern in all twelve. The patch writes the byte
 explicitly: `--overlay-fill=N` (0 to 255, default 0) for an overlay whose VU
 address is a constant, 0 for the others. `tools/gen_ninja.py` passes the
 option only when a `.dsm` line of the link order carries an `overlay-fill=N`
 token; PAL's carries none, so its command line also works with an unpatched
-dvp-as. On this branch the five `.dsm` lines of `config/link_order.jpn.txt`
-carry `overlay-fill=110` (0x6E), so the build needs the patched dvp-as. With
+dvp-as. On this branch, as on PAL's, the `.dsm` lines of
+`config/link_order.kor.txt` carry no token and the five overlays are zero. With
 the patch the build no longer depends on the host's heap; without it a host
 with `MALLOC_PERTURB_` set fails PAL's whole-file SHA-1.
 
@@ -128,18 +126,16 @@ when that changes.
 
 ## 2. The base ELF: `tools/extract_elf.sh`
 
-`./build.sh` runs it when `baserom/jpn/baseelf.elf` is missing, and says so
-plainly when `baserom/Ico_JPN.bin` or `baserom/Ico_JPN.cue` is missing too.
-The script first cooks the raw image: it reads the mode from the `.cue`,
-keeps the 2048 bytes of user data of each 2352-byte sector, and writes the
-result once to `baserom/Ico_JPN.iso` beside the `.bin`, a cache that later
-runs read directly. It then reads that ISO9660 filesystem with pycdlib
-(`tools/extract_elf.py`), extracts the boot file named by `SYSTEM.CNF`'s
-`BOOT2` line (`SCPS_110.03`), and writes `baserom/jpn/baseelf.elf` and its
-`objcopy -O binary` view `baserom/jpn/baseelf.rom`. It checks both SHA-1s
-against `config/sha1sums.jpn.txt` and stops on a mismatch. It also copies the
-disc's `SYSTEM.CNF` into `baserom/jpn/`; the Japanese disc ships no map or
-listing (`docs/LEGAL.md`). Everything under `baserom/` is gitignored.
+`./build.sh` runs it when `baserom/kor/baseelf.elf` is missing, and says so
+plainly when `baserom/Ico_KOR.iso` is missing too. The image is already a
+2048-byte-sector ISO, so the script reads its ISO9660 filesystem directly
+with pycdlib (`tools/extract_elf.py`), extracts the boot file named by
+`SYSTEM.CNF`'s `BOOT2` line (`SCPS_560.01`), and writes
+`baserom/kor/baseelf.elf` and its `objcopy -O binary` view
+`baserom/kor/baseelf.rom`. It checks both SHA-1s against
+`config/sha1sums.kor.txt` and stops on a mismatch. It also copies the disc's
+`SYSTEM.CNF` into `baserom/kor/`; the Korean disc ships no map or listing
+(`docs/LEGAL.md`). Everything under `baserom/` is gitignored.
 
 ## 3. `tools/build.sh setup`
 
@@ -151,18 +147,18 @@ rewrites itself when `tools/gen_ninja.py` or one of its inputs changes.
 ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 `tools/gen_ninja.py` from these inputs:
 
-- `config/link_order.jpn.txt`: every object of the link in the retail link's
+- `config/link_order.kor.txt`: every object of the link in the retail link's
   order, one source per line, with the data-only members as `data:` lines.
   The disc has no map, so the order is PAL's carried over by the function
   census, and each line that departs from it says why.
   `tools/gen_ninja.py` fails if a tracked `.c`, `.s`, `.S` or `.dsm` under
   `ico2/` or `sce/` is missing from it.
-- `config/link.jpn.ld`: the hand-written linker script, which places each
+- `config/link.kor.ld`: the hand-written linker script, which places each
   section at the base ELF's addresses and defines the symbols the link needs.
-- `config/data_members.jpn.txt`: the data-only members (member, section,
+- `config/data_members.kor.txt`: the data-only members (member, section,
   address range in this ELF, the PAL disc's MAIN.MAP names at their
   offsets).
-- `config/data_schema.jpn.txt`: the data-only members written as C (member,
+- `config/data_schema.kor.txt`: the data-only members written as C (member,
   section, element type, the game header that defines it, element count,
   MAIN.MAP's names).
 
@@ -194,8 +190,8 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   dvp-as writes hash the name of the file it is reading and the line: the
   `.dsm` path for the first overlay of each program, the empty name cpp gives
   standard input and the include's path for the others;
-- writes the data-only members from the base ELF into `build/jpn/data/`. Each
-  of the 73, all listed in `config/data_schema.jpn.txt`, is written as C by
+- writes the data-only members from the base ELF into `build/kor/data/`. Each
+  of the 73, all listed in `config/data_schema.kor.txt`, is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
   with every pointer named after the symbol at its address, floats as the
   shortest decimal that reads back to the same bits and names as string
@@ -203,13 +199,13 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   literals its pointers name, and the compiler lays it out; a count the
   schema marks `count-of=` (staffroll_dat's line count) is written as
   `sizeof` over the table, not read from the ELF. The addresses
-  come from a first link, `build/jpn/ico.layout.elf`, in which a zero stand-in of
+  come from a first link, `build/kor/ico.layout.elf`, in which a zero stand-in of
   the member's size takes its place. The C compiles with the game's flags
   like any `ico2/` source, each section of the object is checked against the
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
-  its offset by `build/jpn/data/<member>.alias.ld`;
-- writes the stubs, when `config/stubs.jpn.txt` has rows (on this branch it
+  its offset by `build/kor/data/<member>.alias.ld`;
+- writes the stubs, when `config/stubs.kor.txt` has rows (on this branch it
   has none, as on `main`, and this step does nothing). While a target is
   rebuilt from a tree seeded from another, a function whose C does not yet
   give that target's bytes is listed there with its address range and its
@@ -219,7 +215,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   in two TUs share a name; a function defined in a `.c.inc` the TU includes
   has its line there, named by the row's `in=<file.c.inc>`, and the TU's
   object depends on that file). `tools/gen_stub_s.py` writes
-  `build/jpn/stubs/<stem>.s` from the user's own base ELF, one `.word` per
+  `build/kor/stubs/<stem>.s` from the user's own base ELF, one `.word` per
   instruction with no relocations, and the assembler reads it at that point
   of the compiler's output, so the stub sits between the functions around it
   and the gate passes at every commit. The constants the function brought
@@ -236,7 +232,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   split in two: gcc writes its strings and other constants where the
   function is defined, among its neighbours', and its code after the whole
   file, so its `rdlit` and `sdlit` rows for those carry `def`,
-  `gen_stub_s.py` writes them to `build/jpn/stubs/<stem>.lit.s`, and the file
+  `gen_stub_s.py` writes them to `build/kor/stubs/<stem>.lit.s`, and the file
   reads them with `INCLUDE_ASM_LIT(stem);` in the definition's place, while
   the code, the .lit4 floats, the `li.d` doubles and the jump tables (the
   assembler interns .lit4 in load order, and a jump table is referenced
@@ -251,7 +247,7 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   `%hi`/`%lo` pairs), and the two lists must pair one to one; what cannot be
   placed by a row is printed as HAND and a pair that differs as DISAGREE,
   for the hand. It writes the
-  macro's header too, `build/jpn/stubs/include_asm.h`, which
+  macro's header too, `build/kor/stubs/include_asm.h`, which
   `tools/compile_c.sh` searches last: the tree tracks no copy, so a TU that
   includes it compiles only while stubs exist. `--carve NAME` and
   `--restore NAME` (`--carve-all`, `--restore-all`) replace a definition
@@ -279,17 +275,17 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   range, relocated fields masked, so a function's state is known before the
   link; `tools/object_check.py` compares each object's `.text` with the
   target at the object's address in the link (or, when the link fails, in
-  `build/jpn/ico.layout.elf`), relocated fields masked, and with `--order` each
+  `build/kor/ico.layout.elf`), relocated fields masked, and with `--order` each
   TU's function order with the target's, naming a stub placed before
   functions the target emits earlier;
-- links with ld 2.10 and `config/link.jpn.ld`, once to `build/jpn/ico.syms.elf`
-  (symbols kept, with the map `build/jpn/ico.jpn.map`) and once stripped to
-  `build/jpn/ico.elf`, as the base is;
-- writes `build/jpn/ico.rom` with `objcopy -O binary`;
+- links with ld 2.10 and `config/link.kor.ld`, once to `build/kor/ico.syms.elf`
+  (symbols kept, with the map `build/kor/ico.kor.map`) and once stripped to
+  `build/kor/ico.elf`, as the base is;
+- writes `build/kor/ico.rom` with `objcopy -O binary`;
 - runs `tools/check_elf.py --gate`: every allocated section of
-  `build/jpn/ico.elf` must hold the base ELF's bytes at the base's addresses,
+  `build/kor/ico.elf` must hold the base ELF's bytes at the base's addresses,
   `.sbss` and `.bss` must be allocated over the base's ranges, and
-  `build/jpn/ico.rom` and `build/jpn/ico.elf` must have the recorded SHA-1s
+  `build/kor/ico.rom` and `build/kor/ico.elf` must have the recorded SHA-1s
   (`--require-elf-sha`). A second, informational table compares `.reginfo`,
   the `.DVP.*` sections, `e_flags`, `e_entry` and the program and section
   headers. The build fails when a gated check fails.
@@ -311,17 +307,17 @@ ASCII patch and `git apply`.
 ## Progress and the dashboard
 
 `tools/build.sh progress` runs `tools/check_elf.py --progress`, which
-rewrites the README's badge block, the table in `docs/jpn/PROGRESS.md` and
-`docs/jpn/progress.json` from the built ELF, its link map and the function
-symbols of `build/jpn/ico.syms.elf`. A byte counts for its section when the map
+rewrites the README's badge block, the table in `docs/kor/PROGRESS.md` and
+`docs/kor/progress.json` from the built ELF, its link map and the function
+symbols of `build/kor/ico.syms.elf`. A byte counts for its section when the map
 row that places it belongs to an object built from `ico2/` or `sce/` and the
-byte equals the base's; bytes from `build/jpn/data/` are counted separately as
+byte equals the base's; bytes from `build/kor/data/` are counted separately as
 extracted tables. The count is by object, so `staffroll_dat`'s count word
 (4 bytes of `.sdata`) counts as from the disc although the generator
 computes it from the table's element count.
 
 The dashboard is `docs/index.html`, which reads `progress.json`. On a push
-that changes `docs/index.html`, `docs/jpn/progress.json`, `docs/jpn/PROGRESS.md`,
+that changes `docs/index.html`, `docs/kor/progress.json`, `docs/kor/PROGRESS.md`,
 the workflow or its script, `.github/workflows/pages.yml` runs
 `.github/scripts/build_pages_site.sh`, which assembles one site and deploys
 it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
@@ -358,6 +354,6 @@ gate after formatting.
 
 ## Running the rebuilt ELF (optional)
 
-Any PS2 emulator can run `build/jpn/ico.elf` as a sanity check, with
-the cooked `baserom/Ico_JPN.iso` (or the `.bin` and `.cue`) as the disc for
+Any PS2 emulator can run `build/kor/ico.elf` as a sanity check, with
+`baserom/Ico_KOR.iso` as the disc for
 the game's data files.

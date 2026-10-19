@@ -34,7 +34,7 @@ int kanbanCommonRead = 0;
 static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
 /* texProperty's texNo column, &texProperty[0].texNo */
-extern char D_0030A66C[];
+extern char D_0030A6EC[];
 /* a file static, as are the functions of the same name in
    ico2/fumi/src/jimaku and ico2/common/src/layout_texture */
 static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col);
@@ -255,9 +255,9 @@ static void init_textures_of_specified_property(int first, int last)
 
     for (i = first; i < last; i++) {
         no = get_texture_no_of_property(i);
-        *(int *)(D_0030A66C + i * 0x70) = no;
-        *(void **)(D_0030A66C + i * 0x70 - 4) = tex_GetTextureData(no);
-        tex_SetSamplingType(*(void **)(D_0030A66C + i * 0x70 - 4), 1, 1);
+        *(int *)(D_0030A6EC + i * 0x70) = no;
+        *(void **)(D_0030A6EC + i * 0x70 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_0030A6EC + i * 0x70 - 4), 1, 1);
     }
 }
 

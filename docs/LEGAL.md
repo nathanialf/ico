@@ -26,7 +26,7 @@ respective owners.
 - The ICO disc image (`.bin`, `.iso`, `.cue` or any other form), in whole or
   in part.
 - The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
-  `SCUS_971.13`, the prototypes), or any part of it.
+  `SCPS_560.01`, `SCUS_971.13`, the prototypes), or any part of it.
 - Audio, images, textures, models, text or other assets from the disc.
 - The game's data tables (next section).
 - Symbol tables, map files or other identifier tables, and any debug string,
@@ -44,18 +44,18 @@ suspect a file in this repository breaks these rules, open an issue tagged
 
 ## The data tables are generated at build time
 
-The Japanese link includes the same 70 members of the game's archive
+The Korean link includes the same 70 members of the game's archive
 `ico2000.a` that have data sections and no code as the PAL link (the PAL
 disc's MAIN.MAP), plus the same three data runs MAIN.MAP does not list;
-`config/data_members.jpn.txt` lists them all. They are the game's content:
+`config/data_members.kor.txt` lists them all. They are the game's content:
 stage object layouts, model and motion file tables, sound definitions, way
 points, the staff roll. There is no program in them to re-derive, and their
 values are never committed, as C, as assembly or in any other form.
 
-The build reads them from the user's own `baserom/jpn/baseelf.elf` and
-writes them under `build/jpn/data/`, which is gitignored. Each member is
-written as `build/jpn/data/<member>.c`, an initialized array of its record type
-from `config/data_schema.jpn.txt` that compiles with the game's flags
+The build reads them from the user's own `baserom/kor/baseelf.elf` and
+writes them under `build/kor/data/`, which is gitignored. Each member is
+written as `build/kor/data/<member>.c`, an initialized array of its record type
+from `config/data_schema.kor.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
 owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
@@ -156,21 +156,38 @@ prototype's `TRFILE.TXT` gives it (below), and the step before it, which
 PAL's map calls `actEndLogoChk`, carries a derived name. A function no PAL
 function claims also carries a derived name. The data-only members take
 PAL's names by member order. No address is copied from either PAL file:
-every address in this branch's configuration was found in the user's own
+every address in the `jpn` branch's configuration was found in the Japanese
 ELF.
 
-Of the user's Japanese disc the build reads `SYSTEM.CNF`, to find the boot
-file, and `SCPS_110.03`: it checks the ELF's SHA-1 and generates the 73
-data-only members from it (above). Every function, the five VU1
-microprograms and Sony's libraries are compiled or assembled from the
-tracked sources; nothing of the code is read from the disc.
-`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/jpn/`.
+This branch's tree was seeded from the `jpn` branch, so its names are the
+Japanese tree's.
 
 The Japanese string literals in the sources (the EUC-JP files
 `.gitattributes` lists) are the program's own text, the messages and names
 the compiled code prints or passes, written as the code that uses them. They
 are facts the program needs to be rebuilt, as on the PAL tree, not assets of
 the disc.
+
+## Korean retail disc (`kor`)
+
+The Korean retail disc (`SCPS-56001`, boot ELF `SCPS_560.01`, `SYSTEM.CNF`
+`VER = 1.00`) ships no linker map, listing or address table next to its boot
+ELF either. Its names are the Japanese tree's, carried to the Korean ELF by
+the same instruction-stream correlation against the Japanese build: of the
+5727 functions the census pairs, 5679 have bodies equal to the Japanese
+ones, and every function of the tree now compiles to the Korean bytes at
+the address the link gives it. No name or address comes from any Korean
+file other than the user's own ELF: every address in this branch's
+configuration was found in it.
+
+Of the user's Korean disc the build reads `SYSTEM.CNF`, to find the boot
+file, and `SCPS_560.01`: it checks the ELF's SHA-1 and generates the 73
+data-only members from it (above). Every function, the five VU1
+microprograms and Sony's libraries are compiled or assembled from the
+tracked sources; nothing of the code is read from the disc.
+`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/kor/`.
+The disc's other files (its data archive `DFDATAS/DATA.DF`, the IOP modules
+and `IOPRP224.IMG`) are never read by the build and never committed.
 
 ## Prototype symbol maps (`aug6`)
 
@@ -203,7 +220,7 @@ source and leaked SDKs stay forbidden on every branch.
 
 You must legally own a copy of *ICO* for the PlayStation 2 and supply the
 disc image yourself. The build checks the extracted ELF's SHA-1 before it
-proceeds and refuses any other file (`config/sha1sums.jpn.txt`,
+proceeds and refuses any other file (`config/sha1sums.kor.txt`,
 `docs/BUILDING.md`). A SHA-1 is a fingerprint, not a copy of the work; the
 disc image and the ELF remain the property of their rightsholders.
 
