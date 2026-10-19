@@ -2,8 +2,7 @@
 # =============================================================================
 # build_pages_site.sh: assemble the six-version progress dashboard into _site/
 #
-# Run by .github/workflows/pages.yml on `main`, `kor`, `ntsc`, `aug6` and
-# `jun26`. It works out what to do from the branch it is running on, so there
+# Run by .github/workflows/pages.yml on `main`, `ntsc`, `aug6` and `jun26`. It works out what to do from the branch it is running on, so there
 # are no per-branch conditionals to keep in sync.
 #
 # Why it has to publish every version: a GitHub Pages deploy replaces the ENTIRE
@@ -20,7 +19,7 @@
 #     branches' copies of docs/index.html (identical to main's once the
 #     change is copied over, tools/check_shared_layer.sh) are never read.
 #   - `main` carries several targets in one tree and contributes every
-#     docs/<slug>/ it has (docs/jpn/), except a target a frozen branch
+#     docs/<slug>/ it has (docs/jpn/, docs/kor/), except a target a frozen branch
 #     publishes (FROZEN below): PAL's numbers come from the `pal` branch's
 #     docs/pal/, not from main's. Each other branch carries one target
 #     and contributes its docs/<slug>/. Only the files in DATA_FILES are
@@ -28,10 +27,10 @@
 #
 # Branch -> version(s):
 #   main -> every docs/<slug>/ it has but the frozen ones (jpn Japanese
-#           retail SCPS-11003, and the targets that join later)
+#           retail SCPS-11003, kor Korean retail SCPS-56001, and the
+#           targets that join later)
 #   pal  -> pal    PAL retail (SCES-50760), frozen: read from origin/pal's
 #           docs/pal/, never deployed from
-#   kor  -> kor    Korean retail    (SCPS-56001)
 #   ntsc -> us     USA retail       (SLUS-20218)
 #   aug6 -> aug6   Aug-6-2001 prototype
 #   jun26 -> jun26 Jun-26-2001 demo (the "Demo" tab)
@@ -40,7 +39,7 @@
 #   _site/index.html        version-toggle dashboard, `main`'s copy
 #   _site/pal/              the `pal` branch's docs/pal/progress.json and PROGRESS.md
 #   _site/jpn/              `main`'s docs/jpn/
-#   _site/kor/              `kor`'s progress.json and PROGRESS.md
+#   _site/kor/              `main`'s docs/kor/
 #   _site/us/               `ntsc`'s progress.json and PROGRESS.md
 #   _site/aug6/             `aug6`'s progress.json and PROGRESS.md
 #   _site/jun26/            `jun26`'s progress.json and PROGRESS.md
@@ -71,11 +70,10 @@ BRANCH="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 # so adding a target branch means editing this one table (plus docs/index.html's
 # own picker) rather than hunting per-branch conditionals. `main` has no fixed
 # version: it publishes every docs/<slug>/ it carries (MAIN_BRANCH below).
-VERSION_OF_kor=kor
 VERSION_OF_ntsc=us
 VERSION_OF_aug6=aug6
 VERSION_OF_jun26=jun26
-BRANCHES="main kor ntsc aug6 jun26"
+BRANCHES="main ntsc aug6 jun26"
 MAIN_BRANCH=main
 
 # Frozen branches that publish a target in main's place: <slug> read from
@@ -98,7 +96,7 @@ case " $BRANCHES " in
     *" $BRANCH "*) ;;
     *)
         echo "build_pages_site: no version mapping for branch '$BRANCH'" >&2
-        echo "  expected one of: $BRANCHES ('main' -> every docs/<slug>/, 'kor' -> kor, 'ntsc' -> us, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
+        echo "  expected one of: $BRANCHES ('main' -> every docs/<slug>/, 'ntsc' -> us, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
         exit 1
         ;;
 esac
