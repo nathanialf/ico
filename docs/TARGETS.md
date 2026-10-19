@@ -13,7 +13,8 @@ difference lives; the comment at that place has the detail.
 The debug menu's `DISC VER.` line (`debug.c`) dates the Korean build
 `Jan  9 2002 19:03:40`, between the Japanese build's `Nov  2 2001 17:26:01`
 and PAL's `Jan 17 2002 15:37:26`; the version string in `gamesys.c` reads
-`10/23/01 17:47:13` (Japanese `10/23/01 02:02:43`). The Korean build is the
+`10/23/01 17:47:13` (Japanese `10/23/01 02:02:43`); the game was released
+in Korea in February 2002. The Korean build is the
 Japanese program in nearly every function: of the 5727 functions the census
 (`tools/correlate_elf.py`) pairs with the Japanese build's, 5679 have equal
 bodies; the others are the functions named below, and a few SDK functions
@@ -46,12 +47,16 @@ carries no `overlay-fill` token).
 
 Media and records:
 
-- The disc is a DVD, and `cdvd.c` is PAL's: media mode 2 and disc type 20
-  (the Japanese CD build has 1 and 18), and the background reads wait on
-  `sceCdStatus` only for CD media.
+- The disc is a DVD, and `cdvd.c` is PAL's: media mode 2 and disc type 20,
+  `SCECdPS2DVD` (the Japanese CD build has 1 and 18, `SCECdPS2CD`), and
+  the background reads wait on `sceCdStatus` only for CD media.
 - `iosCdvdMgrSearchFile` moves the start of `\DFDATAS\DATA.DF;1` 153600
   sectors (300 MB) on: on the Korean disc the archive's header lies that
-  far into the file. Neither the Japanese nor the PAL build has this.
+  far into the file. Neither the Japanese nor the PAL build has this code,
+  but PAL's listing has seven code-less lines at that place (`cdvd.c`
+  789-795), and its assertion and allocation lines after it carry the
+  numbers they have here, so the block is in PAL's source too, compiled out
+  there.
 - `iosPadDevReadFunc` prints the pad state on a failed read and drops the
   pad only when the state is 0, as PAL's does.
 - The records are the Japanese ones (`docs/HEADERS.md`).

@@ -143,7 +143,7 @@ with pycdlib (`tools/extract_elf.py`), extracts the boot file named by
 `tools/build.sh verify`, which only checks the two SHA-1s; `build.ninja`
 rewrites itself when `tools/gen_ninja.py` or one of its inputs changes.
 
-`setup` deletes `build/` and ninja's state, verifies the SHA-1s of the base
+`setup` deletes `build/kor/`, verifies the SHA-1s of the base
 ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 `tools/gen_ninja.py` from these inputs:
 
@@ -163,8 +163,8 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
   MAIN.MAP's names).
 
 `tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
-`build.ninja` only), `clean` (delete `build/`), `distclean` (also
-`build.ninja` and ninja's state) and `progress` (below).
+`build.ninja` only), `clean` (delete `build/kor/`), `distclean` (delete
+`build/`, `build.ninja` and ninja's state) and `progress` (below).
 
 ## 4. `ninja`
 
@@ -184,8 +184,8 @@ ELF and ROM (`tools/verify_elf.py`), and writes `build.ninja` with
 - assembles the five VU1 microprograms: the period cpp reads each program's
   text, `ico2/vusrc/<stem>.vsm`, from standard input in `ico2/` with
   `-Ivusrc` (it includes `vusrc/vu1_common.h` and, in normal_c and normal_l,
-  `vusrc/scissorcommcut.h`) and writes `build/ico2/vusrc/<stem>.i`; dvp-as,
-  run from `ico2/` with `-I../build/ico2`, assembles `vusrc/<stem>.dsm`, the
+  `vusrc/scissorcommcut.h`) and writes `build/kor/ico2/vusrc/<stem>.i`; dvp-as,
+  run from `ico2/` with `-I` naming `build/kor/ico2`, assembles `vusrc/<stem>.dsm`, the
   DMA tags around `.include "vusrc/<stem>.i"`. The overlay section names
   dvp-as writes hash the name of the file it is reading and the line: the
   `.dsm` path for the first overlay of each program, the empty name cpp gives
@@ -331,21 +331,23 @@ it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
 - **pre-commit**: `tools/check_no_rom.sh` (refuses disc images, executables,
   extracted assets and large binaries), `tools/check_dev_native.py` (refuses
   constructs that only steer the compiler, with the ROM-proven exceptions in
-  `tools/dev_native_allow.txt`), and `tools/format.sh --check` on the staged
-  C. When a staged path is under `ico2/`, `sce/`, `config/`, `tools/` or
-  `baserom/`, it then runs `tools/build.sh setup`, `ninja` and
-  `tools/check_elf.py --progress`, and adds the refreshed progress files to
-  the commit.
+  `tools/dev_native_allow.txt`), `tools/check_targets.py`, and
+  `tools/format.sh --check` on the staged C. When a
+  staged path is under `ico2/`, `sce/`, `config/`, `tools/` or
+  `baserom/`, it then runs `tools/build.sh gate-all` (every configured target
+  from scratch; a missing `baserom/<slug>/` of any of them fails the commit)
+  and `tools/build.sh progress-all`, and adds the refreshed README block and
+  `docs/*/` progress files to the commit.
 - **pre-push**: for each pushed branch other than `main`,
   `tools/check_shared_layer.sh` fetches `origin/main` and refuses the push
   when the branch's `tools/`, `build.sh`, `.github/` or `docs/index.html`
-  differs from main's, naming the files; those are the same on every target
+  differs from main's, naming the files; those are the same on every
   branch, and a change to them lands on `main` first. The comparison leaves
   out `tools/dev_native_allow.txt` (a pathspec exclude): it holds sites in the
   branch's own sources, so each branch keeps its own. Then, for each pushed
   ref whose commits touch the build, it requires the working tree to be at
   that ref's tip with no uncommitted changes under `ico2/`, `sce/`,
-  `config/` or `tools/`, and runs `tools/build.sh setup` and `ninja` on it.
+  `config/` or `tools/`, and runs `tools/build.sh gate-all` on it.
 
 `tools/format.sh` formats the tracked C with the tracked `.clang-format` and
 then `tools/format_layout.py`'s top-level blank-line layout. The game

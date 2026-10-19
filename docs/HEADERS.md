@@ -116,8 +116,9 @@ Files named `*_internal.h` hold declarations that are not public API, and their 
 are this project's, as is `sce/libsndn2/sound.h`, named after its member
 `sound.o`; the movie player's audio decoder takes the stream PCM calls from
 it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
-header compiled code into the game. The Korean link, like the Japanese one, has no `libscf`
-member, so this branch has no `sce/libscf/` and no `libscf.h`.
+header compiled code into the game. The Korean link, like the Japanese one,
+has no `libscf` member, so this branch has no `sce/libscf/` and no
+`libscf.h`.
 
 ## Derived names
 
@@ -128,11 +129,11 @@ whose field names are derived carries one `/* field names derived */` token
 on its opening line rather than one per field. Sony's public types keep
 their public names. Besides PAL's derived names, this branch derives
 `actEndLogoFade` (`script/src/end.c`, the ending step PAL's map calls
-`actEndLogoChk`; the Japanese and Korean builds give that name to the save step, as
-the August 6, 2001 prototype's `TRFILE.TXT` does), `DummyIcoMisc`
-(`common/src/icoMisc.c`, an empty function only this build has),
-`bga_updateMotionFrame` and `bgaRotDeg` (`seki/src/BgAnimation.c`) and
-`warning_mes` (`script/src/e3.c`).
+`actEndLogoChk`; the Japanese and Korean builds give that name to the save
+step, as the August 6, 2001 prototype's `TRFILE.TXT` does), `DummyIcoMisc`
+(`common/src/icoMisc.c`, an empty function the Japanese and Korean builds
+have and PAL's does not), `bga_updateMotionFrame` and `bgaRotDeg`
+(`seki/src/BgAnimation.c`) and `warning_mes` (`script/src/e3.c`).
 
 ## Search order
 
