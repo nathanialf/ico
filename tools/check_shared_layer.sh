@@ -4,8 +4,9 @@
 #
 # The shared layer (tools/ except tools/dev_native_allow.txt, build.sh,
 # .github/ and docs/index.html) is the same file for file on every branch
-# that builds a target (main, which carries several, and kor, ntsc, aug6
-# and jun26; the frozen pal and jpn branches take no further commits): the
+# that builds a target (main, which carries several, and ntsc, aug6 and
+# jun26; the frozen pal, jpn and kor branches take only hotfixes and these
+# copies): the
 # target is chosen only by tools/ico_version.py's slug detection, never by
 # a branch's own copy of a tool. A change to the shared layer lands on main
 # first and is then copied to the other branches as it is.
