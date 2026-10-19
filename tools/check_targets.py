@@ -4,7 +4,7 @@
 One tree, ico2/ and sce/, is every configured target's source; where the
 targets differ, a file holds each one's lines in #ifdef VERSION_<SLUG>
 blocks, which tools/compile_c.sh defines for the target it builds. A target
-is configured when config/link_order.<slug>.txt exists. Four rules:
+is configured when config/link_order.<slug>.txt exists. Five rules:
 
   1. Every source (.c, .s, .S, .dsm) is a row of at least one configured
      target's link order.
@@ -13,11 +13,24 @@ is configured when config/link_order.<slug>.txt exists. Four rules:
   4. A VERSION_<SLUG> name appears only in C sources and headers (.c, .h,
      .c.inc; nothing preprocesses the assembly and VU sources), and only for
      a configured slug.
+  5. A VERSION_<SLUG> name appears only in a version condition of one of
+     these forms (version_condition below), each arm of a block covering the
+     targets its condition names:
+
+         #ifdef VERSION_A                     #ifndef VERSION_A
+         #if defined(VERSION_A) || defined(VERSION_B)
+         #if !defined(VERSION_A) && !defined(VERSION_B)
+         #elif defined(VERSION_A) [|| defined(VERSION_B)]
+         #else                                #endif
+
+     An #elif or #else of a version block follows its #if, and an #elif
+     names no target an earlier arm of the block already took.
 
 The files are the ones git tracks or would track (untracked, not ignored),
 so a file not yet staged is checked too.
 
-    python3 tools/check_targets.py      exit 0 when every rule holds
+    python3 tools/check_targets.py              exit 0 when every rule holds
+    python3 tools/check_targets.py --self-test  the condition forms on fixed cases
 
 tools/gen_ninja.py runs the same check before it writes build.ninja, and
 the pre-commit hook runs this script. Plain python3, no venv.
@@ -36,6 +49,88 @@ from ico_version import configured_versions, config_path, layer_files  # noqa: E
 SOURCES = (".c", ".s", ".S", ".dsm")
 PREPROCESSED = (".c", ".h", ".inc")
 VERSION_NAME = re.compile(rb"\bVERSION_([A-Z0-9_]+)\b")
+
+_DIRECTIVE = re.compile(r"\s*#\s*(ifdef|ifndef|if|elif|else|endif)\b(.*)$")
+_DEFINED = r"defined\(VERSION_([A-Z0-9_]+)\)"
+_ANY_OF = re.compile(rf"{_DEFINED}(?:\s+\|\|\s+{_DEFINED})*")
+_NONE_OF = re.compile(rf"!{_DEFINED}(?:\s+&&\s+!{_DEFINED})*")
+
+
+def version_condition(line: str):
+    """A preprocessor line read as a version block's directive.
+
+    Returns (kw, slugs, positive) for a version condition: kw "if" or "elif",
+    slugs the lower-case target names it tests, positive False when the arm
+    is taken for the targets it does not name (#ifndef, the !defined form).
+    Returns (kw, None, None) for #else and #endif and for a conditional that
+    names no VERSION_ (its block is not a version block), and None for a
+    line that is no conditional directive. Raises ValueError for a
+    conditional naming a VERSION_ in any other form."""
+    m = _DIRECTIVE.match(line)
+    if not m:
+        return None
+    kw, rest = m.group(1), m.group(2).split("/*", 1)[0].strip()
+    if "VERSION_" not in rest:
+        return (kw, None, None)
+    names = re.findall(r"VERSION_([A-Z0-9_]+)", rest)
+    if kw in ("ifdef", "ifndef") and re.fullmatch(r"VERSION_[A-Z0-9_]+", rest):
+        return ("if", frozenset(n.lower() for n in names), kw == "ifdef")
+    if kw in ("if", "elif") and _ANY_OF.fullmatch(rest):
+        return (kw, frozenset(n.lower() for n in names), True)
+    if kw == "if" and _NONE_OF.fullmatch(rest):
+        return (kw, frozenset(n.lower() for n in names), False)
+    raise ValueError(f"#{kw} {rest}: not a version condition form")
+
+
+def condition_holds(slugs, positive, slug: str) -> bool:
+    """Whether a version condition's arm is the one target `slug` compiles."""
+    return (slug in slugs) == positive
+
+
+def version_block_problems(text: str) -> list[str]:
+    """Rule 5 on one file's text: every VERSION_ in an accepted directive,
+    and each version block's arms in order. (line, message) strings."""
+    bad = []
+    stack = []  # per open conditional: None, or the targets its arms took so far
+    for n, line in enumerate(text.splitlines(), 1):
+        try:
+            v = version_condition(line)
+        except ValueError as e:
+            bad.append(f"{n}: {e}")
+            # read on as a block that is not a version block
+            v = (_DIRECTIVE.match(line).group(1), None, None)
+        if v is None:
+            if VERSION_NAME.search(line.encode()):
+                bad.append(f"{n}: VERSION_ outside a version condition")
+            continue
+        kw, slugs, positive = v
+        if kw in ("if", "ifdef", "ifndef"):
+            stack.append(None if slugs is None else (set(slugs) if positive else {"*"}))
+        elif kw == "elif":
+            if not stack:
+                bad.append(f"{n}: #elif with no #if")
+            elif stack[-1] is None:
+                if slugs is not None:
+                    bad.append(f"{n}: a version #elif in a block whose #if names no VERSION_")
+            elif slugs is None:
+                bad.append(f"{n}: an #elif of a version block names no VERSION_")
+            elif "*" in stack[-1]:
+                bad.append(f"{n}: #elif after a negative (#ifndef/!defined) arm")
+            elif stack[-1] & slugs:
+                bad.append(f"{n}: #elif names {', '.join(sorted(stack[-1] & slugs))}, taken by an earlier arm")
+            else:
+                stack[-1] |= slugs
+        elif kw == "else":
+            if not stack:
+                bad.append(f"{n}: #else with no #if")
+        elif kw == "endif":
+            if not stack:
+                bad.append(f"{n}: #endif with no #if")
+            else:
+                stack.pop()
+    if stack:
+        bad.append(f"{len(text.splitlines())}: {len(stack)} conditional(s) left open")
+    return bad
 
 
 def link_rows(root: Path, slug: str) -> list[tuple[int, str]]:
@@ -72,6 +167,10 @@ def problems(root: Path = ROOT) -> list[str]:
             if u.decode() not in names:
                 bad.append(f"{p}: VERSION_{u.decode()} names no configured target"
                            f" (configured: {', '.join(slugs) or 'none'})")
+        # 5
+        if used and p.endswith(PREPROCESSED):
+            text = (root / p).read_text(encoding="latin-1")
+            bad.extend(f"{p}:{b}" for b in version_block_problems(text))
     # 2
     for s in slugs:
         for n, name in rows[s]:
@@ -84,7 +183,55 @@ def problems(root: Path = ROOT) -> list[str]:
     return bad
 
 
+SELF_TEST = (
+    # (lines, expected problem count)
+    ("#ifdef VERSION_JPN\n#else\n#endif", 0),
+    ("#ifndef VERSION_JPN\n#endif", 0),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n#else\n#endif", 0),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR)\n#endif", 0),
+    ("#ifdef VERSION_KOR\n#elif defined(VERSION_JPN)\n#else\n#endif", 0),
+    ("#if defined(VERSION_KOR)\n#elif defined(VERSION_JPN) || defined(VERSION_US)\n#endif", 0),
+    ("#if 0\n#ifdef VERSION_JPN\n#endif\n#elif 1\n#endif", 0),
+    ("#if defined(VERSION_JPN) && defined(VERSION_KOR)\n#endif", 1),
+    ("#if defined(VERSION_JPN) || !defined(VERSION_KOR)\n#endif", 1),
+    ("#if VERSION_JPN\n#endif", 1),
+    ("#if X && defined(VERSION_JPN)\n#endif", 1),
+    ("#elif defined(VERSION_JPN)", 1),
+    ("#ifdef VERSION_JPN\n#elif defined(VERSION_JPN)\n#endif", 1),
+    ("#ifndef VERSION_JPN\n#elif defined(VERSION_KOR)\n#endif", 1),
+    ("#ifdef VERSION_JPN\n#elif FOO\n#endif", 1),
+    ("#if FOO\n#elif defined(VERSION_JPN)\n#endif", 1),
+    ("#ifdef VERSION_JPN", 1),
+    ("int VERSION_JPN;", 1),
+    ("extern const _LIB_VERSION_TYPE _LIB_VERSION;", 0),
+)
+
+
+def self_test() -> int:
+    failed = 0
+    for text, want in SELF_TEST:
+        got = version_block_problems(text)
+        ok = len(got) == want
+        failed += not ok
+        print(f"check_targets: self-test {'ok  ' if ok else 'FAIL'} {text.splitlines()[0]!r}"
+              f" ({len(got)} problems, want {want})", file=sys.stderr)
+    for line, slug, want in (("#ifdef VERSION_JPN", "kor", False),
+                             ("#ifndef VERSION_JPN", "pal", True),
+                             ("#if defined(VERSION_JPN) || defined(VERSION_KOR)", "kor", True),
+                             ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR)", "kor", False),
+                             ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR)", "pal", True),
+                             ("#elif defined(VERSION_JPN)", "jpn", True)):
+        _, slugs, positive = version_condition(line)
+        ok = condition_holds(slugs, positive, slug) == want
+        failed += not ok
+        print(f"check_targets: self-test {'ok  ' if ok else 'FAIL'} {line!r} for {slug}", file=sys.stderr)
+    print(f"check_targets: self-test {'FAIL' if failed else 'OK'} ({failed} failed)", file=sys.stderr)
+    return 1 if failed else 0
+
+
 def main() -> int:
+    if "--self-test" in sys.argv[1:]:
+        return self_test()
     bad = problems(ROOT)
     for b in bad:
         print(f"check_targets: {b}", file=sys.stderr)
