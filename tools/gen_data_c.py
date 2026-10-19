@@ -46,7 +46,9 @@ element (char[32]: the C defines `char name[count][32]`).
 <slug> is the target as tools/ico_version.py detects it (VERSION, or the
 first configured one); the member table is config/data_members.<slug>.txt,
 and a header a schema row names is read as the target compiles it: its
-#ifdef VERSION_<SLUG> blocks keep the target's lines (version_lines).
+version blocks keep the target's lines (version_lines, which reads the
+condition forms tools/check_targets.py accepts; `--self-test` runs it on
+fixed cases).
 """
 
 import argparse
@@ -62,6 +64,7 @@ from elftools.elf.relocation import RelocationSection
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 from ico_version import detect_version, baseelf_path, config_path  # noqa: E402
+from check_targets import condition_holds, version_condition  # noqa: E402
 
 VERSION = detect_version(ROOT)
 SCHEMA = config_path(ROOT, VERSION, "data_schema", "txt")
@@ -211,27 +214,29 @@ def c_base(name):
     return name.replace("_", " ")
 
 
-_DIRECTIVE = re.compile(r"\s*#\s*(ifdef|ifndef|if|else|endif)\b\s*(\S*)")
-
-
 def version_lines(text, version=VERSION):
-    """text with its #ifdef/#ifndef VERSION_<SLUG> blocks resolved for this
-    target: the arm it compiles is kept, the other arm and the directives go.
+    """text with its version blocks resolved for this target: the arm it
+    compiles is kept, the other arms and the block's directives go. The
+    condition forms are tools/check_targets.py's (#ifdef/#ifndef VERSION_<SLUG>,
+    #if [!]defined(...) joined by || or &&, #elif defined(...), #else).
     Other conditionals are left for strip_c, as before."""
     out = []
     stack = []  # (is a VERSION_ block, this arm is live, an arm was taken)
-    want = f"VERSION_{version.upper()}"
     for line in text.splitlines():
-        m = _DIRECTIVE.match(line)
+        v = version_condition(line)
         live = all(f[1] for f in stack)
-        if m:
-            kw, arg = m.groups()
-            if kw in ("ifdef", "ifndef") and arg.startswith("VERSION_"):
-                taken = (arg == want) == (kw == "ifdef")
+        if v:
+            kw, slugs, positive = v
+            if kw in ("if", "ifdef", "ifndef") and slugs is not None:
+                taken = condition_holds(slugs, positive, version)
                 stack.append((True, taken, taken))
                 continue
             if kw in ("if", "ifdef", "ifndef"):
                 stack.append((False, True, True))
+            elif kw == "elif" and stack and stack[-1][0]:
+                taken = not stack[-1][2] and condition_holds(slugs, positive, version)
+                stack[-1] = (True, taken, stack[-1][2] or taken)
+                continue
             elif kw == "else" and stack and stack[-1][0]:
                 stack[-1] = (True, not stack[-1][2], True)
                 continue
@@ -241,6 +246,37 @@ def version_lines(text, version=VERSION):
         if live:
             out.append(line)
     return "\n".join(out)
+
+
+VERSION_LINES_SELF_TEST = (
+    # (text, {target: kept lines})
+    ("a\n#ifdef VERSION_JPN\nj\n#else\np\n#endif\nz",
+     {"pal": "a p z", "jpn": "a j z", "kor": "a p z"}),
+    ("#ifndef VERSION_JPN\np\n#endif", {"pal": "p", "jpn": "", "kor": "p"}),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\njk\n#else\np\n#endif",
+     {"pal": "p", "jpn": "jk", "kor": "jk"}),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR)\np\n#endif",
+     {"pal": "p", "jpn": "", "kor": ""}),
+    ("#ifdef VERSION_KOR\nk\n#elif defined(VERSION_JPN)\nj\n#else\np\n#endif",
+     {"pal": "p", "jpn": "j", "kor": "k"}),
+    ("#if 0\nx\n#ifdef VERSION_JPN\nj\n#endif\n#elif 1\ny\n#else\nw\n#endif",
+     {"pal": "#if 0 x #elif 1 y #else w #endif", "jpn": "#if 0 x j #elif 1 y #else w #endif"}),
+    ("#ifdef VERSION_JPN\n#if 1\nj\n#else\nq\n#endif\n#endif",
+     {"pal": "", "jpn": "#if 1 j #else q #endif"}),
+)
+
+
+def version_lines_self_test():
+    failed = 0
+    for text, want in VERSION_LINES_SELF_TEST:
+        for slug, kept in want.items():
+            got = " ".join(version_lines(text, slug).split())
+            ok = got == kept
+            failed += not ok
+            print(f"gen_data_c: self-test {'ok  ' if ok else 'FAIL'} {slug} {text.splitlines()[0]!r}"
+                  f" -> {got!r}" + ("" if ok else f" (want {kept!r})"), file=sys.stderr)
+    print(f"gen_data_c: self-test {'FAIL' if failed else 'OK'} ({failed} failed)", file=sys.stderr)
+    return 1 if failed else 0
 
 
 def strip_c(text):
@@ -920,6 +956,8 @@ def write_if_changed(path, text):
 
 
 def main():
+    if sys.argv[1:] == ["--self-test"]:
+        return version_lines_self_test()
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--stub")
