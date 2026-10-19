@@ -24,20 +24,23 @@ ico_version_init "${ROOT}"
 SRCROOT="${ROOT}"
 
 # One source tree builds every target; where the targets' code differs, the
-# file holds each target's lines in #ifdef VERSION_<SLUG> blocks (PAL's in the
-# #else), and the compile defines VERSION_<SLUG> for the one it builds. LN
-# picks a hand-written source line number for the target, LN(pal, jpn): the
-# original build passed __LINE__ to its debug allocators and asserts, and
-# those lines are part of each build's data (mv_defs.h's alloc_zeroed,
-# FileManager.c's iosMallocDebug calls). A joining target appends its own
-# argument. Measured 2026-10-15: with them every object equals its build
-# without them outside .mdebug, which the link does not keep.
-# A target still on its own branch (kor, us, aug6, jun26) gets VERSION_<SLUG> and no LN:
+# file holds each target's lines in version blocks (#ifdef VERSION_<SLUG>,
+# #if defined(VERSION_JPN) || defined(VERSION_KOR), #elif defined(...); PAL's
+# in the #else), and the compile defines VERSION_<SLUG> for the one it
+# builds. LN picks a hand-written source line number for the target,
+# LN(pal, jpn, kor): the original build passed __LINE__ to its debug
+# allocators and asserts, and those lines are part of each build's data
+# (mv_defs.h's alloc_zeroed, FileManager.c's iosMallocDebug calls). A
+# joining target appends its own argument. Measured 2026-10-15: with them
+# every object equals its build without them outside .mdebug, which the link
+# does not keep.
+# A target still on its own branch (us, aug6, jun26) gets VERSION_<SLUG> and no LN:
 # its sources do not use it until it joins main.
 VERSION_DEFS="-DVERSION_$(printf '%s' "${ICO_VERSION}" | tr '[:lower:]' '[:upper:]')"
 case "${ICO_VERSION}" in
-    pal) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn)=pal" ;;
-    jpn) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn)=jpn" ;;
+    pal) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor)=pal" ;;
+    jpn) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor)=jpn" ;;
+    kor) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor)=kor" ;;
 esac
 
 EEGCC_DIR="${EEGCC_DIR:-${ROOT}/tools/cc/ee-gcc2.9-991111}"
