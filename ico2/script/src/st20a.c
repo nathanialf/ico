@@ -71,14 +71,14 @@ static ActMail hint1_mes[2] = {{430}, {429}}; /* derived name */
 void actSt20aInit(void)
 {
     if (gflagChk(315) == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(144, 0, 0);
 #else
         stage_SetAnimation(148, 0, 0);
 #endif
         SetWayGroupActive(4, 0);
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(144, 0, -1);
 #else
         stage_SetAnimation(148, 0, -1);
@@ -115,7 +115,7 @@ void actSt20aBridgeDown(GObj *volatile self)
 {
     GProc *th;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -143,7 +143,7 @@ void actSt20aBridgeDown(GObj *volatile self)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(144, 0, -1);
 #else
         stage_SetAnimation(148, 0, -1);
@@ -154,7 +154,7 @@ void actSt20aBridgeDown(GObj *volatile self)
     SetWayGroupActive(4, 1);
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -170,13 +170,13 @@ void actSt20aGondolaDown(GObj *volatile self)
     while (gondola_down == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(143, 1, 0);
 #else
     stage_SetAnimation(147, 1, 0);
 #endif
     gflagOn(316);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(143, 150, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(147, 150, 0) == 0) {
@@ -185,7 +185,7 @@ void actSt20aGondolaDown(GObj *volatile self)
     }
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(143, 500, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(147, 500, 1) == 0) {
@@ -215,13 +215,13 @@ void actSt20aGondolaUp(GObj *volatile self)
     while (gondola_up == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(143, 1, 500);
 #else
     stage_SetAnimation(147, 1, 500);
 #endif
     gflagOff(316);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(143, 820, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(147, 820, 0) == 0) {
@@ -230,7 +230,7 @@ void actSt20aGondolaUp(GObj *volatile self)
     }
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(143, 1000, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(147, 1000, 1) == 0) {
@@ -273,7 +273,7 @@ void actSt20aFence(GObj *volatile self)
         scpSearchGobj(2028)->active = 0;
         scpSearchGobj(2029)->active = 0;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         scpLinkBGAtoLayoutedTarget(2022, 145);
         stage_SetAnimation(145, 0, 30);
 #else
@@ -298,7 +298,7 @@ void actSt20aFence(GObj *volatile self)
 
         gflagOff(309);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         scpLinkBGAtoLayoutedTarget(2024, 145);
         stage_SetAnimation(145, 0, 0);
 #else
@@ -324,7 +324,7 @@ void actSt20aFenceDownChk(GObj *volatile self)
     while (scpTriggerBall(self, scpSearchGobj(2022), 5.0f) == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(145, 1, 0);
     while (stage_CheckAnimationFrame(145, 10, 0) == 0) {
 #else
@@ -335,7 +335,7 @@ void actSt20aFenceDownChk(GObj *volatile self)
     }
     _ACTWait(1);
     soundSeDefPlay(1339, 0, 0, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(145, 30, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(149, 30, 1) == 0) {
@@ -363,7 +363,7 @@ void actSt20aFenceUpChk(GObj *volatile self)
         _ACTWait(1);
     }
     SetWayGroupActive(19, 0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(145, 1, 31);
     while (stage_CheckAnimationFrame(145, 40, 0) == 0) {
 #else
@@ -374,7 +374,7 @@ void actSt20aFenceUpChk(GObj *volatile self)
     }
     _ACTWait(1);
     soundSeDefPlay(1339, 0, 0, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(145) == 0) {
 #else
     while (stage_CheckAnimationFinish(149) == 0) {
@@ -400,7 +400,7 @@ void actSt20aFenceDownChk2(GObj *volatile self)
     while (scpTriggerBall(self, scpSearchGobj(2024), 5.0f) == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(145, 1, 0);
     while (stage_CheckAnimationFrame(145, 10, 0) == 0) {
 #else
@@ -411,7 +411,7 @@ void actSt20aFenceDownChk2(GObj *volatile self)
     }
     _ACTWait(1);
     soundSeDefPlay(1339, 0, 0, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(145, 30, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(149, 30, 1) == 0) {
@@ -439,7 +439,7 @@ void actSt20aFenceUpChk2(GObj *volatile self)
         _ACTWait(1);
     }
     SetWayGroupActive(19, 0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(145, 1, 31);
     while (stage_CheckAnimationFrame(145, 40, 0) == 0) {
 #else
@@ -450,7 +450,7 @@ void actSt20aFenceUpChk2(GObj *volatile self)
     }
     _ACTWait(1);
     soundSeDefPlay(1339, 0, 0, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(145) == 0) {
 #else
     while (stage_CheckAnimationFinish(149) == 0) {
@@ -490,19 +490,19 @@ void actSt20aGondola(GObj *volatile self)
 
     _ACTWait(1);
     if (gflagChk(316) != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(143, 0, 0);
 #else
         stage_SetAnimation(147, 0, 0);
 #endif
         _ACTWait(10);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(143, 0, 500);
 #else
         stage_SetAnimation(147, 0, 500);
 #endif
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(143, 0, 0);
 #else
         stage_SetAnimation(147, 0, 0);
@@ -668,7 +668,7 @@ static void actSt20aBridgeDownSub(GObj *volatile self)
         _ACTWait(1);
     }
     AdpcmPlay(brg20a->stream);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(144, 1, 0);
 #else
     stage_SetAnimation(148, 1, 0);
@@ -676,7 +676,7 @@ static void actSt20aBridgeDownSub(GObj *volatile self)
     st20a_yure = iosPadActRequest(boyPad, 9);
     st20a_yure_vol = 128;
     iosPadActVolumeSet(st20a_yure, 128);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(144) == 0) {
 #else
     while (stage_CheckAnimationFinish(148) == 0) {
@@ -692,7 +692,7 @@ void actSt20aGondolaMain(GObj *volatile self)
 {
     Act *p = GOBJ_ACT(self);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -710,7 +710,7 @@ void actSt20aGondolaSwitch(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);

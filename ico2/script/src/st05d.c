@@ -50,7 +50,7 @@ void actSt05dDoor2(GObj *volatile self)
 
     if (scpTriggerBall(self, boyGObj, 400.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(345, 0, 0);
 #else
         stage_SetAnimation(349, 0, 0);
@@ -61,7 +61,7 @@ void actSt05dDoor2(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(344, 0, 0);
 #else
         stage_SetAnimation(348, 0, 0);
@@ -87,7 +87,7 @@ void actSt05dDoor2UpChk(GObj *volatile self)
 
     ReviveAllCarryableItemsWithNonSleepFrame(60);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(344, 1, 0);
 #else
     stage_SetAnimation(348, 1, 0);
@@ -101,7 +101,7 @@ void actSt05dDoor2UpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(344) == 0) {
 #else
     while (stage_CheckAnimationFinish(348) == 0) {
@@ -130,7 +130,7 @@ void actSt05dDoor2DownChk(GObj *volatile self)
 
     ReviveAllCarryableItemsWithNonSleepFrame(60);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(345, 1, 0);
 #else
     stage_SetAnimation(349, 1, 0);
@@ -144,7 +144,7 @@ void actSt05dDoor2DownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(345) == 0) {
 #else
     while (stage_CheckAnimationFinish(349) == 0) {

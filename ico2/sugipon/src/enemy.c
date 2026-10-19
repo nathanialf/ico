@@ -194,7 +194,7 @@ retry:
     p->scale[0] = sc;
     w->scale = sc;
     obj = enemyKind[kind].model;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (obj != 1548) {
 #else
     if (obj != 0x610) {

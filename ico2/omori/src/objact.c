@@ -31,7 +31,7 @@ inline void ObjAction_Init(void)
 static inline void objActionCorrectFlag(OaRecB *p) /* derived name */
 {
     if ((p->flags & 1) == 1u) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         p->mode = 949;
 #else
         p->mode = 972;
@@ -41,7 +41,7 @@ static inline void objActionCorrectFlag(OaRecB *p) /* derived name */
 
 static inline void objActionCorrectMode(OaRecB *p) /* derived name */
 {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (p->mode == 949) {
 #else
     if (p->mode == 972) {

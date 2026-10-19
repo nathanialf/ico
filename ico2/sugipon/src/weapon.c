@@ -875,13 +875,13 @@ void WeaponGeo(GObj *g)
         calcBlur(g, w->bladeLength);
         w->bladeOn = 1;
         t = w->bladeLength;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetLoopFlag(469, 1);
 #else
         stage_SetLoopFlag(473, 1);
 #endif
         if (t > 1.0f) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             n = (int)stage_PlayBgAnimation(469, (float)w->humAnim,
                                            (char *)GOBJ_SUB(g)->nodeMtx + 0x30, IdentityQuaternion);
 #else
@@ -892,7 +892,7 @@ void WeaponGeo(GObj *g)
                 w->humAnim = n;
             }
         } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             stage_PlayBgAnimation(469, 0.0f, (char *)GOBJ_SUB(g)->nodeMtx + 0x30,
                                   IdentityQuaternion);
 #else
@@ -901,7 +901,7 @@ void WeaponGeo(GObj *g)
 #endif
             w->humAnim = 0;
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetLoopFlag(469, 0);
 #else
         stage_SetLoopFlag(473, 0);

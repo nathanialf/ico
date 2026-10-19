@@ -43,7 +43,7 @@ extern int exit_no;
 extern int motionFrameUpdate;
 extern int interlace;
 extern int thisIsYourStartStage;
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 extern int NonLinearCameraMove;
 #endif
 extern int GlobalTimer;

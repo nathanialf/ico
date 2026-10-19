@@ -30,12 +30,12 @@
 #include <stdlib.h>
 
 /* main.c's .data globals, each with an initialiser. systemStatus starts in PAL mode (word 0;
-   NTSC on JPN)
+   NTSC on JPN and KOR)
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
    IosMsgQueue, 0x30 B). */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 int systemStatus[12] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 #else
 int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
@@ -126,7 +126,7 @@ void Main(void)
     debug_StdPrintfDummy("SYSTEM_FRAMERATE: \x1b[33m%d\x1b[m\n",
                          (60 - systemStatus[0] * 10) / systemStatus[1]);
     *T0_COUNT = 0;
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     NonLinearCameraMove = 3;
 #endif
     stage_no = 0;
@@ -136,7 +136,7 @@ void Main(void)
     systemFault = 0;
     lock_execIcoMisc = 0;
     n = debug_TryToGetStartStage();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     thisIsYourStartStage = n < 104 ? n : 103;
 #else
     thisIsYourStartStage = n < 106 ? n : 105;
@@ -163,7 +163,7 @@ void Main(void)
     while (1) {
         iosThreadCancelWakeup(0);
         iosThreadSleep();
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
         gsb_ResetSnap();
 #endif
         if (mpegPlay != 0) {
@@ -176,7 +176,7 @@ void Main(void)
             ios_partition_mpeg = ios_partition_isys;
             AdpcmStreamFree();
             soundAllocIopFree();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
                        mpegPlayInitColor);
 #else
@@ -213,7 +213,7 @@ void Main(void)
         }
         iosOmCreateDL();
         ExecDelayFree();
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
         gsb_TakeSnap();
 #endif
         frameReady = 1;
@@ -374,7 +374,7 @@ int movie_abort_check(void)
     return ret;
 }
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 void demoEnd(void) {}
 #endif
 
@@ -391,7 +391,7 @@ int main(void)
     return 0;
 }
 
-/* main.c's .sdata globals.  Both builds add six to the January map's (marked
+/* main.c's .sdata globals.  Every build adds six to PAL's map's (marked
    derived): one quadword after game_pause and the girl-control block before
    boyGObj.  Each is a 4-byte scalar; the ones marked QWORD open a 16-byte
    quadword of their own, the rest of which stays empty. */
@@ -419,7 +419,7 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 int NonLinearCameraMove QWORD = 0;
 #endif
 

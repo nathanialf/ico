@@ -1292,8 +1292,12 @@ void soundSeEnvPlay(void)
 }
 
 /* &stageData[0].seEnvFirst, the range soundSeEnvNotUseClose walks */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+extern char D_005EFC20[];
+#else
 extern char D_005EFE10[];
+#endif
 #else
 extern char D_005F5E60[];
 #endif
@@ -1353,14 +1357,22 @@ void soundSeEnvNotUseClose(int a, int b)
     for (m = 0; m < 48; m++) {
         e = &seSlotTbl[m];
         req = e->req;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        first = (int *)&D_005EFC20[a * 404];
+#else
         first = (int *)&D_005EFE10[a * 404];
+#endif
 #else
         first = (int *)&D_005F5E60[a * 404];
 #endif
         if (req != 0 && req->mode == 0 && e->owner == 0xFFFFFFFF) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+            for (j = *first; j < *(int *)&D_005EFC20[a * 404 + 4]; j++) {
+#else
             for (j = *first; j < *(int *)&D_005EFE10[a * 404 + 4]; j++) {
+#endif
 #else
             for (j = *first; j < *(int *)&D_005F5E60[a * 404 + 4]; j++) {
 #endif

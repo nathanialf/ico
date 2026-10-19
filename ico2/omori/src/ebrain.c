@@ -185,7 +185,7 @@ inline int GetStageFromLabel(int label)
     int UseStageNo = -1;
     int i;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     for (i = 0; i < 104; i++) {
 #else
     for (i = 0; i < 106; i++) {
@@ -249,7 +249,7 @@ int eBrainGetTargetGeneratorFromLabel(int label)
         return ret;
 
     UseStageNo = -1;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     for (i = 0; i < 104; i++) {
 #else
     for (i = 0; i < 106; i++) {

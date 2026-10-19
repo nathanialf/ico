@@ -34,8 +34,12 @@ int kanbanCommonRead = 0;
 static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
 /* texProperty's texNo column, &texProperty[0].texNo */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+extern char D_0030A6EC[];
+#else
 extern char D_0030A66C[];
+#endif
 #else
 extern char D_0030D014[];
 #endif
@@ -63,7 +67,7 @@ extern void gif_StartPacketPri(int pri);
 
 static void init_textures_of_specified_property(int first, int last);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static inline char *get_texture_base_name(const char *src) /* derived name */
 #else
 static inline char *get_texture_base_name(char *src) /* derived name */
@@ -93,7 +97,7 @@ static inline char *get_texture_base_name(char *src) /* derived name */
 static inline int get_texture_no_of_property(int idx) /* derived name */
 {
     int n;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     const char *src;
 #else
     char *src;
@@ -108,12 +112,12 @@ static inline int get_texture_no_of_property(int idx) /* derived name */
     no = tex_GetTextureNo(name);
 
     if (no < 0) {
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
         debug_StdPrintfDummy("tex_id %d\n", n);
 #endif
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
-        debug_assert(__FILE__, LN(272, 265));
-        __assert(__FILE__, LN(272, 265), "0");
+        debug_assert(__FILE__, LN(272, 265, 265));
+        __assert(__FILE__, LN(272, 265, 265), "0");
     }
     return no;
 }
@@ -143,14 +147,14 @@ static inline int kanban_layout_key(LtProp *pr) /* derived name */
     } else {
         unsigned long button = pad[0].flags;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (button & 0x20) {
 #else
         if (button & 0x40) {
 #endif
             ret = 1;
         } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             ret = (button & 0x40) ? 2 : 0;
 #else
             ret = (button & 0x10) ? 2 : 0;
@@ -278,14 +282,20 @@ static void init_textures_of_specified_property(int first, int last)
     int no;
 
     for (i = first; i < last; i++) {
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
         debug_StdPrintfDummy("propertyId %d\n", i);
 #endif
         no = get_texture_no_of_property(i);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        *(int *)(D_0030A6EC + i * 0x70) = no;
+        *(void **)(D_0030A6EC + i * 0x70 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_0030A6EC + i * 0x70 - 4), 1, 1);
+#else
         *(int *)(D_0030A66C + i * 0x70) = no;
         *(void **)(D_0030A66C + i * 0x70 - 4) = tex_GetTextureData(no);
         tex_SetSamplingType(*(void **)(D_0030A66C + i * 0x70 - 4), 1, 1);
+#endif
 #else
         *(int *)(D_0030D014 + i * 0x70) = no;
         *(void **)(D_0030D014 + i * 0x70 - 4) = tex_GetTextureData(no);
@@ -299,7 +309,7 @@ void kanbanInit(int no)
     if (no != 0) {
         init_textures_of_property_range(stageData[no].layoutFirst, stageData[no].layoutLast);
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         init_textures_of_property_range(0, 4);
 #else
         init_textures_of_property_range(0, 1);
@@ -363,7 +373,7 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
         gif_StartPacketPri(11);
         gif_SetZTest(0);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         for (i = 0; i < r[2] * r[3] / 1200; i++) {
 #else
         for (i = 0; i < r[2] * r[3] / 300; i++) {

@@ -320,7 +320,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     float d;
     float d1;
     float d2;
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     float r1;
     float r2;
 #endif
@@ -358,7 +358,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     vDiff[2] = cam->eye.f[2] - monitorCamera.work.eye.f[2];
     sceVu0SubVector(vEye, cam, &monitorCamera.work);
     len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (handCameraEyeRate * 11.0f < len) {
         if (handCameraEyeRate < monitorCamera.moveDist) {
             monitorCamera.moveDist = handCameraEyeRate;
@@ -372,7 +372,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
 #endif
         }
         if (monitorCamera.moveDist < len) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             len = monitorCamera.moveDist + handCameraEyeRate / 30.0f;
 #else
             len = monitorCamera.moveDist +
@@ -383,7 +383,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
             sceVu0ScaleVector(vEye, vEye, len);
             sceVu0AddVector(out, &monitorCamera.work, vEye);
         } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             len = handCameraEyeRate;
 #else
             len =
@@ -405,7 +405,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     scePrintf("monitor camera move %f at %f %f %f\n", t, vSpare[0], vSpare[1], vSpare[2]);
 #endif
     held = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     d = handCameraAtRate;
 #else
     d = handCameraAtRate * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
@@ -441,7 +441,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
                 mode = 4;
             }
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f, mode, 1.0f);
 #else
         _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f,
@@ -471,7 +471,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
         }
     }
     if (insertCameraBlendTimer != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         _InterGV(out->eye.f, cam->eye.f, monitorCamera.work.eye.f, 1.0f, 0.1f);
         _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f, 1.0f, 0.1f);
         out->ext.f[0] = (cam->ext.f[0] * 0.1 + monitorCamera.work.ext.f[0]) / 1.1;
@@ -759,7 +759,7 @@ void ReflectCameraSetBinary(CamGroup *src, int count)
     }
 
     cameraSetBuf = iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count),
-                                  __FILE__, LN(1577, 1575));
+                                  __FILE__, LN(1577, 1575, 1575));
     cameraSetGroups = cameraSetBuf;
     cameraSetGroupsEnd = cameraSetBuf + count * 76;
     cameraSetGroupNum = count;
@@ -970,8 +970,8 @@ inline void *GetPluralCameraSet(int id)
     }
     /* EUC-JP: "[%s] was not found\n" */
     debug_StdPrintfDummy("[%s]が見つかりません\n", cameraSetList[id]);
-    debug_assert(__FILE__, LN(2036, 2034));
-    __assert(__FILE__, LN(2036, 2034), "0");
+    debug_assert(__FILE__, LN(2036, 2034, 2034));
+    __assert(__FILE__, LN(2036, 2034, 2034), "0");
     return 0;
 }
 
@@ -982,8 +982,8 @@ inline void AddPluralCameraSet(int id, char *name)
     if (pluralCameraSetNum >= 10) {
         /* EUC-JP: "at most [%d] camera sets can be registered in one stage." */
         debug_StdPrintfDummy("１ステージに登録できるカメラセットは、最大[%d]個です。", 10);
-        debug_assert(__FILE__, LN(2045, 2043));
-        __assert(__FILE__, LN(2045, 2043), "0");
+        debug_assert(__FILE__, LN(2045, 2043, 2043));
+        __assert(__FILE__, LN(2045, 2043, 2043), "0");
     }
     p = &pluralCameraSet[pluralCameraSetNum];
     p->id = id;
@@ -1003,7 +1003,7 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
     CamSetFile *p;
 
     p = (CamSetFile *)iosMallocDebug(ios_partition_seki, 16 + f->count * 76 + f->total * 92,
-                                     __FILE__, LN(2166, 2164));
+                                     __FILE__, LN(2166, 2164, 2164));
     *p = *f;
     p->magic = 0x1234;
     p->ver = 3;
@@ -1136,8 +1136,8 @@ static void *ReadCameraSet(CamSetFile *f, int stage)
         debug_StdPrintfDummy(
             "カメラデータのバージョンに異常があります。大森まで知らせてください\n");
         debug_StdPrintfDummy("illegal camera data version [%d]\n", f->ver);
-        debug_assert(__FILE__, LN(2355, 2353));
-        __assert(__FILE__, LN(2355, 2353), "0");
+        debug_assert(__FILE__, LN(2355, 2353, 2353));
+        __assert(__FILE__, LN(2355, 2353, 2353), "0");
         break;
     }
     return p;

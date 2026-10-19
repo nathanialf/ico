@@ -41,7 +41,7 @@ static IosSema jimakuShownSema; /* derived name */
 static IosSema jimakuFrameSema; /* derived name */
 
 #include "jimaku.h"
-#include "layout_texture.h" /* texProperty: jimaku's entries are 434 and 435 (JPN 410 and 411) */
+#include "layout_texture.h" /* jimaku's texProperty rows: 434, 435 (JPN 410, 411; KOR 404, 405) */
 #include "gflag.h"
 
 typedef struct JimCol { /* field names derived */
@@ -174,7 +174,7 @@ static int jimakuHandler(CdvdBgReq *self, JimakuArg *p)
 static void jimakuMgrBegin(JimakuArg *p)
 {
     JimakuSub *sub = &p->sub;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     int st;
 #else
     int st = 0;
@@ -199,7 +199,7 @@ static void jimakuMgrBegin(JimakuArg *p)
     jimakuRing[0].state = 3;
     jimakuRing[0].tex = -1;
     sub->ringPos = 1;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     st = gFlagGameClear != 0;
 #else
     switch (NonLinearCameraMove) {
@@ -269,8 +269,8 @@ static void jimakuMgrNext(JimakuArg *p)
     g->node->stamp = lock_execIcoMisc;
     if (g->node->tex == -1) {
         debug_StdPrintfDummy("already exist\n");
-        debug_assert(__FILE__, LN(688, 655));
-        __assert(__FILE__, LN(688, 655), "0");
+        debug_assert(__FILE__, LN(688, 655, 658));
+        __assert(__FILE__, LN(688, 655, 658), "0");
     }
     sub->n = (sub->n + 1) % 4;
     if (iosSemaWait(&jimakuShownSema) < 0) {
@@ -416,9 +416,14 @@ void jimakuDisp(JimakuArg *msg)
     }
     if (jimakuDispOn != 0) {
         int v = g->tex;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        texProperty[405].texNo = v;
+        texProperty[404].texNo = v;
+#else
         texProperty[411].texNo = v;
         texProperty[410].texNo = v;
+#endif
 #else
         texProperty[435].texNo = v;
         texProperty[434].texNo = v;
@@ -427,9 +432,14 @@ void jimakuDisp(JimakuArg *msg)
             return;
         }
         if (jimakuOn != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+            display_texture(&texProperty[404]);
+            display_texture(&texProperty[405]);
+#else
             display_texture(&texProperty[410]);
             display_texture(&texProperty[411]);
+#endif
 #else
             display_texture(&texProperty[434]);
             display_texture(&texProperty[435]);

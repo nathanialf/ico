@@ -62,7 +62,7 @@ void actSt18aIntroChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -74,13 +74,13 @@ void actSt18aIntroChk(GObj *volatile self)
 
     _ACTWait(1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(350, 1, 0);
 #else
     stage_SetAnimation(354, 1, 0);
 #endif
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(350) == 0) {
 #else
     while (stage_CheckAnimationFinish(354) == 0) {
@@ -95,7 +95,7 @@ void actSt18aIntroChk(GObj *volatile self)
                 _ACTWait(1);
             }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             stage_SetAnimation(350, 1, -1);
 #else
             stage_SetAnimation(354, 1, -1);
@@ -107,7 +107,7 @@ void actSt18aIntroChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -133,7 +133,7 @@ void actSt18aSwitchLChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(117, 1, 0);
 #else
     stage_SetAnimation(121, 1, 0);
@@ -141,7 +141,7 @@ void actSt18aSwitchLChk(GObj *volatile self)
 
     soundSeDefPlay(1220, 0, 0, 1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(117, 45, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(121, 45, 1) == 0) {
@@ -175,14 +175,14 @@ void actSt18aSwitchLUpChk(GObj *volatile self)
     _ACTWait(15);
     gflagOff(58);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(117, 1, 46);
 #else
     stage_SetAnimation(121, 1, 46);
 #endif
     soundSeDefPlay(1220, 0, 0, 1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(117, 50, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(121, 50, 0) == 0) {
@@ -193,7 +193,7 @@ void actSt18aSwitchLUpChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(3054.0f, 1530.0f, -3061.0f, 100.0f);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(117, 90, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(121, 90, 1) == 0) {
@@ -226,7 +226,7 @@ void actSt18aSwitchRChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(118, 1, 0);
 #else
     stage_SetAnimation(122, 1, 0);
@@ -234,7 +234,7 @@ void actSt18aSwitchRChk(GObj *volatile self)
 
     soundSeDefPlay(1220, 0, 0, 1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(118, 45, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(122, 45, 1) == 0) {
@@ -268,14 +268,14 @@ void actSt18aSwitchRUpChk(GObj *volatile self)
     _ACTWait(15);
     gflagOff(59);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(118, 1, 46);
 #else
     stage_SetAnimation(122, 1, 46);
 #endif
     soundSeDefPlay(1220, 0, 0, 1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(118, 50, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(122, 50, 0) == 0) {
@@ -286,7 +286,7 @@ void actSt18aSwitchRUpChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(1451.0f, 1530.0f, -3039.0f, 100.0f);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(118, 90, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(122, 90, 1) == 0) {
@@ -317,7 +317,7 @@ void actSt18aDoorChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -347,7 +347,7 @@ void actSt18aDoorChk(GObj *volatile self)
             _ACTWait(1);
         }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(119, 0, -1);
 #else
         stage_SetAnimation(123, 0, -1);
@@ -361,7 +361,7 @@ void actSt18aDoorChk(GObj *volatile self)
     }
 
     scpWakeupEnemyAll();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -385,7 +385,7 @@ void actSt18aDoorDownChk(GObj *volatile self)
     _ACTWait(15);
     gflagOff(60);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(120, 1, 0);
 #else
     stage_SetAnimation(124, 1, 0);
@@ -394,7 +394,7 @@ void actSt18aDoorDownChk(GObj *volatile self)
     soundSeDefPlay(1221, 0, 0, 1);
     _ACTWait(50);
     soundSeDefPlay(1222, 0, 0, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(120) == 0) {
 #else
     while (stage_CheckAnimationFinish(124) == 0) {
@@ -488,7 +488,7 @@ void actSt18aDoor(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(60) == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(119, 0, 0);
 #else
         stage_SetAnimation(123, 0, 0);
@@ -499,7 +499,7 @@ void actSt18aDoor(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(119, 0, -1);
 #else
         stage_SetAnimation(123, 0, -1);
@@ -520,7 +520,7 @@ void actSt18aSwitchL(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(58) == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(117, 0, 0);
 #else
         stage_SetAnimation(121, 0, 0);
@@ -531,7 +531,7 @@ void actSt18aSwitchL(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(117, 0, 45);
 #else
         stage_SetAnimation(121, 0, 45);
@@ -552,7 +552,7 @@ void actSt18aSwitchR(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(59) == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(118, 0, 0);
 #else
         stage_SetAnimation(122, 0, 0);
@@ -563,7 +563,7 @@ void actSt18aSwitchR(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(118, 0, 45);
 #else
         stage_SetAnimation(122, 0, 45);
@@ -665,7 +665,7 @@ static void actSt18aDoorChkSub(GObj *volatile self)
 {
     _ACTWait(60);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(119, 1, 0);
 #else
     stage_SetAnimation(123, 1, 0);
@@ -679,7 +679,7 @@ static void actSt18aDoorChkSub(GObj *volatile self)
     _ACTWait(50);
     doorChkDone = 1;
     soundSeDefPlay(1222, 0, 0, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(119) == 0) {
 #else
     while (stage_CheckAnimationFinish(123) == 0) {

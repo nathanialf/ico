@@ -49,7 +49,7 @@ static int framePlayed = 0; /* derived name */
 
 static int frameTime = 0; /* derived name */
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 static int frameCount = 0; /* derived name */
 #endif
 
@@ -127,7 +127,7 @@ static inline void _advanceRing(int amt) /* derived name */
     }
 }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static int _infoUpdate(void)
 {
     int top;
@@ -404,7 +404,7 @@ inline float GetStreamMotionData(char *dst, int no)
         return -1.0f;
     }
     getStreamMotionData(dst, streamEntry[no].cur, no);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     return (float)framePlayed / 50.0f;
 #else
     return (float)framePlayed / 2997.0f;
@@ -481,10 +481,10 @@ void ExecStreamMotionManager(void)
 
 void MallocStreamMotionBuffer(void)
 {
-    ringBuf =
-        iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c", LN(602, 570));
-    readBufRaw =
-        iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c", LN(604, 572));
+    ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c",
+                             LN(602, 570, 570));
+    readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c",
+                                LN(604, 572, 572));
     readBuf = (char *)((int)(readBufRaw + 63) & 0xFFFFFFC0);
     if (ringBuf == 0 || readBuf == 0) {
         /* "could not allocate the stream buffer memory" */

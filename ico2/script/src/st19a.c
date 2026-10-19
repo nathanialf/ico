@@ -56,7 +56,7 @@ void actSt19aOriUp(GObj *volatile self)
     int skip = 0;
     int i;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -66,13 +66,13 @@ void actSt19aOriUp(GObj *volatile self)
     while (fence_up_19a == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(138, 1, 0);
 #else
     stage_SetAnimation(142, 1, 0);
 #endif
     gflagOn(310);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(138, 89, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(142, 89, 1) == 0) {
@@ -87,7 +87,7 @@ void actSt19aOriUp(GObj *volatile self)
             while (lt_fade_status() != 2) {
                 _ACTWait(1);
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             stage_SetAnimation(138, 0, 89);
 #else
             stage_SetAnimation(142, 0, 89);
@@ -106,7 +106,7 @@ void actSt19aOriUp(GObj *volatile self)
         scpAdpcmFadeCloseFunc(&fence_up_19a, 256);
     }
     scpBoyControlReadDisable = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -131,7 +131,7 @@ void actSt19aHaguruma(GObj *volatile self)
     soundSeDefPlay(1349, 0, (float *)pos, 1);
     if (gflagChk(311) == 0) {
         scpSearchGobj(1960)->active = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(135, 0, 0);
         stage_SetAnimation(136, -1, -2);
 #else
@@ -147,7 +147,7 @@ void actSt19aHaguruma(GObj *volatile self)
         soundSeDefPlay(1351, 0, haguruma2Pos, 1);
         soundSeDefPlay(1352, 0, haguruma2Pos, 1);
         scpSearchGobj(1961)->active = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(135, 1, 0);
         stage_SetLoopFlag(135, 1);
         stage_SetLoopFlag(136, 1);
@@ -167,7 +167,7 @@ void actSt19aHagurumaChk(GObj *volatile self)
     while (scpTriggerBall(self, scpSearchGobj(1961), 220.0f) == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -183,7 +183,7 @@ void actSt19aHagurumaChk(GObj *volatile self)
             skip = 1;
         }
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(137, 1, 0);
 #else
     stage_SetAnimation(141, 1, 0);
@@ -194,7 +194,7 @@ void actSt19aHagurumaChk(GObj *volatile self)
         }
     }
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(135, 1, 0);
     stage_SetAnimation(136, 1, 0);
 #else
@@ -203,7 +203,7 @@ void actSt19aHagurumaChk(GObj *volatile self)
 #endif
     scpSearchGobj(1961)->active = 0;
     scpSearchGobj(1960)->active = 1;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetLoopFlag(135, 1);
     stage_SetLoopFlag(136, 1);
 #else
@@ -213,7 +213,7 @@ void actSt19aHagurumaChk(GObj *volatile self)
     soundSeDefPlay(1350, 0, haguruma2Pos, 1);
     soundSeDefPlay(1351, 0, haguruma2Pos, 1);
     soundSeDefPlay(1352, 0, haguruma2Pos, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(137) == 0) {
 #else
     while (stage_CheckAnimationFinish(141) == 0) {
@@ -227,7 +227,7 @@ void actSt19aHagurumaChk(GObj *volatile self)
             while (lt_fade_status() != 2) {
                 _ACTWait(1);
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             stage_SetAnimation(137, 0, -1);
 #else
             stage_SetAnimation(141, 0, -1);
@@ -240,7 +240,7 @@ void actSt19aHagurumaChk(GObj *volatile self)
     }
     scpBoyControlReadDisable = 0;
 done:
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -254,7 +254,7 @@ void actSt19aPipeChk(GObj *volatile self)
     while (scpTriggerBall(self, boyGObj, 50.0f) == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -268,7 +268,7 @@ void actSt19aPipeChk(GObj *volatile self)
     while (hgrm_19a == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(139, 1, 0);
 #else
     stage_SetAnimation(143, 1, 0);
@@ -285,7 +285,7 @@ void actSt19aPipeChk(GObj *volatile self)
             while (lt_fade_status() != 2) {
                 _ACTWait(1);
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             stage_SetAnimation(139, 0, -1);
 #else
             stage_SetAnimation(143, 0, -1);
@@ -300,7 +300,7 @@ void actSt19aPipeChk(GObj *volatile self)
     scpSearchGobj(1959)->active = 1;
     scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -311,7 +311,7 @@ void actSt19aChainDown(GObj *volatile self)
 {
     GProc *th;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -338,7 +338,7 @@ void actSt19aChainDown(GObj *volatile self)
         scpFadeIn(3.0f);
     }
     scpSearchGobj(1963)->active = 1;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(140, 0, 361);
 #else
     stage_SetAnimation(144, 0, 361);
@@ -347,7 +347,7 @@ void actSt19aChainDown(GObj *volatile self)
         scpAdpcmFadeCloseFunc(&pipe19a, 256);
     }
     scpBoyControlReadDisable = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -364,14 +364,14 @@ void actSt19bIntro(GObj *volatile self)
         while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
             _ACTWait(1);
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         lt_switch_layout(52);
 #else
         lt_switch_layout(55);
 #endif
         scpBoyControlReadDisable = 1;
         gflagOn(314);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(133, 1, 0);
         while (stage_CheckAnimationFinish(133) == 0) {
 #else
@@ -386,7 +386,7 @@ void actSt19bIntro(GObj *volatile self)
                 while (lt_fade_status() != 2) {
                     _ACTWait(1);
                 }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 stage_SetAnimation(133, 0, -1);
 #else
                 stage_SetAnimation(137, 0, -1);
@@ -396,7 +396,7 @@ void actSt19bIntro(GObj *volatile self)
             }
             _ACTWait(1);
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         lt_switch_layout(51);
 #else
         lt_switch_layout(54);
@@ -415,7 +415,7 @@ void actSt19aOri(GObj *volatile self)
     ScpCallCameraSetTarget(4298.0f, -2342.0f, 1331.0f);
 
     if (gflagChk(310) == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(138, 0, 0);
 #else
         stage_SetAnimation(142, 0, 0);
@@ -426,7 +426,7 @@ void actSt19aOri(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(138, 0, 89);
 #else
         stage_SetAnimation(142, 0, 89);
@@ -443,7 +443,7 @@ void actSt19aOriXL(GObj *volatile self)
 
     soundSeDefPlay(1349, 0, oriXLPos, 1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(138, 0, 0);
 #else
     stage_SetAnimation(142, 0, 0);
@@ -459,7 +459,7 @@ void actSt19aPipe(GObj *volatile self)
 
     if (gflagChk(312) == 0) {
         scpSearchGobj(1959)->active = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(139, 0, 0);
 #else
         stage_SetAnimation(143, 0, 0);
@@ -472,7 +472,7 @@ void actSt19aPipe(GObj *volatile self)
 
     } else {
         scpSearchGobj(1958)->active = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(139, 0, -1);
 #else
         stage_SetAnimation(143, 0, -1);
@@ -488,13 +488,13 @@ void actSt19aPipeXL(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(312) == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(139, 0, 0);
 #else
         stage_SetAnimation(143, 0, 0);
 #endif
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(139, 0, -1);
 #else
         stage_SetAnimation(143, 0, -1);
@@ -512,7 +512,7 @@ void actSt19aChain(GObj *volatile self)
     if (gflagChk(313) == 0) {
         scpSearchGobj(1963)->active = 0;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(140, 0, 0);
 #else
         stage_SetAnimation(144, 0, 0);
@@ -590,7 +590,7 @@ static void actSt19aChainDownSub(GObj *volatile self)
 
     AdpcmPlay(pipe19a->stream);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(140, 1, 0);
 #else
     stage_SetAnimation(144, 1, 0);
@@ -600,7 +600,7 @@ static void actSt19aChainDownSub(GObj *volatile self)
 
     SetCameraFlag_LwsCutBack();
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(140, 240, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(144, 240, 1) == 0) {

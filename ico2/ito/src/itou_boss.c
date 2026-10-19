@@ -13,6 +13,11 @@
 #include "quaternion.h"
 #include "generator.h"
 #include "sugiCommon.h"
+
+#ifdef VERSION_KOR
+#include <stdio.h>
+#endif
+
 #include <string.h>
 #include <libvu0.h>
 #include "main.h"
@@ -266,7 +271,7 @@ static void effect_end_func(int id)
 
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
         e = &capsule[GetParticleEffectData(id)->user.capsule];
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         pbga_start(&e->bga, 548);
 #else
         pbga_start(&e->bga, 552);
@@ -323,7 +328,7 @@ void bossCtrlBeforeFunc(GObj *self)
 inline int InqCapsuleGhostBossStage(void)
 {
     int r = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (stage_no == 84 || stage_no == 3 || stage_no == 46)
         r = 1;
 #else
@@ -423,7 +428,7 @@ static void gene_enemy(volatile int gobj)
     for (;; _ACTWait(1)) {
         total = 0;
         alive = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (stage_no == 84) {
 #else
         if (stage_no == 86) {
@@ -546,7 +551,11 @@ inline void actBossCtrlStart(void *gobj)
         no++;
         o = isysGObjSearchFromObjKindID_next(o);
     }
+#ifdef VERSION_KOR
+    printf("n generator %d\n", no);
+#else
     debug_StdPrintfDummy("n generator %d\n", no);
+#endif
     for (i = 0; i < no; i++) {
         actCreateSubThread(gene_enemy, 21);
     }
@@ -566,7 +575,11 @@ inline int InitBossCtrlGeo(void *gobj)
     ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__, 350);
     actInitialize(gobj);
     actInitialize_ext_charcter(gobj);
+#ifdef VERSION_KOR
+    printf("N_CAPSULE %d\n", 53);
+#else
     debug_StdPrintfDummy("N_CAPSULE %d\n", 53);
+#endif
 
     base = capsule;
     m = (char *)base->pos;
@@ -609,7 +622,7 @@ void BossCtrlDL(void)
         e = &base[k];
         if (e->state >= 2) {
             if (stage_DispBgAnimation(&e->bga) != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 pbga_start(&e->bga, 549);
 #else
                 pbga_start(&e->bga, 553);

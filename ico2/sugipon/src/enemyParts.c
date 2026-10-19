@@ -140,7 +140,7 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
     p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c", 137);
     *p = enemyEyeTemplate;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     p->dobj[0] = CSVSYSTEM_InitDObj(1318, &InitialSObjSimpleSetting);
 #else
     p->dobj[0] = CSVSYSTEM_InitDObj(1322, &InitialSObjSimpleSetting);
@@ -151,7 +151,7 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
     p->dobj[0]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
     p->dobj[0]->dispType = 2;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     p->dobj[1] = CSVSYSTEM_InitDObj(1319, &InitialSObjSimpleSetting);
 #else
     p->dobj[1] = CSVSYSTEM_InitDObj(1323, &InitialSObjSimpleSetting);
@@ -162,7 +162,7 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
     p->dobj[1]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
     p->dobj[1]->dispType = 2;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     p->dobj[2] = CSVSYSTEM_InitDObj(1320, &InitialSObjSimpleSetting);
 #else
     p->dobj[2] = CSVSYSTEM_InitDObj(1324, &InitialSObjSimpleSetting);
@@ -191,7 +191,7 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
     *p = footPrintHeadTemplate;
     p->num = num;
     p->buf = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 229);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     d = CSVSYSTEM_InitDObj(1291, &InitialSObjSimpleSetting);
 #else
     d = CSVSYSTEM_InitDObj(1295, &InitialSObjSimpleSetting);

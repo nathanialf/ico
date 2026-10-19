@@ -38,7 +38,7 @@ int InitWindMillGeo(int owner, WmLayout *src)
 
     lay = *src;
     for (i = 0; i < 4; i++) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (stage_no == 99) {
 #else
         if (stage_no == 101) {
@@ -52,7 +52,7 @@ int InitWindMillGeo(int owner, WmLayout *src)
         ((WmWork *)GOBJ_SUB(gobj))->node = 0;
         SetFlag4PointFixID(gobj, i, 0);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (stage_no == 99) {
 #else
         if (stage_no == 101) {

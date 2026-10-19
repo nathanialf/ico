@@ -87,7 +87,7 @@ static char printBuf[128]; /* derived name */
 
 inline void ExitIcoMisc(void) {}
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 inline void DummyIcoMisc(void) {} /* derived name */
 #endif
 
@@ -299,7 +299,7 @@ void ExecIcoMisc(void)
         ExecGameOverEffect();
         seEnvMute = 0;
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (current_layout_id == 25) {
 #else
         if (current_layout_id == 28) {
@@ -334,7 +334,7 @@ void ExecIcoMisc(void)
     if (fall_death_active != 0) {
         if (boyGObj != 0) {
             if (GOBJ_SUB(boyGObj)->ctrl.fallHeight > 1000.0f) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 lt_switch_layout(59);
 #else
                 lt_switch_layout(62);
@@ -343,7 +343,7 @@ void ExecIcoMisc(void)
         }
         if (girlGObj != 0) {
             if (GOBJ_SUB(girlGObj)->ctrl.fallHeight > 1000.0f) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 lt_switch_layout(59);
 #else
                 lt_switch_layout(62);
@@ -363,7 +363,7 @@ typedef struct { /* field names derived */
     } ent[12];
 
     char pad60[0xC0 - 0x60];
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     char name[0x190 - 0xC0];
 #else
     char name[0x194 - 0xC0];

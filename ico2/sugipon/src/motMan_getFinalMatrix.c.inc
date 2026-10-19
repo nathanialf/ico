@@ -348,7 +348,7 @@ static void _getFinalMatrix(int id)
         ikRotZ = ikRotY = ikBend0 = ikBend1 = 0;
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     /* the function's local debug switch, off: a dump of the node's IK
        quaternion.  The ROM's register assignment needs the block here, and
        the August TRFILE has three code-less lines (416-418) in its place;
@@ -407,7 +407,7 @@ static void _getFinalMatrix(int id)
         CopyQuaternion(work, GetCurrentQuaternion());
         scePrintf("node roll %f %f %f %f\n", work[0], work[1], work[2], work[3]);
 #endif
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (skelRoot->lookIK != 0 && skelRoot->lookMode != 0)
             ik->rate = ik->rate + (1.0f - ik->rate) * (skelRoot->ikRate0 * (60.0f / MOT_FPS));
         else
@@ -456,7 +456,7 @@ static void _getFinalMatrix(int id)
                 avoidReverseInterpOnCurrentMatrixWithLimit(ik->q, lim, ik->offset, rq, 1.2f);
                 MultiQuaternion(t, GetCurrentQuaternion(), rq);
                 DivQuaternion(t2, t, ik->q);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 GetSlerpQuaternion(t3, t2, IdentityQuaternion, skelRoot->ikRate1);
                 GetSlerpQuaternion(ik->step, t3, ik->step, skelRoot->ikRate2);
 #else
@@ -522,26 +522,26 @@ static void _getFinalMatrix(int id)
             p = h = 0;
             n = 0;
             if (skelRoot->handTurnIK == 1 && skelRoot->hand0.ikMode != 0) {
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
                 n++;
 #endif
                 getLocalTargetDir(out, (float *)skelRoot->hand0.ikDir);
                 MatrixDrive_GetTurnMinusZAngleXY(&a0, &a1, out[0], out[1], out[2]);
                 h = a0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 n++;
 #endif
             }
             if (skelRoot->handTurnIK == 1 && skelRoot->hand1.ikMode != 0) {
                 float out2[4];
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
                 n++;
 #endif
                 getLocalTargetDir(out2, (float *)skelRoot->hand1.ikDir);
                 MatrixDrive_GetTurnZAngleXY(&b0, &b1, out2[0], out2[1], out2[2]);
                 h -= b0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 n++;
 #endif
             }
@@ -581,7 +581,7 @@ static void _getFinalMatrix(int id)
                 RotQuaternionY(r, -ba);
                 MultiQuaternion(t, GetCurrentQuaternion(), r);
                 DivQuaternion(t2, t, ik->q);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 GetSlerpQuaternion(t3, t2, IdentityQuaternion, skelRoot->ikRate1);
                 GetSlerpQuaternion(ik->step, t3, ik->step, skelRoot->ikRate2);
 #else
@@ -592,7 +592,7 @@ static void _getFinalMatrix(int id)
                 RegularizeQuaternion(ik->q);
                 DivQuaternion(ik->offset, ik->q, GetCurrentQuaternion());
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             ik->pitchSpeed =
                 ik->pitchSpeed +
                 ((pb - ik->pitch) * skelRoot->ikRate1 - ik->pitchSpeed) * skelRoot->ikRate2;
@@ -645,7 +645,7 @@ static void _getFinalMatrix(int id)
             getLocalTargetDir(out, (float *)skelRoot->hand0.ikDir);
             MatrixDrive_GetTurnXAngleZY(&a0, &a1, out[0], out[1], out[2]);
             limitHPAngleAndSetB(&ha, &pa, &ba, lim, a0, 0, a1, 0, 1, 0, 1.0f);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (skelRoot->hand0.ikLock != 0)
                 _NormalizeVector(dv, out);
             else
@@ -726,11 +726,11 @@ static void _getFinalMatrix(int id)
                 _OuterProduct(p, t, ikXAxis);
                 if (skelRoot->handIK == 2 && d + 0.0f > len[0] + len[1]) {
                     float rq[4];
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     short ang = (d + 0.0f - (len[0] + len[1])) * 208.60756f;
 #endif
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     SetQuaternionByAxisRotateV(rq, ang, p);
 #else
                     SetQuaternionByAxisRotateV(rq, (d + 0.0f - (len[0] + len[1])) * 208.60756f, p);
@@ -756,7 +756,7 @@ static void _getFinalMatrix(int id)
             }
         }
         GetSlerpQuaternion(ik->q, s, ik->q, skelRoot->hand0.ikRate * (60.0f / MOT_FPS));
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (skelRoot->hand0.ikMode != 0)
             ik->rate = ik->rate + (1.0f - ik->rate) * (skelRoot->handRate * (60.0f / MOT_FPS));
         else
@@ -776,7 +776,7 @@ static void _getFinalMatrix(int id)
             APPLY_ROT(q);
             ikSlerpRate = ik->rate;
             flag = ikSlerpRate > 0.99f;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (flag && skelRoot->hand0.ikFlag == 0)
                 skelRoot->hand0.ikReached = 1;
             else
@@ -880,7 +880,7 @@ static void _getFinalMatrix(int id)
             getLocalTargetDir(out, (float *)skelRoot->hand1.ikDir);
             MatrixDrive_GetTurnXAngleZY(&a0, &a1, out[0], out[1], out[2]);
             limitHPAngleAndSetB(&ha, &pa, &ba, lim, a0, 0, a1, 0, 1, 0, 1.0f);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (skelRoot->hand1.ikLock != 0)
                 _NormalizeVector(dv, out);
             else
@@ -932,7 +932,7 @@ static void _getFinalMatrix(int id)
             }
         }
         GetSlerpQuaternion(ik->q, t, ik->q, skelRoot->handRate * (60.0f / MOT_FPS));
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (skelRoot->hand1.ikMode != 0)
             ik->rate = ik->rate + (1.0f - ik->rate) * (skelRoot->handRate * (60.0f / MOT_FPS));
         else
@@ -976,7 +976,7 @@ static void _getFinalMatrix(int id)
 
     case 6: {
         GET_NODE_ROT(q, dq);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (skelRoot->flag334 != 0)
             CopyQuaternion(ik->q, IdentityQuaternion);
         else
@@ -1013,7 +1013,7 @@ static void _getFinalMatrix(int id)
     case 45:
     case 49:
         if (skelRoot->lifting != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             GET_NODE_ROT(q, dq);
             {
                 int i;
@@ -1082,7 +1082,7 @@ static void _getFinalMatrix(int id)
 #endif
                     break;
                 }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 d = VectorLength(p);
                 MatrixDrive_PopMatrix();
                 dd = d * d;

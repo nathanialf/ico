@@ -1825,7 +1825,7 @@ void GirlGeo(GObj *gobj)
 
     HandManager(gobj);
     ExecMotionOrient(gobj);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     SetActressLight(gobj, 35, 44, 466);
 #else
     SetActressLight(gobj, 35, 44, 470);

@@ -38,7 +38,7 @@ void actSt24aSwordChk(GObj *volatile self)
     while ((GOBJ_ACT(boyGObj)->pad.trg & 0x20) == 0 || scpTriggerBall(self, boyGObj, 100.0f) == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -66,7 +66,7 @@ void actSt24aSwordChk(GObj *volatile self)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(149, 0, -1);
 #else
         stage_SetAnimation(153, 0, -1);
@@ -81,7 +81,7 @@ void actSt24aSwordChk(GObj *volatile self)
     }
     scpPlayMot(boyGObj, 0);
     scpPlayEnd(boyGObj);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -94,20 +94,20 @@ static void actSt24aDemoCamChk(GObj *volatile self)
     while (scpTriggerBall(self, boyGObj, 700.0f) == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
 #endif
     scpBoyControlReadDisable = 1;
     gflagOn(330);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(150, 1, 0);
 #else
     stage_SetAnimation(154, 1, 0);
 #endif
     SetCameraFlag_LwsCutBack();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(150) == 0) {
 #else
     while (stage_CheckAnimationFinish(154) == 0) {
@@ -121,7 +121,7 @@ static void actSt24aDemoCamChk(GObj *volatile self)
                 while (lt_fade_status() != 2) {
                     _ACTWait(1);
                 }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 stage_SetAnimation(150, 0, -1);
 #else
                 stage_SetAnimation(154, 0, -1);
@@ -132,7 +132,7 @@ static void actSt24aDemoCamChk(GObj *volatile self)
         }
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -162,7 +162,7 @@ void actSt24aSaku(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(147, 0, 0);
 #else
     stage_SetAnimation(151, 0, 0);
@@ -190,7 +190,7 @@ static void actSt24aSwordSub(GObj *volatile self)
     }
     AdpcmPlay(sword->stream);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(149, 1, 0);
 #else
     stage_SetAnimation(153, 1, 0);
@@ -198,7 +198,7 @@ static void actSt24aSwordSub(GObj *volatile self)
 
     scpPlayMot(boyGObj, 250);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(149, 21, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(153, 21, 0) == 0) {
@@ -209,7 +209,7 @@ static void actSt24aSwordSub(GObj *volatile self)
 
     scpSetBoyWeaponGObj(scpSearchGobj(2098));
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(149) == 0) {
 #else
     while (stage_CheckAnimationFinish(153) == 0) {

@@ -32,7 +32,7 @@ int gsb_SyncGSSystem(void);
 int gsb_LoadStageSettings(void);
 int gsb_SaveStageSettings(void);
 void gsb_ClearFrameBuffer(void);
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 int gsb_ResetSnap(void);
 int gsb_TakeSnap(void);
 #endif

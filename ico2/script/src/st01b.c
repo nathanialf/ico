@@ -36,7 +36,7 @@ void actSt01bInit(void)
 {
     if (gflagChk(70) == 0) {
         SetWayGroupActive(2, 0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(179, 0, 0);
         return stage_SetAnimation(176, 0, 0);
 #else
@@ -45,7 +45,7 @@ void actSt01bInit(void)
 #endif
     }
     SetWayGroupActive(2, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(179, 0, -1);
     stage_SetAnimation(176, 0, -1);
 #else
@@ -65,13 +65,13 @@ void actSt01bEneChk(GObj *volatile self)
             scpTriggerFloorAttr(girlGObj, 0x2000000) == 0)) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
 #endif
     scpBoyControlReadDisable = 1;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     scpSleepEnemyOne(3734);
 #else
     scpSleepEnemyOne(3757);
@@ -79,7 +79,7 @@ void actSt01bEneChk(GObj *volatile self)
     _ACTWait(30);
     gflagOn(68);
     gflagOn(69);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(178, 1, 0);
     while (stage_CheckAnimationFrame(178, 90, 0) == 0) {
 #else
@@ -89,7 +89,7 @@ void actSt01bEneChk(GObj *volatile self)
         _ACTWait(1);
     }
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(178) == 0) {
 #else
     while (stage_CheckAnimationFinish(182) == 0) {
@@ -97,13 +97,13 @@ void actSt01bEneChk(GObj *volatile self)
         _ACTWait(1);
     }
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
 #endif
     scpBoyControlReadDisable = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     scpWakeupEnemyOne(3734);
 #else
     scpWakeupEnemyOne(3757);
@@ -136,7 +136,7 @@ static void actSt01bFloorChkSub(GObj *volatile self)
         _ACTWait(1);
     }
     AdpcmPlay(st01b_floor->stream);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(176, 1, 0);
     stage_SetAnimation(177, 1, 0);
 #else
@@ -149,7 +149,7 @@ static void actSt01bFloorChkSub(GObj *volatile self)
     soundSeDefStop(seHandle);
     seHandle = -1;
     soundSeDefPlay(1288, 0, 0, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(179, 1, 0);
 #else
     stage_SetAnimation(183, 1, 0);
@@ -157,7 +157,7 @@ static void actSt01bFloorChkSub(GObj *volatile self)
     st01b_yure = iosPadActRequest(boyPad, 9);
     st01b_yure_vol = 128;
     iosPadActVolumeSet(st01b_yure, 128);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(179, 180, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(183, 180, 0) == 0) {
@@ -177,7 +177,7 @@ void actSt01bFloorChk(GObj *volatile self)
     while (scpIsHangChainOptional(boyGObj, 805) == 0) {
         _ACTWait(1);
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -219,7 +219,7 @@ void actSt01bFloorChk(GObj *volatile self)
     iosThreadSetPri(&th->thread, 34);
 
     if (notdone) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(177, 1, -1);
         stage_SetAnimation(176, 1, -1);
         stage_SetAnimation(179, 0, 180);
@@ -241,7 +241,7 @@ void actSt01bFloorChk(GObj *volatile self)
     iosPadActStop(st01b_yure);
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -255,7 +255,7 @@ void actSt01bSekizo(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     scpSekizou(self, 65, 174, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
 #else
     scpSekizou(self, 65, 178, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);

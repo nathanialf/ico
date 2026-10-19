@@ -9,7 +9,7 @@
 #include "staticBlur.h"
 #include <libvu0.h>
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 #include <math.h>
 #endif
 
@@ -104,7 +104,7 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }
 
-/* Bring the GS up and set the double buffer up (JPN: the other way round)
+/* Bring the GS up and set the double buffer up (JPN and KOR: the other way round)
  * for the frame size the stage record asks for: 512 by 448 interlaced,
  * 512 by 512 in the tall mode and 512 by 448 otherwise, then hand the first
  * frame over and put the view scale back to one. */
@@ -126,12 +126,12 @@ void gsb_Init(void *db)
         omode = 3;
         break;
     }
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     sceGsResetGraph(0, systemStatus[1] == 1, omode, 1);
 #endif
     sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, fbClear);
     gsb_SetFrame(db, 0, 0, 0x30, 2);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     sceGsResetGraph(0, systemStatus[1] == 1, omode, 1);
 #endif
     sceGsSyncV(0);
@@ -215,7 +215,7 @@ static int reductionGreen; /* derived name */
 
 static int reductionBlue; /* derived name */
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 /* Reduce the frame into the feedback area: one 22 qword GIF packet, built on
  * the stack and sent down the GIF channel by hand, that first clears the
  * half height frame in black and then draws it back over itself through the
@@ -467,7 +467,7 @@ static void gsb_KeepFrameBuffer(void)
    then (PAL) one word nothing reads or writes */
 static float fadeLevel; /* derived name */
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 static int gsbUnusedWord; /* derived name */
 #endif
 
@@ -553,7 +553,7 @@ void gsb_SetMotionBlur(void)
 
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static int scissorLastState = 51; /* derived name */
 #else
 static int scissorLastState = 54; /* derived name */
@@ -567,7 +567,7 @@ static float scissorStep = 0.0f; /* derived name */
 extern void gif_EndPacketPath1(void);
 
 /* The letterbox the demo scenes fade in: two black bars, top and bottom,
- * whose alpha eases to 128 while the scene is state 55 (JPN layout 52) and back to 0
+ * whose alpha eases to 128 while the scene is state 55 (JPN and KOR layout 52) and back to 0
  * otherwise.  While the bars are visible they are drawn and the motion blur
  * is left alone; once they are gone the stage record's blur setting is
  * restored.  Each bar is drawn by a macro inside the two-iteration loop,
@@ -580,7 +580,7 @@ static void gsb_scissorOnDemo(void)
     unsigned char col[4];
     int i;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (current_layout_id == 52 && scissorLastState != current_layout_id) {
 #else
     if (current_layout_id == 55 && scissorLastState != current_layout_id) {
@@ -925,7 +925,7 @@ static void gsb_filmNoise(void)
 }
 
 /* the stage animation group each film noise target loops, -1 for none */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static const int filmNoiseGroup[] = {-1, 63, 64, 65, 66}; /* derived name */
 #else
 static const int filmNoiseGroup[] = {-1, 67, 68, 69, 70}; /* derived name */
@@ -1027,7 +1027,7 @@ void gsb_InitGSSystem(void)
     screenOffsetX = screenOffsetY = 0;
 }
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 /* Six zero words between gsb_InitGSSystem's flag and gsb_SyncGSSystem's
    counter: nothing reads or writes them. */
 static int gsbUnused0 = 0; /* derived name */
@@ -1251,7 +1251,7 @@ void gsb_SetVSMatrix(int w, int h, float d)
     float zoom;
 
     center_X = center_Y = 2048.0f;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     currentFocusDistance = d;
 #else
     if (d == 0.0f) {
@@ -1271,7 +1271,7 @@ void gsb_SetVSMatrix(int w, int h, float d)
     zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)debug_zoom_per *
            (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
     vsParam[0] = zoom;
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     if (debug_snapshot_reserve != 0 || (pad[1].now & 0x800) != 0) {
         vsParam[0] = zoom * (float)debug_snapshot_num / 100.0f;
     }
@@ -1289,8 +1289,8 @@ void gsb_SetVSMatrix(int w, int h, float d)
         (float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f) * (float)h / (float)ScreenHeight;
     gsb_SetVSMatrixSub((float *)(matrixptr + 0xC0), (float *)(matrixptr + 0x1C0),
                        (float *)(matrixptr + 0x240), (float *)(matrixptr + 0x340), vsParam);
-#ifdef VERSION_JPN
-    /* The field of view print of the January debug listing (SRCFILE.TXT,
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+    /* The field of view print of PAL's debug listing (SRCFILE.TXT,
      * GsBase.c 2305-2306); the release build keeps its two tests.  The
      * format text is derived: it is on no disc. */
     if (gsSystemReady != 0) {

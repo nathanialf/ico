@@ -45,14 +45,14 @@ inline void actDeja(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(6) == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         lt_switch_layout(52);
 #else
         lt_switch_layout(55);
 #endif
         scpBoyControlReadDisable = 1;
         scpFadeOut(255.0f, 0, 0, 0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(68, 0, 0);
 #else
         stage_SetAnimation(72, 0, 0);
@@ -96,13 +96,13 @@ void actDejaDemo(GObj *volatile self)
 {
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].nextStage);
     scpPlayStart(boyGObj);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(604, 1, 0);
 #else
     stage_SetAnimation(608, 1, 0);
 #endif
     scpPlayMot(boyGObj, 298);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(604, 605) == 0) {
 #else
     while (stage_ContinueAnimation(608, 609) == 0) {
@@ -110,7 +110,7 @@ void actDejaDemo(GObj *volatile self)
         _ACTWait(1);
     }
     scpPlayMot(boyGObj, 299);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(605, 606) == 0) {
 #else
     while (stage_ContinueAnimation(609, 610) == 0) {
@@ -118,7 +118,7 @@ void actDejaDemo(GObj *volatile self)
         _ACTWait(1);
     }
     scpPlayMot(boyGObj, 300);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(606, 607) == 0) {
 #else
     while (stage_ContinueAnimation(610, 611) == 0) {
@@ -126,7 +126,7 @@ void actDejaDemo(GObj *volatile self)
         _ACTWait(1);
     }
     scpPlayMot(boyGObj, 301);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(607, 608) == 0) {
 #else
     while (stage_ContinueAnimation(611, 612) == 0) {
@@ -135,7 +135,7 @@ void actDejaDemo(GObj *volatile self)
     }
     scpPlayMot(boyGObj, 302);
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(615, 1, 0);
     while (stage_CheckAnimationFrame(608, 120, 0) == 0) {
 #else
@@ -146,7 +146,7 @@ void actDejaDemo(GObj *volatile self)
     }
     _ACTWait(1);
     scpSearchGobj(54)->active = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(608, 609) == 0) {
 #else
     while (stage_ContinueAnimation(612, 613) == 0) {
@@ -154,7 +154,7 @@ void actDejaDemo(GObj *volatile self)
         _ACTWait(1);
     }
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(615, -1, -2);
     stage_SetAnimation(616, 1, 0);
     while (stage_ContinueAnimation(609, 610) == 0) {
@@ -168,7 +168,7 @@ void actDejaDemo(GObj *volatile self)
     scpPlayMot(scpSearchGobj(2548), 724);
     scpSearchGobj(2548)->active = 1;
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(616, -1, -2);
     stage_SetAnimation(617, 1, 0);
 #else
@@ -176,7 +176,7 @@ void actDejaDemo(GObj *volatile self)
     stage_SetAnimation(621, 1, 0);
 #endif
     shadow_DispCancel(74, 1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(610, 611) == 0) {
 #else
     while (stage_ContinueAnimation(614, 615) == 0) {
@@ -186,7 +186,7 @@ void actDejaDemo(GObj *volatile self)
     scpSearchGobj(54)->active = 1;
     scpPlayMot(boyGObj, 303);
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(617, -1, -2);
     while (stage_ContinueAnimation(611, 612) == 0) {
 #else
@@ -198,7 +198,7 @@ void actDejaDemo(GObj *volatile self)
     scpPlayMot(boyGObj, 304);
     scpPlayMot(scpSearchGobj(2548), 725);
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(618, 1, 0);
     while (stage_ContinueAnimation(612, 613) == 0) {
 #else
@@ -212,7 +212,7 @@ void actDejaDemo(GObj *volatile self)
     scpPlayStart(scpSearchGobj(2549));
     scpPlayMot(scpSearchGobj(2549), 962);
     _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(618, -1, -2);
     stage_SetAnimation(619, 1, 0);
     while (stage_ContinueAnimation(613, 614) == 0) {
@@ -226,7 +226,7 @@ void actDejaDemo(GObj *volatile self)
     scpPlayMot(boyGObj, 306);
     scpPlayMot(scpSearchGobj(2549), 963);
     shadow_DispCancel(74, 0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(614, 125, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(618, 125, 0) == 0) {
@@ -272,20 +272,20 @@ void actDejaAfterChk(GObj *volatile self)
 
     CheckPoint();
     gflagOn(7);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
 #endif
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(620, 1, 0);
 #else
     stage_SetAnimation(624, 1, 0);
 #endif
     scpPlayMot(boyGObj, 307);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(620) == 0) {
 #else
     while (stage_CheckAnimationFinish(624) == 0) {
@@ -299,7 +299,7 @@ void actDejaAfterChk(GObj *volatile self)
     scpPlayMotDir(boyGObj, dir.f);
     scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);

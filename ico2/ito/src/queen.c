@@ -1011,7 +1011,7 @@ typedef struct QueenGenTable { /* field names derived */
 /* The layout ids gene_enemy picks a spawn point from, one list per stage set. */
 static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157}; /* derived name */
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static const int genEnemyLayoutDefault[6] = {3512, 3513, 3514, 3515, 3516, 3517}; /* derived name */
 #else
 static const int genEnemyLayoutDefault[6] = {3535, 3536, 3537, 3538, 3539, 3540}; /* derived name */
@@ -1083,7 +1083,7 @@ void gene_enemy(volatile int g)
                             }
                             Generator_Call(obj);
                             _ACTWait(1);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                             while (stage_CheckAnimationFinish(502) == 0) {
 #else
                             while (stage_CheckAnimationFinish(506) == 0) {
@@ -1360,7 +1360,7 @@ static const char queenBarrierAttackedMsg[] = "queen barrier attacked\n"; /* der
 /* the barrier's own spawn layout id, one per stage set */
 static const int barrierLayoutSt25[] = {2150}; /* derived name */
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static const int barrierLayoutDefault[] = {3504}; /* derived name */
 #else
 static const int barrierLayoutDefault[] = {3527}; /* derived name */
@@ -1424,7 +1424,7 @@ void QueenGeo(GObj *g)
         queenFrame++;
     }
     ExecMotionOrient(g);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     SetActressLight(g, 35, 44, 468);
 #else
     SetActressLight(g, 35, 44, 472);
@@ -1680,7 +1680,7 @@ void QueenBallGeo(GObj *g)
             GetRootPosition(objPos.f, o);
             hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f, -120, 600.0f);
             bga = &queenBga[i];
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             CheckQueenBallRing(bga, 478, (QVec *)m[3], &objPos, r);
 #else
             CheckQueenBallRing(bga, 482, (QVec *)m[3], &objPos, r);
@@ -1697,7 +1697,7 @@ void QueenBallGeo(GObj *g)
                 GetRootPosition(objPos.f, sword);
                 hit |=
                     CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f, -150, 500.0f);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 CheckQueenBallRing(&queenBga[2], 480, (QVec *)m[3], &objPos, r);
 #else
                 CheckQueenBallRing(&queenBga[2], 484, (QVec *)m[3], &objPos, r);
@@ -1713,7 +1713,7 @@ void QueenBallGeo(GObj *g)
     if (w->attacked != 0) {
         w->attacked = 0;
         w->live = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         pbga_start(&w->bga, 475);
 #else
         pbga_start(&w->bga, 479);
@@ -1781,7 +1781,7 @@ void QueenBallDL(GObj *g)
         p2o_DispVU1Default(g);
     }
     if (w->bga != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetScale(475, w->scale);
 #else
         stage_SetScale(479, w->scale);
@@ -1803,7 +1803,7 @@ void QueenBallDL(GObj *g)
         if ((o = *q) != 0) {
             long long id = *(long long *)o & 0x3FFF;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (id == 479 || id == 481) {
 #else
             if (id == 483 || id == 485) {

@@ -106,8 +106,9 @@ static IosMsgQueue stAckQ = {0}; /* derived name */
 static CdStReq stReq = {0}; /* derived name */
 
 /* .sdata, the objects before the first string: the sleep flag, the
-   directory cache count, the media mode (PAL 2, DVD; JPN 1, CD), the disc type the drive
-   must report (PAL 20, a DVD video disc; JPN 18, a PlayStation 2 CD), the spindle control byte copied into
+   directory cache count, the media mode (PAL and KOR 2, DVD; JPN 1, CD), the
+   disc type the drive must report (PAL and KOR 20, a PlayStation 2 DVD; JPN
+   18, a PlayStation 2 CD), the spindle control byte copied into
    each handle's read mode, the background read mode record (a record, so
    8-aligned after the byte), the background drive state and the stream
    load-end wait flag. */
@@ -221,8 +222,8 @@ static void iosCdvdStManager(void)
         if (iosMsgRecv(&stReqQ, (int *)&req, mode) == -1) {
             if (req->state != 1) {
                 sprintf(buf, "stream mode error %d\n", req->state);
-                debug_assertMessage(__FILE__, LN(518, 513), buf);
-                __assert(__FILE__, LN(518, 513), "e");
+                debug_assertMessage(__FILE__, LN(518, 513, 518), buf);
+                __assert(__FILE__, LN(518, 513, 518), "e");
             }
             if (req->readPos > req->writePos) {
                 n = req->readPos - req->writePos;
@@ -232,8 +233,8 @@ static void iosCdvdStManager(void)
                 n = 0;
                 if (req->count != req->size) {
                     sprintf(buf2, "stream size illigual %d\n", req->count);
-                    debug_assertMessage(__FILE__, LN(546, 541), buf2);
-                    __assert(__FILE__, LN(546, 541), "e");
+                    debug_assertMessage(__FILE__, LN(546, 541, 546), buf2);
+                    __assert(__FILE__, LN(546, 541, 546), "e");
                 }
             }
             if (n > 16) {
@@ -247,8 +248,8 @@ static void iosCdvdStManager(void)
             retry:
                 if (sceCdRead(req->owner->lsn, n, p, &req->owner->mode) == 0) {
                     sprintf(buf2, "read command fail\n");
-                    debug_assertMessage(__FILE__, LN(569, 564), buf2);
-                    __assert(__FILE__, LN(569, 564), "e");
+                    debug_assertMessage(__FILE__, LN(569, 564, 569), buf2);
+                    __assert(__FILE__, LN(569, 564, 569), "e");
                 }
                 sceCdSync(0);
                 err = sceCdGetError();
@@ -308,14 +309,22 @@ static inline void iosCdvdDiskReadyBlock(void)
     if (sceCdDiskReady(1) != 2) {
         sceCdlFILE fp;
         char file[32];
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        strcpy(file, "SCPS_560.01");
+#else
         strcpy(file, "SCPS_110.03");
+#endif
 #else
         strcpy(file, "SCES_507.60");
 #endif
         iosCdvdChgFileName(file);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCPS_560.01", file);
+#else
         debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCPS_110.03", file);
+#endif
 #else
         debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCES_507.60", file);
 #endif
@@ -335,8 +344,8 @@ static inline int getFileLsn(char *name, int *size) /* derived name */
         if (strcmp(name, iosCdvdSrhBuff[i].name) == 0)
             goto found;
     }
-    debug_assert(__FILE__, LN(749, 744));
-    __assert(__FILE__, LN(749, 744), "0");
+    debug_assert(__FILE__, LN(749, 744, 749));
+    __assert(__FILE__, LN(749, 744, 749), "0");
 found:
     *size = iosCdvdSrhBuff[i].size;
     return iosCdvdSrhBuff[i].lsn;
@@ -368,6 +377,16 @@ static void iosCdvdMgrSearchFile(IosCdvdHandle *self)
         if (sceCdSearchFile(&self->file, self->name) == 0) {
             self->result = 100;
         }
+#ifdef VERSION_KOR
+        /* On the Korean disc the archive's header, which opens DATA.DF on
+         * the Japanese disc, lies 153600 sectors (300 MB) into the file.
+         * PAL's listing has seven code-less lines here (789-795), and every
+         * assert line of this build equals PAL's: the block is in PAL's
+         * source, compiled out. */
+        if (strcmp("\\DFDATAS\\DATA.DF;1", self->name) == 0) {
+            self->file.lsn += 153600;
+        }
+#endif
         if (srhBuffCnt < 200) {
             iosCdvdSrhBuff[srhBuffCnt].lsn = self->file.lsn;
             iosCdvdSrhBuff[srhBuffCnt].size = self->file.size;
@@ -431,8 +450,8 @@ static void iosCdvdMgrStStop(IosCdvdHandle *self)
     iosMsgRecv(&stAckQ, &msg, 1);
     if (msg != 2) {
         sprintf(buf, "stream manager stop command error %d\n", msg);
-        debug_assertMessage(__FILE__, LN(906, 896), buf);
-        __assert(__FILE__, LN(906, 896), "e");
+        debug_assertMessage(__FILE__, LN(906, 896, 906), buf);
+        __assert(__FILE__, LN(906, 896, 906), "e");
     }
     self->result = 0;
     close_inflate_handler(self->inflate);
@@ -500,7 +519,7 @@ static void iosCdvdMgrLoad(IosCdvdHandle *self)
 
 void temp_loadfunc(IosCdvdHandle *self, char *name, int size, int id, int kind, int word08, int seg)
 {
-    void *p = (void *)iosMallocDebug(ios_partition_seki, size, __FILE__, LN(1102, 1092));
+    void *p = (void *)iosMallocDebug(ios_partition_seki, size, __FILE__, LN(1102, 1092, 1102));
 
     iosCdvdHandlerRead(self, p, size);
     debug_StdPrintfDummy("temp_loadfunc::%s  (size:%d)(segid=%d)\n", name, size, seg);
@@ -606,7 +625,7 @@ static void iosCdvdMgrPackLoad(IosCdvdHandle *self)
         systemStatus[7] = *num;
         systemStatus[8] = 0;
         size = *num * sizeof(PackEnt);
-        ent = (PackEnt *)iosMallocDebug(ios_partition_seki, size, __FILE__, LN(1174, 1164));
+        ent = (PackEnt *)iosMallocDebug(ios_partition_seki, size, __FILE__, LN(1174, 1164, 1174));
         iosCdvdHandlerRead(self, ent, size);
         pk = ent;
         for (seg = 0; seg < *num; seg++, pk++) {
@@ -662,8 +681,8 @@ static int iosCdStRead(unsigned int n, int *buf, int flag, int *result, char *se
                 iosMsgRecv(&stAckQ, &msg, 1);
                 if (msg != 1) {
                     sprintf(msgbuf, "stream manager load end command error %d\n", msg);
-                    debug_assertMessage(__FILE__, LN(1304, 1294), msgbuf);
-                    __assert(__FILE__, LN(1304, 1294), "e");
+                    debug_assertMessage(__FILE__, LN(1304, 1294, 1304), msgbuf);
+                    __assert(__FILE__, LN(1304, 1294, 1304), "e");
                 }
             }
         }
@@ -734,8 +753,8 @@ void iosCdvdHandlerReadNoInflate(IosCdvdHandle *self, void *buf, int n)
         if (sz == 0) {
             sprintf(msg, "CDVD read buff empty readSectorCnt:%d buffCnt%d\n", self->readSectorCnt,
                     self->buffCnt);
-            debug_assertMessage(__FILE__, LN(1417, 1407), msg);
-            __assert(__FILE__, LN(1417, 1407), "e");
+            debug_assertMessage(__FILE__, LN(1417, 1407, 1417), msg);
+            __assert(__FILE__, LN(1417, 1407, 1417), "e");
         }
         if (sz >= left) {
             sz = left;
@@ -936,8 +955,8 @@ CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, void *readA
             debug_StdPrintfDummy("** %d %s %p\n", i, bgReqTable[i].name, bgReqTable[i].readFunc);
         }
     }
-    debug_assert(__FILE__, LN(1890, 1880));
-    __assert(__FILE__, LN(1890, 1880), "0");
+    debug_assert(__FILE__, LN(1890, 1880, 1890));
+    __assert(__FILE__, LN(1890, 1880, 1890), "0");
 found:
     bg = &bgReqTable[i];
     bg->flags.busy = 1;
@@ -1017,8 +1036,12 @@ static void cdWait(int *busy)
                 systemStatus[0x14 / 4] = 1;
                 cdWaitParamSet = 1;
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+            strcpy(file, "SCPS_560.01");
+#else
             strcpy(file, "SCPS_110.03");
+#endif
 #else
             strcpy(file, "SCES_507.60");
 #endif
@@ -1165,7 +1188,7 @@ void iosCdvdDirectStOpen(IosCdvdHandle *self)
     self->result = 0;
     iosCdvdMgrSearchFile(self);
     self->sectors = ((unsigned int)(self->file.size - 1) >> 11) + 1;
-    mem = iosSifAllocIopHeapDebug(576 * 2048 + 16, __FILE__, LN(2472, 2460));
+    mem = iosSifAllocIopHeapDebug(576 * 2048 + 16, __FILE__, LN(2472, 2460, 2472));
     /* an allocation check compiled out of the retail build; its message
      * stays in .rodata */
     if (0) {

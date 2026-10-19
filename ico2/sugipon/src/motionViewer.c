@@ -260,7 +260,7 @@ static int motKindMenuProc(void)
     int cur;
 
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 400, 192,
                                         0, ent->motLast - ent->motFirst, &motSel, 0);
 #else

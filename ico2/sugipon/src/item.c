@@ -195,7 +195,7 @@ void ThrowItem(GObj *gobj, void *vel)
     p->released = 1;
     p->held = 0;
     p->thrown = 1;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
 #else
     _ScaleVectorXYZ(*(char **)&gobj->dobj + 0x130, vel,
@@ -321,7 +321,7 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
     float rot[4];
     float d[4];
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (id != 949) {
 #else
     if (id != 972) {
@@ -354,7 +354,7 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
     if (5.0f < len) {
         int id = itemKind[p->kind].stayAnim;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (id != 949) {
 #else
         if (id != 972) {
@@ -464,7 +464,7 @@ static void uncarriedItemGeo(GObj *gobj)
             if (p->wave == 0) {
                 CopyVector(q, pos);
                 q[1] = GOBJ_SUB(gobj)->ctrl.waterY;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 EntryStageMultiBgaManager(488, q, IdentityQuaternion);
 #else
                 EntryStageMultiBgaManager(492, q, IdentityQuaternion);
@@ -648,7 +648,7 @@ static void execBombGeo(GObj *gobj)
         break;
     case 2:
         rec->fuse.animMode = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetLoopFlag(507, 0);
         stage_SetFrameStep(507, 1);
 #else
@@ -662,7 +662,7 @@ static void execBombGeo(GObj *gobj)
         rec->released = 0;
         StopSEPackage(gobj);
         bombExplodeSE(gobj);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_KillPlayBgAnimationIfOverMaxCount(507, 1);
         q->anim = stage_MakePlayBgAnimation(507);
 #else

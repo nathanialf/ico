@@ -36,7 +36,7 @@ static void DetourCheck(GObj *self, float *out)
         return;
     }
     GetSkeltonOrient(orient, self, 0x2C);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8D0) != 0) {
         out[0] = *(float *)((char *)GOBJ_ACT(self)->work + 0x8E0);
         out[1] = *(float *)((char *)GOBJ_ACT(self)->work + 0x8E4);
@@ -79,7 +79,7 @@ static void DetourCheck(GObj *self, float *out)
         sceVu0ScaleVector(tmp, dir, 100.0f);
         sceVu0AddVector(tmp, cur, tmp);
         if (ACTCheckCollis_WAY(10.0f, cur, tmp, 0, 0) == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             *(float *)((char *)GOBJ_ACT(self)->work + 0x8E0) = dir[0];
             *(float *)((char *)GOBJ_ACT(self)->work + 0x8E4) = dir[1];
             *(float *)((char *)GOBJ_ACT(self)->work + 0x8E8) = dir[2];
@@ -108,7 +108,7 @@ static int checkPositionIllegal(GObj *self, float *pos)
     if (act->actMode == 0x70) {
         return 1;
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (act->actMode == 0x26 ||
         (((GOBJ_SUB(self)->ctrl.motion + motionKind)->flags.word >> 15) & 1)) {
 #else
@@ -265,7 +265,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     act->wayState.flags &= ~0x10000;
     act->wayState.flags &= ~0x1E0000;
     *(int *)((char *)act + 0x430) = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     *(int *)((char *)GOBJ_ACT(self)->work + 0x8D0) = 0;
 #else
     *(int *)((char *)GOBJ_ACT(self)->work + 0x8E0) = 0;
@@ -313,7 +313,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d,
     float dy;
     int n;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     /* disabled in retail: the way-begin-position (WBP) report */
     if (0) {
         debug_StdPrintfDummy("WBP <<begin>>\n");

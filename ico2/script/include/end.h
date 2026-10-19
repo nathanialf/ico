@@ -46,7 +46,7 @@ void actEndDemo11Chk(GObj *volatile self);
 void actEndDemo12Chk(GObj *volatile self);
 void actEndDemo13Chk(GObj *volatile self);
 void actEndDemo14Chk(GObj *volatile self);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 void actEndLogoFade(GObj *volatile self);
 #else
 void actEndLogoChk(GObj *volatile self);

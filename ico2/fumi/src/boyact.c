@@ -91,7 +91,7 @@ static void findChainInJump(void *self)
     int lside = 0;
 
     sub = GOBJ_ACT(self);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     r = ((CHAINROW(self)->flags2.word >> 9) & 1) ? 300.0f : 100.0f;
     r2 = ((CHAINROW(self)->flags2.word >> 9) & 1) ? 90.0f : 120.0f;
 #else
@@ -140,7 +140,7 @@ static void findChainInJump(void *self)
     lv[3] = 0.0f;
     sceVu0ApplyMatrix(lv, mtx, lv);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (((CHAINROW(self)->flags2.word >> 7) & 1) == 0 && (rside != 0 || lside != 0) &&
         (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
 #else
@@ -154,7 +154,7 @@ static void findChainInJump(void *self)
         RequestChangeHandMode(self, 1, 2, 0, 0, 0, 0);
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if ((rside != 0 || lside != 0) &&
         motionKind[GOBJ_SUB(self)->ctrl.motion].flags2.bits.chainIkRate) {
         ((BoyVal *)((char *)GOBJ_SUB(self) + 0x45C))->f = 0.8f;
@@ -686,7 +686,7 @@ static BoyKidnapWork characterPacketDefault = {{0, 0, 0, 0, 0, -1, -1}}; /* deri
 
 static BgaEntry boyBgaTable[] = {
 /* derived name */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     {476, 0.0f, 7.0f, 1, 70, 1, 1, 1.0f},
     {477, 0.0f, 0.0f, 0, 70, 0, 1, 1.0f},
     {481, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
@@ -754,8 +754,8 @@ static void BoyBgaManager(void *self, int id, void *dst)
             goto found;
         }
     }
-    debug_assert(__FILE__, LN(1731, 1724));
-    __assert(__FILE__, LN(1731, 1724), "0");
+    debug_assert(__FILE__, LN(1731, 1724, 1724));
+    __assert(__FILE__, LN(1731, 1724, 1724), "0");
     p = 0;
 found:
     v = *(int *)dst;
@@ -855,7 +855,7 @@ static int GetChainSlope(void)
         return 0;
     }
     ratio = (float)*motionTable[GOBJ_SUB(g)->ctrl.motion] / (c * 0.5f);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     ACTGame_SetMotionPlaySpeedRatio_Reserve(g, ratio, 7);
 #else
     ACTGame_SetMotionPlaySpeedRatio_Reserve(
@@ -1214,7 +1214,7 @@ void subBoyControl(GObj *volatile self)
             break;
         case 26:
             if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269)) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 sceVu0ScaleVector(GOBJ_WORK(self)->fallDir, (char *)GOBJ_ACT(self)->work + 0x8C0,
                                   -1.0f);
 #else
@@ -1696,8 +1696,8 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy) /* derived na
         return 0;
     }
     if (newW == 0) {
-        debug_assert(__FILE__, LN(3007, 3000));
-        __assert(__FILE__, LN(3007, 3000), "next");
+        debug_assert(__FILE__, LN(3007, 3000, 3000));
+        __assert(__FILE__, LN(3007, 3000, 3000), "next");
         return 0;
     }
     PickupWeapon(newW, boy, 0x16);
@@ -1743,7 +1743,7 @@ static void OtherStageGirlPinchCamera_After(float t)
 
 void ACTDispLwsBoyStonize_InQueenStage(void *self)
 {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     BoyBgaManager(self, 476, (char *)GOBJ_ACT(self)->enemy + 0x2A0);
     BoyBgaManager(self, 477, (char *)GOBJ_ACT(self)->enemy + 0x2A4);
     BoyBgaManager(self, 481, (char *)GOBJ_ACT(self)->enemy + 0x2B0);
@@ -2099,7 +2099,7 @@ void subBoyCollision(GObj *volatile self)
                     ((float *)tgt2)[2] = test_CURRENTROOT(girlGObj)[2];
                     see = 1;
                     onGirl = 1;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 } else if ((stage_no == 84 || stage_no == 3 || stage_no == 46) &&
                            ((int)(sub->flags20.ll >> 24) & 3)) {
 #else
@@ -2294,7 +2294,7 @@ void subBoyCollision(GObj *volatile self)
                 GOBJ_ACT(girlGObj)->actMode == GOBJ_ACT(boyGObj)->actMode) {
                 if (0x3C < sitCount++) {
                     if (sitLayoutDone == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                         lt_switch_layout(25);
 #else
                         lt_switch_layout(0x1C);
@@ -2313,7 +2313,7 @@ void subBoyCollision(GObj *volatile self)
             }
             sub->flags18.ll = (sub->flags18.ll & ~0x20000000000LL) |
                               ((unsigned long long)(ACTGame_FLAG_TETSUNAGI() & 1) << 41);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (((CHAINROW(self)->flags.word >> 19) & 1) && ACTGame_FLAG_TETSUNAGI() == 0) {
 #else
             if (((CHAINROW(self)->flags.word >> 13) & 1) && ACTGame_FLAG_TETSUNAGI() == 0) {
@@ -2603,7 +2603,7 @@ void actBoyCliffHesitate(GObj *volatile self)
     int hit = 0;
 
     ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.b.wall);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     GetOrientOfWall(BOY_WALL(self) + 0x8C0, GOBJ_WORK(self)->intrReq.b.wall.elem,
                     &GOBJ_WORK(self)->intrReq.b.wall.o);
 #else
@@ -2777,7 +2777,7 @@ void actBoyPullupReady(GObj *volatile self)
     }
     Act *sub = GOBJ_ACT(self);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8B0);
 #else
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8C0);
@@ -3062,7 +3062,7 @@ void actBoyDitch3mReady(GObj *volatile self)
     int a;
     int b;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8B0);
 #else
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8C0);
@@ -3429,7 +3429,7 @@ inline void actBoyStand(GObj *volatile self)
 {
     MotionDef *row = GOBJ_SUB(self)->ctrl.motion + motionKind;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (row->flags.word & 1) {
 #else
     if ((row->flags.word >> 8) & 1) {
@@ -3647,8 +3647,8 @@ inline int IsBoyStatus_EnemyMustWait(void)
     unsigned int st;
 
     if (boyGObj == 0) {
-        debug_assert(__FILE__, LN(5795, 5779));
-        __assert(__FILE__, LN(5795, 5779), "0");
+        debug_assert(__FILE__, LN(5795, 5779, 5779));
+        __assert(__FILE__, LN(5795, 5779, 5779), "0");
         return 0;
     }
     sub = GOBJ_ACT(boyGObj);

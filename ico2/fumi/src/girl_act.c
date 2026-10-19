@@ -1657,7 +1657,7 @@ void subGirlBrainMain(GObj *volatile self)
             MotionDef *rec = motionKind + GOBJ_SUB(((int *)boyGObj))->ctrl.motion;
             int send;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if ((rec->flags.word >> 17) & 1) {
 #else
             if ((rec->flags.word >> 15) & 1) {
@@ -1666,7 +1666,7 @@ void subGirlBrainMain(GObj *volatile self)
             } else {
                 send = 0;
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (GOBJ_ACT(((int *)boyGObj))->actMode == 5 &&
                 *(int *)((char *)GOBJ_ACT(((int *)boyGObj))->work + 0x8F0) == 41 &&
                 GOBJ_ACT(((int *)boyGObj))->modeFrame <
@@ -3318,7 +3318,7 @@ void subGirlControl(GObj *volatile self)
             ACTSendMailCorrect(self, 0xBA);
             break;
         case 29:
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (!((void *)girlControlMode != 0 &&
                   *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 4 &&
                   ((int)(w.p->flags18.ll >> 56) & 1))) {
@@ -3353,7 +3353,7 @@ void subGirlControl(GObj *volatile self)
             }
             break;
         case 28:
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (!((void *)girlControlMode != 0 &&
                   *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 4 &&
                   ((int)(w.p->flags18.ll >> 56) & 1)) &&
@@ -3497,7 +3497,7 @@ void subGirlCollision(GObj *volatile self)
                 break;
             case 2:
                 ang = _ACTGame_GetParamF(36);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 10 &&
                     sub->modeFrame < (60 - systemStatus[0] * 10) / systemStatus[1] / 3) {
 #else
@@ -3511,7 +3511,7 @@ void subGirlCollision(GObj *volatile self)
                 break;
             case 3:
                 ang = _ACTGame_GetParamF(37);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 10 &&
                     sub->modeFrame < (60 - systemStatus[0] * 10) / systemStatus[1] / 3) {
 #else
@@ -3542,7 +3542,7 @@ void subGirlCollision(GObj *volatile self)
                 GetEyeDirection((char *)eye, self);
                 rot = (float)_RotyGV(eye, dir);
                 rec = motionKind + GOBJ_SUB(self)->ctrl.motion;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 if ((rec->flags.word >> 8) & 1) {
 #else
                 if (rec->flags.word & 1) {
@@ -3658,7 +3658,7 @@ void subGirlCollision(GObj *volatile self)
             if (sub->actMode == 36) {
                 ACTSendMailCorrect((void *)self, 0x1AC);
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (sub->actMode == 1 && (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 28 ||
                                       *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 36)) {
 #else
@@ -3804,7 +3804,7 @@ void actGirlHand(GObj *volatile self)
     float turn;
     float h;
     float rate;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     int dbg = 0; /* local debug switch, see the test after v60 is set below */
 #endif
 
@@ -3926,10 +3926,10 @@ void actGirlHand(GObj *volatile self)
             }
             sceVu0ScaleVector(v60, dir, 300.0f);
             sceVu0AddVector(v60, test_CURRENTROOT((void *)self), v60);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             /* a local debug switch, off: mark v60, the point 300 ahead along
                the pull direction (nothing else reads it). The ROM's stack slot
-               order needs the block here, and the January listing has eleven
+               order needs the block here, and PAL's listing has eleven
                code-less lines (3261-3271) in its place; the text is derived. */
             if (dbg) {
                 debug_NMarker(v60, 255, 0, 0, 100.0f);
@@ -4006,7 +4006,7 @@ void actGirlHand(GObj *volatile self)
                 ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, 1.0f, 2);
                 if (hand < dist) {
                     rec = motionKind + GOBJ_SUB(self)->ctrl.motion;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     if (((rec->flags.word >> 31) & 1) == 0 || mode != 1) {
 #else
                     if (((rec->flags.word >> 29) & 1) == 0 || mode != 1) {
@@ -4058,7 +4058,7 @@ void actGirlHand(GObj *volatile self)
                 break;
             }
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         flag = handmgr.far100 && (box = (unsigned char *)GOBJ_ACT(girlGObj)->work + 0x530)[1] &&
                box[0x20];
 #else
@@ -4267,7 +4267,7 @@ inline void actGirlHang(GObj *volatile self)
     /* rope-hang detected from the ACT parameter block */
     int hang = 0;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F4) == 90) {
         hang = *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 4;
 #else
@@ -4278,7 +4278,7 @@ inline void actGirlHang(GObj *volatile self)
     /* the debug/free camera forces the pull mail on regardless */
     rope = hang;
     if ((void *)girlControlMode != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 4) {
 #else
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 4) {
@@ -4300,7 +4300,7 @@ inline void actGirlBHang(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
     int rope = 0;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F4) == 90) {
         rope = *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 4;
 #else
@@ -4355,11 +4355,11 @@ void actGirlReadyMove(GObj *volatile self)
 {
     float dst[4];
     float dir[4];
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     int n;
 #endif
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     n = (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 80.0f / 60.0f);
 #endif
     dst[0] = GOBJ_ACT(self)->enemy->readyPosX;
@@ -4369,7 +4369,7 @@ void actGirlReadyMove(GObj *volatile self)
     dir[1] = GOBJ_ACT(self)->enemy->readyDirY;
     dir[2] = GOBJ_ACT(self)->enemy->readyDirZ;
     dst[1] = test_CURRENTROOT((void *)self)[1];
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     StartCorrectPosition((void *)self, dst, dir, 1, 40.0f);
 #else
     StartCorrectPosition((void *)self, dst, dir, 1, (float)n);

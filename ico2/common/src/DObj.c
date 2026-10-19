@@ -73,7 +73,7 @@ typedef struct { /* field names derived */
     long long pad848[7];
 } DObjRecord; /* derived name */
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static DObjRecord emptyDObj = {
     {0, -1}, {0}, 0, 1, 1, 1, 0, 1548, {0}, 0, -1, {0},
 }; /* derived name */
@@ -421,7 +421,7 @@ Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
 
     d = iosMallocDebug(ios_partition_seki, sizeof(DObjRecord), __FILE__, 463);
     *(DObjRecord *)d = emptyDObj;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (id != 1548) {
 #else
     if (id != 1552) {

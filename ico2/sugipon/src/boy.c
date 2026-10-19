@@ -738,7 +738,7 @@ void BoyGeo(GObj *gobj)
     synchronizeMotionOutputOriginForGirl(gobj);
     execClothes(gobj);
     ExecuteSlipProc(gobj);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     SetActressLight(gobj, 35, 44, 467);
 #else
     SetActressLight(gobj, 35, 44, 471);
@@ -816,7 +816,7 @@ void BoyDL(GObj *gobj)
         GetRootPosition(pos, gobj);
         GetRootQuaternion(quat, gobj);
         RotQuaternionY(quat, -32768);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         r = (int)stage_PlayBgAnimation(484, (float)w->stoneAnim, pos, quat);
 #else
         r = (int)stage_PlayBgAnimation(488, (float)w->stoneAnim, pos, quat);

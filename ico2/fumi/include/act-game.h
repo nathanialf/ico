@@ -8,7 +8,7 @@
 #ifndef ACT_GAME_H
 #define ACT_GAME_H
 
-#include "typedef.h" /* WayRequest, which ActWork carries at 0x580 (JPN 0x570) */
+#include "typedef.h" /* WayRequest, which ActWork carries at 0x580 (JPN and KOR 0x570) */
 #include "clipCollisionManager.h"
 
 struct GObj;
@@ -106,7 +106,7 @@ typedef struct ActWork { /* field names derived */
     float hintPosX;     /* 0x520 */
     float hintPosY;     /* 0x524 */
     float hintPosZ;     /* 0x528 */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     char pad52C[68];
     WayRequest wayReq; /* 0x570, the way search RequestWayBegin hands to the way system manager */
     char pad628[232];

@@ -128,7 +128,7 @@ void CUR_SE(void)
 inline int PSH_POSITIVE_OR_NEGATIVE(int idx)
 {
     int v = pad[idx].flags;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if ((v & 0x20) != 0)
         goto one;
     if ((v & 0x40) == 0)
@@ -625,7 +625,7 @@ inline int la_boot_memory_card_check(void)
     layout_boot_flag = 1;
     lt_set_item_select_func(0);
     actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     return 0x34;
 #else
     return 0x37;
@@ -646,7 +646,7 @@ inline int la_boot_no_free_area(int first, int item)
 
 inline int la_boot_confirm_memory_card(void)
 {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x20) {
 #else
     if (pad[0].flags & 0x40) {
@@ -666,24 +666,32 @@ inline void keyconfig_reset(void)
 
 int la_vibe_select(void)
 {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (lt_fade_status() == 2 && (pad[0].flags & 0x820)) {
 #else
     if (lt_fade_status() == 2 && (pad[0].flags & 0x840)) {
 #endif
         soundSeDefPlay(415, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
-#ifdef VERSION_JPN
-        case 0xE:
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 8:
 #else
-        case 0x2C:
+        case 14:
+#endif
+#else
+        case 44:
 #endif
             iosPadActRequestEnable = 1;
             break;
-#ifdef VERSION_JPN
-        case 0xF:
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 9:
 #else
-        case 0x2D:
+        case 15:
+#endif
+#else
+        case 45:
 #endif
             iosPadActRequestEnable = 0;
             break;
@@ -701,7 +709,7 @@ int la_vibe_select(void)
     if (lt_fade_status() != 2) {
         return -1;
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if ((pad[0].flags & 0x40) == 0) {
 #else
     if ((pad[0].flags & 0x10) == 0) {
@@ -711,7 +719,7 @@ int la_vibe_select(void)
     NEGATIVE_SE();
     lt_set_item_select_func(0);
     actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     return 0x9;
 #else
     return 0xC;
@@ -760,24 +768,34 @@ int la_title_continue_or_new(int first)
     }
     if (continueDecided != 0) {
         lt_item_select_disable = 0;
-#ifdef VERSION_JPN
-        lt_mask_property(0x14, 0);
-        lt_mask_property(0x15, 0);
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(14, 0);
+        lt_mask_property(15, 0);
 #else
-        lt_mask_property(0x31, 0);
-        lt_mask_property(0x32, 0);
+        lt_mask_property(20, 0);
+        lt_mask_property(21, 0);
+#endif
+#else
+        lt_mask_property(49, 0);
+        lt_mask_property(50, 0);
 #endif
     } else {
         lt_item_select_disable = 1;
-#ifdef VERSION_JPN
-        lt_mask_property(0x14, 1);
-        lt_mask_property(0x15, 1);
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(14, 1);
+        lt_mask_property(15, 1);
 #else
-        lt_mask_property(0x31, 1);
-        lt_mask_property(0x32, 1);
+        lt_mask_property(20, 1);
+        lt_mask_property(21, 1);
+#endif
+#else
+        lt_mask_property(49, 1);
+        lt_mask_property(50, 1);
 #endif
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (continueDecided != 0 && (pad[0].flags & 0x820) && lt_fade_status() == 2) {
 #else
     if (continueDecided != 0 && (pad[0].flags & 0x840) && lt_fade_status() == 2) {
@@ -785,26 +803,35 @@ int la_title_continue_or_new(int first)
         lt_continue_selected = 1;
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
-#ifdef VERSION_JPN
-        case 0x14:
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 14:
 #else
-        case 0x31:
+        case 20:
+#endif
+#else
+        case 49:
 #endif
             opTitleLogoMode = 2;
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
             return 0x11;
-        case 0x15:
+        case 15:
+#else
+            return 0x11;
+        case 21:
+#endif
 #else
             return 0x14;
-        case 0x32:
+        case 50:
 #endif
             opTitleLogoMode = 2;
             gFlagGameClear = 0;
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 6;
 #else
             return 9;
@@ -818,7 +845,7 @@ int la_title_continue_or_new(int first)
         if ((curPortInfo->flags.w & 0x22) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0xA;
 #else
             return 0xD;
@@ -829,7 +856,7 @@ int la_title_continue_or_new(int first)
     case -1:
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0xA;
 #else
         return 0xD;
@@ -858,20 +885,28 @@ int la_title_new_game_only(int first)
     }
     if (newGameDecided != 0) {
         lt_item_select_disable = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(16, 0);
+#else
         lt_mask_property(22, 0);
+#endif
 #else
         lt_mask_property(51, 0);
 #endif
     } else {
         lt_item_select_disable = 1;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(16, 1);
+#else
         lt_mask_property(22, 1);
+#endif
 #else
         lt_mask_property(51, 1);
 #endif
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (newGameDecided != 0 && (pad[0].flags & 0x820) && lt_fade_status() == 2) {
 #else
     if (newGameDecided != 0 && (pad[0].flags & 0x840) && lt_fade_status() == 2) {
@@ -882,7 +917,7 @@ int la_title_new_game_only(int first)
         gFlagGameClear = 0;
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 6;
 #else
         return 9;
@@ -898,7 +933,7 @@ int la_title_new_game_only(int first)
         if ((curPortInfo->flags.w >> 5) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 9;
 #else
             return 0xC;
@@ -924,10 +959,14 @@ static int fileFirst = 1; /* derived name */
 
 static inline int la_mc_saved_file_select(int item)
 {
-#ifdef VERSION_JPN
-    int i = item - 0x21;
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    int i = item - 27;
 #else
-    int i = item - 0x3E;
+    int i = item - 33;
+#endif
+#else
+    int i = item - 62;
 #endif
     int old = i;
 
@@ -954,10 +993,14 @@ static inline int la_mc_saved_file_select(int item)
     if (old != i) {
         CUR_SE();
     }
-#ifdef VERSION_JPN
-    return i + 0x21;
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    return i + 27;
 #else
-    return i + 0x3E;
+    return i + 33;
+#endif
+#else
+    return i + 62;
 #endif
 }
 
@@ -988,8 +1031,12 @@ int la_mc_file_select(int first)
 {
     int i;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    curFile = lt_current_property_item() - 27;
+#else
     curFile = lt_current_property_item() - 33;
+#endif
 #else
     curFile = lt_current_property_item() - 62;
 #endif
@@ -1011,8 +1058,12 @@ int la_mc_file_select(int first)
         } else {
             curFile = mcFileNoOfPort();
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        texLayout[11].curItem = curFile + 27;
+#else
         texLayout[11].curItem = curFile + 33;
+#endif
 #else
         texLayout[14].curItem = curFile + 62;
 #endif
@@ -1021,17 +1072,27 @@ int la_mc_file_select(int first)
 
     for (i = 0; i < 10; i++) {
         if (((fileMask >> i) & 1) && IosMcProductFile[filePort].file[i].stage != 0xFFFFFFFF) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+            lt_mask_property(i + 27, 0);
+            lt_mask_property(i + 17, 1);
+#else
             lt_mask_property(i + 33, 0);
             lt_mask_property(i + 23, 1);
+#endif
 #else
             lt_mask_property(i + 62, 0);
             lt_mask_property(i + 52, 1);
 #endif
         } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+            lt_mask_property(i + 27, 1);
+            lt_mask_property(i + 17, 0);
+#else
             lt_mask_property(i + 33, 1);
             lt_mask_property(i + 23, 0);
+#endif
 #else
             lt_mask_property(i + 62, 1);
             lt_mask_property(i + 52, 0);
@@ -1041,14 +1102,35 @@ int la_mc_file_select(int first)
 
     previewInfo = *(struct McPreview *)&IosMcProductFile[filePort].file[curFile];
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     return (pad[0].flags & 0x30) ? curFile : -1;
 #else
     return (pad[0].flags & 0x50) ? curFile : -1;
 #endif
 }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+static void _la_mask_preview_info(void)
+{
+    int i;
+
+    for (i = 0; i < 10; i++) {
+        lt_mask_property(i + 41, 1);
+        lt_mask_property(i + 51, 1);
+        lt_mask_property(i + 61, 1);
+        lt_mask_property(i + 71, 1);
+        lt_mask_property(i + 81, 1);
+        lt_mask_property(i + 91, 1);
+    }
+    lt_mask_property(39, 1);
+    lt_mask_property(40, 1);
+    for (i = 0; i < 39; i++) {
+        lt_mask_property(i + 102, 1);
+    }
+    lt_mask_property(101, 1);
+}
+#else
 static void _la_mask_preview_info(void)
 {
     int i;
@@ -1068,6 +1150,7 @@ static void _la_mask_preview_info(void)
     }
     lt_mask_property(107, 1);
 }
+#endif
 #else
 static void _la_mask_preview_info(void)
 {
@@ -1130,7 +1213,17 @@ static void _la_set_preview_info(void)
     min = ((min / 10 + 9) % 10) * 10 + (min % 10 + 9) % 10;
     sec = ((sec / 10 + 9) % 10) * 10 + (sec % 10 + 9) % 10;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    lt_mask_property(41 + hour / 10, 0);
+    lt_mask_property(51 + hour % 10, 0);
+    lt_mask_property(61 + min / 10, 0);
+    lt_mask_property(71 + min % 10, 0);
+    lt_mask_property(81 + sec / 10, 0);
+    lt_mask_property(91 + sec % 10, 0);
+    lt_mask_property(39, 0);
+    lt_mask_property(40, 0);
+#else
     lt_mask_property(47 + hour / 10, 0);
     lt_mask_property(57 + hour % 10, 0);
     lt_mask_property(67 + min / 10, 0);
@@ -1139,6 +1232,7 @@ static void _la_set_preview_info(void)
     lt_mask_property(97 + sec % 10, 0);
     lt_mask_property(45, 0);
     lt_mask_property(46, 0);
+#endif
 #else
     lt_mask_property(76 + hour / 10, 0);
     lt_mask_property(86 + hour % 10, 0);
@@ -1151,7 +1245,7 @@ static void _la_set_preview_info(void)
 #endif
 
     n = previewInfo.stage;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (n == 61) {
 #else
     if (n == 63) {
@@ -1167,14 +1261,22 @@ static void _la_set_preview_info(void)
             n = 40;
             break;
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(n + 99, 0);
+#else
         lt_mask_property(n + 105, 0);
+#endif
 #else
         lt_mask_property(n + 134, 0);
 #endif
         if (previewInfo.cleared != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+            lt_mask_property(101, 0);
+#else
             lt_mask_property(107, 0);
+#endif
 #else
             lt_mask_property(136, 0);
 #endif
@@ -1195,12 +1297,17 @@ inline int la_mc_preview_info(void)
 
 inline int la_mc_current_slot(void)
 {
-#ifdef VERSION_JPN
-    lt_mask_property(0x93, curPort);
-    lt_mask_property(0x94, curPort ^ 1);
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    lt_mask_property(141, curPort);
+    lt_mask_property(142, curPort ^ 1);
 #else
-    lt_mask_property(0xB0, curPort);
-    lt_mask_property(0xB1, curPort ^ 1);
+    lt_mask_property(147, curPort);
+    lt_mask_property(148, curPort ^ 1);
+#endif
+#else
+    lt_mask_property(176, curPort);
+    lt_mask_property(177, curPort ^ 1);
 #endif
     return -1;
 }
@@ -1210,14 +1317,22 @@ inline int la_mc_current_slot(void)
 static inline void setLoadGameStartItem(void) /* derived name */
 {
     if (loadSerial == IosMcProductFile[0].serial || saveSerial != IosMcProductFile[1].serial) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        texLayout[14].defaultItem = 152;
+#else
         texLayout[14].defaultItem = 158;
+#endif
 #else
         texLayout[17].defaultItem = 186;
 #endif
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        texLayout[14].defaultItem = 153;
+#else
         texLayout[14].defaultItem = 159;
+#endif
 #else
         texLayout[17].defaultItem = 187;
 #endif
@@ -1228,12 +1343,17 @@ int la_load_game_memory_card_check(int first)
 {
     _la_mask_preview_info();
     mcLoadMode = 1;
-#ifdef VERSION_JPN
-    lt_mask_property(0x93, 1);
-    lt_mask_property(0x94, 1);
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    lt_mask_property(141, 1);
+    lt_mask_property(142, 1);
 #else
-    lt_mask_property(0xB0, 1);
-    lt_mask_property(0xB1, 1);
+    lt_mask_property(147, 1);
+    lt_mask_property(148, 1);
+#endif
+#else
+    lt_mask_property(176, 1);
+    lt_mask_property(177, 1);
 #endif
     switch (_la_set_current_port_2(&mc, first)) {
     case 0:
@@ -1242,7 +1362,7 @@ int la_load_game_memory_card_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x13;
 #else
         return 0x16;
@@ -1251,7 +1371,7 @@ int la_load_game_memory_card_check(int first)
         if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x14;
 #else
             return 0x17;
@@ -1259,7 +1379,7 @@ int la_load_game_memory_card_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x13;
 #else
         return 0x16;
@@ -1269,7 +1389,7 @@ int la_load_game_memory_card_check(int first)
             setLoadGameStartItem();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0xE;
 #else
             return 0x11;
@@ -1278,7 +1398,7 @@ int la_load_game_memory_card_check(int first)
         if ((curPortInfo->flags.w >> 5) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x10;
 #else
             return 0x13;
@@ -1286,7 +1406,7 @@ int la_load_game_memory_card_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x14;
 #else
         return 0x17;
@@ -1298,25 +1418,30 @@ int la_load_game_memory_card_check(int first)
 inline int la_mc_load_current_slot_select(void)
 {
     _la_mask_preview_info();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
     if (pad[0].flags & 0x20) {
-        curPort = lt_current_property_item() - 0x9E;
+        curPort = lt_current_property_item() - 152;
+#else
+    if (pad[0].flags & 0x20) {
+        curPort = lt_current_property_item() - 158;
+#endif
 #else
     if (pad[0].flags & 0x40) {
-        curPort = lt_current_property_item() - 0xBA;
+        curPort = lt_current_property_item() - 186;
 #endif
         lastPort = curPort;
         curPortInfo = &mcPortInfo[curPort];
         POSITIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x10;
 #else
         return 0x13;
 #endif
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x40) {
 #else
     if (pad[0].flags & 0x10) {
@@ -1324,7 +1449,7 @@ inline int la_mc_load_current_slot_select(void)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x9;
 #else
         return 0xC;
@@ -1349,11 +1474,18 @@ int la_mc_load_file_select(int first, int item)
 
     if (fileMask != 0) {
         _la_set_preview_info();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(38, 1);
+        lt_mask_property(37, 1);
+        lt_mask_property(161, 0);
+        lt_mask_property(162, 0);
+#else
         lt_mask_property(44, 1);
         lt_mask_property(43, 1);
         lt_mask_property(167, 0);
         lt_mask_property(168, 0);
+#endif
 #else
         lt_mask_property(73, 1);
         lt_mask_property(72, 1);
@@ -1362,11 +1494,18 @@ int la_mc_load_file_select(int first, int item)
 #endif
     } else {
         _la_mask_preview_info();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(38, 0);
+        lt_mask_property(37, 0);
+        lt_mask_property(161, 1);
+        lt_mask_property(162, 1);
+#else
         lt_mask_property(44, 0);
         lt_mask_property(43, 0);
         lt_mask_property(167, 1);
         lt_mask_property(168, 1);
+#endif
 #else
         lt_mask_property(73, 0);
         lt_mask_property(72, 0);
@@ -1376,7 +1515,7 @@ int la_mc_load_file_select(int first, int item)
     }
     lt_set_item_select_func((int)la_mc_saved_file_select);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x40) {
 #else
     if (pad[0].flags & 0x10) {
@@ -1384,14 +1523,14 @@ int la_mc_load_file_select(int first, int item)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 9;
 #else
         return 12;
 #endif
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if ((fileMask != 0 || loadFileChosen != 0) && (pad[0].flags & 0x20)) {
 #else
     if ((fileMask != 0 || loadFileChosen != 0) && (pad[0].flags & 0x40)) {
@@ -1402,7 +1541,7 @@ int la_mc_load_file_select(int first, int item)
             lastPort = filePort;
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 18;
 #else
             return 21;
@@ -1416,7 +1555,7 @@ int la_mc_load_file_select(int first, int item)
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 19;
 #else
             return 22;
@@ -1424,7 +1563,7 @@ int la_mc_load_file_select(int first, int item)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 20;
 #else
         return 23;
@@ -1433,7 +1572,7 @@ int la_mc_load_file_select(int first, int item)
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 19;
 #else
             return 22;
@@ -1442,7 +1581,7 @@ int la_mc_load_file_select(int first, int item)
         if ((curPortInfo->flags.w & 0x22) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 20;
 #else
             return 23;
@@ -1460,7 +1599,7 @@ int la_mc_load_file_select(int first, int item)
                 debug_StdPrintfDummy("1 to 2\n");
                 lt_set_item_select_func(0);
                 actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 return 14;
 #else
                 return 17;
@@ -1490,7 +1629,7 @@ int la_load_confirm_no_memory_card(int first)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0xA;
 #else
         return 0xD;
@@ -1503,7 +1642,7 @@ int la_load_confirm_no_memory_card(int first)
         if ((curPortInfo->flags.w & 0x32) == 2 || (curPortInfo->flags.w & 0x22) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x14;
 #else
             return 0x17;
@@ -1512,7 +1651,7 @@ int la_load_confirm_no_memory_card(int first)
         if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x11;
 #else
             return 0x14;
@@ -1524,7 +1663,7 @@ int la_load_confirm_no_memory_card(int first)
         if ((curPortInfo->flags.w & 0x32) == 2 || (curPortInfo->flags.w & 0x22) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x14;
 #else
             return 0x17;
@@ -1533,7 +1672,7 @@ int la_load_confirm_no_memory_card(int first)
         if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x11;
 #else
             return 0x14;
@@ -1553,7 +1692,7 @@ int la_load_confirm_no_data(int first)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0xA;
 #else
         return 0xD;
@@ -1566,7 +1705,7 @@ int la_load_confirm_no_data(int first)
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x13;
 #else
             return 0x16;
@@ -1578,7 +1717,7 @@ int la_load_confirm_no_data(int first)
         if ((curPortInfo->flags.w >> 5) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x11;
 #else
             return 0x14;
@@ -1599,7 +1738,7 @@ int la_load_start_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x2B;
 #else
         return 0x2E;
@@ -1607,7 +1746,7 @@ int la_load_start_check(int first)
     case -1:
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x2B;
 #else
         return 0x2E;
@@ -1616,7 +1755,7 @@ int la_load_start_check(int first)
         if (filePort != curPort) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x2B;
 #else
             return 0x2E;
@@ -1625,7 +1764,7 @@ int la_load_start_check(int first)
         if ((curPortInfo->flags.w & 3) != 3) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x13;
 #else
             return 0x16;
@@ -1635,7 +1774,7 @@ int la_load_start_check(int first)
             fileMask = 0x3FF;
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x16;
 #else
             return 0x19;
@@ -1643,7 +1782,7 @@ int la_load_start_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x14;
 #else
         return 0x17;
@@ -1734,7 +1873,7 @@ int la_load_processing(int first)
         debug_StdPrintfDummy("chk:%d\n", err);
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 43;
 #else
         return 46;
@@ -1783,7 +1922,7 @@ int la_load_processing(int first)
         if (gflagChk(395)) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 6;
 #else
             return 9;
@@ -1795,7 +1934,7 @@ int la_load_processing(int first)
     case 20:
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 17;
 #else
         return 20;
@@ -1806,7 +1945,7 @@ int la_load_processing(int first)
 
 inline int la_general_mc_confirm(void)
 {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x20) {
 #else
     if (pad[0].flags & 0x40) {
@@ -1841,12 +1980,17 @@ int la_mc_confirm_save_file(int first, int item)
     int i;
 
     _la_mask_preview_info();
-#ifdef VERSION_JPN
-    lt_mask_property(0x93, 1);
-    lt_mask_property(0x94, 1);
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    lt_mask_property(141, 1);
+    lt_mask_property(142, 1);
 #else
-    lt_mask_property(0xB0, 1);
-    lt_mask_property(0xB1, 1);
+    lt_mask_property(147, 1);
+    lt_mask_property(148, 1);
+#endif
+#else
+    lt_mask_property(176, 1);
+    lt_mask_property(177, 1);
 #endif
     if (first) {
         systemStatus[5] = 1;
@@ -1893,17 +2037,26 @@ int la_mc_confirm_save_file(int first, int item)
         {
             if (lt_fade_status() == 2) {
                 switch (item) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+                case 184:
+#else
                 case 190:
+#endif
 #else
                 case 214:
 #endif
                     POSITIVE_SE();
                     lt_set_item_select_func(0);
                     actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+                    return 0x1B;
+                case 185:
+#else
                     return 0x1B;
                 case 191:
+#endif
 #else
                     return 0x1E;
                 case 215:
@@ -1912,7 +2065,7 @@ int la_mc_confirm_save_file(int first, int item)
                     systemStatus[5] = 0;
                     lt_set_item_select_func(0);
                     actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     return 0x33;
 #else
                     return 0x36;
@@ -1922,14 +2075,14 @@ int la_mc_confirm_save_file(int first, int item)
             if (lt_fade_status() != 2) {
                 return -1;
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if ((pad[0].flags & 0x40) == 0) {
 #else
             if ((pad[0].flags & 0x10) == 0) {
 #endif
                 return -1;
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (stage_no == 0x3D) {
 #else
             if (stage_no == 0x3F) {
@@ -1939,7 +2092,7 @@ int la_mc_confirm_save_file(int first, int item)
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x33;
 #else
             return 0x36;
@@ -1954,14 +2107,22 @@ int la_mc_confirm_save_file(int first, int item)
 static inline void setSaveGameStartItem(void) /* derived name */
 {
     if (loadSerial == IosMcProductFile[0].serial || loadSerial != IosMcProductFile[1].serial) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        texLayout[15].defaultItem = 152;
+#else
         texLayout[15].defaultItem = 158;
+#endif
 #else
         texLayout[18].defaultItem = 186;
 #endif
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        texLayout[15].defaultItem = 153;
+#else
         texLayout[15].defaultItem = 159;
+#endif
 #else
         texLayout[18].defaultItem = 187;
 #endif
@@ -1972,12 +2133,17 @@ int la_save_game_memory_card_check(int first)
 {
     _la_mask_preview_info();
     mcLoadMode = 0;
-#ifdef VERSION_JPN
-    lt_mask_property(0x93, 1);
-    lt_mask_property(0x94, 1);
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    lt_mask_property(141, 1);
+    lt_mask_property(142, 1);
 #else
-    lt_mask_property(0xB0, 1);
-    lt_mask_property(0xB1, 1);
+    lt_mask_property(147, 1);
+    lt_mask_property(148, 1);
+#endif
+#else
+    lt_mask_property(176, 1);
+    lt_mask_property(177, 1);
 #endif
     debug_StdPrintfDummy("save game check port %d\n", curPort);
     switch (_la_set_current_port_new(&mc, first)) {
@@ -1990,7 +2156,7 @@ int la_save_game_memory_card_check(int first)
                 setSaveGameStartItem();
                 lt_set_item_select_func(0);
                 actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 return 0xF;
 #else
                 return 0x12;
@@ -1999,7 +2165,7 @@ int la_save_game_memory_card_check(int first)
             if (((curPortInfo->flags.w >> 4) & 1) == 0) {
                 lt_set_item_select_func(0);
                 actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 return 0x1D;
 #else
                 return 0x20;
@@ -2008,7 +2174,7 @@ int la_save_game_memory_card_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1C;
 #else
         return 0x1F;
@@ -2020,7 +2186,7 @@ int la_save_game_memory_card_check(int first)
             setSaveGameStartItem();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0xF;
 #else
             return 0x12;
@@ -2029,7 +2195,7 @@ int la_save_game_memory_card_check(int first)
         if ((curPortInfo->flags.w & 0x30) != 0 || (curPortInfo->flags.w & 0xA) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x1E;
 #else
             return 0x21;
@@ -2037,7 +2203,7 @@ int la_save_game_memory_card_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1D;
 #else
         return 0x20;
@@ -2048,28 +2214,32 @@ int la_save_game_memory_card_check(int first)
 
 inline int la_mc_save_current_slot_select(void)
 {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x20) {
 #else
     if (pad[0].flags & 0x40) {
 #endif
         POSITIVE_SE();
-#ifdef VERSION_JPN
-        curPort = lt_current_property_item() - 0x9E;
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        curPort = lt_current_property_item() - 152;
 #else
-        curPort = lt_current_property_item() - 0xBA;
+        curPort = lt_current_property_item() - 158;
+#endif
+#else
+        curPort = lt_current_property_item() - 186;
 #endif
         lastPort = curPort;
         curPortInfo = &mcPortInfo[curPort];
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1E;
 #else
         return 0x21;
 #endif
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x40) {
 #else
     if (pad[0].flags & 0x10) {
@@ -2077,7 +2247,7 @@ inline int la_mc_save_current_slot_select(void)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x19;
 #else
         return 0x1C;
@@ -2131,7 +2301,7 @@ static void progressive_bar(void)
     gif_SetZTest(0);
     gif_SetAlpha(1, 2, 64);
     {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         SprRect frame = {80, 6, -160, 6};
 #else
         SprRect frame = {80, 11, -160, 5};
@@ -2141,7 +2311,7 @@ static void progressive_bar(void)
         gif_Sprite(&frame, 0xFFFFFFFF, 0, &frameCol, 1);
     }
     {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         SprRect back = {78, 7, -156, 4};
 #else
         SprRect back = {78, 12, -156, 3};
@@ -2152,7 +2322,7 @@ static void progressive_bar(void)
     }
     {
         int w = (float)barStep / (float)barTotal * -160.0f;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         SprRect bar = {-80 - w, 8, w, 2};
 #else
         SprRect bar = {-80 - w, 13, w, 1};
@@ -2187,11 +2357,18 @@ int la_mc_save_file_select(int first, int item)
 
     if (actionStarted != 0) {
         _la_set_preview_info();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(38, 1);
+        lt_mask_property(37, 1);
+        lt_mask_property(210, 0);
+        lt_mask_property(211, 0);
+#else
         lt_mask_property(44, 1);
         lt_mask_property(43, 1);
         lt_mask_property(216, 0);
         lt_mask_property(217, 0);
+#endif
 #else
         lt_mask_property(73, 1);
         lt_mask_property(72, 1);
@@ -2199,11 +2376,18 @@ int la_mc_save_file_select(int first, int item)
         lt_mask_property(240, 0);
 #endif
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(38, 0);
+        lt_mask_property(37, 0);
+        lt_mask_property(210, 1);
+        lt_mask_property(211, 1);
+#else
         lt_mask_property(44, 0);
         lt_mask_property(43, 0);
         lt_mask_property(216, 1);
         lt_mask_property(217, 1);
+#endif
 #else
         lt_mask_property(73, 0);
         lt_mask_property(72, 0);
@@ -2213,7 +2397,7 @@ int la_mc_save_file_select(int first, int item)
     }
 
     if (actionStarted != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (pad[0].flags & 0x40) {
 #else
         if (pad[0].flags & 0x10) {
@@ -2221,7 +2405,7 @@ int la_mc_save_file_select(int first, int item)
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 25;
 #else
             return 28;
@@ -2229,7 +2413,7 @@ int la_mc_save_file_select(int first, int item)
         }
     }
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if ((fileMask != 0 || saveSelectReady != 0) && (pad[0].flags & 0x20)) {
 #else
     if ((fileMask != 0 || saveSelectReady != 0) && (pad[0].flags & 0x40)) {
@@ -2238,7 +2422,7 @@ int la_mc_save_file_select(int first, int item)
         selectFile = item;
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 31;
 #else
         return 34;
@@ -2251,7 +2435,7 @@ int la_mc_save_file_select(int first, int item)
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 28;
 #else
             return 31;
@@ -2259,7 +2443,7 @@ int la_mc_save_file_select(int first, int item)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 29;
 #else
         return 32;
@@ -2268,7 +2452,7 @@ int la_mc_save_file_select(int first, int item)
         if (((mcPortInfo[filePort].flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 25;
 #else
             return 28;
@@ -2279,7 +2463,7 @@ int la_mc_save_file_select(int first, int item)
                 if (((curPortInfo->flags.w >> 2) & 1) != 0) {
                     lt_set_item_select_func(0);
                     actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     return 15;
 #else
                     return 18;
@@ -2320,7 +2504,7 @@ inline int la_save_confirm_no_memory_card(int first)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x19;
 #else
         return 0x1C;
@@ -2333,7 +2517,7 @@ inline int la_save_confirm_no_memory_card(int first)
         if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x1B;
 #else
             return 0x1E;
@@ -2345,7 +2529,7 @@ inline int la_save_confirm_no_memory_card(int first)
         if ((curPortInfo->flags.w >> 1) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x1B;
 #else
             return 0x1E;
@@ -2362,7 +2546,7 @@ inline int la_save_confirm_no_free_area(int first)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x19;
 #else
         return 0x1C;
@@ -2375,7 +2559,7 @@ inline int la_save_confirm_no_free_area(int first)
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x1C;
 #else
             return 0x1F;
@@ -2387,7 +2571,7 @@ inline int la_save_confirm_no_free_area(int first)
         if ((curPortInfo->flags.w >> 4) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x1B;
 #else
             return 0x1E;
@@ -2407,7 +2591,7 @@ int la_save_start_check(int first)
         if (((curPortInfo->flags.w >> 1) & 1) == 0) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x1C;
 #else
             return 0x1F;
@@ -2415,7 +2599,7 @@ int la_save_start_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1B;
 #else
         return 0x1E;
@@ -2424,7 +2608,7 @@ int la_save_start_check(int first)
         if (filePort != curPort) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x29;
 #else
             return 0x2C;
@@ -2433,7 +2617,7 @@ int la_save_start_check(int first)
         if ((curPortInfo->flags.w & 0xA) == 2) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x21;
 #else
             return 0x24;
@@ -2443,7 +2627,7 @@ int la_save_start_check(int first)
             if (IosMcProductFile[filePort].file[selectFile].stage != 0xFFFFFFFF) {
                 lt_set_item_select_func(0);
                 actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 return 0x20;
 #else
                 return 0x23;
@@ -2453,7 +2637,7 @@ int la_save_start_check(int first)
                 debug_StdPrintfDummy("already exist save data\n");
                 lt_set_item_select_func(0);
                 actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 return 0x23;
 #else
                 return 0x26;
@@ -2463,7 +2647,7 @@ int la_save_start_check(int first)
         debug_StdPrintfDummy("new save. system data making..\n");
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x24;
 #else
         return 0x27;
@@ -2479,7 +2663,7 @@ int la_save_confirm_overwrite(int first, int item)
     }
     fileMask = 0x3FF;
     _la_set_preview_info();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (lt_fade_status() == 2 && (pad[0].flags & 0x40)) {
 #else
     if (lt_fade_status() == 2 && (pad[0].flags & 0x10)) {
@@ -2487,16 +2671,21 @@ int la_save_confirm_overwrite(int first, int item)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1E;
 #else
         return 0x21;
 #endif
     }
     switch (item) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    case 184:
+    case 188:
+#else
     case 190:
     case 194:
+#endif
 #else
     case 214:
     case 218:
@@ -2504,10 +2693,16 @@ int la_save_confirm_overwrite(int first, int item)
         POSITIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        return 0x23;
+    case 185:
+    case 189:
+#else
         return 0x23;
     case 191:
     case 195:
+#endif
 #else
         return 0x26;
     case 215:
@@ -2516,7 +2711,7 @@ int la_save_confirm_overwrite(int first, int item)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1E;
 #else
         return 0x21;
@@ -2528,7 +2723,7 @@ int la_save_confirm_overwrite(int first, int item)
     case -1:
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1C;
 #else
         return 0x1F;
@@ -2540,7 +2735,7 @@ int la_save_confirm_overwrite(int first, int item)
             }
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0xF;
 #else
             return 0x12;
@@ -2555,7 +2750,7 @@ int la_save_confirm_overwrite(int first, int item)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1B;
 #else
         return 0x1E;
@@ -2569,7 +2764,7 @@ int la_format_confirm(int first, int item)
     if (first) {
         filePort = curPort;
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (lt_fade_status() == 2 && (pad[0].flags & 0x40)) {
 #else
     if (lt_fade_status() == 2 && (pad[0].flags & 0x10)) {
@@ -2577,16 +2772,21 @@ int la_format_confirm(int first, int item)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1E;
 #else
         return 0x21;
 #endif
     }
     switch (item) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    case 184:
+    case 188:
+#else
     case 190:
     case 194:
+#endif
 #else
     case 214:
     case 218:
@@ -2594,10 +2794,16 @@ int la_format_confirm(int first, int item)
         POSITIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        return 0x22;
+    case 185:
+    case 189:
+#else
         return 0x22;
     case 191:
     case 195:
+#endif
 #else
         return 0x25;
     case 215:
@@ -2606,7 +2812,7 @@ int la_format_confirm(int first, int item)
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1E;
 #else
         return 0x21;
@@ -2618,7 +2824,7 @@ int la_format_confirm(int first, int item)
     case -1:
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1C;
 #else
         return 0x1F;
@@ -2630,7 +2836,7 @@ int la_format_confirm(int first, int item)
             }
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0xF;
 #else
             return 0x12;
@@ -2645,7 +2851,7 @@ int la_format_confirm(int first, int item)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1B;
 #else
         return 0x1E;
@@ -2682,7 +2888,7 @@ inline int la_format_processing(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x2A;
 #else
         return 0x2D;
@@ -2691,7 +2897,7 @@ inline int la_format_processing(int first)
         formatStep++;
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x24;
 #else
         return 0x27;
@@ -2772,7 +2978,7 @@ int la_system_save_processing(int first)
         curPortInfo->flags.w |= 0x80;
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 41;
 #else
         return 44;
@@ -2808,7 +3014,7 @@ int la_system_save_processing(int first)
         if (systemSaveRetry >= 10) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 35;
 #else
             return 38;
@@ -2877,7 +3083,7 @@ int la_save_processing(int first)
         debug_StdPrintfDummy("save error? %d\n", saveStep);
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 41;
 #else
         return 44;
@@ -2918,7 +3124,7 @@ int la_save_processing(int first)
         saveStep = 0;
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 38;
 #else
         return 41;
@@ -2936,32 +3142,45 @@ inline int la_save_confirm_complete(int first, int item)
         debug_StdPrintfDummy("save complete %d %d\n", fileMask, curFile);
     }
     if (item != -1) {
-#ifdef VERSION_JPN
-        debug_StdPrintfDummy("%d %d %d\n", 0xF1, 0xF2, item);
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        debug_StdPrintfDummy("%d %d %d\n", 235, 236, item);
 #else
-        debug_StdPrintfDummy("%d %d %d\n", 0x108, 0x109, item);
+        debug_StdPrintfDummy("%d %d %d\n", 241, 242, item);
+#endif
+#else
+        debug_StdPrintfDummy("%d %d %d\n", 264, 265, item);
 #endif
     }
     switch (item) {
-#ifdef VERSION_JPN
-    case 0xF1:
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    case 235:
 #else
-    case 0x108:
+    case 241:
+#endif
+#else
+    case 264:
 #endif
         systemStatus[5] = 0;
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
         return 0x33;
-    case 0xF2:
+    case 236:
+#else
+        return 0x33;
+    case 242:
+#endif
 #else
         return 0x36;
-    case 0x109:
+    case 265:
 #endif
         nextStage = 1;
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x3C;
 #else
         return 0x3F;
@@ -2974,38 +3193,48 @@ int la_end_confirm(void)
 {
     int item;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (lt_fade_status() == 2 && (pad[0].flags & 0x40)) {
 #else
     if (lt_fade_status() == 2 && (pad[0].flags & 0x10)) {
 #endif
         NEGATIVE_SE();
         item = lt_current_property_item();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        if (item >= 241) {
+            if (item < 243) {
+#else
         if (item >= 247) {
             if (item < 249) {
+#endif
 #else
         if (item >= 270) {
             if (item < 272) {
 #endif
                 lt_set_item_select_func(0);
                 actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 return 0x26;
 #else
                 return 0x29;
 #endif
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+            if (item < 397) {
+                if (item >= 395) {
+#else
             if (item < 403) {
                 if (item >= 401) {
+#endif
 #else
             if (item < 426) {
                 if (item >= 424) {
 #endif
                     lt_set_item_select_func(0);
                     actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     return 0x36;
 #else
                     return 0x39;
@@ -3014,16 +3243,21 @@ int la_end_confirm(void)
             }
         }
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x20) {
 #else
     if (pad[0].flags & 0x40) {
 #endif
         debug_StdPrintfDummy("%d\n", lt_current_property_item());
         switch (lt_current_property_item()) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 241:
+        case 395:
+#else
         case 247:
         case 401:
+#endif
 #else
         case 270:
         case 424:
@@ -3036,17 +3270,26 @@ int la_end_confirm(void)
             soundDataSegAllClose(0, 2);
             nextStage = 1;
             stgmgrForceSwitchWithFade(1, 0.025f, 4.0f);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 242:
+#else
         case 248:
+#endif
 #else
         case 271:
 #endif
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+            return 0x26;
+        case 396:
+#else
             return 0x26;
         case 402:
+#endif
 #else
             return 0x29;
         case 425:
@@ -3054,7 +3297,7 @@ int la_end_confirm(void)
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x36;
 #else
             return 0x39;
@@ -3066,7 +3309,7 @@ int la_end_confirm(void)
 
 inline int la_save_confirm_yesno(void)
 {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x40) {
 #else
     if (pad[0].flags & 0x10) {
@@ -3094,7 +3337,7 @@ inline int la_delete_start_check(int first)
     case -1:
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1B;
 #else
         return 0x1E;
@@ -3103,7 +3346,7 @@ inline int la_delete_start_check(int first)
         if ((curPortInfo->fileMask >> selectFile) & 1) {
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x2E;
 #else
             return 0x31;
@@ -3111,7 +3354,7 @@ inline int la_delete_start_check(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1E;
 #else
         return 0x21;
@@ -3123,23 +3366,32 @@ inline int la_delete_start_check(int first)
 inline int la_delete_confirm(int first, int item)
 {
     switch (item) {
-#ifdef VERSION_JPN
-    case 0xBE:
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    case 184:
 #else
-    case 0xD6:
+    case 190:
+#endif
+#else
+    case 214:
 #endif
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
         return 0x2F;
-    case 0xBF:
+    case 185:
+#else
+        return 0x2F;
+    case 191:
+#endif
 #else
         return 0x32;
-    case 0xD7:
+    case 215:
 #endif
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x1B;
 #else
         return 0x1E;
@@ -3177,7 +3429,7 @@ int la_delete_processing(int first)
     case 5:
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x30;
 #else
         return 0x33;
@@ -3189,7 +3441,7 @@ int la_delete_processing(int first)
 inline int la_delete_confirm_complete(void)
 {
     int ret;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if ((pad[0].flags & 0x40) == 0)
         goto fail;
 #else
@@ -3198,7 +3450,7 @@ inline int la_delete_confirm_complete(void)
 #endif
     lt_set_item_select_func(0);
     actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     ret = 0x1B;
 #else
     ret = 0x1E;
@@ -3274,7 +3526,7 @@ int la_game_loop(int first)
         adpcmPauseRequest(1);
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x36;
 #else
         return 0x39;
@@ -3293,7 +3545,7 @@ inline int la_game_demo_pause(int first)
     }
     lt_set_item_select_func(0);
     actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     return 0x34;
 #else
     return 0x37;
@@ -3318,7 +3570,7 @@ inline int la_game_demo(int first)
         }
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x3C;
 #else
         return 0x3F;
@@ -3332,8 +3584,12 @@ inline int la_game_pause(int first)
     if (first) {
         systemStatus[5] = 1;
         iosPadActStopAll();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        texLayout[55].defaultItem = 279;
+#else
         texLayout[55].defaultItem = 285;
+#endif
 #else
         texLayout[58].defaultItem = 308;
 #endif
@@ -3341,16 +3597,20 @@ inline int la_game_pause(int first)
     if (lt_fade_status() != 2) {
         return -1;
     }
-#ifdef VERSION_JPN
-    if (((pad[0].flags & 0x20) && lt_current_property_item() == 0x110) || (pad[0].flags & 0x840)) {
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    if (((pad[0].flags & 0x20) && lt_current_property_item() == 266) || (pad[0].flags & 0x840)) {
 #else
-    if (((pad[0].flags & 0x40) && lt_current_property_item() == 0x127) || (pad[0].flags & 0x810)) {
+    if (((pad[0].flags & 0x20) && lt_current_property_item() == 272) || (pad[0].flags & 0x840)) {
+#endif
+#else
+    if (((pad[0].flags & 0x40) && lt_current_property_item() == 295) || (pad[0].flags & 0x810)) {
 #endif
         NEGATIVE_SE(0);
         adpcmPauseRequest(0);
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x33;
 #else
         return 0x36;
@@ -3395,11 +3655,16 @@ int la_game_over_continue(int first)
         }
     } else {
         switch (lt_current_property_item()) {
-#ifdef VERSION_JPN
-        case 0x196:
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 400:
             if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
 #else
-        case 0x1AD:
+        case 406:
+            if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
+#endif
+#else
+        case 429:
             if ((pad[0].flags & 0x40) == 0 || lt_fade_status() != 2) {
 #endif
                 return -1;
@@ -3410,13 +3675,19 @@ int la_game_over_continue(int first)
             releaseGameLoopCursor();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
             return 0x3C;
-        case 0x197:
+        case 401:
             if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
 #else
+            return 0x3C;
+        case 407:
+            if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
+#endif
+#else
             return 0x3F;
-        case 0x1AE:
+        case 430:
             if ((pad[0].flags & 0x40) == 0 || lt_fade_status() != 2) {
 #endif
                 return -1;
@@ -3428,7 +3699,7 @@ int la_game_over_continue(int first)
             releaseGameLoopCursor();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 0x3C;
 #else
             return 0x3F;
@@ -3452,9 +3723,14 @@ static inline void keyconfigMaskAll(void) /* derived name */
     int i;
 
     for (i = 0; i < 48; i++) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(i + 313, 1);
+        lt_default_mask_property(i + 313, 1);
+#else
         lt_mask_property(i + 319, 1);
         lt_default_mask_property(i + 319, 1);
+#endif
 #else
         lt_mask_property(i + 342, 1);
         lt_default_mask_property(i + 342, 1);
@@ -3511,14 +3787,22 @@ int la_key_config(int first)
     int k;
     int n;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    sel = lt_current_property_item() - 307;
+#else
     sel = lt_current_property_item() - 313;
+#endif
 #else
     sel = lt_current_property_item() - 336;
 #endif
     if (first) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        texLayout[55].defaultItem = 294;
+#else
         texLayout[55].defaultItem = 300;
+#endif
 #else
         texLayout[58].defaultItem = 323;
 #endif
@@ -3544,17 +3828,27 @@ int la_key_config(int first)
     }
     keyconfigMaskAll();
     for (i = 0; i < 6; i++) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_mask_property(i * 8 + 313 + keyConfigSlot[i], 0);
+        lt_default_mask_property(i * 8 + 313 + keyConfigSlot[i], 0);
+#else
         lt_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
         lt_default_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
+#endif
 #else
         lt_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
         lt_default_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
 #endif
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    if (pad[0].flags & 0x20) {
+        if (lt_current_property_item() == 362) {
+#else
     if (pad[0].flags & 0x20) {
         if (lt_current_property_item() == 368) {
+#endif
 #else
     if (pad[0].flags & 0x40) {
         if (lt_current_property_item() == 391) {
@@ -3564,8 +3858,12 @@ int la_key_config(int first)
             }
             NEGATIVE_SE();
         }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        if (lt_current_property_item() == 361) {
+#else
         if (lt_current_property_item() == 367) {
+#endif
 #else
         if (lt_current_property_item() == 390) {
 #endif
@@ -3583,9 +3881,14 @@ int la_key_config(int first)
             }
             keyconfigMaskAll();
             for (i = 0; i < 6; i++) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+                lt_default_mask_property(i * 8 + 313 + keyConfigSlot[i], 0);
+                lt_mask_property(i * 8 + 313 + keyConfigSlot[i], 0);
+#else
                 lt_default_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
                 lt_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
+#endif
 #else
                 lt_default_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
                 lt_mask_property(i * 8 + 342 + keyConfigSlot[i], 0);
@@ -3593,7 +3896,7 @@ int la_key_config(int first)
             }
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 55;
 #else
             return 58;
@@ -3605,22 +3908,31 @@ int la_key_config(int first)
 
 /* the option screen's layout items: the five screen modes, the stage
    animation each mode plays (-1 for none), and the two choices of the control
-   type (item 318, JPN 295) followed by the two of the setting item 325 (JPN 302) toggles, in one
+   type (item 318, JPN 295, KOR 289) followed by the two of the setting item 325 (JPN 302, KOR
+   296) toggles, in one
    table; the code reaches the second pair through an offset pointer */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+static const int screenModeItem[5] = {274, 275, 276, 277, 278}; /* derived name */
+#else
 static const int screenModeItem[5] = {280, 281, 282, 283, 284}; /* derived name */
+#endif
 #else
 static const int screenModeItem[5] = {303, 304, 305, 306, 307}; /* derived name */
 #endif
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static const int screenModeAnim[5] = {-1, 63, 64, 65, 66}; /* derived name */
 #else
 static const int screenModeAnim[5] = {-1, 67, 68, 69, 70}; /* derived name */
 #endif
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+static const int choiceItem[4] = {292, 293, 299, 300}; /* derived name */
+#else
 static const int choiceItem[4] = {298, 299, 305, 306}; /* derived name */
+#endif
 #else
 static const int choiceItem[4] = {321, 322, 328, 329}; /* derived name */
 #endif
@@ -3638,8 +3950,12 @@ int la_game_option(void)
         cur = optionControlType;
         sel = optionScreenMode;
         switch (lt_current_property_item()) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 271:
+#else
         case 277:
+#endif
 #else
         case 300:
 #endif
@@ -3657,8 +3973,12 @@ int la_game_option(void)
                 CUR_SE();
             }
             break;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 289:
+#else
         case 295:
+#endif
 #else
         case 318:
 #endif
@@ -3667,8 +3987,12 @@ int la_game_option(void)
                 CUR_SE();
             }
             break;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 284:
+#else
         case 290:
+#endif
 #else
         case 313:
 #endif
@@ -3677,8 +4001,12 @@ int la_game_option(void)
                 CUR_SE();
             }
             break;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 279:
+#else
         case 285:
+#endif
 #else
         case 308:
 #endif
@@ -3692,8 +4020,12 @@ int la_game_option(void)
                 CUR_SE();
             }
             break;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        case 296:
+#else
         case 302:
+#endif
 #else
         case 325:
 #endif
@@ -3725,9 +4057,14 @@ int la_game_option(void)
         lt_default_mask_property(choiceItem[sel], 1);
     }
     lt_default_mask_property(choiceItem[optionControlType], 0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    if ((pad[0].flags & 0x20) != 0) {
+        if (lt_current_property_item() == 301) {
+#else
     if ((pad[0].flags & 0x20) != 0) {
         if (lt_current_property_item() == 307) {
+#endif
 #else
     if ((pad[0].flags & 0x40) != 0) {
         if (lt_current_property_item() == 330) {
@@ -3735,7 +4072,7 @@ int la_game_option(void)
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             return 54;
 #else
             return 57;
@@ -3743,34 +4080,54 @@ int la_game_option(void)
         }
     }
     if (mode == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_default_mask_property(282, 0);
+        lt_default_mask_property(283, 1);
+#else
         lt_default_mask_property(288, 0);
         lt_default_mask_property(289, 1);
+#endif
 #else
         lt_default_mask_property(311, 0);
         lt_default_mask_property(312, 1);
 #endif
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_default_mask_property(282, 1);
+        lt_default_mask_property(283, 0);
+#else
         lt_default_mask_property(288, 1);
         lt_default_mask_property(289, 0);
+#endif
 #else
         lt_default_mask_property(311, 1);
         lt_default_mask_property(312, 0);
 #endif
     }
     if (iosPadActRequestEnable != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_default_mask_property(287, 0);
+        lt_default_mask_property(288, 1);
+#else
         lt_default_mask_property(293, 0);
         lt_default_mask_property(294, 1);
+#endif
 #else
         lt_default_mask_property(316, 0);
         lt_default_mask_property(317, 1);
 #endif
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_default_mask_property(287, 1);
+        lt_default_mask_property(288, 0);
+#else
         lt_default_mask_property(293, 1);
         lt_default_mask_property(294, 0);
+#endif
 #else
         lt_default_mask_property(316, 1);
         lt_default_mask_property(317, 0);
@@ -3789,8 +4146,12 @@ static inline void clearAdjustScreenMarks(void) /* derived name */
     int i;
 
     for (i = 0; i < 15; i++) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+        lt_default_mask_property(i + 366, 1);
+#else
         lt_default_mask_property(i + 372, 1);
+#endif
 #else
         lt_default_mask_property(i + 395, 1);
 #endif
@@ -3801,8 +4162,12 @@ int la_adjust_screen(void)
 {
     int v;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    texLayout[55].defaultItem = 295;
+#else
     texLayout[55].defaultItem = 301;
+#endif
 #else
     texLayout[58].defaultItem = 324;
 #endif
@@ -3820,7 +4185,7 @@ int la_adjust_screen(void)
             systemStatus[11] = v + 1;
         }
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x40) {
 #else
     if (pad[0].flags & 0x10) {
@@ -3829,9 +4194,14 @@ int la_adjust_screen(void)
         systemStatus[11] = 7;
     }
     clearAdjustScreenMarks();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#ifdef VERSION_KOR
+    lt_default_mask_property(systemStatus[11] + 366, 0);
+    if (pad[0].flags & 0x20) {
+#else
     lt_default_mask_property(systemStatus[11] + 372, 0);
     if (pad[0].flags & 0x20) {
+#endif
 #else
     lt_default_mask_property(systemStatus[11] + 395, 0);
     if (pad[0].flags & 0x40) {
@@ -3839,7 +4209,7 @@ int la_adjust_screen(void)
         POSITIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         return 0x37;
 #else
         return 0x3A;

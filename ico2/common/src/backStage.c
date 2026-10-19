@@ -163,7 +163,7 @@ void backStageProcessOutStage(void)
     } else {
         o = isysGObjSearchFromObjKindID_begin(4);
         while (o != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (o->labelId == 3734) {
                 gamesysObjInfoCls(4, 3734);
 #else
@@ -175,7 +175,7 @@ void backStageProcessOutStage(void)
         }
         o = isysGObjSearchFromObjKindID_begin(33);
         while (o != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             if (o->labelId == 3735) {
                 gamesysObjInfoCls(33, 3735);
 #else
@@ -200,7 +200,7 @@ void backStageProcessMain(void)
     if (gflagChk(390) != 0) {
         return;
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (current_layout_id != 51) {
 #else
     if (current_layout_id != 54) {
@@ -220,7 +220,7 @@ void backStageProcessMain(void)
                 s->work[0] = 4;
             } else {
                 memset(&tmp, 0, sizeof(tmp));
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 tmp.f[0] = objLayout[3735].rot[0];
                 tmp.f[1] = objLayout[3735].rot[1];
                 tmp.f[2] = objLayout[3735].rot[2];
@@ -230,7 +230,7 @@ void backStageProcessMain(void)
                 tmp.f[2] = objLayout[3758].rot[2];
 #endif
                 rot = tmp;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 g1 = gamesysObjInfoPosNewStageSet(3734, 4, gameSysObjInfo[1].stage,
                                                   gameSysObjInfo[1].pos, gameSysObjInfo[1].rot);
 #else
@@ -241,7 +241,7 @@ void backStageProcessMain(void)
                 pos.f[0] = nestPos[0];
                 pos.f[2] = nestPos[2];
                 pos.f[1] = nestPos[1] - 10.0f;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 g2 = gamesysObjInfoPosNewStageSet(3735, 33, gameSysObjInfo[1].stage, pos.f, rot.f);
 #else
                 g2 = gamesysObjInfoPosNewStageSet(0xEAE, 0x21, gameSysObjInfo[1].stage, pos.f,

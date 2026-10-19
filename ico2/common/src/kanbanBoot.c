@@ -3,7 +3,7 @@
 #include "gobj.h"
 #include "kanbanBoot.h"
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 #include <libscf.h>
 #endif
 
@@ -12,7 +12,7 @@
 #include "main.h"
 #include "Basic.h"
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 #include "debug.h"
 #endif
 
@@ -27,7 +27,7 @@ static int bootStarted = 0; /* derived name */
 
 static int mcRetryCount = 10; /* derived name */
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 static int bootKanbanDone = 0; /* derived name */
 #endif
 
@@ -51,12 +51,12 @@ static Kanban *bootKanban; /* derived name */ /* the sign the boot sequence is s
 static Kanban *bootKanbanSub; /* derived name */ /* the second sign shown beside it */
 
 /* the sign id the card check picked: PAL 3 none, 0 ok, 4 full, -1 clear;
-   JPN 1 no card, 2 full */
+   JPN and KOR 1 no card, 2 full */
 static int mcKanbanId; /* derived name */
 
 static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 static int bootVideoMode; /* derived name */ /* the video mode in force when the sign went up */
 #endif
 
@@ -66,11 +66,11 @@ static int bootVideoMode; /* derived name */ /* the video mode in force when the
 extern void iosMcChdirProduct(McMgr *mp);
 extern int iosMcSync(McMgr *mp);
 
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 extern void iosMcLoadProductBlock(McMgr *mp);
 #endif
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 static int kanbanBootMcCheck(void)
 {
     McMgr *mc = &bootMcReq;
@@ -137,7 +137,11 @@ static int kanbanBootMcCheck(void)
         if (bootKanban->key != 1) {
             break;
         }
+#ifdef VERSION_KOR
+        if (bootKanban->layout->curItem == 5) {
+#else
         if (bootKanban->layout->curItem == 11) {
+#endif
             mcCheckStep = -1;
             kanbanReqDelFade(bootKanbanSub);
             kanbanReqDelFade(bootKanban);
@@ -417,7 +421,7 @@ void kanbanBootMain(void)
             return;
         }
         kanbanReqAllDelFade();
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         waitKanban = kanbanReqAdd(0, 1);
 #else
         waitKanban = kanbanReqAdd(2, 1);

@@ -101,7 +101,7 @@ void dispClear(MvDispEnv *self, unsigned int col)
     r.x = 0;
     r.y = 0;
     r.w = self->width << 4;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     r.h = ((self->height + 31) / 32 * 64 + self->height * 3) << 4;
 #else
     r.h = ((self->height + 31) / 32 * 64 + self->height * 2) << 4;
@@ -120,7 +120,7 @@ void dispClear(MvDispEnv *self, unsigned int col)
 void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
 {
     int *p;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     int w = imageW;
     int h = imageH / 2;
 #else
@@ -129,7 +129,7 @@ void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
 #endif
 
     self->fbp[0] = 0;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     self->fbp[1] = (w + 63) / 64 * 64 * ((h + 31) / 32 * 32) >> 11;
 #else
     self->fbp[1] = 108;
@@ -141,16 +141,16 @@ void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
 
     sceGsSetDefDispEnv(&self->env.gs, 0, imageW, imageH / 2, 0, 0);
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     p = (int *)uncached_accel_addr((int)mvDispPacket);
 #endif
     self->env.w.dispfbDB = (self->env.w.dispfbDB & ~0x7FF) | (dbx & 0x7FF);
     self->env.w.dispfbDB = (self->env.w.dispfbDB & 0xFFC007FF) | ((dby & 0x7FF) << 11);
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     self->env.w.dispfb = (self->env.w.dispfb & ~0x7E00) | 0x1800;
 #endif
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     p = setGIFtag(p, 14, 1, 0, 0, 0, 1, 6);
 #else
     p = setGIFtag((int *)uncached_accel_addr((int)mvDispPacket), 14, 1, 0, 0, 0, 1, 6);
@@ -158,7 +158,7 @@ void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
     p = setPRMODECONT(p, 1);
     p = setFRAME_1(p, 0, (self->width + 63) / 64, 0, 0);
     p = setTEST_1(p, 0, 0, 0, 0, 0, 0, 0, 0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     p = setSCISSOR_1(p, 0, self->width - 1, 0, (self->height + 31) / 32 * 64 + self->height * 3);
 #else
     p = setSCISSOR_1(p, 0, self->width - 1, 0, (self->height + 31) / 32 * 128 - 1);
@@ -195,7 +195,7 @@ void dispCreate(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
     *(volatile int *)&dispField = 0;
     *(volatile int *)&dispSyncBusy = 0;
     sceGsSyncV(0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     sceGsResetGraph(0, 1, 2, 1);
 #else
     sceGsResetGraph(0, 1, systemStatus[0] != 0 ? 3 : 2, 1);
@@ -212,7 +212,7 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
 {
     MvRect r;
     MvRect uv;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     MvRect r2;
     MvRect uv2;
 #endif
@@ -228,7 +228,7 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
     nx = texW >> 4;
     ny = texH >> 4;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     r.x = 0;
     r.y = ((self->height + 31) / 32 * 64 + self->height * 2) << 4;
     r.w = texW << 4;
@@ -245,7 +245,7 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
 #endif
 
     if (field == 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         uv.x = 8;
         uv.y = 8;
         uv.w = texW << 4;
@@ -281,11 +281,11 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
             }
         }
     } else {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         uv.x = 8;
 #endif
         uv.y = 24;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         uv.w = texW << 4;
         uv.h = texH << 4;
 
@@ -306,14 +306,14 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
     p = setDMAscTag(p, 0, 0, 0, 7, 0, 16);
     p = setGIFtag(p, 14, 1, 0, 0, 0, 1, 15);
     p = setTEXFLUSH(p);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     p = setTEX1_1(p, 0, 0, 0, 0, 0, 0, 0);
 #else
     p = setTEX1_1(p, 0, 0, 1, 1, 0, 0, 0);
 #endif
     p = setTEX0_1(p, (self->height + 31) / 32 * ((self->width + 63) / 64 << 6),
                   (self->width + 63) / 64, 0, 10, 10, 0, 1, 0, 0, 0, 0, 0);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     p = setTexSprite(p, &r, &uv);
     p = setTEXFLUSH(p);
     p = setTEX1_1(p, 0, 0, 1, 1, 0, 0, 0);

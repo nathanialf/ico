@@ -539,7 +539,7 @@ void subBirdBrainMain(void *volatile gobj)
             Debug_WireString_Bird(pos, "FLY");
             if (changed != 0) {
                 if (random_unit() <= 0.5f) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     pbga_start(&bw->bga, 508);
 #else
                     pbga_start(&bw->bga, 512);
@@ -643,7 +643,7 @@ void subBirdBrainMain(void *volatile gobj)
                     dy = __builtin_fabsf(sv2[1] - sv[1]) / ScreenHeight;
 
                     if (dy > 0.5f && (bw->bga == 0 || bw->bga->frame > 100.0f)) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                         pbga_start(&bw->bga, 508);
 #else
                         pbga_start(&bw->bga, 512);
@@ -665,7 +665,7 @@ void subBirdBrainMain(void *volatile gobj)
 
                 set_wave(wave, a, b, 1.0f / 7.0f);
                 if (random_unit() <= 0.5f) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     pbga_start(&bw->bga, 508);
 #else
                     pbga_start(&bw->bga, 512);
@@ -734,7 +734,7 @@ void subBirdBrainMain(void *volatile gobj)
                 rp[1] = GOBJ_SUB(gobj)->ctrl.waterY;
                 SetDirectRootPositionNoFitting(gobj, rp);
                 act->motReq = SetMotionRequest(gobj, 172, act->env.motOriReq);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 EntryStageMultiBgaManager(494, rp, IdentityQuaternion);
 #else
                 EntryStageMultiBgaManager(498, rp, IdentityQuaternion);
@@ -858,7 +858,7 @@ void BirdDL(void *gobj)
             w->bga = 0;
         }
     }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (stage_no == 82) {
 #else
     if (stage_no == 84) {

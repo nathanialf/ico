@@ -804,7 +804,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
         ClipWork w;
 
         if (skelRoot->gravity != 0) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             skelRoot->move[1] += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) *
                                  0.5f *
                                  (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
@@ -891,7 +891,7 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
     if (no != -1) {
         CopyVector(skelRoot->delta, rootDelta);
     } else {
-#ifndef VERSION_JPN
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
         if (skelMotCtrl->justShifted != 0) {
             if (systemStatus[0] == 1) {
                 AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->move);

@@ -234,9 +234,9 @@ typedef union { /* field names derived */
 } ActFWord; /* derived name */
 
 /* The extended work block hung off the work block at +0x688; the three
-   ten-entry histories at 0x900, 0x928 and 0x950 (JPN 0x8F0, 0x918 and 0x940) are read back in BeforeFunc. */
+   ten-entry histories at 0x900, 0x928 and 0x950 (JPN and KOR 0x8F0, 0x918 and 0x940) are read back in BeforeFunc. */
 typedef struct { /* field names derived */
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     char pad0[2288];
     int modeHist[10];     /* 0x8F0, the act modes left, newest first */
     int frameHist[10];    /* 0x918, their frames */
@@ -254,7 +254,7 @@ typedef struct { /* field names derived */
 void actInitialize_only_charcter(char *self)
 {
     Act *g = GOBJ_ACT(self);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     char *p = (char *)iosMallocDebug(ios_partition_seki, 0x970, __FILE__, 907);
 #else
     char *p = (char *)iosMallocDebug(ios_partition_seki, 0x980, __FILE__, 907);
@@ -262,7 +262,7 @@ void actInitialize_only_charcter(char *self)
     Vec4 *q;
     int i;
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     memset(p, 0, 0x970);
 #else
     memset(p, 0, 0x980);
@@ -275,13 +275,13 @@ void actInitialize_only_charcter(char *self)
     ((ActFWord *)((char *)q + 0x330))->f = -1.0f;
     ((ActFWord *)((char *)q + 0x334))->f = 1.0f;
     ((ActFWord *)((char *)q + 0x348))->f = 3.0f;
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     *(int *)((char *)q + 0x7F0) = 0;
 #else
     *(int *)((char *)q + 0x800) = 0;
 #endif
     for (i = 0; i < 10; i++) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
         ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->modeHist[i] = 0;
         ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->frameHist[i] = 0;
         ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->intrKindHist[i] = 418;
@@ -429,7 +429,7 @@ static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
                     w->intrMot = mot;
                     *(void **)((char *)w + 0x2C) = k->ent[i].f4;
                     *(char **)((char *)w + 0x30) = GetMailAdditionalData(self, i);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                     *(MotOriReq *)(*(char **)((int)GOBJ_ACT(self) + 0x688) + 0x8A0) = buf;
 #else
                     *(MotOriReq *)(*(char **)((int)GOBJ_ACT(self) + 0x688) + 0x8B0) = buf;
@@ -591,7 +591,7 @@ void BeforeFunc(GObj *self)
     }
     g = *(char **)((char *)self + 0x15C);
     *(char **)((char *)w + 0x40) = *(char **)(g + 0x540);
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
     if ((((&motionKind[*(int *)(*(char **)((char *)self + 0x15C) + 0x4A0)])->flags.word >> 7) &
          1) != 0 &&
         GOBJ_SUB(self)->ctrl.animFrame < 3.0f) {
@@ -614,7 +614,7 @@ void BeforeFunc(GObj *self)
             }
             w->modeFrame = 0;
             for (i = 9; i > 0; i--) {
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
                 ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->modeHist[i] =
                     ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->modeHist[i - 1];
                 ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->frameHist[i] =
@@ -630,7 +630,7 @@ void BeforeFunc(GObj *self)
                     ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->a950[i - 1];
 #endif
             }
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
             ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->modeHist[0] = w->actMode;
             ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->frameHist[0] = w->frame;
             ((ActExt *)*(int *)(((ActSelf *)self)->work + 0x688))->intrKindHist[0] = old;

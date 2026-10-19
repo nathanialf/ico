@@ -7,7 +7,7 @@
 #ifndef CHARFILENAME_H
 #define CHARFILENAME_H
 
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_KOR)
 #define MAX_CHARS 1621
 #else
 #define MAX_CHARS 1637
