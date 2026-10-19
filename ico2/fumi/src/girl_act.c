@@ -3882,7 +3882,7 @@ void actGirlHand(GObj *volatile self)
             sceVu0AddVector(v60, test_CURRENTROOT((void *)self), v60);
             /* a local debug switch, off: mark v60, the point 300 ahead along
                the pull direction (nothing else reads it). The ROM's stack slot
-               order needs the block here, and the January listing has eleven
+               order needs the block here, and PAL's listing has eleven
                code-less lines (3261-3271) in its place; the text is derived. */
             if (dbg) {
                 debug_NMarker(v60, 255, 0, 0, 100.0f);

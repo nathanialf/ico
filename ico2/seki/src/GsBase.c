@@ -1145,7 +1145,7 @@ void gsb_SetVSMatrix(int w, int h, float d)
         (float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f) * (float)h / (float)ScreenHeight;
     gsb_SetVSMatrixSub((float *)(matrixptr + 0xC0), (float *)(matrixptr + 0x1C0),
                        (float *)(matrixptr + 0x240), (float *)(matrixptr + 0x340), vsParam);
-    /* The field of view print of the January debug listing (SRCFILE.TXT,
+    /* The field of view print of PAL's debug listing (SRCFILE.TXT,
      * GsBase.c 2305-2306); the release build keeps its two tests.  The
      * format text is derived: it is on no disc. */
     if (gsSystemReady != 0) {

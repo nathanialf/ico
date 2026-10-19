@@ -364,7 +364,7 @@ int main(void)
     return 0;
 }
 
-/* main.c's .sdata globals.  Like PAL's, this build adds six to the January
+/* main.c's .sdata globals.  Like PAL's, this build adds six to the PAL
    map's (marked derived): one quadword after game_pause and the girl-control
    block before boyGObj.  Each is a 4-byte scalar; the ones marked QWORD open
    a 16-byte quadword of their own, the rest of which stays empty. */
