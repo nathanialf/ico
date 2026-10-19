@@ -42,8 +42,8 @@ cp "/path/to/Ico (Korea).iso" baserom/Ico_KOR.iso
 `./build.sh` runs the steps below that are not already done, in order, and
 stops with a non-zero exit at the first failure. On a four-core host with
 the toolchain already installed and `baserom/kor/` already extracted,
-`tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 43 s
-and 36 s in two runs and ended with `check_elf: gate PASS`. A second
+`tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 31 s
+and 30 s in two runs and ended with `check_elf: gate PASS`. A second
 `./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
 below describe each step; each can also be run on its own. The scripts are
