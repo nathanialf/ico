@@ -6,8 +6,12 @@ The targets:
     ----   ----------------------------------   -----------
     pal    PAL retail, SCES-50760               SCES_507.60
     jpn    Japanese retail, SCPS-11003 (1.02)   SCPS_110.03
+    kor    Korean retail, SCPS-56001            SCPS_560.01
     us     USA retail, SLUS-20218               SCUS_971.13
     aug6   Aug-6-2001 prototype                 SCUS_971.13
+    jun26  Jun-26-2001 demo, on the US          CUS97113/SCPS_000.00
+           PlayStation Magazine's disc
+           SCUS-97158
 
 One tree may carry several targets. A target is configured in a tree when
 config/link_order.<slug>.txt exists (configured_versions()). Its other
@@ -26,8 +30,9 @@ first configured one in VERSIONS order.
 
 DISCS is the one table of what each target's disc image is called and how
 tools name it in messages: the file the user copies under baserom/ (a plain
-2048-byte-sector ISO for pal, a raw .bin with its .cue for the others), the
-product code, the region description, and the disc's reference files that
+2048-byte-sector ISO for pal, kor and jun26, a raw .bin with its .cue for the
+others), the product code, the region description, the boot file when it is
+not the one SYSTEM.CNF names, and the disc's reference files that
 tools/extract_elf.py copies beside the ELF.
 
 tools/ico_version.sh is the shell twin of this module (same detection order,
@@ -38,7 +43,7 @@ import os
 from pathlib import Path
 
 # Detection order.
-VERSIONS = ("pal", "jpn", "us", "aug6")
+VERSIONS = ("pal", "jpn", "kor", "us", "aug6", "jun26")
 
 # Per-target disc image.
 #   region  : how messages describe the disc
@@ -48,6 +53,8 @@ VERSIONS = ("pal", "jpn", "us", "aug6")
 #   image   : the file the user copies under baserom/
 #   cue     : the raw image's cue sheet, or "" when `image` is already a
 #             cooked ISO9660 image
+#   boot    : the ELF's path on the disc, when it is not the file the disc's
+#             SYSTEM.CNF BOOT2 line names (absent: SYSTEM.CNF's)
 #   extras  : disc files copied beside the ELF as reference material (the
 #             build reads none of them)
 DISCS = {
@@ -69,6 +76,15 @@ DISCS = {
         # The JPN disc ships no map or listing.
         "extras": ("SYSTEM.CNF",),
     },
+    "kor": {
+        "region": "Korean retail",
+        "product": "SCPS-56001",
+        "where": "Korea",
+        "image": "Ico_KOR.iso",
+        "cue": "",
+        # The Korean disc ships no map or listing either.
+        "extras": ("SYSTEM.CNF",),
+    },
     "us": {
         "region": "USA retail",
         "product": "SLUS-20218",
@@ -85,6 +101,20 @@ DISCS = {
         "cue": "Ico_AUG6.cue",
         # A linker map and the trace listing; this disc has no SRCFILE.TXT.
         "extras": ("MAIN.MAP", "TRFILE.TXT", "SYSTEM.CNF"),
+    },
+    "jun26": {
+        "region": "Jun-26-2001 demo",
+        "product": "SCUS-97158",
+        "where": "demo",
+        "image": "Ico_JUN26.iso",
+        "cue": "",
+        # A demo among other games on the Official U.S. PlayStation
+        # Magazine's disc (issue 49, a DVD); its SYSTEM.CNF boots the disc's
+        # menu, SCUS_971.58, which starts the ICO demo from its own
+        # directory. The build's stamp is "Jun 26 2001" "20:01:21". The
+        # directory has no SYSTEM.CNF, map or listing.
+        "boot": "CUS97113/SCPS_000.00",
+        "extras": ("SYSTEM.CNF",),
     },
 }
 
