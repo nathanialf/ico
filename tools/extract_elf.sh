@@ -12,6 +12,8 @@
 #                                           TRFILE.TXT SYSTEM.CNF
 #   jpn  : baserom/Ico_JPN.bin + .cue  -> baserom/jpn/baseelf.{elf,rom}
 #                                         + SYSTEM.CNF
+#   kor  : baserom/Ico_KOR.iso         -> baserom/kor/baseelf.{elf,rom}
+#                                         + SYSTEM.CNF
 #   us   : baserom/Ico_USA.bin + .cue  -> baserom/us/baseelf.{elf,rom}
 #                                         + SYSTEM.CNF
 #   aug6 : baserom/Ico_AUG6.bin + .cue -> baserom/aug6/baseelf.{elf,rom}

@@ -6,6 +6,7 @@ The targets:
     ----   ----------------------------------   -----------
     pal    PAL retail, SCES-50760               SCES_507.60
     jpn    Japanese retail, SCPS-11003 (1.02)   SCPS_110.03
+    kor    Korean retail, SCPS-56001            SCPS_560.01
     us     USA retail, SLUS-20218               SCUS_971.13
     aug6   Aug-6-2001 prototype                 SCUS_971.13
     jun26  Jun-26-2001 demo, on the US          CUS97113/SCPS_000.00
@@ -29,7 +30,7 @@ first configured one in VERSIONS order.
 
 DISCS is the one table of what each target's disc image is called and how
 tools name it in messages: the file the user copies under baserom/ (a plain
-2048-byte-sector ISO for pal and jun26, a raw .bin with its .cue for the
+2048-byte-sector ISO for pal, kor and jun26, a raw .bin with its .cue for the
 others), the product code, the region description, the boot file when it is
 not the one SYSTEM.CNF names, and the disc's reference files that
 tools/extract_elf.py copies beside the ELF.
@@ -42,7 +43,7 @@ import os
 from pathlib import Path
 
 # Detection order.
-VERSIONS = ("pal", "jpn", "us", "aug6", "jun26")
+VERSIONS = ("pal", "jpn", "kor", "us", "aug6", "jun26")
 
 # Per-target disc image.
 #   region  : how messages describe the disc
@@ -73,6 +74,15 @@ DISCS = {
         "image": "Ico_JPN.bin",
         "cue": "Ico_JPN.cue",
         # The JPN disc ships no map or listing.
+        "extras": ("SYSTEM.CNF",),
+    },
+    "kor": {
+        "region": "Korean retail",
+        "product": "SCPS-56001",
+        "where": "Korea",
+        "image": "Ico_KOR.iso",
+        "cue": "",
+        # The Korean disc ships no map or listing either.
         "extras": ("SYSTEM.CNF",),
     },
     "us": {
