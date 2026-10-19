@@ -1190,8 +1190,9 @@ void actSt27aEndDemo(GObj *volatile self)
     }
 }
 
-/* This build's step between the logo and the save, as in the November build; PAL's
-   named it actEndLogoChk and added the per-language logo animation before the wait. */
+/* The step between the logo and the save, as in the November build; PAL's
+   build named it actEndLogoChk and added the per-language logo animation
+   before the wait. */
 void actEndLogoFade(GObj *volatile self) /* derived name */
 {
     GObj *x = self;
@@ -1681,8 +1682,9 @@ void actEndDemo14Chk(GObj *volatile self)
     actCreateSubThread(actConte14_14, 21);
 }
 
-/* The ending's save step.  This build, like the November one, calls it actEndLogoChk, its name
-   in the Aug-6 disc's TRFILE (the last function of end.c there too);
+/* The ending's save step.  This build, like the November one, calls it
+   actEndLogoChk, its name in the Aug-6 disc's TRFILE (the last function of
+   end.c there too);
    PAL's build renamed it actEndingSave and gave the name to the step before it.
    The bytes show the older name: actEndLogoFade hoists the %hi parts of
    end_mes and of this function above its fade loop, and gcse numbers them

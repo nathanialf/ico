@@ -107,7 +107,7 @@ static CdStReq stReq = {0}; /* derived name */
 
 /* .sdata, the objects before the first string: the sleep flag, the
    directory cache count, the media mode (2, DVD), the disc type the drive
-   must report (20, a DVD video disc), the spindle control byte copied into
+   must report (20, a PlayStation 2 DVD), the spindle control byte copied into
    each handle's read mode, the background read mode record (a record, so
    8-aligned after the byte), the background drive state and the stream
    load-end wait flag. */

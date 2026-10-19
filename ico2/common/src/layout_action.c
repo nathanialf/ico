@@ -654,10 +654,10 @@ int la_vibe_select(void)
     if (lt_fade_status() == 2 && (pad[0].flags & 0x820)) {
         soundSeDefPlay(415, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
-        case 0x8:
+        case 8:
             iosPadActRequestEnable = 1;
             break;
-        case 0x9:
+        case 9:
             iosPadActRequestEnable = 0;
             break;
         }
@@ -725,23 +725,23 @@ int la_title_continue_or_new(int first)
     }
     if (continueDecided != 0) {
         lt_item_select_disable = 0;
-        lt_mask_property(0xE, 0);
-        lt_mask_property(0xF, 0);
+        lt_mask_property(14, 0);
+        lt_mask_property(15, 0);
     } else {
         lt_item_select_disable = 1;
-        lt_mask_property(0xE, 1);
-        lt_mask_property(0xF, 1);
+        lt_mask_property(14, 1);
+        lt_mask_property(15, 1);
     }
     if (continueDecided != 0 && (pad[0].flags & 0x820) && lt_fade_status() == 2) {
         lt_continue_selected = 1;
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
-        case 0xE:
+        case 14:
             opTitleLogoMode = 2;
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x11;
-        case 0xF:
+        case 15:
             opTitleLogoMode = 2;
             gFlagGameClear = 0;
             lt_set_item_select_func(0);
@@ -834,7 +834,7 @@ static int fileFirst = 1; /* derived name */
 
 static inline int la_mc_saved_file_select(int item)
 {
-    int i = item - 0x1B;
+    int i = item - 27;
     int old = i;
 
     lt_analog2Pad();
@@ -860,7 +860,7 @@ static inline int la_mc_saved_file_select(int item)
     if (old != i) {
         CUR_SE();
     }
-    return i + 0x1B;
+    return i + 27;
 }
 
 /* the selected port's current file number, 0 when the port has no card or
@@ -1030,8 +1030,8 @@ inline int la_mc_preview_info(void)
 
 inline int la_mc_current_slot(void)
 {
-    lt_mask_property(0x8D, curPort);
-    lt_mask_property(0x8E, curPort ^ 1);
+    lt_mask_property(141, curPort);
+    lt_mask_property(142, curPort ^ 1);
     return -1;
 }
 
@@ -1050,8 +1050,8 @@ int la_load_game_memory_card_check(int first)
 {
     _la_mask_preview_info();
     mcLoadMode = 1;
-    lt_mask_property(0x8D, 1);
-    lt_mask_property(0x8E, 1);
+    lt_mask_property(141, 1);
+    lt_mask_property(142, 1);
     switch (_la_set_current_port_2(&mc, first)) {
     case 0:
         if (mcLastResult == 0 || mcLastResult == -14) {
@@ -1092,7 +1092,7 @@ inline int la_mc_load_current_slot_select(void)
 {
     _la_mask_preview_info();
     if (pad[0].flags & 0x20) {
-        curPort = lt_current_property_item() - 0x98;
+        curPort = lt_current_property_item() - 152;
         lastPort = curPort;
         curPortInfo = &mcPortInfo[curPort];
         POSITIVE_SE();
@@ -1495,8 +1495,8 @@ int la_mc_confirm_save_file(int first, int item)
     int i;
 
     _la_mask_preview_info();
-    lt_mask_property(0x8D, 1);
-    lt_mask_property(0x8E, 1);
+    lt_mask_property(141, 1);
+    lt_mask_property(142, 1);
     if (first) {
         systemStatus[5] = 1;
         fightSoundProcessRequestPause();
@@ -1588,8 +1588,8 @@ int la_save_game_memory_card_check(int first)
 {
     _la_mask_preview_info();
     mcLoadMode = 0;
-    lt_mask_property(0x8D, 1);
-    lt_mask_property(0x8E, 1);
+    lt_mask_property(141, 1);
+    lt_mask_property(142, 1);
     debug_StdPrintfDummy("save game check port %d\n", curPort);
     switch (_la_set_current_port_new(&mc, first)) {
     case 0:
@@ -1637,7 +1637,7 @@ inline int la_mc_save_current_slot_select(void)
 {
     if (pad[0].flags & 0x20) {
         POSITIVE_SE();
-        curPort = lt_current_property_item() - 0x98;
+        curPort = lt_current_property_item() - 152;
         lastPort = curPort;
         curPortInfo = &mcPortInfo[curPort];
         lt_set_item_select_func(0);
@@ -2299,15 +2299,15 @@ inline int la_save_confirm_complete(int first, int item)
         debug_StdPrintfDummy("save complete %d %d\n", fileMask, curFile);
     }
     if (item != -1) {
-        debug_StdPrintfDummy("%d %d %d\n", 0xEB, 0xEC, item);
+        debug_StdPrintfDummy("%d %d %d\n", 235, 236, item);
     }
     switch (item) {
-    case 0xEB:
+    case 235:
         systemStatus[5] = 0;
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x33;
-    case 0xEC:
+    case 236:
         nextStage = 1;
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -2409,11 +2409,11 @@ inline int la_delete_start_check(int first)
 inline int la_delete_confirm(int first, int item)
 {
     switch (item) {
-    case 0xB8:
+    case 184:
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x2F;
-    case 0xB9:
+    case 185:
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x1B;
@@ -2585,7 +2585,7 @@ inline int la_game_pause(int first)
     if (lt_fade_status() != 2) {
         return -1;
     }
-    if (((pad[0].flags & 0x20) && lt_current_property_item() == 0x10A) || (pad[0].flags & 0x840)) {
+    if (((pad[0].flags & 0x20) && lt_current_property_item() == 266) || (pad[0].flags & 0x840)) {
         NEGATIVE_SE(0);
         adpcmPauseRequest(0);
         lt_set_item_select_func(0);
@@ -2631,7 +2631,7 @@ int la_game_over_continue(int first)
         }
     } else {
         switch (lt_current_property_item()) {
-        case 0x190:
+        case 400:
             if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
                 return -1;
             }
@@ -2642,7 +2642,7 @@ int la_game_over_continue(int first)
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x3C;
-        case 0x191:
+        case 401:
             if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
                 return -1;
             }
