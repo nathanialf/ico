@@ -2,7 +2,9 @@
 # =============================================================================
 # build_pages_site.sh: assemble the six-version progress dashboard into _site/
 #
-# Run by .github/workflows/pages.yml on `main`, `ntsc`, `aug6` and `jun26`. It works out what to do from the branch it is running on, so there
+# Run by .github/workflows/pages.yml on every branch in BRANCHES (main, pal,
+# jpn, kor, ntsc, aug6 and jun26). Every target's numbers come from its own
+# branch; it works out what to do from the branch it is running on, so there
 # are no per-branch conditionals to keep in sync.
 #
 # Why it has to publish every version: a GitHub Pages deploy replaces the ENTIRE
@@ -18,31 +20,29 @@
 #     `main` and the next deploy from any branch publishes it; the other
 #     branches' copies of docs/index.html (identical to main's once the
 #     change is copied over, tools/check_shared_layer.sh) are never read.
-#   - `main` carries several targets in one tree and contributes every
-#     docs/<slug>/ it has (docs/jpn/, docs/kor/), except a target a frozen branch
-#     publishes (FROZEN below): PAL's numbers come from the `pal` branch's
-#     docs/pal/, not from main's. Each other branch carries one target
-#     and contributes its docs/<slug>/. Only the files in DATA_FILES are
-#     served.
+#   - Each target's progress.json and PROGRESS.md come from that target's own
+#     branch, never from `main`. `main` builds the joined targets in one tree
+#     and keeps their docs/<slug>/ as the build's progress record, but the
+#     site reads the frozen branches (FROZEN below) for those targets. Only
+#     the files in DATA_FILES are served.
 #
-# Branch -> version(s):
-#   main -> every docs/<slug>/ it has but the frozen ones (jpn Japanese
-#           retail SCPS-11003, kor Korean retail SCPS-56001, and the
-#           targets that join later)
-#   pal  -> pal    PAL retail (SCES-50760), frozen: read from origin/pal's
-#           docs/pal/, never deployed from
-#   ntsc -> us     USA retail       (SLUS-20218)
-#   aug6 -> aug6   Aug-6-2001 prototype
-#   jun26 -> jun26 Jun-26-2001 demo (the "Demo" tab)
+# Branch -> version:
+#   main  -> none   supplies the dashboard page only
+#   pal   -> pal    PAL retail (SCES-50760), frozen
+#   jpn   -> jpn    Japanese retail (SCPS-11003), frozen
+#   kor   -> kor    Korean retail (SCPS-56001), frozen
+#   ntsc  -> us     USA retail (SLUS-20218)
+#   aug6  -> aug6   Aug-6-2001 prototype
+#   jun26 -> jun26  Jun-26-2001 demo (the "Demo" tab)
 #
 # Layout produced:
 #   _site/index.html        version-toggle dashboard, `main`'s copy
 #   _site/pal/              the `pal` branch's docs/pal/progress.json and PROGRESS.md
-#   _site/jpn/              `main`'s docs/jpn/
-#   _site/kor/              `main`'s docs/kor/
-#   _site/us/               `ntsc`'s progress.json and PROGRESS.md
-#   _site/aug6/             `aug6`'s progress.json and PROGRESS.md
-#   _site/jun26/            `jun26`'s progress.json and PROGRESS.md
+#   _site/jpn/              the `jpn` branch's docs/jpn/
+#   _site/kor/              the `kor` branch's docs/kor/
+#   _site/us/               the `ntsc` branch's docs/us/
+#   _site/aug6/             the `aug6` branch's docs/aug6/
+#   _site/jun26/            the `jun26` branch's docs/jun26/
 #
 # Only the files named in DATA_FILES are published from each branch, not all
 # of docs/. docs/ also holds the project's documentation (docs/README.md
@@ -66,22 +66,28 @@ set -euo pipefail
 
 BRANCH="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 
-# The complete branch<->version table. Every publishing branch is listed here,
-# so adding a target branch means editing this one table (plus docs/index.html's
-# own picker) rather than hunting per-branch conditionals. `main` has no fixed
-# version: it publishes every docs/<slug>/ it carries (MAIN_BRANCH below).
+# The complete branch<->version table. Every publishing branch is listed in
+# BRANCHES, so adding a target branch means editing this one table (plus
+# docs/index.html's own picker) rather than hunting per-branch conditionals.
+# `main` has no version: it supplies the page (PAGE_BRANCH below).
 VERSION_OF_ntsc=us
 VERSION_OF_aug6=aug6
 VERSION_OF_jun26=jun26
-BRANCHES="main ntsc aug6 jun26"
+BRANCHES="main pal jpn kor ntsc aug6 jun26"
 MAIN_BRANCH=main
 
-# Frozen branches that publish a target in main's place: <slug> read from
-# branch FROZEN_BRANCH_<slug>, directory FROZEN_DIR_<slug>. They take no new
-# commits and do not run this workflow, so they are only ever fetched.
-FROZEN_SLUGS="pal"
+# Frozen branches: targets joined into main, whose numbers the site still
+# reads from their own branch. <slug> lives on branch FROZEN_BRANCH_<slug>,
+# directory FROZEN_DIR_<slug>. Main's copies of these directories are never
+# published. The frozen branches take hotfixes and main's shared layer, and a
+# push to one deploys like any other branch.
+FROZEN_SLUGS="pal jpn kor"
 FROZEN_BRANCH_pal=pal
 FROZEN_DIR_pal=docs/pal
+FROZEN_BRANCH_jpn=jpn
+FROZEN_DIR_jpn=docs/jpn
+FROZEN_BRANCH_kor=kor
+FROZEN_DIR_kor=docs/kor
 
 # The branch whose docs/index.html is the dashboard page.
 PAGE_BRANCH=main
@@ -89,14 +95,28 @@ PAGE_BRANCH=main
 # Each target's served data. Everything else in docs/ stays unpublished.
 DATA_FILES="progress.json PROGRESS.md"
 
-version_of() { eval "printf '%s\n' \"\${VERSION_OF_$1-}\""; }
-is_frozen() { case " $FROZEN_SLUGS " in *" $1 "*) return 0 ;; esac; return 1; }
+# version_of <branch>: the slug a branch publishes (empty for main).
+version_of() {
+    local v slug
+    v="$(eval "printf '%s' \"\${VERSION_OF_$1-}\"")"
+    if [ -z "$v" ]; then
+        for slug in $FROZEN_SLUGS; do
+            if [ "$(eval "printf '%s' \"\${FROZEN_BRANCH_$slug}\"")" = "$1" ]; then
+                v="$slug"
+                break
+            fi
+        done
+    fi
+    printf '%s\n' "$v"
+}
+# dir_of <slug>: the directory a slug's data lives in on its branch.
+dir_of() { eval "printf '%s\n' \"\${FROZEN_DIR_$1:-docs/$1}\""; }
 
 case " $BRANCHES " in
     *" $BRANCH "*) ;;
     *)
         echo "build_pages_site: no version mapping for branch '$BRANCH'" >&2
-        echo "  expected one of: $BRANCHES ('main' -> every docs/<slug>/, 'ntsc' -> us, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
+        echo "  expected one of: $BRANCHES ('main' -> the page, 'pal' -> pal, 'jpn' -> jpn, 'kor' -> kor, 'ntsc' -> us, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
         exit 1
         ;;
 esac
@@ -143,16 +163,10 @@ copy_tree() {
 # --- this branch's own data ------------------------------------------------
 # Deliberately the checked-out working tree rather than a remote ref: a run
 # triggered by a push must publish the numbers that push just landed, without
-# waiting for anything else to observe the new ref.
-if [ "$BRANCH" = "$MAIN_BRANCH" ]; then
-    for d in docs/*/; do
-        d="${d%/}"
-        is_frozen "${d#docs/}" && continue
-        [ -f "$d/progress.json" ] && copy_tree "${d#docs/}" "" "$d"
-    done
-else
-    SELF="$(version_of "$BRANCH")"
-    copy_tree "$SELF" "" "docs/$SELF"
+# waiting for anything else to observe the new ref. `main` has none.
+SELF="$(version_of "$BRANCH")"
+if [ -n "$SELF" ]; then
+    copy_tree "$SELF" "" "$(dir_of "$SELF")"
 fi
 
 # --- the other branches' data -----------------------------------------------
@@ -169,34 +183,14 @@ for ob in $OTHER_BRANCHES; do
     oref="refs/remotes/origin/$ob"
     # shellcheck disable=SC2086
     if ! git fetch --no-tags $DEPTH origin "+refs/heads/$ob:$oref"; then
-        echo "::warning title=Pages::could not fetch '$ob'; its versions are not published this run."
+        echo "::warning title=Pages::could not fetch '$ob'; its version is not published this run."
         continue
     fi
     FETCHED_BRANCHES="$FETCHED_BRANCHES $ob"
-    if [ "$ob" = "$MAIN_BRANCH" ]; then
-        # every docs/<slug>/ main carries
-        for slug in $(git ls-tree -d --name-only "$oref:docs" 2>/dev/null); do
-            is_frozen "$slug" && continue
-            git cat-file -e "$oref:docs/$slug/progress.json" 2>/dev/null &&
-                copy_tree "$slug" "$oref" "docs/$slug"
-        done
-    else
-        ov="$(version_of "$ob")"
-        copy_tree "$ov" "$oref" "docs/$ov"
+    ov="$(version_of "$ob")"
+    if [ -n "$ov" ]; then
+        copy_tree "$ov" "$oref" "$(dir_of "$ov")"
     fi
-done
-
-# --- the frozen branches' data -----------------------------------------------
-for slug in $FROZEN_SLUGS; do
-    fb="$(eval "printf '%s' \"\${FROZEN_BRANCH_$slug}\"")"
-    fd="$(eval "printf '%s' \"\${FROZEN_DIR_$slug}\"")"
-    fref="refs/remotes/origin/$fb"
-    # shellcheck disable=SC2086
-    if ! git fetch --no-tags $DEPTH origin "+refs/heads/$fb:$fref"; then
-        echo "::warning title=Pages::could not fetch frozen branch '$fb'; '$slug' is not published this run."
-        continue
-    fi
-    copy_tree "$slug" "$fref" "$fd"
 done
 
 # --- root compat copies -----------------------------------------------------
