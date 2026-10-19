@@ -30,7 +30,9 @@ build differs the same file holds its lines inline in `VERSION_JPN` and
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#pal)**: every
 section, directory, translation unit and function of each build compared with
-its base ELF.
+its base ELF. Each target's numbers on the site come from its own branch
+(`pal`, `jpn`, `kor`, `ntsc`, `aug6`, `jun26`); the `docs/<slug>/` files here
+are `main`'s build record.
 
 > [!IMPORTANT]
 > This project is not affiliated with Sony Interactive Entertainment or Team

@@ -465,10 +465,12 @@ steps, as `kor` did.
    (`config/stubs.<slug>.txt`, `build/<slug>/stubs/`), so a target can gate in
    the combined tree with stubs remaining; joining at 0 stubs is the project's
    practice, not a mechanical limit.
-6. Commit on `main` (the hook runs every target's gate), then drop the branch
-   from the Pages list in `.github/scripts/build_pages_site.sh` and
-   `.github/workflows/pages.yml`, and point its tab in `docs/index.html` at
-   `main`.
+6. Commit on `main` (the hook runs every target's gate), then add the slug
+   to `FROZEN_SLUGS` in `.github/scripts/build_pages_site.sh` with its
+   `FROZEN_BRANCH_<slug>` and `FROZEN_DIR_<slug>`. The branch stays in
+   `BRANCHES` and in `.github/workflows/pages.yml`, and its tab in
+   `docs/index.html` keeps reading the branch: the site never reads a
+   target's numbers from `main`.
 
 ## EUC-JP sources
 
@@ -498,12 +500,15 @@ The dashboard is `docs/index.html`, which reads each target's `progress.json`.
 On a push that changes `docs/index.html`, a `docs/<slug>/progress.json` or
 `docs/<slug>/PROGRESS.md`, the workflow or its script, `.github/workflows/pages.yml` runs
 `.github/scripts/build_pages_site.sh`, which assembles one site and deploys
-it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
-`origin/main` on the other branches). PAL's numbers come from the frozen
-`pal` branch's `docs/pal/progress.json` and `docs/pal/PROGRESS.md`, not from
-`main`'s; `main` supplies every other `docs/<slug>/` it has (`jpn`, `kor`);
-`ntsc` supplies `us` and `aug6` supplies `aug6`, each only its
-`progress.json` and `PROGRESS.md`.
+it to GitHub Pages. A push to any of `main`, `pal`, `jpn`, `kor`, `ntsc`,
+`aug6` and `jun26` deploys, and every deploy assembles the whole site. The
+page is `main`'s `docs/index.html` (read from `origin/main` on the other
+branches). Every target's `progress.json` and `PROGRESS.md` come from that
+target's own branch: `pal`, `jpn` and `kor` (frozen) supply `docs/pal/`,
+`docs/jpn/` and `docs/kor/`, `ntsc` supplies `docs/us/`, `aug6` supplies
+`docs/aug6/` and `jun26` supplies `docs/jun26/`. `main`'s `docs/<slug>/` stay
+as the combined build's progress record and are never published. Each tab's
+repo and `PROGRESS.md` links point at its branch.
 
 ## Hooks
 
