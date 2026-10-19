@@ -54,8 +54,8 @@ suspect a file in this repository breaks these rules, open an issue tagged
 ## The data tables are generated at build time
 
 Each disc's link includes 70 members of the game's archive `ico2000.a` that
-have data sections and no code (MAIN.MAP of the PAL disc; the Japanese link
-has the same set), plus three data runs MAIN.MAP does not list;
+have data sections and no code (MAIN.MAP of the PAL disc; the Japanese and
+Korean links have the same set), plus three data runs MAIN.MAP does not list;
 `config/data_members.<slug>.txt` lists them all for each target (73 runs). They
 are the game's content: stage object layouts, model and motion file tables,
 sound definitions, way points, the staff roll. There is no program in them to
@@ -181,6 +181,27 @@ The Japanese string literals in the sources (the EUC-JP files
 the compiled code prints or passes, written as the code that uses them. They
 are facts the program needs to be rebuilt, as in the shared tree, not assets of
 the disc.
+
+## Korean retail disc (`kor`)
+
+The Korean retail disc (`SCPS-56001`, boot ELF `SCPS_560.01`, `SYSTEM.CNF`
+`VER = 1.00`) ships no linker map, listing or address table next to its boot
+ELF either. Its names are the Japanese build's, carried to the Korean ELF by
+the same instruction-stream correlation against the Japanese build: of the
+5727 functions the census pairs, 5679 have bodies equal to the Japanese
+ones, and every function of the tree compiles to the Korean bytes at the
+address the link gives it. No name or address comes from any Korean file
+other than the user's own ELF: every address in `config/*.kor.*` was found
+in it.
+
+Of the user's Korean disc the build reads `SYSTEM.CNF`, to find the boot
+file, and `SCPS_560.01`: it checks the ELF's SHA-1 and generates the 73
+data-only members from it (above). Every function, the five VU1
+microprograms and Sony's libraries are compiled or assembled from the
+tracked sources; nothing of the code is read from the disc.
+`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/kor/`.
+The disc's other files (its data archive `DFDATAS/DATA.DF`, the IOP modules
+and `IOPRP224.IMG`) are never read by the build and never committed.
 
 ## Prototype symbol maps (`aug6`)
 

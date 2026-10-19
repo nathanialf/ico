@@ -6,7 +6,7 @@ the tools work on the target `ico_version.py` reports (`VERSION=<slug>`, or
 the first configured one, `pal` on `main`), and the config, base file, build
 (`build/<slug>/`) and progress (`docs/<slug>/`) paths below follow that slug.
 One source tree (`ico2/`, `sce/`) serves every target: where a target
-differs, the file holds its lines inline in `#ifdef VERSION_<SLUG>` blocks,
+differs, the file holds its lines inline in `VERSION_<SLUG>` blocks,
 and `compile_c.sh` defines `VERSION_<SLUG>` (and `LN`, a source line number
 per target) for the target it compiles. `check_targets.py` holds the tree to
 the configured link orders. The files here, `../build.sh`,
