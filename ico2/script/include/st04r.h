@@ -22,6 +22,7 @@ extern int st04r_yure;
 extern unsigned char st04r_yure_vol;
 extern int sekizo_4r;
 extern unsigned char sekizo_4r_vol;
+void actSt04rBarricadeChk(GObj *volatile self);
 void actSt04rBrg1Chk(GObj *volatile self);
 void actSt04rBrg1WayChk(GObj *volatile self);
 void actSt04rBrg2Chk(GObj *volatile self);

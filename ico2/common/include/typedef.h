@@ -1327,80 +1327,85 @@ typedef struct Act {         /* field names derived */
                   in the high word, which every reader tests as bits 32-63
                   of the doubleword */
 
-    ActStatus flags20;    /* 0x20 */
-    int handFreeFrame;    /* 0x28, frames since the boy and girl let go of each other's hands */
-    GObj *intrArg;        /* 0x2C, the argument of the mail that interrupted this frame */
-    int intrData;         /* 0x30, the mail additional data of that mail */
-    int actMode;          /* 0x34, the current action mode; it indexes actModeTbl */
-    unsigned int pushDir; /* 0x38, 1 while a box or bar is pushed, -1 while pulled, 0 otherwise */
-    int intrMot;          /* 0x3C, the motion the interrupting mail chose */
-    int curMot;           /* 0x40, the motion number copied from the display object each frame */
-    int orientMot;        /* 0x44, the motion the pull-up mails orient to */
-    int actKind;          /* 0x48, the actor's column in actModeTbl */
-    int modeFrame;        /* 0x4C, frames since the action mode changed */
-    int msgBlockTimer;    /* 0x50, while nonzero, mail 205 is turned away */
-    GObj *mother; /* 0x54, the generator the enemy was called from (actEnemyRestart), 0 for none */
-    char pad58[16];
-    float statusWait8; /* 0x68, the value char status bit 8 carries (a wait) */
-    float statusWait5; /* 0x6C, the value char status bit 5 carries (a wait) */
-    float statusVal17; /* 0x70, the value char status bit 17 carries */
-    int statusVal18;   /* 0x74, the value char status bit 18 carries */
-    int statusTarget;  /* 0x78, the target char status bit 10 carries */
-    int statusOther;   /* 0x7C, the object char status bit 2 carries (the nearest active enemy) */
-    GObj *gobj80;      /* 0x80 */
-    GObj *gobj84;      /* 0x84 */
-    int statusObj;     /* 0x88, the object char status bit 11 carries (bomb, gondola, box) */
-    char pad8C[4];
-    long long paraStatus;              /* 0x90, the parallel status bits ACTParaStatus sets */
-    unsigned long long lastParaStatus; /* 0x98, the parallel status bits as last seen */
-    long long flags;                   /* 0xA0 */
-    GObj *lookTarget; /* 0xA8, the object the actor looks at, 0 for the position at 0xC0 */
-    int lookPri;      /* 0xAC, the priority of the current look request */
-    int lookMode;     /* 0xB0, the look mode passed to the display object */
-    char padB4[12];
-    float lookPosX; /* 0xC0, the look position, x */
-    float lookPosY; /* 0xC4, the look position, y */
-    float lookPosZ; /* 0xC8, the look position, z */
-    char padCC[4];
-    ActMail *mainMail; /* 0xD0 */
-    ActMail *mail;     /* 0xD4 */
-    int intrKind;      /* 0xD8, the kind of the mail that last interrupted */
-    int attack; /* 0xDC, nonzero when the actor's kind attacks (act_a_p_1.c copies spiderDef's attack) */
-    int readyFlags; /* 0xE0, the hand-in-hand handshake bits: 1 ready begin, 2 ready end, 8 exec end, 0x10 error */
+    union {
+        unsigned long long ll;
+        struct {
+            unsigned int flags; /* 0x20, the state flags, bits 0-31 of ll */
+            int handFreeFrame;  /* 0x24, frames since the boy and girl let go of each other's hands */
+        } w;
+    } flags20; /* 0x20, a 64-bit word: the state flags in the low word, the
+                  hand-free count in the high word */
+    GObj *intrArg;        /* 0x28, the argument of the mail that interrupted this frame */
+    int intrData;         /* 0x2C, the mail additional data of that mail */
+    int actMode;          /* 0x30, the current action mode; it indexes actModeTbl */
+    unsigned int pushDir; /* 0x34, 1 while a box or bar is pushed, -1 while pulled, 0 otherwise */
+    int intrMot;          /* 0x38, the motion the interrupting mail chose */
+    int curMot;           /* 0x3C, the motion number copied from the display object each frame */
+    int orientMot;        /* 0x40, the motion the pull-up mails orient to */
+    int actKind;          /* 0x44, the actor's column in actModeTbl */
+    int modeFrame;        /* 0x48, frames since the action mode changed */
+    int msgBlockTimer;    /* 0x4C, while nonzero, mail 205 is turned away */
+    GObj *mother; /* 0x50, the generator the enemy was called from (actEnemyRestart), 0 for none */
+    char pad54[8]; /* 0x54, the char status bits (_ACTCharStatus_Set ORs bit n into
+                      the word at 0x54) and the word at 0x58 _ACTCharStatus_Init clears */
+    float statusWait8; /* 0x5C, the value char status bit 6 carries (a wait) */
+    float statusWait5; /* 0x60, the value char status bit 3 carries (a wait) */
+    float statusVal17; /* 0x64, the value char status bit 13 carries */
+    int statusVal18;   /* 0x68, the value char status bit 14 carries */
+    int statusTarget;  /* 0x6C, the target char status bit 8 carries */
+    int statusOther;   /* 0x70, the object char status bit 0 carries (the nearest active enemy) */
+    GObj *gobj80;      /* 0x74 */
+    GObj *gobj84;      /* 0x78 */
+    int statusObj;     /* 0x7C, the object char status bit 9 carries (bomb, gondola, box) */
+    int paraStatus;     /* 0x80, the parallel status bits ACTParaStatus sets */
+    int lastParaStatus; /* 0x84, the parallel status bits as last seen */
+    GObj *lookTarget; /* 0x88, the object the actor looks at, 0 for the position at 0xA0 */
+    int lookPri;      /* 0x8C, the priority of the current look request */
+    int lookMode;     /* 0x90, the look mode passed to the display object */
+    char pad94[12];
+    float lookPosX; /* 0xA0, the look position, x */
+    float lookPosY; /* 0xA4, the look position, y */
+    float lookPosZ; /* 0xA8, the look position, z */
+    char padAC[4];
+    ActMail *mainMail; /* 0xB0 */
+    ActMail *mail;     /* 0xB4 */
+    int intrKind;      /* 0xB8, the kind of the mail that last interrupted */
+    int attack; /* 0xBC, nonzero when the actor's kind attacks (act_a_p_1.c copies spiderDef's attack) */
+    int readyFlags; /* 0xC0, the hand-in-hand handshake bits: 1 ready begin, 2 ready end, 8 exec end, 0x10 error */
     char padE4[12];
     float jump
-        [4]; /* 0xF0, the jump vector of the actor's kind (act_a_p_1.c copies spiderDef's jump; AP1JumpReq) */
-    char pad100[16];
-    float camRootX; /* 0x110, the root position the camera follows, x */
-    float camRootY; /* 0x114, the root position the camera follows, y */
-    float camRootZ; /* 0x118, the root position the camera follows, z */
-    char pad11C[4];
-    float dir[4]; /* 0x120, the facing direction: enemy_act.c's views
+        [4]; /* 0xD0, the jump vector of the actor's kind (act_a_p_1.c copies spiderDef's jump; AP1JumpReq) */
+    char padE0[16];
+    float camRootX; /* 0xF0, the root position the camera follows, x */
+    float camRootY; /* 0xF4, the root position the camera follows, y */
+    float camRootZ; /* 0xF8, the root position the camera follows, z */
+    char padFC[4];
+    float dir[4]; /* 0x100, the facing direction: enemy_act.c's views
                      name it dir, every actor TU writes the three
                      components */
-    void *motReq; /* 0x130: the motion record SetMotionRequest returns */
-    int soundMot; /* 0x134, the motion a sound mail asks for (ACTGame_SendSoundMail) */
-    char pad138[2];
-    short soundWait;  /* 0x13A, frames before the next sound mail is taken */
-    int reserved;     /* 0x13C, the actor that reserved this one as a target (ACTReserveTarget) */
-    int reservedMail; /* 0x140, the mail the reservation waits for */
-    struct GObj *carrier; /* 0x144, the enemy carrying the girl */
-    struct GObj *carried; /* 0x148, the object the actor holds (the carried girl) */
-    GObj *brainTarget;    /* 0x14C, the enemy brain's target */
-    GObj *weapon;         /* 0x150, the weapon the actor holds */
-    GObj *curItem;        /* 0x154, the held item as last published (SetBoyInfo, stage change) */
-    void *box;            /* 0x158, the box/truck GObj the actor is holding: commonact.c
+    void *motReq; /* 0x110: the motion record SetMotionRequest returns */
+    int soundMot; /* 0x114, the motion a sound mail asks for (ACTGame_SendSoundMail) */
+    char pad118[2];
+    short soundWait;  /* 0x11A, frames before the next sound mail is taken */
+    int reserved;     /* 0x11C, the actor that reserved this one as a target (ACTReserveTarget) */
+    int reservedMail; /* 0x120, the mail the reservation waits for */
+    struct GObj *carrier; /* 0x124, the enemy carrying the girl */
+    struct GObj *carried; /* 0x128, the object the actor holds (the carried girl) */
+    GObj *brainTarget;    /* 0x12C, the enemy brain's target */
+    GObj *weapon;         /* 0x130, the weapon the actor holds */
+    GObj *curItem;        /* 0x134, the held item as last published (SetBoyInfo, stage change) */
+    void *box;            /* 0x138, the box/truck GObj the actor is holding: commonact.c
                   stores it here in actCommonBox and reads it back through
-                  `*(void **)(s + 0x158)` in the boxbar helpers */
+                  `*(void **)(s + 0x138)` in the boxbar helpers */
+    char pad13C[4];
+    char *sofa; /* 0x140, the sofa the actor sits on */
+    char pad144[12];
+    float restartPosX; /* 0x150, the enemy restart position, x */
+    float restartPosY; /* 0x154, the enemy restart position, y */
+    float restartPosZ; /* 0x158, the enemy restart position, z */
     char pad15C[4];
-    char *sofa; /* 0x160, the sofa the actor sits on */
-    char pad164[12];
-    float restartPosX; /* 0x170, the enemy restart position, x */
-    float restartPosY; /* 0x174, the enemy restart position, y */
-    float restartPosZ; /* 0x178, the enemy restart position, z */
-    char pad17C[4];
 
-    /* 0x180 the held item, 0x184 the item about to be taken (act-game.c's
+    /* 0x160 the held item, 0x164 the item about to be taken (act-game.c's
        ItemHold): the item object, which HoldItem, ThrowItem and GetItemKind
        take as an int and the release and compare paths read as a pointer */
     union {
@@ -1413,73 +1418,73 @@ typedef struct Act {         /* field names derived */
         GObj *p;
     } nextItem;
 
-    int attackTurn; /* 0x188, nonzero while the attack turns toward the target */
+    int attackTurn; /* 0x168, nonzero while the attack turns toward the target */
+    char pad16C[4];
+    GObj *chain;     /* 0x170, the chain the actor hangs on */
+    GObj *lastChain; /* 0x174, the chain the actor last hung on */
+    char pad178[8];
+    float ropeSwingX; /* 0x180, the rope swing direction, x */
+    float ropeSwingY; /* 0x184, the rope swing direction, y */
+    float ropeSwingZ; /* 0x188, the rope swing direction, z */
     char pad18C[4];
-    GObj *chain;     /* 0x190, the chain the actor hangs on */
-    GObj *lastChain; /* 0x194, the chain the actor last hung on */
-    char pad198[8];
-    float ropeSwingX; /* 0x1A0, the rope swing direction, x */
-    float ropeSwingY; /* 0x1A4, the rope swing direction, y */
-    float ropeSwingZ; /* 0x1A8, the rope swing direction, z */
-    char pad1AC[4];
-    GObj *attacker; /* 0x1B0, the object whose attack hit the actor */
-    char pad1B4[12];
-    float attackDir[4]; /* 0x1C0, the attack direction */
-    int damage;         /* 0x1D0, the damage of the attack that hit the actor */
-    int hitGroup;       /* 0x1D4, the attack group that hit the actor */
-    char downHit;       /* 0x1D8, nonzero when the hit knocks the actor down */
-    char stoneHit;      /* 0x1D9, nonzero when the hit turns the actor to stone */
-    char hit;           /* 0x1DA, set when the actor goes down, cleared each frame */
-    char unguardable;   /* 0x1DB, nonzero when the hit cannot be guarded */
-    char pad1DC[4];
-    float life;        /* 0x1E0, the actor's life */
-    float maxLife;     /* 0x1E4, the life the enemy restarts with */
-    PadConf padConf;   /* 0x1E8, the pad configuration the actor's pad record
-                        at 0x2D8 is connected to (actInitialize copies
+    GObj *attacker; /* 0x190, the object whose attack hit the actor */
+    char pad194[12];
+    float attackDir[4]; /* 0x1A0, the attack direction */
+    int damage;         /* 0x1B0, the damage of the attack that hit the actor */
+    int hitGroup;       /* 0x1B4, the attack group that hit the actor */
+    char downHit;       /* 0x1B8, nonzero when the hit knocks the actor down */
+    char stoneHit;      /* 0x1B9, nonzero when the hit turns the actor to stone */
+    char hit;           /* 0x1BA, set when the actor goes down, cleared each frame */
+    char unguardable;   /* 0x1BB, nonzero when the hit cannot be guarded */
+    char pad1BC[4];
+    float life;        /* 0x1C0, the actor's life */
+    float maxLife;     /* 0x1C4, the life the enemy restarts with */
+    PadConf padConf;   /* 0x1C8, the pad configuration the actor's pad record
+                        at 0x2B8 is connected to (actInitialize copies
                         iosPadConfDefault into it) */
-    IosPadCtx pad;     /* 0x2D8, the pad handle: the buttons held, pressed and
-                        released this frame at 0x2E0, 0x2E4 and 0x2E8 */
-    IosPadStick stick; /* 0x338, the stick reading iosPadGetStick fills in */
-    int wayMode;       /* 0x350, the way follow state: 0 none, 1 search, 2 follow */
-    char pad354[12];
-    WVTObj way;     /* 0x360, the guide-way work block way_sys.c walks */
-    float wayNodeX; /* 0x3E0, the next way node, x */
-    float wayNodeY; /* 0x3E4, the next way node, y */
-    float wayNodeZ; /* 0x3E8, the next way node, z */
-    char pad3EC[4];
-    long long wayFlags;       /* 0x3F0, the way walk flags */
-    float wayGoalDist;        /* 0x3F8, the distance to the goal across the floor */
-    float wayGoalHeight;      /* 0x3FC, the goal's height over the actor */
-    struct WayPoint *wayLast; /* 0x400, the way point GetWay_next last returned */
-    char pad404[28];
-    float wayDetailX; /* 0x420, the detailed way point, x */
-    float wayDetailY; /* 0x424, the detailed way point, y */
-    float wayDetailZ; /* 0x428, the detailed way point, z */
-    char pad42C[12];
-    WayState wayState; /* 0x438 */
-    int brainAim;      /* 0x440, the enemy brain's aim: 1 the girl, 2 the boy */
-    int infoPos;       /* 0x444, the object info position the enemy is saved at */
-    int brainStatus;   /* 0x448, the brain status the actor starts with */
-    char pad44C[4];
-    int attackGroup;   /* 0x450, the actor's attack group */
-    int doorFlag;      /* 0x454, the game flag of the door script */
-    float doorDist;    /* 0x458, the door's travel */
-    float doorStep;    /* 0x45C, the door's step */
-    ActMail *doorMail; /* 0x460, the door's main mail list */
-    int doorCamWait;   /* 0x464, frames to wait after the camera move */
-    int doorEndWait;   /* 0x468, frames to wait after the move */
-    GObj *doorCamera;  /* 0x46C, the camera target of the door move, 0 for none */
-    char pad470[8];
-    ActWishWord wish0; /* 0x478 */
-    ActWishWord wish1; /* 0x480 */
-    ActWishWord wish2; /* 0x488 */
-    ActWishWord wish3; /* 0x490 */
-    ActWishWord wish4; /* 0x498 */
-    char pad4A0[16];
-    ActEnv env; /* 0x4B0, the environment ACTGetEnvironment fills in every frame */
-    struct EnemyBattleWork *enemy;          /* 0x680, the enemy work (enemy_act.c) */
-    struct MailAdditionalData *mailAddData; /* 0x684, the mail additional data table */
-    int work; /* 0x688, the actor's extended work block (act-game.h's ActWork) */
+    IosPadCtx pad;     /* 0x2B8, the pad handle: the buttons held, pressed and
+                        released this frame at 0x2C0, 0x2C4 and 0x2C8 */
+    IosPadStick stick; /* 0x318, the stick reading iosPadGetStick fills in */
+    int wayMode;       /* 0x330, the way follow state: 0 none, 1 search, 2 follow */
+    char pad334[12];
+    WVTObj way;     /* 0x340, the guide-way work block way_sys.c walks */
+    float wayNodeX; /* 0x3C0, the next way node, x */
+    float wayNodeY; /* 0x3C4, the next way node, y */
+    float wayNodeZ; /* 0x3C8, the next way node, z */
+    char pad3CC[4];
+    long long wayFlags;       /* 0x3D0, the way walk flags */
+    float wayGoalDist;        /* 0x3D8, the distance to the goal across the floor */
+    float wayGoalHeight;      /* 0x3DC, the goal's height over the actor */
+    struct WayPoint *wayLast; /* 0x3E0, the way point GetWay_next last returned */
+    char pad3E4[28];
+    float wayDetailX; /* 0x400, the detailed way point, x */
+    float wayDetailY; /* 0x404, the detailed way point, y */
+    float wayDetailZ; /* 0x408, the detailed way point, z */
+    char pad40C[12];
+    WayState wayState; /* 0x418 */
+    int brainAim;      /* 0x420, the enemy brain's aim: 1 the girl, 2 the boy */
+    int infoPos;       /* 0x424, the object info position the enemy is saved at */
+    int brainStatus;   /* 0x428, the brain status the actor starts with */
+    char pad42C[4];
+    int attackGroup;   /* 0x430, the actor's attack group */
+    int doorFlag;      /* 0x434, the game flag of the door script */
+    float doorDist;    /* 0x438, the door's travel */
+    float doorStep;    /* 0x43C, the door's step */
+    ActMail *doorMail; /* 0x440, the door's main mail list */
+    int doorCamWait;   /* 0x444, frames to wait after the camera move */
+    int doorEndWait;   /* 0x448, frames to wait after the move */
+    GObj *doorCamera;  /* 0x44C, the camera target of the door move, 0 for none */
+    char pad450[8];
+    ActWishWord wish0; /* 0x458 */
+    ActWishWord wish1; /* 0x460 */
+    ActWishWord wish2; /* 0x468 */
+    ActWishWord wish3; /* 0x470 */
+    ActWishWord wish4; /* 0x478 */
+    char pad480[16];
+    ActEnv env; /* 0x490, the environment ACTGetEnvironment fills in every frame */
+    struct EnemyBattleWork *enemy;          /* 0x660, the enemy work (enemy_act.c) */
+    struct MailAdditionalData *mailAddData; /* 0x664, the mail additional data table */
+    int work; /* 0x668, the actor's extended work block (act-game.h's ActWork) */
 } Act;        /* derived name */
 
 /* obj-layout: one placed object of a stage, 0x4C bytes, indexed by the
