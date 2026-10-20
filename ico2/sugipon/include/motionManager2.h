@@ -94,8 +94,9 @@ void CopyMotionWithNodeHrc(struct StreamElem *dst, struct StreamElem *src, SkelN
 void GetFloatingShapeMotion(float *dst, char *m, float t, int count);
 void GetFloatingMotionRootPos(float *dst, void *m, float t);
 void GetOutOutsideOfWall(GObj *obj, float threshold);
-int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel,
-                     float h0, float h1, float h2, float scaleIn, float amp);
+/* this build's has no outFlag (the demo's body reads a0..a3 only) */
+int GetWaterReaction(float *outH, ClipWork *info, float *pos, float *vel, float h0, float h1,
+                     float h2, float scaleIn, float amp);
 void dispPlane(Vec4 *plane, float *pos);
 void GetOrientOfWallOfGObj(float *dir, GObj *obj);
 void GetRootPosOfNextFrame(float *pos, GObj *obj);

@@ -59,9 +59,7 @@ void ClipWallR(ClipWork *work);
 void ClipWallWaveForce(ClipWork *work);
 void ClipWallFuchiHangWalkStop(ClipWork *work);
 void ClipWallEField(ClipWork *work);
-void ClipWallBoxStop(ClipWork *work);
 void ClipWallAdjustPos(ClipWork *work);
-void ClipWallE(ClipWork *work);
 void ClipWallCheckCB(ClipWork *work, int filter);
 void ClipWallFieldCheckCB(ClipWork *work, int filter);
 void ClipFloorE(ClipWork *work);
@@ -80,6 +78,10 @@ extern void (*clipFloorFunc)(ClipWork *work, int mode); /* derived name */
 #define ClipFloor(work) clipFloorFunc((work), 12)
 /* mode 3: the field walls (act-game.c's ACTCheckCollis_WAY) */
 #define ClipWallField(work) clipWallFunc((work), 3)
+/* mode 10: the walls that stop a pushed box (box.c's execNormalMove) */
+#define ClipWallBoxStop(work) clipWallFunc((work), 10)
+/* mode 4 (box.c's avoidCharGObj) */
+#define ClipWallE(work) clipWallFunc((work), 4)
 int ChangeFieldCollisionDebugMode(int drawRay);
 void LoadCollision(void **self, char *fname);
 void DrawCollision(int mode);
