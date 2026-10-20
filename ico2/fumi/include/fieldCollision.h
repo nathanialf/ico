@@ -55,18 +55,15 @@ typedef struct FcFloorEnt { /* field names derived */
  * place), in the order of their definitions' out-of-line copies at the end of
  * the object (first-declaration order). */
 void ClipWallDebug(ClipWork *work);
-inline void ClipWall(ClipWork *work);
 void ClipWallR(ClipWork *work);
 void ClipWallWaveForce(ClipWork *work);
 void ClipWallFuchiHangWalkStop(ClipWork *work);
-void ClipWallField(ClipWork *work);
 void ClipWallEField(ClipWork *work);
 void ClipWallBoxStop(ClipWork *work);
 void ClipWallAdjustPos(ClipWork *work);
 void ClipWallE(ClipWork *work);
 void ClipWallCheckCB(ClipWork *work, int filter);
 void ClipWallFieldCheckCB(ClipWork *work, int filter);
-void ClipFloor(ClipWork *work);
 void ClipFloorE(ClipWork *work);
 void ClipFloorR(ClipWork *work);
 void ClipFloorIH(ClipWork *work);
@@ -74,6 +71,15 @@ void ClipFloorCheckCB(ClipWork *work, int filter);
 void ClipCollision(ClipWork *self);
 /* the wall clip ClipWall dispatches through (__ClipWall) */
 extern void (*clipWallFunc)(ClipWork *work, int mode); /* derived name */
+/* the floor clip ClipFloor dispatches through (__ClipFloor) */
+extern void (*clipFloorFunc)(ClipWork *work, int mode); /* derived name */
+/* this build has no ClipWall, ClipFloor or ClipWallField function: every
+   caller loads the pointer and passes the mode itself (act-game.c's
+   ACTCheckViewCl: $gp clipWallFunc with 1, clipFloorFunc with 12) */
+#define ClipWall(work) clipWallFunc((work), 1)
+#define ClipFloor(work) clipFloorFunc((work), 12)
+/* mode 3: the field walls (act-game.c's ACTCheckCollis_WAY) */
+#define ClipWallField(work) clipWallFunc((work), 3)
 int ChangeFieldCollisionDebugMode(int drawRay);
 void LoadCollision(void **self, char *fname);
 void DrawCollision(int mode);

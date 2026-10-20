@@ -541,7 +541,8 @@ INCLUDE_ASM_LIT(__ClipFloorWithDrawRay);
 /* global in this build: debug.c's debug_CollisionTest calls it ($gp) */
 void (*clipWallFunc)(ClipWork *work, int mode) = __ClipWall; /* derived name */
 
-static void (*clipFloorFunc)(ClipWork *work, int mode) = __ClipFloor; /* derived name */
+/* global in this build: the ClipFloor callers load it ($gp) */
+void (*clipFloorFunc)(ClipWork *work, int mode) = __ClipFloor; /* derived name */
 
 typedef union { /* field names derived */
     float f[4];
