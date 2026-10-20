@@ -14,7 +14,20 @@ static int parallelIds[68]; /* derived name */
    entry unless it is 0x47B. */
 INCLUDE_ASM(ActPara_MakeTbl);
 
-INCLUDE_ASM(ActPara_InitSystem);
+void ActPara_InitSystem(void)
+{
+    int i;
+    for (i = 0; i <= 67; i++) {
+        parallelIds[i] = parallelMotionTbl[i].motion[0];
+    }
+    /* a compiled-out overflow check: its message and __FILE__ stay in
+       .rodata (this build's has no __assert: no "0" in .sdata) */
+    if (0) {
+        /* too many parallel motions (way too many) */
+        debug_StdPrintfDummy("並列モーションが増えすぎました（大森）");
+        debug_assert(__FILE__, 103);
+    }
+}
 
 int *ActPara_GetDefTbl(void)
 {

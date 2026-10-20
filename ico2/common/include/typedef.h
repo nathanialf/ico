@@ -988,7 +988,7 @@ typedef struct {   /* field names derived */
     /* 0x184, flag word whose low half is the reverb depth (soundManager reads
      * that half at this offset) and whose bits 16-24 carry a count (10 to 300
      * in the shipped rows: backStage's way-kidnap time in seconds, 0 for no way
-     * kidnap).  RECONSTRUCTION: bits 25-30 are a bitfield,
+     * kidnap).  RECONSTRUCTION: bits 25-29 are a bitfield,
      * the stage's movie number StageManager copies into mpegPlay, because the
      * ROM reads it as one: a whole-word field makes expand_expr fold the 0x188
      * into a constant table base (expr.c 6464-6482), where StageManager's three
@@ -996,8 +996,10 @@ typedef struct {   /* field names derived */
      * with the const table's unchanging flag on the load. */
     unsigned int reverbDepth : 16;
     unsigned int kidnapSeconds : 9;
-    unsigned int mpegNo : 6;
-    unsigned int attrTop : 1;
+    unsigned int mpegNo : 5; /* five bits here: this build keeps both actor switches in
+                                bits 30 and 31 (ACTGame_SetActors_Debug) */
+    unsigned int attrTop : 1;     /* bit 30, the stage places the boy (ACTGame_SetActors_Debug) */
+    unsigned int attrTopGirl : 1; /* bit 31, the stage places the girl; derived name */
     /* 0x188, a word of one-bit stage switches.  They are bitfields because the
      * ROM reads them as bitfields: a read off the record itself keeps the
      * const table's unchanging flag on the load and emits the index product
