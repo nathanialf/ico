@@ -995,11 +995,6 @@ text wpsort_compfnc 0x00171CA0 0x00171CD4 ico2/fumi/src/way_util.c local lines=1
 text gflagSave 0x00171CD8 0x00171D1C ico2/script/src/gflag.c lines=7  # by body: writes through gamesysMemoryHandlerWrite; the demo emits Save, Load, Init
 text gflagLoad 0x00171D20 0x00171D5C ico2/script/src/gflag.c lines=6  # by body: reads through gamesysMemoryHandlerRead; gameSysMemoryFuncList slot 2
 text gflagInit 0x00171D60 0x00171DF4 ico2/script/src/gflag.c lines=20  # by body: clears the flags, keeps flag 379
-text scpPlayMotDirSmz 0x00171F60 0x00171FC0 ico2/script/src/script.c lines=8  # ordinal; differs-at:8; length:-1; extent-differs
-text scpPlayMot 0x00171FC0 0x001720A4 ico2/script/src/script.c lines=22  # ordinal; differs-at:13; imm:10; extent-equal
-text scpPlayJump 0x001720A8 0x001720F0 ico2/script/src/script.c lines=6  # ordinal; differs-at:10; imm:2; extent-equal
-text scpPlayStart 0x001720F0 0x0017212C ico2/script/src/script.c lines=6  # ordinal; differs-at:8; imm:1; extent-equal
-text scpPlayEnd 0x00172130 0x00172164 ico2/script/src/script.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
 text func_00172178 0x00172178 0x0017233C ico2/script/src/script.c  # jun26-only; derived name
 text func_00172340 0x00172340 0x00172490 ico2/script/src/script.c  # jun26-only; derived name
 rdlit func_00172340 0x005A2F90 0x005A2FA8 ico2/script/src/script.c  # 1 string (target side)
@@ -1009,7 +1004,6 @@ text scpSekizou 0x001725E0 0x00172B60 ico2/script/src/script.c lines=88  # call-
 lit4 scpSekizou 0x00678A0C 0x00678A14 ico2/script/src/script.c  # 2 floats (target side)
 text func_00172B60 0x00172B60 0x00172DC8 ico2/script/src/script.c  # jun26-only; derived name
 rdlit func_00172B60 0x005A2EE0 0x005A2F50 ico2/script/src/script.c def  # 1 string (target side); emitted where the demo has it
-text scpSekizouCheckPoint 0x00172DC8 0x00172E48 ico2/script/src/script.c lines=15  # call-aug
 text scpDispOffAllWithKind 0x00172E48 0x00172E84 ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
 text scpDispOnAllWithKind 0x00172E88 0x00172ED0 ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
 text scpActivateAllWithKind 0x00172ED0 0x00172F10 ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
@@ -1047,35 +1041,6 @@ text scpMaskGeneratorAll 0x001741A0 0x001741E8 ico2/script/src/script.c lines=8 
 text _SCPMoveCharactorByWay 0x001741E8 0x001742AC ico2/script/src/script.c lines=12  # call-pal
 text func_001742B0 0x001742B0 0x0017440C ico2/script/src/script.c  # jun26-only; derived name
 lit4 func_001742B0 0x00678A14 0x00678A18 ico2/script/src/script.c  # 1 float (target side)
-text scpSearchGobj 0x00174410 0x0017442C ico2/script/src/script.c lines=4  # census-equal; stubbed for emission order
-text scpPlayMotNode 0x00174430 0x001744C4 ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
-text scpPlayMotReq 0x001744C8 0x001744F4 ico2/script/src/script.c lines=5  # ordinal; differs-at:5; imm:2; extent-equal
-text scpPlayPosSet 0x001744F8 0x0017456C ico2/script/src/script.c lines=10  # census-equal; stubbed for emission order
-text scpPlayWaitMotEnd 0x00174570 0x001745B0 ico2/script/src/script.c lines=7  # ordinal; differs-at:8; imm:1; extent-equal
-text InitStageChange 0x001745B0 0x001745B8 ico2/script/src/script.c lines=4  # census-equal; stubbed for emission order
-text RequestStageChange 0x001745B8 0x001745DC ico2/script/src/script.c lines=4  # census-equal; stubbed for emission order
-text RequestStageChangeWithColor 0x001745E0 0x00174724 ico2/script/src/script.c lines=30  # ordinal; differs-at:1; imm:4; extent-equal
-text RequestStageChangeSimple 0x00174728 0x00174778 ico2/script/src/script.c lines=14  # census-equal; stubbed for emission order
-text RequestStageChangeDirect 0x00174778 0x001747D8 ico2/script/src/script.c lines=10  # ordinal; differs-at:17; imm:1; extent-equal
-text scpFadeOut 0x001747D8 0x001747F8 ico2/script/src/script.c lines=9  # census-equal; stubbed for emission order
-text scpFadeIn 0x001747F8 0x00174810 ico2/script/src/script.c lines=6  # census-equal; stubbed for emission order
-text scpFadeChk 0x00174810 0x00174834 ico2/script/src/script.c lines=12  # census-equal; stubbed for emission order
-text scpGameStat_BoyWeaponkind 0x00174838 0x00174868 ico2/script/src/script.c lines=7  # ordinal; differs-at:4; imm:1; extent-equal
-text scpIsWallLever2On 0x00174868 0x00174884 ico2/script/src/script.c lines=4  # census-equal; stubbed for emission order
-text scpIsHangChain 0x00174888 0x001748A8 ico2/script/src/script.c lines=4  # census-equal; stubbed for emission order
-text scpIsHangChainOptional 0x001748A8 0x001748E4 ico2/script/src/script.c lines=14  # census-equal; stubbed for emission order
-text scpBornSpider 0x001748E8 0x00174A08 ico2/script/src/script.c lines=20  # census-equal; stubbed for emission order
-lit4 scpBornSpider 0x00678A18 0x00678A1C ico2/script/src/script.c  # 1 float
-text func_00174A08 0x00174A08 0x00174A5C ico2/script/src/script.c  # jun26-only; derived name
-text scpWakeupItemWithBoundary 0x00174A60 0x00174B0C ico2/script/src/script.c lines=21  # census-equal; stubbed for emission order
-text scpCheckReadyAllObjects 0x00174B10 0x00174B30 ico2/script/src/script.c lines=4  # census-equal; stubbed for emission order
-text scpTriggerIgnore 0x00174B30 0x00174C0C ico2/script/src/script.c lines=15  # order
-text scpDoorTypeUpMain 0x00174C10 0x00174C40 ico2/script/src/script.c lines=8  # order
-text func_00174C40 0x00174C40 0x00174D38 ico2/script/src/script.c  # jun26-only; derived name
-text actSubSekizoSe 0x00174D38 0x00174DCC ico2/script/src/script.c lines=25  # order
-text scpObj1882 0x00174DD0 0x00174EC0 ico2/script/src/script.c  # jun26-only; derived name; named from obj-layout row 1882's act process (derived name)
-lit4 scpObj1882 0x00678A1C 0x00678A2C ico2/script/src/script.c  # 4 floats (target side)
-sdlit scpObj1882 0x0067A020 0x0067A028 ico2/script/src/script.c align=4  # 1 string (target side); 4-aligned, as the TU's .sdata starts on a word boundary (0x67A004) in the demo
 text actSt25aQueenAppear 0x00174EC0 0x00175138 ico2/script/src/st25a.c  # order; no definition in this TU
 lit4 actSt25aQueenAppear 0x00678A2C 0x00678A3C ico2/script/src/st25a.c  # 4 floats (target side)
 text actSt25aQueenAppearChk 0x00175138 0x00175268 ico2/script/src/st25a.c lines=16  # order

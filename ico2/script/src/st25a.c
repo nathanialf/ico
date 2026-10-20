@@ -34,8 +34,11 @@
 
 static void actSt25aElevCharaChk(GObj *volatile self);
 
-/* .sdata: the ADPCM request slots the scenes hand scpAdpcmPlayRequestFunc
-   and wait on, and conte12's flag. */
+/* .sdata: the texture script.c's scpObj1882 scrolls (the TU's .sdata opens
+   with it, 8-aligned, at the demo's 0x67A020), then the ADPCM request slots
+   the scenes hand scpAdpcmPlayRequestFunc and wait on, and conte12's flag. */
+const char wall01Tex[] = "wall01"; /* derived name */
+
 static SqEntry *conte11 = 0; /* derived name */
 
 SqEntry *conte12 = 0;

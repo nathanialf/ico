@@ -53,24 +53,26 @@
 #include "weapon.h"
 #include "include_asm.h"
 
-/* .sdata.  The word after scpSeEnvMasterVolRate is the girl's hint voice's
-   ADPCM handle, a global: obj-layout row 130's GObj slot points at it.
-   This build has no hint distance range (PAL's two floats
-   after it) and no sekizo_yure_vol byte: the demo's .sdata of the TU is these
-   seven words and scpObj1882's string. */
+/* .sdata.  scpDummyGObj is the word an obj-layout row's GObj slot points
+   at (the demo's .data holds 0x67A00C once, as the USA's holds its
+   scpDummyGObj); scpSekizou stores the pad vibration handle at 0x67A014
+   and its volume byte at 0x67A018, so sekizo_yure and sekizo_yure_vol
+   follow the two dummy words.  Nothing reads the last word; it keeps
+   sekizo_common's name (its place is not measured).  Then scpObj1882's
+   string. */
 int scpBoyControlReadDisable = 0;
 
 float scpSeEnvMasterVolRate = 1.0f;
-
-SqEntry *girlHintVoice = 0; /* derived name */
-
-SqEntry *sekizo_common = 0;
 
 char *scpDummyGObj = 0;
 
 char *scpDummyGObj2 = 0;
 
 int sekizo_yure = 0;
+
+unsigned char sekizo_yure_vol = 0;
+
+SqEntry *sekizo_common = 0;
 
 /* the parent link stage_SetParentOfGObj copies into a stage animation: the
    object and its skeleton node, -1 when the node was not found */
@@ -99,9 +101,9 @@ static AdpcmReq adpcmReq[2]; /* derived name */
 /* sugipon's motionKind (MotionDef, motionOrientManager.h), read here through
    this file's own view of the record */
 extern struct MotTblRec { /* derived name */ /* field names derived */
-    char pad0[390];
-    short smzAngle;
-    char pad188[12];
+    char pad0[276];
+    int smzAngle;
+    char pad118[108];
 } motionKind[];
 
 /* .data: the two exported door tables, then five read only here.  Each is
@@ -176,15 +178,54 @@ void scpPlayMotDir(GObj *self, float *dir)
     SetMotionDirection(self, dir);
 }
 
-INCLUDE_ASM(scpPlayMotDirSmz);
+void scpPlayMotDirSmz(GObj *self, float *dir)
+{
+    sceVu0Normalize(dir, dir);
+    SetMotionDirectionSmooze(self, dir, (float)motionKind[GOBJ_SUB(self)->ctrl.motion].smzAngle);
+}
 
-INCLUDE_ASM(scpPlayMot);
+void scpPlayMot(GObj *self, int mot)
+{
+    Act *act = GOBJ_ACT(self);
+    int id = -1;
 
-INCLUDE_ASM(scpPlayJump);
+    if (self == boyGObj) {
+        id = 1205;
+    } else if (self == girlGObj) {
+        id = 1768;
+    } else if (self == isysGObjSearchFromObjLayoutID(1863)) {
+        id = 2112;
+    } else if (((GObj *)self)->kind == 4) {
+        id = 2104;
+    }
 
-INCLUDE_ASM(scpPlayStart);
+    if (id < 0) {
+        InitMotionOrient(self, 1772, 2106, -1, -1, mot);
+        return;
+    }
+    ControlMotionOrient(id, mot);
+    act->motReq = SetMotionRequest(self, 223, act->env.motOriReq);
+}
 
-INCLUDE_ASM(scpPlayEnd);
+void scpPlayJump(GObj *self, int orient)
+{
+    ACTItemForceDrop(self);
+    GOBJ_ACT(self)->enemy->jumpOrient = orient;
+    iosOmSendMail(self, 43, self);
+}
+
+void scpPlayStart(GObj *self)
+{
+    ACTItemForceDrop(self);
+    iosOmSendMail(self, 44, self);
+    SetLodLevel(self, 0);
+}
+
+void scpPlayEnd(GObj *self)
+{
+    iosOmSendMail(self, 45, self);
+    SetLodLevel(self, 2);
+}
 
 void scpTrans(void *self, float *rot)
 {
@@ -203,8 +244,23 @@ static const Col4 triggerBallColor = {{0, 16, 32, 128}}; /* derived name */
 /* the object kinds a trigger ball tests */
 static const int targetManKind[] = {1, 2, 4}; /* derived name */
 
-/* the object kinds a trigger may ignore, up to the -1 end marker */
-static const int ignoreKind[] = {1, 2, 4, -1}; /* derived name */
+inline int scpTriggerIgnore(GObj *self)
+{
+    /* the object kinds a trigger may ignore, up to the -1 end marker */
+    int ignoreKind[4] = {1, 2, 4, -1}; /* derived name */
+    int i = 0;
+
+    while (ignoreKind[i] != -1) {
+        if (((GObj *)self)->kind == ignoreKind[i]) {
+            Sub15C *sub = GOBJ_SUB(self);
+            if (_ACTGame_GetParamF(1) < sub->ctrl.groundHeight || GOBJ_ACT(self)->actMode == 22) {
+                return 1;
+            }
+        }
+        i++;
+    }
+    return 0;
+}
 
 /* the object kinds a floor-attribute trigger tests */
 static const int floorTargetManKind[] = {1, 2, 4, 17}; /* derived name */
@@ -236,33 +292,6 @@ static inline int scpTransStep(float *p, float target, float step) /* derived na
     return done;
 }
 
-/* the slot of the pending play request whose id is ID, or -1 (inlined into
-   scpAdpcmCloseChkFunc, scpGirlHintVoiceCancel and others) */
-static inline int scpAdpcmRequestSlot(SqEntry **id) /* derived name */
-{
-    int i;
-    for (i = 0; i < 2; i++) {
-        if (adpcmReq[i].kind != 0 && adpcmReq[i].id == id)
-            goto found;
-    }
-    i = -1;
-found:
-    return i;
-}
-
-/* PAL's close-request helper (it set the record's cancel word, which this
-   build's record lacks) has no copy here: its callers are stubbed. */
-
-void scpSubAdpcmPlay(GObj *volatile self);
-inline int scpAdpcmCloseChkFunc(SqEntry **h);
-
-/* scpAdpcmCloseChkFunc's check for the hint voice's slot, used only by
-   scpGirlHintVoiceTickProc */
-static inline int scpGirlHintVoiceChk(void) /* derived name */
-{
-    return scpAdpcmCloseChkFunc(&girlHintVoice);
-}
-
 /* where the stone statue's sound effects play */
 static const Vec16 sekizouSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 
@@ -273,7 +302,21 @@ INCLUDE_ASM(func_00172B60);
 /* the root position a direct stage change parks the actor at, far out of the map */
 static const Vec16 farRootPos = {{-1000000.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
 
-INCLUDE_ASM(scpSekizouCheckPoint);
+void scpSekizouCheckPoint(void)
+{
+    int was;
+
+    if (girlGObj != 0) {
+        gamesysObjInfoPosSetStage(girlGObj, GOBJ_ACT(girlGObj)->infoPos, 0, stage_no);
+    }
+    gamesysObjInfoPosSetStage(boyGObj, GOBJ_ACT(boyGObj)->infoPos, 0, stage_no);
+    was = gflagChk(332);
+    gflagOn(332);
+    CheckPoint();
+    if (was == 0) {
+        gflagOff(332);
+    }
+}
 
 /* the colour the item-revival boundary's wire sphere is drawn in */
 static const Col4 itemBoundaryColor = {{0, 32, 16, 128}}; /* derived name */
@@ -344,54 +387,298 @@ INCLUDE_ASM(_SCPMoveCharactorByWay);
 
 INCLUDE_ASM(func_001742B0);
 
-INCLUDE_ASM(scpSearchGobj);
+inline GObj *scpSearchGobj(int id)
+{
+    return isysGObjSearchFromObjLayoutID(id);
+}
 
-INCLUDE_ASM(scpPlayMotNode);
+inline void scpPlayMotNode(void *self, int mot, void *obj, int node)
+{
+    float buf[4];
+    memset(buf, 0, 16);
+    buf[3] = 1.0f;
+    SetMotionNodeFixModeParameter(self, obj, 0, node, buf, 0.0f, 0.0f, 0.0f, 1.0f);
+    scpPlayMot(self, mot);
+}
 
-INCLUDE_ASM(scpPlayMotReq);
+inline void scpPlayMotReq(GObj *self, int mot)
+{
+    Act *p = GOBJ_ACT(self);
+    p->motReq = SetMotionRequest(self, mot, p->env.motOriReq);
+}
 
-INCLUDE_ASM(scpPlayPosSet);
+inline void scpPlayPosSet(void *self, float x, float y, float z)
+{
+    float buf[4];
+    memset(buf, 0, 16);
+    buf[0] = x;
+    buf[1] = y;
+    buf[2] = z;
+    SetDirectRootPosition(self, buf);
+    ClearMotionGeometryInfo(self);
+}
 
-INCLUDE_ASM(scpPlayWaitMotEnd);
+inline void scpPlayWaitMotEnd(GObj *self)
+{
+    Act *p = GOBJ_ACT(self);
+    while ((*(int *)((char *)p->motReq + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM(InitStageChange);
+inline void InitStageChange(void)
+{
+    stageChangeReq = 0;
+}
 
-INCLUDE_ASM(RequestStageChange);
+inline int RequestStageChange(int no, GObj *g, GObj *girl, float speed, float wait)
+{
+    return RequestStageChangeWithColor(no, g, girl, speed, wait, 0, 0, 0);
+}
 
-INCLUDE_ASM(RequestStageChangeWithColor);
+inline int RequestStageChangeWithColor(int no, GObj *g, GObj *girl, float speed, float wait,
+                                       unsigned char r, unsigned char gr, unsigned char b)
+{
+    int ret;
+    short next;
+    Act *act;
 
-INCLUDE_ASM(RequestStageChangeSimple);
+    next = stageData[stage_no].ent[no - 1];
+    ret = 0;
+    if (gameover_flag == 0 && stageChangeReq == 0 && next != 0) {
+        if (g != 0) {
+            act = GOBJ_ACT(g);
+            ACTGame_StageChangeGObj(g, next);
+            if (act->weapon != 0) {
+                ACTGame_StageChangeGObj(act->weapon, next);
+            }
+            if (act->curItem != 0) {
+                ACTGame_StageChangeGObj(act->curItem, next);
+            }
+            BoyInfoUpdate_StageChange();
+        }
+        if (girl != 0) {
+            ACTGame_StageChangeGObj(girlGObj, next);
+        }
+        stgmgrForceSwitchWithFadeColor(exitData[next].nextStage, speed, wait, r, gr, b);
+        ret = 1;
+        stageChangeReq = 1;
+    }
+    return ret;
+}
 
-INCLUDE_ASM(RequestStageChangeDirect);
+inline int RequestStageChangeSimple(int no, float speed, float wait, unsigned char r,
+                                    unsigned char gr, unsigned char b)
+{
+    int ret = 0;
 
-INCLUDE_ASM(scpFadeOut);
+    if (gameover_flag == 0) {
+        if (stageChangeReq == 0) {
+            stgmgrForceSwitchWithFadeColor(no, speed, wait, r, gr, b);
+            stageChangeReq = 1;
+            ret = 1;
+        }
+    }
+    return ret;
+}
 
-INCLUDE_ASM(scpFadeIn);
+inline void RequestStageChangeDirect(GObj *self, int stage, void *dir, int deg)
 
-INCLUDE_ASM(scpFadeChk);
+{
+    Vec16 pos;
+    ACTGame_StageChangeGObjDirect(self, stage, dir, deg);
+    ACTCharctrl_Lock(self);
+    pos = farRootPos;
+    SetDirectRootPosition(self, &pos);
+    iosOmSendMail(self, 38, self);
+}
 
-INCLUDE_ASM(scpGameStat_BoyWeaponkind);
+inline void scpFadeOut(float speed, int r, int g, int b)
+{
+    fadeStatus = 1;
+    fadeSpeed = speed;
+    fadeContinue = 1;
+    fadeColor[0] = r;
+    fadeColor[1] = g;
+    fadeColor[2] = b;
+}
 
-INCLUDE_ASM(scpIsWallLever2On);
+inline void scpFadeIn(float f)
+{
+    fadeStatus = 1;
+    fadeContinue = 0;
+    fadeSpeed = -f;
+}
 
-INCLUDE_ASM(scpIsHangChain);
+inline int scpFadeChk(void)
+{
+    int v = fadeStatus;
+    if (v == 0) {
+        return 0;
+    }
+    if (v == 3) {
+        v = 0;
+        return v;
+    }
+    return 1;
+}
 
-INCLUDE_ASM(scpIsHangChainOptional);
+inline int scpGameStat_BoyWeaponkind(void)
+{
+    GObj *w = GOBJ_ACT(boyGObj)->weapon;
+    if (w == 0)
+        return 0;
+    return CheckWeaponKind(w);
+}
 
-INCLUDE_ASM(scpBornSpider);
+inline int scpIsWallLever2On(void)
+{
+    return IsWallLeverStatus();
+}
 
-INCLUDE_ASM(func_00174A08);
+inline int scpIsHangChain(GObj *self)
+{
+    return ACTGame_isHangChain(self) != 0;
+}
 
-INCLUDE_ASM(scpWakeupItemWithBoundary);
+inline int scpIsHangChainOptional(GObj *self, int b)
+{
+    register GObj *p;        /* v1 */
+    register int b_save;     /* s0 */
+    register unsigned int v; /* v0 */
+    b_save = b;
+    p = ACTGame_isHangChain(self);
+    v = 0;
+    if (p == 0)
+        goto out;
+    v = (unsigned int)(p->labelId ^ b_save) < 1;
+out:
+    return (int)v;
+}
 
-INCLUDE_ASM(scpCheckReadyAllObjects);
+inline void scpBornSpider(int n, float a, float b, float c, float d)
+{
+    int i;
+    float t1, t2;
+    int r;
+    GObj *dead;
+    for (i = 0; i < n; i++) {
+        t1 = random_unit();
+        spiderLayout.pos[1] = b;
+        spiderLayout.pos[0] = a + d * (t1 + t1 - 1.0f);
+        t2 = random_unit();
+        spiderLayout.pos[2] = c + d * (t2 + t2 - 1.0f);
+        r = rand();
+        spiderLayout.obj = 1;
+        spiderLayout.rot[1] = (float)((r >> 4) & 0xFFFF) * 3.1415927f * 3.0517578125e-05f;
+        dead = MakeAP1GObj(&spiderLayout);
+        _ACTWait(1);
+        WakeUpAP1(dead);
+    }
+}
 
-INCLUDE_ASM(scpTriggerIgnore);
+/* the stream motion's root offset; the stream scale word is raised and
+   cleared again right after the copy */
+inline void scpSetStreamMotionRootOffset(GObj *self, float x, float y, float z)
+{
+    float v[4] = {x, y, z, 0.0f};
+    CopyVector(GOBJ_SUB(self)->streamOfs, v);
+    GOBJ_SUB(self)->streamScale = 1;
+    GOBJ_SUB(self)->streamScale = 0;
+}
 
-INCLUDE_ASM(scpDoorTypeUpMain);
+inline void scpWakeupItemWithBoundary(float x, float y, float z, float r)
+{
+    float pos[4];
+    Col4 col;
 
-INCLUDE_ASM(func_00174C40);
+    pos[0] = x;
+    pos[1] = y;
+    pos[2] = z;
+    ((int *)pos)[3] = 0;
+    ReviveCarryableItemsWithBoundary(pos, r);
+    if (debug_wallcheck_flag != 0) {
+        MatrixDrive_PushMatrix();
+        col = itemBoundaryColor;
+        gif_StartPacketPri(11);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(pos);
+        prim_DispWireSphere(r, &col, 16, 8);
+        gif_EndPacket();
+        MatrixDrive_PopMatrix();
+    }
+}
 
-INCLUDE_ASM(actSubSekizoSe);
+inline int scpCheckReadyAllObjects(void)
+{
+    return CheckReadyAllSwitches() != 0;
+}
 
-INCLUDE_ASM(scpObj1882);
+inline void scpDoorTypeUpMain(GObj *volatile self)
+{
+    Act *p = GOBJ_ACT(self);
+    p->mainMail = p->doorMail;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+/* the ADPCM request thread: no free-area wait or battle-music fallback in
+   this build */
+inline void scpSubAdpcmPlay(GObj *volatile self)
+{
+    AdpcmOpenReq work;
+    int i;
+    SqEntry *h;
+
+    memset(adpcmReq, 0, sizeof(adpcmReq));
+    for (;;) {
+        AdpcmReq *tbl = adpcmReq;
+        for (i = 0; i < 2; i++) {
+            if (tbl[i].kind != 0) {
+                AdpcmReq *p = &tbl[i];
+
+                soundDataOpen(&work, 2, p->kind, p->ch, p->loopNum);
+                while ((h = soundDataOpenSync(&work)) == (SqEntry *)-1) {
+                    _ACTWait(1);
+                }
+                if (h != 0) {
+                    if (p->play != 0) {
+                        AdpcmPlay(h->stream);
+                    }
+                    if (p->id != 0) {
+                        *p->id = h;
+                    }
+                }
+                p->kind = 0;
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+inline void actSubSekizoSe(GObj *volatile self)
+{
+    int h = soundSeDefPlay(1167, 0, 0, 1);
+    _ACTWait((int)((60 - systemStatus[0] * 10) / systemStatus[1] * 9.5f));
+    soundSeDefStop(h);
+}
+
+/* object 1882's process: scrolls st25a.c's wall01 texture, then, until flag 286
+   is set, hands the actor queen_appear_mes */
+inline void scpObj1882(GObj *volatile self) /* derived name */
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+    tex_SetUVScroll(wall01Tex, 0.0f, -0.2f, 0.0f, -0.0625f, 0.0f, -0.3f, 1);
+    _ACTWait(300);
+    tex_SetUVScroll(wall01Tex, 0.0f, -0.3f, 0.0f, -0.001f, 0.0f, -0.7f, 1);
+    if (gflagChk(286) == 0) {
+        queen_appear_mes[0].func = actSwordEffXL;
+        act->mail = queen_appear_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
