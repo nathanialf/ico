@@ -937,8 +937,6 @@ text jimakuMgrNext 0x0016D518 0x0016D6E0 ico2/fumi/src/jimaku.c local lines=45  
 rdlit jimakuMgrNext 0x005A2AD8 0x005A2B05 ico2/fumi/src/jimaku.c  # 3 strings
 sdlit jimakuMgrNext 0x00679F78 0x00679F94 ico2/fumi/src/jimaku.c  # 1 data
 text jimakuDisp 0x0016D8D8 0x0016D9F4 ico2/fumi/src/jimaku.c lines=37  # ordinal; differs-at:53; imm:2; extent-equal
-text _FUNC_GetWay_begin 0x0016DAF0 0x0016DF0C ico2/fumi/src/way_sys.c lines=186  # order
-rdlit _FUNC_GetWay_begin 0x005A2B30 0x005A2BCE ico2/fumi/src/way_sys.c  # 6 strings, 1 data
 text func_0016DF10 0x0016DF10 0x0016E51C ico2/fumi/src/way_sys.c  # jun26-only; derived name
 lit4 func_0016DF10 0x006789D0 0x006789D8 ico2/fumi/src/way_sys.c  # 2 floats (target side)
 rdlit func_0016DF10 0x005A2BD0 0x005A2BE0 ico2/fumi/src/way_sys.c  # 1 data (target side)
@@ -946,7 +944,6 @@ sdlit func_0016DF10 0x00679FA8 0x00679FDE ico2/fumi/src/way_sys.c  # 7 strings (
 text avoid_obstacle2 0x0016E520 0x0016ECFC ico2/fumi/src/way_sys.c local lines=139  # order
 lit4 avoid_obstacle2 0x006789D8 0x006789DC ico2/fumi/src/way_sys.c  # 1 float (target side)
 rdlit avoid_obstacle2 0x005A2BE0 0x005A2C40 ico2/fumi/src/way_sys.c  # 5 strings (target side)
-text create_box_bridge 0x0016ED00 0x0016EFC4 ico2/fumi/src/way_sys.c local lines=66  # order
 text GetWay_next 0x0016EFC8 0x0016F5CC ico2/fumi/src/way_sys.c lines=159  # order
 rdlit GetWay_next 0x005A2C60 0x005A2CF3 ico2/fumi/src/way_sys.c  # 9 strings (target side): five it references and the "WGROUP STAT" lines no word of .text addresses; the "delete guide point group" string before them is the inline DeleteGuideWay's, emitted by the C at its definition
 text visible_waypoint_of_all_except_gid 0x0016FC90 0x0016FE28 ico2/fumi/src/way_util.c lines=4  # call-pal
@@ -1159,87 +1156,6 @@ sdlit SetCameraMatrix 0x0067A158 0x0067A180 ico2/omori/src/camera-root.c  # 4 st
 text InsertCamera_Set 0x001828A8 0x00182938 ico2/omori/src/camera-root.c lines=19  # call-aug
 text InsertCamera_SetNoraml 0x00182938 0x001829D0 ico2/omori/src/camera-root.c lines=15  # aug
 text InsertCamera_Exec 0x001829D0 0x00182A40 ico2/omori/src/camera-root.c lines=21  # aug
-text UpdateRootPosition 0x00182B68 0x00182C6C ico2/omori/src/chain.c local lines=31  # ordinal; differs-at:7; imm:1; extent-equal
-text StartPendulum 0x00182C70 0x00182F0C ico2/omori/src/chain.c local lines=34  # ordinal; differs-at:18; imm:4; extent-equal
-lit4 StartPendulum 0x00678AA8 0x00678AB0 ico2/omori/src/chain.c  # 2 floats
-rdlit StartPendulum 0x005A3710 0x005A3730 ico2/omori/src/chain.c align=16  # 2 strings
-sdlit StartPendulum 0x0067A198 0x0067A19C ico2/omori/src/chain.c  # 1 word
-text collisionCheck 0x00182F10 0x00183064 ico2/omori/src/chain.c local lines=32  # call-aug
-rdlit collisionCheck 0x005A3730 0x005A3740 ico2/omori/src/chain.c  # 1 string (target side)
-text chain_simulate_term_simple 0x00183068 0x001831B4 ico2/omori/src/chain.c local lines=11  # call-aug
-lit4 chain_simulate_term_simple 0x00678AB0 0x00678AB8 ico2/omori/src/chain.c  # 2 floats
-text chain_simulate_term_loop 0x001831B8 0x00183280 ico2/omori/src/chain.c local lines=17  # call-aug
-lit4 chain_simulate_term_loop 0x00678AB8 0x00678AC4 ico2/omori/src/chain.c  # 3 floats
-rdlit chain_simulate_term_loop 0x005A3740 0x005A375A ico2/omori/src/chain.c align=16  # 1 string
-text chain_simulate_term_swingready 0x00183280 0x00183348 ico2/omori/src/chain.c local lines=17  # call-aug
-lit4 chain_simulate_term_swingready 0x00678AC4 0x00678AD0 ico2/omori/src/chain.c  # 3 floats (target side)
-rdlit chain_simulate_term_swingready 0x005A3760 0x005A3780 ico2/omori/src/chain.c  # 1 string (target side)
-text chain_simulate_term_swingstart 0x00183348 0x0018349C ico2/omori/src/chain.c local lines=35  # call-aug
-lit4 chain_simulate_term_swingstart 0x00678AD0 0x00678ADC ico2/omori/src/chain.c  # 3 floats (target side)
-rdlit chain_simulate_term_swingstart 0x005A3780 0x005A37A8 ico2/omori/src/chain.c  # 1 string, 1 double (target side): the function references both (0x5A3780, 0x5A37A0)
-text chain_simulate_term_moveup 0x001834A0 0x00183640 ico2/omori/src/chain.c local lines=30  # call-aug
-lit4 chain_simulate_term_moveup 0x00678ADC 0x00678AE8 ico2/omori/src/chain.c  # 3 floats
-rdlit chain_simulate_term_moveup 0x005A37A8 0x005A37D8 ico2/omori/src/chain.c  # 1 string, 2 doubles
-text chain_simulate_term_free 0x00183640 0x00183708 ico2/omori/src/chain.c local lines=17  # call-aug
-lit4 chain_simulate_term_free 0x00678AE8 0x00678AF4 ico2/omori/src/chain.c  # 3 floats
-rdlit chain_simulate_term_free 0x005A37D8 0x005A37F2 ico2/omori/src/chain.c  # 1 string
-text chain_simulate_term_down 0x00183708 0x001838F4 ico2/omori/src/chain.c local lines=39  # call-aug
-lit4 chain_simulate_term_down 0x00678AF4 0x00678B04 ico2/omori/src/chain.c  # 4 floats
-rdlit chain_simulate_term_down 0x005A37F8 0x005A3808 ico2/omori/src/chain.c  # 2 doubles
-text chain_simulate_hangstart 0x001838F8 0x00183968 ico2/omori/src/chain.c local lines=11  # call-aug
-lit4 chain_simulate_hangstart 0x00678B04 0x00678B08 ico2/omori/src/chain.c  # 1 float (target side)
-rdlit chain_simulate_hangstart 0x005A3808 0x005A3828 ico2/omori/src/chain.c  # 1 string (target side)
-text chain_simulate_stop 0x001839C0 0x00183A78 ico2/omori/src/chain.c local lines=10  # ordinal; differs-at:2; imm:1; extent-equal
-rdlit chain_simulate_stop 0x005A3840 0x005A3855 ico2/omori/src/chain.c align=16  # 1 string
-text chain_simulate_free 0x00183A78 0x00183B70 ico2/omori/src/chain.c local lines=19  # ordinal; differs-at:9; imm:1; extent-equal
-lit4 chain_simulate_free 0x00678B08 0x00678B0C ico2/omori/src/chain.c  # 1 float
-rdlit chain_simulate_free 0x005A3858 0x005A386D ico2/omori/src/chain.c  # 1 string
-text InitChainGeo 0x00184128 0x001846DC ico2/omori/src/chain.c lines=111  # ordinal; differs-at:30; length:-2; extent-differs
-lit4 InitChainGeo 0x00678B14 0x00678B18 ico2/omori/src/chain.c  # 1 float (target side)
-rdlit InitChainGeo 0x005A38E0 0x005A3914 ico2/omori/src/chain.c  # 1 string (target side)
-rdlit InitChainGeo 0x005A3920 0x005A39A8 ico2/omori/src/chain.c align=16 def  # 16-aligned in the demo (two vectors first); 2 data runs, 1 string (target side); emitted where the demo has it
-sdlit InitChainGeo 0x0067A1A0 0x0067A1A8 ico2/omori/src/chain.c  # 1 string (target side)
-text chain_set_charachara 0x001846E0 0x00184B50 ico2/omori/src/chain.c local lines=34  # ordinal; differs-at:0; length:+199; extent-differs
-lit4 chain_set_charachara 0x00678B18 0x00678B24 ico2/omori/src/chain.c  # 3 floats (target side)
-text ChainGeo 0x00184B50 0x00184CA4 ico2/omori/src/chain.c lines=183  # ordinal; differs-at:0; length:-569; extent-differs
-lit4 ChainGeo 0x00678B24 0x00678B28 ico2/omori/src/chain.c  # 1 float (target side)
-text ChainDL 0x00184CA8 0x00185600 ico2/omori/src/chain.c lines=29  # ordinal; differs-at:1; length:+513; extent-differs
-lit4 ChainDL 0x00678B28 0x00678B38 ico2/omori/src/chain.c  # 4 floats (target side)
-rdlit ChainDL 0x005A39A8 0x005A39C3 ico2/omori/src/chain.c  # 2 strings (target side)
-rdlit ChainDL 0x005A39D0 0x005A3A40 ico2/omori/src/chain.c align=16 def  # 16-aligned in the demo after zero fill; 2 jump tables (target side); emitted where the demo has it
-sdlit ChainDL 0x0067A1A8 0x0067A1AC ico2/omori/src/chain.c  # 1 string (target side)
-text GetPositionOnTheChain 0x00185600 0x00185754 ico2/omori/src/chain.c lines=30  # ordinal; differs-at:0; length:+1; extent-differs; global: obj-kind-data CHAIN's dl slot (0x48) holds it
-text PlumbPointUpdateChain 0x00185758 0x001858A8 ico2/omori/src/chain.c local lines=34  # ordinal; differs-at:0; length:-13; extent-differs
-text TestChainUpDown 0x001858A8 0x00185A2C ico2/omori/src/chain.c local lines=139  # ordinal; differs-at:0; length:-491; extent-differs
-sdlit TestChainUpDown 0x0067A1AC 0x0067A1B0 ico2/omori/src/chain.c  # 1 word (target side): the function's $gp float (0x67A1AC)
-text SetChainRootUpdateMode 0x00185A30 0x00186254 ico2/omori/src/chain.c lines=10  # ordinal; differs-at:0; length:+501; extent-differs
-rdlit SetChainRootUpdateMode 0x005A3A40 0x005A3A60 ico2/omori/src/chain.c align=16  # 1 jtbl (target side); 16-aligned in the demo after zero fill
-text HoldChain 0x00186258 0x00186288 ico2/omori/src/chain.c lines=6  # ordinal; differs-at:5; imm:1; extent-equal
-text ReleaseChain 0x00186288 0x00186298 ico2/omori/src/chain.c lines=6  # ordinal; differs-at:1; imm:1; extent-equal
-text GetChainPendulum 0x00186298 0x001862D4 ico2/omori/src/chain.c lines=10  # ordinal; differs-at:1; imm:1; extent-equal
-text IncreasePdlChain 0x001862D8 0x001862EC ico2/omori/src/chain.c lines=6  # ordinal; differs-at:2; imm:1; extent-equal
-lit4 IncreasePdlChain 0x00678B38 0x00678B3C ico2/omori/src/chain.c  # 1 float
-text DecreasePdlChain 0x001862F0 0x0018631C ico2/omori/src/chain.c lines=6  # ordinal; differs-at:7; imm:1; extent-equal
-lit4 DecreasePdlChain 0x00678B3C 0x00678B40 ico2/omori/src/chain.c  # 1 float
-text PlumbOrientUpdateChain 0x00186320 0x00186344 ico2/omori/src/chain.c lines=7  # ordinal; differs-at:2; imm:1; extent-equal
-text isBottomOfChain 0x00186348 0x00186368 ico2/omori/src/chain.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
-text isStopChain 0x00186368 0x00186378 ico2/omori/src/chain.c lines=6  # ordinal; differs-at:1; imm:1; extent-equal
-text GetChainClimbOrient 0x00186378 0x0018639C ico2/omori/src/chain.c lines=7  # ordinal; differs-at:1; imm:1; extent-equal
-text CheckChainClimbablePos 0x001863A0 0x001863C4 ico2/omori/src/chain.c lines=8  # ordinal; differs-at:1; imm:1; extent-equal
-text GetChainClimbCollision 0x001863C8 0x001863F0 ico2/omori/src/chain.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text SetChainParentGObj 0x001863F0 0x00186400 ico2/omori/src/chain.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text GetChainDirCorrectVal 0x00186400 0x00186438 ico2/omori/src/chain.c lines=6  # ordinal; differs-at:3; imm:1; extent-equal
-lit4 GetChainDirCorrectVal 0x00678B40 0x00678B44 ico2/omori/src/chain.c  # 1 float
-text InitPendulum 0x001864A8 0x001865E0 ico2/omori/src/chain.c lines=17  # ordinal; differs-at:16; imm:1; extent-equal
-lit4 InitPendulum 0x00678B44 0x00678B4C ico2/omori/src/chain.c  # 2 floats
-text LockChainGeo 0x001865E0 0x001865F4 ico2/omori/src/chain.c lines=6  # ordinal; differs-at:2; imm:1; extent-equal
-text UnLockChainGeo 0x001865F8 0x00186608 ico2/omori/src/chain.c lines=6  # ordinal; differs-at:1; imm:1; extent-equal
-text GetChainHangRange 0x00186608 0x00186618 ico2/omori/src/chain.c lines=6  # ordinal; differs-at:1; imm:1; extent-equal
-text GetChainLength 0x00186618 0x00186640 ico2/omori/src/chain.c lines=6  # ordinal; differs-at:3; imm:1; extent-equal
-text _GetCorrectOrientOfChain 0x00186640 0x00186764 ico2/omori/src/chain.c lines=25  # ordinal; differs-at:12; imm:1; extent-equal
-lit4 _GetCorrectOrientOfChain 0x00678B4C 0x00678B50 ico2/omori/src/chain.c  # 1 float
-text GetChainNearestNodePosition 0x001869D0 0x00186AB4 ico2/omori/src/chain.c lines=22  # ordinal; differs-at:15; imm:1; extent-equal
-sdlit GetChainNearestNodePosition 0x0067A1B0 0x0067A1B4 ico2/omori/src/chain.c  # 1 word
 text eBrainGetTargetGeneratorFromLabel 0x00186CF8 0x00186EB4 ico2/omori/src/ebrain.c lines=44  # ordinal; differs-at:27; imm:6; extent-equal
 text eBrainInit 0x00187830 0x00187874 ico2/omori/src/ebrain.c lines=11  # census-equal; stubbed for emission order
 text eBrainStatusSet 0x00187878 0x00187924 ico2/omori/src/ebrain.c lines=23  # census-equal; stubbed for emission order
@@ -2470,12 +2386,6 @@ sdlit ACTGetEnvironment 0x0067B238 0x0067B248 ico2/fumi/src/act-env.c  # 2 strin
 sdlit ACTGetEnvironment 0x0067B248 0x0067B250 ico2/fumi/src/act-env.c  # 2 floats (target side): the function's $gp floats (0x67B248, 0x67B24C)
 text ACTSetEnvAllmighty 0x001EF7F0 0x001EF918 ico2/fumi/src/act-env.c lines=24  # ordinal; differs-at:2; other:27; extent-equal
 text GetSofaPosition 0x001EF918 0x001EF994 ico2/fumi/src/act-env.c lines=14  # ordinal; differs-at:10; imm:7; extent-equal
-text func_001EFA40 0x001EFA40 0x001F0434 ico2/fumi/src/act-way.c  # jun26-only; derived name
-lit4 func_001EFA40 0x00678FB0 0x00678FB8 ico2/fumi/src/act-way.c  # 2 floats (target side)
-rdlit func_001EFA40 0x00661EE8 0x00661F00 ico2/fumi/src/act-way.c  # 1 string (target side)
-text ACTWayMove_BeginDetail 0x001F0438 0x001F07CC ico2/fumi/src/act-way.c lines=57  # order
-text ACTWayExec_Position 0x001F07D0 0x001F09E8 ico2/fumi/src/act-way.c lines=67  # order
-text WayMove_CheckCollis 0x001F09E8 0x001F0A58 ico2/fumi/src/act-way.c lines=15  # ordinal; differs-at:1; other:25; extent-equal
 text after_func_exec 0x001F0C38 0x001F0DC0 ico2/fumi/src/act.c local lines=25  # aug
 text actInitialize_ext_charcter 0x001F0DC0 0x001F0E7C ico2/fumi/src/act.c lines=16  # call-pal
 rdlit actInitialize_ext_charcter 0x00661FF0 0x00662000 ico2/fumi/src/act.c  # 1 string (target side)

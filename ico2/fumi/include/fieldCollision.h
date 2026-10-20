@@ -63,7 +63,6 @@ void ClipWallAdjustPos(ClipWork *work);
 void ClipWallCheckCB(ClipWork *work, int filter);
 void ClipWallFieldCheckCB(ClipWork *work, int filter);
 void ClipFloorE(ClipWork *work);
-void ClipFloorR(ClipWork *work);
 void ClipFloorIH(ClipWork *work);
 void ClipFloorCheckCB(ClipWork *work, int filter);
 void ClipCollision(ClipWork *self);
@@ -82,6 +81,9 @@ extern void (*clipFloorFunc)(ClipWork *work, int mode); /* derived name */
 #define ClipWallBoxStop(work) clipWallFunc((work), 10)
 /* mode 4 (box.c's avoidCharGObj) */
 #define ClipWallE(work) clipWallFunc((work), 4)
+/* mode 14: no ClipFloorR function either (way_sys.c's create_box_bridge:
+   $gp clipFloorFunc with 14) */
+#define ClipFloorR(work) clipFloorFunc((work), 14)
 int ChangeFieldCollisionDebugMode(int drawRay);
 void LoadCollision(void **self, char *fname);
 void DrawCollision(int mode);

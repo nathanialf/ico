@@ -1151,17 +1151,18 @@ typedef struct PObjGObj { /* field names derived */
     int pauseExempt; /* 0x170 */
 } PObjGObj;          /* derived name */
 
-/* Act + 0x438: the way-state word, one 64-bit flag word whose low two bytes
-   are also the way walker's two status bytes; bit 16 asks for the detailed
-   way search (act-way.c, girl_act.c's attract state) */
+/* Act + 0x420: the way-state word, one 64-bit word: its low word is the way
+   walker's wait count and bytes 4 and 5 its two status bytes; bit 48 asks for
+   the detailed way search and bits 49..52 count the detailed steps left
+   (act-way.c's ld/sd of 0x420 around the byte stores at 0x424/0x425; the
+   later builds put a float at 0x424 and the word at 0x428) */
 typedef union { /* field names derived */
-    long long flags;
-    unsigned char st[2];
+    unsigned long long flags;
 
     struct {
-        unsigned long long : 16;
-        unsigned long long wayDetail : 1;
-    } bits;
+        int wait;
+        unsigned char st[2];
+    } w;
 } WayState; /* derived name */
 
 /* one of the actor's 64-bit wish words (Act + 0x478 .. 0x49F): act-wish.c sets
@@ -1456,8 +1457,9 @@ typedef struct Act { /* field names derived */
     float wayDetailX; /* 0x410, the detailed way point, x */
     float wayDetailY; /* 0x414, the detailed way point, y */
     float wayDetailZ; /* 0x418, the detailed way point, z */
-    char pad41C[12];
-    WayState wayState; /* 0x428 */
+    char pad41C[4];
+    WayState wayState; /* 0x420 */
+    char pad428[8];
     int brainAim;      /* 0x430, the enemy brain's aim: 1 the girl, 2 the boy */
     int infoPos;       /* 0x434, the object info position the enemy is saved at */
     int brainStatus;   /* 0x438, the brain status the actor starts with */

@@ -459,7 +459,7 @@ void actCommonRope(GObj *volatile self)
     debug_StdPrintfDummy("enter actCommonRope\n");
     while (1) {
         UnLockChainGeo(s->chain);
-        ChainDL(s->chain); /* 0x184CA8: aug6 names it ChainGeo; chain.c's names are one off */
+        ChainGeo(s->chain);
         LockChainGeo(s->chain);
         switch (CollisCheckInRope((void *)self, s->chain)) {
         case 1:
@@ -2204,7 +2204,7 @@ inline void actCommonRopeSwing(GObj *volatile self)
             break;
         }
         UnLockChainGeo(s->chain);
-        ChainDL(s->chain); /* 0x184CA8: aug6 names it ChainGeo; chain.c's names are one off */
+        ChainGeo(s->chain);
         LockChainGeo(s->chain);
         SetMotionDirection(self, q);
         _ACTWait(1);

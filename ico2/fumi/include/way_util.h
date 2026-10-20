@@ -67,6 +67,11 @@ WayPoint *bridge_waypoint_side_me(int me, int target);
 WayPoint *waypoint_connect_group_side_me(WayGroup *bridge, int gid);
 WayPoint *bridge_waypoint_side_bridge(int gidA, int gidB);
 WayPoint *waypoint_connect_group_side_bridge(WayGroup *bridge, int gid);
-int NearestWgFromTarget(int cur, int end, WgAll *w);
+/* the demo's shortest_path and GetWgAll take no work block (way_sys.c's
+   GetWay_begin passes two arguments; their rows in way_util.c keep the
+   ordinal names until that TU lands) */
+int func_001703D8(int from, int to);
+int func_001706C8(int from, int to);
+int NearestWgFromTarget(int cur, int end); /* two arguments in the demo (GetWay_begin) */
 
 #endif /* WAY_UTIL_H */

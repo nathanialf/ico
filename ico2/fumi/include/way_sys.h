@@ -10,7 +10,8 @@
 
 #include "way_util.h"
 
-/* way_sys.c's `inline` functions, in the order of their definitions'
+/* GetWay_begin is the demo's whole search (no _FUNC_GetWay_begin under it);
+ * way_sys.c's `inline` functions follow, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 WayPoint *GetWay_begin(float *from, WVTObj *w, float *goal);
 void BridgeBox(void);
