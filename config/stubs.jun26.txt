@@ -988,44 +988,9 @@ text SetBoyInfo 0x00150810 0x00150848 ico2/fumi/src/boyact.c lines=17  # census-
 text GetBoyRootPositionForCamera 0x00150848 0x001508F4 ico2/fumi/src/boyact.c lines=19  # ordinal; differs-at:12; imm:4; extent-equal
 lit4 GetBoyRootPositionForCamera 0x0067881C 0x00678820 ico2/fumi/src/boyact.c  # 1 float
 text Boy_Init 0x001508F8 0x00150988 ico2/fumi/src/boyact.c lines=5  # aug
-text ChangeMailInLadder 0x00150988 0x00150BD4 ico2/fumi/src/commonact.c local lines=58  # order
 text _ACTCorrectMsg 0x00150BD8 0x00151360 ico2/fumi/src/commonact.c lines=297  # order
 rdlit _ACTCorrectMsg 0x005A19B0 0x005A1A57 ico2/fumi/src/commonact.c align=16  # 7 strings
 text ACTGetOrientFromIntrK 0x00151360 0x00151A08 ico2/fumi/src/commonact.c lines=108  # order
-text ACTRunIntrCorrect 0x00151A08 0x00151C84 ico2/fumi/src/commonact.c lines=45  # order
-sdlit ACTRunIntrCorrect 0x00679D40 0x00679D47 ico2/fumi/src/commonact.c  # 1 string
-text WithMailFunc_AttackFail 0x00151C88 0x00151CCC ico2/fumi/src/commonact.c lines=13  # order
-text GetCorrectOrientOfChain 0x00151CD0 0x00151DFC ico2/fumi/src/commonact.c lines=22  # call-pal
-lit4 GetCorrectOrientOfChain 0x00678820 0x00678824 ico2/fumi/src/commonact.c  # 1 float
-text CollisCheckInRope 0x00151E00 0x00151FC4 ico2/fumi/src/commonact.c local lines=51  # call-aug
-text actCommonRope 0x00151FC8 0x0015229C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec57+0x0 holds actCommonRope there (the same record index in the demo)
-lit4 actCommonRope 0x00678824 0x00678828 ico2/fumi/src/commonact.c  # 1 float (target side)
-text motCommonRopeTurnL 0x001522A0 0x00152418 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: the ROPETURN rows' motion (mail 145; the Aug-6-2001 build's first ROPETURN row)
-lit4 motCommonRopeTurnL 0x00678828 0x00678830 ico2/fumi/src/commonact.c  # 2 floats (target side)
-text motCommonRopeTurnR 0x00152418 0x00152590 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: the ROPETURN rows' motion (mail 146; the Aug-6-2001 build's second ROPETURN row)
-lit4 motCommonRopeTurnR 0x00678830 0x00678838 ico2/fumi/src/commonact.c  # 2 floats (target side)
-text actCommonRopeClimbEnd1 0x00152590 0x001528AC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec63+0x0 holds actCommonRopeClimbEnd1 there (the same record index in the demo)
-lit4 actCommonRopeClimbEnd1 0x00678838 0x0067883C ico2/fumi/src/commonact.c  # 1 float (target side)
-text actCommonRopeCliff 0x001528B0 0x00152A40 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec65+0x0 holds actCommonRopeCliff there (the same record index in the demo)
-text func_00152A40 0x00152A40 0x00152F3C ico2/fumi/src/commonact.c  # jun26-only; derived name
-text func_00152F40 0x00152F40 0x001530D8 ico2/fumi/src/commonact.c  # jun26-only; derived name
-lit4 func_00152F40 0x0067883C 0x00678844 ico2/fumi/src/commonact.c  # 2 floats (target side)
-text actCommonRopeSpecial 0x001530D8 0x00153334 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec66+0x0 holds actCommonRopeSpecial there (the same record index in the demo)
-sdlit actCommonRopeSpecial 0x00679D48 0x00679D50 ico2/fumi/src/commonact.c  # 1 string (target side)
-text actCommonLever 0x001533C0 0x001534E0 ico2/fumi/src/commonact.c lines=25  # ordinal; differs-at:0; length:-37; extent-differs
-lit4 actCommonLever 0x00678844 0x00678848 ico2/fumi/src/commonact.c  # 1 float (target side)
-text DamageFunc 0x00153508 0x001535A4 ico2/fumi/src/commonact.c local lines=14  # ordinal; differs-at:13; imm:4; extent-equal
-sdlit DamageFunc 0x00679D50 0x00679D58 ico2/fumi/src/commonact.c  # 1 string
-text DownFunc 0x001535A8 0x001535F0 ico2/fumi/src/commonact.c local lines=7  # ordinal; differs-at:11; imm:1; extent-equal
-text actCommonDie 0x001535F0 0x00153920 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec22+0x0 holds actCommonDie there (the same record index in the demo)
-lit4 actCommonDie 0x00678848 0x0067884C ico2/fumi/src/commonact.c  # 1 float (target side)
-rdlit actCommonDie 0x005A1B18 0x005A1B30 ico2/fumi/src/commonact.c  # 1 string (target side)
-text func_00153920 0x00153920 0x00153AD0 ico2/fumi/src/commonact.c  # jun26-only; derived name
-rdlit func_00153920 0x005A1B30 0x005A1B70 ico2/fumi/src/commonact.c  # 1 string (target side)
-text actCommonCling 0x00153AD0 0x00153B68 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec16+0x18 holds actCommonCling there (the same record index in the demo)
-text actCommonSlip 0x00153B68 0x00153C84 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec42+0x0 holds actCommonSlip there (the same record index in the demo)
-text actCommonStone 0x00153C88 0x00153E00 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec23+0x0 holds actCommonStone there (the same record index in the demo)
-rdlit actCommonStone 0x005A1B88 0x005A1BA8 ico2/fumi/src/commonact.c  # 2 strings (target side)
 text func_00153E00 0x00153E00 0x00153E38 ico2/fumi/src/commonact.c  # jun26-only; derived name
 text func_00153E38 0x00153E38 0x00153E6C ico2/fumi/src/commonact.c  # jun26-only; derived name
 text _boxbar_set_sound 0x00153E70 0x00153F5C ico2/fumi/src/commonact.c local lines=28  # call-pal
@@ -1034,44 +999,15 @@ lit4 actCommonBox 0x0067884C 0x00678850 ico2/fumi/src/commonact.c  # 1 float (ta
 text actCommonBar 0x001543E8 0x001546CC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the BAR row's act
 lit4 actCommonBar 0x00678850 0x00678854 ico2/fumi/src/commonact.c  # 1 float (target side)
 sdlit actCommonBar 0x00679D60 0x00679D68 ico2/fumi/src/commonact.c  # 1 string (target side)
-text funcCommonJumpDircorrect 0x001546D0 0x001546E0 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: the JUMP row's handler (the Aug-6-2001 build's one handler on a JUMP row)
-text funcCommonFallDircorrect 0x001546E0 0x001546F0 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: the FALL row's handler (the Aug-6-2001 build's one handler on a FALL row)
-text func_001546F0 0x001546F0 0x00154954 ico2/fumi/src/commonact.c  # jun26-only; derived name
-sdlit func_001546F0 0x00679D68 0x00679D6C ico2/fumi/src/commonact.c  # 1 word (target side): the function's $gp float (0x679D68)
-text actCommonJump 0x00154958 0x00154A5C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec4+0x0 holds actCommonJump there (the same record index in the demo)
-lit4 actCommonJump 0x00678854 0x00678858 ico2/fumi/src/commonact.c  # 1 float (target side)
-text actCommonFall 0x00154A60 0x00154C44 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec5+0x0 holds actCommonFall there (the same record index in the demo)
 text func_00154C48 0x00154C48 0x00154D1C ico2/fumi/src/commonact.c  # jun26-only; derived name
 text actCommonFly 0x00154D20 0x00155078 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the FLY row's act (the Aug-6-2001 build's name for that mode's act)
 lit4 actCommonFly 0x00678858 0x00678868 ico2/fumi/src/commonact.c  # 4 floats (target side)
 text actCommonLadder 0x00155078 0x0015563C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec32+0x0 holds actCommonLadder there (the same record index in the demo)
-text funcCommonBeginReady 0x00155640 0x00155694 ico2/fumi/src/commonact.c lines=6  # aug
-rdlit funcCommonBeginReady 0x005A1C98 0x005A1CAE ico2/fumi/src/commonact.c  # 1 string
-sdlit funcCommonBeginReady 0x00679D70 0x00679D7D ico2/fumi/src/commonact.c  # 2 strings
-text funcCommonEndReady 0x00155698 0x001556EC ico2/fumi/src/commonact.c lines=6  # aug
-rdlit funcCommonEndReady 0x005A1CB0 0x005A1CC4 ico2/fumi/src/commonact.c align=16  # 1 string
-text funcCommonEndExec 0x001556F0 0x00155744 ico2/fumi/src/commonact.c lines=6  # aug
-rdlit funcCommonEndExec 0x005A1CC8 0x005A1CDB ico2/fumi/src/commonact.c  # 1 string
-text funcCommonError 0x00155748 0x0015579C ico2/fumi/src/commonact.c lines=6  # aug
-rdlit funcCommonError 0x005A1CE0 0x005A1CF4 ico2/fumi/src/commonact.c align=16  # 1 string
-text SetMotionDirectionSmooze 0x001557A0 0x00155980 ico2/fumi/src/commonact.c lines=39  # call-aug
-lit4 SetMotionDirectionSmooze 0x00678868 0x00678870 ico2/fumi/src/commonact.c  # 2 floats (target side)
-text _ACTDebugPrint 0x00155980 0x00155C74 ico2/fumi/src/commonact.c lines=58  # call-pal
-rdlit _ACTDebugPrint 0x005A1CF8 0x005A1DB8 ico2/fumi/src/commonact.c  # 11 strings (target side)
-text ACTSendMailCorrect 0x00155C78 0x00155D00 ico2/fumi/src/commonact.c lines=13  # call-pal
 text _ACTCommonMailTest 0x00155D00 0x001560E4 ico2/fumi/src/commonact.c lines=85  # call-aug
 lit4 _ACTCommonMailTest 0x00678870 0x006788A4 ico2/fumi/src/commonact.c  # 13 floats (target side)
-text E3_LeverCheck 0x001560E8 0x001561A4 ico2/fumi/src/commonact.c lines=10  # aug
-lit4 E3_LeverCheck 0x006788A4 0x006788A8 ico2/fumi/src/commonact.c  # 1 float
 text actCommonBecarry 0x001561A8 0x001564C0 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec106+0x0 holds it; the Aug-6-2001 build's same record is rec107+0x0 (one record later), which holds actCommonBecarry
 sdlit actCommonBecarry 0x00679D80 0x00679D88 ico2/fumi/src/commonact.c  # 1 string (target side)
 text func_001564C0 0x001564C0 0x001567F8 ico2/fumi/src/commonact.c  # jun26-only; derived name
-text ContinueCorrectPosition 0x001567F8 0x0015693C ico2/fumi/src/commonact.c lines=28  # call-aug
-rdlit ContinueCorrectPosition 0x005A1DB8 0x005A1DC7 ico2/fumi/src/commonact.c  # 1 string
-text actCommonBackhand 0x00156940 0x00156A84 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec55+0x0 holds actCommonBackhand there (the same record index in the demo)
-lit4 actCommonBackhand 0x006788A8 0x006788AC ico2/fumi/src/commonact.c  # 1 float (target side)
-text actCommonSlowrun 0x00156A88 0x00156BB8 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec67+0x0 holds it; the Aug-6-2001 build's same record is rec68+0x0 (one record later), which holds actCommonSlowrun
-lit4 actCommonSlowrun 0x006788AC 0x006788B4 ico2/fumi/src/commonact.c  # 2 floats (target side)
 text _ACTMotDirSmzDirect 0x00156BB8 0x00156C1C ico2/fumi/src/commonact.c lines=13  # call-aug
 text WithMailFunc_Idling 0x00156C20 0x00156CCC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: mail 161's accept (the Aug-6-2001 build's mail 164 row)
 text WithMailFunc_BossDamaged 0x00156CD0 0x00156CE8 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: mails 258/259's accept (the Aug-6-2001 build's 266/267 rows)
@@ -1092,94 +1028,6 @@ text actCommonClimb 0x00157180 0x001571AC ico2/fumi/src/commonact.c  # jun26-onl
 text actCommonCliffdown 0x001571B0 0x001571FC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec37+0x0 holds actCommonCliffdown there (the same record index in the demo)
 rdlit actCommonCliffdown 0x005A1BA8 0x005A1BC8 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
 text actCommonLadderBellow 0x00157200 0x00157334 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec39+0x0 holds actCommonLadderBellow there (the same record index in the demo)
-text actCommonLadderBellowHang 0x00157338 0x0015738C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec40+0x0 holds actCommonLadderBellowHang there (the same record index in the demo)
-text actCommonEdge 0x00157390 0x001573F0 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec35+0x0 holds actCommonEdge there (the same record index in the demo)
-text actCommonEdgeHang 0x001573F0 0x00157464 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec34+0x0 holds actCommonEdgeHang there (the same record index in the demo)
-text actCommonDodge 0x00157468 0x00157540 ico2/fumi/src/commonact.c lines=21  # aug
-rdlit actCommonDodge 0x005A1BF0 0x005A1C06 ico2/fumi/src/commonact.c align=16 def  # 1 string
-text actCommonDodgeJump 0x00157540 0x001575D0 ico2/fumi/src/commonact.c lines=16  # aug
-text actCommonGuard 0x001575D0 0x0015765C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec19+0x0 holds actCommonGuard there (the same record index in the demo)
-rdlit actCommonGuard 0x005A1C08 0x005A1C20 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
-text actCommonFallDamage 0x00157660 0x0015768C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec7+0x0 holds actCommonFallDamage there (the same record index in the demo)
-text actCommonDamage 0x00157690 0x0015770C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec20+0x0 holds actCommonDamage there (the same record index in the demo)
-rdlit actCommonDamage 0x005A1AE8 0x005A1B00 ico2/fumi/src/commonact.c def  # 1 string (target side), its entry message, ahead of func_001535F0's in this build
-text actCommonDown 0x00157710 0x001577E0 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec21+0x0 holds actCommonDown there (the same record index in the demo)
-rdlit actCommonDown 0x005A1B00 0x005A1B18 ico2/fumi/src/commonact.c def  # 1 string (target side), its entry message, ahead of func_001535F0's in this build
-text actCommonShoal 0x001577E0 0x0015780C ico2/fumi/src/commonact.c lines=5  # census-equal; stubbed for emission order
-rdlit actCommonShoal 0x005A1BC8 0x005A1BD8 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
-text actCommonSwim 0x00157810 0x00157838 ico2/fumi/src/commonact.c lines=7  # census-equal; stubbed for emission order
-rdlit actCommonSwim 0x005A1BD8 0x005A1BF0 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
-text actCommonTruckLever 0x00157838 0x00157930 ico2/fumi/src/commonact.c lines=19  # aug
-lit4 actCommonTruckLever 0x006788B4 0x006788B8 ico2/fumi/src/commonact.c  # 1 float (target side)
-text actCommonLever2 0x00157930 0x001579C8 ico2/fumi/src/commonact.c lines=18  # aug
-text actCommonRopeTouchWall 0x001579C8 0x00157A5C ico2/fumi/src/commonact.c lines=11  # aug
-text actCommonRopeSwing 0x00157A60 0x00157B58 ico2/fumi/src/commonact.c lines=29  # aug
-text actCommonRopeTurn 0x00157B58 0x00157B78 ico2/fumi/src/commonact.c lines=6  # aug
-text actCommonRopeDownEnd 0x00157B78 0x00157B98 ico2/fumi/src/commonact.c lines=9  # aug
-text actCommonRopeJump 0x00157B98 0x00157BF4 ico2/fumi/src/commonact.c lines=15  # aug
-text actCommonRopeJumpBefore 0x00157BF8 0x00157C24 ico2/fumi/src/commonact.c lines=7  # aug
-text actCommonRopeTurnSpecial 0x00157C28 0x00157C54 ico2/fumi/src/commonact.c lines=19  # aug
-text actCommonRopeClimbEnd2 0x00157C58 0x00157CC0 ico2/fumi/src/commonact.c lines=7  # aug
-text actCommonCornered 0x00157CC0 0x00157CEC ico2/fumi/src/commonact.c lines=11  # aug
-text actCommonLookaround 0x00157CF0 0x00157DE8 ico2/fumi/src/commonact.c lines=7  # aug
-text actCommonTurnWarn 0x00157DE8 0x00157EA0 ico2/fumi/src/commonact.c lines=22  # ordinal; differs-at:4; imm:8; extent-equal
-text actCommonTurnStrict 0x00157EA0 0x00157F10 ico2/fumi/src/commonact.c lines=16  # ordinal; differs-at:8; imm:2; extent-equal
-text actCommonPPipe 0x00157F10 0x00157F30 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text actCommonHandrail 0x00157F30 0x00157F50 ico2/fumi/src/commonact.c lines=11  # ordinal; differs-at:1; length:-16; extent-differs
-text actCommonOneWall 0x00157F50 0x00157F84 ico2/fumi/src/commonact.c lines=5  # census-equal; stubbed for emission order
-text motCommonNull 0x00157F88 0x00157FB0 ico2/fumi/src/commonact.c lines=7  # census-equal; stubbed for emission order
-rdlit motCommonNull 0x005A1C80 0x005A1C98 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
-text motCommonBoxPush 0x00157FB0 0x00158008 ico2/fumi/src/commonact.c lines=14  # ordinal; differs-at:0; length:-13; extent-differs
-text motCommonBoxPull 0x00158008 0x00158068 ico2/fumi/src/commonact.c lines=14  # ordinal; differs-at:0; length:-11; extent-differs
-text motCommonBarPush 0x00158068 0x00158098 ico2/fumi/src/commonact.c lines=5  # ordinal; differs-at:8; imm:1; extent-equal
-text motCommonBarPull 0x00158098 0x001580CC ico2/fumi/src/commonact.c lines=6  # ordinal; differs-at:9; imm:1; extent-equal
-text motCommonLadderUp 0x001580D0 0x0015814C ico2/fumi/src/commonact.c lines=16  # ordinal; differs-at:11; imm:4; extent-equal
-text motCommonLadderDown 0x00158150 0x001581DC ico2/fumi/src/commonact.c lines=16  # ordinal; differs-at:15; imm:4; extent-equal
-text motCommonSlip 0x001581E0 0x0015826C ico2/fumi/src/commonact.c lines=14  # ordinal; differs-at:6; length:-2; extent-differs
-text motCommonRopejumpDircorrect 0x00158270 0x001582AC ico2/fumi/src/commonact.c lines=16  # ordinal; differs-at:0; length:-16; extent-differs
-text motCommonHangNone 0x001582B0 0x001582DC ico2/fumi/src/commonact.c lines=5  # census-equal; stubbed for emission order
-rdlit motCommonHangNone 0x005A1C20 0x005A1C40 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
-text motCommonHangWall 0x001582E0 0x0015830C ico2/fumi/src/commonact.c lines=5  # census-equal; stubbed for emission order
-rdlit motCommonHangWall 0x005A1C40 0x005A1C5A ico2/fumi/src/commonact.c align=16 def  # 1 string
-text motCommonHangCliff 0x00158310 0x0015833C ico2/fumi/src/commonact.c lines=5  # census-equal; stubbed for emission order
-rdlit motCommonHangCliff 0x005A1C60 0x005A1C80 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
-text motCommonTruckLeverLoop 0x00158340 0x00158394 ico2/fumi/src/commonact.c lines=9  # ordinal; differs-at:8; imm:1; extent-equal
-sdlit motCommonTruckLeverLoop 0x00679D88 0x00679D8D ico2/fumi/src/commonact.c def  # 1 string
-text motCommonTruckLeverPull 0x00158398 0x001583EC ico2/fumi/src/commonact.c lines=8  # ordinal; differs-at:8; imm:1; extent-equal
-sdlit motCommonTruckLeverPull 0x00679D90 0x00679D95 ico2/fumi/src/commonact.c def  # 1 string
-text motCommonTruckLeverPush 0x001583F0 0x00158444 ico2/fumi/src/commonact.c lines=8  # ordinal; differs-at:8; imm:1; extent-equal
-sdlit motCommonTruckLeverPush 0x00679D98 0x00679D9D ico2/fumi/src/commonact.c def  # 1 string
-text funcCommonRopeBefore 0x00158448 0x00158454 ico2/fumi/src/commonact.c lines=4  # ordinal; differs-at:2; imm:1; extent-equal
-text afterCommonRope 0x00158458 0x001584B0 ico2/fumi/src/commonact.c lines=11  # ordinal; differs-at:9; imm:4; extent-equal
-rdlit afterCommonRope 0x005A1A58 0x005A1A70 ico2/fumi/src/commonact.c def  # 1 string
-text extraCommonNull 0x001584B0 0x001584D0 ico2/fumi/src/commonact.c lines=6  # census-equal; stubbed for emission order
-text extraCommonCall 0x001584D0 0x00158508 ico2/fumi/src/commonact.c lines=9  # ordinal; differs-at:8; imm:1; extent-equal
-text funcCommonWayOn 0x00158508 0x00158520 ico2/fumi/src/commonact.c lines=6  # census-equal; stubbed for emission order
-text funcCommonSofaWakeup 0x00158520 0x00158530 ico2/fumi/src/commonact.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text _ACTMotReqResult 0x00158530 0x00158564 ico2/fumi/src/commonact.c lines=7  # ordinal; differs-at:5; imm:2; extent-equal
-text test_CURRENTORIENT 0x00158568 0x001585D4 ico2/fumi/src/commonact.c lines=12  # ordinal; differs-at:19; imm:1; extent-equal
-text test_CURRENTROOT 0x001585D8 0x00158670 ico2/fumi/src/commonact.c lines=27  # ordinal; differs-at:0; length:-9; extent-differs
-text StartCorrectPosition 0x00158670 0x001587C0 ico2/fumi/src/commonact.c lines=21  # ordinal; differs-at:16; imm:10; extent-equal
-text IsCorrectPosition 0x001587C0 0x001587DC ico2/fumi/src/commonact.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
-text ControlMotionOrient 0x001587E0 0x001587FC ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text _ACTMotDir_V 0x00158800 0x0015883C ico2/fumi/src/commonact.c lines=6  # census-equal; stubbed for emission order
-text ACTMotDirToWall 0x00158840 0x00158884 ico2/fumi/src/commonact.c lines=4  # ordinal; differs-at:9; imm:1; extent-equal
-text SetCorrectOrientOfChain 0x00158888 0x001588C0 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text actAfterForceRope 0x001588C0 0x00158928 ico2/fumi/src/commonact.c lines=9  # ordinal; differs-at:7; imm:4; extent-equal
-rdlit actAfterForceRope 0x005A1A70 0x005A1AB0 ico2/fumi/src/commonact.c align=16 def  # strings (the vectors after them are ropeSpecialWallHit's C initializers)
-text actAfterForceRopeSwing 0x00158928 0x00158990 ico2/fumi/src/commonact.c lines=9  # ordinal; differs-at:7; imm:4; extent-equal
-text actAfterDown 0x00158990 0x001589F4 ico2/fumi/src/commonact.c lines=4  # ordinal; differs-at:17; imm:2; extent-equal
-text afterCommonCling 0x001589F8 0x00158A1C ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text actAfterSlip 0x00158A20 0x00158A30 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text afterCommonRevive 0x00158A30 0x00158A54 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text afterCommonStone 0x00158A58 0x00158A8C ico2/fumi/src/commonact.c lines=7  # ordinal; differs-at:6; imm:2; extent-equal
-text afterCommonBox 0x00158A90 0x00158AB8 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text afterCommonBar 0x00158AB8 0x00158B10 ico2/fumi/src/commonact.c lines=6  # ordinal; differs-at:13; imm:3; extent-equal
-sdlit afterCommonBar 0x00679D58 0x00679D5F ico2/fumi/src/commonact.c def  # 1 string
-text actAfterJump 0x00158B10 0x00158B3C ico2/fumi/src/commonact.c local lines=5  # ordinal; differs-at:2; other:3; extent-equal
-text afterCommonOneWall 0x00158B40 0x00158B50 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text ACTCheckFlagAttack 0x00158B50 0x00158B64 ico2/fumi/src/commonact.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text afterCommonTruckLever 0x00158B68 0x00158B94 ico2/fumi/src/commonact.c lines=5  # ordinal; differs-at:7; imm:1; extent-equal
 data intrMotion 0x0026A730 0x0026AD00 ico2/fumi/src/commonact.c local  # intrMotion: ACTGetOrientFromIntrK's table (lui/addiu of 0x26A730); 372 kinds in this build, PAL 432, and the motion numbers differ (target side)
 data D_0026AD30 0x0026AD30 0x0026AD50 ico2/fumi/src/commonact.c local  # func_00154C48's two colours (0x26AD30, 0x26AD40), after cageUpDown; PAL's flyLimitCol is one colour (target side)
 text setBattleStatus 0x00158B98 0x00158CA8 ico2/fumi/src/enemy_act.c local lines=24  # ordinal; differs-at:5; imm:17; extent-equal

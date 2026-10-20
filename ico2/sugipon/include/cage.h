@@ -13,7 +13,7 @@ struct GObj;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order cage.c's inline tail has. */
-int GetCageChainPoint(float *root, float *tip, struct GObj *self);
+void GetCageChainPoint(float *root, float *tip, struct GObj *self); /* no return value in this build */
 void SetCageVelocityFriction(struct GObj *self, float friction);
 void StabilizeAllLayoutedCage(void);
 void SetCageChainHangableFlag(struct GObj *self, int flag);

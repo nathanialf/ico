@@ -156,7 +156,7 @@ typedef struct {             /* field names derived */
     int slopeIK;             /* 0x108 */
     int gravity;             /* 0x10C */
     int noStepSearch;        /* 0x110 */
-    int word114;             /* 0x114, an int in this build (90, 360, small counts, -1), read by the turn and smoothing helpers */
+    int dirFrames;           /* 0x114, an int in this build (90, 360, small counts, -1), read by the turn and smoothing helpers (_ACTDebugPrint's maxry) */
     int area;                /* 0x118, the motion memory area: 0 static, 4 dynamic, else swap */
     int wallFeedback;        /* 0x11C */
     int word120;             /* 0x120 */

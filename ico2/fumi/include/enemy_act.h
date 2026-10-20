@@ -74,26 +74,27 @@ typedef struct EnemyBattleWork { /* field names derived */
     float ropeCliffX; /* 0x1C0 */
     float ropeCliffY; /* 0x1C4 */
     float ropeCliffZ; /* 0x1C8 */
-    char pad1CC[20];
+    char pad1CC[12];
     float bodySize;
     int liftKind;
-    int sizeClass; /* 0x1E8 */
+    int sizeClass; /* 0x1E0 */
     int battleType;
-    int paraStatus;    /* 0x1F0 */
-    int clingNode;     /* 0x1F4 */
-    int attackChance;  /* 0x1F8 */
-    int attackChance2; /* 0x1FC */
-    int bodyslamMail;  /* 0x200 */
+    int paraStatus;    /* 0x1E8 */
+    int clingNode;     /* 0x1EC */
+    int attackChance;  /* 0x1F0 */
+    int attackChance2; /* 0x1F4 */
+    int bodyslamMail;  /* 0x1F8 */
     int mode;
     int reqMode;
-    int bossLife; /* 0x20C */
+    int bossLife; /* 0x204 */
     EnemyStatusFlags flags;
     int target;
-    int clingReq;    /* 0x21C */
-    int clingTarget; /* 0x220 */
+    int clingReq;    /* 0x214 */
+    int clingTarget; /* 0x218 */
     int waitCount;
     int slowTimer;
-    int liftedObj;   /* 0x22C */
+    int liftedObj;   /* 0x224 */
+    char pad228[8];
     float readyPosX; /* 0x230 */
     float readyPosY; /* 0x234 */
     float readyPosZ; /* 0x238 */
@@ -127,11 +128,12 @@ typedef struct EnemyBattleWork { /* field names derived */
     float rescueBoyPos[4];  /* 0x2F0, where the boy stands to pull the girl up, 60 short of her */
     float rescueGirlPos[4]; /* 0x300, the girl's position, 50 up: [1] is the height she is set to */
     int boxBarSound; /* 0x310 */
-    char pad314[28];
-    float climbOrient[4]; /* 0x330 the orient of the chain or wall climbed */
-    float climbPos[4];    /* 0x340 the climb's position */
-    ClimbCol climbCol;    /* 0x350 the wall the climb holds, as GetChainClimbCollision fills it */
-    struct GObj *climbObj; /* 0x35C the chain or cage climbed */
+    char pad314[124]; /* 0x60 bytes more than September's before the climb record
+                         (RequestChangeHandMode reads 0x31C, actCommonRope climbOrient 0x390) */
+    float climbOrient[4]; /* 0x390 the orient of the chain or wall climbed */
+    float climbPos[4];    /* 0x3A0 the climb's position */
+    ClimbCol climbCol;    /* 0x3B0 the wall the climb holds, as GetChainClimbCollision fills it */
+    struct GObj *climbObj; /* 0x3BC the chain or cage climbed */
 } EnemyBattleWork;   /* derived name */
 
 /* enemy_act.c's `inline` functions, in the order of their definitions'

@@ -40,9 +40,7 @@ typedef struct ActWork { /* field names derived */
     float hideDirX; /* 0x390 */
     float hideDirY; /* 0x394 */
     float hideDirZ; /* 0x398 */
-    int carryGirlFrames; /* 0x39C, kept at its earlier place for commonact.c's IsFlyTimeOver
-                            (not measured in this build) */
-    char pad3A0[16];
+    char pad39C[20];
     float velX; /* 0x3B0 */
     float velY; /* 0x3B4 */
     float velZ; /* 0x3B8 */
