@@ -15,11 +15,11 @@ struct SqEntry;
 /* st04l.o's .sdata globals */
 extern struct SqEntry *crest1;
 extern struct SqEntry *crest2;
-extern int solar4l;
-extern unsigned int oriup4c;
-extern unsigned char oridown4c;
+extern struct SqEntry *solar4l;
 extern unsigned int st04l_yure;
 extern unsigned char st04l_yure_vol;
+extern unsigned int sekizo_4l;
+extern unsigned char sekizo_4l_vol;
 void actSt04eSolarBeamChk(GObj *volatile self);
 void actSt04lBrg1Chk(GObj *volatile self);
 void actSt04lBrg1WayChk(GObj *volatile self);
