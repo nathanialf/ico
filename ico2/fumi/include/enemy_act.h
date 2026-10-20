@@ -16,11 +16,11 @@ typedef struct { /* field names derived */
     GObj *gobj;
 } BrainModeTarget; /* derived name */
 
-/* A 64-bit flag word with a byte view (the enemy work's +0x210 status word and
+/* A 64-bit flag word with a byte view (the enemy work's +0x208 status word and
    the sub record's +0x20 word).  A write through the byte view may alias the
    pointers that reach it, so each arm below re-reads self->sub->enemy for its
-   second assignment.  The two-word view is the enemy work's: +0x210 is one
-   64-bit word and +0x214, the requested brain target, a record inside it. */
+   second assignment.  The two-word view is the enemy work's: +0x208 is one
+   64-bit word and +0x20C, the requested brain target, a record inside it. */
 
 typedef union { /* field names derived */
     char c[8];
@@ -32,9 +32,9 @@ typedef union { /* field names derived */
     } w;
 } EnemyStatusFlags; /* derived name */
 
-/* The enemy work at sub+0x680: the running brain mode (+0x204) and the one
-   _BrainMode_SetDirect requests (+0x208), the requested target inside the
-   status word and the running target (+0x218), a countdown (+0x224). */
+/* The enemy work at sub+0x650 (the demo; September 0x670): the running brain mode (+0x1FC) and the one
+   _BrainMode_SetDirect requests (+0x200), the requested target inside the
+   status word and the running target (+0x210), a countdown (+0x21C). */
 typedef struct EnemyBattleWork { /* field names derived */
     char pad0[84];
     unsigned int speedRatioPri; /* 0x54 */
@@ -150,7 +150,6 @@ void actEnemyNest(GObj *volatile self);
 void funcEnemyCarryFail(struct GObj *self);
 void actEnemyHyde(GObj *self);
 inline void actEnemyFlagOnFree(GObj *self);
-inline void afterCommonCarry(GObj *volatile self);
 void actEnemyFlagOnDead(GObj *self);
 int EnemyBrainStatus_Boy(struct GObj *self);
 int EnemyBrainStatus_Girl(struct GObj *self);
@@ -171,6 +170,7 @@ int GetMotherGeneratorLabelAskEnemy(struct GObj *enemy);
 struct GObj *GetMotherGeneratorGObjAskEnemy(struct GObj *enemy);
 inline void subEnemyBrain_Idle(GObj *volatile self);
 inline void subEnemyBrain_Await(GObj *volatile self);
+inline void subEnemyBrain_ToGenerator(GObj *self);
 inline void subEnemyBrain_FindGirl(GObj *volatile self);
 inline void subEnemyBrain_BodyGuard(GObj *volatile self);
 inline void subEnemyBrain_Shoulder(GObj *volatile self);
@@ -179,7 +179,7 @@ inline void subEnemyBrain_Bodyslam(GObj *volatile self);
 inline void subEnemyBrain_Irregular(GObj *volatile self);
 inline void _BrainMode_SetDirect(GObj *self, int mode, BrainModeTarget *tgt);
 inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze);
-inline int FlyMail(void *self);
+inline void afterCommonCarry(GObj *volatile self);
 void boss_effect_callback(int id);
 void motEnemyStand(GObj *volatile self);
 void motEnemyWalk(GObj *volatile self);
@@ -199,5 +199,6 @@ extern int entesty;
 void subEnemyControl(GObj *volatile self);
 void subEnemyCollision(GObj *volatile self);
 void subEnemyBrainMain(GObj *volatile self);
+void FlyMail(void *self);
 
 #endif /* ENEMY_ACT_H */

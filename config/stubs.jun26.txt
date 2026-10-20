@@ -920,121 +920,15 @@ rdlit actCommonCliffdown 0x005A1BA8 0x005A1BC8 ico2/fumi/src/commonact.c def  # 
 text actCommonLadderBellow 0x00157200 0x00157334 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec39+0x0 holds actCommonLadderBellow there (the same record index in the demo)
 data intrMotion 0x0026A730 0x0026AD00 ico2/fumi/src/commonact.c local  # intrMotion: ACTGetOrientFromIntrK's table (lui/addiu of 0x26A730); 372 kinds in this build, PAL 432, and the motion numbers differ (target side)
 data D_0026AD30 0x0026AD30 0x0026AD50 ico2/fumi/src/commonact.c local  # func_00154C48's two colours (0x26AD30, 0x26AD40), after cageUpDown; PAL's flyLimitCol is one colour (target side)
-text setBattleStatus 0x00158B98 0x00158CA8 ico2/fumi/src/enemy_act.c local lines=24  # ordinal; differs-at:5; imm:17; extent-equal
-rdlit setBattleStatus 0x005A1E20 0x005A1E30 ico2/fumi/src/enemy_act.c  # 1 string (target side): __FILE__, first used here
-sdlit setBattleStatus 0x00679DF0 0x00679DF2 ico2/fumi/src/enemy_act.c  # 1 string
-text boss_effect_start 0x00158CA8 0x00158E54 ico2/fumi/src/enemy_act.c local lines=23  # ordinal; differs-at:18; imm:16; extent-equal
-text boss_effect_check_parts 0x00158E58 0x00158E9C ico2/fumi/src/enemy_act.c local lines=11  # ordinal; differs-at:2; imm:2; extent-equal
-text boss_effect_process 0x00158EA0 0x00159004 ico2/fumi/src/enemy_act.c local lines=30  # ordinal; differs-at:26; imm:13; extent-equal
-text _DoAwait 0x00159008 0x00159080 ico2/fumi/src/enemy_act.c local lines=11  # ordinal; differs-at:7; other:5; extent-equal
-text _DoAwaitGirl 0x00159080 0x001590F8 ico2/fumi/src/enemy_act.c local lines=11  # ordinal; differs-at:7; other:5; extent-equal
-text subEnemyControl 0x00159200 0x0015959C ico2/fumi/src/enemy_act.c lines=96  # aug
-lit4 subEnemyControl 0x006788BC 0x006788D8 ico2/fumi/src/enemy_act.c  # 7 floats
-rdlit subEnemyControl 0x005A1E50 0x005A1EE8 ico2/fumi/src/enemy_act.c align=16  # 1 jtbl
-text subEnemyCollision 0x001595A0 0x00159A54 ico2/fumi/src/enemy_act.c lines=89  # aug
-lit4 subEnemyCollision 0x006788D8 0x006788E4 ico2/fumi/src/enemy_act.c  # 3 floats (target side)
-text actEnemyAttack 0x00159A58 0x00159B7C ico2/fumi/src/enemy_act.c lines=29  # aug
-text actEnemyRestart 0x00159B80 0x00159D78 ico2/fumi/src/enemy_act.c lines=71  # aug
-text PairSetGeometry.150 0x00159D78 0x00159ED0 ico2/fumi/src/enemy_act.c local file=PairSetGeometry_150_enemy_act  # call-aug
-text actEnemyForceSwitchToCarry 0x00159ED0 0x00159FDC ico2/fumi/src/enemy_act.c local lines=63  # call-pal
 text actEnemyKidnapEnd 0x00159FE0 0x0015A324 ico2/fumi/src/enemy_act.c lines=149  # aug
 lit4 actEnemyKidnapEnd 0x006788E4 0x006788EC ico2/fumi/src/enemy_act.c  # 2 floats (target side)
-text actEnemyKidnapBegin 0x0015A328 0x0015A4F0 ico2/fumi/src/enemy_act.c lines=43  # aug
-lit4 actEnemyKidnapBegin 0x006788EC 0x006788F0 ico2/fumi/src/enemy_act.c  # 1 float (target side)
-text MoveChestForCatchBoy 0x0015A4F0 0x0015A6D4 ico2/fumi/src/enemy_act.c local lines=43  # aug
-lit4 MoveChestForCatchBoy 0x006788F0 0x006788F4 ico2/fumi/src/enemy_act.c  # 1 float
-text actEnemyBodylift 0x0015A6D8 0x0015AC54 ico2/fumi/src/enemy_act.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec93+0x18 holds it; the Aug-6-2001 build's same record is rec94+0x18 (one record later), which holds actEnemyBodylift
-lit4 actEnemyBodylift 0x006788F4 0x006788F8 ico2/fumi/src/enemy_act.c  # 1 float (target side)
-text actEnemyPickupBegin 0x0015AC58 0x0015AD78 ico2/fumi/src/enemy_act.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec96+0x18 holds it; the Aug-6-2001 build's same record is rec97+0x18 (one record later), which holds actEnemyPickupBegin
-text func_0015AD78 0x0015AD78 0x0015AED8 ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-text func_0015AED8 0x0015AED8 0x0015B1AC ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-rdlit func_0015AED8 0x005A1FE8 0x005A2030 ico2/fumi/src/enemy_act.c  # 1 string, 1 jtbl (target side)
-text func_0015B1B0 0x0015B1B0 0x0015B5D0 ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-sdlit func_0015B1B0 0x00679DF4 0x00679DF8 ico2/fumi/src/enemy_act.c  # 1 word (target side): the function's $gp float (0x679DF4)
-text func_0015B5D0 0x0015B5D0 0x0015B7BC ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-text func_0015B7C0 0x0015B7C0 0x0015BBB4 ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-lit4 func_0015B7C0 0x006788F8 0x00678908 ico2/fumi/src/enemy_act.c  # 4 floats (target side)
-rdlit func_0015B7C0 0x005A2048 0x005A2060 ico2/fumi/src/enemy_act.c  # 3 doubles (target side): the demo's li.d pool, referenced by the function at 0x15B8C0, 0x15B950, 0x15BA50
-text func_0015BBB8 0x0015BBB8 0x0015BD08 ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-text subEnemyBrain_ToBoy 0x0015BD08 0x0015C36C ico2/fumi/src/enemy_act.c  # jun26-only; the brain of brainModeTable's TO_BOY record, the PAL name of that record's function
-lit4 subEnemyBrain_ToBoy 0x00678908 0x0067890C ico2/fumi/src/enemy_act.c  # 1 float (target side)
-rdlit subEnemyBrain_ToBoy 0x005A2060 0x005A2148 ico2/fumi/src/enemy_act.c  # 6 strings, 1 double, 2 jtbl (target side): every reference into the range is the function's
-sdlit subEnemyBrain_ToBoy 0x00679DF8 0x00679DFC ico2/fumi/src/enemy_act.c  # 1 word (target side): the function's $gp float (0x679DF8)
-text func_0015C370 0x0015C370 0x0015C42C ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-text subEnemyBrain_ToGirl 0x0015C430 0x0015C620 ico2/fumi/src/enemy_act.c  # jun26-only; the brain of brainModeTable's TO_GIRL record, the PAL name of that record's function
-rdlit subEnemyBrain_ToGirl 0x005A2148 0x005A21B8 ico2/fumi/src/enemy_act.c  # 1 string (target side)
-text _ApproachTarget_Boss 0x0015C620 0x0015C840 ico2/fumi/src/enemy_act.c local lines=23  # call-pal
-lit4 _ApproachTarget_Boss 0x0067890C 0x00678910 ico2/fumi/src/enemy_act.c  # 1 float
-text func_0015C840 0x0015C840 0x0015C99C ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-rdlit func_0015C840 0x005A1E30 0x005A1E45 ico2/fumi/src/enemy_act.c def  # 1 string (target side), ahead of subEnemyControl's jump table in this build
 text _ApproachTarget_Way 0x0015C9A0 0x0015CCBC ico2/fumi/src/enemy_act.c local lines=104  # call-pal
 lit4 _ApproachTarget_Way 0x00678910 0x00678914 ico2/fumi/src/enemy_act.c  # 1 float (target side)
+rdlit _ApproachTarget_Way 0x005A2160 0x005A21B8 ico2/fumi/src/enemy_act.c  # 3 strings (target side): its compiled-out _ACTMotReqTimer and mail reports (was the tail of subEnemyBrain_ToGirl's row)
 text actEnemyStart 0x0015CCC0 0x0015D1B4 ico2/fumi/src/enemy_act.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec4+0x40 holds actEnemyStart there (the same record index in the demo)
 lit4 actEnemyStart 0x00678914 0x0067891C ico2/fumi/src/enemy_act.c  # 2 floats (target side)
-rdlit actEnemyStart 0x005A1FB0 0x005A1FC0 ico2/fumi/src/enemy_act.c def  # 1 data (target side); emitted where the demo has it
-rdlit actEnemyStart 0x005A21B8 0x005A21F0 ico2/fumi/src/enemy_act.c  # 1 data, 1 string (target side)
+rdlit actEnemyStart 0x005A21D0 0x005A21F0 ico2/fumi/src/enemy_act.c  # 1 string (target side); the data before it is GetEnemyType's table
 sdlit actEnemyStart 0x00679DFC 0x00679E00 ico2/fumi/src/enemy_act.c  # 1 word (target side): the function's $gp float (0x679DFC)
-text subEnemyBrain_Attack 0x0015D1B8 0x0015D46C ico2/fumi/src/enemy_act.c  # jun26-only; the brain of brainModeTable's ATTACK record, the PAL name of that record's function
-text subEnemyBrain_Cling 0x0015D470 0x0015D5CC ico2/fumi/src/enemy_act.c lines=27  # aug
-text funcEnemyAiGetGirl 0x0015D5D0 0x0015D5EC ico2/fumi/src/enemy_act.c lines=7  # aug
-text actEnemyWalk 0x0015D5F0 0x0015D634 ico2/fumi/src/enemy_act.c lines=7  # aug
-rdlit actEnemyWalk 0x005A1EE8 0x005A1F00 ico2/fumi/src/enemy_act.c def  # 1 string (target side); emitted where the demo has it
-text actEnemyRun 0x0015D638 0x0015D67C ico2/fumi/src/enemy_act.c lines=7  # aug
-rdlit actEnemyRun 0x005A1F18 0x005A1F30 ico2/fumi/src/enemy_act.c def  # 1 string (target side); emitted where the demo has it
-text actEnemyHang 0x0015D680 0x0015D6C4 ico2/fumi/src/enemy_act.c lines=7  # aug
-rdlit actEnemyHang 0x005A1F48 0x005A1F60 ico2/fumi/src/enemy_act.c def  # 1 string (target side); emitted where the demo has it
-text actEnemyStand 0x0015D6C8 0x0015D70C ico2/fumi/src/enemy_act.c lines=7  # aug
-rdlit actEnemyStand 0x005A1F90 0x005A1FB0 ico2/fumi/src/enemy_act.c def  # 1 string (target side); emitted where the demo has it
-text actEnemyCarry 0x0015D710 0x0015D758 ico2/fumi/src/enemy_act.c lines=5  # aug
-text actEnemyBodyslam 0x0015D758 0x0015D79C ico2/fumi/src/enemy_act.c lines=8  # aug
-text actEnemyBodyslamFail 0x0015D7A0 0x0015D7DC ico2/fumi/src/enemy_act.c lines=8  # aug
-text actEnemyNest 0x0015D7E0 0x0015D894 ico2/fumi/src/enemy_act.c lines=19  # aug
-text funcEnemyCarryFail 0x0015D898 0x0015D8B4 ico2/fumi/src/enemy_act.c lines=4  # ordinal; differs-at:2; other:3; extent-equal
-text actEnemyHyde 0x0015D8B8 0x0015D908 ico2/fumi/src/enemy_act.c lines=7  # census-equal; stubbed for emission order
-text actEnemyFlagOnFree 0x0015D908 0x0015D938 ico2/fumi/src/enemy_act.c lines=5  # census-equal; stubbed for emission order
-text actEnemyFlagOnDead 0x0015D938 0x0015D964 ico2/fumi/src/enemy_act.c lines=5  # census-equal; stubbed for emission order
-text EnemyBrainStatus_Boy 0x0015D968 0x0015D97C ico2/fumi/src/enemy_act.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text EnemyBrainStatus_Girl 0x0015D980 0x0015D994 ico2/fumi/src/enemy_act.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text actEnemyFlagCheckDead 0x0015D998 0x0015D9C0 ico2/fumi/src/enemy_act.c lines=5  # census-equal; stubbed for emission order
-text actEnemyFlagCheckActive 0x0015D9C0 0x0015DA0C ico2/fumi/src/enemy_act.c lines=16  # census-equal; stubbed for emission order
-text ACTEnemyForceSwitchToCarry 0x0015DA10 0x0015DA64 ico2/fumi/src/enemy_act.c lines=9  # ordinal; differs-at:14; imm:1; extent-equal
-text actEnemy_GetClingTarget 0x0015DA68 0x0015DA98 ico2/fumi/src/enemy_act.c lines=9  # ordinal; differs-at:1; imm:4; extent-equal
-text actEnemy_isNormalEnemy 0x0015DA98 0x0015DAB0 ico2/fumi/src/enemy_act.c lines=4  # ordinal; differs-at:1; imm:2; extent-equal
-text actEnemy_isLargeEnemy 0x0015DAB0 0x0015DAC8 ico2/fumi/src/enemy_act.c lines=4  # ordinal; differs-at:1; imm:2; extent-equal
-text actEnemy_isSmallEnemy 0x0015DAC8 0x0015DADC ico2/fumi/src/enemy_act.c lines=4  # ordinal; differs-at:1; imm:2; extent-equal
-text IsEnemyBrainToGenerator 0x0015DAE0 0x0015DB50 ico2/fumi/src/enemy_act.c lines=12  # ordinal; differs-at:5; imm:6; extent-equal
-text IsEnemyBrainToBoy 0x0015DB50 0x0015DB90 ico2/fumi/src/enemy_act.c lines=13  # ordinal; differs-at:4; imm:4; extent-equal
-text GetEnemyTypeFromGObj 0x0015DB90 0x0015DBA0 ico2/fumi/src/enemy_act.c lines=4  # ordinal; differs-at:1; imm:2; extent-equal
-text GetEnemyType 0x0015DBA0 0x0015DC3C ico2/fumi/src/enemy_act.c lines=4  # call-aug
-text isEnemyKidnapEnable 0x0015DC40 0x0015DCA0 ico2/fumi/src/enemy_act.c lines=7  # call-pal
-text isEnemyActive 0x0015DCA0 0x0015DD0C ico2/fumi/src/enemy_act.c lines=8  # aug
-rdlit isEnemyActive 0x005A1FC0 0x005A1FE1 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text subEnemyBrain_Idle 0x0015DD10 0x0015DD70 ico2/fumi/src/enemy_act.c lines=14  # aug
-text subEnemyBrain_Await 0x0015DD70 0x0015DE24 ico2/fumi/src/enemy_act.c lines=20  # aug
-text subEnemyBrain_ToGenerator 0x0015DE28 0x0015DEDC ico2/fumi/src/enemy_act.c lines=48  # aug
-rdlit subEnemyBrain_ToGenerator 0x005A2030 0x005A2048 ico2/fumi/src/enemy_act.c align=16 def  # 1 string (target side); emitted where the demo has it, between func_0015AED8's constants and func_0015B7C0's doubles
-text subEnemyBrain_FindGirl 0x0015DEE0 0x0015E078 ico2/fumi/src/enemy_act.c lines=23  # aug
-text subEnemyBrain_BodyGuard 0x0015E078 0x0015E154 ico2/fumi/src/enemy_act.c lines=25  # aug
-text subEnemyBrain_Shoulder 0x0015E158 0x0015E1E4 ico2/fumi/src/enemy_act.c lines=13  # aug
-text subEnemyBrain_Pickup 0x0015E1E8 0x0015E234 ico2/fumi/src/enemy_act.c lines=8  # aug
-text subEnemyBrain_Bodyslam 0x0015E238 0x0015E2AC ico2/fumi/src/enemy_act.c lines=12  # aug
-text subEnemyBrain_Irregular 0x0015E2B0 0x0015E3D4 ico2/fumi/src/enemy_act.c  # jun26-only; the brain of brainModeTable's IRREGULAR record, the PAL name of that record's function
-text _BrainMode_SetDirect 0x0015E3D8 0x0015E408 ico2/fumi/src/enemy_act.c lines=9  # call-pal
-text func_0015E408 0x0015E408 0x0015E56C ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-text func_0015E570 0x0015E570 0x0015E5E0 ico2/fumi/src/enemy_act.c  # jun26-only; derived name
-text boss_effect_callback 0x0015E5E0 0x0015E688 ico2/fumi/src/enemy_act.c lines=18  # aug
-text motEnemyStand 0x0015E688 0x0015E6D0 ico2/fumi/src/enemy_act.c lines=9  # aug
-rdlit motEnemyStand 0x005A1F00 0x005A1F15 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text motEnemyWalk 0x0015E6D0 0x0015E724 ico2/fumi/src/enemy_act.c lines=10  # aug
-rdlit motEnemyWalk 0x005A1F30 0x005A1F44 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text motEnemyRun 0x0015E728 0x0015E77C ico2/fumi/src/enemy_act.c lines=10  # aug
-rdlit motEnemyRun 0x005A1F60 0x005A1F73 ico2/fumi/src/enemy_act.c align=16 def  # 1 string
-text actEnemyJump 0x0015E780 0x0015E7C4 ico2/fumi/src/enemy_act.c lines=7  # aug
-rdlit actEnemyJump 0x005A1F78 0x005A1F8C ico2/fumi/src/enemy_act.c def  # 1 string
-text EnemyUtil_isOtherStatus 0x0015E7C8 0x0015E848 ico2/fumi/src/enemy_act.c lines=17  # aug
-text isEnemyHyde 0x0015E848 0x0015E874 ico2/fumi/src/enemy_act.c lines=5  # census-equal; stubbed for emission order
-text _ApproachTarget 0x0015E878 0x0015E8C0 ico2/fumi/src/enemy_act.c lines=9  # ordinal; differs-at:5; imm:2; extent-equal
-text afterEnemyBodylift 0x0015E8C0 0x0015E8E4 ico2/fumi/src/enemy_act.c lines=6  # ordinal; differs-at:4; imm:2; extent-equal
 text MakeCollisionDependGObjList 0x0015E8E8 0x0015E9D8 ico2/fumi/src/fieldCollision.c lines=30  # ordinal; differs-at:49; imm:2; extent-equal
 rdlit MakeCollisionDependGObjList 0x005A21F0 0x005A223C ico2/fumi/src/fieldCollision.c align=16  # 1 string, 1 data
 sdlit MakeCollisionDependGObjList 0x00679E20 0x00679E22 ico2/fumi/src/fieldCollision.c  # 1 string
