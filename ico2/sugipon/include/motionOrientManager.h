@@ -94,7 +94,9 @@ typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-        unsigned int : 7;
+        unsigned int : 3;
+        unsigned int chainIkRate : 1; /* findChainInJump sets the IK rates to 0.8 by a chain */
+        unsigned int : 3;
         unsigned int carried
             : 1; /* a carried pose: the girl's carry ends on it (commonact.c's becarry check) */
         unsigned int : 3;

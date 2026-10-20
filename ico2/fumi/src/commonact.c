@@ -2054,9 +2054,9 @@ typedef union { /* field names derived */
 } CorrFlag; /* derived name */
 
 /* the orient and the position these two accessors hand back */
-static float commonOrient[4]; /* derived name */
+static sceVu0FVECTOR commonOrient; /* derived name */
 
-static float commonPos[4]; /* derived name */
+static sceVu0FVECTOR commonPos; /* derived name */
 
 static inline void actAfterRopeJump(GObj *volatile self)
 {

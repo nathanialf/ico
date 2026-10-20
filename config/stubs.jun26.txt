@@ -758,126 +758,13 @@ sdlit ACTGame_BeforeFunc 0x00679CC4 0x00679CC8 ico2/fumi/src/act-game.c  # 1 wor
 text ActPara_MakeTbl 0x001486F0 0x00148844 ico2/fumi/src/act-parallel-control.c lines=42  # ordinal; differs-at:10; other:7; extent-equal
 text ACTGetWish_FromPad 0x001488B8 0x00149558 ico2/fumi/src/act-wish.c lines=300  # order
 lit4 ACTGetWish_FromPad 0x00678704 0x0067871C ico2/fumi/src/act-wish.c  # 6 floats (target side)
-text findChainInJump 0x00149558 0x00149CE4 ico2/fumi/src/boyact.c local lines=143  # order
-lit4 findChainInJump 0x0067871C 0x00678724 ico2/fumi/src/boyact.c  # 2 floats
-text motBoyHand50 0x00149CE8 0x00149DF4 ico2/fumi/src/boyact.c lines=34  # aug
-rdlit motBoyHand50 0x005A1440 0x005A1454 ico2/fumi/src/boyact.c  # 1 string
-text motBoyHand100 0x00149DF8 0x0014A0A4 ico2/fumi/src/boyact.c lines=63  # aug
-rdlit motBoyHand100 0x005A1480 0x005A14A7 ico2/fumi/src/boyact.c  # 2 strings
-sdlit motBoyHand100 0x00679CE8 0x00679CFD ico2/fumi/src/boyact.c  # 3 strings: a "0" no word of .text addresses (first in the TU's .sdata), then its two
-text motBoyHand200 0x0014A0A8 0x0014A394 ico2/fumi/src/boyact.c lines=67  # aug
-rdlit motBoyHand200 0x005A14C0 0x005A14D5 ico2/fumi/src/boyact.c  # 1 string
-text handoff_heroin 0x0014A398 0x0014A74C ico2/fumi/src/boyact.c lines=21  # call-aug
-text CheckCollisionAttr 0x0014A750 0x0014A8D8 ico2/fumi/src/boyact.c local lines=50  # aug
-text func_0014A8D8 0x0014A8D8 0x0014AA34 ico2/fumi/src/boyact.c  # jun26-only; derived name
-lit4 func_0014A8D8 0x00678724 0x00678728 ico2/fumi/src/boyact.c  # 1 float (target side)
-text BoyBgaManager 0x0014AA38 0x0014AB58 ico2/fumi/src/boyact.c local lines=62  # aug
-rdlit BoyBgaManager 0x005A14D8 0x005A14E5 ico2/fumi/src/boyact.c  # 1 string (target side): __FILE__, first used here (the swap helper and the later users share it)
-sdlit BoyBgaManager 0x00679D00 0x00679D08 ico2/fumi/src/boyact.c  # 1 string, then a zero word no word of .text addresses
-text E3_StageStartBoy 0x0014AB58 0x0014AC90 ico2/fumi/src/boyact.c local lines=34  # aug
-text GetChainSlope 0x0014AC90 0x0014AE7C ico2/fumi/src/boyact.c local lines=36  # aug
-rdlit GetChainSlope 0x005A14E8 0x005A1509 ico2/fumi/src/boyact.c  # 2 strings
 text func_0014AE80 0x0014AE80 0x0014C558 ico2/fumi/src/boyact.c  # jun26-only; derived name
 lit4 func_0014AE80 0x00678728 0x006787E0 ico2/fumi/src/boyact.c  # 46 floats (target side)
 rdlit func_0014AE80 0x005A1510 0x005A16D4 ico2/fumi/src/boyact.c align=16  # 1 jtbl (target side)
 rdlit func_0014AE80 0x005A16E0 0x005A16F8 ico2/fumi/src/boyact.c align=16  # 1 jtbl (target side)
 sdlit func_0014AE80 0x00679D10 0x00679D18 ico2/fumi/src/boyact.c  # 1 string (target side)
-text InitSwapWeapon 0x0014C558 0x0014C650 ico2/fumi/src/boyact.c local lines=32  # call-aug
-text PutWeapon 0x0014C650 0x0014C720 ico2/fumi/src/boyact.c local lines=14  # call-aug
-lit4 PutWeapon 0x006787E0 0x006787E4 ico2/fumi/src/boyact.c  # 1 float (target side)
-text func_0014C720 0x0014C720 0x0014D61C ico2/fumi/src/boyact.c  # jun26-only; derived name
-lit4 func_0014C720 0x006787E4 0x006787F0 ico2/fumi/src/boyact.c  # 3 floats (target side)
-rdlit func_0014C720 0x005A1720 0x005A1830 ico2/fumi/src/boyact.c align=16  # 1 jtbl (target side); the kind list before it is the C's collisionKinds
-sdlit func_0014C720 0x00679D28 0x00679D2C ico2/fumi/src/boyact.c  # 1 word (target side): the function's $gp float (0x679D28)
-text actBoySwim 0x0014D620 0x0014D80C ico2/fumi/src/boyact.c lines=46  # aug
-lit4 actBoySwim 0x006787F0 0x006787F4 ico2/fumi/src/boyact.c  # 1 float (target side)
-text actBoyWalk 0x0014D810 0x0014D97C ico2/fumi/src/boyact.c lines=25  # aug
-rdlit actBoyWalk 0x005A1848 0x005A1858 ico2/fumi/src/boyact.c  # 2 doubles
-text actBoyRun 0x0014D980 0x0014DAEC ico2/fumi/src/boyact.c lines=25  # aug
-rdlit actBoyRun 0x005A1858 0x005A1868 ico2/fumi/src/boyact.c  # 2 doubles
-text actBoyAttack 0x0014DAF0 0x0014DD0C ico2/fumi/src/boyact.c lines=25  # aug
-rdlit actBoyAttack 0x005A1880 0x005A18AC ico2/fumi/src/boyact.c  # 2 strings
-text actBoyTakeWeaponReady 0x0014DD10 0x0014DE98 ico2/fumi/src/boyact.c lines=32  # aug
-text actBoyTakeWeapon 0x0014DE98 0x0014E07C ico2/fumi/src/boyact.c lines=48  # aug
-text actBoyPullupReady 0x0014E080 0x0014E2A8 ico2/fumi/src/boyact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec74+0x0 holds it; the Aug-6-2001 build's same record is rec75+0x0 (one record later), which holds actBoyPullupReady
-text actBoyPullupGo 0x0014E2A8 0x0014E454 ico2/fumi/src/boyact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec75+0x0 holds it; the Aug-6-2001 build's same record is rec76+0x0 (one record later), which holds actBoyPullupGo
-lit4 actBoyPullupGo 0x006787F4 0x00678800 ico2/fumi/src/boyact.c  # 3 floats (target side)
-text actBoyBelift 0x0014E458 0x0014E824 ico2/fumi/src/boyact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec90+0x0 holds it; the Aug-6-2001 build's same record is rec91+0x0 (one record later), which holds actBoyBelift
-lit4 actBoyBelift 0x00678800 0x00678808 ico2/fumi/src/boyact.c  # 2 floats (target side)
-rdlit actBoyBelift 0x005A18F8 0x005A1920 ico2/fumi/src/boyact.c  # 1 string (target side)
-text actBoyRescueReady 0x0014E828 0x0014EAC0 ico2/fumi/src/boyact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec104+0x0 holds it; the Aug-6-2001 build's same record is rec105+0x0 (one record later), which holds actBoyRescueReady
-text actBoyDitch3mReady 0x0014EAC0 0x0014EEDC ico2/fumi/src/boyact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec84+0x0 holds it; the Aug-6-2001 build's same record is rec85+0x0 (one record later), which holds actBoyDitch3mReady
-lit4 actBoyDitch3mReady 0x00678808 0x00678814 ico2/fumi/src/boyact.c  # 3 floats (target side)
-text func_0014EEE0 0x0014EEE0 0x0014F054 ico2/fumi/src/boyact.c  # jun26-only; derived name
 text actBoyStart 0x0014F058 0x0014F4E0 ico2/fumi/src/boyact.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec1+0x40 holds actBoyStart there (the same record index in the demo)
 rdlit actBoyStart 0x005A1930 0x005A19B0 ico2/fumi/src/boyact.c  # 3 strings, 2 data runs (target side)
-text CorrectStickInfo 0x0014F4E0 0x0014F514 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order
-text GetBoyWeaponGObj 0x0014F518 0x0014F538 ico2/fumi/src/boyact.c lines=8  # ordinal; differs-at:5; imm:1; extent-equal
-text actBoyStand 0x0014F538 0x0014F578 ico2/fumi/src/boyact.c lines=11  # aug
-rdlit actBoyStand 0x005A1830 0x005A1848 ico2/fumi/src/boyact.c def  # 1 string (target side); where the inline act function is declared
-text actBoyHang 0x0014F578 0x0014F5BC ico2/fumi/src/boyact.c lines=6  # aug
-rdlit actBoyHang 0x005A18B0 0x005A18C8 ico2/fumi/src/boyact.c def  # 1 string (target side); where the inline act function is declared
-text actBoyBHang 0x0014F5C0 0x0014F5E0 ico2/fumi/src/boyact.c lines=6  # aug
-text actBoyFall 0x0014F5E0 0x0014F620 ico2/fumi/src/boyact.c lines=10  # aug
-rdlit actBoyFall 0x005A1868 0x005A187A ico2/fumi/src/boyact.c def  # 1 string
-text actBoyCall 0x0014F620 0x0014F698 ico2/fumi/src/boyact.c lines=17  # aug
-rdlit actBoyCall 0x005A18C8 0x005A18DA ico2/fumi/src/boyact.c def  # 1 string
-text actBoyItem 0x0014F698 0x0014F6C4 ico2/fumi/src/boyact.c  # aug; no definition in this TU
-text actBoyItemAfter 0x0014F6C8 0x0014F724 ico2/fumi/src/boyact.c  # aug; no definition in this TU
-rdlit actBoyItemAfter 0x005A18E0 0x005A18F8 ico2/fumi/src/boyact.c def  # 1 string (target side); where the inline act function is declared
-text actBoyCliffHesitate 0x0014F728 0x0014F77C ico2/fumi/src/boyact.c lines=25  # aug
-text actBoyHangBefore 0x0014F780 0x0014F814 ico2/fumi/src/boyact.c lines=14  # aug
-text actBoyReadyMove 0x0014F818 0x0014F92C ico2/fumi/src/boyact.c lines=29  # aug
-text actBoyBeslam 0x0014F930 0x0014F984 ico2/fumi/src/boyact.c lines=10  # aug
-text actBoyRescueSrc 0x0014F988 0x0014F9B4 ico2/fumi/src/boyact.c lines=7  # aug
-text actBoySupportGBBegin 0x0014F9B8 0x0014F9F8 ico2/fumi/src/boyact.c lines=10  # aug
-text actBoySupportGBLoop 0x0014F9F8 0x0014FA54 ico2/fumi/src/boyact.c lines=9  # aug
-text actBoySupportGBEnd 0x0014FA58 0x0014FA98 ico2/fumi/src/boyact.c lines=10  # aug
-text actBoySupportBGBegin 0x0014FA98 0x0014FAC4 ico2/fumi/src/boyact.c lines=7  # aug
-text actBoyDitch3mExec 0x0014FAC8 0x0014FAF4 ico2/fumi/src/boyact.c lines=7  # aug
-text actBoyHangG3M 0x0014FAF8 0x0014FB90 ico2/fumi/src/boyact.c lines=15  # aug
-lit4 actBoyHangG3M 0x00678814 0x00678818 ico2/fumi/src/boyact.c  # 1 float
-text IsAbleBoyControl 0x0014FB90 0x0014FB98 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order
-text actBoyHand50 0x0014FB98 0x0014FC14 ico2/fumi/src/boyact.c lines=17  # ordinal; differs-at:10; imm:5; extent-equal
-rdlit actBoyHand50 0x005A1410 0x005A143B ico2/fumi/src/boyact.c def  # 2 strings
-text afterBoyHand50 0x0014FC18 0x0014FC50 ico2/fumi/src/boyact.c lines=7  # ordinal; differs-at:10; imm:1; extent-equal
-rdlit afterBoyHand50 0x005A1400 0x005A1410 ico2/fumi/src/boyact.c def  # 1 string
-text actBoyHand100 0x0014FC50 0x0014FCCC ico2/fumi/src/boyact.c lines=17  # ordinal; differs-at:10; imm:5; extent-equal
-rdlit actBoyHand100 0x005A1458 0x005A147B ico2/fumi/src/boyact.c def  # 2 strings
-text afterBoyHand100 0x0014FCD0 0x0014FD08 ico2/fumi/src/boyact.c lines=7  # ordinal; differs-at:10; imm:1; extent-equal
-text actBoyHand200 0x0014FD08 0x0014FD84 ico2/fumi/src/boyact.c lines=17  # ordinal; differs-at:10; imm:5; extent-equal
-rdlit actBoyHand200 0x005A14A8 0x005A14BD ico2/fumi/src/boyact.c def  # 1 string
-text afterBoyHand200 0x0014FD88 0x0014FDC0 ico2/fumi/src/boyact.c lines=7  # ordinal; differs-at:10; imm:1; extent-equal
-text ACTSearchEnemy 0x0014FDC0 0x0014FF34 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order
-text DeleteBoyWeapon 0x0014FF38 0x0014FFC8 ico2/fumi/src/boyact.c lines=24  # ordinal; differs-at:6; imm:5; extent-equal
-lit4 DeleteBoyWeapon 0x00678818 0x0067881C ico2/fumi/src/boyact.c  # 1 float
-text isLiftBoyEnable 0x0014FFC8 0x0014FFEC ico2/fumi/src/boyact.c lines=11  # ordinal; differs-at:2; imm:3; extent-equal
-text BoyInfoUpdate_StageChange 0x0014FFF0 0x001500C4 ico2/fumi/src/boyact.c lines=22  # ordinal; differs-at:16; imm:1; extent-equal
-text IsBoyStatus_EnemyMustWait 0x001500C8 0x0015017C ico2/fumi/src/boyact.c lines=26  # ordinal; differs-at:6; imm:6; extent-equal
-text IsGirlEscortedInNextStage 0x00150180 0x00150198 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order
-text IsGirlEscortedInCurrentStage 0x00150198 0x001501A0 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order
-text GetSaveSofaLayoutID 0x001501A0 0x001501EC ico2/fumi/src/boyact.c lines=22  # ordinal; differs-at:7; imm:3; extent-equal
-text func_001501F0 0x001501F0 0x00150298 ico2/fumi/src/boyact.c  # jun26-only; derived name
-rdlit func_001501F0 0x005A1920 0x005A1930 ico2/fumi/src/boyact.c def  # 1 data (target side), ahead of func_0014F058's constants in this build
-text GetEfStageCameraTargetID 0x00150298 0x001502B8 ico2/fumi/src/boyact.c lines=7  # census-equal; stubbed for emission order
-text IsBackFromEfStage 0x001502B8 0x001502C4 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order
-text GetbufpCharacterPacket 0x001502C8 0x001502D4 ico2/fumi/src/boyact.c  # call-pal; PAL GetbufpCharacterPacket (gap), aug6 twin of the same name; gamesysCharacterInfoSave and Load call it; no definition in this TU
-text GetsizeCharacterPacket 0x001502D8 0x001502E0 ico2/fumi/src/boyact.c  # call-pal; PAL GetsizeCharacterPacket (ordinal), aug6 twin of the same name; gamesysCharacterInfoSave and Load call it; no definition in this TU
-text MakeCharacterPacket 0x001502E0 0x00150414 ico2/fumi/src/boyact.c  # call-pal; PAL MakeCharacterPacket (ordinal), aug6 twin of the same name; gamesysCharacterInfoSave and Load call it; no definition in this TU
-text ReadCharacterPacket 0x00150418 0x001504DC ico2/fumi/src/boyact.c lines=12  # ordinal; differs-at:10; imm:3; extent-equal
-text ACTSearchGObj 0x001504E0 0x00150644 ico2/fumi/src/boyact.c lines=5  # census-equal; stubbed for emission order
-text afterBoySwim 0x00150648 0x001506B4 ico2/fumi/src/boyact.c lines=6  # ordinal; differs-at:19; imm:3; extent-equal
-sdlit afterBoySwim 0x00679D30 0x00679D36 ico2/fumi/src/boyact.c def  # 1 string
-text actBoyJump 0x001506B8 0x001506E4 ico2/fumi/src/boyact.c lines=7  # ordinal; differs-at:6; imm:1; extent-equal
-text afterBoyTakeWeapon 0x001506E8 0x001507E0 ico2/fumi/src/boyact.c lines=7  # ordinal; differs-at:15; length:-4; extent-differs
-rdlit afterBoyTakeWeapon 0x005A16F8 0x005A1708 ico2/fumi/src/boyact.c def  # 1 string (target side): the weapon swap helper's message, where the helper is defined (before func_0014C720's constants)
-sdlit afterBoyTakeWeapon 0x00679D20 0x00679D28 ico2/fumi/src/boyact.c def  # 1 string (target side): the weapon swap helper's assert text, where the helper is defined
-text afterBoyHangG3M 0x001507E0 0x001507F0 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order
-text afterBoyRescueGirlBhang 0x001507F0 0x00150810 ico2/fumi/src/boyact.c lines=4  # ordinal; differs-at:1; length:-1; extent-equal
-text SetBoyInfo 0x00150810 0x00150848 ico2/fumi/src/boyact.c lines=17  # census-equal; stubbed for emission order
-text GetBoyRootPositionForCamera 0x00150848 0x001508F4 ico2/fumi/src/boyact.c lines=19  # ordinal; differs-at:12; imm:4; extent-equal
-lit4 GetBoyRootPositionForCamera 0x0067881C 0x00678820 ico2/fumi/src/boyact.c  # 1 float
-text Boy_Init 0x001508F8 0x00150988 ico2/fumi/src/boyact.c lines=5  # aug
 text _ACTCorrectMsg 0x00150BD8 0x00151360 ico2/fumi/src/commonact.c lines=297  # order
 rdlit _ACTCorrectMsg 0x005A19B0 0x005A1A57 ico2/fumi/src/commonact.c align=16  # 7 strings
 text ACTGetOrientFromIntrK 0x00151360 0x00151A08 ico2/fumi/src/commonact.c lines=108  # order
