@@ -23,7 +23,6 @@
 #include "way_util.h"
 #include "way_tool.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
@@ -542,9 +541,48 @@ static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}}; /* derived name */
 
 /* this build has no colour packet: each way point is drawn straight from the
    colour its state picks */
-static void draw_way_group(int g, WayCol *col);
+static void draw_way_group(int g, WayCol *col)
+{
+    WayGroup *e = &way_group[g];
+    WayVec m;
+    WayVec blink;
+    WayPoint *p;
+    float *q;
 
-INCLUDE_ASM(draw_way_group);
+    memset(&blink, 0, 16);
+    blink.f[1] = (float)((unsigned int)frame_count) * 0.116355285f;
+    m = blink;
+
+    p = e->first;
+    while (p != 0) {
+        q = p->pos;
+        SetVObjRT(&m, q);
+        if (p->escape != 0) {
+            /* identical arms, derived: the demo keeps this test's index
+               load after jump2 cross-jumps the two calls, and the second
+               wayColorLinked reference ranks its %hi first in global */
+            if (p->index == wayPointSel) {
+                DrawVObj(0, &wayColorLinked);
+            } else {
+                DrawVObj(0, &wayColorLinked);
+            }
+        } else if (p->index == wayPointSel) {
+            DrawVObj(0, &wayColorSelected);
+        } else {
+            DrawVObj(0, col);
+        }
+        if (p->next != 0) {
+            gif_StartPacketPri(11);
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            DrawLine(q, p->next->pos, col, 0x800000);
+            gif_EndPacket();
+        }
+        if (p->next == e->first) {
+            break;
+        }
+        p = p->next;
+    }
+}
 
 static void way_toolDL(GObj *self)
 {

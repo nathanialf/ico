@@ -25,7 +25,6 @@
 #include "typedef.h"
 #include "e3.h"
 #include "main.h"
-#include "include_asm.h"
 
 void actSt07aInit(void)
 {
@@ -313,7 +312,83 @@ void actSt07aTsuroChk(GObj *volatile self)
     scpTorchLightOff(379);
 }
 
-INCLUDE_ASM(actSt07aTsuroEffect);
+void actSt07aTsuroEffect(GObj *volatile self)
+{
+    EffectArg b1;
+    EffectArg b2;
+    EffectArg b3;
+    EffectArg b4;
+    EffectArg b5;
+    EffectArg b6;
+    EffectArg b7;
+    EffectArg b8;
+    EffectArg b9;
+    EffectArg b10;
+    float t;
+    float tn;
+    int n;
+
+    for (t = 0.0f; t < 600.0f;) {
+        switch ((int)t) {
+        /* cases in time order, derived: 100 and 180 repeat 480's body,
+           which jump2 cross-jumps into one copy (the maps' code-less lines
+           between the switch and case 212) */
+        case 100:
+            iosPadActRequest(boyPad, 17);
+            break;
+        case 180:
+            iosPadActRequest(boyPad, 17);
+            break;
+        case 212:
+            b1 = tsuroEffectPos;
+            scpEffectStart(&b1, 13);
+            b2 = tsuroEffectPos;
+            scpEffectStart(&b2, 15);
+            break;
+        case 438:
+            b3 = tsuroEffect2Pos;
+            scpEffectStart(&b3, 13);
+            break;
+        case 465:
+            iosPadActRequest(boyPad, 16);
+            break;
+        case 480:
+            iosPadActRequest(boyPad, 17);
+            break;
+        case 505:
+            ReviveAllCarryableItemsWithRandomVelocity(-5.0f, 0.0f);
+            b4 = tsuroEffect3Pos;
+            scpEffectStart(&b4, 15);
+            iosPadActRequest(boyPad, 15);
+            break;
+        case 510:
+            b5 = tsuroEffect4Pos;
+            scpEffectStart(&b5, 11);
+            b6 = tsuroEffect5Pos;
+            scpEffectStart(&b6, 15);
+            b7 = tsuroEffect6Pos;
+            scpEffectStart(&b7, 15);
+            b8 = tsuroEffect7Pos;
+            scpEffectStart(&b8, 11);
+            break;
+        case 560:
+            b9 = tsuroEffect8Pos;
+            scpEffectStart(&b9, 15);
+            b10 = tsuroEffect9Pos;
+            scpEffectStart(&b10, 15);
+            break;
+        }
+
+        n = (int)t;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
+        if (n != (int)tn) {
+            _ACTWait(1);
+            t = tn;
+        } else {
+            t = tn + 1.0f;
+        }
+    }
+}
 
 void actSt07aEneChk(GObj *volatile self)
 {
