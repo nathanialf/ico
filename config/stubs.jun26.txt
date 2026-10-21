@@ -591,28 +591,6 @@ text func_001A3140 0x001A3140 0x001A3160 ico2/common/src/kanban.c  # jun26-only;
 text kanbanBootMcCheck 0x001A3160 0x001A3358 ico2/common/src/kanbanBoot.c local lines=236  # order
 text kanbanBootMain 0x001A3358 0x001A3498 ico2/common/src/kanbanBoot.c lines=52  # order
 rdlit kanbanBootMain 0x0065DF50 0x0065DF70 ico2/common/src/kanbanBoot.c align=16  # 1 jtbl (target side), 16-aligned in the demo after zero fill
-text display_texture_fade_cancel_chk 0x001A8278 0x001A8500 ico2/common/src/layout_texture.c local lines=40  # call-aug
-text default_item_select 0x001A8500 0x001A870C ico2/common/src/layout_texture.c local lines=66  # call-aug
-text texture_fading 0x001A8710 0x001A89A8 ico2/common/src/layout_texture.c local lines=89  # call-aug
-rdlit texture_fading 0x0065E460 0x0065E480 ico2/common/src/layout_texture.c  # 1 jtbl (target side)
-text display_texture 0x001A89A8 0x001A8D24 ico2/common/src/layout_texture.c local file=display_texture_layout_texture lines=113  # call-aug
-sdlit display_texture 0x0067AB60 0x0067AB64 ico2/common/src/layout_texture.c file=display_texture_layout_texture  # 1 colour word (target side) the function reads a byte at a time (0x67AB60)
-text display_primary_texture_layout 0x001A8D28 0x001A8F38 ico2/common/src/layout_texture.c local lines=45  # call-aug
-text exec_layout_texture 0x001A8F38 0x001A91C0 ico2/common/src/layout_texture.c lines=54  # aug
-text init_textures_of_specified_property 0x001A91C0 0x001A9348 ico2/common/src/layout_texture.c local file=init_textures_of_specified_property_layout_texture lines=12  # call-aug
-rdlit init_textures_of_specified_property 0x0065E480 0x0065E4B0 ico2/common/src/layout_texture.c file=init_textures_of_specified_property_layout_texture  # 2 strings (target side)
-sdlit init_textures_of_specified_property 0x0067AB70 0x0067AB72 ico2/common/src/layout_texture.c file=init_textures_of_specified_property_layout_texture  # 1 string (target side); the "/" before it is lt_texture_base_name's, emitted by the C
-text init_layout_texture 0x001A9348 0x001A94C8 ico2/common/src/layout_texture.c lines=30  # aug
-text lt_switch_layout 0x001A94C8 0x001A952C ico2/common/src/layout_texture.c lines=13  # call-pal
-text lt_current_property_item 0x001A9530 0x001A9538 ico2/common/src/layout_texture.c lines=4  # call-aug
-text lt_link_layout 0x001A9538 0x001A95EC ico2/common/src/layout_texture.c lines=14  # aug
-text lt_prev_layout 0x001A95F0 0x001A967C ico2/common/src/layout_texture.c lines=9  # aug
-text lt_next_layout 0x001A9680 0x001A9708 ico2/common/src/layout_texture.c lines=9  # aug
-text lt_mask_property 0x001A9708 0x001A973C ico2/common/src/layout_texture.c lines=5  # call-pal
-text lt_default_mask_property 0x001A9740 0x001A9770 ico2/common/src/layout_texture.c lines=5  # aug
-text lt_fade_status 0x001A9770 0x001A9778 ico2/common/src/layout_texture.c lines=4  # aug
-text lt_set_item_select_func 0x001A9778 0x001A9780 ico2/common/src/layout_texture.c lines=4  # call-pal
-text lt_set_fade_mode 0x001A9780 0x001A9788 ico2/common/src/layout_texture.c lines=4  # aug
 text GetRealModelId 0x001A9788 0x001A98F4 ico2/common/src/sceneManager.c local lines=34  # aug
 text InitStageLight 0x001A98F8 0x001A9BE8 ico2/common/src/sceneManager.c lines=98  # aug
 rdlit InitStageLight 0x0065E4B0 0x0065E4DD ico2/common/src/sceneManager.c  # 1 string
@@ -799,30 +777,6 @@ text _handManager 0x001C33B0 0x001C36D4 ico2/sugipon/src/handManager.c local lin
 rdlit _handManager 0x0065FC60 0x0065FC78 ico2/sugipon/src/handManager.c align=16  # 1 jtbl
 text HandManager 0x001C36D8 0x001C382C ico2/sugipon/src/handManager.c lines=19  # call-aug
 lit4 HandManager 0x00678DDC 0x00678DE0 ico2/sugipon/src/handManager.c  # 1 float
-text func_001C3830 0x001C3830 0x001C3838 ico2/sugipon/src/handManager.c  # jun26-only; derived name
-text func_001C3838 0x001C3838 0x001C3840 ico2/sugipon/src/handManager.c  # jun26-only; derived name
-text bombExplodeSE 0x001C3840 0x001C3848 ico2/sugipon/src/item.c local lines=4  # aug
-text HoldItem 0x001C3848 0x001C393C ico2/sugipon/src/item.c lines=26  # call-aug
-rdlit HoldItem 0x0065FC80 0x0065FCB3 ico2/sugipon/src/item.c align=16  # 2 strings (the file name InitItemGeo shares)
-sdlit HoldItem 0x0067AE20 0x0067AE22 ico2/sugipon/src/item.c  # 1 string
-text ReleaseItem 0x001C3940 0x001C39A0 ico2/sugipon/src/item.c lines=12  # call-pal
-text ThrowItem 0x001C39A0 0x001C39EC ico2/sugipon/src/item.c lines=11  # order
-text InitItemGeo 0x001C39F0 0x001C3BEC ico2/sugipon/src/item.c lines=30  # order
-text carriedItemGeo 0x001C3BF0 0x001C3E28 ico2/sugipon/src/item.c local lines=62  # order
-text uncarriedItemGeo 0x001C3E28 0x001C493C ico2/sugipon/src/item.c local lines=209  # order
-rdlit uncarriedItemGeo 0x0065FCB8 0x0065FCEA ico2/sugipon/src/item.c  # 3 strings (target side)
-lit4 uncarriedItemGeo 0x00678DE0 0x00678E0C ico2/sugipon/src/item.c  # 11 floats (target side)
-text execBombGeo 0x001C4940 0x001C4B88 ico2/sugipon/src/item.c local lines=55  # order
-rdlit execBombGeo 0x0065FCF0 0x0065FD04 ico2/sugipon/src/item.c align=16  # 1 jtbl
-text ItemDL 0x001C4B88 0x001C4C4C ico2/sugipon/src/item.c lines=31  # order
-text CheckCarryableItem 0x001C4C50 0x001C4C80 ico2/sugipon/src/item.c lines=4  # order
-text ItemGeo 0x001C4C80 0x001C4D6C ico2/sugipon/src/item.c  # jun26-only; derived name; named from obj-kind-data: BARREL's geo slot (the Aug-6-2001 build's ItemGeo)
-text IsItemHoldable 0x001C4D70 0x001C4D84 ico2/sugipon/src/item.c lines=6  # order
-text IsBombExplode 0x001C4D88 0x001C4DA0 ico2/sugipon/src/item.c lines=6  # call-pal
-text GetBombTorchGObj 0x001C4DA0 0x001C4DC8 ico2/sugipon/src/item.c lines=8  # order
-text ReviveAllCarryableItems 0x001C4DC8 0x001C4E6C ico2/sugipon/src/item.c lines=14  # order
-text ReviveCarryableItemsWithBoundary 0x001C4E70 0x001C4F64 ico2/sugipon/src/item.c lines=20  # call-pal
-text ReviveAllCarryableItemsWithRandomVelocity 0x001C4F68 0x001C508C ico2/sugipon/src/item.c lines=20  # call-aug
 text SetLodLevel 0x001C59A8 0x001C5A34 ico2/sugipon/src/lodManager.c lines=19  # ordinal; differs-at:0; length:-12; extent-differs
 rdlit SetLodLevel 0x0065FD48 0x0065FD91 ico2/sugipon/src/lodManager.c  # 2 strings
 text ResetDynamicMotionManager 0x001C5C50 0x001C5C94 ico2/sugipon/src/motionFileManager.c lines=10  # ordinal; differs-at:4; imm:3; extent-equal
@@ -885,48 +839,6 @@ text RopeDL 0x001D9958 0x001D9B1C ico2/sugipon/src/rope.c lines=33  # ordinal; d
 text CheckRopeUpperWallClimbable 0x001D9B20 0x001D9B30 ico2/sugipon/src/rope.c lines=6  # ordinal; differs-at:1; imm:1; extent-equal
 text ReleaseRope 0x001D9B30 0x001D9B38 ico2/sugipon/src/rope.c lines=1  # census-equal; stubbed for emission order
 text RopeGeo 0x001D9B38 0x001D9BB0 ico2/sugipon/src/rope.c lines=5  # ordinal; differs-at:11; imm:2; extent-equal
-text moveStartSE 0x001D9C40 0x001D9C48 ico2/sugipon/src/rotObject.c local lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text moveEndSE 0x001D9C48 0x001D9C74 ico2/sugipon/src/rotObject.c local lines=5  # ordinal; differs-at:8; imm:1; extent-equal
-text RotObjectGeo 0x001D9C78 0x001D9CA8 ico2/sugipon/src/rotObject.c lines=8  # ordinal; differs-at:1; imm:1; extent-equal
-text getRootMatrix 0x001D9CA8 0x001D9D0C ico2/sugipon/src/rotObject.c  # call-aug; no definition in this TU
-text RotObjectDL 0x001D9D10 0x001D9D44 ico2/sugipon/src/rotObject.c lines=5  # aug
-text GetRotObjectHoldPoint 0x001D9D48 0x001D9E28 ico2/sugipon/src/rotObject.c lines=27  # aug
-text MoveRotObjectWithHoldPoint 0x001D9E28 0x001DA10C ico2/sugipon/src/rotObject.c lines=85  # aug
-lit4 MoveRotObjectWithHoldPoint 0x00678EF8 0x00678F04 ico2/sugipon/src/rotObject.c  # 3 floats (target side)
-text ExecRotObjectMoveStartReaction 0x001DA110 0x001DA118 ico2/sugipon/src/rotObject.c lines=4  # aug
-text ExecRotObjectMoveEndReaction 0x001DA118 0x001DA120 ico2/sugipon/src/rotObject.c lines=4  # aug
-text GetRotObjectGlobalHoldGeometry 0x001DA120 0x001DA190 ico2/sugipon/src/rotObject.c lines=12  # aug
-text InitRotObjectGeo 0x001DA190 0x001DA2B4 ico2/sugipon/src/rotObject.c lines=28  # aug
-rdlit InitRotObjectGeo 0x00660DF8 0x00660E60 ico2/sugipon/src/rotObject.c  # 4 strings (target side); the file name before them is rotObjectFile, emitted by the C
-text GetRotObjectRotCount 0x001DA2B8 0x001DA2D8 ico2/sugipon/src/rotObject.c lines=6  # call-pal
-text GetRotObjectZPlusDirection 0x001DA2D8 0x001DA334 ico2/sugipon/src/rotObject.c lines=11  # call-pal
-text RestoreRotObjectGeo 0x001DA338 0x001DA340 ico2/sugipon/src/rotObject.c lines=4  # aug
-text RestoreRotObjectExtGeo 0x001DA340 0x001DA360 ico2/sugipon/src/rotObject.c lines=9  # aug
-text MemoryRotObject 0x001DA360 0x001DA380 ico2/sugipon/src/rotObject.c lines=7  # aug
-text InitSpiderLayoutGeo 0x001DA380 0x001DA4D8 ico2/sugipon/src/spider.c lines=30  # order
-lit4 InitSpiderLayoutGeo 0x00678F04 0x00678F08 ico2/sugipon/src/spider.c  # 1 float
-text WakeUpLayoutedSpiders 0x001DA4D8 0x001DA55C ico2/sugipon/src/spider.c lines=5  # order
-text getCallPoint 0x001DA560 0x001DA720 ico2/sugipon/src/spider.c  # order; no definition in this TU
-rdlit getCallPoint 0x00660F00 0x00660F10 ico2/sugipon/src/spider.c  # 1 string (target side)
-text CallSpidersToReviveEnemy 0x001DA720 0x001DA884 ico2/sugipon/src/spider.c lines=16  # order
-text SpiderLayoutGeo 0x001DA888 0x001DAC50 ico2/sugipon/src/spider.c lines=78  # order
-rdlit SpiderLayoutGeo 0x00660F10 0x00660F92 ico2/sugipon/src/spider.c align=16  # 3 strings
-rdlit SpiderLayoutGeo 0x00660FA0 0x00660FB4 ico2/sugipon/src/spider.c align=16 def  # 1 jtbl; emitted where the demo has it
-text DispAllMemberOfSpider 0x001DAC50 0x001DAF70 ico2/sugipon/src/spider.c lines=48  # call-pal
-text SetSpiderGroupReviveStatus 0x001DAF70 0x001DAFB0 ico2/sugipon/src/spider.c lines=7  # call-aug
-sdata D_0067AFD0 0x0067AFD0 0x0067AFD8 ico2/sugipon/src/spider.c local  # a string and a zero word first in the TU's .sdata; no word of .text addresses them (target side)
-sdlit SetSpiderGroupReviveStatus 0x0067AFE0 0x0067AFE8 ico2/sugipon/src/spider.c  # 1 string
-text DeleteSpiderFromLayoutGroup 0x001DAFB0 0x001DAFD0 ico2/sugipon/src/spider.c lines=4  # call-aug
-text GetNearestOfLayoutSpiders 0x001DAFD0 0x001DB0FC ico2/sugipon/src/spider.c lines=24  # order
-text CheckSpidersInsideOfReviveRange 0x001DB100 0x001DB1F4 ico2/sugipon/src/spider.c lines=22  # call-aug
-lit4 CheckSpidersInsideOfReviveRange 0x00678F08 0x00678F0C ico2/sugipon/src/spider.c  # 1 float
-text RestoreSpiderLayoutGeo 0x001DB1F8 0x001DB200 ico2/sugipon/src/spider.c lines=4  # order
-text RestoreSpiderLayoutExtGeo 0x001DB200 0x001DB2CC ico2/sugipon/src/spider.c lines=17  # order
-sdlit RestoreSpiderLayoutExtGeo 0x0067AFE8 0x0067AFF3 ico2/sugipon/src/spider.c  # 2 strings
-text MemorySpiderLayout 0x001DB2D0 0x001DB38C ico2/sugipon/src/spider.c lines=14  # order
-text WakeUpSpidersFromGenerator 0x001DB390 0x001DB464 ico2/sugipon/src/spider.c lines=18  # order
-text GetAliveSpiders 0x001DB468 0x001DB530 ico2/sugipon/src/spider.c lines=14  # order
-text DeadAllSpiders 0x001DB530 0x001DB5A4 ico2/sugipon/src/spider.c lines=12  # aug
 text EntrySpiderGroupManager 0x001DB5A8 0x001DB6E4 ico2/sugipon/src/spiderGroupManager.c lines=20  # aug
 rdlit EntrySpiderGroupManager 0x00661008 0x0066109A ico2/sugipon/src/spiderGroupManager.c  # 3 strings
 sdlit EntrySpiderGroupManager 0x0067B018 0x0067B01A ico2/sugipon/src/spiderGroupManager.c  # 1 string

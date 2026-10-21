@@ -8,8 +8,8 @@
 #ifndef LAYOUT_TEXTURE_H
 #define LAYOUT_TEXTURE_H
 
-/* layout_texture.o's .sdata globals: current_layout_id,
-   lt_item_select_disable and the continue screen's decided flag */
+/* layout_texture.o's .sdata globals: current_layout_id and
+   lt_item_select_disable */
 extern int current_layout_id;
 extern int lt_item_select_disable;
 /* layout_texture.c's `inline` functions, in the order of their definitions'
@@ -24,7 +24,6 @@ void lt_default_mask_property(int idx, int flag);
 int lt_fade_status(void);
 void lt_set_item_select_func(int val);
 void lt_set_fade_mode(int val);
-void lt_analog2Pad(void);
 void exec_layout_texture(void);
 void init_layout_texture(int stage);
 

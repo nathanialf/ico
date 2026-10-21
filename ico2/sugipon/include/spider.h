@@ -31,14 +31,11 @@ extern int sgSelLine;
 extern int sgInfoLine;
 int CheckSpidersInsideOfReviveRange(int *out, struct GObj *gp, void *center);
 int DeadAllSpiders(struct GObj *gp);
-void DeleteAllSpidersOfLayoutGroup(struct GObj *gp);
 struct GObj *DeleteSpiderFromLayoutGroup(struct GObj *self, int idx);
 void DispAllMemberOfSpider(struct GObj *self, int *col);
 int GetAliveSpiders(struct GObj *gp);
 void SetSpiderGroupReviveStatus(struct GObj *self);
-void SleepSpiderGroup(struct GObj *gp);
 void WakeUpLayoutedSpiders(struct GObj *self);
-void WakeupSpiderGroup(struct GObj *gp);
 
 struct SObjSimpleSetting;
 
@@ -47,7 +44,7 @@ struct SpiderWork;
 struct SpiderMemory;
 
 struct SpiderWork *InitSpiderLayoutGeo(struct GObj *self, struct SObjSimpleSetting *lay);
-int CallSpidersToReviveEnemy(struct GObj *self);
+void CallSpidersToReviveEnemy(struct GObj *self);
 void SpiderLayoutGeo(struct GObj *self);
 int GetNearestOfLayoutSpiders(float *dist, struct GObj *gp, void *center);
 int RestoreSpiderLayoutGeo(void);
