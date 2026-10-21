@@ -3,7 +3,6 @@
 #include "memory.h"
 #include <eekernel.h>
 #include "mv_vobuf.h"
-#include "include_asm.h"
 
 static void Free(int addr);
 
@@ -14,7 +13,30 @@ static void free_buf(VoBuf *self)
     Free((int)self->tag);
 }
 
-INCLUDE_ASM(voBufCreate);
+int voBufCreate(VoBuf *self)
+{
+    int data;
+    int tag;
+    int i;
+
+    data = alloc_zeroed(6912000, 64);
+    if (data == 0) {
+        return -1;
+    }
+    self->data = (VoData *)uncached_accel_addr(data);
+    tag = alloc_zeroed(3289920, 64);
+    self->tag = (VoTag *)tag;
+    if (tag == 0) {
+        return -1;
+    }
+    self->max = 5;
+    self->count = 0;
+    self->idx = 0;
+    for (i = 0; i < self->max; i++) {
+        self->tag[i].status = 0;
+    }
+    return 0;
+}
 
 void voBufDelete(VoBuf *self)
 {
@@ -22,7 +44,13 @@ void voBufDelete(VoBuf *self)
 }
 
 /* this file's own Free (mv_defs.h) */
-INCLUDE_ASM(Free_mv_vobuf);
+static void Free(int addr)
+{
+    /* the buffers are kept as addresses (alloc_zeroed), some at their
+       uncached-accelerated alias; the heap takes the block back with the
+       segment bits off */
+    iosFree((void *)phys_addr(addr));
+}
 
 void voBufReset(VoBuf *self)
 {
@@ -42,16 +70,30 @@ static inline int isFull(VoBuf *self) /* derived name */
     return self->count == self->max;
 }
 
-INCLUDE_ASM(voBufIncCount);
+void voBufIncCount(VoBuf *self)
+{
+    DIntr();
+    self->tag[self->idx].status = 2;
+    self->count++;
+    self->idx = (self->idx + 1) % self->max;
+    SYNC();
+    EI();
+}
 
-INCLUDE_ASM(voBufGetData);
+VoData *voBufGetData(VoBuf *self)
+{
+    return !isFull(self) ? &self->data[self->idx] : 0;
+}
 
 static __inline__ int voBufIsEmpty(VoBuf *self) /* derived name */
 {
     return self->count == 0;
 }
 
-INCLUDE_ASM(voBufGetTag);
+VoTag *voBufGetTag(VoBuf *self)
+{
+    return !voBufIsEmpty(self) ? &self->tag[(self->idx - self->count + self->max) % self->max] : 0;
+}
 
 void voBufDecCount(VoBuf *self)
 {

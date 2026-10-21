@@ -5,8 +5,8 @@
  * alloc_zeroed passes __FILE__ and the line of each call to the debug
  * allocator and to the assert, so the name the file is included under
  * ("../ito/include/mv_defs.h") and those lines are part of the program's
- * data.  The original header had its two calls at lines 43 and 44 in the
- * PAL build and 42 and 43 in the Japanese one; LN gives each build its own.
+ * data.  The original header had its two calls at lines 42 and 43 in this
+ * build (43 and 44 in the PAL one).
  *
  * phys_addr strips the segment bits from an EE address, the form the DMA
  * controller and the IOP heap calls take; uncached_accel_addr puts the same
@@ -43,10 +43,10 @@ void debug_assert(const char *file, int line); /* assert reporter */
 
 static __inline__ int alloc_zeroed(int size, int align) /* derived name */
 {
-    int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, 43);
+    int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, 42);
     if (p == 0) {
-        debug_assert(__FILE__, 44);
-        __assert(__FILE__, 44, "p != NULL");
+        debug_assert(__FILE__, 43);
+        __assert(__FILE__, 43, "p != NULL");
     }
     memset((void *)p, 0, size);
     return p;

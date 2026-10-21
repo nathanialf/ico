@@ -57,9 +57,6 @@ static short stageOrientIdx[120]; /* derived name */
 #include "stage_orient.h"
 #include <stdio.h>
 #include <string.h>
-#include "include_asm.h"
-
-INCLUDE_ASM_LIT(StageOrientInit);
 
 /* the matrix that places a stage at its orient record's anchor and angle,
    for GetStageDifferenceMatrix and StageOrientGet2 */
@@ -75,6 +72,49 @@ static inline void MakeStageOrientMatrix(float *m, const StageOrientDef *p) /* d
     MatrixDrive_PopMatrix();
 }
 
-INCLUDE_ASM(StageOrientInit);
+inline void StageOrientInit(void)
+{
+    int i, j;
+    char buf[64];
 
-INCLUDE_ASM(StageOrientGet);
+    for (i = 0; i < 103; i++) {
+        sscanf(stageData[i].name, "%s", buf);
+        stageOrientIdx[i] = -1;
+        for (j = 0; j < sizeof(stageOrientDefs) / sizeof(stageOrientDefs[0]); j++) {
+            if (strcmp(buf, stageOrientDefs[j].name) == 0) {
+                stageOrientIdx[i] = j;
+                break;
+            }
+        }
+    }
+}
+
+inline int StageOrientGet(VECTOR *ret, int stA, int stB)
+{
+    int a = stageOrientIdx[stA];
+    int b = stageOrientIdx[stB];
+
+    if (a < 0 || b < 0) {
+        ret->x = 1.0f;
+        ret->y = 0.0f;
+        ret->z = 0.0f;
+        ret->w = 1.0f;
+        return 0;
+    }
+    {
+        const StageOrientDef *pa = &stageOrientDefs[a];
+        float *va = pa->pos;
+        float *vb = stageOrientDefs[b].pos;
+        float m[16];
+        VECTOR d = {vb[0] - va[0], vb[1] - va[1], vb[2] - va[2], 1.0f};
+
+        sceVu0Normalize(ret, &d);
+
+        sceVu0UnitMatrix(m);
+        sceVu0RotMatrixY(m, m, pa->angle);
+        sceVu0InversMatrix(m, m);
+        sceVu0ApplyMatrix(ret, m, ret);
+    }
+    ret->y = -ret->y;
+    return 1;
+}

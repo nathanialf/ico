@@ -1,10 +1,13 @@
-/* no mv_defs.h here: the demo's mv_strfile.o has no .rodata, so it does not
-   carry alloc_zeroed's file name and assert text as the other mpeg files do */
+#include "mv_defs.h"
 #include "mv_strfile.h"
 #include "cdvd.h"
-#include "include_asm.h"
 
-INCLUDE_ASM(strFileOpen);
+int strFileOpen(char *self, char *name)
+{
+    strcpy(self + 0x34, name);
+    iosCdvdDirectStOpen((struct IosCdvdHandle *)self);
+    return 1;
+}
 
 int strFileClose(char *self)
 {

@@ -1,14 +1,39 @@
 #include "mv_defs.h"
 #include "mv_readbuf.h"
-#include "include_asm.h"
+#include "memory.h"
 
-INCLUDE_ASM(free_buffer);
+static void Free(int addr);
 
-INCLUDE_ASM(readBufDelete);
+/* the ring readBufCreate allocated */
+static void free_buffer(ReadBuf *self)
+{
+    Free((int)self->data);
+}
 
-INCLUDE_ASM(func_00190F00);
+void readBufDelete(ReadBuf *self)
+{
+    free_buffer(self);
+}
 
-INCLUDE_ASM(readBufCreate);
+/* this file's own Free (mv_defs.h) */
+static void Free(int addr)
+{
+    iosFree((void *)phys_addr(addr));
+}
+
+int readBufCreate(ReadBuf *self)
+{
+    int buf;
+
+    buf = alloc_zeroed(327680, 64);
+    self->data = (unsigned char *)buf;
+    if (buf == 0) {
+        return -1;
+    }
+    self->size = 327680;
+    self->put = self->count = 0;
+    return 0;
+}
 
 int readBufBeginPut(ReadBuf *self, void **p)
 {

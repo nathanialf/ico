@@ -258,40 +258,6 @@ lit4 subBirdBrainMain 0x00678B94 0x00678BE8 ico2/ito/src/act_bird.c  # 21 floats
 rdlit subBirdBrainMain 0x005A3BE0 0x005A3C15 ico2/ito/src/act_bird.c  # 3 strings (target side)
 rdlit subBirdBrainMain 0x005A3C20 0x005A3C48 ico2/ito/src/act_bird.c align=16 def  # 16-aligned in the demo after zero fill; 1 jtbl (target side); emitted where the demo has it
 sdlit subBirdBrainMain 0x0067A1F8 0x0067A228 ico2/ito/src/act_bird.c  # 6 strings (target side)
-text GatherEffect_SetGoal 0x0018CEB0 0x0018CEF4 ico2/ito/src/gather_effect.c lines=7  # ordinal; differs-at:10; imm:1; extent-equal
-text GatherEffect_Proc 0x0018CEF8 0x0018D1E0 ico2/ito/src/gather_effect.c lines=82  # ordinal; differs-at:19; imm:4; extent-equal
-lit4 GatherEffect_Proc 0x00678BF0 0x00678BFC ico2/ito/src/gather_effect.c  # 3 floats
-rdlit GatherEffect_Proc 0x005A3C58 0x005A3C6B ico2/ito/src/gather_effect.c  # 1 string
-text GatherEffect_Set 0x0018D1E0 0x0018D2AC ico2/ito/src/gather_effect.c lines=24  # ordinal; differs-at:21; imm:5; extent-equal
-text queen_barrier_disp_proc 0x0018FDD0 0x001900A4 ico2/ito/src/queen_barrier_disp.c lines=43  # ordinal; differs-at:18; length:-5; extent-differs
-text StageOrientInit 0x00190320 0x00190410 ico2/ito/src/stage_orient.c lines=16  # ordinal; differs-at:7; imm:4; extent-equal
-sdlit StageOrientInit 0x0067A230 0x0067A233 ico2/ito/src/stage_orient.c def  # 1 string
-text StageOrientGet 0x00190410 0x00190540 ico2/ito/src/stage_orient.c lines=29  # ordinal; differs-at:15; imm:1; extent-equal
-text readMpeg 0x00190558 0x0019079C ico2/ito/mpeg/mv_main.c local lines=84  # ordinal; differs-at:2; length:-42; extent-differs
-text initAll 0x001907A0 0x00190AA4 ico2/ito/mpeg/mv_main.c local lines=85  # ordinal; differs-at:3; length:-1; extent-differs
-rdlit initAll 0x005A46E0 0x005A4788 ico2/ito/mpeg/mv_main.c  # 8 strings (target side)
-text free_buffer 0x00190EF0 0x00190EF8 ico2/ito/mpeg/mv_readbuf.c  # aug; no definition in this TU
-text readBufDelete 0x00190EF8 0x00190F00 ico2/ito/mpeg/mv_readbuf.c lines=1  # call-pal
-text func_00190F00 0x00190F00 0x00190F10 ico2/ito/mpeg/mv_readbuf.c  # jun26-only; derived name
-text readBufCreate 0x00190F10 0x00190FBC ico2/ito/mpeg/mv_readbuf.c lines=13  # call-aug
-rdlit readBufCreate 0x005A4818 0x005A4848 ico2/ito/mpeg/mv_readbuf.c  # 2 strings (target side): a second copy of mv_defs.h's file name and assert text, no word of .text addresses it; the first copy (0x5A47E8) is alloc_zeroed's, emitted by the C
-text strFileOpen 0x00191098 0x001910CC ico2/ito/mpeg/mv_strfile.c lines=6  # ordinal; differs-at:5; imm:1; extent-equal
-text free_buf 0x00191110 0x00191118 ico2/ito/mpeg/mv_videodec.c local file=free_buf_mv_videodec lines=4  # window; equal; -; extent-equal
-text videoDecCreate 0x00191118 0x00191260 ico2/ito/mpeg/mv_videodec.c lines=18  # ordinal; differs-at:14; imm:3; extent-equal
-text decBitStrm0 0x00191460 0x00191674 ico2/ito/mpeg/mv_videodec.c local lines=47  # ordinal; differs-at:110; imm:1; extent-equal
-rdlit decBitStrm0 0x005A4890 0x005A48DF ico2/ito/mpeg/mv_videodec.c  # 3 strings
-text Free 0x00191678 0x00191688 ico2/ito/mpeg/mv_videodec.c local file=Free_mv_videodec lines=7  # gap; equal; -; extent-equal
-text mpegError 0x001917A0 0x001917C8 ico2/ito/mpeg/mv_videodec.c local lines=7  # census-equal; the C no longer emits it (its users are stubs)
-sdlit mpegError 0x0067A248 0x0067A24C ico2/ito/mpeg/mv_videodec.c def  # 1 string
-text mpegNodata 0x001917C8 0x001917F8 ico2/ito/mpeg/mv_videodec.c local lines=8  # census-equal; the C no longer emits it (its users are stubs)
-text mpegStopDMA 0x001917F8 0x00191818 ico2/ito/mpeg/mv_videodec.c local lines=7  # census-equal; the C no longer emits it (its users are stubs)
-text mpegRestartDMA 0x00191818 0x00191838 ico2/ito/mpeg/mv_videodec.c local lines=7  # census-equal; the C no longer emits it (its users are stubs)
-text mpegTS 0x00191838 0x00191878 ico2/ito/mpeg/mv_videodec.c local lines=11  # census-equal; the C no longer emits it (its users are stubs)
-text voBufCreate 0x001918A8 0x00191A08 ico2/ito/mpeg/mv_vobuf.c lines=24  # ordinal; differs-at:14; imm:6; extent-equal
-text Free 0x00191A10 0x00191A20 ico2/ito/mpeg/mv_vobuf.c local file=Free_mv_vobuf lines=7  # gap; equal; -; extent-equal
-text voBufIncCount 0x00191A48 0x00191AC0 ico2/ito/mpeg/mv_vobuf.c lines=9  # census-equal with relocated fields masked; an immediate differs (match_check)
-text voBufGetData 0x00191AC0 0x00191AF4 ico2/ito/mpeg/mv_vobuf.c lines=4  # census-equal with relocated fields masked; an immediate differs (match_check)
-text voBufGetTag 0x00191AF8 0x00191B4C ico2/ito/mpeg/mv_vobuf.c lines=4  # census-equal with relocated fields masked; an immediate differs (match_check)
 text initGeometryState 0x00191B70 0x001920AC ico2/common/src/DObj.c local lines=75  # ordinal; differs-at:25; imm:47; extent-equal
 lit4 initGeometryState 0x00678C60 0x00678C64 ico2/common/src/DObj.c  # 1 float
 rdlit initGeometryState 0x00659C30 0x00659C40 ico2/common/src/DObj.c def  # 1 data; emitted where the demo has it, after the file name (initPolyHead's __FILE__, which the C emits at that inline's definition; the demo's first user of it is this stub)
@@ -612,25 +578,6 @@ text ObjAction_Mail 0x00223E48 0x00223EB0 ico2/omori/src/objact.c lines=8  # cen
 text ObjAction_MailCenter 0x00223EB0 0x00223FA8 ico2/omori/src/objact.c lines=19  # ordinal; differs-at:49; imm:1; extent-equal
 text actBossCtrlStart 0x002248E8 0x002249C0 ico2/ito/src/itou_boss.c lines=24  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x40 holds it; the Aug-6-2001 build's same record is rec63+0x40 (one record later), which holds actBossCtrlStart
 rdlit actBossCtrlStart 0x00664070 0x00664080 ico2/ito/src/itou_boss.c  # 1 string
-text DrawLightning2 0x00224FC0 0x00225A70 ico2/ito/src/lightning.c lines=234  # census-equal; stubbed for emission order
-lit4 DrawLightning2 0x00679354 0x00679370 ico2/ito/src/lightning.c  # 7 floats
-rdlit DrawLightning2 0x006640A0 0x006640AF ico2/ito/src/lightning.c  # 1 string
-text apply_m34 0x00225BE0 0x00225C08 ico2/ito/src/lightning.c lines=16  # census-equal; stubbed for emission order
-text DrawLightning 0x00225C08 0x00225D0C ico2/ito/src/lightning.c lines=10  # census-equal; stubbed for emission order
-text lightning_test 0x00225D10 0x00225DE4 ico2/ito/src/lightning.c lines=12  # census-equal; stubbed for emission order
-rdlit lightning_test 0x006640B0 0x00664100 ico2/ito/src/lightning.c  # 2 data runs (target side)
-text free_buf 0x00225DF8 0x00225E00 ico2/ito/mpeg/mv_audiodec.c local file=free_buf_mv_audiodec  # call-aug-static; no definition in this TU
-text audioDecCreate 0x00225E00 0x00225FA4 ico2/ito/mpeg/mv_audiodec.c lines=59  # call-aug
-rdlit audioDecCreate 0x00664130 0x00664160 ico2/ito/mpeg/mv_audiodec.c  # 2 strings (target side); the pair before them is mv_defs.h alloc_zeroed's, emitted by the C
-text func_002266B8 0x002266B8 0x002266C8 ico2/ito/mpeg/mv_audiodec.c  # jun26-only; derived name
-text audioDecDelete 0x002266C8 0x0022672C ico2/ito/mpeg/mv_audiodec.c lines=20  # call-pal
-text dispClear 0x00226908 0x00226A80 ico2/ito/mpeg/mv_disp.c lines=19  # ordinal; differs-at:1; length:+1; extent-differs
-text setDispEnv 0x00226A80 0x00226C78 ico2/ito/mpeg/mv_disp.c lines=27  # ordinal; differs-at:0; length:+7; extent-differs
-text dispCreate 0x00226CF0 0x00226D94 ico2/ito/mpeg/mv_disp.c lines=15  # ordinal; differs-at:4; length:-4; extent-differs
-text dispSetTags 0x00226D98 0x002272F8 ico2/ito/mpeg/mv_disp.c lines=58  # ordinal; differs-at:0; length:+76; extent-differs
-text vblankHandler 0x00227330 0x002274B8 ico2/ito/mpeg/mv_disp.c lines=35  # census-equal with relocated fields masked; an immediate differs (match_check)
-text viBufCreate 0x00227E68 0x00228028 ico2/ito/mpeg/mv_vibuf.c lines=47  # ordinal; differs-at:13; imm:9; extent-equal
-text Free 0x00228E58 0x00228E68 ico2/ito/mpeg/mv_vibuf.c local file=Free_mv_vibuf lines=7  # census-equal; stubbed for emission order
 text MakeBoundingBox 0x002294D0 0x002297E0 ico2/common/src/PObj.c local lines=86  # ordinal; differs-at:4; other:5; extent-equal
 lit4 MakeBoundingBox 0x00679370 0x00679380 ico2/common/src/PObj.c  # 4 floats
 text MakePacket 0x002297E0 0x00229A8C ico2/common/src/PObj.c local lines=23  # ordinal; differs-at:0; length:+101; extent-differs

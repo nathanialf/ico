@@ -11,7 +11,6 @@
 #include "mv_videodec.h"
 #include <eeregs.h>
 #include <libcdvd.h>
-#include "include_asm.h"
 
 /* the DMA and interrupt channels the player takes over for the length of the
    stream and hands back one by one in movie_end. */
@@ -98,14 +97,160 @@ static inline int audioIsPreset(void) /* derived name */
     return movieHasAudio ? audioDecIsPreset(&audioDec) : 1;
 }
 
-static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void));
+static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
+{
+    void *p;
+    int eof;
+    void *q;
+    int abort = 0;
+    /* the read-starved pause is not finished in this build: nothing sets the
+       counter, and the code that would act on it is not compiled in */
+    int pauseCount = 0;
+    int started = 0;
+    int left;
+    int n;
+    int rd;
+    int size;
+    int len;
 
-INCLUDE_ASM(readMpeg);
+    /* the stream's byte count, a word of cdvd.c's stream record, which
+       cdvd.h does not declare */
+    left = *(int *)(strf + 0x8180);
+    n = left;
+
+    while (pauseCount != 0 || (left >= 5 && videoDecGetState(dec) != 3)) {
+        if (dec->mpeg.frameCount >= 11) {
+            if (poll() != 0) {
+                abort = 1;
+                videoDecAbort(&videoDec);
+            }
+        }
+        size = readBufBeginPut(rb, &p);
+        if (n > 0 && size > 65535) {
+            rd = strFileRead(strf, p, 65536, &eof);
+            if (eof != 0) {
+                goto term;
+            }
+            readBufEndPut(rb, rd);
+            n -= rd;
+        }
+        switchThread();
+        len = readBufBeginGet(rb, &q);
+        if (len > 0) {
+            len = sceMpegDemuxPssRing(&dec->mpeg, q, len, (int)rb->data, rb->size);
+            left -= len;
+            readBufEndGet(rb, len);
+        }
+        proceedAudio();
+        if (started == 0 && voBufIsFull(&voBuf) && audioIsPreset()) {
+            startDisplay(1);
+            if (movieHasAudio != 0) {
+                audioDecStart(&audioDec);
+            }
+            started = 1;
+        }
+    }
+
+    while (videoDecFlush(dec) == 0) {
+        switchThread();
+    }
+    while (videoDecIsFlushed(dec) == 0 && videoDecGetState(dec) != 3) {
+        switchThread();
+    }
+
+term:
+    gsb_ClearFrameBuffer();
+    endDisplay();
+    if (movieHasAudio != 0) {
+        audioDecReset(&audioDec);
+    }
+    return abort;
+}
 
 static int initAll(char *name, int imageW, int imageH, int dbx, int dby, int mono, int volume,
-                   int clearCol);
+                   int clearCol)
+{
+    struct ThreadParam th;
+    int ret = 0;
 
-INCLUDE_ASM(initAll);
+    videoDec.intcHandler = -1;
+    videoDec.dmacHandler = -1;
+    decThreadStarted = 0;
+
+    dispCreate(&display, imageW, imageH, dbx, dby);
+    dispClear(&display, clearCol);
+
+    savedDmaCtrl = *D_CTRL;
+    debug_StdPrintfDummy("D_CTRL %x\n", *D_CTRL);
+    *D_CTRL |= 3;
+    *D_STAT = 4;
+
+    debug_StdPrintfDummy("open movie file %s\n", name);
+    if (strFileOpen(mpegStrFile, name) == 0) {
+        return -1;
+    }
+    if (readBufCreate(&mpegReadBuf) != 0) {
+        return -1;
+    }
+    sceMpegInit();
+    if (videoDecCreate(&videoDec) != 0) {
+        return -1;
+    }
+    if (movieHasAudio != 0) {
+        if (audioDecCreate(&audioDec, mono, volume) != 0) {
+            return -1;
+        }
+    }
+
+    videoCbArg.rb = &mpegReadBuf;
+    videoCbArg.dec = &videoDec;
+    videoDecSetStream(&videoDec, 0, 0, videoCallback, &videoCbArg);
+    if (movieHasAudio != 0) {
+        pcmCbArg.rb = &mpegReadBuf;
+        pcmCbArg.dec = &audioDec;
+        videoDecSetStream(&videoDec, 2, 0, pcmCallback, &pcmCbArg);
+    }
+
+    if (voBufCreate(&voBuf) != 0) {
+        return -1;
+    }
+    debug_StdPrintfDummy("create video decode thread\n");
+
+    th.entry = videoDecMain;
+    th.stack = decThreadStack;
+    th.stackSize = 32768;
+    th.initPriority = decThreadPri;
+    th.gpReg = &_gp;
+    th.option = 0;
+    decThreadId = CreateThread(&th);
+    debug_StdPrintfDummy("start thread\n");
+
+    decThreadArg.dec = &videoDec;
+    decThreadArg.disp = &display;
+    decThreadArg.vo = &voBuf;
+    StartThread(decThreadId, &decThreadArg);
+    decThreadStarted = 1;
+
+    DIntr();
+    debug_StdPrintfDummy("add intc\n");
+    videoDec.intcHandler = AddIntcHandler(2, vblankHandler, 0);
+    if (videoDec.intcHandler < 0) {
+        debug_StdPrintfDummy("add intc failed\n");
+        ret = -1;
+    } else {
+        savedIntc = EnableIntc(2);
+        debug_StdPrintfDummy("add dmac\n");
+        videoDec.dmacHandler = AddDmacHandler(2, handler_endimage, 0);
+        if (videoDec.dmacHandler < 0) {
+            debug_StdPrintfDummy("add dmac failed\n");
+            ret = -1;
+        } else {
+            savedDmac = EnableDmac(2);
+        }
+    }
+    EIntr();
+    return ret;
+}
 
 static void termAll(void)
 {

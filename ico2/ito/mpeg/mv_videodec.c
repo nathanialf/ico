@@ -11,18 +11,78 @@
 #include "mv_main.h"
 #include <libmpeg.h>
 #include <string.h>
-#include "include_asm.h"
 
 static void Free(int addr);
 
 /* the MPEG library's callbacks, which videoDecCreate registers */
-INCLUDE_ASM_LIT(mpegError);
+static inline int mpegError(sceMpeg *mp, void *cbdata, void *anyData)
+{
+    MvCbErr *cb = cbdata;
 
-static void free_buf(VideoDec *self);
+    debug_StdPrintfDummy("%s\n", cb->message);
+    return 1;
+}
 
-INCLUDE_ASM(free_buf_mv_videodec);
+static inline int mpegNodata(sceMpeg *mp, void *cbdata, void *anyData)
+{
+    VideoDec *dec = anyData;
 
-INCLUDE_ASM(videoDecCreate);
+    switchThread();
+    viBufAddDMA(&dec->vibuf);
+    return 1;
+}
+
+static inline int mpegStopDMA(sceMpeg *mp, void *cbdata, void *anyData)
+{
+    VideoDec *dec = anyData;
+
+    viBufStopDMA(&dec->vibuf);
+    return 1;
+}
+
+static inline int mpegRestartDMA(sceMpeg *mp, void *cbdata, void *anyData)
+{
+    VideoDec *dec = anyData;
+
+    viBufRestartDMA(&dec->vibuf);
+    return 1;
+}
+
+static inline int mpegTS(sceMpeg *mp, void *cbdata, void *anyData)
+{
+    MvCbTs *cb = cbdata;
+    VideoDec *dec = anyData;
+    ViTs ts;
+
+    viBufGetTs(&dec->vibuf, &ts);
+    cb->pts = ts.pts;
+    cb->dts = ts.dts;
+    return 1;
+}
+
+static void free_buf(VideoDec *self)
+{
+    Free(self->buf);
+}
+
+int videoDecCreate(VideoDec *self)
+{
+    int p;
+
+    p = alloc_zeroed(1557248, 64);
+    self->buf = p;
+    if (p == 0) {
+        return -1;
+    }
+    sceMpegCreate(&self->mpeg, (void *)p, 1557248);
+    sceMpegAddCallback(&self->mpeg, 0, mpegError, 0);
+    sceMpegAddCallback(&self->mpeg, 1, mpegNodata, self);
+    sceMpegAddCallback(&self->mpeg, 2, mpegStopDMA, self);
+    sceMpegAddCallback(&self->mpeg, 3, mpegRestartDMA, self);
+    sceMpegAddCallback(&self->mpeg, 5, mpegTS, self);
+    self->state = 0;
+    return viBufCreate(&self->vibuf) == 0 ? 0 : -1;
+}
 
 static void videoDecBeginPut(VideoDec *self, void **addr1, int *size1, void **addr2, int *size2)
 {
@@ -97,11 +157,61 @@ int videoCallback(sceMpeg *mp, void *cbdata, void *anyData)
     return 0 < n;
 }
 
-static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo);
+static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
+{
+    int ret = 1;
+    VoData *p;
+    int w;
+    int h;
+    int ox;
+    int oy;
+    int hh;
+    int i;
+    int j;
 
-INCLUDE_ASM(decBitStrm0);
+    while (!sceMpegIsEnd(&dec->mpeg)) {
+        /* the decoder's state, as videoDecGetState reads it */
+        if (dec->state == 1) {
+            ret = -1;
+            debug_StdPrintfDummy("decode thread: aborted\n");
+            break;
+        }
+        while ((p = voBufGetData(vo)) == 0) {
+            switchThread();
+        }
+        if (sceMpegGetPicture(&dec->mpeg, (unsigned int)p, 1350) < 0) {
+            ErrMessage("sceMpegGetPicture() decode error");
+            ret = -1;
+            break;
+        }
+        if (dec->mpeg.frameCount == 0) {
+            debug_StdPrintfDummy("movie %d x %d\n", dec->mpeg.width, dec->mpeg.height);
+            w = dec->mpeg.width;
+            ox = (disp->imageWidth - w) >> 1;
+            h = dec->mpeg.height;
+            oy = (disp->imageHeight - h) >> 2;
+            hh = h >> 1;
+            for (i = 0; i < vo->max; i++) {
+                for (j = 0; j < 2; j++) {
+                    dispSetTags(disp, (int)vo->tag[i].packet[j], (int)&vo->data[i], j, ox, oy, w,
+                                hh, w, h);
+                }
+            }
+        }
+        voBufIncCount(vo);
+        switchThread();
+    }
+    sceMpegReset(&dec->mpeg);
+    return ret;
+}
 
-INCLUDE_ASM(Free_mv_videodec);
+static void Free(int addr)
+{
+    /* the buffers are kept as addresses (alloc_zeroed), some at their
+       uncached-accelerated alias; the heap takes the block back with the
+       segment bits off */
+    iosFree((void *)phys_addr(addr));
+}
 
 int videoDecDelete(VideoDec *self)
 {
@@ -145,13 +255,3 @@ void videoDecMain(void *thArg)
     decBitStrm0(arg->dec, arg->disp, arg->vo);
     arg->dec->state = 3;
 }
-
-INCLUDE_ASM(mpegError);
-
-INCLUDE_ASM(mpegNodata);
-
-INCLUDE_ASM(mpegStopDMA);
-
-INCLUDE_ASM(mpegRestartDMA);
-
-INCLUDE_ASM(mpegTS);

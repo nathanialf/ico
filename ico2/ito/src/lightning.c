@@ -12,7 +12,6 @@
 #include "lightning.h"
 #include "DisplayList.h"
 #include "DmaPacket.h"
-#include "include_asm.h"
 
 /* the four control points lightning_test draws through */
 typedef struct { /* field names derived */
@@ -176,6 +175,23 @@ static void set_vertex(LightningVtx *dir, LightningVtx *pos, float u, int *col, 
 }
 
 /* out = the 3x4 part of m applied to in */
+inline void apply_m34(void *out, void *m, void *in)
+{
+    __asm__ __volatile__(".set noreorder\n\t"
+                         "lqc2 $vf8, 0x0(%2)\n\t"
+                         "lqc2 $vf4, 0x0(%1)\n\t"
+                         "lqc2 $vf5, 0x10(%1)\n\t"
+                         "lqc2 $vf6, 0x20(%1)\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf8y\n\t"
+                         "vmaddz.xyzw $vf12, $vf6, $vf8z\n\t"
+                         "sqc2 $vf12, 0x0(%0)\n\t"
+                         ".set reorder"
+                         :
+                         : "r"(out), "r"(m), "r"(in)
+                         : "memory");
+}
+
 /* a random value between lo and hi */
 static __inline__ float random_range(float lo, float hi) /* derived name */
 {
@@ -203,9 +219,238 @@ static LightningMtx catmullRom = {
 
 void DrawLightning2(int num, LightningVtx *v, LightningColor *col, float stepMin, float stepMax,
                     float swayStepMin, float swayStepMax, float turnMin, float turnMax,
-                    float swayLimit, float width, float texLen, float seed, int c);
+                    float swayLimit, float width, float texLen, float seed, int c)
+{
+    LightningMtx m[num - 1];
+    float half = 0.5f;
+    float wa = width * half;
+    float wb = width - wa;
+    float one = 1.0f;
+    float two = 2.0f;
+    LightningVtx ccol;
+    LightningVtx a;
+    LightningVtx b;
+    LightningVtx dir;
+    LightningVtx cur;
+    LightningVtx prev;
+    LightningVtx t;
+    LightningVtx q;
+    LightningVtx dv;
+    LightningVtx tmp;
+    LightningVtx basis;
+    LightningVtx pos;
+    LightningVtx sa;
+    LightningVtx sb;
+    LightningVtx delta;
+    LightningVtx nrm;
+    LightningVtx avg;
+    LightningVtx out;
+    LightningVtx ccol2;
+    LightningVtx icol;
+    float s;
+    float f;
+    float u;
+    float nu;
+    float sc;
+    float lim;
+    float last;
+    float sway;
+    float d;
+    float ang;
+    float amp;
+    float wd;
+    float ui;
+    float ni;
+    int no;
+    int n;
+    int i;
+    int seg;
+    int first;
+    int done;
+    char *pk;
+    char *p;
+    unsigned long long *top;
 
-INCLUDE_ASM(DrawLightning2);
+    no = tex_GetTextureNo("lightning_test");
+    if (no >= 0) {
+        tex_TransTexture(no, 6);
+    }
+    if (num < 2) {
+        return;
+    }
+    gif_StartPacketPri(6);
+    if (dpk_CheckBufferSize() >= 64) {
+        gif_SetAlpha(1, c, 128);
+        gif_SetGsReg(78, 0x1300000C0LL);
+        gif_SetGsReg(8, 1);
+        gif_SetGsReg(0, 84);
+    }
+    gif_EndPacket();
+    dl_SetDLPriority(6);
+    pk = PacketBufferStruct.ptr.c;
+    top = (unsigned long long *)(pk + 16);
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.dma.c = pk;
+    PacketBufferStruct.ptr.c = pk + 8;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.tail.c = pk;
+    ((GifPkWord *)(pk + 8))->w[0] = 0x11000000;
+    PacketBufferStruct.gif.c = pk + 12;
+    PacketBufferStruct.ptr.d = top;
+    stripOn = 0;
+    stripTag = 0;
+    vtxCount = 0;
+    if (seed != 0.0f) {
+        seed = __builtin_fabsf(seed);
+        seed = seed - (int)seed + one;
+        if (seed == one) {
+            seed = 1.5f;
+        }
+        __asm__ __volatile__("ctc2.ni %0, $vi20\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop"
+                             :
+                             : "r"(seed));
+    }
+    if (stepMin < 15.0f) {
+        stepMin = 15.0f;
+    }
+    sceVu0SubVector(&dir, &v[1], &v[0]);
+    sceVu0Normalize(&dir, &dir);
+    a.f[0] = random_unit();
+    a.f[1] = random_unit();
+    a.f[2] = random_unit();
+    a.f[3] = 1.0f;
+    sceVu0OuterProduct(&b, &dir, &a);
+    sceVu0Normalize(&b, &b);
+    sceVu0OuterProduct(&a, &b, &dir);
+    {
+        int np = num + 2;
+        LightningVtx w[np + 2];
+
+        sceVu0SubVector(&t, &v[0], &v[1]);
+        sceVu0AddVector(&w[0], &v[0], &t);
+        for (i = 0; i < num; i++) {
+            sceVu0CopyVector(&w[i + 1], &v[i]);
+        }
+        sceVu0SubVector(&t, &v[num - 1], &v[num - 2]);
+        sceVu0AddVector(&w[num + 1], &v[num - 1], &t);
+        for (i = 0; i < np - 3; i++) {
+            sceVu0MulMatrix(m[i], &w[i], catmullRom);
+        }
+    }
+    sceVu0CopyVector(&cur, &v[0]);
+    sceVu0ITOF0Vector(&ccol, col);
+    last = (float)(num - 1);
+    u = 0.0f;
+    s = u;
+    done = 0;
+    first = 1;
+    sway = 0.0f;
+    ang = random_range(0.0f, 6.2831855f);
+    for (;;) {
+        seg = (int)s;
+        f = s - (float)seg;
+        if (dpk_CheckBufferSize() < 64) {
+            goto end;
+        }
+        tmp.f[0] = 3.0f * f * f;
+        tmp.f[1] = 2.0f * f;
+        tmp.f[2] = 1.0f;
+        tmp.f[3] = 0.0f;
+        dv = tmp;
+        sceVu0ApplyMatrix(&dir, m[seg], &dv);
+        sceVu0Normalize(&dir, &dir);
+        sceVu0ScaleVectorXYZ(&tmp, &a, sceVu0InnerProduct(&dir, &a));
+        sceVu0SubVector(&a, &a, &tmp);
+        sceVu0Normalize(&a, &a);
+        sceVu0OuterProduct(&b, &dir, &a);
+        s += random_range(stepMin, stepMax) / _GetLength(&v[seg + 1], &v[seg]);
+        seg = (int)s;
+        f = s - (float)seg;
+        lim = (float)(num - 1) - half;
+        if (s < half) {
+            sc = GetTableSin((short)(s * two * 1.5707964f * 10430.378f));
+        } else if (lim <= s) {
+            sc = GetTableSin((short)((1.0f - (s - lim) * two) * 1.5707964f * 10430.378f));
+        } else {
+            sc = 1.0f;
+        }
+        if (last <= s) {
+            sceVu0CopyVector(&q, &v[num - 1]);
+            done = 1;
+        } else {
+            basis = (LightningVtx){{f * f * f, f * f, f, 1.0f}};
+            sceVu0ApplyMatrix(&pos, m[seg], &basis);
+            d = random_sign(random_range(swayStepMin, swayStepMax));
+            if (__builtin_fabsf(sway + d) > swayLimit) {
+                d = -d;
+            }
+            sway += d;
+            amp = sway * sc;
+            ang +=
+                random_sign(random_range(degrees_to_radians(turnMin), degrees_to_radians(turnMax)));
+            sceVu0ScaleVectorXYZ(&sa, &a, GetTableCos((short)(ang * 10430.378f)) * amp);
+            sceVu0ScaleVectorXYZ(&sb, &b, GetTableSin((short)(ang * 10430.378f)) * amp);
+            sceVu0AddVector(&q, &pos, &sa);
+            sceVu0AddVector(&q, &q, &sb);
+        }
+        sceVu0SubVector(&delta, &q, &cur);
+        sceVu0Normalize(&nrm, &delta);
+        if (first) {
+            sceVu0CopyVector(&prev, &nrm);
+        }
+        sceVu0AddVector(&avg, &nrm, &prev);
+        sceVu0ScaleVectorXYZ(&avg, &avg, 0.5f);
+        sceVu0CopyVector(&prev, &nrm);
+        apply_m34(&out, matrixptr + 0x80, &avg);
+        sceVu0ScaleVectorXYZ(&ccol2, &ccol, sc * (1.0f - half) + half);
+        sceVu0FTOI0Vector(&icol, &ccol2);
+        wd = (sc * wb + wa) * (1.0f - _GetRandom() * half);
+        set_vertex(&out, &cur, u, icol.i, wd);
+        nu = u + _GetNorm(&delta) / texLen;
+        if (2048.0f <= nu * 32.0f) {
+            ui = (int)u;
+            ni = (int)nu;
+            set_vertex(&out, &cur, u - ui, icol.i, wd);
+            nu -= ni;
+        }
+        u = nu;
+        if (done) {
+            set_vertex(&out, &q, u, icol.i, 0.0f);
+            break;
+        }
+        sceVu0CopyVector(&cur, &q);
+        first = 0;
+    }
+end:
+    close_strip();
+    n = PacketBufferStruct.ptr.d - top;
+    if (n & 1) {
+        *PacketBufferStruct.ptr.d++ = 0;
+    }
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                         4) -
+                        1) |
+                       0x10000000);
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
+    p = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = p;
+    ((GifPkWord *)p)->d = 0x60000000;
+    PacketBufferStruct.ptr.c = p + 8;
+    ((GifPkWord *)(p + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = p + 0xC;
+    ((GifPkWord *)(p + 8))->w[1] = 0;
+    PacketBufferStruct.ptr.c = p + 0x10;
+    if (n > 0) {
+        dl_SetDLPriority(dl_GetPri());
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+}
 
 static inline int cmpr(LightningNode *self, LightningNode *other);
 
@@ -231,8 +476,26 @@ static inline int cmpr(LightningNode *self, LightningNode *other)
     return self->key - other->key;
 }
 
-INCLUDE_ASM(apply_m34);
+inline void DrawLightning(void *from, void *to, void *col, float stepMin, float stepMax,
+                          float swayStepMin, float swayStepMax, float turnMin, float turnMax,
+                          float swayLimit, float width, float texLen, float seed, int c)
+{
+    LightningVtx buf[2];
+    sceVu0CopyVector(&buf[0], from);
+    sceVu0CopyVector(&buf[1], to);
+    DrawLightning2(2, buf, col, stepMin, stepMax, swayStepMin, swayStepMax, turnMin, turnMax,
+                   swayLimit, width, texLen, seed, c);
+}
 
-INCLUDE_ASM(DrawLightning);
-
-INCLUDE_ASM(lightning_test);
+inline void lightning_test(void)
+{
+    LightningColor col = {{0x80, 0xFF, 0xFF, 0x80}};
+    LightningPath vtx = {{
+        {{0.0f, 750.0f, 0.0f, 1.0f}},
+        {{0.0f, 500.0f, -200.0f, 1.0f}},
+        {{0.0f, 250.0f, 200.0f, 1.0f}},
+        {{0.0f, 0.0f, 0.0f, 1.0f}},
+    }};
+    DrawLightning2(4, vtx.v, &col, 5.0f, 25.0f, 5.0f, 25.0f, 5.0f, 10.0f, 70.0f, 8.0f, 20.0f, 0.0f,
+                   0);
+}
