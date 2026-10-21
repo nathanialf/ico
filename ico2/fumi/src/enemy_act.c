@@ -2167,8 +2167,10 @@ inline int GetEnemyTypeFromGObj(GObj *obj)
 
 INCLUDE_ASM(actEnemyStart);
 
-/* after actEnemyStart's float in the demo's .sdata (0x679E00) */
-static int kidnapEndCount = 0; /* derived name: cleared as actEnemyKidnapEnd starts its wait */
+/* the later builds' kidnapEndCount is not in this build: the demo's
+   actEnemyKidnapEnd has no count, and the .sdata word at 0x679E00 is
+   entesty (BeforeFunc's only store; 0x679E04 is the fill before
+   fieldCollision.o's 8-aligned .sdata) */
 
 void subEnemyBrain_Irregular(GObj *volatile self)
 {

@@ -12,14 +12,13 @@
 #include <libvu0.h>
 
 /* one packet pac_makePacket builds, 176 bytes in June: the bounding box's
-   eight corners, sixteen bytes RegistPacket.c never reads (the later builds
-   drop them), the material, the texture slot and the slot's three texture
+   eight corners and their centre (pac_makeBoundingBox's box[8]; the later
+   builds drop it), the material, the texture slot and the slot's three texture
    numbers, the tag and polygon counts, the packet size (the byte count in the
    low 24 bits, the clip type in the top byte), the next packet of the model
    and its DMA data. */
 typedef struct PacHeader {  /* field names derived */
-    sceVu0FVECTOR box[8];   /* 0x00 */
-    char pad80[16];         /* 0x80 */
+    sceVu0FVECTOR box[9];   /* 0x00 */
     short mat;              /* 0x90 */
     short texSlot;          /* 0x92 */
     short tex;              /* 0x94 */
@@ -52,20 +51,21 @@ typedef struct PacLine {    /* field names derived */
     sceVu0FVECTOR uv[2];    /* 0x20 */
     sceVu0IVECTOR trail[3]; /* 0x40 */
     char pad70[16];
-    PacColor col0; /* 0x80 */
-    PacColor col1; /* 0x84 */
-    short tex;     /* 0x88 */
-    short blend;   /* 0x8A */
-    short pad8C;
-    short type; /* 0x8E */
-} PacLine;  /* derived name */
+    PacColor col0;  /* 0x80 */
+    PacColor col1;  /* 0x84 */
+    short tex;      /* 0x88 */
+    short blend;    /* 0x8A */
+    short reserved; /* 0x8C, cleared when the record is built */
+    short type;     /* 0x8E */
+} PacLine;          /* derived name */
 
-/* the 144-byte record a line part's group record points at: the line records
-   at +0xC, which RegistPacket.c's line display walks */
+/* the 160-byte record (June; 144 in the later builds) a line part's group
+   record points at: the line records at +0xC, which RegistPacket.c's line
+   display walks */
 typedef struct PacLineSet { /* field names derived */
     char pad00[12];
     PacLine *lines; /* 0x0C */
-    char pad10[128];
+    char pad10[144];
 } PacLineSet; /* derived name */
 
 struct PObjMaterial;

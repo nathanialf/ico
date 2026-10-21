@@ -115,35 +115,38 @@ typedef struct PObjMaterial { /* field names derived */
     char pad68[8];
 } PObjMaterial; /* derived name */
 
-/* one texture slot of a part, 80 bytes, pac_getTextureInfo fills it: the
- * texture's name and the names with "_l" and "_ref" appended, the three
- * texture numbers (-1 where there is none), and a bit per number found:
- * bit 0 the texture (or no texture asked for), bit 1 "_l", bit 2 "_ref" */
+/* one texture slot of a part, 104 bytes in June (32-byte names; the later
+ * builds' are 24), pac_getTextureInfo fills it: the texture's name and the
+ * names with "_l" and "_ref" appended, the three texture numbers (-1 where
+ * there is none), and a bit per number found: bit 0 the texture (or no
+ * texture asked for), bit 1 "_l", bit 2 "_ref" */
 typedef struct PObjTexInfo { /* field names derived */
-    char name[24];           /* 0x00 */
-    char nameL[24];          /* 0x18 */
-    char nameRef[24];        /* 0x30 */
-    short tex;               /* 0x48 */
-    short texL;              /* 0x4A */
-    short texRef;            /* 0x4C */
-    unsigned short found;    /* 0x4E */
+    char name[32];           /* 0x00 */
+    char nameL[32];          /* 0x20 */
+    char nameRef[32];        /* 0x40 */
+    short tex;               /* 0x60 */
+    short texL;              /* 0x62 */
+    short texRef;            /* 0x64 */
+    unsigned short found;    /* 0x66 */
 } PObjTexInfo;               /* derived name */
 
 /* one part's group record, 60 bytes a part in June (pac_makePacket's
- * mallocseki(n * 60)): the part's material table (0x70 bytes a material),
- * its texture-info table and count, its first packet (a PacHeader; a line
- * part's record is Packet.c's MatLine), the copies of the packets the morphs
- * rewrite and the model's name, in the first part's record */
+ * mallocseki(n * 60)): the part's material table (0x70 bytes a material)
+ * and count, its texture-info table and count, its first packet (a
+ * PacHeader; a line part's record is Packet.c's MatLine), the copies of the
+ * packets the morphs rewrite and the model's name, in the first part's
+ * record */
 typedef struct PObjGroup {   /* field names derived */
     PObjMaterial *materials; /* 0x00 */
-    char pad04[4];
+    int matCount;            /* 0x04 */
     PObjTexInfo *texs;       /* 0x08 */
     int texCount;            /* 0x0C */
     void *packets;           /* 0x10 */
     void *morph;             /* 0x14 */
     char name[32];           /* 0x18 */
-    char pad38[4];
-} PObjGroup;                 /* derived name */
+    char reserved;           /* 0x38, pac_makePacket clears it */
+    char pad39[3];
+} PObjGroup; /* derived name */
 
 typedef struct PObjModel { /* field names derived */
     char name[32];         /* 0x00 */

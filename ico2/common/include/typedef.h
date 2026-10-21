@@ -113,7 +113,8 @@ static inline float absf(float x)
 typedef struct GObj GObj; /* derived name */
 
 typedef struct Sub15C Sub15C;
-    /* *(GObj + 0x15C), the object's display object (DObj.c) */ /* derived name */
+
+/* *(GObj + 0x15C), the object's display object (DObj.c) */ /* derived name */
 
 /* The 80-byte record Sub15C + 0x810 points at, one per display node; the
  * buffer is reallocated with the 0xC matrices and 0x10 vectors for the node
@@ -479,7 +480,7 @@ struct MotCtrl {           /* field names derived */
     float waterDepth;   /* 0x1D0, the depth under the pool surface */
     GObj *pool;         /* 0x1D4, the pool the object stands in */
     int contactFlags;   /* 0x1D8, the field contact bits CheckFieldContact sets */
-    int mailDelay; /* 0x1DC, counts the first frame up before the motion orient sends its state
+    int mailDelay;      /* 0x1DC, counts the first frame up before the motion orient sends its state
                       mail (getMotionGeometry); September's noFieldClip and seMute have no place */
 };
 
@@ -565,11 +566,12 @@ struct Sub15C { /* field names derived */
     float localPos[4]; /* 0x780, the position relative to the object at 0x7A0 */
     float localMove
         [4]; /* 0x790, the root movement the local position steps by while no object holds it */
-    ObjNode local;     /* 0x7A0, the object and node the position at 0x780 is relative to, obj 0 for none */
-    float localHeight; /* 0x7A8, the height added to the local position */
-    MotIk *nodeRotElem; /* 0x7AC, one IK state a skeleton node */
-    int *nodeLimit;    /* 0x7B0, the address of each skeleton node's rotation limit record */
-    float (*nodeVec)[4]; /* 0x7B4, one vector a skeleton node */
+    ObjNode
+        local; /* 0x7A0, the object and node the position at 0x780 is relative to, obj 0 for none */
+    float localHeight;       /* 0x7A8, the height added to the local position */
+    MotIk *nodeRotElem;      /* 0x7AC, one IK state a skeleton node */
+    int *nodeLimit;          /* 0x7B0, the address of each skeleton node's rotation limit record */
+    float (*nodeVec)[4];     /* 0x7B4, one vector a skeleton node */
     float (*blendRot)[4][4]; /* 0x7B8, four quaternions a skeleton node, the blend's rotations */
     int (*rideFunc)(
         ObjNode *on,
@@ -826,7 +828,7 @@ typedef struct StageSetting { /* field names derived */
     int feedbackCol[4];  /* 0x110, "Feedback Effect R, G, B, A" */
     int fogStrength;     /* 0x120 */
     char pad124[12];     /* 0x124 */
-} StageSetting; /* derived name */
+} StageSetting;          /* derived name */
 
 /* an RGBA colour as four words, 16-byte aligned */
 typedef union { /* field names derived */
@@ -995,7 +997,7 @@ typedef struct {   /* field names derived */
      * with the const table's unchanging flag on the load. */
     unsigned int reverbDepth : 16;
     unsigned int kidnapSeconds : 9;
-    unsigned int mpegNo : 5; /* five bits here: this build keeps both actor switches in
+    unsigned int mpegNo : 5;      /* five bits here: this build keeps both actor switches in
                                 bits 30 and 31 (ACTGame_SetActors_Debug) */
     unsigned int attrTop : 1;     /* bit 30, the stage places the boy (ACTGame_SetActors_Debug) */
     unsigned int attrTopGirl : 1; /* bit 31, the stage places the girl; derived name */
@@ -1254,10 +1256,10 @@ typedef struct ActEnv {      /* field names derived */
     float cliffEdgePos[4];   /* 0x40 */
     float cliffStepPos[4];   /* 0x50 */
     float ditchPos[4];       /* 0x60, the ditch position */
-    float cliffBackPos[4]; /* 0x70 */
-    float edgeOrient[4];   /* 0x80 */
-    float sofaOrient[4];   /* 0x90, the sofa seat orientation (GetSofaPosition) */
-    float edgePos[4];      /* 0xA0, the edge position, [3] nonzero while it is to be taken */
+    float cliffBackPos[4];   /* 0x70 */
+    float edgeOrient[4];     /* 0x80 */
+    float sofaOrient[4];     /* 0x90, the sofa seat orientation (GetSofaPosition) */
+    float edgePos[4];        /* 0xA0, the edge position, [3] nonzero while it is to be taken */
     char padB0[16];
     float wallPos[4]; /* 0xC0, the point on the wall the actor touches (wallContactPos) */
     float pullPos[4]; /* 0xD0, the pull position */
@@ -1303,13 +1305,13 @@ typedef struct ActEnv {      /* field names derived */
                                385 and 386 copy to motOriReq */
 } ActEnv;                   /* derived name */
 
-typedef struct Act { /* field names derived */
+typedef struct Act {         /* field names derived */
     struct GProc *brainProc; /* 0x0, the actor's brain process (actChangeActBrain) */
-    struct GProc *actProc;  /* 0x4, the actor's action process (actInitialize, actChangeActMain) */
-    struct GProc *motProc;  /* 0x8, the motion thread an interrupt's first function runs in */
-    struct GProc *motProc2; /* 0xC, the motion thread of its second function */
-    int frame;              /* 0x10, the actor's frame count */
-    void *after;            /* 0x14, the actor's after function (enemy_act.c's name) */
+    struct GProc *actProc;   /* 0x4, the actor's action process (actInitialize, actChangeActMain) */
+    struct GProc *motProc;   /* 0x8, the motion thread an interrupt's first function runs in */
+    struct GProc *motProc2;  /* 0xC, the motion thread of its second function */
+    int frame;               /* 0x10, the actor's frame count */
+    void *after;             /* 0x14, the actor's after function (enemy_act.c's name) */
 
     union {
         unsigned long long ll;
@@ -1322,12 +1324,14 @@ typedef struct Act { /* field names derived */
 
     union {
         unsigned long long ll;
+
         struct {
             unsigned int flags; /* 0x20, the state flags, bits 0-31 of ll */
-            int handFreeFrame;  /* 0x24, frames since the boy and girl let go of each other's hands */
+            int handFreeFrame; /* 0x24, frames since the boy and girl let go of each other's hands */
         } w;
     } flags20; /* 0x20, a 64-bit word: the state flags in the low word, the
                   hand-free count in the high word */
+
     GObj *intrArg;        /* 0x28, the argument of the mail that interrupted this frame */
     int intrData;         /* 0x2C, the mail additional data of that mail */
     int actMode;          /* 0x30, the current action mode; it indexes actModeTbl */
@@ -1338,22 +1342,22 @@ typedef struct Act { /* field names derived */
     int actKind;          /* 0x44, the actor's column in actModeTbl */
     int modeFrame;        /* 0x48, frames since the action mode changed */
     int msgBlockTimer;    /* 0x4C, while nonzero, mail 205 is turned away */
-    GObj *mother; /* 0x50, the generator the enemy was called from (actEnemyRestart), 0 for none */
+    GObj *mother;  /* 0x50, the generator the enemy was called from (actEnemyRestart), 0 for none */
     char pad54[8]; /* 0x54, the char status bits and their last value (ints in this build) */
-    float statusWait8; /* 0x5C, the value char status bit 8 carries (a wait) */
-    float statusWait5; /* 0x60, the value char status bit 5 carries (a wait) */
-    float statusVal17; /* 0x64, the value char status bit 17 carries */
-    int statusVal18;   /* 0x68, the value char status bit 18 carries */
-    int statusTarget;  /* 0x6C, the target char status bit 10 carries */
-    int statusOther;   /* 0x70, the object char status bit 2 carries (the nearest active enemy) */
-    GObj *gobj80;      /* 0x74 */
-    GObj *gobj84;      /* 0x78 */
-    int statusObj;     /* 0x7C, the object char status bit 11 carries (bomb, gondola, box) */
+    float statusWait8;  /* 0x5C, the value char status bit 8 carries (a wait) */
+    float statusWait5;  /* 0x60, the value char status bit 5 carries (a wait) */
+    float statusVal17;  /* 0x64, the value char status bit 17 carries */
+    int statusVal18;    /* 0x68, the value char status bit 18 carries */
+    int statusTarget;   /* 0x6C, the target char status bit 10 carries */
+    int statusOther;    /* 0x70, the object char status bit 2 carries (the nearest active enemy) */
+    GObj *gobj80;       /* 0x74 */
+    GObj *gobj84;       /* 0x78 */
+    int statusObj;      /* 0x7C, the object char status bit 11 carries (bomb, gondola, box) */
     int paraStatus;     /* 0x80, the parallel status bits ACTParaStatus sets */
     int lastParaStatus; /* 0x84, the parallel status bits as last seen */
-    GObj *lookTarget; /* 0x88, the object the actor looks at, 0 for the position at 0xA0 */
-    int lookPri;      /* 0x8C, the priority of the current look request */
-    int lookMode;     /* 0x90, the look mode passed to the display object */
+    GObj *lookTarget;   /* 0x88, the object the actor looks at, 0 for the position at 0xA0 */
+    int lookPri;        /* 0x8C, the priority of the current look request */
+    int lookMode;       /* 0x90, the look mode passed to the display object */
     char pad94[12];
     float lookPosX; /* 0xA0, the look position, x */
     float lookPosY; /* 0xA4, the look position, y */
@@ -1365,7 +1369,8 @@ typedef struct Act { /* field names derived */
     int attack; /* 0xBC, nonzero when the actor's kind attacks (act_a_p_1.c copies spiderDef's attack) */
     int readyFlags; /* 0xC0, the hand-in-hand handshake bits: 1 ready begin, 2 ready end, 8 exec end, 0x10 error */
     char padC4[12];
-    float jump[4]; /* 0xD0, the jump vector of the actor's kind (act_a_p_1.c copies spiderDef's jump; AP1JumpReq) */
+    float jump
+        [4]; /* 0xD0, the jump vector of the actor's kind (act_a_p_1.c copies spiderDef's jump; AP1JumpReq) */
     char padE0[16];
     float camRootX; /* 0xF0, the root position the camera follows, x */
     float camRootY; /* 0xF4, the root position the camera follows, y */
@@ -1389,12 +1394,14 @@ typedef struct Act { /* field names derived */
                   stores it here in actCommonBox and reads it back through
                   `*(void **)(s + 0x138)` in the boxbar helpers */
     GObj *bar;            /* 0x13C, the bar actCommonBar holds */
+
     union {
         unsigned long long ll;
         char *sofa; /* the sofa the actor sits on */
     } flags150;     /* 0x140, a 64-bit word: the sofa in the low word, enemy_act.c's
                        carry-failed flag in bit 32 (funcEnemyCarryFail sets it,
                        CheckEnemyBrainMode and subEnemyBrain_Irregular clear it) */
+
     char pad148[8];
     float restartPosX; /* 0x150, the enemy restart position, x */
     float restartPosY; /* 0x154, the enemy restart position, y */
@@ -1434,24 +1441,24 @@ typedef struct Act { /* field names derived */
     char hit;           /* 0x1CA, set when the actor goes down, cleared each frame */
     char unguardable;   /* 0x1CB, nonzero when the hit cannot be guarded */
     char pad1CC[4];
-    float life;      /* 0x1D0, the actor's life */
-    float maxLife;   /* 0x1D4, the life the enemy restarts with */
-    PadConf padConf; /* 0x1D8, the pad configuration the actor's pad record
+    float life;        /* 0x1D0, the actor's life */
+    float maxLife;     /* 0x1D4, the life the enemy restarts with */
+    PadConf padConf;   /* 0x1D8, the pad configuration the actor's pad record
                         at 0x2C8 is connected to (actInitialize copies
                         iosPadConfDefault into it) */
-    IosPadCtx pad;   /* 0x2C8, the pad handle: the buttons held, pressed and
+    IosPadCtx pad;     /* 0x2C8, the pad handle: the buttons held, pressed and
                         released this frame at 0x2D0, 0x2D4 and 0x2D8 */
     IosPadStick stick; /* 0x328, the stick reading iosPadGetStick fills in */
-    int wayMode;    /* 0x340, the way follow state: 0 none, 1 search, 2 follow */
+    int wayMode;       /* 0x340, the way follow state: 0 none, 1 search, 2 follow */
     char pad344[12];
     WVTObj way;     /* 0x350, the guide-way work block way_sys.c walks */
     float wayNodeX; /* 0x3D0, the next way node, x */
     float wayNodeY; /* 0x3D4, the next way node, y */
     float wayNodeZ; /* 0x3D8, the next way node, z */
     char pad3DC[4];
-    long long wayFlags;  /* 0x3E0, the way walk flags */
-    float wayGoalDist;   /* 0x3E8, the distance to the goal across the floor */
-    float wayGoalHeight; /* 0x3EC, the goal's height over the actor */
+    long long wayFlags;       /* 0x3E0, the way walk flags */
+    float wayGoalDist;        /* 0x3E8, the distance to the goal across the floor */
+    float wayGoalHeight;      /* 0x3EC, the goal's height over the actor */
     struct WayPoint *wayLast; /* 0x3F0, the way point GetWay_next last returned */
     char pad3F4[28];
     float wayDetailX; /* 0x410, the detailed way point, x */
@@ -1460,20 +1467,20 @@ typedef struct Act { /* field names derived */
     char pad41C[4];
     WayState wayState; /* 0x420 */
     char pad428[8];
-    int brainAim;      /* 0x430, the enemy brain's aim: 1 the girl, 2 the boy */
-    int infoPos;       /* 0x434, the object info position the enemy is saved at */
-    int brainStatus;   /* 0x438, the brain status the actor starts with */
+    int brainAim;    /* 0x430, the enemy brain's aim: 1 the girl, 2 the boy */
+    int infoPos;     /* 0x434, the object info position the enemy is saved at */
+    int brainStatus; /* 0x438, the brain status the actor starts with */
     char pad43C[8];
-    int lastActMode; /* 0x444, the act mode left last (actCommonJump and actCommonFall read it;
-                        the later builds keep it as ActWork's modeHist[0]) */ /* derived name */
-    int attackGroup;  /* 0x448, the actor's attack group */
-    int doorFlag;     /* 0x44C, the game flag of the door script */
-    float doorDist;   /* 0x450, the door's travel */
-    float doorStep;   /* 0x454, the door's step */
+    int modeHist[2];   /* 0x444, the act modes left, newest first (BeforeFunc shifts them;
+                        actCommonJump and actCommonFall read [0]; the later builds keep
+                        ten in ActWork) */
+    int doorFlag;      /* 0x44C, the game flag of the door script */
+    float doorDist;    /* 0x450, the door's travel */
+    float doorStep;    /* 0x454, the door's step */
     ActMail *doorMail; /* 0x458, the door's main mail list */
-    int doorCamWait;  /* 0x45C, frames to wait after the camera move */
-    int doorEndWait;  /* 0x460, frames to wait after the move */
-    GObj *doorCamera; /* 0x464, the camera target of the door move, 0 for none */
+    int doorCamWait;   /* 0x45C, frames to wait after the camera move */
+    int doorEndWait;   /* 0x460, frames to wait after the move */
+    GObj *doorCamera;  /* 0x464, the camera target of the door move, 0 for none */
     char pad468[8];
     ActWishWord wish0; /* 0x470 */
     ActWishWord wish1; /* 0x478 */
@@ -1485,7 +1492,7 @@ typedef struct Act { /* field names derived */
     struct EnemyBattleWork *enemy;          /* 0x650, the enemy work (enemy_act.c) */
     struct MailAdditionalData *mailAddData; /* 0x654, the mail additional data table */
     int work; /* 0x658, the actor's extended work block (act-game.h's ActWork) */
-} Act; /* derived name */
+} Act;        /* derived name */
 
 /* obj-layout: one placed object of a stage, 0x4C bytes, indexed by the
  * object's GObj labelId.  sceneManager.c creates the object from it; the

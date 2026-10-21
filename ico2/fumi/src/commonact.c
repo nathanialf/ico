@@ -1364,7 +1364,7 @@ void actCommonJump(GObj *volatile self)
             SetMotionDirection(self, dir);
         }
     }
-    n = s->lastActMode;
+    n = s->modeHist[0];
     if (n < 4) {
         if (0 < n) {
             switch ((unsigned int)s->intrKind) {
@@ -1425,7 +1425,7 @@ void actCommonFall(GObj *volatile self)
         wasHigh = 1;
         break;
     default:
-        n = s->lastActMode;
+        n = s->modeHist[0];
         if (n < 29) {
             if (27 <= n) {
                 FALL_SUB(self)->root.move[0] = 0;

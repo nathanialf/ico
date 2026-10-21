@@ -27,10 +27,6 @@ static float scaleWorkMatrix[4][4] = {{1.0f, 0.0f, 0.0f, 0.0f},
    (the saves go to VU0 memory through vi15), are not in this build: the
    object has no .bss. */
 
-/* the word at 0x679758 the demo's Packet.c (0x11A9A8) reads and writes;
-   nothing in this file uses it, and its linkage is settled with Packet.c */
-static int vu0PushDepth = 0; /* derived name */
-
 inline void _InitCurrentMatrix(void)
 {
     VU0_V2OP(vmove.xyzw, 7, 0);
