@@ -30,7 +30,7 @@ typedef struct { /* field names derived */
     int h;
 } GifRect; /* derived name */
 
-int _IsInScreen(volatile int *v);
+int _IsInScreen(int *v);
 int gif_CheckOpen(void);
 void gif_Draw2DStripG(int *v, GifColor *col, int n, int prim);
 void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3, int r, int g, int b, int a, int prim);

@@ -72,6 +72,7 @@ extern int InterStageSwitchLock;
 void Main(void);
 void Emergency_DestroyAllThread(void);
 /* jun26-only; scpDeamon calls it while pad 0 holds the 0x900 buttons */
+void func_001025F0(void);
 void func_00102790(void);
 
 #endif /* MAIN_H */

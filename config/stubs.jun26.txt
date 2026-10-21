@@ -141,44 +141,6 @@ text file_LoadCDFile 0x0010F3B8 0x0010FAEC ico2/seki/src/FileManager.c local lin
 rdlit file_LoadCDFile 0x0059D2D8 0x0059D636 ico2/seki/src/FileManager.c  # 24 strings (target side)
 rdlit file_LoadCDFile 0x0059D640 0x0059D740 ico2/seki/src/FileManager.c align=16  # 2 jump tables (target side)
 sdlit file_LoadCDFile 0x00679618 0x00679628 ico2/seki/src/FileManager.c  # 2 strings (target side)
-text gif_StartPacketPri 0x0010FB68 0x0010FBB4 ico2/seki/src/GifPacket.c lines=6  # call-pal
-rdlit gif_StartPacketPri 0x0059D800 0x0059D818 ico2/seki/src/GifPacket.c  # 1 string (target side)
-text gif_EndPacket 0x0010FBB8 0x0010FCF4 ico2/seki/src/GifPacket.c lines=27  # call-pal
-rdlit gif_EndPacket 0x0059D818 0x0059D840 ico2/seki/src/GifPacket.c  # 2 strings (target side)
-text gif_SetGsReg 0x0010FCF8 0x0010FD38 ico2/seki/src/GifPacket.c lines=4  # call-pal
-rdlit gif_SetGsReg 0x0059D840 0x0059D850 ico2/seki/src/GifPacket.c  # 1 string (target side)
-text gif_StartPacketPriPath1 0x0010FD90 0x0010FDDC ico2/seki/src/GifPacket.c lines=6  # call-pal
-text gif_EndPacketPath1 0x0010FDE0 0x0010FF68 ico2/seki/src/GifPacket.c lines=39  # call-pal
-text func_0010FF68 0x0010FF68 0x0011000C ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text func_00110010 0x00110010 0x001100D0 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text gif_MakeLine2D 0x001100D0 0x001101BC ico2/seki/src/GifPacket.c lines=4  # call-pal
-text func_001101C0 0x001101C0 0x001102E0 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text gif_MakeSpriteNoTexture 0x001102E0 0x001103CC ico2/seki/src/GifPacket.c lines=4  # call-pal
-text func_001103D0 0x001103D0 0x00110508 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text func_00110508 0x00110508 0x00110628 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text func_00110628 0x00110628 0x00110794 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text func_00110798 0x00110798 0x0011093C ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text gif_SpriteSensitive 0x00110940 0x001109D8 ico2/seki/src/GifPacket.c lines=13  # call-pal
-text gif_SpriteSensitiveOffset 0x001109D8 0x00110A70 ico2/seki/src/GifPacket.c lines=13  # call-pal
-text gif_SpriteSensitiveOrg 0x00110A70 0x00110ABC ico2/seki/src/GifPacket.c lines=13  # call-pal
-text gif_SetAlpha 0x00110AC0 0x00110B50 ico2/seki/src/GifPacket.c lines=24  # call-pal
-text func_00110B50 0x00110B50 0x00110C00 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text gif_SetDrawEnviroment 0x00110C00 0x00110D40 ico2/seki/src/GifPacket.c lines=23  # call-pal
-text gif_SetZTest 0x00110D40 0x00110D58 ico2/seki/src/GifPacket.c lines=7  # call-pal
-text gif_SetZWrite 0x00110D58 0x00110D8C ico2/seki/src/GifPacket.c lines=7  # call-pal
-text func_00110D90 0x00110D90 0x00110DEC ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text gif_DrawPolyF4 0x00110DF0 0x001110D4 ico2/seki/src/GifPacket.c lines=23  # call-pal
-text gif_DrawStripF 0x001110D8 0x00111298 ico2/seki/src/GifPacket.c lines=21  # call-aug
-text func_00111298 0x00111298 0x00111460 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text gif_Draw2DStripG 0x00111460 0x00111604 ico2/seki/src/GifPacket.c lines=21  # call-pal
-text func_00111608 0x00111608 0x001117D4 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text func_001117E8 0x001117E8 0x00111844 ico2/seki/src/GifPacket.c  # jun26-only; derived name
-text gif_PointOffset 0x00111848 0x001118A4 ico2/seki/src/GifPacket.c lines=8  # call-aug
-text gif_LineOffset 0x00111958 0x00111A04 ico2/seki/src/GifPacket.c lines=11  # order
-text gif_Sprite 0x00111A08 0x00111B1C ico2/seki/src/GifPacket.c lines=19  # call-pal
-text gif_MoveImage 0x00111B20 0x00111C34 ico2/seki/src/GifPacket.c lines=8  # order
-text gif_SetHalfOffset 0x00111C38 0x00111D08 ico2/seki/src/GifPacket.c lines=5  # order
-text _IsInScreen 0x00111D08 0x00111D58 ico2/seki/src/GifPacket.c lines=4  # call-pal
 text gsb_Init 0x00111E50 0x00111FB4 ico2/seki/src/GsBase.c lines=33  # call-pal
 rdlit gsb_Init 0x0059D850 0x0059D85E ico2/seki/src/GsBase.c align=16  # 1 string
 text gsb_Reduction 0x00111FB8 0x0011238C ico2/seki/src/GsBase.c lines=77  # call-pal
@@ -2012,53 +1974,6 @@ text actDejaDemo 0x001F5580 0x001F589C ico2/script/src/deja.c lines=80  # ordina
 text actDejaAfter 0x001F58A0 0x001F59E8 ico2/script/src/deja.c lines=27  # ordinal; differs-at:12; length:-2; extent-differs
 text actDejaAfterChk 0x001F59E8 0x001F5B08 ico2/script/src/deja.c lines=30  # ordinal; differs-at:11; length:-1; extent-differs
 text actDeja 0x001F5B08 0x001F5B98 ico2/script/src/deja.c lines=17  # ordinal; differs-at:13; length:-8; extent-differs
-text actE3Title 0x001F5BC0 0x001F5DA0 ico2/script/src/e3.c lines=46  # order
-text actE3TitleChk 0x001F5DA0 0x001F5E84 ico2/script/src/e3.c lines=24  # order
-text actE3TitleFrameChk 0x001F5E88 0x001F6034 ico2/script/src/e3.c lines=91  # order
-rdlit actE3TitleFrameChk 0x00662730 0x00662740 ico2/script/src/e3.c  # 1 string (target side)
-text actE3Inst1Chk 0x001F6038 0x001F61C0 ico2/script/src/e3.c lines=43  # order
-text actE3Capsule 0x001F61C0 0x001F6330 ico2/script/src/e3.c lines=40  # order
-text actE3CapsuleDemoCancel 0x001F6330 0x001F64D0 ico2/script/src/e3.c lines=31  # aug
-text actE3CapsuleDemo 0x001F64D0 0x001F66C0 ico2/script/src/e3.c lines=58  # aug
-text actE3St13cInit 0x001F66C0 0x001F66FC ico2/script/src/e3.c lines=8  # aug
-text actE3CageFall 0x001F6700 0x001F67FC ico2/script/src/e3.c lines=27  # aug
-text actE3CageFallChk 0x001F6800 0x001F6930 ico2/script/src/e3.c lines=40  # aug
-text actE3CageFallDemo 0x001F6930 0x001F6C3C ico2/script/src/e3.c lines=111  # aug
-text actE3CageFallEffect 0x001F6C40 0x001F7000 ico2/script/src/e3.c lines=72  # aug
-rdlit actE3CageFallEffect 0x00662750 0x006627E0 ico2/script/src/e3.c  # 9 data runs
-text actE3St09aSekizo 0x001F7000 0x001F70E0 ico2/script/src/e3.c lines=23  # aug
-text actE3St09aSekizoChk 0x001F70E0 0x001F7374 ico2/script/src/e3.c lines=77  # aug
-lit4 actE3St09aSekizoChk 0x00678FDC 0x00678FE8 ico2/script/src/e3.c  # 3 floats (target side)
-text actE3GateChk 0x001F7378 0x001F74F0 ico2/script/src/e3.c lines=43  # aug
-lit4 actE3GateChk 0x00678FE8 0x00678FEC ico2/script/src/e3.c  # 1 float
-rdlit actE3GateChk 0x006627F0 0x00662824 ico2/script/src/e3.c  # 1 string
-text actE3GateDemo 0x001F74F0 0x001F784C ico2/script/src/e3.c lines=87  # aug
-lit4 actE3GateDemo 0x00678FEC 0x00678FF0 ico2/script/src/e3.c  # 1 float
-text actE3St01bInit 0x001F79F8 0x001F7A08 ico2/script/src/e3.c lines=4  # ordinal; differs-at:0; imm:1; extent-equal
-text actE3Warning 0x001F7A08 0x001F7A8C ico2/script/src/e3.c lines=16  # aug
-text actE3Inst1 0x001F7A90 0x001F7B48 ico2/script/src/e3.c lines=21  # ordinal; differs-at:18; imm:3; extent-equal
-text actE3Door 0x001F7B48 0x001F7BE0 ico2/script/src/e3.c lines=18  # ordinal; differs-at:12; imm:4; extent-equal
-text actE3CageFallReady 0x001F7BE0 0x001F7C58 ico2/script/src/e3.c lines=14  # ordinal; differs-at:12; imm:3; extent-equal
-text actE3St13cIntro 0x001F7C58 0x001F7CD0 ico2/script/src/e3.c lines=14  # ordinal; differs-at:12; imm:3; extent-equal
-text actE3St13cGene1 0x001F7CD0 0x001F7D88 ico2/script/src/e3.c lines=19  # ordinal; differs-at:17; imm:1; extent-equal
-text actE3St13cGene2 0x001F7D88 0x001F7E24 ico2/script/src/e3.c lines=16  # ordinal; differs-at:17; imm:1; extent-equal
-text actE3St01bEne 0x001F7E58 0x001F7ED0 ico2/script/src/e3.c lines=14  # ordinal; differs-at:12; imm:3; extent-equal
-text actE3St01bGene1 0x001F7ED0 0x001F7F88 ico2/script/src/e3.c lines=19  # ordinal; differs-at:17; imm:1; extent-equal
-text actE3St01bGene2 0x001F7F88 0x001F8038 ico2/script/src/e3.c lines=18  # ordinal; differs-at:17; imm:1; extent-equal
-text actE3St01bGene3 0x001F8038 0x001F80E8 ico2/script/src/e3.c lines=18  # ordinal; differs-at:17; imm:1; extent-equal
-text actE3Obj2947 0x001F80E8 0x001F81B0 ico2/script/src/e3.c  # jun26-only; derived name; named from obj-layout row 2947's act process (derived name)
-text func_001F81B0 0x001F81B0 0x001F8304 ico2/script/src/e3.c  # jun26-only; derived name
-text actE3CapsuleChk 0x001F8308 0x001F8394 ico2/script/src/e3.c lines=15  # aug
-text actE3CapsuleDemoEnd 0x001F8398 0x001F8468 ico2/script/src/e3.c lines=27  # aug
-rdlit actE3CapsuleDemoEnd 0x00662740 0x00662750 ico2/script/src/e3.c def  # 1 data
-text actE3DoorMain 0x001F8468 0x001F84A0 ico2/script/src/e3.c lines=12  # aug
-text actE3DoorSwitch 0x001F84A0 0x001F84F8 ico2/script/src/e3.c lines=13  # aug
-text actE3DoorUp 0x001F84F8 0x001F85AC ico2/script/src/e3.c lines=24  # aug
-text actE3St13cIntroChk 0x001F85B0 0x001F8630 ico2/script/src/e3.c lines=19  # aug
-text actE3CageFallReadyChk 0x001F8630 0x001F869C ico2/script/src/e3.c lines=11  # aug
-text actE3St01bEneChk 0x001F86A0 0x001F8758 ico2/script/src/e3.c lines=28  # aug
-text actE3St09aGirlWay 0x001F8758 0x001F87E4 ico2/script/src/e3.c lines=15  # aug
-rdlit actE3St09aGirlWay 0x006627E0 0x006627EC ico2/script/src/e3.c def  # 1 data
 text actOpDemo01 0x001FACF8 0x001FB150 ico2/script/src/op.c lines=134  # aug
 sdlit actOpDemo01 0x0067B310 0x0067B328 ico2/script/src/op.c  # 3 strings (target side)
 text actTitleShortCut 0x001FB150 0x001FB26C ico2/script/src/op.c lines=41  # aug

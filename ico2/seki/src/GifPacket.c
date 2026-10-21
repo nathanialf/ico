@@ -3,7 +3,8 @@
 #include "GsBase.h"
 #include "DmaPacket.h"
 #include "DisplayList.h"
-#include "include_asm.h"
+#include "main.h"
+#include "debug.h"
 
 typedef struct { /* field names derived */
     int a, b, c, d;
@@ -16,13 +17,6 @@ typedef struct { /* field names derived */
 
 /* One 64-bit slot of a DMA/GIF packet: written either as the whole qword
    (DMA tag, GIF tag, A+D data) or as one of its two 32-bit halves. */
-
-/* one A+D register write, which gif_SetGsReg and most of this file inline */
-static inline void setGsReg(long long reg, long long data) /* derived name */
-{
-    *PacketBufferStruct.ptr.d++ = data;
-    *PacketBufferStruct.ptr.d++ = reg;
-}
 
 /* The two GS register payloads this file packs over and over: RGBAQ from a
    4-byte colour, and XYZ2 from a 2D screen point plus a 64-bit Z.  The GS
@@ -74,15 +68,71 @@ static void gif_StartPacket(void)
     PacketBufferStruct.ptr.c = c + 0x20;
 }
 
-INCLUDE_ASM(gif_StartPacketPri);
-
 /* the open-packet flag gif_EndPacket clears, then the strip drawers' last two on-screen
    flags and the index of the older one. */
 static int packetOpen = 0; /* derived name */
 
-INCLUDE_ASM(gif_EndPacket);
+void gif_StartPacketPri(int pri)
+{
+    if (packetOpen) {
+        debug_StdPrintfDummy("gif already open %d\n", frame_count);
+        return;
+    }
+    dl_SetDLPriority(pri);
+    gif_StartPacket();
+    packetOpen = 1;
+}
 
-INCLUDE_ASM(gif_SetGsReg);
+void gif_EndPacket(void)
+{
+    char *p;
+
+    if (packetOpen == 0) {
+        debug_StdPrintfDummy("gif not open %d\n", frame_count);
+    } else {
+        if (PacketBufferStruct.tail.c == 0 || PacketBufferStruct.gif.c == 0 ||
+            PacketBufferStruct.end.c == 0) {
+            debug_StdPrintfDummy("d:%p v:%p g:%p\n", PacketBufferStruct.tail.c,
+                                 PacketBufferStruct.gif.c, PacketBufferStruct.end.c);
+            packetOpen = 0;
+            return;
+        }
+
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
+                            4) -
+                           1) |
+            0x1000000000008000LL;
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            ((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) | 0x50000000;
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                             4) -
+                            1) |
+                           0x10000000);
+        p = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = p;
+        ((GifPkWord *)p)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = p + 8;
+        ((GifPkWord *)(p + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 0xC;
+        ((GifPkWord *)(p + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = p + 0x10;
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+        packetOpen = 0;
+    }
+}
+
+void gif_SetGsReg(long long reg, long long data)
+{
+    if (packetOpen == 0) {
+        debug_StdPrintfDummy("gif not open\n");
+        return;
+    }
+    *PacketBufferStruct.ptr.d++ = data;
+    *PacketBufferStruct.ptr.d++ = reg;
+}
 
 static void gif_StartPacketPath1(void)
 {
@@ -102,98 +152,273 @@ static void gif_StartPacketPath1(void)
     PacketBufferStruct.ptr.c = c + 0x20;
 }
 
-INCLUDE_ASM(gif_StartPacketPriPath1);
+void gif_StartPacketPriPath1(int pri)
+{
+    if (packetOpen) {
+        debug_StdPrintfDummy("gif already open %d\n", frame_count);
+        return;
+    }
+    dl_SetDLPriority(pri);
+    gif_StartPacketPath1();
+    packetOpen = 1;
+}
 
-INCLUDE_ASM(gif_EndPacketPath1);
+void gif_EndPacketPath1(void)
+{
+    char *p;
+    char *q;
 
-INCLUDE_ASM(func_0010FF68);
+    if (packetOpen == 0) {
+        debug_StdPrintfDummy("gif not open %d\n", frame_count);
+        return;
+    }
+    if (PacketBufferStruct.tail.c == 0 || PacketBufferStruct.gif.c == 0 ||
+        PacketBufferStruct.end.c == 0) {
+        debug_StdPrintfDummy("d:%p v:%p g:%p\n", PacketBufferStruct.tail.c,
+                             PacketBufferStruct.gif.c, PacketBufferStruct.end.c);
+    }
 
-INCLUDE_ASM(func_00110010);
+    ((GifPkWord *)PacketBufferStruct.end.c)->d =
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> 4) -
+                       1) |
+        0x1000000000008000LL;
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+        0x6C008000;
+    p = PacketBufferStruct.ptr.c;
+    ((GifPkWord *)p)->w[0] = 0x15000000;
+    p += 4;
+    PacketBufferStruct.ptr.d = (unsigned long long *)p;
+    ((GifPkWord *)p)->w[0] = 0;
+    PacketBufferStruct.ptr.c = p + 4;
+    ((GifPkWord *)(p + 4))->w[0] = 0;
+    PacketBufferStruct.ptr.c = p + 8;
+    ((GifPkWord *)(p + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = p + 0xC;
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                         4) -
+                        1) |
+                       0x10000000);
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
+    ((GifPkWord *)q)->d = 0x60000000;
+    PacketBufferStruct.ptr.c = q + 8;
+    ((GifPkWord *)(q + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = q + 0xC;
+    ((GifPkWord *)(q + 8))->w[1] = 0;
+    PacketBufferStruct.ptr.c = q + 0x10;
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+    dl_CloseDma();
+    packetOpen = 0;
+}
 
-INCLUDE_ASM(gif_MakeLine2D);
+void gif_MakePoint2D(int *v, long long z, unsigned char *col, int prim)
+{
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0x100);
+    gif_SetGsReg(0x01, GIF_RGBA(col));
+    gif_SetGsReg(0x05, GIF_XYZ(v, z));
+}
 
-INCLUDE_ASM(func_001101C0);
+void gif_MakePoint2DOffset(int *v, long long z, unsigned char *col, int prim)
+{
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0x100);
+    gif_SetGsReg(0x01, GIF_RGBA(col));
+    gif_SetGsReg(0x05, GIF_XYZOFF(v, z));
+}
 
-INCLUDE_ASM(gif_MakeSpriteNoTexture);
-
-INCLUDE_ASM(func_001103D0);
-
-INCLUDE_ASM(func_00110508);
-
-INCLUDE_ASM(func_00110628);
-
-INCLUDE_ASM(func_00110798);
+void gif_MakeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim)
+{
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0xA);
+    gif_SetGsReg(0x01, GIF_RGBA(col));
+    gif_SetGsReg(0x05, GIF_XYZ(v0, z0));
+    gif_SetGsReg(0x05, GIF_XYZ(v1, z1));
+}
 
 void gif_MakeLine2DOffset(int *v0, int *v1, long long z0, long long z1, unsigned char *col,
-                          int prim);
+                          int prim)
+{
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0xA);
+    gif_SetGsReg(0x01, GIF_RGBA(col));
+    gif_SetGsReg(0x05, GIF_XYZOFF(v0, z0));
+    gif_SetGsReg(0x05, GIF_XYZOFF(v1, z1));
+}
 
-void gif_MakeSprite(int x, int y, int w, int h, long long z, GifRect *uv, GifColor *col, int prim);
+void gif_MakeSpriteNoTexture(int x, int y, int w, int h, long long z, GifColor *col, int prim)
+{
+    int fx;
+    int fy;
+
+    gif_SetGsReg(0x00, (prim << 6) | 0x406);
+    gif_SetGsReg(0x01, GIF_COLOR(col));
+    gif_SetGsReg(0x05, GIF_XY(x, y, z));
+    fx = w + 0x8000;
+    fy = h + 0x8000;
+    gif_SetGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
+}
+
+void gif_MakeSprite(int x, int y, int w, int h, long long z, GifRect *uv, GifColor *col, int prim)
+{
+    int fx;
+    int fy;
+
+    gif_SetGsReg(0x00, (prim << 6) | 0x116);
+    gif_SetGsReg(0x01, GIF_COLOR(col));
+    gif_SetGsReg(0x03, GIF_UV(uv->x, uv->y));
+    gif_SetGsReg(0x05, GIF_XY(x, y, z));
+    gif_SetGsReg(0x03, GIF_UV(uv->x + uv->w, uv->y + uv->h));
+    fx = w + 0x8000;
+    fy = h + 0x8000;
+    gif_SetGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
+}
+
+void gif_MakeSpriteNoTextureOffset(int x, int y, int w, int h, long long z, GifColor *col, int prim)
+{
+    gif_SetGsReg(0x00, (prim << 6) | 0x406);
+    gif_SetGsReg(0x01, GIF_COLOR(col));
+    gif_SetGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
+    gif_SetGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
+}
 
 void gif_MakeSpriteOffset(int x, int y, int w, int h, long long z, GifRect *uv, GifColor *col,
-                          int prim);
-
-/* a point at an offset position, which gif_MakePoint2DOffset and
-   gif_PointOffset inline */
-static inline void makePoint2DOffset(int *v, long long z, unsigned char *col,
-                                     int prim) /* derived name */
+                          int prim)
 {
-    setGsReg(0x00, 0x100 | ((long long)prim << 6));
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x05, GIF_XYZOFF(v, z));
+    gif_SetGsReg(0x00, (prim << 6) | 0x116);
+    gif_SetGsReg(0x01, GIF_COLOR(col));
+    gif_SetGsReg(0x03, GIF_UV(uv->x, uv->y));
+    gif_SetGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
+    gif_SetGsReg(0x03, GIF_UV(uv->x + uv->w, uv->y + uv->h));
+    gif_SetGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
 }
 
-/* a two-point line, which gif_MakeLine2D and gif_Line inline */
-static inline void makeLine2D(int *v0, int *v1, long long z0, long long z1, unsigned char *col,
-                              int prim) /* derived name */
+void gif_MakeSpriteWithStrip(int *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    setGsReg(0x00, ((long long)prim << 6) | 0xA);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x05, GIF_XYZ(v0, z0));
-    setGsReg(0x05, GIF_XYZ(v1, z1));
+    gif_SetGsReg(0x00, (prim << 6) | 0x114);
+    gif_SetGsReg(0x01, GIF_COLOR(col));
+    gif_SetGsReg(0x03, GIF_UV(uv->x, uv->y));
+    gif_SetGsReg(0x0D, GIF_XY(r[0], r[1], z));
+    gif_SetGsReg(0x03, GIF_UV(uv->x, uv->y + uv->h));
+    gif_SetGsReg(0x0D, GIF_XY(r[2], r[3], z));
+    gif_SetGsReg(0x03, GIF_UV(uv->x + uv->w, uv->y));
+    gif_SetGsReg(0x05, GIF_XY(r[4], r[5], z));
+    gif_SetGsReg(0x03, GIF_UV(uv->x + uv->w, uv->y + uv->h));
+    gif_SetGsReg(0x05, GIF_XY(r[6], r[7], z));
 }
 
-/* an untextured sprite, which gif_MakeSpriteNoTexture and the Sprite
-   wrappers inline; gif_MakeSprite stays a call */
-static inline void makeSpriteNoTexture(int x, int y, int w, int h, long long z, GifColor *col,
-                                       int prim) /* derived name */
+void gif_SpriteSensitive(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    int fx = w + 0x8000;
-    int fy = h + 0x8000;
+    int x = r->x * ScreenWidth / 640;
+    int y = r->y * ScreenHeight / 224;
+    int w = r->w * ScreenWidth / 640;
+    int h = r->h * ScreenHeight / 224;
 
-    setGsReg(0x00, (prim << 6) | 0x406);
-    setGsReg(0x01, GIF_COLOR(col));
-    setGsReg(0x05, GIF_XY(x, y, z));
-    setGsReg(0x05, GIF_XY0(x + fx, y + fy, z));
+    if (uv == 0) {
+        gif_MakeSpriteNoTexture(x, y, w, h, z, col, prim);
+    } else {
+        gif_MakeSprite(x, y, w, h, z, uv, col, prim);
+    }
 }
 
-/* an untextured sprite at an offset position, which
-   gif_MakeSpriteNoTextureOffset and the offset Sprite wrappers inline */
-static inline void makeSpriteNoTextureOffset(int x, int y, int w, int h, long long z, GifColor *col,
-                                             int prim) /* derived name */
+void gif_SpriteSensitiveOffset(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
 {
-    setGsReg(0x00, (prim << 6) | 0x406);
-    setGsReg(0x01, GIF_COLOR(col));
-    setGsReg(0x05, GIF_XY0(GIF_OX + x, GIF_OY + y, z));
-    setGsReg(0x05, GIF_XY0(GIF_OX + x + w, GIF_OY + y + h, z));
+    int x = r->x * ScreenWidth / 640;
+    int y = r->y * ScreenHeight / 224;
+    int w = r->w * ScreenWidth / 640;
+    int h = r->h * ScreenHeight / 224;
+
+    if (uv == 0) {
+        gif_MakeSpriteNoTextureOffset(x, y, w, h, z, col, prim);
+    } else {
+        gif_MakeSpriteOffset(x, y, w, h, z, uv, col, prim);
+    }
 }
 
-INCLUDE_ASM(gif_SpriteSensitive);
+void gif_SpriteSensitiveOrg(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
+{
+    int x = r->x;
+    int y = r->y;
+    int w = r->w;
+    int h = r->h;
 
-INCLUDE_ASM(gif_SpriteSensitiveOffset);
+    if (uv == 0) {
+        gif_MakeSpriteNoTexture(x, y, w, h, z, col, prim);
+    } else {
+        gif_MakeSprite(x, y, w, h, z, uv, col, prim);
+    }
+}
 
-INCLUDE_ASM(gif_SpriteSensitiveOrg);
+void gif_SetAlpha(long long alpha, long long mode, long long fix)
+{
+    unsigned long long v;
+    int idx;
 
-INCLUDE_ASM(gif_SetAlpha);
+    gif_SetGsReg(0x49, alpha == 0);
+    idx = mode;
+    v = (unsigned long long)alphaTable[idx].a | ((unsigned long long)fix << 32);
+    v |=
+        ((unsigned long long)alphaTable[idx].c << 4) | ((unsigned long long)alphaTable[idx].b << 2);
+    v |= (unsigned long long)alphaTable[idx].d << 6;
+    gif_SetGsReg(0x42, v);
+}
 
-INCLUDE_ASM(func_00110B50);
+void gif_MoveImage(long long sbp, long long sbw, long long psm, int *rect, long long dbp,
+                   long long dbw, long long dsax, long long dsay)
+{
+    gif_SetGsReg(0x50, (psm << 56) | (dbw << 48) | (dbp << 32) | (psm << 24) | (sbw << 16) | sbp);
+    gif_SetGsReg(0x51, (dsay << 48) | (rect[1] << 16) | (dsax << 32) | rect[0]);
+    gif_SetGsReg(0x52, ((long long)rect[3] << 32) | rect[2]);
+    gif_SetGsReg(0x53, 2);
+}
 
-INCLUDE_ASM(gif_SetDrawEnviroment);
+void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
+                           unsigned int h, int useoffset, int clear)
+{
+    unsigned int x;
+    unsigned int y;
 
-INCLUDE_ASM(gif_SetZTest);
+    gif_SetGsReg(0x4C,
+                 (fbp >> 5) | ((unsigned long long)((w >> 6) & 0x3F) << 16) | ((psm & 0xF) << 24));
+    gif_SetGsReg(0x40, ((unsigned long long)(w - 1) << 16) | ((unsigned long long)(h - 1) << 48));
+    if (clear) {
+        gif_SetGsReg(0x47, 0x30000);
+        gif_SetGsReg(0x00, 6);
+        gif_SetGsReg(0x01, 0xFE00LL << 46);
+        gif_SetGsReg(0x05, 0);
+        gif_SetGsReg(0x05, (unsigned long long)(w << 4) | ((unsigned long long)(h << 4) << 16));
+        gif_SetGsReg(0x47, 0x50000);
+    }
+    x = (0x800 - (w >> 1)) << 4;
+    y = (0x800 - (h >> 1)) << 4;
+    gif_SetGsReg(0x18, (unsigned long long)x |
+                           ((unsigned long long)(useoffset && odd_even ? y + 8 : y) << 32));
+}
 
-INCLUDE_ASM(gif_SetZWrite);
+void gif_SetZTest(int on)
+{
+    if (on)
+        gif_SetGsReg(0x47, 0x50000);
+    else
+        gif_SetGsReg(0x47, 0x30000);
+}
 
-INCLUDE_ASM(func_00110D90);
+void gif_SetZWrite(int on)
+{
+    if (on)
+        gif_SetGsReg(0x4E, 0x300000C0);
+    else
+        gif_SetGsReg(0x4E, 0x1300000C0LL);
+}
+
+void gif_SetHalfOffset(int interlace, int odd)
+{
+    int x = (0x800 - ScreenWidth / 2) << 4;
+    int y = (0x800 - ScreenHeight / 2) << 4;
+
+    if (interlace == 0) {
+        odd = 0;
+    }
+    gif_SetGsReg(0x18, (long long)x | ((long long)(odd ? y + 8 : y) << 32));
+}
 
 static int stripVisible[2] = {0, 0}; /* derived name */
 
@@ -201,7 +426,7 @@ static int stripIndex = 0; /* derived name */
 
 /* the on-screen test of a projected vertex, which the strip and polygon
    functions and _IsInScreen further down this file inline */
-static inline int isInScreen(volatile int *p) /* derived name */
+static inline int isInScreen(int *p) /* derived name */
 {
     if (p[2] < 0)
         return 0;
@@ -219,7 +444,7 @@ static inline int isInScreen(volatile int *p) /* derived name */
 /* One vertex through the VU0 macro-mode pipeline: transform by the current
    matrix in vf4..vf7, perspective-divide by w and convert to the GS's 12.4
    fixed-point screen coordinates, stored to dst, in one asm statement. */
-static inline void rotTransPers(volatile int *dst, void *src) /* derived name */
+static inline void rotTransPers(int *dst, void *src) /* derived name */
 {
     __asm__ __volatile__(".set noreorder\n\t"
                          "lqc2 $vf8, 0x0(%1)\n\t"
@@ -247,32 +472,153 @@ static inline int projectVertex(int *d, void *src) /* derived name */
     return isInScreen(d);
 }
 
-INCLUDE_ASM(gif_DrawPolyF4);
+void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3, int r, int g, int b, int a, int prim)
+{
+    int q[4][4];
+    int i;
 
-INCLUDE_ASM(gif_DrawStripF);
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0x104);
+    gif_SetGsReg(0x01, (long long)r | ((long long)g << 8) | ((long long)b << 16) |
+                           ((long long)a << 24) | (0xFE00LL << 46));
+    rotTransPers(q[0], p0);
+    if (!isInScreen(q[0]))
+        return;
+    if (!projectVertex(q[1], p1))
+        return;
+    if (!projectVertex(q[2], p2))
+        return;
+    if (!projectVertex(q[3], p3))
+        return;
+    for (i = 0; i < 4; i++) {
+        int *s = q[i];
 
-INCLUDE_ASM(func_00111298);
+        gif_SetGsReg(0x05, GIF_XY0(s[0], s[1], (long long)s[2]));
+    }
+}
 
-INCLUDE_ASM(gif_Draw2DStripG);
+void gif_DrawStripF(void *v, GifColor col, int n, int prim)
+{
+    char *p = v;
+    int i;
 
-INCLUDE_ASM(func_00111608);
+    stripVisible[0] = stripVisible[1] = 0;
+    stripIndex = 0;
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0x104);
+    gif_SetGsReg(0x01, GIF_COLOR(&col) | (0xFE00LL << 46));
+    for (i = 0; i < n; i++, p += 16) {
+        int q[4];
+        int t;
+
+        rotTransPers(q, p);
+        t = isInScreen(q);
+        if (t && stripVisible[0] && stripVisible[1]) {
+            gif_SetGsReg(0x05, GIF_XY0(q[0], q[1], (long long)q[2]));
+        } else {
+            gif_SetGsReg(0x0D, GIF_XY0(q[0], q[1], (long long)q[2]));
+        }
+        stripVisible[stripIndex++] = t;
+        stripIndex &= 1;
+    }
+}
+
+void gif_DrawStripG(void *v, void *col, int n, int prim)
+{
+    char *p = v;
+    unsigned char *c = col;
+    int i;
+
+    stripVisible[0] = stripVisible[1] = 0;
+    stripIndex = 0;
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0x10C);
+    for (i = 0; i < n; i++, c += 4, p += 16) {
+        int q[4];
+        int t;
+
+        rotTransPers(q, p);
+        t = isInScreen(q);
+        gif_SetGsReg(0x01, GIF_RGBA(c) | (0xFE00LL << 46));
+        if (t && stripVisible[0] && stripVisible[1]) {
+            gif_SetGsReg(0x05, GIF_XY0(q[0], q[1], (long long)q[2]));
+        } else {
+            gif_SetGsReg(0x0D, GIF_XY0(q[0], q[1], (long long)q[2]));
+        }
+        stripVisible[stripIndex++] = t;
+        stripIndex &= 1;
+    }
+}
+
+void gif_Draw2DStripG(int *v, GifColor *col, int n, int prim)
+{
+    int i;
+
+    stripVisible[0] = stripVisible[1] = 0;
+    stripIndex = 0;
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0x10C);
+    for (i = 0; i < n; i++, col++, v += 4) {
+        int c;
+
+        c = isInScreen(v);
+        gif_SetGsReg(0x01, GIF_COLOR(col) | (0xFE00LL << 46));
+        if (c && stripVisible[0] && stripVisible[1]) {
+            gif_SetGsReg(0x05, GIF_XY0(v[0], v[1], (long long)v[2]));
+        } else {
+            gif_SetGsReg(0x0D, GIF_XY0(v[0], v[1], (long long)v[2]));
+        }
+        stripVisible[stripIndex++] = c;
+        stripIndex &= 1;
+    }
+}
+
+void gif_Draw2DUVStripG(int *v, int *uv, unsigned char *col, int n, int prim)
+{
+    int i;
+
+    stripVisible[0] = stripVisible[1] = 0;
+    stripIndex = 0;
+    gif_SetGsReg(0x00, ((long long)prim << 6) | 0x11C);
+    for (i = 0; i < n; i++, col += 4, v += 4, uv += 4) {
+        int c;
+
+        c = isInScreen(v);
+        gif_SetGsReg(0x01, GIF_RGBA(col) | (0xFE00LL << 46));
+        gif_SetGsReg(0x03, GIF_UV(uv[0], uv[1]));
+        if (c && stripVisible[0] && stripVisible[1]) {
+            gif_SetGsReg(0x05, GIF_XY0(v[0], v[1], (long long)v[2]));
+        } else {
+            gif_SetGsReg(0x0D, GIF_XY0(v[0], v[1], (long long)v[2]));
+        }
+        stripVisible[stripIndex++] = c;
+        stripIndex &= 1;
+    }
+}
 
 void gif_Init(void)
 {
     packetOpen = 0;
 }
 
-/* DisplayList.h is not included: this file's uses of dl_OpenDma do not fit
- * its prototype there */
-
 int gif_CheckOpen(void)
 {
     return packetOpen;
 }
 
-INCLUDE_ASM(func_001117E8);
+void gif_Point(int *v, long long z, unsigned char *col, int prim)
+{
+    int p[2];
 
-INCLUDE_ASM(gif_PointOffset);
+    p[0] = v[0] * ScreenWidth / 640;
+    p[1] = v[1] * ScreenHeight / 224;
+    gif_MakePoint2D(p, z, col, prim);
+}
+
+void gif_PointOffset(int *v, long long z, unsigned char *col, int prim)
+{
+    int p[2];
+
+    p[0] = v[0] * ScreenWidth / 640;
+    p[1] = v[1] * ScreenHeight / 224;
+    gif_MakePoint2DOffset(p, z, col, prim);
+}
 
 void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim)
 {
@@ -286,22 +632,79 @@ void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, 
     gif_MakeLine2D(p0, p1, z0, z1, col, prim);
 }
 
-/* a point, which gif_MakePoint2D, gif_Point and the rest of the point
-   family inline */
-static inline void makePoint2D(int *v, long long z, unsigned char *col,
-                               long long prim) /* derived name */
+void gif_LineOffset(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim)
 {
-    setGsReg(0x00, (prim << 6) | 0x100);
-    setGsReg(0x01, GIF_RGBA(col));
-    setGsReg(0x05, GIF_XYZ(v, z));
+    int p0[4];
+    int p1[4];
+
+    p0[0] = v0[0] * ScreenWidth / 640 * 16;
+    p0[1] = v0[1] * ScreenHeight / 224 * 16;
+    p1[0] = v1[0] * ScreenWidth / 640 * 16;
+    p1[1] = v1[1] * ScreenHeight / 224 * 16;
+    gif_MakeLine2DOffset(p0, p1, z0, z1, col, prim);
 }
 
-INCLUDE_ASM(gif_LineOffset);
+void gif_Sprite(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
+{
+    int x = r->x * ScreenWidth / 640 * 16;
+    int y = r->y * ScreenHeight / 224 * 16;
+    int w = r->w * ScreenWidth / 640 * 16;
+    int h = r->h * ScreenHeight / 224 * 16;
 
-INCLUDE_ASM(gif_Sprite);
+    if (uv == 0) {
+        gif_MakeSpriteNoTexture(x, y, w, h, z, col, prim);
+    } else {
+        GifRect t = *uv;
 
-INCLUDE_ASM(gif_MoveImage);
+        t.x *= 16;
+        t.y *= 16;
+        t.w *= 16;
+        t.h *= 16;
+        gif_MakeSprite(x, y, w, h, z, &t, col, prim);
+    }
+}
 
-INCLUDE_ASM(gif_SetHalfOffset);
+void gif_SpriteOffset(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
+{
+    int x = r->x * ScreenWidth / 640 * 16;
+    int y = r->y * ScreenHeight / 224 * 16;
+    int w = r->w * ScreenWidth / 640 * 16;
+    int h = r->h * ScreenHeight / 224 * 16;
 
-INCLUDE_ASM(_IsInScreen);
+    if (uv == 0) {
+        gif_MakeSpriteNoTextureOffset(x, y, w, h, z, col, prim);
+    } else {
+        GifRect t = *uv;
+
+        t.x *= 16;
+        t.y *= 16;
+        t.w *= 16;
+        t.h *= 16;
+        gif_MakeSpriteOffset(x, y, w, h, z, &t, col, prim);
+    }
+}
+
+void gif_SpriteOrg(GifRect *r, long long z, GifRect *uv, GifColor *col, int prim)
+{
+    int x = r->x * 16;
+    int y = r->y * 16;
+    int w = r->w * 16;
+    int h = r->h * 16;
+
+    if (uv == 0) {
+        gif_MakeSpriteNoTexture(x, y, w, h, z, col, prim);
+    } else {
+        GifRect t = *uv;
+
+        t.x *= 16;
+        t.y *= 16;
+        t.w *= 16;
+        t.h *= 16;
+        gif_MakeSprite(x, y, w, h, z, &t, col, prim);
+    }
+}
+
+int _IsInScreen(int *v)
+{
+    return isInScreen(v);
+}

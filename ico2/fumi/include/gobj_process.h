@@ -11,7 +11,9 @@
 #include "typedef.h"
 #include "thread.h"
 
-/* one process node of a game object (0x94 bytes): 0x4 owner GObj, 0x8 prev,
+/* one process node of a game object (0x90 bytes in this build: the demo's
+   isysGObjProcessAlloc strides 144, and actE3CapsuleDemoCancel reads the
+   thread at 0x20): 0x4 owner GObj, 0x8 prev,
    0xC next; the owner keeps the list head at +0x2C and the tail at +0x30 */
 typedef struct GProc {     /* field names derived */
     struct GProc *self;    /* 0x00, the node itself while the entry is in use, 0 when free */
@@ -22,8 +24,7 @@ typedef struct GProc {     /* field names derived */
     unsigned int priority; /* 0x14, the list is kept in ascending priority order */
     int active;            /* 0x18 */
     void (*func)();        /* 0x1C, the body of an inline process */
-    char pad20[4];
-    IOSThread thread; /* 0x24, the thread a threaded process runs on */
+    IOSThread thread;      /* 0x20, the thread a threaded process runs on */
 } GProc;              /* derived name */
 
 /* gobj_process.c's `inline` functions, in the order of their definitions'
