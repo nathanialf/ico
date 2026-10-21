@@ -413,8 +413,8 @@ struct MotCtrl {           /* field names derived */
     int noStand; /* 0x78, 1 drops the object the root stands on after the geometry update (st99a's explosion) */
     int posReserve;       /* 0x7C, 1 while a position reservation is pending */
     int loopFlag;         /* 0x80 */
-    int reserveBlend;     /* 0x84, frames left of the reservation blend */
-    int reserveMoved;     /* 0x88 */
+    int reserveMoved;     /* 0x84, 0 when the reserved position did not move this frame */
+    char _pad88[4];
     enum MotOriStep step; /* 0x8C, frames since the shift */
     int orientReq;        /* 0x90 */
     int lastMotion;       /* 0x94 */

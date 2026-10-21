@@ -1419,7 +1419,7 @@ void ACTGame_BeforeFunc(GObj *self)
     }
 
     if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 14) & 1) == 0 ||
-        GOBJ_SUB(self)->ctrl.reserveBlend != 0) {
+        GOBJ_SUB(self)->ctrl.reserveMoved != 0) {
         GetRootPosition((char *)s + 0xF0, self);
     }
 

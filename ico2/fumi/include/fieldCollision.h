@@ -55,15 +55,8 @@ typedef struct FcFloorEnt { /* field names derived */
  * place), in the order of their definitions' out-of-line copies at the end of
  * the object (first-declaration order). */
 void ClipWallDebug(ClipWork *work);
-void ClipWallR(ClipWork *work);
-void ClipWallWaveForce(ClipWork *work);
-void ClipWallFuchiHangWalkStop(ClipWork *work);
-void ClipWallEField(ClipWork *work);
-void ClipWallAdjustPos(ClipWork *work);
 void ClipWallCheckCB(ClipWork *work, int filter);
 void ClipWallFieldCheckCB(ClipWork *work, int filter);
-void ClipFloorE(ClipWork *work);
-void ClipFloorIH(ClipWork *work);
 void ClipFloorCheckCB(ClipWork *work, int filter);
 void ClipCollision(ClipWork *self);
 /* the wall clip ClipWall dispatches through (__ClipWall) */
@@ -81,6 +74,20 @@ extern void (*clipFloorFunc)(ClipWork *work, int mode); /* derived name */
 #define ClipWallBoxStop(work) clipWallFunc((work), 10)
 /* mode 4 (box.c's avoidCharGObj) */
 #define ClipWallE(work) clipWallFunc((work), 4)
+/* mode 2 (motionManager.c's checkWallState and checkCliffState) */
+#define ClipWallR(work) clipWallFunc((work), 2)
+/* mode 5: the field walls of ClipWallE (motionManager.c's _wallHitReaction) */
+#define ClipWallEField(work) clipWallFunc((work), 5)
+/* mode 6: the wave force (motionManager.c's rootUpdateXZ) */
+#define ClipWallWaveForce(work) clipWallFunc((work), 6)
+/* mode 7: the edge walls that stop a hang walk (motionManager.c's checkSideWall) */
+#define ClipWallFuchiHangWalkStop(work) clipWallFunc((work), 7)
+/* mode 11 (motionManager.c's avoidSideAdjustWall) */
+#define ClipWallAdjustPos(work) clipWallFunc((work), 11)
+/* mode 13 (motionManager.c's getFieldCollision) */
+#define ClipFloorE(work) clipFloorFunc((work), 13)
+/* mode 15 (motionManager.c's checkCliffState) */
+#define ClipFloorIH(work) clipFloorFunc((work), 15)
 /* mode 14: no ClipFloorR function either (way_sys.c's create_box_bridge:
    $gp clipFloorFunc with 14) */
 #define ClipFloorR(work) clipFloorFunc((work), 14)

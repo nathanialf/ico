@@ -94,7 +94,10 @@ typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-        unsigned int : 3;
+        unsigned int : 1;
+        unsigned int weaponSwing
+            : 1; /* the held weapon's blade is drawn, its hand left to the motion (_getFinalMatrix) */
+        unsigned int : 1;
         unsigned int chainIkRate : 1; /* findChainInJump sets the IK rates to 0.8 by a chain */
         unsigned int : 3;
         unsigned int carried
@@ -161,17 +164,17 @@ typedef struct {             /* field names derived */
     int dirFrames;           /* 0x114, an int in this build (90, 360, small counts, -1), read by the turn and smoothing helpers (_ACTDebugPrint's maxry) */
     int area;                /* 0x118, the motion memory area: 0 static, 4 dynamic, else swap */
     int wallFeedback;        /* 0x11C */
-    int word120;             /* 0x120 */
+    float rootOffsetZ;       /* 0x120, the root's offsets the direct-play update takes off the position */
     int rootUpdateMode;      /* 0x124 */
-    float landFrame;         /* 0x128 */
+    float rootOffsetY;       /* 0x128 */
     int stepNode;            /* 0x12C */
-    int word130;             /* 0x130 */
-    float weaponFrame;       /* 0x134 */
+    float rootOffsetX;       /* 0x130 */
+    float landFrame;         /* 0x134, a flying motion follows the floor before this frame, -1 for no floor */
     int blendKind;           /* 0x138, index into blendMotionKind */
     float playSpeedRatio;    /* 0x13C */
-    float rate0;             /* 0x140 */
-    float rate1;             /* 0x144 */
-    float word148;           /* 0x148 */
+    float rate1;             /* 0x140, the slope's play-rate weight (SlopeIKControl) */
+    float rate0;             /* 0x144, the slope's foot IK weight (SlopeIKControl) */
+    float faceRotRatio;      /* 0x148, the face turn's weight (_getFinalMatrix's blends) */
     int playMode;            /* 0x14C, 1 loops */
     int shiftStart;          /* 0x150 */
     int shiftLength;         /* 0x154 */
