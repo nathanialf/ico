@@ -40,7 +40,6 @@
 #include "attackhit.h"
 #include "pad.h"
 #include "flyManager.h"
-#include "include_asm.h"
 
 int entesty;
 
@@ -999,7 +998,103 @@ inline void actEnemyNest(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actEnemyKidnapEnd);
+void actEnemyKidnapEnd(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    float mypos[4];
+    float gpos[4];
+
+    union { /* field names derived */
+        float f[4];
+        int i[4];
+    } q;
+
+    int revived = 0;
+    GObj *target = 0;
+    GObj *g;
+    float best;
+    float d;
+
+    if (gflagChk(342) == 0) {
+        ACTGame_InsertCamera_GirlIsPinch();
+    }
+    g = isysGObjSearchFromObjKindID_begin(33);
+    best = 10000.0f;
+    mypos[0] = test_CURRENTROOT((void *)self)[0];
+    mypos[1] = test_CURRENTROOT((void *)self)[1];
+    mypos[2] = test_CURRENTROOT((void *)self)[2];
+    while (g != 0) {
+        GetRootPosition(gpos, g);
+        d = _DistGV(mypos, gpos);
+        if (d < best) {
+            best = d;
+            target = g;
+        }
+        g = isysGObjSearchFromObjKindID_next(g);
+    }
+    if (target != 0) {
+        memset(&q, 0, 0x10);
+        q.f[3] = 1.0f;
+        EntryMultiBgaManager(GOBJ_WORK(self)->bga, 0, -1, test_CURRENTROOT(target), q.f);
+    }
+    gflagOn(342);
+    while (1) {
+        if (((int)((long long)sub->flags20.ll >> 5)) & 1) {
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0.0001f, 9);
+        }
+        if (gflagChk(341) != 0) {
+            stgmgrNextStagePreLoadForceStageSet(gFlagSaveStage);
+            if ((60 - systemStatus[0] * 10) / systemStatus[1] * 3 < sub->modeFrame) {
+                backStageTsuresariReturn();
+                _ACTWait(0);
+            }
+        }
+        if (5 <= sub->modeFrame) {
+            if (GOBJ_ACT(girlGObj)->actMode != 106 || GOBJ_ACT(girlGObj)->carrier != self) {
+                if (revived == 0) {
+                    revived = 1;
+                    RestoreReviveCount(self);
+                }
+                sub->infoPos = 0;
+                gamesysObjInfoPosSetStage(self, 0, 0, stage_no);
+            }
+        }
+        if (GOBJ_SUB(self)->ctrl.motion == 938) {
+            /* the girl's record and her action are read before the tests,
+               with the carried action's id in a local (as September) */
+            Act *gsub = GOBJ_ACT(girlGObj);
+            int act = gsub->actMode;
+            int carriedAct = 106;
+
+            if (50.0f < GOBJ_SUB(self)->ctrl.animFrame) {
+                if ((((int)((long long)sub->flags20.ll >> 5)) & 1) == 0) {
+                    if (act == carriedAct && gsub->carrier == self) {
+                        if (target != 0) {
+                            /* the flag and the link's object are written
+                               through volatile views (other threads read
+                               both): the demo stores the link's object
+                               only after the flag, the second word free
+                               for the call's slot */
+                            *(volatile int *)&gameover_flag = 1;
+                            *(volatile int *)&q.i[0] = (int)target;
+                            q.i[1] = 0;
+                            stage_SetParentOfGObj(394, &q);
+                            stage_SetAnimation(394, 1, 0);
+                            while (stage_CheckAnimationFinish(394) == 0) {
+                                _ACTWait(1);
+                            }
+                            _ACTWait(1);
+                        }
+                        lt_switch_layout(58);
+                    } else {
+                        ACTSendMailCorrect(self, 310);
+                    }
+                }
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 /* A static inline inside actEnemyKidnapBegin, the same construction as
    enemyPickupCheckGirl above.  pos, declared ahead of buf, is read only by

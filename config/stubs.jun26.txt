@@ -63,8 +63,6 @@ text Main 0x00101C80 0x00101F38 ico2/common/src/main.c lines=95  # ordinal; diff
 lit4 Main 0x00678500 0x00678504 ico2/common/src/main.c  # 1 float (target side)
 rdlit Main 0x0059CAA0 0x0059CB48 ico2/common/src/main.c  # 7 strings (target side)
 sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target side)
-text actEnemyKidnapEnd 0x00159FE0 0x0015A324 ico2/fumi/src/enemy_act.c lines=149  # aug
-lit4 actEnemyKidnapEnd 0x006788E4 0x006788EC ico2/fumi/src/enemy_act.c  # 2 floats (target side)
 text func_00168EA8 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; derived name
 lit4 func_00168EA8 0x00678978 0x006789AC ico2/fumi/src/girl_act.c  # 13 floats (target side)
 rdlit func_00168EA8 0x005A2730 0x005A2790 ico2/fumi/src/girl_act.c  # 5 strings (target side): its string, then four no word of .text addresses, up to its jump table
