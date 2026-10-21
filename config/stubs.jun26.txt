@@ -117,8 +117,6 @@ sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.
 text backStageProcessOutStage 0x001935B0 0x00193800 ico2/common/src/backStage.c lines=107  # ordinal; differs-at:0; length:-184; extent-differs
 rdlit backStageProcessOutStage 0x00659E90 0x00659EA0 ico2/common/src/backStage.c  # 1 string (target side)
 text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
-text staffRollMain 0x001AA958 0x001AAD64 ico2/common/src/staffroll.c lines=90  # ordinal; differs-at:0; length:+133; extent-differs
-rdlit staffRollMain 0x0065E610 0x0065E62C ico2/common/src/staffroll.c align=16  # 1 jtbl (target side)
 text getCloth4D_preProcess 0x001B7A88 0x001B801C ico2/sugipon/src/clothAnimation.c local lines=94  # call-aug
 text dispGameOverGrid 0x001BA9C8 0x001BAC90 ico2/sugipon/src/darkVolume.c local  # jun26-only; derived name (row was ordinal "draw": a 30 by 30 mesh grid, no caller)
 rdlit dispGameOverGrid 0x0065F630 0x0065F640 ico2/sugipon/src/darkVolume.c  # 1 data, four words (target side): the function's two references (0x65F630)
@@ -147,7 +145,6 @@ text wpsort_compfnc 0x001F35E8 0x001F361C ico2/fumi/src/way_kidnap.c local file=
 text draw_way_group 0x001F4BA0 0x001F4D1C ico2/fumi/src/way_tool.c local lines=30  # ordinal; differs-at:1; length:-38; extent-differs
 lit4 draw_way_group 0x00678FD0 0x00678FD4 ico2/fumi/src/way_tool.c  # 1 float
 text actSt00aDoor1DownChk 0x001FD100 0x001FD290 ico2/script/src/st00a.c lines=36  # order
-text func_001FFA68 0x001FFA68 0x001FFA78 ico2/script/src/st02a.c  # jun26-only; derived name
 text actSt04lGondolaCharaChk 0x00209610 0x00209694 ico2/script/src/st04l.c lines=16  # ordinal; differs-at:3; length:-8; extent-differs
 text actSt07aTsuroEffect 0x002120C0 0x002124C0 ico2/script/src/st07a.c  # jun26-only; derived name
 text actSt18aDoorDownChk 0x0021D798 0x0021D8A4 ico2/script/src/st18a.c lines=26  # aug

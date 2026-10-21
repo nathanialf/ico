@@ -5,8 +5,9 @@
 #include "main.h"
 #include "debug_exception.h"
 #include <assert.h>
+#include "GifPacket.h"
+#include "DmaPacket.h"
 #include "GsBase.h"
-#include "include_asm.h"
 
 /* staffroll.o's whole .data run: the roll's display area, {x, y, width,
    height}.  Only the first word is read here, as the running scroll
@@ -135,7 +136,122 @@ static unsigned char rollColour[4] = {0}; /* derived name */
 
 int staffRollAlpha = 0;
 
-INCLUDE_ASM(staffRollMain);
+void staffRollMain(void)
+{
+    int a;
+    int n;
+
+    /* the roll's display area, a z-masked sprite in the roll colour */
+    gif_StartPacketPri(11);
+    gif_SetGsReg(71, 0x30000);
+    gif_SetGsReg(78, 0x1300000C0LL);
+    *PacketBufferStruct.ptr.d++ = 0;
+    *PacketBufferStruct.ptr.d++ = 73;
+    *PacketBufferStruct.ptr.d++ = 68;
+    *PacketBufferStruct.ptr.d++ = 66;
+    *PacketBufferStruct.ptr.d++ = (1 << 6) | 0x406;
+    *PacketBufferStruct.ptr.d++ = 0;
+    *PacketBufferStruct.ptr.d++ = (long long)rollColour[0] | ((long long)rollColour[1] << 8) |
+                                  ((long long)rollColour[2] << 16) |
+                                  ((long long)rollColour[3] << 24);
+    *PacketBufferStruct.ptr.d++ = 1;
+    *PacketBufferStruct.ptr.d++ =
+        (long long)(staffRollArea[0] * ScreenWidth / 640 + 0x8000) |
+        ((long long)(staffRollArea[1] * ScreenHeight / 224 + 0x8000) << 16) | (0xFFFFFFFFLL << 32);
+    *PacketBufferStruct.ptr.d++ = 5;
+    *PacketBufferStruct.ptr.d++ = (long long)(staffRollArea[0] * ScreenWidth / 640 + 0x8000 +
+                                              staffRollArea[2] * ScreenWidth / 640) |
+                                  ((long long)(staffRollArea[1] * ScreenHeight / 224 + 0x8000 +
+                                               staffRollArea[3] * ScreenHeight / 224)
+                                   << 16) |
+                                  (0xFFFFFFFFLL << 32);
+    *PacketBufferStruct.ptr.d++ = 5;
+    gif_EndPacket();
+
+    if (closing != 0) {
+        n = 0;
+        staffRollArea[0] = (int)((float)staffRollArea[0] - areaStep);
+        if (staffRollArea[0] < -5120) {
+            staffRollArea[0] = -5120;
+            n = 1;
+        }
+        rollWidth = (int)((float)rollWidth - widthStep);
+        if (rollWidth < 220) {
+            rollWidth = 220;
+            n++;
+        }
+        if (n == 2) {
+            closing = 0;
+        }
+    }
+
+    a = rollColour[3];
+    if (a < staffRollAlpha) {
+        a += 2;
+        if (staffRollAlpha < a) {
+            a = staffRollAlpha;
+        }
+    } else {
+        a -= 2;
+        if (a < staffRollAlpha) {
+            a = staffRollAlpha;
+        }
+    }
+    /* the roll colour's alpha, a volatile store */
+    *(volatile unsigned char *)&rollColour[3] = a;
+
+    if (staffRollCenterOffsetXDest > staffRollCenterOffsetX) {
+        staffRollCenterOffsetX += 0.5f;
+        if (staffRollCenterOffsetXDest < staffRollCenterOffsetX) {
+            staffRollCenterOffsetX = staffRollCenterOffsetXDest;
+        }
+    } else {
+        staffRollCenterOffsetX -= 0.5f;
+        if (staffRollCenterOffsetX < staffRollCenterOffsetXDest) {
+            staffRollCenterOffsetX = staffRollCenterOffsetXDest;
+        }
+    }
+
+    switch (rollStep) {
+    case 0:
+        rollColour[3] = 0;
+        rollStep++;
+        /* fallthrough */
+    case 1:
+        staffRollCenterOffsetXDest = (float)ScreenWidth * 120.0f / 640.0f;
+        if (rollColour[3] == staffRollAlpha &&
+            staffRollCenterOffsetX == staffRollCenterOffsetXDest) {
+            rollStep++;
+        }
+        break;
+    case 2:
+        staffRollScroll();
+        if (staffRollNameOut() != 0) {
+            rollStep++;
+        }
+        break;
+    case 3:
+        if (staffRollScroll() == 0) {
+            rollStep++;
+        }
+        break;
+    case 4:
+        staffRollAlpha = 0;
+        staffRollCenterOffsetXDest = 0.0f;
+        if (rollColour[3] == 0) {
+            rollStep++;
+        }
+        break;
+    case 5:
+        if (staffRollCenterOffsetX == 0.0f) {
+            rollStep++;
+        }
+        break;
+    case 6:
+        staffRollStartFlag = 0;
+        break;
+    }
+}
 
 void staffRollWide(void)
 {

@@ -21,7 +21,6 @@
 #include "act-game.h"
 #include <libvu0.h>
 #include "script.h"
-#include "include_asm.h"
 
 /* .data: one mail record per posting site. Word 0 of each entry is the mail id
  * the entry answers (377 the actor post, 376 the trailing entry); .func is
@@ -722,7 +721,10 @@ void actSt02aGondolaSwitch(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(func_001FFA68);
+void actSt02aGirlJumpEvent(int x) /* derived name */
+{
+    volatile int local = x;
+}
 
 void actSt02aEneChk(GObj *volatile self)
 {
