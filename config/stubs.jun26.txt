@@ -158,19 +158,6 @@ text draw_way_group 0x001F4BA0 0x001F4D1C ico2/fumi/src/way_tool.c local lines=3
 lit4 draw_way_group 0x00678FD0 0x00678FD4 ico2/fumi/src/way_tool.c  # 1 float
 text actSt00aDoor1DownChk 0x001FD100 0x001FD290 ico2/script/src/st00a.c lines=36  # order
 text func_001FFA68 0x001FFA68 0x001FFA78 ico2/script/src/st02a.c  # jun26-only; derived name
-text actSt03tGirlCam 0x00200650 0x002006B8 ico2/script/src/st03t.c lines=12  # order
-text actSt03tSekizo 0x002006B8 0x00200720 ico2/script/src/st03t.c lines=9  # order
-lit4 actSt03tSekizo 0x0067902C 0x00679038 ico2/script/src/st03t.c  # 3 floats
-text actSt03tObj776 0x00200720 0x00200794 ico2/script/src/st03t.c  # jun26-only; derived name; named from obj-layout row 776's act process (derived name)
-text actSt03tWay 0x00200798 0x00200840 ico2/script/src/st03t.c lines=19  # order
-text actSt03tEne 0x00200840 0x002008B8 ico2/script/src/st03t.c lines=14  # order
-text actSt03tGene 0x002008B8 0x00200960 ico2/script/src/st03t.c lines=25  # order
-text actSt03tGirlCamEvent 0x00200960 0x00200970 ico2/script/src/st03t.c lines=4  # order
-text actSt03tGirlCamStartChk 0x00200970 0x00200A3C ico2/script/src/st03t.c lines=19  # order
-text actSt03tGirlCamEndChk 0x00200A40 0x00200B0C ico2/script/src/st03t.c lines=19  # order
-text actSt03tSekizoEvent 0x00200B10 0x00200B20 ico2/script/src/st03t.c lines=4  # order
-text actSt03tEneChk 0x00200B20 0x00200BD8 ico2/script/src/st03t.c lines=25  # order
-text actSt03tWayOnChk 0x00200BD8 0x00200C80 ico2/script/src/st03t.c lines=19  # order
 text actSt04lGondolaCharaChk 0x00209610 0x00209694 ico2/script/src/st04l.c lines=16  # ordinal; differs-at:3; length:-8; extent-differs
 text actSt07aTsuroEffect 0x002120C0 0x002124C0 ico2/script/src/st07a.c  # jun26-only; derived name
 text actSt18aDoorDownChk 0x0021D798 0x0021D8A4 ico2/script/src/st18a.c lines=26  # aug

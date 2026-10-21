@@ -16,13 +16,13 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 /* The functions stand in the order of the stage's source (aug6's TRFILE and the
    PAL listing number them so). The ones defined inline are output at
    the end of the file, in the order of the declarations below, which gives
    this build's .text order; the others are output where they stand. The
-   mail tables are file-scope statics. */
+   tables the actors and the switch checks install are file-scope statics;
+   the girl camera and way checks keep theirs as static locals. */
 
 inline void actSt03tGirlCam(GObj *volatile self);
 inline void actSt03tSekizo(GObj *volatile self);
@@ -286,13 +286,164 @@ void actSt03tSwitchRUpChk(GObj *volatile self)
     _ACTWait(0);
 }
 
+inline void actSt03tGirlCamEvent(int x)
+{
+    volatile int local = x;
+}
+
 static ActMail girlCam_mes[2] = {{377}, {376}}; /* derived name */
 
-static ActMail girlCamStartChk_mes[2] = {{377}, {376}}; /* derived name */
+inline void actSt03tGirlCam(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-static ActMail girlCamEndChk_mes[2] = {{377}, {376}}; /* derived name */
+    _ACTWait(1);
+
+    girlCam_mes[0].func = actSt03tGirlCamStartChk;
+    act->mail = girlCam_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt03tGirlCamStartChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail girlCamStartChk_mes[2] = {{377}, {376}}; /* derived name */
+
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) != 207) {
+        _ACTWait(1);
+    }
+
+    CameraGetTarget();
+    Camctrl_SetTarget(girlGObj, 0, 3);
+    _ACTWait(15);
+    CameraSetCameraSet(48);
+
+    girlCamStartChk_mes[0].func = actSt03tGirlCamEndChk;
+    sub->mail = girlCamStartChk_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt03tGirlCamEndChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail girlCamEndChk_mes[2] = {{377}, {376}}; /* derived name */
+
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 207) {
+        _ACTWait(1);
+    }
+
+    CameraGetTarget();
+    _ACTWait(90);
+    CameraSetCameraSet_Default();
+    Camctrl_SetTarget(boyGObj, 0, 3);
+
+    girlCamEndChk_mes[0].func = actSt03tGirlCamStartChk;
+    sub->mail = girlCamEndChk_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt03tSekizoEvent(int x)
+{
+    volatile int local = x;
+}
+
+inline void actSt03tSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 84, 61, 0, 21, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
+}
 
 static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt03tEne(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(90) == 0) {
+        ene_mes[0].func = actSt03tEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+inline void actSt03tEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(90);
+    gflagOn(91);
+    stage_SetAnimation(62, 1, 0);
+
+    while (stage_CheckAnimationFinish(62) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
+
+inline void actSt03tGene(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    Generator_Mask(self);
+
+    Generator_Mask(scpSearchGobj(784));
+
+    while (gflagChk(91) == 0) {
+        _ACTWait(1);
+    }
+
+    Generator_MaskOff(self);
+
+    Generator_Call(self);
+    _ACTWait(20);
+    Generator_Call(self);
+
+    Generator_Call(scpSearchGobj(784));
+}
+
+/* obj-layout row 776's process: the box flag 262 has dropped stays down */
+inline void actSt03tObj776(GObj *volatile self) /* derived name */
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(262) == 0) {
+        scpSearchGobj(773)->active = 0;
+    } else {
+        gflagOn(87);
+        scpSearchGobj(771)->active = 0;
+        scpSearchGobj(773)->active = 1;
+    }
+}
 
 void actSt03tBoxB(GObj *volatile self)
 {
@@ -320,13 +471,51 @@ static ActMail wayOn_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail wayOff_mes[2] = {{377}, {376}}; /* derived name */
 
-static ActMail wayOnChk_mes[2] = {{377}, {376}}; /* derived name */
+inline void actSt03tWay(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-static ActMail wayOffChk_mes[2] = {{377}, {376}}; /* derived name */
+    _ACTWait(1);
+
+    if (gflagChk(88) == 0) {
+        wayOn_mes[0].func = actSt03tWayOnChk;
+        act->mail = wayOn_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        wayOff_mes[0].func = actSt03tWayOffChk;
+        act->mail = wayOff_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+inline void actSt03tWayOnChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail wayOnChk_mes[2] = {{377}, {376}}; /* derived name */
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(17, 1);
+    gflagOn(88);
+
+    wayOnChk_mes[0].func = actSt03tWayOffChk;
+    sub->mail = wayOnChk_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
 
 inline void actSt03tWayOffChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+    static ActMail wayOffChk_mes[2] = {{377}, {376}}; /* derived name */
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -356,27 +545,3 @@ void actSt03tInit(void)
         SetWayGroupActive(5, 0);
     }
 }
-
-INCLUDE_ASM(actSt03tGirlCam);
-
-INCLUDE_ASM(actSt03tSekizo);
-
-INCLUDE_ASM(actSt03tObj776);
-
-INCLUDE_ASM(actSt03tWay);
-
-INCLUDE_ASM(actSt03tEne);
-
-INCLUDE_ASM(actSt03tGene);
-
-INCLUDE_ASM(actSt03tGirlCamEvent);
-
-INCLUDE_ASM(actSt03tGirlCamStartChk);
-
-INCLUDE_ASM(actSt03tGirlCamEndChk);
-
-INCLUDE_ASM(actSt03tSekizoEvent);
-
-INCLUDE_ASM(actSt03tEneChk);
-
-INCLUDE_ASM(actSt03tWayOnChk);
