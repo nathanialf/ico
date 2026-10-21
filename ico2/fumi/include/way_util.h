@@ -14,34 +14,16 @@
 /* way_util.o's global */
 extern int load_save_flag;
 
-/* The path-search work block WayUtilWorkAlloc allocates: per-group flags,
-   a 94-by-94 cost matrix with its row pointers, and two predecessor and two
-   distance arrays (shortest_path uses prev and dist, GetWgAll prev2 and dist2). */
-typedef struct WgAll { /* field names derived */
-    char *visited;     /* 0x00 visited flag per group */
-    int *costBuf;      /* 0x04 the cost matrix's storage */
-    int **cost;        /* 0x08 the cost matrix's rows */
-    int *prev;         /* 0x0C */
-    int *prev2;        /* 0x10 */
-    int *dist;         /* 0x14 */
-    int *dist2;        /* 0x18 */
-} WgAll; /* derived name */
-
 /* way_util.c's `inline` functions, in the order of their definitions'
    out-of-line copies at the end of the object (first-declaration order). */
 WayPoint *visible_waypoint_of_all_except_gid(float *pos, int gid);
-WayPoint *visible_waypoint_of_all_except_gid_ThreadVersion(float *pos, int gid);
 WayPoint *visible_waypoint_of_all_except_temp(float *pos, int gid);
-WayPoint *visible_waypoint_of_all_except_temp_ThreadVersion(float *pos, int gid);
 void ez_line(void *a, void *b, unsigned int col);
 void ez_circle(void *pos, void *base, unsigned int col, float r);
 int short_direction_between_wp(WayPoint *from, WayPoint *to);
 int wgid_next(int me, int target);
-WgAll *WayUtilWorkAlloc(void);
-void WayUtilWorkFree(WgAll *self);
-int shortest_path(int from, int to, WgAll *w);
-int shortest_path_ThreadVersion(int from, int to, WgAll *w);
-int GetWgAll(int from, int to, WgAll *w);
+int shortest_path(int from, int to);
+int GetWgAll(int from, int to);
 void set_check_wp(CheckWp *out, int wp, int gid);
 int set_bridge(int gid);
 WayPoint *nearest_waypoint_of_group(float *arg0, int handle);
@@ -67,11 +49,6 @@ WayPoint *bridge_waypoint_side_me(int me, int target);
 WayPoint *waypoint_connect_group_side_me(WayGroup *bridge, int gid);
 WayPoint *bridge_waypoint_side_bridge(int gidA, int gidB);
 WayPoint *waypoint_connect_group_side_bridge(WayGroup *bridge, int gid);
-/* the demo's shortest_path and GetWgAll take no work block (way_sys.c's
-   GetWay_begin passes two arguments; their rows in way_util.c keep the
-   ordinal names until that TU lands) */
-int func_001703D8(int from, int to);
-int func_001706C8(int from, int to);
-int NearestWgFromTarget(int cur, int end); /* two arguments in the demo (GetWay_begin) */
+int NearestWgFromTarget(int cur, int end);
 
 #endif /* WAY_UTIL_H */

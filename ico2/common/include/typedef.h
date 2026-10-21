@@ -414,15 +414,14 @@ struct MotCtrl {           /* field names derived */
     int posReserve;       /* 0x7C, 1 while a position reservation is pending */
     int loopFlag;         /* 0x80 */
     int reserveMoved;     /* 0x84, 0 when the reserved position did not move this frame */
-    char _pad88[4];
-    enum MotOriStep step; /* 0x8C, frames since the shift */
-    int orientReq;        /* 0x90 */
-    int lastMotion;       /* 0x94 */
-    int lastNoAlt;        /* 0x98 */
-    int shiftFrame;       /* 0x9C, the frame the last motion was left at */
-    int blendCount;       /* 0xA0 */
-    int blendFrames;      /* 0xA4 */
-    char _padA8[8];
+    enum MotOriStep step; /* 0x88, frames since the shift */
+    int orientReq;        /* 0x8C */
+    int lastMotion;       /* 0x90 */
+    int lastNoAlt;        /* 0x94 */
+    int shiftFrame;       /* 0x98, the frame the last motion was left at */
+    int blendCount;       /* 0x9C */
+    int blendFrames;      /* 0xA0 */
+    char _padA4[12];
     float dir[4];     /* 0xB0, the motion direction */
     float lastDir[4]; /* 0xC0 */
     int orientKind;   /* 0xD0 */
@@ -480,8 +479,8 @@ struct MotCtrl {           /* field names derived */
     float waterDepth;   /* 0x1D0, the depth under the pool surface */
     GObj *pool;         /* 0x1D4, the pool the object stands in */
     int contactFlags;   /* 0x1D8, the field contact bits CheckFieldContact sets */
-    char _pad1DC[4]; /* September's mailDelay, noFieldClip and seMute: none of them
-                        at its place in this build (no reader measured) */
+    int mailDelay; /* 0x1DC, counts the first frame up before the motion orient sends its state
+                      mail (getMotionGeometry); September's noFieldClip and seMute have no place */
 };
 
 /* One 64-byte node of an object's skeleton, the array Sub15C skel points at:

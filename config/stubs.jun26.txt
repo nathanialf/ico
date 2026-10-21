@@ -561,49 +561,6 @@ lit4 avoid_obstacle2 0x006789D8 0x006789DC ico2/fumi/src/way_sys.c  # 1 float (t
 rdlit avoid_obstacle2 0x005A2BE0 0x005A2C40 ico2/fumi/src/way_sys.c  # 5 strings (target side)
 text GetWay_next 0x0016EFC8 0x0016F5CC ico2/fumi/src/way_sys.c lines=159  # order
 rdlit GetWay_next 0x005A2C60 0x005A2CF3 ico2/fumi/src/way_sys.c  # 9 strings (target side): five it references and the "WGROUP STAT" lines no word of .text addresses; the "delete guide point group" string before them is the inline DeleteGuideWay's, emitted by the C at its definition
-text visible_waypoint_of_all_except_gid 0x0016FC90 0x0016FE28 ico2/fumi/src/way_util.c lines=4  # call-pal
-text visible_waypoint_of_all_except_temp 0x0016FE28 0x0016FFE0 ico2/fumi/src/way_util.c lines=4  # call-pal
-text func_001703D8 0x001703D8 0x001706C4 ico2/fumi/src/way_util.c  # jun26-only; derived name
-text func_001706C8 0x001706C8 0x001709B4 ico2/fumi/src/way_util.c  # jun26-only; derived name
-text nearest_waypoint_of_group 0x00170DD8 0x00170E6C ico2/fumi/src/way_util.c lines=22  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_of_group 0x006789DC 0x006789E0 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint 0x00170E70 0x00170F0C ico2/fumi/src/way_util.c lines=4  # census-equal; stubbed for emission order
-lit4 nearest_waypoint 0x006789E0 0x006789E4 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_from_gobj 0x00170F10 0x00170FB4 ico2/fumi/src/way_util.c lines=6  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_from_gobj 0x006789E4 0x006789E8 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_by_lineseg_of_group 0x00170FB8 0x00171064 ico2/fumi/src/way_util.c lines=27  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_by_lineseg_of_group 0x006789E8 0x006789EC ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_by_lineseg 0x00171068 0x0017111C ico2/fumi/src/way_util.c lines=27  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_by_lineseg 0x006789EC 0x006789F0 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_by_lineseg_of_group_from_gobj 0x00171120 0x001711DC ico2/fumi/src/way_util.c lines=33  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_by_lineseg_of_group_from_gobj 0x006789F0 0x006789F4 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_by_lineseg_from_gobj 0x001711E0 0x0017129C ico2/fumi/src/way_util.c lines=34  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_by_lineseg_from_gobj 0x006789F4 0x006789F8 ico2/fumi/src/way_util.c  # 1 float
-text waypoint_with_range 0x001712A0 0x0017132C ico2/fumi/src/way_util.c lines=16  # census-equal; stubbed for emission order
-text nearest_waypoint_of_all_except_group 0x00171330 0x001713D8 ico2/fumi/src/way_util.c lines=24  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_of_all_except_group 0x006789F8 0x006789FC ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_of_all_not_bridge_except_group 0x001713D8 0x001714B4 ico2/fumi/src/way_util.c lines=25  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_of_all_not_bridge_except_group 0x006789FC 0x00678A00 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_of_all 0x001714B8 0x00171560 ico2/fumi/src/way_util.c lines=25  # census-equal; stubbed for emission order
-lit4 nearest_waypoint_of_all 0x00678A00 0x00678A04 ico2/fumi/src/way_util.c  # 1 float
-text visible_waypoint_of_all 0x00171560 0x0017157C ico2/fumi/src/way_util.c lines=4  # census-equal; stubbed for emission order
-text visible_waypoint_of_all_from_gobj 0x00171580 0x001715AC ico2/fumi/src/way_util.c lines=6  # census-equal; stubbed for emission order
-text visible_waypoint 0x001715B0 0x001716D0 ico2/fumi/src/way_util.c lines=31  # ordinal; differs-at:19; length:+2; extent-differs
-lit4 visible_waypoint 0x00678A04 0x00678A08 ico2/fumi/src/way_util.c  # 1 float (target side)
-text visible_waypoint_from_gobj 0x001716D0 0x001717FC ico2/fumi/src/way_util.c lines=6  # ordinal; differs-at:22; length:+2; extent-differs
-lit4 visible_waypoint_from_gobj 0x00678A08 0x00678A0C ico2/fumi/src/way_util.c  # 1 float (target side)
-text get_wp_nearest_bridge_side_me 0x00171800 0x00171890 ico2/fumi/src/way_util.c lines=20  # ordinal; differs-at:4; imm:1; extent-equal
-text get_wp_nearest_bridge_side_bridge 0x00171890 0x00171920 ico2/fumi/src/way_util.c lines=20  # ordinal; differs-at:4; imm:1; extent-equal
-text direction_across_bridge 0x00171920 0x001719AC ico2/fumi/src/way_util.c lines=15  # ordinal; differs-at:21; imm:2; extent-equal
-rdlit direction_across_bridge 0x005A2D68 0x005A2D89 ico2/fumi/src/way_util.c def  # 2 strings (target side): the file name (its only referencer in the demo, at the place the demo has it, after short_direction_between_wp's strings) and its own
-sdlit direction_across_bridge 0x00679FE8 0x00679FEA ico2/fumi/src/way_util.c def  # 1 string
-text waybridge_between_group 0x001719B0 0x00171A4C ico2/fumi/src/way_util.c lines=4  # census-equal; stubbed for emission order
-text bridge_waypoint_side_me 0x00171A50 0x00171AF8 ico2/fumi/src/way_util.c lines=15  # census-equal; stubbed for emission order
-text waypoint_connect_group_side_me 0x00171AF8 0x00171B40 ico2/fumi/src/way_util.c lines=4  # census-equal; stubbed for emission order
-text bridge_waypoint_side_bridge 0x00171B40 0x00171BF0 ico2/fumi/src/way_util.c lines=17  # census-equal; stubbed for emission order
-text waypoint_connect_group_side_bridge 0x00171BF0 0x00171C38 ico2/fumi/src/way_util.c lines=10  # census-equal; stubbed for emission order
-text NearestWgFromTarget 0x00171C38 0x00171CA0 ico2/fumi/src/way_util.c lines=15  # ordinal; differs-at:0; length:+4; extent-differs
-text wpsort_compfnc 0x00171CA0 0x00171CD4 ico2/fumi/src/way_util.c local lines=12  # gap; equal; -; extent-equal
 text gflagSave 0x00171CD8 0x00171D1C ico2/script/src/gflag.c lines=7  # by body: writes through gamesysMemoryHandlerWrite; the demo emits Save, Load, Init
 text gflagLoad 0x00171D20 0x00171D5C ico2/script/src/gflag.c lines=6  # by body: reads through gamesysMemoryHandlerRead; gameSysMemoryFuncList slot 2
 text gflagInit 0x00171D60 0x00171DF4 ico2/script/src/gflag.c lines=20  # by body: clears the flags, keeps flag 379
@@ -1115,37 +1072,7 @@ text setEnemyParticleObject 0x001BEB28 0x001BEF14 ico2/sugipon/src/enemy.c local
 rdlit setEnemyParticleObject 0x0065F9C0 0x0065FA38 ico2/sugipon/src/enemy.c  # 4 strings (target side): every reference into the range is the function's (func_001BF7A8 shares the file name)
 sdlit setEnemyParticleObject 0x0067ADB0 0x0067ADB2 ico2/sugipon/src/enemy.c  # 1 string (target side): the assert text the function references (0x67ADB0)
 lit4 setEnemyParticleObject 0x00678D94 0x00678D98 ico2/sugipon/src/enemy.c  # 1 float
-text setEnemyObject 0x001BEF18 0x001BF07C ico2/sugipon/src/enemy.c local lines=36  # call-aug
-rdlit setEnemyObject 0x0065FA60 0x0065FA7D ico2/sugipon/src/enemy.c  # 1 string
-sdlit setEnemyObject 0x0067ADB8 0x0067ADBC ico2/sugipon/src/enemy.c  # 1 string
-text func_001BF080 0x001BF080 0x001BF388 ico2/sugipon/src/enemy.c  # jun26-only; derived name
-text ResetEnemyPositionInfo 0x001BF388 0x001BF3B8 ico2/sugipon/src/enemy.c lines=9  # call-pal
-text func_001BF3B8 0x001BF3B8 0x001BF5AC ico2/sugipon/src/enemy.c  # jun26-only; derived name
-lit4 func_001BF3B8 0x00678D98 0x00678D9C ico2/sugipon/src/enemy.c  # 1 float (target side)
-text func_001BF5B0 0x001BF5B0 0x001BF7A8 ico2/sugipon/src/enemy.c  # jun26-only; derived name
-lit4 func_001BF5B0 0x00678D9C 0x00678DA4 ico2/sugipon/src/enemy.c  # 2 floats (target side)
 text InitEnemyGeo 0x001BF7A8 0x001BF93C ico2/sugipon/src/enemy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec4+0x58 holds InitEnemyGeo there (the same record index in the demo)
-text EnemyGeo 0x001BF940 0x001BFB40 ico2/sugipon/src/enemy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec4+0x50 holds EnemyGeo there (the same record index in the demo)
-text DisplayEnemy 0x001BFB40 0x001BFBD4 ico2/sugipon/src/enemy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec5+0x48 holds DisplayEnemy there (the same record index in the demo)
-text EnemyDL 0x001BFBD8 0x001BFC18 ico2/sugipon/src/enemy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec4+0x48 holds EnemyDL there (the same record index in the demo); aug6 defines EnemyDL in C (sugipon/src/enemy.c, 0x001CB900 in the aug6 tree's link, TRFILE.TXT's EnemyDL() lines) and PAL's obj-kind-data rec4+0x48 holds EnemyDL as well
-text DemoMotionGeo 0x001BFC18 0x001BFC40 ico2/sugipon/src/enemy.c lines=8  # aug
-text SetEnemyDissolve 0x001BFC40 0x001BFC84 ico2/sugipon/src/enemy.c lines=10  # aug
-text EnemySetfAppearAll 0x001BFC90 0x001BFCDC ico2/sugipon/src/enemy.c lines=8  # ordinal; differs-at:6; imm:2; extent-equal
-text EnemySetfDisappearAll 0x001BFCE0 0x001BFD2C ico2/sugipon/src/enemy.c lines=8  # ordinal; differs-at:9; imm:1; extent-equal
-text EnemySetfDisappear 0x001BFD30 0x001BFE08 ico2/sugipon/src/enemy.c lines=15  # ordinal; differs-at:7; imm:1; extent-equal
-text ReviveEnemyParticle 0x001BFE90 0x001BFEAC ico2/sugipon/src/enemy.c lines=6  # ordinal; differs-at:2; imm:1; extent-equal
-text isExistEnemyParticle 0x001BFEB0 0x001BFED0 ico2/sugipon/src/enemy.c lines=6  # ordinal; differs-at:2; imm:1; extent-equal
-text EnemyGetNSafeParts 0x001BFED0 0x001BFF14 ico2/sugipon/src/enemy.c lines=14  # ordinal; differs-at:4; imm:1; extent-equal
-text EnemyDeleteParticle 0x001BFF18 0x001C004C ico2/sugipon/src/enemy.c lines=11  # aug
-text SetEnemyHitGeometryAction 0x001C0050 0x001C0060 ico2/sugipon/src/enemy.c lines=6  # aug
-text InitDemoMotionGeo 0x001C0060 0x001C00AC ico2/sugipon/src/enemy.c lines=7  # aug
-text HotInitDemoMotionGeo 0x001C00B0 0x001C00F8 ico2/sugipon/src/enemy.c lines=6  # aug
-text GetEnemyHitNodeFlag 0x001C00F8 0x001C0108 ico2/sugipon/src/enemy.c lines=6  # call-aug
-text RandomizeEnemy 0x001C0108 0x001C0138 ico2/sugipon/src/enemy.c lines=9  # aug
-text SetEnemyWingRatio 0x001C0138 0x001C0148 ico2/sugipon/src/enemy.c lines=4  # aug
-text CanThisEnemyFly 0x001C0148 0x001C0174 ico2/sugipon/src/enemy.c lines=4  # aug
-text GetEnemyBattleType 0x001C0178 0x001C01A8 ico2/sugipon/src/enemy.c lines=4  # aug
-text GetEnemyDefLife 0x001C01A8 0x001C01D0 ico2/sugipon/src/enemy.c lines=4  # aug
 text UpdatePointBlur 0x001C01D0 0x001C03CC ico2/sugipon/src/enemyParts.c lines=39  # call-pal
 text InitEnemyEye 0x001C03D0 0x001C06C4 ico2/sugipon/src/enemyParts.c lines=34  # aug
 lit4 InitEnemyEye 0x00678DA4 0x00678DA8 ico2/sugipon/src/enemyParts.c  # 1 float
@@ -1235,56 +1162,6 @@ text SetLodLevel 0x001C59A8 0x001C5A34 ico2/sugipon/src/lodManager.c lines=19  #
 rdlit SetLodLevel 0x0065FD48 0x0065FD91 ico2/sugipon/src/lodManager.c  # 2 strings
 text ResetDynamicMotionManager 0x001C5C50 0x001C5C94 ico2/sugipon/src/motionFileManager.c lines=10  # ordinal; differs-at:4; imm:3; extent-equal
 text ResetStatic2MotionManager 0x001C5C98 0x001C5CD4 ico2/sugipon/src/motionFileManager.c lines=9  # ordinal; differs-at:4; imm:3; extent-equal
-text orientDebug 0x001D1250 0x001D14E8 ico2/sugipon/src/motionOrientManager.c local lines=69  # ordinal; differs-at:1; imm:5; extent-equal
-rdlit orientDebug 0x00660310 0x006603C6 ico2/sugipon/src/motionOrientManager.c align=16  # 10 strings
-rdlit orientDebug 0x006603D0 0x00660424 ico2/sugipon/src/motionOrientManager.c align=16 def  # 1 jtbl; emitted where the demo has it
-sdlit orientDebug 0x0067AE80 0x0067AEBA ico2/sugipon/src/motionOrientManager.c  # 8 strings
-text GetNbMotionFrames 0x001D14E8 0x001D15EC ico2/sugipon/src/motionOrientManager.c lines=16  # ordinal; differs-at:0; imm:5; extent-equal
-text GetMotionPlaySpeedRatio 0x001D15F0 0x001D16CC ico2/sugipon/src/motionOrientManager.c lines=11  # ordinal; differs-at:0; imm:6; extent-equal
-text execFrameTrigger 0x001D16D0 0x001D17A0 ico2/sugipon/src/motionOrientManager.c local lines=30  # ordinal; differs-at:1; imm:6; extent-equal
-text UpdateFrameCounter 0x001D17A0 0x001D1C2C ico2/sugipon/src/motionOrientManager.c lines=82  # ordinal; differs-at:12; length:-3; extent-differs
-lit4 UpdateFrameCounter 0x00678EB0 0x00678EB4 ico2/sugipon/src/motionOrientManager.c  # 1 float
-text sendStateMail 0x001D1C30 0x001D1FA4 ico2/sugipon/src/motionOrientManager.c local lines=90  # ordinal; differs-at:9; imm:1; extent-equal
-rdlit sendStateMail 0x006604E0 0x006604EB ico2/sugipon/src/motionOrientManager.c align=16  # 1 string
-sdlit sendStateMail 0x0067AEC8 0x0067AEF0 ico2/sugipon/src/motionOrientManager.c  # 5 strings
-text shiftMotionData 0x001D1FA8 0x001D23EC ico2/sugipon/src/motionOrientManager.c local lines=76  # ordinal; differs-at:1; length:-1; extent-differs
-text shiftMotionOrientEndFunc 0x001D23F0 0x001D24EC ico2/sugipon/src/motionOrientManager.c local lines=31  # ordinal; differs-at:8; imm:5; extent-equal
-rdlit shiftMotionOrientEndFunc 0x006604F0 0x00660538 ico2/sugipon/src/motionOrientManager.c align=16  # 1 string
-sdlit shiftMotionOrientEndFunc 0x0067AEF0 0x0067AEF2 ico2/sugipon/src/motionOrientManager.c  # 1 string
-text shiftMotionOrientBeginFunc 0x001D24F0 0x001D2888 ico2/sugipon/src/motionOrientManager.c local lines=49  # ordinal; differs-at:5; length:-3; extent-differs
-rdlit shiftMotionOrientBeginFunc 0x00660538 0x006605DB ico2/sugipon/src/motionOrientManager.c  # 4 strings
-text normalMotionShift 0x001D2898 0x001D2BB4 ico2/sugipon/src/motionOrientManager.c local lines=34  # ordinal; differs-at:11; imm:12; extent-equal
-lit4 normalMotionShift 0x00678EB4 0x00678EB8 ico2/sugipon/src/motionOrientManager.c  # 1 float
-text parallelMotionShift 0x001D2BB8 0x001D2F00 ico2/sugipon/src/motionOrientManager.c local lines=27  # ordinal; differs-at:9; imm:9; extent-equal
-lit4 parallelMotionShift 0x00678EB8 0x00678EC0 ico2/sugipon/src/motionOrientManager.c  # 2 floats
-text SetMotionRequest 0x001D2F00 0x001D327C ico2/sugipon/src/motionOrientManager.c lines=61  # ordinal; differs-at:29; imm:13; extent-equal
-rdlit SetMotionRequest 0x006605E0 0x00660644 ico2/sugipon/src/motionOrientManager.c align=16  # 2 strings, 1 data
-rdlit SetMotionRequest 0x00660650 0x00660688 ico2/sugipon/src/motionOrientManager.c align=16 def  # 1 jtbl; emitted where the demo has it
-sdlit SetMotionRequest 0x0067AF00 0x0067AF0B ico2/sugipon/src/motionOrientManager.c  # 1 word, 1 string (target side): the function references both (0x67AF00, 0x67AF08)
-sdata D_0067AF10 0x0067AF10 0x0067AF2A ico2/sugipon/src/motionOrientManager.c local  # the four one-character strings the pointer table in SetMotionRequest's .rodata row names (0x660618..0x660624); no word of .text addresses them (target side)
-text getNodeBlendedFloatingMotion 0x001D3280 0x001D3544 ico2/sugipon/src/motionOrientManager.c local lines=39  # ordinal; differs-at:1; imm:12; extent-equal
-rdlit getNodeBlendedFloatingMotion 0x00660688 0x006606B4 ico2/sugipon/src/motionOrientManager.c  # 1 string
-text getMotionGeometry 0x001D3548 0x001D3E48 ico2/sugipon/src/motionOrientManager.c local lines=180  # call-aug
-lit4 getMotionGeometry 0x00678EC0 0x00678ECC ico2/sugipon/src/motionOrientManager.c  # 3 floats (target side)
-text getShapeGeometry 0x001D3E48 0x001D4168 ico2/sugipon/src/motionOrientManager.c local lines=71  # aug
-lit4 getShapeGeometry 0x00678ECC 0x00678ED8 ico2/sugipon/src/motionOrientManager.c  # 3 floats
-rdlit getShapeGeometry 0x00660770 0x00660820 ico2/sugipon/src/motionOrientManager.c align=16  # 2 strings, 2 data runs
-text getStreamMotionGeometry 0x001D4168 0x001D425C ico2/sugipon/src/motionOrientManager.c local lines=12  # call-aug
-text getStreamShapeGeometry 0x001D4260 0x001D437C ico2/sugipon/src/motionOrientManager.c local lines=20  # call-aug
-lit4 getStreamShapeGeometry 0x00678ED8 0x00678EE0 ico2/sugipon/src/motionOrientManager.c  # 2 floats
-text func_001D4380 0x001D4380 0x001D4404 ico2/sugipon/src/motionOrientManager.c  # jun26-only; derived name
-text ExecMotionOrient 0x001D4408 0x001D45BC ico2/sugipon/src/motionOrientManager.c lines=41  # call-aug
-rdlit ExecMotionOrient 0x00660820 0x00660856 ico2/sugipon/src/motionOrientManager.c align=16  # 1 string
-text SetNodeRotationLimitDataTable 0x001D45C0 0x001D48FC ico2/sugipon/src/motionOrientManager.c lines=34  # call-aug
-rdlit SetNodeRotationLimitDataTable 0x00660858 0x0066089A ico2/sugipon/src/motionOrientManager.c  # 1 string
-text GetMotionOrient 0x001D4900 0x001D4984 ico2/sugipon/src/motionOrientManager.c lines=19  # call-pal
-text getMotionOrient 0x001D4988 0x001D4A20 ico2/sugipon/src/motionOrientManager.c lines=9  # aug
-text SetParallelMotionTableWithNoRequest 0x001D4A20 0x001D4A44 ico2/sugipon/src/motionOrientManager.c lines=9  # call-aug
-text SetParallelMotionTable 0x001D4A48 0x001D4AB4 ico2/sugipon/src/motionOrientManager.c lines=15  # aug
-text InitMotionOrient 0x001D4AB8 0x001D4B58 ico2/sugipon/src/motionOrientManager.c lines=14  # call-pal
-text GetCurrentMotionDirectionAdjustFlag 0x001D4B58 0x001D4B84 ico2/sugipon/src/motionOrientManager.c lines=4  # aug
-text ExecuteSlipProc 0x001D4B88 0x001D4C58 ico2/sugipon/src/motionOrientManager.c lines=20  # ordinal; differs-at:5; imm:10; extent-equal
-text ExecutePauseSlipProc 0x001D4C58 0x001D4C8C ico2/sugipon/src/motionOrientManager.c lines=8  # ordinal; differs-at:8; imm:1; extent-equal
 text dispProgressBar.45 0x001D4CA8 0x001D50B0 ico2/sugipon/src/motionViewer.c local file=dispProgressBar_45_motionViewer  # census-equal nested function of a stubbed parent (written before it)
 text dispMotFrameProgress 0x001D50B0 0x001D5264 ico2/sugipon/src/motionViewer.c local lines=57  # ordinal; differs-at:1; other:5; extent-equal
 sdlit dispMotFrameProgress 0x0067AF50 0x0067AF5C ico2/sugipon/src/motionViewer.c  # 1 string, 1 data

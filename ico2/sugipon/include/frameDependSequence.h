@@ -68,6 +68,9 @@ void InitFrameDependSequence(void *flags);
 void StopFDSVibration(void *flags);
 void StopSEPackage(struct GObj *gobj);
 void StopSEPackageWithGroupVariation(struct GObj *gobj, int grp);
-void ExecFrameDependSequence(struct GObj *gobj);
+/* ExecFrameDependSequence: frameDependSequence.c's row func_001C20D0 (getMotionGeometry
+   calls it with the object where the later builds call ExecFrameDependSequence); it keeps
+   the ordinal name until that TU lands */
+void func_001C20D0(struct GObj *gobj);
 
 #endif /* FRAMEDEPENDSEQUENCE_H */

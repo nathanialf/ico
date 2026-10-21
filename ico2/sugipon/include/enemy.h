@@ -23,7 +23,7 @@ typedef struct {  /* field names derived */
    the attribute word: the fly type in bits 0-1 and the battle type in bits
    2-3. */
 typedef struct {  /* field names derived */
-    int model;    /* 0x00, the model id, 0x5E6 for none */
+    int model;    /* 0x00, the model id, 1425 for none */
     int particle; /* 0x04, the particle object, -1 for none */
     float life;   /* 0x08 */
     float scale;  /* 0x0C */
@@ -42,15 +42,13 @@ void EnemySetfDisappearAll(struct GObj *self);
 int EnemyGetNSafeParts(struct GObj *self);
 void enemySetParticleDie(void *root, float *dir);
 int GetEnemyBattleType(struct GObj *self);
-float GetEnemyDefDodgeRange(struct GObj *self);
 float GetEnemyDefLife(struct GObj *self);
-float GetEnemyFlyXZAccel(struct GObj *self);
 int *GetEnemyHitNodeFlag(struct GObj *self);
 int RandomizeEnemy(struct GObj *self);
 void ResetEnemyPositionInfo(struct GObj *self);
 void ReviveEnemyParticle(struct GObj *self, int node);
 void SetEnemyDissolve(struct GObj *self, float ratio);
-void SetEnemyFootPrintSwitch(struct GObj *self, int on);
+void SetEnemyWingRatio(struct GObj *self, float ratio);
 int isExistEnemyParticle(struct GObj *self, int node);
 
 #endif /* ENEMY_H */

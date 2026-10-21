@@ -90,14 +90,14 @@ WayPoint *GetWay_begin(float *from, WVTObj *w, float *goal)
     }
 
     debug_StdPrintfDummy("other_group\n");
-    r = func_001703D8(g0, g1); /* shortest_path, way_util.c's row */
+    r = shortest_path(g0, g1);
     if (r == -1) {
         w->pathKind = 1;
 
         if (way_group[g1].active == 0) {
             return 0;
         }
-        r = func_001706C8(g0, g1); /* GetWgAll, way_util.c's row */
+        r = GetWgAll(g0, g1);
         if (r == -1) {
             w->pathKind = 2;
         } else {

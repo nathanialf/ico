@@ -78,15 +78,19 @@ typedef struct { /* field names derived */
     int no;      /* 0x04 */
 } FDSSlot;       /* derived name */
 
-/* motion-def's three flag words, read whole or by bit */
+/* motion-def's two flag words, read whole or by bit (bit positions as this
+   build's readers take them: shiftMotionData, GetCurrentMotionDirectionAdjustFlag,
+   shiftMotionOrientBeginFunc, checkMotionShiftRange, ACTRunIntrCorrect) */
 typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-        unsigned int : 26;
-        unsigned int handIK : 2;    /* MotCtrl handIK */
+        unsigned int : 23;
         unsigned int fuchiMode : 2; /* MotCtrl fuchiMode */
         unsigned int dirAdjust : 2; /* GetCurrentMotionDirectionAdjustFlag */
+        unsigned int : 2;
+        unsigned int handIK : 2; /* MotCtrl handIK */
+        unsigned int : 1;
     } bits;
 } MotionModeBits; /* derived name */
 
@@ -97,42 +101,29 @@ typedef union { /* field names derived */
         unsigned int : 1;
         unsigned int weaponSwing
             : 1; /* the held weapon's blade is drawn, its hand left to the motion (_getFinalMatrix) */
-        unsigned int : 1;
+        unsigned int shiftInside : 1; /* the shift range is the frames the shift may happen in */
         unsigned int chainIkRate : 1; /* findChainInJump sets the IK rates to 0.8 by a chain */
-        unsigned int : 3;
+        unsigned int : 1;
+        unsigned int parallel : 1; /* played as a parallel motion */
+        unsigned int : 1;
         unsigned int carried
             : 1; /* a carried pose: the girl's carry ends on it (commonact.c's becarry check) */
-        unsigned int : 3;
+        unsigned int : 2;
+        unsigned int dropNode4Turn : 1; /* MotCtrl flag330 */
         unsigned int chainHang
             : 1; /* the boy hangs on a chain: chain.c widens its hang range to 70 */
         unsigned int : 4;
-        unsigned int jumpHit : 1;  /* actCommonJump's jump has hit and stops on a mode 1 motion */
-        unsigned int parallel : 1; /* played as a parallel motion */
-        unsigned int : 1;
-        unsigned int shiftInside : 1;  /* the shift range is the frames the shift may happen in */
-        unsigned int loop : 1;         /* the motion loops */
-        unsigned int clothPlane : 1;   /* cloth is pushed out of the object's floor plane */
+        unsigned int jumpHit : 1;      /* actCommonJump's jump has hit and stops on a mode 1 motion */
         unsigned int avgWallPlane : 1; /* MotCtrl avgWallPlane */
         unsigned int stairStep : 1;    /* MotCtrl stairStep */
         unsigned int intr10Live : 1;   /* actIntrList row 10 stays live (ACTRunIntrCorrect) */
-        unsigned int : 2;
+        unsigned int : 1;
         unsigned int adjustRoot : 1; /* the root is turned by adjustAngle */
-        unsigned int : 4;
+        unsigned int : 3;
+        unsigned int loop : 1; /* the motion loops */
+        unsigned int : 6;
     } bits;
 } MotionFlags; /* derived name */
-
-typedef union { /* field names derived */
-    unsigned int word;
-
-    struct {
-        unsigned int : 4;
-        unsigned int weaponSwing
-            : 1; /* the held weapon's blade is drawn, its hand left to the motion */
-        unsigned int : 4;
-        unsigned int dropNode4Turn : 1; /* MotCtrl flag330 */
-        unsigned int : 22;
-    } bits;
-} MotionFlags2; /* derived name */
 
 /* motion-def: one motion kind, 0x184 bytes, indexed by the motion id the
    motion work carries (Sub15C+0x4A0). The demo's record is PAL's in an
@@ -176,13 +167,13 @@ typedef struct {             /* field names derived */
     float rate0;             /* 0x144, the slope's foot IK weight (SlopeIKControl) */
     float faceRotRatio;      /* 0x148, the face turn's weight (_getFinalMatrix's blends) */
     int playMode;            /* 0x14C, 1 loops */
-    int shiftStart;          /* 0x150 */
-    int shiftLength;         /* 0x154 */
-    int triggerStart;        /* 0x158 */
-    int triggerEnd;          /* 0x15C */
-    int trigger2Start;       /* 0x160 */
+    int shiftLength;         /* 0x150 */
+    int triggerStart;        /* 0x154 */
+    int triggerEnd;          /* 0x158 */
+    int trigger2Start;       /* 0x15C */
+    int trigger2End;         /* 0x160 */
     float clipRadius;        /* 0x164 */
-    int trigger2End;         /* 0x168 */
+    int shiftStart;          /* 0x168 */
     int fieldWall;           /* 0x16C */
     int lookIK;              /* 0x170 */
     int handTurnIK;          /* 0x174 */
