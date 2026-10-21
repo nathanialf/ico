@@ -11,7 +11,6 @@
 #include "mail-add-data.h"
 #include "script.h"
 #include "StageAnimation.h"
-#include "clipCollisionManager.h"
 #include "matrixDrive.h"
 #include "motionManager.h"
 #include "motionOrientManager.h"

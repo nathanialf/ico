@@ -96,9 +96,6 @@ extern int debug_mot_slope_interp;
 extern int debug_enemy_fly_with_girl;
 extern int debug_disp_enemy_state;
 extern int debug_disp_escort_ball;
-/* read only by motMan_rootUpdate.c.inc's inline helpers, which have no C
-   caller here; the demo's .sdata has no such word */
-extern int debug_col_old_proc;
 /* debug.c's `inline` functions, in the order of their out-of-line copies at
    the end of the object (first-declaration order).  Callers after a
    definition inline it; the out-of-line copies serve the rest of the game

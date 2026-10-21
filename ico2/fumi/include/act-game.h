@@ -9,7 +9,6 @@
 #define ACT_GAME_H
 
 #include "typedef.h" /* WayRequest, which ActWork carries */
-#include "clipCollisionManager.h"
 
 struct GObj;
 
@@ -84,7 +83,8 @@ typedef struct ActWork { /* field names derived */
                             build's code) */
     float boxDir[4]; /* 0x490, the direction a box is pushed and pulled in (actCommonBox) */
     char pad4A0[64];
-    WayRequest wayReq; /* 0x4E0, the way search RequestWayBegin hands to the way system manager */
+    WayRequest wayReq; /* 0x4E0, PAL's way search slot (RequestWayBegin); the demo has no way
+                          system manager and nothing here reads it */
     char pad598[232];
     float emgPosX; /* 0x680 */
     float emgPosY; /* 0x684 */

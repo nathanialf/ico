@@ -11,8 +11,6 @@
 #include "fightSound.h"
 #include "GsBase.h"
 #include "Light.h"
-#include "clipCollisionManager.h"
-#include "waySystemManager.h"
 #include "Matrix.h"
 #include "gobj.h"
 #include "enemy_act.h"

@@ -39,7 +39,6 @@
 #include "motionManager2.h"
 #include "attackhit.h"
 #include "pad.h"
-#include "flyManager.h"
 
 int entesty;
 

@@ -146,9 +146,7 @@ inline void afterCommonTruckLever(GObj *volatile self);
 #include "act-way.h"
 #include "pad.h"
 #include "s_init.h"
-#include "clipCollisionManager.h"
 #include "layout_texture.h"
-#include "flyManager.h"
 #include "tableSin.h"
 
 static void DamageFunc(GObj *self);

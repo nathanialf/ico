@@ -767,11 +767,6 @@ int test_rope_slope = 0;
 
 float add_rope_val = 0.0f;
 
-/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
-extern int InsertCameraWorkingFlag;
-/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
-extern int FixViewInGameCameraFlag;
-
 /* An inline-only static that snapshots the boy's orient where the script
    side reads it, inlined into subBoyControl and subBoyCollision. */
 static inline void SaveBoyOrientForScript(void) /* derived name */

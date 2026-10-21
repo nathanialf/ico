@@ -3,7 +3,6 @@
 #include "mcard.h"
 #include "boyact.h"
 #include "stage_orient.h"
-#include "itou_gflag.h"
 #include "generator.h"
 #include "lws_kyomi.h"
 #include "warpGirl.h"

@@ -1203,7 +1203,7 @@ typedef struct CheckWp { /* field names derived */
 
 /* The guide-way work block way_sys.c allocates and threads through every
  * member: 0x80 bytes (the actor record embeds one at +0x350 and
- * waySystemManager's request one at +0x20), and only the words the TU reads
+ * PAL's way request one at +0x20), and only the words the TU reads
  * or writes are named.  act-way.c copies the actor's with 64-bit moves, so the
  * record is 8-byte aligned. */
 typedef struct WVTObj {      /* field names derived */
@@ -1231,8 +1231,9 @@ typedef struct WVTObj {      /* field names derived */
     char pad78[8];                    /* 0x78 */
 } __attribute__((aligned(8))) WVTObj; /* derived name */
 
-/* A way search handed to the way system manager's sub-thread (act-way.c's
-   RequestWayBegin, waySystemManager.c's actWaySystemCore): the search runs
+/* A way search handed to the way system manager's sub-thread (PAL's
+   act-way.c RequestWayBegin and waySystemManager.c actWaySystemCore; the
+   demo links neither, and only ActWork's slot remains): the search runs
    _FUNC_GetWay_begin from `from` to `goal` over `way`, stores the first way
    point and then sets done. */
 typedef struct WayRequest {  /* field names derived */

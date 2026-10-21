@@ -31,7 +31,6 @@
 #include "streamMotionManager.h"
 #include "motionFileManager.h"
 #include "way_llf.h"
-#include "waterDot.h"
 #include "windManager.h"
 #include "objact.h"
 #include "soundManager.h"
@@ -47,7 +46,6 @@
 #include "ebrain.h"
 #include "EnemyInit.h"
 #include "ZFog.h"
-#include "flyManager.h"
 #include "staticBlur.h"
 #include <assert.h>
 #include "motionOrientManager.h"

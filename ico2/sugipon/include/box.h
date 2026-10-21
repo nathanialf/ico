@@ -11,7 +11,7 @@
 /* accessary: one accessory model set, 0x28 bytes, indexed by the object's
  * Sub15C+0x7E4. Readers: box.c and switch.c.inc (the two models, the
  * sub-box, and the pivot as the wheels' height and front and rear axle Z),
- * pool.c (the negated pivot), weapon.c, cage.c, puddle.c. */
+ * pool.c (the negated pivot), weapon.c, cage.c. */
 typedef struct {     /* field names derived */
     int model;       /* 0x00, CSVSYSTEM_InitDObj's first model */
     int model2;      /* 0x04, its second model */

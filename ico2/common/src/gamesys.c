@@ -6,7 +6,6 @@
 #include "gv.h"
 #include "lws_kyomi.h"
 #include "gflag.h"
-#include "itou_gflag.h"
 #include "geometryManager.h"
 #include "matrixDrive.h"
 #include "motionManager2.h"

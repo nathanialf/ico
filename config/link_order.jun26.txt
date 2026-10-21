@@ -45,6 +45,11 @@
 # Absent from the demo, as from the Aug-6-2001 prototype: puddle.c,
 # waterDot.c, windmill.c, sce/libcdvd/libcdvd_267388.c and
 # sce/libscf/libscf.c (no function of them is found in the demo ELF).
+# Absent from the demo though the prototype has them (its TRFILE.TXT
+# lists their functions): clipCollisionManager.c, flyManager.c,
+# waySystemManager.c and itou_gflag.c. No function of theirs is found in
+# the demo ELF and nothing in the demo calls one, so no object of them is
+# linked.
 
 sce/crt0.s
 sce/libkernl/klib.s
@@ -216,7 +221,6 @@ ico2/sugipon/src/cage.c
 ico2/sugipon/src/cageFix.c
 ico2/sugipon/src/candle.c
 ico2/sugipon/src/chandelier.c
-ico2/sugipon/src/clipCollisionManager.c
 ico2/sugipon/src/clothAnimation.c
 ico2/sugipon/src/clothTest.c
 ico2/sugipon/src/darkVolume.c
@@ -224,7 +228,6 @@ ico2/sugipon/src/effectTool.c
 ico2/sugipon/src/enemy.c
 ico2/sugipon/src/enemyParts.c
 ico2/sugipon/src/flag.c
-ico2/sugipon/src/flyManager.c
 ico2/sugipon/src/frameDependSequence.c
 ico2/sugipon/src/girl.c
 ico2/sugipon/src/girlForceField.c
@@ -251,7 +254,6 @@ ico2/sugipon/src/stormTest.c
 ico2/sugipon/src/streamMotionManager.c
 ico2/sugipon/src/sugiTree.c
 ico2/sugipon/src/torch.c
-ico2/sugipon/src/waySystemManager.c
 ico2/sugipon/src/weapon.c
 ico2/sugipon/src/windField.c
 ico2/sugipon/src/windManager.c
@@ -368,7 +370,6 @@ ico2/omori/src/access.c
 ico2/omori/src/lws_kyomi.c  # moved from after hand-camera.c: between access.c's and objact.c's .text, as in the USA and Aug-6-2001 builds
 ico2/omori/src/objact.c
 ico2/ito/src/itou_boss.c  # moved from after gather_effect.c: its functions (the string "src/itou_boss.c" at 0x664080) follow objact.c's .text at 0x224000
-ico2/ito/src/itou_gflag.c  # with itou_boss.c, its PAL neighbour; no function of it is found in the demo
 ico2/ito/src/lightning.c  # moved from after itou_sub.c: its twins lie at 0x224BA8..0x225DF8, after itou_boss.c's
 ico2/ito/mpeg/mv_audiodec.c
 ico2/ito/mpeg/mv_disp.c

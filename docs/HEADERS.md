@@ -77,7 +77,7 @@ the point the listing puts it, and its assert strings still name it
 
 ## Headers placed by this project
 
-**One header per game file.** The other 217 headers under
+**One header per game file.** The other 210 headers under
 `ico2/<programmer>/include/` are each named after the source file whose
 definitions they declare (`gobj.h` for `isys/gobj.c`, `switch.h` for
 `switch.c.inc`); the disc records none of them. They hold one prototype
@@ -98,8 +98,8 @@ Files named `*_internal.h` hold declarations that are not public API, and their 
 are this project's, as is `sce/libsndn2/sound.h`, named after its member
 `sound.o`; the movie player's audio decoder takes the stream PCM calls from
 it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
-header compiled code into the game. The Japanese link has no `libscf`
-member, so `sce/libscf/` is listed only in PAL's link order.
+header compiled code into the game. The demo's link has no `libscf`
+member, so this tree has no `sce/libscf/`.
 
 ## Per-target declarations
 

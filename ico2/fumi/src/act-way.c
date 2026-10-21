@@ -6,7 +6,6 @@
 #include "act.h"
 #include "gobj_process.h"
 #include "way_sys.h"
-#include "waySystemManager.h"
 #include <libvu0.h>
 #include "debug.h"
 #include "girl_act.h"
