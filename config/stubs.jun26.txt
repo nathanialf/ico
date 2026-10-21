@@ -59,10 +59,6 @@
 # provisional until the function matches. The comment gives the evidence
 # (for a PAL twin: tier, first difference, residue class, extents).
 
-text Main 0x00101C80 0x00101F38 ico2/common/src/main.c lines=95  # ordinal; differs-at:0; length:-32; extent-differs
-lit4 Main 0x00678500 0x00678504 ico2/common/src/main.c  # 1 float (target side)
-rdlit Main 0x0059CAA0 0x0059CB48 ico2/common/src/main.c  # 7 strings (target side)
-sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target side)
 text func_00168EA8 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; derived name
 lit4 func_00168EA8 0x00678978 0x006789AC ico2/fumi/src/girl_act.c  # 13 floats (target side)
 rdlit func_00168EA8 0x005A2730 0x005A2790 ico2/fumi/src/girl_act.c  # 5 strings (target side): its string, then four no word of .text addresses, up to its jump table
