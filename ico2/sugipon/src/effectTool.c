@@ -333,9 +333,9 @@ static int paramCursor = 0; /* derived name */
 
 static int fieldDisp = 0; /* derived name */
 
-static GObj *savedTarget = 0; /* derived name */
+GObj *targetMemo = 0;
 
-int targetMemo = 0;
+static int toolMode = 0; /* derived name */
 
 static void setQ(int *self)
 {
@@ -448,10 +448,10 @@ static inline void initEffectTool(void) /* derived name */
     int i;
 
     setQ(q);
-    savedTarget = CameraGetTarget();
-    GetRootPosition(effectToolPos, savedTarget);
+    targetMemo = CameraGetTarget();
+    GetRootPosition(effectToolPos, targetMemo);
     effectToolPos[3] = 1.0f;
-    GetRootQuaternion(q, savedTarget);
+    GetRootQuaternion(q, targetMemo);
     CameraSetMode(1);
     scpBoyControlReadDisable = 1;
     debug_StdPrintfDummy("initialize\n");
@@ -524,7 +524,7 @@ static int execEffectTool(void)
     int q[4];
     int r;
 
-    switch (targetMemo) {
+    switch (toolMode) {
     default:
     case 0:
         r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
@@ -558,13 +558,13 @@ static int execEffectTool(void)
         }
         if (r == 1) {
             r = 0;
-            targetMemo++;
+            toolMode++;
         }
         break;
     case 1:
         r = EditTarget(effectId);
         if (r == -1) {
-            targetMemo--;
+            toolMode--;
         }
         r = 0;
         break;
@@ -583,7 +583,7 @@ static void exitEffectTool(void)
 {
     DeleteParticleEffect(effectHandle);
     effectHandle = -1;
-    Camctrl_SetTarget(savedTarget, 0, 3);
+    Camctrl_SetTarget(targetMemo, 0, 3);
     scpBoyControlReadDisable = 0;
     debug_StdPrintfDummy("exit\n");
 }

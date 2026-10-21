@@ -986,7 +986,7 @@ void debug_VariableInit(void)
     debug_enemy_fly_with_girl = 0;
     debug_disp_enemy_state = 0;
     debug_disp_escort_ball = 0;
-    game_pause = 0;
+    graphics_ready = 0;
     ChangeFieldCollisionDebugMode(0);
 }
 

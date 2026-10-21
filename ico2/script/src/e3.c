@@ -78,13 +78,17 @@ static ActMail st09aSekizo_mes[2] = {{377}, {376}}; /* derived name */
 /* actE3Gate's (this build has no stage 9 bridge records) */
 static ActMail gate_mes[2] = {{377}, {376}}; /* derived name */
 
+/* main.c's: wakes the boot thread to hand the disc back to the menu (the
+   stage scripts that include main.h keep a static flag of this name) */
+void demoEnd(void);
+
 void actE3Title(GObj *volatile self)
 {
     GObj *x = self;
     Act *sub;
 
     if (InterStageSwitchLock != 0) {
-        func_001025F0();
+        demoEnd();
         _ACTWait(0);
     }
 
@@ -259,11 +263,11 @@ void actE3Capsule(GObj *volatile self)
    the demo has finished. */
 static GProc *capsuleDemoThread; /* derived name */
 
-static int demoEnd;
+static int demoEndFlag; /* derived name */
 
 void actE3CapsuleDemoCancel(GObj *volatile self)
 {
-    while (demoEnd == 0 || (pad[0].flags & 0x800) == 0) {
+    while (demoEndFlag == 0 || (pad[0].flags & 0x800) == 0) {
         _ACTWait(1);
     }
 
@@ -298,7 +302,7 @@ void actE3CapsuleDemo(GObj *volatile self)
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
 
-    demoEnd = 1;
+    demoEndFlag = 1;
     actCreateSubThread(actE3CapsuleDemoCancel, 21);
 
     stage_SetAnimation(473, 1, 0);
@@ -344,7 +348,7 @@ void actE3CapsuleDemo(GObj *volatile self)
         _ACTWait(1);
     }
 
-    demoEnd = 0;
+    demoEndFlag = 0;
     actCreateSubThread(actE3CapsuleDemoEnd, 21);
 }
 

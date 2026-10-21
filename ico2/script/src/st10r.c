@@ -23,7 +23,7 @@
 #include "main.h"
 #include "script.h"
 
-static ActMail floor_hit_mes[2] = {{377}, {376}}; /* derived name */
+static ActMail floor_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail cage_mes[2] = {{377}, {376}}; /* derived name */
 
@@ -255,8 +255,8 @@ void actSt10rFloor(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(263) == 0) {
-        floor_hit_mes[0].func = actSt10rFloorChk;
-        act->mail = floor_hit_mes;
+        floor_mes[0].func = actSt10rFloorChk;
+        act->mail = floor_mes;
         ACTSendMailCorrect(self, 377);
         _ACTWait(0);
     }

@@ -46,7 +46,7 @@ typedef struct { /* field names derived */
 
 extern int _gp; /* linker-defined global pointer */
 
-static int n_thread = 0; /* derived name: the number of live IOS threads */
+static int n_thread = 0; /* derived name */ /* the number of live IOS threads */
 
 static inline void
 iosThreadDestroyMgr(void); /* deferred-tail member; see the emission-order note */

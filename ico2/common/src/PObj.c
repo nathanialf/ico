@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <string.h>
 #include "charFileName.h"
-#include "include_asm.h"
 
 /* a 16-byte aligned float[4], the shape of libvu0's sceVu0FVECTOR */
 typedef float Vec[4] __attribute__((aligned(16))); /* derived name */
@@ -402,6 +401,6 @@ void FreePObj(PObj *p)
     FreePObjDebugInfo((ObjHdr *)p->image);
 }
 
-/* .sdata: a short string and a word pointing at it, which no code of the
-   demo reads (the stub-owned row D_0067B4E8) */
-INCLUDE_ASM(D_0067B4E8);
+/* the file's version stamp: nothing reads it, so it stays in the member's
+   .sdata after the strings of the functions above */
+static char *version = "1.0p2"; /* derived name */

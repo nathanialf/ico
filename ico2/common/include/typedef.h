@@ -341,8 +341,8 @@ struct MotRoot {       /* field names derived */
     int fuchiMode;    /* 0x314, the edge reaction mode */
     int cylinder; /* 0x318, the motion record's cylinder flag: the object takes part in cylinder collision */
     int avgWallPlane; /* 0x31C, the motion averages four wall planes */
-    int flag330;      /* 0x320, the motion drops node 4's own turn */
-    int flag334;      /* 0x324, the motion drops node 6's own turn */
+    int dropNode4Turn;      /* 0x320, the motion drops node 4's own turn */
+    int dropNode6Turn;      /* 0x324, the motion drops node 6's own turn */
     float radius;     /* 0x328, the clip radius */
     float radiusTo;   /* 0x32C, the clip radius a shift eases to */
     float radiusFrom; /* 0x330, the clip radius it eases from */

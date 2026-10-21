@@ -136,7 +136,7 @@ void Main(void)
     *T0_COUNT = 0;
     exit_no = 0;
     interlace = 1;
-    currentScreenWidth = 0;
+    NonLinearCameraMove = 0;
     systemFault = 0;
     GlobalTimer = 0;
     n = debug_TryToGetStartStage();
@@ -195,11 +195,11 @@ void Main(void)
         MakeCharGObjList();
         ExecKeyInput();
         ExecIcoMisc();
-        if (graphics_ready == 0) {
+        if (lock_execIcoMisc == 0) {
             stage_CalcAnimationNoParent();
         }
         iosOmMain();
-        if (graphics_ready == 0) {
+        if (lock_execIcoMisc == 0) {
             stage_CalcAnimationParent();
         }
         iosOmCreateDL();
@@ -332,23 +332,23 @@ static void boot(void)
     iosThreadSleep();
 }
 
-/* the boot thread's kernel id, which func_001025F0 wakes */
+/* the boot thread's kernel id, which demoEnd wakes */
 static int bootThreadId; /* derived name */
 
-/* demoDisc.c's pair, whose names this build does not record: the first
-   keeps the arguments the magazine menu started the game with and reads the
-   disc's settings out of them, the second (DemoDiscEnd) reloads the menu
-   with them */
-int func_00246828(int argc, char **argv, unsigned short *language, unsigned short *aspect,
-                  unsigned short *playmode, unsigned short *toInactive, unsigned short *toTotal,
-                  unsigned short *mediaType);
+/* demoDisc.c's pair (the Aug-6 map's libscedemo.o, at the same offsets):
+   the first keeps the arguments the magazine menu started the game with and
+   reads the disc's settings out of them, the second reloads the menu with
+   them */
+int sceDemoStart(int argc, char **argv, unsigned short *language, unsigned short *aspect,
+                 unsigned short *playmode, unsigned short *toInactive, unsigned short *toTotal,
+                 unsigned short *mediaType);
 
-void DemoDiscEnd(int status);
+void sceDemoEnd(int status);
 /* thread.c defines it `inline` with no header declaration */
 void iosThreadAllQuit(int self);
 
 /* the demo disc's entry: it reads the menu's settings, runs the game until
-   func_001025F0 wakes it, shuts the game down and goes back to the menu */
+   demoEnd wakes it, shuts the game down and goes back to the menu */
 int main(int argc, char **argv)
 {
     unsigned short language;
@@ -359,7 +359,7 @@ int main(int argc, char **argv)
     unsigned short mediaType;
     int i;
 
-    func_00246828(argc, argv, &language, &aspect, &playmode, &toInactive, &toTotal, &mediaType);
+    sceDemoStart(argc, argv, &language, &aspect, &playmode, &toInactive, &toTotal, &mediaType);
     debug_StdPrintfDummy("l %d a %d pm %d toa %d tot %d\n", language, aspect, playmode, toInactive,
                          toTotal);
     debug_StdPrintfDummy("MEDIA TYpE %d\n", mediaType);
@@ -387,7 +387,7 @@ int main(int argc, char **argv)
     gsb_InitGSSystem();
     sceSifExitCmd();
     debug_StdPrintfDummy("demo end !!!!!!!!!!!!!!!!!!\n");
-    DemoDiscEnd(5);
+    sceDemoEnd(5);
     return 0;
 }
 
@@ -426,9 +426,9 @@ static int demoIdleTimeout; /* derived name */
 #define FRAME_RATE ((60 - systemStatus[0] * 10) / systemStatus[1]) /* derived name */
 
 /* ends the demo: wakes the boot thread, which hands the disc back, and
-   sleeps for good (demoEnd in the PAL and Aug-6 maps, which e3.c's static
-   flag of that name rules out here) */
-void func_001025F0(void) /* derived name */
+   sleeps for good (the Aug-6 map's demoEnd, 40 bytes after
+   movie_abort_check as here) */
+void demoEnd(void)
 {
     WakeupThread(bootThreadId);
     while (1) {
@@ -481,7 +481,7 @@ void sampleModeStageInit(void)
 void sampleModeExec(void)
 {
     sampleModeNoContTimeOutMain();
-    if (demoIdleTimeout < 0 && systemStatus[6] == 0 && graphics_ready == 0) {
+    if (demoIdleTimeout < 0 && systemStatus[6] == 0 && lock_execIcoMisc == 0) {
         sampleModeDemoEndTimeOut();
         demoIdleTimeout = FRAME_RATE * 240;
     }
@@ -513,24 +513,25 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
-/* The six quadwords from 0x679470 keep this tree's names.  The USA build's
-   main.o has the same six, GlobalTimer, lock_execIcoMisc, graphics_ready,
-   game_pause, data_loading and an unreferenced word, and the demo's readers
-   use the first two as the USA's use those: Main zeroes both, SetCameraMatrix
-   sets the first each frame (staticBlur.c and enemyParts.c test it), and the
-   scheduler bumps the second once a frame (jimaku.c stamps its ring with it,
-   where the USA's reads lock_execIcoMisc).  Nothing here reads the last two. */
-int currentScreenWidth QWORD = 0;
+/* The six quadwords from 0x679470 in the Aug-6 map's order (NonLinearCameraMove,
+   GlobalTimer, lock_execIcoMisc, graphics_ready, game_pause, data_loading),
+   which the demo's readers confirm: SetCameraMatrix sets the first when the
+   camera mode changes (the blurs test it), the scheduler bumps the second once
+   a frame (jimaku.c stamps its ring with it), the stage manager's switch sets
+   the third and ExecIcoMisc returns while it is set, the stage load sets the
+   fourth once the GS is up and the common matrix waits for it.  Nothing here
+   reads the last two. */
+int NonLinearCameraMove QWORD = 0;
 
 int GlobalTimer QWORD = 0;
 
 /* the stage manager's switch sets it, InitIcoMisc clears it, the main loop,
    ExecIcoMisc, the stage animation and the script read it */
+int lock_execIcoMisc QWORD = 0;
+
 int graphics_ready QWORD = 0;
 
 int game_pause QWORD = 0;
-
-int lock_execIcoMisc QWORD = 0;
 
 int data_loading QWORD = 0;
 

@@ -630,10 +630,10 @@ void SetCameraMatrix(GObj *self)
     {
         static int lastCameraMode = 3; /* derived name */
 
-        /* the word the USA build names GlobalTimer (staticBlur reads it) */
-        currentScreenWidth = 0;
+        /* set when the camera mode changes (the blurs read it) */
+        NonLinearCameraMove = 0;
         if (lastCameraMode != cameraMode || monitorCameraInit != 0) {
-            currentScreenWidth = 1;
+            NonLinearCameraMove = 1;
         }
         lastCameraMode = cameraMode;
         monitorCameraInit = 0;

@@ -920,7 +920,7 @@ void MotionBlur(void)
     if (motionBlurAlpha == 0) {
         return;
     }
-    if (currentScreenWidth != 0) {
+    if (NonLinearCameraMove != 0) {
         return;
     }
     if (debug_font_flag & 1) {

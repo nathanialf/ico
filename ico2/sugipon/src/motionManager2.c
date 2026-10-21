@@ -532,21 +532,21 @@ typedef struct {     /* field names derived */
     short p;      /* 0x2F2 */
     short b;      /* 0x2F4 */
     char pad2F6[2];
-    int noStepSearch; /* 0x2F8 */
-    int gravity;      /* 0x2FC */
-    int slopeIK;      /* 0x300 */
-    int stairStep;    /* 0x304 */
-    int lookIK;       /* 0x308 */
-    int handTurnIK;   /* 0x30C */
-    int fieldWall;    /* 0x310 */
-    int fuchiMode;    /* 0x314 */
-    int cylinder;     /* 0x318 */
-    int avgWallPlane; /* 0x31C */
-    int flag330;      /* 0x320 */
-    int flag334;      /* 0x324 */
-    float radius;     /* 0x328 */
-    float radiusTo;   /* 0x32C */
-    float radiusFrom; /* 0x330 */
+    int noStepSearch;  /* 0x2F8 */
+    int gravity;       /* 0x2FC */
+    int slopeIK;       /* 0x300 */
+    int stairStep;     /* 0x304 */
+    int lookIK;        /* 0x308 */
+    int handTurnIK;    /* 0x30C */
+    int fieldWall;     /* 0x310 */
+    int fuchiMode;     /* 0x314 */
+    int cylinder;      /* 0x318 */
+    int avgWallPlane;  /* 0x31C */
+    int dropNode4Turn; /* 0x320 */
+    int dropNode6Turn; /* 0x324 */
+    float radius;      /* 0x328 */
+    float radiusTo;    /* 0x32C */
+    float radiusFrom;  /* 0x330 */
     char pad334[12];
     Vec4 cliffPlane; /* 0x340 */
     int handIK;      /* 0x350 */

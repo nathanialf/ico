@@ -65,7 +65,7 @@ void SetBoyInfo(GObj *weapon, GObj *item);
 void GetBoyRootPositionForCamera(float *out, struct GObj *gobj);
 void Boy_Init(void);
 void SetStatusBoy_OtherStageGirlPinch(void);
-void handoff_heroin(void);
+void hand_heroin(void);
 /* boyact.o's .sdata globals: the two rope values and, last,
  * gopp_subBoyControl, the boy control thread. */
 extern int test_rope_slope;

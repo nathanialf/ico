@@ -354,7 +354,7 @@ void ExecIcoMisc(void)
     if (debug_memory_bar != 0) {
         disp_memory_partition_bar();
     }
-    if (graphics_ready == 0) {
+    if (lock_execIcoMisc == 0) {
         if (iosCdvdDiskStatusGet() == 0) {
             exec_layout_texture();
         }
@@ -365,7 +365,7 @@ void ExecIcoMisc(void)
         }
     }
     kanbanExec();
-    if (graphics_ready != 0) {
+    if (lock_execIcoMisc != 0) {
         return;
     }
     if (systemStatus[5] == 0) {
@@ -551,7 +551,7 @@ void InitIcoMisc(int *arg)
     debug_StdPrintfDummy("Init Object Action\n");
     ObjAction_Init();
     InitStageChange();
-    graphics_ready = 0;
+    lock_execIcoMisc = 0;
     debug_StdPrintfDummy("load time %f sec\n", load_time / 60.0f);
     sndInit(stage);
     iosPadActInit();

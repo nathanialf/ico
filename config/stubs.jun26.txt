@@ -104,6 +104,5 @@ text WayPointWithRangeFromGObj 0x001F35A0 0x001F35E8 ico2/fumi/src/way_kidnap.c 
 text wpsort_compfnc 0x001F35E8 0x001F361C ico2/fumi/src/way_kidnap.c local file=wpsort_compfnc_way_kidnap lines=11  # census-equal; the C no longer emits it (its users are stubs)
 text actSt00aDoor1DownChk 0x001FD100 0x001FD290 ico2/script/src/st00a.c lines=36  # order
 text actSt04lGondolaCharaChk 0x00209610 0x00209694 ico2/script/src/st04l.c lines=16  # ordinal; differs-at:3; length:-8; extent-differs
-sdata D_0067B4E8 0x0067B4E8 0x0067B4F4 ico2/common/src/PObj.c local  # a short string and the word pointing at it, after AllocPObj's run and before sound.o's; no word of .text addresses either, so the owner TU is not pinned: PObj.c is the last game TU with .sdata before sound.o (target side)
 text func_002467B8 0x002467B8 0x00246824 ico2/common/src/demoDisc.c  # jun26-only; derived name
-text func_00246828 0x00246828 0x00246920 ico2/common/src/demoDisc.c  # jun26-only; derived name
+text sceDemoStart 0x00246828 0x00246920 ico2/common/src/demoDisc.c  # jun26-only; the Aug-6 map's libscedemo.o sceDemoStart (+0x70)

@@ -109,7 +109,7 @@ typedef union { /* field names derived */
         unsigned int carried
             : 1; /* a carried pose: the girl's carry ends on it (commonact.c's becarry check) */
         unsigned int : 2;
-        unsigned int dropNode4Turn : 1; /* MotCtrl flag330 */
+        unsigned int dropNode4Turn : 1; /* MotCtrl dropNode4Turn */
         unsigned int chainHang
             : 1; /* the boy hangs on a chain: chain.c widens its hang range to 70 */
         unsigned int : 4;

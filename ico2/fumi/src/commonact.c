@@ -2417,7 +2417,7 @@ void _ACTCommonMailTest(GObj *self, int stopCnt, int walkCnt, int runCnt)
 
     s = GOBJ_ACT(self);
     if (s->pad.trg & 8) {
-        handoff_heroin();
+        hand_heroin();
     }
     m = (unsigned int)s->actMode;
     switch (m) {

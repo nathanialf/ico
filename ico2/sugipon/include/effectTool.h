@@ -8,7 +8,7 @@
 #ifndef EFFECTTOOL_H
 #define EFFECTTOOL_H
 
-extern int targetMemo;
+extern struct GObj *targetMemo;
 
 int EffectTool(void);
 

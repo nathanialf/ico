@@ -739,7 +739,7 @@ static void _getFinalMatrix(int id)
         float w;
 
         GET_NODE_ROT(q, dq);
-        if (skelRoot->flag330 != 0)
+        if (skelRoot->dropNode4Turn != 0)
             CopyQuaternion(t, IdentityQuaternion);
         else
             CopyQuaternion(t, dq);
@@ -881,7 +881,7 @@ static void _getFinalMatrix(int id)
 
     case 6: {
         GET_NODE_ROT(q, dq);
-        if (skelRoot->flag334 != 0)
+        if (skelRoot->dropNode6Turn != 0)
             CopyQuaternion(ik->q, IdentityQuaternion);
         else
             CopyQuaternion(ik->q, dq);

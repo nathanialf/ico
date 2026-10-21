@@ -43,6 +43,7 @@ extern int exit_no;
 extern int motionFrameUpdate;
 extern int interlace;
 extern int thisIsYourStartStage;
+extern int NonLinearCameraMove;
 extern int GlobalTimer;
 extern int lock_execIcoMisc;
 extern int graphics_ready;
@@ -72,9 +73,6 @@ extern int InterStageSwitchLock;
 void Main(void);
 void Emergency_DestroyAllThread(void);
 /* the demo disc's exits (sampleMode.o in the Aug-6-2001 map; main.o here) */
-/* demoEnd by the PAL/Aug-6 map position; kept derived: e3.c and deja.c have a
-   static demoEnd and e3.c calls this function */
-void func_001025F0(void);
 void sampleModeNoContTimeOutMain(void);
 void sampleModeDemoEnd(void);
 void sampleModeDemoEndTimeOut(void);

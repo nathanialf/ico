@@ -57,7 +57,7 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *tint, float f)
     float scale;
     GifColor *t;
 
-    if (currentScreenWidth != 0) {
+    if (NonLinearCameraMove != 0) {
         p->dirty = 1;
     }
     if (p->dirty == 0) {

@@ -522,7 +522,7 @@ static void shiftMotionData(int obj, int motion, int request, int shiftMode)
     mw->fieldWall = motionKind[mot].fieldWall;
     mw->cylinder = motionKind[mot].cylinder;
     mw->avgWallPlane = motionKind[mot].flags.bits.avgWallPlane;
-    mw->flag330 = motionKind[mot].flags.bits.dropNode4Turn;
+    mw->dropNode4Turn = motionKind[mot].flags.bits.dropNode4Turn;
     w->updateModeChanged = 0;
     if (w->keepUpdateMode == 0) {
         if (w->rootUpdateMode != motionKind[mot].rootUpdateMode) {

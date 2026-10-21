@@ -55,7 +55,7 @@ static inline int jumpAI(GObj *);
 static inline int attackAI(GObj *);
 
 /* one entry per mode; dead and sleep run no AI of their own. */
-static int (*ap1ModeAI[])(GObj *) = {standAI, walkAI, jumpAI, attackAI, 0, 0};
+static int (*ap1ModeAI[])(GObj *) = {standAI, walkAI, jumpAI, attackAI, 0, 0}; /* derived name */
 
 /* the spelled-out mode name hehehe() prints. */
 static char *ap1ModeName[] = {"STAND",  "WALK", "JUMP",

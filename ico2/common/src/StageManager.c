@@ -92,7 +92,7 @@ static void stop_free_resources(void)
     int i;
 
     debug_StdPrintfDummy("----- MASK LINK -----\n");
-    game_pause = 0;
+    graphics_ready = 0;
     for (i = 0; i < 8; i++) {
         isysGObjActiveLink(i, 0);
     }
@@ -188,7 +188,7 @@ static void start_stage_Load_thread(int stage)
         iosThreadStart((IOSThread *)initIcoMiscThread);
         flags = initIcoMiscThread[15];
         debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
-        game_pause = 1;
+        graphics_ready = 1;
         debug_StdPrintfDummy("-----------------Enable VSync\n");
     } else {
         isysInitialize();
@@ -392,7 +392,7 @@ void stgmgrForceSwitch(int stage)
 {
     stageMgrMsg.cmd = 0;
     stageMgrMsg.stage = stage;
-    graphics_ready = 1;
+    lock_execIcoMisc = 1;
     stageMgrMsg.fadeOut = 0;
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
 }
@@ -413,6 +413,6 @@ void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsi
     stageMgrMsg.g = g;
     stageMgrMsg.b = b;
     mpegPlayInitColor = 0x80000000 | (b << 16) | (g << 8) | r;
-    graphics_ready = 1;
+    lock_execIcoMisc = 1;
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
 }

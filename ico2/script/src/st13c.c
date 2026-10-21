@@ -62,7 +62,7 @@ void actSt13cCageDownSwitch(GObj *volatile self);
 void actSt13cCage1stDownDemo(GObj *volatile self);
 void actSt13cCageFallReadyChk(GObj *volatile self);
 void actSt13cCageFallEvent(int x);
-void actE3St13cSekizoEvent(int x);
+void actSt13cSekizoEvent(int x);
 void actSt13cSekizoJimakuChk(GObj *volatile self);
 void actSt13cSekizoJimakuEff(GObj *volatile self);
 void actSt13cGirlCarryAgainChk(GObj *volatile self);
@@ -963,7 +963,8 @@ inline void actSt13cEnemy(GObj *volatile self)
     gflagOff(22);
 }
 
-inline void actE3St13cSekizoEvent(int x) /* derived name */
+/* the Aug-6 listing's name (PAL renames it actE3St13cSekizoEvent) */
+inline void actSt13cSekizoEvent(int x)
 {
     volatile int local = x;
 }

@@ -46,11 +46,11 @@ int ScreenWidth;
 
 int ScreenHeight;
 
-/* currentScreenWidth is main.c's */
+/* the current view size, the Aug-6-2001 map's currentScreenWidth and
+   currentScreenHeight (the blurs read the width) */
+int currentScreenWidth;
 
-int vsWidth; /* derived name */
-
-int vsHeight; /* derived name */
+int currentScreenHeight;
 
 /* The word gsb_Init clears (nothing reads it), the GS system flag, the zoom
    easing (target, current, speed) and the last projection distance
@@ -666,7 +666,7 @@ void gsb_MakeCommonMatrix(void)
     GifPkWord *q;
     int i;
 
-    if (game_pause == 0) {
+    if (graphics_ready == 0) {
         return;
     }
     i = 0;
@@ -999,8 +999,8 @@ void gsb_SetVSMatrix(int w, int h, float d)
 
     center_X = center_Y = 2048.0f;
     currentFocusDistance = d;
-    vsWidth = w;
-    vsHeight = h;
+    currentScreenWidth = w;
+    currentScreenHeight = h;
     if (zoomTarget != zoomCurrent) {
         zoomCurrent = zoomCurrent + (zoomTarget - zoomCurrent) * zoomSpeed * 0.001f;
     }
