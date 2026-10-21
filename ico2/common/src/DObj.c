@@ -161,7 +161,7 @@ static inline void initPolyHead(Sub15C *d) /* derived name */
     if (d->lightMtx->mode == 4) {
         h->mode.s.type = 3;
     } else {
-        h->mode.s.type = h->disp > 0;
+        h->mode.s.type = h->mode.s.disp > 0;
         if (h->parts->lineCount != 0) {
             h->mode.s.type = 2;
         }

@@ -236,58 +236,6 @@ text pac_makePacket 0x0011B710 0x0011BEF8 ico2/seki/src/Packet.c local lines=164
 lit4 pac_makePacket 0x00678668 0x0067866C ico2/seki/src/Packet.c  # 1 float
 rdlit pac_makePacket 0x0059E6C8 0x0059E72F ico2/seki/src/Packet.c  # 3 strings
 text pac_MakePacket 0x0011BEF8 0x0011BF14 ico2/seki/src/Packet.c lines=5  # ordinal; differs-at:0; other:3; extent-equal
-text prim_InitFan2D 0x0011BFE0 0x0011C26C ico2/seki/src/Primitive.c lines=46  # ordinal; differs-at:19; imm:2; extent-equal
-lit4 prim_InitFan2D 0x0067866C 0x00678674 ico2/seki/src/Primitive.c  # 2 floats
-rdlit prim_InitFan2D 0x0059E730 0x0059E740 ico2/seki/src/Primitive.c align=16  # 1 string
-text prim_DispFan2D 0x0011C4B8 0x0011C6C4 ico2/seki/src/Primitive.c lines=131  # ordinal; differs-at:1; length:-87; extent-differs
-lit4 prim_DispFan2D 0x0067867C 0x00678680 ico2/seki/src/Primitive.c  # 1 float
-text prim_makePacketMesh3D 0x0011C6C8 0x0011CA54 ico2/seki/src/Primitive.c local lines=66  # ordinal; differs-at:117; imm:2; extent-equal
-rdlit prim_makePacketMesh3D 0x0059E750 0x0059E76B ico2/seki/src/Primitive.c align=16  # 1 string
-sdlit prim_makePacketMesh3D 0x006797A8 0x006797AA ico2/seki/src/Primitive.c  # 1 string
-text prim_InitMesh3D 0x0011CA58 0x0011CCF0 ico2/seki/src/Primitive.c lines=42  # ordinal; differs-at:23; imm:6; extent-equal
-lit4 prim_InitMesh3D 0x00678680 0x00678688 ico2/seki/src/Primitive.c  # 2 floats
-text setMatrix.27 0x0011D3F0 0x0011D4B4 ico2/seki/src/Primitive.c local file=setMatrix_27_Primitive  # anchor; equal; -; extent-equal
-text setLight.31 0x0011D4B8 0x0011D58C ico2/seki/src/Primitive.c local file=setLight_31_Primitive  # anchor; equal; -; extent-equal
-text clearUVOffset.35 0x0011D590 0x0011D648 ico2/seki/src/Primitive.c local file=clearUVOffset_35_Primitive  # ordinal; differs-at:0; length:-5; extent-differs
-text prim_DispMesh3D 0x0011D648 0x0011D7E8 ico2/seki/src/Primitive.c lines=144  # census-equal; stubbed for emission order
-text prim_InitParticleByPartition 0x0011D7E8 0x0011DB40 ico2/seki/src/Primitive.c lines=91  # ordinal; differs-at:0; length:-3; extent-differs
-rdlit prim_InitParticleByPartition 0x0059E770 0x0059E818 ico2/seki/src/Primitive.c  # 3 data runs, 2 strings (target side)
-sdlit prim_InitParticleByPartition 0x006797B0 0x006797C0 ico2/seki/src/Primitive.c  # 2 strings (target side)
-text prim_DispParticle 0x0011DB40 0x0011DD14 ico2/seki/src/Primitive.c lines=31  # ordinal; differs-at:28; imm:2; extent-equal
-rdlit prim_DispParticle 0x0059E818 0x0059E853 ico2/seki/src/Primitive.c  # 1 string
-text drawDisc.51 0x0011DD50 0x0011DEEC ico2/seki/src/Primitive.c local file=drawDisc_51_Primitive  # census-equal nested function of a stubbed parent (written before it)
-text prim_DispWireYCylinder 0x0011DEF0 0x0011E054 ico2/seki/src/Primitive.c lines=33  # census-equal; stubbed for emission order
-text reg_setShape 0x0011E540 0x0011E954 ico2/seki/src/RegistPacket.c local lines=122  # aug
-rdlit reg_setShape 0x0059E8C0 0x0059E932 ico2/seki/src/RegistPacket.c align=16  # 3 strings
-sdlit reg_setShape 0x006797C8 0x006797CA ico2/seki/src/RegistPacket.c  # 1 string
-text reg_clipPacketBoundingBox 0x0011EAE8 0x0011EC14 ico2/seki/src/RegistPacket.c local lines=38  # ordinal; differs-at:6; length:+5; extent-differs
-rdlit reg_clipPacketBoundingBox 0x0059E9B0 0x0059E9D0 ico2/seki/src/RegistPacket.c  # 1 string (target side)
-text reg_transMicroCode 0x0011EC18 0x0011EC4C ico2/seki/src/RegistPacket.c local lines=12  # ordinal; differs-at:0; other:3; extent-equal
-text setMatrix.27 0x0011ECA8 0x0011ED78 ico2/seki/src/RegistPacket.c local file=setMatrix_27_RegistPacket  # ordinal; differs-at:39; length:-5; extent-differs
-rdlit setMatrix.27 0x0059E9D0 0x0059E9E0 ico2/seki/src/RegistPacket.c file=setMatrix_27_RegistPacket  # 1 data (target side)
-text setLight.31 0x0011ED78 0x0011EE30 ico2/seki/src/RegistPacket.c local file=setLight_31_RegistPacket  # ordinal; differs-at:31; length:-5; extent-differs
-rdlit setLight.31 0x0059E9E0 0x0059E9F0 ico2/seki/src/RegistPacket.c file=setLight_31_RegistPacket  # 1 data (target side)
-text reg_setNMatrixPacket 0x0011EE30 0x0011F050 ico2/seki/src/RegistPacket.c local lines=108  # ordinal; differs-at:3; length:+7; extent-differs
-text setMatrix.38 0x0011F050 0x0011F190 ico2/seki/src/RegistPacket.c local file=setMatrix_38_RegistPacket  # ordinal; differs-at:29; length:-3; extent-differs
-rdlit setMatrix.38 0x0059E9F0 0x0059EA00 ico2/seki/src/RegistPacket.c file=setMatrix_38_RegistPacket  # 1 data (target side)
-text setLight.42 0x0011F190 0x0011F248 ico2/seki/src/RegistPacket.c local file=setLight_42_RegistPacket  # ordinal; differs-at:31; length:-5; extent-differs
-rdlit setLight.42 0x0059EA00 0x0059EA10 ico2/seki/src/RegistPacket.c file=setLight_42_RegistPacket  # 1 data (target side)
-text reg_setMMatrixPacket 0x0011F248 0x0011F65C ico2/seki/src/RegistPacket.c local lines=164  # ordinal; differs-at:1; length:-40; extent-differs
-text reg_setCMatrixPacket 0x0011F660 0x0011F984 ico2/seki/src/RegistPacket.c local lines=105  # ordinal; differs-at:0; length:-6; extent-differs
-rdlit reg_setCMatrixPacket 0x0059EA10 0x0059EA50 ico2/seki/src/RegistPacket.c  # 2 data runs, 1 string (target side)
-text reg_dispSpecular 0x0011F988 0x0011FA58 ico2/seki/src/RegistPacket.c local lines=14  # ordinal; differs-at:1; length:+9; extent-differs
-text reg_transMaterialPacket 0x0011FA58 0x0011FAA4 ico2/seki/src/RegistPacket.c local lines=9  # ordinal; differs-at:3; imm:1; extent-equal
-text reg_dispNObj 0x0011FCE0 0x00120038 ico2/seki/src/RegistPacket.c local lines=73  # aug
-rdlit reg_dispNObj 0x0059EB00 0x0059EB21 ico2/seki/src/RegistPacket.c align=16  # 1 string
-text reg_dispMObj 0x00120038 0x001204E4 ico2/seki/src/RegistPacket.c local lines=105  # aug
-text reg_dispSObj 0x001204E8 0x0012077C ico2/seki/src/RegistPacket.c local lines=63  # aug
-text reg_dispCObj 0x00120780 0x00120A3C ico2/seki/src/RegistPacket.c local lines=47  # aug
-text reg_dispPoint 0x00120A40 0x00120E48 ico2/seki/src/RegistPacket.c local lines=132  # call-aug
-text reg_dispLine 0x00120E48 0x00121360 ico2/seki/src/RegistPacket.c local lines=133  # call-aug
-text reg_dispPointLineObj 0x00121360 0x00121508 ico2/seki/src/RegistPacket.c local lines=54  # aug
-text reg_RenderReflection 0x00121508 0x00121684 ico2/seki/src/RegistPacket.c lines=36  # call-aug
-text func_00121688 0x00121688 0x00121994 ico2/seki/src/RegistPacket.c  # jun26-only; derived name
-text reg_DispObj 0x00121998 0x00121A14 ico2/seki/src/RegistPacket.c  # jun26-only; derived name
 text shadow_Reset 0x00121AA8 0x00121F34 ico2/seki/src/Shadow.c lines=67  # ordinal; differs-at:0; length:-130; extent-differs
 sdlit shadow_Reset 0x006797D8 0x006797DC ico2/seki/src/Shadow.c  # 1 word (target side): a 4-byte object the function reads a byte at a time (0x6797D8..0x6797DB)
 text shadow_Draw 0x00121F38 0x00122A14 ico2/seki/src/Shadow.c lines=109  # ordinal; differs-at:0; length:-66; extent-differs
@@ -1003,11 +951,6 @@ lit4 StartQueenAttackEffect 0x00678D84 0x00678D88 ico2/sugipon/src/darkVolume.c 
 text execEffectTool 0x001BE818 0x001BE9F8 ico2/sugipon/src/effectTool.c local lines=59  # ordinal; differs-at:11; imm:3; extent-equal
 rdlit execEffectTool 0x0065F988 0x0065F9BA ico2/sugipon/src/effectTool.c  # 1 string
 text EffectTool 0x001BEA40 0x001BEB28 ico2/sugipon/src/effectTool.c lines=18  # ordinal; differs-at:28; imm:2; extent-equal
-text setEnemyParticleObject 0x001BEB28 0x001BEF14 ico2/sugipon/src/enemy.c local lines=76  # aug
-rdlit setEnemyParticleObject 0x0065F9C0 0x0065FA38 ico2/sugipon/src/enemy.c  # 4 strings (target side): every reference into the range is the function's (func_001BF7A8 shares the file name)
-sdlit setEnemyParticleObject 0x0067ADB0 0x0067ADB2 ico2/sugipon/src/enemy.c  # 1 string (target side): the assert text the function references (0x67ADB0)
-lit4 setEnemyParticleObject 0x00678D94 0x00678D98 ico2/sugipon/src/enemy.c  # 1 float
-text InitEnemyGeo 0x001BF7A8 0x001BF93C ico2/sugipon/src/enemy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec4+0x58 holds InitEnemyGeo there (the same record index in the demo)
 text UpdatePointBlur 0x001C01D0 0x001C03CC ico2/sugipon/src/enemyParts.c lines=39  # call-pal
 text InitEnemyEye 0x001C03D0 0x001C06C4 ico2/sugipon/src/enemyParts.c lines=34  # aug
 lit4 InitEnemyEye 0x00678DA4 0x00678DA8 ico2/sugipon/src/enemyParts.c  # 1 float
@@ -1022,30 +965,6 @@ text InitFlagGeo 0x001C0F88 0x001C1514 ico2/sugipon/src/flag.c lines=142  # orde
 rdlit InitFlagGeo 0x0065FA98 0x0065FAA3 ico2/sugipon/src/flag.c  # 1 string
 text FlagGeo 0x001C1518 0x001C1608 ico2/sugipon/src/flag.c lines=31  # order
 text FlagDL 0x001C1608 0x001C17BC ico2/sugipon/src/flag.c lines=54  # order
-text playSE 0x001C17C0 0x001C18C8 ico2/sugipon/src/frameDependSequence.c local lines=39  # aug
-lit4 playSE 0x00678DB0 0x00678DB4 ico2/sugipon/src/frameDependSequence.c  # 1 float (target side)
-rdlit playSE 0x0065FAA8 0x0065FB00 ico2/sugipon/src/frameDependSequence.c  # 2 strings (target side)
-text playSERandomID 0x001C18C8 0x001C1B88 ico2/sugipon/src/frameDependSequence.c local lines=37  # aug
-lit4 playSERandomID 0x00678DB4 0x00678DC0 ico2/sugipon/src/frameDependSequence.c  # 3 floats (target side)
-rdlit playSERandomID 0x0065FB00 0x0065FB50 ico2/sugipon/src/frameDependSequence.c  # 2 strings (target side)
-sdlit playSERandomID 0x0067ADE0 0x0067ADE6 ico2/sugipon/src/frameDependSequence.c  # 1 string (target side)
-sdlit playSERandomID 0x0067ADE8 0x0067ADF2 ico2/sugipon/src/frameDependSequence.c  # 1 word, 1 string (target side): the function references both (0x67ADE8, 0x67ADF0)
-text execSE 0x001C1B88 0x001C1CC0 ico2/sugipon/src/frameDependSequence.c local lines=15  # call-aug; aug6 twin playSEConditionID
-text playEff 0x001C1CC0 0x001C1F14 ico2/sugipon/src/frameDependSequence.c local lines=43  # call-aug
-rdlit playEff 0x0065FB50 0x0065FB98 ico2/sugipon/src/frameDependSequence.c  # 1 string (target side)
-text execEff 0x001C1F18 0x001C20CC ico2/sugipon/src/frameDependSequence.c local lines=58  # call-aug
-lit4 execEff 0x00678DC0 0x00678DC8 ico2/sugipon/src/frameDependSequence.c  # 2 floats
-text func_001C20D0 0x001C20D0 0x001C23A8 ico2/sugipon/src/frameDependSequence.c  # jun26-only; derived name
-rdlit func_001C20D0 0x0065FB98 0x0065FBD8 ico2/sugipon/src/frameDependSequence.c  # 1 string (target side)
-text executeSEPackageWithNoGObj 0x001C23A8 0x001C24D4 ico2/sugipon/src/frameDependSequence.c local lines=18  # census-equal; stubbed for emission order (its "SE ... CALLED" format is playSE's string at 0x65FAD0 in the demo, which gcc keeps once)
-text ExecuteSEPackageWithGroupVariation 0x001C24D8 0x001C2634 ico2/sugipon/src/frameDependSequence.c lines=9  # ordinal; differs-at:2; length:+79; extent-differs
-text StopSEPackageWithGroupVariation 0x001C2640 0x001C2654 ico2/sugipon/src/frameDependSequence.c lines=4  # ordinal; differs-at:4; imm:1; extent-equal
-data D_004E05F0 0x004E05F0 0x004E0620 ico2/sugipon/src/frameDependSequence.c local align=16  # frameDependSequence.o's .data: 48 zero bytes InitFrameDependSequence forms the address of (0x4E05F0), between flag.c's and girl.c's .data (target side)
-text InitFrameDependSequence 0x001C2660 0x001C26D0 ico2/sugipon/src/frameDependSequence.c lines=19  # call-pal
-text func_001C26D0 0x001C26D0 0x001C2808 ico2/sugipon/src/frameDependSequence.c  # jun26-only; derived name
-text func_001C2808 0x001C2808 0x001C2820 ico2/sugipon/src/frameDependSequence.c  # jun26-only; derived name
-text execVib 0x001C2820 0x001C2848 ico2/sugipon/src/frameDependSequence.c local lines=11  # aug
-text execWeaponLightOff 0x001C2848 0x001C2898 ico2/sugipon/src/frameDependSequence.c local lines=14  # aug
 text execClothes 0x001C2898 0x001C293C ico2/sugipon/src/girl.c local file=execClothes_girl lines=54  # call-aug
 lit4 execClothes 0x00678DC8 0x00678DD8 ico2/sugipon/src/girl.c file=execClothes_girl  # 4 floats (target side)
 text dispClothes 0x001C2940 0x001C29DC ico2/sugipon/src/girl.c local file=dispClothes_girl lines=49  # call-pal
@@ -1288,38 +1207,6 @@ text SetTorchLife 0x001E1D58 0x001E1D68 ico2/sugipon/src/torch.c lines=6  # aug
 text SetTorchChainReactionFlag 0x001E1D68 0x001E1D78 ico2/sugipon/src/torch.c lines=6  # aug
 text UpdateRealTimeGeometryValue 0x001E1D78 0x001E1DC8 ico2/sugipon/src/torch.c lines=10  # aug
 data emptyTorchWork 0x004E6768 0x004E6790 ico2/sugipon/src/torch.c local  # emptyTorchWork: InitTorchGeo's template (lui/addiu of 0x4E6768), 0x28 bytes and 8-aligned in this build where PAL's TorchGeoWork is 0x50 and 16-aligned (target side)
-text RequestGetWayBegin 0x001E1DC8 0x001E1DF8 ico2/sugipon/src/waySystemManager.c lines=7  # order
-text torchOffOfWeaponSE 0x001E1DF8 0x001E1E24 ico2/sugipon/src/weapon.c lines=5  # aug
-text weaponHitReactionSE 0x001E1E28 0x001E1E30 ico2/sugipon/src/weapon.c lines=4  # call-aug
-text weaponFumbleSE 0x001E1E30 0x001E1E38 ico2/sugipon/src/weapon.c lines=4  # aug
-text weaponStickSE 0x001E1E38 0x001E1E40 ico2/sugipon/src/weapon.c lines=4  # call-aug
-text ReleaseWeaponWithFumbleTargetPos 0x001E1E40 0x001E1F64 ico2/sugipon/src/weapon.c lines=19  # call-aug
-text ReleaseWeaponWithFumbleSequential 0x001E1F68 0x001E2360 ico2/sugipon/src/weapon.c lines=40  # aug
-lit4 ReleaseWeaponWithFumbleSequential 0x00678F2C 0x00678F30 ico2/sugipon/src/weapon.c  # 1 float
-rdlit ReleaseWeaponWithFumbleSequential 0x006614D0 0x00661548 ico2/sugipon/src/weapon.c align=16  # 2 strings
-text calcDynamicPathGeometry 0x001E2360 0x001E256C ico2/sugipon/src/weapon.c local lines=31  # call-aug
-text calcDynamicGeometry 0x001E2570 0x001E2BEC ico2/sugipon/src/weapon.c local lines=146  # call-aug
-lit4 calcDynamicGeometry 0x00678F30 0x00678F3C ico2/sugipon/src/weapon.c  # 3 floats
-text getGeometry 0x001E2BF0 0x001E2D70 ico2/sugipon/src/weapon.c local lines=42  # call-aug
-text WeaponCurPos 0x001E2D70 0x001E2DCC ico2/sugipon/src/weapon.c lines=7  # ordinal; differs-at:9; imm:1; extent-equal
-text WeaponHitEffect 0x001E2DD0 0x001E2DEC ico2/sugipon/src/weapon.c lines=5  # ordinal; differs-at:2; imm:1; extent-equal
-text checkHit 0x001E2DF8 0x001E2F2C ico2/sugipon/src/weapon.c local lines=27  # ordinal; differs-at:10; imm:3; extent-equal
-text InitWeaponGeo 0x001E2F30 0x001E3430 ico2/sugipon/src/weapon.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec14+0x58 holds InitWeaponGeo there (the same record index in the demo)
-rdlit InitWeaponGeo 0x00661610 0x00661620 ico2/sugipon/src/weapon.c  # 1 string (target side)
-text WeaponGeo 0x001E3430 0x001E3458 ico2/sugipon/src/weapon.c lines=72  # aug
-text WeaponDL 0x001E3600 0x001E3988 ico2/sugipon/src/weapon.c lines=23  # aug
-text PickupWeapon 0x001E3988 0x001E39E0 ico2/sugipon/src/weapon.c lines=8  # call-aug
-text CheckSwapableWeapon 0x001E39E0 0x001E3AC8 ico2/sugipon/src/weapon.c lines=39  # aug
-text ReleaseWeapon 0x001E3AC8 0x001E3AF8 ico2/sugipon/src/weapon.c lines=10  # call-pal
-text CheckWeaponKind 0x001E3AF8 0x001E3B08 ico2/sugipon/src/weapon.c lines=4  # call-pal
-text LightTorchOnOfWeapon 0x001E3B08 0x001E3B84 ico2/sugipon/src/weapon.c lines=12  # order
-text LightTorchOffOfWeapon 0x001E3B88 0x001E3BE8 ico2/sugipon/src/weapon.c lines=9  # call-aug
-text GetTorchGObjOfWeapon 0x001E3BE8 0x001E3C10 ico2/sugipon/src/weapon.c lines=8  # call-pal
-text ReleaseWeaponWithFumble 0x001E3C10 0x001E3C90 ico2/sugipon/src/weapon.c lines=19  # order
-text InitWeaponFumbleSequence 0x001E3C90 0x001E3CA4 ico2/sugipon/src/weapon.c lines=5  # order
-text GetWeaponWeight 0x001E3CA8 0x001E3CD8 ico2/sugipon/src/weapon.c lines=4  # call-aug
-text SetWeaponTorchChainReactionFlagAll 0x001E3CD8 0x001E3D8C ico2/sugipon/src/weapon.c lines=15  # order
-data swordWorkTemplate 0x004E6790 0x004E6840 ico2/sugipon/src/weapon.c local  # swordWorkTemplate: func_001E2F30's template (lui/addiu of 0x4E6790), 0xB0 bytes in this build where PAL's is 0xE0 (target side)
 text ReinitWindManager 0x001E4918 0x001E49EC ico2/sugipon/src/windManager.c lines=4  # ordinal; differs-at:1; imm:3; extent-equal
 text SetWindManager 0x001E49F0 0x001E4A70 ico2/sugipon/src/windManager.c lines=13  # census-equal; stubbed for emission order
 text InitWindManager 0x001E4A70 0x001E4B44 ico2/sugipon/src/windManager.c lines=9  # ordinal; differs-at:1; imm:3; extent-equal

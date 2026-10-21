@@ -10,7 +10,6 @@ extern void *actCreateSubThreadGOppArg(void *entry, int arg);
 extern void _ACTWait(int frames);
 
 #include "waySystemManager.h"
-#include "include_asm.h"
 
 static void actWaySystemCore(volatile unsigned int self);
 static void thStart(void);
@@ -29,5 +28,3 @@ static inline void thStart(void)
         _ACTWait(1);
     }
 }
-
-INCLUDE_ASM(RequestGetWayBegin);

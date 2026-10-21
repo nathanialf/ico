@@ -27,7 +27,6 @@
 #include <assert.h>
 #include "sceneManager.h"
 #include "Primitive.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     float x;
@@ -80,12 +79,82 @@ typedef struct {              /* field names derived */
     float scale;              /* 0x48 */
 } EnemyWork;                  /* derived name */
 
-/* setEnemyParticleObject (equal C in the campaign scratch) waits on Primitive.c's
-   row 0x11D7E8, the demo's prim_InitParticle: the row carries the name
-   prim_InitParticleByPartition */
-static void setEnemyParticleObject(GObj *self, int pid);
+static void setEnemyParticleObject(GObj *self, int pid)
+{
+    Sub15C *sub = GOBJ_SUB(self);
+    EnemyWork *w = sub->work;
+    int n = sub->skelNodeNum;
+    SkelNode *tbl = sub->skel;
+    struct DObjNode *p = sub->nodes;
+    PrimParticle **parts;
+    int *fl;
+    float size;
+    int i;
+    int cnt;
+    int num;
+    int n4;
+    int type;
+    EnemyPosEntry *v;
+    EnemyPosEntry *q;
 
-INCLUDE_ASM(setEnemyParticleObject);
+    size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f;
+    parts = (PrimParticle **)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 104);
+    w->particle = parts;
+    fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 106);
+    w->flag = fl;
+    clearEnemyParticleFlags(fl, n);
+    for (i = 0; i < n; i++) {
+        q = (EnemyPosEntry *)enemy_GetPositionTable(pid, i);
+        v = q;
+        if (q == 0) {
+            (w->flag)[i] = 0;
+            continue;
+        }
+        (w->flag)[i] = 1;
+        for (cnt = 0; q->w > -1.0f; cnt++)
+            q++;
+        q = v;
+        parts[i] = 0;
+        if (cnt <= 0)
+            continue;
+        if (cnt >= 80)
+            num = 80;
+        else
+            num = cnt;
+        parts[i] = prim_InitParticle(num, size, 0.5f, 0.5f, 1, "enemy_sprite", 0);
+        if (parts[i] == 0) {
+            /* EUC-JP: "cannot reserve the memory for the enemy soldier particles" */
+            debug_StdPrintfDummy("敵兵のパーティクルのメモリを確保できません\n");
+            debug_assertMessage("src/enemy.c", 151, "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
+            __assert("src/enemy.c", 151, "e");
+        }
+        for (cnt = 0; q->w > -1.0f && cnt < 80; cnt++, q++) {
+            n4 = rand() % 4;
+            _CopyVector((char *)parts[i]->vtx + cnt * 32, q);
+            _CopyVector((char *)parts[i]->vtxNext + cnt * 32, q);
+            type = tbl[i].kind;
+            if (type >= 38)
+                goto spread;
+            if (type < 36)
+                goto spread;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x10) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x10) = 0.5f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x14) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x14) = 0.0f;
+            goto done;
+        spread:
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x10) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x10) = (n4 / 2) * 0.5f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x14) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x14) = (n4 % 2) * 0.5f;
+        done:
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x18) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x18) = 128.0f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x1C) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x1C) = 64.0f;
+        }
+    }
+}
 
 static inline int enemyRandomizeID(int kind, int *ctr) /* derived name */
 {
@@ -365,9 +434,53 @@ int CheckEnemyHit(GObj *self, float *pos, float *a, float *b)
 static int enemyVariation = 0; /* derived name */
 
 /* InitEnemyGeo's parts list; its body inlines clearEnemyParticleFlags */
-/* InitEnemyGeo shares setEnemyParticleObject's file-name string (the stub
-   carries it), so it stays a stub with it */
-INCLUDE_ASM(InitEnemyGeo);
+static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* derived name */
+{
+    int kind = param->obj;
+    EnemyWork *w;
+    int n;
+    int *parts;
+
+    n = SUBOF(self)->skelNodeNum;
+    /* the work-record entry is read as an int and cast */
+    w = (EnemyWork *)*(int *)&SUBOF(self)->work;
+
+    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 258);
+    w->broken = parts;
+    clearEnemyParticleFlags(parts, n);
+    w->kind = kind;
+    w->ctr = 0;
+    return setEnemyObject(self, kind, &w->ctr);
+}
+
+void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
+{
+    EnemyWork *w;
+    int kind;
+    int no;
+
+    w = iosMallocDebug(ios_partition_sugipon, 76, "src/enemy.c", 588);
+    SUBOF(self)->work = w;
+    w->word20 = 0;
+    w->eye0 = InitEnemyEye(10, 0, 10);
+    w->word28 = 0;
+    w->eye1 = InitEnemyEye(10, 0, 10);
+    w->foot = InitEnemyFootPrint(6);
+    w->particle = 0;
+    w->loaded = 0;
+    w->float3C = 0.0f;
+    w->short40 = 0;
+    w->wing = 0.0f;
+    kind = enemyInitPartsList(self, param);
+    w->def = kind;
+    InitMotionOrient(self, 1772, 2106, 24, 36, 821);
+    no = enemyVariation;
+    SUBOF(self)->ctrl.variation = no;
+    enemyVariation = (no + 2) % 10;
+    SUBOF(self)->ctrl.catchBoy = 0;
+    SetLodLevel(self, 2);
+    return w;
+}
 
 void EnemyGeo(GObj *self)
 {
@@ -419,7 +532,7 @@ void DisplayEnemy(GObj *self)
     EnemyWork *w = GOBJ_SUB(self)->work;
 
     if (w->loaded != 0) {
-        func_00121688((char *)GOBJ_SUB(self)); /* reg_DispEnemy, RegistPacket.c's row */
+        reg_DispEnemy((char *)GOBJ_SUB(self));
         if (GOBJ_SUB(self)->nodes->fade == 0.0f) {
             DispEnemyEye(w->eye0);
             DispEnemyEye(w->eye1);

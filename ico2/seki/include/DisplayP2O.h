@@ -129,18 +129,20 @@ typedef struct PObjTexInfo { /* field names derived */
     unsigned short found;    /* 0x4E */
 } PObjTexInfo;               /* derived name */
 
-/* one part's group record, 48 bytes a part: the part's material table (0x70
- * bytes a material), its texture-info table, its first packet (a PacHeader;
- * a line part's record is Packet.c's MatLine, whose 0x08 is the line set),
- * the copies of the packets the morphs rewrite and the two table counts */
+/* one part's group record, 60 bytes a part in June (pac_makePacket's
+ * mallocseki(n * 60)): the part's material table (0x70 bytes a material),
+ * its texture-info table and count, its first packet (a PacHeader; a line
+ * part's record is Packet.c's MatLine), the copies of the packets the morphs
+ * rewrite and the model's name, in the first part's record */
 typedef struct PObjGroup {   /* field names derived */
     PObjMaterial *materials; /* 0x00 */
-    PObjTexInfo *texs;       /* 0x04 */
-    void *packets;           /* 0x08 */
-    void *morph;             /* 0x0C */
-    short matCount;          /* 0x10 */
-    short texCount;          /* 0x12 */
-    char name[28];           /* 0x14, the model's name, in the first part's record */
+    char pad04[4];
+    PObjTexInfo *texs;       /* 0x08 */
+    int texCount;            /* 0x0C */
+    void *packets;           /* 0x10 */
+    void *morph;             /* 0x14 */
+    char name[32];           /* 0x18 */
+    char pad38[4];
 } PObjGroup;                 /* derived name */
 
 typedef struct PObjModel { /* field names derived */
@@ -149,14 +151,13 @@ typedef struct PObjModel { /* field names derived */
     int pad24;
     Sub15C *dobj; /* 0x28 */
     short pad2C;
-    signed char partCount; /* 0x2E */
-    signed char disp;      /* 0x2F */
+    short partCount; /* 0x2E */
 
     union {
         unsigned long long bits; /* bits 16 and 17 the display type, bit 26 the shadow off */
 
         struct {
-            short id;
+            short disp;               /* 0x30 in June: the later builds keep it as a char at 0x2F */
             unsigned short type : 2;  /* 0x32, the display type */
             unsigned short shade : 4; /* the shade the strips carry */
             unsigned short lod : 4;   /* the level of detail the packet is built for */

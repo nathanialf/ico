@@ -127,8 +127,8 @@ typedef union { /* field names derived */
 
 /* motion-def: one motion kind, 0x184 bytes, indexed by the motion id the
    motion work carries (Sub15C+0x4A0). The demo's record is PAL's in an
-   earlier order: ten trigger slots where PAL has twelve effect and twelve
-   sound slots, a Japanese comment, the motion file's path and the name, one
+   earlier order: five effect and five sound slots where PAL has twelve
+   of each, a Japanese comment, the motion file's path and the name, one
    vibration slot, the switches SetMotionRequest copies into the motion work,
    the memory area, the root update mode, the blend kind and play speed, the
    slope rates, the play mode, the shift and trigger ranges, the input
@@ -140,12 +140,13 @@ typedef union { /* field names derived */
    ACTGame_CheckPriInputFrame, ACTGetEnvironment); a wordNNN no reader
    names. The generated motion-def member compiles against this record. */
 typedef struct {             /* field names derived */
-    FDSSlot trig[10];        /* 0x000, effect and sound triggers (frameDependSequence.c) */
+    FDSSlot eff[5];          /* 0x000, effect triggers (frameDependSequence.c) */
+    FDSSlot se[5];           /* 0x028, sound triggers (frameDependSequence.c) */
     char comment[48];        /* 0x050, the motion's name in Japanese, EUC-JP; no C reader */
     char path[64];           /* 0x080, the motion file */
     char name[48];           /* 0x0C0 */
     FDSSlot vib[1];          /* 0x0F0, pad vibration */
-    float word0F8;           /* 0x0F8 */
+    float weaponFrame;       /* 0x0F8, the frame the weapon's torch goes out (frameDependSequence.c) */
     int word0FC;             /* 0x0FC */
     int cylinder;            /* 0x100 */
     int adjustAngle;         /* 0x104 */

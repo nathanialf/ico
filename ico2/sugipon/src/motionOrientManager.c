@@ -1110,7 +1110,7 @@ static void getMotionGeometry(void *self)
         sendStateMail(self);
     }
     DispSkelton(self, mot);
-    func_001C20D0(self); /* ExecFrameDependSequence, frameDependSequence.c's row */
+    ExecFrameDependSequence(self);
     execFrameTrigger(self);
     UpdateFrameCounter(self);
 }

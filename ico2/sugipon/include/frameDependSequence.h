@@ -31,7 +31,7 @@ typedef struct { /* field names derived */
 } SECondEntry;   /* derived name */
 
 /* motion-eff-def: one motion effect, 0x24 bytes: the offset and turn from
-   the node, the particle effect, the node and the flags.  Readers:
+   the node, the particle effect, the flags and the node.  Readers:
    frameDependSequence.c, ico2/common/src/icoMisc.c (EffEnt). */
 typedef struct {        /* field names derived */
     float x;            /* 0x00 */
@@ -41,8 +41,8 @@ typedef struct {        /* field names derived */
     float ry;           /* 0x10 */
     float rz;           /* 0x14 */
     int eff;            /* 0x18 */
-    int node;           /* 0x1C */
-    unsigned int flags; /* 0x20 */
+    unsigned int flags; /* 0x1C, nonzero: a stage BGA effect, else a particle effect */
+    int node;           /* 0x20 */
 } EffEntry;             /* derived name */
 
 /* motion-eff-condition-def: the shared condition table, 0x0C bytes a row:
@@ -60,17 +60,15 @@ extern const SECondEntry motSECondKind[];
 extern const EffEntry motionEffKind[];
 extern const VibCondEntry motEffCondKind[];
 extern const int randomEffKind[];
-int ExecuteDirectSE(struct GObj *gobj, int id);
+/* InitFrameDependSequence before ExecuteSEPackageWithVolumeRate: both are
+   inline in frameDependSequence.c, and gcc emits their out-of-line copies at
+   the end of the file in the order they were first declared */
+void InitFrameDependSequence(void *flags);
+void ExecFrameDependSequence(struct GObj *gobj);
 void ExecuteSEPackage(struct GObj *gobj, int id);
 void ExecuteSEPackageWithGroupVariation(struct GObj *gobj, int id, int grp);
 void ExecuteSEPackageWithVolumeRate(struct GObj *gobj, int id, float rate);
-void InitFrameDependSequence(void *flags);
-void StopFDSVibration(void *flags);
 void StopSEPackage(struct GObj *gobj);
 void StopSEPackageWithGroupVariation(struct GObj *gobj, int grp);
-/* ExecFrameDependSequence: frameDependSequence.c's row func_001C20D0 (getMotionGeometry
-   calls it with the object where the later builds call ExecFrameDependSequence); it keeps
-   the ordinal name until that TU lands */
-void func_001C20D0(struct GObj *gobj);
 
 #endif /* FRAMEDEPENDSEQUENCE_H */

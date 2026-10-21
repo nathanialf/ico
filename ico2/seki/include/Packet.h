@@ -11,25 +11,27 @@
 #include "typedef.h"
 #include <libvu0.h>
 
-/* one packet pac_makePacket builds, 160 bytes: the bounding box's eight
-   corners, the material, the texture slot and the slot's three texture
+/* one packet pac_makePacket builds, 176 bytes in June: the bounding box's
+   eight corners, sixteen bytes RegistPacket.c never reads (the later builds
+   drop them), the material, the texture slot and the slot's three texture
    numbers, the tag and polygon counts, the packet size (the byte count in the
    low 24 bits, the clip type in the top byte), the next packet of the model
    and its DMA data. */
 typedef struct PacHeader {  /* field names derived */
     sceVu0FVECTOR box[8];   /* 0x00 */
-    short mat;              /* 0x80 */
-    short texSlot;          /* 0x82 */
-    short tex;              /* 0x84 */
-    short tex1;             /* 0x86 */
-    short tex2;             /* 0x88 */
-    short ntag;             /* 0x8A */
-    int npoly;              /* 0x8C */
-    unsigned int size : 24; /* 0x90 */
-    unsigned char clip;     /* 0x93 */
-    struct PacHeader *next; /* 0x94 */
-    char *data;             /* 0x98 */
-    char pad9C[4];
+    char pad80[16];         /* 0x80 */
+    short mat;              /* 0x90 */
+    short texSlot;          /* 0x92 */
+    short tex;              /* 0x94 */
+    short tex1;             /* 0x96 */
+    short tex2;             /* 0x98 */
+    short ntag;             /* 0x9A */
+    int npoly;              /* 0x9C */
+    unsigned int size : 24; /* 0xA0 */
+    unsigned char clip;     /* 0xA3 */
+    struct PacHeader *next; /* 0xA4 */
+    char *data;             /* 0xA8 */
+    char padAC[4];
 } PacHeader; /* derived name */
 
 /* one colour of a line record, as the GS RGBAQ register takes it */
@@ -40,30 +42,22 @@ typedef struct PacColor { /* field names derived */
     unsigned char a;
 } PacColor; /* derived name */
 
-/* one 192-byte line record pac_makePacket builds and RegistPacket.c draws: a
-   line's two vertices and texture coordinates.  A point keeps its last screen
-   position in pos[1] and the one before at 0x20, and per trail index its
-   screen positions at 0x50 and the ones before at 0x80.  Then the two
-   colours, and the word at 0xB8: the texture number, the blend and the type
-   (1 a point, 2 a line, 0 the end of the list), read whole by the drawing. */
-typedef struct PacLine {        /* field names derived */
-    sceVu0FVECTOR pos[2];       /* 0x00 */
-    sceVu0IVECTOR scrPrev;      /* 0x20 */
-    sceVu0FVECTOR uv[2];        /* 0x30 */
-    sceVu0IVECTOR trail[3];     /* 0x50 */
-    sceVu0IVECTOR trailPrev[3]; /* 0x80 */
-    PacColor col0;              /* 0xB0 */
-    PacColor col1;              /* 0xB4 */
-
-    union {
-        long long word;
-
-        struct {
-            unsigned short tex : 11;
-            unsigned short blend : 2;
-            short type : 3;
-        } b;
-    } attr; /* 0xB8 */
+/* one 144-byte line record pac_makePacket builds and RegistPacket.c draws in
+   June: a line's two vertices and texture coordinates.  A point keeps its
+   last screen position in pos[1] and per trail index its screen positions
+   at 0x40.  Then the two colours, the texture number (-1 for none), the
+   blend and the type (1 a point, 2 a line, 0 the end of the list). */
+typedef struct PacLine {    /* field names derived */
+    sceVu0FVECTOR pos[2];   /* 0x00 */
+    sceVu0FVECTOR uv[2];    /* 0x20 */
+    sceVu0IVECTOR trail[3]; /* 0x40 */
+    char pad70[16];
+    PacColor col0; /* 0x80 */
+    PacColor col1; /* 0x84 */
+    short tex;     /* 0x88 */
+    short blend;   /* 0x8A */
+    short pad8C;
+    short type; /* 0x8E */
 } PacLine;  /* derived name */
 
 /* the 144-byte record a line part's group record points at: the line records
