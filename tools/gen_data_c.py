@@ -42,7 +42,10 @@ function), arrays, nested structs and bit-fields, laid out by the EE's rules (4-
 pointers and ints, 8-byte long long and double, bit-fields from the low bit
 of their declared type's unit). A base type with a trailing [N] is an array
 element (char[32]: the C defines `char name[][32]`, the initializer giving
-the count).
+the count). A type the named header does not define is looked up in the
+headers it includes, found by tools/compile_c.sh's include paths; an array
+typedef (sceVu0FVECTOR, `float [4]` aligned to 16) keeps its alignment and is
+spelled by its name (`sceVu0FVECTOR name[] = { {...}, ... }`).
 
 <slug> is the target as tools/ico_version.py detects it (VERSION, or the
 first configured one); the member table is config/data_members.<slug>.txt,
@@ -290,11 +293,45 @@ def tokenize(text):
     return re.findall(r"0[xX][0-9a-fA-F]+|\d+|[A-Za-z_]\w*|\.\.\.|[{}()\[\];,*:=+\-/]", text)
 
 
+def include_dirs(path):
+    """The directories an #include in the header at path (repo-relative) is
+    searched in, in tools/compile_c.sh's order: the including file's
+    programmer's include dir, the cross-programmer dirs its loop names, then
+    the sce/ archive dirs of its SCE_INCS loop."""
+    sh = (ROOT / "tools" / "compile_c.sh").read_text()
+    progs = re.search(r'for _p in "\$\{ICO2_PROG\}" ([^;]*); do', sh).group(1).split()
+    archives = re.search(r"for _a in ([^;]*); do", sh).group(1).split()
+    parts = Path(path).parts
+    own = [parts[1]] if parts[0] == "ico2" and len(parts) > 2 else []
+    dirs = [f"ico2/{p}/include" for p in dict.fromkeys(own + progs)]
+    return [d for d in dirs if (ROOT / d).is_dir()] + [f"sce/{a}" for a in archives]
+
+
+INCLUDE = re.compile(r'^\s*#\s*include\s*([<"])([^>"]+)[>"]', re.M)
+HEADERS = {}
+
+
+def header(path):
+    if path not in HEADERS:
+        HEADERS[path] = Header(path)
+    return HEADERS[path]
+
+
 class Header:
     def __init__(self, path):
         self.path = path
-        self.toks = tokenize(strip_c(version_lines((ROOT / path).read_text(encoding="latin-1"))))
+        text = version_lines((ROOT / path).read_text(encoding="latin-1"))
+        self.toks = tokenize(strip_c(text))
         self.cache = {}
+        # the headers it includes, as the compile finds them: "x.h" beside
+        # it first, then the include paths; one the tree lacks is skipped
+        self.includes = []
+        for quote, name in INCLUDE.findall(re.sub(r"/\*.*?\*/", " ", text, flags=re.S)):
+            here = [str(Path(path).parent)] if quote == '"' else []
+            for d in here + include_dirs(path):
+                if (ROOT / d / name).is_file():
+                    self.includes.append(os.path.normpath(f"{d}/{name}"))
+                    break
 
     def typedef(self, name):
         if name in self.cache:
@@ -341,6 +378,26 @@ class Header:
                         ty.size = -(-ty.size // ty.align) * ty.align
                 self.cache[name] = ty
                 return ty
+            # `typedef <type> name[N] [attrs];`: an array type, which the C
+            # spells by its name; aligned(N) raises its alignment
+            if t[j] == "[" and t[i - 1] != "*":
+                k = i - 1
+                while k >= 0 and t[k] not in (";", "}", "{"):
+                    k -= 1
+                e = t.index("]", j)
+                while t[e + 1] == "[":
+                    e = t.index("]", e + 1)
+                if t[k + 1] == "typedef" and t[k + 2] not in ("struct", "union"):
+                    _, ty = self._declarator([name] + t[j:e + 1], self.base_type(t[k + 2:i]))
+                    j = e + 1
+                    while t[j] == "__attribute__":
+                        j, al = self._attribute(j)
+                        if al:
+                            ty.align = max(ty.align, al)
+                    if t[j] == ";":
+                        ty.name = name
+                        self.cache[name] = ty
+                        return ty
             # `typedef <type> name;`
             if t[j] == ";":
                 k = i - 1
@@ -357,7 +414,45 @@ class Header:
                 ty.name = f"{t[i - 1]} {name}"
                 self.cache[name] = ty
                 return ty
+        # a type a header it includes defines
+        ty = self.included(name, {self.path})
+        if ty is not None:
+            self.cache[name] = ty
+            return ty
         fail(f"{self.path}: no typedef or struct tag {name}")
+
+    def included(self, name, seen):
+        """name as the first header this one includes (and so on, depth first)
+        that defines it, or None."""
+        for path in self.includes:
+            if path in seen:
+                continue
+            seen.add(path)
+            h = header(path)
+            if name in h.cache or h.defines(name):
+                return h.typedef(name)
+            ty = h.included(name, seen)
+            if ty is not None:
+                return ty
+        return None
+
+    def defines(self, name):
+        """Whether this header's own text declares name as a typedef or tag."""
+        t = self.toks
+        for i in range(1, len(t)):
+            if t[i] != name:
+                continue
+            if t[i - 1] in ("struct", "union") and i + 1 < len(t) and t[i + 1] == "{":
+                return True
+            k = i - 1
+            depth = 0
+            while k >= 0 and not (depth == 0 and t[k] in (";", "{")):
+                depth += t[k] == "}"
+                depth -= t[k] == "{"
+                k -= 1
+            if t[k + 1] == "typedef" and t[i + 1] in (";", "[", "__attribute__"):
+                return True
+        return False
 
     def _match_back(self, k):
         depth = 0
@@ -656,7 +751,7 @@ def c_decl(ty, name):
     if ty.kind == "ptr":
         inner = c_decl(ty.target, "*" + name)
         return inner if inner is not None else f"void *{name}"
-    if ty.kind == "struct" and getattr(ty, "name", None):
+    if ty.kind in ("struct", "array") and getattr(ty, "name", None):
         return f"{ty.name} {name}"
     return None
 
@@ -771,6 +866,8 @@ def c_type(ty, spelled):
     if ty.kind == "ptr":
         inner, star, dims = c_type(ty.target, spelled[:-1])
         return inner, star + "*", dims
+    if ty.kind == "array" and getattr(ty, "name", None):
+        return ty.name, "", ""  # an array typedef (sceVu0FVECTOR), by its name
     if ty.kind == "array":
         inner, star, dims = c_type(ty.elem, spelled[:spelled.rindex("[")])
         return inner, star, f"[{ty.n}]" + dims
@@ -798,7 +895,7 @@ def write_c(member, rows, datas, layout, out_path):
                 headers.append(s["header"])
             continue
         data = datas[row["section"]]
-        ty = Header(s["header"]).typedef(s["type"])
+        ty = header(s["header"]).typedef(s["type"])
         start = start_of(s, row)
         n = s["count"] or 1
         size = ty.size * n
@@ -862,7 +959,7 @@ def write_stub(member, rows):
         out += [f"    .section .{row['section']}", f"    .align {align.bit_length() - 1}"]
         labels = []
         if s is not None:
-            size = Header(s["header"]).typedef(s["type"]).size
+            size = header(s["header"]).typedef(s["type"]).size
             start = start_of(s, row)
             labels = [(n, start + i * size) for n, i in s["syms"]]
         out += [f"    .globl {n}" for n, _ in labels]
@@ -942,7 +1039,7 @@ def check(member, rows, datas, obj, layout):
             diff = next((i for i in range(n) if g[i] != want[i]), n)
             where = ""
             if sch is not None and diff >= start_of(sch, row):
-                size = Header(sch["header"]).typedef(sch["type"]).size
+                size = header(sch["header"]).typedef(sch["type"]).size
                 el, within = divmod(diff - start_of(sch, row), size)
                 where = f"element {el}, offset 0x{within:x} of {sch['type']}; "
             fail(f"{obj}: {sec} differs from the ROM at 0x{row['lo'] + diff:08X} "
@@ -960,9 +1057,35 @@ def write_if_changed(path, text):
     path.write_bytes(raw)
 
 
+def array_typedef_self_test():
+    """An array typedef with aligned(N) that a header provides only through
+    its #include (Light.h includes <libvu0.h>): read with its element, count
+    and alignment, and spelled by its name with the array's initializer."""
+    h = header("ico2/seki/include/Light.h")
+    got = []
+    v = h.typedef("sceVu0FVECTOR")
+    got.append((v.kind, v.size, v.align, v.n, v.elem.name, v.name))
+    m = h.typedef("sceVu0FMATRIX")
+    got.append((m.kind, m.size, m.align, m.n, m.elem.n, m.name))
+    got.append(c_type(v, "sceVu0FVECTOR") + (c_decl(h.typedef("sceVu0FVECTOR*").target, "p"),))
+    got.append(Writer(struct.pack("<4f", 1, 0.5, -2, 0), 0, None, set()).value(v, 0, ""))
+    want = [("array", 16, 16, 4, "float", "sceVu0FVECTOR"),
+            ("array", 64, 16, 4, 4, "sceVu0FMATRIX"),
+            ("sceVu0FVECTOR", "", "", "sceVu0FVECTOR p"),
+            "{1.0f, 0.5f, -2.0f, 0.0f}"]
+    failed = 0
+    for g, w in zip(got, want):
+        ok = g == w
+        failed += not ok
+        print(f"gen_data_c: self-test {'ok  ' if ok else 'FAIL'} array typedef -> {g!r}"
+              + ("" if ok else f" (want {w!r})"), file=sys.stderr)
+    print(f"gen_data_c: self-test {'FAIL' if failed else 'OK'} ({failed} failed)", file=sys.stderr)
+    return 1 if failed else 0
+
+
 def main():
     if sys.argv[1:] == ["--self-test"]:
-        return version_lines_self_test()
+        return version_lines_self_test() | array_typedef_self_test()
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--stub")
