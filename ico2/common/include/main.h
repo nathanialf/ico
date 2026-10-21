@@ -71,8 +71,14 @@ extern void (*system_stage_func)(void);
 extern int InterStageSwitchLock;
 void Main(void);
 void Emergency_DestroyAllThread(void);
-/* jun26-only; scpDeamon calls it while pad 0 holds the 0x900 buttons */
+/* the demo disc's exits (sampleMode.o in the Aug-6-2001 map; main.o here) */
+/* demoEnd by the PAL/Aug-6 map position; kept derived: e3.c and deja.c have a
+   static demoEnd and e3.c calls this function */
 void func_001025F0(void);
-void func_00102790(void);
+void sampleModeNoContTimeOutMain(void);
+void sampleModeDemoEnd(void);
+void sampleModeDemoEndTimeOut(void);
+void sampleModeStageInit(void);
+void sampleModeExec(void);
 
 #endif /* MAIN_H */

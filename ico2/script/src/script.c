@@ -795,7 +795,7 @@ inline void scpDeamon(GObj *volatile self)
     gflagOff(343);
     for (;;) {
         if ((pad[0].flags & 0x900) == 0x900 && systemStatus[6] == 0 && graphics_ready == 0) {
-            func_00102790();
+            sampleModeDemoEndTimeOut();
         }
         _ACTWait(1);
     }

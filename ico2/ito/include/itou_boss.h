@@ -8,13 +8,10 @@
 #ifndef ITOU_BOSS_H
 #define ITOU_BOSS_H
 
-/* the functions itou_boss.c defines `inline` */
-int InqCapsuleGhostBossStage(void);
+/* the functions itou_boss.c defines that other files name */
 void actBossCtrlStart(void *gobj);
 int InitBossCtrlGeo(void *gobj);
-void CapsuleGhostBossStart(void);
 int InqCapsuleGhostBossEnd(void);
 void BossCtrlGeo(void *self);
-void itou_boss_gflag_init(void);
 
 #endif /* ITOU_BOSS_H */

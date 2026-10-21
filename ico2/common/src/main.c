@@ -29,6 +29,9 @@
 #include "geometryManager.h"
 #include "libgraph.h"
 #include <stdlib.h>
+#include <libcdvd.h>
+#include <sound.h>
+#include <sifrpc.h>
 #include "include_asm.h"
 
 /* main.c's .data globals, each with an initialiser. systemStatus starts in PAL mode (word 0;
@@ -164,7 +167,64 @@ static void idle(void)
 /* vsyncs counted toward systemStatus[1], the frame step */
 static int frameStepCount = 0; /* derived name */
 
-INCLUDE_ASM(scheduler);
+static void scheduler(void)
+{
+    int msg[4];
+
+    debug_StdPrintfDummy("scheduler() in\n");
+    iosMsgQueueCreate(&SchedulerMsgQ, schedulerMsgBuff, 8);
+    iosMsgSetEvent(2, &SchedulerMsgQ, 2);
+    while (1) {
+        iosMsgRecv(&SchedulerMsgQ, msg, 1);
+        if (msg[0] == 2) {
+            vsyncCount++;
+            frameStepCount++;
+            if (frameStepCount >= systemStatus[1] && stageManagerFreeResourceFlag == 0) {
+                if (frameReady > 0) {
+                    if (mpegPlay != 0) {
+                        frameReady = 0;
+                        goto wake;
+                    }
+                    if (gsb_SyncGSSystem() != 0) {
+                        goto skip;
+                    }
+                    gsb_UpdateGSSystem();
+                    if (systemStatus[5] != 0) {
+                        if (iosCdvdDiskStatusGet() != 0) {
+                            frameReady = 0;
+                            goto wake;
+                        }
+                    }
+                    GlobalTimer++;
+                }
+                frameReady = 0;
+            wake:
+                iosThreadCancelWakeup(&mainThread);
+                if (iosThreadWakeup(&mainThread) < 0) {
+                    /* failed to start the main thread */
+                    debug_StdPrintfDummy("メーンスレッドの起動失敗しました\n");
+                }
+                frameStepCount = 0;
+            }
+        skip:
+            iosThreadWakeup(&soundThread);
+            if (IosMcLock >= 0) {
+                SignalSema(IosMcLock);
+            }
+            if (IosCdvdMgrSleep != 0 && (mpegPlay == 0 || iosCdvdBackGroundMgrRunning != 0)) {
+                iosThreadWakeup(&cdvdThread);
+            }
+            if (stgMgrWakeupRequest != 0) {
+                iosThreadWakeup(&stageManagerThread);
+            }
+        } else {
+            /* an unknown message arrived */
+            debug_StdPrintfDummy("不明なメッセージの着信を確認しました in Scheduler\n");
+        }
+    }
+    /* unreachable: the loop above never exits */
+    debug_StdPrintfDummy("scheduler() out\n");
+}
 
 static void boot(void)
 {
@@ -185,7 +245,63 @@ static void boot(void)
     iosThreadSleep();
 }
 
-INCLUDE_ASM(main);
+/* the boot thread's kernel id, which func_001025F0 wakes */
+static int bootThreadId; /* derived name */
+
+/* demoDisc.c's pair, whose names this build does not record: the first
+   keeps the arguments the magazine menu started the game with and reads the
+   disc's settings out of them, the second reloads the menu with them */
+int func_00246828(int argc, char **argv, unsigned short *language, unsigned short *aspect,
+                  unsigned short *playmode, unsigned short *toInactive, unsigned short *toTotal,
+                  unsigned short *mediaType);
+
+void func_00246920(int status);
+/* thread.c defines it `inline` with no header declaration */
+void iosThreadAllQuit(int self);
+
+/* the demo disc's entry: it reads the menu's settings, runs the game until
+   func_001025F0 wakes it, shuts the game down and goes back to the menu */
+int main(int argc, char **argv)
+{
+    unsigned short language;
+    unsigned short aspect;
+    unsigned short playmode;
+    unsigned short toInactive;
+    unsigned short toTotal;
+    unsigned short mediaType;
+    int i;
+
+    func_00246828(argc, argv, &language, &aspect, &playmode, &toInactive, &toTotal, &mediaType);
+    debug_StdPrintfDummy("l %d a %d pm %d toa %d tot %d\n", language, aspect, playmode, toInactive,
+                         toTotal);
+    debug_StdPrintfDummy("MEDIA TYpE %d\n", mediaType);
+    sampleModeStageInit();
+    if (mediaType == 0) {
+        iosCdvdMediaType = 1;
+    } else {
+        iosCdvdMediaType = 2;
+    }
+    debug_StdPrintfDummy("main\n");
+    debug_StdPrintfDummy("main\n");
+    ChangeThreadPriority(GetThreadId(), 14);
+    bootThreadId = GetThreadId();
+    boot();
+    iosThreadAllQuit(bootThreadId);
+    SgQuit();
+    SgInit();
+    i = 10;
+    while (i--) {
+        sceGsSyncV(0);
+    }
+    sceFsReset();
+    sceGsResetPath();
+    sceVpu0Reset();
+    gsb_InitGSSystem();
+    sceSifExitCmd();
+    debug_StdPrintfDummy("demo end !!!!!!!!!!!!!!!!!!\n");
+    func_00246920(5);
+    return 0;
+}
 
 void Emergency_DestroyAllThread(void)
 {
@@ -212,25 +328,76 @@ int movie_abort_check(void)
     return ret;
 }
 
-INCLUDE_ASM(func_001025F0);
-
-INCLUDE_ASM(func_00102618);
-
-INCLUDE_ASM(func_00102758);
-
-INCLUDE_ASM(func_00102790);
-
-INCLUDE_ASM(func_001027C8);
-
-INCLUDE_ASM(func_00102838);
-
-/* the boot thread's kernel id */
-static int bootThreadId; /* derived name */
-
-/* the demo disc's idle countdown: func_00102618 counts it down each frame
-   the pads are idle and resets it from the timeout setting on input;
-   func_001027C8 and func_00102838 read and set it */
+/* the demo disc's idle countdown: sampleModeNoContTimeOutMain counts it
+   down each frame the pads are idle and resets it on input;
+   sampleModeStageInit and sampleModeExec set it */
 static int demoIdleTimeout; /* derived name */
+
+/* the demo disc's frames for one second: 60 on NTSC, 50 on PAL, over the
+   frame step */
+#define FRAME_RATE ((60 - systemStatus[0] * 10) / systemStatus[1]) /* derived name */
+
+/* ends the demo: wakes the boot thread, which hands the disc back, and
+   sleeps for good (demoEnd in the PAL and Aug-6 maps, which e3.c's static
+   flag of that name rules out here) */
+void func_001025F0(void) /* derived name */
+{
+    WakeupThread(bootThreadId);
+    while (1) {
+        iosThreadSleep();
+    }
+}
+
+/* counts the idle timeout down while nobody touches the pad, and winds it
+   back to four minutes on any button or stick */
+void sampleModeNoContTimeOutMain(void)
+{
+    if (iosPadEnableGet() == 0) {
+        demoIdleTimeout = FRAME_RATE * 240;
+        return;
+    }
+    iosPadRead(&demoIdlePad);
+    iosPadGetStick(&demoIdlePad, &demoIdleStickL, 0, 2, 2, 0);
+    iosPadGetStick(&demoIdlePad, &demoIdleStickR, 1, 2, 2, 0);
+    if (demoIdlePad.trg != 0 || demoIdleStickL.mag > 0.1f || demoIdleStickR.mag > 0.1f) {
+        demoIdleTimeout = FRAME_RATE * 240;
+    } else {
+        demoIdleTimeout--;
+    }
+}
+
+/* the two ways out of the demo: to stage 101, and to stage 102 when the
+   timeout runs out or the player quits; the movie returns to stage 92 */
+void sampleModeDemoEnd(void)
+{
+    systemStatus[5] = 1;
+    mpegPlayReturnStage = 92;
+    InterStageSwitchLock++;
+    stgmgrForceSwitchWithFade(101, 4.0f, 4.0f);
+}
+
+void sampleModeDemoEndTimeOut(void)
+{
+    systemStatus[5] = 1;
+    mpegPlayReturnStage = 92;
+    InterStageSwitchLock++;
+    stgmgrForceSwitchWithFade(102, 4.0f, 4.0f);
+}
+
+void sampleModeStageInit(void)
+{
+    iosPadConnect(&demoIdlePad, 0, 0, &iosPadConfDefault);
+    demoIdleTimeout = FRAME_RATE * 240;
+}
+
+void sampleModeExec(void)
+{
+    sampleModeNoContTimeOutMain();
+    if (demoIdleTimeout < 0 && systemStatus[6] == 0 && graphics_ready == 0) {
+        sampleModeDemoEndTimeOut();
+        demoIdleTimeout = FRAME_RATE * 240;
+    }
+}
 
 /* main.c's .sdata globals.  Both builds add six to the January map's (marked
    derived): one quadword after game_pause and the girl-control block before

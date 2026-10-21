@@ -33,7 +33,6 @@ void CommonAttackCenter(struct GObj *gobj);
 
 struct GObj *AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius);
 
-void AttackCenter_WithDir(struct GObj *gop, int group, float *pos, float *dir, float radius);
 void EnemyAttackCenter(struct GObj *gobj);
 void BoyAttackCenter(struct GObj *gobj);
 

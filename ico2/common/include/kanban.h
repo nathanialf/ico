@@ -28,7 +28,6 @@ typedef struct Kanban {  /* field names derived */
 } Kanban;                /* derived name */
 
 void kanbanReqDel(Kanban *self);
-void kanbanReqDelFade(Kanban *self);
 void kanbanReqAllDel(void);
 void kanbanReqAllDelFade(void);
 void kanbanExec(void);

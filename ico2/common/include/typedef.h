@@ -1473,7 +1473,8 @@ typedef struct Act {         /* field names derived */
     int brainAim;    /* 0x430, the enemy brain's aim: 1 the girl, 2 the boy */
     int infoPos;     /* 0x434, the object info position the enemy is saved at */
     int brainStatus; /* 0x438, the brain status the actor starts with */
-    char pad43C[8];
+    char pad43C[4];
+    int attackGroup; /* 0x440, the actor's attack group (MakeAttackPack_Actor ors it into group2) */
     int modeHist[2];   /* 0x444, the act modes left, newest first (BeforeFunc shifts them;
                         actCommonJump and actCommonFall read [0]; the later builds keep
                         ten in ActWork) */

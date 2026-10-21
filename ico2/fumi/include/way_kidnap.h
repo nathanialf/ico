@@ -23,7 +23,6 @@ int WayPointWithRangeFromPos(float *pos, float range, int mode);
 
 struct WVTObj;
 
-int WayPointWithRangeFromPos2(float *pos, struct WVTObj *w, float *dst, int chk);
 int WayPointWithRangeFromGObj(struct GObj *obj, float f);
 struct GObj *NearestEnemyFromGirl(float *len);
 

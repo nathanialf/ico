@@ -2056,10 +2056,6 @@ inline int la_save_confirm_complete(int first, int item)
     return -1;
 }
 
-/* main.c's demo-only switch to stage 102 (systemStatus[5] = 1, the movie's
-   return stage 92), not yet named */
-extern void func_00102790(void);
-
 inline int la_end_confirm(void)
 {
     if (PSH_POSITIVE(0)) {
@@ -2068,7 +2064,7 @@ inline int la_end_confirm(void)
         case 239:
         case 373:
             gflagInit();
-            func_00102790();
+            sampleModeDemoEndTimeOut();
         case 240:
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -2311,7 +2307,7 @@ int la_game_over_continue(int first)
         case 379:
             if (PSH_POSITIVE(0)) {
                 gflagInit();
-                func_00102790();
+                sampleModeDemoEndTimeOut();
             }
             break;
         }

@@ -65,18 +65,6 @@ text Main 0x00101C80 0x00101F38 ico2/common/src/main.c lines=95  # ordinal; diff
 lit4 Main 0x00678500 0x00678504 ico2/common/src/main.c  # 1 float (target side)
 rdlit Main 0x0059CAA0 0x0059CB48 ico2/common/src/main.c  # 7 strings (target side)
 sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target side)
-text scheduler 0x00102120 0x001022D8 ico2/common/src/main.c local lines=63  # ordinal; differs-at:22; length:-11; extent-differs
-rdlit scheduler 0x0059CBD0 0x0059CC58 ico2/common/src/main.c  # 3 strings (target side)
-text main 0x001023B0 0x0010250C ico2/common/src/main.c lines=9  # call-pal
-rdlit main 0x0059CC78 0x0059CCC8 ico2/common/src/main.c  # 3 strings (target side)
-sdlit main 0x006793B0 0x006793C0 ico2/common/src/main.c  # 1 string (target side)
-text func_001025F0 0x001025F0 0x00102618 ico2/common/src/main.c  # jun26-only; derived name
-text func_00102618 0x00102618 0x00102758 ico2/common/src/main.c  # jun26-only; derived name
-lit4 func_00102618 0x00678504 0x00678508 ico2/common/src/main.c  # 1 float (target side)
-text func_00102758 0x00102758 0x0010278C ico2/common/src/main.c  # jun26-only; derived name
-text func_00102790 0x00102790 0x001027C4 ico2/common/src/main.c  # jun26-only; derived name
-text func_001027C8 0x001027C8 0x00102834 ico2/common/src/main.c  # jun26-only; derived name
-text func_00102838 0x00102838 0x001028C8 ico2/common/src/main.c  # jun26-only; derived name
 text EntryDelayFree 0x001028C8 0x00102958 ico2/sugipon/src/delayFreeManager.c lines=9  # call-pal
 rdlit EntryDelayFree 0x0059CCC8 0x0059CD1F ico2/sugipon/src/delayFreeManager.c  # 2 strings
 sdlit EntryDelayFree 0x006795B0 0x006795B2 ico2/sugipon/src/delayFreeManager.c  # 1 string
@@ -229,17 +217,6 @@ sdlit warpGirlOutStage 0x0067A040 0x0067A050 ico2/script/src/warpGirl.c  # 2 str
 text warpGirlInStage 0x00176FE0 0x001770F0 ico2/script/src/warpGirl.c lines=38  # call-pal
 lit4 warpGirlInStage 0x00678A6C 0x00678A70 ico2/script/src/warpGirl.c  # 1 float (target side)
 rdlit warpGirlInStage 0x005A30D0 0x005A30E0 ico2/script/src/warpGirl.c  # 1 string (target side)
-text MakeAttackPack_Actor 0x001770F8 0x00177384 ico2/omori/src/attackhit.c local lines=79  # aug
-text AttackCheckSameGroup 0x00177388 0x00177520 ico2/omori/src/attackhit.c local lines=33  # aug
-text AttackMail 0x00177520 0x001777E0 ico2/omori/src/attackhit.c local lines=67  # order
-text AttackCheckHit 0x001777E0 0x00177ACC ico2/omori/src/attackhit.c local lines=124  # order
-text AttackGenerate 0x00177AD0 0x00177C88 ico2/omori/src/attackhit.c local lines=67  # order
-rdlit AttackGenerate 0x005A3180 0x005A31E8 ico2/omori/src/attackhit.c  # 6 strings (target side)
-text EnemyAttackCenter 0x00177C88 0x00177C90 ico2/omori/src/attackhit.c lines=1  # call-aug
-text BoyAttackCenter 0x00177C90 0x00177C98 ico2/omori/src/attackhit.c lines=1  # call-aug
-text CommonAttackCenter 0x00177C98 0x00177CC8 ico2/omori/src/attackhit.c lines=6  # order
-text AttackCenter 0x00177CC8 0x00177E54 ico2/omori/src/attackhit.c  # order; no definition in this TU
-rdlit AttackCenter 0x005A31E8 0x005A3208 ico2/omori/src/attackhit.c  # 2 strings (target side)
 text ConvertCameraSet 0x00181340 0x00181488 ico2/omori/src/camera-root.c lines=17  # call-pal
 lit4 ConvertCameraSet 0x00678A98 0x00678A9C ico2/omori/src/camera-root.c  # 1 float
 text MakeCameraMatrix 0x00181488 0x001815D4 ico2/omori/src/camera-root.c lines=13  # call-pal
@@ -364,18 +341,6 @@ rdlit InitIcoMisc 0x0065DCC8 0x0065DEE8 ico2/common/src/icoMisc.c  # 15 strings 
 sdlit InitIcoMisc 0x0067A9C8 0x0067A9E4 ico2/common/src/icoMisc.c def  # 4 strings (target side), after loadedMotionSeg in the demo's .sdata; the six words after them are dbgC0..dbgC5
 sdata D_0067A9B0 0x0067A9B0 0x0067A9B4 ico2/common/src/icoMisc.c local  # a word func_001A1CA8 reads (0x67A9B0), between diskErrorBlink and setActorsDebugPending (target side)
 data D_004DCB70 0x004DCB70 0x004DCBF0 ico2/common/src/icoMisc.c local  # func_001A19B8's table (lui/addiu of 0x4DCB70), eight 16-byte rows of small indices, between the partition colours and windLineColor; jun26-only function (target side)
-text init_textures_of_specified_property 0x001A2750 0x001A28D8 ico2/common/src/kanban.c local file=init_textures_of_specified_property_kanban lines=13  # ordinal; differs-at:1; length:-8; extent-differs
-rdlit init_textures_of_specified_property 0x0065DF20 0x0065DF50 ico2/common/src/kanban.c file=init_textures_of_specified_property_kanban  # 2 strings (target side)
-sdlit init_textures_of_specified_property 0x0067AA18 0x0067AA1A ico2/common/src/kanban.c file=init_textures_of_specified_property_kanban  # 1 string (target side); the "/" before it is get_texture_base_name's, emitted by the C
-text kanbanInit 0x001A28D8 0x001A29D4 ico2/common/src/kanban.c lines=10  # ordinal; differs-at:6; imm:2; extent-equal
-text display_texture 0x001A29D8 0x001A2C84 ico2/common/src/kanban.c local file=display_texture_kanban lines=68  # ordinal; differs-at:0; length:-9; extent-differs
-sdlit display_texture 0x0067AA20 0x0067AA24 ico2/common/src/kanban.c file=display_texture_kanban  # 1 data
-text display_layout 0x001A2DD0 0x001A2F68 ico2/common/src/kanban.c local lines=20  # ordinal; differs-at:9; length:-6; extent-differs
-text kanbanReqDel 0x001A2F68 0x001A2FA0 ico2/common/src/kanban.c lines=17  # census-equal; stubbed for emission order
-text kanbanReqAllDel 0x001A2FA0 0x001A2FD8 ico2/common/src/kanban.c lines=9  # census-equal; stubbed for emission order
-text kanbanReqAllDelFade 0x001A2FD8 0x001A3010 ico2/common/src/kanban.c lines=12  # census-equal; stubbed for emission order
-text kanbanExec 0x001A3010 0x001A3140 ico2/common/src/kanban.c lines=30  # census-equal; stubbed for emission order
-text func_001A3140 0x001A3140 0x001A3160 ico2/common/src/kanban.c  # jun26-only; derived name
 text kanbanBootMcCheck 0x001A3160 0x001A3358 ico2/common/src/kanbanBoot.c local lines=236  # order
 text kanbanBootMain 0x001A3358 0x001A3498 ico2/common/src/kanbanBoot.c lines=52  # order
 rdlit kanbanBootMain 0x0065DF50 0x0065DF70 ico2/common/src/kanbanBoot.c align=16  # 1 jtbl (target side), 16-aligned in the demo after zero fill
@@ -640,9 +605,6 @@ rdlit ACTDebugMove 0x00662030 0x00662040 ico2/fumi/src/act.c align=16  # 1 data,
 rdlit ACTDebugMove 0x00662040 0x00662090 ico2/fumi/src/act.c  # 2 strings, 1 data (target side)
 text BeforeFunc2 0x001F2890 0x001F29E4 ico2/fumi/src/act2.c lines=43  # ordinal; differs-at:8; imm:5; extent-equal
 sdata D_0067B250 0x0067B250 0x0067B254 ico2/fumi/src/way_kidnap.c local  # a zero word first in the TU's .sdata; no word of .text addresses it (target side)
-text add_wp_pos 0x001F2C60 0x001F2CE4 ico2/fumi/src/way_kidnap.c local lines=11  # order
-text WayLengthOfPos_Pos 0x001F2CE8 0x001F2F30 ico2/fumi/src/way_kidnap.c lines=80  # call-pal
-rdlit WayLengthOfPos_Pos 0x006620B8 0x006620E8 ico2/fumi/src/way_kidnap.c  # 2 strings (target side)
 text WayPointWithRangeFromPos 0x001F2F30 0x001F3310 ico2/fumi/src/way_kidnap.c lines=39  # call-pal
 text NearestEnemyFromGirl 0x001F3310 0x001F342C ico2/fumi/src/way_kidnap.c lines=28  # census-equal; stubbed for emission order
 lit4 NearestEnemyFromGirl 0x00678FCC 0x00678FD0 ico2/fumi/src/way_kidnap.c  # 1 float
@@ -653,29 +615,8 @@ text WayLengthOfGObj_Pos 0x001F34F8 0x001F3544 ico2/fumi/src/way_kidnap.c lines=
 text WayLengthOfGObj_GObj 0x001F3548 0x001F35A0 ico2/fumi/src/way_kidnap.c lines=9  # census-equal; stubbed for emission order
 text WayPointWithRangeFromGObj 0x001F35A0 0x001F35E8 ico2/fumi/src/way_kidnap.c lines=9  # census-equal; stubbed for emission order
 text wpsort_compfnc 0x001F35E8 0x001F361C ico2/fumi/src/way_kidnap.c local file=wpsort_compfnc_way_kidnap lines=11  # census-equal; the C no longer emits it (its users are stubs)
-text group_select 0x001F3FF8 0x001F4310 ico2/fumi/src/way_tool.c local file=group_select_way_tool lines=49  # ordinal; differs-at:17; imm:4; extent-equal
-rdlit group_select 0x00662540 0x0066254F ico2/fumi/src/way_tool.c file=group_select_way_tool  # 1 string
-sdlit group_select 0x0067B284 0x0067B288 ico2/fumi/src/way_tool.c file=group_select_way_tool  # 1 static
-text quick_load_wpfile 0x001F4530 0x001F464C ico2/fumi/src/way_tool.c local lines=33  # census-equal; stubbed for emission order (its "test.wp" is the string the demo keeps once, at the inline quick_save_wpfile's definition)
-rdlit quick_load_wpfile 0x006625C8 0x006625DD ico2/fumi/src/way_tool.c  # 1 string
-sdlit quick_load_wpfile 0x0067B2A8 0x0067B2C0 ico2/fumi/src/way_tool.c  # 3 strings (target side)
-text ExtractWayData 0x001F4650 0x001F488C ico2/fumi/src/way_tool.c lines=55  # ordinal; differs-at:0; imm:3; extent-equal
 text draw_way_group 0x001F4BA0 0x001F4D1C ico2/fumi/src/way_tool.c local lines=30  # ordinal; differs-at:1; length:-38; extent-differs
 lit4 draw_way_group 0x00678FD0 0x00678FD4 ico2/fumi/src/way_tool.c  # 1 float
-text way_toolDL 0x001F4D20 0x001F4FA4 ico2/fumi/src/way_tool.c local lines=62  # ordinal; differs-at:128; imm:1; extent-equal
-lit4 way_toolDL 0x00678FD4 0x00678FD8 ico2/fumi/src/way_tool.c  # 1 float
-text debug_WayTool 0x001F4FA8 0x001F51C8 ico2/fumi/src/way_tool.c lines=64  # ordinal; differs-at:14; imm:2; extent-equal
-rdlit debug_WayTool 0x006626F8 0x00662711 ico2/fumi/src/way_tool.c  # 2 strings
-sdlit debug_WayTool 0x0067B2D8 0x0067B2E0 ico2/fumi/src/way_tool.c  # 2 statics
-text play_way 0x001F51C8 0x001F52A8 ico2/fumi/src/way_tool.c lines=32  # ordinal; differs-at:31; imm:2; extent-equal
-sdlit play_way 0x0067B28C 0x0067B290 ico2/fumi/src/way_tool.c def  # 1 static; an inline function's static, written where it is declared, before its string
-sdlit play_way 0x0067B290 0x0067B298 ico2/fumi/src/way_tool.c def  # 1 string
-text point_nige 0x001F52A8 0x001F533C ico2/fumi/src/way_tool.c lines=24  # census-equal; stubbed for emission order
-rdlit point_nige 0x006625A0 0x006625B0 ico2/fumi/src/way_tool.c def  # 1 string (target side); an inline function's string, written where it is declared
-text quick_save_wpfile 0x001F5340 0x001F53F8 ico2/fumi/src/way_tool.c lines=27  # census-equal; stubbed for emission order
-rdlit quick_save_wpfile 0x006625B0 0x006625C8 ico2/fumi/src/way_tool.c def  # 1 string (target side); an inline function's string, written where it is declared
-sdlit quick_save_wpfile 0x0067B298 0x0067B2A7 ico2/fumi/src/way_tool.c def  # 2 strings (target side); an inline function's strings, written where it is declared (quick_load_wpfile shares the first)
-text cursor_control 0x001F53F8 0x001F5474 ico2/fumi/src/way_tool.c lines=15  # ordinal; differs-at:11; imm:2; extent-equal
 text actDejaChk 0x001F5478 0x001F5580 ico2/script/src/deja.c lines=27  # ordinal; differs-at:2; length:-21; extent-differs
 lit4 actDejaChk 0x00678FD8 0x00678FDC ico2/script/src/deja.c  # 1 float
 text actDejaDemo 0x001F5580 0x001F589C ico2/script/src/deja.c lines=80  # ordinal; differs-at:1; length:-64; extent-differs
@@ -738,22 +679,8 @@ text SetParamKyomiGObj 0x00223D10 0x00223DBC ico2/omori/src/lws_kyomi.c lines=26
 text ObjAction_CorrectGeo 0x00223DC8 0x00223E44 ico2/omori/src/objact.c lines=11  # ordinal; differs-at:21; imm:2; extent-equal
 text ObjAction_Mail 0x00223E48 0x00223EB0 ico2/omori/src/objact.c lines=8  # census-equal; stubbed for emission order
 text ObjAction_MailCenter 0x00223EB0 0x00223FA8 ico2/omori/src/objact.c lines=19  # ordinal; differs-at:49; imm:1; extent-equal
-rodata D_00663E70 0x00663E70 0x00664050 ico2/ito/src/itou_boss.c local  # thirty grid points after capsulePlace, which func_002248E8 reads (0x663E70); no other word of .text addresses them (target side)
-text bossCtrlBeforeFunc 0x00224000 0x00224170 ico2/ito/src/itou_boss.c  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x60 (the before slot) holds it; the Aug-6-2001 build's same record is rec63+0x60 (one record later), which holds bossCtrlBeforeFunc
-text func_00224170 0x00224170 0x002246D4 ico2/ito/src/itou_boss.c  # jun26-only; derived name
-lit4 func_00224170 0x0067934C 0x00679354 ico2/ito/src/itou_boss.c  # 2 floats (target side)
-rdlit func_00224170 0x00664050 0x00664060 ico2/ito/src/itou_boss.c  # 1 string (target side)
-sdlit func_00224170 0x0067B494 0x0067B498 ico2/ito/src/itou_boss.c  # 1 float, FLT_MAX (target side; its $gp load at 0x002243C0)
-text BossCtrlGeo 0x002246D8 0x002248E8 ico2/ito/src/itou_boss.c  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x50 holds it; the Aug-6-2001 build's same record is rec63+0x50 (one record later), which holds BossCtrlGeo
-rdlit BossCtrlGeo 0x00664060 0x00664070 ico2/ito/src/itou_boss.c  # 1 string (target side)
-text actBossCtrlStart 0x002248E8 0x002249C0 ico2/ito/src/itou_boss.c  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x40 holds it; the Aug-6-2001 build's same record is rec63+0x40 (one record later), which holds actBossCtrlStart
-rdlit actBossCtrlStart 0x00664070 0x00664080 ico2/ito/src/itou_boss.c  # 1 string (target side)
-text InitBossCtrlGeo 0x002249C0 0x00224A84 ico2/ito/src/itou_boss.c  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x58 holds it; the Aug-6-2001 build's same record is rec63+0x58 (one record later), which holds InitBossCtrlGeo
-rdlit InitBossCtrlGeo 0x00664080 0x006640A0 ico2/ito/src/itou_boss.c  # 2 strings (target side)
-text func_00224A88 0x00224A88 0x00224AF0 ico2/ito/src/itou_boss.c  # jun26-only; derived name
-text BossCtrlDL 0x00224AF0 0x00224AF8 ico2/ito/src/itou_boss.c  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x48 holds it; the Aug-6-2001 build's same record is rec63+0x48 (one record later), which holds BossCtrlDL
-text func_00224AF8 0x00224AF8 0x00224B7C ico2/ito/src/itou_boss.c  # jun26-only; derived name
-text gene_eff_end_func 0x00224B80 0x00224BA8 ico2/ito/src/itou_boss.c local lines=4  # aug
+text actBossCtrlStart 0x002248E8 0x002249C0 ico2/ito/src/itou_boss.c lines=24  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x40 holds it; the Aug-6-2001 build's same record is rec63+0x40 (one record later), which holds actBossCtrlStart
+rdlit actBossCtrlStart 0x00664070 0x00664080 ico2/ito/src/itou_boss.c  # 1 string
 text DrawLightning2 0x00224FC0 0x00225A70 ico2/ito/src/lightning.c lines=234  # census-equal; stubbed for emission order
 lit4 DrawLightning2 0x00679354 0x00679370 ico2/ito/src/lightning.c  # 7 floats
 rdlit DrawLightning2 0x006640A0 0x006640AF ico2/ito/src/lightning.c  # 1 string

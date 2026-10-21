@@ -46,18 +46,100 @@ static sceVu0FVECTOR wpPosVec[128]; /* derived name */
 /* one entry per way point (this build's 192: the run ends at 0x7601E0) */
 static WpPosEntry wpPosInfo[192]; /* derived name */
 
-static void add_wp_pos(WayPoint *wp, float *pos, float len);
+static void add_wp_pos(WayPoint *wp, float *pos, float len)
+{
+    if (wpPosLock) {
+        return;
+    }
+    fzShowV(pos);
 
-INCLUDE_ASM(add_wp_pos);
+    wpPosInfo[wpPosCount].wp = wp;
+    sceVu0CopyVector(wpPosVec[wpPosCount++], pos);
+}
 
 /* public inlines, deferred to the end of the object in the order
    way_kidnap.h declares them; the string CopyWpPos prints comes first in the
    TU's .rodata. */
 INCLUDE_ASM_LIT(CopyWpPos);
 
-float WayLengthOfPos_Pos(float *pos0, float *pos1);
+float WayLengthOfPos_Pos(float *pos0, float *pos1)
+{
+    float cur[4];
+    float dst[4];
+    WVTObj w;
+    WayPoint *wp;
+    WayPoint *wp0;
+    WayPoint *wp1;
+    float len;
+    int i;
 
-INCLUDE_ASM(WayLengthOfPos_Pos);
+    len = 0.0f;
+
+    w.guideFirst = -1;
+    w.nearWp = 0;
+    sceVu0CopyVector(cur, pos0);
+    sceVu0CopyVector(dst, pos1);
+    wp0 = visible_waypoint_of_all(cur);
+    wp1 = visible_waypoint_of_all(dst);
+
+    ClearWpPos();
+    add_wp_pos(0, cur, len);
+
+    wp = GetWay_begin(dst, &w, cur);
+    if (wp == 0) {
+        goto fail;
+    }
+    if (w.pathKind == 2) {
+        goto fail;
+    }
+    if (wayRangeLimit == 0 && w.pathKind == 1) {
+        goto fail;
+    }
+
+    len += _GetLength(cur, wp->pos);
+    add_wp_pos(wp0, wp0->pos, len);
+
+    sceVu0CopyVector(cur, wp->pos);
+
+    for (i = 0;;) {
+        if (++i >= 101) {
+            goto fail;
+        }
+        if (wp == wp1) {
+            goto found;
+        }
+        wp = GetWay_next(&w, cur);
+
+        if (w.reached != 0) {
+            wp = GetWay_begin(dst, &w, cur);
+            if (wp == 0) {
+                goto fail;
+            }
+
+            sceVu0CopyVector(cur, wp->pos);
+        } else {
+            len += _GetLength(cur, wp->pos);
+
+            add_wp_pos(wp, wp->pos, len);
+            sceVu0CopyVector(cur, wp->pos);
+        }
+    }
+
+fail:
+    ClearWpPos();
+
+    return -1.0f;
+
+found:
+    len += _GetLength(pos1, wp1->pos);
+    add_wp_pos(0, dst, len);
+    if (dst[0] < -200.0f) {
+        debug_StdPrintfDummy("cannot_reach:%d\n", w.flag6C);
+        debug_StdPrintfDummy("cannot_reach_kidnap:%d\n", w.pathKind);
+    }
+
+    return len;
+}
 
 /* public inlines, deferred to the end of the object like NumOfWpPos;
    NearestEnemyFromGirl inlines the pair. */
@@ -91,54 +173,6 @@ static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int li
 int WayPointWithRangeFromPos(float *pos, float range, int mode);
 
 INCLUDE_ASM(WayPointWithRangeFromPos);
-
-static inline WayPoint *SearchOpenNode(WayPoint *start) /* derived name */
-{
-    WayPoint *p;
-    int wrapped;
-    int hit;
-
-    wrapped = 0;
-    hit = 0;
-
-    p = start;
-    while (p != 0) {
-        if (p->bridgeEnd == 0) {
-            hit = 1;
-            break;
-        }
-        p = p->next;
-        if (p == start) {
-            wrapped = 1;
-            break;
-        }
-    }
-    if (hit == 0 && wrapped == 0) {
-        p = start;
-        while (p != 0) {
-            if (p->bridgeEnd == 0) {
-                hit = 1;
-                break;
-            }
-            p = p->prev;
-            if (p == start) {
-                break;
-            }
-        }
-    }
-    if (hit == 0) {
-        p = 0;
-    }
-    return p;
-}
-
-/* the DEBUG build's trace of the edge the search opens, by its table index */
-static __inline__ void wayKidnapDebugEdge(int k) /* derived name */
-{
-#ifdef DEBUG
-    scePrintf("open edge %d\n", k);
-#endif
-}
 
 /* a public inline, deferred like the others */
 INCLUDE_ASM(NearestEnemyFromGirl);
