@@ -76,5 +76,3 @@ void actSt01bFloorEvent(int x)
 {
     volatile int local = x;
 }
-
-INCLUDE_ASM(actSt01bWayOnChk);

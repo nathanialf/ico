@@ -13,23 +13,69 @@
 #include "typedef.h"
 #include "script.h"
 #include "main.h"
-#include "include_asm.h"
-
-static void actSt24aSwordSub(GObj *volatile self);
 
 static ActMail sword_mes[2] = {{377}, {376}}; /* derived name */
 
-/* No .sbss here in this build: no function of the demo addresses such a flag. */
-
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}}; /* derived name */
 
-/* .sdata: the sword's stream handle and the fence's (actSt24aSaku's). */
+/* .sdata: the sword's stream handle. */
 SqEntry *sword = 0;
 
-SqEntry *saku = 0; /* derived name */
+void actSt24aSwordChk(GObj *volatile self)
+{
+    float v[4];
+    float dir[4];
 
-INCLUDE_ASM(actSt24aSwordChk);
+    while (scpGameStat_BoyWeaponkind() != 5 || scpTriggerBall(self, boyGObj, 300.0f) == 0) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    scpPlayMot(boyGObj, 0);
+    gflagOn(285);
+    soundSeDefPlay(1285, 0, 0, 1);
+    _ACTWait(60);
+    scpAdpcmPlayRequestFunc(36, &sword, 1, 1, 1);
+    while (sword == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(119, 1, 0);
+    scpPlayPosSet(boyGObj, 1685.0f, -1080.0f, -550.0f);
+    *(Vec16 *)v = swordChkPos;
+    sceVu0SubVector(dir, v, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+    _ACTWait(300);
+    scpPlayMot(boyGObj, 253);
+    while (stage_CheckAnimationFinish(119) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
 
-INCLUDE_ASM(actSt24aSword);
+void actSt24aSword(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt24aSaku);
+    if (gflagChk(285) == 0) {
+        sword_mes[0].func = actSt24aSwordChk;
+        act->mail = sword_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+void actSt24aSaku(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+
+    stage_SetAnimation(117, 0, 0);
+}

@@ -57,6 +57,14 @@ static ActMail fence_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail fence2_mes[2] = {{377}, {376}}; /* derived name */
 
+static ActMail fenceDownChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail fenceUpChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail fenceDownChk2_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail fenceUpChk2_mes[2] = {{377}, {376}}; /* derived name */
+
 INCLUDE_ASM(actSt20aInit);
 
 /* No .sbss here in this build: no function of the demo addresses such a flag. */
@@ -105,3 +113,11 @@ INCLUDE_ASM(actSt20aGondolaSwitch);
 INCLUDE_ASM(actSt20aExitChk);
 
 INCLUDE_ASM(actSt20aEneChk);
+
+INCLUDE_ASM(actSt20aFenceDownChk);
+
+INCLUDE_ASM(actSt20aFenceUpChk);
+
+INCLUDE_ASM(actSt20aFenceDownChk2);
+
+INCLUDE_ASM(actSt20aFenceUpChk2);

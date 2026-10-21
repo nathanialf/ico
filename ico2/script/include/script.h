@@ -64,6 +64,7 @@ inline void scpKillEnemyAll(void);
 inline void scpMaskGeneratorAll(void);
 void scpKillEnemyOne(int id);
 int _SCPMoveCharactorByWay(struct GObj *self, int tgt, float *dir, float speed, int flags);
+void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1);
 
 int _SCPMoveByWay_ToChar(struct GObj *self, struct GObj *target, int deg, int flags, float scale,
                          float speed);
@@ -120,6 +121,7 @@ void scpTorchLightOn(int id);
 void scpTorchLightOff(int id);
 void scpSetCageVelocityFriction(int id, float friction);
 void scpPlayMotDir(struct GObj *self, float *dir);
+void scpPlayJump(struct GObj *self, int orient);
 void scpPlayMot(struct GObj *self, int mot);
 void scpPlayStart(struct GObj *self);
 void scpPlayEnd(struct GObj *self);
