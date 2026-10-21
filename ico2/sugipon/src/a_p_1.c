@@ -786,7 +786,7 @@ extern void RotQuaternionZ(void *q, short ang);
 /* void (void *, void *, void *) here, void (float *, float *, float *) in quaternion.h */
 extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
 /* as in quaternion.h, which this file does not include */
-extern void GetSlerpQuaternionNoRegularize(void *dst, void *a, void *b, float t);
+extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
 
 static void updateMatrix(GObj *self)
 {
@@ -814,7 +814,7 @@ static void updateMatrix(GObj *self)
     _ApplyMatrix(pos, mtx, ap1BodyPos);
     RotQuaternionZ(quat, (short)(-p->roll * 2048.0f));
     _InterVectorXYZ(&p->pos, pos, &p->pos, 0.5f);
-    GetSlerpQuaternionNoRegularize(&p->quat, quat, &p->quat, 0.1f);
+    GetSlerpQuaternion(&p->quat, quat, &p->quat, 0.1f);
     GetMatrixFromQuaternionPos(p->mtx, &p->quat, &p->pos);
     _MulMatrix((void *)GOBJ_SUB(self)->nodeMtx, p->mtx, ap1BodyMatrix);
 }

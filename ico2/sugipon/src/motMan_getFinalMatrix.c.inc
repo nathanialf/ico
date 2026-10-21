@@ -372,7 +372,7 @@ static void _getFinalMatrix(int id)
             if (skelGeoType == 2) {
                 RotQuaternionZ(q2, 1820);
             }
-            GetSlerpQuaternionNoRegularize(q3, q2, dq, ik->rate);
+            GetSlerpQuaternion(q3, q2, dq, ik->rate);
             MultiQuaternion(q, q, q3);
             APPLY_ROT(q);
             GetInverseQuaternion(q3, skelRoot->armTwist);
@@ -434,8 +434,8 @@ static void _getFinalMatrix(int id)
                 avoidReverseInterpOnCurrentMatrixWithLimit(ik->q, lim, ik->offset, rq, 1.2f);
                 MultiQuaternion(t, GetCurrentQuaternion(), rq);
                 DivQuaternion(t2, t, ik->q);
-                GetSlerpQuaternionNoRegularize(t3, t2, IdentityQuaternion, skelRoot->ikRate1);
-                GetSlerpQuaternionNoRegularize(ik->step, t3, ik->step, skelRoot->ikRate2);
+                GetSlerpQuaternion(t3, t2, IdentityQuaternion, skelRoot->ikRate1);
+                GetSlerpQuaternion(ik->step, t3, ik->step, skelRoot->ikRate2);
                 MultiQuaternion(ik->q, ik->q, ik->step);
                 RegularizeQuaternion(ik->q);
                 DivQuaternion(ik->offset, ik->q, GetCurrentQuaternion());
@@ -446,7 +446,7 @@ static void _getFinalMatrix(int id)
 
             RotQuaternionX(GetCurrentQuaternion(), -skelRoot->twist * 2.5f);
             MultiQuaternion(r, GetCurrentQuaternion(), dq);
-            GetSlerpQuaternionNoRegularize(GetCurrentQuaternion(), ik->q, r, ik->rate);
+            GetSlerpQuaternion(GetCurrentQuaternion(), ik->q, r, ik->rate);
             MultiQuaternion(GetCurrentQuaternion(), twistQuatHigh, GetCurrentQuaternion());
             GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
         }
@@ -544,8 +544,8 @@ static void _getFinalMatrix(int id)
                 RotQuaternionY(r, -ba);
                 MultiQuaternion(t, GetCurrentQuaternion(), r);
                 DivQuaternion(t2, t, ik->q);
-                GetSlerpQuaternionNoRegularize(t3, t2, IdentityQuaternion, skelRoot->ikRate1);
-                GetSlerpQuaternionNoRegularize(ik->step, t3, ik->step, skelRoot->ikRate2);
+                GetSlerpQuaternion(t3, t2, IdentityQuaternion, skelRoot->ikRate1);
+                GetSlerpQuaternion(ik->step, t3, ik->step, skelRoot->ikRate2);
                 MultiQuaternion(ik->q, ik->q, ik->step);
                 RegularizeQuaternion(ik->q);
                 DivQuaternion(ik->offset, ik->q, GetCurrentQuaternion());
@@ -558,8 +558,7 @@ static void _getFinalMatrix(int id)
         }
         {
             RotQuaternionX(GetCurrentQuaternion(), skelRoot->twist * 2.5f);
-            GetSlerpQuaternionNoRegularize(GetCurrentQuaternion(), ik->q, GetCurrentQuaternion(),
-                                           ik->rate);
+            GetSlerpQuaternion(GetCurrentQuaternion(), ik->q, GetCurrentQuaternion(), ik->rate);
             MultiQuaternion(GetCurrentQuaternion(), skelRoot->armTwist, GetCurrentQuaternion());
             GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
             _ApplyMatrix(ikXAxis, MatrixDrive_GetMatrix(), XUnitVector);
@@ -673,28 +672,27 @@ static void _getFinalMatrix(int id)
                     short ang = (d + 0.0f - (len[0] + len[1])) * 208.60756f;
 
                     SetQuaternionByAxisRotateV(rq, ang, p);
-                    GetSlerpQuaternionNoRegularize(skelRoot->armTwist, skelRoot->armTwist, rq,
-                                                   0.6f);
+                    GetSlerpQuaternion(skelRoot->armTwist, skelRoot->armTwist, rq, 0.6f);
                 } else {
-                    GetSlerpQuaternionNoRegularize(skelRoot->armTwist, skelRoot->armTwist,
-                                                   IdentityQuaternion, 0.9f);
+                    GetSlerpQuaternion(skelRoot->armTwist, skelRoot->armTwist, IdentityQuaternion,
+                                       0.9f);
                 }
                 break;
             }
             case 2:
                 MultiQuaternion(s, qa, skelRoot->hand0.ikQuat);
                 MultiQuaternion(s, s, dq);
-                GetSlerpQuaternionNoRegularize(skelRoot->armTwist, skelRoot->armTwist,
-                                               IdentityQuaternion, 0.9f);
+                GetSlerpQuaternion(skelRoot->armTwist, skelRoot->armTwist, IdentityQuaternion,
+                                   0.9f);
                 break;
             default:
                 CopyQuaternion(s, dq);
-                GetSlerpQuaternionNoRegularize(skelRoot->armTwist, skelRoot->armTwist,
-                                               IdentityQuaternion, 0.9f);
+                GetSlerpQuaternion(skelRoot->armTwist, skelRoot->armTwist, IdentityQuaternion,
+                                   0.9f);
                 break;
             }
         }
-        GetSlerpQuaternionNoRegularize(ik->q, s, ik->q, skelRoot->hand0.ikRate * (60.0f / MOT_FPS));
+        GetSlerpQuaternion(ik->q, s, ik->q, skelRoot->hand0.ikRate * (60.0f / MOT_FPS));
         if (skelRoot->hand0.ikMode != 0)
             ik->rate = ik->rate + (1.0f - ik->rate) * (skelRoot->handRate * (60.0f / MOT_FPS));
         else
@@ -702,7 +700,7 @@ static void _getFinalMatrix(int id)
         {
             float r2[4];
 
-            GetSlerpQuaternionNoRegularize(r2, ik->q, dq, ik->rate);
+            GetSlerpQuaternion(r2, ik->q, dq, ik->rate);
             MultiQuaternion(q, q, r2);
             APPLY_ROT(q);
             ikSlerpRate = ik->rate;
@@ -728,9 +726,8 @@ static void _getFinalMatrix(int id)
                                                           -1.0f);
                 MultiQuaternion(t, t, ikBendQuat);
             }
-            GetSlerpQuaternionNoRegularize(ik->q, t, ik->q,
-                                           skelRoot->hand0.ikRate * (60.0f / MOT_FPS));
-            GetSlerpQuaternionNoRegularize(r, ik->q, dq, ikSlerpRate);
+            GetSlerpQuaternion(ik->q, t, ik->q, skelRoot->hand0.ikRate * (60.0f / MOT_FPS));
+            GetSlerpQuaternion(r, ik->q, dq, ikSlerpRate);
             MultiQuaternion(q, q, r);
             APPLY_ROT(q);
         }
@@ -749,7 +746,7 @@ static void _getFinalMatrix(int id)
         {
             float r[4];
 
-            GetSlerpQuaternionNoRegularize(r, t, dq, ikSlerpRate);
+            GetSlerpQuaternion(r, t, dq, ikSlerpRate);
             MultiQuaternion(q, q, r);
             APPLY_ROT(q);
             if (skelMotCtrl->pickedWeapon != 0 &&
@@ -763,7 +760,7 @@ static void _getFinalMatrix(int id)
                 default:
                     w = GetWeaponWeight(skelMotCtrl->pickedWeapon) * 0.00016666666f;
                     w = 0.8f < w ? 0.8f : w;
-                    GetSlerpQuaternionNoRegularize(ik->q, ik->q, GetCurrentQuaternion(), w);
+                    GetSlerpQuaternion(ik->q, ik->q, GetCurrentQuaternion(), w);
                     CopyQuaternion(GetCurrentQuaternion(), ik->q);
                     GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion());
                     return;
@@ -847,7 +844,7 @@ static void _getFinalMatrix(int id)
                 break;
             }
         }
-        GetSlerpQuaternionNoRegularize(ik->q, t, ik->q, skelRoot->handRate * (60.0f / MOT_FPS));
+        GetSlerpQuaternion(ik->q, t, ik->q, skelRoot->handRate * (60.0f / MOT_FPS));
         if (skelRoot->hand1.ikMode != 0)
             ik->rate = ik->rate + (1.0f - ik->rate) * (skelRoot->handRate * (60.0f / MOT_FPS));
         else
@@ -855,7 +852,7 @@ static void _getFinalMatrix(int id)
         {
             float r2[4];
 
-            GetSlerpQuaternionNoRegularize(r2, ik->q, dq, ik->rate);
+            GetSlerpQuaternion(r2, ik->q, dq, ik->rate);
             MultiQuaternion(q, q, r2);
             APPLY_ROT(q);
             ikSlerpRate = ik->rate;
@@ -874,8 +871,8 @@ static void _getFinalMatrix(int id)
                 SetQuaternionByAxisRotateWithNoRegularize(t, -(ikBend0 + ikBend1), 0.0f, 0.0f,
                                                           -1.0f);
             }
-            GetSlerpQuaternionNoRegularize(ik->q, t, ik->q, skelRoot->handRate * (60.0f / MOT_FPS));
-            GetSlerpQuaternionNoRegularize(r, ik->q, dq, ikSlerpRate);
+            GetSlerpQuaternion(ik->q, t, ik->q, skelRoot->handRate * (60.0f / MOT_FPS));
+            GetSlerpQuaternion(r, ik->q, dq, ikSlerpRate);
             MultiQuaternion(q, q, r);
             APPLY_ROT(q);
         }
@@ -891,7 +888,7 @@ static void _getFinalMatrix(int id)
         {
             float r[4];
 
-            GetSlerpQuaternionNoRegularize(r, ik->q, dq, ikSlerpRate);
+            GetSlerpQuaternion(r, ik->q, dq, ikSlerpRate);
             MultiQuaternion(q, q, r);
             APPLY_ROT(q);
         }

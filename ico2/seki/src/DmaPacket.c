@@ -1,7 +1,6 @@
 #include "DmaPacket.h"
 #include "ios.h"
 #include "memory.h"
-#include "include_asm.h"
 
 /* the double-buffered packet area every packet builder writes into */
 DpkCtl PacketBufferStruct = {0};
@@ -9,7 +8,15 @@ DpkCtl PacketBufferStruct = {0};
 /* the DMA memory use debug's meter draws */
 int used_dma_memory = 0;
 
-INCLUDE_ASM(dpk_Init);
+void dpk_Init(void)
+{
+    PacketBufferStruct.cur = 0;
+    PacketBufferStruct.buf[0] =
+        (int *)iosMallocDebug(ios_partition_common, 524288, "src/DmaPacket.c", 126);
+    PacketBufferStruct.buf[1] =
+        (int *)iosMallocDebug(ios_partition_common, 524288, "src/DmaPacket.c", 127);
+    PacketBufferStruct.ptr.i = PacketBufferStruct.buf[PacketBufferStruct.cur];
+}
 
 void dpk_SwapBuffer(void)
 {

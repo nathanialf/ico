@@ -1548,7 +1548,7 @@ static inline void getBlendedMotion(StreamElem *dst, float *root, StreamElem *a,
                 dst[i] = a[i];
             } else {
                 *(int *)&dst[i] = (float)*(int *)&a[i] * t + (float)*(int *)&b[i] * u;
-                GetSlerpQuaternionNoRegularize(dst[i].q, a[i].q, b[i].q, t);
+                GetSlerpQuaternion(dst[i].q, a[i].q, b[i].q, t);
             }
         }
     } else {

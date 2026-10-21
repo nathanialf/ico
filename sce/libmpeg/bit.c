@@ -7,7 +7,6 @@
 #include <libmpeg_internal.h>
 #include <eeregs.h>
 #include <libipu_internal.h>
-#include "include_asm.h"
 
 /* the bitstream reader state: the 64 bit accumulator this file shifts bits out
  * of, the ring of bytes the IPU feeds it from, and the bit position */
@@ -104,4 +103,11 @@ void setD3_CHCR(int chcr)
     EIntr();
 }
 
-INCLUDE_ASM(setD4_CHCR);
+void setD4_CHCR(int chcr)
+{
+    DIntr();
+    *D_ENABLEW = *D_ENABLER | 0x10000;
+    *D4_CHCR = chcr;
+    *D_ENABLEW = *D_ENABLER & 0xFFFEFFFF;
+    EIntr();
+}

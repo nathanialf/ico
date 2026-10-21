@@ -287,15 +287,14 @@ static int execNormalMove(GObj *self, int stop)
                     SetQuaternionByAxisRotateV(rot, ang, norm);
                     debug_StdPrintfDummy("height: %f   dist: %f  ofs: %f %x \n", dy, d, adj, ang);
 
-                    GetSlerpQuaternionNoRegularize(p->tiltQuat, rot, p->tiltQuat, 0.5f);
+                    GetSlerpQuaternion(p->tiltQuat, rot, p->tiltQuat, 0.5f);
                 } else {
                     /* EUC-JP: "this terrain is wrong (it is not divided into 100 cm)" */
                     debug_StdPrintfDummy("この地形はおかしいです(100cmに区切られていません)\n");
-                    GetSlerpQuaternionNoRegularize(p->tiltQuat, IdentityQuaternion, p->tiltQuat,
-                                                   0.5f);
+                    GetSlerpQuaternion(p->tiltQuat, IdentityQuaternion, p->tiltQuat, 0.5f);
                 }
             } else {
-                GetSlerpQuaternionNoRegularize(p->tiltQuat, IdentityQuaternion, p->tiltQuat, 0.5f);
+                GetSlerpQuaternion(p->tiltQuat, IdentityQuaternion, p->tiltQuat, 0.5f);
             }
             GetInverseQuaternion(norm, (char *)GOBJ_SUB(self) + 0x60);
             MultiQuaternion(axis, norm, p->tiltQuat);

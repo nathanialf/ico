@@ -344,8 +344,8 @@ static void uncarriedItemGeo(GObj *gobj)
     inline void floatGeo(float t)
     {
         _ScaleVector(vel, vel, t);
-        GetSlerpQuaternionNoRegularize(GOBJ_SUB(gobj)->root.itemQuat, GOBJ_SUB(gobj)->root.itemQuat,
-                                       IdentityQuaternion, t);
+        GetSlerpQuaternion(GOBJ_SUB(gobj)->root.itemQuat, GOBJ_SUB(gobj)->root.itemQuat,
+                           IdentityQuaternion, t);
         RegularizeQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
     }
 

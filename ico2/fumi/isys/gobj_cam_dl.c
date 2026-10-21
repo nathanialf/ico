@@ -1,7 +1,6 @@
 #include "debug.h"
 #include "gobj_cam_dl.h"
 #include "isys.h"
-#include "include_asm.h"
 
 static void add_gobj_to_tail(GObj *self, unsigned int key);
 
@@ -87,7 +86,52 @@ void isysGObjRemoveCameraDL(GObj *self)
 }
 
 /* this list's own add_gobj_to_tail, as in isys/gobj */
-INCLUDE_ASM(add_gobj_to_tail_gobj_cam_dl);
+static void add_gobj_to_tail(GObj *self, unsigned int key)
+{
+    GObj *head;
+    GObj *tail;
+    GObj *cur;
+
+    debug_StdPrintfDummy("camera gop:%x\n", self);
+
+    self->dlKey = key;
+    head = gobj_camera_dl_link_head;
+    if (head == 0) {
+        self->dlPrev = 0;
+        self->dlNext = 0;
+        gobj_camera_dl_link_head = self;
+        gobj_camera_dl_link_tail = self;
+        debug_StdPrintfDummy("first entry\n");
+        return;
+    }
+    if (key < (unsigned int)head->dlKey) {
+        self->dlPrev = 0;
+        self->dlNext = head;
+        head->dlPrev = self;
+        gobj_camera_dl_link_head = self;
+        debug_StdPrintfDummy("entry into head\n");
+        return;
+    }
+    tail = gobj_camera_dl_link_tail;
+    if (key >= (unsigned int)tail->dlKey) {
+        self->dlPrev = tail;
+        self->dlNext = 0;
+        tail->dlNext = self;
+        gobj_camera_dl_link_tail = self;
+        debug_StdPrintfDummy("entry into tail\n");
+        return;
+    }
+
+    cur = head;
+    while (key >= (unsigned int)cur->dlNext->dlKey) {
+        cur = cur->dlNext;
+    }
+
+    self->dlPrev = cur;
+    self->dlNext = cur->dlNext;
+    cur->dlNext = self;
+    self->dlNext->dlPrev = self;
+}
 
 inline void isysGObjLinkCameraDLHead(GObj *self, void *dl, int key, int kindMask, int drawMask)
 {

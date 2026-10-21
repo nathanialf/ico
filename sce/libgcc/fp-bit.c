@@ -1,6 +1,5 @@
 /* libgcc.a member fp-bit.o */
 #include "libgcc2.h"
-#include "include_asm.h"
 
 #define CLASS_SNAN 0
 #define CLASS_QNAN 1
@@ -147,9 +146,97 @@ void __unpack_f(void *in, void *out)
     }
 }
 
-static fp_number_type *_fpadd_parts(fp_number_type *a, fp_number_type *b, fp_number_type *tmp);
+static fp_number_type *_fpadd_parts(fp_number_type *a, fp_number_type *b, fp_number_type *tmp)
+{
+    int tfraction;
+    int a_normal_exp;
+    int b_normal_exp;
+    unsigned int a_fraction;
+    unsigned int b_fraction;
+    int diff;
 
-INCLUDE_ASM(_fpadd_parts_fp_bit);
+    if (isnan(a))
+        return a;
+    if (isnan(b))
+        return b;
+    if (isinf(a)) {
+        /* adding infinities with opposite signs yields a NaN */
+        if (isinf(b) && a->sign != b->sign)
+            return nan();
+        return a;
+    }
+    if (isinf(b))
+        return b;
+    if (iszero(b)) {
+        if (iszero(a)) {
+            *tmp = *a;
+            tmp->sign = a->sign & b->sign;
+            return tmp;
+        }
+        return a;
+    }
+    if (iszero(a))
+        return b;
+
+    a_normal_exp = a->normal_exp;
+    b_normal_exp = b->normal_exp;
+    a_fraction = a->fraction;
+    b_fraction = b->fraction;
+
+    diff = a_normal_exp - b_normal_exp;
+    if (diff < 0)
+        diff = -diff;
+    if (diff < 32) {
+        while (a_normal_exp > b_normal_exp) {
+            b_normal_exp++;
+            b_fraction = (b_fraction & 1) | (b_fraction >> 1);
+        }
+        while (b_normal_exp > a_normal_exp) {
+            a_normal_exp++;
+            a_fraction = (a_fraction & 1) | (a_fraction >> 1);
+        }
+    } else {
+        if (a_normal_exp > b_normal_exp) {
+            b_fraction = 0;
+            b_normal_exp = a_normal_exp;
+        } else {
+            a_fraction = 0;
+            a_normal_exp = b_normal_exp;
+        }
+    }
+
+    if (a->sign != b->sign) {
+        if (a->sign)
+            tfraction = -a_fraction + b_fraction;
+        else
+            tfraction = a_fraction - b_fraction;
+
+        if (tfraction >= 0) {
+            tmp->sign = 0;
+            tmp->normal_exp = a_normal_exp;
+            tmp->fraction = tfraction;
+        } else {
+            tmp->sign = 1;
+            tmp->normal_exp = a_normal_exp;
+            tmp->fraction = -tfraction;
+        }
+        while (tmp->fraction < IMPLICIT_1 && tmp->fraction) {
+            tmp->fraction <<= 1;
+            tmp->normal_exp--;
+        }
+    } else {
+        tmp->sign = a->sign;
+        tmp->normal_exp = a_normal_exp;
+        tmp->fraction = a_fraction + b_fraction;
+    }
+    tmp->class = CLASS_NUMBER;
+
+    if (tmp->fraction >= IMPLICIT_2) {
+        tmp->fraction = (tmp->fraction & 1) | (tmp->fraction >> 1);
+        tmp->normal_exp++;
+    }
+    return tmp;
+}
 
 float fpadd(float arg_a, float arg_b)
 {

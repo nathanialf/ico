@@ -8,7 +8,6 @@
 #include "s_init.h"
 #include <sound.h>
 #include "soundManager.h"
-#include "include_asm.h"
 
 inline void sndManager(void)
 {
@@ -47,4 +46,9 @@ void sndBgmReadyNextStage(int a, int b)
 
 int sndInitBgmCancelFlag;
 
-INCLUDE_ASM(sndInit);
+void sndInit(int idx)
+{
+    soundSeKindBuild();
+    adpcmPauseRequest(0);
+    soundReverbDepthSet(stageData[idx].reverbDepth);
+}

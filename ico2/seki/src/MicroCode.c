@@ -3,7 +3,6 @@
 #include "typedef.h"
 #include "debug.h"
 #include "DmaPacket.h"
-#include "include_asm.h"
 
 /* The five VU1 microprograms this table hands to the DMA, from cluster.o,
    mesh.o, normal_c.o, normal_l.o and particle.o. */
@@ -35,9 +34,79 @@ static int mcResident[16]; /* derived name */
 /* The display-list packet builder state and one 64-bit packet slot; same
    objects src/GifPacket.c builds its packets in. */
 
-static void mc_setBaseOffset(int base, int pri);
+static void mc_setBaseOffset(int base, int pri)
+{
+    char *c;
+    char *q;
 
-INCLUDE_ASM(mc_setBaseOffset);
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.end.c = 0;
+    PacketBufferStruct.tail.c = c;
+    ((GifPkWord *)c)->d = 0x10000001;
+    PacketBufferStruct.ptr.c = c + 8;
+    ((GifPkWord *)(c + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = c + 0xC;
+    ((GifPkWord *)(c + 0xC))->w[0] = 0;
+    PacketBufferStruct.ptr.c = c + 0x10;
+    ((GifPkWord *)(c + 0x10))->w[0] = 0;
+    PacketBufferStruct.ptr.c = c + 0x14;
+    ((GifPkWord *)(c + 0x14))->w[0] = 0x13000000;
+    PacketBufferStruct.ptr.c = c + 0x18;
+
+    switch (base) {
+    case 1:
+    case 2: {
+        char *p = PacketBufferStruct.ptr.c;
+
+        ((GifPkWord *)p)->w[0] = 0x03000100;
+        p += 4;
+        PacketBufferStruct.ptr.d = (unsigned long long *)p;
+        ((GifPkWord *)p)->w[0] = 0x02000180;
+        PacketBufferStruct.ptr.c = p + 4;
+    } break;
+    case 3: {
+        char *p = PacketBufferStruct.ptr.c;
+
+        ((GifPkWord *)p)->w[0] = 0x03000100;
+        p += 4;
+        PacketBufferStruct.ptr.d = (unsigned long long *)p;
+        ((GifPkWord *)p)->w[0] = 0x02000180;
+        PacketBufferStruct.ptr.c = p + 4;
+    } break;
+    case 4: {
+        char *p = PacketBufferStruct.ptr.c;
+
+        ((GifPkWord *)p)->w[0] = 0x03000010;
+        p += 4;
+        PacketBufferStruct.ptr.d = (unsigned long long *)p;
+        ((GifPkWord *)p)->w[0] = 0x020001F8;
+        PacketBufferStruct.ptr.c = p + 4;
+    } break;
+    case 5: {
+        char *p = PacketBufferStruct.ptr.c;
+
+        ((GifPkWord *)p)->w[0] = 0x03000010;
+        p += 4;
+        PacketBufferStruct.ptr.d = (unsigned long long *)p;
+        ((GifPkWord *)p)->w[0] = 0x0200016A;
+        PacketBufferStruct.ptr.c = p + 4;
+    } break;
+    }
+
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
+    ((GifPkWord *)q)->d = 0x60000000;
+    PacketBufferStruct.ptr.c = q + 8;
+    ((GifPkWord *)(q + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = q + 0xC;
+    ((GifPkWord *)(q + 8))->w[1] = 0;
+    PacketBufferStruct.ptr.c = q + 0x10;
+    dl_SetDLPriority(pri);
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+    dl_CloseDma();
+}
 
 inline void mc_TransMicroCode(int id, int mask)
 {
@@ -78,7 +147,118 @@ static inline void mcTrace(void) /* derived name */
 
 /* Every level of the selection is a switch except the light tests, and the
    three conditional codes are if/else pairs. */
-INCLUDE_ASM(mc_SetMicroCode);
+void mc_SetMicroCode(int mode, int light, int pass, int clip, int pri)
+{
+    int code = 0xFFFF;
+    char *c;
+
+    switch (mode) {
+    case 0:
+        switch (light) {
+        case 0:
+            if (clip == 2) {
+                code = 36;
+            } else {
+                code = 32;
+            }
+            break;
+        case 3:
+            code = 38;
+            break;
+        default:
+            switch (pass) {
+            case 0:
+                if (clip == 2) {
+                    code = 36;
+                } else {
+                    code = 32;
+                }
+                break;
+            case 1:
+                code = 34;
+                break;
+            case 2:
+                code = 38;
+                break;
+            }
+            break;
+        }
+        break;
+    case 1:
+        if (light == 0) {
+            mcTrace();
+            code = 20;
+        } else {
+            if (clip == -1) {
+                switch (pass) {
+                case 0:
+                    if (debug_specular_flag != 1) {
+                        code = 20;
+                    } else {
+                        code = 24;
+                    }
+                    break;
+                case 1:
+                    code = 22;
+                    break;
+                }
+            } else {
+                switch (pass) {
+                case 0:
+                    if (debug_specular_flag != 1) {
+                        code = 20;
+                    } else {
+                        code = 24;
+                    }
+                    break;
+                case 1:
+                    code = 22;
+                    break;
+                }
+            }
+        }
+        break;
+    case 2:
+        if (light == 0) {
+            code = 20;
+        } else {
+            if (debug_specular_flag == 0) {
+                code = 22;
+            } else {
+                code = 24;
+            }
+        }
+        break;
+    case 3:
+        code = 18;
+        break;
+    }
+    if (code == 0xFFFF) {
+        return;
+    }
+
+    c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.tail.c = c;
+    PacketBufferStruct.dma.c = c;
+    PacketBufferStruct.end.c = 0;
+    ((GifPkWord *)c)->d = 0x10000000;
+    PacketBufferStruct.ptr.c = c + 8;
+    ((GifPkWord *)(c + 8))->w[0] = code | 0x15000000;
+    PacketBufferStruct.ptr.c = c + 0xC;
+    ((GifPkWord *)(c + 0xC))->w[0] = 0x13000000;
+    PacketBufferStruct.ptr.c = c + 0x10;
+    PacketBufferStruct.tail.c = c + 0x10;
+    ((GifPkWord *)(c + 0x10))->d = 0x60000000;
+    PacketBufferStruct.ptr.c = c + 0x18;
+    ((GifPkWord *)(c + 0x18))->w[0] = 0;
+    PacketBufferStruct.ptr.c = c + 0x1C;
+    ((GifPkWord *)(c + 0x18))->w[1] = 0;
+    PacketBufferStruct.ptr.c = c + 0x20;
+    dl_SetDLPriority(pri);
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+    dl_CloseDma();
+}
 
 inline void mc_Init(void)
 {

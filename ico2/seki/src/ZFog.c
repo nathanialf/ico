@@ -7,7 +7,6 @@
 #include "main.h"
 #include "DmaPacket.h"
 #include "DisplayList.h"
-#include "include_asm.h"
 
 /* The fog CLUT upload packet: a VIF code quad (nop, nop, FLUSHA, DIRECT 65),
  * a GIFtag (EOP, NLOOP=64, FLG=IMAGE), the 256-entry 32-bit CLUT itself and a
@@ -140,14 +139,12 @@ void fog_MakeFogClut(void)
         dl_CloseDma();                                                                             \
     }
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
-   window centred on the GS's 2048.0 origin and moved by ox, oy sixteenths:
-   src/Shadow.c's setFrame. */
-#define FOG_SET_FRAME(fbp, w, h, ox, oy) /* derived name */                                        \
+   window centred on the GS's 2048.0 origin: src/Shadow.c's setFrame. */
+#define FOG_SET_FRAME(fbp, w, h) /* derived name */                                                \
     {                                                                                              \
         FOG_SET_GSREG(0x4C, (fbp) | ((long long)(((w) >> 6) & 0x3F) << 16));                       \
         FOG_SET_GSREG(0x40, ((long long)((w) - 1) << 16) | ((long long)((h) - 1) << 48));          \
-        FOG_SET_GSREG(0x18, (((long long)(2048 - (w) / 2) << 4) + (ox)) |                          \
-                                ((((long long)(2048 - (h) / 2) << 4) + (oy)) << 32));              \
+        FOG_SET_GSREG(0x18, ((2048LL - (w) / 2) << 4) | (((2048LL - (h) / 2) << 4) << 32));        \
     }
 /* RGBAQ packed from a four-byte colour, and XYZ2 with and without the
    2048.0-pixel window origin folded in, as src/Shadow.c packs them */
@@ -193,7 +190,81 @@ void fog_MakeFogClut(void)
    opaque with TEXA set as src/GsBase.c's full-screen sprites set it, as in
    src/Shadow.c shadow_Draw. */
 /* clang-format off */
-INCLUDE_ASM(fog_DrawFog);
+void fog_DrawFog(void)
+{
+    int rc0[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16, ScreenHeight * 16};
+    int vram;
+    int i;
+    int j;
+    int dbg = 0; /* local debug switch, see the test after the loop below */
+    int rc1[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
+    unsigned char cl[4] = {0x80, 0x80, 0x80, GlobalStageSetting.fogStrength};
+
+    if (debug_fullscreen_effect == 0) return;
+    if (GlobalStageSetting.fogOn == 0) return;
+
+    if (debug_font_flag & 1) debug_Printf(510, ScreenHeight / 2 - 8, 0xCCCCCC00, "Z");
+
+    vram = tex_AllocVramAuto(1, 4);
+
+    tex_ResetVramPri(4);
+
+    FOG_START_PACKET();
+
+    FOG_SET_GSREG(0x50, ((long long)vram << 32) |
+                  0x0001000000000000LL);
+    FOG_SET_GSREG(0x51, 0);
+    FOG_SET_GSREG(0x52, 0x0000001000000010LL);
+    FOG_SET_GSREG(0x53, 0);
+
+    FOG_END_PACKET();
+
+    dl_OpenDma(2, (void *)((int)&fogClutPacket & 0x0FFFFFFF), 67);
+    dl_CloseDma();
+
+    FOG_START_PACKET();
+
+    FOG_SET_GSREG(63, 1);
+
+    FOG_SET_GSREG(0x50, 0x1800 | ((long long)(ScreenWidth / 64) << 16) | ((long long)0x30 << 24) |
+                  ((long long)0x2800 << 32) |
+                  ((long long)(ScreenWidth / 64) << 48));
+    FOG_SET_GSREG(0x51, 0);
+    FOG_SET_GSREG(0x52, ScreenWidth | ((long long)ScreenHeight << 32));
+    FOG_SET_GSREG(0x53, 2);
+
+    for (i = 0; i < ScreenHeight / 32; i++) {
+        for (j = 0; j < 4; j++) {
+            FOG_SET_GSREG(0x50, ((i * (ScreenWidth / 2) + 0x2800) | 0x14020000) |
+                          ((long long)(i * (ScreenWidth / 2) + 0x2800) << 32) |
+                          0x1402000000000000LL);
+            FOG_SET_GSREG(0x51, (long long)(16 + j * 32) | ((long long)(16 + j * 32 + 8) << 32));
+            FOG_SET_GSREG(0x52, ((long long)(ScreenWidth / 2 * 4) << 32) | 8);
+            FOG_SET_GSREG(0x53, 2);
+        }
+    }
+    if (dbg) { cl[3] = 0x80; FOG_SET_GSREG(0x3B, 0x8000000080LL); }
+    FOG_SET_FRAME(64, ScreenWidth, ScreenHeight);
+    FOG_SET_GSREG(73, 0); FOG_SET_GSREG(66, ((long long)128 << 32) | 0x44);
+    FOG_SET_GSREG(6, 0x2800 | ((long long)(ScreenWidth / 64) << 14) | ((long long)0x1B << 20) | ((long long)9 << 26) | ((long long)9 << 30) | ((long long)1 << 34) |
+                  ((long long)vram << 37) | ((long long)1 << 61));
+    FOG_SET_GSREG(78, ((long long)0x13000 << 16) | 0xC0);
+    FOG_SET_GSREG(71, 0x50000);
+    FOG_SET_GSREG(20, 0);
+    FOG_SPRITE_UV(rc0, rc1, cl, 342, 0xFFFFFFLL);
+    FOG_SET_GSREG(20, 96);
+
+    if (GlobalStageSetting.fogOffsetA > 0) {
+        unsigned char cl2[4] = {GlobalStageSetting.fogColR, GlobalStageSetting.fogColG, GlobalStageSetting.fogColB, GlobalStageSetting.fogOffsetA};
+
+        FOG_SET_GSREG(71, 0x30000);
+        FOG_SPRITE_RECT(rc0, cl2, 1094, 0xFFFFFFFFLL);
+        FOG_SET_GSREG(71, 0x50000);
+    }
+    FOG_SET_GSREG(78, ((long long)0x3000 << 16) | 0xC0);
+
+    FOG_END_PACKET();
+}
 
 /* clang-format on */
 

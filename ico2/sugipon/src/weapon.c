@@ -421,8 +421,8 @@ static void calcDynamicGeometry(GObj *g)
                         e = (eB < eA) ? eA : eB;
                         if (0.0f < e) {
                             rp->pos[1] = rp->pos[1] - (e + 1.0f);
-                            GetSlerpQuaternionNoRegularize(rp->itemQuat, rp->itemQuat,
-                                                           IdentityQuaternion, 0.9f);
+                            GetSlerpQuaternion(rp->itemQuat, rp->itemQuat, IdentityQuaternion,
+                                               0.9f);
                         }
                     }
                 }

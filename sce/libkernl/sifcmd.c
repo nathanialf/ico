@@ -6,7 +6,6 @@
 #include <sifcmd.h>
 #include <eeregs.h>
 #include <libkernl_internal.h>
-#include "include_asm.h"
 
 /* eekernel.h's spelling: FlushCache returns nothing. */
 
@@ -43,13 +42,21 @@ typedef struct { /* field names derived */
     int *sreg;
 } SifCmdData; /* derived name */
 
-void _set_sreg(void *pkt, void *data);
+void _set_sreg(void *pkt, void *data)
+{
+    SifCmdSRegData *sr = pkt;
+    SifCmdData *cd = data;
 
-INCLUDE_ASM(_set_sreg);
+    cd->sreg[sr->rno] = sr->value;
+}
 
-void _change_addr(void *pkt, void *data);
+void _change_addr(void *pkt, void *data)
+{
+    SifCmdChangeAddrData *ca = pkt;
+    SifCmdData *cd = data;
 
-INCLUDE_ASM(_change_addr);
+    cd->iopbuf = ca->newaddr;
+}
 
 /* the member's .bss: the uncached send and ack buffers and the init packet on
    64-byte DMA lines, the DMAC handler id, the command data record, the system
@@ -68,11 +75,21 @@ static SifCmdEntry sysCmdTable[32] __attribute__((aligned(16))); /* derived name
 
 static int cmdSreg[32]; /* derived name */
 
-INCLUDE_ASM(sceSifGetSreg);
+int sceSifGetSreg(int reg)
+{
+    return cmdSreg[reg];
+}
 
-INCLUDE_ASM(sceSifSetSreg);
+int sceSifSetSreg(int reg, int val)
+{
+    cmdSreg[reg] = val;
+    return val;
+}
 
-INCLUDE_ASM(sceSifGetDataTable);
+void *sceSifGetDataTable(void)
+{
+    return &cmdData;
+}
 
 /* sifcmd.o's .data: set once sceSifInitCmd has run, cleared by sceSifExitCmd */
 static int cmd_inited = 0; /* derived name */

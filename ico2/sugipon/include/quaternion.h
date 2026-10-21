@@ -43,11 +43,9 @@ float GetQuaternionCosRadian(void *qa, void *qb);
 void CopyQuaternion(void *dst, void *src);
 void GetInverseQuaternion(void *dst, void *src);
 void GetMatrixFromQuaternion(void *mtx, void *q);
-/* GetSlerpQuaternion passes its arguments on to
- * GetSlerpQuaternionNoRegularize and regularizes the result; its callers
- * pass four. */
+/* the build's one slerp: it regularizes its result (no NoRegularize split
+ * yet) */
 void GetSlerpQuaternion(void *out, void *qa, void *qb, float t);
-void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t);
 extern float IdentityQuaternion[4];
 void InitQuaternionDrive(void);
 void PushQuaternion(void);
