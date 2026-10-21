@@ -31,7 +31,7 @@ void InsertCamera_Set(float *pos, float *tgt, int frames);
 void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom, int cutBack,
                             float blend);
 
-void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
+void InsertCamera_SetNoraml(float *pos, float *tgt, int frames);
 
 struct CameraSet2;
 

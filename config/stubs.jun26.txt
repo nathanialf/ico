@@ -95,31 +95,6 @@ text iosMcIconWriteIconsys 0x00137508 0x001375F0 ico2/fumi/ios/mcdata.c lines=30
 rdlit iosMcIconWriteIconsys 0x005A0270 0x005A0280 ico2/fumi/ios/mcdata.c  # 1 string (target side)
 text iosMcIconWriteIcon 0x001375F0 0x001376D8 ico2/fumi/ios/mcdata.c lines=4  # ordinal; differs-at:0; length:-8; extent-differs
 text _iosMcIconWriteIconsys 0x001376D8 0x001376FC ico2/fumi/ios/mcdata.c local lines=27  # ordinal; differs-at:0; length:-51; extent-differs
-text controler_stable_check 0x001394F8 0x00139968 ico2/fumi/ios/pad.c local lines=191  # ordinal; differs-at:1; length:-68; extent-differs
-rdlit controler_stable_check 0x005A0920 0x005A09E2 ico2/fumi/ios/pad.c  # 9 strings (target side)
-rdlit controler_stable_check 0x005A09F0 0x005A0B28 ico2/fumi/ios/pad.c align=16  # 1 jtbl (target side)
-sdlit controler_stable_check 0x00679BC0 0x00679C0C ico2/fumi/ios/pad.c  # 10 strings (target side)
-text iosPadDevInit 0x00139968 0x00139B94 ico2/fumi/ios/pad.c lines=30  # ordinal; differs-at:30; length:-2; extent-differs
-rdlit iosPadDevInit 0x005A0B28 0x005A0B5D ico2/fumi/ios/pad.c  # 2 strings
-text iosPadDevReadFunc 0x00139B98 0x00139D28 ico2/fumi/ios/pad.c local lines=47  # ordinal; differs-at:0; length:-29; extent-differs
-rdlit iosPadDevReadFunc 0x005A0B60 0x005A0B98 ico2/fumi/ios/pad.c  # 2 strings (target side)
-text iosPadRead 0x00139D28 0x00139E5C ico2/fumi/ios/pad.c lines=59  # ordinal; differs-at:46; length:-5; extent-differs
-text iosPadGetStick 0x0013A018 0x0013A1D8 ico2/fumi/ios/pad.c lines=8  # call-pal; census pairs it with PAL iosPadGetStick_func (ordinal)
-text add_gobj_to_tail 0x0013D978 0x0013DAE4 ico2/fumi/isys/gobj_dl.c local file=add_gobj_to_tail_gobj_dl lines=45  # anchor; equal; -; extent-equal
-rdlit add_gobj_to_tail 0x005A0D88 0x005A0DD0 ico2/fumi/isys/gobj_dl.c file=add_gobj_to_tail_gobj_dl  # 4 strings
-text add_gobj_to_head 0x0013DAE8 0x0013DBB8 ico2/fumi/isys/gobj_dl.c local file=add_gobj_to_head_gobj_dl lines=40  # census-equal; stubbed for emission order
-text isysGObjMoveObjDL 0x0013DBB8 0x0013DC00 ico2/fumi/isys/gobj_dl.c lines=5  # census-equal; stubbed for emission order
-text isysGObjMoveObjDLHead 0x0013DC00 0x0013DC48 ico2/fumi/isys/gobj_dl.c lines=5  # census-equal; stubbed for emission order
-text isysGObjLinkObjDL 0x0013DC48 0x0013DCE8 ico2/fumi/isys/gobj_dl.c lines=10  # census-equal; stubbed for emission order
-rdlit isysGObjLinkObjDL 0x005A0DD0 0x005A0DF0 ico2/fumi/isys/gobj_dl.c  # 2 strings
-text isysGObjLinkObjDLHead 0x0013DCE8 0x0013DD10 ico2/fumi/isys/gobj_dl.c lines=8  # census-equal; stubbed for emission order
-text isysGObjProcAdd_ 0x0013DF08 0x0013E140 ico2/fumi/isys/gobj_process.c local lines=58  # ordinal; differs-at:0; length:-3; extent-differs
-rdlit isysGObjProcAdd_ 0x005A0E40 0x005A0E68 ico2/fumi/isys/gobj_process.c  # 1 string
-text isysGObjProcRemove 0x0013E1C0 0x0013E204 ico2/fumi/isys/gobj_process.c lines=11  # ordinal; differs-at:8; imm:1; extent-equal
-text isysGObjProcessAlloc 0x0013E208 0x0013E280 ico2/fumi/isys/gobj_process.c lines=10  # ordinal; differs-at:1; imm:3; extent-equal
-rdlit isysGObjProcessAlloc 0x005A0DF0 0x005A0E04 ico2/fumi/isys/gobj_process.c def  # 1 string
-text isysGObjProcAdd 0x0013E280 0x0013E2A0 ico2/fumi/isys/gobj_process.c lines=4  # call-pal
-text isysGObjProcAddS 0x0013E2A0 0x0013E2BC ico2/fumi/isys/gobj_process.c lines=4  # call-pal
 text iosOmInit 0x0013E428 0x0013E454 ico2/fumi/isys/obj_manager.c lines=7  # ordinal; differs-at:3; imm:2; extent-equal
 text _iosOmMain 0x0013E458 0x0013E680 ico2/fumi/isys/obj_manager.c local lines=60  # ordinal; differs-at:88; imm:1; extent-equal
 text sndInit 0x001420A8 0x001420EC ico2/fumi/sound/soundManager.c lines=8  # ordinal; differs-at:7; imm:2; extent-equal
@@ -212,37 +187,10 @@ sdlit warpGirlOutStage 0x0067A040 0x0067A050 ico2/script/src/warpGirl.c  # 2 str
 text warpGirlInStage 0x00176FE0 0x001770F0 ico2/script/src/warpGirl.c lines=38  # call-pal
 lit4 warpGirlInStage 0x00678A6C 0x00678A70 ico2/script/src/warpGirl.c  # 1 float (target side)
 rdlit warpGirlInStage 0x005A30D0 0x005A30E0 ico2/script/src/warpGirl.c  # 1 string (target side)
-text ConvertCameraSet 0x00181340 0x00181488 ico2/omori/src/camera-root.c lines=17  # call-pal
-lit4 ConvertCameraSet 0x00678A98 0x00678A9C ico2/omori/src/camera-root.c  # 1 float
-text MakeCameraMatrix 0x00181488 0x001815D4 ico2/omori/src/camera-root.c lines=13  # call-pal
-text InitCamera 0x00181CB0 0x00181E04 ico2/omori/src/camera-root.c lines=23  # ordinal; differs-at:24; length:-13; extent-differs
-text SetCameraMatrix 0x00181E08 0x0018261C ico2/omori/src/camera-root.c lines=223  # ordinal; differs-at:0; length:-186; extent-differs
-lit4 SetCameraMatrix 0x00678A9C 0x00678AA4 ico2/omori/src/camera-root.c  # 2 floats (target side)
-rdlit SetCameraMatrix 0x005A36D0 0x005A3710 ico2/omori/src/camera-root.c  # 1 string, 1 data, 1 jtbl (target side)
-sdlit SetCameraMatrix 0x0067A158 0x0067A180 ico2/omori/src/camera-root.c  # 4 strings, 2 words (target side): every reference into the range is the function's
-text InsertCamera_Set 0x001828A8 0x00182938 ico2/omori/src/camera-root.c lines=19  # call-aug
-text InsertCamera_SetNoraml 0x00182938 0x001829D0 ico2/omori/src/camera-root.c lines=15  # aug
-text InsertCamera_Exec 0x001829D0 0x00182A40 ico2/omori/src/camera-root.c lines=21  # aug
-text eBrainGetTargetGeneratorFromLabel 0x00186CF8 0x00186EB4 ico2/omori/src/ebrain.c lines=44  # ordinal; differs-at:27; imm:6; extent-equal
-text eBrainInit 0x00187830 0x00187874 ico2/omori/src/ebrain.c lines=11  # census-equal; stubbed for emission order
-text eBrainStatusSet 0x00187878 0x00187924 ico2/omori/src/ebrain.c lines=23  # census-equal; stubbed for emission order
-rdlit eBrainStatusSet 0x005A3A60 0x005A3A88 ico2/omori/src/ebrain.c def  # 1 string (target side); emitted where the demo has it
-text eBrainSendMes 0x00187928 0x00187A28 ico2/omori/src/ebrain.c lines=21  # census-equal; stubbed for emission order
-text GetStageFromLabel 0x00187A28 0x00187AF8 ico2/omori/src/ebrain.c lines=17  # ordinal; differs-at:19; imm:2; extent-equal
-rdlit GetStageFromLabel 0x005A3A88 0x005A3AA5 ico2/omori/src/ebrain.c def  # 2 strings
-text eBrainGetTargetGeneratorFromLabelStage 0x00187AF8 0x00187C04 ico2/omori/src/ebrain.c lines=31  # ordinal; differs-at:12; imm:4; extent-equal
-rdlit eBrainGetTargetGeneratorFromLabelStage 0x005A3AA8 0x005A3AB9 ico2/omori/src/ebrain.c def  # 1 string
 text fightSoundProcessMain 0x00187CF8 0x00187EBC ico2/omori/src/fightSound.c local lines=68  # ordinal; differs-at:19; length:-7; extent-differs
 text fightSoundProcess 0x00187EC0 0x00187FB0 ico2/omori/src/fightSound.c lines=30  # ordinal; differs-at:12; imm:3; extent-equal
 rdlit fightSoundProcess 0x005A3B08 0x005A3B19 ico2/omori/src/fightSound.c  # 1 string
 sdlit fightSoundProcess 0x0067A1D0 0x0067A1D2 ico2/omori/src/fightSound.c  # 1 string
-text RotateAccordingToStick_PatternThree 0x0018A6A8 0x0018A878 ico2/omori/src/hand-camera.c local lines=49  # call-aug
-lit4 RotateAccordingToStick_PatternThree 0x00678B78 0x00678B84 ico2/omori/src/hand-camera.c  # 3 floats
-text ClearHandCameraCorrect 0x0018AA60 0x0018AAC4 ico2/omori/src/hand-camera.c lines=12  # census-equal; stubbed for emission order
-text InitHandCameraCorrect 0x0018AAC8 0x0018AB44 ico2/omori/src/hand-camera.c lines=14  # census-equal; stubbed for emission order
-text SetLimitHandCameraCorrect 0x0018AB48 0x0018AB5C ico2/omori/src/hand-camera.c lines=5  # census-equal; stubbed for emission order
-text HandCameraCorrect 0x0018AB60 0x0018AC84 ico2/omori/src/hand-camera.c lines=13  # aug
-lit4 HandCameraCorrect 0x00678B88 0x00678B8C ico2/omori/src/hand-camera.c  # 1 float (target side)
 text InitMailAdditionalData 0x0018AC88 0x0018AC94 ico2/omori/src/mail-add-data.c lines=5  # ordinal; differs-at:2; imm:1; extent-equal
 text ActSendMail_WithAdditionalData 0x0018AC98 0x0018AD98 ico2/omori/src/mail-add-data.c lines=19  # ordinal; differs-at:19; imm:2; extent-equal
 rdlit ActSendMail_WithAdditionalData 0x005A3BA8 0x005A3BD8 ico2/omori/src/mail-add-data.c def  # 1 string
@@ -253,14 +201,6 @@ lit4 subBirdBrainMain 0x00678B94 0x00678BE8 ico2/ito/src/act_bird.c  # 21 floats
 rdlit subBirdBrainMain 0x005A3BE0 0x005A3C15 ico2/ito/src/act_bird.c  # 3 strings (target side)
 rdlit subBirdBrainMain 0x005A3C20 0x005A3C48 ico2/ito/src/act_bird.c align=16 def  # 16-aligned in the demo after zero fill; 1 jtbl (target side); emitted where the demo has it
 sdlit subBirdBrainMain 0x0067A1F8 0x0067A228 ico2/ito/src/act_bird.c  # 6 strings (target side)
-text initGeometryState 0x00191B70 0x001920AC ico2/common/src/DObj.c local lines=75  # ordinal; differs-at:25; imm:47; extent-equal
-lit4 initGeometryState 0x00678C60 0x00678C64 ico2/common/src/DObj.c  # 1 float
-rdlit initGeometryState 0x00659C30 0x00659C40 ico2/common/src/DObj.c def  # 1 data; emitted where the demo has it, after the file name (initPolyHead's __FILE__, which the C emits at that inline's definition; the demo's first user of it is this stub)
-text allocObjectData 0x00192258 0x00192438 ico2/common/src/DObj.c local lines=50  # ordinal; differs-at:1; imm:9; extent-equal
-text initInitialInverseMatrix 0x00192438 0x00192480 ico2/common/src/DObj.c local lines=6  # ordinal; differs-at:7; imm:1; extent-equal
-text initPolygonState 0x00192480 0x00192838 ico2/common/src/DObj.c local lines=51  # ordinal; differs-at:16; other:28; extent-equal
-text CSVSYSTEM_InitDObj 0x00192838 0x001929F8 ico2/common/src/DObj.c lines=24  # ordinal; differs-at:1; length:-6; extent-differs
-rdlit CSVSYSTEM_InitDObj 0x00659C40 0x00659CB8 ico2/common/src/DObj.c  # 4 strings (target side)
 text stgmgrNextStagePreLoad 0x00192E08 0x0019303C ico2/common/src/StageManager.c local lines=69  # ordinal; differs-at:16; length:-1; extent-differs
 rdlit stgmgrNextStagePreLoad 0x00659DC0 0x00659DE6 ico2/common/src/StageManager.c  # 1 string
 sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.c  # 1 string
@@ -290,28 +230,8 @@ data D_004DCB70 0x004DCB70 0x004DCBF0 ico2/common/src/icoMisc.c local  # func_00
 text kanbanBootMcCheck 0x001A3160 0x001A3358 ico2/common/src/kanbanBoot.c local lines=236  # order
 text kanbanBootMain 0x001A3358 0x001A3498 ico2/common/src/kanbanBoot.c lines=52  # order
 rdlit kanbanBootMain 0x0065DF50 0x0065DF70 ico2/common/src/kanbanBoot.c align=16  # 1 jtbl (target side), 16-aligned in the demo after zero fill
-text GetRealModelId 0x001A9788 0x001A98F4 ico2/common/src/sceneManager.c local lines=34  # aug
-text InitStageLight 0x001A98F8 0x001A9BE8 ico2/common/src/sceneManager.c lines=98  # aug
-rdlit InitStageLight 0x0065E4B0 0x0065E4DD ico2/common/src/sceneManager.c  # 1 string
-text initSceneGObj 0x001A9BE8 0x001AA074 ico2/common/src/sceneManager.c local lines=117  # aug
-lit4 initSceneGObj 0x00678C90 0x00678C98 ico2/common/src/sceneManager.c  # 2 floats
-rdlit initSceneGObj 0x0065E4E0 0x0065E511 ico2/common/src/sceneManager.c  # 1 string
-text initParentLink 0x001AA078 0x001AA1C8 ico2/common/src/sceneManager.c local lines=33  # ordinal; differs-at:40; imm:4; extent-equal
-rdlit initParentLink 0x0065E518 0x0065E5C6 ico2/common/src/sceneManager.c  # 4 strings
-sdlit initParentLink 0x0067AB80 0x0067AB82 ico2/common/src/sceneManager.c  # 1 string
-text InitSceneObjects 0x001AA1D0 0x001AA3E0 ico2/common/src/sceneManager.c lines=48  # ordinal; differs-at:16; length:-14; extent-differs
-rdlit InitSceneObjects 0x0065E5C8 0x0065E5E0 ico2/common/src/sceneManager.c  # 1 string (target side)
-text HotInitSceneObjects 0x001AA3E0 0x001AA484 ico2/common/src/sceneManager.c lines=22  # ordinal; differs-at:20; imm:1; extent-equal
-text ChangeStageStartInfo 0x001AA488 0x001AA4A8 ico2/common/src/sceneManager.c lines=12  # census-equal; stubbed for emission order
-text CreateLayoutedGObj 0x001AA4A8 0x001AA570 ico2/common/src/sceneManager.c lines=20  # ordinal; differs-at:30; imm:2; extent-equal
-text staffRollStart 0x001AA678 0x001AA6E4 ico2/common/src/staffroll.c lines=14  # ordinal; differs-at:0; length:-14; extent-differs
-text staffRollScroll 0x001AA6E8 0x001AA840 ico2/common/src/staffroll.c local lines=35  # ordinal; differs-at:1; length:-8; extent-differs
-text staffRollNameOut 0x001AA840 0x001AA954 ico2/common/src/staffroll.c local lines=27  # ordinal; differs-at:0; length:-10; extent-differs
-rdlit staffRollNameOut 0x0065E5E0 0x0065E608 ico2/common/src/staffroll.c align=16  # 2 strings
-sdlit staffRollNameOut 0x0067AB98 0x0067AB9A ico2/common/src/staffroll.c  # 1 string
 text staffRollMain 0x001AA958 0x001AAD64 ico2/common/src/staffroll.c lines=90  # ordinal; differs-at:0; length:+133; extent-differs
 rdlit staffRollMain 0x0065E610 0x0065E62C ico2/common/src/staffroll.c align=16  # 1 jtbl (target side)
-text staffRollWide 0x001AAD68 0x001AADC8 ico2/common/src/staffroll.c lines=7  # ordinal; differs-at:12; imm:1; extent-equal
 text CageFixGeo 0x001B4890 0x001B490C ico2/sugipon/src/cageFix.c lines=8  # ordinal; differs-at:6; imm:1; extent-equal
 text getCloth4D_preProcess 0x001B7A88 0x001B801C ico2/sugipon/src/clothAnimation.c local lines=94  # call-aug
 text dispGameOverGrid 0x001BA9C8 0x001BAC90 ico2/sugipon/src/darkVolume.c local  # jun26-only; derived name (row was ordinal "draw": a 30 by 30 mesh grid, no caller)
@@ -334,15 +254,6 @@ rdlit eyeBlur.109 0x00661120 0x00661130 ico2/sugipon/src/staticBlur.c file=eyeBl
 text makeFullScreenFlareAfter 0x001DDE38 0x001DDFE0 ico2/sugipon/src/staticBlur.c lines=198  # ordinal; differs-at:95; other:1; extent-equal
 text StormTestGeo 0x001E02A0 0x001E02B0 ico2/sugipon/src/stormTest.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
 text StormTestDL 0x001E02B0 0x001E02C4 ico2/sugipon/src/stormTest.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
-text malloc_SetPartition 0x001E6538 0x001E6540 ico2/seki/src/Basic.c lines=4  # census-equal; stubbed for emission order
-text malloc_GetPartition 0x001E6540 0x001E6548 ico2/seki/src/Basic.c lines=4  # census-equal; stubbed for emission order
-text mallocseki 0x001E6548 0x001E6628 ico2/seki/src/Basic.c lines=21  # ordinal; differs-at:14; imm:4; extent-equal
-rdlit mallocseki 0x00661650 0x00661674 ico2/seki/src/Basic.c def  # 2 strings
-sdlit mallocseki 0x0067B178 0x0067B17A ico2/seki/src/Basic.c def  # 1 string
-text freeseki 0x001E6628 0x001E6648 ico2/seki/src/Basic.c lines=6  # census-equal; stubbed for emission order
-text resetmallocseki 0x001E6648 0x001E6650 ico2/seki/src/Basic.c lines=1  # census-equal; stubbed for emission order
-text mallocsekistage 0x001E6650 0x001E6694 ico2/seki/src/Basic.c lines=10  # ordinal; differs-at:9; imm:1; extent-equal
-text reallocseki 0x001E6698 0x001E66BC ico2/seki/src/Basic.c lines=4  # ordinal; differs-at:5; imm:1; extent-equal
 text disp 0x001E9D40 0x001E9EF0 ico2/seki/src/DisplayFont.c local file=disp_DisplayFont  # order-static; no definition in this TU
 text font_Print 0x001E9EF0 0x001EA15C ico2/seki/src/DisplayFont.c lines=138  # order
 sdlit font_Print 0x0067B1F0 0x0067B1F8 ico2/seki/src/DisplayFont.c  # 1 string (target side)
@@ -456,15 +367,6 @@ text ObjAction_Mail 0x00223E48 0x00223EB0 ico2/omori/src/objact.c lines=8  # cen
 text ObjAction_MailCenter 0x00223EB0 0x00223FA8 ico2/omori/src/objact.c lines=19  # ordinal; differs-at:49; imm:1; extent-equal
 text actBossCtrlStart 0x002248E8 0x002249C0 ico2/ito/src/itou_boss.c lines=24  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x40 holds it; the Aug-6-2001 build's same record is rec63+0x40 (one record later), which holds actBossCtrlStart
 rdlit actBossCtrlStart 0x00664070 0x00664080 ico2/ito/src/itou_boss.c  # 1 string
-text MakeBoundingBox 0x002294D0 0x002297E0 ico2/common/src/PObj.c local lines=86  # ordinal; differs-at:4; other:5; extent-equal
-lit4 MakeBoundingBox 0x00679370 0x00679380 ico2/common/src/PObj.c  # 4 floats
-text MakePacket 0x002297E0 0x00229A8C ico2/common/src/PObj.c local lines=23  # ordinal; differs-at:0; length:+101; extent-differs
-rdlit MakePacket 0x00675AF8 0x00675B58 ico2/common/src/PObj.c  # 3 strings (target side)
-sdlit MakePacket 0x0067B4C8 0x0067B4D0 ico2/common/src/PObj.c  # 1 string (target side; its "%s" at 0x67B4C0 is the C's, TidyPObjName's copy)
-text AllocPObj 0x00229A90 0x00229F0C ico2/common/src/PObj.c lines=75  # ordinal; differs-at:0; length:-13; extent-differs
-rdlit AllocPObj 0x00675B58 0x00675C3B ico2/common/src/PObj.c  # 6 strings
-sdlit AllocPObj 0x0067B4D0 0x0067B4E6 ico2/common/src/PObj.c  # 2 strings, 1 word
-text InitPObj 0x00229F10 0x0022A058 ico2/common/src/PObj.c lines=23  # ordinal; differs-at:0; length:-5; extent-differs
 sdata D_0067B4E8 0x0067B4E8 0x0067B4F4 ico2/common/src/PObj.c local  # a short string and the word pointing at it, after AllocPObj's run and before sound.o's; no word of .text addresses either, so the owner TU is not pinned: PObj.c is the last game TU with .sdata before sound.o (target side)
 text _set_sreg 0x0022E270 0x0022E28C sce/libkernl/sifcmd.c lines=7  # order
 text _change_addr 0x0022E290 0x0022E29C sce/libkernl/sifcmd.c lines=7  # order

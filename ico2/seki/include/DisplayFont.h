@@ -21,6 +21,6 @@ typedef struct { /* field names derived */
 } SprCol; /* derived name */
 
 int font_CheckAlign(SprCol *col, unsigned char *str);
-void font_Print(unsigned int color, unsigned char *str, float x, float y, int align, SprCol col);
+void font_Print(int x, int y, unsigned int color, unsigned char *str);
 
 #endif /* DISPLAYFONT_H */

@@ -14,7 +14,6 @@
 #include "gv.h"
 #include "main.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* the terminal id the reconnect check compares against, which nothing in the
    retail build writes, and the enable flag iosPadEnable and iosPadDisable
@@ -78,18 +77,295 @@ IOSThread th_iosPadDevManager = {{0}};
 
 IosMsgQueue padDevMgrMsgQ = {0};
 
-INCLUDE_ASM(controler_stable_check);
+static int controler_stable_check(IosPadDevRec *dev)
+{
+    int port = dev->port;
+    int slot = dev->slot;
+    int prev = dev->state;
+    int phase = dev->phase;
+    int cnt = dev->errCount;
+    int id = dev->lastTermId;
+    int state;
+    int mode;
+    int exid;
+    int i;
+
+    state = scePadGetState(port, slot);
+    if ((unsigned int)state < 8) {
+        if (state != prev) {
+            debug_StdPrintfDummy("pad:port:%d slot:%d %s\n", port, slot, padStateName[state]);
+        }
+    } else {
+        debug_StdPrintfDummy("pad:?%d\n", state);
+    }
+    if (state == 0) {
+        cnt = 0;
+        phase = 0;
+    }
+    switch (phase) {
+    case 0:
+        if (state != 6 && state != 2) {
+            break;
+        }
+        mode = scePadInfoMode(port, slot, 1, 0);
+        debug_StdPrintfDummy("pad id:%d\n", mode);
+        if (mode == 0) {
+            break;
+        }
+        exid = scePadInfoMode(port, slot, 2, 0);
+        debug_StdPrintfDummy("pad: exid %d\n", exid);
+        if (exid >= 1) {
+            mode = exid;
+        }
+        switch (mode) {
+        default:
+            debug_StdPrintfDummy("pad:default 0x%x\n", mode);
+            phase = 99;
+            break;
+        case 4:
+            debug_StdPrintfDummy("pad:4\n");
+            phase = 40;
+            break;
+        case 7:
+            debug_StdPrintfDummy("pad:7\n");
+            phase = 70;
+            break;
+        }
+        debug_StdPrintfDummy("pad:%03x\n", mode);
+        break;
+    case 40:
+        if (scePadInfoMode(port, slot, 4, -1) == 0) {
+            phase = 99;
+            break;
+        }
+        phase++;
+    case 41:
+        debug_StdPrintfDummy("pad:41\n");
+        if (scePadSetMainMode(port, slot, 1, 3) == 1) {
+            phase++;
+        }
+        break;
+    case 42:
+        debug_StdPrintfDummy("pad:42\n");
+        if (scePadGetReqState(port, slot) == 1) {
+            phase--;
+        }
+        if (scePadGetReqState(port, slot) != 0) {
+            break;
+        }
+        phase = 0;
+        debug_StdPrintfDummy("pad:switch to ANALOG mode\n");
+        break;
+    case 70:
+        debug_StdPrintfDummy("pad:70\n");
+        if (scePadInfoPressMode(port, slot) == 1) {
+            phase++;
+        } else {
+            phase = 75;
+        }
+        break;
+    case 71:
+        debug_StdPrintfDummy("pad:71\n");
+        if (scePadEnterPressMode(port, slot) == 1) {
+            phase++;
+        }
+        break;
+    case 72:
+        debug_StdPrintfDummy("pad:72\n");
+        if (scePadGetReqState(port, slot) == 1) {
+            phase--;
+        }
+        if (scePadGetReqState(port, slot) != 0) {
+            break;
+        }
+        phase = 75;
+        debug_StdPrintfDummy("pad:switch to PRESSURE SENSE mode\n");
+        break;
+    case 75:
+        debug_StdPrintfDummy("pad:75\n");
+        if (scePadInfoAct(port, slot, -1, 0) == 0) {
+            phase = 99;
+        }
+        dev->act[0] = 0;
+        dev->act[1] = 1;
+        for (i = 2; i < 6; i++) {
+            dev->act[i] = 255;
+        }
+        if (scePadSetActAlign(port, slot, dev->act) != 0) {
+            phase++;
+        }
+        break;
+    case 76:
+        debug_StdPrintfDummy("pad:76\n");
+        if (scePadGetState(port, slot) != 5) {
+            phase = 99;
+        }
+        break;
+    default:
+        if (state == 7) {
+            cnt++;
+            dev->state = prev;
+            dev->phase = -1;
+            dev->errCount = cnt;
+            dev->lastTermId = id;
+            debug_assert(__FILE__, 404);
+            __assert(__FILE__, 404, "0");
+            return -1;
+        }
+        if (state == 6 || state == 2) {
+            unsigned char data[32];
+
+            if (scePadRead(port, slot, data) != 0) {
+                padTermId = data[1];
+            }
+            /* the line after assigns id again; the object keeps this arm's
+               own copy of the assignment */
+            if (id != 0 && padTermId != id) {
+                phase = 0;
+                id = padTermId;
+            }
+            dev->termId = id = padTermId;
+        }
+        break;
+    }
+    dev->state = state;
+    dev->phase = phase;
+    dev->errCount = cnt;
+    dev->lastTermId = id;
+    return phase;
+}
 
 static void iosPadDevManager(void);
 
-INCLUDE_ASM(iosPadDevInit);
+int iosPadDevInit(void *desc)
+{
+    int i;
+
+    iosThreadCreateS(&th_iosPadDevManager, 10, iosPadDevManager, 0, ios_partition_root, 4096, 17);
+    iosThreadStart(&th_iosPadDevManager);
+
+    if (scePadInit(0) != 1) {
+        debug_StdPrintfDummy("pad:init error\n");
+        debug_assert(__FILE__, 490);
+        __assert(__FILE__, 490, "0");
+        return 0;
+    }
+    for (i = 0; i < 2; i++) {
+        IosPadDevRec *dev = &iosPadDev[i];
+
+        dev->port = i;
+        dev->slot = 0;
+        dev->phase = 0;
+        dev->error = 1;
+        dev->state = 0xFFFF;
+        if (scePadPortOpen(i, 0, dev->dmaBuf) == 0) {
+            debug_StdPrintfDummy("ERROR: scePadPortOpen port%d slot%d\n", i, 0);
+            debug_assert(__FILE__, 505);
+            __assert(__FILE__, 505, "0");
+        }
+    }
+    iosPadConfCustom = iosPadConfDefault;
+    return 1;
+}
 
 static void iosPadActTickProc(void);
-static int iosPadDevReadFunc(void);
 
-INCLUDE_ASM(iosPadDevReadFunc);
+static int iosPadDevReadFunc(void)
+{
+    int i;
 
-INCLUDE_ASM(iosPadRead);
+    for (i = 0; i < 2; i++) {
+        IosPadDevRec *dev = &iosPadDev[i];
+        IosPadShock *sh;
+        int port;
+
+        dev->idx ^= 1;
+        if (dev->phase == 99) {
+            dev->error = 0;
+        }
+        if (dev->error == 1) {
+            controler_stable_check(dev);
+            if (((unsigned int)frame_count) % 120 == 0) {
+                debug_StdPrintfDummy("pad:checking controler... ");
+                debug_StdPrintfDummy("port:%d, slot:%d\n", dev->port, dev->slot);
+            }
+        } else {
+            if (scePadRead(dev->port, dev->slot, &dev->buf[dev->idx]) == 0) {
+                dev->error = 1;
+                dev->phase = 0;
+            }
+        }
+        sh = &dev->shock;
+        port = dev->port;
+        Shock_Decode(&sh->box, &dev->shock.motor0, &dev->shock.motor1);
+        if (((*(unsigned int *)((char *)dev + (dev->idx << 5) + 0x10) >> 12) & 0xF) != 7 ||
+            dev->error == 1) {
+            port = -1;
+        }
+        Shock_SetMotor(sh->motor0, sh->motor1, &dev->shock.motor, port, dev->slot);
+    }
+    iosPadActTickProc();
+    return 0;
+}
+
+int iosPadRead(IosPadCtx *ctx)
+{
+    IosPadDevRec *dev = ctx->dev;
+    IosPadBuf *prev;
+    IosPadBuf *cur;
+    int pbits;
+    int cbits;
+    int old;
+    int now;
+    int i;
+
+    prev = &dev->buf[dev->idx ^ 1];
+    cur = &dev->buf[dev->idx];
+
+    pbits = ((prev->hi << 8) | prev->lo) ^ 0xFFFF;
+    cbits = ((cur->hi << 8) | cur->lo) ^ 0xFFFF;
+
+    old = 0;
+    now = 0;
+
+    for (i = 0; i < 16; i++) {
+        if ((pbits >> i) & 1) {
+            old |= ctx->conf->bit[i];
+        }
+        if ((cbits >> i) & 1) {
+            now |= ctx->conf->bit[i];
+        }
+    }
+
+    ctx->now = now;
+    ctx->trg = (now ^ old) & now;
+    ctx->rel = (now ^ old) & old;
+
+    ctx->now2 = now;
+    ctx->trg2 = ctx->trg;
+    ctx->rel2 = ctx->rel;
+    ctx->word24 = ctx->word14;
+
+    if (dev->error == 1) {
+        ctx->now = 0;
+        ctx->trg = 0;
+        ctx->rel = 0;
+        ctx->word14 = 0;
+
+        ctx->now2 = 0;
+        ctx->trg2 = 0;
+        ctx->rel2 = 0;
+        ctx->word24 = 0;
+        return 0;
+    }
+    if (padEnabled == 0) {
+        ctx->now = 0;
+        ctx->trg = 0;
+        ctx->rel = 0;
+        ctx->word14 = 0;
+    }
+    return 0;
+}
 
 float iosPadNormalizeStick(IosPadStick *st)
 {
@@ -128,10 +404,58 @@ float iosPadNormalizeStick(IosPadStick *st)
     return (len - 48.0f) / 72.0f;
 }
 
-INCLUDE_ASM(iosPadGetStick);
+int iosPadGetStick(IosPadCtx *ctx, void *out, int mode, int a3, int a4, int simulate)
+{
+    IosPadStick *st = out;
+    IosPadDevRec *rec = ctx->dev;
+    IosPadBuf *buf = &rec->buf[rec->idx];
+    float ox;
+    float oy;
 
-static int iosPadGetStick_func(IosPadCtx *ctx, IosPadStick *st, int mode, int a3, int a4,
-                               int simulate);
+    if (rec->error == 1) {
+        st->x = 127;
+        st->y = 127;
+        st->mag = 0.0f;
+        return 0;
+    }
+    switch (mode) {
+    case 1:
+        st->x = buf->rx;
+        st->y = buf->ry;
+        st->mag = iosPadNormalizeStick(st);
+        break;
+    case 0:
+        ox = (float)st->x;
+        oy = (float)st->y;
+
+        st->x = buf->lx;
+        st->y = buf->ly;
+        st->mag = iosPadNormalizeStick(st);
+
+        if (st->mag == 0.0f && simulate != 0) {
+            st->x = (int)ox;
+            st->y = (int)oy;
+
+            if (ctx->now & 0x2000) {
+                st->x = (int)((float)(st->x + 255) * 0.5f);
+            } else if (ctx->now & 0x8000) {
+                st->x = (int)((float)st->x * 0.5f);
+            } else {
+                st->x = (int)((float)(st->x + 127) * 0.5f);
+            }
+            if (ctx->now & 0x1000) {
+                st->y = (int)((float)st->y * 0.5f);
+            } else if (ctx->now & 0x4000) {
+                st->y = (int)((float)(st->y + 255) * 0.5f);
+            } else {
+                st->y = (int)((float)(st->y + 127) * 0.5f);
+            }
+            st->mag = iosPadNormalizeStick(st);
+        }
+        break;
+    }
+    return 0;
+}
 
 /* the device manager's message queue buffer and the sixteen actuator
    requests iosPadActRequest hands out */

@@ -5,6 +5,7 @@
 #include "main.h"
 #include "debug_exception.h"
 #include <assert.h>
+#include "GsBase.h"
 #include "include_asm.h"
 
 /* staffroll.o's whole .data run: the roll's display area, {x, y, width,
@@ -47,15 +48,85 @@ float staffRollCenterOffsetX = 0.0f;
 
 float staffRollCenterOffsetXDest = 0.0f;
 
-INCLUDE_ASM(staffRollStart);
+void staffRollStart(float t, int alpha)
+{
+    staffRollStartFlag = 1;
+    rollSpeed = t * 6.0f / 4.0f;
+    staffRollAlpha = alpha;
+    rollNameIdx = 0;
+    rollOffset = 0.0f;
+    rollStep = 0;
+    rollWidth = 404;
+    closing = 0;
+    staffRollCenterOffsetX = staffRollCenterOffsetXDest = rollOffset;
+    staffRollArea[0] = 1280;
+    memset(rollLines, 0, sizeof(rollLines));
+}
 
 /* The scroll loop walks the 300-entry table by byte offset and spells the
    base at every use site. */
 #define SROLL(off) ((StaffRollEntry *)((char *)rollLines + (off)))
 
-INCLUDE_ASM(staffRollScroll);
+static int staffRollScroll(void)
+{
+    int count;
+    int i;
+    int a;
+    float t;
+    char **str;
 
-INCLUDE_ASM(staffRollNameOut);
+    count = 0;
+
+    rollOffset += rollSpeed;
+    for (i = 0; i < 300 * 8; i += 8) {
+        str = SROLL(i)->str;
+        if (str == 0) {
+            continue;
+        }
+        count++;
+
+        SROLL(i)->y -= rollSpeed;
+        t = SROLL(i)->y - (float)(ScreenHeight >> 2);
+        a = (int)(136.0f - (t < 0.0f ? -t : t) * 120.0f / (float)(ScreenHeight >> 2));
+        if (a < 0) {
+            a = 0;
+        }
+        if (-8.0f < SROLL(i)->y) {
+            font_Print(rollWidth, (int)SROLL(i)->y, a | 0xA0A0A000, *str);
+        } else {
+            SROLL(i)->str = 0;
+        }
+    }
+
+    return count;
+}
+
+static int staffRollNameOut(void)
+{
+    StaffRollEntry *e;
+    char **s;
+    int i;
+
+    if (rollOffset / 6.0f >= (float)rollNameIdx) {
+        for (i = 0; i < 300; i++) {
+            if (rollLines[i].str == 0)
+                goto found;
+        }
+        /* staff roll: out of area */
+        debug_StdPrintfDummy("staff roll 領域不足\n");
+        debug_assert(__FILE__, 165);
+        __assert(__FILE__, 165, "0");
+    found:
+
+        e = &rollLines[i];
+        s = &staffRollNameData[rollNameIdx++];
+        if (*s != 0)
+            e->str = s;
+
+        e->y = 246.0f;
+    }
+    return rollNameIdx >= staffRollNameDataNum;
+}
 
 /* the roll's colour; only its alpha byte is read and written, fading toward
    staffRollAlpha.  A 4-byte array is 8-aligned, which leaves the zero word
@@ -66,4 +137,10 @@ int staffRollAlpha = 0;
 
 INCLUDE_ASM(staffRollMain);
 
-INCLUDE_ASM(staffRollWide);
+void staffRollWide(void)
+{
+    closing = 1;
+    areaStep = (float)((staffRollArea[0] + 5120) / 30);
+    widthStep = (float)((rollWidth - 220) / 30);
+    staffRollAlpha = 255;
+}
