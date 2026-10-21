@@ -72,7 +72,6 @@ rdlit actGirlStart 0x005A2A88 0x005A2A99 ico2/fumi/src/girl_act.c  # 1 string
 text stgmgrNextStagePreLoad 0x00192E08 0x0019303C ico2/common/src/StageManager.c local lines=69  # ordinal; differs-at:16; length:-1; extent-differs
 rdlit stgmgrNextStagePreLoad 0x00659DC0 0x00659DE6 ico2/common/src/StageManager.c  # 1 string
 sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.c  # 1 string
-text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
 text ACTGetEnvironment 0x001EC350 0x001EF7F0 ico2/fumi/src/act-env.c lines=1078  # order
 lit4 ACTGetEnvironment 0x00678F80 0x00678FB0 ico2/fumi/src/act-env.c  # 12 floats (target side)
 rdlit ACTGetEnvironment 0x00661E10 0x00661EE8 ico2/fumi/src/act-env.c  # 3 strings, 1 jtbl (target side)

@@ -44,7 +44,6 @@
 #include "Texture.h"
 #include "debug_exception.h"
 #include <assert.h>
-#include "include_asm.h"
 
 static int debug_CollisionTest(int reset);
 static int debug_DispBall(int on);
@@ -551,13 +550,6 @@ static DebugBar debugBars[1024]; /* derived name */
 
 /* two pages of 25 {count, mark} pairs */
 static int loadInfoSeg[2][25][2]; /* derived name */
-
-/* one 64-bit packet slot, written whole or as its two 32-bit halves */
-typedef union { /* field names derived */
-    long long d;
-    int w[2];
-    float f[2];
-} DbgPkWord; /* derived name */
 
 /* a whole quadword, for the vertex copies */
 typedef int Qw128 __attribute__((mode(TI)));
@@ -1231,7 +1223,52 @@ static void debug_makeBackImage(void)
     debug_MakeFont();
 }
 
-INCLUDE_ASM(debug_PrintCharacter);
+static void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
+{
+    int px, py;
+    int v[4] = {0, 0, 0, 0x60};
+    int c;
+    int col[4] = {r, g, b, sz};
+
+    /* one packet line per source line, written through the packet buffer's
+       own cursor; the DMA tag's line also opens the tail */
+    /* clang-format off */
+    PacketBufferStruct.dma.c = PacketBufferStruct.ptr.c; PacketBufferStruct.gif.c = 0; PacketBufferStruct.end.c = 0;
+
+    PacketBufferStruct.tail.c = PacketBufferStruct.ptr.c; *PacketBufferStruct.ptr.d++ = 0x10000006;
+    *PacketBufferStruct.ptr.i++ = 0x11000000;
+    *PacketBufferStruct.ptr.i++ = 0x3000104;
+    *PacketBufferStruct.ptr.d++ = 0;
+    *PacketBufferStruct.ptr.i++ = 0x200017E;
+    *PacketBufferStruct.ptr.i++ = 0x6C048000;
+
+    *((Qw128 *)PacketBufferStruct.ptr.c)++ = *(Qw128 *)col;
+    *((Qw128 *)PacketBufferStruct.ptr.c)++ = *(Qw128 *)v;
+
+    px = x * ScreenWidth / 640 + 2048; px -= ScreenWidth / 2; *((float *)PacketBufferStruct.ptr.c)++ = (float)px;
+    py = y * ScreenHeight / 224 + 2048; py -= ScreenHeight / 2; py--; *((float *)PacketBufferStruct.ptr.c)++ = (float)py;
+    *PacketBufferStruct.ptr.d++ = 0;
+    *((float *)PacketBufferStruct.ptr.c)++ = (float)ScreenWidth * 12.0f / 640.0f;
+    *PacketBufferStruct.ptr.i++ = 0;
+    *PacketBufferStruct.ptr.d++ = 0;
+
+    *PacketBufferStruct.ptr.i++ = 0x14000008;
+    *PacketBufferStruct.ptr.i++ = 0;
+    *PacketBufferStruct.ptr.d++ = 0;
+
+    PacketBufferStruct.tail.c = PacketBufferStruct.ptr.c; *PacketBufferStruct.ptr.d++ = 0x60000000; *PacketBufferStruct.ptr.i++ = 0; *PacketBufferStruct.ptr.i++ = 0;
+
+    dl_SetDLPriority(12); dl_OpenDma(5, PacketBufferStruct.dma.c, 0); dl_CloseDma();
+
+    dl_SetDLPriority(12);
+    while ((c = (unsigned char)*str++) != 0) {
+        /* clang-format on */
+        if (fontPacket[c].packet != 0) {
+            dl_OpenDma(2, fontPacket[c].packet, fontPacket[c].qwc);
+            dl_CloseDma();
+        }
+    }
+}
 
 /* debug_PrintFont's backdrop colour */
 static DbgCol fontBackCol = {0x00, 0x00, 0x00, 0x80}; /* derived name */
