@@ -49,8 +49,6 @@ void actSt20aInit(void)
     }
 }
 
-/* No .sbss here in this build: no function of the demo addresses such a flag. */
-
 /* .sdata: the gondola stream handles and the bridge's shake with its volume
    (actSt20aBridgeDown); this build has no bridge stream handle. */
 SqEntry *gondola_up = 0;

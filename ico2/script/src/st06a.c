@@ -29,7 +29,10 @@
    .text order; the others are output where they stand. The mail tables are
    file-scope statics ahead of the functions that post them, except
    actSt06aWayOnChk's, a static local of its poster as in the USA source
-   (gcc's local name.N symbol); .data keeps the source order. */
+   (gcc's local name.N symbol); .data keeps the source order. Each table is
+   named for the function that posts it; way_off_chk_mes spells its poster
+   as the USA source's kyomi_off_chk_mes does, since the file's other
+   spelling, way_offchk_mes, does not give this object. */
 
 inline void actSt06aSuimon(GObj *volatile self);
 inline void actSt06aDoor(GObj *volatile self);
@@ -78,9 +81,6 @@ static const ConstVec suimonSubPos = {{-1869.0f, -1147.0f, -664.0f, 0.0f}}; /* d
 static const ConstVec jumpPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derived name */
 
 static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
-
-/* No .sdata: this build's room plays its sluice, shutter and door streams
-   with no handle. */
 
 void actSt06aInit(void)
 {

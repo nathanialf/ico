@@ -385,8 +385,6 @@ void actSt17aHasiEffect(GObj *volatile self)
     } while (t < 1000.0f);
 }
 
-/* No .sbss here in this build: no function of the demo addresses such a flag. */
-
 void actSt17aIntroChk(GObj *volatile self);
 
 static ActMail intro_mes[2] = {{377}, {376}}; /* derived name */

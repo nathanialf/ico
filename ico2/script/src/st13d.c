@@ -2,7 +2,6 @@
 #include "gflag.h"
 #include "script.h"
 #include "geometryManager.h"
-#include "st13d.h"
 #include "main.h"
 
 /* A 16-byte constant vector: the float view carries the values, the long

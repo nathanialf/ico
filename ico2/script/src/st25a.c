@@ -63,9 +63,9 @@ typedef union Vec4St25A { /* derived name */ /* field names derived */
 
 /* the two face-shadow textures actConte11 and actSt25aObj1881 scroll the UVs
    of. */
-const char faceShadowTex[] = "face_sadow_sd";
+const char faceShadowTex[] = "face_sadow_sd"; /* derived name */
 
-const char faceShadowTex00[] = "face_sadow_sd_00";
+const char faceShadowTex00[] = "face_sadow_sd_00"; /* derived name */
 
 /* The offset the sekika boy is dropped by. */
 static const Vec4St25A sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
@@ -82,7 +82,7 @@ static const char sekikaBoyTexture[] = "sekika_boy"; /* derived name */
    numbers).  queen_before_mes is the only one another TU sends (script.c's
    scpObj1882), so it is the only global of the eight; the three objN_mes are
    the records of obj-layout rows 1881, 1880 and 1896's processes. */
-ActMail queen_before_mes[2] = {{377}, {376}};
+ActMail queen_before_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail queen_appear_mes[2] = {{377}, {376}}; /* derived name */
 
@@ -312,7 +312,10 @@ void actConte12Jimaku(GObj *volatile self)
     } while (t < 3000.0f);
 }
 
-/* obj-layout row 1881's process: until flag 290 is set (the end of
+/* The objects with no name of their own (obj-layout rows 1880, 1881 and
+   1896) are named for their row, as script.c's scpObj1882 is.
+
+   obj-layout row 1881's process: until flag 290 is set (the end of
    actConte12) it hands the actor obj1881_mes; after it, it puts the scene
    back as the first half of the conte left it and readies the second. */
 void actSt25aObj1881(GObj *volatile self) /* derived name */

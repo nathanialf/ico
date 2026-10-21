@@ -25,7 +25,7 @@
 #include "staffroll.h"
 
 /* .sdata: two stream handles in this build, the ending demo's and the sea's
-   (actEndDemo14 plays 88 into it as September plays 93: the same call). */
+   (actEndDemo14 plays 88 into it as the USA build plays 93: the same call). */
 SqEntry *ed1 = 0;
 
 SqEntry *sea = 0;

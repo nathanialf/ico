@@ -15,8 +15,6 @@
 #include "typedef.h"
 #include "main.h"
 
-/* No .sbss here in this build: no function of the demo addresses such a flag. */
-
 /* .data: actor mail packets. */
 
 static ActMail elvMain_mes[2] = {{356, actSt09aElvSwitch}, {376}}; /* derived name */

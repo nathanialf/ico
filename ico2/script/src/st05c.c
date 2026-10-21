@@ -15,8 +15,6 @@
 #include "script.h"
 #include "main.h"
 
-/* No .sbss here in this build: no function of the demo addresses such a flag. */
-
 static const StVec doorDownChkPos = {{0.0f, 84.0f, -1359.0f, 0.0f}}; /* derived name */
 
 static const StVec doorDownEffectPos = {{0.0f, 50.0f, -1450.0f, 1.0f}}; /* derived name */

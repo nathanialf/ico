@@ -14,11 +14,6 @@
 #include "main.h"
 #include "script.h"
 
-/* No .sbss here in this build: no function of the demo addresses such a flag. */
-
-/* No .sdata: this build's room has no fence, horn or pipe stream handle
-   (no function of the demo addresses one). */
-
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
 

@@ -57,8 +57,8 @@
    scpDummyGObj); scpSekizou stores the pad vibration handle at 0x67A014
    and its volume byte at 0x67A018, so sekizo_yure and sekizo_yure_vol
    follow the two dummy words.  Nothing reads the last word; it keeps
-   sekizo_common's name (its place is not measured).  Then scpObj1882's
-   string. */
+   sekizo_common's name (its place among the words is derived).  Then
+   scpObj1882's string. */
 int scpBoyControlReadDisable = 0;
 
 float scpSeEnvMasterVolRate = 1.0f;

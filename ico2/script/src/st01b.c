@@ -74,8 +74,6 @@ unsigned int st01b_yure = 0;
 
 unsigned char st01b_yure_vol = 0;
 
-/* No .sbss here in this build: no function of the demo addresses these flags. */
-
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
 

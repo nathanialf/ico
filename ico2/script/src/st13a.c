@@ -17,11 +17,10 @@
 #include "typedef.h"
 #include "main.h"
 
-/* No .sbss here in this build: no function of the demo addresses such a flag. */
-
 void actSt13aElevDownChk(GObj *volatile self);
 
-/* .data: actor mail packets. */
+/* .data: actor mail packets, each named for the actor that posts it
+   (exit_mes is actSt13aExit's, check_mes actSt13aCheck's). */
 
 static ActMail elevMain_mes[2] = {{356, actSt13aElevSwitch}, {376}}; /* derived name */
 

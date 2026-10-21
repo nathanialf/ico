@@ -41,6 +41,10 @@ static ActMail fence_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail fence2_mes[2] = {{377}, {376}}; /* derived name */
 
+/* The four fence checks' tables are named for their posters, as the USA
+   source's st20a.c names the same tables (fenceDownChk_mes is
+   actSt10rFenceDownChk's); the USA st10r.c's fence_down1_mes family does
+   not give this object. */
 static ActMail fenceDownChk_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail fenceUpChk_mes[2] = {{377}, {376}}; /* derived name */

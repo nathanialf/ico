@@ -24,8 +24,6 @@ static ActMail waterSwitch_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail solar_mes[2] = {{377}, {376}}; /* derived name */
 
-/* No .sbss here in this build: no function of the demo addresses these flags. */
-
 /* .sdata: the solar stream handle. */
 struct SqEntry *solar = 0;
 

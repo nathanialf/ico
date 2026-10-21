@@ -215,12 +215,11 @@ void actSt07aChanEffect(GObj *volatile self)
             scpEffectStart(&b10, 15);
             iosPadActRequest(boyPad, 16);
             break;
-        /* frames with nothing to do.  Cases 1 and 410 are pinned by their
-           compares; the case tree's split points (410 at the root, 300 and
-           628 below it) pin at least one more empty case between 354 and
-           410 and two above 628, and aug6's TRFILE puts no code on this
-           function's lines 575..613, where the block sits.  The values
-           leave no code, so 400, 700 and 800 are not pinned. */
+        /* frames with nothing to do.  1 and 410 are the object's own
+           compares; its case tree (410 at the root, 300 and 628 below it)
+           holds one more value between 354 and 410 and two above 628, and
+           aug6's TRFILE puts no code on the block's lines 575..613.  400,
+           700 and 800 leave no code: derived values. */
         case 1:
         case 400:
         case 410:

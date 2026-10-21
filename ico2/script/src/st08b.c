@@ -34,7 +34,6 @@ static ActMail kuren_mes[2] = {{377}, {376}}; /* derived name */
 
 static const ConstVec kurenSwitchPos = {{248.0f, -2626.0f, 705.0f, 1.0f}}; /* derived name */
 
-/* PAL's kurenSwitch2Pos is not in this build's .rodata */
 static const ConstVec doorUpChkPos = {{-1319.0f, -2429.0f, -405.0f, 0.0f}}; /* derived name */
 
 static const ConstVec doorUpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derived name */

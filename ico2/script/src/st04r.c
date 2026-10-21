@@ -112,8 +112,6 @@ static ActMail torch2_1xl_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail torch2_2xl_mes[2] = {{377}, {376}}; /* derived name */
 
-/* No .sbss here in this build: no function of the demo addresses these flags. */
-
 /* The look-at point both characters face in the crest cutscene. */
 static const ConstVec crestFacePos = {{0.0f, 0.0f, -5000.0f, 1.0f}}; /* derived name */
 

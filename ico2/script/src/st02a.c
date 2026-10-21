@@ -27,7 +27,9 @@
  * filled in at run time before the post, except in the two main-mail records,
  * which answer 356 and 357 with their switch threads. Each record is named for
  * the thread that owns and posts it; where one thread owns two, for the
- * watcher it installs. */
+ * watcher it installs.  The two way checks' records take the door checks'
+ * `_chk_` spelling (the USA source's way_on_mail and way_off_mail do not
+ * give this object). */
 void actSt02aFenceSwitch(GObj *volatile self);
 void actSt02aGondolaSwitch(GObj *volatile self);
 
@@ -99,7 +101,7 @@ static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; 
 
 /* The two boundary points the boy's splash check tests against. */
 static const ConstVec boySplashPos[2] = {{{840.0f, 235.0f, 560.0f, 1.0f}},
-                                         {{740.0f, 235.0f, 560.0f, 1.0f}}};
+                                         {{740.0f, 235.0f, 560.0f, 1.0f}}}; /* derived name */
 
 /* The waterfall's reflection mesh and the layout quad it is stretched over:
  * the quad drops from y 280 to y 0, the falling water.  This build has one
@@ -110,7 +112,7 @@ static const PoolMesh fallReflactionMesh = {40, 20, 0, 0, 0, 0, 0, 0x60687080}; 
 static const PoolMeshQuad fallReflactionQuad = {{{650.0f, 280.0f, 550.0f, 1.0f},
                                                  {650.0f, 0.0f, 700.0f, 1.0f},
                                                  {900.0f, 280.0f, 550.0f, 1.0f},
-                                                 {900.0f, 0.0f, 700.0f, 1.0f}}};
+                                                 {900.0f, 0.0f, 700.0f, 1.0f}}}; /* derived name */
 
 /* The girl's jump: the SE position, the point she turns to before she jumps,
  * and the seven points of the effect sequence. */
