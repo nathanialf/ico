@@ -99,13 +99,14 @@ static inline float absf(float x)
  * Structs grow as TUs are typed; only add a field with a verified access.
  */
 
-/* The 0x15C sub-object slot is an INT handle the engine casts to a pointer at
- * use, not a clean Sub15C*. Reading it int-typed reproduces the developer's
- * TBAA: it may-alias adjacent int writes, so the load reloads (not hoisted),
- * matching byte-for-byte WITHOUT the per-function int-typed-reload hacks
- * (COOKBOOK section 8.22). Pointer-chain users still match (no aliasing trigger).
- * Use this accessor for 0x15C; keep dobj in the struct for layout only. */
-#define GOBJ_SUB(o) ((Sub15C *)*(int *)&((GObj *)(o))->dobj)
+/* The 0x15C sub-object slot is a word the engine casts to a pointer at use,
+ * not a clean Sub15C*. It is read through its int view of the IntFloat union,
+ * as act-game.c and act-env.c read it and as DObj.c's DObjWord holds it: a
+ * read through a union member may alias any store, int or float, so it is
+ * never hoisted above one (_ACTMotDirSmzDirect loads it after its three
+ * float dir stores). Use this accessor for 0x15C; keep dobj in the struct
+ * for layout only. */
+#define GOBJ_SUB(o) ((Sub15C *)((IntFloat *)&((GObj *)(o))->dobj)->i)
 /* The 0x164 actor slot, the companion of GOBJ_SUB: the action-state object the
  * per-object functions run their state machines out of. */
 #define GOBJ_ACT(o) ((Act *)((GObj *)(o))->act)

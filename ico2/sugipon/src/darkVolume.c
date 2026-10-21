@@ -14,7 +14,6 @@
 #include "DmaPacket.h"
 #include "DisplayList.h"
 #include "Primitive.h"
-#include "include_asm.h"
 
 /* .bss in this build: one 136-float hatch row, the centre the game-over dark
    volume and its shock ring spread from (uninitialised: the object has no
@@ -71,7 +70,59 @@ static int stripHalf = 0; /* derived name */
 
 /* a 30 by 30 grid round the game-over centre, its texture coordinates the
    screen positions of its vertices; nothing calls it in this build */
-INCLUDE_ASM(dispGameOverGrid);
+static void dispGameOverGrid(void) /* derived name */
+{
+    sceVu0FVECTOR origin = {2048.0f, 2048.0f, 0.0f, 0.0f};
+    Mesh3D *mesh = gridMesh;
+    float *scr = (float *)(matrixptr + 768);
+    float *tmp = (float *)(matrixptr + 1024);
+    float invW = 1.0f / ScreenWidth;
+    float invH = 1.0f / ScreenHeight;
+    float *center = (float *)(matrixptr + 832);
+    float *offset = (float *)(matrixptr + 896);
+    float *d = (float *)(matrixptr + 960);
+    float size;
+    float q;
+    int i;
+    int j;
+    Prim3DVec *p;
+    Prim3DVec *st;
+
+    if (gridCount < 500) {
+        size = gridCount / 10.0f;
+    } else {
+        size = 0.0f;
+    }
+    if (1000 < gridCount) {
+        gridCount = 0;
+    }
+    gridCount++;
+    gridTurn -= 1.0f;
+    CopyVector(center, gameOverCenter);
+    CopyVector(offset, origin);
+    CopyVector(d, ZeroVector);
+    _InitCurrentMatrix();
+    _SetCurrentMatrix(matrixptr + 256);
+    for (i = 0; i < 30; i++) {
+        p = &mesh->pos[i * 30];
+        st = &mesh->st[i * 30];
+        d[0] = (i - 15) * size;
+        for (j = 0; j < 30; j++, p++, st++) {
+            float height = 0.0f;
+
+            d[1] = height;
+            d[2] = (j - 15) * size;
+            _AddVector(p, center, d);
+            _ApplyCurrentMatrix(scr, p);
+            q = 1.0f / scr[3];
+            _ScaleVector(tmp, scr, q);
+            _SubVector(scr, tmp, offset);
+            st->x = scr[0] * invW + 0.5f + q * 0.0f + invW * 0.5f;
+            st->y = scr[1] * invH + 0.5f + q * 0.0f;
+        }
+    }
+    prim_UpdateMesh3D(mesh, 9, buffer_ID);
+}
 
 void InitGameOverEffect(void)
 {

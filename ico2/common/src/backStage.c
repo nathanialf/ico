@@ -20,7 +20,6 @@
 #include "way_kidnap.h"
 #include "main.h"
 #include "gamesys.h"
-#include "include_asm.h"
 
 /* the enemy the heroine is carried off by */
 GObj *backStageGirlTargetEnemyGop = 0;
@@ -60,7 +59,68 @@ inline void backStageProcessInit(void)
     pinchTold = 0;
 }
 
-INCLUDE_ASM(backStageProcessOutStage);
+void backStageProcessOutStage(void)
+{
+    Vec16 a;
+    Vec16 b;
+    int i;
+    int gen;
+    void *p;
+    GamesysObjInfo *g;
+
+    if (gflagChk(343) != 0) {
+        return;
+    }
+    if (gameSysObjInfo[1].stage == stage_no) {
+        debug_StdPrintfDummy("girl nokori");
+        pinchTold = 0;
+        kidnapObjIdx = -1;
+        for (i = 2; i < 22; i++) {
+            g = gameSysObjInfo;
+            if (g[i].no == 0) {
+                continue;
+            }
+            if (g[i].work[0] == 4) {
+                kidnapObjIdx = i;
+                break;
+            }
+        }
+        kidnapState = 0;
+        if (kidnapObjIdx < 0) {
+            GObj *e = NearestEnemyFromGirl(&enemyDist);
+
+            if (e != 0) {
+                Act *m;
+
+                kidnapState = 1;
+                enemySec = enemyDist / 160.0f;
+                kidnapTime =
+                    (int)(enemySec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+                m = GOBJ_ACT(e);
+                kidnapObjIdx =
+                    (unsigned int)((char *)gamesysObjInfoPosSetStage(e, m->infoPos, 0, stage_no) -
+                                   (char *)gameSysObjInfo) >>
+                    6;
+            }
+        } else {
+            kidnapState = 2;
+            pinchTold = 1;
+        }
+        if (kidnapState == 1 || kidnapState == 2) {
+            gen = eBrainGetTargetGeneratorFromLabel(gameSysObjInfo[kidnapObjIdx].no);
+            p = isysGObjSearchFromObjLayoutID(gen);
+            if (p == 0) {
+                kidnapState = 0;
+            } else {
+                GetRootPosition(a.f, p);
+                GetRootPosition(b.f, girlGObj);
+                nestDist = WayLengthOfPos_Pos(a.f, b.f);
+                nestSec = nestDist / 100.0f;
+                carryTime = (int)(nestSec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+            }
+        }
+    }
+}
 
 void backStageProcessMain(void)
 {

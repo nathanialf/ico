@@ -63,17 +63,6 @@ text Main 0x00101C80 0x00101F38 ico2/common/src/main.c lines=95  # ordinal; diff
 lit4 Main 0x00678500 0x00678504 ico2/common/src/main.c  # 1 float (target side)
 rdlit Main 0x0059CAA0 0x0059CB48 ico2/common/src/main.c  # 7 strings (target side)
 sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target side)
-text _ACTMotDirSmzDirect 0x00156BB8 0x00156C1C ico2/fumi/src/commonact.c lines=13  # call-aug
-text WithMailFunc_Idling 0x00156C20 0x00156CCC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: mail 161's accept (the Aug-6-2001 build's mail 164 row)
-text WithMailFunc_BossDamaged 0x00156CD0 0x00156CE8 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: mails 258/259's accept (the Aug-6-2001 build's 266/267 rows)
-text actCommonRevive 0x00156CE8 0x00156D5C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec107+0x0 holds it; the Aug-6-2001 build's same record is rec108+0x0 (one record later), which holds actCommonRevive
-rdlit actCommonRevive 0x005A1B70 0x005A1B88 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
-text actCommonReviveAir 0x00156D60 0x00156DAC ico2/fumi/src/commonact.c lines=9  # ordinal; differs-at:7; imm:2; extent-equal
-text actCommonPlay 0x00156DB0 0x00156DDC ico2/fumi/src/commonact.c lines=5  # census-equal; stubbed for emission order
-rdlit actCommonPlay 0x005A1AD0 0x005A1AE8 ico2/fumi/src/commonact.c def  # 1 string (target side), its entry message, ahead of func_001535F0's in this build
-text actCommonOne 0x00156DE0 0x00156EAC ico2/fumi/src/commonact.c lines=14  # ordinal; differs-at:1; length:+16; extent-differs
-text actCommonDelete 0x00156EB0 0x00156ED0 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
-text actCommonStoneDead 0x00156ED0 0x00156F14 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec24+0x0 holds actCommonStoneDead there (the same record index in the demo)
 text actEnemyKidnapEnd 0x00159FE0 0x0015A324 ico2/fumi/src/enemy_act.c lines=149  # aug
 lit4 actEnemyKidnapEnd 0x006788E4 0x006788EC ico2/fumi/src/enemy_act.c  # 2 floats (target side)
 text func_00168EA8 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; derived name
@@ -102,11 +91,7 @@ rdlit actGirlStart 0x005A2A88 0x005A2A99 ico2/fumi/src/girl_act.c  # 1 string
 text stgmgrNextStagePreLoad 0x00192E08 0x0019303C ico2/common/src/StageManager.c local lines=69  # ordinal; differs-at:16; length:-1; extent-differs
 rdlit stgmgrNextStagePreLoad 0x00659DC0 0x00659DE6 ico2/common/src/StageManager.c  # 1 string
 sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.c  # 1 string
-text backStageProcessOutStage 0x001935B0 0x00193800 ico2/common/src/backStage.c lines=107  # ordinal; differs-at:0; length:-184; extent-differs
-rdlit backStageProcessOutStage 0x00659E90 0x00659EA0 ico2/common/src/backStage.c  # 1 string (target side)
 text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
-text dispGameOverGrid 0x001BA9C8 0x001BAC90 ico2/sugipon/src/darkVolume.c local  # jun26-only; derived name (row was ordinal "draw": a 30 by 30 mesh grid, no caller)
-rdlit dispGameOverGrid 0x0065F630 0x0065F640 ico2/sugipon/src/darkVolume.c  # 1 data, four words (target side): the function's two references (0x65F630)
 text reduceWork2ToWork0.105 0x001DD588 0x001DD6DC ico2/sugipon/src/staticBlur.c local file=reduceWork2ToWork0_105_staticBlur  # ordinal; differs-at:37; length:+2; extent-differs
 rdlit reduceWork2ToWork0.105 0x00661110 0x00661120 ico2/sugipon/src/staticBlur.c file=reduceWork2ToWork0_105_staticBlur def  # 1 data (target side); emitted where the demo has it
 text eyeBlur.109 0x001DD6E0 0x001DDE38 ico2/sugipon/src/staticBlur.c local file=eyeBlur_109_staticBlur  # ordinal; differs-at:0; length:-16; extent-differs

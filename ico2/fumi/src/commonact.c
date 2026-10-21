@@ -18,6 +18,7 @@ void actCommonReviveAir(GObj *volatile self);
 void actCommonPlay(GObj *volatile self);
 void actCommonOne(GObj *volatile self);
 void actCommonDelete(GObj *volatile self);
+void actCommonStoneDead(GObj *volatile self);
 void actCommonSofa(GObj *volatile self);
 void actCommonCatchFire(GObj *volatile self);
 void actCommonCatchFireBomb(GObj *volatile self);
@@ -159,7 +160,6 @@ inline void afterCommonTruckLever(GObj *volatile self);
 #include "layout_texture.h"
 #include "flyManager.h"
 #include "tableSin.h"
-#include "include_asm.h"
 
 static void DamageFunc(GObj *self);
 static void TestCageUpDown(GObj *cage, GObj *gobj);
@@ -1290,7 +1290,11 @@ static void DownFunc(GObj *self)
     }
 }
 
-INCLUDE_ASM_LIT(actCommonPlay);
+inline void actCommonPlay(GObj *volatile self)
+{
+    debug_StdPrintfDummy("enter actCommonPlay\n");
+    _ACTWait(0);
+}
 
 inline void actCommonDamage(GObj *volatile self)
 {
@@ -1465,12 +1469,25 @@ void actCommonSlip(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM_LIT(actCommonRevive);
-
 typedef struct { /* field names derived */
     char pad0[20];
     int after; /* 0x14, Act's after function */
 } ReviveSub;   /* derived name */
+
+inline void actCommonRevive(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+
+    debug_StdPrintfDummy("enter actCommonRevive\n");
+    ACTGameCollisionOff((void *)self);
+    ((ReviveSub *)s)->after = (int)afterCommonRevive;
+    SetDirectRootPosition((void *)self, &s->restartPosX);
+    EnemySetfAppearAll((void *)self);
+    for (;;) {
+        ACTSendMailCorrect(self, 177);
+        _ACTWait(1);
+    }
+}
 
 typedef struct { /* field names derived */
     char pad0[20];
@@ -2864,28 +2881,83 @@ void actCommonSlowrun(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(_ACTMotDirSmzDirect);
+inline int _ACTMotDirSmzDirect(GObj *self, float *dir)
+{
+    Act *s = GOBJ_ACT(self);
 
-INCLUDE_ASM(WithMailFunc_Idling);
+    s->dir[0] = dir[0];
+    s->dir[1] = dir[1];
+    s->dir[2] = dir[2];
+    return SetMotionDirectionSmooze(self, dir,
+                                    (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
+}
 
-INCLUDE_ASM(WithMailFunc_BossDamaged);
+inline void WithMailFunc_Idling(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    int k = s->actKind;
+    int mot = GOBJ_SUB(self)->ctrl.motion;
 
-INCLUDE_ASM(actCommonRevive);
+    SetIdleMotionRange(k, mot, mot);
+}
 
-INCLUDE_ASM(actCommonReviveAir);
+inline void WithMailFunc_BossDamaged(GObj *self)
+{
+    EnemyBattleWork *m = GOBJ_ACT(self)->enemy;
+    m->bossLife -= 1;
+}
 
-INCLUDE_ASM(actCommonPlay);
+inline void actCommonReviveAir(GObj *volatile self)
+{
+    SetDirectRootPosition((void *)self, &GOBJ_ACT(self)->restartPosX);
+    EnemySetfAppearAll((void *)self);
+    for (;;) {
+        ACTSendMailCorrect(self, 202);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM(actCommonOne);
+inline void actCommonOne(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    GObj *g;
 
-INCLUDE_ASM(actCommonDelete);
+    if (s->intrKind == 366) {
+        if (*(int *)((char *)s + 0x118) & 1) {
+            s->soundWait = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 5;
+        }
+    }
+    if (stage_no == 83 || debug_use_new_queen_battle != 0) {
+        if (s->intrKind == 188) {
+            g = isysGObjSearchFromObjKindID_begin(52);
+            if (g != 0) {
+                iosOmSendMail(g, 13, self);
+            }
+        }
+    }
+    for (;;) {
+        ACTSendMailCorrect(self, 177);
+        _ACTWait(1);
+    }
+}
+
+inline void actCommonDelete(GObj *volatile self)
+{
+    _ACTWait(0);
+}
 
 typedef struct { /* field names derived */
     char pad0[20];
     int after;    /* 0x14, Act's after function */
 } TruckLeverWork; /* derived name */
 
-INCLUDE_ASM(actCommonStoneDead);
+inline void actCommonStoneDead(GObj *volatile self)
+{
+    SetMotionDirection(self, GOBJ_ACT(self)->attackDir);
+    _ACTWait(600);
+    lt_switch_layout(58);
+    _ACTWait(0);
+}
 
 inline void actCommonSofa(GObj *volatile self)
 {
