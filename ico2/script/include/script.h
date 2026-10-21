@@ -94,7 +94,7 @@ int scpCheckReadyAllObjects(void);
 int scpTriggerIgnore(struct GObj *self);
 inline void scpDoorTypeUpMain(struct GObj *volatile self);
 void scpSubAdpcmPlay(struct GObj *volatile self);
-void actSubSekizoSe(struct GObj *volatile self);
+inline void actSubSekizoSe(struct GObj *volatile self);
 /* The entry points script.o compiles in place, in its own parse order. */
 void scpTorchLightOn(int id);
 void scpTorchLightOff(int id);

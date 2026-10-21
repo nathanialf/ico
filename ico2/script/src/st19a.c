@@ -35,9 +35,9 @@ static const ConstVec hagurumaChkPos = {{486.0f, 2386.0f, -2917.0f, 0.0f}}; /* d
    order). */
 
 void actSt19aOriMain(GObj *volatile self);
-void actSt19aOriSwitch(GObj *volatile self);
-void actSt19aOriDown(GObj *volatile self);
-void actSt19aOriUp(GObj *volatile self);
+inline void actSt19aOriSwitch(GObj *volatile self);
+inline void actSt19aOriDown(GObj *volatile self);
+inline void actSt19aOriUp(GObj *volatile self);
 
 static ActMail oriMain_mes[2] = {{356, actSt19aOriSwitch}, {376}}; /* derived name */
 
@@ -221,9 +221,9 @@ void actSt19aPipeChk(GObj *volatile self)
 }
 
 void actSt19aChainMain(GObj *volatile self);
-void actSt19aChainSwitch(GObj *volatile self);
+inline void actSt19aChainSwitch(GObj *volatile self);
 void actSt19aChainDown(GObj *volatile self);
-void actSt19aChainUp(GObj *volatile self);
+inline void actSt19aChainUp(GObj *volatile self);
 
 static ActMail chainMain_mes[2] = {{357, actSt19aChainSwitch}, {376}}; /* derived name */
 

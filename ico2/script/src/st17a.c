@@ -52,7 +52,7 @@ inline void actSt17aSekizo(GObj *volatile self)
     scpSekizou(self, 30, 63, 100, 21, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
 }
 
-void actLinkTestChk(GObj *volatile self);
+inline void actLinkTestChk(GObj *volatile self);
 
 static ActMail linkTest_mes[2] = {{377}, {376}}; /* derived name */
 
@@ -83,7 +83,7 @@ inline void actSt17aDoorEvent(int x)
 
 void actSt17aDoorUpChk(GObj *volatile self);
 void actSt17aDoorDownChk(GObj *volatile self);
-void actSt17aDoorUpEffect(GObj *volatile self);
+inline void actSt17aDoorUpEffect(GObj *volatile self);
 void actSt17aDoorDownEffect(GObj *volatile self);
 
 static ActMail doorInit_mes[2] = {{377}, {376}}; /* derived name */
@@ -403,7 +403,7 @@ inline void actSt17aIntro(GObj *volatile self)
     }
 }
 
-void actSt17aGirlWay(GObj *volatile self);
+inline void actSt17aGirlWay(GObj *volatile self);
 
 void actSt17aIntroChk(GObj *volatile self)
 {

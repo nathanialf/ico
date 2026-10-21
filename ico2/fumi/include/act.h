@@ -23,7 +23,7 @@ void actInitialize_only_charcter(char *self);
 int ACTReserveTarget(struct GObj *self, void *arg, int mail);
 void _ACTRun(int n);
 void _ACTWait(int frames);
-struct GProc *actCreateSubThread(void (*fn)(), int pri);
+inline struct GProc *actCreateSubThread(void (*fn)(), int pri);
 void actSetInterrupt(char *self, int val);
 void ConvertStickToAbsCoord(void *out, struct IosPadStick *stick);
 void ActSetStartBrainStatus(struct GObj *self, int status);

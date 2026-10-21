@@ -33,9 +33,9 @@ inline void actSt05dDoor2Event(int x)
     volatile int local = x;
 }
 
-void actSt05dDoor2UpEffect(GObj *volatile self);
+inline void actSt05dDoor2UpEffect(GObj *volatile self);
 void actSt05dDoor2DownEffect(GObj *volatile self);
-void actSt05dEneChk(GObj *volatile self);
+inline void actSt05dEneChk(GObj *volatile self);
 
 static ActMail door2Up_mes[2] = {{377}, {376}}; /* derived name */
 

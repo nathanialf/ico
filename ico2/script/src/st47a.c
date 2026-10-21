@@ -70,7 +70,7 @@ inline void actSt47aSekizo1Event(int x)
     volatile int local = x;
 }
 
-void actSt47aGirlWay(GObj *volatile self);
+inline void actSt47aGirlWay(GObj *volatile self);
 
 void actSt47aSekizo1Chk(GObj *volatile self)
 {
@@ -195,11 +195,11 @@ inline void actSt47aSekizo4Event(int x)
 }
 
 void actSt47aHane1Main(GObj *volatile self);
-void actSt47aHane1Switch(GObj *volatile self);
-void actSt47aHane1Down(GObj *volatile self);
+inline void actSt47aHane1Switch(GObj *volatile self);
+inline void actSt47aHane1Down(GObj *volatile self);
 void actSt47aHane1Up(GObj *volatile self);
-void actSt47aHane1_1Girl(GObj *volatile self);
-void actSt47aHane1_2Girl(GObj *volatile self);
+inline void actSt47aHane1_1Girl(GObj *volatile self);
+inline void actSt47aHane1_2Girl(GObj *volatile self);
 
 static ActMail hane1Main_mes[2] = {{356, actSt47aHane1Switch}, {376}}; /* derived name */
 
@@ -321,10 +321,10 @@ inline void actSt47aHane1_2Girl(GObj *volatile self)
 }
 
 void actSt47aHane2Main(GObj *volatile self);
-void actSt47aHane2Switch(GObj *volatile self);
-void actSt47aHane2Down(GObj *volatile self);
+inline void actSt47aHane2Switch(GObj *volatile self);
+inline void actSt47aHane2Down(GObj *volatile self);
 void actSt47aHane2Up(GObj *volatile self);
-void actSt47aHane2Girl(GObj *volatile self);
+inline void actSt47aHane2Girl(GObj *volatile self);
 
 static ActMail hane2Main_mes[2] = {{357, actSt47aHane2Switch}, {376}}; /* derived name */
 
@@ -481,8 +481,8 @@ inline void actSt47aBarricadeEvent(int x)
     volatile int local = x;
 }
 
-void actSt47aRopeSwingChk(GObj *volatile self);  /* derived name */
-void actSt47aRopeSwingDemo(GObj *volatile self); /* derived name */
+void actSt47aRopeSwingChk(GObj *volatile self);         /* derived name */
+inline void actSt47aRopeSwingDemo(GObj *volatile self); /* derived name */
 
 /* The rope swings when the boy strikes it without the sword: the check
    threads the swing and the swing re-arms the check. */
@@ -735,7 +735,7 @@ inline void actSt47aExit2(GObj *volatile self)
     }
 }
 
-void actSt47aEneChk(GObj *volatile self);
+inline void actSt47aEneChk(GObj *volatile self);
 
 static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
 

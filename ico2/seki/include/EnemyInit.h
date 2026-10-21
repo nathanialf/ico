@@ -15,12 +15,6 @@ void enemy_Initialize(void);
 
 extern int EnemyKindNum;
 
-/* the stage table's record: a pointer and a count */
-typedef struct EnemySet {        /* field names derived */
-    struct EnemyModelSet **list; /* 0x0 */
-    int n;                       /* 0x4 */
-} EnemySet;                      /* derived name */
-
 /* one kind's position list and the kind it places */
 typedef struct EnemyKindRec { /* field names derived */
     int *list;                /* 0x0 */
@@ -34,6 +28,12 @@ typedef struct EnemyModelSet { /* field names derived */
     sceVu0FVECTOR *pos;        /* 0x8 */
     int posNum;                /* 0xC */
 } EnemyModelSet;               /* derived name */
+
+/* the stage table's record: a pointer and a count */
+typedef struct EnemySet { /* field names derived */
+    EnemyModelSet **list; /* 0x0 */
+    int n;                /* 0x4 */
+} EnemySet;               /* derived name */
 
 extern EnemyModelSet enemy_enemymodel01_enemymodel04;
 

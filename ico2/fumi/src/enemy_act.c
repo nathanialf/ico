@@ -1058,11 +1058,12 @@ void actEnemyKidnapEnd(GObj *volatile self)
                 if ((((int)((long long)sub->flags20.ll >> 5)) & 1) == 0) {
                     if (act == carriedAct && gsub->carrier == self) {
                         if (target != 0) {
-                            /* the flag and the link's object are written
-                               through volatile views (other threads read
-                               both): the demo stores the link's object
-                               only after the flag, the second word free
-                               for the call's slot */
+                            /* q, the identity quaternion above, is
+                               reused as stage_SetParentOfGObj's parent
+                               record (the target object, then 0); the
+                               flag and the record's first word are stored
+                               through volatile views, the object only
+                               after the flag */
                             *(volatile int *)&gameover_flag = 1;
                             *(volatile int *)&q.i[0] = (int)target;
                             q.i[1] = 0;

@@ -60,7 +60,7 @@ unsigned int st20a_yure = 0;
 unsigned char st20a_yure_vol = 0;
 
 void actSt20aBridgeMain(GObj *volatile self);
-void actSt20aBridgeSwitch(GObj *volatile self);
+inline void actSt20aBridgeSwitch(GObj *volatile self);
 void actSt20aBridgeDown(GObj *volatile self);
 
 static ActMail bridgeMain_mes[2] = {{356, actSt20aBridgeSwitch}, {376}}; /* derived name */
@@ -113,7 +113,7 @@ void actSt20aBridgeDown(GObj *volatile self)
 }
 
 void actSt20aGondolaMain(GObj *volatile self);
-void actSt20aGondolaSwitch(GObj *volatile self);
+inline void actSt20aGondolaSwitch(GObj *volatile self);
 void actSt20aGondolaDown(GObj *volatile self);
 void actSt20aGondolaUp(GObj *volatile self);
 
@@ -242,14 +242,14 @@ inline void actSt20aExitChk(GObj *volatile self)
     RequestStageChange(4, boyGObj, 0, 16.0f, 16.0f);
 }
 
-void actSt20aEneChk(GObj *volatile self);
+inline void actSt20aEneChk(GObj *volatile self);
 
 static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
 
 void actSt20aFenceDownChk(GObj *volatile self);
-void actSt20aFenceUpChk(GObj *volatile self);
+inline void actSt20aFenceUpChk(GObj *volatile self);
 void actSt20aFenceDownChk2(GObj *volatile self);
-void actSt20aFenceUpChk2(GObj *volatile self);
+inline void actSt20aFenceUpChk2(GObj *volatile self);
 
 static ActMail fence_mes[2] = {{377}, {376}}; /* derived name */
 

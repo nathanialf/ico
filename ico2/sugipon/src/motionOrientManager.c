@@ -1001,7 +1001,7 @@ static void getMotionGeometry(void *self)
             MakeMirrorMotion(mot, skel);
         }
         if (w->catchBoy != 0) {
-            SlopeIKControl(self, mot, v.f, mo->step, n);
+            SlopeIKControl(self, (char *)mot, v.f, (Vec4 *)mo->step, n);
         }
         {
             Vec16 fv;

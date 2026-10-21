@@ -56,19 +56,19 @@ void actSt13cRescue(GObj *volatile self);
 void actSt13cBuki(GObj *volatile self);
 void actSt13cBmg1Event(int x);
 void actSt13cSleepEvent(int x);
-void actSt13cSleepChk(GObj *volatile self);
-void actSt13cCageDownMain(GObj *volatile self);
-void actSt13cCageDownSwitch(GObj *volatile self);
-void actSt13cCage1stDownDemo(GObj *volatile self);
-void actSt13cCageFallReadyChk(GObj *volatile self);
+inline void actSt13cSleepChk(GObj *volatile self);
+inline void actSt13cCageDownMain(GObj *volatile self);
+inline void actSt13cCageDownSwitch(GObj *volatile self);
+inline void actSt13cCage1stDownDemo(GObj *volatile self);
+inline void actSt13cCageFallReadyChk(GObj *volatile self);
 void actSt13cCageFallEvent(int x);
 void actSt13cSekizoEvent(int x);
-void actSt13cSekizoJimakuChk(GObj *volatile self);
-void actSt13cSekizoJimakuEff(GObj *volatile self);
-void actSt13cGirlCarryAgainChk(GObj *volatile self);
-void actSt13cRescueChk(GObj *volatile self);
+inline void actSt13cSekizoJimakuChk(GObj *volatile self);
+inline void actSt13cSekizoJimakuEff(GObj *volatile self);
+inline void actSt13cGirlCarryAgainChk(GObj *volatile self);
+inline void actSt13cRescueChk(GObj *volatile self);
 void actSt13cBukiEvent(int x);
-void actSt13cBukiChk(GObj *volatile self);
+inline void actSt13cBukiChk(GObj *volatile self);
 
 /* .sdata: bmg, the scene stream (actSt13cCageFallChk and
    actSt13cCageFallReadyChk) and hand; this build has no second scene stream
