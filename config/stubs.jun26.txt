@@ -63,13 +63,6 @@ text Main 0x00101C80 0x00101F38 ico2/common/src/main.c lines=95  # ordinal; diff
 lit4 Main 0x00678500 0x00678504 ico2/common/src/main.c  # 1 float (target side)
 rdlit Main 0x0059CAA0 0x0059CB48 ico2/common/src/main.c  # 7 strings (target side)
 sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target side)
-text _ACTCorrectMsg 0x00150BD8 0x00151360 ico2/fumi/src/commonact.c lines=297  # order
-rdlit _ACTCorrectMsg 0x005A19B0 0x005A1A57 ico2/fumi/src/commonact.c align=16  # 7 strings
-text ACTGetOrientFromIntrK 0x00151360 0x00151A08 ico2/fumi/src/commonact.c lines=108  # order
-text actCommonBox 0x00153F60 0x001543E4 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the BOX row's act
-lit4 actCommonBox 0x0067884C 0x00678850 ico2/fumi/src/commonact.c  # 1 float (target side)
-text actCommonBecarry 0x001561A8 0x001564C0 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the demo's act-mode-def rec106+0x0 holds it; the Aug-6-2001 build's same record is rec107+0x0 (one record later), which holds actCommonBecarry
-sdlit actCommonBecarry 0x00679D80 0x00679D88 ico2/fumi/src/commonact.c  # 1 string (target side)
 text _ACTMotDirSmzDirect 0x00156BB8 0x00156C1C ico2/fumi/src/commonact.c lines=13  # call-aug
 text WithMailFunc_Idling 0x00156C20 0x00156CCC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: mail 161's accept (the Aug-6-2001 build's mail 164 row)
 text WithMailFunc_BossDamaged 0x00156CD0 0x00156CE8 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-intrlist: mails 258/259's accept (the Aug-6-2001 build's 266/267 rows)
@@ -81,7 +74,6 @@ rdlit actCommonPlay 0x005A1AD0 0x005A1AE8 ico2/fumi/src/commonact.c def  # 1 str
 text actCommonOne 0x00156DE0 0x00156EAC ico2/fumi/src/commonact.c lines=14  # ordinal; differs-at:1; length:+16; extent-differs
 text actCommonDelete 0x00156EB0 0x00156ED0 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
 text actCommonStoneDead 0x00156ED0 0x00156F14 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec24+0x0 holds actCommonStoneDead there (the same record index in the demo)
-data intrMotion 0x0026A730 0x0026AD00 ico2/fumi/src/commonact.c local  # intrMotion: ACTGetOrientFromIntrK's table (lui/addiu of 0x26A730); 372 kinds in this build, PAL 432, and the motion numbers differ (target side)
 text actEnemyKidnapEnd 0x00159FE0 0x0015A324 ico2/fumi/src/enemy_act.c lines=149  # aug
 lit4 actEnemyKidnapEnd 0x006788E4 0x006788EC ico2/fumi/src/enemy_act.c  # 2 floats (target side)
 text func_00168EA8 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; derived name

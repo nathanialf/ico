@@ -252,12 +252,339 @@ static inline int GetHitDirIdx(GObj *self) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(_ACTCorrectMsg);
+int _ACTCorrectMsg(GObj *self, int msg, void *param)
+{
+    float pos[4];
+    Act *sk = GOBJ_ACT(self);
+    int fast = _ACTGame_GetParamF(1) < GOBJ_SUB(self)->ctrl.groundHeight;
 
-/* the motion each interrupt kind requests, indexed by the kind: 372 words in this build */
-INCLUDE_ASM(intrMotion);
+    switch (msg) {
+    case 295:
+    case 296:
+        msg = ChangeMailInLadder(self, msg);
+        break;
+    case 216:
+        if ((int)sk->flags20.ll & 1) {
+            msg = 215;
+        }
+        break;
+    case 207:
+        if ((int)sk->flags20.ll & 1) {
+            msg = 209;
+        }
+        break;
+    case 208:
+        if ((int)sk->flags20.ll & 1) {
+            msg = 210;
+        }
+        break;
+    case 307:
+    case 308:
+    case 309:
+        if (gameover_flag != 0) {
+            msg = 368;
+        }
+        break;
+    case 183:
+        if (sk->msgBlockTimer != 0) {
+            msg = 368;
+        }
+        break;
+    case 156:
+        if (fast) {
+            msg = 368;
+        }
+        break;
+    case 26:
+        if (GOBJ_SUB(self)->ctrl.waterDepth < 135.0f) {
+            msg = 368;
+        }
+        /* fallthrough */
+    case 195:
+        if (self->kind == 4) {
+            msg = 199;
+        }
+        break;
+    case 21:
+        if (sk->actMode == 62 && param == sk->lastChain) {
+            msg = 368;
+        }
+        if (fast) {
+            msg = 368;
+        }
+        break;
+    case 7:
+        if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->modeBits.word >> 16) & 7) {
+            if (sk->heldItem.i != 0) {
+                msg = 284;
+            }
+        }
+        break;
+    case 10: {
+        int iv = (int)GOBJ_SUB(self)->ctrl.fallHeight;
+        int flagA = 0;
+        int flagB = 0;
 
-INCLUDE_ASM(ACTGetOrientFromIntrK);
+        if (!(((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 20) & 1)) {
+            msg = 368;
+            break;
+        }
+        if (iv < 130) {
+            iosOmSendMail(self, 55, param);
+        }
+        if (self == girlGObj && ACTGame_FLAG_TETSUNAGI()) {
+            iosOmSendMail(self, 54, param);
+            if (iv < 130) {
+                iosOmSendMail(self, 53, param);
+            }
+        }
+        if (_ACTGame_GetParamF(1) < (float)iv) {
+            flagA = 1;
+        } else if (_ACTGame_GetParamF(0) < (float)iv) {
+            flagB = 1;
+        }
+        switch (sk->actMode) {
+        case 91:
+            flagB = 1;
+            break;
+        case 92:
+            flagA = 1;
+            break;
+        }
+        if (flagA) {
+            msg = 42;
+        } else if (flagB) {
+            msg = 41;
+        }
+        break;
+    }
+    case 14:
+        debug_StdPrintfDummy("critical hit to boss!!!");
+        if (GOBJ_ACT(self)->enemy->bossLife <= 1) {
+            msg = 265;
+        } else if (GOBJ_SUB(self)->ctrl.motion == 977) {
+            msg = 259;
+        } else {
+            msg = 258;
+        }
+        break;
+    case 13: {
+        float d = sk->life - (float)GOBJ_ACT(self)->damage;
+
+        if (self == boyGObj) {
+            d = sk->life = 100.0f;
+        }
+        if (GOBJ_ACT(self)->unguardable != 0) {
+            debug_StdPrintfDummy("!!! unable guard flag get\n");
+        }
+        if (stage_no == 83 || debug_use_new_queen_battle != 0) {
+            if (GOBJ_ACT(self)->stoneHit != 0) {
+                if (ACTGame_NoWeapon(self) != 0 && sk->actMode != 14) {
+                    msg = 101;
+                    GOBJ_ACT(self)->enemy->liftLevel = 10;
+                    BoySekikaTexScroll();
+                    GOBJ_ACT(self)->enemy->stoneHitNoWeapon += 1;
+                    break;
+                } else {
+                    msg = 256;
+                    GOBJ_ACT(self)->enemy->stoneHitWeapon += 1;
+                    GOBJ_ACT(self)->enemy->liftLevel = 10;
+                    break;
+                }
+            }
+        }
+        if (_AbsRotyGV(test_CURRENTORIENT(self), GOBJ_ACT(self)->attackDir) < 60 &&
+            sk->actMode != 15 && sk->actMode != 20 && GOBJ_ACT(self)->unguardable == 0 &&
+            !((int)(sk->flags18.ll >> 45) & 1)) {
+            iosOmSendMail(self, 256, param);
+            debug_StdPrintfDummy("guard mail\n");
+        } else {
+            debug_StdPrintfDummy("guard error=[%d][%d][%d][%d]\n",
+                                 _AbsRotyGV(test_CURRENTORIENT(self), GOBJ_ACT(self)->attackDir),
+                                 sk->actMode, 15, 20);
+        }
+        if (GOBJ_ACT(self)->stoneHit != 0) {
+            GOBJ_ACT(self)->enemy->stoneLevel += 1;
+            GOBJ_ACT(self)->enemy->liftLevel = 10;
+        }
+        if (self->kind == 4 && GOBJ_ACT(self)->enemy->liftKind == 3) {
+            if (GOBJ_ACT(self)->enemy->slowTimer <= 0) {
+                DamageFunc(self);
+                iosPadActRequest(boyPad, 2);
+                pos[0] = test_CURRENTROOT(self)[0];
+                pos[1] = test_CURRENTROOT(self)[1];
+                pos[2] = test_CURRENTROOT(self)[2];
+                soundSeDefPlay(382, 0, pos, 1);
+            }
+            msg = 368;
+            GOBJ_ACT(self)->enemy->slowTimer = 60;
+            break;
+        }
+        if (self->kind == 4 && sk->actMode == 16 &&
+            (char *)GOBJ_ACT(self)->enemy->clingTarget == (char *)girlGObj) {
+            msg = 192;
+            break;
+        }
+        if (self->kind == 4 && GOBJ_ACT(self)->enemy->liftKind != 3 &&
+            EnemyGetNSafeParts(self) < 8) {
+            msg = 265;
+            debug_StdPrintfDummy("die!!!!!!!!!!!\n");
+            break;
+        }
+        if (d < 0.0f) {
+            msg = 265;
+            if (self == boyGObj) {
+                msg = 264;
+                sk->life = 100.0f;
+            }
+            debug_StdPrintfDummy("die!!!!!!!!!!!\n");
+            break;
+        }
+        if (GOBJ_ACT(self)->downHit != 0 || _ACTCharStatus_Check(self, 12) != 0) {
+            msg = 264;
+            debug_StdPrintfDummy("down!!!!!!!!!!!\n");
+            break;
+        }
+        {
+            int dir = GetHitDirIdx(self);
+
+            msg = dir + 260;
+            debug_StdPrintfDummy("damage!!!!!!!!!!!  %d\n", dir);
+        }
+        break;
+    }
+    }
+    return msg;
+}
+
+/* the motion each interrupt kind requests, indexed by the kind */
+static int intrMotion[372] = {
+    0,   0,   0,   0,   0,   0,   101, 101, 52,  0,   1,   0,   0,   0,   0,   188, 189, 0,   0,
+    0,   73,  74,  0,   139, 103, 143, 147, 1,   17,  19,  20,  0,   0,   0,   0,   -1,  -1,  125,
+    225, -1,  107, 140, 141, 0,   0,   0,   105, 104, 128, 129, 130, 221, 222, 4,   1,   4,   0,
+    0,   0,   54,  55,  56,  0,   0,   0,   1,   0,   1,   0,   98,  12,  7,   1,   91,  1,   0,
+    99,  100, 15,  13,  1,   81,  88,  1,   0,   0,   0,   1,   1,   0,   0,   0,   1,   1,   0,
+    0,   0,   1,   0,   0,   18,  114, 115, 116, 0,   59,  60,  61,  1,   76,  77,  76,  142, 142,
+    62,  63,  64,  65,  67,  66,  68,  69,  69,  71,  70,  108, 109, 110, 107, 111, 107, 131, 131,
+    74,  169, 170, 171, 172, 173, 133, 109, 110, 174, 176, 175, 178, 177, 168, 139, 179, 180, 181,
+    72,  0,   0,   0,   73,  179, 173, 182, 0,   5,   6,   7,   8,   9,   13,  14,  12,  15,  16,
+    21,  23,  23,  22,  24,  1,   1,   2,   34,  35,  11,  1,   37,  37,  38,  44,  43,  43,  45,
+    42,  102, 125, 149, 7,   147, 1,   148, 149, 141, 49,  50,  102, 167, 78,  217, 46,  189, 188,
+    191, 190, 191, 190, 189, 188, 12,  7,   192, 189, 188, 192, 192, 0,   57,  58,  1,   12,  1,
+    0,   218, 102, 0,   0,   0,   225, 219, 25,  225, 10,  11,  1,   7,   1,   0,   184, 185, 186,
+    187, 26,  27,  28,  29,  30,  31,  32,  33,  117, 118, 126, 127, 119, 120, 121, 122, 124, 125,
+    0,   52,  51,  47,  48,  53,  131, 132, 111, 144, 145, 52,  52,  112, 113, 52,  101, 101, 106,
+    81,  82,  83,  82,  84,  85,  86,  79,  51,  80,  133, 134, 135, 136, 137, 138, 139, 0,   0,
+    0,   226, 227, 164, 165, 165, 166, 193, 198, 199, 194, 195, 202, 7,   1,   203, 204, 205, 205,
+    206, 207, 208, 209, 210, 212, 213, 150, 151, 152, 150, 151, 152, 153, 154, 154, 155, 155, 0,
+    0,   156, 157, 158, 91,  159, 1,   160, 161, 162, 163, 161, 102, 1,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0}; /* derived name */
+
+int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
+{
+    Act *s = GOBJ_ACT(self);
+    MotOriTarget tmp;
+    int ret = intrMotion[k];
+
+    *out = s->env.motOriReq;
+    switch (k) {
+    case 276:
+        out->a = GOBJ_WORK(self)->cliffReq;
+        break;
+    case 270:
+        *(char **)((char *)s + 0x2C) = GetMailAdditionalData(self, arg);
+        tmp = *(MotOriTarget *)(*(char **)((char *)GOBJ_ACT(self) + 0x2C));
+        out->b = s->env.motOriReq.b = tmp;
+        break;
+    case 52:
+        *(char **)((char *)s + 0x2C) = GetMailAdditionalData(self, arg);
+        tmp = *(MotOriTarget *)(*(char **)((char *)GOBJ_ACT(self) + 0x2C));
+        out->a = out->b = s->env.motOriReq.a = s->env.motOriReq.b = tmp;
+        s->env.sofaObj.obj = tmp.obj;
+        GetSofaPosition(self, s->env.sofaObj.obj);
+        break;
+    case 131:
+        out->a = GOBJ_WORK(self)->bellowWall3000;
+        break;
+    case 130:
+        out->a = GOBJ_WORK(self)->bellowWall400;
+        break;
+    case 105:
+    case 106:
+    case 107:
+    case 108:
+        out->b = s->env.motOriReq.a;
+        break;
+    case 43:
+        return GOBJ_ACT(self)->enemy->jumpOrient;
+    case 58:
+        if (s->actMode == 73) {
+            ret = 227;
+        }
+        break;
+    case 330:
+    case 331:
+    case 332:
+        out->b = out->a = s->env.cliffContact.b;
+        break;
+    case 333:
+        *out = s->env.cliffContact = GOBJ_ACT(boyGObj)->env.cliffContact;
+        break;
+    case 334:
+    case 335:
+    case 336:
+        *out = s->env.cliffContact;
+        break;
+    case 337:
+    case 338:
+        *out = s->env.supportReq;
+        s->env.motOriReq = *out;
+        break;
+    case 183:
+    case 184:
+    case 185:
+        if (self == boyGObj) {
+            if (ACTGame_NoWeapon(self)) {
+                ret = 36;
+            } else {
+                ret = ACTGame_GetMotOrientFromWeapon(s->weapon);
+            }
+        }
+        break;
+    case 66:
+    case 68:
+    case 303:
+        ret = s->orientMot;
+        break;
+    case 75:
+        ret = s->orientMot;
+        out->a = GOBJ_ACT(boyGObj)->env.motOriReq.b;
+        s->env.motOriReq = *out;
+        break;
+    case 349:
+    case 353:
+        out->a = GOBJ_ACT(boyGObj)->env.motOriReq.b;
+        s->env.motOriReq = *out;
+        break;
+    case 366:
+        if (s->soundMot != 0) {
+            ret = s->soundMot;
+            s->soundMot = 0;
+        } else {
+            ret = 0;
+        }
+        break;
+    case 138:
+    case 140:
+    case 141:
+        out->a = *(MotOriTarget *)&GOBJ_ACT(self)->enemy->climbCol;
+        break;
+    default:
+        ret = intrMotion[k];
+        break;
+    }
+    return ret;
+}
 
 void ACTRunIntrCorrect(GObj *self, IntrMail *intr, IntrMail *corr)
 {
@@ -1266,7 +1593,101 @@ static inline int boxWallCheck(GObj *self, GObj *box, float dist, int h) /* deri
     return 1;
 }
 
-INCLUDE_ASM(actCommonBox);
+void actCommonBox(GObj *volatile self)
+{
+    GObj *box;
+    /* a helper defined at the head of this body */
+    inline void addGirlLevelForBox(GObj * b) /* derived name */
+    {
+        if (girlGObj != 0 && GOBJ_SUB(girlGObj)->parent.obj == b) {
+            brainAddLevelGirl(1000.0f);
+        }
+    }
+    Act *s = GOBJ_ACT(self);
+    float hold[4];
+    int dbg = 0; /* local debug switch, see the test after the hold point below */
+
+    s->after = afterCommonBox;
+    box = s->env.holdBoxObj;
+    ((Act *)(char *)s)->box = box;
+    actMotDirToWall(self);
+    while (1) {
+        int had = (int)s->pushDir != 0;
+        int f2 = 0;
+        int miss = 0;
+        int flag = 0;
+        unsigned char isTruck = IsThisBoxTruck(box);
+
+        addGirlLevelForBox(box);
+        GetBoxHoldPoint(hold, box, self);
+        if (!isTruck) {
+            if (boxWallCheck(self, box, 100.0f, 48)) {
+                ACTSendMailCorrect(self, 177);
+                miss = 1;
+            }
+            if (s->pushDir == 0xFFFFFFFF) {
+                if (boxWallCheck(self, box, 150.0f, 48)) {
+                    miss = 1;
+                }
+            }
+        }
+        if (!miss &&
+            (isTruck == 0 ? GOBJ_SUB(self)->ctrl.trigger1 : GOBJ_SUB(self)->ctrl.frameFlag1)) {
+            f2 = 1;
+            if ((int)s->pushDir == 1 && boxWallCheck(self, box, -25.0f, 30)) {
+                miss = 1;
+            } else {
+                float dir[4];
+                unsigned char ok;
+                if (s->pushDir == 0xFFFFFFFF) {
+                    dir[0] = s->env.wallOrient[0];
+                    dir[1] = s->env.wallOrient[1];
+                    dir[2] = s->env.wallOrient[2];
+                } else {
+                    sceVu0ScaleVector(dir, s->env.wallOrient, -1.0f);
+                }
+                if (!isTruck) {
+                    AlignBox(box, 100.0f);
+                }
+                ok = MoveBoxWithHoldPoint(box, hold, self, 22, dir);
+                if (ok) {
+                    flag = 1;
+                } else {
+                    miss = 1;
+                }
+            }
+        }
+        if (GetMotionFrameFlag2((void *)self)) {
+            float pos[4];
+            GetBoxGlobalHoldPoint(pos, box, hold);
+            SetDirectRootPositionNoFittingWithNodePoint(
+                (void *)self, 22, pos, GOBJ_SUB(self)->ctrl.frameFlag1 != 0 ? 1.0f : 0.3f);
+            /* a local debug switch, off: mark the global hold point and the
+               root. The August TRFILE (3132-3136) and the PAL listing
+               (3379-3383) have five code-less lines here, the block with two
+               statements and the closing brace; the text is derived. */
+            if (dbg) {
+                debug_NMarker(pos, 255, 0, 0, 100.0f);
+                debug_NMarker(test_CURRENTROOT(self), 0, 0, 255, 100.0f);
+            }
+        }
+        if (!had) {
+            _boxbar_set_sound(self, 0);
+            if (!isTruck) {
+                AlignBox(box, 100.0f);
+            }
+        } else if (f2) {
+            _boxbar_set_sound(self, 1);
+        }
+        if (flag) {
+            _boxbar_set_sound(self, 3);
+        }
+        if (miss) {
+            _boxbar_set_sound(self, 2);
+        }
+        _ACTWait(1);
+    }
+}
 
 /* Sub15C's root.filter (0x1B0), set word by word to the bar the actor
    holds; afterCommonBar resets it */
@@ -2203,7 +2624,64 @@ static __inline__ unsigned char requestBecarryMotion(GObj *self, int mot, int n)
     return 0;
 }
 
-INCLUDE_ASM(actCommonBecarry);
+void actCommonBecarry(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    GObj *g = s->carrier;
+    int cur = -1;
+    int old;
+    unsigned char done;
+    int n;
+    float p[4];
+    float q[4];
+    float pos[4];
+    float o[4];
+    float v[4];
+
+    s->flags18.ll &= ~(1ULL << 40);
+    n = (int)((50.0f - _DistxzGV(test_CURRENTROOT(g), test_CURRENTROOT((void *)self))) / 5.0f);
+    n = n < 0 ? -n : n;
+    _ACTWait(1);
+    while (1) {
+        _ACTCharStatus_Set(self, 7, -1.0f, 0);
+        old = cur;
+        cur = GOBJ_SUB(g)->ctrl.motion;
+        if (old != cur) {
+            done = requestBecarryMotion(self, cur, 1768);
+            if (!done) {
+                s->flags18.ll |= (1ULL << 40);
+            }
+        }
+        switch (GOBJ_SUB(self)->ctrl.motion) {
+        case 641:
+        case 643:
+            if (n > 0) {
+                p[0] = test_CURRENTROOT((void *)self)[0];
+                p[1] = test_CURRENTROOT((void *)self)[1];
+                p[2] = test_CURRENTROOT((void *)self)[2];
+                q[0] = test_CURRENTROOT(g)[0];
+                q[1] = test_CURRENTROOT(g)[1];
+                q[2] = test_CURRENTROOT(g)[2];
+                _OrientXZGV(o, p, q);
+                sceVu0ScaleVector(v, o, 5.0f);
+                sceVu0AddVector(pos, p, v);
+                SetMotionDirection(g, o);
+                SetDirectRootPosition((void *)self, pos);
+                n--;
+            }
+            break;
+        }
+        if (debug_font_flag & 1) {
+            debug_Printf(100, 150, 0xFFFFFFF, "[%s]\n",
+                         (motionKind + GOBJ_SUB(girlGObj)->ctrl.motion)->name);
+        }
+        if (debug_font_flag & 1) {
+            debug_Printf(100, 160, 0xFFFFFFF, "[%s]\n",
+                         motionKind[GOBJ_SUB(s->carrier)->ctrl.motion].name);
+        }
+        _ACTWait(1);
+    }
+}
 
 static inline void SetIdleMotionRange(int k, int mot, int mot2) /* derived name */
 {
