@@ -32,6 +32,8 @@ void actSt47aHane2Main(GObj *volatile self);
 void actSt47aHane2Switch(GObj *volatile self);
 void actSt47aHane2Up(GObj *volatile self);
 void actSt47aRopeChk(GObj *volatile self);
+void actSt47aRopeSwingChk(GObj *volatile self);
+void func_00221858(GObj *volatile self);
 void actSt47aSekizo1Chk(GObj *volatile self);
 
 #endif /* ST47A_H */

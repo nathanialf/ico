@@ -2206,61 +2206,6 @@ text actE3CageFallReadyChk 0x001F8630 0x001F869C ico2/script/src/e3.c lines=11  
 text actE3St01bEneChk 0x001F86A0 0x001F8758 ico2/script/src/e3.c lines=28  # aug
 text actE3St09aGirlWay 0x001F8758 0x001F87E4 ico2/script/src/e3.c lines=15  # aug
 rdlit actE3St09aGirlWay 0x006627E0 0x006627EC ico2/script/src/e3.c def  # 1 data
-text actConte14_1 0x001F87E8 0x001F8A90 ico2/script/src/end.c lines=75  # order
-text actConte14_2 0x001F8A90 0x001F8C98 ico2/script/src/end.c lines=71  # order
-text actEndDemo07 0x001F8C98 0x001F8D90 ico2/script/src/end.c lines=23  # order
-text actConte14_7 0x001F8D90 0x001F8F64 ico2/script/src/end.c lines=44  # order
-lit4 actConte14_7 0x00678FF4 0x00678FFC ico2/script/src/end.c  # 2 floats (target side)
-text actConte14_10 0x001F8F68 0x001F9200 ico2/script/src/end.c lines=103  # order
-text func_001F9200 0x001F9200 0x001F9488 ico2/script/src/end.c  # jun26-only; derived name
-text actStaff1Demo 0x001F9488 0x001F9748 ico2/script/src/end.c lines=97  # order
-lit4 actStaff1Demo 0x00678FFC 0x00679000 ico2/script/src/end.c  # 1 float (target side)
-text actStaff2Demo 0x001F9748 0x001F9950 ico2/script/src/end.c lines=113  # order
-text func_001F9950 0x001F9950 0x001F9A78 ico2/script/src/end.c  # jun26-only; derived name
-text actEndDemo14 0x001F9A78 0x001F9B38 ico2/script/src/end.c lines=32  # order
-text actEndObj2368 0x001F9B38 0x001F9BB0 ico2/script/src/end.c  # jun26-only; derived name; named from obj-layout row 2368's act process (derived name)
-text actEndObj2242 0x001F9BB0 0x001F9C18 ico2/script/src/end.c  # jun26-only; derived name; named from obj-layout row 2242's act process (derived name)
-text actEndObj2361 0x001F9C18 0x001F9C80 ico2/script/src/end.c  # jun26-only; derived name; named from obj-layout row 2361's act process (derived name)
-text actEndObj2354 0x001F9C80 0x001F9CE8 ico2/script/src/end.c  # jun26-only; derived name; named from obj-layout row 2354's act process (derived name)
-text actEndDemo03 0x001F9CE8 0x001F9D8C ico2/script/src/end.c lines=22  # order
-text actEndDemo04 0x001F9D90 0x001F9E08 ico2/script/src/end.c lines=19  # order
-text actEndDemo05 0x001F9E08 0x001F9E80 ico2/script/src/end.c lines=14  # order
-text actEndDemo11 0x001F9E80 0x001F9EF8 ico2/script/src/end.c lines=15  # order
-text actEndObj2383 0x001F9EF8 0x001F9F60 ico2/script/src/end.c  # jun26-only; derived name; named from obj-layout row 2383's act process (derived name)
-text actEndDemo12 0x001F9F60 0x001F9FE4 ico2/script/src/end.c lines=15  # order
-text actEndDemo13 0x001F9FE8 0x001FA050 ico2/script/src/end.c lines=16  # order
-text actStaff1 0x001FA050 0x001FA0F8 ico2/script/src/end.c lines=21  # order
-text actStaff2 0x001FA0F8 0x001FA1C0 ico2/script/src/end.c lines=18  # order
-text actStaff3 0x001FA1C0 0x001FA248 ico2/script/src/end.c lines=18  # order
-text actSt27aEnd 0x001FA248 0x001FA2C0 ico2/script/src/end.c lines=25  # order
-text actEndLogo 0x001FA2C0 0x001FA328 ico2/script/src/end.c lines=12  # order
-text actEndDemo01Chk 0x001FA328 0x001FA3C0 ico2/script/src/end.c lines=22  # order
-text func_001FA3C0 0x001FA3C0 0x001FA3F0 ico2/script/src/end.c  # jun26-only; derived name
-text func_001FA3F0 0x001FA3F0 0x001FA420 ico2/script/src/end.c  # jun26-only; derived name
-text actConte14_3 0x001FA420 0x001FA498 ico2/script/src/end.c lines=11  # order
-text func_001FA498 0x001FA498 0x001FA4C8 ico2/script/src/end.c  # jun26-only; derived name
-text actConte14_4 0x001FA4C8 0x001FA540 ico2/script/src/end.c lines=11  # order
-text actEndDemo05Chk 0x001FA540 0x001FA570 ico2/script/src/end.c lines=6  # order
-text actConte14_5 0x001FA570 0x001FA5E8 ico2/script/src/end.c lines=13  # order
-text func_001FA5E8 0x001FA5E8 0x001FA610 ico2/script/src/end.c  # jun26-only; derived name
-text actEndDemo06Chk 0x001FA610 0x001FA640 ico2/script/src/end.c lines=16  # order
-text func_001FA640 0x001FA640 0x001FA670 ico2/script/src/end.c  # jun26-only; derived name
-text actEndDemo10Chk 0x001FA670 0x001FA720 ico2/script/src/end.c lines=16  # order
-text func_001FA720 0x001FA720 0x001FA760 ico2/script/src/end.c  # jun26-only; derived name
-text actConte14_10_Jimaku 0x001FA760 0x001FA8E8 ico2/script/src/end.c lines=30  # order
-lit4 actConte14_10_Jimaku 0x00679000 0x00679004 ico2/script/src/end.c  # 1 float (target side)
-text actEndDemo11Chk 0x001FA8E8 0x001FA918 ico2/script/src/end.c lines=6  # order
-text actConte14_11 0x001FA918 0x001FA9A8 ico2/script/src/end.c lines=15  # order
-text actEndDemo12Chk 0x001FA9A8 0x001FA9D8 ico2/script/src/end.c lines=6  # order
-text actConte14_12 0x001FA9D8 0x001FAA78 ico2/script/src/end.c lines=13  # order
-text actEndDemo13Chk 0x001FAA78 0x001FAAA8 ico2/script/src/end.c lines=6  # order
-text func_001FAAA8 0x001FAAA8 0x001FAB68 ico2/script/src/end.c  # jun26-only; derived name
-text actStaff1Chk 0x001FAB68 0x001FAB90 ico2/script/src/end.c lines=4  # order
-text actStaff3Chk 0x001FAB90 0x001FABC8 ico2/script/src/end.c lines=14  # aug
-text actStaff3RollChk 0x001FABC8 0x001FAC2C ico2/script/src/end.c lines=14  # aug
-text actEndDemo14Chk 0x001FAC30 0x001FAC60 ico2/script/src/end.c lines=6  # aug
-text actEndLogoChk 0x001FAC60 0x001FACB8 ico2/script/src/end.c lines=53  # aug
-text actTitleCamera2 0x001FACB8 0x001FACF4 ico2/script/src/op.c lines=47  # aug
 text actOpDemo01 0x001FACF8 0x001FB150 ico2/script/src/op.c lines=134  # aug
 sdlit actOpDemo01 0x0067B310 0x0067B328 ico2/script/src/op.c  # 3 strings (target side)
 text actTitleShortCut 0x001FB150 0x001FB26C ico2/script/src/op.c lines=41  # aug
@@ -2832,31 +2777,15 @@ lit4 actSt47aHane1 0x00679210 0x00679220 ico2/script/src/st47a.c  # 4 floats (ta
 text actSt47aHane2 0x00220D98 0x00220E08 ico2/script/src/st47a.c lines=12  # aug
 text actSt47aRope 0x00220E08 0x00220E70 ico2/script/src/st47a.c lines=21  # aug
 text actSt47aBarricade 0x00220E70 0x00220F24 ico2/script/src/st47a.c lines=19  # aug
-text actSt47aExit 0x00220F28 0x00220FA0 ico2/script/src/st47a.c lines=12  # aug
 text actSt47aExit2 0x00220FA0 0x00221038 ico2/script/src/st47a.c lines=14  # aug
 text actSt47aEne 0x00221038 0x002210A0 ico2/script/src/st47a.c lines=14  # aug
 text actSt47aEnemy2 0x002210A0 0x00221114 ico2/script/src/st47a.c lines=21  # aug
 text actSt47aEnemy3 0x00221118 0x00221190 ico2/script/src/st47a.c lines=21  # aug
 text actSt47aEnemy4 0x00221190 0x00221220 ico2/script/src/st47a.c lines=15  # aug
-text actSt47aSekizo1Event 0x00221220 0x00221230 ico2/script/src/st47a.c lines=4  # aug
-text actSt47aGirlWay 0x00221230 0x002212BC ico2/script/src/st47a.c lines=13  # aug
-text actSt47aSekizo2Event 0x002212C0 0x002212D0 ico2/script/src/st47a.c lines=4  # aug
-text actSt47aSekizo3Event 0x002212D0 0x002212E0 ico2/script/src/st47a.c  # aug; no definition in this TU
-text actSt47aSekizo4Event 0x002212E0 0x002212F0 ico2/script/src/st47a.c  # aug; no definition in this TU
-text actSt47aHane1Main 0x002212F0 0x00221330 ico2/script/src/st47a.c lines=9  # aug
 text actSt47aHane1Switch 0x00221330 0x002213D0 ico2/script/src/st47a.c lines=21  # aug
 text actSt47aHane1Down 0x002213D0 0x00221494 ico2/script/src/st47a.c lines=49  # aug
-text actSt47aHane2Main 0x00221538 0x00221578 ico2/script/src/st47a.c lines=9  # aug
 text actSt47aHane2Switch 0x00221578 0x00221618 ico2/script/src/st47a.c lines=21  # aug
-text actSt47aHane2Down 0x00221618 0x002216DC ico2/script/src/st47a.c lines=49  # aug
-text actSt47aBarricadeEvent 0x00221730 0x00221740 ico2/script/src/st47a.c lines=4  # aug
-text func_00221740 0x00221740 0x00221858 ico2/script/src/st47a.c  # jun26-only; derived name
 text func_00221858 0x00221858 0x0022190C ico2/script/src/st47a.c  # jun26-only; derived name
-text func_00221910 0x00221910 0x00221920 ico2/script/src/st47a.c  # jun26-only; derived name
-text actSt47aBarricadeChk 0x00221920 0x002219D8 ico2/script/src/st47a.c lines=36  # order
-text actSt47aExitChk 0x002219D8 0x00221A50 ico2/script/src/st47a.c lines=12  # order
-text actSt47aExit2Chk 0x00221A50 0x00221A84 ico2/script/src/st47a.c lines=5  # order
-text actSt47aEneChk 0x00221A88 0x00221AF0 ico2/script/src/st47a.c lines=15  # order
 text actExplode 0x00221AF0 0x00221B58 ico2/script/src/st99a.c lines=11  # order
 text actSplash1 0x00221B58 0x00221BC0 ico2/script/src/st99a.c lines=11  # order
 text actSplash2 0x00221BC0 0x00221C28 ico2/script/src/st99a.c lines=11  # order

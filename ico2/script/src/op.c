@@ -38,8 +38,6 @@ static int opDemoMode = 0; /* derived name */
 
 static int opDemoNextMode = 0; /* derived name */
 
-INCLUDE_ASM(actTitleCamera2);
-
 void actTitleReadTimeDemo0(GObj *volatile self);
 void actTitleShortCut(GObj *volatile self);
 
