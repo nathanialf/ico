@@ -18,6 +18,7 @@ void actCommonReviveAir(GObj *volatile self);
 void actCommonPlay(GObj *volatile self);
 void actCommonOne(GObj *volatile self);
 void actCommonDelete(GObj *volatile self);
+void actCommonSofa(GObj *volatile self);
 void actCommonCatchFire(GObj *volatile self);
 void actCommonCatchFireBomb(GObj *volatile self);
 void actCommonPutFire(GObj *volatile self);
@@ -1282,7 +1283,75 @@ inline void afterCommonBar(GObj *volatile self)
     _boxbar_set_sound(self, 0);
 }
 
-INCLUDE_ASM(actCommonBar);
+void actCommonBar(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    GObj *bar;
+    float pos[4];
+    float ori[4];
+    float hold[4];
+    float hold2[4];
+
+    bar = s->env.barObj;
+    pos[0] = *(float *)((char *)test_CURRENTROOT((void *)self) + 0);
+    pos[1] = *(float *)((char *)test_CURRENTROOT((void *)self) + 4);
+    pos[2] = *(float *)((char *)test_CURRENTROOT((void *)self) + 8);
+    ori[0] = *(float *)((char *)test_CURRENTORIENT(self) + 0);
+    ori[1] = *(float *)((char *)test_CURRENTORIENT(self) + 4);
+    ori[2] = *(float *)((char *)test_CURRENTORIENT(self) + 8);
+    GetRotObjectHoldPoint(hold, hold2, &((SubHandle *)((char *)self + 0x15C))->sub->root.wall,
+                          (void *)self);
+    s->bar = bar;
+    s->after = (void *)afterCommonBar;
+    debug_StdPrintfDummy("set %p\n", bar);
+    ((BarHold *)(int)GOBJ_SUB(self))->filterObj = (int)bar;
+    ((BarHold *)(int)GOBJ_SUB(self))->filterNode = -1;
+    ((BarHold *)(int)GOBJ_SUB(self))->filterElem = 0;
+    while (1) {
+        int had = (int)s->pushDir != 0;
+        int lit = 0;
+        int miss = 0;
+        int flag = 0;
+        if (GetMotionFrameFlag1((void *)self)) {
+            float dir[4];
+            float up[4];
+            int node = GetSkeltonFocusNode((void *)self, 32);
+            unsigned char ok;
+            lit = 1;
+            CopyVector(dir, (char *)GOBJ_SUB(self)->nodeMtx + node * 64 + 0x30);
+            if (s->pushDir == 0xFFFFFFFF) {
+                sceVu0ScaleVector(up, test_CURRENTORIENT(self), -1.0f);
+            } else {
+                up[0] = *(float *)((char *)test_CURRENTORIENT(self) + 0);
+                up[1] = *(float *)((char *)test_CURRENTORIENT(self) + 4);
+                up[2] = *(float *)((char *)test_CURRENTORIENT(self) + 8);
+            }
+            ok = MoveRotObjectWithHoldPoint(bar, hold, (void *)self, dir, up);
+            if (ok) {
+                flag = 1;
+            } else {
+                miss = 1;
+            }
+        }
+        if (GetMotionFrameFlag2((void *)self)) {
+            GetRotObjectGlobalHoldGeometry(pos, ori, bar, hold, hold2);
+            SetDirectRootPositionNoFittingWithNodePoint((void *)self, 0x20, pos, lit ? 1.0f : 0.3f);
+            SetMotionDirection(self, ori);
+        }
+        if (!had) {
+            _boxbar_set_sound(self, 0);
+        } else if (lit && !miss) {
+            _boxbar_set_sound(self, 1);
+        }
+        if (flag) {
+            _boxbar_set_sound(self, 3);
+        }
+        if (miss) {
+            _boxbar_set_sound(self, 2);
+        }
+        _ACTWait(1);
+    }
+}
 
 void funcCommonJumpDircorrect(GObj *self)
 {
@@ -1995,7 +2064,23 @@ typedef struct { /* field names derived */
 
 INCLUDE_ASM(actCommonStoneDead);
 
-INCLUDE_ASM(actCommonSofa);
+inline void actCommonSofa(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+
+    SetDirectRootPosition((void *)self, s->env.sofaPos);
+    GOBJ_ACT(self)->enemy->sofaWake = 0;
+    GOBJ_ACT(self)->enemy->dirSmoothFrames = 0;
+    GOBJ_ACT(self)->enemy->dirSmoothFrames2 = 0;
+    *(void **)((char *)s + 0x140) = *(void **)((char *)s + 0x5EC);
+    while (1) {
+        if (GOBJ_ACT(self)->enemy->sofaWake > GOBJ_ACT(self)->enemy->sofaWakeTime) {
+            ACTSendMailCorrect(self, 106);
+        }
+        GOBJ_ACT(self)->enemy->sofaWake += 1;
+        _ACTWait(1);
+    }
+}
 
 inline void actCommonCatchFire(GObj *volatile self)
 {

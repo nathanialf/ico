@@ -74,9 +74,6 @@ rdlit _ACTCorrectMsg 0x005A19B0 0x005A1A57 ico2/fumi/src/commonact.c align=16  #
 text ACTGetOrientFromIntrK 0x00151360 0x00151A08 ico2/fumi/src/commonact.c lines=108  # order
 text actCommonBox 0x00153F60 0x001543E4 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the BOX row's act
 lit4 actCommonBox 0x0067884C 0x00678850 ico2/fumi/src/commonact.c  # 1 float (target side)
-text actCommonBar 0x001543E8 0x001546CC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the BAR row's act
-lit4 actCommonBar 0x00678850 0x00678854 ico2/fumi/src/commonact.c  # 1 float (target side)
-sdlit actCommonBar 0x00679D60 0x00679D68 ico2/fumi/src/commonact.c  # 1 string (target side)
 text actCommonFly 0x00154D20 0x00155078 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the FLY row's act (the Aug-6-2001 build's name for that mode's act)
 lit4 actCommonFly 0x00678858 0x00678868 ico2/fumi/src/commonact.c  # 4 floats (target side)
 text actCommonLadder 0x00155078 0x0015563C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec32+0x0 holds actCommonLadder there (the same record index in the demo)
@@ -96,7 +93,6 @@ rdlit actCommonPlay 0x005A1AD0 0x005A1AE8 ico2/fumi/src/commonact.c def  # 1 str
 text actCommonOne 0x00156DE0 0x00156EAC ico2/fumi/src/commonact.c lines=14  # ordinal; differs-at:1; length:+16; extent-differs
 text actCommonDelete 0x00156EB0 0x00156ED0 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
 text actCommonStoneDead 0x00156ED0 0x00156F14 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec24+0x0 holds actCommonStoneDead there (the same record index in the demo)
-text actCommonSofa 0x00156F18 0x00156FDC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec45+0x0 holds actCommonSofa there (the same record index in the demo)
 data intrMotion 0x0026A730 0x0026AD00 ico2/fumi/src/commonact.c local  # intrMotion: ACTGetOrientFromIntrK's table (lui/addiu of 0x26A730); 372 kinds in this build, PAL 432, and the motion numbers differ (target side)
 text actEnemyKidnapEnd 0x00159FE0 0x0015A324 ico2/fumi/src/enemy_act.c lines=149  # aug
 lit4 actEnemyKidnapEnd 0x006788E4 0x006788EC ico2/fumi/src/enemy_act.c  # 2 floats (target side)
