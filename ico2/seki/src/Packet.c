@@ -12,7 +12,7 @@
 #include "memory.h"
 #include <assert.h>
 
-/* the largest packet pac_MakePacket has built so far */
+/* the largest packet pac_makeStrip has built so far, printed when it grows */
 static int maxPacketSize = 0; /* derived name */
 
 /* A word written as a float through the union member. */
@@ -39,11 +39,11 @@ typedef union { /* field names derived */
 /* one quadword, copied with lq/sq */
 typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
-/* The work area's layout.  The open DMA tag, VIF code and GIF tag and the
-   cursor are one union of packet pointers, and each word is one
-   post-increment statement.  Every read of a tag pointer is a union
-   access, so it may alias any packet store (pac_continueTag's schedule
-   depends on it). */
+/* The work area's layout.  The open DMA tag, VIF code and GIF tag are kept
+   in the same union of packet pointers as the cursor: one type for the four
+   pointers the packet is written through, so a tag is read and moved the
+   way the cursor is.  Each word is one post-increment statement, as in the
+   packet writers below. */
 typedef union { /* field names derived */
     int *i;
     float *f;

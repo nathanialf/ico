@@ -370,7 +370,7 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     w->route = InitChains(seg);
 
     /* the first node's angle words cleared as floats; int stores move
-       InitWormGeo's schedule (measured, as in the USA text) */
+       InitWormGeo's schedule (measured; the USA build's are float stores too) */
     *(float *)&d->nodes->rot[2] = 0.0f;
     *(float *)&d->nodes->rot[1] = 0.0f;
     *(float *)&d->nodes->rot[0] = 0.0f;

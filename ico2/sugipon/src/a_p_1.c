@@ -677,13 +677,11 @@ static void calcSubMission(GObj *self)
             w.m[1] -= (t < 0.5f) ? t * 2.0f * 20.0f : (1.0f - t) * 2.0f * 20.0f;
             _ApplyMatrix(&q, p->root, &w);
             _InterVectorXYZ(&part->pos, &q, &part->pos, t);
-            /* the local debug switch's window: a dump of the root matrix
-               the step is placed in.  Pinned: three to five instructions
-               here at the first GCSE pass (its expression table of 219
-               buckets orders the three spilled frame addresses as the ROM
-               has them); the August TRFILE and PAL's have three code-less
-               lines (664-666) in its place.  Not pinned: the body's text,
-               which is derived. */
+            /* a local debug switch, off: a dump of the root matrix the
+               step is placed in.  The ROM's register assignment needs the
+               block here, and the August TRFILE and PAL's listing have
+               three code-less lines (664-666) in its place; the text is
+               derived. */
             if (dbg) {
                 debug_DispMatrix((int *)p->root);
             }

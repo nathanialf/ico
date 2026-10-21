@@ -124,6 +124,11 @@ static void dispGameOverGrid(void) /* derived name */
     prim_UpdateMesh3D(mesh, 9, buffer_ID);
 }
 
+/* Build the 16 by 17 sphere vertex table renderViewCoordZSphere walks 34
+   vectors at a time, then clear the effect's centre.  Each entry is the pair
+   of vectors for ring i and ring i+1, so the row holds 17 pairs of 8 floats
+   and the ring stride is 136 floats.  Angles are the 16 bit binary turn the
+   sin and cos tables take, 0x800 a ring and 0x1000 a step round it. */
 void InitGameOverEffect(void)
 {
     int i;
@@ -776,27 +781,6 @@ static void darkVolume(void *pos, float radius)
 static int gameOverActive = 0; /* derived name */
 
 static float gameOverRadius = 0; /* derived name */
-
-inline void ResetGameOverEffect(void);
-
-/* the per-object hit test, inlined at all three sites */
-static inline void sendGameOverMail(void *gobj, float r2) /* derived name */
-{
-    float pos[4];
-
-    GetRootPosition(pos, gobj);
-    if (distance_squared(pos, gameOverCenter) < r2) {
-        iosOmSendMail(gobj, 0x22, gobj);
-    }
-}
-
-/* Build the 8 by 17 sphere vertex table renderViewCoordZSphere walks 34
-   vectors at a time, then reset the effect state.  Each entry is the pair of
-   vectors for ring i and ring i+1, so the row holds 17 pairs of 8 floats and
-   the ring stride is 136 floats.  Angles are the 16 bit binary turn the sin
-   and cos tables take, 0x1000 per step. */
-
-void SetupDarkVolume(void *pos, float radius, float edge);
 
 int InitDarkVolumeGeo(GObj *self)
 {

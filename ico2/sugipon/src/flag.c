@@ -135,9 +135,9 @@ void FlagGeo(GObj *self)
     }
     GetRootMatrix(MatrixDrive_GetMatrix(), self);
     /* types 0 and 1 hang the cloth from its anchors, type 2 pins the far end
-       of each row as well (GetClothAnimation's last argument), type 4 holds
-       it by its four corners; a flag that collides is its own wall owner, and
-       the collision flag goes in the wall-count slot the callee recomputes */
+       of each row as well (GetClothAnimation's last argument); a flag that
+       collides is its own wall owner, and the collision flag goes in the
+       wall-count slot the callee recomputes */
     switch (gd->type) {
     case 0:
     case 1:
@@ -172,7 +172,7 @@ void FlagDL(GObj *self)
         return;
     }
     /* types 1 and 2 turn the cloth's first row into the object's node
-       matrices and draw the nodes; types 0 and 4 draw the cloth mesh */
+       matrices and draw the nodes; type 0 draws the cloth mesh */
     switch (gd->type) {
     case 1:
     case 2:

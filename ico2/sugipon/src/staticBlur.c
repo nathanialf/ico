@@ -622,6 +622,8 @@ void makeFullScreenFlareAfter(int mode)
             gif_SetGsReg(6, workBase[3] | 0x20010000 | 0x5C0000000LL);
 
             gif_SetDrawEnviroment(workBase[1], 0, 256, 128, 0, 0);
+            /* the shrink: its rectangle and colour built in the block as
+               initialised records, as the first block's sprite is */
             {
                 int x0 = (sunScreen[0] + ScreenWidth / 2) * 4096 / ScreenWidth;
                 int y0 = (sunScreen[1] + ScreenHeight / 2) * 2048 / ScreenHeight;

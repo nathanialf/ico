@@ -16,7 +16,6 @@
 #include "motionOrientManager.h"
 #include "pool.h"
 #include "quaternion.h"
-#include "waterDot.h"
 #include <libvu0.h>
 #include "Matrix.h"
 
@@ -556,7 +555,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     *(int *)(*(char **)(((char *)gobj) + 0x15C) + 0x544) = 1;
     w->crown = (char *)CSVSYSTEM_InitDObj(1, csv);
     sceVu0UnitMatrix(w->crown + 0x20);
-    InitMotionOrient(gobj, 0, 1207, 0, 0xC, 0);
+    InitMotionOrient(gobj, 0, 1207, 0, 12, 0);
     InitLightLineGeo(gobj, csv);
     SetLodLevel(gobj, 2);
     w->refl.nrow = 20;

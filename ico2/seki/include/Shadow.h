@@ -13,8 +13,6 @@
 /* Shadow.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void shadow_KillShadow(int val);
-void shadow_DispCancel(int id, int cancel);
-void shadow_SetLength(Sub15C *o, float len);
 void shadow_Init(void);
 void shadow_Render(Sub15C *o);
 void shadow_RenderVolume(Sub15C *o);

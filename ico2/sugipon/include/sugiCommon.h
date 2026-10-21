@@ -29,8 +29,7 @@ static __inline__ float crt_random_unit(void) /* derived name */
     return (float)((rand() >> 4) & 0xFFFF) * (1.0f / 65535.0f);
 }
 
-/* a second -1..+1 helper with the same body, used by EntryWaterDot,
-   scpBornSpider, InitSpiderLayoutGeo, WeaponGeo and ExecWindManager */
+/* a second -1..+1 helper with the same body, used by InitSpiderLayoutGeo */
 static __inline__ float random_signed_b(void) /* derived name */
 {
     return random_unit() * 2.0f - 1.0f;

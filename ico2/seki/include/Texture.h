@@ -84,7 +84,6 @@ int tex_InitTexture(char *name, void *pkt);
 int tex_FreeTexture(int id);
 int tex_ListTool(void);
 int tex_LoadTexturePart(char *name, int area);
-void tex_LockHeadTBP(int tbp, int pri);
 int tex_RemakeRegistersSampleMin(int arg);
 void tex_ResetVramPri(int pri);
 void tex_SetSamplingType(TexData *tex, int mag, int min);
@@ -93,9 +92,7 @@ void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, flo
                      int limitOn);
 
 int tex_TransTexture(int no, int pri);
-void tex_UnlockHeadTBP(int pri);
 void tex_ResetVram(void);
-void tex_UpdateMipMapLevel(float lv);
 int tex_GetTWTH(int size);
 short tex_GetVramFreeAddress(int pri);
 

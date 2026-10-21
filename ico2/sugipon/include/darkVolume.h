@@ -16,13 +16,7 @@ struct GObj;
 int InitDarkVolumeGeo(struct GObj *self);
 void DarkVolumeDL(void);
 void ExecGameOverEffect(void);
-void StartGameOverEffect(float *center, float speed);
-void StartQueenAttackEffect(float *center, float speed);
-void ResetGameOverEffect(void);
 void DispGameOverEffect(void);
-void GetGameOverEffectCenterPosition(float *pos);
 void InitGameOverEffect(void);
-void SetupDarkVolume(void *pos, float radius, float edge);
-void SetDarkVolumeEffect(float *pos, float size);
 
 #endif /* DARKVOLUME_H */

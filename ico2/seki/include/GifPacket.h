@@ -8,10 +8,9 @@
 #ifndef GIFPACKET_H
 #define GIFPACKET_H
 
-/* a colour, four bytes in RGBA order: gif_DrawStripF and gif_DrawStripFST
- * take it by value, the sprite family and gif_Draw2DStripG by address;
- * weapon.c's dispBlur and puddle.c's drawRipple build it at their call
- * sites. */
+/* a colour, four bytes in RGBA order: gif_DrawStripF takes it by value,
+ * the sprite family and gif_Draw2DStripG by address; WeaponDL builds it at
+ * its call site. */
 typedef struct { /* field names derived */
     unsigned char r;
     unsigned char g;
@@ -35,7 +34,6 @@ int gif_CheckOpen(void);
 void gif_Draw2DStripG(int *v, GifColor *col, int n, int prim);
 void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3, int r, int g, int b, int a, int prim);
 void gif_DrawStripF(void *v, GifColor col, int n, int prim);
-void gif_DrawStripFST(void *v, void *uv, GifColor col, int n, int prim);
 void gif_EndPacket(void);
 void gif_EndPacketPath1(void);
 void gif_Init(void);

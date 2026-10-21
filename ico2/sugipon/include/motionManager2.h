@@ -25,8 +25,6 @@ struct StreamShapeHdr;
 #include "typedef.h"
 
 int AdjustMotionHeightToNearestField(GObj *self);
-void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float dist);
-void AdjustVerticalSidePlaneOfWall(float *out, WallCfg *cfg, float *pos, float t);
 int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim);
 /* the GObj and the attribute mask (act_bird.c passes 0x40 and 0x50;
    boyact, script, a_p_1 and frameDependSequence do the same) */
@@ -115,6 +113,5 @@ void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mas
 void GetShapeMotion(float *dst, char *motion, int idx, int count);
 void fitYToPlane(long long *src, float *dest);
 void GetBlendedMotionRootPos(float *dst, float *a, float *b, float t);
-void _getMotRotElem(char *dst, char *src);
 
 #endif /* MOTIONMANAGER2_H */

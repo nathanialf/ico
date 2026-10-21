@@ -12,22 +12,19 @@
 
 struct GObj;
 
-void SetFlag4PointFixID(struct GObj *self, int turns, int id);
 
 typedef struct { /* field names derived */
     float m[4];
 } Vec4Flag; /* derived name */
 
-/* The flag's work record, InitFlagGeo's 20-byte allocation: the cloth
+/* The flag's work record, InitFlagGeo's 16-byte allocation: the cloth
    type (the layout kind's low four bits), the clothes InitClothes builds,
-   their config, whether the object collides, and SetFlag4PointFixID's
-   quarter turns. */
+   their config and whether the object collides. */
 typedef struct { /* field names derived */
     int type;
     ClothSet *clothes;
     ClothCfg *cfg;
     int collide;
-    int turns;
 } FlagWork; /* derived name */
 
 /* one word of a record, read and written through a union member: the

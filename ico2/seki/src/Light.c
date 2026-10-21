@@ -1016,10 +1016,10 @@ int light_Tool(void)
 }
 
 /* the reflection test's mesh: a 15 by 15 grid facing -z, built by
-   func_00117598 and drawn by func_001176D0 */
+   light_InitReflectTest and drawn by light_ReflectTest */
 static Mesh3D *reflectMesh; /* derived name */
 
-void func_00117598(void) /* derived name */
+void light_InitReflectTest(void) /* derived name */
 {
     int i;
     int j;
@@ -1053,7 +1053,7 @@ void func_00117598(void) /* derived name */
 /* the reflection test: the mesh spun by the frame count (held still while
    pad button 0x20 is down) and in front of the camera, its texture
    coordinates the sun-camera view of each vertex's reflected eye ray */
-void func_001176D0(void) /* derived name */
+void light_ReflectTest(void) /* derived name */
 {
     sceVu0FMATRIX rot;
     sceVu0FMATRIX world;

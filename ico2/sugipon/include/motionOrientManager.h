@@ -195,7 +195,6 @@ extern const MotOriLimit motionLimitDef[];
  * first-declaration order, so this is the order motionOrientManager.c's inline tail has. */
 MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind);
 MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind);
-void CopyBlendMotionDataSource(void *self, short ang);
 void SetParallelMotionTableWithNoRequest(void *self, int *next, int *req);
 void SetParallelMotionTable(void *self, int *next, int *req, int from, int mode);
 void InitMotionOrient(void *self, int oriFrom, int oriTo, int limitFrom, int limitTo, int motion);

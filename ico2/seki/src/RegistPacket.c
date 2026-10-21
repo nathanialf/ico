@@ -17,7 +17,7 @@
 #include "DmaPacket.h"
 #include <assert.h>
 
-/* the scissor switch reg_SetScissorSw sets and reg_Init clears */
+/* the scissor switch reg_SetScissorSw sets */
 static int scissorSw = 0; /* derived name */
 
 /* one sixteen-byte record of a part's strip list as reg_setShape reads it
@@ -156,9 +156,9 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                         *(Qw128 *)p = *(Qw128 *)(s->nrm + ((RegStripVtx *)v)->nrm * 0x10);
                         p += 0x10;
                     nocopy:
-                        /* the model's disp halfword read as a plain short: the
-                           demo hoists this load out of the strip loop, which a
-                           read through the mode union (alias set 0) pins */
+                        /* the model's disp halfword, read as a plain short
+                           rather than through the mode union, so the strip
+                           loop reads it once */
                         if (*(short *)&mdl->mode != 0) {
                             p += 0x10;
                         }

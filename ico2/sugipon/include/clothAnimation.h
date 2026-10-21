@@ -108,20 +108,16 @@ typedef struct { /* field names derived */
 typedef struct Cloth4D Cloth4D; /* derived name */
 
 void DispCloth4D(Cloth4D *c, void *la, void *lb);
-void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb);
 void DispClothMesh(ClothRec *rec, void *la, void *lb);
 void DispMeshWire(Prim3DVec **rows, int nx, int ny);
 void GetChainAnimation(ChainSet *sys, struct GObj *obj, float (*mtx)[4]);
 float GetChainCollision(ChainSet *sys, void *pos, float r);
 float GetChainNodeID(ChainCfg *cfg, float f);
 void GetCloth4D(Cloth4D *c, float x, float y);
-void GetCloth4DWithDetail(Cloth4D *c, float x, float y, float z, float w);
-void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *qa, void *qb);
 
 void GetClothAnimation(VECTOR **pos, VECTOR **vel, struct GObj *obj, void *m, ClothCfg *cfg,
                        int nwall, int wallOwner, int fixEnd);
 
-void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx);
 ChainSet *InitChains(ChainCfg *cfg);
 
 /* One row of the table InitCloth4D's third argument points at: a collision
@@ -166,8 +162,7 @@ typedef struct {  /* field names derived */
     Cloth4DLink link[2]; /* 0x30, the second node -1 when the column hangs from the first alone */
     float (*uv)[2];      /* 0x40, ny texture coordinates */
     char pad44[12];
-    float restDir
-        [4]; /* 0x50, the direction the column's segments are pulled toward (GetCloth4DWithDetail's z) */
+    float restDir[4];    /* 0x50, the direction the column's segments are pulled toward */
 } __attribute__((aligned(16))) Cloth4DCol; /* derived name */
 
 /* The head of one generated cloth mesh: the mesh size, a colour nothing
@@ -224,7 +219,6 @@ struct Cloth4D { /* field names derived */
 
 Cloth4D *InitCloth4D(struct GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl);
 ClothSet *InitClothes(ClothCfg *cfg);
-ClothSet *InitClothesNoShade(ClothCfg *cfg);
 int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1);
 void TestDispChainAnimation(ChainSet *sys);
 float getXZLength(void *v);

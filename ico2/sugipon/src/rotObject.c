@@ -37,7 +37,7 @@ typedef struct RotObjWork { /* field names derived */
 } RotObjWork; /* derived name */
 
 /* the two halfwords MemoryRotObject saves in the object's gamesys info record and
-   RestoreRotObjectExtGeo and GetRotObjectGameSysObjInfoExtData read back */
+   RestoreRotObjectExtGeo reads back */
 typedef struct RotObjMemory { /* field names derived */
     unsigned short angle;     /* 0x0 */
     short turnCount;          /* 0x2, the low half of the work's turn count */

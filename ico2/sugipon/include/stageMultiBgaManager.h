@@ -14,10 +14,6 @@
 void InitStageMultiBgaManager(void);
 void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
 void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, void *vel);
-void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay);
 void DispStageMultiBgaManager(void);
-
-void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, void *vel,
-                                                int stay);
 
 #endif /* STAGEMULTIBGAMANAGER_H */

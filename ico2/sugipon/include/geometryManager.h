@@ -41,8 +41,6 @@ void SetDirectRootPosition(struct GObj *self, void *v);
 void SetDirectRootPositionNoFitting(struct GObj *self, void *v);
 void SetDirectRootPositionNoFittingWithNodePoint(struct GObj *gobj, int node, float *pos, float t);
 
-void SetDirectRootPositionNoFittingWithNodePointXZ(struct GObj *gobj, int node, float *pos,
-                                                   float t);
 
 void SetDirectRootPositionWithNodePoint(struct GObj *gobj, int node, float *pos, float t);
 void SetRootMatrixRotOffset(struct GObj *obj, void *q);

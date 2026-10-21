@@ -1052,9 +1052,9 @@ static void getMotionGeometry(void *self)
             }
             if (debug_now_motion_viewer == 0) {
                 float t = 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.2f;
-                /* two statements with an int between them: both line maps have
-                 * code on both lines, the narrowing to short on the second, and
-                 * the expression-table size the spill-slot order needs counts it */
+                /* two statements with an int between them: the August TRFILE
+                 * and PAL's listing have code on both lines, the narrowing to
+                 * short on the second */
                 int tw = mo->twist * (1.0f - t);
                 mo->twist = (short)tw + r * t;
             }
