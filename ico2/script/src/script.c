@@ -1209,7 +1209,7 @@ inline void actSubSekizoSe(GObj *volatile self)
 }
 
 /* object 1882's process: scrolls st25a.c's wall01 texture, then, until flag 286
-   is set, hands the actor queen_appear_mes */
+   is set, hands the actor queen_before_mes */
 inline void scpObj1882(GObj *volatile self) /* derived name */
 {
     GObj *x = self;
@@ -1220,8 +1220,8 @@ inline void scpObj1882(GObj *volatile self) /* derived name */
     _ACTWait(300);
     tex_SetUVScroll(wall01Tex, 0.0f, -0.3f, 0.0f, -0.001f, 0.0f, -0.7f, 1);
     if (gflagChk(286) == 0) {
-        queen_appear_mes[0].func = actSwordEffXL;
-        act->mail = queen_appear_mes;
+        queen_before_mes[0].func = actSt25aQueenBeforeChk;
+        act->mail = queen_before_mes;
         ACTSendMailCorrect(self, 377);
         _ACTWait(0);
     }

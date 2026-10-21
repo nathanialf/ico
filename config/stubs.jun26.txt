@@ -526,33 +526,6 @@ rdlit GetWay_next 0x005A2C60 0x005A2CF3 ico2/fumi/src/way_sys.c  # 9 strings (ta
 text gflagSave 0x00171CD8 0x00171D1C ico2/script/src/gflag.c lines=7  # by body: writes through gamesysMemoryHandlerWrite; the demo emits Save, Load, Init
 text gflagLoad 0x00171D20 0x00171D5C ico2/script/src/gflag.c lines=6  # by body: reads through gamesysMemoryHandlerRead; gameSysMemoryFuncList slot 2
 text gflagInit 0x00171D60 0x00171DF4 ico2/script/src/gflag.c lines=20  # by body: clears the flags, keeps flag 379
-text actSt25aQueenAppear 0x00174EC0 0x00175138 ico2/script/src/st25a.c  # order; no definition in this TU
-lit4 actSt25aQueenAppear 0x00678A2C 0x00678A3C ico2/script/src/st25a.c  # 4 floats (target side)
-text actSt25aQueenAppearChk 0x00175138 0x00175268 ico2/script/src/st25a.c lines=16  # order
-text actConte11 0x00175268 0x00175498 ico2/script/src/st25a.c lines=60  # order
-text func_00175498 0x00175498 0x001756F8 ico2/script/src/st25a.c  # jun26-only; derived name
-lit4 func_00175498 0x00678A3C 0x00678A40 ico2/script/src/st25a.c  # 1 float (target side)
-text actSt25aObj1881 0x001756F8 0x001758A4 ico2/script/src/st25a.c  # jun26-only; derived name; named from obj-layout row 1881's act process (derived name)
-lit4 actSt25aObj1881 0x00678A40 0x00678A48 ico2/script/src/st25a.c  # 2 floats (target side)
-text func_001758A8 0x001758A8 0x00175D58 ico2/script/src/st25a.c  # jun26-only; derived name
-lit4 func_001758A8 0x00678A48 0x00678A50 ico2/script/src/st25a.c  # 2 floats (target side)
-text actSt25aQueenDeadChk 0x00175D58 0x00176238 ico2/script/src/st25a.c lines=115  # order
-text actSt25aElevChk 0x00176410 0x00176478 ico2/script/src/st25a.c lines=47  # ordinal; differs-at:0; length:-141; extent-differs; global: obj-layout row 1880's act process slot holds it
-text actSt25aQueenBefore 0x001764A0 0x00176524 ico2/script/src/st25a.c lines=16  # ordinal; differs-at:12; length:+1; extent-differs
-text actSt25aQueenTalk 0x00176528 0x001765AC ico2/script/src/st25a.c lines=17  # ordinal; differs-at:12; length:-2; extent-differs
-text actSt25aQueenDeadReady 0x001765B0 0x00176618 ico2/script/src/st25a.c lines=12  # ordinal; differs-at:16; imm:2; extent-equal
-text actSt25aQueenDead 0x00176618 0x00176688 ico2/script/src/st25a.c lines=12  # ordinal; differs-at:11; length:+2; extent-differs
-text actItouQueenAttack 0x00176688 0x001766F0 ico2/script/src/st25a.c lines=12  # ordinal; differs-at:16; imm:2; extent-equal
-text actSt25aElev 0x001766F0 0x0017672C ico2/script/src/st25a.c lines=21  # ordinal; differs-at:0; length:-34; extent-differs
-text actSwordEff 0x00176730 0x00176794 ico2/script/src/st25a.c lines=9  # ordinal; differs-at:9; length:+10; extent-differs
-text actSwordEffXL 0x00176798 0x0017680C ico2/script/src/st25a.c lines=13  # ordinal; differs-at:0; length:+4; extent-differs
-text actSt25aQueenBeforeChk 0x00176810 0x001768CC ico2/script/src/st25a.c lines=10  # ordinal; differs-at:0; length:+18; extent-differs
-text func_00176A38 0x00176A38 0x00176AD8 ico2/script/src/st25a.c  # jun26-only; derived name
-text func_00176AD8 0x00176AD8 0x00176BE0 ico2/script/src/st25a.c  # jun26-only; derived name
-text func_00176BE0 0x00176BE0 0x00176D40 ico2/script/src/st25a.c  # jun26-only; derived name
-lit4 func_00176BE0 0x00678A5C 0x00678A60 ico2/script/src/st25a.c  # 1 float (target side)
-text actItouQueenAttackChk 0x00176D50 0x00176DD4 ico2/script/src/st25a.c lines=10  # ordinal; differs-at:6; imm:2; extent-equal
-lit4 actItouQueenAttackChk 0x00678A60 0x00678A6C ico2/script/src/st25a.c  # 3 floats
 text warpGirlOutStage 0x00176DD8 0x00176FDC ico2/script/src/warpGirl.c lines=75  # call-pal
 rdlit warpGirlOutStage 0x005A3088 0x005A30D0 ico2/script/src/warpGirl.c  # 1 string (target side)
 sdlit warpGirlOutStage 0x0067A040 0x0067A050 ico2/script/src/warpGirl.c  # 2 strings (target side)
@@ -1539,15 +1512,6 @@ text actSt01bEnemy5 0x001FE138 0x001FE1A8 ico2/script/src/st01b.c lines=15  # or
 text actSt01bEnemy6 0x001FE1A8 0x001FE218 ico2/script/src/st01b.c lines=15  # order
 text actSt01bFloor 0x001FE218 0x001FE290 ico2/script/src/st01b.c lines=14  # order
 text func_001FFA68 0x001FFA68 0x001FFA78 ico2/script/src/st02a.c  # jun26-only; derived name
-text actSt03tSwitchL 0x001FFC40 0x001FFD24 ico2/script/src/st03t.c lines=25  # order
-text actSt03tSwitchLChk 0x001FFD28 0x001FFF6C ico2/script/src/st03t.c lines=59  # order
-text actSt03tSwitchLUpChk 0x001FFF70 0x002000CC ico2/script/src/st03t.c lines=48  # order
-text actSt03tSwitchR 0x002000D0 0x002001B4 ico2/script/src/st03t.c lines=25  # order
-text actSt03tSwitchRChk 0x002001B8 0x002003A4 ico2/script/src/st03t.c lines=47  # order
-text actSt03tSwitchRUpChk 0x002003A8 0x00200540 ico2/script/src/st03t.c lines=38  # order
-text actSt03tBoxB 0x00200540 0x00200600 ico2/script/src/st03t.c lines=21  # order
-lit4 actSt03tBoxB 0x00679028 0x0067902C ico2/script/src/st03t.c  # 1 float (target side)
-text actSt03tInit 0x00200600 0x00200650 ico2/script/src/st03t.c lines=14  # order
 text actSt03tGirlCam 0x00200650 0x002006B8 ico2/script/src/st03t.c lines=12  # order
 text actSt03tSekizo 0x002006B8 0x00200720 ico2/script/src/st03t.c lines=9  # order
 lit4 actSt03tSekizo 0x0067902C 0x00679038 ico2/script/src/st03t.c  # 3 floats
@@ -1561,7 +1525,6 @@ text actSt03tGirlCamEndChk 0x00200A40 0x00200B0C ico2/script/src/st03t.c lines=1
 text actSt03tSekizoEvent 0x00200B10 0x00200B20 ico2/script/src/st03t.c lines=4  # order
 text actSt03tEneChk 0x00200B20 0x00200BD8 ico2/script/src/st03t.c lines=25  # order
 text actSt03tWayOnChk 0x00200BD8 0x00200C80 ico2/script/src/st03t.c lines=19  # order
-text actSt03tWayOffChk 0x00200C80 0x00200D28 ico2/script/src/st03t.c lines=19  # order
 text actSt04bSekizoChk 0x00203A70 0x00203D34 ico2/script/src/st04b.c lines=94  # order
 lit4 actSt04bSekizoChk 0x006790A4 0x006790AC ico2/script/src/st04b.c  # 2 floats (target side)
 text actSt04bCrest01XL 0x00203D38 0x00203DC8 ico2/script/src/st04b.c lines=17  # order
@@ -1739,26 +1702,7 @@ text actSt17aFall 0x0021CF60 0x0021CFD8 ico2/script/src/st17a.c lines=13  # ordi
 text actLinkTestChk 0x0021CFE8 0x0021D040 ico2/script/src/st17a.c lines=7  # ordinal; differs-at:10; imm:2; extent-equal
 text actSt17bObj1642 0x0021D2A0 0x0021D330 ico2/script/src/st17b.c  # jun26-only; derived name; named from obj-layout row 1642's act process (derived name)
 text actSt17bCheckChk 0x0021D330 0x0021D360 ico2/script/src/st17b.c lines=6  # aug
-text actSt18aSwitchLUpChk 0x0021D360 0x0021D4E0 ico2/script/src/st18a.c lines=31  # order
-text actSt18aSwitchRUpChk 0x0021D4E0 0x0021D660 ico2/script/src/st18a.c lines=31  # order
-text actSt18aDoorChk 0x0021D660 0x0021D798 ico2/script/src/st18a.c lines=53  # aug
 text actSt18aDoorDownChk 0x0021D798 0x0021D8A4 ico2/script/src/st18a.c lines=26  # aug
-text actSt18aEnemy1_1 0x0021D8A8 0x0021D980 ico2/script/src/st18a.c lines=29  # aug
-text actSt18aEnemy2_1 0x0021D980 0x0021DA50 ico2/script/src/st18a.c lines=25  # aug
-text actSt18aIntro 0x0021DA50 0x0021DAC8 ico2/script/src/st18a.c lines=14  # aug
-text actSt18aDoor 0x0021DAC8 0x0021DB8C ico2/script/src/st18a.c lines=23  # aug
-text actSt18aSwitchL 0x0021DB90 0x0021DC54 ico2/script/src/st18a.c lines=23  # aug
-text actSt18aSwitchR 0x0021DC58 0x0021DD1C ico2/script/src/st18a.c lines=23  # aug
-text actSt18aEne 0x0021DD20 0x0021DD98 ico2/script/src/st18a.c lines=14  # aug
-text actSt18aEnemy1_2 0x0021DD98 0x0021DE50 ico2/script/src/st18a.c lines=24  # aug
-text actSt18aEne2 0x0021DE50 0x0021DEC8 ico2/script/src/st18a.c lines=14  # aug
-text actSt18aEnemy2_2 0x0021DEC8 0x0021DF80 ico2/script/src/st18a.c lines=24  # aug
-text actSt18aCamera 0x0021DF80 0x0021DF90 ico2/script/src/st18a.c lines=4  # aug
-text actSt18aIntroChk 0x0021DF90 0x0021E040 ico2/script/src/st18a.c lines=38  # aug
-text func_0021E040 0x0021E040 0x0021E12C ico2/script/src/st18a.c  # jun26-only; derived name
-text func_0021E130 0x0021E130 0x0021E21C ico2/script/src/st18a.c  # jun26-only; derived name
-text actSt18aEneChk 0x0021E220 0x0021E288 ico2/script/src/st18a.c lines=13  # order
-text actSt18aEne2Chk 0x0021E288 0x0021E304 ico2/script/src/st18a.c lines=13  # order
 text actSt19aHaguruma 0x0021E308 0x0021E458 ico2/script/src/st19a.c lines=29  # order
 rdlit actSt19aHaguruma 0x00663070 0x00663080 ico2/script/src/st19a.c  # 1 data (target side); the vector before it is hagurumaPos, emitted by the C
 text actSt19aHagurumaChk 0x0021E458 0x0021E5E4 ico2/script/src/st19a.c lines=57  # order
@@ -1813,45 +1757,6 @@ text actSplash2Chk 0x00221EE0 0x00221F8C ico2/script/src/st99a.c lines=13  # ord
 text actWave1 0x00221FB8 0x0022203C ico2/script/src/st99a.c lines=15  # ordinal; differs-at:7; imm:5; extent-equal
 text actSt27aWave1 0x00222068 0x002220EC ico2/script/src/st99a.c lines=15  # ordinal; differs-at:7; imm:9; extent-equal
 text actSpiderChk 0x002220F0 0x00222158 ico2/script/src/st99a.c lines=10  # ordinal; differs-at:12; imm:1; extent-equal
-text stageSEtaimatsu 0x00222158 0x002222D8 ico2/script/src/stageSEProc.c lines=59  # call-pal
-sdlit stageSEtaimatsu 0x0067B464 0x0067B468 ico2/script/src/stageSEProc.c  # 1 word
-text stageSE04eriver 0x002222D8 0x0022246C ico2/script/src/stageSEProc.c lines=28  # order; named from se-env: its rows hold se 1330 and 415-418, the Aug-6-2001 build's stageSE04eriver rows (1381, 425-428)
-lit4 stageSE04eriver 0x00679220 0x00679230 ico2/script/src/stageSEProc.c  # 4 floats (target side)
-text stageSE06ariver 0x00222470 0x002225B4 ico2/script/src/stageSEProc.c lines=33  # ordinal; differs-at:0; other:76; extent-equal; named from se-env: its rows hold se 1331-1333, the Aug-6-2001 build's stageSE06ariver rows (1382-1384)
-lit4 stageSE06ariver 0x00679230 0x0067924C ico2/script/src/stageSEProc.c  # 7 floats (target side)
-text stageSE02astrong 0x002227D8 0x002228E4 ico2/script/src/stageSEProc.c  # jun26-only; derived name; named from se-env: the Aug-6-2001 build's se-env rec35+0x4 holds stageSE02astrong there (the same record index in the demo); aug6 defines stageSE02astrong in C (script/src/stageSEProc.c, 0x002384E0 in the aug6 tree's link) and PAL's se-env rec35..rec38+0x4 hold stageSE02astrong as well
-sdlit stageSE02astrong 0x0067B46C 0x0067B470 ico2/script/src/stageSEProc.c  # 1 float (target side; its %hi/%lo load at 0x00222840)
-text stageSE02ataki 0x002228E8 0x00222940 ico2/script/src/stageSEProc.c  # jun26-only; derived name; named from se-env: the Aug-6-2001 build's se-env rec39+0x4 holds stageSE02ataki there (the same record index in the demo)
-lit4 stageSE02ataki 0x0067926C 0x00679270 ico2/script/src/stageSEProc.c  # 1 float (target side)
-text stageSE04agate 0x002229B8 0x00222A78 ico2/script/src/stageSEProc.c lines=25  # ordinal; differs-at:14; length:-4; extent-differs
-lit4 stageSE04agate 0x00679270 0x0067927C ico2/script/src/stageSEProc.c  # 3 floats
-text stageSE04bstrong 0x00222A78 0x00222AC8 ico2/script/src/stageSEProc.c lines=13  # ordinal; differs-at:7; length:-4; extent-differs
-text stageSE04eriverDown 0x00222B58 0x00222C08 ico2/script/src/stageSEProc.c lines=23  # ordinal; differs-at:10; imm:2; extent-equal
-lit4 stageSE04eriverDown 0x00679288 0x00679290 ico2/script/src/stageSEProc.c  # 2 floats
-text stageSE08astrong 0x00222E38 0x00222EF4 ico2/script/src/stageSEProc.c lines=20  # ordinal; differs-at:8; length:-4; extent-differs
-lit4 stageSE08astrong 0x006792A0 0x006792A4 ico2/script/src/stageSEProc.c  # 1 float
-text stageSE08astrong2 0x00222EF8 0x00222FBC ico2/script/src/stageSEProc.c lines=22  # ordinal; differs-at:8; length:-4; extent-differs
-lit4 stageSE08astrong2 0x006792A4 0x006792A8 ico2/script/src/stageSEProc.c  # 1 float
-text stageSE08bcrane 0x002230C0 0x0022312C ico2/script/src/stageSEProc.c lines=18  # ordinal; differs-at:14; length:-4; extent-differs
-lit4 stageSE08bcrane 0x006792AC 0x006792B8 ico2/script/src/stageSEProc.c  # 3 floats
-text stageSE08brail 0x00223130 0x002231A0 ico2/script/src/stageSEProc.c lines=18  # ordinal; differs-at:15; length:-4; extent-differs
-lit4 stageSE08brail 0x006792B8 0x006792C0 ico2/script/src/stageSEProc.c  # 2 floats
-text stageSE10lstrong 0x002231D8 0x002232A4 ico2/script/src/stageSEProc.c  # jun26-only; derived name; named from se-env: its rows hold se 1311/1312, the Aug-6-2001 build's stageSE10lstrong rows (1362/1363)
-lit4 stageSE10lstrong 0x006792C8 0x006792CC ico2/script/src/stageSEProc.c  # 1 float (target side)
-text stageSE10lstrong2 0x002232A8 0x00223378 ico2/script/src/stageSEProc.c  # jun26-only; derived name; named from se-env: its rows hold se 1315/1316, the Aug-6-2001 build's stageSE10lstrong2 rows (1366/1367)
-lit4 stageSE10lstrong2 0x006792CC 0x006792D4 ico2/script/src/stageSEProc.c  # 2 floats (target side)
-text stageSE10rstrong2 0x00223410 0x00223460 ico2/script/src/stageSEProc.c lines=14  # ordinal; differs-at:7; length:-4; extent-differs
-text stageSE13dstrong 0x00223508 0x002235AC ico2/script/src/stageSEProc.c lines=20  # ordinal; differs-at:16; length:-4; extent-differs
-text stageSE17astrong 0x002235B0 0x00223600 ico2/script/src/stageSEProc.c lines=15  # ordinal; differs-at:7; length:-4; extent-differs
-text stageSE17bstrong 0x00223720 0x002237E4 ico2/script/src/stageSEProc.c lines=26  # ordinal; differs-at:33; length:-4; extent-differs
-lit4 stageSE17bstrong 0x006792F8 0x00679304 ico2/script/src/stageSEProc.c  # 3 floats
-text stageSE19astrong 0x00223808 0x00223870 ico2/script/src/stageSEProc.c lines=17  # ordinal; differs-at:13; length:-4; extent-differs
-lit4 stageSE19astrong 0x0067930C 0x00679310 ico2/script/src/stageSEProc.c  # 1 float
-text stageSE20astrong 0x00223898 0x00223908 ico2/script/src/stageSEProc.c lines=19  # ordinal; differs-at:15; length:-4; extent-differs
-lit4 stageSE20astrong 0x0067931C 0x00679324 ico2/script/src/stageSEProc.c  # 2 floats
-text stageSE20astrong2 0x00223908 0x00223958 ico2/script/src/stageSEProc.c lines=14  # ordinal; differs-at:7; length:-4; extent-differs
-text stageSE22astrong 0x00223958 0x002239C4 ico2/script/src/stageSEProc.c lines=16  # ordinal; differs-at:7; length:-4; extent-differs
-text stageSE24astrong 0x00223A60 0x00223AB0 ico2/script/src/stageSEProc.c lines=14  # ordinal; differs-at:7; length:-4; extent-differs
 text GetDataFileName 0x00223B88 0x00223BCC ico2/omori/src/access.c lines=18  # ordinal; differs-at:7; imm:1; extent-equal
 sdlit GetDataFileName 0x0067B470 0x0067B477 ico2/omori/src/access.c  # 1 string
 text LwsKyomiGeo 0x00223C80 0x00223C8C ico2/omori/src/lws_kyomi.c lines=33  # aug

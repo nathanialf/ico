@@ -26,7 +26,9 @@ extern struct SqEntry *conte12;
 extern struct SqEntry *sd2;
 extern struct SqEntry *dead;
 void BoySekikaTexScroll(void);
-extern ActMail queen_appear_mes[]; /* st25a.o .data: the queen-appear actor mail list */
-void actSwordEffXL(GObj *volatile self); /* the handler scpObj1882 puts in queen_appear_mes */
+extern ActMail queen_before_mes[]; /* st25a.o .data: the queen-before actor mail list */
+
+void actSt25aQueenBeforeChk(
+    GObj *volatile self); /* the handler scpObj1882 puts in queen_before_mes */
 
 #endif /* ST25A_H */
