@@ -290,7 +290,147 @@ inline void DeleteGuideWay(WVTObj *o)
     }
 }
 
-INCLUDE_ASM(GetWay_next);
+WayPoint *GetWay_next(WVTObj *w, float *pos)
+{
+    WayVec dv;
+    volatile WayPoint *cur; /* volatile view: the hold radius is read again in its else arm */
+    WayPoint *nxt;
+    float *p;
+    int blocked;
+    float lim;
+
+    w->stampFrame = GlobalTimer;
+    ez_circle(w->nearWp->pos, pos, 0x80800000, 30.0f);
+
+    if (wayDebugWallGObj != 0) {
+        DrawGObjWallCollision(wayDebugWallGObj, 0x800000);
+    }
+
+    if (w->chk.cur != 0) {
+        ez_line(pos, w->chk.cur->pos, 0);
+        ez_circle(w->chk.cur->pos, pos, 0x80000080, w->chk.cur->radius);
+    }
+
+    if (w->chk.start != 0) {
+        ez_line(pos, w->chk.start->pos, 1);
+        ez_circle(w->chk.start->pos, pos, 0x80008000, w->chk.start->radius);
+    }
+
+    if (w->chk.cross != 0) {
+        ez_line(pos, w->chk.cross->pos, 2);
+        ez_circle(w->chk.cross->pos, pos, 0x80800000, w->chk.cross->radius);
+    }
+
+    blocked = avoid_obstacle2(pos, w->chk.cur->pos, w);
+
+    switch (w->avoiding) {
+    case 1:
+        /* compiled-out prints, see the note before the second switch below */
+        if (0) {
+            debug_StdPrintfDummy("WGROUP STAT OTHER\n");
+        }
+        if (w->chk.cur != w->chk.cross && way_group[w->chk.cur->group].bridge == 0) {
+            if (way_wall_between(pos, w->chk.cross) == 0) {
+                w->chk.cur = w->chk.cross;
+                blocked = 0;
+                debug_StdPrintfDummy("short cut 2:%p\n", w->chk.cur);
+                if (w->guideFirst >= 0) {
+                    debug_StdPrintfDummy("delete guide point\n");
+                    DeleteWayGroup(way_point[w->guideFirst].group);
+                    w->guideFirst = -1;
+                }
+                break;
+            }
+            nxt = w->chk.start;
+            while (nxt != w->chk.cur && w->guideFirst < 0) {
+                if (way_wall_between(pos, nxt) == 0) {
+                    w->chk.cur = nxt;
+                    blocked = 0;
+                    debug_StdPrintfDummy("short cut 1:%p\n", nxt);
+                    break;
+                }
+                nxt = waypoint_bidirectional_list(nxt, w->direction ^ 1);
+            }
+        }
+        break;
+
+    case 0:
+        if (0) {
+            debug_StdPrintfDummy("WGROUP STAT SAME\n");
+        }
+        nxt = w->chk.start;
+        while (nxt != w->chk.cur) {
+            if (way_wall_between(pos, nxt) == 0) {
+                w->chk.cur = nxt;
+                blocked = 0;
+                debug_StdPrintfDummy("short cut 1:%p\n", nxt);
+                break;
+            }
+            nxt = waypoint_bidirectional_list(nxt, w->direction ^ 1);
+        }
+        break;
+    }
+
+    cur = w->chk.cur;
+    p = cur->pos;
+    ez_line(p, pos, 0xFF000080);
+    ez_line(p, w->chk.start->pos, 0xFF80);
+
+    sceVu0SubVector(dv, p, pos);
+    sceVu0Normalize(w->nrm, dv);
+
+    if (cur->radius == 0.0f) {
+        lim = 50.0f;
+    } else {
+        lim = cur->radius * 1.5f;
+    }
+
+    if (blocked == 0 && lim < fzMagnitudefv(dv)) {
+        return cur;
+    }
+
+    /* a print compiled out of the build; its string stays in .rodata (the
+       August build adds a "wp %p myway %p pos %p" print before it). The two
+       state prints open the first switch's arms (avoiding 1 is the
+       other-group state, 0 the same-group one). */
+    if (0) {
+        debug_StdPrintfDummy("wgroup stat:%d\n", w->avoiding);
+    }
+    switch (w->avoiding) {
+    case 0:
+        if (cur == w->chk.start) {
+            w->reached = 1;
+            DeleteGuideWay(w);
+            return cur;
+        }
+        break;
+
+    case 1:
+        if (cur == w->chk.cross) {
+            w->reached = 1;
+            DeleteGuideWay(w);
+            w->nearWp = w->chk.cross;
+            return cur;
+        }
+        if (cur == w->chk.start) {
+            debug_StdPrintfDummy("goal wp1\n");
+            w->chk.cur = w->chk.cross;
+            if (w->guideFirst >= 0) {
+                debug_StdPrintfDummy("delete guide point\n");
+                DeleteWayGroup(way_point[w->guideFirst].group);
+                w->guideFirst = -1;
+            }
+            w->nearWp = w->chk.start;
+            return w->chk.cur;
+        }
+        break;
+    }
+
+    w->chk.cur = waypoint_bidirectional_list(cur, w->direction);
+    debug_StdPrintfDummy("bilist:%p\n", w->chk.cur);
+    w->nearWp = w->chk.cur;
+    return w->nearWp;
+}
 
 /* One candidate escape point: the way point id and the path length to it. */
 typedef struct NigeEnt { /* field names derived */

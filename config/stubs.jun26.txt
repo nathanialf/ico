@@ -114,8 +114,6 @@ sdlit func_0016DF10 0x00679FA8 0x00679FDE ico2/fumi/src/way_sys.c  # 7 strings (
 text avoid_obstacle2 0x0016E520 0x0016ECFC ico2/fumi/src/way_sys.c local lines=139  # order
 lit4 avoid_obstacle2 0x006789D8 0x006789DC ico2/fumi/src/way_sys.c  # 1 float (target side)
 rdlit avoid_obstacle2 0x005A2BE0 0x005A2C40 ico2/fumi/src/way_sys.c  # 5 strings (target side)
-text GetWay_next 0x0016EFC8 0x0016F5CC ico2/fumi/src/way_sys.c lines=159  # order
-rdlit GetWay_next 0x005A2C60 0x005A2CF3 ico2/fumi/src/way_sys.c  # 9 strings (target side): five it references and the "WGROUP STAT" lines no word of .text addresses; the "delete guide point group" string before them is the inline DeleteGuideWay's, emitted by the C at its definition
 text subBirdBrainMain 0x0018B778 0x0018C9DC ico2/ito/src/act_bird.c  # jun26-only; named by actBirdStart (actCreateSubThread(subBirdBrainMain, 20)) and aug6 TRFILE (subBirdBrainMain after trans_bird)
 lit4 subBirdBrainMain 0x00678B94 0x00678BE8 ico2/ito/src/act_bird.c  # 21 floats (target side)
 rdlit subBirdBrainMain 0x005A3BE0 0x005A3C15 ico2/ito/src/act_bird.c  # 3 strings (target side)
