@@ -35,12 +35,11 @@ typedef struct { /* field names derived */
 extern const StgObjDat objTableScene[];
 
 /* The play node stage_MakePlayBgAnimation links into bgaPlayList and
-   stage_DispBgAnimation walks.  Its first word holds int bit-fields: the
-   14-bit animation number, the kill flag and the play flag. */
+   stage_DispBgAnimation walks.  Its first word holds int bit-fields:
+   the 15-bit animation number (-1 parks the node) and the play flag. */
 typedef struct BgaPlayNode { /* field names derived */
-    int no : 14;               /* 0x00 */
+    int no : 15;               /* 0x00 */
     int play : 1;
-    int kill : 1;
     short num;                 /* 0x02 */
     float frame;               /* 0x04 */
     float speed;               /* 0x08 */
@@ -59,22 +58,18 @@ int stage_CheckAnimationFrame(int key, int frame, int reset);
 void stage_SetLoopFlag(int key, int loop);
 void stage_SetFrameStep(int target, int val);
 void stage_SetParentOfGObj(int key, void *parent);
-void stage_SetParentOfGObjWithLocalRotationFlag(int key, void *parent, int localRotation);
 void stage_SetLocalizeGeometry(int key, float *pos, float *rot);
-void stage_KillPlayBgAnimationIfOverMaxCount(int key, int maxCount);
+void stage_SetScale(int key, float scale);
 int stage_CheckAnimationFrameIn(int key, int in, int out);
 void stage_ApplyData(char *name, char *data);
 int stage_ContinueAnimation(int key, int next);
 void stage_DispAnimation(void);
 int stage_DispBgAnimation(BgaPlayNode **self);
-int stage_DispBgAnimationNoFinish(BgaPlayNode **self);
 void stage_KillPlayBgAnimation(BgaPlayNode **self);
 BgaPlayNode *stage_MakePlayBgAnimation(int key);
 float stage_PlayBgAnimation(int key, float t, void *v, void *q);
 float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv);
 void stage_SetAnimation(int key, int mode, int frame);
-void stage_SetScale(int key, float scale);
-void stage_ResetAnimation(void);
 void stage_CalcAnimationNoParent(void);
 void stage_CalcAnimationParent(void);
 

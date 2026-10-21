@@ -9,4 +9,9 @@
 
 #define MAX_CHARS 1500 /* InitCharFileManager clears 30000 bytes of 20-byte entries */
 
+/* the rows of the model-path table (modelData) ReadSkeltonFile and
+   ReadCollisionFile search; the name is the one ReadSkeltonFile's
+   "Too Many ModelDataID_NUMBER exists." message gives it */
+#define ModelDataID_NUMBER 1474
+
 #endif

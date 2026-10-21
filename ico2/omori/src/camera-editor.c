@@ -18,7 +18,6 @@
 #include "poly-flat.h"
 #include <libvu0.h>
 #include <assert.h>
-#include "include_asm.h"
 
 /* ios/thread.c's entry points as the menus call them, each with the menu's
    thread record.  thread.h is not included: the ROM loads a0 before every
@@ -62,6 +61,46 @@ typedef struct { /* field names derived */
     int num;
     int pins;
 } CamSetBinHdr; /* derived name */
+
+inline void StickToTrans(int stickV, int stickH, int vertical, int heading, float *out, int speed)
+{
+    out[0] = out[1] = out[2] = 0.0f;
+    if ((stickV < 0 ? -stickV : stickV) < 50 && (stickH < 0 ? -stickH : stickH) < 50) {
+        return;
+    }
+    if (vertical != 0) {
+        if (stickV > 0) {
+            out[1] = (float)speed;
+        }
+        if (stickV < 0) {
+            out[1] = (float)(-speed);
+        }
+    } else {
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_PushMatrix();
+        {
+            float vec[4] = {(float)stickH, 0.0f, (float)stickV, 0.0f};
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_RotMatrixY((short)heading);
+            sceVu0ApplyMatrix(vec, MatrixDrive_GetMatrix(), vec);
+            sceVu0Normalize(out, vec);
+        }
+        MatrixDrive_PopMatrix();
+        out[0] = out[0] * (float)(-speed);
+        out[2] = out[2] * (float)speed;
+    }
+}
+
+inline void debug_Arrow(float len, void *from, void *to, int r, int g, int b) {}
+
+inline void debug_NMarker(float *pos, int r, int g, int b, float size)
+{
+    float buf[4];
+    sceVu0ScaleVector(buf, pos, -1.0f);
+    debug_Marker(buf, r, g, b, size, 0.0f);
+}
+
+inline void debug_Marker(float *pos, int r, int g, int b, float size, float pulse) {}
 
 static inline void writeCameraSetFile(char *name, void *buf, int size) /* derived name */
 {
@@ -954,7 +993,79 @@ static int editPinNo; /* derived name */
 #define PIN_WINDOW_TRACE(from, to)
 #endif
 
-INCLUDE_ASM(menuPinSelect);
+void menuPinSelect(MenuThread *m)
+{
+    int no = m->arg;
+    int cur = ((CamGroup *)(cameraSetEdit[1] + no * 76))->first;
+    int min;
+    int max;
+    int i;
+    int n;
+    /* start and end are the window the list shows; the DEBUG build traces
+       it at the top of every pass, so the first pass reads these zeros. */
+    int start = 0;
+    int end = 0;
+
+    iosThreadSleep(m);
+
+    while (1) {
+        PIN_WINDOW_TRACE(start, end);
+        min = ((CamGroup *)(cameraSetEdit[1] + no * 76))->first;
+        max = ((CamGroup *)(cameraSetEdit[1] + no * 76))->end;
+        if (pad[1].flags & 0x1000) {
+            cur--;
+        }
+        if (pad[1].flags & 0x4000) {
+            cur++;
+        }
+        cur = (cur < min) ? max - 1 : ((cur < max) ? cur : min);
+
+        dispPinRange(no, min, max);
+
+        n = cur - 5;
+        start = (n < min) ? min : ((max < n) ? max : n);
+        n = start + 10;
+        end = (n < min) ? min : ((max < n) ? max : n);
+        for (i = start; i < end; i++) {
+            int k = i - min;
+
+            if (i == cur) {
+                if (debug_font_flag & 1) {
+                    debug_Printf(40, print_y += 10, 0xFFFFFF00, ">>%s %d",
+                                 CameraEdit_PIN(no, cur)->on ? "ON " : "OFF", k);
+                }
+            } else {
+                if (debug_font_flag & 1) {
+                    debug_Printf(40, print_y += 10, 0xFFFFFF00, "  %s %d",
+                                 CameraEdit_PIN(no, i)->on ? "ON " : "OFF", k);
+                }
+            }
+        }
+        if (CameraEdit_PIN(no, cur)->range != 0.0f) {
+            debug_Marker(CameraEdit_PIN(no, cur)->pos, 0, 0, 255, CameraEdit_PIN(no, cur)->range,
+                         0.0f);
+        } else {
+            debug_Marker(CameraEdit_PIN(no, cur)->pos, 255, 0, 0, 100.0f, 0.0f);
+        }
+        {
+            PinRec *p = CameraEdit_PIN(no, cur);
+            CamWork cw = {
+                {p->pos[0], p->pos[1], p->pos[2]}, {p->look[0], p->look[1], p->look[2]}, p->fov};
+
+            sceVu0ScaleVector(&cw, &cw, -1.0f);
+            sceVu0ScaleVector(cw.at, cw.at, -1.0f);
+            SetWSMatrix(&cw);
+        }
+        if (pad[1].flags & 0x10) {
+            curmenu = (int)m->parent;
+            iosThreadDestroy(m);
+        } else if (pad[1].flags & 0x20) {
+            editPinNo = no;
+            EnterMenu(menuPinEdit, cur, m);
+        }
+        iosThreadSleep(m);
+    }
+}
 
 /* the heading from the camera's eye to its look-at point, which is the angle
    the pin editor turns the pad stick vector by */
@@ -969,17 +1080,149 @@ static inline int camHeading(float *at, float *eye) /* derived name */
     return GetTableArcTan2(v[0], -v[2] / len);
 }
 
-INCLUDE_ASM(menuPinEdit);
+void menuPinEdit(MenuThread *m)
+{
+    PinRec *pin = CameraEdit_PIN(editPinNo, m->arg);
+    int cur = 0;
+    int i;
 
-INCLUDE_ASM_LIT(menu_2);
+    iosThreadSleep(m);
+
+    while (1) {
+        if (pad[1].flags & 0x1000) {
+            cur--;
+        }
+        if (pad[1].flags & 0x4000) {
+            cur++;
+        }
+        cur = (cur < 0) ? 7 : ((cur > 7) ? 0 : cur);
+        {
+            EditItem item[8] = {{pin->on, 1, 1, "onoff"},
+                                {(int)pin->fov, 1, 1, "view"},
+                                {(int)pin->pos[0], 10, 0, "camera-x"},
+                                {(int)pin->pos[1], 10, 0, "camera-y"},
+                                {(int)pin->pos[2], 10, 0, "camera-z"},
+                                {(int)pin->look[0], 10, 0, "target-x"},
+                                {(int)pin->look[1], 10, 0, "target-y"},
+                                {(int)pin->look[2], 10, 0, "target-z"}};
+            int d = 0;
+
+            if (item[cur].mode) {
+                if (pad[1].flags & 0x2000) {
+                    d = 1;
+                }
+                if (pad[1].flags & 0x8000) {
+                    d = -1;
+                }
+            } else {
+                if (pad[1].now & 0x2000) {
+                    d = 1;
+                }
+                if (pad[1].now & 0x8000) {
+                    d = -1;
+                }
+            }
+            d = d * item[cur].step;
+            item[cur].val += d;
+            for (i = 0; i < 8; i++) {
+                if (i == cur) {
+                    if (debug_font_flag & 1) {
+                        print_y += 10;
+                        debug_Printf(40, print_y, 0xFFFFFF00, ">>%8s = %d\n", item[i].name,
+                                     item[i].val);
+                    }
+                } else {
+                    if (debug_font_flag & 1) {
+                        print_y += 10;
+                        debug_Printf(40, print_y, 0xFFFFFF00, "  %8s = %d\n", item[i].name,
+                                     item[i].val);
+                    }
+                }
+            }
+            pin->on = item[0].val;
+
+            pin->fov = (float)item[1].val;
+            pin->pos[0] = (float)item[2].val;
+            pin->pos[1] = (float)item[3].val;
+            pin->pos[2] = (float)item[4].val;
+            pin->look[0] = (float)item[5].val;
+            pin->look[1] = (float)item[6].val;
+            pin->look[2] = (float)item[7].val;
+            {
+                CamWork cw = {{pin->pos[0], pin->pos[1], pin->pos[2]},
+                              {pin->look[0], pin->look[1], pin->look[2]},
+                              pin->fov};
+                float out[4];
+
+                sceVu0ScaleVector(&cw, &cw, -1.0f);
+                sceVu0ScaleVector(cw.at, cw.at, -1.0f);
+                SetWSMatrix(&cw);
+
+                StickToTrans(pad[1].ana[1] - 128, pad[1].ana[0] - 128, pad[1].now & 2,
+                             camHeading(cw.at, cw.eye), out, 20);
+                sceVu0ScaleVector(out, out, -1.0f);
+                pin->pos[0] = pin->pos[0] + out[0];
+                pin->pos[1] = pin->pos[1] + out[1];
+                pin->pos[2] = pin->pos[2] + out[2];
+
+                StickToTrans(pad[1].ana[3] - 128, pad[1].ana[2] - 128, pad[1].now & 2,
+                             camHeading(cw.at, cw.eye), out, 20);
+                sceVu0ScaleVector(out, out, -1.0f);
+                pin->look[0] = pin->look[0] + out[0];
+                pin->look[1] = pin->look[1] + out[1];
+                pin->look[2] = pin->look[2] + out[2];
+
+                debug_Marker(pin->look, 255, 0, 0, 100.0f, 0.0f);
+            }
+        }
+        if (pad[1].flags & 0x10) {
+            curmenu = (int)m->parent;
+            iosThreadDestroy(m);
+        }
+        iosThreadSleep(m);
+    }
+}
+
+inline void menu_2(MenuThread *m)
+{
+    iosThreadSleep(m);
+
+    while (1) {
+        debug_StdPrintfDummy("menu_2, arg=%d\n", m->arg);
+        if (pad[1].flags & 0x20) {
+            curmenu = (int)m->parent;
+            iosThreadDestroy(m);
+        }
+        iosThreadSleep(m);
+    }
+}
 
 /* the global group_select; way_tool.c has a static of the same name, reached
    through its own menu table */
-INCLUDE_ASM_LIT(group_select_camera_editor);
+inline void group_select(MenuThread *m)
+{
+    iosThreadSleep(m);
 
-void wakeup_cameraedit(void);
+    while (1) {
+        debug_StdPrintfDummy("menu_1, arg=%d\n", m->arg);
+        if (pad[1].flags & 0x20) {
+            EnterMenu(menu_2, 3, m);
+        }
+        iosThreadSleep(m);
+    }
+}
 
-INCLUDE_ASM(wakeup_cameraedit);
+void wakeup_cameraedit(void)
+{
+    print_y = 50;
+    if (curmenu != 0) {
+        iosThreadWakeup((void *)curmenu);
+        if (pad[1].flags & 0x400) {
+            saveEditedDataBinary(cameraSetList[stageData[stage_no].camSetId], cameraSetEdit[1],
+                                 cameraSetEdit[0]);
+        }
+    }
+}
 
 void test_camedit(void)
 {
@@ -1143,7 +1386,113 @@ void CameraEdit_Save(char *name)
     saveEditedDataBinary(name, p[1], p[0]);
 }
 
+inline void InitCameraEditor(void)
+{
+    curmenu = 0;
+    exit_f = 0;
+}
+
+inline int debug_CameraEditor(void)
+{
+    debug_font_flag = 1;
+    if (curmenu == 0) {
+        test_camedit();
+    }
+    wakeup_cameraedit();
+    CameraSetMode(1);
+    if (exit_f == 0) {
+        return 0;
+    }
+    exit_f = 0;
+    CameraEdit_Reflect();
+    return -1;
+}
+
+inline void CameraEdit_reset_box(int box)
+{
+    CamGroup *src;
+    CamGroup *dst;
+    PinRec *saved;
+    int i;
+    src = (CamGroup *)(cameraSetOrg[1] + box * 76);
+    dst = (CamGroup *)(cameraSetEdit[1] + box * 76);
+    saved = dst->items;
+    *dst = *src;
+    dst->items = saved;
+    i = 0;
+    while (i < CameraEdit_BOX(box)->end - CameraEdit_BOX(box)->first) {
+        CameraEdit_reset_pin(box, i);
+        i++;
+    }
+}
+
+inline void CameraEdit_reset_pin(int box, int pin)
+{
+    PinRec *dst = &((CamGroup *)(cameraSetEdit[1] + box * 76))->items[pin];
+    PinRec *src = &((CamGroup *)(cameraSetOrg[1] + box * 76))->items[pin];
+    *dst = *src;
+}
+
+inline void CameraEdit_reflect_box(int box)
+{
+    CamGroup *dst = (CamGroup *)(cameraSetOrg[1] + box * 76);
+    CamGroup *src = (CamGroup *)(cameraSetEdit[1] + box * 76);
+    PinRec *saved = dst->items;
+    int i;
+    *dst = *src;
+    dst->items = saved;
+    i = 0;
+    while (i < CameraEdit_BOX(box)->end - CameraEdit_BOX(box)->first) {
+        CameraEdit_reflect_pin(box, i);
+        i++;
+    }
+}
+
+inline void CameraEdit_reflect_pin(int box, int pin)
+{
+    PinRec *dst = &((CamGroup *)(cameraSetOrg[1] + box * 76))->items[pin];
+    PinRec *src = &((CamGroup *)(cameraSetEdit[1] + box * 76))->items[pin];
+    *dst = *src;
+}
+
+inline int CameraEdit_BOX_NUMBER(void)
+{
+    return *cameraSetEdit;
+}
+
+inline int CameraEdit_PIN_NUMBER(int box)
+{
+    CamGroup *r1 = CameraEdit_BOX(box);
+    CamGroup *r2 = CameraEdit_BOX(box);
+    return r1->end - r2->first;
+}
+
 /* box is never advanced: the sum is n times the first group's pin count */
+inline int CameraEdit_PIN_NUMBER_ALL(CamGroup *box, int n)
+{
+    int sum = 0;
+    int i;
+    for (i = 0; i < n; i++) {
+        sum += box->end - box->first;
+    }
+    return sum;
+}
+
+inline CamGroup *CameraEdit_BOX(int box)
+{
+    return (CamGroup *)(cameraSetEdit[1] + box * 76);
+}
+
+inline PinRec *CameraEdit_PIN(int box, int pin)
+{
+    return ((CamGroup *)(cameraSetEdit[1] + box * 76))->items + pin;
+}
+
+inline void CameraEdit_DispPin(int box, int pin)
+{
+    dispPinRange(box, pin, pin + 1);
+}
+
 /* sixteen bytes before the pin default; nothing reads them */
 static float cameraEditVec[4] = {0.0f, -500.0f, 0.0f, 0.0f}; /* derived name */
 
@@ -1178,42 +1527,39 @@ static struct { /* field names derived */
     int pad6C[5];
 } cameraEditRec = {{0}, -1, {0}, 50.0f, 1}; /* derived name */
 
+inline void ConvertCameraSetBuffer(int n, CamGroup *item, char *groups)
+{
+    CamMgr *m1;
+    CamMgr *m2;
+    int i;
+    int j;
+    int a;
+    int b;
+    char *f;
+    cameraPinDefault.eyeRate = stageData[stage_no].handCameraRate;
+    m1 = (CamMgr *)cameraSetOrg;
+    m1->items = (char *)m1 + sizeof(CamMgr);
+    m1->pool = (char *)m1 + sizeof(CamMgr) + 100 * sizeof(CamGroup);
+    m1->count = 0;
+    f = &m1->flags[99];
+    for (a = 99; a >= 0; a--) {
+        *f-- = 0;
+    }
+    m2 = (CamMgr *)cameraSetEdit;
+    m2->items = (char *)m2 + sizeof(CamMgr);
+    m2->pool = (char *)m2 + sizeof(CamMgr) + 100 * sizeof(CamGroup);
+    m2->count = 0;
+    f = &m2->flags[99];
+    for (b = 99; b >= 0; b--) {
+        *f-- = 0;
+    }
+    for (i = 0; i < n; i++) {
+        CameraEdit_add_box(item);
+        for (j = item->first; j < item->end; j++) {
+            CameraEdit_add_pin(i, groups + j * 92);
+        }
+        item++;
+    }
+}
+
 inline void CameraEdit_Enter(void) {}
-
-INCLUDE_ASM(debug_NMarker);
-
-INCLUDE_ASM(debug_Marker);
-
-INCLUDE_ASM(debug_Arrow);
-
-INCLUDE_ASM(InitCameraEditor);
-
-INCLUDE_ASM(debug_CameraEditor);
-
-INCLUDE_ASM(CameraEdit_reset_box);
-
-INCLUDE_ASM(CameraEdit_reset_pin);
-
-INCLUDE_ASM(CameraEdit_reflect_box);
-
-INCLUDE_ASM(CameraEdit_reflect_pin);
-
-INCLUDE_ASM(CameraEdit_BOX_NUMBER);
-
-INCLUDE_ASM(CameraEdit_PIN_NUMBER);
-
-INCLUDE_ASM(CameraEdit_PIN_NUMBER_ALL);
-
-INCLUDE_ASM(CameraEdit_BOX);
-
-INCLUDE_ASM(CameraEdit_PIN);
-
-INCLUDE_ASM(CameraEdit_DispPin);
-
-INCLUDE_ASM(ConvertCameraSetBuffer);
-
-INCLUDE_ASM(StickToTrans);
-
-INCLUDE_ASM(menu_2);
-
-INCLUDE_ASM(group_select_camera_editor);

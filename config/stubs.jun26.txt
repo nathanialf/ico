@@ -188,37 +188,9 @@ rdlit shadow_RenderVolumeMulti 0x0059ECB0 0x0059ECD8 ico2/seki/src/Shadow.c alig
 text shadow_MakeObjectData 0x00127088 0x001273F0 ico2/seki/src/Shadow.c lines=74  # ordinal; differs-at:12; other:3; extent-equal
 text shadow_KillShadow 0x00127740 0x00127748 ico2/seki/src/Shadow.c lines=4  # census-equal; stubbed for emission order
 text shadow_Init 0x00127748 0x00127754 ico2/seki/src/Shadow.c lines=18  # call-aug
-text stage_MakeGObj 0x00127758 0x001279D4 ico2/seki/src/StageAnimation.c local lines=45  # order
-rdlit stage_MakeGObj 0x0059EE60 0x0059EEA0 ico2/seki/src/StageAnimation.c align=16  # 1 data (with its zero tail to the next 16-byte boundary)
-rdlit stage_MakeGObj 0x0059EEA0 0x0059F010 ico2/seki/src/StageAnimation.c align=16  # 3 strings
-sdlit stage_MakeGObj 0x00679810 0x00679812 ico2/seki/src/StageAnimation.c  # 1 string
-text stage_ApplyData 0x001279D8 0x00127BAC ico2/seki/src/StageAnimation.c lines=40  # order
-sdlit stage_ApplyData 0x00679818 0x00679820 ico2/seki/src/StageAnimation.c  # 1 string (target side)
 text stage_Init 0x00127BB0 0x001285D0 ico2/seki/src/StageAnimation.c lines=206  # order
-rdlit stage_Init 0x0059F010 0x0059F050 ico2/seki/src/StageAnimation.c  # 1 data (target side): stage_Init's table (lui/addiu of 0x59F010)
-text stage_SetAnimation 0x001285D0 0x001287C0 ico2/seki/src/StageAnimation.c lines=47  # call-pal
-rdlit stage_SetAnimation 0x0059F050 0x0059F088 ico2/seki/src/StageAnimation.c  # 1 string (target side)
-text stage_ContinueAnimation 0x001287C0 0x001288C0 ico2/seki/src/StageAnimation.c lines=31  # call-aug
-rdlit stage_ContinueAnimation 0x0059F0C0 0x0059F0EF ico2/seki/src/StageAnimation.c align=16  # 1 string
-text stage_CalcAnimationNoParent 0x001288C0 0x00128AC4 ico2/seki/src/StageAnimation.c lines=72  # order
-text stage_CalcAnimationParent 0x00128AC8 0x00128C48 ico2/seki/src/StageAnimation.c lines=54  # order
-text stage_DispAnimation 0x00128C48 0x00128DA8 ico2/seki/src/StageAnimation.c lines=42  # call-pal
-sdlit stage_DispAnimation 0x00679820 0x00679825 ico2/seki/src/StageAnimation.c  # 1 string (target side); the image-type names after it are Texture.c's textype
-text stage_PlayBgAnimation 0x00128DA8 0x00129078 ico2/seki/src/StageAnimation.c lines=61  # call-pal
-text stage_PlayBgAnimationDissolve 0x00129078 0x00129388 ico2/seki/src/StageAnimation.c lines=62  # call-aug
-text stage_MakePlayBgAnimation 0x00129388 0x001294DC ico2/seki/src/StageAnimation.c lines=53  # call-pal
-rdlit stage_MakePlayBgAnimation 0x0059F0F0 0x0059F177 ico2/seki/src/StageAnimation.c align=16  # 2 strings
-text stage_KillPlayBgAnimation 0x001294E0 0x00129544 ico2/seki/src/StageAnimation.c lines=23  # call-pal
-text stage_DispBgAnimation 0x00129548 0x001298C8 ico2/seki/src/StageAnimation.c lines=30  # call-aug
-text stage_CheckAnimationFinish 0x001298C8 0x00129990 ico2/seki/src/StageAnimation.c lines=21  # call-pal
-rdlit stage_CheckAnimationFinish 0x0059F088 0x0059F0BA ico2/seki/src/StageAnimation.c def  # 1 string
-text stage_CheckAnimationFrame 0x00129990 0x00129A18 ico2/seki/src/StageAnimation.c lines=18  # call-pal
-text stage_SetLoopFlag 0x00129A18 0x00129A5C ico2/seki/src/StageAnimation.c lines=17  # call-pal
-text stage_SetFrameStep 0x00129A60 0x00129AA8 ico2/seki/src/StageAnimation.c lines=17  # call-pal
-text stage_SetParentOfGObj 0x00129AA8 0x00129B00 ico2/seki/src/StageAnimation.c lines=13  # call-pal
-text stage_SetLocalizeGeometry 0x00129B00 0x00129BA8 ico2/seki/src/StageAnimation.c lines=24  # order
-text stage_SetScale 0x00129BA8 0x00129CB0 ico2/seki/src/StageAnimation.c lines=21  # call-aug
-text stage_CheckAnimationFrameIn 0x00129CB0 0x00129D38 ico2/seki/src/StageAnimation.c lines=18  # order
+rdlit stage_Init 0x0059EF58 0x0059F005 ico2/seki/src/StageAnimation.c  # 4 strings
+rdlit stage_Init 0x0059F010 0x0059F050 ico2/seki/src/StageAnimation.c align=16  # 1 static
 text fog_DrawFog 0x0012F410 0x0012FF58 ico2/seki/src/ZFog.c lines=76  # ordinal; differs-at:1; length:-47; extent-differs
 sdlit fog_DrawFog 0x006799B0 0x006799B4 ico2/seki/src/ZFog.c  # 1 word (target side); the On/Off names after it are fogOnOffText's, emitted by the C
 text iosCdvdMgrSearchFile 0x001302B0 0x00130440 ico2/fumi/ios/cdvd.c local lines=36  # aug
@@ -427,33 +399,6 @@ text BoyAttackCenter 0x00177C90 0x00177C98 ico2/omori/src/attackhit.c lines=1  #
 text CommonAttackCenter 0x00177C98 0x00177CC8 ico2/omori/src/attackhit.c lines=6  # order
 text AttackCenter 0x00177CC8 0x00177E54 ico2/omori/src/attackhit.c  # order; no definition in this TU
 rdlit AttackCenter 0x005A31E8 0x005A3208 ico2/omori/src/attackhit.c  # 2 strings (target side)
-text menuPinSelect 0x0017B948 0x0017BE08 ico2/omori/src/camera-editor.c lines=73  # census-equal; stubbed for emission order
-sdlit menuPinSelect 0x0067A0F0 0x0067A110 ico2/omori/src/camera-editor.c  # 4 strings
-text menuPinEdit 0x0017BE08 0x0017C618 ico2/omori/src/camera-editor.c lines=102  # census-equal; stubbed for emission order
-rdlit menuPinEdit 0x005A3500 0x005A3559 ico2/omori/src/camera-editor.c align=16  # 6 strings
-sdlit menuPinEdit 0x0067A110 0x0067A11D ico2/omori/src/camera-editor.c  # 2 strings
-text wakeup_cameraedit 0x0017C618 0x0017C698 ico2/omori/src/camera-editor.c lines=11  # ordinal; differs-at:14; imm:1; extent-equal
-text debug_NMarker 0x0017CFC8 0x0017D03C ico2/omori/src/camera-editor.c lines=6  # census-equal; stubbed for emission order
-text debug_Marker 0x0017D040 0x0017D048 ico2/omori/src/camera-editor.c lines=1  # census-equal; stubbed for emission order
-text debug_Arrow 0x0017D048 0x0017D050 ico2/omori/src/camera-editor.c lines=1  # census-equal; stubbed for emission order
-text InitCameraEditor 0x0017D050 0x0017D05C ico2/omori/src/camera-editor.c lines=5  # census-equal; stubbed for emission order
-text debug_CameraEditor 0x0017D060 0x0017D0B4 ico2/omori/src/camera-editor.c lines=15  # census-equal; stubbed for emission order
-text CameraEdit_reset_box 0x0017D0B8 0x0017D210 ico2/omori/src/camera-editor.c lines=17  # census-equal; stubbed for emission order
-text CameraEdit_reset_pin 0x0017D210 0x0017D324 ico2/omori/src/camera-editor.c lines=6  # census-equal; stubbed for emission order
-text CameraEdit_reflect_box 0x0017D328 0x0017D480 ico2/omori/src/camera-editor.c lines=14  # census-equal; stubbed for emission order
-text CameraEdit_reflect_pin 0x0017D480 0x0017D594 ico2/omori/src/camera-editor.c lines=6  # census-equal; stubbed for emission order
-text CameraEdit_BOX_NUMBER 0x0017D598 0x0017D5A4 ico2/omori/src/camera-editor.c lines=4  # census-equal; stubbed for emission order
-text CameraEdit_PIN_NUMBER 0x0017D5A8 0x0017D5EC ico2/omori/src/camera-editor.c lines=6  # census-equal; stubbed for emission order
-text CameraEdit_PIN_NUMBER_ALL 0x0017D5F0 0x0017D62C ico2/omori/src/camera-editor.c lines=9  # census-equal; stubbed for emission order
-text CameraEdit_BOX 0x0017D630 0x0017D648 ico2/omori/src/camera-editor.c lines=4  # census-equal; stubbed for emission order
-text CameraEdit_PIN 0x0017D648 0x0017D670 ico2/omori/src/camera-editor.c lines=4  # census-equal; stubbed for emission order
-text CameraEdit_DispPin 0x0017D670 0x0017D7F0 ico2/omori/src/camera-editor.c lines=4  # census-equal; stubbed for emission order
-text ConvertCameraSetBuffer 0x0017D7F0 0x0017D960 ico2/omori/src/camera-editor.c lines=34  # ordinal; differs-at:1; imm:2; extent-equal
-text StickToTrans 0x0017D960 0x0017DAD4 ico2/omori/src/camera-editor.c lines=28  # census-equal; stubbed for emission order
-text menu_2 0x0017DAD8 0x0017DB3C ico2/omori/src/camera-editor.c lines=13  # census-equal; stubbed for emission order
-rdlit menu_2 0x005A3560 0x005A3570 ico2/omori/src/camera-editor.c align=16 def  # 1 string
-text group_select 0x0017DB40 0x0017DBB0 ico2/omori/src/camera-editor.c file=group_select_camera_editor lines=12  # anchor; equal; -; extent-equal
-rdlit group_select 0x005A3570 0x005A3580 ico2/omori/src/camera-editor.c align=16 file=group_select_camera_editor def  # 1 string
 text CameraSetCameraSet_Default 0x0017DF30 0x0017DF50 ico2/omori/src/camera-ico2.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
 text initMonitorCamera 0x0017E370 0x0017E380 ico2/omori/src/camera-ico2.c local lines=6  # ordinal; differs-at:0; length:-4; extent-differs
 text monitorMonitorCamera 0x0017E380 0x0017E8E8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; differs-at:0; length:-241; extent-differs
@@ -601,46 +546,6 @@ text routeSetPos 0x001939B8 0x00193B0C ico2/common/src/backStage.c local lines=5
 text backStageProcessInStage 0x00193B10 0x00193E88 ico2/common/src/backStage.c lines=78  # ordinal; differs-at:0; length:-66; extent-differs
 lit4 backStageProcessInStage 0x00678C68 0x00678C6C ico2/common/src/backStage.c  # 1 float (target side)
 sdlit backStageProcessInStage 0x0067A2B8 0x0067A2C0 ico2/common/src/backStage.c  # 1 string (target side)
-text InitCharFileManager 0x00193FF8 0x0019404C ico2/common/src/charFileManager.c lines=11  # order
-text ResetCharFileManager 0x00194050 0x001940E4 ico2/common/src/charFileManager.c lines=13  # order
-rdlit ResetCharFileManager 0x00659EC8 0x00659EE8 ico2/common/src/charFileManager.c  # 1 string (target side)
-text ReadModelFile 0x001940E8 0x001942DC ico2/common/src/charFileManager.c lines=38  # order
-rdlit ReadModelFile 0x00659EE8 0x00659FCA ico2/common/src/charFileManager.c  # 5 strings
-sdlit ReadModelFile 0x0067A2C8 0x0067A2CA ico2/common/src/charFileManager.c  # 1 string
-text ReadVolumeModelFile 0x001942E0 0x001944D0 ico2/common/src/charFileManager.c lines=32  # order
-rdlit ReadVolumeModelFile 0x00659FD0 0x0065A058 ico2/common/src/charFileManager.c  # 3 strings
-sdlit ReadVolumeModelFile 0x0067A2D0 0x0067A2D2 ico2/common/src/charFileManager.c  # 1 string
-text ReadShadowModelFile 0x001944D0 0x001946A8 ico2/common/src/charFileManager.c lines=33  # order
-rdlit ReadShadowModelFile 0x0065A058 0x0065A0E0 ico2/common/src/charFileManager.c  # 3 strings
-text ReadTextureFile 0x001946A8 0x001947AC ico2/common/src/charFileManager.c lines=30  # order
-rdlit ReadTextureFile 0x0065A0E0 0x0065A170 ico2/common/src/charFileManager.c  # 2 strings (target side)
-text ReadSkeltonFile 0x001947B0 0x00194954 ico2/common/src/charFileManager.c lines=49  # order
-rdlit ReadSkeltonFile 0x0065A170 0x0065A1F1 ico2/common/src/charFileManager.c  # 3 strings
-sdlit ReadSkeltonFile 0x0067A2D8 0x0067A2DE ico2/common/src/charFileManager.c  # 1 string
-text ReadCollisionFile 0x00194958 0x00194CC8 ico2/common/src/charFileManager.c lines=67  # order
-rdlit ReadCollisionFile 0x0065A1F8 0x0065A31D ico2/common/src/charFileManager.c  # 12 strings
-text ReadStageAnimationFile 0x00194CC8 0x00194DD0 ico2/common/src/charFileManager.c lines=20  # order
-rdlit ReadStageAnimationFile 0x0065A320 0x0065A358 ico2/common/src/charFileManager.c  # 1 string (target side)
-text ReadMotionFile 0x00194DD0 0x00195014 ico2/common/src/charFileManager.c lines=35  # order
-rdlit ReadMotionFile 0x0065A358 0x0065A432 ico2/common/src/charFileManager.c  # 5 strings
-text ReadParticleEffectFile 0x00195018 0x001950AC ico2/common/src/charFileManager.c lines=8  # order
-text ReadSoundBdFile 0x001950B0 0x0019525C ico2/common/src/charFileManager.c lines=36  # order
-rdlit ReadSoundBdFile 0x0065A438 0x0065A463 ico2/common/src/charFileManager.c  # 1 string
-text ReadSoundHdFile 0x00195260 0x0019543C ico2/common/src/charFileManager.c lines=53  # order
-rdlit ReadSoundHdFile 0x0065A468 0x0065A493 ico2/common/src/charFileManager.c  # 1 string
-text ReadShockFile 0x00195440 0x00195550 ico2/common/src/charFileManager.c lines=28  # order
-rdlit ReadShockFile 0x0065A4F8 0x0065A521 ico2/common/src/charFileManager.c  # 1 string
-text ReadCamerasetFile 0x00195550 0x00195620 ico2/common/src/charFileManager.c lines=16  # order
-rdlit ReadCamerasetFile 0x0065A528 0x0065A55A ico2/common/src/charFileManager.c  # 1 string
-text ReadStageSettingFile 0x00195620 0x001956E4 ico2/common/src/charFileManager.c lines=11  # order
-rdlit ReadStageSettingFile 0x0065A560 0x0065A5E0 ico2/common/src/charFileManager.c  # 2 strings (target side)
-text CSVSYSTEM_ReadCharFiles 0x001956E8 0x001958A4 ico2/common/src/charFileManager.c lines=59  # call-aug
-rdlit CSVSYSTEM_ReadCharFiles 0x0065A5E0 0x0065A6D0 ico2/common/src/charFileManager.c  # 9 strings (target side)
-text ReadSoundSqFile 0x001958A8 0x00195A10 ico2/common/src/charFileManager.c lines=39  # ordinal; differs-at:36; imm:4; extent-equal
-rdlit ReadSoundSqFile 0x0065A498 0x0065A4C3 ico2/common/src/charFileManager.c def  # 1 string
-text ReadSoundAdpcmFile 0x00195A10 0x00195B4C ico2/common/src/charFileManager.c lines=23  # ordinal; differs-at:37; imm:1; extent-equal
-rdlit ReadSoundAdpcmFile 0x0065A4C8 0x0065A4F1 ico2/common/src/charFileManager.c def  # 1 string
-text GetPObjAddress 0x00195B50 0x00195B6C ico2/common/src/charFileManager.c lines=4  # ordinal; differs-at:0; imm:1; extent-equal
 text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
 text gamesysObjInfoInit 0x001A0518 0x001A056C ico2/common/src/gamesys.c lines=12  # ordinal; differs-at:5; imm:2; extent-equal
 text gamesysObjInfoSave 0x001A0570 0x001A0608 ico2/common/src/gamesys.c lines=18  # ordinal; differs-at:15; imm:2; extent-equal
