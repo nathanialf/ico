@@ -99,18 +99,12 @@ rdlit actGirlHand 0x005A29E8 0x005A29F8 ico2/fumi/src/girl_act.c  # 1 string (ta
 sdlit actGirlHand 0x00679F40 0x00679F50 ico2/fumi/src/girl_act.c  # 1 string, 2 words and 1 float (target side): every reference into the range is the function's
 text actGirlStart 0x0016BA10 0x0016BBE8 ico2/fumi/src/girl_act.c lines=38  # aug
 rdlit actGirlStart 0x005A2A88 0x005A2A99 ico2/fumi/src/girl_act.c  # 1 string
-text subBirdBrainMain 0x0018B778 0x0018C9DC ico2/ito/src/act_bird.c  # jun26-only; named by actBirdStart (actCreateSubThread(subBirdBrainMain, 20)) and aug6 TRFILE (subBirdBrainMain after trans_bird)
-lit4 subBirdBrainMain 0x00678B94 0x00678BE8 ico2/ito/src/act_bird.c  # 21 floats (target side)
-rdlit subBirdBrainMain 0x005A3BE0 0x005A3C15 ico2/ito/src/act_bird.c  # 3 strings (target side)
-rdlit subBirdBrainMain 0x005A3C20 0x005A3C48 ico2/ito/src/act_bird.c align=16 def  # 16-aligned in the demo after zero fill; 1 jtbl (target side); emitted where the demo has it
-sdlit subBirdBrainMain 0x0067A1F8 0x0067A228 ico2/ito/src/act_bird.c  # 6 strings (target side)
 text stgmgrNextStagePreLoad 0x00192E08 0x0019303C ico2/common/src/StageManager.c local lines=69  # ordinal; differs-at:16; length:-1; extent-differs
 rdlit stgmgrNextStagePreLoad 0x00659DC0 0x00659DE6 ico2/common/src/StageManager.c  # 1 string
 sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.c  # 1 string
 text backStageProcessOutStage 0x001935B0 0x00193800 ico2/common/src/backStage.c lines=107  # ordinal; differs-at:0; length:-184; extent-differs
 rdlit backStageProcessOutStage 0x00659E90 0x00659EA0 ico2/common/src/backStage.c  # 1 string (target side)
 text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
-text getCloth4D_preProcess 0x001B7A88 0x001B801C ico2/sugipon/src/clothAnimation.c local lines=94  # call-aug
 text dispGameOverGrid 0x001BA9C8 0x001BAC90 ico2/sugipon/src/darkVolume.c local  # jun26-only; derived name (row was ordinal "draw": a 30 by 30 mesh grid, no caller)
 rdlit dispGameOverGrid 0x0065F630 0x0065F640 ico2/sugipon/src/darkVolume.c  # 1 data, four words (target side): the function's two references (0x65F630)
 text reduceWork2ToWork0.105 0x001DD588 0x001DD6DC ico2/sugipon/src/staticBlur.c local file=reduceWork2ToWork0_105_staticBlur  # ordinal; differs-at:37; length:+2; extent-differs

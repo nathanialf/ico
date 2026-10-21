@@ -21,7 +21,6 @@
 #include "Matrix.h"
 #include "windField.h"
 #include "clothAnimation.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     float v[4];
@@ -944,27 +943,91 @@ static sceVu0FMATRIX procMatrix = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
-/* the two point writers: add, or set, a scaled transformed vector */
-static __inline__ void clothAddPoint(void *dst, void *src, float f) /* derived name */
+/* one hang point's share of a cloth point: src carried by the node matrix m,
+   weighted by f, added to dst */
+static __inline__ void clothAddPoint(void *dst, float (*m)[4], void *src,
+                                     float f) /* derived name */
 {
     VECTOR tv;
 
-    _ApplyCurrentMatrix(&tv, src);
+    _ApplyMatrix(&tv, m, src);
     _ScaleVector(&tv, &tv, f);
-    _AddVectorXYZ(dst, dst, &tv);
+    AddVectorXYZ(dst, dst, &tv);
 }
 
-static __inline__ void clothSetPoint(void *dst, void *src, float f) /* derived name */
+static void getCloth4D_preProcess(Cloth4D *c, float g, float damp)
 {
-    VECTOR tv;
+    VECTOR dv;
+    int i;
+    int j;
+    Prim3DVec **pos = c->pos;
+    Prim3DVec **nrm = c->nrm;
+    Prim3DVec **vel = c->vel;
+    Cloth4DCfg *cfg = c->cfg;
+    int nx = cfg->nx - (cfg->wrap != 0);
+    int ny = cfg->ny;
+    VECTOR va[nx];
+    float t;
+    float *wind;
+    float wpow;
 
-    _ApplyCurrentMatrix(&tv, src);
-    _ScaleVectorXYZ(dst, &tv, f);
+    for (i = 0; i < nx; i++) {
+        for (j = 1; j < ny; j++) {
+            sceVu0ScaleVector(&dv, &vel[i][j], damp);
+            CopyVector(&vel[i][j], &pos[i][j]);
+            AddVectorXYZ(&pos[i][j], &pos[i][j], &dv);
+        }
+    }
+    wind = GetWindVector(&wpow, &pos[0]->x);
+    wpow = wpow / 40960.0f;
+    for (i = 0; i < nx; i++) {
+        CopyVector(pos[i], ZeroPoint);
+        CopyVector(nrm[i], ZeroVector);
+        CopyVector(&va[i], ZeroVector);
+        for (j = 0; j < 2; j++) {
+            int n = cfg->cols[i].link[j].node;
+
+            if (n == -1) {
+                break;
+            }
+            {
+                /* the hang node carries the column's top point, its normal
+                   and its rest direction */
+                float m[4][4];
+                Sub15C *sk = GOBJ_SUB(c->gobj);
+
+                _MulMatrix(m, (char *)sk->nodeMtx + n * 64, sk->clusterMtx + n * 64);
+                clothAddPoint(pos[i], m, cfg->cols[i].pos, cfg->cols[i].link[j].weight);
+                clothAddPoint(nrm[i], m, cfg->cols[i].dir, cfg->cols[i].link[j].weight);
+                clothAddPoint(&va[i], m, cfg->cols[i].restDir, cfg->cols[i].link[j].weight);
+            }
+        }
+        pos[i]->w = 1.0f;
+        nrm[i]->w = 1.0f;
+        va[i].w = 0.0f;
+    }
+    for (j = 1; j < ny; j++) {
+        t = (float)(ny - j) / (float)(ny - 1);
+        t = t * t;
+        for (i = 0; i < nx; i++) {
+            AddVectorXYZ(&pos[i][j], &pos[i][j], wind);
+            {
+                /* a random gust, then the point follows the one above it
+                   toward its rest direction */
+                Vec16 noise = {{wpow * (float)((rand() & 0x7FFF) - 16383),
+                                wpow * (float)((rand() & 0x7FFF) - 16383),
+                                wpow * (float)((rand() & 0x7FFF) - 16383), 0.0f}};
+                VECTOR w;
+
+                AddVectorXYZ(&pos[i][j], &pos[i][j], &noise);
+                SubVectorXYZ(&w, &pos[i][j], &pos[i][j - 1]);
+                _InterVectorXYZ(&w, &va[i], &w, t);
+                AddVectorXYZ(&pos[i][j], &pos[i][j - 1], &w);
+            }
+            pos[i][j].y = pos[i][j].y + g;
+        }
+    }
 }
-
-static void getCloth4D_preProcess(Cloth4D *c, float g, float damp);
-
-INCLUDE_ASM(getCloth4D_preProcess);
 
 /* the four procMatrix elements proc writes its Y rotation through */
 static float *procCosXX = &procMatrix[0][0]; /* derived name */
