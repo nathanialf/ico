@@ -160,7 +160,8 @@ typedef struct PObjModel { /* field names derived */
         unsigned long long bits; /* bits 16 and 17 the display type, bit 26 the shadow off */
 
         struct {
-            short disp;               /* 0x30 in June: the later builds keep it as a char at 0x2F */
+            short clstNum;            /* 0x30, the cluster count AllocPObj stores (PObj.c's clstNum);
+                                         the later builds keep a char at 0x2F */
             unsigned short type : 2;  /* 0x32, the display type */
             unsigned short shade : 4; /* the shade the strips carry */
             unsigned short lod : 4;   /* the level of detail the packet is built for */

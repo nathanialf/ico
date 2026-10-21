@@ -56,8 +56,8 @@ typedef union { /* field names derived */
    before the copy; its named fields are the words the template sets.  The
    slot table pointer at 0x7E0 and the character file id at 0x84 are named
    from this file; the parent link at 0x00, the collision words at 0x70 to
-   0x80 and the accessary row at 0x7E4 as Sub15C (typedef.h) names PAL's
-   offsets.  The long long pads give the record the
+   0x80 and the accessary row at 0x7E4 as Sub15C (typedef.h) names them.
+   The long long pads give the record the
    8-byte alignment its copy loop uses. */
 typedef struct { /* field names derived */
     ObjNode parent;
@@ -288,7 +288,7 @@ static inline void initPolyHead(Sub15C *d) /* derived name */
     if (d->lightMtx->mode == 4) {
         h->mode.s.type = 3;
     } else {
-        h->mode.s.type = h->mode.s.disp > 0;
+        h->mode.s.type = h->mode.s.clstNum > 0;
         if (h->parts->lineCount != 0) {
             h->mode.s.type = 2;
         }

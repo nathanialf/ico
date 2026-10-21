@@ -13,9 +13,7 @@
 /* the girl's brain record */
 extern Brain brainGirl;
 void brainAddLevelGirl(float lv);
-void brainAddLevelGirlDetail(int flag, float lv);
 void brainAddLevelGop(GObj *gobj, float lv);
-int brainCheckView(Brain *b, BrainTarget *t);
 void brainClsTargetLevel(Brain *b);
 float brainGetLevel(Brain *b, BrainTarget *t);
 void brainGetTarget(Brain *b);

@@ -11,7 +11,6 @@
 /* backStage.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void backStageProcessInit(void);
-void backStageDebugTimeZero(void);
 void backStageTsuresariReturn(void);
 void backStageProcessInStage(float arg);
 void backStageProcessOutStage(void);

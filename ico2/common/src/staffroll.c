@@ -10,8 +10,8 @@
 #include "GsBase.h"
 
 /* staffroll.o's whole .data run: the roll's display area, {x, y, width,
-   height}.  Only the first word is read here, as the running scroll
-   position, which starts at 1280 in this build. */
+   height}, which staffRollMain draws as a sprite.  x is also the running
+   scroll position, which starts at 1280 in this build. */
 static int staffRollArea[4] = {1280, -1792, 10240, 3584}; /* derived name */
 
 /* one posted line, 8 bytes in this build (staffRollNameOut indexes the table

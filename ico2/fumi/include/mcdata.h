@@ -11,11 +11,12 @@
 struct McMgr;
 struct IconFile;
 
-/* The save's icon.sys record: the SDK's sceMcIconSys, with libmc's field
-   names (964 bytes).  The SDK's libmc.h in this tree does not declare it.
-   The demo builds its save icon's record into the program (the data member
-   mc-icon-sys, config/data_members.jun26.txt); nothing reads it. */
-typedef struct {
+/* The save's icon.sys record (964 bytes) under the SDK's name sceMcIconSys.
+   The SDK's libmc.h in this tree does not declare it, so its field names are
+   spelled after the SDK's, from no header on hand: derived.  The demo builds
+   its save icon's record into the program (the data member mc-icon-sys,
+   config/data_members.jun26.txt); nothing reads it. */
+typedef struct { /* field names derived */
     unsigned char Head[4];        /* 0x0 "PS2D" */
     unsigned short Reserv1;       /* 0x4 */
     unsigned short OffsLF;        /* 0x6 */

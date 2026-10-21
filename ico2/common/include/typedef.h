@@ -113,9 +113,8 @@ static inline float absf(float x)
 
 typedef struct GObj GObj; /* derived name */
 
-typedef struct Sub15C Sub15C;
-
-/* *(GObj + 0x15C), the object's display object (DObj.c) */ /* derived name */
+/* *(GObj + 0x15C), the object's display object (DObj.c) */
+typedef struct Sub15C Sub15C; /* derived name */
 
 /* The 80-byte record Sub15C + 0x810 points at, one per display node; the
  * buffer is reallocated with the 0xC matrices and 0x10 vectors for the node
@@ -206,7 +205,7 @@ typedef union Vec16 { /* field names derived */
    it is linked to, the rootUpdates return the one they stand on, and the
    wall-hit record at ClipWork+0x80 is one followed by the hit count.  GetPureVerticalPlane reads it as its `int *cfg` argument (see
    getVerticalElementOfWallNormal in src/motionManager2) and the character
-   record keeps a copy at +0xE0.  The object/node pair is its own member: the
+   record keeps a copy at +0xD0.  The object/node pair is its own member: the
    ROM copies it as an eight-byte block and the count as a separate word. */
 typedef struct ObjNode { /* field names derived */
     GObj *obj;           /* the object */
@@ -266,10 +265,10 @@ typedef struct HandRec { /* field names derived */
 } HandRec; /* derived name */
 
 /* RECONSTRUCTION, names ours: the motion work's root block (the motion work
-   + 0xA0, up to its motion-control block at + 0x470), the record skelRoot
+   + 0xA0, up to its motion-control block at + 0x460), the record skelRoot
    points at.  The position, translation, rotation and the last position are
    what every rootUpdate reads and writes; the wall records are the ones the
-   hit tests keep; the lift pair and the turn at + 0x300 are _getFinalMatrix's.
+   hit tests keep; the lift pair and the turn at + 0x2F0 are _getFinalMatrix's.
    Fields from the access widths and offsets in motionManager.c and from the
    display-object readers across the game (Sub15C root below). */
 struct MotRoot {       /* field names derived */
@@ -377,7 +376,7 @@ struct MotRoot {       /* field names derived */
 enum MotOriStep { MOTORI_STEP_0 };
 
 /* RECONSTRUCTION, names ours: the motion work's motion-control block (the
-   motion work + 0x470), the record skelMotCtrl points at: the stream, the
+   motion work + 0x460), the record skelMotCtrl points at: the stream, the
    status flags, the motion number and the root-update mode the assert in
    _getGeometryOfMotion prints ("ID", "rootUpdateMode"), the wall and cliff
    distances and normals the hit tests leave.  Sub15C embeds it as ctrl. */
@@ -522,7 +521,7 @@ typedef struct MotIk { /* field names derived */
     float offset[4];  /* 0x30 */
 } MotIk;              /* derived name */
 
-/* The 192-byte motion record at Sub15C + 0x680: initGeometryState clears
+/* The 192-byte motion record at Sub15C + 0x660: initGeometryState clears
    it and GetMotionPointer returns it; no reader of its words is left. */
 typedef struct { /* field names derived */
     long long pad[24];
@@ -541,7 +540,7 @@ struct Sub15C { /* field names derived */
     int colData;   /* 0x70, the collision data; its wall list hangs at 0x10 */
     int disp;      /* 0x74, nonzero while the stage animation draws the object */
     int colRotate; /* 0x78, nonzero when the collision follows the node's rotation */
-    int cylinderOn; /* 0x7C, nonzero, with the word at 0x3C8, when the object takes part in cylinder collision */
+    int cylinderOn; /* 0x7C, nonzero, with the word at 0x3B8, when the object takes part in cylinder collision */
     int colPerNode;  /* 0x80, nonzero when the collision has one entry a node */
     int modelId;     /* 0x84, the model id the enemy setup loads (GetPObjAddress) */
     int skelNodeNum; /* 0x88, the count of skeleton nodes */
@@ -560,8 +559,8 @@ struct Sub15C { /* field names derived */
         [48]; /* 0x720, the frame-depend sequence's fired-slot flags (frameDependSequence.c's FDSFlags) */
     void *motionBuf; /* 0x750, the current motion's rotation elements, 32 bytes a skeleton node */
     char pad754[12];
-    float motionPos[4]; /* 0x760, the position GetMatrixOfMotion places the root at (its place
-                           in this build not measured) */
+    float motionPos[4]; /* 0x760, the position GetMatrixOfMotion places the root at
+                           (motionManager.c) */
     void *blendBuf;     /* 0x770, the blend source's rotation elements */
     char pad774[12];
     float localPos[4]; /* 0x780, the position relative to the object at 0x7A0 */
@@ -848,8 +847,7 @@ typedef struct { /* field names derived */
     unsigned char
         lookOnly; /* 0x18, the girl only looks at the target; nonzero holds the target type at 1 */
     unsigned char alwaysSeen; /* 0x19, nonzero skips the view check */
-    unsigned char detail;     /* 0x1A, bit 0 set by brainAddLevelGirlDetail */
-    char pad1B[1];
+    char pad1A[2];
 } BrainTarget; /* derived name */
 
 /* the GIF packet builder's double buffer and its write pointers */
@@ -978,14 +976,14 @@ typedef struct {   /* field names derived */
     void (*initproc)(void); /* 0x150, the per-stage init hook */
     float windAmp;         /* 0x154, the wind speed's variance */
     float windSpeed;       /* 0x158, the wind's base speed */
-    int word160;           /* 0x15C, no C reader */
+    int word15C;           /* 0x15C, no C reader */
     int seSegData1;        /* 0x160, the sound data segment 1 keeps into the stage */
     int seSegData2;        /* 0x164, the same for segment 2 */
     int wayGroupEnd;       /* 0x168 */
     int wayGroupStart;     /* 0x16C */
-    int word174;           /* 0x170, no C reader */
-    int word178;           /* 0x174, no C reader */
-    int word17C;           /* 0x178, no C reader */
+    int word170;           /* 0x170, no C reader */
+    int word174;           /* 0x174, no C reader */
+    int word178;           /* 0x178, no C reader */
     float handCameraRate;  /* 0x17C */
     short shadowDepth;     /* 0x180, copied into the stage setting's shadow depth */
     unsigned char pad182[2];
@@ -995,9 +993,9 @@ typedef struct {   /* field names derived */
      * kidnap).  RECONSTRUCTION: bits 24-29 are a bitfield,
      * the stage's movie number StageManager copies into mpegPlay (lbu 0x187,
      * andi 0x3F; movies 1-4 on stages 58, 100, 101, 102), because the
-     * ROM reads it as one: a whole-word field makes expand_expr fold the 0x188
+     * ROM reads it as one: a whole-word field makes expand_expr fold the 0x184
      * into a constant table base (expr.c 6464-6482), where StageManager's three
-     * reads keep the table base, add the index product and load at 0x188,
+     * reads keep the table base, add the index product and load the byte at 0x187,
      * with the const table's unchanging flag on the load. */
     unsigned int reverbDepth : 16;
     unsigned int kidnapSeconds : 8;
@@ -1171,7 +1169,7 @@ typedef union { /* field names derived */
     } w;
 } WayState; /* derived name */
 
-/* one of the actor's 64-bit wish words (Act + 0x478 .. 0x49F): act-wish.c sets
+/* one of the actor's 64-bit wish words (Act + 0x470 .. 0x497): act-wish.c sets
    and tests their bits, other readers take the low or high word */
 typedef union { /* field names derived */
     unsigned long long ll;
@@ -1179,7 +1177,7 @@ typedef union { /* field names derived */
 } ActWishWord; /* derived name */
 
 #include "motionOrientManager.h"
-#include "pad.h" /* IosPadStick, which Act carries at 0x338 */
+#include "pad.h" /* IosPadStick, which Act carries at 0x328 */
 
 /* The pad configuration record iosPadConnect hands a pad (pad.c's
    iosPadConfDefault and iosPadConfCustom, and the copy each actor keeps), 60
@@ -1204,7 +1202,7 @@ typedef struct CheckWp { /* field names derived */
 } CheckWp; /* derived name */
 
 /* The guide-way work block way_sys.c allocates and threads through every
- * member: 0x80 bytes (the actor record embeds one at +0x360 and
+ * member: 0x80 bytes (the actor record embeds one at +0x350 and
  * waySystemManager's request one at +0x20), and only the words the TU reads
  * or writes are named.  act-way.c copies the actor's with 64-bit moves, so the
  * record is 8-byte aligned. */
@@ -1247,7 +1245,7 @@ typedef struct WayRequest {  /* field names derived */
     struct GProc *proc; /* 0xB0, the sub-thread running the search, 0 when none */
 } WayRequest;           /* derived name */
 
-/* The actor's environment (Act + 0x4B0), the 0x1D0 bytes ACTGetEnvironment
+/* The actor's environment (Act + 0x4A0), the 0x1B0 bytes ACTGetEnvironment
  * fills in and ACTEnvGetTest clears every frame, keeping the turn direction
  * and the three orient requests: the orientations and positions of the
  * wall, cliff, ditch, edge, torch, sofa and lever the actor can act on, the
@@ -1300,7 +1298,7 @@ typedef struct ActEnv {      /* field names derived */
                   as the object */
 
     MotOriReq motOriReq;    /* 0x150, the motion orient request SetMotionRequest
-                             takes, copied from the root's at Sub15C + 0x180 */
+                             takes, copied from the root's at Sub15C + 0x170 */
     MotOriReq cliffContact; /* 0x170, the same copy, taken where the cliff is
                                found; mails 378 to 384 read it (381 takes the
                                boy's) */
@@ -1425,8 +1423,8 @@ typedef struct Act {         /* field names derived */
         GObj *p;
     } nextItem;
 
-    int attackTurn; /* 0x168, nonzero while the attack turns toward the target (its place
-                       in this build not measured) */
+    int attackTurn; /* 0x168, nonzero while the attack turns toward the target (actEnemyAttack
+                       hands its address to ACTSearchEnemy) */
     char pad16C[20];
     GObj *chain;     /* 0x180, the chain the actor hangs on */
     GObj *lastChain; /* 0x184, the chain the actor last hung on */
@@ -1527,10 +1525,10 @@ typedef struct GenGeo { /* field names derived */
 /* one stage-animation mode record: the base mode, the second animation and the held mode */
 typedef struct { /* field names derived */
     int baseMode; /* 0x00, the mode the record returns to, also its BG animation: the first stage-animation id */
-    int anim2; /* 0x04, the second stage-animation id, 972 (JPN 949, no animation) in most rows */
+    int anim2; /* 0x04, the second stage-animation id, 763 (no animation) in most rows */
     int word8; /* 0x08, no C reader */
-    int mode;  /* 0x0C, 972 (JPN 949) while held */
-    int flags; /* 0x10, bit 0 holds the mode at 972 (JPN 949) */
+    int mode;  /* 0x0C, 763 while held */
+    int flags; /* 0x10, bit 0 holds the mode at 763 */
 } OaRecB;      /* derived name */
 
 typedef struct { /* field names derived */

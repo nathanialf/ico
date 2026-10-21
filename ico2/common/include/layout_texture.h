@@ -45,7 +45,7 @@ typedef struct LtProperty { /* field names derived */
     int leftItem;           /* 0x1C */
     int downItem;           /* 0x20 */
     int upItem;             /* 0x24 */
-    int word40;             /* 0x28, no C reader */
+    int word28;             /* 0x28, no C reader */
     int centerX;            /* 0x2C, nonzero centres the sprite across the screen */
     int dispH;              /* 0x30, the sprite's height in field lines, 0 for the texture's */
     int dispW;              /* 0x34, its width in pixels, 0 for the texture's */

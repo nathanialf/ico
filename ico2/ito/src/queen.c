@@ -854,9 +854,6 @@ static float queenSpawnPos[6][4] = {
     {600.0f, -900.0f, -200.0f, 0.0f},  {400.0f, -900.0f, 100.0f, 0.0f},
 };
 
-/* This build's queen keeps no frame counter of her own in .sbss (no function
-   of the demo addresses one). */
-
 /* the 3x3 identity, for QueenBarrierGeo and QueenBallGeo */
 static inline void UnitMatrix33(QMat3 *m) /* derived name */
 {

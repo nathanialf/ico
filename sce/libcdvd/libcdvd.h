@@ -19,21 +19,17 @@ typedef struct {
     unsigned char pad;
 } CdRMode; /* derived name */
 
-/* the records sceCdSearchFile and sceCdReadClock fill in.  Their bodies are
-   in the members that define those calls, and seki's FileManager.c carries
-   its own sceCdlFILE body. */
+/* the record sceCdSearchFile fills in.  Its body is in the member that
+   defines that call, and seki's FileManager.c carries its own sceCdlFILE
+   body. */
 struct sceCdlFILE;
 
-struct sceCdCLOCK;
-
-int sceCdBreak(void);
 int sceCdDiskReady(int mode);
 int sceCdGetDiskType(void);
 int sceCdGetError(void);
 int sceCdInit(int mode);
 int sceCdMmode(int media);
 int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode);     /* definition in sce/ */
-int sceCdReadClock(struct sceCdCLOCK *clock);                      /* definition in sce/ */
 int sceCdReadIOPm(int lsn, int sectors, void *buf, CdRMode *mode); /* definition in sce/ */
 int sceCdSearchFile(struct sceCdlFILE *fp, const char *name);      /* definition in sce/ */
 int sceCdStInit(int bufmax, int bankmax, void *buf);               /* definition in sce/ */

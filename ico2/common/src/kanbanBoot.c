@@ -1,13 +1,9 @@
-#include "StageManager.h"
-#include "layout_texture.h"
 #include "gobj.h"
 #include "kanbanBoot.h"
-#include <libscf.h>
 #include "kanban.h"
 #include "GsBase.h"
 #include "main.h"
 #include "Basic.h"
-#include "debug.h"
 
 /* .sdata: the boot sequence's step, the card check's step, the start request
    and kanbanBootEnd (this build has no card retry count or boot-sign done flag
@@ -47,7 +43,6 @@ static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 *
    calls pin, so it does not include mcard.h */
 extern void iosMcChdirProduct(McMgr *mp);
 extern int iosMcSync(McMgr *mp);
-extern void iosMcLoadProductBlock(McMgr *mp);
 
 static int kanbanBootMcCheck(void)
 {

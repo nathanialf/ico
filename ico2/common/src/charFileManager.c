@@ -52,9 +52,6 @@ typedef struct {        /* field names derived */
 /* .bss: the character file table, MAX_CHARS entries of 0x14 bytes */
 static CharFile charFiles[MAX_CHARS]; /* derived name */
 
-/* This build keeps no empty-entry template in .data: the object has no
-   .data (debug.c's follows the stage manager's directly). */
-
 /* .sdata: the serial the loaders stamp into each object they build, and the
    semi-common sound header's buffer (defined below). */
 static int objSerial = 0; /* derived name */

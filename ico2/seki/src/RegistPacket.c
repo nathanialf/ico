@@ -260,7 +260,7 @@ extern void mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in the refl
 
 static void reg_transMicroCode(Sub15C *o, int mask)
 {
-    if (o->model->mode.s.disp != 0) {
+    if (o->model->mode.s.clstNum != 0) {
         mc_TransMicroCode(3);
         return;
     }

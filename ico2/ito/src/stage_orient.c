@@ -1,6 +1,4 @@
 #include "typedef.h"
-#include "Matrix.h"
-#include "matrixDrive.h"
 #include <libvu0.h>
 
 /* This build's record is 0x24 bytes: no second anchor; the word after the
@@ -57,20 +55,6 @@ static short stageOrientIdx[120]; /* derived name */
 #include "stage_orient.h"
 #include <stdio.h>
 #include <string.h>
-
-/* the matrix that places a stage at its orient record's anchor and angle,
-   for GetStageDifferenceMatrix and StageOrientGet2 */
-static inline void MakeStageOrientMatrix(float *m, const StageOrientDef *p) /* derived name */
-{
-    VECTOR v = {p->pos[0], p->pos[1], p->pos[2], 1.0f};
-
-    MatrixDrive_PushMatrix();
-    _UnitMatrix(MatrixDrive_GetMatrix());
-    MatrixDrive_TransMatrixV(&v);
-    MatrixDrive_RotMatrixY((short)(p->angle * 10430.37793f));
-    CopyMatrix(m, MatrixDrive_GetMatrix());
-    MatrixDrive_PopMatrix();
-}
 
 inline void StageOrientInit(void)
 {

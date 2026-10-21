@@ -13,6 +13,4 @@
 void StageOrientInit(void);
 int StageOrientGet(VECTOR *ret, int stA, int stB);
 
-int OtherStagePositionGet(float *ret, int stA, int stB, float *pos);
-
 #endif /* STAGE_ORIENT_H */

@@ -739,8 +739,6 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
     }
 }
 
-inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
-
 /* the camera-group search GetCameraGroupFromGObj, GetCameraGroupFromPosition
  * and SetCameraMatrix_Ico2 share */
 static inline int findCameraGroupContaining(float *pos) /* derived name */

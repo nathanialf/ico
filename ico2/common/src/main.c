@@ -33,8 +33,7 @@
 #include <sound.h>
 #include <sifrpc.h>
 
-/* main.c's .data globals, each with an initialiser. systemStatus starts in PAL mode (word 0;
-   NTSC on JPN)
+/* main.c's .data globals, each with an initialiser. systemStatus starts in NTSC mode (word 0 is 0)
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
@@ -100,7 +99,7 @@ static char soundThreadStack[8192] __attribute__((aligned(16))); /* derived name
 
 static int schedulerMsgBuff[8]; /* derived name */
 
-/* the pad handle and the two stick readings func_00102618 reads each frame
+/* the pad handle and the two stick readings sampleModeNoContTimeOutMain reads each frame
    for the demo disc's idle countdown */
 static IosPadCtx demoIdlePad; /* derived name */
 
@@ -120,8 +119,8 @@ static void scheduler(void);
 extern char movieFile[];
 int movie_abort_check(void);
 /* the development build's Main also called debug_Menu, debug_SetBar and
-   debug_SetBar2 and carried a frame-step block; the retail build compiled
-   them out. */
+   debug_SetBar2 and carried a frame-step block; this build has none of
+   them. */
 void Main(void);
 
 void Main(void)
@@ -488,10 +487,8 @@ void sampleModeExec(void)
     }
 }
 
-/* main.c's .sdata globals.  Both builds add six to the January map's (marked
-   derived): one quadword after game_pause and the girl-control block before
-   boyGObj.  Each is a 4-byte scalar; the ones marked QWORD open a 16-byte
-   quadword of their own, the rest of which stays empty. */
+/* main.c's .sdata globals.  Each is a 4-byte scalar; the ones marked QWORD
+   open a 16-byte quadword of their own, the rest of which stays empty. */
 #define QWORD __attribute__((aligned(16)))
 
 int buffer_ID QWORD = 0;
@@ -516,18 +513,21 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
-/* the screen width GsBase and the effects read: this build keeps it here, in
-   main.o's .sdata (0x679470), where PAL has NonLinearCameraMove */
+/* The six quadwords from 0x679470 keep this tree's names.  The USA build's
+   main.o has the same six, GlobalTimer, lock_execIcoMisc, graphics_ready,
+   game_pause, data_loading and an unreferenced word, and the demo's readers
+   use the first two as the USA's use those: Main zeroes both, SetCameraMatrix
+   sets the first each frame (staticBlur.c and enemyParts.c test it), and the
+   scheduler bumps the second once a frame (jimaku.c stamps its ring with it,
+   where the USA's reads lock_execIcoMisc).  Nothing here reads the last two. */
 int currentScreenWidth QWORD = 0;
 
 int GlobalTimer QWORD = 0;
 
-/* graphics_ready comes first in this build (0x679490): the stage manager's
-   switch sets it, InitIcoMisc clears it, the main loop, the stage animation and
-   the script read it; the frame counter after game_pause has no reader */
+/* the stage manager's switch sets it, InitIcoMisc clears it, the main loop,
+   ExecIcoMisc, the stage animation and the script read it */
 int graphics_ready QWORD = 0;
 
-/* game_pause comes first in this build (0x6794A0) */
 int game_pause QWORD = 0;
 
 int lock_execIcoMisc QWORD = 0;
@@ -555,9 +555,9 @@ int IosStgMgrLock QWORD = 0;
 int systemFault QWORD = 0;
 
 /* This build has none of PAL's option words (optionControlType,
-   optionScreenMode, girlControlMode), nor its girlPad or reserved quadword:
-   no word of the demo's .text addresses them, and boyGObj follows systemFault
-   in the demo's .sdata. */
+   optionScreenMode, girlControlMode), nor its girlPad: no word of the demo's
+   .text addresses them, and boyGObj follows systemFault in the demo's
+   .sdata. */
 GObj *boyGObj = 0;
 
 GObj *girlGObj = 0;

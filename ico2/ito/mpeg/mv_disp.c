@@ -4,7 +4,6 @@
 #include "mv_disp.h"
 #include <eeregs.h>
 #include <libgraph.h>
-#include "main.h"
 
 inline void *setTEX0_1(int *p, int tbp0, int tbw, int psm, int tw, int th, int tcc, int tfx,
                        unsigned int cbp, unsigned int cpsm, unsigned int csm, unsigned int csa,

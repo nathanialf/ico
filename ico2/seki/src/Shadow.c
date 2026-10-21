@@ -1234,7 +1234,7 @@ void shadow_MakeObjectData(PObjModel *mdl)
 
     for (i = 0; i < mdl->partCount; i++) {
         p = &mdl->parts[i];
-        if (mdl->mode.s.disp != 0) {
+        if (mdl->mode.s.clstNum != 0) {
             p->vtxSave = mallocseki(p->vtxCount * 16);
             p->nrmSave = mallocseki(p->vtxCount * 16);
             q = (ShadowVtx *)mallocseki(p->vtxCount * 16);

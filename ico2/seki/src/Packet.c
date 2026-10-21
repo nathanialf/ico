@@ -1099,7 +1099,7 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
     pac_resetPacketCount();
     tbl = 0;
     mtbl = 0;
-    obj->mode.s.type = 0 < obj->mode.s.disp;
+    obj->mode.s.type = 0 < obj->mode.s.clstNum;
     if (obj->parts->lineCount != 0)
         obj->mode.s.type = 2;
     /* the display type, bits 16 and 17 of the mode word */
@@ -1240,7 +1240,7 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
 void pac_MakePacket(Sub15C *o)
 {
     PObjModel *p = o->model;
-    pac_makePacket(p, o->lightMtx->mode, p->mode.s.disp > 0);
+    pac_makePacket(p, o->lightMtx->mode, p->mode.s.clstNum > 0);
 }
 
 inline void pac_Init(void)
