@@ -193,38 +193,6 @@ rdlit stage_Init 0x0059EF58 0x0059F005 ico2/seki/src/StageAnimation.c  # 4 strin
 rdlit stage_Init 0x0059F010 0x0059F050 ico2/seki/src/StageAnimation.c align=16  # 1 static
 text fog_DrawFog 0x0012F410 0x0012FF58 ico2/seki/src/ZFog.c lines=76  # ordinal; differs-at:1; length:-47; extent-differs
 sdlit fog_DrawFog 0x006799B0 0x006799B4 ico2/seki/src/ZFog.c  # 1 word (target side); the On/Off names after it are fogOnOffText's, emitted by the C
-text iosCdvdMgrSearchFile 0x001302B0 0x00130440 ico2/fumi/ios/cdvd.c local lines=36  # aug
-rdlit iosCdvdMgrSearchFile 0x0059FB40 0x0059FBAB ico2/fumi/ios/cdvd.c  # 2 strings
-text iosCdvdMgrStStop 0x00130440 0x00130480 ico2/fumi/ios/cdvd.c local lines=23  # aug
-text iosCdvdMgrLoad 0x00130480 0x001306D4 ico2/fumi/ios/cdvd.c local lines=38  # aug
-rdlit iosCdvdMgrLoad 0x0059FBB0 0x0059FBD8 ico2/fumi/ios/cdvd.c  # 2 strings (target side)
-sdlit iosCdvdMgrLoad 0x00679A00 0x00679A08 ico2/fumi/ios/cdvd.c  # 1 string (target side); the "\\%s;1" before it is iosCdvdMgrStStart's, emitted by the C
-text temp_loadfunc 0x001306D8 0x0013076C ico2/fumi/ios/cdvd.c lines=8  # aug
-rdlit temp_loadfunc 0x0059FBD8 0x0059FC00 ico2/fumi/ios/cdvd.c  # 1 string
-text iosCdvdMgrPackLoad 0x00130770 0x00130C64 ico2/fumi/ios/cdvd.c local lines=78  # aug
-rdlit iosCdvdMgrPackLoad 0x0059FC00 0x0059FCA0 ico2/fumi/ios/cdvd.c  # 5 strings (target side)
-sdlit iosCdvdMgrPackLoad 0x00679A08 0x00679A10 ico2/fumi/ios/cdvd.c  # 1 string (target side)
-text iosCdvdHandlerReadNoInflate 0x00130C68 0x00131010 ico2/fumi/ios/cdvd.c lines=47  # call-pal
-rdlit iosCdvdHandlerReadNoInflate 0x0059FCA0 0x0059FCC0 ico2/fumi/ios/cdvd.c  # 2 strings (target side)
-sdlit iosCdvdHandlerReadNoInflate 0x00679A10 0x00679A18 ico2/fumi/ios/cdvd.c  # 1 string (target side)
-text iosCdvdHandlerReadInflate 0x00131010 0x001310C0 ico2/fumi/ios/cdvd.c lines=14  # call-pal
-rdlit iosCdvdHandlerReadInflate 0x0059FCC0 0x0059FD00 ico2/fumi/ios/cdvd.c  # 2 strings (target side)
-text unifile_read_func 0x001311A0 0x0013135C ico2/fumi/ios/cdvd.c local lines=19  # ordinal; differs-at:20; imm:2; extent-equal
-rdlit unifile_read_func 0x0059FD00 0x0059FD10 ico2/fumi/ios/cdvd.c  # 1 data
-text iosCdvdManager 0x00131360 0x001315E8 ico2/fumi/ios/cdvd.c lines=61  # aug
-rdlit iosCdvdManager 0x0059FD10 0x0059FD98 ico2/fumi/ios/cdvd.c  # 4 strings (target side; the data-file path at 0x59FD10 is its, lui/addiu at 0x131450)
-sdlit iosCdvdManager 0x00679A20 0x00679A28 ico2/fumi/ios/cdvd.c  # 1 string (target side)
-text iosCdvdBackGroundMgrAdd 0x00131660 0x00131960 ico2/fumi/ios/cdvd.c lines=55  # call-pal
-rdlit iosCdvdBackGroundMgrAdd 0x0059FD98 0x0059FDC0 ico2/fumi/ios/cdvd.c  # 2 strings (target side)
-text iosCdvdBackGroundMgr 0x00131960 0x00131C60 ico2/fumi/ios/cdvd.c local lines=23  # aug
-text iosCdvdDirectStOpen 0x00131C60 0x00131E1C ico2/fumi/ios/cdvd.c lines=35  # call-pal
-text iosCdvdGetFileLsn 0x00131EC0 0x00131FA0 ico2/fumi/ios/cdvd.c lines=4  # ordinal; differs-at:31; imm:2; extent-equal
-text iosCdvdLoadPackFile 0x00131FD0 0x0013204C ico2/fumi/ios/cdvd.c lines=12  # ordinal; differs-at:14; imm:4; extent-equal
-text iosCdvdBackGroundRead 0x00132110 0x00132230 ico2/fumi/ios/cdvd.c lines=41  # call-pal
-rdlit iosCdvdBackGroundRead 0x0059FDC0 0x0059FDE0 ico2/fumi/ios/cdvd.c  # 1 string (target side)
-text iosCdvdBackGroundReadIOPm 0x00132230 0x001322E0 ico2/fumi/ios/cdvd.c lines=40  # call-pal
-text iosCdvdDirectStClose 0x001322E8 0x00132324 ico2/fumi/ios/cdvd.c lines=10  # call-pal
-text inflate_cd_read_func 0x00132388 0x001323E4 ico2/fumi/ios/cdvd.c lines=18  # ordinal; differs-at:3; imm:2; extent-equal
 text ios_init_plus 0x00134958 0x00134AEC ico2/fumi/ios/ios.c local lines=29  # ordinal; differs-at:0; length:+42; extent-differs
 rdlit ios_init_plus 0x0059FE90 0x0059FEF8 ico2/fumi/ios/ios.c  # 4 strings (target side); the first string of the run, iosSifAllocIopHeapDebug's, is the C inline's
 text iosInitialize 0x00134AF0 0x00134CC0 ico2/fumi/ios/ios.c lines=30  # ordinal; differs-at:14; length:-1; extent-differs
@@ -613,34 +581,6 @@ sdlit staffRollNameOut 0x0067AB98 0x0067AB9A ico2/common/src/staffroll.c  # 1 st
 text staffRollMain 0x001AA958 0x001AAD64 ico2/common/src/staffroll.c lines=90  # ordinal; differs-at:0; length:+133; extent-differs
 rdlit staffRollMain 0x0065E610 0x0065E62C ico2/common/src/staffroll.c align=16  # 1 jtbl (target side)
 text staffRollWide 0x001AAD68 0x001AADC8 ico2/common/src/staffroll.c lines=7  # ordinal; differs-at:12; imm:1; extent-equal
-text InitAP1 0x001AADC8 0x001AB34C ico2/sugipon/src/a_p_1.c lines=121  # ordinal; differs-at:1; length:-14; extent-differs
-sdlit InitAP1 0x0067ABF8 0x0067ABFA ico2/sugipon/src/a_p_1.c  # 1 string
-text fitToCol 0x001AB520 0x001ABB20 ico2/sugipon/src/a_p_1.c local lines=103  # ordinal; differs-at:20; imm:1; extent-equal
-lit4 fitToCol 0x00678C98 0x00678C9C ico2/sugipon/src/a_p_1.c  # 1 float
-text walkMot 0x001ABB20 0x001ABCA8 ico2/sugipon/src/a_p_1.c local lines=37  # ordinal; differs-at:12; imm:6; extent-equal
-lit4 walkMot 0x00678C9C 0x00678CA4 ico2/sugipon/src/a_p_1.c  # 2 floats
-text rolling 0x001ABCA8 0x001ABEF8 ico2/sugipon/src/a_p_1.c local lines=61  # call-aug
-text func_001ABEF8 0x001ABEF8 0x001AC5D8 ico2/sugipon/src/a_p_1.c  # jun26-only; derived name
-lit4 func_001ABEF8 0x00678CA4 0x00678CA8 ico2/sugipon/src/a_p_1.c  # 1 float (target side)
-text func_001AC5D8 0x001AC5D8 0x001AC828 ico2/sugipon/src/a_p_1.c  # jun26-only; derived name
-lit4 func_001AC5D8 0x00678CA8 0x00678CAC ico2/sugipon/src/a_p_1.c  # 1 float (target side)
-text AP1Geo 0x001AC828 0x001ACA04 ico2/sugipon/src/a_p_1.c  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec59+0x50 holds it; the Aug-6-2001 build's same record is rec60+0x50 (one record later), which holds AP1Geo
-lit4 AP1Geo 0x00678CAC 0x00678CB4 ico2/sugipon/src/a_p_1.c  # 2 floats (target side)
-rdlit AP1Geo 0x0065F290 0x0065F2B8 ico2/sugipon/src/a_p_1.c  # 1 string (target side)
-text AP1DL 0x001ACA08 0x001ACA88 ico2/sugipon/src/a_p_1.c  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec59+0x48 holds it; the Aug-6-2001 build's same record is rec60+0x48 (one record later), which holds AP1DL
-text GetAP1SpecType 0x001ACA88 0x001ACA98 ico2/sugipon/src/a_p_1.c lines=4  # call-pal
-text AP1Turn 0x001ACA98 0x001ACB20 ico2/sugipon/src/a_p_1.c lines=17  # call-aug
-text AP1MotReqForce 0x001ACB20 0x001ACB68 ico2/sugipon/src/a_p_1.c lines=10  # call-aug
-text AP1MotReq 0x001ACB68 0x001ACBA8 ico2/sugipon/src/a_p_1.c lines=10  # call-pal
-text AP1JumpReq 0x001ACBA8 0x001ACC28 ico2/sugipon/src/a_p_1.c lines=22  # call-aug
-text MakeAP1GObj 0x001ACC28 0x001ACCA8 ico2/sugipon/src/a_p_1.c lines=4  # call-pal
-rdlit MakeAP1GObj 0x0065F2B8 0x0065F2C8 ico2/sugipon/src/a_p_1.c  # 1 string (target side)
-text GetAP1Mode 0x001ACCA8 0x001ACCCC ico2/sugipon/src/a_p_1.c lines=4  # aug
-text standMot 0x001ACCD0 0x001ACD1C ico2/sugipon/src/a_p_1.c local lines=11  # aug
-text rollingMot 0x001ACD20 0x001ACD68 ico2/sugipon/src/a_p_1.c local lines=11  # aug
-text attackMotInit 0x001ACD68 0x001ACE0C ico2/sugipon/src/a_p_1.c local lines=13  # aug
-text attackMot 0x001ACE10 0x001ACE98 ico2/sugipon/src/a_p_1.c local lines=16  # aug
-lit4 attackMot 0x00678CB4 0x00678CB8 ico2/sugipon/src/a_p_1.c  # 1 float
 text standAI 0x001ACE98 0x001AD050 ico2/sugipon/src/act_a_p_1.c local lines=50  # aug
 text walkAI 0x001AD050 0x001AD3C4 ico2/sugipon/src/act_a_p_1.c local lines=90  # aug
 lit4 walkAI 0x00678CB8 0x00678CC0 ico2/sugipon/src/act_a_p_1.c  # 2 floats
@@ -799,29 +739,6 @@ sdlit MoveColTestGeo 0x0067AFB8 0x0067AFBC ico2/sugipon/src/moveColTest.c  # 1 s
 text EntryMultiBgaManager 0x001D6DC0 0x001D6E24 ico2/sugipon/src/multiBgaManager.c lines=4  # ordinal; differs-at:9; length:-1; extent-differs
 text EntryMultiBgaManagerSensitive 0x001D6E28 0x001D6E94 ico2/sugipon/src/multiBgaManager.c lines=11  # ordinal; differs-at:11; length:-1; extent-differs
 text EntryMultiBgaManagerNoKind 0x001D6F58 0x001D6FC4 ico2/sugipon/src/multiBgaManager.c lines=4  # ordinal; differs-at:3; length:-1; extent-differs
-text setParticleEffect 0x001D70C8 0x001D76E0 ico2/sugipon/src/particleEffect.c local lines=54  # call-aug
-rdlit setParticleEffect 0x00660AE8 0x00660B90 ico2/sugipon/src/particleEffect.c  # 4 strings (target side)
-text execParticleEffect 0x001D76E0 0x001D8410 ico2/sugipon/src/particleEffect.c local lines=53  # call-aug
-lit4 execParticleEffect 0x00678EE8 0x00678EF0 ico2/sugipon/src/particleEffect.c  # 2 floats
-text SetParticleEffect 0x001D8730 0x001D88CC ico2/sugipon/src/particleEffect.c lines=4  # call-pal; census pairs it with PAL SetParticleEffectByPartition (ordinal)
-rdlit SetParticleEffect 0x00660B90 0x00660BF0 ico2/sugipon/src/particleEffect.c  # 2 strings (target side)
-text SetParticleEffectGeometry 0x001D88D0 0x001D8910 ico2/sugipon/src/particleEffect.c lines=11  # ordinal; differs-at:1; imm:2; extent-equal
-rdlit SetParticleEffectGeometry 0x00660BF0 0x00660C2A ico2/sugipon/src/particleEffect.c  # 1 string
-text SetParticleEffectUpperLimit 0x001D8910 0x001D894C ico2/sugipon/src/particleEffect.c lines=10  # ordinal; differs-at:2; imm:2; extent-equal
-text ExecParticleEffect 0x001D8950 0x001D8B44 ico2/sugipon/src/particleEffect.c lines=30  # ordinal; differs-at:0; length:+15; extent-differs
-text ResetParticleEffectPackages 0x001D8B48 0x001D8C54 ico2/sugipon/src/particleEffect.c lines=21  # ordinal; differs-at:0; length:-4; extent-differs
-text InitParticleEffects 0x001D8D20 0x001D8D84 ico2/sugipon/src/particleEffect.c lines=8  # aug
-text DispParticleEffects 0x001D8D88 0x001D8DDC ico2/sugipon/src/particleEffect.c lines=10  # call-pal
-text DeleteParticleEffect 0x001D8DE0 0x001D8E6C ico2/sugipon/src/particleEffect.c lines=7  # call-pal
-text SetParticleEffectActiveSensing 0x001D8E70 0x001D8EDC ico2/sugipon/src/particleEffect.c lines=12  # call-pal
-text DeleteParticleEffectsByPackage 0x001D8EF8 0x001D8F90 ico2/sugipon/src/particleEffect.c lines=4  # ordinal; differs-at:7; imm:8; extent-equal
-text DeleteParticleEffectsByID 0x001D8F90 0x001D9038 ico2/sugipon/src/particleEffect.c lines=4  # ordinal; differs-at:12; imm:8; extent-equal
-text GetParticleEffectData 0x001D9038 0x001D9054 ico2/sugipon/src/particleEffect.c lines=4  # ordinal; differs-at:0; imm:2; extent-equal
-text DisableParticleEffectGeometryControl 0x001D9058 0x001D9074 ico2/sugipon/src/particleEffect.c lines=4  # ordinal; differs-at:0; imm:2; extent-equal
-text GetParticleIDWithName 0x001D9078 0x001D9114 ico2/sugipon/src/particleEffect.c lines=10  # ordinal; differs-at:0; length:+12; extent-differs
-rdlit GetParticleIDWithName 0x00660C70 0x00660CE8 ico2/sugipon/src/particleEffect.c  # 2 strings (target side)
-text ParticleEffects_SetAllGoal 0x001D9148 0x001D91B4 ico2/sugipon/src/particleEffect.c lines=13  # ordinal; differs-at:6; imm:5; extent-equal
-text SetParticleEffectClipEnableFlag 0x001D91B8 0x001D91E0 ico2/sugipon/src/particleEffect.c lines=6  # ordinal; differs-at:1; imm:2; extent-equal
 text DeleteParticleLayout 0x001D91E0 0x001D91F0 ico2/sugipon/src/particleLayout.c lines=8  # aug
 text InitParticleLayoutGeo 0x001D91F0 0x001D925C ico2/sugipon/src/particleLayout.c lines=7  # census-equal; stubbed for emission order
 rdlit InitParticleLayoutGeo 0x00660CE8 0x00660D00 ico2/sugipon/src/particleLayout.c  # 1 string (target side)
@@ -1002,25 +919,6 @@ text WayLengthOfGObj_Pos 0x001F34F8 0x001F3544 ico2/fumi/src/way_kidnap.c lines=
 text WayLengthOfGObj_GObj 0x001F3548 0x001F35A0 ico2/fumi/src/way_kidnap.c lines=9  # census-equal; stubbed for emission order
 text WayPointWithRangeFromGObj 0x001F35A0 0x001F35E8 ico2/fumi/src/way_kidnap.c lines=9  # census-equal; stubbed for emission order
 text wpsort_compfnc 0x001F35E8 0x001F361C ico2/fumi/src/way_kidnap.c local file=wpsort_compfnc_way_kidnap lines=11  # census-equal; the C no longer emits it (its users are stubs)
-text InitWayPointSystem 0x001F3620 0x001F36B0 ico2/fumi/src/way_llf.c lines=33  # ordinal; differs-at:8; imm:2; extent-equal
-text CreateWayGroup 0x001F36B0 0x001F3724 ico2/fumi/src/way_llf.c lines=24  # ordinal; differs-at:24; imm:1; extent-equal
-text CreateTempWayGroup 0x001F3728 0x001F37BC ico2/fumi/src/way_llf.c lines=9  # ordinal; differs-at:23; imm:1; extent-equal
-text DeleteWayGroup 0x001F37C0 0x001F383C ico2/fumi/src/way_llf.c lines=20  # census-equal; stubbed for emission order
-text CloseWayGroup 0x001F3840 0x001F3870 ico2/fumi/src/way_llf.c lines=9  # census-equal; stubbed for emission order
-text CreateWayPoint 0x001F3870 0x001F38E8 ico2/fumi/src/way_llf.c lines=19  # ordinal; differs-at:22; imm:1; extent-equal
-text AddWayPoint 0x001F38E8 0x001F3950 ico2/fumi/src/way_llf.c lines=20  # census-equal; stubbed for emission order
-text AddWayPointTop 0x001F3950 0x001F3994 ico2/fumi/src/way_llf.c lines=12  # census-equal; stubbed for emission order
-text InsertWayPointAfter 0x001F3998 0x001F39CC ico2/fumi/src/way_llf.c lines=11  # census-equal; stubbed for emission order
-text DeleteWayPoint 0x001F39D0 0x001F3AB0 ico2/fumi/src/way_llf.c lines=47  # census-equal; stubbed for emission order
-text WayGroup_begin 0x001F3AB0 0x001F3AEC ico2/fumi/src/way_llf.c lines=13  # ordinal; differs-at:3; imm:1; extent-equal
-text WayGroup_next 0x001F3AF0 0x001F3B2C ico2/fumi/src/way_llf.c lines=13  # census-equal; stubbed for emission order
-text WayBridge_begin 0x001F3B30 0x001F3B84 ico2/fumi/src/way_llf.c lines=13  # ordinal; differs-at:3; imm:1; extent-equal
-text WayBridge_next 0x001F3B88 0x001F3BDC ico2/fumi/src/way_llf.c lines=13  # census-equal; stubbed for emission order
-text WayBridgeAll_begin 0x001F3BE0 0x001F3C28 ico2/fumi/src/way_llf.c lines=13  # ordinal; differs-at:3; imm:1; extent-equal
-text WayBridgeAll_next 0x001F3C28 0x001F3C70 ico2/fumi/src/way_llf.c lines=13  # census-equal; stubbed for emission order
-text WayBridgeVar_begin 0x001F3C70 0x001F3CC4 ico2/fumi/src/way_llf.c lines=17  # ordinal; differs-at:3; imm:1; extent-equal
-text WayBridgeVar_next 0x001F3CC8 0x001F3D1C ico2/fumi/src/way_llf.c lines=13  # census-equal; stubbed for emission order
-text WayPoint_begin 0x001F3D20 0x001F3D5C ico2/fumi/src/way_llf.c lines=17  # ordinal; differs-at:3; imm:1; extent-equal
 text group_select 0x001F3FF8 0x001F4310 ico2/fumi/src/way_tool.c local file=group_select_way_tool lines=49  # ordinal; differs-at:17; imm:4; extent-equal
 rdlit group_select 0x00662540 0x0066254F ico2/fumi/src/way_tool.c file=group_select_way_tool  # 1 string
 sdlit group_select 0x0067B284 0x0067B288 ico2/fumi/src/way_tool.c file=group_select_way_tool  # 1 static

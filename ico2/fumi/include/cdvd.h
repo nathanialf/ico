@@ -92,6 +92,6 @@ typedef struct {  /* field names derived */
                  int seg); /* 0x20 */
 } PackKind; /* derived name */
 
-extern const PackKind initFunc[]; /* 26 rows */
+extern const PackKind initFunc[]; /* 25 rows */
 
 #endif /* CDVD_H */
