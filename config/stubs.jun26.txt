@@ -163,9 +163,6 @@ rdlit dl_Debug 0x00661B38 0x00661B90 ico2/seki/src/DisplayList.c  # 2 strings (t
 text dl_Out 0x001EA718 0x001EA79C ico2/seki/src/DisplayList.c lines=12  # census-equal; stubbed for emission order
 text dl_SetDLPriority 0x001EA7A0 0x001EA808 ico2/seki/src/DisplayList.c lines=10  # ordinal; differs-at:0; length:+16; extent-differs
 text dl_OpenDma 0x001EA808 0x001EA89C ico2/seki/src/DisplayList.c lines=23  # ordinal; differs-at:1; length:-1; extent-differs
-text enemy_Initialize 0x001EA998 0x001EACD8 ico2/seki/src/EnemyInit.c lines=66  # ordinal; differs-at:2; imm:1; extent-equal
-rdlit enemy_Initialize 0x00661BC0 0x00661BD0 ico2/seki/src/EnemyInit.c  # 1 string
-data D_004EB318 0x004EB318 0x00507D00 ico2/seki/src/EnemyInit.c local  # the enemy sets of the eight stage models after model 01 (kind lists, position tables, set lists) and enemySetTable, nine rows at 0x507CB8 (enemy_Initialize's lui/addiu of 0x507CB8 and its bound 9); PAL keeps model 01 alone (target side)
 text ACTGetEnvironment 0x001EC350 0x001EF7F0 ico2/fumi/src/act-env.c lines=1078  # order
 lit4 ACTGetEnvironment 0x00678F80 0x00678FB0 ico2/fumi/src/act-env.c  # 12 floats (target side)
 rdlit ACTGetEnvironment 0x00661E10 0x00661EE8 ico2/fumi/src/act-env.c  # 3 strings, 1 jtbl (target side)

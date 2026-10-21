@@ -43,9 +43,9 @@ Disc and video mode:
 
 Data and records:
 
-- The link has 71 data-only runs: 70 archive members, in the prototype's
-  member order, and mcdata.o's save icon record (the icon.sys PAL reads from
-  the disc). PAL's hint table, motion sync pairs and subtitle file names are
+- The link has 120 data-only runs: 70 archive members, in the prototype's
+  member order, mcdata.o's save icon record (the icon.sys PAL reads from
+  the disc) and EnemyInit.o's 49 enemy-set tables of the stage models. PAL's hint table, motion sync pairs and subtitle file names are
   not in it, and no code here reads any of them. Many tables hold another number of rows (the
   model paths 1474 records of 0x14C bytes, PAL 1637 of 0x8C); each row of
   `config/data_members.jun26.txt` and `config/data_schema.jun26.txt` gives

@@ -17,7 +17,7 @@ differences.
 <!-- progress:begin -->
 | Target | Sections identical to the base |
 | --- | --- |
-| [Jun-26-2001 demo (SCUS-97158)](https://nathanialf.github.io/ico/#jun26) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25%20%2895.10%20%25%20source%20%2B%204.90%20%25%20disc%29-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2868.32%20%25%20source%20%2B%2031.68%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%288.98%20%25%20source%20%2B%2091.02%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20%2890.09%20%25%20source%20%2B%209.91%20%25%20disc%29-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2897.12%20%25%20source%20%2B%202.88%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
+| [Jun-26-2001 demo (SCUS-97158)](https://nathanialf.github.io/ico/#jun26) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25%20%2895.16%20%25%20source%20%2B%204.84%20%25%20disc%29-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2868.32%20%25%20source%20%2B%2031.68%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%288.98%20%25%20source%20%2B%2091.02%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25%20%2890.09%20%25%20source%20%2B%209.91%20%25%20disc%29-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2897.12%20%25%20source%20%2B%202.88%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#jun26)**: every
@@ -113,11 +113,13 @@ object defines and the link places at the base's addresses.
 
 ## Data tables
 
-The game links 71 data-only runs of its own archive, `ico2000.a`
+The game links 120 data-only runs of its own archive, `ico2000.a`
 (`config/data_members.jun26.txt`): the 70 members with data sections and no
 code that the PAL disc's MAIN.MAP lists (stage layouts, model paths, motion
-and sound definitions, way points), and mcdata.o's own .data, the save
-icon's icon.sys record, which PAL reads from the disc instead. PAL's three unlisted runs, the hint table,
+and sound definitions, way points), mcdata.o's own .data, the save
+icon's icon.sys record, which PAL reads from the disc instead, and the 49
+enemy-set tables of the stage models in EnemyInit.o, which PAL keeps only
+for its first model. PAL's three unlisted runs, the hint table,
 the motion sync pairs and the subtitle file names, are not in this build, as
 in the August 6, 2001 prototype, and no code here reads any of them. The demo
 disc ships no map, so each run's place in this ELF was found from the code

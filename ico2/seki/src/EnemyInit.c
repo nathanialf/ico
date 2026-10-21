@@ -1,7 +1,6 @@
 #include "EnemyInit.h"
 #include "ios.h"
 #include "memory.h"
-#include "include_asm.h"
 
 /* the number of enemy sets enemy_Initialize sets up, the rows of
    enemyPositionTable */
@@ -12,26 +11,6 @@ int EnemyKindNum = 0;
 static float (*enemyPositionTable[9][27])[4]; /* derived name */
 
 typedef int Qw128 __attribute__((mode(TI))); /* derived name */
-
-/* the stage table's record: a pointer and a count */
-typedef struct EnemySet {        /* field names derived */
-    struct EnemyModelSet **list; /* 0x0 */
-    int n;                       /* 0x4 */
-} EnemySet;                      /* derived name */
-
-/* one kind's position list and the kind it places */
-typedef struct EnemyKindRec { /* field names derived */
-    int *list;                /* 0x0 */
-    int kind;                 /* 0x4 */
-} EnemyKindRec;               /* derived name */
-
-/* a model file's placement set: its kind lists and its position table */
-typedef struct EnemyModelSet { /* field names derived */
-    EnemyKindRec *kinds;       /* 0x0 */
-    int kindNum;               /* 0x4 */
-    float (*pos)[4];           /* 0x8 */
-    int posNum;                /* 0xC */
-} EnemyModelSet;               /* derived name */
 
 /* The stage enemy model set: for each enemy kind, the positions (indices
    into the position table, -1 closing each list) it is placed at, in the
@@ -146,7 +125,7 @@ static EnemyKindRec enemymodel01Kinds[27] = {
     {enemymodel01Kind10, 10}, {enemymodel01Kind7, 7},   {enemymodel01Kind13, 13},
 };
 
-static float enemymodel01Pos[676][4] = {
+static sceVu0FVECTOR enemymodel01Pos[676] = {
     /* derived name */
     {0.464734f, 19.279993f, -5.2e-05f, 0.039216f},
     {-0.749531f, -3.775933f, 10.504761f, 0.039216f},
@@ -831,9 +810,6 @@ EnemyModelSet enemy_enemymodel01_enemymodel04 = {enemymodel01Kinds, 27, enemymod
 /* the sets stage model 01 places, closed by 0 */
 EnemyModelSet *enemymodel01[] = {&enemy_enemymodel01_enemymodel04, 0};
 
-/* the other eight stage models' kind lists, positions and set lists, then the stages' set lists and their counts, enemy_Initialize's table (nine rows in this build: its loop runs to 9) */
-INCLUDE_ASM(D_004EB318);
-
 /* Debug report of the number of positions enemy_Initialize copied, built only
    under DEBUG. */
 static __inline__ void enemyInitDebugPrint(int copyNum) /* derived name */
@@ -843,7 +819,72 @@ static __inline__ void enemyInitDebugPrint(int copyNum) /* derived name */
 #endif
 }
 
-INCLUDE_ASM(enemy_Initialize);
+void enemy_Initialize(void)
+{
+    int cnt[27];
+    int e;
+    int k;
+    int i;
+    int j;
+    EnemyModelSet **tbl;
+    int *q;
+    float (*dst)[4];
+    /* the slot count */
+    int kindNum = 27;
+    /* counted once per copied quadword for the DEBUG report at the end; the
+       retail build never reads it */
+    int copyNum = 0;
+
+    EnemyKindNum = 9;
+    for (e = 0; e < EnemyKindNum; e++) {
+        tbl = enemySetTable[e].list;
+        for (k = 0; k < kindNum; k++) {
+            cnt[k] = 0;
+            for (i = 0; i < enemySetTable[e].n; i++) {
+                for (j = 0; j < tbl[i]->kindNum; j++) {
+                    /* the set's j-th EnemyKindRec, as {list, kind} words */
+                    int *rec = (int *)(j * 8 + *(int *)tbl[i]);
+
+                    if (rec[1] == k) {
+                        q = (int *)rec[0];
+                        do {
+                            cnt[k]++;
+                        } while (*++q != -1);
+                    }
+                }
+            }
+        }
+        for (k = 0; k < kindNum; k++) {
+            if (cnt[k] > 0) {
+                enemyPositionTable[e][k] =
+                    iosMallocDebug(ios_partition_seki, (cnt[k] + 1) << 4, __FILE__, 124);
+            } else {
+                enemyPositionTable[e][k] = 0;
+                continue;
+            }
+            dst = enemyPositionTable[e][k];
+            for (i = 0; i < enemySetTable[e].n; i++) {
+                for (j = 0; j < tbl[i]->kindNum; j++) {
+                    int *rec = (int *)(j * 8 + *(int *)tbl[i]);
+
+                    if (rec[1] == k) {
+                        q = (int *)rec[0];
+                        for (;;) {
+                            *(Qw128 *)dst++ = *(Qw128 *)tbl[i]->pos[*q];
+                            /* the break shares the if's line */
+                            /* clang-format off */
+                            if (*++q == -1) break;
+                            /* clang-format on */
+                            copyNum++;
+                        }
+                    }
+                }
+            }
+            (*dst)[0] = (*dst)[1] = (*dst)[2] = (*dst)[3] = -1.0f;
+        }
+    }
+    enemyInitDebugPrint(copyNum);
+}
 
 float (*enemy_GetPositionTable(int idx, int sub_idx))[4]
 {
