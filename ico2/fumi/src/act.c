@@ -26,7 +26,6 @@
 #include "ios.h"
 #include "fieldCollision.h"
 #include "gamesys.h"
-#include "include_asm.h"
 
 inline void ActSetStartBrainStatus(GObj *self, int status)
 {
@@ -551,4 +550,175 @@ void BeforeFunc(GObj *self)
 /* this TU passes the packet priority that the prototype in
    seki/include/GifPacket.h leaves out */
 
-INCLUDE_ASM(ACTDebugMove);
+void ACTDebugMove(GObj *self, int a1)
+{
+    float dir[4];
+    float pos[4];
+    IosPadStick st;
+    Act *ext;
+    SkelNode *p;
+    float h;
+    int mode = 1;
+
+    ext = GOBJ_ACT(self);
+    p = GOBJ_SUB(self)->skel;
+    h = (p != 0) ? p->pos[1] : 0.0f;
+    DisableChangeRootUpdateMode(self);
+    SetRootUpdateMode(self, 0);
+    while (((ext->pad.now & 1) != 0 || mode == 1) && self == CurrentTargetGObj) {
+        _ACTWait(1);
+        iosPadRead(&ext->pad);
+        iosPadGetStick(&ext->pad, &ext->stick, 0, 2, 2, 0);
+        iosPadGetStick(&ext->pad, &st, 1, 2, 2, 0);
+        if (0.001f < ext->stick.mag) {
+            ConvertStickToAbsCoord(dir, &ext->stick);
+        }
+        GetRootPosition(pos, self);
+        pos[0] += dir[0] * ext->stick.mag * 32.0f;
+        pos[2] += dir[2] * ext->stick.mag * 32.0f;
+        if (0.001f < st.mag) {
+            mode = 1;
+        }
+        switch (mode) {
+        case 0: {
+            ClipWork w;
+
+            if ((ext->pad.trg & 0x200) != 0) {
+                sceVu0CopyVector(w.pt[0], pos);
+                sceVu0CopyVector(w.pt[1], pos);
+                w.pt[1][1] -= 10000.0f;
+                ClipFloorR(&w);
+                if (w.floor.elem != 0) {
+                    pos[1] = w.pt[2][1] - h;
+                    break;
+                }
+            }
+            sceVu0CopyVector(w.pt[0], pos);
+            sceVu0CopyVector(w.pt[1], pos);
+            w.pt[0][1] -= 10.0f;
+            w.pt[1][1] += 10000.0f;
+            ClipFloor(&w);
+            if (w.floor.elem == 0) {
+                sceVu0CopyVector(w.pt[0], pos);
+                sceVu0CopyVector(w.pt[1], pos);
+                w.pt[1][1] -= 10000.0f;
+                ClipFloorR(&w);
+                if (w.floor.elem == 0) {
+                    break;
+                }
+            }
+            pos[1] = w.pt[2][1] - h;
+            break;
+        }
+        case 1:
+            if ((ext->pad.trg & 0x200) != 0) {
+                SetRootUpdateMode(self, 1);
+                mode = 0;
+            } else {
+                pos[1] += st.dz * st.mag * 32.0f;
+            }
+            break;
+        }
+        SetDirectRootPosition(self, pos);
+        {
+            ClipWork w;
+
+            GetLowerPlaneCollision(&w, pos);
+            if (w.floor.elem != 0 && CompareAttribute(w.attr, 0x800) == 0 &&
+                CompareAttribute(w.attr, 0x900) == 0) {
+                ClipWork w2;
+
+                sceVu0CopyVector(w2.pt[0], pos);
+                sceVu0CopyVector(w2.pt[1], pos);
+                w2.pt[1][1] += 10000.0f;
+                ClipFloor(&w2);
+                if (w2.floor.elem != 0) {
+                    sceVu0IVECTOR col = {32, 32, 255, 128};
+
+                    w2.pt[0][1] += 200.0f;
+                    gif_StartPacketPri(11);
+                    MatrixDrive_PushMatrix();
+                    gif_SetAlpha(1, 5, 128);
+                    gif_SetZWrite(0);
+                    gif_SetZTest(1);
+                    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+                    DrawLineG(w2.pt[0], col, w2.pt[2], col, 0);
+                    MatrixDrive_PopMatrix();
+                    gif_EndPacket();
+                }
+            } else {
+                SetSimplePlane((float *)((char *)GOBJ_SUB(self) + 0x1C0), 0.0f, -1.0f, 0.0f,
+                               pos[1] + h);
+                CopyVector((char *)GOBJ_SUB(self) + 0x240, pos);
+                GOBJ_SUB(self)->root.footPos[1] += h;
+            }
+        }
+        debug_PrintfDummy(10, 185, 0xFFFFFF00u, "LW's coord:");
+        debug_PrintfDummy(20, 195, 0xFFFFFF00u, "POS X:%8.2f Y:%8.2f Z:%8.2f", -pos[0], -pos[1],
+                          -pos[2]);
+        {
+            ClipWork w3;
+
+            sceVu0CopyVector(w3.pt[0], pos);
+            sceVu0CopyVector(w3.pt[1], pos);
+            w3.pt[0][1] -= 200.0f;
+            w3.pt[1][1] += 200.0f;
+            ClipFloor(&w3);
+            gif_StartPacketPri(11);
+            gif_SetAlpha(1, 5, 128);
+            gif_SetZWrite(0);
+            gif_SetZTest(1);
+            MatrixDrive_PushMatrix();
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            {
+                sceVu0IVECTOR col2 = {128, 128, 128, 128};
+                float q1[4];
+                float q2[4];
+                float q3[4];
+                float q4[4];
+
+                CopyVector(q1, pos);
+                CopyVector(q2, pos);
+                CopyVector(q3, pos);
+                CopyVector(q4, pos);
+                q1[0] -= 200.0f;
+                q2[0] += 200.0f;
+                q3[2] -= 200.0f;
+                q4[2] += 200.0f;
+                DrawLineG(w3.pt[0], col2, w3.pt[1], col2, 0);
+                DrawLineG(q1, col2, q2, col2, 0);
+                DrawLineG(q3, col2, q4, col2, 0);
+            }
+            MatrixDrive_PopMatrix();
+            gif_EndPacket();
+            /* compiled out: draw the five clip lines in blue */
+            if (0) {
+                ClipWork w4;
+                sceVu0IVECTOR col = {0, 64, 255, 128};
+                Vec4 pt[5];
+                int i;
+
+                for (i = 0; i < 5; i++) {
+                    DrawLineG(w4.pt[0], col, pt[i].f, col, 0);
+                }
+            }
+        }
+    }
+    {
+        ClipWork w3;
+
+        sceVu0CopyVector(w3.pt[0], pos);
+        sceVu0CopyVector(w3.pt[1], pos);
+        w3.pt[0][1] -= 10.0f;
+        w3.pt[1][1] += 10000.0f;
+        ClipFloor(&w3);
+        if (w3.floor.elem != 0 && CompareAttribute(w3.attr, 0x800) == 0 &&
+            CompareAttribute(w3.attr, 0x900) == 0) {
+            pos[1] = w3.pt[2][1] - h;
+            SetDirectRootPosition(self, pos);
+            EnableChangeRootUpdateMode(self);
+            AdjustMotionHeightToNearestField(self);
+        }
+    }
+    EnableChangeRootUpdateMode(self);
+}

@@ -63,9 +63,6 @@ text Main 0x00101C80 0x00101F38 ico2/common/src/main.c lines=95  # ordinal; diff
 lit4 Main 0x00678500 0x00678504 ico2/common/src/main.c  # 1 float (target side)
 rdlit Main 0x0059CAA0 0x0059CB48 ico2/common/src/main.c  # 7 strings (target side)
 sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target side)
-text stage_Init 0x00127BB0 0x001285D0 ico2/seki/src/StageAnimation.c lines=206  # order
-rdlit stage_Init 0x0059EF58 0x0059F005 ico2/seki/src/StageAnimation.c  # 4 strings
-rdlit stage_Init 0x0059F010 0x0059F050 ico2/seki/src/StageAnimation.c align=16  # 1 static
 text _ACTCorrectMsg 0x00150BD8 0x00151360 ico2/fumi/src/commonact.c lines=297  # order
 rdlit _ACTCorrectMsg 0x005A19B0 0x005A1A57 ico2/fumi/src/commonact.c align=16  # 7 strings
 text ACTGetOrientFromIntrK 0x00151360 0x00151A08 ico2/fumi/src/commonact.c lines=108  # order
@@ -146,10 +143,6 @@ lit4 ACTGetEnvironment 0x00678F80 0x00678FB0 ico2/fumi/src/act-env.c  # 12 float
 rdlit ACTGetEnvironment 0x00661E10 0x00661EE8 ico2/fumi/src/act-env.c  # 3 strings, 1 jtbl (target side)
 sdlit ACTGetEnvironment 0x0067B238 0x0067B248 ico2/fumi/src/act-env.c  # 2 strings (target side)
 sdlit ACTGetEnvironment 0x0067B248 0x0067B250 ico2/fumi/src/act-env.c  # 2 floats (target side): the function's $gp floats (0x67B248, 0x67B24C)
-text ACTDebugMove 0x001F1C88 0x001F2494 ico2/fumi/src/act.c lines=173  # call-pal
-lit4 ACTDebugMove 0x00678FB8 0x00678FCC ico2/fumi/src/act.c  # 5 floats (target side)
-rdlit ACTDebugMove 0x00662030 0x00662040 ico2/fumi/src/act.c align=16  # 1 data, four words (target side); 16-aligned in the demo after zero fill
-rdlit ACTDebugMove 0x00662040 0x00662090 ico2/fumi/src/act.c  # 2 strings, 1 data (target side)
 sdata D_0067B250 0x0067B250 0x0067B254 ico2/fumi/src/way_kidnap.c local  # a zero word first in the TU's .sdata; no word of .text addresses it (target side)
 text WayPointWithRangeFromPos 0x001F2F30 0x001F3310 ico2/fumi/src/way_kidnap.c lines=39  # call-pal
 text NearestEnemyFromGirl 0x001F3310 0x001F342C ico2/fumi/src/way_kidnap.c lines=28  # census-equal; stubbed for emission order
