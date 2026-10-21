@@ -253,26 +253,11 @@ text ActSendMail_WithAdditionalData 0x0018AC98 0x0018AD98 ico2/omori/src/mail-ad
 rdlit ActSendMail_WithAdditionalData 0x005A3BA8 0x005A3BD8 ico2/omori/src/mail-add-data.c def  # 1 string
 text GetMailAdditionalData 0x0018AD98 0x0018AE3C ico2/omori/src/mail-add-data.c lines=14  # ordinal; differs-at:20; imm:1; extent-equal
 text ClearMailAdditionalData 0x0018AE40 0x0018AEA8 ico2/omori/src/mail-add-data.c lines=7  # ordinal; differs-at:7; imm:2; extent-equal
-text birdBeforeFunc 0x0018B388 0x0018B644 ico2/ito/src/act_bird.c lines=70  # ordinal; differs-at:0; length:+38; extent-differs
-text func_0018B778 0x0018B778 0x0018C9DC ico2/ito/src/act_bird.c  # jun26-only; derived name
-lit4 func_0018B778 0x00678B94 0x00678BE8 ico2/ito/src/act_bird.c  # 21 floats (target side)
-rdlit func_0018B778 0x005A3BE0 0x005A3C15 ico2/ito/src/act_bird.c  # 3 strings (target side)
-rdlit func_0018B778 0x005A3C20 0x005A3C48 ico2/ito/src/act_bird.c align=16 def  # 16-aligned in the demo after zero fill; 1 jtbl (target side); emitted where the demo has it
-sdlit func_0018B778 0x0067A1F8 0x0067A228 ico2/ito/src/act_bird.c  # 6 strings (target side)
-text Debug_StickControl 0x0018C9E0 0x0018CADC ico2/ito/src/act_bird.c local file=Debug_StickControl_act_bird lines=20  # call-aug
-lit4 Debug_StickControl 0x00678BE8 0x00678BEC ico2/ito/src/act_bird.c file=Debug_StickControl_act_bird  # 1 float
-text BirdGeo 0x0018CAE0 0x0018CAE8 ico2/ito/src/act_bird.c lines=4  # aug
-text _ACTSendMailToBird 0x0018CAE8 0x0018CAF0 ico2/ito/src/act_bird.c lines=4  # call-pal; aug6 twin BirdDL
-text func_0018CAF0 0x0018CAF0 0x0018CBB8 ico2/ito/src/act_bird.c  # jun26-only; derived name
-text vector_angle_degree 0x0018CBB8 0x0018CC2C ico2/ito/src/act_bird.c lines=8  # census-equal; stubbed for emission order
-lit4 vector_angle_degree 0x00678BEC 0x00678BF0 ico2/ito/src/act_bird.c  # 1 float
-text subBirdControl 0x0018CC30 0x0018CC68 ico2/ito/src/act_bird.c lines=8  # ordinal; differs-at:6; length:+1; extent-differs
-text subBirdCollision 0x0018CC68 0x0018CC90 ico2/ito/src/act_bird.c lines=7  # census-equal; stubbed for emission order
-text actBirdStart 0x0018CC90 0x0018CD0C ico2/ito/src/act_bird.c lines=11  # ordinal; differs-at:22; imm:3; extent-equal
-text InitBirdGeo 0x0018CD10 0x0018CDF0 ico2/ito/src/act_bird.c lines=22  # ordinal; differs-at:12; length:-3; extent-differs
-rdlit InitBirdGeo 0x005A3C48 0x005A3C57 ico2/ito/src/act_bird.c def  # 1 string
-text BirdAI 0x0018CDF0 0x0018CDF8 ico2/ito/src/act_bird.c lines=1  # census-equal; stubbed for emission order
-text BirdDL 0x0018CDF8 0x0018CE40 ico2/ito/src/act_bird.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec32+0x48 holds BirdDL there (the same record index in the demo)
+text subBirdBrainMain 0x0018B778 0x0018C9DC ico2/ito/src/act_bird.c  # jun26-only; named by actBirdStart (actCreateSubThread(subBirdBrainMain, 20)) and aug6 TRFILE (subBirdBrainMain after trans_bird)
+lit4 subBirdBrainMain 0x00678B94 0x00678BE8 ico2/ito/src/act_bird.c  # 21 floats (target side)
+rdlit subBirdBrainMain 0x005A3BE0 0x005A3C15 ico2/ito/src/act_bird.c  # 3 strings (target side)
+rdlit subBirdBrainMain 0x005A3C20 0x005A3C48 ico2/ito/src/act_bird.c align=16 def  # 16-aligned in the demo after zero fill; 1 jtbl (target side); emitted where the demo has it
+sdlit subBirdBrainMain 0x0067A1F8 0x0067A228 ico2/ito/src/act_bird.c  # 6 strings (target side)
 text GatherEffect_SetGoal 0x0018CEB0 0x0018CEF4 ico2/ito/src/gather_effect.c lines=7  # ordinal; differs-at:10; imm:1; extent-equal
 text GatherEffect_Proc 0x0018CEF8 0x0018D1E0 ico2/ito/src/gather_effect.c lines=82  # ordinal; differs-at:19; imm:4; extent-equal
 lit4 GatherEffect_Proc 0x00678BF0 0x00678BFC ico2/ito/src/gather_effect.c  # 3 floats
@@ -366,37 +351,6 @@ sdlit staffRollNameOut 0x0067AB98 0x0067AB9A ico2/common/src/staffroll.c  # 1 st
 text staffRollMain 0x001AA958 0x001AAD64 ico2/common/src/staffroll.c lines=90  # ordinal; differs-at:0; length:+133; extent-differs
 rdlit staffRollMain 0x0065E610 0x0065E62C ico2/common/src/staffroll.c align=16  # 1 jtbl (target side)
 text staffRollWide 0x001AAD68 0x001AADC8 ico2/common/src/staffroll.c lines=7  # ordinal; differs-at:12; imm:1; extent-equal
-text standAI 0x001ACE98 0x001AD050 ico2/sugipon/src/act_a_p_1.c local lines=50  # aug
-text walkAI 0x001AD050 0x001AD3C4 ico2/sugipon/src/act_a_p_1.c local lines=90  # aug
-lit4 walkAI 0x00678CB8 0x00678CC0 ico2/sugipon/src/act_a_p_1.c  # 2 floats
-text hehehe 0x001AD3C8 0x001AD3E8 ico2/sugipon/src/act_a_p_1.c lines=4  # aug
-text SleepAP1 0x001AD3E8 0x001AD42C ico2/sugipon/src/act_a_p_1.c lines=8  # aug
-text WakeUpAP1 0x001AD430 0x001AD4B8 ico2/sugipon/src/act_a_p_1.c lines=18  # call-pal
-rdlit WakeUpAP1 0x0065F2C8 0x0065F2E8 ico2/sugipon/src/act_a_p_1.c  # 1 string
-text subAP1BrainMain 0x001AD4B8 0x001AD878 ico2/sugipon/src/act_a_p_1.c lines=86  # aug
-rdlit subAP1BrainMain 0x0065F2E8 0x0065F2F8 ico2/sugipon/src/act_a_p_1.c  # 1 string (target side)
-text SetAP1DeadStatus 0x001AD880 0x001AD8C4 ico2/sugipon/src/act_a_p_1.c lines=8  # ordinal; differs-at:11; imm:2; extent-equal
-text AP1BeforeFunc 0x001AD8C8 0x001ADAEC ico2/sugipon/src/act_a_p_1.c lines=46  # ordinal; differs-at:0; length:-43; extent-differs
-rdlit AP1BeforeFunc 0x0065F2F8 0x0065F310 ico2/sugipon/src/act_a_p_1.c  # 1 string (target side)
-text actAP1Start 0x001ADAF0 0x001ADC1C ico2/sugipon/src/act_a_p_1.c lines=28  # ordinal; differs-at:16; imm:10; extent-equal
-text SetAP1HostGObj 0x001ADC40 0x001ADC4C ico2/sugipon/src/act_a_p_1.c lines=4  # ordinal; differs-at:2; imm:1; extent-equal
-text SetAP1PriorLevel 0x001ADC50 0x001ADC5C ico2/sugipon/src/act_a_p_1.c lines=4  # ordinal; differs-at:2; imm:1; extent-equal
-text GetAP1AIMode 0x001ADC60 0x001ADC9C ico2/sugipon/src/act_a_p_1.c lines=9  # ordinal; differs-at:3; imm:1; extent-equal
-sdlit GetAP1AIMode 0x0067AC30 0x0067AC33 ico2/sugipon/src/act_a_p_1.c def  # 1 string
-data D_004DE750 0x004DE750 0x004DE760 ico2/sugipon/src/act_a_p_1.c local align=16  # a 16-byte vector between ap1ModeTag and ap1BoxedInJump (walkAI's, 0x4DE760); no %hi/%lo pair of .text forms its address (target side)
-text AttackCheckBoundaryBeforeFunc 0x001ADDC8 0x001ADF48 ico2/sugipon/src/attackCheckBoundary.c lines=46  # ordinal; differs-at:15; length:-2; extent-differs
-rdlit AttackCheckBoundaryBeforeFunc 0x0065F330 0x0065F355 ico2/sugipon/src/attackCheckBoundary.c  # 2 strings
-text InitAttackCheckBoundaryManagerGeo 0x001ADF48 0x001AE200 ico2/sugipon/src/attackCheckBoundary.c lines=43  # ordinal; differs-at:5; imm:8; extent-equal
-rdlit InitAttackCheckBoundaryManagerGeo 0x0065F310 0x0065F330 ico2/sugipon/src/attackCheckBoundary.c def  # 1 string (target side): the file name, first in the demo's .rodata of the TU, before AttackCheckBoundaryBeforeFunc's strings
-text AttackCheckBoundaryManagerGeo 0x001AE200 0x001AE26C ico2/sugipon/src/attackCheckBoundary.c lines=16  # ordinal; differs-at:1; imm:3; extent-equal
-text InitAttackCheckBoundaryGeo 0x001AE278 0x001AE2C8 ico2/sugipon/src/attackCheckBoundary.c lines=10  # census-equal; stubbed for emission order
-text AttackCheckBoundaryGeo 0x001AE2C8 0x001AE2EC ico2/sugipon/src/attackCheckBoundary.c lines=9  # census-equal; stubbed for emission order
-text AttackCheckBoundaryDL 0x001AE2F0 0x001AE3A0 ico2/sugipon/src/attackCheckBoundary.c lines=21  # ordinal; differs-at:7; imm:1; extent-equal
-text actAttackCheckBoundaryStart 0x001AE3A0 0x001AE3F4 ico2/sugipon/src/attackCheckBoundary.c lines=8  # census-equal; stubbed for emission order
-text GetAttackCheckBoundaryRadius 0x001AE3F8 0x001AE408 ico2/sugipon/src/attackCheckBoundary.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text CreateAttackCheckBoundary 0x001AE408 0x001AE4AC ico2/sugipon/src/attackCheckBoundary.c lines=12  # ordinal; differs-at:7; imm:2; extent-equal
-text GetAttackCheckBoundaryManagerStatus 0x001AE4B0 0x001AE4C0 ico2/sugipon/src/attackCheckBoundary.c lines=6  # ordinal; differs-at:1; imm:1; extent-equal
-text SetAttackCheckBoundaryAttribute 0x001AE4C0 0x001AE4D0 ico2/sugipon/src/attackCheckBoundary.c lines=6  # ordinal; differs-at:1; imm:1; extent-equal
 text dispClothes 0x001B2E40 0x001B2EE0 ico2/sugipon/src/boy.c local file=dispClothes_boy lines=16  # ordinal; differs-at:6; imm:11; extent-equal
 text execClothes 0x001B2EE0 0x001B2F6C ico2/sugipon/src/boy.c local file=execClothes_boy lines=28  # ordinal; differs-at:0; length:-64; extent-differs
 lit4 execClothes 0x00678D24 0x00678D28 ico2/sugipon/src/boy.c file=execClothes_boy  # 1 float (target side)
@@ -409,36 +363,13 @@ lit4 BoyGeo 0x00678D48 0x00678D4C ico2/sugipon/src/boy.c  # 1 float (target side
 rdlit BoyGeo 0x0065F538 0x0065F550 ico2/sugipon/src/boy.c  # 1 string (target side)
 text func_001B3948 0x001B3948 0x001B39D4 ico2/sugipon/src/boy.c  # jun26-only; derived name
 text BoyDL 0x001B39D8 0x001B3A94 ico2/sugipon/src/boy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec1+0x48 holds BoyDL there (the same record index in the demo)
-text CageRideFunc 0x001B3B60 0x001B3C98 ico2/sugipon/src/cage.c lines=28  # order
-lit4 CageRideFunc 0x00678D54 0x00678D58 ico2/sugipon/src/cage.c  # 1 float
-text SetCageFixGeometry 0x001B3C98 0x001B3CE0 ico2/sugipon/src/cage.c lines=7  # order
-text InitCageGeo 0x001B3CE0 0x001B40EC ico2/sugipon/src/cage.c lines=117  # order
-lit4 InitCageGeo 0x00678D58 0x00678D5C ico2/sugipon/src/cage.c  # 1 float (target side)
-rdlit InitCageGeo 0x0065F550 0x0065F560 ico2/sugipon/src/cage.c  # 1 string (target side)
-text HotInitCageGeo 0x001B40F0 0x001B4260 ico2/sugipon/src/cage.c lines=21  # order
-text CageGeo 0x001B4260 0x001B4774 ico2/sugipon/src/cage.c lines=69  # order
-lit4 CageGeo 0x00678D5C 0x00678D64 ico2/sugipon/src/cage.c  # 2 floats
-text CageDL 0x001B4778 0x001B47A4 ico2/sugipon/src/cage.c lines=7  # order
-text GetCageChainPoint 0x001B47A8 0x001B4834 ico2/sugipon/src/cage.c lines=9  # call-aug
-text SetCageVelocityFriction 0x001B4838 0x001B4848 ico2/sugipon/src/cage.c lines=4  # call-pal
-text StabilizeAllLayoutedCage 0x001B4848 0x001B4890 ico2/sugipon/src/cage.c lines=10  # order
 text CageFixGeo 0x001B4890 0x001B490C ico2/sugipon/src/cageFix.c lines=8  # ordinal; differs-at:6; imm:1; extent-equal
 text CandleGeo 0x001B4AE8 0x001B4BDC ico2/sugipon/src/candle.c lines=28  # aug
 text DeleteLayoutedCandleParticleEffect 0x001B4BE0 0x001B4CA8 ico2/sugipon/src/candle.c lines=10  # ordinal; differs-at:17; imm:1; extent-equal
 text _deleteLayoutedCandleParticleEffect 0x001B4CA8 0x001B4D44 ico2/sugipon/src/candle.c lines=16  # ordinal; differs-at:12; imm:1; extent-equal
 text getCloth4D_preProcess 0x001B7A88 0x001B801C ico2/sugipon/src/clothAnimation.c local lines=94  # call-aug
-sdata D_0067ACA8 0x0067ACA8 0x0067AD0C ico2/sugipon/src/darkVolume.c local  # the TU's .sdata: strip state words, eight colours and the game-over words draw, func_001BAE50, renderViewCoordZSphere, sonic, darkVolume and DispGameOverEffect read; no word of C .text addresses them (target side)
-text draw 0x001BA9C8 0x001BAC90 ico2/sugipon/src/darkVolume.c local lines=10  # order
-rdlit draw 0x0065F630 0x0065F640 ico2/sugipon/src/darkVolume.c  # 1 data, four words (target side): the function's two references (0x65F630)
-text func_001BAE50 0x001BAE50 0x001BB034 ico2/sugipon/src/darkVolume.c  # jun26-only; derived name
-lit4 func_001BAE50 0x00678D78 0x00678D7C ico2/sugipon/src/darkVolume.c  # 1 float (target side)
-text renderViewCoordZSphere 0x001BB038 0x001BB2EC ico2/sugipon/src/darkVolume.c local lines=48  # order
-lit4 renderViewCoordZSphere 0x00678D7C 0x00678D80 ico2/sugipon/src/darkVolume.c  # 1 float (target side)
-text func_001BB2F0 0x001BB2F0 0x001BB7A4 ico2/sugipon/src/darkVolume.c  # jun26-only; derived name
-text sonic 0x001BB7A8 0x001BC7C0 ico2/sugipon/src/darkVolume.c local lines=209  # order
-text darkVolume 0x001BC7C0 0x001BD2DC ico2/sugipon/src/darkVolume.c local lines=138  # order
-text DispGameOverEffect 0x001BD300 0x001BD390 ico2/sugipon/src/darkVolume.c lines=38  # call-pal
-lit4 DispGameOverEffect 0x00678D80 0x00678D84 ico2/sugipon/src/darkVolume.c  # 1 float (target side)
+text dispGameOverGrid 0x001BA9C8 0x001BAC90 ico2/sugipon/src/darkVolume.c local  # jun26-only; derived name (row was ordinal "draw": a 30 by 30 mesh grid, no caller)
+rdlit dispGameOverGrid 0x0065F630 0x0065F640 ico2/sugipon/src/darkVolume.c  # 1 data, four words (target side): the function's two references (0x65F630)
 text execEffectTool 0x001BE818 0x001BE9F8 ico2/sugipon/src/effectTool.c local lines=59  # ordinal; differs-at:11; imm:3; extent-equal
 rdlit execEffectTool 0x0065F988 0x0065F9BA ico2/sugipon/src/effectTool.c  # 1 string
 text EffectTool 0x001BEA40 0x001BEB28 ico2/sugipon/src/effectTool.c lines=18  # ordinal; differs-at:28; imm:2; extent-equal

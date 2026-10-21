@@ -26,6 +26,7 @@ void subBirdCollision(void *volatile gobj);
 void actBirdStart(void *gobj);
 BirdWork *InitBirdGeo(struct GObj *gobj, void *home);
 void BirdAI(void);
+void BirdDL(void *gobj);
 void _ACTSendMailToBirdAll(int mail, void *data);
 void _ACTSendMailToBird(void *obj, int mail, void *data);
 void subBirdBrainMain(void *gobj);
