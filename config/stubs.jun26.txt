@@ -153,22 +153,11 @@ text eyeBlur.109 0x001DD6E0 0x001DDE38 ico2/sugipon/src/staticBlur.c local file=
 lit4 eyeBlur.109 0x00678F0C 0x00678F10 ico2/sugipon/src/staticBlur.c file=eyeBlur_109_staticBlur  # 1 float (target side)
 rdlit eyeBlur.109 0x00661120 0x00661130 ico2/sugipon/src/staticBlur.c file=eyeBlur_109_staticBlur def  # 1 data (target side); emitted where the demo has it
 text makeFullScreenFlareAfter 0x001DDE38 0x001DDFE0 ico2/sugipon/src/staticBlur.c lines=198  # ordinal; differs-at:95; other:1; extent-equal
-text dl_PushPriority 0x001EA420 0x001EA4AC ico2/seki/src/DisplayList.c lines=11  # order
-rdlit dl_PushPriority 0x00661AC0 0x00661AE1 ico2/seki/src/DisplayList.c align=16  # 1 string
-sdlit dl_PushPriority 0x0067B200 0x0067B20C ico2/seki/src/DisplayList.c  # 1 data
-text dl_PopPriority 0x001EA4B0 0x001EA568 ico2/seki/src/DisplayList.c lines=11  # order
-rdlit dl_PopPriority 0x00661AE8 0x00661B38 ico2/seki/src/DisplayList.c  # 2 strings (target side)
-text dl_Debug 0x001EA568 0x001EA5D8 ico2/seki/src/DisplayList.c lines=8  # order
-rdlit dl_Debug 0x00661B38 0x00661B90 ico2/seki/src/DisplayList.c  # 2 strings (target side)
-text dl_Out 0x001EA718 0x001EA79C ico2/seki/src/DisplayList.c lines=12  # census-equal; stubbed for emission order
-text dl_SetDLPriority 0x001EA7A0 0x001EA808 ico2/seki/src/DisplayList.c lines=10  # ordinal; differs-at:0; length:+16; extent-differs
-text dl_OpenDma 0x001EA808 0x001EA89C ico2/seki/src/DisplayList.c lines=23  # ordinal; differs-at:1; length:-1; extent-differs
 text ACTGetEnvironment 0x001EC350 0x001EF7F0 ico2/fumi/src/act-env.c lines=1078  # order
 lit4 ACTGetEnvironment 0x00678F80 0x00678FB0 ico2/fumi/src/act-env.c  # 12 floats (target side)
 rdlit ACTGetEnvironment 0x00661E10 0x00661EE8 ico2/fumi/src/act-env.c  # 3 strings, 1 jtbl (target side)
 sdlit ACTGetEnvironment 0x0067B238 0x0067B248 ico2/fumi/src/act-env.c  # 2 strings (target side)
 sdlit ACTGetEnvironment 0x0067B248 0x0067B250 ico2/fumi/src/act-env.c  # 2 floats (target side): the function's $gp floats (0x67B248, 0x67B24C)
-text act_check_intr_list 0x001F1258 0x001F13F4 ico2/fumi/src/act.c local lines=40  # aug
 text ACTDebugMove 0x001F1C88 0x001F2494 ico2/fumi/src/act.c lines=173  # call-pal
 lit4 ACTDebugMove 0x00678FB8 0x00678FCC ico2/fumi/src/act.c  # 5 floats (target side)
 rdlit ACTDebugMove 0x00662030 0x00662040 ico2/fumi/src/act.c align=16  # 1 data, four words (target side); 16-aligned in the demo after zero fill
@@ -210,8 +199,6 @@ text actSt20aFenceUpChk2 0x0021FD48 0x0021FE2C ico2/script/src/st20a.c lines=22 
 text actSt47aHane1Up 0x002206B0 0x002207BC ico2/script/src/st47a.c lines=53  # aug; row renamed from actSt47aHane2Up (the chain: Hane1Switch posts it); OPEN gcse bucket s0/s1 swap
 text actSt47aHane1Down 0x002213D0 0x00221494 ico2/script/src/st47a.c lines=49  # aug
 text func_00221858 0x00221858 0x0022190C ico2/script/src/st47a.c  # jun26-only; derived name
-text actBossCtrlStart 0x002248E8 0x002249C0 ico2/ito/src/itou_boss.c lines=24  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x40 holds it; the Aug-6-2001 build's same record is rec63+0x40 (one record later), which holds actBossCtrlStart
-rdlit actBossCtrlStart 0x00664070 0x00664080 ico2/ito/src/itou_boss.c  # 1 string
 sdata D_0067B4E8 0x0067B4E8 0x0067B4F4 ico2/common/src/PObj.c local  # a short string and the word pointing at it, after AllocPObj's run and before sound.o's; no word of .text addresses either, so the owner TU is not pinned: PObj.c is the last game TU with .sdata before sound.o (target side)
 text func_002467B8 0x002467B8 0x00246824 ico2/common/src/demoDisc.c  # jun26-only; derived name
 text func_00246828 0x00246828 0x00246920 ico2/common/src/demoDisc.c  # jun26-only; derived name

@@ -331,9 +331,44 @@ typedef struct { /* field names derived */
     IntrEnt ent[1];
 } IntrList; /* derived name */
 
-static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out);
+static IntrMail *act_check_intr_list(void *self, IntrMail *m, void **out)
+{
+    Act *w = GOBJ_ACT(self);
+    IntrList *k = (IntrList *)(self + 0x54);
+    MotOriReq buf;
+    int i;
 
-INCLUDE_ASM(act_check_intr_list);
+    if (m != 0) {
+        for (; (short)m->kind != 376; m++) {
+            if ((m->flags >> 18) & 1) {
+                for (i = 0; i < k->n; i++) {
+                    int mot;
+                    char *p;
+                    if (w->reserved != 0 && w->reservedMail != k->ent[i].id) {
+                        continue;
+                    }
+                    if (k->ent[i].id != (short)m->kind) {
+                        continue;
+                    }
+                    mot = ACTGetOrientFromIntrK(self, k->ent[i].id, &buf, i);
+                    p = SetMotionRequest(self, mot, buf);
+                    *(char **)((char *)w + 0x110) = p;
+                    if (*(int *)(p + 0xC) == 0 &&
+                        (*(unsigned short *)((char *)m + 0x16) & 1) == 0 &&
+                        (w->actMode != 0 || m->mode == 0)) {
+                        continue;
+                    }
+                    w->intrMot = mot;
+                    *(void **)((char *)w + 0x28) = k->ent[i].f4;
+                    *(char **)((char *)w + 0x2C) = GetMailAdditionalData(self, i);
+                    *out = &k->ent[i];
+                    return m;
+                }
+            }
+        }
+    }
+    return 0;
+}
 
 static void act_check_mail(void *self, IntrMail *m)
 {

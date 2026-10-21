@@ -11,7 +11,6 @@
 #include "debug_exception.h"
 #include "Basic.h"
 #include <assert.h>
-#include "include_asm.h"
 
 #define DL_DEBUG 0 /* derived name */
 
@@ -82,6 +81,19 @@ void dl_Init(void)
     dl_Clear();
 }
 
+inline void dl_Out(void)
+{
+    int i;
+    for (i = 0; i < 2; i++) {
+        int *p = dlBufferHead[i];
+        int j;
+        for (j = 12; j >= 0; j--) {
+            iosFree((void *)*p);
+            p++;
+        }
+    }
+}
+
 void dl_Clear(void)
 {
     int flag = dlBank ^ 1;
@@ -138,16 +150,86 @@ void dl_Swap(void)
     dl_Clear();
 }
 
-INCLUDE_ASM(dl_PushPriority);
+inline void dl_SetDLPriority(int pri)
+{
+    DlEntry *entry = &dlEntries[dlPriority];
 
-INCLUDE_ASM(dl_PopPriority);
+    if (entry->open) {
+        dl_CloseDma();
+    }
+    if (pri < 0) {
+        dlPriority = 0;
+    } else if (pri >= 0xD) {
+        dlPriority = 0xC;
+    } else {
+        dlPriority = pri;
+    }
+}
+
+void dl_PushPriority(void)
+{
+    if (dlStackDepth < 7) {
+        dlStackDepth = dlStackDepth + 1;
+        dlPriorityStack[dlStackDepth - 1] = dlPriority;
+    } else {
+        debug_StdPrintfDummy("dl_PushPriority:Stack Overflow.\n");
+        debug_assert(__FILE__, 575);
+        __assert(__FILE__, 575, "FALSE");
+    }
+}
+
+void dl_PopPriority(void)
+{
+    DlEntry *entry = &dlEntries[dlPriority];
+
+    if (entry->open) {
+        debug_StdPrintfDummy("dl_PushPriority:dma is now open.\n");
+        dl_CloseDma();
+    }
+    if (dlStackDepth > 0) {
+        dlPriority = dlPriorityStack[dlStackDepth - 1];
+        dlStackDepth--;
+    } else {
+        debug_StdPrintfDummy("dl_PopPriority:Stack Underflow.\n");
+        debug_assert(__FILE__, 597);
+        __assert(__FILE__, 597, "FALSE");
+    }
+}
 
 inline int dl_GetPri(void)
 {
     return dlPriority;
 }
 
-INCLUDE_ASM(dl_Debug);
+void dl_Debug(void)
+{
+    DlEntry *entry = &dlEntries[dlPriority];
+
+    debug_StdPrintfDummy("dldma %d\n", ((unsigned int)(entry->cur - entry->tag) >> 4) - 1);
+    debug_StdPrintfDummy("dlvif %d\n", ((unsigned int)(entry->cur - entry->vifTag) >> 4) - 1);
+}
+
+inline void dl_OpenDma(int id, void *addr, int qwc)
+{
+    DlEntry *entry = &dlEntries[dlPriority];
+
+    /* the buffer overflow check, compiled out (DL_DEBUG is 0); the
+       message-assert form this programmer writes in Packet.c and
+       BgAnimation.c */
+    if (DL_DEBUG) {
+        debug_StdPrintfDummy("dl_CheckDLOverflow:Display List Buffer [%d] Full.\n", dlPriority);
+        __assert(__FILE__, 613, "e");
+    }
+    if (entry->open) {
+        dl_CloseDma();
+    }
+    entry->id = id;
+    entry->qwc = qwc;
+    entry->tag = entry->cur;
+    entry->cur += 0x10;
+    entry->addr = (unsigned int)addr;
+    entry->open = 1;
+}
 
 void dl_CloseDma(void)
 {
@@ -203,9 +285,3 @@ void dl_CloseDma(void)
     p[1] = 0;
     e->open = 0;
 }
-
-INCLUDE_ASM(dl_Out);
-
-INCLUDE_ASM(dl_SetDLPriority);
-
-INCLUDE_ASM(dl_OpenDma);

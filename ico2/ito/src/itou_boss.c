@@ -23,7 +23,6 @@
 #include "itou_common.h"
 #include "tableSin.h"
 #include "motionManager2.h"
-#include "include_asm.h"
 
 /* One of the fifty-three capsules, in the work block InitBossCtrlGeo
    allocates (the controller's GObj work at 0x7D0): its BGA, its state (0
@@ -475,7 +474,29 @@ void BossCtrlGeo(void *self)
     }
 }
 
-INCLUDE_ASM(actBossCtrlStart);
+void actBossCtrlStart(void *gobj)
+{
+    GObj *o;
+    int no;
+    int i;
+
+    actInitialize(gobj);
+    _ACTWait(1);
+    for (i = 0; i < sizeof(geneCellPos) / sizeof(geneCellPos[0]); i++) {
+        lw_pos_to_ico_pos(geneCell[i].pos, (float *)geneCellPos[i]);
+    }
+    no = 0;
+    for (o = isysGObjSearchFromObjKindID_begin(33); o != 0;
+         o = isysGObjSearchFromObjKindID_next(o)) {
+        no++;
+    }
+    debug_StdPrintfDummy("n generator %d\n", no);
+    geneReleasing = 0;
+    geneCount = 0;
+    for (i = 0; i < no; i++) {
+        actCreateSubThread(gene_enemy, 21);
+    }
+}
 
 int InitBossCtrlGeo(void *gobj)
 {
