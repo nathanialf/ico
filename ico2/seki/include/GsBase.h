@@ -41,7 +41,7 @@ void gsb_Reduction(void);
 void gsb_ResetGSSystem(void);
 void gsb_SetMotionBlur(void);
 void gsb_SetVSMatrix(int w, int h, float d);
-void gsb_UpdateGSSystem(int keep);
+void gsb_UpdateGSSystem(void);
 int gsb_StageSetting(void);
 
 #endif /* GSBASE_H */

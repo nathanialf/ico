@@ -690,9 +690,9 @@ INCLUDE_ASM(getCloth4D_postProcess);
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-INCLUDE_ASM(_getCloth4D);
+INCLUDE_ASM(GetCloth4D);
 
-/* the two pointers follow the four floats, like _getCloth4D's own tail */
+/* the two pointers follow the four floats, like GetCloth4D's own tail */
 typedef struct { /* field names derived */
     long long q[8];
 } Blob64; /* derived name */

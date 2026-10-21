@@ -82,33 +82,6 @@ rdlit EntryDelayFree 0x0059CCC8 0x0059CD1F ico2/sugipon/src/delayFreeManager.c  
 sdlit EntryDelayFree 0x006795B0 0x006795B2 ico2/sugipon/src/delayFreeManager.c  # 1 string
 text InitDelayFree 0x00102958 0x001029F0 ico2/sugipon/src/delayFreeManager.c lines=8  # call-aug
 text ExecDelayFree 0x001029F0 0x00102AFC ico2/sugipon/src/delayFreeManager.c lines=9  # aug
-text UpdateRootMatrixByDObj 0x00102B38 0x00102BC0 ico2/sugipon/src/geometryManager.c lines=14  # ordinal; differs-at:22; imm:1; extent-equal
-text SetDirectRootPositionNoFittingWithNodePoint 0x00102DB0 0x00102F84 ico2/sugipon/src/geometryManager.c lines=13  # call-pal
-text SetDirectRootPositionWithNodePoint 0x00102F88 0x0010315C ico2/sugipon/src/geometryManager.c lines=5  # aug
-text LocalizeGeometry 0x00103160 0x001032F4 ico2/sugipon/src/geometryManager.c lines=28  # ordinal; differs-at:19; imm:12; extent-equal
-rdlit LocalizeGeometry 0x0059CD20 0x0059CD98 ico2/sugipon/src/geometryManager.c  # 2 strings
-sdlit LocalizeGeometry 0x006795B8 0x006795C2 ico2/sugipon/src/geometryManager.c  # 2 strings
-text GlobalizeGeometry 0x00103370 0x00103464 ico2/sugipon/src/geometryManager.c lines=24  # ordinal; differs-at:14; imm:8; extent-equal
-text GetRootVelocity 0x00103468 0x00103474 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; differs-at:2; imm:1; extent-equal
-text MakeCharGObjList 0x001036C8 0x0010380C ico2/sugipon/src/geometryManager.c lines=19  # ordinal; differs-at:56; imm:2; extent-equal
-rdlit MakeCharGObjList 0x0059CD98 0x0059CDC6 ico2/sugipon/src/geometryManager.c  # 1 string
-text cylinderCollisionCheck 0x00103810 0x00103E14 ico2/sugipon/src/geometryManager.c lines=98  # ordinal; differs-at:4; length:-5; extent-differs
-text LocalizeDirectionOrient 0x00103E18 0x00103E90 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; differs-at:17; imm:3; extent-equal
-text GetCylinderCollision 0x00103E90 0x00103F8C ico2/sugipon/src/geometryManager.c lines=7  # ordinal; differs-at:30; imm:2; extent-equal
-text GetCylinderCollisionWithExceptOwnCollision 0x00103F90 0x00104098 ico2/sugipon/src/geometryManager.c lines=8  # ordinal; differs-at:32; imm:2; extent-equal
-text CylinderCollision 0x00104098 0x00104248 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; differs-at:22; imm:4; extent-equal
-text CylinderCollisionWithControlDynamics 0x00104248 0x00104404 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; differs-at:24; imm:4; extent-equal
-text GetRootMatrixByDObj 0x00104408 0x00104484 ico2/sugipon/src/geometryManager.c lines=12  # ordinal; differs-at:21; imm:1; extent-equal
-text GetRootMatrix 0x00104488 0x00104504 ico2/sugipon/src/geometryManager.c lines=14  # ordinal; differs-at:21; imm:1; extent-equal
-text GetRootPositionByDObj 0x00104508 0x00104588 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; differs-at:16; imm:2; extent-equal
-text SetDirectRootPosition 0x00104588 0x001046A8 ico2/sugipon/src/geometryManager.c lines=18  # ordinal; differs-at:22; imm:8; extent-equal
-text SetDirectRootPositionNoFitting 0x001046A8 0x001047C0 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; differs-at:22; imm:8; extent-equal
-text SetRootPosition 0x001047C0 0x0010484C ico2/sugipon/src/geometryManager.c lines=4  # ordinal; differs-at:10; imm:1; extent-equal
-text GetRootPosition 0x00104850 0x001048D4 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; differs-at:17; imm:2; extent-equal
-text GetRootOrient 0x001048D8 0x0010497C ico2/sugipon/src/geometryManager.c lines=17  # ordinal; differs-at:22; imm:1; extent-equal
-text GetRootMotionOrient 0x00104A90 0x00104B5C ico2/sugipon/src/geometryManager.c lines=19  # ordinal; differs-at:26; imm:1; extent-equal
-text GetRootMotionMatrix 0x00104B60 0x00104C0C ico2/sugipon/src/geometryManager.c lines=16  # ordinal; differs-at:24; imm:1; extent-equal
-text getInitialMatrix 0x00104E38 0x00104EDC ico2/sugipon/src/geometryManager.c local lines=15  # anchor; equal; -; extent-equal
 text falldownSE 0x0010B270 0x0010B278 ico2/sugipon/src/pool.c local lines=4  # ordinal; differs-at:1; imm:1; extent-equal
 text SetFallDownSplash 0x0010B580 0x0010B79C ico2/sugipon/src/pool.c lines=32  # ordinal; differs-at:2; length:+14; extent-differs
 rdlit SetFallDownSplash 0x0059D078 0x0059D0C0 ico2/sugipon/src/pool.c  # 2 strings (target side)
@@ -141,43 +114,6 @@ text file_LoadCDFile 0x0010F3B8 0x0010FAEC ico2/seki/src/FileManager.c local lin
 rdlit file_LoadCDFile 0x0059D2D8 0x0059D636 ico2/seki/src/FileManager.c  # 24 strings (target side)
 rdlit file_LoadCDFile 0x0059D640 0x0059D740 ico2/seki/src/FileManager.c align=16  # 2 jump tables (target side)
 sdlit file_LoadCDFile 0x00679618 0x00679628 ico2/seki/src/FileManager.c  # 2 strings (target side)
-text gsb_Init 0x00111E50 0x00111FB4 ico2/seki/src/GsBase.c lines=33  # call-pal
-rdlit gsb_Init 0x0059D850 0x0059D85E ico2/seki/src/GsBase.c align=16  # 1 string
-text gsb_Reduction 0x00111FB8 0x0011238C ico2/seki/src/GsBase.c lines=77  # call-pal
-text gsb_KeepFrameBuffer 0x00112390 0x0011261C ico2/seki/src/GsBase.c local lines=15  # call-aug
-text gsb_fade 0x00112620 0x001129A0 ico2/seki/src/GsBase.c local lines=59  # call-aug
-sdlit gsb_fade 0x00679660 0x00679664 ico2/seki/src/GsBase.c  # 1 word
-text gsb_scissorOnDemo 0x001129A0 0x00112D30 ico2/seki/src/GsBase.c local lines=45  # call-aug
-sdlit gsb_scissorOnDemo 0x00679670 0x00679674 ico2/seki/src/GsBase.c  # 1 word
-text gsb_controlBrightness 0x00112D30 0x00112E78 ico2/seki/src/GsBase.c local lines=27  # census-equal with relocated fields masked; an immediate differs (match_check)
-sdlit gsb_controlBrightness 0x00679678 0x0067967C ico2/seki/src/GsBase.c  # 1 word
-text gsb_antiAlias 0x00112E78 0x00113250 ico2/seki/src/GsBase.c local lines=53  # ordinal; differs-at:0; length:+13; extent-differs
-rdlit gsb_antiAlias 0x0059D9E0 0x0059DA40 ico2/seki/src/GsBase.c  # 6 dword pairs of constants (target side; the run is 0x60 bytes, read as data, not strings)
-sdlit gsb_antiAlias 0x00679680 0x00679684 ico2/seki/src/GsBase.c  # 1 word (target side): the function's $gp word (0x679680)
-text gsb_setSemitransReg 0x001132B8 0x00113324 ico2/seki/src/GsBase.c local lines=10  # ordinal; differs-at:19; imm:2; extent-equal
-text gsb_MakeCommonMatrix 0x00113418 0x0011366C ico2/seki/src/GsBase.c lines=57  # call-aug
-lit4 gsb_MakeCommonMatrix 0x006785DC 0x006785E0 ico2/seki/src/GsBase.c  # 1 float (target side)
-text gsb_SetGsDefault 0x00113670 0x0011379C ico2/seki/src/GsBase.c local lines=38  # call-aug
-text gsb_PostEffect 0x001137A0 0x00113964 ico2/seki/src/GsBase.c local lines=36  # call-aug
-rdlit gsb_PostEffect 0x0059DA80 0x0059DAA0 ico2/seki/src/GsBase.c  # 1 string (target side)
-sdlit gsb_PostEffect 0x00679688 0x0067969C ico2/seki/src/GsBase.c  # 3 words, 8-aligned (target side)
-text gsb_InitGSSystem 0x00113968 0x00113A50 ico2/seki/src/GsBase.c lines=32  # call-pal
-rdlit gsb_InitGSSystem 0x0059DAA0 0x0059DAE0 ico2/seki/src/GsBase.c  # 4 strings (target side)
-text gsb_UpdateGSSystem 0x00113A50 0x00113B70 ico2/seki/src/GsBase.c lines=36  # aug
-text gsb_SetVSMatrixSub 0x00113C90 0x00113F18 ico2/seki/src/GsBase.c local lines=91  # aug
-text gsb_SetVSMatrix 0x00113F18 0x00114080 ico2/seki/src/GsBase.c lines=38  # call-aug
-lit4 gsb_SetVSMatrix 0x006785E0 0x006785E8 ico2/seki/src/GsBase.c  # 2 floats (target side)
-text gsb_ClipBox 0x00114080 0x001145E8 ico2/seki/src/GsBase.c lines=64  # aug
-text gsb_SetBGColor 0x00114B30 0x00114B88 ico2/seki/src/GsBase.c lines=13  # census-equal; stubbed for emission order
-text gsb_GetBGColor 0x00114B88 0x00114BB4 ico2/seki/src/GsBase.c lines=7  # census-equal; stubbed for emission order
-text gsb_SetZoom 0x00114BB8 0x00114BC4 ico2/seki/src/GsBase.c lines=5  # census-equal; stubbed for emission order
-text gsb_SyncGSSystem 0x00114BC8 0x00114C28 ico2/seki/src/GsBase.c lines=15  # aug
-rdlit gsb_SyncGSSystem 0x0059DAE0 0x0059DAEA ico2/seki/src/GsBase.c align=16 def  # 1 string
-text gsb_LoadStageSettings 0x00114C28 0x00114CC4 ico2/seki/src/GsBase.c lines=15  # aug
-rdlit gsb_LoadStageSettings 0x0059DB00 0x0059DB6E ico2/seki/src/GsBase.c align=16 def  # 3 strings
-text gsb_SaveStageSettings 0x00114CC8 0x00114D64 ico2/seki/src/GsBase.c lines=18  # aug
-rdlit gsb_SaveStageSettings 0x0059DB70 0x0059DBC0 ico2/seki/src/GsBase.c def  # 2 strings (target side); where the inline function is declared, after gsb_LoadStageSettings' and before stageSettingItems
-text gsb_ClearFrameBuffer 0x00114D68 0x00114E0C ico2/seki/src/GsBase.c lines=4  # call-aug
 text light_killLinkLight 0x00114E10 0x00114EB0 ico2/seki/src/Light.c local lines=21  # ordinal; differs-at:10; imm:2; extent-equal
 rdlit light_killLinkLight 0x0059DFF0 0x0059E014 ico2/seki/src/Light.c align=16  # 2 strings
 sdlit light_killLinkLight 0x00679700 0x00679702 ico2/seki/src/Light.c  # 1 string
@@ -601,36 +537,6 @@ text GatherEffect_Proc 0x0018CEF8 0x0018D1E0 ico2/ito/src/gather_effect.c lines=
 lit4 GatherEffect_Proc 0x00678BF0 0x00678BFC ico2/ito/src/gather_effect.c  # 3 floats
 rdlit GatherEffect_Proc 0x005A3C58 0x005A3C6B ico2/ito/src/gather_effect.c  # 1 string
 text GatherEffect_Set 0x0018D1E0 0x0018D2AC ico2/ito/src/gather_effect.c lines=24  # ordinal; differs-at:21; imm:5; extent-equal
-text effect_end_func 0x0018D6A0 0x0018D6F4 ico2/ito/src/queen.c local lines=12  # ordinal; differs-at:3; imm:3; extent-equal
-text queenBeforeFunc 0x0018D6F8 0x0018D8A4 ico2/ito/src/queen.c lines=49  # aug
-text gene_enemy 0x0018D8A8 0x0018DBF4 ico2/ito/src/queen.c lines=79  # aug
-text subQueenBrainMain 0x0018DBF8 0x0018E308 ico2/ito/src/queen.c lines=152  # aug
-rdlit subQueenBrainMain 0x005A40D0 0x005A40F0 ico2/ito/src/queen.c align=16 def  # 1 jtbl (target side); emitted where the demo has it
-text Debug_StickControl 0x0018E308 0x0018E404 ico2/ito/src/queen.c local file=Debug_StickControl_queen lines=20  # call-aug
-lit4 Debug_StickControl 0x00678BFC 0x00678C00 ico2/ito/src/queen.c file=Debug_StickControl_queen  # 1 float
-text InitQueenGeo 0x0018E408 0x0018E510 ico2/ito/src/queen.c lines=21  # aug
-text QueenGeo 0x0018E510 0x0018E58C ico2/ito/src/queen.c lines=16  # aug
-lit4 QueenGeo 0x00678C00 0x00678C08 ico2/ito/src/queen.c  # 2 floats (target side)
-text QueenDL 0x0018E590 0x0018E5FC ico2/ito/src/queen.c lines=15  # aug
-text QueenBarrierGeo 0x0018E600 0x0018EA24 ico2/ito/src/queen.c lines=97  # aug
-lit4 QueenBarrierGeo 0x00678C08 0x00678C58 ico2/ito/src/queen.c  # 20 floats
-text QueenBarrierDL 0x0018EA28 0x0018EA70 ico2/ito/src/queen.c lines=7  # aug
-text QueenBallGeo 0x0018EA70 0x0018F208 ico2/ito/src/queen.c lines=105  # aug
-lit4 QueenBallGeo 0x00678C58 0x00678C5C ico2/ito/src/queen.c  # 1 float
-text QueenBallDL 0x0018F208 0x0018F39C ico2/ito/src/queen.c lines=45  # aug
-text actQueenStart 0x0018F3A0 0x0018F424 ico2/ito/src/queen.c lines=12  # aug
-text QueenStartAttack 0x0018F428 0x0018F488 ico2/ito/src/queen.c lines=13  # aug
-text QueenInqDead 0x0018F488 0x0018F4B0 ico2/ito/src/queen.c lines=5  # aug
-text QueenBoysWeaponPower 0x0018F4B0 0x0018F4D8 ico2/ito/src/queen.c lines=5  # aug
-text QueenBarrierRadius 0x0018F4D8 0x0018F4E8 ico2/ito/src/queen.c lines=4  # aug
-text QueenBarrierInqBreakable 0x0018F4E8 0x0018F538 ico2/ito/src/queen.c lines=11  # aug
-text queenBarrierBeforeFunc 0x0018F538 0x0018F5E8 ico2/ito/src/queen.c lines=23  # aug
-text InitQueenBarrierGeo 0x0018F5E8 0x0018F680 ico2/ito/src/queen.c lines=16  # aug
-text QueenBallRadius 0x0018F680 0x0018F69C ico2/ito/src/queen.c lines=4  # aug
-text queenBallBeforeFunc 0x0018F6A0 0x0018F780 ico2/ito/src/queen.c lines=19  # aug
-text InitQueenBallGeo 0x0018F780 0x0018F808 ico2/ito/src/queen.c lines=15  # aug
-text subQueenControl 0x0018F808 0x0018F854 ico2/ito/src/queen.c lines=12  # aug
-text subQueenCollision 0x0018F858 0x0018F880 ico2/ito/src/queen.c  # aug; no definition in this TU
 text queen_barrier_disp_proc 0x0018FDD0 0x001900A4 ico2/ito/src/queen_barrier_disp.c lines=43  # ordinal; differs-at:18; length:-5; extent-differs
 text StageOrientInit 0x00190320 0x00190410 ico2/ito/src/stage_orient.c lines=16  # ordinal; differs-at:7; imm:4; extent-equal
 sdlit StageOrientInit 0x0067A230 0x0067A233 ico2/ito/src/stage_orient.c def  # 1 string
@@ -926,7 +832,7 @@ text proc.162 0x001B8020 0x001B8474 ico2/sugipon/src/clothAnimation.c local file
 text getCloth4D 0x001B8478 0x001B9634 ico2/sugipon/src/clothAnimation.c local lines=337  # call-aug
 lit4 getCloth4D 0x00678D70 0x00678D78 ico2/sugipon/src/clothAnimation.c  # 2 floats
 text getCloth4D_postProcess 0x001B9638 0x001B989C ico2/sugipon/src/clothAnimation.c local lines=37  # call-aug
-text _getCloth4D 0x001B98A0 0x001B9AFC ico2/sugipon/src/clothAnimation.c local lines=47  # call-aug
+text GetCloth4D 0x001B98A0 0x001B9AFC ico2/sugipon/src/clothAnimation.c lines=47  # call-aug
 text InitCloth4D 0x001B9B00 0x001B9FE4 ico2/sugipon/src/clothAnimation.c lines=65  # ordinal; differs-at:3; other:245; extent-equal
 text getCloth4D_planeClip 0x001BA840 0x001BA964 ico2/sugipon/src/clothAnimation.c lines=21  # ordinal; differs-at:13; imm:1; extent-equal
 sdata D_0067ACA8 0x0067ACA8 0x0067AD0C ico2/sugipon/src/darkVolume.c local  # the TU's .sdata: strip state words, eight colours and the game-over words draw, func_001BAE50, renderViewCoordZSphere, sonic, darkVolume and DispGameOverEffect read; no word of C .text addresses them (target side)
@@ -1127,40 +1033,12 @@ text InitStageMultiBgaManager 0x001DBC38 0x001DBCD4 ico2/sugipon/src/stageMultiB
 text EntryStageMultiBgaManager 0x001DBCD8 0x001DBD94 ico2/sugipon/src/stageMultiBgaManager.c lines=4  # aug
 text EntryStageMultiBgaManagerSensitive 0x001DBD98 0x001DBE64 ico2/sugipon/src/stageMultiBgaManager.c lines=4  # aug
 text DispStageMultiBgaManager 0x001DBE68 0x001DBEEC ico2/sugipon/src/stageMultiBgaManager.c lines=21  # call-pal
-text blur 0x001DBEF0 0x001DC0DC ico2/sugipon/src/staticBlur.c local lines=5  # call-pal
-text blendWork0ToWork1.35 0x001DC230 0x001DC368 ico2/sugipon/src/staticBlur.c local file=blendWork0ToWork1_35_staticBlur  # census-equal nested function of a stubbed parent (written before it)
-rdlit blendWork0ToWork1.35 0x006610F0 0x00661100 ico2/sugipon/src/staticBlur.c file=blendWork0ToWork1_35_staticBlur def  # 1 string (target side); emitted where the demo has it
-text parallelAddFeedBackAreaToWork0.43 0x001DC368 0x001DC618 ico2/sugipon/src/staticBlur.c local file=parallelAddFeedBackAreaToWork0_43_staticBlur  # census-equal nested function of a stubbed parent (written before it)
-text blurBlendFeedBackAreaToWork1.31 0x001DC618 0x001DC6B0 ico2/sugipon/src/staticBlur.c local file=blurBlendFeedBackAreaToWork1_31_staticBlur  # census-equal nested function of a stubbed parent (written before it)
-rdlit blurBlendFeedBackAreaToWork1.31 0x00661100 0x00661110 ico2/sugipon/src/staticBlur.c file=blurBlendFeedBackAreaToWork1_31_staticBlur def  # 1 data (target side); emitted where the demo has it
-text testAA.63 0x001DC6B0 0x001DC808 ico2/sugipon/src/staticBlur.c local file=testAA_63_staticBlur  # census-equal nested function of a stubbed parent (written before it)
-text subWork1ToCurrentFB.75 0x001DC808 0x001DC910 ico2/sugipon/src/staticBlur.c local file=subWork1ToCurrentFB_75_staticBlur  # census-equal nested function of a stubbed parent (written before it)
-text auraInspireAfter 0x001DC910 0x001DCFBC ico2/sugipon/src/staticBlur.c local lines=265  # ordinal; differs-at:0; length:+50; extent-differs
-text cleanUpFB.82 0x001DCFC0 0x001DD080 ico2/sugipon/src/staticBlur.c local file=cleanUpFB_82_staticBlur  # census-equal; the C no longer emits it (its users are stubs)
-text fillWork2.86 0x001DD080 0x001DD14C ico2/sugipon/src/staticBlur.c local file=fillWork2_86_staticBlur  # ordinal; differs-at:0; length:-50; extent-differs
-text dispSun.90 0x001DD150 0x001DD24C ico2/sugipon/src/staticBlur.c local file=dispSun_90_staticBlur  # census-equal; the C no longer emits it (its users are stubs)
-text pasteBackLightShadowToFB.94 0x001DD250 0x001DD390 ico2/sugipon/src/staticBlur.c local file=pasteBackLightShadowToFB_94_staticBlur  # census-equal; the C no longer emits it (its users are stubs)
-text makeMaskPatternToWork2.98 0x001DD390 0x001DD47C ico2/sugipon/src/staticBlur.c local file=makeMaskPatternToWork2_98_staticBlur  # census-equal; the C no longer emits it (its users are stubs)
-text makeFullScreenFlareBefore 0x001DD480 0x001DD588 ico2/sugipon/src/staticBlur.c lines=126  # census-equal nested function of a stubbed parent (written before it)
 text reduceWork2ToWork0.105 0x001DD588 0x001DD6DC ico2/sugipon/src/staticBlur.c local file=reduceWork2ToWork0_105_staticBlur  # ordinal; differs-at:37; length:+2; extent-differs
 rdlit reduceWork2ToWork0.105 0x00661110 0x00661120 ico2/sugipon/src/staticBlur.c file=reduceWork2ToWork0_105_staticBlur def  # 1 data (target side); emitted where the demo has it
 text eyeBlur.109 0x001DD6E0 0x001DDE38 ico2/sugipon/src/staticBlur.c local file=eyeBlur_109_staticBlur  # ordinal; differs-at:0; length:-16; extent-differs
 lit4 eyeBlur.109 0x00678F0C 0x00678F10 ico2/sugipon/src/staticBlur.c file=eyeBlur_109_staticBlur  # 1 float (target side)
 rdlit eyeBlur.109 0x00661120 0x00661130 ico2/sugipon/src/staticBlur.c file=eyeBlur_109_staticBlur def  # 1 data (target side); emitted where the demo has it
 text makeFullScreenFlareAfter 0x001DDE38 0x001DDFE0 ico2/sugipon/src/staticBlur.c lines=198  # ordinal; differs-at:95; other:1; extent-equal
-text copyToWork.126 0x001DE148 0x001DE270 ico2/sugipon/src/staticBlur.c local file=copyToWork_126_staticBlur  # census-equal nested function of a stubbed parent (written before it)
-text copyToWork2.130 0x001DE270 0x001DE368 ico2/sugipon/src/staticBlur.c local file=copyToWork2_130_staticBlur  # census-equal nested function of a stubbed parent (written before it)
-rdlit copyToWork2.130 0x00661130 0x00661150 ico2/sugipon/src/staticBlur.c file=copyToWork2_130_staticBlur align=16 def  # 2 data runs, four words each (target side); emitted where the demo has it; 16-aligned in the demo after zero fill
-text pasteToFB.134 0x001DE368 0x001DE5AC ico2/sugipon/src/staticBlur.c local file=pasteToFB_134_staticBlur  # census-equal nested function of a stubbed parent (written before it)
-text depthField 0x001DE5B0 0x001DEC58 ico2/sugipon/src/staticBlur.c lines=107  # ordinal; differs-at:401; length:+7; extent-differs
-text calcSun 0x001DEE68 0x001DEF30 ico2/sugipon/src/staticBlur.c local lines=12  # ordinal; differs-at:43; length:+2; extent-differs
-lit4 calcSun 0x00678F10 0x00678F14 ico2/sugipon/src/staticBlur.c  # 1 float (target side)
-text FullScreenEffectBefore 0x001DF358 0x001DF4D0 ico2/sugipon/src/staticBlur.c lines=71  # ordinal; differs-at:2; length:-11; extent-differs
-rdlit FullScreenEffectBefore 0x00661240 0x00661260 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
-sdlit FullScreenEffectBefore 0x0067B100 0x0067B104 ico2/sugipon/src/staticBlur.c  # 1 string
-text FullScreenEffectAfter 0x001DF4D0 0x001DF648 ico2/sugipon/src/staticBlur.c lines=69  # ordinal; differs-at:2; length:-6; extent-differs
-rdlit FullScreenEffectAfter 0x00661260 0x00661280 ico2/sugipon/src/staticBlur.c align=16  # 1 jtbl
-data D_004E66A0 0x004E66A0 0x004E66D0 ico2/sugipon/src/staticBlur.c local  # auraInspireAfter's three rectangles (0x4E66A0, 0x4E66B0, 0x4E66C0) between work0ToFeedBackRect and feedBackToWork0Rect (target side)
 text StormTestGeo 0x001E02A0 0x001E02B0 ico2/sugipon/src/stormTest.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
 text StormTestDL 0x001E02B0 0x001E02C4 ico2/sugipon/src/stormTest.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
 text _infoUpdate 0x001E0368 0x001E0598 ico2/sugipon/src/streamMotionManager.c local lines=87  # ordinal; differs-at:0; length:-172; extent-differs

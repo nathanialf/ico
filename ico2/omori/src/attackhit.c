@@ -123,7 +123,7 @@ static inline void GetFocusNodePos(GObj *gobj, int node, float *out) /* derived 
 
 INCLUDE_ASM(MakeAttackPack_Actor);
 
-/* shared by _AttackCenter and AttackCenter_WithDir */
+/* shared by AttackCenter and AttackCenter_WithDir */
 static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float *pos, float *ofs,
                                    float radius) /* derived name */
 {
