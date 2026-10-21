@@ -156,7 +156,7 @@ INCLUDE_ASM_LIT(func_001A19B8);
 
 INCLUDE_ASM(func_001A1CA8);
 
-INCLUDE_ASM(func_001A1F38);
+INCLUDE_ASM(InitIcoMisc);
 
 static int diskErrorBlink = 0; /* derived name */
 
@@ -198,7 +198,7 @@ static int commonPackLoaded = 0; /* derived name */
 
 static int loadedMotionSeg = -1; /* derived name */
 
-INCLUDE_ASM_LIT(func_001A1F38);
+INCLUDE_ASM_LIT(InitIcoMisc);
 
 /* .sbss: the last value func_001A19B8 compared (a change bumps a counter),
    then the frame stamp the load-time report below prints */

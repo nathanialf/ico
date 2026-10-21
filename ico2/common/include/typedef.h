@@ -940,8 +940,10 @@ typedef struct {        /* field names derived */
 } ObjKindEnt;               /* derived name */
 
 /* the 0x18C-byte per-stage preset record at stageData; the demo has no
-   per-stage init hook (the later builds' initproc), and the wind speed
-   follows the wind amplitude (InitWindManager reads 0x154 and 0x158) */
+   word before the motion-set id (the later builds' word148: mot is at 0x148,
+   endproc at 0x14C, which stop_free_resources calls, initproc at 0x150, which
+   icoMisc's stage init calls), and the wind speed follows the wind amplitude
+   (InitWindManager reads 0x154 and 0x158) */
 typedef struct {   /* field names derived */
     char key[32];  /* 0x00, the stage's short name ("gate"); no C reader */
     char name[32]; /* 0x20, the stage name icoMisc prints, "st04a (GATE_1ST)" */
@@ -970,9 +972,9 @@ typedef struct {   /* field names derived */
     int layoutFirst;       /* 0x130, layout range */
     int layoutLast;        /* 0x134 */
     int mdl[4];            /* 0x138, the four stage model ids GetRealModelId picks from */
-    int word148;           /* 0x148, no C reader */
-    int mot;               /* 0x14C, the motion-set id */
-    void (*endproc)(void); /* 0x150 */
+    int mot;                /* 0x148, the motion-set id */
+    void (*endproc)(void);  /* 0x14C */
+    void (*initproc)(void); /* 0x150, the per-stage init hook */
     float windAmp;         /* 0x154, the wind speed's variance */
     float windSpeed;       /* 0x158, the wind's base speed */
     int word160;           /* 0x15C, no C reader */
@@ -987,17 +989,18 @@ typedef struct {   /* field names derived */
     short shadowDepth;     /* 0x180, copied into the stage setting's shadow depth */
     unsigned char pad182[2];
     /* 0x184, flag word whose low half is the reverb depth (soundManager reads
-     * that half at this offset) and whose bits 16-24 carry a count (10 to 300
-     * in the shipped rows: backStage's way-kidnap time in seconds, 0 for no way
-     * kidnap).  RECONSTRUCTION: bits 25-29 are a bitfield,
-     * the stage's movie number StageManager copies into mpegPlay, because the
+     * that half at this offset) and whose bits 16-23 carry a count (10 or 60
+     * in this build's rows: backStage's way-kidnap time in seconds, 0 for no way
+     * kidnap).  RECONSTRUCTION: bits 24-29 are a bitfield,
+     * the stage's movie number StageManager copies into mpegPlay (lbu 0x187,
+     * andi 0x3F; movies 1-4 on stages 58, 100, 101, 102), because the
      * ROM reads it as one: a whole-word field makes expand_expr fold the 0x188
      * into a constant table base (expr.c 6464-6482), where StageManager's three
      * reads keep the table base, add the index product and load at 0x188,
      * with the const table's unchanging flag on the load. */
     unsigned int reverbDepth : 16;
-    unsigned int kidnapSeconds : 9;
-    unsigned int mpegNo : 5;      /* five bits here: this build keeps both actor switches in
+    unsigned int kidnapSeconds : 8;
+    unsigned int mpegNo : 6;      /* six bits here: this build keeps both actor switches in
                                 bits 30 and 31 (ACTGame_SetActors_Debug) */
     unsigned int attrTop : 1;     /* bit 30, the stage places the boy (ACTGame_SetActors_Debug) */
     unsigned int attrTopGirl : 1; /* bit 31, the stage places the girl; derived name */

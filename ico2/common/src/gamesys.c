@@ -16,7 +16,6 @@
 #include "gamesys.h"
 #include <string.h>
 #include "main.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     int start;
@@ -89,7 +88,18 @@ static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req,
     return &gameSysObjInfo[i];
 }
 
-INCLUDE_ASM(gamesysObjInfoInit);
+void gamesysObjInfoInit(void)
+{
+    int i;
+
+    for (i = 0; i <= 121; i++) {
+        gameSysObjInfo[i].no = 0;
+        gameSysObjInfo[i].stage = 0xFFFF;
+    }
+
+    memset((char *)gamesysStageExitTime, 0, 412);
+    backStageProcessInit();
+}
 
 /* .sdata: the frame clock the object records are stamped with, the
    stage the heroine's record was last seen in, the other-stage kidnap flag
@@ -97,24 +107,149 @@ INCLUDE_ASM(gamesysObjInfoInit);
    overflow flag (declared in gamesys.h, but the stage). */
 int gamesysTimeCount = 0;
 
-INCLUDE_ASM(gamesysObjInfoSave);
+void gamesysObjInfoSave(GamesysMemCursor *h)
+{
+    char *p;
+    int save;
 
-INCLUDE_ASM(gamesysObjInfoLoad);
+    gamesysMemoryHandlerWrite(h, &gamesysTimeCount, 4);
+
+    p = (char *)gameSysObjInfo;
+
+    save = (int)(*(long long *)(p + 0x40) >> 1) & 1;
+    *(long long *)(p + 0x40) = *(long long *)(p + 0x40) | 2;
+
+    gamesysMemoryHandlerWrite(h, p, 7808);
+
+    *(long long *)(p + 0x40) = (*(long long *)(p + 0x40) & -3) | ((long long)save << 1);
+
+    gamesysMemoryHandlerWrite(h, gamesysStageExitTime, 412);
+}
+
+void gamesysObjInfoLoad(GamesysMemCursor *h)
+{
+    gamesysMemoryHandlerRead(h, &gamesysTimeCount, 4);
+    gamesysMemoryHandlerRead(h, gameSysObjInfo, 7808);
+    gamesysMemoryHandlerRead(h, gamesysStageExitTime, 412);
+}
 
 /* unsigned */
 static unsigned short gamesysGirlStage = 0; /* derived name */
 
 int gamesysAnotherStageTsuresari = 0;
 
-/* gamesysObjInfoEmptyAreaSearch is a stub, and with it the inline search its
-   body was built on (PAL's); that helper's message is the stub's string. */
-INCLUDE_ASM(gamesysObjInfoEmptyAreaSearch);
+/* gamesysObjInfoEmptyAreaSearch's body: search for an empty record, else the
+ * oldest one, clear flag bit 1, return it; called after a search by number. */
+static inline GamesysObjInfo *gamesysObjInfoOldestSearch(GamesysObjInfoReq *req) /* derived name */
+{
+    GamesysObjInfo *p;
+    int i;
+    int k;
+    unsigned int t;
 
-GamesysObjInfo *gamesysObjInfoBaseSet(GObj *self, int stage);
+    p = gamesysObjInfoSearch(req, 0);
+    if (p == 0) {
+        k = -1;
+        t = 0xFFFFFFFF;
+        for (i = req->start; i < req->end; i++) {
+            p = &gameSysObjInfo[i];
+            if ((unsigned int)p->time < t && req->stage != stage_no &&
+                req->stage != gamesysGirlStage) {
+                t = p->time;
+                k = i;
+            }
+        }
+        if (k < 0) {
+            debug_StdPrintfDummy("gamesysObjInfoEmptyAreaSearch not area found");
+            return 0;
+        }
+        p = &gameSysObjInfo[k];
+    }
+    ((GamesysObjInfoFlag *)p)->flag &= ~2;
+    return p;
+}
 
-INCLUDE_ASM(gamesysObjInfoBaseSet);
+static GamesysObjInfo *gamesysObjInfoEmptyAreaSearch(GamesysObjInfoReq *req)
+{
+    GamesysObjInfo *p;
 
-INCLUDE_ASM(gamesysBackStageProcess);
+    p = gamesysObjInfoSearch(req, req->no);
+    if (p == 0) {
+        p = gamesysObjInfoOldestSearch(req);
+        if (p == 0) {
+            return 0;
+        }
+        p->no = req->no;
+        p->stage = req->stage;
+        p->time = gamesysTimeCount;
+    }
+    return p;
+}
+
+GamesysObjInfo *gamesysObjInfoBaseSet(GObj *self, int stage)
+{
+    GamesysObjInfoReq req;
+    float dir[4];
+    float m[16];
+    float v[4];
+    GamesysObjInfo *p;
+    /* the default arm writes the range through the record pointer, every other
+       arm writes the record directly */
+    GamesysObjInfoReq *r = &req;
+
+    req.no = self->labelId;
+    req.stage = stage;
+
+    switch (self->kind) {
+    case 1:
+        req.start = 0;
+        req.end = 1;
+        break;
+    case 2:
+        req.start = 1;
+        req.end = 2;
+        break;
+    case 4:
+        req.start = 2;
+        req.end = 22;
+        break;
+    case 15:
+        req.start = 22;
+        req.end = 42;
+        break;
+    default:
+        r->start = 42;
+        r->end = 122;
+        break;
+    }
+
+    p = gamesysObjInfoEmptyAreaSearch(&req);
+    if (p != 0 && ((int)(((GamesysObjInfoFlag *)p)->flag >> 1) & 1) == 0) {
+        GetRootPosition(p->pos, self);
+        _GetMotionDirection(dir, self);
+        p->rot[1] =
+            -((float)(int)(_GetDirection(dir) / 3.14159274f * 180.0f) * 3.14159274f / 180.0f);
+        p->rot[0] = p->rot[2] = 0.0f;
+        if (self->kind == 0xE) {
+            memset((char *)v, 0, 0x10);
+            v[2] = 1.0f;
+            GetRootMatrix(m, self);
+            v[3] = 0.0f;
+            sceVu0ApplyMatrix(v, m, v);
+            p->rot[1] =
+                (float)(int)(_GetDirection(v) / 3.14159274f * 180.0f) * 3.14159274f / 180.0f;
+        }
+    } else {
+        debug_StdPrintfDummy("gamesys: gamesysObjInfoPosSet:%d - %d \n", req.start, req.end);
+    }
+    return p;
+}
+
+void gamesysBackStageProcess(void)
+{
+    gamesysTimeCount++;
+    backStageProcessMain();
+}
 
 void gamesysMemoryHandlerWrite(GamesysMemCursor *self, void *src, int size)
 {
@@ -169,9 +304,29 @@ static void gamesysCharacterInfoLoad(GamesysMemCursor *self)
     return ReadCharacterPacket();
 }
 
-INCLUDE_ASM(gamesysObjInfoStageInitFlagCls);
+void gamesysObjInfoStageInitFlagCls(void)
+{
+    long long mask = -2LL;
+    long long *p = (long long *)gameSysObjInfo;
+    int i = 121;
+    do {
+        *p &= mask;
+        p = (long long *)((char *)p + 0x40);
+        i--;
+    } while (i >= 0);
+}
 
-INCLUDE_ASM(gamesysObjInfoStageInitPosSaveUnlock);
+void gamesysObjInfoStageInitPosSaveUnlock(void)
+{
+    long long mask = -3LL;
+    long long *p = (long long *)gameSysObjInfo;
+    int i = 121;
+    do {
+        *p &= mask;
+        p = (long long *)((char *)p + 0x40);
+        i--;
+    } while (i >= 0);
+}
 
 GamesysObjInfo *gamesysObjInfoPosSetStage(GObj *self, int infoPos, int work1, int stage)
 {
@@ -222,16 +377,50 @@ static inline void gamesysObjInfoReqSet(GamesysObjInfoReq *req, int no, int kind
         break;
     default:
         req->start = 0x2A;
-        req->end = 0xB6;
+        req->end = 122;
         break;
     }
 }
 
-INCLUDE_ASM(gamesysObjInfoPosNewStageSet);
+GamesysObjInfo *gamesysObjInfoPosNewStageSet(int no, int kind, int stage, float *pos, float *rot)
+{
+    GamesysObjInfoReq req;
+    GamesysObjInfo *p;
 
-INCLUDE_ASM(gamesysObjInfoGet);
+    gamesysObjInfoReqSet(&req, no, kind);
+    p = gamesysObjInfoEmptyAreaSearch(&req);
+    if (p != 0) {
+        p->pos[0] = pos[0];
+        p->pos[1] = pos[1];
+        p->pos[2] = pos[2];
+        p->rot[0] = rot[0];
+        p->rot[1] = rot[1];
+        p->rot[2] = rot[2];
+        p->stage = stage;
+        ((GamesysObjInfoFlag *)p)->flag |= 2;
+    }
+    return p;
+}
 
-INCLUDE_ASM(gamesysObjInfoCls);
+GamesysObjInfo *gamesysObjInfoGet(int kind, int no)
+{
+    GamesysObjInfoReq req;
+
+    gamesysObjInfoReqSet(&req, no, kind);
+    return gamesysObjInfoSearch(&req, no);
+}
+
+void gamesysObjInfoCls(int kind, int no)
+{
+    GamesysObjInfoReq req;
+    GamesysObjInfo *p;
+
+    gamesysObjInfoReqSet(&req, no, kind);
+    p = gamesysObjInfoSearch(&req, no);
+    if (p != 0) {
+        p->no = 0;
+    }
+}
 
 int gamesysGirlStageGet(void)
 {
@@ -268,7 +457,17 @@ void gamesysMemorySave(void **tbl, void *mem, void *arg)
     }
 }
 
-INCLUDE_ASM(gamesysMemoryLoad);
+void gamesysMemoryLoad(void **tbl, void *mem, void *arg)
+{
+    GamesysMemCursor cur;
+    cur.base = mem;
+    cur.offset = 0;
+    while (tbl[0] != 0) {
+        ((void (*)(void *, void *))tbl[0])(&cur, arg);
+        tbl += 2;
+    }
+    gflagOn(343);
+}
 
 int gamesysVersionDiff = 0;
 

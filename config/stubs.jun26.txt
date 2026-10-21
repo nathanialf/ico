@@ -92,48 +92,11 @@ text file_LoadCDFile 0x0010F3B8 0x0010FAEC ico2/seki/src/FileManager.c local lin
 rdlit file_LoadCDFile 0x0059D2D8 0x0059D636 ico2/seki/src/FileManager.c  # 24 strings (target side)
 rdlit file_LoadCDFile 0x0059D640 0x0059D740 ico2/seki/src/FileManager.c align=16  # 2 jump tables (target side)
 sdlit file_LoadCDFile 0x00679618 0x00679628 ico2/seki/src/FileManager.c  # 2 strings (target side)
-text light_killLinkLight 0x00114E10 0x00114EB0 ico2/seki/src/Light.c local lines=21  # ordinal; differs-at:10; imm:2; extent-equal
-rdlit light_killLinkLight 0x0059DFF0 0x0059E014 ico2/seki/src/Light.c align=16  # 2 strings
-sdlit light_killLinkLight 0x00679700 0x00679702 ico2/seki/src/Light.c  # 1 string
-text light_killLinkAmbient 0x00114EB0 0x00114F50 ico2/seki/src/Light.c local lines=21  # ordinal; differs-at:10; imm:2; extent-equal
-rdlit light_killLinkAmbient 0x0059E018 0x0059E038 ico2/seki/src/Light.c  # 1 string
-text light_AddLight 0x00114F50 0x00115254 ico2/seki/src/Light.c lines=79  # ordinal; differs-at:28; imm:5; extent-equal
-lit4 light_AddLight 0x006785E8 0x006785EC ico2/seki/src/Light.c  # 1 float
-rdlit light_AddLight 0x0059E038 0x0059E071 ico2/seki/src/Light.c  # 2 strings
-text light_getNearLight 0x00115258 0x001156BC ico2/seki/src/Light.c local lines=131  # ordinal; differs-at:22; imm:11; extent-equal
-lit4 light_getNearLight 0x006785EC 0x006785F0 ico2/seki/src/Light.c  # 1 float
-text light_getAmbientLight 0x001156C0 0x00115D20 ico2/seki/src/Light.c local lines=112  # ordinal; differs-at:24; imm:12; extent-equal
-text light_MakeLightMatrix 0x00115D20 0x00115DFC ico2/seki/src/Light.c lines=19  # ordinal; differs-at:6; imm:7; extent-equal
-text light_DispVolume 0x00115E00 0x001163F0 ico2/seki/src/Light.c lines=126  # ordinal; differs-at:1; imm:46; extent-equal
-lit4 light_DispVolume 0x006785F0 0x006785F4 ico2/seki/src/Light.c  # 1 float
-sdlit light_DispVolume 0x00679708 0x00679714 ico2/seki/src/Light.c  # 2 strings
-text func_00117598 0x00117598 0x001176D0 ico2/seki/src/Light.c  # jun26-only; derived name
-text func_001176D0 0x001176D0 0x00117A60 ico2/seki/src/Light.c  # jun26-only; derived name
-lit4 func_001176D0 0x0067864C 0x00678650 ico2/seki/src/Light.c  # 1 float (target side)
-rdlit func_001176D0 0x0059E110 0x0059E140 ico2/seki/src/Light.c align=16  # 1 data, 1 string (target side)
-text light_KillAllFixLight 0x00117A70 0x00117ACC ico2/seki/src/Light.c lines=17  # aug
-text light_AddAmbientObject 0x00117B28 0x00117B94 ico2/seki/src/Light.c lines=10  # ordinal; differs-at:9; imm:1; extent-equal
 text mc_setBaseOffset 0x00118E20 0x00118FA8 ico2/seki/src/MicroCode.c local lines=65  # ordinal; differs-at:1; length:+14; extent-differs
 rdlit mc_setBaseOffset 0x0059E140 0x0059E154 ico2/seki/src/MicroCode.c align=16  # 1 jtbl
 text mc_SetMicroCode 0x00118FA8 0x001191A0 ico2/seki/src/MicroCode.c lines=118  # ordinal; differs-at:5; length:-9; extent-differs
 text pac_continueTag 0x0011A4F8 0x0011A6BC ico2/seki/src/Packet.c local  # jun26-only; aug6 TRFILE name (called by pac_checkDivide)
 rdlit pac_continueTag 0x0059E4C0 0x0059E4E8 ico2/seki/src/Packet.c  # 1 string (target side)
-text shadow_Reset 0x00121AA8 0x00121F34 ico2/seki/src/Shadow.c lines=67  # ordinal; differs-at:0; length:-130; extent-differs
-sdlit shadow_Reset 0x006797D8 0x006797DC ico2/seki/src/Shadow.c  # 1 word (target side): a 4-byte object the function reads a byte at a time (0x6797D8..0x6797DB)
-text shadow_Draw 0x00121F38 0x00122A14 ico2/seki/src/Shadow.c lines=109  # ordinal; differs-at:0; length:-66; extent-differs
-rdlit shadow_Draw 0x0059EB70 0x0059EC10 ico2/seki/src/Shadow.c  # data runs and a string (target side; one run, the words around 0x59EB99 are data)
-sdlit shadow_Draw 0x006797E0 0x006797E4 ico2/seki/src/Shadow.c  # 1 string (target side)
-text shadow_getShadowVectorAverage 0x00122A38 0x00122A88 ico2/seki/src/Shadow.c local lines=8  # ordinal; differs-at:1; imm:1; extent-equal
-text shadow_EntryClusterShadow 0x00122A88 0x00122EE4 ico2/seki/src/Shadow.c local lines=70  # ordinal; differs-at:21; other:11; extent-equal
-text shadow_EntryNormalShadow 0x00122EE8 0x001231FC ico2/seki/src/Shadow.c local lines=47  # ordinal; differs-at:17; other:11; extent-equal
-text shadow_RenderVolume 0x00123270 0x00125188 ico2/seki/src/Shadow.c lines=102  # ordinal; differs-at:1; length:+210; extent-differs
-sdlit shadow_RenderVolume 0x006797E4 0x006797E8 ico2/seki/src/Shadow.c  # 1 word (target side): the $gp word it and shadow_RenderVolumeMulti read (0x6797E4)
-rdlit shadow_RenderVolume 0x0059EC80 0x0059ECB0 ico2/seki/src/Shadow.c align=16  # 1 jtbl (target side); the order table before it is the C local initializer at 0x59EC28
-text shadow_RenderVolumeMulti 0x00125188 0x00127088 ico2/seki/src/Shadow.c lines=98  # ordinal; differs-at:1; length:+210; extent-differs
-rdlit shadow_RenderVolumeMulti 0x0059ECB0 0x0059ECD8 ico2/seki/src/Shadow.c align=16  # 1 jtbl (target side)
-text shadow_MakeObjectData 0x00127088 0x001273F0 ico2/seki/src/Shadow.c lines=74  # ordinal; differs-at:12; other:3; extent-equal
-text shadow_KillShadow 0x00127740 0x00127748 ico2/seki/src/Shadow.c lines=4  # census-equal; stubbed for emission order
-text shadow_Init 0x00127748 0x00127754 ico2/seki/src/Shadow.c lines=18  # call-aug
 text stage_Init 0x00127BB0 0x001285D0 ico2/seki/src/StageAnimation.c lines=206  # order
 rdlit stage_Init 0x0059EF58 0x0059F005 ico2/seki/src/StageAnimation.c  # 4 strings
 rdlit stage_Init 0x0059F010 0x0059F050 ico2/seki/src/StageAnimation.c align=16  # 1 static
@@ -149,28 +112,6 @@ text iosMcIconWriteIconsys 0x00137508 0x001375F0 ico2/fumi/ios/mcdata.c lines=30
 rdlit iosMcIconWriteIconsys 0x005A0270 0x005A0280 ico2/fumi/ios/mcdata.c  # 1 string (target side)
 text iosMcIconWriteIcon 0x001375F0 0x001376D8 ico2/fumi/ios/mcdata.c lines=4  # ordinal; differs-at:0; length:-8; extent-differs
 text _iosMcIconWriteIconsys 0x001376D8 0x001376FC ico2/fumi/ios/mcdata.c local lines=27  # ordinal; differs-at:0; length:-51; extent-differs
-text iosMallocSetPartition 0x00137700 0x00137920 ico2/fumi/ios/memory.c lines=37  # census-equal; stubbed for emission order
-rdlit iosMallocSetPartition 0x005A0280 0x005A0390 ico2/fumi/ios/memory.c  # 9 strings (target side)
-text iosMallocResetPartition 0x00137920 0x00137B00 ico2/fumi/ios/memory.c lines=31  # census-equal; stubbed for emission order
-rdlit iosMallocResetPartition 0x005A0390 0x005A03A0 ico2/fumi/ios/memory.c  # 1 string (target side)
-text iosMallocSetPartitionName 0x00137B00 0x00137B84 ico2/fumi/ios/memory.c lines=12  # census-equal; stubbed for emission order: its strings are the ones the stubbed functions before it emit first
-text iosMallocClearPartition 0x00137B88 0x00137D40 ico2/fumi/ios/memory.c lines=42  # census-equal; stubbed for emission order: its strings are the ones the stubbed functions before it emit first
-rdlit iosMallocClearPartition 0x005A03A0 0x005A03C8 ico2/fumi/ios/memory.c  # 2 strings (target side)
-text iosMallocDebug 0x00137D40 0x001381EC ico2/fumi/ios/memory.c lines=18  # call-pal
-rdlit iosMallocDebug 0x005A03C8 0x005A05E2 ico2/fumi/ios/memory.c  # 17 strings (target side; the last, the align name iosMallocAlignDebug also prints, is first used here)
-sdlit iosMallocDebug 0x00679B38 0x00679B48 ico2/fumi/ios/memory.c  # 2 strings (target side)
-text iosFree 0x00138298 0x00138750 ico2/fumi/ios/memory.c lines=158  # ordinal; differs-at:26; imm:12; extent-equal
-rdlit iosFree 0x005A0608 0x005A0708 ico2/fumi/ios/memory.c  # 10 strings (target side)
-sdlit iosFree 0x00679B48 0x00679B50 ico2/fumi/ios/memory.c  # 1 string (target side)
-text iosMallocCheckLeak 0x00138750 0x0013892C ico2/fumi/ios/memory.c lines=44  # census-equal; stubbed for emission order: its strings are the ones the stubbed functions before it emit first
-rdlit iosMallocCheckLeak 0x005A0708 0x005A0788 ico2/fumi/ios/memory.c  # 6 strings (target side)
-sdlit iosMallocCheckLeak 0x00679B50 0x00679B62 ico2/fumi/ios/memory.c  # 3 strings (target side): the function references all three (0x679B50, 0x679B58, 0x679B60)
-text iosMallocCheckLeak2 0x00138930 0x00138A78 ico2/fumi/ios/memory.c lines=27  # census-equal; stubbed for emission order: its strings are the ones the stubbed functions before it emit first
-rdlit iosMallocCheckLeak2 0x005A0788 0x005A0800 ico2/fumi/ios/memory.c  # 5 strings (target side)
-text iosReallocDebug 0x00138A78 0x00138CE8 ico2/fumi/ios/memory.c lines=63  # ordinal; differs-at:15; imm:4; extent-equal
-rdlit iosReallocDebug 0x005A0800 0x005A0870 ico2/fumi/ios/memory.c  # 3 strings
-text iosMallocInitPartition 0x00138CE8 0x00138DF8 ico2/fumi/ios/memory.c lines=40  # census-equal; stubbed for emission order
-text iosMallocAlignDebug 0x00138DF8 0x00138EAC ico2/fumi/ios/memory.c lines=18  # call-pal
 text controler_stable_check 0x001394F8 0x00139968 ico2/fumi/ios/pad.c local lines=191  # ordinal; differs-at:1; length:-68; extent-differs
 rdlit controler_stable_check 0x005A0920 0x005A09E2 ico2/fumi/ios/pad.c  # 9 strings (target side)
 rdlit controler_stable_check 0x005A09F0 0x005A0B28 ico2/fumi/ios/pad.c align=16  # 1 jtbl (target side)
@@ -397,25 +338,9 @@ text initInitialInverseMatrix 0x00192438 0x00192480 ico2/common/src/DObj.c local
 text initPolygonState 0x00192480 0x00192838 ico2/common/src/DObj.c local lines=51  # ordinal; differs-at:16; other:28; extent-equal
 text CSVSYSTEM_InitDObj 0x00192838 0x001929F8 ico2/common/src/DObj.c lines=24  # ordinal; differs-at:1; length:-6; extent-differs
 rdlit CSVSYSTEM_InitDObj 0x00659C40 0x00659CB8 ico2/common/src/DObj.c  # 4 strings (target side)
-text stop_free_resources 0x00192A80 0x00192BB8 ico2/common/src/StageManager.c local lines=37  # ordinal; differs-at:17; length:-2; extent-differs
-rdlit stop_free_resources 0x00659CB8 0x00659D08 ico2/common/src/StageManager.c  # 3 strings (target side)
-sdlit stop_free_resources 0x0067A270 0x0067A278 ico2/common/src/StageManager.c  # 1 string (target side)
-text start_stage_Load_thread 0x00192CB8 0x00192E08 ico2/common/src/StageManager.c local lines=36  # ordinal; differs-at:22; length:+2; extent-differs
-rdlit start_stage_Load_thread 0x00659D90 0x00659DBF ico2/common/src/StageManager.c  # 2 strings
 text stgmgrNextStagePreLoad 0x00192E08 0x0019303C ico2/common/src/StageManager.c local lines=69  # ordinal; differs-at:16; length:-1; extent-differs
 rdlit stgmgrNextStagePreLoad 0x00659DC0 0x00659DE6 ico2/common/src/StageManager.c  # 1 string
 sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.c  # 1 string
-text stgmgrNextStagePreLoadEntry 0x00193040 0x00193184 ico2/common/src/StageManager.c local lines=29  # ordinal; differs-at:0; imm:1; extent-equal
-rdlit stgmgrNextStagePreLoadEntry 0x00659DE8 0x00659DFA ico2/common/src/StageManager.c  # 1 string
-text StageManager 0x00193188 0x00193474 ico2/common/src/StageManager.c lines=94  # ordinal; differs-at:12; other:83; extent-equal
-rdlit StageManager 0x00659E00 0x00659E8C ico2/common/src/StageManager.c  # 4 strings, 1 data
-text stgmgrForceSwitch 0x00193478 0x001934A8 ico2/common/src/StageManager.c lines=8  # ordinal; differs-at:9; other:1; extent-equal
-text stgmgrForceSwitchWithFadeColor 0x001934B8 0x00193520 ico2/common/src/StageManager.c lines=14  # ordinal; differs-at:21; other:1; extent-equal
-text stgmgrNextStagePreLoadForceStageSet 0x00193520 0x00193534 ico2/common/src/StageManager.c lines=6  # census-equal; stubbed for emission order
-text stgmgrNextStagePreLoadDistBoyMode 0x00193538 0x00193544 ico2/common/src/StageManager.c lines=5  # census-equal; stubbed for emission order
-text stgmgrNextStagePreLoadForceNoCancel 0x00193548 0x00193550 ico2/common/src/StageManager.c lines=4  # census-equal; stubbed for emission order
-text CheckPoint 0x00193550 0x0019359C ico2/common/src/StageManager.c lines=7  # census-equal; stubbed for emission order
-text stgmgrNextStagePreLoadDiskNotReady 0x001935A0 0x001935B0 ico2/common/src/StageManager.c local lines=6  # census-equal; the C no longer emits it (its users are stubs)
 text backStageProcessOutStage 0x001935B0 0x00193800 ico2/common/src/backStage.c lines=107  # ordinal; differs-at:0; length:-184; extent-differs
 rdlit backStageProcessOutStage 0x00659E90 0x00659EA0 ico2/common/src/backStage.c  # 1 string (target side)
 text backStageProcessMain 0x00193800 0x001939B8 ico2/common/src/backStage.c lines=67  # ordinal; differs-at:0; length:-28; extent-differs
@@ -425,21 +350,6 @@ text backStageProcessInStage 0x00193B10 0x00193E88 ico2/common/src/backStage.c l
 lit4 backStageProcessInStage 0x00678C68 0x00678C6C ico2/common/src/backStage.c  # 1 float (target side)
 sdlit backStageProcessInStage 0x0067A2B8 0x0067A2C0 ico2/common/src/backStage.c  # 1 string (target side)
 text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
-text gamesysObjInfoInit 0x001A0518 0x001A056C ico2/common/src/gamesys.c lines=12  # ordinal; differs-at:5; imm:2; extent-equal
-text gamesysObjInfoSave 0x001A0570 0x001A0608 ico2/common/src/gamesys.c lines=18  # ordinal; differs-at:15; imm:2; extent-equal
-text gamesysObjInfoLoad 0x001A0608 0x001A0658 ico2/common/src/gamesys.c lines=6  # ordinal; differs-at:11; imm:2; extent-equal
-text gamesysObjInfoEmptyAreaSearch 0x001A0658 0x001A0830 ico2/common/src/gamesys.c local lines=16  # ordinal; differs-at:4; other:50; extent-equal
-rdlit gamesysObjInfoEmptyAreaSearch 0x0065DB20 0x0065DB50 ico2/common/src/gamesys.c  # 1 string (target side)
-text gamesysObjInfoBaseSet 0x001A0830 0x001A0A5C ico2/common/src/gamesys.c lines=63  # ordinal; differs-at:0; length:-33; extent-differs
-lit4 gamesysObjInfoBaseSet 0x00678C88 0x00678C8C ico2/common/src/gamesys.c  # 1 float (target side)
-rdlit gamesysObjInfoBaseSet 0x0065DB50 0x0065DB78 ico2/common/src/gamesys.c  # 1 string (target side)
-text gamesysBackStageProcess 0x001A0A60 0x001A0A70 ico2/common/src/gamesys.c lines=8  # ordinal; differs-at:0; length:-8; extent-differs
-text gamesysObjInfoStageInitFlagCls 0x001A0C28 0x001A0C5C ico2/common/src/gamesys.c lines=11  # ordinal; differs-at:3; imm:1; extent-equal
-text gamesysObjInfoStageInitPosSaveUnlock 0x001A0C60 0x001A0C94 ico2/common/src/gamesys.c lines=11  # ordinal; differs-at:3; imm:1; extent-equal
-text gamesysObjInfoPosNewStageSet 0x001A0D40 0x001A0E64 ico2/common/src/gamesys.c lines=19  # ordinal; differs-at:20; imm:2; extent-equal
-text gamesysObjInfoGet 0x001A0E68 0x001A0F70 ico2/common/src/gamesys.c lines=7  # ordinal; differs-at:13; imm:2; extent-equal
-text gamesysObjInfoCls 0x001A0F70 0x001A1080 ico2/common/src/gamesys.c lines=11  # ordinal; differs-at:13; imm:2; extent-equal
-text gamesysMemoryLoad 0x001A1170 0x001A11D0 ico2/common/src/gamesys.c lines=11  # ordinal; differs-at:18; imm:1; extent-equal
 text disp_memory_partition_bar 0x001A1290 0x001A1874 ico2/common/src/icoMisc.c local lines=96  # ordinal; differs-at:201; imm:2; extent-equal
 rdlit disp_memory_partition_bar 0x0065DB90 0x0065DC30 ico2/common/src/icoMisc.c align=16  # 1 string, 1 data
 sdlit disp_memory_partition_bar 0x0067A988 0x0067A995 ico2/common/src/icoMisc.c  # 2 strings
@@ -449,9 +359,9 @@ rdlit func_001A19B8 0x0065DC90 0x0065DCA0 ico2/common/src/icoMisc.c def  # 1 dat
 sdlit func_001A19B8 0x0067A9A0 0x0067A9AC ico2/common/src/icoMisc.c def  # 2 colour words (target side), after the two C words in the demo's .sdata
 text func_001A1CA8 0x001A1CA8 0x001A1F34 ico2/common/src/icoMisc.c  # jun26-only; derived name
 rdlit func_001A1CA8 0x0065DCA0 0x0065DCC8 ico2/common/src/icoMisc.c  # 2 strings (target side)
-text func_001A1F38 0x001A1F38 0x001A2450 ico2/common/src/icoMisc.c  # jun26-only; derived name
-rdlit func_001A1F38 0x0065DCC8 0x0065DEE8 ico2/common/src/icoMisc.c  # 15 strings (target side)
-sdlit func_001A1F38 0x0067A9C8 0x0067A9E4 ico2/common/src/icoMisc.c def  # 4 strings (target side), after loadedMotionSeg in the demo's .sdata; the six words after them are dbgC0..dbgC5
+text InitIcoMisc 0x001A1F38 0x001A2450 ico2/common/src/icoMisc.c  # jun26-only; derived name
+rdlit InitIcoMisc 0x0065DCC8 0x0065DEE8 ico2/common/src/icoMisc.c  # 15 strings (target side)
+sdlit InitIcoMisc 0x0067A9C8 0x0067A9E4 ico2/common/src/icoMisc.c def  # 4 strings (target side), after loadedMotionSeg in the demo's .sdata; the six words after them are dbgC0..dbgC5
 sdata D_0067A9B0 0x0067A9B0 0x0067A9B4 ico2/common/src/icoMisc.c local  # a word func_001A1CA8 reads (0x67A9B0), between diskErrorBlink and setActorsDebugPending (target side)
 data D_004DCB70 0x004DCB70 0x004DCBF0 ico2/common/src/icoMisc.c local  # func_001A19B8's table (lui/addiu of 0x4DCB70), eight 16-byte rows of small indices, between the partition colours and windLineColor; jun26-only function (target side)
 text init_textures_of_specified_property 0x001A2750 0x001A28D8 ico2/common/src/kanban.c local file=init_textures_of_specified_property_kanban lines=13  # ordinal; differs-at:1; length:-8; extent-differs
@@ -696,11 +606,6 @@ text reallocseki 0x001E6698 0x001E66BC ico2/seki/src/Basic.c lines=4  # ordinal;
 text disp 0x001E9D40 0x001E9EF0 ico2/seki/src/DisplayFont.c local file=disp_DisplayFont  # order-static; no definition in this TU
 text font_Print 0x001E9EF0 0x001EA15C ico2/seki/src/DisplayFont.c lines=138  # order
 sdlit font_Print 0x0067B1F0 0x0067B1F8 ico2/seki/src/DisplayFont.c  # 1 string (target side)
-text dl_Init 0x001EA160 0x001EA26C ico2/seki/src/DisplayList.c lines=21  # order
-rdlit dl_Init 0x00661A88 0x00661A9A ico2/seki/src/DisplayList.c  # 1 string
-text dl_Clear 0x001EA270 0x001EA2EC ico2/seki/src/DisplayList.c lines=20  # order
-text dl_Swap 0x001EA2F0 0x001EA41C ico2/seki/src/DisplayList.c lines=26  # call-pal
-rdlit dl_Swap 0x00661AA0 0x00661AC0 ico2/seki/src/DisplayList.c  # 1 string (target side)
 text dl_PushPriority 0x001EA420 0x001EA4AC ico2/seki/src/DisplayList.c lines=11  # order
 rdlit dl_PushPriority 0x00661AC0 0x00661AE1 ico2/seki/src/DisplayList.c align=16  # 1 string
 sdlit dl_PushPriority 0x0067B200 0x0067B20C ico2/seki/src/DisplayList.c  # 1 data
@@ -708,8 +613,6 @@ text dl_PopPriority 0x001EA4B0 0x001EA568 ico2/seki/src/DisplayList.c lines=11  
 rdlit dl_PopPriority 0x00661AE8 0x00661B38 ico2/seki/src/DisplayList.c  # 2 strings (target side)
 text dl_Debug 0x001EA568 0x001EA5D8 ico2/seki/src/DisplayList.c lines=8  # order
 rdlit dl_Debug 0x00661B38 0x00661B90 ico2/seki/src/DisplayList.c  # 2 strings (target side)
-text dl_CloseDma 0x001EA5D8 0x001EA718 ico2/seki/src/DisplayList.c lines=54  # ordinal; differs-at:1; imm:5; extent-equal
-rdlit dl_CloseDma 0x00661B90 0x00661BB0 ico2/seki/src/DisplayList.c align=16  # 1 jtbl
 text dl_Out 0x001EA718 0x001EA79C ico2/seki/src/DisplayList.c lines=12  # census-equal; stubbed for emission order
 text dl_SetDLPriority 0x001EA7A0 0x001EA808 ico2/seki/src/DisplayList.c lines=10  # ordinal; differs-at:0; length:+16; extent-differs
 text dl_OpenDma 0x001EA808 0x001EA89C ico2/seki/src/DisplayList.c lines=23  # ordinal; differs-at:1; length:-1; extent-differs

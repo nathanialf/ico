@@ -266,12 +266,15 @@ int currentScreenWidth QWORD = 0;
 
 int GlobalTimer QWORD = 0;
 
-int lock_execIcoMisc QWORD = 0;
+/* graphics_ready comes first in this build (0x679490): the stage manager's
+   switch sets it, InitIcoMisc clears it, the main loop, the stage animation and
+   the script read it; the frame counter after game_pause has no reader */
+int graphics_ready QWORD = 0;
 
 /* game_pause comes first in this build (0x6794A0) */
 int game_pause QWORD = 0;
 
-int graphics_ready QWORD = 0;
+int lock_execIcoMisc QWORD = 0;
 
 int data_loading QWORD = 0;
 

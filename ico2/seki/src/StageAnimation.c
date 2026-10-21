@@ -305,7 +305,7 @@ void stage_CalcAnimationNoParent(void)
     int i;
     StageAnim *e;
 
-    if (lock_execIcoMisc != 0) {
+    if (graphics_ready != 0) {
         return;
     }
     if (stageAnimCount == 0) {
@@ -369,7 +369,7 @@ void stage_CalcAnimationParent(void)
     StageAnim *e;
     BgaHeader *entry2;
 
-    if (lock_execIcoMisc != 0) {
+    if (graphics_ready != 0) {
         return;
     }
     if (stageAnimCount == 0) {

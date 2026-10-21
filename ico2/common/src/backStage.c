@@ -47,9 +47,6 @@ static float nestSec; /* derived name */ /* nestDist scaled to seconds */
 /* the boy has already been told the heroine is in trouble */
 static int pinchTold; /* derived name */
 
-/* .bss: the nest position the carrier walks to */
-static float nestPos[4]; /* derived name */
-
 /* generator.h, which this TU does not include, declares both with a
    short *; this TU passes the int * work words of a GamesysObjInfo */
 extern void SetInfoSpKidnapGenerator(int *info);

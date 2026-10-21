@@ -794,7 +794,7 @@ inline void scpDeamon(GObj *volatile self)
     backStageProcessInStage(0.0f);
     gflagOff(343);
     for (;;) {
-        if ((pad[0].flags & 0x900) == 0x900 && systemStatus[6] == 0 && lock_execIcoMisc == 0) {
+        if ((pad[0].flags & 0x900) == 0x900 && systemStatus[6] == 0 && graphics_ready == 0) {
             func_00102790();
         }
         _ACTWait(1);
