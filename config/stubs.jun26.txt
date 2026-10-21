@@ -63,8 +63,6 @@ text Main 0x00101C80 0x00101F38 ico2/common/src/main.c lines=95  # ordinal; diff
 lit4 Main 0x00678500 0x00678504 ico2/common/src/main.c  # 1 float (target side)
 rdlit Main 0x0059CAA0 0x0059CB48 ico2/common/src/main.c  # 7 strings (target side)
 sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target side)
-text pac_continueTag 0x0011A4F8 0x0011A6BC ico2/seki/src/Packet.c local  # jun26-only; aug6 TRFILE name (called by pac_checkDivide)
-rdlit pac_continueTag 0x0059E4C0 0x0059E4E8 ico2/seki/src/Packet.c  # 1 string (target side)
 text stage_Init 0x00127BB0 0x001285D0 ico2/seki/src/StageAnimation.c lines=206  # order
 rdlit stage_Init 0x0059EF58 0x0059F005 ico2/seki/src/StageAnimation.c  # 4 strings
 rdlit stage_Init 0x0059F010 0x0059F050 ico2/seki/src/StageAnimation.c align=16  # 1 static

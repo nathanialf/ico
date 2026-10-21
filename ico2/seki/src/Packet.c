@@ -11,7 +11,6 @@
 #include "debug_exception.h"
 #include "memory.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* the largest packet pac_MakePacket has built so far */
 static int maxPacketSize = 0; /* derived name */
@@ -40,8 +39,11 @@ typedef union { /* field names derived */
 /* one quadword, copied with lq/sq */
 typedef int Qw128 __attribute__((mode(TI))); /* derived name */
 
-/* The work area's layout.  The cursor is a union of packet pointers, and
-   each word is one post-increment statement. */
+/* The work area's layout.  The open DMA tag, VIF code and GIF tag and the
+   cursor are one union of packet pointers, and each word is one
+   post-increment statement.  Every read of a tag pointer is a union
+   access, so it may alias any packet store (pac_continueTag's schedule
+   depends on it). */
 typedef union { /* field names derived */
     int *i;
     float *f;
@@ -52,9 +54,9 @@ typedef union { /* field names derived */
 
 typedef struct { /* field names derived */
     char name[32];
-    unsigned int dmaTag;
-    unsigned int vifCode;
-    unsigned int gifTag;
+    PacCursor dmaTag;
+    PacCursor vifCode;
+    PacCursor gifTag;
     PacCursor cursor;
     PacState counts;
     PacState state;
@@ -254,7 +256,7 @@ static int pac_makeNormalStrip(PObjPart *obj, short *strip, int num)
     int i;
 
     ctx = &pacWork;
-    *(int *)(strip - 6) = ctx->cursor.addr - ctx->dmaTag;
+    *(int *)(strip - 6) = ctx->cursor.addr - ctx->dmaTag.addr;
     for (i = 0, v = strip; i < num; i++, v += 8) {
         PacWork *ctx = &pacWork;
 
@@ -361,7 +363,7 @@ static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
     PacWork *ctx;
 
     ctx = &pacWork;
-    *(int *)(strip - 6) = ctx->cursor.addr - ctx->dmaTag;
+    *(int *)(strip - 6) = ctx->cursor.addr - ctx->dmaTag.addr;
     for (i = 0, v = strip; i < num; i++, v += 8) {
         PacWork *ctx;
         int idx;
@@ -417,9 +419,9 @@ static inline void pac_openDmaTag(int buf)
     PacWork *ctx = &pacWork;
     float f0 = 16777215.0f;
     float f1 = -16777215.0f;
-    ctx->dmaTag = buf;
-    ctx->vifCode = buf + 0x8;
-    ctx->gifTag = buf + 0x10;
+    ctx->dmaTag.addr = buf;
+    ctx->vifCode.addr = buf + 0x8;
+    ctx->gifTag.addr = buf + 0x10;
     ctx->cursor.addr = buf + 0x20;
     ctx->boxMin[2].f = f0;
     ctx->boxMin[1].f = f0;
@@ -432,8 +434,8 @@ static inline void pac_openDmaTag(int buf)
 static inline void pac_setVifCode(int num)
 {
     PacWork *ctx = &pacWork;
-    ((int *)ctx->vifCode)[0] = 0;
-    ((int *)ctx->vifCode)[1] = (num << 16) | 0x6C008000;
+    ctx->vifCode.i[0] = 0;
+    ctx->vifCode.i[1] = (num << 16) | 0x6C008000;
 }
 
 static inline void pac_setVifEndCode(void)
@@ -485,10 +487,10 @@ static inline void pac_setGifTag(PObjMaterial *mat, PObjTexInfo *tex, unsigned l
         abe = 1;
     tme = tex->found & 1;
     ctx = &pacWork;
-    ((PacketWord *)ctx->gifTag)[0].ul =
+    ((PacketWord *)ctx->gifTag.addr)[0].ul =
         gifTagTmpl[tme].tag |
         ((0xCULL | ((unsigned long long)tme << 4) | ((unsigned long long)abe << 6)) << 47) | nloop;
-    ((PacketWord *)ctx->gifTag)[1].ul = gifTagTmpl[tme].regs;
+    ((PacketWord *)ctx->gifTag.addr)[1].ul = gifTagTmpl[tme].regs;
 }
 
 /* the packet bytes pac_closeTag adds up, the polygons pac_makeStrip counts, the tags
@@ -509,8 +511,8 @@ static int pacUnusedWord; /* derived name */
    the second word: the first store may alias it. */
 static inline void pac_closeDmaTag(void) /* derived name */
 {
-    ((unsigned int *)pacWork.dmaTag)[0] = 0;
-    ((unsigned int *)pacWork.dmaTag)[1] = 0;
+    pacWork.dmaTag.i[0] = 0;
+    pacWork.dmaTag.i[1] = 0;
 }
 
 static int pac_closeTag(PObjMaterial *mat, PObjTexInfo *tex)
@@ -518,19 +520,19 @@ static int pac_closeTag(PObjMaterial *mat, PObjTexInfo *tex)
     unsigned int n;
     unsigned int qwc;
 
-    n = (pacWork.cursor.addr - pacWork.gifTag) >> 4;
+    n = (pacWork.cursor.addr - pacWork.gifTag.addr) >> 4;
     if (n == 1) {
-        pacWork.dmaTag = 0;
-        pacWork.vifCode = 0;
-        pacWork.gifTag = 0;
+        pacWork.dmaTag.addr = 0;
+        pacWork.vifCode.addr = 0;
+        pacWork.gifTag.addr = 0;
         return 0;
     }
     pac_setVifCode(n);
-    pac_setGifTag(
-        mat, tex,
-        ((((pacWork.cursor.addr - pacWork.gifTag) >> 4) - 1) / (unsigned int)pacWork.counts.w[0]));
+    pac_setGifTag(mat, tex,
+                  ((((pacWork.cursor.addr - pacWork.gifTag.addr) >> 4) - 1) /
+                   (unsigned int)pacWork.counts.w[0]));
     pac_setVifEndCode();
-    qwc = (pacWork.cursor.addr - pacWork.dmaTag) >> 4;
+    qwc = (pacWork.cursor.addr - pacWork.dmaTag.addr) >> 4;
     pac_closeDmaTag();
     pacPacketBytes += qwc * 16;
     pacTagCount += 1;
@@ -545,14 +547,25 @@ static inline void pac_continueDmaTag(void) /* derived name */
     *p++ = 0x17000000;
     ctx->cursor.i = p;
     p[0] = 0;
-    ctx->vifCode = (int)(p + 1);
-    ctx->gifTag = (int)(p + 3);
+    ctx->vifCode.i = p + 1;
+    ctx->gifTag.i = p + 3;
     ctx->cursor.i = p + 7;
 }
 
-static void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex);
-
-INCLUDE_ASM(pac_continueTag);
+static void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex)
+{
+    if ((pacWork.cursor.addr - pacWork.gifTag.addr) >> 4 == 1) {
+        debug_StdPrintfDummy("pac_continueTag:Packet too small. %d\n", 0);
+        debug_assert("src/Packet.c", 1085);
+        __assert("src/Packet.c", 1085, "0");
+    }
+    pac_setVifCode((pacWork.cursor.addr - pacWork.gifTag.addr) >> 4);
+    pac_setGifTag(mat, tex,
+                  ((((pacWork.cursor.addr - pacWork.gifTag.addr) >> 4) - 1) /
+                   (unsigned int)pacWork.counts.w[0]));
+    pac_continueDmaTag();
+    pacTagCount += 1;
+}
 
 /* 192 is the DMA chain's qword budget.  In the "gif over! cut!" message the
    last field is the qword count plus the gif tags the chain already holds
@@ -567,7 +580,7 @@ static void pac_checkDivide(int num, PObjMaterial *mat, PObjTexInfo *tex)
         debug_assert("src/Packet.c", 1110);
         __assert("src/Packet.c", 1110, "0");
     }
-    qwc = (pacWork.cursor.addr - pacWork.gifTag) >> 4;
+    qwc = (pacWork.cursor.addr - pacWork.gifTag.addr) >> 4;
     if (qwc + pacWork.counts.w[0] * num > limit) {
         pac_continueTag(mat, tex);
         pacStripCount = 0;
