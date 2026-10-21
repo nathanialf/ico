@@ -7,7 +7,9 @@ directories.
 ## The directories
 
 The game's source tree is the one the PAL disc's listing (`SRCFILE.TXT`)
-records, file by file: `ico2/<dir>/<kind>/<file>`. Five of the eight
+records, file by file: `ico2/<dir>/<kind>/<file>`. The demo disc has no
+listing; this branch keeps PAL's paths for the files the demo links, and
+leaves out those it does not (`docs/README.md`). Five of the eight
 top-level directories are named after a programmer; `common` and `script`
 are shared, and `vusrc` holds the VU1 microprograms.
 
@@ -16,7 +18,7 @@ are shared, and `vusrc` holds the VU1 microprograms.
 | `seki` | the GS drawing layer: `GsBase`, `GifPacket`, `DmaPacket`, `Packet`, `Primitive`, `Texture`, `Light`, `Shadow`, `ZFog`, `Matrix`, the display lists and fonts |
 | `sugipon` | the draw engine and object behaviour: `matrixDrive`, `motionManager`, `geometryManager`, `quaternion`, cloth, rope, wind, particles, Yorda (`girl`), the enemies and the stage objects (box, cage, torch, switch, ...) |
 | `omori` | the cameras, the brains (`brain`, `ebrain`), attack hits, enemy control, the chain, the object action mail (`objact`) and the climb headers (`*climb.h`, whose handlers are written in fumi's `boyact.c` and `girl_act.c`) |
-| `ito` | the queen and boss scenes (`itou_boss`, `itou_sub`, `itou_gflag`), effects, and the movie player (`mpeg/`, the IPU layer) |
+| `ito` | the queen and boss scenes (`itou_boss`, `itou_sub`), effects, and the movie player (`mpeg/`, the IPU layer) |
 | `fumi` | the action layer (`boyact`, `girl_act`, `commonact`, `enemy_act`, the `act-*` files, the way-point system), the I/O layer (`ios/`: CD, memory card, pad, threads, memory), the object system (`isys/`) and sound (`sound/`) |
 | `common` | the main loop, the game system, stage and scene management, debug menus, the staff roll |
 | `script` | the per-stage scripts (`st00a` to `st99a`, `op`, `end`, `e3`, `deja`) and the script interpreter |
@@ -28,21 +30,21 @@ directory they lived in is not recorded.
 ## Who the programmer directories belong to
 
 The source for the names is the game's own staff roll: the ending credits'
-text in the user's boot ELF (a table of string pointers at `0x004E4610`
-(`0x004E1210` in the Japanese ELF), read in table order, each role line
-followed by its names). Its programmers
-section reads:
+text in the user's boot ELF (the staffroll_dat data member, a table of string
+pointers at `0x004DD750` in the demo's ELF, PAL `0x004E4610`, read in table
+order, each role line followed by its names). The demo's roll is in capitals
+and spells some roles otherwise than PAL's; its programmers section reads:
 
 | credited role | names, in the roll's order |
 | --- | --- |
-| System Program | Jinji Horagai, Fumiaki Hara |
-| Characters&Objects Program | Shotaro Omori, Hajime Sugiyama, Toshihiro Ito |
-| Motion System Program | Hajime Sugiyama |
-| YORDA A.I. Program | Shotaro Omori, Jinji Horagai |
-| Draw Engine Program | Takuya Seki |
-| Visual Program | Hajime Sugiyama, Takuya Seki |
-| Tools Program | Toshihiro Ito |
-| Scripting | Junichi Hosono |
+| SYSTEM PROGRAM | Jinji Horagai, Fumiaki Hara |
+| CHARACTERS&OBJECTS PROGRAM | Shotaro Omori, Hajime Sugiyama, Toshihiro Ito |
+| MOTION SYSTEM PROGRAM | Hajime Sugiyama |
+| YOLDA AI PROGRAM | Shotaro Omori, Jinji Horagai |
+| DRAW ENGINE PROGRAM | Takuya Seki |
+| VISUAL PROGRAM | Hajime Sugiyama, Takuya Seki |
+| ICO TOOLS PROGRAM | Toshihiro Ito |
+| SCRIPTING | Junichi Hosono |
 
 The roll does not say who wrote which directory. Each directory is matched to
 a name by the per-developer strings in the same ELF: the camera files

@@ -8,10 +8,12 @@ PlayStation Magazine demo disc 49 (SCUS-97158, a DVD); its boot ELF is
 `SYSTEM.CNF` boots the menu, `SCUS_971.58`), and its build stamp reads
 `Jun 26 2001` `20:01:21`. Every byte the console loads is identical to the
 disc's (the ROM image SHA-1 matches), and so is the ELF file itself (its SHA-1
-matches the disc's). The tree was seeded from `main`, the PAL build's finished
-tree, through the function census against PAL and against the August 6, 2001
-prototype (`aug6`); this branch carries the functions, records and tables in
-which the demo differs; [`docs/README.md`](docs/README.md) lists those
+matches the disc's). The disc ships no map or listing for the demo. The tree was
+seeded from `main`, the finished PAL tree, with its Japanese `VERSION_JPN`
+blocks resolved to the PAL arm, and brought to the demo through the function
+census against PAL, against the August 6, 2001 prototype (`aug6`) and against
+the USA build (`ntsc`); this branch carries the functions, records and tables
+in which the demo differs, and [`docs/README.md`](docs/README.md) lists those
 differences.
 
 <!-- progress:begin -->
@@ -31,16 +33,26 @@ the base ELF.
 
 ## Status
 
-3098 of the Jun-26-2001 demo build's 5175 functions are still campaign stubs:
-the C for them does not yet give the demo's bytes, so the build writes each one
-from the user's own `baserom/jun26/baseelf.elf` at its place in its
+5150 of the demo build's 5175 functions are built from C
+([`docs/jun26/PROGRESS.md`](docs/jun26/PROGRESS.md)). The other 25, with the
+constants they bring and two unreferenced `.sdata` runs, are still campaign
+stubs: the C for them does not yet give the demo's bytes, so the build writes
+each one from the user's own `baserom/jun26/baseelf.elf` at its place in its
 translation unit (`config/stubs.jun26.txt`, `tools/gen_stub_s.py`; nothing of
-them is committed). The gate passes with them in place, so every badge above
-reads 100 %, and the badges split each figure into the share built from the
-tracked sources and the share from the disc: the stubs and the data tables.
-The `.text` source share is the matched code; the rest of it is the stubs.
-When the list is empty the mechanism is idle and the branch is finished in
-`main`'s shape.
+them is committed). They sit in eight files: `fumi/src/girl_act.c` (ten:
+`actGirlHand` and its four nested `HandMgr_*` helpers, `actGirlStart`, and
+four functions this build has under `func_<VMA>` names),
+`fumi/src/way_kidnap.c` (`WayPointWithRangeFromPos` and the seven functions
+after it), `fumi/src/act-env.c` (`ACTGetEnvironment`),
+`common/src/StageManager.c` (`stgmgrNextStagePreLoad`),
+`common/src/debug.c` (`debug_PrintCharacter`), `common/src/demoDisc.c` (the
+menu-argument parser and its nested helper), `script/src/st00a.c`
+(`actSt00aDoor1DownChk`) and `script/src/st04l.c`
+(`actSt04lGondolaCharaChk`). The gate passes with them in place, so every
+badge above reads 100 %, and the badges split each figure into the share
+built from the tracked sources and the share from the disc: the stubs and the
+data tables. When the list is empty the mechanism is idle and the branch is
+finished in `main`'s shape.
 
 ## Quickstart
 
@@ -113,18 +125,19 @@ object defines and the link places at the base's addresses.
 
 ## Data tables
 
-The game links 120 data-only runs of its own archive, `ico2000.a`
-(`config/data_members.jun26.txt`): the 70 members with data sections and no
-code that the PAL disc's MAIN.MAP lists (stage layouts, model paths, motion
-and sound definitions, way points), mcdata.o's own .data, the save
-icon's icon.sys record, which PAL reads from the disc instead, and the 49
-enemy-set tables of the stage models in EnemyInit.o, which PAL keeps only
-for its first model. PAL's three unlisted runs, the hint table,
+The game links 120 data-only runs (`config/data_members.jun26.txt`): the
+70 members of its own archive, `ico2000.a`, with data sections and no code
+that the PAL disc's MAIN.MAP lists (stage layouts, model paths, motion and
+sound definitions, way points), mcdata.o's own .data, the save icon's
+icon.sys record, which PAL reads from the disc instead, and the 49 enemy-set
+tables of the stage models in EnemyInit.o's .data, which PAL keeps only for
+its first model, as C. PAL's three unlisted runs, the hint table,
 the motion sync pairs and the subtitle file names, are not in this build, as
 in the August 6, 2001 prototype, and no code here reads any of them. The demo
 disc ships no map, so each run's place in this ELF was found from the code
-that reads it, the members follow the prototype's member order, and each
-member keeps PAL's name by member order; the file's header gives the method.
+that reads it, the archive members follow the prototype's member order and
+keep PAL's names by member order, and the enemy sets and the icon.sys record
+take derived names; the file's header gives the method.
 Many of the demo's tables hold another number of rows, and several record
 types have another layout (`docs/README.md`). They are the game's content,
 and nothing of that content is committed. The build generates them from the
@@ -152,7 +165,10 @@ sce/<archive>/              Sony's runtime libraries (libkernl, libgraph,
                             libdma, libpad, libmc, libcdvd, libmpeg, libipu,
                             libpkt, libsndn2, libvu0) and the compiler's
                             newlib libc and libm and libgcc, plus crt0.s;
-                            the demo's link has no libscf member
+                            the demo's link has no libscf member, and
+                            itou_gflag.c, clipCollisionManager.c,
+                            flyManager.c and waySystemManager.c, whose
+                            objects are empty in it, are not in the tree
 config/                     link_order.jun26.txt (every object in link
                             order), link.jun26.ld (the linker script),
                             data_members.jun26.txt (the data-only members),
@@ -206,12 +222,13 @@ writes `build/jun26/ico.rom`.
 
 | branch | targets | |
 | --- | --- | --- |
-| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`) and `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`) | the shared tree this branch was seeded from, with its own README; finished targets join there |
+| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`) and `kor` (Korean retail, SCPS-56001, `SCPS_560.01`) | the shared tree this branch was seeded from, with its own README; finished targets join there |
 | `ntsc` | `us` (USA retail, SLUS-20218, `SCUS_971.13`) | a single-target tree with its own README, until it joins `main` |
 | `aug6` | `aug6` (the August 6, 2001 prototype) | a single-target tree with its own README, until it joins `main` |
 | `jun26` | `jun26` (the June 26, 2001 demo, SCUS-97158, `CUS97113/SCPS_000.00`) | this document: a single-target tree, until it joins `main` |
 | `pal` | `pal` | the single-target PAL tree, frozen |
 | `jpn` | `jpn` | the single-target Japanese tree, frozen |
+| `kor` | `kor` | the single-target Korean tree, frozen |
 
 `ntsc`, `aug6` and `jun26` are separate trees that are never merged into each
 other or into `main`. Every branch carries one build layer, file for file:

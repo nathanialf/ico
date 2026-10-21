@@ -17,8 +17,10 @@ demo build this branch rebuilds differs from PAL's.
 
 ## How the demo build differs from PAL's
 
-This branch is `main`'s PAL source with the demo build's differences, found
-by the function census against PAL and against the August 6, 2001 prototype.
+This branch is `main`'s PAL source (its `VERSION_JPN` blocks resolved to
+the PAL arm) with the demo build's differences, found by the function census
+against PAL, against the August 6, 2001 prototype and against the USA
+build.
 The demo's ELF carries the build stamp `Jun 26 2001` `20:01:21`; PAL's debug
 menu dates its build `Jan 17 2002 15:37:26` (`debug.c`). Each line names
 where the difference lives; the comment at that place has the detail. The
@@ -30,11 +32,21 @@ Disc and video mode:
 - The demo is one game on a magazine disc: the disc's `SYSTEM.CNF`
   (`VER = 1.00`, `VMODE = NTSC`) boots the menu, and the boot ELF is
   `CUS97113/SCPS_000.00` (`tools/ico_version.py`'s `boot` key).
-  `systemStatus` starts at 0 in `main.c` (PAL 1).
-- The demo hands control back to the magazine's menu: `demoDisc.c`, a game
-  object after `sce/libsndn2/sound.c` in the link order, holds the argument
-  parser and the two functions that record the menu's arguments and reload
-  the menu with them.
+  `systemStatus` starts at 0 in `main.c` (PAL 1), and the movie player's
+  pictures are 720 x 480 (`ito/include/mv_vobuf.h`; PAL 720 x 576).
+- The demo is started by the magazine's menu and hands control back to it.
+  `main` (`main.c`) reads the menu's settings (language, aspect, play mode,
+  the idle and total timeouts, the media type) through `demoDisc.c`'s
+  argument parser, runs the game, and after the boot thread is woken shuts
+  the game down and calls `DemoDiscEnd`, which reloads the menu's ELF with
+  the arguments it was given. `demoDisc.c` is a game object after
+  `sce/libsndn2/sound.c` in the link order.
+- The exits (`main.c`, `sampleMode.o` in the prototype's map): an idle
+  countdown of four minutes that any button or stick resets
+  (`sampleModeNoContTimeOutMain`), `sampleModeDemoEnd` and
+  `sampleModeDemoEndTimeOut` (to stages 101 and 102; `layout_action.c` and
+  `script.c` call the second), and `func_001025F0`, which wakes the boot
+  thread (`e3.c` calls it).
 - The five VU1 programs' constant-address overlays hold the byte 0x6E
   (PAL zero): `overlay-fill=110` on each `.dsm` line of
   `config/link_order.jun26.txt` (`BUILDING.md`). Four programs (cluster,
@@ -45,9 +57,11 @@ Data and records:
 
 - The link has 120 data-only runs: 70 archive members, in the prototype's
   member order, mcdata.o's save icon record (the icon.sys PAL reads from
-  the disc) and EnemyInit.o's 49 enemy-set tables of the stage models. PAL's hint table, motion sync pairs and subtitle file names are
-  not in it, and no code here reads any of them. Many tables hold another number of rows (the
-  model paths 1474 records of 0x14C bytes, PAL 1637 of 0x8C); each row of
+  the disc) and EnemyInit.o's 49 enemy-set tables of the stage models (PAL
+  keeps only its first model's, as C). PAL's hint table, motion sync pairs
+  and subtitle file names are not in it, and no code here reads any of
+  them. Many tables hold another number of rows (the model paths 1474
+  records of 0x14C bytes, PAL 1637 of 0x8C); each row of
   `config/data_members.jun26.txt` and `config/data_schema.jun26.txt` gives
   its member's place and type.
 - `charFileName.h`'s `MAX_CHARS` is 1500 (PAL 1637).
@@ -56,17 +70,27 @@ Data and records:
   `ActModeRec` (the prototype's), `PObjMdl` (0x14C), `LtProperty` (0x58),
   `ItemBreakRec` (0x10), `SeBank` (0x54), `MotionDef` (0x184), `StgPre`
   (0x18C), `StageSetting` (0x130), `MotionStateInfo` (0x1E0), the texture
-  slot (`Texture.c`, 0x330) and others.
+  slot (`Texture.c`, 0x330), and among the engine's records the display
+  object `Sub15C` and its motion control `MotCtrl` (`typedef.h`), the
+  packet records `PacHeader` (176 bytes) and `PacLine` (144, `Packet.h`), a
+  part's group record `PObjGroup` (60, `DisplayP2O.h`) and the box work
+  block (336, `box.c`). `HEADERS.md` lists where they are declared.
 
 Code this build lacks, or has only here:
 
 - Absent: Sony's `libscf` and one `libcdvd` member
   (`sce/libcdvd/libcdvd_267388.c`); `sugipon`'s `puddle.c`, `waterDot.c`
-  and `windmill.c`, as in the prototype (`config/link_order.jun26.txt`); and
-  about 900 functions of PAL's that the census finds nowhere in the demo.
-- Only here: `demoDisc.c` (above), and the functions the stub list marks
-  `jun26-only`, named after the prototype's functions where a table slot, a
-  caller or a record ties them to one, else with derived names.
+  and `windmill.c`, as in the prototype (`config/link_order.jun26.txt`);
+  four files whose objects are empty in this link, `ito`'s `itou_gflag.c`
+  and `sugipon`'s `clipCollisionManager.c`, `flyManager.c` and
+  `waySystemManager.c` (the prototype's `TRFILE.TXT` lists their functions,
+  and the census finds none of them in the demo), which leave the tree with
+  their headers; and about 900 functions of PAL's that the census finds
+  nowhere in the demo.
+- Only here: `demoDisc.c` and the exits (above), and the functions the
+  census finds in no other build, named after the prototype's functions
+  where a table slot, a caller or a record ties them to one, else with
+  names marked `/* derived name */` (`HEADERS.md`).
 
 ## Local files that are not part of the repository
 

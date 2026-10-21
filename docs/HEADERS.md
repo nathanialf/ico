@@ -7,9 +7,9 @@ The evidence is the PAL disc's January 2002 listing (`SRCFILE.TXT`, an
 `objdump -dl` of the game with a source path and line on every instruction)
 and its `MAIN.MAP`; both are copied into `baserom/pal/` by
 `tools/extract_elf.sh` and are never committed (`docs/LEGAL.md`). The
-Japanese disc ships neither: the headers are the PAL tree's, with the
-Japanese build's declarations inline where they differ (per-target
-declarations, below). The listing
+demo disc ships neither for the demo: the headers are the PAL tree's, with
+the demo build's records and declarations in place of PAL's where they
+differ (the demo build's records, below). The listing
 contains no source text. A header shows up in it only when code from the
 header was compiled into a caller: a header that only declares leaves no
 rows at all.
@@ -24,10 +24,10 @@ the listing records for it, under the programmer directory that owns it.
 | `ico2/sugipon/include/sugiCommon.h` | listing rows in 84 caller functions in six directories (`sugipon` 63, `fumi` 11, `ito` 5, `common` 3, `omori` 1, `script` 1) | nine `static` inline helpers: random numbers, plane distance, squared distances, a byte checksum |
 | `ico2/ito/include/itou_common.h` | listing rows in five `ito` functions (`DrawLightning2`, `GatherEffect_Proc`, `QueenBarrierGeo`, `subBirdBrainMain`, `vector_angle_degree`) | degree and radian conversion |
 | `ico2/ito/include/mv_defs.h` | inlined expansions in the movie player, and three out-of-line copies of `Free` | address masks and a zeroing allocator; `Free`, its release, is defined in each of `mv_vibuf.c`, `mv_videodec.c` and `mv_vobuf.c` |
-| `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into `avoid_obstacle2` | the engine's shared object records (`GObj`, `Sub15C`, `Act`, ...) and the game's VU0 asm templates |
+| `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into PAL's `avoid_obstacle2` (the demo's `way_sys.c` uses it in `avoid_obstacle` and `avoid_obstacle2`) | the engine's shared object records (`GObj`, `Sub15C`, `Act`, ...) and the game's VU0 asm templates |
 | `ico2/omori/include/{b50,b100,b200}climb.h` | whole functions, emitted into `fumi/src/boyact.c`'s object | the boy's climb handlers |
 | `ico2/omori/include/{g50,g100,g200}climb.h` | whole functions, emitted into `fumi/src/girl_act.c`'s object | the girl's climb handlers |
-| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x00619370` (Japanese build `0x00612710`) names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1637; 1621 in the Japanese build), the size of `charFileManager.c`'s character-file table and the bound its four id checks compare against |
+| `ico2/common/include/charFileName.h` | no listing rows; the demo ROM's message at `0x00659F10` (PAL `0x00619370`) names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1500; PAL 1637), the size of `charFileManager.c`'s character-file table and the bound its id checks compare against |
 
 Things a reader of these files should know:
 
@@ -45,8 +45,8 @@ Things a reader of these files should know:
   The tracked file's line numbers are not the listing's.
 - **Line numbers that are part of the bytes.** `mv_defs.h`'s allocator bakes
   `__FILE__` and `__LINE__` into the ROM (`"../ito/include/mv_defs.h"`, lines
-  43 and 44; 42 and 43 in the Japanese build), and `typedef.h`'s helper must
-  stay on line 74. Neither file may be reflowed.
+  42 and 43 in the demo; PAL 43 and 44), and `typedef.h`'s helper stays on
+  line 74, the listing's. Neither file may be reflowed.
 - **The climb headers hold no bodies.** ee-gcc 2.9 emits ordinary functions
   in parse order and `inline` ones at the end of the file. In each includer
   the `mot*` function sits in the parse-order run and the `act*` and
@@ -99,28 +99,48 @@ are this project's, as is `sce/libsndn2/sound.h`, named after its member
 `sound.o`; the movie player's audio decoder takes the stream PCM calls from
 it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
 header compiled code into the game. The demo's link has no `libscf`
-member, so this tree has no `sce/libscf/`.
+member, so this tree has no `sce/libscf/`. Nor does it have the headers of
+the files the demo's link lacks or whose objects are empty in it
+(`puddle.h`, `waterDot.h`, `itou_gflag.h`, `clipCollisionManager.h`,
+`flyManager.h`, `waySystemManager.h`).
 
-## Per-target declarations
+## The demo build's records
 
-The headers are PAL's. Where the Japanese build lays out a record or
-declares something differently, the owner's header holds the Japanese
-declaration in a `VERSION_JPN` block beside PAL's
-(`ico2/common/include/{charFileManager,charFileName,typedef,icoMisc,main}.h`,
-`fumi/include/act-game.h`, `ito/include/{mv_defs,mv_vobuf}.h`, `script/include/end.h`,
-`seki/include/{BgAnimation,GsBase}.h`, `sugipon/include/motionOrientManager.h`),
-and every reader of the Japanese build compiles that block. The records:
+The headers are PAL's, resolved to the PAL arm where `main` has a
+`VERSION_JPN` block, and then changed to the demo build wherever its code
+lays out a record or declares something differently. There are no
+`VERSION_` blocks on this branch: the demo's declaration replaces PAL's in
+the owner's header, and its comment names PAL's as the comparison. Each
+layout was derived from the demo code that reads it. The records whose
+size or order differs:
 
-| record | header | the Japanese layout |
+| record | header | the demo's layout |
 | --- | --- | --- |
-| `MotionDef` (motion-def) | `sugipon/include/motionOrientManager.h` | 0x190 bytes (PAL 0x194, with `palSpeedRatio`); the words from 0x144 and the four shorts in another order, and the bit fields of `MotionModeBits`, `MotionFlags` and `MotionFlags2` in another order |
-| `TexRec` (texture-path) | `common/include/charFileManager.h` | `char path[48]`, 0x30 bytes in .rodata (PAL adds `cameraMove`, 0x34 bytes) |
-| `ActWork` | `fumi/include/act-game.h` | no `boxDir` (PAL 0x530): every later field sits 16 bytes lower (`wayReq` 0x570, `viewState` 0x7F0, `intrReq` 0x8A0) |
-| `McProductFile` | `common/include/typedef.h` | 488 bytes (PAL adds `cameraMove` and `palMode` and aligns to 0x1F0) |
+| `MotionDef` (motion-def) | `sugipon/include/motionOrientManager.h` | 0x184 bytes (PAL 0x194) |
+| `TexRec` (texture-path) | `common/include/charFileManager.h` | `char path[32]`, 0x20 bytes (PAL 0x34) |
+| `PObjMdl` (model-path) | `common/include/charFileManager.h` | 0x14C bytes: the model, shadow, skeleton, collision and cloth names before the offsets (PAL 0x8C) |
+| `StgPre` (stage-all) | `common/include/typedef.h` | 0x18C bytes (PAL 0x194): no word before the motion-set id |
+| `StageSetting` | `common/include/typedef.h` | 0x130 bytes, without PAL's camera limits |
+| `LtProperty` (tex-property) | `common/include/layout_texture.h` | 0x58 bytes (PAL 0x70): no five words before the texture data |
+| `SeBank` (sefile) | `fumi/include/s_init.h` | 0x54 bytes, `char hdPath[32]` (PAL 0x64) |
+| `EnemyDef` (enemy-def) | `sugipon/include/enemy.h` | 0x14 bytes (PAL 0x1C) |
+| `ItemBreakRec` (item-kind-def) | `sugipon/include/item.h` | 0x10 bytes, six kinds (PAL 0x20, seven) |
+| `ParallelMotionRow` (parallel-motion-tbl) | `fumi/include/act-parallel-control.h` | 0x94 bytes (PAL 0xB0) |
+| `LayoutClothDef` (layout-cloth-def) | `sugipon/include/attackCheckBoundary.h` | two corner points (PAL four) |
+| `ActModeRec` (act-mode-def) | `fumi/include/act.h` | 0x50 bytes in the August 6, 2001 prototype's order |
+| `ActWork` | `fumi/include/act-game.h` | no boy distance, locked rotation or floor object, and none of the USA build's frame timers |
+| `McProductFile` | `common/include/typedef.h` | 0x18C bytes, the record `mcard.c` moves whole |
 | `VoTag`, `VoData` | `ito/include/mv_vobuf.h` | sized for a 720 x 480 picture (PAL 720 x 576) |
+| `PacHeader`, `PacLine` | `seki/include/Packet.h` | 176 and 144 bytes: the packet keeps its bounding box's corners |
+| `PObjGroup` | `seki/include/DisplayP2O.h` | 60 bytes a part |
 
-`act.c`'s own `ActExt`, the extended work block, has its three histories
-16 bytes lower than PAL's (0x8F0, 0x918, 0x940).
+`typedef.h`'s `Act`, `Sub15C` and `MotCtrl` and the records local to one
+file (`Texture.c`'s 0x330-byte texture slot, `box.c`'s 336-byte box work
+block, `boyact.c`'s and `girl.c`'s work blocks) carry the demo's offsets in
+their field comments. `fumi/include/mcdata.h` declares `sceMcIconSys` (964
+bytes), the record of the save icon's icon.sys data member; the SDK's
+`libmc.h` in this tree does not declare it, so its field names follow the
+SDK's spelling from no header on hand and are marked derived.
 
 ## Derived names
 
@@ -129,13 +149,14 @@ derived from context instead of read from the disc's maps is marked with a
 `/* derived name */` token on its definition line. A record of the game
 whose field names are derived carries one `/* field names derived */` token
 on its opening line rather than one per field. Sony's public types keep
-their public names. Besides PAL's derived names, the Japanese build derives
-`actEndLogoFade` (`script/src/end.c`, the ending step PAL's map calls
-`actEndLogoChk`; the Japanese build gives that name to the save step, as the
-August 6, 2001 prototype's `TRFILE.TXT` does), `DummyIcoMisc`
-(`common/src/icoMisc.c`, an empty function only that build has),
-`bga_updateMotionFrame` and `bgaRotDeg` (`seki/src/BgAnimation.c`) and
-`warning_mes` (`script/src/e3.c`).
+their public names. The demo ELF has no symbol table and its directory no
+map: a function's or object's name is the one the census carries to it from
+PAL's `MAIN.MAP` and listing, from the August 6, 2001 prototype's
+`TRFILE.TXT` and `MAIN.MAP`, or from the USA build's tree (`ntsc`), whose
+names come from the same maps. A function or object none of them names (a
+demo-only function, a table named by its file's convention) has a derived
+name, marked as above; `git grep -n 'derived name'` lists them. A held
+stub's `func_<VMA>` name is marked on its row of `config/stubs.jun26.txt`.
 
 ## Search order
 

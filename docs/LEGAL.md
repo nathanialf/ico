@@ -25,14 +25,16 @@ respective owners.
 ## What is not in this repository, and must never be added
 
 - The disc image (`.iso`, `.bin`, `.cue` or any other form), in whole or in
-  part: on this branch `baserom/Ico_JUN26.iso`, and any copy of it under
+  part: on this branch the image of the Official U.S. PlayStation Magazine
+  demo disc 49 (`SCUS-97158`), `baserom/Ico_JUN26.iso`, and any copy of it under
   another extension (`Ico_JUN26.elf`, `Ico_JUN26.bin` and every other
   `Ico_JUN26.*` name, which `tools/check_no_rom.sh` refuses).
 - Anything the build extracts from it: everything under `baserom/jun26/`
   (`baseelf.elf`, `baseelf.rom` and the disc's `SYSTEM.CNF`), or the build
   output under `build/jun26/`.
 - The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
-  `SCUS_971.13`, the demo's `CUS97113/SCPS_000.00`, the prototypes), or any
+  `SCPS_560.01`, `SCUS_971.13`, the demo's `CUS97113/SCPS_000.00`, the
+  prototypes), or any
   part of it, and any other file of the demo disc (its menu `SCUS_971.58`,
   the other games' directories).
 - Audio, images, textures, models, text or other assets from the disc.
@@ -171,20 +173,25 @@ the magazine's menu, `SCUS_971.58`, which starts the ICO demo from its own
 directory: the boot ELF is `CUS97113/SCPS_000.00`, named by the `boot` key of
 the target's `DISCS` row (`tools/ico_version.py`). That directory ships no
 `SYSTEM.CNF`, linker map, listing or address table, and the ELF has no symbol
-table. The demo's names come from the PAL disc's listing above, by
-instruction-stream correlation (`tools/correlate_elf.py`): each function of
-the demo ELF is paired with a PAL function whose instructions, relocated
-fields masked, are the same, and takes that function's name. Where the PAL
-census left a function unpaired, the same correlation against the August 6,
-2001 prototype's tree (`aug6`, below) gives the prototype's name. A name
-paired only by position inside a run of unpaired functions (the ordinal tier),
-or tied by other evidence (a data table's slot, a caller, the record it
-addresses), is provisional, with its evidence on its stub-list row, until the
-function is rebuilt from source with the demo build's changes and the gate
-passes. A function with no counterpart in either build carries a derived
-name. The data-only members take PAL's names by member order. No address is
-copied from any of those files: every address in `config/*.jun26.*` was found
-in the user's own ELF.
+table. The demo's names are carried to it by instruction-stream
+correlation (`tools/correlate_elf.py`), the function census: each function of
+the demo ELF is paired with a function of another build whose instructions,
+relocated fields masked, are the same, and takes that function's name. The
+census ran against PAL's ELF, named by the PAL disc's map and listing
+above, against the August 6, 2001 prototype (`aug6`, below), named by its
+`TRFILE.TXT` and `MAIN.MAP`, and against the USA retail build of the `ntsc`
+branch, whose tree takes its names from the same maps. A name tied by other
+evidence (a data table's slot, a caller, the record it addresses, a
+function's place among its neighbours) is checked against the function's
+body when the function is rebuilt from source and the gate passes; the
+functions still listed in `config/stubs.jun26.txt` carry that evidence on
+their rows. A function or object with no counterpart in any of those builds
+carries a derived name, marked `/* derived name */` in the source. The
+70 archive members take PAL's names by member order; the enemy-set tables
+take names derived from PAL's `enemymodel01` set and the icon.sys record a
+derived one, each said in the header of `config/data_members.jun26.txt`. No address is copied
+from any of those files: every address in `config/*.jun26.*` was found in the
+user's own ELF.
 
 Of the user's disc image the build reads the disc's `SYSTEM.CNF` and
 `CUS97113/SCPS_000.00`: it checks the ELF's SHA-1, generates the 120
@@ -211,7 +218,8 @@ the disc.
 
 The `aug6` branch builds the August 6, 2001 ICO prototype (`SCUS_971.13`).
 Names of the demo's functions that PAL's listing does not give come from that
-prototype's files and that branch's tree. The prototype disc ships three
+prototype's files and that branch's tree, or from the USA build's tree,
+which takes the same files' names. The prototype disc ships three
 build artifacts next to its boot ELF and no `SRCFILE.TXT`:
 
 - `MAIN.MAP`: the same file as the PAL disc's (582413 bytes), so it
