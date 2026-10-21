@@ -507,8 +507,8 @@ static unsigned int pacStripCount; /* derived name */
 
 static int pacUnusedWord; /* derived name */
 
-/* Zero the open DMA tag's two words.  The context pointer is read again for
-   the second word: the first store may alias it. */
+/* Zero the open DMA tag's two words.  The tag pointer is read again for the
+   second word: the first store may alias it. */
 static inline void pac_closeDmaTag(void) /* derived name */
 {
     pacWork.dmaTag.i[0] = 0;

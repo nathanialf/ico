@@ -49,8 +49,7 @@ typedef struct {       /* field names derived */
 /* The 128-byte work record InitItemGeo allocates and fills from
    emptyItemWork: the dead flag, the kind (1 a bomb), the carry state and
    holder, the rotation relative to the holder, the bobbing spin, the fuse,
-   the explosion's animation slot (this build's record has no pool drift or
-   wave phase).  8-aligned. */
+   the explosion's animation slot.  8-aligned. */
 typedef struct {                        /* field names derived */
     int dead;                           /* 0x00 */
     int kind;                           /* 0x04 */
@@ -132,9 +131,8 @@ static float zeroVelocity[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 /* The offset a dropped item is placed at, below the holder's hand. */
 static float itemDropOfs[4] = {0.0f, -50.0f, 0.0f, 1.0f}; /* derived name */
 
-/* Where a carried item sits relative to the focus node (one offset for
-   every carrier in this build). */
-static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f}; /* derived name */
+/* Where a carried item sits relative to the holder's focus node. */
+static float carryOfs[4] = {-10.0f, -15.0f, 0.0f, 1.0f}; /* derived name */
 
 void ReleaseItem(GObj *gobj)
 {
@@ -221,7 +219,7 @@ static void carriedItemGeo(GObj *gobj)
         _ApplyMatrix(&pos,
                      (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
                          GetSkeltonFocusNode((GObj *)rec->holder, 22) * 64,
-                     carryOfsOther);
+                     carryOfs);
         CopyQuaternion(q, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeQuat +
                               GetSkeltonFocusNode((GObj *)rec->holder, 22) * 16);
         RotQuaternionX(q, 16384);
@@ -584,7 +582,7 @@ void ItemDL(GObj *gobj)
     p2o_DispVU1(gobj);
 }
 
-/* the body of CheckCarryableItem, which the four Revive walkers inline and
+/* the body of CheckCarryableItem, which the three Revive walkers inline and
    CheckCarryableItem calls */
 static inline int CheckCarryableItemInline(GObj *gobj) /* derived name */
 {

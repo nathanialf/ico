@@ -37,7 +37,7 @@ typedef union { /* field names derived */
 } FlagNodeWord; /* derived name */
 
 /* The sub record's display-list buffers (0xC the matrices, 0x10 the
-   vectors, 0x870 the 80-byte nodes) freed and reallocated for n nodes, and
+   vectors, 0x810 the 80-byte nodes) freed and reallocated for n nodes, and
    the nodes reset; worm.c and boy.c carry the same block.  The block has its
    own counter, and each node's 0.0f words are stored from one float set at
    the top of the loop body. */

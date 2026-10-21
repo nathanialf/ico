@@ -39,7 +39,7 @@ extern EnemyModelSet enemy_enemymodel01_enemymodel04;
 
 /* the stages' set lists and their counts, enemy_Initialize's table: the
    data members enemy-model02-kindlist .. enemy-set-table that follow
-   EnemyInit.o in the link (config/data_members.jun26.txt) */
+   EnemyInit.o in the link */
 extern EnemySet enemySetTable[]; /* derived name */
 
 #endif /* ENEMYINIT_H */

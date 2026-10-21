@@ -492,7 +492,6 @@ void AP1BeforeFunc(GObj *self)
 }
 
 inline void subAP1Control(int x);
-inline void subAP1Control(int x);
 
 void actAP1Start(GObj *g)
 {

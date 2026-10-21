@@ -146,7 +146,7 @@ static inline void mcTrace(void) /* derived name */
 }
 
 /* Every level of the selection is a switch except the light tests, and the
-   three conditional codes are if/else pairs. */
+   conditional codes are if/else pairs. */
 void mc_SetMicroCode(int mode, int light, int pass, int clip, int pri)
 {
     int code = 0xFFFF;

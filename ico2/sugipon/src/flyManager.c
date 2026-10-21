@@ -17,6 +17,3 @@ static inline int getFloorLimitValue(int attr) /* derived name */
     }
     return type * 100;
 }
-
-/* No fly manager object word in this build: the demo's flyManager.o has no
-   .sdata, and PAL's floor clip helper that read the word is not carried. */

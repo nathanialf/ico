@@ -25,9 +25,6 @@ static signed char fontKerning[128][2] = {
     {4, 13}, {3, 13}, {4, 13}, {7, 13}, {4, 11}, {5, 11}, {6, 12}, {0, 0},
 };
 
-/* PAL's font alignment and colour words are not in this build: the TU's
-   .sdata is font_Print's string alone in the demo. */
-
 /* .sbss: raised at the start and after a space or an opening mark: the next
    capital letter stays a capital; any other character drops it, and font_Print
    prints a capital that follows as lower case */

@@ -690,7 +690,7 @@ static MotionGeoInfo motionGeoInfoTemplate = {
     0.1f,
 }; /* derived name */
 
-/* The motion state record the actor sub-object carries at its own +0x470,
+/* The motion state record the actor sub-object carries at its own +0x460,
    and the default every actor starts from: the block typedef.h's MotCtrl
    describes, with MotCtrl's names at the same offsets.  SetMotionDirection
    writes the direction at 0xB0, SetMotionPlaySpeedRatio the ratio at 0x48,
@@ -1255,11 +1255,7 @@ static inline float motDecodeS16(int h) /* derived name */
     return m * s;
 }
 
-void _getS16MotRotElem(void *dst, void *src);
-
-/* the body of _getS16MotRotElem, which _getMotion inlines for the packed
-   formats and _getS16MotRotElem calls */
-static inline void getS16MotRotElem(void *dst, void *src) /* derived name */
+void _getS16MotRotElem(void *dst, void *src)
 {
     Vec4f v = {motDecodeS16(*(unsigned short *)((char *)src + 2)),
                motDecodeS16(*(unsigned short *)((char *)src + 4)),
@@ -1275,11 +1271,6 @@ static inline void getS16MotRotElem(void *dst, void *src) /* derived name */
         *(float *)((char *)dst + 0x1C) = -*(float *)((char *)dst + 0x1C);
     }
     *(float *)((char *)dst + 0x1C) += (float)((MotS16Hdr *)src)->adj * 0.001f;
-}
-
-void _getS16MotRotElem(void *dst, void *src)
-{
-    getS16MotRotElem(dst, src);
 }
 
 typedef struct { /* field names derived */

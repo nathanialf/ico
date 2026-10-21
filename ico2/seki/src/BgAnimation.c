@@ -556,8 +556,7 @@ static inline void bga_hermite(float t, float *h0, float *h1, float *h2,
 
 /* The particle motion's key: a position, a rotation in degrees, the three
    colour weights, the two tangent weights, the linear flag and the frame the
-   key sits on.  bga_GetMotion, bga_GetMotionParticle
-   and bga_GetMotionLightning all read this 0x34-byte record. */
+   key sits on.  bga_GetMotion reads this 0x34-byte record. */
 typedef struct BgaPtKey { /* field names derived */
     /* 0x00 */ float pos[3];
     /* 0x0C */ float rot[3];

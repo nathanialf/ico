@@ -46,8 +46,7 @@ int ScreenWidth;
 
 int ScreenHeight;
 
-/* currentScreenWidth is main.c's in this build; PAL's currentScreenHeight
-   and screen offsets are not in the demo's .sdata */
+/* currentScreenWidth is main.c's */
 
 int vsWidth; /* derived name */
 
@@ -55,10 +54,7 @@ int vsHeight; /* derived name */
 
 /* The word gsb_Init clears (nothing reads it), the GS system flag, the zoom
    easing (target, current, speed) and the last projection distance
-   gsb_SetVSMatrix was given.  This build has no stage lock state words in
-   front of them (PAL's otherEditingLocked and editingSettings): the demo's
-   .sdata of the TU opens with the two words gsb_Init and gsb_InitGSSystem
-   use. */
+   gsb_SetVSMatrix was given. */
 static int gsInitState = 0; /* derived name */
 
 static int gsSystemReady = 0; /* derived name */
@@ -93,10 +89,10 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
     sceGsSetDefDispEnv(disp1, 0, w, h, 0, 0);
 }
 
-/* Bring the GS up and set the double buffer up (JPN: the other way round)
- * for the frame size the stage record asks for: 512 by 448 interlaced,
- * 512 by 512 in the tall mode and 512 by 448 otherwise, then hand the first
- * frame over and put the view scale back to one. */
+/* Bring the GS up and set the double buffer up for the frame size the stage
+ * record asks for: 512 by 448 interlaced, 512 by 512 in the tall mode and
+ * 512 by 448 otherwise, then hand the first frame over and put the view
+ * scale back to one. */
 void gsb_Init(void *db)
 {
     int omode = 2;
@@ -206,8 +202,8 @@ static int reductionBlue; /* derived name */
 /* Reduce the frame into the feedback area: one 22 qword GIF packet, built on
  * the stack and sent down the GIF channel by hand, that first clears the
  * half height frame in black and then draws it back over itself through the
- * texture at 0x800 in the reduction tint, and last the tint this stage's
- * current target asks for. */
+ * texture at 0x800 in the reduction tint, and last the next frame's tint
+ * from the stage record's reduction colour (grey while the frame is kept). */
 void gsb_Reduction(void)
 {
     long long pk[44] = {
@@ -357,8 +353,7 @@ static void gsb_KeepFrameBuffer(void)
     gif_EndPacket();
 }
 
-/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints (this
-   build has no unused word after it) */
+/* the fade level gsb_fade steps from 0 to 128 and gsb_PostEffect prints */
 static float fadeLevel; /* derived name */
 
 /* as in GifPacket.h, which this TU does not include */
@@ -442,7 +437,7 @@ static float scissorStep = 0.0f; /* derived name */
 extern void gif_EndPacketPath1(void);
 
 /* The letterbox the demo scenes fade in: two black bars, top and bottom,
- * whose alpha eases to 128 while the scene is state 55 (JPN layout 52) and back to 0
+ * whose alpha eases to 128 while the scene is state 55 and back to 0
  * otherwise.  While the bars are visible they are drawn and the motion blur
  * is left alone; once they are gone the stage record's blur setting is
  * restored.  Each bar is drawn by a macro inside the two-iteration loop,
@@ -549,9 +544,9 @@ extern void gif_SpriteSensitiveOrg(GsbRect *r, long long z, GsbRect *uv, GsbColo
 
 /* Soften the frame's edges: the frame is reduced to a 256 square copy and,
  * when the second level is on, a 128 square one, and each level the stage
- * record (or the current sub target's row) turns on is blended back over the
- * 512 square buffer through the sensitive sprite.  Every TEX0 write is one
- * expression in field order, as Texture.c spells it. */
+ * record turns on is blended back over the 512 square buffer through the
+ * sensitive sprite.  Every TEX0 write is one expression in field order, as
+ * Texture.c spells it. */
 static void gsb_antiAlias(void)
 {
     GsbColor col = {128, 128, 128, 128};
@@ -732,8 +727,9 @@ void gsb_MakeCommonMatrix(void)
 static int postEffectReady = 0; /* derived name */
 
 /* Open the frame's first display list: one DMA tag, the two VIF words that
- * hand path 1 to the GS, a second tag for the register run, and then the
- * default register set for each of the thirteen contexts. */
+ * hand path 1 to the GS, a second tag for the register run, the default
+ * register set for each of the thirteen contexts, and then the shadow reset
+ * and the full screen effect's first pass. */
 static void gsb_SetGsDefault(void)
 {
     DpkCtl *d = &PacketBufferStruct;
@@ -778,9 +774,9 @@ static void gsb_SetGsDefault(void)
 }
 
 /* Everything the frame still owes after the scene is drawn: the debug read
- * outs, the full screen effect, the shadow and fog passes, the motion blur,
- * the anti alias pass, the film grain and the brightness step, the kept frame
- * buffer, the staff roll and last the fade and the demo scissor. */
+ * outs, the shadow and fog passes, the motion blur, the brightness step, the
+ * full screen effect, the kept frame buffer, the staff roll with the demo
+ * scissor while it runs, and last the anti alias pass and the fade. */
 static int gsb_PostEffect(void)
 {
     if (debug_font_flag & 1) {
@@ -868,9 +864,10 @@ inline int gsb_SyncGSSystem(void)
     return 0;
 }
 
-/* One frame boundary: take the field parity from the GS CSR, run the
- * reduction pass, flip the double buffer and hand the display list back
- * either swapped or cleared, then reopen the frame's register set. */
+/* One frame boundary: take the field parity from the GS CSR, run the post
+ * effects and the reduction pass, flip the double buffer, swap the display
+ * list and reopen the frame's register set, then, with no staff roll
+ * running, the demo scissor. */
 void gsb_UpdateGSSystem(void)
 {
     sceGsDrawEnv *draw;
@@ -936,10 +933,8 @@ static const float vsScreenSize[] = {768.0f, 768.0f, 0.0f, 0.0f}; /* derived nam
 /* Build the view matrices from the record gsb_SetVSMatrix fills (vs[0] the
  * zoom, vs[1] and vs[2] the aspect terms, vs[3] and vs[4] the centre, vs[5]
  * and vs[6] the depth range, vs[7] and vs[8] the near and far planes): the
- * screen matrix screen, the perspective projection proj for the 1500 unit
- * screen, the one projHalf for the half size screen, the viewport viewport,
- * and the pair built on a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
- * scale terms are locals of their own. */
+ * screen matrix screen, the perspective projection proj for the 768 unit
+ * screen and the viewport viewport. */
 static void gsb_SetVSMatrixSub(float *screen, float *proj, float *viewport, float *vs)
 {
     float m0[16];

@@ -23,10 +23,6 @@ static float scaleWorkMatrix[4][4] = {{1.0f, 0.0f, 0.0f, 0.0f},
 
 #include "Matrix.h"
 
-/* PAL's two 32-quadword VU0 register save areas, which nothing addresses
-   (the saves go to VU0 memory through vi15), are not in this build: the
-   object has no .bss. */
-
 inline void _InitCurrentMatrix(void)
 {
     VU0_V2OP(vmove.xyzw, 7, 0);

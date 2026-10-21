@@ -387,19 +387,12 @@ static inline int CountAliveSpiders(GObj *gp) /* derived name */
     return n;
 }
 
-/* the body of DeleteSpiderFromLayoutGroup, which DeleteAllSpidersOfLayoutGroup
-   inlines and DeleteSpiderFromLayoutGroup calls */
-static inline GObj *DeleteSpiderFromLayoutGroup_inl(GObj *gp, int idx) /* derived name */
+GObj *DeleteSpiderFromLayoutGroup(GObj *self, int idx)
 {
-    GObj **arr = ((SpiderWork *)GOBJ_SUB(gp)->work)->members;
+    GObj **arr = ((SpiderWork *)GOBJ_SUB(self)->work)->members;
     GObj *r = arr[idx];
     arr[idx] = 0;
     return r;
-}
-
-GObj *DeleteSpiderFromLayoutGroup(GObj *self, int idx)
-{
-    return DeleteSpiderFromLayoutGroup_inl(self, idx);
 }
 
 /* clear the dead members out of a spider group */

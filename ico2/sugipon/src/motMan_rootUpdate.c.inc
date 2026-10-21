@@ -319,8 +319,8 @@ static int getFieldCollision(ClipWork *w)
  * the plane limit was exceeded, so the actor is dropped. */
 
 /* Builds the plane the root height is measured against out of the floor plane
- * the motion block carries, and reports whether the floor was steep enough to
- * need one. */
+ * the motion block carries: a floor shallower than the -0.3 test gives a
+ * level plane through the root's projected height. */
 static inline void makeRootFitPlane(float *pl, struct MotRoot *o) /* derived name */
 {
     float *fl = o->plane.f;

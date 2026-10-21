@@ -32,7 +32,7 @@ typedef struct { /* field names derived */
 
 /* motion-eff-def: one motion effect, 0x24 bytes: the offset and turn from
    the node, the particle effect, the flags and the node.  Readers:
-   frameDependSequence.c, ico2/common/src/icoMisc.c (EffEnt). */
+   frameDependSequence.c, ico2/common/src/icoMisc.c. */
 typedef struct {        /* field names derived */
     float x;            /* 0x00 */
     float y;            /* 0x04 */
@@ -45,9 +45,8 @@ typedef struct {        /* field names derived */
     int node;           /* 0x20 */
 } EffEntry;             /* derived name */
 
-/* motion-eff-condition-def: the shared condition table, 0x0C bytes a row:
-   execEff reads its cond and actId pair as an effect id, execVibCondition
-   reads actId as a pad actuator id. */
+/* motion-eff-condition-def: the condition table, 0x0C bytes a row: execEff
+   reads its cond and actId pair as an effect id. */
 typedef struct { /* field names derived */
     int kind;    /* 0x00 */
     int cond;    /* 0x04 */

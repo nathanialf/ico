@@ -41,13 +41,9 @@ static char *streamOwner = 0; /* derived name */
 
 static int ringUsed = 0; /* derived name */
 
-/* This build has no read-buffer alignment copy (readBuf is allocated
-   directly) and no idle flag: streamMotionManager.o's .sdata ends with
-   ExecStreamMotionManager's string in the demo. */
-
 /* One character's stream, 20 bytes in this build: the node and shape counts
    the frame header gives, the frame's size, the ring offset of the current
-   frame and the object (no end callback yet). */
+   frame and the object. */
 typedef struct {  /* field names derived */
     int nodeNum;  /* 0x00, 8 bytes a node */
     int shapeNum; /* 0x04, 4 bytes a shape */

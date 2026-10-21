@@ -1225,9 +1225,8 @@ static void getStreamMotionGeometry(void *self, void *sm)
 }
 
 /* The clamp and its own `int *p` declaration, a macro with a block body
- * shared by getStreamBlendShapeGeometry and getStreamShapeGeometry.  The test
- * is this programmer's absolute-value idiom (box.c, geometryManager.c,
- * motionManager.c). */
+ * getStreamShapeGeometry uses.  The test is this programmer's
+ * absolute-value idiom (box.c, geometryManager.c, motionManager.c). */
 #define SET_SHAPE_VALUE(self, i, x) /* derived name */                                             \
     {                                                                                              \
         int *p = (int *)((i) * 4 + *(int *)((char *)*(int *)((char *)(self) + 0x15C) + 0x7D8));    \

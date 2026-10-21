@@ -21,7 +21,7 @@ inline short *InitMoveColTestGeo(int gobj, int *layout)
     return r;
 }
 
-/* the 12-byte work block InitMoveColTestGeo allocates, hung at sub+0x830 */
+/* the 12-byte work block InitMoveColTestGeo allocates, hung at sub+0x7D0 */
 typedef struct MctWork { /* field names derived */
     int obj;             /* 0x00 */
     short r1;            /* 0x04 */

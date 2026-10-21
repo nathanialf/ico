@@ -100,7 +100,7 @@ typedef struct { /* field names derived */
 } PoolRipple;    /* derived name */
 
 /* The pool's work record, the 224 bytes InitPoolGeo allocates and leaves in
-   the object's work word (Sub15C+0x830): the surface's position (its y is
+   the object's work word (Sub15C+0x7D0): the surface's position (its y is
    the water height every reader takes) and drain vector, the two splash
    managers, the height grid and its two meshes, the ripples, the wave phase
    and the reflected stage object. */

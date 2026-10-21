@@ -925,10 +925,9 @@ void DispCloth4D(Cloth4D *c, void *la, void *lb)
     }
 }
 
-/* This build keeps no ring of random wind vectors in .bss (the object has no
-   .bss run); the up and down vectors are
-   what getCloth4D applies the node matrix to; cylinderColor is its debug wire
-   cylinder's colour; procMatrix is the matrix the nested proc applies */
+/* The up and down vectors are what getCloth4D applies the node matrix to;
+   cylinderColor is its debug wire cylinder's colour; procMatrix is the
+   matrix the nested proc applies */
 
 static sceVu0FVECTOR clothUpVector = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
 

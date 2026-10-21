@@ -70,7 +70,7 @@ static void setParticleEffectGeometry(PEGeo *geo, void *pos, void *quat)
     CopyQuaternion(geo->quat, quat);
 }
 
-/* the staging record makeParticle fills before copying it whole into the
+/* the staging record _setParticleEffect fills before copying it whole into the
    caller's slot, the blank particle peSetVtx writes for an unused vertex, and
    the cleared effect slot InitParticleEffects fills the table with */
 static PEPartRec particleWork = {
@@ -193,8 +193,6 @@ static inline void peSetVtx(PEVtx *dst, PEPartRec *pt) /* derived name */
     dst->q = 128.0f;
 }
 
-/* The statements follow the developer's line order (287 self->pkg, 289,
-   291, 292, 293, 295, 296, 299, 300, 303). */
 static int setParticleEffect(PEGeo *self, PEPackage *pkg)
 {
     float m[16];

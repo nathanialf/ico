@@ -119,9 +119,8 @@ typedef union { /* field names derived */
 /* editParam's hold counter */
 static int holdCount = 0; /* derived name */
 
-/* a change flag per tool row (52 in this build: effectToolPos follows at
-   +0xD0, so the initialiser's clear of 61 words below runs over it), then the
-   position the tool's effect is placed at */
+/* a change flag per tool row, 52 in this build, then the position the
+   tool's effect is placed at */
 static int effectToolDirty[52]; /* derived name */
 
 static float effectToolPos[4]; /* derived name */

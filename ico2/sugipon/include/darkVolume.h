@@ -10,9 +10,6 @@
 
 struct GObj;
 
-/* The declarations below lead this header because their order is load-bearing:
- * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
- * first-declaration order, so this is the order darkVolume.c's inline tail has. */
 int InitDarkVolumeGeo(struct GObj *self);
 void DarkVolumeDL(void);
 void ExecGameOverEffect(void);

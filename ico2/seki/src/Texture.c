@@ -128,7 +128,7 @@ struct TexData { /* field names derived */
     TexExt ext;
 };
 
-/* one texture slot, 0x330 bytes in this build (the stubs step texTable by
+/* one texture slot, 0x330 bytes in this build (the code steps texTable by
  * 816): eight bytes the record follows, then the 0x328-byte record (PAL's
  * slot is 0x2E8; the 0x48 bytes are the longer name and path). The code
  * passes the record itself around (the address of slot + 8). */
@@ -169,8 +169,7 @@ typedef struct VramPri { /* field names derived */
 } VramPri; /* derived name */
 
 /* the VRAM slot per display list priority, the 200 texture slots and the
- * working copy of the selected texture's ICO block tex_Tool edits (this build
- * has no head-TBP lock table) */
+ * working copy of the selected texture's ICO block tex_Tool edits */
 static VramPri vramPri[13]; /* derived name */
 
 static TexEntry texTable[200]; /* derived name */
@@ -230,8 +229,8 @@ extern void gif_EndPacket(void);
 
 /* "0" */
 
-/* the TEXFLUSH write the later builds chain after an upload (the one qword,
-   without the VIF DIRECT and the GIF A+D tag), qword aligned as a DMA source.
+/* a TEXFLUSH write (the one qword, without the VIF DIRECT and the GIF A+D
+   tag), qword aligned as a DMA source.
    Nothing in this build reads it: tex_loadImage writes its TEXFLUSH through
    gif_SetGsReg and every level packet carries one of its own. */
 static const unsigned int texFlushPacket[4]
@@ -1637,8 +1636,7 @@ static void tex_printTexture(int id)
         setGsReg(0x4E, 0x1300000C0LL);
         *PacketBufferStruct.ptr.d++ = (pad[0].now & 0x10) == 0 ? 0x56 : 0x16;
         *PacketBufferStruct.ptr.d++ = 0x00;
-        /* Q is the bits of `one`, read unsigned the way gsb_filmNoise in
-         * GsBase.c reads its scale. */
+        /* Q is the bits of `one`, read unsigned. */
         *PacketBufferStruct.ptr.d++ = GIF_RGBA(&col.r) | ((long long)*(unsigned int *)&one << 32);
         *PacketBufferStruct.ptr.d++ = 0x01;
         *PacketBufferStruct.ptr.d++ =

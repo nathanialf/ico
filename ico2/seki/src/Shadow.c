@@ -559,8 +559,8 @@ static inline void storeVolumeVerts(void *dst) /* derived name */
                          : "r"(dst));
 }
 
-/* Project one silhouette edge and clip the projected segment
- * to the screen rectangle. Returns the facing dot times the winding sign, or
+/* Project one silhouette edge and clip the projected segment to a rectangle
+ * half again the screen's size. Returns the facing dot times the winding sign, or
  * -1.0f when the edge is wholly off screen, which is also how the caller
  * learns that both ends were marked away.
  * The projection is one hand-ordered block: it rolls the six vertex

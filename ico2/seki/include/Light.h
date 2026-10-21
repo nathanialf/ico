@@ -13,7 +13,7 @@
 struct GObj;
 struct Sub15C;
 
-/* the per-object light matrix record at *(Sub15C + 0x874) (typedef.h's
+/* the per-object light matrix record at *(Sub15C + 0x814) (typedef.h's
  * Sub15C keeps the slot as void *).  light_MakeLightMatrix builds the normal
  * light matrix at 0x00 from the three directions at 0x80 and the colour
  * matrix at 0x40 from the colours at 0xB0 and the ambient at 0xE0 (its last

@@ -34,7 +34,7 @@ typedef struct BgaAnim { /* field names derived */
    allocates. */
 typedef struct BgaHeader { /* field names derived */
     char magic[4];
-    int group; /* 0x04 */
+    int group;                 /* 0x04 */
     char pad8[2];
     signed char mode;          /* 0x0A */
     char cut;                  /* 0x0B */
@@ -46,9 +46,6 @@ typedef struct BgaHeader { /* field names derived */
     float frame;               /* 0x20 */
     BgaAnim *anim;             /* 0x24 */
 } BgaHeader;                   /* derived name */
-
-/* set when an animation's camera cut restarts the global timer; the stream
-   motion player resynchronises on it and clears it */
 
 /* BgAnimation.c's `inline` functions, in the order of their definitions'
    out-of-line copies at the end of the object (first-declaration order). */

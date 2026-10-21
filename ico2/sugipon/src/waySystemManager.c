@@ -1,11 +1,6 @@
 #include "GobjProc.h"
 #include "way_sys.h"
 
-/* PAL's manager object word is not in this build: the TU has no .sdata in
-   the demo */
-
-/* void * (void *, int) here, void (int, int) in act.h */
-extern void *actCreateSubThreadGOppArg(void *entry, int arg);
 /* as in act.h, which this file does not include */
 extern void _ACTWait(int frames);
 

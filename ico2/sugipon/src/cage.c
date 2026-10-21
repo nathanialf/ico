@@ -16,7 +16,7 @@
 #include "sceneManager.h"
 #include "DObj.h"
 
-/* the cage's 64-byte work record, InitCageGeo's allocation, kept at +0x830
+/* the cage's 64-byte work record, InitCageGeo's allocation, kept at +0x7D0
    of the object's motion work: the cage and chain DObjs, the cage's rotation
    and turn, the chains InitChains builds and the swing state */
 typedef struct {   /* field names derived */
@@ -127,7 +127,7 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     w->linkLength = lay->scale[2];
     w->linkCount = (int)(lay->scale[1] / w->linkLength);
 
-    /* from here to the 0x84C store: the DObj buffer reallocation, in the
+    /* from here to the dispType store: the DObj buffer reallocation, in the
        statement order box.c, boy.c and omori's chain.c also use */
     if (*(void **)((char *)w->dobj + 0xC) != 0) {
         iosFree(*(void **)((char *)w->dobj + 0xC));

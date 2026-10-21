@@ -18,8 +18,8 @@ typedef struct FogClutPacket { /* field names derived */
     unsigned int vifEnd[4];    /* 0x420 */
 } FogClutPacket;               /* derived name */
 
-/* the packet goes out by DMA in quadwords; this build's .bss has it on a
-   16-byte boundary (0x6F0180, 8 bytes past the end of Texture.o's run) */
+/* the packet goes out by DMA in quadwords, so it sits on a 16-byte
+   boundary */
 static FogClutPacket fogClutPacket __attribute__((aligned(16))); /* derived name */
 
 void fog_MakeFogClut(void)

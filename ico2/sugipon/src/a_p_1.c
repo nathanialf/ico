@@ -23,11 +23,8 @@
 #include "spider.h"
 #include <assert.h>
 
-/* int (float) here, short (float) in tableSin.h: the ROM needs int, as
-   declared short this object differs at 0x001C37D8 (JPN 0x001C3550; quaternion.c's slerp
-   declares it short and matches) */
-extern int GetTableArcCos(float x);
 /* as in tableSin.h, which this file does not include */
+extern short GetTableArcCos(float x);
 extern short GetTableArcTan2(float y, float x);
 
 typedef struct { /* field names derived */
@@ -633,7 +630,7 @@ static inline short armCosine(float a, float b, float c) /* derived name */
     float bb = b * b;
     float cc = c * c;
 
-    return (short)(int)GetTableArcCos((aa + bb - cc) / (2.0f * a * b));
+    return GetTableArcCos((aa + bb - cc) / (2.0f * a * b));
 }
 
 static void calcSubMission(GObj *self)
