@@ -14,14 +14,13 @@ struct SqEntry;
 
 /* st17a.o's .sdata globals */
 extern struct SqEntry *cam;
-void actLinkTestChk(GObj *volatile self);
-void actSt17aDoorDownChk(GObj *volatile self);
-void actSt17aDoorDownEffect(GObj *volatile self);
-void actSt17aDoorUpChk(GObj *volatile self);
-void actSt17aDoorUpEffect(GObj *volatile self);
-void actSt17aGirlWay(GObj *volatile self);
-void actSt17aHasiChk(GObj *volatile self);
-void actSt17aHasiEffect(GObj *volatile self);
-void actSt17aIntroChk(GObj *volatile self);
+
+/* The stage's object entry points; st17a.c defines the last four inline,
+   and gcc outputs them at the end of the file in this order. */
+void actSt17aDoor(GObj *volatile self);
+void actLinkTest(GObj *volatile self);
+void actSt17aSekizo(GObj *volatile self);
+void actSt17aHasi(GObj *volatile self);
+void actSt17aIntro(GObj *volatile self);
 
 #endif /* ST17A_H */

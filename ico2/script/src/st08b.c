@@ -15,23 +15,19 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
+
+/* The functions stand in the order of the stage's source (aug6's TRFILE
+   numbers them so), with actSt08bKuren and actSt08bDoor after the door
+   checks as this build's .text has them. The ones defined inline are
+   output at the end of the file in the order st08b.h declares them. The
+   tables the actors install with actInitialize are file-scope statics;
+   the ones the handlers install through GOBJ_ACT are static locals of
+   their posters (gcc's local name.N symbol); .data keeps the source
+   order. */
 
 static ActMail kurenMain_mes[2] = {{356, actSt08bKurenSwitch}, {376}}; /* derived name */
 
 static ActMail kuren_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail kurenSwitch_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail doorDown_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail doorUp_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail doorUpChk_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail doorDownChk_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */
@@ -59,9 +55,24 @@ void actSt08bDoorDownChk(GObj *volatile self);
    spins for. */
 static int demoEnd;
 
+inline void actSt08bKurenMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+    if (girlGObj != 0) {
+        scpPlayEnd(girlGObj);
+    }
+    sub->mainMail = kurenMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
 void actSt08bKurenSwitch(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+    static ActMail kurenSwitch_mes[2] = {{377}, {376}}; /* derived name */
     Pos p1;
     SqEntry *h;
     GProc *th = 0;
@@ -210,9 +221,29 @@ void actSt08bKurenRight(GObj *volatile self)
     _ACTWait(0);
 }
 
+inline void actSt08aGirlYoro(GObj *volatile self)
+{
+    scpPlayStart(girlGObj);
+    scpPlayMot(girlGObj, 680);
+    scpPlayWaitMotEnd(girlGObj);
+    scpPlayMot(girlGObj, 581);
+    scpPlayWaitMotEnd(girlGObj);
+    _ACTWait(0);
+}
+
+inline void actSt08bDoorEvent(int x)
+{
+    volatile int local = x;
+}
+
+static ActMail doorDown_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail doorUp_mes[2] = {{377}, {376}}; /* derived name */
+
 void actSt08bDoorUpChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+    static ActMail doorUpChk_mes[2] = {{377}, {376}}; /* derived name */
     long long buf[2];
 
     while (scpTriggerFloorAttrTargetMan(self, 0x4000000) == 0) {
@@ -243,118 +274,6 @@ void actSt08bDoorUpChk(GObj *volatile self)
     sub->mail = doorUpChk_mes;
     ACTSendMailCorrect(self, 377);
     _ACTWait(0);
-}
-
-INCLUDE_ASM(actSt08bDoorDownChk);
-
-void actSt08bKuren(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    kuren_mes[0].func = actSt08bKurenMain;
-    act->mail = kuren_mes;
-    ACTSendMailCorrect(self, 377);
-    _ACTWait(0);
-}
-
-void actSt08bDoor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (scpTriggerBall(self, boyGObj, 200.0f) != 0) {
-        stage_SetAnimation(303, 0, 0);
-        _ACTWait(60);
-        doorDown_mes[0].func = actSt08bDoorDownChk;
-        act->mail = doorDown_mes;
-        ACTSendMailCorrect(self, 377);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(302, 0, 0);
-        doorUp_mes[0].func = actSt08bDoorUpChk;
-        act->mail = doorUp_mes;
-        ACTSendMailCorrect(self, 377);
-        _ACTWait(0);
-    }
-}
-
-inline void actSt08bEne(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-    _ACTWait(1);
-
-    if (gflagChk(72) == 0) {
-        ene_mes[0].func = actSt08bEneChk;
-        act->mail = ene_mes;
-        ACTSendMailCorrect(self, 377);
-        _ACTWait(0);
-    }
-}
-
-inline void actSt08bEnemy1(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-    while (gflagChk(73) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    Generator_MaskOff(self);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-}
-
-inline void actSt08bEnemy2(GObj *volatile self)
-{
-    GObj *x = self;
-    actInitialize(self);
-    _ACTWait(1);
-    Generator_Mask(self);
-    while (gflagChk(73) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    Generator_MaskOff(self);
-    Generator_Call(self);
-    _ACTWait(60);
-    Generator_Call(self);
-}
-
-inline void actSt08bKurenMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-    if (girlGObj != 0) {
-        scpPlayEnd(girlGObj);
-    }
-    sub->mainMail = kurenMain_mes;
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-inline void actSt08aGirlYoro(GObj *volatile self)
-{
-    scpPlayStart(girlGObj);
-    scpPlayMot(girlGObj, 680);
-    scpPlayWaitMotEnd(girlGObj);
-    scpPlayMot(girlGObj, 581);
-    scpPlayWaitMotEnd(girlGObj);
-    _ACTWait(0);
-}
-
-inline void actSt08bDoorEvent(int x)
-{
-    volatile int local = x;
 }
 
 inline void actSt08bDoorUpEffect(GObj *volatile self)
@@ -405,6 +324,93 @@ inline void actSt08bDoorDownEffect(GObj *volatile self)
     }
 }
 
+void actSt08bDoorDownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail doorDownChk_mes[2] = {{377}, {376}}; /* derived name */
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x4000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt08bDoorDownEffect, 21);
+
+    scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
+
+    stage_SetAnimation(303, 1, 0);
+
+    buf[0] = doorUpChkPos.d[0];
+    buf[1] = doorUpChkPos.d[1];
+    soundSeDefPlay(1170, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1171, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1172, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(303) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    doorDownChk_mes[0].func = actSt08bDoorUpChk;
+    sub->mail = doorDownChk_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt08bKuren(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    kuren_mes[0].func = actSt08bKurenMain;
+    act->mail = kuren_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt08bDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (scpTriggerBall(self, boyGObj, 200.0f) != 0) {
+        stage_SetAnimation(303, 0, 0);
+        _ACTWait(60);
+        doorDown_mes[0].func = actSt08bDoorDownChk;
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(302, 0, 0);
+        doorUp_mes[0].func = actSt08bDoorUpChk;
+        act->mail = doorUp_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt08bEne(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(72) == 0) {
+        ene_mes[0].func = actSt08bEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
 inline void actSt08bEneChk(GObj *volatile self)
 {
     if (girlGObj == 0) {
@@ -416,4 +422,36 @@ inline void actSt08bEneChk(GObj *volatile self)
     _ACTWait(1);
     gflagOn(72);
     gflagOn(73);
+}
+
+inline void actSt08bEnemy1(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(73) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    Generator_MaskOff(self);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+}
+
+inline void actSt08bEnemy2(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(73) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    Generator_MaskOff(self);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
 }

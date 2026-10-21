@@ -258,7 +258,6 @@ text WayPointWithRangeFromGObj 0x001F35A0 0x001F35E8 ico2/fumi/src/way_kidnap.c 
 text wpsort_compfnc 0x001F35E8 0x001F361C ico2/fumi/src/way_kidnap.c local file=wpsort_compfnc_way_kidnap lines=11  # census-equal; the C no longer emits it (its users are stubs)
 text draw_way_group 0x001F4BA0 0x001F4D1C ico2/fumi/src/way_tool.c local lines=30  # ordinal; differs-at:1; length:-38; extent-differs
 lit4 draw_way_group 0x00678FD0 0x00678FD4 ico2/fumi/src/way_tool.c  # 1 float
-text actSt00aDoor1UpChk 0x001FCF70 0x001FD100 ico2/script/src/st00a.c lines=37  # order
 text actSt00aDoor1DownChk 0x001FD100 0x001FD290 ico2/script/src/st00a.c lines=36  # order
 text func_001FFA68 0x001FFA68 0x001FFA78 ico2/script/src/st02a.c  # jun26-only; derived name
 text actSt03tGirlCam 0x00200650 0x002006B8 ico2/script/src/st03t.c lines=12  # order
@@ -275,17 +274,9 @@ text actSt03tSekizoEvent 0x00200B10 0x00200B20 ico2/script/src/st03t.c lines=4  
 text actSt03tEneChk 0x00200B20 0x00200BD8 ico2/script/src/st03t.c lines=25  # order
 text actSt03tWayOnChk 0x00200BD8 0x00200C80 ico2/script/src/st03t.c lines=19  # order
 text actSt04lGondolaCharaChk 0x00209610 0x00209694 ico2/script/src/st04l.c lines=16  # ordinal; differs-at:3; length:-8; extent-differs
-text actSt05dDoor2UpChk 0x0020F0D0 0x0020F270 ico2/script/src/st05d.c lines=23  # aug
-lit4 actSt05dDoor2UpChk 0x006790DC 0x006790F0 ico2/script/src/st05d.c  # 5 floats (target side)
-text actSt05dDoor2DownChk 0x0020F270 0x0020F410 ico2/script/src/st05d.c lines=34  # aug
-lit4 actSt05dDoor2DownChk 0x006790F0 0x00679104 ico2/script/src/st05d.c  # 5 floats (target side)
 text actSt07aTsuroEffect 0x002120C0 0x002124C0 ico2/script/src/st07a.c  # jun26-only; derived name
-text actSt08bDoorDownChk 0x00213B18 0x00213C90 ico2/script/src/st08b.c lines=34  # aug
-lit4 actSt08bDoorDownChk 0x0067914C 0x00679154 ico2/script/src/st08b.c  # 2 floats
 text actSt13b2Generator 0x002197B8 0x002197DC ico2/script/src/st13b2.c lines=5  # aug
 text actSt13dExit 0x0021C1A8 0x0021C278 ico2/script/src/st13d.c lines=25  # ordinal; differs-at:2; length:-4; extent-differs
-text actSt17aDoorUpChk 0x0021C528 0x0021C6A8 ico2/script/src/st17a.c lines=42  # order
-lit4 actSt17aDoorUpChk 0x006791AC 0x006791B8 ico2/script/src/st17a.c  # 3 floats
 text actSt17bObj1642 0x0021D2A0 0x0021D330 ico2/script/src/st17b.c  # jun26-only; derived name; named from obj-layout row 1642's act process (derived name)
 text actSt17bCheckChk 0x0021D330 0x0021D360 ico2/script/src/st17b.c lines=6  # aug
 text actSt18aDoorDownChk 0x0021D798 0x0021D8A4 ico2/script/src/st18a.c lines=26  # aug
