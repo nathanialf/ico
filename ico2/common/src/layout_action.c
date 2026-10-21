@@ -1315,11 +1315,11 @@ int la_load_processing(int first)
         *(struct McPreview *)IosMcPreviewInfo =
             *(struct McPreview *)&IosMcProductFile[mc.port].file[mc.fileNo];
         playTime((struct McPreview *)IosMcPreviewInfo, &hour, &min, &sec);
-        debug_StdPrintfDummy("stage no %d\n", gFlagGameClear);
+        debug_StdPrintfDummy("stage no %d\n", gFlagSaveStage);
         seEnvForceClose = 1;
         soundDataSegAllClose(0, 2);
-        stgmgrForceSwitchWithFade(gFlagGameClear, 0.5f, 4.0f);
-        ACTGame_SetActors_Debug(gFlagGameClear, 0);
+        stgmgrForceSwitchWithFade(gFlagSaveStage, 0.5f, 4.0f);
+        ACTGame_SetActors_Debug(gFlagSaveStage, 0);
         return -1;
     case 20:
         lt_set_item_select_func(0);
@@ -2297,7 +2297,7 @@ int la_game_over_continue(int first)
         case 378:
             if (PSH_POSITIVE(0)) {
                 systemStatus[4] = 1;
-                nextStage = gFlagGameClear;
+                nextStage = gFlagSaveStage;
                 releaseGameLoopCursor();
                 lt_set_item_select_func(0);
                 actionStarted = 0;

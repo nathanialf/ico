@@ -35,19 +35,57 @@ static inline MailAdditionalData *getMailAdditionalDataTable(GObj *gop) /* deriv
         debug_assert("src/mail-add-data.c", 71);
         __assert("src/mail-add-data.c", 71, "GOBJ_VAL(gop)");
     }
-    /* Act's 0x684 holds this table's address, an int in typedef.h's Act */
+    /* Act's 0x654 holds this table's address (typedef.h's Act) */
     return GOBJ_ACT(gop)->mailAddData;
 }
 
 #include "mail-add-data.h"
-#include "include_asm.h"
 
-INCLUDE_ASM_LIT(ActSendMail_WithAdditionalData);
+inline int ActSendMail_WithAdditionalData(GObj *gop, int msg, void *sender, void *data)
+{
+    int idx;
+    MailAdditionalData *mad_all;
 
-INCLUDE_ASM(InitMailAdditionalData);
+    idx = sendMailAndGetIndex(gop, msg, sender);
+    if (idx < 0) {
+        return -1;
+    }
+    mad_all = getMailAdditionalDataTable(gop);
+    if (mad_all->current_count >= MAIL_ADDITIONAL_DATA_MAX) {
+        debug_assert("src/mail-add-data.c", 95);
+        __assert("src/mail-add-data.c", 95, "mad_all->current_count<MAIL_ADDITIONAL_DATA_MAX");
+    }
+    mad_all->e[mad_all->current_count].mail = idx;
+    mad_all->e[mad_all->current_count].data = data;
+    mad_all->current_count++;
+    return 0;
+}
 
-INCLUDE_ASM(ActSendMail_WithAdditionalData);
+inline void *GetMailAdditionalData(GObj *gop, int mail)
+{
+    MailAdditionalData *p;
+    int i;
 
-INCLUDE_ASM(GetMailAdditionalData);
+    p = getMailAdditionalDataTable(gop);
+    for (i = 0; i < p->current_count; i++) {
+        MailAddEntry *e = &p->e[i];
+        if (e->mail == mail) {
+            return e->data;
+        }
+    }
+    return 0;
+}
 
-INCLUDE_ASM(ClearMailAdditionalData);
+void InitMailAdditionalData(GObj *gop, struct MailAdditionalData *table)
+{
+    GOBJ_ACT(gop)->mailAddData = table;
+    ClearMailAdditionalData(gop);
+}
+
+inline void ClearMailAdditionalData(GObj *gop)
+{
+    MailAdditionalData *p;
+
+    p = getMailAdditionalDataTable(gop);
+    p->current_count = 0;
+}

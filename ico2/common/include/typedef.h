@@ -1546,7 +1546,7 @@ typedef struct { /* field names derived */
  * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c. */
 typedef struct {        /* field names derived */
     unsigned int stage; /* 0x00, the saved stage, 0xFFFFFFFF for an empty file */
-    int cleared;        /* 0x04, gFlagGameClear at the save */
+    int cleared;        /* 0x04, gFlagSaveStage at the save */
     int playTime;       /* 0x08, in frames */
     int sofa;           /* 0x0C, the save sofa's layout id (GetSaveSofaLayoutID) */
 } McFileInfo;           /* derived name */

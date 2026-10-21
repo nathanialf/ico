@@ -36,6 +36,21 @@ static const VECTOR sofaSeatOffset = {30.0f, 0.0f, -50.0f, 0.0f}; /* derived nam
 #include "motionOrientManager.h"
 #include "include_asm.h"
 
+inline void GetSofaPosition(GObj *self, GObj *sofa)
+{
+    Act *w = GOBJ_ACT(self);
+    VECTOR v = sofaSeatOffset;
+    w->env.sofaOrient[0] = w->env.wallOrient[0];
+    w->env.sofaOrient[1] = w->env.wallOrient[1];
+    w->env.sofaOrient[2] = w->env.wallOrient[2];
+    if (self == boyGObj) {
+        v.x = -v.x;
+    }
+    v.w = 1.0f;
+    sceVu0ApplyMatrix(w->env.sofaPos,
+                      *(void **)((char *)((union ENVIF *)((char *)sofa + 0x15C))->i + 0xC), &v);
+}
+
 /* PAL's stage-8 ditch carrier position (ditchCarryPos) is not in this
    build's .rodata. */
 
@@ -93,7 +108,58 @@ typedef struct { /* field names derived */
     char *name;
 } OrientFlagRow; /* derived name */
 
-INCLUDE_ASM(DebugActOrientFlag);
+void DebugActOrientFlag(unsigned int *f)
+{
+    OrientFlagRow tbl[16] = {
+        {(f[1] >> 8) & 1, "climb_50  "},    {(f[1] >> 9) & 1, "climb_100 "},
+        {(f[1] >> 10) & 1, "climb_200 "},   {(f[1] >> 11) & 1, "climb_300 "},
+        {(f[1] >> 26) & 1, "hold_box  "},   {(f[2] >> 3) & 1, "hang_hand "},
+        {(f[2] >> 4) & 1, "hang_breas"},    {(f[2] >> 12) & 1, "ladder_up "},
+        {(f[2] >> 13) & 1, "ladder_dow"},   {(f[2] >> 19) & 1, "down_cliff"},
+        {(f[2] >> 20) & 1, "walk_wall"},    {(f[2] >> 22) & 1, "walk_stair"},
+        {(f[2] >> 23) & 1, "pulledup_50 "}, {(f[2] >> 24) & 1, "pulledup_100"},
+        {(f[2] >> 25) & 1, "pulledup_200"}, {-1},
+    };
+    int y = 40;
+    int i;
+
+    for (i = 0; tbl[i].on != -1; i++) {
+        if (tbl[i].on) {
+            if (debug_font_flag & 1) {
+                debug_Printf(10, y += 8, 0x0FFFFFFF, "%s=on\n", tbl[i].name);
+            }
+        } else {
+            if (debug_font_flag & 1) {
+                debug_Printf(10, y += 8, 0x0FFFFFFF, "%s=off\n", tbl[i].name);
+            }
+        }
+    }
+}
+
+inline void ACTSetEnvAllmighty(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    s->wish0.ll |= (1ULL << 37);
+    s->wish0.ll |= (1ULL << 38);
+    s->wish0.ll |= (1ULL << 39);
+    s->wish0.ll |= (1ULL << 40);
+    s->wish0.ll |= (1ULL << 42);
+    s->wish0.ll |= (1ULL << 43);
+    if (ACTGame_FLAG_TETSUNAGI()) {
+        s->flags18.ll &= ~(1ULL << 37);
+        s->flags20.w.handFreeFrame = 0;
+    } else {
+        if ((int)(s->flags18.ll >> 37) & 1)
+            s->wish0.ll |= (1ULL << 44);
+        s->flags20.w.handFreeFrame += 1;
+    }
+    s->wish0.ll |= (1ULL << 47);
+    s->wish0.ll |= (1ULL << 48);
+    s->wish0.ll |= (1ULL << 49);
+    s->wish0.ll |= (1ULL << 50);
+    s->wish0.ll |= (1ULL << 46);
+    s->wish1.ll |= (1ULL << 33);
+}
 
 inline int CheckWallAttributeEdegWall(GObj *obj);
 
@@ -263,7 +329,3 @@ static __inline__ void envDebugPrint(void) /* derived name */
 INCLUDE_ASM(ACTGetEnvironment);
 
 /* clang-format on */
-
-INCLUDE_ASM(ACTSetEnvAllmighty);
-
-INCLUDE_ASM(GetSofaPosition);

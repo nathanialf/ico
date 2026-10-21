@@ -91,10 +91,6 @@ text iosInitialize 0x00134AF0 0x00134CC0 ico2/fumi/ios/ios.c lines=30  # ordinal
 rdlit iosInitialize 0x0059FEF8 0x0059FF29 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x00679A40 0x00679A7F ico2/fumi/ios/ios.c  # 8 strings
 data D_002695F8 0x002695F8 0x002699BC ico2/fumi/ios/mcdata.c local  # the save icon's icon.sys record (964 bytes: "PS2D", the background colours, light directions and colours, the title, the icon file names), after mcard.c's McMsgQ and before pad.c's 64-aligned .data; no word of .text forms its address
-text iosMcIconWriteIconsys 0x00137508 0x001375F0 ico2/fumi/ios/mcdata.c lines=30  # ordinal; differs-at:0; length:-8; extent-differs
-rdlit iosMcIconWriteIconsys 0x005A0270 0x005A0280 ico2/fumi/ios/mcdata.c  # 1 string (target side)
-text iosMcIconWriteIcon 0x001375F0 0x001376D8 ico2/fumi/ios/mcdata.c lines=4  # ordinal; differs-at:0; length:-8; extent-differs
-text _iosMcIconWriteIconsys 0x001376D8 0x001376FC ico2/fumi/ios/mcdata.c local lines=27  # ordinal; differs-at:0; length:-51; extent-differs
 text iosOmInit 0x0013E428 0x0013E454 ico2/fumi/isys/obj_manager.c lines=7  # ordinal; differs-at:3; imm:2; extent-equal
 text _iosOmMain 0x0013E458 0x0013E680 ico2/fumi/isys/obj_manager.c local lines=60  # ordinal; differs-at:88; imm:1; extent-equal
 text sndInit 0x001420A8 0x001420EC ico2/fumi/sound/soundManager.c lines=8  # ordinal; differs-at:7; imm:2; extent-equal
@@ -161,14 +157,6 @@ rdlit actGirlHand 0x005A29E8 0x005A29F8 ico2/fumi/src/girl_act.c  # 1 string (ta
 sdlit actGirlHand 0x00679F40 0x00679F50 ico2/fumi/src/girl_act.c  # 1 string, 2 words and 1 float (target side): every reference into the range is the function's
 text actGirlStart 0x0016BA10 0x0016BBE8 ico2/fumi/src/girl_act.c lines=38  # aug
 rdlit actGirlStart 0x005A2A88 0x005A2A99 ico2/fumi/src/girl_act.c  # 1 string
-text display_texture 0x0016CF10 0x0016D0A4 ico2/fumi/src/jimaku.c local file=display_texture_jimaku lines=36  # ordinal; differs-at:4; imm:10; extent-equal
-sdlit display_texture 0x00679F70 0x00679F75 ico2/fumi/src/jimaku.c file=display_texture_jimaku  # 1 string
-text jimakuMgrBegin 0x0016D310 0x0016D518 ico2/fumi/src/jimaku.c local lines=60  # ordinal; differs-at:0; length:-25; extent-differs
-rdlit jimakuMgrBegin 0x005A2AC0 0x005A2AD8 ico2/fumi/src/jimaku.c  # 1 string (target side)
-text jimakuMgrNext 0x0016D518 0x0016D6E0 ico2/fumi/src/jimaku.c local lines=45  # ordinal; differs-at:69; imm:2; extent-equal
-rdlit jimakuMgrNext 0x005A2AD8 0x005A2B05 ico2/fumi/src/jimaku.c  # 3 strings
-sdlit jimakuMgrNext 0x00679F78 0x00679F94 ico2/fumi/src/jimaku.c  # 1 data
-text jimakuDisp 0x0016D8D8 0x0016D9F4 ico2/fumi/src/jimaku.c lines=37  # ordinal; differs-at:53; imm:2; extent-equal
 text func_0016DF10 0x0016DF10 0x0016E51C ico2/fumi/src/way_sys.c  # jun26-only; derived name
 lit4 func_0016DF10 0x006789D0 0x006789D8 ico2/fumi/src/way_sys.c  # 2 floats (target side)
 rdlit func_0016DF10 0x005A2BD0 0x005A2BE0 ico2/fumi/src/way_sys.c  # 1 data (target side)
@@ -178,9 +166,6 @@ lit4 avoid_obstacle2 0x006789D8 0x006789DC ico2/fumi/src/way_sys.c  # 1 float (t
 rdlit avoid_obstacle2 0x005A2BE0 0x005A2C40 ico2/fumi/src/way_sys.c  # 5 strings (target side)
 text GetWay_next 0x0016EFC8 0x0016F5CC ico2/fumi/src/way_sys.c lines=159  # order
 rdlit GetWay_next 0x005A2C60 0x005A2CF3 ico2/fumi/src/way_sys.c  # 9 strings (target side): five it references and the "WGROUP STAT" lines no word of .text addresses; the "delete guide point group" string before them is the inline DeleteGuideWay's, emitted by the C at its definition
-text gflagSave 0x00171CD8 0x00171D1C ico2/script/src/gflag.c lines=7  # by body: writes through gamesysMemoryHandlerWrite; the demo emits Save, Load, Init
-text gflagLoad 0x00171D20 0x00171D5C ico2/script/src/gflag.c lines=6  # by body: reads through gamesysMemoryHandlerRead; gameSysMemoryFuncList slot 2
-text gflagInit 0x00171D60 0x00171DF4 ico2/script/src/gflag.c lines=20  # by body: clears the flags, keeps flag 379
 text warpGirlOutStage 0x00176DD8 0x00176FDC ico2/script/src/warpGirl.c lines=75  # call-pal
 rdlit warpGirlOutStage 0x005A3088 0x005A30D0 ico2/script/src/warpGirl.c  # 1 string (target side)
 sdlit warpGirlOutStage 0x0067A040 0x0067A050 ico2/script/src/warpGirl.c  # 2 strings (target side)
@@ -191,11 +176,6 @@ text fightSoundProcessMain 0x00187CF8 0x00187EBC ico2/omori/src/fightSound.c loc
 text fightSoundProcess 0x00187EC0 0x00187FB0 ico2/omori/src/fightSound.c lines=30  # ordinal; differs-at:12; imm:3; extent-equal
 rdlit fightSoundProcess 0x005A3B08 0x005A3B19 ico2/omori/src/fightSound.c  # 1 string
 sdlit fightSoundProcess 0x0067A1D0 0x0067A1D2 ico2/omori/src/fightSound.c  # 1 string
-text InitMailAdditionalData 0x0018AC88 0x0018AC94 ico2/omori/src/mail-add-data.c lines=5  # ordinal; differs-at:2; imm:1; extent-equal
-text ActSendMail_WithAdditionalData 0x0018AC98 0x0018AD98 ico2/omori/src/mail-add-data.c lines=19  # ordinal; differs-at:19; imm:2; extent-equal
-rdlit ActSendMail_WithAdditionalData 0x005A3BA8 0x005A3BD8 ico2/omori/src/mail-add-data.c def  # 1 string
-text GetMailAdditionalData 0x0018AD98 0x0018AE3C ico2/omori/src/mail-add-data.c lines=14  # ordinal; differs-at:20; imm:1; extent-equal
-text ClearMailAdditionalData 0x0018AE40 0x0018AEA8 ico2/omori/src/mail-add-data.c lines=7  # ordinal; differs-at:7; imm:2; extent-equal
 text subBirdBrainMain 0x0018B778 0x0018C9DC ico2/ito/src/act_bird.c  # jun26-only; named by actBirdStart (actCreateSubThread(subBirdBrainMain, 20)) and aug6 TRFILE (subBirdBrainMain after trans_bird)
 lit4 subBirdBrainMain 0x00678B94 0x00678BE8 ico2/ito/src/act_bird.c  # 21 floats (target side)
 rdlit subBirdBrainMain 0x005A3BE0 0x005A3C15 ico2/ito/src/act_bird.c  # 3 strings (target side)
@@ -206,27 +186,7 @@ rdlit stgmgrNextStagePreLoad 0x00659DC0 0x00659DE6 ico2/common/src/StageManager.
 sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.c  # 1 string
 text backStageProcessOutStage 0x001935B0 0x00193800 ico2/common/src/backStage.c lines=107  # ordinal; differs-at:0; length:-184; extent-differs
 rdlit backStageProcessOutStage 0x00659E90 0x00659EA0 ico2/common/src/backStage.c  # 1 string (target side)
-text backStageProcessMain 0x00193800 0x001939B8 ico2/common/src/backStage.c lines=67  # ordinal; differs-at:0; length:-28; extent-differs
-rdlit backStageProcessMain 0x00659EA0 0x00659EC8 ico2/common/src/backStage.c  # 2 strings (target side)
-text routeSetPos 0x001939B8 0x00193B0C ico2/common/src/backStage.c local lines=50  # ordinal; differs-at:0; length:-58; extent-differs
-text backStageProcessInStage 0x00193B10 0x00193E88 ico2/common/src/backStage.c lines=78  # ordinal; differs-at:0; length:-66; extent-differs
-lit4 backStageProcessInStage 0x00678C68 0x00678C6C ico2/common/src/backStage.c  # 1 float (target side)
-sdlit backStageProcessInStage 0x0067A2B8 0x0067A2C0 ico2/common/src/backStage.c  # 1 string (target side)
 text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
-text disp_memory_partition_bar 0x001A1290 0x001A1874 ico2/common/src/icoMisc.c local lines=96  # ordinal; differs-at:201; imm:2; extent-equal
-rdlit disp_memory_partition_bar 0x0065DB90 0x0065DC30 ico2/common/src/icoMisc.c align=16  # 1 string, 1 data
-sdlit disp_memory_partition_bar 0x0067A988 0x0067A995 ico2/common/src/icoMisc.c  # 2 strings
-text func_001A19B8 0x001A19B8 0x001A1CA8 ico2/common/src/icoMisc.c  # jun26-only; derived name
-rdlit func_001A19B8 0x0065DC80 0x0065DC90 ico2/common/src/icoMisc.c  # 1 data, four words (target side)
-rdlit func_001A19B8 0x0065DC90 0x0065DCA0 ico2/common/src/icoMisc.c def  # 1 data, four words (target side); emitted where the demo has it
-sdlit func_001A19B8 0x0067A9A0 0x0067A9AC ico2/common/src/icoMisc.c def  # 2 colour words (target side), after the two C words in the demo's .sdata
-text func_001A1CA8 0x001A1CA8 0x001A1F34 ico2/common/src/icoMisc.c  # jun26-only; derived name
-rdlit func_001A1CA8 0x0065DCA0 0x0065DCC8 ico2/common/src/icoMisc.c  # 2 strings (target side)
-text InitIcoMisc 0x001A1F38 0x001A2450 ico2/common/src/icoMisc.c  # jun26-only; derived name
-rdlit InitIcoMisc 0x0065DCC8 0x0065DEE8 ico2/common/src/icoMisc.c  # 15 strings (target side)
-sdlit InitIcoMisc 0x0067A9C8 0x0067A9E4 ico2/common/src/icoMisc.c def  # 4 strings (target side), after loadedMotionSeg in the demo's .sdata; the six words after them are dbgC0..dbgC5
-sdata D_0067A9B0 0x0067A9B0 0x0067A9B4 ico2/common/src/icoMisc.c local  # a word func_001A1CA8 reads (0x67A9B0), between diskErrorBlink and setActorsDebugPending (target side)
-data D_004DCB70 0x004DCB70 0x004DCBF0 ico2/common/src/icoMisc.c local  # func_001A19B8's table (lui/addiu of 0x4DCB70), eight 16-byte rows of small indices, between the partition colours and windLineColor; jun26-only function (target side)
 text kanbanBootMcCheck 0x001A3160 0x001A3358 ico2/common/src/kanbanBoot.c local lines=236  # order
 text kanbanBootMain 0x001A3358 0x001A3498 ico2/common/src/kanbanBoot.c lines=52  # order
 rdlit kanbanBootMain 0x0065DF50 0x0065DF70 ico2/common/src/kanbanBoot.c align=16  # 1 jtbl (target side), 16-aligned in the demo after zero fill
@@ -274,16 +234,11 @@ rdlit enemy_Initialize 0x00661BC0 0x00661BD0 ico2/seki/src/EnemyInit.c  # 1 stri
 data D_004EB318 0x004EB318 0x00507D00 ico2/seki/src/EnemyInit.c local  # the enemy sets of the eight stage models after model 01 (kind lists, position tables, set lists) and enemySetTable, nine rows at 0x507CB8 (enemy_Initialize's lui/addiu of 0x507CB8 and its bound 9); PAL keeps model 01 alone (target side)
 text add_gobj_to_tail 0x001EAD98 0x001EAEB8 ico2/fumi/isys/gobj_cam_dl.c local file=add_gobj_to_tail_gobj_cam_dl lines=46  # census-equal; stubbed for emission order
 rdlit add_gobj_to_tail 0x00661BE0 0x00661C29 ico2/fumi/isys/gobj_cam_dl.c file=add_gobj_to_tail_gobj_cam_dl  # 4 strings
-text DebugActOrientFlag 0x001EC0A8 0x001EC350 ico2/fumi/src/act-env.c lines=27  # order
-rdlit DebugActOrientFlag 0x00661D20 0x00661E0D ico2/fumi/src/act-env.c align=16  # 15 strings
-sdlit DebugActOrientFlag 0x0067B228 0x0067B238 ico2/fumi/src/act-env.c  # 2 strings
 text ACTGetEnvironment 0x001EC350 0x001EF7F0 ico2/fumi/src/act-env.c lines=1078  # order
 lit4 ACTGetEnvironment 0x00678F80 0x00678FB0 ico2/fumi/src/act-env.c  # 12 floats (target side)
 rdlit ACTGetEnvironment 0x00661E10 0x00661EE8 ico2/fumi/src/act-env.c  # 3 strings, 1 jtbl (target side)
 sdlit ACTGetEnvironment 0x0067B238 0x0067B248 ico2/fumi/src/act-env.c  # 2 strings (target side)
 sdlit ACTGetEnvironment 0x0067B248 0x0067B250 ico2/fumi/src/act-env.c  # 2 floats (target side): the function's $gp floats (0x67B248, 0x67B24C)
-text ACTSetEnvAllmighty 0x001EF7F0 0x001EF918 ico2/fumi/src/act-env.c lines=24  # ordinal; differs-at:2; other:27; extent-equal
-text GetSofaPosition 0x001EF918 0x001EF994 ico2/fumi/src/act-env.c lines=14  # ordinal; differs-at:10; imm:7; extent-equal
 text act_check_intr_list 0x001F1258 0x001F13F4 ico2/fumi/src/act.c local lines=40  # aug
 text ACTDebugMove 0x001F1C88 0x001F2494 ico2/fumi/src/act.c lines=173  # call-pal
 lit4 ACTDebugMove 0x00678FB8 0x00678FCC ico2/fumi/src/act.c  # 5 floats (target side)
@@ -303,12 +258,6 @@ text WayPointWithRangeFromGObj 0x001F35A0 0x001F35E8 ico2/fumi/src/way_kidnap.c 
 text wpsort_compfnc 0x001F35E8 0x001F361C ico2/fumi/src/way_kidnap.c local file=wpsort_compfnc_way_kidnap lines=11  # census-equal; the C no longer emits it (its users are stubs)
 text draw_way_group 0x001F4BA0 0x001F4D1C ico2/fumi/src/way_tool.c local lines=30  # ordinal; differs-at:1; length:-38; extent-differs
 lit4 draw_way_group 0x00678FD0 0x00678FD4 ico2/fumi/src/way_tool.c  # 1 float
-text actDejaChk 0x001F5478 0x001F5580 ico2/script/src/deja.c lines=27  # ordinal; differs-at:2; length:-21; extent-differs
-lit4 actDejaChk 0x00678FD8 0x00678FDC ico2/script/src/deja.c  # 1 float
-text actDejaDemo 0x001F5580 0x001F589C ico2/script/src/deja.c lines=80  # ordinal; differs-at:1; length:-64; extent-differs
-text actDejaAfter 0x001F58A0 0x001F59E8 ico2/script/src/deja.c lines=27  # ordinal; differs-at:12; length:-2; extent-differs
-text actDejaAfterChk 0x001F59E8 0x001F5B08 ico2/script/src/deja.c lines=30  # ordinal; differs-at:11; length:-1; extent-differs
-text actDeja 0x001F5B08 0x001F5B98 ico2/script/src/deja.c lines=17  # ordinal; differs-at:13; length:-8; extent-differs
 text actSt00aDoor1UpChk 0x001FCF70 0x001FD100 ico2/script/src/st00a.c lines=37  # order
 text actSt00aDoor1DownChk 0x001FD100 0x001FD290 ico2/script/src/st00a.c lines=36  # order
 text func_001FFA68 0x001FFA68 0x001FFA78 ico2/script/src/st02a.c  # jun26-only; derived name
@@ -325,16 +274,6 @@ text actSt03tGirlCamEndChk 0x00200A40 0x00200B0C ico2/script/src/st03t.c lines=1
 text actSt03tSekizoEvent 0x00200B10 0x00200B20 ico2/script/src/st03t.c lines=4  # order
 text actSt03tEneChk 0x00200B20 0x00200BD8 ico2/script/src/st03t.c lines=25  # order
 text actSt03tWayOnChk 0x00200BD8 0x00200C80 ico2/script/src/st03t.c lines=19  # order
-text actSt04dDoor1 0x00204AF8 0x00204C50 ico2/script/src/st04d.c lines=23  # ordinal; differs-at:0; length:+20; extent-differs
-text actSt04dDoor1UpChk 0x00204C50 0x00204DA8 ico2/script/src/st04d.c lines=32  # ordinal; differs-at:14; other:12; extent-equal
-text actSt04dDoor1DownChk 0x00204DA8 0x00204F00 ico2/script/src/st04d.c lines=32  # ordinal; differs-at:14; other:12; extent-equal
-text actSt04dDoor2 0x00204F00 0x00205058 ico2/script/src/st04d.c lines=23  # ordinal; differs-at:0; length:+20; extent-differs
-text actSt04dDoor2UpChk 0x00205058 0x00205130 ico2/script/src/st04d.c lines=32  # ordinal; differs-at:0; length:-32; extent-differs
-text actSt04dDoor2DownChk 0x00205130 0x00205208 ico2/script/src/st04d.c lines=32  # ordinal; differs-at:0; length:-32; extent-differs
-text actSt04eWater 0x002055A8 0x00205650 ico2/script/src/st04e.c lines=19  # aug
-text actSt04eWaterMain 0x00205650 0x00205688 ico2/script/src/st04e.c lines=9  # order
-text actSt04eWaterSwitch 0x00205688 0x002056E0 ico2/script/src/st04e.c lines=13  # order
-text actSt04eWaterStop 0x002056E0 0x00205790 ico2/script/src/st04e.c lines=47  # order
 text actSt04lGondolaCharaChk 0x00209610 0x00209694 ico2/script/src/st04l.c lines=16  # ordinal; differs-at:3; length:-8; extent-differs
 text actSt05dDoor2UpChk 0x0020F0D0 0x0020F270 ico2/script/src/st05d.c lines=23  # aug
 lit4 actSt05dDoor2UpChk 0x006790DC 0x006790F0 ico2/script/src/st05d.c  # 5 floats (target side)
@@ -358,13 +297,6 @@ text actSt47aHane1Down 0x002213D0 0x00221494 ico2/script/src/st47a.c lines=49  #
 text func_00221858 0x00221858 0x0022190C ico2/script/src/st47a.c  # jun26-only; derived name
 text GetDataFileName 0x00223B88 0x00223BCC ico2/omori/src/access.c lines=18  # ordinal; differs-at:7; imm:1; extent-equal
 sdlit GetDataFileName 0x0067B470 0x0067B477 ico2/omori/src/access.c  # 1 string
-text LwsKyomiGeo 0x00223C80 0x00223C8C ico2/omori/src/lws_kyomi.c lines=33  # aug
-lit4 LwsKyomiGeo 0x00679348 0x0067934C ico2/omori/src/lws_kyomi.c  # 1 float (target side)
-text CreateKyomiGObj 0x00223C90 0x00223D10 ico2/omori/src/lws_kyomi.c lines=26  # call-aug
-text SetParamKyomiGObj 0x00223D10 0x00223DBC ico2/omori/src/lws_kyomi.c lines=26  # aug
-text ObjAction_CorrectGeo 0x00223DC8 0x00223E44 ico2/omori/src/objact.c lines=11  # ordinal; differs-at:21; imm:2; extent-equal
-text ObjAction_Mail 0x00223E48 0x00223EB0 ico2/omori/src/objact.c lines=8  # census-equal; stubbed for emission order
-text ObjAction_MailCenter 0x00223EB0 0x00223FA8 ico2/omori/src/objact.c lines=19  # ordinal; differs-at:49; imm:1; extent-equal
 text actBossCtrlStart 0x002248E8 0x002249C0 ico2/ito/src/itou_boss.c lines=24  # jun26-only; derived name; named from obj-kind-data: the demo's obj-kind-data rec62+0x40 holds it; the Aug-6-2001 build's same record is rec63+0x40 (one record later), which holds actBossCtrlStart
 rdlit actBossCtrlStart 0x00664070 0x00664080 ico2/ito/src/itou_boss.c  # 1 string
 sdata D_0067B4E8 0x0067B4E8 0x0067B4F4 ico2/common/src/PObj.c local  # a short string and the word pointing at it, after AllocPObj's run and before sound.o's; no word of .text addresses either, so the owner TU is not pinned: PObj.c is the last game TU with .sdata before sound.o (target side)
@@ -377,9 +309,6 @@ text sceSifInitRpc 0x0022E9B8 0x0022EB54 sce/libkernl/sifrpc.c  # PAL sifrpc.c f
 text setD4_CHCR 0x00240B60 0x00240BC4 sce/libmpeg/bit.c lines=8  # gap; equal; -; extent-equal
 text func_002467B8 0x002467B8 0x00246824 ico2/common/src/demoDisc.c  # jun26-only; derived name
 text func_00246828 0x00246828 0x00246920 ico2/common/src/demoDisc.c  # jun26-only; derived name
-text func_00246920 0x00246920 0x00246970 ico2/common/src/demoDisc.c  # jun26-only; derived name
-rdlit func_00246920 0x00676ED0 0x00676EF0 ico2/common/src/demoDisc.c  # 1 string (target side)
-sdlit func_00246920 0x0067B4F8 0x0067B4FB ico2/common/src/demoDisc.c  # 1 string (target side)
 text _fpadd_parts 0x0024AF70 0x0024B1B0 sce/libgcc/dp-bit.c lines=91  # anchor; equal; -; extent-equal
 text _fpadd_parts 0x0024BC38 0x0024BE6C sce/libgcc/fp-bit.c local file=_fpadd_parts_fp_bit lines=91  # census-equal; stubbed for emission order
 text __sprint 0x0024E1B0 0x0024E1F4 sce/libc/stdio/vfiprintf.c lines=13  # gap; equal; -; extent-equal

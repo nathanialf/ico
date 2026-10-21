@@ -9,16 +9,26 @@
  * the demo addresses with %hi/%lo; it follows sound.o in every section.
  */
 #include "include_asm.h"
-
-/* the decimal-string-to-short helper the argument parser calls five times */
-INCLUDE_ASM(func_002467B8);
+#include <eekernel.h>
+#include <eeregs.h>
+#include <stdio.h>
 
 /* .sbss: the argument vector and count func_00246828 records, which
-   func_00246920 hands back to LoadExecPS2 with the menu's path */
+   DemoDiscEnd hands back to LoadExecPS2 with the menu's path */
 static char **demoArgv; /* derived name */
 
 static int demoArgc; /* derived name */
 
+/* the decimal-string-to-short helper the argument parser calls six times
+   (a nested function of func_00246828: $v0 carries the static chain) */
+INCLUDE_ASM(func_002467B8);
+
 INCLUDE_ASM(func_00246828);
 
-INCLUDE_ASM(func_00246920);
+void DemoDiscEnd(int status) /* derived name */
+{
+    *GS_BGCOLOR = 0;
+    *GS_PMODE = 0;
+    sprintf(demoArgv[7], "%d", status);
+    LoadExecPS2("cdrom0:\\SCE_DD\\SCE_DD.ELF;1", demoArgc, demoArgv);
+}

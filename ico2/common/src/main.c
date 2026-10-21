@@ -250,12 +250,13 @@ static int bootThreadId; /* derived name */
 
 /* demoDisc.c's pair, whose names this build does not record: the first
    keeps the arguments the magazine menu started the game with and reads the
-   disc's settings out of them, the second reloads the menu with them */
+   disc's settings out of them, the second (DemoDiscEnd) reloads the menu
+   with them */
 int func_00246828(int argc, char **argv, unsigned short *language, unsigned short *aspect,
                   unsigned short *playmode, unsigned short *toInactive, unsigned short *toTotal,
                   unsigned short *mediaType);
 
-void func_00246920(int status);
+void DemoDiscEnd(int status);
 /* thread.c defines it `inline` with no header declaration */
 void iosThreadAllQuit(int self);
 
@@ -299,7 +300,7 @@ int main(int argc, char **argv)
     gsb_InitGSSystem();
     sceSifExitCmd();
     debug_StdPrintfDummy("demo end !!!!!!!!!!!!!!!!!!\n");
-    func_00246920(5);
+    DemoDiscEnd(5);
     return 0;
 }
 
