@@ -77,9 +77,7 @@ typedef struct { /* field names derived */
     unsigned int flags;
 } MotionRec; /* derived name */
 
-/* const: the table is in .rodata (sugipon's TUs declare it so); the array
-   reads in ACTItemWatchMotion are read-only loads, which lets the delay slot
-   of its switch range test take the `self` home store */
+/* const: the table is in .rodata, as sugipon's TUs declare it */
 extern const MotionRec motionKind[];
 
 typedef struct { /* field names derived */

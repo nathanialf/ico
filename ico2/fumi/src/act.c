@@ -15,9 +15,6 @@
 #include "pad.h"
 #include "gobj_process.h"
 #include "main.h"
-
-/* PAL's unused word is not in this build: act.o has no .sdata in the demo */
-
 #include "act.h"
 #include "enemy_act.h"
 #include <libvu0.h>

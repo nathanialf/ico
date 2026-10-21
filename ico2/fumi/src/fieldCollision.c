@@ -888,10 +888,9 @@ static inline int _clipFR(ClipWork *work, GObj *obj, int node)
     return ret;
 }
 
-/* The clip-mode table the ClipWall/ClipFloor wrappers index by mode: modes
- * 0..11 are the wall entries, 12 on the floor ones (ClipFloor passes 0xC).
- * 16-byte records, func at +0xC (ClipFloorByGObj reads entry 12's
- * directly). */
+/* The clip-mode table _Clip indexes by the mode clipWallFunc and
+ * clipFloorFunc are passed: modes 0..11 are the wall entries, 12 on the
+ * floor ones (ClipFloor passes 12).  16-byte records, func at +0xC. */
 typedef struct {      /* field names derived */
     int wall;         /* the wall-hit arm runs after the walk (modes 0..11) */
     int skipFilter;   /* skip the work's filter object and node */

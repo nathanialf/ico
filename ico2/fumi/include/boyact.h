@@ -42,24 +42,15 @@ void afterBoyHand200(GObj *volatile self);
 void ACTSearchEnemy(void *self, int *out_id, float *out_vec);
 void DeleteBoyWeapon(void);
 int isLiftBoyEnable(void);
-void SetKidnapInfo(int enemyLabel, int targetLabel);
-void GetKidnapInfo(int *enemyLabel, int *targetLabel);
-
-inline void PrivInsCamSet(float *pos, float *tgt, struct GObj *track, int inFrames, int outFrames,
-                          float inRate, float blend, unsigned char control);
 
 inline void BoyInfoUpdate_StageChange(void);
 int IsBoyStatus_EnemyMustWait(void);
 int IsGirlEscortedInNextStage(void);
 unsigned char IsGirlEscortedInCurrentStage(void);
 int GetSaveSofaLayoutID(void);
-void OnGirlEscortFlag(void);
-void SetBoyWeaponGObj(void *w);
 int RequestStageChangeKidnapEnd(int stage, int targetId);
 int GetEfStageCameraTargetID(void);
 int IsBackFromEfStage(void);
-inline int PrivInsCamChk(void);
-inline unsigned char PrivInsCamChk_Control(void);
 int *GetbufpCharacterPacket(void);
 int GetsizeCharacterPacket(void);
 void MakeCharacterPacket(void);
@@ -73,7 +64,6 @@ inline void subBoyBrainMain(GObj *volatile self);
 void SetBoyInfo(GObj *weapon, GObj *item);
 void GetBoyRootPositionForCamera(float *out, struct GObj *gobj);
 void Boy_Init(void);
-void ACTDispLwsBoyStonize_InQueenStage(void *self);
 void SetStatusBoy_OtherStageGirlPinch(void);
 void handoff_heroin(void);
 /* boyact.o's .sdata globals: the two rope values and, last,

@@ -38,9 +38,8 @@ typedef struct { /* field names derived */
 } FcVec4; /* derived name */
 
 /* one floor of a collision set, 0x70 bytes (the table stride): the polygon
- * clip_floor_1 tests, its plane, and the attribute the _clipF filters,
- * ClipFloorByGObj and MakeExitAttributeIndex read (its low nibble the exit
- * slot). */
+ * clip_floor_1 tests, its plane, and the attribute the _clipF filters and
+ * MakeExitAttributeIndex read (its low nibble the exit slot). */
 typedef struct FcFloorEnt { /* field names derived */
     FcVec4 v[4];            /* 0x00, the polygon's corners */
     float nx, ny, nz, npad; /* 0x40, the plane normal */
@@ -54,10 +53,6 @@ typedef struct FcFloorEnt { /* field names derived */
 /* fieldCollision.c's `inline` functions (all but the sixteen it compiles in
  * place), in the order of their definitions' out-of-line copies at the end of
  * the object (first-declaration order). */
-void ClipWallDebug(ClipWork *work);
-void ClipWallCheckCB(ClipWork *work, int filter);
-void ClipWallFieldCheckCB(ClipWork *work, int filter);
-void ClipFloorCheckCB(ClipWork *work, int filter);
 void ClipCollision(ClipWork *self);
 /* the wall clip ClipWall dispatches through (__ClipWall) */
 extern void (*clipWallFunc)(ClipWork *work, int mode); /* derived name */
@@ -109,7 +104,6 @@ void ResetCollisionPC(void);
 int PositionOfExit(float *pos, int attr);
 void GetGlobalWallPlane(float *plane, WallCfg *wall);
 /* compiled in place */
-void ClipFloorByGObj(ClipWork *work, struct GObj *gobj);
 void DrawCollisionRay(ClipWork *ray);
 void DrawGObjFloorCollision(struct GObj *gobj, int col);
 void DrawGObjWallCollision(struct GObj *gobj, int col);

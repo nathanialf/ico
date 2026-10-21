@@ -10,7 +10,7 @@ static int parallelIds[68]; /* derived name */
 /* Fill tbl from the parallel-motion table: for each bit set in mask, each
    row's motion for that bit, resolved by the nested helper (an id above
    0xFFFF picks one entry of a random-motion run, by n), replaces the row's
-   entry unless it is 0x47B. */
+   entry unless it is 1167, the none value. */
 void ActPara_MakeTbl(int *tbl, int mask, int n)
 {
     int i;

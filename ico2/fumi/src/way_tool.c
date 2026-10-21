@@ -558,9 +558,9 @@ static void draw_way_group(int g, WayCol *col)
         q = p->pos;
         SetVObjRT(&m, q);
         if (p->escape != 0) {
-            /* identical arms, derived: the demo keeps this test's index
-               load after jump2 cross-jumps the two calls, and the second
-               wayColorLinked reference ranks its %hi first in global */
+            /* both arms draw the linked colour: the demo still loads the
+               index for the selection test ahead of the one call the two
+               arms share (the arms are derived) */
             if (p->index == wayPointSel) {
                 DrawVObj(0, &wayColorLinked);
             } else {

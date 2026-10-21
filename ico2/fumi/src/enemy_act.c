@@ -136,9 +136,6 @@ extern MotionDef motionKind[];
 #define ENEMY_DEBUG_HOLD 0 /* derived name */
 #endif
 
-/* enemy.c's; no header declares it */
-extern float GetEnemyDefParaIndex(void *self);
-
 /* The point the lifting enemy turns to: three vectors (the first two equal),
    of which only the first is addressed. */
 static sceVu0FVECTOR bodyliftTarget[3] = {
@@ -146,14 +143,6 @@ static sceVu0FVECTOR bodyliftTarget[3] = {
     {-311.0f, -89.0f, -147.0f, 0.0f},
     {-770.0f, -1445.0f, -749.0f, 0.0f},
 }; /* derived name */
-
-/* FLT_MAX word in .sdata, declared as an incomplete array */
-extern void SetEnemyStonizedVisual(void *self);
-extern void BossEnemyFunc(void *self);
-
-/* the TU's flag-test shape, a 64-bit shift-and-mask of a 32-bit word, as a
-   function-like macro */
-#define EA_CHKBIT(f, n) (((int)((long long)(f) >> (n))) & 1) /* derived name */
 
 /* The brain-mode target the ChangeBrain_ToAttack and ChangeBrain_ToKidnap
    children fill in from the default and hand to _BrainMode_SetDirect: one
@@ -1061,7 +1050,7 @@ void actEnemyKidnapEnd(GObj *volatile self)
         }
         if (GOBJ_SUB(self)->ctrl.motion == 938) {
             /* the girl's record and her action are read before the tests,
-               with the carried action's id in a local (as September) */
+               with the carried action's id in a local (as the USA build) */
             Act *gsub = GOBJ_ACT(girlGObj);
             int act = gsub->actMode;
             int carriedAct = 106;
@@ -2116,7 +2105,7 @@ static int _ApproachTarget_Boss(GObj *self, void *tgt, void *pos, void *fn, floa
     }
 }
 
-/* September's flyMailCore and FlyMail in one function: the frame test first */
+/* the USA build's flyMailCore and FlyMail in one function: the frame test first */
 void FlyMail(void *self)
 {
     int flyLow = 0;
@@ -2337,11 +2326,6 @@ void actEnemyStart(GObj *self)
     }
     _ACTWait(0);
 }
-
-/* the later builds' kidnapEndCount is not in this build: the demo's
-   actEnemyKidnapEnd has no count, and the .sdata word at 0x679E00 is
-   entesty (BeforeFunc's only store; 0x679E04 is the fill before
-   fieldCollision.o's 8-aligned .sdata) */
 
 void subEnemyBrain_Irregular(GObj *volatile self)
 {

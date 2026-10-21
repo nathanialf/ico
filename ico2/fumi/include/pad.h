@@ -92,7 +92,6 @@ typedef struct IosPadStick { /* field names derived */
 
 int iosPadActRequest(IosPadCtx *pad, int id);
 void iosPadActStop(int key);
-void iosPadActStopAll(void);
 /* One actuator request iosPadActRequest hands out: its key, the player
    box, the shockList row's voice and life, the parameter Shock_Request is
    handed and the volume iosPadActVolumeSet sets. */

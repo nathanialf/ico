@@ -32,7 +32,7 @@ typedef union { /* field names derived */
     } w;
 } EnemyStatusFlags; /* derived name */
 
-/* The enemy work at sub+0x650 (the demo; September 0x670): the running brain mode (+0x1FC) and the one
+/* The enemy work at sub+0x650 (the USA build's 0x670): the running brain mode (+0x1FC) and the one
    _BrainMode_SetDirect requests (+0x200), the requested target inside the
    status word and the running target (+0x210), a countdown (+0x21C). */
 typedef struct EnemyBattleWork { /* field names derived */
@@ -128,7 +128,7 @@ typedef struct EnemyBattleWork { /* field names derived */
     float rescueBoyPos[4];  /* 0x2F0, where the boy stands to pull the girl up, 60 short of her */
     float rescueGirlPos[4]; /* 0x300, the girl's position, 50 up: [1] is the height she is set to */
     int boxBarSound; /* 0x310 */
-    char pad314[124]; /* 0x60 bytes more than September's before the climb record
+    char pad314[124]; /* 0x60 bytes more than the USA build's before the climb record
                          (RequestChangeHandMode reads 0x31C, actCommonRope climbOrient 0x390) */
     float climbOrient[4]; /* 0x390 the orient of the chain or wall climbed */
     float climbPos[4];    /* 0x3A0 the climb's position */
@@ -166,8 +166,6 @@ int GetEnemyTypeFromGObj(struct GObj *obj);
 int GetEnemyType(float x, float y, float z);
 int isEnemyKidnapEnable(GObj *self);
 inline int isEnemyActive(GObj *self);
-int GetMotherGeneratorLabelAskEnemy(struct GObj *enemy);
-struct GObj *GetMotherGeneratorGObjAskEnemy(struct GObj *enemy);
 inline void subEnemyBrain_Idle(GObj *volatile self);
 inline void subEnemyBrain_Await(GObj *volatile self);
 inline void subEnemyBrain_ToGenerator(GObj *self);

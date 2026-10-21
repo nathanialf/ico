@@ -15,10 +15,10 @@ struct GObj;
 
 /* The actor's character work, the record at Act+0x658 (held there as a
  * word, like the object's own actor slot): the boy's, the girl's and the
- * enemies' per-character state.  This build's: no boy distance, locked
- * rotation, floor object or September's frame timers (ACTGame_BeforeFunc
- * counts only downTimer down); the fields after pinchFrames keep PAL's order
- * and are not measured. */
+ * enemies' per-character state.  This build has no boy distance, locked
+ * rotation, floor object or the USA build's frame timers (ACTGame_BeforeFunc
+ * counts only downTimer down); the fields after pinchFrames follow PAL's
+ * order. */
 typedef struct ActWork { /* field names derived */
     int paraTbl[86];        /* 0x000, each parallel slot's motion (ActPara_MakeTbl) */
     char pad158[456];
@@ -27,7 +27,7 @@ typedef struct ActWork { /* field names derived */
     float defIkRate2;       /* 0x328 */
     float escortOffset;     /* 0x32C (ACTGame_StageChangeGObj, IsGirlStatusEscortEnable) */
     float disappearSpeed;   /* 0x330 (_ACTSetEnemyDisappearSpeed, actCommonDie) */
-    float fallDamageHeight; /* 0x334, place not measured */
+    float fallDamageHeight; /* 0x334, no reader in this build */
     char pad338[4];
     float stickMag;   /* 0x33C (subGirlBrain_Idle) */
     float padWish[4]; /* 0x340, the pad wish direction a jump turns to (ACTGetWish_FromPad,
@@ -109,7 +109,6 @@ void ACTGame_StageChangeGObjID(int no, int kind, int idx);
 void ACTGame_StageChangeGObjDirect(struct GObj *self, int stage, void *dir, int deg);
 int ACTGame_FLAG_LIFEPINCH(struct GObj *self);
 unsigned char ACTGame_FLAG_TETSUNAGI(void);
-int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
 inline void GetSkeltonPosition(float *dst, struct GObj *obj, int node);
 
 void SetDirectRootPositionWithNodePointLimit(void *self, int node, void *pos, float t, float limit);
@@ -138,7 +137,6 @@ int ACTCheckViewCl(struct GObj *self, void *target, void *targetPos, int range, 
 void ACTGameView_FirstSet(char *self);
 void ACTGameView_Add(struct GObj *self, struct GObj *target);
 int ACTGameView_Check(struct GObj *self, struct GObj *obj);
-int ACTGameViewSimple_Check(struct GObj *self, struct GObj *obj);
 int ACTGame_GetMotOrientFromWeapon(struct GObj *weapon);
 unsigned char ACTGame_NoWeapon(struct GObj *self);
 inline int ACTGame_isWeaponCombustible(void);
@@ -165,11 +163,7 @@ inline void ActGame_GetOrientQ(void *q, void *v, int deg);
 void _GetRootObjectOrient(void *orient, struct GObj *obj);
 void ACTItemForceDrop(struct GObj *self);
 void GetOtherStageGirlOrient(float *orient);
-int ACTChkAttackIgnore_BOY(struct GObj *self, struct GObj *actor);
-int ACTChkAttackIgnore_GIRL(struct GObj *self, struct GObj *actor);
-int ACTChkAttackIgnore_ENEMY(struct GObj *self, struct GObj *actor);
 unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor);
-int ACTCheckViewClDetail(struct GObj *self, void *target, void *targetPos, int range, float f);
 void ACTGame_SetMotionPlaySpeedRatio_Clear(struct GObj *self);
 void ACTGame_SetMotionPlaySpeedRatio_Exec(struct GObj *self);
 int ACTCheckView(struct GObj *self, void *target, void *targetPos, int range, float f);

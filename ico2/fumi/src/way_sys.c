@@ -311,7 +311,7 @@ int avoid_obstacle(float *pos, float *wp, WVTObj *w) /* derived name */
         }
         return 0;
     }
-    /* an open way returns nothing: the June text falls off the end here (the
+    /* an open way returns nothing: the function falls off the end here (the
        USA build returns 0 early) */
 }
 
@@ -469,7 +469,7 @@ static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
         }
         return 0;
     }
-    /* an open way returns nothing: the June text falls off the end here (the
+    /* an open way returns nothing: the function falls off the end here (the
        USA build returns 0 early) */
 }
 

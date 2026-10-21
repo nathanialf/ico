@@ -498,9 +498,6 @@ void handoff_heroin(void) /* derived name */
     }
 }
 
-/* This build's .bss has no pinch-scene positions before the wall hit (the
-   object's run opens with sofaWallHit at 0x6F5160). */
-
 typedef struct { /* field names derived */
     int a;
     int b;
@@ -585,23 +582,6 @@ typedef struct { /* field names derived */
 typedef struct { /* field names derived */
     int w[6];
 } BoyKidnapWork; /* derived name */
-
-/* the private insert-camera record, 16-aligned as the programmer's other
-   vector records (act-game.c Vec4S, way_sys.c WayClipWork) */
-typedef struct {           /* field names derived */
-    float pos[4];          /* 0x00, where the camera starts */
-    float tgt[4];          /* 0x10, where it moves to */
-    struct GObj *track;    /* 0x20, the object the return leg follows, or 0 for pos */
-    int inFrames;          /* 0x24, frames of the move to tgt */
-    int outFrames;         /* 0x28, frames of the return */
-    float inRate;          /* 0x2C, the move's interpolation step */
-    float blend;           /* 0x30, InsertCamera_SetDetail's blend */
-    unsigned char control; /* 0x34, PrivInsCamChk_Control's answer */
-    unsigned char pad35[3];
-    int cnt;                               /* 0x38 */
-    int on;                                /* 0x3C */
-    float cur[4];                          /* 0x40 */
-} __attribute__((aligned(16))) PrivInsCam; /* derived name */
 
 static BoyWork boyInfoDefault = {{0, 0, 0xFFFFFFFF}}; /* derived name */
 
@@ -811,20 +791,6 @@ static inline int correctStick(void *dir, IosPadStick *stick) /* derived name */
 
     ConvertStickToAbsCoord(buf, stick);
     return _RotyGV(buf, dir);
-}
-
-/* the private-camera gate */
-static __inline__ unsigned char boyPrivInsCamInScreen(void) /* derived name */
-{
-    float scr[4];
-
-    if (PrivInsCamChk_Control() == 0) {
-        return 0;
-    }
-    if (0.0f < IsPointIsInScreen(scr, test_CURRENTROOT(boyGObj))) {
-        return 1;
-    }
-    return 0;
 }
 
 /* the stick snap the boy's walk control applies when the camera-relative
@@ -1597,9 +1563,6 @@ extern float *GetCurrentCameraSet2(void);
    object's .bss ends after it at 0x6F51F8 */
 static int characterPacket[6]; /* derived name */
 
-/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
-extern void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int zoom,
-                                   int cutBack, float blend);
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void Camctrl_SetTarget(GObj *gobj, GObj *subGObj, int pri);
 
@@ -2621,8 +2584,8 @@ void actBoyDitch3mReady(GObj *volatile self)
     }
 }
 
-/* the demo's InsertCamera_SetNoraml reads three arguments (camera-root.h, which this TU does
-   not include, carries September's four) */
+/* camera-root.c's insert camera, three arguments in this build (camera-root.h, which this TU
+   does not include, declares it too; the USA build's takes four) */
 extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames);
 
 void SetStatusBoy_OtherStageGirlPinch(void)
@@ -2811,10 +2774,6 @@ void actBoyStart(GObj *self)
     }
     _ACTWait(0);
 }
-
-#define BOY_WALL(o) ((char *)GOBJ_ACT(o)->work) /* derived name */
-#define BOY_GIRL_DY()                                                                              \
-    (test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1]) /* derived name */
 
 /* The walk order the boy is executing: sub->0x30 points at the request record
    the caller filled in, and actBoyReadyMove works on a private copy of it. */

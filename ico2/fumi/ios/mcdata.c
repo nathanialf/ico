@@ -10,9 +10,8 @@ struct McIconWork { /* field names derived */
     int size;
 }; /* derived name */
 
-/* This build has no request-done flag here (no function of the demo
-   addresses one).  Its .data is the save icon's icon.sys record, the data
-   member mc-icon-sys that follows this file in the link. */
+/* mcdata.o's .data is the save icon's icon.sys record, the data member
+   mc-icon-sys that follows this file in the link. */
 
 /* Background-read callback: reads the whole icon file, rounded up to the
    disc's 2048-byte sectors, into the buffer the writer allocated. */

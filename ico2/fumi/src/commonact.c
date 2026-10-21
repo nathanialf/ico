@@ -8,11 +8,9 @@
 /* prototypes: their order is the inline tail's emission order (gcc emits every
    inline at the end of the object in first-declaration order). They precede
    commonact.h, whose alphabetical list would otherwise fix that order. */
-void ACTAcceptMail(GObj *self, int mail);
 inline int _ACTMotDirSmzDirect(GObj *self, float *dir);
 void WithMailFunc_Idling(GObj *self);
 void WithMailFunc_BossDamaged(GObj *self);
-void WithMailFunc_FallDead(GObj *self);
 void actCommonRevive(GObj *volatile self);
 void actCommonReviveAir(GObj *volatile self);
 void actCommonPlay(GObj *volatile self);
@@ -24,7 +22,6 @@ void actCommonCatchFire(GObj *volatile self);
 void actCommonCatchFireBomb(GObj *volatile self);
 void actCommonPutFire(GObj *volatile self);
 void actCommonBoxReverbe(GObj *volatile self);
-void actCommonItem(GObj *volatile self);
 void actCommonClimb(GObj *volatile self);
 void actCommonCliffdown(GObj *volatile self);
 void actCommonLadderBellow(GObj *volatile self);
@@ -68,8 +65,6 @@ void motCommonRopejumpDircorrect(GObj *volatile self);
 void motCommonHangNone(GObj *volatile self);
 void motCommonHangWall(GObj *volatile self);
 void motCommonHangCliff(GObj *volatile self);
-void motCommonRopeTurnSpecialR(GObj *volatile self);
-void motCommonRopeTurnSpecialL(GObj *volatile self);
 void motCommonTruckLeverLoop(GObj *volatile self);
 void motCommonTruckLeverPull(GObj *volatile self);
 void motCommonTruckLeverPush(GObj *volatile self);
@@ -85,7 +80,6 @@ inline float *test_CURRENTROOT(GObj *self);
 void StartCorrectPosition(GObj *self, float *pos, float *dir, int mode, float t);
 int IsCorrectPosition(GObj *self);
 void ControlMotionOrient(int id, int mot);
-int FloorIsTruck(GObj *self);
 void _ACTMotDir_V(void *self, void *dir);
 void ACTMotDirToWall(GObj *self);
 void SetCorrectOrientOfChain(void *self);
@@ -101,13 +95,9 @@ inline void afterCommonRevive(volatile unsigned int self);
 inline void afterCommonStone(GObj *volatile self);
 inline void afterCommonBox(GObj *volatile self);
 void afterCommonBar(GObj *volatile self);
-static inline void actAfterJump(GObj *volatile self);
-inline void actAfterFall(GObj *volatile self);
 inline void actAfterFly(GObj *volatile self);
-static inline void ClipCollisionWithField(ClipWork *work);
 inline void afterCommonOneWall(int x);
 int ACTCheckFlagAttack(GObj *self);
-static inline void afterCommonBecarry(GObj *volatile self);
 inline void afterCommonTruckLever(GObj *volatile self);
 
 #include "commonact.h"
@@ -717,20 +707,6 @@ static int CollisCheckInRope(void *self, GObj *chain)
         }
     }
     return rv;
-}
-
-static inline int chainFloorHit(GObj *self, ClipWork *w) /* derived name */
-{
-    if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 4) & 1) {
-        GetSkeltonPosition(w->pt[0], self, 44);
-        GetSkeltonPosition(w->pt[1], self, 51);
-        w->pt[1][1] -= 5.0f;
-        ClipFloor(w);
-        if (w->floor.elem != 0) {
-            return 1;
-        }
-    }
-    return 0;
 }
 
 inline void afterCommonRope(GObj *volatile self)
@@ -2203,102 +2179,9 @@ void actCommonLadder(GObj *volatile self)
     }
 }
 
-typedef struct { /* field names derived */
-    char pad0[398];
-    unsigned short f18E;
-} MotRecJ; /* derived name */
-
-/* A static inline that actCommonFall and flyCoreLoop call: whether the
- * actor has been stuck on a step for `need` hits.  flyCoreLoop passes a
- * motion that is not 418 and needs three hits where actCommonFall needs
- * two. */
-static inline int IsFallStuckOnStep(GObj *self, int state, int mot, int need,
-                                    int time) /* derived name */
-{
-    Act *s = GOBJ_ACT(self);
-    int *q;
-    int i, n, d;
-
-    for (i = 0, n = 1, q = (int *)((char *)s->work + 0x928); i < 10; i++, q++) {
-        if (q[-10] == state && (mot == 418 || mot == q[10])) {
-            if (n >= need) {
-                d = s->frame - *q;
-
-                if (d < time * ((60 - systemStatus[0] * 10) / systemStatus[1]) / 60) {
-                    return 1;
-                }
-                break;
-            }
-            n++;
-        }
-    }
-    /* the not-found path returns the count variable, cleared */
-    n = 0;
-    return n;
-}
-
-/* the sub-object's fly-limit flag at 0x654 */
-typedef struct { /* field names derived */
-    char pad0[1620];
-    int limit;
-} FlyLimitSub; /* derived name */
-
-/* raises the flag that ResetFlyLimit clears */
-static inline void SetFlyLimit(GObj *self) /* derived name */
-{
-    ((FlyLimitSub *)FALL_SUB(self))->limit = 1;
-}
-
-/* used by flyCoreLoop and actAfterFly */
-static inline void ResetFlyLimit(GObj *self) /* derived name */
-{
-    ((FlyLimitSub *)FALL_SUB(self))->limit = 0;
-}
-
-/* clamp to -1..1 */
-static inline float clampUnit(float x) /* derived name */
-{
-    if (1.0f < x) {
-        x = 1.0f;
-    }
-    if (x < -1.0f) {
-        x = -1.0f;
-    }
-    return x;
-}
-
-/* the vertical pull toward the target height */
-static inline float calcVertAccel(float *a, float *b) /* derived name */
-{
-    return clampUnit((a[1] - b[1]) * 0.005f);
-}
-
-/* the vertical pull with a term for the horizontal distance */
-static inline float calcFlyAccel(float *a, float *b) /* derived name */
-{
-    float d[4];
-    float h;
-
-    _SubVector(d, a, b);
-    h = d[1];
-    d[1] = 0.0f;
-    h += -VectorLength(d) * (stage_no == 86 || stage_no == 3 || stage_no == 46 ? 2.5f : 0.5f);
-    return clampUnit(h * 0.005f);
-}
-
-typedef union { /* field names derived */
-    float f[4];
-    long long ll[2];
-} FlyPt; /* derived name */
-
-typedef struct { /* field names derived */
-    char pad0[1528];
-    int f5F8;
-} FlyCtlJ; /* derived name */
-
-/* inline tail members, defined here: their strings come between the
-   flyCoreLoop unit's and funcCommonBeginReady's in .rodata, while their code
-   goes to the end of the object */
+/* inline tail members, defined here: their strings come just ahead of
+   funcCommonBeginReady's in .rodata, while their code goes to the end of the
+   object */
 inline void actCommonCliffdown(GObj *volatile self)
 {
     Act *s = GOBJ_ACT(self);
@@ -2775,10 +2658,9 @@ void subCommonIdle(GObj *volatile self)
                 /* a local debug switch, off: mark the actor while its idle
                    logic runs. The August TRFILE (5376-5379) and the PAL listing
                    (5847-5850) keep a code-less line here beyond the three
-                   closing braces; the text is derived. Pinned: the test keeps
-                   the label after the found arm's mail through the first jump
-                   pass, so flow puts a USE after that call and jump2 does not
-                   merge it with the cur == m0 arm's mail. */
+                   closing braces, and the code keeps the found arm's mail
+                   apart from the cur == m0 arm's, as a test after it does;
+                   the text is derived. */
                 if (dbg) {
                     debug_NMarker(test_CURRENTROOT(self), 255, 0, 0, 100.0f);
                 }
@@ -2789,12 +2671,6 @@ void subCommonIdle(GObj *volatile self)
         _ACTWait(1);
     }
 }
-
-typedef struct { /* field names derived */
-    char pad0[396];
-    unsigned char f18C;
-    char pad18D[7];
-} CarryMot; /* derived name */
 
 void ContinueCorrectPosition(void *obj)
 {
@@ -3112,34 +2988,12 @@ typedef struct { /* field names derived */
     int f18;
 } RopeSwingWork; /* derived name */
 
-static inline int isRopeDownEndOnFloor(GObj *self) /* derived name */
-{
-    ClipWork work;
-    MotionDef *rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
-
-    if ((rec->flags.word >> 4) & 1) {
-        GetSkeltonPosition(work.pt[0], self, 0x2C);
-        GetSkeltonPosition(work.pt[1], self, 0x33);
-        work.pt[1][1] = work.pt[1][1] - 5.0f;
-        ClipFloor(&work);
-        if (work.floor.elem != 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 typedef struct { /* field names derived */
     char pad0[288];
     int moveX; /* 0x120, Sub15C's root.move, held word by word */
     int moveY;
     int moveZ;
 } RopeJumpWork; /* derived name */
-
-typedef struct { /* field names derived */
-    char pad0[24];
-    int f18;
-} RopeTurnSpWork; /* derived name */
 
 typedef struct { /* field names derived */
     char pad0[52];
@@ -3208,34 +3062,6 @@ static inline void afterCommonRopeTurnSpecial(GObj *volatile self)
 {
     char *g = (char *)self;
     GOBJ_SUB(g)->root.ropeState = 0;
-}
-
-typedef struct { /* field names derived */
-    char pad0[32];
-    unsigned long long status;
-} FlySub; /* derived name */
-
-static inline void ClipCollisionWithField(ClipWork *work)
-{
-    int tmp[4];
-    sceVu0CopyVector(tmp, work->pt[1]);
-    ClipWallField(work);
-    sceVu0CopyVector(work->pt[1], work->pt[2]);
-    ClipFloor(work);
-    sceVu0CopyVector(work->pt[1], tmp);
-}
-
-typedef struct { /* field names derived */
-    char pad0[116];
-    int coll;
-} BecSub; /* derived name */
-
-static inline void afterCommonBecarry(GObj *volatile self)
-{
-    SetKidnapInfo(-1, -1);
-    ((BecSub *)(int)GOBJ_SUB(self))->coll = 1;
-    ACTGameCollisionOn((void *)self);
-    gflagOff(393);
 }
 
 inline void actCommonDodgeJump(GObj *volatile self)

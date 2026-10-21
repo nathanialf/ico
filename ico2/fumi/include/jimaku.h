@@ -44,11 +44,4 @@ extern int jimakuMsgBuf[2];
 extern JimakuArg jimaku_msg;
 void jimakuDisp(JimakuArg *msg);
 
-/* unmapped_0055FBD0: one subtitle file name, 0x20 bytes. Reader:
- * ico2/fumi/src/jimaku.c (char [][32]). Owner: ico2/fumi/include/jimaku.h. */
-typedef struct {   /* field names derived */
-    char path[32]; /* 0x00, "text/data_EG01.jim" ... */
-} JimakuFileName;  /* derived name */
-extern const JimakuFileName jimakuFileName[];
-
 #endif /* JIMAKU_H */

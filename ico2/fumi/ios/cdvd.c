@@ -92,37 +92,8 @@ static int stPreLoadCnt; /* derived name */
 
 static int bgRunning; /* derived name */
 
-/* The stream's TTY traces of a drive recovery, built only when DEBUG is
-   defined; the retail build leaves each helper without a body.  The traces
-   read the drive's own state, which is why they take no argument.  The two
-   recovery prints below are compiled out; their strings ("get error fail",
-   "st cd read error %d\n") stay in .rodata. */
-static __inline__ void stDebugPrintError(void) /* derived name */
-{
-#ifdef DEBUG
-    scePrintf("cd error %d\n", sceCdGetError());
-#endif
-}
-
-static __inline__ void stDebugPrintStatus(void) /* derived name */
-{
-#ifdef DEBUG
-    scePrintf("cd status %d\n", sceCdStatus());
-#endif
-}
-
-static __inline__ void stDebugPrintMode(void) /* derived name */
-{
-#ifdef DEBUG
-    scePrintf("cd media mode %d\n", iosCdvdMediaType);
-#endif
-}
-
-/* The definition between the stream manager and the directory search.
- * Declared inline: iosCdvdMgrLoad, iosCdvdMgrPackLoad, iosCdvdManager and
- * iosCdvdDirectStOpen expand it, the stream manager above calls it, and the
- * out-of-line body goes to the end of the object.  Its two strings follow the
- * stream manager's in .rodata. */
+/* Declared inline: iosCdvdMgrLoad, iosCdvdMgrPackLoad, iosCdvdManager and
+ * iosCdvdDirectStOpen expand it, and no call is left out of line. */
 static inline void iosCdvdDiskReadyBlock(void)
 {
     if (sceCdDiskReady(1) != 2) {
@@ -598,14 +569,6 @@ static int unifile_read_func(IosCdvdHandle *self, int arg)
     return 1;
 }
 
-/* The 0x38 name column of a cdvd request is written 16 bytes at a time, so it
- * is typed as an 8-byte-aligned pair: the unifile request always loads the
- * fixed disc path "DFDATAS/DATA.DF", copied as two doublewords. */
-typedef struct { /* field names derived */
-    long long lo;
-    long long hi;
-} CdvdName16; /* derived name */
-
 /* The unifile request is a handle on the stack: it always loads the fixed
  * disc path "DFDATAS/DATA.DF", whose directory unifile_read_func reads into
  * the search cache. */
@@ -621,10 +584,6 @@ static inline void iosCdvdUnifileInfoGet(void)
 
 int iosCdvdBackGroundMgrRunning = 0;
 
-/* The cdvd manager thread, with iosCdvdDiskReadyBlock expanded in case 0.
-   The reply buffer's block opens after the switch.  req is the request the
-   switch dispatches on, held across case 0's calls; the default arm reads
-   msg again.  The LoadEnd receivers never read the reply value. */
 /* The cdvd manager thread, with iosCdvdDiskReadyBlock expanded in case 0.
    The reply buffer's block opens after the switch.  req is the request the
    switch dispatches on, held across case 0's calls; the default arm reads

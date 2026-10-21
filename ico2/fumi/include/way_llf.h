@@ -63,7 +63,6 @@ int AddWayPoint(int gno, int pno);
 int AddWayPointTop(int gno, int pno);
 int InsertWayPointAfter(int dummy, int idx1, int idx2);
 int DeleteWayPoint(int pno);
-int CreateBridge(float *a, float *b);
 WayGroup *WayGroup_begin(void);
 WayGroup *WayGroup_next(WayGroup *p);
 WayGroup *WayBridge_begin(void);
