@@ -12,6 +12,7 @@
 #include "gflag.h"
 #include "StageAnimation.h"
 #include "item.h"
+#include "spider.h"
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
@@ -67,25 +68,174 @@ static ActMail door1Upchk_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail door1Downchk_mes[2] = {{377}, {376}}; /* derived name */
 
-INCLUDE_ASM(actSt00aInit);
+void actSt00aInit(void)
+{
+    if (gflagChk(37) == 0) {
+        stage_SetAnimation(68, 0, 0);
+        stage_SetAnimation(67, 0, 0);
+    } else {
+        stage_SetAnimation(68, 0, -1);
+        stage_SetAnimation(67, 0, -1);
+    }
+}
 
-INCLUDE_ASM(actSt00aEneChk);
+void actSt00aEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (gflagChk(38) == 0 || gflagChk(34) != 0) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(35);
+    _ACTWait(60);
+    gflagOn(36);
+    stage_SetAnimation(142, 1, 0);
+    _ACTWait(150);
+    WakeUpSpidersFromGenerator(scpSearchGobj(248));
+    WakeUpSpidersFromGenerator(scpSearchGobj(249));
+    while (stage_CheckAnimationFinish(142) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_switch_layout(50);
+    _ACTWait(120);
+    scpBoyControlReadDisable = 0;
+    gflagOff(35);
+}
 
 /* No .sbss here in this build: no function of the demo addresses such a flag. */
 
-static void actSt00aStairChkSub(GObj *volatile self);
-
-INCLUDE_ASM(actSt00aStairChk);
+void actSt00aStairChk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, scpSearchGobj(238), 90.0f) != 0 || gflagChk(35) != 0) {
+        _ACTWait(1);
+    }
+    gflagOn(34);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(37);
+    scpSleepEnemyAll();
+    _ACTWait(60);
+    fightSoundProcessRequestPause();
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+    scpAdpcmPlayRequestFunc(23, &proto, 1, 1, 1);
+    while (proto == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(67, 1, 0);
+    _ACTWait(90);
+    iosPadActRequest(boyPad, 17);
+    while (stage_CheckAnimationFinish(67) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    stage_SetAnimation(68, 1, 0);
+    proto_yure = iosPadActRequest(boyPad, 9);
+    proto_yure_vol = 128;
+    iosPadActVolumeSet(proto_yure, 128);
+    _ACTWait(500);
+    iosPadActStop(proto_yure);
+    while (stage_CheckAnimationFinish(68) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpSearchGobj(235)->active = 0;
+    lt_switch_layout(50);
+    _ACTWait(120);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+    gflagOff(34);
+    fightSoundProcessRequestStart();
+}
 
 void actSt00aDoor2DownChk(GObj *self);
-void actSt00aDoor2UpChk(GObj *self);
 void actSt00aDoor2UpEffect(GObj *volatile self);
 
-INCLUDE_ASM(actSt00aDoor2UpChk);
+void actSt00aDoor2UpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+    int h;
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor2UpEffect, 21);
+
+    stage_SetAnimation(71, 1, 0);
+
+    scpWakeupItemWithBoundary(-6.0f, -221.0f, 1504.0f, 100.0f);
+
+    _ACTWait(1);
+
+    buf[0] = door2UpChkPos.d[0];
+    buf[1] = door2UpChkPos.d[1];
+    soundSeDefPlay(1170, 0, (float *)buf, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1171, 0, (float *)buf, 1);
+    _ACTWait(60);
+    soundSeDefStop(h);
+    soundSeDefPlay(1172, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(71) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door2Upchk_mes[0].func = actSt00aDoor2DownChk;
+    sub->mail = door2Upchk_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
 
 void actSt00aDoor2DownEffect(GObj *volatile self);
 
-INCLUDE_ASM(actSt00aDoor2DownChk);
+void actSt00aDoor2DownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    ConstVec pos;
+    int h;
+
+    while (1) {
+        if (scpTriggerFloorAttrTargetMan(self, 0x3000000) == 0)
+            break;
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor2DownEffect, 21);
+
+    stage_SetAnimation(72, 1, 0);
+
+    scpWakeupItemWithBoundary(-6.0f, -221.0f, 1504.0f, 100.0f);
+
+    _ACTWait(1);
+
+    pos = door2UpChkPos;
+    soundSeDefPlay(1170, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1171, 0, pos.f, 1);
+    _ACTWait(45);
+    soundSeDefStop(h);
+    soundSeDefPlay(1172, 0, pos.f, 1);
+
+    while (stage_CheckAnimationFinish(72) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door2Downchk_mes[0].func = actSt00aDoor2UpChk;
+    sub->mail = door2Downchk_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
 
 void actSt00aDoor1DownChk(GObj *self);
 void actSt00aDoor1UpChk(GObj *self);
@@ -97,23 +247,141 @@ void actSt00aDoor1DownEffect(GObj *volatile self);
 
 INCLUDE_ASM(actSt00aDoor1DownChk);
 
-INCLUDE_ASM(actSt00aEne);
+void actSt00aEne(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt00aEnemy1);
+    if (gflagChk(38) == 0) {
+        ene_mes[0].func = actSt00aEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
 
-INCLUDE_ASM(actSt00aEnemy2);
+void actSt00aEnemy1(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(36) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(50);
+    Generator_MaskOff(self);
+    Generator_Call(self);
+    _ACTWait(30);
+    Generator_Call(self);
+    _ACTWait(30);
+    Generator_Call(self);
+}
 
-INCLUDE_ASM(actSt00aStair);
+void actSt00aEnemy2(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(36) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(160);
+    Generator_MaskOff(self);
+    Generator_Call(self);
+    _ACTWait(30);
+    Generator_Call(self);
+}
 
-INCLUDE_ASM(actSt00aObj261);
+void actSt00aStair(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-INCLUDE_ASM(actSt00aObj264);
+    _ACTWait(1);
+
+    if (gflagChk(37) == 0) {
+        stair_mes[0].func = actSt00aStairChk;
+        act->mail = stair_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(235)->active = 0;
+    }
+}
+
+void actSt00aDoor1(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (scpTriggerBall(self, boyGObj, 200.0f) != 0) {
+        stage_SetAnimation(70, 0, 0);
+        _ACTWait(60);
+        door1Down_mes[0].func = actSt00aDoor1DownChk;
+        act->mail = door1Down_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(69, 0, 0);
+        door1Up_mes[0].func = actSt00aDoor1UpChk;
+        act->mail = door1Up_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+void actSt00aDoor2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (scpTriggerBall(self, boyGObj, 200.0f) != 0) {
+        stage_SetAnimation(72, 0, 0);
+        _ACTWait(60);
+        door2Down_mes[0].func = actSt00aDoor2DownChk;
+        act->mail = door2Down_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(71, 0, 0);
+        door2Up_mes[0].func = actSt00aDoor2UpChk;
+        act->mail = door2Up_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
 
 void actSt00aAtr2Chk(GObj *volatile self);
 
-INCLUDE_ASM(actSt00aAtr2);
+void actSt00aAtr2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt00aAtr2Chk);
+    if (gflagChk(38) == 0) {
+        atr2_mes[0].func = actSt00aAtr2Chk;
+        act->mail = atr2_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+void actSt00aAtr2Chk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(girlGObj, 0x2000000) == 0) {
+        _ACTWait(1);
+    }
+    gflagOn(38);
+}
 
 void actSt00aDoor2Event(int x)
 {

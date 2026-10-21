@@ -14,9 +14,11 @@ struct SqEntry;
 
 /* st19a.o's .sdata globals */
 void actSt19aChainDown(GObj *volatile self);
+void actSt19aChainUp(GObj *volatile self);
 void actSt19aChainMain(GObj *volatile self);
 void actSt19aChainSwitch(GObj *volatile self);
 void actSt19aHagurumaChk(GObj *volatile self);
+void actSt19aOriDown(GObj *volatile self);
 void actSt19aOriMain(GObj *volatile self);
 void actSt19aOriSwitch(GObj *volatile self);
 void actSt19aOriUp(GObj *volatile self);
