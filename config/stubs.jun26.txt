@@ -92,12 +92,6 @@ text stgmgrNextStagePreLoad 0x00192E08 0x0019303C ico2/common/src/StageManager.c
 rdlit stgmgrNextStagePreLoad 0x00659DC0 0x00659DE6 ico2/common/src/StageManager.c  # 1 string
 sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.c  # 1 string
 text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
-text reduceWork2ToWork0.105 0x001DD588 0x001DD6DC ico2/sugipon/src/staticBlur.c local file=reduceWork2ToWork0_105_staticBlur  # ordinal; differs-at:37; length:+2; extent-differs
-rdlit reduceWork2ToWork0.105 0x00661110 0x00661120 ico2/sugipon/src/staticBlur.c file=reduceWork2ToWork0_105_staticBlur def  # 1 data (target side); emitted where the demo has it
-text eyeBlur.109 0x001DD6E0 0x001DDE38 ico2/sugipon/src/staticBlur.c local file=eyeBlur_109_staticBlur  # ordinal; differs-at:0; length:-16; extent-differs
-lit4 eyeBlur.109 0x00678F0C 0x00678F10 ico2/sugipon/src/staticBlur.c file=eyeBlur_109_staticBlur  # 1 float (target side)
-rdlit eyeBlur.109 0x00661120 0x00661130 ico2/sugipon/src/staticBlur.c file=eyeBlur_109_staticBlur def  # 1 data (target side); emitted where the demo has it
-text makeFullScreenFlareAfter 0x001DDE38 0x001DDFE0 ico2/sugipon/src/staticBlur.c lines=198  # ordinal; differs-at:95; other:1; extent-equal
 text ACTGetEnvironment 0x001EC350 0x001EF7F0 ico2/fumi/src/act-env.c lines=1078  # order
 lit4 ACTGetEnvironment 0x00678F80 0x00678FB0 ico2/fumi/src/act-env.c  # 12 floats (target side)
 rdlit ACTGetEnvironment 0x00661E10 0x00661EE8 ico2/fumi/src/act-env.c  # 3 strings, 1 jtbl (target side)

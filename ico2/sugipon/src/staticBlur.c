@@ -8,7 +8,6 @@
 #include "GsBase.h"
 #include "main.h"
 #include "Matrix.h"
-#include "include_asm.h"
 
 static void blur(int n, void *col);
 
@@ -540,17 +539,195 @@ void makeFullScreenFlareBefore(int mode)
 
 static int eyeBlurAlpha = 150; /* derived name */
 
-void makeFullScreenFlareAfter(int mode);
+void makeFullScreenFlareAfter(int mode)
+{
+    void reduceWork2ToWork0(void)
+    {
+        gif_SetGsReg(6, workBase[2] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+        gif_SetGsReg(0x14, 0x60);
 
-INCLUDE_ASM(reduceWork2ToWork0_105_staticBlur);
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
 
-INCLUDE_ASM(eyeBlur_109_staticBlur);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        {
+            SprUV r = {-2048, -1024, 4096, 2048};
 
-INCLUDE_ASM(makeFullScreenFlareAfter);
+            int uv[4] = {8, 8, ScreenWidth * 16 - 8, ScreenHeight * 16 - 8};
+            SprCol col = {{128, 128, 128, 128}};
 
-INCLUDE_ASM_LIT(reduceWork2ToWork0_105_staticBlur);
+            gif_SpriteSensitiveOrg(&r, 0, uv, &col, 0);
+        }
+        gif_SetZWrite(1);
+        gif_SetGsReg(0x47, 0x5000D);
+    }
 
-INCLUDE_ASM_LIT(eyeBlur_109_staticBlur);
+    void eyeBlur(int alpha, SprCol *col)
+    {
+        int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                       ScreenHeight * 16};
+
+        gif_SetGsReg(0x14, 0x60);
+
+        gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
+
+        gif_SetGsReg(6, workBase[0] | 0x20010000 | 0x5C0000000LL);
+
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        {
+            SprUV a = {-2048, -1024, 4096, 2048};
+
+            SprUV b = workBufferUv;
+
+            unsigned char c[4] = {alpha, alpha, alpha, 128};
+
+            gif_SetAlpha(1, 7, 0);
+            gif_SpriteSensitiveOrg(&a, 0, &b, c, 0);
+        }
+
+        if ((mode & 2) == 0 && 0.0f < sunView[2] && -ScreenWidth < sunScreen[0] &&
+            sunScreen[0] < ScreenWidth && -ScreenHeight < sunScreen[1] &&
+            sunScreen[1] < ScreenHeight) {
+            int arr[4];
+            SprCol c1;
+            int i;
+
+            gif_SetGsReg(0x14, 0x60);
+
+            gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
+
+            gif_SetGsReg(8, 5);
+
+            for (i = 1; i < 5; i++) {
+                int x0 = (sunScreen[0] + ScreenWidth / 2) * 4096 / ScreenWidth;
+                int y0 = (sunScreen[1] + ScreenHeight / 2) * 2048 / ScreenHeight;
+                int x = x0 * i / 5;
+                int y = y0 * i / 5;
+                int x1 = 4112 - (4096 - x0) * i / 5;
+                int y1 = 2064 - (2048 - y0) * i / 5;
+
+                arr[0] = x;
+                arr[1] = y;
+                arr[2] = x1 - x;
+                arr[3] = y1 - y;
+                c1 = (SprCol){{128, 128, 128, 128}};
+
+                gif_SetAlpha(1, 0, alpha / (i + 1));
+                gif_SpriteSensitiveOrg(eyeGhostRect, 0, arr, &c1, 1);
+            }
+
+            gif_SetGsReg(0x14, 0x60);
+
+            gif_SetGsReg(6, workBase[3] | 0x20010000 | 0x5C0000000LL);
+
+            gif_SetDrawEnviroment(workBase[1], 0, 256, 128, 0, 0);
+            {
+                int x0 = (sunScreen[0] + ScreenWidth / 2) * 4096 / ScreenWidth;
+                int y0 = (sunScreen[1] + ScreenHeight / 2) * 2048 / ScreenHeight;
+                int px = x0 * 0.9f;
+                int py = y0 * 0.9f;
+                int px1 = 4096.0f - (4096 - x0) * 0.9f;
+                int py1 = 2048.0f - (2048 - y0) * 0.9f;
+                int arr2[4] = {px, py, px1 - px, py1 - py};
+                SprCol c2 = {{128, 128, 128, 128}};
+
+                gif_SetAlpha(1, 4, 0);
+                gif_SpriteSensitiveOrg(eyeShrinkRect, 0, arr2, &c2, 0);
+            }
+
+            gif_SetGsReg(0x14, 0x40);
+
+            gif_SetGsReg(6, workBase[1] | 0x20010000 | 0x5C0000000LL);
+
+            gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
+            {
+                SprUV d = {520, 264, 0, 0};
+                int rate = 10;
+                unsigned char cc[4] = {(col->f[0] - 128) * (col->f[3] * rate) / 128,
+                                       (col->f[1] - 128) * (col->f[3] * rate) / 128,
+                                       (col->f[2] - 128) * (col->f[3] * rate) / 128,
+                                       col->f[3] + 128};
+
+                gif_SetAlpha(1, 5, 0);
+                gif_SpriteSensitiveOrg(eyeTintRect, 0, &d, cc, 1);
+            }
+
+            if (mode & 1) {
+                gif_SetGsReg(0x14, 0x40);
+
+                gif_SetGsReg(6, workBase[1] | 0x20010000 | 0x5C0000000LL);
+
+                gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+                gif_SetZTest(0);
+                gif_SetZWrite(0);
+                gif_SetAlpha(1, 1, 96);
+                gif_SetGsReg(0x47, 0x34003);
+                {
+                    SprUV e = {520, 264, 0, 0};
+
+                    gif_SpriteSensitiveOrg(rect, 0, &e, &whiteCol, 1);
+                }
+                gif_SetZWrite(1);
+                gif_SetGsReg(0x47, 0x5000D);
+            }
+
+            gif_SetGsReg(0x14, 0x60);
+            gif_SetZWrite(1);
+            gif_SetZTest(1);
+        }
+    }
+
+    inline void pasteWork0ToFB(void) /* derived name */
+    {
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
+
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(1, 0, 0);
+        {
+            SprUV r = {-2048, -1024, 4096, 2048};
+
+            gif_SpriteSensitiveOrg(&r, 0, (void *)0, &alphaCopyCol, 1);
+        }
+        gif_SetZWrite(1);
+        gif_SetZTest(1);
+    }
+
+    gif_StartPacketPri(7);
+
+    reduceWork2ToWork0();
+
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+    {
+        SprCol col = flareCol;
+        int i;
+
+        if ((mode & 2) == 0) {
+            col.f[3] = 0;
+        } else {
+            col.f[3] = col.f[3] / 10;
+        }
+        for (i = 0; i < 10; i++) {
+            blur(i + 10, &col);
+        }
+    }
+    gif_SetZTest(1);
+    gif_SetZWrite(1);
+    {
+        SprCol col = flareCol;
+
+        eyeBlur(eyeBlurAlpha, &col);
+    }
+
+    pasteWork0ToFB();
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+
+    gif_EndPacket();
+}
 
 static void pasteFullScreenFlare(void)
 {
