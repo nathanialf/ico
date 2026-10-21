@@ -41,7 +41,6 @@
 #include "poly-flat.h"
 #include "act.h"
 #include "brain.h"
-#include "include_asm.h"
 
 /* weapon.h's WeaponDef, which this TU does not include (CheckWeaponKind
    differs): the weapon kind's motion orient at 0x1C */
@@ -1404,7 +1403,46 @@ inline void WithMailFunc_AttackReject(GObj *self) /* derived name */
     }
 }
 
-INCLUDE_ASM(ACTGame_BeforeFunc);
+void ACTGame_BeforeFunc(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+
+    ACTGame_InnerVelocityUpdate(self);
+
+    switch ((unsigned int)s->actMode) {
+    case 1: {
+        Act *p = GOBJ_ACT(self);
+        p->attacker = 0;
+        p->hit = 0;
+        break;
+    }
+    }
+
+    if ((((&motionKind[GOBJ_SUB(self)->ctrl.motion])->flags >> 14) & 1) == 0 ||
+        GOBJ_SUB(self)->ctrl.reserveBlend != 0) {
+        GetRootPosition((char *)s + 0xF0, self);
+    }
+
+    ACTParaStatus_Clear(self);
+    _ACTCharStatus_Clear(self);
+    ACTLookTarget_Init(self);
+
+    memset((char *)s + 0x474, 0, 12);
+    memset((char *)s + 0x480, 0, 12);
+
+    ACTGame_SetMotionPlaySpeedRatio_Clear(self);
+
+    if (GOBJ_WORK(self)->downTimer > 0) {
+        (GOBJ_WORK(self)->downTimer)--;
+    }
+    if (s->soundWait > 0) {
+        (s->soundWait)--;
+    }
+
+    if (self == (girlGObj)) {
+        ACTGame_GirlBeforeFunc(self);
+    }
+}
 
 /* OR the 12 pending-request bytes into the live request bytes. */
 static inline void actEnv_OrRequestBytes(unsigned char *dst, unsigned char *src) /* derived name */

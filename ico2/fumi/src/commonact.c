@@ -1186,15 +1186,60 @@ void actCommonStone(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(func_00153E00);
+static void BoxBarSoundOn(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    switch (s->actMode) {
+    case 49:
+        ExecBoxMoveStartReaction(s->box, (int)s->pushDir);
+        break;
+    case 51:
+        ExecRotObjectMoveStartReaction(s->env.barObj);
+        break;
+    }
+}
 
-INCLUDE_ASM(func_00153E38);
+static void BoxBarSoundOff(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    switch (s->actMode) {
+    case 49:
+        ExecBoxMoveEndReaction(s->box);
+        break;
+    case 51:
+        ExecRotObjectMoveEndReaction(s->env.barObj);
+        break;
+    }
+}
 
-static void BoxBarSoundOn(GObj *self);
-static void BoxBarSoundOff(GObj *self);
-static void _boxbar_set_sound(GObj *self, int mode);
-
-INCLUDE_ASM(_boxbar_set_sound);
+static void _boxbar_set_sound(GObj *self, int mode)
+{
+    switch (GOBJ_ACT(self)->enemy->boxBarSound) {
+    case 0:
+        if (mode == 1) {
+            BoxBarSoundOn(self);
+            GOBJ_ACT(self)->enemy->boxBarSound = 1;
+        }
+        break;
+    case 1:
+        if (mode == 0 || mode == 2) {
+            BoxBarSoundOff(self);
+            GOBJ_ACT(self)->enemy->boxBarSound = mode;
+        } else {
+            BoxBarSoundOn(self);
+        }
+        break;
+    case 2:
+        if (mode == 0) {
+            GOBJ_ACT(self)->enemy->boxBarSound = 0;
+        }
+        if (mode == 3) {
+            BoxBarSoundOn(self);
+            GOBJ_ACT(self)->enemy->boxBarSound = 1;
+        }
+        break;
+    }
+}
 
 typedef void (*BoxAfterFn)(volatile int);
 
@@ -1405,7 +1450,30 @@ void actCommonFall(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(func_00154C48);
+/* the marker colours (R, G, B, A) debugDispFlyLine draws with, after
+   cageUpDown in .data: two objects (the demo forms each address on its own) */
+static int flySphereCol[4] = {128, 128, 255, 128}; /* derived name */
+
+static int flyLineCol[4] = {0, 128, 255, 128}; /* derived name */
+
+/* a debug marker: a wire sphere at `to` and a line to it from `from`; no
+   caller in this build */
+void debugDispFlyLine(float *from, float *to) /* derived name */
+{
+    gif_StartPacketPri(11);
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrixV(to);
+    gif_SetAlpha(1, 5, 128);
+    gif_SetZTest(1);
+    prim_DispWireSphere(100.0f, flySphereCol, 4, 4);
+    gif_EndPacket();
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 5, 128);
+    gif_SetZTest(1);
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    DrawLineG(from, flyLineCol, to, flyLineCol, 0);
+    gif_EndPacket();
+}
 
 INCLUDE_ASM(actCommonFly);
 
@@ -1494,9 +1562,6 @@ static inline float calcFlyAccel(float *a, float *b) /* derived name */
     return clampUnit(h * 0.005f);
 }
 
-/* two marker colours (R, G, B, A) func_00154C48 draws with, after cageUpDown */
-INCLUDE_ASM(D_0026AD30);
-
 typedef union { /* field names derived */
     float f[4];
     long long ll[2];
@@ -1523,7 +1588,17 @@ typedef struct { /* field names derived */
 /* inline tail members, defined here: their strings come between the
    flyCoreLoop unit's and funcCommonBeginReady's in .rodata, while their code
    goes to the end of the object */
-INCLUDE_ASM_LIT(actCommonCliffdown);
+inline void actCommonCliffdown(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+
+    debug_StdPrintfDummy("enter actCommonCliffdown\n");
+    SetMotionDirection(self, s->env.cliffOrient);
+    for (;;) {
+        ACTSendMailCorrect(self, 177);
+        _ACTWait(1);
+    }
+}
 
 inline void actCommonShoal(GObj *volatile self)
 {
@@ -1922,19 +1997,97 @@ INCLUDE_ASM(actCommonStoneDead);
 
 INCLUDE_ASM(actCommonSofa);
 
-INCLUDE_ASM(actCommonCatchFire);
+inline void actCommonCatchFire(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    int lit = 0;
 
-INCLUDE_ASM(actCommonCatchFireBomb);
+    SetMotionDirection(self, s->env.torchOrient);
+    for (;;) {
+        if (GetMotionFrameFlag1((void *)self) && !lit) {
+            LightTorchOnOfWeapon(s->weapon);
+            lit = 1;
+        }
+        ACTSendMailCorrect(self, 177);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM(actCommonPutFire);
+inline void actCommonCatchFireBomb(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    int lit = 0;
 
-INCLUDE_ASM(actCommonBoxReverbe);
+    SetMotionDirection(self, s->env.torchOrient);
+    for (;;) {
+        if (GetMotionFrameFlag1((void *)self) && !lit) {
+            LightTorchOn(s->env.bombObj);
+            lit = 1;
+        }
+        ACTSendMailCorrect(self, 177);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM(actCommonClimb);
+inline void actCommonPutFire(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    int lit = 0;
 
-INCLUDE_ASM(actCommonCliffdown);
+    SetMotionDirection(self, s->env.torchRevOrient);
+    for (;;) {
+        if (GetMotionFrameFlag1((void *)self) && !lit) {
+            LightTorchOn(s->env.torchRevObj);
+            lit = 1;
+        }
+        ACTSendMailCorrect(self, 177);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM(actCommonLadderBellow);
+inline void actCommonBoxReverbe(GObj *volatile self)
+{
+    _ACTWait(40);
+    for (;;) {
+        ACTSendMailCorrect(self, 177);
+        _ACTWait(1);
+    }
+}
+
+inline void actCommonClimb(GObj *volatile self)
+{
+    for (;;) {
+        ACTSendMailCorrect(self, 177);
+        _ACTWait(1);
+    }
+}
+
+inline void actCommonLadderBellow(GObj *volatile self)
+{
+    WallCfg hit;
+    float p[4];
+    float q[4];
+    float dir[4];
+    int attr[4];
+
+    while (1) {
+        GetSkeltonPosition(p, self, 44);
+        sceVu0ScaleVector(dir, test_CURRENTORIENT(self), 50.0f);
+        sceVu0AddVector(q, p, dir);
+        if (ACTCheckCollis_CI(p, q, attr, &hit) != 0) {
+            if (CompareAttribute(attr[0], 0x3000) != 0) {
+                ACTSendMailCorrect(self, 131);
+                GOBJ_WORK(self)->bellowWall3000.wall = hit;
+            }
+            if (CompareAttribute(attr[0], 0x400) != 0) {
+                ACTSendMailCorrect(self, 130);
+                GOBJ_WORK(self)->bellowWall400.wall = hit;
+            }
+        }
+        ACTSendMailCorrect(self, 202);
+        _ACTWait(1);
+    }
+}
 
 inline void actCommonLadderBellowHang(GObj *volatile self)
 {

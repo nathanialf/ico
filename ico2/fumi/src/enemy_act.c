@@ -2059,7 +2059,75 @@ void FlyMail(void *self)
 static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
                                unsigned char flag);
 
-INCLUDE_ASM(_ApproachTarget_Way);
+static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float range,
+                               unsigned char flag)
+{
+    float p0[4];
+    float p1[4];
+    Act *sub = GOBJ_ACT(self);
+    int i;
+
+    GetRootProjectionPosOfGObj(p0, tgt);
+    GetRootProjectionPosOfGObj(p1, self);
+    for (i = 0; i < 20; i++) {
+        if (IsSelectID_EnemyCtrl(*(int *)((char *)self + 8)) != 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    if (ACTWayMove_BeginDetail(self, p1, p0, tgt, 0) == 0) {
+        FlyMail(self);
+        return 0;
+    }
+    while (1) {
+        GetRootProjectionPosOfGObj(p0, tgt);
+        GetRootProjectionPosOfGObj(p1, self);
+        if (!(_DistSqGV(p1, p0) < 1440000.0f) ||
+            240.0f < ((p1[1] - p0[1] < 0.0f) ? -(p1[1] - p0[1]) : (p1[1] - p0[1]))) {
+            FlyMail(self);
+        }
+        if (fn != 0) {
+            ((void (*)(GObj *, void *, float))fn)(
+                self, tgt, _DistGV(test_CURRENTROOT(self), test_CURRENTROOT(tgt)));
+        }
+        if (sub->actMode == 6) {
+            _ACTWait(1);
+            continue;
+        }
+        if (ACTWayMove_NextDetail(self, pos, p0) == 0) {
+            return 0;
+        }
+        *(float *)((char *)pos + 0) = sub->wayNodeX;
+        *(float *)((char *)pos + 4) = sub->wayNodeY;
+        *(float *)((char *)pos + 8) = sub->wayNodeZ;
+        if (((int)(((ActStatusWord *)((char *)sub + 0x3E0))->q >> 16)) & 1) {
+            FlyMail(self);
+        }
+        if ((((int)(((ActStatusWord *)((char *)sub + 0x3E0))->q >> 16)) & 1) == 0 &&
+            sub->wayGoalDist < range && sub->wayGoalHeight < 100.0f &&
+            ((sub->wayGoalHeight < 0.0f) ? -sub->wayGoalHeight : sub->wayGoalHeight) < 200.0f) {
+            return 1;
+        }
+        if (sub->wayGoalDist < 200.0f) {
+            sub->stick.mag = 0.5f;
+        } else if (ACTWay_IsMustWalkFromWay(self) != 0) {
+            sub->stick.mag = 0.5f;
+        } else {
+            sub->stick.mag = 1.0f;
+        }
+        if (flag != 0) {
+            SetMotionDirection(self, (float *)((char *)sub + 0x100));
+            flag = 0;
+        }
+        _ACTWait(1);
+    }
+    /* disabled in retail: the motion-request timer and mail reports */
+    if (0) {
+        debug_StdPrintfDummy("_ACTMotReqTimer wait\n");
+        debug_StdPrintfDummy("_ACTMotReqTimer error loop\n");
+        debug_StdPrintfDummy("\tmail[%d] can not accept\n");
+    }
+}
 
 inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float range,
                            unsigned char flag)

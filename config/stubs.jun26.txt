@@ -690,8 +690,6 @@ text soundReqTickProc 0x00141C70 0x00141D64 ico2/fumi/sound/s_init.c lines=24  #
 text soundVBlank 0x00141D68 0x00141DC8 ico2/fumi/sound/s_init.c lines=10  # census-equal; stubbed for emission order
 text soundSeKindBuild 0x00141DC8 0x00141E84 ico2/fumi/sound/s_init.c lines=24  # ordinal; differs-at:1; imm:3; extent-equal
 text sndInit 0x001420A8 0x001420EC ico2/fumi/sound/soundManager.c lines=8  # ordinal; differs-at:7; imm:2; extent-equal
-text ACTGame_BeforeFunc 0x00143278 0x001434BC ico2/fumi/src/act-game.c lines=146  # aug
-sdlit ACTGame_BeforeFunc 0x00679CC4 0x00679CC8 ico2/fumi/src/act-game.c  # 1 word (target side): the function's $gp float (0x679CC4)
 text ActPara_MakeTbl 0x001486F0 0x00148844 ico2/fumi/src/act-parallel-control.c lines=42  # ordinal; differs-at:10; other:7; extent-equal
 text ACTGetWish_FromPad 0x001488B8 0x00149558 ico2/fumi/src/act-wish.c lines=300  # order
 lit4 ACTGetWish_FromPad 0x00678704 0x0067871C ico2/fumi/src/act-wish.c  # 6 floats (target side)
@@ -705,15 +703,11 @@ rdlit actBoyStart 0x005A1930 0x005A19B0 ico2/fumi/src/boyact.c  # 3 strings, 2 d
 text _ACTCorrectMsg 0x00150BD8 0x00151360 ico2/fumi/src/commonact.c lines=297  # order
 rdlit _ACTCorrectMsg 0x005A19B0 0x005A1A57 ico2/fumi/src/commonact.c align=16  # 7 strings
 text ACTGetOrientFromIntrK 0x00151360 0x00151A08 ico2/fumi/src/commonact.c lines=108  # order
-text func_00153E00 0x00153E00 0x00153E38 ico2/fumi/src/commonact.c  # jun26-only; derived name
-text func_00153E38 0x00153E38 0x00153E6C ico2/fumi/src/commonact.c  # jun26-only; derived name
-text _boxbar_set_sound 0x00153E70 0x00153F5C ico2/fumi/src/commonact.c local lines=28  # call-pal
 text actCommonBox 0x00153F60 0x001543E4 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the BOX row's act
 lit4 actCommonBox 0x0067884C 0x00678850 ico2/fumi/src/commonact.c  # 1 float (target side)
 text actCommonBar 0x001543E8 0x001546CC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the BAR row's act
 lit4 actCommonBar 0x00678850 0x00678854 ico2/fumi/src/commonact.c  # 1 float (target side)
 sdlit actCommonBar 0x00679D60 0x00679D68 ico2/fumi/src/commonact.c  # 1 string (target side)
-text func_00154C48 0x00154C48 0x00154D1C ico2/fumi/src/commonact.c  # jun26-only; derived name
 text actCommonFly 0x00154D20 0x00155078 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the FLY row's act (the Aug-6-2001 build's name for that mode's act)
 lit4 actCommonFly 0x00678858 0x00678868 ico2/fumi/src/commonact.c  # 4 floats (target side)
 text actCommonLadder 0x00155078 0x0015563C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec32+0x0 holds actCommonLadder there (the same record index in the demo)
@@ -734,21 +728,9 @@ text actCommonOne 0x00156DE0 0x00156EAC ico2/fumi/src/commonact.c lines=14  # or
 text actCommonDelete 0x00156EB0 0x00156ED0 ico2/fumi/src/commonact.c lines=4  # census-equal; stubbed for emission order
 text actCommonStoneDead 0x00156ED0 0x00156F14 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec24+0x0 holds actCommonStoneDead there (the same record index in the demo)
 text actCommonSofa 0x00156F18 0x00156FDC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec45+0x0 holds actCommonSofa there (the same record index in the demo)
-text actCommonCatchFire 0x00156FE0 0x00157054 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec46+0x0 holds actCommonCatchFire there (the same record index in the demo)
-text actCommonCatchFireBomb 0x00157058 0x001570CC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec47+0x0 holds actCommonCatchFireBomb there (the same record index in the demo)
-text actCommonPutFire 0x001570D0 0x00157144 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec48+0x0 holds actCommonPutFire there (the same record index in the demo)
-text actCommonBoxReverbe 0x00157148 0x0015717C ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec50+0x0 holds actCommonBoxReverbe there (the same record index in the demo)
-text actCommonClimb 0x00157180 0x001571AC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec36+0x0 holds actCommonClimb there (the same record index in the demo)
-text actCommonCliffdown 0x001571B0 0x001571FC ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec37+0x0 holds actCommonCliffdown there (the same record index in the demo)
-rdlit actCommonCliffdown 0x005A1BA8 0x005A1BC8 ico2/fumi/src/commonact.c def  # 1 string (target side); emitted where the demo has it
-text actCommonLadderBellow 0x00157200 0x00157334 ico2/fumi/src/commonact.c  # jun26-only; derived name; named from act-mode-def: the Aug-6-2001 build's act-mode-def rec39+0x0 holds actCommonLadderBellow there (the same record index in the demo)
 data intrMotion 0x0026A730 0x0026AD00 ico2/fumi/src/commonact.c local  # intrMotion: ACTGetOrientFromIntrK's table (lui/addiu of 0x26A730); 372 kinds in this build, PAL 432, and the motion numbers differ (target side)
-data D_0026AD30 0x0026AD30 0x0026AD50 ico2/fumi/src/commonact.c local  # func_00154C48's two colours (0x26AD30, 0x26AD40), after cageUpDown; PAL's flyLimitCol is one colour (target side)
 text actEnemyKidnapEnd 0x00159FE0 0x0015A324 ico2/fumi/src/enemy_act.c lines=149  # aug
 lit4 actEnemyKidnapEnd 0x006788E4 0x006788EC ico2/fumi/src/enemy_act.c  # 2 floats (target side)
-text _ApproachTarget_Way 0x0015C9A0 0x0015CCBC ico2/fumi/src/enemy_act.c local lines=104  # call-pal
-lit4 _ApproachTarget_Way 0x00678910 0x00678914 ico2/fumi/src/enemy_act.c  # 1 float (target side)
-rdlit _ApproachTarget_Way 0x005A2160 0x005A21B8 ico2/fumi/src/enemy_act.c  # 3 strings (target side): its compiled-out _ACTMotReqTimer and mail reports (was the tail of subEnemyBrain_ToGirl's row)
 text actEnemyStart 0x0015CCC0 0x0015D1B4 ico2/fumi/src/enemy_act.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec4+0x40 holds actEnemyStart there (the same record index in the demo)
 lit4 actEnemyStart 0x00678914 0x0067891C ico2/fumi/src/enemy_act.c  # 2 floats (target side)
 rdlit actEnemyStart 0x005A21D0 0x005A21F0 ico2/fumi/src/enemy_act.c  # 1 string (target side); the data before it is GetEnemyType's table
@@ -929,52 +911,6 @@ text wpsort_compfnc 0x00171CA0 0x00171CD4 ico2/fumi/src/way_util.c local lines=1
 text gflagSave 0x00171CD8 0x00171D1C ico2/script/src/gflag.c lines=7  # by body: writes through gamesysMemoryHandlerWrite; the demo emits Save, Load, Init
 text gflagLoad 0x00171D20 0x00171D5C ico2/script/src/gflag.c lines=6  # by body: reads through gamesysMemoryHandlerRead; gameSysMemoryFuncList slot 2
 text gflagInit 0x00171D60 0x00171DF4 ico2/script/src/gflag.c lines=20  # by body: clears the flags, keeps flag 379
-text func_00172178 0x00172178 0x0017233C ico2/script/src/script.c  # jun26-only; derived name
-text func_00172340 0x00172340 0x00172490 ico2/script/src/script.c  # jun26-only; derived name
-rdlit func_00172340 0x005A2F90 0x005A2FA8 ico2/script/src/script.c  # 1 string (target side)
-text func_00172490 0x00172490 0x001725E0 ico2/script/src/script.c  # jun26-only; derived name
-rdlit func_00172490 0x005A2FA8 0x005A2FC0 ico2/script/src/script.c  # 1 string (target side)
-text scpSekizou 0x001725E0 0x00172B60 ico2/script/src/script.c lines=88  # call-aug
-lit4 scpSekizou 0x00678A0C 0x00678A14 ico2/script/src/script.c  # 2 floats (target side)
-text func_00172B60 0x00172B60 0x00172DC8 ico2/script/src/script.c  # jun26-only; derived name
-rdlit func_00172B60 0x005A2EE0 0x005A2F50 ico2/script/src/script.c def  # 1 string (target side); emitted where the demo has it
-text scpDispOffAllWithKind 0x00172E48 0x00172E84 ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
-text scpDispOnAllWithKind 0x00172E88 0x00172ED0 ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
-text scpActivateAllWithKind 0x00172ED0 0x00172F10 ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
-text scpDisActivateAllWithKind 0x00172F10 0x00172F4C ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
-text scpLinkBGAtoLayoutedTarget 0x00172F50 0x00172F8C ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
-text func_00172F90 0x00172F90 0x00173014 ico2/script/src/script.c  # jun26-only; derived name
-rdlit func_00172F90 0x005A2E98 0x005A2EE0 ico2/script/src/script.c def  # 1 string (target side); emitted where the demo has it
-text scpGetWallCollision 0x00173018 0x00173184 ico2/script/src/script.c lines=24  # call-pal
-text scpDoorTypeUp 0x00173188 0x001732A8 ico2/script/src/script.c lines=13  # aug
-text scpDoorTypeUpSwitch 0x001732A8 0x00173338 ico2/script/src/script.c lines=16  # aug
-text scpAdpcmPlayRequestFunc 0x00173338 0x001733A0 ico2/script/src/script.c lines=22  # call-pal
-text scpAdpcmPlayRequestNum 0x001733A0 0x001733D4 ico2/script/src/script.c lines=11  # call-aug
-text scpAdpcmFadeClose 0x001733D8 0x00173400 ico2/script/src/script.c  # call-aug; no definition in this TU
-text scpAdpcmCloseChk 0x00173400 0x00173430 ico2/script/src/script.c  # aug; no definition in this TU
-text scpDeamon 0x00173430 0x001734E8 ico2/script/src/script.c lines=19  # aug
-text scpIsTorchLightOn 0x001734E8 0x00173528 ico2/script/src/script.c lines=7  # census-equal; stubbed for emission order
-text scpIsBombExplode 0x00173528 0x0017357C ico2/script/src/script.c lines=13  # census-equal; stubbed for emission order
-text scpGetRotObjectRotCount 0x00173580 0x001735C0 ico2/script/src/script.c lines=10  # census-equal; stubbed for emission order
-rdlit scpGetRotObjectRotCount 0x005A2E08 0x005A2E50 ico2/script/src/script.c def  # 1 string (target side); emitted where the demo has it
-text scpIsRotObjectZPlusDirInclude 0x001735C0 0x00173688 ico2/script/src/script.c lines=20  # census-equal; stubbed for emission order
-rdlit scpIsRotObjectZPlusDirInclude 0x005A2E50 0x005A2E94 ico2/script/src/script.c align=16 def  # 1 string
-text scpTransLinear 0x00173688 0x00173760 ico2/script/src/script.c lines=12  # census-equal; stubbed for emission order
-text scpRotateLinear 0x00173760 0x001738A0 ico2/script/src/script.c lines=35  # census-equal; stubbed for emission order
-text scpTriggerPosBall 0x001738A0 0x0017398C ico2/script/src/script.c lines=29  # census-equal; stubbed for emission order
-text scpTriggerBall 0x00173990 0x00173AA4 ico2/script/src/script.c lines=9  # census-equal; stubbed for emission order
-text scpTriggerFloorAttr 0x00173AA8 0x00173BA4 ico2/script/src/script.c lines=7  # ordinal; differs-at:1; length:+2; extent-differs
-text scpTriggerWallAttr 0x00173BA8 0x00173CA4 ico2/script/src/script.c lines=7  # ordinal; differs-at:1; length:+2; extent-differs
-text scpTriggerFloorAttrTargetMan 0x00173CA8 0x00173E54 ico2/script/src/script.c lines=17  # ordinal; differs-at:0; length:+13; extent-differs
-text scpTriggerPosBox 0x00173E58 0x00173F94 ico2/script/src/script.c lines=24  # ordinal; differs-at:1; length:+1; extent-differs
-text scpEffectStart 0x00173F98 0x00173FDC ico2/script/src/script.c lines=6  # census-equal; stubbed for emission order
-text scpSleepEnemyAll 0x00173FE0 0x00174068 ico2/script/src/script.c lines=12  # ordinal; differs-at:17; imm:1; extent-equal
-text scpWakeupEnemyAll 0x00174068 0x001740F0 ico2/script/src/script.c lines=12  # ordinal; differs-at:17; imm:1; extent-equal
-text scpKillEnemyAll 0x001740F0 0x0017419C ico2/script/src/script.c lines=14  # ordinal; differs-at:12; imm:3; extent-equal
-text scpMaskGeneratorAll 0x001741A0 0x001741E8 ico2/script/src/script.c lines=8  # census-equal; stubbed for emission order
-text _SCPMoveCharactorByWay 0x001741E8 0x001742AC ico2/script/src/script.c lines=12  # call-pal
-text func_001742B0 0x001742B0 0x0017440C ico2/script/src/script.c  # jun26-only; derived name
-lit4 func_001742B0 0x00678A14 0x00678A18 ico2/script/src/script.c  # 1 float (target side)
 text actSt25aQueenAppear 0x00174EC0 0x00175138 ico2/script/src/st25a.c  # order; no definition in this TU
 lit4 actSt25aQueenAppear 0x00678A2C 0x00678A3C ico2/script/src/st25a.c  # 4 floats (target side)
 text actSt25aQueenAppearChk 0x00175138 0x00175268 ico2/script/src/st25a.c lines=16  # order
