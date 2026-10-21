@@ -187,7 +187,7 @@ copied from any of those files: every address in `config/*.jun26.*` was found
 in the user's own ELF.
 
 Of the user's disc image the build reads the disc's `SYSTEM.CNF` and
-`CUS97113/SCPS_000.00`: it checks the ELF's SHA-1, generates the 71
+`CUS97113/SCPS_000.00`: it checks the ELF's SHA-1, generates the 120
 data-only members from it (above), and writes the campaign stubs
 `config/stubs.jun26.txt` lists. Every other function, the five VU1
 microprograms and Sony's libraries are compiled or assembled from the tracked

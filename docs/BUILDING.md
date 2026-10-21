@@ -202,7 +202,7 @@ target, here the one.
   `.dsm` path for the first overlay of each program, the empty name cpp gives
   standard input and the include's path for the others;
 - writes the data-only members from the base ELF into `build/jun26/data/`. Each
-  of the 71, all listed in `config/data_schema.jun26.txt`, is written as C by
+  of the 120, all listed in `config/data_schema.jun26.txt`, is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
   with every pointer named after the symbol at its address, floats as the
   shortest decimal that reads back to the same bits and names as string
