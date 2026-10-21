@@ -66,7 +66,6 @@ sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target sid
 text stage_Init 0x00127BB0 0x001285D0 ico2/seki/src/StageAnimation.c lines=206  # order
 rdlit stage_Init 0x0059EF58 0x0059F005 ico2/seki/src/StageAnimation.c  # 4 strings
 rdlit stage_Init 0x0059F010 0x0059F050 ico2/seki/src/StageAnimation.c align=16  # 1 static
-data D_002695F8 0x002695F8 0x002699BC ico2/fumi/ios/mcdata.c local  # the save icon's icon.sys record (964 bytes: "PS2D", the background colours, light directions and colours, the title, the icon file names), after mcard.c's McMsgQ and before pad.c's 64-aligned .data; no word of .text forms its address
 text actBoyStart 0x0014F058 0x0014F4E0 ico2/fumi/src/boyact.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec1+0x40 holds actBoyStart there (the same record index in the demo)
 rdlit actBoyStart 0x005A1930 0x005A19B0 ico2/fumi/src/boyact.c  # 3 strings, 2 data runs (target side)
 text _ACTCorrectMsg 0x00150BD8 0x00151360 ico2/fumi/src/commonact.c lines=297  # order

@@ -85,6 +85,9 @@ ico2/fumi/ios/ios.c
 ico2/fumi/ios/mblock.c
 ico2/fumi/ios/mcard.c
 ico2/fumi/ios/mcdata.c
+# mcdata.o's .data: the save icon's icon.sys record (sceMcIconSys), the
+# demo's own; PAL reads the record from the disc and has none
+data:mc-icon-sys
 ico2/fumi/ios/memory.c
 ico2/fumi/ios/message.c
 # ico2/fumi/ios/pad.c .rodata starts 16-aligned at 0x5A0900 (its first string), 0xE B after message.c's; the object's section is 8-aligned

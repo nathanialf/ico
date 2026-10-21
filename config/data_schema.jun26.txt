@@ -39,6 +39,7 @@
 # the member's first symbol plus its offset in build/jun26/data/<member>.alias.ld.
 
 
+mc-icon-sys data sceMcIconSys ico2/fumi/include/mcdata.h - mcIconSys@0
 accessary data AccessaryRec ico2/sugipon/include/box.h 21 accessary@0
 act-data-tbl data IdleRangeRec ico2/fumi/include/commonact.h 3 actDataTbl@0
 act-intrlist data IntrMail ico2/fumi/include/act.h 773 actIntrList@0 hex=flags

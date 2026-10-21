@@ -1,7 +1,8 @@
 # config/data_members.jun26.txt -- the ICO Jun-26-2001 demo ELF's data-only ico2000.a members.
 #
 # One row per (member, section) for the members of config/data_members.pal.txt
-# that this ELF holds: 70 of PAL's 73. None of PAL's three unmapped runs has a
+# that this ELF holds: 70 of PAL's 73, and one run of a member with code,
+# mcdata.o's save icon record (mc-icon-sys, below): 71 rows. None of PAL's three unmapped runs has a
 # row: hintTable (unmapped_002ADBA0), motSyncPairs (unmapped_00533FC0) and
 # jimakuFileName (unmapped_0055FBD0); the demo has none of the three tables
 # and no code that reads one, as in the Aug-6-2001 prototype. Each member,
@@ -28,6 +29,13 @@
 # texture-path between spider-def and way-group). The demo's .data is about
 # 0x81500 bytes larger than PAL's mostly through model-path, whose 1474
 # records are 0x14C bytes (PAL 1637 of 0x8C).
+# mcdata.o's .data in this build (not an archive member of its own): the
+# save icon's icon.sys record, 964 bytes = sizeof sceMcIconSys ("PS2D", the
+# title, "summery.ico" as the three icon names, the 512-byte zero tail).
+# No word of .text forms its address; it is bounded by mcard.o's McMsgQ
+# before it and pad.o's 64-aligned .data after it. PAL reads its icon.sys
+# from the disc and has no such record. The name is derived.
+data mc-icon-sys 0x2695f8 0x2699bc mcIconSys@0x0
 data accessary 0x275138 0x275480 accessary@0x0
 data act-data-tbl 0x275480 0x2754bc actDataTbl@0x0
 data act-intrlist 0x2754c0 0x279d38 actIntrList@0x0

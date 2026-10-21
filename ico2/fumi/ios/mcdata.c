@@ -4,7 +4,6 @@
 #include "mcard.h"
 #include "memory.h"
 #include "ios.h"
-#include "include_asm.h"
 
 struct McIconWork { /* field names derived */
     void *buf;
@@ -12,9 +11,8 @@ struct McIconWork { /* field names derived */
 }; /* derived name */
 
 /* This build has no request-done flag here (no function of the demo
-   addresses one). */
-
-INCLUDE_ASM(D_002695F8);
+   addresses one).  Its .data is the save icon's icon.sys record, the data
+   member mc-icon-sys that follows this file in the link. */
 
 /* Background-read callback: reads the whole icon file, rounded up to the
    disc's 2048-byte sectors, into the buffer the writer allocated. */

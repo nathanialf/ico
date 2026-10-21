@@ -57,7 +57,9 @@ The demo's link includes the same 70 members of the game's archive
 `ico2000.a` that have data sections and no code as the PAL link (the PAL
 disc's MAIN.MAP), and none of the three data runs MAIN.MAP does not list (the
 hint table, the motion sync pairs and the subtitle file names are not in this
-build). `config/data_members.jun26.txt` lists them all. They are the game's
+build), and one data run of a member with code: mcdata.o's save icon
+record (icon.sys), which PAL reads from the disc.
+`config/data_members.jun26.txt` lists all 71. They are the game's
 content: stage object layouts, model and motion file tables, sound
 definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
@@ -184,7 +186,7 @@ copied from any of those files: every address in `config/*.jun26.*` was found
 in the user's own ELF.
 
 Of the user's disc image the build reads the disc's `SYSTEM.CNF` and
-`CUS97113/SCPS_000.00`: it checks the ELF's SHA-1, generates the 70
+`CUS97113/SCPS_000.00`: it checks the ELF's SHA-1, generates the 71
 data-only members from it (above), and writes the campaign stubs
 `config/stubs.jun26.txt` lists. Every other function, the five VU1
 microprograms and Sony's libraries are compiled or assembled from the tracked

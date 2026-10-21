@@ -113,10 +113,11 @@ object defines and the link places at the base's addresses.
 
 ## Data tables
 
-The game links 70 data-only runs of its own archive, `ico2000.a`
+The game links 71 data-only runs of its own archive, `ico2000.a`
 (`config/data_members.jun26.txt`): the 70 members with data sections and no
 code that the PAL disc's MAIN.MAP lists (stage layouts, model paths, motion
-and sound definitions, way points). PAL's three unlisted runs, the hint table,
+and sound definitions, way points), and mcdata.o's own .data, the save
+icon's icon.sys record, which PAL reads from the disc instead. PAL's three unlisted runs, the hint table,
 the motion sync pairs and the subtitle file names, are not in this build, as
 in the August 6, 2001 prototype, and no code here reads any of them. The demo
 disc ships no map, so each run's place in this ELF was found from the code
