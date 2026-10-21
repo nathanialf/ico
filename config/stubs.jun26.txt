@@ -335,61 +335,6 @@ text stage_SetParentOfGObj 0x00129AA8 0x00129B00 ico2/seki/src/StageAnimation.c 
 text stage_SetLocalizeGeometry 0x00129B00 0x00129BA8 ico2/seki/src/StageAnimation.c lines=24  # order
 text stage_SetScale 0x00129BA8 0x00129CB0 ico2/seki/src/StageAnimation.c lines=21  # call-aug
 text stage_CheckAnimationFrameIn 0x00129CB0 0x00129D38 ico2/seki/src/StageAnimation.c lines=18  # order
-text tex_loadImage 0x00129E28 0x0012A030 ico2/seki/src/Texture.c local lines=52  # ordinal; differs-at:52; length:+3; extent-differs
-rdlit tex_loadImage 0x0059F190 0x0059F300 ico2/seki/src/Texture.c  # 3 strings, 1 jtbl (target side)
-sdlit tex_loadImage 0x00679858 0x00679860 ico2/seki/src/Texture.c  # 1 string (target side)
-text tex_setTexReg 0x0012A030 0x0012A7F4 ico2/seki/src/Texture.c local lines=52  # ordinal; differs-at:0; length:+78; extent-differs
-rdlit tex_setTexReg 0x0059F300 0x0059F339 ico2/seki/src/Texture.c align=16  # 1 string
-text tex_transVramClutTex 0x0012A7F8 0x0012AA10 ico2/seki/src/Texture.c local lines=21  # ordinal; differs-at:11; imm:9; extent-equal
-text tex_transVramDirectTex 0x0012AA10 0x0012AB8C ico2/seki/src/Texture.c local lines=14  # ordinal; differs-at:20; imm:5; extent-equal
-text tex_transRegister 0x0012AB90 0x0012ABB4 ico2/seki/src/Texture.c local lines=5  # ordinal; differs-at:1; imm:1; extent-equal
-text tex_transTM2 0x0012ABB8 0x0012AE68 ico2/seki/src/Texture.c local lines=49  # ordinal; differs-at:1; length:+5; extent-differs
-rdlit tex_transTM2 0x0059F340 0x0059F3B8 ico2/seki/src/Texture.c align=16  # 2 strings
-sdlit tex_transTM2 0x00679860 0x00679866 ico2/seki/src/Texture.c  # 1 string
-text tex_initClutTexture 0x0012AE68 0x0012B030 ico2/seki/src/Texture.c local lines=20  # ordinal; differs-at:0; length:+18; extent-differs
-rdlit tex_initClutTexture 0x0059F3C0 0x0059F59C ico2/seki/src/Texture.c align=16  # 2 jump tables
-text tex_setRegisters 0x0012B030 0x0012B3CC ico2/seki/src/Texture.c local lines=128  # ordinal; differs-at:18; length:+8; extent-differs
-text tex_initTM2 0x0012B3D0 0x0012B60C ico2/seki/src/Texture.c local lines=34  # ordinal; differs-at:9; imm:12; extent-equal
-rdlit tex_initTM2 0x0059F5A0 0x0059F68C ico2/seki/src/Texture.c align=16  # 1 jtbl
-text tex_convertImage 0x0012B6F0 0x0012B8E4 ico2/seki/src/Texture.c local lines=38  # ordinal; differs-at:0; length:-5; extent-differs
-text tex_makeCopyImage 0x0012B8E8 0x0012BB5C ico2/seki/src/Texture.c local lines=61  # ordinal; differs-at:14; imm:8; extent-equal
-text tex_makeTexturePacket 0x0012BB60 0x0012BEF8 ico2/seki/src/Texture.c local lines=69  # ordinal; differs-at:0; length:+5; extent-differs
-rdlit tex_makeTexturePacket 0x0059F690 0x0059F71C ico2/seki/src/Texture.c align=16  # 2 strings
-sdlit tex_makeTexturePacket 0x00679868 0x00679872 ico2/seki/src/Texture.c  # 2 strings
-text tex_initTextureSub 0x0012BEF8 0x0012C214 ico2/seki/src/Texture.c local lines=68  # ordinal; differs-at:0; imm:54; extent-equal
-rdlit tex_initTextureSub 0x0059F720 0x0059F7A7 ico2/seki/src/Texture.c align=16  # 3 strings
-sdlit tex_initTextureSub 0x00679880 0x00679886 ico2/seki/src/Texture.c  # 1 string
-text tex_LoadTexturePart 0x0012C218 0x0012C370 ico2/seki/src/Texture.c lines=17  # ordinal; differs-at:0; imm:14; extent-equal
-rdlit tex_LoadTexturePart 0x0059F7A8 0x0059F7CB ico2/seki/src/Texture.c  # 1 string
-sdlit tex_LoadTexturePart 0x00679888 0x0067988F ico2/seki/src/Texture.c  # 1 string
-text tex_TransTexture 0x0012C370 0x0012C49C ico2/seki/src/Texture.c lines=32  # ordinal; differs-at:1; imm:6; extent-equal
-rdlit tex_TransTexture 0x0059F7D0 0x0059F870 ico2/seki/src/Texture.c align=16  # 3 strings
-text tex_TransTextureDefocus 0x0012C4A0 0x0012CA48 ico2/seki/src/Texture.c local lines=38  # ordinal; differs-at:0; length:+191; extent-differs
-rdlit tex_TransTextureDefocus 0x0059F870 0x0059F8B8 ico2/seki/src/Texture.c  # 1 string (target side)
-text tex_scrollClut 0x0012CA48 0x0012CDFC ico2/seki/src/Texture.c local lines=78  # ordinal; differs-at:0; length:-125; extent-differs
-lit4 tex_scrollClut 0x00678688 0x00678698 ico2/seki/src/Texture.c  # 4 floats (target side)
-text tex_SetUVScroll 0x0012CE00 0x0012CFB8 ico2/seki/src/Texture.c lines=19  # call-pal; census pairs it with PAL tex_textureAnimation (ordinal)
-rdlit tex_SetUVScroll 0x0059F8B8 0x0059F8D8 ico2/seki/src/Texture.c  # 1 string (target side)
-text tex_SetClutAnimation 0x0012CFB8 0x0012D038 ico2/seki/src/Texture.c lines=16  # ordinal; differs-at:0; other:10; extent-equal
-text tex_FreeTexture 0x0012D038 0x0012D14C ico2/seki/src/Texture.c lines=29  # ordinal; differs-at:0; imm:13; extent-equal
-text tex_ResetVram 0x0012D150 0x0012D28C ico2/seki/src/Texture.c lines=12  # ordinal; differs-at:2; length:-15; extent-differs
-text tex_printTexture 0x0012D6E0 0x0012DAF8 ico2/seki/src/Texture.c local lines=52  # ordinal; differs-at:1; imm:9; extent-equal
-sdlit tex_printTexture 0x00679898 0x0067989C ico2/seki/src/Texture.c  # 1 word (target side): the colour word the function addresses (0x679898)
-rdlit tex_printTexture 0x0059F8D8 0x0059F8E9 ico2/seki/src/Texture.c  # 1 string
-text tex_Tool 0x0012DAF8 0x0012E9D0 ico2/seki/src/Texture.c local lines=205  # ordinal; differs-at:290; imm:77; extent-equal
-lit4 tex_Tool 0x00678698 0x006786A4 ico2/seki/src/Texture.c  # 3 floats
-rdlit tex_Tool 0x0059F8F0 0x0059F902 ico2/seki/src/Texture.c align=16  # 1 string
-sdlit tex_Tool 0x006798A0 0x00679946 ico2/seki/src/Texture.c  # 19 strings, 1 static, 1 data
-text tex_ListTool 0x0012E9D0 0x0012EE94 ico2/seki/src/Texture.c lines=96  # ordinal; differs-at:42; imm:26; extent-equal
-rdlit tex_ListTool 0x0059F908 0x0059F9A1 ico2/seki/src/Texture.c  # 5 strings
-text tex_GetTextureNo 0x0012EF28 0x0012EFC0 ico2/seki/src/Texture.c lines=4  # ordinal; differs-at:13; imm:2; extent-equal
-text tex_GetTextureData 0x0012EFC0 0x0012EFD8 ico2/seki/src/Texture.c lines=4  # ordinal; differs-at:0; imm:1; extent-equal
-text tex_GetTextureName 0x0012EFD8 0x0012EFF0 ico2/seki/src/Texture.c lines=4  # ordinal; differs-at:0; imm:1; extent-equal
-text tex_SetSamplingType 0x0012EFF0 0x0012F014 ico2/seki/src/Texture.c lines=4  # ordinal; differs-at:0; imm:2; extent-equal
-text tex_GetTexExtData 0x0012F018 0x0012F030 ico2/seki/src/Texture.c lines=4  # ordinal; differs-at:0; imm:1; extent-equal
-text tex_ResetVramPri 0x0012F050 0x0012F0DC ico2/seki/src/Texture.c lines=4  # call-pal
-text tex_Init 0x0012F0E8 0x0012F194 ico2/seki/src/Texture.c lines=17  # ordinal; differs-at:18; imm:4; extent-equal
-text tex_RemakeRegistersSampleMin 0x0012F198 0x0012F210 ico2/seki/src/Texture.c lines=16  # ordinal; differs-at:6; imm:6; extent-equal
 text fog_DrawFog 0x0012F410 0x0012FF58 ico2/seki/src/ZFog.c lines=76  # ordinal; differs-at:1; length:-47; extent-differs
 sdlit fog_DrawFog 0x006799B0 0x006799B4 ico2/seki/src/ZFog.c  # 1 word (target side); the On/Off names after it are fogOnOffText's, emitted by the C
 text iosCdvdMgrSearchFile 0x001302B0 0x00130440 ico2/fumi/ios/cdvd.c local lines=36  # aug
@@ -535,52 +480,7 @@ text isysGObjProcAdd 0x0013E280 0x0013E2A0 ico2/fumi/isys/gobj_process.c lines=4
 text isysGObjProcAddS 0x0013E2A0 0x0013E2BC ico2/fumi/isys/gobj_process.c lines=4  # call-pal
 text iosOmInit 0x0013E428 0x0013E454 ico2/fumi/isys/obj_manager.c lines=7  # ordinal; differs-at:3; imm:2; extent-equal
 text _iosOmMain 0x0013E458 0x0013E680 ico2/fumi/isys/obj_manager.c local lines=60  # ordinal; differs-at:88; imm:1; extent-equal
-text soundInit 0x0013EB88 0x0013ECD8 ico2/fumi/sound/s_init.c lines=37  # call-aug
-rdlit soundInit 0x005A0EF0 0x005A0F11 ico2/fumi/sound/s_init.c align=16  # 2 strings
-text soundReverbDepthSet 0x0013ECE8 0x0013ED40 ico2/fumi/sound/s_init.c lines=10  # ordinal; differs-at:16; length:-8; extent-differs
-text soundAllocIopHeap 0x0013ED40 0x0013ED9C ico2/fumi/sound/s_init.c lines=10  # ordinal; differs-at:7; imm:1; extent-equal
-rdlit soundAllocIopHeap 0x005A0F18 0x005A0F61 ico2/fumi/sound/s_init.c  # 3 strings
-text soundDataOpenChk 0x0013EDA8 0x0013F060 ico2/fumi/sound/s_init.c local lines=62  # ordinal; differs-at:14; length:+1; extent-differs
-rdlit soundDataOpenChk 0x005A0F68 0x005A0FAA ico2/fumi/sound/s_init.c  # 4 strings
-text soundBufAlloc 0x0013F060 0x0013F264 ico2/fumi/sound/s_init.c lines=53  # ordinal; differs-at:16; imm:13; extent-equal
-text soundBufSegFree 0x0013F268 0x0013F380 ico2/fumi/sound/s_init.c lines=29  # ordinal; differs-at:8; imm:7; extent-equal
-text soundBDDataSet 0x0013F380 0x0013F628 ico2/fumi/sound/s_init.c lines=28  # ordinal; differs-at:61; imm:2; extent-equal
 text soundDataOpen 0x0013F628 0x0013F718 ico2/fumi/sound/s_init.c lines=20  # ordinal; differs-at:12; imm:7; extent-equal
-text soundDataOpenSync 0x0013F718 0x0013F7FC ico2/fumi/sound/s_init.c lines=19  # ordinal; differs-at:12; imm:7; extent-equal
-text soundDataClose 0x0013F800 0x0013F95C ico2/fumi/sound/s_init.c lines=32  # ordinal; differs-at:0; length:+2; extent-differs
-text soundSeVolSet 0x0013FA10 0x0013FC10 ico2/fumi/sound/s_init.c local lines=50  # ordinal; differs-at:63; imm:6; extent-equal
-text sound3DParamSet 0x00140298 0x00140638 ico2/fumi/sound/s_init.c local lines=108  # ordinal; differs-at:37; length:-11; extent-differs
-lit4 sound3DParamSet 0x006786B4 0x006786B8 ico2/fumi/sound/s_init.c  # 1 float
-text _soundSeDefPlay 0x00140638 0x00140B00 ico2/fumi/sound/s_init.c local lines=115  # ordinal; differs-at:44; length:-4; extent-differs
-lit4 _soundSeDefPlay 0x006786B8 0x006786C0 ico2/fumi/sound/s_init.c  # 2 floats (target side)
-rdlit _soundSeDefPlay 0x005A10A0 0x005A10C8 ico2/fumi/sound/s_init.c  # 2 strings (target side)
-text _soundSeDefStop 0x00140B00 0x00140C04 ico2/fumi/sound/s_init.c lines=25  # ordinal; differs-at:19; other:11; extent-equal
-text soundSeEnvPlay 0x00140C58 0x00140E78 ico2/fumi/sound/s_init.c lines=17  # ordinal; differs-at:1; imm:3; extent-equal
-lit4 soundSeEnvPlay 0x006786C0 0x006786C8 ico2/fumi/sound/s_init.c  # 2 floats
-text soundSeEnvNotUseClose 0x00140E78 0x00141238 ico2/fumi/sound/s_init.c lines=100  # ordinal; differs-at:1; length:-54; extent-differs
-text soundDataSegNextStageNotUseClose 0x00141238 0x001413C0 ico2/fumi/sound/s_init.c lines=41  # ordinal; differs-at:0; imm:3; extent-equal
-text Ee2Iop 0x001413C0 0x00141474 ico2/fumi/sound/s_init.c lines=18  # census-equal; stubbed for emission order
-rdlit Ee2Iop 0x005A0EA0 0x005A0EEA ico2/fumi/sound/s_init.c align=16 def  # 3 strings
-text soundOutputModeGet 0x00141478 0x00141480 ico2/fumi/sound/s_init.c lines=4  # census-equal; stubbed for emission order
-text soundReverbDepthGet 0x00141480 0x00141488 ico2/fumi/sound/s_init.c lines=4  # census-equal; stubbed for emission order
-text soundBufAdpcmChAlloc 0x00141488 0x00141598 ico2/fumi/sound/s_init.c lines=26  # ordinal; differs-at:0; length:-2; extent-differs
-rdlit soundBufAdpcmChAlloc 0x005A0FB0 0x005A0FCB ico2/fumi/sound/s_init.c align=16 def  # 1 string
-text soundBufAdpcmFree 0x00141598 0x001415B4 ico2/fumi/sound/s_init.c lines=6  # census-equal; stubbed for emission order
-text soundDataAreaSearch 0x001415B8 0x001415FC ico2/fumi/sound/s_init.c lines=13  # census-equal; stubbed for emission order
-text soundDataAreaGet 0x00141600 0x00141748 ico2/fumi/sound/s_init.c lines=23  # ordinal; differs-at:53; imm:2; extent-equal
-sdlit soundDataAreaGet 0x00679C88 0x00679C8A ico2/fumi/sound/s_init.c def  # 1 string
-text soundHDDataSet 0x00141748 0x001418A8 ico2/fumi/sound/s_init.c lines=7  # ordinal; differs-at:55; imm:2; extent-equal
-text soundSQDataSet 0x001418A8 0x00141A08 ico2/fumi/sound/s_init.c lines=7  # ordinal; differs-at:55; imm:2; extent-equal
-text soundSeDefPlay 0x00141A08 0x00141A5C ico2/fumi/sound/s_init.c lines=8  # census-equal; stubbed for emission order
-text soundSeDefPlayWithVolumeRate 0x00141A60 0x00141AAC ico2/fumi/sound/s_init.c lines=9  # census-equal; stubbed for emission order
-text soundSeDefVolumeRateGet 0x00141AB0 0x00141AF0 ico2/fumi/sound/s_init.c lines=16  # census-equal; stubbed for emission order
-text soundSeDefVolumeRateSet 0x00141AF0 0x00141B28 ico2/fumi/sound/s_init.c lines=11  # census-equal; stubbed for emission order
-text soundSeGroupStop 0x00141B28 0x00141BC4 ico2/fumi/sound/s_init.c lines=19  # census-equal; stubbed for emission order
-text soundSeGroupGet 0x00141BC8 0x00141BE8 ico2/fumi/sound/s_init.c lines=6  # ordinal; differs-at:0; length:-3; extent-differs
-text soundSePlayModeStop 0x00141BE8 0x00141C6C ico2/fumi/sound/s_init.c lines=17  # census-equal; stubbed for emission order
-text soundReqTickProc 0x00141C70 0x00141D64 ico2/fumi/sound/s_init.c lines=24  # ordinal; differs-at:0; length:-7; extent-differs
-text soundVBlank 0x00141D68 0x00141DC8 ico2/fumi/sound/s_init.c lines=10  # census-equal; stubbed for emission order
-text soundSeKindBuild 0x00141DC8 0x00141E84 ico2/fumi/sound/s_init.c lines=24  # ordinal; differs-at:1; imm:3; extent-equal
 text sndInit 0x001420A8 0x001420EC ico2/fumi/sound/soundManager.c lines=8  # ordinal; differs-at:7; imm:2; extent-equal
 text ActPara_MakeTbl 0x001486F0 0x00148844 ico2/fumi/src/act-parallel-control.c lines=42  # ordinal; differs-at:10; other:7; extent-equal
 text ACTGetWish_FromPad 0x001488B8 0x00149558 ico2/fumi/src/act-wish.c lines=300  # order
