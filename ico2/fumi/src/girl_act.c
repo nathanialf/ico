@@ -938,9 +938,119 @@ static inline float girlBrainGetTypeRatio(int type) /* derived name */
     return r;
 }
 
-static int girlBrainMain_DecideMode(int mode, int *next);
+static int girlBrainMain_DecideMode(int mode, int *next)
+{
+    /* two nested helpers, reading `next` through the static chain */
+    __inline void setNext(int m)
+    {
+        *next = m;
+    }
+    __inline void checkWarning(unsigned char c)
+    {
+        int m = girlBrainMain_CheckWarningMode(c);
 
-INCLUDE_ASM(girlBrainMain_DecideMode);
+        if (0 <= m) {
+            setNext(m);
+        }
+    }
+    void *o;
+    int i;
+    void *self = girlGObj;
+    Act *sub = GOBJ_ACT(self);
+    int changed = 0;
+    int warned = 0;
+    int near = 0;
+
+    if (sub->actMode == 106) {
+        setNext(5);
+        return 0;
+    }
+    brain_val.target = girlBrainGetTarget();
+    if (brain_val.target != brain_val.lastTarget) {
+        brain_val.lastTarget = brain_val.target;
+        changed = 1;
+    }
+    if (brain_val.target != 0) {
+        _ACTCharStatus_Set(self, 8, -1.0f, (int)brain_val.target);
+    }
+    switch (mode) {
+    case 0:
+    case 1:
+    case 7:
+        if (brain_val.lastTarget != 0) {
+            setNext(1);
+        } else {
+            setNext(0);
+        }
+        if (brain_val.hide.num == 0) {
+            break;
+        }
+        for (i = 0; othersKindList[i] != -1; i++) {
+            for (o = isysGObjSearchFromObjKindID_begin(othersKindList[i]); o != 0;
+                 o = isysGObjSearchFromObjKindID_next(o)) {
+                if (ACTGameView_Check(self, o) != 0) {
+                    checkWarning(0);
+                    break;
+                }
+            }
+        }
+        break;
+
+    case 2:
+        if (brain_val.warn != 0) {
+            checkWarning(1);
+            brain_val.warn = 0;
+        }
+        if (pad[0].now & 8) {
+            ACTSendMailCorrect(self, 227);
+        }
+        break;
+
+    case 3:
+        if ((60 - systemStatus[0] * 10) / systemStatus[1] * 10 < brain_val.unseenFrames &&
+            (60 - systemStatus[0] * 10) / systemStatus[1] * 10 < brain_val.modeFrames) {
+            setNext(0);
+            break;
+        }
+        /* fall through */
+
+    case 4:
+        if (brain_val.warn != 0) {
+            checkWarning(0);
+
+            warned = 1;
+            brain_val.warn = 0;
+        }
+        break;
+
+    case 5:
+        setNext(6);
+        break;
+
+    case 6:
+        if (brain_val.warn != 0) {
+            setNext(0);
+            brain_val.warn = 0;
+        }
+        break;
+
+    case 8:
+        setNext(0);
+        brain_val.warn = 0;
+        break;
+    }
+    if (PAIR_IsStatus_BOY_WAIT() != 0 &&
+        _DistxzSqGV(test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)girlGObj)) < 40000.0f) {
+        near = 1;
+    }
+    if (*next != 2 && PAIR_IsStatus_BOY_WAIT() != 0) {
+        if (*next != 4 || near != 0) {
+            setNext(7);
+            return 0;
+        }
+    }
+    return *next == 1 ? changed : warned;
+}
 
 static void girlBrainMain_PositionUpdate(void)
 {
@@ -1382,7 +1492,85 @@ static inline void girlBrainSetWalkRatio(GObj *g, float ratio) /* derived name *
     }
 }
 
-INCLUDE_ASM(subGirlBrain_Pulledup);
+void subGirlBrain_Pulledup(GObj *volatile self)
+{
+    float self_pos[4];
+    float boy_pos[4];
+    float ofs[4];
+    float base[4];
+    float top[4];
+    float well[4];
+    float sk[4];
+    float oz[4];
+    Act *sub = GOBJ_ACT(self);
+    int hit;
+    float d;
+    float down;
+    int ry;
+
+    GetRootProjectionPosOfGObj(self_pos, (void *)self);
+    GetRootProjectionPosOfGObj(boy_pos, boyGObj);
+    sceVu0ScaleVector(ofs, test_CURRENTORIENT((boyGObj)), 60.0f);
+    sceVu0AddVector(base, boy_pos, ofs);
+    base[1] = base[1] - 50.0f;
+    top[0] = base[0];
+    top[2] = base[2];
+    top[1] = base[1] + 1000.0f;
+    if (ACTCheckCollis_WELL(base, top, ((int *)boyGObj), 0.0f, well)) {
+        boy_pos[0] = well[0];
+        boy_pos[1] = well[1];
+        boy_pos[2] = well[2];
+        down = 10.0f;
+        if (stage_no == 97 && floorGObj_ACTCheckCollis_WELL != 0 &&
+            *(int *)((char *)floorGObj_ACTCheckCollis_WELL + 0xC) == 0x11) {
+            down = (0.0f < test_CURRENTROOT(floorGObj_ACTCheckCollis_WELL)[0]) ? 300.0f : 50.0f;
+        }
+        boy_pos[1] = boy_pos[1] - down;
+    }
+    if (GOBJ_ACT(((int *)boyGObj))->actMode == 84) {
+        boy_pos[0] = GOBJ_ACT(((int *)boyGObj))->env.ditchPos[0];
+        boy_pos[1] = GOBJ_ACT(((int *)boyGObj))->env.ditchPos[1];
+        boy_pos[2] = GOBJ_ACT(((int *)boyGObj))->env.ditchPos[2];
+    }
+    if (!ACTWayMove_BeginDetail((void *)self, self_pos, boy_pos, 0, 0)) {
+        while (1) {
+            _ACTWait(1);
+        }
+    }
+    for (;;) {
+        hit = ACTWayMove_NextDetail((void *)self, sub->dir, boy_pos);
+        debug_NMarker(boy_pos, 0xFF, 0, 0, 100.0f);
+        if (!hit) {
+            sub->stick.mag = 0;
+        } else {
+            sub->dir[0] = sub->wayNodeX;
+            sub->dir[1] = sub->wayNodeY;
+            sub->dir[2] = sub->wayNodeZ;
+            girlBrainSetWalkRatio((void *)self, 1.0f);
+        }
+        d = _DistxzGV(boy_pos, test_CURRENTROOT((void *)self));
+        if (d < 30.0f) {
+            sub->stick.mag = 0;
+            GetSkeltonOrient(sk, (void *)self, 44);
+            _OrientXZGV(oz, test_CURRENTROOT((boyGObj)), test_CURRENTROOT((void *)self));
+            ry = _RotyGV(sk, oz);
+            if (21 <= ((ry < 0) ? -ry : ry)) {
+                if (0 < ry) {
+                    ATGoalTurnSet((void *)self, 2, 2, oz);
+                } else {
+                    ATGoalTurnSet((void *)self, 2, 1, oz);
+                }
+            } else {
+                sub->flags18.ll |= 0x800000000000;
+            }
+        } else if (d < 100.0f) {
+            sub->stick.mag =
+                (sub->stick.mag < 0.0f) ? 0.0f : ((0.5f < sub->stick.mag) ? 0.5f : sub->stick.mag);
+        }
+        _ACTCharStatus_Set((void *)self, 24, -1.0f, 0);
+        _ACTWait(1);
+    }
+}
 
 #include "girl_brain_attract.c.inc"
 

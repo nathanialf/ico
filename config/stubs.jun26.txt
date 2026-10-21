@@ -622,10 +622,6 @@ text actEnemyStart 0x0015CCC0 0x0015D1B4 ico2/fumi/src/enemy_act.c  # jun26-only
 lit4 actEnemyStart 0x00678914 0x0067891C ico2/fumi/src/enemy_act.c  # 2 floats (target side)
 rdlit actEnemyStart 0x005A21D0 0x005A21F0 ico2/fumi/src/enemy_act.c  # 1 string (target side); the data before it is GetEnemyType's table
 sdlit actEnemyStart 0x00679DFC 0x00679E00 ico2/fumi/src/enemy_act.c  # 1 word (target side): the function's $gp float (0x679DFC)
-text girlBrainMain_DecideMode 0x00163BB8 0x00163F58 ico2/fumi/src/girl_act.c local lines=151  # aug
-lit4 girlBrainMain_DecideMode 0x0067892C 0x00678930 ico2/fumi/src/girl_act.c  # 1 float (target side)
-rdlit girlBrainMain_DecideMode 0x005A2570 0x005A25A0 ico2/fumi/src/girl_act.c align=16  # 1 jtbl (target side); 16-aligned in the demo after zero fill
-text subGirlBrain_Pulledup 0x00164EB8 0x001652A8 ico2/fumi/src/girl_act.c  # jun26-only; girlBrainModeTable's slot 7, the PAL name of that slot's function
 text func_00168EA8 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; derived name
 lit4 func_00168EA8 0x00678978 0x006789AC ico2/fumi/src/girl_act.c  # 13 floats (target side)
 rdlit func_00168EA8 0x005A2730 0x005A2790 ico2/fumi/src/girl_act.c  # 5 strings (target side): its string, then four no word of .text addresses, up to its jump table
@@ -756,20 +752,6 @@ text BoyAttackCenter 0x00177C90 0x00177C98 ico2/omori/src/attackhit.c lines=1  #
 text CommonAttackCenter 0x00177C98 0x00177CC8 ico2/omori/src/attackhit.c lines=6  # order
 text AttackCenter 0x00177CC8 0x00177E54 ico2/omori/src/attackhit.c  # order; no definition in this TU
 rdlit AttackCenter 0x005A31E8 0x005A3208 ico2/omori/src/attackhit.c  # 2 strings (target side)
-text brainInit 0x00177E78 0x00177ECC ico2/omori/src/brain.c lines=18  # ordinal; differs-at:1; imm:2; extent-equal
-text OverrideBrainStatusByGObj 0x00177ED0 0x00178024 ico2/omori/src/brain.c lines=18  # ordinal; differs-at:0; length:+65; extent-differs
-rdlit OverrideBrainStatusByGObj 0x005A3208 0x005A3240 ico2/omori/src/brain.c  # 1 string (target side)
-text brainStatusDefaultSet 0x00178028 0x001781B0 ico2/omori/src/brain.c lines=12  # ordinal; differs-at:0; length:+17; extent-differs
-lit4 brainStatusDefaultSet 0x00678A70 0x00678A74 ico2/omori/src/brain.c  # 1 float (target side)
-sdlit brainStatusDefaultSet 0x0067A054 0x0067A058 ico2/omori/src/brain.c align=4  # 1 word (target side): the function's $gp float (0x67A054)
-text brainLevelProcess 0x001781B0 0x00178424 ico2/omori/src/brain.c lines=59  # ordinal; differs-at:0; length:-8; extent-differs
-text brainGetTarget 0x00178428 0x0017852C ico2/omori/src/brain.c lines=85  # ordinal; differs-at:0; length:-153; extent-differs
-text brainClsTargetLevel 0x00178560 0x00178624 ico2/omori/src/brain.c lines=17  # ordinal; differs-at:2; length:-5; extent-differs
-text brainAddLevelGop 0x001786A0 0x00178710 ico2/omori/src/brain.c lines=10  # ordinal; differs-at:7; imm:1; extent-equal
-text brainSubLevelGop 0x00178710 0x00178788 ico2/omori/src/brain.c lines=22  # ordinal; differs-at:5; imm:1; extent-equal
-sdlit brainSubLevelGop 0x0067A058 0x0067A05C ico2/omori/src/brain.c align=4  # 1 word
-text brainSetLevelGop 0x00178788 0x00178828 ico2/omori/src/brain.c lines=14  # ordinal; differs-at:12; imm:1; extent-equal
-text brainDecTargetTimer 0x00178828 0x001788B8 ico2/omori/src/brain.c lines=17  # ordinal; differs-at:11; imm:1; extent-equal
 text menuPinSelect 0x0017B948 0x0017BE08 ico2/omori/src/camera-editor.c lines=73  # census-equal; stubbed for emission order
 sdlit menuPinSelect 0x0067A0F0 0x0067A110 ico2/omori/src/camera-editor.c  # 4 strings
 text menuPinEdit 0x0017BE08 0x0017C618 ico2/omori/src/camera-editor.c lines=102  # census-equal; stubbed for emission order
@@ -2169,40 +2151,6 @@ text actSt09aElvUp 0x002147B8 0x00214898 ico2/script/src/st09a.c lines=29  # ord
 text actSt09aIntroChk 0x002148A8 0x00214928 ico2/script/src/st09a.c lines=19  # ordinal; differs-at:4; imm:5; extent-equal
 text actSt09aBrgMain 0x00214928 0x00214960 ico2/script/src/st09a.c lines=10  # aug
 text actSt09aBrgSwitch 0x00214960 0x002149B8 ico2/script/src/st09a.c lines=13  # aug
-text actSt10lInit 0x002149B8 0x002149F8 ico2/script/src/st10l.c lines=12  # order
-text actSt10lFloorLeft 0x002149F8 0x00214B50 ico2/script/src/st10l.c lines=60  # order
-text actSt10lFloorRight 0x00214B50 0x00214C58 ico2/script/src/st10l.c lines=45  # order
-text actSt10lGondolaUp 0x00214C58 0x00214DB8 ico2/script/src/st10l.c lines=43  # order
-text actSt10lGondolaDown 0x00214DB8 0x00214F2C ico2/script/src/st10l.c lines=47  # order
-text actSt10lEneCam3Chk 0x00214F30 0x00215048 ico2/script/src/st10l.c lines=30  # order
-text actSt10lChain 0x00215048 0x002150EC ico2/script/src/st10l.c lines=21  # order
-text actSt10lFloor 0x002150F0 0x00215158 ico2/script/src/st10l.c lines=12  # order
-text actSt10lGondola 0x00215158 0x00215208 ico2/script/src/st10l.c lines=20  # order
-text actSt10lSekizo 0x00215208 0x00215270 ico2/script/src/st10l.c lines=9  # order
-lit4 actSt10lSekizo 0x00679160 0x00679164 ico2/script/src/st10l.c  # 1 float
-text actSt10lBox 0x00215270 0x002152D8 ico2/script/src/st10l.c lines=12  # order
-text actSt10lEnemy1_1 0x002152D8 0x00215390 ico2/script/src/st10l.c lines=20  # order
-text actSt10lEnemy1_2 0x00215390 0x00215400 ico2/script/src/st10l.c lines=18  # order
-text actSt10lEnemy2_1 0x00215400 0x00215470 ico2/script/src/st10l.c lines=18  # order
-text actSt10lEnemy2_2 0x00215470 0x002154E0 ico2/script/src/st10l.c lines=18  # order
-text actSt10lEnemy2_3 0x002154E0 0x00215558 ico2/script/src/st10l.c lines=18  # order
-text actSt10lEneCam1 0x00215558 0x002155C8 ico2/script/src/st10l.c lines=14  # order
-text actSt10lEneCam2 0x002155C8 0x00215638 ico2/script/src/st10l.c lines=14  # order
-text actSt10lEneCam3 0x00215638 0x002156B0 ico2/script/src/st10l.c lines=16  # order
-text actSt10lBoxA 0x002156B0 0x00215738 ico2/script/src/st10l.c lines=16  # order
-text actSt10lBoxB 0x00215738 0x002157C0 ico2/script/src/st10l.c lines=16  # order
-text actSt10lGateXL 0x002157C0 0x00215810 ico2/script/src/st10l.c lines=13  # order
-text actSt10lFloorMain 0x00215810 0x00215868 ico2/script/src/st10l.c lines=9  # order
-text actSt10lFloorSwitch 0x00215868 0x0021590C ico2/script/src/st10l.c lines=21  # aug
-text actSt10lGondolaMain 0x00215910 0x00215958 ico2/script/src/st10l.c lines=9  # aug
-text actSt10lGondolaSwitch 0x00215958 0x002159FC ico2/script/src/st10l.c lines=21  # aug
-text actSt10lBoxChk 0x00215A00 0x00215A60 ico2/script/src/st10l.c lines=12  # aug
-text actSt10lEneCam2Chk 0x00215A60 0x00215B10 ico2/script/src/st10l.c lines=49  # aug
-text actSt10lBoxAChk 0x00215B20 0x00215B84 ico2/script/src/st10l.c lines=11  # aug
-text actSt10lBoxBChk 0x00215B88 0x00215BEC ico2/script/src/st10l.c lines=11  # aug
-text actSt10lChainMain 0x00215BF0 0x00215C28 ico2/script/src/st10l.c lines=9  # aug
-text actSt10lChainSwitch 0x00215C28 0x00215C80 ico2/script/src/st10l.c lines=12  # aug
-text actSt10rInit 0x00215C80 0x00215D30 ico2/script/src/st10r.c lines=25  # order
 text actSt10rFloorChk 0x00215D30 0x00215DF4 ico2/script/src/st10r.c lines=48  # order
 text actSt10rCageMain 0x00215DF8 0x00215F0C ico2/script/src/st10r.c lines=59  # order
 text actSt10rTowerChk 0x00215F10 0x00216154 ico2/script/src/st10r.c lines=78  # order

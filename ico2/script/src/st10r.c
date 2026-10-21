@@ -69,8 +69,6 @@ SqEntry *cage10r = 0;
 
 static SqEntry *st10r_adpcm = 0; /* derived name */
 
-INCLUDE_ASM(actSt10rInit);
-
 INCLUDE_ASM(actSt10rFloorChk);
 
 INCLUDE_ASM(actSt10rCageMain);

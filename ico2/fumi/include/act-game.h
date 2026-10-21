@@ -132,7 +132,7 @@ int ACTCheckCollis_WF(float f, void *p0, void *p1, void *actor, void *posout);
 int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posout, int *flagout);
 
 int ACTCheckCollis_CI(float *start, float *end, int *attr, WallCfg *wallHit);
-int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
+int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, float f, void *posout);
 unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout);
 int ACTCheckViewCl(struct GObj *self, void *target, void *targetPos, int range, float f);
 void ACTGameView_FirstSet(char *self);

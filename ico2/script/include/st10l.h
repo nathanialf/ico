@@ -21,7 +21,6 @@ void actSt10lBoxChk(GObj *volatile self);
 void actSt10lChainMain(GObj *volatile self);
 void actSt10lChainMove(GObj *volatile self);
 void actSt10lChainSwitch(GObj *volatile self);
-void actSt10lEneCam1Chk(GObj *volatile self);
 void actSt10lEneCam2Chk(GObj *volatile self);
 void actSt10lEneCam3Chk(GObj *volatile self);
 void actSt10lFloorLeft(GObj *volatile self);

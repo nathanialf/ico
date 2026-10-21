@@ -604,7 +604,7 @@ inline int ACTCheckCollis_CI(float *start, float *end, int *attr, WallCfg *wallH
     return buf.wall.elem != 0;
 }
 
-inline int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f)
+inline int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, float f, void *posout)
 {
     ClipWork work;
     int flag;
