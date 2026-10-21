@@ -374,44 +374,6 @@ rdlit ios_init_plus 0x0059FE90 0x0059FEF8 ico2/fumi/ios/ios.c  # 4 strings (targ
 text iosInitialize 0x00134AF0 0x00134CC0 ico2/fumi/ios/ios.c lines=30  # ordinal; differs-at:14; length:-1; extent-differs
 rdlit iosInitialize 0x0059FEF8 0x0059FF29 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x00679A40 0x00679A7F ico2/fumi/ios/ios.c  # 8 strings
-text iosMcHandlerWrite 0x00135088 0x0013547C ico2/fumi/ios/mcard.c lines=61  # census-equal; stubbed for emission order
-sdlit iosMcHandlerWrite 0x00679AE8 0x00679AF0 ico2/fumi/ios/mcard.c  # 1 string (target side)
-text iosMcHandlerRead 0x00135480 0x00135810 ico2/fumi/ios/mcard.c lines=65  # census-equal, but the compiled body differs (match_check)
-rdlit iosMcHandlerRead 0x0059FFF0 0x005A000C ico2/fumi/ios/mcard.c def  # 1 string (target side): iosMcMgrRead's busy message, at its declaration
-rdlit iosMcHandlerRead 0x005A00D0 0x005A0130 ico2/fumi/ios/mcard.c  # 1 string (target side)
-text iosMcMgrChdirProduct 0x00135810 0x00135B58 ico2/fumi/ios/mcard.c local lines=46  # ordinal; differs-at:0; length:+42; extent-differs
-rdlit iosMcMgrChdirProduct 0x0059FF70 0x0059FF8F ico2/fumi/ios/mcard.c def  # 1 string (target side): the get-info helper's busy message, first of the helpers' run
-rdlit iosMcMgrChdirProduct 0x005A0130 0x005A0148 ico2/fumi/ios/mcard.c  # 1 string (target side)
-text iosMcMgrSaveSeg 0x00135B58 0x001360F8 ico2/fumi/ios/mcard.c local lines=73  # ordinal; differs-at:0; length:+92; extent-differs
-sdlit iosMcMgrSaveSeg 0x00679AF0 0x00679AF8 ico2/fumi/ios/mcard.c  # 1 string (target side)
-rdlit iosMcMgrSaveSeg 0x005A0070 0x005A008B ico2/fumi/ios/mcard.c def  # 1 string (target side): iosMcMgrGetDir's busy message, at its declaration
-rdlit iosMcMgrSaveSeg 0x005A0148 0x005A0160 ico2/fumi/ios/mcard.c  # 1 string (target side)
-text iosMcMgrLoadSeg 0x001360F8 0x001364AC ico2/fumi/ios/mcard.c local lines=66  # census-equal; stubbed for emission order
-rdlit iosMcMgrLoadSeg 0x005A0160 0x005A0189 ico2/fumi/ios/mcard.c align=16  # 2 strings
-text func_001364B0 0x001364B0 0x00136570 ico2/fumi/ios/mcard.c  # jun26-only; derived name
-text iosMcMgrGetBlockSaveInfo 0x00136590 0x0013674C ico2/fumi/ios/mcard.c local lines=31  # census-equal, but the compiled body differs (match_check)
-text iosMcManager 0x00136750 0x00136E40 ico2/fumi/ios/mcard.c lines=92  # ordinal; differs-at:6; length:+34; extent-differs
-rdlit iosMcManager 0x005A0190 0x005A0270 ico2/fumi/ios/mcard.c align=16  # 8 strings, 1 jtbl (target side)
-sdlit iosMcManager 0x00679B00 0x00679B30 ico2/fumi/ios/mcard.c  # 6 strings (target side); the "%3.3d" before them is the C's (the save and load inlines)
-text iosMcMgrSync 0x00136E40 0x00136EE0 ico2/fumi/ios/mcard.c lines=14  # census-equal; stubbed for emission order
-text iosMcTest 0x00136EE0 0x00136EE8 ico2/fumi/ios/mcard.c lines=1  # census-equal; stubbed for emission order
-text iosMcSync 0x00136EE8 0x00136EFC ico2/fumi/ios/mcard.c lines=8  # census-equal; stubbed for emission order
-text iosMcGetInfo 0x00136F00 0x00136F40 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcFormat 0x00136F40 0x00136F84 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcUnformat 0x00136F88 0x00136FCC ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcGetDir 0x00136FD0 0x00137014 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcDelete 0x00137018 0x0013705C ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcSaveIconBlock 0x00137060 0x001370A4 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcSaveProductBlock 0x001370A8 0x001370EC ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcLoadProductBlock 0x001370F0 0x00137134 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcSaveGameBlock 0x00137138 0x00137180 ico2/fumi/ios/mcard.c lines=7  # census-equal; stubbed for emission order
-text iosMcLoadGameBlock 0x00137180 0x001371C8 ico2/fumi/ios/mcard.c lines=7  # census-equal; stubbed for emission order
-text iosMcChdirProduct 0x001371C8 0x0013720C ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text iosMcGetBlockSaveInfo 0x00137210 0x00137254 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order
-text product_write 0x00137258 0x00137388 ico2/fumi/ios/mcard.c local lines=13  # ordinal; differs-at:0; length:-18; extent-differs
-text product_read 0x00137388 0x001373CC ico2/fumi/ios/mcard.c local lines=6  # ordinal; differs-at:1; imm:2; extent-equal
-text gameblock_write 0x001373D0 0x001373F0 ico2/fumi/ios/mcard.c local lines=7  # ordinal; differs-at:0; length:-11; extent-differs
-text gameblock_read 0x001373F0 0x00137508 ico2/fumi/ios/mcard.c local lines=12  # ordinal; differs-at:1; length:-10; extent-differs
 data D_002695F8 0x002695F8 0x002699BC ico2/fumi/ios/mcdata.c local  # the save icon's icon.sys record (964 bytes: "PS2D", the background colours, light directions and colours, the title, the icon file names), after mcard.c's McMsgQ and before pad.c's 64-aligned .data; no word of .text forms its address
 text iosMcIconWriteIconsys 0x00137508 0x001375F0 ico2/fumi/ios/mcdata.c lines=30  # ordinal; differs-at:0; length:-8; extent-differs
 rdlit iosMcIconWriteIconsys 0x005A0270 0x005A0280 ico2/fumi/ios/mcdata.c  # 1 string (target side)
@@ -1410,57 +1372,6 @@ text freeseki 0x001E6628 0x001E6648 ico2/seki/src/Basic.c lines=6  # census-equa
 text resetmallocseki 0x001E6648 0x001E6650 ico2/seki/src/Basic.c lines=1  # census-equal; stubbed for emission order
 text mallocsekistage 0x001E6650 0x001E6694 ico2/seki/src/Basic.c lines=10  # ordinal; differs-at:9; imm:1; extent-equal
 text reallocseki 0x001E6698 0x001E66BC ico2/seki/src/Basic.c lines=4  # ordinal; differs-at:5; imm:1; extent-equal
-data D_004E7B20 0x004E7B20 0x004E7B70 ico2/seki/src/BgAnimation.c local  # a table of seventeen scene object kind name pointers and zero words to the 16-aligned bgaAnimDefault (bga_initLightEnvelope's 0x4E7B70), after wireLetter.c's colours; no word of .text forms its address (target side)
-rodata D_00661680 0x00661680 0x006617B2 ico2/seki/src/BgAnimation.c local  # the sixteen scene object kind names D_004E7B20's pointers name (0x4E7B24..0x4E7B60); no word of .text addresses them (target side)
-sdata D_0067B1A0 0x0067B1A0 0x0067B1A8 ico2/seki/src/BgAnimation.c local  # the one short scene object kind name D_004E7B20 points at (0x4E7B2C); no word of .text addresses it (target side)
-text bga_InitData 0x001E66C0 0x001E66F8 ico2/seki/src/BgAnimation.c lines=80  # ordinal; differs-at:0; length:-220; extent-differs
-text bga_initLightEnvelope 0x001E66F8 0x001E6AA0 ico2/seki/src/BgAnimation.c local lines=67  # ordinal; differs-at:0; length:+37; extent-differs
-rdlit bga_initLightEnvelope 0x006617B8 0x006617E2 ico2/seki/src/BgAnimation.c  # 2 strings (target side)
-rdlit bga_initLightEnvelope 0x006617F0 0x00661818 ico2/seki/src/BgAnimation.c align=16 def  # 1 jtbl (target side), 16-aligned in the demo after zero fill; emitted where the demo has it
-sdlit bga_initLightEnvelope 0x0067B1B8 0x0067B1C8 ico2/seki/src/BgAnimation.c  # 2 strings (target side)
-text bga_ApplyDObject 0x001E6AA0 0x001E6DB4 ico2/seki/src/BgAnimation.c lines=67  # ordinal; differs-at:0; length:+18; extent-differs
-rdlit bga_ApplyDObject 0x00661838 0x00661878 ico2/seki/src/BgAnimation.c  # 2 strings (target side)
-sdlit bga_ApplyDObject 0x0067B1D0 0x0067B1D8 ico2/seki/src/BgAnimation.c  # 1 string (target side)
-text bga_GetMotion 0x001E6DB8 0x001E7070 ico2/seki/src/BgAnimation.c local lines=134  # ordinal; differs-at:0; length:-271; extent-differs
-rdlit bga_GetMotion 0x00661878 0x006618F8 ico2/seki/src/BgAnimation.c  # 2 strings, 1 jtbl (target side)
-sdlit bga_GetMotion 0x0067B1D8 0x0067B1DC ico2/seki/src/BgAnimation.c  # 1 string (target side)
-text bga_GetMotionParticle 0x001E7070 0x001E76C8 ico2/seki/src/BgAnimation.c local lines=148  # ordinal; differs-at:0; length:-25; extent-differs
-lit4 bga_GetMotionParticle 0x00678F64 0x00678F70 ico2/seki/src/BgAnimation.c  # 3 floats (target side)
-text bga_GetMotionLightning 0x001E76C8 0x001E798C ico2/seki/src/BgAnimation.c local lines=133  # ordinal; differs-at:0; length:-260; extent-differs
-text bga_GetExtMotion 0x001E7990 0x001E7CEC ico2/seki/src/BgAnimation.c local lines=69  # ordinal; differs-at:1; length:+53; extent-differs
-text bga_GetGizmoMotion 0x001E7CF0 0x001E7F58 ico2/seki/src/BgAnimation.c local lines=82  # ordinal; differs-at:0; length:-45; extent-differs
-text bga_calcEnvelope 0x001E7F58 0x001E8214 ico2/seki/src/BgAnimation.c local lines=81  # ordinal; differs-at:6; length:-96; extent-differs
-lit4 bga_calcEnvelope 0x00678F70 0x00678F74 ico2/seki/src/BgAnimation.c  # 1 float (target side)
-rdlit bga_calcEnvelope 0x006618F8 0x00661918 ico2/seki/src/BgAnimation.c  # 1 string (target side)
-rdlit bga_calcEnvelope 0x00661920 0x00661948 ico2/seki/src/BgAnimation.c align=16 def  # 1 jtbl (target side); emitted where the demo has it
-text _RotTransCurrentMatrixYXZ 0x001E8218 0x001E8250 ico2/seki/src/BgAnimation.c local lines=115  # ordinal; differs-at:0; length:-165; extent-differs
-text bga_CalcObject 0x001E8250 0x001E893C ico2/seki/src/BgAnimation.c local lines=170  # ordinal; differs-at:1; length:-124; extent-differs
-rdlit bga_CalcObject 0x00661948 0x006619A5 ico2/seki/src/BgAnimation.c  # 2 strings (target side)
-rdlit bga_CalcObject 0x006619B0 0x006619F0 ico2/seki/src/BgAnimation.c align=16 def  # 1 jtbl (target side), 16-aligned in the demo after zero fill; emitted where the demo has it
-sdlit bga_CalcObject 0x0067B1E0 0x0067B1E8 ico2/seki/src/BgAnimation.c  # 1 string (target side)
-text bga_resetObjectCounter 0x001E8940 0x001E8A00 ico2/seki/src/BgAnimation.c local lines=19  # ordinal; differs-at:1; length:-96; extent-differs
-text bga_SetFrame 0x001E8A00 0x001E8C00 ico2/seki/src/BgAnimation.c lines=37  # ordinal; differs-at:0; length:+29; extent-differs
-text bga_CalcAnimation 0x001E8C00 0x001E8EA0 ico2/seki/src/BgAnimation.c lines=78  # ordinal; differs-at:0; length:-26; extent-differs
-text bga_CalcSdfCamera 0x001E8EA0 0x001E9334 ico2/seki/src/BgAnimation.c lines=85  # ordinal; differs-at:1; length:+33; extent-differs
-lit4 bga_CalcSdfCamera 0x00678F74 0x00678F80 ico2/seki/src/BgAnimation.c  # 3 floats (target side)
-sdlit bga_CalcSdfCamera 0x0067B1E8 0x0067B1F0 ico2/seki/src/BgAnimation.c  # 1 string (target side)
-text bga_addLightning 0x001E9338 0x001E9590 ico2/seki/src/BgAnimation.c local lines=65  # ordinal; differs-at:68; imm:5; extent-equal
-rdlit bga_addLightning 0x006619F0 0x00661A0D ico2/seki/src/BgAnimation.c align=16  # 1 string
-text bga_DispLightning 0x001E9590 0x001E987C ico2/seki/src/BgAnimation.c lines=129  # ordinal; differs-at:0; length:-157; extent-differs
-rdlit bga_DispLightning 0x00661A10 0x00661A50 ico2/seki/src/BgAnimation.c  # 1 string (target side)
-text bga_ResetCamera 0x001E9880 0x001E9888 ico2/seki/src/BgAnimation.c lines=4  # census-equal; stubbed for emission order
-text bga_GetCameraMatrix 0x001E9888 0x001E98BC ico2/seki/src/BgAnimation.c lines=11  # aug
-text bga_InitSdfCamera 0x001E98C0 0x001E9934 ico2/seki/src/BgAnimation.c lines=11  # aug
-rdlit bga_InitSdfCamera 0x00661818 0x00661836 ico2/seki/src/BgAnimation.c def  # 1 string
-sdlit bga_InitSdfCamera 0x0067B1C8 0x0067B1CC ico2/seki/src/BgAnimation.c def  # 1 string
-text bga_SetCamFrame 0x001E9938 0x001E996C ico2/seki/src/BgAnimation.c lines=17  # aug
-text bga_CheckAnimationFinish 0x001E9970 0x001E99F4 ico2/seki/src/BgAnimation.c lines=17  # aug
-text bga_CheckAnimationFrame 0x001E99F8 0x001E9AA8 ico2/seki/src/BgAnimation.c lines=20  # aug
-text bga_CheckAnimationFrameIn 0x001E9AA8 0x001E9B48 ico2/seki/src/BgAnimation.c lines=15  # aug
-text bga_CheckSdfCameraFinish 0x001E9B48 0x001E9BC0 ico2/seki/src/BgAnimation.c lines=11  # aug
-text bga_CheckSdfCameraFrame 0x001E9BC0 0x001E9C54 ico2/seki/src/BgAnimation.c lines=17  # aug
-text bga_CheckSdfCameraFrameIn 0x001E9C58 0x001E9CF0 ico2/seki/src/BgAnimation.c lines=16  # aug
-text func_001E9CF0 0x001E9CF0 0x001E9D30 ico2/seki/src/BgAnimation.c  # jun26-only; derived name
 text disp 0x001E9D40 0x001E9EF0 ico2/seki/src/DisplayFont.c local file=disp_DisplayFont  # order-static; no definition in this TU
 text font_Print 0x001E9EF0 0x001EA15C ico2/seki/src/DisplayFont.c lines=138  # order
 sdlit font_Print 0x0067B1F0 0x0067B1F8 ico2/seki/src/DisplayFont.c  # 1 string (target side)
@@ -1651,44 +1562,6 @@ text actSt03tSekizoEvent 0x00200B10 0x00200B20 ico2/script/src/st03t.c lines=4  
 text actSt03tEneChk 0x00200B20 0x00200BD8 ico2/script/src/st03t.c lines=25  # order
 text actSt03tWayOnChk 0x00200BD8 0x00200C80 ico2/script/src/st03t.c lines=19  # order
 text actSt03tWayOffChk 0x00200C80 0x00200D28 ico2/script/src/st03t.c lines=19  # order
-text actSt04aObj535 0x00200D28 0x00200E08 ico2/script/src/st04a.c  # jun26-only; derived name; named from obj-layout row 535's act process (derived name)
-text func_00200E08 0x00200E08 0x00200FA4 ico2/script/src/st04a.c  # jun26-only; derived name
-lit4 func_00200E08 0x00679038 0x0067903C ico2/script/src/st04a.c  # 1 float (target side)
-rdlit func_00200E08 0x00662A80 0x00662AB8 ico2/script/src/st04a.c  # 1 string (target side)
-text actSt04aConte06 0x00200FA8 0x0020167C ico2/script/src/st04a.c lines=143  # order
-lit4 actSt04aConte06 0x0067903C 0x0067904C ico2/script/src/st04a.c  # 4 floats (target side)
-rdlit actSt04aConte06 0x00662AB8 0x00662AE0 ico2/script/src/st04a.c  # 2 strings (target side)
-text actSt04aConte06Jimaku 0x00201680 0x0020192C ico2/script/src/st04a.c lines=103  # order
-lit4 actSt04aConte06Jimaku 0x0067904C 0x00679050 ico2/script/src/st04a.c  # 1 float
-text actSt04aGateOpen 0x00201930 0x00201A10 ico2/script/src/st04a.c lines=29  # order
-text func_00201A10 0x00201A10 0x00201B98 ico2/script/src/st04a.c  # jun26-only; derived name
-text actConte09 0x00201B98 0x00201EA0 ico2/script/src/st04a.c lines=120  # order
-text actConte09Jimaku 0x00201EA0 0x00202040 ico2/script/src/st04a.c lines=37  # order
-lit4 actConte09Jimaku 0x00679050 0x00679054 ico2/script/src/st04a.c  # 1 float
-text actConte09_2 0x00202040 0x0020243C ico2/script/src/st04a.c lines=117  # order
-lit4 actConte09_2 0x00679054 0x00679058 ico2/script/src/st04a.c  # 1 float (target side)
-text actSt04aGateOpen3Chk 0x00202440 0x00202530 ico2/script/src/st04a.c lines=32  # order
-text actConte09_3 0x00202530 0x00202A54 ico2/script/src/st04a.c lines=237  # order
-lit4 actConte09_3 0x00679058 0x006790A0 ico2/script/src/st04a.c  # 18 floats (target side)
-rdlit actConte09_3 0x00662B00 0x00662B10 ico2/script/src/st04a.c  # 1 string (target side)
-text actSt04aGateRChk 0x00202A58 0x00202BC4 ico2/script/src/st04a.c lines=76  # order
-text actSt04aTorch1 0x00202BC8 0x00202ED8 ico2/script/src/st04a.c lines=85  # order
-text actSt04aTorch1Chk 0x00202ED8 0x002030A8 ico2/script/src/st04a.c lines=78  # order
-rdlit actSt04aTorch1Chk 0x00662B10 0x00662B30 ico2/script/src/st04a.c align=16  # 1 jtbl
-text actSt04aTorchAllFlagfChk 0x002030A8 0x00203270 ico2/script/src/st04a.c lines=68  # order
-text actSt04aGateL 0x00203270 0x002032F8 ico2/script/src/st04a.c lines=19  # order
-text actSt04aGateR 0x002032F8 0x00203380 ico2/script/src/st04a.c lines=19  # order
-text actSt04aTorchXL 0x00203380 0x002033C0 ico2/script/src/st04a.c lines=9  # order
-text actSt04aGateOpen2 0x002033C0 0x00203444 ico2/script/src/st04a.c lines=15  # order
-text actSt04aGateOpen3 0x00203448 0x002034E0 ico2/script/src/st04a.c lines=27  # order
-text actSt04aGateOpen2Ready 0x002034E0 0x00203548 ico2/script/src/st04a.c lines=11  # order
-text actSt04aGirlSit 0x00203548 0x002035B0 ico2/script/src/st04a.c lines=11  # order
-text actSt04aEnvSe 0x002035B0 0x00203668 ico2/script/src/st04a.c lines=24  # order
-text actSt04aEnvSeWakare1 0x00203668 0x00203748 ico2/script/src/st04a.c lines=24  # order
-text finishCallBackFunc 0x00203748 0x002038D0 ico2/script/src/st04a.c local lines=13  # order
-lit4 finishCallBackFunc 0x006790A0 0x006790A4 ico2/script/src/st04a.c  # 1 float (target side)
-text actSt04aGateOpen2ReadyChk 0x002038D0 0x00203990 ico2/script/src/st04a.c lines=23  # order
-text actSt04aGirlSitChk 0x00203990 0x00203A6C ico2/script/src/st04a.c lines=22  # order
 text actSt04bSekizoChk 0x00203A70 0x00203D34 ico2/script/src/st04b.c lines=94  # order
 lit4 actSt04bSekizoChk 0x006790A4 0x006790AC ico2/script/src/st04b.c  # 2 floats (target side)
 text actSt04bCrest01XL 0x00203D38 0x00203DC8 ico2/script/src/st04b.c lines=17  # order

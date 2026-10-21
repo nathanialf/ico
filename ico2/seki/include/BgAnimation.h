@@ -62,14 +62,12 @@ int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out);
 int bga_CheckSdfCameraFinish(char *data);
 int bga_CheckSdfCameraFrame(char *data, int frame, int reset);
 int bga_CheckSdfCameraFrameIn(char *data, int in, int out);
-void bga_SetCameraForceOff(void);
 void bga_InitBGA(void);
 void bga_SetUniqAnimationFlag(int val);
-void bga_ResetAnimation(void);
 float bga_GetZoom(void);
 
 char *bga_InitData(char *data);
-void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n, int no);
+void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n);
 void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop);
 void bga_CalcAnimation(BgaHeader *p, int loop, int reset);
 void bga_CalcSdfCamera(char *data, int loop);
