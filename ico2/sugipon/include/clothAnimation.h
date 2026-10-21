@@ -81,12 +81,12 @@ typedef struct ClothCfg { /* field names derived */
 } ClothCfg;               /* derived name */
 
 /* the texture record tex_GetTextureData returns, copied whole with
-   doubleword moves */
+   doubleword moves (0x310 bytes in this build, Texture.c's TexData) */
 typedef struct { /* field names derived */
-    long long q[89];
+    long long q[98];
 } TexBlob; /* derived name */
 
-/* one cloth InitClothes builds, 0x2E0 bytes: the mesh, the rows of points
+/* one cloth InitClothes builds, 0x328 bytes: the mesh, the rows of points
    and velocities, a mark per point and the texture record copied in */
 typedef struct {  /* field names derived */
     Mesh3D *mesh; /* 0x00 */
@@ -215,12 +215,11 @@ struct Cloth4D { /* field names derived */
     int pad14;
     TexBlob tex;
     Cloth4DCfg *cfg;
-    int colNum;            /* 0x2E4, the count of collision cylinders (ClothHangCfg rows) */
-    int *colNode;          /* 0x2E8, the focus node each cylinder hangs from */
-    sceVu0FMATRIX *colMtx; /* 0x2EC, one matrix a cylinder, the node matrices of the last step */
-    ClothPoint *col;       /* 0x2F0, the cylinders */
-    int sweepRight; /* 0x2F4, nonzero runs each row's collision sweep from the far edge first; InitCloth4D clears it and nothing sets it */
-    int collision;  /* 0x2F8, nonzero while the cylinders collide (girl.c's debug_hair_collision) */
+    int colNum;            /* 0x32C, the count of collision cylinders (ClothHangCfg rows) */
+    int *colNode;          /* 0x330, the focus node each cylinder hangs from */
+    sceVu0FMATRIX *colMtx; /* 0x334, one matrix a cylinder, the node matrices of the last step */
+    ClothPoint *col;       /* 0x338, the cylinders */
+    int sweepRight; /* 0x33C, nonzero runs each row's collision sweep from the far edge first; InitCloth4D clears it and nothing sets it */
 }; /* derived name */
 
 Cloth4D *InitCloth4D(struct GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl);

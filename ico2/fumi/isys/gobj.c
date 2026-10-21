@@ -7,7 +7,6 @@
 #include "gobj_process.h"
 #include "debug_exception.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* the head of the free list for each of the 65 object kinds (obj-kind-data
    has 65 rows; isysGObjKindTableInit clears 260 bytes) */
@@ -18,9 +17,11 @@ inline void isysGObjAlloc(int n);
 inline void isysGObjKindTableRemove(GObj *g);
 inline void *isysGObjSearchFromObjKindID_begin(int kind);
 inline void *isysGObjSearchFromObjKindID_next(GObj *g);
-static void isysGObjKindTableInit(void);
 
-INCLUDE_ASM(isysGObjKindTableInit);
+static void isysGObjKindTableInit(void)
+{
+    memset(gobjKindHead, 0, sizeof(gobjKindHead));
+}
 
 void isysGObjInit(int n)
 {
@@ -41,32 +42,23 @@ static GObj *gobjTable; /* derived name */
 
 static unsigned int gobjMax; /* derived name */
 
-int debugKindOld = 0;
-
-/* the kind-table unlink, which isysGObjKindTableRemove and the object
- * removal inline */
-static __inline__ void kindTableRemove(GObj *g) /* derived name */
+inline void isysGObjAlloc(int n)
 {
-    int kind = g->kind;
-    GObj *p;
-    if ((unsigned int)(kind - 1) < 69) {
-        p = gobjKindHead[kind];
-        if (p == g) {
-            gobjKindHead[kind] = g->kindNext;
-            return;
-        }
-        if (p == 0)
-            return;
-        while (p->kindNext != g) {
-            if (p == 0) {
-                debug_assert(__FILE__, 146);
-                __assert(__FILE__, 146, "0");
-            }
-            p = p->kindNext;
-        }
-        p->next = g->kindNext;
+    GObj *tbl;
+    unsigned int i;
+
+    gobjTable = iosMallocDebug(ios_partition_isys, n * sizeof(GObj), __FILE__, 171);
+    gobjMax = n;
+    tbl = gobjTable;
+    for (i = 0; i < n; i++) {
+        tbl[i].self = 0;
+        tbl[i].dobj = 0;
+        tbl[i].labelId = -1;
+        tbl[i].labelType = -1;
     }
 }
+
+int debugKindOld = 0;
 
 static void cut_gobj_link(GObj *p)
 {
@@ -94,6 +86,31 @@ static void cut_gobj_link(GObj *p)
     }
 }
 
+/* the kind-table unlink, which isysGObjKindTableRemove and the object
+ * removal inline */
+static __inline__ void kindTableRemove(GObj *g) /* derived name */
+{
+    int kind = g->kind;
+    GObj *p;
+    if ((unsigned int)(kind - 1) < 64) {
+        p = gobjKindHead[kind];
+        if (p == g) {
+            gobjKindHead[kind] = g->kindNext;
+            return;
+        }
+        if (p == 0)
+            return;
+        while (p->kindNext != g) {
+            if (p == 0) {
+                debug_assert(__FILE__, 143);
+                __assert(__FILE__, 143, "0");
+            }
+            p = p->kindNext;
+        }
+        p->next = g->kindNext;
+    }
+}
+
 /* the object removal, which isysGObjRemove and isysGObjRemoveAll inline */
 static __inline__ void removeGObjEntry(GObj *g) /* derived name */
 {
@@ -108,15 +125,100 @@ static __inline__ void removeGObjEntry(GObj *g) /* derived name */
     }
 }
 
-INCLUDE_ASM(isysGObjRemoveAll);
+void isysGObjRemoveAll(void)
+{
+    unsigned int i;
 
-static void add_gobj_to_tail(GObj *g, int link, int key);
+    for (i = 0; i < gobjMax; i++) {
+        if (gobjTable[i].self != 0)
+            removeGObjEntry(&gobjTable[i]);
+    }
+    isysGObjKindTableInit();
+}
 
-INCLUDE_ASM(add_gobj_to_tail_gobj);
+static void add_gobj_to_tail(GObj *g, int link, int key)
+{
+    unsigned char id = link;
+    unsigned int val = key;
+    GObj *head;
+    GObj *tail;
+    GObj *p;
+    g->linkId = id;
+    g->key = val;
+    head = gobj_link_head[id];
+    if (head == 0) {
+        gobj_link_head[id] = g;
+        g->prev = 0;
+        g->next = 0;
+        gobj_link_tail[id] = g;
+        return;
+    }
+    if (val < head->key) {
+        g->prev = 0;
+        g->next = head;
+        gobj_link_head[id] = g;
+        head->prev = g;
+        return;
+    }
+    tail = gobj_link_tail[id];
+    if (!(val < tail->key)) {
+        g->prev = tail;
+        g->next = 0;
+        gobj_link_tail[id] = g;
+        tail->next = g;
+        return;
+    }
+    p = head;
+    while (!(val < p->next->key)) {
+        p = p->next;
+    }
+    g->prev = p;
+    g->next = p->next;
+    p->next = g;
+    g->next->prev = g;
+}
 
-static void add_gobj_to_head(GObj *g, int link, int key);
-
-INCLUDE_ASM(add_gobj_to_head);
+static void add_gobj_to_head(GObj *g, int link, int key)
+{
+    unsigned char id = link;
+    unsigned int val = key;
+    GObj *head;
+    GObj *tail;
+    GObj *p;
+    g->linkId = id;
+    g->key = val;
+    head = gobj_link_head[id];
+    if (head == 0) {
+        gobj_link_head[id] = g;
+        g->prev = 0;
+        g->next = 0;
+        gobj_link_tail[id] = g;
+        return;
+    }
+    if (!(head->key < val)) {
+        g->prev = 0;
+        g->next = head;
+        gobj_link_head[id] = g;
+        head->prev = g;
+        return;
+    }
+    tail = gobj_link_tail[id];
+    if (tail->key < val) {
+        g->prev = tail;
+        g->next = 0;
+        gobj_link_tail[id] = g;
+        tail->next = g;
+        return;
+    }
+    p = head;
+    while (p->next->key < val) {
+        p = p->next;
+    }
+    g->prev = p;
+    g->next = p->next;
+    p->next = g;
+    g->next->prev = g;
+}
 
 void isysGObjMove(GObj *g, unsigned char kind, int prio)
 {
@@ -224,6 +326,132 @@ void *isysGObjAddBeforeGObj(void (*fn)(GObj *), GObj *other)
     return g;
 }
 
+inline void isysGObjRemove(GObj *g)
+{
+    removeGObjEntry(g);
+}
+
+inline void isysGObjKindTableAdd(GObj *g, int kind)
+{
+    GObj *p;
+
+    if (debugKindOld != 0) {
+        g->kind = kind;
+        return;
+    }
+    for (p = isysGObjSearchFromObjKindID_begin(g->kind); p != 0;
+         isysGObjSearchFromObjKindID_next(p)) {
+        if (p == g) {
+            isysGObjKindTableRemove(g);
+            break;
+        }
+    }
+    g->kind = kind;
+    if ((unsigned int)kind < 65) {
+        if (gobjKindHead[kind] == 0) {
+            gobjKindHead[kind] = g;
+        } else {
+            p = gobjKindHead[kind];
+            while (p->kindNext != 0) {
+                p = p->kindNext;
+            }
+            p->kindNext = g;
+        }
+        g->kindNext = 0;
+    }
+}
+
+inline void isysGObjKindTableRemove(GObj *g)
+{
+    kindTableRemove(g);
+}
+
+inline void isysGObjMoveAfterGObj(GObj *self, GObj *other)
+{
+    cut_gobj_link(self);
+    self->linkId = other->linkId;
+    self->prev = other;
+    self->next = other->next;
+    other->next = self;
+    self->key = other->key;
+    if (self->next == 0) {
+        gobj_link_tail[self->linkId] = self;
+    }
+}
+
+inline void isysGObjMoveBeforeGObj(GObj *self, GObj *other)
+{
+    unsigned char t;
+    GObj *u;
+    cut_gobj_link(self);
+    t = other->linkId;
+    self->linkId = t;
+    u = other->prev;
+    self->next = other;
+    self->prev = u;
+    other->prev = self;
+    self->key = other->key;
+    if (self->prev == 0) {
+        gobj_link_head[self->linkId] = self;
+    }
+}
+
+inline void *isysGObjAdd(void (*fn)(GObj *), int a1, int a2)
+{
+    int kind = a1 & 0xFF;
+    int prio = a2;
+    GObj *g = allocGObjEntry();
+
+    if (g == 0) {
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
+        return 0;
+    }
+    g->fn = fn;
+    g->self = g;
+    add_gobj_to_tail(g, kind, prio);
+    g->dobj = 0;
+    g->labelId = -1;
+    g->labelType = -1;
+    g->procHead = 0;
+    g->procTail = 0;
+    g->mailBox.num = 0;
+    g->kind = 0;
+    return g;
+}
+
+inline void *isysGObjAddHead(void (*fn)(GObj *), int a1, int a2)
+{
+    int kind = a1 & 0xFF;
+    int prio = a2;
+    GObj *g = allocGObjEntry();
+
+    if (g == 0) {
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
+        return 0;
+    }
+    g->fn = fn;
+    g->self = g;
+    add_gobj_to_head(g, kind, prio);
+    g->dobj = 0;
+    g->labelId = -1;
+    g->labelType = -1;
+    g->procHead = 0;
+    g->procTail = 0;
+    g->mailBox.num = 0;
+    return g;
+}
+
+inline void *isysGObjSearchFromObjLayoutID(int layoutId)
+{
+    unsigned int i;
+    for (i = 0; i < gobjMax; i++) {
+        GObj *e = &gobjTable[i];
+        if (e->self != 0 && e->labelType == 1 && e->labelId == layoutId)
+            return e;
+    }
+    return 0;
+}
+
 /* the next live object after p of the given kind, or 0 */
 static __inline__ GObj *searchGObjOfObjKind(GObj *p, int kind) /* derived name */
 {
@@ -233,6 +461,17 @@ static __inline__ GObj *searchGObjOfObjKind(GObj *p, int kind) /* derived name *
         p++;
         if (p->labelType == 1 && p->kind == kind)
             return p;
+    }
+    return 0;
+}
+
+inline void *isysGObjSearchFromObjKindID_begin(int kind)
+{
+    if (debugKindOld != 0) {
+        return searchGObjOfObjKind(gobjTable - 1, kind);
+    }
+    if ((unsigned int)(kind - 1) < 64) {
+        return gobjKindHead[kind];
     }
     return 0;
 }
@@ -299,23 +538,3 @@ inline void isysGObjActiveDlLink(int link, int on)
         active_gobj_dl_link |= (1 << link);
     }
 }
-
-INCLUDE_ASM(isysGObjAlloc);
-
-INCLUDE_ASM(isysGObjRemove);
-
-INCLUDE_ASM(isysGObjKindTableAdd);
-
-INCLUDE_ASM(isysGObjKindTableRemove);
-
-INCLUDE_ASM(isysGObjMoveAfterGObj);
-
-INCLUDE_ASM(isysGObjMoveBeforeGObj);
-
-INCLUDE_ASM(isysGObjAdd);
-
-INCLUDE_ASM(isysGObjAddHead);
-
-INCLUDE_ASM(isysGObjSearchFromObjLayoutID);
-
-INCLUDE_ASM(isysGObjSearchFromObjKindID_begin);

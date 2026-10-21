@@ -19,7 +19,6 @@
 #include "main.h"
 #include "gv.h"
 #include <assert.h>
-#include "include_asm.h"
 
 static void *ReadCameraSet(struct CamSetFile *f, int stage);
 
@@ -134,6 +133,11 @@ typedef struct CamItemV2 { /* 0x50 */ /* field names derived */
     unsigned char pin[80];            /* a version-2 pin record */
 } CamItemV2;                          /* derived name */
 
+inline void SetCameraZoomOffsetRatio(float val)
+{
+    zoomOffsetRatio = val;
+}
+
 void CameraSetCameraSet(int id)
 {
     CamGroup *p;
@@ -151,7 +155,10 @@ void CameraSetCameraSet(int id)
     ReflectCameraSetBinary(p, n);
 }
 
-INCLUDE_ASM(CameraSetCameraSet_Default);
+void CameraSetCameraSet_Default(void)
+{
+    CameraSetCameraSet(stageData[stage_no].camSetId);
+}
 
 static void GetRootPositionForCamera(float *out, GObj *gobj)
 
@@ -287,13 +294,121 @@ static int ico2camera_GetGroupNearest(float *query)
     return result;
 }
 
-INCLUDE_ASM(initMonitorCamera);
+static void initMonitorCamera(void)
+{
+    monitorCamera.active = 1;
+    SetMonitorCameraInitializeFlag();
+}
 
 /* The retail build compiles out this function's debug arms, which is why
  * `vDbg` is read at the writeback with nothing having written it, `vDiff` is
  * written and never read, `vSpare` is read only by the DEBUG build's report in
  * the second arm, and one loop keeps its counter with an empty body. */
-INCLUDE_ASM(monitorMonitorCamera);
+static void monitorMonitorCamera(CamWork *cam, CamWork *out)
+{
+    float vDiff[4];
+    float vDbg[4];
+    float vEye[4];
+    float vOut[4];
+    float vAt[4];
+    float vAt2[4];
+    float vSpare[4];
+    int k;
+    float len;
+    float t;
+    float d;
+    float d1;
+    float d2;
+
+    if (monitorCamera.active != 0) {
+        monitorCamera.work = *cam;
+        monitorCamera.moveDist = 0.0f;
+        monitorCamera.atRate = 0.0f;
+        monitorCamera.active = 0;
+        monitorCamera.dbgA[0] = 0.0f;
+        monitorCamera.dbgA[1] = 0.0f;
+        monitorCamera.dbgA[2] = 0.0f;
+        monitorCamera.dbgB[0] = 0.0f;
+        monitorCamera.dbgB[1] = 0.0f;
+        monitorCamera.dbgB[2] = 0.0f;
+        *out = *cam;
+        return;
+    }
+    *out = *cam;
+    vDiff[0] = cam->eye.f[0] - monitorCamera.work.eye.f[0];
+    vDiff[1] = cam->eye.f[1] - monitorCamera.work.eye.f[1];
+    vDiff[2] = cam->eye.f[2] - monitorCamera.work.eye.f[2];
+    sceVu0SubVector(vEye, cam, &monitorCamera.work);
+    len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
+    if (handCameraEyeRate * 11.0f < len) {
+        if (handCameraEyeRate < monitorCamera.moveDist) {
+            monitorCamera.moveDist = handCameraEyeRate;
+        }
+        if (monitorCamera.moveDist < len) {
+            len = monitorCamera.moveDist + handCameraEyeRate / 30.0f;
+            sceVu0Normalize(vEye, vEye);
+            sceVu0ScaleVector(vEye, vEye, len);
+            sceVu0AddVector(out, &monitorCamera.work, vEye);
+        } else {
+            len = handCameraEyeRate;
+            sceVu0Normalize(vEye, vEye);
+            sceVu0ScaleVector(vEye, vEye, len);
+            sceVu0AddVector(out, &monitorCamera.work, vEye);
+        }
+    } else {
+        _InterGV(out->eye.f, cam->eye.f, monitorCamera.work.eye.f, 10.0f, 1.0f);
+        for (k = 0; k < 3; k++) {}
+    }
+    sceVu0SubVector(vOut, out, &monitorCamera.work);
+    t = FSqrt(vOut[0] * vOut[0] + vOut[1] * vOut[1] + vOut[2] * vOut[2]);
+    monitorCamera.moveDist = t;
+#ifdef DEBUG
+    sceVu0SubVector(vSpare, &cam->at, &monitorCamera.work.at);
+    scePrintf("monitor camera move %f at %f %f %f\n", t, vSpare[0], vSpare[1], vSpare[2]);
+#endif
+    d = handCameraAtRate;
+    if (d < 0.0f) {
+        d = -d;
+    }
+    sceVu0SubVector(vAt, &cam->at, &monitorCamera.work.at);
+    len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
+    sceVu0Normalize(vAt, vAt);
+    if (d * 9.0f < len) {
+        monitorCamera.atRate = monitorCamera.atRate + 0.5f;
+        if (d < monitorCamera.atRate) {
+            monitorCamera.atRate = d;
+        }
+        sceVu0ScaleVector(vAt, vAt, monitorCamera.atRate);
+        sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
+    } else {
+        _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f, 8.0f, 1.0f);
+        sceVu0SubVector(vAt, &out->at, &monitorCamera.work.at);
+        len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
+        if (d < len) {
+            len = d;
+        }
+        sceVu0Normalize(vAt, vAt);
+        sceVu0ScaleVector(vAt, vAt, len);
+        sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
+        sceVu0SubVector(vAt2, &out->at, &monitorCamera.work.at);
+        len = FSqrt(vAt2[0] * vAt2[0] + vAt2[1] * vAt2[1] + vAt2[2] * vAt2[2]);
+        monitorCamera.atRate = len;
+        if (d < len) {
+            monitorCamera.atRate = d;
+        }
+    }
+    if (out->ext.f[0] - monitorCamera.work.ext.f[0] != 0.0f) {
+        d1 = _DistGV(out, cam);
+        d2 = _DistGV(out, &monitorCamera.work);
+        if (d1 + d2 != 0.0f) {
+            out->ext.f[0] = (out->ext.f[0] * d2 + monitorCamera.work.ext.f[0] * d1) / (d1 + d2);
+        }
+    }
+    monitorCamera.work = *out;
+    monitorCamera.dbgA[0] = vDbg[0];
+    monitorCamera.dbgA[1] = vDbg[1];
+    monitorCamera.dbgA[2] = vDbg[2];
+}
 
 static void ChaseCamera(float *pos, float *cam)
 {
@@ -558,15 +673,71 @@ inline void MakeCameraSetBinary(CamGroup *src, int count, CamGroup *dst)
     }
 }
 
-INCLUDE_ASM(ReflectCameraSetBinary);
+void ReflectCameraSetBinary(CamGroup *src, int count)
+{
+    if (cameraSetBuf != 0) {
+        iosFree(cameraSetBuf);
+    }
 
-INCLUDE_ASM(InitIco2Camera);
+    cameraSetBuf =
+        iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count), __FILE__, 1540);
+    cameraSetGroups = cameraSetBuf;
+    cameraSetGroupsEnd = cameraSetBuf + count * 76;
+    cameraSetGroupNum = count;
+    MakeCameraSetBinary(src, count, (CamGroup *)cameraSetBuf);
+}
+
+void InitIco2Camera(void)
+{
+    cameraSetBuf = 0;
+    CameraSetCameraSet_Default();
+    initMonitorCamera();
+    cameraGroupCurrent = -1;
+    cameraGroupChanged = 1;
+    setHandCameraRates(stageData[stage_no].handCameraRate, 10.0f);
+    InitHandCameraCorrect();
+}
 
 /* the target offset the smoothing test measures the new one against, reset
    whenever the actor asks for no offset */
 static float lastTargetOffset[3] = {0.0f, 0.0f, 0.0f}; /* derived name */
 
-INCLUDE_ASM(GetTargetOffset);
+static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
+{
+    float ofs[4];
+    float w[4];
+    Sub15C *p;
+    int n;
+
+    if (gobj == default_cameratarget_gobj && gobj != 0) {
+        n = (int)(_GetDirection(test_CURRENTORIENT(gobj)) / 3.1415927f * 180.0f);
+        ofs[0] = v[0];
+        ofs[1] = v[1];
+        ofs[2] = -v[2];
+        if (flag) {
+            lastTargetOffset[0] = 0.0f;
+            lastTargetOffset[1] = 0.0f;
+            lastTargetOffset[2] = 0.0f;
+        }
+        _ApplyRyGV(ofs, (float)n * 3.1415927f / 180.0f);
+        p = GOBJ_SUB(gobj);
+        if (3.0f < FSqrt(p->root.move[0] * p->root.move[0] + p->root.move[2] * p->root.move[2])) {
+            sceVu0SubVector(w, ofs, lastTargetOffset);
+            if (FSqrt(w[0] * w[0] + w[1] * w[1] + w[2] * w[2]) < 1.5f) {
+                lastTargetOffset[0] = ofs[0];
+                lastTargetOffset[1] = ofs[1];
+                lastTargetOffset[2] = ofs[2];
+            } else {
+                sceVu0Normalize(w, w);
+                sceVu0ScaleVector(w, w, 1.5f);
+                sceVu0AddVector(lastTargetOffset, lastTargetOffset, w);
+            }
+        }
+        v[0] = lastTargetOffset[0];
+        v[1] = lastTargetOffset[1];
+        v[2] = lastTargetOffset[2];
+    }
+}
 
 inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
 
@@ -601,17 +772,403 @@ static inline int findCameraGroupContaining(float *pos) /* derived name */
     return result;
 }
 
-INCLUDE_ASM(SetCameraMatrix_Ico2);
+void SetCameraMatrix_Ico2(int flag)
+{
+    CamWork cw = monitorCamera.work;
+    float vA[4];
+    float vB[4];
+    CamWork cw2;
+    int cut;
+    int enable;
+    int mode = 1;
+    int changed = 0;
+    unsigned char f8;
+    int group;
 
-INCLUDE_ASM_LIT(GetPluralCameraSet);
+    if (cameraGroupChanged != 0) {
+        flag = 1;
+        cameraGroupChanged = 0;
+        changed = 1;
+    }
+    if (flag) {
+        changed = mode;
+    }
+    f8 = flag;
+    ico2camera_GetTargetPos(f8);
+    group = findCameraGroupContaining(groupProbePos);
+    if (changed && group == -1) {
+        group = ico2camera_GetGroupNearest(groupProbePos);
+    }
+    if (group == -1) {
+        cw = monitorCamera.work;
+        cw.at.f[0] = targetASmooth[0];
+        cw.at.f[1] = targetASmooth[1];
+        cw.at.f[2] = targetASmooth[2];
+        memset(vA, 0, 16);
+        GetTargetOffset(default_cameratarget_gobj, vA, 0);
+        sceVu0AddVector(cw.at.f, cw.at.f, vA);
+    } else {
+        if (flag != 0 || (cameraGroupCurrent != -1 &&
+                          ((CamGroup *)cameraSetGroups)[group].kind !=
+                              ((CamGroup *)cameraSetGroups)[cameraGroupCurrent].kind)) {
+            initMonitorCamera();
+            f8 = 1;
+        }
+        memset(vA, 0, 16);
+        memset(vB, 0, 16);
+        CameraMove(group, targetBSmooth, (float *)&cw, vA, vB);
+        cw.at.f[0] = targetASmooth[0];
+        cw.at.f[1] = targetASmooth[1];
+        cw.at.f[2] = targetASmooth[2];
+        GetTargetOffset(default_cameratarget_gobj, vA, f8);
+        sceVu0AddVector(cw.at.f, cw.at.f, vA);
+        sceVu0AddVector(cw.at.f, cw.at.f, vB);
+        cameraGroupCurrent = group;
+    }
+    InsertCamera_Exec((float *)&cw, &cut, &enable);
+    if (cut != 0) {
+        initMonitorCamera();
+    }
+    if (enable != 0) {
+        mode = 0;
+    }
+    monitorMonitorCamera(&cw, &cw2);
+    cw = cw2;
+    if (debug_camera_flag != 0) {
+        debug_Marker(cw.at.f, 0, 0, 255, 100.0f, 0.0f);
+    }
+    sceVu0ScaleVector(&cw, &cw, -1.0f);
+    sceVu0ScaleVector(cw.at.f, cw.at.f, -1.0f);
+    {
+        float sx;
+        float sz;
+        float mag;
 
-INCLUDE_ASM_LIT(AddPluralCameraSet);
+        /* This build reads the stick twice. The first reading below (pad[0]'s
+           first two analog bytes, the magnitude clamped to 1, the square dead zone at 0.4
+           and a squared response past 0.4 on each axis, the same tests as
+           camera-root.c's CameraEditManual: a positive and a negative test per
+           axis) is overwritten by the iosPad reading after it, so it is dead.
+           Its words that remain are the FSqrt call and the two 0.4f <= tests:
+           the response bodies feed the negative tests, which die only in the
+           flow pass after reload, so the two tests keep their branches until
+           the last jump pass removes them. The response constants are derived
+           (no literal of the dead code survives): the words fix only the shape,
+           bodies without the 0.4f constant (the tests' 0.4f is in $f3, past
+           the bodies' two temporaries and the shared -0.4f), and the clamp
+           (its label puts the dead zone's first 0.0f in $f0). aug6's TRFILE
+           has no code on the lines of the clamp and of the response. */
+        if (pad[0].now & 2) {
+            mode = 0;
+        }
+        if (mode) {
+            sx = (pad[0].ana[0] - 127) / 128.0f;
+            sz = (pad[0].ana[1] - 127) / 128.0f;
+        } else {
+            sx = sz = 0.0f;
+        }
+        mag = FSqrt(sx * sx + sz * sz);
+        if (1.0f < mag) {
+            mag = 1.0f;
+        }
+        if ((sx < 0.0f ? -sx : sx) < 0.4f && (sz < 0.0f ? -sz : sz) < 0.4f) {
+            sx = sz = 0.0f;
+        }
+        if (0.4f <= sx) {
+            sx = sx * sx * 2.5f;
+        }
+        if (sx <= -0.4f) {
+            sx = -sx * sx * 2.5f;
+        }
+        if (0.4f <= sz) {
+            sz = sz * sz * 2.5f;
+        }
+        if (sz <= -0.4f) {
+            sz = -sz * sz * 2.5f;
+        }
+        {
+            IosPadCtx padCtx;
+            IosPadStick st;
 
-/* ReadCameraSet is a stub, and with it the inline camera-set reallocator its
-   four call sites expand: that helper's file name is the string the demo
-   keeps once, at ReflectCameraSetBinary's first use (0x5A35C0), so its C is
-   not carried while it has no C caller. */
-INCLUDE_ASM(ReadCameraSet);
+            iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
+            iosPadRead(&padCtx);
+            iosPadGetStick(&padCtx, &st, 1, 2, 2, 0);
+            {
+                Mat4 dir = {{(float)st.x - 127.5f, 0.0f, (float)st.y - 127.5f, 0.0f}};
+
+                sceVu0Normalize(&dir, &dir);
+                mag = st.mag;
+                sx = dir.f[0] * mag;
+                sz = dir.f[2] * mag;
+            }
+        }
+        if (systemStatus[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
+            ClearHandCameraCorrect();
+        } else {
+            HandCameraCorrect(&cw, cw.at.f, sx, sz,
+                              60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        }
+    }
+    SetWSMatrix(&cw);
+}
+
+inline void *GetPluralCameraSet(int id)
+{
+    int i;
+
+    for (i = 0; i < pluralCameraSetNum; i++) {
+        if (pluralCameraSet[i].id == id) {
+            return pluralCameraSet[i].set;
+        }
+    }
+    /* EUC-JP: "[%s] was not found\n" */
+    debug_StdPrintfDummy("[%s]が見つかりません\n", cameraSetList[id]);
+    debug_assert(__FILE__, 1965);
+    __assert(__FILE__, 1965, "0");
+    return 0;
+}
+
+inline void AddPluralCameraSet(int id, char *name)
+{
+    PluralCameraSet *p;
+
+    if (pluralCameraSetNum >= 10) {
+        /* EUC-JP: "at most [%d] camera sets can be registered in one stage." */
+        debug_StdPrintfDummy("１ステージに登録できるカメラセットは、最大[%d]個です。", 10);
+        debug_assert(__FILE__, 1974);
+        __assert(__FILE__, 1974, "0");
+    }
+    p = &pluralCameraSet[pluralCameraSetNum];
+    p->id = id;
+    p->set = ReadCameraSet((CamSetFile *)name, stage_no);
+    pluralCameraSetNum++;
+}
+
+inline void InitPluralCameraSet(void)
+{
+    pluralCameraSetNum = 0;
+}
+
+/* the camera-set reallocator: a block sized for the set's groups and items,
+   for ReadCameraSet's four call sites */
+static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
+{
+    CamSetFile *p;
+
+    p = (CamSetFile *)iosMallocDebug(ios_partition_seki, 16 + f->count * 76 + f->total * 92,
+                                     __FILE__, 2095);
+    *p = *f;
+    p->magic = 0x1234;
+    p->ver = 3;
+    return p;
+}
+
+static void *ReadCameraSet(CamSetFile *f, int stage)
+{
+    CamSetFile *p = 0;
+    int n = f->count;
+    int i;
+    int n_pin;
+
+    debug_StdPrintfDummy("camera data version = [%d]\n", f->ver);
+    switch (f->ver) {
+    case 0: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 76;
+        CamGroup *ng;
+        PinRec *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].end - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (PinRec *)((char *)ng + n * 76);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV0 *)&ni[i] = ((CamItemV0 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].eyeRate = stageData[stage].handCameraRate;
+            ni[i].atRate = 10.0f;
+            ni[i].limitP = 120.0f;
+            ni[i].limitV = 80.0f;
+            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
+        }
+        break;
+    }
+    case 1: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 76;
+        CamGroup *ng;
+        PinRec *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].end - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (PinRec *)((char *)ng + n * 76);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV1 *)&ni[i] = ((CamItemV1 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].limitP = 120.0f;
+            ni[i].limitV = 80.0f;
+            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
+        }
+        break;
+    }
+    case 2: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 76;
+        CamGroup *ng;
+        PinRec *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].end - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (PinRec *)((char *)ng + n * 76);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            *(CamItemV2 *)&ni[i] = ((CamItemV2 *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i].ofsB[0] = ni[i].ofsB[1] = ni[i].ofsB[2] = 0.0f;
+        }
+        break;
+    }
+    case 3: {
+        CamGroup *og = (CamGroup *)((char *)f + 16);
+        char *oi = (char *)og + n * 76;
+        CamGroup *ng;
+        PinRec *ni;
+        int total;
+
+        total = 0;
+        for (i = 0; i < n; i++) {
+            total += og[i].end - og[i].first;
+        }
+        f->total = n_pin = total;
+        debug_StdPrintfDummy("n_group[%d], n_pin[%d]\n", n, n_pin);
+        p = allocCameraSet(f);
+        ng = (CamGroup *)((char *)p + 16);
+        ni = (PinRec *)((char *)ng + n * 76);
+        for (i = 0; i < n; i++) {
+            ng[i] = og[i];
+        }
+        for (i = 0; i < total; i++) {
+            ni[i] = ((PinRec *)oi)[i];
+        }
+        for (i = 0; i < total; i++) {}
+        break;
+    }
+    default:
+        /* EUC-JP: "the camera data version is wrong. please tell Omori.\n" */
+        debug_StdPrintfDummy(
+            "カメラデータのバージョンに異常があります。大森まで知らせてください\n");
+        debug_StdPrintfDummy("illegal camera data version [%d]\n", f->ver);
+        debug_assert(__FILE__, 2284);
+        __assert(__FILE__, 2284, "0");
+        break;
+    }
+    return p;
+}
+
+inline int GetCameraGroupCurrent(void)
+{
+    return cameraGroupCurrent;
+}
+
+inline int GetCameraGroupFromGObj(void *obj)
+{
+    float buf[4];
+    float *bp;
+    int result;
+    int i;
+    GetRootPosition(buf, obj);
+    sceVu0ScaleVector(buf, buf, -1.0f);
+    bp = buf;
+    result = -1;
+    for (i = 0; i < cameraSetGroupNum; i++) {
+        int k = 0;
+        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 76);
+        float *range = entry->range;
+        float *center = entry->center;
+        float *p = bp;
+        do {
+            if (*p < *center - *range) {
+                break;
+            }
+            if (*center + *range < *p) {
+                break;
+            }
+            p++;
+            range++;
+            center++;
+        } while (++k < 3);
+        if (k == 3) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
+inline int GetCameraGroupFromPosition(float *pos)
+{
+    float buf[4];
+    float *bp;
+    int result;
+    int i;
+    sceVu0ScaleVector(buf, pos, -1.0f);
+    bp = buf;
+    result = -1;
+    for (i = 0; i < cameraSetGroupNum; i++) {
+        int k = 0;
+        CamGroup *entry = (CamGroup *)(cameraSetGroups + i * 76);
+        float *range = entry->range;
+        float *center = entry->center;
+        float *p = bp;
+        do {
+            if (*p < *center - *range) {
+                break;
+            }
+            if (*center + *range < *p) {
+                break;
+            }
+            p++;
+            range++;
+            center++;
+        } while (++k < 3);
+        if (k == 3) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
 
 /* three zero words; nothing reads them */
 static int cameraIco2Word0 = 0; /* derived name */
@@ -619,17 +1176,3 @@ static int cameraIco2Word0 = 0; /* derived name */
 int current_group = 0;
 
 static int cameraIco2Word1 = 0; /* derived name */
-
-INCLUDE_ASM(SetCameraZoomOffsetRatio);
-
-INCLUDE_ASM(GetCameraGroupCurrent);
-
-INCLUDE_ASM(GetCameraGroupFromGObj);
-
-INCLUDE_ASM(GetCameraGroupFromPosition);
-
-INCLUDE_ASM(AddPluralCameraSet);
-
-INCLUDE_ASM(InitPluralCameraSet);
-
-INCLUDE_ASM(GetPluralCameraSet);

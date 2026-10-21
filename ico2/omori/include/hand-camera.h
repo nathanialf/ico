@@ -11,7 +11,6 @@
 void ClearHandCameraCorrect(void);
 void InitHandCameraCorrect(void);
 void SetLimitHandCameraCorrect(float limitP, float limitV);
-
-void HandCameraCorrect(void *eye, void *at, int mode, float stickX, float stickZ, float rate);
+void HandCameraCorrect(void *eye, void *at, float stickX, float stickZ, float rate);
 
 #endif /* HAND_CAMERA_H */

@@ -92,7 +92,46 @@ static __inline__ void projectVertex(void *dst, const void *src) /* derived name
 
 INCLUDE_ASM(draw);
 
-INCLUDE_ASM(InitGameOverEffect);
+void InitGameOverEffect(void)
+{
+    int i;
+    int j;
+    float ca;
+    float sa;
+    float cb;
+    float sb;
+
+    for (i = 0; i < 16; i++) {
+        short a = i * 0x800;
+        short b = (i + 1) * 0x800;
+
+        ca = GetTableCos(a);
+        sa = GetTableSin(a);
+        cb = GetTableCos(b);
+        sb = GetTableSin(b);
+        cosA[i] = ca;
+        cosB[i] = cb;
+        sinA[i] = sa;
+        sinB[i] = sb;
+        for (j = 0; j < 17; j++) {
+            float *p = &hatchRows[i * 136 + j * 8];
+            float *q = p + 4;
+            short k = j * 0x1000;
+            float s = GetTableSin(k);
+            float c = GetTableCos(k);
+
+            p[0] = sa * s;
+            p[1] = sa * c;
+            p[2] = ca;
+            p[3] = 1.0f;
+            q[0] = sb * s;
+            q[1] = sb * c;
+            q[2] = cb;
+            q[3] = 1.0f;
+        }
+    }
+    CopyVector(gameOverCenter, ZeroPoint);
+}
 
 INCLUDE_ASM(func_001BAE50);
 
@@ -212,14 +251,33 @@ static inline void sendGameOverMail(void *gobj, float r2) /* derived name */
 
 void SetupDarkVolume(void *pos, float radius, float edge);
 
-INCLUDE_ASM(InitDarkVolumeGeo);
+int InitDarkVolumeGeo(GObj *self)
+{
+    return 0;
+}
 
-INCLUDE_ASM(DarkVolumeGeo);
+void DarkVolumeGeo(GObj *self) {}
 
-INCLUDE_ASM(DarkVolumeDL);
+void DarkVolumeDL(void) {}
 
-INCLUDE_ASM(ExecGameOverEffect);
+void ExecGameOverEffect(void) {}
 
 INCLUDE_ASM(DispGameOverEffect);
 
-INCLUDE_ASM(StartQueenAttackEffect);
+/* clamp a screen position's x and y to 0..4095; no caller in this build, so
+   only its out-of-line copy is left, the last function of the object */
+inline void ClampScreenPosition(float *dst, float *src) /* derived name */
+{
+    if (src[0] < 0.0f) {
+        dst[0] = 0.0f;
+    }
+    if (4095.0f < src[0]) {
+        dst[0] = 4095.0f;
+    }
+    if (src[1] < 0.0f) {
+        dst[1] = 0.0f;
+    }
+    if (4095.0f < src[1]) {
+        dst[1] = 4095.0f;
+    }
+}

@@ -120,8 +120,9 @@ typedef union { /* field names derived */
         unsigned int : 1;
         unsigned int adjustRoot : 1; /* the root is turned by adjustAngle */
         unsigned int : 3;
-        unsigned int loop : 1; /* the motion loops */
-        unsigned int : 6;
+        unsigned int loop : 1;       /* the motion loops */
+        unsigned int clothPlane : 1; /* cloth is pushed out of the object's floor plane (GetCloth4D) */
+        unsigned int : 5;
     } bits;
 } MotionFlags; /* derived name */
 

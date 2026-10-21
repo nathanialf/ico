@@ -181,20 +181,6 @@ text iosPadDevReadFunc 0x00139B98 0x00139D28 ico2/fumi/ios/pad.c local lines=47 
 rdlit iosPadDevReadFunc 0x005A0B60 0x005A0B98 ico2/fumi/ios/pad.c  # 2 strings (target side)
 text iosPadRead 0x00139D28 0x00139E5C ico2/fumi/ios/pad.c lines=59  # ordinal; differs-at:46; length:-5; extent-differs
 text iosPadGetStick 0x0013A018 0x0013A1D8 ico2/fumi/ios/pad.c lines=8  # call-pal; census pairs it with PAL iosPadGetStick_func (ordinal)
-text isysGObjKindTableInit 0x0013C8E8 0x0013C8FC ico2/fumi/isys/gobj.c local lines=4  # ordinal; differs-at:4; imm:1; extent-equal
-text isysGObjRemoveAll 0x0013CA00 0x0013CB50 ico2/fumi/isys/gobj.c lines=10  # ordinal; differs-at:26; imm:3; extent-equal
-text add_gobj_to_tail 0x0013CB50 0x0013CC20 ico2/fumi/isys/gobj.c local file=add_gobj_to_tail_gobj lines=41  # anchor; equal; -; extent-equal
-text add_gobj_to_head 0x0013CC20 0x0013CCF0 ico2/fumi/isys/gobj.c local lines=41  # anchor; equal; -; extent-equal
-text isysGObjAlloc 0x0013CFE8 0x0013D060 ico2/fumi/isys/gobj.c lines=15  # ordinal; differs-at:11; imm:1; extent-equal
-text isysGObjRemove 0x0013D060 0x0013D15C ico2/fumi/isys/gobj.c lines=4  # ordinal; differs-at:10; imm:3; extent-equal
-text isysGObjKindTableAdd 0x0013D160 0x0013D240 ico2/fumi/isys/gobj.c lines=29  # ordinal; differs-at:16; imm:1; extent-equal
-text isysGObjKindTableRemove 0x0013D240 0x0013D30C ico2/fumi/isys/gobj.c lines=4  # ordinal; differs-at:9; imm:3; extent-equal
-text isysGObjMoveAfterGObj 0x0013D310 0x0013D380 ico2/fumi/isys/gobj.c lines=12  # census-equal; stubbed for emission order
-text isysGObjMoveBeforeGObj 0x0013D380 0x0013D3F0 ico2/fumi/isys/gobj.c lines=16  # census-equal; stubbed for emission order
-text isysGObjAdd 0x0013D3F0 0x0013D4F8 ico2/fumi/isys/gobj.c lines=22  # census-equal; stubbed for emission order
-text isysGObjAddHead 0x0013D4F8 0x0013D5FC ico2/fumi/isys/gobj.c lines=21  # census-equal; stubbed for emission order
-text isysGObjSearchFromObjLayoutID 0x0013D600 0x0013D664 ico2/fumi/isys/gobj.c lines=10  # census-equal; stubbed for emission order
-text isysGObjSearchFromObjKindID_begin 0x0013D668 0x0013D6F4 ico2/fumi/isys/gobj.c lines=10  # ordinal; differs-at:27; imm:1; extent-equal
 text add_gobj_to_tail 0x0013D978 0x0013DAE4 ico2/fumi/isys/gobj_dl.c local file=add_gobj_to_tail_gobj_dl lines=45  # anchor; equal; -; extent-equal
 rdlit add_gobj_to_tail 0x005A0D88 0x005A0DD0 ico2/fumi/isys/gobj_dl.c file=add_gobj_to_tail_gobj_dl  # 4 strings
 text add_gobj_to_head 0x0013DAE8 0x0013DBB8 ico2/fumi/isys/gobj_dl.c local file=add_gobj_to_head_gobj_dl lines=40  # census-equal; stubbed for emission order
@@ -313,28 +299,6 @@ text BoyAttackCenter 0x00177C90 0x00177C98 ico2/omori/src/attackhit.c lines=1  #
 text CommonAttackCenter 0x00177C98 0x00177CC8 ico2/omori/src/attackhit.c lines=6  # order
 text AttackCenter 0x00177CC8 0x00177E54 ico2/omori/src/attackhit.c  # order; no definition in this TU
 rdlit AttackCenter 0x005A31E8 0x005A3208 ico2/omori/src/attackhit.c  # 2 strings (target side)
-text CameraSetCameraSet_Default 0x0017DF30 0x0017DF50 ico2/omori/src/camera-ico2.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text initMonitorCamera 0x0017E370 0x0017E380 ico2/omori/src/camera-ico2.c local lines=6  # ordinal; differs-at:0; length:-4; extent-differs
-text monitorMonitorCamera 0x0017E380 0x0017E8E8 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; differs-at:0; length:-241; extent-differs
-text ReflectCameraSetBinary 0x0017F3F8 0x0017F718 ico2/omori/src/camera-ico2.c lines=13  # ordinal; differs-at:36; imm:1; extent-equal
-rdlit ReflectCameraSetBinary 0x005A35C0 0x005A35D8 ico2/omori/src/camera-ico2.c  # 1 string (target side)
-text InitIco2Camera 0x0017F718 0x0017F7D8 ico2/omori/src/camera-ico2.c lines=11  # ordinal; differs-at:4; other:4; extent-equal
-text GetTargetOffset 0x0017F7D8 0x0017F9A4 ico2/omori/src/camera-ico2.c local lines=38  # aug
-lit4 GetTargetOffset 0x00678A80 0x00678A84 ico2/omori/src/camera-ico2.c  # 1 float
-text SetCameraMatrix_Ico2 0x0017F9A8 0x0017FFFC ico2/omori/src/camera-ico2.c lines=88  # aug
-lit4 SetCameraMatrix_Ico2 0x00678A84 0x00678A98 ico2/omori/src/camera-ico2.c  # 5 floats (target side)
-text ReadCameraSet 0x00180000 0x00180C9C ico2/omori/src/camera-ico2.c local lines=132  # call-pal
-rdlit ReadCameraSet 0x005A3628 0x005A36CA ico2/omori/src/camera-ico2.c  # 4 strings
-text SetCameraZoomOffsetRatio 0x00180CA0 0x00180CA8 ico2/omori/src/camera-ico2.c lines=4  # census-equal; stubbed for emission order
-text GetCameraGroupCurrent 0x00180CA8 0x00180CB0 ico2/omori/src/camera-ico2.c lines=4  # census-equal; stubbed for emission order
-text GetCameraGroupFromGObj 0x00180CB0 0x00180D88 ico2/omori/src/camera-ico2.c lines=34  # census-equal; stubbed for emission order
-text GetCameraGroupFromPosition 0x00180D88 0x00180E50 ico2/omori/src/camera-ico2.c lines=33  # census-equal; stubbed for emission order
-text AddPluralCameraSet 0x00180E50 0x00180EFC ico2/omori/src/camera-ico2.c lines=15  # ordinal; differs-at:15; imm:2; extent-equal
-rdlit AddPluralCameraSet 0x005A35F0 0x005A3627 ico2/omori/src/camera-ico2.c def  # 1 string
-text InitPluralCameraSet 0x00180F00 0x00180F08 ico2/omori/src/camera-ico2.c lines=4  # census-equal; stubbed for emission order
-text GetPluralCameraSet 0x00180F08 0x00180FAC ico2/omori/src/camera-ico2.c lines=15  # ordinal; differs-at:27; imm:2; extent-equal
-rdlit GetPluralCameraSet 0x005A35D8 0x005A35EE ico2/omori/src/camera-ico2.c def  # 1 string
-sdlit GetPluralCameraSet 0x0067A140 0x0067A142 ico2/omori/src/camera-ico2.c def  # 1 string
 text ConvertCameraSet 0x00181340 0x00181488 ico2/omori/src/camera-root.c lines=17  # call-pal
 lit4 ConvertCameraSet 0x00678A98 0x00678A9C ico2/omori/src/camera-root.c  # 1 float
 text MakeCameraMatrix 0x00181488 0x001815D4 ico2/omori/src/camera-root.c lines=13  # call-pal
@@ -587,27 +551,10 @@ text CageFixGeo 0x001B4890 0x001B490C ico2/sugipon/src/cageFix.c lines=8  # ordi
 text CandleGeo 0x001B4AE8 0x001B4BDC ico2/sugipon/src/candle.c lines=28  # aug
 text DeleteLayoutedCandleParticleEffect 0x001B4BE0 0x001B4CA8 ico2/sugipon/src/candle.c lines=10  # ordinal; differs-at:17; imm:1; extent-equal
 text _deleteLayoutedCandleParticleEffect 0x001B4CA8 0x001B4D44 ico2/sugipon/src/candle.c lines=16  # ordinal; differs-at:12; imm:1; extent-equal
-text bindExWeight.42 0x001B5040 0x001B54C0 ico2/sugipon/src/clothAnimation.c local file=bindExWeight_42_clothAnimation  # census-equal nested function of a stubbed parent (written before it)
-text bind2.46 0x001B54C0 0x001B5804 ico2/sugipon/src/clothAnimation.c local file=bind2_46_clothAnimation  # census-equal nested function of a stubbed parent (written before it)
-text calc2.50 0x001B5808 0x001B59A8 ico2/sugipon/src/clothAnimation.c local file=calc2_50_clothAnimation  # census-equal nested function of a stubbed parent (written before it)
-text GetChainAnimation 0x001B59A8 0x001B5FAC ico2/sugipon/src/clothAnimation.c lines=265  # ordinal; differs-at:13; length:+63; extent-differs
-text InitChains 0x001B6F78 0x001B7254 ico2/sugipon/src/clothAnimation.c lines=42  # ordinal; differs-at:9; imm:5; extent-equal
-rdlit InitChains 0x0065F5F0 0x0065F605 ico2/sugipon/src/clothAnimation.c align=16  # 1 string
-text InitClothes 0x001B7258 0x001B7690 ico2/sugipon/src/clothAnimation.c lines=51  # call-pal
-rdlit InitClothes 0x0065F608 0x0065F61F ico2/sugipon/src/clothAnimation.c  # 1 string
-text DispCloth4D 0x001B7990 0x001B7A88 ico2/sugipon/src/clothAnimation.c lines=21  # ordinal; differs-at:17; imm:2; extent-equal
 text getCloth4D_preProcess 0x001B7A88 0x001B801C ico2/sugipon/src/clothAnimation.c local lines=94  # call-aug
-text proc.162 0x001B8020 0x001B8474 ico2/sugipon/src/clothAnimation.c local file=proc_162_clothAnimation  # census-equal nested function of a stubbed parent (written before it)
-text getCloth4D 0x001B8478 0x001B9634 ico2/sugipon/src/clothAnimation.c local lines=337  # call-aug
-lit4 getCloth4D 0x00678D70 0x00678D78 ico2/sugipon/src/clothAnimation.c  # 2 floats
-text getCloth4D_postProcess 0x001B9638 0x001B989C ico2/sugipon/src/clothAnimation.c local lines=37  # call-aug
-text GetCloth4D 0x001B98A0 0x001B9AFC ico2/sugipon/src/clothAnimation.c lines=47  # call-aug
-text InitCloth4D 0x001B9B00 0x001B9FE4 ico2/sugipon/src/clothAnimation.c lines=65  # ordinal; differs-at:3; other:245; extent-equal
-text getCloth4D_planeClip 0x001BA840 0x001BA964 ico2/sugipon/src/clothAnimation.c lines=21  # ordinal; differs-at:13; imm:1; extent-equal
 sdata D_0067ACA8 0x0067ACA8 0x0067AD0C ico2/sugipon/src/darkVolume.c local  # the TU's .sdata: strip state words, eight colours and the game-over words draw, func_001BAE50, renderViewCoordZSphere, sonic, darkVolume and DispGameOverEffect read; no word of C .text addresses them (target side)
 text draw 0x001BA9C8 0x001BAC90 ico2/sugipon/src/darkVolume.c local lines=10  # order
 rdlit draw 0x0065F630 0x0065F640 ico2/sugipon/src/darkVolume.c  # 1 data, four words (target side): the function's two references (0x65F630)
-text InitGameOverEffect 0x001BAC90 0x001BAE4C ico2/sugipon/src/darkVolume.c lines=43  # call-pal
 text func_001BAE50 0x001BAE50 0x001BB034 ico2/sugipon/src/darkVolume.c  # jun26-only; derived name
 lit4 func_001BAE50 0x00678D78 0x00678D7C ico2/sugipon/src/darkVolume.c  # 1 float (target side)
 text renderViewCoordZSphere 0x001BB038 0x001BB2EC ico2/sugipon/src/darkVolume.c local lines=48  # order
@@ -615,14 +562,8 @@ lit4 renderViewCoordZSphere 0x00678D7C 0x00678D80 ico2/sugipon/src/darkVolume.c 
 text func_001BB2F0 0x001BB2F0 0x001BB7A4 ico2/sugipon/src/darkVolume.c  # jun26-only; derived name
 text sonic 0x001BB7A8 0x001BC7C0 ico2/sugipon/src/darkVolume.c local lines=209  # order
 text darkVolume 0x001BC7C0 0x001BD2DC ico2/sugipon/src/darkVolume.c local lines=138  # order
-text InitDarkVolumeGeo 0x001BD2E0 0x001BD2E8 ico2/sugipon/src/darkVolume.c lines=5  # aug
-text DarkVolumeGeo 0x001BD2E8 0x001BD2F0 ico2/sugipon/src/darkVolume.c lines=10  # aug
-text DarkVolumeDL 0x001BD2F0 0x001BD2F8 ico2/sugipon/src/darkVolume.c lines=1  # aug
-text ExecGameOverEffect 0x001BD2F8 0x001BD300 ico2/sugipon/src/darkVolume.c lines=1  # aug
 text DispGameOverEffect 0x001BD300 0x001BD390 ico2/sugipon/src/darkVolume.c lines=38  # call-pal
 lit4 DispGameOverEffect 0x00678D80 0x00678D84 ico2/sugipon/src/darkVolume.c  # 1 float (target side)
-text StartQueenAttackEffect 0x001BD390 0x001BD3F0 ico2/sugipon/src/darkVolume.c lines=6  # order
-lit4 StartQueenAttackEffect 0x00678D84 0x00678D88 ico2/sugipon/src/darkVolume.c  # 1 float (target side)
 text execEffectTool 0x001BE818 0x001BE9F8 ico2/sugipon/src/effectTool.c local lines=59  # ordinal; differs-at:11; imm:3; extent-equal
 rdlit execEffectTool 0x0065F988 0x0065F9BA ico2/sugipon/src/effectTool.c  # 1 string
 text EffectTool 0x001BEA40 0x001BEB28 ico2/sugipon/src/effectTool.c lines=18  # ordinal; differs-at:28; imm:2; extent-equal
@@ -727,21 +668,6 @@ text InitSugiLeafGeo 0x001E13A0 0x001E13F4 ico2/sugipon/src/sugiTree.c lines=7  
 rdlit InitSugiLeafGeo 0x006614B0 0x006614C0 ico2/sugipon/src/sugiTree.c  # 1 string (target side)
 text SugiLeafGeo 0x001E13F8 0x001E14AC ico2/sugipon/src/sugiTree.c lines=11  # ordinal; differs-at:9; imm:1; extent-equal
 text InitSugiLeafGeo2 0x001E14B0 0x001E1534 ico2/sugipon/src/sugiTree.c lines=12  # ordinal; differs-at:11; other:2; extent-equal
-text torchOffSE 0x001E1538 0x001E1564 ico2/sugipon/src/torch.c lines=5  # ordinal; differs-at:8; imm:1; extent-equal
-text LightTorchOn 0x001E1568 0x001E16D0 ico2/sugipon/src/torch.c lines=49  # call-aug
-text LightTorchOff 0x001E16D0 0x001E17B8 ico2/sugipon/src/torch.c lines=27  # aug
-text moveTorch 0x001E17B8 0x001E1878 ico2/sugipon/src/torch.c local lines=20  # aug
-text CheckTorchChainReactionReverse 0x001E1878 0x001E19D0 ico2/sugipon/src/torch.c lines=38  # aug
-text TorchGeo 0x001E19D0 0x001E1B6C ico2/sugipon/src/torch.c lines=50  # aug
-text InitTorchGeo 0x001E1B70 0x001E1C64 ico2/sugipon/src/torch.c lines=18  # aug
-rdlit InitTorchGeo 0x006614C0 0x006614D0 ico2/sugipon/src/torch.c  # 1 string (target side)
-text TorchDL 0x001E1C68 0x001E1C70 ico2/sugipon/src/torch.c lines=1  # census-equal; stubbed for emission order
-text IsTorchLightOn 0x001E1C70 0x001E1C80 ico2/sugipon/src/torch.c lines=6  # ordinal; differs-at:1; imm:2; extent-equal
-text CheckTorchChainReaction 0x001E1C80 0x001E1D54 ico2/sugipon/src/torch.c lines=23  # aug
-text SetTorchLife 0x001E1D58 0x001E1D68 ico2/sugipon/src/torch.c lines=6  # aug
-text SetTorchChainReactionFlag 0x001E1D68 0x001E1D78 ico2/sugipon/src/torch.c lines=6  # aug
-text UpdateRealTimeGeometryValue 0x001E1D78 0x001E1DC8 ico2/sugipon/src/torch.c lines=10  # aug
-data emptyTorchWork 0x004E6768 0x004E6790 ico2/sugipon/src/torch.c local  # emptyTorchWork: InitTorchGeo's template (lui/addiu of 0x4E6768), 0x28 bytes and 8-aligned in this build where PAL's TorchGeoWork is 0x50 and 16-aligned (target side)
 text ReinitWindManager 0x001E4918 0x001E49EC ico2/sugipon/src/windManager.c lines=4  # ordinal; differs-at:1; imm:3; extent-equal
 text SetWindManager 0x001E49F0 0x001E4A70 ico2/sugipon/src/windManager.c lines=13  # census-equal; stubbed for emission order
 text InitWindManager 0x001E4A70 0x001E4B44 ico2/sugipon/src/windManager.c lines=9  # ordinal; differs-at:1; imm:3; extent-equal
