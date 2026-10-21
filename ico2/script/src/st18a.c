@@ -14,15 +14,16 @@
 #include "st04r.h"
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* The functions stand in the order of the stage's source (aug6's TRFILE and the
-   PAL listing number them so). The ones defined inline are output at
-   the end of the file, in the order of the declarations below, which gives
-   this build's .text order; the others are output where they stand. The mail
-   tables are file-scope statics ahead of the functions that post them, but
-   for actSt18aDoorChk's own table (doorChk_mes), a static local, so .data
-   keeps the source order and the table takes gcc's local name.N symbol. */
+   PAL listing number them so), but for actSt18aDoor, which this build has
+   after its two checks (as its st05d.c and st08b.c have their doors). The
+   ones defined inline are output at the end of the file, in the order of the
+   declarations below, which gives this build's .text order; the others are
+   output where they stand. The mail tables are file-scope statics ahead of
+   the functions that post them, but for the two door checks' own tables
+   (doorChk_mes, doorDownChk_mes), static locals, so .data keeps the source
+   order and the tables take gcc's local name.N symbol. */
 
 inline void actSt18aIntro(GObj *volatile self);
 inline void actSt18aDoor(GObj *volatile self);
@@ -272,30 +273,6 @@ static ActMail door_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail doorDown_mes[2] = {{377}, {376}}; /* derived name */
 
-inline void actSt18aDoor(GObj *volatile self)
-{
-    GObj *x = self;
-    Act *act = actInitialize(self);
-
-    _ACTWait(1);
-
-    if (gflagChk(55) == 0) {
-        stage_SetAnimation(93, 0, 0);
-
-        door_mes[0].func = actSt18aDoorChk;
-        act->mail = door_mes;
-        ACTSendMailCorrect(self, 377);
-        _ACTWait(0);
-    } else {
-        stage_SetAnimation(93, 0, -1);
-
-        doorDown_mes[0].func = actSt18aDoorDownChk;
-        act->mail = doorDown_mes;
-        ACTSendMailCorrect(self, 377);
-        _ACTWait(0);
-    }
-}
-
 void actSt18aDoorChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -333,9 +310,57 @@ void actSt18aDoorChk(GObj *volatile self)
     _ACTWait(0);
 }
 
-static ActMail doorDownChk_mes[2] = {{377}, {376}}; /* derived name */
+void actSt18aDoorDownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail doorDownChk_mes[2] = {{377}, {376}}; /* derived name */
 
-INCLUDE_ASM(actSt18aDoorDownChk);
+    while (gflagChk(53) != 0 && gflagChk(54) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(15);
+    gflagOff(55);
+
+    stage_SetAnimation(94, 1, 0);
+
+    soundSeDefPlay(1171, 0, 0, 1);
+    _ACTWait(60);
+    soundSeDefPlay(1172, 0, 0, 1);
+    while (stage_CheckAnimationFinish(94) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    doorDownChk_mes[0].func = actSt18aDoorChk;
+    sub->mail = doorDownChk_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt18aDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(55) == 0) {
+        stage_SetAnimation(93, 0, 0);
+
+        door_mes[0].func = actSt18aDoorChk;
+        act->mail = door_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(93, 0, -1);
+
+        doorDown_mes[0].func = actSt18aDoorDownChk;
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
 
 static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
 

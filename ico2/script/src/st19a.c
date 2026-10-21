@@ -13,41 +13,8 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 /* No .sbss here in this build: no function of the demo addresses such a flag. */
-
-/* .data: actor mail packets. */
-
-/* this build's run: fourteen packets, the two switch packets' mail ids
-   356 and 357 (the reverse of PAL's order) */
-static ActMail oriMain_mes[2] = {{356, actSt19aOriSwitch}, {376}}; /* derived name */
-
-static ActMail ori_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail oriSwitch_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail oriSwitch2_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail oriDown_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail oriUp_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail haguruma_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail pipe_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail chainMain_mes[2] = {{357, actSt19aChainSwitch}, {376}}; /* derived name */
-
-static ActMail chain_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail chainSwitch_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail chainSwitch2_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail chainDown_mes[2] = {{377}, {376}}; /* derived name */
-
-static ActMail chainUp_mes[2] = {{377}, {376}}; /* derived name */
 
 /* No .sdata: this build's room has no fence, horn or pipe stream handle
    (no function of the demo addresses one). */
@@ -58,6 +25,116 @@ static ActMail chainUp_mes[2] = {{377}, {376}}; /* derived name */
 static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}}; /* derived name */
 
 static const ConstVec hagurumaChkPos = {{486.0f, 2386.0f, -2917.0f, 0.0f}}; /* derived name */
+
+/* The functions stand in the order of the stage's source as this build has
+   it (the layout of this build's st47a.c and st20a.c): the handlers of each
+   gimmick in aug6's order, the actors gathered after them (actSt19aHaguruma,
+   not inline, stands before its check as the object's text has it). The
+   ones defined inline are output at the end of the file in the order of
+   their first declarations (the entry points in st19a.h first); the others
+   where they stand. The tables the actors install with actInitialize, the
+   main-mail tables and the switch packets are file-scope statics; the ones
+   the toggle handlers install through GOBJ_ACT are static locals of their
+   posters (gcc's local name.N symbol); .data keeps the source order. The
+   two switch packets' mail ids are 356 and 357 (the reverse of PAL's
+   order). */
+
+void actSt19aOriMain(GObj *volatile self);
+void actSt19aOriSwitch(GObj *volatile self);
+void actSt19aOriDown(GObj *volatile self);
+void actSt19aOriUp(GObj *volatile self);
+
+static ActMail oriMain_mes[2] = {{356, actSt19aOriSwitch}, {376}}; /* derived name */
+
+static ActMail ori_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail oriSwitch_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail oriSwitch2_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt19aOriMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+
+    sub->mainMail = oriMain_mes;
+
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+inline void actSt19aOriSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 1;
+
+    sub->mainMail = 0;
+
+    if (gflagChk(271) != 0) {
+        oriSwitch_mes[0].func = actSt19aOriDown;
+        sub->mail = oriSwitch_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+
+    oriSwitch2_mes[0].func = actSt19aOriUp;
+    sub->mail = oriSwitch2_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt19aOriDown(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail oriDown_mes[2] = {{377}, {376}}; /* derived name */
+
+    lt_switch_layout(51);
+    _ACTWait(60);
+    scpAdpcmPlayRequestFunc(68, 0, 1, 1, 1);
+    stage_SetAnimation(108, 1, 90);
+    gflagOff(271);
+    while (stage_CheckAnimationFrame(108, 180, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    _ACTWait(60);
+    lt_switch_layout(50);
+
+    oriDown_mes[0].func = actSt19aOriMain;
+    sub->mail = oriDown_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt19aOriUp(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail oriUp_mes[2] = {{377}, {376}}; /* derived name */
+
+    lt_switch_layout(51);
+    _ACTWait(60);
+    scpAdpcmPlayRequestFunc(67, 0, 1, 1, 1);
+    stage_SetAnimation(108, 1, 0);
+    gflagOn(271);
+    while (stage_CheckAnimationFrame(108, 89, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    _ACTWait(60);
+    lt_switch_layout(50);
+
+    oriUp_mes[0].func = actSt19aOriMain;
+    sub->mail = oriUp_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt19aHagurumaChk(GObj *volatile self);
+
+static ActMail haguruma_mes[2] = {{377}, {376}}; /* derived name */
 
 void actSt19aHaguruma(GObj *volatile self)
 {
@@ -124,6 +201,8 @@ void actSt19aHagurumaChk(GObj *volatile self)
     lt_switch_layout(50);
 }
 
+static ActMail pipe_mes[2] = {{377}, {376}}; /* derived name */
+
 void actSt19aPipeChk(GObj *volatile self)
 {
     while (scpTriggerBall(self, boyGObj, 50.0f) == 0) {
@@ -146,9 +225,57 @@ void actSt19aPipeChk(GObj *volatile self)
     lt_switch_layout(50);
 }
 
+void actSt19aChainMain(GObj *volatile self);
+void actSt19aChainSwitch(GObj *volatile self);
+void actSt19aChainDown(GObj *volatile self);
+void actSt19aChainUp(GObj *volatile self);
+
+static ActMail chainMain_mes[2] = {{357, actSt19aChainSwitch}, {376}}; /* derived name */
+
+static ActMail chain_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail chainSwitch_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail chainSwitch2_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt19aChainMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+
+    sub->mainMail = chainMain_mes;
+
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+inline void actSt19aChainSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 1;
+
+    sub->mainMail = 0;
+
+    if (gflagChk(274) == 0) {
+        chainSwitch_mes[0].func = actSt19aChainDown;
+        sub->mail = chainSwitch_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        chainSwitch2_mes[0].func = actSt19aChainUp;
+        sub->mail = chainSwitch2_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
 void actSt19aChainDown(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+    static ActMail chainDown_mes[2] = {{377}, {376}}; /* derived name */
 
     lt_switch_layout(51);
     _ACTWait(60);
@@ -170,7 +297,31 @@ void actSt19aChainDown(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actSt19aOri(GObj *volatile self)
+inline void actSt19aChainUp(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail chainUp_mes[2] = {{377}, {376}}; /* derived name */
+
+    lt_switch_layout(51);
+    _ACTWait(60);
+    scpSearchGobj(1708)->active = 0;
+    stage_SetAnimation(110, 1, 240);
+    gflagOff(274);
+    SetCameraFlag_LwsCutBack();
+    while (stage_CheckAnimationFrame(110, 359, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    _ACTWait(60);
+    lt_switch_layout(50);
+
+    chainUp_mes[0].func = actSt19aChainMain;
+    sub->mail = chainUp_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt19aOri(GObj *volatile self)
 {
     GObj *x = self;
     Act *act = actInitialize(self);
@@ -189,7 +340,7 @@ void actSt19aOri(GObj *volatile self)
     _ACTWait(0);
 }
 
-void actSt19aOriXL(GObj *volatile self)
+inline void actSt19aOriXL(GObj *volatile self)
 {
     long long pos[2];
     GObj *x = self;
@@ -204,7 +355,7 @@ void actSt19aOriXL(GObj *volatile self)
     stage_SetAnimation(108, 0, 0);
 }
 
-void actSt19aPipe(GObj *volatile self)
+inline void actSt19aPipe(GObj *volatile self)
 {
     GObj *x = self;
 
@@ -226,7 +377,7 @@ void actSt19aPipe(GObj *volatile self)
     }
 }
 
-void actSt19aPipeXL(GObj *volatile self)
+inline void actSt19aPipeXL(GObj *volatile self)
 {
     GObj *x = self;
 
@@ -240,7 +391,7 @@ void actSt19aPipeXL(GObj *volatile self)
     }
 }
 
-void actSt19aChain(GObj *volatile self)
+inline void actSt19aChain(GObj *volatile self)
 {
     GObj *x = self;
     Act *act = actInitialize(self);
@@ -255,121 +406,6 @@ void actSt19aChain(GObj *volatile self)
 
     chain_mes[0].func = actSt19aChainMain;
     act->mail = chain_mes;
-    ACTSendMailCorrect(self, 377);
-    _ACTWait(0);
-}
-
-void actSt19aOriMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-
-    sub->mainMail = oriMain_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-void actSt19aOriSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    if (gflagChk(271) != 0) {
-        oriSwitch_mes[0].func = actSt19aOriDown;
-        sub->mail = oriSwitch_mes;
-        ACTSendMailCorrect(self, 377);
-        _ACTWait(0);
-    }
-
-    oriSwitch2_mes[0].func = actSt19aOriUp;
-    sub->mail = oriSwitch2_mes;
-    ACTSendMailCorrect(self, 377);
-    _ACTWait(0);
-}
-
-INCLUDE_ASM(actSt19aOriDown);
-
-void actSt19aOriUp(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    lt_switch_layout(51);
-    _ACTWait(60);
-    scpAdpcmPlayRequestFunc(67, 0, 1, 1, 1);
-    stage_SetAnimation(108, 1, 0);
-    gflagOn(271);
-    while (stage_CheckAnimationFrame(108, 89, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    _ACTWait(60);
-    lt_switch_layout(50);
-
-    oriUp_mes[0].func = actSt19aOriMain;
-    sub->mail = oriUp_mes;
-    ACTSendMailCorrect(self, 377);
-    _ACTWait(0);
-}
-
-void actSt19aChainMain(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 0;
-
-    sub->mainMail = chainMain_mes;
-
-    while (1) {
-        _ACTWait(1);
-    }
-}
-
-void actSt19aChainSwitch(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    scpBoyControlReadDisable = 1;
-
-    sub->mainMail = 0;
-
-    if (gflagChk(274) == 0) {
-        chainSwitch_mes[0].func = actSt19aChainDown;
-        sub->mail = chainSwitch_mes;
-        ACTSendMailCorrect(self, 377);
-        _ACTWait(0);
-    } else {
-        chainSwitch2_mes[0].func = actSt19aChainUp;
-        sub->mail = chainSwitch2_mes;
-        ACTSendMailCorrect(self, 377);
-        _ACTWait(0);
-    }
-}
-
-void actSt19aChainUp(GObj *volatile self)
-{
-    Act *sub = GOBJ_ACT(self);
-
-    lt_switch_layout(51);
-    _ACTWait(60);
-    scpSearchGobj(1708)->active = 0;
-    stage_SetAnimation(110, 1, 240);
-    gflagOff(274);
-    SetCameraFlag_LwsCutBack();
-    while (stage_CheckAnimationFrame(110, 359, 1) == 0) {
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-    _ACTWait(60);
-    lt_switch_layout(50);
-
-    chainUp_mes[0].func = actSt19aChainMain;
-    sub->mail = chainUp_mes;
     ACTSendMailCorrect(self, 377);
     _ACTWait(0);
 }

@@ -134,13 +134,6 @@ lit4 draw_way_group 0x00678FD0 0x00678FD4 ico2/fumi/src/way_tool.c  # 1 float
 text actSt00aDoor1DownChk 0x001FD100 0x001FD290 ico2/script/src/st00a.c lines=36  # order
 text actSt04lGondolaCharaChk 0x00209610 0x00209694 ico2/script/src/st04l.c lines=16  # ordinal; differs-at:3; length:-8; extent-differs
 text actSt07aTsuroEffect 0x002120C0 0x002124C0 ico2/script/src/st07a.c  # jun26-only; derived name
-text actSt18aDoorDownChk 0x0021D798 0x0021D8A4 ico2/script/src/st18a.c lines=26  # aug
-text actSt19aOriDown 0x0021EB40 0x0021EC24 ico2/script/src/st19a.c  # jun26-only; derived name
-text actSt20aFenceDownChk 0x0021FA90 0x0021FB78 ico2/script/src/st20a.c lines=30  # aug; demo body = aug6 st20a.o actSt20aFenceDownChk (gobj 1764/1766, animation 115, gflag 280)
-text actSt20aFenceUpChk2 0x0021FD48 0x0021FE2C ico2/script/src/st20a.c lines=22  # aug; demo body = aug6 st20a.o actSt20aFenceUpChk2 (gobj 1764/1766, animation 115, gflag 280)
-text actSt47aHane1Up 0x002206B0 0x002207BC ico2/script/src/st47a.c lines=53  # aug; row renamed from actSt47aHane2Up (the chain: Hane1Switch posts it); OPEN gcse bucket s0/s1 swap
-text actSt47aHane1Down 0x002213D0 0x00221494 ico2/script/src/st47a.c lines=49  # aug
-text func_00221858 0x00221858 0x0022190C ico2/script/src/st47a.c  # jun26-only; derived name
 sdata D_0067B4E8 0x0067B4E8 0x0067B4F4 ico2/common/src/PObj.c local  # a short string and the word pointing at it, after AllocPObj's run and before sound.o's; no word of .text addresses either, so the owner TU is not pinned: PObj.c is the last game TU with .sdata before sound.o (target side)
 text func_002467B8 0x002467B8 0x00246824 ico2/common/src/demoDisc.c  # jun26-only; derived name
 text func_00246828 0x00246828 0x00246920 ico2/common/src/demoDisc.c  # jun26-only; derived name

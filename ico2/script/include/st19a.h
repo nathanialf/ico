@@ -12,16 +12,13 @@
 
 struct SqEntry;
 
-/* st19a.o's .sdata globals */
-void actSt19aChainDown(GObj *volatile self);
-void actSt19aChainUp(GObj *volatile self);
-void actSt19aChainMain(GObj *volatile self);
-void actSt19aChainSwitch(GObj *volatile self);
-void actSt19aHagurumaChk(GObj *volatile self);
-void actSt19aOriDown(GObj *volatile self);
-void actSt19aOriMain(GObj *volatile self);
-void actSt19aOriSwitch(GObj *volatile self);
-void actSt19aOriUp(GObj *volatile self);
-void actSt19aPipeChk(GObj *volatile self);
+/* The stage's object entry points; st19a.c defines all but actSt19aHaguruma
+   inline, and gcc outputs them at the end of the file in this order. */
+void actSt19aOri(GObj *volatile self);
+void actSt19aOriXL(GObj *volatile self);
+void actSt19aPipe(GObj *volatile self);
+void actSt19aPipeXL(GObj *volatile self);
+void actSt19aChain(GObj *volatile self);
+void actSt19aHaguruma(GObj *volatile self);
 
 #endif /* ST19A_H */

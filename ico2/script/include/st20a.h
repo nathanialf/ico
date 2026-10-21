@@ -17,18 +17,14 @@ extern struct SqEntry *gondola_up;
 extern struct SqEntry *gondola_down;
 extern unsigned int st20a_yure;
 extern unsigned char st20a_yure_vol;
-void actSt20aBridgeDown(GObj *volatile self);
-void actSt20aBridgeMain(GObj *volatile self);
-void actSt20aBridgeSwitch(GObj *volatile self);
-void actSt20aEneChk(GObj *volatile self);
-void actSt20aExitChk(GObj *volatile self);
-void actSt20aFenceDownChk(GObj *volatile self);
-void actSt20aFenceDownChk2(GObj *volatile self);
-void actSt20aFenceUpChk(GObj *volatile self);
-void actSt20aFenceUpChk2(GObj *volatile self);
-void actSt20aGondolaDown(GObj *volatile self);
-void actSt20aGondolaMain(GObj *volatile self);
-void actSt20aGondolaSwitch(GObj *volatile self);
-void actSt20aGondolaUp(GObj *volatile self);
+/* The stage's object entry points; st20a.c defines them inline, and gcc
+   outputs them at the end of the file in this order. */
+void actSt20aBridge(GObj *volatile self);
+void actSt20aGondola(GObj *volatile self);
+void actSt20aExit(GObj *volatile self);
+void actSt20aElv(GObj *volatile self);
+void actSt20aEne(GObj *volatile self);
+void actSt20aEnemy1(GObj *volatile self);
+void actSt20aEnemy2(GObj *volatile self);
 
 #endif /* ST20A_H */
