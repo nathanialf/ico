@@ -67,19 +67,6 @@ text func_00169630 0x00169630 0x00169FE0 ico2/fumi/src/girl_act.c  # jun26-only;
 lit4 func_00169630 0x006789AC 0x006789B4 ico2/fumi/src/girl_act.c  # 2 floats (target side)
 rdlit func_00169630 0x005A2848 0x005A2888 ico2/fumi/src/girl_act.c  # 3 strings (target side)
 sdlit func_00169630 0x00679F18 0x00679F40 ico2/fumi/src/girl_act.c def  # 5 strings (target side): four no word of .text addresses, then its own; after the four pad-timer words in the demo's .sdata
-text HandMgr_GetDistHand.289 0x00169FE0 0x0016A0F0 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_289_girl_act  # census-equal nested function of a stubbed parent (written before it)
-text HandMgr_Update.297 0x0016A0F0 0x0016A1E4 ico2/fumi/src/girl_act.c local file=HandMgr_Update_297_girl_act  # census-equal nested function of a stubbed parent (written before it)
-text HandMgr_Judge.301 0x0016A1E8 0x0016A350 ico2/fumi/src/girl_act.c local file=HandMgr_Judge_301_girl_act  # census-equal nested function of a stubbed parent (written before it)
-text HandMgr_Print.305 0x0016A350 0x0016A458 ico2/fumi/src/girl_act.c local file=HandMgr_Print_305_girl_act  # census-equal nested function of a stubbed parent (written before it)
-rdlit HandMgr_Print.305 0x005A2898 0x005A28E0 ico2/fumi/src/girl_act.c file=HandMgr_Print_305_girl_act def  # 3 strings (target side); emitted where the demo has it
-text func_0016A458 0x0016A458 0x0016A634 ico2/fumi/src/girl_act.c  # jun26-only; derived name
-lit4 func_0016A458 0x006789B4 0x006789BC ico2/fumi/src/girl_act.c  # 2 floats (target side)
-text func_0016A638 0x0016A638 0x0016A7A0 ico2/fumi/src/girl_act.c  # jun26-only; derived name
-rdlit func_0016A638 0x005A28E0 0x005A29E8 ico2/fumi/src/girl_act.c def  # 1 jtbl (target side); emitted where the demo has it
-text actGirlHand 0x0016A7A0 0x0016B11C ico2/fumi/src/girl_act.c lines=355  # aug
-lit4 actGirlHand 0x006789BC 0x006789D0 ico2/fumi/src/girl_act.c  # 5 floats (target side)
-rdlit actGirlHand 0x005A29E8 0x005A29F8 ico2/fumi/src/girl_act.c  # 1 string (target side)
-sdlit actGirlHand 0x00679F40 0x00679F50 ico2/fumi/src/girl_act.c  # 1 string, 2 words and 1 float (target side): every reference into the range is the function's
 text actGirlStart 0x0016BA10 0x0016BBE8 ico2/fumi/src/girl_act.c lines=38  # aug
 rdlit actGirlStart 0x005A2A88 0x005A2A99 ico2/fumi/src/girl_act.c  # 1 string
 text stgmgrNextStagePreLoad 0x00192E08 0x0019303C ico2/common/src/StageManager.c local lines=69  # ordinal; differs-at:16; length:-1; extent-differs

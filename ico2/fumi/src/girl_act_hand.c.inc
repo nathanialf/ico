@@ -92,7 +92,7 @@ void HandMgr_Speed(float f)
         lim = 2.0f;
     }
     f = f < 1.0f ? 1.0f : (lim < f ? lim : f);
-    f = f < 1.0f ? 1.0f : (_ACTGame_GetParamF(8) < f ? _ACTGame_GetParamF(8) : f);
+    f = f < 1.0f ? 1.0f : (_ACTGame_GetParamF(7) < f ? _ACTGame_GetParamF(7) : f);
     ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, f, 2);
     m = GOBJ_ACT(boyGObj)->actMode;
     if ((unsigned int)m < 4) {
@@ -102,7 +102,7 @@ void HandMgr_Speed(float f)
             if (one < f) {
                 f = one - (f - one);
             }
-            r = f < _ACTGame_GetParamF(7) ? _ACTGame_GetParamF(7) : (one < f ? one : f);
+            r = f < _ACTGame_GetParamF(6) ? _ACTGame_GetParamF(6) : (one < f ? one : f);
             ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, r, 2);
         }
     }
@@ -113,9 +113,6 @@ void HandMgr_Speed(float f)
         float r;
         if (GOBJ_ACT(boyGObj)->curItem != 0) {
             r = 2.0f;
-        } else if (systemStatus[0] == 1) {
-            r = (handmgr.handDist - 90.0f) / 120.0f + 1.1f;
-            r = r < 1.0f ? 1.0f : (r > 1.4 ? 1.4f : r);
         } else {
             r = 1.3f;
         }
