@@ -43,7 +43,6 @@ typedef struct { /* field names derived */
 #include "lineManager.h"
 #include "ios.h"
 #include "StageAnimation.h"
-#include "include_asm.h"
 
 /* The boy's five generated cloth meshes, in the order InitBoyGeo hands them
    to InitCloth4D: the mantle, the tape belt and the three loose tape strips,
@@ -355,45 +354,88 @@ static Cloth4DCol tapeBoro2MeshCols[2] = {
      {1.58f, -0.946f, -1.463f, 0.0f}},
 }; /* derived name */
 
-/* The 104-byte work record InitBoyGeo allocates and hangs at the object's
-   work word: the crown in use and the head, body and three crown display
-   objects, the stonized state and its BG animation, the five cloths, the
-   pool reflection mesh, the water drops and the drip state actionOfWater
-   runs. */
+/* The 56-byte work record InitBoyGeo allocates and hangs at the object's
+   work word: the crown display object, the five cloths and the pool
+   reflection mesh. */
 typedef struct BoyWork { /* field names derived */
-    int crown;           /* 0x00, 1 or 2 picks crown1 or crown2, else crown0 */
-    Sub15C *head;        /* 0x04 */
-    Sub15C *body;        /* 0x08 */
-    char *crown0;        /* 0x0C */
-    char *crown1;        /* 0x10 */
-    char *crown2;        /* 0x14 */
-    int stone;           /* 0x18 */
-    int stoneAnim;       /* 0x1C */
+    char *crown;         /* 0x00 */
     /* the cloth handles InitCloth4D returns, held as char * */
-    char *mantle;           /* 0x20 */
-    char *tape;             /* 0x24 */
-    char *tapeBoro1;        /* 0x28 */
-    char *tapeB;            /* 0x2C */
-    char *tapeBoro2;        /* 0x30 */
-    PoolMesh refl;          /* 0x34 */
-    WaterDotWork *waterDot; /* 0x54 */
-    int wet;                /* 0x58 */
-    float dripVel;          /* 0x5C */
-    float drip;             /* 0x60 */
-    float detail;           /* 0x64 */
-} BoyWork;                  /* derived name */
+    char *mantle;    /* 0x04 */
+    char *tape;      /* 0x08 */
+    char *tapeBoro1; /* 0x0C */
+    char *tapeB;     /* 0x10 */
+    char *tapeBoro2; /* 0x14 */
+    PoolMesh refl;   /* 0x18 */
+} BoyWork;           /* derived name */
 
-INCLUDE_ASM(dispClothes_boy);
+static void dispClothes(GObj *gobj)
+{
+    BoyWork *w = GOBJ_SUB(gobj)->work;
+    char *x;
 
-/* A file static; girl.c has its own of the same name.  The five else-arm
- * calls go through one nested inline helper, as clothAnimation.c's
- * interHalf does. */
-INCLUDE_ASM(execClothes_boy);
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
+    DispCloth4D((Cloth4D *)w->mantle, x + 0x40, x);
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
+    DispCloth4D((Cloth4D *)w->tape, x + 0x40, x);
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
+    DispCloth4D((Cloth4D *)w->tapeB, x + 0x40, x);
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
+    DispCloth4D((Cloth4D *)w->tapeBoro1, x + 0x40, x);
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
+    DispCloth4D((Cloth4D *)w->tapeBoro2, x + 0x40, x);
+}
+
+/* A file static; girl.c has its own of the same name. */
+static void execClothes(GObj *gobj)
+{
+    BoyWork *w = GOBJ_SUB(gobj)->work;
+
+    GetCloth4D((Cloth4D *)w->mantle, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->tape, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->tapeB, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->tapeBoro1, 3.0f, 0.98f);
+    GetCloth4D((Cloth4D *)w->tapeBoro2, 3.0f, 0.98f);
+}
 
 /* the one LightLineExt InitLightLineGeo fills */
 static LightLineExt lightLineExt; /* derived name */
 
-INCLUDE_ASM(InitLightLineGeo);
+LightLineExt *InitLightLineGeo(GObj *gobj, float *pos)
+{
+    LLVec v = {pos[0] + 500.0f, pos[1], pos[2] + 200.0f, 1.0f};
+    int i;
+    int j;
+    int n;
+    float f;
+
+    llExtGeo = &lightLineExt;
+    llExtGeo->phase = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 130);
+    llExtGeo->speed = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 131);
+    llExtGeo->line = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 132);
+    for (i = 0; i < 100; i++) {
+        llExtGeo->phase[i] = 0.0f;
+        llExtGeo->speed[i] = random_unit() * 0.1f + 0.01f;
+        llExtGeo->line[i] = iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c", 137);
+        CopyVector(llExtGeo->line[i], &v);
+        llExtGeo->line[i][0].x += (float)((i - 0x32) * 5);
+        for (j = 1; j < 20; j++) {
+            CopyVector(&llExtGeo->line[i][j], &llExtGeo->line[i][j - 1]);
+            if (random_unit() < 0.9f) {
+                if (j & 1) {
+                    llExtGeo->line[i][j].y -= (float)((int)(random_unit() * 10.0f) + 1) * 5.0f;
+                } else {
+                    n = (int)(random_signed() * 10.0f) + 1;
+                    llExtGeo->line[i][j].x += (float)n * 5.0f;
+                }
+            } else {
+                f = (float)((int)(random_unit() * 10.0f) + 1) * 5.0f;
+                llExtGeo->line[i][j].y -= f;
+                llExtGeo->line[i][j].x += f;
+            }
+        }
+    }
+    return llExtGeo;
+}
 
 inline void LightLineGeo(void)
 {
@@ -480,14 +522,6 @@ void LightLineDL(void)
     gif_EndPacket();
 }
 
-INCLUDE_ASM(InitBoyGeo);
-
-INCLUDE_ASM(BoyGeo);
-
-INCLUDE_ASM(func_001B3948);
-
-INCLUDE_ASM(BoyDL);
-
 /* The display-list record's 0x38 word carries single bits set and cleared with
    ld/or/sd and ld/and/sd, and a 16-bit field two bytes into the same
    container reached with a plain sh; the same union src/enemyParts.c uses. */
@@ -504,6 +538,86 @@ static ClothHangCfg tapeHang[3] = {
     {1, -15.0f, 15.0f, 20.0f, 0, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
+
+BoyWork *InitBoyGeo(GObj *gobj, void *csv)
+{
+    BoyWork *w;
+    BoyWork *p;
+
+    w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c", 243);
+    /* the work word, stored and read back as char * */
+    *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x7D0) = (char *)w;
+    p = (BoyWork *)*(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x7D0);
+    p->mantle = (char *)InitCloth4D(gobj, &mantleMesh, mantleHang);
+    p->tape = (char *)InitCloth4D(gobj, &tapeMesh, tapeHang);
+    p->tapeB = (char *)InitCloth4D(gobj, &tapeBMesh, 0);
+    p->tapeBoro1 = (char *)InitCloth4D(gobj, &tapeBoro1Mesh, 0);
+    p->tapeBoro2 = (char *)InitCloth4D(gobj, &tapeBoro2Mesh, 0);
+    *(int *)(*(char **)(((char *)gobj) + 0x15C) + 0x544) = 1;
+    w->crown = (char *)CSVSYSTEM_InitDObj(1, csv);
+    sceVu0UnitMatrix(w->crown + 0x20);
+    InitMotionOrient(gobj, 0, 1207, 0, 0xC, 0);
+    InitLightLineGeo(gobj, csv);
+    SetLodLevel(gobj, 2);
+    w->refl.nrow = 20;
+    w->refl.ncol = 20;
+    w->refl.sizeX = 300.0f;
+    w->refl.sizeZ = 300.0f;
+    w->refl.color = 0x80808080;
+    InitLimitedPoolReflactionMesh(&w->refl);
+    return w;
+}
+
+void BoyGeo(GObj *gobj)
+{
+    float pos[4];
+
+    HandManager(gobj);
+    ExecMotionOrient(gobj);
+    execClothes(gobj);
+    ExecuteSlipProc(gobj);
+    SetActressLight(gobj, 35, 44, 373);
+    if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.7f) != 0) {
+        iosOmSendMail(gobj, 6, gobj);
+    }
+    CylinderCollision(gobj, 2, ACTGame_FLAG_TETSUNAGI() != 0 ? 15.0f : 30.0f, 50.0f, 0.7f);
+    GetRootPosition(pos, gobj);
+    if (debug_font_flag & 1) {
+        debug_Printf(10, 30, 0x80C0FF00, "X:%.1f Y:%.1f Z:%.1f", -pos[0], -pos[1], -pos[2]);
+    }
+}
+
+static void dispCrown(GObj *gobj)
+{
+    BoyWork *w = GOBJ_SUB(gobj)->work;
+    char *obj = w->crown;
+    int node = GetSkeltonFocusNode(gobj, 35);
+
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
+    MatrixDrive_RotMatrixX(-0x8000);
+    CopyMatrix(*(char **)(obj + 0xC), MatrixDrive_GetMatrix());
+    p2o_SetDefaultEnviroment();
+    p2o_DispVU1DObj((Sub15C *)obj);
+}
+
+void BoyDL(GObj *gobj)
+{
+    Sub15C *sub;
+    PoolMesh *m;
+
+    ExecutePauseSlipProc(gobj);
+    p2o_SetDefaultEnviroment();
+    p2o_DispVU1(gobj);
+    dispCrown(gobj);
+    dispClothes(gobj);
+    if (stage_no == 39 && 20.0f < GOBJ_SUB(gobj)->ctrl.waterDepth &&
+        GOBJ_SUB(gobj)->ctrl.pool != 0 && CheckPoolHasGridMesh(GOBJ_SUB(gobj)->ctrl.pool) == 0) {
+        sub = GOBJ_SUB(gobj);
+        m = (PoolMesh *)((char *)sub->work + 0x18);
+        SetLimitedPoolReflactionMesh(m, sub->ctrl.pool, gobj);
+        DispLimitedPoolReflactionMesh(m);
+    }
+}
 
 /* (this build has no position-sync marker colours here) */
 

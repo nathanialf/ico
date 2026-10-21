@@ -14,7 +14,6 @@ typedef struct CandleFlame { /* field names derived */
 
 #include "candle.h"
 #include "ios.h"
-#include "include_asm.h"
 
 int InitCandleGeo(void *self, void *mtx)
 {
@@ -49,8 +48,48 @@ void CandleDL(GObj *self)
     }
 }
 
-INCLUDE_ASM(CandleGeo);
+inline void _deleteLayoutedCandleParticleEffect(void *gobj)
+{
+    CandleFlame *flame;
+    int i;
 
-INCLUDE_ASM(DeleteLayoutedCandleParticleEffect);
+    flame = GOBJ_SUB(gobj)->work;
+    if (GOBJ_SUB(gobj)->nodeNum >= 2) {
+        for (i = 0; i < GOBJ_SUB(gobj)->nodeNum; i++) {
+            if (flame[i].off == 0) {
+                DeleteParticleEffect(flame[i].effect);
+                flame[i].effect = -1;
+                flame[i].off = 1;
+            }
+        }
+    }
+}
 
-INCLUDE_ASM(_deleteLayoutedCandleParticleEffect);
+void CandleGeo(void *self)
+{
+    Sub15C *w = GOBJ_SUB(self);
+    CandleFlame *flame = w->work;
+    int i;
+
+    if (w->disp != 0 && w->nodeNum >= 2) {
+        for (i = 0; i < w->nodeNum; i++) {
+            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeMtx + i * 64);
+            MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
+            if (flame[i].effect != -1) {
+                SetParticleEffectGeometry(flame[i].effect, MatrixDrive_GetMatrix()[3],
+                                          IdentityQuaternion);
+            }
+        }
+    }
+}
+
+inline void DeleteLayoutedCandleParticleEffect(void)
+{
+    void *gobj;
+
+    gobj = isysGObjSearchFromObjKindID_begin(34);
+    while (gobj != 0) {
+        _deleteLayoutedCandleParticleEffect(gobj);
+        gobj = isysGObjSearchFromObjKindID_next(gobj);
+    }
+}

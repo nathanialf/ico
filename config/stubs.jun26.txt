@@ -65,11 +65,6 @@ text Main 0x00101C80 0x00101F38 ico2/common/src/main.c lines=95  # ordinal; diff
 lit4 Main 0x00678500 0x00678504 ico2/common/src/main.c  # 1 float (target side)
 rdlit Main 0x0059CAA0 0x0059CB48 ico2/common/src/main.c  # 7 strings (target side)
 sdlit Main 0x00679398 0x006793A4 ico2/common/src/main.c  # 2 strings (target side)
-text EntryDelayFree 0x001028C8 0x00102958 ico2/sugipon/src/delayFreeManager.c lines=9  # call-pal
-rdlit EntryDelayFree 0x0059CCC8 0x0059CD1F ico2/sugipon/src/delayFreeManager.c  # 2 strings
-sdlit EntryDelayFree 0x006795B0 0x006795B2 ico2/sugipon/src/delayFreeManager.c  # 1 string
-text InitDelayFree 0x00102958 0x001029F0 ico2/sugipon/src/delayFreeManager.c lines=8  # call-aug
-text ExecDelayFree 0x001029F0 0x00102AFC ico2/sugipon/src/delayFreeManager.c lines=9  # aug
 text GetSlerpQuaternionNoRegularize 0x0010DE28 0x0010DFC8 ico2/sugipon/src/quaternion.c lines=29  # call-pal
 lit4 GetSlerpQuaternionNoRegularize 0x006785CC 0x006785D0 ico2/sugipon/src/quaternion.c  # 1 float
 text p2o_MakePacket 0x0010F178 0x0010F188 ico2/seki/src/DisplayP2O.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
@@ -317,115 +312,20 @@ sdlit staffRollNameOut 0x0067AB98 0x0067AB9A ico2/common/src/staffroll.c  # 1 st
 text staffRollMain 0x001AA958 0x001AAD64 ico2/common/src/staffroll.c lines=90  # ordinal; differs-at:0; length:+133; extent-differs
 rdlit staffRollMain 0x0065E610 0x0065E62C ico2/common/src/staffroll.c align=16  # 1 jtbl (target side)
 text staffRollWide 0x001AAD68 0x001AADC8 ico2/common/src/staffroll.c lines=7  # ordinal; differs-at:12; imm:1; extent-equal
-text dispClothes 0x001B2E40 0x001B2EE0 ico2/sugipon/src/boy.c local file=dispClothes_boy lines=16  # ordinal; differs-at:6; imm:11; extent-equal
-text execClothes 0x001B2EE0 0x001B2F6C ico2/sugipon/src/boy.c local file=execClothes_boy lines=28  # ordinal; differs-at:0; length:-64; extent-differs
-lit4 execClothes 0x00678D24 0x00678D28 ico2/sugipon/src/boy.c file=execClothes_boy  # 1 float (target side)
-text InitLightLineGeo 0x001B2F70 0x001B3294 ico2/sugipon/src/boy.c lines=36  # ordinal; differs-at:14; imm:4; extent-equal
-lit4 InitLightLineGeo 0x00678D28 0x00678D34 ico2/sugipon/src/boy.c  # 3 floats
-rdlit InitLightLineGeo 0x0065F528 0x0065F532 ico2/sugipon/src/boy.c  # 1 string
-text InitBoyGeo 0x001B3688 0x001B37FC ico2/sugipon/src/boy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec1+0x58 holds InitBoyGeo there (the same record index in the demo)
-text BoyGeo 0x001B3800 0x001B3948 ico2/sugipon/src/boy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec1+0x50 holds BoyGeo there (the same record index in the demo)
-lit4 BoyGeo 0x00678D48 0x00678D4C ico2/sugipon/src/boy.c  # 1 float (target side)
-rdlit BoyGeo 0x0065F538 0x0065F550 ico2/sugipon/src/boy.c  # 1 string (target side)
-text func_001B3948 0x001B3948 0x001B39D4 ico2/sugipon/src/boy.c  # jun26-only; derived name
-text BoyDL 0x001B39D8 0x001B3A94 ico2/sugipon/src/boy.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec1+0x48 holds BoyDL there (the same record index in the demo)
 text CageFixGeo 0x001B4890 0x001B490C ico2/sugipon/src/cageFix.c lines=8  # ordinal; differs-at:6; imm:1; extent-equal
-text CandleGeo 0x001B4AE8 0x001B4BDC ico2/sugipon/src/candle.c lines=28  # aug
-text DeleteLayoutedCandleParticleEffect 0x001B4BE0 0x001B4CA8 ico2/sugipon/src/candle.c lines=10  # ordinal; differs-at:17; imm:1; extent-equal
-text _deleteLayoutedCandleParticleEffect 0x001B4CA8 0x001B4D44 ico2/sugipon/src/candle.c lines=16  # ordinal; differs-at:12; imm:1; extent-equal
 text getCloth4D_preProcess 0x001B7A88 0x001B801C ico2/sugipon/src/clothAnimation.c local lines=94  # call-aug
 text dispGameOverGrid 0x001BA9C8 0x001BAC90 ico2/sugipon/src/darkVolume.c local  # jun26-only; derived name (row was ordinal "draw": a 30 by 30 mesh grid, no caller)
 rdlit dispGameOverGrid 0x0065F630 0x0065F640 ico2/sugipon/src/darkVolume.c  # 1 data, four words (target side): the function's two references (0x65F630)
 text execEffectTool 0x001BE818 0x001BE9F8 ico2/sugipon/src/effectTool.c local lines=59  # ordinal; differs-at:11; imm:3; extent-equal
 rdlit execEffectTool 0x0065F988 0x0065F9BA ico2/sugipon/src/effectTool.c  # 1 string
 text EffectTool 0x001BEA40 0x001BEB28 ico2/sugipon/src/effectTool.c lines=18  # ordinal; differs-at:28; imm:2; extent-equal
-text UpdatePointBlur 0x001C01D0 0x001C03CC ico2/sugipon/src/enemyParts.c lines=39  # call-pal
-text InitEnemyEye 0x001C03D0 0x001C06C4 ico2/sugipon/src/enemyParts.c lines=34  # aug
-lit4 InitEnemyEye 0x00678DA4 0x00678DA8 ico2/sugipon/src/enemyParts.c  # 1 float
-text InitEnemyFootPrint 0x001C06C8 0x001C0978 ico2/sugipon/src/enemyParts.c lines=53  # aug
-text ExecEnemyFootPrints 0x001C0978 0x001C0AF0 ico2/sugipon/src/enemyParts.c lines=34  # ordinal; differs-at:31; imm:2; extent-equal
-lit4 ExecEnemyFootPrints 0x00678DA8 0x00678DAC ico2/sugipon/src/enemyParts.c  # 1 float
-text EntryEnemyFootPrint 0x001C0AF0 0x001C0BA0 ico2/sugipon/src/enemyParts.c lines=21  # ordinal; differs-at:23; imm:1; extent-equal
-lit4 EntryEnemyFootPrint 0x00678DAC 0x00678DB0 ico2/sugipon/src/enemyParts.c  # 1 float
-text InitPointBlur 0x001C0BC0 0x001C0CFC ico2/sugipon/src/enemyParts.c lines=4  # ordinal; differs-at:18; imm:4; extent-equal
-text DispEnemyEye 0x001C0DC8 0x001C0E4C ico2/sugipon/src/enemyParts.c lines=13  # ordinal; differs-at:8; length:-1; extent-differs
-text InitFlagGeo 0x001C0F88 0x001C1514 ico2/sugipon/src/flag.c lines=142  # order
-rdlit InitFlagGeo 0x0065FA98 0x0065FAA3 ico2/sugipon/src/flag.c  # 1 string
-text FlagGeo 0x001C1518 0x001C1608 ico2/sugipon/src/flag.c lines=31  # order
-text FlagDL 0x001C1608 0x001C17BC ico2/sugipon/src/flag.c lines=54  # order
-text execClothes 0x001C2898 0x001C293C ico2/sugipon/src/girl.c local file=execClothes_girl lines=54  # call-aug
-lit4 execClothes 0x00678DC8 0x00678DD8 ico2/sugipon/src/girl.c file=execClothes_girl  # 4 floats (target side)
-text dispClothes 0x001C2940 0x001C29DC ico2/sugipon/src/girl.c local file=dispClothes_girl lines=49  # call-pal
-data D_004E0620 0x004E0620 0x004E4B20 ico2/sugipon/src/girl.c local  # the girl's cloth meshes (configs, UV and column tables), hang tables: InitGirlGeo's run (lui/addiu of 0x4E0620, 0x4E1220, 0x4E3C10, 0x4E4080, 0x4E4920, 0x4E49E0, 0x4E4AA0), 0x4500 bytes, PAL's 0x3940 with two parameter sets; before girlClothName (target side)
-rodata D_0065FC00 0x0065FC00 0x0065FC2A ico2/sugipon/src/girl.c local  # the cloth meshes' three texture names, which D_004E0620's records point at (0x4E1EE0, 0x4E2600, 0x4E3400, 0x4E3C30, 0x4E40A0); no word of .text addresses them (target side)
-sdata D_0067ADF8 0x0067ADF8 0x0067AE08 ico2/sugipon/src/girl.c local  # the two short cloth texture names D_004E0620's records point at (0x4E0640, 0x4E1240, 0x4E1A70); no word of .text addresses them (target side)
-text InitGirlGeo 0x001C29E0 0x001C2B44 ico2/sugipon/src/girl.c lines=52  # aug
-rdlit InitGirlGeo 0x0065FC30 0x0065FC3B ico2/sugipon/src/girl.c  # 1 string
-text GirlGeo 0x001C2B48 0x001C2D0C ico2/sugipon/src/girl.c lines=35  # aug
-lit4 GirlGeo 0x00678DD8 0x00678DDC ico2/sugipon/src/girl.c  # 1 float
-text debugWireStringGirl 0x001C2D10 0x001C2DE8 ico2/sugipon/src/girl.c local lines=17  # ordinal; differs-at:11; imm:1; extent-equal
-text GirlAI 0x001C2E20 0x001C2E28 ico2/sugipon/src/girl.c lines=58  # aug
-text GirlForceFieldDL 0x001C2E28 0x001C2F6C ico2/sugipon/src/girlForceField.c lines=28  # aug
-text InitGirlForceFieldGeo 0x001C2F70 0x001C2FF0 ico2/sugipon/src/girlForceField.c lines=12  # aug
-rdlit InitGirlForceFieldGeo 0x0065FC40 0x0065FC55 ico2/sugipon/src/girlForceField.c def  # 1 string
-text GirlForceFieldGeo 0x001C2FF0 0x001C2FF8 ico2/sugipon/src/girlForceField.c lines=1  # aug
-data D_004E4B40 0x004E4B40 0x004E4B50 ico2/sugipon/src/girlForceField.c local  # a 16-byte vector after forceFieldColor, before item.c's .data (InitItemGeo's 0x4E4B50); no %hi/%lo pair of .text forms its address (target side)
-text getBone.6 0x001C2FF8 0x001C3110 ico2/sugipon/src/handManager.c local file=getBone_6_handManager  # call-aug
-text connectToTarget 0x001C3110 0x001C33AC ico2/sugipon/src/handManager.c local lines=100  # call-aug
-text _handManager 0x001C33B0 0x001C36D4 ico2/sugipon/src/handManager.c local lines=35  # call-aug
-rdlit _handManager 0x0065FC60 0x0065FC78 ico2/sugipon/src/handManager.c align=16  # 1 jtbl
-text HandManager 0x001C36D8 0x001C382C ico2/sugipon/src/handManager.c lines=19  # call-aug
-lit4 HandManager 0x00678DDC 0x00678DE0 ico2/sugipon/src/handManager.c  # 1 float
 text SetLodLevel 0x001C59A8 0x001C5A34 ico2/sugipon/src/lodManager.c lines=19  # ordinal; differs-at:0; length:-12; extent-differs
 rdlit SetLodLevel 0x0065FD48 0x0065FD91 ico2/sugipon/src/lodManager.c  # 2 strings
 text ResetDynamicMotionManager 0x001C5C50 0x001C5C94 ico2/sugipon/src/motionFileManager.c lines=10  # ordinal; differs-at:4; imm:3; extent-equal
 text ResetStatic2MotionManager 0x001C5C98 0x001C5CD4 ico2/sugipon/src/motionFileManager.c lines=9  # ordinal; differs-at:4; imm:3; extent-equal
-text dispProgressBar.45 0x001D4CA8 0x001D50B0 ico2/sugipon/src/motionViewer.c local file=dispProgressBar_45_motionViewer  # census-equal nested function of a stubbed parent (written before it)
-text dispMotFrameProgress 0x001D50B0 0x001D5264 ico2/sugipon/src/motionViewer.c local lines=57  # ordinal; differs-at:1; other:5; extent-equal
-sdlit dispMotFrameProgress 0x0067AF50 0x0067AF5C ico2/sugipon/src/motionViewer.c  # 1 string, 1 data
-text objMenuProc 0x001D5268 0x001D53EC ico2/sugipon/src/motionViewer.c local lines=51  # ordinal; differs-at:0; length:-23; extent-differs
-rdlit objMenuProc 0x00660908 0x00660916 ico2/sugipon/src/motionViewer.c  # 1 string
-text motKindMenuProc 0x001D53F0 0x001D5804 ico2/sugipon/src/motionViewer.c local lines=50  # ordinal; differs-at:15; imm:8; extent-equal
-rdlit motKindMenuProc 0x00660918 0x00660961 ico2/sugipon/src/motionViewer.c  # 3 strings
-text motOriMenuProc 0x001D5808 0x001D5B70 ico2/sugipon/src/motionViewer.c local lines=67  # ordinal; differs-at:31; imm:5; extent-equal
-rdlit motOriMenuProc 0x00660968 0x006609AB ico2/sugipon/src/motionViewer.c  # 3 strings
-sdlit motOriMenuProc 0x0067AF70 0x0067AF76 ico2/sugipon/src/motionViewer.c  # 1 string
-text MotionViewer 0x001D62A0 0x001D6AB0 ico2/sugipon/src/motionViewer.c lines=207  # ordinal; differs-at:135; imm:7; extent-equal
-rdlit MotionViewer 0x006609F0 0x00660A84 ico2/sugipon/src/motionViewer.c align=16  # 4 strings, 1 jtbl
 text MoveColTestGeo 0x001D6AB0 0x001D6C88 ico2/sugipon/src/moveColTest.c lines=43  # ordinal; differs-at:10; imm:1; extent-equal
 rdlit MoveColTestGeo 0x00660AA0 0x00660AB8 ico2/sugipon/src/moveColTest.c  # 1 string
 sdlit MoveColTestGeo 0x0067AFB8 0x0067AFBC ico2/sugipon/src/moveColTest.c  # 1 string
-text EntryMultiBgaManager 0x001D6DC0 0x001D6E24 ico2/sugipon/src/multiBgaManager.c lines=4  # ordinal; differs-at:9; length:-1; extent-differs
-text EntryMultiBgaManagerSensitive 0x001D6E28 0x001D6E94 ico2/sugipon/src/multiBgaManager.c lines=11  # ordinal; differs-at:11; length:-1; extent-differs
-text EntryMultiBgaManagerNoKind 0x001D6F58 0x001D6FC4 ico2/sugipon/src/multiBgaManager.c lines=4  # ordinal; differs-at:3; length:-1; extent-differs
-text DeleteParticleLayout 0x001D91E0 0x001D91F0 ico2/sugipon/src/particleLayout.c lines=8  # aug
-text InitParticleLayoutGeo 0x001D91F0 0x001D925C ico2/sugipon/src/particleLayout.c lines=7  # census-equal; stubbed for emission order
-rdlit InitParticleLayoutGeo 0x00660CE8 0x00660D00 ico2/sugipon/src/particleLayout.c  # 1 string (target side)
-text ParticleLayoutGeo 0x001D9260 0x001D9268 ico2/sugipon/src/particleLayout.c lines=1  # census-equal; stubbed for emission order; named from obj-kind-data: PARTLAYOUT's geo slot (0x50) holds it, the dl slot the next function
-text ParticleLayoutDL 0x001D9268 0x001D9270 ico2/sugipon/src/particleLayout.c  # jun26-only; derived name; named from obj-kind-data: PARTLAYOUT's dl slot (the Aug-6-2001 build's ParticleLayoutDL)
-text InitRopeGeo 0x001D9270 0x001D96F8 ico2/sugipon/src/rope.c lines=143  # aug
-lit4 InitRopeGeo 0x00678EF4 0x00678EF8 ico2/sugipon/src/rope.c  # 1 float (target side)
-rdlit InitRopeGeo 0x00660D00 0x00660DD8 ico2/sugipon/src/rope.c  # 3 strings, 2 data runs (target side)
-sdlit InitRopeGeo 0x0067AFC0 0x0067AFC8 ico2/sugipon/src/rope.c  # 1 string (target side)
-text SetRopeFixPoint 0x001D96F8 0x001D9710 ico2/sugipon/src/rope.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text HoldRope 0x001D9710 0x001D98AC ico2/sugipon/src/rope.c lines=28  # ordinal; differs-at:15; imm:3; extent-equal
-rdlit HoldRope 0x00660DD8 0x00660DE3 ico2/sugipon/src/rope.c  # 1 string
-text ropeGeo 0x001D98B0 0x001D9954 ico2/sugipon/src/rope.c local lines=13  # ordinal; differs-at:8; imm:1; extent-equal
-text RopeDL 0x001D9958 0x001D9B1C ico2/sugipon/src/rope.c lines=33  # ordinal; differs-at:13; imm:1; extent-equal
-text CheckRopeUpperWallClimbable 0x001D9B20 0x001D9B30 ico2/sugipon/src/rope.c lines=6  # ordinal; differs-at:1; imm:1; extent-equal
-text ReleaseRope 0x001D9B30 0x001D9B38 ico2/sugipon/src/rope.c lines=1  # census-equal; stubbed for emission order
-text RopeGeo 0x001D9B38 0x001D9BB0 ico2/sugipon/src/rope.c lines=5  # ordinal; differs-at:11; imm:2; extent-equal
-text EntrySpiderGroupManager 0x001DB5A8 0x001DB6E4 ico2/sugipon/src/spiderGroupManager.c lines=20  # aug
-rdlit EntrySpiderGroupManager 0x00661008 0x0066109A ico2/sugipon/src/spiderGroupManager.c  # 3 strings
-sdlit EntrySpiderGroupManager 0x0067B018 0x0067B01A ico2/sugipon/src/spiderGroupManager.c  # 1 string
-text tryToRevive 0x001DB6E8 0x001DB8E0 ico2/sugipon/src/spiderGroupManager.c local lines=46  # aug
-rdlit tryToRevive 0x006610A0 0x006610B4 ico2/sugipon/src/spiderGroupManager.c  # 1 string
-text ExecSpiderGroupManager 0x001DB8E0 0x001DBAB4 ico2/sugipon/src/spiderGroupManager.c lines=49  # aug
-rdlit ExecSpiderGroupManager 0x006610B8 0x006610E0 ico2/sugipon/src/spiderGroupManager.c  # 2 strings (target side)
-text InitStageMultiBgaManager 0x001DBC38 0x001DBCD4 ico2/sugipon/src/stageMultiBgaManager.c lines=10  # census-equal; stubbed for emission order
-text EntryStageMultiBgaManager 0x001DBCD8 0x001DBD94 ico2/sugipon/src/stageMultiBgaManager.c lines=4  # aug
-text EntryStageMultiBgaManagerSensitive 0x001DBD98 0x001DBE64 ico2/sugipon/src/stageMultiBgaManager.c lines=4  # aug
-text DispStageMultiBgaManager 0x001DBE68 0x001DBEEC ico2/sugipon/src/stageMultiBgaManager.c lines=21  # call-pal
 text reduceWork2ToWork0.105 0x001DD588 0x001DD6DC ico2/sugipon/src/staticBlur.c local file=reduceWork2ToWork0_105_staticBlur  # ordinal; differs-at:37; length:+2; extent-differs
 rdlit reduceWork2ToWork0.105 0x00661110 0x00661120 ico2/sugipon/src/staticBlur.c file=reduceWork2ToWork0_105_staticBlur def  # 1 data (target side); emitted where the demo has it
 text eyeBlur.109 0x001DD6E0 0x001DDE38 ico2/sugipon/src/staticBlur.c local file=eyeBlur_109_staticBlur  # ordinal; differs-at:0; length:-16; extent-differs
@@ -434,28 +334,6 @@ rdlit eyeBlur.109 0x00661120 0x00661130 ico2/sugipon/src/staticBlur.c file=eyeBl
 text makeFullScreenFlareAfter 0x001DDE38 0x001DDFE0 ico2/sugipon/src/staticBlur.c lines=198  # ordinal; differs-at:95; other:1; extent-equal
 text StormTestGeo 0x001E02A0 0x001E02B0 ico2/sugipon/src/stormTest.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
 text StormTestDL 0x001E02B0 0x001E02C4 ico2/sugipon/src/stormTest.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
-text SugiLeafGeo2 0x001E1030 0x001E1208 ico2/sugipon/src/sugiTree.c lines=23  # ordinal; differs-at:14; other:7; extent-equal
-text SugiLeafDL2 0x001E1208 0x001E13A0 ico2/sugipon/src/sugiTree.c lines=26  # ordinal; differs-at:15; other:7; extent-equal
-text InitSugiLeafGeo 0x001E13A0 0x001E13F4 ico2/sugipon/src/sugiTree.c lines=7  # census-equal; stubbed for emission order
-rdlit InitSugiLeafGeo 0x006614B0 0x006614C0 ico2/sugipon/src/sugiTree.c  # 1 string (target side)
-text SugiLeafGeo 0x001E13F8 0x001E14AC ico2/sugipon/src/sugiTree.c lines=11  # ordinal; differs-at:9; imm:1; extent-equal
-text InitSugiLeafGeo2 0x001E14B0 0x001E1534 ico2/sugipon/src/sugiTree.c lines=12  # ordinal; differs-at:11; other:2; extent-equal
-text ReinitWindManager 0x001E4918 0x001E49EC ico2/sugipon/src/windManager.c lines=4  # ordinal; differs-at:1; imm:3; extent-equal
-text SetWindManager 0x001E49F0 0x001E4A70 ico2/sugipon/src/windManager.c lines=13  # census-equal; stubbed for emission order
-text InitWindManager 0x001E4A70 0x001E4B44 ico2/sugipon/src/windManager.c lines=9  # ordinal; differs-at:1; imm:3; extent-equal
-text getAnimation 0x001E5408 0x001E560C ico2/sugipon/src/worm.c local lines=31  # ordinal; differs-at:12; imm:1; extent-equal
-lit4 getAnimation 0x00678F50 0x00678F54 ico2/sugipon/src/worm.c  # 1 float
-text disp 0x001E5610 0x001E5988 ico2/sugipon/src/worm.c local file=disp_worm lines=56  # ordinal; differs-at:18; imm:1; extent-equal
-lit4 disp 0x00678F54 0x00678F58 ico2/sugipon/src/worm.c file=disp_worm  # 1 float
-text GetWormRoute 0x001E5988 0x001E5B94 ico2/sugipon/src/worm.c lines=31  # ordinal; differs-at:15; imm:1; extent-equal
-text InitWormGeo 0x001E5B98 0x001E5F34 ico2/sugipon/src/worm.c lines=90  # ordinal; differs-at:6; length:-6; extent-differs
-rdlit InitWormGeo 0x00661640 0x0066164B ico2/sugipon/src/worm.c align=16  # 1 string
-text WormGeo 0x001E5F88 0x001E6248 ico2/sugipon/src/worm.c lines=22  # ordinal; differs-at:16; imm:3; extent-equal
-lit4 WormGeo 0x00678F58 0x00678F60 ico2/sugipon/src/worm.c  # 2 floats
-text SetDirectWormTargetPos 0x001E6250 0x001E6328 ico2/sugipon/src/worm.c lines=13  # ordinal; differs-at:10; imm:1; extent-equal
-text SetWormReduceRatio 0x001E6328 0x001E6338 ico2/sugipon/src/worm.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text TraceWormRoute 0x001E6338 0x001E64B4 ico2/sugipon/src/worm.c lines=17  # ordinal; differs-at:16; imm:1; extent-equal
-lit4 TraceWormRoute 0x00678F60 0x00678F64 ico2/sugipon/src/worm.c  # 1 float
 text malloc_SetPartition 0x001E6538 0x001E6540 ico2/seki/src/Basic.c lines=4  # census-equal; stubbed for emission order
 text malloc_GetPartition 0x001E6540 0x001E6548 ico2/seki/src/Basic.c lines=4  # census-equal; stubbed for emission order
 text mallocseki 0x001E6548 0x001E6628 ico2/seki/src/Basic.c lines=21  # ordinal; differs-at:14; imm:4; extent-equal

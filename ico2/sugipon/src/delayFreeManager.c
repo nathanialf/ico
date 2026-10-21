@@ -13,7 +13,6 @@ static int delayFreeNo = 0; /* derived name */
 static int delayFreeCount = 0; /* derived name */
 
 #include "delayFreeManager.h"
-#include "include_asm.h"
 
 static inline void ClearDelayFreeBuffer(int no) /* derived name */
 {
@@ -33,8 +32,31 @@ static inline void FreeDelayFreeBuffer(int no) /* derived name */
     }
 }
 
-INCLUDE_ASM(EntryDelayFree);
+inline void InitDelayFree(void)
+{
+    ClearDelayFreeBuffer(0);
+    ClearDelayFreeBuffer(1);
+    ClearDelayFreeBuffer(2);
+    delayFreeCount = 0;
+    delayFreeNo = 0;
+}
 
-INCLUDE_ASM(InitDelayFree);
+inline void ExecDelayFree(void)
+{
+    int no = (delayFreeNo + 2) % 3;
 
-INCLUDE_ASM(ExecDelayFree);
+    FreeDelayFreeBuffer(no);
+    ClearDelayFreeBuffer(no);
+    delayFreeCount = 0;
+    delayFreeNo = no;
+}
+
+void EntryDelayFree(void *p)
+{
+    delayFreeBuffer[delayFreeNo][delayFreeCount++] = p;
+    if (delayFreeCount >= 128) {
+        debug_StdPrintfDummy("[33mERROR!!! TOO MANY DELAY FREE LIST ENTRY!!! EXIT...[m\n");
+        debug_assert("src/delayFreeManager.c", 51);
+        __assert("src/delayFreeManager.c", 51, "0");
+    }
+}
