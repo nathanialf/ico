@@ -585,11 +585,6 @@ text sndInit 0x001420A8 0x001420EC ico2/fumi/sound/soundManager.c lines=8  # ord
 text ActPara_MakeTbl 0x001486F0 0x00148844 ico2/fumi/src/act-parallel-control.c lines=42  # ordinal; differs-at:10; other:7; extent-equal
 text ACTGetWish_FromPad 0x001488B8 0x00149558 ico2/fumi/src/act-wish.c lines=300  # order
 lit4 ACTGetWish_FromPad 0x00678704 0x0067871C ico2/fumi/src/act-wish.c  # 6 floats (target side)
-text func_0014AE80 0x0014AE80 0x0014C558 ico2/fumi/src/boyact.c  # jun26-only; derived name
-lit4 func_0014AE80 0x00678728 0x006787E0 ico2/fumi/src/boyact.c  # 46 floats (target side)
-rdlit func_0014AE80 0x005A1510 0x005A16D4 ico2/fumi/src/boyact.c align=16  # 1 jtbl (target side)
-rdlit func_0014AE80 0x005A16E0 0x005A16F8 ico2/fumi/src/boyact.c align=16  # 1 jtbl (target side)
-sdlit func_0014AE80 0x00679D10 0x00679D18 ico2/fumi/src/boyact.c  # 1 string (target side)
 text actBoyStart 0x0014F058 0x0014F4E0 ico2/fumi/src/boyact.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec1+0x40 holds actBoyStart there (the same record index in the demo)
 rdlit actBoyStart 0x005A1930 0x005A19B0 ico2/fumi/src/boyact.c  # 3 strings, 2 data runs (target side)
 text _ACTCorrectMsg 0x00150BD8 0x00151360 ico2/fumi/src/commonact.c lines=297  # order
@@ -627,95 +622,10 @@ text actEnemyStart 0x0015CCC0 0x0015D1B4 ico2/fumi/src/enemy_act.c  # jun26-only
 lit4 actEnemyStart 0x00678914 0x0067891C ico2/fumi/src/enemy_act.c  # 2 floats (target side)
 rdlit actEnemyStart 0x005A21D0 0x005A21F0 ico2/fumi/src/enemy_act.c  # 1 string (target side); the data before it is GetEnemyType's table
 sdlit actEnemyStart 0x00679DFC 0x00679E00 ico2/fumi/src/enemy_act.c  # 1 word (target side): the function's $gp float (0x679DFC)
-text MakeCollisionDependGObjList 0x0015E8E8 0x0015E9D8 ico2/fumi/src/fieldCollision.c lines=30  # ordinal; differs-at:49; imm:2; extent-equal
-rdlit MakeCollisionDependGObjList 0x005A21F0 0x005A223C ico2/fumi/src/fieldCollision.c align=16  # 1 string, 1 data
-sdlit MakeCollisionDependGObjList 0x00679E20 0x00679E22 ico2/fumi/src/fieldCollision.c  # 1 string
-text clip_wall_1 0x0015EB18 0x0015F0E0 ico2/fumi/src/fieldCollision.c local lines=152  # ordinal; differs-at:6; length:+16; extent-differs
-text GetEdgeOfFloor 0x001600D0 0x00160700 ico2/fumi/src/fieldCollision.c lines=83  # ordinal; differs-at:373; imm:2; extent-equal
-rdlit GetEdgeOfFloor 0x005A22E0 0x005A2367 ico2/fumi/src/fieldCollision.c align=16  # 6 strings
-sdlit GetEdgeOfFloor 0x00679E50 0x00679E62 ico2/fumi/src/fieldCollision.c  # 3 strings
-text ClipCollision 0x00160AA8 0x00160B18 ico2/fumi/src/fieldCollision.c lines=9  # census-equal; stubbed for emission order
-text ChangeFieldCollisionDebugMode 0x00160B18 0x00160B54 ico2/fumi/src/fieldCollision.c lines=10  # census-equal; stubbed for emission order
-text func_00160B58 0x00160B58 0x00160B60 ico2/fumi/src/fieldCollision.c  # jun26-only; derived name
-text LoadCollision 0x00160B60 0x00160BA4 ico2/fumi/src/fieldCollision.c lines=8  # census-equal; stubbed for emission order
-text DrawCollision 0x00160BA8 0x00160C88 ico2/fumi/src/fieldCollision.c lines=30  # census-equal; stubbed for emission order
-text ClipPlane 0x00160C88 0x00160DAC ico2/fumi/src/fieldCollision.c lines=23  # census-equal; stubbed for emission order
-text GetOrientOfWall 0x00160DB0 0x00160EF4 ico2/fumi/src/fieldCollision.c lines=45  # census-equal; stubbed for emission order
-rdlit GetOrientOfWall 0x005A2368 0x005A23E0 ico2/fumi/src/fieldCollision.c def  # 2 strings (target side); emitted where the demo has them, after GetEdgeOfFloor's and before DrawCollisionRay's constants
-text SetSimplePlane 0x00160EF8 0x00160F0C ico2/fumi/src/fieldCollision.c lines=7  # census-equal; stubbed for emission order
-text GetWallAttribute 0x00160F10 0x00160F2C ico2/fumi/src/fieldCollision.c lines=6  # census-equal; stubbed for emission order
-text GetFloorAttribute 0x00160F30 0x00160F4C ico2/fumi/src/fieldCollision.c lines=6  # census-equal; stubbed for emission order
-text CompareAttribute 0x00160F50 0x00160FAC ico2/fumi/src/fieldCollision.c lines=13  # census-equal; stubbed for emission order
-text GetWallGlobalInfo 0x00160FB0 0x00161070 ico2/fumi/src/fieldCollision.c lines=17  # census-equal; stubbed for emission order
-text GetDistanceFromPlane 0x00161070 0x0016109C ico2/fumi/src/fieldCollision.c lines=4  # census-equal; stubbed for emission order
-text GetYDistanceFromPlane 0x001610A0 0x001610E4 ico2/fumi/src/fieldCollision.c lines=4  # census-equal; stubbed for emission order
-text GetYProjectionOfPlane 0x001610E8 0x00161128 ico2/fumi/src/fieldCollision.c lines=4  # census-equal; stubbed for emission order
-text ResetCollisionPC 0x00161128 0x00161158 ico2/fumi/src/fieldCollision.c lines=15  # census-equal; stubbed for emission order
-text PositionOfExit 0x00161158 0x00161198 ico2/fumi/src/fieldCollision.c lines=9  # census-equal; stubbed for emission order
-text GetGlobalWallPlane 0x00161198 0x00161274 ico2/fumi/src/fieldCollision.c lines=8  # census-equal; stubbed for emission order
-text _clipWDebug 0x00161278 0x001613A0 ico2/fumi/src/fieldCollision.c local lines=22  # census-equal; stubbed for emission order
-text _clipW 0x001613A0 0x001614F0 ico2/fumi/src/fieldCollision.c local lines=27  # census-equal; stubbed for emission order
-text _clipWE 0x001614F0 0x00161660 ico2/fumi/src/fieldCollision.c local lines=30  # census-equal; stubbed for emission order
-text _clipWEField 0x00161660 0x001617BC ico2/fumi/src/fieldCollision.c local lines=27  # census-equal; stubbed for emission order
-text _clipWR 0x001617C0 0x00161910 ico2/fumi/src/fieldCollision.c local lines=27  # census-equal; stubbed for emission order
-text _clipWField 0x00161910 0x00161A4C ico2/fumi/src/fieldCollision.c local lines=24  # census-equal; stubbed for emission order
-text _clipWDitchHangWalkStop 0x00161A50 0x00161B8C ico2/fumi/src/fieldCollision.c local lines=24  # census-equal; stubbed for emission order
-text _clipWWaveForce 0x00161B90 0x00161CD0 ico2/fumi/src/fieldCollision.c local lines=24  # census-equal; stubbed for emission order
-text _clipWBoxStop 0x00161CD0 0x00161E34 ico2/fumi/src/fieldCollision.c local lines=27  # census-equal; stubbed for emission order
-text _clipWAdjustPos 0x00161E38 0x00161F74 ico2/fumi/src/fieldCollision.c local lines=24  # census-equal; stubbed for emission order
-text _clipF 0x00161F78 0x001620A0 ico2/fumi/src/fieldCollision.c local lines=23  # census-equal; stubbed for emission order
-text _clipFE 0x001620A0 0x001621E8 ico2/fumi/src/fieldCollision.c local lines=26  # census-equal; stubbed for emission order
-text _clipFIH 0x001621E8 0x00162328 ico2/fumi/src/fieldCollision.c local lines=25  # census-equal; stubbed for emission order
-text _clipFR 0x00162328 0x00162450 ico2/fumi/src/fieldCollision.c local lines=23  # census-equal; stubbed for emission order
-text __ClipWallWithDrawRay 0x00162450 0x00162528 ico2/fumi/src/fieldCollision.c local lines=18  # census-equal; no longer emitted by the C once its PAL callers left
-rdlit __ClipWallWithDrawRay 0x005A2280 0x005A22A0 ico2/fumi/src/fieldCollision.c align=16 def  # 2 data runs
-text __ClipFloorWithDrawRay 0x00162528 0x00162600 ico2/fumi/src/fieldCollision.c local lines=18  # census-equal; no longer emitted by the C once its PAL callers left
-rdlit __ClipFloorWithDrawRay 0x005A22A0 0x005A22C0 ico2/fumi/src/fieldCollision.c align=16 def  # 2 data runs
-text ClipWallRD 0x00162600 0x0016262C ico2/fumi/src/fieldCollision.c lines=8  # ordinal; differs-at:2; length:+2; extent-differs
-text ClipWallVector 0x00162630 0x0016268C ico2/fumi/src/fieldCollision.c lines=9  # census-equal; stubbed for emission order
-data D_0026AF20 0x0026AF20 0x0026AF40 ico2/fumi/src/fieldCollision.c local align=16  # MakeCollisionDependGObjList's label table: three pointers to its .sdata labels, then zero words to the 16-aligned clipMode; no word of .text forms its address (target side)
-sdata D_00679E28 0x00679E28 0x00679E3E ico2/fumi/src/fieldCollision.c local  # the three labels D_0026AF20 points at (0x26AF20..0x26AF28); no word of .text addresses them (target side)
-text girlBrainMain_CheckWarningMode 0x00163850 0x00163BB4 ico2/fumi/src/girl_act.c local lines=41  # aug
-lit4 girlBrainMain_CheckWarningMode 0x00678924 0x0067892C ico2/fumi/src/girl_act.c  # 2 floats (target side)
 text girlBrainMain_DecideMode 0x00163BB8 0x00163F58 ico2/fumi/src/girl_act.c local lines=151  # aug
 lit4 girlBrainMain_DecideMode 0x0067892C 0x00678930 ico2/fumi/src/girl_act.c  # 1 float (target side)
 rdlit girlBrainMain_DecideMode 0x005A2570 0x005A25A0 ico2/fumi/src/girl_act.c align=16  # 1 jtbl (target side); 16-aligned in the demo after zero fill
-text ChangeRunMode.135 0x00163FC0 0x001640B0 ico2/fumi/src/girl_act.c local file=ChangeRunMode_135_girl_act  # ordinal; differs-at:9; imm:4; extent-equal
-text func_001640B0 0x001640B0 0x00164EB8 ico2/fumi/src/girl_act.c  # jun26-only; derived name
-lit4 func_001640B0 0x00678930 0x00678940 ico2/fumi/src/girl_act.c  # 4 floats (target side)
-rdlit func_001640B0 0x005A25A0 0x005A25E0 ico2/fumi/src/girl_act.c  # 2 jump tables (target side)
 text subGirlBrain_Pulledup 0x00164EB8 0x001652A8 ico2/fumi/src/girl_act.c  # jun26-only; girlBrainModeTable's slot 7, the PAL name of that slot's function
-text subGirlBrain_Attract 0x001652A8 0x00165F14 ico2/fumi/src/girl_act.c  # jun26-only; girlBrainModeTable's slot 1, the PAL name of that slot's function
-lit4 subGirlBrain_Attract 0x00678940 0x00678948 ico2/fumi/src/girl_act.c  # 2 floats (target side)
-rdlit subGirlBrain_Attract 0x005A25E0 0x005A2630 ico2/fumi/src/girl_act.c  # 1 string, 1 jtbl, 1 data (target side)
-text CorrectList.208 0x001667F8 0x00166960 ico2/fumi/src/girl_act.c local file=CorrectList_208_girl_act  # census-equal nested function of a stubbed parent (written before it)
-lit4 CorrectList.208 0x0067894C 0x00678950 ico2/fumi/src/girl_act.c file=CorrectList_208_girl_act  # 1 float (target side)
-text girlBrainRunawaySearchPoint 0x00166960 0x00166F08 ico2/fumi/src/girl_act.c local lines=90  # ordinal; differs-at:25; length:+4; extent-differs
-lit4 girlBrainRunawaySearchPoint 0x00678950 0x00678958 ico2/fumi/src/girl_act.c  # 2 floats (target side)
-text girlBrainRunawayMoveByWay 0x00166F08 0x001671C4 ico2/fumi/src/girl_act.c local lines=60  # ordinal; differs-at:12; length:+8; extent-differs
-lit4 girlBrainRunawayMoveByWay 0x00678958 0x0067895C ico2/fumi/src/girl_act.c  # 1 float (target side)
-sdlit girlBrainRunawayMoveByWay 0x00679EC0 0x00679EC4 ico2/fumi/src/girl_act.c  # 1 word (target side) no word of .text or data addresses, between groupRelationName's and moveStateName's strings
-text subGirlBrain_Escape 0x001671C8 0x00167900 ico2/fumi/src/girl_act.c lines=124  # ordinal; differs-at:3; length:+63; extent-differs
-lit4 subGirlBrain_Escape 0x0067895C 0x00678964 ico2/fumi/src/girl_act.c  # 2 floats (target side)
-rdlit subGirlBrain_Escape 0x005A2670 0x005A2688 ico2/fumi/src/girl_act.c  # 1 jtbl (target side)
-sdlit subGirlBrain_Escape 0x00679EE0 0x00679EE3 ico2/fumi/src/girl_act.c  # 1 string (target side)
-text func_001679B8 0x001679B8 0x00167C74 ico2/fumi/src/girl_act.c  # jun26-only; derived name
-lit4 func_001679B8 0x00678964 0x00678968 ico2/fumi/src/girl_act.c  # 1 float (target side)
-text Danger_Bomb 0x00167C78 0x00167EDC ico2/fumi/src/girl_act.c local lines=112  # call-aug
-lit4 Danger_Bomb 0x00678968 0x0067896C ico2/fumi/src/girl_act.c  # 1 float
-text func_00167EE0 0x00167EE0 0x001681C4 ico2/fumi/src/girl_act.c  # jun26-only; derived name
-lit4 func_00167EE0 0x0067896C 0x00678970 ico2/fumi/src/girl_act.c  # 1 float (target side)
-text Danger_Gondola 0x001681C8 0x0016847C ico2/fumi/src/girl_act.c local lines=119  # call-aug
-lit4 Danger_Gondola 0x00678970 0x00678974 ico2/fumi/src/girl_act.c  # 1 float
-rdlit Danger_Gondola 0x005A2688 0x005A2692 ico2/fumi/src/girl_act.c  # 1 string
-text func_00168480 0x00168480 0x00168828 ico2/fumi/src/girl_act.c  # jun26-only; derived name
-lit4 func_00168480 0x00678974 0x00678978 ico2/fumi/src/girl_act.c  # 1 float (target side)
-text Danger_Box 0x00168828 0x00168C30 ico2/fumi/src/girl_act.c local lines=173  # call-aug
-rdlit Danger_Box 0x005A2698 0x005A26B6 ico2/fumi/src/girl_act.c  # 1 string
-text func_00168C30 0x00168C30 0x00168EA8 ico2/fumi/src/girl_act.c  # jun26-only; derived name
-rdlit func_00168C30 0x005A26B8 0x005A26C3 ico2/fumi/src/girl_act.c  # 1 string (target side)
-rdlit func_00168C30 0x005A26D0 0x005A26E0 ico2/fumi/src/girl_act.c align=16 def  # 1 data, four words (target side), 16-aligned; emitted where the demo has it
-sdlit func_00168C30 0x00679EE8 0x00679EEE ico2/fumi/src/girl_act.c  # 1 string (target side); the attract-state names after it are wayTestStateName's, emitted by the C
 text func_00168EA8 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; derived name
 lit4 func_00168EA8 0x00678978 0x006789AC ico2/fumi/src/girl_act.c  # 13 floats (target side)
 rdlit func_00168EA8 0x005A2730 0x005A2790 ico2/fumi/src/girl_act.c  # 5 strings (target side): its string, then four no word of .text addresses, up to its jump table
@@ -739,7 +649,6 @@ rdlit actGirlHand 0x005A29E8 0x005A29F8 ico2/fumi/src/girl_act.c  # 1 string (ta
 sdlit actGirlHand 0x00679F40 0x00679F50 ico2/fumi/src/girl_act.c  # 1 string, 2 words and 1 float (target side): every reference into the range is the function's
 text actGirlStart 0x0016BA10 0x0016BBE8 ico2/fumi/src/girl_act.c lines=38  # aug
 rdlit actGirlStart 0x005A2A88 0x005A2A99 ico2/fumi/src/girl_act.c  # 1 string
-data dangerEscapeAngle 0x0026B298 0x0026B2A0 ico2/fumi/src/girl_act.c local  # dangerEscapeAngle: the two words func_00168480 (Danger_Box's place) forms the address of (0x26B298), 8-aligned after moveStateName in .data, which an 8-byte C array under -G 8 would not be (target side)
 text display_texture 0x0016CF10 0x0016D0A4 ico2/fumi/src/jimaku.c local file=display_texture_jimaku lines=36  # ordinal; differs-at:4; imm:10; extent-equal
 sdlit display_texture 0x00679F70 0x00679F75 ico2/fumi/src/jimaku.c file=display_texture_jimaku  # 1 string
 text jimakuMgrBegin 0x0016D310 0x0016D518 ico2/fumi/src/jimaku.c local lines=60  # ordinal; differs-at:0; length:-25; extent-differs

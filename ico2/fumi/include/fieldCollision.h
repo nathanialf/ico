@@ -92,6 +92,7 @@ extern void (*clipFloorFunc)(ClipWork *work, int mode); /* derived name */
    $gp clipFloorFunc with 14) */
 #define ClipFloorR(work) clipFloorFunc((work), 14)
 int ChangeFieldCollisionDebugMode(int drawRay);
+void SetCollisionFilter(int (*filter)(void *obj)); /* derived name */
 void LoadCollision(void **self, char *fname);
 void DrawCollision(int mode);
 int ClipPlane(int work);
