@@ -41,7 +41,8 @@ struct, or a struct tag (`struct Name { ... };`, which the C then spells
 function), arrays, nested structs and bit-fields, laid out by the EE's rules (4-byte
 pointers and ints, 8-byte long long and double, bit-fields from the low bit
 of their declared type's unit). A base type with a trailing [N] is an array
-element (char[32]: the C defines `char name[count][32]`).
+element (char[32]: the C defines `char name[][32]`, the initializer giving
+the count).
 
 <slug> is the target as tools/ico_version.py detects it (VERSION, or the
 first configured one); the member table is config/data_members.<slug>.txt,
@@ -814,8 +815,12 @@ def write_c(member, rows, datas, layout, out_path):
             if s["count"] is None:
                 defs.append(f"{const}{tname} {star}{name}{dims} = {w.value(ty, 0, '')};")
             else:
+                # The bound is left to the initializer, as the developers
+                # wrote their tables (`[]`): under -G 8 gcc puts an array of
+                # 8 bytes or less declared with its bound in .sdata, and one
+                # declared `[]` in .data (EnemyInit.o's 8-byte tables).
                 arrays[name] = last - first
-                defs.append(f"{const}{tname} {star}{name}[{last - first}]{dims} = {{")
+                defs.append(f"{const}{tname} {star}{name}[]{dims} = {{")
                 defs.extend(f"    {w.value(ty, i * ty.size, '')}," for i in range(first, last))
                 defs.append("};")
             defs.append("")
