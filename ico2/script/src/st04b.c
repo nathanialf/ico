@@ -58,3 +58,5 @@ INCLUDE_ASM(actSt04bSolarXL);
 INCLUDE_ASM(actSt04bSekizoEvent);
 
 INCLUDE_ASM(actSt04bGirlWay);
+
+INCLUDE_ASM(actSt04bEne1Chk);

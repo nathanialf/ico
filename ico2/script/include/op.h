@@ -17,8 +17,10 @@ extern struct SqEntry *op2;
 extern struct SqEntry *adpcm_conte01_sea;
 /* op.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
-void actOpDemo03(GObj *volatile self);
-inline void actSubMpegReturnPreload(GObj *volatile self);
+inline void actTitleCamera2(GObj *volatile self);
+inline void actOpDemo01_2(GObj *volatile self);
+inline void actOpDemo02(GObj *volatile self);
+inline void actOpDemo03(GObj *volatile self);
 inline void actSt26aConte01_1_newgame(GObj *volatile self);
 inline void actOpDemo02Chk(GObj *volatile self);
 inline void actSt24aConte01_2_Jimaku(GObj *volatile self);

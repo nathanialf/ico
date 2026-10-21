@@ -948,22 +948,6 @@ text actDejaDemo 0x001F5580 0x001F589C ico2/script/src/deja.c lines=80  # ordina
 text actDejaAfter 0x001F58A0 0x001F59E8 ico2/script/src/deja.c lines=27  # ordinal; differs-at:12; length:-2; extent-differs
 text actDejaAfterChk 0x001F59E8 0x001F5B08 ico2/script/src/deja.c lines=30  # ordinal; differs-at:11; length:-1; extent-differs
 text actDeja 0x001F5B08 0x001F5B98 ico2/script/src/deja.c lines=17  # ordinal; differs-at:13; length:-8; extent-differs
-text actOpDemo01 0x001FACF8 0x001FB150 ico2/script/src/op.c lines=134  # aug
-sdlit actOpDemo01 0x0067B310 0x0067B328 ico2/script/src/op.c  # 3 strings (target side)
-text actTitleShortCut 0x001FB150 0x001FB26C ico2/script/src/op.c lines=41  # aug
-text actTitleReadTimeDemo0 0x001FB270 0x001FB864 ico2/script/src/op.c lines=190  # aug
-rdlit actTitleReadTimeDemo0 0x00662860 0x006628B0 ico2/script/src/op.c  # 4 strings (target side)
-text actOpDemo01_2 0x001FB868 0x001FBB90 ico2/script/src/op.c lines=36  # aug
-text actOpDemo01_2Chk 0x001FBB90 0x001FBF30 ico2/script/src/op.c lines=76  # aug
-text actOpDemo02 0x001FBF30 0x001FC054 ico2/script/src/op.c lines=29  # aug
-text actSt24aConte01_2 0x001FC058 0x001FC37C ico2/script/src/op.c lines=88  # aug
-text actOpDemo03Chk 0x001FC380 0x001FC3B0 ico2/script/src/op.c lines=38  # aug
-text actSt13aConte01_3 0x001FC3B0 0x001FC490 ico2/script/src/op.c lines=74  # aug
-text actOpDemo03 0x001FC490 0x001FC53C ico2/script/src/op.c lines=17  # aug
-text actSubMpegReturnPreload 0x001FC540 0x001FC5D0 ico2/script/src/op.c lines=6  # aug
-text actSt26aConte01_1_newgame 0x001FC5D0 0x001FC6B4 ico2/script/src/op.c lines=16  # aug
-rdlit actSt26aConte01_1_newgame 0x006628B0 0x006628CD ico2/script/src/op.c def  # 2 strings
-text actOpDemo02Chk 0x001FC6B8 0x001FC774 ico2/script/src/op.c lines=27  # aug
 text actSt00aDoor1UpChk 0x001FCF70 0x001FD100 ico2/script/src/st00a.c lines=37  # order
 text actSt00aDoor1DownChk 0x001FD100 0x001FD290 ico2/script/src/st00a.c lines=36  # order
 text actSt01bInit 0x001FDAE8 0x001FDB48 ico2/script/src/st01b.c lines=12  # order
@@ -1005,19 +989,7 @@ text actSt04bBallXL 0x002040B8 0x0020411C ico2/script/src/st04b.c lines=13  # au
 text actSt04bSolarXL 0x00204120 0x00204180 ico2/script/src/st04b.c lines=12  # aug
 text actSt04bSekizoEvent 0x00204180 0x00204190 ico2/script/src/st04b.c lines=4  # aug
 text actSt04bGirlWay 0x00204190 0x00204218 ico2/script/src/st04b.c lines=15  # aug
-text actSt04cEnd 0x00204218 0x00204270 ico2/script/src/st04c.c lines=8  # aug
-text actSt04cDoorDownChk 0x00204270 0x00204378 ico2/script/src/st04c.c lines=27  # aug
-text actSt04lDoorChk 0x00204378 0x002044B0 ico2/script/src/st04c.c lines=66  # aug
-text actSt04cSolarXL 0x002044B0 0x00204500 ico2/script/src/st04c.c lines=11  # aug
-text actSt04lDoor 0x00204500 0x002045A4 ico2/script/src/st04c.c lines=18  # aug
-text actSt04cIntro 0x002045A8 0x00204620 ico2/script/src/st04c.c lines=13  # ordinal; differs-at:12; imm:3; extent-equal
-text actSt04cDoorDown 0x00204620 0x00204690 ico2/script/src/st04c.c lines=12  # ordinal; differs-at:10; imm:3; extent-equal
-text actSt04cEne 0x00204690 0x00204708 ico2/script/src/st04c.c lines=13  # ordinal; differs-at:12; imm:3; extent-equal
-text actSt04cEnemy1 0x00204708 0x00204798 ico2/script/src/st04c.c lines=18  # ordinal; differs-at:17; imm:1; extent-equal
-text actSt04cEnemy2 0x00204798 0x00204828 ico2/script/src/st04c.c lines=18  # ordinal; differs-at:17; imm:1; extent-equal
-text actSt04cWaterXL 0x00204828 0x00204874 ico2/script/src/st04c.c lines=11  # ordinal; differs-at:10; imm:2; extent-equal
-text actSt04cEneChk 0x002049A0 0x00204A28 ico2/script/src/st04c.c lines=13  # ordinal; differs-at:18; length:+6; extent-differs
-text actSt04cIntroChkSub 0x00204A28 0x00204AE4 ico2/script/src/st04c.c local lines=9  # ordinal; differs-at:8; length:+26; extent-differs
+text actSt04bEne1Chk 0x00204218 0x00204270 ico2/script/src/st04b.c lines=8  # aug; st04b.c Ene1 posts it (table 0x50C8C0); USA/aug6 body; emitted after GirlWay (p12-w3)
 text actSt04dDoor1 0x00204AF8 0x00204C50 ico2/script/src/st04d.c lines=23  # ordinal; differs-at:0; length:+20; extent-differs
 text actSt04dDoor1UpChk 0x00204C50 0x00204DA8 ico2/script/src/st04d.c lines=32  # ordinal; differs-at:14; other:12; extent-equal
 text actSt04dDoor1DownChk 0x00204DA8 0x00204F00 ico2/script/src/st04d.c lines=32  # ordinal; differs-at:14; other:12; extent-equal
@@ -1067,51 +1039,8 @@ text actSt05eWaterSwitch 0x0020FB20 0x0020FB78 ico2/script/src/st05e.c lines=12 
 text actSt05eWaterStop 0x0020FB78 0x0020FC28 ico2/script/src/st05e.c lines=42  # order
 text actSt05eWaterFlagOn 0x0020FC28 0x0020FCA0 ico2/script/src/st05e.c lines=15  # order
 text actSt07aTsuroEffect 0x002120C0 0x002124C0 ico2/script/src/st07a.c  # jun26-only; derived name
-text actSt08aDoor 0x00212CB0 0x00212D58 ico2/script/src/st08a.c lines=17  # order
-text actSt08aEne1 0x00212D58 0x00212DD0 ico2/script/src/st08a.c lines=17  # order
-text actSt08aEne2 0x00212DD0 0x00212E48 ico2/script/src/st08a.c lines=13  # order
-text actSt08aEnemy1 0x00212E48 0x00212EEC ico2/script/src/st08a.c lines=22  # order
-text actSt08aEnemy2 0x00212EF0 0x00212F94 ico2/script/src/st08a.c lines=22  # order
-text actSt08aEnemy3 0x00212F98 0x00213034 ico2/script/src/st08a.c lines=20  # order
-text actSt08aEnemy4 0x00213038 0x002130D4 ico2/script/src/st08a.c lines=20  # order
-text actSt08aIntro 0x002130D8 0x00213150 ico2/script/src/st08a.c lines=13  # order
-lit4 actSt08aIntro 0x00679124 0x00679128 ico2/script/src/st08a.c  # 1 float (target side)
-text actSt08aInit 0x00213150 0x002131E0 ico2/script/src/st08a.c lines=15  # order
-text func_002131E0 0x002131E0 0x00213284 ico2/script/src/st08a.c  # jun26-only; derived name
-text actSt08aDoorMain 0x00213288 0x002132C0 ico2/script/src/st08a.c lines=11  # aug
-text actSt08aDoorSwitch 0x002132C0 0x00213318 ico2/script/src/st08a.c lines=12  # aug
-text actSt08aIntroChk 0x00213318 0x002133D8 ico2/script/src/st08a.c lines=20  # aug
 text actSt08bDoorDownChk 0x00213B18 0x00213C90 ico2/script/src/st08b.c lines=34  # aug
 lit4 actSt08bDoorDownChk 0x0067914C 0x00679154 ico2/script/src/st08b.c  # 2 floats
-text actSt09aInit 0x00214240 0x00214280 ico2/script/src/st09a.c lines=8  # ordinal; differs-at:3; imm:3; extent-equal
-text actSt09aElvDown 0x00214280 0x00214370 ico2/script/src/st09a.c lines=32  # ordinal; differs-at:3; imm:8; extent-equal
-text actSt09aSekizo 0x00214370 0x00214434 ico2/script/src/st09a.c lines=13  # aug
-lit4 actSt09aSekizo 0x00679154 0x00679160 ico2/script/src/st09a.c  # 3 floats (target side)
-rdlit actSt09aSekizo 0x00662E80 0x00662E90 ico2/script/src/st09a.c  # 1 data (target side)
-text actSt09aBrgDown 0x00214438 0x00214560 ico2/script/src/st09a.c lines=43  # aug
-text actSt09aElv 0x00214560 0x002145F8 ico2/script/src/st09a.c lines=18  # aug
-text actSt09aIntro 0x002145F8 0x00214670 ico2/script/src/st09a.c lines=14  # aug
-text actSt09aBrg 0x00214670 0x002146E8 ico2/script/src/st09a.c lines=14  # aug
-text actSt09aElvMain 0x002146E8 0x00214720 ico2/script/src/st09a.c lines=12  # ordinal; differs-at:8; imm:1; extent-equal
-text actSt09aElvSwitch 0x00214720 0x002147B8 ico2/script/src/st09a.c lines=20  # ordinal; differs-at:4; imm:6; extent-equal
-text actSt09aElvUp 0x002147B8 0x00214898 ico2/script/src/st09a.c lines=29  # ordinal; differs-at:3; imm:8; extent-equal
-text actSt09aIntroChk 0x002148A8 0x00214928 ico2/script/src/st09a.c lines=19  # ordinal; differs-at:4; imm:5; extent-equal
-text actSt09aBrgMain 0x00214928 0x00214960 ico2/script/src/st09a.c lines=10  # aug
-text actSt09aBrgSwitch 0x00214960 0x002149B8 ico2/script/src/st09a.c lines=13  # aug
-text actSt13aElevUp 0x00216D70 0x00216F10 ico2/script/src/st13a.c lines=36  # order
-text actSt13aElevDownChk 0x00216F10 0x00217064 ico2/script/src/st13a.c lines=44  # order
-lit4 actSt13aElevDownChk 0x00679170 0x00679178 ico2/script/src/st13a.c  # 2 floats (target side)
-text actSt13aSekizoChk 0x00217068 0x00217228 ico2/script/src/st13a.c lines=54  # order
-lit4 actSt13aSekizoChk 0x00679178 0x00679184 ico2/script/src/st13a.c  # 3 floats (target side)
-text actSt13aElev 0x00217228 0x002172B0 ico2/script/src/st13a.c lines=18  # order
-text actSt13aElevDown 0x002172B0 0x0021737C ico2/script/src/st13a.c lines=23  # order
-text actSt13aSekizo 0x00217380 0x00217418 ico2/script/src/st13a.c lines=18  # order
-text actSt13aExit 0x00217418 0x00217480 ico2/script/src/st13a.c  # order; no definition in this TU
-text actSt13aCheck 0x00217480 0x002174F8 ico2/script/src/st13a.c lines=14  # order
-text actSt13aElevMain 0x002174F8 0x00217528 ico2/script/src/st13a.c lines=9  # aug
-text actSt13aElevSwitch 0x00217528 0x00217590 ico2/script/src/st13a.c lines=13  # aug
-text actSt13aExitChk 0x00217590 0x0021760C ico2/script/src/st13a.c  # aug; no definition in this TU
-text actSt13aCheckChk 0x00217610 0x00217640 ico2/script/src/st13a.c lines=7  # aug
 text actSt13b2Generator 0x002197B8 0x002197DC ico2/script/src/st13b2.c lines=5  # aug
 text actSt13dExit 0x0021C1A8 0x0021C278 ico2/script/src/st13d.c lines=25  # ordinal; differs-at:2; length:-4; extent-differs
 text actSt17aDoor 0x0021C418 0x0021C524 ico2/script/src/st17a.c lines=32  # order
@@ -1138,18 +1067,6 @@ text actSt20aFenceUpChk2 0x0021FD48 0x0021FE2C ico2/script/src/st20a.c lines=22 
 text actSt47aHane1Up 0x002206B0 0x002207BC ico2/script/src/st47a.c lines=53  # aug; row renamed from actSt47aHane2Up (the chain: Hane1Switch posts it); OPEN gcse bucket s0/s1 swap
 text actSt47aHane1Down 0x002213D0 0x00221494 ico2/script/src/st47a.c lines=49  # aug
 text func_00221858 0x00221858 0x0022190C ico2/script/src/st47a.c  # jun26-only; derived name
-text actExplode 0x00221AF0 0x00221B58 ico2/script/src/st99a.c lines=11  # order
-text actSplash1 0x00221B58 0x00221BC0 ico2/script/src/st99a.c lines=11  # order
-text actSplash2 0x00221BC0 0x00221C28 ico2/script/src/st99a.c lines=11  # order
-text actWave 0x00221C28 0x00221C90 ico2/script/src/st99a.c lines=11  # order
-text actSpider 0x00221C90 0x00221D14 ico2/script/src/st99a.c lines=14  # order
-text actSt27aWave 0x00221D18 0x00221D80 ico2/script/src/st99a.c lines=11  # ordinal; differs-at:16; imm:2; extent-equal
-text actExplodeChk 0x00221D80 0x00221E2C ico2/script/src/st99a.c lines=13  # ordinal; differs-at:4; imm:8; extent-equal
-text actSplash1Chk 0x00221E30 0x00221EDC ico2/script/src/st99a.c lines=13  # ordinal; differs-at:4; imm:8; extent-equal
-text actSplash2Chk 0x00221EE0 0x00221F8C ico2/script/src/st99a.c lines=13  # ordinal; differs-at:4; imm:8; extent-equal
-text actWave1 0x00221FB8 0x0022203C ico2/script/src/st99a.c lines=15  # ordinal; differs-at:7; imm:5; extent-equal
-text actSt27aWave1 0x00222068 0x002220EC ico2/script/src/st99a.c lines=15  # ordinal; differs-at:7; imm:9; extent-equal
-text actSpiderChk 0x002220F0 0x00222158 ico2/script/src/st99a.c lines=10  # ordinal; differs-at:12; imm:1; extent-equal
 text GetDataFileName 0x00223B88 0x00223BCC ico2/omori/src/access.c lines=18  # ordinal; differs-at:7; imm:1; extent-equal
 sdlit GetDataFileName 0x0067B470 0x0067B477 ico2/omori/src/access.c  # 1 string
 text LwsKyomiGeo 0x00223C80 0x00223C8C ico2/omori/src/lws_kyomi.c lines=33  # aug
