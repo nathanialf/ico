@@ -25,9 +25,6 @@ static const ConstVec door2UpEffect2Pos = {{-704.0f, -1955.0f, -5679.0f, 1.0f}};
 void actSt05dDoor2UpEffect(GObj *volatile self);
 void actSt05dDoor2DownEffect(GObj *volatile self);
 void actSt05dEneChk(GObj *volatile self);
-static void actSt05dCrestHintChk(GObj *volatile self);
-
-static ActMail door2Down_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail door2Up_mes[2] = {{377}, {376}}; /* derived name */
 
@@ -35,20 +32,79 @@ static ActMail door2UpChk_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail door2DownChk_mes[2] = {{377}, {376}}; /* derived name */
 
+static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
+
 void actSt05dDoor2DownChk(GObj *volatile self);
 void actSt05dDoor2UpChk(GObj *volatile self);
-
-INCLUDE_ASM(actSt05dDoor2);
 
 INCLUDE_ASM(actSt05dDoor2UpChk);
 
 INCLUDE_ASM(actSt05dDoor2DownChk);
 
-INCLUDE_ASM(actSt05dEne);
+void actSt05dDoor2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
 
-INCLUDE_ASM(actSt05dEnemy1);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt05dEnemy2);
+    stage_SetAnimation(282, 0, 0);
+    door2Up_mes[0].func = actSt05dDoor2UpChk;
+    act->mail = door2Up_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt05dEne(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(146) == 0) {
+        ene_mes[0].func = actSt05dEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+void actSt05dEnemy1(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    Generator_Mask(self);
+
+    while (gflagChk(147) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    Generator_MaskOff(self);
+    _ACTWait(60);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+}
+
+void actSt05dEnemy2(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(147) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    Generator_MaskOff(self);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+}
 
 void actSt05dDoor2Event(int x)
 {
@@ -103,4 +159,15 @@ void actSt05dDoor2DownEffect(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt05dEneChk);
+void actSt05dEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (girlGObj == 0 || gflagChk(145) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    gflagOn(146);
+    gflagOn(147);
+}

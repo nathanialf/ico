@@ -18,9 +18,6 @@
 #include "main.h"
 #include "include_asm.h"
 
-static void actSt17aFallChk(GObj *volatile self);
-static void actSt17aHint1Chk(GObj *volatile self);
-
 static ActMail linkTest_mes[2] = {{377}, {376}}; /* derived name */
 
 static ActMail doorInit_mes[2] = {{377}, {376}}; /* derived name */
@@ -46,17 +43,133 @@ static const ConstVec doorDownEffectPos = {{6690.0f, -2300.0f, 1100.0f, 1.0f}}; 
 
 static const ConstVec doorDownEffect2Pos = {{6600.0f, -2000.0f, 1100.0f, 1.0f}}; /* derived name */
 
-INCLUDE_ASM_LIT(actSt17aHasiChk);
+static const ConstVec hasiChkGirlDir = {{10000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
 static const ConstVec hasiChkSePos = {{3587.0f, -2072.0f, 1124.0f, 0.0f}}; /* derived name */
 
-INCLUDE_ASM(actSt17aDoor);
+void actSt17aDoor(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(30) == 0) {
+        stage_SetAnimation(100, 0, 0);
+
+        doorInit_mes[0].func = actSt17aDoorUpChk;
+        act->mail = doorInit_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else if (scpTriggerBall(self, boyGObj, 200.0f) != 0) {
+        stage_SetAnimation(100, 0, 0);
+
+        _ACTWait(60);
+        doorDown_mes[0].func = actSt17aDoorDownChk;
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(99, 0, 0);
+        doorUp_mes[0].func = actSt17aDoorUpChk;
+        act->mail = doorUp_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM(actSt17aDoorUpChk);
 
-INCLUDE_ASM(actSt17aDoorDownChk);
+void actSt17aDoorDownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+    int h;
 
-INCLUDE_ASM(actSt17aHasiChk);
+    while (scpTriggerFloorAttrTargetMan(self, 0x3000000) != 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(15);
+
+    actCreateSubThread(actSt17aDoorDownEffect, 21);
+
+    scpWakeupItemWithBoundary(6573.0f, -2077.0f, 1089.0f, 100.0f);
+
+    stage_SetAnimation(100, 1, 0);
+
+    buf[0] = doorChkSePos.d[0];
+    buf[1] = doorChkSePos.d[1];
+    soundSeDefPlay(1170, 0, (float *)buf, 1);
+    _ACTWait(30);
+
+    h = soundSeDefPlay(1171, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+
+    soundSeDefPlay(1172, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(100) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door_mes[0].func = actSt17aDoorUpChk;
+    sub->mail = door_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt17aHasiChk(GObj *volatile self)
+{
+    ConstVec pos;
+    float dir[4];
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (girlGObj == 0 ||
+           (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 &&
+            scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) ||
+           scpTriggerFloorAttr(boyGObj, 0x2000000) == 0) {
+        _ACTWait(1);
+    }
+
+    iosPadActRequest(boyPad, 15);
+    gflagOn(31);
+
+    scpSearchGobj(211)->active = 0;
+    scpSearchGobj(212)->active = 1;
+
+    stage_SetAnimation(102, 1, 0);
+    SetCameraFlag_LwsCutBack();
+
+    if (ACTGame_FLAG_TETSUNAGI() == 0) {
+        stage_SetAnimation(101, 1, 0);
+
+        scpPlayMot(girlGObj, 521);
+        _ACTWait(10);
+        pos = hasiChkGirlDir;
+        sceVu0SubVector(dir, pos.f, test_CURRENTROOT(girlGObj));
+        scpPlayMotDir(girlGObj, dir);
+        _ACTWait(10);
+        scpPlayJump(girlGObj, 259);
+    } else {
+        _SCPBoySupportGirl(-3713.0f, 1907.0f, -1095.0f, -4713.0f, 1907.0f, -1095.0f);
+
+        stage_SetAnimation(101, 1, 0);
+    }
+
+    actCreateSubThread(actSt17aHasiEffect, 21);
+
+    pos = hasiChkSePos;
+    soundSeDefPlay(1240, 0, pos.f, 1);
+
+    while (stage_CheckAnimationFinish(101) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
 
 /* The seven spawn positions are initialised block locals, as in e3.c's
  * actE3CageFallEffect. */
@@ -110,26 +223,100 @@ void actSt17aHasiEffect(GObj *volatile self)
     } while (t < 1000.0f);
 }
 
-INCLUDE_ASM(func_0021CD00);
+void actSt17aIntroChk(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(32);
+    if (girlGObj != 0) {
+        iosOmSendMail(girlGObj, 57, boyGObj);
+        actCreateSubThread(actSt17aGirlWay, 21);
+    }
+    scpAdpcmPlayRequestFunc(1, &cam, 1, 1, 1);
+    _ACTWait(1);
+    stage_SetAnimation(64, 1, 0);
+    SetCameraFlag_LwsCutBack();
 
-INCLUDE_ASM(func_0021CDD8);
+    while (stage_CheckAnimationFinish(64) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    if (cam != 0) {
+        scpAdpcmFadeClose(cam, 80);
+    }
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
 
-INCLUDE_ASM(actSt17aObj216);
+void actLinkTest(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt17aObj221);
+    linkTest_mes[0].func = actLinkTestChk;
+    act->mail = linkTest_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt17aSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 30, 63, 100, 21, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
+}
+
+void actSt17aHasi(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(31) == 0) {
+        scpSearchGobj(212)->active = 0;
+        stage_SetAnimation(101, 0, 0);
+        hasi_mes[0].func = actSt17aHasiChk;
+        act->mail = hasi_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(211)->active = 0;
+        stage_SetAnimation(101, 0, -1);
+    }
+}
 
 /* No .sbss here in this build: no function of the demo addresses such a flag. */
 
-/* self is the actor entry parameter, volatile like every other stage
-   actor's. */
-INCLUDE_ASM(actSt17aFall);
+void actSt17aIntro(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(32) == 0) {
+        intro_mes[0].func = actSt17aIntroChk;
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
 
 void actSt17aSekizoEvent(int x)
 {
     volatile int local = x;
 }
 
-INCLUDE_ASM(actLinkTestChk);
+void actLinkTestChk(GObj *volatile self)
+{
+    *(int *)(((int *)boyGObj)[87] + 1240) = 1;
+    *(int *)(((int *)boyGObj)[87] + 1240) = 0;
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(60);
+}
 
 void actSt17aDoorEvent(int x)
 {

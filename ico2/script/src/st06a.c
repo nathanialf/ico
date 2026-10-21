@@ -82,6 +82,23 @@ static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* deriv
 /* No .sdata: this build's room plays its sluice, shutter and door streams
    with no handle. */
 
+void actSt06aInit(void)
+{
+    if (gflagChk(92) == 0) {
+        SetWayGroupActive(9, 0);
+        SetWayGroupActive(10, 0);
+    } else {
+        SetWayGroupActive(9, 1);
+        SetWayGroupActive(10, 1);
+    }
+
+    if (gflagChk(93) == 0) {
+        SetWayGroupActive(12, 0);
+    } else {
+        SetWayGroupActive(12, 1);
+    }
+}
+
 static ActMail suimon_mes[2] = {{377}, {376}}; /* derived name */
 
 inline void actSt06aSuimonEvent(int x)
