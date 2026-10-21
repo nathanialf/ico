@@ -480,7 +480,6 @@ text isysGObjProcAdd 0x0013E280 0x0013E2A0 ico2/fumi/isys/gobj_process.c lines=4
 text isysGObjProcAddS 0x0013E2A0 0x0013E2BC ico2/fumi/isys/gobj_process.c lines=4  # call-pal
 text iosOmInit 0x0013E428 0x0013E454 ico2/fumi/isys/obj_manager.c lines=7  # ordinal; differs-at:3; imm:2; extent-equal
 text _iosOmMain 0x0013E458 0x0013E680 ico2/fumi/isys/obj_manager.c local lines=60  # ordinal; differs-at:88; imm:1; extent-equal
-text soundDataOpen 0x0013F628 0x0013F718 ico2/fumi/sound/s_init.c lines=20  # ordinal; differs-at:12; imm:7; extent-equal
 text sndInit 0x001420A8 0x001420EC ico2/fumi/sound/soundManager.c lines=8  # ordinal; differs-at:7; imm:2; extent-equal
 text ActPara_MakeTbl 0x001486F0 0x00148844 ico2/fumi/src/act-parallel-control.c lines=42  # ordinal; differs-at:10; other:7; extent-equal
 text ACTGetWish_FromPad 0x001488B8 0x00149558 ico2/fumi/src/act-wish.c lines=300  # order
@@ -725,45 +724,6 @@ text fightSoundProcessMain 0x00187CF8 0x00187EBC ico2/omori/src/fightSound.c loc
 text fightSoundProcess 0x00187EC0 0x00187FB0 ico2/omori/src/fightSound.c lines=30  # ordinal; differs-at:12; imm:3; extent-equal
 rdlit fightSoundProcess 0x005A3B08 0x005A3B19 ico2/omori/src/fightSound.c  # 1 string
 sdlit fightSoundProcess 0x0067A1D0 0x0067A1D2 ico2/omori/src/fightSound.c  # 1 string
-text CheckGeneratorCollision 0x00188018 0x00188168 ico2/omori/src/generator.c lines=32  # ordinal; differs-at:38; imm:1; extent-equal
-lit4 CheckGeneratorCollision 0x00678B58 0x00678B5C ico2/omori/src/generator.c  # 1 float
-text GetGeneratorSafePosition 0x00188168 0x001883E4 ico2/omori/src/generator.c lines=38  # ordinal; differs-at:135; imm:1; extent-equal
-lit4 GetGeneratorSafePosition 0x00678B5C 0x00678B64 ico2/omori/src/generator.c  # 2 floats
-text endfunc_BGA 0x001883E8 0x00188550 ico2/omori/src/generator.c local lines=34  # aug
-rdlit endfunc_BGA 0x005A3B20 0x005A3B60 ico2/omori/src/generator.c  # 3 strings: the file name, then the two func_00188778 (stubbed, next in the file) and DirectCallEnemy share, through the end of the second
-sdlit endfunc_BGA 0x0067A1D8 0x0067A1DA ico2/omori/src/generator.c  # 1 string
-text func_00188550 0x00188550 0x00188774 ico2/omori/src/generator.c  # jun26-only; derived name
-text func_00188778 0x00188778 0x00188980 ico2/omori/src/generator.c  # jun26-only; derived name
-sdlit func_00188778 0x0067A1E0 0x0067A1E8 ico2/omori/src/generator.c  # 1 string (target side)
-text GetMotherGenerator 0x00188980 0x00188B08 ico2/omori/src/generator.c lines=50  # call-pal
-text func_00188B08 0x00188B08 0x00188C04 ico2/omori/src/generator.c  # jun26-only; derived name
-text ReadGeneratorPacket 0x00188C08 0x00188CF0 ico2/omori/src/generator.c  # jun26-only; renamed after PAL ReadGeneratorPacket, the call gamesysGeneratorInfoLoad ends with (provisional)
-text MakeGeneratorPacket 0x00188CF0 0x00188D9C ico2/omori/src/generator.c lines=17  # call-pal
-text generatorBeforeFunc 0x00188DA0 0x00188F94 ico2/omori/src/generator.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec33+0x60 holds generatorBeforeFunc there (the same record index in the demo)
-text GeneratorGeo 0x00188F98 0x00189480 ico2/omori/src/generator.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec33+0x50 holds GeneratorGeo there (the same record index in the demo)
-text GeneratorDL 0x00189480 0x001895B0 ico2/omori/src/generator.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec33+0x48 holds GeneratorDL there (the same record index in the demo)
-text InitGeneratorGeo 0x001895B0 0x00189694 ico2/omori/src/generator.c  # jun26-only; derived name; named from obj-kind-data: the Aug-6-2001 build's obj-kind-data rec33+0x58 holds InitGeneratorGeo there (the same record index in the demo)
-text Generator_Call 0x00189698 0x001896B0 ico2/omori/src/generator.c lines=6  # call-pal
-text Generator_Mask 0x001896B0 0x001896C4 ico2/omori/src/generator.c lines=6  # call-pal
-text Generator_MaskOff 0x001896C8 0x001896D8 ico2/omori/src/generator.c lines=6  # call-pal
-text Generator_Init 0x001896D8 0x00189770 ico2/omori/src/generator.c lines=21  # census-equal; stubbed for emission order
-text GetbufpGeneratorPacket 0x00189770 0x0018977C ico2/omori/src/generator.c lines=4  # census-equal; stubbed for emission order
-text GetsizeGeneratorPacket 0x00189780 0x00189788 ico2/omori/src/generator.c lines=4  # ordinal; differs-at:1; imm:1; extent-equal
-text RestoreGeneratorGeo 0x00189788 0x001897A8 ico2/omori/src/generator.c lines=7  # census-equal; stubbed for emission order
-text RestoreGeneratorExtGeo 0x001897A8 0x001897FC ico2/omori/src/generator.c lines=11  # ordinal; differs-at:6; imm:1; extent-equal
-text MemoryGenerator 0x00189800 0x00189820 ico2/omori/src/generator.c lines=7  # ordinal; differs-at:2; imm:1; extent-equal
-text IsEnableCallEnemy 0x00189820 0x001898E8 ico2/omori/src/generator.c lines=28  # ordinal; differs-at:7; length:-13; extent-differs
-text DirectCallEnemy 0x001898E8 0x00189A48 ico2/omori/src/generator.c lines=19  # ordinal; differs-at:1; length:-4; extent-differs
-text LockEnemyGenerate 0x00189A48 0x00189A90 ico2/omori/src/generator.c lines=7  # ordinal; differs-at:11; other:1; extent-equal
-rdlit LockEnemyGenerate 0x005A3B60 0x005A3B6C ico2/omori/src/generator.c def  # 1 string
-text UnlockEnemyGenerate 0x00189A90 0x00189B1C ico2/omori/src/generator.c lines=8  # ordinal; differs-at:16; imm:1; extent-equal
-rdlit UnlockEnemyGenerate 0x005A3B70 0x005A3B7E ico2/omori/src/generator.c def  # 1 string
-text RestoreReviveCount 0x00189B20 0x00189B78 ico2/omori/src/generator.c lines=13  # ordinal; differs-at:0; length:-12; extent-differs
-text ReturnEnemyToGenerator 0x00189B78 0x00189BF8 ico2/omori/src/generator.c lines=15  # census-equal; stubbed for emission order
-text GeneratorWorkEnd 0x00189BF8 0x00189C0C ico2/omori/src/generator.c lines=5  # ordinal; differs-at:1; imm:1; extent-equal
-text SetInfoSpKidnapGenerator 0x00189C10 0x00189C20 ico2/omori/src/generator.c lines=5  # census-equal; stubbed for emission order
-text SetInfoSpKidnapEnemy 0x00189C20 0x00189C48 ico2/omori/src/generator.c lines=7  # aug
-text IsEnableCallEnemyByTargetGObj 0x00189C48 0x00189CC0 ico2/omori/src/generator.c lines=15  # ordinal; differs-at:11; other:1; extent-equal
 text RotateAccordingToStick_PatternThree 0x0018A6A8 0x0018A878 ico2/omori/src/hand-camera.c local lines=49  # call-aug
 lit4 RotateAccordingToStick_PatternThree 0x00678B78 0x00678B84 ico2/omori/src/hand-camera.c  # 3 floats
 text ClearHandCameraCorrect 0x0018AA60 0x0018AAC4 ico2/omori/src/hand-camera.c lines=12  # census-equal; stubbed for emission order
@@ -1651,24 +1611,6 @@ rdlit enemy_Initialize 0x00661BC0 0x00661BD0 ico2/seki/src/EnemyInit.c  # 1 stri
 data D_004EB318 0x004EB318 0x00507D00 ico2/seki/src/EnemyInit.c local  # the enemy sets of the eight stage models after model 01 (kind lists, position tables, set lists) and enemySetTable, nine rows at 0x507CB8 (enemy_Initialize's lui/addiu of 0x507CB8 and its bound 9); PAL keeps model 01 alone (target side)
 text add_gobj_to_tail 0x001EAD98 0x001EAEB8 ico2/fumi/isys/gobj_cam_dl.c local file=add_gobj_to_tail_gobj_cam_dl lines=46  # census-equal; stubbed for emission order
 rdlit add_gobj_to_tail 0x00661BE0 0x00661C29 ico2/fumi/isys/gobj_cam_dl.c file=add_gobj_to_tail_gobj_cam_dl  # 4 strings
-text AdpcmStreamInit 0x001EB270 0x001EB384 ico2/fumi/sound/adpcm_init.c lines=18  # call-aug
-rdlit AdpcmStreamInit 0x00661C78 0x00661C98 ico2/fumi/sound/adpcm_init.c  # 1 string (target side); the file name before it is adpcmSrcFile, emitted by the C
-text adpcmDataSet 0x001EB590 0x001EB95C ico2/fumi/sound/adpcm_init.c lines=85  # ordinal; differs-at:38; imm:5; extent-equal
-text AdpcmClose 0x001EB998 0x001EBB30 ico2/fumi/sound/adpcm_init.c lines=30  # ordinal; differs-at:51; imm:4; extent-equal
-text adpcmPauseRequest 0x001EBC80 0x001EBC88 ico2/fumi/sound/adpcm_init.c lines=4  # census-equal; stubbed for emission order
-text AdpcmIopBuffAlloc 0x001EBC88 0x001EBCFC ico2/fumi/sound/adpcm_init.c lines=14  # census-equal; stubbed for emission order
-text AdpcmNotUseIopAreaFree 0x001EBD00 0x001EBE2C ico2/fumi/sound/adpcm_init.c lines=33  # ordinal; differs-at:1; length:+15; extent-differs
-rdlit AdpcmNotUseIopAreaFree 0x00661CC8 0x00661CE0 ico2/fumi/sound/adpcm_init.c  # 1 string (target side)
-text AdpcmOpenSync 0x001EBE30 0x001EBED0 ico2/fumi/sound/adpcm_init.c lines=17  # census-equal; stubbed for emission order
-rdlit AdpcmOpenSync 0x00661CE0 0x00661D10 ico2/fumi/sound/adpcm_init.c  # 2 strings (target side)
-text AdpcmInterStereoVolumeSetAll 0x001EBED0 0x001EBF60 ico2/fumi/sound/adpcm_init.c lines=18  # census-equal; stubbed for emission order
-text AdpcmInterLeaveVolumeGet 0x001EBF60 0x001EBF74 ico2/fumi/sound/adpcm_init.c lines=6  # census-equal; stubbed for emission order
-text AdpcmVolumeGet 0x001EBF78 0x001EBF84 ico2/fumi/sound/adpcm_init.c lines=4  # census-equal; stubbed for emission order
-text adpcmTickProc 0x001EBF88 0x001EC068 ico2/fumi/sound/adpcm_init.c lines=27  # census-equal; stubbed for emission order
-text adpcmDiskNotReady 0x001EC068 0x001EC070 ico2/fumi/sound/adpcm_init.c local lines=1  # census-equal; the C no longer emits it (its users are stubs)
-text adpcmDiskReturnReady 0x001EC070 0x001EC078 ico2/fumi/sound/adpcm_init.c local lines=1  # census-equal; the C no longer emits it (its users are stubs)
-text adpcmOpenProc 0x001EC078 0x001EC0A0 ico2/fumi/sound/adpcm_init.c local lines=5  # census-equal; the C no longer emits it (its users are stubs)
-text adpcmOpenDiskNotReady 0x001EC0A0 0x001EC0A8 ico2/fumi/sound/adpcm_init.c local lines=1  # aug
 text DebugActOrientFlag 0x001EC0A8 0x001EC350 ico2/fumi/src/act-env.c lines=27  # order
 rdlit DebugActOrientFlag 0x00661D20 0x00661E0D ico2/fumi/src/act-env.c align=16  # 15 strings
 sdlit DebugActOrientFlag 0x0067B228 0x0067B238 ico2/fumi/src/act-env.c  # 2 strings
@@ -2089,40 +2031,6 @@ text actSt13aElevMain 0x002174F8 0x00217528 ico2/script/src/st13a.c lines=9  # a
 text actSt13aElevSwitch 0x00217528 0x00217590 ico2/script/src/st13a.c lines=13  # aug
 text actSt13aExitChk 0x00217590 0x0021760C ico2/script/src/st13a.c  # aug; no definition in this TU
 text actSt13aCheckChk 0x00217610 0x00217640 ico2/script/src/st13a.c lines=7  # aug
-text actSt13bFloor 0x00217640 0x0021779C ico2/script/src/st13b.c lines=32  # order
-text actSt13bFloorChk 0x002177A0 0x00217888 ico2/script/src/st13b.c lines=29  # aug
-lit4 actSt13bFloorChk 0x00679184 0x00679188 ico2/script/src/st13b.c  # 1 float
-text actSt13bConte02 0x00217888 0x00218144 ico2/script/src/st13b.c lines=238  # aug
-lit4 actSt13bConte02 0x00679188 0x0067918C ico2/script/src/st13b.c  # 1 float (target side)
-text actSt13bSekizoChk 0x00218148 0x002182F8 ico2/script/src/st13b.c lines=51  # aug
-lit4 actSt13bSekizoChk 0x0067918C 0x00679194 ico2/script/src/st13b.c  # 2 floats (target side)
-text actSt13bSekizo2Chk 0x002182F8 0x002184A8 ico2/script/src/st13b.c lines=51  # aug
-lit4 actSt13bSekizo2Chk 0x00679194 0x0067919C ico2/script/src/st13b.c  # 2 floats (target side)
-text actSt13bMeetAgain 0x002184A8 0x002185C0 ico2/script/src/st13b.c lines=25  # aug
-text actSt13bBoss 0x002185C0 0x002186B8 ico2/script/src/st13b.c lines=24  # aug
-text actConte10b 0x002186B8 0x002188D8 ico2/script/src/st13b.c  # aug; no definition in this TU
-text actSt13bElevDown 0x002188D8 0x00218A40 ico2/script/src/st13b.c lines=44  # aug
-text actSt13bElevUp 0x00218A40 0x00218B1C ico2/script/src/st13b.c lines=22  # aug
-text actSt13bElevUpChk 0x00218B20 0x00218C40 ico2/script/src/st13b.c lines=49  # aug
-text actSt13bSekizo 0x00218C40 0x00218CD8 ico2/script/src/st13b.c lines=18  # aug
-text actSt13bSekizo2 0x00218CD8 0x00218D70 ico2/script/src/st13b.c lines=18  # aug
-text actSt13bBossAfter 0x00218D70 0x00218E08 ico2/script/src/st13b.c lines=18  # aug
-text actSt13bStoneGirl 0x00218E08 0x00218E6C ico2/script/src/st13b.c lines=12  # aug
-text actSt13bExit 0x00218E70 0x00218ED8 ico2/script/src/st13b.c  # aug; no definition in this TU
-text actSt13bElev 0x00218ED8 0x00218F40 ico2/script/src/st13b.c lines=12  # aug
-text actSt13bDoor 0x00218F40 0x00218FD8 ico2/script/src/st13b.c lines=18  # ordinal; differs-at:12; imm:4; extent-equal
-text actBossTest 0x00218FD8 0x00219058 ico2/script/src/st13b.c lines=13  # ordinal; differs-at:9; imm:5; extent-equal
-text actSt13bMeetAgainChk 0x002191E8 0x00219260 ico2/script/src/st13b.c lines=56  # aug
-text actConte10a 0x00219260 0x0021931C ico2/script/src/st13b.c  # aug; no definition in this TU
-text actSt13bBossChk 0x00219320 0x002193E4 ico2/script/src/st13b.c lines=36  # aug
-text actSt13bBossAfterChk 0x002193E8 0x002194B0 ico2/script/src/st13b.c lines=54  # aug
-text actConte10c 0x002194B0 0x0021956C ico2/script/src/st13b.c lines=21  # aug
-text actSt13bExitChk 0x00219570 0x002195E4 ico2/script/src/st13b.c  # aug; no definition in this TU
-text actSt13bElevMain 0x002195E8 0x00219618 ico2/script/src/st13b.c lines=9  # aug
-text actSt13bElevSwitch 0x00219618 0x00219670 ico2/script/src/st13b.c lines=12  # aug
-text actSt13bDoorMain 0x00219670 0x002196A8 ico2/script/src/st13b.c lines=9  # aug
-text actSt13bDoorSwitch 0x002196A8 0x00219700 ico2/script/src/st13b.c lines=12  # aug
-text actSt13bDoorUp 0x00219700 0x002197B4 ico2/script/src/st13b.c lines=39  # aug
 text actSt13b2Generator 0x002197B8 0x002197DC ico2/script/src/st13b2.c lines=5  # aug
 text actSt13dExit 0x0021C1A8 0x0021C278 ico2/script/src/st13d.c lines=25  # ordinal; differs-at:2; length:-4; extent-differs
 text actSt17aDoor 0x0021C418 0x0021C524 ico2/script/src/st17a.c lines=32  # order

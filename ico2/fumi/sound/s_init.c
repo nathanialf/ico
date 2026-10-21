@@ -19,7 +19,6 @@
 #include "main.h"
 #include <assert.h>
 #include <sound.h>
-#include "include_asm.h"
 
 /* The TU's own .sbss and .bss, tentative definitions: the SPU buffer
    segments' next free addresses, the ADPCM and SE channel masks, the 16
@@ -460,7 +459,26 @@ inline SqEntry *soundSQDataSet(void *sq, int no, int bank, int mode, int seg)
     return e;
 }
 
-INCLUDE_ASM(soundDataOpen);
+void soundDataOpen(AdpcmOpenReq *work, int mode, int no, int ch, int loopNum)
+{
+    work->mode = mode;
+    switch (mode) {
+    case 0:
+        debug_assert(__FILE__, 589);
+        __assert(__FILE__, 589, "0");
+        break;
+    case 1:
+        debug_assert(__FILE__, 592);
+        __assert(__FILE__, 592, "0");
+        break;
+    case 2:
+        AdpcmOpen(work, no, ch, loopNum);
+        break;
+    default:
+        debug_assert(__FILE__, 598);
+        __assert(__FILE__, 598, "0");
+    }
+}
 
 SqEntry *soundDataOpenSync(AdpcmOpenReq *work)
 {

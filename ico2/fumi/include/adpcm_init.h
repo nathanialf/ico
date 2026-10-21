@@ -21,7 +21,7 @@ typedef struct AdpcmOpenReq { /* field names derived */
     int iopBuf;               /* 0x0C */
     int loopNum;              /* 0x10 */
     struct CdvdBgReq *bg;     /* 0x14, the background loader handle */
-} AdpcmOpenReq; /* derived name */
+} AdpcmOpenReq;               /* derived name */
 
 struct AdpcmStreamTag;
 
@@ -36,7 +36,7 @@ typedef struct { /* field names derived */
     int iopSize; /* 0x0C */
     int spuAddr; /* 0x10 */
     int vol;     /* 0x14 */
-} AdpcmChReq; /* derived name */
+} AdpcmChReq;    /* derived name */
 
 typedef struct AdpcmStreamTag { /* field names derived */
     int used;                   /* 0x00 */
@@ -63,20 +63,15 @@ typedef struct AdpcmStreamTag { /* field names derived */
     char pad54[4];
 } AdpcmStream; /* derived name */
 
-void AdpcmStreamHeap(void);
 void AdpcmStreamInit(void);
 int AdpcmIopBuffAlloc(void);
-int AdpcmNotUseIopAreaFree(void);
+void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum);
 struct SqEntry *AdpcmOpenSync(AdpcmOpenReq *self);
-void AdpcmFadeCloseAll(short step);
-int AdpcmUseAreaGet(void);
-int AdpcmFreeAreaGet(void);
 void AdpcmInterStereoVolumeSetAll(void);
 short AdpcmInterLeaveVolumeGet(struct SqEntry *self, int idx);
 inline short AdpcmVolumeGet(struct SqEntry *self);
 inline int adpcmTickProc(struct CdvdBgReq *self, struct SqEntry *obj);
 void AdpcmInterStereoVolumeSet(void *stream, int ch);
-void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum);
 void AdpcmClose(struct SqEntry *obj);
 void AdpcmPlay(AdpcmStream *self);
 void AdpcmVolumeSet(struct SqEntry *self, int vol);
@@ -84,7 +79,6 @@ struct SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int io
 void adpcmTickProc2(struct SqEntry *obj);
 /* adpcm_init.o's .sdata global */
 extern int debugAdpcmOn;
-void AdpcmStreamFree(void);
 
 /* adpcmfile: one ADPCM stream, 0x40 bytes. Reader: ico2/fumi/sound/
  * adpcm_init.c (AdpcmDataRec). Owner: ico2/fumi/include/adpcm_init.h. */
