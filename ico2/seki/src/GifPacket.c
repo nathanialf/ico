@@ -274,7 +274,17 @@ INCLUDE_ASM(func_001117E8);
 
 INCLUDE_ASM(gif_PointOffset);
 
-INCLUDE_ASM(func_001118A8);
+void gif_Line(int *v0, int *v1, long long z0, long long z1, unsigned char *col, int prim)
+{
+    int p0[4];
+    int p1[4];
+
+    p0[0] = v0[0] * ScreenWidth / 640 * 16;
+    p0[1] = v0[1] * ScreenHeight / 224 * 16;
+    p1[0] = v1[0] * ScreenWidth / 640 * 16;
+    p1[1] = v1[1] * ScreenHeight / 224 * 16;
+    gif_MakeLine2D(p0, p1, z0, z1, col, prim);
+}
 
 /* a point, which gif_MakePoint2D, gif_Point and the rest of the point
    family inline */

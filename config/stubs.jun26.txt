@@ -244,7 +244,6 @@ text gif_Draw2DStripG 0x00111460 0x00111604 ico2/seki/src/GifPacket.c lines=21  
 text func_00111608 0x00111608 0x001117D4 ico2/seki/src/GifPacket.c  # jun26-only; derived name
 text func_001117E8 0x001117E8 0x00111844 ico2/seki/src/GifPacket.c  # jun26-only; derived name
 text gif_PointOffset 0x00111848 0x001118A4 ico2/seki/src/GifPacket.c lines=8  # call-aug
-text func_001118A8 0x001118A8 0x00111954 ico2/seki/src/GifPacket.c  # jun26-only; derived name
 text gif_LineOffset 0x00111958 0x00111A04 ico2/seki/src/GifPacket.c lines=11  # order
 text gif_Sprite 0x00111A08 0x00111B1C ico2/seki/src/GifPacket.c lines=19  # call-pal
 text gif_MoveImage 0x00111B20 0x00111C34 ico2/seki/src/GifPacket.c lines=8  # order
@@ -1379,111 +1378,7 @@ rdlit ReadSoundSqFile 0x0065A498 0x0065A4C3 ico2/common/src/charFileManager.c de
 text ReadSoundAdpcmFile 0x00195A10 0x00195B4C ico2/common/src/charFileManager.c lines=23  # ordinal; differs-at:37; imm:1; extent-equal
 rdlit ReadSoundAdpcmFile 0x0065A4C8 0x0065A4F1 ico2/common/src/charFileManager.c def  # 1 string
 text GetPObjAddress 0x00195B50 0x00195B6C ico2/common/src/charFileManager.c lines=4  # ordinal; differs-at:0; imm:1; extent-equal
-text debug_Assert 0x00195B70 0x00195C04 ico2/common/src/debug.c lines=9  # ordinal; differs-at:15; imm:4; extent-equal
-rdlit debug_Assert 0x0065BC88 0x0065BC98 ico2/common/src/debug.c  # 1 string: the file name; the three log strings after it are debug_openLog's, emitted by the C
-sdlit debug_Assert 0x0067A420 0x0067A42A ico2/common/src/debug.c  # 2 strings
-text debug_SaveDebugOptionFile 0x00195C78 0x00195D98 ico2/common/src/debug.c local lines=22  # ordinal; differs-at:27; imm:1; extent-equal
-rdlit debug_SaveDebugOptionFile 0x0065BDF8 0x0065BEA1 ico2/common/src/debug.c  # 4 strings
-sdlit debug_SaveDebugOptionFile 0x0067A440 0x0067A44C ico2/common/src/debug.c  # 2 strings
-text debug_GetDebugOption 0x00195D98 0x00195FB8 ico2/common/src/debug.c local lines=68  # ordinal; differs-at:93; imm:2; extent-equal
-rdlit debug_GetDebugOption 0x0065BEA8 0x0065C00A ico2/common/src/debug.c  # 7 strings
-text debug_VariableInit 0x00196000 0x00196114 ico2/common/src/debug.c lines=82  # ordinal; differs-at:0; length:-29; extent-differs
-text debug_Load 0x00196170 0x00196760 ico2/common/src/debug.c lines=95  # ordinal; differs-at:26; length:+4; extent-differs
-rdlit debug_Load 0x0065C020 0x0065C1E6 ico2/common/src/debug.c  # 13 strings (target side)
-rdlit debug_Load 0x0065C1F0 0x0065C220 ico2/common/src/debug.c align=16 def  # 1 jtbl (target side); emitted where the demo has it
-text debug_MakeFont 0x00196760 0x00196A14 ico2/common/src/debug.c local lines=61  # ordinal; differs-at:0; length:-33; extent-differs
-sdlit debug_MakeFont 0x0067A44C 0x0067A454 ico2/common/src/debug.c  # 2 words
 text debug_PrintCharacter 0x00196BB8 0x00196EA8 ico2/common/src/debug.c local lines=48  # ordinal; differs-at:0; length:+1; extent-differs
-text func_001971D8 0x001971D8 0x00197480 ico2/common/src/debug.c  # jun26-only; derived name
-text debug_MakeBarString 0x00197480 0x00197640 ico2/common/src/debug.c local lines=36  # census-equal; stubbed for emission order (its "%d" is the string the demo keeps once, at debug_SaveStartStageFile's first use, 0x67A438)
-text debug_DrawBar 0x00197640 0x001983D0 ico2/common/src/debug.c local lines=209  # ordinal; differs-at:0; length:-26; extent-differs
-lit4 debug_DrawBar 0x00678C6C 0x00678C74 ico2/common/src/debug.c  # 2 floats
-rdlit debug_DrawBar 0x0065C220 0x0065C264 ico2/common/src/debug.c align=16  # 2 data runs, 1 string
-sdlit debug_DrawBar 0x0067A498 0x0067A4CF ico2/common/src/debug.c  # 5 strings, 5 statics
-text debug_DispBar 0x001983D0 0x00198528 ico2/common/src/debug.c lines=25  # ordinal; differs-at:0; length:-23; extent-differs
-lit4 debug_DispBar 0x00678C74 0x00678C78 ico2/common/src/debug.c  # 1 float
-rdlit debug_DispBar 0x0065C268 0x0065C290 ico2/common/src/debug.c  # 2 strings
-text debug_WriteBMP 0x00198788 0x00198918 ico2/common/src/debug.c local lines=38  # ordinal; differs-at:1; length:+5; extent-differs
-text debug_SnapShot 0x00198918 0x0019929C ico2/common/src/debug.c lines=81  # ordinal; differs-at:1; length:+368; extent-differs
-rdlit debug_SnapShot 0x0065C290 0x0065C340 ico2/common/src/debug.c  # 6 strings (target side)
-text debug_PrintFontf 0x001998A8 0x00199A5C ico2/common/src/debug.c lines=54  # census-equal; stubbed for emission order (its "%d" is the string the demo keeps once, at debug_SaveStartStageFile's first use, 0x67A438)
-rdlit debug_PrintFontf 0x0065C3B8 0x0065C3D0 ico2/common/src/debug.c  # 1 string (target side)
-sdlit debug_PrintFontf 0x0067A4F8 0x0067A503 ico2/common/src/debug.c  # 2 strings (target side)
-text debug_Mode 0x00199CC8 0x0019A110 ico2/common/src/debug.c local lines=56  # ordinal; differs-at:29; imm:8; extent-equal
-rdlit debug_Mode 0x0065C458 0x0065C4C7 ico2/common/src/debug.c  # 6 strings
-text debug_SelectCsvWindow 0x0019A2A0 0x0019A528 ico2/common/src/debug.c lines=6  # census-equal; stubbed for emission order
-sdlit debug_SelectCsvWindow 0x0067A520 0x0067A528 ico2/common/src/debug.c def  # 1 string (target side); before getLineBuffer's in the demo's .sdata
-text debug_SelectStageMain 0x0019A528 0x0019A600 ico2/common/src/debug.c local lines=25  # ordinal; differs-at:10; length:-1; extent-differs
-rdlit debug_SelectStageMain 0x0065C508 0x0065C518 ico2/common/src/debug.c  # 1 string (target side)
-sdlit debug_SelectStageMain 0x0067A530 0x0067A538 ico2/common/src/debug.c  # 1 string (target side)
-text debug_SelectStage 0x0019A600 0x0019A83C ico2/common/src/debug.c lines=6  # ordinal; differs-at:34; imm:6; extent-equal
-rdlit debug_SelectStage 0x0065C518 0x0065C525 ico2/common/src/debug.c  # 1 string
-text debug_selectFile 0x0019A970 0x0019AAB8 ico2/common/src/debug.c local lines=55  # ordinal; differs-at:0; length:-26; extent-differs
-rdlit debug_selectFile 0x0065C698 0x0065C6A2 ico2/common/src/debug.c  # 1 string (target side)
-rdlit debug_selectFile 0x0065C6B0 0x0065C6C8 ico2/common/src/debug.c align=16  # 1 jtbl (target side), after its string and before debug_mcSaveMainBlock's, 16-aligned after zero fill
-sdlit debug_selectFile 0x0067A558 0x0067A560 ico2/common/src/debug.c  # 1 string (target side)
-text debug_mcLoadMainBlock 0x0019AC98 0x0019AED8 ico2/common/src/debug.c local lines=75  # ordinal; differs-at:9; length:-1; extent-differs
-rdlit debug_mcLoadMainBlock 0x0065C758 0x0065C7A7 ico2/common/src/debug.c  # 2 strings (target side)
-rdlit debug_mcLoadMainBlock 0x0065C7B0 0x0065C940 ico2/common/src/debug.c align=16 def  # 1 jtbl (target side); emitted where the demo has it
-sdlit debug_mcLoadMainBlock 0x0067A588 0x0067A590 ico2/common/src/debug.c  # 1 string (target side)
-text debug_SETest 0x0019B2D0 0x0019B56C ico2/common/src/debug.c lines=18  # ordinal; differs-at:37; imm:5; extent-equal
-sdlit debug_SETest 0x0067A5E0 0x0067A5E8 ico2/common/src/debug.c  # 1 string
-text debugCdvdLoadInfoSegDispFunc 0x0019B720 0x0019B80C ico2/common/src/debug.c local lines=16  # ordinal; differs-at:1; imm:3; extent-equal
-rdlit debugCdvdLoadInfoSegDispFunc 0x0065CA50 0x0065CA5F ico2/common/src/debug.c align=16  # 1 string
-sdlit debugCdvdLoadInfoSegDispFunc 0x0067A600 0x0067A60D ico2/common/src/debug.c  # 2 strings
-text debug_SelectActGobj 0x0019B810 0x0019B94C ico2/common/src/debug.c local lines=15  # ordinal; differs-at:27; imm:1; extent-equal
-rdlit debug_SelectActGobj 0x0065CA90 0x0065CAA5 ico2/common/src/debug.c align=16  # 1 string
-text debug_Menu 0x0019C4A0 0x0019C6FC ico2/common/src/debug.c lines=55  # ordinal; differs-at:28; imm:2; extent-equal
-rdlit debug_Menu 0x0065CDC0 0x0065CDCB ico2/common/src/debug.c align=16  # 1 string
-text debug_BeginTimer 0x0019C708 0x0019C72C ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order
-text debug_GetTimerSec 0x0019C730 0x0019C800 ico2/common/src/debug.c lines=13  # census-equal; stubbed for emission order
-rdlit debug_GetTimerSec 0x0065C010 0x0065C020 ico2/common/src/debug.c def  # 1 data (target side); emitted where the demo has it
-text debug_GetTimerCount 0x0019C800 0x0019C860 ico2/common/src/debug.c lines=7  # census-equal; stubbed for emission order
-text debug_ClearFontWindow 0x0019C860 0x0019C894 ico2/common/src/debug.c lines=11  # census-equal; stubbed for emission order
-text debug_ResizeFontWindowHeight 0x0019C898 0x0019C8A0 ico2/common/src/debug.c lines=4  # census-equal; stubbed for emission order
-text debug_SetBar 0x0019C8A0 0x0019C954 ico2/common/src/debug.c lines=15  # ordinal; differs-at:1; length:-1; extent-differs
-text debug_SetBar2 0x0019C958 0x0019CA0C ico2/common/src/debug.c lines=15  # ordinal; differs-at:1; length:-1; extent-differs
-text debug_ResetBar 0x0019CA10 0x0019CA38 ico2/common/src/debug.c lines=11  # census-equal; stubbed for emission order
-text debug_DispVu1IReg 0x0019CA38 0x0019CADC ico2/common/src/debug.c lines=18  # census-equal; stubbed for emission order
-rdlit debug_DispVu1IReg 0x0065C410 0x0065C42C ico2/common/src/debug.c align=16 def  # 1 string
-text debug_DispVu1SReg 0x0019CAE0 0x0019CB84 ico2/common/src/debug.c lines=18  # census-equal; stubbed for emission order
-rdlit debug_DispVu1SReg 0x0065C430 0x0065C450 ico2/common/src/debug.c def  # 1 string (target side); emitted where the demo has it
-text debug_DispMatrix 0x0019CB88 0x0019CBCC ico2/common/src/debug.c lines=9  # census-equal; stubbed for emission order
-text debug_SetBarDummy 0x0019CBD0 0x0019CBD8 ico2/common/src/debug.c lines=1  # census-equal; stubbed for emission order
-text debug_SelectCsvWindowWithLine 0x0019CBD8 0x0019CE60 ico2/common/src/debug.c lines=6  # census-equal; stubbed for emission order
-text debug_TryToGetStartStage 0x0019CE60 0x0019CE68 ico2/common/src/debug.c lines=4  # census-equal; stubbed for emission order
-text debugSceOpen 0x0019CE68 0x0019CEC8 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order
-rdlit debugSceOpen 0x0065CDD0 0x0065CDD9 ico2/common/src/debug.c align=16 def  # 1 string
-sdlit debugSceOpen 0x0067A6A0 0x0067A6A7 ico2/common/src/debug.c def  # 1 string
-text debugSceClose 0x0019CEC8 0x0019CEF4 ico2/common/src/debug.c lines=7  # census-equal; stubbed for emission order
-text debugSceCloseFdNew 0x0019CEF8 0x0019CF30 ico2/common/src/debug.c lines=11  # census-equal; stubbed for emission order
-text debug_closeLog 0x0019CF30 0x0019CF38 ico2/common/src/debug.c lines=6  # census-equal; stubbed for emission order
-text debugCdvdLoadInfoSegInit 0x0019CF38 0x0019CF7C ico2/common/src/debug.c lines=6  # ordinal; differs-at:0; imm:3; extent-equal
-text debugCdvdLoadInfoSegAdd 0x0019CF80 0x0019CFAC ico2/common/src/debug.c lines=4  # ordinal; differs-at:0; imm:1; extent-equal
-text debugCdvdLoadInfoSegCls 0x0019CFB0 0x0019CFD4 ico2/common/src/debug.c lines=4  # ordinal; differs-at:0; imm:1; extent-equal
-text gsResetFunc 0x0019CFD8 0x0019CFFC ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order
-text debug_CallbackGsFinish 0x0019D000 0x0019D014 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order
-text debug_SaveStartStageFile 0x0019D018 0x0019D0C4 ico2/common/src/debug.c lines=15  # census-equal; stubbed for emission order
-rdlit debug_SaveStartStageFile 0x0065BCD8 0x0065BDF8 ico2/common/src/debug.c def  # 6 strings (target side): the log-file close report (no word of .text addresses it), then its five (the rule line last, which debug_SaveDebugOptionFile and debug_GetDebugOption share); emitted where the demo has it
-sdlit debug_SaveStartStageFile 0x0067A438 0x0067A43B ico2/common/src/debug.c def  # 1 string (target side): the "%d" debug_MakeBarString, debug_DrawBar and debug_PrintFontf share, first used here in the demo
-text _debug_SelectCsvWindow 0x0019D0C8 0x0019D370 ico2/common/src/debug.c lines=88  # census-equal; stubbed for emission order
-text debug_SelectCsvWindowWithLineColor 0x0019D370 0x0019D614 ico2/common/src/debug.c lines=6  # census-equal; stubbed for emission order
-text debug_mcFormat 0x0019D618 0x0019D6FC ico2/common/src/debug.c lines=26  # census-equal; stubbed for emission order
-rdlit debug_mcFormat 0x0065C538 0x0065C548 ico2/common/src/debug.c def  # 1 string (target side); emitted where the demo has it
-sdlit debug_mcFormat 0x0067A540 0x0067A548 ico2/common/src/debug.c def  # 1 string (target side); an inline's string, written after its two state words
-text debug_mcUnformat 0x0019D700 0x0019D7E4 ico2/common/src/debug.c lines=26  # census-equal; stubbed for emission order
-rdlit debug_mcUnformat 0x0065C548 0x0065C569 ico2/common/src/debug.c def  # 2 strings
-text debug_saveNumFunc 0x0019D7E8 0x0019D814 ico2/common/src/debug.c lines=7  # census-equal; stubbed for emission order
-sdlit debug_saveNumFunc 0x0067A560 0x0067A56C ico2/common/src/debug.c def  # 2 strings
-text debug_mcTest 0x0019D818 0x0019D838 ico2/common/src/debug.c lines=5  # census-equal; stubbed for emission order
-text debug_STAFFROLLTest 0x0019D838 0x0019D860 ico2/common/src/debug.c lines=5  # ordinal; differs-at:5; imm:1; extent-equal
-text debug_SETest_color 0x0019D860 0x0019D8A0 ico2/common/src/debug.c lines=4  # census-equal; stubbed for emission order
-text debug_reverbTest 0x0019D8A0 0x0019D940 ico2/common/src/debug.c lines=15  # census-equal; stubbed for emission order
-rdlit debug_reverbTest 0x0065CA28 0x0065CA40 ico2/common/src/debug.c def  # 1 string (target side); emitted where the demo has it
-text debug_AdpcmTest 0x0019D940 0x0019D9CC ico2/common/src/debug.c lines=14  # ordinal; differs-at:6; imm:1; extent-equal
-rdlit debug_AdpcmTest 0x0065CA40 0x0065CA4B ico2/common/src/debug.c align=16 def  # 1 string
-text debugCdvdLoadInfoSegDisp 0x0019D9D0 0x0019DAC4 ico2/common/src/debug.c lines=19  # ordinal; differs-at:37; imm:3; extent-equal
-rdlit debugCdvdLoadInfoSegDisp 0x0065CA60 0x0065CA8B ico2/common/src/debug.c align=16 def  # 2 strings
 text gamesysObjInfoInit 0x001A0518 0x001A056C ico2/common/src/gamesys.c lines=12  # ordinal; differs-at:5; imm:2; extent-equal
 text gamesysObjInfoSave 0x001A0570 0x001A0608 ico2/common/src/gamesys.c lines=18  # ordinal; differs-at:15; imm:2; extent-equal
 text gamesysObjInfoLoad 0x001A0608 0x001A0658 ico2/common/src/gamesys.c lines=6  # ordinal; differs-at:11; imm:2; extent-equal
