@@ -158,6 +158,7 @@ inline void afterCommonTruckLever(GObj *volatile self);
 #include "clipCollisionManager.h"
 #include "layout_texture.h"
 #include "flyManager.h"
+#include "tableSin.h"
 #include "include_asm.h"
 
 static void DamageFunc(GObj *self);
@@ -1544,9 +1545,225 @@ void debugDispFlyLine(float *from, float *to) /* derived name */
     gif_EndPacket();
 }
 
-INCLUDE_ASM(actCommonFly);
+void actCommonFly(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    float mtx[4][4];
+    float tp[4];
+    float d[4];
+    float dir[4];
+    ClipWork cc;
+    float v[4];
+    GObj *gen;
+    GObj *target;
+    int cnt = 0;
+    float acc = 0.0f;
+    float h;
+    float wing;
 
-INCLUDE_ASM(actCommonLadder);
+    s->flags18.afterProc = actAfterFly;
+    gen = 0;
+    FALL_SUB(self)->ctrl.floorAttr = 0;
+    if (IsEnemyBrainToGenerator(self, &gen)) {
+        target = gen;
+    } else if (IsEnemyBrainToBoy(self) && boyGObj != 0) {
+        target = boyGObj;
+    } else if (girlGObj != 0) {
+        target = girlGObj;
+    } else if (boyGObj != 0) {
+        target = boyGObj;
+    } else {
+        target = 0;
+    }
+    while (1) {
+        GetRootMotionMatrix(mtx, self);
+        if (target != 0) {
+            GetRootPosition(tp, target);
+            tp[1] += GOBJ_SUB(target)->root.projHeight;
+        } else {
+            CopyVector(tp, ZeroPoint);
+        }
+        _SubVector(d, tp, mtx[3]);
+        CopyVector(dir, d);
+        dir[1] = 0.0f;
+        if (cnt == 0) {
+            memset(&cc, 0, 0xC0);
+            acc = 0.0f;
+            CopyVector(cc.pt[0], mtx[3]);
+            CopyVector(cc.pt[1], tp);
+            ClipCollision(&cc);
+            if (cc.wall.elem || cc.floor.elem) {
+                if (cc.wall.elem) {
+                    acc = -1.0f;
+                }
+                if (cc.floor.elem && VectorLengthSquare(dir) < 40000.0f && 0.0f < d[1]) {
+                    acc = 1.0f;
+                }
+            } else {
+                _SubVector(v, tp, mtx[3]);
+                h = v[1];
+                v[1] = 0.0f;
+                h += -VectorLength(v) * 0.5f;
+                acc = h * 0.005f;
+                if (1.0f < acc) {
+                    acc = 1.0f;
+                }
+                if (acc < -1.0f) {
+                    acc = -1.0f;
+                }
+            }
+        }
+        _NormalizeVector(dir, dir);
+        _ACTMotDirSmzDirect(self, dir);
+        _ScaleVectorXYZ(FALL_SUB(self)->root.move, FALL_SUB(self)->root.move, 0.92f);
+        if (!((int)(s->flags20.ll >> 5) & 1)) {
+            memset(v, 0, 16);
+            v[2] = 1.0f;
+            _ApplyMatrix(v, mtx, v);
+            v[1] = 0.0f;
+            _AddVectorXYZ(FALL_SUB(self)->root.move, FALL_SUB(self)->root.move, v);
+            FALL_SUB(self)->root.move[1] += acc + acc;
+        }
+        wing = GetTableCos(s->modeFrame * 2048);
+        if (0.5f < acc) {
+            wing = acc * 0.5f;
+        } else {
+            wing *= -(acc - 0.5f) * 0.6666667f;
+        }
+        SetEnemyWingRatio(self, wing);
+        cnt++;
+        if (cnt >= 17) {
+            cnt = 0;
+        }
+        _ACTWait(1);
+    }
+}
+
+typedef struct { /* field names derived */
+    char pad0[656];
+    int upEnd;   /* 0x290, 1 or 2 when the field above ends by node 22 or 6 */
+    int downEnd; /* 0x294, 1 or 2 when the field below ends by node 52 or 48 */
+
+    union {
+        unsigned long long ll;
+        int i[2];
+    } moveFlags; /* 0x298 */
+} LadderWork;    /* derived name */
+
+#define LADW ((LadderWork *)*(int *)(self->act + 0x650)) /* derived name */
+
+void actCommonLadder(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    int mot = s->intrMot;
+    float pos[4];
+    int uf22;
+    int uf6;
+    int lf52;
+    int lf48;
+    int up22;
+    int up6;
+    int lp52;
+    int lp48;
+    GObj *o;
+
+    if (s->env.edgePos[3] != 0.0f) {
+        pos[0] = test_CURRENTROOT((void *)self)[0];
+        pos[1] = test_CURRENTROOT((void *)self)[1];
+        pos[2] = test_CURRENTROOT((void *)self)[2];
+        pos[0] = s->env.edgePos[0];
+        pos[2] = s->env.edgePos[2];
+        s->env.edgePos[3] = 0.0f;
+    }
+    LADW->upEnd = 0;
+    LADW->downEnd = 0;
+    LADW->moveFlags.ll &= ~1ULL;
+    LADW->moveFlags.ll &= ~2ULL;
+    LADW->moveFlags.ll &= ~4ULL;
+    if (self == boyGObj) {
+        GOBJ_ACT(self)->hit = 1;
+    }
+    if (mot == 108) {
+        while (1) {
+            if (self == boyGObj && GOBJ_SUB(self)->ctrl.animFrame > 40.0f) {
+                break;
+            }
+            if (motionKind[GOBJ_SUB(self)->ctrl.motion].playMode == 1) {
+                break;
+            }
+            _ACTWait(1);
+        }
+    }
+    while (1) {
+        uf22 = (int)GetDifferenceFromWallUpperField((void *)self, 22);
+        uf6 = (int)GetDifferenceFromWallUpperField((void *)self, 6);
+        lf52 = (int)GetDifferenceFromLastField((void *)self, 52);
+        lf48 = (int)GetDifferenceFromLastField((void *)self, 48);
+        up22 = (int)GetDifferenceFromWallUpperPlane((void *)self, 22);
+        up6 = (int)GetDifferenceFromWallUpperPlane((void *)self, 6);
+        lp52 = (int)GetDifferenceFromWallLowerPlane((void *)self, 52);
+        lp48 = (int)GetDifferenceFromWallLowerPlane((void *)self, 48);
+        LADW->upEnd = 0;
+        LADW->downEnd = 0;
+        LADW->moveFlags.ll &= ~4ULL;
+        LADW->moveFlags.ll |= 1ULL;
+        LADW->moveFlags.ll |= 2ULL;
+        if ((uf22 - up22 < 0 ? up22 - uf22 : uf22 - up22) < 30) {
+            if (uf22 < 10) {
+                LADW->upEnd = 1;
+            }
+            if (uf6 < 10) {
+                LADW->upEnd = 2;
+            }
+        } else {
+            if (up22 < 40) {
+                LADW->moveFlags.ll &= ~1ULL;
+            }
+            if (up6 < 40) {
+                LADW->moveFlags.ll &= ~1ULL;
+            }
+        }
+        if ((lf52 - lp52 < 0 ? lp52 - lf52 : lf52 - lp52) < 30) {
+            if (lf52 >= -9) {
+                LADW->downEnd = 1;
+            }
+            if (lf48 >= -9) {
+                LADW->downEnd = 2;
+            }
+        } else {
+            if (lp52 >= 31) {
+                LADW->moveFlags.ll |= 4ULL;
+            }
+            if (lp48 >= 31) {
+                LADW->moveFlags.ll |= 4ULL;
+            }
+        }
+        if (s->pushDir == 0xFFFFFFFF && ((int)((long long)LADW->moveFlags.ll >> 2) & 1)) {
+            ACTSendMailCorrect(self, 129);
+        }
+        if (self == boyGObj && girlGObj != 0 && GOBJ_ACT(girlGObj)->actMode == 38) {
+            if (_DistSqGV(test_CURRENTROOT((void *)self), test_CURRENTROOT(girlGObj)) < 3600.0f) {
+                ACTSendMailCorrect(self, 47);
+            }
+        }
+        if (self == boyGObj || self == girlGObj) {
+            pos[0] = test_CURRENTROOT((void *)self)[0];
+            pos[1] = test_CURRENTROOT((void *)self)[1];
+            pos[2] = test_CURRENTROOT((void *)self)[2];
+            for (o = isysGObjSearchFromObjKindID_begin(4); o != 0;
+                 o = isysGObjSearchFromObjKindID_next(o)) {
+                if (o->active != 0) {
+                    if (GOBJ_ACT(o)->actMode == 38 &&
+                        _DistSqGV(pos, test_CURRENTROOT(o)) < 6400.0f) {
+                        ACTSendMailCorrect(self, 47);
+                        break;
+                    }
+                }
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 typedef struct { /* field names derived */
     char pad0[398];
@@ -1640,19 +1857,6 @@ typedef struct { /* field names derived */
     char pad0[1528];
     int f5F8;
 } FlyCtlJ; /* derived name */
-
-typedef struct { /* field names derived */
-    char pad0[656];
-    int upEnd;   /* 0x290, 1 or 2 when the field above ends by node 22 or 6 */
-    int downEnd; /* 0x294, 1 or 2 when the field below ends by node 52 or 48 */
-
-    union {
-        unsigned long long ll;
-        int i[2];
-    } moveFlags; /* 0x298 */
-} LadderWork;    /* derived name */
-
-#define LADW ((LadderWork *)*(int *)(self->act + 0x680)) /* derived name */
 
 /* inline tail members, defined here: their strings come between the
    flyCoreLoop unit's and funcCommonBeginReady's in .rodata, while their code
@@ -1886,7 +2090,82 @@ void ACTSendMailCorrect(GObj *self, int mail)
     iosOmSendMail(self, mail, self);
 }
 
-INCLUDE_ASM(_ACTCommonMailTest);
+void _ACTCommonMailTest(GObj *self, int stopCnt, int walkCnt, int runCnt)
+{
+    Act *s;
+    int ret = 0;
+    unsigned int m;
+
+    s = GOBJ_ACT(self);
+    if (s->pad.trg & 8) {
+        handoff_heroin();
+    }
+    m = (unsigned int)s->actMode;
+    switch (m) {
+    case 1:
+    case 2:
+    case 3:
+    case 14:
+    case 75:
+    case 111:
+        ret = 1;
+        break;
+    case 36:
+    case 15:
+    case 20:
+    case 21:
+        ret = self == boyGObj;
+        break;
+    }
+    if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 12) & 1) {
+        ret = 1;
+    }
+    if (ret) {
+        if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 45) < 91) {
+            ACTSendMailCorrect(self, 297);
+        }
+        if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269) &&
+            !(s->actMode == 3 && ((int)(s->flags18.ll >> 38) & 1))) {
+            ACTSendMailCorrect(self, 298);
+            if (((int)(s->flags20.ll >> 2) & 1) && !((int)(s->flags18.ll >> 38) & 1)) {
+                ACTSendMailCorrect(self, 170);
+            }
+        }
+        if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+            ACTSendMailCorrect(self, 299);
+        }
+        if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+            ACTSendMailCorrect(self, 300);
+        }
+        if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20)) &&
+            !(walkCnt < 4)) {
+            ACTSendMailCorrect(self, 163);
+        }
+        /* the negated conjunct is the walk guard's whole predicate, repeated;
+           it emits a real (dead) branch, so it is in the shipped code. */
+        if (0.1f < s->stick.mag &&
+            !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20))) &&
+            !(runCnt < 4)) {
+            ACTSendMailCorrect(self, 168);
+        }
+        if (!(0.1f < s->stick.mag) && 0 < stopCnt) {
+            ACTSendMailCorrect(self, 177);
+        }
+    }
+    if (s->actMode == 72) {
+        if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20)) &&
+            !(walkCnt < 4)) {
+            ACTSendMailCorrect(self, 163);
+        }
+        /* the negated conjunct is the walk guard's whole predicate, repeated;
+           it emits a real (dead) branch, so it is in the shipped code. */
+        if (0.1f < s->stick.mag &&
+            !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20))) &&
+            !(runCnt < 4)) {
+            ACTSendMailCorrect(self, 168);
+        }
+    }
+}
 
 int E3_LeverCheck(GObj *self)
 {
@@ -1899,27 +2178,15 @@ int E3_LeverCheck(GObj *self)
                                                       : _RotyGV(test_CURRENTORIENT(self), buf) < 45;
 }
 
-INCLUDE_ASM(actCommonBecarry);
-
-INCLUDE_ASM(func_001564C0);
-
 extern SlowrunRec motionOrient[];
 
-typedef struct { /* field names derived */
-    char pad0[396];
-    unsigned char f18C;
-    char pad18D[7];
-} CarryMot; /* derived name */
-
-static __inline__ unsigned char requestBecarryMotion(GObj *self, int mot, int wait,
-                                                     int n) /* derived name */
+static __inline__ unsigned char requestBecarryMotion(GObj *self, int mot, int n) /* derived name */
 {
     Act *sub = GOBJ_ACT(self);
     const BecPair *tbl = pairMotion;
-    const BecPair *end = tbl + 31;
+    const BecPair *end = tbl + 36;
     const BecPair *p;
     int save0;
-    int save1;
 
     for (p = tbl; p != end; p++) {
         if (p->mot == mot) {
@@ -1928,16 +2195,15 @@ static __inline__ unsigned char requestBecarryMotion(GObj *self, int mot, int wa
     }
     if (p != end) {
         save0 = motionOrient[n].w[2];
-        save1 = motionOrient[n].w[4];
         motionOrient[n].w[2] = p->req;
-        motionOrient[n].w[4] = wait;
-        SetMotionRequest(self, 268, *(MotOriReq *)((char *)sub + 0x620));
+        SetMotionRequest(self, 223, *(MotOriReq *)((char *)sub + 0x5F0));
         motionOrient[n].w[2] = save0;
-        motionOrient[n].w[4] = save1;
         return 1;
     }
     return 0;
 }
+
+INCLUDE_ASM(actCommonBecarry);
 
 static inline void SetIdleMotionRange(int k, int mot, int mot2) /* derived name */
 {
@@ -1947,7 +2213,7 @@ static inline void SetIdleMotionRange(int k, int mot, int mot2) /* derived name 
     int n4 = actDataTbl[k].orientEnd;
     int i;
 
-    if (mot != 1147 && mot2 != 1147) {
+    if (mot != 1167 && mot2 != 1167) {
         motionOrient[n1].w[2] = mot;
         motionOrient[n2].w[2] = mot2;
         for (i = n3; i < n4; i++) {
@@ -1955,6 +2221,85 @@ static inline void SetIdleMotionRange(int k, int mot, int mot2) /* derived name 
         }
     }
 }
+
+void subCommonIdle(GObj *volatile self)
+{
+    Act *s = GOBJ_ACT(self);
+    int k = s->actKind;
+    int m0 = actDataTbl[k].idleMotion;
+    int timer = 0;
+    int base;
+    int lim;
+    int cur;
+    int j;
+    int found;
+    int nxt;
+    int dbg = 0; /* local debug switch, see the test after the idle logic */
+
+    while (1) {
+        cur = GOBJ_SUB(self)->ctrl.motion;
+        if (s->actMode == 1 || s->actMode == 68) {
+            if ((int)(s->flags18.ll >> 51) & 1) {
+                timer = 0;
+                ACTSendMailCorrect(self, 162);
+            } else {
+                if (self == boyGObj && ACTGame_FLAG_TETSUNAGI()) {
+                    base = 9;
+                    lim = 10;
+                } else {
+                    base = 0;
+                    lim = 9;
+                }
+                if (cur == m0) {
+                    timer = timer + 1;
+                    if (((60 - systemStatus[0] * 10) / systemStatus[1]) * 3 < timer) {
+                        SetIdleMotionRange(k, idlingDef[base].motion[k], idlingDef[base].motion[k]);
+                        ACTSendMailCorrect(self, 161);
+                    }
+                } else {
+                    found = -1;
+                    timer = 0;
+                    for (j = base; j < lim; j++) {
+                        if (cur == idlingDef[j].motion[k]) {
+                            found = j;
+                        }
+                    }
+                    if (found >= 0) {
+                        if (found + 1 < lim) {
+                            nxt = idlingDef[found + 1].motion[k];
+                        } else {
+                            nxt = m0;
+                        }
+                        if (nxt == 1167) {
+                            nxt = m0;
+                        }
+                        SetIdleMotionRange(k, idlingDef[found].motion[k], nxt);
+                        ACTSendMailCorrect(self, 161);
+                    }
+                }
+                /* a local debug switch, off: mark the actor while its idle
+                   logic runs. The August TRFILE (5376-5379) and the PAL listing
+                   (5847-5850) keep a code-less line here beyond the three
+                   closing braces; the text is derived. Pinned: the test keeps
+                   the label after the found arm's mail through the first jump
+                   pass, so flow puts a USE after that call and jump2 does not
+                   merge it with the cur == m0 arm's mail. */
+                if (dbg) {
+                    debug_NMarker(test_CURRENTROOT(self), 255, 0, 0, 100.0f);
+                }
+            }
+        } else {
+            timer = 0;
+        }
+        _ACTWait(1);
+    }
+}
+
+typedef struct { /* field names derived */
+    char pad0[396];
+    unsigned char f18C;
+    char pad18D[7];
+} CarryMot; /* derived name */
 
 void ContinueCorrectPosition(void *obj)
 {

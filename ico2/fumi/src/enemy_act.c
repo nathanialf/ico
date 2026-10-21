@@ -2165,7 +2165,83 @@ inline int GetEnemyTypeFromGObj(GObj *obj)
     return GOBJ_ACT(obj)->enemy->liftKind;
 }
 
-INCLUDE_ASM(actEnemyStart);
+void actEnemyStart(GObj *self)
+{
+    char *act;
+    int alive;
+    float life;
+
+    debug_StdPrintfDummy("actEnemyStart:%p\n", self);
+    act = (char *)actInitialize(self);
+    actInitialize_ext_charcter(self);
+    actInitialize_only_charcter((char *)self);
+    actInitialize_geo(self);
+    ACTGame_LwsEffectInit(self);
+    ACTParaStatus_Init(self);
+    _ACTCharStatus_Init((int **)self);
+    GOBJ_WORK(self)->bga = InitMultiBgaManager(1);
+    {
+        EnemyStartRec p[4] = {
+            {0, 30, 18, 90, 0, _ACTGame_GetParamF(15), 321.0f, 1},
+            {1, 0, 18, 50, 0, _ACTGame_GetParamF(16), 321.0f, 0},
+            {2, 29, 22, 25, 50, _ACTGame_GetParamF(17), 321.0f, 0},
+            {2, 28, 22, 0, 100, 3.40282347e+38f /* FLT_MAX */, 322.0f, 1},
+        };
+        unsigned long long bit;
+        float size = *(float *)((int)GOBJ_SUB(self)->nodes + 0x20);
+        int kind = GetEnemyType(size, 0.0f, 0.0f); /* y and z are not read */
+
+        GOBJ_ACT(self)->enemy->bodySize = size;
+        GOBJ_ACT(self)->enemy->liftKind = kind;
+        GOBJ_ACT(self)->enemy->sizeClass = p[kind].sizeClass;
+        GOBJ_ACT(self)->enemy->paraStatus = p[kind].paraStatus;
+        GOBJ_ACT(self)->enemy->clingNode = p[kind].clingNode;
+        GOBJ_ACT(self)->enemy->attackChance = p[kind].attackChance;
+        GOBJ_ACT(self)->enemy->attackChance2 = p[kind].attackChance2;
+        *(float *)(act + 0x1D4) = p[kind].maxLife;
+        GOBJ_ACT(self)->enemy->bodyslamMail = (int)p[kind].bodyslamMail;
+        GOBJ_ACT(self)->enemy->bossLife = 3;
+        bit = p[kind].noGuard;
+        ((ActStatusWord *)(act + 0x18))->q =
+            (((ActStatusWord *)(act + 0x18))->q & ~(1ULL << 45)) | ((bit & 1) << 45);
+    }
+    if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+        *(float *)(((EnemySubSlot *)((char *)self + 0x15C))->p + 0x44C) = 0.05f;
+        *(float *)(((EnemySubSlot *)((char *)self + 0x15C))->p + 0x450) = 0.05f;
+        *(float *)(((EnemySubSlot *)((char *)self + 0x15C))->p + 0x454) = 0.05f;
+        *(float *)(((EnemySubSlot *)((char *)self + 0x15C))->p + 0x458) = 0.05f;
+    }
+    GOBJ_ACT(self)->enemy->battleType = debug_enemy_battle_type;
+    setBattleStatus(self);
+    alive = 0;
+    if (actEnemyFlagCheckDead(self) != 0) {
+        alive = 1;
+    }
+    if (alive != 0) {
+        *(long long *)(act + 0x18) = *(long long *)(act + 0x18) & ~(1LL << 32);
+    }
+    _ACTWait(1);
+    *(IntrMail **)(act + 0xB0) = &actIntrList[65];
+    if (debug_brain_flag != 0) {
+        actCreateSubThread((void *)subEnemyBrainMain, 20);
+    }
+    actCreateSubThread((void *)subEnemyControl, 21);
+    actCreateSubThread((void *)subEnemyCollision, 21);
+    actCreateSubThread((void *)subCommonIdle, 21);
+    *(IntrMail **)(act + 0xB4) = &actIntrList[70];
+    *(ActKind *)(act + 0x44) = ACT_KIND_ENEMY;
+    life = GetEnemyDefLife(self);
+    *(float *)(act + 0x1D0) = *(float *)(act + 0x1D4) = life;
+    if (life < 10.0f) {
+        *(float *)(act + 0x1D0) = *(float *)(act + 0x1D4) = 10.0f;
+    }
+    *(int *)(act + 0x340) = 0;
+    ACTSendMailCorrect(self, 177);
+    if (alive != 0) {
+        actEnemyHyde(self);
+    }
+    _ACTWait(0);
+}
 
 /* the later builds' kidnapEndCount is not in this build: the demo's
    actEnemyKidnapEnd has no count, and the .sdata word at 0x679E00 is

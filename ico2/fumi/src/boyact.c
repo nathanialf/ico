@@ -44,7 +44,6 @@
 #include "fieldCollision.h"
 #include "motionManager2.h"
 #include "box.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     int a, b, c;
@@ -2676,7 +2675,142 @@ inline int RequestStageChangeKidnapEnd(int stage, int targetId)
     return rv;
 }
 
-INCLUDE_ASM(actBoyStart);
+void actBoyStart(GObj *self)
+{
+    char *work;
+    void *g;
+
+    girlEscortedInStage = BOYINFO.escort;
+    BOYINFO.escort = 0;
+
+    ((int *)boyInfo)[4] = -1;
+
+    ableBoyControl = 0;
+    startWithGirl = 0;
+    startWaitCancel = 0;
+    startOnSofa = 0;
+    sitLayoutDone = 0;
+
+    sitCount = 0;
+    debug_StdPrintfDummy("actBoyStart:%p\n", self);
+
+    work = (char *)actInitialize(self);
+    *(void **)(work + 0x65C) = attrWallHit;
+
+    GetRootPosition(work + 0xF0, (void *)self);
+
+    actInitialize_ext_charcter(self);
+    actInitialize_only_charcter((char *)self);
+    actInitialize_geo(self);
+
+    GOBJ_ACT(self)->enemy->sofaWakeTime =
+        (int)(_ACTGame_GetParamF(27) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
+              60.0f);
+    ACTGame_LwsEffectInit(self);
+
+    *(int *)(work + 0x160) = 0;
+    *(int *)(work + 0x164) = 0;
+
+    gopp_subBoyControl = 0;
+    ACTParaStatus_Init(self);
+    _ACTCharStatus_Init((int **)self);
+
+    _ACTWait(1);
+
+    CurrentTargetGObj = (void *)self;
+
+    *(float *)(work + 0x1D0) = _ACTGame_GetParamF(14);
+    *(int *)(work + 0x44) = 0;
+
+    if (BOYINFO.boyID != 0) {
+        g = isysGObjSearchFromObjLayoutID(BOYINFO.boyID);
+        if (g != 0) {
+            PickupWeapon(g, (void *)self, 22);
+            *(void **)(work + 0x130) = g;
+            if (BOYINFO.torch) {
+                LightTorchOnOfWeapon(g);
+            }
+        } else {
+            BOYINFO.boyID = 0;
+        }
+    }
+
+    /* the demo hands the boy the stick at layout 2702 when he comes in empty-handed */
+    if (*(void **)(work + 0x130) == 0) {
+        GObj *stick = isysGObjSearchFromObjLayoutID(2702);
+
+        if (stick != 0) {
+            Act *sub = GOBJ_ACT(self);
+
+            PickupWeapon(stick, (void *)self, 22);
+            sub->weapon = stick;
+            BOYINFO.boyID = stick->labelId;
+        }
+    }
+
+    if (BOYINFO.girlID != 0) {
+        g = isysGObjSearchFromObjLayoutID(BOYINFO.girlID);
+        if (g != 0) {
+            ACTSendMailCorrect(self, 51);
+            *(void **)(work + 0x164) = *(void **)(work + 0x134) = g;
+        } else {
+            BOYINFO.girlID = 0;
+        }
+        startWithGirl = 1;
+    }
+
+    if (BOYINFO.layoutID != 0) {
+        g = isysGObjSearchFromObjLayoutID(BOYINFO.layoutID);
+        if (g != 0) {
+            Vec16 p0 = {{0.0f, 0.0f, -50.0f, 1.0f}};
+            Vec16 p1 = {{0.0f, 0.0f, 50.0f, 1.0f}};
+            ClipWork cw;
+
+            CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(g)->nodeMtx);
+            MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+            sceVu0ApplyMatrix(cw.pt[0], MatrixDrive_GetMatrix(), &p0);
+            sceVu0ApplyMatrix(cw.pt[1], MatrixDrive_GetMatrix(), &p1);
+            cw.radius = 0.0f;
+            ClipWall(&cw);
+            if (cw.wall.elem == 0) {
+                /* "!!! cannot find the sofa's wall !!!" */
+                debug_StdPrintfDummy("！！！ソファの壁を見付けることができません！！！\n");
+            } else {
+                startOnSofa = 1;
+                sitLayoutDone = 1;
+                sofaWallHit.o = cw.wall.o;
+                sofaWallHit.elem = cw.wall.elem;
+                ActSendMail_WithAdditionalData((void *)self, 52, (void *)self, &sofaWallHit);
+                if (BOYINFO.bit32 && girlGObj != 0) {
+                    ActSendMail_WithAdditionalData(girlGObj, 52, girlGObj, &sofaWallHit);
+                }
+            }
+        } else {
+            BOYINFO.layoutID = 0;
+        }
+    }
+
+    startWaitCancel = 0;
+
+    *(void **)(work + 0xB0) = &actIntrList[65];
+
+    actCreateSubThread(subBoyBrainMain, 20);
+    gopp_subBoyControl = (void *)actCreateSubThread(subBoyControl, 21);
+    actCreateSubThread(subBoyCollision, 21);
+    actCreateSubThread(subCommonIdle, 21);
+    scpBoyControlReadDisable = 0;
+
+    *(void **)(work + 0xB4) = &actIntrList[70];
+    ACTSendMailCorrect(self, 177);
+
+    _ACTWait(1);
+
+    if (BOYINFO.fire && girlGObj != 0) {
+        iosOmSendMail(girlGObj, 58, self);
+        debug_StdPrintfDummy("hand connect start\n");
+    }
+    _ACTWait(0);
+}
 
 #define BOY_WALL(o) ((char *)GOBJ_ACT(o)->work) /* derived name */
 #define BOY_GIRL_DY()                                                                              \
