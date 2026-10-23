@@ -124,7 +124,8 @@ typedef union { /* field names derived */
         unsigned int : 1;
         unsigned int weaponSwing
             : 1; /* the held weapon's blade is drawn, its hand left to the motion */
-        unsigned int : 30;
+        unsigned int chainIkRate : 1; /* findChainInJump sets the IK rates to 0.8 by a chain (0x14BA44 srl 2) */
+        unsigned int : 29;
     } bits;
 } MotionFlags2; /* derived name */
 

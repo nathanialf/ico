@@ -1484,7 +1484,11 @@ typedef struct Act {         /* field names derived */
     int doorCamWait;   /* 0x454, frames to wait after the camera move */
     int doorEndWait;   /* 0x458, frames to wait after the move */
     GObj *doorCamera;  /* 0x45C, the camera target of the door move, 0 for none */
-    char pad460[16];
+    char pad460[8];
+    /* 0x468, the word USA's typedef calls wish0 (subBoyCollision 0x14F030 ld v0,1128(s4),
+       bits 44..46): this build's wish block sits at USA's addresses (ACTSendMailCorrect reads
+       0x470/0x480 = USA's wish1/wish3), so the names below run one behind USA's */
+    ActWishWord wish468;
     ActWishWord wish0; /* 0x470 (ACTSendMailCorrect 0x15A008 ld v1,1136(a2)) */
     ActWishWord wish1; /* 0x478 */
     ActWishWord wish2; /* 0x480 (ACTSendMailCorrect 0x15A01C ld v0,1152(a2)) */

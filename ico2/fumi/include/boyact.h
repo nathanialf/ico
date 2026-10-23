@@ -19,7 +19,11 @@ void actBoyHang(GObj *volatile self);
 void actBoyBHang(GObj *volatile self);
 void actBoyFall(GObj *volatile self);
 void actBoyCall(GObj *volatile self);
+void actBoyItem(GObj *volatile self);
+void actBoyItemAfter(GObj *volatile self);
+void actBoyCliffHesitate(GObj *volatile self);
 void actBoyHangBefore(GObj *volatile self);
+void actBoyReadyMove(GObj *volatile self);
 void actBoyBeslam(GObj *volatile self);
 void actBoyRescueSrc(GObj *volatile self);
 void actBoySupportGBBegin(GObj *volatile self);
@@ -45,6 +49,8 @@ inline void PrivInsCamSet(float *pos, float *tgt, struct GObj *track, int inFram
                           float inRate, float blend, unsigned char control);
 
 inline void BoyInfoUpdate_StageChange(void);
+/* emitted here, after BoyInfoUpdate_StageChange (0x152A38; MAIN.MAP puts it in boyact.o) */
+int ACTChkAttackIgnore_BOY(GObj *self);
 int IsBoyStatus_EnemyMustWait(void);
 int IsGirlEscortedInNextStage(void);
 unsigned char IsGirlEscortedInCurrentStage(void);
@@ -64,8 +70,8 @@ void ACTSearchGObj(void *self, int kind, int maxDeg, int *out_id, float *out_vec
 void afterBoySwim(GObj *volatile self);
 void actBoyJump(GObj *volatile self);
 inline void afterBoyTakeWeapon(GObj *volatile self);
-inline void afterBoyHangG3M(int x);
-inline void subBoyBrainMain(int arg);
+inline void afterCommonItem(GObj *volatile self);
+inline void subBoyBrainMain(GObj *volatile self);
 void SetBoyInfo(GObj *weapon, GObj *item);
 void GetBoyRootPositionForCamera(float *out, struct GObj *gobj);
 void Boy_Init(void);

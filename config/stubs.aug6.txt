@@ -528,7 +528,7 @@ text hand_able_connect.264 0x00146C08 0x00146CCC ico2/fumi/src/act-game.c local 
 rdlit hand_able_connect.264 0x005523D0 0x005523F0 ico2/fumi/src/act-game.c file=hand_able_connect_264 # target side
 text ACTGame_CommonLoop 0x00146CD0 0x00147780 ico2/fumi/src/act-game.c lines=288  # aug6-only in the census (in act-game.c's span); ACTGame_CommonLoop by body ratio 0.61, callees 0.86, sizes 3192/2736
 lit4 ACTGame_CommonLoop 0x0062AC60 0x0062AC64 ico2/fumi/src/act-game.c # target side
-text func_00147780 0x00147780 0x001477B0 ico2/fumi/src/act-game.c  # aug6-only; in act-game.c's span; pairs with no PAL-only function there by size and order
+text GetOtherStageGirlOrient 0x00147780 0x001477B0 ico2/fumi/src/act-game.c  # aug6-only; in act-game.c's span; pairs with no PAL-only function there by size and order
 text GetTarget.274 0x001477B0 0x00147BC8 ico2/fumi/src/act-game.c local file=GetTarget_274  # aug6-only in the census (in act-game.c's span); GetTarget.280 by body ratio 0.77, callees 0.60, sizes 976/1048; nested in its parent, gcc numbers it GetTarget.274 in this tree (PAL GetTarget.280)
 lit4 GetTarget.274 0x0062AC64 0x0062AC68 ico2/fumi/src/act-game.c file=GetTarget_274 # target side
 rdlit GetTarget.274 0x005523F0 0x00552430 ico2/fumi/src/act-game.c file=GetTarget_274 align=16  # target side
@@ -620,118 +620,6 @@ text ActPara_InitSystem 0x0014A668 0x0014A6A4 ico2/fumi/src/act-parallel-control
 text ACTGetWish_FromPad 0x0014A6D8 0x0014B638 ico2/fumi/src/act-wish.c lines=300  # aug6-only in the census (after act-parallel-control.c's span); ACTGetWish_FromPad by body ratio 0.60, callees 1.00, sizes 4836/3936, call sites 1
 lit4 ACTGetWish_FromPad 0x0062AC84 0x0062AC9C ico2/fumi/src/act-wish.c # target side
 rdlit ACTGetWish_FromPad 0x005524E4 0x005524F0 ico2/fumi/src/act-wish.c # target side
-text findChainInJump 0x0014B638 0x0014BDF4 ico2/fumi/src/boyact.c local lines=143  # aug6-only in the census (after act-parallel-control.c's span); findChainInJump by body ratio 0.86, callees 1.00, sizes 2016/1980
-lit4 findChainInJump 0x0062AC9C 0x0062ACA4 ico2/fumi/src/boyact.c  # 2 floats
-text CorrectOrient_RopeCliff 0x0014BDF8 0x0014BFB0 ico2/fumi/src/boyact.c local lines=48  # aug6-only in the census (after act-parallel-control.c's span); CorrectOrient_RopeCliff by body ratio 1.00, callees 1.00, sizes 440/440
-text motBoyHand50 0x0014BFB0 0x0014C0BC ico2/fumi/src/boyact.c lines=34  # aug6-only in the census (after act-parallel-control.c's span); motBoyHand50 by body ratio 1.00, callees 1.00, sizes 268/268
-rdlit motBoyHand50 0x00552530 0x00552548 ico2/fumi/src/boyact.c  # target side
-text motBoyHand100 0x0014C0C0 0x0014C36C ico2/fumi/src/boyact.c lines=63  # aug6-only in the census (after act-parallel-control.c's span); motBoyHand100 by body ratio 1.00, callees 1.00, sizes 684/684
-rdlit motBoyHand100 0x00552570 0x00552598 ico2/fumi/src/boyact.c  # target side
-sdlit motBoyHand100 0x0062C3E8 0x0062C3F5 ico2/fumi/src/boyact.c  # 2 strings
-text motBoyHand200 0x0014C370 0x0014C65C ico2/fumi/src/boyact.c lines=67  # aug6-only in the census (after act-parallel-control.c's span); motBoyHand200 by body ratio 1.00, callees 1.00, sizes 748/748
-rdlit motBoyHand200 0x005525B0 0x005525C8 ico2/fumi/src/boyact.c  # target side
-text handoff_heroin 0x0014C660 0x0014CA14 ico2/fumi/src/boyact.c lines=18  # aug6-only in the census (after act-parallel-control.c's span); handoff_heroin by body ratio 0.96, callees 1.00, sizes 992/948, call sites 1
-text CheckCollisionAttr 0x0014CA18 0x0014CBA0 ico2/fumi/src/boyact.c local lines=50  # aug6-only in the census (after act-parallel-control.c's span); CheckCollisionAttr by body ratio 0.84, callees 0.67, sizes 412/392
-text E3_StageStartBoy 0x0014CE20 0x0014CF58 ico2/fumi/src/boyact.c local lines=34  # aug6-only in the census (after act-parallel-control.c's span); E3_StageStartBoy by body ratio 1.00, callees 1.00, sizes 312/312
-text subBoyControl 0x0014D148 0x0014E854 ico2/fumi/src/boyact.c lines=644  # aug6-only in the census (after act-parallel-control.c's span); subBoyControl by body ratio 0.90, callees 0.82, sizes 6260/5900
-rdlit subBoyControl 0x00552600 0x005527E8 ico2/fumi/src/boyact.c align=16  # target side
-lit4 subBoyControl 0x0062ACA8 0x0062AD64 ico2/fumi/src/boyact.c  # target side
-sdlit subBoyControl 0x0062C408 0x0062C414 ico2/fumi/src/boyact.c  # target side: a string and a static word
-text InitSwapWeapon 0x0014E858 0x0014E98C ico2/fumi/src/boyact.c local lines=32  # aug6-only in the census (after act-parallel-control.c's span); InitSwapWeapon by body ratio 1.00, callees 1.00, sizes 308/308
-lit4 InitSwapWeapon 0x0062AD64 0x0062AD68 ico2/fumi/src/boyact.c  # 1 float
-text PutWeapon 0x0014E990 0x0014EA00 ico2/fumi/src/boyact.c local lines=14  # aug6-only in the census (after act-parallel-control.c's span); PutWeapon by body ratio 0.89, callees 0.33, sizes 140/112
-text OtherStageGirlPinchCamera_After 0x0014EA00 0x0014EB80 ico2/fumi/src/boyact.c local lines=22  # aug6-only in the census (after act-parallel-control.c's span); OtherStageGirlPinchCamera_After by body ratio 0.62, callees 0.50, sizes 488/384
-text subBoyCollision 0x0014EB80 0x0014FBA4 ico2/fumi/src/boyact.c lines=443  # aug6-only in the census (after act-parallel-control.c's span); subBoyCollision by body ratio 0.76, callees 0.64, sizes 5028/4132
-rdlit subBoyCollision 0x00552808 0x00552810 ico2/fumi/src/boyact.c  # target side
-rdlit subBoyCollision 0x00552810 0x00552920 ico2/fumi/src/boyact.c align=16  # jump table (target side)
-lit4 subBoyCollision 0x0062AD68 0x0062AD70 ico2/fumi/src/boyact.c # target side
-sdlit subBoyCollision 0x0062C420 0x0062C424 ico2/fumi/src/boyact.c  # target side: a float
-text actBoySwim 0x0014FBA8 0x0014FD94 ico2/fumi/src/boyact.c lines=46  # aug6-only in the census (after act-parallel-control.c's span); actBoySwim by body ratio 0.69, callees 0.89, sizes 628/492
-lit4 actBoySwim 0x0062AD70 0x0062AD74 ico2/fumi/src/boyact.c # target side
-text actBoyAttack 0x00150078 0x00150294 ico2/fumi/src/boyact.c lines=25  # aug6-only in the census (after act-parallel-control.c's span); actBoyAttack by body ratio 0.96, callees 0.86, sizes 564/540
-rdlit actBoyAttack 0x00552958 0x00552988 ico2/fumi/src/boyact.c  # target side
-text actBoyTakeWeaponReady 0x00150298 0x00150420 ico2/fumi/src/boyact.c lines=32  # aug6-only in the census (after act-parallel-control.c's span); actBoyTakeWeaponReady by body ratio 1.00, callees 1.00, sizes 392/392
-text actBoyTakeWeapon 0x00150420 0x00150604 ico2/fumi/src/boyact.c lines=48  # aug6-only in the census (after act-parallel-control.c's span); actBoyTakeWeapon by body ratio 1.00, callees 0.67, sizes 484/484
-text pullup_check_heroin_position 0x00150608 0x00150714 ico2/fumi/src/boyact.c local lines=36  # aug6-only in the census (after act-parallel-control.c's span); pullup_check_heroin_position by body ratio 0.66, callees 0.50, sizes 436/268
-text ditch_check_heroin_position 0x00150718 0x00150808 ico2/fumi/src/boyact.c local lines=14  # aug6-only in the census (after act-parallel-control.c's span); ditch_check_heroin_position by body ratio 1.00, callees 1.00, sizes 240/240
-text actBoyPullupReady 0x00150808 0x00150A2C ico2/fumi/src/boyact.c lines=44  # aug6-only in the census (after act-parallel-control.c's span); actBoyPullupReady by act-mode-def's PULLUP_READY row holds it, as PAL's holds actBoyPullupReady
-text actBoyPullupGo 0x00150A30 0x00150BC8 ico2/fumi/src/boyact.c lines=20  # aug6-only in the census (after act-parallel-control.c's span); actBoyPullupGo by body ratio 1.00, callees 1.00, sizes 408/408
-lit4 actBoyPullupGo 0x0062AD74 0x0062AD80 ico2/fumi/src/boyact.c  # 3 floats
-text actBoyBelift 0x00150BC8 0x00150F94 ico2/fumi/src/boyact.c lines=81  # aug6-only in the census (after act-parallel-control.c's span); actBoyBelift by body ratio 1.00, callees 1.00, sizes 972/972
-rdlit actBoyBelift 0x005529B8 0x005529E0 ico2/fumi/src/boyact.c  # target side
-lit4 actBoyBelift 0x0062AD80 0x0062AD88 ico2/fumi/src/boyact.c  # 2 floats
-text actBoyRescueReady 0x00150F98 0x0015143C ico2/fumi/src/boyact.c lines=95  # aug6-only in the census (after act-parallel-control.c's span); actBoyRescueReady by body ratio 1.00, callees 1.00, sizes 1188/1188
-lit4 actBoyRescueReady 0x0062AD88 0x0062AD8C ico2/fumi/src/boyact.c  # 1 float
-text actBoyDitch3mReady 0x00151440 0x0015183C ico2/fumi/src/boyact.c lines=111  # aug6-only in the census (after act-parallel-control.c's span); actBoyDitch3mReady by body ratio 0.69, callees 0.50, sizes 1452/1020
-lit4 actBoyDitch3mReady 0x0062AD8C 0x0062AD98 ico2/fumi/src/boyact.c # target side
-text SetStatusBoy_OtherStageGirlPinch 0x00151840 0x0015198C ico2/fumi/src/boyact.c lines=32  # aug6-only in the census (after act-parallel-control.c's span); SetStatusBoy_OtherStageGirlPinch by body ratio 0.96, callees 0.71, sizes 348/332, call sites 1
-text actBoyStart 0x00151990 0x00151DD4 ico2/fumi/src/boyact.c lines=123  # ordinal; first difference at insn 41; imm:19; extent-equal
-rdlit actBoyStart 0x005529F0 0x00552A70 ico2/fumi/src/boyact.c  # target side
-text CorrectStickInfo 0x00151DD8 0x00151E0C ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text GetBoyWeaponGObj 0x00151E10 0x00151E30 ico2/fumi/src/boyact.c lines=8  # ordinal; first difference at insn 5; imm:1; extent-equal
-text actBoyStand 0x00151E30 0x00151E98 ico2/fumi/src/boyact.c lines=11  # ordinal; first difference at insn 1; other:6; extent-equal
-text actBoyHang 0x00151E98 0x00151ED0 ico2/fumi/src/boyact.c lines=6  # ordinal; first difference at insn 6; imm:2; extent-equal
-text actBoyBHang 0x00151ED0 0x00151F08 ico2/fumi/src/boyact.c lines=6  # ordinal; first difference at insn 6; imm:2; extent-equal
-text actBoyFall 0x00151F08 0x00151F48 ico2/fumi/src/boyact.c lines=10  # ordinal; first difference at insn 10; imm:1; extent-equal
-rdlit actBoyFall 0x00552940 0x00552958 ico2/fumi/src/boyact.c def  # target side
-text actBoyCall 0x00151F48 0x00151FC0 ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 12; imm:6; extent-equal
-rdlit actBoyCall 0x00552988 0x005529A0 ico2/fumi/src/boyact.c def  # target side
-text actBoyItem 0x00151FC0 0x00151FEC ico2/fumi/src/boyact.c  # aug6-only; TRFILE.TXT names actBoyItem between actBoyCall and actBoyItemAfter, and act-mode-def's ITEM row holds it, where PAL's holds commonact.c's actCommonItem
-text actBoyItemAfter 0x00151FF0 0x0015204C ico2/fumi/src/boyact.c  # aug6-only; TRFILE.TXT names actBoyItemAfter between actBoyItem and actBoyCliffHesitate, and act-mode-def's ITEMAFTER row (a row PAL's table lacks) holds it
-rdlit actBoyItemAfter 0x005529A0 0x005529B8 ico2/fumi/src/boyact.c def  # target side
-text actBoyCliffHesitate 0x00152050 0x001520F4 ico2/fumi/src/boyact.c lines=25  # trfile; aug6-only in the census; PAL's actBoyCliffHesitate (276 B in PAL)
-text actBoyHangBefore 0x001520F8 0x001521A4 ico2/fumi/src/boyact.c lines=14  # trfile; aug6-only in the census; PAL's actBoyHangBefore (172 B in PAL)
-text actBoyReadyMove 0x001521A8 0x001522B4 ico2/fumi/src/boyact.c lines=27  # trfile; aug6-only in the census; PAL's actBoyReadyMove (448 B in PAL)
-text actBoyBeslam 0x001522B8 0x0015230C ico2/fumi/src/boyact.c lines=10  # trfile; aug6-only in the census; PAL's actBoyBeslam (84 B in PAL)
-text actBoyRescueSrc 0x00152310 0x0015233C ico2/fumi/src/boyact.c lines=7  # trfile; aug6-only in the census; PAL's actBoyRescueSrc (44 B in PAL)
-text actBoySupportGBBegin 0x00152340 0x00152380 ico2/fumi/src/boyact.c lines=10  # trfile; aug6-only in the census; PAL's actBoySupportGBBegin (64 B in PAL)
-text actBoySupportGBLoop 0x00152380 0x001523DC ico2/fumi/src/boyact.c lines=9  # trfile; aug6-only in the census; PAL's actBoySupportGBLoop (92 B in PAL)
-text actBoySupportGBEnd 0x001523E0 0x00152420 ico2/fumi/src/boyact.c lines=10  # trfile; aug6-only in the census; PAL's actBoySupportGBEnd (64 B in PAL)
-text actBoySupportBGBegin 0x00152420 0x0015244C ico2/fumi/src/boyact.c lines=7  # trfile; aug6-only in the census; PAL's actBoySupportBGBegin (44 B in PAL)
-text actBoyDitch3mExec 0x00152450 0x0015247C ico2/fumi/src/boyact.c lines=7  # trfile; aug6-only in the census; PAL's actBoyDitch3mExec (44 B in PAL)
-text actBoyHangG3M 0x00152480 0x001524FC ico2/fumi/src/boyact.c lines=15  # trfile; aug6-only in the census; PAL's actBoyHangG3M (132 B in PAL)
-lit4 actBoyHangG3M 0x0062AD98 0x0062AD9C ico2/fumi/src/boyact.c  # 1 float
-text IsAbleBoyControl 0x00152500 0x00152508 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text actBoyHand50 0x00152508 0x00152584 ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 10; imm:5; extent-equal
-rdlit actBoyHand50 0x00552500 0x00552530 ico2/fumi/src/boyact.c def  # target side
-text afterBoyHand50 0x00152588 0x001525C0 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 10; imm:1; extent-equal
-rdlit afterBoyHand50 0x005524F0 0x00552500 ico2/fumi/src/boyact.c def  # target side
-text actBoyHand100 0x001525C0 0x0015263C ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 10; imm:5; extent-equal
-rdlit actBoyHand100 0x00552548 0x00552570 ico2/fumi/src/boyact.c def  # target side
-text afterBoyHand100 0x00152640 0x00152678 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 10; imm:1; extent-equal
-text actBoyHand200 0x00152678 0x001526F4 ico2/fumi/src/boyact.c lines=17  # ordinal; first difference at insn 10; imm:5; extent-equal
-rdlit actBoyHand200 0x00552598 0x005525B0 ico2/fumi/src/boyact.c def  # target side
-text afterBoyHand200 0x001526F8 0x00152730 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 10; imm:1; extent-equal
-text ACTSearchEnemy 0x00152730 0x001528A4 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text DeleteBoyWeapon 0x001528A8 0x00152938 ico2/fumi/src/boyact.c lines=24  # ordinal; first difference at insn 6; imm:5; extent-equal
-lit4 DeleteBoyWeapon 0x0062AD9C 0x0062ADA0 ico2/fumi/src/boyact.c  # 1 float
-text isLiftBoyEnable 0x00152938 0x0015295C ico2/fumi/src/boyact.c lines=11  # ordinal; first difference at insn 2; imm:3; extent-equal
-text BoyInfoUpdate_StageChange 0x00152960 0x00152A34 ico2/fumi/src/boyact.c lines=22  # trfile; aug6-only in the census; PAL's BoyInfoUpdate_StageChange (212 B in PAL)
-text ACTChkAttackIgnore_BOY 0x00152A38 0x00152A74 ico2/fumi/src/boyact.c  # trfile; aug6-only in the census; not in PAL's boyact
-text IsBoyStatus_EnemyMustWait 0x00152A78 0x00152B2C ico2/fumi/src/boyact.c lines=26  # ordinal; first difference at insn 6; imm:6; extent-equal
-text IsGirlEscortedInNextStage 0x00152B30 0x00152B48 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text IsGirlEscortedInCurrentStage 0x00152B48 0x00152B50 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text GetSaveSofaLayoutID 0x00152B50 0x00152B9C ico2/fumi/src/boyact.c lines=22  # ordinal; first difference at insn 7; imm:3; extent-equal
-text OnGirlEscortFlag 0x00152BA0 0x00152BC0 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text RequestStageChangeKidnapEnd 0x00152BC0 0x00152C6C ico2/fumi/src/boyact.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit RequestStageChangeKidnapEnd 0x005529E0 0x005529F0 ico2/fumi/src/boyact.c def  # target side
-text GetEfStageCameraTargetID 0x00152C70 0x00152C90 ico2/fumi/src/boyact.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text IsBackFromEfStage 0x00152C90 0x00152C9C ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text GetbufpCharacterPacket 0x00152CA0 0x00152CAC ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text GetsizeCharacterPacket 0x00152CB0 0x00152CB8 ico2/fumi/src/boyact.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text MakeCharacterPacket 0x00152CB8 0x00152DEC ico2/fumi/src/boyact.c lines=31  # ordinal; first difference at insn 18; length:-4; extent-differs
-text ReadCharacterPacket 0x00152DF0 0x00152EB4 ico2/fumi/src/boyact.c lines=12  # ordinal; first difference at insn 10; imm:3; extent-equal
-text ACTSearchGObj 0x00152EB8 0x0015301C ico2/fumi/src/boyact.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text afterBoySwim 0x00153020 0x0015308C ico2/fumi/src/boyact.c lines=6  # ordinal; first difference at insn 19; imm:3; extent-equal
-sdlit afterBoySwim 0x0062C428 0x0062C42E ico2/fumi/src/boyact.c def  # 1 string
-text actBoyJump 0x00153090 0x001530BC ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 6; imm:1; extent-equal
-text afterBoyTakeWeapon 0x001530C0 0x001531B8 ico2/fumi/src/boyact.c lines=7  # ordinal; first difference at insn 15; length:-4; extent-differs
-text afterBoyHangG3M 0x001531B8 0x001531C8 ico2/fumi/src/boyact.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text subBoyBrainMain 0x001531C8 0x001531E8 ico2/fumi/src/boyact.c lines=7  # trfile; the census pairs PAL afterBoyRescueGirlBhang here (ordinal; first difference at insn 1; length:-1; extent-equal)
-text SetBoyInfo 0x001531E8 0x00153220 ico2/fumi/src/boyact.c lines=17  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text GetBoyRootPositionForCamera 0x00153220 0x001532CC ico2/fumi/src/boyact.c lines=19  # ordinal; first difference at insn 12; imm:4; extent-equal
-lit4 GetBoyRootPositionForCamera 0x0062ADA0 0x0062ADA4 ico2/fumi/src/boyact.c  # 1 float
-text Boy_Init 0x001532D0 0x00153360 ico2/fumi/src/boyact.c lines=5  # trfile; aug6-only in the census; PAL's Boy_Init (160 B in PAL)
 text setBattleStatus 0x0015D708 0x0015D818 ico2/fumi/src/enemy_act.c local lines=24  # ordinal; first difference at insn 5; imm:17; extent-equal
 rdlit setBattleStatus 0x00553110 0x00553140 ico2/fumi/src/enemy_act.c  # target side
 sdlit setBattleStatus 0x0062C4F8 0x0062C4FA ico2/fumi/src/enemy_act.c  # target side: a string

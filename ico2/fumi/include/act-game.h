@@ -25,7 +25,7 @@ typedef struct ActWork { /* field names derived */
     float boyDist;          /* 0x32C */
     float escortOffset;     /* 0x330 */
     float disappearSpeed;   /* 0x334 */
-    float fallDamageHeight; /* 0x338 */
+    float stickMag;         /* 0x338 (subBoyControl 0x14D6D0 swc1 $f0,824(v0)) */
     float ropeClimbHeight;  /* 0x33C, the chain top over the actor, sent with mail 316 */
     float padWish[4]; /* 0x340, the pad wish direction a jump turns to (funcCommonJumpDircorrect
                          0x157654 addiu a1,a1,832; June 26's place, PAL's is 0x350) */
@@ -67,13 +67,13 @@ typedef struct ActWork { /* field names derived */
     char pad41C[4];
     MotOriTarget cliffReq; /* 0x420, the target mail 285 turns to (ACTGetOrientFromIntrK
                               0x154290 ldl a0,1063(v1)); a MotOriTarget as June 26's */
-    char pad42C[116];      /* not pinned */
-    float pinchPosX; /* 0x4A0 */
-    float pinchPosY; /* 0x4A4 */
-    float pinchPosZ; /* 0x4A8 */
-    char pad4AC[4];
-    int pinchFrames; /* 0x4B0 */
-    char pad4B4[12];
+    char pad42C[4];
+    float pinchPosX; /* 0x430, USA's place after cliffReq */
+    float pinchPosY; /* 0x434 */
+    float pinchPosZ; /* 0x438 */
+    char pad43C[4];
+    int pinchFrames; /* 0x440 (subBoyControl 0x14D560 lw v0,1088(a0)) */
+    char pad444[124]; /* not pinned */
     float handrailOrient[4]; /* 0x4C0, the wall orientation actCommonHandrail keeps */
     int basePosSet;          /* 0x4D0 */
     char pad4D4[12];
@@ -170,8 +170,10 @@ void ACTGame_LwsEffect_Guard(struct GObj *self);
 inline void ActGame_GetOrientQ(void *q, void *v, int deg);
 void _GetRootObjectOrient(void *orient, struct GObj *obj);
 void ACTItemForceDrop(struct GObj *self);
-inline void GetOtherStageGirlOrient(float *orient, float *root);
-int ACTChkAttackIgnore_BOY(struct GObj *self, struct GObj *actor);
+/* June 26's one-argument form, a plain function at 0x147780 (MAIN.MAP's GetOtherStageGirlOrient,
+   0x448 before ACTLookTargetSystem_Exec; OtherStageGirlPinchCamera_After 0x14EAEC passes a0 only) */
+void GetOtherStageGirlOrient(float *orient);
+int ACTChkAttackIgnore_BOY(struct GObj *self); /* boyact.c (0x152A38 reads a0 only) */
 int ACTChkAttackIgnore_GIRL(struct GObj *self, struct GObj *actor);
 int ACTChkAttackIgnore_ENEMY(struct GObj *self, struct GObj *actor);
 unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor);

@@ -453,7 +453,7 @@ inline void GetGirlPositionAtThisStage(float *pos)
     OtherStagePositionGet(pos, stage_no, id, buf);
 }
 
-INCLUDE_ASM(func_00147780);
+INCLUDE_ASM(GetOtherStageGirlOrient);
 
 INCLUDE_ASM(GetTarget_274);
 
