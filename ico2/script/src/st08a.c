@@ -62,7 +62,17 @@ INCLUDE_ASM(actSt08aIntro);
 
 INCLUDE_ASM(actSt08aInit);
 
-INCLUDE_ASM(actSt08aDoorMain);
+void actSt08aDoorMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+
+    sub->mainMail = door_main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt08aDoorSwitch);
 

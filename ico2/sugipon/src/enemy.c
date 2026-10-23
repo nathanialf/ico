@@ -186,7 +186,14 @@ void EnemyDL(GObj *self)
     DisplayEnemy(self);
 }
 
-INCLUDE_ASM(DemoMotionGeo);
+void DemoMotionGeo(GObj *self)
+{
+    GOBJ_SUB(self)->root.hand1.mode = 0;
+    GOBJ_SUB(self)->root.hand0.mode = 0;
+    GOBJ_SUB(self)->root.lookIK = 0;
+    GOBJ_SUB(self)->root.handTurnIK = 0;
+    ExecMotionOrient(self);
+}
 
 INCLUDE_ASM(SetEnemyDissolve);
 

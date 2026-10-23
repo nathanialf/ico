@@ -421,7 +421,7 @@ inline void ResetCollisionPC(void)
 
 void DispCollisionPC(void)
 {
-    if (game_pause == 0) {
+    if (graphics_ready == 0) {
         return;
     }
     pcTime = *T0_COUNT - pcTime;

@@ -40,31 +40,23 @@ typedef struct PacColor { /* field names derived */
     unsigned char a;
 } PacColor; /* derived name */
 
-/* one 192-byte line record pac_makePacket builds and RegistPacket.c draws: a
-   line's two vertices and texture coordinates.  A point keeps its last screen
-   position in pos[1] and the one before at 0x20, and per trail index its
-   screen positions at 0x50 and the ones before at 0x80.  Then the two
-   colours, and the word at 0xB8: the texture number, the blend and the type
-   (1 a point, 2 a line, 0 the end of the list), read whole by the drawing. */
-typedef struct PacLine {        /* field names derived */
-    sceVu0FVECTOR pos[2];       /* 0x00 */
-    sceVu0IVECTOR scrPrev;      /* 0x20 */
-    sceVu0FVECTOR uv[2];        /* 0x30 */
-    sceVu0IVECTOR trail[3];     /* 0x50 */
-    sceVu0IVECTOR trailPrev[3]; /* 0x80 */
-    PacColor col0;              /* 0xB0 */
-    PacColor col1;              /* 0xB4 */
-
-    union {
-        long long word;
-
-        struct {
-            unsigned short tex : 11;
-            unsigned short blend : 2;
-            short type : 3;
-        } b;
-    } attr; /* 0xB8 */
-} PacLine;  /* derived name */
+/* one 144-byte line record pac_makePacket builds and RegistPacket.c draws (PAL's is
+   192 bytes): a line's two vertices and texture coordinates.  A point keeps its
+   last screen position in pos[1] and per trail index its screen positions
+   at 0x40.  Then the two colours, the texture number (-1 for none), the
+   blend and the type (1 a point, 2 a line, 0 the end of the list). */
+typedef struct PacLine {    /* field names derived */
+    sceVu0FVECTOR pos[2];   /* 0x00 */
+    sceVu0FVECTOR uv[2];    /* 0x20 */
+    sceVu0IVECTOR trail[3]; /* 0x40 */
+    char pad70[16];
+    PacColor col0;  /* 0x80 */
+    PacColor col1;  /* 0x84 */
+    short tex;      /* 0x88 */
+    short blend;    /* 0x8A */
+    short reserved; /* 0x8C, cleared when the record is built */
+    short type;     /* 0x8E */
+} PacLine;          /* derived name */
 
 /* the 144-byte record a line part's group record points at: the line records
    at +0xC, which RegistPacket.c's line display walks */

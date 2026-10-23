@@ -94,7 +94,35 @@ unsigned char st13b_yure_vol = 0;
 
 INCLUDE_ASM(actSt13bFloor);
 
-INCLUDE_ASM(actSt13bFloorChk);
+void actSt13bFloorChk(GObj *volatile self)
+{
+    int v = 32;
+
+    gflagOn(5);
+    actCreateSubThread(actSt13bConte02, 21);
+    actCreateSubThread(actSt13bConte02Jimaku, 21);
+
+    demoEnd = 0;
+    st13b_adpcm = 0;
+
+    do {
+        _ACTWait(1);
+    } while (st13b_adpcm == 0);
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    if (demoEnd == 0) {
+        v = 64;
+    }
+
+    if (st13b_adpcm != 0) {
+        scpAdpcmFadeClose(st13b_adpcm, v);
+    }
+
+    RequestStageChange(4, boyGObj, 0, 0.025f, 2.0f);
+}
 
 INCLUDE_ASM(actSt13bConte02);
 

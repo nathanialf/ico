@@ -41,14 +41,23 @@ static int demoEnd;
 static const ConstVec chanChkPos = {{10000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
 
 /* the nine points actSt07aChanEffect sets its effects at */
-static const ConstVec chanEffectPos[9] = {
-    /* derived name */
-    {{-1617.0f, -958.0f, -957.15f, 1.0f}}, {{-1641.0f, 80.0f, -848.15f, 1.0f}},
-    {{-1669.0f, 73.0f, -765.15f, 1.0f}},   {{-1689.0f, 191.0f, -624.15f, 1.0f}},
-    {{-1700.0f, 180.0f, -524.15f, 1.0f}},  {{-1745.0f, 106.0f, -632.15f, 1.0f}},
-    {{-1352.0f, 1344.0f, -561.15f, 1.0f}}, {{-1411.0f, 1327.0f, -459.15f, 1.0f}},
-    {{-1562.0f, 1630.0f, 451.15f, 1.0f}},
-};
+static const EffectArg chanEffectPos = {{-1617.0f, -958.0f, -957.15f, 1.0f}}; /* derived name */
+
+static const EffectArg chanEffect2Pos = {{-1641.0f, 80.0f, -848.15f, 1.0f}}; /* derived name */
+
+static const EffectArg chanEffect3Pos = {{-1669.0f, 73.0f, -765.15f, 1.0f}}; /* derived name */
+
+static const EffectArg chanEffect4Pos = {{-1689.0f, 191.0f, -624.15f, 1.0f}}; /* derived name */
+
+static const EffectArg chanEffect5Pos = {{-1700.0f, 180.0f, -524.15f, 1.0f}}; /* derived name */
+
+static const EffectArg chanEffect6Pos = {{-1745.0f, 106.0f, -632.15f, 1.0f}}; /* derived name */
+
+static const EffectArg chanEffect7Pos = {{-1352.0f, 1344.0f, -561.15f, 1.0f}}; /* derived name */
+
+static const EffectArg chanEffect8Pos = {{-1411.0f, 1327.0f, -459.15f, 1.0f}}; /* derived name */
+
+static const EffectArg chanEffect9Pos = {{-1562.0f, 1630.0f, 451.15f, 1.0f}}; /* derived name */
 
 static const ConstVec chanWay1Pos = {{-875.0f, 77.0f, -958.0f, 0.0f}}; /* derived name */
 
@@ -86,7 +95,85 @@ unsigned char sekizo_7a_vol = 0;
 
 INCLUDE_ASM(actSt07aChanChk);
 
-INCLUDE_ASM(actSt07aChanEffect);
+void actSt07aChanEffect(GObj *volatile self)
+{
+    EffectArg b1;
+    EffectArg b2;
+    EffectArg b3;
+    EffectArg b4;
+    EffectArg b5;
+    EffectArg b6;
+    EffectArg b7;
+    EffectArg b8;
+    EffectArg b9;
+    EffectArg b10;
+    float t;
+    float tn;
+    int n;
+
+    t = 0.0f;
+    do {
+        switch ((int)t) {
+        case 250:
+            b1 = chanEffectPos;
+            scpEffectStart(&b1, 16);
+            b2 = chanEffectPos;
+            scpEffectStart(&b2, 11);
+            break;
+        case 300:
+            iosPadActRequest(boyPad, 17);
+            break;
+        case 354:
+            b3 = chanEffect2Pos;
+            scpEffectStart(&b3, 14);
+            b4 = chanEffect3Pos;
+            scpEffectStart(&b4, 15);
+            iosPadActRequest(boyPad, 15);
+            ReviveAllCarryableItemsWithRandomVelocity(-5.0f, 0.0f);
+            break;
+        case 500:
+            b5 = chanEffect4Pos;
+            scpEffectStart(&b5, 16);
+            b6 = chanEffect5Pos;
+            scpEffectStart(&b6, 15);
+            b7 = chanEffect6Pos;
+            scpEffectStart(&b7, 14);
+            break;
+        case 598:
+            b8 = chanEffect7Pos;
+            scpEffectStart(&b8, 15);
+            b9 = chanEffect8Pos;
+            scpEffectStart(&b9, 14);
+            break;
+        case 628:
+            b10 = chanEffect9Pos;
+            scpEffectStart(&b10, 15);
+            iosPadActRequest(boyPad, 16);
+            break;
+        /* frames with nothing to do.  1 and 410 are the object's own
+           compares; its case tree (410 at the root, 300 and 628 below it)
+           holds one more value between 354 and 410 and two above 628, and
+           aug6's TRFILE puts no code on the block's lines 575..613.  400,
+           700 and 800 leave no code: derived values. */
+        case 1:
+        case 400:
+        case 410:
+        case 700:
+        case 800:
+            break;
+        }
+
+        n = (int)t;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
+        if (n != (int)tn) {
+            _ACTWait(1);
+            t = tn;
+        } else {
+            t = tn + 1.0f;
+        }
+    } while (t < 1600.0f);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM(actSt07aTsuroChk);
 

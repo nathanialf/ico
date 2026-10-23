@@ -129,7 +129,7 @@ typedef union { /* field names derived */
 } MotionFlags2; /* derived name */
 
 /* motion-def: one motion kind, 0x190 bytes, indexed by the motion id the
-   motion work carries (Sub15C+0x4A0): the sound, effect and vibration
+   motion work carries (Sub15C+0x490): the sound, effect and vibration
    triggers frameDependSequence.c fires, the motion file, the name, the
    switches SetMotionRequest copies into the motion work (MotCtrl), the root
    update mode, the direction frames ico2/fumi's actors read, the shift and

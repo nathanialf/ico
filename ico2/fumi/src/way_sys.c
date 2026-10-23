@@ -48,7 +48,7 @@ WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded)
         goto out;
     }
 
-    if ((unsigned int)w->stampFrame < (unsigned int)(lock_execIcoMisc - 1) || w->nearWp == 0) {
+    if ((unsigned int)w->stampFrame < (unsigned int)(GlobalTimer - 1) || w->nearWp == 0) {
         if (w->guideFirst >= 0) {
             wp = findTemp(goal, way_point[w->guideFirst].group);
         } else {
@@ -77,7 +77,7 @@ WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded)
 
     w->nearWp = wp;
     w->fromWp = wp0;
-    w->stampFrame = lock_execIcoMisc;
+    w->stampFrame = GlobalTimer;
     DeleteGuideWay(w);
     debug_StdPrintfDummy("GetWay_begin\n");
     debug_StdPrintfDummy("gid t:%d m:%d\n", wp0->group, wp->group);

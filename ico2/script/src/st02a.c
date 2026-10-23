@@ -224,7 +224,16 @@ void actSt02aDoorDownEffect(GObj *volatile self)
     }
 }
 
-INCLUDE_ASM(actSt02aFenceMain);
+void actSt02aFenceMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+    sub->mainMail = fence_main_mail;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt02aFenceSwitch);
 

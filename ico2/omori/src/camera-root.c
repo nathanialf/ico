@@ -131,11 +131,41 @@ void SetWSMatrix(void *src)
     MakeCameraMatrix(&cameraSet);
 }
 
-INCLUDE_ASM(ConvertCameraSet);
+void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src)
+{
+    union CameraSetIn in;
+    float dir[4];
+    in = *src;
+    dst->pos[0] = in.f[0];
+    dst->pos[1] = in.f[1];
+    dst->pos[2] = in.f[2];
+    memset(dir, 0, 16);
+    dir[3] = 1.0f;
+    sceVu0SubVector(dir, &in.f[4], &in.f[0]);
+    FSqrt(dir[0] * dir[0] + dir[2] * dir[2]);
+    dst->rotY = atan2f(dir[0], dir[2]) * 32768.0f / 3.14159265f;
+    dst->rotX = atan2f(dir[1], FSqrt(dir[0] * dir[0] + dir[2] * dir[2])) * -32768.0f / 3.14159265f;
+    dst->fov = in.f[8];
+}
 
 static void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs);
 
-INCLUDE_ASM(MakeCameraMatrix);
+void MakeCameraMatrix(CameraSet2 *cs)
+{
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_RotMatrixY(cs->rotY);
+    MatrixDrive_RotMatrixX(cs->rotX);
+    MatrixDrive_RotMatrixZ(cs->rotZ);
+    sceVu0TransposeMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrix(-cs->pos[0], -cs->pos[1], -cs->pos[2]);
+    gsb_SetVSMatrix(ScreenWidth, ScreenHeight,
+                    GetTableCos(cs->fov * 32768.0f / 180.0f) * 1024.0f /
+                        GetTableSin(cs->fov * 32768.0f / 180.0f));
+    sceVu0CopyMatrix(matrixptr + 0x80, MatrixDrive_GetMatrix());
+    MatrixDrive_PopMatrix();
+    gsb_MakeCommonMatrix();
+}
 
 /* the manual camera's speed, 1 to 4 on the pad's buttons */
 static int manualCameraSpeed = 2; /* derived name */
@@ -534,11 +564,43 @@ void CameraGetOtherObjOffset(float *pos, float *outDist, int *outAngle)
     *outAngle = ang;
 }
 
-INCLUDE_ASM(InsertCamera_Set);
+void InsertCamera_Set(float *pos, float *tgt, int frames)
+{
+    if (InsertCamera_isEnable()) {
+        insertCamera.frames = frames;
+        insertCamera.count = 0;
+        insertCamera.pos[0] = pos[0];
+        insertCamera.pos[1] = pos[1];
+        insertCamera.pos[2] = pos[2];
+        insertCamera.tgt[0] = tgt[0];
+        insertCamera.tgt[1] = tgt[1];
+        insertCamera.tgt[2] = tgt[2];
+        insertCamera.enable = 1;
+        insertCamera.cut = 1;
+        insertCamera.zoom = 1;
+    }
+}
 
 INCLUDE_ASM(InsertCamera_SetNoraml);
 
-INCLUDE_ASM(InsertCamera_Exec);
+void InsertCamera_Exec(float *cam, int *cut, int *enable)
+{
+    *cut = 0;
+    *enable = 0;
+    if (insertCamera.enable) {
+        if (insertCamera.cut) {
+            *cut = 1;
+            insertCamera.cut = 0;
+        }
+        cam[0] = insertCamera.pos[0];
+        cam[1] = insertCamera.pos[1];
+        cam[2] = insertCamera.pos[2];
+        cam[4] = insertCamera.tgt[0];
+        cam[5] = insertCamera.tgt[1];
+        cam[6] = insertCamera.tgt[2];
+        *enable = 1;
+    }
+}
 
 int *GetCurrentCameraSet2(void)
 {

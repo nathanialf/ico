@@ -6,11 +6,70 @@
 #include <sifrpc.h>
 #include <sound.h>
 #include "memory.h"
-#include "include_asm.h"
+#include "s_init.h"
 
-INCLUDE_ASM(free_buf);
+static void free_buf(AudioDec *self)
+{
+    Free(self->ring);
+}
 
-INCLUDE_ASM(audioDecCreate);
+int audioDecCreate(AudioDec *self, int mono, int volume)
+{
+    int pcm[4];
+    int p;
+    int size = 24576;
+    int bufsize = 49152;
+
+    self->pcmInited = 0;
+    self->ch1Open = 0;
+    self->ch0Open = 0;
+
+    p = alloc_zeroed(bufsize, 64);
+    if (p == 0) {
+        return -1;
+    }
+
+    self->state = 0;
+    self->headerBytes = 0;
+    self->ring = p;
+    self->ringSize = bufsize;
+    self->writePos = 0;
+    self->filled = 0;
+    self->putTotal = 0;
+    self->sentTotal = 0;
+    self->iopSize = size;
+    self->iopPos = 0;
+    self->word50 = 0;
+
+    /* the IOP side buffer is the sound system's heap block (s_init.c) */
+    self->iopBuf = soundIopHeapAddrs;
+    debug_StdPrintfDummy("adrs %d\n", soundIopHeapAddrs);
+    debug_StdPrintfDummy("Allocate IOP memory 0x%08x\n", self->iopBuf);
+
+    self->mono = mono;
+    self->volume = volume;
+    SgStPcmInit();
+    self->pcmInited = 1;
+
+    pcm[0] = 0;
+    pcm[1] = 0x10400;
+    pcm[2] = self->iopBuf;
+    pcm[3] = size;
+    if ((self->ch0Open = (SgStPcmOpen(pcm) == 0)) == 0) {
+        return -1;
+    }
+
+    pcm[0] = 1;
+    pcm[1] = 0x10400;
+    pcm[2] = self->iopBuf + 0x200;
+    pcm[3] = size;
+    if ((self->ch1Open = (SgStPcmOpen(pcm) == 0)) == 0) {
+        return -1;
+    }
+
+    SgStPcmSetEffect(8);
+    return 0;
+}
 
 inline void audioDecReset(AudioDec *self)
 {
@@ -24,6 +83,21 @@ inline void audioDecReset(AudioDec *self)
     *(volatile int *)&self->putTotal = 0;
     *(volatile int *)&self->sentTotal = 0;
     *(volatile int *)&self->iopPos = 0;
+}
+
+inline int audioDecDelete(AudioDec *self)
+{
+    free_buf(self);
+    if (self->ch0Open) {
+        SgStPcmClose(0);
+    }
+    if (self->ch1Open) {
+        SgStPcmClose(1);
+    }
+    if (self->pcmInited) {
+        SgStPcmQuit();
+    }
+    return 1;
 }
 
 static void audioDecEndPut(AudioDec *self, int n)
@@ -283,5 +357,3 @@ static void Free(int addr)
        segment bits off */
     iosFree((void *)phys_addr(addr));
 }
-
-INCLUDE_ASM(audioDecDelete);

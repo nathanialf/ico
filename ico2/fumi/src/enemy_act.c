@@ -378,7 +378,49 @@ static inline int enemyKidnapCheckGirl(GObj *self) /* derived name */
 
 INCLUDE_ASM(actEnemyKidnapBegin);
 
-INCLUDE_ASM(MoveChestForCatchBoy);
+static void MoveChestForCatchBoy(GObj *self)
+{
+    float p0[4];
+    float p1[4];
+    float sk[4];
+    float ori[4];
+    float d[4];
+    float sc[4];
+    float t;
+    float b;
+    float a;
+    int ang;
+    int ang2;
+
+    GOBJ_SUB(self)->ctrl.catchBoy = 1;
+    GOBJ_SUB(self)->root.lookMode = 2;
+    GetRootProjectionPosOfGObj(p0, self);
+    GetRootProjectionPosOfGObj(p1, ((void *)boyGObj));
+    GetSkeltonPosition(sk, self, 1);
+    t = (p0[1] - p1[1]) / 600.0f;
+    t = (t < 0.0f) ? 0.0f : ((1.0f < t) ? 1.0f : t);
+    a = t * 1000.0f + -200.0f;
+    b = t * -400.0f;
+    ori[0] = test_CURRENTORIENT(self)[0];
+    ori[1] = test_CURRENTORIENT(self)[1];
+    ori[2] = test_CURRENTORIENT(self)[2];
+    _OrientXZGV(d, p1, p0);
+    ang = _RotyGV(ori, (void *)d);
+    if (-45 <= ang) {
+        if (45 < ang) {
+            ang2 = 45;
+        } else {
+            ang2 = ang;
+        }
+    } else {
+        ang2 = -45;
+    }
+    _ApplyRyGV(ori, (float)ang2 * 3.1415927f / 180.0f);
+    sceVu0ScaleVector(sc, ori, a);
+    sc[1] = b;
+    sceVu0AddVector(GOBJ_SUB(self)->root.lookPos, p0, sc);
+    debug_NMarker(GOBJ_SUB(self)->root.lookPos, 255, 0, 0, 200.0f);
+}
 
 /* a `static inline` defined outside this function */
 static inline void enemyBodyliftClearBoy(char *self) /* derived name */

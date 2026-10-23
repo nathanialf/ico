@@ -36,7 +36,24 @@ void brainAddLevelGirl(float lv)
     }
 }
 
-INCLUDE_ASM(brainInit);
+void brainInit(void)
+{
+    Brain *b = &brainGirl;
+    int i;
+
+    b->girl = 0;
+    b->cur = 0;
+    b->spMode = 0;
+    b->spCount = 0;
+    for (i = 0; i < 20; i++) {
+        b->tgt[i].gobj = 0;
+    }
+    b->threshold = 0.0f;
+    b->idx = -1;
+    b->targetType = 0;
+    b->lock = 0;
+    eBrainInit();
+}
 
 INCLUDE_ASM(OverrideBrainStatusByGObj);
 
@@ -127,7 +144,22 @@ float brainGetLevel(Brain *b, BrainTarget *t)
     return t->level;
 }
 
-INCLUDE_ASM(brainClsTargetLevel);
+void brainClsTargetLevel(Brain *b)
+{
+    BrainTarget *t;
+
+    if (b->idx == -1) {
+        return;
+    }
+    t = &b->tgt[b->idx];
+    t->level = 0.0f;
+    b->targetType = 0;
+    t->levelCap = t->levelCap - t->capStep;
+    if (t->levelCap < t->level) {
+        t->levelCap = t->level;
+    }
+    brainSetTargetTimer(t);
+}
 
 void brainInitGirlSet(GObj *girl, GObj *cur)
 {
@@ -146,14 +178,57 @@ void brainInitGirlSet(GObj *girl, GObj *cur)
     } while (t->gobj != 0);
 }
 
-INCLUDE_ASM(brainAddLevelGop);
+void brainAddLevelGop(GObj *gobj, float lv)
+{
+    int i;
+
+    for (i = 0; i < 20; i++) {
+        if (brainGirl.tgt[i].gobj == gobj) {
+            brainAddLevel(&brainGirl.tgt[i], lv);
+        }
+    }
+}
 
 /* brainSubLevelGop, brainSetLevelGop and brainDecTargetTimer walk the
    targets from an int address; brainGirl.tgt[i] or a BrainTarget pointer
    moves .text in each */
-INCLUDE_ASM(brainSubLevelGop);
+void brainSubLevelGop(GObj *gobj, float lv)
+{
+    int brain = (int)&brainGirl;
+    int tgt = brain + 0x28;
+    int i;
 
-INCLUDE_ASM(brainSetLevelGop);
+    for (i = 0; i < 20; i++) {
+        if (((BrainTarget *)tgt)[i].gobj == gobj) {
+            float r;
+            ((BrainTarget *)tgt)[i].level = ((BrainTarget *)tgt)[i].level - lv;
+            /* 3.40282347e+38f is FLT_MAX */
+            if (((BrainTarget *)tgt)[i].level < 0.0f) {
+                r = 0.0f;
+            } else if (((BrainTarget *)tgt)[i].level > 3.40282347e+38f) {
+                r = 3.40282347e+38f;
+            } else {
+                r = ((BrainTarget *)tgt)[i].level;
+            }
+            ((BrainTarget *)tgt)[i].level = r;
+        }
+    }
+}
+
+void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen)
+{
+    int brain = (int)&brainGirl;
+    int tgt = brain + 0x28;
+    int i;
+
+    for (i = 0; i < 20; i++) {
+        if (((BrainTarget *)tgt)[i].gobj == gobj) {
+            ((BrainTarget *)tgt)[i].lookOnly = lookOnly;
+            ((BrainTarget *)tgt)[i].alwaysSeen = alwaysSeen;
+            brainSetLevel((Brain *)brain, &((BrainTarget *)tgt)[i], lv);
+        }
+    }
+}
 
 static inline int brainDecTimer(BrainTarget *e) /* derived name */
 {
@@ -175,7 +250,23 @@ static inline int brainDecTimer(BrainTarget *e) /* derived name */
     return e->timer == 0;
 }
 
-INCLUDE_ASM(brainDecTargetTimer);
+int brainDecTargetTimer(GObj *gobj)
+{
+    int brain = (int)&brainGirl;
+    int tgt = brain + 0x28;
+    BrainTarget *e;
+    int i;
+
+    for (i = 0; i < 20; i++) {
+        if (((BrainTarget *)tgt)[i].gobj == gobj) {
+            e = &((BrainTarget *)tgt)[i];
+            goto found;
+        }
+    }
+    e = 0;
+found:
+    return brainDecTimer(e);
+}
 
 void brainSetSpMode(void)
 {

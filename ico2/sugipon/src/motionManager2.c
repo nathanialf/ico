@@ -118,13 +118,34 @@ void dispPlane(Vec4 *plane, float *pos)
     gif_EndPacket();
 }
 
-INCLUDE_ASM(GetOrientOfWallOfGObj);
+void GetOrientOfWallOfGObj(float *dir, GObj *obj)
+{
+    CopyVector(dir, obj->dobj->ctrl.wallNormal);
+}
 
-INCLUDE_ASM(GetOrientOfCliffOfGObj);
+void GetOrientOfCliffOfGObj(float *dir, GObj *obj)
+{
+    CopyVector(dir, obj->dobj->ctrl.cliffNormal);
+}
 
-void SetMotionDirection(GObj *self, float *dir);
-
-INCLUDE_ASM(SetMotionDirection);
+void SetMotionDirection(GObj *self, float *dir)
+{
+    Sub15C *base = self->dobj;
+    struct MotCtrl *s2 = &base->ctrl;
+    Sub15C *sub;
+    if (dir[0] == 0.0f && dir[2] == 0.0f) {
+        return;
+    }
+    CopyVector(s2->dir, dir);
+    s2->dir[1] = 0.0f;
+    s2->dir[3] = 1.0f;
+    sceVu0Normalize(s2->dir, s2->dir);
+    sub = self->dobj;
+    if (sub->parent.obj == 0) {
+        return;
+    }
+    LocalizeDirectionOrient(self, &sub->parent);
+}
 
 INCLUDE_ASM(_GetMotionDirection);
 
@@ -165,7 +186,12 @@ static const char motMan2File[] = __FILE__; /* derived name */
 
 INCLUDE_ASM(GetRootPosOfNextFrame);
 
-INCLUDE_ASM(AdjustMotionHeightToField);
+void AdjustMotionHeightToField(GObj *obj)
+{
+    struct MotRoot *sub = &obj->dobj->root;
+    sub->footPos[1] = GetYProjectionOfPlane(sub->plane.f, sub->footPos);
+    debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
+}
 
 void GetLowerPlaneCollision(ClipWork *w, float *pos)
 {
@@ -1475,7 +1501,10 @@ INCLUDE_ASM(FeedbackWallWorkInfoToBrainSystem);
 
 INCLUDE_ASM(GetMotionPointer);
 
-INCLUDE_ASM(GetCollisionOfLastActiveField);
+int GetCollisionOfLastActiveField(GObj *self)
+{
+    return self->dobj->root.lastField;
+}
 
 /* the body of DebugDisp1CollisionWithColor, which the next function
    inlines and DebugDisp1CollisionWithColor calls */
@@ -1533,23 +1562,54 @@ INCLUDE_ASM(GetSkeltonFocusNode);
 
 INCLUDE_ASM(AdjustMotionHeightToNearestField);
 
-INCLUDE_ASM(SetRootUpdateMode);
+void SetRootUpdateMode(GObj *self, int val)
+{
+    self->dobj->ctrl.rootUpdateMode = val;
+}
 
-INCLUDE_ASM(ForMotionViewer_GetCurrentAnimationFrame);
+float ForMotionViewer_GetCurrentAnimationFrame(GObj *self)
+{
+    return GOBJ_SUB(self)->ctrl.animFrame;
+}
 
-INCLUDE_ASM(ForMotionViewer_GetCurrentMotion);
+int ForMotionViewer_GetCurrentMotion(GObj *self)
+{
+    return self->dobj->ctrl.motion;
+}
 
-INCLUDE_ASM(EnableMotionOrientUpdate);
+void EnableMotionOrientUpdate(GObj *self)
+{
+    self->dobj->ctrl.orientUpdateOff = 0;
+}
 
-INCLUDE_ASM(DisableMotionOrientUpdate);
+void DisableMotionOrientUpdate(GObj *self)
+{
+    self->dobj->ctrl.orientUpdateOff = 1;
+}
 
-INCLUDE_ASM(CheckFloorAttribute);
+int CheckFloorAttribute(GObj *self, int attr)
+{
+    Sub15C *sub = self->dobj;
+    return CompareAttribute(sub->ctrl.floorAttr, attr);
+}
 
-INCLUDE_ASM(CheckWallAttribute);
+int CheckWallAttribute(GObj *self, int attr)
+{
+    Sub15C *sub = self->dobj;
+    return CompareAttribute(sub->ctrl.wallAttr, attr);
+}
 
-INCLUDE_ASM(CheckPureWallAttribute);
+int CheckPureWallAttribute(GObj *self, int attr)
+{
+    Sub15C *sub = self->dobj;
+    return CompareAttribute(sub->ctrl.pureWallAttr, attr);
+}
 
-INCLUDE_ASM(CheckPureCliffAttribute);
+int CheckPureCliffAttribute(GObj *self, int attr)
+{
+    Sub15C *sub = self->dobj;
+    return CompareAttribute(sub->ctrl.pureCliffAttr, attr);
+}
 
 int GetStreamShapeMotion(float *dst, StreamShapeHdr *hdr)
 {
@@ -1577,21 +1637,60 @@ INCLUDE_ASM(GetDifferenceFromWallLowerPlane);
 
 INCLUDE_ASM(GetDifferenceFromWallUpperPlane);
 
-INCLUDE_ASM(DisableChangeRootUpdateMode);
+void DisableChangeRootUpdateMode(GObj *self)
+{
+    Sub15C *sub = self->dobj;
+    sub->ctrl.keepUpdateMode = 1;
+}
 
-INCLUDE_ASM(EnableChangeRootUpdateMode);
+void EnableChangeRootUpdateMode(GObj *self)
+{
+    Sub15C *sub = self->dobj;
+    sub->ctrl.keepUpdateMode = 0;
+}
 
-INCLUDE_ASM(GetRopeHangablePos);
+float GetRopeHangablePos(GObj *self)
+{
+    Sub15C *sub = self->dobj;
+    return sub->ctrl.ropeHangPos;
+}
 
-INCLUDE_ASM(GetMotionFrameFlag1);
+int GetMotionFrameFlag1(GObj *self)
+{
+    Sub15C *sub = self->dobj;
+    return sub->ctrl.frameFlag1;
+}
 
-INCLUDE_ASM(GetMotionFrameFlag2);
+int GetMotionFrameFlag2(GObj *self)
+{
+    Sub15C *sub = self->dobj;
+    return sub->ctrl.frameFlag2;
+}
 
-INCLUDE_ASM(GetHeightOfFieldPlaneDifference);
+float GetHeightOfFieldPlaneDifference(GObj *a, GObj *b)
+{
+    Sub15C *pa;
+    Sub15C *pb;
+    float r1;
+    float r2;
+    pa = a->dobj;
+    r1 = GetYProjectionOfPlane(pa->root.plane.f, pa->root.pos);
+    pb = b->dobj;
+    r2 = GetYProjectionOfPlane(pb->root.plane.f, pb->root.pos);
+    return r1 - r2;
+}
 
-INCLUDE_ASM(GetHeightOfWallFromGObj);
+float GetHeightOfWallFromGObj(GObj *self)
+{
+    Sub15C *sub = self->dobj;
+    return sub->ctrl.wallFloorHeight;
+}
 
-INCLUDE_ASM(GetHeightOfCliffFromGObj);
+float GetHeightOfCliffFromGObj(GObj *self)
+{
+    Sub15C *sub = self->dobj;
+    return sub->ctrl.cliffHeight;
+}
 
 void InitMotionRotElem(int *elem, int count)
 {
@@ -1615,11 +1714,26 @@ loop:
 
 INCLUDE_ASM(SetMotionNodeFixModeParameter);
 
-INCLUDE_ASM(GetRootProjectionPosOfGObj);
+void GetRootProjectionPosOfGObj(float *pos, GObj *obj)
+{
+    GetRootPosition(pos, obj);
+    pos[1] += obj->dobj->root.projHeight;
+}
 
-INCLUDE_ASM(SetMotionPlaySpeedRatio);
+void SetMotionPlaySpeedRatio(GObj *self, float val)
+{
+    GOBJ_SUB(self)->ctrl.speedRatio = val;
+}
 
-INCLUDE_ASM(ClearMotionGeometryInfo);
+void ClearMotionGeometryInfo(GObj *self)
+{
+    Sub15C *p = self->dobj;
+    float *p1 = p->root.focusPos;
+    struct MotRoot *p2 = &p->root;
+    CopyVector(p1, ZeroVector);
+    sceVu0AddVector(p->root.footPos, p2->pos, p1);
+    p2->standNode = -1;
+}
 
 void SetSkeltonDispSwitch(int val)
 {

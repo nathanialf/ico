@@ -292,15 +292,45 @@ INCLUDE_ASM(actSt04rMonyou07);
 
 INCLUDE_ASM(actSt05cDoorInit);
 
-INCLUDE_ASM(actSt04rC1BallMain);
+void actSt04rC1BallMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+
+    sub->mainMail = c1_ball_main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt04rC1BallSwitch);
 
-INCLUDE_ASM(actSt04rC2BallMain);
+void actSt04rC2BallMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+
+    sub->mainMail = c2_ball_main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt04rC2BallSwitch);
 
-INCLUDE_ASM(actSt04rC3BallMain);
+void actSt04rC3BallMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+
+    sub->mainMail = c3_ball_main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt04rC3BallSwitch);
 

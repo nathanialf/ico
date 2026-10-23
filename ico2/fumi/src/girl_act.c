@@ -356,7 +356,12 @@ static inline void girlDispHidePoint(float *pos, int c, char *str) /* derived na
     girlDispWire(r, g, b, pos, str);
 }
 
-INCLUDE_ASM(SetTurnSpeedInEscape);
+static void SetTurnSpeedInEscape(GObj *self)
+{
+    if (GOBJ_ACT(self)->actMode == 10) {
+        ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 1.5f, 5);
+    }
+}
 
 static inline int girlListIsOnBoy(void *gobj) /* derived name */
 {

@@ -50,9 +50,45 @@ static inline void resetPointBlurTrail(PointBlur *p) /* derived name */
     }
 }
 
-int UpdatePointBlur(PointBlur *p, void *mtx, void *tint, float f);
+int UpdatePointBlur(PointBlur *p, void *mtx, void *tint, float f)
+{
+    float a[4];
+    float b[4];
+    float c[4];
+    float scale;
+    GifColor *t;
 
-INCLUDE_ASM(UpdatePointBlur);
+    if (NonLinearCameraMove != 0) {
+        p->dirty = 1;
+    }
+    if (p->dirty == 0) {
+        moveDataElements(p);
+    }
+    _ApplyMatrix(a, matrixptr + 0x80, mtx);
+    _SetCurrentMatrix(matrixptr + 0xC0);
+    _RotTransPersCurrentMatrix(p->screenPos, a);
+    a[0] = a[0] + f;
+    _RotTransPersCurrentMatrix(b, a);
+    scale = b[0] - *(float *)p->screenPos;
+    _SubVector(c, (char *)p->screenPos + 0x10, p->screenPos);
+    c[2] = 0.0f;
+    _OuterProduct(c, c, ZUnitVector);
+    _NormalizeVector(c, c);
+    _ScaleVector(c, c, scale);
+    c[2] = 0.0f;
+    _AddVectorXYZ(b, p->screenPos, c);
+    _FTOI4Vector(p->strip, b);
+    _SubVectorXYZ(b, p->screenPos, c);
+    _FTOI4Vector((char *)p->strip + 0x10, b);
+    t = p->stripCol;
+    t[1] = p->col;
+    t[0] = t[1];
+    if (p->dirty != 0) {
+        resetPointBlurTrail(p);
+        p->dirty = 0;
+    }
+    return 1;
+}
 
 /* the templates the loops and struct assignments copy out of */
 
@@ -132,7 +168,19 @@ int UpdateEnemyEye(EnemyEye *self, void *m, float rate)
     return 1;
 }
 
-INCLUDE_ASM(DispEnemyEye);
+int DispEnemyEye(EnemyEye *self)
+{
+    _CopyMatrix((void *)self->dobj[0]->nodeMtx, self->mtx);
+    p2o_DispVU1DObj(self->dobj[0]);
+    if (self->blurOn != 0) {
+        PointBlur *fobj = self->blur;
+        gif_StartPacketPri(fobj->pri);
+        gif_SetAlpha(1, fobj->alpha, 128);
+        gif_Draw2DStripG(fobj->strip, fobj->stripCol, fobj->num << 1, 1);
+        gif_EndPacket();
+    }
+    return 1;
+}
 
 int ResetEnemyEye(EnemyEye *self)
 {

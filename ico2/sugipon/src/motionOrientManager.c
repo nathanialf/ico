@@ -132,6 +132,15 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2) /* deriv
     return 1;
 }
 
+inline int ExecutePauseSlipProc(GObj *self)
+{
+    if (systemStatus[5] != 0) {
+        GOBJ_SUB(self)->ctrl.lastSlipFlags = 0;
+        StopSEPackageWithGroupVariation(self, 1);
+    }
+    return 1;
+}
+
 INCLUDE_ASM(UpdateFrameCounter);
 
 INCLUDE_ASM(sendStateMail);
@@ -378,5 +387,3 @@ INCLUDE_ASM(InitMotionOrient);
 INCLUDE_ASM(GetCurrentMotionDirectionAdjustFlag);
 
 INCLUDE_ASM(ExecuteSlipProc);
-
-INCLUDE_ASM(ExecutePauseSlipProc);

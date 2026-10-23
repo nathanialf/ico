@@ -310,7 +310,26 @@ static inline void markPoolContact(ClipWork *w) /* derived name */
     setPoolHeightOfFloor(w);
 }
 
-INCLUDE_ASM(floorFitting);
+static void floorFitting(int kind)
+{
+    Vec16 plane;
+    Vec16 dir;
+    float mtx[16];
+    short ang;
+
+    if (kind == 0x11 || kind == 0x14) {
+        plane = skelRoot->plane;
+        GetMatrixFromQuaternion(mtx, skelRoot->quat);
+        _ApplyMatrix(&dir, mtx, ZUnitVector);
+        plane.f[3] = 0.0f;
+        floorSlope[1] = GetYDistanceFromPlane(plane.f, dir.f);
+        floorSlope[2] = 1.0f;
+        _NormalizeVector(floorSlope, floorSlope);
+        ang = GetTableArcTan2(floorSlope[1], floorSlope[2]);
+        RotQuaternionX(skelRoot->quat, ang);
+        skelRoot->lifting = 0;
+    }
+}
 
 /* rootUpdateXZ's helper */
 static inline int getFloorAttributeUnderNode(void) /* derived name */
@@ -379,9 +398,11 @@ static int adjustSideWall(ClipWork *w, int nearTest, Vec16 *wallPlane)
 
 INCLUDE_ASM(checkSideWall);
 
-static void forceFallDown(void);
-
-INCLUDE_ASM(forceFallDown);
+static void forceFallDown(void)
+{
+    iosOmSendMail((GObj *)skelGObj, 24, (void *)skelGObj);
+    CopyVector(skelRoot->last, skelRoot->pos);
+}
 
 INCLUDE_ASM(forceReset);
 
@@ -481,9 +502,46 @@ static int avoidSideAdjustWall(void)
 
 INCLUDE_ASM(rootUpdateStepSolution);
 
-INCLUDE_ASM(rootUpdateTrueMotion);
+static ObjNode rootUpdateTrueMotion(int kind)
+{
+    float mtx[16];
+    Vec16 v;
+    int noMove = kind;
 
-INCLUDE_ASM(rootUpdateDirectPlayForStream);
+    GetMatrixFromQuaternion(mtx, skelRoot->quat);
+    if (noMove == 0) {
+        sceVu0ApplyMatrix(&v, mtx, rootMove);
+        v.f[1] = v.f[1] + skelNode->pos[1];
+        v.f[0] = v.f[2] = 0.0f;
+        CopyVector(skelRoot->trans, &v);
+    } else {
+        CopyVector(skelRoot->trans, ZeroPoint);
+    }
+    skelRoot->standNode = -1;
+    skelRoot->height = 0.0f;
+    CopyVector(skelRoot->delta, rootDelta);
+    return InitialObjPointer;
+}
+
+static ObjNode rootUpdateDirectPlayForStream(void)
+{
+    float *p;
+
+    SetIdentityQuaternion(skelRoot->quat);
+    RotQuaternionY(skelRoot->quat, -32768);
+    CopyVector(skelRoot->pos, rootMove);
+    p = skelRoot->pos;
+    p[0] = -p[0];
+    p[2] = -p[2];
+    CopyVector(skelRoot->last, skelRoot->pos);
+    CopyVector(skelRoot->move, ZeroVector);
+    CopyVector(skelRoot->trans, ZeroVector);
+    skelRoot->standNode = -1;
+    skelRoot->height = 0.0f;
+    AdjustMotionHeightToNearestField((GObj *)skelGObj);
+    CopyVector(skelRoot->delta, rootDelta);
+    return InitialObjPointer;
+}
 
 INCLUDE_ASM(rootUpdateDirectPlay);
 

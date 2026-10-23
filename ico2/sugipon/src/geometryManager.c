@@ -35,9 +35,20 @@ null_path:
     CopyQuaternion(q, dobj->root.quat);
 }
 
-void UpdateRootMatrixByDObj(Sub15C *dobj);
-
-INCLUDE_ASM(UpdateRootMatrixByDObj);
+void UpdateRootMatrixByDObj(Sub15C *dobj)
+{
+    struct MotRoot *p = &dobj->root;
+    float *fobj = (float *)dobj->nodeMtx;
+    GetMatrixFromQuaternionPos(fobj, p->quat, p->pos);
+    {
+        GObj *q = dobj->parent.obj;
+        if (q != 0) {
+            sceVu0MulMatrix(fobj, (char *)q->dobj->nodeMtx + (dobj->parent.node << 6), fobj);
+        }
+    }
+    fobj[13] += p->height;
+    GetRootQuaternionByDObj((float *)dobj->nodeQuat, dobj);
+}
 
 void GetRootQuaternion(void *q, GObj *obj)
 {
@@ -212,9 +223,35 @@ void GetGlobalDirectionOrient(float *dir, GObj *obj, void *src)
     sceVu0Normalize(dir, dir);
 }
 
-INCLUDE_ASM(GlobalizeGeometry);
+void GlobalizeGeometry(GObj *gobj)
+{
+    Sub15C *sub = SUBOF(gobj);
+    float *m = sub->root.pos;
+    struct MotCtrl *w = &sub->ctrl;
 
-INCLUDE_ASM(GetRootVelocity);
+    sub->root.pos[3] = 1.0f;
+    if (SUBOF(gobj)->parent.obj != 0) {
+        sceVu0ApplyMatrix(
+            m, (char *)SUBOF(SUBOF(gobj)->parent.obj)->nodeMtx + (SUBOF(gobj)->parent.node << 6),
+            m);
+        sceVu0ApplyMatrix(SUBOF(gobj)->root.last,
+                          (char *)SUBOF(SUBOF(gobj)->parent.obj)->nodeMtx +
+                              (SUBOF(gobj)->parent.node << 6),
+                          SUBOF(gobj)->root.last);
+    }
+    SUBOF(gobj)->root.pos[1] = SUBOF(gobj)->root.pos[1] + SUBOF(gobj)->root.height;
+    SUBOF(gobj)->root.last[1] = SUBOF(gobj)->root.last[1] + SUBOF(gobj)->root.height;
+    GetRootQuaternion(sub->root.quat, gobj);
+    GetGlobalDirectionOrient(sub->ctrl.dir, gobj, sub->ctrl.dir);
+    w->dir[1] = 0;
+    sceVu0Normalize(SUBOF(gobj)->ctrl.dir, SUBOF(gobj)->ctrl.dir);
+    w->dir[3] = 0;
+}
+
+void GetRootVelocity(float *vel, GObj *obj)
+{
+    CopyVector(vel, obj->dobj->root.move);
+}
 
 void GetInitialInverseMatrixByDObj(char *mat, Sub15C *mdl)
 {
@@ -333,15 +370,31 @@ int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float
 
 INCLUDE_ASM(cylinderCollisionCheck);
 
-INCLUDE_ASM(LocalizeDirectionOrient);
+void LocalizeDirectionOrient(GObj *self, ObjNode *link)
+{
+    LocalizeDirectionOrient_i(self, link);
+}
 
 /* defined in girl_act.c; girl_act.h does not declare it */
 extern int isMustCheckCylinder(void *a, void *b);
 
 /* no caller; int, as sugipon's other scalar getters */
-INCLUDE_ASM(GetCylinderCollision);
+int GetCylinderCollision(GObj *self, GObj *target, float r, float h, float s, int ctrl)
+{
+    float pos[4];
 
-INCLUDE_ASM(GetCylinderCollisionWithExceptOwnCollision);
+    GetRootPosition_i(pos, self);
+    return cylinderCollisionCheck(self, pos, target, r, r * r, h, s, 1.0f - s, ctrl, 0);
+}
+
+int GetCylinderCollisionWithExceptOwnCollision(GObj *self, GObj *target, float r, float h, float s,
+                                               float t, int ctrl)
+{
+    float pos[4];
+
+    GetRootPosition_i(pos, self);
+    return cylinderCollisionCheck(self, pos, target, r, r * r, h, s, t, ctrl, 1);
+}
 
 /* the body of CylinderCollisionWithControlDynamics, which CylinderCollision
  * inlines and CylinderCollisionWithControlDynamics calls */
@@ -379,15 +432,48 @@ static __inline__ int CylinderCollisionWithControlDynamics_i(GObj *self, int gro
     return hit;
 }
 
-INCLUDE_ASM(CylinderCollision);
+int CylinderCollision(GObj *self, int group, float r, float h, float s)
+{
+    return CylinderCollisionWithControlDynamics_i(self, group, 1, r, h, s);
+}
 
-INCLUDE_ASM(CylinderCollisionWithControlDynamics);
+int CylinderCollisionWithControlDynamics(GObj *self, int group, int ctrl, float r, float h, float s)
+{
+    return CylinderCollisionWithControlDynamics_i(self, group, ctrl, r, h, s);
+}
 
-INCLUDE_ASM(GetRootMatrixByDObj);
+void GetRootMatrixByDObj(float *m, Sub15C *src)
+{
+    struct MotRoot *root = &src->root;
+    GetMatrixFromQuaternionPos(m, root->quat, root->pos);
+    {
+        GObj *g = src->parent.obj;
+        if (g) {
+            sceVu0MulMatrix(m, (char *)g->dobj->nodeMtx + (src->parent.node << 6), m);
+        }
+    }
+    m[13] += root->height;
+}
 
-INCLUDE_ASM(GetRootMatrix);
+void GetRootMatrix(void *mtx, GObj *obj)
+{
+    float *m = mtx;
+    Sub15C *src = obj->dobj;
+    struct MotRoot *root = &src->root;
+    GetMatrixFromQuaternionPos(m, root->quat, root->pos);
+    {
+        GObj *g = src->parent.obj;
+        if (g) {
+            sceVu0MulMatrix(m, (char *)g->dobj->nodeMtx + (src->parent.node << 6), m);
+        }
+    }
+    m[13] += root->height;
+}
 
-INCLUDE_ASM(GetRootPositionByDObj);
+void GetRootPositionByDObj(void *dst, Sub15C *src)
+{
+    GetRootPositionByDObj_i(dst, src);
+}
 
 INCLUDE_ASM(SetDirectRootPosition);
 
@@ -395,9 +481,28 @@ INCLUDE_ASM(SetDirectRootPositionNoFitting);
 
 INCLUDE_ASM(SetRootPosition);
 
-INCLUDE_ASM(GetRootPosition);
+void GetRootPosition(void *dst, GObj *obj)
+{
+    GetRootPosition_i(dst, obj);
+}
 
-INCLUDE_ASM(GetRootOrient);
+void GetRootOrient(float *dir, GObj *obj)
+{
+    float buf[4][4];
+    Sub15C *sub = GOBJ_SUB(obj);
+    struct MotRoot *root = &sub->root;
+    GetMatrixFromQuaternionPos(buf, root->quat, root->pos);
+    {
+        GObj *q = sub->parent.obj;
+        if (q != 0) {
+            sceVu0MulMatrix(buf, (char *)(GOBJ_SUB(q)->nodeMtx + (sub->parent.node << 6)), buf);
+        }
+    }
+    buf[3][1] = buf[3][1] + root->height;
+    sceVu0ApplyMatrix(dir, buf, ZUnitVector);
+    dir[1] = 0.0f;
+    sceVu0Normalize(dir, dir);
+}
 
 int LimitExistGeometry(float *pos, float *move)
 {
@@ -435,9 +540,42 @@ void GetRootMatrixTransOffset(float *dst, GObj *src)
     CopyVector(dst, tmp[3]);
 }
 
-INCLUDE_ASM(GetRootMotionOrient);
+void GetRootMotionOrient(float *dir, GObj *obj)
+{
+    char m[64];
+    float buf[4][4];
+    float (*b)[4] = buf;
+    Sub15C *sub = GOBJ_SUB(obj);
+    struct MotRoot *root = &sub->root;
+    GetMatrixFromQuaternionPos(b, root->quat, root->pos);
+    {
+        GObj *q = sub->parent.obj;
+        if (q != 0) {
+            sceVu0MulMatrix(b, (char *)(GOBJ_SUB(q)->nodeMtx + (sub->parent.node << 6)), b);
+        }
+    }
+    b[3][1] = b[3][1] + root->height;
+    GetMatrixFromQuaternion(m, GOBJ_SUB(obj)->root.motionQuat);
+    sceVu0MulMatrix(m, b, m);
+    sceVu0ApplyMatrix(dir, m, ZUnitVector);
+}
 
-INCLUDE_ASM(GetRootMotionMatrix);
+void GetRootMotionMatrix(float (*mtx)[4], GObj *obj)
+{
+    float buf[4][4];
+    Sub15C *sub = GOBJ_SUB(obj);
+    struct MotRoot *root = &sub->root;
+    GetMatrixFromQuaternionPos(buf, root->quat, root->pos);
+    {
+        GObj *q = sub->parent.obj;
+        if (q != 0) {
+            sceVu0MulMatrix(buf, (char *)(GOBJ_SUB(q)->nodeMtx + (sub->parent.node << 6)), buf);
+        }
+    }
+    buf[3][1] = buf[3][1] + root->height;
+    GetMatrixFromQuaternion(mtx, GOBJ_SUB(obj)->root.motionQuat);
+    sceVu0MulMatrix(mtx, buf, mtx);
+}
 
 void GetProjectionPosOfPlane(void *out, void *plane, void *pos)
 {

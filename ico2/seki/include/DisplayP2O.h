@@ -46,7 +46,7 @@ typedef struct PObjTexDef { /* field names derived */
 
 /* The display's view of the model record ico2/common/src/PObj.c builds (its
  * PObj) and of the 0x180-byte part record the model's 0x40 points at (its
- * PObjSub).  Sub15C + 0x854 holds the object's model and + 0x858 the shadow
+ * PObjSub).  Sub15C + 0x844 holds the object's model and + 0x848 the shadow
  * model.  A part keeps its vertices and normals, its polygon and strip lists,
  * its morph targets (reg_setShape adds them in by the object's weights), its
  * own matrix and two vertex buffers: RegistPacket.c keeps the rest pose in

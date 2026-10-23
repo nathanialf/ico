@@ -313,11 +313,31 @@ inline void CheckPoint(void)
     }
 }
 
-INCLUDE_ASM(stgmgrForceSwitch);
+void stgmgrForceSwitch(int stage)
+{
+    stageMgrMsg.cmd = 0;
+    stageMgrMsg.stage = stage;
+    lock_execIcoMisc = 1;
+    stageMgrMsg.fadeOut = 0;
+    iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
+}
 
 void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut)
 {
     stgmgrForceSwitchWithFadeColor(stage, fadeIn, fadeOut, 0, 0, 0);
 }
 
-INCLUDE_ASM(stgmgrForceSwitchWithFadeColor);
+void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsigned char r,
+                                    unsigned char g, unsigned char b)
+{
+    stageMgrMsg.cmd = 1;
+    stageMgrMsg.stage = stage;
+    stageMgrMsg.fadeOut = fadeOut;
+    stageMgrMsg.fadeIn = fadeIn;
+    stageMgrMsg.r = r;
+    stageMgrMsg.g = g;
+    stageMgrMsg.b = b;
+    mpegPlayInitColor = 0x80000000 | (b << 16) | (g << 8) | r;
+    lock_execIcoMisc = 1;
+    iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
+}

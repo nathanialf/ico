@@ -233,6 +233,22 @@ static int point_insert(void)
     return 0;
 }
 
+inline void cursor_control(GObj *volatile self)
+{
+    Act *w = GOBJ_ACT(self);
+
+    iosPadConnect(&w->pad, 0, 0, &iosPadConfDefault);
+
+    while (1) {
+        iosPadRead(&w->pad);
+
+        if (self == CurrentTargetGObj && (w->pad.trg & 1)) {
+            ACTDebugMove(self, 1);
+        }
+        _ACTWait(1);
+    }
+}
+
 inline int play_way(void);
 
 INCLUDE_ASM_LIT(play_way);
@@ -519,5 +535,3 @@ INCLUDE_ASM(play_way);
 INCLUDE_ASM(point_nige);
 
 INCLUDE_ASM(quick_save_wpfile);
-
-INCLUDE_ASM(cursor_control);

@@ -352,7 +352,118 @@ INCLUDE_ASM(reg_dispSObj);
 
 INCLUDE_ASM(reg_dispCObj);
 
-INCLUDE_ASM(reg_dispPoint);
+static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
+{
+    float fv[4];
+    int iv[4];
+    int iv2[4];
+    int pri;
+    int on;
+    int z;
+
+    on = 0;
+    pri = node->blend != 0 ? 2 : 0;
+    if (alpha != 0.0f || node->blend != 0) {
+        on = 1;
+    }
+    z = (int)(((alpha < 0.0f) ? (alpha + 1.0f) : (1.0f - alpha)) * 128.0f);
+    dl_SetDLPriority(pri);
+    {
+        char *c = PacketBufferStruct.ptr.c;
+
+        PacketBufferStruct.gif.c = 0;
+        PacketBufferStruct.end.c = 0;
+        PacketBufferStruct.dma.c = c;
+        PacketBufferStruct.tail.c = c;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((DpkTag *)c)->vif[0] = 0x11000000;
+        PacketBufferStruct.gif.c = c + 0xC;
+        PacketBufferStruct.end.c = c + 0x10;
+        PacketBufferStruct.ptr.c = c + 0x18;
+        ((GifPkWord *)(c + 0x18))->d = 0xE;
+        PacketBufferStruct.ptr.c = c + 0x20;
+    }
+    _RotTransPersCurrentMatrix(fv, node->pos[0]);
+    _FTOI4Vector(iv, fv);
+    if (idx == -1) {
+        *(Qw128 *)iv2 = *(Qw128 *)node->pos[1];
+        *(Qw128 *)node->pos[1] = *(Qw128 *)iv;
+    } else {
+        if (flag != 0) {
+            _CopyIVector(iv2, iv);
+        } else {
+            _CopyIVector(iv2, node->trail[idx]);
+        }
+        CopyIVector(node->trail[idx], iv);
+    }
+    if (_IsInScreen(iv) != 0 && _IsInScreen(iv2) != 0) {
+        if (on != 0) {
+            if (0.0f < alpha) {
+                *PacketBufferStruct.ptr.d++ = 0;
+                *PacketBufferStruct.ptr.d++ = 0x49;
+                *PacketBufferStruct.ptr.d++ = ((long long)z << 32) | 104;
+                *PacketBufferStruct.ptr.d++ = 0x42;
+            } else {
+                *PacketBufferStruct.ptr.d++ = 0;
+                *PacketBufferStruct.ptr.d++ = 0x49;
+                *PacketBufferStruct.ptr.d++ = ((long long)z << 32) | 98;
+                *PacketBufferStruct.ptr.d++ = 0x42;
+            }
+        }
+        *PacketBufferStruct.ptr.d++ = ((long long)on << 6) | 0x101;
+        *PacketBufferStruct.ptr.d++ = 0;
+        *PacketBufferStruct.ptr.d++ = (long long)node->col0.r | ((long long)node->col0.g << 8) |
+                                      ((long long)node->col0.b << 16) |
+                                      ((long long)node->col0.a << 24) | (0x3F800000LL << 32);
+        *PacketBufferStruct.ptr.d++ = 1;
+        *PacketBufferStruct.ptr.d++ =
+            (long long)iv2[0] | ((long long)iv2[1] << 16) | ((long long)iv2[2] << 32);
+        *PacketBufferStruct.ptr.d++ = 5;
+        *PacketBufferStruct.ptr.d++ =
+            (long long)iv[0] | ((long long)iv[1] << 16) | ((long long)iv[2] << 32);
+        *PacketBufferStruct.ptr.d++ = 5;
+        {
+            char *p;
+            char *q;
+
+            ((GifPkWord *)PacketBufferStruct.end.c)->d =
+                (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c -
+                                               PacketBufferStruct.end.c) >>
+                                4) -
+                               1) |
+                0x1000000000008000LL;
+            ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+                (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+                0x6C008000;
+            p = PacketBufferStruct.ptr.c;
+            ((GifPkWord *)p)->w[0] = 0x15000000;
+            p += 4;
+            PacketBufferStruct.ptr.c = p;
+            ((GifPkWord *)p)->w[0] = 0;
+            PacketBufferStruct.ptr.c = p + 4;
+            ((GifPkWord *)(p + 4))->w[0] = 0;
+            PacketBufferStruct.ptr.c = p + 8;
+            ((GifPkWord *)(p + 8))->w[0] = 0;
+            PacketBufferStruct.ptr.c = p + 0xC;
+            ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+                (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c -
+                                                PacketBufferStruct.tail.c) >>
+                                 4) -
+                                1) |
+                               0x10000000);
+            q = PacketBufferStruct.ptr.c;
+            PacketBufferStruct.tail.c = q;
+            ((GifPkWord *)q)->d = 0x60000000;
+            PacketBufferStruct.ptr.c = q + 8;
+            ((GifPkWord *)(q + 8))->w[0] = 0;
+            PacketBufferStruct.ptr.c = q + 0xC;
+            ((GifPkWord *)(q + 8))->w[1] = 0;
+            PacketBufferStruct.ptr.c = q + 0x10;
+            dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+            dl_CloseDma();
+        }
+    }
+}
 
 /* a float's bits as the GS ST register takes them */
 typedef union { /* field names derived */
@@ -360,7 +471,133 @@ typedef union { /* field names derived */
     unsigned int u;
 } RegFloatBits; /* derived name */
 
-INCLUDE_ASM(reg_dispLine);
+static void reg_dispLine(PacLine *node, float alpha)
+{
+    float fv0[4];
+    float fv1[4];
+    int iv0[4];
+    int iv1[4];
+    char *p;
+    char *q;
+    int pri;
+    int hastex;
+    int on;
+    int z;
+
+    pri = node->blend != 0 ? 2 : 0;
+    hastex = node->tex >= 0;
+    on = 0;
+    if (alpha != 0.0f || node->blend != 0) {
+        on = 1;
+    }
+    z = (int)(((alpha < 0.0f) ? (alpha + 1.0f) : (1.0f - alpha)) * 128.0f);
+    dl_SetDLPriority(pri);
+    if (hastex != 0) {
+        texturetranssize += tex_TransTexture(node->tex, pri);
+    }
+    {
+        char *c = PacketBufferStruct.ptr.c;
+
+        PacketBufferStruct.gif.c = 0;
+        PacketBufferStruct.end.c = 0;
+        PacketBufferStruct.dma.c = c;
+        PacketBufferStruct.tail.c = c;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((DpkTag *)c)->vif[0] = 0x11000000;
+        PacketBufferStruct.gif.c = c + 0xC;
+        PacketBufferStruct.end.c = c + 0x10;
+        PacketBufferStruct.ptr.c = c + 0x18;
+        ((GifPkWord *)(c + 0x18))->d = 0xE;
+        PacketBufferStruct.ptr.c = c + 0x20;
+    }
+    _RotTransPersCurrentMatrix(fv0, node->pos[0]);
+    _RotTransPersCurrentMatrix(fv1, node->pos[1]);
+    _FTOI4Vector(iv0, fv0);
+    _FTOI4Vector(iv1, fv1);
+    if (_IsInScreen(iv0) != 0 && _IsInScreen(iv1) != 0) {
+        if (on != 0) {
+            if (0.0f < alpha) {
+                *PacketBufferStruct.ptr.d++ = 0;
+                *PacketBufferStruct.ptr.d++ = 0x49;
+                *PacketBufferStruct.ptr.d++ = ((long long)z << 32) | 104;
+                *PacketBufferStruct.ptr.d++ = 0x42;
+            } else {
+                *PacketBufferStruct.ptr.d++ = 0;
+                *PacketBufferStruct.ptr.d++ = 0x49;
+                *PacketBufferStruct.ptr.d++ = ((long long)z << 32) | 98;
+                *PacketBufferStruct.ptr.d++ = 0x42;
+            }
+        }
+        /* PRIM in the GS register's field order: LINE with IIP, TME, ABE */
+        *PacketBufferStruct.ptr.d++ = 9 | ((long long)hastex << 4) | ((long long)on << 6);
+        *PacketBufferStruct.ptr.d++ = 0;
+        *PacketBufferStruct.ptr.d++ = (long long)node->col0.r | ((long long)node->col0.g << 8) |
+                                      ((long long)node->col0.b << 16) |
+                                      ((long long)node->col0.a << 24) | (0x3F800000LL << 32);
+        *PacketBufferStruct.ptr.d++ = 1;
+        if (hastex != 0) {
+            RegFloatBits u;
+            RegFloatBits v;
+
+            u.f = node->uv[0][0] / fv0[3];
+            v.f = node->uv[0][1] / fv0[3];
+            *PacketBufferStruct.ptr.d++ = (long long)u.u | ((long long)v.u << 32);
+            *PacketBufferStruct.ptr.d++ = 2;
+        }
+        *PacketBufferStruct.ptr.d++ =
+            (long long)iv0[0] | ((long long)iv0[1] << 16) | ((long long)iv0[2] << 32);
+        *PacketBufferStruct.ptr.d++ = 5;
+        *PacketBufferStruct.ptr.d++ = (long long)node->col1.r | ((long long)node->col1.g << 8) |
+                                      ((long long)node->col1.b << 16) |
+                                      ((long long)node->col1.a << 24) | (0x3F800000LL << 32);
+        *PacketBufferStruct.ptr.d++ = 1;
+        if (hastex != 0) {
+            RegFloatBits u;
+            RegFloatBits v;
+
+            u.f = node->uv[1][0] / fv1[3];
+            v.f = node->uv[1][1] / fv1[3];
+            *PacketBufferStruct.ptr.d++ = (long long)u.u | ((long long)v.u << 32);
+            *PacketBufferStruct.ptr.d++ = 2;
+        }
+        *PacketBufferStruct.ptr.d++ =
+            (long long)iv1[0] | ((long long)iv1[1] << 16) | ((long long)iv1[2] << 32);
+        *PacketBufferStruct.ptr.d++ = 5;
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
+                            4) -
+                           1) |
+            0x1000000000008000LL;
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+            0x6C008000;
+        p = PacketBufferStruct.ptr.c;
+        ((GifPkWord *)p)->w[0] = 0x15000000;
+        p += 4;
+        PacketBufferStruct.ptr.c = p;
+        ((GifPkWord *)p)->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 4;
+        ((GifPkWord *)(p + 4))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 8;
+        ((GifPkWord *)(p + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = p + 0xC;
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                             4) -
+                            1) |
+                           0x10000000);
+        q = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = q;
+        ((GifPkWord *)q)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = q + 8;
+        ((GifPkWord *)(q + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = q + 0xC;
+        ((GifPkWord *)(q + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = q + 0x10;
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+}
 
 INCLUDE_ASM(reg_dispPointLineObj);
 

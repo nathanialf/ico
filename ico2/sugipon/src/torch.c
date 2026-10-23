@@ -74,6 +74,17 @@ static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name 
     return 0;
 }
 
+inline void UpdateRealTimeGeometryValue(GObj *self)
+{
+    int buf[4];
+    Sub15C *sub;
+    GetRootPosition(buf, self);
+    sub = self->dobj;
+    sceVu0SubVector(sub->root.move, buf, sub->root.last);
+    sub = self->dobj;
+    CopyVector(sub->root.last, buf);
+}
+
 static void procChainReaction(GObj *gobj);
 
 INCLUDE_ASM(TorchGeo);
@@ -89,5 +100,3 @@ INCLUDE_ASM(CheckTorchChainReaction);
 INCLUDE_ASM(SetTorchLife);
 
 INCLUDE_ASM(SetTorchChainReactionFlag);
-
-INCLUDE_ASM(UpdateRealTimeGeometryValue);

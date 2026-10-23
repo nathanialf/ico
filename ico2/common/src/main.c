@@ -213,8 +213,7 @@ int main(void)
 /* vsyncs counted toward systemStatus[1], the frame step */
 static int frameStepCount = 0; /* derived name */
 
-/* main.c's .sdata globals, with one unreferenced quadword after
-   data_loading (marked derived).  Each is a 4-byte scalar; the ones marked
+/* main.c's .sdata globals.  Each is a 4-byte scalar; the ones marked
    QWORD open a 16-byte quadword of their own, the rest of which stays
    empty. */
 #define QWORD __attribute__((aligned(16)))
@@ -241,6 +240,13 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
+/* The six quadwords in the Aug-6 map's order (NonLinearCameraMove,
+   GlobalTimer, lock_execIcoMisc, graphics_ready, game_pause, data_loading):
+   UpdatePointBlur reads the first at gp-28416, way_sys.c stamps its frames
+   with the second, stgmgrForceSwitch stores 1 to the third at gp-28384, and
+   GsBase.c and fieldCollision.c test the fourth. */
+int NonLinearCameraMove QWORD = 0;
+
 int GlobalTimer QWORD = 0;
 
 int lock_execIcoMisc QWORD = 0;
@@ -250,9 +256,6 @@ int graphics_ready QWORD = 0;
 int game_pause QWORD = 0;
 
 int data_loading QWORD = 0;
-
-/* an unreferenced quadword */
-static int reservedWord QWORD = 0; /* derived name */
 
 int screen_offset_x QWORD = 0;
 

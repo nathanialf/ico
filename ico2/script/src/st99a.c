@@ -55,4 +55,13 @@ void actSt27aWaveChk(GObj *volatile self)
 
 INCLUDE_ASM(actSt27aWave1);
 
-INCLUDE_ASM(actSpiderChk);
+void actSpiderChk(GObj *volatile self)
+{
+    while (1) {
+        while ((GOBJ_ACT(boyGObj)->pad.trg & 0x400) == 0) {
+            _ACTWait(1);
+        }
+        scpBornSpider(2, 0.0f, -500.0f, 0.0f, 500.0f);
+        _ACTWait(1);
+    }
+}

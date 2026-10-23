@@ -248,9 +248,17 @@ static inline void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
     iosMcMgrSaveIconDebugResult(mp->result);
 }
 
-INCLUDE_ASM(iosMcMgrSaveProductBlock);
+static void iosMcMgrSaveProductBlock(McMgr *mp)
+{
+    mp->segment = 0;
+    iosMcMgrSaveSeg(mp, 0);
+}
 
-INCLUDE_ASM(iosMcMgrLoadProductBlock);
+static void iosMcMgrLoadProductBlock(McMgr *mp)
+{
+    mp->segment = 0;
+    iosMcMgrLoadSeg(mp, 0);
+}
 
 static inline void iosMcMgrSaveGame(McMgr *mp) /* derived name */
 {

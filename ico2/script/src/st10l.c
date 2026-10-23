@@ -129,7 +129,19 @@ INCLUDE_ASM(actSt10lFloorMain);
 
 INCLUDE_ASM(actSt10lFloorSwitch);
 
-INCLUDE_ASM(actSt10lGondolaMain);
+void actSt10lGondolaMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+    lt_switch_layout(50);
+
+    sub->mainMail = gondolaMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt10lGondolaSwitch);
 
@@ -148,6 +160,15 @@ INCLUDE_ASM(actSt10lBoxAChk);
 
 INCLUDE_ASM(actSt10lBoxBChk);
 
-INCLUDE_ASM(actSt10lChainMain);
+void actSt10lChainMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+    sub->mainMail = chainMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt10lChainSwitch);

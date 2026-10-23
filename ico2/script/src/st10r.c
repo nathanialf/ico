@@ -129,7 +129,16 @@ void actSt10rGirlWay(volatile unsigned int self)
 
 INCLUDE_ASM(actSt10rExitChk);
 
-INCLUDE_ASM(actSt10rChainMain);
+void actSt10rChainMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+    sub->mainMail = chain_main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt10rChainSwitch);
 

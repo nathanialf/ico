@@ -1,7 +1,6 @@
 #include "mv_defs.h"
 #include "mv_readbuf.h"
 #include "memory.h"
-#include "include_asm.h"
 
 static void Free(int addr);
 
@@ -22,7 +21,19 @@ static void Free(int addr)
     iosFree((void *)phys_addr(addr));
 }
 
-INCLUDE_ASM(readBufCreate);
+int readBufCreate(ReadBuf *self)
+{
+    int buf;
+
+    buf = alloc_zeroed(327680, 64);
+    self->data = (unsigned char *)buf;
+    if (buf == 0) {
+        return -1;
+    }
+    self->size = 327680;
+    self->put = self->count = 0;
+    return 0;
+}
 
 int readBufBeginPut(ReadBuf *self, void **p)
 {

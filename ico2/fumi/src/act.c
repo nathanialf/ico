@@ -29,6 +29,14 @@ static int actUnusedWord = 0; /* derived name */
 #include "gamesys.h"
 #include "include_asm.h"
 
+inline void ActSetStartBrainStatus(GObj *self, int status)
+{
+    Act *brain = GOBJ_ACT(self);
+    if (brain != 0) {
+        brain->brainStatus = status;
+    }
+}
+
 void actChangeActBrain(GObj *self, void (*func)(), GProc **proc)
 {
     GProc *old = *proc;
@@ -181,5 +189,3 @@ INCLUDE_ASM(actCreateSubThread);
 INCLUDE_ASM(actSetInterrupt);
 
 INCLUDE_ASM(ConvertStickToAbsCoord);
-
-INCLUDE_ASM(ActSetStartBrainStatus);

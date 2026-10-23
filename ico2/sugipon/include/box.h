@@ -9,7 +9,7 @@
 #define BOX_H
 
 /* accessary: one accessory model set, 0x28 bytes, indexed by the object's
- * Sub15C+0x844. Readers: box.c and switch.c.inc (the two models, the
+ * Sub15C+0x834. Readers: box.c and switch.c.inc (the two models, the
  * sub-box, and the pivot as the wheels' height and front and rear axle Z),
  * pool.c (the negated pivot), weapon.c, cage.c, puddle.c. */
 typedef struct {     /* field names derived */

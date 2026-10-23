@@ -23,13 +23,6 @@ static inline void iosCdvdDiskReadyBlock(void);
 static void iosCdvdBackGroundMgrInit(void);
 static void iosCdvdBackGroundMgr(void);
 
-/* a handle's control doubleword: bit 0 asks for the inflating read, word 1
-   is the command */
-union IosCdvdCtl { /* field names derived */
-    long long ll;
-    int i[2];
-}; /* derived name */
-
 /* The record sceCdSearchFile fills in: it writes 0x24 bytes of it (lsn, size,
  * the name column and the date), and the stack slot it is given is 0x30.  */
 typedef struct sceCdlFILE {
@@ -39,40 +32,6 @@ typedef struct sceCdlFILE {
     unsigned char date[8];
     unsigned int reserved;
 } sceCdlFILE;
-
-/* The cdvd handle a load request is made with (iosCdvd is the manager's own,
- * 33216 bytes): the command word, the result, the sector cursor and the
- * sectors left that the stream manager advances, the read handler and its
- * argument, the pack segment, the read counters, the file's name and its
- * directory record, the sceCdRead mode, the inflate handle, the stream
- * buffer, the 32 KB sector buffer and the streamed file's size. */
-typedef struct IosCdvdHandle { /* field names derived */
-    union IosCdvdCtl ctl;      /* 0x00, bit 0 asks for the inflating read; word 1 is
-                            the command: 0 wait for the disc, 1 load, 2 pack
-                            load */
-    char pad8[4];
-    int result; /* 0x0C */
-    char pad10[4];
-    int lsn;                                             /* 0x14 */
-    int left;                                            /* 0x18 */
-    int (*handler)(struct IosCdvdHandle *self, int arg); /* 0x1C */
-    int handlerArg;                                      /* 0x20 */
-    int seg;                                             /* 0x24, the pack's segment id */
-    int readBytes;                                       /* 0x28 */
-    int readSectorCnt;                                   /* 0x2C */
-    int sectors;                                         /* 0x30, the sectors still to stream */
-    int buffCnt;                                         /* 0x34 */
-    char name[256];                                      /* 0x38 */
-    sceCdlFILE file;                                     /* 0x138 */
-    CdRMode mode;                                        /* 0x15C */
-    InflateHandler *inflate;                             /* 0x160 */
-    int stMem;                                           /* 0x164 */
-    int stBuf;                                           /* 0x168, stMem rounded up to 16 */
-    char pad16C[20];
-    unsigned char buf[32768]; /* 0x180 */
-    int stSize;               /* 0x8180 */
-    char pad8184[60];
-} IosCdvdHandle; /* derived name */
 
 /* .data, all zero.  iosCdvd is the manager's cdvd handle (33216 bytes, as
    unifileHandle), the two queues take the 48-byte message queue record,
@@ -184,11 +143,53 @@ found:
     return iosCdvdSrhBuff[i].lsn;
 }
 
-INCLUDE_ASM(iosCdvdMgrSearchFile);
+static void iosCdvdMgrSearchFile(IosCdvdHandle *self)
+{
+    /* The walk index stays in its stack slot and is re-read after every
+     * strcmp: the directory cache it indexes is the table the cdvd thread
+     * also fills, so the counter is volatile. */
+    volatile int i;
+    int r = 1;
+
+    if (strlen(self->name) < 0x28) {
+        for (i = 0; i < srhBuffCnt; i++) {
+            r = strcmp(self->name, iosCdvdSrhBuff[i].name);
+            if (r == 0) {
+                break;
+            }
+        }
+    } else {
+        debug_StdPrintfDummy("iosCdvdMgrSearchFile: warning filename length over\n");
+    }
+    if (r == 0) {
+        self->file.lsn = iosCdvdSrhBuff[i].lsn;
+        self->file.size = iosCdvdSrhBuff[i].size;
+    } else {
+        self->result = 0;
+        if (sceCdSearchFile((sceCdlFILE *)&self->file, self->name) == 0) {
+            self->result = 100;
+        }
+        if (srhBuffCnt < 200) {
+            iosCdvdSrhBuff[srhBuffCnt].lsn = self->file.lsn;
+            iosCdvdSrhBuff[srhBuffCnt].size = self->file.size;
+            strncpy(iosCdvdSrhBuff[srhBuffCnt].name, self->name, 0x28);
+            srhBuffCnt++;
+        } else {
+            debug_StdPrintfDummy("iosCdvdMgrSearchFile: warning iosCdvdSrhBuff over\n");
+        }
+    }
+}
 
 static void iosCdvdMgrStStart(IosCdvdHandle *self);
 
-INCLUDE_ASM(iosCdvdMgrStStop);
+static void iosCdvdMgrStStop(IosCdvdHandle *self)
+{
+    self->result = 0;
+    if (sceCdStStop() == 0) {
+        self->result = sceCdGetError();
+    }
+    close_inflate_handler(self->inflate);
+}
 
 /* a file name in the disc's form (a leading backslash, upper case, ";1"),
  * which iosCdvdChgFileName and the load paths inline */
@@ -388,7 +389,18 @@ int iosCdvdSync(int msg)
     return 1;
 }
 
-INCLUDE_ASM(iosCdvdLoadPackFile);
+void iosCdvdLoadPackFile(int inflate, char *name, int seg)
+{
+    int buf[4];
+    iosCdvd.ctl.ll = (iosCdvd.ctl.ll & ~1LL) | (inflate & 1);
+    strcpy(iosCdvd.name, name);
+    iosCdvd.seg = seg;
+    iosCdvd.handler = 0;
+    iosCdvd.handlerArg = 0;
+    iosCdvdPackLoad(&iosCdvd);
+    buf[0] = (int)&iosCdvd;
+    iosMsgRecv(&CdvdMsgQ_LoadEnd, buf, 1);
+}
 
 int iosCdvdDiskStatusGet(void)
 {
@@ -475,7 +487,24 @@ int iosCdvdDirectStRead(IosCdvdHandle *stream, void *dst, int size, int *err)
 /* The inflate handler's read callback (installed by iosCdvdMgrStStart): hand
  * the decoder at most as many bytes as are still left in the streamed file --
  * its total length at +0x13C minus the bytes already consumed at +0x28.  */
-INCLUDE_ASM(inflate_cd_read_func);
+long long inflate_cd_read_func(void *buf, long long size, void *handle)
+{
+    IosCdvdHandle *self = handle;
+    long long rest;
+    long long len;
+
+    rest = (unsigned int)(self->file.size - self->readBytes);
+
+    if (rest < size)
+        len = rest;
+    else
+        len = size;
+
+    if (len != 0)
+        iosCdvdHandlerReadNoInflate(self, buf, len);
+
+    return len;
+}
 
 static void iosCdvdBackGroundMgrInit(void)
 {

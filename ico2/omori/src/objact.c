@@ -43,13 +43,38 @@ static inline void objActionCorrectMode(OaRecB *p) /* derived name */
     }
 }
 
+inline void ObjAction_Mail(void *data, int mail)
+{
+    void *p = isysGObjGetExist_begin();
+    while (p != 0) {
+        iosOmSendMail(p, mail, data);
+        p = isysGObjGetExist_next(p);
+    }
+}
+
+inline void ObjAction_MailCenter(GObj *gobj, int step)
+{
+    int i;
+    const ObjActMailEnt *e;
+    int n;
+
+    for (i = 0; i < 31; i++) {
+        e = &objTrigger[i];
+        if (gobj->labelId != e->labelId)
+            continue;
+        n = e->triggerNo;
+        if (step > 0) {
+            if (n < 5)
+                continue;
+            n += step;
+        }
+        ObjAction_Mail(gobj, objTriggerDef[n]);
+    }
+}
+
 void ObjectBeforeFunc(GObj *self)
 {
     BeforeFunc2(self);
 }
 
 INCLUDE_ASM(ObjAction_CorrectGeo);
-
-INCLUDE_ASM(ObjAction_Mail);
-
-INCLUDE_ASM(ObjAction_MailCenter);

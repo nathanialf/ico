@@ -84,7 +84,15 @@ INCLUDE_ASM(actSt13aCheck);
 
 INCLUDE_ASM(actSt13aChain);
 
-INCLUDE_ASM(actSt13aElevMain);
+void actSt13aElevMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = elevMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt13aElevSwitch);
 

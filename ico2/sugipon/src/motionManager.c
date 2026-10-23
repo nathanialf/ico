@@ -219,9 +219,73 @@ static inline int findActPointOrder(int *list, int kind) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(findActPoint);
+static int findActPoint(int *list)
+{
+    int bestOrder = 255;
+    int minVal = 249;
+    int ret = -1;
+    int i;
 
-INCLUDE_ASM(checkActPointWithHeight);
+    if (skelRoot->noStepSearch != 0) {
+        return -1;
+    }
+    for (i = 0; i < skelNodeNum; i++) {
+        int order = findActPointOrder(list, skelNode[i].kind);
+        int v;
+        if (order == 0) {
+            continue;
+        }
+        if (skelRoot->hand1.ikMode != 0) {
+            int k = skelNode[i].kind;
+            if (k == 6 || k == 11) {
+                continue;
+            }
+        }
+        if (skelRoot->hand0.ikMode != 0) {
+            int k = skelNode[i].kind;
+            if (k == 22 || k == 27) {
+                continue;
+            }
+        }
+        v = *(int *)(skelMotion + i * 32);
+        if (v < minVal || (v == minVal && order < bestOrder)) {
+            ret = i;
+            minVal = v;
+            bestOrder = order;
+        }
+    }
+    return ret;
+}
+
+static int checkActPointWithHeight(int kind, float h)
+{
+    int i;
+
+    if (skelRoot->hand1.ikMode != 0) {
+        if (kind == 6 || kind == 11) {
+            return -1;
+        }
+    }
+    if (skelRoot->hand0.ikMode != 0) {
+        if (kind == 22 || kind == 27) {
+            return -1;
+        }
+    }
+    for (i = 0; i < skelNodeNum; i++) {
+        if (skelNode[i].kind == kind) {
+            float d;
+            if (*(int *)(skelMotion + i * 32) >= 249) {
+                return -1;
+            }
+            d = *(float *)(nodePos + i * 16 + 4) + rootMove[1];
+            if ((d < 0.0f ? -d : d) < h) {
+                return kind;
+            }
+            return -1;
+        }
+    }
+    return -1;
+}
 
 /* inlined here and into _checkCliffAndWall; the float limit is a
    literal */
@@ -267,9 +331,35 @@ INCLUDE_ASM(checkCliffState);
 
 INCLUDE_ASM(_checkCliffAndWall);
 
-INCLUDE_ASM(checkCliffAndWallStateOfLastPlane);
+static void checkCliffAndWallStateOfLastPlane(void)
+{
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    {
+        register float *p = skelRoot->pos;
+        float r = GetYProjectionOfPlane(skelRoot->plane.f, skelRoot->pos);
+        MatrixDrive_TransMatrix(p[0], r, skelRoot->pos[2]);
+    }
+    MultiMatrixByQuaternion(skelRoot->quat);
+    MatrixDrive_PushMatrix();
+    _checkCliffAndWall();
+    MatrixDrive_PopMatrix();
+    if (skelMotCtrl->sideWallCheck != 0) {
+        MatrixDrive_PushMatrix();
+        checkWallSideState();
+        MatrixDrive_PopMatrix();
+    }
+}
 
-INCLUDE_ASM(checkCliffAndWallStateAtJump);
+static void checkCliffAndWallStateAtJump(void)
+{
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    {
+        register float *p = skelRoot->pos;
+        MatrixDrive_TransMatrix(p[0], p[1] + skelRoot->projHeight + 10.0f, p[2]);
+    }
+    MultiMatrixByQuaternion(skelRoot->quat);
+    _checkCliffAndWall();
+}
 
 static void dispActNode(int id)
 {
@@ -288,7 +378,18 @@ static void dispActNode(int id)
     gif_EndPacket();
 }
 
-INCLUDE_ASM(dispLastNode);
+static void dispLastNode(void)
+{
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 5, 128);
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrix(skelRoot->footPos[0], skelRoot->footPos[1], skelRoot->footPos[2]);
+    MatrixDrive_ScaleMatrix(8.0f, 8.0f, 8.0f);
+    dispSquare2(255);
+    MatrixDrive_PopMatrix();
+    gif_EndPacket();
+}
 
 #include "motMan_rootUpdate.c.inc"
 /* GifPacket.h is read here, after dispActNode, which calls the gif packet

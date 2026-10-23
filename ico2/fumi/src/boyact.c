@@ -268,7 +268,41 @@ INCLUDE_ASM(E3_StageStartBoy);
 
 extern int fptodp(float v);
 
-INCLUDE_ASM(GetChainSlope);
+static int GetChainSlope(void)
+{
+    float a;
+    float b;
+    float c;
+    float ratio;
+    GObj *g = boyGObj;
+    int up;
+    int down;
+
+    GetChainPendulum((void *)GOBJ_ACT(g)->chain, &a, &b, &c);
+    if (b < 5.0f) {
+        return 0;
+    }
+    ratio = (float)*motionTable[GOBJ_SUB(g)->ctrl.motion] / (c * 0.5f);
+    ACTGame_SetMotionPlaySpeedRatio_Reserve(g, ratio, 7);
+    if (debug_font_flag & 1) {
+        debug_Printf(10, 140, 0x0FFFFFFF, "speed = %f (%f)\n", fptodp(ratio), fptodp(c));
+    }
+    if (debug_font_flag & 1) {
+        debug_Printf(10, 150, 0x0FFFFFFF, "%f / %f\n", fptodp(GOBJ_SUB(g)->ctrl.animFrame),
+                     fptodp((float)*motionTable[GOBJ_SUB(g)->ctrl.motion]));
+    }
+    if ((b < 0.0f ? -b : b) < 30.0f) {
+        up = 1;
+        down = 2;
+    } else {
+        up = 3;
+        down = 4;
+    }
+    if (a < 0.0f) {
+        return up;
+    }
+    return down;
+}
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
@@ -509,9 +543,57 @@ typedef union { /* field names derived */
 
 INCLUDE_ASM(actBoySwim);
 
-INCLUDE_ASM(actBoyWalk);
+void actBoyWalk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
 
-INCLUDE_ASM(actBoyRun);
+    while (1) {
+        if (ACTGame_FLAG_TETSUNAGI()) {
+            float gp[4];
+            float bp[4];
+            float d;
+            float ratio;
+
+            GetSkeltonPosition(bp, boyGObj, 2);
+            GetSkeltonPosition(gp, girlGObj, 18);
+            d = _DistGV((float *)gp, (float *)bp);
+            if ((60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60 < sub->modeFrame &&
+                80.0f < d) {
+                d = (d - 80.0f) / 10.0f;
+                d = d < 0.0f ? 0.0f : (1.0f < d ? 1.0f : d);
+                ratio = 0.9 - d * 0.2;
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, ratio, 2);
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+void actBoyRun(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while (1) {
+        if (ACTGame_FLAG_TETSUNAGI()) {
+            float gp[4];
+            float bp[4];
+            float d;
+            float ratio;
+
+            GetSkeltonPosition(bp, boyGObj, 2);
+            GetSkeltonPosition(gp, girlGObj, 18);
+            d = _DistGV((float *)gp, (float *)bp);
+            if ((60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60 < sub->modeFrame &&
+                90.0f < d) {
+                d = (d - 90.0f) / 10.0f;
+                d = d < 0.0f ? 0.0f : (1.0f < d ? 1.0f : d);
+                ratio = 0.7 - d * 0.2;
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, ratio, 2);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM_LIT(actBoyFall);
 

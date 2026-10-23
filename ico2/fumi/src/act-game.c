@@ -305,9 +305,49 @@ int _ACTGame_SearchGObj(GObj *self, GObj *tgt, float range, float height, int an
     return 0;
 }
 
-INCLUDE_ASM(ACTLookTarget_Exec);
+int ACTLookTarget_Exec(GObj *self)
+{
+    float pos[4];
+    Act *s = GOBJ_ACT(self);
+    GObj *t = s->lookTarget;
+    int rv;
+    int b0;
 
-INCLUDE_ASM(ACTParaStatus_Clear);
+    if (debug_font_flag & 1) {
+        debug_Printf(10, 170, 0x0FFFFFFF, "mode=[%d]\n", GOBJ_SUB(self)->root.lookMode);
+    }
+    rv = 0;
+    if (s->lookPri == 0) {
+        GOBJ_SUB(self)->root.lookMode = 0;
+    } else {
+        if (t == 0) {
+            pos[0] = s->lookPosX;
+            pos[1] = s->lookPosY;
+            pos[2] = s->lookPosZ;
+        } else if (t == boyGObj) {
+            /* the boy's skeleton position read in place */
+            int idx = GetSkeltonFocusNode(t, 35) << 6;
+            pos[0] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x30);
+            pos[1] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x34);
+            pos[2] = *(float *)(idx + *(int *)(((IntFloat *)&t->dobj)->i + 0xC) + 0x38);
+        } else {
+            GetRootPosition(pos, t);
+        }
+        b0 = s->lookMode;
+        rv = 1;
+        ((IntFloat *)((char *)(int)GOBJ_SUB(self) + 0x380))->f = pos[0];
+        ((IntFloat *)((char *)(int)GOBJ_SUB(self) + 0x384))->f = pos[1];
+        ((IntFloat *)((char *)(int)GOBJ_SUB(self) + 0x388))->f = pos[2];
+        GOBJ_SUB(self)->root.lookMode = b0;
+    }
+    return rv;
+}
+
+void ACTParaStatus_Clear(GObj *self)
+{
+    GOBJ_ACT(self)->paraStatus = 0;
+    _ACTParaStatus_Set(self, 0);
+}
 
 INCLUDE_ASM(ACTParaStatus_Exec);
 

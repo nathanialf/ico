@@ -4,7 +4,7 @@
  *
  * alloc_zeroed passes __FILE__ and __LINE__ to the debug allocator and to
  * the assert, so the name the file is included under
- * ("../ito/include/mv_defs.h") and the lines of its two calls (43 and 44)
+ * ("../ito/include/mv_defs.h") and the lines of its two calls (42 and 43)
  * are part of the program's data.  Keep the lines above those two calls
  * where they are.
  *
@@ -17,7 +17,6 @@
  *
  * Free, the release that goes with it, is defined in each mpeg file that
  * calls it.
- *
  *
  *
  *

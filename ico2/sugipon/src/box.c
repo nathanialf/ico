@@ -128,7 +128,37 @@ static inline void stopBoxMoveSE(GObj *self) /* derived name */
 
 INCLUDE_ASM(initFallDown);
 
-INCLUDE_ASM(checkFieldContact);
+static int checkFieldContact(GObj *self, float lim)
+{
+    ClipWork w;
+    float pos[4];
+    int r;
+
+    GetRootPosition(pos, self);
+    GetLowerPlaneCollision(&w, pos);
+    r = CheckFieldContact(&w, self, pos, lim);
+    if (GOBJ_SUB(self)->parent.obj != 0) {
+        UnlinkParentOfDObj(self);
+    }
+    GOBJ_SUB(self)->ctrl.floorAttr = 0;
+    switch (r) {
+    case 1:
+        if (self != w.floor.o.obj) {
+            if (GOBJ_SUB(self)->parent.obj != w.floor.o.obj ||
+                GOBJ_SUB(self)->parent.node != w.floor.o.node) {
+                LinkParentOfDObj(self, &w.floor.o);
+                GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(&w);
+            }
+        }
+        w.pt[1][1] = w.pt[2][1] - 50.0f;
+        SetDirectRootPosition(self, w.pt[1]);
+        return 1;
+    case 2:
+        GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(&w);
+        return 2;
+    }
+    return 0;
+}
 
 /* Inlined into execNormalMove twice (once with ClipWall, once with
    ClipWallBoxStop) and into inertiaMove once; the two constant arguments

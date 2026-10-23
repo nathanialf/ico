@@ -91,62 +91,100 @@ void gsb_SetFrame(sceGsDBuff *db, int a1, int a2, int psm, short zbp)
  * interlaced, 512 by 512 in the tall mode and 512 by 448 otherwise, then set
  * the double buffer up, hand the first frame over and put the view scale back
  * to one. */
-INCLUDE_ASM(gsb_Init);
+void gsb_Init(void *db)
+{
+    int omode = 2;
 
-/* A frame buffer clear packet for the whole screen, 48 doublewords: a GIF tag
-   of 23 A+D writes and the register pairs, which gsb_ClearFrameBuffer
-   sends. */
-static const long long clearFramePacket[48] = {
-    /* derived name */
-    0x1000000000008017LL,
-    0xE,
-    0,
-    0x4A,
-    0x8000000048LL,
-    0x42,
-    0x700000007000LL,
-    0x18,
-    0x30000,
-    0x47,
-    0x1300000C0LL,
-    0x4E,
-    0x200000002000000LL,
-    0x40,
-    0,
-    1,
-    0x80000,
-    0x4C,
-    0x106,
-    0,
-    0xFFFFFFFF70007000LL,
-    5,
-    0xFFFFFFFF90009000LL,
-    5,
-    0x81000,
-    0x4C,
-    0x106,
-    0,
-    0xFFFFFFFF70007000LL,
-    5,
-    0xFFFFFFFF90009000LL,
-    5,
-    0x82000,
-    0x4C,
-    0x106,
-    0,
-    0xFFFFFFFF70007000LL,
-    5,
-    0xFFFFFFFF90009000LL,
-    5,
-    0x83000,
-    0x4C,
-    0x106,
-    0,
-    0xFFFFFFFF70007000LL,
-    5,
-    0xFFFFFFFF90009000LL,
-    5,
-};
+    sceGsSyncV(0);
+    fbClear = 1;
+    gsInitState = 0;
+    switch (systemStatus[0]) {
+    case 0:
+        ScreenWidth = 0x200;
+        ScreenHeight = 0x1C0;
+        break;
+    case 1:
+        ScreenWidth = 0x200;
+        ScreenHeight = 0x200;
+        omode = 3;
+        break;
+    }
+    sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, fbClear);
+    gsb_SetFrame(db, 0, 0, 0x30, 2);
+    sceGsResetGraph(0, systemStatus[1] == 1, omode, 1);
+    sceGsSyncV(0);
+    buffer_ID = 0;
+    FlushCache(0);
+    sceGsSwapDBuff(db, buffer_ID);
+    while (sceGsSyncPath(1, 0) != 0) {
+        debug_StdPrintfDummy("wait gs init\n");
+    }
+    gsb_SetVSMatrix(ScreenWidth, ScreenHeight, 512.0f);
+    shadow_Init();
+    zoomTarget = 1.0f;
+    zoomSpeed = 1000.0f;
+    zoomCurrent = 1.0f;
+}
+
+inline void gsb_ClearFrameBuffer(void)
+{
+    long long packet[48] = {
+        0x1000000000008017LL,
+        0xE,
+        0,
+        0x4A,
+        0x8000000048LL,
+        0x42,
+        0x700000007000LL,
+        0x18,
+        0x30000,
+        0x47,
+        0x1300000C0LL,
+        0x4E,
+        0x200000002000000LL,
+        0x40,
+        0,
+        1,
+        0x80000,
+        0x4C,
+        0x106,
+        0,
+        0xFFFFFFFF70007000LL,
+        5,
+        0xFFFFFFFF90009000LL,
+        5,
+        0x81000,
+        0x4C,
+        0x106,
+        0,
+        0xFFFFFFFF70007000LL,
+        5,
+        0xFFFFFFFF90009000LL,
+        5,
+        0x82000,
+        0x4C,
+        0x106,
+        0,
+        0xFFFFFFFF70007000LL,
+        5,
+        0xFFFFFFFF90009000LL,
+        5,
+        0x83000,
+        0x4C,
+        0x106,
+        0,
+        0xFFFFFFFF70007000LL,
+        5,
+        0xFFFFFFFF90009000LL,
+        5,
+    };
+
+    FlushCache(0);
+    *D2_QWC = 24;
+    *D2_MADR = (unsigned int)packet & 0x0FFFFFFF;
+    *D2_CHCR = 0x101;
+    sceGsSyncPath(0, 0);
+}
 
 /* the reduction tint gsb_Reduction picks each frame and packs into the
    sprite colour */
@@ -161,7 +199,71 @@ static int reductionBlue; /* derived name */
  * half height frame in black and then draws it back over itself through the
  * texture at 0x800 in the reduction tint, and last the tint this stage's
  * current target asks for. */
-INCLUDE_ASM(gsb_Reduction);
+void gsb_Reduction(void)
+{
+    long long pk[44] = {
+        0x1000000000008015LL,
+        0xE,
+        0,
+        0x4A,
+        0x8000000048LL,
+        0x42,
+        (long long)((ScreenWidth >> 6) & 0x3F) << 16,
+        0x4C,
+        ((long long)(0x800 - ScreenWidth / 2) << 4) | ((long long)(0x800 - ScreenHeight / 4) << 36),
+        0x18,
+        ((long long)(ScreenWidth - 1) << 16) | ((long long)(ScreenHeight / 2 - 1) << 48),
+        0x40,
+        0x106,
+        0,
+        0,
+        1,
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
+        5,
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 + ScreenWidth * 16 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
+            (-1LL << 32),
+        5,
+        ((long long)(ScreenWidth - 3) << 16) | 2 | ((long long)(ScreenHeight / 2 - 1) << 48),
+        0x40,
+        ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL,
+        6,
+        0x60,
+        0x14,
+        0x30000,
+        0x47,
+        0x1300000C0LL,
+        0x4E,
+        0x116,
+        0,
+        (long long)reductionRed |
+            ((long long)reductionBlue << 16 | (long long)reductionGreen << 8 | 0x80000000LL),
+        1,
+        0x80008,
+        3,
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 - 4) << 16) | (-1LL << 32),
+        5,
+        (long long)(ScreenWidth * 16 + 8) | ((long long)(ScreenHeight * 16 + 8) << 16),
+        3,
+        (long long)(-ScreenWidth / 2 * 16 + 0x8000 + ScreenWidth * 16 - 4) |
+            ((long long)(-ScreenHeight / 4 * 16 + 0x8000 + ScreenHeight / 2 * 16 - 4) << 16) |
+            (-1LL << 32),
+        5,
+        ((long long)ScreenWidth << 16) | ((long long)ScreenHeight << 48),
+        0x40,
+    };
+
+    FlushCache(0);
+    *D2_QWC = 22;
+    *D2_MADR = (int)pk & 0x0FFFFFFF;
+    *D2_CHCR = 0x101;
+    sceGsSyncPath(0, 0);
+    reductionRed = fbKeep ? 128 : GlobalStageSetting.reductionCol[0];
+    reductionGreen = fbKeep ? 128 : GlobalStageSetting.reductionCol[1];
+    reductionBlue = fbKeep ? 128 : GlobalStageSetting.reductionCol[2];
+}
 
 /* the colour the kept frame is drawn back in */
 static const unsigned char keepFrameColor[4] = {112, 112, 112, 128}; /* derived name */
@@ -258,7 +360,65 @@ extern void gif_SetDrawEnviroment(int fbp, int psm, int w, int h, int useoffset,
  * it to 0 to 128, stop or hand over to the continue state at the ends, and
  * draw the whole screen as one sprite in the fade colour.  The two end tests
  * are `&&` chains. */
-INCLUDE_ASM(gsb_fade);
+static void gsb_fade(void)
+{
+    GsbRect r = {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16, ScreenWidth * 16,
+                 ScreenHeight * 16};
+
+    switch (fadeStatus) {
+    case 1:
+        if (0.0f < fadeSpeed) {
+            fadeLevel = 0.0f;
+            fadeStatus = 2;
+        } else if (fadeSpeed < 0.0f) {
+            fadeStatus = 2;
+            fadeLevel = 144.0f;
+        }
+        /* FALLTHROUGH */
+    case 2:
+        fadeLevel = fadeLevel + fadeSpeed * 0.5f;
+        break;
+    case 3:
+        break;
+    default:
+        goto clear;
+    }
+    if (0.0f < fadeSpeed && 128.0f <= fadeLevel) {
+        if (fadeContinue != 0) {
+            fadeStatus = 3;
+        } else {
+            fadeStatus = 0;
+        }
+    } else if (fadeSpeed < 0.0f && fadeLevel < 0.0f) {
+        if (fadeContinue != 0) {
+            fadeStatus = 3;
+        } else {
+            fadeStatus = 0;
+        }
+    }
+    if (128.0f <= fadeLevel) {
+        fadeColor[3] = 128;
+    } else if (fadeLevel < 0.0f) {
+        fadeColor[3] = 0;
+    } else {
+        fadeColor[3] = fadeLevel;
+    }
+    gif_StartPacketPri(0xB);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+    gif_SetGsReg(0x47, 0x30000);
+    gif_SetGsReg(0x4E, 0x1300000C0LL);
+    setGsReg(0x49, 0);
+    setGsReg(0x42, 0x44);
+    spriteRect(r.x, r.y, r.w, r.h, -1LL, fadeColor, 0x446);
+    gif_EndPacket();
+    if (debug_font_flag & 1) {
+        debug_Printf(0x208, ScreenHeight / 2 - 8, 0xCCCCCC00, "F");
+    }
+    return;
+clear:
+    fadeColor[3] = 0;
+    fadeStatus = 0;
+}
 
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */
@@ -277,7 +437,51 @@ extern void gif_EndPacketPath1(void);
  * is left alone; once they are gone the stage record's blur setting is
  * restored.  Each bar is drawn by a macro inside the two-iteration loop,
  * its first corner written before fx and fy are formed. */
-INCLUDE_ASM(gsb_scissorOnDemo);
+static void gsb_scissorOnDemo(void)
+{
+    GsbRect r[2] = {
+        {-(ScreenWidth >> 1) * 16, -(ScreenHeight >> 1) * 16 - 4, ScreenWidth * 16, 58 * 16},
+        {-(ScreenWidth >> 1) * 16, ((ScreenHeight >> 1) - 58) * 16 + 4, ScreenWidth * 16, 58 * 16}};
+    unsigned char col[4];
+    int i;
+
+    if (current_layout_id == 51 && scissorLastState != current_layout_id) {
+        scissorStep = 2.5f;
+    } else if (scissorLastState != current_layout_id) {
+        scissorStep = -2.5f;
+    }
+    scissorLastState = current_layout_id;
+
+    scissorLevel = scissorLevel + scissorStep;
+    if (scissorLevel <= 0.0f) {
+        scissorLevel = 0.0f;
+        scissorStep = 0.0f;
+    }
+    if (128.0f <= scissorLevel) {
+        scissorLevel = 128.0f;
+        scissorStep = 0.0f;
+    }
+    if (0.0f < scissorLevel && scissorLevel <= 128.0f) {
+        if (debug_font_flag & 1) {
+            debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, "D");
+        }
+        dl_SetDLPriority(12);
+        gif_StartPacketPriPath1(dl_GetPri());
+        memset(col, 0, 4);
+        col[3] = 0x80;
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+        gif_SetGsReg(0x47, 0x30000);
+        gif_SetGsReg(0x4E, 0x1300000C0LL);
+        gif_SetGsReg(0x49, 0);
+        gif_SetGsReg(0x42, ((long long)(int)scissorLevel << 32) | 0x64);
+        for (i = 0; i < 2; i++) {
+            spriteRect(r[i].x, r[i].y, r[i].w, r[i].h, -1LL, col, 0x446);
+        }
+        gif_EndPacketPath1();
+    } else {
+        SetMotionBlur(GlobalStageSetting.motionBlur);
+    }
+}
 
 /* void (int, int, int) here, void (long long, long long, long long) in GifPacket.h */
 extern void gif_SetAlpha(int alpha, int mode, int fix);
@@ -288,7 +492,33 @@ extern void gif_MakeSpriteNoTexture(int x, int y, int w, int h, unsigned int z, 
 /* Darken the whole frame by the stage record's brightness step: a full screen
  * white sprite in destination-alpha blend whose alpha is the step, clamped to
  * 0 to 15 and skipped at 0. */
-INCLUDE_ASM(gsb_controlBrightness);
+static void gsb_controlBrightness(void)
+{
+    int v = systemStatus[0x2C / 4];
+
+    if (v < 0) {
+        v = systemStatus[0x2C / 4] = 0;
+    }
+    if (v >= 0x10) {
+        v = systemStatus[0x2C / 4] = 0xF;
+    }
+    if (v != 0) {
+        if (debug_font_flag & 1) {
+            debug_Printf(0x212, ScreenHeight / 2 - 8, 0xCCCCCC00, "B");
+        }
+        gif_StartPacketPri(0xB);
+        {
+            unsigned char col[4] = {0xFF, 0xFF, 0xFF, systemStatus[0x2C / 4]};
+
+            gif_SetGsReg(0x47, 0x30000);
+            gif_SetGsReg(0x4E, 0x1300000C0LL);
+            gif_SetAlpha(1, 7, 0);
+            gif_MakeSpriteNoTexture((0x800 - ScreenWidth / 2) << 4, (0x800 - ScreenHeight / 2) << 4,
+                                    ScreenWidth << 4, ScreenHeight << 4, 0xFFFFFFFF, col, 1);
+            gif_EndPacketPath1();
+        }
+    }
+}
 
 /* A colour as the sprite family takes it, four bytes in RGBA order; the same
    record as Texture.c's TexColor. */
@@ -312,7 +542,52 @@ extern void gif_SpriteSensitiveOrg(GsbRect *r, long long z, GsbRect *uv, GsbColo
  * record (or the current sub target's row) turns on is blended back over the
  * 512 square buffer through the sensitive sprite.  Every TEX0 write is one
  * expression in field order, as Texture.c spells it. */
-INCLUDE_ASM(gsb_antiAlias);
+static void gsb_antiAlias(void)
+{
+    GsbColor col = {128, 128, 128, 128};
+    GsbRect s0 = {4, 4, 8192, 8192};
+    GsbRect s1 = {4, 4, 4096, 4096};
+    GsbRect s2 = {4, 4, 2048, 2048};
+    GsbRect d0 = {-4100, -4100, 8192, 8192};
+    GsbRect d1 = {-2052, -2052, 4096, 4096};
+    GsbRect d2 = {-1028, -1028, 2048, 2048};
+    int lv[2] = {GlobalStageSetting.antiLevel0, GlobalStageSetting.antiLevel1};
+
+    if (lv[0] == 0 && lv[1] == 0) {
+        return;
+    }
+    gif_StartPacketPri(10);
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+    gif_SetDrawEnviroment(0x2800, 0, 256, 256, 0, 0);
+    gif_SetGsReg(6, 0x800 | ((long long)8 << 14) | ((long long)tex_GetTWTH(512) << 26) |
+                        ((long long)tex_GetTWTH(512) << 30) | ((long long)1 << 34));
+    gif_SetAlpha(0, 2, 128);
+    gif_SpriteSensitiveOrg(&d1, 0, &s0, &col, 0);
+    if (lv[1] != 0) {
+        gif_SetGsReg(6, 0x2800 | ((long long)4 << 14) | ((long long)tex_GetTWTH(256) << 26) |
+                            ((long long)tex_GetTWTH(256) << 30) | ((long long)1 << 34));
+        gif_SetDrawEnviroment(0x2C00, 0, 128, 128, 0, 0);
+        gif_SpriteSensitiveOrg(&d2, 0, &s1, &col, 0);
+    }
+    gif_SetDrawEnviroment(0x800, 0, 512, 512, 0, 0);
+    if (lv[1] != 0) {
+        gif_SetAlpha(1, 2, lv[1]);
+        gif_SetGsReg(6, 0x2C00 | ((long long)2 << 14) | ((long long)tex_GetTWTH(128) << 26) |
+                            ((long long)tex_GetTWTH(128) << 30) | ((long long)1 << 34));
+        gif_SpriteSensitiveOrg(&d0, 0, &s2, &col, 1);
+    }
+    if (lv[0] != 0) {
+        gif_SetAlpha(1, 2, lv[0]);
+        gif_SetGsReg(6, 0x2800 | ((long long)4 << 14) | ((long long)tex_GetTWTH(256) << 26) |
+                            ((long long)tex_GetTWTH(256) << 30) | ((long long)1 << 34));
+        gif_SpriteSensitiveOrg(&d0, 0, &s1, &col, 1);
+    }
+    gif_SetZWrite(1);
+    gif_SetZTest(1);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+    gif_EndPacket();
+}
 
 static void gsb_setNormalReg(int ctx)
 {
@@ -379,7 +654,7 @@ void gsb_MakeCommonMatrix(void)
     GifPkWord *q;
     int i;
 
-    if (game_pause == 0) {
+    if (graphics_ready == 0) {
         return;
     }
     i = 0;
@@ -431,12 +706,55 @@ void gsb_MakeCommonMatrix(void)
     } while (i < 0xD);
 }
 
-/* Open the frame's first display list: one DMA tag, the two VIF words that
- * hand path 1 to the GS, a second tag for the register run, and then the
- * default register set for each of the thirteen contexts. */
-static void gsb_SetGsDefault(void);
+/* set by gsb_SetGsDefault once the frame is up, tested by gsb_PostEffect */
+static int postEffectReady = 0; /* derived name */
 
-INCLUDE_ASM(gsb_SetGsDefault);
+/* Open the frame's first display list: one DMA tag, the two VIF words that
+ * hand path 1 to the GS, a second tag for the register run, the default
+ * register set for each of the thirteen contexts, and then the shadow reset
+ * and the full screen effect's first pass. */
+static void gsb_SetGsDefault(void)
+{
+    DpkCtl *d = &PacketBufferStruct;
+    GifPkWord *p = (GifPkWord *)d->ptr.d;
+
+    d->gif.c = 0;
+    d->tail.c = (char *)p;
+    d->dma.c = (char *)p;
+    d->end.c = 0;
+    p[0].d = 0x10000000;
+    d->ptr.c = (char *)p + 8;
+    p[1].w[0] = 0x3000100;
+    d->ptr.c = (char *)p + 0xC;
+    p[1].w[1] = 0x2000180;
+    d->ptr.c = (char *)p + 0x10;
+    d->tail.c = (char *)p + 0x10;
+    p[2].d = 0x60000000;
+    d->ptr.c = (char *)p + 0x18;
+    p[3].w[0] = 0;
+    d->ptr.c = (char *)p + 0x1C;
+    p[3].w[1] = 0;
+    d->ptr.c = (char *)p + 0x20;
+    dl_SetDLPriority(0);
+    dl_OpenDma(5, d->dma.c, 0);
+    dl_CloseDma();
+    gsb_MakeCommonMatrix();
+    gsb_setNormalReg(0);
+    gsb_setSemitransReg(1);
+    gsb_setSemitransReg(2);
+    gsb_setParticleReg(6);
+    gsb_setSpecularReg(4);
+    gsb_setNormalReg(7);
+    gsb_setNormalReg(8);
+    gsb_setNormalReg(9);
+    gsb_setNormalReg(0xA);
+    gsb_setNormalReg(0xB);
+    gsb_setNormalReg(0xC);
+    postEffectReady = 0;
+    shadow_Reset();
+    postEffectReady = 1;
+    FullScreenEffectBefore();
+}
 
 /* Lay the film grain texture over the frame: the noise texture at texture
  * slot 10, drawn as one full screen sprite whose colour comes from the
@@ -444,14 +762,45 @@ INCLUDE_ASM(gsb_SetGsDefault);
  * record's grain scale, passed as raw bits in both halves of the register. */
 static void gsb_filmNoise(void);
 
-/* set by gsb_UpdateGSSystem once the frame is up, tested by gsb_PostEffect */
-static int postEffectReady = 0; /* derived name */
-
 /* Everything the frame still owes after the scene is drawn: the debug read
  * outs, the full screen effect, the shadow and fog passes, the motion blur,
  * the anti alias pass, the film grain and the brightness step, the kept frame
  * buffer, the staff roll and last the fade and the demo scissor. */
-INCLUDE_ASM(gsb_PostEffect);
+static int gsb_PostEffect(void)
+{
+    if (debug_font_flag & 1) {
+        debug_Printf(0xA, ScreenHeight / 2 - 8, 0xCCCCCC00, "LID:%3d / FADE%d:%3.0f(%d)",
+                     current_layout_id, fadeStatus, fadeLevel, fadeColor[3]);
+    }
+    if (systemStatus[0x18 / 4] != 0 && (debug_font_flag & 1)) {
+        debug_Printf(0x230, ScreenHeight / 2 - 8, 0xCCCCCC00, "L");
+    }
+    if (systemStatus[0x14 / 4] != 0 && (debug_font_flag & 1)) {
+        debug_Printf(0x23A, ScreenHeight / 2 - 8, 0xCCCCCC00, "P");
+    }
+    if (postEffectReady != 0) {
+        shadow_Draw();
+        fog_DrawFog();
+    }
+    MotionBlur();
+    gsb_controlBrightness();
+    FullScreenEffectAfter();
+    if (fbKeep != 0) {
+        gsb_KeepFrameBuffer();
+        if (debug_font_flag & 1) {
+            debug_Printf(0x226, ScreenHeight / 2 - 8, 0xCCCCCC00, "K");
+        }
+    }
+    if (staffRollStartFlag != 0) {
+        staffRollMain();
+        if (staffRollStartFlag != 0) {
+            gsb_scissorOnDemo();
+        }
+    }
+    gsb_antiAlias();
+    gsb_fade();
+    return fbKeep;
+}
 
 /* gsb_InitGSSystem's first call brings every module up */
 static int firstGsInit = 1; /* derived name */
@@ -468,7 +817,36 @@ INCLUDE_ASM_LIT(gsb_SyncGSSystem);
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
  * either swapped or cleared, then reopen the frame's register set. */
-INCLUDE_ASM(gsb_UpdateGSSystem);
+void gsb_UpdateGSSystem(void)
+{
+    sceGsDrawEnv *draw;
+
+    odd_even = (*GS_CSR >> 13) & 1;
+    gsb_PostEffect();
+    gsb_Reduction();
+    if (gsSystemReady == 0) {
+        dl_Clear();
+        return;
+    }
+    debug_FlushFont();
+    frame_count++;
+    buffer_ID = frame_count & 1;
+    FlushCache(0);
+    sceGsSwapDBuff(&db, buffer_ID);
+    if (buffer_ID != 0) {
+        draw = &db.draw1;
+    } else {
+        draw = &db.draw0;
+    }
+    sceGsSetHalfOffset(draw, (short)((float)screen_offset_x + 2048.0f),
+                       (short)((float)screen_offset_y + 2048.0f), odd_even == 0);
+    tex_ResetVram();
+    dl_Swap();
+    gsb_SetGsDefault();
+    if (staffRollStartFlag == 0) {
+        gsb_scissorOnDemo();
+    }
+}
 
 /* Reset the GS between stages: reopen the paths, reset the VU0 and the DMA,
  * put the graphics mode back, take the field parity out of the GS CSR and
@@ -660,9 +1038,83 @@ static int stageSettingRow = 0; /* derived name */ /* the highlighted row */
 /* The stage setting page of the debug menu: seventeen editable words of the
  * stage record, the pad keys that walk and change them, and the key that dumps
  * the page to the log. */
-int gsb_StageSettingTool(void);
+int gsb_StageSettingTool(void)
+{
+    int i;
+    int ret = 0;
 
-INCLUDE_ASM(gsb_StageSettingTool);
+    debug_PrintfDummy(10, 50, 0xFF800000, "StageSetting Tool");
+
+    for (i = 0; i < 17; i++) {
+        if (stageSettingItems[i].min == 0 && stageSettingItems[i].max == 1) {
+            debug_PrintfDummy(18, (i + 1) * 8 + 50,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %s",
+                              stageSettingItems[i].name,
+                              stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
+        } else {
+            debug_PrintfDummy(18, (i + 1) * 8 + 50,
+                              stageSettingRowColor[(stageSettingRow == i) ? 1 : 0], "%s : %d",
+                              stageSettingItems[i].name, *(int *)stageSettingItems[i].val);
+        }
+    }
+
+    if (pad[0].rep & 0x4000) {
+        if (++stageSettingRow >= 17) {
+            stageSettingRow = 0;
+        }
+    }
+    if (pad[0].rep & 0x1000) {
+        if (--stageSettingRow < 0) {
+            stageSettingRow = 16;
+        }
+    }
+    if (pad[0].rep & 0x2000) {
+        int v = *(int *)stageSettingItems[stageSettingRow].val +
+                stageSettingItems[stageSettingRow].step;
+
+        *(int *)stageSettingItems[stageSettingRow].val = v;
+        if (stageSettingItems[stageSettingRow].max < v) {
+            *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].min;
+        }
+        if (stageSettingItems[stageSettingRow].fn != 0) {
+            stageSettingItems[stageSettingRow].fn(0);
+        }
+    }
+    if (pad[0].rep & 0x8000) {
+        int v = *(int *)stageSettingItems[stageSettingRow].val -
+                stageSettingItems[stageSettingRow].step;
+
+        *(int *)stageSettingItems[stageSettingRow].val = v;
+        if (v < stageSettingItems[stageSettingRow].min) {
+            *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].max;
+        }
+        if (stageSettingItems[stageSettingRow].fn != 0) {
+            stageSettingItems[stageSettingRow].fn(0);
+        }
+    }
+    if (pad[0].flags & 0x10) {
+        *(int *)stageSettingItems[stageSettingRow].val = stageSettingItems[stageSettingRow].def;
+    }
+    if (pad[0].flags & 0x20) {
+        for (i = 0; i < 17; i++) {
+            if (stageSettingItems[i].min == 0 && stageSettingItems[i].max == 1) {
+                debug_StdPrintfDummy("StageSetting %s => %s\n", stageSettingItems[i].name,
+                                     stageSettingOnOffText[*(int *)stageSettingItems[i].val]);
+            } else {
+                debug_StdPrintfDummy("StageSetting %s => %d\n", stageSettingItems[i].name,
+                                     *(int *)stageSettingItems[i].val);
+            }
+        }
+        ret = 1;
+    }
+    if (pad[0].flags & 0x40) {
+        ret = -1;
+    }
+    if (ret != 0) {
+        stageSettingRow = 0;
+    }
+    return ret;
+}
 
 typedef struct { /* field names derived */
     char *name;  /* 0x0 */
@@ -691,7 +1143,37 @@ static int menuCursor = 0; /* derived name */
 
 static int menuSelected = -1; /* derived name */
 
-INCLUDE_ASM(gsb_StageSetting);
+int gsb_StageSetting(void)
+{
+    int i;
+    if (menuSelected >= 0) {
+        if (stageSettingMenu[menuSelected].fn != 0) {
+            int r = stageSettingMenu[menuSelected].fn(0);
+            if (r == -1) {
+                menuSelected = r;
+            }
+            return 0;
+        }
+    }
+    for (i = 0; i < 6; i++) {
+        debug_PrintfDummy(18, (i + 1) * 8 + 50, menuRowColor[(menuCursor == i) ? 1 : 0], "%s",
+                          stageSettingMenu[i].name);
+    }
+    if (pad[0].rep & 0x4000) {
+        menuCursor++;
+        if (menuCursor >= 6)
+            menuCursor = 0;
+    }
+    if (pad[0].rep & 0x1000) {
+        menuCursor--;
+        if (menuCursor < 0)
+            menuCursor = 5;
+    }
+    if (pad[0].flags & 0x20) {
+        menuSelected = menuCursor;
+    }
+    return (pad[0].flags & 0x40) ? -1 : 0;
+}
 
 INCLUDE_ASM(gsb_SetBGColor);
 
@@ -704,5 +1186,3 @@ INCLUDE_ASM(gsb_SyncGSSystem);
 INCLUDE_ASM(gsb_LoadStageSettings);
 
 INCLUDE_ASM(gsb_SaveStageSettings);
-
-INCLUDE_ASM(gsb_ClearFrameBuffer);

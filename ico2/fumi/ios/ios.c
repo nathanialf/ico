@@ -8,6 +8,7 @@
 #include <sifrpc.h>
 #include "main.h"
 #include <sound.h>
+#include "cdvd.h"
 #include "include_asm.h"
 
 /* the IOP heap shortfall the allocator records, then a word no retail code
@@ -45,7 +46,37 @@ static struct SemaParam sndLockSemaParam; /* derived name */
 /* keyInput.h is not included */
 extern void InitKeyInput(int unused);
 
-INCLUDE_ASM(ios_init_plus);
+static void ios_init_plus(void)
+{
+    padLockSemaParam.attr = 1;
+    padLockSemaParam.maxCount = 1;
+    padLockSemaParam.initCount = 0;
+    IosPadLock = CreateSema(&padLockSemaParam);
+    cdLockSemaParam.attr = 1;
+    cdLockSemaParam.maxCount = 1;
+    cdLockSemaParam.initCount = 0;
+    IosCdLock = CreateSema(&cdLockSemaParam);
+    stgMgrLockSemaParam.attr = 1;
+    stgMgrLockSemaParam.maxCount = 1;
+    stgMgrLockSemaParam.initCount = 0;
+    IosStgMgrLock = CreateSema(&stgMgrLockSemaParam);
+    sndLockSemaParam.attr = 1;
+    sndLockSemaParam.maxCount = 1;
+    sndLockSemaParam.initCount = 0;
+    IosSndLock = CreateSema(&sndLockSemaParam);
+    system_stage_func = 0;
+    InitKeyInput(0);
+    debug_StdPrintfDummy("SgSndn2RemoteInit()\n");
+    SgSndn2RemoteInit();
+    sceSifInitIopHeap();
+    debug_StdPrintfDummy("allocate IOP heap memory - \n");
+    iosCdvd.stMem = iosSifAllocIopHeapDebug(80 * 2048 + 16, __FILE__, 228);
+    debug_StdPrintfDummy("cd ring buff alloced 0x%x  \n", iosCdvd.stMem);
+    soundAllocIopHeap();
+    soundInit();
+    screen_offset_x = 0;
+    screen_offset_y = 0;
+}
 
 INCLUDE_ASM(iosInitialize);
 

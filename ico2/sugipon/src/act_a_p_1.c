@@ -32,7 +32,15 @@ typedef struct AP1Vec { /* field names derived */
 /* the two-letter tag GetAP1AIMode hands the debug display. */
 static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"}; /* derived name */
 
-INCLUDE_ASM_LIT(GetAP1AIMode);
+inline char *GetAP1AIMode(GObj *self)
+{
+    Act *p = GOBJ_ACT(self);
+
+    if (p == 0 || (unsigned int)p->actMode >= 6) {
+        return "--";
+    }
+    return ap1ModeTag[p->actMode];
+}
 
 /* a hop ten units down and fifteen back, which no code of this build reads */
 static AP1Vec ap1BackHop = {0.0f, -10.0f, -15.0f, 0.0f}; /* derived name */
@@ -89,11 +97,38 @@ INCLUDE_ASM(standAI);
 
 INCLUDE_ASM(walkAI);
 
-INCLUDE_ASM(hehehe);
+void hehehe(GObj *self)
+{
+    debug_StdPrintfDummy(ap1ModeName[GOBJ_ACT(self)->actMode]);
+}
 
-INCLUDE_ASM(SleepAP1);
+void SleepAP1(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    s->actMode = 5;
+    s->flags18.ll &= ~(1LL << 32);
+    GOBJ_ACT(self)->hit = 1;
+    AP1MotReqForce(self, 7);
+}
 
-INCLUDE_ASM(WakeUpAP1);
+void WakeUpAP1(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+
+    if (s->actMode == 4) {
+        /* already dead, so it is not woken */
+        debug_StdPrintfDummy("既に死んでいるので起こしません\n");
+        return;
+    }
+    s->actMode = 2;
+    AP1MotReqForce(self, 2);
+    s->flags18.ll |= 1LL << 32;
+    {
+        Act *t = GOBJ_ACT(self);
+        t->attacker = 0;
+        t->hit = 0;
+    }
+}
 
 /* three helpers for subAP1BrainMain */
 
@@ -146,7 +181,14 @@ static void hitProc(GObj *self)
     AP1MotReqForce(self, 5);
 }
 
-INCLUDE_ASM(SetAP1DeadStatus);
+void SetAP1DeadStatus(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    s->actMode = 4;
+    s->flags18.ll &= ~(1LL << 32);
+    GOBJ_ACT(self)->hit = 1;
+    AP1MotReqForce(self, 5);
+}
 
 typedef struct AP1MailEntry { /* field names derived */
     /* 0x0 */ unsigned int mail;
@@ -225,16 +267,49 @@ INCLUDE_ASM(AP1BeforeFunc);
 
 void subAP1Control(int x);
 
-INCLUDE_ASM(actAP1Start);
+void actAP1Start(GObj *g)
+{
+    Act *s = actInitialize(g);
+
+    actInitialize_ext_charcter(g);
+    s->flags18.ll &= ~(1LL << 32);
+    s->actMode = 5;
+    s->lookPri = 0;
+    s->lookTarget = 0;
+    GOBJ_ACT(g)->hit = 1;
+
+    ACTGameView_Add(girlGObj, g);
+
+    _ACTWait(1);
+
+    s->actKind = GetAP1SpecType(g);
+
+    {
+        AP1Vec v = {spiderDef[s->actKind].jump[0], spiderDef[s->actKind].jump[1],
+                    spiderDef[s->actKind].jump[2], 0};
+
+        CopyVector(s->jump, &v);
+    }
+
+    s->attack = (unsigned int)spiderDef[s->actKind].attack;
+    actCreateSubThread(subAP1BrainMain, 20);
+    actCreateSubThread(subAP1Control, 21);
+}
 
 int IsActCharDead(GObj *self)
 {
     return ((int)(GOBJ_ACT(self)->flags18.ll >> 32) & 1) ^ 1;
 }
 
-INCLUDE_ASM(SetAP1HostGObj);
+void SetAP1HostGObj(GObj *self, GObj *host)
+{
+    GOBJ_ACT(self)->lookTarget = host;
+}
 
-INCLUDE_ASM(SetAP1PriorLevel);
+void SetAP1PriorLevel(GObj *self, int val)
+{
+    GOBJ_ACT(self)->lookPri = val;
+}
 
 static inline int jumpAI(GObj *self)
 {
@@ -250,5 +325,3 @@ inline void subAP1Control(int x)
 {
     volatile int local = x;
 }
-
-INCLUDE_ASM(GetAP1AIMode);

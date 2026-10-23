@@ -172,44 +172,24 @@ rdlit Main 0x0054DB20 0x0054DBC8 ico2/common/src/main.c # target side
 sdlit Main 0x0062BA98 0x0062BAA4 ico2/common/src/main.c  # target side: "NTSC" and "PAL"
 text scheduler 0x00102138 0x0010230C ico2/common/src/main.c local lines=63  # ordinal; first difference at insn 22; length:-4; extent-differs
 rdlit scheduler 0x0054DC50 0x0054DCD1 ico2/common/src/main.c  # 2 strings, 1 data
-text UpdateRootMatrixByDObj 0x00102798 0x00102820 ico2/sugipon/src/geometryManager.c lines=14  # ordinal; first difference at insn 22; imm:1; extent-equal
 text SetDirectRootPositionNoFittingWithNodePoint 0x00102A10 0x00102BDC ico2/sugipon/src/geometryManager.c lines=13  # ordinal; first difference at insn 39; imm:10; extent-equal
 text LocalizeGeometry 0x00102C08 0x00102D9C ico2/sugipon/src/geometryManager.c lines=28  # ordinal; first difference at insn 19; imm:12; extent-equal
 rdlit LocalizeGeometry 0x0054DD50 0x0054DDC8 ico2/sugipon/src/geometryManager.c  # 2 strings
 sdlit LocalizeGeometry 0x0062BCB0 0x0062BCBA ico2/sugipon/src/geometryManager.c  # 2 strings
-text GlobalizeGeometry 0x00102E18 0x00102F0C ico2/sugipon/src/geometryManager.c lines=24  # ordinal; first difference at insn 14; imm:8; extent-equal
-text GetRootVelocity 0x00102F10 0x00102F1C ico2/sugipon/src/geometryManager.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
 text MakeCharGObjList 0x00103170 0x001032B4 ico2/sugipon/src/geometryManager.c lines=19  # ordinal; first difference at insn 56; imm:2; extent-equal
 rdlit MakeCharGObjList 0x0054DDC8 0x0054DDF6 ico2/sugipon/src/geometryManager.c  # 1 string
 text cylinderCollisionCheck 0x001032B8 0x001038D0 ico2/sugipon/src/geometryManager.c lines=98  # ordinal; first difference at insn 40; imm:35; extent-equal
-text LocalizeDirectionOrient 0x001038D0 0x00103948 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; first difference at insn 17; imm:3; extent-equal
-text GetCylinderCollision 0x00103948 0x00103A44 ico2/sugipon/src/geometryManager.c lines=7  # ordinal; first difference at insn 30; imm:2; extent-equal
-text GetCylinderCollisionWithExceptOwnCollision 0x00103A48 0x00103B50 ico2/sugipon/src/geometryManager.c lines=8  # ordinal; first difference at insn 32; imm:2; extent-equal
-text CylinderCollision 0x00103B50 0x00103D00 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; first difference at insn 22; imm:4; extent-equal
-text CylinderCollisionWithControlDynamics 0x00103D00 0x00103EBC ico2/sugipon/src/geometryManager.c lines=4  # ordinal; first difference at insn 24; imm:4; extent-equal
-text GetRootMatrixByDObj 0x00103EC0 0x00103F3C ico2/sugipon/src/geometryManager.c lines=12  # ordinal; first difference at insn 21; imm:1; extent-equal
-text GetRootMatrix 0x00103F40 0x00103FBC ico2/sugipon/src/geometryManager.c lines=14  # ordinal; first difference at insn 21; imm:1; extent-equal
-text GetRootPositionByDObj 0x00103FC0 0x00104040 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; first difference at insn 16; imm:2; extent-equal
 text SetDirectRootPosition 0x00104040 0x00104160 ico2/sugipon/src/geometryManager.c lines=18  # ordinal; first difference at insn 22; imm:8; extent-equal
 text SetDirectRootPositionNoFitting 0x00104160 0x00104278 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; first difference at insn 22; imm:8; extent-equal
 text SetRootPosition 0x00104278 0x00104304 ico2/sugipon/src/geometryManager.c lines=4  # ordinal; first difference at insn 10; imm:1; extent-equal
-text GetRootPosition 0x00104308 0x0010438C ico2/sugipon/src/geometryManager.c lines=4  # ordinal; first difference at insn 17; imm:2; extent-equal
-text GetRootOrient 0x00104390 0x00104434 ico2/sugipon/src/geometryManager.c lines=17  # ordinal; first difference at insn 22; imm:1; extent-equal
-text GetRootMotionOrient 0x00104548 0x00104614 ico2/sugipon/src/geometryManager.c lines=19  # ordinal; first difference at insn 26; imm:1; extent-equal
-text GetRootMotionMatrix 0x00104618 0x001046C4 ico2/sugipon/src/geometryManager.c lines=16  # ordinal; first difference at insn 24; imm:1; extent-equal
 text GetWaterReaction 0x00105E90 0x0010618C ico2/sugipon/src/motionManager2.c lines=54  # trfile; aug6-only in the census; PAL's GetWaterReaction (724 B in PAL)
 lit4 GetWaterReaction 0x0062AABC 0x0062AAC0 ico2/sugipon/src/motionManager2.c  # 1 float
 text CheckFieldContact 0x00106190 0x0010636C ico2/sugipon/src/motionManager2.c lines=41  # trfile; aug6-only in the census; PAL's CheckFieldContact (436 B in PAL)
 lit4 CheckFieldContact 0x0062AAC0 0x0062AAC4 ico2/sugipon/src/motionManager2.c  # 1 float
-text GetOrientOfWallOfGObj 0x00106898 0x001068A4 ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text GetOrientOfCliffOfGObj 0x001068A8 0x001068B4 ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text SetMotionDirection 0x001068B8 0x00106970 ico2/sugipon/src/motionManager2.c lines=18  # ordinal; first difference at insn 13; imm:2; extent-equal
 text _GetMotionDirection 0x00106970 0x0010697C ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
 rdlit _GetMotionDirection 0x0054DE60 0x0054DEAE ico2/sugipon/src/motionManager2.c  # target side
 text GetRootPosOfNextFrame 0x00106B20 0x00106B64 ico2/sugipon/src/motionManager2.c lines=6  # ordinal; first difference at insn 6; imm:1; extent-equal
 rdlit GetRootPosOfNextFrame 0x0054DEC8 0x0054DF22 ico2/sugipon/src/motionManager2.c  # target side
-text AdjustMotionHeightToField 0x00106B68 0x00106BA4 ico2/sugipon/src/motionManager2.c lines=6  # ordinal; first difference at insn 5; imm:3; extent-equal
-rdlit AdjustMotionHeightToField 0x0054DF28 0x0054DF57 ico2/sugipon/src/motionManager2.c  # 1 string
 text InitMotionGeoInfo 0x00107070 0x00107290 ico2/sugipon/src/motionManager2.c lines=18  # ordinal; first difference at insn 7; length:-6; extent-differs
 lit4 InitMotionGeoInfo 0x0062AAD0 0x0062AAD4 ico2/sugipon/src/motionManager2.c  # 1 float
 text SlopeIKControl 0x001075E0 0x001079EC ico2/sugipon/src/motionManager2.c lines=38  # ordinal; first difference at insn 0; length:+55; extent-differs
@@ -220,38 +200,17 @@ lit4 GetPureVerticalPlaneOfCurrentPosition 0x0062AAFC 0x0062AB00 ico2/sugipon/sr
 sdlit GetPureVerticalPlaneOfCurrentPosition 0x0062BCD0 0x0062BCD8 ico2/sugipon/src/motionManager2.c  # target side: "!!" and a float
 text FeedbackWallWorkInfoToBrainSystem 0x00109A20 0x00109A60 ico2/sugipon/src/motionManager2.c lines=7  # ordinal; first difference at insn 2; imm:12; extent-equal
 text GetMotionPointer 0x00109A60 0x00109A6C ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text GetCollisionOfLastActiveField 0x00109A70 0x00109A7C ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
 text SetMotionBlendlessNode 0x00109C70 0x00109D8C ico2/sugipon/src/motionManager2.c lines=14  # ordinal; first difference at insn 0; length:+32; extent-differs
 text ClearMotionBlendlessNode 0x00109D90 0x00109DD0 ico2/sugipon/src/motionManager2.c lines=9  # ordinal; first difference at insn 4; imm:1; extent-equal
 text GetSkeltonFocusNode 0x00109E58 0x00109F04 ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 0; length:+38; extent-differs
 text AdjustMotionHeightToNearestField 0x00109F08 0x00109FD8 ico2/sugipon/src/motionManager2.c lines=8  # ordinal; first difference at insn 15; imm:7; extent-equal
-text SetRootUpdateMode 0x00109FD8 0x00109FE4 ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text ForMotionViewer_GetCurrentAnimationFrame 0x00109FE8 0x00109FF4 ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text ForMotionViewer_GetCurrentMotion 0x00109FF8 0x0010A004 ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text EnableMotionOrientUpdate 0x0010A008 0x0010A014 ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text DisableMotionOrientUpdate 0x0010A018 0x0010A028 ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 3; imm:1; extent-equal
-text CheckFloorAttribute 0x0010A028 0x0010A048 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 4; imm:1; extent-equal
-text CheckWallAttribute 0x0010A048 0x0010A068 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 4; imm:1; extent-equal
-text CheckPureWallAttribute 0x0010A068 0x0010A088 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 4; imm:1; extent-equal
-text CheckPureCliffAttribute 0x0010A088 0x0010A0A8 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 4; imm:1; extent-equal
 text GetDifferenceFromWallUpperField 0x0010A100 0x0010A1CC ico2/sugipon/src/motionManager2.c lines=6  # ordinal; first difference at insn 0; length:+36; extent-differs
 text GetDifferenceFromLastField 0x0010A1D0 0x0010A29C ico2/sugipon/src/motionManager2.c lines=6  # ordinal; first difference at insn 0; length:+36; extent-differs
 text GetDifferenceFromLowerField 0x0010A2A0 0x0010A384 ico2/sugipon/src/motionManager2.c lines=13  # ordinal; first difference at insn 0; length:+34; extent-differs
 sdlit GetDifferenceFromLowerField 0x0062BCD8 0x0062BCDC ico2/sugipon/src/motionManager2.c  # target side: a float
 text GetDifferenceFromWallLowerPlane 0x0010A388 0x0010A464 ico2/sugipon/src/motionManager2.c lines=10  # ordinal; first difference at insn 0; length:+28; extent-differs
 text GetDifferenceFromWallUpperPlane 0x0010A468 0x0010A544 ico2/sugipon/src/motionManager2.c lines=10  # ordinal; first difference at insn 0; length:+28; extent-differs
-text DisableChangeRootUpdateMode 0x0010A548 0x0010A558 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 3; imm:1; extent-equal
-text EnableChangeRootUpdateMode 0x0010A558 0x0010A564 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 2; imm:1; extent-equal
-text GetRopeHangablePos 0x0010A568 0x0010A574 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 2; imm:1; extent-equal
-text GetMotionFrameFlag1 0x0010A578 0x0010A584 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 2; imm:1; extent-equal
-text GetMotionFrameFlag2 0x0010A588 0x0010A594 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 2; imm:1; extent-equal
-text GetHeightOfFieldPlaneDifference 0x0010A598 0x0010A5E8 ico2/sugipon/src/motionManager2.c lines=12  # ordinal; first difference at insn 8; imm:2; extent-equal
-text GetHeightOfWallFromGObj 0x0010A5E8 0x0010A5F4 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 2; imm:1; extent-equal
-text GetHeightOfCliffFromGObj 0x0010A5F8 0x0010A604 ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 2; imm:1; extent-equal
 text SetMotionNodeFixModeParameter 0x0010A658 0x0010A788 ico2/sugipon/src/motionManager2.c lines=12  # ordinal; first difference at insn 0; length:+35; extent-differs
-text GetRootProjectionPosOfGObj 0x0010A788 0x0010A7CC ico2/sugipon/src/motionManager2.c lines=5  # ordinal; first difference at insn 9; imm:1; extent-equal
-text SetMotionPlaySpeedRatio 0x0010A7D0 0x0010A7DC ico2/sugipon/src/motionManager2.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text ClearMotionGeometryInfo 0x0010A7E0 0x0010A840 ico2/sugipon/src/motionManager2.c lines=9  # ordinal; first difference at insn 8; imm:3; extent-equal
 text GetOutOutsideOfWall 0x0010AE18 0x0010AEC4 ico2/sugipon/src/motionManager2.c lines=16  # ordinal; first difference at insn 7; imm:2; extent-equal
 text falldownSE 0x0010B0B8 0x0010B0C0 ico2/sugipon/src/pool.c local lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text SetFallDownSplash 0x0010B3C8 0x0010B5E4 ico2/sugipon/src/pool.c lines=32  # ordinal; first difference at insn 2; length:+14; extent-differs
@@ -281,33 +240,11 @@ rdlit file_LoadCDFile 0x0054E6E0 0x0054E7E0 ico2/seki/src/FileManager.c align=16
 sdlit file_LoadCDFile 0x0062BD10 0x0062BD1E ico2/seki/src/FileManager.c  # target side: ";1" and "FALSE"
 text gif_SetDrawEnviroment 0x00110FD8 0x0011119C ico2/seki/src/GifPacket.c lines=23  # ordinal; first difference at insn 1; length:-6; extent-differs
 text gif_SetHalfOffset 0x00112580 0x00112600 ico2/seki/src/GifPacket.c lines=5  # ordinal; first difference at insn 1; length:+2; extent-differs
-text gsb_Init 0x00112760 0x001128C4 ico2/seki/src/GsBase.c lines=33  # ordinal; first difference at insn 0; length:+6; extent-differs
-rdlit gsb_Init 0x0054E8A0 0x0054E8B0 ico2/seki/src/GsBase.c # target side
-text gsb_Reduction 0x001128C8 0x00112C9C ico2/seki/src/GsBase.c lines=77  # ordinal; first difference at insn 0; length:-92; extent-differs
-text gsb_fade 0x00112F30 0x001132B0 ico2/seki/src/GsBase.c local lines=59  # ordinal; first difference at insn 111; other:1; extent-equal
-sdlit gsb_fade 0x0062BD58 0x0062BD5A ico2/seki/src/GsBase.c  # target side: a string
-text gsb_scissorOnDemo 0x001132B0 0x00113640 ico2/seki/src/GsBase.c local lines=45  # trfile; aug6-only in the census; PAL's gsb_scissorOnDemo (904 B in PAL)
-sdlit gsb_scissorOnDemo 0x0062BD68 0x0062BD6A ico2/seki/src/GsBase.c  # target side: a string
-text gsb_controlBrightness 0x00113640 0x00113788 ico2/seki/src/GsBase.c local lines=27  # census-equal (lui and addiu immediates masked); match_check differs: an ori immediate at +0x12c
-sdlit gsb_controlBrightness 0x0062BD70 0x0062BD72 ico2/seki/src/GsBase.c  # target side: a string
-text gsb_antiAlias 0x00113788 0x00113B60 ico2/seki/src/GsBase.c local lines=53  # ordinal; first difference at insn 0; length:+13; extent-differs
-rdlit gsb_antiAlias 0x0054EA30 0x0054EA90 ico2/seki/src/GsBase.c # target side
-sdlit gsb_antiAlias 0x0062BD78 0x0062BD7C ico2/seki/src/GsBase.c  # target side: a word
-text gsb_SetGsDefault 0x00113F10 0x0011403C ico2/seki/src/GsBase.c local lines=38  # aug6-only in the census (in GsBase.c's span); gsb_SetGsDefault by body ratio 0.95, callees 0.89, sizes 280/300
-text gsb_PostEffect 0x00114040 0x00114204 ico2/seki/src/GsBase.c local lines=36  # aug6-only in the census (in GsBase.c's span); gsb_PostEffect by body ratio 0.94, callees 0.92, sizes 468/452
-sdlit gsb_PostEffect 0x0062BD80 0x0062BD92 ico2/seki/src/GsBase.c  # target side: three strings
-rdlit gsb_PostEffect 0x0054EAD0 0x0054EAEB ico2/seki/src/GsBase.c  # target side: a string
 text gsb_InitGSSystem 0x00114208 0x001142F8 ico2/seki/src/GsBase.c lines=32  # aug6-only in the census (in GsBase.c's span); gsb_InitGSSystem by body ratio 0.97, callees 0.92, sizes 256/240, call sites 1
 rdlit gsb_InitGSSystem 0x0054EAF0 0x0054EB2A ico2/seki/src/GsBase.c  # target side: four strings
-text gsb_UpdateGSSystem 0x001142F8 0x00114418 ico2/seki/src/GsBase.c lines=36  # aug6-only in the census (in GsBase.c's span); gsb_UpdateGSSystem by body ratio 0.83, callees 0.50, sizes 328/288
 text gsb_SetVSMatrixSub 0x00114538 0x001148F4 ico2/seki/src/GsBase.c local lines=91  # ordinal; first difference at insn 0; length:-74; extent-differs
 text gsb_SetVSMatrix 0x001148F8 0x00114ADC ico2/seki/src/GsBase.c lines=38  # ordinal; first difference at insn 0; length:-38; extent-differs
 lit4 gsb_SetVSMatrix 0x0062AB48 0x0062AB50 ico2/seki/src/GsBase.c # target side
-text gsb_StageSettingTool 0x00114BD0 0x00114FB0 ico2/seki/src/GsBase.c lines=115  # trfile; aug6-only in the census; PAL's gsb_StageSettingTool (1508 B in PAL)
-rdlit gsb_StageSettingTool 0x0054EF90 0x0054EFD8 ico2/seki/src/GsBase.c # target side
-sdlit gsb_StageSettingTool 0x0062BDB0 0x0062BDC0 ico2/seki/src/GsBase.c  # target side: two strings
-text gsb_StageSetting 0x00114FB0 0x00115118 ico2/seki/src/GsBase.c lines=40  # trfile; aug6-only in the census; PAL's gsb_StageSetting (512 B in PAL)
-sdlit gsb_StageSetting 0x0062BDC8 0x0062BDCB ico2/seki/src/GsBase.c  # target side: a string
 text gsb_SetBGColor 0x00115118 0x00115170 ico2/seki/src/GsBase.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text gsb_GetBGColor 0x00115170 0x0011519C ico2/seki/src/GsBase.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text gsb_SetZoom 0x001151A0 0x001151AC ico2/seki/src/GsBase.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
@@ -317,7 +254,6 @@ text gsb_LoadStageSettings 0x00115210 0x001152AC ico2/seki/src/GsBase.c lines=15
 rdlit gsb_LoadStageSettings 0x0054EB50 0x0054EBBE ico2/seki/src/GsBase.c def  # target side: three strings, written at the definition (the file name gsb_SaveStageSettings shares)
 text gsb_SaveStageSettings 0x001152B0 0x0011534C ico2/seki/src/GsBase.c lines=18  # trfile; aug6-only in the census; PAL's gsb_SaveStageSettings (172 B in PAL)
 rdlit gsb_SaveStageSettings 0x0054EBC0 0x0054EC0E ico2/seki/src/GsBase.c def  # target side: two strings, written at the definition
-text gsb_ClearFrameBuffer 0x00115350 0x001153F4 ico2/seki/src/GsBase.c lines=4  # trfile; aug6-only in the census; PAL's gsb_ClearFrameBuffer (12 B in PAL)
 text light_killLinkLight 0x001153F8 0x00115498 ico2/seki/src/Light.c local lines=21  # ordinal; first difference at insn 10; imm:2; extent-equal
 rdlit light_killLinkLight 0x0054F040 0x0054F064 ico2/seki/src/Light.c align=16  # 2 strings
 sdlit light_killLinkLight 0x0062BDF8 0x0062BDFA ico2/seki/src/Light.c  # 1 string
@@ -383,8 +319,6 @@ rdlit reg_dispNObj 0x0054FBB0 0x0054FBD1 ico2/seki/src/RegistPacket.c align=16  
 text reg_dispMObj 0x00120670 0x00120B4C ico2/seki/src/RegistPacket.c local lines=105  # ordinal; first difference at insn 17; imm:7; extent-equal
 text reg_dispSObj 0x00120B50 0x00120E8C ico2/seki/src/RegistPacket.c local lines=63  # ordinal; first difference at insn 14; imm:4; extent-equal
 text reg_dispCObj 0x00120E90 0x00121160 ico2/seki/src/RegistPacket.c local lines=47  # ordinal; first difference at insn 14; imm:3; extent-equal
-text reg_dispPoint 0x00121160 0x00121568 ico2/seki/src/RegistPacket.c local lines=132  # ordinal; first difference at insn 3; length:-37; extent-differs
-text reg_dispLine 0x00121568 0x00121A80 ico2/seki/src/RegistPacket.c local lines=133  # ordinal; first difference at insn 18; length:-5; extent-differs
 text reg_dispPointLineObj 0x00121A80 0x00121C28 ico2/seki/src/RegistPacket.c local lines=54  # ordinal; first difference at insn 11; length:-14; extent-differs
 text setMatrix.106 0x00121C28 0x00121D0C ico2/seki/src/RegistPacket.c local file=setMatrix_106  # nested in reg_DispAccessoryWithShadow, which is carved; census twin of PAL's setMatrix.106
 text setLight.110 0x00121D10 0x00121DDC ico2/seki/src/RegistPacket.c local file=setLight_110  # ordinal; first difference at insn 31; imm:1; extent-equal; nested in its parent
@@ -466,11 +400,6 @@ rdlit tex_TransTexture 0x00550890 0x00550930 ico2/seki/src/Texture.c  # target s
 text tex_ResetVram 0x0012DE70 0x0012DFAC ico2/seki/src/Texture.c lines=12  # ordinal; first difference at insn 2; length:-15; extent-differs
 text tex_UpdateMipMapLevel 0x0012FD70 0x0012FE2C ico2/seki/src/Texture.c lines=23  # trfile; aug6-only in the census; PAL's tex_UpdateMipMapLevel (152 B in PAL)
 text tex_ResetVramPri 0x0012FE30 0x0012FEBC ico2/seki/src/Texture.c lines=4  # trfile; aug6-only in the census; PAL's tex_ResetVramPri (196 B in PAL)
-text fog_DrawFog 0x00130328 0x00130E70 ico2/seki/src/ZFog.c lines=76  # ordinal; first difference at insn 1; length:-47; extent-differs
-sdlit fog_DrawFog 0x0062C0B0 0x0062C0B2 ico2/seki/src/ZFog.c  # target side: a string
-text iosCdvdMgrSearchFile 0x001311C8 0x00131358 ico2/fumi/ios/cdvd.c local lines=36  # trfile; aug6-only in the census; PAL's iosCdvdMgrSearchFile (400 B in PAL)
-rdlit iosCdvdMgrSearchFile 0x00550BD8 0x00550C43 ico2/fumi/ios/cdvd.c  # 2 strings
-text iosCdvdMgrStStop 0x00131358 0x00131398 ico2/fumi/ios/cdvd.c local lines=23  # trfile; aug6-only in the census; PAL's iosCdvdMgrStStop (252 B in PAL)
 text iosCdvdMgrLoad 0x00131398 0x001315DC ico2/fumi/ios/cdvd.c local lines=38  # trfile; aug6-only in the census; PAL's iosCdvdMgrLoad (452 B in PAL)
 rdlit iosCdvdMgrLoad 0x00550C48 0x00550C70 ico2/fumi/ios/cdvd.c # target side
 sdlit iosCdvdMgrLoad 0x0062C100 0x0062C108 ico2/fumi/ios/cdvd.c  # target side: a string
@@ -494,14 +423,10 @@ rdlit iosCdvdBackGroundMgrAdd 0x00550E20 0x00550E48 ico2/fumi/ios/cdvd.c # targe
 text iosCdvdBackGroundMgr 0x00132830 0x00132B20 ico2/fumi/ios/cdvd.c local lines=23  # trfile; aug6-only in the census; PAL's iosCdvdBackGroundMgr (180 B in PAL)
 text iosCdvdDirectStOpen 0x00132B20 0x00132CCC ico2/fumi/ios/cdvd.c lines=35  # trfile; aug6-only in the census; PAL's iosCdvdDirectStOpen (500 B in PAL)
 text iosCdvdGetFileLsn 0x00132D70 0x00132E50 ico2/fumi/ios/cdvd.c lines=4  # ordinal; first difference at insn 31; imm:2; extent-equal
-text iosCdvdLoadPackFile 0x00132E80 0x00132EFC ico2/fumi/ios/cdvd.c lines=12  # ordinal; first difference at insn 14; imm:4; extent-equal
 text iosCdvdBackGroundRead 0x00132FC0 0x001330D0 ico2/fumi/ios/cdvd.c lines=41  # aug6-only in the census (in cdvd.c's span); iosCdvdBackGroundRead by body ratio 0.36, callees 0.33, sizes 476/272, call sites 4
 rdlit iosCdvdBackGroundRead 0x00550E48 0x00550E68 ico2/fumi/ios/cdvd.c # target side
 text iosCdvdBackGroundReadIOPm 0x001330D0 0x001331E0 ico2/fumi/ios/cdvd.c lines=40  # trfile; aug6-only in the census; PAL's iosCdvdBackGroundReadIOPm (476 B in PAL)
 rdlit iosCdvdBackGroundReadIOPm 0x00550E68 0x00550E88 ico2/fumi/ios/cdvd.c # target side
-text inflate_cd_read_func 0x00133288 0x001332E4 ico2/fumi/ios/cdvd.c lines=18  # ordinal; first difference at insn 3; imm:2; extent-equal
-text ios_init_plus 0x00135858 0x001359EC ico2/fumi/ios/ios.c local lines=29  # ordinal; first difference at insn 0; length:+42; extent-differs
-rdlit ios_init_plus 0x00550F34 0x00550F9C ico2/fumi/ios/ios.c # target side
 text iosInitialize 0x001359F0 0x00135BC0 ico2/fumi/ios/ios.c lines=30  # ordinal; first difference at insn 14; length:-1; extent-differs
 rdlit iosInitialize 0x00550FA0 0x00550FD1 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x0062C140 0x0062C17F ico2/fumi/ios/ios.c  # 8 strings
@@ -515,8 +440,6 @@ text iosMcMgrSaveSeg 0x00136A58 0x00136E88 ico2/fumi/ios/mcard.c local lines=73 
 rdlit iosMcMgrSaveSeg 0x005511F8 0x0055120C ico2/fumi/ios/mcard.c  # 1 string
 text iosMcMgrLoadSeg 0x00136E88 0x0013723C ico2/fumi/ios/mcard.c local lines=66  # census-equal; stubbed because it inlines a function stubbed for emission order
 rdlit iosMcMgrLoadSeg 0x00551210 0x00551239 ico2/fumi/ios/mcard.c align=16  # 2 strings
-text iosMcMgrSaveProductBlock 0x00137240 0x00137250 ico2/fumi/ios/mcard.c local lines=5  # census-equal; stubbed because it inlines a function stubbed for emission order
-text iosMcMgrLoadProductBlock 0x00137250 0x00137260 ico2/fumi/ios/mcard.c local lines=5  # census-equal; stubbed because it inlines a function stubbed for emission order
 text iosMcMgrGetBlockSaveInfo 0x00137260 0x0013741C ico2/fumi/ios/mcard.c local lines=31  # census-equal; stubbed because it inlines a function stubbed for emission order
 sdlit iosMcMgrGetBlockSaveInfo 0x0062C1F8 0x0062C1FA ico2/fumi/ios/mcard.c  # 1 string
 text iosMcManager 0x00137420 0x00137B50 ico2/fumi/ios/mcard.c lines=92  # ordinal; first difference at insn 6; length:+50; extent-differs
@@ -626,9 +549,6 @@ text ACTGameView_Loop 0x00143B00 0x00143DB4 ico2/fumi/src/act-game.c lines=74  #
 lit4 ACTGameView_Loop 0x0062AC50 0x0062AC54 ico2/fumi/src/act-game.c  # 1 float
 rdlit ACTGameView_Loop 0x00552210 0x00552230 ico2/fumi/src/act-game.c align=16  # 1 jtbl
 text ACTGame_LwsEffectProcess 0x00143DB8 0x00143DDC ico2/fumi/src/act-game.c local lines=7  # ordinal; first difference at insn 1; imm:2; extent-equal
-text ACTLookTarget_Exec 0x00143FB0 0x001440EC ico2/fumi/src/act-game.c lines=37  # ordinal; first difference at insn 10; imm:12; extent-equal
-rdlit ACTLookTarget_Exec 0x00552230 0x0055223B ico2/fumi/src/act-game.c align=16  # 1 string
-text ACTParaStatus_Clear 0x001440F0 0x00144100 ico2/fumi/src/act-game.c lines=5  # ordinal; first difference at insn 3; other:1; extent-equal
 text ACTParaStatus_Exec 0x00144100 0x0014425C ico2/fumi/src/act-game.c lines=37  # ordinal; first difference at insn 6; length:-22; extent-differs
 text _ACTCharStatus_Clear 0x00144260 0x001443B4 ico2/fumi/src/act-game.c lines=32  # ordinal; first difference at insn 3; imm:5; extent-equal
 sdlit _ACTCharStatus_Clear 0x0062C3C4 0x0062C3C8 ico2/fumi/src/act-game.c  # 1 word
@@ -752,8 +672,6 @@ rdlit motBoyHand200 0x005525B0 0x005525C8 ico2/fumi/src/boyact.c  # target side
 text handoff_heroin 0x0014C660 0x0014CA14 ico2/fumi/src/boyact.c lines=18  # aug6-only in the census (after act-parallel-control.c's span); handoff_heroin by body ratio 0.96, callees 1.00, sizes 992/948, call sites 1
 text CheckCollisionAttr 0x0014CA18 0x0014CBA0 ico2/fumi/src/boyact.c local lines=50  # aug6-only in the census (after act-parallel-control.c's span); CheckCollisionAttr by body ratio 0.84, callees 0.67, sizes 412/392
 text E3_StageStartBoy 0x0014CE20 0x0014CF58 ico2/fumi/src/boyact.c local lines=34  # aug6-only in the census (after act-parallel-control.c's span); E3_StageStartBoy by body ratio 1.00, callees 1.00, sizes 312/312
-text GetChainSlope 0x0014CF58 0x0014D144 ico2/fumi/src/boyact.c local lines=36  # aug6-only in the census (after act-parallel-control.c's span); GetChainSlope by body ratio 0.85, callees 1.00, sizes 568/492
-rdlit GetChainSlope 0x005525D8 0x00552600 ico2/fumi/src/boyact.c  # target side
 text subBoyControl 0x0014D148 0x0014E854 ico2/fumi/src/boyact.c lines=644  # aug6-only in the census (after act-parallel-control.c's span); subBoyControl by body ratio 0.90, callees 0.82, sizes 6260/5900
 rdlit subBoyControl 0x00552600 0x005527E8 ico2/fumi/src/boyact.c align=16  # target side
 lit4 subBoyControl 0x0062ACA8 0x0062AD64 ico2/fumi/src/boyact.c  # target side
@@ -769,10 +687,6 @@ lit4 subBoyCollision 0x0062AD68 0x0062AD70 ico2/fumi/src/boyact.c # target side
 sdlit subBoyCollision 0x0062C420 0x0062C424 ico2/fumi/src/boyact.c  # target side: a float
 text actBoySwim 0x0014FBA8 0x0014FD94 ico2/fumi/src/boyact.c lines=46  # aug6-only in the census (after act-parallel-control.c's span); actBoySwim by body ratio 0.69, callees 0.89, sizes 628/492
 lit4 actBoySwim 0x0062AD70 0x0062AD74 ico2/fumi/src/boyact.c # target side
-text actBoyWalk 0x0014FD98 0x0014FF04 ico2/fumi/src/boyact.c lines=25  # aug6-only in the census (after act-parallel-control.c's span); actBoyWalk by body ratio 1.00, callees 1.00, sizes 364/364
-rdlit actBoyWalk 0x00552920 0x00552930 ico2/fumi/src/boyact.c  # target side
-text actBoyRun 0x0014FF08 0x00150074 ico2/fumi/src/boyact.c lines=25  # aug6-only in the census (after act-parallel-control.c's span); actBoyRun by body ratio 1.00, callees 1.00, sizes 364/364
-rdlit actBoyRun 0x00552930 0x00552940 ico2/fumi/src/boyact.c  # target side
 text actBoyAttack 0x00150078 0x00150294 ico2/fumi/src/boyact.c lines=25  # aug6-only in the census (after act-parallel-control.c's span); actBoyAttack by body ratio 0.96, callees 0.86, sizes 564/540
 rdlit actBoyAttack 0x00552958 0x00552988 ico2/fumi/src/boyact.c  # target side
 text actBoyTakeWeaponReady 0x00150298 0x00150420 ico2/fumi/src/boyact.c lines=32  # aug6-only in the census (after act-parallel-control.c's span); actBoyTakeWeaponReady by body ratio 1.00, callees 1.00, sizes 392/392
@@ -866,8 +780,6 @@ text ACTRunIntrCorrect 0x00154648 0x001548C4 ico2/fumi/src/commonact.c lines=45 
 sdlit ACTRunIntrCorrect 0x0062C440 0x0062C447 ico2/fumi/src/commonact.c  # 1 string
 text WithMailFunc_AttackFail 0x001548D0 0x00154914 ico2/fumi/src/commonact.c lines=13  # ordinal; first difference at insn 2; imm:4; extent-equal
 text WithMailFunc_AttackRejectInQueen 0x00154918 0x0015499C ico2/fumi/src/commonact.c lines=15  # ordinal; first difference at insn 6; imm:4; extent-equal
-text GetCorrectOrientOfChain 0x001549A0 0x00154ACC ico2/fumi/src/commonact.c lines=22  # ordinal; first difference at insn 11; imm:1; extent-equal
-lit4 GetCorrectOrientOfChain 0x0062ADA4 0x0062ADA8 ico2/fumi/src/commonact.c  # 1 float
 text actCommonRope 0x00154C88 0x00154FE8 ico2/fumi/src/commonact.c lines=70  # ordinal; first difference at insn 60; length:-1; extent-differs
 rdlit actCommonRope 0x00552B80 0x00552BA0 ico2/fumi/src/commonact.c  # target side
 lit4 actCommonRope 0x0062ADA8 0x0062ADAC ico2/fumi/src/commonact.c  # 1 float
@@ -886,7 +798,6 @@ text actCommonLever 0x00156080 0x001561E8 ico2/fumi/src/commonact.c lines=25  # 
 lit4 actCommonLever 0x0062ADC0 0x0062ADC4 ico2/fumi/src/commonact.c # target side
 text DamageFunc 0x00156210 0x001562AC ico2/fumi/src/commonact.c local lines=14  # ordinal; first difference at insn 13; imm:4; extent-equal
 sdlit DamageFunc 0x0062C450 0x0062C458 ico2/fumi/src/commonact.c  # 1 string
-text DownFunc 0x001562B0 0x001562F8 ico2/fumi/src/commonact.c local lines=7  # ordinal; first difference at insn 11; imm:1; extent-equal
 text actCommonDown 0x001562F8 0x001563E8 ico2/fumi/src/commonact.c lines=32  # aug6-only in the census (in commonact.c's span); actCommonDown by body ratio 0.74, callees 1.00, sizes 324/240
 rdlit actCommonDown 0x00552BF0 0x00552C08 ico2/fumi/src/commonact.c  # target side
 text actCommonDie 0x001563E8 0x0015674C ico2/fumi/src/commonact.c lines=73  # aug6-only in the census (in commonact.c's span); actCommonDie by body ratio 0.98, callees 0.94, sizes 900/868
@@ -926,15 +837,6 @@ data col.274 0x0027E740 0x0027E770 ico2/fumi/src/commonact.c local file=col_274 
 text actCommonFly 0x00159138 0x00159210 ico2/fumi/src/commonact.c lines=30  # trfile; aug6-only in the census; PAL's actCommonFly (252 B in PAL)
 text actCommonLadder 0x00159210 0x001597E4 ico2/fumi/src/commonact.c lines=115  # trfile; aug6-only in the census; PAL's actCommonLadder (1524 B in PAL)
 text actCommonEdgeHang 0x001597E8 0x0015994C ico2/fumi/src/commonact.c lines=29  # aug6-only in the census (in commonact.c's span); actCommonEdgeHang by body ratio 1.00, callees 1.00, sizes 356/356
-text funcCommonBeginReady 0x00159950 0x001599A4 ico2/fumi/src/commonact.c lines=6  # aug6-only in the census (in commonact.c's span); funcCommonBeginReady by body ratio 1.00, callees -, sizes 84/84
-rdlit funcCommonBeginReady 0x00552F70 0x00552F88 ico2/fumi/src/commonact.c  # target side
-sdlit funcCommonBeginReady 0x0062C478 0x0062C485 ico2/fumi/src/commonact.c  # 2 strings
-text funcCommonEndReady 0x001599A8 0x001599FC ico2/fumi/src/commonact.c lines=6  # aug6-only in the census (in commonact.c's span); funcCommonEndReady by body ratio 1.00, callees -, sizes 84/84
-rdlit funcCommonEndReady 0x00552F88 0x00552FA0 ico2/fumi/src/commonact.c  # target side
-text funcCommonEndExec 0x00159A00 0x00159A54 ico2/fumi/src/commonact.c lines=6  # aug6-only in the census (in commonact.c's span); funcCommonEndExec by body ratio 1.00, callees -, sizes 84/84
-rdlit funcCommonEndExec 0x00552FA0 0x00552FB8 ico2/fumi/src/commonact.c  # target side
-text funcCommonError 0x00159A58 0x00159AAC ico2/fumi/src/commonact.c lines=6  # aug6-only in the census (in commonact.c's span); funcCommonError by body ratio 1.00, callees -, sizes 84/84
-rdlit funcCommonError 0x00552FB8 0x00552FD0 ico2/fumi/src/commonact.c  # target side
 text SetMotionDirectionSmooze 0x00159AB0 0x00159CE4 ico2/fumi/src/commonact.c lines=39  # trfile; aug6-only in the census; PAL's SetMotionDirectionSmooze (588 B in PAL)
 lit4 SetMotionDirectionSmooze 0x0062ADF8 0x0062AE00 ico2/fumi/src/commonact.c  # 2 floats
 text _ACTDebugPrint 0x00159CE8 0x00159FDC ico2/fumi/src/commonact.c lines=56  # trfile; aug6-only in the census; PAL's _ACTDebugPrint (752 B in PAL)
@@ -942,8 +844,6 @@ rdlit _ACTDebugPrint 0x00552FD0 0x00553090 ico2/fumi/src/commonact.c  # target s
 text ACTSendMailCorrect 0x00159FE0 0x0015A060 ico2/fumi/src/commonact.c lines=13  # trfile; aug6-only in the census; PAL's ACTSendMailCorrect (144 B in PAL)
 text _ACTCommonMailTest 0x0015A060 0x0015A444 ico2/fumi/src/commonact.c lines=85  # trfile; aug6-only in the census; PAL's _ACTCommonMailTest (1080 B in PAL)
 lit4 _ACTCommonMailTest 0x0062AE00 0x0062AE34 ico2/fumi/src/commonact.c # target side
-text E3_LeverCheck 0x0015A448 0x0015A504 ico2/fumi/src/commonact.c lines=10  # trfile; aug6-only in the census; PAL's E3_LeverCheck (188 B in PAL)
-lit4 E3_LeverCheck 0x0062AE34 0x0062AE38 ico2/fumi/src/commonact.c  # 1 float
 text actCommonBecarry 0x0015A508 0x0015A98C ico2/fumi/src/commonact.c lines=50  # trfile; aug6-only in the census; PAL's actCommonBecarry (764 B in PAL)
 rdlit actCommonBecarry 0x00553090 0x005530A8 ico2/fumi/src/commonact.c  # target side
 sdlit actCommonBecarry 0x0062C488 0x0062C48E ico2/fumi/src/commonact.c  # 1 string
@@ -1087,8 +987,6 @@ text actEnemyKidnapEnd 0x0015EBD8 0x0015F0DC ico2/fumi/src/enemy_act.c lines=149
 lit4 actEnemyKidnapEnd 0x0062AE84 0x0062AE8C ico2/fumi/src/enemy_act.c # target side
 text actEnemyKidnapBegin 0x0015F0E0 0x0015F2A8 ico2/fumi/src/enemy_act.c lines=40  # aug6-only in the census (in enemy_act.c's span); actEnemyKidnapBegin by body ratio 0.86, callees 0.85, sizes 520/456
 lit4 actEnemyKidnapBegin 0x0062AE8C 0x0062AE90 ico2/fumi/src/enemy_act.c  # 1 float
-text MoveChestForCatchBoy 0x0015F2A8 0x0015F48C ico2/fumi/src/enemy_act.c local lines=43  # aug6-only in the census (in enemy_act.c's span); MoveChestForCatchBoy by body ratio 1.00, callees 1.00, sizes 484/484
-lit4 MoveChestForCatchBoy 0x0062AE90 0x0062AE94 ico2/fumi/src/enemy_act.c  # 1 float
 text actEnemyBodylift 0x0015F490 0x0015F89C ico2/fumi/src/enemy_act.c lines=73  # aug6-only in the census (in enemy_act.c's span); actEnemyBodylift by body ratio 1.00, callees 0.88, sizes 1036/1036
 text actEnemyPickupBegin 0x0015F8A0 0x0015F9C0 ico2/fumi/src/enemy_act.c lines=24  # aug6-only in the census (in enemy_act.c's span); actEnemyPickupBegin by body ratio 1.00, callees 0.82, sizes 288/288
 text CheckEnemyBrainMode 0x0015F9C0 0x0015FB2C ico2/fumi/src/enemy_act.c local lines=54  # aug6-only in the census (in enemy_act.c's span); CheckEnemyBrainMode by body ratio 0.90, callees 1.00, sizes 432/364
@@ -1187,7 +1085,6 @@ rdlit motGirlHand100 0x005537A8 0x005537BE ico2/fumi/src/girl_act.c  # 1 string
 text motGirlHand200 0x00168818 0x00168A3C ico2/fumi/src/girl_act.c lines=50  # ordinal; first difference at insn 33; imm:19; extent-equal
 rdlit motGirlHand200 0x005537D8 0x005537FF ico2/fumi/src/girl_act.c  # 2 strings
 sdlit motGirlHand200 0x0062C590 0x0062C59D ico2/fumi/src/girl_act.c  # 2 strings
-text SetTurnSpeedInEscape 0x00168A50 0x00168A80 ico2/fumi/src/girl_act.c local lines=6  # ordinal; first difference at insn 3; imm:1; extent-equal
 text sort_list.75 0x00168A80 0x00168C78 ico2/fumi/src/girl_act.c local file=sort_list_75  # nested in girlBrainMain_MakeOthersList, which is carved; census twin of PAL's sort_list.78 (gcc numbers it sort_list.75 in this tree)
 text girlBrainMain_MakeOthersList 0x00168C78 0x001691A8 ico2/fumi/src/girl_act.c local lines=148  # aug6-only in the census (in girl_act.c's span); girlBrainMain_MakeOthersList by body ratio 0.87, callees 0.92, sizes 1720/1328
 rdlit girlBrainMain_MakeOthersList 0x00553800 0x00553832 ico2/fumi/src/girl_act.c align=16  # 2 strings
@@ -1501,7 +1398,6 @@ text CommonAttackCenter 0x0017F0E0 0x0017F110 ico2/omori/src/attackhit.c lines=6
 text AttackCenter 0x0017F110 0x0017F29C ico2/omori/src/attackhit.c  # trfile; aug6-only in the census; not in PAL's attackhit
 text AttackCenter_WithDir 0x0017F2A0 0x0017F450 ico2/omori/src/attackhit.c lines=17  # trfile; aug6-only in the census; PAL's AttackCenter_WithDir (440 B in PAL)
 rdlit AttackCenter_WithDir 0x005546D8 0x005546F8 ico2/omori/src/attackhit.c def  # target side
-text brainInit 0x0017F470 0x0017F4C4 ico2/omori/src/brain.c lines=18  # ordinal; first difference at insn 1; imm:2; extent-equal
 text OverrideBrainStatusByGObj 0x0017F4C8 0x0017F518 ico2/omori/src/brain.c lines=18  # ordinal; first difference at insn 6; imm:1; extent-equal
 text brainStatusDefaultSet 0x0017F518 0x0017F66C ico2/omori/src/brain.c lines=12  # trfile; aug6-only in the census; PAL's brainStatusDefaultSet (328 B in PAL)
 rdlit brainStatusDefaultSet 0x005546F8 0x00554758 ico2/omori/src/brain.c  # target side
@@ -1511,12 +1407,6 @@ lit4 brainLevelProcess 0x0062B030 0x0062B038 ico2/omori/src/brain.c  # 2 floats
 sdlit brainLevelProcess 0x0062C764 0x0062C768 ico2/omori/src/brain.c  # 1 word
 text brainGetTarget 0x0017F908 0x0017FC70 ico2/omori/src/brain.c lines=85  # trfile; aug6-only in the census; PAL's brainGetTarget (872 B in PAL)
 text brainStatusSet 0x0017FC70 0x0017FD74 ico2/omori/src/brain.c  # trfile; aug6-only in the census; not in PAL's brain
-text brainClsTargetLevel 0x0017FDA8 0x0017FE6C ico2/omori/src/brain.c lines=17  # ordinal; first difference at insn 2; length:-5; extent-differs
-text brainAddLevelGop 0x0017FEE8 0x0017FF58 ico2/omori/src/brain.c lines=10  # ordinal; first difference at insn 7; imm:1; extent-equal
-text brainSubLevelGop 0x0017FF58 0x0017FFD0 ico2/omori/src/brain.c lines=22  # ordinal; first difference at insn 5; imm:1; extent-equal
-sdlit brainSubLevelGop 0x0062C768 0x0062C76C ico2/omori/src/brain.c align=4  # 1 word
-text brainSetLevelGop 0x0017FFD0 0x00180070 ico2/omori/src/brain.c lines=14  # ordinal; first difference at insn 12; imm:1; extent-equal
-text brainDecTargetTimer 0x00180070 0x00180100 ico2/omori/src/brain.c lines=17  # ordinal; first difference at insn 11; imm:1; extent-equal
 text monitorMonitorCamera 0x00185BF8 0x00186198 ico2/omori/src/camera-ico2.c local lines=159  # ordinal; first difference at insn 0; length:-227; extent-differs
 text ReflectCameraSetBinary 0x00186CA8 0x00186FC8 ico2/omori/src/camera-ico2.c lines=13  # ordinal; first difference at insn 36; imm:1; extent-equal
 text InitIco2Camera 0x00186FC8 0x00187088 ico2/omori/src/camera-ico2.c lines=11  # ordinal; first difference at insn 4; other:4; extent-equal
@@ -1536,18 +1426,13 @@ text InitPluralCameraSet 0x001887D8 0x001887E0 ico2/omori/src/camera-ico2.c line
 text GetPluralCameraSet 0x001887E0 0x00188884 ico2/omori/src/camera-ico2.c lines=15  # ordinal; first difference at insn 27; imm:2; extent-equal
 rdlit GetPluralCameraSet 0x00554B18 0x00554B2E ico2/omori/src/camera-ico2.c def  # 1 string
 sdlit GetPluralCameraSet 0x0062C850 0x0062C852 ico2/omori/src/camera-ico2.c def  # 1 string
-text ConvertCameraSet 0x00188C18 0x00188D60 ico2/omori/src/camera-root.c lines=17  # trfile; aug6-only in the census; PAL's ConvertCameraSet (332 B in PAL)
-lit4 ConvertCameraSet 0x0062B05C 0x0062B060 ico2/omori/src/camera-root.c  # 1 float
-text MakeCameraMatrix 0x00188D60 0x00188EAC ico2/omori/src/camera-root.c lines=13  # trfile; aug6-only in the census; PAL's MakeCameraMatrix (272 B in PAL)
 text InitCamera 0x00189588 0x001896EC ico2/omori/src/camera-root.c lines=23  # ordinal; first difference at insn 24; length:-9; extent-differs
 text SetCameraMatrix 0x001896F0 0x00189F4C ico2/omori/src/camera-root.c lines=223  # ordinal; first difference at insn 0; length:-168; extent-differs
 lit4 SetCameraMatrix 0x0062B064 0x0062B06C ico2/omori/src/camera-root.c # target side
 rdlit SetCameraMatrix 0x00554C10 0x00554C30 ico2/omori/src/camera-root.c  # target side
 rdlit SetCameraMatrix 0x00554C30 0x00554C50 ico2/omori/src/camera-root.c align=16  # jump table (target side)
 sdlit SetCameraMatrix 0x0062C868 0x0062C890 ico2/omori/src/camera-root.c  # target side: the four mode names and its two statics
-text InsertCamera_Set 0x0018A1D8 0x0018A268 ico2/omori/src/camera-root.c lines=19  # trfile; aug6-only in the census; PAL's InsertCamera_Set (164 B in PAL)
 text InsertCamera_SetNoraml 0x0018A268 0x0018A300 ico2/omori/src/camera-root.c lines=15  # trfile; aug6-only in the census; PAL's InsertCamera_SetNoraml (176 B in PAL)
-text InsertCamera_Exec 0x0018A300 0x0018A370 ico2/omori/src/camera-root.c lines=21  # trfile; aug6-only in the census; PAL's InsertCamera_Exec (128 B in PAL)
 text UpdateRootPosition 0x0018A4A8 0x0018A5AC ico2/omori/src/chain.c local lines=31  # ordinal; first difference at insn 7; imm:1; extent-equal
 text StartPendulum 0x0018A5B0 0x0018A84C ico2/omori/src/chain.c local lines=34  # ordinal; first difference at insn 18; imm:4; extent-equal
 rdlit StartPendulum 0x00554C50 0x00554C70 ico2/omori/src/chain.c  # target side
@@ -1708,11 +1593,6 @@ text subBirdCollision 0x00194918 0x00194940 ico2/ito/src/act_bird.c lines=7  # c
 text actBirdStart 0x00194940 0x001949BC ico2/ito/src/act_bird.c lines=11  # ordinal; first difference at insn 22; imm:3; extent-equal
 text InitBirdGeo 0x001949C0 0x00194AA0 ico2/ito/src/act_bird.c lines=22  # ordinal; first difference at insn 12; length:-3; extent-differs
 rdlit InitBirdGeo 0x00555198 0x005551A7 ico2/ito/src/act_bird.c def  # 1 string
-text GatherEffect_SetGoal 0x00194B18 0x00194B5C ico2/ito/src/gather_effect.c lines=7  # ordinal; first difference at insn 10; imm:1; extent-equal
-text GatherEffect_Proc 0x00194B60 0x00194E48 ico2/ito/src/gather_effect.c lines=82  # ordinal; first difference at insn 19; imm:4; extent-equal
-lit4 GatherEffect_Proc 0x0062B1B4 0x0062B1C0 ico2/ito/src/gather_effect.c  # 3 floats
-rdlit GatherEffect_Proc 0x005551A8 0x005551BB ico2/ito/src/gather_effect.c  # 1 string
-text GatherEffect_Set 0x00194E48 0x00194F14 ico2/ito/src/gather_effect.c lines=24  # ordinal; first difference at insn 21; imm:5; extent-equal
 text effect_end_func 0x00194F88 0x0019501C ico2/ito/src/itou_boss.c local file=effect_end_func_itou_boss lines=13  # ordinal; first difference at insn 5; imm:4; extent-equal
 text bossCtrlBeforeFunc 0x00195020 0x001951A4 ico2/ito/src/itou_boss.c lines=41  # ordinal; first difference at insn 73; imm:2; extent-equal
 text BossEnemyFunc 0x001951A8 0x001952A0 ico2/ito/src/itou_boss.c lines=24  # ordinal; first difference at insn 5; length:-4; extent-differs
@@ -1763,20 +1643,6 @@ text InitQueenBallGeo 0x001992A8 0x00199330 ico2/ito/src/queen.c lines=15  # trf
 text subQueenControl 0x00199330 0x0019937C ico2/ito/src/queen.c lines=12  # trfile; aug6-only in the census; PAL's subQueenControl (76 B in PAL)
 text StageOrientInit 0x0019A3C8 0x0019A4B8 ico2/ito/src/stage_orient.c lines=16  # ordinal; first difference at insn 7; imm:3; extent-equal
 sdlit StageOrientInit 0x0062C950 0x0062C953 ico2/ito/src/stage_orient.c def  # 1 string
-text readBufCreate 0x0019AFB8 0x0019B064 ico2/ito/mpeg/mv_readbuf.c lines=13  # trfile; aug6-only in the census; PAL's readBufCreate (172 B in PAL)
-text videoDecCreate 0x0019B1C0 0x0019B308 ico2/ito/mpeg/mv_videodec.c lines=18  # ordinal; first difference at insn 14; imm:3; extent-equal
-text decBitStrm0 0x0019B508 0x0019B71C ico2/ito/mpeg/mv_videodec.c local lines=47  # ordinal; first difference at insn 110; imm:1; extent-equal
-rdlit decBitStrm0 0x00557108 0x00557158 ico2/ito/mpeg/mv_videodec.c  # target side
-text mpegError 0x0019B848 0x0019B870 ico2/ito/mpeg/mv_videodec.c local lines=7  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-sdlit mpegError 0x0062C968 0x0062C96C ico2/ito/mpeg/mv_videodec.c def  # 1 string
-text mpegNodata 0x0019B870 0x0019B8A0 ico2/ito/mpeg/mv_videodec.c local lines=8  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text mpegStopDMA 0x0019B8A0 0x0019B8C0 ico2/ito/mpeg/mv_videodec.c local lines=7  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text mpegRestartDMA 0x0019B8C0 0x0019B8E0 ico2/ito/mpeg/mv_videodec.c local lines=7  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text mpegTS 0x0019B8E0 0x0019B920 ico2/ito/mpeg/mv_videodec.c local lines=11  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text voBufCreate 0x0019B950 0x0019BAB0 ico2/ito/mpeg/mv_vobuf.c lines=24  # ordinal; first difference at insn 14; imm:6; extent-equal
-text voBufIncCount 0x0019BAF0 0x0019BB68 ico2/ito/mpeg/mv_vobuf.c lines=9  # census-equal (lui and addiu immediates masked); match_check differs: an immediate
-text voBufGetData 0x0019BB68 0x0019BB9C ico2/ito/mpeg/mv_vobuf.c lines=4  # census-equal (lui and addiu immediates masked); match_check differs: an immediate
-text voBufGetTag 0x0019BBA0 0x0019BBF4 ico2/ito/mpeg/mv_vobuf.c lines=4  # census-equal (lui and addiu immediates masked); match_check differs: an immediate
 text initGeometryState 0x0019BC18 0x0019C154 ico2/common/src/DObj.c local lines=75  # ordinal; first difference at insn 25; imm:47; extent-equal
 lit4 initGeometryState 0x0062B24C 0x0062B250 ico2/common/src/DObj.c  # 1 float
 text allocObjectData 0x0019C300 0x0019C4E0 ico2/common/src/DObj.c local lines=50  # ordinal; first difference at insn 1; imm:9; extent-equal
@@ -1790,8 +1656,6 @@ text start_stage_Load_thread 0x0019CD60 0x0019CEB0 ico2/common/src/StageManager.
 rdlit start_stage_Load_thread 0x0060B200 0x0060B230 ico2/common/src/StageManager.c  # target side
 text StageManager 0x0019D230 0x0019D51C ico2/common/src/StageManager.c lines=94  # ordinal; first difference at insn 12; other:28; extent-equal
 rdlit StageManager 0x0060B270 0x0060B300 ico2/common/src/StageManager.c  # target side
-text stgmgrForceSwitch 0x0019D520 0x0019D550 ico2/common/src/StageManager.c lines=8  # ordinal; first difference at insn 9; other:1; extent-equal
-text stgmgrForceSwitchWithFadeColor 0x0019D560 0x0019D5C8 ico2/common/src/StageManager.c lines=14  # ordinal; first difference at insn 21; other:1; extent-equal
 text backStageProcessOutStage 0x0019D658 0x0019DB64 ico2/common/src/backStage.c lines=107  # ordinal; first difference at insn 0; length:-9; extent-differs
 rdlit backStageProcessOutStage 0x0060B300 0x0060B363 ico2/common/src/backStage.c  # 3 strings
 text backStageProcessMain 0x0019DB68 0x0019DD94 ico2/common/src/backStage.c lines=67  # ordinal; first difference at insn 3; length:+1; extent-differs
@@ -2048,19 +1912,9 @@ lit4 attackMot 0x0062B2AC 0x0062B2B0 ico2/sugipon/src/a_p_1.c  # 1 float
 text standAI 0x001B7ED8 0x001B8090 ico2/sugipon/src/act_a_p_1.c local lines=50  # ordinal; first difference at insn 7; other:3; extent-equal
 text walkAI 0x001B8090 0x001B8404 ico2/sugipon/src/act_a_p_1.c local lines=90  # ordinal; first difference at insn 7; length:-6; extent-differs
 lit4 walkAI 0x0062B2B0 0x0062B2B8 ico2/sugipon/src/act_a_p_1.c  # 2 floats
-text hehehe 0x001B8408 0x001B8428 ico2/sugipon/src/act_a_p_1.c lines=4  # ordinal; first difference at insn 3; imm:1; extent-equal
-text SleepAP1 0x001B8428 0x001B846C ico2/sugipon/src/act_a_p_1.c lines=8  # ordinal; first difference at insn 11; imm:2; extent-equal
-text WakeUpAP1 0x001B8470 0x001B84F8 ico2/sugipon/src/act_a_p_1.c lines=18  # ordinal; first difference at insn 7; imm:4; extent-equal
-rdlit WakeUpAP1 0x00610EC8 0x00610EE8 ico2/sugipon/src/act_a_p_1.c  # 1 string
 text subAP1BrainMain 0x001B84F8 0x001B88B8 ico2/sugipon/src/act_a_p_1.c lines=86  # ordinal; first difference at insn 0; length:-52; extent-differs
 rdlit subAP1BrainMain 0x00610EE8 0x00610EF8 ico2/sugipon/src/act_a_p_1.c # target side
-text SetAP1DeadStatus 0x001B88C0 0x001B8904 ico2/sugipon/src/act_a_p_1.c lines=8  # ordinal; first difference at insn 11; imm:2; extent-equal
 text AP1BeforeFunc 0x001B8908 0x001B8BD4 ico2/sugipon/src/act_a_p_1.c lines=46  # ordinal; first difference at insn 13; length:-1; extent-differs
-text actAP1Start 0x001B8BD8 0x001B8D04 ico2/sugipon/src/act_a_p_1.c lines=28  # ordinal; first difference at insn 16; imm:10; extent-equal
-text SetAP1HostGObj 0x001B8D28 0x001B8D34 ico2/sugipon/src/act_a_p_1.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text SetAP1PriorLevel 0x001B8D38 0x001B8D44 ico2/sugipon/src/act_a_p_1.c lines=4  # ordinal; first difference at insn 2; imm:1; extent-equal
-text GetAP1AIMode 0x001B8D48 0x001B8D84 ico2/sugipon/src/act_a_p_1.c lines=9  # ordinal; first difference at insn 3; imm:1; extent-equal
-sdlit GetAP1AIMode 0x0062D388 0x0062D38B ico2/sugipon/src/act_a_p_1.c def  # 1 string
 text AttackCheckBoundaryBeforeFunc 0x001B8EB0 0x001B9044 ico2/sugipon/src/attackCheckBoundary.c lines=46  # ordinal; first difference at insn 2; length:+3; extent-differs
 rdlit AttackCheckBoundaryBeforeFunc 0x00610F18 0x00610F3D ico2/sugipon/src/attackCheckBoundary.c  # 2 strings
 text InitAttackCheckBoundaryManagerGeo 0x001B9048 0x001B9300 ico2/sugipon/src/attackCheckBoundary.c lines=43  # ordinal; first difference at insn 5; imm:8; extent-equal
@@ -2087,7 +1941,6 @@ lit4 WallLeverGeo 0x0062B2BC 0x0062B2C0 ico2/sugipon/src/box.c  # 1 float
 text WallLeverDL 0x001B9D18 0x001B9D94 ico2/sugipon/src/box.c in=ico2/sugipon/src/switch.c.inc lines=14  # ordinal; first difference at insn 7; imm:1; extent-equal
 text CheckReadyAllSwitches 0x001B9D98 0x001B9EC4 ico2/sugipon/src/box.c in=ico2/sugipon/src/switch.c.inc lines=13  # ordinal; first difference at insn 8; imm:4; extent-equal
 text initFallDown 0x001B9EF0 0x001BA014 ico2/sugipon/src/box.c local lines=27  # ordinal; first difference at insn 10; imm:6; extent-equal
-text checkFieldContact 0x001BA018 0x001BA13C ico2/sugipon/src/box.c local lines=34  # trfile; aug6-only in the census; PAL's checkFieldContact (336 B in PAL)
 text execNormalMove 0x001BA140 0x001BA65C ico2/sugipon/src/box.c local lines=98  # trfile; aug6-only in the census; PAL's execNormalMove (1312 B in PAL)
 rdlit execNormalMove 0x00610F50 0x00610FAB ico2/sugipon/src/box.c align=16  # 2 strings
 text execAutoMove 0x001BA660 0x001BA7A0 ico2/sugipon/src/box.c local lines=15  # trfile; aug6-only in the census; PAL's execAutoMove (320 B in PAL)
@@ -2232,7 +2085,6 @@ lit4 CheckEnemyHit 0x0062B3B0 0x0062B3B8 ico2/sugipon/src/enemy.c  # 2 floats
 text InitEnemyGeo 0x001CB490 0x001CB62C ico2/sugipon/src/enemy.c lines=31  # ordinal; first difference at insn 0; length:-14; extent-differs
 text EnemyGeo 0x001CB630 0x001CB868 ico2/sugipon/src/enemy.c lines=57  # ordinal; first difference at insn 14; length:-5; extent-differs
 text DisplayEnemy 0x001CB868 0x001CB8FC ico2/sugipon/src/enemy.c lines=16  # ordinal; first difference at insn 6; imm:2; extent-equal
-text DemoMotionGeo 0x001CB960 0x001CB988 ico2/sugipon/src/enemy.c lines=8  # ordinal; first difference at insn 2; imm:4; extent-equal
 text SetEnemyDissolve 0x001CB988 0x001CB9CC ico2/sugipon/src/enemy.c lines=10  # ordinal; first difference at insn 2; imm:1; extent-equal
 text SetEnemyFootPrintSwitch 0x001CB9D8 0x001CB9E8 ico2/sugipon/src/enemy.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
 text EnemySetfAppearAll 0x001CB9E8 0x001CBA34 ico2/sugipon/src/enemy.c lines=8  # ordinal; first difference at insn 6; imm:2; extent-equal
@@ -2252,7 +2104,6 @@ text CanThisEnemyFly 0x001CBEA0 0x001CBECC ico2/sugipon/src/enemy.c lines=4  # t
 text GetEnemyBattleType 0x001CBED0 0x001CBF00 ico2/sugipon/src/enemy.c lines=4  # trfile; aug6-only in the census; PAL's GetEnemyBattleType (48 B in PAL)
 text GetEnemyDefLife 0x001CBF00 0x001CBF28 ico2/sugipon/src/enemy.c lines=4  # trfile; aug6-only in the census; PAL's GetEnemyDefLife (40 B in PAL)
 text ResetEnemyPositionInfo 0x001CBF28 0x001CBFC8 ico2/sugipon/src/enemy.c lines=9  # ordinal; first difference at insn 6; imm:2; extent-equal
-text UpdatePointBlur 0x001CC020 0x001CC21C ico2/sugipon/src/enemyParts.c lines=39  # ordinal; first difference at insn 9; length:-4; extent-differs
 text InitEnemyEye 0x001CC220 0x001CC514 ico2/sugipon/src/enemyParts.c lines=34  # ordinal; first difference at insn 3; imm:22; extent-equal
 lit4 InitEnemyEye 0x0062B3B8 0x0062B3BC ico2/sugipon/src/enemyParts.c  # 1 float
 text InitEnemyFootPrint 0x001CC518 0x001CC7D8 ico2/sugipon/src/enemyParts.c lines=53  # ordinal; first difference at insn 12; imm:16; extent-equal
@@ -2261,7 +2112,6 @@ lit4 ExecEnemyFootPrints 0x0062B3BC 0x0062B3C0 ico2/sugipon/src/enemyParts.c  # 
 text EntryEnemyFootPrint 0x001CC950 0x001CCA00 ico2/sugipon/src/enemyParts.c lines=21  # ordinal; first difference at insn 23; imm:1; extent-equal
 lit4 EntryEnemyFootPrint 0x0062B3C0 0x0062B3C4 ico2/sugipon/src/enemyParts.c  # 1 float
 text InitPointBlur 0x001CCA20 0x001CCB5C ico2/sugipon/src/enemyParts.c lines=4  # ordinal; first difference at insn 18; imm:4; extent-equal
-text DispEnemyEye 0x001CCC28 0x001CCCAC ico2/sugipon/src/enemyParts.c lines=13  # ordinal; first difference at insn 8; length:-1; extent-differs
 text InitFlagGeo 0x001CCDE8 0x001CD384 ico2/sugipon/src/flag.c lines=142  # trfile; aug6-only in the census; PAL's InitFlagGeo (2028 B in PAL)
 rdlit InitFlagGeo 0x006116C8 0x006116D8 ico2/sugipon/src/flag.c  # target side
 text FlagGeo 0x001CD388 0x001CD478 ico2/sugipon/src/flag.c lines=31  # aug6-only in the census (after enemyParts.c's span); FlagGeo by body ratio 0.89, callees 0.75, sizes 288/240; obj-kind-data FLAG geo
@@ -2347,8 +2197,6 @@ text _getFinalMatrix 0x001D2D60 0x001D5770 ico2/sugipon/src/motionManager.c loca
 rdlit _getFinalMatrix 0x00611A30 0x00611B00 ico2/sugipon/src/motionManager.c align=16  # target side
 lit4 _getFinalMatrix 0x0062B428 0x0062B464 ico2/sugipon/src/motionManager.c # target side
 text getFinalMatrix 0x001D5928 0x001D5AEC ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc lines=14  # census-equal; stubbed because it inlines a function stubbed for emission order
-text findActPoint 0x001D5D00 0x001D5E48 ico2/sugipon/src/motionManager.c local lines=37  # ordinal; first difference at insn 6; imm:3; extent-equal
-text checkActPointWithHeight 0x001D5E48 0x001D5F3C ico2/sugipon/src/motionManager.c local lines=29  # ordinal; first difference at insn 1; imm:3; extent-equal
 text clearCollisionStatus 0x001D5F40 0x001D5FD8 ico2/sugipon/src/motionManager.c local lines=25  # ordinal; first difference at insn 21; imm:1; extent-equal
 sdlit clearCollisionStatus 0x0062D5BC 0x0062D5C0 ico2/sugipon/src/motionManager.c  # 1 word
 text checkWallSideState 0x001D6088 0x001D61D4 ico2/sugipon/src/motionManager.c local lines=27  # ordinal; first difference at insn 42; imm:1; extent-equal
@@ -2361,9 +2209,6 @@ text _checkCliffAndWall 0x001D6C28 0x001D6F50 ico2/sugipon/src/motionManager.c l
 rdlit _checkCliffAndWall 0x00611C10 0x00611C58 ico2/sugipon/src/motionManager.c  # target side
 lit4 _checkCliffAndWall 0x0062B480 0x0062B484 ico2/sugipon/src/motionManager.c  # 1 float
 sdlit _checkCliffAndWall 0x0062D5C0 0x0062D5C8 ico2/sugipon/src/motionManager.c  # 1 string, 1 word
-text checkCliffAndWallStateOfLastPlane 0x001D6F50 0x001D6FF0 ico2/sugipon/src/motionManager.c local lines=18  # ordinal; first difference at insn 10; imm:1; extent-equal
-text checkCliffAndWallStateAtJump 0x001D6FF0 0x001D7048 ico2/sugipon/src/motionManager.c local lines=10  # ordinal; first difference at insn 10; imm:1; extent-equal
-text dispLastNode 0x001D71A8 0x001D7224 ico2/sugipon/src/motionManager.c local lines=12  # ordinal; first difference at insn 15; imm:3; extent-equal
 text _wallHitReaction 0x001D7228 0x001D76F8 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=100  # ordinal; first difference at insn 110; imm:1; extent-equal
 lit4 _wallHitReaction 0x0062B484 0x0062B488 ico2/sugipon/src/motionManager.c  # 1 float
 text _wallCollisionPreProcess 0x001D76F8 0x001D7850 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=35  # ordinal; first difference at insn 19; imm:7; extent-equal
@@ -2375,13 +2220,11 @@ lit4 setIKAndAdjustRootHeight 0x0062B48C 0x0062B4A0 ico2/sugipon/src/motionManag
 sdlit setIKAndAdjustRootHeight 0x0062D5C8 0x0062D5CC ico2/sugipon/src/motionManager.c  # 1 word
 sdata D_0062D5D0 0x0062D5D0 0x0062D5D8 ico2/sugipon/src/motionManager.c local  # the two words _getFinalMatrix reads (lwc1, as in PAL), which the prototype has after the root-update functions' constants and before skelNode
 text landingFieldAction 0x001D8188 0x001D82C8 ico2/sugipon/src/motionManager.c in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=13  # ordinal; first difference at insn 11; imm:9; extent-equal
-text floorFitting 0x001D82C8 0x001D8394 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=20  # ordinal; first difference at insn 12; imm:3; extent-equal
 text rootUpdateXZ 0x001D8398 0x001D947C ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=197  # ordinal; first difference at insn 37; length:-7; extent-differs
 lit4 rootUpdateXZ 0x0062B4A0 0x0062B4B0 ico2/sugipon/src/motionManager.c # target side
 text rootUpdateXZ_MotPos 0x001D9480 0x001D98EC ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=83  # ordinal; first difference at insn 43; length:-48; extent-differs
 lit4 rootUpdateXZ_MotPos 0x0062B4B0 0x0062B4B4 ico2/sugipon/src/motionManager.c # target side
 text checkSideWall 0x001D9AB8 0x001D9C1C ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=58  # ordinal; first difference at insn 0; length:-20; extent-differs
-text forceFallDown 0x001D9C20 0x001D9C50 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=5  # ordinal; first difference at insn 9; imm:1; extent-equal
 text forceReset 0x001D9C50 0x001D9C80 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=5  # ordinal; first difference at insn 3; imm:2; extent-equal
 text calcWallFittingGeometry 0x001D9CE0 0x001D9E10 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=25  # ordinal; first difference at insn 8; imm:4; extent-equal
 lit4 calcWallFittingGeometry 0x0062B4BC 0x0062B4C0 ico2/sugipon/src/motionManager.c  # 1 float
@@ -2394,8 +2237,6 @@ text rootUpdateStepSolution 0x001DAAC0 0x001DB534 ico2/sugipon/src/motionManager
 rdlit rootUpdateStepSolution 0x00611DB8 0x00611DE0 ico2/sugipon/src/motionManager.c  # target side
 rdlit rootUpdateStepSolution 0x00611DE0 0x00611E08 ico2/sugipon/src/motionManager.c align=16  # jump table (target side)
 lit4 rootUpdateStepSolution 0x0062B4D0 0x0062B4D4 ico2/sugipon/src/motionManager.c  # 1 float
-text rootUpdateTrueMotion 0x001DB538 0x001DB61C ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=20  # ordinal; first difference at insn 37; imm:3; extent-equal
-text rootUpdateDirectPlayForStream 0x001DB620 0x001DB710 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=19  # ordinal; first difference at insn 18; imm:5; extent-equal
 text rootUpdateDirectPlay 0x001DB710 0x001DB870 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=31  # ordinal; first difference at insn 51; imm:5; extent-equal
 text keepVerticalZWithQ.267 0x001DB870 0x001DB99C ico2/sugipon/src/motionManager.c local file=keepVerticalZWithQ_267 in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 35; imm:4; extent-equal; nested in its parent
 text rootUpdateNodeFix 0x001DB9A0 0x001DBBB4 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=63  # ordinal; first difference at insn 6; imm:20; extent-equal
@@ -2470,43 +2311,17 @@ text SetParallelMotionTable 0x001E19A8 0x001E1A14 ico2/sugipon/src/motionOrientM
 text InitMotionOrient 0x001E1A18 0x001E1AB8 ico2/sugipon/src/motionOrientManager.c lines=14  # trfile; aug6-only in the census; PAL's InitMotionOrient (160 B in PAL)
 text GetCurrentMotionDirectionAdjustFlag 0x001E1AB8 0x001E1AE4 ico2/sugipon/src/motionOrientManager.c lines=4  # trfile; aug6-only in the census; PAL's GetCurrentMotionDirectionAdjustFlag (40 B in PAL)
 text ExecuteSlipProc 0x001E1AE8 0x001E1BB8 ico2/sugipon/src/motionOrientManager.c lines=20  # ordinal; first difference at insn 5; imm:10; extent-equal
-text ExecutePauseSlipProc 0x001E1BB8 0x001E1BEC ico2/sugipon/src/motionOrientManager.c lines=8  # ordinal; first difference at insn 8; imm:1; extent-equal
-text objMenuProc 0x001E21C0 0x001E2344 ico2/sugipon/src/motionViewer.c local lines=51  # ordinal; first difference at insn 0; length:-23; extent-differs
-rdlit objMenuProc 0x00612548 0x00612556 ico2/sugipon/src/motionViewer.c  # 1 string
 text motKindMenuProc 0x001E2348 0x001E275C ico2/sugipon/src/motionViewer.c local lines=50  # ordinal; first difference at insn 15; imm:8; extent-equal
 rdlit motKindMenuProc 0x00612558 0x006125A1 ico2/sugipon/src/motionViewer.c  # 3 strings
 text motOriMenuProc 0x001E2760 0x001E2AC8 ico2/sugipon/src/motionViewer.c local lines=67  # ordinal; first difference at insn 31; imm:5; extent-equal
 rdlit motOriMenuProc 0x006125A8 0x006125EB ico2/sugipon/src/motionViewer.c  # 3 strings
 sdlit motOriMenuProc 0x0062D6D0 0x0062D6D6 ico2/sugipon/src/motionViewer.c  # 1 string
-text MotionViewer 0x001E31F8 0x001E3A08 ico2/sugipon/src/motionViewer.c lines=207  # ordinal; first difference at insn 135; imm:7; extent-equal
-rdlit MotionViewer 0x00612630 0x006126C4 ico2/sugipon/src/motionViewer.c align=16  # 4 strings, 1 jtbl
 text MoveColTestGeo 0x001E3A08 0x001E3BE0 ico2/sugipon/src/moveColTest.c lines=43  # ordinal; first difference at insn 10; imm:1; extent-equal
 rdlit MoveColTestGeo 0x006126E0 0x006126F8 ico2/sugipon/src/moveColTest.c  # 1 string
 sdlit MoveColTestGeo 0x0062D718 0x0062D71C ico2/sugipon/src/moveColTest.c  # 1 string
 text EntryMultiBgaManager 0x001E3D18 0x001E3D7C ico2/sugipon/src/multiBgaManager.c lines=4  # ordinal; first difference at insn 9; length:-1; extent-differs
 text EntryMultiBgaManagerNoKind 0x001E3EB0 0x001E3F1C ico2/sugipon/src/multiBgaManager.c lines=4  # ordinal; first difference at insn 3; length:-1; extent-differs
-text setParticleEffect 0x001E4020 0x001E4638 ico2/sugipon/src/particleEffect.c local lines=54  # trfile; aug6-only in the census; PAL's setParticleEffect (692 B in PAL)
-rdlit setParticleEffect 0x00612728 0x006127D0 ico2/sugipon/src/particleEffect.c # target side
-text execParticleEffect 0x001E4638 0x001E5368 ico2/sugipon/src/particleEffect.c local lines=53  # trfile; aug6-only in the census; PAL's execParticleEffect (1676 B in PAL)
-lit4 execParticleEffect 0x0062B514 0x0062B51C ico2/sugipon/src/particleEffect.c  # 2 floats
-text SetParticleEffect 0x001E5688 0x001E5824 ico2/sugipon/src/particleEffect.c lines=4  # TRFILE.TXT names it SetParticleEffect (span 8 B longer there), where the census pairs PAL SetParticleEffectByPartition (ordinal; first difference at insn 0; length:-1); the census-equal callers scpEffectStart, InitCandleGeo, EditTarget, enemySetParticleDie, SetEnemyStonizedVisual and InitParticleLayoutGeo call it where PAL's call SetParticleEffect
-rdlit SetParticleEffect 0x006127D0 0x00612830 ico2/sugipon/src/particleEffect.c # target side
-text SetParticleEffectGeometry 0x001E5828 0x001E5868 ico2/sugipon/src/particleEffect.c lines=11  # ordinal; first difference at insn 1; imm:2; extent-equal
-rdlit SetParticleEffectGeometry 0x00612830 0x0061286A ico2/sugipon/src/particleEffect.c  # 1 string
-text SetParticleEffectUpperLimit 0x001E5868 0x001E58A4 ico2/sugipon/src/particleEffect.c lines=10  # ordinal; first difference at insn 2; imm:2; extent-equal
-text ExecParticleEffect 0x001E58A8 0x001E5A9C ico2/sugipon/src/particleEffect.c lines=30  # ordinal; first difference at insn 0; length:+15; extent-differs
-text ResetParticleEffectPackages 0x001E5AA0 0x001E5BAC ico2/sugipon/src/particleEffect.c lines=21  # ordinal; first difference at insn 0; length:-4; extent-differs
-text InitParticleEffects 0x001E5C78 0x001E5CDC ico2/sugipon/src/particleEffect.c lines=8  # aug6-only in the census (in particleEffect.c's span); InitParticleEffects by body ratio 0.96, callees -, sizes 108/100
-text DispParticleEffects 0x001E5CE0 0x001E5D34 ico2/sugipon/src/particleEffect.c lines=10  # aug6-only in the census (in particleEffect.c's span); DispParticleEffects by body ratio 1.00, callees 1.00, sizes 84/84, call sites 1
-text DeleteParticleEffect 0x001E5D38 0x001E5DC4 ico2/sugipon/src/particleEffect.c lines=7  # trfile; aug6-only in the census; PAL's DeleteParticleEffect (140 B in PAL)
-text SetParticleEffectActiveSensing 0x001E5DC8 0x001E5E34 ico2/sugipon/src/particleEffect.c lines=12  # trfile; aug6-only in the census; PAL's SetParticleEffectActiveSensing (112 B in PAL)
-text DeleteParticleEffectsByPackage 0x001E5E50 0x001E5EE8 ico2/sugipon/src/particleEffect.c lines=4  # ordinal; first difference at insn 7; imm:8; extent-equal
-text DeleteParticleEffectsByID 0x001E5EE8 0x001E5F90 ico2/sugipon/src/particleEffect.c lines=4  # ordinal; first difference at insn 12; imm:8; extent-equal
-text GetParticleEffectData 0x001E5F90 0x001E5FAC ico2/sugipon/src/particleEffect.c lines=4  # ordinal; first difference at insn 0; imm:2; extent-equal
-text DisableParticleEffectGeometryControl 0x001E5FB0 0x001E5FCC ico2/sugipon/src/particleEffect.c lines=4  # ordinal; first difference at insn 0; imm:2; extent-equal
 text GetParticleIDWithName 0x001E5FD0 0x001E603C ico2/sugipon/src/particleEffect.c lines=10  # ordinal; first difference at insn 17; imm:1; extent-equal
-text ParticleEffects_SetAllGoal 0x001E6070 0x001E60DC ico2/sugipon/src/particleEffect.c lines=13  # ordinal; first difference at insn 6; imm:5; extent-equal
-text SetParticleEffectClipEnableFlag 0x001E60E0 0x001E6108 ico2/sugipon/src/particleEffect.c lines=6  # ordinal; first difference at insn 1; imm:2; extent-equal
 text DeleteParticleLayout 0x001E6108 0x001E6118 ico2/sugipon/src/particleLayout.c lines=8  # trfile; aug6-only in the census; PAL's DeleteParticleLayout (72 B in PAL)
 text InitRopeGeo 0x001E6198 0x001E6630 ico2/sugipon/src/rope.c lines=143  # ordinal; first difference at insn 206; imm:7; extent-equal
 lit4 InitRopeGeo 0x0062B520 0x0062B524 ico2/sugipon/src/rope.c  # 1 float
@@ -2621,7 +2436,6 @@ text IsTorchLightOn 0x001EF138 0x001EF148 ico2/sugipon/src/torch.c lines=6  # or
 text CheckTorchChainReaction 0x001EF148 0x001EF21C ico2/sugipon/src/torch.c lines=23  # trfile; aug6-only in the census; PAL's CheckTorchChainReaction (236 B in PAL)
 text SetTorchLife 0x001EF220 0x001EF230 ico2/sugipon/src/torch.c lines=6  # trfile; aug6-only in the census; PAL's SetTorchLife (24 B in PAL)
 text SetTorchChainReactionFlag 0x001EF230 0x001EF240 ico2/sugipon/src/torch.c lines=6  # trfile; aug6-only in the census; PAL's SetTorchChainReactionFlag (16 B in PAL)
-text UpdateRealTimeGeometryValue 0x001EF240 0x001EF290 ico2/sugipon/src/torch.c lines=10  # trfile; aug6-only in the census; PAL's UpdateRealTimeGeometryValue (80 B in PAL)
 text torchOnOfWeaponSE 0x001EF378 0x001EF380 ico2/sugipon/src/weapon.c lines=4  # trfile; aug6-only in the census; PAL's torchOnOfWeaponSE (8 B in PAL)
 text torchOffOfWeaponSE 0x001EF380 0x001EF3AC ico2/sugipon/src/weapon.c lines=5  # trfile; aug6-only in the census; PAL's torchOffOfWeaponSE (44 B in PAL)
 text weaponHitReactionSE 0x001EF3B0 0x001EF3B8 ico2/sugipon/src/weapon.c lines=4  # trfile; the census pairs PAL torchOnOfWeaponSE here (bodies equal); PAL's weaponHitReactionSE is 8 B
@@ -2669,7 +2483,6 @@ text SetDirectWormTargetPos 0x001F39A8 0x001F3A80 ico2/sugipon/src/worm.c lines=
 text SetWormReduceRatio 0x001F3A80 0x001F3A90 ico2/sugipon/src/worm.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
 text TraceWormRoute 0x001F3A90 0x001F3C0C ico2/sugipon/src/worm.c lines=17  # ordinal; first difference at insn 16; imm:1; extent-equal
 lit4 TraceWormRoute 0x0062B58C 0x0062B590 ico2/sugipon/src/worm.c  # 1 float
-text bga_SetCameraMatrix 0x001F3E18 0x001F3E50 ico2/seki/src/BgAnimation.c  # trfile; the census pairs PAL bga_InitData here (ordinal; first difference at insn 0; length:-220; extent-differs)
 text bga_InitData 0x001F3E50 0x001F41F8 ico2/seki/src/BgAnimation.c lines=80  # trfile; the census pairs PAL bga_initLightEnvelope here (ordinal; first difference at insn 0; length:+37; extent-differs)
 rdlit bga_InitData 0x006133C8 0x006133F2 ico2/seki/src/BgAnimation.c  # 2 strings
 rdlit bga_InitData 0x00613400 0x00613428 ico2/seki/src/BgAnimation.c align=16  # 1 jtbl
@@ -2681,16 +2494,10 @@ text bga_ApplyDObject 0x001F4510 0x001F47C8 ico2/seki/src/BgAnimation.c lines=67
 rdlit bga_ApplyDObject 0x00613488 0x006134D0 ico2/seki/src/BgAnimation.c  # 2 strings, 1 jtbl
 rdlit bga_ApplyDObject 0x006134D0 0x00613508 ico2/seki/src/BgAnimation.c align=16  # jump table (target side)
 sdlit bga_ApplyDObject 0x0062D948 0x0062D94A ico2/seki/src/BgAnimation.c  # 1 string
-text bga_GetMotion 0x001F47C8 0x001F4E20 ico2/seki/src/BgAnimation.c local lines=134  # trfile; the census pairs PAL bga_GetMotionParticle here (ordinal; first difference at insn 0; length:-25; extent-differs)
-lit4 bga_GetMotion 0x0062B590 0x0062B59C ico2/seki/src/BgAnimation.c # target side
-text bga_GetExtMotion 0x001F4E20 0x001F50E4 ico2/seki/src/BgAnimation.c local lines=69  # trfile; the census pairs PAL bga_GetMotionLightning here (ordinal; first difference at insn 0; length:-260; extent-differs)
-text bga_GetGizmoMotion 0x001F50E8 0x001F5444 ico2/seki/src/BgAnimation.c local lines=82  # trfile; the census pairs PAL bga_GetExtMotion here (ordinal; first difference at insn 1; length:+53; extent-differs)
-text bga_setCounter 0x001F5448 0x001F56B0 ico2/seki/src/BgAnimation.c  # trfile; the census pairs PAL bga_GetGizmoMotion here (ordinal; first difference at insn 0; length:-45; extent-differs)
 text bga_calcEnvelope 0x001F56B0 0x001F596C ico2/seki/src/BgAnimation.c local lines=81  # ordinal; first difference at insn 6; length:-96; extent-differs
 lit4 bga_calcEnvelope 0x0062B59C 0x0062B5A0 ico2/seki/src/BgAnimation.c # target side
 rdlit bga_calcEnvelope 0x00613508 0x00613528 ico2/seki/src/BgAnimation.c # target side
 rdlit bga_calcEnvelope 0x00613530 0x00613558 ico2/seki/src/BgAnimation.c align=16  # target side
-text _RotTransCurrentMatrixYXZ 0x001F5970 0x001F59A8 ico2/seki/src/BgAnimation.c local lines=115  # ordinal; first difference at insn 0; length:-165; extent-differs
 text bga_CalcObject 0x001F59A8 0x001F6088 ico2/seki/src/BgAnimation.c local lines=170  # ordinal; first difference at insn 1; length:-127; extent-differs
 rdlit bga_CalcObject 0x00613558 0x006135C0 ico2/seki/src/BgAnimation.c  # target side
 rdlit bga_CalcObject 0x006135C0 0x00613600 ico2/seki/src/BgAnimation.c align=16  # jump table (target side)
@@ -2789,7 +2596,6 @@ text actCreateSubThreadGOppArg 0x00201220 0x00201254 ico2/fumi/src/act.c lines=7
 text actCreateSubThread 0x00201258 0x00201314 ico2/fumi/src/act.c lines=24  # trfile; aug6-only in the census; PAL's actCreateSubThread (260 B in PAL)
 text actSetInterrupt 0x00201318 0x00201320 ico2/fumi/src/act.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text ConvertStickToAbsCoord 0x00201320 0x00201398 ico2/fumi/src/act.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text ActSetStartBrainStatus 0x00201398 0x002013AC ico2/fumi/src/act.c lines=7  # ordinal; first difference at insn 2; imm:1; extent-equal
 text BeforeFunc2 0x00201470 0x002015C4 ico2/fumi/src/act2.c lines=43  # ordinal; first difference at insn 8; imm:5; extent-equal
 text WayPointWithRangeFromPos2 0x00201EC0 0x00202450 ico2/fumi/src/way_kidnap.c lines=134  # ordinal; first difference at insn 7; imm:7; extent-equal
 rdlit WayPointWithRangeFromPos2 0x00613C28 0x00613D3D ico2/fumi/src/way_kidnap.c  # 7 strings
@@ -2829,7 +2635,6 @@ text point_nige 0x00204480 0x00204514 ico2/fumi/src/way_tool.c lines=24  # censu
 rdlit point_nige 0x006141F8 0x00614220 ico2/fumi/src/way_tool.c def  # target side
 text quick_save_wpfile 0x00204518 0x002045D0 ico2/fumi/src/way_tool.c lines=27  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 sdlit quick_save_wpfile 0x0062DA28 0x0062DA37 ico2/fumi/src/way_tool.c def  # 2 strings, target side; the file name quick_load_wpfile (a stub for it) shares
-text cursor_control 0x002045D0 0x0020464C ico2/fumi/src/way_tool.c lines=15  # ordinal; first difference at insn 11; imm:2; extent-equal
 text actDejaChk 0x00204650 0x002047AC ico2/script/src/deja.c lines=27  # ordinal; first difference at insn 7; other:4; extent-equal
 lit4 actDejaChk 0x0062B610 0x0062B614 ico2/script/src/deja.c  # 1 float
 text actDejaDemo 0x002047B0 0x00204BCC ico2/script/src/deja.c lines=80  # ordinal; first difference at insn 1; imm:68; extent-equal
@@ -3004,7 +2809,6 @@ lit4 actSt02aSekizo 0x0062B668 0x0062B670 ico2/script/src/st02a.c  # 2 floats
 text actSt02aWay 0x0020F9B0 0x0020FA58 ico2/script/src/st02a.c lines=19  # ordinal; first difference at insn 12; imm:5; extent-equal
 text actSt02aTakiWay 0x0020FA58 0x0020FACC ico2/script/src/st02a.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
 text actSt02aSecretItem 0x0020FAD0 0x0020FB48 ico2/script/src/st02a.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
-text actSt02aFenceMain 0x0020FD18 0x0020FD50 ico2/script/src/st02a.c lines=9  # trfile; aug6-only in the census; PAL's actSt02aFenceMain (48 B in PAL)
 text actSt02aFenceSwitch 0x0020FD50 0x0020FDB8 ico2/script/src/st02a.c lines=13  # trfile; aug6-only in the census; PAL's actSt02aFenceSwitch (104 B in PAL)
 text actSt02aFenceOpen 0x0020FDB8 0x0020FE7C ico2/script/src/st02a.c lines=41  # trfile; aug6-only in the census; PAL's actSt02aFenceOpen (428 B in PAL)
 text actSt02aGondolaMain 0x0020FF58 0x0020FFA0 ico2/script/src/st02a.c lines=9  # trfile; aug6-only in the census; PAL's actSt02aGondolaMain (48 B in PAL)
@@ -3284,11 +3088,8 @@ text actSt04rMonyou05 0x00220690 0x00220728 ico2/script/src/st04r.c lines=17  # 
 text actSt04rMonyou06 0x00220728 0x002207C0 ico2/script/src/st04r.c lines=17  # trfile; aug6-only in the census; PAL's actSt04rMonyou06 (152 B in PAL)
 text actSt04rMonyou07 0x002207C0 0x00220858 ico2/script/src/st04r.c lines=17  # trfile; aug6-only in the census; PAL's actSt04rMonyou07 (152 B in PAL)
 text actSt05cDoorInit 0x00220858 0x002208E0 ico2/script/src/st04r.c lines=15  # trfile; aug6-only in the census; PAL's actSt05cDoorInit (136 B in PAL)
-text actSt04rC1BallMain 0x002208E0 0x00220918 ico2/script/src/st04r.c lines=9  # trfile; aug6-only in the census; PAL's actSt04rC1BallMain (48 B in PAL)
 text actSt04rC1BallSwitch 0x00220918 0x00220970 ico2/script/src/st04r.c lines=13  # trfile; aug6-only in the census; PAL's actSt04rC1BallSwitch (88 B in PAL)
-text actSt04rC2BallMain 0x00220970 0x002209A8 ico2/script/src/st04r.c lines=9  # trfile; aug6-only in the census; PAL's actSt04rC2BallMain (48 B in PAL)
 text actSt04rC2BallSwitch 0x002209A8 0x00220A00 ico2/script/src/st04r.c lines=13  # trfile; aug6-only in the census; PAL's actSt04rC2BallSwitch (88 B in PAL)
-text actSt04rC3BallMain 0x00220A00 0x00220A38 ico2/script/src/st04r.c lines=9  # trfile; aug6-only in the census; PAL's actSt04rC3BallMain (48 B in PAL)
 text actSt04rC3BallSwitch 0x00220A38 0x00220A90 ico2/script/src/st04r.c lines=13  # trfile; aug6-only in the census; PAL's actSt04rC3BallSwitch (88 B in PAL)
 text actSt04rSolarStageChangeChk 0x00220A90 0x00220B18 ico2/script/src/st04r.c lines=8  # ordinal; first difference at insn 9; other:5; extent-equal
 text actSt04rBrg1WayChk 0x00220B88 0x00220BCC ico2/script/src/st04r.c lines=8  # ordinal; first difference at insn 9; imm:1; extent-equal
@@ -3384,7 +3185,6 @@ text actSt06aTreeChk 0x00224AC0 0x00224B84 ico2/script/src/st06a.c lines=13  # t
 text actSt07aInit 0x00224B88 0x00224C50 ico2/script/src/st07a.c lines=30  # trfile; aug6-only in the census; PAL's actSt07aInit (264 B in PAL)
 text actSt07aEnd 0x00224C50 0x00224CC8 ico2/script/src/st07a.c lines=9  # trfile; aug6-only in the census; PAL's actSt07aEnd (120 B in PAL)
 text actSt07aChanChk 0x00224CC8 0x00224FD8 ico2/script/src/st07a.c lines=109  # trfile; aug6-only in the census; PAL's actSt07aChanChk (908 B in PAL)
-text actSt07aChanEffect 0x00224FD8 0x00225374 ico2/script/src/st07a.c lines=43  # trfile; aug6-only in the census; PAL's actSt07aChanEffect (440 B in PAL)
 text actSt07aTsuroChk 0x00225378 0x0022565C ico2/script/src/st07a.c lines=97  # trfile; aug6-only in the census; PAL's actSt07aTsuroChk (784 B in PAL)
 text actSt07aSekizoChk 0x00225A18 0x00225D2C ico2/script/src/st07a.c lines=97  # trfile; aug6-only in the census; PAL's actSt07aSekizoChk (792 B in PAL)
 lit4 actSt07aSekizoChk 0x0062B784 0x0062B794 ico2/script/src/st07a.c  # 4 floats
@@ -3420,7 +3220,6 @@ text actSt08aEnemy4 0x002270D8 0x00227174 ico2/script/src/st08a.c lines=20  # tr
 text actSt08aIntro 0x00227178 0x002271F0 ico2/script/src/st08a.c lines=13  # trfile; aug6-only in the census; PAL's actSt08aIntro (120 B in PAL)
 text actSt08aInit 0x002271F0 0x00227268 ico2/script/src/st08a.c lines=15  # trfile; aug6-only in the census; PAL's actSt08aInit (120 B in PAL)
 lit4 actSt08aInit 0x0062B794 0x0062B798 ico2/script/src/st08a.c  # 1 float
-text actSt08aDoorMain 0x00227268 0x002272A0 ico2/script/src/st08a.c lines=11  # trfile; aug6-only in the census; PAL's actSt08aDoorMain (56 B in PAL)
 text actSt08aDoorSwitch 0x002272A0 0x002272F8 ico2/script/src/st08a.c lines=12  # trfile; aug6-only in the census; PAL's actSt08aDoorSwitch (88 B in PAL)
 text actSt08aIntroChk 0x002272F8 0x002273A0 ico2/script/src/st08a.c lines=20  # trfile; aug6-only in the census; PAL's actSt08aIntroChk (168 B in PAL)
 text actSt08bKurenSwitch 0x002273A0 0x00227744 ico2/script/src/st08b.c lines=102  # trfile; aug6-only in the census; PAL's actSt08bKurenSwitch (976 B in PAL)
@@ -3450,11 +3249,9 @@ text actSt09aBrgDown 0x00228428 0x00228550 ico2/script/src/st09a.c lines=43  # t
 text actSt09aElv 0x00228550 0x002285E8 ico2/script/src/st09a.c lines=18  # trfile; aug6-only in the census; PAL's actSt09aElv (152 B in PAL)
 text actSt09aIntro 0x002285E8 0x00228660 ico2/script/src/st09a.c lines=14  # trfile; aug6-only in the census; PAL's actSt09aIntro (120 B in PAL)
 text actSt09aBrg 0x00228660 0x002286D8 ico2/script/src/st09a.c lines=14  # trfile; aug6-only in the census; PAL's actSt09aBrg (120 B in PAL)
-text actSt09aElvMain 0x002286D8 0x00228710 ico2/script/src/st09a.c lines=12  # ordinal; first difference at insn 8; imm:1; extent-equal
 text actSt09aElvSwitch 0x00228710 0x002287A8 ico2/script/src/st09a.c lines=20  # ordinal; first difference at insn 4; imm:6; extent-equal
 text actSt09aElvUp 0x002287A8 0x00228888 ico2/script/src/st09a.c lines=29  # ordinal; first difference at insn 3; imm:8; extent-equal
 text actSt09aIntroChk 0x00228898 0x00228918 ico2/script/src/st09a.c lines=19  # ordinal; first difference at insn 4; imm:5; extent-equal
-text actSt09aBrgMain 0x00228918 0x00228950 ico2/script/src/st09a.c lines=10  # trfile; aug6-only in the census; PAL's actSt09aBrgMain (48 B in PAL)
 text actSt09aBrgSwitch 0x00228950 0x002289A8 ico2/script/src/st09a.c lines=13  # trfile; aug6-only in the census; PAL's actSt09aBrgSwitch (88 B in PAL)
 text actSt10lInit 0x002289A8 0x00228A1C ico2/script/src/st10l.c lines=12  # trfile; aug6-only in the census; PAL's actSt10lInit (116 B in PAL)
 text actSt10lFloorLeft 0x00228A20 0x00228C60 ico2/script/src/st10l.c lines=60  # trfile; aug6-only in the census; PAL's actSt10lFloorLeft (620 B in PAL)
@@ -3485,14 +3282,12 @@ text actSt10lBoxB 0x00229AF0 0x00229B78 ico2/script/src/st10l.c lines=16  # trfi
 text actSt10lGateXL 0x00229B78 0x00229BC8 ico2/script/src/st10l.c lines=13  # trfile; aug6-only in the census; PAL's actSt10lGateXL (80 B in PAL)
 text actSt10lFloorMain 0x00229BC8 0x00229C38 ico2/script/src/st10l.c lines=9  # trfile; aug6-only in the census; PAL's actSt10lFloorMain (48 B in PAL)
 text actSt10lFloorSwitch 0x00229C38 0x00229CDC ico2/script/src/st10l.c lines=21  # trfile; aug6-only in the census; PAL's actSt10lFloorSwitch (164 B in PAL)
-text actSt10lGondolaMain 0x00229CE0 0x00229D28 ico2/script/src/st10l.c lines=9  # trfile; aug6-only in the census; PAL's actSt10lGondolaMain (48 B in PAL)
 text actSt10lGondolaSwitch 0x00229D28 0x00229DCC ico2/script/src/st10l.c lines=21  # trfile; aug6-only in the census; PAL's actSt10lGondolaSwitch (164 B in PAL)
 text actSt10lEneCam1Chk 0x00229DD0 0x00229E58 ico2/script/src/st10l.c lines=14  # trfile; aug6-only in the census; PAL's actSt10lEneCam1Chk (128 B in PAL)
 text actSt10lBoxChk 0x00229E58 0x00229EB8 ico2/script/src/st10l.c lines=12  # trfile; aug6-only in the census; PAL's actSt10lBoxChk (96 B in PAL)
 text actSt10lEneCam2Chk 0x00229EB8 0x00229F68 ico2/script/src/st10l.c lines=49  # trfile; aug6-only in the census; PAL's actSt10lEneCam2Chk (408 B in PAL)
 text actSt10lBoxAChk 0x00229F78 0x00229FDC ico2/script/src/st10l.c lines=11  # trfile; aug6-only in the census; PAL's actSt10lBoxAChk (128 B in PAL)
 text actSt10lBoxBChk 0x00229FE0 0x0022A044 ico2/script/src/st10l.c lines=11  # trfile; aug6-only in the census; PAL's actSt10lBoxBChk (128 B in PAL)
-text actSt10lChainMain 0x0022A048 0x0022A080 ico2/script/src/st10l.c lines=9  # trfile; aug6-only in the census; PAL's actSt10lChainMain (48 B in PAL)
 text actSt10lChainSwitch 0x0022A080 0x0022A0D8 ico2/script/src/st10l.c lines=12  # trfile; aug6-only in the census; PAL's actSt10lChainSwitch (88 B in PAL)
 text actSt10rInit 0x0022A0D8 0x0022A19C ico2/script/src/st10r.c lines=25  # trfile; aug6-only in the census; PAL's actSt10rInit (212 B in PAL)
 text actSt10rFloorChk 0x0022A1A0 0x0022A2A8 ico2/script/src/st10r.c lines=48  # trfile; aug6-only in the census; PAL's actSt10rFloorChk (436 B in PAL)
@@ -3519,7 +3314,6 @@ text actSt10rEnemy2 0x0022B270 0x0022B2E0 ico2/script/src/st10r.c lines=16  # tr
 text actSt10rElv 0x0022B2E0 0x0022B360 ico2/script/src/st10r.c lines=15  # trfile; aug6-only in the census; PAL's actSt10rElv (128 B in PAL)
 text actSt10rGateXL 0x0022B360 0x0022B3B0 ico2/script/src/st10r.c lines=12  # trfile; aug6-only in the census; PAL's actSt10rGateXL (80 B in PAL)
 text actSt10rExitChk 0x0022B408 0x0022B4D4 ico2/script/src/st10r.c lines=16  # ordinal; first difference at insn 20; imm:2; extent-equal
-text actSt10rChainMain 0x0022B4D8 0x0022B510 ico2/script/src/st10r.c lines=9  # trfile; aug6-only in the census; PAL's actSt10rChainMain (48 B in PAL)
 text actSt10rChainSwitch 0x0022B510 0x0022B568 ico2/script/src/st10r.c lines=11  # trfile; aug6-only in the census; PAL's actSt10rChainSwitch (88 B in PAL)
 text actSt10rEneChk 0x0022B578 0x0022B5F0 ico2/script/src/st10r.c lines=15  # ordinal; first difference at insn 24; imm:2; extent-equal
 text actSt13aElevUp 0x0022B5F0 0x0022B790 ico2/script/src/st13a.c lines=36  # trfile; aug6-only in the census; PAL's actSt13aElevUp (356 B in PAL)
@@ -3534,15 +3328,12 @@ text actSt13aSekizo 0x0022BC58 0x0022BCF0 ico2/script/src/st13a.c lines=18  # tr
 text actSt13aExit 0x0022BCF0 0x0022BD58 ico2/script/src/st13a.c  # trfile; aug6-only in the census; not in PAL's st13a
 text actSt13aCheck 0x0022BD58 0x0022BDD0 ico2/script/src/st13a.c lines=14  # trfile; aug6-only in the census; PAL's actSt13aCheck (120 B in PAL)
 text actSt13aChain 0x0022BDD0 0x0022BE78 ico2/script/src/st13a.c lines=19  # trfile; aug6-only in the census; PAL's actSt13aChain (168 B in PAL)
-text actSt13aElevMain 0x0022BE78 0x0022BEA8 ico2/script/src/st13a.c lines=9  # trfile; aug6-only in the census; PAL's actSt13aElevMain (48 B in PAL)
 text actSt13aElevSwitch 0x0022BEA8 0x0022BF10 ico2/script/src/st13a.c lines=13  # trfile; aug6-only in the census; PAL's actSt13aElevSwitch (104 B in PAL)
 text actSt13aExitChk 0x0022BF10 0x0022BF8C ico2/script/src/st13a.c  # trfile; aug6-only in the census; not in PAL's st13a
 text actSt13aCheckChk 0x0022BF90 0x0022BFC0 ico2/script/src/st13a.c lines=7  # trfile; aug6-only in the census; PAL's actSt13aCheckChk (48 B in PAL)
 text actSt13aChainOK 0x0022BFC0 0x0022C070 ico2/script/src/st13a.c lines=16  # trfile; aug6-only in the census; PAL's actSt13aChainOK (176 B in PAL)
 text actSt13aChainNG 0x0022C070 0x0022C120 ico2/script/src/st13a.c lines=16  # trfile; aug6-only in the census; PAL's actSt13aChainNG (176 B in PAL)
 text actSt13bFloor 0x0022C120 0x0022C284 ico2/script/src/st13b.c lines=32  # trfile; aug6-only in the census; PAL's actSt13bFloor (372 B in PAL)
-text actSt13bFloorChk 0x0022C288 0x0022C370 ico2/script/src/st13b.c lines=29  # trfile; aug6-only in the census; PAL's actSt13bFloorChk (236 B in PAL)
-lit4 actSt13bFloorChk 0x0062B7E8 0x0062B7EC ico2/script/src/st13b.c  # 1 float
 text actSt13bConte02 0x0022C370 0x0022CC74 ico2/script/src/st13b.c lines=238  # trfile; aug6-only in the census; PAL's actSt13bConte02 (2424 B in PAL)
 rdlit actSt13bConte02 0x00614BE0 0x00614BF0 ico2/script/src/st13b.c  # target side
 text actSt13bSekizoChk 0x0022CC78 0x0022CE70 ico2/script/src/st13b.c lines=51  # trfile; aug6-only in the census; PAL's actSt13bSekizoChk (504 B in PAL)
@@ -3759,7 +3550,6 @@ text actSplash1Chk 0x00237970 0x00237A1C ico2/script/src/st99a.c lines=13  # ord
 text actSplash2Chk 0x00237A20 0x00237ACC ico2/script/src/st99a.c lines=13  # ordinal; first difference at insn 4; imm:8; extent-equal
 text actWave1 0x00237AF8 0x00237B7C ico2/script/src/st99a.c lines=15  # ordinal; first difference at insn 7; imm:5; extent-equal
 text actSt27aWave1 0x00237BA8 0x00237C2C ico2/script/src/st99a.c lines=15  # ordinal; first difference at insn 7; imm:5; extent-equal
-text actSpiderChk 0x00237C30 0x00237C98 ico2/script/src/st99a.c lines=10  # ordinal; first difference at insn 12; imm:1; extent-equal
 text stageSEtaimatsu 0x00237C98 0x00237E28 ico2/script/src/stageSEProc.c lines=59  # ordinal; first difference at insn 21; imm:3; extent-equal
 sdlit stageSEtaimatsu 0x0062DCD8 0x0062DCDC ico2/script/src/stageSEProc.c align=4  # 1 word
 text stageSE04eriver 0x00237E28 0x00238020 ico2/script/src/stageSEProc.c lines=41  # ordinal; first difference at insn 13; imm:2; extent-equal
@@ -3779,13 +3569,5 @@ text stageSE04eriverDown 0x002388F0 0x002389A0 ico2/script/src/stageSEProc.c lin
 lit4 stageSE04eriverDown 0x0062B96C 0x0062B974 ico2/script/src/stageSEProc.c  # 2 floats
 text CreateKyomiGObj 0x00239A98 0x00239B18 ico2/omori/src/lws_kyomi.c lines=26  # trfile; aug6-only in the census; PAL's CreateKyomiGObj (388 B in PAL)
 text ObjAction_CorrectGeo 0x00239BD8 0x00239C54 ico2/omori/src/objact.c lines=11  # ordinal; first difference at insn 21; imm:2; extent-equal
-text ObjAction_Mail 0x00239C58 0x00239CC0 ico2/omori/src/objact.c lines=8  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text ObjAction_MailCenter 0x00239CC0 0x00239DB8 ico2/omori/src/objact.c lines=19  # ordinal; first difference at insn 49; imm:1; extent-equal
-text free_buf 0x00239E10 0x00239E18 ico2/ito/mpeg/mv_audiodec.c  # trfile; aug6-only in the census; not in PAL's mv_audiodec
-text audioDecCreate 0x00239E18 0x00239FBC ico2/ito/mpeg/mv_audiodec.c lines=59  # trfile; aug6-only in the census; PAL's audioDecCreate (436 B in PAL)
-rdlit audioDecCreate 0x00614F3C 0x00614F6C ico2/ito/mpeg/mv_audiodec.c # target side
-text audioDecDelete 0x0023A6E0 0x0023A744 ico2/ito/mpeg/mv_audiodec.c lines=20  # trfile; aug6-only in the census; PAL's audioDecDelete (160 B in PAL)
-text vblankHandler 0x0023B348 0x0023B4D0 ico2/ito/mpeg/mv_disp.c lines=35  # census-equal (lui and addiu immediates masked); match_check differs: an immediate
-text viBufCreate 0x0023BE80 0x0023C040 ico2/ito/mpeg/mv_vibuf.c lines=47  # ordinal; first difference at insn 13; imm:9; extent-equal
 text MakePacket 0x0023D7F8 0x0023D910 ico2/common/src/PObj.c local lines=23  # ordinal; first difference at insn 0; imm:11; extent-equal
 rdlit MakePacket 0x006280E0 0x006280F9 ico2/common/src/PObj.c  # 1 string
