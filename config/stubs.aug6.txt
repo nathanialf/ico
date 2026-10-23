@@ -186,10 +186,6 @@ rdlit actGirlHand 0x00553D50 0x00553D5C ico2/fumi/src/girl_act.c # target side
 sdlit actGirlHand 0x0062C650 0x0062C660 ico2/fumi/src/girl_act.c  # target side: "?\n", the two statics pullLen and pullTurn, a float
 text SetCameraMatrix_Ico2 0x00187268 0x001878E0 ico2/omori/src/camera-ico2.c lines=88  # aug6-only in the census (in camera-ico2.c's span); SetCameraMatrix_Ico2 by body ratio 0.82, callees 0.95, sizes 1420/1656
 lit4 SetCameraMatrix_Ico2 0x0062B048 0x0062B05C ico2/omori/src/camera-ico2.c # target side
-text ACTGetEnvironment 0x001FA3D0 0x001FE0A4 ico2/fumi/src/act-env.c lines=1058  # trfile; aug6-only in the census; PAL's ACTGetEnvironment (17952 B in PAL)
-lit4 ACTGetEnvironment 0x0062B5B0 0x0062B5E0 ico2/fumi/src/act-env.c # target side
-rdlit ACTGetEnvironment 0x006139D0 0x00613A10 ico2/fumi/src/act-env.c # target side
-sdlit ACTGetEnvironment 0x0062D9C8 0x0062D9E0 ico2/fumi/src/act-env.c  # target side: two strings and two floats
 text actSt03tGirlCam 0x00210ED0 0x00210F38 ico2/script/src/st03t.c lines=12  # trfile; aug6-only in the census; PAL's actSt03tGirlCam (104 B in PAL)
 text actSt03tSekizo 0x00210F38 0x00210FA0 ico2/script/src/st03t.c lines=9  # trfile; aug6-only in the census; PAL's actSt03tSekizo (104 B in PAL)
 lit4 actSt03tSekizo 0x0062B670 0x0062B67C ico2/script/src/st03t.c  # 3 floats
