@@ -1,47 +1,50 @@
-#include "include_asm.h"
-
 /* girl_brain_attract.c.inc: the girl brain's "attract" state, #included as
  * source into girl_act.c.  Its includer in the 2002 tree is
  * girl_brain_main.c.inc, which is not split out, so the include sits at the
  * point of girl_act.c that girl_brain_main.c.inc's text occupies. */
 
-static int ATGoalTurnMail(void *actor, float *dir, int node);
-/* void (void *, int, void *, void *) here, int (char *, int, void *, void *) in mail-add-data.h */
-extern void ActSendMail_WithAdditionalData(void *gop, int msg, void *sender, void *data);
-
-static void *attractMailData; /* derived name */
-
-/* expanded twice in subGirlBrain_Attract: turn toward the target, and when
-   already facing it send the attract mail with the target attached.  The
-   result (whether a turn was started) is dropped by both callers. */
-static inline int girlAttractTurnMailL(void *actor, void *obj, float *from,
-                                       float *to) /* derived name */
+static int ATGoalTurnMail(void *actor, float *dir)
 {
-    float dir[4];
+    float o1[4];
+    float v[4];
+    float o2[4];
+    int r1;
+    int m;
+    int r2;
+    int d;
+    int ret;
 
-    _OrientXZGV(dir, from, to);
-    if (ATGoalTurnMail(actor, dir, 0x2C)) {
-        return 1;
+    ret = 0;
+    v[0] = dir[0];
+    v[1] = dir[1];
+    v[2] = dir[2];
+    GetSkeltonOrient(o1, actor, 44);
+    r1 = _RotyGV(o1, v);
+    m = (r1 < 0) ? -r1 : r1;
+    if (m >= 21) {
+        GetSkeltonOrient(o2, actor, 35);
+        r2 = _RotyGV(o2, v);
+        if (m >= 90) {
+            goto use_r2;
+        }
+        if (r1 * r2 < 0) {
+            goto set_r1;
+        }
+    use_r2:
+        d = r2;
+        goto have_d;
+    set_r1:
+        d = r1;
+    have_d:
+        if (d > 0) {
+            ATGoalTurnSet(actor, 2, 2, v);
+        } else {
+            ATGoalTurnSet(actor, 2, 1, v);
+        }
+        ret = 1;
     }
-    attractMailData = obj;
-    ActSendMail_WithAdditionalData(actor, 0x156, actor, &attractMailData);
-    return 0;
+    return ret;
 }
-
-/* the same turn toward the boy, then the plain mail */
-static inline int girlAttractTurnMailR(void *actor, float *from, float *to) /* derived name */
-{
-    float dir[4];
-
-    _OrientXZGV(dir, from, to);
-    if (!ATGoalTurnMail(actor, dir, 0x2C)) {
-        ACTSendMailCorrect(actor, 0x158);
-        return 0;
-    }
-    return 1;
-}
-
-INCLUDE_ASM(ATGoalTurnMail);
 
 static int checkWaterfallResult(float *out)
 {
@@ -138,4 +141,366 @@ static GirlAttractParam attractBoyParam = {0, {0}, {0}, 0, 312, 100.0f, 70.0f}; 
 
 /* The actor entry parameter is volatile: the actor scheduler writes the
  * caller's home slot while this thread is parked in _ACTWait. */
-INCLUDE_ASM(subGirlBrain_Attract);
+void subGirlBrain_Attract(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    float mypos[4];
+    float last[4];
+    GirlAttractParam tgt;
+    int cnt;
+    void *cur = brain_val.lastTarget;
+    int type = 0;
+    int kind;
+    GObj *param = 0;
+    int dbg = 0; /* local debug switch, see the rate block below */
+    int fr = (60 - systemStatus[0] * 10) / systemStatus[1];
+    int fr3 = fr + (60 - systemStatus[0] * 10) / systemStatus[1] * 2;
+    int turnCnt = 0;
+
+    /* two nested helpers, which read cnt, sub and cur through the static chain */
+    __inline__ void setMode(int mode) /* derived name */
+    {
+        cnt = 0;
+        sub->wayMode = mode;
+    }
+    __inline__ int getKind(void) /* derived name */
+    {
+        if (cur == (void *)boyGObj && GOBJ_ACT(boyGObj)->actMode == 45) {
+            return 0;
+        } else if (*(int *)((char *)cur + 0xC) == 16) {
+            return 1;
+        } else if (GOBJ_ACT(boyGObj)->actMode == 49 &&
+                   *(int *)GOBJ_SUB(girlGObj) == (int)GOBJ_ACT(boyGObj)->box) {
+            return 2;
+        }
+        return 3;
+    }
+
+restart:
+    setMode(0);
+    if (cur == 0) {
+        debug_assert(__FILE__, 233);
+        __assert(__FILE__, 233, "0");
+    }
+    kind = getKind();
+    switch (kind) {
+    case 0:
+        type = 1;
+        param = GOBJ_ACT(boyGObj)->env.sofaObj.obj;
+        break;
+    case 1:
+        type = 1;
+        param = cur;
+        break;
+    case 2:
+        type = 2;
+        param = 0;
+        break;
+    case 3:
+        type = 0;
+        param = 0;
+        break;
+    }
+    switch (type) {
+    case 0:
+        tgt = attractObjParam;
+        tgt.obj = cur;
+        GetRootProjectionPosOfGObj(tgt.pos, cur);
+        break;
+    case 1:
+        tgt = attractSofaParam;
+        tgt.obj = cur;
+        GetSofaPosition(girlGObj, param);
+        tgt.pos[0] = sub->env.sofaPos[0];
+        tgt.pos[1] = sub->env.sofaPos[1];
+        tgt.pos[2] = sub->env.sofaPos[2];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[0] = sub->env.sofaPos[0];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[1] = sub->env.sofaPos[1];
+        ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->pos[2] = sub->env.sofaPos[2];
+        _GetRootObjectOrient(((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir, param);
+        tgt.dir[0] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[0];
+        tgt.dir[1] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[1];
+        tgt.dir[2] = ((GirlSofaWork *)GOBJ_ACT(self)->enemy)->dir[2];
+        tgt.goalTurn = 1;
+        break;
+    case 2:
+        tgt = attractBoyParam;
+        tgt.obj = boyGObj;
+        GetRootProjectionPosOfGObj(tgt.pos, boyGObj);
+        break;
+    }
+    for (;;) {
+        int noTurn = 1;
+        int waterHit = 0;
+        int hint = 0;
+        int type2;
+        float margin;
+        float ratio;
+
+        if (!ACTGame_FLAG_TETSUNAGI()) {
+            sub->flags20.ll |= 0x4000ULL;
+        }
+        if (type == 0 && tgt.obj == (void *)boyGObj && GOBJ_WORK(self)->brainTimer != 0) {
+            noTurn = 0;
+        }
+        if (*(int *)GOBJ_SUB(self) != 0 && *(int *)(*(int *)GOBJ_SUB(self) + 0xC) == 17 &&
+            boyGObj != 0 && type == 0 && tgt.obj == (void *)boyGObj &&
+            _DistSqGV(test_CURRENTROOT((void *)self), test_CURRENTROOT(boyGObj)) <
+                _ACTGame_GetParamF(28) * _ACTGame_GetParamF(28)) {
+            hint = 1;
+        }
+        if ((int)(sub->flags20.ll >> 15) & 1) {
+            hint = 1;
+        }
+        if (0 < brain_val.status31Timer) {
+            _ACTCharStatus_Set((void *)self, 28, -1.0f, 0);
+        }
+        if (kind != getKind()) {
+            goto restart;
+        }
+        type2 = girlBrainGetTargetType((void *)self);
+        GetRootProjectionPosOfGObj(mypos, (void *)self);
+        if (tgt.fixedPos == 0) {
+            int onSofa = 0;
+            float dir[4];
+            float ofs[4];
+
+            if (tgt.obj == (void *)boyGObj && GOBJ_ACT(tgt.obj)->actMode == 28) {
+                onSofa = 1;
+                dir[0] = test_CURRENTORIENT(boyGObj)[0];
+                dir[1] = test_CURRENTORIENT(boyGObj)[1];
+                dir[2] = test_CURRENTORIENT(boyGObj)[2];
+            }
+            if (onSofa) {
+                sceVu0ScaleVector(ofs, dir, 50.0f);
+                GetSkeltonPosition(tgt.pos, boyGObj, 22);
+                sceVu0AddVector(tgt.pos, tgt.pos, ofs);
+                tgt.pos[1] = tgt.pos[1] - 10.0f;
+            } else {
+                GetRootProjectionPosOfGObj(tgt.pos, tgt.obj);
+            }
+            if ((int)(GOBJ_ACT(boyGObj)->flags20.ll >> 19) & 1) {
+                float wp[4];
+
+                switch (checkWaterfallResult(wp)) {
+                case 1:
+                    tgt.pos[0] = mypos[0];
+                    tgt.pos[1] = mypos[1];
+                    tgt.pos[2] = mypos[2];
+                    if (tgt.obj != 0) {
+                        GirlBrainClearTarget((void *)self, &tgt);
+                    }
+                    break;
+                case 2:
+                    tgt.pos[0] = wp[0];
+                    tgt.pos[1] = wp[1];
+                    tgt.pos[2] = wp[2];
+                    waterHit = 1;
+                    break;
+                }
+            }
+        }
+        dispWayMarker(tgt.pos);
+        if (tgt.obj != 0) {
+            if (brainDecTargetTimer(tgt.obj)) {
+                GirlBrainClearTarget((void *)self, &tgt);
+            }
+        }
+        if (boyGObj != 0 && GOBJ_ACT(boyGObj)->actMode == 49) {
+            if (tgt.obj == (void *)boyGObj || tgt.obj == GOBJ_ACT(boyGObj)->box) {
+                GirlBrainClearTarget((void *)self, &tgt);
+            }
+        }
+        if (sub->actMode == 78) {
+            if (tgt.obj == (void *)boyGObj) {
+                GirlBrainClearTarget((void *)self, &tgt);
+            }
+        }
+        if (sub->wayMode == 3) {
+            if (girlBrainGetTypeRatio(type2) == 0.0f) {
+                setMode(0);
+            }
+        }
+        {
+            float level = girlBrainGetTargetLevel();
+            float speed = _ACTGame_GetParamF(27) + level * (1.0f - _ACTGame_GetParamF(27));
+            float clamped;
+
+            clamped = (speed < _ACTGame_GetParamF(27)) ? _ACTGame_GetParamF(27)
+                                                       : ((1.0f < speed) ? 1.0f : speed);
+            ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, clamped, 1);
+        }
+        {
+            float rate = girlBrainGetTargetLevel() * 4.0f;
+            float lo = _ACTGame_GetParamF(25);
+            float hi = _ACTGame_GetParamF(26);
+            float v = lo + rate * (hi - lo);
+
+            v = (v < lo) ? lo : ((hi < v) ? hi : v);
+            /* a second speed, computed and clamped like the one above and applied only
+               with the debug switch set */
+            if (dbg) {
+                ACTGame_SetMotionPlaySpeedRatio_Reserve((void *)self, v, 1);
+            }
+        }
+        if (((int)(sub->flags18.ll >> 52) & 1) && type == 0 && tgt.obj == (void *)boyGObj) {
+            if (sub->wayMode == 7) {
+                if (!(_DistSqGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj)) <
+                      10000.0f)) {
+                    setMode(1);
+                }
+            }
+        }
+        switch (sub->wayMode) {
+        case 0:
+            _ACTLookTarget_Set((void *)self, 0, 0, 6, 1);
+            sub->stick.mag = 0.0f;
+            setMode(6);
+            break;
+        case 1: {
+            int p = ACTWayMove_BeginDetail((void *)self, mypos, tgt.pos, tgt.obj, 0, 0);
+
+            if (tgt.fixedPos != 0) {
+                sub->wayDetailFlags.bits.wayDetail = 1;
+            }
+            if (p == 0) {
+                setMode(2);
+            } else {
+                setMode(3);
+                last[0] = tgt.pos[0];
+                last[1] = tgt.pos[1];
+                last[2] = tgt.pos[2];
+                turnCnt = 0;
+            }
+            break;
+        }
+        case 3: {
+            int p = ACTWayMove_NextDetail((void *)self, sub->dir, tgt.pos, 0);
+
+            if (GOBJ_ACT(self)->actMode == 45) {
+                if (type == 1) {
+                    setMode(4);
+                    break;
+                }
+            }
+            if (p == 0) {
+                setMode(2);
+            } else if ((int)((unsigned long long)sub->wayFlags >> 16) & 1) {
+                setMode(2);
+            } else if (hint) {
+                setMode(2);
+            } else {
+                if (!noTurn) {
+                    margin = 100.0f;
+                } else if (sub->actMode == 3 && (double)girlBrainGetTypeRatio(type2) > 0.8) {
+                    margin = 100.0f;
+                } else {
+                    margin = 0.0f;
+                }
+                sub->dir[0] = sub->wayNodeX;
+                sub->dir[1] = sub->wayNodeY;
+                sub->dir[2] = sub->wayNodeZ;
+                if (waterHit) {
+                    if (sub->wayGoalDist < 50.0f && sub->wayGoalHeight < tgt.goalHeight) {
+                        setMode(4);
+                        sub->stick.mag = 0.0f;
+                    } else if (sub->wayGoalDist < 300.0f) {
+                        girlBrainSetWalkRatio((void *)self, 0.5f);
+                    } else {
+                        ratio = girlBrainGetTypeRatio(type2);
+                        girlBrainSetWalkRatio((void *)self, ratio);
+                    }
+                } else {
+                    if (sub->wayGoalDist < tgt.goalDist + margin &&
+                        sub->wayGoalHeight < tgt.goalHeight) {
+                        if (tgt.goalTurn) {
+                            if (ATGoalTurnMail((void *)self, tgt.dir)) {
+                                noTurn = 0;
+                            }
+                        }
+                        if (noTurn) {
+                            setMode(4);
+                        } else {
+                            sub->stick.mag = 0.0f;
+                        }
+                    } else {
+                        ratio = girlBrainGetTypeRatio(type2);
+                        girlBrainSetWalkRatio((void *)self, ratio);
+                        if (sub->wayGoalDist < tgt.slowDist) {
+                            sub->stick.mag = (0.5f < sub->stick.mag) ? 0.5f : sub->stick.mag;
+                        }
+                    }
+                }
+            }
+            if (!(_DistSqGV(last, tgt.pos) < 90000.0f)) {
+                if (_DistSqGV(mypos, tgt.pos) > _DistSqGV(mypos, last)) {
+                    brainSubLevelGop(tgt.obj, 0.5f);
+                }
+                last[0] = tgt.pos[0];
+                last[1] = tgt.pos[1];
+                last[2] = tgt.pos[2];
+            }
+            if (tgt.obj != (void *)boyGObj && !ACTGameViewSimple_Check(self, tgt.obj)) {
+                switch (sub->actMode) {
+                case 2:
+                    turnCnt = turnCnt + 1;
+                    break;
+                case 3:
+                    turnCnt = turnCnt + 2;
+                    break;
+                }
+                if ((60 - systemStatus[0] * 10) / systemStatus[1] * 15 < turnCnt) {
+                    setMode(2);
+                }
+            }
+            break;
+        }
+        case 6:
+            if (fr < cnt || brain_val.lookHold != 0) {
+                if (girlBrainGetTypeRatio(type2) != 0.0f) {
+                    setMode(1);
+                }
+            }
+            /* fallthrough */
+        case 2:
+        case 7:
+            if (cnt++ < fr3) {
+                sub->stick.mag = 0;
+                _ACTLookTarget_Set((void *)self, tgt.obj, 0, 2, 1);
+            } else {
+                _ACTLookTarget_Set((void *)self, 0, 0, 6, 1);
+                setMode(8);
+            }
+            if ((sub->flags18.ll & (1ULL << 54)) || (sub->flags18.ll & (1ULL << 53))) {
+                sub->flags18.ll |= 1ULL << 55;
+            }
+            break;
+        case 4:
+            if (tgt.kind == 0) {
+                setMode(7);
+            } else {
+                setMode(5);
+            }
+            break;
+        case 5:
+            if (cnt++ < (60 - systemStatus[0] * 10) / systemStatus[1] * 200 / 60) {
+                sub->stick.mag = 0.0f;
+                sub->orientMot = tgt.kind;
+                ACTSendMailCorrect((void *)self, tgt.mail);
+            } else {
+                setMode(8);
+            }
+            break;
+        case 8:
+            cnt = cnt + 1;
+            if (cnt == 2) {
+                GirlBrainClearTarget((void *)self, &tgt);
+            }
+            if ((60 - systemStatus[0] * 10) / systemStatus[1] < cnt) {
+                setMode(0);
+            }
+            break;
+        }
+        _ACTWait(1);
+    }
+}

@@ -43,7 +43,6 @@ void afterCommonTruckLever(struct GObj *volatile self);
 void subCommonIdle(struct GObj *volatile self);
 float *test_CURRENTORIENT(struct GObj *self);
 float *test_CURRENTROOT(struct GObj *self);
-int FloorIsTruck(struct GObj *self);
 void afterCommonBox(struct GObj *volatile self);
 void actAfterFall(struct GObj *volatile self);
 

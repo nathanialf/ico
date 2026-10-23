@@ -975,73 +975,11 @@ rdlit actEnemyJump 0x00553268 0x005532A0 ico2/fumi/src/enemy_act.c def  # target
 text EnemyUtil_isOtherStatus 0x00163D38 0x00163DB4 ico2/fumi/src/enemy_act.c lines=17  # ordinal; first difference at insn 8; length:-2; extent-differs
 text isEnemyHyde 0x00163DB8 0x00163DE4 ico2/fumi/src/enemy_act.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text _ApproachTarget 0x00163DE8 0x00163E30 ico2/fumi/src/enemy_act.c lines=9  # ordinal; first difference at insn 5; imm:2; extent-equal
-text motGirlHand50 0x001684D0 0x00168654 ico2/fumi/src/girl_act.c lines=37  # ordinal; first difference at insn 11; other:16; extent-equal
-rdlit motGirlHand50 0x00553778 0x0055378D ico2/fumi/src/girl_act.c  # 1 string
-text motGirlHand100 0x00168658 0x00168814 ico2/fumi/src/girl_act.c lines=41  # ordinal; first difference at insn 11; imm:21; extent-equal
-rdlit motGirlHand100 0x005537A8 0x005537BE ico2/fumi/src/girl_act.c  # 1 string
-text motGirlHand200 0x00168818 0x00168A3C ico2/fumi/src/girl_act.c lines=50  # ordinal; first difference at insn 33; imm:19; extent-equal
-rdlit motGirlHand200 0x005537D8 0x005537FF ico2/fumi/src/girl_act.c  # 2 strings
-sdlit motGirlHand200 0x0062C590 0x0062C59D ico2/fumi/src/girl_act.c  # 2 strings
-text sort_list.75 0x00168A80 0x00168C78 ico2/fumi/src/girl_act.c local file=sort_list_75  # nested in girlBrainMain_MakeOthersList, which is carved; census twin of PAL's sort_list.78 (gcc numbers it sort_list.75 in this tree)
-text girlBrainMain_MakeOthersList 0x00168C78 0x001691A8 ico2/fumi/src/girl_act.c local lines=148  # aug6-only in the census (in girl_act.c's span); girlBrainMain_MakeOthersList by body ratio 0.87, callees 0.92, sizes 1720/1328
-rdlit girlBrainMain_MakeOthersList 0x00553800 0x00553832 ico2/fumi/src/girl_act.c align=16  # 2 strings
-sdlit girlBrainMain_MakeOthersList 0x0062C5B0 0x0062C5BC ico2/fumi/src/girl_act.c  # 1 data
-text girlBrainMain_CheckWarningMode 0x001691A8 0x00169574 ico2/fumi/src/girl_act.c local lines=41  # trfile; aug6-only in the census; PAL's girlBrainMain_CheckWarningMode (692 B in PAL)
-lit4 girlBrainMain_CheckWarningMode 0x0062AEC8 0x0062AED0 ico2/fumi/src/girl_act.c # target side
-text girlBrainMain_DecideMode 0x00169578 0x001699D0 ico2/fumi/src/girl_act.c local lines=151  # aug6-only in the census (in girl_act.c's span); girlBrainMain_DecideMode by body ratio 0.55, callees 0.85, sizes 1672/1112
-lit4 girlBrainMain_DecideMode 0x0062AED0 0x0062AED4 ico2/fumi/src/girl_act.c # target side
-rdlit girlBrainMain_DecideMode 0x00553860 0x00553890 ico2/fumi/src/girl_act.c align=16  # target side
-text ChangeRunMode.129 0x00169A38 0x00169B28 ico2/fumi/src/girl_act.c local file=ChangeRunMode_129  # ordinal; first difference at insn 9; imm:4; extent-equal; nested in its parent, gcc numbers it ChangeRunMode.129 in this tree (PAL ChangeRunMode.135)
-text subGirlBrainMain 0x00169B28 0x0016AC18 ico2/fumi/src/girl_act.c lines=465  # ordinal; first difference at insn 12; length:-141; extent-differs
-lit4 subGirlBrainMain 0x0062AED4 0x0062AEE4 ico2/fumi/src/girl_act.c # target side
-rdlit subGirlBrainMain 0x00553890 0x00553910 ico2/fumi/src/girl_act.c align=16  # target side
-sdlit subGirlBrainMain 0x0062C5D0 0x0062C5D2 ico2/fumi/src/girl_act.c  # target side: the wire label of its debug display, which nothing reads
-text subGirlBrain_Pulledup 0x0016AC18 0x0016B024 ico2/fumi/src/girl_act.c lines=90  # ordinal; first difference at insn 0; length:-24; extent-differs
-text ATGoalTurnMail 0x0016B028 0x0016B17C ico2/fumi/src/girl_act.c local in=ico2/fumi/src/girl_brain_attract.c.inc lines=42  # ordinal; first difference at insn 0; length:-2; extent-differs
-text subGirlBrain_Attract 0x0016B400 0x0016C580 ico2/fumi/src/girl_act.c in=ico2/fumi/src/girl_brain_attract.c.inc lines=412  # ordinal; first difference at insn 0; length:-391; extent-differs
-lit4 subGirlBrain_Attract 0x0062AF08 0x0062AF10 ico2/fumi/src/girl_act.c  # target side
-rdlit subGirlBrain_Attract 0x00553910 0x00553930 ico2/fumi/src/girl_act.c  # target side
-rdlit subGirlBrain_Attract 0x00553930 0x00553960 ico2/fumi/src/girl_act.c align=16  # jump table (target side)
-text _girlBrainHide_MakeHidePoint 0x0016C580 0x0016C7D8 ico2/fumi/src/girl_act.c local lines=53  # ordinal; first difference at insn 28; imm:4; extent-equal
-text girlBrainHide_GoalTurn 0x0016C7D8 0x0016C8E4 ico2/fumi/src/girl_act.c local lines=35  # ordinal; first difference at insn 24; imm:8; extent-equal
-rdlit girlBrainHide_GoalTurn 0x00553960 0x0055397C ico2/fumi/src/girl_act.c align=16  # 2 strings
-text isHideRecheck.183 0x0016C8E8 0x0016CA78 ico2/fumi/src/girl_act.c local file=isHideRecheck_183  # nested in subGirlBrain_Hide, which is carved; census twin of PAL's isHideRecheck.189 (gcc numbers it isHideRecheck.183 in this tree)
-text subGirlBrain_Hide 0x0016CA78 0x0016CF14 ico2/fumi/src/girl_act.c lines=90  # ordinal; first difference at insn 0; length:+83; extent-differs
-lit4 subGirlBrain_Hide 0x0062AF10 0x0062AF14 ico2/fumi/src/girl_act.c  # 1 float
-text CorrectList.202 0x0016CF18 0x0016D080 ico2/fumi/src/girl_act.c local file=CorrectList_202  # nested in girlBrainRunawaySearchPoint, which is carved; census twin of PAL's CorrectList.208 (gcc numbers it CorrectList.202 in this tree)
-lit4 CorrectList.202 0x0062AF14 0x0062AF18 ico2/fumi/src/girl_act.c file=CorrectList_202  # target side
-text girlBrainRunawaySearchPoint 0x0016D080 0x0016D618 ico2/fumi/src/girl_act.c local lines=90  # ordinal; first difference at insn 25; imm:4; extent-equal
-lit4 girlBrainRunawaySearchPoint 0x0062AF18 0x0062AF20 ico2/fumi/src/girl_act.c  # 2 floats
-text subGirlBrain_Escape 0x0016D8B8 0x0016DFF0 ico2/fumi/src/girl_act.c lines=124  # ordinal; first difference at insn 3; length:+63; extent-differs
-lit4 subGirlBrain_Escape 0x0062AF24 0x0062AF2C ico2/fumi/src/girl_act.c # target side
-rdlit subGirlBrain_Escape 0x005539A0 0x005539B8 ico2/fumi/src/girl_act.c align=16  # target side
-sdlit subGirlBrain_Escape 0x0062C5F0 0x0062C5F3 ico2/fumi/src/girl_act.c  # target side: a string
-text GetSafePosition.227 0x0016E0A8 0x0016E34C ico2/fumi/src/girl_act.c local file=GetSafePosition_227  # nested in Danger_Bomb, which is carved; census twin of PAL's GetSafePosition.233 (gcc numbers it GetSafePosition.227 in this tree)
-lit4 GetSafePosition.227 0x0062AF2C 0x0062AF30 ico2/fumi/src/girl_act.c file=GetSafePosition_227 # target side
-text Danger_Bomb 0x0016E350 0x0016E5C0 ico2/fumi/src/girl_act.c local lines=112  # ordinal; first difference at insn 18; length:-1; extent-differs
-lit4 Danger_Bomb 0x0062AF30 0x0062AF34 ico2/fumi/src/girl_act.c  # 1 float
-text GetSafePosition.234 0x0016E5C0 0x0016E88C ico2/fumi/src/girl_act.c local file=GetSafePosition_234  # nested in Danger_Gondola, which is carved; census twin of PAL's GetSafePosition.240 (gcc numbers it GetSafePosition.234 in this tree)
-lit4 GetSafePosition.234 0x0062AF34 0x0062AF38 ico2/fumi/src/girl_act.c file=GetSafePosition_234 # target side
-text Danger_Gondola 0x0016E890 0x0016EB48 ico2/fumi/src/girl_act.c local lines=119  # aug6-only in the census (in girl_act.c's span); Danger_Gondola by body ratio 0.98, callees 1.00, sizes 712/696
-lit4 Danger_Gondola 0x0062AF38 0x0062AF3C ico2/fumi/src/girl_act.c  # 1 float
-rdlit Danger_Gondola 0x005539B8 0x005539C2 ico2/fumi/src/girl_act.c  # 1 string
-text GetSafePosition.241 0x0016EB48 0x0016EF38 ico2/fumi/src/girl_act.c local file=GetSafePosition_241  # aug6-only in the census (in girl_act.c's span); GetSafePosition.247 by body ratio 1.00, callees 1.00, sizes 1008/1008, call sites 2; nested in its parent, gcc numbers it GetSafePosition.241 in this tree (PAL GetSafePosition.247)
-lit4 GetSafePosition.241 0x0062AF3C 0x0062AF40 ico2/fumi/src/girl_act.c file=GetSafePosition_241 # target side
-text Danger_Box 0x0016EF38 0x0016F3A4 ico2/fumi/src/girl_act.c local lines=173  # trfile; aug6-only in the census; PAL's Danger_Box (1136 B in PAL)
-rdlit Danger_Box 0x005539C8 0x005539E6 ico2/fumi/src/girl_act.c  # 1 string
-text subGirlBrain_HideAdvance 0x0016F3A8 0x0016F560 ico2/fumi/src/girl_act.c lines=38  # ordinal; first difference at insn 0; other:70; extent-equal
-text WayTest 0x0016F838 0x0016FAB8 ico2/fumi/src/girl_act.c lines=47  # ordinal; first difference at insn 0; length:+30; extent-differs
-rdlit WayTest 0x005539E8 0x00553A10 ico2/fumi/src/girl_act.c # target side
-sdlit WayTest 0x0062C5F8 0x0062C5FE ico2/fumi/src/girl_act.c  # target side: a string
 text subGirlControl 0x0016FAB8 0x00170220 ico2/fumi/src/girl_act.c lines=230  # ordinal; first difference at insn 0; length:-168; extent-differs
 lit4 subGirlControl 0x0062AF4C 0x0062AF80 ico2/fumi/src/girl_act.c # target side
 rdlit subGirlControl 0x00553A60 0x00553AC0 ico2/fumi/src/girl_act.c  # target side
 rdlit subGirlControl 0x00553AC0 0x00553B78 ico2/fumi/src/girl_act.c align=16  # jump table (target side)
 sdlit subGirlControl 0x0062C628 0x0062C647 ico2/fumi/src/girl_act.c  # target side: four strings of a disabled print
-text subGirlCollision 0x00170220 0x00170CB8 ico2/fumi/src/girl_act.c lines=200  # ordinal; first difference at insn 20; length:-39; extent-differs
-lit4 subGirlCollision 0x0062AF80 0x0062AF88 ico2/fumi/src/girl_act.c # target side
-rdlit subGirlCollision 0x00553B78 0x00553BE0 ico2/fumi/src/girl_act.c # target side
-sdlit subGirlCollision 0x0062C648 0x0062C64E ico2/fumi/src/girl_act.c  # target side: a string
 text HandMgr_GetDistHand.273 0x00170CB8 0x00170DC8 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_273  # nested in actGirlHand, which is carved; census twin of PAL's HandMgr_GetDistHand.289 (gcc numbers it HandMgr_GetDistHand.273 in this tree)
 text HandMgr_Update.281 0x00170DC8 0x00170EBC ico2/fumi/src/girl_act.c local file=HandMgr_Update_281  # nested in actGirlHand, which is carved; census twin of PAL's HandMgr_Update.297 (gcc numbers it HandMgr_Update.281 in this tree)
 text HandMgr_Judge.285 0x00170EC0 0x00171028 ico2/fumi/src/girl_act.c local file=HandMgr_Judge_285  # nested in actGirlHand, which is carved; census twin of PAL's HandMgr_Judge.301 (gcc numbers it HandMgr_Judge.285 in this tree)
@@ -1055,65 +993,6 @@ text actGirlHand 0x00171478 0x00171EB8 ico2/fumi/src/girl_act.c lines=353  # aug
 lit4 actGirlHand 0x0062AF90 0x0062AFA4 ico2/fumi/src/girl_act.c # target side
 rdlit actGirlHand 0x00553D50 0x00553D5C ico2/fumi/src/girl_act.c # target side
 sdlit actGirlHand 0x0062C650 0x0062C660 ico2/fumi/src/girl_act.c  # target side: "?\n", the two statics pullLen and pullTurn, a float
-text actGirlPulledReady 0x00171EB8 0x00172004 ico2/fumi/src/girl_act.c lines=29  # trfile; aug6-only in the census; PAL's actGirlPulledReady (332 B in PAL)
-text actGirlPulledGo 0x00172008 0x00172170 ico2/fumi/src/girl_act.c lines=33  # trfile; aug6-only in the census; PAL's actGirlPulledGo (444 B in PAL)
-text actGirlDitch3mReady 0x00172170 0x00172254 ico2/fumi/src/girl_act.c lines=22  # trfile; aug6-only in the census; PAL's actGirlDitch3mReady (228 B in PAL)
-text actGirlReadyMove 0x00172258 0x0017238C ico2/fumi/src/girl_act.c lines=25  # trfile; aug6-only in the census; PAL's actGirlReadyMove (412 B in PAL)
-text actGirlRescueDst 0x00172390 0x00172634 ico2/fumi/src/girl_act.c lines=56  # trfile; aug6-only in the census; PAL's actGirlRescueDst (716 B in PAL)
-text actGirlSupportBGBegin 0x00172638 0x00172790 ico2/fumi/src/girl_act.c lines=31  # trfile; aug6-only in the census; PAL's actGirlSupportBGBegin (344 B in PAL)
-text actGirlStart 0x00172790 0x00172968 ico2/fumi/src/girl_act.c lines=38  # aug6-only in the census (in girl_act.c's span); actGirlStart by body ratio 0.98, callees 1.00, sizes 480/472; obj-kind-data GIRL start
-rdlit actGirlStart 0x00553E08 0x00553E19 ico2/fumi/src/girl_act.c  # 1 string
-text GirlAct_BoyAndMeCollisionMail 0x00172968 0x00172AF0 ico2/fumi/src/girl_act.c lines=33  # aug6-only in the census (in girl_act.c's span); GirlAct_BoyAndMeCollisionMail by body ratio 1.00, callees 1.00, sizes 392/392
-text IsGirlStatusEscortEnable 0x00172AF0 0x00172C84 ico2/fumi/src/girl_act.c lines=26  # aug6-only in the census (in girl_act.c's span); IsGirlStatusEscortEnable by body ratio 0.86, callees 1.00, sizes 404/404
-text DebugDispAutoEscort 0x00172C88 0x00172EC0 ico2/fumi/src/girl_act.c lines=27  # aug6-only in the census (in girl_act.c's span); DebugDispAutoEscort by body ratio 0.93, callees 1.00, sizes 584/568
-rdlit DebugDispAutoEscort 0x00553E30 0x00553E40 ico2/fumi/src/girl_act.c align=16  # 1 data
-text func_00172EC0 0x00172EC0 0x00172EF8 ico2/fumi/src/girl_act.c  # aug6-only; in girl_act.c's span; PAL order suggests FindGirlPullupFloorBoxGObj (68 B in PAL)
-text actGirlSupportGBBegin 0x00172EF8 0x00172FC8 ico2/fumi/src/girl_act.c lines=20  # aug6-only in the census (in girl_act.c's span); actGirlSupportGBBegin by body ratio 1.00, callees 1.00, sizes 208/208
-text actGirlSupportGBLoop 0x00172FC8 0x00173024 ico2/fumi/src/girl_act.c lines=9  # aug6-only in the census (in girl_act.c's span); actGirlSupportGBLoop by body ratio 1.00, callees 1.00, sizes 92/92
-text actGirlSupportGBEnd 0x00173028 0x00173054 ico2/fumi/src/girl_act.c lines=7  # aug6-only in the census (in girl_act.c's span); actGirlSupportGBEnd by body ratio 1.00, callees 1.00, sizes 44/44
-text actGirlHangG3M 0x00173058 0x0017309C ico2/fumi/src/girl_act.c lines=10  # aug6-only in the census (in girl_act.c's span); actGirlHangG3M by body ratio 1.00, callees 1.00, sizes 68/68
-text actGirlDitch3mExec 0x001730A0 0x001731A0 ico2/fumi/src/girl_act.c lines=31  # aug6-only in the census (in girl_act.c's span); actGirlDitch3mExec by body ratio 1.00, callees 1.00, sizes 256/256
-rdlit actGirlDitch3mExec 0x00553D60 0x00553D90 ico2/fumi/src/girl_act.c align=16 def  # 1 data
-text actGirlStand 0x001731A0 0x001731E4 ico2/fumi/src/girl_act.c lines=8  # aug6-only in the census (in girl_act.c's span); actGirlStand by body ratio 1.00, callees 1.00, sizes 68/68
-rdlit actGirlStand 0x00553D90 0x00553DA4 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text actGirlWalk 0x001731E8 0x0017322C ico2/fumi/src/girl_act.c lines=8  # aug6-only in the census (in girl_act.c's span); actGirlWalk by body ratio 1.00, callees 1.00, sizes 68/68
-rdlit actGirlWalk 0x00553DA8 0x00553DBB ico2/fumi/src/girl_act.c def  # 1 string
-text actGirlRun 0x00173230 0x00173274 ico2/fumi/src/girl_act.c lines=8  # aug6-only in the census (in girl_act.c's span); actGirlRun by body ratio 1.00, callees 1.00, sizes 68/68
-rdlit actGirlRun 0x00553DC0 0x00553DD2 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text actGirlHang 0x00173278 0x001732EC ico2/fumi/src/girl_act.c lines=25  # aug6-only in the census (in girl_act.c's span); actGirlHang by act-mode-def's HANG row holds it (girl column), as PAL's holds actGirlHang
-text actGirlBHang 0x001732F0 0x00173370 ico2/fumi/src/girl_act.c lines=17  # aug6-only in the census (in girl_act.c's span); actGirlBHang by body ratio 0.54, callees 0.67, sizes 244/128
-text actGirlAttack 0x00173370 0x001733B4 ico2/fumi/src/girl_act.c lines=8  # ordinal; first difference at insn 12; imm:1; extent-equal
-rdlit actGirlAttack 0x00553DF0 0x00553E05 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text actGirlBecall 0x001733B8 0x001734B0 ico2/fumi/src/girl_act.c lines=11  # ordinal; first difference at insn 51; imm:1; extent-equal
-text actGirlBehanged 0x001734B0 0x00173534 ico2/fumi/src/girl_act.c lines=12  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text actGirlAttractAction 0x00173538 0x00173564 ico2/fumi/src/girl_act.c lines=7  # ordinal; first difference at insn 6; imm:1; extent-equal
-text actGirlHand50 0x00173568 0x0017360C ico2/fumi/src/girl_act.c lines=20  # aug6-only in the census (in girl_act.c's span); actGirlHand50 by body ratio 1.00, callees 1.00, sizes 164/164
-rdlit actGirlHand50 0x00553748 0x00553774 ico2/fumi/src/girl_act.c def  # 2 strings
-text afterGirlHand50 0x00173610 0x0017364C ico2/fumi/src/girl_act.c lines=6  # aug6-only in the census (in girl_act.c's span); afterGirlHand50 by body ratio 1.00, callees 1.00, sizes 60/60
-rdlit afterGirlHand50 0x00553730 0x00553741 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text actGirlHand100 0x00173650 0x001736CC ico2/fumi/src/girl_act.c lines=17  # aug6-only in the census (in girl_act.c's span); actGirlHand100 by body ratio 1.00, callees 1.00, sizes 124/124
-rdlit actGirlHand100 0x00553790 0x005537A6 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text afterGirlHand100 0x001736D0 0x0017370C ico2/fumi/src/girl_act.c lines=6  # aug6-only in the census (in girl_act.c's span); afterGirlHand100 by body ratio 1.00, callees 1.00, sizes 60/60
-text actGirlHand200 0x00173710 0x0017378C ico2/fumi/src/girl_act.c lines=17  # aug6-only in the census (in girl_act.c's span); actGirlHand200 by body ratio 1.00, callees 1.00, sizes 124/124
-rdlit actGirlHand200 0x005537C0 0x005537D6 ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text afterGirlHand200 0x00173790 0x001737CC ico2/fumi/src/girl_act.c lines=6  # aug6-only in the census (in girl_act.c's span); afterGirlHand200 by body ratio 1.00, callees 1.00, sizes 60/60
-text NotNeedBackHand 0x001737D0 0x00173824 ico2/fumi/src/girl_act.c lines=13  # trfile; aug6-only in the census; PAL's NotNeedBackHand (84 B in PAL)
-text SetGirlDangerGObj 0x00173828 0x00173848 ico2/fumi/src/girl_act.c lines=7  # trfile; aug6-only in the census; PAL's SetGirlDangerGObj (32 B in PAL)
-text ClearGirlDangerGObj 0x00173848 0x00173868 ico2/fumi/src/girl_act.c lines=7  # trfile; aug6-only in the census; PAL's ClearGirlDangerGObj (32 B in PAL)
-text subGirlBrain_Idle 0x00173868 0x00173894 ico2/fumi/src/girl_act.c lines=6  # trfile; aug6-only in the census; PAL's subGirlBrain_Idle (44 B in PAL)
-text subGirlBrain_Hesitate 0x00173898 0x00173944 ico2/fumi/src/girl_act.c lines=14  # trfile; aug6-only in the census; PAL's subGirlBrain_Hesitate (172 B in PAL)
-text subGirlBrain_Becarry 0x00173948 0x00173974 ico2/fumi/src/girl_act.c lines=6  # trfile; aug6-only in the census; PAL's subGirlBrain_Becarry (44 B in PAL)
-text subGirlBrain_Busy 0x00173978 0x00173A80 ico2/fumi/src/girl_act.c lines=20  # trfile; aug6-only in the census; PAL's subGirlBrain_Busy (264 B in PAL)
-text subGirlBrain_DangerEnv 0x00173A80 0x00173B14 ico2/fumi/src/girl_act.c lines=18  # trfile; aug6-only in the census; PAL's subGirlBrain_DangerEnv (176 B in PAL)
-text enemy_list_compare 0x00173B18 0x00173B34 ico2/fumi/src/girl_act.c local lines=5  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text ACTCheckCollis_SAFE 0x00173B38 0x00173CA8 ico2/fumi/src/girl_act.c lines=58  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text afterGirlHand 0x00173CA8 0x00173CDC ico2/fumi/src/girl_act.c lines=8  # ordinal; first difference at insn 10; length:-3; extent-differs
-rdlit afterGirlHand 0x00553BE0 0x00553BEC ico2/fumi/src/girl_act.c align=16 def  # 1 string
-text afterGirlPulledGo 0x00173CE0 0x00173CFC ico2/fumi/src/girl_act.c lines=6  # ordinal; first difference at insn 4; imm:1; extent-equal
-text actGirlJump 0x00173D00 0x00173D44 ico2/fumi/src/girl_act.c lines=8  # ordinal; first difference at insn 12; imm:1; extent-equal
-rdlit actGirlJump 0x00553DD8 0x00553DEB ico2/fumi/src/girl_act.c def  # 1 string
-text afterGirlSupportBGBegin 0x00173D48 0x00173D68 ico2/fumi/src/girl_act.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text isMustCheckCylinder 0x00173D68 0x00173DAC ico2/fumi/src/girl_act.c lines=10  # ordinal; first difference at insn 10; imm:2; extent-equal
 text jimakuMgrNext 0x001743B8 0x00174580 ico2/fumi/src/jimaku.c local lines=45  # ordinal; first difference at insn 69; imm:2; extent-equal
 rdlit jimakuMgrNext 0x00553E58 0x00553E85 ico2/fumi/src/jimaku.c  # 3 strings
 sdlit jimakuMgrNext 0x0062C688 0x0062C6A4 ico2/fumi/src/jimaku.c  # 1 data

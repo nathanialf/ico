@@ -2026,7 +2026,7 @@ void actCommonFall(GObj *volatile self)
         hi[2] = lo[2];
         lo[1] = lo[1] - 100.0f;
         hi[1] = hi[1] + 100.0f;
-        if (ACTCheckCollis_WELL(lo, hi, 0, hit, 0.0f)) {
+        if (ACTCheckCollis_WELL(lo, hi, 0, 0.0f, hit)) {
             hit[1] = hit[1] - 105.0f;
             SetRootPosition(self, hit);
         }

@@ -1461,7 +1461,16 @@ typedef struct Act {         /* field names derived */
     float wayDetailZ; /* 0x418, the detailed way point, z */
     char pad41C[4];
     WayState wayState; /* 0x420 */
-    char pad428[8];
+    union {
+        unsigned long long flags;
+
+        struct {
+            unsigned long long : 16;
+            unsigned long long wayDetail : 1;
+        } bits;
+    } wayDetailFlags; /* 0x428, bit 16 asks for the detailed way search
+                                          (subGirlBrain_Attract 0x16BE74 ld/sd 1064; the
+                                          USA build's WayState bits.wayDetail here) */
     int brainAim;    /* 0x430, the enemy brain's aim: 1 the girl, 2 the boy */
     int infoPos;     /* 0x434, the object info position the enemy is saved at */
     int brainStatus; /* 0x438, the brain status the actor starts with */
