@@ -12,6 +12,7 @@ void ClearHandCameraCorrect(void);
 void InitHandCameraCorrect(void);
 void SetLimitHandCameraCorrect(float limitP, float limitV);
 
-void HandCameraCorrect(void *eye, void *at, int mode, float stickX, float stickZ, float rate);
+/* five arguments: the body (0x1926C0) reads a0, a1, f12, f13, f14 and sets a2 itself */
+void HandCameraCorrect(void *eye, void *at, float stickX, float stickZ, float rate);
 
 #endif /* HAND_CAMERA_H */

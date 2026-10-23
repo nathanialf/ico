@@ -26,6 +26,7 @@ void actSt13aCheckChk(GObj *volatile self);
 void actSt13aElevMain(GObj *volatile self);
 void actSt13aElevSwitch(GObj *volatile self);
 void actSt13aElevUp(GObj *volatile self);
+void actSt13aExitChk(GObj *volatile self);
 void actSt13aSekizoChk(GObj *volatile self);
 
 #endif /* ST13A_H */

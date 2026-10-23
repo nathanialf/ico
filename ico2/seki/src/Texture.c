@@ -14,7 +14,6 @@
 #include "FileManager.h"
 #include <assert.h>
 #include <stdio.h>
-#include "include_asm.h"
 
 /* One mipmap level of a texture record, 0x24 bytes: the address, the buffer
  * width and the VRAM size, and a 13-entry short table indexed by the display
@@ -230,9 +229,57 @@ static const unsigned int texFlushPacket[3][4] __attribute__((aligned(16))) = {
 };
 
 static int tex_loadImage(unsigned int addr, TexData *tex, int idx, short dbp, short dbw, short dpsm,
-                         short dsax, short dsay, short w, short h);
+                         short dsax, short dsay, short w, short h)
+{
+    int size = 0;
 
-INCLUDE_ASM(tex_loadImage);
+    switch (dpsm) {
+    case 0:  /* PSMCT32 */
+    case 48: /* PSMZ32 */
+        size = w * h >> 2;
+        break;
+    case 1:  /* PSMCT24 */
+    case 49: /* PSMZ24 */
+        size = w * h * 3 >> 4;
+        break;
+    case 2:  /* PSMCT16 */
+    case 10: /* PSMCT16S */
+    case 50: /* PSMZ16 */
+    case 58: /* PSMZ16S */
+        size = w * h >> 3;
+        break;
+    case 19: /* PSMT8 */
+    case 27: /* PSMT8H */
+        size = w * h >> 4;
+        break;
+    case 20: /* PSMT4 */
+    case 36: /* PSMT4HL */
+    case 44: /* PSMT4HH */
+        size = w * h >> 5;
+        break;
+    default:
+        /* "tex_loadImage:" + EUC-JP "the texture format cannot be told apart" + ".\n" */
+        debug_StdPrintfDummy("tex_loadImage:判別できないテクスチャフォーマットです.\n");
+        debug_assert("src/Texture.c", 611);
+        __assert("src/Texture.c", 611, "0");
+    }
+    if (size > 0x20000) {
+        /* "tex_loadImage:" + EUC-JP "the texture size is too large" + ".\n" */
+        debug_StdPrintfDummy("tex_loadImage:テクスチャのサイズが大きすぎます.\n");
+        debug_assert("src/Texture.c", 616);
+        __assert("src/Texture.c", 616, "0");
+    }
+    gif_StartPacketPri(dl_GetPri());
+    gif_SetGsReg(0x50, ((long long)dbp << 32) | ((long long)dbw << 48) | ((long long)dpsm << 56));
+    gif_EndPacket();
+    dl_OpenDma(2, &tex->levelPkt[idx], 5);
+    dl_CloseDma();
+    dl_OpenDma(2, (void *)(addr & 0x0FFFFFFF), size + 3);
+    dl_CloseDma();
+    dl_OpenDma(2, texFlushPacket, 3);
+    dl_CloseDma();
+    return size << 4;
+}
 
 /* the exponent of the smallest power of two at least size, -1 past 1024,
  * which tex_setTexReg and tex_TransTextureDefocus inline */
@@ -260,7 +307,58 @@ static inline int getTWTH(int size) /* derived name */
  * last one before it indexes lv[] */
 #define TEXLV(n) ((n) < 7 ? (n) : 6) /* derived name */
 
-INCLUDE_ASM(tex_setTexReg);
+static void tex_setTexReg(Tim2Picture *pic, TexData *t, int levels, int lv, int clut)
+{
+    unsigned int tfx = 0;
+
+    if (t->ext.animated != 0) {
+        tfx = t->ext.file.texFnc;
+    }
+    gif_StartPacketPri(dl_GetPri());
+    switch (clut) {
+    case 0:
+        setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
+                        ((long long)t->lv[TEXLV(lv)].dbw << 14) |
+                        ((long long)psmTable[pic->imageType].psm << 20) |
+                        ((long long)(getTWTH(pic->imageWidth) - lv) << 26) |
+                        ((long long)(getTWTH(pic->imageHeight) - lv) << 30) | ((long long)1 << 34) |
+                        ((long long)tfx << 35));
+        break;
+    case 1:
+        setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
+                        ((long long)t->lv[TEXLV(lv)].dbw << 14) |
+                        ((long long)psmTable[pic->imageType].psm << 20) |
+                        ((long long)(getTWTH(pic->imageWidth) - lv) << 26) |
+                        ((long long)(getTWTH(pic->imageHeight) - lv) << 30) | ((long long)1 << 34) |
+                        ((long long)tfx << 35) | ((long long)t->clut.tbp[dl_GetPri()] << 37) |
+                        ((long long)psmTable[pic->clutType & 0x3F].psm << 51) |
+                        ((long long)2 << 61));
+        break;
+    default:
+        /* EUC-JP: "a texture type that is neither DIRECT nor CLUT was specified" + ".\n" */
+        debug_StdPrintfDummy("DIRECTでもCLUTでもないテクスチャタイプが指定されました.\n");
+        debug_assert("src/Texture.c", 738);
+        __assert("src/Texture.c", 738, "0");
+        break;
+    }
+    if (2 <= levels) {
+        setGsReg(0x34, (long long)t->lv[TEXLV(lv + 1)].tbp[dl_GetPri()] |
+                           ((long long)t->lv[TEXLV(lv + 1)].dbw << 14) |
+                           ((long long)t->lv[TEXLV(lv + 2)].tbp[dl_GetPri()] << 20) |
+                           ((long long)t->lv[TEXLV(lv + 2)].dbw << 34) |
+                           ((long long)t->lv[TEXLV(lv + 3)].tbp[dl_GetPri()] << 40) |
+                           ((long long)t->lv[TEXLV(lv + 3)].dbw << 54));
+    }
+    if (5 <= levels) {
+        setGsReg(0x36, (long long)t->lv[TEXLV(lv + 4)].tbp[dl_GetPri()] |
+                           ((long long)t->lv[TEXLV(lv + 4)].dbw << 14) |
+                           ((long long)t->lv[TEXLV(lv + 5)].tbp[dl_GetPri()] << 20) |
+                           ((long long)t->lv[TEXLV(lv + 5)].dbw << 34) |
+                           ((long long)t->lv[TEXLV(lv + 6)].tbp[dl_GetPri()] << 40) |
+                           ((long long)t->lv[TEXLV(lv + 6)].dbw << 54));
+    }
+    gif_EndPacket();
+}
 
 /* Claim one VRAM buffer per level for the current display list priority. */
 static inline void texAllocVram(TexData *t, int levels, int lv) /* derived name */
@@ -336,7 +434,55 @@ static void tex_transRegister(TexData *t)
 
 /* "FALSE" */
 
-INCLUDE_ASM(tex_transTM2);
+static int tex_transTM2(Tim2Picture *pic, TexData *t, int id, int pri)
+{
+    int ret = 0;
+    int levels = t->levelNum - texTable[id].rec.ext.level;
+
+    if (8 <= levels) {
+        /* "tex_transTM2:" + EUC-JP "there are too many mipmap textures" + ".\n" */
+        debug_StdPrintfDummy("tex_transTM2:ミップマップテクスチャの枚数が多すぎます.\n");
+        debug_assert("src/Texture.c", 835);
+        __assert("src/Texture.c", 835, "FALSE");
+    }
+    dl_SetDLPriority(pri);
+    switch (pic->imageType) {
+    case 1:
+    case 2:
+    case 3:
+        if (texTable[id].rec.ext.transDone[pri] == 0) {
+            ret = tex_transVramDirectTex(pic, t, levels, texTable[id].rec.ext.level);
+        }
+        if (vramPri[dl_GetPri()].lastTex != id) {
+            tex_transRegister(t);
+            tex_setTexReg(pic, t, levels, texTable[id].rec.ext.level, 0);
+            vramPri[dl_GetPri()].lastTex = id;
+            texregs++;
+        }
+        break;
+    case 4:
+    case 5:
+        if (texTable[id].rec.ext.transDone[pri] == 0) {
+            ret = tex_transVramClutTex(pic, t, levels, texTable[id].rec.ext.level);
+        }
+        if (vramPri[dl_GetPri()].lastTex != id) {
+            tex_transRegister(t);
+            tex_setTexReg(pic, t, levels, texTable[id].rec.ext.level, 1);
+            vramPri[dl_GetPri()].lastTex = id;
+            texregs++;
+        }
+        break;
+    default:
+        /* EUC-JP "the texture is corrupt" + ".\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n" */
+        debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
+                             t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
+        debug_assert("src/Texture.c", 868);
+        __assert("src/Texture.c", 868, "FALSE");
+        break;
+    }
+    texTable[id].rec.ext.transDone[pri] = 1;
+    return ret;
+}
 
 /* Turn a width in texels into the GS buffer width in units of 64; inlined
  * twice in tex_initClutTexture and once here.  The first arm's eleven formats
@@ -371,9 +517,170 @@ static inline int texTBW(TexClutEnt *e, int w) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(tex_initClutTexture);
+static void tex_initClutTexture(Tim2Picture *pic, TexData *t)
+{
+    int i;
+    int dbw;
 
-INCLUDE_ASM(tex_setRegisters);
+    /* The CLUT's VRAM size from its colour count, then the fixed 8 over it
+     * (PAL keeps only the 8): the size is dead, so of its divide only the
+     * division-by-zero trap on sizeDiv stays.  Both line maps leave lines
+     * without code between the size and the 8 (three in August's, seven in
+     * PAL's), and the bytes need a branch there whose arm is dead: it keeps
+     * the 8 in a block of its own until flow drops the emptied arm, so the 8
+     * is loaded after the trap, into v0 once sizeDiv dies.  Pinned: a test
+     * between the two stores whose arm only sets a dead register.  Not
+     * pinned: the test and the arm, written as this file's CSM2 test
+     * (tex_convertClutCSM2ToCSM1) and the width of a one-row CSM2 CLUT. */
+    t->clut.vramSize = (pic->clutColors / psmTable[pic->clutType & 0x3F].sizeDiv / 2) *
+                           psmTable[pic->clutType & 0x3F].sizeMul >>
+                       6;
+    if ((pic->clutType >> 7) != 0)
+        dbw = pic->clutColors;
+    t->clut.vramSize = 8;
+
+    t->clut.dbw = texTBW(&psmTable[pic->clutType & 0x3F], pic->imageWidth);
+
+    for (i = 0; i < t->levelNum; i++) {
+        t->lv[i].vramSize = ((pic->imageWidth >> i) * (pic->imageHeight >> i) /
+                             psmTable[pic->imageType].sizeDiv / 2) *
+                                psmTable[pic->imageType].sizeMul >>
+                            6;
+
+        dbw = texTBW(&psmTable[pic->imageType], pic->imageWidth >> i);
+
+        t->lv[i].dbw = dbw;
+    }
+}
+
+static void tex_setRegisters(Tim2Picture *pic, TexData *t)
+{
+    TexPkt *p;
+    TexUV *uv;
+    int i;
+    int levels = t->levelNum;
+    int cw = 0;
+    int ch = 0;
+    int mmag = 1;
+    int mmin = GlobalStageSetting.texSampleMode;
+    int aref = 96;
+    int atst = 1;
+    int k = -165;
+    int l = 0;
+
+    if (t->ext.animated != 0) {
+        mmag = t->ext.file.smpMag;
+        mmin = t->ext.file.smpMin;
+        if (t->ext.file.alpTst != 0) {
+            aref = t->ext.file.alpTst;
+            atst = t->ext.file.alpFai;
+        }
+        k = t->ext.file.mipmapK;
+        l = t->ext.file.mipmapL;
+    }
+
+    p = &t->pkt;
+
+    p->head.vif[0] = 0;
+    p->head.vif[1] = 0;
+    p->head.vif[2] = 0x13000000;
+    p->head.vif[3] = 0x6C038000;
+
+    p->head.tag[0] = 0x1000000000008002LL;
+    p->head.tag[1] = 14;
+
+    p->tex1.data = ((long long)(levels - 1) << 2) | ((long long)mmag << 5) |
+                   ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
+    p->tex1.addr = 20;
+    p->test.data =
+        1 | (6 << 1) | ((long long)aref << 4) | ((long long)atst << 12) | (1 << 16) | (2 << 17);
+    p->test.addr = 71;
+
+    p->end[0] = 0x15000000;
+    p->end[1] = 0;
+    p->end[2] = 0;
+    p->end[3] = 0;
+
+    uv = &t->uv;
+
+    uv->vif[0] = 0;
+    uv->vif[1] = 0;
+    uv->vif[2] = 0x13000000;
+    uv->vif[3] = 0x6C018000;
+
+    uv->uOfs = 0.0f;
+    uv->vOfs = 0.0f;
+    uv->zw = 0;
+
+    uv->end[0] = 0x15000002;
+    uv->end[1] = 0;
+    uv->end[2] = 0;
+    uv->end[3] = 0;
+
+    t->levelPkt =
+        mallocseki((pic->imageType == 4 || pic->imageType == 5 ? levels + 1 : levels) * 80);
+
+    switch (pic->imageType) {
+    case 1:
+    case 2:
+    case 3:
+        break;
+    case 4:
+        cw = 8;
+        ch = 2;
+        break;
+    case 5:
+        cw = 16;
+        ch = 16;
+        break;
+    default:
+        debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
+                             t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
+        debug_assert("src/Texture.c", 1014);
+        __assert("src/Texture.c", 1014, "FALSE");
+    }
+
+    /* a second switch on the same field */
+    switch (pic->imageType) {
+    case 4:
+    case 5:
+        t->levelPkt[levels].head.vif[0] = 0;
+        t->levelPkt[levels].head.vif[1] = 0;
+        t->levelPkt[levels].head.vif[2] = 0x13000000;
+        t->levelPkt[levels].head.vif[3] = 0x50000005;
+
+        t->levelPkt[levels].head.tag[0] = 0x1000000000008004LL;
+        t->levelPkt[levels].head.tag[1] = 14;
+
+        t->levelPkt[levels].trxpos.data = 0;
+        t->levelPkt[levels].trxpos.addr = 81;
+        t->levelPkt[levels].trxreg.data = cw | ((long long)ch << 32);
+        t->levelPkt[levels].trxreg.addr = 82;
+
+        t->levelPkt[levels].trxdir.data = 0;
+        t->levelPkt[levels].trxdir.addr = 83;
+        break;
+    }
+
+    for (i = 0; i < levels; i++) {
+        t->levelPkt[i].head.vif[0] = 0;
+        t->levelPkt[i].head.vif[1] = 0;
+        t->levelPkt[i].head.vif[2] = 0x13000000;
+        t->levelPkt[i].head.vif[3] = 0x50000005;
+
+        t->levelPkt[i].head.tag[0] = 0x1000000000008004LL;
+        t->levelPkt[i].head.tag[1] = 14;
+
+        t->levelPkt[i].trxpos.data = 0;
+        t->levelPkt[i].trxpos.addr = 81;
+        t->levelPkt[i].trxreg.data =
+            (pic->imageWidth >> i) | ((long long)(pic->imageHeight >> i) << 32);
+        t->levelPkt[i].trxreg.addr = 82;
+
+        t->levelPkt[i].trxdir.data = 0;
+        t->levelPkt[i].trxdir.addr = 83;
+    }
+}
 
 /* Fill in one VRAM size and one buffer width per mipmap level. */
 static inline void texInitMipLevels(Tim2Picture *pic, TexData *t) /* derived name */
@@ -395,7 +702,40 @@ static inline void texInitMipLevels(Tim2Picture *pic, TexData *t) /* derived nam
 
 /* "FALSE" */
 
-INCLUDE_ASM(tex_initTM2);
+static void tex_initTM2(Tim2Picture *pic, TexData *t)
+{
+    int i;
+    int j;
+
+    for (i = 0; i < 7; i++) {
+        t->lv[i].dbw = 0;
+        for (j = 0; j < 13; j++) {
+            t->lv[i].tbp[j] = 0;
+        }
+    }
+    t->clut.dbw = 0;
+    for (i = 0; i < 13; i++)
+        t->clut.tbp[i] = 0;
+
+    switch (pic->imageType) {
+    case 4:
+    case 5:
+        tex_initClutTexture(pic, t);
+        break;
+    case 1:
+    case 2:
+    case 3:
+        texInitMipLevels(pic, t);
+        break;
+    default:
+        debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
+                             t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
+        debug_assert("src/Texture.c", 1091);
+        __assert("src/Texture.c", 1091, "FALSE");
+        break;
+    }
+    tex_setRegisters(pic, t);
+}
 
 static void tex_convertClutCSM2ToCSM1(Tim2Picture *pic)
 {
@@ -429,9 +769,44 @@ extern int sceGsSetDefStoreImage(sceGsStoreImage *img, int sbp, int sbw, int sps
 
 /* "FALSE" */
 
-static void tex_convertImage(void *dst, void *src, short fmt, short w, short h);
+static void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
+{
+    sceGsLoadImage limg;
+    sceGsStoreImage simg;
+    int w2 = w;
 
-INCLUDE_ASM(tex_convertImage);
+    sceGsSyncPath(0, 0);
+    sceGsSetDefLoadImage(&limg, 0x2800, w >> 6, psmTable[fmt].psm, 0, 0, w2, h);
+    FlushCache(0);
+    if (sceGsExecLoadImage(&limg, src)) {
+        debug_assert("src/Texture.c", 1194);
+        __assert("src/Texture.c", 1194, "FALSE");
+    }
+    sceGsSyncPath(0, 0);
+    switch (psmTable[fmt].psm) {
+    case 19:
+        w2 = w >> 2;
+        break;
+    case 20:
+        w2 = w >> 3;
+        break;
+    default:
+        debug_assert("src/Texture.c", 1199);
+        __assert("src/Texture.c", 1199, "FALSE");
+        break;
+    }
+    if (32767 < w * h >> 4) {
+        debug_assert("src/Texture.c", 1202);
+        __assert("src/Texture.c", 1202, "FALSE");
+    }
+    sceGsSetDefStoreImage(&simg, 0x2800, w2 >> 6, 0, 0, 0, w2, h);
+    FlushCache(0);
+    if (sceGsExecStoreImage(&simg, dst)) {
+        debug_assert("src/Texture.c", 1207);
+        __assert("src/Texture.c", 1207, "FALSE");
+    }
+    sceGsSyncPath(0, 0);
+}
 
 static void tex_makeCopyImage(Tim2Picture *pic, TexData *t, char *src, int convert)
 {
@@ -534,7 +909,75 @@ static inline void tim2MakeClutPacket(Tim2Picture *pic, TexData *t, char *clut) 
     }
 }
 
-INCLUDE_ASM(tex_makeTexturePacket);
+static void tex_makeTexturePacket(void *file, TexData *t)
+{
+    char buf[1024];
+    Tim2Picture *pic = tim2Picture(file);
+    Tim2Mipmap *mip;
+    Tim2Ext *ext;
+    char *image;
+    char *clut;
+    int i;
+
+    mip = (Tim2Mipmap *)(pic + 1);
+    ext = (Tim2Ext *)((char *)mip + mipmap_header_size[pic->mipMapTextures]);
+    image = (char *)pic + pic->headerSize;
+    clut = image + pic->imageSize;
+
+    tex_convertClutCSM2ToCSM1(pic);
+
+    t->tim2 = file;
+    t->levelNum = pic->mipMapTextures;
+    t->clut.addr = 0;
+
+    for (i = 0; i < 7; i++) {
+        t->lv[i].addr = 0;
+    }
+
+    *&t->pic = *pic;
+    if (2 <= pic->mipMapTextures) {
+        t->mip = *mip;
+    }
+
+    if (strcmp(ext->magic, "ICO") == 0 &&
+        pic->headerSize != mipmap_header_size[pic->mipMapTextures] + 48) {
+        if (mipmap_header_size[pic->mipMapTextures] + 48 != pic->headerSize - 64) {
+            /* "tex_makeTexturePacket:" + EUC-JP "the texture user header is an unknown
+             * format" + ".'%s'\n" */
+            debug_StdPrintfDummy(
+                "tex_makeTexturePacket:テクスチャのユーザースペースフォーマットが異常です.'%s'\n",
+                t);
+            debug_assert("src/Texture.c", 1340);
+            __assert("src/Texture.c", 1340, "0");
+        }
+        t->ext.file = *ext;
+        t->ext.animated = 1;
+    } else {
+        t->ext.animated = 0;
+    }
+
+    switch (pic->imageType) {
+    case 4:
+    case 5:
+        tim2MakeClutPacket(pic, t, clut);
+        tex_makeCopyImage(pic, t, image, 0);
+        break;
+    case 1:
+    case 2:
+    case 3:
+        tex_makeCopyImage(pic, t, image, 0);
+        break;
+    default:
+        debug_DispQW(file, 1);
+        debug_DispQW(pic, 1);
+        sprintf(buf, "TEXTURE BROKEN. \"%s\"\n    I:%d C:%d iadr:%p cadr:%p hadr:%p\n", t->name,
+                pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
+        debug_StdPrintfDummy(buf);
+        debug_assertMessage("src/Texture.c", 1375, buf);
+        __assert("src/Texture.c", 1375, "e");
+        break;
+    }
+}
 
 /* "%s" */
 
@@ -563,24 +1006,132 @@ static inline void texTrimName(char *name) /* derived name */
 
 /* "1:%s\n" */
 
-static int tex_initTextureSub(char *name, void *pkt);
+static int tex_initTextureSub(char *name, void *pkt)
+{
+    char buf[272];
+    int pri;
+    int no;
+    TexData *t;
 
-INCLUDE_ASM(tex_initTextureSub);
+    pri = dl_GetPri();
+
+    sprintf(buf, "%s", name);
+    texTrimName(buf);
+
+    no = tex_GetTextureNo(buf);
+    if (no != -1) {
+        if (strcmp(name, texTable[no].rec.file) != 0) {
+            /* "\x1b[31m" + EUC-JP "a texture of the same name was read from another path" + ".\n" */
+            debug_StdPrintfDummy("\033[31mパスの違う同名のテクスチャを読み込もうとしました.\n");
+            debug_StdPrintfDummy("1:%s
+", name);
+            debug_StdPrintfDummy("2:%s\033[0m\n", texTable[no].rec.file);
+        }
+        return -1;
+    }
+
+    t = &texTable[texCount].rec;
+    texTable[texCount].rec.ext.level = 0;
+    texTable[texCount].rec.ext.transDone[pri] = 0;
+
+    sprintf(t->file, "%s", name);
+    sprintf(t->name, "%s", buf);
+    tex_makeTexturePacket(pkt, t);
+    tex_initTM2(&t->pic, t);
+    no = texCount;
+
+    t->ext.uLimit = 0;
+    t->ext.vLimit = 0;
+    t->ext.limitOn = 0;
+    t->ext.frame = 0;
+    t->ext.clutFrame = 0;
+    if (t->ext.animated != 0) {
+        t->ext.clutA = mallocseki(t->pic.clutSize);
+
+        t->ext.clutB = mallocseki(t->pic.clutSize);
+
+        t->ext.clutOrg = mallocseki(t->pic.clutSize);
+
+        malloc_MemCpy(t->ext.clutA, (char *)t->clut.addr + 0x20, t->pic.clutSize);
+
+        malloc_MemCpy(t->ext.clutB, (char *)t->clut.addr + 0x20, t->pic.clutSize);
+
+        malloc_MemCpy(t->ext.clutOrg, (char *)t->clut.addr + 0x20, t->pic.clutSize);
+    } else {
+        t->ext.clutA = 0;
+        t->ext.clutB = 0;
+        t->ext.clutOrg = 0;
+    }
+    texTable[texCount].rec.ext.used = 1;
+
+    texTable[texCount].rec.ext.partition = malloc_GetPartition();
+    texCount++;
+    if (200 <= texCount) {
+        /* EUC-JP "there are too many textures, make the texture list region bigger" */
+        debug_StdPrintfDummy("テクスチャが多すぎます.テクスチャリスト領域を増やしてください\n");
+        debug_assert("src/Texture.c", 1471);
+        __assert("src/Texture.c", 1471, "0");
+    }
+    return no;
+}
 
 /* "%s" */
 /* "%s.tm2" */
 
 /* "FALSE" */
 
-int tex_LoadTexturePart(char *name, int area);
+int tex_LoadTexturePart(char *name, int area)
+{
+    char buf[272];
+    void *adr = 0;
 
-INCLUDE_ASM(tex_LoadTexturePart);
+    sprintf(buf, "%s.tm2", name);
+    if (file_LoadFile(&adr, buf, area) >= 0) {
+        texTrimName(buf);
+        return tex_initTextureSub(buf, adr);
+    } else {
+        /* EUC-JP: texture "%s" not found. */
+        debug_StdPrintfDummy("テクスチャ \"%s\" がみつかりません.\n", buf);
+        debug_assert("src/Texture.c", 1538);
+        __assert("src/Texture.c", 1538, "FALSE");
+        return -1;
+    }
+}
 
 /* "FALSE" */
 
-int tex_TransTexture(int id, int ret);
+int tex_TransTexture(int id, int ret)
+{
+    TexData *t = &texTable[id].rec;
 
-INCLUDE_ASM(tex_TransTexture);
+    if (id < 0 || texCount <= id) {
+        debug_Assert("tex_TransTexture:INVALID TEXTURE ID. %d/%d\n", id, texCount);
+    }
+    if (id < 0) {
+        ret = -1;
+    } else if (t->tim2 != 0) {
+        ret = tex_transTM2(&t->pic, t, id, ret);
+    } else {
+        ret = -1;
+    }
+    if (ret < 0) {
+        if (t == 0) {
+            /* "tex_TransTexture:" + EUC-JP "texture transfer failed" + ". %d\n" */
+            debug_StdPrintfDummy("tex_TransTexture:テクスチャの転送に失敗しました. %d\n", id);
+        } else {
+            /* the same message with ". %d:%s\n" */
+            debug_StdPrintfDummy("tex_TransTexture:テクスチャの転送に失敗しました. %d:%s\n", id, t);
+        }
+        debug_assert("src/Texture.c", 1633);
+        __assert("src/Texture.c", 1633, "FALSE");
+    }
+    if (ret != 0) {
+        textures++;
+    }
+    dl_OpenDma(2, &t->uv, 3);
+    dl_CloseDma();
+    return ret;
+}
 
 /* a texture record by index, which tex_TransTextureDefocus and
  * tex_SetUVScroll inline */
@@ -823,7 +1374,8 @@ int tex_FreeTexture(int id)
     return 0;
 }
 
-/* the reset of one priority's VRAM cursor, which tex_ResetVram inlines */
+/* the reset of one priority's VRAM cursor, which tex_ResetVram and
+ * tex_ResetVramPri inline */
 static inline void resetVramPri(int pri) /* derived name */
 {
     int i;
@@ -1400,7 +1952,30 @@ short tex_GetVramFreeAddress(int pri)
     return vramPri[pri].texAddr;
 }
 
-INCLUDE_ASM(tex_UpdateMipMapLevel);
+void tex_UpdateMipMapLevel(float lv)
+{
+    int i;
+    for (i = 0; i < texCount; i++) {
+        TexData *tex = &texTable[i].rec;
+        int mxl = tex->levelNum;
+        int k, l;
+        int mmag, mmin;
+        if (tex->ext.animated != 0) {
+            k = tex->ext.file.mipmapK;
+            l = tex->ext.file.mipmapL;
+            mmag = tex->ext.file.smpMag;
+            mmin = tex->ext.file.smpMin;
+        } else {
+            k = -165;
+            l = 0;
+            mmag = 1;
+            mmin = GlobalStageSetting.texSampleMode;
+        }
+        k = k * lv / 80.0f;
+        tex->pkt.tex1.data = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) |
+                             ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
+    }
+}
 
 void tex_ResetVramPri(int pri)
 {

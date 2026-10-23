@@ -19,7 +19,6 @@
 #include "motionManager2.h"
 #include <libvu0.h>
 #include <assert.h>
-#include "include_asm.h"
 
 /* The head of one stream motion frame GetStreamShapeMotion reads the shape
    weights from: the weights follow the 16-byte head and skipNum 8-byte words,
@@ -31,7 +30,62 @@ typedef struct StreamShapeHdr { /* field names derived */
     unsigned char shapeNum;
 } StreamShapeHdr; /* derived name */
 
-INCLUDE_ASM(GetWaterReaction);
+int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel, float h0,
+                     float h1, float h2, float scaleIn, float amp)
+{
+    float drain[4];
+    float waterH;
+    float scale;
+    float r;
+    GObj *pool;
+    int attr;
+
+    if (outFlag != 0) {
+        *outFlag = 0;
+    }
+    if (info->floor.elem != 0) {
+        attr = GetFloorAttribute(info);
+        if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+            scale = scaleIn;
+            pool = info->floor.o.obj;
+            waterH = GetPoolGlobalHeightDetail(pool, pos);
+            GetPoolGlobalDrainVector(drain, pool);
+            if (outFlag != 0) {
+                if (1.0000001e-06f < VectorLengthSquare(drain)) {
+                    *outFlag = 1;
+                }
+            }
+            if (waterH < h0) {
+                vel[1] = vel[1] + amp;
+            } else if (waterH < h1) {
+                vel[1] = vel[1] + amp * (h1 - waterH) / (h1 - h0);
+            } else if (waterH < h2) {
+                r = (waterH - h1) / (h2 - h1);
+                vel[1] = vel[1] +
+                         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) +
+                          amp * (1.0f - r)) *
+                             r;
+            } else {
+                vel[1] =
+                    vel[1] + 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                                 (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+                scale = 1.0f;
+                CopyVector(drain, ZeroVector);
+            }
+            vel[0] = vel[0] * scale;
+            vel[1] = vel[1] * scale;
+            vel[2] = vel[2] * scale;
+            sceVu0AddVector(vel, vel, drain);
+            AddVectorXYZ(pos, pos, vel);
+            if (outH != 0) {
+                *outH = waterH;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
 
 #define ABSF(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
 
@@ -247,10 +301,10 @@ static inline int getSkeltonFocusNode(GObj *self, int focus) /* derived name */
         debug_StdPrintfDummy(
             "このメッセージを見たひとは杉山まで連絡ください: GetSkeltonFocusNode SKEL=NULL\n");
         debug_assertMessage(
-            __FILE__, 503,
+            __FILE__, 515,
             "GetSkeltonFocusNode:\n PLEASE CALL SUGIYAMA\n GOBJ==NULL Or SKEL==NULL "
             "Or RETURNID>=NBSKELS\n");
-        __assert(__FILE__, 503, "e");
+        __assert(__FILE__, 515, "e");
     }
     return GOBJ_SUB(self)->focusNodes[focus];
 }
@@ -991,7 +1045,44 @@ static inline float getSlopeRatio(float d, float rate) /* derived name */
     return (r > 0.3f) ? r : 0.3f;
 }
 
-INCLUDE_ASM(SlopeIKControl);
+void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n)
+{
+    struct MotCtrl *ik;
+    struct MotRoot *sub;
+    int n0;
+    int n1;
+    int rec;
+    float d;
+    float r0 = 1.0f;
+    float r1 = 1.0f;
+
+    ik = &GOBJ_SUB(self)->ctrl;
+    sub = &GOBJ_SUB(self)->root;
+    if (ik->rootUpdateMode < 3) {
+        if (ik->rootUpdateMode > 0) {
+            if (sub->slopeIK != 0) {
+                n0 = getSkeltonFocusNode(self, 49);
+                n1 = getSkeltonFocusNode(self, 45);
+                if (n0 != -1 && n1 != -1) {
+                    SkelNode *skel = GOBJ_SUB(self)->skel;
+
+                    calcFootIK(skel, mot, n0, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
+                    calcFootIK(skel, mot, n1, GOBJ_SUB(self)->nodes->scale[0], sub->footIKRate);
+                    vel->f[0] = vel->f[0] * sub->footIKRate;
+                    vel->f[2] = vel->f[2] * sub->footIKRate;
+                }
+                d = getSlopeDifference(self, mot, GOBJ_SUB(self));
+                rec = ik->motion;
+                r1 = getSlopeRatio(d, motionKind[rec].rate0);
+                r0 = getSlopeRatio(d, motionKind[rec].rate1);
+            }
+        }
+    }
+    sub->footIKRate = sub->footIKRate +
+                      (r1 - sub->footIKRate) *
+                          (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.1f);
+    ik->playRate = (r0 > 1.0f) ? 1.0f : r0;
+}
 
 static int skeltonDispSwitch = 0;
 
@@ -1027,7 +1118,77 @@ static float wallAlignMatrix[16] = {
 /* the half turn about Z every motion node's quaternion is multiplied by */
 static float nodeFlipQuaternion[4] = {0.0f, 0.0f, -1.0f, 0.0f}; /* derived name */
 
-INCLUDE_ASM(GetPureVerticalPlaneOfCurrentPosition);
+int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
+                                          int flip, float *pos)
+{
+    float local[4][4];
+    float nrm[4];
+    float best[4];
+    float bestNrm[4];
+    float plane[4];
+    float work[4];
+    float *pts;
+    int i;
+    int bestIdx;
+    int *t;
+    int *tbl;
+    float bestDist;
+    float d;
+    GObj *obj;
+    int sh;
+    Sub15C *p15c;
+    int v_c;
+
+    tbl = wallEdgeCorner;
+    pts = (ptsIn != 0) ? ptsIn : (float *)local;
+    bestIdx = -1;
+
+    bestDist = 3.40282347e+38f;
+
+    obj = cfg->o.obj;
+    sh = cfg->o.node << 6;
+    p15c = obj->dobj;
+    v_c = p15c->nodeMtx;
+    GetWallGlobalInfo(pts, nrm, cfg->elem, (void *)(v_c + sh));
+    nrm[1] = 0;
+    sceVu0Normalize((int *)nrm, (int *)nrm);
+    t = tbl;
+    for (i = 0; i < 4; i++, t++) {
+        sceVu0SubVector(work, pts + t[1] * 4, pts + t[0] * 4);
+        sceVu0Normalize((int *)work, (int *)work);
+        sceVu0OuterProduct(work, work, nrm);
+        if (flip != 0) {
+            sceVu0ScaleVectorXYZ(work, work, -1.0f);
+        }
+        if (work[1] < -0.1f) {
+            SetSimplePlane(plane, work[0], work[1], work[2],
+                           -sceVu0InnerProduct(work, pts + t[0] * 4));
+            d = GetYDistanceFromPlane(plane, pos);
+            if (d < 0.0f) {
+                d = -d;
+            }
+            if (d < bestDist) {
+                bestIdx = i;
+                CopyVector(best, work);
+                CopyVector(bestNrm, nrm);
+                bestDist = d;
+            }
+        }
+    }
+    if (bestIdx == -1) {
+        debug_assertMessage(__FILE__, 1353, "!!");
+        __assert(__FILE__, 1353, "e");
+    }
+    if (plane0 != 0) {
+        SetSimplePlane(plane0, best[0], best[1], best[2],
+                       -sceVu0InnerProduct(best, pts + tbl[bestIdx] * 4));
+    }
+    if (plane1 != 0) {
+        SetSimplePlane(plane1, bestNrm[0], bestNrm[1], bestNrm[2],
+                       -sceVu0InnerProduct(bestNrm, pts + tbl[bestIdx] * 4));
+    }
+    return bestIdx;
+}
 
 static void getVerticalElementOfWallNormal(int *self, int *p, WallCfg *cfg)
 {
@@ -1582,7 +1743,13 @@ typedef struct { /* field names derived */
     int c;
 } WallWork; /* derived name */
 
-INCLUDE_ASM(FeedbackWallWorkInfoToBrainSystem);
+void FeedbackWallWorkInfoToBrainSystem(GObj *self)
+{
+    Sub15C *p = self->dobj;
+    char *d = (char *)self->act;
+    *(WallWork *)((char *)p + 0x170) = *(WallWork *)((char *)p + 0x190);
+    *(WallWork *)(d + 0x610) = *(WallWork *)((char *)p + 0x190);
+}
 
 void *GetMotionPointer(GObj *self)
 {
@@ -1627,7 +1794,20 @@ void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color)
     debugDisp1CollisionWithColor(cfg, color);
 }
 
-INCLUDE_ASM(SetMotionBlendlessNode);
+void SetMotionBlendlessNode(GObj *self, int *node)
+{
+    char *blend;
+    int i;
+
+    blend = self->dobj->blendless;
+    ClearMotionBlendlessNode(self);
+    for (i = 0; node[i] != -1; i++) {
+        int idx = getSkeltonFocusNode(self, node[i]);
+        if (idx != -1) {
+            blend[idx] = 1;
+        }
+    }
+}
 
 void ClearMotionBlendlessNode(GObj *self)
 {
@@ -1646,7 +1826,10 @@ void InitMotionStateInfo(struct MotCtrl *self)
     self->seGroup[1] = soundSeGroupGet();
 }
 
-INCLUDE_ASM(GetSkeltonFocusNode);
+int GetSkeltonFocusNode(GObj *self, int focus)
+{
+    return getSkeltonFocusNode(self, focus);
+}
 
 int AdjustMotionHeightToNearestField(GObj *self)
 {
@@ -1722,15 +1905,58 @@ int GetStreamShapeMotion(float *dst, StreamShapeHdr *hdr)
     return 0;
 }
 
-INCLUDE_ASM(GetDifferenceFromWallUpperField);
+float GetDifferenceFromWallUpperField(GObj *self, int node)
+{
+    struct MotRoot *r = &self->dobj->root;
+    int idx = getSkeltonFocusNode(self, node);
+    return GetYDistanceFromPlane(r->cliffPlane,
+                                 (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+}
 
-INCLUDE_ASM(GetDifferenceFromLastField);
+float GetDifferenceFromLastField(GObj *self, int node)
+{
+    struct MotRoot *r = &self->dobj->root;
+    int idx = getSkeltonFocusNode(self, node);
+    return GetYDistanceFromPlane(r->plane.f,
+                                 (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+}
 
-INCLUDE_ASM(GetDifferenceFromLowerField);
+float GetDifferenceFromLowerField(GObj *self, int node)
+{
+    ClipWork buf;
+    int idx;
 
-INCLUDE_ASM(GetDifferenceFromWallLowerPlane);
+    idx = getSkeltonFocusNode(self, node);
+    GetLowerPlaneCollision(&buf, (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+    if (buf.floor.elem == 0) {
+        return 3.40282347e+38f;
+    }
+    return buf.pt[2][1] - buf.pt[0][1];
+}
 
-INCLUDE_ASM(GetDifferenceFromWallUpperPlane);
+float GetDifferenceFromWallLowerPlane(GObj *self, int node)
+{
+    float pos[4];
+    float pts[4][4];
+    int idx;
+
+    idx = getSkeltonFocusNode(self, node);
+    GetPureVerticalPlane(pos, 0, pts[0], &self->dobj->root.wall, 1);
+    return GetYDistanceFromPlane(pos,
+                                 (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+}
+
+float GetDifferenceFromWallUpperPlane(GObj *self, int node)
+{
+    float pos[4];
+    float pts[4][4];
+    int idx;
+
+    idx = getSkeltonFocusNode(self, node);
+    GetPureVerticalPlane(pos, 0, pts[0], &self->dobj->root.wall, 0);
+    return GetYDistanceFromPlane(pos,
+                                 (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+}
 
 void DisableChangeRootUpdateMode(GObj *self)
 {
@@ -1807,7 +2033,18 @@ loop:
         goto loop;
 }
 
-INCLUDE_ASM(SetMotionNodeFixModeParameter);
+void SetMotionNodeFixModeParameter(GObj *self, GObj *obj, int mode, int node, void *quat, float x,
+                                   float y, float z, float w)
+{
+    float vec[4] = {x, y, z, 1.0f};
+
+    GOBJ_SUB(self)->root.fixObj = (int)obj;
+    GOBJ_SUB(self)->root.fixNode = getSkeltonFocusNode(obj, node);
+    GOBJ_SUB(self)->root.fixMode = mode;
+    CopyVector(GOBJ_SUB(self)->root.fixPos, vec);
+    CopyQuaternion(GOBJ_SUB(self)->root.fixQuat, quat);
+    GOBJ_SUB(self)->root.fixWeight = w;
+}
 
 void GetRootProjectionPosOfGObj(float *pos, GObj *obj)
 {
@@ -1890,7 +2127,22 @@ void LockForceGroundParent(GObj *gobj) {}
 
 void UnlockForceGroundParent(GObj *gobj) {}
 
-INCLUDE_ASM(GetOutOutsideOfWall);
+void GetOutOutsideOfWall(GObj *obj, float threshold)
+{
+    int buf0[4];
+    float buf1[4];
+    if (GOBJ_SUB(obj)->root.wall.elem != 0) {
+        float dot;
+        GetRootPosition(buf0, obj);
+        GetGlobalWallPlane(buf1, &obj->dobj->root.wall);
+        /* sugiCommon.h's plane_distance */
+        dot = plane_distance(buf0, buf1);
+        if (dot < threshold) {
+            GetProjectionOfPlaneWithKeepAway(buf0, buf1, buf0, threshold);
+        }
+        SetDirectRootPosition(obj, buf0);
+    }
+}
 
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float dist)
 {
