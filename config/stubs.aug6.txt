@@ -393,41 +393,6 @@ rdlit iosCdvdBackGroundReadIOPm 0x00550E68 0x00550E88 ico2/fumi/ios/cdvd.c # tar
 text iosInitialize 0x001359F0 0x00135BC0 ico2/fumi/ios/ios.c lines=30  # ordinal; first difference at insn 14; length:-1; extent-differs
 rdlit iosInitialize 0x00550FA0 0x00550FD1 ico2/fumi/ios/ios.c  # 3 strings
 sdlit iosInitialize 0x0062C140 0x0062C17F ico2/fumi/ios/ios.c  # 8 strings
-text iosMcHandlerWrite 0x00135F88 0x0013637C ico2/fumi/ios/mcard.c lines=61  # census-equal; stubbed because it inlines a function stubbed for emission order
-sdlit iosMcHandlerWrite 0x0062C1E8 0x0062C1EC ico2/fumi/ios/mcard.c  # target side: a string
-text iosMcHandlerRead 0x00136380 0x00136710 ico2/fumi/ios/mcard.c lines=65  # census-equal; stubbed because it inlines a function stubbed for emission order
-rdlit iosMcHandlerRead 0x00551180 0x005511DA ico2/fumi/ios/mcard.c align=16  # 1 string
-text iosMcMgrChdirProduct 0x00136710 0x00136A58 ico2/fumi/ios/mcard.c local lines=46  # ordinal; first difference at insn 0; length:+42; extent-differs
-rdlit iosMcMgrChdirProduct 0x005511E0 0x005511F8 ico2/fumi/ios/mcard.c # target side
-text iosMcMgrSaveSeg 0x00136A58 0x00136E88 ico2/fumi/ios/mcard.c local lines=73  # census-equal; stubbed because it inlines a function stubbed for emission order
-rdlit iosMcMgrSaveSeg 0x005511F8 0x0055120C ico2/fumi/ios/mcard.c  # 1 string
-text iosMcMgrLoadSeg 0x00136E88 0x0013723C ico2/fumi/ios/mcard.c local lines=66  # census-equal; stubbed because it inlines a function stubbed for emission order
-rdlit iosMcMgrLoadSeg 0x00551210 0x00551239 ico2/fumi/ios/mcard.c align=16  # 2 strings
-text iosMcMgrGetBlockSaveInfo 0x00137260 0x0013741C ico2/fumi/ios/mcard.c local lines=31  # census-equal; stubbed because it inlines a function stubbed for emission order
-sdlit iosMcMgrGetBlockSaveInfo 0x0062C1F8 0x0062C1FA ico2/fumi/ios/mcard.c  # 1 string
-text iosMcManager 0x00137420 0x00137B50 ico2/fumi/ios/mcard.c lines=92  # ordinal; first difference at insn 6; length:+50; extent-differs
-rdlit iosMcManager 0x0055123C 0x005512E0 ico2/fumi/ios/mcard.c  # target side
-rdlit iosMcManager 0x005512E0 0x00551320 ico2/fumi/ios/mcard.c align=16  # jump table (target side)
-sdlit iosMcManager 0x0062C200 0x0062C22D ico2/fumi/ios/mcard.c  # target side: six strings
-text iosMcMgrSync 0x00137B50 0x00137BF0 ico2/fumi/ios/mcard.c lines=14  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcTest 0x00137BF0 0x00137BF8 ico2/fumi/ios/mcard.c lines=1  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcSync 0x00137BF8 0x00137C0C ico2/fumi/ios/mcard.c lines=8  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcGetInfo 0x00137C10 0x00137C50 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcFormat 0x00137C50 0x00137C94 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcUnformat 0x00137C98 0x00137CDC ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcGetDir 0x00137CE0 0x00137D24 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcDelete 0x00137D28 0x00137D6C ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcSaveIconBlock 0x00137D70 0x00137DB4 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcSaveProductBlock 0x00137DB8 0x00137DFC ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcLoadProductBlock 0x00137E00 0x00137E44 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcSaveGameBlock 0x00137E48 0x00137E90 ico2/fumi/ios/mcard.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcLoadGameBlock 0x00137E90 0x00137ED8 ico2/fumi/ios/mcard.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcChdirProduct 0x00137ED8 0x00137F1C ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text iosMcGetBlockSaveInfo 0x00137F20 0x00137F64 ico2/fumi/ios/mcard.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text product_write 0x00137F68 0x00138098 ico2/fumi/ios/mcard.c local lines=13  # ordinal; first difference at insn 0; length:-18; extent-differs
-text product_read 0x00138098 0x001380DC ico2/fumi/ios/mcard.c local lines=6  # ordinal; first difference at insn 1; imm:2; extent-equal
-text gameblock_write 0x001380E0 0x00138100 ico2/fumi/ios/mcard.c local lines=7  # ordinal; first difference at insn 0; length:-11; extent-differs
-text gameblock_read 0x00138100 0x00138218 ico2/fumi/ios/mcard.c local lines=12  # ordinal; first difference at insn 1; length:-10; extent-differs
 text iosMcIconWriteIconsys 0x00138218 0x00138320 ico2/fumi/ios/mcdata.c lines=30  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text iosMcIconWriteIcon 0x00138320 0x00138428 ico2/fumi/ios/mcdata.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text _iosMcIconWriteIconsys 0x00138428 0x001384F4 ico2/fumi/ios/mcdata.c local lines=27  # ordinal; first difference at insn 0; length:-9; extent-differs
