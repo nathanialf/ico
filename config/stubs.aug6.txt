@@ -184,8 +184,6 @@ text actGirlHand 0x00171478 0x00171EB8 ico2/fumi/src/girl_act.c lines=353  # aug
 lit4 actGirlHand 0x0062AF90 0x0062AFA4 ico2/fumi/src/girl_act.c # target side
 rdlit actGirlHand 0x00553D50 0x00553D5C ico2/fumi/src/girl_act.c # target side
 sdlit actGirlHand 0x0062C650 0x0062C660 ico2/fumi/src/girl_act.c  # target side: "?\n", the two statics pullLen and pullTurn, a float
-text SetCameraMatrix_Ico2 0x00187268 0x001878E0 ico2/omori/src/camera-ico2.c lines=88  # aug6-only in the census (in camera-ico2.c's span); SetCameraMatrix_Ico2 by body ratio 0.82, callees 0.95, sizes 1420/1656
-lit4 SetCameraMatrix_Ico2 0x0062B048 0x0062B05C ico2/omori/src/camera-ico2.c # target side
 text actSt03tGirlCam 0x00210ED0 0x00210F38 ico2/script/src/st03t.c lines=12  # trfile; aug6-only in the census; PAL's actSt03tGirlCam (104 B in PAL)
 text actSt03tSekizo 0x00210F38 0x00210FA0 ico2/script/src/st03t.c lines=9  # trfile; aug6-only in the census; PAL's actSt03tSekizo (104 B in PAL)
 lit4 actSt03tSekizo 0x0062B670 0x0062B67C ico2/script/src/st03t.c  # 3 floats

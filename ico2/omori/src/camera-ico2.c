@@ -19,7 +19,6 @@
 #include "main.h"
 #include "gv.h"
 #include <assert.h>
-#include "include_asm.h"
 
 static void *ReadCameraSet(struct CamSetFile *f, int stage);
 
@@ -180,9 +179,8 @@ inline void SetCameraTargetPosition(void *target, void *eye, float fov)
     monitorCamera.work.ext.f[0] = fov;
 }
 
-static void ico2camera_GetTargetPos(int reset)
+static void ico2camera_GetTargetPos(unsigned char flag)
 {
-    unsigned char flag = reset;
     GObj *p1;
     GObj *p2;
     float v0[4];
@@ -776,7 +774,152 @@ static inline int findCameraGroupContaining(float *pos) /* derived name */
     return result;
 }
 
-INCLUDE_ASM(SetCameraMatrix_Ico2);
+void SetCameraMatrix_Ico2(int flag)
+{
+    CamWork cw = monitorCamera.work;
+    float vA[4];
+    float vB[4];
+    CamWork cw2;
+    int cut;
+    int enable;
+    int mode = 1;
+    int changed = 0;
+    int group;
+    /* sx, sz and mag start at zero, the way CameraEditManual starts its stick
+       values (camera-root.c); every path sets them again before a read, so the
+       three stores die in the flow pass. The bytes pin them only as a count:
+       gcse sizes its expression table from the insn count (195 buckets at 388,
+       193 at 385), and the bucket order of the hoisted addresses of padCtx, st
+       and dir is the order of their spill slots (300 st, 304 dir, 308 padCtx).
+       Three to ten such insns give that order; the text is not pinned. aug6's
+       TRFILE and PAL's listing both have two code-less declaration lines
+       here. */
+    float sx = 0.0f;
+    float sz = 0.0f;
+    float mag = 0.0f;
+
+    if (cameraGroupChanged != 0) {
+        flag = 1;
+        cameraGroupChanged = 0;
+        changed = 1;
+    }
+    if (flag) {
+        changed = mode;
+    }
+    ico2camera_GetTargetPos(flag);
+    group = findCameraGroupContaining(groupProbePos);
+    if (changed && group == -1) {
+        group = ico2camera_GetGroupNearest(groupProbePos);
+    }
+    if (group == -1) {
+        cw = monitorCamera.work;
+        cw.at.f[0] = targetASmooth[0];
+        cw.at.f[1] = targetASmooth[1];
+        cw.at.f[2] = targetASmooth[2];
+        memset(vA, 0, 16);
+        GetTargetOffset(default_cameratarget_gobj, vA, 0);
+        sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
+        sceVu0AddVector(cw.at.f, cw.at.f, vA);
+    } else {
+        if (flag != 0 || (cameraGroupCurrent != -1 &&
+                          ((CamGroup *)cameraSetGroups)[group].kind !=
+                              ((CamGroup *)cameraSetGroups)[cameraGroupCurrent].kind)) {
+            initMonitorCamera();
+            flag = 1;
+        }
+        memset(vA, 0, 16);
+        memset(vB, 0, 16);
+        CameraMove(group, targetBSmooth, (float *)&cw, vA, vB);
+        cw.at.f[0] = targetASmooth[0];
+        cw.at.f[1] = targetASmooth[1];
+        cw.at.f[2] = targetASmooth[2];
+        GetTargetOffset(default_cameratarget_gobj, vA, flag);
+        sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
+        sceVu0ScaleVector(vB, vB, zoomOffsetRatio);
+        sceVu0AddVector(cw.at.f, cw.at.f, vA);
+        sceVu0AddVector(cw.at.f, cw.at.f, vB);
+        cameraGroupCurrent = group;
+    }
+    InsertCamera_Exec((float *)&cw, &cut, &enable);
+    if (cut != 0) {
+        initMonitorCamera();
+    }
+    if (enable != 0) {
+        mode = 0;
+        /* the word at 0x62C898 (camera-root.c), MAIN.MAP's FixViewInGameCameraFlag */
+        InsertCameraWorkingFlag = 1;
+    }
+    monitorMonitorCamera(&cw, &cw2);
+    cw = cw2;
+    if (debug_camera_flag != 0) {
+        debug_Marker(cw.at.f, 0, 0, 255, 100.0f, 0.0f);
+    }
+    sceVu0ScaleVector(&cw, &cw, -1.0f);
+    sceVu0ScaleVector(cw.at.f, cw.at.f, -1.0f);
+    /* This build reads the stick twice. The first reading below (pad[0]'s
+       first two analog bytes, the magnitude clamped to 1, the square dead zone at 0.4
+       and a squared response past 0.4 on each axis, the same tests as
+       camera-root.c's CameraEditManual: a positive and a negative test per
+       axis) is overwritten by the iosPad reading after it, so it is dead.
+       Its words that remain are the FSqrt call and the two 0.4f <= tests:
+       the response bodies feed the negative tests, which die only in the
+       flow pass after reload, so the two tests keep their branches until
+       the last jump pass removes them. The response constants are derived
+       (no literal of the dead code survives): the words fix only the shape,
+       bodies without the 0.4f constant (the tests' 0.4f is in $f3, past
+       the bodies' two temporaries and the shared -0.4f), and the clamp
+       (its label puts the dead zone's first 0.0f in $f0). aug6's TRFILE
+       has no code on the lines of the clamp and of the response. */
+    if (mode) {
+        sx = (pad[0].ana[0] - 127) / 128.0f;
+        sz = (pad[0].ana[1] - 127) / 128.0f;
+    } else {
+        sx = 0.0f;
+        sz = 0.0f;
+    }
+    mag = FSqrt(sx * sx + sz * sz);
+    if (1.0f < mag) {
+        mag = 1.0f;
+    }
+    if ((sx < 0.0f ? -sx : sx) < 0.4f && (sz < 0.0f ? -sz : sz) < 0.4f) {
+        sx = sz = 0.0f;
+    }
+    if (0.4f <= sx) {
+        sx = sx * sx * 2.5f;
+    }
+    if (sx <= -0.4f) {
+        sx = -sx * sx * 2.5f;
+    }
+    if (0.4f <= sz) {
+        sz = sz * sz * 2.5f;
+    }
+    if (sz <= -0.4f) {
+        sz = -sz * sz * 2.5f;
+    }
+    {
+        IosPadCtx padCtx;
+        IosPadStick st;
+
+        iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
+        iosPadRead(&padCtx);
+        iosPadGetStick(&padCtx, &st, 1, 2, 2, 0);
+        {
+            Mat4 dir = {{(float)st.x - 127.5f, 0.0f, (float)st.y - 127.5f, 0.0f}};
+
+            sceVu0Normalize(&dir, &dir);
+            mag = st.mag;
+            sx = dir.f[0] * mag;
+            sz = dir.f[2] * mag;
+        }
+    }
+    if (systemStatus[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
+        ClearHandCameraCorrect();
+    } else {
+        HandCameraCorrect(&cw, cw.at.f, sx, sz,
+                          60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+    }
+    SetWSMatrix(&cw);
+}
 
 inline void *GetPluralCameraSet(int id)
 {
