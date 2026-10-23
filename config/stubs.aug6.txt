@@ -1327,27 +1327,6 @@ rdlit ACTWayMove_NextDetail 0x00613A10 0x00613A6C ico2/fumi/src/act-way.c  # 1 d
 text ACTWayExec_Position 0x001FF258 0x001FF434 ico2/fumi/src/act-way.c lines=67  # trfile; aug6-only in the census; PAL's ACTWayExec_Position (648 B in PAL)
 text ACTWay_IsMustWalkFromWay 0x001FF438 0x001FF4B0 ico2/fumi/src/act-way.c lines=14  # trfile; aug6-only in the census; PAL's ACTWay_IsMustWalkFromWay (120 B in PAL)
 text ACTWay_SetBeginPositionIllegal 0x001FF4B0 0x001FF4C8 ico2/fumi/src/act-way.c lines=5  # trfile; aug6-only in the census; PAL's ACTWay_SetBeginPositionIllegal (24 B in PAL)
-text actInitialize_ext_charcter 0x001FF830 0x001FF8EC ico2/fumi/src/act.c lines=15  # trfile; aug6-only in the census; PAL's actInitialize_ext_charcter (188 B in PAL)
-rdlit actInitialize_ext_charcter 0x00613B60 0x00613B70 ico2/fumi/src/act.c  # target side
-text actInitialize 0x001FF8F0 0x001FFCC8 ico2/fumi/src/act.c lines=80  # trfile; aug6-only in the census; PAL's actInitialize (996 B in PAL)
-text act_check_intr_list 0x001FFCC8 0x001FFEAC ico2/fumi/src/act.c local lines=40  # trfile; aug6-only in the census; PAL's act_check_intr_list (484 B in PAL)
-text act_check_mail 0x001FFEB0 0x00200148 ico2/fumi/src/act.c local lines=57  # aug6-only in the census (in act.c's span); act_check_mail by body ratio 0.85, callees -, sizes 648/664
-rdlit act_check_mail 0x00613B70 0x00613B88 ico2/fumi/src/act.c  # target side
-text BeforeFunc 0x00200148 0x00200810 ico2/fumi/src/act.c lines=130  # trfile; aug6-only in the census; PAL's BeforeFunc (1752 B in PAL)
-rdlit BeforeFunc 0x00613B88 0x00613BA0 ico2/fumi/src/act.c  # target side
-text ACTDebugMove 0x00200810 0x00200FEC ico2/fumi/src/act.c lines=173  # ordinal; first difference at insn 67; imm:14; extent-equal
-rdlit ACTDebugMove 0x00613BA0 0x00613C00 ico2/fumi/src/act.c  # target side
-lit4 ACTDebugMove 0x0062B5F0 0x0062B604 ico2/fumi/src/act.c # target side
-text actInitialize_geo 0x00200FF0 0x00200FF8 ico2/fumi/src/act.c lines=1  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text actInitialize_only_charcter 0x00200FF8 0x002010F0 ico2/fumi/src/act.c lines=23  # trfile; aug6-only in the census; PAL's actInitialize_only_charcter (256 B in PAL)
-text ACTReserveTarget 0x002010F0 0x00201138 ico2/fumi/src/act.c lines=11  # ordinal; first difference at insn 5; imm:3; extent-equal
-text _ACTRun 0x00201138 0x00201180 ico2/fumi/src/act.c lines=12  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text _ACTWait 0x00201180 0x00201220 ico2/fumi/src/act.c lines=10  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text actCreateSubThreadGOppArg 0x00201220 0x00201254 ico2/fumi/src/act.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text actCreateSubThread 0x00201258 0x00201314 ico2/fumi/src/act.c lines=24  # trfile; aug6-only in the census; PAL's actCreateSubThread (260 B in PAL)
-rdlit actCreateSubThread 0x00613B30 0x00613B60 ico2/fumi/src/act.c def  # 3 strings: its acst/lval prints, written at its definition after actCreateMotionThread's --t-- strings and before src/act.c (after_func_exec, between them in the text, has none)
-text actSetInterrupt 0x00201318 0x00201320 ico2/fumi/src/act.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text ConvertStickToAbsCoord 0x00201320 0x00201398 ico2/fumi/src/act.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text BeforeFunc2 0x00201470 0x002015C4 ico2/fumi/src/act2.c lines=43  # ordinal; first difference at insn 8; imm:5; extent-equal
 text WayPointWithRangeFromPos2 0x00201EC0 0x00202450 ico2/fumi/src/way_kidnap.c lines=134  # ordinal; first difference at insn 7; imm:7; extent-equal
 rdlit WayPointWithRangeFromPos2 0x00613C28 0x00613D3D ico2/fumi/src/way_kidnap.c  # 7 strings
