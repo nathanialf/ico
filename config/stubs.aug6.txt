@@ -272,34 +272,6 @@ sdlit prim_InitParticle 0x0062BEB0 0x0062BEB3 ico2/seki/src/Primitive.c  # targe
 text prim_DispParticle 0x0011E0C0 0x0011E294 ico2/seki/src/Primitive.c lines=31  # ordinal; first difference at insn 28; imm:2; extent-equal
 rdlit prim_DispParticle 0x0054F928 0x0054F963 ico2/seki/src/Primitive.c  # 1 string
 sdlit prim_DispParticle 0x0062BEB8 0x0062BEBE ico2/seki/src/Primitive.c  # 1 string
-text reg_setShape 0x0011EAC0 0x0011EEE4 ico2/seki/src/RegistPacket.c local lines=122  # ordinal; first difference at insn 17; imm:10; extent-equal
-rdlit reg_setShape 0x0054F9D0 0x0054FA42 ico2/seki/src/RegistPacket.c align=16  # 3 strings
-sdlit reg_setShape 0x0062BEC8 0x0062BECA ico2/seki/src/RegistPacket.c  # 1 string
-text reg_clipPacketBoundingBox 0x0011F078 0x0011F190 ico2/seki/src/RegistPacket.c local lines=38  # ordinal; first difference at insn 47; imm:2; extent-equal
-rdlit reg_clipPacketBoundingBox 0x0054FAC0 0x0054FAD7 ico2/seki/src/RegistPacket.c align=16  # 1 string
-text reg_transMicroCode 0x0011F190 0x0011F1C4 ico2/seki/src/RegistPacket.c local lines=12  # ordinal; first difference at insn 0; imm:2; extent-equal
-text setMatrix.27 0x0011F220 0x0011F304 ico2/seki/src/RegistPacket.c local file=setMatrix_27  # nested in reg_setNMatrixPacket, which is carved; census twin of PAL's setMatrix.27
-text setLight.31 0x0011F308 0x0011F3D4 ico2/seki/src/RegistPacket.c local file=setLight_31  # ordinal; first difference at insn 31; imm:1; extent-equal; nested in its parent
-text reg_setNMatrixPacket 0x0011F3D8 0x0011F5C4 ico2/seki/src/RegistPacket.c local lines=108  # ordinal; first difference at insn 12; length:-6; extent-differs
-text setMatrix.38 0x0011F5C8 0x0011F714 ico2/seki/src/RegistPacket.c local file=setMatrix_38  # ordinal; first difference at insn 33; imm:1; extent-equal; nested in its parent
-text setLight.42 0x0011F718 0x0011F7E4 ico2/seki/src/RegistPacket.c local file=setLight_42  # ordinal; first difference at insn 31; imm:1; extent-equal; nested in its parent
-text reg_setMMatrixPacket 0x0011F7E8 0x0011FC50 ico2/seki/src/RegistPacket.c local lines=164  # ordinal; first difference at insn 11; length:-19; extent-differs
-text reg_setCMatrixPacket 0x0011FC50 0x0011FF8C ico2/seki/src/RegistPacket.c local lines=105  # ordinal; first difference at insn 14; imm:6; extent-equal
-rdlit reg_setCMatrixPacket 0x0054FAD8 0x0054FAF8 ico2/seki/src/RegistPacket.c  # 1 string
-text reg_dispNObj 0x001202C8 0x00120670 ico2/seki/src/RegistPacket.c local lines=73  # ordinal; first difference at insn 13; imm:5; extent-equal
-rdlit reg_dispNObj 0x0054FBB0 0x0054FBD1 ico2/seki/src/RegistPacket.c align=16  # 1 string
-text reg_dispMObj 0x00120670 0x00120B4C ico2/seki/src/RegistPacket.c local lines=105  # ordinal; first difference at insn 17; imm:7; extent-equal
-text reg_dispSObj 0x00120B50 0x00120E8C ico2/seki/src/RegistPacket.c local lines=63  # ordinal; first difference at insn 14; imm:4; extent-equal
-text reg_dispCObj 0x00120E90 0x00121160 ico2/seki/src/RegistPacket.c local lines=47  # ordinal; first difference at insn 14; imm:3; extent-equal
-text reg_dispPointLineObj 0x00121A80 0x00121C28 ico2/seki/src/RegistPacket.c local lines=54  # ordinal; first difference at insn 11; length:-14; extent-differs
-text setMatrix.106 0x00121C28 0x00121D0C ico2/seki/src/RegistPacket.c local file=setMatrix_106  # nested in reg_DispAccessoryWithShadow, which is carved; census twin of PAL's setMatrix.106
-text setLight.110 0x00121D10 0x00121DDC ico2/seki/src/RegistPacket.c local file=setLight_110  # ordinal; first difference at insn 31; imm:1; extent-equal; nested in its parent
-text reg_setNMatrixPacketNoLightCalc.102 0x00121DE0 0x00122010 ico2/seki/src/RegistPacket.c local file=reg_setNMatrixPacketNoLightCalc_102  # ordinal; first difference at insn 14; imm:13; extent-equal; nested in its parent
-text reg_DispAccessoryWithShadow 0x00122010 0x001223C4 ico2/seki/src/RegistPacket.c lines=182  # ordinal; first difference at insn 14; imm:5; extent-equal
-text reg_RenderReflection 0x001223C8 0x0012255C ico2/seki/src/RegistPacket.c lines=36  # ordinal; first difference at insn 14; imm:1; extent-equal
-text reg_setEMatrixPacket.120 0x00122560 0x00122760 ico2/seki/src/RegistPacket.c local file=reg_setEMatrixPacket_120  # nested in reg_DispEnemy, which is carved; census twin of PAL's reg_setEMatrixPacket.120
-text reg_DispEnemy 0x00122760 0x00122A44 ico2/seki/src/RegistPacket.c lines=116  # ordinal; first difference at insn 16; imm:4; extent-equal
-text reg_DispObj 0x00122A48 0x00122AE4 ico2/seki/src/RegistPacket.c lines=26  # ordinal; first difference at insn 2; imm:3; extent-equal
 text shadow_Reset 0x00122B80 0x00122FE4 ico2/seki/src/Shadow.c lines=67  # ordinal; first difference at insn 0; length:-140; extent-differs
 sdlit shadow_Reset 0x0062BED8 0x0062BEDC ico2/seki/src/Shadow.c  # target side: a static colour, four bytes
 text shadow_Draw 0x00122FE8 0x00123AA4 ico2/seki/src/Shadow.c lines=109  # ordinal; first difference at insn 1; length:-74; extent-differs
