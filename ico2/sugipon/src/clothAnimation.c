@@ -1122,7 +1122,7 @@ static void getCloth4D_postProcess(Cloth4D *c, int **rows)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-INCLUDE_ASM(_getCloth4D);
+INCLUDE_ASM(GetCloth4D);
 
 typedef struct { /* field names derived */
     long long q[8];

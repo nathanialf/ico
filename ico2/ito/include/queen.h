@@ -9,7 +9,6 @@
 #define QUEEN_H
 
 float GetQueenBallThickness(void);
-int InqQueenBarrierExist(void);
 float QueenBallRadius(struct GObj *gobj);
 int QueenBarrierInqBreakable(void);
 float QueenBarrierRadius(struct GObj *gobj);
@@ -18,5 +17,6 @@ void QueenStartAttack(void);
 void gene_enemy(volatile int g);
 void subQueenBrainMain(volatile int g);
 void subQueenControl(volatile int g);
+void subQueenCollision(volatile int g);
 
 #endif /* QUEEN_H */

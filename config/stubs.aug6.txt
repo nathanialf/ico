@@ -511,31 +511,6 @@ rdlit InitBossCtrlGeo 0x00556348 0x00556366 ico2/ito/src/itou_boss.c def  # 2 st
 text CapsuleGhostBossStart 0x00195A70 0x00195A80 ico2/ito/src/itou_boss.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text InqCapsuleGhostBossEnd 0x00195A80 0x00195B40 ico2/ito/src/itou_boss.c lines=25  # ordinal; first difference at insn 1; imm:1; extent-equal
 text gene_eff_end_func 0x00195B48 0x00195B70 ico2/ito/src/itou_boss.c local lines=4  # ordinal; first difference at insn 4; imm:1; extent-equal
-text effect_end_func 0x00197158 0x001971AC ico2/ito/src/queen.c local file=effect_end_func_queen lines=12  # ordinal; first difference at insn 3; imm:3; extent-equal
-text queenBeforeFunc 0x001971B0 0x0019735C ico2/ito/src/queen.c lines=49  # trfile; aug6-only in the census; PAL's queenBeforeFunc (484 B in PAL)
-text gene_enemy 0x00197360 0x001976AC ico2/ito/src/queen.c file=gene_enemy_queen lines=79  # trfile; aug6-only in the census; PAL's gene_enemy (844 B in PAL)
-text subQueenBrainMain 0x001976B0 0x00197DDC ico2/ito/src/queen.c lines=152  # trfile; aug6-only in the census; PAL's subQueenBrainMain (1912 B in PAL)
-rdlit subQueenBrainMain 0x00556828 0x00556830 ico2/ito/src/queen.c  # target side
-rdlit subQueenBrainMain 0x00556830 0x00556850 ico2/ito/src/queen.c align=16  # jump table (target side)
-text Debug_StickControl 0x00197DE0 0x00197EDC ico2/ito/src/queen.c local file=Debug_StickControl_queen lines=20  # aug6-only in the census (after queen.c's span); Debug_StickControl by body ratio 1.00, callees 1.00, sizes 252/252, call sites 1
-lit4 Debug_StickControl 0x0062B1E0 0x0062B1E4 ico2/ito/src/queen.c file=Debug_StickControl_queen  # 1 float
-text InitQueenGeo 0x00197EE0 0x00197FE8 ico2/ito/src/queen.c lines=21  # aug6-only in the census (after queen.c's span); InitQueenGeo by body ratio 1.00, callees 1.00, sizes 264/264; obj-kind-data QUEEN create
-text QueenGeo 0x00197FE8 0x0019807C ico2/ito/src/queen.c lines=16  # aug6-only in the census (after queen.c's span); QueenGeo by body ratio 0.84, callees 0.20, sizes 176/148; obj-kind-data QUEEN geo
-lit4 QueenGeo 0x0062B1E4 0x0062B1F0 ico2/ito/src/queen.c  # 3 floats
-text QueenBarrierGeo 0x001980F0 0x00198520 ico2/ito/src/queen.c lines=97  # trfile; aug6-only in the census; PAL's QueenBarrierGeo (1072 B in PAL)
-lit4 QueenBarrierGeo 0x0062B1F0 0x0062B240 ico2/ito/src/queen.c  # 20 floats
-text QueenBarrierDL 0x00198520 0x00198568 ico2/ito/src/queen.c lines=7  # trfile; aug6-only in the census; PAL's QueenBarrierDL (72 B in PAL)
-text QueenBallGeo 0x00198568 0x00198D24 ico2/ito/src/queen.c lines=105  # trfile; aug6-only in the census; PAL's QueenBallGeo (2004 B in PAL)
-lit4 QueenBallGeo 0x0062B240 0x0062B244 ico2/ito/src/queen.c  # 1 float
-text QueenBallDL 0x00198D28 0x00198EBC ico2/ito/src/queen.c lines=45  # trfile; aug6-only in the census; PAL's QueenBallDL (444 B in PAL)
-text actQueenStart 0x00198EC0 0x00198F50 ico2/ito/src/queen.c lines=12  # trfile; aug6-only in the census; PAL's actQueenStart (144 B in PAL)
-text QueenStartAttack 0x00198F50 0x00198FB0 ico2/ito/src/queen.c lines=13  # trfile; aug6-only in the census; PAL's QueenStartAttack (96 B in PAL)
-text QueenInqDead 0x00198FB0 0x00198FD8 ico2/ito/src/queen.c lines=5  # trfile; aug6-only in the census; PAL's QueenInqDead (40 B in PAL)
-text QueenBoysWeaponPower 0x00198FD8 0x00199000 ico2/ito/src/queen.c lines=5  # trfile; aug6-only in the census; PAL's QueenBoysWeaponPower (40 B in PAL)
-text QueenBarrierInqBreakable 0x00199010 0x00199060 ico2/ito/src/queen.c lines=11  # trfile; aug6-only in the census; PAL's QueenBarrierInqBreakable (80 B in PAL)
-text InitQueenBarrierGeo 0x00199110 0x001991A8 ico2/ito/src/queen.c lines=16  # trfile; aug6-only in the census; PAL's InitQueenBarrierGeo (152 B in PAL)
-text queenBallBeforeFunc 0x001991C8 0x001992A8 ico2/ito/src/queen.c lines=19  # trfile; aug6-only in the census; PAL's queenBallBeforeFunc (244 B in PAL)
-text InitQueenBallGeo 0x001992A8 0x00199330 ico2/ito/src/queen.c lines=15  # trfile; aug6-only in the census; PAL's InitQueenBallGeo (136 B in PAL)
 text StageOrientInit 0x0019A3C8 0x0019A4B8 ico2/ito/src/stage_orient.c lines=16  # ordinal; first difference at insn 7; imm:3; extent-equal
 sdlit StageOrientInit 0x0062C950 0x0062C953 ico2/ito/src/stage_orient.c def  # 1 string
 text initGeometryState 0x0019BC18 0x0019C154 ico2/common/src/DObj.c local lines=75  # ordinal; first difference at insn 25; imm:47; extent-equal
@@ -673,7 +648,7 @@ text getCloth4D_preProcess 0x001C3638 0x001C3C08 ico2/sugipon/src/clothAnimation
 text proc.137 0x001C3C08 0x001C405C ico2/sugipon/src/clothAnimation.c local file=proc_137  # nested in getCloth4D, which is carved; census twin of PAL's proc.162 (gcc numbers it proc.137 in this tree)
 text getCloth4D 0x001C4060 0x001C521C ico2/sugipon/src/clothAnimation.c local lines=337  # ordinal; first difference at insn 2; length:-12; extent-differs
 lit4 getCloth4D 0x0062B378 0x0062B380 ico2/sugipon/src/clothAnimation.c  # 2 floats
-text _getCloth4D 0x001C5488 0x001C56E4 ico2/sugipon/src/clothAnimation.c local lines=47  # aug6-only in the census (in clothAnimation.c's span); _getCloth4D by body ratio 0.80, callees 0.67, sizes 612/604
+text GetCloth4D 0x001C5488 0x001C56E4 ico2/sugipon/src/clothAnimation.c lines=47  # aug6-only in the census (in clothAnimation.c's span); _getCloth4D by body ratio 0.80, callees 0.67, sizes 612/604; renamed p10-w1: queen.c QueenGeo calls 0x1C5488 (Cloth4D *, 3.0f, 0.98f) = the USA/jun26 global GetCloth4D (604 B)
 text InitCloth4D 0x001C56E8 0x001C5BC4 ico2/sugipon/src/clothAnimation.c lines=65  # trfile; aug6-only in the census; PAL's InitCloth4D (1252 B in PAL)
 text sonic 0x001C7058 0x001C8050 ico2/sugipon/src/darkVolume.c local lines=209  # ordinal; first difference at insn 5; length:-11; extent-differs
 lit4 sonic 0x0062B384 0x0062B388 ico2/sugipon/src/darkVolume.c # target side
@@ -732,31 +707,6 @@ text _handManager 0x001CF450 0x001CF774 ico2/sugipon/src/handManager.c local lin
 rdlit _handManager 0x00611850 0x00611870 ico2/sugipon/src/handManager.c align=16  # target side
 text HandManager 0x001CF778 0x001CF8CC ico2/sugipon/src/handManager.c lines=19  # aug6-only in the census (after girl.c's span); HandManager by body ratio 0.98, callees 0.33, sizes 340/340
 lit4 HandManager 0x0062B3F8 0x0062B3FC ico2/sugipon/src/handManager.c  # 1 float
-text func_001CF8D0 0x001CF8D0 0x001CF8D8 ico2/sugipon/src/handManager.c  # aug6-only; after girl.c's span; pairs with no PAL-only function there by size and order
-text func_001CF8D8 0x001CF8D8 0x001CF8E0 ico2/sugipon/src/handManager.c  # aug6-only; after girl.c's span; pairs with no PAL-only function there by size and order
-text bombExplodeSE 0x001CF8E0 0x001CF8E8 ico2/sugipon/src/item.c local lines=4  # trfile; the census pairs PAL bombSparkStartSE here (bodies equal); PAL's bombExplodeSE is 8 B
-text HoldItem 0x001CF8E8 0x001CF9E8 ico2/sugipon/src/item.c lines=26  # ordinal; first difference at insn 13; imm:5; extent-equal
-rdlit HoldItem 0x00611870 0x006118A8 ico2/sugipon/src/item.c  # target side
-sdlit HoldItem 0x0062D580 0x0062D582 ico2/sugipon/src/item.c  # 1 string
-text ReleaseItem 0x001CFA60 0x001CFAD0 ico2/sugipon/src/item.c lines=12  # ordinal; first difference at insn 6; imm:3; extent-equal
-text ThrowItem 0x001CFAD0 0x001CFB3C ico2/sugipon/src/item.c lines=11  # trfile; aug6-only in the census; PAL's ThrowItem (184 B in PAL)
-text InitItemGeo 0x001CFB40 0x001CFD4C ico2/sugipon/src/item.c lines=30  # trfile; aug6-only in the census; PAL's InitItemGeo (508 B in PAL)
-text uncarriedItemGeo 0x001CFF88 0x001D0B5C ico2/sugipon/src/item.c local lines=209  # trfile; aug6-only in the census; PAL's uncarriedItemGeo (3020 B in PAL)
-rdlit uncarriedItemGeo 0x006118A8 0x006118E0 ico2/sugipon/src/item.c  # target side
-lit4 uncarriedItemGeo 0x0062B3FC 0x0062B428 ico2/sugipon/src/item.c # target side
-text execBombGeo 0x001D0B60 0x001D0DC4 ico2/sugipon/src/item.c local lines=55  # trfile; aug6-only in the census; PAL's execBombGeo (572 B in PAL)
-rdlit execBombGeo 0x006118E0 0x006118F8 ico2/sugipon/src/item.c  # target side
-text ItemGeo 0x001D0DC8 0x001D0EC0 ico2/sugipon/src/item.c lines=31  # trfile; aug6-only in the census; PAL's ItemGeo (248 B in PAL)
-text ItemDL 0x001D0EC0 0x001D0F88 ico2/sugipon/src/item.c lines=31  # trfile; aug6-only in the census; PAL's ItemDL (288 B in PAL)
-text BreakItemFromOutside 0x001D0F88 0x001D10D8 ico2/sugipon/src/item.c lines=18  # trfile; aug6-only in the census; PAL's BreakItemFromOutside (340 B in PAL)
-text GetItemKind 0x001D1108 0x001D1118 ico2/sugipon/src/item.c lines=4  # trfile; aug6-only in the census; PAL's GetItemKind (16 B in PAL)
-text GetBombTorchGObj 0x001D1148 0x001D1170 ico2/sugipon/src/item.c lines=8  # trfile; aug6-only in the census; PAL's GetBombTorchGObj (40 B in PAL)
-text ReviveAllCarryableItems 0x001D1170 0x001D1218 ico2/sugipon/src/item.c lines=14  # trfile; aug6-only in the census; PAL's ReviveAllCarryableItems (168 B in PAL)
-text ReviveCarryableItemsWithBoundary 0x001D1218 0x001D1310 ico2/sugipon/src/item.c lines=20  # trfile; aug6-only in the census; PAL's ReviveCarryableItemsWithBoundary (248 B in PAL)
-text ReviveAllCarryableItemsWithRandomVelocity 0x001D1310 0x001D1438 ico2/sugipon/src/item.c lines=20  # trfile; aug6-only in the census; PAL's ReviveAllCarryableItemsWithRandomVelocity (296 B in PAL)
-text CheckItemDead 0x001D1438 0x001D146C ico2/sugipon/src/item.c lines=10  # trfile; aug6-only in the census; PAL's CheckItemDead (52 B in PAL)
-text StopItemExplodeAnimationAll 0x001D1470 0x001D1504 ico2/sugipon/src/item.c lines=15  # trfile; aug6-only in the census; PAL's StopItemExplodeAnimationAll (148 B in PAL)
-text ReviveAllCarryableItemsWithNonSleepFrame 0x001D1508 0x001D15BC ico2/sugipon/src/item.c lines=14  # ordinal; first difference at insn 17; imm:2; extent-equal
 text ResetDynamicMotionManager 0x001D2180 0x001D21C4 ico2/sugipon/src/motionFileManager.c lines=10  # ordinal; first difference at insn 6; imm:2; extent-equal
 text ResetStatic2MotionManager 0x001D21C8 0x001D2204 ico2/sugipon/src/motionFileManager.c lines=9  # ordinal; first difference at insn 5; imm:2; extent-equal
 text motKindMenuProc 0x001E2348 0x001E275C ico2/sugipon/src/motionViewer.c local lines=50  # ordinal; first difference at insn 15; imm:8; extent-equal
@@ -920,22 +870,6 @@ text actSubMpegReturnPreload 0x0020CB40 0x0020CBBC ico2/script/src/op.c lines=6 
 text actSt26aConte01_1_newgame 0x0020CBC0 0x0020CC4C ico2/script/src/op.c lines=16  # ordinal; first difference at insn 13; imm:1; extent-equal
 rdlit actSt26aConte01_1_newgame 0x00614510 0x0061452D ico2/script/src/op.c def  # 2 strings
 text actOpDemo02Chk 0x0020CC50 0x0020CD2C ico2/script/src/op.c lines=27  # ordinal; first difference at insn 21; length:-2; extent-differs
-text actSt00aInit 0x0020CEB8 0x0020CF1C ico2/script/src/st00a.c lines=20  # trfile; aug6-only in the census; PAL's actSt00aInit (204 B in PAL)
-text actSt00aEnd 0x0020CF20 0x0020CF58 ico2/script/src/st00a.c lines=8  # trfile; aug6-only in the census; PAL's actSt00aEnd (56 B in PAL)
-text actSt00aEneChk 0x0020CF58 0x0020D050 ico2/script/src/st00a.c lines=30  # trfile; aug6-only in the census; PAL's actSt00aEneChk (328 B in PAL)
-text actSt00aStairChk 0x0020D050 0x0020D280 ico2/script/src/st00a.c lines=64  # trfile; aug6-only in the census; PAL's actSt00aStairChk (704 B in PAL)
-text actSt00aDoor2 0x0020D280 0x0020D384 ico2/script/src/st00a.c lines=22  # trfile; aug6-only in the census; PAL's actSt00aDoor2 (260 B in PAL)
-text actSt00aDoor2UpChk 0x0020D388 0x0020D520 ico2/script/src/st00a.c lines=38  # trfile; aug6-only in the census; PAL's actSt00aDoor2UpChk (408 B in PAL)
-text actSt00aDoor2DownChk 0x0020D520 0x0020D6B8 ico2/script/src/st00a.c lines=39  # trfile; aug6-only in the census; PAL's actSt00aDoor2DownChk (408 B in PAL)
-text actSt00aDoor1 0x0020D6B8 0x0020D7BC ico2/script/src/st00a.c lines=22  # trfile; aug6-only in the census; PAL's actSt00aDoor1 (260 B in PAL)
-text actSt00aDoor1UpChk 0x0020D7C0 0x0020D950 ico2/script/src/st00a.c lines=37  # trfile; aug6-only in the census; PAL's actSt00aDoor1UpChk (400 B in PAL)
-text actSt00aDoor1DownChk 0x0020D950 0x0020DAE0 ico2/script/src/st00a.c lines=36  # trfile; aug6-only in the census; PAL's actSt00aDoor1DownChk (400 B in PAL)
-text actSt00aEne 0x0020DAE0 0x0020DB58 ico2/script/src/st00a.c lines=13  # trfile; aug6-only in the census; PAL's actSt00aEne (120 B in PAL)
-text actSt00aEnemy1 0x0020DB58 0x0020DBFC ico2/script/src/st00a.c lines=17  # trfile; aug6-only in the census; PAL's actSt00aEnemy1 (164 B in PAL)
-text actSt00aEnemy2 0x0020DC00 0x0020DC90 ico2/script/src/st00a.c lines=15  # trfile; aug6-only in the census; PAL's actSt00aEnemy2 (144 B in PAL)
-text actSt00aStair 0x0020DC90 0x0020DD28 ico2/script/src/st00a.c lines=16  # trfile; aug6-only in the census; PAL's actSt00aStair (152 B in PAL)
-text actSt00aAtr2 0x0020DD28 0x0020DDA0 ico2/script/src/st00a.c lines=13  # trfile; aug6-only in the census; PAL's actSt00aAtr2 (120 B in PAL)
-text actSt00aAtr2Chk 0x0020DDA0 0x0020DDF8 ico2/script/src/st00a.c lines=10  # trfile; aug6-only in the census; PAL's actSt00aAtr2Chk (88 B in PAL)
 text actSt01bInit 0x0020E198 0x0020E210 ico2/script/src/st01b.c lines=12  # trfile; aug6-only in the census; PAL's actSt01bInit (128 B in PAL)
 text actSt01bEneChk 0x0020E210 0x0020E340 ico2/script/src/st01b.c lines=29  # trfile; aug6-only in the census; PAL's actSt01bEneChk (304 B in PAL)
 text actSt01bFloorChk 0x0020E340 0x0020E510 ico2/script/src/st01b.c lines=64  # trfile; aug6-only in the census; PAL's actSt01bFloorChk (620 B in PAL)
@@ -1116,28 +1050,6 @@ text actSt17bCheck 0x002321F0 0x00232294 ico2/script/src/st17b.c lines=16  # ord
 lit4 actSt17bCheck 0x0062B848 0x0062B854 ico2/script/src/st17b.c  # 3 floats
 text actSt17bIntro 0x00232298 0x00232310 ico2/script/src/st17b.c  # trfile; aug6-only in the census; not in PAL's st17b
 text actSt17bIntroChk 0x00232340 0x002323E0 ico2/script/src/st17b.c  # trfile; aug6-only in the census; not in PAL's st17b
-text actSt18aEnd 0x002323E0 0x00232418 ico2/script/src/st18a.c lines=8  # trfile; aug6-only in the census; PAL's actSt18aEnd (56 B in PAL)
-text actSt18aSwitchLChk 0x00232418 0x0023263C ico2/script/src/st18a.c lines=40  # trfile; aug6-only in the census; PAL's actSt18aSwitchLChk (564 B in PAL)
-text actSt18aSwitchLUpChk 0x00232640 0x0023277C ico2/script/src/st18a.c lines=31  # trfile; aug6-only in the census; PAL's actSt18aSwitchLUpChk (316 B in PAL)
-lit4 actSt18aSwitchLUpChk 0x0062B854 0x0062B860 ico2/script/src/st18a.c  # 3 floats
-text actSt18aSwitchRChk 0x00232780 0x002329A4 ico2/script/src/st18a.c lines=40  # trfile; aug6-only in the census; PAL's actSt18aSwitchRChk (564 B in PAL)
-text actSt18aSwitchRUpChk 0x002329A8 0x00232AE4 ico2/script/src/st18a.c lines=31  # trfile; aug6-only in the census; PAL's actSt18aSwitchRUpChk (316 B in PAL)
-lit4 actSt18aSwitchRUpChk 0x0062B860 0x0062B86C ico2/script/src/st18a.c  # 3 floats
-text actSt18aDoorChk 0x00232AE8 0x00232C20 ico2/script/src/st18a.c lines=53  # trfile; aug6-only in the census; PAL's actSt18aDoorChk (452 B in PAL)
-text actSt18aDoorDownChk 0x00232C20 0x00232D2C ico2/script/src/st18a.c lines=26  # trfile; aug6-only in the census; PAL's actSt18aDoorDownChk (268 B in PAL)
-text actSt18aEnemy1_1 0x00232D30 0x00232E08 ico2/script/src/st18a.c lines=29  # trfile; aug6-only in the census; PAL's actSt18aEnemy1_1 (248 B in PAL)
-text actSt18aEnemy2_1 0x00232E08 0x00232ED8 ico2/script/src/st18a.c lines=25  # ordinal; first difference at insn 13; imm:3; extent-equal
-text actSt18aIntro 0x00232ED8 0x00232F50 ico2/script/src/st18a.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
-text actSt18aDoor 0x00232F50 0x00233014 ico2/script/src/st18a.c lines=23  # ordinal; first difference at insn 12; imm:6; extent-equal
-text actSt18aSwitchL 0x00233018 0x002330DC ico2/script/src/st18a.c lines=23  # ordinal; first difference at insn 12; imm:6; extent-equal
-text actSt18aSwitchR 0x002330E0 0x002331A4 ico2/script/src/st18a.c lines=23  # ordinal; first difference at insn 12; imm:6; extent-equal
-text actSt18aEne 0x002331A8 0x00233220 ico2/script/src/st18a.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
-text actSt18aEnemy1_2 0x00233220 0x002332D8 ico2/script/src/st18a.c lines=24  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actSt18aEne2 0x002332D8 0x00233350 ico2/script/src/st18a.c lines=14  # ordinal; first difference at insn 12; imm:3; extent-equal
-text actSt18aEnemy2_2 0x00233350 0x00233408 ico2/script/src/st18a.c lines=24  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actSt18aIntroChk 0x00233418 0x002334C8 ico2/script/src/st18a.c lines=38  # trfile; aug6-only in the census; PAL's actSt18aIntroChk (328 B in PAL)
-text actSt18aEneChk 0x002334C8 0x00233538 ico2/script/src/st18a.c lines=13  # trfile; aug6-only in the census; PAL's actSt18aEneChk (112 B in PAL)
-text actSt18aEne2Chk 0x00233538 0x002335B4 ico2/script/src/st18a.c lines=13  # trfile; aug6-only in the census; PAL's actSt18aEne2Chk (132 B in PAL)
 text actSt20aFenceDownChk2 0x00234B38 0x00234C68 ico2/script/src/st20a.c lines=28  # trfile; aug6-only in the census; PAL's actSt20aFenceDownChk2 (352 B in PAL)
 text actSt22aIntro 0x00235568 0x0023578C ico2/script/src/st22a.c lines=41  # ordinal; first difference at insn 14; imm:15; extent-equal
 lit4 actSt22aIntro 0x0062B888 0x0062B894 ico2/script/src/st22a.c  # 3 floats

@@ -30,10 +30,8 @@ extern const AttackKindEntry attackData[];
 struct GObj;
 
 void CommonAttackCenter(struct GObj *gobj);
-
-struct GObj *_AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius,
-                           struct GObj *spare);
-
+/* 5 arguments (this build's MAIN.MAP name; QueenBallGeo 0x198C30 passes radius in $f12, no fifth word) */
+struct GObj *AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius);
 void AttackCenter_WithDir(struct GObj *gop, int group, float *pos, float *dir, float radius);
 void EnemyAttackCenter(struct GObj *gobj);
 void BoyAttackCenter(struct GObj *gobj);
