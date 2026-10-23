@@ -98,7 +98,26 @@ inline void EntryRevivedSpiderGroupManager(GObj *group)
     spiderGroupIds[idx] = (int)group;
 }
 
-INCLUDE_ASM(EntrySpiderGroupManager);
+void EntrySpiderGroupManager(GObj *gobj)
+{
+    GObj *p;
+
+    spiderGroups[spiderGroupCount].gobj = gobj;
+    p = getReviveEnemyGObj(spiderGroupIdCount);
+    if (p != 0) {
+        debug_StdPrintfDummy("LOCK %p for LABEL %d, ID:%d\n", p, p->labelId, spiderGroupCount);
+        LockEnemyGenerate(p);
+        p->active = 0;
+    } else {
+        debug_assertMessage(
+            "src/spiderGroupManager.c", 86,
+            "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n");
+        __assert("src/spiderGroupManager.c", 86, "e");
+    }
+    spiderGroups[spiderGroupCount].rev = (int)p;
+    spiderGroupCount = spiderGroupCount + 1;
+    EntryRevivedSpiderGroupManager(gobj);
+}
 
 inline void EntryToSpiderGroupManagerForReviveMaster(GObj *group, GObj *master)
 {

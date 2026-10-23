@@ -230,7 +230,18 @@ INCLUDE_ASM(actSt02aFenceSwitch);
 
 INCLUDE_ASM(actSt02aFenceOpen);
 
-INCLUDE_ASM(actSt02aWaterFallReflactionEffect);
+void actSt02aWaterFallReflactionEffect(GObj *volatile self)
+{
+    PoolMesh m0 = fallReflactionMesh;
+    PoolMeshQuad q0 = fallReflactionQuad;
+
+    InitLayoutedPoolReflactionMesh(&m0, &q0);
+    for (;;) {
+        SetLayoutedPoolReflactionMesh(&m0);
+        DispLimitedPoolReflactionMesh(&m0);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM(actSt02aGondolaMain);
 

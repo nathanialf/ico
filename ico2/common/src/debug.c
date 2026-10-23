@@ -1283,14 +1283,235 @@ static inline void debug_WriteTim2(int fd, int *img, int w, int h) /* derived na
     }
 }
 
-INCLUDE_ASM(debug_WriteBMP);
+static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
+{
+    unsigned char line[w * 3];
+    BmpHeader hdr;
+    unsigned char *s;
+    unsigned char *d;
+    int x;
+    int y;
+    hdr.pad[0] = 0;
+    hdr.pad[1] = 0;
+    hdr.bfType[0] = 0x42;
+    hdr.bfType[1] = 0x4D;
+    hdr.bfOffBits = 0x36;
+    hdr.biSize = 0x28;
+    hdr.biPlanes = 1;
+    hdr.biBitCount = 24;
+    hdr.biCompression = 0;
+    hdr.biXPelsPerMeter = 0;
+    hdr.biYPelsPerMeter = 0;
+    hdr.biClrUsed = 0;
+    hdr.biClrImportant = 0;
+    /* both arms store the same: the test's load and its 1 stay in the ROM
+       (aug6 TRFILE debug.c:2885-2891, the 2886-2888 lines code-less) */
+    if (debug_snapshot_size == 1) {
+        hdr.biWidth = w;
+        hdr.biHeight = h;
+    } else {
+        hdr.biWidth = w;
+        hdr.biHeight = h;
+    }
+    hdr.biSizeImage = hdr.biWidth * hdr.biHeight * 3;
+    hdr.bfSize = hdr.biSizeImage + hdr.bfOffBits;
+    sceWrite(fd, hdr.bfType, hdr.bfOffBits);
+    for (y = h - 1; y >= 0; y--) {
+        s = (unsigned char *)&src[y * w];
+        d = line;
+        for (x = 0; x < w; x++, d += 3) {
+            d[0] = s[2];
+            d[1] = s[1];
+            d[2] = s[0];
+            s += 4;
+        }
+        sceWrite(fd, line, w * 3);
+    }
+}
 
 /* debug_SnapShot's first-call flag */
 static int snapFirst = 1; /* derived name */
 
-int debug_SnapShot(int idx);
+int debug_SnapShot(int idx)
+{
+    sceGsStoreImage si;
+    char name[256];
+    int size = ScreenWidth * ScreenHeight * 4;
+    int ofs = size * idx;
+    int i;
+    int fd;
+    int *src;
+    int *dst;
+    int w;
+    int h;
+    int y;
 
-INCLUDE_ASM(debug_SnapShot);
+    debugBackGroundDisableFlag = 1;
+    if (snapFirst != 0) {
+        if (iosCdvdBackGroundMgrRunning != 0) {
+            return 1;
+        }
+        snapFirst = 0;
+    }
+    sceGsSyncPath(0, 0);
+    src = (int *)(0x2000000 + ofs);
+    debug_StdPrintfDummy("Snapx4:%d:%p\n", idx, src);
+    sceGsSetDefStoreImage(&si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
+    FlushCache(0);
+    sceGsExecStoreImage(&si, src);
+    sceGsSyncPath(0, 0);
+    switch (idx) {
+    case 0:
+        for (i = 0;; i++) {
+            if (debug_snapshot_format == 0) {
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            } else {
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
+            fd = debugSceOpen(name, 1);
+            debugSceClose(fd);
+            if (fd < 0) {
+                break;
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            sprintf(name, "snapshot/snap%07d.tm2", i);
+        } else {
+            sprintf(name, "snapshot/snap%07d.bmp", i);
+        }
+        fd = debugSceOpen(name, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+            break;
+        }
+        dst = src + size * 4;
+        if (debug_snapshot_size == 1) {
+            debug_ResizeSnapShot((int)dst, (int)src, ScreenWidth, ScreenHeight);
+            w = ScreenWidth / 2;
+            h = ScreenHeight / 2;
+        } else {
+            dst = src;
+            w = ScreenWidth;
+            h = ScreenHeight;
+        }
+        if (debug_snapshot_format == 0) {
+            debug_WriteTim2(fd, dst, w, h);
+        } else {
+            debug_WriteBMP(fd, w, h, (unsigned int *)dst);
+        }
+        if (debugSceClose(fd) < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
+        break;
+    case 5: {
+        int *p[16];
+        int *out;
+        int *d;
+        int w;
+        int h;
+        int j;
+
+        for (i = 0;; i++) {
+            if (debug_snapshot_format == 0) {
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            } else {
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
+            fd = debugSceOpen(name, 1);
+            debugSceClose(fd);
+            if (fd < 0) {
+                break;
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            sprintf(name, "snapshot/snap%07d.tm2", i);
+        } else {
+            sprintf(name, "snapshot/snap%07d.bmp", i);
+        }
+        fd = debugSceOpen(name, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+            break;
+        }
+        FlushCache(0);
+        w = ScreenWidth;
+        h = ScreenHeight;
+        p[0] = (int *)(0x2000000 + size);
+        p[1] = (int *)(0x2000000 + size * 2);
+        p[2] = (int *)(0x2000000 + size * 3);
+        p[3] = (int *)(0x2000000 + size * 4);
+        out = (int *)(0x2000000 + size * 5);
+        d = out;
+        debug_StdPrintfDummy("%p (%p %p %p %p)\n", out, p[0], p[1], p[2], p[3]);
+        for (y = 0; y < h * 2; y++) {
+            if (y < 4) {
+                for (i = 0; i < w * 2; i++) {
+                    *d++ = 0;
+                }
+            } else if (y >= h - 2 && y < h) {
+                for (j = 0; j < 2; j++) {
+                    for (i = 0; i < w; i++) {
+                        p[j]++;
+                    }
+                }
+            } else if (y > h - 1 && y <= h + 1) {
+                for (j = 2; j < 4; j++) {
+                    for (i = 0; i < w; i++) {
+                        p[j]++;
+                    }
+                }
+            } else if (y < h) {
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+                for (j = 0; j < 2; j++) {
+                    if (j % 2 == 1) {
+                        p[j] += 4;
+                    }
+                    for (i = 0; i < w - 4; i++) {
+                        *d++ = *p[j]++;
+                    }
+                    if (j % 2 == 0) {
+                        p[j] += 4;
+                    }
+                }
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+            } else {
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+                for (j = 2; j < 4; j++) {
+                    if (j % 2 == 1) {
+                        p[j] += 4;
+                    }
+                    for (i = 4; i < w; i++) {
+                        *d++ = *p[j]++;
+                    }
+                    if (j % 2 == 0) {
+                        p[j] += 4;
+                    }
+                }
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            debug_WriteTim2(fd, out, w * 2, h * 2);
+        } else {
+            debug_WriteBMP(fd, w * 2, h * 2, (unsigned int *)out);
+        }
+        if (debugSceClose(fd) < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
+        break;
+    }
+    }
+    dma_init();
+    return 1;
+}
 
 void debug_DispQW(void *p, int size)
 {
@@ -1701,7 +1922,12 @@ static void getBuffer(char *buf)
     sprintf(buf, "%s");
 }
 
-INCLUDE_ASM(debug_SelectCsvWindow);
+int debug_SelectCsvWindow(char *title, int x, int y, int rows, const void *base, int stride, int off,
+                          int deref, int n, int *psel)
+{
+    return _debug_SelectCsvWindow(title, x, y, rows, (int)base, stride, off, deref, n, psel,
+                                      getBuffer, 0);
+}
 
 INCLUDE_ASM(debug_SelectStageMain);
 
@@ -1923,13 +2149,133 @@ static int debug_mcSaveMainBlock(McMgr *mc)
 
 static int loadState = 0; /* derived name */
 
-static int debug_mcLoadMainBlock(McMgr *mc);
+static int debug_mcLoadMainBlock(McMgr *mc)
+{
+    int r = 0;
+    int ret = 0;
 
-INCLUDE_ASM(debug_mcLoadMainBlock);
+    switch (loadState) {
+    case 0:
+        *(McName6 *)mc->path = *(McName6 *)"game.";
+        iosMcGetBlockSaveInfo(mc);
+        loadState++;
+        break;
+    case 1:
+        if (iosMcSync(mc)) {
+            loadState++;
+        }
+        break;
+    case 2:
+    case 6:
+    case 10:
+        if ((ret = debug_mcRetErrCheck(mc)) != 0) {
+            loadState++;
+        }
+        break;
+    case 3:
+        if (mc->dirCount >= 11) {
+            debug_StdPrintfDummy("debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n");
+        }
+        r = debug_SelectCsvWindowVal("SAVE NO.", 80, 70, 10, 10, &mc->fileNo,
+                                     (int (*)(int, int))debug_saveNumFunc, (int)mc);
+        if (r > 0) {
+            r = 0;
+            loadState++;
+        }
+        break;
+    case 4:
+        if (((1 << mc->fileNo) & mc->mask) == 0) {
+            loadState = 99;
+            break;
+        }
+        iosMcLoadProductBlock(mc);
+        loadState++;
+        break;
+    case 5:
+    case 8:
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "load %s", mc->path);
+        if (iosMcSync(mc)) {
+            loadState++;
+        }
+        break;
+    case 7:
+        iosMcLoadGameBlock(mc, gameSysMainSaveBuff);
+        loadState++;
+        break;
+    case 9:
+        gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
+        loadState++;
+        break;
+    case 99:
+        if (debug_mcAsk("DATA NOT FOUND")) {
+            loadState = 3;
+        }
+        break;
+    default:
+        r = 1;
+        break;
+    }
+    if (ret < 0) {
+        r = -1;
+    }
+    if (r) {
+        loadState = 0;
+    }
+    return r;
+}
 
 static int deleteState = 0; /* derived name */
 
-INCLUDE_ASM(debug_mcDeleteFile);
+static int debug_mcDeleteFile(McMgr *mc)
+{
+    char buf[32];
+    int ret = 0;
+    int r;
+
+    switch (deleteState) {
+    case 0:
+        ret = debug_selectFile(mc);
+        if (ret) {
+            deleteState++;
+        }
+        if (ret > 0) {
+            ret = 0;
+        }
+        break;
+    case 1:
+        sprintf(buf, "delete %s file", mc->dir[mc->fileNo].EntryName);
+        r = debug_mcConfirm(buf);
+        if (r > 0) {
+            deleteState++;
+        } else if (r < 0) {
+            deleteState = 0;
+        }
+        break;
+    case 2:
+        strcpy(mc->path, mc->dir[mc->fileNo].EntryName);
+        iosMcDelete(mc);
+        deleteState++;
+        break;
+    case 3:
+        debug_PrintfDummy(120, 70, 0xFFFFFF00u, "delete %s", mc->path);
+        if (iosMcSync(mc)) {
+            deleteState++;
+        }
+        break;
+    case 4:
+        if (debug_mcRetErrCheck(mc)) {
+            deleteState++;
+        }
+        break;
+    default:
+        ret = 1;
+        break;
+    }
+    if (ret) {
+        deleteState = 0;
+    }
+    return ret;
+}
 
 inline int debug_mcTest(void)
 {
@@ -1941,9 +2287,69 @@ static int mcMenuSelect = 0; /* derived name */
 
 static int mcState = 0; /* derived name */
 
-int debug_MemoryCard(void);
+int debug_MemoryCard(void)
+{
+    McMenuItem menu[6] = {
+        {"LOAD", debug_mcLoadMainBlock}, {"SAVE", debug_mcSaveMainBlock},
+        {"DELETE", debug_mcDeleteFile},  {"FORMAT", debug_mcFormat},
+        {"UNFORMAT", debug_mcUnformat},  {"TEST", debug_mcTest},
+    };
+    McTypeMsg tm[3] = {
+        {-1, 0x00FFFF00, "Formatted"},
+        {-2, 0x00FFFF00, "Unformatted"},
+        {0, 0xFF222200, "No card"},
+    };
+    McTypeMsg *p;
+    int r;
+    int (*fn)();
 
-INCLUDE_ASM(debug_MemoryCard);
+    switch (mcState) {
+    case 0:
+        mc.slot = 0;
+        mc.port = 0;
+        iosMcGetInfo(&mc);
+        mcState++;
+        break;
+    case 1:
+        if (iosMcSync(&mc)) {
+            mcState++;
+        }
+        break;
+    case 2:
+        p = tm;
+        while (mc.cardState != p->type && p->type != 0) {
+            p++;
+        }
+        if (mc.type != 2) {
+            p = &tm[2];
+        }
+        debug_PrintfDummy(10, 60, p->col, "Memory card port 0: %s free:%d Kbytes", p->msg,
+                          mc.free);
+        if (mc.result >= -2) {
+            r = debug_SelectCsvWindow("MENU", 0xA, 0x44, 0xA, menu, 8, 0, 1, 6, &mcMenuSelect);
+            if (r == 1) {
+                mcState++;
+            } else if (r == -1) {
+                mcState = 0;
+                return -1;
+            }
+        } else if (pad[0].flags & 0x40) {
+            mcState = 0;
+            return -1;
+        }
+        break;
+    default:
+        fn = menu[mcMenuSelect].fn;
+        if (fn != 0) {
+            if (fn(&mc) != 0) {
+                mcState = 0;
+                return 1;
+            }
+        }
+        break;
+    }
+    return 0;
+}
 
 inline int debug_STAFFROLLTest(void)
 {

@@ -378,13 +378,115 @@ static inline int depthFieldPass(int n, int cur, int pre) /* derived name */
     return cur;
 }
 
-INCLUDE_ASM(copyToWork_126);
+void depthField(float depth, float width, float rate)
+{
+    void copyToWork(void)
+    {
+        gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
 
-INCLUDE_ASM(copyToWork2_130);
+        gif_SetDrawEnviroment(workBase[1], 0, 256, 256, 0, 0);
 
-INCLUDE_ASM(pasteToFB_134);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(0, 4, 0);
+        gif_SetGsReg(0x47, 0);
+        gif_SetGsReg(0x14, 0x60);
 
-INCLUDE_ASM(depthField);
+        {
+            int uv[4] = {8, 8, ScreenWidth * 16, 8192};
+
+            gif_SpriteSensitiveOrg(copyToWorkRect, 0, uv, &copyToWorkCol, 0);
+        }
+        gif_SetZWrite(1);
+        gif_SetZTest(1);
+        gif_SetGsReg(0x47, 0x5000D);
+    }
+
+    void copyToWork2(void)
+    {
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
+        gif_SetGsReg(6, workBase[1] | 0x20010000 | 0x1600000000LL);
+        gif_SetGsReg(0x14, 0x60);
+        gif_SetAlpha(1, 4, 0);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+
+        {
+            SprUV src = {-2044, -1020, 4096, 2048};
+            SprUV dst = {8, 8, 4096, 4096};
+
+            gif_SpriteSensitiveOrg(&src, 0, &dst, &copyToWork2Col, 0);
+        }
+    }
+
+    void pasteToFB(float z, float rate)
+    {
+        gif_SetGsReg(6, workBase[0] | 0x20010000 | 0x5C0000000LL);
+
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        gif_SetGsReg(0x14, 0x60);
+        gif_SetZWrite(0);
+        gif_SetGsReg(0x47, 0x50000);
+        gif_SetAlpha(1, 2, (int)(rate * 128.0f));
+
+        {
+            int rect[4] = {-ScreenWidth / 2 * 16 - 4, -ScreenHeight / 2 * 16 - 4, ScreenWidth * 16,
+                           ScreenHeight * 16};
+            int uv[4] = {16, 16, 4096, systemStatus[0] == 0 ? 1792 : 2048};
+            float v[4];
+
+            pasteToFBPoint[2] = z;
+            _ApplyMatrix(v, matrixptr + 192, pasteToFBPoint);
+
+            if (rate == 1.0f) {
+                gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv, &pasteToFBCol, 0);
+            } else {
+                gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv, &pasteToFBCol, 1);
+            }
+        }
+        gif_SetGsReg(0x47, 0x5000D);
+    }
+
+    int w = 50;
+    int cur;
+    int pre;
+    int i;
+
+    gif_StartPacketPri(7);
+    gif_SetGsReg(8, 5);
+
+    copyToWork();
+    copyToWork2();
+
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+
+    pre = 0;
+    cur = w;
+    pre = depthFieldPass(0, cur, pre);
+    cur = w * 4 / 5;
+    pre = depthFieldPass(1, cur, pre);
+    cur = w * 3 / 5;
+    pre = depthFieldPass(0, cur, pre);
+    cur = w * 2 / 5;
+    pre = depthFieldPass(1, cur, pre);
+    cur = w * 1 / 5;
+    pre = depthFieldPass(0, cur, pre);
+    cur = 0;
+    pre = depthFieldPass(1, cur, pre);
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+    for (i = 1; i < 4; i++) {
+        pasteToFB(depth + width * i * 0.25f, i * 0.25f);
+    }
+    pasteToFB(depth + width, 1.0f);
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+
+    gif_EndPacket();
+}
 
 void GetSunWorldPos(float *pos)
 {
@@ -562,9 +664,140 @@ static void dispFeedInfo(void)
     }
 }
 
-INCLUDE_ASM(FullScreenEffectBefore);
+void FullScreenEffectBefore(void)
+{
+    if (debug_fullscreen_effect == 0) {
+        return;
+    }
 
-INCLUDE_ASM(FullScreenEffectAfter);
+    postModeRequest = GlobalStageSetting.postEffect;
+    feedModeRequest = GlobalStageSetting.feedbackEffect;
+
+    blurCol.f[0] = GlobalStageSetting.feedbackCol[0];
+    blurCol.f[1] = GlobalStageSetting.feedbackCol[1];
+    blurCol.f[2] = GlobalStageSetting.feedbackCol[2];
+    blurCol.f[3] = GlobalStageSetting.feedbackCol[3];
+
+    if (postMode != postModeRequest) {
+        postMode = postModeRequest;
+    }
+    if (feedMode != feedModeRequest) {
+        feedMode = feedModeRequest;
+    }
+
+    dispPostInfo();
+    dispFeedInfo();
+
+    if (sunOn)
+        if (debug_font_flag & 1)
+            debug_Printf(250, 40, 0xFFFFFF00, "SUN");
+
+    colorSetting();
+
+    workBase[0] = 0x2800;
+    workBase[1] = 0x2A00;
+    workBase[2] = 0x2E00;
+    workBase[3] = 0x3000;
+
+    if (sunOn) {
+        calcSun();
+    }
+
+    switch (postMode) {
+    case 1:
+    case 3:
+        if (flareOn) {
+            makeFullScreenFlareBefore(0);
+        }
+        break;
+    case 4:
+    case 5:
+        if (flareOn) {
+            makeFullScreenFlareBefore(2);
+        }
+        break;
+    case 6:
+    case 7:
+        if (flareOn) {
+            makeFullScreenFlareBefore(1);
+        }
+        break;
+    case 2:
+    case 8:
+        break;
+    }
+
+    if (feedMode) {
+        auraInspireBefore();
+    }
+}
+
+void FullScreenEffectAfter(void)
+{
+    if (debug_fullscreen_effect == 0) {
+        return;
+    }
+
+    switch (postMode) {
+    case 1:
+        if (flareOn) {
+            makeFullScreenFlareAfter(0);
+            pasteFullScreenFlare();
+        }
+        break;
+    case 2:
+        depthField(depthFadeStart, depthFadeWidth, 1.0f);
+        break;
+    case 3:
+        if (flareOn) {
+            makeFullScreenFlareAfter(0);
+        }
+        depthField(depthFadeStart, depthFadeWidth, 1.0f);
+        if (flareOn) {
+            pasteFullScreenFlare();
+        }
+        break;
+    case 4:
+        if (flareOn) {
+            makeFullScreenFlareAfter(2);
+            pasteFullScreenFlare();
+        }
+        break;
+    case 5:
+        if (flareOn) {
+            makeFullScreenFlareAfter(2);
+        }
+        depthField(depthFadeStart, depthFadeWidth, 1.0f);
+        if (flareOn) {
+            pasteFullScreenFlare();
+        }
+        break;
+    case 6:
+        if (flareOn) {
+            makeFullScreenFlareAfter(1);
+            pasteFullScreenFlare();
+        }
+        break;
+    case 7:
+        if (flareOn) {
+            makeFullScreenFlareAfter(1);
+        }
+        depthField(depthFadeStart, depthFadeWidth, 1.0f);
+        if (flareOn) {
+            pasteFullScreenFlare();
+        }
+        break;
+    case 8:
+        break;
+    }
+
+    if (feedMode) {
+        auraInspireAfter(feedMode);
+    }
+
+    depthFadeStart = GlobalStageSetting.depthFieldStart;
+    depthFadeWidth = GlobalStageSetting.depthFieldWidth;
+}
 
 /* declared here: matrixDrive.h is not included */
 extern float ZeroPoint[4];

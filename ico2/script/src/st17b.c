@@ -26,6 +26,11 @@ INCLUDE_ASM(actSt17bCheck);
 
 INCLUDE_ASM(actSt17bIntro);
 
-INCLUDE_ASM(actSt17bCheckChk);
+void actSt17bCheckChk(GObj *volatile self)
+{
+    _ACTWait(1);
+    CheckPoint();
+    gflagOn(32);
+}
 
 INCLUDE_ASM(actSt17bIntroChk);

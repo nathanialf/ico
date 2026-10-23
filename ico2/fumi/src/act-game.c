@@ -209,9 +209,15 @@ static inline int getExitIndexOfStage(int stage) /* derived name */
 INCLUDE_ASM(ACTGame_SetActors_Debug);
 
 /* Returns a char-width boolean, through an `int` intermediate. */
-INCLUDE_ASM(ACTGame_TryConnectHand);
+void ACTGame_TryConnectHand(void)
+{
+    RequestChangeHandMode(boyGObj, 1, 4, 5, girlGObj, 0, 0);
+}
 
-INCLUDE_ASM(ACTGame_TryDisconnectHand);
+void ACTGame_TryDisconnectHand(void)
+{
+    RequestChangeHandMode(boyGObj, 1, 4, 0, 0, 0, 0);
+}
 
 void ACTGame_DisconnectHand_WithMail(void)
 {

@@ -44,7 +44,16 @@ BgaDisp *InitMultiBgaManager(int n)
 
 INCLUDE_ASM(EntryMultiBgaManager);
 
-INCLUDE_ASM(EntryMultiBgaManagerSensitive);
+void EntryMultiBgaManagerSensitive(BgaDisp *bga, int no, int kind, void *pos, void *rot, void *sens)
+{
+    BgaDisp *p = &bga[no];
+
+    p->kind = kind;
+    CopyVector(p->pos, pos);
+    CopyVector(p->vel, sens);
+    CopyQuaternion(p->rot, rot);
+    p->frame = 0.0f;
+}
 
 void DispMultiBgaManager(BgaDisp *base, int n)
 {

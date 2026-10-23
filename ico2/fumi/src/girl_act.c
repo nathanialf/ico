@@ -533,7 +533,10 @@ static void girlBrainMain_PositionUpdate(void)
     GetRootProjectionPosOfGObj(brain_val.boyPos, boyGObj);
 }
 
-INCLUDE_ASM(girlBrainMain_Init);
+static void girlBrainMain_Init(void)
+{
+    memset(&brain_val, 0, sizeof(brain_val));
+}
 
 /* the run-mode rows ChangeRunMode indexes */
 static int runModeTable[4][4] = {

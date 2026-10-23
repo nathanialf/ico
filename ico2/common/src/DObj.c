@@ -147,7 +147,12 @@ typedef struct DObjNode DObjNode; /* derived name */
    in that order, and &nodes[i] or nodes + i put the base first (measured). */
 INCLUDE_ASM(allocObjectData);
 
-INCLUDE_ASM(initInitialInverseMatrix);
+static void initInitialInverseMatrix(Sub15C *d)
+{
+    char *m = iosMallocDebug(ios_partition_sugipon, d->skelNodeNum << 6, __FILE__, 332);
+    d->clusterMtx = m;
+    GetInitialInverseMatrixByDObj(m, d);
+}
 
 static inline void initPolyHead(Sub15C *d) /* derived name */
 {

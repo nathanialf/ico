@@ -172,9 +172,45 @@ static int jimakuHandler(CdvdBgReq *self, JimakuArg *p)
     return 0;
 }
 
-static void jimakuMgrBegin(JimakuArg *p);
+static void jimakuMgrBegin(JimakuArg *p)
+{
+    JimakuSub *sub = &p->sub;
+    int i;
+    struct jWayGroup *g;
 
-INCLUDE_ASM(jimakuMgrBegin);
+    if (systemStatus[10] != 0) {
+        return;
+    }
+    systemStatus[10] = 1;
+    iosSemaCreate(&jimakuReadSema, 0, 1, 0);
+    iosSemaCreate(&jimakuShownSema, 0, 1, 0);
+    iosSemaCreate(&jimakuFrameSema, 0, 1, 0);
+    for (i = 0; i < 4; i++) {
+        g = &jimakuRing[i];
+        g->node = &jimakuRing[(i + 1) % 4];
+        g->buf = jimakuBuf[i];
+    }
+    sub->n = 0;
+    jimakuRing[0].block = -1;
+    jimakuRing[0].state = 3;
+    jimakuRing[0].tex = -1;
+    sub->ringPos = 1;
+    sub->bg =
+        (void *)iosCdvdBackGroundMgrAdd("Tex_jimaku/data.jim", jimakuHandler, p, 0, 0, 0, 0, 0);
+    {
+        JimakuSub *q = &p->sub;
+        int m;
+
+        iosCdvdBackGroundMgrSeek(q->bg, q->block * 0x8800);
+        m = (q->ringPos = (q->n + 1) % 4);
+        while (m != q->n) {
+            jimakuRing[m].block = -1;
+            jimakuRing[m].state = 3;
+            jimakuRing[m].tex = -1;
+            m = (m + 1) % 4;
+        }
+    }
+}
 
 /* The DEBUG build's switch to print the read ring's states after each Next;
    retail builds it as 0. */

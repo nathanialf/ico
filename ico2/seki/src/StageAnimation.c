@@ -307,7 +307,30 @@ INCLUDE_ASM(stage_PlayBgAnimationDissolve);
 
 INCLUDE_ASM(stage_MakePlayBgAnimation);
 
-INCLUDE_ASM(stage_KillPlayBgAnimation);
+void stage_KillPlayBgAnimation(BgaPlayNode **self)
+{
+    BgaPlayNode *node = *self;
+    BgaPlayNode *next;
+    BgaPlayNode *prev;
+    if (node == 0)
+        return;
+    next = node->prev;
+    if (next != 0) {
+        next->next = node->next;
+    } else {
+        bgaPlayList = node->next;
+        node = *self;
+    }
+    prev = node->next;
+    if (prev != 0) {
+        prev->prev = node->prev;
+    }
+    if (bgaPlayList != 0) {
+        bgaPlayList->prev = 0;
+    }
+    bgaPlayCount--;
+    freeseki(*self);
+}
 
 inline void stage_KillPlayBgAnimationIfOverMaxCount(int key, int maxCount)
 {

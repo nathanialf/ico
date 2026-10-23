@@ -282,7 +282,11 @@ static int ico2camera_GetGroupNearest(float *query)
     return result;
 }
 
-INCLUDE_ASM(initMonitorCamera);
+static void initMonitorCamera(void)
+{
+    monitorCamera.active = 1;
+    SetMonitorCameraInitializeFlag();
+}
 
 /* The retail build compiles out this function's debug arms, which is why
  * `vDbg` is read at the writeback with nothing having written it, `vDiff` is

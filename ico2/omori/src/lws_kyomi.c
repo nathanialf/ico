@@ -11,7 +11,10 @@
 #include "brain.h"
 #include "include_asm.h"
 
-INCLUDE_ASM(LwsKyomiGeo);
+void LwsKyomiGeo(GObj *gobj)
+{
+    brainSubLevelGop(gobj, 0.1f);
+}
 
 INCLUDE_ASM(CreateKyomiGObj);
 

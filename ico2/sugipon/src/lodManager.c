@@ -2,7 +2,6 @@
 #include "motionManager2.h"
 #include "lodManager.h"
 #include "gamesys.h"
-#include "include_asm.h"
 
 /* Two node lists and the two parallel tables SetLodLevel indexes by the LOD
    level: level 0 is the demo mode
@@ -25,4 +24,15 @@ static int *lodNodeTable[4] = {lodNodesGame, &lodNodesGame[2], &lodNodesGame[2],
 static char *lodNameTable[4] = {"DEMO MODE", "GAMEMODE HIGH", "GAMEMODE LOW",
                                 "GAMEMODE LOW0"}; /* derived name */
 
-INCLUDE_ASM(SetLodLevel);
+void SetLodLevel(GObj *self, int lv)
+{
+    int n = self->kind;
+
+    if (n >= 0) {
+        /* %s: the LOD of "%s" was set to "%s" */
+        debug_StdPrintfDummy(
+            "%s: \"\033[36m%s\033[m\"のLODが\"\033[36m%s\033[m\"に設定されました\n", __FILE__,
+            objKindData[n].name, lodNameTable[lv]);
+    }
+    SetMotionBlendlessNode(self, lodNodeTable[lv]);
+}

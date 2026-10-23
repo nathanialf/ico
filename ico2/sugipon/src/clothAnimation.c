@@ -85,13 +85,296 @@ static __inline__ void chainDebugOld(VECTOR *old) /* derived name */
 #endif
 }
 
-INCLUDE_ASM(bindExWeight_42);
+void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
+{
+    VECTOR dv;
+    VECTOR tv;
+    float mm[4][4];
+    VECTOR ew[5];
+    float (*pm)[4];
+    int i;
 
-INCLUDE_ASM(bind2_46);
+    pm = mm;
+    sceVu0UnitMatrix(pm);
+    for (i = 0; i < sys->num; i++) {
+        ChainCfg *cf = (ChainCfg *)(i * 0x50 + (int)sys->cfg);
+        int n = cf->num;
+        float (*pts)[4] = (sys->nodes + i)->pos;
+        float (*vel)[4] = (sys->nodes + i)->vel;
+        ChainParam *cp = &cf->pm;
+        int no;
+        int j;
+        int k;
+        VECTOR old[n];
 
-INCLUDE_ASM(calc2_50);
+        if (mtx != 0 && obj != 0 && cf->pm.node != -1) {
+            no = GetSkeltonFocusNode(obj, cf->pm.node);
+        } else {
+            if (mtx == 0) {
+                mtx = pm;
+            }
+            no = 0;
+        }
 
-INCLUDE_ASM(GetChainAnimation);
+        /* the DEBUG build draws the chain as it stands before this frame's
+           step, one red segment from the node drawn last (k) to each next
+           one, as TestDispChainAnimation draws it live; without DEBUG the
+           loop keeps only `k = j` */
+        for (j = 0; j < n; j++) {
+#ifdef DEBUG
+            if (j > 0) {
+                DrawLine(pts[k], pts[j], (LineColor *)&chainLineColor1, 0);
+            }
+#endif
+            k = j;
+        }
+
+        for (j = 0; j < n; j++) {
+            CopyVector(&dv, pts[j]);
+            vel[j][1] += 60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
+                         (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
+            AddVectorXYZ(pts[j], pts[j], vel[j]);
+            CopyVector(&old[j], pts[j]);
+            sceVu0ScaleVector(vel[j], &dv, -1.0f);
+        }
+
+        for (k = 0; k < 5; k++) {
+            if (0.0f <= (sys->nodes + i)->ex[k].w) {
+                CopyVector(&dv, &(sys->nodes + i)->ex[k].v1);
+                (sys->nodes + i)->ex[k].v2.y +=
+                    60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
+                    (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
+                CopyVector(&ew[k], &(sys->nodes + i)->ex[k].v2);
+                AddVectorXYZ(&(sys->nodes + i)->ex[k].v1, &(sys->nodes + i)->ex[k].v1,
+                             &(sys->nodes + i)->ex[k].v2);
+                sceVu0ScaleVector(&(sys->nodes + i)->ex[k].v2, &dv, -1.0f);
+            }
+        }
+
+        {
+            void bindExWeight(char *ex, void *ev, float t)
+            {
+                VECTOR va;
+                VECTOR vb;
+                int id;
+                int id1;
+                float ll;
+                float ka;
+                float kb;
+                float ka2;
+                float kb2;
+                float cl;
+                float wa;
+                float wb;
+                float l;
+
+                id = (int)*(float *)ex;
+                id1 = id + 1;
+                ll = *(float *)(ex + 0x40) * *(float *)(ex + 0x40);
+                ka = t * (*(float *)ex - (float)(int)*(float *)ex);
+                kb = t * (1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+                ka2 = ka * ka;
+                kb2 = kb * kb;
+                cl = sys->cfg[i].pm.weight;
+
+                wa = cl;
+                wb = *(float *)(ex + 0x44);
+
+                sceVu0InterVector(&vb, pts[id], pts[id1],
+                                  1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+
+                sceVu0SubVector(&dv, &vb, ex + 0x20);
+                l = VectorLengthSquare(&dv);
+                if (ll < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, *(float *)(ex + 0x40) / _Sqrt(l));
+                    AddVectorXYZ(ex + 0x10, ex + 0x20, &dv);
+
+                    SubVectorXYZ(&dv, ex + 0x10, pts[id]);
+                    l = VectorLengthSquare(&dv);
+                    if (ka2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                        AddVectorXYZ(&dv, pts[id], &dv);
+                    } else {
+                        CopyVector(&dv, ex + 0x10);
+                        wa = wb;
+                    }
+
+                    SubVectorXYZ(&va, ex + 0x10, pts[id1]);
+                    l = VectorLengthSquare(&va);
+                    if (kb2 < l) {
+                        sceVu0ScaleVectorXYZ(&va, &va, kb / _Sqrt(l));
+                        AddVectorXYZ(&va, pts[id1], &va);
+                    } else {
+                        CopyVector(&va, ex + 0x10);
+                        cl = wb;
+                    }
+
+                    sceVu0ScaleVector(&dv, &dv, wa / (cl + wa));
+                    sceVu0ScaleVector(&va, &va, cl / (cl + wa));
+                    AddVectorXYZ(&dv, &dv, &va);
+
+                    SubVectorXYZ(&dv, &dv, ex + 0x10);
+                    sceVu0ScaleVector(&dv, &dv, 1.0f - wb / (cl + wa + wb));
+                    AddVectorXYZ(ex + 0x10, ex + 0x10, &dv);
+
+                    SubVectorXYZ(&dv, pts[id], ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (ka2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                        AddVectorXYZ(pts[id], ex + 0x10, &dv);
+                    }
+
+                    SubVectorXYZ(&dv, pts[id1], ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (kb2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, kb / _Sqrt(l));
+                        AddVectorXYZ(pts[id1], ex + 0x10, &dv);
+                    }
+
+                    sceVu0SubVector(&dv, ex + 0x20, ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (ll < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, *(float *)(ex + 0x40) / _Sqrt(l));
+                        sceVu0AddVector(ex + 0x20, ex + 0x10, &dv);
+                    }
+                }
+                sceVu0InterVector(ex + 0x10, pts[id], pts[id1],
+                                  1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+            }
+
+            void bind2(float (*pp)[4], int id, int ip, int in, float t)
+            {
+                float ka;
+                float kb;
+                float ka2;
+                float kb2;
+                float cl;
+                float wa;
+                float wb;
+                float l;
+
+                ka = (float)(id - ip < 0 ? -(id - ip) : id - ip) * t;
+                kb = (float)(id - in < 0 ? -(id - in) : id - in) * t;
+                ka2 = ka * ka;
+                kb2 = kb * kb;
+                cl = sys->cfg[i].pm.weight;
+
+                wa = cl;
+                wb = cl;
+
+                SubVectorXYZ(&dv, pp[id], pp[ip]);
+                l = VectorLengthSquare(&dv);
+                if (ka2 < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                    AddVectorXYZ(&dv, pp[ip], &dv);
+                } else {
+                    CopyVector(&dv, pp[id]);
+                    cl = wb;
+                }
+
+                SubVectorXYZ(&tv, pp[id], pp[in]);
+                l = VectorLengthSquare(&tv);
+                if (kb2 < l) {
+                    sceVu0ScaleVectorXYZ(&tv, &tv, kb / _Sqrt(l));
+                    AddVectorXYZ(&tv, pp[in], &tv);
+                } else {
+                    CopyVector(&tv, pp[id]);
+                    cl = wb;
+                }
+
+                sceVu0ScaleVector(&dv, &dv, wa / (cl + wa));
+                sceVu0ScaleVector(&tv, &tv, cl / (cl + wa));
+                AddVectorXYZ(&dv, &dv, &tv);
+
+                SubVectorXYZ(&dv, &dv, pp[id]);
+                sceVu0ScaleVector(&dv, &dv, 1.0f - wb / (cl + wa + wb));
+                AddVectorXYZ(pp[id], pp[id], &dv);
+
+                SubVectorXYZ(&dv, pp[ip], pp[id]);
+                l = VectorLengthSquare(&dv);
+                if (ka < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                }
+                AddVectorXYZ(pp[ip], pp[id], &dv);
+
+                SubVectorXYZ(&dv, pp[in], pp[id]);
+                l = VectorLengthSquare(&dv);
+                if (kb < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, kb / _Sqrt(l));
+                }
+                AddVectorXYZ(pp[in], pp[id], &dv);
+            }
+
+            void calc2(float (*pp)[4], int lo, int hi)
+            {
+                int m;
+                int q;
+
+                sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
+                for (m = 0; m < 5; m++) {
+                    if (0.0f <= (sys->nodes + i)->ex[m].w) {
+                        bindExWeight((char *)&(sys->nodes + i)->ex[m], &ew[m], cp->step);
+                    }
+                }
+                for (m = 0; m < n; m++) {
+                    int mp = m + 1;
+                    q = n - mp;
+                    bind2(pp, m, m - 1 < 0 ? 0 : m - 1, mp < n ? mp : n - 1, cp->step);
+                    bind2(pp, q, q - 1 < 0 ? 0 : q - 1, q + 1 < n ? q + 1 : n - 1, cp->step);
+                }
+                chainDebugOld(old);
+                sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
+            }
+
+            /* the debug pass pad 2's button 0x20 runs: every segment pulled
+               back to the chain's step length */
+            inline void keepLength(float (*pp)[4]) /* derived name */
+            {
+                float len = cp->step;
+                float len2 = len * len;
+                float l;
+                int m;
+
+                for (m = 1; m < n; m++) {
+                    SubVectorXYZ(&old[m], pp[m], pp[m - 1]);
+                    l = VectorLengthSquare(&old[m]);
+                    if (len2 < l) {
+                        sceVu0ScaleVectorXYZ(&old[m], &old[m], len / _Sqrt(l));
+                    }
+                }
+                for (m = 1; m < n; m++) {
+                    AddVectorXYZ(pp[m], pp[m - 1], &old[m]);
+                }
+            }
+
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+
+            sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
+
+            if (pad[1].now & 0x20) {
+                keepLength(pts);
+            }
+
+            sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
+        }
+
+        for (j = 0; j < n; j++) {
+            AddVectorXYZ(vel[j], vel[j], pts[j]);
+            vel[j][3] = 0.0f;
+        }
+
+        for (k = 0; k < 5; k++) {
+            if (0.0f <= (sys->nodes + i)->ex[k].w) {
+                AddVectorXYZ(&(sys->nodes + i)->ex[k].v2, &(sys->nodes + i)->ex[k].v2,
+                             &(sys->nodes + i)->ex[k].v1);
+            }
+        }
+    }
+    sys->oddFrame = sys->oddFrame == 0;
+}
 
 int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1)
 {
@@ -465,7 +748,48 @@ static int clipCylinderCollision(char *p, void *pt)
     return -1;
 }
 
-INCLUDE_ASM(InitChains);
+ChainSet *InitChains(ChainCfg *cfg)
+{
+    ChainSet *r;
+    int i = 0;
+    int j;
+    float step;
+
+    r = (ChainSet *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/clothAnimation.c", 1058);
+    r->cfg = cfg;
+    while (cfg[i].num != -1) {
+        i++;
+    }
+    r->num = i;
+    r->nodes = (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ChainNode),
+                                           "src/clothAnimation.c", 1064);
+    r->oddFrame = 0;
+    for (i = 0; i < r->num; i++) {
+        r->nodes[i].pos =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16, "src/clothAnimation.c", 1068);
+        r->nodes[i].vel =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16, "src/clothAnimation.c", 1069);
+        r->nodes[i].len =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1070);
+        r->nodes[i].exNum = 0;
+        for (j = 0; j < 5; j++) {
+            r->nodes[i].ex[j].w = -1.0f;
+            CopyVector(&r->nodes[i].ex[j].v0, ZeroPoint);
+            CopyVector(&r->nodes[i].ex[j].v1, ZeroPoint);
+            CopyVector(&r->nodes[i].ex[j].v2, ZeroVector);
+        }
+        for (j = 0; j < r->cfg[i].num; j++) {
+            CopyVector(r->nodes[i].pos[j], cfg[i].pm.root);
+            CopyVector(r->nodes[i].vel[j], ZeroVector);
+            step = cfg[i].pm.step;
+            r->nodes[i].len[j] = step;
+            if (j != 0) {
+                r->nodes[i].pos[j][1] = r->nodes[i].pos[j - 1][1] + step;
+            }
+        }
+    }
+    return r;
+}
 
 INCLUDE_ASM(InitClothes);
 

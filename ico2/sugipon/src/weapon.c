@@ -229,7 +229,11 @@ typedef struct { /* field names derived */
     float f[4];
 } __attribute__((aligned(16))) NetVec; /* derived name */
 
-INCLUDE_ASM(WeaponGeo);
+void WeaponGeo(GObj *g)
+{
+    getGeometry(g);
+    checkHit(g);
+}
 
 void dispInsectNet(GObj *g)
 {

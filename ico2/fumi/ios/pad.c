@@ -89,7 +89,64 @@ static int iosPadDevReadFunc(void);
 
 INCLUDE_ASM(iosPadDevReadFunc);
 
-INCLUDE_ASM(iosPadRead);
+int iosPadRead(IosPadCtx *ctx)
+{
+    IosPadDevRec *dev = ctx->dev;
+    IosPadBuf *prev;
+    IosPadBuf *cur;
+    int pbits;
+    int cbits;
+    int old;
+    int now;
+    int i;
+
+    prev = &dev->buf[dev->idx ^ 1];
+    cur = &dev->buf[dev->idx];
+
+    pbits = ((prev->hi << 8) | prev->lo) ^ 0xFFFF;
+    cbits = ((cur->hi << 8) | cur->lo) ^ 0xFFFF;
+
+    old = 0;
+    now = 0;
+
+    for (i = 0; i < 16; i++) {
+        if ((pbits >> i) & 1) {
+            old |= ctx->conf->bit[i];
+        }
+        if ((cbits >> i) & 1) {
+            now |= ctx->conf->bit[i];
+        }
+    }
+
+    ctx->now = now;
+    ctx->trg = (now ^ old) & now;
+    ctx->rel = (now ^ old) & old;
+
+    ctx->now2 = now;
+    ctx->trg2 = ctx->trg;
+    ctx->rel2 = ctx->rel;
+    ctx->word24 = ctx->word14;
+
+    if (dev->error == 1) {
+        ctx->now = 0;
+        ctx->trg = 0;
+        ctx->rel = 0;
+        ctx->word14 = 0;
+
+        ctx->now2 = 0;
+        ctx->trg2 = 0;
+        ctx->rel2 = 0;
+        ctx->word24 = 0;
+        return 0;
+    }
+    if (padEnabled == 0) {
+        ctx->now = 0;
+        ctx->trg = 0;
+        ctx->rel = 0;
+        ctx->word14 = 0;
+    }
+    return 0;
+}
 
 float iosPadNormalizeStick(IosPadStick *st)
 {
@@ -128,7 +185,58 @@ float iosPadNormalizeStick(IosPadStick *st)
     return (len - 48.0f) / 72.0f;
 }
 
-INCLUDE_ASM(iosPadGetStick);
+int iosPadGetStick(IosPadCtx *ctx, void *out, int mode, int a3, int a4, int simulate)
+{
+    IosPadStick *st = out;
+    IosPadDevRec *rec = ctx->dev;
+    IosPadBuf *buf = &rec->buf[rec->idx];
+    float ox;
+    float oy;
+
+    if (rec->error == 1) {
+        st->x = 127;
+        st->y = 127;
+        st->mag = 0.0f;
+        return 0;
+    }
+    switch (mode) {
+    case 1:
+        st->x = buf->rx;
+        st->y = buf->ry;
+        st->mag = iosPadNormalizeStick(st);
+        break;
+    case 0:
+        ox = (float)st->x;
+        oy = (float)st->y;
+
+        st->x = buf->lx;
+        st->y = buf->ly;
+        st->mag = iosPadNormalizeStick(st);
+
+        if (st->mag == 0.0f && simulate != 0) {
+            st->x = (int)ox;
+            st->y = (int)oy;
+
+            if (ctx->now & 0x2000) {
+                st->x = (int)((float)(st->x + 255) * 0.5f);
+            } else if (ctx->now & 0x8000) {
+                st->x = (int)((float)st->x * 0.5f);
+            } else {
+                st->x = (int)((float)(st->x + 127) * 0.5f);
+            }
+            if (ctx->now & 0x1000) {
+                st->y = (int)((float)st->y * 0.5f);
+            } else if (ctx->now & 0x4000) {
+                st->y = (int)((float)(st->y + 255) * 0.5f);
+            } else {
+                st->y = (int)((float)(st->y + 127) * 0.5f);
+            }
+            st->mag = iosPadNormalizeStick(st);
+        }
+        break;
+    }
+    return 0;
+}
 
 /* the device manager's message queue buffer and the sixteen actuator
    requests iosPadActRequest hands out */

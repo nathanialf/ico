@@ -75,7 +75,11 @@ static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived nam
 
 INCLUDE_ASM(getRootMatrix);
 
-INCLUDE_ASM(RotObjectDL);
+void RotObjectDL(GObj *gobj)
+{
+    getRootMatrix((void *)GOBJ_SUB(gobj)->nodeMtx, gobj);
+    p2o_DispVU1(gobj);
+}
 
 void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, GObj *holder)
 {
@@ -117,7 +121,18 @@ void ExecRotObjectMoveEndReaction(GObj *self)
     moveEndSE(self);
 }
 
-INCLUDE_ASM(GetRotObjectGlobalHoldGeometry);
+void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdPos, void *holdDir)
+{
+    float m[16];
+
+    getRootMatrix(m, bar);
+    sceVu0ApplyMatrix(pos, m, holdPos);
+    sceVu0ApplyMatrix(dir, m, holdDir);
+    /* the function's name trace, switched off */
+    if (0) {
+        debug_StdPrintfDummy("%s\n", "GetRotObjectGlobalHoldGeometry");
+    }
+}
 
 INCLUDE_ASM(InitRotObjectGeo);
 
@@ -126,7 +141,17 @@ INCLUDE_ASM(GetRotObjectRotCount);
 /* the +Z unit vector the drive matrix is applied to */
 static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
 
-INCLUDE_ASM(GetRotObjectZPlusDirection);
+int GetRotObjectZPlusDirection(GObj *gobj)
+{
+    float m[16];
+    float v[4];
+
+    getRootMatrix(m, gobj);
+    sceVu0ApplyMatrix(v, m, zPlusVector);
+    v[1] = 0.0f;
+    sceVu0Normalize(v, v);
+    return GetTableArcTan2(v[0], v[2]);
+}
 
 int RestoreRotObjectGeo(void)
 {

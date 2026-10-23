@@ -5,6 +5,7 @@
 #include <eekernel.h>
 #include <sifrpc.h>
 #include <sound.h>
+#include "memory.h"
 #include "include_asm.h"
 
 INCLUDE_ASM(free_buf);
@@ -275,6 +276,12 @@ int pcmCallback(sceMpeg *mp, void *cbdata, void *anyData)
     return 0 < k;
 }
 
-INCLUDE_ASM(func_0023A6D0);
+static void Free(int addr)
+{
+    /* the buffers are kept as addresses (alloc_zeroed), some at their
+       uncached-accelerated alias; the heap takes the block back with the
+       segment bits off */
+    iosFree((void *)phys_addr(addr));
+}
 
 INCLUDE_ASM(audioDecDelete);

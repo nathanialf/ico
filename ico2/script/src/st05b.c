@@ -49,4 +49,19 @@ static const ConstVec girlWayPos = {{10750.0f, -2122.0f, 0.0f, 0.0f}}; /* derive
 
 static const ConstVec girlWay2Pos = {{139.0f, -177.0f, 1670.0f, 0.0f}}; /* derived name */
 
-INCLUDE_ASM(actSt05bGirlWay);
+void actSt05bGirlWay(GObj *volatile self)
+{
+    long long buf[2];
+    long long way[2];
+
+    buf[0] = girlWayPos.d[0];
+    buf[1] = girlWayPos.d[1];
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
+
+    way[0] = girlWay2Pos.d[0];
+    way[1] = girlWay2Pos.d[1];
+    RequestStageChangeDirect(girlGObj, 28, way, 180);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+    brainUnlockGirl();
+}

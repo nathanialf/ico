@@ -459,12 +459,15 @@ void InitGameOverEffect(void)
 
 void SetupDarkVolume(void *pos, float radius, float edge);
 
-INCLUDE_ASM(InitDarkVolumeGeo);
+int InitDarkVolumeGeo(GObj *self)
+{
+    return 0;
+}
 
-INCLUDE_ASM(DarkVolumeGeo);
+void DarkVolumeGeo(GObj *self) {}
 
-INCLUDE_ASM(DarkVolumeDL);
+void DarkVolumeDL(void) {}
 
-INCLUDE_ASM(ExecGameOverEffect);
+void ExecGameOverEffect(void) {}
 
 INCLUDE_ASM(StartGameOverEffect);

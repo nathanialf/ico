@@ -1193,4 +1193,10 @@ INCLUDE_ASM(InitQueenBallGeo);
 
 INCLUDE_ASM(subQueenControl);
 
-INCLUDE_ASM(subQueenCollision);
+void subQueenCollision(volatile int g)
+{
+    _ACTWait(1);
+    for (;;) {
+        _ACTWait(1);
+    }
+}

@@ -685,6 +685,12 @@ void shadow_MakeObjectData(PObjModel *mdl)
     }
 }
 
+inline void shadow_Init(void)
+{
+    killShadow = 0;
+    killShadowRequest = 0;
+}
+
 /* one row of the shadow tool: the name it prints, the variable it edits and
  * the range it wraps that variable through */
 typedef struct ShadowToolRow { /* field names derived */
@@ -783,5 +789,3 @@ INCLUDE_ASM(shadow_KillShadow);
 INCLUDE_ASM(shadow_DispCancel);
 
 INCLUDE_ASM(shadow_SetLength);
-
-INCLUDE_ASM(shadow_Init);

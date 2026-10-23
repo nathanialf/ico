@@ -521,7 +521,44 @@ INCLUDE_ASM(la_load_confirm_no_memory_card);
 
 INCLUDE_ASM(la_load_confirm_no_data);
 
-INCLUDE_ASM(la_load_start_check);
+int la_load_start_check(int first)
+{
+    switch (_la_set_current_port_lock_2(&mc, first)) {
+    case 0:
+        fileMask = 0x3FF;
+        if (mcLastResult == 0 || mcLastResult == -14) {
+            return -1;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 42;
+    case -1:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 42;
+    case 1:
+        if (filePort != curPort) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 42;
+        }
+        if ((curPortInfo->flags.w & 3) != 3) {
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 19;
+        }
+        if ((curPortInfo->fileMask >> selectFile) & 1) {
+            fileMask = 0x3FF;
+            lt_set_item_select_func(0);
+            actionStarted = 0;
+            return 22;
+        }
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 20;
+    }
+    return -1;
+}
 
 /* the game flags the load carries across gflagInit, parked in keepFlags;
    inlined into la_load_processing */
@@ -631,7 +668,37 @@ INCLUDE_ASM(la_end_confirm);
 
 static int deleteStep = 0; /* derived name */
 
-INCLUDE_ASM(la_delete_processing);
+int la_delete_processing(int first)
+{
+    if (first) {
+        mc.fileNo = selectFile;
+        deleteStep = 2;
+    }
+    switch (deleteStep) {
+    case 2:
+        strcpy(mc.path, mc.dir[mc.fileNo].EntryName);
+        iosMcDelete(&mc);
+        deleteStep++;
+        break;
+    case 3:
+        if (iosMcSync(&mc) == 0) {
+            break;
+        }
+        deleteStep++;
+        break;
+    case 4:
+        if (_la_mcard_error_check(&mc) == 0) {
+            break;
+        }
+        deleteStep++;
+        break;
+    case 5:
+        lt_set_item_select_func(0);
+        actionStarted = 0;
+        return 47;
+    }
+    return -1;
+}
 
 /* inlined into la_game_loop and into la_game_over_continue */
 static inline void releaseGameLoopCursor(void) /* derived name */

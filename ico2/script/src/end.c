@@ -227,7 +227,12 @@ void actStaff2Chk(GObj *volatile self)
     actCreateSubThread(actStaff2Demo, 21);
 }
 
-INCLUDE_ASM(actStaff3Chk);
+void actStaff3Chk(GObj *volatile self)
+{
+    actCreateSubThread(actStaff3Demo, 21);
+
+    actCreateSubThread(actStaff3RollChk, 21);
+}
 
 INCLUDE_ASM(actStaff3RollChk);
 

@@ -435,7 +435,68 @@ static void draw_way_group(int g, WayCol *col)
     }
 }
 
-INCLUDE_ASM(way_toolDL);
+static void way_toolDL(GObj *self)
+{
+    WayVec m;
+    WayVec blink;
+    WayVec pp;
+    WayGroup *e;
+    WayPoint *w;
+    int i;
+
+    if (debug_wayline == 0) {
+        return;
+    }
+    if (load_save_flag != 0) {
+        return;
+    }
+    GetRootPosition(wayWorkPos, self);
+
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+
+    memset(&blink, 0, 16);
+    blink.f[1] = (float)((unsigned int)frame_count) * 0.116355285f;
+    m = blink;
+    SetVObjRT(&m, wayWorkPos);
+    DrawVObj(0, &wayColorCursor);
+
+    for (i = 0; i < 64; i++) {
+        e = &way_group[i];
+        if (e->used == 1) {
+            if (e->active != 0) {
+                if (i == current_select_gid) {
+                    draw_way_group(i, &wayColorOpenCurrent);
+                } else {
+                    draw_way_group(i, &wayColorOpenOther);
+                }
+            } else {
+                if (i == current_select_gid) {
+                    draw_way_group(i, &wayColorClosedCurrent);
+                } else {
+                    draw_way_group(i, &wayColorClosedOther);
+                }
+            }
+            if (e->bridge == 1) {
+                sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+                gif_StartPacketPri(11);
+                if (e->end[0] != -1) {
+                    DrawLine(e->first->pos, way_point[e->end[0]].pos, &wayColorBridge, 0x800000);
+                    DrawLine(e->last->pos, way_point[e->end[1]].pos, &wayColorBridge, 0x800000);
+                }
+                gif_EndPacket();
+            }
+        }
+    }
+    MatrixDrive_PopMatrix();
+
+    GetRootPosition(&blink, boyGObj);
+    GetRootProjectionPosOfGObj(pp.f, boyGObj);
+    w = visible_waypoint_of_all(&pp);
+    if (w != 0) {
+        ez_circle(w->pos, &blink, 0x80800080, 20.0f);
+    }
+}
 
 typedef struct { /* field names derived */
     char *name;

@@ -112,7 +112,78 @@ INCLUDE_ASM(actE3CageFallDemo);
 
 INCLUDE_ASM_LIT(actE3CapsuleDemoEnd);
 
-INCLUDE_ASM(actE3CageFallEffect);
+void actE3CageFallEffect(GObj *volatile self)
+{
+    float t;
+    float tn;
+    int n;
+
+    t = 0.0f;
+    do {
+        switch ((int)t) {
+        case 0:
+            gflagOn(21);
+            break;
+        case 64:
+            iosPadActRequest(boyPad, 17);
+            {
+                EffectArg b1 = {{-88.0f, -50.0f, -1.0f, 1.0f}};
+                scpEffectStart(&b1, 0);
+            }
+            {
+                EffectArg b2 = {{-96.0f, -45.0f, 34.0f, 1.0f}};
+                scpEffectStart(&b2, 0);
+            }
+            break;
+        case 68: {
+            EffectArg b3 = {{72.0f, -50.0f, 8.0f, 1.0f}};
+            scpEffectStart(&b3, 0);
+        }
+            {
+                EffectArg b4 = {{80.0f, -50.0f, 2.0f, 1.0f}};
+                scpEffectStart(&b4, 0);
+            }
+            break;
+        case 96: {
+            EffectArg b5 = {{-27.0f, -50.0f, 100.0f, 1.0f}};
+            scpEffectStart(&b5, 0);
+        }
+            {
+                EffectArg b6 = {{-56.0f, -50.0f, 66.0f, 1.0f}};
+                scpEffectStart(&b6, 0);
+            }
+            {
+                EffectArg b7 = {{-5.0f, -50.0f, 42.0f, 1.0f}};
+                scpEffectStart(&b7, 0);
+            }
+            break;
+        case 180:
+            iosPadActRequest(boyPad, 15);
+            break;
+        case 300: {
+            EffectArg b8 = {{-10.0f, 0.0f, 466.0f, 1.0f}};
+            scpEffectStart(&b8, 0);
+        }
+            {
+                EffectArg b9 = {{-25.0f, 0.0f, 450.0f, 1.0f}};
+                scpEffectStart(&b9, 0);
+            }
+            break;
+        case 380:
+            iosPadActRequest(boyPad, 16);
+            break;
+        }
+
+        n = (int)t;
+        tn = t + (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
+        if (n != (int)tn) {
+            _ACTWait(1);
+            t = tn;
+        } else {
+            t = tn + 1.0f;
+        }
+    } while (t < 400.0f);
+}
 
 INCLUDE_ASM(actE3St09aSekizo);
 

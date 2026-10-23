@@ -450,7 +450,15 @@ int iosCdvdBackGroundMgrGetRunning(void)
     return bgRunning;
 }
 
-INCLUDE_ASM(iosCdvdDirectStClose);
+void iosCdvdDirectStClose(IosCdvdHandle *self)
+{
+    int err;
+    self->result = 0;
+    err = sceCdStStop();
+    if (err == 0) {
+        self->result = sceCdGetError();
+    }
+}
 
 int iosCdvdDirectStRead(IosCdvdHandle *stream, void *dst, int size, int *err)
 {

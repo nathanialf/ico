@@ -1972,6 +1972,6 @@ void GirlDL(GObj *gobj)
     debugWireStringGirl(gobj);
 }
 
-INCLUDE_ASM(GirlAI);
+void GirlAI(GObj *gobj) {}
 
 INCLUDE_ASM(SetGirlClothDispSwitch);

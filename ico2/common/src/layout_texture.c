@@ -221,7 +221,80 @@ static inline void lt_reset_property_chain(int no) /* derived name */
 
 /* the layout fade's state machine; fadeState is read and written as the
    file static itself, as in the rest of this TU */
-INCLUDE_ASM(texture_fading);
+static void texture_fading(LtProp *p)
+{
+    unsigned char *col = ltCursorColor;
+    int *cur;
+
+    switch (fadeType) {
+    case 1:
+        if (fadeState < 2) {
+            if (fadeState >= 0) {
+                fadeState = 2;
+            }
+        }
+        break;
+    case 0:
+        switch (fadeState) {
+        case 0:
+            if (p->fadeInTime == 0.0f) {
+                fadeState = 2;
+            }
+            break;
+        case 3:
+            if (p->fadeOutTime == 0.0f) {
+                fadeState = 6;
+                col[3] = 127;
+            }
+            break;
+        }
+        break;
+    }
+    switch (fadeState) {
+    case 0:
+        fadeState = 1;
+        ltBlinkLength = (int)(p->fadeInTime * ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        ltBlinkCount = ltBlinkLength;
+        /* fall through */
+    case 1:
+        col[3] = (ltBlinkLength - ltBlinkCount) * 127 / ltBlinkLength;
+        ltBlinkCount--;
+        if (ltBlinkCount == 0) {
+            fadeState = 2;
+        }
+        break;
+    case 2:
+        col[3] = 127;
+        break;
+    case 3:
+        fadeState = 4;
+        ltBlinkLength = (int)(p->fadeOutTime * ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        ltBlinkCount = ltBlinkLength;
+        break;
+    case 4:
+        col[3] = ltBlinkCount * 127 / ltBlinkLength;
+        ltBlinkCount--;
+        if (ltBlinkCount == 0) {
+            fadeState = 5;
+        }
+        break;
+    case 5:
+        col[3] = 0;
+        /* fall through */
+    case 6:
+        current_layout_id = nextLayout;
+        cur = &texLayout[current_layout_id].curItem;
+        *cur = texLayout[current_layout_id].defaultItem;
+        ltSelectFlag = 1;
+        fadeState = 0;
+        if (texLayout[current_layout_id].fadeInTime == 0.0f) {
+            lt_item_select_disable = 1;
+            fadeState = 2;
+        }
+        lt_reset_property_chain(current_layout_id);
+        break;
+    }
+}
 
 /* GifPacket.h's entry points, which this TU does not include: its calls pass
    the sprites' z as a 32-bit unsigned int, where the header takes a long

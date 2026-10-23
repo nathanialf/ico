@@ -176,7 +176,31 @@ static const AttackGroupTable attackGroupTable = {
     /* derived name */
     {{1, 0}, {4, 1}, {46, 1}, {53, 1}, {52, 1}, {52, 1}, {60, 1}, {2, 3}, {61, 1}, {-1, 0}}};
 
-INCLUDE_ASM(AttackCheckSameGroup);
+static int AttackCheckSameGroup(GObj *self, GObj *other)
+{
+    AttackGroupTable tbl = attackGroupTable;
+    unsigned int g0 = 2;
+    unsigned int g1 = 2;
+    int i;
+
+    for (i = 0; tbl.p[i].kind >= 0; i++) {
+        if (self->kind == tbl.p[i].kind) {
+            g0 = tbl.p[i].cls;
+        }
+    }
+    for (i = 0; tbl.p[i].kind >= 0; i++) {
+        if (other->kind == tbl.p[i].kind) {
+            g1 = tbl.p[i].cls;
+        }
+    }
+    switch (g1) {
+    case 2:
+        return 1;
+    case 3:
+        return g0 < 2;
+    }
+    return g1 == g0;
+}
 
 INCLUDE_ASM(AttackMail);
 
