@@ -11,7 +11,6 @@
 #include "debug_exception.h"
 #include "memory.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* the largest packet pac_MakePacket has built so far */
 static int maxPacketSize = 0; /* derived name */
@@ -1118,9 +1117,176 @@ static inline void pac_makeTextureTableLine(MatLine *dst, PObjPart *src) /* deri
 /* prev builds the strip chain and then walks it for the clone, j counts the
    materials, m the texture slots, and j then the line records; out is the packet address pac_makeStrip
    returns. */
-static void pac_makePacket(PObjModel *obj, int variant, int mode);
+static void pac_makePacket(PObjModel *obj, int variant, int mode)
+{
+    char *out;
+    int lod;
+    PObjGroup *tbl;
+    MatLine *mtbl;
+    int nmat;
+    PObjPart *src;
+    PacHeader *node;
+    PacHeader *prev;
+    PacHeader *p;
+    PacHeader *last;
+    PacLine *top;
+    PObjLine *line;
+    char *vtx;
+    char *uv;
+    char *idx;
+    int i;
+    int j;
+    int m;
+    int ntex;
+    int sz;
+    float q; /* derived name */
 
-INCLUDE_ASM(pac_makePacket);
+    lod = obj->mode.s.lod;
+    pac_resetPacketCount();
+    tbl = 0;
+    mtbl = 0;
+    obj->mode.s.type = 0 < obj->disp;
+    if (obj->parts->lineCount != 0)
+        obj->mode.s.type = 2;
+    /* the display type, bits 16 and 17 of the mode word */
+    if (((unsigned short)(obj->mode.bits >> 16) & 3) == 2) {
+        mtbl = mallocseki(obj->partCount * 16);
+        obj->groups = (PObjGroup *)mtbl;
+    } else {
+        tbl = mallocseki(obj->partCount * 48);
+        obj->groups = tbl;
+        sprintf(tbl->name, "%s", obj->name);
+    }
+    sprintf(pacWork.name, "%s", obj->name);
+    if (obj->mode.s.type != 2) {
+        for (i = 0; i < obj->partCount; i++) {
+            prev = 0;
+            src = &obj->parts[i];
+            ntex = src->texCount;
+            nmat = src->matCount;
+            pac_makeMaterialTable(tbl, src, variant, lod, mode);
+            pac_makeTextureTable(tbl, src);
+            if (src->morphCount != 0)
+                pac_makeShapeTable(tbl, src);
+            if (src->mats == 0) {
+                debug_StdPrintfDummy("pac_makePacket:Material Table Not Found. (%s:%s)\n",
+                                     obj->name, src);
+                debug_assert("src/Packet.c", 1729);
+                __assert("src/Packet.c", 1729, "0");
+            }
+            for (j = 0; j < nmat; j++) {
+                for (m = -1; m < ntex; m++) {
+                    out = 0;
+                    pacTagCount = 0;
+                    pacPolyCount = 0;
+                    sz = pac_makeStrip(&out, src, tbl, j, m, obj);
+                    if (sz > 0) {
+                        node = mallocseki(160);
+                        node->mat = j;
+                        node->texSlot = m;
+                        node->tex = tbl->texs[m].tex;
+                        node->tex1 = tbl->texs[m].texL;
+                        node->tex2 = tbl->texs[m].texRef;
+                        node->npoly = pacPolyCount;
+                        node->ntag = (unsigned short)pacTagCount;
+                        node->data = out;
+                        node->size = sz;
+                        node->clip = obj->mode.s.shade;
+                        node->next = prev;
+                        pac_makeBoundingBox(node->box, obj->mode.s.type == 1);
+                        prev = node;
+                    } else if (sz < 0) {
+                        debug_StdPrintfDummy("illegal size = %d\n", sz);
+                        debug_assert("src/Packet.c", 1759);
+                        __assert("src/Packet.c", 1759, "0");
+                    }
+                }
+            }
+            tbl->packets = prev;
+            if (src->morphCount != 0) {
+                p = mallocseki(160);
+                p->next = 0;
+                prev = tbl->packets;
+                tbl->morph = p;
+                do {
+                    malloc_MemCpy(p, prev, 160);
+                    p->data = mallocseki(prev->size);
+                    p->size = prev->size;
+                    malloc_MemCpy(p->data, prev->data, prev->size);
+                    prev = prev->next;
+                    if (prev != 0) {
+                        last = p;
+                        p = mallocseki(160);
+                        p->next = 0;
+                        last->next = p;
+                    }
+                } while (prev != 0);
+            } else {
+                tbl->morph = 0;
+            }
+            tbl++;
+        }
+    } else {
+        PObjPart *src;
+        PacLine *p;
+
+        for (i = 0; i < obj->partCount; i++) {
+            src = &obj->parts[i];
+            line = src->lines;
+            p = mallocseki((src->lineCount + 1) * 144);
+            vtx = src->vtx;
+            uv = src->uv;
+            idx = src->col;
+            pac_makeMaterialTableLine(mtbl, src, variant, lod, mode);
+            pac_makeTextureTableLine(mtbl, src);
+            obj->mode.s.type = 2;
+            top = p;
+            for (j = 0; j < src->lineCount; j++) {
+                p->type = line->num;
+                switch (p->type) {
+                case 1:
+                    _CopyVector(p->pos[0], vtx + line->vtx[0] * 16);
+                    p->col0 = ((PacColor *)idx)[line->col[0]];
+                    p->blend = 0.5019608f <= src->mats[line->mat].alpha;
+                    p->reserved = 0;
+                    break;
+                case 2:
+                    /* the line's Q, set at the top of the arm (the map's code-less line
+                       after the label: loop moves the set out, so 1.0 sits in $f21) */
+                    q = 1.0f;
+                    _CopyVector(p->pos[0], vtx + line->vtx[0] * 16);
+                    _CopyVector(p->pos[1], vtx + line->vtx[1] * 16);
+                    p->uv[0][0] = *(float *)(uv + line->uv[0] * 16);
+                    p->uv[0][1] = *(float *)(uv + line->uv[0] * 16 + 4);
+                    p->uv[1][0] = *(float *)(uv + line->uv[1] * 16);
+                    p->uv[1][1] = *(float *)(uv + line->uv[1] * 16 + 4);
+                    p->uv[0][2] = q;
+                    p->uv[1][3] = 0.0f;
+                    p->col0 = ((PacColor *)idx)[line->col[0]];
+                    p->col1 = ((PacColor *)idx)[line->col[1]];
+                    p->blend = 0.5019608f <= src->mats[line->mat].alpha;
+                    if (line->tex >= 0)
+                        p->tex = mtbl->texs[line->tex].tex;
+                    else
+                        p->tex = -1;
+                    p->reserved = 0;
+                    break;
+                default:
+                    debug_StdPrintfDummy("illegal vertex num %d\n", line->num);
+                    debug_assert("src/Packet.c", 1844);
+                    __assert("src/Packet.c", 1844, "0");
+                    break;
+                }
+                line++;
+                p++;
+            }
+            p[src->lineCount].type = 0;
+            mtbl->lineSet = mallocseki(144);
+            mtbl->lineSet->lines = top;
+            mtbl++;
+        }
+    }
+}
 
 void pac_MakePacket(Sub15C *o)
 {

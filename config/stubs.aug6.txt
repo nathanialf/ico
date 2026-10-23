@@ -167,9 +167,6 @@
 # has a row the carve added for emission order.
 
 text dispPool 0x0010C418 0x0010C8E4 ico2/sugipon/src/pool.c local lines=116  # ordinal; first difference at insn 1; length:+11; extent-differs
-text pac_makePacket 0x0011BB00 0x0011C304 ico2/seki/src/Packet.c local lines=164  # ordinal; first difference at insn 14; length:-25; extent-differs
-lit4 pac_makePacket 0x0062ABD0 0x0062ABD4 ico2/seki/src/Packet.c  # 1 float
-rdlit pac_makePacket 0x0054F7D0 0x0054F837 ico2/seki/src/Packet.c align=16  # 3 strings
 text subGirlControl 0x0016FAB8 0x00170220 ico2/fumi/src/girl_act.c lines=230  # ordinal; first difference at insn 0; length:-168; extent-differs
 lit4 subGirlControl 0x0062AF4C 0x0062AF80 ico2/fumi/src/girl_act.c # target side
 rdlit subGirlControl 0x00553A60 0x00553AC0 ico2/fumi/src/girl_act.c  # target side
