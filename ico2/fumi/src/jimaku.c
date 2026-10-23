@@ -21,7 +21,7 @@ struct jWayGroup { /* field names derived */ /* jimakuRing element, stride 0x18 
     int block;                               /* 0x00, the disc block read into buf, -1 when none */
     int state;                               /* 0x04, 1 shown, 2 done with, 3 free, 4 read */
     int tex;                                 /* 0x08, the texture made from buf, -1 when none */
-    int stamp;                               /* 0x0C, lock_execIcoMisc when tex was made */
+    int stamp;                               /* 0x0C, GlobalTimer when tex was made */
     struct jWayGroup *node;                  /* the next group in the ring */
     char *buf;                               /* 0x14 its 0x8C40 read buffer */
 }; /* derived name */
@@ -43,7 +43,6 @@ static IosSema jimakuFrameSema; /* derived name */
 #include "jimaku.h"
 #include "layout_texture.h" /* texProperty: jimaku's entries are 434 and 435 */
 #include "gflag.h"
-#include "include_asm.h"
 
 typedef struct JimCol { /* field names derived */
     unsigned char r;
@@ -220,9 +219,51 @@ static void jimakuMgrBegin(JimakuArg *p)
 #define JIMAKU_DEBUG_DUMP 0 /* derived name */
 #endif
 
-static void jimakuMgrNext(JimakuArg *p);
+static void jimakuMgrNext(JimakuArg *p)
+{
+    char buf[16];
+    JimakuSub *sub = &p->sub;
+    struct jWayGroup *g = &jimakuRing[sub->n];
 
-INCLUDE_ASM(jimakuMgrNext);
+    while (g->node->state != 4) {
+        if (iosSemaWait(&jimakuReadSema) < 0) {
+            return;
+        }
+    }
+    if (iosSemaWait(&jimakuReadSema) < 0) {
+        return;
+    }
+    g->node->state = 1;
+    sprintf(buf, "jimaku%02d.tm2", (sub->n + 1) % 4);
+    g->node->tex = tex_InitTexture(buf, g->node->buf);
+    tex_SetSamplingType(tex_GetTextureData(g->node->tex), 1, 1);
+    g->node->stamp = GlobalTimer;
+    if (g->node->tex == -1) {
+        debug_StdPrintfDummy("already exist\n");
+        debug_assert(__FILE__, 626);
+        __assert(__FILE__, 626, "0");
+    }
+    sub->n = (sub->n + 1) % 4;
+    if (iosSemaWait(&jimakuShownSema) < 0) {
+        return;
+    }
+    g->state = 2;
+    if (g->tex >= 0) {
+        tex_FreeTexture(g->tex);
+    }
+    sub->cur = jimakuBuf[sub->n];
+    jimakuDispOn = 1;
+    /* the DEBUG build's dump of the four groups' states, the current one
+     * marked */
+    if (JIMAKU_DEBUG_DUMP) {
+        int m;
+
+        for (m = 0; m < 4; m++) {
+            debug_StdPrintfDummy(m == sub->n ? ">%d" : " %d", jimakuRing[m].state);
+        }
+        debug_StdPrintfDummy("\n");
+    }
+}
 
 static void jimakuMgrJump(JimakuArg *p)
 {

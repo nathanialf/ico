@@ -13,7 +13,6 @@
 #include "DmaPacket.h"
 #include "windField.h"
 #include "particleEffect.h"
-#include "include_asm.h"
 
 static int setParticleEffect(struct PEGeo *self, struct PEPackage *pkg);
 
@@ -744,7 +743,16 @@ void DisableParticleEffectGeometryControl(int id)
     particleEffects[id].geoCtrl = 0;
 }
 
-INCLUDE_ASM(GetParticleIDWithName);
+int GetParticleIDWithName(char *name)
+{
+    int i;
+    for (i = 0; i < 53; i++) {
+        if (strcmp(particleEffectFile[i].name, name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 int GetParticleLoopFlag(int id)
 {

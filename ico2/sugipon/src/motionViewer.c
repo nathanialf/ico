@@ -19,7 +19,6 @@
 #include "main.h"
 #include "GifPacket.h"
 #include <libvu0.h>
-#include "include_asm.h"
 
 typedef struct MvMenuEnt { /* field names derived */
     char *name;            /* 0x00, csv window title */
@@ -73,7 +72,7 @@ static inline int countMotionKinds(int id, int from, int to) /* derived name */
     int i;
 
     for (i = from; i < to; i++) {
-        if (motionOrient[i].id == id || motionOrient[i].id == 1146) {
+        if (motionOrient[i].id == id || motionOrient[i].id == 1087) {
             n++;
         }
     }
@@ -88,11 +87,11 @@ static inline int makeMotionKindList(MvMenuEnt *ent, int base) /* derived name *
     int i;
     int k;
 
-    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, 93);
+    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, 92);
     if (n) {
         k = 0;
         for (i = from; i < to; i++) {
-            if (motionOrient[i].id == id || motionOrient[i].id == 1146) {
+            if (motionOrient[i].id == id || motionOrient[i].id == 1087) {
                 int kind = motionOrient[i].kind;
 
                 list[k].kind = kind;
@@ -244,11 +243,126 @@ extern void debug_PrintfDummy(int x, int y, unsigned int color, const char *fmt,
 extern int debug_SelectCsvWindowWithLine(char *title, int x, int y, int rows, void *tbl, int stride,
                                          int off, int deref, int count, int *cur, int extra);
 
-INCLUDE_ASM(motKindMenuProc);
+static int motKindMenuProc(void)
+{
+    MvMenuEnt *ent = &objMenu[objSel];
+    int mot = ForMotionViewer_GetCurrentMotion(viewObj);
+    float speed = GetMotionPlaySpeedRatio(mot);
+    int ret;
+    int base;
+    int cur;
+
+    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
+    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 400, 200,
+                                        0, ent->motLast - ent->motFirst, &motSel, 0);
+    base = motSel;
+    cur = base + ent->motFirst;
+    if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 228 && motionTable[cur] == 0) {
+        base = 0;
+        if (((blinkCount >> 4) & 3) != 0) {
+            debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");
+        }
+    } else {
+        debug_PrintfDummy(10, 50, 0xC0FFFF00, "Frame : %1.1f/%d",
+                          ForMotionViewer_GetCurrentAnimationFrame(viewObj),
+                          GetNbMotionFrames(mot) - 1);
+        debug_PrintfDummy(10, 60, 0x80FFFF00, "x%1.3f: %1.1f/%d", speed,
+                          ForMotionViewer_GetCurrentAnimationFrame(viewObj) / speed,
+                          (int)((GetNbMotionFrames(mot) - 1) / speed));
+    }
+    if (motSel != lastMotSel) {
+        DisableChangeRootUpdateMode(viewObj);
+        DisableMotionOrientUpdate(viewObj);
+        InitMotionOrient(viewObj, base + ent->oriFrom, base + ent->oriTo, -1, -1,
+                         base + ent->motFirst);
+        lastMotSel = motSel;
+    }
+    if (pad[0].flags & 0x10) {
+        InitMotionOrient(viewObj, base + ent->oriFrom, base + ent->oriTo, -1, -1,
+                         base + ent->motFirst);
+    }
+    if (ret == 1) {
+        motionKindCount = makeMotionKindList(ent, base);
+        oriCsv.sel = 0;
+    }
+    if (ret == -1) {
+        InitMotionOrient(viewObj, ent->oriFrom, ent->oriTo, -1, -1, ent->motFirst);
+        EnableMotionOrientUpdate(viewObj);
+        EnableChangeRootUpdateMode(viewObj);
+        lastMotSel = ret;
+    }
+    return ret;
+}
 
 static int lastOriSel = -1; /* derived name */
 
-INCLUDE_ASM(motOriMenuProc);
+static int motOriMenuProc(void)
+{
+    MvMenuEnt *ent = &objMenu[objSel];
+    int cur = motSel + ent->motFirst;
+    int mot = ForMotionViewer_GetCurrentMotion(viewObj);
+    char buf[256];
+    int ret;
+    int now;
+    int m;
+    int i;
+    MotionOrientEntry *ori;
+
+    /* a nested function, expanded at both of its call sites */
+    inline void initOrient(void) /* derived name */
+    {
+        DisableMotionOrientUpdate(viewObj);
+        InitMotionOrient(viewObj, motSel + ent->oriFrom, motSel + ent->oriTo, -1, -1,
+                         motSel + ent->motFirst);
+    }
+
+    dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
+    if (motionKindCount != 0) {
+        sprintf(buf, "ORIENT for \"%s\" Frame: %1.1f/%d", motionKind[cur].name,
+                ForMotionViewer_GetCurrentAnimationFrame(viewObj), GetNbMotionFrames(mot));
+        ret = debug_SelectCsvWindow(buf, 10, 50, 11, oriCsv.rows, 8, 0, 1, motionKindCount,
+                                    &oriCsv.sel);
+        if (oriCsv.sel != lastOriSel) {
+            initOrient();
+        }
+        lastOriSel = oriCsv.sel;
+        m = cur;
+        now = ForMotionViewer_GetCurrentMotion(viewObj);
+        for (i = 0; i < 10; i++) {
+            ori = GetMotionOrient(ent->oriFrom, ent->oriTo, m, oriCsv.rows[oriCsv.sel].kind);
+            debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1086) ? 0x00FFFF00 : 0xFFFFFF00,
+                              "%c %s", m == now ? 62 : 32, motionKind[m].name);
+            if (m == 1086) {
+                break;
+            }
+            if (ori == 0) {
+                i++;
+                if (((blinkCount >> 4) & 3) != 0) {
+                    debug_PrintfDummy(430, i * 8 + 90, 0xFF000000, "  NO ORIENT.");
+                }
+                break;
+            }
+            m = ori->nextId;
+        }
+    } else {
+        debug_PrintfDummy(10, 50, 0xFF000000, "NO ORIENT for \"%s\"", motionKind[cur].name);
+        ret = (pad[0].flags & 0x40) ? -1 : 0;
+    }
+    if (pad[0].flags & 0x10) {
+        initOrient();
+    }
+    if (ret == 1) {
+        EnableMotionOrientUpdate(viewObj);
+        SetMotionRequest(viewObj, oriCsv.rows[oriCsv.sel].kind,
+                         *(MotOriReq *)&viewObj->dobj->root.wall);
+    }
+    if (ret == -1) {
+        if (oriCsv.rows != 0) {
+            iosFree(oriCsv.rows);
+        }
+    }
+    return ret;
+}
 
 void modeMessage(void)
 {

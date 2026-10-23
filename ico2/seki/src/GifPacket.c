@@ -3,7 +3,7 @@
 #include "GsBase.h"
 #include "DmaPacket.h"
 #include "DisplayList.h"
-#include "include_asm.h"
+#include "main.h"
 
 typedef struct { /* field names derived */
     int a, b, c, d;
@@ -371,7 +371,28 @@ void gif_SpriteSensitiveOrg(GifRect *r, long long z, GifRect *uv, GifColor *col,
     }
 }
 
-INCLUDE_ASM(gif_SetDrawEnviroment);
+void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
+                           unsigned int h, int useoffset, int clear)
+{
+    unsigned int x;
+    unsigned int y;
+
+    setGsReg(0x4C,
+             (fbp >> 5) | ((unsigned long long)((w >> 6) & 0x3F) << 16) | ((psm & 0xF) << 24));
+    setGsReg(0x40, ((unsigned long long)(w - 1) << 16) | ((unsigned long long)(h - 1) << 48));
+    if (clear) {
+        setGsReg(0x47, 0x30000);
+        setGsReg(0x00, 6);
+        setGsReg(0x01, 0xFE00LL << 46);
+        setGsReg(0x05, 0);
+        setGsReg(0x05, (unsigned long long)(w << 4) | ((unsigned long long)(h << 4) << 16));
+        setGsReg(0x47, 0x50000);
+    }
+    x = (0x800 - (w >> 1)) << 4;
+    y = (0x800 - (h >> 1)) << 4;
+    setGsReg(0x18, (unsigned long long)x |
+                       ((unsigned long long)(useoffset && odd_even ? y + 8 : y) << 32));
+}
 
 static int stripVisible[2] = {0, 0}; /* derived name */
 
@@ -688,7 +709,16 @@ void gif_SetZWrite(int on)
         setGsReg(0x4E, 0x1300000C0LL);
 }
 
-INCLUDE_ASM(gif_SetHalfOffset);
+void gif_SetHalfOffset(int interlace, int odd)
+{
+    int x = (0x800 - ScreenWidth / 2) << 4;
+    int y = (0x800 - ScreenHeight / 2) << 4;
+
+    if (interlace == 0) {
+        odd = 0;
+    }
+    setGsReg(0x18, (long long)x | ((long long)(odd ? y + 8 : y) << 32));
+}
 
 int _IsInScreen(volatile int *v)
 {

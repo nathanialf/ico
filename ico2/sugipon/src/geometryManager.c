@@ -16,7 +16,6 @@ static void getInitialInverseMatrix(char *mat, Sub15C *mdl, int no);
 static void getInitialMatrix(Sub15C *mdl, int no);
 
 #include <assert.h>
-#include "include_asm.h"
 
 /* The display object's root block (Sub15C root, typedef.h) holds the root
    position, its quaternion and the root height; the object it hangs from is
@@ -176,9 +175,19 @@ static __inline__ void SetDirectRootPositionNoFitting_i(GObj *self, void *v) /* 
     CopyVector(sub->root.delta, ZeroVector);
 }
 
-void SetDirectRootPositionNoFittingWithNodePoint(GObj *gobj, int node, float *pos, float t);
+void SetDirectRootPositionNoFittingWithNodePoint(GObj *gobj, int node, float *pos, float t)
+{
+    float v[4];
+    float w[4];
+    int idx;
 
-INCLUDE_ASM(SetDirectRootPositionNoFittingWithNodePoint);
+    idx = GetSkeltonFocusNode(gobj, node);
+    sceVu0SubVector(v, pos, (float *)(gobj->dobj->nodeMtx + (idx << 6)) + 12);
+    sceVu0ScaleVector(v, v, t);
+    GetRootPosition_i(w, gobj);
+    sceVu0AddVector(w, w, v);
+    SetDirectRootPositionNoFitting_i(gobj, w);
+}
 
 void SetDirectRootPositionWithNodePoint(GObj *gobj, int node, float *pos, float t)
 {
@@ -205,7 +214,34 @@ static __inline__ void LocalizeDirectionOrient_i(GObj *self, ObjNode *link) /* d
     self->dobj->ctrl.dir[3] = 0;
 }
 
-INCLUDE_ASM(LocalizeGeometry);
+void LocalizeGeometry(GObj *gobj, ObjNode *link)
+{
+    float mtx[16];
+    Sub15C *sub;
+    struct MotRoot *m;
+
+    sub = SUBOF(gobj);
+
+    m = &sub->root;
+    if (sub->parent.obj != 0) {
+        debug_assertMessage(
+            "src/geometryManager.c", 355,
+            "Fatal error! Geometry localize function called with GObj\n    that already have parent.\nExit...\n");
+        __assert("src/geometryManager.c", 355, "e");
+        debug_assert("src/geometryManager.c", 356);
+        __assert("src/geometryManager.c", 356, "0");
+    }
+
+    m->pos[3] = 1.0f;
+    m->pos[1] -= SUBOF(gobj)->root.height;
+    m->last[1] -= SUBOF(gobj)->root.height;
+    MatrixDrive_SetTransposeMatrix(mtx, (float *)(SUBOF(link->obj)->nodeMtx + (link->node << 6)));
+    sceVu0ApplyMatrix(m->pos, mtx, m->pos);
+    sceVu0ApplyMatrix(sub->root.last, mtx, sub->root.last);
+    DivQuaternion(sub->root.quat, sub->root.quat,
+                  (char *)SUBOF(link->obj)->nodeQuat + (link->node << 4));
+    LocalizeDirectionOrient_i(gobj, link);
+}
 
 void GetGlobalDirectionOrient(float *dir, GObj *obj, void *src)
 {
@@ -363,12 +399,124 @@ static inline int isCharGObj(GObj *o) /* derived name */
     return 0;
 }
 
-INCLUDE_ASM(MakeCharGObjList);
+void MakeCharGObjList(void)
+{
+    GObj *o;
+
+    o = isysGObjGetExist_begin();
+    charGObjCount = 0;
+    while (o != 0) {
+        if (isCharGObj(o) != 0) {
+            charGObjList[charGObjCount++] = o;
+            if (charGObjCount > 64) {
+                debug_assertMessage("src/geometryManager.c", 542,
+                                    "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n");
+                __assert("src/geometryManager.c", 542, "e");
+            }
+        }
+        o = isysGObjGetExist_next(o);
+    }
+    charGObjList[charGObjCount] = 0;
+}
 
 int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float rr, float h,
-                           float s, float t, int ctrl, int exceptOwn);
+                           float s, float t, int ctrl, int exceptOwn)
+{
+    float pos[4];
+    float v[4];
+    float d1[4];
+    float d2[4];
+    float d3[4];
+    ClipWork w;
+    float dy;
+    float len;
+    float over;
+    float a;
+    float b;
+    float c;
 
-INCLUDE_ASM(cylinderCollisionCheck);
+    GetRootPosition_i(pos, target);
+    dy = pos[1] - ppos[1];
+    if (!((dy < 0.0f ? -dy : dy) < h)) {
+        goto fail;
+    }
+    sceVu0SubVector(v, pos, ppos);
+    v[1] = 0.0f;
+    len = VectorLengthSquare(v);
+    if (!(len < rr)) {
+        goto fail;
+    }
+    over = r - _Sqrt(len);
+    sceVu0Normalize(v, v);
+    sceVu0ScaleVector(d1, v, over * s);
+    sceVu0SubVector(d2, ppos, d1);
+    sceVu0ScaleVector(d1, v, over * t);
+    sceVu0AddVector(d3, pos, d1);
+
+    if (self != 0) {
+        if (exceptOwn != 0) {
+            w.filter.o.obj = self;
+            w.filter.o.node = -1;
+            w.filter.elem = 0;
+            w.radius = SUBOF(self)->root.radius;
+            CopyVector(w.pt[0], ppos);
+            CopyVector(w.pt[1], d2);
+            ClipWallE(&w);
+            if (w.wall.elem != 0) {
+                CopyVector(d2, w.pt[2]);
+            }
+            w.radius = SUBOF(target)->root.radius;
+            CopyVector(w.pt[0], pos);
+            CopyVector(w.pt[1], d3);
+            ClipWallE(&w);
+            if (w.wall.elem != 0) {
+                CopyVector(d3, w.pt[2]);
+            }
+            goto moved;
+        }
+        w.radius = SUBOF(self)->root.radius;
+        CopyVector(w.pt[0], ppos);
+        CopyVector(w.pt[1], d2);
+        ClipWall(&w);
+        if (w.wall.elem != 0) {
+            CopyVector(d2, w.pt[2]);
+        }
+    }
+    w.radius = SUBOF(target)->root.radius;
+    CopyVector(w.pt[0], pos);
+    CopyVector(w.pt[1], d3);
+    ClipWall(&w);
+    if (w.wall.elem != 0) {
+        CopyVector(d3, w.pt[2]);
+    }
+moved:
+    if (ctrl != 0) {
+        if (self != 0) {
+            b = SUBOF(self)->root.last[1];
+            c = SUBOF(self)->root.clipFrom[1];
+            a = SUBOF(self)->root.move[1];
+            SetDirectRootPositionNoFitting_i(self, d2);
+            SUBOF(self)->root.move[1] = a;
+            SUBOF(self)->root.last[1] = b;
+            SUBOF(self)->root.clipFrom[1] = c;
+        }
+        b = SUBOF(target)->root.last[1];
+        c = SUBOF(target)->root.clipFrom[1];
+        a = SUBOF(target)->root.move[1];
+        SetDirectRootPositionNoFitting_i(target, d3);
+        SUBOF(target)->root.move[1] = a;
+        SUBOF(target)->root.last[1] = b;
+        SUBOF(target)->root.clipFrom[1] = c;
+    } else {
+        if (self != 0) {
+            SetRootPosition_i(self, d2);
+        }
+        SetRootPosition_i(target, d3);
+    }
+    return 1;
+fail:
+    return 0;
+}
 
 void LocalizeDirectionOrient(GObj *self, ObjNode *link)
 {
