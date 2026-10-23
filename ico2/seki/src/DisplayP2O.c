@@ -7,7 +7,6 @@
 #include <libdma.h>
 #include "Shadow.h"
 #include "Basic.h"
-#include "include_asm.h"
 
 /* debug_PrintFontWindow's format for the display-object counter, in a
    32-byte array. */
@@ -16,7 +15,11 @@ static const char dispObjFormat[32] = "display object = %d"; /* derived name */
 /* the display-object count p2o_HideDispVU1 records and reports, none yet */
 static int dispObjCount = -1; /* derived name */
 
-INCLUDE_ASM(p2o_MakePacket);
+void p2o_MakePacket(Sub15C *dobj)
+{
+    dobj->model->dobj = dobj;
+    pac_MakePacket(dobj);
+}
 
 inline void p2o_SetDefaultEnviroment(void) {}
 

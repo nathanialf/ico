@@ -685,7 +685,66 @@ INCLUDE_ASM(CorrectList_202);
 
 INCLUDE_ASM(girlBrainRunawaySearchPoint);
 
-INCLUDE_ASM(girlBrainRunawayMoveByWay);
+static int girlBrainRunawayMoveByWay(GObj *self, float *out, float *tgt)
+{
+    float d[4];
+    float pos[4];
+    Act *sub;
+    WayPoint *way;
+    int done;
+
+    sub = GOBJ_ACT(self);
+    d[0] = tgt[0];
+    d[1] = tgt[1];
+    d[2] = tgt[2];
+    switch (sub->way.reached) {
+    case 0:
+        done = 0;
+        GetRootProjectionPosOfGObj(pos, self);
+        pos[1] = pos[1] - 0.0f;
+        way = GetWay_next(&sub->way, pos);
+        if (way == 0) {
+            sceVu0CopyVector(out, sub->way.nrm);
+        } else {
+            sceVu0CopyVector(out, sub->way.nrm);
+            if (brain_val.lastWay != way) {
+                if (brain_val.lastWay != 0) {
+                    done = sub->way.guideFirst < 1;
+                }
+                brain_val.lastWay = way;
+            }
+        }
+        if (sub->way.chk.cross == 0) {
+            if (isNoWallBetween(pos, d)) {
+                sub->way.reached = 1;
+                DeleteGuideWay(&sub->way);
+            }
+        }
+        if (done) {
+            return 2;
+        }
+        break;
+    case 1: {
+        float cur[4];
+        float dir[4];
+
+        GetRootPosition(cur, self);
+        if (isNoWallBetween(cur, d)) {
+            float dx = d[0];
+            float dz = d[2];
+
+            dir[0] = dx - cur[0];
+            dir[1] = 0.0f;
+            dir[2] = dz - cur[2];
+            sceVu0Normalize(out, dir);
+            if (isNearPoint(d, cur)) {
+                return 1;
+            }
+        }
+    } break;
+    }
+    return 0;
+}
 
 /* A static inline: points `v` at the first listB entry within 300 units of
    `p` whose bearing from `dir` is under 45 degrees. */

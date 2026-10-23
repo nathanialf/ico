@@ -42,7 +42,49 @@ static inline float getPlaneY(Vec4 pl, float *p) /* derived name */
     return GetYProjectionOfPlane(pl.f, p);
 }
 
-INCLUDE_ASM(CheckFieldContact);
+int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
+{
+    float h;
+    float dy;
+    float ph;
+    float d;
+    int attr;
+
+    if (info->floor.elem != 0) {
+        h = GOBJ_SUB(self)->root.move[1];
+        dy = info->pt[2][1] - pos[1];
+        attr = GetFloorAttribute(info);
+        if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+            if (h >= 0.0f) {
+                ph = GetPoolGlobalHeight(info->floor.o.obj);
+                d = info->pt[2][1] - ph;
+                if (dy < lim) {
+                    if (d > 0.0f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
+                            SetFallDownSplash(info->floor.o.obj, self);
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
+                        }
+                    }
+                    return 1;
+                }
+                if (d > 0.0f) {
+                    if (ph - pos[1] < lim * 0.8f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
+                            SetFallDownSplash(info->floor.o.obj, self);
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
+                        }
+                        return 2;
+                    }
+                }
+            }
+        } else {
+            if (dy < lim) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 /* The loop counts 0..10 and offsets by 5.  `plane` is retargeted at the
    local copy, so the six by-value argument copies and the CopyVector read
@@ -147,7 +189,10 @@ void SetMotionDirection(GObj *self, float *dir)
     LocalizeDirectionOrient(self, &sub->parent);
 }
 
-INCLUDE_ASM(_GetMotionDirection);
+void _GetMotionDirection(float *dir, GObj *obj)
+{
+    GetGlobalDirectionOrient(dir, obj, obj->dobj->ctrl.dir);
+}
 
 void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1)
 {
@@ -182,9 +227,33 @@ void SetMotionDirectionWithLimit(GObj *self, float *dir, float lim0, float lim1)
     SetMotionDirection(self, v);
 }
 
-static const char motMan2File[] = __FILE__; /* derived name */
+void GetRootPosOfNextFrame(float *pos, GObj *obj)
+{
+    struct MotRoot *sub = &obj->dobj->root;
+    CopyVector(pos, sub->move);
+    SubVectorXYZ(pos, pos, sub);
+}
 
-INCLUDE_ASM(GetRootPosOfNextFrame);
+/* the body of GetSkeltonFocusNode, which SetMotionBlendlessNode, the two
+   GetDifferenceFromWall*Plane and the node fix mode setter inline and
+   GetSkeltonFocusNode calls: a missing skeleton or an out-of-range node is
+   reported (the demo's strings precede AdjustMotionHeightToField's) */
+static inline int getSkeltonFocusNode(GObj *self, int focus) /* derived name */
+{
+    Sub15C *sub = GOBJ_SUB(self);
+
+    if (sub == 0 || sub->focusNodes == 0 || sub->focusNodes[focus] >= sub->skelNodeNum) {
+        /* EUC-JP: "whoever sees this message, please contact Sugiyama" */
+        debug_StdPrintfDummy(
+            "このメッセージを見たひとは杉山まで連絡ください: GetSkeltonFocusNode SKEL=NULL\n");
+        debug_assertMessage(
+            __FILE__, 503,
+            "GetSkeltonFocusNode:\n PLEASE CALL SUGIYAMA\n GOBJ==NULL Or SKEL==NULL "
+            "Or RETURNID>=NBSKELS\n");
+        __assert(__FILE__, 503, "e");
+    }
+    return GOBJ_SUB(self)->focusNodes[focus];
+}
 
 void AdjustMotionHeightToField(GObj *obj)
 {
@@ -793,7 +862,23 @@ static MotionStateInfo motionStateInfoTemplate = {
     0,
 }; /* derived name */
 
-INCLUDE_ASM(InitMotionGeoInfo);
+void InitMotionGeoInfo(struct MotRoot *self, float x, float y, float z, float rx, float ry,
+                       float rz)
+{
+    *(MotionGeoInfo *)self = motionGeoInfoTemplate;
+    self->pos[0] = x;
+    self->pos[1] = y;
+    self->pos[2] = z;
+    CopyVector(self->last, self->pos);
+    CopyVector(self->savePos, self->pos);
+    CopyVector(self->clipFrom, self->pos);
+    RotQuaternionY(self->quat, -(int)(ry * 10430.378f));
+    RotQuaternionX(self->quat, -(int)(rx * 10430.378f));
+    RotQuaternionZ(self->quat, (short)-(int)(rz * 10430.378f));
+    adjustMotionHeightToNearestField(self, self->pos);
+    SetSimplePlane(self->plane.f, 0.0f, -1.0f, 0.0f, y);
+    CopyVector(self->footPos, self->pos);
+}
 
 /* The skeleton-display state DispSkelton hands to dispSkeltonHierarchy
    through file scope: the object, the motion and the nodes.  Nothing reads
@@ -1499,7 +1584,10 @@ typedef struct { /* field names derived */
 
 INCLUDE_ASM(FeedbackWallWorkInfoToBrainSystem);
 
-INCLUDE_ASM(GetMotionPointer);
+void *GetMotionPointer(GObj *self)
+{
+    return &self->dobj->motion;
+}
 
 int GetCollisionOfLastActiveField(GObj *self)
 {
@@ -1539,17 +1627,17 @@ void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color)
     debugDisp1CollisionWithColor(cfg, color);
 }
 
-/* the body of GetSkeltonFocusNode, which SetMotionBlendlessNode, the two
-   GetDifferenceFromWall*Plane and the node fix mode setter inline and
-   GetSkeltonFocusNode calls */
-static inline int getSkeltonFocusNode(GObj *self, int focus) /* derived name */
-{
-    return GOBJ_SUB(self)->focusNodes[focus];
-}
-
 INCLUDE_ASM(SetMotionBlendlessNode);
 
-INCLUDE_ASM(ClearMotionBlendlessNode);
+void ClearMotionBlendlessNode(GObj *self)
+{
+    int i = 0;
+    char *arr = self->dobj->blendless;
+    while (i < GOBJ_SUB(self)->skelNodeNum) {
+        arr[i] = 0;
+        i++;
+    }
+}
 
 void InitMotionStateInfo(struct MotCtrl *self)
 {
@@ -1560,7 +1648,14 @@ void InitMotionStateInfo(struct MotCtrl *self)
 
 INCLUDE_ASM(GetSkeltonFocusNode);
 
-INCLUDE_ASM(AdjustMotionHeightToNearestField);
+int AdjustMotionHeightToNearestField(GObj *self)
+{
+    float pos[4];
+    struct MotRoot *o = &self->dobj->root;
+
+    GetRootPosition(pos, self);
+    return adjustMotionHeightToNearestField(o, pos);
+}
 
 void SetRootUpdateMode(GObj *self, int val)
 {

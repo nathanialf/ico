@@ -155,7 +155,10 @@ static void setNodePursueParticleEffectWithUpperLimit(int id, GObj *obj, int foc
 
 INCLUDE_ASM(SetFallDownSplash);
 
-INCLUDE_ASM(GetPoolGlobalDrainVector);
+void GetPoolGlobalDrainVector(void *dst, GObj *pool)
+{
+    CopyVector(dst, ((PoolWork *)GOBJ_SUB(pool)->work)->drain);
+}
 
 typedef union { /* field names derived */
     int i[4];

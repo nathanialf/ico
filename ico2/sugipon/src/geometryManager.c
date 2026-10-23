@@ -145,7 +145,7 @@ static __inline__ void SetRootPosition_i(GObj *obj, void *pos) /* derived name *
     float buf[16];
     Vec4 *p = (Vec4 *)obj->dobj->root.pos;
     CopyVector(p, pos);
-    p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
+    p->f[1] = p->f[1] - *(float *)((char *)p + 0xB0);
     p->f[3] = 1.0f;
     {
         Sub15C *sub = obj->dobj;
@@ -475,11 +475,34 @@ void GetRootPositionByDObj(void *dst, Sub15C *src)
     GetRootPositionByDObj_i(dst, src);
 }
 
-INCLUDE_ASM(SetDirectRootPosition);
+void SetDirectRootPosition(GObj *self, void *v)
+{
+    Sub15C *sub = self->dobj;
+    float *p = sub->root.pos;
+    float pos[4];
+    float tmp[4];
 
-INCLUDE_ASM(SetDirectRootPositionNoFitting);
+    CopyVector(pos, v);
+    CopyVector(tmp, p);
+    SetRootPosition_i(self, pos);
+    CopyVector(sub->root.last, p);
+    CopyVector(sub->root.savePos, p);
+    self->dobj->ctrl.posReserve = 0;
+    CopyVector(sub->root.clipFrom, v);
+    CopyVector(sub->root.move, ZeroVector);
+    CopyVector(sub->root.delta, ZeroVector);
+    AdjustMotionHeightToNearestField(self);
+}
 
-INCLUDE_ASM(SetRootPosition);
+void SetDirectRootPositionNoFitting(GObj *self, void *v)
+{
+    SetDirectRootPositionNoFitting_i(self, v);
+}
+
+void SetRootPosition(GObj *obj, void *pos)
+{
+    SetRootPosition_i(obj, pos);
+}
 
 void GetRootPosition(void *dst, GObj *obj)
 {

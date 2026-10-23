@@ -145,16 +145,16 @@ typedef struct { /* field names derived */
     unsigned char b0F;
     float f10; /* 0x10 */
     char pad14[0x20 - 0x14];
-    float f20[4]; /* 0x20 */
-    float f30[4]; /* 0x30 */
-} BgaEntry;       /* derived name */
+    sceVu0FVECTOR f20; /* 0x20 */
+    sceVu0FVECTOR f30; /* 0x30 */
+} BgaEntry;            /* derived name */
 
 typedef struct { /* field names derived */
     long long w[12];
 } BoyWork; /* derived name */
 
 typedef struct { /* field names derived */
-    int w[8];
+    int w[6];
 } BoyKidnapWork; /* derived name */
 
 static BoyWork boyInfoDefault = {{0, 0, 0xFFFFFFFF}}; /* derived name */
@@ -450,7 +450,7 @@ extern float *GetCurrentCameraSet2(void);
 
 INCLUDE_ASM(OtherStageGirlPinchCamera_After);
 
-static int characterPacket[8]; /* derived name */
+static int characterPacket[6]; /* derived name */
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void Camctrl_SetTarget(GObj *gobj, GObj *subGObj, int pri);
@@ -706,16 +706,14 @@ static inline unsigned char IsBoyStatus_SupportGB(void) /* derived name */
     return 0;
 }
 
-typedef struct { /* field names derived */
-    CharPos pos; /* 0x00 */
-    int boyID;   /* 0x08 */
-    int girlID;  /* 0x0C */
-    int f10;     /* 0x10 */
-    int f14;
-    int f18;
-    unsigned int b1C : 8; /* 0x1C */
+typedef struct {          /* field names derived */
+    CharPos pos;          /* 0x00 */
+    int boyID;            /* 0x08 */
+    int girlID;           /* 0x0C */
+    int f10;              /* 0x10 */
+    unsigned int b1C : 8; /* 0x14 */
     unsigned int b1D : 8;
-    unsigned int h1E : 16; /* 0x1E */
+    unsigned int h1E : 16; /* 0x16 */
 } CharacterPacket;         /* derived name */
 
 static int boyActUnusedWord = -1; /* derived name */

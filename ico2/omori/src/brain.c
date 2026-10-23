@@ -55,12 +55,9 @@ void brainInit(void)
     eBrainInit();
 }
 
-INCLUDE_ASM(OverrideBrainStatusByGObj);
-
-static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* derived name */
+static inline BrainTarget *brainSetTargetSub(Brain *b, GObj *gobj, float levelCap, float capStep,
+                                             float rate) /* derived name */
 {
-    float capStep = objKindData[k].brainCapStep;
-    float rate = objKindData[k].brainRate;
     BrainTarget *t;
     int i;
 
@@ -70,22 +67,36 @@ static inline void brainSetTargetSub(Brain *b, GObj *gobj, float lvl, int k) /* 
         }
     }
     if (i == 20) {
-        return;
+        debug_StdPrintfDummy("brainStatusDefaultSet: brain target area over\n");
+        return 0;
     }
     t = &b->tgt[i];
     t->gobj = gobj;
     t->level = 0.0f;
-    t->levelCap = lvl;
+    t->levelCap = levelCap;
     t->capStep = capStep;
     t->rate = rate;
-
     t->lookOnly = 0;
     t->alwaysSeen = 0;
-    *(int *)&t->lookOnly &= ~0x10000;
     brainSetTargetTimer(t);
+    return t;
 }
 
-INCLUDE_ASM(brainStatusDefaultSet);
+INCLUDE_ASM(OverrideBrainStatusByGObj);
+
+void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx)
+{
+    GenGeo *d = objLayout + idx;
+    int k = d->kind;
+
+    /* bit 20 of the layout row's flags puts the object in the girl's brain */
+    if ((d->flags >> 20) & 1) {
+        if (objKindData[k].brainLevel != 0) {
+            brainSetTargetSub(b, gobj, (float)objKindData[k].brainLevel,
+                              objKindData[k].brainCapStep, objKindData[k].brainRate);
+        }
+    }
+}
 
 static inline void brainLevelUp(BrainTarget *t) /* derived name */
 {
@@ -129,7 +140,10 @@ static inline float brainTargetLevel(Brain *b, BrainTarget *t) /* derived name *
 
 INCLUDE_ASM(brainGetTarget);
 
-INCLUDE_ASM(brainStatusSet);
+BrainTarget *brainStatusSet(Brain *b, GObj *gobj, float levelCap, float capStep, float rate)
+{
+    return brainSetTargetSub(b, gobj, levelCap, capStep, rate);
+}
 
 void brainStatusDel(char *self)
 {

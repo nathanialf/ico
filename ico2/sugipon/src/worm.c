@@ -141,7 +141,37 @@ static void simulate(float (*v)[4], int n, float len)
     }
 }
 
-INCLUDE_ASM(getAnimation);
+static void getAnimation(GObj *act)
+{
+    float tmp[4];
+    WormWork *w = GOBJ_SUB(act)->work;
+    ChainSet *r = w->route;
+    int i, j;
+
+    for (i = 0; i < r->num; i++) {
+        int num = r->cfg[i].num;
+        float (*pos)[4] = r->nodes[i].pos;
+        float (*vel)[4] = r->nodes[i].vel;
+        ChainParam *pm = &r->cfg[i].pm;
+
+        for (j = 1; j < num; j++) {
+            CopyVector(tmp, &vel[j]);
+            sceVu0ScaleVector(&vel[j], &pos[j], -1.0f);
+            sceVu0AddVector(&pos[j], &pos[j], tmp);
+        }
+
+        simulate(pos, num - 1, pm->step * w->reduce);
+
+        for (j = 0; j < num - 1; j++) {
+            r->nodes[i].len[j] = _GetLength(&pos[j], &pos[j + 1]);
+        }
+
+        for (j = 1; j < num; j++) {
+            sceVu0AddVector(&vel[j], &vel[j], &pos[j]);
+            sceVu0ScaleVector(&vel[j], &vel[j], 0.8f);
+        }
+    }
+}
 
 INCLUDE_ASM(disp_worm);
 
@@ -152,7 +182,74 @@ typedef union { /* field names derived */
     int i;
 } WormFI; /* derived name */
 
-INCLUDE_ASM(GetWormRoute);
+inline void SetWormReduceRatio(GObj *act, float ratio)
+{
+    ((WormFI *)((char *)GOBJ_SUB(act)->work + 8))->f = ratio;
+}
+
+void GetWormRoute(GObj *act, void *target)
+{
+    WormVec d;
+    WormWork *w = GOBJ_SUB(act)->work;
+    ChainSet *r = w->route;
+    int i;
+    int j;
+    float len;
+
+    for (i = 0; i < r->num; i++) {
+        CopyVector(w->src[i], r->nodes[i].pos);
+        CopyVector(&w->src[i][9], target);
+
+        for (j = 1; j < 9; j++) {
+            sceVu0InterVectorXYZ(&w->src[i][j], &w->src[i][9], &w->src[i][0], j * 0.125f);
+            w->src[i][j].w = 1.0f;
+        }
+
+        sceVu0SubVector(&d, &w->src[i][1], &w->src[i][0]);
+        len = VectorLength(&d);
+
+        for (j = 1; j < 9; j++) {
+            WormVec v = {len * (_GetRandom() * 2.0f - 1.0f), len * (_GetRandom() * 2.0f - 1.0f),
+                         len * (_GetRandom() * 2.0f - 1.0f), 0.0f};
+
+            sceVu0AddVector(&w->src[i][j], &w->src[i][j], &v);
+        }
+    }
+
+    w->ratio = 0.0f;
+}
+
+inline void SetDirectWormTargetPos(GObj *act, void *pos)
+{
+    WormWork *w = GOBJ_SUB(act)->work;
+    ChainSet *r = w->route;
+    int i;
+
+    for (i = 0; i < r->num; i++) {
+        int n = r->cfg[i].num;
+        CopyVector(&r->nodes[i].pos[n - 1], pos);
+        r->nodes[i].pos[n - 1][3] = 1.0f;
+    }
+    w->ratio = 1.0f;
+}
+
+inline void TraceWormRoute(GObj *act, float t)
+{
+    WormWork *w = GOBJ_SUB(act)->work;
+    ChainSet *r = w->route;
+    int i, j;
+    float step = t * 8.99999f;
+
+    for (i = 0; i < r->num; i++) {
+        int n = r->cfg[i].num;
+        for (j = 1; j < n; j++) {
+            float f = step * (float)j / (float)(n - 1);
+            sceVu0InterVectorXYZ(&r->nodes[i].pos[j], &w->src[i][(int)f + 1], &w->src[i][(int)f],
+                                 f - (float)(int)f);
+            r->nodes[i].pos[j][3] = 1.0f;
+        }
+    }
+}
 
 /* restart the worm's route; used only by WormGeo */
 static inline void ResetWormRoute(GObj *act, WormWork *w) /* derived name */
@@ -191,9 +288,3 @@ void WormDL(GObj *act)
 {
     disp(act);
 }
-
-INCLUDE_ASM(SetDirectWormTargetPos);
-
-INCLUDE_ASM(SetWormReduceRatio);
-
-INCLUDE_ASM(TraceWormRoute);

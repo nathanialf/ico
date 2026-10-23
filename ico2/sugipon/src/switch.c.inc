@@ -9,14 +9,35 @@ INCLUDE_ASM(switchOnSE);
 
 INCLUDE_ASM(switchReleaseSE);
 
-INCLUDE_ASM(GetFloorLeverGlobalHoldPoint);
+void GetFloorLeverGlobalHoldPoint(void *dst, GObj *lev)
+{
+    LeverGeoWork *p = GOBJ_SUB(lev)->work;
+    GetRootMatrix(MatrixDrive_GetMatrix(), lev);
+    MatrixDrive_RotMatrixZ(p->angle);
+    MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+    CopyVector(dst, MatrixDrive_GetMatrix()[3]);
+}
 
 /* the zeroed template both lever inits copy into a new geometry block */
 static LeverGeoWork leverGeoInit = {0}; /* derived name */
 
 INCLUDE_ASM_LIT(InitFloorLeverGeo);
 
-INCLUDE_ASM(FloorLeverTriStateGeo);
+void FloorLeverTriStateGeo(GObj *lev)
+{
+    LeverGeoWork *p = GOBJ_SUB(lev)->work;
+
+    if (p->state != -1 && p->state != 1) {
+        if (p->trigger != 0) {
+            p->trigger(GOBJ_SUB(lev)->parent.obj, 0);
+        }
+    } else {
+        if (p->trigger != 0) {
+            p->trigger(GOBJ_SUB(lev)->parent.obj, p->state);
+        }
+    }
+    UpdateRootMatrix(lev);
+}
 
 /* the two frame-rate divisors, the pair box.c's own fall code reads */
 
@@ -26,9 +47,29 @@ INCLUDE_ASM(FloorLeverTriStateGeo);
    inlined initParentize above. */
 INCLUDE_ASM(FloorLeverGeo);
 
-INCLUDE_ASM(FloorLeverDL);
+void FloorLeverDL(GObj *lev)
+{
+    LeverGeoWork *p = GOBJ_SUB(lev)->work;
 
-INCLUDE_ASM(GetWallLeverGlobalHoldPoint);
+    p2o_DispVU1(lev);
+    MatrixDrive_PushMatrix();
+    GetRootMatrix(MatrixDrive_GetMatrix(), lev);
+    MatrixDrive_RotMatrixZ(p->angle);
+    MatrixDrive_RotMatrixX(p->shake);
+    CopyMatrix((void *)p->handle->nodeMtx, MatrixDrive_GetMatrix());
+    p2o_DispVU1DObj(p->handle);
+    MatrixDrive_PopMatrix();
+}
+
+void GetWallLeverGlobalHoldPoint(void *dst, GObj *lev)
+{
+    LeverGeoWork *p = GOBJ_SUB(lev)->work;
+
+    GetRootMatrix(MatrixDrive_GetMatrix(), lev);
+    MatrixDrive_RotMatrixZ(p->angle);
+    MatrixDrive_TransMatrix(-50.0f, 0.0f, 0.0f);
+    CopyVector(dst, MatrixDrive_GetMatrix()[3]);
+}
 
 /* the wall lever's counterpart of FloorLeverGeo: the same parentize probe
    and the same frame divisor written twice, no trigger callback, and a mail
@@ -36,7 +77,20 @@ INCLUDE_ASM(GetWallLeverGlobalHoldPoint);
    IsWallLeverStatus above) */
 INCLUDE_ASM(WallLeverGeo);
 
-INCLUDE_ASM(WallLeverDL);
+void WallLeverDL(GObj *lev)
+{
+    LeverGeoWork *p = GOBJ_SUB(lev)->work;
+    Sub15C *d;
+    p2o_DispVU1(lev);
+    MatrixDrive_PushMatrix();
+    GetRootMatrix(MatrixDrive_GetMatrix(), lev);
+    MatrixDrive_RotMatrixZ(p->angle);
+    MatrixDrive_RotMatrixX(p->shake);
+    d = p->handle;
+    CopyMatrix((void *)d->nodeMtx, MatrixDrive_GetMatrix());
+    p2o_DispVU1DObj(p->handle);
+    MatrixDrive_PopMatrix();
+}
 
 /* the poll loop the four functions below share */
 static inline int checkReadySwitchKind(int kind) /* derived name */
@@ -54,4 +108,16 @@ static inline int checkReadySwitchKind(int kind) /* derived name */
     return 1;
 }
 
-INCLUDE_ASM(CheckReadyAllSwitches);
+int CheckReadyAllSwitches(void)
+{
+    if (checkReadySwitchKind(22) == 0) {
+        return 0;
+    }
+    if (checkReadySwitchKind(23) == 0) {
+        return 0;
+    }
+    if (checkReadySwitchKind(24) == 0) {
+        return 0;
+    }
+    return checkReadySwitchKind(25);
+}

@@ -58,7 +58,22 @@ static AcbEntry acbBlankEntry = {0, 0}; /* derived name */
 
 INCLUDE_ASM(InitAttackCheckBoundaryManagerGeo);
 
-INCLUDE_ASM(AttackCheckBoundaryManagerGeo);
+void AttackCheckBoundaryManagerGeo(GObj *self)
+{
+    AcbMgr *m = GOBJ_SUB(self)->work;
+    int i;
+
+    for (i = 0; i < m->count; i++) {
+        GObj *e = (GObj *)m->list[i].obj;
+
+        /* whether the member's work says it has been hit */
+        m->list[i].hit = ((AcbWork *)GOBJ_SUB(e)->work)->hit;
+        ((AcbWork *)GOBJ_SUB(e)->work)->hit = 0;
+        e->active = 1;
+    }
+    m->prev = m->cur;
+    m->cur = 0;
+}
 
 void AttackCheckBoundaryManagerDL(void) {}
 

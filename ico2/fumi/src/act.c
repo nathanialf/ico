@@ -82,6 +82,8 @@ void actCreateMotionThread(void (*func)(), int pri, GProc **proc)
     }
 }
 
+INCLUDE_ASM_LIT(actCreateSubThread);
+
 inline void actWaitCondition(int value, int mask)
 {
     int t = value & mask;
@@ -108,7 +110,31 @@ inline void actWaitCondition(int value, int mask)
     }
 }
 
-INCLUDE_ASM(after_func_exec);
+static void after_func_exec(void *self, int oldst, int newst)
+{
+    Act *g = GOBJ_ACT(self);
+
+    if (actModeTbl[oldst].ent[g->actKind].word4 != actModeTbl[newst].ent[g->actKind].word4) {
+        if (g->after != 0) {
+            (*(void (**)(char *))((char *)g + 0x14))(self);
+            g->after = 0;
+        }
+    }
+    if (actModeTbl[oldst].onChain != actModeTbl[newst].onChain) {
+        if (g->after != 0) {
+            (*(void (**)(char *))((char *)g + 0x14))(self);
+            g->after = 0;
+        }
+    }
+    if (actModeTbl[oldst].ent[g->actKind].word4 == 0 &&
+        actModeTbl[newst].ent[g->actKind].word4 == 0 && actModeTbl[oldst].onChain == 0 &&
+        actModeTbl[newst].onChain == 0) {
+        if (g->after != 0) {
+            (*(void (**)(char *))((char *)g + 0x14))(self);
+            g->after = 0;
+        }
+    }
+}
 
 INCLUDE_ASM(actInitialize_ext_charcter);
 

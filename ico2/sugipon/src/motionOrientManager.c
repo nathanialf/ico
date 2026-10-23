@@ -56,7 +56,75 @@ extern const MotionDef motionKind[];
    const, so motionOrientManager.h cannot carry it */
 extern const MotOriName motionOriKind[];
 
-INCLUDE_ASM(orientDebug);
+static void orientDebug(void *self, int idx, int y)
+{
+    char buf[256];
+    MotOriName name;
+
+    switch (motionKind[MOWORK(self)->ctrl.motion].rootUpdateMode) {
+    default:
+    case 12:
+    case 13:
+    case 14:
+    case 18:
+    case 19:
+        sprintf(buf, "ASSERT");
+        break;
+    case 1:
+        sprintf(buf, "XZ");
+        break;
+    case 20:
+        sprintf(buf, "XZ_FIT");
+        break;
+    case 2:
+        sprintf(buf, "XZ_MOTPOS");
+        break;
+    case 17:
+        sprintf(buf, "XZ_MOTPOS_FIT");
+        break;
+    case 7:
+        sprintf(buf, "UPPERWALLSOLUTION");
+        break;
+    case 16:
+        sprintf(buf, "UPPERWALLSOL_FIT");
+        break;
+    case 8:
+        sprintf(buf, "LOWERWALLSOLUTION");
+        break;
+    case 9:
+        sprintf(buf, "CLIFFSOLUTION");
+        break;
+    case 10:
+        sprintf(buf, "HANG");
+        break;
+    case 15:
+        sprintf(buf, "HANG FIT");
+        break;
+    case 11:
+        sprintf(buf, "WATER");
+        break;
+    case 5:
+        sprintf(buf, "NODEFIX");
+        break;
+    case 4:
+        sprintf(buf, "Y_ROPE");
+        break;
+    case 3:
+        sprintf(buf, "Y");
+        break;
+    case 0:
+        sprintf(buf, "TRUEMOTION");
+        break;
+    case 6:
+        sprintf(buf, "DIRECTPLAY");
+        break;
+    }
+    if (debug_window_flag != 0) {
+        name = motionOriKind[idx];
+        debug_PrintFontWindow(y, "%s \207 %s (%s)\n", &name,
+                              motionKind[MOWORK(self)->ctrl.motion].name, buf);
+    }
+}
 
 static inline void checkMotionKind(int i, int j) /* derived name */
 {
@@ -80,7 +148,36 @@ INCLUDE_ASM(GetNbMotionFrames);
 
 INCLUDE_ASM(GetMotionPlaySpeedRatio);
 
-INCLUDE_ASM(execFrameTrigger);
+static void execFrameTrigger(void *self)
+{
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
+    float t;
+
+    t = (float)motionKind[w->motion].triggerStart;
+    if (0.0f <= t) {
+        if (w->trigger1Done == 0) {
+            if (t < w->animFrame) {
+                w->trigger1 = 1;
+                w->trigger1Done = 1;
+            } else {
+                w->trigger1 = 0;
+            }
+        } else {
+            w->trigger1 = 0;
+        }
+    }
+    t = (float)motionKind[w->motion].trigger2Start;
+    if (0.0f <= t) {
+        if (w->trigger2Done != 0) {
+            w->trigger2 = 0;
+        } else if (t < w->animFrame) {
+            w->trigger2 = 1;
+            w->trigger2Done = 1;
+        } else {
+            w->trigger2 = 0;
+        }
+    }
+}
 
 /* inlined here and in UpdateFrameCounter; the store order is the
  * source's own */
@@ -143,7 +240,96 @@ inline int ExecutePauseSlipProc(GObj *self)
 
 INCLUDE_ASM(UpdateFrameCounter);
 
-INCLUDE_ASM(sendStateMail);
+static void sendStateMail(void *self)
+{
+    float m[4][4];
+    float pos[4];
+    struct MotCtrl *w = &MOWORK(self)->ctrl;
+
+    if (debug_wire_string != 0) {
+        MatrixDrive_PushMatrix();
+        sceVu0TransposeMatrix(m, matrixptr + 0x80);
+        m[0][3] = m[1][3] = m[2][3] = 0.0f;
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        GetRootPosition(pos, self);
+        MatrixDrive_TransMatrixV((char *)pos);
+        sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
+    }
+    if (w->flags & 0x2) {
+        if (debug_wire_string != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, 80.0f, 0.0f);
+            DispWireString("HIT");
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (w->flags & 0x4) {
+        iosOmSendMail(self, 7, self);
+        if (debug_wire_string != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(-50.0f, 0.0f, 0.0f);
+            DispWireString("FALL");
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (w->flags & 0x10) {
+        iosOmSendMail(self, 8, self);
+        if (debug_wire_string != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(50.0f, 40.0f, 0.0f);
+            DispWireString("CLIFF");
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (w->flags & 0x20) {
+        iosOmSendMail(self, 9, self);
+        if (debug_wire_string != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(50.0f, 0.0f, 0.0f);
+            DispWireString("WALL");
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (w->flags & 0x1000) {
+        iosOmSendMail(self, 33, self);
+        if (debug_wire_string != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(50.0f, 0.0f, 0.0f);
+            DispWireString("UPPER WALL");
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (w->flags & 0x8) {
+        iosOmSendMail(self, 10, self);
+        if (debug_wire_string != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, -80.0f, 0.0f);
+            DispWireString("LANDING");
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (w->flags & 0x400) {
+        iosOmSendMail(self, 26, self);
+        if (debug_wire_string != 0) {
+            MatrixDrive_PushMatrix();
+            MatrixDrive_TransMatrix(0.0f, -80.0f, 0.0f);
+            DispWireString("WATER");
+            MatrixDrive_PopMatrix();
+        }
+    }
+    if (w->flags & 0x800) {
+        iosOmSendMail(self, 27, self);
+    }
+    if (w->flags & 0x100) {
+        iosOmSendMail(self, 15, self);
+    }
+    if (w->flags & 0x200) {
+        iosOmSendMail(self, 16, self);
+    }
+    if (debug_wire_string != 0) {
+        MatrixDrive_PopMatrix();
+    }
+}
 
 /* Both shift functions inline it: it walks the request table at the work
  * area's 0x1C and returns the paired entry from the table at 0x20. */

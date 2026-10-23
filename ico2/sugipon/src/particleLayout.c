@@ -3,7 +3,13 @@
 #include "particleLayout.h"
 #include "ios.h"
 #include "memory.h"
-#include "include_asm.h"
+
+inline void DeleteParticleLayout(GObj *self)
+{
+    int *q = GOBJ_SUB(self)->work;
+
+    DeleteParticleEffect(q[0]);
+}
 
 inline int *InitParticleLayoutGeo(GObj *self, int *layout)
 {
@@ -12,8 +18,6 @@ inline int *InitParticleLayoutGeo(GObj *self, int *layout)
     *r = SetParticleEffect(layout[12], layout, GOBJ_SUB(self)->quat);
     return r;
 }
-
-INCLUDE_ASM(DeleteParticleLayout);
 
 inline void ParticleLayoutGeo(GObj *self) {}
 

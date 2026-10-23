@@ -114,7 +114,7 @@ typedef struct GObj GObj; /* derived name */
 
 typedef struct Sub15C Sub15C; /* *(GObj + 0x15C), the object's display object (DObj.c) */ /* derived name */
 
-/* The 80-byte record Sub15C + 0x860 points at, one per display node; the
+/* The 80-byte record Sub15C + 0x830 points at, one per display node; the
  * buffer is reallocated with the 0xC matrices and 0x10 vectors for the node
  * count.  The display (RegistPacket.c) draws a node with alpha
  * 1 - (1 - fade) * alpha, fading when bit 0 of the flag word is set, turns it
@@ -558,46 +558,44 @@ struct Sub15C { /* field names derived */
     char pad66C[4];
     DObjMotion motion; /* 0x670, the motion record GetMotionPointer returns */
     char fdsFlags
-        [116]; /* 0x730, the frame-depend sequence's fired-slot flags (frameDependSequence.c's FDSFlags) */
-    void *motionBuf; /* 0x7A4, the current motion's rotation elements, 32 bytes a skeleton node */
-    char pad7A8[8];
-    float motionPos[4]; /* 0x7B0, the position GetMatrixOfMotion places the root at */
-    void *blendBuf;     /* 0x7C0, the blend source's rotation elements */
-    char pad7C4[12];
-    float localPos[4]; /* 0x7D0, the position relative to the object at 0x7F0 */
+        [76]; /* 0x730, the frame-depend sequence's fired-slot flags (frameDependSequence.c's FDSFlags) */
+    void *motionBuf; /* 0x77C, the current motion's rotation elements, 32 bytes a skeleton node */
+    float motionPos[4]; /* 0x780, the position GetMatrixOfMotion places the root at */
+    void *blendBuf;     /* 0x790, the blend source's rotation elements */
+    char pad794[12];
+    float localPos[4]; /* 0x7A0, the position relative to the object at 0x7C0 */
     float localMove
-        [4]; /* 0x7E0, the root movement the local position steps by while no object holds it */
-    ObjNode local;     /* 0x7F0, the object and node the position at 0x7D0 is relative to, obj 0 for none */
-    float localHeight; /* 0x7F8, the height added to the local position */
-    MotIk *nodeRotElem; /* 0x7FC, one IK state a skeleton node */
-    int *nodeLimit;    /* 0x800, the address of each skeleton node's rotation limit record */
-    float (*nodeVec)[4]; /* 0x804, one vector a skeleton node */
-    float (*blendRot)[4][4]; /* 0x808, four quaternions a skeleton node, the blend's rotations */
+        [4]; /* 0x7B0, the root movement the local position steps by while no object holds it */
+    ObjNode local;     /* 0x7C0, the object and node the position at 0x7A0 is relative to, obj 0 for none */
+    float localHeight; /* 0x7C8, the height added to the local position */
+    MotIk *nodeRotElem; /* 0x7CC, one IK state a skeleton node */
+    int *nodeLimit;    /* 0x7D0, the address of each skeleton node's rotation limit record */
+    float (*nodeVec)[4]; /* 0x7D4, one vector a skeleton node */
+    float (*blendRot)[4][4]; /* 0x7D8, four quaternions a skeleton node, the blend's rotations */
     int (*rideFunc)(
         ObjNode *on,
         GObj *
-            rider); /* 0x80C, called for an object that comes to stand on this one (CageRideFunc, poolRideFunc) */
-    char *blendless;  /* 0x810, one byte a node, set where the motion blend leaves the node alone */
-    float scaleRatio; /* 0x814, the geometry scale ratio initGeometryScaleRatio sets */
-    char pad818[8];
-    void *work;   /* 0x820, the actor's own work record; each actor TU casts it to its own shape */
-    int morphNum; /* 0x824, the count of morph weights at 0x828 */
-    float *morphWeight; /* 0x828, one weight a morph target of the model's parts */
-    int lightId;        /* 0x82C, the light the object carries (0 for none), Light.c */
+            rider); /* 0x7DC, called for an object that comes to stand on this one (CageRideFunc, poolRideFunc) */
+    char *blendless;  /* 0x7E0, one byte a node, set where the motion blend leaves the node alone */
+    float scaleRatio; /* 0x7E4, the geometry scale ratio initGeometryScaleRatio sets */
+    char pad7E8[8];
+    void *work;   /* 0x7F0, the actor's own work record; each actor TU casts it to its own shape */
+    int morphNum; /* 0x7F4, the count of morph weights at 0x7F8 */
+    float *morphWeight; /* 0x7F8, one weight a morph target of the model's parts */
+    int lightId;        /* 0x7FC, the light the object carries (0 for none), Light.c */
     char *
-        focusNodes; /* 0x830, the skeleton node for each focus point GetSkeltonFocusNode looks up */
-    int accessary;  /* 0x834, the object's row in the accessary table */
-    void (*lodFunc)(int lv); /* 0x838, called with the level SetLodLevel sets, 0 for none (girl.c's cloth setting) */
+        focusNodes; /* 0x800, the skeleton node for each focus point GetSkeltonFocusNode looks up */
+    int accessary;  /* 0x804, the object's row in the accessary table */
     unsigned short
-        dispType; /* 0x83C, 2 when the object draws its node list, 1 for a cluster model */
-    char pad83E[2];
-    char *lineHdr;            /* 0x840, read by RegistPacket.c's point and line display */
-    struct PObjModel *model;  /* 0x844, DisplayP2O.h */
-    struct PObjModel *shadow; /* 0x848 */
-    char pad84C[4];
-    float shadowDir[4];           /* 0x850, the direction the shadow is cast in */
-    struct DObjNode *nodes;       /* 0x860, the node records, nodeNum of them */
-    struct LightMatrix *lightMtx; /* 0x864, the object's light matrices (Light.h) */
+        dispType; /* 0x808, 2 when the object draws its node list, 1 for a cluster model */
+    char pad80A[2];
+    char *lineHdr;            /* 0x80C, read by RegistPacket.c's point and line display */
+    struct PObjModel *model;  /* 0x810, DisplayP2O.h */
+    struct PObjModel *shadow; /* 0x814 */
+    char pad818[8];
+    float shadowDir[4];           /* 0x820, the direction the shadow is cast in */
+    struct DObjNode *nodes;       /* 0x830, the node records, nodeNum of them */
+    struct LightMatrix *lightMtx; /* 0x834, the object's light matrices (Light.h) */
 };
 
 /* the 16-byte aligned float quadword the VU0 entry points take and return

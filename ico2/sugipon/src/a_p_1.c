@@ -322,14 +322,152 @@ static inline void resetPartHit(AP1Part *part, float *orient) /* derived name */
     setPartHit(part);
 }
 
-INCLUDE_ASM(fitToCol);
+static int fitToCol(GObj *self, int walking)
+{
+    Mtx44 m;
+    Vec4A_P_1 posA;
+    Vec4A_P_1 posB;
+    Vec4A_P_1 nrmA;
+    Vec4A_P_1 nrmB;
+    Vec4A_P_1 nrm;
+    Vec4A_P_1 dir;
+    Vec4A_P_1 pos;
+    AP1Work *p;
+    int hit1;
+    int hit2;
+
+    p = GOBJ_SUB(self)->work;
+    GetRootMatrix(m.m, self);
+    hit1 = clipPartPair(&p->hit[0], &m, ap1ColSegA, &posA, &nrmA);
+    hit2 = clipPartPair(&p->hit[1], &m, ap1ColSegB, &posB, &nrmB);
+    if (hit1) {
+        if (hit2) {
+            _SubVectorXYZ(&dir, &posA, &posB);
+            _NormalizeVector(&dir, &dir);
+            zAxisRotFitting(self, &dir);
+            _InterVector(&nrm, &nrmA, &nrmB, 0.5f);
+            _NormalizeVector(&nrm, &nrm);
+            fitYawToVector(self, &nrm);
+            _InterVector(&pos, &posA, &posB, 0.5f);
+            SetRootPosition(self, &pos);
+            {
+                Mtx44 tm;
+                Vec4A_P_1 t;
+                int i;
+                float rangeSq = 10000.0f;
+                char *tbl;
+
+                MatrixDrive_SetTransposeMatrix(tm.m, m.m);
+                tbl = (char *)ap1PartOffset;
+                /* lim holds each bound of the test in turn, z the component
+                   under test */
+                for (i = 0; i < 4; i++) {
+                    AP1Part *part = &p->part[i];
+                    float lim;
+                    float z;
+
+                    _ApplyMatrix(&t, &tm, &part->pos);
+                    if (part->state != 0) {
+                        continue;
+                    }
+                    if (walking != 0) {
+                        if (i == 0) {
+                            if (p->part[1].state == 0) {
+                                goto reset;
+                            }
+                        }
+                        if (i == 3) {
+                            if (p->part[2].state == 0) {
+                                goto reset;
+                            }
+                        }
+                    }
+                    if (distance_squared(&pos, &part->pos) > rangeSq) {
+                        goto reset;
+                    }
+                    z = t.m[2];
+                    if (i & 2) {
+                        lim = 0.0f;
+                        if (z > lim) {
+                            goto reset;
+                        }
+                        lim = -50.0f;
+                    } else {
+                        lim = 20.0f;
+                    }
+                    if (z < lim) {
+                        goto reset;
+                    }
+                    z = t.m[0];
+                    if (i & 1) {
+                        lim = -10.0f;
+                        if (z > lim) {
+                            goto reset;
+                        }
+                    } else {
+                        lim = 10.0f;
+                        if (z < lim) {
+                            goto reset;
+                        }
+                    }
+                    continue;
+                reset:
+                    resetPartHit(part, (float *)(tbl + i * 0x10));
+                }
+            }
+            return -1;
+        }
+        fitYawToVector(self, &nrmA);
+        return -1;
+    }
+    if (hit2) {
+        fitYawToVector(self, &nrmB);
+    }
+    return 2;
+}
 
 typedef union { /* field names derived */
     int i;
     float f;
 } AP1Val; /* derived name */
 
-INCLUDE_ASM(walkMot);
+static int walkMot(GObj *self)
+{
+    Vec4A_P_1 pos;
+    Vec4A_P_1 v;
+    Mtx44 m;
+    Mtx44 tm;
+    Vec4A_P_1 out;
+    AP1Work *p = GOBJ_SUB(self)->work;
+    int ret = fitToCol(self, 1);
+    int i;
+    int n;
+
+    if (ret != -1)
+        return ret;
+
+    GetRootPosition(pos.m, self);
+    GetRootMatrix(m.m, self);
+    _ApplyMatrix(&v, &m, &p->up);
+    n = 0;
+    for (i = 0; i < 4; i++) {
+        if (p->part[i].state == 0) {
+            n++;
+        }
+    }
+    _ScaleVector(&v, &v, ((float)n * 0.25f + 0.5f) * 0.5f);
+    _ScaleVector(GOBJ_SUB(self)->root.move, GOBJ_SUB(self)->root.move, 0.8f);
+    _AddVectorXYZ(GOBJ_SUB(self)->root.move, GOBJ_SUB(self)->root.move, &v);
+    MatrixDrive_SetTransposeMatrix(tm.m, m.m);
+    _ApplyMatrix(&out, &tm, GOBJ_SUB(self)->root.move);
+    /* the two stores go through the file's AP1Val view */
+    ((AP1Val *)&p->roll)->f = out.m[0];
+    ((AP1Val *)&p->tilt)->f = VectorLength(GOBJ_SUB(self)->root.move) * 0.1f;
+    _AddVectorXYZ(&pos, &pos, GOBJ_SUB(self)->root.move);
+    SetRootPosition(self, &pos);
+    p->sink = 0.0f;
+    return 1;
+}
 
 INCLUDE_ASM(rolling);
 
@@ -358,7 +496,36 @@ extern void GetMatrixFromQuaternionPos(void *m, void *q, void *pos);
 /* as in quaternion.h, which this file does not include */
 extern void GetSlerpQuaternion(void *dst, void *a, void *b, float t);
 
-INCLUDE_ASM(updateMatrix);
+static void updateMatrix(GObj *self)
+{
+    float pos[4];
+    float quat[4];
+    float mtx[16];
+    AP1Work *p = GOBJ_SUB(self)->work;
+
+    CopyVector(GOBJ_SUB(self)->root.last, GOBJ_SUB(self)->root.pos);
+    UpdateRootMatrix(self);
+    CopyMatrix(p->root, (void *)GOBJ_SUB(self)->nodeMtx);
+
+    ap1BodyPos[1] = ((float)p->blink * 0.03125f < 0.5f)
+                        ? ((float)p->blink * 0.03125f) * 2.0f * 5.0f + -10.0f
+                        : (1.0f - (float)p->blink * 0.03125f) * 2.0f * 5.0f + -10.0f;
+    ap1BodyPos[1] -= p->sink * 25.0f;
+    ap1BodyPos[2] = p->sink * 50.0f;
+
+    GetRootPosition(pos, self);
+    GetRootQuaternion(quat, self);
+
+    RotQuaternionX(quat, (short)(p->sink * 8192.0f));
+    RotQuaternionX(quat, (short)(p->tilt * 4096.0f));
+    GetMatrixFromQuaternionPos(mtx, quat, pos);
+    _ApplyMatrix(pos, mtx, ap1BodyPos);
+    RotQuaternionZ(quat, (short)(-p->roll * 2048.0f));
+    _InterVectorXYZ(&p->pos, pos, &p->pos, 0.5f);
+    GetSlerpQuaternion(&p->quat, quat, &p->quat, 0.1f);
+    GetMatrixFromQuaternionPos(p->mtx, &p->quat, &p->pos);
+    _MulMatrix((void *)GOBJ_SUB(self)->nodeMtx, p->mtx, ap1BodyMatrix);
+}
 
 INCLUDE_ASM(resetPositionInfo);
 
@@ -377,7 +544,10 @@ INCLUDE_ASM(AP1Geo);
 
 INCLUDE_ASM(AP1DL);
 
-INCLUDE_ASM(GetAP1SpecType);
+int GetAP1SpecType(GObj *self)
+{
+    return ((AP1Work *)GOBJ_SUB(self)->work)->layout;
+}
 
 INCLUDE_ASM(SetAP1VisualState);
 
@@ -386,21 +556,99 @@ extern void RotQuaternionY(void *q, int ang);
 /* quaternion.h is not included in this file (see RotQuaternionY above) */
 extern void RegularizeQuaternion(void *q);
 
-INCLUDE_ASM(AP1Turn);
+int AP1Turn(GObj *self, short angle)
+{
+    Vec4A_P_1 q;
+    int s = ((AP1Work *)GOBJ_SUB(self)->work)->mode;
+    if (s < 6) {
+        if (s >= 2)
+            goto out;
+    }
+    GetRootQuaternion(&q, self);
+    RotQuaternionY(&q, angle);
+    RegularizeQuaternion(&q);
+    SetRootQuaternion(self, &q);
+    updateMatrix(self);
+    return 1;
+out:
+    return 0;
+}
 
-INCLUDE_ASM(AP1MotReqForce);
+int AP1MotReqForce(GObj *self, int mode)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
 
-INCLUDE_ASM(AP1MotReq);
+    p->mode = mode;
+    if (motFuncList[mode][0] != 0) {
+        motFuncList[mode][0](self);
+    }
+    return 1;
+}
 
-INCLUDE_ASM(AP1JumpReq);
+int AP1MotReq(GObj *self, int mode)
+{
+    int s = ((AP1Work *)GOBJ_SUB(self)->work)->mode;
+    if (s < 6) {
+        if (s >= 2)
+            return 0;
+    }
+    AP1MotReqForce(self, mode);
+    return 1;
+}
+
+int AP1JumpReq(GObj *self, int mode, void *vel)
+{
+    int flag;
+    Sub15C *p = GOBJ_SUB(self);
+    AP1Work *q = (AP1Work *)p->work;
+    if (q->mode < 6) {
+        if (q->mode >= 2) {
+            flag = 0;
+            goto check;
+        }
+    }
+    AP1MotReqForce(self, mode);
+    flag = 1;
+check:
+    if (flag != 0) {
+        Sub15C *pp = GOBJ_SUB(self);
+        AP1Work *qq = (AP1Work *)pp->work;
+        _ApplyMatrix(pp->root.move, qq->root, vel);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM(MakeAP1GObj);
 
-INCLUDE_ASM(GetAP1Mode);
+int GetAP1Mode(GObj *self)
+{
+    return (int)ap1ModeName[((AP1Work *)GOBJ_SUB(self)->work)->mode];
+}
 
-INCLUDE_ASM(standMot);
+static int standMot(GObj *self)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
+    int ret = fitToCol(self, 0);
+    if (ret != -1)
+        return ret;
+    p->tilt = 0.0f;
+    p->roll = 0.0f;
+    p->sink = 0.0f;
+    return 0;
+}
 
-INCLUDE_ASM(rollingMot);
+static int rollingMot(GObj *self)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
+    int ret = rolling(self);
+    if (ret != -1)
+        return ret;
+    p->tilt = 0.0f;
+    p->roll = 0.0f;
+    p->sink = 0.0f;
+    return 2;
+}
 
 typedef struct { /* field names derived */
     int state;   /* 0x00 */
@@ -422,6 +670,33 @@ static inline void setAP1MotCtrlVector(AP1MotCtrl *m, Vec4A_P_1 *v) /* derived n
     setAP1MotCtrlState(m, 0);
 }
 
-INCLUDE_ASM(attackMotInit);
+static void attackMotInit(GObj *self)
+{
+    Vec4A_P_1 pos;
+    Mtx44 mtx;
+    Vec4A_P_1 dir;
+    AP1Work *p = GOBJ_SUB(self)->work;
 
-INCLUDE_ASM(attackMot);
+    GetRootPosition(pos.m, boyGObj);
+    MatrixDrive_SetTransposeMatrix(mtx.m, p->root);
+    _ApplyMatrix(&dir, &mtx, &pos);
+    setAP1MotCtrlVector((AP1MotCtrl *)&p->part[0], &dir);
+    setAP1MotCtrlVector((AP1MotCtrl *)&p->part[1], &dir);
+}
+
+static int attackMot(GObj *self)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
+    int ret = fitToCol(self, 0);
+    if (ret != -1)
+        return ret;
+    p->tilt = 0.0f;
+    p->roll = 0.0f;
+    p->sink += 0.05f;
+    if (p->sink > 1.0f) {
+        setAP1MotCtrlState((AP1MotCtrl *)&p->part[0], 2);
+        setAP1MotCtrlState((AP1MotCtrl *)&p->part[1], 2);
+        return 0;
+    }
+    return 3;
+}

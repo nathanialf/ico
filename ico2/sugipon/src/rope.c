@@ -56,16 +56,67 @@ typedef struct {                       /* field names derived */
 
 INCLUDE_ASM(InitRopeGeo);
 
-INCLUDE_ASM(SetRopeFixPoint);
+inline int CheckRopeUpperWallClimbable(int unused, GObj *rope)
+{
+    RopeGeoWork *w = GOBJ_SUB(rope)->work;
+
+    return w->upperWallClimbable;
+}
+
+void SetRopeFixPoint(GObj *rope, void *pos, int flag)
+{
+    CopyVector(**(char ***)((char *)GOBJ_SUB(rope)->work) + 0x20, pos);
+}
 
 extern float GetChainNodeID(void *cfg);
 extern int SetChainExtendedWeight(void *node, int idx, float w0, float w1);
 
-INCLUDE_ASM(HoldRope);
+void HoldRope(GObj *rope, GObj *holder)
+{
+    float v[4];
+    float u[4];
+    RopeGeoWork *w = GOBJ_SUB(rope)->work;
+    void **sys = w->chains;
+    int n = (int)GetChainNodeID(sys[0]);
+    int w1 = SetChainExtendedWeight(sys[2], n, 0.0f, 100.0f);
+    int w2 = SetChainExtendedWeight(sys[2], n, 100.0f, 300.0f);
+
+    GetRootPosition(v, holder);
+    CopyVector(u, GOBJ_SUB(holder)->root.move);
+    CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 12, u);
+    CopyVector((float *)((char *)sys[2] + (w2 * 0x50 + 0x10)) + 12, u);
+    CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 4, v);
+    CopyVector((float *)((char *)sys[2] + (w2 * 0x50 + 0x10)) + 4, v);
+    CopyVector((float *)((char *)sys[2] + (w1 * 0x50 + 0x10)) + 8, v);
+    CopyVector((float *)((char *)sys[2] + (w2 * 0x50 + 0x10)) + 8, v);
+    {
+        float *q = (float *)((char *)sys[2] + w1 * 0x50);
+        q[9] -= 100.0f;
+        q[13] -= 100.0f;
+    }
+    /* read through the SubHandle union: GOBJ_SUB's int read is hoisted
+       above the float stores (measured) */
+    CopyVector(((SubHandle *)&holder->dobj)->sub->root.move, ropeZeroVector);
+    debug_StdPrintfDummy("HOLD ROPE\n");
+}
+
+inline void ReleaseRope(void) {}
 
 extern void GetChainAnimation(void *sys, int obj, void *mtx);
 
-INCLUDE_ASM(ropeGeo);
+static void ropeGeo(GObj *rope)
+{
+    RopeGeoWork *w = GOBJ_SUB(rope)->work;
+
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    if (GOBJ_SUB(rope)->parent.obj != 0) {
+        sceVu0MulMatrix(MatrixDrive_GetMatrix(),
+                        (char *)GOBJ_SUB(GOBJ_SUB(rope)->parent.obj)->nodeMtx +
+                            (GOBJ_SUB(rope)->parent.node << 6),
+                        MatrixDrive_GetMatrix());
+    }
+    GetChainAnimation(w->chains, 0, MatrixDrive_GetMatrix());
+}
 
 /* extra chains hung from the rope; none in the release build */
 #define ROPE_EXTRA_CHAINS 0 /* derived name */
@@ -89,12 +140,44 @@ static inline void ropeChainCollision(GObj *rope) /* derived name */
     }
 }
 
+inline void RopeGeo(GObj *rope)
+{
+    ropeGeo(rope);
+    ropeChainCollision(rope);
+}
+
 extern void TestDispChainAnimation(void *sys);
 
-INCLUDE_ASM(RopeDL);
+void RopeDL(GObj *rope)
+{
+    unsigned short ax;
+    unsigned short az;
+    Sub15C *sub = rope->dobj;
+    RopeGeoWork *w = sub->work;
+    char *set = w->chains;
+    int i;
+    int j;
+    int n;
+    float (*v)[4];
 
-INCLUDE_ASM(CheckRopeUpperWallClimbable);
-
-INCLUDE_ASM(ReleaseRope);
-
-INCLUDE_ASM(RopeGeo);
+    p2o_SetDefaultEnviroment();
+    for (i = 0; i < *(int *)(set + 4); i++) {
+        n = *(int *)(*(char **)set + i * 0x50);
+        v = (float (*)[4]) * (int *)(*(char **)(set + 8) + i * 0x1A0);
+        for (j = 1; j < n; j++) {
+            sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+            MatrixDrive_TransMatrix(v[j][0], v[j][1], v[j][2]);
+            MatrixDrive_GetTurnYAngleXZ(&ax, &az, v[j][0] - v[j - 1][0], v[j][1] - v[j - 1][1],
+                                        v[j][2] - v[j - 1][2]);
+            MatrixDrive_RotMatrixX(-ax);
+            MatrixDrive_RotMatrixZ(-az);
+            MatrixDrive_RotMatrixX(-0x8000);
+            MatrixDrive_ScaleMatrix(1.0f, 1.0f, 1.0f);
+            CopyMatrix((char *)sub->nodeMtx + (j * 64 - 64), MatrixDrive_GetMatrix());
+        }
+        p2o_DispVU1DObjMulti(sub);
+    }
+    if (debug_skel_flag != 0) {
+        TestDispChainAnimation(w->chains);
+    }
+}

@@ -159,7 +159,54 @@ INCLUDE_ASM(InitItemGeo);
 /* The holder's display object is read again at every site through the
    SubHandle union, then its node matrices (64 bytes a node) and quaternions
    (16 bytes a node); q is a plain four-float scratch. */
-INCLUDE_ASM(carriedItemGeo);
+static void carriedItemGeo(GObj *gobj)
+{
+    Vec16 pos;
+    sceVu0FVECTOR q;
+    sceVu0FMATRIX m;
+    Vec16 wpos;
+    Vec16 rot;
+    Vec16 up;
+    unsigned short ang[2];
+    Vec16 adj;
+    ItemWork *rec = GOBJ_SUB(gobj)->work;
+
+    if (((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->ctrl.frameFlag2 != 0) {
+        _ApplyMatrix(&pos,
+                     (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
+                         GetSkeltonFocusNode((GObj *)rec->holder, 22) * 64,
+                     carryOfs);
+        CopyQuaternion(q, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeQuat +
+                              GetSkeltonFocusNode((GObj *)rec->holder, 22) * 16);
+        RotQuaternionX(q, 16384);
+        SetRootQuaternion(gobj, q);
+    } else {
+        int node = GetSkeltonFocusNode((GObj *)rec->holder, 1);
+
+        CopyVector(&wpos, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
+                              GetSkeltonFocusNode((GObj *)rec->holder, 22) * 64 + 48);
+        MatrixDrive_SetTransposeMatrix(
+            m, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx + node * 64);
+        _ApplyMatrix(q, m, &wpos);
+        q[2] = 0.0f;
+        _ApplyMatrix(
+            &pos, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx + node * 64, q);
+        memset(&up, 0, 16);
+        up.f[1] = -1.0f;
+        sceVu0ApplyMatrix(&up,
+                          (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
+                              GetSkeltonFocusNode((GObj *)rec->holder, 44) * 64,
+                          &up);
+        MatrixDrive_GetTurnZAngleYX(&ang[0], &ang[1], up.f[0], up.f[1], up.f[2]);
+        CopyQuaternion(&rot, rec->rot);
+        SetIdentityQuaternion(&adj);
+        RotQuaternionY(&adj, -ang[0]);
+        RotQuaternionX(&adj, ang[1]);
+        MultiQuaternion(&rot, &adj, &rot);
+        SetRootQuaternion(gobj, &rot);
+    }
+    SetDirectRootPosition(gobj, &pos);
+}
 
 /* start the break animation of a broken item; BreakItemFromOutside and
    BreakItemWithAttackHit use it */
@@ -290,13 +337,26 @@ static inline int CheckCarryableItemInline(GObj *gobj) /* derived name */
     return r;
 }
 
-INCLUDE_ASM(CheckCarryableItem);
+int CheckCarryableItem(GObj *gobj)
+{
+    return CheckCarryableItemInline(gobj);
+}
 
 INCLUDE_ASM(GetItemKind);
 
-INCLUDE_ASM(IsItemHoldable);
+int IsItemHoldable(GObj *gobj)
+{
+    ItemWork *p = GOBJ_SUB(gobj)->work;
 
-INCLUDE_ASM(IsBombExplode);
+    return p->dead == 0;
+}
+
+int IsBombExplode(GObj *gobj)
+{
+    ItemWork *p = GOBJ_SUB(gobj)->work;
+
+    return p->fuse.state == 2;
+}
 
 INCLUDE_ASM(GetBombTorchGObj);
 

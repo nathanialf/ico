@@ -335,6 +335,6 @@ INCLUDE_ASM(CapsuleGhostBossStart);
 
 INCLUDE_ASM(InqCapsuleGhostBossEnd);
 
-INCLUDE_ASM(BossCtrlDL);
+void BossCtrlDL(void) {}
 
 INCLUDE_ASM(gene_eff_end_func);

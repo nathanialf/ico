@@ -117,14 +117,14 @@ static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f}; /* derived name */
    calls */
 static inline PointBlur *initPointBlurAt(int num, int pri, int *col, float *rate) /* derived name */
 {
-    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 64, "src/enemyParts.c", 16);
+    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 64, "src/enemyParts.c", 15);
     *p = pointBlurTemplate;
 
     p->pri = pri;
-    p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
-    p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
+    p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 19);
+    p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 20);
     p->stripCol =
-        (GifColor *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
+        (GifColor *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 21);
     p->num = num;
     p->col.r = col[0];
     p->col.g = col[1];
@@ -138,9 +138,62 @@ INCLUDE_ASM(InitEnemyEye);
 
 INCLUDE_ASM(InitEnemyFootPrint);
 
-INCLUDE_ASM(ExecEnemyFootPrints);
+int ExecEnemyFootPrints(EnemyFootPrintHead *self)
+{
+    float q[4];
+    int i;
+    EnemyFootPrint *base;
 
-INCLUDE_ASM(EntryEnemyFootPrint);
+    base = self->buf;
+    for (i = 0; i < self->num; i++) {
+        EnemyFootPrint *fp = &base[i];
+        struct DObjNode *dl; /* the node address as an int sum, as EntryEnemyFootPrint's slot */
+        /* the free marker, set before the calls below and stored when the
+           footprint runs out */
+        int dead;
+
+        if (fp->life < 0) {
+            continue;
+        }
+        dl = (struct DObjNode *)(i * 80 + (int)self->dobj->nodes);
+        dl->fade = -(float)(fp->life + 1) / 30.0f;
+        dl->scale[0] = dl->scale[0] + fp->speed;
+        fp->speed = fp->speed * 0.9f;
+        dl->scale[1] = dl->scale[2] = dl->scale[0];
+        dead = -1;
+        SetQuaternionByAxisRotateVWithNoRegularize(q, rand(), YUnitVector);
+        GetMatrixFromQuaternionPos((char *)(self->dobj->nodeMtx + i * 0x40), q, fp->pos);
+        fp->life = fp->life + 1;
+        if (fp->life == 30) {
+            fp->life = dead;
+            /* node 1's fade, whichever footprint ran out */
+            self->dobj->nodes[1].fade = 1.0f;
+        }
+    }
+    return 1;
+}
+
+int EntryEnemyFootPrint(EnemyFootPrintHead *self, void *pos)
+{
+    int i = self->idx;
+    /* the slot address as an int sum */
+    EnemyFootPrint *fp = (EnemyFootPrint *)(i * 32 + (int)self->buf);
+    struct DObjNode *vt;
+
+    fp->speed = 0.05f;
+    fp->life = 0;
+    _CopyVector(fp->pos, pos);
+
+    self->buf[i].pos[1] += -5.0f;
+    vt = (struct DObjNode *)(i * 80 + (int)self->dobj->nodes);
+    vt->scale[0] = vt->scale[1] = vt->scale[2] = 0.0f;
+
+    self->idx = self->idx + 1;
+    if (self->idx == self->num) {
+        self->idx = 0;
+    }
+    return 0;
+}
 
 int DispEnemyFootPrints(EnemyFootPrintHead *self)
 {
@@ -148,7 +201,10 @@ int DispEnemyFootPrints(EnemyFootPrintHead *self)
     return 1;
 }
 
-INCLUDE_ASM(InitPointBlur);
+PointBlur *InitPointBlur(int num, int pri, int *col, float *rate)
+{
+    return initPointBlurAt(num, pri, col, rate);
+}
 
 int DispPointBlur(PointBlur *self)
 {

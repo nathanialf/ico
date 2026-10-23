@@ -17,9 +17,11 @@ inline void isysGObjAlloc(int n);
 inline void isysGObjKindTableRemove(GObj *g);
 inline void *isysGObjSearchFromObjKindID_begin(int kind);
 inline void *isysGObjSearchFromObjKindID_next(GObj *g);
-static void isysGObjKindTableInit(void);
 
-INCLUDE_ASM(isysGObjKindTableInit);
+static void isysGObjKindTableInit(void)
+{
+    memset(gobjKindHead, 0, sizeof(gobjKindHead));
+}
 
 void isysGObjInit(int n)
 {
@@ -107,7 +109,16 @@ static __inline__ void removeGObjEntry(GObj *g) /* derived name */
     }
 }
 
-INCLUDE_ASM(isysGObjRemoveAll);
+void isysGObjRemoveAll(void)
+{
+    unsigned int i;
+
+    for (i = 0; i < gobjMax; i++) {
+        if (gobjTable[i].self != 0)
+            removeGObjEntry(&gobjTable[i]);
+    }
+    isysGObjKindTableInit();
+}
 
 static void add_gobj_to_tail(GObj *g, int link, int key)
 {

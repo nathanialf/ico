@@ -396,7 +396,54 @@ static int adjustSideWall(ClipWork *w, int nearTest, Vec16 *wallPlane)
     return 0;
 }
 
-INCLUDE_ASM(checkSideWall);
+static int checkSideWall(float *probe, float *mtx, ClipWork *p, ClipWork *base, Vec16 *wallPlane)
+{
+    int flag;
+    int mag;
+    int mask;
+
+    p->radius = 0.0f;
+    CopyVector(p, base);
+    sceVu0ApplyMatrix(p->pt[1], mtx, probe);
+    ClipWall(p);
+
+    if (p->wall.elem != 0) {
+        goto disp_one;
+    }
+    if (skelRoot->fuchiMode != 0) {
+        ClipWallFuchiHangWalkStop(p);
+        if (p->wall.elem != 0) {
+            flag = 0;
+            mag = GetWallAttribute(p);
+            switch (skelRoot->fuchiMode) {
+            default:
+            case 1:
+                mask = 0x20000000;
+                break;
+            case 2:
+                mask = 0x10000000;
+                break;
+            }
+            if (mag & mask) {
+                flag = 1;
+                if (mag & 0x0FFFFFFF) {
+                    return -1;
+                }
+            }
+            if (flag != 0) {
+                return adjustSideWall(p, 0, wallPlane);
+            }
+        }
+    }
+    CopyVector(p, (void *)p->pt[1]);
+    CopyVector((void *)p->pt[1], base->pt[1]);
+    ClipWall(p);
+    if (p->wall.elem != 0) {
+    disp_one:
+        return adjustSideWall(p, 1, wallPlane);
+    }
+    return 0;
+}
 
 static void forceFallDown(void)
 {
@@ -442,7 +489,147 @@ static inline void dropWhenFloorTooFar(void) /* derived name */
 
 INCLUDE_ASM(calcWallFittingGeometry);
 
-INCLUDE_ASM(rootUpdateHang);
+static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
+{
+    Vec16 mv;
+    float mtx[16];
+    Vec16 pl;
+    Vec16 pl2;
+    ClipWork w;
+    float mtx2[16];
+    Vec16 pos;
+    int hit;
+
+    GetMatrixFromQuaternion(mtx, skelRoot->quat);
+    sceVu0ApplyMatrix(&mv, mtx, rootStep);
+    AddVectorXYZ(skelRoot->pos, skelRoot->pos, &mv);
+    skelRoot->height = rootMove[1];
+    hit = 0;
+    CopyVector(&pos, skelRoot->pos);
+    pos.f[1] = pos.f[1] - (rootMove[1] - 30.0f);
+    MatrixDrive_PushMatrix();
+    GetMatrixFromQuaternionPos((void *)MatrixDrive_GetMatrix(), skelRoot->quat, &pos);
+    MatrixDrive_TransMatrix(0.0f, 0.0f, -rootMove[2] - 10.0f);
+    CopyMatrix(mtx2, (void *)MatrixDrive_GetMatrix());
+    MatrixDrive_PopMatrix();
+    sceVu0ApplyMatrix(&w, mtx2, hangBack);
+    sceVu0ApplyMatrix(w.pt[1], mtx2, hangFront);
+    w.radius = 0.0f;
+
+    /* the work records, in a block of their own */
+    {
+        int n;
+        int attr;
+
+        if (skelMotCtrl->updateModeChanged == 0) {
+            ClipWall(&w);
+            if (w.wall.elem != 0) {
+                WallCfg rec = {w.wall.o, w.wall.elem};
+
+                n = GetPureVerticalPlaneOfCurrentPosition(&skelRoot->plane, &pl, 0, &rec, 0,
+                                                          skelRoot->pos);
+                if (-0.25f < skelRoot->plane.f[1]) {
+                    /* EUC-JP: "the wall angle is steep, so fall" */
+                    debug_StdPrintfDummy("壁の角度が急なので落下\n");
+                    forceFallDown();
+                    goto out;
+                }
+                CopyVector(&pl2, &pl);
+                if (skelRoot->wall.o.obj == rec.o.obj && skelRoot->wall.o.node == rec.o.node &&
+                    skelRoot->wall.elem == rec.elem) {
+                    hit = skelRoot->wallCount == n;
+                }
+                skelRoot->wall = rec;
+                skelRoot->wallCount = n;
+                skelMotCtrl->wallAttr = attr = GetWallAttribute(&w);
+                if (attr == 768) {
+                    forceFallDown();
+                    /* EUC-JP: "fall by the wall attribute" */
+                    debug_StdPrintfDummy("壁属性により落下\n");
+                    goto out;
+                }
+            } else {
+                /* EUC-JP: "no wall, so fall" */
+                debug_StdPrintfDummy("壁がなくて落下\n");
+                forceFallDown();
+                goto out;
+            }
+        } else {
+            skelMotCtrl->updateModeChanged = 0;
+            GetPureVerticalPlane(&skelRoot->plane, &pl, 0, &skelRoot->wall, 0);
+            hit = 1;
+            CopyVector(&pl2, &pl);
+        }
+
+        {
+            Vec16 v;
+            Vec16 sc;
+            ClipWork sw1;
+            ClipWork sw2;
+            Vec16 dv;
+            int r1;
+            int r2;
+            float d;
+            float dd;
+
+            pl2.f[3] = 0.0f;
+            CopyVector(&v, skelRoot->pos);
+            v.f[1] = v.f[1] - rootMove[1];
+            d = GetDistanceFromPlane(&skelRoot->plane, &v);
+            if (hit == 0) {
+                if (d < 0.0f ? 30.0f < -d : 30.0f < d) {
+                    /* EUC-JP: "no hold point on the wall, so fall (step: %f)" */
+                    debug_StdPrintfDummy("壁のつかまり先がなくて落下 (段差:%f)\n", fptodp(d));
+                    forceFallDown();
+                    goto out;
+                }
+            }
+            dd = -d;
+            sceVu0ScaleVector(&sc, &skelRoot->plane, dd);
+            AddVectorXYZ(&v, &v, &sc);
+            d = GetDistanceFromPlane(&pl, &v);
+            sceVu0ScaleVector(&sc, &pl, -d - rootMove[2]);
+            AddVectorXYZ(&v, &v, &sc);
+            CopyVector(skelRoot->pos, &v);
+            CopyVector(skelRoot->footPos, skelRoot->pos);
+            skelRoot->pos[1] = skelRoot->pos[1] + rootMove[1];
+
+            r1 = checkSideWall(hangLeft, mtx2, &sw1, &w, &pl2);
+            r2 = checkSideWall(hangRight, mtx2, &sw2, &w, &pl2);
+            if (r1 == -1 || r2 == -1) {
+                /* EUC-JP: "hit a forced-fall wall, so fall" */
+                debug_StdPrintfDummy("強制落下の壁に当たったので落下\n");
+                forceFallDown();
+                goto out;
+            }
+            if (r1 != 0 && r2 != 0) {
+                sceVu0SubVector(&dv, sw2.pt[2], sw1.pt[2]);
+                sceVu0OuterProduct(skelMotCtrl->dir, &dv, YUnitVector);
+                skelMotCtrl->dir[1] = 0.0f;
+                sceVu0Normalize(skelMotCtrl->dir, skelMotCtrl->dir);
+            } else {
+                CopyVector(skelMotCtrl->dir, &pl2);
+                skelMotCtrl->dir[0] = -skelMotCtrl->dir[0];
+                skelMotCtrl->dir[2] = -skelMotCtrl->dir[2];
+            }
+        }
+    }
+
+    checkWallUpperWall();
+    dropWhenFloorTooFar();
+    wallCollisionAndFloorFit(skelRoot->pos, skelRoot->last, 0.0f);
+
+out:
+    CopyVector(skelRoot->trans, ZeroPoint);
+    if (kind == 15) {
+        calcWallFittingGeometry();
+    }
+    SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
+    CopyVector(skelRoot->last, skelRoot->pos);
+    CopyVector(skelRoot->delta, rootDelta);
+    skelRoot->standNode = -1;
+    return skelRoot->wall.o;
+}
 
 INCLUDE_ASM(rootUpdateSwim);
 
@@ -549,10 +736,129 @@ INCLUDE_ASM(keepVerticalZWithQ_267);
 
 INCLUDE_ASM(rootUpdateNodeFix);
 
-INCLUDE_ASM(rootUpdateY);
+static ObjNode rootUpdateY(void)
+{
+    Vec16 mv;
+    Vec16 mv2;
+    float mtx[16];
+    float plane[4];
+    float vp[4];
+    Vec16 corner[4];
+    Vec16 center;
+    Vec16 pos;
+    Vec16 push;
+    ClipWork w;
+    ClipWork cw;
+    float d;
+    int i;
+
+    GetMatrixFromQuaternion(mtx, skelRoot->quat);
+    sceVu0ApplyMatrix(&mv, mtx, rootMove);
+    sceVu0ApplyMatrix(&mv2, mtx, rootStep);
+
+    CopyVector(skelRoot->move, &mv2);
+    sceVu0AddVector(skelRoot->pos, skelRoot->pos, skelRoot->move);
+    CopyVector(skelRoot->footPos, skelRoot->pos);
+
+    GetPureVerticalPlane(0, vp, (float *)corner, &skelRoot->wall, 0);
+    CopyVector(plane, vp);
+    plane[3] = 0.0f;
+
+    memset(&center, 0, 16);
+    center.f[3] = 1.0f;
+    for (i = 0; i < 4; i++) {
+        AddVectorXYZ(&center, &center, &corner[i]);
+    }
+    sceVu0ScaleVector(&center, &center, 0.25f);
+    skelRoot->pos[0] = center.f[0];
+    skelRoot->pos[2] = center.f[2];
+    skelRoot->pos[0] = skelRoot->pos[0] + mv.f[0];
+    skelRoot->pos[2] = skelRoot->pos[2] + mv.f[2];
+
+    CopyVector(&pos, skelRoot->pos);
+    pos.f[1] = pos.f[1] - rootMove[1];
+    d = GetDistanceFromPlane(vp, &pos);
+    sceVu0ScaleVector(&push, vp, -d - rootMove[2]);
+    AddVectorXYZ(&pos, &pos, &push);
+    pos.f[3] = 1.0f;
+    CopyVector(skelRoot->pos, &pos);
+    skelRoot->pos[1] = skelRoot->pos[1] + rootMove[1];
+    sceVu0ScaleVectorXYZ(skelMotCtrl->dir, plane, -1.0f);
+
+    if (skelRoot->stairStep != 0) {
+        float t = skelRoot->pos[1] - mv.f[1];
+        float e;
+
+        t = t - (float)((int)(t / 50.0f) * 50);
+        if (t < 0.0f) {
+            t = t + 50.0f;
+        }
+        if (t > 25.0f) {
+            e = 50.0f - t;
+            skelRoot->pos[1] = skelRoot->pos[1] + e;
+        } else {
+            skelRoot->pos[1] = skelRoot->pos[1] - t;
+        }
+    }
+
+    getFieldCollision(&w);
+    CopyVector(&skelRoot->plane, &w.normal);
+    clipWallAhead(&cw);
+    if (cw.wall.elem != 0) {
+        WallCfg rec = {cw.wall.o, cw.wall.elem};
+
+        skelRoot->aheadWall = rec;
+    }
+
+    MatrixDrive_PushMatrix();
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrix(skelRoot->pos[0], skelRoot->pos[1] + 100.0f, skelRoot->pos[2]);
+    MultiMatrixByQuaternion(skelRoot->quat);
+    checkWallState(2);
+    MatrixDrive_PopMatrix();
+
+    CopyVector(skelRoot->last, skelRoot->pos);
+    CopyVector(skelRoot->delta, rootDelta);
+    CopyVector(skelRoot->trans, ZeroVector);
+    skelRoot->standNode = -1;
+    return skelRoot->wall.o;
+}
 
 /* the parameter is unused */
-INCLUDE_ASM(rootUpdateY_Rope);
+static ObjNode rootUpdateY_Rope(int actPt)
+{
+    Vec16 v;
+    Vec16 cur;
+    float save;
+
+    CopyVector(skelRoot->footPos, skelRoot->pos);
+    if (skelRoot->ropeState != 0) {
+        int node = GetSkeltonFocusNode((GObj *)skelGObj, 22);
+
+        v.f[0] = skelRoot->pos[0];
+        v.f[1] = skelRoot->pos[1];
+        v.f[2] = skelRoot->pos[2];
+        _SubVector(skelRoot->pos, skelRoot->holdPoint, nodePos2 + node * 16);
+        if (skelRoot->ropeState < 0) {
+            _InterGV(skelRoot->pos, v.f, skelRoot->pos, 1.0f, 2.0f);
+        }
+    }
+    save = skelRoot->radius;
+    CopyVector(&cur, skelRoot->pos);
+    CopyVector(&v, skelRoot->last);
+    skelRoot->radius = 60.0f;
+    wallCollisionAndFloorFit(cur.f, v.f, 5.0f);
+    skelRoot->radius = save;
+    skelMotCtrl->fallHeight = 0.0f;
+    skelRoot->height = 0.0f;
+    SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
+    CopyVector(skelRoot->trans, ZeroPoint);
+    CopyVector(skelRoot->footPos, skelRoot->pos);
+    AddVectorXYZ(skelRoot->footPos, skelRoot->footPos, skelRoot->delta);
+    CopyVector(skelRoot->last, skelRoot->pos);
+    skelRoot->standNode = -1;
+    return InitialObjPointer;
+}
 
 INCLUDE_ASM(rootUpdateFly);
 

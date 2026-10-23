@@ -13,7 +13,7 @@
 #include "frameDependSequence.h"
 #include "include_asm.h"
 
-static int execSE(int no, void *entry);
+static int execSE(int no);
 static int checkWaterDepth(struct GObj *gobj, int depth);
 static int checkModelDataID(struct GObj *gobj, int id);
 static int checkWeaponType(struct GObj *gobj, int kind);
@@ -59,9 +59,41 @@ extern int soundSeDefPlayWithVolumeRate(int se, unsigned int owner, int pos, int
                                         float rate);
 /* seMail has no header; declared as ico2/fumi/src/seMail.c defines it */
 extern void seMail(int self, int id);
-static int playSE(int no);
 
-INCLUDE_ASM(playSE);
+static int playSE(int no)
+{
+    if (no == 0) {
+        return 1;
+    }
+    if (((GObj *)fdsGObj)->drawMask != 0) {
+        int ret;
+
+        if (fdsVolume > 0.95f) {
+            ret = soundSeDefPlay(no, fdsGroup, GOBJ_SUB(fdsGObj)->nodeMtx + 0x30, 1);
+        } else {
+            ret = soundSeDefPlayWithVolumeRate(no, fdsGroup, GOBJ_SUB(fdsGObj)->nodeMtx + 0x30, 1,
+                                               fdsVolume);
+        }
+
+        seMail((int)fdsGObj, no);
+        if (ret == -2) {
+            if (debug_seslotdisp_flag != 0) {
+                /* EUC-JP: "SE \"%s\" is not loaded" */
+                debug_StdPrintfDummy("SE \033[36m\"%s\"\033[m はロードされていません\n",
+                                     &seDef[no]);
+            }
+            return 0;
+        }
+        if (ret < 0) {
+            return 1;
+        }
+        if (debug_seslotdisp_flag != 0) {
+            debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
+                                 &seDef[no], fdsGroup);
+        }
+    }
+    return 1;
+}
 
 /* .sbss and .bss: the debug tally playSERandomID prints, the number of
    picks so far and how many times each entry was picked. */
@@ -69,17 +101,125 @@ static int seRandomPicks; /* derived name */
 
 static int seRandomPickCount[50]; /* derived name */
 
-static int playSERandomID(int no, void *entry);
+static int playSERandomID(int no)
+{
+    float rest;
+    float rnd;
+    float share;
+    float acc;
+    int nshare;
+    int n;
+    int i;
 
-INCLUDE_ASM(playSERandomID);
+    rest = 100.0f;
+    nshare = 0;
+    for (n = 0; n < randomSEKind[no + n].se; n++) {
+        if (randomSEKind[no + n].rate < 0.0f) {
+            nshare++;
+        } else {
+            rest -= randomSEKind[no + n].rate;
+        }
+    }
+    rnd = crt_random_unit() * 0.99999f;
+    acc = 0.0f;
+    share = 0.0f;
+    if (acc <= rest && nshare != 0) {
+        share = rest < acc ? acc : rest / (float)nshare;
+    }
+    for (i = 0; i < n; i++) {
+        float w;
+
+        if (randomSEKind[no + i].rate < 0.0f) {
+            w = share;
+        } else {
+            w = randomSEKind[no + i].rate;
+        }
+        acc += w * 0.01f;
+        if (rnd < acc) {
+            /* the draw trace for the random SE 0x1000D */
+            if (debug_seslotdisp_flag != 0 && no + 0x10000 == 0x1000D) {
+                int j;
+
+                seRandomPickCount[i]++;
+                seRandomPicks++;
+                /* EUC-JP: "call %d: " */
+                debug_StdPrintfDummy("%d回目: ", seRandomPicks);
+                for (j = 0; j < n; j++) {
+                    debug_StdPrintfDummy(
+                        "%s%d(%1.1f%%)\033[m ", j == i ? "\033[36m" : "", seRandomPickCount[j],
+                        (float)seRandomPickCount[j] * 100.0f / (float)seRandomPicks);
+                }
+                debug_StdPrintfDummy("\n");
+            }
+            return execSE(randomSEKind[no + i].se);
+        }
+    }
+    return execSE(randomSEKind[no].se);
+}
 
 static int playSEConditionID(int no, void *entry);
 
 INCLUDE_ASM(playSEConditionID);
 
+static void playEff(int no);
+
 INCLUDE_ASM(playEff);
 
-INCLUDE_ASM(execEff);
+static int execEff(int no)
+{
+    int (*fn)(GObj *, int);
+    const VibCondEntry *p;
+    int idx;
+    int j;
+    int eff;
+    int k;
+    int n;
+
+    if (no <= 0xFFFF) {
+        if (no == 19) {
+            goto done;
+        }
+        playEff(no);
+        goto done;
+    }
+    if (no <= 0x1FFFF) {
+        idx = no - 0x10000;
+        k = idx + 1;
+        n = 0;
+        if (randomEffKind[idx] != 19) {
+            do {
+                n++;
+            } while (randomEffKind[k++] != 19);
+        }
+        execEff(randomEffKind[idx + (int)(((float)n - 1e-05f) * crt_random_unit())]);
+        goto done;
+    }
+    j = no - 0x20000;
+    switch (motEffCondKind[j].kind) {
+    case 0:
+    default:
+        fn = CheckFloorAttribute;
+        break;
+    case 2:
+        fn = checkWaterDepth;
+        break;
+    }
+    if (motEffCondKind[j].kind != -1) {
+        p = &motEffCondKind[j];
+        do {
+            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
+                eff = p->actId;
+                goto call;
+            }
+            p++;
+        } while (p->kind != -1);
+    }
+    eff = 19;
+call:
+    execEff(eff);
+done:
+    return 1;
+}
 
 static void execVibCondition(int no, int *entry);
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
@@ -143,9 +283,22 @@ static void executeSEPackageByGObj(GObj *gobj, int no, int grp);
 
 INCLUDE_ASM(executeSEPackageByGObj);
 
-static void executeSEPackageWithNoGObj(int no);
+static void executeSEPackageWithNoGObj(int no)
+{
+    int *p;
+    int i;
 
-INCLUDE_ASM(executeSEPackageWithNoGObj);
+    p = findSEPackage(no, -1);
+    for (i = 0; i < 2; i++) {
+        if (p[i] != 0) {
+            soundSeDefPlay(p[i], 0xFFFFFFFF, 0, 1);
+            if (debug_seslotdisp_flag != 0) {
+                debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
+                                     &seDef[p[i]], 0xFFFFFFFF);
+            }
+        }
+    }
+}
 
 void ExecuteSEPackageWithGroupVariation(GObj *gobj, int id, int grp)
 {
@@ -170,9 +323,11 @@ void ExecuteSEPackageWithVolumeRate(GObj *gobj, int id, float rate)
 
 /* as in s_init.h, which this file does not include */
 extern void soundSeGroupStop(int arg);
-void StopSEPackageWithGroupVariation(GObj *gobj, int grp);
 
-INCLUDE_ASM(StopSEPackageWithGroupVariation);
+void StopSEPackageWithGroupVariation(GObj *gobj, int grp)
+{
+    soundSeGroupStop(GOBJ_SUB(gobj)->ctrl.seGroup[grp]);
+}
 
 void StopSEPackage(GObj *gobj)
 {

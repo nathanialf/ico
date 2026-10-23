@@ -1073,7 +1073,18 @@ INCLUDE_ASM(InitQueenGeo);
 
 INCLUDE_ASM(QueenGeo);
 
-INCLUDE_ASM(QueenDL);
+void QueenDL(GObj *g)
+{
+    QueenWork *w;
+
+    p2o_SetDefaultEnviroment();
+    p2o_DispVU1(g);
+    w = GOBJ_SUB(g)->work;
+    if (w->clothOn != 0) {
+        DispCloth4D(w->cloth, (char *)GOBJ_SUB(g)->lightMtx + 0x40, (char *)GOBJ_SUB(g)->lightMtx);
+    }
+    DispCloth4D(w->cloth2, (char *)GOBJ_SUB(g)->lightMtx + 0x40, (char *)GOBJ_SUB(g)->lightMtx);
+}
 
 /* an angle wrapped into one turn */
 static inline float WrapRad(float a) /* derived name */
@@ -1177,21 +1188,55 @@ INCLUDE_ASM(QueenInqDead);
 
 INCLUDE_ASM(QueenBoysWeaponPower);
 
-INCLUDE_ASM(QueenBarrierRadius);
+float QueenBarrierRadius(GObj *gobj)
+{
+    return ((QueenBarrierWork *)GOBJ_SUB(gobj)->work)->radius;
+}
 
 INCLUDE_ASM(QueenBarrierInqBreakable);
 
-INCLUDE_ASM(queenBarrierBeforeFunc);
+void queenBarrierBeforeFunc(GObj *g)
+{
+    GObjMailQueue *q = (GObjMailQueue *)&g->mailBox;
+    QueenBarrierWork *w = GOBJ_SUB(g)->work;
+    int i;
+
+    for (i = 0; i < q->num; i++) {
+        GObjMailEntry *e = &q->e[i];
+
+        if (e->mail == 13) {
+            debug_StdPrintfDummy(queenBarrierAttackedMsg);
+            w->hit = 1;
+            w->react = 1;
+            queen_barrier_set_damage();
+        }
+    }
+    q->num = 0;
+}
 
 INCLUDE_ASM(InitQueenBarrierGeo);
 
-INCLUDE_ASM(QueenBallRadius);
+float QueenBallRadius(GObj *gobj)
+{
+    return ((QueenBallWork *)GOBJ_SUB(gobj)->work)->scale * 100.0f;
+}
 
 INCLUDE_ASM(queenBallBeforeFunc);
 
 INCLUDE_ASM(InitQueenBallGeo);
 
-INCLUDE_ASM(subQueenControl);
+void subQueenControl(volatile int g)
+{
+    QueenWork *w = GOBJ_SUB(g)->work;
+
+    _ACTWait(1);
+    for (;;) {
+        if (w->st.f.pause == 0) {
+            Debug_StickControl((GObj *)g);
+        }
+        _ACTWait(1);
+    }
+}
 
 void subQueenCollision(volatile int g)
 {

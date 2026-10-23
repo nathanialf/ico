@@ -320,7 +320,43 @@ void jimakuEnd(JimakuArg *msg)
     jimakuMgrEnd((int *)msg);
 }
 
-INCLUDE_ASM(jimakuDisp);
+void jimakuDisp(JimakuArg *msg)
+{
+    struct jWayGroup *g = &jimakuRing[msg->sub.n];
+    int c;
+
+    if (systemStatus[10] == 0) {
+        return;
+    }
+    c = g->stamp;
+    if ((unsigned int)(c + jimakuDispTime) < (unsigned int)GlobalTimer) {
+        jimakuDispOn = 0;
+    }
+    if ((unsigned int)(c + 5) < (unsigned int)GlobalTimer) {
+        iosSemaReferStatus(&jimakuShownSema);
+        if (jimakuShownSema.status.numWaitThreads > 0) {
+            iosSemaSignal(&jimakuShownSema);
+        }
+    }
+    if (systemStatus[10] != 0) {
+        iosSemaReferStatus(&jimakuFrameSema);
+        if (jimakuFrameSema.status.numWaitThreads > 0) {
+            iosSemaSignal(&jimakuFrameSema);
+        }
+    }
+    if (jimakuDispOn != 0) {
+        int v = g->tex;
+        texProperty[383].texNo = v;
+        texProperty[382].texNo = v;
+        if (v < 0) {
+            return;
+        }
+        if (jimakuOn != 0) {
+            display_texture(&texProperty[382]);
+            display_texture(&texProperty[383]);
+        }
+    }
+}
 
 inline void jimakuUndisp(JimakuArg *msg)
 {

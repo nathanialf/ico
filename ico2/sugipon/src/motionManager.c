@@ -300,7 +300,31 @@ static inline void clearCliffStatus(void) /* derived name */
     skelMotCtrl->cliffDist = 3.40282347e+38f;
 }
 
-INCLUDE_ASM(clearCollisionStatus);
+static void clearCollisionStatus(void)
+{
+    clearCliffStatus();
+
+    skelMotCtrl->flags &= ~0x20;
+    skelMotCtrl->wallHit = 0;
+    skelMotCtrl->wallDist = 3.40282347e+38f;
+    skelMotCtrl->wallFloorHeight = 3.40282347e+38f;
+    skelMotCtrl->wallTopHeight = 3.40282347e+38f;
+    skelRoot->cliffFloor = 0;
+
+    skelMotCtrl->sideWall = 0;
+    skelMotCtrl->sideWallDist = 3.40282347e+38f;
+    skelMotCtrl->cliffDepth = 0.0f;
+
+    skelMotCtrl->flags &= ~0x1000;
+    skelMotCtrl->upperWall = 0;
+    skelMotCtrl->upperWallDist = 3.40282347e+38f;
+
+    skelMotCtrl->lastSlipFlags = skelMotCtrl->slipFlags;
+    skelMotCtrl->slipFlags = 0;
+    skelMotCtrl->waterDepth = 0.0f;
+
+    skelMotCtrl->landed = 0;
+}
 
 static void checkUpperWallState(void)
 {
@@ -323,7 +347,33 @@ static void checkUpperWallState(void)
     }
 }
 
-INCLUDE_ASM(checkWallSideState);
+static void checkWallSideState(void)
+{
+    ClipWork buf = {{0}, {0}, 50.0f};
+    float v[4];
+    ClipWork *p = &buf;
+
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(wallCheckBase);
+    CopyVector((void *)p, (void *)(MatrixDrive_GetMatrix()[3]));
+    sceVu0ApplyMatrix(p->pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
+    MatrixDrive_PopMatrix();
+
+    if (skelRoot->fieldWall != 0) {
+        ClipWallField(p);
+    } else {
+        ClipWall(p);
+    }
+    if (hitColRayDisp != 0) {
+        DrawCollisionRay(p);
+    }
+    if (p->wall.elem != 0) {
+        SubVectorXYZ(v, p->pt[2], p);
+        skelMotCtrl->sideWallDist = FSqrt(sceVu0InnerProduct(v, v)) + 50.0f;
+        skelMotCtrl->sideWall = 1;
+        CopyVector((void *)skelMotCtrl->sideWallNormal, (void *)&p->normal);
+    }
+}
 
 INCLUDE_ASM(checkWallState);
 
@@ -431,7 +481,85 @@ INCLUDE_ASM(GetGeometryOfMotion);
    `obj[2]` field), read as an enumerated kind. */
 typedef enum { GENGEO_KIND_0 = 0 } GenGeoKind; /* derived name */
 
-INCLUDE_ASM(GetMatrixOfMotion);
+void GetMatrixOfMotion(GObj *self, char *tbl, void *ofs)
+{
+    float v[4];
+    float w[4];
+    float p1[4];
+    float p2[4];
+    int i;
+
+    /* the sub-object fields are read as int addresses */
+    skelMotion = tbl;
+    skelQuat = (char *)GOBJ_SUB(self)->nodeQuat;
+    skelNode = GOBJ_SUB(self)->skel;
+    skelScale = GOBJ_SUB(self)->nodes->scale[0];
+    skelRoot = &GOBJ_SUB(self)->root;
+    skelMotCtrl = &GOBJ_SUB(self)->ctrl;
+    skelNodeNum = GOBJ_SUB(self)->skelNodeNum;
+    skelGeoType = objLayout[*(GenGeoKind *)(((char *)self) + 8) * 76 + 70];
+    skelGObj = (int)self;
+    MatrixDrive_PushMatrix();
+    PushQuaternion();
+
+    GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(), skelRoot->quat);
+    SetCurrentQuaternion(skelRoot->quat);
+
+    MatrixDrive_PushMatrix();
+
+    rootHeightVec[1] = skelRoot->height;
+    MatrixDrive_RotMatrixZ(skelRoot->twist);
+
+    sceVu0ApplyMatrix(v, MatrixDrive_GetMatrix(), rootHeightVec);
+
+    v[1] -= skelRoot->height;
+    v[0] *= 0.5f;
+    v[2] *= 0.5f;
+    MatrixDrive_PopMatrix();
+
+    if (skelMotCtrl->catchBoy != 0) {
+        getFinalMatrix(0);
+    } else {
+        getFinalMatrixWithNaturalGeometry(0);
+    }
+
+    scaleMatrix[0] = scaleMatrix[5] = scaleMatrix[10] = skelScale;
+
+    AddVectorXYZ(w, ofs, v);
+    for (i = 0; i < skelNodeNum; i++) {
+        char *nd = (char *)GOBJ_SUB(skelGObj)->nodeMtx + i * 64;
+        char *pos = nd + 48;
+        sceVu0MulMatrix(nd, nd, scaleMatrix);
+        AddVectorXYZ(pos, pos, w);
+    }
+    MatrixDrive_PopMatrix();
+    PopQuaternion();
+
+    if (debug_actnode_flag != 0) {
+        dispActNode(skelRoot->standNode);
+        dispLastNode();
+    }
+    if (debug_skel_flag != 0) {
+        int n;
+
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        gif_StartPacketPri(11);
+        n = GetSkeltonFocusNode(self, 35);
+        CopyVector(w, (char *)GOBJ_SUB(skelGObj)->nodeMtx + n * 64 + 48);
+        CopyVector(p1, skelRoot->lookPos);
+        _SubVector(p2, p1, w);
+        _NormalizeVector(p2, p2);
+        _ScaleVector(p2, p2, 100.0f);
+        _AddVector(p1, w, p2);
+        gif_SetAlpha(1, 5, 128);
+        if (skelRoot->lookIK != 0 && skelRoot->lookMode != 0) {
+            DrawLineG(w, dirColor, p1, dirColor, -1);
+        } else {
+            DrawLineG(w, dirColor2, p1, dirColor2, -1);
+        }
+        gif_EndPacket();
+    }
+}
 
 /* a file static; ico2/sugipon/src/motionManager2.c has its own of the same
    name */

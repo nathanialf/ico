@@ -68,7 +68,6 @@ static int stageMgrMsgBuf[4]; /* derived name */
 #include <libdma.h>
 #include <string.h>
 #include "typedef.h"
-#include "include_asm.h"
 
 /* .sdata: the movie switches main.c's loop reads, defined before
    stop_free_resources; the preload state before stgmgrNextStagePreLoad; the
@@ -88,7 +87,42 @@ int stgMgrWakeupRequest = 0;
 static void stgmgrNextStagePreLoadDiskNotReady(void);
 
 /*SW*/
-INCLUDE_ASM(stop_free_resources);
+static void stop_free_resources(void)
+{
+    int i;
+
+    debug_StdPrintfDummy("----- MASK LINK -----\n");
+    graphics_ready = 0;
+    for (i = 0; i < 8; i++) {
+        isysGObjActiveLink(i, 0);
+    }
+    if (stageData[before_stage_no].endproc != 0) {
+        stageData[before_stage_no].endproc();
+    }
+    iosThreadCancelWakeup(0);
+    isysGObjRemoveAll();
+    sceGsSyncPath(0, 0);
+    InitDelayFree();
+    if (systemStatus[10] != 0) {
+        jimakuEnd(&jimaku_msg);
+        systemStatus[10] = 0;
+    }
+    if (sndInitBgmCancelFlag == 0) {
+        debug_StdPrintfDummy("sound partition reset\n");
+        iosMallocResetPartition(ios_partition_sound);
+    } else {
+        debug_StdPrintfDummy("sound partition not reset\n");
+    }
+    iosMallocResetPartition(ios_partition_seki);
+    iosMallocResetPartition(ios_partition_sugipon);
+    iosMallocResetPartition(ios_partition_dmotion);
+    iosMallocResetPartition(ios_partition_isys);
+    ResetDynamicMotionManager();
+    debug_StdPrintfDummy("here\n");
+    InitDelayFree();
+    girlGObj = 0;
+    boyGObj = 0;
+}
 
 /*SW-END*/
 /*SW*/
@@ -133,7 +167,42 @@ typedef struct MpegRec { /* field names derived */
     int stageChange;
 } MpegRec; /* derived name */
 
-INCLUDE_ASM(start_stage_Load_thread);
+static void start_stage_Load_thread(int stage)
+{
+    before_stage_no = stage_no;
+    stage_no = stage;
+    gsb_SetBGColor(&db, 1, 1, 1);
+    sceGsSyncPath(0, 0);
+    stageManagerFreeResourceFlag = 1;
+    stop_free_resources();
+    if (mpegPlay == 0) {
+        long flags;
+
+        stage_initialize();
+        stageManagerFreeResourceFlag = 0;
+        iosThreadCancelWakeup(0);
+        SetMotionBlur(GlobalStageSetting.motionBlur);
+        current_stage_no = stage;
+        iosThreadCreateS((IOSThread *)initIcoMiscThread, 1, InitIcoMisc, &stage_no,
+                         ios_partition_root, 0x18000, 27);
+        iosThreadStart((IOSThread *)initIcoMiscThread);
+        flags = initIcoMiscThread[15];
+        debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
+        graphics_ready = 1;
+        debug_StdPrintfDummy("-----------------Enable VSync\n");
+    } else {
+        isysInitialize();
+        sceGsResetPath();
+        sceVpu0Reset();
+        sceDmaReset(1);
+        mpegInitDone = 1;
+        ((MpegRec *)systemStatus)->pause = 0;
+        ((MpegRec *)systemStatus)->stageChange = 0;
+        girlGObj = 0;
+        boyGObj = 0;
+        stageManagerFreeResourceFlag = 0;
+    }
+}
 
 /* The DEBUG build's preload report and hold (the report's text derived): a
    debug build reports the stage it is about to preload and, while the debug
@@ -303,7 +372,100 @@ inline void stgmgrNextStagePreLoadForceNoCancel(int val)
     stagePreLoadNoCancel = val;
 }
 
-INCLUDE_ASM(StageManager);
+void StageManager(void)
+{
+    StgMgrMsg *msg;
+
+    debug_StdPrintfDummy("stage manager() in\n");
+    iosMsgQueueCreate(&stageMgrMsgQ, stageMgrMsgBuf, 4);
+    debug_StdPrintfDummy("IosCdLock %d\n", IosCdLock);
+    WaitSema(IosCdLock);
+    DeleteSema(IosCdLock);
+    SignalSema(IosStgMgrLock);
+    debug_StdPrintfDummy("STAGE MANAGER START\n");
+    while (1) {
+        iosMsgRecv(&stageMgrMsgQ, (int *)&msg, 1);
+        mpegPlayFadeInSpeed = 128.0f;
+        fadeSpeed = 0;
+        switch (msg->cmd) {
+        case 0:
+            break;
+        case 1:
+            fadeStatus = 1;
+            fadeSpeed = msg->fadeIn;
+            fadeColor[0] = msg->r;
+            fadeColor[1] = msg->g;
+            fadeColor[2] = msg->b;
+            fadeColor[3] = 0;
+            fadeContinue = 1;
+            fbKeep = 1;
+            if (stageData[msg->stage].mpegNo != 0) {
+                stgMgrWakeupRequest = 1;
+                mpegPlayFadeInSpeed = msg->fadeOut;
+                do {
+                    iosThreadSleep();
+                } while (fadeStatus != 3);
+            }
+            break;
+        default:
+            goto badCmd;
+        }
+        if (stageData[msg->stage].mpegNo != 0) {
+            mpegInitDone = 0;
+            fightSoundClose();
+            soundDataSegAllClose(0, 2);
+        }
+        if (stagePreLoadMgrEntry != 0) {
+            iosCdvdBackGroundMgrDelete(stagePreLoadMgrEntry);
+        }
+        stagePreLoadMgrEntry = 0;
+        if (msg->stage <= 0xFFFF) {
+            exit_stage(msg->stage);
+            lt_switch_layout(49);
+            systemStatus[6] = 1;
+            systemStatus[5] = 1;
+            stgMgrWakeupRequest = 1;
+            while (iosCdvdBackGroundMgrDeleteRequestGet() != 0) {
+                iosThreadSleep();
+            }
+            stgMgrWakeupRequest = 0;
+            mpegPlay = stageData[msg->stage].mpegNo;
+            start_stage_Load_thread(msg->stage);
+        } else {
+            debug_StdPrintfDummy("out of stage %d\n", msg->stage);
+        }
+        if (msg->fadeOut == 0.0f) {
+            fadeStatus = 0;
+            stgMgrWakeupRequest = 1;
+            while (systemStatus[6] != 0) {
+                iosThreadSleep();
+            }
+            if (mpegPlay == 0) {
+                stgmgrNextStagePreLoadEntry(msg->stage);
+            }
+            fbKeep = 0;
+            stgMgrWakeupRequest = 0;
+        } else {
+            stgMgrWakeupRequest = 1;
+            while (systemStatus[6] != 0) {
+                iosThreadSleep();
+            }
+            if (mpegPlay == 0) {
+                stgmgrNextStagePreLoadEntry(msg->stage);
+            }
+            fadeContinue = 0;
+            fadeStatus = 1;
+            fbKeep = 0;
+            stgMgrWakeupRequest = 0;
+            fadeSpeed = -msg->fadeOut;
+        }
+        continue;
+    badCmd:
+        debug_StdPrintfDummy("StageManager:unknown msg\n");
+    }
+    /* unreachable: the loop above never exits */
+    debug_StdPrintfDummy("stage manager() out\n");
+}
 
 inline void CheckPoint(void)
 {

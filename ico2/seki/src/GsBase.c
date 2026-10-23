@@ -810,9 +810,20 @@ INCLUDE_ASM(gsb_InitGSSystem);
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */
 
-inline int gsb_SyncGSSystem(void);
-
-INCLUDE_ASM_LIT(gsb_SyncGSSystem);
+inline int gsb_SyncGSSystem(void)
+{
+    if (sceGsSyncPath(1, 0)) {
+        syncRetry++;
+        if (syncRetry >= 11) {
+            debug_StdPrintfDummy("reset gs\n");
+            gsb_ResetGSSystem();
+            syncRetry = 0;
+        }
+        return 1;
+    }
+    syncRetry = 0;
+    return 0;
+}
 
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
@@ -982,13 +993,37 @@ typedef struct sceCdCLOCK {
     unsigned char year;
 } sceCdCLOCK;
 
-inline int gsb_LoadStageSettings(void);
+inline int gsb_LoadStageSettings(void)
+{
+    char buf[256];
+    int fd;
+    sprintf(buf, "object/stagesetting/%s.ssb", stageData[stage_no].key2);
+    fd = debugSceOpen(buf, 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy("gsb_LoadStageSettings: host file open error.\n");
+    } else {
+        debug_StdPrintfDummy("Load stage settings file. %s\n", buf);
+        sceRead(fd, &GlobalStageSetting, 0x130);
+        debugSceClose(fd);
+    }
+    return -1;
+}
 
-INCLUDE_ASM_LIT(gsb_LoadStageSettings);
-
-inline int gsb_SaveStageSettings(void);
-
-INCLUDE_ASM_LIT(gsb_SaveStageSettings);
+inline int gsb_SaveStageSettings(void)
+{
+    char buf[256];
+    int fd;
+    sprintf(buf, "object/stagesetting/%s.ssb", stageData[stage_no].key2);
+    fd = debugSceOpen(buf, 0x602);
+    if (fd < 0) {
+        debug_StdPrintfDummy("gsb_SaveStageSettings: host file open error.\n");
+    } else {
+        sceWrite(fd, &GlobalStageSetting, 0x130);
+        debug_StdPrintfDummy("Save stage settings file. %s\n", buf);
+        debugSceClose(fd);
+    }
+    return -1;
+}
 
 /* one row of the stage setting page: a label, the word it edits, its range,
    its default and its step, and the callback to run once the value has
@@ -1175,14 +1210,30 @@ int gsb_StageSetting(void)
     return (pad[0].flags & 0x40) ? -1 : 0;
 }
 
-INCLUDE_ASM(gsb_SetBGColor);
+inline void gsb_SetBGColor(void *db, int r, int g, int b)
+{
+    unsigned long long bg = ((long long)b << 16) | ((long long)g << 8);
+    unsigned long long v = r | 0x3F80000000000000ULL;
+    v |= bg;
+    bgColor[0] = r;
+    v |= 0x80000000;
+    bgColor[1] = g;
+    bgColor[2] = b;
+    bgColor[3] = 0x80;
+    *(unsigned long long *)((char *)db + 0x1F0) = v;
+    *(unsigned long long *)((char *)db + 0x100) = v;
+}
 
-INCLUDE_ASM(gsb_GetBGColor);
+inline void gsb_GetBGColor(unsigned char *col)
+{
+    col[0] = bgColor[0];
+    col[1] = bgColor[1];
+    col[2] = bgColor[2];
+    col[3] = bgColor[3];
+}
 
-INCLUDE_ASM(gsb_SetZoom);
-
-INCLUDE_ASM(gsb_SyncGSSystem);
-
-INCLUDE_ASM(gsb_LoadStageSettings);
-
-INCLUDE_ASM(gsb_SaveStageSettings);
+inline void gsb_SetZoom(float target, float speed)
+{
+    zoomTarget = target;
+    zoomSpeed = speed;
+}

@@ -987,6 +987,22 @@ inline void bga_InitBGA(void)
     bgaLightningList = 0;
 }
 
+inline int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    float a = in;
+    int r = 0;
+
+    if (a * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <= p->frame) {
+        float b = out;
+
+        if (p->frame < b * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f)) {
+            r = 1;
+        }
+    }
+    return r;
+}
+
 inline void bga_SetUniqAnimationFlag(int val)
 {
     bgaUniqAnimationFlag = val;
@@ -1033,5 +1049,3 @@ INCLUDE_ASM(bga_CheckAnimationFrameIn);
 INCLUDE_ASM(bga_CheckSdfCameraFinish);
 
 INCLUDE_ASM(bga_CheckSdfCameraFrame);
-
-INCLUDE_ASM(bga_CheckSdfCameraFrameIn);

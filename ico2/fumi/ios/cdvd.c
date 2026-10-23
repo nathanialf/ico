@@ -289,9 +289,21 @@ void iosCdvdHandlerReadNoInflate(IosCdvdHandle *self, void *buf, int n);
 
 INCLUDE_ASM(iosCdvdHandlerReadNoInflate);
 
-void iosCdvdHandlerReadInflate(IosCdvdHandle *self, void *buf, int n);
+void iosCdvdHandlerReadInflate(IosCdvdHandle *self, void *buf, int n)
+{
+    char *p;
+    long long len;
 
-INCLUDE_ASM(iosCdvdHandlerReadInflate);
+    p = buf;
+    while ((len = inflate(self->inflate, p, n)) > 0) {
+        p += (int)len;
+        n -= (int)len;
+    }
+    debug_StdPrintfDummy("iosCdvdHandlerReadInflate size %d\n", self->readBytes);
+    if (len < 0) {
+        debug_StdPrintfDummy("Decompression error\n");
+    }
+}
 
 void iosCdvdHandlerRead(IosCdvdHandle *self, void *dst, int size)
 {
@@ -315,7 +327,25 @@ void iosCdvdHandlerRead(IosCdvdHandle *self, void *dst, int size)
     }
 }
 
-INCLUDE_ASM(unifile_read_func);
+static int unifile_read_func(IosCdvdHandle *self, int arg)
+{
+    char work[32];
+    int cnt;
+    int lsn;
+
+    iosCdvdHandlerRead(self, &cnt, 4);
+    while (cnt-- > 0) {
+        iosCdvdHandlerRead(self, work, 32);
+        sprintf(self->name, "DFDATAS/%s", work);
+        chgFileName(self->name);
+        strcpy(iosCdvdSrhBuff[srhBuffCnt].name, self->name);
+        iosCdvdHandlerRead(self, &lsn, 4);
+        iosCdvdSrhBuff[srhBuffCnt].lsn = lsn / 2048 + self->file.lsn;
+        iosCdvdHandlerRead(self, &iosCdvdSrhBuff[srhBuffCnt].size, 4);
+        srhBuffCnt++;
+    }
+    return 1;
+}
 
 /* The 0x38 name column of a cdvd request is written 16 bytes at a time, so it
  * is typed as an 8-byte-aligned pair: the unifile request always loads the

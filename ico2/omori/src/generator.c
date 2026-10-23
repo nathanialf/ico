@@ -64,7 +64,38 @@ static int generatorPacket[2564]; /* derived name */
 
 static GObj *IsNeedGeneratorHard(GObj *mother);
 
-INCLUDE_ASM(CheckGeneratorCollision);
+int CheckGeneratorCollision(GObj *gobj, float *dir)
+{
+    float pos[4];
+    float tmp[4];
+    float p[4];
+    GObj *g;
+
+    g = isysGObjSearchFromObjKindID_begin(33);
+    GetRootPosition(pos, gobj);
+    sceVu0ScaleVector(tmp, dir, 100.0f);
+    sceVu0AddVector(pos, pos, tmp);
+
+    for (; g != 0; g = isysGObjSearchFromObjKindID_next(g)) {
+        GenWork *w = GOBJ_SUB(g)->work;
+
+        if (g->active == 0) {
+            continue;
+        }
+        if (w->status != 1) {
+            continue;
+        }
+        GetRootPosition(p, g);
+        if (_DistxzSqGV(p, pos) < 22500.0f) {
+            float d = p[1] - 50.0f - pos[1];
+
+            if ((d < 0.0f ? -d : d) < 100.0f) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
 
 /* whether no live enemy stands close to pos; GetGeneratorSafePosition uses it
    twice and reads the result as a byte */
@@ -204,7 +235,41 @@ typedef struct GenReq { /* field names derived */
     int count;
 } GenReq; /* derived name */
 
-INCLUDE_ASM(generatorBeforeFunc);
+void generatorBeforeFunc(GObj *gobj)
+{
+    GenWork *w = GOBJ_SUB(gobj)->work;
+    GenReq *q = (GenReq *)&gobj->mailBox;
+    int i;
+
+    for (i = 0; i < q->count; i++) {
+        switch (((GenReqEntry *)gobj->mailBox.mail)[i].kind) {
+        case 0: {
+            GenWork *cur;
+
+            w->bga[0].active = 1;
+            cur = (GenWork *)ResetCurrentBga(gobj);
+            EntryBga(gobj, cur, 0);
+            cur->cur = 0;
+            break;
+        }
+
+        case 1: {
+            GenWork *cur;
+
+            w->bga[1].active = 1;
+            cur = (GenWork *)ResetCurrentBga(gobj);
+            EntryBga(gobj, cur, 1);
+            cur->cur = 1;
+            break;
+        }
+
+        case 2:
+            w->bgaDelay = ((60 - systemStatus[0] * 10) / systemStatus[1]) * 4;
+            break;
+        }
+    }
+    q->count = 0;
+}
 
 /* The kind's constructor: CreateLayoutedGObj hands it the scene object's
    SObjSimpleSetting, not the layout row.  The enemy kind is the setting's

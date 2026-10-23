@@ -534,4 +534,21 @@ static void exitEffectTool(void)
 /* EffectTool's entered flag */
 static int toolEntered = 0; /* derived name */
 
-INCLUDE_ASM(EffectTool);
+int EffectTool(void)
+{
+    int r;
+
+    if (toolEntered == 0) {
+        initEffectTool();
+        toolEntered = 1;
+        fieldDisp = 1;
+    }
+    r = execEffectTool();
+    if (r == -1) {
+        exitEffectTool();
+        toolEntered = 0;
+        lastEffectId = r;
+        paramCursor = 0;
+    }
+    return r;
+}

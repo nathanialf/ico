@@ -842,9 +842,17 @@ static inline void resetVramPri(int pri) /* derived name */
    recount the loaded entries. */
 static int texTableReady = 0; /* derived name */
 
-void tex_ResetVram(void);
+void tex_ResetVram(void)
+{
+    int i;
 
-INCLUDE_ASM(tex_ResetVram);
+    for (i = 0; i < 13; i++) {
+        resetVramPri(i);
+    }
+    if (systemStatus[5] == 0) {
+        tex_textureAnimation();
+    }
+}
 
 /* the GS register payloads, spelled as ico2/seki/src/GifPacket.c spells them */
 #define GIF_RGBA(c) /* derived name */                                                             \
@@ -1394,7 +1402,10 @@ short tex_GetVramFreeAddress(int pri)
 
 INCLUDE_ASM(tex_UpdateMipMapLevel);
 
-INCLUDE_ASM(tex_ResetVramPri);
+void tex_ResetVramPri(int pri)
+{
+    resetVramPri(pri);
+}
 
 int tex_GetTextureNum(void)
 {

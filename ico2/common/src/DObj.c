@@ -145,7 +145,56 @@ typedef struct DObjNode DObjNode; /* derived name */
 
 /* A block's node is addressed as an int sum, the index first: the ROM adds
    in that order, and &nodes[i] or nodes + i put the base first (measured). */
-INCLUDE_ASM(allocObjectData);
+static void allocObjectData(Sub15C *self, SObjSimpleSetting *lay, int n)
+{
+    int i;
+    int j;
+    int k;
+
+    self->nodes = iosMallocDebug(ios_partition_seki, n * 80, __FILE__, 298);
+    for (i = 0; i < n; i++) {
+        self->nodes[i].flags.ll &= ~1;
+        self->nodes[i].flags.ll &= ~2;
+        {
+            DObjNode *e = (DObjNode *)(i * 80 + (int)self->nodes);
+            e->flags.ll &= ~4;
+            e->pos[1] = 0.0f;
+            e->pos[2] = 0.0f;
+            e->pos[3] = 1.0f;
+            e->pos[0] = 0.0f;
+        }
+        {
+            DObjNode *e = (DObjNode *)(i * 80 + (int)self->nodes);
+            e->fade = 0.0f;
+            e->alpha = 1.0f;
+            *(short *)((char *)e + 0x3A) = 0;
+            e->scale[0] = 1.0f;
+            e->scale[1] = 1.0f;
+            e->scale[2] = 1.0f;
+        }
+    }
+    for (j = 0; j < n; j++) {
+        for (k = 0; k < 4; k++) {
+            self->nodes[j].rot[k] = 0;
+            self->nodes[j].word10[k] = 0;
+        }
+        self->nodes[j].flags.ll &= ~2;
+        {
+            DObjNode *e = (DObjNode *)(j * 80 + (int)self->nodes);
+            e->pos[0] = e->pos[1] = e->pos[2] = 0.0f;
+            e->pos[3] = 1.0f;
+            e->flags.ll &= ~4;
+        }
+        self->nodes[j].flags.ll &= ~1;
+        {
+            DObjNode *e = (DObjNode *)(j * 80 + (int)self->nodes);
+            e->fade = 0.0f;
+            e->alpha = 1.0f;
+            *(short *)((char *)e + 0x3A) = 0;
+            _CopyVector(e->scale, lay->scale);
+        }
+    }
+}
 
 static void initInitialInverseMatrix(Sub15C *d)
 {

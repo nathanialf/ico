@@ -1960,9 +1960,23 @@ static inline GirlWork *getGirlCloth(GObj *gobj) /* derived name */
     return GOBJ_SUB(gobj)->work;
 }
 
-static void debugWireStringGirl(GObj *gobj);
+static void debugWireStringGirl(GObj *gobj)
+{
+    float m[16];
+    float pos[4];
+    GirlWork *cloth = getGirlCloth(gobj);
 
-INCLUDE_ASM(debugWireStringGirl);
+    GetRootPosition(pos, gobj);
+    sceVu0TransposeMatrix(m, (void *)(matrixptr + 0x80));
+    m[3] = m[7] = m[11] = 0.0f;
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrixV(pos);
+    _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+    DispWireString(girlClothName[cloth->kind]);
+    MatrixDrive_PopMatrix();
+}
 
 void GirlDL(GObj *gobj)
 {

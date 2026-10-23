@@ -27,7 +27,35 @@ static AdpcmStream adpcmStream[2]; /* derived name */
 
 static int adpcmSpuSlot[4]; /* derived name */
 
-INCLUDE_ASM(AdpcmStreamInit);
+/* adpcm_init.o's .rodata opens with the file name, before AdpcmStreamInit's
+   string */
+static const char adpcmSrcFile[] = __FILE__; /* derived name */
+
+void AdpcmStreamInit(void)
+{
+    int i;
+    int *p;
+    int r;
+
+    for (i = 0, p = adpcmSpuSlot; i < 4; i++, p++) {
+        *p = SgGetSpuSlotMalloc(1);
+    }
+    r = iosSifAllocIopHeapDebug(0xB8800, adpcmSrcFile, 77);
+    if (r & 0x7FF) {
+        adpcmIopBase = (r / 0x800 + 1) * 0x800;
+    } else {
+        adpcmIopBase = r;
+    }
+    debug_StdPrintfDummy("iop adpcm alloced 0x%x ,%x \n", adpcmIopBase, 0x5C000 * 2);
+    SgStAdpcmInit();
+    for (i = 0; i < 2; i++) {
+        *(int *)((char *)adpcmStream + i * 0x58) = 0;
+    }
+    for (i = 0; i < 2; i++) {
+        adpcmIopBuffUsed[i] = 0;
+    }
+    adpcmPause = 0;
+}
 
 void adpcmTickProc2(SqEntry *obj)
 {
@@ -85,13 +113,7 @@ void adpcmTickProc2(SqEntry *obj)
     }
 }
 
-/* adpcm_init.o's .rodata opens with these three named objects: the two
-   messages are printed further down the file than the strings that follow
-   them (August's set: the allocation report, no IOP free message). */
-static const char adpcmSrcFile[] = __FILE__; /* derived name */
-
-static const char adpcmAllocedMsg[] = "iop adpcm alloced 0x%x ,%x \n"; /* derived name */
-
+/* the message AdpcmIopBuffAlloc prints */
 static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n"; /* derived name */
 
 int debugAdpcmOn = 1;
@@ -110,7 +132,91 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
     adpcmIopBuffUsed[no] = 0;
 }
 
-INCLUDE_ASM(adpcmDataSet);
+SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, int loopNum)
+{
+    AdpcmChReq req;
+    SqEntry *obj;
+    AdpcmStream *p;
+    int i;
+    int j;
+
+    if (size > 0x5C000) {
+        size = 0x5C000;
+    }
+    obj = soundDataAreaGet(no, bank, 2, ch);
+    for (i = 0; i < 2; i++) {
+        int *q = (int *)((char *)adpcmStream + i * 0x58);
+        if (q[0] == 0) {
+            goto found;
+        }
+    }
+    debug_assert(adpcmSrcFile, 317);
+    __assert(adpcmSrcFile, 317, "0");
+found:
+    p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
+    p->used = 1;
+    obj->stream = p;
+    p->n = adpcmFile[no].channels;
+    switch (p->n) {
+    case 1:
+        p->chAttr = 0x10000;
+        break;
+    case 2:
+        p->chAttr = 0x20000;
+        break;
+    case 4:
+        p->chAttr = 0x40000;
+        break;
+    default:
+        debug_assert(adpcmSrcFile, 335);
+        __assert(adpcmSrcFile, 335, "0");
+    }
+    p->mask = 0;
+    for (j = 0; j < p->n; j++) {
+        req.spuAddr = soundBufAdpcmChAlloc(obj, &req.ch);
+        p->ch[j] = req.ch = adpcmSpuSlot[req.ch];
+        req.attr = p->chAttr | 2;
+        req.iopAddr = iopBuf + (0x800 / p->n) * j;
+        req.iopSize = 0x5C000;
+        req.vol = 0x4000;
+        SgStAdpcmOpen(&req);
+        if (p->chAttr == 0x10000) {
+            p->volR[j] = 0x3FFF;
+            p->volL[j] = 0x3FFF;
+        } else if ((j & 1) == 0) {
+            p->volL[j] = 0x3FFF;
+            p->volR[j] = 0;
+        } else {
+            p->volR[j] = 0x3FFF;
+            p->volL[j] = 0;
+        }
+        p->fadeStep = 0;
+        SgStAdpcmChannelVolume(1LL << p->ch[j], p->volL[j], p->volR[j]);
+        SgStAdpcmChannelPitch(1LL << p->ch[j], adpcmFile[no].pitch);
+        p->mask |= 1LL << p->ch[j];
+    }
+    if (size < 0x5C000) {
+        p->seekSize = size;
+    } else {
+        p->seekSize = 0;
+    }
+    p->pitch = adpcmFile[no].pitch;
+    p->iopBuf = iopBuf;
+    p->ringSize = 0x5C000;
+    p->dataSize = adpcmFile[no].sectors << 11;
+    p->loopStart = adpcmFile[no].loopStart << 11;
+    p->lastAddr = 0;
+    p->remain = adpcmFile[no].sectors << 11;
+    p->loopNum = loopNum;
+    p->loopCount = 0;
+    if (size != 0) {
+        Ee2Iop(src, iopBuf, size);
+    }
+    p->bg = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmTickProc, obj, adpcmDiskNotReady,
+                                    adpcmDiskReturnReady, obj, 0, 0);
+    iosCdvdBackGroundMgrSeek(p->bg, size);
+    return obj;
+}
 
 void AdpcmPlay(AdpcmStream *self)
 {

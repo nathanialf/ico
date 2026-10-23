@@ -11,7 +11,6 @@
 #include "matrixDrive.h"
 #include "GifPacket.h"
 #include "windField.h"
-#include "include_asm.h"
 
 /* the clip plane normal StormTestDL transforms into view space */
 static float stormClipPlane[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */
@@ -274,6 +273,14 @@ inline StormTestWork *InitStormTestGeo(GObj *self, SObjSimpleSetting *lay)
     return obj;
 }
 
-INCLUDE_ASM(StormTestGeo);
+void StormTestGeo(GObj *self)
+{
+    StormTestWork *p = GOBJ_SUB(self)->work;
+    UpdateStormPackage(p->pkg);
+}
 
-INCLUDE_ASM(StormTestDL);
+void StormTestDL(GObj *self)
+{
+    StormTestWork *p = GOBJ_SUB(self)->work;
+    DispStormPackage(p->pkg, p->color);
+}

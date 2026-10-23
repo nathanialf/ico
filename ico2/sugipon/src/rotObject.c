@@ -55,7 +55,14 @@ static void moveEndSE(GObj *self);
 
 INCLUDE_ASM(moveEndSE);
 
-INCLUDE_ASM(RotObjectGeo);
+void RotObjectGeo(GObj *self)
+{
+    RotObjWork *p = GOBJ_SUB(self)->work;
+    if (p->saveCount++ >= 31) {
+        p->saveCount = 0;
+        gamesysObjInfoUniqDataSet(self);
+    }
+}
 
 static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived name */
 {
@@ -73,7 +80,14 @@ static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived nam
     CopyMatrix(dst, MatrixDrive_GetMatrix());
 }
 
-INCLUDE_ASM(getRootMatrix);
+static void getRootMatrix(void *dst, GObj *gobj)
+{
+    RotObjWork *w = GOBJ_SUB(gobj)->work;
+
+    GetRootMatrix(MatrixDrive_GetMatrix(), gobj);
+    MatrixDrive_RotMatrixY(w->angle);
+    CopyMatrix(dst, MatrixDrive_GetMatrix());
+}
 
 void RotObjectDL(GObj *gobj)
 {
@@ -136,7 +150,12 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdP
 
 INCLUDE_ASM(InitRotObjectGeo);
 
-INCLUDE_ASM(GetRotObjectRotCount);
+float GetRotObjectRotCount(GObj *self)
+{
+    RotObjWork *w = GOBJ_SUB(self)->work;
+
+    return (float)w->turnCount * (1.0f / 65536.0f);
+}
 
 /* the +Z unit vector the drive matrix is applied to */
 static float zPlusVector[4] = {0.0f, 0.0f, 1.0f, 0.0f}; /* derived name */

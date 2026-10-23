@@ -429,6 +429,11 @@ static inline void enemyBodyliftClearBoy(char *self) /* derived name */
     GOBJ_SUB(self)->root.lookMode = 0;
 }
 
+inline void afterEnemyBodylift(GObj *volatile self)
+{
+    enemyBodyliftClearBoy((char *)self);
+}
+
 INCLUDE_ASM(actEnemyBodylift);
 
 /* A static inline inside actEnemyPickupBegin.  A second 16-byte vector is
@@ -786,5 +791,3 @@ INCLUDE_ASM(EnemyUtil_isOtherStatus);
 INCLUDE_ASM(isEnemyHyde);
 
 INCLUDE_ASM(_ApproachTarget);
-
-INCLUDE_ASM(afterEnemyBodylift);

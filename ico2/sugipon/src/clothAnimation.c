@@ -791,7 +791,57 @@ ChainSet *InitChains(ChainCfg *cfg)
     return r;
 }
 
-INCLUDE_ASM(InitClothes);
+ClothSet *InitClothes(ClothCfg *cfg)
+{
+    ClothSet *r;
+    int i = 0;
+    int m;
+    int q;
+    float aa[4];
+    float bb[4];
+
+    r = (ClothSet *)iosMallocDebug(ios_partition_sugipon, sizeof(ClothSet), "src/clothAnimation.c",
+                                   1101);
+    debug_StdPrintfDummy("\x1b[36mALLOC CLOTHES\x1b[m\n");
+    while (cfg[i].num != -1) {
+        i++;
+    }
+    r->num = i;
+    r->rec = (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ClothRec),
+                                        "src/clothAnimation.c", 1106);
+    for (i = 0; i < r->num; i++) {
+        if (cfg[i].tex != 0) {
+            r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x5C, 0x80808080, 1);
+            r->rec[i].textured = 1;
+            r->rec[i].tex = *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg[i].tex));
+        } else {
+            r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x4C, 0xFFFFFF80, 1);
+            r->rec[i].textured = 0;
+        }
+        r->rec[i].pos =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1134);
+        r->rec[i].vel =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1135);
+        r->rec[i].mark =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1136);
+        for (m = 0; m < cfg[i].num; m++) {
+            r->rec[i].pos[m] = (VECTOR *)(r->rec[i].mesh->pos + m * cfg[i].div);
+            r->rec[i].vel[m] = iosMallocDebug(ios_partition_sugipon, cfg[i].div * 16,
+                                              "src/clothAnimation.c", 1141);
+            r->rec[i].mark[m] =
+                iosMallocDebug(ios_partition_sugipon, cfg[i].div * 4, "src/clothAnimation.c", 1142);
+            memset(aa, 0, 16);
+            aa[3] = 1.0f;
+            memset(bb, 0, 16);
+            for (q = 0; q < cfg[i].div; q++) {
+                CopyVector(&r->rec[i].pos[m][q], aa);
+                CopyVector(&r->rec[i].vel[m][q], bb);
+                r->rec[i].mark[m][q] = -1;
+            }
+        }
+    }
+    return r;
+}
 
 void DispClothMesh(ClothRec *rec, void *la, void *lb)
 {

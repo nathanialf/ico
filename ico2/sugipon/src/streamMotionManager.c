@@ -106,7 +106,41 @@ static inline void _advanceRing(int amt) /* derived name */
     }
 }
 
-INCLUDE_ASM(_infoUpdate);
+static int _infoUpdate(void)
+{
+    int i;
+
+    if (headerRead == 0) {
+        if (_checkRing(4096)) {
+            headerSize = 0;
+            for (i = 0; i < streamNum; i++) {
+                int a = ringRead + headerSize;
+
+                streamEntry[i].nodeNum = *(unsigned char *)(ringBuf + (a + 2) % 163840);
+                streamEntry[i].shapeNum = *(unsigned char *)(ringBuf + (a + 3) % 163840);
+                streamEntry[i].size = 16 + streamEntry[i].nodeNum * 8 + streamEntry[i].shapeNum * 4;
+                headerSize += streamEntry[i].size;
+            }
+            headerRead = 1;
+        } else {
+            /* the data had not arrived in time when the stream motion started */
+            debug_StdPrintfDummy(
+                "ストリームモーション開始時にデータの転送が間に合っていませんでした。\n");
+            return 0;
+        }
+    }
+    if (_checkRing(headerSize)) {
+        _setEntryOffsets();
+        if (*(unsigned char *)(ringBuf + ringRead) != 0) {
+            return 1;
+        }
+        _advanceRing(headerSize);
+    } else {
+        /* the stream motion data transfer is not keeping up */
+        debug_StdPrintfDummy("ストリームモーションのデータ転送が間に合っていません。\n");
+    }
+    return 0;
+}
 
 void PlayStreamMotion(void)
 {

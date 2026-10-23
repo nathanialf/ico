@@ -1147,7 +1147,215 @@ static DbgCol barScaleCol[1] = {{0xA0, 0xA0, 0xA0, 0xA0}}; /* derived name */
 static DbgCol barLabelCol[1] = {{0x80, 0x80, 0x80, 0x60}}; /* derived name */
 
 /* clang-format off */
-INCLUDE_ASM(debug_DrawBar);
+static void debug_DrawBar(void)
+{
+    long long sh;
+    long long x = -256;
+    FR rect0 = {-257, 93, 514, 10};
+    DbgCol col1 = barBackCol[0];
+    DbgCol col2 = barScaleCol[0];
+    DbgCol col3 = barLabelCol[0];
+    FR rect1 = {0, 100, 0, 2};
+    DbgVtx v0, v1;
+    int flip;
+    float scale;
+    int i;
+    int w;
+    int len;
+    inline int barTime(void) { return debugBars[i].count; } /* derived name */ /* the time stamp of bar i, read by both bar loops */
+
+
+    flip = 0;
+    scale = 1.0f / (270000.0f / 30.0f);
+
+
+
+
+
+
+
+
+
+    if (debug_font_flag & 1) debug_Printf(ScreenWidth / 2 - 298, ScreenHeight / 2 + 92, 0xFFFFFF00u, "draw");
+    if (debug_font_flag & 1) { debug_Printf(ScreenWidth / 2 - 282, ScreenHeight / 2 + 102, 0xFFFFFF00u, "cpu"); debugBars[debug_debug_bar_start_item].count = debugBars[debug_debug_bar_start_item].count; }
+    /* the first set of sh on the next line is overwritten before any read, and the store-back after the "cpu" print writes a bar's count back unchanged: both are dead */
+    sh = debugBars[debug_debug_bar_start_item].count;
+    sh = debug_debug_bar_multiply;
+
+    gif_StartPacketPri(12);
+    gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+
+
+    gif_SetAlpha(1, 2, 64);
+    gif_Sprite(&rect0, 0xFFFFFFFFU, 0, &col1, 1);
+    v0.x = v1.x = -257;
+    v0.y = 92;
+    v1.y = 104;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    v0.x = v1.x = 257;
+    v0.y = 92;
+    v1.y = 104;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+    if (sh > 0) {
+        gif_SetAlpha(1, 4, 64);
+        v0.y = 91;
+        v1.y = 105;
+        for (i = 0; i < (1 << sh) - 1; i++) {
+            v0.x = v1.x = (i + 1) * (512 / (1 << sh)) - 256;
+            gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col2, 1);
+        }
+    }
+
+    for (i = debug_debug_bar_start_item; i < debugBarCount && x < 320; i++) {
+
+        int t = barTime() - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0);
+
+        long long alpha;
+
+        DbgCol c0, c1;
+        if (sh > 0)
+            w = -256 + ((int)((float)(t << 9) * scale) >> sh);
+        else
+            w = -256 + (float)((t << -sh) << 9) * scale;
+        if (w > 320) w = 320;
+        alpha = (signed char)debugBars[i].col.a >= 0;
+        rect1.x = x;
+        rect1.w = w - x;
+        gif_SetAlpha(alpha, 2, debugBars[i].col.a);
+        if (i == debug_debug_bar_start_item) {
+            static unsigned char barBlink = 0; /* derived name */
+            c0 = debugBars[i].col;
+
+
+
+
+
+
+            c1 = (DbgCol){(c0.r + 255) >> 1, (c0.g + 255) >> 1, (c0.b + 255) >> 1, 0};
+            c0 = c1;
+            c0.r >>= 1;
+            c0.g >>= 1;
+            c0.b >>= 1;
+            gif_Sprite(&rect1, 0xFFFFFFFFU, 0, (barBlink & 1) ? &c1 : &c0, alpha);
+
+            barBlink++;
+        } else {
+            gif_Sprite(&rect1, 0xFFFFFFFFU, 0, &debugBars[i].col, alpha);
+        }
+        if (debug_bar_flag == 2) {
+            v0.x = w; v0.y = rect0.y;
+            v1.x = w; v1.y = rect0.y + rect0.h + 6;
+            gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
+        }
+
+        if (debug_font_flag & 1) {
+            len = strlen(debugBars[i].name);
+            if (len != 0) {
+                if (debug_bar_flag == 1) {
+                    v0.x = w; v0.y = rect0.y;
+                    v1.x = w; v1.y = rect0.y + rect0.h + 6;
+                    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &debugBars[i].col, alpha);
+                }
+                v0.x = w; v0.y = rect0.y + rect0.h + 7;
+                v1.x = w + 7; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
+                v0.x = w + 7; v0.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                v1.x = w + 8 + len * 8; v1.y = rect0.y + (flip * 7 + 1) + 8 + rect0.h - 1;
+                gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col3, alpha);
+                flip ^= 1;
+            }
+        }
+
+        x = w;
+    }
+
+    gif_SetAlpha(1, 4, 64);
+    v0.x = -256; v0.y = 98;
+    if (sh > 0) {
+        v1.x = ((int)((float)(drawTimerCount << 9) * scale) >> sh) - 256;
+    } else {
+        v1.x = ((int)((float)(drawTimerCount << 9) * scale) << -sh) - 256;
+    }
+    v1.y = 98;
+    if (v1.x > 320) v1.x = 320;
+    col1.r = col1.g = col1.b = col1.a = 164;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+
+    v0.x = -256; v0.y = 94;
+    v1.x = (used_dma_memory << 9) / 100 - 256; v1.y = 94;
+    col1.r = 0;
+    col1.g = col1.b = col1.a = 164;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+
+    v0.x = -256; v0.y = 96;
+    v1.x = (used_dl_max << 9) / 100 - 256; v1.y = 96;
+    col1.b = 0; col1.r = col1.g = col1.a = 164;
+    gif_Line(&v0.x, &v1.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col1, 1);
+
+    gif_SetZTest(1);
+    gif_SetZWrite(1);
+    gif_EndPacket();
+
+    flip = 0;
+    for (i = debug_debug_bar_start_item; i < debugBarCount && x < 320; i++) {
+        int t = barTime() - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0);
+
+        int dpct;
+        int pct;
+        if (sh > 0)
+            w = -256 + ((int)((float)(t << 9) * scale) >> sh);
+        else
+            w = -256 + (float)((t << -sh) << 9) * scale;
+        if (w > 320) w = 320;
+        if (i > 0)
+            dpct = (float)((debugBars[i].count - debugBars[i - 1].count) * 10000) * scale;
+        else dpct = 0;
+        pct = (float)(t * 10000) * scale;
+        len = debug_MakeBarString((char *)&debugBars[i], dpct, pct, rect0, w, flip);
+        if (len != 0) flip ^= 1;
+    }
+
+    for (i = 0; i < used_dl_num; i++) {
+        char buf[16];
+        sprintf(buf, "%d", i);
+        v0.x = (used_dl_memory[i] << 9) / 100 - 256 + ScreenWidth / 2;
+        v0.y = ScreenHeight / 2 + 88;
+        if (debug_font_flag & 1) debug_Printf(v0.x, v0.y, 0xFFFFFF00u, buf);
+    }
+
+    if (debug_debug_bar_start_item < debugBarCount) {
+        static float barMax = 0.0f, barMin = 0.0f; /* derived name */
+        static int barItem = 0, barLine = 0;      /* derived name */
+        float val;
+        int line;
+        val = (float)(debugBars[debug_debug_bar_start_item].count - (debug_debug_bar_start_item != 0 ? debugBars[debug_debug_bar_start_item - 1].count : 0)) * 100.0f * scale;
+
+
+        line = debugBars[debug_debug_bar_start_item].line;
+        if (barItem != debug_debug_bar_start_item || line != barLine)
+            barMax = barMin = val;
+        else {
+            if (barMax < val) barMax = val;
+            if (val < barMin) barMin = val;
+        }
+        if (debug_font_flag & 1) debug_Printf(10, ScreenHeight / 2 - 28, 0xFFFFFF00u, "A:%p W:%1.2f%% W~%1.2f%% W_:%1.2f%%",
+                         debugBars[debug_debug_bar_start_item].line, val, barMax, barMin);
+
+
+        barItem = debug_debug_bar_start_item;
+        barLine = line;
+    }
+
+    if (debug_font_flag & 1) debug_Printf(ScreenWidth + 70, ScreenHeight / 2 - 14, 0xFFFFFF00u,
+                         (sh > 0 ? "/%d" : "x%d"), sh > 0 ? (1 << sh) : (1 << -sh));
+    if (debug_font_flag & 1) debug_Printf(ScreenWidth + 30, ScreenHeight / 2 - 24, 0xFFFFFF00u, "%.2f%%",
+                         sh > 0 ? (float)(100 << sh) : (float)(10000 >> -sh) * 0.01f);
+}
 
 inline void debug_SetBar(char *name, unsigned int col, char *file, int line)
 {
@@ -1183,7 +1391,31 @@ inline void debug_SetBar2(char *name, unsigned int col, char *file, int line)
     }
 }
 
-INCLUDE_ASM(debug_DispBar);
+void debug_DispBar(void)
+{
+    float inv;
+    int va;
+    int vb;
+    int n;
+    inv = 1.0f / (270000.0f / 30.0f);
+    vb = (float)(debugBars[debugBarCount - 1].count * 100) * inv;
+    va = (float)(drawTimerCount * 100) * inv;
+
+    if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0)
+        debug_Printf(10, 10, 0xFFFFFF00u, "C%03d G%03d F%d", vb, va, frame_count);
+    if (debug_brain_bar_flag != 0)
+        debug_brainBar();
+    if (debug_bar_flag != 0)
+        debug_DrawBar();
+    if (strips != 0 || texturetranssize != 0) {
+        n = 1;
+        if (strips != 0)
+            n = strips;
+        if (debug_font_flag2 != 0 || (debug_font_flag & 1) != 0)
+            debug_Printf(10, 20, 0xFFFFFF00u, "P%d S%d A%d(%d) T%d(%d)", polygons, strips,
+                         polygons / n, packets, texturetranssize / 1024, textures);
+    }
+}
 
 inline void debug_ResetBar(void)
 {

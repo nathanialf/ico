@@ -35,11 +35,56 @@ INCLUDE_ASM(torchOffSE);
 
 INCLUDE_ASM(LightTorchOn);
 
-INCLUDE_ASM(LightTorchOff);
+void LightTorchOff(GObj *gobj)
+{
+    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
+
+    if (w->lightOn != 0) {
+        if (w->effect[3] != -1) {
+            DeleteParticleEffect(w->effect[3]);
+        }
+        if (w->effect[2] != -1) {
+            DeleteParticleEffect(w->effect[2]);
+        }
+        if (w->effect[0] != -1) {
+            DeleteParticleEffect(w->effect[0]);
+        }
+        if (w->effect[1] != -1) {
+            DeleteParticleEffect(w->effect[1]);
+        }
+        if (w->effect[4] != -1) {
+            DeleteParticleEffect(w->effect[4]);
+        }
+        w->effect[2] = w->effect[3] = w->effect[0] = w->effect[1] = w->effect[4] = -1;
+        w->burnTime = 0;
+        w->lightOn = 0;
+        GOBJ_SUB(gobj)->lightId = 0;
+        torchOffSE(gobj);
+    }
+}
 
 static void torchDrainControl(GObj *gobj, float level);
 
-INCLUDE_ASM(moveTorch);
+static void moveTorch(GObj *gobj, void *mtx)
+{
+    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
+
+    if (w->effect[3] != -1) {
+        SetParticleEffectGeometry(w->effect[3], mtx, IdentityQuaternion);
+    }
+    if (w->effect[2] != -1) {
+        SetParticleEffectGeometry(w->effect[2], mtx, IdentityQuaternion);
+    }
+    if (w->effect[0] != -1) {
+        SetParticleEffectGeometry(w->effect[0], mtx, IdentityQuaternion);
+    }
+    if (w->effect[1] != -1) {
+        SetParticleEffectGeometry(w->effect[1], mtx, IdentityQuaternion);
+    }
+    if (w->effect[4] != -1) {
+        SetParticleEffectGeometry(w->effect[4], mtx, IdentityQuaternion);
+    }
+}
 
 static void setPauseFlag(GObj *gobj, int flag);
 

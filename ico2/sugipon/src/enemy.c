@@ -140,7 +140,91 @@ typedef struct { /* field names derived */
  * code hold declarations, braces and comments.  The first loop's condition
  * reads the sub-object handle through a volatile int view; the body's own
  * read of the handle is GOBJ_SUB's int view. */
-INCLUDE_ASM(dispEnemyObject);
+static void dispEnemyObject(void *self)
+{
+    float m[16];
+    EnemyDispEntry *tmp;
+    int i, j;
+    int n = GOBJ_SUB(self)->skelNodeNum;
+    SkelNode *tbl = GOBJ_SUB(self)->skel;
+    EnemyWork *w = GOBJ_SUB(self)->work;
+    PrimParticle **pl = w->particle;
+    EnemyDispEntry buf[n];
+    EnemyDispEntry *ptr[n];
+    _SetCurrentMatrix((char *)GOBJ_SUB(self)->nodeMtx);
+    _MulCurrentMatrixL(matrixptr + 0x100);
+
+    _InitCurrentMatrix();
+
+    /* clang-format off */
+    for (i = 0; i < *(int *)(*(volatile int *)(self + 0x15C) + 0x88); i++) {
+        /* project each part's origin: z goes into buf[i].z for the sort */
+        ptr[i] = &buf[i];
+        _SetCurrentMatrix((char *)GOBJ_SUB(self)->nodeMtx + i * 0x40);
+        _MulCurrentMatrixL(matrixptr + 0x100);
+        __asm__ __volatile__("lqc2 $vf8, 0x0(%0)\n\t"
+                             "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
+                             "vmadday.xyzw ACC, $vf5, $vf8y\n\t"
+                             "vmaddaz.xyzw ACC, $vf6, $vf8z\n\t"
+                             "vmaddw.xyzw $vf10, $vf7, $vf8w\n\t"
+                             "vdiv Q, $vf0w, $vf10w\n\t"
+                             "vwaitq\n\t"
+                             "vmulq.xyz $vf10, $vf10, Q\n\t"
+                             "vftoi0.z $vf13, $vf10\n\t"
+                             "sqc2 $vf13, 0x0(%1)"
+                             :
+                             : "r"(ZeroPoint), "r"(&buf[i])
+                             : "memory");
+        buf[i].idx = i;
+    }
+
+    /* sort far to near */
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            if (i != j) {
+                if (ptr[j]->z > ptr[i]->z) {
+                    tmp = ptr[j];
+                    ptr[j] = ptr[i];
+                    ptr[i] = tmp;
+                }
+            }
+        }
+    }
+    sceVu0UnitMatrix(m);
+
+    for (j = 0; j < n; j++) {
+        /* draw the parts still alive, far to near */
+        i = ptr[j]->idx;
+        if ((w->broken)[i] != 0) continue;
+        if ((w->flag)[i] == 0) continue;
+
+        switch (tbl[i].kind) {
+        case 37:
+            if (GOBJ_SUB(self)->nodes->fade == 0.0f)
+                DispEnemyEye(w->eye0);
+            break;
+        case 36:
+            if (GOBJ_SUB(self)->nodes->fade == 0.0f)
+                DispEnemyEye(w->eye1);
+            break;
+        default:
+            /* every other part is a particle */
+            gif_StartPacketPri(6);
+            gif_SetAlpha(1, 4, 128);
+            gif_EndPacket();
+
+            /* The particle is drawn in view space: m is the view matrix
+               times the part's own matrix, the same product the first loop
+               made on the current-matrix stack, rebuilt here because the
+               stack no longer holds it. */
+
+            sceVu0MulMatrix(m, matrixptr + 0x100, (char *)GOBJ_SUB(self)->nodeMtx + i * 0x40);
+            prim_DispParticle(pl[i], m);
+            break;
+        }
+    }
+    /* clang-format on */
+}
 
 /* expanded into EnemyCheckHit, enemySetParticleDie, EnemySetfDisappear and
  * EnemyDeleteParticle; it returns SetParticleEffect's result */
@@ -155,13 +239,103 @@ static inline int enemySetParticle(int kind, void *obj, float *dir) /* derived n
     return SetParticleEffect(kind, obj, q);
 }
 
-INCLUDE_ASM(EnemyCheckHit);
+int EnemyCheckHit(GObj *self, float *pos, float *dir)
+{
+    int eff = 0;
+    Sub15C *sub;
+    EnemyWork *w;
+    int n;
+    int i;
+    int cnt;
+    int flags;
+
+    sub = self->dobj;
+    w = sub->work;
+    n = sub->skelNodeNum;
+    cnt = 0;
+    flags = 0;
+    for (i = 0; i < n; i++) {
+        if ((w->broken)[i] == 0) {
+            if (distance_squared((char *)sub->nodeMtx + i * 64 + 0x30, pos) < 10000.0f) {
+                enemySetParticle(8, (char *)sub->nodeMtx + i * 64 + 0x30, dir);
+                /* The hand-written form the helper call replaced, the way
+                   CheckEnemyHit still spells it, switched off by a local effect
+                   switch, CheckEnemyHit's own `eff` with the other value. */
+                if (eff) {
+                    float q[4];
+                    short rx;
+                    short ry;
+
+                    MatrixDrive_GetTurnZAngleXY(&rx, &ry, dir[0], dir[1], -dir[2]);
+                    SetIdentityQuaternion(q);
+                    RotQuaternionX(q, -rx);
+                    RotQuaternionY(q, -ry);
+                    SetParticleEffect(8, (char *)sub->nodeMtx + i * 64 + 0x30, q);
+                }
+                flags |= 1;
+                (w->broken)[i] = 1;
+                cnt++;
+                GetSkeltonFocusNode(self, 34);
+                if (i == GetSkeltonFocusNode(self, 35)) {
+                    (w->broken)[GetSkeltonFocusNode(self, 36)] = 1;
+                    (w->broken)[GetSkeltonFocusNode(self, 37)] = 1;
+                }
+                if (cnt >= 4) {
+                    break;
+                }
+            }
+        }
+    }
+    return flags;
+}
 
 /* CheckEnemyHit keeps the developer's own line layout: the lines without
  * code hold declarations, braces and comments.  The counter starts at 0 in a
  * statement of its own ahead of a test on n alone, and the for has no
  * initialiser; the particle calls sit under a test of a local constant. */
-INCLUDE_ASM(CheckEnemyHit);
+int CheckEnemyHit(GObj *self, float *pos, float *a, float *b)
+{
+    int eff = 1;
+    Sub15C *sub = self->dobj;
+    EnemyWork *w = sub->work;
+    int i;
+    int n = sub->skelNodeNum;
+
+    if (2500.0f < distance_squared(pos, a)) {
+        /* Walk the parts still alive and take the first one within reach
+           of all three points: mark it hit, spawn the hit effect facing
+           along a - pos, and report the hit.  The test on n shares its line
+           with the for; the fence keeps that line, the braceless for and the
+           condition below one statement to a line. */
+        /* clang-format off */
+        i = 0;
+        if (n > 0) for (; i < n; i++)
+            if ((w->broken)[i] == 0) {
+                if (distance_squared((char *)sub->nodeMtx + i * 64 + 0x30, pos) < 10000.0f &&
+                    distance_squared((char *)sub->nodeMtx + i * 64 + 0x30, a) < 10000.0f &&
+                    distance_squared((char *)sub->nodeMtx + i * 64 + 0x30, b) < 10000.0f) {
+                    float q[4];
+                    unsigned short ax, ay;
+                    if (eff) {
+                        MatrixDrive_GetTurnZAngleXY(&ax, &ay,
+                                                    -(pos[0] - a[0]),
+                                                    -(pos[1] - a[1]),
+                                                    -(pos[2] - a[2]));
+                        SetIdentityQuaternion(q);
+                        RotQuaternionX(q, (short)-ax);
+                        RotQuaternionY(q, (short)-ay);
+                        SetParticleEffect(8, (char *)sub->nodeMtx + i * 64 + 0x30, q);
+                    }
+
+                    (w->broken)[i] = 1;
+
+                    return 1;
+                }
+            }
+    }
+    return 0;
+    /* clang-format on */
+}
 
 /* the variation number the next enemy takes, stepped by two modulo ten */
 static int enemyVariation = 0; /* derived name */
@@ -170,9 +344,22 @@ INCLUDE_ASM(InitEnemyGeo);
 
 INCLUDE_ASM(EnemyGeo);
 
-void DisplayEnemy(GObj *self);
+void DisplayEnemy(GObj *self)
+{
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-INCLUDE_ASM(DisplayEnemy);
+    if (w->loaded != 0) {
+        reg_DispEnemy((char *)GOBJ_SUB(self));
+        if (GOBJ_SUB(self)->nodes->fade == 0.0f) {
+            DispEnemyEye(w->eye0);
+            DispEnemyEye(w->eye1);
+        }
+    }
+    DispEnemyFootPrints(w->foot);
+    if (w->particle != 0) {
+        dispEnemyObject(self);
+    }
+}
 
 void EnemyDL(GObj *self)
 {
@@ -195,17 +382,54 @@ void DemoMotionGeo(GObj *self)
     ExecMotionOrient(self);
 }
 
-INCLUDE_ASM(SetEnemyDissolve);
+void SetEnemyDissolve(GObj *self, float ratio)
+{
+    Sub15C *sub = GOBJ_SUB(self);
+
+    sub->nodes->fade = ratio;
+    if (sub->nodes->fade < 0.0f)
+        sub->nodes->fade = 0.0f;
+    if (sub->nodes->fade > 1.0f)
+        sub->nodes->fade = 1.0f;
+}
 
 void EnemyAI(void) {}
 
 INCLUDE_ASM(SetEnemyFootPrintSwitch);
 
-INCLUDE_ASM(EnemySetfAppearAll);
+void EnemySetfAppearAll(GObj *self)
+{
+    int n = GOBJ_SUB(self)->skelNodeNum;
+    int i;
 
-INCLUDE_ASM(EnemySetfDisappearAll);
+    for (i = 0; i < n; i++)
+        ((EnemyWork *)GOBJ_SUB(self)->work)->broken[i] = 0;
+}
 
-INCLUDE_ASM(EnemySetfDisappear);
+void EnemySetfDisappearAll(GObj *self)
+{
+    int n = GOBJ_SUB(self)->skelNodeNum;
+    int i;
+
+    for (i = 0; i < n; i++)
+        ((EnemyWork *)GOBJ_SUB(self)->work)->broken[i] = 1;
+}
+
+void EnemySetfDisappear(GObj *self, float *dir)
+{
+    Sub15C *sub = GOBJ_SUB(self);
+    int n = sub->skelNodeNum;
+    EnemyWork *w = sub->work;
+    int i;
+
+    for (i = 0; i < n; i++) {
+        if ((w->broken)[i] == 0) {
+            (w->broken)[i] = 1;
+            enemySetParticle(8, *(char **)((char *)sub + 12) + i * 64 + 48, dir);
+            return;
+        }
+    }
+}
 
 void enemySetParticleDie(void *root, float *dir)
 {
@@ -218,31 +442,99 @@ void enemySetParticleDie(void *root, float *dir)
     SetParticleEffect(12, root, q);
 }
 
-INCLUDE_ASM(ReviveEnemyParticle);
+void ReviveEnemyParticle(GObj *self, int node)
+{
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-INCLUDE_ASM(isExistEnemyParticle);
+    w->broken[node] = 0;
+}
 
-INCLUDE_ASM(EnemyGetNSafeParts);
+int isExistEnemyParticle(GObj *self, int node)
+{
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-INCLUDE_ASM(EnemyDeleteParticle);
+    return w->broken[node] == 0;
+}
 
-INCLUDE_ASM(SetEnemyHitGeometryAction);
+int EnemyGetNSafeParts(GObj *self)
+{
+    int n = GOBJ_SUB(self)->skelNodeNum;
+    int *p;
+    int i;
+    int cnt = 0;
+
+    for (i = 0; i < n; i++) {
+        p = ((EnemyWork *)GOBJ_SUB(self)->work)->broken;
+        if (p[i] == 0)
+            cnt++;
+    }
+    return cnt;
+}
+
+void EnemyDeleteParticle(GObj *self, float *dir, short *list)
+{
+    Sub15C *sub = self->dobj;
+    EnemyWork *w = sub->work;
+    int i;
+    int n;
+
+    n = 3;
+    for (i = 0; list[i] >= 0 && n > 0; i++) {
+        if ((w->broken)[list[i]] == 0) {
+            (w->broken)[list[i]] = 1;
+            enemySetParticle(8, *(char **)((char *)sub + 12) + list[i] * 64 + 48, dir);
+            n--;
+        }
+    }
+}
+
+void SetEnemyHitGeometryAction(GObj *self, int on)
+{
+    EnemyWork *w = GOBJ_SUB(self)->work;
+
+    w->loaded = on;
+}
 
 INCLUDE_ASM(InitDemoMotionGeo);
 
 INCLUDE_ASM(HotInitDemoMotionGeo);
 
-INCLUDE_ASM(GetEnemyHitNodeFlag);
+int *GetEnemyHitNodeFlag(GObj *self)
+{
+    EnemyWork *w = GOBJ_SUB(self)->work;
 
-INCLUDE_ASM(RandomizeEnemy);
+    return w->broken;
+}
 
-INCLUDE_ASM(SetEnemyWingRatio);
+int RandomizeEnemy(GObj *self)
+{
+    Sub15C *sub = GOBJ_SUB(self);
+    EnemyWork *w = sub->work;
+    int kind = w->kind;
 
-INCLUDE_ASM(CanThisEnemyFly);
+    sub->nodes->fade = 0.0f;
+    return setEnemyObject(self, kind, &w->ctr);
+}
 
-INCLUDE_ASM(GetEnemyBattleType);
+void SetEnemyWingRatio(GObj *self, float ratio)
+{
+    ((EnemyWork *)GOBJ_SUB(self)->work)->wing = ratio;
+}
 
-INCLUDE_ASM(GetEnemyDefLife);
+int CanThisEnemyFly(GObj *self)
+{
+    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].flyType;
+}
+
+int GetEnemyBattleType(GObj *self)
+{
+    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].battleType;
+}
+
+float GetEnemyDefLife(GObj *self)
+{
+    return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].life;
+}
 
 INCLUDE_ASM(ResetEnemyPositionInfo);
 
