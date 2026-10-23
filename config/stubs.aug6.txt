@@ -430,53 +430,6 @@ sdlit jimakuMgrNext 0x0062C688 0x0062C6A4 ico2/fumi/src/jimaku.c  # 1 data
 text GetWay_next 0x00175850 0x00175E34 ico2/fumi/src/way_sys.c lines=159  # ordinal; first difference at insn 3; length:-10; extent-differs
 rdlit GetWay_next 0x00553FD0 0x00554080 ico2/fumi/src/way_sys.c # target side
 sdlit GetWay_next 0x0062C6B8 0x0062C6EE ico2/fumi/src/way_sys.c  # target side: the strings of its disabled prints, which nothing reads
-text visible_waypoint_of_all_except_gid 0x00176518 0x001766A8 ico2/fumi/src/way_util.c lines=4  # ordinal; first difference at insn 9; imm:1; extent-equal
-text visible_waypoint_of_all_except_gid_ThreadVersion 0x001766A8 0x00176850 ico2/fumi/src/way_util.c lines=4  # ordinal; first difference at insn 9; imm:1; extent-equal
-text visible_waypoint_of_all_except_temp 0x00176850 0x00176A00 ico2/fumi/src/way_util.c lines=4  # ordinal; first difference at insn 9; imm:1; extent-equal
-text visible_waypoint_of_all_except_temp_ThreadVersion 0x00176A00 0x00176BC8 ico2/fumi/src/way_util.c lines=4  # ordinal; first difference at insn 9; imm:1; extent-equal
-text WayUtilWorkAlloc 0x00176FC0 0x001770D8 ico2/fumi/src/way_util.c lines=18  # ordinal; first difference at insn 13; length:-2; extent-differs
-text shortest_path 0x00177138 0x001773F8 ico2/fumi/src/way_util.c lines=4  # ordinal; first difference at insn 26; imm:5; extent-equal
-text shortest_path_ThreadVersion 0x001773F8 0x001776D0 ico2/fumi/src/way_util.c lines=4  # ordinal; first difference at insn 26; imm:5; extent-equal
-text GetWgAll 0x001776D0 0x00177990 ico2/fumi/src/way_util.c lines=63  # ordinal; first difference at insn 26; imm:5; extent-equal
-text nearest_waypoint_of_group 0x00177DB0 0x00177E44 ico2/fumi/src/way_util.c lines=22  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_of_group 0x0062AFA8 0x0062AFAC ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint 0x00177E48 0x00177EE4 ico2/fumi/src/way_util.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint 0x0062AFAC 0x0062AFB0 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_from_gobj 0x00177EE8 0x00177F8C ico2/fumi/src/way_util.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_from_gobj 0x0062AFB0 0x0062AFB4 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_by_lineseg_of_group 0x00177F90 0x0017803C ico2/fumi/src/way_util.c lines=27  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_by_lineseg_of_group 0x0062AFB4 0x0062AFB8 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_by_lineseg 0x00178040 0x001780F4 ico2/fumi/src/way_util.c lines=27  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_by_lineseg 0x0062AFB8 0x0062AFBC ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_by_lineseg_of_group_from_gobj 0x001780F8 0x001781B4 ico2/fumi/src/way_util.c lines=33  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_by_lineseg_of_group_from_gobj 0x0062AFBC 0x0062AFC0 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_by_lineseg_from_gobj 0x001781B8 0x00178274 ico2/fumi/src/way_util.c lines=34  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_by_lineseg_from_gobj 0x0062AFC0 0x0062AFC4 ico2/fumi/src/way_util.c  # 1 float
-text waypoint_with_range 0x00178278 0x00178304 ico2/fumi/src/way_util.c lines=16  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text nearest_waypoint_of_all_except_group 0x00178308 0x001783B0 ico2/fumi/src/way_util.c lines=24  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_of_all_except_group 0x0062AFC4 0x0062AFC8 ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_of_all_not_bridge_except_group 0x001783B0 0x0017848C ico2/fumi/src/way_util.c lines=25  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_of_all_not_bridge_except_group 0x0062AFC8 0x0062AFCC ico2/fumi/src/way_util.c  # 1 float
-text nearest_waypoint_of_all 0x00178490 0x00178538 ico2/fumi/src/way_util.c lines=25  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 nearest_waypoint_of_all 0x0062AFCC 0x0062AFD0 ico2/fumi/src/way_util.c  # 1 float
-text visible_waypoint_of_all 0x00178538 0x00178554 ico2/fumi/src/way_util.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text visible_waypoint_of_all_from_gobj 0x00178558 0x00178584 ico2/fumi/src/way_util.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text visible_waypoint 0x00178588 0x001786A0 ico2/fumi/src/way_util.c lines=31  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 visible_waypoint 0x0062AFD0 0x0062AFD4 ico2/fumi/src/way_util.c  # 1 float
-text visible_waypoint_from_gobj 0x001786A0 0x001787C4 ico2/fumi/src/way_util.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-lit4 visible_waypoint_from_gobj 0x0062AFD4 0x0062AFD8 ico2/fumi/src/way_util.c  # 1 float
-text get_wp_nearest_bridge_side_me 0x001787C8 0x00178858 ico2/fumi/src/way_util.c lines=20  # ordinal; first difference at insn 4; imm:1; extent-equal
-text get_wp_nearest_bridge_side_bridge 0x00178858 0x001788E8 ico2/fumi/src/way_util.c lines=20  # ordinal; first difference at insn 4; imm:1; extent-equal
-text direction_across_bridge 0x001788E8 0x00178974 ico2/fumi/src/way_util.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit direction_across_bridge 0x005540F8 0x00554109 ico2/fumi/src/way_util.c def  # 1 string
-sdlit direction_across_bridge 0x0062C6F8 0x0062C6FA ico2/fumi/src/way_util.c def  # 1 string
-text waybridge_between_group 0x00178978 0x00178A14 ico2/fumi/src/way_util.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text bridge_waypoint_side_me 0x00178A18 0x00178AC0 ico2/fumi/src/way_util.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text waypoint_connect_group_side_me 0x00178AC0 0x00178B08 ico2/fumi/src/way_util.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text bridge_waypoint_side_bridge 0x00178B08 0x00178BB8 ico2/fumi/src/way_util.c lines=17  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text waypoint_connect_group_side_bridge 0x00178BB8 0x00178C00 ico2/fumi/src/way_util.c lines=10  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text NearestWgFromTarget 0x00178C00 0x00178C58 ico2/fumi/src/way_util.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text wpsort_compfnc 0x00178C58 0x00178C8C ico2/fumi/src/way_util.c local lines=12  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text gflagInit 0x00178C90 0x00178D24 ico2/script/src/gflag.c lines=20  # ordinal; first difference at insn 4; length:-2; extent-differs
 text gflagSave 0x00178D28 0x00178D6C ico2/script/src/gflag.c lines=7  # ordinal; first difference at insn 10; length:-4; extent-differs
 text gflagLoad 0x00178D70 0x00178DAC ico2/script/src/gflag.c lines=6  # ordinal; first difference at insn 8; length:-4; extent-differs
