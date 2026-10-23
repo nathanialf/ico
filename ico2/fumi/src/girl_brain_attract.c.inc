@@ -361,7 +361,7 @@ restart:
             int p = ACTWayMove_BeginDetail((void *)self, mypos, tgt.pos, tgt.obj, 0, 0);
 
             if (tgt.fixedPos != 0) {
-                sub->wayDetailFlags.bits.wayDetail = 1;
+                sub->wayState.bits.wayDetail = 1;
             }
             if (p == 0) {
                 setMode(2);

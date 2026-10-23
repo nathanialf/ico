@@ -70,6 +70,21 @@ static inline int getDitchCarryMode(void) /* derived name */
     return 0;
 }
 
+inline void GetSofaPosition(GObj *self, GObj *sofa)
+{
+    Act *w = GOBJ_ACT(self);
+    VECTOR v = sofaSeatOffset;
+    w->env.sofaOrient[0] = w->env.wallOrient[0];
+    w->env.sofaOrient[1] = w->env.wallOrient[1];
+    w->env.sofaOrient[2] = w->env.wallOrient[2];
+    if (self == boyGObj) {
+        v.x = -v.x;
+    }
+    v.w = 1.0f;
+    sceVu0ApplyMatrix(w->env.sofaPos,
+                      *(void **)((char *)((union ENVIF *)((char *)sofa + 0x15C))->i + 0xC), &v);
+}
+
 static inline int getDitchCarryModeStage8(void) /* derived name */
 {
     if (stage_no == 8) {
@@ -81,7 +96,44 @@ static inline int getDitchCarryModeStage8(void) /* derived name */
 static void getDitchDistTbl(float **tbl, float *range, int *sofa, float *pos, void *obj,
                             int *carry);
 
-INCLUDE_ASM(GetDitchPosition);
+static int GetDitchPosition(float *out, float *org, float *dir, float d0, float d1)
+{
+    ClipWork work;
+    float tmp[4];
+    /* work2 and tmp2 are read only by the DEBUG build's second probe in the
+       hit branch */
+    ClipWork work2;
+    float tmp2[4];
+
+    sceVu0ScaleVector(tmp, dir, d0 + d1);
+    sceVu0AddVector(work.pt[0], org, tmp);
+    work.pt[1][0] = work.pt[0][0];
+    work.pt[1][1] = work.pt[0][1];
+    work.pt[1][2] = work.pt[0][2];
+    work.pt[0][1] -= 100.0f;
+    work.pt[1][1] += 100.0f;
+    ClipFloor(&work);
+    if (work.floor.elem != 0) {
+#ifdef DEBUG
+        sceVu0ScaleVector(tmp2, dir, d0);
+        sceVu0AddVector(work2.pt[0], org, tmp2);
+        work2.pt[1][0] = work2.pt[0][0];
+        work2.pt[1][1] = work2.pt[0][1];
+        work2.pt[1][2] = work2.pt[0][2];
+        work2.pt[0][1] -= 100.0f;
+        work2.pt[1][1] += 100.0f;
+        ClipFloor(&work2);
+        if (work2.floor.elem == 0) {
+            scePrintf("env: ditch without floor at its near edge\n");
+        }
+#endif
+        out[0] = work.pt[2][0];
+        out[1] = work.pt[2][1];
+        out[2] = work.pt[2][2];
+        return 1;
+    }
+    return 0;
+}
 
 inline void GetCollisCenterPositionSimple(void *out, void *obj, void *corners)
 {
@@ -107,7 +159,58 @@ typedef struct { /* field names derived */
     char *name;
 } OrientFlagRow; /* derived name */
 
-INCLUDE_ASM(DebugActOrientFlag);
+void DebugActOrientFlag(unsigned int *f)
+{
+    OrientFlagRow tbl[16] = {
+        {(f[1] >> 11) & 1, "climb_50  "},   {(f[1] >> 12) & 1, "climb_100 "},
+        {(f[1] >> 13) & 1, "climb_200 "},   {(f[1] >> 14) & 1, "climb_300 "},
+        {(f[1] >> 29) & 1, "hold_box  "},   {(f[2] >> 6) & 1, "hang_hand "},
+        {(f[2] >> 7) & 1, "hang_breas"},    {(f[2] >> 15) & 1, "ladder_up "},
+        {(f[2] >> 16) & 1, "ladder_dow"},   {(f[2] >> 24) & 1, "down_cliff"},
+        {(f[2] >> 26) & 1, "walk_wall"},    {(f[2] >> 28) & 1, "walk_stair"},
+        {(f[2] >> 29) & 1, "pulledup_50 "}, {(f[2] >> 30) & 1, "pulledup_100"},
+        {(f[2] >> 31) & 1, "pulledup_200"}, {-1},
+    };
+    int y = 40;
+    int i;
+
+    for (i = 0; tbl[i].on != -1; i++) {
+        if (tbl[i].on) {
+            if (debug_font_flag & 1) {
+                debug_Printf(10, y += 8, 0x0FFFFFFF, "%s=on\n", tbl[i].name);
+            }
+        } else {
+            if (debug_font_flag & 1) {
+                debug_Printf(10, y += 8, 0x0FFFFFFF, "%s=off\n", tbl[i].name);
+            }
+        }
+    }
+}
+
+inline void ACTSetEnvAllmighty(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    s->wish0.ll |= (1ULL << 37);
+    s->wish0.ll |= (1ULL << 38);
+    s->wish0.ll |= (1ULL << 39);
+    s->wish0.ll |= (1ULL << 40);
+    s->wish0.ll |= (1ULL << 42);
+    s->wish0.ll |= (1ULL << 43);
+    if (ACTGame_FLAG_TETSUNAGI()) {
+        s->flags18.ll &= ~(1ULL << 38);
+        s->flags20.w.handFreeFrame = 0;
+    } else {
+        if ((int)(s->flags18.ll >> 38) & 1)
+            s->wish0.ll |= (1ULL << 44);
+        s->flags20.w.handFreeFrame += 1;
+    }
+    s->wish0.ll |= (1ULL << 47);
+    s->wish0.ll |= (1ULL << 48);
+    s->wish0.ll |= (1ULL << 49);
+    s->wish0.ll |= (1ULL << 50);
+    s->wish0.ll |= (1ULL << 46);
+    s->wish1.ll |= (1ULL << 36);
+}
 
 inline int CheckWallAttributeEdegWall(GObj *obj)
 {
@@ -283,7 +386,3 @@ static __inline__ void envDebugPrint(void) /* derived name */
 INCLUDE_ASM(ACTGetEnvironment);
 
 /* clang-format on */
-
-INCLUDE_ASM(ACTSetEnvAllmighty);
-
-INCLUDE_ASM(GetSofaPosition);

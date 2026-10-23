@@ -2751,7 +2751,7 @@ static void Danger_Box(GObj *self)
     if (!r) {
         _ACTWait(0);
     }
-    sub->wayDetailFlags.flags |= 0x10000;
+    sub->wayState.flags |= 0x10000;
     _ACTWait(1);
     turn = 0;
     while (1) {

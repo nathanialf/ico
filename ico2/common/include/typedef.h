@@ -1145,18 +1145,20 @@ typedef struct PObjGObj { /* field names derived */
     int pauseExempt; /* 0x170 */
 } PObjGObj; /* derived name */
 
-/* Act + 0x420: the way-state word, one 64-bit word: its low word is the way
-   walker's wait count and bytes 4 and 5 its two status bytes; bit 48 asks for
-   the detailed way search and bits 49..52 count the detailed steps left
-   (act-way.c's ld/sd of 0x420 around the byte stores at 0x424/0x425; the
-   PAL build puts a float at 0x424 and the word at 0x428) */
+/* Act + 0x428: the way-state word, one 64-bit flag word whose low two bytes
+   are also the way walker's two status bytes; bit 16 asks for the detailed
+   way search, bits 17..20 count the detailed steps left and bit 21 marks the
+   begin position illegal (act-way.c: ACTWayMove_BeginDetail 0x1FE90C sb
+   zero,1064 / 0x1FE914 sb zero,1065, ACTWay_SetBeginPositionIllegal 0x1FF4B8
+   ld 1064 | 0x200000; girl_act.c's attract state 0x16BE74 ld/sd 1064) */
 typedef union { /* field names derived */
-    unsigned long long flags;
+    long long flags;
+    unsigned char st[2];
 
     struct {
-        int wait;
-        unsigned char st[2];
-    } w;
+        unsigned long long : 16;
+        unsigned long long wayDetail : 1;
+    } bits;
 } WayState; /* derived name */
 
 /* one of the actor's 64-bit wish words (Act + 0x470 .. 0x497): act-wish.c sets
@@ -1459,18 +1461,10 @@ typedef struct Act {         /* field names derived */
     float wayDetailX; /* 0x410, the detailed way point, x */
     float wayDetailY; /* 0x414, the detailed way point, y */
     float wayDetailZ; /* 0x418, the detailed way point, z */
-    char pad41C[4];
-    WayState wayState; /* 0x420 */
-    union {
-        unsigned long long flags;
-
-        struct {
-            unsigned long long : 16;
-            unsigned long long wayDetail : 1;
-        } bits;
-    } wayDetailFlags; /* 0x428, bit 16 asks for the detailed way search
-                                          (subGirlBrain_Attract 0x16BE74 ld/sd 1064; the
-                                          USA build's WayState bits.wayDetail here) */
+    char pad41C[12];   /* 0x420 the way wait count, 0x424 the begin height
+                          (act-way.c's raw int/float stores, 0x1FEA28 sw
+                          zero,1056 / 0x1FE7EC swc1 1060) */
+    WayState wayState; /* 0x428 */
     int brainAim;    /* 0x430, the enemy brain's aim: 1 the girl, 2 the boy */
     int infoPos;     /* 0x434, the object info position the enemy is saved at */
     int brainStatus; /* 0x438, the brain status the actor starts with */

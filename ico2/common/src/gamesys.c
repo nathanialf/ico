@@ -16,7 +16,6 @@
 #include "gamesys.h"
 #include <string.h>
 #include "main.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     int start;
@@ -91,7 +90,18 @@ static inline GamesysObjInfo *gamesysObjInfoSearch(GamesysObjInfoReq *req,
     return &gameSysObjInfo[i];
 }
 
-INCLUDE_ASM(gamesysObjInfoInit);
+void gamesysObjInfoInit(void)
+{
+    int i;
+
+    for (i = 0; i <= 181; i++) {
+        gameSysObjInfo[i].no = 0;
+        gameSysObjInfo[i].stage = 0xFFFF;
+    }
+
+    memset((char *)gamesysStageExitTime, 0, 0x1A0);
+    backStageProcessInit();
+}
 
 /* .sdata: the frame clock the object records are stamped with, the
    stage the heroine's record was last seen in, the other-stage kidnap flag
@@ -99,9 +109,31 @@ INCLUDE_ASM(gamesysObjInfoInit);
    overflow flag (declared in gamesys.h, but the stage). */
 int gamesysTimeCount = 0;
 
-INCLUDE_ASM(gamesysObjInfoSave);
+void gamesysObjInfoSave(GamesysMemCursor *h)
+{
+    char *p;
+    int save;
 
-INCLUDE_ASM(gamesysObjInfoLoad);
+    gamesysMemoryHandlerWrite(h, &gamesysTimeCount, 4);
+
+    p = (char *)gameSysObjInfo;
+
+    save = (int)(*(long long *)(p + 0x40) >> 1) & 1;
+    *(long long *)(p + 0x40) = *(long long *)(p + 0x40) | 2;
+
+    gamesysMemoryHandlerWrite(h, p, 0x2D80);
+
+    *(long long *)(p + 0x40) = (*(long long *)(p + 0x40) & -3) | ((long long)save << 1);
+
+    gamesysMemoryHandlerWrite(h, gamesysStageExitTime, 0x1A0);
+}
+
+void gamesysObjInfoLoad(GamesysMemCursor *h)
+{
+    gamesysMemoryHandlerRead(h, &gamesysTimeCount, 4);
+    gamesysMemoryHandlerRead(h, gameSysObjInfo, 0x2D80);
+    gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A0);
+}
 
 /* unsigned */
 static unsigned short gamesysGirlStage = 0; /* derived name */
@@ -219,7 +251,14 @@ GamesysObjInfo *gamesysObjInfoBaseSet(GObj *self, int stage)
     return p;
 }
 
-INCLUDE_ASM(gamesysBackStageProcess);
+void gamesysBackStageProcess(void)
+{
+    if (gameSysObjInfo[1].no == 130) {
+        gamesysGirlStage = gameSysObjInfo[1].stage;
+    }
+    gamesysTimeCount++;
+    backStageProcessMain();
+}
 
 void gamesysMemoryHandlerWrite(GamesysMemCursor *self, void *src, int size)
 {
@@ -453,7 +492,17 @@ void gamesysMemorySave(void **tbl, void *mem, void *arg)
     }
 }
 
-INCLUDE_ASM(gamesysMemoryLoad);
+void gamesysMemoryLoad(void **tbl, void *mem, void *arg)
+{
+    GamesysMemCursor cur;
+    cur.base = mem;
+    cur.offset = 0;
+    while (tbl[0] != 0) {
+        ((void (*)(void *, void *))tbl[0])(&cur, arg);
+        tbl += 2;
+    }
+    gflagOn(360);
+}
 
 int gamesysVersionDiff = 0;
 
