@@ -25,7 +25,6 @@
 #include "Matrix.h"
 #include "ios.h"
 #include "Texture.h"
-#include "include_asm.h"
 
 static void copyToWork(int pri);
 
@@ -615,9 +614,126 @@ static float workLightNormal[4][4] = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
-static void dispPool(GObj *self);
+static void dispPool(GObj *self)
+{
+    char m0[64];
+    char m1[64];
+    char m2[64];
+    char m3[64];
+    char m4[64];
+    PoolWork *w = GOBJ_SUB(self)->work;
 
-INCLUDE_ASM(dispPool);
+    gif_StartPacketPri(4);
+    copyToWork(4);
+    gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetZWrite(0);
+    gif_SetZTest(1);
+    gif_SetAlpha(0, 4, 0x80);
+
+    gif_EndPacket();
+
+    _SetCurrentMatrix(matrixptr + 0x100);
+
+    if (debug_snapshot_reserve == 0) {
+        prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
+    }
+
+    CopyMatrix((char *)GOBJ_SUB(self)->lightMtx + 0x40, workLightColor);
+    CopyMatrix((char *)GOBJ_SUB(self)->lightMtx, workLightNormal);
+
+    gif_StartPacketPri(4);
+    flushWork(4);
+
+    CopyMatrix(m0, (char *)(matrixptr + 0xC0));
+
+    CopyMatrix(m1, (char *)(matrixptr + 0x1C0));
+    CopyMatrix(m2, (char *)(matrixptr + 0x100));
+    CopyMatrix(m3, (char *)(matrixptr + 0x200));
+    CopyMatrix(m4, (char *)(matrixptr + 0x340));
+
+    debug_snapshot_reserve--;
+    gsb_SetVSMatrix(0xCC, 0xCC, (float)currentFocusDistance);
+
+    _MulMatrix((char *)(matrixptr + 0x100), (char *)(matrixptr + 0xC0), (char *)(matrixptr + 0x80));
+    _MulMatrix((char *)(matrixptr + 0x200), (char *)(matrixptr + 0x1C0),
+               (char *)(matrixptr + 0x80));
+
+    gif_SetZTest(1);
+    gif_SetAlpha(0, 4, 0x80);
+    gif_EndPacket();
+
+    _UnitMatrix(MatrixDrive_GetMatrix());
+    CopyMatrix((char *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix());
+    reg_RenderReflection(GOBJ_SUB(self), 4);
+
+    if (w->dobj != 0) {
+        CopyMatrix(MatrixDrive_GetMatrix(), &w->dobj->matrix);
+        switch (stage_no) {
+        case 99:
+            MatrixDrive_RotMatrixZ((w->spin << 16) / 1600);
+            break;
+        case 15:
+            MatrixDrive_RotMatrixZ(-(w->spin << 16) / 1600);
+        }
+
+        CopyMatrix((char *)w->dobj->nodeMtx, MatrixDrive_GetMatrix());
+
+        reg_RenderReflection(w->dobj, 4);
+
+        if (systemStatus[5] == 0) {
+            if (++w->spin > 1600) {
+                w->spin = 0;
+            }
+        }
+    }
+
+    gif_StartPacketPri(4);
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+    gif_SetAlpha(0, 4, 0x80);
+
+    CopyMatrix((char *)(matrixptr + 0xC0), m0);
+    CopyMatrix((char *)(matrixptr + 0x1C0), m1);
+    CopyMatrix((char *)(matrixptr + 0x340), m4);
+    CopyMatrix((char *)(matrixptr + 0x100), m2);
+    CopyMatrix((char *)(matrixptr + 0x200), m3);
+    vsWidth = ScreenWidth;
+    vsHeight = ScreenHeight;
+    debug_snapshot_reserve++;
+
+    gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetZWrite(0);
+    gif_SetZTest(1);
+    gif_SetAlpha(1, 0, 0x40);
+
+    gif_EndPacket();
+
+    _SetCurrentMatrix(matrixptr + 0x100);
+
+    prim_DispMesh3D(w->reflect, dispLightColor, dispLightNormal, -1);
+
+    gif_StartPacketPri(4);
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+    gif_SetGsReg(0x14, 0x60);
+    gif_SetZWrite(0);
+    gif_SetZTest(1);
+    gif_SetAlpha(1, 0, 0x40);
+
+    gif_EndPacket();
+
+    if (debug_skel_flag != 0) {
+        DispMeshWire(w->wire, w->nx, w->ny);
+    }
+}
 
 void PoolDL(GObj *self)
 {

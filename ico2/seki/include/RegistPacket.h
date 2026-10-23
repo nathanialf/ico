@@ -22,7 +22,9 @@ void reg_DispMultiPri(Sub15C *o, int pri);
 void reg_DispObj(Sub15C *o);
 int reg_GetShinePri(int shine);
 void reg_Init(void);
-void reg_RenderReflection(Sub15C *o, int pri);
+/* no reg_RenderReflection prototype in this build: its one caller, pool.c's
+   dispPool, calls it undeclared (an int call whose v0 moves the registers
+   after both calls, 0x10C640 and 0x10C6F8) */
 void reg_SetScissorSw(int val);
 
 #endif /* REGISTPACKET_H */
