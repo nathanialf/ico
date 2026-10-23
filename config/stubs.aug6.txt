@@ -1983,43 +1983,6 @@ text actSt03tGirlCamEndChk 0x00211248 0x00211314 ico2/script/src/st03t.c lines=1
 text actSt03tEneChk 0x00211328 0x002113F8 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 20; imm:8; extent-equal
 text actSt03tWayOnChk 0x002113F8 0x002114A0 ico2/script/src/st03t.c lines=19  # trfile; aug6-only in the census; PAL's actSt03tWayOnChk (180 B in PAL)
 text actSt03tWayOffChk 0x002114A0 0x00211548 ico2/script/src/st03t.c lines=19  # trfile; aug6-only in the census; PAL's actSt03tWayOffChk (184 B in PAL)
-text actSt04aGate 0x00211548 0x00211780 ico2/script/src/st04a.c lines=31  # trfile; aug6-only in the census; PAL's actSt04aGate (264 B in PAL)
-lit4 actSt04aGate 0x0062B67C 0x0062B680 ico2/script/src/st04a.c # target side
-text actSt04aGateChk 0x00211780 0x00211D78 ico2/script/src/st04a.c lines=189  # trfile; aug6-only in the census; PAL's actSt04aGateChk (1704 B in PAL)
-rdlit actSt04aGateChk 0x00614650 0x00614710 ico2/script/src/st04a.c  # target side
-lit4 actSt04aGateChk 0x0062B680 0x0062B684 ico2/script/src/st04a.c  # 1 float
-text actSt04aConte06 0x00211D78 0x002123B0 ico2/script/src/st04a.c lines=143  # trfile; aug6-only in the census; PAL's actSt04aConte06 (1628 B in PAL)
-rdlit actSt04aConte06 0x00614710 0x00614738 ico2/script/src/st04a.c  # target side
-lit4 actSt04aConte06 0x0062B684 0x0062B694 ico2/script/src/st04a.c # target side
-text actSt04aGateOpen 0x00212698 0x00212778 ico2/script/src/st04a.c lines=29  # trfile; aug6-only in the census; PAL's actSt04aGateOpen (244 B in PAL)
-text actSt04aGateOpenChk 0x00212778 0x00212C94 ico2/script/src/st04a.c lines=167  # trfile; aug6-only in the census; PAL's actSt04aGateOpenChk (1364 B in PAL)
-rdlit actSt04aGateOpenChk 0x00614738 0x00614790 ico2/script/src/st04a.c  # target side
-text actConte09 0x00212C98 0x002130D8 ico2/script/src/st04a.c lines=120  # trfile; aug6-only in the census; PAL's actConte09 (1168 B in PAL)
-text actConte09Jimaku 0x002130D8 0x00213280 ico2/script/src/st04a.c lines=37  # trfile; aug6-only in the census; PAL's actConte09Jimaku (424 B in PAL)
-lit4 actConte09Jimaku 0x0062B698 0x0062B69C ico2/script/src/st04a.c  # 1 float
-text actSt04aGateOpen2Chk 0x00213280 0x002133CC ico2/script/src/st04a.c lines=39  # trfile; aug6-only in the census; PAL's actSt04aGateOpen2Chk (340 B in PAL)
-text actConte09_2 0x002133D0 0x0021384C ico2/script/src/st04a.c lines=117  # trfile; aug6-only in the census; PAL's actConte09_2 (1148 B in PAL)
-lit4 actConte09_2 0x0062B69C 0x0062B6A8 ico2/script/src/st04a.c  # 3 floats
-text actSt04aGateOpen3Chk 0x00213850 0x00213960 ico2/script/src/st04a.c lines=32  # trfile; aug6-only in the census; PAL's actSt04aGateOpen3Chk (272 B in PAL)
-text actConte09_3 0x00213960 0x00214368 ico2/script/src/st04a.c lines=237  # trfile; aug6-only in the census; PAL's actConte09_3 (2456 B in PAL)
-rdlit actConte09_3 0x006147B0 0x00614810 ico2/script/src/st04a.c  # target side
-lit4 actConte09_3 0x0062B6A8 0x0062B708 ico2/script/src/st04a.c # target side
-text actSt04aGateLChk 0x00214368 0x00214464 ico2/script/src/st04a.c lines=56  # trfile; aug6-only in the census; PAL's actSt04aGateLChk (480 B in PAL)
-text actSt04aGateRChk 0x00214468 0x00214640 ico2/script/src/st04a.c lines=76  # trfile; aug6-only in the census; PAL's actSt04aGateRChk (596 B in PAL)
-text actSt04aTorch1 0x00214640 0x00214950 ico2/script/src/st04a.c lines=85  # trfile; aug6-only in the census; PAL's actSt04aTorch1 (800 B in PAL)
-text actSt04aTorch1Chk 0x00214950 0x00214B20 ico2/script/src/st04a.c lines=78  # trfile; aug6-only in the census; PAL's actSt04aTorch1Chk (544 B in PAL)
-rdlit actSt04aTorch1Chk 0x00614810 0x00614830 ico2/script/src/st04a.c align=16  # target side
-text actSt04aTorchAllFlagfChk 0x00214B20 0x00214CF0 ico2/script/src/st04a.c lines=68  # trfile; aug6-only in the census; PAL's actSt04aTorchAllFlagfChk (744 B in PAL)
-text actSt04aGateL 0x00214CF0 0x00214D98 ico2/script/src/st04a.c lines=19  # trfile; aug6-only in the census; PAL's actSt04aGateL (168 B in PAL)
-text actSt04aGateR 0x00214D98 0x00214E40 ico2/script/src/st04a.c lines=19  # trfile; aug6-only in the census; PAL's actSt04aGateR (168 B in PAL)
-text actSt04aTorchXL 0x00214E40 0x00214E80 ico2/script/src/st04a.c lines=9  # trfile; aug6-only in the census; PAL's actSt04aTorchXL (64 B in PAL)
-text actSt04aGateOpen2 0x00214E80 0x00214F04 ico2/script/src/st04a.c lines=15  # trfile; aug6-only in the census; PAL's actSt04aGateOpen2 (132 B in PAL)
-text actSt04aGateOpen3 0x00214F08 0x00214FCC ico2/script/src/st04a.c lines=27  # trfile; aug6-only in the census; PAL's actSt04aGateOpen3 (256 B in PAL)
-text actSt04aGateOpen2Ready 0x00214FD0 0x00215038 ico2/script/src/st04a.c lines=11  # trfile; aug6-only in the census; PAL's actSt04aGateOpen2Ready (104 B in PAL)
-text actSt04aGirlSit 0x00215038 0x002150A0 ico2/script/src/st04a.c lines=11  # trfile; aug6-only in the census; PAL's actSt04aGirlSit (104 B in PAL)
-text finishCallBackFunc 0x002152F0 0x002153BC ico2/script/src/st04a.c local lines=13  # ordinal; first difference at insn 14; imm:3; extent-equal
-text actSt04aGateOpen2ReadyChk 0x002153C0 0x00215480 ico2/script/src/st04a.c lines=23  # ordinal; first difference at insn 38; imm:1; extent-equal
-text actSt04aGirlSitChk 0x00215730 0x0021580C ico2/script/src/st04a.c lines=22  # trfile; aug6-only in the census; PAL's actSt04aGirlSitChk (220 B in PAL)
 text actSt04bEnd 0x00215810 0x00215858 ico2/script/src/st04b.c lines=10  # trfile; aug6-only in the census; PAL's actSt04bEnd (72 B in PAL)
 text actSt04bSekizoChk 0x00215858 0x00215B58 ico2/script/src/st04b.c lines=94  # trfile; aug6-only in the census; PAL's actSt04bSekizoChk (820 B in PAL)
 lit4 actSt04bSekizoChk 0x0062B718 0x0062B728 ico2/script/src/st04b.c  # 4 floats
