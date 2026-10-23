@@ -83,4 +83,3 @@ text WayLengthOfGObj_Pos 0x001F34F8 0x001F3544 ico2/fumi/src/way_kidnap.c lines=
 text WayLengthOfGObj_GObj 0x001F3548 0x001F35A0 ico2/fumi/src/way_kidnap.c lines=9  # census-equal; stubbed for emission order
 text WayPointWithRangeFromGObj 0x001F35A0 0x001F35E8 ico2/fumi/src/way_kidnap.c lines=9  # census-equal; stubbed for emission order
 text wpsort_compfnc 0x001F35E8 0x001F361C ico2/fumi/src/way_kidnap.c local file=wpsort_compfnc_way_kidnap lines=11  # census-equal; the C no longer emits it (its users are stubs)
-text actSt00aDoor1DownChk 0x001FD100 0x001FD290 ico2/script/src/st00a.c lines=36  # order

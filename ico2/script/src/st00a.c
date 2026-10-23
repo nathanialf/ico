@@ -16,7 +16,6 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 /* .sdata: the prototype stair's stream handle, its shake and the shake's
    volume. */
@@ -49,8 +48,8 @@ static const ConstVec door1UpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
    where they stand. The mail records, each the usual pair (the 377 entry
    whose handler the sender fills in and the 376 terminator), are
    file-scope statics ahead of the actors that install them, except the
-   door checks' records, static locals of their posters (gcc's local name.N
-   symbol); .data keeps the source order. */
+   first three door checks' records, static locals of their posters (gcc's
+   local name.N symbol); .data keeps the source order. */
 
 void actSt00aEne(GObj *volatile self);
 void actSt00aEnemy1(GObj *volatile self);
@@ -535,8 +534,52 @@ inline void actSt00aDoor1DownEffect(GObj *volatile self)
     }
 }
 
-/* actSt00aDoor1DownChk's record, file-scope while that function is a stub
-   (its static local's slot). */
+/* file-scope, as in the later builds: the gcse expression hash table of
+   43 buckets below puts its %hi after the callee's, which the demo's
+   registers show (s5 table, s4 callee) */
 static ActMail door1Downchk_mes[2] = {{377}, {376}}; /* derived name */
 
-INCLUDE_ASM(actSt00aDoor1DownChk);
+void actSt00aDoor1DownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+    int h;
+    /* pinned: two to five instructions at gcse that later passes delete
+       (the hash table is 43 buckets, not the 41 the August text gives),
+       from values that cross a label cse1 cannot follow; the trigger
+       attribute and the animation number are the only two such values,
+       and gcse folds them into their uses.  Not pinned: the text (aug6 and
+       the later builds spell both as literals). */
+    int attr = 0x4000000;
+    int anim = 70;
+
+    while (scpTriggerFloorAttrTargetMan(self, attr) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor1DownEffect, 21);
+
+    scpWakeupItemWithBoundary(-8.0f, -73.0f, 64.0f, 100.0f);
+
+    stage_SetAnimation(anim, 1, 0);
+
+    buf[0] = door1UpChkPos.d[0];
+    buf[1] = door1UpChkPos.d[1];
+    soundSeDefPlay(1170, 0, (float *)buf, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1171, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+    soundSeDefPlay(1172, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(anim) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door1Downchk_mes[0].func = actSt00aDoor1UpChk;
+    sub->mail = door1Downchk_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
