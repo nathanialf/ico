@@ -1458,25 +1458,6 @@ rdlit dl_PushPriority 0x006136B0 0x006136D8 ico2/seki/src/DisplayList.c  # targe
 sdlit dl_PushPriority 0x0062D988 0x0062D98E ico2/seki/src/DisplayList.c  # target side: "FALSE" (the "e" after it is dl_OpenDma's, written at its definition)
 text dl_PopPriority 0x001F8460 0x001F84E8 ico2/seki/src/DisplayList.c lines=11  # ordinal; first difference at insn 10; imm:2; extent-equal
 rdlit dl_PopPriority 0x006136D8 0x00613700 ico2/seki/src/DisplayList.c  # target side
-text AdpcmOpen 0x001F98B0 0x001F99F0 ico2/fumi/sound/adpcm_init.c lines=22  # census-equal; stubbed because it inlines a function stubbed for emission order
-rdlit AdpcmOpen 0x00613888 0x006138A0 ico2/fumi/sound/adpcm_init.c  # target side
-sdlit AdpcmOpen 0x0062D9B0 0x0062D9B4 ico2/fumi/sound/adpcm_init.c  # 1 string
-text AdpcmClose 0x001F99F0 0x001F9B88 ico2/fumi/sound/adpcm_init.c lines=30  # ordinal; first difference at insn 51; imm:4; extent-equal
-text adpcmPauseRequest 0x001F9CD8 0x001F9CE0 ico2/fumi/sound/adpcm_init.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text AdpcmIopBuffAlloc 0x001F9CE0 0x001F9D54 ico2/fumi/sound/adpcm_init.c lines=14  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text AdpcmOpenSync 0x001F9D58 0x001F9DF8 ico2/fumi/sound/adpcm_init.c lines=17  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit AdpcmOpenSync 0x006138A0 0x006138D0 ico2/fumi/sound/adpcm_init.c def  # target side
-text AdpcmFadeCloseAll 0x001F9DF8 0x001F9E30 ico2/fumi/sound/adpcm_init.c lines=11  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text AdpcmUseAreaGet 0x001F9E30 0x001F9E64 ico2/fumi/sound/adpcm_init.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text AdpcmFreeAreaGet 0x001F9E68 0x001F9E9C ico2/fumi/sound/adpcm_init.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text AdpcmInterStereoVolumeSetAll 0x001F9EA0 0x001F9F30 ico2/fumi/sound/adpcm_init.c lines=18  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text AdpcmInterLeaveVolumeGet 0x001F9F30 0x001F9F44 ico2/fumi/sound/adpcm_init.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text AdpcmVolumeGet 0x001F9F48 0x001F9F54 ico2/fumi/sound/adpcm_init.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text adpcmTickProc 0x001F9F58 0x001FA038 ico2/fumi/sound/adpcm_init.c lines=27  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text adpcmDiskNotReady 0x001FA038 0x001FA040 ico2/fumi/sound/adpcm_init.c local lines=1  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text adpcmDiskReturnReady 0x001FA040 0x001FA048 ico2/fumi/sound/adpcm_init.c local lines=1  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text adpcmOpenProc 0x001FA048 0x001FA070 ico2/fumi/sound/adpcm_init.c local lines=5  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text adpcmOpenDiskNotReady 0x001FA070 0x001FA078 ico2/fumi/sound/adpcm_init.c local lines=1  # byte-equal to PAL's (the census gave its name to a neighbour); a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text GetDitchPosition 0x001FA078 0x001FA130 ico2/fumi/src/act-env.c local lines=38  # trfile; aug6-only in the census; PAL's GetDitchPosition (200 B in PAL)
 text DebugActOrientFlag 0x001FA130 0x001FA3D0 ico2/fumi/src/act-env.c lines=27  # trfile; aug6-only in the census; PAL's DebugActOrientFlag (680 B in PAL)
 rdlit DebugActOrientFlag 0x006138E0 0x006139CD ico2/fumi/src/act-env.c align=16  # 15 strings
