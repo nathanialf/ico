@@ -281,10 +281,10 @@ GObj *boyGObj = 0;
 
 GObj *girlGObj = 0;
 
-/* the boy's and the girl's pad handles, the Act.pad each actor connects */
+/* the boy's pad handle, the Act.pad the boy connects (aug6: no girl pad
+   handle; gameover_flag is the next word, RequestStageChangeWithColor
+   0x17BA98 lw t2,-28160(gp)) */
 IosPadCtx *boyPad = 0;
-
-IosPadCtx *girlPad = 0; /* derived name */
 
 int gameover_flag = 0;
 
@@ -293,7 +293,7 @@ int gameover_layout_flag = 0;
 /* ACTItemWatchMotion runs for the boy only while it is 0 */
 int itemWatchOff = 0; /* derived name */
 
-GObj *CurrentTargetGObj = 0;
+GObj *CurrentTargetGObj QWORD = 0;
 
 GObj *CurrentTargetGObjSub QWORD = 0;
 

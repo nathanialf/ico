@@ -62,7 +62,6 @@ extern int systemFault;
 extern GObj *boyGObj;
 extern GObj *girlGObj;
 extern IosPadCtx *boyPad;
-extern IosPadCtx *girlPad; /* derived name */
 extern int gameover_flag;
 extern int gameover_layout_flag;
 extern int itemWatchOff; /* derived name */

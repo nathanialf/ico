@@ -44,7 +44,6 @@ int scpAdpcmPlayRequestNum(void);
 int scpAdpcmFadeClose(struct SqEntry *p, short fade);
 int scpAdpcmCloseChk(struct SqEntry *p);
 void scpDeamon(struct GObj *volatile self);
-void scpGirlHintVoiceCancel(void);
 int scpIsTorchLightOn(int id);
 struct GObj *scpIsBombExplode(int x);
 float scpGetRotObjectRotCount(int id);
@@ -104,12 +103,6 @@ void ScpCallCameraOn(void);
 void ScpCallCameraTargetOff(void);
 void scpTransGObj(void *self, float dx, float dy, float dz);
 void scpExplodeSecretItem(void);
-int scpCheckExistAliveEnemy(void);
-void scpLockMaxRotate(struct GObj *self, float rot);
-void scpUnLockMaxRotate(struct GObj *self);
-short scpGetRotObjectCurrentRot(int no);
-void scpCheckDisconnectWallStart(struct GObj *self);
-void scpCheckDisconnectWallEnd(struct GObj *self);
 int scpTriggerIgnore(struct GObj *self);
 inline void scpDoorTypeUpMain(struct GObj *volatile self);
 void actSubSekizoSe(struct GObj *volatile self);
@@ -124,10 +117,6 @@ void scpPlayEnd(struct GObj *self);
 void scpDoorTypeUpDown(struct GObj *volatile self);
 void scpDoorTypeUpUp(struct GObj *volatile self);
 void scpSubAdpcmPlay(struct GObj *volatile self);
-void scpAdpcmCloseFunc(struct SqEntry **h);
-void scpGirlHintVoiceReady(int kind);
-void scpGirlHintVoicePlay(void);
-void scpGirlHintVoiceTickProc(void *cam);
 
 void scpSekizou(struct GObj *self, int flag, int anim, int anim2, int kind, float bx, float by,
                 float bz, float gx, float gy, float gz);
@@ -140,7 +129,6 @@ void scpSleepSpiderGroupOne(int id);
 void scpWakeupSpiderGroupOne(int id);
 void scpKillSpiderGroup(int id);
 void preload(int idx);
-void scpSetBoyWeaponGObj(void *w);
 
 /* one entry of girlWarpList, the girl's warp table, 0x58 bytes; warpGirl.c
  * reads it */

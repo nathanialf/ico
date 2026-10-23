@@ -1248,51 +1248,54 @@ typedef struct ActEnv {      /* field names derived */
     float cliffEdgePos[4];   /* 0x40 */
     float cliffStepPos[4];   /* 0x50 */
     float ditchPos[4];       /* 0x60, the ditch position */
-    float cliffBackPos[4];   /* 0x70 */
-    float edgeOrient[4];     /* 0x80 */
-    float sofaOrient[4];     /* 0x90, the sofa seat orientation (GetSofaPosition) */
-    float edgePos[4];        /* 0xA0, the edge position, [3] nonzero while it is to be taken */
-    char padB0[16];
-    float wallPos[4]; /* 0xC0, the point on the wall the actor touches (wallContactPos) */
-    float pullPos[4]; /* 0xD0, the pull position */
-    float sofaPos[4]; /* 0xE0, the sofa seat position (GetSofaPosition) */
-    Vec4 turnDir;     /* 0xF0, the direction the enemy turns from, kept over the clear */
-    char pad100[16];
-    int wallWord;      /* 0x110, the wall's attribute word */
-    int cliffSel;      /* 0x114, the cliff selection */
-    float cliffHeight; /* 0x118, the cliff height */
-    GObj *wallObj;     /* 0x11C, the object whose wall the root hit */
-    GObj *boxObj;      /* 0x120, the box (kind 17) in reach */
-    GObj *holdBoxObj;  /* 0x124, the box the actor can hold */
-    GObj *barObj;      /* 0x128, the bar or turning object (kind 18) */
-    GObj *pullObj;     /* 0x12C, the pull lever */
-    GObj *pullParent;  /* 0x130, the object the actor is linked to (Sub15C parent)
+    float ditchDir[4];       /* 0x70 (aug6 pinned: scpPlayMot 0x179030 addiu a2,s3,1552 = motOriReq) */
+    unsigned char ditchCarry; /* 0x80, nonzero when ditchPos is stage 8's carry-mode ditch */
+    char pad81[15];
+    float cliffBackPos[4]; /* 0x90 */
+    float edgeOrient[4];   /* 0xA0 */
+    float sofaOrient[4];   /* 0xB0, the sofa seat orientation (GetSofaPosition) */
+    float edgePos[4];      /* 0xC0, the edge position, [3] nonzero while it is to be taken */
+    char padD0[16];
+    float wallPos[4]; /* 0xE0, the point on the wall the actor touches (wallContactPos) */
+    float pullPos[4]; /* 0xF0, the pull position */
+    float sofaPos[4]; /* 0x100, the sofa seat position (GetSofaPosition) */
+    Vec4 turnDir;     /* 0x110, the direction the enemy turns from, kept over the clear */
+    char pad120[16];
+    int wallWord;      /* 0x130, the wall's attribute word */
+    int cliffSel;      /* 0x134, the cliff selection */
+    float cliffHeight; /* 0x138, the cliff height */
+    GObj *wallObj;     /* 0x13C, the object whose wall the root hit */
+    GObj *boxObj;      /* 0x140, the box (kind 17) in reach */
+    GObj *holdBoxObj;  /* 0x144, the box the actor can hold */
+    GObj *barObj;      /* 0x148, the bar or turning object (kind 18) */
+    GObj *pullObj;     /* 0x14C, the pull lever */
+    GObj *pullParent;  /* 0x150, the object the actor is linked to (Sub15C parent)
                              when it finds the lever (kind 23) */
-    char pad134[4];
-    GObj *swapWeapon; /* 0x138, the weapon the actor can swap to */
-    GObj *frontObj;   /* 0x13C */
+    char pad154[4];
+    GObj *swapWeapon; /* 0x158, the weapon the actor can swap to */
+    GObj *frontObj;   /* 0x15C */
 
     union {
         int i;
         GObj *obj;
-    } cageObj; /* 0x140, the cage: stored as the object ACTGetEnvironment
+    } cageObj; /* 0x160, the cage: stored as the object ACTGetEnvironment
                   found, read as an int handle (commonact.c) */
 
-    GObj *bombObj;     /* 0x144, the bomb */
-    GObj *torchRevObj; /* 0x148, the torch */
+    GObj *bombObj;     /* 0x164, the bomb */
+    GObj *torchRevObj; /* 0x168, the torch */
 
     union {
         int i;
         GObj *obj;
-    } sofaObj; /* 0x14C, the sofa: stored as an int (ACTGetEnvironment), read
+    } sofaObj; /* 0x16C, the sofa: stored as an int (ACTGetEnvironment), read
                   as the object */
 
-    MotOriReq motOriReq;    /* 0x150, the motion orient request SetMotionRequest
+    MotOriReq motOriReq;    /* 0x170, the motion orient request SetMotionRequest
                              takes, copied from the root's at Sub15C + 0x170 */
-    MotOriReq cliffContact; /* 0x170, the same copy, taken where the cliff is
+    MotOriReq cliffContact; /* 0x190, the same copy, taken where the cliff is
                                found; mails 378 to 384 read it (381 takes the
                                boy's) */
-    MotOriReq supportReq;   /* 0x190, the wall _SCPBoySupportGirl sets (the
+    MotOriReq supportReq;   /* 0x1B0, the wall _SCPBoySupportGirl sets (the
                                girl's as a, the boy's as b), the request mails
                                385 and 386 copy to motOriReq */
 } ActEnv;                   /* derived name */
@@ -1464,27 +1467,25 @@ typedef struct Act {         /* field names derived */
     int brainStatus; /* 0x438, the brain status the actor starts with */
     char pad43C[4];
     int attackGroup; /* 0x440, the actor's attack group (MakeAttackPack_Actor ors it into group2) */
-    int modeHist[2];   /* 0x444, the act modes left, newest first (BeforeFunc shifts them;
-                        actCommonJump and actCommonFall read [0]; the PAL build keeps
-                        ten in ActWork) */
-    int doorFlag;      /* 0x44C, the game flag of the door script */
-    float doorDist;    /* 0x450, the door's travel */
-    float doorStep;    /* 0x454, the door's step */
-    ActMail *doorMail; /* 0x458, the door's main mail list */
-    int doorCamWait;   /* 0x45C, frames to wait after the camera move */
-    int doorEndWait;   /* 0x460, frames to wait after the move */
-    GObj *doorCamera;  /* 0x464, the camera target of the door move, 0 for none */
-    char pad468[8];
-    ActWishWord wish0; /* 0x470 */
-    ActWishWord wish1; /* 0x478 */
-    ActWishWord wish2; /* 0x480 */
-    ActWishWord wish3; /* 0x488 */
-    ActWishWord wish4; /* 0x490 */
-    char pad498[8];
+    int doorFlag;      /* 0x444, the game flag of the door script (aug6 pinned:
+                          scpDoorTypeUpDown 0x179348 lw a0,1092(s1); no modeHist) */
+    float doorDist;    /* 0x448, the door's travel */
+    float doorStep;    /* 0x44C, the door's step */
+    ActMail *doorMail; /* 0x450, the door's main mail list */
+    int doorCamWait;   /* 0x454, frames to wait after the camera move */
+    int doorEndWait;   /* 0x458, frames to wait after the move */
+    GObj *doorCamera;  /* 0x45C, the camera target of the door move, 0 for none */
+    char pad460[8];
+    ActWishWord wish0; /* 0x468 (USA's place; unpinned here) */
+    ActWishWord wish1; /* 0x470 */
+    ActWishWord wish2; /* 0x478 */
+    ActWishWord wish3; /* 0x480 */
+    ActWishWord wish4; /* 0x488 */
+    char pad490[16];
     ActEnv env; /* 0x4A0, the environment ACTGetEnvironment fills in every frame */
-    struct EnemyBattleWork *enemy;          /* 0x650, the enemy work (enemy_act.c) */
-    struct MailAdditionalData *mailAddData; /* 0x654, the mail additional data table */
-    int work; /* 0x658, the actor's extended work block (act-game.h's ActWork) */
+    struct EnemyBattleWork *enemy;          /* 0x670, the enemy work (enemy_act.c; scpPlayJump 0x17908C) */
+    struct MailAdditionalData *mailAddData; /* 0x674, the mail additional data table */
+    int work; /* 0x678, the actor's extended work block (act-game.h's ActWork) */
 } Act;        /* derived name */
 
 /* obj-layout: one placed object of a stage, 0x4C bytes, indexed by the
