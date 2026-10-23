@@ -11,7 +11,6 @@
  * addresses its two words through $gp, unlike libsndn2's sound.o, whose small
  * static the demo addresses with %hi/%lo; it follows sound.o in every section.
  */
-#include "include_asm.h"
 #include <eekernel.h>
 #include <eeregs.h>
 #include <stdio.h>
@@ -24,11 +23,47 @@ static char **argv_copy;
 
 static int argc_copy;
 
-/* the decimal-string-to-short helper the argument parser calls six times
-   (a nested function of sceDemoStart: $v0 carries the static chain) */
-INCLUDE_ASM(func_002467B8);
+void sceDemoStart(int argc, char **argv, unsigned short *language, unsigned short *aspect,
+                  unsigned short *playmode, unsigned short *toInactive, unsigned short *toTotal,
+                  unsigned short *mediaType)
+{
+    /* the decimal-string-to-short helper, five settings and the media type */
+    void readSetting(char *s, unsigned short *v) /* derived name */
+    {
+        int i;
 
-INCLUDE_ASM(sceDemoStart);
+        *v = 0;
+        for (i = 0; s[i] != 0; i++) {
+            *v = *v * 10 + s[i] - '0';
+        }
+    }
+
+    int ac;
+    char **av;
+
+    ac = argc;
+    av = argv;
+    if (ac < 7) {
+        /* not started by the demo menu: hand back the boot arguments as
+           given.  The words pin a set and a read of ac and av in this arm
+           after its reads of argc and argv (cse2 then keeps the copies for
+           the test and the parser, the incoming registers for these two
+           stores); the statements' spelling is not pinned. */
+        ac = argc;
+        av = argv;
+        argc_copy = ac;
+        argv_copy = av;
+    } else {
+        argv_copy = av;
+        argc_copy = ac;
+        readSetting(av[1], language);
+        readSetting(av[2], aspect);
+        readSetting(av[3], playmode);
+        readSetting(av[4], toInactive);
+        readSetting(av[5], toTotal);
+        readSetting(av[6], mediaType);
+    }
+}
 
 void sceDemoEnd(int status)
 {
