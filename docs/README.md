@@ -23,9 +23,11 @@ against PAL, against the August 6, 2001 prototype and against the USA
 build.
 The demo's ELF carries the build stamp `Jun 26 2001` `20:01:21`; PAL's debug
 menu dates its build `Jan 17 2002 15:37:26` (`debug.c`). Each line names
-where the difference lives; the comment at that place has the detail. The
-functions `config/stubs.jun26.txt` still lists are built from the user's ELF,
-and their differences are noted on their rows, not here.
+where the difference lives; the comment at that place has the detail. The two
+functions `config/stubs.jun26.txt` still lists (`stgmgrNextStagePreLoad` and
+`subGirlControl`, `README.md` "Status") are built from the user's ELF, and
+their differences are noted on their rows (and `subGirlControl`'s at its
+`INCLUDE_ASM` line), not here.
 
 Disc and video mode:
 
@@ -37,16 +39,17 @@ Disc and video mode:
 - The demo is started by the magazine's menu and hands control back to it.
   `main` (`main.c`) reads the menu's settings (language, aspect, play mode,
   the idle and total timeouts, the media type) through `demoDisc.c`'s
-  argument parser, runs the game, and after the boot thread is woken shuts
-  the game down and calls `DemoDiscEnd`, which reloads the menu's ELF with
-  the arguments it was given. `demoDisc.c` is a game object after
+  `sceDemoStart`, runs the game, and after the boot thread is woken shuts
+  the game down and calls `sceDemoEnd`, which reloads the menu's ELF with
+  the arguments it was given (the prototype's map links the pair as
+  `libscedemo.a(libscedemo.o)`). `demoDisc.c` is a game object after
   `sce/libsndn2/sound.c` in the link order.
 - The exits (`main.c`, `sampleMode.o` in the prototype's map): an idle
   countdown of four minutes that any button or stick resets
   (`sampleModeNoContTimeOutMain`), `sampleModeDemoEnd` and
   `sampleModeDemoEndTimeOut` (to stages 101 and 102; `layout_action.c` and
-  `script.c` call the second), and `func_001025F0`, which wakes the boot
-  thread (`e3.c` calls it).
+  `script.c` call the second), and `demoEnd`, which wakes the boot thread
+  (`e3.c` calls it).
 - The five VU1 programs' constant-address overlays hold the byte 0x6E
   (PAL zero): `overlay-fill=110` on each `.dsm` line of
   `config/link_order.jun26.txt` (`BUILDING.md`). Four programs (cluster,

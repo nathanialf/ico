@@ -226,7 +226,7 @@ void actSt04eInit(void)
    ball switches, GondolaCharaChk), the rest file-scope; the inline handlers
    precede the actors, which are defined last. */
 void actSt04lC1BallMain(GObj *volatile self);
-void actSt04lC1BallSwitch(GObj *volatile self);
+inline void actSt04lC1BallSwitch(GObj *volatile self);
 
 static ActMail c1BallMain_mes[2] = {{356, actSt04lC1BallSwitch}, {376}}; /* derived name */
 
@@ -287,7 +287,7 @@ void actSt04lC1BallTurn(GObj *volatile self)
 }
 
 void actSt04lC2BallMain(GObj *volatile self);
-void actSt04lC2BallSwitch(GObj *volatile self);
+inline void actSt04lC2BallSwitch(GObj *volatile self);
 
 static ActMail c2BallMain_mes[2] = {{356, actSt04lC2BallSwitch}, {376}}; /* derived name */
 
@@ -348,8 +348,8 @@ void actSt04lC2BallTurn(GObj *volatile self)
 }
 
 void actSt04lC3BallMain(GObj *volatile self);
-void actSt04lC3BallSwitch(GObj *volatile self);
-void actSt04lC3BallTurn(GObj *volatile self);
+inline void actSt04lC3BallSwitch(GObj *volatile self);
+inline void actSt04lC3BallTurn(GObj *volatile self);
 
 static ActMail c3BallMain_mes[2] = {{357, actSt04lC3BallSwitch}, {376}}; /* derived name */
 
@@ -1093,7 +1093,7 @@ inline void actSt04lTuriChk(GObj *volatile self)
     lt_switch_layout(50);
 }
 
-void actSt04lGondolaCharaChk(GObj *volatile self);
+inline void actSt04lGondolaCharaChk(GObj *volatile self);
 
 void actSt04lGondolaChk(GObj *volatile self)
 {

@@ -70,7 +70,7 @@ void actSt00aInit(void)
     }
 }
 
-void actSt00aAtr2Chk(GObj *volatile self);
+inline void actSt00aAtr2Chk(GObj *volatile self);
 
 static ActMail atr2_mes[2] = {{377}, {376}}; /* derived name */
 
@@ -252,8 +252,8 @@ inline void actSt00aDoor2Event(int x)
 }
 
 void actSt00aDoor2UpChk(GObj *volatile self);
-void actSt00aDoor2DownChk(GObj *self);
-void actSt00aDoor2UpEffect(GObj *volatile self);
+void actSt00aDoor2DownChk(GObj *volatile self);
+inline void actSt00aDoor2UpEffect(GObj *volatile self);
 void actSt00aDoor2DownEffect(GObj *volatile self);
 
 static ActMail door2Down_mes[2] = {{377}, {376}}; /* derived name */
@@ -417,8 +417,8 @@ inline void actSt00aDoor1Event(int x)
 }
 
 void actSt00aDoor1UpChk(GObj *volatile self);
-void actSt00aDoor1DownChk(GObj *self);
-void actSt00aDoor1UpEffect(GObj *volatile self);
+void actSt00aDoor1DownChk(GObj *volatile self);
+inline void actSt00aDoor1UpEffect(GObj *volatile self);
 void actSt00aDoor1DownEffect(GObj *volatile self);
 
 static ActMail door1Down_mes[2] = {{377}, {376}}; /* derived name */

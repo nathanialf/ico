@@ -2737,11 +2737,27 @@ int padtimer_run = 0;
 /* the motion-def row of an actor's current motion (boyact.c's CHAINROW) */
 #define MOTDIRROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
 
-/* The girl's control thread.  A block of compiled-out debug code sits in
-   it; the strings it printed ("src/girl_act.c", "NOTARGET",
-   "[%s] %4d %4d %4d", "delete wg 2\n") stay in .rodata between this
-   function's "girl no!!\n" and its jump table, and four more ("SLOW",
-   "HURRY", "STOP", "target") in .sdata after the pad timers. */
+/* The girl's control thread, built from the user's disc, and the one
+   function of this build not built from C.  Its text is known but for one
+   region: every other statement is the USA text with this build's values
+   (flags18 shifted by 42, the first switch's 68, 76 and 110, the slow-walk
+   test's mask 0x0806000000000000, this build's mail numbers, case 28's test
+   of bit 2 of pad[0].now, and case 45 without the USA's flags20 test), and
+   it compiles to this build's 481 instructions except the register choice
+   at one site (&mdir and &dir in s4/s3, the demo's s3/s4: 8 words).  The
+   region is the slow-walk block's debug display, 709 source lines (1524 to
+   2232) that the August line map leaves without code.  In this build it
+   held some 143 or more live zero-byte statements: calls to this file's
+   debug helpers whose bodies are empty in a retail build, one instruction
+   each until register allocation.  Their count lies in a window (143, 157,
+   167, ...) that the register choice pins, together with the size of the
+   gcse hash table; their text is not pinned.  This is the same region the
+   USA build holds its subGirlControl at.  Eight strings of the display
+   survive with no code reading them: in .rodata "src/girl_act.c",
+   "NOTARGET", "[%s] %4d %4d %4d" and "delete wg 2\n" (after the live
+   "girl no!!\n"), in .sdata "SLOW", "HURRY", "STOP" and "target" (after the
+   pad timers).  No debug build or symbol table of this program is known;
+   the function returns to C when such evidence names the statements. */
 INCLUDE_ASM(subGirlControl);
 
 INCLUDE_ASM_LIT(subGirlControl);

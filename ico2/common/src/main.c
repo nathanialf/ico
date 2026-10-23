@@ -339,9 +339,9 @@ static int bootThreadId; /* derived name */
    the first keeps the arguments the magazine menu started the game with and
    reads the disc's settings out of them, the second reloads the menu with
    them */
-int sceDemoStart(int argc, char **argv, unsigned short *language, unsigned short *aspect,
-                 unsigned short *playmode, unsigned short *toInactive, unsigned short *toTotal,
-                 unsigned short *mediaType);
+void sceDemoStart(int argc, char **argv, unsigned short *language, unsigned short *aspect,
+                  unsigned short *playmode, unsigned short *toInactive, unsigned short *toTotal,
+                  unsigned short *mediaType);
 
 void sceDemoEnd(int status);
 /* thread.c defines it `inline` with no header declaration */

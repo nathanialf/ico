@@ -20,9 +20,6 @@ struct GObj;
 float WayLengthOfGObj_Pos(struct GObj *obj, float *pos);
 float WayLengthOfGObj_GObj(struct GObj *obj0, struct GObj *obj1);
 int WayPointWithRangeFromPos(float *pos, float range, int mode);
-
-struct WVTObj;
-
 int WayPointWithRangeFromGObj(struct GObj *obj, float f);
 struct GObj *NearestEnemyFromGirl(float *len);
 

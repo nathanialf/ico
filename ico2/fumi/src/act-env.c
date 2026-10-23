@@ -179,8 +179,6 @@ inline void ACTSetEnvAllmighty(GObj *self)
     s->wish1.ll |= (1ULL << 33);
 }
 
-inline int CheckWallAttributeEdegWall(GObj *obj);
-
 /* The motion record at actor + 0x130 and the two sub-object words
    ACTGetEnvironment's head reads that Sub15C does not name yet (the wall
    record at 0x574, the wall height at 0x5A4). */
