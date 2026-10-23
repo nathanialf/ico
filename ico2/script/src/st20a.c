@@ -19,7 +19,6 @@
 #include "StageAnimation.h"
 #include "typedef.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (393 = the actor's own wake-up post, 392 = the trailing
@@ -269,7 +268,39 @@ void actSt20aFenceUpChk(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt20aFenceDownChk2);
+void actSt20aFenceDownChk2(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    /* pinned: two to five instructions at gcse that later passes delete
+       (the hash table is 35 buckets, not the 33 the literal text gives, so
+       the record's %hi takes s1 and the callee's s2), from values that
+       cross a label cse1 cannot follow; the trigger target and the
+       animation number are this check's two such parameters, and gcse
+       folds them into their uses.  The two map lines after `sub` (aug6
+       853/854, PAL 948/949) carry no code.  Not pinned: the text (the
+       other three checks and the later builds spell both as literals). */
+    int ball = 1840;
+    int anim = 128;
+    while (scpTriggerBall(self, scpSearchGobj(ball), 5.0f) == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(anim, 1, 0);
+    while (stage_CheckAnimationFrame(anim, 10, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    soundSeDefPlay(1314, 0, 0, 1);
+    while (stage_CheckAnimationFrame(anim, 30, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    SetWayGroupActive(19, 1);
+    gflagOff(292);
+    fenceDownChk2_mes[0].func = actSt20aFenceUpChk2;
+    sub->mail = fenceDownChk2_mes;
+    ACTSendMailCorrect(self, 393);
+    _ACTWait(0);
+}
 
 void actSt20aFenceUpChk2(GObj *volatile self)
 {

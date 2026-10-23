@@ -196,4 +196,3 @@ text actSt03tEneChk 0x00211328 0x002113F8 ico2/script/src/st03t.c lines=25  # or
 text actSt03tWayOnChk 0x002113F8 0x002114A0 ico2/script/src/st03t.c lines=19  # trfile; aug6-only in the census; PAL's actSt03tWayOnChk (180 B in PAL)
 text actSt03tWayOffChk 0x002114A0 0x00211548 ico2/script/src/st03t.c lines=19  # trfile; aug6-only in the census; PAL's actSt03tWayOffChk (184 B in PAL)
 text actSt13aChainOK 0x0022BFC0 0x0022C070 ico2/script/src/st13a.c lines=16  # trfile; aug6-only in the census; PAL's actSt13aChainOK (176 B in PAL)
-text actSt20aFenceDownChk2 0x00234B38 0x00234C68 ico2/script/src/st20a.c lines=28  # trfile; aug6-only in the census; PAL's actSt20aFenceDownChk2 (352 B in PAL)
