@@ -9,6 +9,10 @@
 #define SCRIPT_H
 
 #include "typedef.h"
+#include "gobj.h"
+#include "enemy_act.h"
+#include "act_a_p_1.h"
+#include "act-game.h"
 
 struct GObj;
 
@@ -130,6 +134,51 @@ void scpSleepSpiderGroupOne(int id);
 void scpWakeupSpiderGroupOne(int id);
 void scpKillSpiderGroup(int id);
 void preload(int idx);
+
+/* Four helpers for the stage scripts that no stage calls yet.  Pinned by
+ * the bytes: four function definitions seen before the code of every stage
+ * file (each definition makes three hidden static labels, so every
+ * static-local `.N` of st03t, st06a and st13a is 12 above a file without
+ * them), unreferenced, with no string, static local or code of their own
+ * (MAIN.MAP gives st03t.o only .text, .data and .lit4).  Not pinned:
+ * which four, and their text.  They are Aug 20's script.c functions that
+ * Aug 6's MAIN.MAP lacks, in that file's order, less its debug prints;
+ * the spider kind is Aug 6's 60 (script.c's Sleep/Wakeup/KillEnemyAll),
+ * the lock flag bit is Aug 20's 20 as written. */
+static inline int scpCheckExistAliveEnemy(void) /* derived name */
+{
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (actEnemyFlagCheckDead(g) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static inline int scpCheckExistAliveSpider(void) /* derived name */
+{
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(60); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (IsActCharDead(g) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static inline void scpLockMaxRotate(GObj *self, float rot) /* derived name */
+{
+    GOBJ_ACT(self)->flags20.ll |= (1ULL << 20);
+    GOBJ_WORK(self)->lockedMaxRotate = rot;
+}
+
+static inline void scpUnLockMaxRotate(GObj *self) /* derived name */
+{
+    GOBJ_ACT(self)->flags20.ll &= ~(1ULL << 20);
+}
 
 /* one entry of girlWarpList, the girl's warp table, 0x58 bytes; warpGirl.c
  * reads it */

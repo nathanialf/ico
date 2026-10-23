@@ -26,7 +26,7 @@ typedef struct ActWork { /* field names derived */
     float escortOffset;     /* 0x330 */
     float disappearSpeed;   /* 0x334 */
     float stickMag;         /* 0x338 (subBoyControl 0x14D6D0 swc1 $f0,824(v0)) */
-    float ropeClimbHeight;  /* 0x33C, the chain top over the actor, sent with mail 316 */
+    float lockedMaxRotate;  /* 0x33C, not pinned: Aug 20's field after stickMag (scpLockMaxRotate) */
     float padWish[4]; /* 0x340, the pad wish direction a jump turns to (funcCommonJumpDircorrect
                          0x157654 addiu a1,a1,832; June 26's place, PAL's is 0x350) */
     float fallDir[4]; /* 0x350, the direction a fall turns to (funcCommonFallDircorrect 0x157664) */

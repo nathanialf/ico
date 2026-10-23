@@ -27,11 +27,10 @@
    the end of the file, in the order of the declarations below, which gives
    this build's .text order; the others are output where they stand. The
    mail tables are file-scope statics ahead of the functions that post them,
-   except actSt06aWallWayOffChk's, a static local of its poster as in the USA
-   source (gcc's local name.N symbol); .data keeps the source order.
-   actSt06aWayOnChk's table is file-scope in this build: as a static local
-   (way_onchk_mes.96, the June and USA form) its poster takes the other
-   register order. way_off_chk_mes spells its poster as June's file does. */
+   except actSt06aWallWayOffChk's and actSt06aWayOnChk's, static locals of
+   their posters as in the June and USA sources (gcc's local name.N symbol,
+   counted after script.h's four helper definitions); .data keeps the source
+   order. way_off_chk_mes spells its poster as June's file does. */
 
 inline void actSt06aShutter(GObj *volatile self);
 inline void actSt06aExit(GObj *volatile self);
@@ -672,11 +671,10 @@ inline void actSt06aWay(GObj *volatile self)
     _ACTWait(0);
 }
 
-static ActMail way_onchk_mes[2] = {{393}, {392}}; /* derived name */
-
 inline void actSt06aWayOnChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+    static ActMail way_onchk_mes[2] = {{393}, {392}}; /* derived name */
 
     if (girlGObj == 0) {
         _ACTWait(0);

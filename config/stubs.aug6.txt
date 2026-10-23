@@ -171,15 +171,3 @@ lit4 subGirlControl 0x0062AF4C 0x0062AF80 ico2/fumi/src/girl_act.c # target side
 rdlit subGirlControl 0x00553A60 0x00553AC0 ico2/fumi/src/girl_act.c  # target side
 rdlit subGirlControl 0x00553AC0 0x00553B78 ico2/fumi/src/girl_act.c align=16  # jump table (target side)
 sdlit subGirlControl 0x0062C628 0x0062C647 ico2/fumi/src/girl_act.c  # target side: four strings of a disabled print
-text actSt03tGirlCam 0x00210ED0 0x00210F38 ico2/script/src/st03t.c lines=12  # trfile; aug6-only in the census; PAL's actSt03tGirlCam (104 B in PAL)
-text actSt03tSekizo 0x00210F38 0x00210FA0 ico2/script/src/st03t.c lines=9  # trfile; aug6-only in the census; PAL's actSt03tSekizo (104 B in PAL)
-lit4 actSt03tSekizo 0x0062B670 0x0062B67C ico2/script/src/st03t.c  # 3 floats
-text actSt03tWay 0x00210FA0 0x00211048 ico2/script/src/st03t.c lines=19  # trfile; aug6-only in the census; PAL's actSt03tWay (168 B in PAL)
-text actSt03tEne 0x00211048 0x002110C0 ico2/script/src/st03t.c lines=14  # trfile; aug6-only in the census; PAL's actSt03tEne (120 B in PAL)
-text actSt03tGene 0x002110C0 0x00211168 ico2/script/src/st03t.c lines=25  # trfile; aug6-only in the census; PAL's actSt03tGene (200 B in PAL)
-text actSt03tGirlCamStartChk 0x00211178 0x00211244 ico2/script/src/st03t.c lines=19  # ordinal; first difference at insn 23; imm:3; extent-equal
-text actSt03tGirlCamEndChk 0x00211248 0x00211314 ico2/script/src/st03t.c lines=19  # ordinal; first difference at insn 23; length:+2; extent-differs
-text actSt03tEneChk 0x00211328 0x002113F8 ico2/script/src/st03t.c lines=25  # ordinal; first difference at insn 20; imm:8; extent-equal
-text actSt03tWayOnChk 0x002113F8 0x002114A0 ico2/script/src/st03t.c lines=19  # trfile; aug6-only in the census; PAL's actSt03tWayOnChk (180 B in PAL)
-text actSt03tWayOffChk 0x002114A0 0x00211548 ico2/script/src/st03t.c lines=19  # trfile; aug6-only in the census; PAL's actSt03tWayOffChk (184 B in PAL)
-text actSt13aChainOK 0x0022BFC0 0x0022C070 ico2/script/src/st13a.c lines=16  # trfile; aug6-only in the census; PAL's actSt13aChainOK (176 B in PAL)
