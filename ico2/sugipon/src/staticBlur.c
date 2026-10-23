@@ -8,7 +8,6 @@
 #include "GsBase.h"
 #include "main.h"
 #include "Matrix.h"
-#include "include_asm.h"
 
 static void blur(int n, void *col);
 
@@ -174,23 +173,250 @@ static int blurUv[12]; /* derived name */
 /* the blur sprite's RGBA */
 static SprCol blurCol; /* derived name */
 
-INCLUDE_ASM(reduceCopyAlphaChannelOfWork1ToWork0_15);
+static void auraInspireAfter(int mode)
+{
+    /* halfRect and halfUv are read only by the DEBUG build's half-height
+       preview of work buffer 1 */
+    int halfRect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 4 * 16, ScreenWidth * 16,
+                       ScreenHeight / 2 * 16};
+    int uv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
+    int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                   ScreenHeight * 16};
+    int halfUv[4] = {8, 28, ScreenWidth * 16, ScreenHeight / 2 * 16};
 
-INCLUDE_ASM(copyAlphaChannelOfWork0ToFeedBackArea_19);
+    void reduceCopyAlphaChannelOfWork1ToWork0(void)
+    {
+        int suv[4] = {blurUv[0] + 16, blurUv[1] + 16, ScreenWidth * 16 + blurUv[2],
+                      ScreenHeight * 16 + blurUv[3]};
+        int srect[4] = {blurUv[4] - 2048, blurUv[5] - 1024, 4096,
+                        systemStatus[0] == 0 ? 1792 : 2048};
 
-INCLUDE_ASM(copyCurrentFBToFeedBackArea_27);
+        gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
-INCLUDE_ASM(blendWork0ToWork1_35);
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
 
-INCLUDE_ASM(parallelAddFeedBackAreaToWork0_43);
+        gif_SetAlpha(1, 5, 0);
+        gif_SpriteSensitiveOrg(srect, 0, suv, &alphaCopyCol, 1);
+    }
 
-INCLUDE_ASM(blurBlendFeedBackAreaToWork1_31);
+    void copyAlphaChannelOfWork0ToFeedBackArea(void)
+    {
+        int suv[4] = {blurUv[6], blurUv[7], blurUv[8] + 4096, blurUv[9] + 2048};
+        int srect[4] = {blurUv[10] - 1024, blurUv[11] - 1024, 2048, 2048};
 
-INCLUDE_ASM(testAA_63);
+        gif_SetGsReg(6, workBase[0] | 0x20010000 | 0x5C0000000LL);
 
-INCLUDE_ASM(subWork1ToCurrentFB_75);
+        gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
-INCLUDE_ASM(auraInspireAfter);
+        gif_SetAlpha(1, 5, 0);
+        gif_SpriteSensitiveOrg(srect, 0, suv, &alphaCopyCol, 1);
+    }
+
+    inline void pasteFeedBackAreaToFB(void) /* derived name */
+    {
+        int suv[4] = {8, 8, 2048, systemStatus[0] ? 2048 : 1792};
+
+        gif_SetGsReg(6, 0x5DC00BF00LL);
+
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        gif_SetAlpha(1, 7, 0);
+        gif_SpriteSensitiveOrg(rect, 0, suv, &blurCol, 1);
+    }
+
+    void copyCurrentFBToFeedBackArea(void)
+    {
+        int suv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
+        int srect[4] = {-1024, -1024, 2048, systemStatus[0] ? 2048 : 1792};
+
+        gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
+
+        gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
+
+        gif_SetAlpha(0, 2, 0);
+        gif_SpriteSensitiveOrg(srect, 0, suv, &whiteCol, 0);
+    }
+
+    void blurBlendFeedBackAreaToWork1(void)
+    {
+        void blendWork0ToWork1(void)
+        {
+            SprUV a = {8, 8, 2048, 2048};
+            int srect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                            ScreenHeight * 16};
+
+            gif_SetGsReg(6, workBase[0] | 0x1C008000 | 0x5C0000000LL);
+
+            gif_SetDrawEnviroment(workBase[1], 0, ScreenWidth, ScreenHeight, 0, 0);
+
+            gif_SetAlpha(1, 0, blurCol.f[3]);
+            gif_SpriteSensitiveOrg(srect, 0, &a, &blurCol, 1);
+        }
+
+        inline void copyFeedBackAreaToWork0(void) /* derived name */
+        {
+            SprUV a = {-1024, -1024, 2048, 2048};
+
+            gif_SetDrawEnviroment(workBase[0], 0, 128, 128, 0, 0);
+
+            gif_SetAlpha(0, 2, 0);
+            gif_SpriteSensitiveOrg(&a, 0, (void *)0, &clearCol, 0);
+        }
+
+        void parallelAddFeedBackAreaToWork0(void)
+        {
+            inline void addTap(int x, int y) /* derived name */
+            {
+                SprUV a = {8, 8, 2048, 2048};
+                int srect[4] = {x, y, 2048, 2048};
+
+                gif_SetGsReg(6, 0x5DC00BF00LL);
+
+                gif_SetDrawEnviroment(workBase[0], 0, 128, 128, 0, 0);
+
+                gif_SetAlpha(1, 0, 32);
+                gif_SpriteSensitiveOrg(srect, 0, &a, &whiteCol, 1);
+            }
+
+            addTap(-1014, -1014);
+            addTap(-1014, -1034);
+            addTap(-1034, -1014);
+            addTap(-1034, -1034);
+        }
+
+        copyFeedBackAreaToWork0();
+        parallelAddFeedBackAreaToWork0();
+        blendWork0ToWork1();
+    }
+
+    inline void pasteWork0ToFeedBackArea(void) /* derived name */
+    {
+        gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+
+        gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
+
+        gif_SetAlpha(0, 2, 0);
+        gif_SpriteSensitiveOrg(work0ToFeedBackRect, 0, uv, &whiteCol, 0);
+    }
+
+    inline void pasteWork1ToFB(void) /* derived name */
+    {
+        gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        gif_SetAlpha(1, 5, 0);
+        gif_SpriteSensitiveOrg(rect, 0, uv, &alphaCopyCol, 1);
+    }
+
+    void testAA(void)
+    {
+        int srect[4] = {-ScreenWidth / 5 * 16, -ScreenHeight / 5 * 16, ScreenWidth / 4 * 16,
+                        ScreenHeight / 4 * 16};
+
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        {
+            unsigned char c1[4] = {0, 0, 0, 0};
+            unsigned char c2[4] = {0, 0, 0, 128};
+
+            gif_SetAlpha(1, 5, 0);
+            gif_SpriteSensitiveOrg(rect, 0, (void *)0, c1, 1);
+            gif_SpriteSensitiveOrg(srect, 0, (void *)0, c2, 1);
+        }
+    }
+
+    inline void addWork1ToFB(void) /* derived name */
+    {
+        gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        gif_SetAlpha(1, 0, 128);
+        gif_SpriteSensitiveOrg(rect, 0, uv, &whiteCol, 1);
+    }
+
+    inline void addWork1ToFBWithZ(void) /* derived name */
+    {
+        gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        gif_SetAlpha(1, 0, 128);
+        gif_SetGsReg(0x47, 0x34000);
+        gif_SpriteSensitiveOrg(rect, 0, uv, &whiteCol, 1);
+        gif_SetZTest(0);
+    }
+
+    void subWork1ToCurrentFB(void)
+    {
+        float v[4];
+
+        gif_SetZTest(1);
+        gif_SetZWrite(0);
+
+        gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+        subWork1Point[2] = auraInspireZ;
+        _ApplyMatrix(v, matrixptr + 192, subWork1Point);
+
+        gif_SetAlpha(1, 1, 128);
+        gif_SpriteSensitiveOrg(rect, (int)(v[2] * 16.0f / v[3]), uv, &whiteCol, 1);
+
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+    }
+
+    gif_StartPacketPri(8);
+    gif_SetGsReg(0x4A, 0);
+    gif_SetGsReg(8, 5);
+    gif_SetGsReg(0x14, 0x60);
+
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+
+#ifdef DEBUG
+    if (mode == 4) {
+        gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+        gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+        gif_SetAlpha(0, 2, 0);
+        gif_SpriteSensitiveOrg(halfRect, 0, halfUv, &whiteCol, 0);
+    }
+#endif
+    switch (mode) {
+    case 2:
+        reduceCopyAlphaChannelOfWork1ToWork0();
+        copyAlphaChannelOfWork0ToFeedBackArea();
+        pasteFeedBackAreaToFB();
+        if (systemStatus[5] == 0) {
+            copyCurrentFBToFeedBackArea();
+        }
+        break;
+    case 1:
+        blurBlendFeedBackAreaToWork1();
+        addWork1ToFB();
+        if (systemStatus[5] == 0) {
+            pasteWork0ToFeedBackArea();
+        }
+        break;
+    case 3:
+        pasteWork1ToFB();
+        blurBlendFeedBackAreaToWork1();
+        addWork1ToFBWithZ();
+        if (systemStatus[5] == 0) {
+            pasteWork0ToFeedBackArea();
+        }
+        break;
+    }
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+    gif_SetZWrite(1);
+    gif_SetZTest(1);
+    gif_EndPacket();
+}
 
 void makeFullScreenFlareBefore(int mode)
 {
@@ -310,11 +536,204 @@ void makeFullScreenFlareBefore(int mode)
 
 static int eyeBlurAlpha = 150; /* derived name */
 
-INCLUDE_ASM(reduceWork2ToWork0_105);
+void makeFullScreenFlareAfter(int mode)
+{
+    void reduceWork2ToWork0(void)
+    {
+        gif_SetGsReg(6, workBase[2] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
+        gif_SetGsReg(0x14, 0x60);
 
-INCLUDE_ASM(eyeBlur_109);
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
 
-INCLUDE_ASM(makeFullScreenFlareAfter);
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        {
+            SprUV r = {-2048, -1024, 4096, 2048};
+
+            int uv[4] = {64, 64, ScreenWidth * 16, ScreenHeight * 16};
+            SprCol col = {{128, 128, 128, 128}};
+
+            gif_SpriteSensitiveOrg(&r, 0, uv, &col, 0);
+        }
+        gif_SetZWrite(1);
+        gif_SetGsReg(0x47, 0x5000D);
+    }
+
+    void eyeBlur(int alpha, SprCol *col)
+    {
+        int rect[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                       ScreenHeight * 16};
+
+        gif_SetGsReg(0x14, 0x60);
+
+        gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
+
+        gif_SetGsReg(6, workBase[0] | 0x20010000 | 0x5C0000000LL);
+
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        {
+            SprUV a = {-2048, -1024, 4096, 2048};
+
+            SprUV b = workBufferUv;
+
+            unsigned char c[4] = {alpha, alpha, alpha, 128};
+
+            gif_SetAlpha(1, 7, 0);
+            gif_SpriteSensitiveOrg(&a, 0, &b, c, 0);
+        }
+
+        if ((mode & 2) == 0 && sunOn && 0.0f < sunView[2] && -ScreenWidth < sunScreen[0] &&
+            sunScreen[0] < ScreenWidth && -ScreenHeight < sunScreen[1] &&
+            sunScreen[1] < ScreenHeight) {
+            int arr[4];
+            SprCol c1;
+            SprCol c2;
+            SprUV d;
+            int i;
+
+            gif_SetGsReg(0x14, 0x60);
+
+            gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
+
+            gif_SetGsReg(8, 5);
+
+            for (i = 1; i < 5; i++) {
+                int x0 = (sunScreen[0] + ScreenWidth / 2) * 4096 / ScreenWidth;
+                int y0 = (sunScreen[1] + ScreenHeight / 2) * 2048 / ScreenHeight;
+                int x = x0 * i / 5;
+                int y = y0 * i / 5;
+                int x1 = 4112 - (4096 - x0) * i / 5;
+                int y1 = 2064 - (2048 - y0) * i / 5;
+
+                arr[0] = x;
+                arr[1] = y;
+                arr[2] = x1 - x;
+                arr[3] = y1 - y;
+                c1 = (SprCol){{128, 128, 128, 128}};
+
+                if (0 < x && x < 4095 && 0 < y && y < 4095 && 0 < x1 && x1 < 4095 && 0 < y1 &&
+                    y1 < 4095) {
+                    gif_SetAlpha(1, 0, alpha / (i + 1));
+                    gif_SpriteSensitiveOrg(eyeGhostRect, 0, arr, &c1, 1);
+                }
+            }
+
+            gif_SetGsReg(0x14, 0x60);
+
+            gif_SetGsReg(6, workBase[3] | 0x20010000 | 0x5C0000000LL);
+
+            gif_SetDrawEnviroment(workBase[1], 0, 256, 128, 0, 0);
+            {
+                int x0 = (sunScreen[0] + ScreenWidth / 2) * 4096 / ScreenWidth;
+                int y0 = (sunScreen[1] + ScreenHeight / 2) * 2048 / ScreenHeight;
+                int px = x0 * 0.9f;
+                int py = y0 * 0.9f;
+                int px1 = 4096.0f - (4096 - x0) * 0.9f;
+                int py1 = 2048.0f - (2048 - y0) * 0.9f;
+
+                arr[0] = px;
+                arr[1] = py;
+                arr[2] = px1 - px;
+                arr[3] = py1 - py;
+                c2 = (SprCol){{128, 128, 128, 128}};
+
+                gif_SetAlpha(1, 4, 0);
+                gif_SpriteSensitiveOrg(eyeShrinkRect, 0, arr, &c2, 0);
+            }
+
+            gif_SetGsReg(0x14, 0x40);
+
+            gif_SetGsReg(6, workBase[1] | 0x20010000 | 0x5C0000000LL);
+
+            gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
+            d = (SprUV){520, 264, 0, 0};
+            {
+                int rate = 10;
+                unsigned char cc[4] = {(col->f[0] - 128) * (col->f[3] * rate) / 128,
+                                       (col->f[1] - 128) * (col->f[3] * rate) / 128,
+                                       (col->f[2] - 128) * (col->f[3] * rate) / 128,
+                                       col->f[3] + 128};
+
+                gif_SetAlpha(1, 5, 0);
+                gif_SpriteSensitiveOrg(eyeTintRect, 0, &d, cc, 1);
+            }
+
+            if (mode & 1) {
+                gif_SetGsReg(0x14, 0x40);
+
+                gif_SetGsReg(6, workBase[1] | 0x20010000 | 0x5C0000000LL);
+
+                gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+                gif_SetZTest(0);
+                gif_SetZWrite(0);
+                gif_SetAlpha(1, 1, 96);
+                gif_SetGsReg(0x47, 0x34003);
+                {
+                    SprUV e = {520, 264, 0, 0};
+
+                    gif_SpriteSensitiveOrg(rect, 0, &e, &whiteCol, 1);
+                }
+                gif_SetZWrite(1);
+                gif_SetGsReg(0x47, 0x5000D);
+            }
+
+            gif_SetGsReg(0x14, 0x60);
+            gif_SetZWrite(1);
+            gif_SetZTest(1);
+        }
+    }
+
+    inline void pasteWork0ToFB(void) /* derived name */
+    {
+        gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
+
+        gif_SetZTest(0);
+        gif_SetZWrite(0);
+        gif_SetAlpha(1, 0, 0);
+        {
+            SprUV r = {-2048, -1024, 4096, 2048};
+
+            gif_SpriteSensitiveOrg(&r, 0, (void *)0, &alphaCopyCol, 1);
+        }
+        gif_SetZWrite(1);
+        gif_SetZTest(1);
+    }
+
+    gif_StartPacketPri(7);
+
+    reduceWork2ToWork0();
+
+    gif_SetZTest(0);
+    gif_SetZWrite(0);
+    {
+        SprCol col = flareCol;
+        int i;
+
+        if ((mode & 2) == 0) {
+            col.f[3] = 0;
+        } else {
+            col.f[3] = col.f[3] / 10;
+        }
+        for (i = 0; i < 10; i++) {
+            blur(i + 10, &col);
+        }
+    }
+    gif_SetZTest(1);
+    gif_SetZWrite(1);
+    {
+        SprCol col = flareCol;
+
+        eyeBlur(eyeBlurAlpha, &col);
+    }
+
+    pasteWork0ToFB();
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+
+    gif_EndPacket();
+}
 
 static void pasteFullScreenFlare(void)
 {
@@ -495,7 +914,46 @@ void GetSunWorldPos(float *pos)
 
 static int motionBlurAlpha = 0; /* derived name */
 
-INCLUDE_ASM(MotionBlur);
+/* frames the motion blur still skips after a non-linear camera move */
+static int motionBlurSkip = 0; /* derived name */
+
+void MotionBlur(void)
+{
+    SprCol col = {{128, 128, 128, 128}};
+    SprUV uv = {4, 4, ScreenWidth * 16, ScreenHeight / 2 * 16};
+    SprUV rect = {-ScreenWidth / 2 * 16 - 4, -ScreenHeight / 2 * 16 - 4, ScreenWidth * 16,
+                  ScreenHeight * 16};
+
+    if (motionBlurAlpha == 0) {
+        return;
+    }
+    if (motionBlurSkip != 0) {
+        motionBlurSkip--;
+        return;
+    }
+    if (NonLinearCameraMove != 0) {
+        motionBlurSkip = 1;
+    }
+    if (debug_font_flag & 1) {
+        debug_Printf(300, 40, 0xFFFFFF00, "MBLUR %d", motionBlurAlpha);
+    }
+
+    gif_StartPacketPri(7);
+
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+
+    gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664100000LL);
+    gif_SetGsReg(0x3B, 0x8000000080LL);
+    gif_SetGsReg(0x47, 0x3000C);
+
+    gif_SetZWrite(0);
+    gif_SetAlpha(1, 2, motionBlurAlpha);
+    gif_SpriteSensitiveOrg(&rect, -1, &uv, &col, 1);
+    gif_SetZWrite(1);
+
+    gif_SetGsReg(0x47, 0x5000D);
+    gif_EndPacket();
+}
 
 static void calcSun(void)
 {

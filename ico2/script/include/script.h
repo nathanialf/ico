@@ -63,6 +63,7 @@ inline void scpKillEnemyAll(void);
 inline void scpMaskGeneratorAll(void);
 void scpKillEnemyOne(int id);
 int _SCPMoveCharactorByWay(struct GObj *self, int tgt, float *dir, float speed, int flags);
+void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1);
 
 int _SCPMoveByWay_ToChar(struct GObj *self, struct GObj *target, int deg, int flags, float scale,
                          float speed);

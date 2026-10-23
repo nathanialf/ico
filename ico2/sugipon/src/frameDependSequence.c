@@ -11,30 +11,22 @@
 #include "main.h"
 #include "motionManager2.h"
 #include "frameDependSequence.h"
-#include "include_asm.h"
 
-static int execSE(int no);
-static int checkWaterDepth(struct GObj *gobj, int depth);
-static int checkModelDataID(struct GObj *gobj, int id);
-static int checkWeaponType(struct GObj *gobj, int kind);
-static int execVib(int no, void *entry);
-static int execWeaponLightOff(int no, void *entry);
+static inline int execSE(int no);
+static inline int checkWaterDepth(struct GObj *gobj, int depth);
+static inline int checkModelDataID(struct GObj *gobj, int id);
+static inline int execVib(int no);
+static inline int execWeaponLightOff(int no);
 extern GsysObjInfo seDef[];
 /* int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int owner, int pos, int playMode);
 
-/* the fired-slot flags of one actor's sequence, at its display object's
-   0x730: one vibration slot, five effect slots, twelve SE slots and the
-   weapon light (ExecFrameDependSequence's loops) */
 typedef struct FDSFlags { /* field names derived */
     int vibDone[1];       /* 0x00 */
     int effDone[5];       /* 0x04 */
     int seDone[12];       /* 0x18 */
     int weaponDone;       /* 0x48 */
 } FDSFlags;               /* derived name */
-
-/* the cleared flags InitFrameDependSequence copies over an actor's */
-static FDSFlags fdsFlagsInit = {{0}}; /* derived name */
 
 /* the sequence being run: its flag block, work, layout record and motion
    record, its owner, the SE volume rate and the SE group */
@@ -157,13 +149,106 @@ static int playSERandomID(int no)
     return execSE(randomSEKind[no].se);
 }
 
-static int playSEConditionID(int no, void *entry);
+static inline int checkWaterDepth(GObj *gobj, int depth)
+{
+    return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
+}
 
-INCLUDE_ASM(playSEConditionID);
+static inline int checkModelDataID(GObj *gobj, int id)
+{
+    return GOBJ_SUB(gobj)->modelId == id;
+}
 
-static void playEff(int no);
+static int playSEConditionID(int no)
+{
+    int (*fn)(GObj *, int);
+    const SECondEntry *p;
 
-INCLUDE_ASM(playEff);
+    switch (motSECondKind[no].kind) {
+    case 0:
+    default:
+        fn = CheckFloorAttribute;
+        break;
+    case 1:
+        fn = CheckWallAttribute;
+        break;
+    case 2:
+        fn = checkWaterDepth;
+        break;
+    case 3:
+        fn = checkModelDataID;
+        break;
+    }
+    if (motSECondKind[no].kind != -1) {
+        p = &motSECondKind[no];
+        do {
+            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
+                if (execSE(p->se) != 0) {
+                    return 1;
+                }
+            }
+            p++;
+        } while (p->kind != -1);
+    }
+    return 0;
+}
+
+static inline int execSE(int no)
+{
+    if (no <= 0xFFFF) {
+        return playSE(no);
+    } else if (no <= 0x1FFFF) {
+        return playSERandomID(no - 0x10000);
+    } else {
+        return playSEConditionID(no - 0x20000);
+    }
+    /* the bad-ID report, switched off */
+    if (0) {
+        /* EUC-JP: "an SE with a strange ID(%d) was called" */
+        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
+    }
+}
+
+static void playEff(int no)
+{
+    float q[4];
+    float pos[4];
+    const EffEntry *p;
+    int node;
+    unsigned int flags;
+
+    if (motionEffKind[no].node == -1) {
+        GetRootQuaternion(q, (GObj *)fdsGObj);
+        GetRootMatrix(MatrixDrive_GetMatrix(), (GObj *)fdsGObj);
+    } else {
+        node = GetSkeltonFocusNode((GObj *)fdsGObj, motionEffKind[no].node);
+        if (no == -1) {
+            GetRootQuaternion(q, (GObj *)fdsGObj);
+            GetRootMatrix(MatrixDrive_GetMatrix(), (GObj *)fdsGObj);
+            /* EUC-JP: "note: the node of a node-specified motion effect was not found" */
+            debug_StdPrintfDummy(
+                "注意：ノード指定のモーションエフェクトでノードが見つかりませんでした\n");
+        } else {
+            GetRootQuaternion(q, (GObj *)fdsGObj);
+            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(fdsGObj)->nodeMtx + (node << 6));
+        }
+    }
+    MatrixDrive_TransMatrix(-motionEffKind[no].x, -motionEffKind[no].y, -motionEffKind[no].z);
+    CopyVector(pos, (float *)(MatrixDrive_GetMatrix()[3]));
+    RotQuaternionY(q, motionEffKind[no].ry * -32768.0f / 180.0f);
+    RotQuaternionX(q, motionEffKind[no].rx * -32768.0f / 180.0f);
+    RotQuaternionZ(q, motionEffKind[no].rz * -32768.0f / 180.0f);
+    p = &motionEffKind[no];
+    flags = p->flags;
+    if ((flags >> 1) & 1) {
+        pos[1] = GOBJ_SUB(fdsGObj)->ctrl.waterY;
+    }
+    if (flags & 1) {
+        EntryStageMultiBgaManager(motionEffKind[no].eff, pos, q);
+    } else {
+        SetParticleEffect(motionEffKind[no].eff, pos, q);
+    }
+}
 
 static int execEff(int no)
 {
@@ -221,24 +306,106 @@ done:
     return 1;
 }
 
-static void execVibCondition(int no, int *entry);
+static inline int execVib(int no)
+{
+    iosPadActRequest(boyPad, no);
+    return 1;
+}
+
+/* a frame slot's handler: it is passed the slot's number, which it does not read */
+static inline int execWeaponLightOff(int no)
+{
+    Sub15C *p;
+    GObj *q;
+    p = GOBJ_SUB(fdsGObj);
+    q = p->ctrl.pickedWeapon;
+    if (q != 0) {
+        if (CheckWeaponKind(q) == 1) {
+            Sub15C *r = GOBJ_SUB(fdsGObj);
+            LightTorchOffOfWeapon(r->ctrl.pickedWeapon);
+        }
+    }
+    return 1;
+}
+
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-static inline void fireFDSSlot(float t, int no, void *entry, int *done,
-                               int (*fn)(int no, void *entry)) /* derived name */
+static inline void fireFDSSlot(float t, int (*fn)(int no), int no, int *done) /* derived name */
 {
     if (t < 0.0f) {
         return;
     }
     if (t < fdsLayout->animFrame) {
-        fn(no, entry);
+        fn(no);
         *done = 1;
     }
 }
 
-INCLUDE_ASM(ExecFrameDependSequence);
+static inline void fireSESlots(void) /* derived name */
+{
+    int i;
+
+    for (i = 0; i < 12; i++) {
+        if (fdsFlags->seDone[i] == 0) {
+            fireFDSSlot(fdsRecord->se[i].t, execSE, fdsRecord->se[i].no, &fdsFlags->seDone[i]);
+        }
+    }
+}
+
+static inline void fireVibSlots(void) /* derived name */
+{
+    int i;
+
+    for (i = 0; i < 1; i++) {
+        if (fdsFlags->vibDone[i] == 0) {
+            fireFDSSlot(fdsRecord->vib[i].t, execVib, fdsRecord->vib[i].no, &fdsFlags->vibDone[i]);
+        }
+    }
+}
+
+static inline void fireEffSlots(void) /* derived name */
+{
+    int i;
+
+    for (i = 0; i < 5; i++) {
+        if (fdsFlags->effDone[i] == 0) {
+            fireFDSSlot(fdsRecord->eff[i].t, execEff, fdsRecord->eff[i].no, &fdsFlags->effDone[i]);
+        }
+    }
+}
+
+static inline void fireWeaponSlot(void) /* derived name */
+{
+    if (fdsFlags->weaponDone == 0) {
+        fireFDSSlot(fdsRecord->weaponFrame, execWeaponLightOff, 0, &fdsFlags->weaponDone);
+    }
+}
+
+inline void InitFrameDependSequence(void *flags)
+{
+    static FDSFlags clear = {{0}}; /* derived name */
+
+    *(FDSFlags *)flags = clear;
+}
+
+void ExecFrameDependSequence(GObj *gobj)
+{
+    fdsGObj = (char *)gobj;
+    fdsLayout = &GOBJ_SUB(gobj)->ctrl;
+    fdsWork = &GOBJ_SUB(gobj)->root;
+    fdsFlags = (FDSFlags *)GOBJ_SUB(gobj)->fdsFlags;
+    fdsRecord = &motionKind[fdsLayout->motion];
+    fdsVolume = 1.0f;
+
+    fireSESlots();
+    fireVibSlots();
+    fireEffSlots();
+    if (GOBJ_SUB(gobj)->ctrl.pickedWeapon != 0) {
+        fireWeaponSlot();
+    }
+}
 
 static inline int *findSEPackage(int no, int id) /* derived name */
 {
@@ -262,11 +429,11 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     fdsGObj = (char *)gobj;
     if (w != 0) {
         no = *(int *)(w + 0x84);
-        p = w + 0x470;
+        p = w + 0x460;
         fdsWork = w + 0xA0;
         fdsFlags = (FDSFlags *)(w + 0x730);
         fdsRecord = &motionKind[*(int *)(p + 0x30)];
-        fdsGroup = *(int *)(w + (id << 2) + 0x61C);
+        fdsGroup = *(int *)(w + (id << 2) + 0x60C);
         fdsLayout = (struct MotCtrl *)p;
     } else {
         no = -1;
@@ -279,9 +446,18 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     return no;
 }
 
-static void executeSEPackageByGObj(GObj *gobj, int no, int grp);
+static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
+{
+    int id;
+    int *p;
+    int i;
 
-INCLUDE_ASM(executeSEPackageByGObj);
+    id = setSEEnvironment(gobj, grp);
+    p = findSEPackage(no, id);
+    for (i = 0; i < 2; i++) {
+        execSE(p[i]);
+    }
+}
 
 static void executeSEPackageWithNoGObj(int no)
 {
@@ -333,17 +509,3 @@ void StopSEPackage(GObj *gobj)
 {
     StopSEPackageWithGroupVariation(gobj, 0);
 }
-
-INCLUDE_ASM(InitFrameDependSequence);
-
-/* a frame slot's handler: it is passed the slot's number and entry, which it does not read */
-
-INCLUDE_ASM(execSE);
-
-INCLUDE_ASM(checkWaterDepth);
-
-INCLUDE_ASM(checkModelDataID);
-
-INCLUDE_ASM(execVib);
-
-INCLUDE_ASM(execWeaponLightOff);
