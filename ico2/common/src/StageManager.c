@@ -67,7 +67,6 @@ static int stageMgrMsgBuf[4]; /* derived name */
 #include <libdma.h>
 #include <string.h>
 #include "typedef.h"
-#include "include_asm.h"
 
 /* .sdata: the movie switches main.c's loop reads, defined before
    stop_free_resources; the preload state before stgmgrNextStagePreLoad; the
@@ -204,6 +203,27 @@ static void start_stage_Load_thread(int stage)
     }
 }
 
+/* The DEBUG build's preload report and hold (the report's text derived): a
+   debug build reports the stage it is about to preload and, while the debug
+   flag word's hold bit is set, repeats the report instead of reading.  Both
+   build only under DEBUG; in the retail build the report is empty and the
+   hold test is 0, so the loop runs once. */
+static __inline__ void stgPreLoadDebugHook(void) /* derived name */
+{
+#ifdef DEBUG
+    scePrintf("preload: leaving stage %d's data\n", stagePreLoadStageNo);
+#endif
+}
+
+static __inline__ int stgPreLoadDebugHold(void) /* derived name */
+{
+#ifdef DEBUG
+    return debug_font_flag & 0x100;
+#else
+    return 0;
+#endif
+}
+
 int stagePreLoadStageNo = 0;
 
 int stagePreLoadReadOffset = 0;
@@ -222,9 +242,81 @@ int stagePreLoadLsn = 0;
 
 int stagePreLoadSectorCnt = 0;
 
-static int stgmgrNextStagePreLoad(CdvdBgReq *bg);
+static int stgmgrNextStagePreLoad(CdvdBgReq *bg)
+{
+    float root[4];
+    float d[4];
+    int size;
+    int stage = 0;
+    int i;
+    float dist;
 
-INCLUDE_ASM(stgmgrNextStagePreLoad);
+    if (stagePreLoadWait++ < 15) {
+        return 0;
+    }
+    stagePreLoadWait = 0;
+    if (iosCdvdBackGroundMgrEntryNum() >= 3 && stagePreLoadNoCancel == 0) {
+        return 0;
+    }
+    switch (stagePreLoadMode) {
+    case 0: {
+        int best = -1;
+
+        if (boyGObj == 0) {
+            return 0;
+        }
+        GetRootPosition(root, boyGObj);
+        for (i = 0; i < stageExitDataCnt; i++) {
+            StgSlot *e;
+
+            _SubVector(d, root, stageExitData[i].pos);
+            dist = _InnerProduct(d, d);
+            e = &stageExitData[i];
+            e->dist = dist;
+            if (best == -1) {
+                best = i;
+                stage = e->stage;
+            } else if (dist < (&stageExitData[best])->dist) {
+                best = i;
+                stage = e->stage;
+            }
+        }
+        goto check;
+    }
+    case 1:
+        stage = stagePreLoadForceStageNo;
+        goto check;
+    }
+    /* The DEBUG build's report and hold, see stgPreLoadDebugHook: the hold
+       repeats the checks and the report; the switch arms enter it at the
+       checks. */
+    do {
+    check:
+        if (stage == 0 || stage == stagePreLoadStageNo || stageData[stage].mpegNo != 0) {
+            return 0;
+        }
+        stgPreLoadDebugHook();
+    } while (stgPreLoadDebugHold());
+    {
+        int readSize;
+        int ret;
+
+        strcpy(bg->name, GetDataFileName(stage, 1));
+        ret = -1;
+        iosCdvdChgFileName(bg->name);
+        stagePreLoadLsn = bg->lsn = iosCdvdGetFileLsn(bg->name, &size);
+        size = (size + 0x7FF) / 0x800 * 0x800;
+        readSize = size > 0x200000 ? 0x200000 : size;
+        debug_StdPrintfDummy("preload %s move %d total %d reset %d\n", bg, readSize, size,
+                             size - readSize);
+        bg->pos = 0;
+        ret = iosCdvdBackGroundRead(bg, stagePreLoadBuff, readSize);
+        debug_StdPrintfDummy("done");
+        stagePreLoadSectorCnt = readSize >> 11;
+        stagePreLoadStageNo = stage;
+    }
+    return 0;
+}
 
 static inline void stgmgrNextStagePreLoadDiskNotReady(void)
 {
