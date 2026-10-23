@@ -1923,46 +1923,6 @@ lit4 actSt24aSwordChk 0x0062B89C 0x0062B8A4 ico2/script/src/st24a.c  # 2 floats
 text actSt24aSword 0x00235CE8 0x00235D74 ico2/script/src/st24a.c lines=15  # trfile; aug6-only in the census; PAL's actSt24aSword (140 B in PAL)
 lit4 actSt24aSword 0x0062B8A4 0x0062B8B0 ico2/script/src/st24a.c  # 3 floats
 text actSt24aSaku 0x00235D78 0x00235DB8 ico2/script/src/st24a.c lines=8  # trfile; aug6-only in the census; PAL's actSt24aSaku (64 B in PAL)
-text actSt47aInit 0x00235DB8 0x00235E60 ico2/script/src/st47a.c lines=18  # trfile; aug6-only in the census; PAL's actSt47aInit (168 B in PAL)
-text actSt47aEnd 0x00235E60 0x00235E98 ico2/script/src/st47a.c lines=8  # trfile; aug6-only in the census; PAL's actSt47aEnd (56 B in PAL)
-text actSt47aSekizo1Chk 0x00235E98 0x002361BC ico2/script/src/st47a.c lines=103  # trfile; aug6-only in the census; PAL's actSt47aSekizo1Chk (860 B in PAL)
-lit4 actSt47aSekizo1Chk 0x0062B8B0 0x0062B8B8 ico2/script/src/st47a.c  # 2 floats
-text actSt47aHane1Up 0x002361C0 0x002362FC ico2/script/src/st47a.c lines=58  # trfile; aug6-only in the census; PAL's actSt47aHane1Up (508 B in PAL)
-text actSt47aHane2Up 0x00236300 0x0023641C ico2/script/src/st47a.c lines=53  # trfile; aug6-only in the census; PAL's actSt47aHane2Up (476 B in PAL)
-text actSt47aRopeChk 0x00236420 0x002365C0 ico2/script/src/st47a.c lines=60  # trfile; aug6-only in the census; PAL's actSt47aRopeChk (540 B in PAL)
-text actSt47aEnemy1 0x002365C0 0x00236684 ico2/script/src/st47a.c lines=27  # trfile; aug6-only in the census; PAL's actSt47aEnemy1 (196 B in PAL)
-text actSt47aTorch 0x00236688 0x00236738 ico2/script/src/st47a.c lines=24  # trfile; aug6-only in the census; PAL's actSt47aTorch (176 B in PAL)
-text actSt47aSekizo1 0x00236738 0x002367F8 ico2/script/src/st47a.c lines=20  # trfile; aug6-only in the census; PAL's actSt47aSekizo1 (192 B in PAL)
-lit4 actSt47aSekizo1 0x0062B8B8 0x0062B8BC ico2/script/src/st47a.c  # 1 float
-text actSt47aSekizo2 0x002367F8 0x00236858 ico2/script/src/st47a.c lines=9  # trfile; aug6-only in the census; PAL's actSt47aSekizo2 (96 B in PAL)
-lit4 actSt47aSekizo2 0x0062B8BC 0x0062B8CC ico2/script/src/st47a.c  # 4 floats
-text actSt47aSekizo3 0x00236858 0x002368B8 ico2/script/src/st47a.c  # trfile; aug6-only in the census; not in PAL's st47a
-lit4 actSt47aSekizo3 0x0062B8CC 0x0062B8DC ico2/script/src/st47a.c # target side
-text actSt47aSekizo4 0x002368B8 0x00236918 ico2/script/src/st47a.c  # trfile; aug6-only in the census; not in PAL's st47a
-lit4 actSt47aSekizo4 0x0062B8DC 0x0062B8EC ico2/script/src/st47a.c # target side
-text actSt47aHane1 0x00236918 0x00236988 ico2/script/src/st47a.c lines=14  # trfile; aug6-only in the census; PAL's actSt47aHane1 (112 B in PAL)
-text actSt47aHane2 0x00236988 0x002369F0 ico2/script/src/st47a.c lines=12  # trfile; aug6-only in the census; PAL's actSt47aHane2 (104 B in PAL)
-text actSt47aRope 0x002369F0 0x00236AA8 ico2/script/src/st47a.c lines=21  # trfile; aug6-only in the census; PAL's actSt47aRope (204 B in PAL)
-text actSt47aBarricade 0x00236AA8 0x00236B40 ico2/script/src/st47a.c lines=19  # trfile; aug6-only in the census; PAL's actSt47aBarricade (172 B in PAL)
-text actSt47aExit 0x00236B40 0x00236BA8 ico2/script/src/st47a.c lines=12  # trfile; aug6-only in the census; PAL's actSt47aExit (104 B in PAL)
-text actSt47aExit2 0x00236BA8 0x00236C1C ico2/script/src/st47a.c lines=14  # trfile; aug6-only in the census; PAL's actSt47aExit2 (116 B in PAL)
-text actSt47aEne 0x00236C20 0x00236C98 ico2/script/src/st47a.c lines=14  # trfile; aug6-only in the census; PAL's actSt47aEne (120 B in PAL)
-text actSt47aEnemy2 0x00236C98 0x00236D28 ico2/script/src/st47a.c lines=21  # trfile; aug6-only in the census; PAL's actSt47aEnemy2 (144 B in PAL)
-text actSt47aEnemy3 0x00236D28 0x00236DB8 ico2/script/src/st47a.c lines=21  # trfile; aug6-only in the census; PAL's actSt47aEnemy3 (144 B in PAL)
-text actSt47aEnemy4 0x00236DB8 0x00236E20 ico2/script/src/st47a.c lines=15  # trfile; aug6-only in the census; PAL's actSt47aEnemy4 (104 B in PAL)
-text actSt47aGirlWay 0x00236E30 0x00236EBC ico2/script/src/st47a.c lines=13  # trfile; aug6-only in the census; PAL's actSt47aGirlWay (132 B in PAL)
-text actSt47aSekizo3Event 0x00236ED0 0x00236EE0 ico2/script/src/st47a.c  # trfile; aug6-only in the census; not in PAL's st47a
-text actSt47aSekizo4Event 0x00236EE0 0x00236EF0 ico2/script/src/st47a.c  # trfile; aug6-only in the census; not in PAL's st47a
-text actSt47aHane1Main 0x00236EF0 0x00236F38 ico2/script/src/st47a.c lines=9  # trfile; aug6-only in the census; PAL's actSt47aHane1Main (48 B in PAL)
-text actSt47aHane1Switch 0x00236F38 0x00236FDC ico2/script/src/st47a.c lines=21  # trfile; aug6-only in the census; PAL's actSt47aHane1Switch (164 B in PAL)
-text actSt47aHane1Down 0x00236FE0 0x002370D4 ico2/script/src/st47a.c lines=49  # trfile; aug6-only in the census; PAL's actSt47aHane1Down (444 B in PAL)
-text actSt47aHane2Main 0x00237178 0x002371C0 ico2/script/src/st47a.c lines=9  # trfile; aug6-only in the census; PAL's actSt47aHane2Main (48 B in PAL)
-text actSt47aHane2Switch 0x002371C0 0x00237264 ico2/script/src/st47a.c lines=21  # trfile; aug6-only in the census; PAL's actSt47aHane2Switch (164 B in PAL)
-text actSt47aHane2Down 0x00237268 0x0023735C ico2/script/src/st47a.c lines=49  # trfile; aug6-only in the census; PAL's actSt47aHane2Down (444 B in PAL)
-text actSt47aBarricadeChk 0x002373C0 0x00237480 ico2/script/src/st47a.c lines=36  # trfile; aug6-only in the census; PAL's actSt47aBarricadeChk (292 B in PAL)
-text actSt47aExitChk 0x00237480 0x002374F8 ico2/script/src/st47a.c lines=12  # trfile; aug6-only in the census; PAL's actSt47aExitChk (120 B in PAL)
-text actSt47aExit2Chk 0x002374F8 0x0023752C ico2/script/src/st47a.c lines=5  # trfile; aug6-only in the census; PAL's actSt47aExit2Chk (52 B in PAL)
-text actSt47aEneChk 0x00237530 0x002375A0 ico2/script/src/st47a.c lines=15  # trfile; aug6-only in the census; PAL's actSt47aEneChk (112 B in PAL)
 text actExplode 0x002375A0 0x00237608 ico2/script/src/st99a.c lines=11  # trfile; aug6-only in the census; PAL's actExplode (104 B in PAL)
 text actSplash1 0x00237608 0x00237670 ico2/script/src/st99a.c lines=11  # trfile; aug6-only in the census; PAL's actSplash1 (104 B in PAL)
 text actSplash2 0x00237670 0x002376D8 ico2/script/src/st99a.c lines=11  # trfile; aug6-only in the census; PAL's actSplash2 (104 B in PAL)
