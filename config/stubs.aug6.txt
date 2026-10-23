@@ -1178,53 +1178,6 @@ text actDejaDemo 0x002047B0 0x00204BCC ico2/script/src/deja.c lines=80  # ordina
 text actDejaAfter 0x00204BD0 0x00204D20 ico2/script/src/deja.c lines=27  # ordinal; first difference at insn 16; imm:14; extent-equal
 text actDejaAfterChk 0x00204D20 0x00204E40 ico2/script/src/deja.c lines=30  # ordinal; first difference at insn 11; length:-1; extent-differs
 text actDeja 0x00204E40 0x00204EF0 ico2/script/src/deja.c lines=17  # ordinal; first difference at insn 16; imm:4; extent-equal
-text actE3WarningChk 0x00204F18 0x002050B0 ico2/script/src/e3.c lines=24  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actE3Title 0x002050B0 0x00205258 ico2/script/src/e3.c lines=46  # ordinal; first difference at insn 17; length:-4; extent-differs
-text actE3TitleChk 0x00205258 0x00205350 ico2/script/src/e3.c lines=24  # ordinal; first difference at insn 21; imm:2; extent-equal
-rdlit actE3TitleChk 0x00614380 0x00614390 ico2/script/src/e3.c  # target side
-text actE3TitleFrameChk 0x00205350 0x00205504 ico2/script/src/e3.c lines=91  # ordinal; first difference at insn 0; length:-94; extent-differs
-rdlit actE3TitleFrameChk 0x00614390 0x006143A0 ico2/script/src/e3.c  # target side
-text actE3Inst1Chk 0x00205508 0x00205690 ico2/script/src/e3.c lines=43  # ordinal; first difference at insn 2; length:-32; extent-differs
-text actE3Capsule 0x00205690 0x00205814 ico2/script/src/e3.c lines=40  # ordinal; first difference at insn 17; imm:16; extent-equal
-text actE3CapsuleDemoCancel 0x00205818 0x002059B8 ico2/script/src/e3.c lines=31  # ordinal; first difference at insn 46; length:-1; extent-differs
-text actE3CapsuleDemo 0x002059B8 0x00205BA8 ico2/script/src/e3.c lines=58  # ordinal; first difference at insn 14; length:-6; extent-differs
-text actE3St13cInit 0x00205BA8 0x00205BE4 ico2/script/src/e3.c lines=8  # ordinal; first difference at insn 6; imm:1; extent-equal
-text actE3CageFall 0x00205BE8 0x00205CE4 ico2/script/src/e3.c lines=27  # ordinal; first difference at insn 12; imm:7; extent-equal
-text actE3CageFallChk 0x00205CE8 0x00205E18 ico2/script/src/e3.c lines=40  # ordinal; first difference at insn 0; length:-15; extent-differs
-text actE3CageFallDemo 0x00205E18 0x00206124 ico2/script/src/e3.c lines=111  # ordinal; first difference at insn 0; length:-37; extent-differs
-text actE3St09aSekizo 0x002064E8 0x002065F8 ico2/script/src/e3.c lines=23  # ordinal; first difference at insn 12; length:+5; extent-differs
-lit4 actE3St09aSekizo 0x0062B614 0x0062B61C ico2/script/src/e3.c # target side
-text actE3St09aSekizoChk 0x002065F8 0x002068A4 ico2/script/src/e3.c lines=77  # ordinal; first difference at insn 55; imm:8; extent-equal
-lit4 actE3St09aSekizoChk 0x0062B61C 0x0062B630 ico2/script/src/e3.c  # 5 floats
-text actE3GateChk 0x002068A8 0x00206A20 ico2/script/src/e3.c lines=43  # ordinal; first difference at insn 40; imm:3; extent-equal
-rdlit actE3GateChk 0x00614450 0x00614490 ico2/script/src/e3.c  # target side
-lit4 actE3GateChk 0x0062B630 0x0062B634 ico2/script/src/e3.c  # 1 float
-text actE3GateDemo 0x00206A20 0x00206D70 ico2/script/src/e3.c lines=87  # ordinal; first difference at insn 6; length:-2; extent-differs
-lit4 actE3GateDemo 0x0062B634 0x0062B638 ico2/script/src/e3.c  # 1 float
-text actE3St01bInit 0x00206F18 0x00206F28 ico2/script/src/e3.c lines=4  # ordinal; first difference at insn 0; imm:1; extent-equal
-text actE3Warning 0x00206F28 0x00206FE0 ico2/script/src/e3.c lines=16  # trfile; aug6-only in the census; PAL's actE3Warning (128 B in PAL)
-text actE3Inst1 0x00206FE0 0x00207098 ico2/script/src/e3.c lines=21  # trfile; aug6-only in the census; PAL's actE3Inst1 (184 B in PAL)
-text actE3Door 0x00207098 0x00207130 ico2/script/src/e3.c lines=18  # trfile; aug6-only in the census; PAL's actE3Door (152 B in PAL)
-text actE3CageFallReady 0x00207130 0x002071A8 ico2/script/src/e3.c lines=14  # trfile; aug6-only in the census; PAL's actE3CageFallReady (120 B in PAL)
-text actE3St13cIntro 0x002071A8 0x00207234 ico2/script/src/e3.c lines=14  # trfile; aug6-only in the census; PAL's actE3St13cIntro (120 B in PAL)
-text actE3St13cGene1 0x00207238 0x002072F0 ico2/script/src/e3.c lines=19  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actE3St13cGene2 0x002072F0 0x0020738C ico2/script/src/e3.c lines=16  # ordinal; first difference at insn 17; imm:1; extent-equal
-text actE3St01bEne 0x002073C0 0x0020744C ico2/script/src/e3.c lines=14  # trfile; aug6-only in the census; PAL's actE3St01bEne (120 B in PAL)
-text actE3St01bGene1 0x00207450 0x00207508 ico2/script/src/e3.c lines=19  # trfile; aug6-only in the census; PAL's actE3St01bGene1 (184 B in PAL)
-text actE3St01bGene2 0x00207508 0x002075B8 ico2/script/src/e3.c lines=18  # trfile; aug6-only in the census; PAL's actE3St01bGene2 (176 B in PAL)
-text actE3St01bGene3 0x002075B8 0x00207668 ico2/script/src/e3.c lines=18  # trfile; aug6-only in the census; PAL's actE3St01bGene3 (176 B in PAL)
-text actE3Gate 0x00207668 0x00207730 ico2/script/src/e3.c lines=25  # trfile; aug6-only in the census; PAL's actE3Gate (208 B in PAL)
-text actE3CapsuleChk 0x00207730 0x002077BC ico2/script/src/e3.c lines=15  # ordinal; first difference at insn 7; imm:1; extent-equal
-text actE3CapsuleDemoEnd 0x002077C0 0x00207890 ico2/script/src/e3.c lines=27  # ordinal; first difference at insn 1; imm:3; extent-equal
-rdlit actE3CapsuleDemoEnd 0x006143A0 0x006143B0 ico2/script/src/e3.c def  # target side
-text actE3DoorMain 0x00207890 0x002078C8 ico2/script/src/e3.c lines=12  # ordinal; first difference at insn 8; imm:1; extent-equal
-text actE3DoorSwitch 0x002078C8 0x00207920 ico2/script/src/e3.c lines=13  # ordinal; first difference at insn 11; imm:3; extent-equal
-text actE3DoorUp 0x00207920 0x002079D4 ico2/script/src/e3.c lines=24  # ordinal; first difference at insn 5; imm:7; extent-equal
-text actE3St13cIntroChk 0x002079D8 0x00207A58 ico2/script/src/e3.c lines=19  # ordinal; first difference at insn 4; imm:5; extent-equal
-text actE3CageFallReadyChk 0x00207A58 0x00207AC4 ico2/script/src/e3.c lines=11  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text actE3St01bEneChk 0x00207AC8 0x00207B80 ico2/script/src/e3.c lines=28  # ordinal; first difference at insn 18; imm:5; extent-equal
-text actE3St09aGirlWay 0x00207B80 0x00207C0C ico2/script/src/e3.c lines=15  # ordinal; first difference at insn 24; imm:2; extent-equal
-rdlit actE3St09aGirlWay 0x00614440 0x00614450 ico2/script/src/e3.c def  # target side
 text actOpDemo01 0x0020AEF0 0x0020B3EC ico2/script/src/op.c lines=134  # ordinal; first difference at insn 0; length:-9; extent-differs
 sdlit actOpDemo01 0x0062DAB8 0x0062DACF ico2/script/src/op.c  # target side: 3 strings
 text actTitleShortCut 0x0020B3F0 0x0020B530 ico2/script/src/op.c lines=41  # ordinal; first difference at insn 18; length:-6; extent-differs
