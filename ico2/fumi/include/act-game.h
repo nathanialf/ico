@@ -37,7 +37,7 @@ typedef struct ActWork { /* field names derived */
     int turnTimer;    /* 0x370 (_ACTCorrectMsg 0x153888 lw a0,880(v1)) */
     int turnTimer2;   /* 0x374 (_ACTCorrectMsg 0x1538A8 lw a0,884(v1)) */
     int noInterpTimer; /* 0x378 (subCommonIdle 0x15AB1C lw v0,888(a0)) */
-    char pad37C[4];  /* not pinned in this build */
+    int wishHoldTimer; /* 0x37C (ACTGame_BeforeFunc 0x144868 lw v0,892(v1)) */
     int leverTimer;  /* 0x380, frames the boy keeps hold of a lever (actCommonLever 0x156104 sw v0,896(a1)) */
     char pad384[4];  /* not pinned in this build */
     int carryGirlFrames; /* 0x388, the fly's frame count IsFlyTimeOver tests (emergencyCheck 0x15890C lw v1,904(a0)) */
@@ -58,7 +58,9 @@ typedef struct ActWork { /* field names derived */
     float speed;    /* 0x3E0 */
     int slowFrames; /* 0x3E4 */
     int stopFrames; /* 0x3E8 */
-    char pad3EC[20]; /* not pinned (16 bytes more than June 26 between stopFrames and genTarget) */
+    char pad3EC[4];
+    int noMoveFrames; /* 0x3F0 (ACTGame_InnerVelocityUpdate 0x144650 lw v0,1008(v1)) */
+    char pad3F4[12];
     GObj *genTarget;         /* 0x400, the generator the enemy heads for */
     int motherLabel;         /* 0x404 */
     struct GObj *motherGObj; /* 0x408, the generator object motherLabel names */
@@ -68,29 +70,19 @@ typedef struct ActWork { /* field names derived */
     MotOriTarget cliffReq; /* 0x420, the target mail 285 turns to (ACTGetOrientFromIntrK
                               0x154290 ldl a0,1063(v1)); a MotOriTarget as June 26's */
     char pad42C[4];
-    float pinchPosX; /* 0x430, USA's place after cliffReq */
+    float pinchPosX; /* 0x430 (SetStatusBoy_OtherStageGirlPinch 0x1518FC swc1 $f0,1072(v0)) */
     float pinchPosY; /* 0x434 */
     float pinchPosZ; /* 0x438 */
     char pad43C[4];
-    int pinchFrames; /* 0x440 (subBoyControl 0x14D560 lw v0,1088(a0)) */
-    char pad444[124]; /* not pinned */
-    float handrailOrient[4]; /* 0x4C0, the wall orientation actCommonHandrail keeps */
-    int basePosSet;          /* 0x4D0 */
-    char pad4D4[12];
-    float basePos[4]; /* 0x4E0, the position the enemy guards when basePosSet */
-    unsigned char boxSideSet; /* 0x4F0, set when the cliff edge is at a box side (ACTGetEnvironment) */
-    char pad4F1[15];
-    float boxSidePos[4]; /* 0x500, where the actor stands at that box side */
-    float boyOrient[4]; /* 0x510, the girl's direction to the boy (ACTGetEnvironment) */
-    float hintPosX;     /* 0x520 */
-    float hintPosY;     /* 0x524 */
-    float hintPosZ;     /* 0x528 */
-    char pad52C[4];
-    float boxDir[4]; /* 0x530, the direction a box is pushed and pulled in (actCommonBox) */
-    char pad540[64];
-    WayRequest wayReq; /* 0x580, the way search RequestWayBegin hands to the way system manager */
-    char pad638[376]; /* not pinned (PAL's view clip 0x720 and viewState 0x800 do not fit before
-                         this build's emgPos/intrReq) */
+    int pinchFrames; /* 0x440 (SetStatusBoy_OtherStageGirlPinch 0x1518F8 sw s0,1088(v0)) */
+    char pad444[76];
+    WayRequest wayReq; /* 0x490 (ACTWayMove_BeginDetail 0x1FE7F8 addiu s0,s1,1168), the way
+                          search RequestWayBegin hands to the way system manager */
+    char pad548[232];
+    ClipColReq view; /* 0x630 (ACTGameView_Loop 0x143C6C lw v0,1584(v1)), the clip
+                        ACTGameView_Loop runs to the object it looks at */
+    int viewState;   /* 0x710 (ACTGameView_Loop 0x143C00 sw a0,1808(v1)) */
+    char pad714[156];
     float emgPosX; /* 0x7B0, June 26's place before intrReq; not pinned */
     float emgPosY; /* 0x7B4 */
     float emgPosZ; /* 0x7B8 */

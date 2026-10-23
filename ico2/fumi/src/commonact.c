@@ -3055,11 +3055,11 @@ void ACTSendMailCorrect(GObj *self, int mail)
 {
     Act *s = GOBJ_ACT(self);
     if ((mail == 166 || mail == 171) && self->kind == 1) {
-        unsigned long long f = s->wish0.ll;
-        if (((int)(f >> 60) & 1) && ((int)(s->wish2.ll >> 60) & 1)) {
+        unsigned long long f = s->wish1.ll;
+        if (((int)(f >> 60) & 1) && ((int)(s->wish3.ll >> 60) & 1)) {
             mail = 167;
         } else if ((int)(f >> 58) & 1) {
-            mail = ((int)(s->wish2.ll >> 58) & 1) ? 168 : mail;
+            mail = ((int)(s->wish3.ll >> 58) & 1) ? 168 : mail;
         }
     }
     iosOmSendMail(self, mail, self);
@@ -4122,10 +4122,10 @@ inline void motCommonSlip(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
 
     while (1) {
-        long long f = (long long)s->wish0.ll;
+        long long f = (long long)s->wish1.ll;
 
-        if (!((((int)(f >> 9) & 1) && ((int)((long long)s->wish2.ll >> 9) & 1)) ||
-              (((int)(f >> 10) & 1) && ((int)((long long)s->wish2.ll >> 10) & 1)))) {
+        if (!((((int)(f >> 9) & 1) && ((int)((long long)s->wish3.ll >> 9) & 1)) ||
+              (((int)(f >> 10) & 1) && ((int)((long long)s->wish3.ll >> 10) & 1)))) {
             ACTSendMailCorrect(self, 180);
         }
         _ACTWait(1);

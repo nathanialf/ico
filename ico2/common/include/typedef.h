@@ -1485,16 +1485,15 @@ typedef struct Act {         /* field names derived */
     int doorEndWait;   /* 0x458, frames to wait after the move */
     GObj *doorCamera;  /* 0x45C, the camera target of the door move, 0 for none */
     char pad460[8];
-    /* 0x468, the word USA's typedef calls wish0 (subBoyCollision 0x14F030 ld v0,1128(s4),
-       bits 44..46): this build's wish block sits at USA's addresses (ACTSendMailCorrect reads
-       0x470/0x480 = USA's wish1/wish3), so the names below run one behind USA's */
-    ActWishWord wish468;
-    ActWishWord wish0; /* 0x470 (ACTSendMailCorrect 0x15A008 ld v1,1136(a2)) */
-    ActWishWord wish1; /* 0x478 */
-    ActWishWord wish2; /* 0x480 (ACTSendMailCorrect 0x15A01C ld v0,1152(a2)) */
-    ActWishWord wish3; /* 0x488 */
-    ActWishWord wish4; /* 0x490 */
-    char pad498[8];
+    /* the request words over the 16-byte request set at 0x46C and its 16-byte
+       permission set at 0x47C (ACTGame_BeforeFunc clears both), the USA build's
+       words: wish0/wish2 and wish1/wish3 pair a request with its permission */
+    ActWishWord wish0; /* 0x468 (ACTGame_GetCurrentCallStatus 0x149D64 ld v1,1128(a3)) */
+    ActWishWord wish1; /* 0x470 (ACTSendMailCorrect 0x15A008 ld v1,1136(a2)) */
+    ActWishWord wish2; /* 0x478 (ACTGame_GetCurrentCallStatus 0x149DA4 ld v1,1144(a3)) */
+    ActWishWord wish3; /* 0x480 (ACTSendMailCorrect 0x15A01C ld v0,1152(a2)) */
+    ActWishWord wish4; /* 0x488 */
+    char pad490[16];
     ActEnv env; /* 0x4A0, the environment ACTGetEnvironment fills in every frame */
     struct EnemyBattleWork *enemy;          /* 0x670, the enemy work (enemy_act.c; scpPlayJump 0x17908C) */
     struct MailAdditionalData *mailAddData; /* 0x674, the mail additional data table */

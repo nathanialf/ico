@@ -1769,7 +1769,7 @@ void subBoyCollision(GObj *volatile self)
         }
         switch (sub->actMode) {
         case 28:
-            if (((int)(sub->wish0.ll >> 3) & 1) && ((int)(sub->wish2.ll >> 3) & 1)) {
+            if (((int)(sub->wish1.ll >> 3) & 1) && ((int)(sub->wish3.ll >> 3) & 1)) {
                 ACTSendMailCorrect(self, 180);
             }
             break;
@@ -1846,7 +1846,7 @@ void subBoyCollision(GObj *volatile self)
             break;
         case 55:
         case 68:
-            if (((int)(sub->wish468.ll >> 45) & 1) && ((int)(sub->wish1.ll >> 45) & 1)) {
+            if (((int)(sub->wish0.ll >> 45) & 1) && ((int)(sub->wish2.ll >> 45) & 1)) {
                 if (girlGObj != 0) {
                     iosOmSendMail(girlGObj, 58, isysCurrentGObj);
                 }
@@ -1854,7 +1854,7 @@ void subBoyCollision(GObj *volatile self)
             } else if (NotNeedBackHand() ||
                        (GOBJ_ACT(girlGObj)->intrMot != 84 && GOBJ_ACT(girlGObj)->intrMot != 91 &&
                         (60 - systemStatus[0] * 10) / systemStatus[1] * 2 < sub->modeFrame)) {
-                if (((int)(sub->wish468.ll >> 46) & 1) && ((int)(sub->wish1.ll >> 46) & 1)) {
+                if (((int)(sub->wish0.ll >> 46) & 1) && ((int)(sub->wish2.ll >> 46) & 1)) {
                     ACTSendMailCorrect(self, 231);
                 } else {
                     ACTSendMailCorrect(self, 230);
@@ -1872,7 +1872,7 @@ void subBoyCollision(GObj *volatile self)
             int ofs[4];
             int cpos[4];
 
-            if (((int)(sub->wish468.ll >> 44) & 1) == 0 || ((int)(sub->wish1.ll >> 44) & 1) == 0) {
+            if (((int)(sub->wish0.ll >> 44) & 1) == 0 || ((int)(sub->wish2.ll >> 44) & 1) == 0) {
                 girlLookStarted = 0;
                 girlLookInScreen = 0;
             }
@@ -1882,7 +1882,7 @@ void subBoyCollision(GObj *volatile self)
                 sceVu0AddVector(vec, test_CURRENTROOT((void *)self), vec);
                 _ACTLookTarget_Set((void *)self, 0, vec, 1, 1);
             }
-            if (((int)(sub->wish468.ll >> 44) & 1) && ((int)(sub->wish1.ll >> 44) & 1)) {
+            if (((int)(sub->wish0.ll >> 44) & 1) && ((int)(sub->wish2.ll >> 44) & 1)) {
                 if (girlLookStarted == 0) {
                     girlLookStarted = 1;
                     if (girlGObj != 0) {
@@ -2628,8 +2628,8 @@ inline void actBoyReadyMove(GObj *volatile self)
     while (1) {
         _ACTMotDirSmzDirect((void *)self, ord.dir);
         if (ord.fix) {
-            sub->wish2.ll |= 0x1000;
-            sub->wish2.ll |= 0x2;
+            sub->wish3.ll |= 0x1000;
+            sub->wish3.ll |= 0x2;
         }
         if (ord.frames-- < 0) {
             ACTSendMailCorrect(self, 247);
