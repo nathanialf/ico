@@ -39,7 +39,7 @@ typedef struct ActWork { /* field names derived */
     int noInterpTimer; /* 0x378 (subCommonIdle 0x15AB1C lw v0,888(a0)) */
     int wishHoldTimer; /* 0x37C (ACTGame_BeforeFunc 0x144868 lw v0,892(v1)) */
     int leverTimer;  /* 0x380, frames the boy keeps hold of a lever (actCommonLever 0x156104 sw v0,896(a1)) */
-    char pad384[4];  /* not pinned in this build */
+    int nakaBossCount; /* 0x384 (NakaBoss 0x160E28 lw v0,900(v1)) */
     int carryGirlFrames; /* 0x388, the fly's frame count IsFlyTimeOver tests (emergencyCheck 0x15890C lw v1,904(a0)) */
     MotOriTarget bellowWall400;  /* 0x38C, the wall of attribute 0x400 actCommonLadderBellow
                                     found below, which mail 132 turns to
@@ -60,7 +60,8 @@ typedef struct ActWork { /* field names derived */
     int stopFrames; /* 0x3E8 */
     char pad3EC[4];
     int noMoveFrames; /* 0x3F0 (ACTGame_InnerVelocityUpdate 0x144650 lw v0,1008(v1)) */
-    char pad3F4[12];
+    unsigned int enemyFlags; /* 0x3F4 (subEnemyBrainMain 0x160078 lwu v0,1012(a0)) */
+    char pad3F8[8];
     GObj *genTarget;         /* 0x400, the generator the enemy heads for */
     int motherLabel;         /* 0x404 */
     struct GObj *motherGObj; /* 0x408, the generator object motherLabel names */
