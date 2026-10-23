@@ -27,13 +27,12 @@
 #include "ios.h"
 #include "sceneManager.h"
 #include "DObj.h"
-#include "include_asm.h"
 
 static void calcDynamicGeometry(struct GObj *g);
 
 /* The work record InitWeaponGeo and InitDemoQueensSword allocate and the
    template they initialise it from: 176 bytes, 8-aligned.  The fields are the
-   ones this file reads. */
+   ones this file reads; the blade's three from 0xA4 only the template sets. */
 typedef struct {       /* field names derived */
     int kind;          /* 0x00: the switch in InitWeaponGeo */
     int state;         /* 0x04: 2 while the weapon falls from a fumble */
@@ -57,17 +56,31 @@ typedef struct {       /* field names derived */
     float bladeTimer;                     /* 0xAC: frames the blade has been growing */
 } __attribute__((aligned(8))) WeaponWork; /* derived name */
 
-INCLUDE_ASM(torchOnOfWeaponSE);
+void torchOnOfWeaponSE(GObj *torch)
+{
+    ExecuteSEPackage(torch, 64);
+}
 
-INCLUDE_ASM(torchOffOfWeaponSE);
+void torchOffOfWeaponSE(GObj *torch)
+{
+    StopSEPackage(torch);
+    ExecuteSEPackage(torch, 65);
+}
 
-void weaponHitReactionSE(GObj *g);
+void weaponHitReactionSE(GObj *g)
+{
+    ExecuteSEPackage(g, 66);
+}
 
-INCLUDE_ASM(weaponHitReactionSE);
+void weaponFumbleSE(GObj *g)
+{
+    ExecuteSEPackage(g, 87);
+}
 
-INCLUDE_ASM(weaponFumbleSE);
-
-INCLUDE_ASM(weaponStickSE);
+void weaponStickSE(GObj *g)
+{
+    ExecuteSEPackage(g, 88);
+}
 
 static inline void releaseWeaponHolder(WeaponWork *w) /* derived name */
 {
@@ -126,8 +139,8 @@ static inline int fumbleTargetBlocked(FumbleVec *p) /* derived name */
 }
 
 /* declared here: ico2/omori/src/attackhit.c declares the table with its
-   own record and includes weapon.h */
-extern WeaponDef weaponKind[];
+   own record and includes weapon.h; const, as the table sits in .rodata */
+extern const WeaponDef weaponKind[];
 /* declared here as three rows to a weapon slot, the way it is read; the
    definition (weapon-fumble-def) is the flat row array */
 extern FumbleRow weaponFumbleGeo[][3];
@@ -276,7 +289,152 @@ static __inline__ void dynGeoDebugHook(void) /* derived name */
 #endif
 }
 
-INCLUDE_ASM(calcDynamicGeometry);
+static void calcDynamicGeometry(GObj *g)
+{
+    Sub15C *p = g->dobj;
+    WeaponWork *w = p->work;
+    struct MotRoot *rp = &p->root;
+    float d = weaponKind[w->kind].grip;
+    float r = weaponKind[w->kind].length - d;
+    ClipWork cc = collWorkInit;
+    int hitA;
+    int hitB;
+
+    addWeaponPathOffset(p, rp, d);
+    {
+        sceVu0FMATRIX m1;
+        sceVu0FVECTOR v1;
+        sceVu0FMATRIX m2;
+        sceVu0FVECTOR v2;
+        sceVu0FVECTOR dir1;
+        sceVu0FVECTOR dir2;
+        sceVu0FVECTOR nrm;
+        sceVu0FVECTOR tan;
+        sceVu0FVECTOR axis;
+
+        hitA = 0;
+        hitB = 0;
+        GetMatrixFromQuaternionPos(m1, p->root.quat, rp->pos);
+        rp->move[1] =
+            rp->move[1] + 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+        _AddVectorXYZ(rp->pos, rp->pos, rp->move);
+        MultiQuaternion(p->root.quat, rp->itemQuat, p->root.quat);
+        GetMatrixFromQuaternionPos(m2, p->root.quat, rp->pos);
+
+        hitOfs[2] = r;
+        _ApplyMatrix(cc.pt[0], m1, hitOfs);
+        _ApplyMatrix(cc.pt[1], m2, hitOfs);
+        CopyVector(v1, cc.pt[1]);
+        _SubVector(dir1, cc.pt[1], cc.pt[0]);
+
+        ClipCollision(&cc);
+        if (cc.wall.elem != 0 || cc.floor.elem != 0) {
+            hitA = 1;
+            GetReflectionElement(&cc, 0.7f, 0.7f);
+            CopyVector(v1, cc.reflect.pos);
+            CopyVector(dir1, cc.reflect.dir);
+            if (36.0f < VectorLengthSquare(cc.reflect.bounce)) {
+                if (cc.wall.elem) {
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetWallAttribute(&cc);
+                } else {
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetFloorAttribute(&cc);
+                }
+                weaponHitReactionSE(g);
+            }
+        }
+
+        hitOfs[2] = -r;
+        _ApplyMatrix(cc.pt[0], m1, hitOfs);
+        _ApplyMatrix(cc.pt[1], m2, hitOfs);
+        CopyVector(v2, cc.pt[1]);
+        _SubVector(dir2, cc.pt[1], cc.pt[0]);
+
+        ClipCollision(&cc);
+        if (cc.wall.elem != 0 || cc.floor.elem != 0) {
+            hitB = 1;
+            GetReflectionElement(&cc, 0.7f, 0.7f);
+            CopyVector(v2, cc.reflect.pos);
+            CopyVector(dir2, cc.reflect.dir);
+            if (36.0f < VectorLengthSquare(cc.reflect.bounce)) {
+                if (cc.wall.elem) {
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetWallAttribute(&cc);
+                } else {
+                    GOBJ_SUB(g)->ctrl.wallAttr = GetFloorAttribute(&cc);
+                }
+                weaponHitReactionSE(g);
+            }
+        }
+
+        if (cc.floor.elem) {
+            w->state = 0;
+            CopyVector(rp->move, ZeroVector);
+            CopyQuaternion(p->root.quat, IdentityQuaternion);
+        } else {
+            dynGeoDebugHook();
+            if (hitA || hitB) {
+                _InterVector(rp->move, dir1, dir2, 0.5f);
+                _InterVector(rp->pos, v1, v2, 0.5f);
+                *(int *)&rp->move[3] = 0;
+                rp->pos[3] = 1.0f;
+                if (hitA) {
+                    _SubVector(tan, dir1, rp->move);
+                } else {
+                    _SubVector(tan, rp->move, dir2);
+                }
+                _SubVector(nrm, v1, rp->pos);
+                _NormalizeVector(nrm, nrm);
+                _OuterProduct(axis, nrm, tan);
+                {
+                    sceVu0FVECTOR qr;
+
+                    {
+                        sceVu0FVECTOR sc = {0.0f, VectorLength(tan), r, 0.0f};
+
+                        _NormalizeVector(sc, sc);
+                        SetQuaternionByAxisRotateV(qr, (short)-GetTableArcTan2(sc[1], sc[2]), axis);
+                    }
+                    CopyQuaternion(rp->itemQuat, qr);
+                    MultiQuaternion(p->root.quat, qr, p->root.quat);
+                    {
+                        sceVu0FMATRIX m3;
+                        sceVu0FVECTOR v5;
+                        sceVu0FVECTOR v6;
+                        float eA;
+                        float eB;
+                        float e;
+
+                        eA = 0.0f;
+                        eB = 0.0f;
+                        GetMatrixFromQuaternionPos(m3, p->root.quat, rp->pos);
+                        hitOfs[2] = r;
+                        _ApplyMatrix(v5, m3, hitOfs);
+                        if (v5[1] > v1[1]) {
+                            eA = v5[1] - v1[1];
+                        }
+                        hitOfs[2] = -r;
+                        _ApplyMatrix(v6, m3, hitOfs);
+                        if (v6[1] > v2[1]) {
+                            eB = v6[1] - v2[1];
+                        }
+                        e = (eB < eA) ? eA : eB;
+                        if (0.0f < e) {
+                            rp->pos[1] = rp->pos[1] - (e + 1.0f);
+                            GetSlerpQuaternion(rp->itemQuat, rp->itemQuat, IdentityQuaternion,
+                                               0.9f);
+                        }
+                    }
+                }
+            }
+            dynGeoDebugHook();
+            RegularizeQuaternion(p->root.quat);
+            VectorLengthSquare(rp->move);
+            dynGeoDebugHook();
+        }
+        subWeaponPathOffset(p, rp, d);
+        UpdateRootMatrix(g);
+    }
+}
 
 static void getGeometry(GObj *g)
 {
@@ -373,13 +531,94 @@ static void checkHit(GObj *g)
 /* the queen's sword offset, its z set per sword */
 static float queenSwordOfs[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
-INCLUDE_ASM(initializeQueenzSword);
+static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
+{
+    WeaponWork *w = GOBJ_SUB(g)->work;
+    ObjNode lnk = {g, index};
+    SObjSimpleSetting r;
+    SObjSimpleSetting r2;
+    int i;
+    GObj *o;
+    GObj *o2;
+
+    r = *lay;
+    r.obj = (lay->obj & 0xFF00) ? 5 : 4;
+
+    w->count = 1;
+    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 712);
+
+    for (i = 0; i < 1; i++) {
+        queenSwordOfs[2] = weaponKind[w->kind].length * (float)i / 0.0f;
+        o = CreateLayoutedGObj(10, 68, -1, i == 0, &r, -1, 7, 0);
+        LinkParentOfDObj(o, &lnk);
+        CopyVector(GOBJ_SUB(o)->root.pos, queenSwordOfs);
+        w->objs[i] = o;
+    }
+
+    r2 = *lay;
+    r2.obj = 13;
+    o2 = CreateLayoutedGObj(45, 9, -1, 0, &r2, -1, 7, 0);
+    GOBJ_SUB(o2)->parent = lnk;
+    w->sword = o2;
+}
 
 typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 
-INCLUDE_ASM(InitWeaponGeo);
+void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
+{
+    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 773);
+    int i;
 
-static void dispLaserSword(GObj *g, float t);
+    GOBJ_SUB(g)->work = w;
+
+    *w = swordWorkTemplate;
+    w->kind = lay->obj & 0xFF;
+
+    for (i = 0; i < GOBJ_SUB(g)->nodeNum; i++) {
+        switch (w->kind) {
+        case 0:
+            break;
+
+        case 1: {
+            ObjNode lnk = {g, i};
+            WeaponVec v = {0.0f, 0.0f, weaponKind[w->kind].length, 1.0f};
+            GObj *o;
+            SObjSimpleSetting r = *lay;
+
+            r.obj = (lay->obj & 0xFF00) != 0;
+            o = CreateLayoutedGObj(10, 68, -1, 1, &r, -1, 7, 1);
+            LinkParentOfDObj(o, &lnk);
+            CopyVector(GOBJ_SUB(o)->root.pos, v);
+            SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15);
+            w->count = 1;
+            w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 801);
+            w->objs[0] = o;
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 809);
+            break;
+        }
+
+        case 5:
+            initializeQueenzSword(g, i, lay);
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 814);
+            break;
+
+        case 7:
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 818);
+            break;
+
+        default:
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 822);
+            break;
+        }
+    }
+    return w;
+}
+
+void WeaponGeo(GObj *g)
+{
+    getGeometry(g);
+    checkHit(g);
+}
 
 /* the insect net's line colour and its handle, end to end */
 static int netColor[4] = {128, 128, 128, 128}; /* derived name */
@@ -391,12 +630,6 @@ static float netHandleEnd[4] = {0.0f, 0.0f, 100.0f, 1.0f}; /* derived name */
 typedef struct { /* field names derived */
     float f[4];
 } __attribute__((aligned(16))) NetVec; /* derived name */
-
-void WeaponGeo(GObj *g)
-{
-    getGeometry(g);
-    checkHit(g);
-}
 
 void dispInsectNet(GObj *g)
 {
@@ -419,20 +652,86 @@ void dispInsectNet(GObj *g)
     gif_EndPacket();
 }
 
-static void dispBlur(GObj *g);
-static void calcBlur(GObj *g, float t);
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-/* The MatrixDrive matrix, viewed as the union of float and int arrays this
-   codebase uses for VU0 data. */
-typedef union { /* field names derived */
-    float f[4][4];
-    int i[4][4];
-} WeaponMatrix; /* derived name */
+void WeaponDL(GObj *g)
+{
+    WeaponWork *w = GOBJ_SUB(g)->work;
 
-INCLUDE_ASM(WeaponDL);
+    switch (w->kind) {
+    default:
+        p2o_SetDefaultEnviroment();
+        p2o_DispVU1(g);
+        break;
+    case 7:
+        dispInsectNet(g);
+        break;
+    case 0:
+        break;
+    }
+    if (w->state == 1 ||
+        (w->holder != 0 && motionKind[w->holder->dobj->ctrl.motion].flags2.bits.weaponSwing)) {
+        float q1[4];
+        float q2[4];
+        float d[4];
+        float p[4];
+        Sub15C *e = GOBJ_SUB(g);
+
+        GetInverseQuaternion(q1, e->root.itemQuat);
+        MultiQuaternion(q1, e->root.quat, q1);
+        SubVectorXYZ(d, e->root.pos, e->root.move);
+        if (weaponKind[w->kind].blur != -1) {
+            const WeaponDef *k = &weaponKind[w->kind];
+            GifColor c = {k->color[0], k->color[1], k->color[2], k->color[3]};
+            float m[4][4];
+            float n[4];
+            float a[4];
+            float b[4];
+            char *base = w->buf;
+            int i;
+            float ang;
+
+            GetMatrixFromQuaternion(m, q1);
+            _ApplyMatrix(a, m, ZUnitVector);
+            GetMatrixFromQuaternion(m, e->root.quat);
+            _ApplyMatrix(b, m, ZUnitVector);
+            _OuterProduct(n, b, a);
+            _NormalizeVector(n, n);
+            ang = GetTableArcCos(_InnerProduct(a, b));
+            _ScaleVectorXYZ(a, a, k->length);
+            a[3] = 1.0f;
+            for (i = 0; i < 11; i++) {
+                float rr = (float)i / 10.0f;
+
+                SetQuaternionByAxisRotateVWithNoRegularize(q2, (short)(ang * (float)i / 10.0f), n);
+                sceVu0InterVector(p, e->root.pos, d, rr);
+                GetMatrixFromQuaternionPos(m, q2, p);
+                CopyVector(base + i * 32, m[3]);
+                sceVu0ApplyMatrix(base + (i * 32 + 16), m, a);
+            }
+            _SetCurrentMatrix(matrixptr + 0x100);
+            gif_StartPacketPri(2);
+            switch (k->blur) {
+            case 0:
+            default:
+                gif_SetAlpha(1, 7, 128);
+                break;
+            case 1:
+                gif_SetAlpha(1, 5, 128);
+                break;
+            case 2:
+                gif_SetAlpha(1, 6, 128);
+                break;
+            }
+            gif_SetZTest(1);
+            gif_SetZWrite(1);
+            gif_DrawStripF(base, c, 22, 1);
+            gif_EndPacket();
+        }
+    }
+}
 
 void PickupWeapon(GObj *self, GObj *holder, int focus)
 {
@@ -496,9 +795,31 @@ int CheckWeaponKind(GObj *self)
     return ((WeaponWork *)GOBJ_SUB(self)->work)->kind;
 }
 
-INCLUDE_ASM(LightTorchOnOfWeapon);
+void LightTorchOnOfWeapon(GObj *self)
+{
+    WeaponWork *p = GOBJ_SUB(self)->work;
+    int i;
 
-INCLUDE_ASM(LightTorchOnOfWeaponWithNoSE);
+    if (p->count) {
+        torchOnOfWeaponSE(p->objs[0]);
+    }
+    for (i = 0; i < p->count; i++) {
+        LightTorchOn(p->objs[i]);
+    }
+}
+
+void LightTorchOnOfWeaponWithNoSE(GObj *self)
+{
+    WeaponWork *p = GOBJ_SUB(self)->work;
+    int i;
+
+    if (p->count) {
+        torchOnOfWeaponSE(p->objs[0]);
+    }
+    for (i = 0; i < p->count; i++) {
+        LightTorchOn(p->objs[i]);
+    }
+}
 
 void LightTorchOffOfWeapon(GObj *self)
 {
@@ -568,6 +889,23 @@ void SetWeaponTorchChainReactionFlagAll(int flag)
     }
 }
 
-INCLUDE_ASM(InitDemoQueensSword);
+void *InitDemoQueensSword(GObj *g, SObjSimpleSetting *lay)
+{
+    WeaponWork *w;
+    int i;
 
-INCLUDE_ASM(ExecDemoQueensSword);
+    w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 755);
+    GOBJ_SUB(g)->work = w;
+    *w = swordWorkTemplate;
+    for (i = 0; i < GOBJ_SUB(g)->nodeNum; i++) {
+        initializeQueenzSword(g, i, lay);
+    }
+    return w;
+}
+
+void ExecDemoQueensSword(GObj *g)
+{
+    Sub15C *e = GOBJ_SUB(g);
+    WeaponWork *w = e->work;
+    w->sword->active = e->disp;
+}

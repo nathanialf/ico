@@ -957,21 +957,6 @@ text IsTorchLightOn 0x001EF138 0x001EF148 ico2/sugipon/src/torch.c lines=6  # or
 text CheckTorchChainReaction 0x001EF148 0x001EF21C ico2/sugipon/src/torch.c lines=23  # trfile; aug6-only in the census; PAL's CheckTorchChainReaction (236 B in PAL)
 text SetTorchLife 0x001EF220 0x001EF230 ico2/sugipon/src/torch.c lines=6  # trfile; aug6-only in the census; PAL's SetTorchLife (24 B in PAL)
 text SetTorchChainReactionFlag 0x001EF230 0x001EF240 ico2/sugipon/src/torch.c lines=6  # trfile; aug6-only in the census; PAL's SetTorchChainReactionFlag (16 B in PAL)
-text torchOnOfWeaponSE 0x001EF378 0x001EF380 ico2/sugipon/src/weapon.c lines=4  # trfile; aug6-only in the census; PAL's torchOnOfWeaponSE (8 B in PAL)
-text torchOffOfWeaponSE 0x001EF380 0x001EF3AC ico2/sugipon/src/weapon.c lines=5  # trfile; aug6-only in the census; PAL's torchOffOfWeaponSE (44 B in PAL)
-text weaponHitReactionSE 0x001EF3B0 0x001EF3B8 ico2/sugipon/src/weapon.c lines=4  # trfile; the census pairs PAL torchOnOfWeaponSE here (bodies equal); PAL's weaponHitReactionSE is 8 B
-text weaponFumbleSE 0x001EF3B8 0x001EF3C0 ico2/sugipon/src/weapon.c lines=4  # trfile; aug6-only in the census; PAL's weaponFumbleSE (8 B in PAL)
-text weaponStickSE 0x001EF3C0 0x001EF3C8 ico2/sugipon/src/weapon.c lines=4  # trfile; aug6-only in the census; PAL's weaponStickSE (8 B in PAL)
-text calcDynamicGeometry 0x001EFAF8 0x001F0174 ico2/sugipon/src/weapon.c local lines=146  # trfile; aug6-only in the census; PAL's calcDynamicGeometry (1660 B in PAL)
-lit4 calcDynamicGeometry 0x0062B55C 0x0062B568 ico2/sugipon/src/weapon.c  # 3 floats
-text initializeQueenzSword 0x001F04B8 0x001F06E0 ico2/sugipon/src/weapon.c local lines=30  # ordinal; first difference at insn 7; imm:5; extent-equal
-rdlit initializeQueenzSword 0x00613220 0x0061322D ico2/sugipon/src/weapon.c align=16  # 1 string
-text InitWeaponGeo 0x001F06E0 0x001F09F0 ico2/sugipon/src/weapon.c lines=63  # ordinal; first difference at insn 0; length:-36; extent-differs
-text WeaponDL 0x001F0BC0 0x001F0F48 ico2/sugipon/src/weapon.c lines=23  # trfile; aug6-only in the census; PAL's WeaponDL (172 B in PAL)
-text LightTorchOnOfWeapon 0x001F10C8 0x001F1140 ico2/sugipon/src/weapon.c lines=12  # trfile; aug6-only in the census; PAL's LightTorchOnOfWeapon (120 B in PAL)
-text LightTorchOnOfWeaponWithNoSE 0x001F1140 0x001F11B8 ico2/sugipon/src/weapon.c lines=12  # trfile; aug6-only in the census; PAL's LightTorchOnOfWeaponWithNoSE (120 B in PAL)
-text InitDemoQueensSword 0x001F13C0 0x001F14B4 ico2/sugipon/src/weapon.c lines=13  # trfile; aug6-only in the census; PAL's InitDemoQueensSword (228 B in PAL)
-text ExecDemoQueensSword 0x001F14B8 0x001F14D0 ico2/sugipon/src/weapon.c lines=6  # trfile; aug6-only in the census; PAL's ExecDemoQueensSword (24 B in PAL)
 text disp 0x001F2D50 0x001F30C8 ico2/sugipon/src/worm.c local file=disp_worm lines=56  # ordinal; first difference at insn 18; imm:1; extent-equal
 lit4 disp 0x0062B580 0x0062B584 ico2/sugipon/src/worm.c file=disp_worm  # 1 float
 text InitWormGeo 0x001F32D8 0x001F368C ico2/sugipon/src/worm.c lines=90  # ordinal; first difference at insn 131; imm:7; extent-equal
