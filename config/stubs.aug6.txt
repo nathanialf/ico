@@ -1103,30 +1103,6 @@ text actSt05eWaterMain 0x00222AD0 0x00222B00 ico2/script/src/st05e.c lines=9  # 
 text actSt05eWaterSwitch 0x00222B00 0x00222B58 ico2/script/src/st05e.c lines=12  # trfile; aug6-only in the census; PAL's actSt05eWaterSwitch (88 B in PAL)
 text actSt05eWaterStop 0x00222B58 0x00222C20 ico2/script/src/st05e.c lines=42  # trfile; aug6-only in the census; PAL's actSt05eWaterStop (368 B in PAL)
 text actSt05eWaterFlagOn 0x00222C20 0x00222C98 ico2/script/src/st05e.c lines=15  # trfile; aug6-only in the census; PAL's actSt05eWaterFlagOn (180 B in PAL)
-text actSt07aInit 0x00224B88 0x00224C50 ico2/script/src/st07a.c lines=30  # trfile; aug6-only in the census; PAL's actSt07aInit (264 B in PAL)
-text actSt07aEnd 0x00224C50 0x00224CC8 ico2/script/src/st07a.c lines=9  # trfile; aug6-only in the census; PAL's actSt07aEnd (120 B in PAL)
-text actSt07aChanChk 0x00224CC8 0x00224FD8 ico2/script/src/st07a.c lines=109  # trfile; aug6-only in the census; PAL's actSt07aChanChk (908 B in PAL)
-text actSt07aTsuroChk 0x00225378 0x0022565C ico2/script/src/st07a.c lines=97  # trfile; aug6-only in the census; PAL's actSt07aTsuroChk (784 B in PAL)
-text actSt07aSekizoChk 0x00225A18 0x00225D2C ico2/script/src/st07a.c lines=97  # trfile; aug6-only in the census; PAL's actSt07aSekizoChk (792 B in PAL)
-lit4 actSt07aSekizoChk 0x0062B784 0x0062B794 ico2/script/src/st07a.c  # 4 floats
-text actSt07aEne 0x00225D30 0x00225DFC ico2/script/src/st07a.c lines=26  # trfile; aug6-only in the census; PAL's actSt07aEne (228 B in PAL)
-text actSt07aEneChk 0x00225E00 0x00225F58 ico2/script/src/st07a.c lines=52  # trfile; aug6-only in the census; PAL's actSt07aEneChk (344 B in PAL)
-text actSt07aChan 0x00225F58 0x00226010 ico2/script/src/st07a.c lines=22  # trfile; aug6-only in the census; PAL's actSt07aChan (184 B in PAL)
-text actSt07aTsuro 0x00226010 0x00226094 ico2/script/src/st07a.c lines=16  # trfile; aug6-only in the census; PAL's actSt07aTsuro (132 B in PAL)
-text actSt07aIntro 0x00226098 0x00226110 ico2/script/src/st07a.c lines=14  # trfile; aug6-only in the census; PAL's actSt07aIntro (120 B in PAL)
-text actSt07aSekizo 0x00226110 0x002261A8 ico2/script/src/st07a.c lines=17  # trfile; aug6-only in the census; PAL's actSt07aSekizo (152 B in PAL)
-text actSt07aGene1 0x002261A8 0x00226260 ico2/script/src/st07a.c lines=27  # trfile; aug6-only in the census; PAL's actSt07aGene1 (216 B in PAL)
-text actSt07aGene2 0x00226260 0x0022632C ico2/script/src/st07a.c lines=21  # trfile; aug6-only in the census; PAL's actSt07aGene2 (204 B in PAL)
-text actSt07aGene3 0x00226330 0x002263FC ico2/script/src/st07a.c lines=21  # trfile; aug6-only in the census; PAL's actSt07aGene3 (204 B in PAL)
-text actSt07aEne2 0x00226400 0x00226478 ico2/script/src/st07a.c lines=14  # trfile; aug6-only in the census; PAL's actSt07aEne2 (120 B in PAL)
-text actSt07aGene2_1 0x00226478 0x00226530 ico2/script/src/st07a.c lines=19  # trfile; aug6-only in the census; PAL's actSt07aGene2_1 (184 B in PAL)
-text actSt07aGene2_2 0x00226530 0x002265FC ico2/script/src/st07a.c lines=21  # trfile; aug6-only in the census; PAL's actSt07aGene2_2 (204 B in PAL)
-text actSt07aGene2_3 0x00226600 0x00226670 ico2/script/src/st07a.c lines=12  # trfile; aug6-only in the census; PAL's actSt07aGene2_3 (112 B in PAL)
-text actSt07aChanFall 0x00226680 0x002266FC ico2/script/src/st07a.c lines=17  # ordinal; first difference at insn 6; length:-6; extent-differs
-text actSt07aChanMot 0x00226700 0x00226754 ico2/script/src/st07a.c lines=10  # ordinal; first difference at insn 1; imm:2; extent-equal
-text actSt07aTsuroConte 0x00226818 0x00226894 ico2/script/src/st07a.c lines=16  # ordinal; first difference at insn 6; imm:3; extent-equal
-text actSt07aIntroChk 0x00226900 0x002269B0 ico2/script/src/st07a.c lines=21  # ordinal; first difference at insn 16; imm:5; extent-equal
-text actSt07aEne2Chk 0x002269C0 0x00226A34 ico2/script/src/st07a.c lines=14  # ordinal; first difference at insn 13; imm:4; extent-equal
 text actSt08aEnd 0x00226A38 0x00226A70 ico2/script/src/st08a.c lines=8  # ordinal; first difference at insn 5; imm:2; extent-equal
 text actSt08aEne1Chk 0x00226A70 0x00226B84 ico2/script/src/st08a.c lines=33  # trfile; aug6-only in the census; PAL's actSt08aEne1Chk (284 B in PAL)
 text actSt08aEne2Chk 0x00226B88 0x00226C80 ico2/script/src/st08a.c lines=47  # trfile; aug6-only in the census; PAL's actSt08aEne2Chk (356 B in PAL)
@@ -1174,33 +1150,6 @@ text actSt09aElvSwitch 0x00228710 0x002287A8 ico2/script/src/st09a.c lines=20  #
 text actSt09aElvUp 0x002287A8 0x00228888 ico2/script/src/st09a.c lines=29  # ordinal; first difference at insn 3; imm:8; extent-equal
 text actSt09aIntroChk 0x00228898 0x00228918 ico2/script/src/st09a.c lines=19  # ordinal; first difference at insn 4; imm:5; extent-equal
 text actSt09aBrgSwitch 0x00228950 0x002289A8 ico2/script/src/st09a.c lines=13  # trfile; aug6-only in the census; PAL's actSt09aBrgSwitch (88 B in PAL)
-text actSt10rInit 0x0022A0D8 0x0022A19C ico2/script/src/st10r.c lines=25  # trfile; aug6-only in the census; PAL's actSt10rInit (212 B in PAL)
-text actSt10rFloorChk 0x0022A1A0 0x0022A2A8 ico2/script/src/st10r.c lines=48  # trfile; aug6-only in the census; PAL's actSt10rFloorChk (436 B in PAL)
-text actSt10rCageMain 0x0022A2A8 0x0022A3A8 ico2/script/src/st10r.c lines=59  # trfile; aug6-only in the census; PAL's actSt10rCageMain (472 B in PAL)
-text actSt10rTowerChk 0x0022A3A8 0x0022A5B8 ico2/script/src/st10r.c lines=78  # trfile; aug6-only in the census; PAL's actSt10rTowerChk (604 B in PAL)
-text actSt10rTowerConte 0x0022A5B8 0x0022A73C ico2/script/src/st10r.c lines=43  # trfile; aug6-only in the census; PAL's actSt10rTowerConte (456 B in PAL)
-text actSt10rChainMove 0x0022A740 0x0022A834 ico2/script/src/st10r.c lines=55  # trfile; aug6-only in the census; PAL's actSt10rChainMove (416 B in PAL)
-text actSt10rFence 0x0022A838 0x0022A96C ico2/script/src/st10r.c lines=54  # trfile; aug6-only in the census; PAL's actSt10rFence (508 B in PAL)
-text actSt10rFenceDownChk 0x0022A970 0x0022AAAC ico2/script/src/st10r.c lines=37  # trfile; aug6-only in the census; PAL's actSt10rFenceDownChk (372 B in PAL)
-text actSt10rFenceUpChk 0x0022AAB0 0x0022ABE4 ico2/script/src/st10r.c lines=37  # trfile; aug6-only in the census; PAL's actSt10rFenceUpChk (368 B in PAL)
-text actSt10rFenceDownChk2 0x0022ABE8 0x0022AD24 ico2/script/src/st10r.c lines=37  # trfile; aug6-only in the census; PAL's actSt10rFenceDownChk2 (372 B in PAL)
-text actSt10rFenceUpChk2 0x0022AD28 0x0022AE5C ico2/script/src/st10r.c lines=37  # trfile; aug6-only in the census; PAL's actSt10rFenceUpChk2 (368 B in PAL)
-text actSt10rFloor 0x0022AE60 0x0022AED8 ico2/script/src/st10r.c lines=15  # trfile; aug6-only in the census; PAL's actSt10rFloor (128 B in PAL)
-text actSt10rCage 0x0022AED8 0x0022AF5C ico2/script/src/st10r.c lines=17  # trfile; aug6-only in the census; PAL's actSt10rCage (156 B in PAL)
-lit4 actSt10rCage 0x0062B7BC 0x0062B7C0 ico2/script/src/st10r.c  # 1 float
-text actSt10rTower 0x0022AF60 0x0022AFD8 ico2/script/src/st10r.c lines=13  # trfile; aug6-only in the census; PAL's actSt10rTower (120 B in PAL)
-text actSt10rExit 0x0022AFD8 0x0022B040 ico2/script/src/st10r.c lines=11  # trfile; aug6-only in the census; PAL's actSt10rExit (104 B in PAL)
-text actSt10rChain 0x0022B040 0x0022B0E4 ico2/script/src/st10r.c lines=18  # trfile; aug6-only in the census; PAL's actSt10rChain (164 B in PAL)
-text actSt10rSekizo 0x0022B0E8 0x0022B14C ico2/script/src/st10r.c lines=9  # trfile; aug6-only in the census; PAL's actSt10rSekizo (100 B in PAL)
-lit4 actSt10rSekizo 0x0062B7C0 0x0062B7C8 ico2/script/src/st10r.c  # 2 floats
-text actSt10rEne 0x0022B150 0x0022B1C8 ico2/script/src/st10r.c lines=13  # trfile; aug6-only in the census; PAL's actSt10rEne (120 B in PAL)
-text actSt10rEnemy1 0x0022B1C8 0x0022B26C ico2/script/src/st10r.c lines=22  # trfile; aug6-only in the census; PAL's actSt10rEnemy1 (164 B in PAL)
-text actSt10rEnemy2 0x0022B270 0x0022B2E0 ico2/script/src/st10r.c lines=16  # trfile; aug6-only in the census; PAL's actSt10rEnemy2 (112 B in PAL)
-text actSt10rElv 0x0022B2E0 0x0022B360 ico2/script/src/st10r.c lines=15  # trfile; aug6-only in the census; PAL's actSt10rElv (128 B in PAL)
-text actSt10rGateXL 0x0022B360 0x0022B3B0 ico2/script/src/st10r.c lines=12  # trfile; aug6-only in the census; PAL's actSt10rGateXL (80 B in PAL)
-text actSt10rExitChk 0x0022B408 0x0022B4D4 ico2/script/src/st10r.c lines=16  # ordinal; first difference at insn 20; imm:2; extent-equal
-text actSt10rChainSwitch 0x0022B510 0x0022B568 ico2/script/src/st10r.c lines=11  # trfile; aug6-only in the census; PAL's actSt10rChainSwitch (88 B in PAL)
-text actSt10rEneChk 0x0022B578 0x0022B5F0 ico2/script/src/st10r.c lines=15  # ordinal; first difference at insn 24; imm:2; extent-equal
 text actSt13aElevUp 0x0022B5F0 0x0022B790 ico2/script/src/st13a.c lines=36  # trfile; aug6-only in the census; PAL's actSt13aElevUp (356 B in PAL)
 text actSt13aElevDownChk 0x0022B790 0x0022B8E4 ico2/script/src/st13a.c lines=44  # trfile; aug6-only in the census; PAL's actSt13aElevDownChk (424 B in PAL)
 lit4 actSt13aElevDownChk 0x0062B7C8 0x0062B7D0 ico2/script/src/st13a.c # target side
@@ -1218,39 +1167,6 @@ text actSt13aExitChk 0x0022BF10 0x0022BF8C ico2/script/src/st13a.c  # trfile; au
 text actSt13aCheckChk 0x0022BF90 0x0022BFC0 ico2/script/src/st13a.c lines=7  # trfile; aug6-only in the census; PAL's actSt13aCheckChk (48 B in PAL)
 text actSt13aChainOK 0x0022BFC0 0x0022C070 ico2/script/src/st13a.c lines=16  # trfile; aug6-only in the census; PAL's actSt13aChainOK (176 B in PAL)
 text actSt13aChainNG 0x0022C070 0x0022C120 ico2/script/src/st13a.c lines=16  # trfile; aug6-only in the census; PAL's actSt13aChainNG (176 B in PAL)
-text actSt13bFloor 0x0022C120 0x0022C284 ico2/script/src/st13b.c lines=32  # trfile; aug6-only in the census; PAL's actSt13bFloor (372 B in PAL)
-text actSt13bConte02 0x0022C370 0x0022CC74 ico2/script/src/st13b.c lines=238  # trfile; aug6-only in the census; PAL's actSt13bConte02 (2424 B in PAL)
-rdlit actSt13bConte02 0x00614BE0 0x00614BF0 ico2/script/src/st13b.c  # target side
-text actSt13bSekizoChk 0x0022CC78 0x0022CE70 ico2/script/src/st13b.c lines=51  # trfile; aug6-only in the census; PAL's actSt13bSekizoChk (504 B in PAL)
-lit4 actSt13bSekizoChk 0x0062B7EC 0x0062B7F4 ico2/script/src/st13b.c  # 2 floats
-text actSt13bSekizo2Chk 0x0022CE70 0x0022D068 ico2/script/src/st13b.c lines=51  # trfile; aug6-only in the census; PAL's actSt13bSekizo2Chk (504 B in PAL)
-lit4 actSt13bSekizo2Chk 0x0062B7F4 0x0062B7FC ico2/script/src/st13b.c  # 2 floats
-text actSt13bMeetAgain 0x0022D068 0x0022D180 ico2/script/src/st13b.c lines=25  # trfile; aug6-only in the census; PAL's actSt13bMeetAgain (280 B in PAL)
-text actSt13bBoss 0x0022D180 0x0022D274 ico2/script/src/st13b.c lines=24  # trfile; aug6-only in the census; PAL's actSt13bBoss (260 B in PAL)
-lit4 actSt13bBoss 0x0062B7FC 0x0062B804 ico2/script/src/st13b.c  # 2 floats
-text actConte10b 0x0022D278 0x0022D354 ico2/script/src/st13b.c  # trfile; aug6-only in the census; not in PAL's st13b
-text actSt13bElevDown 0x0022D358 0x0022D4C0 ico2/script/src/st13b.c lines=44  # trfile; aug6-only in the census; PAL's actSt13bElevDown (388 B in PAL)
-text actSt13bElevUp 0x0022D4C0 0x0022D5A4 ico2/script/src/st13b.c lines=22  # trfile; aug6-only in the census; PAL's actSt13bElevUp (228 B in PAL)
-text actSt13bElevUpChk 0x0022D5A8 0x0022D6C8 ico2/script/src/st13b.c lines=49  # trfile; aug6-only in the census; PAL's actSt13bElevUpChk (424 B in PAL)
-text actSt13bSekizo 0x0022D6C8 0x0022D760 ico2/script/src/st13b.c lines=18  # trfile; aug6-only in the census; PAL's actSt13bSekizo (152 B in PAL)
-text actSt13bSekizo2 0x0022D760 0x0022D7F8 ico2/script/src/st13b.c lines=18  # trfile; aug6-only in the census; PAL's actSt13bSekizo2 (152 B in PAL)
-text actSt13bBossAfter 0x0022D7F8 0x0022D890 ico2/script/src/st13b.c lines=18  # trfile; aug6-only in the census; PAL's actSt13bBossAfter (152 B in PAL)
-text actSt13bStoneGirl 0x0022D890 0x0022D8F4 ico2/script/src/st13b.c lines=12  # trfile; aug6-only in the census; PAL's actSt13bStoneGirl (100 B in PAL)
-text actSt13bExit 0x0022D8F8 0x0022D960 ico2/script/src/st13b.c  # trfile; aug6-only in the census; not in PAL's st13b
-text actSt13bElev 0x0022D960 0x0022D9C8 ico2/script/src/st13b.c lines=12  # trfile; aug6-only in the census; PAL's actSt13bElev (104 B in PAL)
-text actSt13bDoor 0x0022D9C8 0x0022DA60 ico2/script/src/st13b.c lines=18  # ordinal; first difference at insn 12; imm:4; extent-equal
-text actBossTest 0x0022DA60 0x0022DAE0 ico2/script/src/st13b.c lines=13  # ordinal; first difference at insn 9; imm:5; extent-equal
-text actSt13bMeetAgainChk 0x0022DC70 0x0022DD24 ico2/script/src/st13b.c lines=56  # trfile; aug6-only in the census; PAL's actSt13bMeetAgainChk (544 B in PAL)
-text actConte10a 0x0022DD28 0x0022DDD4 ico2/script/src/st13b.c  # trfile; aug6-only in the census; not in PAL's st13b
-text actSt13bBossChk 0x0022DDD8 0x0022DEB4 ico2/script/src/st13b.c lines=36  # trfile; aug6-only in the census; PAL's actSt13bBossChk (436 B in PAL)
-text actSt13bBossAfterChk 0x0022DEB8 0x0022DF84 ico2/script/src/st13b.c lines=54  # trfile; aug6-only in the census; PAL's actSt13bBossAfterChk (468 B in PAL)
-text actConte10c 0x0022DF88 0x0022E03C ico2/script/src/st13b.c lines=21  # trfile; aug6-only in the census; PAL's actConte10c (172 B in PAL)
-text actSt13bExitChk 0x0022E040 0x0022E0B4 ico2/script/src/st13b.c  # trfile; aug6-only in the census; not in PAL's st13b
-text actSt13bElevMain 0x0022E0B8 0x0022E0E8 ico2/script/src/st13b.c lines=9  # trfile; aug6-only in the census; PAL's actSt13bElevMain (48 B in PAL)
-text actSt13bElevSwitch 0x0022E0E8 0x0022E140 ico2/script/src/st13b.c lines=12  # trfile; aug6-only in the census; PAL's actSt13bElevSwitch (88 B in PAL)
-text actSt13bDoorMain 0x0022E140 0x0022E178 ico2/script/src/st13b.c lines=9  # trfile; aug6-only in the census; PAL's actSt13bDoorMain (48 B in PAL)
-text actSt13bDoorSwitch 0x0022E178 0x0022E1D0 ico2/script/src/st13b.c lines=12  # trfile; aug6-only in the census; PAL's actSt13bDoorSwitch (88 B in PAL)
-text actSt13bDoorUp 0x0022E1D0 0x0022E284 ico2/script/src/st13b.c lines=39  # trfile; aug6-only in the census; PAL's actSt13bDoorUp (320 B in PAL)
 text actSt13dExit 0x00230FD8 0x002310B8 ico2/script/src/st13d.c lines=25  # ordinal; first difference at insn 12; imm:1; extent-equal
 text actSt17aDoor 0x00231260 0x002313B0 ico2/script/src/st17a.c lines=32  # ordinal; first difference at insn 12; imm:12; extent-equal
 text actSt17aDoorUpChk 0x002313B0 0x0023154C ico2/script/src/st17a.c lines=42  # ordinal; first difference at insn 37; imm:9; extent-equal
