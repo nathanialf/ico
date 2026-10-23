@@ -315,31 +315,6 @@ rdlit shadow_RenderVolumeMulti 0x0054FD70 0x0054FD98 ico2/seki/src/Shadow.c alig
 text shadow_KillShadow 0x001285B0 0x001285B8 ico2/seki/src/Shadow.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text shadow_DispCancel 0x001285B8 0x00128660 ico2/seki/src/Shadow.c lines=22  # ordinal; first difference at insn 18; imm:2; extent-equal
 text shadow_SetLength 0x00128660 0x00128690 ico2/seki/src/Shadow.c lines=8  # ordinal; first difference at insn 4; imm:3; extent-equal
-text stage_MakeGObj 0x001286A0 0x00128928 ico2/seki/src/StageAnimation.c local lines=45  # ordinal; first difference at insn 69; imm:4; extent-equal
-rdlit stage_MakeGObj 0x0054FF20 0x0054FF60 ico2/seki/src/StageAnimation.c align=16  # 1 data, its August size
-rdlit stage_MakeGObj 0x0054FF60 0x0054FFE3 ico2/seki/src/StageAnimation.c align=16  # 4 strings
-sdlit stage_MakeGObj 0x0062BF08 0x0062BF0A ico2/seki/src/StageAnimation.c  # 1 string
-text stage_ApplyData 0x00128928 0x00128B08 ico2/seki/src/StageAnimation.c lines=40  # ordinal; first difference at insn 1; imm:4; extent-equal
-rdlit stage_ApplyData 0x0054FFE8 0x00550016 ico2/seki/src/StageAnimation.c  # 1 string
-sdlit stage_ApplyData 0x0062BF10 0x0062BF1A ico2/seki/src/StageAnimation.c  # 2 strings
-text stage_Init 0x00128B08 0x001295D8 ico2/seki/src/StageAnimation.c lines=206  # ordinal; first difference at insn 1; length:-10; extent-differs
-rdlit stage_Init 0x00550018 0x005500C5 ico2/seki/src/StageAnimation.c  # 4 strings
-rdlit stage_Init 0x005500D0 0x00550110 ico2/seki/src/StageAnimation.c align=16  # 1 static
-text stage_ContinueAnimation 0x001297A8 0x001298AC ico2/seki/src/StageAnimation.c lines=31  # ordinal; first difference at insn 50; imm:2; extent-equal
-rdlit stage_ContinueAnimation 0x00550160 0x0055018F ico2/seki/src/StageAnimation.c align=16  # 1 string
-text stage_ResetAnimation 0x001298B0 0x001298B8 ico2/seki/src/StageAnimation.c lines=7  # trfile; aug6-only in the census; PAL's stage_ResetAnimation (48 B in PAL)
-text stage_CalcAnimationNoParent 0x001298B8 0x00129AB8 ico2/seki/src/StageAnimation.c lines=72  # trfile; aug6-only in the census; PAL's stage_CalcAnimationNoParent (588 B in PAL)
-text stage_CalcAnimationParent 0x00129AB8 0x00129C50 ico2/seki/src/StageAnimation.c lines=54  # trfile; aug6-only in the census; PAL's stage_CalcAnimationParent (432 B in PAL)
-text stage_DispAnimation 0x00129C50 0x00129DB0 ico2/seki/src/StageAnimation.c lines=42  # trfile; aug6-only in the census; PAL's stage_DispAnimation (312 B in PAL)
-sdlit stage_DispAnimation 0x0062BF20 0x0062BF25 ico2/seki/src/StageAnimation.c  # target side: a string
-text stage_SetScale 0x00129DB0 0x00129EB8 ico2/seki/src/StageAnimation.c lines=21  # trfile; aug6-only in the census; PAL's stage_SetScale (264 B in PAL)
-text stage_PlayBgAnimation 0x00129EB8 0x0012A1A8 ico2/seki/src/StageAnimation.c lines=61  # aug6-only in the census (in StageAnimation.c's span); stage_PlayBgAnimation by body ratio 0.40, callees 0.67, sizes 648/752, call sites 4
-text stage_PlayBgAnimationDissolve 0x0012A1A8 0x0012A4D8 ico2/seki/src/StageAnimation.c lines=62  # aug6-only in the census (in StageAnimation.c's span); stage_PlayBgAnimationDissolve by body ratio 0.75, callees 0.67, sizes 724/816, call sites 1
-text stage_MakePlayBgAnimation 0x0012A4D8 0x0012A668 ico2/seki/src/StageAnimation.c lines=53  # trfile; aug6-only in the census; PAL's stage_MakePlayBgAnimation (388 B in PAL)
-rdlit stage_MakePlayBgAnimation 0x00550190 0x00550217 ico2/seki/src/StageAnimation.c align=16  # 2 strings
-text stage_DispBgAnimation 0x0012A6D0 0x0012A950 ico2/seki/src/StageAnimation.c lines=30  # trfile; aug6-only in the census; PAL's stage_DispBgAnimation (640 B in PAL)
-text stage_CheckAnimationFinish 0x0012A958 0x0012AA24 ico2/seki/src/StageAnimation.c lines=21  # ordinal; first difference at insn 37; imm:2; extent-equal
-rdlit stage_CheckAnimationFinish 0x00550128 0x0055015A ico2/seki/src/StageAnimation.c def  # 1 string
 text tex_loadImage 0x0012AE98 0x0012B094 ico2/seki/src/Texture.c local lines=52  # ordinal; first difference at insn 52; imm:4; extent-equal
 rdlit tex_loadImage 0x00550250 0x005502D0 ico2/seki/src/Texture.c  # target side
 rdlit tex_loadImage 0x005502D0 0x005503C0 ico2/seki/src/Texture.c align=16  # jump table (target side)

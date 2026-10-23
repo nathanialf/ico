@@ -69,7 +69,8 @@ void bga_ResetAnimation(void);
 float bga_GetZoom(void);
 
 char *bga_InitData(char *data);
-void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n, int no);
+/* three arguments in this build: stage_Init's call 0x129034 sets no a3 */
+void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n);
 void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop);
 void bga_CalcAnimation(BgaHeader *p, int loop, int reset);
 void bga_CalcSdfCamera(char *data, int loop);
