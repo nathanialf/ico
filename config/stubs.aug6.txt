@@ -1911,26 +1911,6 @@ text actSt18aEnemy2_2 0x00233350 0x00233408 ico2/script/src/st18a.c lines=24  # 
 text actSt18aIntroChk 0x00233418 0x002334C8 ico2/script/src/st18a.c lines=38  # trfile; aug6-only in the census; PAL's actSt18aIntroChk (328 B in PAL)
 text actSt18aEneChk 0x002334C8 0x00233538 ico2/script/src/st18a.c lines=13  # trfile; aug6-only in the census; PAL's actSt18aEneChk (112 B in PAL)
 text actSt18aEne2Chk 0x00233538 0x002335B4 ico2/script/src/st18a.c lines=13  # trfile; aug6-only in the census; PAL's actSt18aEne2Chk (132 B in PAL)
-text actSt19aOriDown 0x002335B8 0x002336E0 ico2/script/src/st19a.c  # trfile; aug6-only in the census; not in PAL's st19a
-text actSt19aHaguruma 0x002336E0 0x00233830 ico2/script/src/st19a.c lines=29  # trfile; aug6-only in the census; PAL's actSt19aHaguruma (332 B in PAL)
-rdlit actSt19aHaguruma 0x00614E30 0x00614E40 ico2/script/src/st19a.c  # target side
-text actSt19aHagurumaChk 0x00233830 0x002339D8 ico2/script/src/st19a.c lines=57  # trfile; aug6-only in the census; PAL's actSt19aHagurumaChk (724 B in PAL)
-text actSt19aPipeChk 0x002339D8 0x00233ADC ico2/script/src/st19a.c lines=43  # trfile; aug6-only in the census; PAL's actSt19aPipeChk (500 B in PAL)
-text actSt19aChainDown 0x00233AE0 0x00233BCC ico2/script/src/st19a.c lines=34  # trfile; aug6-only in the census; PAL's actSt19aChainDown (348 B in PAL)
-text actSt19aChainUp 0x00233BD0 0x00233CC0 ico2/script/src/st19a.c  # trfile; aug6-only in the census; not in PAL's st19a
-text actSt19aOri 0x00233CC0 0x00233D6C ico2/script/src/st19a.c lines=20  # trfile; aug6-only in the census; PAL's actSt19aOri (172 B in PAL)
-lit4 actSt19aOri 0x0062B86C 0x0062B878 ico2/script/src/st19a.c  # 3 floats
-text actSt19aOriXL 0x00233D70 0x00233DDC ico2/script/src/st19a.c lines=11  # trfile; aug6-only in the census; PAL's actSt19aOriXL (88 B in PAL)
-text actSt19aPipe 0x00233DE0 0x00233E98 ico2/script/src/st19a.c lines=21  # trfile; aug6-only in the census; PAL's actSt19aPipe (184 B in PAL)
-text actSt19aPipeXL 0x00233E98 0x00233EF8 ico2/script/src/st19a.c lines=13  # trfile; aug6-only in the census; PAL's actSt19aPipeXL (96 B in PAL)
-text actSt19aChain 0x00233EF8 0x00233F8C ico2/script/src/st19a.c lines=18  # trfile; aug6-only in the census; PAL's actSt19aChain (148 B in PAL)
-text actSt19bIntro 0x00233F90 0x00234008 ico2/script/src/st19a.c lines=33  # trfile; aug6-only in the census; PAL's actSt19bIntro (344 B in PAL)
-text actSt19aOriMain 0x00234008 0x00234040 ico2/script/src/st19a.c lines=12  # trfile; aug6-only in the census; PAL's actSt19aOriMain (56 B in PAL)
-text actSt19aOriSwitch 0x00234040 0x002340D8 ico2/script/src/st19a.c lines=12  # trfile; aug6-only in the census; PAL's actSt19aOriSwitch (88 B in PAL)
-text actSt19aOriUp 0x002340D8 0x002341A4 ico2/script/src/st19a.c lines=41  # trfile; aug6-only in the census; PAL's actSt19aOriUp (460 B in PAL)
-text actSt19aChainMain 0x002341A8 0x002341E0 ico2/script/src/st19a.c lines=12  # trfile; aug6-only in the census; PAL's actSt19aChainMain (56 B in PAL)
-text actSt19aChainSwitch 0x002341E0 0x00234280 ico2/script/src/st19a.c lines=15  # trfile; aug6-only in the census; PAL's actSt19aChainSwitch (112 B in PAL)
-text actSt19bIntroChk 0x00234280 0x00234320 ico2/script/src/st19a.c  # trfile; aug6-only in the census; not in PAL's st19a
 text actSt20aFenceDownChk2 0x00234B38 0x00234C68 ico2/script/src/st20a.c lines=28  # trfile; aug6-only in the census; PAL's actSt20aFenceDownChk2 (352 B in PAL)
 text actSt22aIntro 0x00235568 0x0023578C ico2/script/src/st22a.c lines=41  # ordinal; first difference at insn 14; imm:15; extent-equal
 lit4 actSt22aIntro 0x0062B888 0x0062B894 ico2/script/src/st22a.c  # 3 floats
