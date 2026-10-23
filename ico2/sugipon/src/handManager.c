@@ -9,7 +9,6 @@
 #include "Matrix.h"
 #include "matrixDrive.h"
 #include "quaternion.h"
-#include "include_asm.h"
 
 static void connectToTarget(struct GObj *obj, HandRec *hw, int na, int nb, int nc);
 
@@ -155,11 +154,45 @@ static inline int PutHandOnLadder(HandRec *hw, int node) /* derived name */
     if (hw->ikReached == 0) {
         return 0;
     }
-    ExecuteSEPackage(hw->obj, 102);
+    ExecuteSEPackage(hw->obj, 97);
     return 1;
 }
 
-INCLUDE_ASM(_handManager);
+static float _handManager(GObj *obj, HandRec *hw, char *vec, float *ref, int node)
+{
+    switch (hw->mode) {
+    case 2:
+        if (SetHandOnWall(obj, hw, vec, ref, node) != 0) {
+            hw->ikMode = 2;
+        }
+        break;
+    case 3:
+        FollowHandMatrix(hw, vec, ref);
+        hw->ikMode = 2;
+        break;
+    case 6:
+        PutHandOnLadder(hw, GetSkeltonFocusNode(obj, 6));
+        if (hw->ikFlag != 0) {
+            hw->ikRate = 0.5f;
+            hw->ikLock = 1;
+        }
+        hw->ikMode = 1;
+        break;
+    case 5:
+        connectToTarget(obj, hw, node, GetSkeltonFocusNode(obj, 19), GetSkeltonFocusNode(obj, 19));
+        hw->ikMode = 1;
+        break;
+    case 1:
+        _ApplyMatrix(hw->ikDir, (char *)GOBJ_SUB(hw->obj)->nodeMtx + (hw->node << 6), hw->pos);
+        if (hw->ikReached != 0) {
+            hw->ikRate = 0.5f;
+            hw->ikLock = 1;
+        }
+        hw->ikMode = 1;
+        break;
+    }
+    return 1.0f;
+}
 
 /* not from motionOrientManager.h, which reaches ico2/fumi's files through
    typedef.h, where commonact.c declares the table char [] */
@@ -177,4 +210,22 @@ static inline void ResetHandTarget(GObj *obj, int off) /* derived name */
     ((IntFloat *)(h + 0x50))->f = GOBJ_SUB(obj)->root.handRate;
 }
 
-INCLUDE_ASM(HandManager);
+void HandManager(GObj *obj)
+{
+    float t = 1.0f;
+
+    if (debug_now_motion_viewer == 0) {
+        ResetHandTarget(obj, 0x300);
+        ResetHandTarget(obj, 0x2A0);
+        if (GOBJ_SUB(obj)->root.handIK != 0) {
+            const MotionDef *rec = &motionKind[GOBJ_SUB(obj)->ctrl.motion];
+            _handManager(obj, &GOBJ_SUB(obj)->root.hand0,
+                         motionIKEffKind + ((rec->modeBits.word >> 4) & 0xF0), XUnitVector,
+                         GetSkeltonFocusNode(obj, 19));
+            t = _handManager(obj, &GOBJ_SUB(obj)->root.hand1,
+                             motionIKEffKind + ((rec->modeBits.word >> 8) & 0xF0), XUnitVector,
+                             GetSkeltonFocusNode(obj, 3));
+        }
+        GOBJ_SUB(obj)->root.twistRate += (t - GOBJ_SUB(obj)->root.twistRate) * 0.1f;
+    }
+}

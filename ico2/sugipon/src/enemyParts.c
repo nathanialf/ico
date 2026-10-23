@@ -13,7 +13,6 @@
 #include "matrixDrive.h"
 #include "Matrix.h"
 #include "ios.h"
-#include "include_asm.h"
 
 typedef struct PointBlur { /* field names derived */
     /* 0x00 */ int pri;
@@ -134,9 +133,94 @@ static inline PointBlur *initPointBlurAt(int num, int pri, int *col, float *rate
     return p;
 }
 
-INCLUDE_ASM(InitEnemyEye);
+EnemyEye *InitEnemyEye(int num, int mode, int pri)
+{
+    EnemyEye *p;
 
-INCLUDE_ASM(InitEnemyFootPrint);
+    p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c", 136);
+    *p = enemyEyeTemplate;
+
+    p->dobj[0] = CSVSYSTEM_InitDObj(1281, &InitialSObjSimpleSetting);
+    p->dobj[0]->nodes->flags.ll |= 1;
+    p->dobj[0]->nodes->fade = 1e-5f;
+    p->dobj[0]->nodes->flags.ll |= 4;
+    p->dobj[0]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
+    p->dobj[0]->dispType = 2;
+
+    p->dobj[1] = CSVSYSTEM_InitDObj(1282, &InitialSObjSimpleSetting);
+    p->dobj[1]->nodes->flags.ll |= 1;
+    p->dobj[1]->nodes->fade = 1e-5f;
+    p->dobj[1]->nodes->flags.ll &= ~4;
+    p->dobj[1]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
+    p->dobj[1]->dispType = 2;
+
+    p->dobj[2] = CSVSYSTEM_InitDObj(1283, &InitialSObjSimpleSetting);
+    p->dobj[2]->nodes->flags.ll |= 1;
+    p->dobj[2]->nodes->fade = 1e-5f;
+    p->dobj[2]->nodes->flags.ll &= ~4;
+    p->dobj[2]->nodes->scale[0] = p->dobj[0]->nodes->scale[1] = p->dobj[0]->nodes->scale[2] = 3.0f;
+    p->dobj[2]->dispType = 2;
+
+    if (num != 0) {
+        p->blurOn = 1;
+        p->blur = initPointBlurAt(num, pri, enemyEyeBlurColor, enemyEyeBlurRate);
+    }
+    return p;
+}
+
+EnemyFootPrintHead *InitEnemyFootPrint(int num)
+{
+    EnemyFootPrintHead *p;
+    Sub15C *d;
+    int i;
+    int j;
+
+    p = iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c", 224);
+    *p = footPrintHeadTemplate;
+    p->num = num;
+    p->buf = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 227);
+    d = CSVSYSTEM_InitDObj(1254, &InitialSObjSimpleSetting);
+    p->dobj = d;
+    if (d->nodeMtx != 0) {
+        iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
+    }
+    if (p->dobj->nodeQuat != 0) {
+        iosFree((void *)(p->dobj->nodeQuat & 0xFFFFFFF));
+    }
+    p->dobj->nodeMtx = 0;
+    p->dobj->nodeQuat = 0;
+    p->dobj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num << 6, "src/enemyParts.c", 230);
+    p->dobj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c", 230);
+    p->dobj->nodeNum = num;
+    if ((int)p->dobj->nodes != 0) {
+        iosFree((void *)((int)p->dobj->nodes & 0xFFFFFFF));
+    }
+    p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 80, "src/enemyParts.c", 230);
+    for (i = 0; i < num; i++) {
+        p->dobj->nodes[i].flags.ll &= ~1;
+        p->dobj->nodes[i].flags.ll &= ~2;
+        p->dobj->nodes[i].pos[0] = 0.0f;
+        p->dobj->nodes[i].pos[1] = 0.0f;
+        p->dobj->nodes[i].pos[2] = 0.0f;
+        p->dobj->nodes[i].pos[3] = 1.0f;
+        p->dobj->nodes[i].flags.ll &= ~4;
+        p->dobj->nodes[i].fade = 0;
+        p->dobj->nodes[i].alpha = 1.0f;
+        *(short *)((char *)&p->dobj->nodes[i] + 0x3A) = 0;
+        p->dobj->nodes[i].scale[0] = 1.0f;
+        p->dobj->nodes[i].scale[1] = 1.0f;
+        p->dobj->nodes[i].scale[2] = 1.0f;
+    }
+    p->dobj->dispType = 2;
+    for (j = 0; j < num; j++) {
+        p->buf[j] = footPrintVtxTemplate;
+        p->dobj->nodes[j].flags.ll |= 1;
+        p->dobj->nodes[j].fade = 1.0f;
+        p->dobj->nodes[j].flags.ll &= ~4;
+        p->dobj->nodes[j].scale[0] = p->dobj->nodes[j].scale[1] = p->dobj->nodes[j].scale[2] = 0.0f;
+    }
+    return p;
+}
 
 int ExecEnemyFootPrints(EnemyFootPrintHead *self)
 {

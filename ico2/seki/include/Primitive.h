@@ -108,9 +108,6 @@ Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int 
 Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int lit);
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3);
 
-PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
-                                           int a3, void *heap);
-
 void prim_SetFan2D(Fan2D *f, float r, float *pos, unsigned int cc, unsigned int rc);
 void prim_UpdateMesh3D(Mesh3D *m, int flags, int idx);
 void prim_DispWireYCylinder(void *col, int n, int flag, float r, float y0, float y1);

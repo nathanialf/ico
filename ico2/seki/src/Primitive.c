@@ -19,9 +19,53 @@
 #include "DmaPacket.h"
 #include "ios.h"
 #include <assert.h>
-#include "include_asm.h"
 
-INCLUDE_ASM(prim_InitFan2D);
+Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int rc)
+{
+    Fan2D *f;
+    Fan2DVtx *q;
+    Fan2DVtx *first;
+    int i;
+
+    f = (Fan2D *)iosMallocDebug(ios_partition_seki, 12, "src/Primitive.c", 312);
+    f->buf = (Fan2DVtx *)iosMallocDebug(ios_partition_seki, (n + 2) * 32, "src/Primitive.c", 313);
+    q = f->buf;
+
+    f->n = n;
+    f->blend = 0;
+    q->cr = cc >> 24;
+    q->cg = (cc >> 16) & 0xFF;
+    q->cb = (cc >> 8) & 0xFF;
+    q->ca = cc & 0xFF;
+    if ((cc & 0xFF) != 128) {
+        f->blend = 1;
+    }
+    q->x = pos[0] + center_X;
+    q->y = pos[1] + center_Y;
+    q->z = -pos[2];
+    q->w = 1.0f;
+    q++;
+
+    first = q;
+    for (i = 0; i < n; i++) {
+        q->x = r * GetTableCos((short)((float)i * 6.2831855f / (float)f->n * 10430.3779f)) +
+               pos[0] + center_X;
+        q->y = r * GetTableSin((short)((float)i * 6.2831855f / (float)f->n * 10430.3779f)) * 0.5f +
+               pos[1] + center_Y;
+        q->z = -pos[2];
+        q->w = 1.0f;
+        q->cr = rc >> 24;
+        q->cg = (rc >> 16) & 0xFF;
+        q->cb = (rc >> 8) & 0xFF;
+        q->ca = rc & 0xFF;
+        if ((rc & 0xFF) != 128) {
+            f->blend = 1;
+        }
+        q++;
+    }
+    *q = *first;
+    return f;
+}
 
 void prim_SetFan2D(Fan2D *f, float r, float *pos, unsigned int cc, unsigned int rc)
 {
@@ -196,9 +240,115 @@ typedef int Qw128 __attribute__((mode(TI))); /* derived name */
    prim_makePacketMesh3D reads it by pointer dereference. */
 static const long long meshGifTag[2] = {0x3000400000008000LL, 0x512}; /* derived name */
 
-INCLUDE_ASM(prim_makePacketMesh3D);
+static void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
+{
+    Prim3DVec t;
+    Prim3DVec nv = {0.0f, 0.0f, 0.0f, 1.0f};
+    Prim3DVec tv = {0.0f, 0.0f, 0.0f, 1.0f};
+    Prim3DVec c = {(float)((m->col >> 24) & 0xFF), (float)((m->col >> 16) & 0xFF),
+                   (float)((m->col >> 8) & 0xFF), (float)(m->col & 0xFF)};
+    char *p;
+    int i;
+    int k;
 
-INCLUDE_ASM(prim_InitMesh3D);
+    p = (char *)pkt;
+    if (c.w == 128.0f) {
+        c.w = 127.0f;
+    }
+    _SetCurrentMatrix(m->mtx);
+    for (i = 0; i < m->strips; i++) {
+        int w = m->stripLen;
+        int n = w * (m->lit + 2) + 2;
+        long long reg = m->prim;
+        DpkHead *h;
+
+        if (n >= 253) {
+            debug_StdPrintfDummy("too large mesh packet. %d\n", w);
+            debug_assert("src/Primitive.c", 467);
+            __assert("src/Primitive.c", 467, "0");
+        }
+        h = (DpkHead *)p;
+        h->vif[0] = 0;
+        h->vif[1] = 0;
+        h->vif[2] = 0;
+        h->vif[3] = (n << 16) | 0x6C008000;
+        h->tag[0] = w | (*meshGifTag | (reg << 47));
+        h->tag[1] = *(meshGifTag + 1);
+        p += 0x20;
+        *(Qw128 *)p = *(Qw128 *)&c;
+        p += 0x10;
+        for (k = 0; k < m->stripLen; k++) {
+            *(Qw128 *)p = *(Qw128 *)&nv;
+            p += 0x10;
+            if (uv != 0) {
+                *(Qw128 *)p = *(Qw128 *)&tv;
+                p += 0x10;
+            }
+            {
+                int nx = m->nx;
+                int idx = (i + (k & 1)) * nx + (k >> 1);
+                int u = idx / nx;
+                int v = idx % nx;
+
+                t.z = 1.0f;
+                t.w = 0.0f;
+                t.x = (float)v / (float)(nx - 1);
+                t.y = (float)u / (float)(m->ny - 1);
+                _ApplyCurrentMatrix(&t, &t);
+                *(Qw128 *)p = *(Qw128 *)&t;
+                p += 0x10;
+            }
+        }
+        ((int *)p)[0] = 0x17000000;
+        ((int *)p)[1] = 0;
+        ((int *)p)[2] = 0;
+        ((int *)p)[3] = 0;
+        p += 0x10;
+    }
+}
+
+Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int lit)
+{
+    Mesh3D *m;
+    int i;
+
+    m = (Mesh3D *)iosMallocDebug(ios_partition_seki, 144, "src/Primitive.c", 574);
+    m->nx = nx;
+    m->ny = ny;
+    m->pos =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 577);
+    m->nrm =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 578);
+    m->st =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 579);
+    for (i = 0; i < m->nx * m->ny; i++) {
+        m->pos[i].x = m->pos[i].y = m->pos[i].z = 0.0f;
+        m->pos[i].w = 1.0f;
+        m->nrm[i].x = m->nrm[i].y = m->nrm[i].z = 0.0f;
+        m->nrm[i].w = 0.0f;
+        m->st[i].x = m->st[i].y = m->st[i].w = 0.0f;
+        m->st[i].z = 1.0f;
+    }
+    m->stripLen = m->nx * 2;
+    m->strips = m->ny - 1;
+
+    m->lit = lit;
+
+    m->qwc = m->strips * (m->stripLen * (lit + 2) + 4);
+
+    m->bufs[0] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c", 595);
+    m->bufs[1] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c", 596);
+
+    _InitCurrentMatrix();
+    _RotCurrentMatrixZ((short)((float)(rot % 4) * 3.1415927f * 0.5f * 10430.3779f));
+    _GetCurrentMatrix(m->mtx);
+
+    m->prim = col;
+    m->col = col2;
+    prim_makePacketMesh3D(m, m->bufs[0], m->lit);
+    prim_makePacketMesh3D(m, m->bufs[1], m->lit);
+    return m;
+}
 
 /* prim_makeNormal fills the per-vertex normal buffer at Mesh3D+0x70.  The
    four neighbours of a vertex are walked with one pair of indices, x and y,
@@ -515,12 +665,128 @@ typedef struct { /* field names derived */
     long long d[2];
 } PrimQw; /* derived name */
 
-PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
-                                           int a3, void *heap);
+PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3)
+{
+    PrimQw hd = {{0x5000400000000000LL, 0x52521}};
+    Prim3DVec cl0 = {1024.0f, 1024.0f, 0.0f, 1.0f};
+    Prim3DVec cl1 = {3071.0f, 3071.0f, 0.0f, 16777215.0f};
+    PrimParticle *p;
+    PrimParticleObj *q;
+    int *r;
+    /* the GIF tag's PRIM field: sprite, TME, ABE, AA1 */
+    long long prim = 214;
 
-INCLUDE_ASM(prim_InitParticle);
+    if (num > 80) {
+        debug_StdPrintfDummy(
+            "Particle Object too big (%d particles). (must be under %d particles)\n", num, 80);
+        return 0;
+    }
+    p = (PrimParticle *)iosMallocDebug(ios_partition_seki, 416, "src/Primitive.c", 904);
+    if (p == 0) {
+        return 0;
+    }
+    p->buf[0].head[0] = 0;
+    p->buf[0].head[1] = 0;
+    p->buf[0].head[2] = 0;
+    p->buf[0].head[3] = 0x6C088000;
+    _UnitMatrix(p->buf[0].mtx);
+    _UnitMatrix(p->buf[0].lmtx);
+    p->buf[0].tail[0] = 0x15000010;
+    p->buf[0].tail[1] = 0;
+    p->buf[0].tail[2] = 0;
+    p->buf[0].tail[3] = 0;
+    p->headQwc = 10;
+    malloc_MemCpy(&p->buf[1], &p->buf[0], 160);
+    p->word144 = 0;
+    p->num = num;
+    p->x = x;
+    p->y = y;
+    p->z = z;
+    p->word158 = a1;
+    sprintf(p->name, "%s", name);
+    p->tex = tex_GetTextureNo(p->name);
+    if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
+        debug_StdPrintfDummy("prim_InitParticle:illegal texture no. %s:%d\n", p->name, p->tex);
+        debug_assert("src/Primitive.c", 935);
+        __assert("src/Primitive.c", 935, "FALSE");
+    }
+    p->objSize = num * 32 + 128;
+    p->objs[0] =
+        (PrimParticleObj *)iosMallocDebug(ios_partition_seki, p->objSize, "src/Primitive.c", 941);
+    if (p->objs[0] == 0) {
+        iosFree(p);
+        return 0;
+    }
+    p->objs[1] =
+        (PrimParticleObj *)iosMallocDebug(ios_partition_seki, p->objSize, "src/Primitive.c", 946);
+    if (p->objs[1] == 0) {
+        iosFree(p->objs[0]);
+        iosFree(p);
+        return 0;
+    }
+    q = p->objs[0];
+    p->objSize = p->objSize >> 4;
+    q->vif[0] = 0;
+    q->vif[1] = 0;
+    q->vif[2] = 0;
+    q->vif[3] = ((p->objSize - 2) << 16) | 0x6C008000;
+    q->num[0] = num;
+    q->num[1] = 0;
+    q->num[2] = 0;
+    q->num[3] = 0;
+    q->tag[0][0] = hd.d[0] | (prim << 47) | 1;
+    q->tag[0][1] = hd.d[1];
+    q->tag[1][0] = hd.d[0] | (prim << 47) | 0x8001;
+    q->tag[1][1] = hd.d[1];
+    _CopyVector(q->clipMin, &cl0);
+    _CopyVector(q->clipMax, &cl1);
+    r = q->vtx[num];
+    r[0] = 0x13000000;
+    r[1] = 0x17000000;
+    r[2] = 0;
+    r[3] = 0;
+    q->pos[0] = x;
+    q->pos[1] = y;
+    q->pos[2] = z;
+    q->pos[3] = 0.0f;
+    malloc_MemCpy(p->objs[1], p->objs[0], p->objSize * 16);
+    p->cur = 0;
+    p->vtx = p->objs[0]->vtx;
+    p->vtxNext = p->objs[1]->vtx;
+    return p;
+}
 
-INCLUDE_ASM(prim_DispParticle);
+void prim_DispParticle(PrimParticle *p, void *mtx)
+{
+    int pri = dl_GetPri();
+
+    if (debug_disp_particle != 0) {
+        if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
+            /* "the specified texture number is invalid" */
+            debug_StdPrintfDummy("prim_DispParticle:指定したテクスチャ番号が異常です. %s:%d\n",
+                                 p->name, p->tex);
+            debug_assert("src/Primitive.c", 1008);
+            __assert("src/Primitive.c", 1008, "FALSE");
+            return;
+        }
+        if (p->num < 0x51) {
+            texturetranssize += tex_TransTexture(p->tex, pri);
+            _CopyMatrix(p->buf[p->cur].mtx, mtx);
+            _CopyMatrix(p->buf[p->cur].lmtx, matrixptr + 0xC0);
+            mc_TransMicroCode(5, 1 << pri);
+            dl_OpenDma(2, &p->buf[p->cur], p->headQwc);
+            dl_CloseDma();
+            mc_SetMicroCode(3, 0, 0, 0, pri);
+            dl_OpenDma(2, p->objs[p->cur], p->objSize);
+            dl_CloseDma();
+            if (systemStatus[5] == 0) {
+                p->cur ^= 1;
+            }
+            p->vtx = p->objs[p->cur]->vtx;
+            p->vtxNext = p->objs[p->cur ? 0 : 1]->vtx;
+        }
+    }
+}
 
 void prim_DeleteParticle(PrimParticle *p)
 {

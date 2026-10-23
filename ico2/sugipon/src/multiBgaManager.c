@@ -6,7 +6,6 @@
 #include "main.h"
 #include "StageAnimation.h"
 #include "memory.h"
-#include "include_asm.h"
 
 /* the state InitMultiBgaManager resets every slot to */
 BgaAnimeState InitialBgaMultiAnimeState = {
@@ -25,7 +24,6 @@ static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos,
     BgaDisp *p = &bga[no];
 
     p->kind = kind;
-    p->stay = 0;
     CopyVector(p->pos, pos);
     CopyVector(p->vel, ZeroVector);
     CopyQuaternion(p->rot, rot);
@@ -42,7 +40,15 @@ BgaDisp *InitMultiBgaManager(int n)
     return base;
 }
 
-INCLUDE_ASM(EntryMultiBgaManager);
+void EntryMultiBgaManager(BgaDisp *bga, int no, int kind, void *pos, void *rot)
+{
+    entryMultiBga(bga, no, kind, pos, rot);
+}
+
+inline void EntryMultiBgaManagerNoKind(BgaDisp *bga, int no, void *pos)
+{
+    entryMultiBga(bga, no, -1, pos, IdentityQuaternion);
+}
 
 void EntryMultiBgaManagerSensitive(BgaDisp *bga, int no, int kind, void *pos, void *rot, void *sens)
 {
@@ -93,5 +99,3 @@ inline void DispMultiBgaManagerWithKind(int kind, BgaDisp *base, int n)
         e->frame = (float)ri;
     }
 }
-
-INCLUDE_ASM(EntryMultiBgaManagerNoKind);

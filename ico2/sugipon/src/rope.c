@@ -11,7 +11,6 @@
 #include "DisplayP2O.h"
 #include "ios.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* The chain functions are declared here, not through clothAnimation.h:
    HoldRope calls GetChainNodeID with the parameter record alone (it writes
@@ -54,7 +53,149 @@ typedef struct {                       /* field names derived */
     /* 0x10 */ FcWallEnt *wall;        /* that wall */
 } RopeGeoWork;                         /* derived name */
 
-INCLUDE_ASM(InitRopeGeo);
+void *InitRopeGeo(GObj *o, const float *p)
+{
+    RopeTemplate *c;
+    Sub15C *sub;
+    RopeGeoWork *w;
+    int i;
+
+    sub = o->dobj;
+    w = (RopeGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(RopeGeoWork), __FILE__, 38);
+    c = (RopeTemplate *)iosMallocDebug(ios_partition_sugipon, sizeof(ropeChainInit), __FILE__, 39);
+
+    c[0] = ropeChainInit[0];
+    c[1] = ropeChainInit[1];
+    c->root[0] = p[0];
+    c->root[1] = p[1];
+    c->root[2] = p[2];
+    c->step = p[10];
+    c->weight = p[8];
+    c->num = (int)(p[9] / c->step);
+    if (c->num == 0) {
+        /* "The rope is too short. Change scale-y in the table." (EUC-JP) */
+        debug_StdPrintfDummy("ロープの長さが短"
+                             "すぎます。表のscale-y"
+                             "を変更してくださ"
+                             "い。\n");
+        debug_assert(__FILE__, 51);
+        __assert(__FILE__, 51, "0");
+    }
+
+    if (p[4] != 0.0f) {
+        sceVu0FVECTOR v0 = {0.0f, 0.0f, -10.0f, 1.0f};
+        sceVu0FVECTOR v1 = {0.0f, 0.0f, 10.0f, 1.0f};
+        ClipWork cw;
+
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrix(p[0], p[1] + 10.0f, p[2]);
+        MatrixDrive_RotMatrixY(p[5] * 10430.378f);
+        sceVu0ApplyMatrix(cw.pt[0], MatrixDrive_GetMatrix(), &v0);
+        sceVu0ApplyMatrix(cw.pt[1], MatrixDrive_GetMatrix(), &v1);
+        ClipWall(&cw);
+        if (cw.wall.elem == 0) {
+            /* "Cannot find the wall above the rope. Is the direction wrong, or
+               is it placed where there is no wall?" (EUC-JP, in yellow) */
+            debug_StdPrintfDummy("\033[33m鎖の上の壁を見"
+                                 "付けることができ"
+                                 "ません。\n方向が間"
+                                 "違っているか、壁"
+                                 "が無いところに置"
+                                 "いていませんか?\033[m\n");
+            debug_assert(__FILE__, 69);
+            __assert(__FILE__, 69, "0");
+        }
+        w->wallSrc = cw.wall.o;
+        w->wall = cw.wall.elem;
+        w->upperWallClimbable = 1;
+    } else {
+        w->wallSrc.obj = 0;
+        w->wallSrc.node = 0;
+        w->wall = 0;
+        w->upperWallClimbable = 0;
+    }
+
+    if (sub->nodeMtx != 0) {
+        iosFree((void *)(sub->nodeMtx & 0x0FFFFFFF));
+    }
+    if (sub->nodeQuat != 0) {
+        iosFree((void *)(sub->nodeQuat & 0x0FFFFFFF));
+    }
+    /* the matrix and quaternion buffers stored as pointers: int stores
+       through sub->nodeMtx and nodeQuat reload c->num after each (measured) */
+    *(void **)((char *)sub + 0xC) = 0;
+    *(void **)((char *)sub + 0x10) = 0;
+    *(void **)((char *)sub + 0xC) =
+        iosMallocDebug(ios_partition_seki, (c->num - 1) * 64, __FILE__, 82);
+    *(void **)((char *)sub + 0x10) =
+        iosMallocDebug(ios_partition_seki, (c->num - 1) * 16, __FILE__, 82);
+    sub->nodeNum = c->num - 1;
+    if ((int)sub->nodes != 0) {
+        iosFree((void *)((int)sub->nodes & 0x0FFFFFFF));
+    }
+    sub->nodes = iosMallocDebug(ios_partition_seki, (c->num - 1) * 80, __FILE__, 82);
+    for (i = 0; i < c->num - 1; i++) {
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->flags.ll &= ~1;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->flags.ll &= ~2;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->pos[0] = 0.0f;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->pos[1] = 0.0f;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->pos[2] = 0.0f;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->pos[3] = 1.0f;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->flags.ll &= ~4;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            /* a float store, where the other expansions of this reset write
+               an int */
+            e->fade = 0.0f;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->alpha = 1.0f;
+        }
+        {
+            char *e = (char *)(i * 80 + (int)sub->nodes);
+            *(short *)(e + 0x3A) = 0;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->scale[0] = 1.0f;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->scale[1] = 1.0f;
+        }
+        {
+            struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)sub->nodes);
+            e->scale[2] = 1.0f;
+        }
+    }
+    sub->dispType = 2;
+    w->chains = InitChains(c);
+    sub->nodes->scale[0] = sub->nodes->scale[1] = sub->nodes->scale[2] = 1.0f;
+    sub->nodes->rot[0] = sub->nodes->rot[1] = sub->nodes->rot[2] = 0;
+    return w;
+}
 
 inline int CheckRopeUpperWallClimbable(int unused, GObj *rope)
 {

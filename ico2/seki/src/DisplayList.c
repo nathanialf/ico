@@ -11,7 +11,6 @@
 #include "debug_exception.h"
 #include "Basic.h"
 #include <assert.h>
-#include "include_asm.h"
 
 #define DL_DEBUG 0 /* derived name */
 
@@ -145,9 +144,29 @@ inline void dl_SetDLPriority(int pri)
     }
 }
 
-INCLUDE_ASM(dl_PushPriority);
+void dl_PushPriority(void)
+{
+    if (dlStackDepth < 7) {
+        dlStackDepth = dlStackDepth + 1;
+        dlPriorityStack[dlStackDepth - 1] = dlPriority;
+    } else {
+        debug_StdPrintfDummy("dl_PushPriority:Stack Overflow.\n");
+        debug_assert(__FILE__, 526);
+        __assert(__FILE__, 526, "FALSE");
+    }
+}
 
-INCLUDE_ASM(dl_PopPriority);
+void dl_PopPriority(void)
+{
+    if (dlStackDepth > 0) {
+        dlPriority = dlPriorityStack[dlStackDepth - 1];
+        dlStackDepth--;
+    } else {
+        debug_StdPrintfDummy("dl_PopPriority:Stack Underflow.\n");
+        debug_assert(__FILE__, 544);
+        __assert(__FILE__, 544, "FALSE");
+    }
+}
 
 inline int dl_GetPri(void)
 {
