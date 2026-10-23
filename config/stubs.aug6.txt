@@ -889,49 +889,6 @@ text pursueNaturalGeometry 0x001DDE08 0x001DDEB8 ico2/sugipon/src/motionManager.
 text GetWallVector 0x001DDEB8 0x001DDEE4 ico2/sugipon/src/motionManager.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text upperFieldCheck 0x001DDEE8 0x001DDF44 ico2/sugipon/src/motionManager.c lines=9  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text getGeometryOfMotion 0x001DDF48 0x001DDFFC ico2/sugipon/src/motionManager.c lines=11  # ordinal; first difference at insn 4; imm:17; extent-equal
-text GetNbMotionFrames 0x001DE298 0x001DE39C ico2/sugipon/src/motionOrientManager.c lines=16  # ordinal; first difference at insn 0; imm:4; extent-equal
-text GetMotionPlaySpeedRatio 0x001DE3A0 0x001DE47C ico2/sugipon/src/motionOrientManager.c lines=11  # ordinal; first difference at insn 0; imm:5; extent-equal
-text UpdateFrameCounter 0x001DE550 0x001DE9D4 ico2/sugipon/src/motionOrientManager.c lines=79  # ordinal; first difference at insn 12; length:-5; extent-differs
-lit4 UpdateFrameCounter 0x0062B4DC 0x0062B4E0 ico2/sugipon/src/motionOrientManager.c  # 1 float
-text shiftMotionData 0x001DED50 0x001DF188 ico2/sugipon/src/motionOrientManager.c local lines=76  # ordinal; first difference at insn 1; length:-4; extent-differs
-text shiftMotionOrientEndFunc 0x001DF188 0x001DF284 ico2/sugipon/src/motionOrientManager.c local lines=31  # ordinal; first difference at insn 8; imm:4; extent-equal
-rdlit shiftMotionOrientEndFunc 0x00612130 0x00612178 ico2/sugipon/src/motionOrientManager.c align=16  # 1 string
-sdlit shiftMotionOrientEndFunc 0x0062D650 0x0062D652 ico2/sugipon/src/motionOrientManager.c  # 1 string
-text shiftMotionOrientBeginFunc 0x001DF288 0x001DF620 ico2/sugipon/src/motionOrientManager.c local lines=49  # ordinal; first difference at insn 5; length:-3; extent-differs
-rdlit shiftMotionOrientBeginFunc 0x00612178 0x0061221B ico2/sugipon/src/motionOrientManager.c  # 4 strings
-sdlit shiftMotionOrientBeginFunc 0x0062D658 0x0062D65C ico2/sugipon/src/motionOrientManager.c  # target side: a static word
-text normalMotionShift 0x001DF630 0x001DF94C ico2/sugipon/src/motionOrientManager.c local lines=34  # ordinal; first difference at insn 11; imm:11; extent-equal
-lit4 normalMotionShift 0x0062B4E0 0x0062B4E4 ico2/sugipon/src/motionOrientManager.c  # 1 float
-text parallelMotionShift 0x001DF950 0x001DFC98 ico2/sugipon/src/motionOrientManager.c local lines=27  # ordinal; first difference at insn 9; imm:7; extent-equal
-lit4 parallelMotionShift 0x0062B4E4 0x0062B4EC ico2/sugipon/src/motionOrientManager.c  # 2 floats
-text SetMotionRequest 0x001DFC98 0x001E0014 ico2/sugipon/src/motionOrientManager.c lines=61  # ordinal; first difference at insn 29; imm:12; extent-equal
-rdlit SetMotionRequest 0x00612220 0x00612284 ico2/sugipon/src/motionOrientManager.c align=16  # 2 strings, 1 data
-rdlit SetMotionRequest 0x00612290 0x006122C8 ico2/sugipon/src/motionOrientManager.c align=16  # 1 jtbl
-sdlit SetMotionRequest 0x0062D668 0x0062D68A ico2/sugipon/src/motionOrientManager.c  # target side: "\n " and the four spinner strings
-text getNodeBlendedFloatingMotion 0x001E0018 0x001E02DC ico2/sugipon/src/motionOrientManager.c local lines=39  # ordinal; first difference at insn 1; imm:11; extent-equal
-rdlit getNodeBlendedFloatingMotion 0x006122C8 0x006122F4 ico2/sugipon/src/motionOrientManager.c  # 1 string
-text getMotionGeometry 0x001E02E0 0x001E0C64 ico2/sugipon/src/motionOrientManager.c local lines=179  # aug6-only in the census (in motionOrientManager.c's span); getMotionGeometry by body ratio 0.91, callees 0.97, sizes 2536/2436
-lit4 getMotionGeometry 0x0062B4EC 0x0062B4F8 ico2/sugipon/src/motionOrientManager.c  # 3 floats
-sdlit getMotionGeometry 0x0062D68C 0x0062D690 ico2/sugipon/src/motionOrientManager.c  # 1 word
-text getShapeGeometry 0x001E0C68 0x001E0F88 ico2/sugipon/src/motionOrientManager.c local lines=71  # aug6-only in the census (in motionOrientManager.c's span); getShapeGeometry by body ratio 1.00, callees 1.00, sizes 800/800
-lit4 getShapeGeometry 0x0062B4F8 0x0062B504 ico2/sugipon/src/motionOrientManager.c  # 3 floats
-rdlit getShapeGeometry 0x006123B0 0x00612460 ico2/sugipon/src/motionOrientManager.c align=16  # 2 strings, 2 data runs
-text getStreamMotionGeometry 0x001E0F88 0x001E10A0 ico2/sugipon/src/motionOrientManager.c local lines=12  # aug6-only in the census (in motionOrientManager.c's span); getStreamMotionGeometry by body ratio 0.68, callees 1.00, sizes 300/280
-text getStreamShapeGeometry 0x001E10A0 0x001E11BC ico2/sugipon/src/motionOrientManager.c local lines=20  # aug6-only in the census (in motionOrientManager.c's span); getStreamShapeGeometry by body ratio 1.00, callees 1.00, sizes 284/284
-lit4 getStreamShapeGeometry 0x0062B504 0x0062B50C ico2/sugipon/src/motionOrientManager.c  # 2 floats
-text func_001E11C0 0x001E11C0 0x001E1244 ico2/sugipon/src/motionOrientManager.c  # aug6-only; in motionOrientManager.c's span; PAL size and order suggest GetMotionOrient
-text ExecMotionOrient 0x001E1248 0x001E13FC ico2/sugipon/src/motionOrientManager.c lines=41  # aug6-only in the census (in motionOrientManager.c's span); ExecMotionOrient by body ratio 1.00, callees 0.75, sizes 436/436, call sites 1
-rdlit ExecMotionOrient 0x00612460 0x00612496 ico2/sugipon/src/motionOrientManager.c align=16  # 1 string
-text SetNodeRotationLimitDataTable 0x001E1400 0x001E173C ico2/sugipon/src/motionOrientManager.c lines=34  # trfile; aug6-only in the census; PAL's SetNodeRotationLimitDataTable (828 B in PAL)
-rdlit SetNodeRotationLimitDataTable 0x00612498 0x006124DA ico2/sugipon/src/motionOrientManager.c  # 1 string
-text GetMotionOrient 0x001E1740 0x001E17C4 ico2/sugipon/src/motionOrientManager.c lines=19  # trfile; aug6-only in the census; PAL's GetMotionOrient (132 B in PAL)
-text getMotionOrient 0x001E17C8 0x001E1860 ico2/sugipon/src/motionOrientManager.c lines=9  # trfile; aug6-only in the census; PAL's getMotionOrient (152 B in PAL)
-text CopyBlendMotionDataSource 0x001E1860 0x001E197C ico2/sugipon/src/motionOrientManager.c lines=18  # trfile; aug6-only in the census; PAL's CopyBlendMotionDataSource (284 B in PAL)
-text SetParallelMotionTableWithNoRequest 0x001E1980 0x001E19A4 ico2/sugipon/src/motionOrientManager.c lines=9  # trfile; aug6-only in the census; PAL's SetParallelMotionTableWithNoRequest (36 B in PAL)
-text SetParallelMotionTable 0x001E19A8 0x001E1A14 ico2/sugipon/src/motionOrientManager.c lines=15  # trfile; aug6-only in the census; PAL's SetParallelMotionTable (108 B in PAL)
-text InitMotionOrient 0x001E1A18 0x001E1AB8 ico2/sugipon/src/motionOrientManager.c lines=14  # trfile; aug6-only in the census; PAL's InitMotionOrient (160 B in PAL)
-text GetCurrentMotionDirectionAdjustFlag 0x001E1AB8 0x001E1AE4 ico2/sugipon/src/motionOrientManager.c lines=4  # trfile; aug6-only in the census; PAL's GetCurrentMotionDirectionAdjustFlag (40 B in PAL)
-text ExecuteSlipProc 0x001E1AE8 0x001E1BB8 ico2/sugipon/src/motionOrientManager.c lines=20  # ordinal; first difference at insn 5; imm:10; extent-equal
 text motKindMenuProc 0x001E2348 0x001E275C ico2/sugipon/src/motionViewer.c local lines=50  # ordinal; first difference at insn 15; imm:8; extent-equal
 rdlit motKindMenuProc 0x00612558 0x006125A1 ico2/sugipon/src/motionViewer.c  # 3 strings
 text motOriMenuProc 0x001E2760 0x001E2AC8 ico2/sugipon/src/motionViewer.c local lines=67  # ordinal; first difference at insn 31; imm:5; extent-equal
