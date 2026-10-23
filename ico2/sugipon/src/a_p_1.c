@@ -22,7 +22,6 @@
 #include "attackhit.h"
 #include "spider.h"
 #include <assert.h>
-#include "include_asm.h"
 
 /* int (float) here, short (float) in tableSin.h: PAL's ROM needs int, as
    declared short PAL's object differs in calcSubMission at 0x001C37D8
@@ -72,8 +71,9 @@ typedef struct {     /* field names derived */
     int word168;     /* 0x168 */
     int word16C;     /* 0x16C */
     int focus[9];    /* 0x170, the skeleton nodes of ap1FocusNode: the
-                           body's, then each limb's pair; calcSubMission
-                           reaches a pair from &focus[1] and &focus[2] */
+                           body's, then each limb's pair, which
+                           calcSubMission reads as focus[i * 2 + 1] and
+                           focus[i * 2 + 2] */
     Sub15C *arm[2];  /* 0x194, the two arm objects when skel is 0 */
     EnemyEye *eye;   /* 0x19C */
     int pad1A0[4];   /* 0x1A0 */
@@ -196,7 +196,127 @@ typedef union { /* field names derived */
     long long ll;
 } AP1Flag; /* derived name */
 
-INCLUDE_ASM(InitAP1);
+AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
+{
+    AP1Work *p;
+    Sub15C *d;
+    int i;
+
+    p = iosMallocDebug(ios_partition_sugipon, sizeof(AP1Work), a_p_1File, 228);
+    GOBJ_SUB(self)->work = p;
+    p->layout = arg->obj;
+    p->skel = 1;
+    p->word16C = 0;
+    p->mode = 7;
+    p->word168 = 0;
+    p->roll = 0.0f;
+    p->sink = 0.0f;
+    p->tilt = 0.0f;
+    p->blink = rand() & 0x1F;
+    p->settleCount = 0;
+    p->visible = 1;
+    ap1LayoutUp[2] = spiderDef[p->layout].upZ;
+    CopyVector(&p->up, ap1LayoutUp);
+    _UnitMatrix(p->mtx);
+    _UnitMatrix(p->root);
+    GetRootQuaternion(&p->quat, self);
+    GetRootPosition(p->pos.m, self);
+    for (i = 0; i < 4; i++) {
+        p->part[i] = ap1PartInit;
+    }
+    for (i = 0; i < 2; i++) {
+        p->hit[i] = InitialColInfo;
+    }
+    applyPartOrients(self);
+    if (p->skel == 0) {
+        d = CSVSYSTEM_InitDObj(5, arg);
+        p->arm[0] = d;
+        if (d->nodeMtx != 0) {
+            iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
+        }
+        if (p->arm[0]->nodeQuat != 0) {
+            iosFree((void *)(p->arm[0]->nodeQuat & 0xFFFFFFF));
+        }
+        p->arm[0]->nodeMtx = 0;
+        p->arm[0]->nodeQuat = 0;
+        p->arm[0]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File, 261);
+        p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 261);
+        p->arm[0]->nodeNum = 4;
+        if (p->arm[0]->nodes != 0) {
+            iosFree((void *)((int)p->arm[0]->nodes & 0xFFFFFFF));
+        }
+        p->arm[0]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 261);
+        {
+            int n;
+
+            for (n = 0; n < 4; n++) {
+                p->arm[0]->nodes[n].flags.ll &= ~1;
+                p->arm[0]->nodes[n].flags.ll &= ~2;
+                p->arm[0]->nodes[n].pos[0] = 0.0f;
+                p->arm[0]->nodes[n].pos[1] = 0.0f;
+                p->arm[0]->nodes[n].pos[2] = 0.0f;
+                p->arm[0]->nodes[n].pos[3] = 1.0f;
+                p->arm[0]->nodes[n].flags.ll &= ~4;
+                p->arm[0]->nodes[n].fade = 0;
+                p->arm[0]->nodes[n].alpha = 1.0f;
+                ((short *)&p->arm[0]->nodes[n].flags)[1] = 0;
+                p->arm[0]->nodes[n].scale[0] = 1.0f;
+                p->arm[0]->nodes[n].scale[1] = 1.0f;
+                p->arm[0]->nodes[n].scale[2] = 1.0f;
+            }
+        }
+        p->arm[0]->dispType = 2;
+        d = CSVSYSTEM_InitDObj(6, arg);
+        p->arm[1] = d;
+        if (d->nodeMtx != 0) {
+            iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
+        }
+        if (p->arm[1]->nodeQuat != 0) {
+            iosFree((void *)(p->arm[1]->nodeQuat & 0xFFFFFFF));
+        }
+        p->arm[1]->nodeMtx = 0;
+        p->arm[1]->nodeQuat = 0;
+        p->arm[1]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File, 264);
+        p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 264);
+        p->arm[1]->nodeNum = 4;
+        if (p->arm[1]->nodes != 0) {
+            iosFree((void *)((int)p->arm[1]->nodes & 0xFFFFFFF));
+        }
+        p->arm[1]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 264);
+        {
+            int n;
+
+            for (n = 0; n < 4; n++) {
+                p->arm[1]->nodes[n].flags.ll &= ~1;
+                p->arm[1]->nodes[n].flags.ll &= ~2;
+                p->arm[1]->nodes[n].pos[0] = 0.0f;
+                p->arm[1]->nodes[n].pos[1] = 0.0f;
+                p->arm[1]->nodes[n].pos[2] = 0.0f;
+                p->arm[1]->nodes[n].pos[3] = 1.0f;
+                p->arm[1]->nodes[n].flags.ll &= ~4;
+                p->arm[1]->nodes[n].fade = 0;
+                p->arm[1]->nodes[n].alpha = 1.0f;
+                ((short *)&p->arm[1]->nodes[n].flags)[1] = 0;
+                p->arm[1]->nodes[n].scale[0] = 1.0f;
+                p->arm[1]->nodes[n].scale[1] = 1.0f;
+                p->arm[1]->nodes[n].scale[2] = 1.0f;
+            }
+        }
+        p->arm[1]->dispType = 2;
+    } else {
+        for (i = 0; i < 9; i++) {
+            p->focus[i] = GetSkeltonFocusNode(self, *(int *)((char *)ap1FocusNode + i * 4));
+            if (p->focus[i] == -1) {
+                debug_assertMessage(a_p_1File, 269, warningBanner);
+                __assert(a_p_1File, 269, "e");
+            }
+        }
+        p->arm[1] = 0;
+        p->arm[0] = 0;
+    }
+    p->eye = InitEnemyEye(10, 0, 10);
+    return p;
+}
 
 /* quaternion.h is not included here: this file's SetQuaternionByAxisRotateV
  * and RotQuaternionY calls pass the angle as an int (quaternion.h: short) */
@@ -469,7 +589,68 @@ static int walkMot(GObj *self)
     return 1;
 }
 
-INCLUDE_ASM(rolling);
+static int rolling(GObj *self)
+{
+    WallCfg info;
+
+    if (GOBJ_SUB(self)->parent.obj != 0) {
+        UnlinkParentOfDObj(self);
+    }
+    ((AP1Val *)((char *)GOBJ_SUB(self) + 0x124))->f +=
+        60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+        (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+    _AddVectorXYZ(GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.move);
+    {
+        ClipWork *col = &ap1RollClip;
+        CopyVector(col->pt[0], GOBJ_SUB(self)->root.last);
+        CopyVector(col->pt[1], GOBJ_SUB(self)->root.pos);
+        col->pt[0][1] -= 50.0f;
+        if (clipAndTakeHit(&info, col)) {
+            CopyVector(GOBJ_SUB(self)->root.pos, ap1RollClip.pt[2]);
+            CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+            yAxisRotFitting(self, &ap1RollClip.normal);
+            LinkParentOfDObj(self, &info.o);
+            UpdateRootMatrix(self);
+            applyPartOrients(self);
+            {
+                ClipWork *col = &ap1RollClip;
+                if (col->wall.elem != 0) {
+                    GOBJ_SUB(self)->ctrl.floorAttr = GetWallAttribute(col);
+                }
+                if (CheckWallAttribute(self, 0x40) != 0 || CheckWallAttribute(self, 0x50) != 0) {
+                    if (GetPoolGlobalHeight(col->wall.o.obj) <
+                        GOBJ_SUB(self)->root.pos[1] + 50.0f) {
+                        iosOmSendMail(self, 0x26, self);
+                    }
+                }
+            }
+            {
+                ClipWork *col = &ap1RollClip;
+                if (col->floor.elem != 0) {
+                    GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(col);
+                    if (CheckFloorAttribute(self, 0x40) != 0 ||
+                        CheckFloorAttribute(self, 0x50) != 0) {
+                        if (GetPoolGlobalHeight(col->floor.o.obj) <
+                            GOBJ_SUB(self)->root.pos[1] + 50.0f) {
+                            iosOmSendMail(self, 0x26, self);
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+    }
+    {
+        ClipWork *col = &ap1RollClip;
+        col->pt[1][1] += 500.0f;
+        ClipFloor(col);
+        if (CheckFieldContact(col, self, GOBJ_SUB(self)->root.pos, 50.0f) == 2) {
+            CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+            iosOmSendMail(self, 0x1A, self);
+        }
+    }
+    return -1;
+}
 
 /* the point the spider's bite attack is centred on, 50 units down its own arm */
 static const Vec4A_P_1 attackCenterOffset = {50.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
@@ -485,7 +666,148 @@ static inline short armCosine(float a, float b, float c) /* derived name */
     return (short)(int)GetTableArcCos((aa + bb - cc) / (2.0f * a * b));
 }
 
-INCLUDE_ASM(calcSubMission);
+static void calcSubMission(GObj *self)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
+    Vec4A_P_1 base;
+    Vec4A_P_1 axis;
+    Vec4A_P_1 rq;
+    Mtx44 tm;
+    Vec4A_P_1 q;
+    Vec4A_P_1 w;
+    Vec4A_P_1 dir;
+    Vec4A_P_1 v;
+    Vec4A_P_1 v2;
+    Mtx44 rm;
+    Vec4A_P_1 lv;
+    Vec4A_P_1 save;
+    Vec4A_P_1 save2;
+    Vec4A_P_1 atk;
+    int i;
+    int ang;
+    int dbg = 0; /* the function's local debug switch, off (case 1) */
+
+    CopyMatrix(MatrixDrive_GetMatrix(), p->mtx);
+    MatrixDrive_RotMatrixZ(0x4000);
+    MatrixDrive_RotMatrixX(0x4000);
+    CopyVector(&base, MatrixDrive_GetMatrix()[3]);
+    GetRootQuaternion(&rq, self);
+    _ApplyMatrix(&axis, MatrixDrive_GetMatrix(), &ap1AttackAxis);
+    MatrixDrive_SetTransposeMatrix(tm.m, MatrixDrive_GetMatrix());
+
+    for (i = 0; i < 4; i++) {
+        AP1Part *part = &p->part[i];
+        float len;
+
+        switch (part->state) {
+        case 1: {
+            float t = (float)part->count / 10.0f;
+
+            CopyVector(&w, &part->home);
+            w.m[1] -= (t < 0.5f) ? t * 2.0f * 20.0f : (1.0f - t) * 2.0f * 20.0f;
+            _ApplyMatrix(&q, p->root, &w);
+            _InterVectorXYZ(&part->pos, &q, &part->pos, t);
+            /* the local debug switch's window: a dump of the root matrix
+               the step is placed in.  Pinned: three to five instructions
+               here at the first GCSE pass (its expression table of 219
+               buckets orders the three spilled frame addresses as the ROM
+               has them); the August TRFILE and PAL's have three code-less
+               lines (664-666) in its place.  Not pinned: the body's text,
+               which is derived. */
+            if (dbg) {
+                debug_DispMatrix((int *)p->root);
+            }
+            if ((part->count += 1) >= 10) {
+                part->state = 0;
+            }
+            break;
+        }
+        case 2: {
+            float t = (float)part->count / 10.0f;
+
+            MatrixDrive_PushMatrix();
+            _UnitMatrix(MatrixDrive_GetMatrix());
+            {
+                float f = t * 49152.0f + -32768.0f;
+
+                MatrixDrive_RotMatrixY((short)(i == 0 ? -f : f));
+            }
+            _ApplyMatrix(&v, MatrixDrive_GetMatrix(), &part->home);
+            v.m[3] = 1.0f;
+            _ApplyMatrix(&dir, p->root, &v);
+            _InterVectorXYZ(&part->pos, &dir, &part->pos, t);
+            MatrixDrive_PopMatrix();
+            if ((part->count += 1) >= 10) {
+                ExecuteSEPackage(self, 99);
+                CopyVector(&part->home, (char *)ap1PartOffset + i * 0x10);
+                part->state = 1;
+                part->count = 0;
+            }
+            break;
+        }
+        }
+
+        MatrixDrive_PushMatrix();
+
+        len = _GetLength(&base, &part->pos);
+        ang = armCosine(len, 50.0f, 50.0f);
+        _SubVector(&dir, &part->pos, &base);
+        _NormalizeVector(&dir, &dir);
+
+        if (part->state == 2) {
+            _OuterProduct(&w, &dir, &axis);
+        } else {
+            _OuterProduct(&w, &dir, &axis);
+        }
+        _ApplyMatrix(&lv, &tm, &dir);
+        MatrixDrive_TurnXObjectMatrixYZ(lv.m[0], lv.m[1], lv.m[2]);
+
+        _ScaleVector(&v, &dir, 50.0f);
+        SetQuaternionByAxisRotateV(&q, (short)-ang, &w);
+        GetMatrixFromQuaternion(&rm, &q);
+        _ApplyMatrix(&v, &rm, &v);
+        _AddVectorXYZ(&part->knee, &base, &v);
+
+        CopyVector(&save, MatrixDrive_GetMatrix()[3]);
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        CopyVector(MatrixDrive_GetMatrix()[3], &save);
+
+        if (p->skel != 0) {
+            _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + (p->focus[i * 2 + 1] << 6),
+                       MatrixDrive_GetMatrix(), ap1ArmScale);
+        } else {
+            _MulMatrix((char *)p->arm[0]->nodeMtx + (i << 6), MatrixDrive_GetMatrix(), ap1ArmScale);
+        }
+
+        _ScaleVector(&v2, &dir, 50.0f);
+        SetQuaternionByAxisRotateV(&q, (short)ang, &w);
+        GetMatrixFromQuaternion(&rm, &q);
+        _ApplyMatrix(&v2, &rm, &v2);
+        _AddVectorXYZ(&part->tip, &part->knee, &v2);
+
+        _MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), ap1ArmOffset);
+
+        CopyVector(&save2, MatrixDrive_GetMatrix()[3]);
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        _MulMatrix(MatrixDrive_GetMatrix(), &rm, MatrixDrive_GetMatrix());
+        CopyVector(MatrixDrive_GetMatrix()[3], &save2);
+
+        if (part->state == 2) {
+            atk = attackCenterOffset;
+            _ApplyMatrix(&atk, MatrixDrive_GetMatrix(), &atk);
+            AttackCenter(self, -1, atk.m, 0, 30.0f);
+        }
+
+        if (p->skel != 0) {
+            _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + (p->focus[i * 2 + 2] << 6),
+                       MatrixDrive_GetMatrix(), ap1ArmScale);
+        } else {
+            _MulMatrix((char *)p->arm[1]->nodeMtx + (i << 6), MatrixDrive_GetMatrix(), ap1ArmScale);
+        }
+
+        MatrixDrive_PopMatrix();
+    }
+}
 
 /* as in quaternion.h, which this file does not include */
 extern void RotQuaternionX(void *q, short ang);
@@ -527,7 +849,13 @@ static void updateMatrix(GObj *self)
     _MulMatrix((void *)GOBJ_SUB(self)->nodeMtx, p->mtx, ap1BodyMatrix);
 }
 
-INCLUDE_ASM(resetPositionInfo);
+static void resetPositionInfo(GObj *self)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
+    GetRootPosition(p->pos.m, self);
+    GetRootQuaternion(&p->quat, self);
+    ResetEnemyEye(p->eye);
+}
 
 static inline void stepAP1BlinkTimer(GObj *g) /* derived name */
 {
@@ -540,16 +868,80 @@ static inline void stepAP1BlinkTimer(GObj *g) /* derived name */
     }
 }
 
-INCLUDE_ASM(AP1Geo);
+void AP1Geo(GObj *self)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
+    float d;
 
-INCLUDE_ASM(AP1DL);
+    switch (p->mode) {
+    default:
+        if (p->settleCount < 10) {
+            p->settleCount = p->settleCount + 1;
+            resetPositionInfo(self);
+        }
+        p->mode = motFuncList[p->mode][1](self);
+        stepAP1BlinkTimer(self);
+        break;
+
+    case 5:
+        p->mode = 4;
+        break;
+
+    case 4:
+        p->mode = 6;
+        break;
+
+    case 6:
+        self->active = 0;
+        break;
+
+    case 7:
+        break;
+    }
+    updateMatrix(self);
+    calcSubMission(self);
+    _MulMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->nodeMtx, ap1EyeMatrix);
+    UpdateEnemyEye(p->eye, MatrixDrive_GetMatrix(), 1.0f);
+    if (p->skel != 0) {
+        CopyMatrix(MatrixDrive_GetMatrix(), (void *)GOBJ_SUB(self)->nodeMtx);
+        MatrixDrive_RotMatrixZ(0x4000);
+        MatrixDrive_RotMatrixX(0x4000);
+        _MulMatrix((void *)GOBJ_SUB(self)->nodeMtx, MatrixDrive_GetMatrix(), ap1HeadScale);
+    }
+    d = GOBJ_SUB(self)->matrix[3][1] - *(float *)((char *)GOBJ_SUB(self)->nodeMtx + 0x34);
+    if ((d < 0.0f) ? ((d = -d) > 10000.0f) : (d > 10000.0f)) {
+        GOBJ_SUB(self)->ctrl.floorAttr = 0x800;
+        /* EUC-JP: "fall-death request from the spider slipping free" */
+        debug_StdPrintfDummy("蜘蛛の抜けによる落下死リクエスト\n");
+    }
+}
+
+void AP1DL(GObj *self)
+{
+    AP1Work *p = GOBJ_SUB(self)->work;
+
+    if (p->mode < 5) {
+        if (p->visible != 0) {
+            p2o_SetDefaultEnviroment();
+            p2o_DispVU1(self);
+            if (p->skel == 0) {
+                p2o_DispVU1DObjMulti(p->arm[0]);
+                p2o_DispVU1DObjMulti(p->arm[1]);
+            }
+            DispEnemyEye(p->eye);
+        }
+    }
+}
 
 int GetAP1SpecType(GObj *self)
 {
     return ((AP1Work *)GOBJ_SUB(self)->work)->layout;
 }
 
-INCLUDE_ASM(SetAP1VisualState);
+void SetAP1VisualState(GObj *self, int visible)
+{
+    ((AP1Work *)GOBJ_SUB(self)->work)->visible = visible;
+}
 
 /* the angle passes as an int here (quaternion.h: short) */
 extern void RotQuaternionY(void *q, int ang);
@@ -619,7 +1011,10 @@ check:
     return 0;
 }
 
-INCLUDE_ASM(MakeAP1GObj);
+GObj *MakeAP1GObj(SObjSimpleSetting *setting)
+{
+    return CreateLayoutedGObj(60, spiderDef[setting->obj].layout, -1, 0, setting, -1, 7, 1);
+}
 
 int GetAP1Mode(GObj *self)
 {

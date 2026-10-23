@@ -29,11 +29,67 @@ static TorchGeoWork emptyTorchWork = {
 #include "ios.h"
 #include "main.h"
 #include "sceneManager.h"
-#include "include_asm.h"
 
-INCLUDE_ASM(torchOffSE);
+inline int IsTorchLightOn(GObj *torch);
 
-INCLUDE_ASM(LightTorchOn);
+inline void SetTorchChainReactionFlag(GObj *torch, int flag)
+{
+    TorchGeoWork *w = GOBJ_SUB(torch)->work;
+
+    w->chainFlag = flag;
+}
+
+void torchOffSE(GObj *torch)
+{
+    StopSEPackage(torch);
+    ExecuteSEPackage(torch, 65);
+}
+
+void LightTorchOn(GObj *gobj)
+{
+    float pos[4];
+    TorchGeoWork *w;
+    GObj *o;
+    int n;
+
+    w = GOBJ_SUB(gobj)->work;
+    if (w->lightOn != 0) {
+        return;
+    }
+    GetRootPosition(pos, gobj);
+    switch (w->flags) {
+    case 2:
+        n = 0;
+        o = isysGObjSearchFromObjKindID_begin(10);
+        while (o != 0) {
+            TorchGeoWork *ow = GOBJ_SUB(o)->work;
+            if (o != gobj && ow->flags == 2) {
+                if (IsTorchLightOn(o)) {
+                    n++;
+                }
+            }
+            o = isysGObjSearchFromObjKindID_next(o);
+        }
+        if (n > 0) {
+            return;
+        }
+        w->effect[1] = SetParticleEffect(21, pos, IdentityQuaternion);
+        w->effect[4] = SetParticleEffect(19, pos, IdentityQuaternion);
+        break;
+    case 4:
+        w->effect[0] = SetParticleEffect(23, pos, IdentityQuaternion);
+        break;
+    default:
+        w->effect[3] = SetParticleEffect(7, pos, IdentityQuaternion);
+        w->effect[0] = SetParticleEffect(5, pos, IdentityQuaternion);
+        w->effect[1] = SetParticleEffect(9, pos, IdentityQuaternion);
+        w->effect[4] = SetParticleEffect(19, pos, IdentityQuaternion);
+        break;
+    }
+    w->burnTime = 0;
+    w->lightOn = 1;
+    GOBJ_SUB(gobj)->lightId = 1;
+}
 
 void LightTorchOff(GObj *gobj)
 {
@@ -63,8 +119,6 @@ void LightTorchOff(GObj *gobj)
     }
 }
 
-static void torchDrainControl(GObj *gobj, float level);
-
 static void moveTorch(GObj *gobj, void *mtx)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
@@ -86,37 +140,99 @@ static void moveTorch(GObj *gobj, void *mtx)
     }
 }
 
-static void setPauseFlag(GObj *gobj, int flag);
+inline void TorchDL(void) {}
 
-INCLUDE_ASM(CheckTorchChainReactionReverse);
-
-/* nonzero when lighting `other`'s torch from `gobj` must not happen: the
- * heroine's bomb, or the boy's weapon pair */
-static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name */
+inline int IsTorchLightOn(GObj *torch)
 {
-    Act *p;
-    Act *q;
-    GObj *a;
-    GObj *b;
+    TorchGeoWork *w = GOBJ_SUB(torch)->work;
 
-    b = GOBJ_SUB(gobj)->parent.obj;
-    a = GOBJ_SUB(other)->parent.obj;
-    if (girlGObj != 0) {
-        q = GOBJ_ACT(girlGObj);
-        if (b != 0 && b == q->curItem) {
-            /* tried to light the heroine's bomb (no print in August) */
-            return 1;
+    return w->lightOn;
+}
+
+GObj *CheckTorchChainReactionReverse(GObj *self, float dist)
+{
+    float pos[4];
+    float pos2[4];
+    GObj *o;
+    GObj *p;
+    int n;
+    int lit;
+
+    n = 0;
+    GetRootPosition(pos, self);
+
+    o = isysGObjSearchFromObjKindID_begin(10);
+    while (o != 0) {
+        TorchGeoWork *w = GOBJ_SUB(o)->work;
+        if (w->flags == 2) {
+            if (IsTorchLightOn(o)) {
+                n++;
+            }
         }
+        o = isysGObjSearchFromObjKindID_next(o);
     }
-    if (b != 0 && a != 0) {
-        p = GOBJ_ACT(boyGObj);
-        if (ACTGame_NoWeapon(boyGObj) == 0 && a == p->weapon && b == p->curItem) {
-            /* an exception came up while lighting */
-            debug_StdPrintfDummy("点火の例外処理発生\n");
-            return 1;
+
+    dist = dist * dist;
+    lit = 0 < n;
+    p = isysGObjSearchFromObjKindID_begin(10);
+    while (p != 0) {
+        if (p != self && IsTorchLightOn(p) == 0 && p->active != 0 &&
+            (((TorchGeoWork *)GOBJ_SUB(p)->work)->flags != 2 || lit == 0)) {
+            GetRootPosition(pos2, p);
+            if (distance_squared(pos2, pos) < dist) {
+                return p;
+            }
         }
+        p = isysGObjSearchFromObjKindID_next(p);
     }
     return 0;
+}
+
+inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
+{
+    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__, 174);
+    *p = emptyTorchWork;
+    /* the display object read through the SubHandle union each time: the
+       light store reads the slot again after the work store, which three
+       Sub15C * reads of it do not (measured) */
+    sceVu0UnitMatrix(&((SubHandle *)&self->dobj)->sub->matrix);
+    ((SubHandle *)&self->dobj)->sub->work = p;
+    if (lay->obj & 1) {
+        LightTorchOn(self);
+    } else {
+        ((SubHandle *)&self->dobj)->sub->lightId = 0;
+    }
+    p->flags = lay->obj & ~1;
+    return p;
+}
+
+inline GObj *CheckTorchChainReaction(GObj *self, float dist)
+{
+    float pos[4];
+    float pos2[4];
+    GObj *o;
+    float dist2;
+
+    GetRootPosition(pos, self);
+
+    o = isysGObjSearchFromObjKindID_begin(10);
+    dist2 = dist * dist;
+    while (o != 0) {
+        if (o != self && IsTorchLightOn(o) && o->active != 0) {
+            GetRootPosition(pos2, o);
+            if (distance_squared(pos2, pos) < dist2) {
+                return o;
+            }
+        }
+        o = isysGObjSearchFromObjKindID_next(o);
+    }
+    return 0;
+}
+
+inline void SetTorchLife(GObj *torch, int life)
+{
+    TorchGeoWork *p = GOBJ_SUB(torch)->work;
+    p->life = life;
 }
 
 inline void UpdateRealTimeGeometryValue(GObj *self)
@@ -130,18 +246,63 @@ inline void UpdateRealTimeGeometryValue(GObj *self)
     CopyVector(sub->root.last, buf);
 }
 
-static void procChainReaction(GObj *gobj);
+/* nonzero when lighting `other`'s torch from `gobj` must not happen: the
+ * boy's weapon pair */
+static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name */
+{
+    Act *p;
+    GObj *a;
+    GObj *b;
 
-INCLUDE_ASM(TorchGeo);
+    b = GOBJ_SUB(gobj)->parent.obj;
+    a = GOBJ_SUB(other)->parent.obj;
+    if (b != 0 && a != 0) {
+        p = GOBJ_ACT(boyGObj);
+        if (ACTGame_NoWeapon(boyGObj) == 0 && a == p->weapon && b == p->curItem) {
+            /* an exception came up while lighting */
+            debug_StdPrintfDummy("点火の例外処理発生\n");
+            return 1;
+        }
+    }
+    return 0;
+}
 
-INCLUDE_ASM(InitTorchGeo);
+void TorchGeo(GObj *gobj)
+{
+    TorchGeoWork *w;
+    Sub15C *sub;
+    GObj *o;
 
-INCLUDE_ASM(TorchDL);
+    sub = gobj->dobj;
+    o = sub->parent.obj;
+    w = sub->work;
+    if (o != 0) {
+        if (o->active == 0) {
+            LightTorchOff(gobj);
+            return;
+        }
+    }
+    if (IsTorchLightOn(gobj) == 0) {
+        if (w->chainFlag != 0) {
+            GObj *other = CheckTorchChainReaction(gobj, 20.0f);
 
-INCLUDE_ASM(IsTorchLightOn);
+            if (other != 0 && chainReactionBlocked(gobj, other) == 0) {
+                LightTorchOn(gobj);
+            }
+        }
+        return;
+    }
+    if (w->burnTime < 65535) {
+        w->burnTime = w->burnTime + 1;
+    }
+    if (o != 0) {
+        float pos[4];
 
-INCLUDE_ASM(CheckTorchChainReaction);
-
-INCLUDE_ASM(SetTorchLife);
-
-INCLUDE_ASM(SetTorchChainReactionFlag);
+        GetRootPosition(pos, gobj);
+        UpdateRealTimeGeometryValue(gobj);
+        moveTorch(gobj, pos);
+    }
+    if (w->life < w->burnTime) {
+        LightTorchOff(gobj);
+    }
+}
