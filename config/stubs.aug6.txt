@@ -166,10 +166,6 @@
 # actSt13cSekizoEvent), neither name being in PAL's object; afterBoyHangG3M
 # has a row the carve added for emission order.
 
-text Main 0x00101C80 0x00101F50 ico2/common/src/main.c lines=95  # ordinal; first difference at insn 0; length:-26; extent-differs
-lit4 Main 0x0062AA80 0x0062AA84 ico2/common/src/main.c # target side
-rdlit Main 0x0054DB20 0x0054DBC8 ico2/common/src/main.c # target side
-sdlit Main 0x0062BA98 0x0062BAA4 ico2/common/src/main.c  # target side: "NTSC" and "PAL"
 text dispPool 0x0010C418 0x0010C8E4 ico2/sugipon/src/pool.c local lines=116  # ordinal; first difference at insn 1; length:+11; extent-differs
 text pac_makePacket 0x0011BB00 0x0011C304 ico2/seki/src/Packet.c local lines=164  # ordinal; first difference at insn 14; length:-25; extent-differs
 lit4 pac_makePacket 0x0062ABD0 0x0062ABD4 ico2/seki/src/Packet.c  # 1 float
