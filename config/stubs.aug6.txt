@@ -1405,19 +1405,6 @@ lit4 actSt24aSwordChk 0x0062B89C 0x0062B8A4 ico2/script/src/st24a.c  # 2 floats
 text actSt24aSword 0x00235CE8 0x00235D74 ico2/script/src/st24a.c lines=15  # trfile; aug6-only in the census; PAL's actSt24aSword (140 B in PAL)
 lit4 actSt24aSword 0x0062B8A4 0x0062B8B0 ico2/script/src/st24a.c  # 3 floats
 text actSt24aSaku 0x00235D78 0x00235DB8 ico2/script/src/st24a.c lines=8  # trfile; aug6-only in the census; PAL's actSt24aSaku (64 B in PAL)
-text actExplode 0x002375A0 0x00237608 ico2/script/src/st99a.c lines=11  # trfile; aug6-only in the census; PAL's actExplode (104 B in PAL)
-text actSplash1 0x00237608 0x00237670 ico2/script/src/st99a.c lines=11  # trfile; aug6-only in the census; PAL's actSplash1 (104 B in PAL)
-text actSplash2 0x00237670 0x002376D8 ico2/script/src/st99a.c lines=11  # trfile; aug6-only in the census; PAL's actSplash2 (104 B in PAL)
-text actWave 0x002376D8 0x00237740 ico2/script/src/st99a.c lines=11  # trfile; aug6-only in the census; PAL's actWave (104 B in PAL)
-text actSpider 0x00237740 0x002377C4 ico2/script/src/st99a.c lines=14  # trfile; aug6-only in the census; PAL's actSpider (132 B in PAL)
-text actDevilLightning 0x002377C8 0x0023780C ico2/script/src/st99a.c lines=8  # trfile; aug6-only in the census; PAL's actDevilLightning (68 B in PAL)
-text actQueenLightning 0x00237810 0x00237854 ico2/script/src/st99a.c lines=8  # trfile; aug6-only in the census; PAL's actQueenLightning (68 B in PAL)
-text actSt27aWave 0x00237858 0x002378C0 ico2/script/src/st99a.c lines=11  # ordinal; first difference at insn 16; imm:2; extent-equal
-text actExplodeChk 0x002378C0 0x0023796C ico2/script/src/st99a.c lines=13  # ordinal; first difference at insn 4; imm:8; extent-equal
-text actSplash1Chk 0x00237970 0x00237A1C ico2/script/src/st99a.c lines=13  # ordinal; first difference at insn 4; imm:8; extent-equal
-text actSplash2Chk 0x00237A20 0x00237ACC ico2/script/src/st99a.c lines=13  # ordinal; first difference at insn 4; imm:8; extent-equal
-text actWave1 0x00237AF8 0x00237B7C ico2/script/src/st99a.c lines=15  # ordinal; first difference at insn 7; imm:5; extent-equal
-text actSt27aWave1 0x00237BA8 0x00237C2C ico2/script/src/st99a.c lines=15  # ordinal; first difference at insn 7; imm:5; extent-equal
 text stageSEtaimatsu 0x00237C98 0x00237E28 ico2/script/src/stageSEProc.c lines=59  # ordinal; first difference at insn 21; imm:3; extent-equal
 sdlit stageSEtaimatsu 0x0062DCD8 0x0062DCDC ico2/script/src/stageSEProc.c align=4  # 1 word
 text stageSE04eriver 0x00237E28 0x00238020 ico2/script/src/stageSEProc.c lines=41  # ordinal; first difference at insn 13; imm:2; extent-equal
