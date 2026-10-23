@@ -23,11 +23,10 @@ against PAL, against the August 6, 2001 prototype and against the USA
 build.
 The demo's ELF carries the build stamp `Jun 26 2001` `20:01:21`; PAL's debug
 menu dates its build `Jan 17 2002 15:37:26` (`debug.c`). Each line names
-where the difference lives; the comment at that place has the detail. The two
-functions `config/stubs.jun26.txt` still lists (`stgmgrNextStagePreLoad` and
-`subGirlControl`, `README.md` "Status") are built from the user's ELF, and
-their differences are noted on their rows (and `subGirlControl`'s at its
-`INCLUDE_ASM` line), not here.
+where the difference lives; the comment at that place has the detail. The one
+function `config/stubs.jun26.txt` lists (`subGirlControl`, `README.md`
+"Status") is built from the user's ELF, and its differences are noted on its
+row and at its `INCLUDE_ASM` line, not here.
 
 Disc and video mode:
 

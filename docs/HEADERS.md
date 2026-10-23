@@ -156,8 +156,8 @@ PAL's `MAIN.MAP` and listing, from the August 6, 2001 prototype's
 names come from the same maps. A function or object none of them names (a
 demo-only function, a table named by its file's convention) has a derived
 name, marked as above; `git grep -n 'derived name'` lists them. No
-`func_<VMA>` name is left: the two rows of `config/stubs.jun26.txt` carry
-the maps' names, each with its evidence on the row.
+`func_<VMA>` name is left: the one function `config/stubs.jun26.txt` lists,
+`subGirlControl`, carries the maps' name, with its evidence on its row.
 
 ## Search order
 

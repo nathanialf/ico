@@ -184,8 +184,8 @@ branch, whose tree takes its names from the same maps. A name tied by other
 evidence (a data table's slot, a caller, the record it addresses, a
 function's place among its neighbours) is checked against the function's
 body when the function is rebuilt from source and the gate passes; the
-functions still listed in `config/stubs.jun26.txt` carry that evidence on
-their rows. A function or object with no counterpart in any of those builds
+function still listed in `config/stubs.jun26.txt` carries that evidence on
+its row. A function or object with no counterpart in any of those builds
 carries a derived name, marked `/* derived name */` in the source. The
 70 archive members take PAL's names by member order; the enemy-set tables
 take names derived from PAL's `enemymodel01` set and the icon.sys record a

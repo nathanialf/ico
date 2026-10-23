@@ -33,29 +33,26 @@ the base ELF.
 
 ## Status
 
-5173 of the demo build's 5175 functions are built from C
-([`docs/jun26/PROGRESS.md`](docs/jun26/PROGRESS.md)). The other two, with the
-constants they bring and one unreferenced `.sdata` word in
-`fumi/src/way_kidnap.c`, are still campaign stubs: the C for them does not
-give the demo's bytes, so the build writes each one from the user's own
+5174 of the demo build's 5175 functions are built from C
+([`docs/jun26/PROGRESS.md`](docs/jun26/PROGRESS.md)). The other one, with the
+constants it brings and one unreferenced `.sdata` word in
+`fumi/src/way_kidnap.c`, is a campaign stub: its C does not give the demo's
+bytes, so the build writes it from the user's own
 `baserom/jun26/baseelf.elf` at its place in its translation unit
-(`config/stubs.jun26.txt`, `tools/gen_stub_s.py`; nothing of them is
-committed). They are `common/src/StageManager.c`'s `stgmgrNextStagePreLoad`,
-still being worked, and `fumi/src/girl_act.c`'s `subGirlControl`, the girl's
-control thread, which stays built from the disc. Its C is known but for one
-region, the slow-walk block's debug display, compiled out in a retail build:
-in this build it left some 143 or more statements that emit no instruction
-but decide one register choice (8 of the function's 481 instructions), and no map,
-listing or other build gives their text. The USA build (`ntsc` branch) holds
-its `subGirlControl` for the same region; the comment at its `INCLUDE_ASM`
-line in `girl_act.c` gives the measurement. With `stgmgrNextStagePreLoad`
-matched, the branch holds at `subGirlControl` as its last function not built
-from C: it is not released and does not join `main` while that function is
-built from the disc. The gate passes with the stubs in place, so every badge
-above reads 100 %, and the badges split each figure into the share built from
-the tracked sources and the share from the disc: the stubs and the data
-tables. When the list is empty the mechanism is idle and the branch is
-finished in `main`'s shape.
+(`config/stubs.jun26.txt`, `tools/gen_stub_s.py`; nothing of it is
+committed). It is `fumi/src/girl_act.c`'s `subGirlControl`, the girl's
+control thread. Its C is known but for one region, the slow-walk block's
+debug display, compiled out in a retail build: in this build it left some
+143 or more statements that emit no instruction but decide one register
+choice (8 of the function's 481 instructions), and no map, listing or other
+build gives their text. The USA build (`ntsc` branch) holds its
+`subGirlControl` for the same region; the comment at its `INCLUDE_ASM` line
+in `girl_act.c` gives the measurement. The branch holds at `subGirlControl`
+as its last function not built from C: it is not released and does not join
+`main` while that function is built from the disc. The gate passes with the
+stub in place, so every badge above reads 100 %, and the badges split each
+figure into the share built from the tracked sources and the share from the
+disc: the stub and the data tables.
 
 ## Quickstart
 
