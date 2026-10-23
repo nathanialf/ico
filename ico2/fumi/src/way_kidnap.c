@@ -46,6 +46,14 @@ static sceVu0FVECTOR wpPosVec[128]; /* derived name */
 /* one entry per way point (this build's 192: the run ends at 0x7601E0) */
 static WpPosEntry wpPosInfo[192]; /* derived name */
 
+/* The DEBUG build checks the goal entry before the sorted copy (below);
+   retail builds the check as 0, as enemy_act.c's ENEMY_DEBUG_HOLD. */
+#ifdef DEBUG
+#define WP_GOAL_CHECK 1 /* derived name */
+#else
+#define WP_GOAL_CHECK 0 /* derived name */
+#endif
+
 static void add_wp_pos(WayPoint *wp, float *pos, float len)
 {
     if (wpPosLock) {
@@ -60,7 +68,25 @@ static void add_wp_pos(WayPoint *wp, float *pos, float len)
 /* public inlines, deferred to the end of the object in the order
    way_kidnap.h declares them; the string CopyWpPos prints comes first in the
    TU's .rodata. */
-INCLUDE_ASM_LIT(CopyWpPos);
+inline int NumOfWpPos(void)
+{
+    return wpPosCount;
+}
+
+inline int CopyWpPos(float dst[][4], int from, int to)
+{
+    int j = 0;
+    if (from < 0) {
+        return 1;
+    }
+
+    for (; from <= to && from < 128; from++, j++) {
+        debug_StdPrintfDummy("index %d\n", j);
+        sceVu0CopyVector(dst[j], wpPosVec[from]);
+    }
+
+    return 0;
+}
 
 float WayLengthOfPos_Pos(float *pos0, float *pos1)
 {
@@ -143,48 +169,155 @@ found:
 
 /* public inlines, deferred to the end of the object like NumOfWpPos;
    NearestEnemyFromGirl inlines the pair. */
+inline float WayLengthOfGObj_Pos(GObj *obj, float *pos)
+{
+    float buf[4];
+    if (obj == 0) {
+        return -1.0f;
+    }
+    GetRootPosition(buf, obj);
+    return WayLengthOfPos_Pos(buf, pos);
+}
+
+inline float WayLengthOfGObj_GObj(GObj *obj0, GObj *obj1)
+{
+    float pos[4];
+    if (obj1 == 0) {
+        return -1.0f;
+    }
+    GetRootPosition(pos, obj1);
+    return WayLengthOfGObj_Pos(obj0, pos);
+}
+
 /* a file-static wpsort_compfnc, distinct from the way_util global of the same
    name; only qsort takes its address, so its body is emitted last, after the
    header's public inlines. */
-static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int limit,
-                                  int chk) /* derived name */
+static inline int wpsort_compfnc(const void *a, const void *b)
 {
-    wayRangeLimit = limit;
-    ClearWpPos();
+    const WpPosEntry *ea = a;
+    const WpPosEntry *eb = b;
 
-    for (e->wp = WayPoint_begin(); e->wp != 0; e->wp = WayPoint_next(e->wp)) {
-        if (range <= _GetLength(pos, e->wp->pos)) {
-            continue;
-        }
-        wpPosLock = 1;
-        e->len = WayLengthOfPos_Pos(pos, e->wp->pos);
-        wpPosLock = 0;
-        if (e->len < 0.0f) {
-            continue;
-        }
-        if (chk && e->wp->bridgeEnd != 0) {
-            continue;
-        }
-        add_wp_pos(e->wp, e->wp->pos, e->len);
-    }
-    wayRangeLimit = 0;
+    if (ea->len < eb->len)
+        return -1;
+    if (eb->len < ea->len)
+        return 1;
+    return 0;
 }
 
-int WayPointWithRangeFromPos(float *pos, float range, int mode);
+int WayPointWithRangeFromPos(float *pos, float range, int mode)
+{
+    WpPosEntry e;
+    int n;
+    int i;
 
-INCLUDE_ASM(WayPointWithRangeFromPos);
+    inline void WayRangeSearch(float *pos, float range, int limit, int chk) /* derived name */
+    {
+        wayRangeLimit = limit;
+        ClearWpPos();
+
+        for (e.wp = WayPoint_begin(); e.wp != 0; e.wp = WayPoint_next(e.wp)) {
+            if (range <= _GetLength(pos, e.wp->pos)) {
+                continue;
+            }
+            wpPosLock = 1;
+            e.len = WayLengthOfPos_Pos(pos, e.wp->pos);
+            wpPosLock = 0;
+            if (e.len < 0.0f) {
+                continue;
+            }
+            if (chk && e.wp->bridgeEnd != 0) {
+                continue;
+            }
+            add_wp_pos(e.wp, e.wp->pos, e.len);
+        }
+        wayRangeLimit = 0;
+    }
+
+    switch (mode) {
+    case 0:
+    default:
+        WayRangeSearch(pos, range, 0, 0);
+        break;
+
+    case 1:
+        WayRangeSearch(pos, range, 0, 1);
+
+        n = NumOfWpPos();
+        qsort(&wpPosInfo[1], n - 2, sizeof(WpPosEntry), wpsort_compfnc);
+        i = 1;
+        /* Drop the goal, the last entry, which has no way point (the start,
+           entry 0, has none either: hence 1..n-2). The DEBUG build walks
+           back to it past any entry after it; retail drops one entry. What
+           the bytes pin: the decrement inside a loop with no exit test and
+           no back edge (the loop notes weight n's allocation over i's, as
+           the demo's s0/s1). What they cannot pin: the DEBUG test's text. */
+        do {
+            n--;
+        } while (WP_GOAL_CHECK && n > 0 && wpPosInfo[n].wp != 0);
+        for (; i < n; i++) {
+            sceVu0CopyVector(wpPosVec[i], wpPosInfo[i].wp->pos);
+        }
+        break;
+
+    case 2:
+        WayRangeSearch(pos, range, 1, 0);
+        break;
+
+    case 3:
+        WayRangeSearch(pos, range, 1, 1);
+
+        n = NumOfWpPos();
+        qsort(&wpPosInfo[1], n - 2, sizeof(WpPosEntry), wpsort_compfnc);
+        i = 1;
+        /* the goal, as in case 1 */
+        do {
+            n--;
+        } while (WP_GOAL_CHECK && n > 0 && wpPosInfo[n].wp != 0);
+        for (; i < n; i++) {
+            sceVu0CopyVector(wpPosVec[i], wpPosInfo[i].wp->pos);
+        }
+        break;
+    }
+
+    return NumOfWpPos();
+}
 
 /* a public inline, deferred like the others */
-INCLUDE_ASM(NearestEnemyFromGirl);
+inline int WayPointWithRangeFromGObj(GObj *obj, float f)
+{
+    float pos[4];
+    if (obj == 0) {
+        return -1;
+    }
+    GetRootPosition(pos, obj);
+    return WayPointWithRangeFromPos(pos, f, 0);
+}
 
-INCLUDE_ASM(NumOfWpPos);
+GObj *NearestEnemyFromGirl(float *len)
+{
+    float min;
+    GObj *nearest = 0;
+    GObj *obj;
+    float d;
 
-INCLUDE_ASM(CopyWpPos);
+    obj = isysGObjSearchFromObjKindID_begin(4);
+    min = 1.0e10f;
 
-INCLUDE_ASM(WayLengthOfGObj_Pos);
+    while (obj != 0 && !isEnemyKidnapEnable(obj))
+        obj = isysGObjSearchFromObjKindID_next(obj);
 
-INCLUDE_ASM(WayLengthOfGObj_GObj);
+    while (obj != 0) {
+        d = WayLengthOfGObj_GObj(girlGObj, obj);
 
-INCLUDE_ASM(WayPointWithRangeFromGObj);
+        if (d >= 0.0f && d < min) {
+            min = d;
+            nearest = obj;
+        }
 
-INCLUDE_ASM(wpsort_compfnc_way_kidnap);
+        do {
+            obj = isysGObjSearchFromObjKindID_next(obj);
+        } while (obj != 0 && !isEnemyKidnapEnable(obj));
+    }
+    *len = min;
+    return nearest;
+}
