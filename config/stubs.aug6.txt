@@ -1714,58 +1714,6 @@ text actE3CageFallReadyChk 0x00207A58 0x00207AC4 ico2/script/src/e3.c lines=11  
 text actE3St01bEneChk 0x00207AC8 0x00207B80 ico2/script/src/e3.c lines=28  # ordinal; first difference at insn 18; imm:5; extent-equal
 text actE3St09aGirlWay 0x00207B80 0x00207C0C ico2/script/src/e3.c lines=15  # ordinal; first difference at insn 24; imm:2; extent-equal
 rdlit actE3St09aGirlWay 0x00614440 0x00614450 ico2/script/src/e3.c def  # target side
-text actEndDemo01 0x00207C10 0x00207D20 ico2/script/src/end.c lines=25  # trfile; aug6-only in the census; PAL's actEndDemo01 (304 B in PAL)
-text actConte14_1 0x00207D20 0x00207FCC ico2/script/src/end.c lines=75  # trfile; aug6-only in the census; PAL's actConte14_1 (684 B in PAL)
-text actEndDemo02 0x00207FD0 0x00208110 ico2/script/src/end.c lines=29  # trfile; aug6-only in the census; PAL's actEndDemo02 (320 B in PAL)
-text actConte14_2 0x00208110 0x0020834C ico2/script/src/end.c lines=71  # trfile; aug6-only in the census; PAL's actConte14_2 (572 B in PAL)
-text actEndDemo06 0x00208350 0x00208484 ico2/script/src/end.c lines=29  # trfile; aug6-only in the census; PAL's actEndDemo06 (364 B in PAL)
-text actConte14_6 0x00208488 0x00208594 ico2/script/src/end.c lines=33  # trfile; aug6-only in the census; PAL's actConte14_6 (268 B in PAL)
-text actEndDemo07 0x00208598 0x00208684 ico2/script/src/end.c lines=23  # trfile; aug6-only in the census; PAL's actEndDemo07 (236 B in PAL)
-text actConte14_7 0x00208688 0x00208854 ico2/script/src/end.c lines=44  # trfile; aug6-only in the census; PAL's actConte14_7 (460 B in PAL)
-lit4 actConte14_7 0x0062B63C 0x0062B644 ico2/script/src/end.c  # 2 floats
-text actEndDemo10 0x00208858 0x00208934 ico2/script/src/end.c lines=21  # trfile; aug6-only in the census; PAL's actEndDemo10 (240 B in PAL)
-text actConte14_10 0x00208938 0x00208C34 ico2/script/src/end.c lines=103  # trfile; aug6-only in the census; PAL's actConte14_10 (780 B in PAL)
-text actConte14_13 0x00208C38 0x00208D34 ico2/script/src/end.c lines=31  # trfile; aug6-only in the census; PAL's actConte14_13 (252 B in PAL)
-text actStaff1Demo 0x00208D38 0x0020904C ico2/script/src/end.c lines=97  # trfile; aug6-only in the census; PAL's actStaff1Demo (812 B in PAL)
-text actStaff2Demo 0x00209050 0x002093E4 ico2/script/src/end.c lines=113  # trfile; aug6-only in the census; PAL's actStaff2Demo (916 B in PAL)
-text actStaff3Demo 0x002093E8 0x002096E4 ico2/script/src/end.c lines=87  # trfile; aug6-only in the census; PAL's actStaff3Demo (780 B in PAL)
-lit4 actStaff3Demo 0x0062B644 0x0062B648 ico2/script/src/end.c  # 1 float
-text actEndDemo14 0x002096E8 0x002097E0 ico2/script/src/end.c lines=32  # trfile; aug6-only in the census; PAL's actEndDemo14 (304 B in PAL)
-lit4 actEndDemo14 0x0062B648 0x0062B650 ico2/script/src/end.c  # 2 floats
-text actConte14_14 0x002097E0 0x00209A08 ico2/script/src/end.c lines=73  # trfile; aug6-only in the census; PAL's actConte14_14 (552 B in PAL)
-text actSt27aEndChk 0x00209A08 0x00209B88 ico2/script/src/end.c lines=38  # trfile; aug6-only in the census; PAL's actSt27aEndChk (408 B in PAL)
-text actSt27aEndDemo 0x00209B88 0x00209CA4 ico2/script/src/end.c lines=105  # trfile; aug6-only in the census; PAL's actSt27aEndDemo (832 B in PAL)
-text actEndDemo03 0x00209CA8 0x00209D4C ico2/script/src/end.c lines=22  # trfile; aug6-only in the census; PAL's actEndDemo03 (212 B in PAL)
-text actEndDemo04 0x00209D50 0x00209DF4 ico2/script/src/end.c lines=19  # trfile; aug6-only in the census; PAL's actEndDemo04 (164 B in PAL)
-text actEndDemo05 0x00209DF8 0x00209E70 ico2/script/src/end.c lines=14  # trfile; aug6-only in the census; PAL's actEndDemo05 (120 B in PAL)
-text actEndDemo11 0x00209E70 0x00209EF4 ico2/script/src/end.c lines=15  # trfile; aug6-only in the census; PAL's actEndDemo11 (132 B in PAL)
-text actEndDemo12 0x00209EF8 0x00209F80 ico2/script/src/end.c lines=15  # trfile; aug6-only in the census; PAL's actEndDemo12 (136 B in PAL)
-text actEndDemo13 0x00209F80 0x0020A01C ico2/script/src/end.c lines=16  # trfile; aug6-only in the census; PAL's actEndDemo13 (156 B in PAL)
-text actStaff1 0x0020A020 0x0020A0F8 ico2/script/src/end.c lines=21  # trfile; aug6-only in the census; PAL's actStaff1 (232 B in PAL)
-text actStaff2 0x0020A0F8 0x0020A190 ico2/script/src/end.c lines=18  # trfile; aug6-only in the census; PAL's actStaff2 (188 B in PAL)
-text actStaff3 0x0020A190 0x0020A228 ico2/script/src/end.c lines=18  # trfile; aug6-only in the census; PAL's actStaff3 (184 B in PAL)
-text actSt27aEnd 0x0020A228 0x0020A2A0 ico2/script/src/end.c lines=25  # trfile; aug6-only in the census; PAL's actSt27aEnd (228 B in PAL)
-text actEndLogo 0x0020A2A0 0x0020A308 ico2/script/src/end.c lines=12  # trfile; aug6-only in the census; PAL's actEndLogo (104 B in PAL)
-text actEndDemo01Chk 0x0020A308 0x0020A3A8 ico2/script/src/end.c lines=22  # trfile; aug6-only in the census; PAL's actEndDemo01Chk (160 B in PAL)
-text actEndDemo02Chk 0x0020A3A8 0x0020A430 ico2/script/src/end.c lines=16  # trfile; aug6-only in the census; PAL's actEndDemo02Chk (136 B in PAL)
-text actEndDemo03Chk 0x0020A430 0x0020A4B8 ico2/script/src/end.c lines=16  # trfile; aug6-only in the census; PAL's actEndDemo03Chk (136 B in PAL)
-text actConte14_3 0x0020A4B8 0x0020A52C ico2/script/src/end.c lines=11  # trfile; aug6-only in the census; PAL's actConte14_3 (116 B in PAL)
-text actEndDemo04Chk 0x0020A530 0x0020A5B8 ico2/script/src/end.c lines=16  # trfile; aug6-only in the census; PAL's actEndDemo04Chk (136 B in PAL)
-text actConte14_4 0x0020A5B8 0x0020A62C ico2/script/src/end.c lines=11  # trfile; aug6-only in the census; PAL's actConte14_4 (116 B in PAL)
-text actEndDemo05Chk 0x0020A630 0x0020A660 ico2/script/src/end.c lines=6  # trfile; aug6-only in the census; PAL's actEndDemo05Chk (48 B in PAL)
-text actConte14_5 0x0020A660 0x0020A6DC ico2/script/src/end.c lines=13  # trfile; aug6-only in the census; PAL's actConte14_5 (124 B in PAL)
-text actEndDemo06Chk 0x0020A6E0 0x0020A718 ico2/script/src/end.c lines=16  # trfile; aug6-only in the census; PAL's actEndDemo06Chk (136 B in PAL)
-text actEndDemo07Chk 0x0020A718 0x0020A798 ico2/script/src/end.c lines=10  # trfile; aug6-only in the census; PAL's actEndDemo07Chk (72 B in PAL)
-text actEndDemo10Chk 0x0020A798 0x0020A83C ico2/script/src/end.c lines=16  # ordinal; first difference at insn 5; other:3; extent-equal
-text actEndDemo11Chk 0x0020A9D0 0x0020AA00 ico2/script/src/end.c lines=6  # ordinal; first difference at insn 4; imm:1; extent-equal
-text actConte14_11 0x0020AA00 0x0020AA84 ico2/script/src/end.c lines=15  # ordinal; first difference at insn 7; imm:2; extent-equal
-text actEndDemo12Chk 0x0020AA88 0x0020AAB8 ico2/script/src/end.c lines=6  # ordinal; first difference at insn 4; imm:1; extent-equal
-text actConte14_12 0x0020AAB8 0x0020AB3C ico2/script/src/end.c lines=13  # ordinal; first difference at insn 6; imm:2; extent-equal
-text actEndDemo13Chk 0x0020AB40 0x0020AB70 ico2/script/src/end.c lines=6  # ordinal; first difference at insn 4; imm:1; extent-equal
-text actStaff3RollChk 0x0020AC08 0x0020AC74 ico2/script/src/end.c lines=14  # ordinal; first difference at insn 7; length:-1; extent-differs
-lit4 actStaff3RollChk 0x0062B650 0x0062B654 ico2/script/src/end.c  # 1 float
-text actEndDemo14Chk 0x0020AC78 0x0020ACA8 ico2/script/src/end.c lines=6  # ordinal; first difference at insn 4; imm:1; extent-equal
-text actEndLogoChk 0x0020ACA8 0x0020AD68 ico2/script/src/end.c lines=53  # trfile; the census pairs PAL actEndingSave here (ordinal; first difference at insn 0; length:-9; extent-differs)
 text actOpDemo01 0x0020AEF0 0x0020B3EC ico2/script/src/op.c lines=134  # ordinal; first difference at insn 0; length:-9; extent-differs
 sdlit actOpDemo01 0x0062DAB8 0x0062DACF ico2/script/src/op.c  # target side: 3 strings
 text actTitleShortCut 0x0020B3F0 0x0020B530 ico2/script/src/op.c lines=41  # ordinal; first difference at insn 18; length:-6; extent-differs
