@@ -1235,7 +1235,7 @@ typedef struct WayRequest {   /* field names derived */
     struct GProc *proc;  /* 0xB0, the sub-thread running the search, 0 when none */
 } WayRequest; /* derived name */
 
-/* The actor's environment (Act + 0x4A0), the 0x1B0 bytes ACTGetEnvironment
+/* The actor's environment (Act + 0x4A0), the 0x1D0 bytes ACTGetEnvironment
  * fills in and ACTEnvGetTest clears every frame, keeping the turn direction
  * and the three orient requests: the orientations and positions of the
  * wall, cliff, ditch, edge, torch, sofa and lever the actor can act on, the
@@ -1248,17 +1248,17 @@ typedef struct ActEnv {      /* field names derived */
     float cliffEdgePos[4];   /* 0x40 */
     float cliffStepPos[4];   /* 0x50 */
     float ditchPos[4];       /* 0x60, the ditch position */
-    float ditchDir[4];       /* 0x70 (aug6 pinned: scpPlayMot 0x179030 addiu a2,s3,1552 = motOriReq) */
-    unsigned char ditchCarry; /* 0x80, nonzero when ditchPos is stage 8's carry-mode ditch */
+    float ditchDir[4];       /* 0x70 (June 26 has neither this nor ditchCarry) */
+    unsigned char ditchCarry; /* 0x80, nonzero when ditchPos is stage 8's carry-mode ditch (getDitchDistTbl) */
     char pad81[15];
-    float cliffBackPos[4]; /* 0x90 */
+    float cliffBackPos[4]; /* 0x90 (ActOrientTest 0x1462C0 addiu a1,s4,1328) */
     float edgeOrient[4];   /* 0xA0 */
     float sofaOrient[4];   /* 0xB0, the sofa seat orientation (GetSofaPosition) */
     float edgePos[4];      /* 0xC0, the edge position, [3] nonzero while it is to be taken */
     char padD0[16];
     float wallPos[4]; /* 0xE0, the point on the wall the actor touches (wallContactPos) */
     float pullPos[4]; /* 0xF0, the pull position */
-    float sofaPos[4]; /* 0x100, the sofa seat position (GetSofaPosition) */
+    float sofaPos[4]; /* 0x100, the sofa seat position (GetSofaPosition 0x1FE210 addiu a0,v1,1440) */
     Vec4 turnDir;     /* 0x110, the direction the enemy turns from, kept over the clear */
     char pad120[16];
     int wallWord;      /* 0x130, the wall's attribute word */
@@ -1281,7 +1281,7 @@ typedef struct ActEnv {      /* field names derived */
     } cageObj; /* 0x160, the cage: stored as the object ACTGetEnvironment
                   found, read as an int handle (commonact.c) */
 
-    GObj *bombObj;     /* 0x164, the bomb */
+    GObj *bombObj;     /* 0x164, the bomb (actCommonCatchFireBomb 0x15B9FC lw a0,1540(s0)) */
     GObj *torchRevObj; /* 0x168, the torch */
 
     union {
@@ -1475,13 +1475,13 @@ typedef struct Act {         /* field names derived */
     int doorCamWait;   /* 0x454, frames to wait after the camera move */
     int doorEndWait;   /* 0x458, frames to wait after the move */
     GObj *doorCamera;  /* 0x45C, the camera target of the door move, 0 for none */
-    char pad460[8];
-    ActWishWord wish0; /* 0x468 (USA's place; unpinned here) */
-    ActWishWord wish1; /* 0x470 */
-    ActWishWord wish2; /* 0x478 */
-    ActWishWord wish3; /* 0x480 */
-    ActWishWord wish4; /* 0x488 */
-    char pad490[16];
+    char pad460[16];
+    ActWishWord wish0; /* 0x470 (ACTSendMailCorrect 0x15A008 ld v1,1136(a2)) */
+    ActWishWord wish1; /* 0x478 */
+    ActWishWord wish2; /* 0x480 (ACTSendMailCorrect 0x15A01C ld v0,1152(a2)) */
+    ActWishWord wish3; /* 0x488 */
+    ActWishWord wish4; /* 0x490 */
+    char pad498[8];
     ActEnv env; /* 0x4A0, the environment ACTGetEnvironment fills in every frame */
     struct EnemyBattleWork *enemy;          /* 0x670, the enemy work (enemy_act.c; scpPlayJump 0x17908C) */
     struct MailAdditionalData *mailAddData; /* 0x674, the mail additional data table */

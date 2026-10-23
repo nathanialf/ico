@@ -13,7 +13,7 @@
 
 struct GObj;
 
-/* The actor's character work, the record at Act+0x688 (held there as a
+/* The actor's character work, the record at Act+0x678 (held there as a
  * word, like the object's own actor slot): the boy's, the girl's and the
  * enemies' per-character state. */
 typedef struct ActWork { /* field names derived */
@@ -27,68 +27,47 @@ typedef struct ActWork { /* field names derived */
     float disappearSpeed;   /* 0x334 */
     float fallDamageHeight; /* 0x338 */
     float ropeClimbHeight;  /* 0x33C, the chain top over the actor, sent with mail 316 */
-    float stickMag;        /* 0x340 */
-    float lockedMaxRotate; /* 0x344 */
-    float parallelInterp;  /* 0x348 */
-    char pad34C[4];
-    float padWish[4]; /* 0x350, the pad wish direction a jump turns to (funcCommonJumpDircorrect) */
-    float fallDir[4]; /* 0x360, the direction a fall turns to (funcCommonFallDircorrect) */
-    char *hideObj;    /* 0x370 */
-    void *floorObj;   /* 0x374 */
-    void *bga;        /* 0x378 */
-    int downTimer;    /* 0x37C */
-    int brainTimer;   /* 0x380 */
-    int turnTimer;    /* 0x384 */
-    int turnTimer2;   /* 0x388 */
-    int noInterpTimer;   /* 0x38C */
-    int wishHoldTimer;   /* 0x390 */
-    int leverTimer;      /* 0x394, frames the boy keeps hold of a lever (actCommonLever) */
-    int nakaBossCount;   /* 0x398 */
-    int carryGirlFrames; /* 0x39C */
-    int sofaTimer;       /* 0x3A0, frames since the actor sat on the sofa (actCommonSofa) */
-    int sofaRestTimer;   /* 0x3A4, the longer sofa rest the girl's attract waits out */
-    int orientFrames;    /* 0x3A8 */
-    int timer3AC;        /* 0x3AC */
-    int turnMailWait;    /* 0x3B0, the girl holds back girlAttractTurnMailR while it runs */
-    int jumpTimer;       /* 0x3B4 */
-    int footIkFrames;    /* 0x3B8 */
-    int bit37Frames;     /* 0x3BC */
-    int bit38Frames;     /* 0x3C0 */
-    int mailB1Timer;     /* 0x3C4 */
-    int ditchTimer;      /* 0x3C8 */
-    MotOriTarget bellowWall400;  /* 0x3CC, the wall of attribute 0x400 actCommonLadderBellow
-                                    found below, which mail 144 turns to */
-    MotOriTarget bellowWall3000; /* 0x3D8, the same for attribute 0x3000 and mail 145 */
-    struct GObj *dangerObj; /* 0x3E4, the object SetGirlDangerGObj marks for the girl */
-    char pad3E8[8];
-    float hideDirX; /* 0x3F0 */
-    float hideDirY; /* 0x3F4 */
-    float hideDirZ; /* 0x3F8 */
-    char pad3FC[4];
-    void *ropeCage; /* 0x400 */
-    char pad404[16];
-    float handPosY; /* 0x414 */
-    char pad418[24];
-    float velX; /* 0x430 */
-    float velY; /* 0x434 */
-    float velZ; /* 0x438 */
-    char pad43C[4];
-    float speed;    /* 0x440 */
-    int slowFrames; /* 0x444 */
-    int stopFrames; /* 0x448 */
-    char pad44C[4];
-    int noMoveFrames;        /* 0x450 */
-    unsigned int enemyFlags; /* 0x454 */
-    char pad458[8];
-    GObj *genTarget;         /* 0x460, the generator the enemy heads for */
-    int motherLabel;         /* 0x464 */
-    struct GObj *motherGObj; /* 0x468, the generator object motherLabel names */
-    char pad46C[4];
-    float hangOrient[3]; /* 0x470, the cliff orientation actBoyHangBefore keeps */
-    char pad47C[4];
-    MotOriReq cliffReq; /* 0x480, the request mails 140 and 305 turn to: b the
-                           wall under the cliff edge (actBoyCliffHesitate),
-                           a the actor's motion request's b (actBoyHangBefore) */
+    float padWish[4]; /* 0x340, the pad wish direction a jump turns to (funcCommonJumpDircorrect
+                         0x157654 addiu a1,a1,832; June 26's place, PAL's is 0x350) */
+    float fallDir[4]; /* 0x350, the direction a fall turns to (funcCommonFallDircorrect 0x157664) */
+    char *hideObj;    /* 0x360 */
+    void *bga;        /* 0x364 */
+    int downTimer;    /* 0x368 (actAfterDown 0x15D508 sw v1,872(a0)) */
+    int brainTimer;   /* 0x36C, not pinned */
+    int turnTimer;    /* 0x370 (_ACTCorrectMsg 0x153888 lw a0,880(v1)) */
+    int turnTimer2;   /* 0x374 (_ACTCorrectMsg 0x1538A8 lw a0,884(v1)) */
+    int noInterpTimer; /* 0x378 (subCommonIdle 0x15AB1C lw v0,888(a0)) */
+    char pad37C[4];  /* not pinned in this build */
+    int leverTimer;  /* 0x380, frames the boy keeps hold of a lever (actCommonLever 0x156104 sw v0,896(a1)) */
+    char pad384[4];  /* not pinned in this build */
+    int carryGirlFrames; /* 0x388, the fly's frame count IsFlyTimeOver tests (emergencyCheck 0x15890C lw v1,904(a0)) */
+    MotOriTarget bellowWall400;  /* 0x38C, the wall of attribute 0x400 actCommonLadderBellow
+                                    found below, which mail 132 turns to
+                                    (ACTGetOrientFromIntrK 0x1543F8 lw t2,916(v1)) */
+    MotOriTarget bellowWall3000; /* 0x398, the same for attribute 0x3000 and mail 133 */
+    struct GObj *dangerObj; /* 0x3A4, the object SetGirlDangerGObj marks for the girl (0x17383C) */
+    char pad3A8[8];
+    float hideDirX; /* 0x3B0 (girlBrainHide_GoalTurn 0x16C840 swc1 $f1,944(v0)) */
+    float hideDirY; /* 0x3B4 */
+    float hideDirZ; /* 0x3B8 */
+    char pad3BC[20];
+    float velX; /* 0x3D0 (ACTGame_InnerVelocityUpdate 0x1444AC lwc1 $f0,976(v1)) */
+    float velY; /* 0x3D4 */
+    float velZ; /* 0x3D8 */
+    char pad3DC[4];
+    float speed;    /* 0x3E0 */
+    int slowFrames; /* 0x3E4 */
+    int stopFrames; /* 0x3E8 */
+    char pad3EC[20]; /* not pinned (16 bytes more than June 26 between stopFrames and genTarget) */
+    GObj *genTarget;         /* 0x400, the generator the enemy heads for */
+    int motherLabel;         /* 0x404 */
+    struct GObj *motherGObj; /* 0x408, the generator object motherLabel names */
+    char pad40C[4];
+    float hangOrient[3]; /* 0x410, the cliff orientation actBoyHangBefore keeps (0x152140) */
+    char pad41C[4];
+    MotOriTarget cliffReq; /* 0x420, the target mail 285 turns to (ACTGetOrientFromIntrK
+                              0x154290 ldl a0,1063(v1)); a MotOriTarget as June 26's */
+    char pad42C[116];      /* not pinned */
     float pinchPosX; /* 0x4A0 */
     float pinchPosY; /* 0x4A4 */
     float pinchPosZ; /* 0x4A8 */
@@ -110,15 +89,13 @@ typedef struct ActWork { /* field names derived */
     float boxDir[4]; /* 0x530, the direction a box is pushed and pulled in (actCommonBox) */
     char pad540[64];
     WayRequest wayReq; /* 0x580, the way search RequestWayBegin hands to the way system manager */
-    char pad638[232];
-    ClipColReq view; /* 0x720, the clip ACTGameView_Loop runs to the object it looks at */
-    int viewState; /* 0x800 */
-    char pad804[156];
-    float emgPosX; /* 0x8A0 */
-    float emgPosY; /* 0x8A4 */
-    float emgPosZ; /* 0x8A8 */
-    char pad8AC[4];
-    MotOriReq intrReq; /* 0x8B0, the orient request of the interrupt motion
+    char pad638[376]; /* not pinned (PAL's view clip 0x720 and viewState 0x800 do not fit before
+                         this build's emgPos/intrReq) */
+    float emgPosX; /* 0x7B0, June 26's place before intrReq; not pinned */
+    float emgPosY; /* 0x7B4 */
+    float emgPosZ; /* 0x7B8 */
+    char pad7BC[4];
+    MotOriReq intrReq; /* 0x7C0 (actCommonBar 0x157428 addiu a2,a2,1984), the orient request of the interrupt motion
                           act_check_intr_list started; the hang and climb acts
                           lay the root against its walls, b's element the wall
                           under the cliff edge */

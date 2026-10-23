@@ -732,59 +732,9 @@ text SetBoyInfo 0x001531E8 0x00153220 ico2/fumi/src/boyact.c lines=17  # census-
 text GetBoyRootPositionForCamera 0x00153220 0x001532CC ico2/fumi/src/boyact.c lines=19  # ordinal; first difference at insn 12; imm:4; extent-equal
 lit4 GetBoyRootPositionForCamera 0x0062ADA0 0x0062ADA4 ico2/fumi/src/boyact.c  # 1 float
 text Boy_Init 0x001532D0 0x00153360 ico2/fumi/src/boyact.c lines=5  # trfile; aug6-only in the census; PAL's Boy_Init (160 B in PAL)
-text ChangeMailInLadder 0x00153370 0x001535BC ico2/fumi/src/commonact.c local lines=58  # trfile; aug6-only in the census; PAL's ChangeMailInLadder (720 B in PAL)
-text _ACTCorrectMsg 0x001535C0 0x00153F9C ico2/fumi/src/commonact.c lines=297  # trfile; aug6-only in the census; PAL's _ACTCorrectMsg (2860 B in PAL)
-rdlit _ACTCorrectMsg 0x00552A70 0x00552B30 ico2/fumi/src/commonact.c  # target side
-sdlit _ACTCorrectMsg 0x0062C438 0x0062C43F ico2/fumi/src/commonact.c  # target side: a string
-text ACTGetOrientFromIntrK 0x00153FA0 0x00154648 ico2/fumi/src/commonact.c lines=108  # trfile; aug6-only in the census; PAL's ACTGetOrientFromIntrK (1828 B in PAL)
-text ACTRunIntrCorrect 0x00154648 0x001548C4 ico2/fumi/src/commonact.c lines=45  # trfile; aug6-only in the census; PAL's ACTRunIntrCorrect (632 B in PAL)
-sdlit ACTRunIntrCorrect 0x0062C440 0x0062C447 ico2/fumi/src/commonact.c  # 1 string
-text WithMailFunc_AttackFail 0x001548D0 0x00154914 ico2/fumi/src/commonact.c lines=13  # ordinal; first difference at insn 2; imm:4; extent-equal
-text WithMailFunc_AttackRejectInQueen 0x00154918 0x0015499C ico2/fumi/src/commonact.c lines=15  # ordinal; first difference at insn 6; imm:4; extent-equal
-text actCommonRope 0x00154C88 0x00154FE8 ico2/fumi/src/commonact.c lines=70  # ordinal; first difference at insn 60; length:-1; extent-differs
-rdlit actCommonRope 0x00552B80 0x00552BA0 ico2/fumi/src/commonact.c  # target side
-lit4 actCommonRope 0x0062ADA8 0x0062ADAC ico2/fumi/src/commonact.c  # 1 float
-text motCommonRopeTurnR 0x00154FE8 0x00155138 ico2/fumi/src/commonact.c lines=22  # ordinal; first difference at insn 79; imm:1; extent-equal
-lit4 motCommonRopeTurnR 0x0062ADAC 0x0062ADB0 ico2/fumi/src/commonact.c  # 1 float
-text motCommonRopeTurnL 0x00155138 0x00155288 ico2/fumi/src/commonact.c lines=22  # ordinal; first difference at insn 79; imm:1; extent-equal
-lit4 motCommonRopeTurnL 0x0062ADB0 0x0062ADB4 ico2/fumi/src/commonact.c  # 1 float
-text actCommonRopeClimbEnd1 0x00155288 0x001555A4 ico2/fumi/src/commonact.c lines=92  # ordinal; first difference at insn 0; length:-40; extent-differs
-lit4 actCommonRopeClimbEnd1 0x0062ADB4 0x0062ADB8 ico2/fumi/src/commonact.c  # 1 float
-text actCommonRopeCliff 0x001555A8 0x00155738 ico2/fumi/src/commonact.c lines=35  # ordinal; first difference at insn 1; length:-15; extent-differs
-text TestCageUpDown 0x00155738 0x00155C90 ico2/fumi/src/commonact.c local lines=107  # ordinal; first difference at insn 0; length:-1; extent-differs
-text actCommonRopeSpecial 0x00155C90 0x00155FF4 ico2/fumi/src/commonact.c lines=55  # ordinal; first difference at insn 2; length:-40; extent-differs
-lit4 actCommonRopeSpecial 0x0062ADB8 0x0062ADC0 ico2/fumi/src/commonact.c  # 2 floats
-sdlit actCommonRopeSpecial 0x0062C448 0x0062C450 ico2/fumi/src/commonact.c  # 1 string
-text actCommonLever 0x00156080 0x001561E8 ico2/fumi/src/commonact.c lines=25  # ordinal; first difference at insn 3; length:-19; extent-differs
-lit4 actCommonLever 0x0062ADC0 0x0062ADC4 ico2/fumi/src/commonact.c # target side
-text DamageFunc 0x00156210 0x001562AC ico2/fumi/src/commonact.c local lines=14  # ordinal; first difference at insn 13; imm:4; extent-equal
-sdlit DamageFunc 0x0062C450 0x0062C458 ico2/fumi/src/commonact.c  # 1 string
-text actCommonDown 0x001562F8 0x001563E8 ico2/fumi/src/commonact.c lines=32  # aug6-only in the census (in commonact.c's span); actCommonDown by body ratio 0.74, callees 1.00, sizes 324/240
-rdlit actCommonDown 0x00552BF0 0x00552C08 ico2/fumi/src/commonact.c  # target side
-text actCommonDie 0x001563E8 0x0015674C ico2/fumi/src/commonact.c lines=73  # aug6-only in the census (in commonact.c's span); actCommonDie by body ratio 0.98, callees 0.94, sizes 900/868
-rdlit actCommonDie 0x00552C08 0x00552C20 ico2/fumi/src/commonact.c  # target side
-lit4 actCommonDie 0x0062ADC4 0x0062ADC8 ico2/fumi/src/commonact.c  # 1 float
 text Cling.173 0x00156750 0x00156900 ico2/fumi/src/commonact.c local file=Cling_173  # trfile; aug6-only in the census; PAL's Cling.176 (432 B in PAL); nested in its parent, gcc numbers it Cling.173 in this tree (PAL Cling.176)
 rdlit Cling.173 0x00552C20 0x00552C60 ico2/fumi/src/commonact.c file=Cling_173  # target side
 text actCommonCling 0x00156900 0x00156998 ico2/fumi/src/commonact.c lines=49  # trfile; aug6-only in the census; PAL's actCommonCling (152 B in PAL)
-text actCommonSlip 0x00156998 0x00156AB4 ico2/fumi/src/commonact.c lines=23  # trfile; aug6-only in the census; PAL's actCommonSlip (284 B in PAL)
-text actCommonStoneDead 0x00156AB8 0x00156B98 ico2/fumi/src/commonact.c lines=22  # trfile; aug6-only in the census; PAL's actCommonStoneDead (224 B in PAL)
-text actCommonStone 0x00156B98 0x00156D18 ico2/fumi/src/commonact.c lines=36  # trfile; aug6-only in the census; PAL's actCommonStone (384 B in PAL)
-rdlit actCommonStone 0x00552C78 0x00552C98 ico2/fumi/src/commonact.c  # target side
-text BoxBarSoundOn 0x00156D18 0x00156D50 ico2/fumi/src/commonact.c local lines=12  # trfile; aug6-only in the census; PAL's BoxBarSoundOn (56 B in PAL)
-text BoxBarSoundOff 0x00156D50 0x00156D84 ico2/fumi/src/commonact.c local lines=12  # trfile; aug6-only in the census; PAL's BoxBarSoundOff (52 B in PAL)
-text _boxbar_set_sound 0x00156D88 0x00156E74 ico2/fumi/src/commonact.c local lines=28  # trfile; aug6-only in the census; PAL's _boxbar_set_sound (236 B in PAL)
-text actCommonBox 0x00156E78 0x00157338 ico2/fumi/src/commonact.c lines=101  # trfile; aug6-only in the census; PAL's actCommonBox (1264 B in PAL)
-lit4 actCommonBox 0x0062ADC8 0x0062ADCC ico2/fumi/src/commonact.c # target side
-text actCommonBar 0x00157338 0x00157644 ico2/fumi/src/commonact.c lines=69  # ordinal; first difference at insn 19; imm:11; extent-equal
-lit4 actCommonBar 0x0062ADCC 0x0062ADD0 ico2/fumi/src/commonact.c  # 1 float
-sdlit actCommonBar 0x0062C460 0x0062C468 ico2/fumi/src/commonact.c  # 1 string
-text funcCommonJumpDircorrect 0x00157648 0x00157658 ico2/fumi/src/commonact.c lines=4  # ordinal; first difference at insn 1; imm:2; extent-equal
-text funcCommonFallDircorrect 0x00157658 0x00157668 ico2/fumi/src/commonact.c lines=4  # ordinal; first difference at insn 1; imm:2; extent-equal
-text actCommonJump 0x001578D8 0x001579E4 ico2/fumi/src/commonact.c lines=55  # ordinal; first difference at insn 0; length:-94; extent-differs
-lit4 actCommonJump 0x0062ADD0 0x0062ADD4 ico2/fumi/src/commonact.c # target side
-text actCommonFall 0x001579E8 0x00157E6C ico2/fumi/src/commonact.c lines=153  # ordinal; first difference at insn 1; length:-199; extent-differs
-rdlit actCommonFall 0x00552C98 0x00552CA8 ico2/fumi/src/commonact.c  # target side
 text getLandOffset.262 0x00158030 0x00158178 ico2/fumi/src/commonact.c local file=getLandOffset_262  # nested in flyCoreLoop, which is carved; census twin of PAL's getLandOffset.265 (gcc numbers it getLandOffset.262 in this tree)
 text getAvoidCollisionFlyLevel 0x00158178 0x001586E4 ico2/fumi/src/commonact.c  # trfile; aug6-only in the census; not in PAL's commonact
 lit4 getAvoidCollisionFlyLevel 0x0062ADD4 0x0062ADEC ico2/fumi/src/commonact.c # target side
@@ -795,19 +745,6 @@ text flyCoreLoop 0x00158998 0x00159138 ico2/fumi/src/commonact.c local lines=355
 rdlit flyCoreLoop 0x00552CA8 0x00552E80 ico2/fumi/src/commonact.c  # target side
 lit4 flyCoreLoop 0x0062ADF0 0x0062ADF8 ico2/fumi/src/commonact.c # target side
 data col.274 0x0027E740 0x0027E770 ico2/fumi/src/commonact.c local file=col_274  # flyCoreLoop's three static colours (col.274, col.275, col.276 in this compile), which left with its carve; the bytes equal PAL's three, the third at the address its own words form
-text actCommonFly 0x00159138 0x00159210 ico2/fumi/src/commonact.c lines=30  # trfile; aug6-only in the census; PAL's actCommonFly (252 B in PAL)
-text actCommonLadder 0x00159210 0x001597E4 ico2/fumi/src/commonact.c lines=115  # trfile; aug6-only in the census; PAL's actCommonLadder (1524 B in PAL)
-text actCommonEdgeHang 0x001597E8 0x0015994C ico2/fumi/src/commonact.c lines=29  # aug6-only in the census (in commonact.c's span); actCommonEdgeHang by body ratio 1.00, callees 1.00, sizes 356/356
-text SetMotionDirectionSmooze 0x00159AB0 0x00159CE4 ico2/fumi/src/commonact.c lines=39  # trfile; aug6-only in the census; PAL's SetMotionDirectionSmooze (588 B in PAL)
-lit4 SetMotionDirectionSmooze 0x0062ADF8 0x0062AE00 ico2/fumi/src/commonact.c  # 2 floats
-text _ACTDebugPrint 0x00159CE8 0x00159FDC ico2/fumi/src/commonact.c lines=56  # trfile; aug6-only in the census; PAL's _ACTDebugPrint (752 B in PAL)
-rdlit _ACTDebugPrint 0x00552FD0 0x00553090 ico2/fumi/src/commonact.c  # target side
-text ACTSendMailCorrect 0x00159FE0 0x0015A060 ico2/fumi/src/commonact.c lines=13  # trfile; aug6-only in the census; PAL's ACTSendMailCorrect (144 B in PAL)
-text _ACTCommonMailTest 0x0015A060 0x0015A444 ico2/fumi/src/commonact.c lines=85  # trfile; aug6-only in the census; PAL's _ACTCommonMailTest (1080 B in PAL)
-lit4 _ACTCommonMailTest 0x0062AE00 0x0062AE34 ico2/fumi/src/commonact.c # target side
-text actCommonBecarry 0x0015A508 0x0015A98C ico2/fumi/src/commonact.c lines=50  # trfile; aug6-only in the census; PAL's actCommonBecarry (764 B in PAL)
-rdlit actCommonBecarry 0x00553090 0x005530A8 ico2/fumi/src/commonact.c  # target side
-sdlit actCommonBecarry 0x0062C488 0x0062C48E ico2/fumi/src/commonact.c  # 1 string
 text subCommonIdle 0x0015A990 0x0015AF10 ico2/fumi/src/commonact.c lines=103  # trfile; aug6-only in the census; PAL's subCommonIdle (1440 B in PAL)
 text ContinueCorrectPosition 0x0015AF10 0x0015B054 ico2/fumi/src/commonact.c lines=28  # trfile; aug6-only in the census; PAL's ContinueCorrectPosition (324 B in PAL)
 rdlit ContinueCorrectPosition 0x005530A8 0x005530B8 ico2/fumi/src/commonact.c  # target side

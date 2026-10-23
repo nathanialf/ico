@@ -74,26 +74,27 @@ typedef struct EnemyBattleWork { /* field names derived */
     float ropeCliffX; /* 0x1C0 */
     float ropeCliffY; /* 0x1C4 */
     float ropeCliffZ; /* 0x1C8 */
-    char pad1CC[20];
+    char pad1CC[12];
     float bodySize;
-    int liftKind;
-    int sizeClass; /* 0x1E8 */
+    int liftKind; /* 0x1DC (_ACTCorrectMsg 0x153D58 lw v0,476(a0)), June 26's place */
+    int sizeClass; /* 0x1E0 */
     int battleType;
-    int paraStatus;    /* 0x1F0 */
-    int clingNode;     /* 0x1F4 */
-    int attackChance;  /* 0x1F8 */
-    int attackChance2; /* 0x1FC */
-    int bodyslamMail;  /* 0x200 */
+    int paraStatus;    /* 0x1E8 */
+    int clingNode;     /* 0x1EC */
+    int attackChance;  /* 0x1F0 */
+    int attackChance2; /* 0x1F4 */
+    int bodyslamMail;  /* 0x1F8 */
     int mode;
     int reqMode;
-    int bossLife; /* 0x20C */
+    int bossLife; /* 0x204 (_ACTCorrectMsg 0x153B6C lw v1,516(v0)) */
     EnemyStatusFlags flags;
     int target;
-    int clingReq;    /* 0x21C */
-    int clingTarget; /* 0x220 */
+    int clingReq;    /* 0x214 */
+    int clingTarget; /* 0x218 (_ACTCorrectMsg 0x153E20 lw v1,536(v0)) */
     int waitCount;
-    int slowTimer;
-    int liftedObj;   /* 0x22C */
+    int slowTimer; /* 0x220 (_ACTCorrectMsg 0x153D64 lw v0,544(a0)) */
+    int liftedObj;   /* 0x224 */
+    char pad228[8];
     float readyPosX; /* 0x230 */
     float readyPosY; /* 0x234 */
     float readyPosZ; /* 0x238 */

@@ -281,9 +281,9 @@ GObj *boyGObj = 0;
 
 GObj *girlGObj = 0;
 
-/* the boy's pad handle, the Act.pad the boy connects (aug6: no girl pad
-   handle; gameover_flag is the next word, RequestStageChangeWithColor
-   0x17BA98 lw t2,-28160(gp)) */
+/* the boy's pad handle, the Act.pad his actor connects; this build has no
+   girlPad: _ACTCorrectMsg 0x15375C reads gameover_flag at the word after
+   boyPad, ACT_LAYOUT_GAMEOVER 0x15B4C8 gameover_layout_flag after it */
 IosPadCtx *boyPad = 0;
 
 int gameover_flag = 0;
