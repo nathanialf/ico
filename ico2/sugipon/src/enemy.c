@@ -27,7 +27,6 @@
 #include <assert.h>
 #include "sceneManager.h"
 #include "Primitive.h"
-#include "include_asm.h"
 
 typedef struct { /* field names derived */
     float x;
@@ -78,38 +77,84 @@ typedef struct {              /* field names derived */
     float wing;     /* 0x44 */
     float scale;    /* 0x48 */
     int timer;      /* 0x4C */
-    float flyXZAccel; /* 0x50, the fly XZ acceleration, from the enemyKind row */
-} EnemyWork;          /* derived name */
+} EnemyWork;        /* derived name */
 
-/* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
- * reads it back as a pointer, so every read of it is a union view, the same
- * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
-
-#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub) /* derived name */
-
-static int setEnemyObject(GObj *self, int kind, int *ctr);
-
-/* InitEnemyGeo's parts list; its body inlines clearEnemyParticleFlags */
-static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* derived name */
+static void setEnemyParticleObject(GObj *self, int pid)
 {
-    int kind = param->obj;
-    EnemyWork *w;
-    int n;
-    int *parts;
+    Sub15C *sub = GOBJ_SUB(self);
+    EnemyWork *w = sub->work;
+    int n = sub->skelNodeNum;
+    SkelNode *tbl = sub->skel;
+    struct DObjNode *p = sub->nodes;
+    PrimParticle **parts;
+    int *fl;
+    float size;
+    int i;
+    int cnt;
+    int num;
+    int n4;
+    int type;
+    EnemyPosEntry *v;
+    EnemyPosEntry *q;
 
-    n = SUBOF(self)->skelNodeNum;
-    /* the work-record entry is read as an int and cast */
-    w = (EnemyWork *)*(int *)&SUBOF(self)->work;
-
-    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 285);
-    w->broken = parts;
-    clearEnemyParticleFlags(parts, n);
-    w->kind = kind;
-    w->ctr = 0;
-    return setEnemyObject(self, kind, &w->ctr);
+    size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f;
+    parts = (PrimParticle **)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 105);
+    w->particle = parts;
+    fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 107);
+    w->flag = fl;
+    clearEnemyParticleFlags(fl, n);
+    for (i = 0; i < n; i++) {
+        q = (EnemyPosEntry *)enemy_GetPositionTable(pid, i);
+        v = q;
+        if (q == 0) {
+            (w->flag)[i] = 0;
+            continue;
+        }
+        (w->flag)[i] = 1;
+        for (cnt = 0; q->w > -1.0f; cnt++)
+            q++;
+        q = v;
+        parts[i] = 0;
+        if (cnt <= 0)
+            continue;
+        if (cnt >= 80)
+            num = 80;
+        else
+            num = cnt;
+        parts[i] = prim_InitParticle(num, size, 0.5f, 0.5f, 1, "enemy_sprite", 0);
+        if (parts[i] == 0) {
+            /* EUC-JP: "cannot reserve the memory for the enemy soldier particles" */
+            debug_StdPrintfDummy("敵兵のパーティクルのメモリを確保できません\n");
+            debug_assertMessage("src/enemy.c", 152, "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
+            __assert("src/enemy.c", 152, "e");
+        }
+        for (cnt = 0; q->w > -1.0f && cnt < 80; cnt++, q++) {
+            n4 = rand() % 4;
+            _CopyVector((char *)parts[i]->vtx + cnt * 32, q);
+            _CopyVector((char *)parts[i]->vtxNext + cnt * 32, q);
+            type = tbl[i].kind;
+            if (type >= 38)
+                goto spread;
+            if (type < 36)
+                goto spread;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x10) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x10) = 0.5f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x14) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x14) = 0.0f;
+            goto done;
+        spread:
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x10) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x10) = (n4 / 2) * 0.5f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x14) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x14) = (n4 % 2) * 0.5f;
+        done:
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x18) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x18) = 128.0f;
+            *(float *)((char *)parts[i]->vtx + cnt * 32 + 0x1C) =
+                *(float *)((char *)parts[i]->vtxNext + cnt * 32 + 0x1C) = 64.0f;
+        }
+    }
 }
-
-INCLUDE_ASM(setEnemyParticleObject);
 
 static inline int enemyRandomizeID(int kind, int *ctr) /* derived name */
 {
@@ -125,7 +170,42 @@ static inline int enemyRandomizeID(int kind, int *ctr) /* derived name */
     return randomEnemyVariationKind[id];
 }
 
-INCLUDE_ASM(setEnemyObject);
+static int setEnemyObject(GObj *self, int kind, int *ctr)
+{
+    struct DObjNode *p;
+    Sub15C *sub;
+    EnemyWork *w;
+    float sc;
+    int obj;
+    int pid;
+
+retry:
+    sub = GOBJ_SUB(self);
+    w = sub->work;
+    if (kind > 0xFFFF) {
+        kind = enemyRandomizeID(kind, ctr);
+        goto retry;
+    }
+    p = sub->nodes;
+    sc = enemyKind[kind].scale;
+    p->scale[2] = sc;
+    p->scale[1] = sc;
+    p->scale[0] = sc;
+    w->scale = sc;
+    obj = enemyKind[kind].model;
+    if (obj != 1510) {
+        *(int *)&GOBJ_SUB(self)->model = GetPObjAddress(obj);
+        GOBJ_SUB(self)->modelId = obj;
+        debug_StdPrintfDummy("%p\n", GOBJ_SUB(self)->model);
+        w->loaded = 1;
+    }
+    pid = enemyKind[kind].particle;
+    if (pid != -1) {
+        setEnemyParticleObject(self, pid);
+    }
+    debug_StdPrintfDummy("\x1b[36mENEMY DESIGN ID: %d\x1b[m\n", kind);
+    return kind;
+}
 
 /* One part's projected position: the sqc2 stores the integer x, y, z and w,
    and the part's index then takes the x word's place. */
@@ -337,12 +417,121 @@ int CheckEnemyHit(GObj *self, float *pos, float *a, float *b)
     /* clang-format on */
 }
 
+/* The 0x15C slot is the engine's sub-object HANDLE: the code stores an int and
+ * reads it back as a pointer, so every read of it is a union view, the same
+ * spelling ico2/sugipon/src/geometryManager.c uses for the same slot. */
+
+#define SUBOF(o) (((SubHandle *)&((GObj *)(o))->dobj)->sub) /* derived name */
+
 /* the variation number the next enemy takes, stepped by two modulo ten */
 static int enemyVariation = 0; /* derived name */
 
-INCLUDE_ASM(InitEnemyGeo);
+/* InitEnemyGeo's parts list; its body inlines clearEnemyParticleFlags */
+static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* derived name */
+{
+    int kind = param->obj;
+    EnemyWork *w;
+    int n;
+    int *parts;
 
-INCLUDE_ASM(EnemyGeo);
+    n = SUBOF(self)->skelNodeNum;
+    /* the work-record entry is read as an int and cast */
+    w = (EnemyWork *)*(int *)&SUBOF(self)->work;
+
+    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 260);
+    w->broken = parts;
+    clearEnemyParticleFlags(parts, n);
+    w->kind = kind;
+    w->ctr = 0;
+    return setEnemyObject(self, kind, &w->ctr);
+}
+
+void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
+{
+    EnemyWork *w;
+    int kind;
+    int no;
+
+    w = iosMallocDebug(ios_partition_sugipon, 80, "src/enemy.c", 597);
+    SUBOF(self)->work = w;
+    w->word1C = 0;
+    w->eye0 = InitEnemyEye(10, 0, 10);
+    w->word24 = 0;
+    w->eye1 = InitEnemyEye(10, 0, 10);
+    w->foot = InitEnemyFootPrint(6);
+    w->footSwitch = 1;
+    w->particle = 0;
+    w->loaded = 0;
+    w->float3C = 0.0f;
+    w->short40 = 0;
+    w->wing = 0.0f;
+    w->timer = 0;
+    kind = enemyInitPartsList(self, param);
+    w->def = kind;
+    InitMotionOrient(self, 1797, 2080, 24, 36, 790);
+    no = enemyVariation;
+    SUBOF(self)->ctrl.variation = no;
+    enemyVariation = (no + 2) % 10;
+    SUBOF(self)->ctrl.catchBoy = 0;
+    SetLodLevel(self, 2);
+    return w;
+}
+
+void EnemyGeo(GObj *self)
+{
+    Sub15C *sub = GOBJ_SUB(self);
+    Act *node = GOBJ_ACT(self);
+    unsigned long long flag = node->flags18.ll;
+    EnemyWork *w = sub->work;
+    float ratio;
+    float buf[4];
+
+    if ((int)(flag >> 33) & 1) {
+        w->timer = 0;
+    } else {
+        if (w->timer >= 0xB)
+            return;
+        w->timer = w->timer + 1;
+    }
+
+    GOBJ_SUB(self)->ctrl.catchBoy = 0;
+    GOBJ_SUB(self)->ctrl.cliffWallCheck = 2;
+    GOBJ_SUB(self)->ctrl.wallReact = 0;
+    if (GetEnemyTypeFromGObj(self) == 3)
+        GOBJ_SUB(self)->ctrl.catchBoy = 1;
+
+    ExecMotionOrient(self);
+
+    CylinderCollisionWithControlDynamics(self, 4, 0, w->scale * 70.0f, w->scale * 50.0f, 0.5f);
+
+    if (isEnemyActive(self) != 0) {
+        Sub15C *s = GOBJ_SUB(self);
+        if (s->ctrl.landed != 0) {
+            if (w->footSwitch != 0) {
+                GetProjectionOfPlane(
+                    buf, s->root.plane.f,
+                    (float *)((char *)s->nodeMtx + s->root.standNode * 0x40 + 0x30));
+                EntryEnemyFootPrint(w->foot, buf);
+            }
+        }
+    }
+    ExecEnemyFootPrints(w->foot);
+
+    GOBJ_SUB(self)->ctrl.variation = (GOBJ_SUB(self)->ctrl.variation + 1) % 10;
+
+    ratio = (GOBJ_SUB(self)->nodes->scale[0] + GOBJ_SUB(self)->nodes->scale[1] +
+             GOBJ_SUB(self)->nodes->scale[2]) /
+            3.0f;
+
+    _MulMatrix(MatrixDrive_GetMatrix(),
+               (char *)GOBJ_SUB(self)->nodeMtx + GetSkeltonFocusNode(self, 0x24) * 0x40,
+               (char *)offsetMatrix);
+    UpdateEnemyEye(w->eye0, MatrixDrive_GetMatrix(), ratio);
+    _MulMatrix(MatrixDrive_GetMatrix(),
+               (char *)GOBJ_SUB(self)->nodeMtx + GetSkeltonFocusNode(self, 0x25) * 0x40,
+               (char *)offsetMatrix);
+    UpdateEnemyEye(w->eye1, MatrixDrive_GetMatrix(), ratio);
+}
 
 void DisplayEnemy(GObj *self)
 {
@@ -395,7 +584,12 @@ void SetEnemyDissolve(GObj *self, float ratio)
 
 void EnemyAI(void) {}
 
-INCLUDE_ASM(SetEnemyFootPrintSwitch);
+void SetEnemyFootPrintSwitch(GObj *self, int on)
+{
+    EnemyWork *w = GOBJ_SUB(self)->work;
+
+    w->footSwitch = on;
+}
 
 void EnemySetfAppearAll(GObj *self)
 {
@@ -495,9 +689,20 @@ void SetEnemyHitGeometryAction(GObj *self, int on)
     w->loaded = on;
 }
 
-INCLUDE_ASM(InitDemoMotionGeo);
+int InitDemoMotionGeo(GObj *self)
+{
+    InitMotionOrient(self, 1797, 2080, -1, -1, 924);
+    SetLodLevel(self, 0);
+    self->active = 0;
+    return 0;
+}
 
-INCLUDE_ASM(HotInitDemoMotionGeo);
+void HotInitDemoMotionGeo(GObj *self)
+{
+    InitMotionOrient(self, 1797, 2080, -1, -1, 924);
+    SetLodLevel(self, 0);
+    self->active = 0;
+}
 
 int *GetEnemyHitNodeFlag(GObj *self)
 {
@@ -536,7 +741,15 @@ float GetEnemyDefLife(GObj *self)
     return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].life;
 }
 
-INCLUDE_ASM(ResetEnemyPositionInfo);
+void ResetEnemyPositionInfo(GObj *self)
+{
+    EnemyWork *w = GOBJ_SUB(self)->work;
+
+    ResetEnemyEye(w->eye0);
+    ResetEnemyEye(w->eye1);
+    GOBJ_SUB(self)->ctrl.blendFrames =
+        (int)((float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) / 60.0f * 0.0f);
+}
 
 void SetEnemyStonizedVisual(GObj *self)
 {

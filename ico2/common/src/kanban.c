@@ -34,7 +34,7 @@ int kanbanCommonRead = 0;
 static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
 /* texProperty's texNo column, &texProperty[0].texNo */
-extern char D_0030D014[];
+extern char D_002E3508[];
 /* a file static, as are the functions of the same name in
    ico2/fumi/src/jimaku and ico2/common/src/layout_texture */
 static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col);
@@ -55,11 +55,10 @@ extern void gif_StartPacketPri(int pri);
 #include <string.h>
 #include <stdlib.h>
 #include "main.h"
-#include "include_asm.h"
 
 static void init_textures_of_specified_property(int first, int last);
 
-static inline char *get_texture_base_name(char *src) /* derived name */
+static inline char *get_texture_base_name(const char *src) /* derived name */
 {
     char buf[256];
     char *p;
@@ -85,7 +84,7 @@ static inline char *get_texture_base_name(char *src) /* derived name */
 static inline int get_texture_no_of_property(int idx) /* derived name */
 {
     int n;
-    char *src;
+    const char *src;
     char *name;
     int no;
 
@@ -97,8 +96,8 @@ static inline int get_texture_no_of_property(int idx) /* derived name */
 
     if (no < 0) {
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
-        debug_assert(__FILE__, 272);
-        __assert(__FILE__, 272, "0");
+        debug_assert(__FILE__, 255);
+        __assert(__FILE__, 255, "0");
     }
     return no;
 }
@@ -114,7 +113,8 @@ static inline void init_textures_of_property_range(int first, int last) /* deriv
 
 static inline int kanban_layout_key(LtProp *pr) /* derived name */
 {
-    int ret = 0;
+    int ret;
+    unsigned int button;
     LtProperty *e = &texProperty[pr->curItem];
 
     if ((pad[0].flags & 0x1000) && e->upItem > 0) {
@@ -125,14 +125,14 @@ static inline int kanban_layout_key(LtProp *pr) /* derived name */
         pr->curItem = e->leftItem;
     } else if ((pad[0].flags & 0x2000) && e->rightItem > 0) {
         pr->curItem = e->rightItem;
-    } else {
-        unsigned long button = pad[0].flags;
-
-        if (button & 0x40) {
-            ret = 1;
-        } else {
-            ret = (button & 0x10) ? 2 : 0;
-        }
+    }
+    button = pad[0].flags;
+    ret = 0;
+    if (button & 0x40) {
+        ret = 1;
+    }
+    if (button & 0x10) {
+        ret = 2;
     }
     return ret;
 }
@@ -249,7 +249,18 @@ inline void kanbanReqAllDelFade(void)
     } while (i >= 0);
 }
 
-INCLUDE_ASM(init_textures_of_specified_property_kanban);
+static void init_textures_of_specified_property(int first, int last)
+{
+    int i;
+    int no;
+
+    for (i = first; i < last; i++) {
+        no = get_texture_no_of_property(i);
+        *(int *)(D_002E3508 + i * 108) = no;
+        *(void **)(D_002E3508 + i * 108 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_002E3508 + i * 108 - 4), 1, 1);
+    }
+}
 
 void kanbanInit(int no)
 {
@@ -262,7 +273,69 @@ void kanbanInit(int no)
     }
 }
 
-INCLUDE_ASM(display_texture_kanban);
+static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
+{
+    int uv[4];
+    int r[4];
+    int pt[4];
+    int i;
+
+    uv[0] = (e->texU << 4) + 8;
+    uv[1] = (e->texV << 4) + 8;
+    uv[2] = e->texW << 4;
+    uv[3] = e->texH << 4;
+
+    r[2] = e->dispW << 4;
+    r[3] = e->dispH << 3;
+    if (r[2] == 0) {
+        r[2] = uv[2];
+    }
+    if (r[3] == 0) {
+        r[3] = uv[3] >> 1;
+    }
+
+    if (e->centerX) {
+        r[0] = (0x2800 - r[2]) / 2 - 0x1400;
+    } else {
+        r[0] = (e->dispX - 320) << 4;
+    }
+    r[1] = (e->dispY - 112) << 4;
+
+    if (e->masked == 0) {
+        tex_TransTexture(e->texNo, 11);
+
+        gif_StartPacketPri(11);
+
+        gif_SetAlpha(1, 7, 0);
+
+        gif_SetZWrite(0);
+
+        r[1] += 8;
+
+        r[3] -= 8;
+        uv[3] -= 8;
+
+        gif_SpriteSensitiveOffset(r, 0xFFFFFF9B, uv, col->b, 1);
+        gif_SetZWrite(1);
+        gif_EndPacket();
+    }
+
+    if (e == &texProperty[pr->curItem]) {
+        KanbanCol col2 = {{0x80, 0x80, 0x80, 0x7F}};
+
+        gif_StartPacketPri(11);
+        gif_SetZTest(0);
+
+        for (i = 0; i < r[2] * r[3] / 1200; i++) {
+            pt[0] = r[0] + rand() % r[2];
+            pt[1] = r[1] + rand() % r[3];
+            col2.b[3] = rand() % 127 + 32;
+
+            gif_PointOffset(pt, 0x800000, col2.b, 1);
+        }
+        gif_EndPacket();
+    }
+}
 
 static int fade_exec(Kanban *p)
 {
@@ -297,9 +370,26 @@ static int fade_exec(Kanban *p)
     return ret;
 }
 
-static void display_layout(Kanban *k);
+static void display_layout(Kanban *k)
+{
+    LtProp *pr;
+    int i;
 
-INCLUDE_ASM(display_layout);
+    pr = k->layout;
+
+    k->key = 0;
+    if (kanbanCurrent != 0 && kanbanCurrent->layout == pr) {
+        k->key = kanban_layout_key(pr);
+    }
+
+    if (fade_exec(k) < 0) {
+        kanbanReqDel(k);
+    } else {
+        for (i = pr->first; i < pr->last; i++) {
+            display_texture(pr, &texProperty[i], &k->col);
+        }
+    }
+}
 
 inline void kanbanExec(void)
 {

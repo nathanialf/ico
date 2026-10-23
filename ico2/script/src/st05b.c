@@ -12,11 +12,37 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
-#include "include_asm.h"
 
 static ActMail sekizo_mes[2] = {{393}, {392}}; /* derived name */
 
-INCLUDE_ASM(actSt05bCrest01XL);
+void actSt05bCrest01XL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+    if (gflagChk(218) == 0) {
+        stage_SetAnimation(165, 0, 0);
+        stage_SetAnimation(167, 0, 0);
+    } else {
+        stage_SetAnimation(165, 0, -1);
+        stage_SetAnimation(167, 0, -1);
+        scpTorchLightOn(1239);
+        scpTorchLightOn(1240);
+    }
+    if (gflagChk(219) == 0) {
+        stage_SetAnimation(166, 0, 0);
+    } else {
+        stage_SetAnimation(166, 0, -1);
+        scpTorchLightOn(1241);
+        scpTorchLightOn(1242);
+    }
+    if (gflagChk(226) == 0) {
+        stage_SetAnimation(168, 0, 0);
+    } else {
+        stage_SetAnimation(168, 0, -1);
+    }
+}
 
 /* .sdata: the stone statue's stream handle, its shake and the shake's volume. */
 SqEntry *sekizo5b = 0;
@@ -25,17 +51,143 @@ int sekizo_5b = 0;
 
 unsigned char sekizo_5b_vol = 0;
 
-INCLUDE_ASM(actSt05bSekizoChk);
+void actSt05bSekizoChk(GObj *volatile self)
+{
+    volatile int h;
+    float d[4];
+    int key;
 
-INCLUDE_ASM(actSt05bDoorXL);
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+    scpAdpcmPlayRequestFunc(18, &sekizo5b, 1, 1, 1);
+    while (sekizo5b == 0) {
+        _ACTWait(1);
+    }
+    scpKillEnemyAll();
+    scpMaskGeneratorAll();
+    gflagOn(356);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    brainLockGirl();
+    _ACTWait(60);
+    stage_SetAnimation(170, 1, 0);
+    ReviveAllCarryableItemsWithNonSleepFrame(250);
+    key = iosPadActRequest(boyPad, 9);
+    sekizo_5b_vol = 128;
+    iosPadActVolumeSet(sekizo_5b = key, 128);
+    h = soundSeDefPlay(1193, 0, 0, 1);
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayMot(girlGObj, 514);
+    scpPlayPosSet(girlGObj, 10350.0f, -2150.0f, 0.0f);
+    scpPlayPosSet(boyGObj, 10350.0f, -2150.0f, 100.0f);
+    _ACTWait(1);
+    sceVu0SubVector(d, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, d);
+    scpBoyControlReadDisable = 1;
+    sceVu0SubVector(d, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, d);
+    scpSekizouCheckPoint();
+    scpPlayMot(girlGObj, 573);
+    scpPlayWaitMotEnd(girlGObj);
+    gflagOn(143);
+    soundSeDefStop(h);
+    while (stage_CheckAnimationFrame(170, 151, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActStop(sekizo_5b);
+    scpPlayMot(girlGObj, 514);
+    scpPlayEnd(girlGObj);
+    actCreateSubThread(actSt05bGirlWay, 21);
+    _ACTWait(30);
+    scpPlayMot(boyGObj, 247);
+    scpPlayWaitMotEnd(boyGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
+}
 
-INCLUDE_ASM(actSt05bMonyoDoorXL);
+void actSt05bDoorXL(GObj *volatile self)
+{
+    GObj *x = self;
 
-INCLUDE_ASM(actSt05bSekizo);
+    actInitialize(self);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt05bBallXL);
+    if (gflagChk(218) != 0 && gflagChk(125) == 0) {
+        stage_SetAnimation(311, 0, -1);
+    } else {
+        stage_SetAnimation(311, 0, 0);
+    }
+}
 
-INCLUDE_ASM(actSt05bSolarXL);
+void actSt05bMonyoDoorXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(209) == 0) {
+        stage_SetAnimation(222, 0, 0);
+    } else {
+        stage_SetAnimation(222, 0, -1);
+    }
+}
+
+void actSt05bSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(143) == 0) {
+        stage_SetAnimation(170, 0, 0);
+        sekizo_mes[0].func = actSt05bSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(170, 0, -1);
+        if (gflagChk(218) == 0) {
+            ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
+        }
+    }
+}
+
+void actSt05bBallXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(125) == 0) {
+        stage_SetAnimation(266, -1, -2);
+    } else {
+        stage_SetAnimation(264, -1, -2);
+    }
+}
+
+void actSt05bSolarXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(125) == 0) {
+        stage_SetAnimation(269, -1, -2);
+        stage_SetAnimation(272, -1, -2);
+    }
+}
 
 void actSt05bSekizoEvent(int x)
 {

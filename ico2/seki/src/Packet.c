@@ -214,9 +214,28 @@ static void pac_makeBoundingBox(float (*box)[4], int flag)
     }
 }
 
-static void pac_error(char *name, int type);
-
-INCLUDE_ASM(pac_error);
+static void pac_error(char *name, int type)
+{
+    switch (type) {
+    case 5:
+        debug_Assert("IN %s\n%s:NoTexture Polygon(s) exist(s).\n", pacWork.name, name);
+        break;
+    case 1:
+        debug_Assert("IN %s\n%s:NoNormal Cluster Model exists.\n", pacWork.name, name);
+        break;
+    case 2:
+        debug_Assert("IN %s\n%s:Abnormal Weight Data exist(s).\n", pacWork.name, name);
+        break;
+    case 3:
+        debug_Assert("IN %s\n%s:Too Much Weight (>=4) Vertex exist(s).\n", pacWork.name, name);
+        break;
+    case 4:
+        debug_Assert("IN %s\n%s:No Weight Vertex exist(s).\n", pacWork.name, name);
+        break;
+    }
+    debug_assert("src/Packet.c", 681);
+    __assert("src/Packet.c", 681, "0");
+}
 
 static int pac_makeNormalStrip(PObjPart *obj, short *strip, int num)
 {
@@ -340,7 +359,78 @@ static int pac_getWeight(PacWeight *w, PObjPart *obj, char *shp, int num)
 
 /* clang-format on */
 
-INCLUDE_ASM(pac_makeClusterStrip);
+static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
+{
+    PacWeight w[4];
+    char buf[256];
+    int i;
+    short *v;
+    char *vtx;
+    char *nrm;
+    char *uv;
+    char *col;
+    PacWork *ctx;
+
+    vtx = obj->vtx;
+    nrm = obj->nrm;
+    uv = obj->uv;
+    col = obj->col;
+    ctx = &pacWork;
+    *(int *)(strip - 6) = (ctx->cursor.addr & 0x0FFFFFFF) - ctx->dmaTag;
+    for (i = 0, v = strip; i < num; i++, v += 8) {
+        PacWork *ctx;
+        int idx;
+
+        idx = pac_getWeight(w, obj, (char *)v, num);
+        ctx = &pacWork;
+        pac_growBounds(ctx, vtx, idx);
+        _CopyVector(ctx->cursor.v++, vtx + v[2] * 16);
+        if (*(float *)(vtx + v[2] * 16 + 12) != 1.0f) {
+            sprintf(buf, "\033[31msorce cluster model data broken! %f %f %f %f [%d]\033[0m\n",
+                    *(float *)(vtx + v[2] * 16), *(float *)(vtx + v[2] * 16 + 4),
+                    *(float *)(vtx + v[2] * 16 + 8), *(float *)(vtx + v[2] * 16 + 12), v[2]);
+            debug_StdPrintfDummy(buf);
+        }
+        if ((int)(ctx->state.l >> 1) & 1)
+            _CopyVector(ctx->cursor.v++, nrm + v[3] * 16);
+        else
+            pac_error("pac_makeClusterStrip", 1);
+        *pacWork.cursor.i++ = w[0].no * 4 + 16;
+        *pacWork.cursor.f++ = w[0].weight;
+        *pacWork.cursor.i++ = w[1].no * 4 + 16;
+        *pacWork.cursor.f++ = w[1].weight;
+        if (w[0].no >= 60 || w[1].no >= 60) {
+            debug_StdPrintfDummy("over 60 skeltons exist.\n");
+            debug_assert("src/Packet.c", 914);
+            __assert("src/Packet.c", 914, "0");
+        }
+        if (((int)(pacWork.state.l >> 3) & 1) && v[4] != -1) {
+            *pacWork.cursor.f++ = *(float *)(uv + v[4] * 16) * obj->texDefs[v[7]].scaleU;
+            *pacWork.cursor.f++ = *(float *)(uv + v[4] * 16 + 4) * obj->texDefs[v[7]].scaleV;
+            *pacWork.cursor.f++ = 1.0f;
+            *pacWork.cursor.f++ = i == 0 ? 0.0f : 1.0f;
+        } else {
+            pac_error("pac_makeClusterStrip", 5);
+        }
+        if (((int)(pacWork.state.l >> 4) & 1) && v[5] != -1) {
+            if (col == 0) {
+                debug_StdPrintfDummy("color table not exists.\n");
+                debug_assert("src/Packet.c", 933);
+                __assert("src/Packet.c", 933, "0");
+            }
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4];
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 1];
+            *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 2];
+            *pacWork.cursor.f++ = 127.0f;
+        } else {
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 128.0f;
+            *pacWork.cursor.f++ = 127.0f;
+        }
+    }
+    return num - 2;
+}
 
 static void pac_openDmaTag(int buf)
 {
@@ -491,12 +581,67 @@ static inline void pac_continueDmaTag(void) /* derived name */
     ctx->cursor.i = p + 7;
 }
 
-INCLUDE_ASM(pac_continueTag);
+static void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex)
+{
+    PacWork *ctx;
+
+    ctx = &pacWork;
+    if (((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4 == 1) {
+        debug_StdPrintfDummy("pac_continueTag:Packet too small. %d\n", 0);
+        debug_assert("src/Packet.c", 1144);
+        __assert("src/Packet.c", 1144, "0");
+    }
+    pac_setVifCode(((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4);
+    pac_setGifTag(mat, tex,
+                  (((((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4) - 1) /
+                   (unsigned int)ctx->counts.w[0]));
+    pac_continueDmaTag();
+    pacTagCount += 1;
+}
 
 /* 192 is the DMA chain's qword budget.  In the "gif over! cut!" message the
    last field is the qword count plus the gif tags the chain already holds
    plus the one about to be opened. */
-INCLUDE_ASM(pac_checkDivide);
+static void pac_checkDivide(int num, PObjMaterial *mat, PObjTexInfo *tex)
+{
+    int limit = 192;
+    PacWork *ctx;
+    unsigned int qwc;
+
+    ctx = &pacWork;
+    if (ctx->counts.w[0] * num > limit) {
+        debug_StdPrintfDummy("Original Strip Too Long. Size %d\n", ctx->counts.w[0] * num);
+        debug_assert("src/Packet.c", 1169);
+        __assert("src/Packet.c", 1169, "0");
+    }
+    qwc = ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4;
+    if (qwc + ctx->counts.w[0] * num > limit) {
+        pac_continueTag(mat, tex);
+        debug_StdPrintfDummy("size(0x%x) strips(%d)\n",
+                             ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4, pacStripCount);
+        debug_StdPrintfDummy("--- cut ---\n\n");
+        pacStripCount = 0;
+    } else if ((qwc - 1) / (unsigned int)ctx->counts.w[0] * ctx->counts.w[1] + 1 +
+                   ctx->counts.w[1] * num >
+               limit) {
+        debug_StdPrintfDummy(
+            "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d\n", qwc + ctx->counts.w[0] * num,
+            limit, pacPolyCount, ctx->counts.w[0], pacStripCount,
+            qwc + ((qwc - 1) / (unsigned int)ctx->counts.w[0] * ctx->counts.w[1] + 1));
+        pac_continueTag(mat, tex);
+        debug_StdPrintfDummy("size(0x%x) strips(%d)\n",
+                             ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4, pacStripCount);
+        debug_StdPrintfDummy("--- cut ---\n\n");
+        pacStripCount = 0;
+    } else if (ctx->counts.w[0] * num >= 256) {
+        debug_StdPrintfDummy("chain too long! cut!\n");
+        pac_continueTag(mat, tex);
+        debug_StdPrintfDummy("size(0x%x) strips(%d)\n",
+                             ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4, pacStripCount);
+        debug_StdPrintfDummy("--- cut ---\n\n");
+        pacStripCount = 0;
+    }
+}
 
 /* the material attribute word's microprogram-mode bit, read at word width */
 typedef struct { /* field names derived */
@@ -566,7 +711,98 @@ static void pac_countOneVertexPacketSize(PObjMaterial *mat, PObjTexInfo *tex)
     }
 }
 
-INCLUDE_ASM(pac_makeStrip);
+static int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, int texno,
+                         PObjModel *mdl)
+{
+    char buf[1024];
+    int num;
+    int dst;
+    PObjTexInfo *tex;
+    PObjMaterial *mat;
+    int pkt;
+    short *p;
+    int n;
+    int i;
+    int first;
+    int size;
+    int sz;
+    int used;
+    int packetSize;
+    PacWork *ctx;
+    float t0;
+
+    num = obj->stripCount;
+    dst = 0;
+    tex = 0;
+    mat = &tbl->materials[matno];
+    pacStripCount = 0;
+    if (texno != -1) {
+        tex = &tbl->texs[texno];
+    }
+    pac_countOneVertexPacketSize(mat, tex);
+    pkt = (int)mallocsekistage(1048576);
+    if (pkt == 0)
+        debug_Assert("pac_makeStrip:No Memory To Convert.\n");
+    pac_openDmaTag(pkt);
+    t0 = debug_GetTimerSec();
+    for (i = 0; i < num; i++) {
+        p = ((short **)obj->strips)[i];
+        n = p[0];
+        first = 0;
+        while (n >= 3) {
+            p += 8;
+            if (p[7] == texno) {
+                if (texno == -1)
+                    debug_Assert("pac_makeStrip:No Tex Poly Exists.%s\n", mdl->name);
+                if (p[6] == matno) {
+                    if (first != 0)
+                        pac_checkDivide(n, mat, tex);
+                    else
+                        first = 1;
+                    if ((mat->attr.word & 1) == 0)
+                        sz = pac_makeNormalStrip(obj, p, n);
+                    else
+                        sz = pac_makeClusterStrip(obj, p, n);
+                    pacPolyCount += sz;
+                    pacStripCount += 1;
+                }
+            }
+            p += n * 8;
+            n = p[0];
+        }
+    }
+    inflateSec += debug_GetTimerSec() - t0;
+    size = pac_closeTag(mat, tex);
+    ctx = &pacWork;
+    used = ctx->cursor.addr - pkt;
+    if (maxPacketSize < used) {
+        maxPacketSize = used;
+        debug_StdPrintfDummy("\033[31mMaxPacketSize = %d\033[0m\n", used);
+    }
+    /* "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n" carries two conversions, "%s" for the object and "0x%x" for
+       the size, so the recomputed size is sprintf's fourth argument. */
+    packetSize = ctx->cursor.addr - pkt;
+    if (1048576 < packetSize) {
+        sprintf(
+            buf,
+            "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n",
+            ctx->name, packetSize);
+        debug_assertMessage("src/Packet.c", 1359, buf);
+        __assert("src/Packet.c", 1359, "e");
+    }
+    if (size > 0) {
+        if (malloc_GetPartition() == 0) {
+            dst = pac_moveToSeki(pkt & 0x0FFFFFFF, size);
+            iosFree((void *)(pkt & 0x0FFFFFFF));
+        } else {
+            dst = reallocseki(pkt & 0x0FFFFFFF, size);
+        }
+    } else {
+        iosFree((void *)(pkt & 0x0FFFFFFF));
+    }
+    *out = (char *)dst;
+    return size;
+}
 
 static void pac_setMaterialPacket(PObjMaterial *ent)
 {
@@ -882,9 +1118,15 @@ static inline void pac_makeTextureTableLine(MatLine *dst, PObjPart *src) /* deri
 /* prev builds the strip chain and then walks it for the clone, j counts the
    materials, m the texture slots, and j then the line records; out is the packet address pac_makeStrip
    returns. */
+static void pac_makePacket(PObjModel *obj, int variant, int mode);
+
 INCLUDE_ASM(pac_makePacket);
 
-INCLUDE_ASM(pac_MakePacket);
+void pac_MakePacket(Sub15C *o)
+{
+    PObjModel *p = o->model;
+    pac_makePacket(p, o->lightMtx->mode, p->disp > 0);
+}
 
 inline void pac_Init(void)
 {

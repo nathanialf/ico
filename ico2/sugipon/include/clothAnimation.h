@@ -220,8 +220,7 @@ struct Cloth4D { /* field names derived */
     sceVu0FMATRIX *colMtx; /* 0x2EC, one matrix a cylinder, the node matrices of the last step */
     ClothPoint *col;       /* 0x2F0, the cylinders */
     int sweepRight; /* 0x2F4, nonzero runs each row's collision sweep from the far edge first; InitCloth4D clears it and nothing sets it */
-    int collision;  /* 0x2F8, nonzero while the cylinders collide */
-}; /* derived name */
+}; /* derived name; 0x2F8 bytes (InitCloth4D 0x1C5708 li a1,760) */
 
 Cloth4D *InitCloth4D(struct GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl);
 ClothSet *InitClothes(ClothCfg *cfg);
