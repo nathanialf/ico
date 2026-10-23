@@ -5,7 +5,7 @@ The share of each section of the Aug-6-2001 prototype's boot ELF that the rebuil
 <!-- progress:begin -->
 | Section | From source | From the disc | Total bytes | Source % | Identical % |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `.text` | 959464 | 529788 | 1489252 | 64.43 % | 100.00 % |
+| `.text` | 961272 | 527980 | 1489252 | 64.55 % | 100.00 % |
 | `.vutext` | 20704 | 0 | 20704 | 100.00 % | 100.00 % |
 | `.data` | 2078608 | 923496 | 3002104 | 69.24 % | 100.00 % |
 | `.rodata` | 65392 | 840056 | 905448 | 7.22 % | 100.00 % |

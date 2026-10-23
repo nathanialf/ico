@@ -1522,25 +1522,6 @@ text BeforeFunc2 0x00201470 0x002015C4 ico2/fumi/src/act2.c lines=43  # ordinal;
 text WayPointWithRangeFromPos2 0x00201EC0 0x00202450 ico2/fumi/src/way_kidnap.c lines=134  # ordinal; first difference at insn 7; imm:7; extent-equal
 rdlit WayPointWithRangeFromPos2 0x00613C28 0x00613D3D ico2/fumi/src/way_kidnap.c  # 7 strings
 sdlit WayPointWithRangeFromPos2 0x0062D9F0 0x0062D9F4 ico2/fumi/src/way_kidnap.c align=4  # 1 word
-text InitWayPointSystem 0x00202760 0x002027F0 ico2/fumi/src/way_llf.c lines=33  # ordinal; first difference at insn 8; imm:2; extent-equal
-text CreateWayGroup 0x002027F0 0x00202864 ico2/fumi/src/way_llf.c lines=24  # ordinal; first difference at insn 24; imm:1; extent-equal
-text CreateTempWayGroup 0x00202868 0x002028FC ico2/fumi/src/way_llf.c lines=9  # ordinal; first difference at insn 23; imm:1; extent-equal
-text DeleteWayGroup 0x00202900 0x0020297C ico2/fumi/src/way_llf.c lines=20  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text CloseWayGroup 0x00202980 0x002029B0 ico2/fumi/src/way_llf.c lines=9  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text CreateWayPoint 0x002029B0 0x00202A28 ico2/fumi/src/way_llf.c lines=19  # ordinal; first difference at insn 22; imm:1; extent-equal
-text AddWayPoint 0x00202A28 0x00202A90 ico2/fumi/src/way_llf.c lines=20  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text AddWayPointTop 0x00202A90 0x00202AD4 ico2/fumi/src/way_llf.c lines=12  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text InsertWayPointAfter 0x00202AD8 0x00202B0C ico2/fumi/src/way_llf.c lines=11  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text DeleteWayPoint 0x00202B10 0x00202BF0 ico2/fumi/src/way_llf.c lines=47  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text WayGroup_begin 0x00202BF0 0x00202C2C ico2/fumi/src/way_llf.c lines=13  # ordinal; first difference at insn 3; imm:1; extent-equal
-text WayGroup_next 0x00202C30 0x00202C6C ico2/fumi/src/way_llf.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text WayBridge_begin 0x00202C70 0x00202CC4 ico2/fumi/src/way_llf.c lines=13  # ordinal; first difference at insn 3; imm:1; extent-equal
-text WayBridge_next 0x00202CC8 0x00202D1C ico2/fumi/src/way_llf.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text WayBridgeAll_begin 0x00202D20 0x00202D68 ico2/fumi/src/way_llf.c lines=13  # ordinal; first difference at insn 3; imm:1; extent-equal
-text WayBridgeAll_next 0x00202D68 0x00202DB0 ico2/fumi/src/way_llf.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text WayBridgeVar_begin 0x00202DB0 0x00202E04 ico2/fumi/src/way_llf.c lines=17  # ordinal; first difference at insn 3; imm:1; extent-equal
-text WayBridgeVar_next 0x00202E08 0x00202E5C ico2/fumi/src/way_llf.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text WayPoint_begin 0x00202E60 0x00202E9C ico2/fumi/src/way_llf.c lines=17  # ordinal; first difference at insn 3; imm:1; extent-equal
 text group_select 0x00203138 0x00203450 ico2/fumi/src/way_tool.c local lines=49  # ordinal; first difference at insn 17; imm:4; extent-equal
 rdlit group_select 0x00614198 0x006141A8 ico2/fumi/src/way_tool.c  # target side
 sdlit group_select 0x0062DA14 0x0062DA18 ico2/fumi/src/way_tool.c  # 1 static
