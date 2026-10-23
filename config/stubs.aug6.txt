@@ -1021,44 +1021,6 @@ text backStageProcessInStage 0x0019DFD8 0x0019E458 ico2/common/src/backStage.c l
 lit4 backStageProcessInStage 0x0062B254 0x0062B258 ico2/common/src/backStage.c  # 1 float
 rdlit backStageProcessInStage 0x0060B3E8 0x0060B472 ico2/common/src/backStage.c  # 4 strings
 sdlit backStageProcessInStage 0x0062C9D8 0x0062C9DC ico2/common/src/backStage.c  # 1 string
-text InitCharFileManager 0x0019E5D0 0x0019E650 ico2/common/src/charFileManager.c lines=11  # ordinal; first difference at insn 1; imm:1; extent-equal
-text ResetCharFileManager 0x0019E650 0x0019E6D8 ico2/common/src/charFileManager.c lines=13  # ordinal; first difference at insn 1; imm:1; extent-equal
-text ReadModelFile 0x0019E6D8 0x0019E8A8 ico2/common/src/charFileManager.c lines=38  # ordinal; first difference at insn 21; imm:4; extent-equal
-rdlit ReadModelFile 0x0060B478 0x0060B55A ico2/common/src/charFileManager.c  # 5 strings
-sdlit ReadModelFile 0x0062C9E8 0x0062C9EA ico2/common/src/charFileManager.c  # 1 string
-text ReadVolumeModelFile 0x0019E8A8 0x0019EA74 ico2/common/src/charFileManager.c lines=32  # ordinal; first difference at insn 32; imm:4; extent-equal
-rdlit ReadVolumeModelFile 0x0060B560 0x0060B5E8 ico2/common/src/charFileManager.c  # 3 strings
-sdlit ReadVolumeModelFile 0x0062C9F0 0x0062C9F2 ico2/common/src/charFileManager.c  # 1 string
-text ReadShadowModelFile 0x0019EA78 0x0019EC54 ico2/common/src/charFileManager.c lines=33  # ordinal; first difference at insn 23; imm:5; extent-equal
-rdlit ReadShadowModelFile 0x0060B5E8 0x0060B670 ico2/common/src/charFileManager.c  # 3 strings
-text ReadTextureFile 0x0019EC58 0x0019ED5C ico2/common/src/charFileManager.c lines=25  # ordinal; first difference at insn 0; length:-38; extent-differs
-rdlit ReadTextureFile 0x0060B670 0x0060B6D1 ico2/common/src/charFileManager.c  # 2 strings
-text ReadSkeltonFile 0x0019ED60 0x0019EFB8 ico2/common/src/charFileManager.c lines=49  # ordinal; first difference at insn 35; imm:5; extent-equal
-rdlit ReadSkeltonFile 0x0060B6D8 0x0060B759 ico2/common/src/charFileManager.c  # 3 strings
-sdlit ReadSkeltonFile 0x0062C9F8 0x0062C9FE ico2/common/src/charFileManager.c  # 1 string
-text ReadCollisionFile 0x0019EFB8 0x0019F328 ico2/common/src/charFileManager.c lines=67  # ordinal; first difference at insn 30; imm:5; extent-equal
-rdlit ReadCollisionFile 0x0060B760 0x0060B885 ico2/common/src/charFileManager.c  # 12 strings
-text ReadStageAnimationFile 0x0019F328 0x0019F430 ico2/common/src/charFileManager.c lines=20  # ordinal; first difference at insn 22; imm:2; extent-equal
-rdlit ReadStageAnimationFile 0x0060B888 0x0060B8B9 ico2/common/src/charFileManager.c  # 1 string
-text ReadMotionFile 0x0019F430 0x0019F674 ico2/common/src/charFileManager.c lines=35  # ordinal; first difference at insn 21; imm:8; extent-equal
-rdlit ReadMotionFile 0x0060B8C0 0x0060B99A ico2/common/src/charFileManager.c  # 5 strings
-text ReadParticleEffectFile 0x0019F678 0x0019F70C ico2/common/src/charFileManager.c lines=8  # ordinal; first difference at insn 11; imm:1; extent-equal
-text ReadSoundBdFile 0x0019F710 0x0019F8BC ico2/common/src/charFileManager.c lines=36  # ordinal; first difference at insn 28; imm:3; extent-equal
-rdlit ReadSoundBdFile 0x0060B9A0 0x0060B9CB ico2/common/src/charFileManager.c  # 1 string
-text ReadSoundHdFile 0x0019F8C0 0x0019FA9C ico2/common/src/charFileManager.c lines=52  # ordinal; first difference at insn 36; imm:5; extent-equal
-rdlit ReadSoundHdFile 0x0060B9D0 0x0060B9FB ico2/common/src/charFileManager.c  # 1 string
-text ReadShockFile 0x0019FAA0 0x0019FBB0 ico2/common/src/charFileManager.c lines=28  # ordinal; first difference at insn 27; imm:1; extent-equal
-rdlit ReadShockFile 0x0060BA60 0x0060BA89 ico2/common/src/charFileManager.c  # 1 string
-text ReadCamerasetFile 0x0019FBB0 0x0019FC80 ico2/common/src/charFileManager.c lines=16  # ordinal; first difference at insn 16; imm:3; extent-equal
-rdlit ReadCamerasetFile 0x0060BA90 0x0060BAC2 ico2/common/src/charFileManager.c  # 1 string
-text ReadEndCheckFile 0x0019FC80 0x0019FCF8 ico2/common/src/charFileManager.c lines=7  # ordinal; first difference at insn 1; imm:1; extent-equal
-text ReadStageSettingFile 0x0019FCF8 0x0019FD94 ico2/common/src/charFileManager.c lines=11  # ordinal; first difference at insn 14; imm:1; extent-equal
-text CSVSYSTEM_ReadCharFiles 0x0019FD98 0x001A004C ico2/common/src/charFileManager.c lines=59  # ordinal; first difference at insn 9; imm:12; extent-equal
-rdlit CSVSYSTEM_ReadCharFiles 0x0060BAC8 0x0060BCD9 ico2/common/src/charFileManager.c  # 14 strings
-text ReadSoundSqFile 0x001A0050 0x001A01B8 ico2/common/src/charFileManager.c lines=39  # ordinal; first difference at insn 36; imm:4; extent-equal
-rdlit ReadSoundSqFile 0x0060BA00 0x0060BA2B ico2/common/src/charFileManager.c def  # 1 string
-text ReadSoundAdpcmFile 0x001A01B8 0x001A02F4 ico2/common/src/charFileManager.c lines=23  # ordinal; first difference at insn 37; imm:1; extent-equal
-rdlit ReadSoundAdpcmFile 0x0060BA30 0x0060BA59 ico2/common/src/charFileManager.c def  # 1 string
 text debug_Assert 0x001A0318 0x001A03AC ico2/common/src/debug.c lines=9  # ordinal; first difference at insn 15; imm:4; extent-equal
 rdlit debug_Assert 0x0060D3B0 0x0060D3BC ico2/common/src/debug.c align=16  # 1 string (the log strings after it are debug_openLog's and debug_closeLog's)
 sdlit debug_Assert 0x0062CB40 0x0062CB4A ico2/common/src/debug.c  # 2 strings
