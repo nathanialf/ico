@@ -59,16 +59,11 @@
 # provisional until the function matches. The comment gives the evidence
 # (for a PAL twin: tier, first difference, residue class, extents).
 
-text func_00168EA8 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; derived name
-lit4 func_00168EA8 0x00678978 0x006789AC ico2/fumi/src/girl_act.c  # 13 floats (target side)
-rdlit func_00168EA8 0x005A2730 0x005A2790 ico2/fumi/src/girl_act.c  # 5 strings (target side): its string, then four no word of .text addresses, up to its jump table
-rdlit func_00168EA8 0x005A2790 0x005A2848 ico2/fumi/src/girl_act.c def  # 1 jtbl (target side); emitted where the demo has it
-text func_00169630 0x00169630 0x00169FE0 ico2/fumi/src/girl_act.c  # jun26-only; derived name
-lit4 func_00169630 0x006789AC 0x006789B4 ico2/fumi/src/girl_act.c  # 2 floats (target side)
-rdlit func_00169630 0x005A2848 0x005A2888 ico2/fumi/src/girl_act.c  # 3 strings (target side)
-sdlit func_00169630 0x00679F18 0x00679F40 ico2/fumi/src/girl_act.c def  # 5 strings (target side): four no word of .text addresses, then its own; after the four pad-timer words in the demo's .sdata
-text actGirlStart 0x0016BA10 0x0016BBE8 ico2/fumi/src/girl_act.c lines=38  # aug
-rdlit actGirlStart 0x005A2A88 0x005A2A99 ico2/fumi/src/girl_act.c  # 1 string
+text subGirlControl 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; the aug6/PAL MAIN.MAP name of its twin (actGirlStart's first control thread, 21, before subGirlCollision)
+lit4 subGirlControl 0x00678978 0x006789AC ico2/fumi/src/girl_act.c  # 13 floats (target side)
+rdlit subGirlControl 0x005A2730 0x005A2790 ico2/fumi/src/girl_act.c  # 5 strings (target side): its string, then four no word of .text addresses, up to its jump table
+rdlit subGirlControl 0x005A2790 0x005A2848 ico2/fumi/src/girl_act.c def  # 1 jtbl (target side); emitted where the demo has it
+sdlit subGirlControl 0x00679F18 0x00679F37 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base ("SLOW", "HURRY", "STOP", "target"; no word of .text addresses them): after the four pad-timer words, before subGirlCollision's "[%d]\n" at 0x679F38, as ntsc's row 0x6324C8..0x6324E7
 text stgmgrNextStagePreLoad 0x00192E08 0x0019303C ico2/common/src/StageManager.c local lines=69  # ordinal; differs-at:16; length:-1; extent-differs
 rdlit stgmgrNextStagePreLoad 0x00659DC0 0x00659DE6 ico2/common/src/StageManager.c  # 1 string
 sdlit stgmgrNextStagePreLoad 0x0067A2A0 0x0067A2A5 ico2/common/src/StageManager.c  # 1 string
