@@ -171,19 +171,6 @@ lit4 subGirlControl 0x0062AF4C 0x0062AF80 ico2/fumi/src/girl_act.c # target side
 rdlit subGirlControl 0x00553A60 0x00553AC0 ico2/fumi/src/girl_act.c  # target side
 rdlit subGirlControl 0x00553AC0 0x00553B78 ico2/fumi/src/girl_act.c align=16  # jump table (target side)
 sdlit subGirlControl 0x0062C628 0x0062C647 ico2/fumi/src/girl_act.c  # target side: four strings of a disabled print
-text HandMgr_GetDistHand.273 0x00170CB8 0x00170DC8 ico2/fumi/src/girl_act.c local file=HandMgr_GetDistHand_273  # nested in actGirlHand, which is carved; census twin of PAL's HandMgr_GetDistHand.289 (gcc numbers it HandMgr_GetDistHand.273 in this tree)
-text HandMgr_Update.281 0x00170DC8 0x00170EBC ico2/fumi/src/girl_act.c local file=HandMgr_Update_281  # nested in actGirlHand, which is carved; census twin of PAL's HandMgr_Update.297 (gcc numbers it HandMgr_Update.281 in this tree)
-text HandMgr_Judge.285 0x00170EC0 0x00171028 ico2/fumi/src/girl_act.c local file=HandMgr_Judge_285  # nested in actGirlHand, which is carved; census twin of PAL's HandMgr_Judge.301 (gcc numbers it HandMgr_Judge.285 in this tree)
-text HandMgr_Print.289 0x00171028 0x00171130 ico2/fumi/src/girl_act.c local file=HandMgr_Print_289  # nested in actGirlHand, which is carved; census twin of PAL's HandMgr_Print.305 (gcc numbers it HandMgr_Print.289 in this tree)
-rdlit HandMgr_Print.289 0x00553BEC 0x00553C40 ico2/fumi/src/girl_act.c file=HandMgr_Print_289 # target side
-text HandMgr_Speed.293 0x00171130 0x0017130C ico2/fumi/src/girl_act.c local file=HandMgr_Speed_293  # trfile; aug6-only in the census; PAL's HandMgr_Speed.309 (604 B in PAL); nested in its parent, gcc numbers it HandMgr_Speed.293 in this tree (PAL HandMgr_Speed.309)
-lit4 HandMgr_Speed.293 0x0062AF88 0x0062AF90 ico2/fumi/src/girl_act.c file=HandMgr_Speed_293 # target side
-text GetBoyMode.297 0x00171310 0x00171474 ico2/fumi/src/girl_act.c local file=GetBoyMode_297  # trfile; aug6-only in the census; PAL's GetBoyMode.313 (368 B in PAL); nested in its parent, gcc numbers it GetBoyMode.297 in this tree (PAL GetBoyMode.313)
-rdlit GetBoyMode.297 0x00553C40 0x00553D50 ico2/fumi/src/girl_act.c file=GetBoyMode_297 align=16  # target side
-text actGirlHand 0x00171478 0x00171EB8 ico2/fumi/src/girl_act.c lines=353  # aug6-only in the census (in girl_act.c's span); actGirlHand by body ratio 0.79, callees 1.00, sizes 2792/2624
-lit4 actGirlHand 0x0062AF90 0x0062AFA4 ico2/fumi/src/girl_act.c # target side
-rdlit actGirlHand 0x00553D50 0x00553D5C ico2/fumi/src/girl_act.c # target side
-sdlit actGirlHand 0x0062C650 0x0062C660 ico2/fumi/src/girl_act.c  # target side: "?\n", the two statics pullLen and pullTurn, a float
 text actSt03tGirlCam 0x00210ED0 0x00210F38 ico2/script/src/st03t.c lines=12  # trfile; aug6-only in the census; PAL's actSt03tGirlCam (104 B in PAL)
 text actSt03tSekizo 0x00210F38 0x00210FA0 ico2/script/src/st03t.c lines=9  # trfile; aug6-only in the census; PAL's actSt03tSekizo (104 B in PAL)
 lit4 actSt03tSekizo 0x0062B670 0x0062B67C ico2/script/src/st03t.c  # 3 floats
