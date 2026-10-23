@@ -1,11 +1,13 @@
 #include "st17b.h"
+#include "layout_texture.h"
 #include "act.h"
 #include "commonact.h"
 #include "gflag.h"
+#include "StageAnimation.h"
 #include "StageManager.h"
 #include "script.h"
 #include "typedef.h"
-#include "include_asm.h"
+#include "main.h"
 
 static ActMail check_mes[2] = {{393}, {392}}; /* derived name */
 
@@ -22,9 +24,36 @@ void actSt17bTest(GObj *volatile self)
     _ACTWait(1);
 }
 
-INCLUDE_ASM(actSt17bCheck);
+void actSt17bCheck(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = (Act *)actInitialize(self);
 
-INCLUDE_ASM(actSt17bIntro);
+    _ACTWait(1);
+    ScpCallCameraSetTarget(14990.0f, 7074.0f, -4694.0f);
+    scpAdpcmPlayRequestFunc(92, &lightning2, 1, 0, 1);
+
+    if (gflagChk(33) == 0) {
+        check_mes[0].func = actSt17bCheckChk;
+        act->mail = check_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    }
+}
+
+void actSt17bIntro(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(34) == 0) {
+        intro_mes[0].func = actSt17bIntroChk;
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    }
+}
 
 void actSt17bCheckChk(GObj *volatile self)
 {
@@ -33,4 +62,19 @@ void actSt17bCheckChk(GObj *volatile self)
     gflagOn(32);
 }
 
-INCLUDE_ASM(actSt17bIntroChk);
+void actSt17bIntroChk(GObj *volatile self)
+{
+    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(34);
+    stage_SetAnimation(115, 1, 0);
+    while (stage_CheckAnimationFinish(115) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}

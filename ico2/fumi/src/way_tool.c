@@ -23,7 +23,6 @@
 #include "way_util.h"
 #include "way_tool.h"
 #include "main.h"
-#include "include_asm.h"
 
 /* way_tool.o .data +0x00: the scratch world position the tool builds a point
    at; the fourth word is the homogeneous 1.0f. */
@@ -143,7 +142,7 @@ static inline void relabel_way_groups(void) /* derived name */
     int n = 0;
     int i;
 
-    for (i = 0; i < 94; i++) {
+    for (i = 0; i < 64; i++) {
         if (way_group[i].used == 1) {
             sprintf(debugWayGroupSelect[n].s, "% 2d (% 2d) ", n, way_group[i].count);
             if (way_group[i].bridge == 1) {
@@ -156,9 +155,55 @@ static inline void relabel_way_groups(void) /* derived name */
 
 /* a file-static group_select, distinct from camera-editor.o's global of the
    same name; debugWayMenu below holds its address */
-static int group_select(void);
+static int group_select(void)
+{
+    static int selectState = 0; /* derived name */
+    WayGroup *e;
+    int state;
+    int i;
+    int r;
 
-INCLUDE_ASM(group_select);
+    state = selectState;
+    if (state == 0) {
+        relabel_way_groups();
+        for (i = 0; i < 64; i++) {
+            e = &way_group[i];
+            if (e->used == 1) {
+                if (i == current_select_gid) {
+                    wayGroupSel = i;
+                    break;
+                }
+            }
+        }
+        selectState = 1;
+    } else if (state == 1) {
+        if (wayToolPad.trg & 0x2000) {
+            set_bridge(current_select_gid);
+            relabel_way_groups();
+        } else if (wayToolPad.trg & 0x8000) {
+            way_group[current_select_gid].bridge = 0;
+            relabel_way_groups();
+        }
+        r = debug_SelectCsvWindow("group + select", 0x12, 0x36, 0xB, debugWayGroupSelect, 8, 0, 1,
+                                  n_way_group, &wayGroupSel);
+        switch (r) {
+        case 0:
+            current_select_gid = wayGroupSel;
+            return 0;
+        case -1:
+            selectState = 0;
+            return -1;
+        default:
+            selectState = 2;
+            break;
+        }
+    } else if (state == 2) {
+        current_select_gid = wayGroupSel;
+        selectState = 0;
+        return -1;
+    }
+    return 0;
+}
 
 static int point_delete(void)
 {
@@ -620,7 +665,70 @@ WayMenu debugWayMenu[9] = {{"group + create", group_create},  {"      + select",
                            {"quick save", quick_save_wpfile}, {"quick load", quick_load_wpfile},
                            {"save text", wp_print_out}};
 
-INCLUDE_ASM(debug_WayTool);
+int debug_WayTool(void)
+{
+    static int menuState = 1; /* derived name */
+    static int menuSel = 0;   /* derived name */
+    float pos[4];
+    int r;
+    int (*f)(int);
+    int state;
+
+    cursorGObj = isysGObjSearchFromObjLayoutID(2);
+    if (cursorGObj != 0) {
+        if (first_waytool == 0) {
+            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__, 1180);
+            isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
+            isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);
+            first_waytool = 1;
+        }
+    }
+
+    if (first_waytool == 1) {
+        savedCamTarget = CurrentTargetGObj;
+        CurrentTargetGObj = cursorGObj;
+        GetRootPosition(pos, savedCamTarget);
+        SetDirectRootPosition(CurrentTargetGObj, pos);
+        Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
+        first_waytool = 2;
+    }
+
+    iosPadConnect(&wayToolPad, 0, 0, &iosPadConfDefault);
+    iosPadRead(&wayToolPad);
+    iosPadGetStick(&wayToolPad, wayToolStick, 1, 0, 0, 0);
+
+    state = menuState;
+    if (state == 1) {
+        r = debug_SelectCsvWindow("Way Tool", 0x12, 0x36, 0xB, debugWayMenu, 8, 0, 1, 9, &menuSel);
+        switch (r) {
+        case 0:
+            return 0;
+        case -1:
+            first_waytool = 1;
+            menuState = 1;
+            CurrentTargetGObj = savedCamTarget;
+            Camctrl_SetTarget(CurrentTargetGObj, 0, 3);
+            return -1;
+        default:
+            first_waytool = 1;
+            menuState = 2;
+            break;
+        }
+    } else if (state == 2) {
+        f = debugWayMenu[menuSel].fn;
+        if (f == 0) {
+            menuState = 1;
+        } else {
+            r = f(first_waytool);
+            if (r == -1) {
+                menuState = 1;
+            } else if (r != 0) {
+                menuState = 1;
+            }
+        }
+    }
+    return 0;
+}
 
 inline void cursor_control(GObj *volatile self)
 {

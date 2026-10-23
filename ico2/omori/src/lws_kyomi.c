@@ -9,14 +9,25 @@
 #include "main.h"
 #include "geometryManager.h"
 #include "brain.h"
-#include "include_asm.h"
 
 void LwsKyomiGeo(GObj *gobj)
 {
     brainSubLevelGop(gobj, 0.1f);
 }
 
-INCLUDE_ASM(CreateKyomiGObj);
+GObj *CreateKyomiGObj(void)
+{
+    float lay[16];
+    GObj *gobj;
+
+    memset(lay, 0, 64);
+    lay[8] = 1.0f;
+    lay[9] = 1.0f;
+    lay[10] = 1.0f;
+    gobj = CreateLayoutedGObj(59, 68, -1, 0, lay, 1, 7, 0);
+    brainStatusDefaultSet(&brainGirl, gobj, 1);
+    return gobj;
+}
 
 void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
 {

@@ -11,18 +11,114 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 #include <string.h>
-#include "include_asm.h"
 
 /* InitFlagGeo builds a cloth from the laid-out object's row of layoutClothDef
-   (attackCheckBoundary.h): its corners, the cloth type in the low four bits,
-   the rows and columns, the length shared out over the columns and the fall. */
+   (attackCheckBoundary.h): the line between its first two corners, the
+   cloth type, the rows and columns, the length shared out over the columns
+   and the fall.  Types 1 and 2 hang a node chain from the line's ends,
+   type 0 a textured cloth along it; every type gets its clothes from
+   InitClothes. */
 
 /* the flag's cloth template, copied into every new config; InitFlagGeo
-   passes __LINE__, so its lines below are kept out of clang-format */
+   passes __LINE__, so its lines below are kept out of clang-format (aug6's
+   TRFILE puts its opening brace on line 30, its first allocation on
+   line 31) */
 static ClothCfg flagCfg = {8, 50.0f, 10, 0, 0, 0, 5.0f}; /* derived name */
 
 /* clang-format off */
-INCLUDE_ASM(InitFlagGeo);
+char *InitFlagGeo(char *self, char *arg)
+{
+    char *p = iosMallocDebug(ios_partition_sugipon, 16, __FILE__, __LINE__);
+    Vec4Flag v[2];
+    char *mesh;
+
+    const LayoutClothDef *ent = &layoutClothDef[*(int *)(arg + 0x30)];
+    float k = ent->length / (float)ent->count;
+    float d;
+    int type, i;
+    ClothCfg *cl = iosMallocDebug(ios_partition_sugipon, 56, __FILE__, __LINE__);
+    *cl = flagCfg;
+    cl->weight = ent->weight;
+    cl[1].num = -1;
+    cl->num = ent->rows;
+    cl->div = ent->count;
+
+    mesh = iosMallocDebug(ios_partition_sugipon, cl->num * 48, __FILE__, __LINE__);
+    ((FlagNodeWord *)&cl->anchors)->i = (int)mesh;
+    /* the first two corners of the layout entry, with y negated and w set
+       to 1 */
+    v[0].m[0] = ent->pt[0][0];
+    v[0].m[1] = -ent->pt[0][1];
+    v[0].m[2] = ent->pt[0][2];
+    v[0].m[3] = 1.0f;
+
+    v[1].m[0] = ent->pt[1][0];
+    v[1].m[1] = -ent->pt[1][1];
+    v[1].m[2] = ent->pt[1][2];
+    v[1].m[3] = 1.0f;
+
+    type = ent->kind;
+    *(int *)(p + 0x0) = type;
+    switch (type) {
+    case 1:
+    case 2:
+        FLAG_ALLOC_NODES(((SubHandle *)(self + 0x15C))->sub, cl->div - 1);
+        CopyVector(((SubHandle *)(self + 0x15C))->p + 0xA0, ZeroPoint);
+        CopyVector(mesh + 0x10, &v[0]);
+        CopyVector(mesh + 0x20, &v[1]);
+        *(int *)mesh = -1;
+        *(float *)(mesh + 4) = k;
+        break;
+        /* types 1 and 2 above reach the 0x15C slot through SubHandle, as
+           cage.c and girlForceField.c do; the other slot reads here are
+           GOBJ_SUB's.  Type 0 hangs the cloth along the line between the
+           two corners. */
+    case 0:
+        cl->tex = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, __LINE__);
+        strcpy(cl->tex, ent->name);
+
+
+        _InterVectorXYZ(GOBJ_SUB(self)->root.pos, &v[0], &v[1], 0.5f);
+        _SubVectorXYZ(&v[0], &v[0], GOBJ_SUB(self)->root.pos);
+        _SubVectorXYZ(&v[1], &v[1], GOBJ_SUB(self)->root.pos);
+
+        d = GetPointDistance(&v[0], &v[1]);
+        cl->segLength = d / (float)cl->num;
+
+
+
+        for (i = 0; i < cl->num; i++) {
+            _InterVector(mesh + 0x10 + i * 48, &v[0], &v[1],
+                         (float)i / (float)(cl->num - 1));
+            *(int *)(mesh + i * 48) = -1;
+            *(float *)(mesh + i * 48 + 4) = k;
+        }
+
+        break;
+    }
+
+
+
+    *(int *)(p + 4) = (int)InitClothes(cl);
+    *(int *)(p + 8) = (int)cl;
+
+
+
+
+    if (GOBJ_SUB(self)->colData != 0) {
+
+        *(int *)(p + 0xC) = 1;
+    } else { *(int *)(p + 0xC) = 0; }
+
+    GOBJ_SUB(self)->disp = 0;
+
+    GOBJ_SUB(self)->nodes->rot[0] = GOBJ_SUB(self)->nodes->rot[1] = GOBJ_SUB(self)->nodes->rot[2] = 0;
+    ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[0])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[1])->f = ((FlagNodeWord *)&GOBJ_SUB(self)->nodes->scale[2])->f = 1.0f;
+
+    SetIdentityQuaternion(GOBJ_SUB(self)->root.quat);
+
+    return p;
+}
 
 /* clang-format on */
 

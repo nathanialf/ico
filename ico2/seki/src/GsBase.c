@@ -26,7 +26,6 @@
 #include "main.h"
 #include <libgraph.h>
 #include <libcdvd.h>
-#include "include_asm.h"
 
 /* declared here with an int count, not through string.h, as in
    layout_action.c and puddle.c */
@@ -805,7 +804,36 @@ static int gsb_PostEffect(void)
 /* gsb_InitGSSystem's first call brings every module up */
 static int firstGsInit = 1; /* derived name */
 
-INCLUDE_ASM(gsb_InitGSSystem);
+void gsb_InitGSSystem(void)
+{
+    screen_offset_y = 0;
+    screen_offset_x = 0;
+    if (firstGsInit != 0) {
+        sceGsResetPath();
+        sceVpu0Reset();
+        debug_StdPrintfDummy("dma init\n");
+        dma_init();
+        debug_StdPrintfDummy("matrix init\n");
+        matrix_init();
+        debug_StdPrintfDummy("texture init\n");
+        tex_Init();
+        debug_StdPrintfDummy("gs init\n");
+        sceGsSyncV(0);
+        gsb_Init(&db);
+        sceGsSyncV(0);
+        dl_Init();
+        firstGsInit = 0;
+    } else {
+        debug_StdPrintfDummy("dma init\n");
+        dma_init();
+        debug_StdPrintfDummy("texture init\n");
+        tex_Init();
+    }
+    resetmallocseki();
+    pac_Init();
+    reg_Init();
+    gsSystemReady = 1;
+}
 
 /* the frames gsb_SyncGSSystem has waited on the GS */
 static int syncRetry = 0; /* derived name */
@@ -897,7 +925,68 @@ static const float vsScreenSize[] = {768.0f, 768.0f, 0.0f, 0.0f}; /* derived nam
  * screen, the one projHalf for the half size screen, the viewport viewport,
  * and the pair built on a 500 unit screen at matrixptr+0x640 and +0x680.  The 500 unit pair's
  * scale terms are locals of their own. */
-INCLUDE_ASM(gsb_SetVSMatrixSub);
+static void gsb_SetVSMatrixSub(float *screen, float *proj, float *projHalf, float *viewport,
+                               float *vs)
+{
+    sceVu0FVECTOR v = {ScreenWidth / 2, ScreenHeight / 2, 0.0f, 0.0f};
+    float m0[16];
+    float sx;
+    float sy;
+    float cx;
+    float cy;
+    float zn;
+    float zf;
+
+    sx = vs[7] * vsScreenSize[0] / vs[0];
+    sy = vs[7] * vsScreenSize[1] / vs[0];
+
+    cx = vs[7] * v[0] / vs[0];
+    cy = vs[7] * v[1] / vs[0];
+
+    zn = (-vs[6] * vs[7] + vs[5] * vs[8]) / (-vs[7] + vs[8]);
+
+    zf = vs[8] * vs[7] * (-vs[5] + vs[6]) / (-vs[7] + vs[8]);
+
+    _UnitMatrix(screen);
+    screen[0] = vs[0];
+    screen[5] = vs[0];
+    screen[10] = 0.0f;
+    screen[15] = 0.0f;
+    screen[14] = 1.0f;
+    screen[11] = 1.0f;
+
+    _UnitMatrix(m0);
+    /* clang-format off */
+    m0[0] = vs[1]; m0[5] = vs[2]; m0[10] = zf;
+    m0[12] = vs[3]; m0[13] = vs[4]; m0[14] = zn;
+    /* clang-format on */
+    _MulMatrix(screen, m0, screen);
+
+    _UnitMatrix(proj);
+    proj[0] = (vs[7] + vs[7]) / (sx + sx);
+    proj[5] = (vs[7] + vs[7]) / (sy + sy);
+    proj[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    proj[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    proj[11] = 1.0f;
+    proj[15] = 0.0f;
+
+    _UnitMatrix(viewport);
+    viewport[0] = vs[0] * vs[1] * sx / vs[7];
+    viewport[5] = vs[0] * vs[2] * sy / vs[7];
+    viewport[10] = (-vs[6] + vs[5]) * 0.5f;
+    viewport[12] = vs[3];
+    viewport[13] = vs[4];
+    viewport[14] = (vs[6] + vs[5]) * 0.5f;
+    viewport[15] = 1.0f;
+
+    _UnitMatrix(projHalf);
+    projHalf[0] = (vs[7] + vs[7]) / (cx + cx);
+    projHalf[5] = (vs[7] + vs[7]) / (cy + cy);
+    projHalf[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    projHalf[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    projHalf[11] = 1.0f;
+    projHalf[15] = 0.0f;
+}
 
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices
  * from: the zoom, the two aspect terms, the centre, and the near and far
@@ -909,7 +998,37 @@ static float vsParam[10]; /* derived name */
  * towards its target by a thousandth of the step, and the view record at
  * vsParam carries the centre, the aspect terms and the near and far
  * planes gsb_SetVSMatrixSub builds the matrices from. */
-INCLUDE_ASM(gsb_SetVSMatrix);
+void gsb_SetVSMatrix(int w, int h, float d)
+{
+    float zoom;
+
+    center_X = center_Y = 2048.0f;
+    currentFocusDistance = d;
+    vsWidth = w;
+    vsHeight = h;
+    if (zoomTarget != zoomCurrent) {
+        zoomCurrent = zoomCurrent + (zoomTarget - zoomCurrent) * zoomSpeed * 0.001f;
+    }
+    if (staffRollStartFlag != 0) {
+        center_X = center_X - staffRollCenterOffsetX;
+    }
+    zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)debug_zoom_per *
+           (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
+    vsParam[0] = zoom;
+    tex_UpdateMipMapLevel((float)GlobalStageSetting.viewScale * zoomCurrent *
+                          (float)debug_zoom_per * (float)ScreenWidth / 640.0f / 100.0f);
+    vsParam[3] = center_X;
+    vsParam[4] = center_Y;
+    vsParam[5] = 1.0f;
+    vsParam[6] = 536870880.0f;
+    vsParam[7] = 2.0f;
+    vsParam[1] = (float)w / (float)ScreenWidth;
+    vsParam[8] = 262144.0f;
+    vsParam[2] =
+        (float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f) * (float)h / (float)ScreenHeight;
+    gsb_SetVSMatrixSub((float *)(matrixptr + 0xC0), (float *)(matrixptr + 0x1C0),
+                       (float *)(matrixptr + 0x240), (float *)(matrixptr + 0x340), vsParam);
+}
 
 /* Clip a box against the current matrix: transform its eight corners with the
  * matrix in $vf4 to $vf7 and read the clip flags out of $vi18.  All eight

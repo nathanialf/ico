@@ -151,7 +151,70 @@ static void idle(void)
     }
 }
 
-INCLUDE_ASM(scheduler);
+/* vsyncs counted toward systemStatus[1], the frame step */
+static int frameStepCount = 0; /* derived name */
+
+static void scheduler(void)
+{
+    int msg[4];
+
+    debug_StdPrintfDummy("scheduler() in\n");
+    iosMsgQueueCreate(&SchedulerMsgQ, schedulerMsgBuff, 8);
+    iosMsgSetEvent(2, &SchedulerMsgQ, 2);
+    while (1) {
+        iosMsgRecv(&SchedulerMsgQ, msg, 1);
+        if (msg[0] == 2) {
+            vsyncCount++;
+            frameStepCount++;
+            if (frameStepCount >= systemStatus[1] && stageManagerFreeResourceFlag == 0) {
+                if (frameReady > 0) {
+                    if (mpegPlay != 0) {
+                        frameReady = 0;
+                        goto wake;
+                    }
+                    if (gsb_SyncGSSystem() != 0) {
+                        goto skip;
+                    }
+                    _PushVu0Registers();
+                    gsb_UpdateGSSystem();
+                    _PopVu0Registers();
+                    if (systemStatus[5] != 0) {
+                        if (iosCdvdDiskStatusGet() != 0) {
+                            frameReady = 0;
+                            goto wake;
+                        }
+                    }
+                    GlobalTimer++;
+                }
+                frameReady = 0;
+            wake:
+                iosThreadCancelWakeup(&mainThread);
+                startStagePauseDisableTimer++;
+                if (iosThreadWakeup(&mainThread) < 0) {
+                    /* failed to start the main thread */
+                    debug_StdPrintfDummy("メーンスレッドの起動失敗しました\n");
+                }
+                frameStepCount = 0;
+            }
+        skip:
+            iosThreadWakeup(&soundThread);
+            if (IosMcLock >= 0) {
+                SignalSema(IosMcLock);
+            }
+            if (IosCdvdMgrSleep != 0 && (mpegPlay == 0 || iosCdvdBackGroundMgrRunning != 0)) {
+                iosThreadWakeup(&cdvdThread);
+            }
+            if (stgMgrWakeupRequest != 0) {
+                iosThreadWakeup(&stageManagerThread);
+            }
+        } else {
+            /* an unknown message arrived */
+            debug_StdPrintfDummy("不明なメッセージの着信を確認しました in Scheduler\n");
+        }
+    }
+    /* unreachable: the loop above never exits */
+    debug_StdPrintfDummy("scheduler() out\n");
+}
 
 static void boot(void)
 {
@@ -209,9 +272,6 @@ int main(void)
     boot();
     return 0;
 }
-
-/* vsyncs counted toward systemStatus[1], the frame step */
-static int frameStepCount = 0; /* derived name */
 
 /* main.c's .sdata globals.  Each is a 4-byte scalar; the ones marked
    QWORD open a 16-byte quadword of their own, the rest of which stays
