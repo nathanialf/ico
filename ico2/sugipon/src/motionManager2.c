@@ -986,11 +986,11 @@ static void dispSkeltonHierarchy(int node)
    after SlopeIKControl */
 static int skeltonDispSwitch; /* derived name */
 
-void DispSkelton(GObj *self, int motion)
+void DispSkelton(GObj *self, void *motion)
 {
     /* the skeleton, read as a void * word */
     skelNodes = *(void **)((char *)GOBJ_SUB(self) + 0x8C);
-    skelMotion = motion;
+    skelMotion = (int)motion;
     skelGObj = self;
 
     if (skeltonDispSwitch) {
@@ -1197,7 +1197,7 @@ static void getVerticalElementOfWallNormal(int *self, int *p, WallCfg *cfg)
     Sub15C *p15c = obj->dobj;
     int v_c = p15c->nodeMtx;
 
-    GetWallGlobalInfo(self, p, cfg->elem, v_c + sh);
+    GetWallGlobalInfo(self, p, cfg->elem, (void *)(v_c + sh));
     p[1] = 0;
     _NormalizeVector(p, p);
 }
@@ -1772,7 +1772,7 @@ static inline void debugDisp1CollisionWithColor(WallCfg *cfg, void *color) /* de
     int *p15c = (int *)obj->dobj;
     int v_c = p15c[0xC / 4];
 
-    GetWallGlobalInfo(pts, pts[4], cfg->elem, v_c + sh);
+    GetWallGlobalInfo(pts, pts[4], cfg->elem, (void *)(v_c + sh));
     gif_StartPacketPri(11);
     gif_SetAlpha(1, 5, 0x80);
     MatrixDrive_PushMatrix();

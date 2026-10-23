@@ -147,8 +147,6 @@ void ConvertCameraSet(CameraSet2 *dst, union CameraSetIn *src)
     dst->fov = in.f[8];
 }
 
-static void MakeMatrixFromCameraSet2(void *dst, CameraSet2 *cs);
-
 void MakeCameraMatrix(CameraSet2 *cs)
 {
     MatrixDrive_PushMatrix();
@@ -372,7 +370,7 @@ static CamTgt cameraTargetDefault =
 /* the cleared insert-camera request: no target, no blend, one cut pending */
 static InsertCameraWork insertCameraClear = {
     /* derived name */
-    0, 0, {0}, {0.0f, 0.0f, 0.0f}, {0}, {0.0f, 0.0f, 0.0f}, {0}, 0, 1, 0, 0, {0}};
+    0, 0, {0}, {0.0f, 0.0f, 0.0f}, {0}, {0.0f, 0.0f, 0.0f}, {0}, 0, 1, 0, {0}};
 
 /* clear the insert-camera request */
 static inline void InsertCamera_Clear(void) /* derived name */

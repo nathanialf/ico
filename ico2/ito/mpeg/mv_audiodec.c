@@ -8,6 +8,8 @@
 #include "memory.h"
 #include "s_init.h"
 
+static void Free(int addr);
+
 static void free_buf(AudioDec *self)
 {
     Free(self->ring);

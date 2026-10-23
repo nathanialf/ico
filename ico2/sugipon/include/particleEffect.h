@@ -11,8 +11,6 @@
 #include "typedef.h"
 #include "Primitive.h"
 
-struct IosMemPart;
-
 /* One particle package, 0xA0 bytes, the record an effect file supplies per
    particle kind (SetParticleEffectPackage copies the file's over the default
    below).  The colour is a quadword, so the record is 16-byte aligned. */
@@ -123,7 +121,6 @@ extern const ParticleEffectFile particleEffectFile[];
 void DeleteParticleEffect(int no);
 void DisableParticleEffectGeometryControl(int id);
 void DispParticleEffects(void);
-void ExecParticleEffect(int no);
 void ExecParticleEffects(void);
 PEGeo *GetParticleEffectData(int id);
 int *GetParticleEffectPackage(int idx);
@@ -134,10 +131,8 @@ void ParticleEffects_SetAllGoal(void *goal);
 void ResetParticleEffectPackages(int *pkg);
 int SetParticleEffect(int id, void *pos, void *quat);
 int SetParticleEffectActiveSensing(int id, void *pos, void *quat);
-int SetParticleEffectByPartition(int id, void *pos, void *quat, struct IosMemPart *part);
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
 void SetParticleEffectPackage(int no, int *data, int size);
-void SetParticleEffectPauseFlag(int id, int pause);
 void SetParticleEffectUpperLimit(int no, float f);
 void SetParticleEffectClipEnableFlag(int id, int on);
 void DeleteParticleEffectsByPackage(int *pkg);

@@ -145,7 +145,7 @@ inline void isysGObjProcPauseAll(GObj *p)
     }
 }
 
-inline void isysGObjProcPausePtr(void *gobj, int func)
+inline void isysGObjProcPausePtr(void *gobj, void (*func)())
 {
     GProc *p = ((GObj *)gobj)->procHead;
     while (p != 0) {
@@ -170,7 +170,7 @@ inline void isysGObjProcActiveAll(void *gobj)
     }
 }
 
-inline void isysGObjProcActivePtr(void *gobj, int func)
+inline void isysGObjProcActivePtr(void *gobj, void (*func)())
 {
     GProc *p = ((GObj *)gobj)->procHead;
     while (p != 0) {

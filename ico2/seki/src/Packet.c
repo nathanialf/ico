@@ -655,12 +655,12 @@ static inline int pac_moveToSeki(int src, int size) /* derived name */
 {
     int p;
 
-    p = mallocseki(size);
+    p = (int)mallocseki(size);
     if (p == 0)
         debug_Assert("pac_copyStrip:No Enough Memory for Packet.\n");
     debug_StdPrintfDummy("ALL:src:%p => dst:%p (size:%x)\n", src, p, size);
     if (src != p)
-        malloc_MemCpy(p, src, size);
+        malloc_MemCpy((void *)p, (void *)src, size);
     return p;
 }
 

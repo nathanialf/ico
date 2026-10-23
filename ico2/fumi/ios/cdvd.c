@@ -646,7 +646,7 @@ void iosCdvdLoad(int req, int inflate)
 static void iosCdvdPackLoad(IosCdvdHandle *cdvd)
 {
     cdvd->ctl.i[1] = 2;
-    iosMsgSend(&CdvdMsgQ, cdvd, 0);
+    iosMsgSend(&CdvdMsgQ, (int)cdvd, 0);
 }
 
 CdvdBgReq *iosCdvdBackGroundMgrAdd(const char *name, void *readFunc, void *readArg, void *readyFunc,

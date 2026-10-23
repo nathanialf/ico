@@ -110,7 +110,7 @@ inline void mc_TransMicroCode(int id, int mask)
                 mcUploadCount++;
                 mc_setBaseOffset(id, i);
                 dl_SetDLPriority(i);
-                dl_OpenDma(5, *q, 0);
+                dl_OpenDma(5, (void *)*q, 0);
                 dl_CloseDma();
                 mcResident[i] = id;
             }

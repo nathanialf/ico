@@ -107,7 +107,6 @@ void ACTGame_StageChangeGObjID(int no, int kind, int idx);
 void ACTGame_StageChangeGObjDirect(struct GObj *self, int stage, void *dir, int deg);
 int ACTGame_FLAG_LIFEPINCH(struct GObj *self);
 unsigned char ACTGame_FLAG_TETSUNAGI(void);
-int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
 inline void GetSkeltonPosition(float *dst, struct GObj *obj, int node);
 
 void SetDirectRootPositionWithNodePointLimit(void *self, int node, void *pos, float t,
@@ -167,8 +166,6 @@ void ACTItemForceDrop(struct GObj *self);
    0x448 before ACTLookTargetSystem_Exec; OtherStageGirlPinchCamera_After 0x14EAEC passes a0 only) */
 void GetOtherStageGirlOrient(float *orient);
 int ACTChkAttackIgnore_BOY(struct GObj *self); /* boyact.c (0x152A38 reads a0 only) */
-int ACTChkAttackIgnore_GIRL(struct GObj *self, struct GObj *actor);
-int ACTChkAttackIgnore_ENEMY(struct GObj *self, struct GObj *actor);
 unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor);
 int ACTCheckViewClDetail(struct GObj *self, void *target, void *targetPos, int range, float f);
 void ACTGame_SetMotionPlaySpeedRatio_Clear(struct GObj *self);

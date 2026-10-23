@@ -755,16 +755,10 @@ static void gsb_SetGsDefault(void)
     FullScreenEffectBefore();
 }
 
-/* Lay the film grain texture over the frame: the noise texture at texture
- * slot 10, drawn as one full screen sprite whose colour comes from the
- * stage record's grain tint for this target and whose UV step is the
- * record's grain scale, passed as raw bits in both halves of the register. */
-static void gsb_filmNoise(void);
-
 /* Everything the frame still owes after the scene is drawn: the debug read
- * outs, the full screen effect, the shadow and fog passes, the motion blur,
- * the anti alias pass, the film grain and the brightness step, the kept frame
- * buffer, the staff roll and last the fade and the demo scissor. */
+ * outs, the shadow and fog passes, the motion blur, the brightness step, the
+ * full screen effect, the kept frame buffer, the staff roll with the demo
+ * scissor, the anti alias pass and last the fade. */
 static int gsb_PostEffect(void)
 {
     if (debug_font_flag & 1) {

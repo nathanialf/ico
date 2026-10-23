@@ -219,7 +219,7 @@ static int setParticleEffect(PEGeo *self, PEPackage *pkg)
     if (self->prim == 0) {
         /* EUC-JP: "the particles' memory cannot be allocated, so the effect is
            not started" */
-        debug_StdPrintfDummy("¥Ñ¡¼¥Æ¥£¥¯¥ë¤Î¥á¥â¥ê¤¬³ÎÊİ¤Ç¤­¤Ê¤¤¤Î¤ÇÈ¯À¸Ãæ»ß(PARTICLEOFJECT)\n");
+        debug_StdPrintfDummy("ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®ãƒ¡ãƒ¢ãƒªãŒç¢ºä¿ã§ããªã„ã®ã§ç™ºç”Ÿä¸­æ­¢(PARTICLEOFJECT)\n");
         return 0;
     }
     self->parts = iosMallocDebug(ios_partition_seki, self->n * sizeof(PEPartRec), __FILE__, 288);
@@ -227,7 +227,7 @@ static int setParticleEffect(PEGeo *self, PEPackage *pkg)
         prim_DeleteParticle(self->prim);
         /* EUC-JP: "the particles' memory cannot be allocated, so the effect is
            not started" */
-        debug_StdPrintfDummy("¥Ñ¡¼¥Æ¥£¥¯¥ë¤Î¥á¥â¥ê¤¬³ÎÊİ¤Ç¤­¤Ê¤¤¤Î¤ÇÈ¯À¸Ãæ»ß(PartEffectWork)\n");
+        debug_StdPrintfDummy("ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®ãƒ¡ãƒ¢ãƒªãŒç¢ºä¿ã§ããªã„ã®ã§ç™ºç”Ÿä¸­æ­¢(PartEffectWork)\n");
         return 0;
     }
     {
@@ -482,7 +482,7 @@ int SetParticleEffect(int no, void *pos, void *quat)
         particleEffects[id].used = 0;
         /* EUC-JP: "the particles' memory cannot be allocated, so the effect is
            not started" */
-        debug_StdPrintfDummy("¥Ñ¡¼¥Æ¥£¥¯¥ë¤Î¥á¥â¥ê¤¬³ÎÊİ¤Ç¤­¤Ê¤¤¤Î¤ÇÈ¯À¸Ãæ»ß(PartEffect)\n");
+        debug_StdPrintfDummy("ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã®ãƒ¡ãƒ¢ãƒªãŒç¢ºä¿ã§ããªã„ã®ã§ç™ºç”Ÿä¸­æ­¢(PartEffect)\n");
         id = -1;
     }
     return id;

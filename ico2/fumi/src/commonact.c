@@ -8,7 +8,6 @@
 /* prototypes: their order is the inline tail's emission order (gcc emits every
    inline at the end of the object in first-declaration order). They precede
    commonact.h, whose alphabetical list would otherwise fix that order. */
-void ACTAcceptMail(GObj *self, int mail);
 inline int _ACTMotDirSmzDirect(GObj *self, float *dir);
 void WithMailFunc_Idling(GObj *self);
 void WithMailFunc_BossDamaged(GObj *self);
@@ -81,15 +80,11 @@ inline float *test_CURRENTROOT(GObj *self);
 void StartCorrectPosition(GObj *self, float *pos, float *dir, int mode, float t);
 int IsCorrectPosition(GObj *self);
 void ControlMotionOrient(int id, int mot);
-int FloorIsTruck(GObj *self);
 void _ACTMotDir_V(void *self, void *dir);
 void ACTMotDirToWall(GObj *self);
 void SetCorrectOrientOfChain(void *self);
 void actAfterForceRope(GObj *volatile self);
 inline void actAfterForceRopeSwing(GObj *volatile self);
-static inline void actAfterRopeJump(GObj *volatile self);
-static inline void afterCommonRopeCliff(char *self);
-static inline void afterCommonRopeTurnSpecial(GObj *volatile self);
 inline void actAfterDown(GObj *volatile self);
 void afterCommonCling(volatile unsigned int self);
 void actAfterSlip(int x);
@@ -97,13 +92,10 @@ inline void afterCommonRevive(volatile unsigned int self);
 inline void afterCommonStone(GObj *volatile self);
 inline void afterCommonBox(GObj *volatile self);
 void afterCommonBar(GObj *volatile self);
-static inline void actAfterJump(GObj *volatile self);
 inline void actAfterFall(GObj *volatile self);
 inline void actAfterFly(GObj *volatile self);
-static inline void ClipCollisionWithField(ClipWork *work);
 inline void afterCommonOneWall(int x);
 int ACTCheckFlagAttack(GObj *self);
-static inline void afterCommonBecarry(GObj *volatile self);
 inline void afterCommonTruckLever(GObj *volatile self);
 
 #include "commonact.h"
@@ -171,8 +163,6 @@ void ACTSetPositionWithFitting(void *self, float *pos)
 {
     SetDirectRootPosition(self, pos);
 }
-
-static void ACTSetPositionNoFitting(void *self, float *pos);
 
 void ACTSetPositionNodeWithFitting(void *self, int node, float *pos, float t)
 {

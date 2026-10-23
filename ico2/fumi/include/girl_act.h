@@ -15,7 +15,6 @@ struct GObj;
    four subGirlBrain_* states, enemy_list_compare and ACTCheckCollis_SAFE follow
    through their first declarations in girl_act.c. */
 void ACTGame_GirlBeforeFunc(struct GObj *self);
-void *FindGirlPullupFloorBoxGObj(void);
 void actGirlSupportGBBegin(struct GObj *volatile self);
 void actGirlSupportGBLoop(struct GObj *volatile self);
 void actGirlSupportGBEnd(struct GObj *volatile self);
