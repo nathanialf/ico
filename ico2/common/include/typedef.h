@@ -1426,7 +1426,10 @@ typedef struct Act {         /* field names derived */
 
     int attackTurn; /* 0x168, nonzero while the attack turns toward the target (actEnemyAttack
                        hands its address to ACTSearchEnemy) */
-    char pad16C[20];
+    char pad16C[4];
+    float envWallHeight; /* 0x170, the wall height ACTGetEnvironment found (derived name) */
+    int envWallAttr;     /* 0x174, the attribute of that wall (derived name) */
+    char pad178[8];
     GObj *chain;     /* 0x180, the chain the actor hangs on */
     GObj *lastChain; /* 0x184, the chain the actor last hung on */
     char pad188[8];
