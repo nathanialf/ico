@@ -30,7 +30,6 @@
 #include "main.h"
 #include "script.h"
 #include "jimaku.h"
-#include "include_asm.h"
 
 /* .sdata: the ADPCM request slots the scenes hand scpAdpcmPlayRequestFunc
    and wait on, and conte12's flag. */
@@ -101,11 +100,104 @@ void actItouQueenAttackChk(GObj *volatile self);
 void actConte11(GObj *volatile self);
 void actConte11Jimaku(GObj *volatile self);
 
-INCLUDE_ASM(actSt25aQueenAppear);
+void actSt25aQueenAppear(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = (Act *)actInitialize(self);
 
-INCLUDE_ASM(actSt25aQueenAppearChk);
+    _ACTWait(1);
+    if (gflagChk(301) == 0) {
+        ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
+        scpSearchGobj(1942)->active = 0;
+        stage_SetLoopFlag(483, 0);
+        queen_appear_mes[0].func = actSt25aQueenAppearChk;
+        act->mail = queen_appear_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+        return;
+    }
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(46, 0, 483, 0);
+    scpSearchGobj(1942)->active = 1;
+    scpPlayMot(scpSearchGobj(1942), 1045);
+    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+    ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
+    stage_SetAnimation(134, 0, -1);
+    stage_SetAnimation(137, 1, 0);
+}
 
-INCLUDE_ASM(actConte11);
+void actSt25aQueenAppearChk(GObj *volatile self)
+{
+    while (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0 || gflagChk(300) == 0) {
+        _ACTWait(1);
+    }
+    gflagOn(301);
+    actCreateSubThread(actConte11Jimaku, 21);
+    while (conte11 == 0) {
+        _ACTWait(1);
+    }
+    AdpcmPlay(conte11->stream);
+    scpBoyControlReadDisable = 1;
+    _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
+    actCreateSubThread(actConte11, 21);
+}
+
+void actConte11(GObj *volatile self)
+{
+    Vec4St25A ofs;
+    float dir[4];
+
+    lt_switch_layout(51);
+    scpPlayStart(boyGObj);
+
+    stage_SetAnimation(689, 1, 0);
+
+    scpPlayMot(boyGObj, 394);
+    scpSearchGobj(1942)->active = 1;
+    scpPlayMot(scpSearchGobj(1942), 1045);
+
+    _ACTWait(1);
+    stage_SetAnimation(134, 1, 0);
+
+    stage_SetLoopFlag(483, 1);
+    stage_SetAnimation(483, 1, 0);
+
+    scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(46, 0, 483, 0);
+
+    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.99f, 0.99f, 1);
+    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.1f, 0.1f, 1);
+
+    while (stage_ContinueAnimation(689, 690) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_CheckAnimationFrame(690, 10, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
+    tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
+
+    scpPlayMot(scpSearchGobj(1942), 1046);
+
+    scpPlayMot(boyGObj, 0);
+    ofs = sekikaOfs;
+    sceVu0SubVector(dir, &ofs, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+
+    SetCameraFlag_LwsCutBack();
+    while (stage_CheckAnimationFinish(690) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpSekizouCheckPoint();
+
+    scpPlayEnd(boyGObj);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
 
 /* actSt25aQueenTalkChk's work area: the stage animations the cancelled
    ending restores, or the boy's position and the direction vectors the
@@ -121,9 +213,256 @@ static int demoEnd;
 
 static int eventDone; /* derived name */
 
-INCLUDE_ASM(actSt25aQueenTalkChk);
+void actSt25aQueenTalkChk(GObj *volatile self)
+{
+    TalkWork w;
+    unsigned int i;
+    unsigned int n;
+    int cancel;
+    GProc *th1;
+    GProc *th2;
 
-INCLUDE_ASM(actConte12);
+    conte12 = sd2 = 0;
+
+    while (scpTriggerFloorAttr(boyGObj, 0x3000000) == 0 || gflagChk(301) == 0) {
+        _ACTWait(1);
+    }
+
+    iosPadActStopAll();
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    scpPlayMotReq(boyGObj, 1);
+
+    StandbyStreamMotion(streamMotion[6].path);
+    i = 0;
+    while (CheckReadyStreamMotion() == 0) {
+        i++;
+        debug_StdPrintfDummy(streamWaitFmt, i);
+        _ACTWait(1);
+    }
+
+    gflagOn(302);
+
+    scpAdpcmPlayRequestFunc(39, &conte12, 1, 1, 1);
+    while (conte12 == 0) {
+        _ACTWait(1);
+    }
+
+    th1 = actCreateSubThread(actConte12, 21);
+    th2 = actCreateSubThread(actConte12Jimaku, 21);
+
+    demoEnd = 0;
+    eventDone = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    cancel = demoEnd ^ 1;
+
+    if (cancel != 0) {
+        scpAdpcmFadeClose(conte12, 192);
+
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+    }
+
+    DeleteStreamMotionManager();
+    iosPadActStopAll();
+    iosThreadSetPri(&((GProc *)th1)->thread, 34);
+    iosThreadSetPri(&((GProc *)th2)->thread, 34);
+
+    if (cancel != 0) {
+        w.a = cancelAnimSet;
+        for (n = 0; n < 18; n++) {
+            stage_SetAnimation(w.a.anim[n], 1, -1);
+            _ACTWait(1);
+        }
+
+        ScpCallCameraTargetOff();
+        DeleteBoyWeapon();
+        scpLinkBGAtoLayoutedTarget(1951, 422);
+
+        scpSearchGobj(1951)->active = 1;
+        stage_SetAnimation(135, -1, -2);
+        SelectBoyCrown(boyGObj, 1);
+
+        stage_SetAnimation(484, 0, -1);
+        stage_SetAnimation(488, 0, -1);
+        stage_SetAnimation(489, 0, -1);
+
+        stage_SetAnimation(726, 1, -1);
+        jimakuUndisp(&jimaku_msg);
+
+        w.v[0] = cancelBoyPos;
+        SetDirectRootPosition(boyGObj, &w.v[0]);
+
+        if (eventDone == 0) {
+            QueenStartAttack();
+            gflagOn(303);
+        }
+
+        _ACTWait(1);
+        SetCameraFlag_GamecamCutBack();
+        scpFadeIn(3.0f);
+    }
+
+    gflagOn(304);
+
+    scpPlayMot(scpSearchGobj(1942), 1013);
+    scpPlayPosSet(scpSearchGobj(1942), 1650.0f, 625.0f, 0.0f);
+
+    memset(w.v[1].f, 0, 16);
+    w.v[1].f[3] = 1.0f;
+    sceVu0SubVector(w.v[2].f, w.v[1].f, test_CURRENTROOT(scpSearchGobj(1942)));
+    scpPlayMotDir(scpSearchGobj(1942), w.v[2].f);
+    scpPlayEnd(scpSearchGobj(1942));
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+
+    CameraSetCameraSet(51);
+
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+
+    scpAdpcmPlayRequestFunc(40, &sd2, 1, 0, 1);
+
+    stage_SetAnimation(137, -1, -2);
+
+    stage_SetLoopFlag(138, 1);
+
+    stage_SetAnimation(138, 1, 0);
+}
+
+void actConte12(GObj *volatile self)
+{
+    conte12Flag = 0;
+
+    scpSearchGobj(1942)->active = 1;
+    EntryStreamMotion(boyGObj);
+    EntryStreamMotion(scpSearchGobj(1942));
+    PlayStreamMotion();
+
+    stage_SetAnimation(709, 1, 0);
+    while (stage_ContinueAnimation(709, 710) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(710, 711) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(711, 712) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(712, 713) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(713, 714) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(714, 715) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(715, 716) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(716, 717) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(717, 718) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(718, 719) == 0) {
+        _ACTWait(1);
+    }
+
+    while (stage_ContinueAnimation(719, 720) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(409, 1, 0);
+
+    while (stage_ContinueAnimation(720, 721) == 0) {
+        _ACTWait(1);
+    }
+
+    DeleteBoyWeapon();
+    SelectBoyCrown(boyGObj, 1);
+    stage_SetAnimation(135, 1, 0);
+    stage_SetAnimation(484, 1, 0);
+
+    iosPadActRequest(boyPad, 15);
+    while (stage_CheckAnimationFrame(721, 15, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 16);
+    while (stage_CheckAnimationFrame(721, 30, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 16);
+    while (stage_CheckAnimationFrame(721, 50, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+    while (stage_CheckAnimationFrame(721, 60, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 16);
+
+    while (stage_ContinueAnimation(721, 722) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(488, 1, 0);
+
+    while (stage_ContinueAnimation(722, 723) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(489, 1, 0);
+
+    scpLinkBGAtoLayoutedTarget(1951, 422);
+
+    scpSearchGobj(1951)->active = 1;
+
+    stage_SetAnimation(135, -1, -2);
+
+    while (stage_ContinueAnimation(723, 724) == 0) {
+        _ACTWait(1);
+    }
+
+    while (stage_ContinueAnimation(724, 725) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(725, 726) == 0) {
+        _ACTWait(1);
+    }
+
+    eventDone = 1;
+    QueenStartAttack();
+    gflagOn(303);
+
+    ScpCallCameraTargetOff();
+
+    while (stage_CheckAnimationFinish(726) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
 
 void actConte12Jimaku(GObj *volatile self)
 {
@@ -205,7 +544,137 @@ void actConte12Jimaku(GObj *volatile self)
     _ACTWait(0);
 }
 
-INCLUDE_ASM(actSt25aQueenDeadChk);
+void actSt25aQueenDeadChk(GObj *volatile self)
+{
+    unsigned int i;
+
+    dead = 0;
+    while (QueenInqDead() == 0) {
+        _ACTWait(1);
+    }
+
+    iosPadActRequest(boyPad, 16);
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    scpPlayStart(scpSearchGobj(1942));
+
+    StandbyStreamMotion(streamMotion[8].path);
+    i = 0;
+    while (CheckReadyStreamMotion() == 0) {
+        i++;
+        debug_StdPrintfDummy(streamWaitFmt, i);
+        _ACTWait(1);
+    }
+
+    if (sd2 != 0) {
+        scpAdpcmFadeClose(sd2, 256);
+    }
+
+    scpKillEnemyAll();
+
+    gflagOn(306);
+    gflagOn(5);
+
+    scpAdpcmPlayRequestFunc(41, &dead, 0, 1, 1);
+    while (dead == 0) {
+        _ACTWait(1);
+    }
+
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[3]].nextStage);
+    stgmgrNextStagePreLoadForceNoCancel(1);
+
+    scpSearchGobj(1942)->active = 1;
+    EntryStreamMotion(boyGObj);
+    EntryStreamMotion(scpSearchGobj(1942));
+    PlayStreamMotion();
+
+    actCreateSubThread(actConte13Jimaku, 21);
+
+    stage_SetAnimation(727, 1, 0);
+
+    scpSearchGobj(2017)->active = 0;
+    scpSearchGobj(2018)->active = 0;
+
+    while (stage_ContinueAnimation(727, 728) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(728, 729) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(729, 730) == 0) {
+        _ACTWait(1);
+    }
+
+    GOBJ_SUB(scpSearchGobj(1942))->streamScale = 0;
+    while (stage_ContinueAnimation(730, 731) == 0) {
+        _ACTWait(1);
+    }
+
+    GOBJ_SUB(scpSearchGobj(1942))->streamScale = 1;
+    while (stage_ContinueAnimation(731, 732) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(732, 733) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(413, 1, 0);
+    iosPadActRequest(boyPad, 15);
+    DeleteBoyWeapon();
+    stage_SetAnimation(422, -1, -2);
+    stage_SetAnimation(136, 1, 0);
+
+    while (stage_ContinueAnimation(733, 734) == 0) {
+        _ACTWait(1);
+    }
+    while (stage_ContinueAnimation(734, 735) == 0) {
+        _ACTWait(1);
+    }
+
+    SelectBoyCrown(boyGObj, 2);
+    stage_SetAnimation(485, 1, 0);
+
+    while (stage_CheckAnimationFrame(735, 15, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 17);
+
+    while (stage_ContinueAnimation(735, 736) == 0) {
+        _ACTWait(1);
+    }
+
+    stage_SetAnimation(486, 1, 0);
+
+    while (stage_CheckAnimationFrame(736, 10, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActRequest(boyPad, 15);
+
+    scpSearchGobj(1942)->active = 0;
+    stage_SetLoopFlag(483, 0);
+
+    while (stage_ContinueAnimation(736, 738) == 0) {
+        _ACTWait(1);
+    }
+
+    while (stage_CheckAnimationFrame(738, 30, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    DeleteStreamMotionManager();
+
+    while (stage_CheckAnimationFinish(738) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    RequestStageChange(4, boyGObj, 0, 1.0f, 8.0f);
+}
 
 void actConte13Jimaku(GObj *volatile self)
 {
@@ -254,19 +723,99 @@ void actSt25aGenerator(GObj *volatile self)
     Generator_Mask(self);
 }
 
-INCLUDE_ASM(actSt25aQueenBefore);
+void actSt25aQueenBefore(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
 
-INCLUDE_ASM(actSt25aQueenTalk);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSt25aQueenDead);
+    if (gflagChk(300) == 0) {
+        queen_before_mes[0].func = actSt25aQueenBeforeChk;
+        sub->mail = queen_before_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    }
+}
 
-INCLUDE_ASM(actItouQueenAttack);
+void actSt25aQueenTalk(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
 
-INCLUDE_ASM(actSwordEff);
+    _ACTWait(1);
 
-INCLUDE_ASM(actSwordEffXL);
+    fightSoundProcessRequestPause();
 
-INCLUDE_ASM(actSt25aQueenBeforeChk);
+    if (gflagChk(302) == 0) {
+        scpSearchGobj(1951)->active = 0;
+        queen_talk_mes[0].func = actSt25aQueenTalkChk;
+        sub->mail = queen_talk_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    }
+}
+
+void actSt25aQueenDead(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
+
+    _ACTWait(1);
+
+    queen_dead_mes[0].func = actSt25aQueenDeadChk;
+    sub->mail = queen_dead_mes;
+    ACTSendMailCorrect(self, 393);
+    _ACTWait(0);
+}
+
+void actItouQueenAttack(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *sub = actInitialize(self);
+
+    _ACTWait(1);
+
+    queen_attack_mes[0].func = actItouQueenAttackChk;
+    sub->mail = queen_attack_mes;
+    ACTSendMailCorrect(self, 393);
+    _ACTWait(0);
+}
+
+void actSwordEff(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpLinkBGAtoLayoutedTarget(1902, 422);
+}
+
+void actSwordEffXL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (scpGameStat_BoyWeaponkind() == 5) {
+        scpLinkBGAtoLayoutedTarget(1902, 422);
+    } else {
+        stage_SetAnimation(422, -1, -2);
+    }
+}
+
+void actSt25aQueenBeforeChk(GObj *volatile self)
+{
+    conte11 = 0;
+    while (scpTriggerFloorAttr(boyGObj, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    gflagOn(300);
+    jimakuBegin(&jimaku_msg);
+    scpAdpcmPlayRequestFunc(38, &conte11, 1, 1, 0);
+}
 
 void actConte11Jimaku(GObj *volatile self)
 {
@@ -303,4 +852,13 @@ void actSt25aQueenDeadEvent(int x)
     volatile int local = x;
 }
 
-INCLUDE_ASM(actItouQueenAttackChk);
+void actItouQueenAttackChk(GObj *volatile self)
+{
+    while (1) {
+        while (ForMotionViewer_GetCurrentMotion(scpSearchGobj(3225)) != 1019) {
+            _ACTWait(1);
+        }
+        tex_SetUVScroll(queenBallScrTexture, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 1);
+        _ACTWait(1);
+    }
+}

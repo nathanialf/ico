@@ -21,7 +21,9 @@ struct HintDef { /* field names derived */
 };
 
 extern struct HintDef hintTable[]; /* derived name */
-struct GObj *CreateKyomiGObj(int no);
+/* no argument in this build: the body sets a0 before reading it (0x239AA4)
+   and bga_ApplyDObject's call (0x1F476C) passes none */
+struct GObj *CreateKyomiGObj(void);
 void FinishHint(int no);
 void Hint_Init(void);
 int IsTopHint(struct GObj *gobj);
