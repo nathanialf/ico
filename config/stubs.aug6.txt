@@ -804,63 +804,6 @@ text StopItemExplodeAnimationAll 0x001D1470 0x001D1504 ico2/sugipon/src/item.c l
 text ReviveAllCarryableItemsWithNonSleepFrame 0x001D1508 0x001D15BC ico2/sugipon/src/item.c lines=14  # ordinal; first difference at insn 17; imm:2; extent-equal
 text ResetDynamicMotionManager 0x001D2180 0x001D21C4 ico2/sugipon/src/motionFileManager.c lines=10  # ordinal; first difference at insn 6; imm:2; extent-equal
 text ResetStatic2MotionManager 0x001D21C8 0x001D2204 ico2/sugipon/src/motionFileManager.c lines=9  # ordinal; first difference at insn 5; imm:2; extent-equal
-text _getFinalMatrix 0x001D2D60 0x001D5770 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc lines=691  # ordinal; first difference at insn 0; length:-143; extent-differs
-rdlit _getFinalMatrix 0x00611A30 0x00611B00 ico2/sugipon/src/motionManager.c align=16  # target side
-lit4 _getFinalMatrix 0x0062B428 0x0062B464 ico2/sugipon/src/motionManager.c # target side
-text getFinalMatrix 0x001D5928 0x001D5AEC ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_getFinalMatrix.c.inc lines=14  # census-equal; stubbed because it inlines a function stubbed for emission order
-text checkWallState 0x001D61D8 0x001D6674 ico2/sugipon/src/motionManager.c local lines=89  # ordinal; first difference at insn 36; imm:9; extent-equal
-lit4 checkWallState 0x0062B474 0x0062B478 ico2/sugipon/src/motionManager.c  # 1 float
-text checkCliffState 0x001D6678 0x001D6C24 ico2/sugipon/src/motionManager.c local lines=133  # ordinal; first difference at insn 0; length:-12; extent-differs
-lit4 checkCliffState 0x0062B478 0x0062B480 ico2/sugipon/src/motionManager.c  # 2 floats
-text _checkCliffAndWall 0x001D6C28 0x001D6F50 ico2/sugipon/src/motionManager.c local lines=62  # ordinal; first difference at insn 17; length:-1; extent-differs
-rdlit _checkCliffAndWall 0x00611C10 0x00611C58 ico2/sugipon/src/motionManager.c  # target side
-lit4 _checkCliffAndWall 0x0062B480 0x0062B484 ico2/sugipon/src/motionManager.c  # 1 float
-sdlit _checkCliffAndWall 0x0062D5C0 0x0062D5C8 ico2/sugipon/src/motionManager.c  # 1 string, 1 word
-text _wallHitReaction 0x001D7228 0x001D76F8 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=100  # ordinal; first difference at insn 110; imm:1; extent-equal
-lit4 _wallHitReaction 0x0062B484 0x0062B488 ico2/sugipon/src/motionManager.c  # 1 float
-text _wallCollisionPreProcess 0x001D76F8 0x001D7850 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=35  # ordinal; first difference at insn 19; imm:7; extent-equal
-text getFieldCollision 0x001D7850 0x001D79A4 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=23  # ordinal; first difference at insn 0; length:+10; extent-differs
-lit4 getFieldCollision 0x0062B488 0x0062B48C ico2/sugipon/src/motionManager.c  # 1 float
-text setIKAndAdjustRootHeight 0x001D79A8 0x001D8188 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=136  # ordinal; first difference at insn 13; imm:30; extent-equal
-rdlit setIKAndAdjustRootHeight 0x00611C58 0x00611CD0 ico2/sugipon/src/motionManager.c  # target side
-lit4 setIKAndAdjustRootHeight 0x0062B48C 0x0062B4A0 ico2/sugipon/src/motionManager.c  # 5 floats
-sdlit setIKAndAdjustRootHeight 0x0062D5C8 0x0062D5CC ico2/sugipon/src/motionManager.c  # 1 word
-sdata D_0062D5D0 0x0062D5D0 0x0062D5D8 ico2/sugipon/src/motionManager.c local  # the two words _getFinalMatrix reads (lwc1, as in PAL), which the prototype has after the root-update functions' constants and before skelNode
-text landingFieldAction 0x001D8188 0x001D82C8 ico2/sugipon/src/motionManager.c in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=13  # ordinal; first difference at insn 11; imm:9; extent-equal
-text rootUpdateXZ 0x001D8398 0x001D947C ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=197  # ordinal; first difference at insn 37; length:-7; extent-differs
-lit4 rootUpdateXZ 0x0062B4A0 0x0062B4B0 ico2/sugipon/src/motionManager.c # target side
-text rootUpdateXZ_MotPos 0x001D9480 0x001D98EC ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=83  # ordinal; first difference at insn 43; length:-48; extent-differs
-lit4 rootUpdateXZ_MotPos 0x0062B4B0 0x0062B4B4 ico2/sugipon/src/motionManager.c # target side
-text forceReset 0x001D9C50 0x001D9C80 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=5  # ordinal; first difference at insn 3; imm:2; extent-equal
-text calcWallFittingGeometry 0x001D9CE0 0x001D9E10 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=25  # ordinal; first difference at insn 8; imm:4; extent-equal
-lit4 calcWallFittingGeometry 0x0062B4BC 0x0062B4C0 ico2/sugipon/src/motionManager.c  # 1 float
-text rootUpdateSwim 0x001DA508 0x001DA97C ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=53  # ordinal; first difference at insn 36; imm:18; extent-equal
-rdlit rootUpdateSwim 0x00611D58 0x00611DB8 ico2/sugipon/src/motionManager.c  # target side
-lit4 rootUpdateSwim 0x0062B4C0 0x0062B4CC ico2/sugipon/src/motionManager.c  # 3 floats
-text rootUpdateStepSolution 0x001DAAC0 0x001DB534 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=169  # ordinal; first difference at insn 0; length:-40; extent-differs
-rdlit rootUpdateStepSolution 0x00611DB8 0x00611DE0 ico2/sugipon/src/motionManager.c  # target side
-rdlit rootUpdateStepSolution 0x00611DE0 0x00611E08 ico2/sugipon/src/motionManager.c align=16  # jump table (target side)
-lit4 rootUpdateStepSolution 0x0062B4D0 0x0062B4D4 ico2/sugipon/src/motionManager.c  # 1 float
-text rootUpdateDirectPlay 0x001DB710 0x001DB870 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=31  # ordinal; first difference at insn 51; imm:5; extent-equal
-text keepVerticalZWithQ.267 0x001DB870 0x001DB99C ico2/sugipon/src/motionManager.c local file=keepVerticalZWithQ_267 in=ico2/sugipon/src/motMan_rootUpdate.c.inc  # ordinal; first difference at insn 35; imm:4; extent-equal; nested in its parent
-text rootUpdateNodeFix 0x001DB9A0 0x001DBBB4 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=63  # ordinal; first difference at insn 6; imm:20; extent-equal
-text rootUpdateFly 0x001DC208 0x001DC428 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=32  # ordinal; first difference at insn 6; length:+2; extent-differs
-lit4 rootUpdateFly 0x0062B4D4 0x0062B4D8 ico2/sugipon/src/motionManager.c  # 1 float
-text rootUpdateEnemyFly 0x001DC428 0x001DC640 ico2/sugipon/src/motionManager.c local in=ico2/sugipon/src/motMan_rootUpdate.c.inc lines=29  # ordinal; first difference at insn 13; length:+5; extent-differs
-lit4 rootUpdateEnemyFly 0x0062B4D8 0x0062B4DC ico2/sugipon/src/motionManager.c  # 1 float
-text _getGeometryOfMotion 0x001DC640 0x001DCB70 ico2/sugipon/src/motionManager.c local lines=120  # ordinal; first difference at insn 16; length:-10; extent-differs
-rdlit _getGeometryOfMotion 0x00611E08 0x00611E60 ico2/sugipon/src/motionManager.c  # target side
-rdlit _getGeometryOfMotion 0x00611E60 0x00611EB8 ico2/sugipon/src/motionManager.c align=16  # jump table (target side)
-text execPositionReserver 0x001DCB70 0x001DCE74 ico2/sugipon/src/motionManager.c local lines=63  # ordinal; first difference at insn 8; imm:16; extent-equal
-text GetGeometryOfMotion 0x001DCE78 0x001DD3A8 ico2/sugipon/src/motionManager.c lines=85  # ordinal; first difference at insn 23; imm:70; extent-equal
-text SetHitCollisionDisplay 0x001DDC28 0x001DDC34 ico2/sugipon/src/motionManager.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text ResetMotionProgramInterpInfo 0x001DDC38 0x001DDCA8 ico2/sugipon/src/motionManager.c lines=11  # ordinal; first difference at insn 8; imm:1; extent-equal
-text SetDirectMotionProgramInterpInfo 0x001DDCA8 0x001DDD24 ico2/sugipon/src/motionManager.c lines=11  # ordinal; first difference at insn 10; imm:1; extent-equal
-text getFinalMatrixCore 0x001DDD28 0x001DDE08 ico2/sugipon/src/motionManager.c local lines=17  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text pursueNaturalGeometry 0x001DDE08 0x001DDEB8 ico2/sugipon/src/motionManager.c local lines=20  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text GetWallVector 0x001DDEB8 0x001DDEE4 ico2/sugipon/src/motionManager.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text upperFieldCheck 0x001DDEE8 0x001DDF44 ico2/sugipon/src/motionManager.c lines=9  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text getGeometryOfMotion 0x001DDF48 0x001DDFFC ico2/sugipon/src/motionManager.c lines=11  # ordinal; first difference at insn 4; imm:17; extent-equal
 text motKindMenuProc 0x001E2348 0x001E275C ico2/sugipon/src/motionViewer.c local lines=50  # ordinal; first difference at insn 15; imm:8; extent-equal
 rdlit motKindMenuProc 0x00612558 0x006125A1 ico2/sugipon/src/motionViewer.c  # 3 strings
 text motOriMenuProc 0x001E2760 0x001E2AC8 ico2/sugipon/src/motionViewer.c local lines=67  # ordinal; first difference at insn 31; imm:5; extent-equal
