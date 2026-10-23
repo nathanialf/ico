@@ -47,7 +47,6 @@ void RestoreReviveCount(struct GObj *gobj);
 void ReturnEnemyToGenerator(int label);
 int GeneratorWorkEnd(struct GObj *gobj);
 int SearchActiveGenerator(void);
-void ResetReviveCountEnemy(struct GObj *gobj);
 void SetInfoSpKidnapGenerator(short *info);
 void SetInfoSpKidnapEnemy(short *work);
 inline int IsOpenGenerator(struct GObj *gobj);

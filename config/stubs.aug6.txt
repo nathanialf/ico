@@ -634,43 +634,6 @@ text GetStageFromLabel 0x0018F3A0 0x0018F470 ico2/omori/src/ebrain.c lines=17  #
 text eBrainGetTargetGeneratorFromLabelStage 0x0018F470 0x0018F57C ico2/omori/src/ebrain.c lines=31  # equal to PAL's; stubbed while its August strings ("UseStageNo>0" between its two) have no C form
 rdlit eBrainGetTargetGeneratorFromLabelStage 0x00554FC8 0x00554FF9 ico2/omori/src/ebrain.c def  # target side: src/ebrain.c, UseStageNo>0, GeneratorLabel>0
 text fightSoundProcessMain 0x0018F670 0x0018F850 ico2/omori/src/fightSound.c local lines=68  # ordinal; first difference at insn 34; imm:1; extent-equal
-text endfunc_BGA 0x0018FD78 0x0018FEE0 ico2/omori/src/generator.c local lines=34  # trfile; aug6-only in the census; PAL's endfunc_BGA (360 B in PAL)
-rdlit endfunc_BGA 0x00555060 0x00555070 ico2/omori/src/generator.c  # 1 string
-sdlit endfunc_BGA 0x0062C8F0 0x0062C8F2 ico2/omori/src/generator.c  # 1 string
-text IsNeedGenerator 0x0018FEE0 0x00190174 ico2/omori/src/generator.c  # trfile; aug6-only in the census; not in PAL's generator
-text CallEnemy 0x00190178 0x001903C4 ico2/omori/src/generator.c lines=9  # trfile; aug6-only in the census; PAL's CallEnemy (588 B in PAL)
-text Generator_QuickCall 0x001903C8 0x00190408 ico2/omori/src/generator.c lines=8  # trfile; aug6-only in the census; PAL's Generator_QuickCall (64 B in PAL)
-text GetMotherGenerator 0x00190408 0x00190590 ico2/omori/src/generator.c lines=50  # trfile; aug6-only in the census; PAL's GetMotherGenerator (432 B in PAL)
-text ReadGeneratorPacket 0x00190590 0x00190678 ico2/omori/src/generator.c lines=26  # trfile; aug6-only in the census; PAL's ReadGeneratorPacket (232 B in PAL)
-text MakeGeneratorPacket 0x00190678 0x00190724 ico2/omori/src/generator.c lines=17  # trfile; aug6-only in the census; PAL's MakeGeneratorPacket (172 B in PAL)
-text GeneratorGeo 0x00190920 0x00190E20 ico2/omori/src/generator.c lines=115  # trfile; aug6-only in the census; PAL's GeneratorGeo (1244 B in PAL)
-text GeneratorDL 0x00190E20 0x00190F50 ico2/omori/src/generator.c lines=26  # trfile; aug6-only in the census; PAL's GeneratorDL (304 B in PAL)
-text InitGeneratorGeo 0x00190F50 0x00191034 ico2/omori/src/generator.c lines=35  # trfile; aug6-only in the census; PAL's InitGeneratorGeo (236 B in PAL)
-text Generator_Call 0x00191038 0x00191050 ico2/omori/src/generator.c lines=6  # ordinal; first difference at insn 1; imm:1; extent-equal
-text Generator_ResetCount 0x00191050 0x00191064 ico2/omori/src/generator.c lines=6  # ordinal; first difference at insn 2; imm:2; extent-equal
-text Generator_Mask 0x00191068 0x0019107C ico2/omori/src/generator.c lines=6  # ordinal; first difference at insn 2; imm:2; extent-equal
-text Generator_MaskOff 0x00191080 0x00191090 ico2/omori/src/generator.c lines=6  # ordinal; first difference at insn 1; imm:2; extent-equal
-text SetMotherGenerator 0x00191090 0x0019114C ico2/omori/src/generator.c lines=21  # ordinal; first difference at insn 1; imm:3; extent-equal
-text Generator_Init 0x00191150 0x001911E8 ico2/omori/src/generator.c lines=21  # census-equal (lui and addiu immediates masked); match_check differs: an immediate
-text GetbufpGeneratorPacket 0x001911E8 0x001911F4 ico2/omori/src/generator.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text GetsizeGeneratorPacket 0x001911F8 0x00191200 ico2/omori/src/generator.c lines=4  # ordinal; first difference at insn 1; imm:1; extent-equal
-text RestoreGeneratorGeo 0x00191200 0x00191220 ico2/omori/src/generator.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text RestoreGeneratorExtGeo 0x00191220 0x00191274 ico2/omori/src/generator.c lines=11  # ordinal; first difference at insn 6; imm:1; extent-equal
-text MemoryGenerator 0x00191278 0x00191298 ico2/omori/src/generator.c lines=7  # ordinal; first difference at insn 2; imm:1; extent-equal
-text IsEnableCallEnemy 0x00191298 0x00191394 ico2/omori/src/generator.c lines=28  # ordinal; first difference at insn 19; imm:2; extent-equal
-text DirectCallEnemy 0x00191398 0x00191508 ico2/omori/src/generator.c lines=19  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit DirectCallEnemy 0x00555070 0x005550A7 ico2/omori/src/generator.c def  # 2 strings
-sdlit DirectCallEnemy 0x0062C8F8 0x0062C8FF ico2/omori/src/generator.c def  # 1 string
-text LockEnemyGenerate 0x00191508 0x00191550 ico2/omori/src/generator.c lines=7  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit LockEnemyGenerate 0x005550A8 0x005550B4 ico2/omori/src/generator.c def  # 1 string
-text UnlockEnemyGenerate 0x00191550 0x001915DC ico2/omori/src/generator.c lines=8  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit UnlockEnemyGenerate 0x005550B8 0x005550C6 ico2/omori/src/generator.c def  # 1 string
-text RestoreReviveCount 0x001915E0 0x0019166C ico2/omori/src/generator.c lines=13  # ordinal; first difference at insn 0; length:+1; extent-differs
-text ReturnEnemyToGenerator 0x00191670 0x001916F0 ico2/omori/src/generator.c lines=15  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text GeneratorWorkEnd 0x001916F0 0x00191704 ico2/omori/src/generator.c lines=5  # ordinal; first difference at insn 1; imm:1; extent-equal
-text SearchActiveGenerator 0x00191708 0x00191770 ico2/omori/src/generator.c lines=17  # ordinal; first difference at insn 12; imm:1; extent-equal
-text SetInfoSpKidnapGenerator 0x00191770 0x00191780 ico2/omori/src/generator.c lines=5  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text SetInfoSpKidnapEnemy 0x00191780 0x001917A8 ico2/omori/src/generator.c lines=7  # trfile; aug6-only in the census; PAL's SetInfoSpKidnapEnemy (44 B in PAL)
 text RotateAccordingToStick_PatternThree 0x00192208 0x001923D8 ico2/omori/src/hand-camera.c local lines=49  # trfile; aug6-only in the census; PAL's RotateAccordingToStick_PatternThree (496 B in PAL)
 lit4 RotateAccordingToStick_PatternThree 0x0062B13C 0x0062B148 ico2/omori/src/hand-camera.c  # 3 floats
 text ClearHandCameraCorrect 0x001925C0 0x00192624 ico2/omori/src/hand-camera.c lines=12  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
