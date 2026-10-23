@@ -1096,27 +1096,6 @@ text makeFullScreenFlareAfter 0x001EB278 0x001EB420 ico2/sugipon/src/staticBlur.
 text MotionBlur 0x001EC0A8 0x001EC2C0 ico2/sugipon/src/staticBlur.c lines=33  # ordinal; first difference at insn 57; length:+6; extent-differs
 rdlit MotionBlur 0x00612D30 0x00612D40 ico2/sugipon/src/staticBlur.c # target side
 sdlit MotionBlur 0x0062D810 0x0062D814 ico2/sugipon/src/staticBlur.c  # target side: a static word
-text ClearStreamMotionEntry 0x001EDA08 0x001EDA64 ico2/sugipon/src/streamMotionManager.c lines=13  # ordinal; first difference at insn 10; imm:4; extent-equal
-text _deleteStreamMotionManager 0x001EDA68 0x001EDBD4 ico2/sugipon/src/streamMotionManager.c local lines=31  # trfile; aug6-only in the census; PAL's _deleteStreamMotionManager (352 B in PAL)
-rdlit _deleteStreamMotionManager 0x00612F30 0x00612F68 ico2/sugipon/src/streamMotionManager.c  # target side
-text GetStreamMotionData 0x001EDBD8 0x001EDCBC ico2/sugipon/src/streamMotionManager.c lines=12  # trfile; aug6-only in the census; PAL's GetStreamMotionData (140 B in PAL)
-rdlit GetStreamMotionData 0x00612FB0 0x00612FF8 ico2/sugipon/src/streamMotionManager.c  # target side
-text ExecStreamMotionManager 0x001EDD68 0x001EDF40 ico2/sugipon/src/streamMotionManager.c lines=51  # trfile; aug6-only in the census; PAL's ExecStreamMotionManager (480 B in PAL)
-rdlit ExecStreamMotionManager 0x00612FF8 0x00613038 ico2/sugipon/src/streamMotionManager.c  # target side
-sdlit ExecStreamMotionManager 0x0062D8A0 0x0062D8A6 ico2/sugipon/src/streamMotionManager.c  # target side: a string
-text StandbyStreamMotion 0x001EDF40 0x001EE10C ico2/sugipon/src/streamMotionManager.c lines=10  # trfile; aug6-only in the census; PAL's StandbyStreamMotion (332 B in PAL)
-rdlit StandbyStreamMotion 0x00613038 0x006130A8 ico2/sugipon/src/streamMotionManager.c  # target side
-text StopStreamMotion 0x001EE110 0x001EE118 ico2/sugipon/src/streamMotionManager.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text DeleteStreamMotionManager 0x001EE118 0x001EE1D8 ico2/sugipon/src/streamMotionManager.c lines=9  # ordinal; first difference at insn 21; imm:4; extent-equal
-text EntryStreamMotion 0x001EE1D8 0x001EE224 ico2/sugipon/src/streamMotionManager.c lines=13  # ordinal; first difference at insn 1; imm:6; extent-equal
-text GetDataSizeOfStreamMotion 0x001EE228 0x001EE274 ico2/sugipon/src/streamMotionManager.c lines=9  # ordinal; first difference at insn 0; imm:1; extent-equal
-rdlit GetDataSizeOfStreamMotion 0x00612F68 0x00612FA8 ico2/sugipon/src/streamMotionManager.c def  # target side
-text InitStreamMotionManager 0x001EE278 0x001EE280 ico2/sugipon/src/streamMotionManager.c lines=6  # trfile; aug6-only in the census; PAL's InitStreamMotionManager (16 B in PAL)
-text CheckReadyStreamMotion 0x001EE280 0x001EE2BC ico2/sugipon/src/streamMotionManager.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text SetStreamMotionFinishCallBackFunc 0x001EE2C0 0x001EE2DC ico2/sugipon/src/streamMotionManager.c lines=4  # ordinal; first difference at insn 0; imm:2; extent-equal
-text ClearAllStreamMotionEntry 0x001EE2E0 0x001EE380 ico2/sugipon/src/streamMotionManager.c lines=15  # ordinal; first difference at insn 12; imm:4; extent-equal
-text _closeHander 0x001EE380 0x001EE3A0 ico2/sugipon/src/streamMotionManager.c local lines=5  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
-text _handler 0x001EE3A0 0x001EE46C ico2/sugipon/src/streamMotionManager.c local lines=29  # census-equal; a static inline function whose out-of-line copy only stubbed callers needed, so gcc no longer emits it
 text torchOffSE 0x001EE978 0x001EE9A4 ico2/sugipon/src/torch.c lines=5  # ordinal; first difference at insn 8; imm:1; extent-equal
 rdlit torchOffSE 0x006130B8 0x006130C8 ico2/sugipon/src/torch.c  # target side
 text LightTorchOn 0x001EE9A8 0x001EEB10 ico2/sugipon/src/torch.c lines=49  # trfile; aug6-only in the census; PAL's LightTorchOn (388 B in PAL)
