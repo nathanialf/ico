@@ -462,46 +462,6 @@ text isysGObjAdd 0x0013E3C0 0x0013E4C8 ico2/fumi/isys/gobj.c lines=22  # census-
 text isysGObjAddHead 0x0013E4C8 0x0013E5CC ico2/fumi/isys/gobj.c lines=21  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text isysGObjSearchFromObjLayoutID 0x0013E5D0 0x0013E634 ico2/fumi/isys/gobj.c lines=10  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
 text isysGObjSearchFromObjKindID_begin 0x0013E638 0x0013E6C4 ico2/fumi/isys/gobj.c lines=10  # ordinal; first difference at insn 27; imm:1; extent-equal
-text soundAllocIopHeap 0x0013FDF0 0x0013FE4C ico2/fumi/sound/s_init.c lines=10  # ordinal; first difference at insn 7; imm:1; extent-equal
-rdlit soundAllocIopHeap 0x00551FC8 0x00552011 ico2/fumi/sound/s_init.c  # 3 strings
-text soundDataOpenChk 0x0013FE58 0x00140110 ico2/fumi/sound/s_init.c local lines=62  # ordinal; first difference at insn 14; length:+1; extent-differs
-rdlit soundDataOpenChk 0x00552018 0x0055205A ico2/fumi/sound/s_init.c  # 4 strings
-text soundBufAlloc 0x00140110 0x00140314 ico2/fumi/sound/s_init.c lines=53  # ordinal; first difference at insn 16; imm:13; extent-equal
-text soundBufSegFree 0x00140318 0x00140430 ico2/fumi/sound/s_init.c lines=29  # ordinal; first difference at insn 8; imm:7; extent-equal
-text soundBDDataSet 0x00140430 0x001406D8 ico2/fumi/sound/s_init.c lines=28  # ordinal; first difference at insn 61; imm:2; extent-equal
-text soundDataOpen 0x001406D8 0x001407C8 ico2/fumi/sound/s_init.c lines=20  # ordinal; first difference at insn 12; imm:7; extent-equal
-text soundDataOpenSync 0x001407C8 0x001408AC ico2/fumi/sound/s_init.c lines=19  # ordinal; first difference at insn 12; imm:7; extent-equal
-text soundDataClose 0x001408B0 0x00140A0C ico2/fumi/sound/s_init.c lines=32  # ordinal; first difference at insn 0; length:+2; extent-differs
-text _soundSeDefPlay 0x00141718 0x00141BF4 ico2/fumi/sound/s_init.c local lines=115  # ordinal; first difference at insn 44; length:+1; extent-differs
-lit4 _soundSeDefPlay 0x0062AC28 0x0062AC34 ico2/fumi/sound/s_init.c  # 3 floats
-rdlit _soundSeDefPlay 0x00552150 0x00552175 ico2/fumi/sound/s_init.c align=16  # 2 strings
-text _soundSeDefStop 0x00141BF8 0x00141CFC ico2/fumi/sound/s_init.c lines=25  # ordinal; first difference at insn 19; other:11; extent-equal
-text soundSeEnvPlay 0x00141D50 0x00141F70 ico2/fumi/sound/s_init.c lines=17  # ordinal; first difference at insn 1; imm:3; extent-equal
-lit4 soundSeEnvPlay 0x0062AC34 0x0062AC3C ico2/fumi/sound/s_init.c  # 2 floats
-text soundSeEnvNotUseClose 0x00141F70 0x00142408 ico2/fumi/sound/s_init.c lines=100  # ordinal; first difference at insn 1; imm:7; extent-equal
-text soundDataSegNextStageNotUseClose 0x00142408 0x00142590 ico2/fumi/sound/s_init.c lines=41  # ordinal; first difference at insn 0; imm:3; extent-equal
-text Ee2Iop 0x00142590 0x00142644 ico2/fumi/sound/s_init.c lines=18  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-rdlit Ee2Iop 0x00551F50 0x00551F9A ico2/fumi/sound/s_init.c align=16 def  # 3 strings
-text soundOutputModeGet 0x00142648 0x00142650 ico2/fumi/sound/s_init.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundReverbDepthGet 0x00142650 0x00142658 ico2/fumi/sound/s_init.c lines=4  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundBufAdpcmChAlloc 0x00142658 0x00142768 ico2/fumi/sound/s_init.c lines=26  # ordinal; first difference at insn 0; length:-2; extent-differs
-rdlit soundBufAdpcmChAlloc 0x00552060 0x0055207B ico2/fumi/sound/s_init.c align=16 def  # 1 string
-text soundBufAdpcmFree 0x00142768 0x00142784 ico2/fumi/sound/s_init.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundDataAreaSearch 0x00142788 0x001427CC ico2/fumi/sound/s_init.c lines=13  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundDataAreaGet 0x001427D0 0x00142918 ico2/fumi/sound/s_init.c lines=23  # ordinal; first difference at insn 53; imm:2; extent-equal
-sdlit soundDataAreaGet 0x0062C388 0x0062C38A ico2/fumi/sound/s_init.c def  # 1 string
-text soundHDDataSet 0x00142918 0x00142A78 ico2/fumi/sound/s_init.c lines=7  # ordinal; first difference at insn 55; imm:2; extent-equal
-text soundSQDataSet 0x00142A78 0x00142BD8 ico2/fumi/sound/s_init.c lines=7  # ordinal; first difference at insn 55; imm:2; extent-equal
-text soundSeDefPlay 0x00142BD8 0x00142C2C ico2/fumi/sound/s_init.c lines=8  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundSeDefPlayWithVolumeRate 0x00142C30 0x00142C7C ico2/fumi/sound/s_init.c lines=9  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundSeDefVolumeRateGet 0x00142C80 0x00142CC0 ico2/fumi/sound/s_init.c lines=16  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundSeDefVolumeRateSet 0x00142CC0 0x00142CF8 ico2/fumi/sound/s_init.c lines=11  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundSeGroupStop 0x00142CF8 0x00142D94 ico2/fumi/sound/s_init.c lines=19  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundSeGroupGet 0x00142D98 0x00142DC0 ico2/fumi/sound/s_init.c lines=6  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundSePlayModeStop 0x00142DC0 0x00142E44 ico2/fumi/sound/s_init.c lines=17  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundReqTickProc 0x00142E48 0x00142F58 ico2/fumi/sound/s_init.c lines=24  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundVBlank 0x00142F58 0x00142FB8 ico2/fumi/sound/s_init.c lines=10  # census-equal; stubbed for emission order: an inline function gcc emits after the TU's stubs, where the prototype has it before one
-text soundSeKindBuild 0x00142FB8 0x00143074 ico2/fumi/sound/s_init.c lines=24  # ordinal; first difference at insn 1; imm:3; extent-equal
 text ActPara_MakeTbl 0x0014A510 0x0014A664 ico2/fumi/src/act-parallel-control.c lines=42  # ordinal; first difference at insn 10; other:7; extent-equal
 text ACTGetWish_FromPad 0x0014A6D8 0x0014B638 ico2/fumi/src/act-wish.c lines=300  # aug6-only in the census (after act-parallel-control.c's span); ACTGetWish_FromPad by body ratio 0.60, callees 1.00, sizes 4836/3936, call sites 1
 lit4 ACTGetWish_FromPad 0x0062AC84 0x0062AC9C ico2/fumi/src/act-wish.c # target side
