@@ -40,7 +40,6 @@
 #include "act-env.h"
 #include "item.h"
 #include "wireLetter.h"
-#include "include_asm.h"
 
 static void _girlBrainHide_MakeHidePoint(float *p, float dist);
 static int isEnterHideadv(void);
@@ -2737,30 +2736,584 @@ int padtimer_run = 0;
 /* the motion-def row of an actor's current motion (boyact.c's CHAINROW) */
 #define MOTDIRROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
 
-/* The girl's control thread, built from the user's disc, and the one
-   function of this build not built from C.  Its text is known but for one
-   region: every other statement is the USA text with this build's values
-   (flags18 shifted by 42, the first switch's 68, 76 and 110, the slow-walk
-   test's mask 0x0806000000000000, this build's mail numbers, case 28's test
-   of bit 2 of pad[0].now, and case 45 without the USA's flags20 test), and
-   it compiles to this build's 481 instructions except the register choice
-   at one site (&mdir and &dir in s4/s3, the demo's s3/s4: 8 words).  The
-   region is the slow-walk block's debug display, 709 source lines (1524 to
-   2232) that the August line map leaves without code.  In this build it
-   held some 143 or more live zero-byte statements: calls to this file's
-   debug helpers whose bodies are empty in a retail build, one instruction
-   each until register allocation.  Their count lies in a window (143, 157,
-   167, ...) that the register choice pins, together with the size of the
-   gcse hash table; their text is not pinned.  This is the same region the
-   USA build holds its subGirlControl at.  Eight strings of the display
-   survive with no code reading them: in .rodata "src/girl_act.c",
-   "NOTARGET", "[%s] %4d %4d %4d" and "delete wg 2\n" (after the live
-   "girl no!!\n"), in .sdata "SLOW", "HURRY", "STOP" and "target" (after the
-   pad timers).  No debug build or symbol table of this program is known;
-   the function returns to C when such evidence names the statements. */
-INCLUDE_ASM(subGirlControl);
+/* DRAFT, UNVERIFIED: the slow-walk display's TTY lines and markers.  Each
+   is built only when DEBUG is defined, as girlBrainDebugPrint is, and the
+   retail build leaves it without a body; the names and the bodies are
+   guesses (derived names), only their number of calls is measured. */
+static __inline__ void girlCtrlDebugPrintPad(void) /* derived name */
+{
+#ifdef DEBUG
+    scePrintf("pad %4d %4d %4d\n", padtimer_stand, padtimer_walk, padtimer_run);
+#endif
+}
 
-INCLUDE_ASM_LIT(subGirlControl);
+static __inline__ void girlCtrlDebugPrintMode(void) /* derived name */
+{
+#ifdef DEBUG
+    scePrintf("brain mode %d target %p\n", brain_val.curMode, brain_val.target);
+#endif
+}
+
+static __inline__ void girlCtrlDebugPrintDist(void) /* derived name */
+{
+#ifdef DEBUG
+    scePrintf("boy dist %f\n", _DistGV(brain_val.girlPos, brain_val.boyPos));
+#endif
+}
+
+static __inline__ void girlCtrlDebugMarkGirl(void) /* derived name */
+{
+#ifdef DEBUG
+    debug_NMarker(brain_val.girlRoot, 255, 255, 0, 100.0f);
+#endif
+}
+
+static __inline__ void girlCtrlDebugMarkBoy(void) /* derived name */
+{
+#ifdef DEBUG
+    debug_NMarker(brain_val.boyRoot, 0, 0, 255, 100.0f);
+#endif
+}
+
+void subGirlControl(GObj *volatile self)
+{
+    /* the stick direction in world coordinates */
+    float dir[4];
+    /* the target's root position, read only by the display */
+    float vec[4];
+
+    /* the target and the actor pointer as one frame record; the target is
+       an object handle, a word like the object's actor slot it is stored
+       beside */
+    struct { /* field names derived */
+        int target;
+        Act *p;
+    } w;
+
+    /* the girl's motion direction, for the stick correction */
+    float mdir[4];
+    /* The display's own locals.  They take 496 bytes of the frame (the
+       576-byte locals block is the same size in the June 26, Aug 6,
+       Aug 20 and PAL ELFs), but no retail code reads them, so their
+       names, types and split are UNVERIFIED; one array stands for
+       them here. */
+    float work[124];
+
+    /* case 45: whether the boy holds the girl's hand, or pushes */
+    int hold;
+    int push;
+
+    /* case 38: the stick's vertical deflection */
+    int lim;
+
+    /* the display switch: 0 in every build, so the display's strings
+       stay in the object and its code does not */
+    int dbg = 0;
+
+    /* the walk-mode label of the status line: SLOW, HURRY or STOP */
+    char *speed;
+
+    /*
+     * The girl's control thread: waits for her motion, then each frame
+     * reads the pad while she is the current target, slows her walk in
+     * the slow-walk states, keeps the three pad timers, turns her
+     * toward the stick and sends the mode's mails.
+     *
+     * In the slow-walk states a debug display ran here; it is compiled
+     * out (see the comment at the top of that block).
+     *
+     * The developer links also carry a short block after the mail
+     * switch (ACTSendMailCorrect, ACTDebugMove) that the retail builds
+     * do not have; it is not written here.
+     */
+
+    w.p = GOBJ_ACT(self);
+    w.target = 0;
+    while (w.p->motReq == 0) {
+        debug_StdPrintfDummy("girl no!!\n");
+        _ACTWait(1);
+    }
+    iosPadConnect(&w.p->pad, 0, 1, &w.p->padConf);
+    for (;;) {
+        if ((int)(w.p->flags18.ll >> 42) & 1) {
+            if ((void *)self == (void *)CurrentTargetGObj) {
+                iosPadConnect(&w.p->pad, 0, 0, &w.p->padConf);
+                iosPadRead(&w.p->pad);
+                iosPadGetStick(&w.p->pad, &w.p->stick, 0, 2, 2, 0);
+                _GetMotionDirection(mdir, (void *)self);
+                w.p->stick.angle = CorrectStickInfo(mdir, &w.p->stick);
+                if (w.p->stick.mag > 0.001f) {
+                    ConvertStickToAbsCoord(dir, &w.p->stick);
+                    w.p->dir[0] = dir[0];
+                    w.p->dir[1] = dir[1];
+                    w.p->dir[2] = dir[2];
+                }
+            } else if ((void *)self == (void *)CurrentTargetGObjSub) {
+                iosPadConnect(&w.p->pad, 0, 1, &w.p->padConf);
+            } else {
+                iosPadConnect(&w.p->pad, 0, 1, &w.p->padConf);
+            }
+            if ((w.p->flags18.ll &
+                 /* the slow-walk states: flags18 bits 59, 50 and 49
+                    (their names are not known) */
+                 (0x0800000000000000 | 0x0004000000000000 | 0x0002000000000000)) != 0) {
+                /*
+                 * The slow-walk display, compiled out of every retail build.
+                 *
+                 * DRAFT, UNVERIFIED ORDERING.  What the ROM pins on this build (June 26):
+                 *  - eight strings, emitted in this order: "src/girl_act.c",
+                 *    "NOTARGET", "[%s] %4d %4d %4d", "delete wg 2\n" in .rodata, then
+                 *    "SLOW", "HURRY", "STOP", "target" in .sdata.  They fix the
+                 *    relative order of the statements that use them: the file-naming
+                 *    assert, the NOTARGET label, the status line with its walk-mode
+                 *    label and three numbers, the "delete wg 2" message, the target
+                 *    label.  They sit under the display switch dbg, 0 in every build.
+                 *  - 143 live statements that leave no word of their own: each is a
+                 *    call of a parameterless helper without a body, which leaves one
+                 *    (use (const_int 0)) in the loop.  With exactly 143 of them the
+                 *    gcse expression table has 343 buckets and &mdir and &dir tie in
+                 *    the register allocator as the ROM's registers need (mdir s3,
+                 *    dir s4).  A call with arguments leaves nothing and is not counted.
+                 *  - the shape: the developer's line maps (TRFILE for Aug 6, SRCFILE
+                 *    for PAL) keep 709 lines without code here, after an 8-line
+                 *    slow-walk condition and a 51-line declaration block (52 on PAL).
+                 * What the ROM does not pin: the statements themselves, their order
+                 * beyond the strings', their arguments and the helpers' names.  The
+                 * statements below are an educated guess: UNVERIFIED.
+                 * The other builds keep the same eight strings but need other
+                 * counts: Aug 6 139, with this compiled-out block one marker
+                 * call shorter, and Aug 20 144, so the display changed by a
+                 * few statements between the builds.
+                 */
+
+                if (dbg) {
+                    /* the target: its position, or NOTARGET */
+                    if (w.target != 0) {
+                        GetRootPosition(vec, (void *)w.target);
+                        if (vec[1] < -10000.0f) {
+                            debug_assert("src/girl_act.c", 1530);
+                            __assert("src/girl_act.c", 1530, "0");
+                        }
+                        /* a marker at the target */
+                        debug_NMarker(vec, 255, 255, 0, 100.0f);
+                    } else if (debug_font_flag & 1) {
+                        debug_Printf(10, 120, 0x0FFFFFFF, "NOTARGET");
+                    }
+                    /* the walk mode and the three pad timers */
+                    if (padtimer_walk != 0) {
+                        speed = "SLOW";
+                    } else if (padtimer_run != 0) {
+                        speed = "HURRY";
+                    } else {
+                        speed = "STOP";
+                    }
+                    if (debug_font_flag & 1) {
+                        debug_Printf(10, 130, 0x0FFFFFFF, "[%s] %4d %4d %4d", speed, padtimer_stand,
+                                     padtimer_walk, padtimer_run);
+                    }
+                    if (w.p->pad.trg & 0x100) {
+                        debug_StdPrintfDummy("delete wg 2\n");
+                    }
+                    if (w.target != 0) {
+                        girlDispWire(255, 255, 0, vec, "target");
+                    }
+                }
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                girlBrainDebugPrint();
+
+                /* the walk timers */
+                girlCtrlDebugPrintPad();
+                /* the girl and the boy: markers at their roots */
+                girlCtrlDebugMarkGirl();
+                girlCtrlDebugMarkBoy();
+                /* the distance between them */
+                girlCtrlDebugPrintDist();
+                /* the brain: its mode and target, its escape point */
+                girlCtrlDebugPrintMode();
+                if (w.p->stick.mag != 0.0f) {
+                    w.p->stick.mag = 0.5f;
+                }
+            }
+        }
+        if (!(w.p->stick.mag > 0.1f)) {
+            padtimer_stand = padtimer_stand + 1;
+        } else {
+            padtimer_stand = 0;
+        }
+        if (w.p->stick.mag > 0.1f && (w.p->stick.mag < 0.99f || (w.p->pad.now & 0x20))) {
+            padtimer_walk = padtimer_walk + 1;
+        } else {
+            padtimer_walk = 0;
+        }
+        if (0.1f < w.p->stick.mag &&
+            !(0.1f < w.p->stick.mag && (w.p->stick.mag < 0.99f || (w.p->pad.now & 0x20)))) {
+            padtimer_run = padtimer_run + 1;
+        } else {
+            padtimer_run = 0;
+        }
+        dir[0] = w.p->dir[0];
+        dir[1] = w.p->dir[1];
+        dir[2] = w.p->dir[2];
+        switch ((unsigned int)w.p->actMode) {
+        case 68:
+        case 76:
+        case 110:
+            break;
+        default:
+            if (w.p->stick.mag > 0.1f && w.p->actMode != 110) {
+                SetMotionDirectionSmooze(self, dir,
+                                         (float)motionKind[GOBJ_SUB(self)->ctrl.motion].dirFrames);
+            }
+            break;
+        }
+        _ACTCommonMailTest((void *)self, padtimer_stand, padtimer_walk, padtimer_run);
+        switch (w.p->actMode) {
+        case 1:
+            ACTSendMailCorrect(self, 177);
+            break;
+        case 2:
+            ACTSendMailCorrect(self, 163);
+            break;
+        case 3:
+            ACTSendMailCorrect(self, 168);
+            break;
+        case 29:
+            if ((w.p->stick.mag > 0.1f && (w.p->stick.angle < -134 || 134 < w.p->stick.angle)) ||
+                (w.p->pad.trg & 0x40)) {
+                if (100.0f < GetDifferenceFromLowerField((void *)self, 0x2C)) {
+                    ACTSendMailCorrect(self, 267);
+                } else {
+                    ACTSendMailCorrect(self, 202);
+                }
+            }
+            if ((w.p->stick.mag > 0.1f && (w.p->stick.angle >= -45 && w.p->stick.angle <= 45)) ||
+                (w.p->pad.trg & 0x10)) {
+                ACTSendMailCorrect(self, 177);
+            }
+            if (w.p->stick.mag > 0.1f && (w.p->stick.angle >= 46 && w.p->stick.angle <= 134)) {
+                ACTSendMailCorrect(self, 299);
+            }
+            if (w.p->stick.mag > 0.1f) {
+                if (-134 <= w.p->stick.angle) {
+                    if (w.p->stick.angle < -45) {
+                        ACTSendMailCorrect(self, 300);
+                    }
+                }
+            }
+            break;
+        case 28:
+            if (w.p->stick.mag > 0.1f && (w.p->stick.angle < -134 || 134 < w.p->stick.angle)) {
+                ACTSendMailCorrect(self, 202);
+            } else if (w.p->stick.mag > 0.1f &&
+                       (w.p->stick.angle >= -45 && w.p->stick.angle <= 45) && !(pad[0].now & 4)) {
+                ACTSendMailCorrect(self, 177);
+            }
+            ACTSendMailCorrect(self, 301);
+            break;
+        case 15:
+            if (w.p->pad.trg & 0x20) {
+                ACTSendMailCorrect(self, 177);
+            }
+            break;
+        case 38:
+            lim = w.p->stick.y - 128;
+            if (100 < lim) {
+                ACTSendMailCorrect(self, 296);
+            } else if (lim < -100) {
+                ACTSendMailCorrect(self, 295);
+            } else {
+                ACTSendMailCorrect(self, 301);
+            }
+            break;
+        case 45:
+            if (w.p->stick.mag > 0.1f) {
+                ACTSendMailCorrect(self, 108);
+                ACTSendMailCorrect(self, 107);
+            }
+            hold = 0;
+            push = 0;
+            if (((int *)boyGObj) != 0) {
+                if (GOBJ_ACT(((int *)boyGObj))->actMode == 0x2D) {
+                    push = GOBJ_ACT(((int *)boyGObj))->intrMot != 60;
+                } else {
+                    hold = 1;
+                }
+            }
+            if (hold) {
+                (GOBJ_ACT(self)->enemy->dirSmoothFrames)++;
+            } else {
+                GOBJ_ACT(self)->enemy->dirSmoothFrames = 0;
+            }
+            if (push) {
+                (GOBJ_ACT(self)->enemy->dirSmoothFrames2)++;
+            } else {
+                GOBJ_ACT(self)->enemy->dirSmoothFrames2 = 0;
+            }
+            if (GOBJ_ACT(self)->enemy->dirSmoothFrames >
+                (60 - systemStatus[0] * 10) / systemStatus[1] / 2) {
+                ACTSendMailCorrect(self, 108);
+                ACTSendMailCorrect(self, 107);
+            }
+            if (GOBJ_ACT(self)->enemy->dirSmoothFrames2 >
+                (60 - systemStatus[0] * 10) / systemStatus[1] / 2) {
+                ACTSendMailCorrect(self, 107);
+            }
+            break;
+        }
+        _ACTWait(1);
+    }
+}
 
 extern int fptodp(float v);
 

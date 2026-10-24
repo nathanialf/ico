@@ -59,9 +59,4 @@
 # provisional until the function matches. The comment gives the evidence
 # (for a PAL twin: tier, first difference, residue class, extents).
 
-text subGirlControl 0x00168EA8 0x0016962C ico2/fumi/src/girl_act.c  # jun26-only; the aug6/PAL MAIN.MAP name of its twin (actGirlStart's first control thread, 21, before subGirlCollision)
-lit4 subGirlControl 0x00678978 0x006789AC ico2/fumi/src/girl_act.c  # 13 floats (target side)
-rdlit subGirlControl 0x005A2730 0x005A2790 ico2/fumi/src/girl_act.c  # 5 strings (target side): its string, then four no word of .text addresses, up to its jump table
-rdlit subGirlControl 0x005A2790 0x005A2848 ico2/fumi/src/girl_act.c def  # 1 jtbl (target side); emitted where the demo has it
-sdlit subGirlControl 0x00679F18 0x00679F37 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base ("SLOW", "HURRY", "STOP", "target"; no word of .text addresses them): after the four pad-timer words, before subGirlCollision's "[%d]\n" at 0x679F38, as ntsc's row 0x6324C8..0x6324E7
 sdata D_0067B250 0x0067B250 0x0067B254 ico2/fumi/src/way_kidnap.c local  # a zero word first in the TU's .sdata; no word of .text addresses it (target side)
