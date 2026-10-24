@@ -28,16 +28,23 @@ the base ELF.
 
 ## Status
 
-2606 of the build's 5447 functions are still campaign stubs: the C for them
-does not yet give the USA bytes, so the build writes each one from the
-user's own `baserom/us/baseelf.elf` at its place in its translation unit
-(`config/stubs.us.txt`, `tools/gen_stub_s.py`; nothing of them is
-committed). The gate passes with them in place, so every badge above reads
-100 %, and the badges split each figure into the share built from the tracked
-sources and the share from the disc: the stubs and the data tables. The
-`.text` source share is the matched code; the rest of it is the stubs. When
-the list is empty the mechanism is idle and the branch is finished in
-`main`'s shape.
+Every object of the link is built from the sources under `ico2/` and
+`sce/`, or, for the game's code-less data members, generated from the
+user's own disc at build time, as on `main`: all 5447 functions compile or
+assemble to the USA bytes, and `config/stubs.us.txt` keeps the stub
+mechanism's header with no rows, so nothing of the code is read from the
+disc.
+
+One block of source is not decided by the ROM. Inside `subGirlControl`
+(`ico2/fumi/src/girl_act.c`), the girl's slow-walk states ran a debug
+display that every retail build compiles out. The ROM fixes its eight
+strings and their order, the number of its calls to helpers that have no
+body in a retail build (144 in this build: the count sets the size of
+gcse's expression table, and with it two of the function's register
+choices) and the size of its locals, but not the statements themselves.
+What stands there is an educated guess, marked in the source as a draft
+with unverified ordering; the comment at the top of the block lists what
+the ROM pins and what it does not.
 
 ## Quickstart
 
@@ -98,12 +105,11 @@ There is one badge per section of the base ELF, in link order.
 `docs/us/progress.json` from the built ELF and its link map.
 
 A badge reads `100 %` when the whole section equals the base. Where part of a
-section comes from the user's ELF, the badge splits the figure: `source` is
-the share placed by objects compiled or assembled from the tracked sources
-under `ico2/` and `sce/`, and `disc` is the share of the data-only members the
-build generates from the user's own ELF (next section) and of any campaign
-stubs `config/stubs.us.txt` still lists (Status, above). `.sbss` and `.bss`
-hold no file bytes, so their figure is the share of the range that an
+section comes from the data tables (next section), the badge splits the
+figure: `source` is the share placed by objects compiled or assembled from
+the tracked sources under `ico2/` and `sce/`, and `disc` is the share of the
+data-only members the build generates from the user's own ELF. `.sbss` and
+`.bss` hold no file bytes, so their figure is the share of the range that an
 object defines and the link places at the base's addresses.
 
 ## Data tables
@@ -151,8 +157,8 @@ config/                     link_order.us.txt (every object in link order),
                             data_members.us.txt (the data-only members),
                             data_schema.us.txt (the record type, count and
                             names of each member built as C),
-                            stubs.us.txt (the campaign stubs, while any
-                            remain), sha1sums.us.txt
+                            stubs.us.txt (the campaign stub list, empty),
+                            sha1sums.us.txt
 tools/                      setup, extraction, build and gate scripts, the
                             same on every target branch, listed in
                             tools/README.md
@@ -198,13 +204,15 @@ The host's `mips-linux-gnu-objcopy` writes `build/us/ico.rom`.
 
 | branch | targets | |
 | --- | --- | --- |
-| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`) and `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`) | the shared tree this branch was seeded from, with its own README; finished targets join there |
+| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`) and `kor` (Korean retail, SCPS-56001, `SCPS_560.01`) | the shared tree this branch was seeded from, with its own README; finished targets join there |
 | `ntsc` | `us` (USA retail, SLUS-20218, `SCUS_971.13`) | this document: a single-target tree, until it joins `main` |
 | `aug6` | `aug6` (the August 6, 2001 prototype) | a single-target tree with its own README, until it joins `main` |
+| `jun26` | `jun26` (the June 26, 2001 demo, SCUS-97158, `CUS97113/SCPS_000.00`) | a single-target tree with its own README, until it joins `main` |
 | `pal` | `pal` | the single-target PAL tree, frozen |
 | `jpn` | `jpn` | the single-target Japanese tree, frozen |
+| `kor` | `kor` | the single-target Korean tree, frozen |
 
-`ntsc` and `aug6` are separate trees that are never merged into each other or
+`ntsc`, `aug6` and `jun26` are separate trees that are never merged into each other or
 into `main`. Every branch carries one build layer, file for file: `tools/`,
 `build.sh`, `.github/` and `docs/index.html` (`tools/check_shared_layer.sh`
 checks it against `main`); a change to it lands on `main` first. A finished

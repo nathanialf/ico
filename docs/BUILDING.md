@@ -169,7 +169,8 @@ from these inputs:
 - `config/data_schema.us.txt`: the data-only members written as C (member,
   section, element type, the game header that defines it, element count,
   MAIN.MAP's names).
-- `config/stubs.us.txt`: the campaign stubs, while it has rows (section 4).
+- `config/stubs.us.txt`: the campaign stub list, idle here: its header and
+  no rows (section 4).
 
 `tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
 `build.ninja`; needed after adding a source), `clean` (delete `build/us/`),
@@ -219,10 +220,11 @@ target, here the one.
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
   its offset by `build/us/data/<member>.alias.ld`;
-- writes the stubs, when `config/stubs.us.txt` has rows (with none, this
-  step does nothing). While this target is rebuilt from the tree seeded
-  from `main`, a function whose C does not yet give the USA bytes is listed
-  there with its address range and its translation unit, and the C
+- writes the stubs, when `config/stubs.us.txt` has rows (on this branch it
+  has none, as on `main`, and this step does nothing). While a target is
+  rebuilt from a tree seeded from another, a function whose C does not yet
+  give that target's bytes is listed there with its address range and its
+  translation unit, and the C
   carries `INCLUDE_ASM(stem);` where the function stands in the file (the
   stem is the function's name, or the row's `file=<stem>` when two statics
   in two TUs share a name; a function defined in a `.c.inc` the TU includes
@@ -325,9 +327,8 @@ rewrites the README's badge block, the table in `docs/us/PROGRESS.md` and
 `docs/us/progress.json` from the built ELF, its link map and the function
 symbols of `build/us/ico.syms.elf`. A byte counts for its section when the map
 row that places it belongs to an object built from `ico2/` or `sce/` and the
-byte equals the base's; bytes from `build/us/data/` and any campaign stub's
-bytes are counted separately, as from the disc. The count is by object, so
-`staffroll_dat`'s count word
+byte equals the base's; bytes from `build/us/data/` are counted separately as
+extracted tables. The count is by object, so `staffroll_dat`'s count word
 (4 bytes of `.sdata`) counts as from the disc although the generator
 computes it from the table's element count.
 

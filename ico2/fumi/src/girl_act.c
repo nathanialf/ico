@@ -3015,9 +3015,6 @@ int padtimer_walk = 0;
 
 int padtimer_run = 0;
 
-/* the motion-def row of an actor's current motion (boyact.c's CHAINROW) */
-#define MOTDIRROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
-
 /* DRAFT, UNVERIFIED: the slow-walk display's TTY lines and markers.  Each
    is built only when DEBUG is defined, as girlBrainDebugPrint is, and the
    retail build leaves it without a body; the names and the bodies are
@@ -3057,13 +3054,13 @@ static __inline__ void girlCtrlDebugMarkBoy(void) /* derived name */
 #endif
 }
 
-/* The girl's control thread, built from the user's disc.  Every statement
-   but one region is the PAL text with this build's values (the mail
-   numbers, the slow-walk test's flags18 mask 0x4018000000000000, and the
-   test of flags20 bit 3 that case 45 adds).  The region is the slow-walk
-   block's debug display, compiled out of every retail build; what stands
-   there is an educated guess, and the comment at the top of that block
-   says what the ROM pins of it and what it does not. */
+/* The girl's control thread.  Every statement but one region is the PAL
+   text with this build's values (the mail numbers, the slow-walk test's
+   flags18 mask 0x4018000000000000, and the test of flags20 bit 3 that case
+   45 adds).  The region is the slow-walk block's debug display, compiled
+   out of every retail build; what stands there is an educated guess, and
+   the comment at the top of that block says what the ROM pins of it and
+   what it does not. */
 void subGirlControl(GObj *volatile self)
 {
     /* the stick direction in world coordinates */

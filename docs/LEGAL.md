@@ -19,8 +19,7 @@ respective owners.
 - Configuration that describes how the user's own disc image is checked and
   how the rebuilt ELF is linked: the link order, the linker script, the
   data-table index, the data-table schema (record types and counts, no
-  values), the campaign stub list (names and address ranges, no bytes) and
-  the SHA-1s of the expected files.
+  values) and the SHA-1s of the expected files.
 
 ## What is not in this repository, and must never be added
 
@@ -33,8 +32,7 @@ respective owners.
 - The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
   `SCUS_971.13`, the prototypes), or any part of it.
 - Audio, images, textures, models, text or other assets from the disc.
-- The game's data tables, and the code and constants of any function built
-  as a campaign stub (next section).
+- The game's data tables (next section).
 - Symbol tables, map files or other identifier tables, and any debug string,
   asset or code blob, copied verbatim or in bulk out of the binary, the disc
   or any leaked development material. Using an individual fact (a name, an
@@ -48,7 +46,7 @@ harder to commit such material by accident. They do not replace care. If you
 suspect a file in this repository breaks these rules, open an issue tagged
 `legal`.
 
-## The data tables and the campaign stubs are generated at build time
+## The data tables are generated at build time
 
 The USA link includes the same 70 members of the game's archive `ico2000.a`
 that have data sections and no code as the PAL link (the PAL disc's
@@ -68,15 +66,6 @@ from `config/data_schema.us.txt` that compiles with the game's flags
 owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
 names MAIN.MAP gives the symbols, and nothing of the tables' content.
-
-The campaign stubs are handled the same way. While a function's C does not
-yet give the USA bytes, `config/stubs.us.txt` names it with its address
-range and its translation unit, and `tools/gen_stub_s.py` writes its
-instructions and constants from the user's own ELF to `build/us/stubs/` at
-build time, where the C includes them. The list holds names, ranges and notes
-on how each function differs from PAL's, never a word of the code; nothing
-under `build/us/stubs/` is committed. When the list is empty, nothing is
-generated.
 
 The line drawn is between content and facts about its shape. The names,
 tables and strings are content and are never committed. A count or size
@@ -170,20 +159,20 @@ inside a run of unpaired ones (the ordinal tier), and where a USA function
 no PAL function claimed was tied by other evidence to a PAL function the
 census left without a twin (a body equal with immediates and jump targets
 masked, PAL's size and order, call sites, data tables, callees or body
-alignment), the name is provisional, with its evidence on its stub-list
-row, until the function is rebuilt from the PAL function's source with the
-USA build's changes and the gate passes; every function that has left the
-list was confirmed that way. Functions a data member points at
+alignment), the pairing was checked by rebuilding the function from the PAL
+function's source with the USA build's changes until the gate passed; every
+function of the tree now compiles to the USA bytes at the address the link
+gives it. Functions a data member points at
 were named by that member's key or by the record they address. A function
 with no PAL counterpart carries a derived name. The data-only members take
 PAL's names by member order. No address is copied from either PAL file:
 every address in `config/*.us.*` was found in the user's own ELF.
 
 Of the user's USA disc the build reads `SYSTEM.CNF`, to find the boot file,
-and `SCUS_971.13`: it checks the ELF's SHA-1, generates the 71 data-only
-members from it (above), and writes any campaign stub `config/stubs.us.txt`
-still lists. Every other function, the five VU1 microprograms and Sony's
-libraries are compiled or assembled from the tracked sources.
+and `SCUS_971.13`: it checks the ELF's SHA-1 and generates the 71 data-only
+members from it (above). Every function, the five VU1 microprograms and
+Sony's libraries are compiled or assembled from the tracked sources; nothing
+of the code is read from the disc.
 `tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/us/`.
 
 Where the USA build lays out a record differently from PAL's (eight of the
