@@ -352,7 +352,7 @@ static void iosCdvdMgrSearchFile(IosCdvdHandle *self)
         if (sceCdSearchFile(&self->file, self->name) == 0) {
             self->result = 100;
         }
-        /* The Korean build's seek: on the Korean disc the archive's header,
+        /* On the Asian disc, as on the Korean one, the archive's header,
          * which opens DATA.DF on the Japanese disc, is 153600 sectors in. */
         if (strcmp("\\DFDATAS\\DATA.DF;1", self->name) == 0) {
             self->file.lsn += 153600;

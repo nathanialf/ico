@@ -55,7 +55,9 @@ Media and records:
   and disc type 20, `SCECdPS2DVD`, with the boot file name changed.
 - `iosCdvdMgrSearchFile` moves the start of `\DFDATAS\DATA.DF;1` 153600
   sectors on, as the Korean build's does; the census pairs it with the
-  Korean function, equal.
+  Korean function, equal. On the Asian disc, as on the Korean one, the
+  archive header that opens `DATA.DF` on the Japanese disc lies 153600
+  sectors into the file.
 - The records are the Japanese ones (`docs/HEADERS.md`); the data members
   are the Korean ones but for `tex-property`, `texture-layout` and the
   `.rodata` pool of `staffroll_dat`, which hold the Japanese bytes

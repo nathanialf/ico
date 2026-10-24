@@ -1682,7 +1682,7 @@ void actEndDemo14Chk(GObj *volatile self)
     actCreateSubThread(actConte14_14, 21);
 }
 
-/* The ending's save step.  This build, like the November one, calls it
+/* The ending's save step.  This build, like the Japanese one, calls it
    actEndLogoChk, its name in the Aug-6 disc's TRFILE (the last function of
    end.c there too);
    PAL's build renamed it actEndingSave and gave the name to the step before it.
