@@ -5,8 +5,8 @@ builds every target: its base text is the PAL revision, and where another
 target differs the file holds that target's lines inline in
 `VERSION_<SLUG>` blocks (`docs/BUILDING.md`, "Targets and version
 blocks"); `grep -rn VERSION_JPN ico2`, `grep -rn VERSION_KOR ico2`,
-`grep -rn VERSION_NTSC ico2` and `grep -rn VERSION_AUG6 ico2` list every
-place. This file
+`grep -rn VERSION_NTSC ico2`, `grep -rn VERSION_AUG6 ico2` and `grep -rn
+VERSION_JUN26 ico2` list every place. This file
 records, per target, where its build differs from PAL's and why; the file or
 function named at each line is where to read the detail. A target that joins
 later gets its own section here.
@@ -401,3 +401,196 @@ Link order. The prototype's `MAIN.MAP` describes PAL's link, so
 census (`tools/correlate_elf.py`) as the USA build's is, each departure
 explained on its line; the prototype's link has 536 objects (USA 539, PAL
 547). `libscf` is absent, as in every link but PAL's.
+
+## Jun-26-2001 demo (`jun26`): how the build differs from PAL's
+
+The `VERSION_JUN26` blocks hold the June 26, 2001 demo's differences from
+the PAL text. The demo is the oldest build in this tree, six weeks before
+the August 6 prototype: its ELF carries the build stamp `Jun 26 2001`
+`20:01:21`, and the version string in `gamesys.c` reads `06/26/01
+20:00:06` (the prototype's `08/07/01 14:51:53`). It is one game on the
+Official U.S. PlayStation Magazine demo disc 49 (SCUS-97158, a DVD): the
+disc's `SYSTEM.CNF` (`VER = 1.00`, `VMODE = NTSC`) boots the magazine's
+menu, `SCUS_971.58`, which starts the demo from its own directory, and the
+build reads the demo's own ELF, `CUS97113/SCPS_000.00` (the `boot` key of
+`tools/ico_version.py`'s row). Its text is PAL's with 315 files changed, three
+VU program texts and one source of its own, most of the changes in whole
+functions and many in whole files; where the prototype or the USA build already differs from PAL
+and the demo has their lines, their condition names it: 5187 blocks name it,
+in 305 files. 2976 `#ifdef VERSION_JUN26` and 476 `#ifndef VERSION_JUN26`
+hold its own lines (2096 blocks naming it at the top level, 1586 inside one
+arm, 1416 inside two, 89 inside three); 909 `#if defined(VERSION_AUG6) ||
+defined(VERSION_JUN26)`, 199 `#if !defined(VERSION_AUG6) &&
+!defined(VERSION_JUN26)`, 368 `#if defined(VERSION_NTSC) ||
+defined(VERSION_AUG6) || defined(VERSION_JUN26)` and 190 `#if
+!defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)`
+are prototype or USA blocks whose lines the demo has or lacks too, with its
+remaining differences nested inside the shared arm; 16 `#if
+defined(VERSION_NTSC) || defined(VERSION_JUN26)` and 12 `#if
+!defined(VERSION_NTSC) && !defined(VERSION_JUN26)` name it beside the USA
+build alone; 36 `#if defined(VERSION_JPN) || defined(VERSION_KOR) ||
+defined(VERSION_AUG6) || defined(VERSION_JUN26)`, one `#if
+defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)`,
+one `#if defined(VERSION_JPN) || defined(VERSION_KOR) ||
+defined(VERSION_JUN26)`, one `#if defined(VERSION_JPN) ||
+defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_JUN26)` and
+2 `#if !defined(VERSION_JPN) && !defined(VERSION_KOR) &&
+!defined(VERSION_JUN26)` name it where it has or lacks the Japanese lines.
+Six PAL-only blocks the demo also lacks keep their three-name condition
+(`#if !defined(VERSION_JPN) && !defined(VERSION_KOR) &&
+!defined(VERSION_NTSC)`) with the demo's exclusion nested inside (`#if
+!defined(VERSION_AUG6) && !defined(VERSION_JUN26)` where the prototype lacks
+them too), and the one place where the demo has the lines all four later
+builds share (`e3.c`) holds them in a block of its own beside the four-name
+condition: a five-name line would pass the column limit, and clang-format
+would break the directive, which `tools/check_targets.py` does not read.
+Each block was placed by resolving its place for each earlier target and
+comparing with the branch's text, never by assumption. Where a comment names
+PAL's value only, the demo's is the one in its arm. The branch `jun26`
+(frozen at `230819536`, `jun26-v1.0.0`) is the single-target tree this was
+joined from, and its `docs/README.md` lists the same differences.
+
+Disc and video mode:
+
+- The build is NTSC like the prototype and the USA, Japanese and Korean
+  ones: `systemStatus` starts at 0 (`main.c`) and the movie is 720 x 480
+  (`Main`, `mv_vobuf.h`).
+- The demo is started by the magazine's menu and hands control back to it.
+  `main` (`main.c`) reads the menu's settings (language, aspect, play mode,
+  the idle and total timeouts, the media type) through `demoDisc.c`'s
+  `sceDemoStart`, runs the game, and after the boot thread is woken shuts
+  the game down and calls `sceDemoEnd`, which reloads the menu's ELF with
+  the arguments it was given (the prototype's map links the pair as
+  `libscedemo.a(libscedemo.o)`). `ico2/common/src/demoDisc.c` is the one
+  source only this target has; `config/link_order.jun26.txt` alone lists
+  it, after `sce/libsndn2/sound.c`.
+- The exits (`main.c`): an idle countdown of four minutes that any button or
+  stick resets (`sampleModeNoContTimeOutMain`), `sampleModeDemoEnd` and
+  `sampleModeDemoEndTimeOut` (to stages 101 and 102; `layout_action.c` and
+  `script.c` call the second), and `demoEnd`, which wakes the boot thread
+  (`e3.c` calls it; its static that PAL names `demoEnd` is `demoEndFlag` in
+  the demo's arm, since the function's name is taken there).
+- The five VU1 programs' constant-address overlays hold the byte 0x6E, as
+  on the Japanese, USA and prototype discs: `overlay-fill=110` on each
+  `.dsm` line of `config/link_order.jun26.txt`. Four programs (cluster,
+  mesh, normal_c and normal_l) are this build's own instruction streams,
+  held in `VERSION_JUN26` blocks of the shared `.vsm`, which cpp reads with
+  the target and `LN` defined; particle is the same program in every build.
+  dvp-as names each continuation overlay after the `.vsm` line where it
+  starts, taken from cpp's line markers, and the base ELF carries the names,
+  so those lines are a datum of the build: mesh's second overlay starts at
+  line 327 of the demo's text and 323 of the later builds', normal_c's and
+  normal_l's at 244 and 243 in both but at other instructions, and their
+  include-side continuations at other lines of `scissorcommcut.h` (the
+  include's own lines, by instruction count). A `#line LN(...) ""` before
+  each such instruction gives each target its line (`#line 244 ""` inside a
+  block's arm); cluster's difference lies after its boundary (line 359 in
+  both) and needs none. The `.dsm` headers name the programs' demo
+  addresses.
+
+Ids and numbers:
+
+- Stage animation, mail and global-flag ids are lower than the prototype's
+  where the stage scripts differ (`st03t.c`'s `wayOnChk_mes` mails are 377
+  and 376 for the prototype's 393 and 392); `charFileName.h`'s `MAX_CHARS` is 1500
+  (prototype 1576, USA 1582, PAL 1637, JPN and KOR 1621), and
+  `ModelDataID_NUMBER`, 1474, bounds the model table (`charFileManager.c`).
+- The assertion and allocation line numbers are the sixth argument of every
+  `LN(...)`: the demo's own at the 530 sites where it differs from PAL's
+  (`mv_defs.h` 42 and 43, `FileManager.c` 306 for PAL's 349, the Japanese
+  331 and the USA and prototype 312, `flag.c` 31, 39, 46, 65 and 77 as the
+  USA build and the prototype), PAL's at the 747 sites in arms it does not
+  compile or where the lines agree. 154 sites where main spelled one literal
+  for the five earlier targets spell `LN(n, n, n, n, n, m)` now that the
+  demo's line differs.
+
+Data and records (`docs/HEADERS.md` has the layouts):
+
+- The link has 120 data-only runs: the 70 archive members PAL's has, in the
+  prototype's member order, none of PAL's three unmapped runs (the hint
+  table, `motSyncPairs` and the subtitle file names, which no code here
+  reads), `mcdata.o`'s save icon record (the `icon.sys` PAL reads from the
+  disc) and `EnemyInit.o`'s 49 enemy-set tables of the stage models (PAL
+  keeps only its first model's, as C). Many tables hold another number of
+  rows (the model paths 1474 records of 0x14C bytes, PAL 1637 of 0x8C);
+  each row of `config/data_members.jun26.txt` and the header of
+  `config/data_schema.jun26.txt` say how its member compares with PAL's.
+- Records with another layout, each derived from the demo code that reads
+  it: `ParallelMotionRow`, `EnemyDef`, `LayoutClothDef`, `TexRec` and
+  `ActModeRec` as the prototype has them; `PObjMdl` (0x14C), `LtProperty`
+  (0x58), `ItemBreakRec` (0x10), `SeBank` (0x54), `MotionDef` (0x184),
+  `StgPre` (0x18C), `StageSetting` (0x130), `MotionStateInfo` (0x1E0), the
+  texture slot (`Texture.c`, 0x330), and among the engine's records the
+  display object `Sub15C` and its motion control `MotCtrl` (`typedef.h`),
+  the packet records `PacHeader` (176 bytes) and `PacLine` (144,
+  `Packet.h`), a part's group record `PObjGroup` (60, `DisplayP2O.h`) and
+  the box work block (336, `box.c`). The motion-effect row (`EffEntry`,
+  `frameDependSequence.h`) has its flags at 0x1C and its node at 0x20
+  (PAL's node at 0x1C, flags at 0x20), so `icoMisc.c` reads it through the
+  shared record where PAL's reads its own `EffEnt`.
+
+Code only this build has, or lacks:
+
+- Absent: Sony's `libscf` and `libcdvd`'s `sceCdReadClock`
+  (`libcdvd_267388.c`), `sceCdBreak` and `sceCdStatus` (`libcdvd.h`
+  declares neither for it); `sugipon`'s `puddle.c`, `waterDot.c` and
+  `windmill.c`, as in the prototype; `ito`'s `itou_gflag.c` and `sugipon`'s
+  `clipCollisionManager.c`, `flyManager.c` and `waySystemManager.c`, whose
+  objects would be empty in this link (the prototype's `TRFILE.TXT` lists
+  their functions and the census finds none of them in the demo), so
+  `config/link_order.jun26.txt` does not list them and their headers stay
+  for the other targets; and about 900 functions of PAL's that the census
+  finds nowhere in the demo.
+- Only here: `demoDisc.c` and the exits (above), and the functions the
+  census finds in no other build, named after the prototype's functions
+  where a table slot, a caller or a record ties them to one, else with
+  names marked `/* derived name */`.
+- `subGirlControl` (`girl_act.c`): the girl's slow-walk states ran a debug
+  display that every retail build compiles out. The demo shares the
+  prototype's arm of the function, its own statements in `VERSION_JUN26`
+  blocks inside it; the ROM fixes the display's strings, their order, 143
+  calls to body-less helpers (the prototype 139, the USA build 144) and the
+  size of its locals, not the statements themselves, so the demo's block is
+  an educated guess, marked in the source as a draft with unverified
+  ordering, as the prototype's and the USA build's are.
+
+Names. The demo disc ships no map or listing, so the branch's names are the
+PAL listing's and the prototype's `TRFILE.TXT`'s carried over by the census,
+and derived for the rest. A function or object the branch named otherwise
+than `main` names the same thing takes `main`'s name in the joined tree,
+since the bytes do not care: `handoff_heroin` and `actE3St13cSekizoEvent`
+(the `TRFILE.TXT` spellings `hand_heroin` and `actSt13cSekizoEvent`, as
+the prototype's branch had them), `IsNeedGeneratorHard` (`generator.c`),
+the `MotRoot` fields `flag330` and `flag334` (`typedef.h`,
+`motionOrientManager.h`, `motionManager2.c`, `motMan_getFinalMatrix.c.inc`;
+the branch's `dropNode4Turn` and `dropNode6Turn`), `stageAnimObjCount`
+(`StageAnimation.c`; `bgaDispNodeCount`), `seRandomPickCount` and
+`seRandomPicks` (`frameDependSequence.c`; `randomSEHits` and
+`randomSECallCount`; the demo's table has 52 entries, PAL's 50),
+`carryOfsOther` (`item.c`; `carryOfs`), and `effectTool.c`'s two words of
+`.sdata`: the branch bound the map's `targetMemo` to the saved camera
+target (`GObj *`) and named the tool mode `toolMode`, where `main` binds
+`targetMemo` to the mode word and names the pointer `savedTarget`; both are
+zero-initialised 4-byte words of the member, so the demo takes `main`'s
+binding, `effectTool.h` declaring one `int targetMemo` for every target. A
+name a target's bytes pin stays per arm: `D_002CC054` (`kanban.c`,
+`layout_texture.c`), the label the build defines at that address of
+`texProperty` (`D_0030D014` on PAL, `D_002E3508` on the prototype), and
+`e3.c`'s `demoEndFlag` (above). Everything else the join's rename check
+flagged (`SetDirectRootPosition` for `SetDirectRootPositionNoFitting` and
+`ACTSetPositionWithFitting`, `gif_SetGsReg` for `GifPacket.c`'s inline
+`setGsReg`, `printf` for `debug_StdPrintfDummy` in `quaternion.c`,
+`sceVu0ScaleVectorXYZ` and `sceVu0MulMatrix` for the local copies,
+`GetSlerpQuaternion` for `GetSlerpQuaternionNoRegularize`, the record
+fields `flags` for `flags2`, `flag0` for `flag1`, `word30` for `open`,
+`clstNum` for `nloop` and `id`, `boyRoot` for `girlRoot`, `base` for
+`capsule`, `lock_execIcoMisc` for `graphics_ready`, the `pad` fields named
+by offset, and the declarations whose types differ) is a different entity
+or a different layout on the two trees and stays in the demo's arm.
+
+Link order. The demo's directory ships no map, so `config/link_order.jun26.txt`
+is PAL's order carried over by the function census (`tools/correlate_elf.py`)
+run against PAL, the prototype and the USA build, each departure explained on
+its line; the demo's link has 393 source objects and 120 generated data
+members (the prototype 396 and 70, PAL 401 and 73). `libscf` is absent, as
+in every link but PAL's.

@@ -55,11 +55,13 @@ suspect a file in this repository breaks these rules, open an issue tagged
 
 Each disc's link includes 70 members of the game's archive `ico2000.a` that
 have data sections and no code (MAIN.MAP of the PAL disc; the Japanese,
-Korean and prototype links have the same set, the USA link all but the hint
-table and the subtitle file names), plus three data runs MAIN.MAP does not
-list (none of which the prototype's link has);
+Korean, prototype and demo links have the same set, the USA link all but the
+hint table and the subtitle file names), plus three data runs MAIN.MAP does
+not list (none of which the prototype's or the demo's link has);
 `config/data_members.<slug>.txt` lists them all for each target (73 runs, 71
-for `ntsc`, 70 for `aug6`). They
+for `ntsc`, 70 for `aug6`; 120 for `jun26`, which also generates
+`mcdata.o`'s save icon record and `EnemyInit.o`'s 49 enemy-set tables, data
+the other links hold inside objects with code). They
 are the game's content: stage object layouts, model and motion file tables,
 sound definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
@@ -287,6 +289,47 @@ the prototype lays out a record differently from PAL's (ten of the data
 tables' record types among them, eight of them the USA build's layouts),
 the layout was derived from the code that reads it in both builds, not from
 any other source.
+
+## Demo disc (`jun26`)
+
+The `jun26` target builds the ICO demo of the Official U.S. PlayStation
+Magazine demo disc 49 (SCUS-97158, a DVD; the branch `jun26`, frozen at
+`230819536`, is the single-target tree it was joined from). The disc's
+`SYSTEM.CNF` (`VER = 1.00`) boots the magazine's menu, `SCUS_971.58`, which
+starts the ICO demo from its own directory: the boot ELF is
+`CUS97113/SCPS_000.00`, named by the `boot` key of the target's `DISCS` row
+(`tools/ico_version.py`). That directory ships no `SYSTEM.CNF`, linker map,
+listing or address table, and the ELF has no symbol table. The demo's names
+are carried to it by instruction-stream correlation
+(`tools/correlate_elf.py`), the function census: each function of the demo
+ELF is paired with a function of another build whose instructions,
+relocated fields masked, are the same, and takes that function's name. The
+census ran against PAL's ELF, named by the PAL disc's map and listing above,
+against the August 6, 2001 prototype, named by its `TRFILE.TXT` and
+`MAIN.MAP`, and against the USA retail build, whose tree takes its names
+from the same maps. A name tied by other evidence (a data table's slot, a
+caller, the record it addresses, a function's place among its neighbours)
+was checked against the function's body when the function was rebuilt from
+source and the gate passed. A function or object with no counterpart in any
+of those builds carries a derived name, marked `/* derived name */` in the
+source. The 70 archive members take PAL's names by member order; the
+enemy-set tables take names derived from PAL's `enemymodel01` set and the
+icon.sys record a derived one, each said in the header of
+`config/data_members.jun26.txt`. No address is copied from any of those
+files: every address in `config/*.jun26.*` was found in the user's own ELF.
+
+Of the user's disc image the build reads the disc's `SYSTEM.CNF` and
+`CUS97113/SCPS_000.00`: it checks the ELF's SHA-1 and generates the 120
+data-only members from it (above). Every function, the five VU1
+microprograms and Sony's libraries are compiled or assembled from the
+tracked sources; nothing of the code is read from the disc.
+`tools/extract_elf.sh` copies the disc's `SYSTEM.CNF` into gitignored
+`baserom/jun26/`; nothing else of the disc (the menu, the other games) is
+read. Where the demo build lays out a record differently from PAL's
+(several of the data tables' record types among them), the layout was
+derived from the code that reads it (the field offsets the demo's loads and
+stores use, compared with the twin function's in PAL's or the prototype's
+build), not from any other source.
 
 ## What you need to build
 

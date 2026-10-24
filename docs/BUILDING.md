@@ -39,6 +39,12 @@ one revision of its disc:
 - `aug6`: the August 6, 2001 prototype disc (no product code; its boot file
   is `SCUS_971.13` like the USA disc's), as the raw `.bin` a dump writes and
   its `.cue` (MODE2/2352). The revision is `VER = 1.00`.
+- `jun26`: the Official U.S. PlayStation Magazine demo disc 49, SCUS-97158,
+  a DVD, as the plain 2048-byte-sector ISO a dump writes. The disc's
+  `SYSTEM.CNF` (`VER = 1.00`) boots the magazine's menu, `SCUS_971.58`; the
+  build reads the ICO demo's own ELF, `CUS97113/SCPS_000.00` (the `boot` key
+  of the target's row in `tools/ico_version.py`), and nothing else of the
+  disc.
 
 | target | file | SHA-1 (`config/sha1sums.<slug>.txt`) |
 | --- | --- | --- |
@@ -52,6 +58,8 @@ one revision of its disc:
 | ntsc | `baserom/ntsc/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `fbf50c75cd5911273511c4f9af90503ff8423582` |
 | aug6 | `baserom/aug6/baseelf.elf`, the prototype disc's `SCUS_971.13` | `5d169c281756a8bde712704fa0cb9eb984693cd6` |
 | aug6 | `baserom/aug6/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `2b4d7de41966ff38d061b4c985de45fc212e2fb2` |
+| jun26 | `baserom/jun26/baseelf.elf`, the demo disc's `CUS97113/SCPS_000.00` | `95c3d438185c3b75303b68719cfd48c84f2f8bfa` |
+| jun26 | `baserom/jun26/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `e5d6dd3c156ed5489a4d2e7bbf4707cd58d0dccc` |
 
 ## One command
 
@@ -65,11 +73,13 @@ cp "/path/to/Ico (USA).bin" baserom/Ico_USA.bin
 cp "/path/to/Ico (USA).cue" baserom/Ico_USA.cue
 cp "/path/to/Ico (prototype).bin" baserom/Ico_AUG6.bin
 cp "/path/to/Ico (prototype).cue" baserom/Ico_AUG6.cue
+cp "/path/to/demo disc 49.iso" baserom/Ico_JUN26.iso
 VERSION=pal ./build.sh
 VERSION=jpn ./build.sh
 VERSION=kor ./build.sh
 VERSION=ntsc ./build.sh
 VERSION=aug6 ./build.sh
+VERSION=jun26 ./build.sh
 tools/build.sh gate-all
 ```
 
@@ -85,7 +95,7 @@ the toolchain already installed and `baserom/<slug>/` already extracted,
 22 s and 39 s in two runs for `pal` and
 `tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 51 s
 and 47 s in two runs for `jpn`, 31 s and 30 s for `kor`, 40 s and 41 s for
-`ntsc` and 32 s and 32 s for `aug6`; each ended with
+`ntsc`, 32 s and 32 s for `aug6` and 44 s and 45 s for `jun26`; each ended with
 `check_elf: gate PASS`. A
 fresh clone of the public repository, with the toolchain downloads of
 section 1, took 92 s for `pal` on the same host. A second `./build.sh` on the
@@ -148,8 +158,8 @@ program's length and never writes that byte (`create_vuoverlay_section` in
 `gas/config/tc-dvp.c` drops the pointer `frag_var` returns), so the section
 carries whatever the assembler's heap held. The five constant-address
 overlays, one per program, are zero on the PAL and Korean discs and 0x6E on
-the JPN, USA and Aug-6-2001 discs; the seven continuation overlays are zero on
-all five.
+the JPN, USA, Aug-6-2001 and Jun-26-2001 discs; the seven continuation
+overlays are zero on all six.
 Assembling with `MALLOC_PERTURB_=145` (glibc then fills new memory with 0x6E)
 reproduces the second pattern in all twelve. The patch writes the byte
 explicitly: `--overlay-fill=N` (0 to 255, default 0) for an overlay whose VU
@@ -157,9 +167,9 @@ address is a constant, 0 for the others. `tools/gen_ninja.py` passes the
 option only when a `.dsm` line of the link order carries an `overlay-fill=N`
 token; PAL's and the Korean one carry none, so their command lines also work
 with an unpatched dvp-as. The five `.dsm` lines of `config/link_order.jpn.txt`,
-of `config/link_order.ntsc.txt` and of `config/link_order.aug6.txt` carry
-`overlay-fill=110` (0x6E), so the Japanese, USA and prototype builds need the
-patched dvp-as.
+of `config/link_order.ntsc.txt`, of `config/link_order.aug6.txt` and of
+`config/link_order.jun26.txt` carry `overlay-fill=110` (0x6E), so the
+Japanese, USA, prototype and demo builds need the patched dvp-as.
 With the patch the build no longer depends on the host's heap; without it a
 host with `MALLOC_PERTURB_` set fails PAL's whole-file SHA-1.
 
@@ -194,6 +204,7 @@ gitignored.
 | kor | `Ico_KOR.iso` | `SCPS_560.01` | `SYSTEM.CNF` (the Korean disc ships no map or listing) |
 | ntsc | `Ico_USA.bin` and `Ico_USA.cue` | `SCUS_971.13` | `SYSTEM.CNF` (the USA disc ships no map or listing) |
 | aug6 | `Ico_AUG6.bin` and `Ico_AUG6.cue` | `SCUS_971.13` | `MAIN.MAP` (the PAL disc's file, describing PAL's link), `TRFILE.TXT`, `SYSTEM.CNF` (reference material, `docs/LEGAL.md`; the prototype disc ships no listing) |
+| jun26 | `Ico_JUN26.iso` | `CUS97113/SCPS_000.00` (the disc's `SYSTEM.CNF` boots the menu, `SCUS_971.58`) | `SYSTEM.CNF` (the demo's directory ships no map or listing) |
 
 For a raw image the script first cooks it: it reads the mode from the `.cue`,
 keeps the 2048 bytes of user data of each 2352-byte sector, and writes the
@@ -213,10 +224,11 @@ from these inputs:
 
 - `config/link_order.<slug>.txt`: every object of the link in the retail
   link's order, one source per line, with the data-only members as `data:`
-  lines. The Japanese, Korean and USA discs have no map and the prototype
-  disc's map is PAL's, so `jpn`'s, `kor`'s, `ntsc`'s and `aug6`'s orders are
-  PAL's carried over by the function census, and each line that departs from
-  it says why. `tools/gen_ninja.py` runs `tools/check_targets.py` first (below)
+  lines. The Japanese, Korean and USA discs have no map, the prototype
+  disc's map is PAL's and the demo's directory ships none, so `jpn`'s,
+  `kor`'s, `ntsc`'s, `aug6`'s and `jun26`'s orders are PAL's carried over by
+  the function census, and each line that departs from it says why.
+  `tools/gen_ninja.py` runs `tools/check_targets.py` first (below)
   and fails if a source is missing from every configured target's order.
 - `config/link.<slug>.ld`: the hand-written linker script, which places each
   section at the base ELF's addresses and defines the symbols the link needs.
@@ -252,14 +264,25 @@ are required first, and the command fails naming any that is missing; then
   `sce/libkernl/tlbtrap.s` and the R5900 string functions under
   `sce/libc/machine/r5900/`) with its archive's assembler and `-G`;
 - assembles the five VU1 microprograms: the period cpp reads each program's
-  text, `ico2/vusrc/<stem>.vsm`, from standard input in `ico2/` with
-  `-Ivusrc` (it includes `vusrc/vu1_common.h` and, in normal_c and normal_l,
+  text, `ico2/vusrc/<stem>.vsm`, from standard input in
+  `ico2/` with `-Ivusrc`, `-DVERSION_<SLUG>` and the `LN` define (it includes
+  `vusrc/vu1_common.h` and, in normal_c and normal_l,
   `vusrc/scissorcommcut.h`) and writes `build/<slug>/ico2/vusrc/<stem>.i`; dvp-as,
   run from `ico2/` with `-I` naming `build/<slug>/ico2`, assembles `vusrc/<stem>.dsm`, the
   DMA tags around `.include "vusrc/<stem>.i"`. The overlay section names
   dvp-as writes hash the name of the file it is reading and the line: the
   `.dsm` path for the first overlay of each program, the empty name cpp gives
-  standard input and the include's path for the others;
+  standard input and the include's path for the others. The base ELF carries
+  those names (`.DVP.ovlystrtab`), so the `.vsm` line where each
+  continuation overlay starts is a datum of the build. dvp-as takes the name
+  and the line from cpp's line markers (`# 323 ""`), so a program the demo
+  schedules otherwise than the later builds, whose second overlay starts at
+  another line (mesh: 327 against 323), holds the demo's lines in
+  `VERSION_JUN26` blocks and a `#line LN(...) ""` before each continuation's
+  first instruction, giving the line it has in each target's own text (the
+  file name is needed: the period cpp drops the line after a `#line` whose
+  number is a macro call unless one follows; `""` is the name it gives
+  standard input);
 - writes the data-only members from the base ELF into `build/<slug>/data/`. Each
   of the 73, all listed in `config/data_schema.<slug>.txt`, is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
@@ -469,6 +492,42 @@ inside it. Each block was placed by resolving its place for each earlier
 target and comparing with the branch's text (`docs/TARGETS.md` has the
 counts).
 
+The June 26, 2001 demo's text is PAL's with 315 files changed, three VU
+program texts and one source of its own (`demoDisc.c`), and in most places
+its lines are the prototype's.
+Its own lines sit in `#ifdef VERSION_JUN26` blocks against PAL's (`#ifndef
+VERSION_JUN26` around lines only it lacks), nested in the arm of a Japanese,
+USA or prototype block where one already stands; where it has the
+prototype's lines, the prototype's condition names it, and its remaining
+differences nest inside that arm:
+
+```c
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    static ActMail wayOnChk_mes[2] = {{377}, {376}}; /* derived name */
+#else
+    static ActMail wayOnChk_mes[2] = {{393}, {392}}; /* derived name */
+#endif
+#endif
+```
+
+(`st03t.c`; a table the USA and PAL builds do not have). `#if defined(VERSION_NTSC) ||
+defined(VERSION_AUG6) || defined(VERSION_JUN26)` and `#if
+!defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)`
+name it beside both earlier builds, `#if defined(VERSION_JPN) ||
+defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)`
+where it has the Japanese lines the prototype has. The PAL-only lines every
+later build lacks keep the three-name condition with `#if
+!defined(VERSION_AUG6) && !defined(VERSION_JUN26)` nested inside it, and the
+one place where the demo has the lines all four later builds share holds
+them in a block of its own beside the four-name condition: a five-name line
+would pass the column limit too. The program text of a VU1 microprogram
+takes blocks the same way (`cluster.vsm`, `mesh.vsm`, `normal_c.vsm`,
+`normal_l.vsm`); where a continuation overlay's first instruction stands at
+another line in a target's text, a `#line LN(...) ""` before the instruction
+gives each target its line, since dvp-as names the overlay after it and the
+base ELF carries the name ("Building", above).
+
 The three-way sites nest rather than take `#elif` arms because clang-format
 formats each arm count of a nesting level in a pass of its own: with a third
 arm at the top level of a file, the third pass takes no arm of a two-arm
@@ -480,12 +539,16 @@ read them; they suit a file whose other blocks keep their braces whole.
 
 `tools/compile_c.sh` defines `VERSION_<SLUG>` for the target it compiles
 (`-DVERSION_PAL`, `-DVERSION_JPN`, `-DVERSION_KOR`, `-DVERSION_NTSC`,
-`-DVERSION_AUG6`). A block covers whole
+`-DVERSION_AUG6`, `-DVERSION_JUN26`), and `tools/gen_ninja.py`'s `vucpp`
+rule defines the same for the VU program text. A block covers whole
 statements, and where most of a function or declaration differs the block
 holds each target's whole definition rather than interleaving them line by
 line. A comment that differs only in a value names every target's
 (`0x194 bytes (JPN and KOR 0x190)`). The `.dsm` files are not preprocessed
 and have no blocks; their header comments name every target's addresses.
+The `.vsm` program texts are preprocessed with the target defined and hold
+blocks only where every target's overlay boundaries stay at their lines
+(above).
 Every object is built from its row's path
 (`build/jpn/ico2/script/src/st02a.o`), and the link order's rows name the
 same files for every target; `sce/libscf/libscf.c` is compiled only for PAL,
@@ -495,22 +558,23 @@ whose link order alone lists it.
 allocators and asserts, so those lines are part of each build's data, and
 they differ between builds. The repository's lines are not the original
 files' lines, so such a call spells the number, and `LN(pal, jpn, kor, ntsc,
-aug6)` picks the target's: `iosMallocDebug(ios_partition_seki, asize,
-"src/FileManager.c", LN(349, 331, 331, 312, 312))`. `tools/compile_c.sh`
+aug6, jun26)` picks the target's: `iosMallocDebug(ios_partition_seki, asize,
+"src/FileManager.c", LN(349, 331, 331, 312, 312, 306))`. `tools/compile_c.sh`
 defines `LN` with `VERSION_<SLUG>`; `ico2/ito/include/mv_defs.h`'s
 `alloc_zeroed` is the header case (lines 43 and 44 on PAL, 42 and 43 on JPN,
-KOR, NTSC and AUG6). The Korean build has the Japanese numbers except in
-`cdvd.c` and `pad.c`, which have PAL's, and `jimaku.c`'s assertion, 658. The
-USA build's and the prototype's numbers are their own at every site they
-compile, and PAL's stands as the argument at a site in an arm a target does
-not compile. A site whose line the four retail builds share spells one
-literal (`debug_assert(__FILE__, 598)`) until a target's differs: 456 such
-sites took `LN(n, n, n, n, m)` at the prototype's join. `flag.c`'s
-`InitFlagGeo` passed `__LINE__` in the original, so it spells each line too
-(PAL 87, 95, 102, 132, 145 and 172; the USA build and the prototype 31, 39,
-46, 65 and 77), the macro `FLAG_ALLOC_NODES` taking the caller's line as its
-third argument. This is the convention zeldaret/oot's
-`include/line_numbers.h` uses for the same problem.
+KOR, NTSC, AUG6 and JUN26). The Korean build has the Japanese numbers except
+in `cdvd.c` and `pad.c`, which have PAL's, and `jimaku.c`'s assertion, 658.
+The USA build's, the prototype's and the demo's numbers are their own at
+every site they compile, and PAL's stands as the argument at a site in an
+arm a target does not compile. A site whose line the earlier builds share
+spells one literal (`debug_assert(__FILE__, 598)`) until a target's differs:
+456 such sites took `LN(n, n, n, n, m)` at the prototype's join and 154 more
+`LN(n, n, n, n, n, m)` at the demo's. `flag.c`'s `InitFlagGeo` passed
+`__LINE__` in the original, so it spells each line too (PAL 87, 95, 102,
+132, 145 and 172; the USA build, the prototype and the demo 31, 39, 46, 65
+and 77), the macro `FLAG_ALLOC_NODES` taking the caller's line as its third
+argument. This is the convention zeldaret/oot's `include/line_numbers.h`
+uses for the same problem.
 
 **The rules.** `tools/check_targets.py` (run by `tools/gen_ninja.py`, so by
 every `setup`, and by the pre-commit hook) reads the files git tracks or
@@ -537,8 +601,9 @@ none before an `#elif`, `#else` or `#endif`). Each of the three has a
 adding a source needs `tools/build.sh regen`, and editing a header needs
 `tools/build.sh clean`.
 
-**Joining a later target.** `jun26` (branch `jun26`) joins by these steps,
-as `kor`, `ntsc` and `aug6` did.
+**Joining a later target.** Every target is on `main`; `kor`, `ntsc`,
+`aug6` and `jun26` joined by these steps, which a further target would
+follow.
 
 1. Copy the branch's `config/*.<slug>.*` files and its
    `config/sha1sums.<slug>.txt`, with `link.<slug>.ld`'s `INCLUDE` paths under
@@ -560,9 +625,12 @@ as `kor`, `ntsc` and `aug6` did.
    inside that arm. A hunk
    that differs only in comments keeps `main`'s text. Check each file by resolving
    its blocks for the target and comparing the result with the branch's file
-   outside comments.
+   outside comments. A VU program text takes blocks the same way; where a
+   continuation overlay's first instruction moves to another line, a
+   `#line LN(...) ""` before it gives the target its line (`jun26`'s mesh,
+   normal_c and normal_l).
 3. Add the target to `VERSION_DEFS` in `tools/compile_c.sh`, give `LN` its
-   argument there (`LN(pal, jpn, kor, ntsc, aug6, <slug>)`), and add the
+   argument there (`LN(pal, jpn, kor, ntsc, aug6, jun26, <slug>)`), and add the
    target's number to every `LN(...)` call: its own where it compiles the
    line, the base target's where it does not. A site that still passes
    `__LINE__` (`flag.c` did) or spells one literal for every target spells
@@ -614,9 +682,9 @@ it to GitHub Pages. A push to any of `main`, `pal`, `jpn`, `kor`, `ntsc`,
 `aug6` and `jun26` deploys, and every deploy assembles the whole site. The
 page is `main`'s `docs/index.html` (read from `origin/main` on the other
 branches). Every target's `progress.json` and `PROGRESS.md` come from that
-target's own branch: `pal`, `jpn`, `kor`, `ntsc` and `aug6` (frozen) supply
-`docs/pal/`, `docs/jpn/`, `docs/kor/`, `docs/ntsc/` and `docs/aug6/`, and
-`jun26` supplies `docs/jun26/`. `main`'s `docs/<slug>/` stay
+target's own branch: `pal`, `jpn`, `kor`, `ntsc`, `aug6` and `jun26`, all
+frozen, supply `docs/pal/`, `docs/jpn/`, `docs/kor/`, `docs/ntsc/`,
+`docs/aug6/` and `docs/jun26/`. `main`'s `docs/<slug>/` stay
 as the combined build's progress record and are never published. Each tab's
 repo and `PROGRESS.md` links point at its branch.
 
