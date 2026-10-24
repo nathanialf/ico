@@ -33,8 +33,9 @@ SRCROOT="${ROOT}"
 # (mv_defs.h's alloc_zeroed, FileManager.c's iosMallocDebug calls). A
 # joining target appends its own argument. Measured 2026-10-15: with them
 # every object equals its build without them outside .mdebug, which the link
-# does not keep. Every target is on main; a target still on its own branch would
-# get VERSION_<SLUG> and no LN, since its sources use neither until it joins.
+# does not keep. Every target but cn is on main; a target still on its own
+# branch (cn) gets VERSION_<SLUG> and no LN, since its sources use neither
+# until it joins.
 VERSION_DEFS="-DVERSION_$(printf '%s' "${ICO_VERSION}" | tr '[:lower:]' '[:upper:]')"
 case "${ICO_VERSION}" in
     pal) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc,aug6,jun26)=pal" ;;

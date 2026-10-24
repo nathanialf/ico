@@ -41,8 +41,8 @@ inline in `VERSION_JPN`, `VERSION_KOR`, `VERSION_NTSC`, `VERSION_AUG6` and
 **[Progress dashboard](https://nathanialf.github.io/ico/#pal)**: every
 section, directory, translation unit and function of each build compared with
 its base ELF. Each target's numbers on the site come from its own branch
-(`pal`, `jpn`, `kor`, `ntsc`, `aug6`, `jun26`); the `docs/<slug>/` files here
-are `main`'s build record.
+(`pal`, `jpn`, `kor`, `ntsc`, `aug6`, `jun26`, and `cn` while it is in
+progress); the `docs/<slug>/` files here are `main`'s build record.
 
 > [!IMPORTANT]
 > This project is not affiliated with Sony Interactive Entertainment or Team
@@ -276,6 +276,7 @@ target is chosen by `VERSION=<slug>`. Each target has its own
 | `pal` | `pal` | the single-target PAL tree as it was at `738b77d1f`, frozen, but for hotfixes and main's shared layer; current release `pal-v1.0.4` (`0a09a8965`) |
 | `jpn` | `jpn` | the single-target Japanese tree as it was at `4506374a6`, frozen, but for hotfixes and main's shared layer; current release `jpn-v1.0.2` (`36d432ae4`) |
 | `kor` | `kor` | the single-target Korean tree as it was at `b65c0fcf4` (`kor-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `kor-v1.0.1` (`97b640aa0`) |
+| `cn` | `cn` (Asian retail, SCPS-55001, `SCPS_550.01`) | the campaign branch for the Asian (Traditional Chinese) retail disc: a single-target tree, not released, until it joins `main` |
 | `ntsc` | `ntsc` | the single-target USA tree as it was at `8c99cc75a` (`ntsc-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `ntsc-v1.0.1` (`67c876a25`) |
 | `aug6` | `aug6` | the single-target prototype tree as it was at `c8e730628` (`aug6-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `aug6-v1.0.1` (`ba93991ed`) |
 | `jun26` | `jun26` | the single-target demo tree as it was at `230819536` (`jun26-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `jun26-v1.0.1` (`654630aa7`) |
@@ -285,8 +286,8 @@ on `main`, and a fix to one of their targets is ported to its branch as a
 hotfix release. No branch is merged into `main` (nor `main` into one); each
 carries the shared build layer, file for file (`tools/`, `build.sh`,
 `.github/` and `docs/index.html`, which `tools/check_shared_layer.sh` checks
-against `main`). A further target would join by the recipe in
-[`docs/BUILDING.md`](docs/BUILDING.md).
+against `main`). `cn` is not yet a target of `main`, which builds the six
+above; it joins by the recipe in [`docs/BUILDING.md`](docs/BUILDING.md).
 
 ## PC port
 
