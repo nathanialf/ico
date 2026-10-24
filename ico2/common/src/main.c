@@ -41,12 +41,12 @@
 #endif
 
 /* main.c's .data globals, each with an initialiser. systemStatus starts in PAL mode (word 0;
-   NTSC on JPN and KOR)
+   NTSC on JPN, KOR and CN)
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
    IosMsgQueue, 0x30 B). */
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
 int systemStatus[12] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 #else
 #ifdef VERSION_JUN26
@@ -259,7 +259,7 @@ void Main(void)
     thisIsYourStartStage = n < 103 ? n : 102;
 #else
     *T0_COUNT = 0;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
     NonLinearCameraMove = 3;
 #endif
@@ -271,7 +271,7 @@ void Main(void)
     systemFault = 0;
     lock_execIcoMisc = 0;
     n = debug_TryToGetStartStage();
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     thisIsYourStartStage = n < 104 ? n : 103;
 #else
     thisIsYourStartStage = n < 106 ? n : 105;
@@ -313,7 +313,7 @@ void Main(void)
                loop (pinned) */
             int ret = 0;
 #else
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
         gsb_ResetSnap();
 #endif
@@ -343,7 +343,7 @@ void Main(void)
             ret = movie_proc(movie_abort_check);
             mpegPlay = 0;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
                        mpegPlayInitColor);
 #else
@@ -396,7 +396,7 @@ void Main(void)
         }
         iosOmCreateDL();
         ExecDelayFree();
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         gsb_TakeSnap();
 #endif
@@ -660,7 +660,7 @@ void demoEnd(void)
     }
 }
 #else
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
 void demoEnd(void) {}
 #endif
@@ -762,7 +762,7 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 int NonLinearCameraMove QWORD = 0;
 #endif
 

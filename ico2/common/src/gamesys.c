@@ -100,8 +100,8 @@ void *gameSysMemoryFuncList[] = {
 };
 #endif
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-#ifdef VERSION_KOR
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+#if defined(VERSION_KOR) || defined(VERSION_CN)
 char stamp_str[] = "10/23/01 17:47:13";
 #else
 char stamp_str[] = "10/23/01 02:02:43";
@@ -132,7 +132,7 @@ void *gameSysMemoryFuncList[] = {
 };
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 int gamesysStageExitTime[104] = {0};
 #else
 #ifdef VERSION_JUN26
@@ -185,7 +185,7 @@ void gamesysObjInfoInit(void)
         gameSysObjInfo[i].stage = 0xFFFF;
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     memset((char *)gamesysStageExitTime, 0, 0x1A0);
 #else
 #ifdef VERSION_JUN26
@@ -223,7 +223,7 @@ void gamesysObjInfoSave(GamesysMemCursor *h)
 
     *(long long *)(p + 0x40) = (*(long long *)(p + 0x40) & -3) | ((long long)save << 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     gamesysMemoryHandlerWrite(h, gamesysStageExitTime, 0x1A0);
 #else
 #ifdef VERSION_JUN26
@@ -242,7 +242,7 @@ void gamesysObjInfoLoad(GamesysMemCursor *h)
     gamesysMemoryHandlerRead(h, gamesysStageExitTime, 412);
 #else
     gamesysMemoryHandlerRead(h, gameSysObjInfo, 0x2D80);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A0);
 #else
     gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A8);

@@ -263,13 +263,13 @@ void actSt02aInit(void)
 #else
     if (gflagChk(118) == 0) {
         SetWayGroupActive(26, 0);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(95, 0, 0);
 #else
         stage_SetAnimation(99, 0, 0);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(95, 0, -1);
 #else
         stage_SetAnimation(99, 0, -1);
@@ -287,7 +287,7 @@ void actSt02aDoor(GObj *volatile self)
     _ACTWait(1);
     if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(94, 0, 0);
 #else
 #ifdef VERSION_NTSC
@@ -324,7 +324,7 @@ void actSt02aDoor(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(93, 0, 0);
 #else
         stage_SetAnimation(97, 0, 0);
@@ -511,7 +511,7 @@ void actSt02aDoorUpChk(GObj *volatile self)
     while (stage_CheckAnimationFinish(82) == 0) {
 #endif
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(93, 1, 0);
 #else
     stage_SetAnimation(97, 1, 0);
@@ -523,7 +523,7 @@ void actSt02aDoorUpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefStop(h);
     soundSeDefPlay(1222, 0, pos.f, 1);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(93) == 0) {
 #else
     while (stage_CheckAnimationFinish(97) == 0) {
@@ -581,7 +581,7 @@ void actSt02aDoorDownChk(GObj *volatile self)
     while (stage_CheckAnimationFinish(83) == 0) {
 #endif
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(94, 1, 0);
 #else
     stage_SetAnimation(98, 1, 0);
@@ -593,7 +593,7 @@ void actSt02aDoorDownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefStop(h);
     soundSeDefPlay(1222, 0, pos.f, 1);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(94) == 0) {
 #else
     while (stage_CheckAnimationFinish(98) == 0) {
@@ -652,7 +652,7 @@ void actSt02aFenceOpen(GObj *volatile self)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(95, 0, -1);
         stage_SetAnimation(96, 0, -1);
 #else
@@ -667,7 +667,7 @@ void actSt02aFenceOpen(GObj *volatile self)
     }
     SetWayGroupActive(26, 1);
     scpBoyControlReadDisable = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -783,7 +783,7 @@ void actSt02aWaterFallChk(GObj *volatile self)
     DeleteParticleLayout(scpSearchGobj(1723));
     DeleteParticleLayout(scpSearchGobj(1724));
     DeleteParticleLayout(scpSearchGobj(1725));
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(387, -1, -2);
 #else
     stage_SetAnimation(391, -1, -2);
@@ -1118,14 +1118,14 @@ void actSt02aGondolaUp(GObj *volatile self)
 
     while (stage_CheckAnimationFrame(86, 149, 1) == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(97, 1, 0);
 #else
     stage_SetAnimation(101, 1, 0);
 #endif
     gflagOn(119);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(97, 140, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(101, 140, 0) == 0) {
@@ -1151,7 +1151,7 @@ void actSt02aGondolaUp(GObj *volatile self)
     ACTSendMailCorrect(self, 377);
 #else
 #ifndef VERSION_AUG6
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(97, 149, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(101, 149, 1) == 0) {
@@ -1170,7 +1170,7 @@ void actSt02aGondolaUp(GObj *volatile self)
         scpAdpcmCloseFunc(&gondola);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -1221,14 +1221,14 @@ void actSt02aGondolaDown(GObj *volatile self)
     gflagOff(103);
     while (stage_CheckAnimationFrame(77, 260, 0) == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(97, 1, 150);
 #else
     stage_SetAnimation(101, 1, 150);
 #endif
     gflagOff(119);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(97, 295, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(101, 295, 0) == 0) {
@@ -1254,7 +1254,7 @@ void actSt02aGondolaDown(GObj *volatile self)
     ACTSendMailCorrect(self, 377);
 #else
 #ifndef VERSION_AUG6
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(97, 300, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(101, 300, 1) == 0) {
@@ -1273,7 +1273,7 @@ void actSt02aGondolaDown(GObj *volatile self)
         scpAdpcmCloseFunc(&gondola_test);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -1471,19 +1471,19 @@ void actSt02aGondola(GObj *volatile self)
         stage_SetAnimation(77, 0, 300);
 #else
     if (gflagChk(119) != 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(97, 0, 0);
 #else
         stage_SetAnimation(101, 0, 0);
 #endif
         _ACTWait(10);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(97, 0, 149);
 #else
         stage_SetAnimation(101, 0, 149);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(97, 0, 300);
 #else
         stage_SetAnimation(101, 0, 300);
@@ -1741,7 +1741,7 @@ void actSt02aSekizo(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     scpSekizou(self, 123, 98, 0, 18, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 #else
 #ifdef VERSION_AUG6
@@ -1911,7 +1911,7 @@ void actSt02aFenceSwitch(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
@@ -2010,7 +2010,7 @@ static void actSt02aFenceOpenSub(GObj *volatile self)
     while (st02a_fence == 0) {
         _ACTWait(1);
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(95, 1, 0);
     stage_SetAnimation(96, 1, 0);
     while (stage_CheckAnimationFinish(96) == 0) {
@@ -2083,7 +2083,7 @@ void actSt02aGondolaSwitch(GObj *volatile self)
         sub->mail = gondola_switch_down_mail;
         ACTSendMailCorrect(self, 377);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
 #ifdef VERSION_AUG6

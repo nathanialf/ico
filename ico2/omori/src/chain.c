@@ -174,8 +174,8 @@ static void StartPendulum(GObj *gobj, GObj *owner, float *pos)
         }
     }
     if (nearestNode == -1) {
-        debug_assert(__FILE__, LN(563, 557, 557, 516, 513, 508));
-        __assert(__FILE__, LN(563, 557, 557, 516, 513, 508), "nearestNode!=-1");
+        debug_assert(__FILE__, LN(563, 557, 557, 516, 513, 508, 557));
+        __assert(__FILE__, LN(563, 557, 557, 516, 513, 508, 557), "nearestNode!=-1");
     }
     cw->holdNode = nearestNode;
     cw->holdNode =
@@ -305,19 +305,19 @@ static void chain_simulate_term_swingready(GObj *gobj)
     } else {
         cw->pdl.ampSpeed = -0.15f;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         cw->pdl.ampSpeed = -0.01f;
 #else
         cw->pdl.ampSpeed = -0.29999998f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
 #endif
     } else if (cw->pdl.amp < 1.0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         cw->pdl.ampSpeed = -0.05f;
 #else
         cw->pdl.ampSpeed = -1.5f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         cw->pdl.ampSpeed = -0.15f;
 #else
         cw->pdl.ampSpeed = -4.5f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
@@ -375,27 +375,27 @@ static void chain_simulate_term_swingstart(GObj *gobj)
 
     if (h < 20.0f) {
         if (cw->pdl.amp < 0.3) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
             cw->pdl.ampSpeed = -0.01f;
 #else
             cw->pdl.ampSpeed =
                 -0.29999998f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
 #endif
         } else if (cw->pdl.amp < 1.0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
             cw->pdl.ampSpeed = -0.2f;
 #else
             cw->pdl.ampSpeed = -6.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
 #endif
         } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
             cw->pdl.ampSpeed = -0.3f;
 #else
             cw->pdl.ampSpeed = -9.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
 #endif
         }
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
         if (h == 20.0f) {
 #else
         if (h >= 20.0 && h < 21.5) {
@@ -406,7 +406,7 @@ static void chain_simulate_term_swingstart(GObj *gobj)
         cw->pdl.ampSpeed = 0.0f;
         cw->pdl.amp = 3.0f;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         cw->pdl.phase = cw->pdl.phase - 1.0f + cw->pdl.cycle * 0.5f / 40.0f;
 #else
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
@@ -519,7 +519,7 @@ static void chain_simulate_hangstart(GObj *gobj)
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_hangstart\n");
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     cw->pdl.ampSpeed = -0.05f;
 #else
 #ifdef VERSION_JUN26
@@ -835,27 +835,27 @@ ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
         /* "the chain is too short (set it with the Y-scale of the placement table)" */
         debug_StdPrintfDummy("鎖の長さが短かすぎます(配置表のY-scaleで指定します)");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(1121, 1121, 1121, 1121, 1121, 1121));
+        debug_assert(__FILE__, LN(1121, 1121, 1121, 1121, 1121, 1121, 1121));
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(563, 557, 557, 516, 1118, 563));
+        debug_assert(__FILE__, LN(563, 557, 557, 516, 1118, 563, 557));
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(563, 557, 557, 516, 513, 1113));
+        debug_assert(__FILE__, LN(563, 557, 557, 516, 513, 1113, 557));
 #else
-        debug_assert(__FILE__, LN(1178, 1172, 1172, 1178, 1178, 1178));
+        debug_assert(__FILE__, LN(1178, 1172, 1172, 1178, 1178, 1178, 1172));
 #endif
 #endif
 #endif
-        __assert(__FILE__, LN(1178, 1172, 1172, 1121, 1118, 1113), "0");
+        __assert(__FILE__, LN(1178, 1172, 1172, 1121, 1118, 1113, 1172), "0");
     }
 
 #ifdef VERSION_NTSC
     cw = iosMallocDebug(ios_partition_sugipon, (n << 5) + sizeof(ChainRecord), __FILE__,
-                        LN(1124, 1124, 1124, 1124, 1124, 1124));
+                        LN(1124, 1124, 1124, 1124, 1124, 1124, 1124));
 #else
     cw = iosMallocDebug(ios_partition_sugipon, (n << 5) + sizeof(ChainRecord), __FILE__,
-                        LN(1181, 1175, 1175, 1181, 1121, 1116));
+                        LN(1181, 1175, 1175, 1181, 1121, 1116, 1175));
 #endif
 
     *(ChainRecTemplate *)cw = *(ChainRecTemplate *)&chainRecordDefault;
@@ -928,15 +928,19 @@ ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
 
     *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat = 0;
 #ifdef VERSION_NTSC
-    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx = (char *)iosMallocDebug(
-        ios_partition_seki, (cw->nodes - 1) << 6, __FILE__, LN(1188, 1188, 1188, 1188, 1188, 1188));
-    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat = (char *)iosMallocDebug(
-        ios_partition_seki, (cw->nodes - 1) << 4, __FILE__, LN(1188, 1188, 1188, 1188, 1188, 1188));
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 6, __FILE__,
+                               LN(1188, 1188, 1188, 1188, 1188, 1188, 1188));
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 4, __FILE__,
+                               LN(1188, 1188, 1188, 1188, 1188, 1188, 1188));
 #else
-    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx = (char *)iosMallocDebug(
-        ios_partition_seki, (cw->nodes - 1) << 6, __FILE__, LN(1245, 1239, 1239, 1245, 1185, 1180));
-    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat = (char *)iosMallocDebug(
-        ios_partition_seki, (cw->nodes - 1) << 4, __FILE__, LN(1245, 1239, 1239, 1245, 1185, 1180));
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 6, __FILE__,
+                               LN(1245, 1239, 1239, 1245, 1185, 1180, 1239));
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 4, __FILE__,
+                               LN(1245, 1239, 1239, 1245, 1185, 1180, 1239));
 #endif
     ((ChainExtPtr *)&gobj->dobj)->sub->nodeNum = cw->nodes - 1;
     if (((ChainExtPtr *)&gobj->dobj)->sub->nodes != 0) {
@@ -946,8 +950,9 @@ ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
         iosFree((void *)((int)((ChainExtPtr *)&gobj->dobj)->sub->nodes & 0x0FFFFFFF));
 #endif
     }
-    ((ChainExtPtr *)&gobj->dobj)->sub->nodes = iosMallocDebug(
-        ios_partition_seki, (cw->nodes - 1) * 80, __FILE__, LN(1245, 1239, 1239, 1188, 1185, 1180));
+    ((ChainExtPtr *)&gobj->dobj)->sub->nodes =
+        iosMallocDebug(ios_partition_seki, (cw->nodes - 1) * 80, __FILE__,
+                       LN(1245, 1239, 1239, 1188, 1185, 1180, 1239));
 
     for (i = 0; i < cw->nodes - 1; i++) {
         ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags.ll &= ~1;
@@ -1019,11 +1024,11 @@ static void chain_set_charachara(GObj *gobj, float amp)
 }
 
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
-/* The enemy parameter table, one 404-byte row (JPN and KOR 400) per motion id; ChainGeo
- * reads only the flag word at 0x18C (JPN and KOR 0x188).  Same record enemy_act.c reads
+/* The enemy parameter table, one 404-byte row (JPN, KOR and CN 400) per motion id; ChainGeo
+ * reads only the flag word at 0x18C (JPN, KOR and CN 0x188).  Same record enemy_act.c reads
  * as EnemyParaRow. */
 typedef struct { /* field names derived */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     char pad00[392];
     unsigned int flags; /* bit 14: a motion the hand hangs on the chain from */
     char pad18C[4];
@@ -1402,7 +1407,7 @@ void ChainGeo(GObj *gobj)
         float lim;
 
         lim = cw->hangRange;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (GOBJ_ACT(boyGObj)->actMode == 5 ||
             (((motionKind + GOBJ_SUB(boyGObj)->ctrl.motion)->flags >> 14) & 1)) {
 #else
@@ -1688,19 +1693,19 @@ static void PlumbPointUpdateChain(GObj *gobj, float *pos)
     }
     if (nearestNode == -1) {
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(1607, 1607, 1607, 1607, 1607, 1607));
-        __assert(__FILE__, LN(1607, 1607, 1607, 1607, 1607, 1607), "nearestNode!=-1");
+        debug_assert(__FILE__, LN(1607, 1607, 1607, 1607, 1607, 1607, 1607));
+        __assert(__FILE__, LN(1607, 1607, 1607, 1607, 1607, 1607, 1607), "nearestNode!=-1");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(563, 557, 557, 516, 1600, 563));
-        __assert(__FILE__, LN(563, 557, 557, 516, 1600, 563), "nearestNode!=-1");
+        debug_assert(__FILE__, LN(563, 557, 557, 516, 1600, 563, 557));
+        __assert(__FILE__, LN(563, 557, 557, 516, 1600, 563, 557), "nearestNode!=-1");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(563, 557, 557, 516, 513, 1595));
-        __assert(__FILE__, LN(563, 557, 557, 516, 513, 1595), "nearestNode!=-1");
+        debug_assert(__FILE__, LN(563, 557, 557, 516, 513, 1595, 557));
+        __assert(__FILE__, LN(563, 557, 557, 516, 513, 1595, 557), "nearestNode!=-1");
 #else
-        debug_assert(__FILE__, LN(1675, 1669, 1669, 1675, 1675, 1675));
-        __assert(__FILE__, LN(1675, 1669, 1669, 1675, 1675, 1675), "nearestNode!=-1");
+        debug_assert(__FILE__, LN(1675, 1669, 1669, 1675, 1675, 1675, 1669));
+        __assert(__FILE__, LN(1675, 1669, 1669, 1675, 1675, 1675, 1669), "nearestNode!=-1");
 #endif
 #endif
 #endif
@@ -1720,7 +1725,7 @@ static void PlumbPointUpdateChain(GObj *gobj, float *pos)
 typedef struct { /* field names derived */
     /* 0x00 */ sceVu0FVECTOR node;
     /* 0x10 */ sceVu0FVECTOR target;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     /* 0x20 */ int phase;
 #else
 #ifdef VERSION_JUN26
@@ -1882,7 +1887,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
         org[0] = test_CURRENTROOT(boyGObj)[0]; org[1] = test_CURRENTROOT(boyGObj)[1]; org[2] = test_CURRENTROOT(boyGObj)[2];
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
             rec->phase = 0;
 #else
 #ifdef VERSION_JUN26
@@ -1896,7 +1901,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
         _InterGV(v, rec->node, rec->target, (float)rec->phase, (float)(rec->frames - rec->phase));
 #else
 #ifdef VERSION_JUN26
@@ -1915,7 +1920,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 #else
         PushChainClimbRoot(boy, v, w, d, -10.0f, 3.0f);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
 #else
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1.0f;
@@ -1939,7 +1944,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
         org[0] = test_CURRENTROOT(boyGObj)[0]; org[1] = test_CURRENTROOT(boyGObj)[1]; org[2] = test_CURRENTROOT(boyGObj)[2];
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
             rec->phase = 0;
 #else
 #ifdef VERSION_JUN26
@@ -1953,7 +1958,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
         _InterGV(v, rec->node, rec->target, (float)rec->phase, (float)(rec->frames - rec->phase));
 #else
 #ifdef VERSION_JUN26
@@ -1974,7 +1979,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 #else
         PushChainClimbRoot(boy, v, w, d, mode == 0 ? -15.0f : -10.0f, mode == 0 ? -3.0f : -10.0f);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
 #else
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
@@ -1992,7 +1997,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
     case 2: case 3: {
         ChainClimbWork *rec;
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
             rec->phase = 0;
 #else
 #ifdef VERSION_JUN26
@@ -2007,7 +2012,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
             rec->target[1] = rec->node[1] + 200.0f;
         }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
         _InterGV(v, rec->node, rec->target, (float)rec->phase, (float)(rec->frames - rec->phase));
 #else
 #ifdef VERSION_JUN26
@@ -2026,7 +2031,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
 #else
         PushChainClimbRoot(boy, v, hw, hd, -20.0f, -5.0f);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
 #else
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1.0f;

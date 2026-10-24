@@ -98,14 +98,14 @@ void actSt47aInit(void)
         stage_SetAnimation(143, 0, 0);
 #else
     if (gflagChk(47) != 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(162, 0, 0);
 #else
         stage_SetAnimation(166, 0, 0);
 #endif
         SetWayGroupActive(33, 1);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(161, 0, 0);
 #else
         stage_SetAnimation(165, 0, 0);
@@ -122,14 +122,14 @@ void actSt47aInit(void)
         stage_SetAnimation(145, 0, 0);
 #else
     if (gflagChk(48) != 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(164, 0, 0);
 #else
         stage_SetAnimation(168, 0, 0);
 #endif
         SetWayGroupActive(34, 1);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(163, 0, 0);
 #else
         stage_SetAnimation(167, 0, 0);
@@ -1351,7 +1351,7 @@ void actSt47aSekizo1Chk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -1368,7 +1368,7 @@ void actSt47aSekizo1Chk(GObj *volatile self)
 
     gflagOn(390);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(159, 1, 0);
 #else
     stage_SetAnimation(163, 1, 0);
@@ -1414,7 +1414,7 @@ void actSt47aSekizo1Chk(GObj *volatile self)
         soundSeDefStop(se);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(159, 151, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(163, 151, 0) == 0) {
@@ -1440,7 +1440,7 @@ void actSt47aSekizo1Chk(GObj *volatile self)
 
     ScpCallCameraSetTarget(-3000.0f, 272.0f, 0.0f);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(159) == 0) {
 #else
     while (stage_CheckAnimationFinish(163) == 0) {
@@ -1452,7 +1452,7 @@ void actSt47aSekizo1Chk(GObj *volatile self)
     scpWakeupEnemyAll();
 
     scpBoyControlReadDisable = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -2349,7 +2349,7 @@ void actSt47aHane1Down(GObj *volatile self)
         _ACTWait(1);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(161, 1, 0);
 #else
     stage_SetAnimation(165, 1, 0);
@@ -2359,7 +2359,7 @@ void actSt47aHane1Down(GObj *volatile self)
 
     SetCameraFlag_LwsCutBack();
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(161) == 0) {
 #else
     while (stage_CheckAnimationFinish(165) == 0) {
@@ -2376,7 +2376,7 @@ void actSt47aHane1Down(GObj *volatile self)
                 _ACTWait(1);
             }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             stage_SetAnimation(161, 0, -1);
 #else
             stage_SetAnimation(165, 0, -1);
@@ -2390,7 +2390,7 @@ void actSt47aHane1Down(GObj *volatile self)
 
     scpBoyControlReadDisable = 0;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -2424,7 +2424,7 @@ void actSt47aHane1Up(GObj *volatile self)
         _ACTWait(1);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(162, 1, 0);
 #else
     stage_SetAnimation(166, 1, 0);
@@ -2434,7 +2434,7 @@ void actSt47aHane1Up(GObj *volatile self)
 
     SetCameraFlag_LwsCutBack();
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(162) == 0) {
 #else
     while (stage_CheckAnimationFinish(166) == 0) {
@@ -2451,7 +2451,7 @@ void actSt47aHane1Up(GObj *volatile self)
                 _ACTWait(1);
             }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             stage_SetAnimation(162, 0, -1);
 #else
             stage_SetAnimation(166, 0, -1);
@@ -2465,7 +2465,7 @@ void actSt47aHane1Up(GObj *volatile self)
 
     scpBoyControlReadDisable = 0;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -2490,7 +2490,7 @@ void actSt47aHane2Down(GObj *volatile self)
         _ACTWait(1);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(163, 1, 0);
 #else
     stage_SetAnimation(167, 1, 0);
@@ -2500,7 +2500,7 @@ void actSt47aHane2Down(GObj *volatile self)
 
     SetCameraFlag_LwsCutBack();
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(163) == 0) {
 #else
     while (stage_CheckAnimationFinish(167) == 0) {
@@ -2517,7 +2517,7 @@ void actSt47aHane2Down(GObj *volatile self)
                 _ACTWait(1);
             }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             stage_SetAnimation(163, 0, -1);
 #else
             stage_SetAnimation(167, 0, -1);
@@ -2531,7 +2531,7 @@ void actSt47aHane2Down(GObj *volatile self)
 
     scpBoyControlReadDisable = 0;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -2560,7 +2560,7 @@ void actSt47aHane2Up(GObj *volatile self)
         _ACTWait(1);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(164, 1, 0);
 #else
     stage_SetAnimation(168, 1, 0);
@@ -2570,7 +2570,7 @@ void actSt47aHane2Up(GObj *volatile self)
 
     SetCameraFlag_LwsCutBack();
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(164) == 0) {
 #else
     while (stage_CheckAnimationFinish(168) == 0) {
@@ -2587,7 +2587,7 @@ void actSt47aHane2Up(GObj *volatile self)
                 _ACTWait(1);
             }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             stage_SetAnimation(164, 0, -1);
 #else
             stage_SetAnimation(168, 0, -1);
@@ -2601,7 +2601,7 @@ void actSt47aHane2Up(GObj *volatile self)
 
     scpBoyControlReadDisable = 0;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -2624,7 +2624,7 @@ void actSt47aRope(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(49) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(165, 0, 0);
 #else
         stage_SetAnimation(169, 0, 0);
@@ -2635,7 +2635,7 @@ void actSt47aRope(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(166, 0, -1);
 #else
         stage_SetAnimation(170, 0, -1);
@@ -2664,7 +2664,7 @@ void actSt47aRopeChk(GObj *volatile self)
             _ACTWait(1);
             break;
         case 1:
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             stage_SetAnimation(165, 1, 0);
             while (stage_CheckAnimationFinish(165) == 0) {
 #else
@@ -2678,7 +2678,7 @@ void actSt47aRopeChk(GObj *volatile self)
         case 2:
             scpSearchGobj(482)->active = 0;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             lt_switch_layout(52);
 #else
             lt_switch_layout(55);
@@ -2707,7 +2707,7 @@ void actSt47aRopeChk(GObj *volatile self)
                 while (lt_fade_status() != 2) {
                     _ACTWait(1);
                 }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 stage_SetAnimation(166, 0, -1);
 #else
                 stage_SetAnimation(170, 0, -1);
@@ -2718,7 +2718,7 @@ void actSt47aRopeChk(GObj *volatile self)
 
             scpWakeupEnemyAll();
             scpBoyControlReadDisable = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             lt_switch_layout(51);
 #else
             lt_switch_layout(54);
@@ -2738,7 +2738,7 @@ void actSt47aBarricadeChk(GObj *volatile self)
 
     _ACTWait(1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -2752,7 +2752,7 @@ void actSt47aBarricadeChk(GObj *volatile self)
 
     _ACTWait(5);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(167, 1, 0);
 #else
     stage_SetAnimation(171, 1, 0);
@@ -2760,7 +2760,7 @@ void actSt47aBarricadeChk(GObj *volatile self)
 
     gflagOn(50);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(167) == 0) {
 #else
     while (stage_CheckAnimationFinish(171) == 0) {
@@ -2772,7 +2772,7 @@ void actSt47aBarricadeChk(GObj *volatile self)
     _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 3);
 
     scpBoyControlReadDisable = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -2842,7 +2842,7 @@ void actSt47aSekizo1(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(43) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(159, 0, 0);
 #else
         stage_SetAnimation(163, 0, 0);
@@ -2852,7 +2852,7 @@ void actSt47aSekizo1(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(159, 0, -1);
 #else
         stage_SetAnimation(163, 0, -1);
@@ -2871,7 +2871,7 @@ void actSt47aSekizo2(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     scpSekizou(self, 44, 160, 0, 18, -2450.0f, -1372.0f, -1150.0f, -2450.0f, -1372.0f, -1250.0f);
 #else
 #ifdef VERSION_NTSC
@@ -2998,7 +2998,7 @@ void actSt47aBarricade(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(50) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(167, 0, 0);
 #else
         stage_SetAnimation(171, 0, 0);
@@ -3010,7 +3010,7 @@ void actSt47aBarricade(GObj *volatile self)
     } else {
         FinishHint(4);
         FinishHint(6);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(167, 0, -1);
 #else
         stage_SetAnimation(171, 0, -1);
@@ -3333,7 +3333,7 @@ void actSt47aHane1Switch(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -3409,7 +3409,7 @@ void actSt47aHane2Switch(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
 
     sub->mainMail = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -3444,13 +3444,13 @@ static void actSt47aRopeSub(GObj *volatile self)
 {
     _ACTWait(15);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(166, 1, 0);
 #else
     stage_SetAnimation(170, 1, 0);
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(166, 148, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(170, 148, 0) == 0) {
@@ -3461,7 +3461,7 @@ static void actSt47aRopeSub(GObj *volatile self)
 
     scpSearchGobj(503)->active = 1;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(166) == 0) {
 #else
     while (stage_CheckAnimationFinish(170) == 0) {

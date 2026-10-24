@@ -649,7 +649,7 @@ typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
 {
     WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
-                                   LN(820, 820, 820, 820, 773, 692));
+                                   LN(820, 820, 820, 820, 773, 692, 820));
     int i;
 
     *w = swordWorkTemplate;
@@ -673,10 +673,10 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15);
             w->count = 1;
             w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__,
-                                     LN(759, 759, 759, 759, 712, 719));
+                                     LN(759, 759, 759, 759, 712, 719, 759));
             w->objs[0] = o;
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(856, 856, 856, 856, 809, 727));
+                                    LN(856, 856, 856, 856, 809, 727, 856));
             break;
         }
 
@@ -709,18 +709,18 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             GOBJ_SUB(o2)->parent = lnk;
             w->sword = o2;
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(856, 856, 856, 856, 809, 781));
+                                    LN(856, 856, 856, 856, 809, 781, 856));
             break;
         }
 
         case 6:
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(856, 856, 856, 856, 809, 785));
+                                    LN(856, 856, 856, 856, 809, 785, 856));
             break;
 
         default:
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(856, 856, 856, 856, 809, 789));
+                                    LN(856, 856, 856, 856, 809, 789, 856));
             break;
         }
     }
@@ -742,11 +742,11 @@ static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
 
     w->count = 1;
 #ifdef VERSION_NTSC
-    w->objs =
-        iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, LN(711, 711, 711, 711, 711, 711));
+    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__,
+                             LN(711, 711, 711, 711, 711, 711, 711));
 #else
-    w->objs =
-        iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, LN(759, 759, 759, 759, 712, 759));
+    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__,
+                             LN(759, 759, 759, 759, 712, 759, 759));
 #endif
 
     for (i = 0; i < 1; i++) {
@@ -782,10 +782,10 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
 {
 #ifdef VERSION_NTSC
     WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
-                                   LN(772, 772, 772, 772, 772, 772));
+                                   LN(772, 772, 772, 772, 772, 772, 772));
 #else
     WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
-                                   LN(820, 820, 820, 820, 773, 692));
+                                   LN(820, 820, 820, 820, 773, 692, 820));
 #endif
     int i;
 
@@ -813,10 +813,10 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15);
             w->count = 1;
             w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__,
-                                     LN(800, 800, 800, 800, 800, 800));
+                                     LN(800, 800, 800, 800, 800, 800, 800));
             w->objs[0] = o;
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(808, 808, 808, 808, 808, 808));
+                                    LN(808, 808, 808, 808, 808, 808, 808));
 #else
 #ifdef VERSION_AUG6
             o = CreateLayoutedGObj(10, 68, -1, 1, &r, -1, 7, 1);
@@ -825,7 +825,7 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15);
             w->count = 1;
             w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__,
-                                     LN(759, 759, 759, 759, 801, 759));
+                                     LN(759, 759, 759, 759, 801, 759, 759));
 #else
             o = CreateLayoutedGObj(10, 75, -1, 1, &r, -1, 7, 1);
             LinkParentOfDObj(o, &lnk);
@@ -834,11 +834,11 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
                          (60 - systemStatus[0] * 10) / systemStatus[1] * 3);
             w->count = 1;
             w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__,
-                                     LN(848, 848, 848, 848, 848, 848));
+                                     LN(848, 848, 848, 848, 848, 848, 848));
 #endif
             w->objs[0] = o;
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(856, 856, 856, 856, 809, 727));
+                                    LN(856, 856, 856, 856, 809, 727, 856));
 #endif
             break;
         }
@@ -847,14 +847,14 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             initializeQueenzSword(g, i, lay);
 #ifdef VERSION_NTSC
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(813, 813, 813, 813, 813, 813));
+                                    LN(813, 813, 813, 813, 813, 813, 813));
 #else
 #ifdef VERSION_AUG6
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(856, 856, 856, 856, 814, 856));
+                                    LN(856, 856, 856, 856, 814, 856, 856));
 #else
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(861, 861, 861, 861, 861, 861));
+                                    LN(861, 861, 861, 861, 861, 861, 861));
 #endif
 #endif
             break;
@@ -862,20 +862,20 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
         case 7:
 #ifdef VERSION_NTSC
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(817, 817, 817, 817, 817, 817));
+                                    LN(817, 817, 817, 817, 817, 817, 817));
 #else
 #ifdef VERSION_AUG6
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(856, 856, 856, 856, 818, 856));
+                                    LN(856, 856, 856, 856, 818, 856, 856));
 #else
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(865, 865, 865, 865, 865, 865));
+                                    LN(865, 865, 865, 865, 865, 865, 865));
             break;
 
         case 8:
         case 9:
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(870, 870, 870, 870, 870, 870));
+                                    LN(870, 870, 870, 870, 870, 870, 870));
             w->net = iosMallocDebug(ios_partition_sugipon, 8, __FILE__, 871);
             w->model0 = CSVSYSTEM_InitDObj(
                 accessary[((SubHandle *)(((char *)g) + 0x15C))->sub->accessary].model, lay);
@@ -891,14 +891,14 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
         default:
 #ifdef VERSION_NTSC
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(821, 821, 821, 821, 821, 821));
+                                    LN(821, 821, 821, 821, 821, 821, 821));
 #else
 #ifdef VERSION_AUG6
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(856, 856, 856, 856, 822, 856));
+                                    LN(856, 856, 856, 856, 822, 856, 856));
 #else
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__,
-                                    LN(884, 884, 884, 884, 884, 884));
+                                    LN(884, 884, 884, 884, 884, 884, 884));
 #endif
 #endif
             break;
@@ -1230,13 +1230,13 @@ void WeaponGeo(GObj *g)
         calcBlur(g, w->bladeLength);
         w->bladeOn = 1;
         t = w->bladeLength;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetLoopFlag(469, 1);
 #else
         stage_SetLoopFlag(473, 1);
 #endif
         if (t > 1.0f) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             n = (int)stage_PlayBgAnimation(469, (float)w->humAnim,
                                            (char *)GOBJ_SUB(g)->nodeMtx + 0x30, IdentityQuaternion);
 #else
@@ -1247,7 +1247,7 @@ void WeaponGeo(GObj *g)
                 w->humAnim = n;
             }
         } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             stage_PlayBgAnimation(469, 0.0f, (char *)GOBJ_SUB(g)->nodeMtx + 0x30,
                                   IdentityQuaternion);
 #else
@@ -1256,7 +1256,7 @@ void WeaponGeo(GObj *g)
 #endif
             w->humAnim = 0;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetLoopFlag(469, 0);
 #else
         stage_SetLoopFlag(473, 0);
@@ -1479,10 +1479,10 @@ void *InitDemoQueensSword(GObj *g, SObjSimpleSetting *lay)
 
 #ifdef VERSION_NTSC
     w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
-                                     LN(754, 754, 754, 754, 754, 754));
+                                     LN(754, 754, 754, 754, 754, 754, 754));
 #else
     w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
-                                     LN(802, 802, 802, 802, 755, 802));
+                                     LN(802, 802, 802, 802, 755, 802, 802));
 #endif
     GOBJ_SUB(g)->work = w;
     *w = swordWorkTemplate;

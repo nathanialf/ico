@@ -360,7 +360,7 @@ static char *debugBarName[] = {"Off", "Low-Deco", "High-Deco"}; /* derived name 
 
 static char *debugProfileName[] = {"Variable", "Process"}; /* derived name */
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 static char *debugSnapSizeName[] = {"Normal", "Half",     "Double",  "Double+Wide",
                                     "4x4",    "4x4+Wide", "XYOFFSET"}; /* derived name */
 #else
@@ -626,7 +626,7 @@ static const DbgOpt debugOption[69] = {
 #else
 /* the debug options: name, colour, value, range, value names and the function
    called on a change, in the order debug_Mode pages through them */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 static const DbgOpt debugOption[76] = {
     {" FrameStep          ", 0x0080FF80, &systemStatus[1], 1, 2, debugFrameStepName,
      (void (*)(int))gsResetFunc},
@@ -1126,10 +1126,10 @@ void debug_Assert(char *fmt, ...)
 {
     char buf[256];
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
-    debug_assertMessage("src/debug.c", LN(1392, 1389, 1389, 1283, 1268, 1201), buf);
-    __assert("src/debug.c", LN(1392, 1389, 1389, 1283, 1268, 1201), "e");
-    debug_assert("src/debug.c", LN(1393, 1390, 1390, 1284, 1269, 1202));
-    __assert("src/debug.c", LN(1393, 1390, 1390, 1284, 1269, 1202), "0");
+    debug_assertMessage("src/debug.c", LN(1392, 1389, 1389, 1283, 1268, 1201, 1389), buf);
+    __assert("src/debug.c", LN(1392, 1389, 1389, 1283, 1268, 1201, 1389), "e");
+    debug_assert("src/debug.c", LN(1393, 1390, 1390, 1284, 1269, 1202, 1390));
+    __assert("src/debug.c", LN(1393, 1390, 1390, 1284, 1269, 1202, 1390), "0");
 }
 
 /* the host log file (the DEBUG build opens it) */
@@ -1453,7 +1453,7 @@ void debug_VariableInit(void)
     debug_zoom_per = 100;
     debug_debug_bar_start_item = 0;
     debug_ripple_roughness = 25;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     debug_snapshot_num = 1;
 #else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
@@ -1599,7 +1599,7 @@ int debug_Load(char **dst, char *name, int kind)
         case 0:
         default:
             *dst = iosMallocDebug(ios_partition_seki, sz, "src/debug.c",
-                                  LN(1958, 1955, 1955, 1817, 1798, 1719));
+                                  LN(1958, 1955, 1955, 1817, 1798, 1719, 1955));
             loadReport();
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
@@ -1611,21 +1611,21 @@ int debug_Load(char **dst, char *name, int kind)
             break;
         case 1:
             *dst = iosMallocDebug(ios_partition_sugipon, sz, "src/debug.c",
-                                  LN(1965, 1962, 1962, 1824, 1805, 1726));
+                                  LN(1965, 1962, 1962, 1824, 1805, 1726, 1962));
             loadReport();
             debug_StdPrintfDummy(" to sugi area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 524288.0f,
                                  (*dst + sz - ios_partition_sugipon->start) * 100.0f / 524288.0f);
             break;
         case 2:
             *dst = iosMallocDebug(ios_partition_common, sz, "src/debug.c",
-                                  LN(1973, 1970, 1970, 1832, 1813, 1734));
+                                  LN(1973, 1970, 1970, 1832, 1813, 1734, 1970));
             loadReport();
             debug_StdPrintfDummy(" to static object area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 2.0f,
                                  (*dst + sz - ios_partition_common->start) * 100.0f / 2.0f);
             break;
         case 3:
             *dst = iosMallocDebug(ios_partition_smotion, sz, "src/debug.c",
-                                  LN(1982, 1979, 1979, 1841, 1822, 1743));
+                                  LN(1982, 1979, 1979, 1841, 1822, 1743, 1979));
             loadReport();
 #ifdef VERSION_JUN26
             debug_StdPrintfDummy(" to static motion area.(%2.1f%%/%2.1f%%)\n",
@@ -1639,7 +1639,7 @@ int debug_Load(char **dst, char *name, int kind)
             break;
         case 5:
             *dst = iosMallocDebug(ios_partition_dmotion, sz, "src/debug.c",
-                                  LN(1991, 1988, 1988, 1850, 1831, 1752));
+                                  LN(1991, 1988, 1988, 1850, 1831, 1752, 1988));
             loadReport();
 #ifdef VERSION_JUN26
             debug_StdPrintfDummy(" to dynamic motion area.(%2.1f%%/%2.1f%%)\n",
@@ -1653,14 +1653,14 @@ int debug_Load(char **dst, char *name, int kind)
             break;
         case 6:
             *dst = iosMallocDebug(ios_partition_hara, sz, "src/debug.c",
-                                  LN(2000, 1997, 1997, 1859, 1840, 1761));
+                                  LN(2000, 1997, 1997, 1859, 1840, 1761, 1997));
             loadReport();
             debug_StdPrintfDummy(" to hara-area.(%2.1f%%)\n",
                                  (*dst + sz - ios_partition_hara->start) * 100.0f);
             break;
         case 7:
             *dst = iosMallocDebug(ios_partition_oomori, sz, "src/debug.c",
-                                  LN(2007, 2004, 2004, 1866, 1847, 1768));
+                                  LN(2007, 2004, 2004, 1866, 1847, 1768, 2004));
             loadReport();
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             debug_StdPrintfDummy(" to oomori area.(%2.1f%%)\n",
@@ -1672,23 +1672,23 @@ int debug_Load(char **dst, char *name, int kind)
             break;
         case 8:
             *dst = iosMallocDebug(ios_partition_horagai, sz, "src/debug.c",
-                                  LN(2014, 2011, 2011, 1873, 1854, 1775));
+                                  LN(2014, 2011, 2011, 1873, 1854, 1775, 2011));
             loadReport();
             debug_StdPrintfDummy(" to horagai-area.\n");
             break;
         case 9:
             *dst = iosMallocDebug(ios_partition_sound, sz, "src/debug.c",
-                                  LN(2019, 2016, 2016, 1878, 1859, 1780));
+                                  LN(2019, 2016, 2016, 1878, 1859, 1780, 2016));
             loadReport();
             debug_StdPrintfDummy(" to sound-area.\n");
             break;
         case 10:
 #ifdef VERSION_NTSC
             *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c",
-                                  LN(1883, 1883, 1883, 1883, 1883, 1883));
+                                  LN(1883, 1883, 1883, 1883, 1883, 1883, 1883));
 #else
             *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c",
-                                  LN(2024, 2021, 2021, 2024, 1864, 1785));
+                                  LN(2024, 2021, 2021, 2024, 1864, 1785, 2021));
 #endif
             loadReport();
             debug_StdPrintfDummy(" to sound_semi-area.\n");
@@ -1702,7 +1702,7 @@ int debug_Load(char **dst, char *name, int kind)
     return size;
 }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_NTSC)
 /* the GIF tag debug_MakeFont copies ahead of each font packet, as
    debug_exception's fontTag: the two 64-bit words the packet takes it in,
    which the copy moves one doubleword at a time */
@@ -1741,7 +1741,7 @@ static void debug_MakeFont(void)
     char *ptr;
     char *base;
     unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
-    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(1928, 1928, 1928, 1928, 1909, 1830)); ptr = base;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(1928, 1928, 1928, 1928, 1909, 1830, 1928)); ptr = base;
     *((int *)ptr)++ = 0x1400000C;
     *((int *)ptr)++ = 0;
     *((long long *)ptr)++ = 0;
@@ -1749,7 +1749,7 @@ static void debug_MakeFont(void)
     struct { /* field names derived */ float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
     char *base;
     unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
-    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(2069, 2066, 2066, 2069, 2069, 2069)); w.ptr = base;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(2069, 2066, 2066, 2069, 2069, 2069, 2066)); w.ptr = base;
     *((int *)w.ptr)++ = 0x1400000C;
     *((int *)w.ptr)++ = 0;
     *((long long *)w.ptr)++ = 0;
@@ -1772,7 +1772,7 @@ static void debug_MakeFont(void)
 
             fontPacket[i].qwc = n + 3;
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
-            ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(1949, 1949, 1949, 1949, 1930, 1851));
+            ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(1949, 1949, 1949, 1949, 1930, 1851, 1949));
             *((long long *)ptr)++ = 0;
             *((int *)ptr)++ = 0;
             *((int *)ptr)++ = ((n + 1) << 16) | 0x6C008000;
@@ -1780,7 +1780,7 @@ static void debug_MakeFont(void)
             *((long long *)ptr)++ = n | ((long long)0x8000 << 38) | debugFontTag[0];
             *((long long *)ptr)++ = debugFontTag[1];
 #else
-            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(2090, 2087, 2087, 2090, 2090, 2090));
+            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(2090, 2087, 2087, 2090, 2090, 2090, 2087));
             *((long long *)w.ptr)++ = 0;
             *((int *)w.ptr)++ = 0;
             *((int *)w.ptr)++ = ((n + 1) << 16) | 0x6C008000;
@@ -2352,7 +2352,7 @@ static void debug_DrawBar(void)
 
 
     flip = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     scale = 1.0f / (270000.0f / 30.0f);
 #else
 #ifdef VERSION_JUN26
@@ -2603,7 +2603,7 @@ void debug_DispBar(void)
     int va;
     int vb;
     int n;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     inv = 1.0f / (270000.0f / 30.0f);
 #else
 #ifdef VERSION_JUN26
@@ -2989,7 +2989,7 @@ int debug_SnapShot(int idx)
     return 1;
 }
 #else
-/* JPN and KOR: stores the frame as shot idx, idx frame sizes above 0x2000000, and
+/* JPN, KOR and CN: stores the frame as shot idx, idx frame sizes above 0x2000000, and
    writes the next free snapshot/snapNNNNNNN file: shot 0 on its own (halved
    for Half), shot 5 shots 1-4 joined two by two (Double, Double+Wide), shot
    17 shots 1-16 joined four by four (cropped for 4x4 and 4x4+Wide,
@@ -2998,7 +2998,7 @@ int debug_SnapShot(int idx)
 {
     sceGsStoreImage si;
     char name[256];
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     int size = ScreenWidth * ScreenHeight * 4;
     int ofs = size * idx;
     int i;
@@ -3010,20 +3010,20 @@ int debug_SnapShot(int idx)
     int fd;
     int *src;
     int *dst;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     int w;
 #else
     int *buf;
     unsigned int w;
 #endif
     int h;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     int y;
 #else
     unsigned int y;
 #endif
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)
     size = ScreenWidth * ScreenHeight * 4;
     if (debug_snapshot_size == 0) {
         return -1;
@@ -3033,7 +3033,7 @@ int debug_SnapShot(int idx)
     debugBackGroundDisableFlag = 1;
     if (snapFirst != 0) {
         if (iosCdvdBackGroundMgrRunning != 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             return 1;
 #else
             return -1;
@@ -3042,7 +3042,7 @@ int debug_SnapShot(int idx)
         snapFirst = 0;
     }
     sceGsSyncPath(0, 0);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     src = (int *)(0x2000000 + ofs);
     debug_StdPrintfDummy("Snapx4:%d:%p\n", idx, src);
 #else
@@ -3050,13 +3050,13 @@ int debug_SnapShot(int idx)
 #endif
     sceGsSetDefStoreImage(&si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
     FlushCache(0);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     sceGsExecStoreImage(&si, src);
 #else
     sceGsExecStoreImage(&si, (void *)0x2000000);
 #endif
     sceGsSyncPath(0, 0);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     switch (idx) {
     case 0:
         for (i = 0;; i++) {
@@ -3096,7 +3096,7 @@ int debug_SnapShot(int idx)
 #endif
             w = ScreenWidth;
             h = ScreenHeight;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         }
         if (debug_snapshot_format == 0) {
             debug_WriteTim2(fd, dst, w, h);
@@ -3146,7 +3146,7 @@ int debug_SnapShot(int idx)
                 } else {
                     sprintf(name, "snapshot/snap%07d.bmp", i);
                 }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 fd = debugSceOpen(name, 1);
                 debugSceClose(fd);
                 if (fd < 0) {
@@ -3163,7 +3163,7 @@ int debug_SnapShot(int idx)
 #endif
                 }
             }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             if (debug_snapshot_format == 0) {
                 sprintf(name, "snapshot/snap%07d.tm2", i);
             } else {
@@ -3249,7 +3249,7 @@ int debug_SnapShot(int idx)
             }
 #endif
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         break;
     case 17: {
         int *p[16];
@@ -3974,7 +3974,7 @@ static int debug_SelectStageMain(int ret, int stage)
 
 int debug_SelectStage(void)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_NTSC)
     return debug_SelectStageMain(debug_SelectCsvWindowWithLine("stage select", 10, 80, 11, stageData,
                                                                404, 0x20, 0, 104, &stageSelectNo),
                                  stageSelectNo);
@@ -5239,9 +5239,13 @@ static int menuArg = 0; /* derived name */
 static inline void debug_MenuBlink(void) /* derived name */
 {
     if (menuBlink >> 4) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-#ifdef VERSION_KOR
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+#if defined(VERSION_KOR) || defined(VERSION_CN)
+#ifdef VERSION_CN
+        debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Nov  2 2001", "19:35:51");
+#else
         debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Jan  9 2002", "19:03:40");
+#endif
 #else
         debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Nov  2 2001", "17:26:01");
 #endif

@@ -96,7 +96,7 @@ void actSt05dDoor2(GObj *volatile self)
 
     if (scpTriggerBall(self, boyGObj, 400.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(345, 0, 0);
 #else
 #ifdef VERSION_NTSC
@@ -133,7 +133,7 @@ void actSt05dDoor2(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(344, 0, 0);
 #else
         stage_SetAnimation(348, 0, 0);
@@ -346,7 +346,7 @@ void actSt05dDoor2UpChk(GObj *volatile self)
 
     ReviveAllCarryableItemsWithNonSleepFrame(60);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(344, 1, 0);
 #else
 #ifdef VERSION_AUG6
@@ -373,7 +373,7 @@ void actSt05dDoor2UpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(344) == 0) {
 #else
     while (stage_CheckAnimationFinish(348) == 0) {
@@ -407,7 +407,7 @@ void actSt05dDoor2DownChk(GObj *volatile self)
 
     ReviveAllCarryableItemsWithNonSleepFrame(60);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(345, 1, 0);
 #else
 #ifdef VERSION_AUG6
@@ -434,7 +434,7 @@ void actSt05dDoor2DownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(345) == 0) {
 #else
     while (stage_CheckAnimationFinish(349) == 0) {

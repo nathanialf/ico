@@ -3,7 +3,7 @@
  *
  * The enemy kind table, the archive's code-less member enemy-def: by kind
  * the model and the particle object it is drawn with, its life, the scale its
- * model is drawn at, the dodge range (PAL, JPN and KOR) and the attribute
+ * model is drawn at, the dodge range (PAL, JPN, KOR and CN) and the attribute
  * bits.  enemy.c reads it.  The file name is derived: MAIN.MAP links the
  * member as ico2000.a(enemy-def.o) and names its one symbol enemyKind.
  */
@@ -55,7 +55,7 @@ const EnemyDef enemyKind[] = {
     {36, -1, 300.0f, 0.8f, 1.2f, 350.0f, 4, 2, 3},  {34, -1, 200.0f, 0.8f, 1.0f, 350.0f, 4, 2, 3},
     {36, -1, 300.0f, 0.9f, 1.2f, 400.0f, 4, 2, 2},  {39, -1, 200.0f, 0.9f, 1.1f, 400.0f, 4, 2, 2},
     {43, -1, 100.0f, 0.8f, 1.1f, 450.0f, 3, 2, 3},
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     {1548, 0, 100.0f, 1.0f, 1.0f, 200.0f, 1, 0, 2},
 #else
     {1552, 0, 100.0f, 1.0f, 1.0f, 200.0f, 1, 0, 2},
@@ -73,7 +73,7 @@ const EnemyDef enemyKind[] = {
     {39, -1, 400.0f, 1.0f, 1.0f, 200.0f, 1, 0, 3},  {40, -1, 400.0f, 1.0f, 1.0f, 200.0f, 1, 0, 3},
     {41, -1, 400.0f, 1.0f, 1.0f, 200.0f, 1, 0, 3},  {42, -1, 400.0f, 1.0f, 1.0f, 200.0f, 1, 0, 3},
     {43, -1, 400.0f, 1.0f, 1.0f, 200.0f, 1, 0, 3},  {44, -1, 400.0f, 1.0f, 1.0f, 200.0f, 1, 0, 3},
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     {1548, 0, 100.0f, 1.0f, 4.0f, 0.0f, -1, 0, 3},
 #else
     {1552, 0, 100.0f, 1.0f, 4.0f, 0.0f, -1, 0, 3},

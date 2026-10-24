@@ -296,20 +296,20 @@ inline int IsEnemyBrainToGenerator(GObj *self, GObj **out)
         return 0;
     *out = ((ActWork *)b->work)->genTarget;
     if (*out == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-        debug_assert("src/enemy_act.c", LN(830, 830, 830, 830, 830, 830));
-        __assert("src/enemy_act.c", LN(830, 830, 830, 830, 830, 830), "*generator_gop!=NULL");
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+        debug_assert("src/enemy_act.c", LN(830, 830, 830, 830, 830, 830, 830));
+        __assert("src/enemy_act.c", LN(830, 830, 830, 830, 830, 830, 830), "*generator_gop!=NULL");
 #else
 #ifdef VERSION_NTSC
-        debug_assert("src/enemy_act.c", LN(762, 762, 762, 762, 762, 762));
-        __assert("src/enemy_act.c", LN(762, 762, 762, 762, 762, 762), "*generator_gop!=NULL");
+        debug_assert("src/enemy_act.c", LN(762, 762, 762, 762, 762, 762, 762));
+        __assert("src/enemy_act.c", LN(762, 762, 762, 762, 762, 762, 762), "*generator_gop!=NULL");
 #else
 #ifdef VERSION_AUG6
-        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 744, 2161));
-        __assert("src/enemy_act.c", LN(744, 744, 744, 744, 744, 744), "*generator_gop!=NULL");
+        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 744, 2161, 2158));
+        __assert("src/enemy_act.c", LN(744, 744, 744, 744, 744, 744, 744), "*generator_gop!=NULL");
 #else
 #ifdef VERSION_JUN26
-        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 600));
+        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 600, 2158));
         __assert("src/enemy_act.c", 600, "*generator_gop!=NULL");
 #else
         debug_assert("src/enemy_act.c", 0x341);
@@ -367,20 +367,20 @@ static void setBattleStatus(GObj *self)
         break;
     default:
 #ifdef VERSION_JUN26
-        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 642));
-        __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 642), "0");
+        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 642, 2158));
+        __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 642, 2158), "0");
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-        debug_assert("src/enemy_act.c", LN(872, 872, 872, 872, 872, 872));
-        __assert("src/enemy_act.c", LN(872, 872, 872, 872, 872, 872), "0");
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+        debug_assert("src/enemy_act.c", LN(872, 872, 872, 872, 872, 872, 872));
+        __assert("src/enemy_act.c", LN(872, 872, 872, 872, 872, 872, 872), "0");
 #else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 #ifdef VERSION_AUG6
-        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 786, 2161));
-        __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 786, 2161), "0");
+        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 786, 2161, 2158));
+        __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 786, 2161, 2158), "0");
 #else
-        debug_assert("src/enemy_act.c", LN(804, 804, 804, 804, 804, 804));
-        __assert("src/enemy_act.c", LN(804, 804, 804, 804, 804, 804), "0");
+        debug_assert("src/enemy_act.c", LN(804, 804, 804, 804, 804, 804, 804));
+        __assert("src/enemy_act.c", LN(804, 804, 804, 804, 804, 804, 804), "0");
 #endif
     }
 }
@@ -589,7 +589,7 @@ static void _DoAwait(GObj *self)
 #else
         _ACTParaStatus_Set(self, 0x1C);
         row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if ((row->flags.word >> 5) & 1) {
 #else
         if ((row->flags.word >> 3) & 1) {
@@ -617,7 +617,7 @@ static void _DoAwaitGirl(GObj *self)
 #else
         _ACTParaStatus_Set(self, 0x1C);
         row = &motionKind[GOBJ_SUB(self)->ctrl.motion];
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if ((row->flags.word >> 5) & 1) {
 #else
         if ((row->flags.word >> 3) & 1) {
@@ -1307,7 +1307,7 @@ void subEnemyCollision(GObj *volatile self)
 #ifdef VERSION_JUN26
         DispMultiBgaManagerWithKind(398, GOBJ_WORK(self)->bga, 1);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         DispMultiBgaManagerWithKind(502, GOBJ_WORK(self)->bga, 1);
 #else
         DispMultiBgaManagerWithKind(0x1FA, GOBJ_WORK(self)->bga, 1);
@@ -1615,23 +1615,23 @@ inline int actEnemyFlagCheckDead(GObj *self)
 inline int isEnemyActive(GObj *self)
 {
     if (self == 0 || self->kind != 4) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-        debug_assert("src/enemy_act.c", LN(2084, 2084, 2084, 2084, 2084, 2084));
-        __assert("src/enemy_act.c", LN(2084, 2084, 2084, 2084, 2084, 2084),
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+        debug_assert("src/enemy_act.c", LN(2084, 2084, 2084, 2084, 2084, 2084, 2084));
+        __assert("src/enemy_act.c", LN(2084, 2084, 2084, 2084, 2084, 2084, 2084),
                  "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
 #else
 #ifdef VERSION_NTSC
-        debug_assert("src/enemy_act.c", LN(2002, 2002, 2002, 2002, 2002, 2002));
-        __assert("src/enemy_act.c", LN(2002, 2002, 2002, 2002, 2002, 2002),
+        debug_assert("src/enemy_act.c", LN(2002, 2002, 2002, 2002, 2002, 2002, 2002));
+        __assert("src/enemy_act.c", LN(2002, 2002, 2002, 2002, 2002, 2002, 2002),
                  "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
 #else
 #ifdef VERSION_AUG6
-        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 1984, 2161));
-        __assert("src/enemy_act.c", LN(1984, 1984, 1984, 1984, 1984, 1984),
+        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 1984, 2161, 2158));
+        __assert("src/enemy_act.c", LN(1984, 1984, 1984, 1984, 1984, 1984, 1984),
                  "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
 #else
 #ifdef VERSION_JUN26
-        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1835));
+        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1835, 2158));
         __assert("src/enemy_act.c", 1835, "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)");
 #else
         debug_assert("src/enemy_act.c", 0x827);
@@ -1732,8 +1732,8 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
         idx = 3;
         break;
     default:
-        debug_assert("src/enemy_act.c", LN(2066, 2066, 2066, 2066, 2066, 2066));
-        __assert("src/enemy_act.c", LN(2066, 2066, 2066, 2066, 2066, 2066), "0");
+        debug_assert("src/enemy_act.c", LN(2066, 2066, 2066, 2066, 2066, 2066, 2066));
+        __assert("src/enemy_act.c", LN(2066, 2066, 2066, 2066, 2066, 2066, 2066), "0");
     }
     GOBJ_ACT(self)->enemy->battleType = idx;
     setBattleStatus(self);
@@ -1878,8 +1878,8 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
         idx = 3;
         break;
     default:
-        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1899));
-        __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1899), "0");
+        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1899, 2158));
+        __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1899, 2158), "0");
     }
     GOBJ_ACT(self)->enemy->battleType = idx;
     setBattleStatus(self);
@@ -1966,8 +1966,8 @@ void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother)
         idx = 3;
         break;
     default:
-        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1899));
-        __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1899), "0");
+        debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1899, 2158));
+        __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 1899, 2158), "0");
     }
     GOBJ_ACT(self)->enemy->battleType = idx;
     setBattleStatus(self);
@@ -2505,7 +2505,7 @@ void actEnemyKidnapEnd(GObj *volatile self)
                                 _ACTWait(300);
                             }
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                             stage_SetParentOfGObj(498, &q);
 #else
                             stage_SetParentOfGObj(502, &q);
@@ -3195,15 +3195,15 @@ inline void actEnemyCarry(GObj *volatile self)
 {
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #ifdef VERSION_JUN26
-    debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 2542));
-    __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 2542), "0");
+    debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 2542, 2158));
+    __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 2542, 2158), "0");
 #else
-    debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2763, 2161));
-    __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2763, 2161), "0");
+    debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2763, 2161, 2158));
+    __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2763, 2161, 2158), "0");
 #endif
 #else
-    debug_assert("src/enemy_act.c", LN(2803, 2803, 2803, 2803, 2803, 2803));
-    __assert("src/enemy_act.c", LN(2803, 2803, 2803, 2803, 2803, 2803), "0");
+    debug_assert("src/enemy_act.c", LN(2803, 2803, 2803, 2803, 2803, 2803, 2803));
+    __assert("src/enemy_act.c", LN(2803, 2803, 2803, 2803, 2803, 2803, 2803), "0");
 #endif
 }
 #else
@@ -3261,9 +3261,9 @@ void actEnemyPickupBegin(GObj *volatile self)
 
 inline void actEnemyCarry(GObj *volatile self)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-    debug_assert("src/enemy_act.c", LN(2930, 2930, 2930, 2930, 2930, 2930));
-    __assert("src/enemy_act.c", LN(2930, 2930, 2930, 2930, 2930, 2930), "0");
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+    debug_assert("src/enemy_act.c", LN(2930, 2930, 2930, 2930, 2930, 2930, 2930));
+    __assert("src/enemy_act.c", LN(2930, 2930, 2930, 2930, 2930, 2930, 2930), "0");
 #else
     debug_assert("src/enemy_act.c", 0xB75);
     __assert("src/enemy_act.c", 0xB75, "0");
@@ -3499,8 +3499,8 @@ void subEnemyBrainMain(GObj *volatile self)
             break;
         default:
             debug_StdPrintfDummy("undefined mode [%d]\n", req);
-            debug_assert("src/enemy_act.c", LN(2965, 2965, 2965, 2965, 2965, 2965));
-            __assert("src/enemy_act.c", LN(2965, 2965, 2965, 2965, 2965, 2965), "0");
+            debug_assert("src/enemy_act.c", LN(2965, 2965, 2965, 2965, 2965, 2965, 2965));
+            __assert("src/enemy_act.c", LN(2965, 2965, 2965, 2965, 2965, 2965, 2965), "0");
             break;
         }
     }
@@ -3677,15 +3677,15 @@ void subEnemyBrainMain(GObj *volatile self)
         default:
             debug_StdPrintfDummy("undefined mode [%d]\n", req);
 #ifdef VERSION_AUG6
-            debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2925, 2161));
-            __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2925, 2161), "0");
+            debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2925, 2161, 2158));
+            __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2925, 2161, 2158), "0");
 #else
 #ifdef VERSION_JUN26
-            debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 2703));
-            __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 2703), "0");
+            debug_assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 2703, 2158));
+            __assert("src/enemy_act.c", LN(2161, 2158, 2158, 2161, 2048, 2703, 2158), "0");
 #else
-            debug_assert("src/enemy_act.c", LN(3102, 3099, 3099, 3102, 3102, 3102));
-            __assert("src/enemy_act.c", LN(3102, 3099, 3099, 3102, 3102, 3102), "0");
+            debug_assert("src/enemy_act.c", LN(3102, 3099, 3099, 3102, 3102, 3102, 3099));
+            __assert("src/enemy_act.c", LN(3102, 3099, 3099, 3102, 3102, 3102, 3099), "0");
 #endif
 #endif
             break;
@@ -4878,7 +4878,7 @@ static void NakaBoss(GObj *self, void *tgt, float tgtDist)
 #ifdef VERSION_AUG6
     if (stage_no != 84 && stage_no != 3 && stage_no != 46) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (stage_no != 84 && stage_no != 3 && stage_no != 46) {
 #else
     if (stage_no != 86 && stage_no != 3 && stage_no != 46) {
@@ -4899,7 +4899,7 @@ static void NakaBoss(GObj *self, void *tgt, float tgtDist)
                            test_CURRENTROOT(boy)) == 2) {
             ACTSendMailCorrect(self, 29);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x890), test_CURRENTROOT(self),
                            test_CURRENTROOT(boy)) == 2) {
 #else
@@ -4918,7 +4918,7 @@ static void NakaBoss(GObj *self, void *tgt, float tgtDist)
             ori[2] = test_CURRENTORIENT(boy)[2];
             if (_AbsRotyGV(ori, dir) < 60) {
                 if (dist < 270.0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                     if (GetFlyPosition((float *)((char *)GOBJ_ACT(self)->work + 0x890), mpos,
                                        bpos) == 0) {
 #else
@@ -5298,7 +5298,7 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
         case 0:
             ACTSendMailCorrect(self, 232);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
         if (stage_no == 84 || stage_no == 3 || stage_no == 46) {
 #else
         if (stage_no == 86 || stage_no == 3 || stage_no == 46) {
@@ -5358,7 +5358,7 @@ void subEnemyBrain_ToBoy(GObj *volatile self)
         sub->dir[0] = 0.0f;
         sub->dir[1] = 0.0f;
         sub->dir[2] = 0.0f;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
         for (j = 0; j < 45; j++) {
 #else
         for (j = 0; j < (60 - systemStatus[0] * 10) / systemStatus[1] * 90 / 60; j++) {
@@ -5786,7 +5786,7 @@ static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float
 
     GetRootProjectionPosOfGObj(p0, tgt);
     GetRootProjectionPosOfGObj(p1, self);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
     for (i = 0; i < 20; i++) {
 #else
     for (i = 0; i < (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60; i++) {
@@ -5878,7 +5878,7 @@ static int _ApproachTarget_Way(GObj *self, void *tgt, void *pos, void *fn, float
             FlyMail(self);
         }
 #ifndef VERSION_AUG6
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (*(int *)((char *)self + 8) == 3734 && (((int)(sub->flags20.ll >> 39)) & 1)) {
 #else
         if (*(int *)((char *)self + 8) == 0xEAD && (((int)(sub->flags20.ll >> 39)) & 1)) {
@@ -6165,7 +6165,7 @@ void actEnemyStart(GObj *self)
     actInitialize_ext_charcter(self);
     actInitialize_only_charcter((char *)self);
     actInitialize_geo(self);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (*(int *)((char *)self + 8) == 3734) {
 #else
     if (*(int *)((char *)self + 8) == 3757) {

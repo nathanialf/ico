@@ -91,11 +91,15 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                             debug_StdPrintfDummy("reg_setShape:illegal vertex index. %d/%d\n",
                                                  m->index, s->vtxCount);
 #ifdef VERSION_NTSC
-                            debug_assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629, 629));
-                            __assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629, 629), "0");
+                            debug_assert("src/RegistPacket.c",
+                                         LN(629, 629, 629, 629, 629, 629, 629));
+                            __assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629, 629, 629),
+                                     "0");
 #else
-                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 520));
-                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 520), "0");
+                            debug_assert("src/RegistPacket.c",
+                                         LN(635, 635, 635, 635, 590, 520, 635));
+                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 520, 635),
+                                     "0");
 #endif
                         }
                         t = s->vtx;
@@ -114,19 +118,27 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                             debug_StdPrintfDummy("reg_setShape:illegal normal index. %d/%d\n",
                                                  m->index, s->nrmCount);
 #ifdef VERSION_NTSC
-                            debug_assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636, 636));
-                            __assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636, 636), "0");
+                            debug_assert("src/RegistPacket.c",
+                                         LN(636, 636, 636, 636, 636, 636, 636));
+                            __assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636, 636, 636),
+                                     "0");
 #else
 #ifdef VERSION_AUG6
-                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597, 635));
-                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597, 635), "0");
+                            debug_assert("src/RegistPacket.c",
+                                         LN(635, 635, 635, 635, 597, 635, 635));
+                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597, 635, 635),
+                                     "0");
 #else
 #ifdef VERSION_JUN26
-                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 527));
-                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 527), "0");
+                            debug_assert("src/RegistPacket.c",
+                                         LN(635, 635, 635, 635, 590, 527, 635));
+                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 527, 635),
+                                     "0");
 #else
-                            debug_assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642, 642));
-                            __assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642, 642), "0");
+                            debug_assert("src/RegistPacket.c",
+                                         LN(642, 642, 642, 642, 642, 642, 642));
+                            __assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642, 642, 642),
+                                     "0");
 #endif
 #endif
 #endif
@@ -136,19 +148,19 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                         _AddVectorXYZ(t, t, vec);
                     } else {
 #ifdef VERSION_NTSC
-                        debug_assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641, 641));
-                        __assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641, 641), "0");
+                        debug_assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641, 641, 641));
+                        __assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641, 641, 641), "0");
 #else
 #ifdef VERSION_AUG6
-                        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602, 635));
-                        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602, 635), "0");
+                        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602, 635, 635));
+                        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602, 635, 635), "0");
 #else
 #ifdef VERSION_JUN26
-                        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 532));
-                        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 532), "0");
+                        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 532, 635));
+                        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 532, 635), "0");
 #else
-                        debug_assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647, 647));
-                        __assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647, 647), "0");
+                        debug_assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647, 647, 647));
+                        __assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647, 647, 647), "0");
 #endif
 #endif
 #endif
@@ -300,23 +312,23 @@ static int reg_clipPacketBoundingBox(PacHeader *pk)
     default:
         debug_StdPrintfDummy("illegal clip type. %d\n", type);
 #ifdef VERSION_JUN26
-        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 676));
-        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 676), "0");
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 676, 635));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 676, 635), "0");
         break;
     }
     if (scissorSw != 0 && ret == 2) {
         ret = 1;
 #else
 #ifdef VERSION_NTSC
-        debug_assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815, 815));
-        __assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815, 815), "0");
+        debug_assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815, 815, 815));
+        __assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815, 815, 815), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776, 635));
-        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776, 635), "0");
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776, 635, 635));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776, 635, 635), "0");
 #else
-        debug_assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821, 821));
-        __assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821, 821), "0");
+        debug_assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821, 821, 821));
+        __assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821, 821, 821), "0");
 #endif
 #endif
         break;
@@ -1055,19 +1067,19 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
     } else {
         debug_StdPrintfDummy("no light calc cluster model %s\n", o->model);
 #ifdef VERSION_NTSC
-        debug_assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230, 1230));
-        __assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230, 1230), "0");
+        debug_assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230, 1230, 1230));
+        __assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230, 1230, 1230), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181, 635));
-        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181, 635), "0");
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181, 635, 635));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181, 635, 635), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 1095));
-        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 1095), "0");
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 1095, 635));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 1095, 635), "0");
 #else
-        debug_assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238, 1238));
-        __assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238, 1238), "0");
+        debug_assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238, 1238, 1238));
+        __assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238, 1238, 1238), "0");
 #endif
 #endif
 #endif

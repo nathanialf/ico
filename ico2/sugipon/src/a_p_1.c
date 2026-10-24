@@ -28,7 +28,7 @@
 extern short GetTableArcCos(float x);
 #else
 /* int (float) here, short (float) in tableSin.h: the ROM needs int, as
-   declared short this object differs at 0x001C37D8 (JPN 0x001C3550, KOR 0x001C35E8; quaternion.c's slerp
+   declared short this object differs at 0x001C37D8 (JPN 0x001C3550, KOR 0x001C35E8, CN 0x001C35B8; quaternion.c's slerp
    declares it short and matches) */
 extern int GetTableArcCos(float x);
 /* as in tableSin.h, which this file does not include */
@@ -212,7 +212,7 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
     int i;
 
     p = iosMallocDebug(ios_partition_sugipon, sizeof(AP1Work), a_p_1File,
-                       LN(228, 228, 228, 228, 228, 218));
+                       LN(228, 228, 228, 228, 228, 218, 228));
     GOBJ_SUB(self)->work = p;
     p->layout = arg->obj;
     p->skel = 1;
@@ -263,9 +263,9 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         p->arm[0]->nodeMtx = 0;
         p->arm[0]->nodeQuat = 0;
         p->arm[0]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File,
-                                                 LN(261, 261, 261, 261, 261, 249));
+                                                 LN(261, 261, 261, 261, 261, 249, 261));
         p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File,
-                                                  LN(261, 261, 261, 261, 261, 249));
+                                                  LN(261, 261, 261, 261, 261, 249, 261));
         p->arm[0]->nodeNum = 4;
         if (p->arm[0]->nodes != 0) {
 #ifdef VERSION_JUN26
@@ -274,8 +274,8 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
             iosFree((void *)((int)p->arm[0]->nodes & 0xFFFFFFF));
 #endif
         }
-        p->arm[0]->nodes =
-            iosMallocDebug(ios_partition_seki, 320, a_p_1File, LN(261, 261, 261, 261, 261, 249));
+        p->arm[0]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File,
+                                          LN(261, 261, 261, 261, 261, 249, 261));
         {
             int n;
 
@@ -318,9 +318,9 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         p->arm[1]->nodeMtx = 0;
         p->arm[1]->nodeQuat = 0;
         p->arm[1]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File,
-                                                 LN(264, 264, 264, 264, 264, 252));
+                                                 LN(264, 264, 264, 264, 264, 252, 264));
         p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File,
-                                                  LN(264, 264, 264, 264, 264, 252));
+                                                  LN(264, 264, 264, 264, 264, 252, 264));
         p->arm[1]->nodeNum = 4;
         if (p->arm[1]->nodes != 0) {
 #ifdef VERSION_JUN26
@@ -329,8 +329,8 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
             iosFree((void *)((int)p->arm[1]->nodes & 0xFFFFFFF));
 #endif
         }
-        p->arm[1]->nodes =
-            iosMallocDebug(ios_partition_seki, 320, a_p_1File, LN(264, 264, 264, 264, 264, 252));
+        p->arm[1]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File,
+                                          LN(264, 264, 264, 264, 264, 252, 264));
         {
             int n;
 
@@ -355,8 +355,9 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         for (i = 0; i < 9; i++) {
             p->focus[i] = GetSkeltonFocusNode(self, *(int *)((char *)ap1FocusNode + i * 4));
             if (p->focus[i] == -1) {
-                debug_assertMessage(a_p_1File, LN(269, 269, 269, 269, 269, 257), warningBanner);
-                __assert(a_p_1File, LN(269, 269, 269, 269, 269, 257), "e");
+                debug_assertMessage(a_p_1File, LN(269, 269, 269, 269, 269, 257, 269),
+                                    warningBanner);
+                __assert(a_p_1File, LN(269, 269, 269, 269, 269, 257, 269), "e");
             }
         }
         p->arm[1] = 0;

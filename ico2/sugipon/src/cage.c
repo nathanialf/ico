@@ -134,7 +134,7 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
 #else
     w = (CageWork *)iosMallocDebug(ios_partition_sugipon, 80, __FILE__, 97);
 #endif
-    ch = iosMallocDebug(ios_partition_sugipon, 160, __FILE__, LN(98, 98, 98, 98, 98, 96));
+    ch = iosMallocDebug(ios_partition_sugipon, 160, __FILE__, LN(98, 98, 98, 98, 98, 96, 98));
     w->dobj =
         CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model, lay);
     w->dobj2 =
@@ -189,10 +189,10 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
 #endif
     }
     *(char **)((char *)w->dobj + 0x10) = *(char **)((char *)w->dobj + 0xC) = 0;
-    *(void **)((char *)w->dobj + 0xC) = iosMallocDebug(ios_partition_seki, w->linkCount << 6,
-                                                       __FILE__, LN(128, 128, 128, 128, 128, 125));
-    *(void **)((char *)w->dobj + 0x10) = iosMallocDebug(ios_partition_seki, w->linkCount << 4,
-                                                        __FILE__, LN(128, 128, 128, 128, 128, 125));
+    *(void **)((char *)w->dobj + 0xC) = iosMallocDebug(
+        ios_partition_seki, w->linkCount << 6, __FILE__, LN(128, 128, 128, 128, 128, 125, 128));
+    *(void **)((char *)w->dobj + 0x10) = iosMallocDebug(
+        ios_partition_seki, w->linkCount << 4, __FILE__, LN(128, 128, 128, 128, 128, 125, 128));
     w->dobj->nodeNum = w->linkCount;
     if (w->dobj->nodes != 0) {
 #ifdef VERSION_JUN26
@@ -202,7 +202,7 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
 #endif
     }
     w->dobj->nodes = iosMallocDebug(ios_partition_seki, w->linkCount * 80, __FILE__,
-                                    LN(128, 128, 128, 128, 128, 125));
+                                    LN(128, 128, 128, 128, 128, 125, 128));
     for (i = 0; i < w->linkCount; i++) {
         {
             struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);

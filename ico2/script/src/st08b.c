@@ -379,7 +379,7 @@ void actSt08bKurenSwitch(GObj *volatile self)
     if (gflagChk(71) != 0) {
         scpAdpcmPlayRequestFunc(53, &h, 1, 1, 1);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -438,7 +438,7 @@ void actSt08bKurenSwitch(GObj *volatile self)
             scpPlayMot(girlGObj, 521);
             if (gflagChk(71) != 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(366, 1, frame - 60);
 #else
         stage_SetAnimation(370, 1, frame - 60);
@@ -474,7 +474,7 @@ void actSt08bKurenSwitch(GObj *volatile self)
         GOBJ_SUB(girlGObj)->root.footPos[1] = p1.f[1];
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(366, frame, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(370, frame, 1) == 0) {
@@ -496,7 +496,7 @@ void actSt08bKurenSwitch(GObj *volatile self)
     } else {
         gflagOn(71);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -536,7 +536,7 @@ void actSt08bKurenLeft(GObj *volatile self)
 #else
     ReviveAllCarryableItemsWithNonSleepFrame(300);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(366, 1, 0);
 #else
     stage_SetAnimation(370, 1, 0);
@@ -545,7 +545,7 @@ void actSt08bKurenLeft(GObj *volatile self)
     scpSearchGobj(365)->active = 0;
     scpSearchGobj(364)->active = 1;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(366, 5, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(370, 5, 0) == 0) {
@@ -556,7 +556,7 @@ void actSt08bKurenLeft(GObj *volatile self)
     _ACTWait(1);
     iosPadActRequest(boyPad, 16);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(366, 215, 0) == 0) {
 #else
 #ifdef VERSION_JUN26
@@ -570,7 +570,7 @@ void actSt08bKurenLeft(GObj *volatile self)
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(366, 465, 0) == 0) {
 #else
 #ifdef VERSION_JUN26
@@ -598,13 +598,13 @@ void actSt08bKurenRight(GObj *volatile self)
 #else
     ReviveAllCarryableItemsWithNonSleepFrame(300);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(366, 1, 511);
 #else
     stage_SetAnimation(370, 1, 511);
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(366, 732, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(370, 732, 0) == 0) {
@@ -615,7 +615,7 @@ void actSt08bKurenRight(GObj *volatile self)
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(366, 822, 0) == 0) {
 #else
 #ifdef VERSION_JUN26
@@ -629,7 +629,7 @@ void actSt08bKurenRight(GObj *volatile self)
     _ACTWait(1);
     iosPadActRequest(boyPad, 17);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(366, 995, 0) == 0) {
 #else
 #ifdef VERSION_JUN26
@@ -683,7 +683,7 @@ void actSt08bDoor(GObj *volatile self)
 
     if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(368, 0, 0);
 #else
 #ifdef VERSION_NTSC
@@ -720,7 +720,7 @@ void actSt08bDoor(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(367, 0, 0);
 #else
         stage_SetAnimation(371, 0, 0);
@@ -910,7 +910,7 @@ void actSt08bDoorUpChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(367, 1, 0);
 #else
 #ifdef VERSION_AUG6
@@ -950,7 +950,7 @@ void actSt08bDoorUpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(367) == 0) {
 #else
     while (stage_CheckAnimationFinish(371) == 0) {
@@ -1249,7 +1249,7 @@ void actSt08bDoorDownChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(-1189.0f, -2326.0f, -408.0f, 100.0f);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(368, 1, 0);
 #else
     stage_SetAnimation(372, 1, 0);
@@ -1263,7 +1263,7 @@ void actSt08bDoorDownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(368) == 0) {
 #else
     while (stage_CheckAnimationFinish(372) == 0) {

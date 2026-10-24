@@ -400,8 +400,8 @@ inline int direction_across_bridge(WayGroup *bridge, int gid)
     e2 = &way_point[bridge->end[1]];
     if (e2->group != gid) {
         debug_StdPrintfDummy("abnormal bridge\n");
-        debug_assert(wayUtilFile, LN(706, 706, 706, 706, 706, 663));
-        __assert(wayUtilFile, LN(706, 706, 706, 706, 706, 663), "0");
+        debug_assert(wayUtilFile, LN(706, 706, 706, 706, 706, 663, 706));
+        __assert(wayUtilFile, LN(706, 706, 706, 706, 706, 663, 706), "0");
     }
     return 0;
 }

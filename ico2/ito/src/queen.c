@@ -1114,7 +1114,7 @@ static const int genEnemyLayoutDefault[6] = {3234, 3235, 3236, 3237, 3238, 3239}
 #else
 static const int genEnemyLayoutSt25[6] = {2152, 2153, 2154, 2155, 2156, 2157}; /* derived name */
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 static const int genEnemyLayoutDefault[6] = {3512, 3513, 3514, 3515, 3516, 3517}; /* derived name */
 #else
 static const int genEnemyLayoutDefault[6] = {3535, 3536, 3537, 3538, 3539, 3540}; /* derived name */
@@ -1278,7 +1278,7 @@ void gene_enemy(volatile int g)
                             }
                             Generator_Call(obj);
                             _ACTWait(1);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                             while (stage_CheckAnimationFinish(502) == 0) {
 #else
 #ifdef VERSION_AUG6
@@ -1884,7 +1884,7 @@ static const int barrierLayoutDefault[] = {3065}; /* derived name */
 #else
 static const int barrierLayoutSt25[] = {2150}; /* derived name */
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 static const int barrierLayoutDefault[] = {3504}; /* derived name */
 #else
 static const int barrierLayoutDefault[] = {3527}; /* derived name */
@@ -1929,10 +1929,10 @@ void *InitQueenGeo(GObj *g)
 
 #ifdef VERSION_NTSC
     w = iosMallocDebug(ios_partition_sugipon, sizeof(QueenWork), queenFile,
-                       LN(727, 727, 727, 727, 727, 727));
+                       LN(727, 727, 727, 727, 727, 727, 727));
 #else
     w = iosMallocDebug(ios_partition_sugipon, sizeof(QueenWork), queenFile,
-                       LN(732, 732, 732, 732, 709, 706));
+                       LN(732, 732, 732, 732, 709, 706, 732));
 #endif
     memset(w, 0, sizeof(QueenWork));
     for (i = 3; i >= 0; i--) {
@@ -1977,7 +1977,7 @@ void QueenGeo(GObj *g)
         queenFrame++;
     }
     ExecMotionOrient(g);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     SetActressLight(g, 35, 44, 468);
 #else
 #ifdef VERSION_NTSC
@@ -2488,7 +2488,7 @@ void QueenBallGeo(GObj *g)
             GetRootPosition(objPos.f, o);
             hit |= CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 130, 300.0f, -120, 600.0f);
             bga = &queenBga[i];
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             CheckQueenBallRing(bga, 478, (QVec *)m[3], &objPos, r);
 #else
             CheckQueenBallRing(bga, 482, (QVec *)m[3], &objPos, r);
@@ -2505,7 +2505,7 @@ void QueenBallGeo(GObj *g)
                 GetRootPosition(objPos.f, sword);
                 hit |=
                     CheckQueenBallBox(&objPos, (QVec *)m[3], &queenPos, 75, 300.0f, -150, 500.0f);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 CheckQueenBallRing(&queenBga[2], 480, (QVec *)m[3], &objPos, r);
 #else
                 CheckQueenBallRing(&queenBga[2], 484, (QVec *)m[3], &objPos, r);
@@ -2521,7 +2521,7 @@ void QueenBallGeo(GObj *g)
     if (w->attacked != 0) {
         w->attacked = 0;
         w->live = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         pbga_start(&w->bga, 475);
 #else
         pbga_start(&w->bga, 479);
@@ -2589,7 +2589,7 @@ void QueenBallDL(GObj *g)
         p2o_DispVU1Default(g);
     }
     if (w->bga != 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetScale(475, w->scale);
 #else
         stage_SetScale(479, w->scale);
@@ -2611,7 +2611,7 @@ void QueenBallDL(GObj *g)
         if ((o = *q) != 0) {
             long long id = *(long long *)o & 0x3FFF;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             if (id == 479 || id == 481) {
 #else
             if (id == 483 || id == 485) {
@@ -2790,10 +2790,10 @@ void *InitQueenBarrierGeo(GObj *g)
 
 #ifdef VERSION_NTSC
     w = iosMallocDebug(ios_partition_sugipon, sizeof(QueenBarrierWork), queenFile,
-                       LN(986, 986, 986, 986, 986, 986));
+                       LN(986, 986, 986, 986, 986, 986, 986));
 #else
     w = iosMallocDebug(ios_partition_sugipon, sizeof(QueenBarrierWork), queenFile,
-                       LN(991, 991, 991, 991, 949, 942));
+                       LN(991, 991, 991, 991, 949, 942, 991));
 #endif
     memset(w, 0, sizeof(QueenBarrierWork));
     ext->work = w;
@@ -2860,10 +2860,10 @@ void *InitQueenBallGeo(GObj *g)
 
 #ifdef VERSION_NTSC
     w = iosMallocDebug(ios_partition_sugipon, sizeof(QueenBallWork), queenFile,
-                       LN(1268, 1268, 1268, 1268, 1268, 1268));
+                       LN(1268, 1268, 1268, 1268, 1268, 1268, 1268));
 #else
     w = iosMallocDebug(ios_partition_sugipon, sizeof(QueenBallWork), queenFile,
-                       LN(1284, 1284, 1284, 1284, 1230, 1218));
+                       LN(1284, 1284, 1284, 1284, 1230, 1218, 1284));
 #endif
     ext->work = w;
     memset(w, 0, sizeof(QueenBallWork));

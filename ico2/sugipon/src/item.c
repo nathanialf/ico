@@ -161,11 +161,11 @@ void HoldItem(GObj *gobj, GObj *holder)
         /* lost sight of the small barrel but is still trying to grab it */
         debug_StdPrintfDummy("小樽を見失ったのにつかもうとしてます。\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(344, 344, 344, 344, 344, 344));
-        __assert(__FILE__, LN(344, 344, 344, 344, 344, 344), "0");
+        debug_assert(__FILE__, LN(344, 344, 344, 344, 344, 344, 344));
+        __assert(__FILE__, LN(344, 344, 344, 344, 344, 344, 344), "0");
 #else
-        debug_assert(__FILE__, LN(356, 356, 356, 356, 344, 312));
-        __assert(__FILE__, LN(356, 356, 356, 356, 344, 312), "0");
+        debug_assert(__FILE__, LN(356, 356, 356, 356, 344, 312, 356));
+        __assert(__FILE__, LN(356, 356, 356, 356, 344, 312, 356), "0");
 #endif
     }
     p = GOBJ_SUB(gobj)->work;
@@ -278,7 +278,7 @@ void ThrowItem(GObj *gobj, void *vel)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
     SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_NTSC)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
 #else
     _ScaleVectorXYZ(*(char **)&gobj->dobj + 0x130, vel,
@@ -308,10 +308,10 @@ char *InitItemGeo(GObj *gobj, ItemLayout *layout)
     Sub15C *w = GOBJ_SUB(gobj);
 #ifdef VERSION_NTSC
     ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__,
-                                 LN(434, 434, 434, 434, 434, 434));
+                                 LN(434, 434, 434, 434, 434, 434, 434));
 #else
     ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__,
-                                 LN(446, 446, 446, 446, 434, 382));
+                                 LN(446, 446, 446, 446, 434, 382, 446));
 #endif
 
     GOBJ_SUB(gobj)->work = p;
@@ -466,7 +466,7 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir, int arg)
     float rot[4];
     float d[4];
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (id != 949) {
 #else
     if (id != 972) {
@@ -746,7 +746,7 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
     if (5.0f < len) {
         int id = itemKind[p->kind].stayAnim;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (id != 949) {
 #else
 #ifdef VERSION_AUG6
@@ -918,7 +918,7 @@ static void uncarriedItemGeo(GObj *gobj)
             if (p->wave == 0) {
                 CopyVector(q, pos);
                 q[1] = GOBJ_SUB(gobj)->ctrl.waterY;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 EntryStageMultiBgaManager(488, q, IdentityQuaternion);
 #else
                 EntryStageMultiBgaManager(492, q, IdentityQuaternion);
@@ -1151,7 +1151,7 @@ static void execBombGeo(GObj *gobj)
         GetRootPosition(q->pos, gobj);
         AttackCenter(gobj, 19, q->pos, 0, 100.0f);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetLoopFlag(507, 0);
         stage_SetFrameStep(507, 1);
 #else
@@ -1168,7 +1168,7 @@ static void execBombGeo(GObj *gobj)
         rec->released = 0;
         StopSEPackage(gobj);
         bombExplodeSE(gobj);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_KillPlayBgAnimationIfOverMaxCount(507, 1);
         q->anim = stage_MakePlayBgAnimation(507);
 #else

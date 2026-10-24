@@ -3,7 +3,7 @@
 #include "access.h"
 
 /* the path sprintf builds and this file hands back */
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_JUN26)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_JUN26)
 static char accessPath[512]; /* derived name */
 #else
 static char accessPath[528]; /* derived name */

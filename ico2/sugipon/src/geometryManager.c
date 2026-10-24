@@ -278,11 +278,11 @@ void LocalizeGeometry(GObj *gobj, ObjNode *link)
     m = &sub->root;
     if (sub->parent.obj != 0) {
         debug_assertMessage(
-            "src/geometryManager.c", LN(371, 371, 371, 371, 355, 359),
+            "src/geometryManager.c", LN(371, 371, 371, 371, 355, 359, 371),
             "Fatal error! Geometry localize function called with GObj\n    that already have parent.\nExit...\n");
-        __assert("src/geometryManager.c", LN(371, 371, 371, 371, 355, 359), "e");
-        debug_assert("src/geometryManager.c", LN(372, 372, 372, 372, 356, 360));
-        __assert("src/geometryManager.c", LN(372, 372, 372, 372, 356, 360), "0");
+        __assert("src/geometryManager.c", LN(371, 371, 371, 371, 355, 359, 371), "e");
+        debug_assert("src/geometryManager.c", LN(372, 372, 372, 372, 356, 360, 372));
+        __assert("src/geometryManager.c", LN(372, 372, 372, 372, 356, 360, 372), "0");
     }
 
     m->pos[3] = 1.0f;
@@ -470,15 +470,15 @@ void MakeCharGObjList(void)
         if (isCharGObj(o) != 0) {
             charGObjList[charGObjCount++] = o;
             if (charGObjCount > 64) {
-                debug_assertMessage("src/geometryManager.c", LN(558, 558, 558, 558, 542, 546),
+                debug_assertMessage("src/geometryManager.c", LN(558, 558, 558, 558, 542, 546, 558),
                                     "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n");
 #ifdef VERSION_AUG6
-                __assert("src/geometryManager.c", LN(371, 371, 371, 371, 542, 371), "e");
+                __assert("src/geometryManager.c", LN(371, 371, 371, 371, 542, 371, 371), "e");
 #else
 #ifdef VERSION_JUN26
-                __assert("src/geometryManager.c", LN(371, 371, 371, 371, 355, 546), "e");
+                __assert("src/geometryManager.c", LN(371, 371, 371, 371, 355, 546, 371), "e");
 #else
-                __assert("src/geometryManager.c", LN(558, 558, 558, 558, 558, 558), "e");
+                __assert("src/geometryManager.c", LN(558, 558, 558, 558, 558, 558, 558), "e");
 #endif
 #endif
             }

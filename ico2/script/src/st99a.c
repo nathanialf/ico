@@ -168,7 +168,7 @@ void actSpider(GObj *volatile self)
     Act *act = actInitialize(self);
     _ACTWait(1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetLoopFlag(156, 1);
     stage_SetAnimation(156, 1, 0);
 #else
@@ -215,7 +215,7 @@ void actDevilLightning(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3490, 0, 550, 0);
 #else
 #ifdef VERSION_NTSC
@@ -239,7 +239,7 @@ void actQueenLightning(GObj *volatile self)
 #ifdef VERSION_AUG6
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3211, 0, 483, 0);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(3489, 0, 551, 0);
 #else
 #ifdef VERSION_NTSC
@@ -256,7 +256,7 @@ void actSt17aTest(GObj *volatile self)
     Act *act = actInitialize(self);
     _ACTWait(1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(128, 0, 0);
 #else
 #ifdef VERSION_NTSC
@@ -365,7 +365,7 @@ void actExplodeChk(GObj *volatile self)
     scpLinkBGAtoLayoutedTarget(2613, 403);
     while (stage_CheckAnimationFinish(403) == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     GOBJ_SUB(scpSearchGobj(3010))->ctrl.noStand = 1;
     GOBJ_SUB(scpSearchGobj(3010))->ctrl.noStand = 0;
 #else
@@ -374,7 +374,7 @@ void actExplodeChk(GObj *volatile self)
 #endif
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(507, 1, 0);
     scpLinkBGAtoLayoutedTarget(3010, 507);
     while (stage_CheckAnimationFinish(507) == 0) {
@@ -410,7 +410,7 @@ void actSplash1Chk(GObj *volatile self)
     scpLinkBGAtoLayoutedTarget(2614, 391);
     while (stage_CheckAnimationFinish(391) == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     GOBJ_SUB(scpSearchGobj(3011))->ctrl.noStand = 1;
     GOBJ_SUB(scpSearchGobj(3011))->ctrl.noStand = 0;
 #else
@@ -419,7 +419,7 @@ void actSplash1Chk(GObj *volatile self)
 #endif
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(494, 1, 0);
     scpLinkBGAtoLayoutedTarget(3011, 494);
     while (stage_CheckAnimationFinish(494) == 0) {
@@ -455,7 +455,7 @@ void actSplash2Chk(GObj *volatile self)
     scpLinkBGAtoLayoutedTarget(2615, 392);
     while (stage_CheckAnimationFinish(392) == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     GOBJ_SUB(scpSearchGobj(3012))->ctrl.noStand = 1;
     GOBJ_SUB(scpSearchGobj(3012))->ctrl.noStand = 0;
 #else
@@ -464,7 +464,7 @@ void actSplash2Chk(GObj *volatile self)
 #endif
     scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
     _ACTWait(60);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(495, 1, 0);
     scpLinkBGAtoLayoutedTarget(3012, 495);
     while (stage_CheckAnimationFinish(495) == 0) {
@@ -518,25 +518,25 @@ void actWave1(GObj *volatile self)
         _ACTWait(179);
         stage_SetAnimation(413, 1, 0);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(515, 1, 0);
 #else
         stage_SetAnimation(519, 1, 0);
 #endif
         _ACTWait(179);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(516, 1, 0);
 #else
         stage_SetAnimation(520, 1, 0);
 #endif
         _ACTWait(179);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(517, 1, 0);
 #else
         stage_SetAnimation(521, 1, 0);
 #endif
         _ACTWait(179);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(518, 1, 0);
 #else
         stage_SetAnimation(522, 1, 0);
@@ -586,25 +586,25 @@ void actSt27aWave1(GObj *volatile self)
         _ACTWait(200);
         stage_SetAnimation(175, 1, 0);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(190, 1, 0);
 #else
         stage_SetAnimation(194, 1, 0);
 #endif
         _ACTWait(200);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(191, 1, 0);
 #else
         stage_SetAnimation(195, 1, 0);
 #endif
         _ACTWait(200);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(192, 1, 0);
 #else
         stage_SetAnimation(196, 1, 0);
 #endif
         _ACTWait(200);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(193, 1, 0);
 #else
         stage_SetAnimation(197, 1, 0);
@@ -634,7 +634,7 @@ static void actSt17aTestChk(GObj *volatile self)
         while ((pad[1].flags & 0x20) == 0) {
             _ACTWait(1);
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(80, 1, 0);
 #else
 #ifdef VERSION_NTSC

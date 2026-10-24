@@ -2817,7 +2817,7 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     int kind;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(GirlWork), __FILE__,
-                       LN(680, 680, 680, 680, 680, 680));
+                       LN(680, 680, 680, 680, 680, 680, 680));
     kind = csv->obj;
     w->cloth3 = 0;
 #else
@@ -2827,7 +2827,7 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     int kind;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(GirlWork), __FILE__,
-                       LN(892, 892, 892, 892, 674, 617));
+                       LN(892, 892, 892, 892, 674, 617, 892));
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     kind = csv->obj;
     w->cloth3 = 0;
@@ -2910,7 +2910,7 @@ void GirlGeo(GObj *gobj)
 
     HandManager(gobj);
     ExecMotionOrient(gobj);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     SetActressLight(gobj, 35, 44, 466);
 #else
 #ifdef VERSION_NTSC

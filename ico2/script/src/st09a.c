@@ -299,13 +299,13 @@ void actSt09aInit(void)
 void actSt09aInit(void)
 {
     if (gflagChk(86) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(374, 0, 0);
 #else
         stage_SetAnimation(378, 0, 0);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(374, 0, -1);
 #else
         stage_SetAnimation(378, 0, -1);
@@ -450,14 +450,14 @@ void actSt09aElvDown(GObj *volatile self)
        the animation wait and read again for soundSeDefStop */
     volatile int se;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
 #endif
     LockForceGroundParent(boyGObj);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(371, 1, 0);
 #else
     stage_SetAnimation(375, 1, 0);
@@ -467,7 +467,7 @@ void actSt09aElvDown(GObj *volatile self)
 
     gflagOn(83);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(371, 210, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(375, 210, 1) == 0) {
@@ -480,7 +480,7 @@ void actSt09aElvDown(GObj *volatile self)
 
     UnlockForceGroundParent(boyGObj);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -496,7 +496,7 @@ void actSt09aBrgDown(GObj *volatile self)
 {
     GProc *th;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -529,7 +529,7 @@ void actSt09aBrgDown(GObj *volatile self)
             _ACTWait(1);
         }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(374, 0, -1);
 #else
         stage_SetAnimation(378, 0, -1);
@@ -541,7 +541,7 @@ void actSt09aBrgDown(GObj *volatile self)
         }
     }
     scpBoyControlReadDisable = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -569,13 +569,13 @@ void actSt09aElv(GObj *volatile self)
         stage_SetAnimation(306, 0, 0);
 #else
     if (gflagChk(83) != 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(371, 0, 210);
 #else
         stage_SetAnimation(375, 0, 210);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(371, 0, 0);
 #else
         stage_SetAnimation(375, 0, 0);
@@ -609,7 +609,7 @@ void actSt09aSekizo(GObj *volatile self)
     soundSeDefPlay(1347, 0, sekizoPos, 1);
     soundSeDefPlay(1348, 0, sekizoPos, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     scpSekizou(self, 84, 372, 0, 18, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
 #else
     scpSekizou(self, 84, 376, 0, 18, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
@@ -850,13 +850,13 @@ void actSt09aElvUp(GObj *volatile self)
 
     while (stage_CheckAnimationFrame(306, 420, 1) == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(371, 1, 211);
 #else
     stage_SetAnimation(375, 1, 211);
@@ -866,7 +866,7 @@ void actSt09aElvUp(GObj *volatile self)
 
     gflagOff(83);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(371, 420, 1) == 0) {
 #else
     while (stage_CheckAnimationFrame(375, 420, 1) == 0) {
@@ -879,7 +879,7 @@ void actSt09aElvUp(GObj *volatile self)
 
     soundSeDefStop(se);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
@@ -940,7 +940,7 @@ void actSt09aIntroChk(GObj *volatile self)
     lt_switch_layout(51);
     gflagOn(76);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -962,13 +962,13 @@ void actSt09aIntroChk(GObj *volatile self)
 
     while (stage_CheckAnimationFinish(308) == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(373, 1, 0);
 #else
     stage_SetAnimation(377, 1, 0);
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(373) == 0) {
 #else
     while (stage_CheckAnimationFinish(377) == 0) {
@@ -979,7 +979,7 @@ void actSt09aIntroChk(GObj *volatile self)
     }
     _ACTWait(1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
@@ -1036,13 +1036,13 @@ void actSt09aBrgSwitch(GObj *volatile self)
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static void actSt09aBrgDownSub(GObj *volatile self)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(374, 1, 0);
 #else
     stage_SetAnimation(378, 1, 0);
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(374, 115, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(378, 115, 0) == 0) {
@@ -1053,7 +1053,7 @@ static void actSt09aBrgDownSub(GObj *volatile self)
 
     iosPadActRequest(boyPad, 17);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(374, 165, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(378, 165, 0) == 0) {
@@ -1064,7 +1064,7 @@ static void actSt09aBrgDownSub(GObj *volatile self)
 
     iosPadActRequest(boyPad, 16);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(374) == 0) {
 #else
     while (stage_CheckAnimationFinish(378) == 0) {

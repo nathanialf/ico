@@ -721,8 +721,8 @@ int debug_WayTool(void)
     if (cursorGObj != 0) {
         if (first_waytool == 0) {
 #ifdef VERSION_NTSC
-            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__,
-                                                        LN(1194, 1194, 1194, 1194, 1194, 1194));
+            *(void **)&cursorGObj->act = iosMallocDebug(
+                ios_partition_seki, 0x840, __FILE__, LN(1194, 1194, 1194, 1194, 1194, 1194, 1194));
 #else
 #ifdef VERSION_AUG6
             *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__, 1180);

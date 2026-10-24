@@ -119,8 +119,8 @@ typedef struct LtProperty { /* field names derived */
     int texNo;     /* 0x1C, the texture tex_TransTexture sends */
     int up;        /* 0x20, lt_link_layout's layout for direction 3 */
     int down;      /* 0x24, for direction 2 */
-    int left; /* 0x28, for direction 1, and the layout a triangle (JPN and KOR cross) switches to */
-    int right; /* 0x2C, for direction 0, and the layout a cross (JPN and KOR circle) switches to */
+    int left; /* 0x28, for direction 1, and the layout a triangle (JPN, KOR and CN cross) switches to */
+    int right; /* 0x2C, for direction 0, and the layout a cross (JPN, KOR and CN circle) switches to */
     int rightItem; /* 0x30, the item the pad's right moves to, -1 for none */
     int leftItem;  /* 0x34 */
     int downItem;  /* 0x38 */
@@ -138,7 +138,7 @@ typedef struct LtProperty { /* field names derived */
     int texV;      /* 0x68 */
     /* 0x6C: the flag word, declared as bits */
     unsigned int selectMode
-        : 2; /* 1: a cross (JPN and KOR circle) on the item takes the long fade */
+        : 2; /* 1: a cross (JPN, KOR and CN circle) on the item takes the long fade */
     unsigned int fade_cancel : 1; /* drawn in the highlight colour */
     unsigned int selectable : 1;  /* dimmed when another item is selected, glows when it is */
     unsigned int masked : 1;      /* not drawn (lt_mask_property) */

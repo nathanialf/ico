@@ -106,9 +106,10 @@ void dl_Init(void)
             dlBufferHead[i][j] =
                 (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 428);
 #else
-            dlBufferHead[i][j] = (int)iosMallocDebug(ios_partition_common, dlBufferSize[j],
-                                                     __FILE__, LN(393, 393, 393, 393, 387, 393)) |
-                                 0x30000000;
+            dlBufferHead[i][j] =
+                (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__,
+                                    LN(393, 393, 393, 393, 387, 393, 393)) |
+                0x30000000;
 #endif
 #endif
         }
@@ -247,11 +248,11 @@ void dl_PushPriority(void)
     } else {
         debug_StdPrintfDummy("dl_PushPriority:Stack Overflow.\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(526, 526, 526, 526, 526, 526));
-        __assert(__FILE__, LN(526, 526, 526, 526, 526, 526), "FALSE");
+        debug_assert(__FILE__, LN(526, 526, 526, 526, 526, 526, 526));
+        __assert(__FILE__, LN(526, 526, 526, 526, 526, 526, 526), "FALSE");
 #else
-        debug_assert(__FILE__, LN(534, 534, 534, 534, 526, 575));
-        __assert(__FILE__, LN(534, 534, 534, 534, 526, 575), "FALSE");
+        debug_assert(__FILE__, LN(534, 534, 534, 534, 526, 575, 534));
+        __assert(__FILE__, LN(534, 534, 534, 534, 526, 575, 534), "FALSE");
 #endif
     }
 }
@@ -272,19 +273,19 @@ void dl_PopPriority(void)
     } else {
         debug_StdPrintfDummy("dl_PopPriority:Stack Underflow.\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(544, 544, 544, 544, 544, 544));
-        __assert(__FILE__, LN(544, 544, 544, 544, 544, 544), "FALSE");
+        debug_assert(__FILE__, LN(544, 544, 544, 544, 544, 544, 544));
+        __assert(__FILE__, LN(544, 544, 544, 544, 544, 544, 544), "FALSE");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(534, 534, 534, 534, 544, 534));
-        __assert(__FILE__, LN(534, 534, 534, 534, 544, 534), "FALSE");
+        debug_assert(__FILE__, LN(534, 534, 534, 534, 544, 534, 534));
+        __assert(__FILE__, LN(534, 534, 534, 534, 544, 534, 534), "FALSE");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(534, 534, 534, 534, 526, 597));
-        __assert(__FILE__, LN(534, 534, 534, 534, 526, 597), "FALSE");
+        debug_assert(__FILE__, LN(534, 534, 534, 534, 526, 597, 534));
+        __assert(__FILE__, LN(534, 534, 534, 534, 526, 597, 534), "FALSE");
 #else
-        debug_assert(__FILE__, LN(552, 552, 552, 552, 552, 552));
-        __assert(__FILE__, LN(552, 552, 552, 552, 552, 552), "FALSE");
+        debug_assert(__FILE__, LN(552, 552, 552, 552, 552, 552, 552));
+        __assert(__FILE__, LN(552, 552, 552, 552, 552, 552, 552), "FALSE");
 #endif
 #endif
 #endif

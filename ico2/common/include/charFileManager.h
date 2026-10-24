@@ -26,10 +26,10 @@ typedef struct {   /* field names derived */
     char path[32]; /* 0x00 */
 } TexRec;          /* derived name */
 #else
-/* texture-path: one texture file, 0x34 bytes (JPN and KOR 0x30, in .rodata). Readers:
+/* texture-path: one texture file, 0x34 bytes (JPN, KOR and CN 0x30, in .rodata). Readers:
  * ico2/common/src/charFileManager.c (TexRec, PAL), kanban.c, layout_texture.c.
  * Owner: ico2/common/include/charFileManager.h. */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 typedef struct {   /* field names derived */
     char path[48]; /* 0x00 */
 } TexRec;          /* derived name */
@@ -79,7 +79,7 @@ typedef struct PObjMdl { /* field names derived */
 } PObjMdl; /* derived name */
 
 /* the data-only members texture-path and model-path */
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
 extern const TexRec texFile[];
 #else
 #ifdef VERSION_JUN26

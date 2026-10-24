@@ -92,7 +92,7 @@ typedef struct GenWork { /* field names derived */
 } GenWork; /* derived name */
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 /* the generator packet: 11208 bytes, three per objLayout record, are read
    into it, which is what GetsizeGeneratorPacket returns, the whole buffer */
 static int generatorPacket[2802]; /* derived name */
@@ -406,11 +406,11 @@ static void endfunc_BGA(GObj *gobj)
 
     default:
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(478, 478, 478, 478, 478, 478));
-        __assert(__FILE__, LN(478, 478, 478, 478, 478, 478), "0");
+        debug_assert(__FILE__, LN(478, 478, 478, 478, 478, 478, 478));
+        __assert(__FILE__, LN(478, 478, 478, 478, 478, 478, 478), "0");
 #else
-        debug_assert(__FILE__, LN(504, 504, 504, 504, 437, 389));
-        __assert(__FILE__, LN(504, 504, 504, 504, 437, 389), "0");
+        debug_assert(__FILE__, LN(504, 504, 504, 504, 437, 389, 504));
+        __assert(__FILE__, LN(504, 504, 504, 504, 437, 389, 504), "0");
 #endif
         break;
     }
@@ -540,14 +540,14 @@ static GObj *IsNeedGeneratorHard(GObj *mother)
     int count = 0;
     int isCalling = (w->status == 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (mother != 0 && mother->labelId == 3735) {
 #else
     if (mother != 0 && mother->labelId == 3758) {
 #endif
         int found = 0;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         g = isysGObjSearchFromObjLayoutID(3734);
 #else
         g = isysGObjSearchFromObjLayoutID(3757);
@@ -631,7 +631,7 @@ static GObj *IsNeedGeneratorHard(GObj *mother)
         if (mother != 0) {
             if (mother->labelId == GetMotherGenerator(g->labelId)) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (g->labelId == 3734) {
 #else
         if (g->labelId == 3757) {
@@ -766,7 +766,7 @@ inline GObj *IsEnableCallEnemy(GObj *self)
         GenGeo *gg = &objLayout[no];
 
 #ifndef VERSION_JUN26
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (self != 0 && self->labelId == 3735 && no != 3734) {
 #else
 #ifdef VERSION_AUG6
@@ -894,7 +894,7 @@ inline void RestoreReviveCount(GObj *gobj)
         int lim = ((g->flags >> 5) & 0x1F) + 1;
         n = (lim < n) ? lim : n;
         g->reviveCount = n;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (gobj->labelId == 3734) {
 #else
 #ifdef VERSION_AUG6
@@ -1107,7 +1107,7 @@ int GetMotherGenerator(int label)
     int best;
     int ret;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (label == 3734) {
         return 3735;
 #else
@@ -1175,8 +1175,8 @@ void SetMotherGenerator(int no, int label)
             cnt++;
         }
     }
-    debug_assert(__FILE__, LN(504, 504, 504, 504, 437, 803));
-    __assert(__FILE__, LN(504, 504, 504, 504, 437, 803), "0");
+    debug_assert(__FILE__, LN(504, 504, 504, 504, 437, 803, 504));
+    __assert(__FILE__, LN(504, 504, 504, 504, 437, 803, 504), "0");
 }
 #else
 inline void SetMotherGenerator(int no, int label)
@@ -1184,7 +1184,7 @@ inline void SetMotherGenerator(int no, int label)
     int i;
     int cnt;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (no == 3734) {
 #else
 #ifdef VERSION_AUG6
@@ -1214,7 +1214,7 @@ inline void Generator_Init(void)
 {
     int i;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     for (i = 0; i < 3736; i++) {
 #else
 #ifdef VERSION_AUG6
@@ -1319,7 +1319,7 @@ void MakeGeneratorPacket(void)
 #else
 inline int GetsizeGeneratorPacket(void)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     return 11208;
 #else
 #ifdef VERSION_AUG6
@@ -1339,7 +1339,7 @@ void ReadGeneratorPacket(void)
     unsigned char *p = (unsigned char *)GetbufpGeneratorPacket();
     int i;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     for (i = 0; i < 3736; i++) {
 #else
 #ifdef VERSION_AUG6
@@ -1360,7 +1360,7 @@ void ReadGeneratorPacket(void)
         g->flags = (g->flags & ~0x200000) | ((b & 1) << 21);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     for (i = 0; i < 3736; i++) {
 #else
 #ifdef VERSION_AUG6
@@ -1379,7 +1379,7 @@ void ReadGeneratorPacket(void)
         g->flags = (g->flags & ~0x40000) | ((c & 1) << 18);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     for (i = 0; i < 3736; i++) {
 #else
 #ifdef VERSION_AUG6
@@ -1402,7 +1402,7 @@ void MakeGeneratorPacket(void)
     char *p = (char *)GetbufpGeneratorPacket();
     int i;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     for (i = 0; i < 3736; i++) {
 #else
 #ifdef VERSION_AUG6
@@ -1418,7 +1418,7 @@ void MakeGeneratorPacket(void)
         *p++ = (((int)(objLayout[i].flags << 18) >> 28) << 4) | ((objLayout[i].flags >> 21) & 1);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     for (i = 0; i < 3736; i++) {
 #else
 #ifdef VERSION_AUG6
@@ -1434,7 +1434,7 @@ void MakeGeneratorPacket(void)
         *p++ = (objLayout[i].flags >> 18) & 1;
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     for (i = 0; i < 3736; i++) {
 #else
 #ifdef VERSION_AUG6
@@ -1471,7 +1471,7 @@ inline void ResetReviveCountEnemy(GObj *gobj)
 
 inline void SetInfoSpKidnapEnemy(short *work)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     GenGeo *info = &objLayout[3734]; /* the kidnap enemy's layout record */
 #else
 #ifdef VERSION_NTSC
@@ -1576,10 +1576,10 @@ inline GenWork *InitGeneratorGeo(GObj *gobj, SObjSimpleSetting *src)
 {
 #ifdef VERSION_NTSC
     GenWork *p = iosMallocDebug(ios_partition_sugipon, 112, __FILE__,
-                                LN(1156, 1156, 1156, 1156, 1156, 1156));
+                                LN(1156, 1156, 1156, 1156, 1156, 1156, 1156));
 #else
     GenWork *p = iosMallocDebug(ios_partition_sugipon, 112, __FILE__,
-                                LN(1230, 1230, 1230, 1230, 1087, 1005));
+                                LN(1230, 1230, 1230, 1230, 1087, 1005, 1230));
 #endif
     int i;
 
@@ -1753,11 +1753,11 @@ void GeneratorGeo(GObj *gobj)
 
     default:
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(504, 504, 504, 504, 437, 1125));
-        __assert(__FILE__, LN(504, 504, 504, 504, 437, 1125), "0");
+        debug_assert(__FILE__, LN(504, 504, 504, 504, 437, 1125, 504));
+        __assert(__FILE__, LN(504, 504, 504, 504, 437, 1125, 504), "0");
 #else
-        debug_assert(__FILE__, LN(504, 504, 504, 504, 1213, 504));
-        __assert(__FILE__, LN(504, 504, 504, 504, 1213, 504), "0");
+        debug_assert(__FILE__, LN(504, 504, 504, 504, 1213, 504, 504));
+        __assert(__FILE__, LN(504, 504, 504, 504, 1213, 504, 504), "0");
 #endif
         break;
     }
@@ -1860,8 +1860,8 @@ void GeneratorGeo(GObj *gobj)
             break;
 
         default:
-            debug_assert(__FILE__, LN(1286, 1286, 1286, 1286, 1286, 1286));
-            __assert(__FILE__, LN(1286, 1286, 1286, 1286, 1286, 1286), "0");
+            debug_assert(__FILE__, LN(1286, 1286, 1286, 1286, 1286, 1286, 1286));
+            __assert(__FILE__, LN(1286, 1286, 1286, 1286, 1286, 1286, 1286), "0");
             break;
         }
 
@@ -1972,8 +1972,8 @@ void GeneratorGeo(GObj *gobj)
             break;
 
         default:
-            debug_assert(__FILE__, LN(1371, 1371, 1371, 1371, 1371, 1371));
-            __assert(__FILE__, LN(1371, 1371, 1371, 1371, 1371, 1371), "0");
+            debug_assert(__FILE__, LN(1371, 1371, 1371, 1371, 1371, 1371, 1371));
+            __assert(__FILE__, LN(1371, 1371, 1371, 1371, 1371, 1371, 1371), "0");
             break;
         }
 
@@ -2076,13 +2076,13 @@ void GeneratorDL(GObj *gobj)
         DispMultiBgaManagerWithKind(401, w->bga[2].p, 1);
         DispMultiBgaManagerWithKind(398, w->bga[3].p, 1);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         DispMultiBgaManagerWithKind(504, w->bga[1].p, 1);
 #else
         DispMultiBgaManagerWithKind(508, w->bga[1].p, 1);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         DispMultiBgaManagerWithKind(503, w->bga[0].p, 1);
         DispMultiBgaManagerWithKind(504, w->bga[1].p, 1);
         DispMultiBgaManagerWithKind(505, w->bga[2].p, 1);

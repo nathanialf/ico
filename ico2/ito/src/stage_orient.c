@@ -154,7 +154,7 @@ static const StageOrientDef stageOrientDefs[41] = {
 };
 
 /* the orient index each stage resolves to, -1 where the stage has none */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 static short stageOrientIdx[104]; /* derived name */
 #else
 static short stageOrientIdx[128]; /* derived name */
@@ -190,7 +190,7 @@ inline void StageOrientInit(void)
     int i, j;
     char buf[64];
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
     for (i = 0; i < 104; i++) {
 #else
     for (i = 0; i < 106; i++) {

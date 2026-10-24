@@ -211,9 +211,9 @@ void SetFallDownSplash(GObj *pool, GObj *self)
 
 #ifdef VERSION_AUG6
     if (w == 0) {
-        debug_assertMessage("src/pool.c", LN(254, 254, 254, 254, 254, 254),
+        debug_assertMessage("src/pool.c", LN(254, 254, 254, 254, 254, 254, 254),
                             "ATR_DWATER or ATR_WATER assigned to NON POOL.\n");
-        __assert("src/pool.c", LN(254, 254, 254, 254, 254, 254), "e");
+        __assert("src/pool.c", LN(254, 254, 254, 254, 254, 254, 254), "e");
     }
 #endif
 #ifdef VERSION_JUN26
@@ -240,7 +240,7 @@ void SetFallDownSplash(GObj *pool, GObj *self)
         setNodePursueParticleEffectWithUpperLimit(48, self, 47, pos[1]);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetLoopFlag(495, 0);
     stage_SetFrameStep(495, 1);
 #else
@@ -298,8 +298,8 @@ static int poolRideFunc(ObjNode *on, GObj *rider);
 #ifdef VERSION_NTSC
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
-    PoolWork *w =
-        iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", LN(315, 315, 315, 315, 315, 315));
+    PoolWork *w = iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c",
+                                 LN(315, 315, 315, 315, 315, 315, 315));
     int i;
     int j;
     int k;
@@ -317,11 +317,11 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
         w->step = lay->scale[1];
 
         w->height = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c",
-                                   LN(329, 329, 329, 329, 329, 329));
+                                   LN(329, 329, 329, 329, 329, 329, 329));
 
         for (i = 0; i < w->nx; i++) {
             w->height[i] = iosMallocDebug(ios_partition_sugipon, w->ny * 4, "src/pool.c",
-                                          LN(333, 333, 333, 333, 333, 333));
+                                          LN(333, 333, 333, 333, 333, 333, 333));
         }
 
         w->surface = prim_InitMesh3D(w->ny, w->nx, 1, 0x1C, (lay->obj & 0xFFFFFF00) | 0x80, 1);
@@ -330,7 +330,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 
         w->phase = 0;
         w->wire = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c",
-                                 LN(356, 356, 356, 356, 356, 356));
+                                 LN(356, 356, 356, 356, 356, 356, 356));
 
         for (j = 0; j < w->nx; j++) {
             w->wire[j] = w->reflect->pos + j * w->ny;
@@ -390,8 +390,8 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 #else
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
-    PoolWork *w =
-        iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", LN(316, 316, 316, 316, 309, 312));
+    PoolWork *w = iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c",
+                                 LN(316, 316, 316, 316, 309, 312, 316));
     int i;
     int j;
     int k;
@@ -409,11 +409,11 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
         w->step = lay->scale[1];
 
         w->height = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c",
-                                   LN(330, 330, 330, 330, 323, 326));
+                                   LN(330, 330, 330, 330, 323, 326, 330));
 
         for (i = 0; i < w->nx; i++) {
             w->height[i] = iosMallocDebug(ios_partition_sugipon, w->ny * 4, "src/pool.c",
-                                          LN(334, 334, 334, 334, 327, 330));
+                                          LN(334, 334, 334, 334, 327, 330, 334));
         }
 
         w->surface = prim_InitMesh3D(w->ny, w->nx, 1, 0x1C, (lay->obj & 0xFFFFFF00) | 0x80, 1);
@@ -422,7 +422,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 
         w->phase = 0;
         w->wire = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c",
-                                 LN(357, 357, 357, 357, 350, 353));
+                                 LN(357, 357, 357, 357, 350, 353, 357));
 
         for (j = 0; j < w->nx; j++) {
             w->wire[j] = w->reflect->pos + j * w->ny;
@@ -798,7 +798,7 @@ static void dispPool(GObj *self)
 
     _SetCurrentMatrix(matrixptr + 0x100);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     if (debug_snapshot_reserve == 0) {
         prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
     }
@@ -831,7 +831,7 @@ static void dispPool(GObj *self)
     CopyMatrix(m4, (char *)(matrixptr + 0x340));
 
 #endif
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
     debug_snapshot_reserve--;
 #endif
 #ifdef VERSION_NTSC
@@ -854,7 +854,7 @@ static void dispPool(GObj *self)
     if (w->dobj != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), &w->dobj->matrix);
         switch (stage_no) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
         case 99:
 #else
 #ifdef VERSION_JUN26
@@ -902,7 +902,7 @@ static void dispPool(GObj *self)
     vsWidth = ScreenWidth;
     vsHeight = ScreenHeight;
 #endif
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     debug_snapshot_reserve++;
 #endif
 #ifdef VERSION_NTSC
@@ -951,7 +951,7 @@ void PoolDL(GObj *self)
 {
     PoolWork *w = GOBJ_SUB(self)->work;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     DispMultiBgaManagerWithKind(494, w->bga, 10);
     DispMultiBgaManagerWithKind(495, w->splash, 2);
 #else
@@ -994,13 +994,13 @@ void InitLimitedPoolReflactionMesh(PoolMesh *refl)
 
     refl->mesh = prim_InitMesh3D(refl->ncol, refl->nrow, 1, 0x1C, refl->color, 1);
     refl->height = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c",
-                                  LN(899, 899, 899, 899, 899, 899));
+                                  LN(899, 899, 899, 899, 899, 899, 899));
     refl->row = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c",
-                               LN(900, 900, 900, 900, 900, 900));
+                               LN(900, 900, 900, 900, 900, 900, 900));
     for (i = 0; i < refl->nrow; i++) {
         refl->row[i] = refl->mesh->pos + i * refl->ncol;
         refl->height[i] = iosMallocDebug(ios_partition_sugipon, refl->ncol * 4, "src/pool.c",
-                                         LN(905, 905, 905, 905, 905, 905));
+                                         LN(905, 905, 905, 905, 905, 905, 905));
         for (j = 0; j < refl->ncol; j++) {
             refl->height[i][j] = 0.0f;
         }
@@ -1014,13 +1014,13 @@ void InitLimitedPoolReflactionMesh(PoolMesh *refl)
 
     refl->mesh = prim_InitMesh3D(refl->ncol, refl->nrow, 1, 0x1C, refl->color, 1);
     refl->height = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c",
-                                  LN(884, 884, 884, 884, 892, 895));
+                                  LN(884, 884, 884, 884, 892, 895, 884));
     refl->row = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c",
-                               LN(885, 885, 885, 885, 893, 896));
+                               LN(885, 885, 885, 885, 893, 896, 885));
     for (i = 0; i < refl->nrow; i++) {
         refl->row[i] = refl->mesh->pos + i * refl->ncol;
         refl->height[i] = iosMallocDebug(ios_partition_sugipon, refl->ncol * 4, "src/pool.c",
-                                         LN(890, 890, 890, 890, 898, 901));
+                                         LN(890, 890, 890, 890, 898, 901, 890));
         for (j = 0; j < refl->ncol; j++) {
             refl->height[i][j] = 0.0f;
         }

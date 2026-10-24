@@ -164,13 +164,13 @@ extern struct MotTblRec { /* derived name */ /* field names derived */
     int smzAngle;
     char pad13C[84];
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     char pad0[382];
 #else
     char pad0[390];
 #endif
     short smzAngle;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     char pad180[16];
 #else
     char pad188[12];
@@ -246,7 +246,7 @@ struct WoodBoxEnt { /* derived name */ /* field names derived */
 
 /* .data: the wood-bridge trigger table, one row per bridge object, walked by
    object id. */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 static struct WoodBoxEnt woodBoxTbl[11] = {
     {276, 6, {0}, {0.0f, -100.0f, 100.0f, 0.0f}, 1068.0f, -135.0f, 200.0f, 580.0f},
     {1710, 0, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -1410.0f, 1000.0f, 0.0f, 0.0f},
@@ -319,7 +319,7 @@ inline void actSubSekizoSe(GObj *volatile self)
     if (gflagChk(332) == 0) {
         ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
         scpSearchGobj(2149)->active = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetLoopFlag(551, 0);
 #else
         stage_SetLoopFlag(555, 0);
@@ -330,7 +330,7 @@ inline void actSubSekizoSe(GObj *volatile self)
         _ACTWait(0);
         return;
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(47, 0, 551, 0);
 #else
     scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(47, 0, 555, 0);
@@ -340,7 +340,7 @@ inline void actSubSekizoSe(GObj *volatile self)
     tex_SetUVScroll(faceShadowTex, 0.0f, 0.0f, 0.25f, 0.0625f, 0.8f, 0.8f, 1);
     tex_SetUVScroll(faceShadowTex00, 0.0f, 0.0f, 0.25f, 0.0625f, 0.45f, 0.45f, 1);
     ScpCallCameraSetTarget(3834.0f, -888.0f, 0.0f);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(152, 0, -1);
     stage_SetAnimation(155, 1, 0);
 #else
@@ -638,7 +638,7 @@ void scpPlayMotDir(GObj *self, float *dir)
 void scpPlayMotDirSmz(GObj *self, float *dir)
 {
     sceVu0Normalize(dir, dir);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     SetMotionDirectionSmooze(
         self, dir,
         (float)((struct MotTblRec *)(GOBJ_SUB(self)->ctrl.motion * 400 + (char *)motionKind))
@@ -2584,7 +2584,7 @@ void scpSekizou(GObj *self, int flag, int anim, int anim2, int kind, float bx, f
         scpFadeOut(255.0f, 0, 0, 0);
     }
     stgmgrNextStagePreLoadForceStageSet(0);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -3193,7 +3193,7 @@ inline int scpAdpcmCloseChk(SqEntry *p)
 #else
     scpPlayMot(girlGObj, 532);
     scpPlayEnd(girlGObj);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);

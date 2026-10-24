@@ -1583,7 +1583,7 @@ void FullScreenEffectBefore(void)
     workBase[2] = 0x2E00;
     workBase[3] = 0x3000;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     tex_LockHeadTBP(0x3800, 8);
 #else
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)

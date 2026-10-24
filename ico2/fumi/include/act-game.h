@@ -11,7 +11,7 @@
 #ifdef VERSION_JUN26
 #include "typedef.h" /* WayRequest, which ActWork carries */
 #else
-#include "typedef.h" /* WayRequest, which ActWork carries at 0x580 (JPN and KOR 0x570) */
+#include "typedef.h" /* WayRequest, which ActWork carries at 0x580 (JPN, KOR and CN 0x570) */
 #include "clipCollisionManager.h"
 #endif
 
@@ -310,7 +310,7 @@ typedef struct ActWork { /* field names derived */
     float hintPosX;      /* 0x520 */
     float hintPosY;      /* 0x524 */
     float hintPosZ;      /* 0x528 */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     char pad52C[68];
     WayRequest wayReq; /* 0x570, the way search RequestWayBegin hands to the way system manager */
     char pad628[232];

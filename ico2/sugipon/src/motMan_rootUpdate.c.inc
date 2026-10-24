@@ -1379,7 +1379,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
         if (skelRoot->gravity == 0) {
 #else
         if (skelRoot->gravity != 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             skelRoot->move[1] += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) *
                                  0.5f *
                                  (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
@@ -1476,7 +1476,7 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
         CopyVector(skelRoot->delta, rootDelta);
     } else {
 #if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)
         if (skelMotCtrl->justShifted != 0) {
             if (systemStatus[0] == 1) {
                 AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->move);

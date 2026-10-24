@@ -44,7 +44,7 @@ extern int motionFrameUpdate;
 extern int interlace;
 extern int thisIsYourStartStage;
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 extern int NonLinearCameraMove;
 #endif
 

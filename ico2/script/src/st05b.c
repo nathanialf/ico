@@ -83,7 +83,7 @@ void actSt05bCrest01XL(GObj *volatile self)
         stage_SetAnimation(168, 0, -1);
 #else
     if (gflagChk(243) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(183, 0, 0);
         stage_SetAnimation(185, 0, 0);
 #else
@@ -91,7 +91,7 @@ void actSt05bCrest01XL(GObj *volatile self)
         stage_SetAnimation(189, 0, 0);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(183, 0, -1);
         stage_SetAnimation(185, 0, -1);
 #else
@@ -102,13 +102,13 @@ void actSt05bCrest01XL(GObj *volatile self)
         scpTorchLightOn(1344);
     }
     if (gflagChk(244) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(184, 0, 0);
 #else
         stage_SetAnimation(188, 0, 0);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(184, 0, -1);
 #else
         stage_SetAnimation(188, 0, -1);
@@ -117,13 +117,13 @@ void actSt05bCrest01XL(GObj *volatile self)
         scpTorchLightOn(1346);
     }
     if (gflagChk(251) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(186, 0, 0);
 #else
         stage_SetAnimation(190, 0, 0);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(186, 0, -1);
 #else
         stage_SetAnimation(190, 0, -1);
@@ -369,7 +369,7 @@ void actSt05bSekizoChk(GObj *volatile self)
         _ACTWait(1);
     }
 #ifndef VERSION_AUG6
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -399,7 +399,7 @@ void actSt05bSekizoChk(GObj *volatile self)
     h = soundSeDefPlay(1193, 0, 0, 1);
 #else
     gflagOn(390);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(188, 1, 0);
 #else
     stage_SetAnimation(192, 1, 0);
@@ -440,7 +440,7 @@ void actSt05bSekizoChk(GObj *volatile self)
     scpPlayWaitMotEnd(girlGObj);
     gflagOn(160);
     soundSeDefStop(h);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFrame(188, 151, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(192, 151, 0) == 0) {
@@ -468,7 +468,7 @@ void actSt05bSekizoChk(GObj *volatile self)
     scpPlayEnd(boyGObj);
     ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
 #ifndef VERSION_AUG6
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(188) == 0) {
 #else
     while (stage_CheckAnimationFinish(192) == 0) {
@@ -476,7 +476,7 @@ void actSt05bSekizoChk(GObj *volatile self)
         _ACTWait(1);
     }
     _ACTWait(1);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -506,13 +506,13 @@ void actSt05bDoorXL(GObj *volatile self)
         stage_SetAnimation(279, 0, 0);
 #else
     if (gflagChk(243) != 0 && gflagChk(139) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(341, 0, -1);
 #else
         stage_SetAnimation(345, 0, -1);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(341, 0, 0);
 #else
         stage_SetAnimation(345, 0, 0);
@@ -542,13 +542,13 @@ void actSt05bMonyoDoorXL(GObj *volatile self)
         stage_SetAnimation(197, 0, -1);
 #else
     if (gflagChk(234) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(247, 0, 0);
 #else
         stage_SetAnimation(251, 0, 0);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(247, 0, -1);
 #else
         stage_SetAnimation(251, 0, -1);
@@ -586,7 +586,7 @@ void actSt05bSekizo(GObj *volatile self)
         if (gflagChk(218) == 0) {
 #else
     if (gflagChk(160) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(188, 0, 0);
 #else
         stage_SetAnimation(192, 0, 0);
@@ -596,7 +596,7 @@ void actSt05bSekizo(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(188, 0, -1);
 #else
         stage_SetAnimation(192, 0, -1);
@@ -629,13 +629,13 @@ void actSt05bBallXL(GObj *volatile self)
         stage_SetAnimation(238, -1, -2);
 #else
     if (gflagChk(139) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(296, -1, -2);
 #else
         stage_SetAnimation(300, -1, -2);
 #endif
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(294, -1, -2);
 #else
         stage_SetAnimation(298, -1, -2);
@@ -663,7 +663,7 @@ void actSt05bSolarXL(GObj *volatile self)
         stage_SetAnimation(246, -1, -2);
 #else
     if (gflagChk(139) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(299, -1, -2);
         stage_SetAnimation(302, -1, -2);
 #else

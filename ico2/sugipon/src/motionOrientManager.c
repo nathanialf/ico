@@ -149,8 +149,8 @@ static inline void checkMotionKind(int i, int j) /* derived name */
             motionKind[j].name);
         sprintf(buf, "NODE BLEND MOTION \"%s\" REFERS\nNODE BLEND MOTION RECURSIVELY.\n",
                 motionKind[j].name);
-        debug_assertMessage(__FILE__, LN(152, 152, 152, 152, 152, 152), buf);
-        __assert(__FILE__, LN(152, 152, 152, 152, 152, 152), "e");
+        debug_assertMessage(__FILE__, LN(152, 152, 152, 152, 152, 152, 152), buf);
+        __assert(__FILE__, LN(152, 152, 152, 152, 152, 152, 152), "e");
     }
 }
 
@@ -203,11 +203,11 @@ static inline void checkMotionKind(int i, int j) /* derived name */
         sprintf(buf, "NODE BLEND MOTION \"%s\" REFERS\nNODE BLEND MOTION RECURSIVELY.\n",
                 motionKind[j].name);
 #ifdef VERSION_AUG6
-        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 152, 1275), buf);
-        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 152, 1275), "e");
+        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 152, 1275, 1269), buf);
+        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 152, 1275, 1269), "e");
 #else
-        debug_assertMessage(__FILE__, LN(152, 152, 152, 152, 152, 153), buf);
-        __assert(__FILE__, LN(152, 152, 152, 152, 152, 153), "e");
+        debug_assertMessage(__FILE__, LN(152, 152, 152, 152, 152, 153, 152), buf);
+        __assert(__FILE__, LN(152, 152, 152, 152, 152, 153, 152), "e");
 #endif
     }
 }
@@ -388,7 +388,7 @@ int UpdateFrameCounter(void *self)
     if (motionFrameUpdate == 1) {
         t = w->speedRatio * motionKind[w->motion].playSpeedRatio * w->playRate *
             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         if (systemStatus[0] != 0) {
             t = t * motionKind[w->motion].palSpeedRatio;
@@ -730,7 +730,7 @@ static void shiftMotionData(int obj, int motion, int request, int shiftMode)
     mw->fieldWall = motionKind[mot].fieldWall;
     mw->cylinder = motionKind[mot].cylinder;
     mw->avgWallPlane = motionKind[mot].flags.bits.avgWallPlane;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     mw->flag330 = motionKind[mot].flags.bits.dropNode4Turn;
 #else
 #ifdef VERSION_JUN26
@@ -787,8 +787,8 @@ static void shiftMotionOrientEndFunc(void *self)
         /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
         debug_StdPrintfDummy(
             "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n");
-        debug_assert(__FILE__, LN(745, 739, 739, 739, 739, 740));
-        __assert(__FILE__, LN(745, 739, 739, 739, 739, 740), "0");
+        debug_assert(__FILE__, LN(745, 739, 739, 739, 739, 740, 739));
+        __assert(__FILE__, LN(745, 739, 739, 739, 739, 740, 739), "0");
     }
     StopSEPackageWithGroupVariation(self, 0);
     StopSEPackageWithGroupVariation(self, 1);
@@ -1426,8 +1426,8 @@ static void getNodeBlendedFloatingMotion(StreamElem *dst, float *root, int id, i
     if (i == 0) {
         /* EUC-JP: "(%s) the motion to blend is not defined" */
         debug_StdPrintfDummy("(%s)混ぜるモーションが定義されていません。\n", motionKind[id].name);
-        debug_assert(__FILE__, LN(1221, 1221, 1221, 1221, 1221, 1221));
-        __assert(__FILE__, LN(1221, 1221, 1221, 1221, 1221, 1221), "0");
+        debug_assert(__FILE__, LN(1221, 1221, 1221, 1221, 1221, 1221, 1221));
+        __assert(__FILE__, LN(1221, 1221, 1221, 1221, 1221, 1221, 1221), "0");
     }
 }
 #else
@@ -1475,15 +1475,15 @@ static void getNodeBlendedFloatingMotion(StreamElem *dst, float *root, int id, i
         /* EUC-JP: "(%s) the motion to blend is not defined" */
         debug_StdPrintfDummy("(%s)混ぜるモーションが定義されていません。\n", motionKind[id].name);
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(745, 739, 739, 739, 1221, 745));
-        __assert(__FILE__, LN(745, 739, 739, 739, 1221, 745), "0");
+        debug_assert(__FILE__, LN(745, 739, 739, 739, 1221, 745, 739));
+        __assert(__FILE__, LN(745, 739, 739, 739, 1221, 745, 739), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(745, 739, 739, 739, 739, 1219));
-        __assert(__FILE__, LN(745, 739, 739, 739, 739, 1219), "0");
+        debug_assert(__FILE__, LN(745, 739, 739, 739, 739, 1219, 739));
+        __assert(__FILE__, LN(745, 739, 739, 739, 739, 1219, 739), "0");
 #else
-        debug_assert(__FILE__, LN(1228, 1222, 1222, 1228, 1228, 1228));
-        __assert(__FILE__, LN(1228, 1222, 1222, 1228, 1228, 1228), "0");
+        debug_assert(__FILE__, LN(1228, 1222, 1222, 1228, 1228, 1228, 1222));
+        __assert(__FILE__, LN(1228, 1222, 1222, 1228, 1228, 1228, 1222), "0");
 #endif
 #endif
     }
@@ -1513,11 +1513,11 @@ static inline void assertMotionLoaded(struct MotCtrl *w, int *md) /* derived nam
         sprintf(buf, "THE MOTION \"%s\"(%d)\nDID NOT LOAD IN THIS STAGE\nOR IS INVALID ID.\n",
                 motionKind[w->motion].name, w->motion);
 #ifdef VERSION_JUN26
-        debug_assertMessage(__FILE__, LN(152, 152, 152, 152, 152, 1260), buf);
-        __assert(__FILE__, LN(152, 152, 152, 152, 152, 1260), "e");
+        debug_assertMessage(__FILE__, LN(152, 152, 152, 152, 152, 1260, 152), buf);
+        __assert(__FILE__, LN(152, 152, 152, 152, 152, 1260, 152), "e");
 #else
-        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 1262, 1275), buf);
-        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 1262, 1275), "e");
+        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 1262, 1275, 1269), buf);
+        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 1262, 1275, 1269), "e");
 #endif
     }
 }
@@ -1538,19 +1538,19 @@ static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n) /* d
             "THE NUMBER OF NODE DATAS OF MOTION\n\"%s\"(%d SKELTONS) DOES NOT MATCH\nTHE NUMBER OF SKELTON NODES(%d SKELTONS)\n",
             motionKind[w->motion].name, i - 1, n);
 #ifdef VERSION_NTSC
-        debug_assertMessage(__FILE__, LN(1280, 1280, 1280, 1280, 1280, 1280), buf);
-        __assert(__FILE__, LN(1280, 1280, 1280, 1280, 1280, 1280), "e");
+        debug_assertMessage(__FILE__, LN(1280, 1280, 1280, 1280, 1280, 1280, 1280), buf);
+        __assert(__FILE__, LN(1280, 1280, 1280, 1280, 1280, 1280, 1280), "e");
 #else
 #ifdef VERSION_AUG6
-        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 1274, 1275), buf);
-        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 1274, 1275), "e");
+        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 1274, 1275, 1269), buf);
+        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 1274, 1275, 1269), "e");
 #else
 #ifdef VERSION_JUN26
-        debug_assertMessage(__FILE__, LN(152, 152, 152, 152, 152, 1272), buf);
-        __assert(__FILE__, LN(152, 152, 152, 152, 152, 1272), "e");
+        debug_assertMessage(__FILE__, LN(152, 152, 152, 152, 152, 1272, 152), buf);
+        __assert(__FILE__, LN(152, 152, 152, 152, 152, 1272, 152), "e");
 #else
-        debug_assertMessage(__FILE__, LN(1287, 1281, 1281, 1287, 1287, 1287), buf);
-        __assert(__FILE__, LN(1287, 1281, 1281, 1287, 1287, 1287), "e");
+        debug_assertMessage(__FILE__, LN(1287, 1281, 1281, 1287, 1287, 1287, 1281), buf);
+        __assert(__FILE__, LN(1287, 1281, 1281, 1287, 1287, 1287, 1281), "e");
 #endif
 #endif
 #endif
@@ -2528,15 +2528,15 @@ void SetNodeRotationLimitDataTable(void *self, int from, int to)
             debug_StdPrintfDummy(
                 "ノード回転リミットデータの示すノードがスケルトン中にありません。\n");
 #ifdef VERSION_AUG6
-            debug_assert(__FILE__, LN(745, 739, 739, 739, 1744, 745));
-            __assert(__FILE__, LN(745, 739, 739, 739, 1744, 745), "0");
+            debug_assert(__FILE__, LN(745, 739, 739, 739, 1744, 745, 739));
+            __assert(__FILE__, LN(745, 739, 739, 739, 1744, 745, 739), "0");
 #else
 #ifdef VERSION_JUN26
-            debug_assert(__FILE__, LN(745, 739, 739, 739, 739, 1714));
-            __assert(__FILE__, LN(745, 739, 739, 739, 739, 1714), "0");
+            debug_assert(__FILE__, LN(745, 739, 739, 739, 739, 1714, 739));
+            __assert(__FILE__, LN(745, 739, 739, 739, 739, 1714, 739), "0");
 #else
-            debug_assert(__FILE__, LN(1838, 1832, 1832, 1756, 1838, 1838));
-            __assert(__FILE__, LN(1838, 1832, 1832, 1756, 1838, 1838), "0");
+            debug_assert(__FILE__, LN(1838, 1832, 1832, 1756, 1838, 1838, 1832));
+            __assert(__FILE__, LN(1838, 1832, 1832, 1756, 1838, 1838, 1832), "0");
 #endif
 #endif
         }

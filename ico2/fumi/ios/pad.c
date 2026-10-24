@@ -220,8 +220,8 @@ static int controler_stable_check(IosPadDevRec *dev)
             dev->phase = -1;
             dev->errCount = cnt;
             dev->lastTermId = id;
-            debug_assert(__FILE__, LN(422, 422, 422, 422, 422, 422));
-            __assert(__FILE__, LN(422, 422, 422, 422, 422, 422), "0");
+            debug_assert(__FILE__, LN(422, 422, 422, 422, 422, 422, 422));
+            __assert(__FILE__, LN(422, 422, 422, 422, 422, 422, 422), "0");
             return -1;
         }
         if (state == 6 || state == 2) {
@@ -458,8 +458,8 @@ static int controler_stable_check(IosPadDevRec *dev)
             dev->phase = -1;
             dev->errCount = cnt;
             dev->lastTermId = id;
-            debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 404));
-            __assert(__FILE__, LN(468, 465, 468, 468, 422, 404), "0");
+            debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 404, 465));
+            __assert(__FILE__, LN(468, 465, 468, 468, 422, 404, 465), "0");
             return -1;
         }
         if (state == 6 || state == 2) {
@@ -500,15 +500,15 @@ int iosPadDevInit(void *desc)
     if (scePadInit(0) != 1) {
         debug_StdPrintfDummy("pad:init error\n");
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(468, 465, 468, 468, 508, 468));
-        __assert(__FILE__, LN(468, 465, 468, 468, 508, 468), "0");
+        debug_assert(__FILE__, LN(468, 465, 468, 468, 508, 468, 465));
+        __assert(__FILE__, LN(468, 465, 468, 468, 508, 468, 465), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 490));
-        __assert(__FILE__, LN(468, 465, 468, 468, 422, 490), "0");
+        debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 490, 465));
+        __assert(__FILE__, LN(468, 465, 468, 468, 422, 490, 465), "0");
 #else
-        debug_assert(__FILE__, LN(553, 550, 553, 508, 553, 553));
-        __assert(__FILE__, LN(553, 550, 553, 508, 553, 553), "0");
+        debug_assert(__FILE__, LN(553, 550, 553, 508, 553, 553, 550));
+        __assert(__FILE__, LN(553, 550, 553, 508, 553, 553, 550), "0");
 #endif
 #endif
         return 0;
@@ -528,19 +528,19 @@ int iosPadDevInit(void *desc)
         if (scePadPortOpen(i, 0, dev->dmaBuf) == 0) {
             debug_StdPrintfDummy("ERROR: scePadPortOpen port%d slot%d\n", i, 0);
 #ifdef VERSION_NTSC
-            debug_assert(__FILE__, LN(523, 523, 523, 523, 523, 523));
-            __assert(__FILE__, LN(523, 523, 523, 523, 523, 523), "0");
+            debug_assert(__FILE__, LN(523, 523, 523, 523, 523, 523, 523));
+            __assert(__FILE__, LN(523, 523, 523, 523, 523, 523, 523), "0");
 #else
 #ifdef VERSION_AUG6
-            debug_assert(__FILE__, LN(468, 465, 468, 468, 523, 468));
-            __assert(__FILE__, LN(468, 465, 468, 468, 523, 468), "0");
+            debug_assert(__FILE__, LN(468, 465, 468, 468, 523, 468, 465));
+            __assert(__FILE__, LN(468, 465, 468, 468, 523, 468, 465), "0");
 #else
 #ifdef VERSION_JUN26
-            debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 505));
-            __assert(__FILE__, LN(468, 465, 468, 468, 422, 505), "0");
+            debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 505, 465));
+            __assert(__FILE__, LN(468, 465, 468, 468, 422, 505, 465), "0");
 #else
-            debug_assert(__FILE__, LN(569, 566, 569, 569, 569, 569));
-            __assert(__FILE__, LN(569, 566, 569, 569, 569, 569), "0");
+            debug_assert(__FILE__, LN(569, 566, 569, 569, 569, 569, 566));
+            __assert(__FILE__, LN(569, 566, 569, 569, 569, 569, 566), "0");
 #endif
 #endif
 #endif
@@ -686,7 +686,7 @@ static int iosPadDevReadFunc(void)
                 dev->error = 1;
                 dev->phase = 0;
 #else
-#ifdef VERSION_JPN
+#if defined(VERSION_JPN) || defined(VERSION_CN)
                 dev->phase = 0;
                 dev->error = 1;
 #else

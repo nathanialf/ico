@@ -153,8 +153,8 @@ void ReadModelFile(void *h, int name, int size, int id, int kind, int word08, in
         sprintf(buf, "Illegal Model ID number: %d (\"%s\")\n", id, name);
         /* please raise MAX_CHARS in commmon/include/charFileName.h */
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
-        debug_assertMessage(__FILE__, LN(130, 129, 129, 129, 129, 125), buf);
-        __assert(__FILE__, LN(130, 129, 129, 129, 129, 125), "e");
+        debug_assertMessage(__FILE__, LN(130, 129, 129, 129, 129, 125, 129), buf);
+        __assert(__FILE__, LN(130, 129, 129, 129, 129, 125, 129), "e");
     }
 
     if (charFiles[id].pObj != 0) {
@@ -170,7 +170,7 @@ void ReadModelFile(void *h, int name, int size, int id, int kind, int word08, in
     }
 
     charFiles[id].state = part;
-    p = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(145, 144, 144, 144, 144, 140));
+    p = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(145, 144, 144, 144, 144, 140, 144));
     iosCdvdHandlerRead(h, p, size);
     debug_StdPrintfDummy("ReadModelFile:loaded::(id:%d)%s(addr:%p/size:%d)\n", id, name, p, size);
 #ifdef VERSION_JUN26
@@ -196,12 +196,12 @@ void ReadVolumeModelFile(void *h, int name, int size, int id, int kind, int word
     } else {
         malloc_SetPartition(1);
     }
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 169));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 169, 189));
     if (id >= MAX_CHARS) {
         debug_StdPrintfDummy("Illegal Volume ID number. %d\n", id);
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 174));
-        __assert(__FILE__, LN(195, 194, 194, 194, 194, 174), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 174, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 194, 174, 194), "0");
     }
     if (charFiles[id].pObj != 0) {
         debug_StdPrintfDummy("ReadVolumeModelFile:Already loaded. (id:%d)%s\n", id, name);
@@ -247,10 +247,10 @@ void ReadShadowModelFile(void *h, int name, int size, int id, int kind, int word
     if (id >= MAX_CHARS) {
         debug_StdPrintfDummy("Illegal Shadow ID number. %d\n", id);
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
-        debug_assert(__FILE__, LN(234, 234, 234, 234, 234, 234));
-        __assert(__FILE__, LN(234, 234, 234, 234, 234, 234), "0");
+        debug_assert(__FILE__, LN(234, 234, 234, 234, 234, 234, 234));
+        __assert(__FILE__, LN(234, 234, 234, 234, 234, 234, 234), "0");
     }
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(238, 238, 238, 238, 238, 238));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(238, 238, 238, 238, 238, 238, 238));
     if (charFiles[id].pShadow != 0) {
         debug_StdPrintfDummy("ReadShadowModelFile:Already loaded. (id:%d)%s\n", id, name);
         iosCdvdHandlerRead(h, 0, size);
@@ -276,7 +276,7 @@ void ReadTextureFile(void *h, char *name, int size, int id, int kind, int word08
     } else {
         malloc_SetPartition(1);
     }
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(274, 274, 274, 274, 274, 274));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(274, 274, 274, 274, 274, 274, 274));
     if (size == 0) {
         debug_StdPrintfDummy("ReadTextureFile:texture size is zero.%s\n", name);
         iosCdvdHandlerRead(h, 0, 0);
@@ -306,21 +306,21 @@ void ReadShadowModelFile(void *h, int name, int size, int id, int kind, int word
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 215));
-        __assert(__FILE__, LN(195, 194, 194, 194, 194, 215), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 215, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 194, 215, 194), "0");
     }
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 219));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 219, 189));
 #else
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 234, 195));
-        __assert(__FILE__, LN(195, 194, 194, 194, 234, 195), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 234, 195, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 234, 195, 194), "0");
     }
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 238, 190));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 238, 190, 189));
 #endif
 #else
-        debug_assert(__FILE__, LN(235, 234, 234, 235, 235, 235));
-        __assert(__FILE__, LN(235, 234, 234, 235, 235, 235), "0");
+        debug_assert(__FILE__, LN(235, 234, 234, 235, 235, 235, 234));
+        __assert(__FILE__, LN(235, 234, 234, 235, 235, 235, 234), "0");
     }
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(239, 238, 238, 239, 239, 239));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(239, 238, 238, 239, 239, 239, 238));
 #endif
     if (charFiles[id].pShadow != 0) {
         debug_StdPrintfDummy("ReadShadowModelFile:Already loaded. (id:%d)%s\n", id, name);
@@ -342,13 +342,13 @@ void ReadShadowModelFile(void *h, int name, int size, int id, int kind, int word
 
 void ReadTextureFile(void *h, char *name, int size, int id, int kind, int word08, int seg)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
     int rv;
 #else
     int rv = 0;
 #endif
     char *buf;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_AUG6)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_AUG6)
 #ifndef VERSION_JUN26
     int flag = 0;
 #endif
@@ -362,12 +362,12 @@ void ReadTextureFile(void *h, char *name, int size, int id, int kind, int word08
     }
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #ifdef VERSION_JUN26
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 255));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 255, 189));
 #else
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 274, 190));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 274, 190, 189));
 #endif
 #else
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(276, 274, 274, 276, 276, 276));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(276, 274, 274, 276, 276, 276, 274));
 #endif
     if (size == 0) {
         debug_StdPrintfDummy("ReadTextureFile:texture size is zero.%s\n", name);
@@ -375,7 +375,7 @@ void ReadTextureFile(void *h, char *name, int size, int id, int kind, int word08
         return;
     }
     iosCdvdHandlerRead(h, buf, size);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
     rv = tex_InitTexture(name, buf);
 #else
     if (kind == 55 && seg == 1 && texFile[id].cameraMove != 0) {
@@ -471,19 +471,19 @@ void ReadSkeltonFile(void *h, char *name, int size, int id, int kind, int word08
     if (p == 0) {
         debug_StdPrintfDummy("ReadSkeltonFile:Skelton file is not applied. %s\n", name);
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(349, 349, 349, 349, 349, 349));
+        debug_assert(__FILE__, LN(349, 349, 349, 349, 349, 349, 349));
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 349, 195));
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 349, 195, 194));
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 320));
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 320, 194));
 #else
-        debug_assert(__FILE__, LN(362, 349, 349, 362, 362, 362));
+        debug_assert(__FILE__, LN(362, 349, 349, 362, 362, 362, 349));
 #endif
 #endif
 #endif
-        __assert(__FILE__, LN(362, 349, 349, 349, 349, 320), "FALSE");
+        __assert(__FILE__, LN(362, 349, 349, 349, 349, 320, 349), "FALSE");
     }
 }
 
@@ -556,15 +556,15 @@ void ReadCollisionFile(void *h, char *name, int size, int id, int kind, int word
     }
     debug_StdPrintfDummy("ReadCollisionFile:Collision file is not applied. %s\n", name);
 #ifdef VERSION_AUG6
-    debug_assert(__FILE__, LN(195, 194, 194, 194, 453, 195));
-    __assert(__FILE__, LN(362, 349, 349, 349, 453, 362), "FALSE");
+    debug_assert(__FILE__, LN(195, 194, 194, 194, 453, 195, 194));
+    __assert(__FILE__, LN(362, 349, 349, 349, 453, 362, 349), "FALSE");
 #else
 #ifdef VERSION_JUN26
-    debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 424));
-    __assert(__FILE__, LN(362, 349, 349, 349, 349, 424), "FALSE");
+    debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 424, 194));
+    __assert(__FILE__, LN(362, 349, 349, 349, 349, 424, 349), "FALSE");
 #else
-    debug_assert(__FILE__, LN(466, 453, 453, 453, 466, 466));
-    __assert(__FILE__, LN(466, 453, 453, 453, 466, 466), "FALSE");
+    debug_assert(__FILE__, LN(466, 453, 453, 453, 466, 466, 453));
+    __assert(__FILE__, LN(466, 453, 453, 453, 466, 466, 453), "FALSE");
 #endif
 #endif
 }
@@ -580,19 +580,19 @@ void ReadStageAnimationFile(void *h, char *name, int size, int id, int kind, int
     if (seg == 0) {
         malloc_SetPartition(0);
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(474, 474, 474, 474, 474, 474));
-        __assert(__FILE__, LN(474, 474, 474, 474, 474, 474), "0");
+        debug_assert(__FILE__, LN(474, 474, 474, 474, 474, 474, 474));
+        __assert(__FILE__, LN(474, 474, 474, 474, 474, 474, 474), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 474, 195));
-        __assert(__FILE__, LN(195, 194, 194, 194, 474, 195), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 474, 195, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 474, 195, 194), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 445));
-        __assert(__FILE__, LN(195, 194, 194, 194, 194, 445), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 445, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 194, 445, 194), "0");
 #else
-        debug_assert(__FILE__, LN(487, 474, 474, 487, 487, 487));
-        __assert(__FILE__, LN(487, 474, 474, 487, 487, 487), "0");
+        debug_assert(__FILE__, LN(487, 474, 474, 487, 487, 487, 474));
+        __assert(__FILE__, LN(487, 474, 474, 487, 487, 487, 474), "0");
 #endif
 #endif
 #endif
@@ -622,7 +622,7 @@ typedef struct { /* field names derived */
 typedef struct { /* field names derived */
     char pad0[308];
     int area; /* 0x134, the motion memory area: 0 static, 4 dynamic, else swap */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     char pad138[88];
 } MotEnt; /* 0x190 */ /* derived name */
 
@@ -645,46 +645,46 @@ void ReadMotionFile(void *h, char *name, int size, int id, int kind, int word08,
     }
     switch (motionKind[id].area) {
     case 0:
-        motionTable[id] =
-            iosMallocDebug(ios_partition_smotion, size, __FILE__, LN(515, 502, 502, 502, 502, 473));
+        motionTable[id] = iosMallocDebug(ios_partition_smotion, size, __FILE__,
+                                         LN(515, 502, 502, 502, 502, 473, 502));
         break;
     case 4:
-        motionTable[id] =
-            iosMallocDebug(ios_partition_dmotion, size, __FILE__, LN(518, 505, 505, 505, 505, 476));
+        motionTable[id] = iosMallocDebug(ios_partition_dmotion, size, __FILE__,
+                                         LN(518, 505, 505, 505, 505, 476, 505));
         if (motionTable[id] == 0) {
             /* not enough memory in the dynamic motion area */
             debug_StdPrintfDummy("ダイナミックモーション領域のメモリが足りません。\n");
-            debug_assertMessage(__FILE__, LN(521, 508, 508, 508, 508, 479),
+            debug_assertMessage(__FILE__, LN(521, 508, 508, 508, 508, 479, 508),
                                 "LACK OF DYNAMIC MOTION MEMORY.\n");
 #ifdef VERSION_AUG6
-            __assert(__FILE__, LN(130, 129, 129, 129, 508, 130), "e");
+            __assert(__FILE__, LN(130, 129, 129, 129, 508, 130, 129), "e");
 #else
 #ifdef VERSION_JUN26
-            __assert(__FILE__, LN(130, 129, 129, 129, 129, 479), "e");
+            __assert(__FILE__, LN(130, 129, 129, 129, 129, 479, 129), "e");
 #else
-            __assert(__FILE__, LN(521, 508, 508, 508, 521, 521), "e");
+            __assert(__FILE__, LN(521, 508, 508, 508, 521, 521, 508), "e");
 #endif
 #endif
         }
         break;
     default:
         motionTable[id] = iosMallocDebug(ios_partition_s2motion, size, __FILE__,
-                                         LN(526, 513, 513, 513, 513, 484));
+                                         LN(526, 513, 513, 513, 513, 484, 513));
         if (motionTable[id] == 0) {
             /* not enough memory in the motion swap area */
             debug_StdPrintfDummy("モーションスワップ領域のメモリが足りません。\n");
-            debug_assertMessage(__FILE__, LN(529, 516, 516, 516, 516, 487),
+            debug_assertMessage(__FILE__, LN(529, 516, 516, 516, 516, 487, 516),
                                 "LACK OF SWAP MOTION MEMORY.\n");
 #ifdef VERSION_NTSC
-            __assert(__FILE__, LN(516, 516, 516, 516, 516, 516), "e");
+            __assert(__FILE__, LN(516, 516, 516, 516, 516, 516, 516), "e");
 #else
 #ifdef VERSION_AUG6
-            __assert(__FILE__, LN(130, 129, 129, 129, 516, 130), "e");
+            __assert(__FILE__, LN(130, 129, 129, 129, 516, 130, 129), "e");
 #else
 #ifdef VERSION_JUN26
-            __assert(__FILE__, LN(130, 129, 129, 129, 129, 487), "e");
+            __assert(__FILE__, LN(130, 129, 129, 129, 129, 487, 129), "e");
 #else
-            __assert(__FILE__, LN(529, 516, 516, 529, 529, 529), "e");
+            __assert(__FILE__, LN(529, 516, 516, 529, 529, 529, 516), "e");
 #endif
 #endif
 #endif
@@ -700,8 +700,8 @@ void ReadMotionFile(void *h, char *name, int size, int id, int kind, int word08,
 
 void ReadParticleEffectFile(void *h, int name, int size, int id)
 {
-    int *buf =
-        iosMallocDebug(ios_partition_sugipon, size, __FILE__, LN(552, 539, 539, 539, 539, 510));
+    int *buf = iosMallocDebug(ios_partition_sugipon, size, __FILE__,
+                              LN(552, 539, 539, 539, 539, 510, 539));
     systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
     SetParticleEffectPackage(id, buf, size);
@@ -717,15 +717,15 @@ void ReadSoundBdFile(void *h, int name, int size, int id, int kind, int word08, 
         return;
     }
 #ifdef VERSION_NTSC
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(565, 565, 565, 565, 565, 565));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(565, 565, 565, 565, 565, 565, 565));
 #else
 #ifdef VERSION_AUG6
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 565, 190));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 565, 190, 189));
 #else
 #ifdef VERSION_JUN26
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 536));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 536, 189));
 #else
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(578, 565, 565, 578, 578, 578));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(578, 565, 565, 578, 578, 578, 565));
 #endif
 #endif
 #endif
@@ -751,19 +751,19 @@ void ReadSoundBdFile(void *h, int name, int size, int id, int kind, int word08, 
         break;
     default:
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(593, 593, 593, 593, 593, 593));
-        __assert(__FILE__, LN(593, 593, 593, 593, 593, 593), "0");
+        debug_assert(__FILE__, LN(593, 593, 593, 593, 593, 593, 593));
+        __assert(__FILE__, LN(593, 593, 593, 593, 593, 593, 593), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 593, 195));
-        __assert(__FILE__, LN(195, 194, 194, 194, 593, 195), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 593, 195, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 593, 195, 194), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 564));
-        __assert(__FILE__, LN(195, 194, 194, 194, 194, 564), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 564, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 194, 564, 194), "0");
 #else
-        debug_assert(__FILE__, LN(606, 593, 593, 606, 606, 606));
-        __assert(__FILE__, LN(606, 593, 593, 606, 606, 606), "0");
+        debug_assert(__FILE__, LN(606, 593, 593, 606, 606, 606, 593));
+        __assert(__FILE__, LN(606, 593, 593, 606, 606, 606, 593), "0");
 #endif
 #endif
 #endif
@@ -803,19 +803,19 @@ void ReadSoundHdFile(void *h, int name, int size, int id, int kind, int word08, 
         break;
     default:
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(629, 629, 629, 629, 629, 629));
-        __assert(__FILE__, LN(629, 629, 629, 629, 629, 629), "0");
+        debug_assert(__FILE__, LN(629, 629, 629, 629, 629, 629, 629));
+        __assert(__FILE__, LN(629, 629, 629, 629, 629, 629, 629), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 629, 195));
-        __assert(__FILE__, LN(195, 194, 194, 194, 629, 195), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 629, 195, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 629, 195, 194), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 600));
-        __assert(__FILE__, LN(195, 194, 194, 194, 194, 600), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 600, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 194, 600, 194), "0");
 #else
-        debug_assert(__FILE__, LN(642, 629, 629, 642, 642, 642));
-        __assert(__FILE__, LN(642, 629, 629, 642, 642, 642), "0");
+        debug_assert(__FILE__, LN(642, 629, 629, 642, 642, 642, 629));
+        __assert(__FILE__, LN(642, 629, 629, 642, 642, 642, 629), "0");
 #endif
 #endif
 #endif
@@ -824,10 +824,10 @@ void ReadSoundHdFile(void *h, int name, int size, int id, int kind, int word08, 
         if (seFile[id].loaded != 1) {
             if (seg == 0) {
                 buf = iosMallocDebug(ios_partition_smotion, size, __FILE__,
-                                     LN(650, 637, 637, 637, 637, 608));
+                                     LN(650, 637, 637, 637, 637, 608, 637));
             } else {
                 buf = iosMallocDebug(ios_partition_sound, size, __FILE__,
-                                     LN(652, 639, 639, 639, 639, 610));
+                                     LN(652, 639, 639, 639, 639, 610, 639));
             }
         } else {
             seg = 2;
@@ -839,10 +839,10 @@ void ReadSoundHdFile(void *h, int name, int size, int id, int kind, int word08, 
                 }
 #ifdef VERSION_NTSC
                 semiCommonHdBuf = iosMallocDebug(ios_partition_sound_semi, size, __FILE__,
-                                                 LN(650, 650, 650, 650, 650, 650));
+                                                 LN(650, 650, 650, 650, 650, 650, 650));
 #else
                 semiCommonHdBuf = iosMallocDebug(ios_partition_sound_semi, size, __FILE__,
-                                                 LN(663, 650, 650, 663, 650, 621));
+                                                 LN(663, 650, 650, 663, 650, 621, 650));
 #endif
                 buf = semiCommonHdBuf;
             }
@@ -888,19 +888,19 @@ inline void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int w
         break;
     default:
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(696, 696, 696, 696, 696, 696));
-        __assert(__FILE__, LN(696, 696, 696, 696, 696, 696), "0");
+        debug_assert(__FILE__, LN(696, 696, 696, 696, 696, 696, 696));
+        __assert(__FILE__, LN(696, 696, 696, 696, 696, 696, 696), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 696, 195));
-        __assert(__FILE__, LN(195, 194, 194, 194, 696, 195), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 696, 195, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 696, 195, 194), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 667));
-        __assert(__FILE__, LN(195, 194, 194, 194, 194, 667), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 667, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 194, 667, 194), "0");
 #else
-        debug_assert(__FILE__, LN(709, 696, 696, 709, 709, 709));
-        __assert(__FILE__, LN(709, 696, 696, 709, 709, 709), "0");
+        debug_assert(__FILE__, LN(709, 696, 696, 709, 709, 709, 696));
+        __assert(__FILE__, LN(709, 696, 696, 709, 709, 709, 696), "0");
 #endif
 #endif
 #endif
@@ -909,23 +909,23 @@ inline void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int w
         if (seg == 0) {
 #ifdef VERSION_AUG6
             buf = iosMallocDebug(ios_partition_smotion, size, __FILE__,
-                                 LN(650, 637, 637, 637, 702, 650));
+                                 LN(650, 637, 637, 637, 702, 650, 637));
         } else {
             buf = iosMallocDebug(ios_partition_sound, size, __FILE__,
-                                 LN(652, 639, 639, 639, 704, 652));
+                                 LN(652, 639, 639, 639, 704, 652, 639));
 #else
 #ifdef VERSION_JUN26
             buf = iosMallocDebug(ios_partition_smotion, size, __FILE__,
-                                 LN(650, 637, 637, 637, 637, 673));
+                                 LN(650, 637, 637, 637, 637, 673, 637));
         } else {
             buf = iosMallocDebug(ios_partition_sound, size, __FILE__,
-                                 LN(652, 639, 639, 639, 639, 675));
+                                 LN(652, 639, 639, 639, 639, 675, 639));
 #else
             buf = iosMallocDebug(ios_partition_smotion, size, __FILE__,
-                                 LN(715, 702, 702, 702, 715, 715));
+                                 LN(715, 702, 702, 702, 715, 715, 702));
         } else {
             buf = iosMallocDebug(ios_partition_sound, size, __FILE__,
-                                 LN(717, 704, 704, 704, 717, 717));
+                                 LN(717, 704, 704, 704, 717, 717, 704));
 #endif
 #endif
         }
@@ -952,7 +952,8 @@ inline void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, in
     hi = kind << 16;
     key = (id & 0xFFFF) | hi;
     if (soundDataAreaSearch(&key) == 0) {
-        p = iosMallocDebug(ios_partition_smotion, size, __FILE__, LN(757, 744, 744, 744, 744, 715));
+        p = iosMallocDebug(ios_partition_smotion, size, __FILE__,
+                           LN(757, 744, 744, 744, 744, 715, 744));
         iosCdvdHandlerRead(h, p, size);
         debug_StdPrintfDummy("ReadAdpcmFile:loaded::[%d]%s  (size:%d)\n", id, name, size);
         q = adpcmDataSet((int)p, id, kind, seg, size, AdpcmIopBuffAlloc(), 0);
@@ -974,7 +975,7 @@ void ReadShockFile(void *h, int name, int size, int id, int kind, int word08, in
             p = 0;
         } else {
             p = iosMallocDebug(ios_partition_shock, size + 16, __FILE__,
-                               LN(788, 775, 775, 775, 775, 746));
+                               LN(788, 775, 775, 775, 775, 746, 775));
             iosCdvdHandlerRead(h, p->image, size);
             Init_ShockVoiceSet(&p->set, p->image);
         }
@@ -997,24 +998,25 @@ void ReadCamerasetFile(void *h, int name, int size, int id)
 {
     char *buf;
 
-    buf = iosMallocDebug(ios_partition_oomori, size, __FILE__, LN(820, 807, 807, 807, 807, 778));
+    buf =
+        iosMallocDebug(ios_partition_oomori, size, __FILE__, LN(820, 807, 807, 807, 807, 778, 807));
     if (buf == 0) {
         /* not enough memory to load the camera data */
         debug_StdPrintfDummy("カメラデータをロードするためのメモリが足りません\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(812, 812, 812, 812, 812, 812));
-        __assert(__FILE__, LN(812, 812, 812, 812, 812, 812), "0");
+        debug_assert(__FILE__, LN(812, 812, 812, 812, 812, 812, 812));
+        __assert(__FILE__, LN(812, 812, 812, 812, 812, 812, 812), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 812, 195));
-        __assert(__FILE__, LN(195, 194, 194, 194, 812, 195), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 812, 195, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 812, 195, 194), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 783));
-        __assert(__FILE__, LN(195, 194, 194, 194, 194, 783), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 783, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 194, 783, 194), "0");
 #else
-        debug_assert(__FILE__, LN(825, 812, 812, 825, 825, 825));
-        __assert(__FILE__, LN(825, 812, 812, 825, 825, 825), "0");
+        debug_assert(__FILE__, LN(825, 812, 812, 825, 825, 825, 812));
+        __assert(__FILE__, LN(825, 812, 812, 825, 825, 825, 812), "0");
 #endif
 #endif
 #endif
@@ -1029,7 +1031,7 @@ void ReadCamerasetFile(void *h, int name, int size, int id)
 void ReadEndCheckFile(void *h, int name, int size)
 {
     char *buf =
-        iosMallocDebug(ios_partition_oomori, size, __FILE__, LN(854, 841, 841, 841, 841, 854));
+        iosMallocDebug(ios_partition_oomori, size, __FILE__, LN(854, 841, 841, 841, 841, 854, 841));
     systemStatus[8]++;
     iosCdvdHandlerRead(h, buf, size);
 #endif
@@ -1042,10 +1044,10 @@ void ReadStageSettingFile(void *h, int name, int size)
 
     systemStatus[8]++;
 #ifdef VERSION_NTSC
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(892, 892, 892, 892, 892, 892));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(892, 892, 892, 892, 892, 892, 892));
 #else
 #ifdef VERSION_AUG6
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 892, 190));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 892, 190, 189));
 #else
 #ifdef VERSION_JUN26
     /* "the stage information uses the .ssb file" */
@@ -1056,9 +1058,9 @@ void ReadStageSettingFile(void *h, int name, int size)
             "\033[31mssbファイルのサイズが正しくありません(filesize:%d correctsize:%d)\033[0m\n",
             size, sizeof(StageSetting));
     }
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 824));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(190, 189, 189, 189, 189, 824, 189));
 #else
-    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(905, 892, 892, 905, 905, 905));
+    buf = iosMallocDebug(ios_partition_seki, size, __FILE__, LN(905, 892, 892, 905, 905, 905, 892));
 #endif
 #endif
 #endif
@@ -1079,19 +1081,19 @@ void CSVSYSTEM_ReadCharFiles(Sub15C *rec, int id)
         debug_StdPrintfDummy("Illegal Char ID Number. %d\n");
         debug_StdPrintfDummy("commmon/include/charFileName.hのMAX_CHARSを増やしてください\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(914, 914, 914, 914, 914, 914));
-        __assert(__FILE__, LN(914, 914, 914, 914, 914, 914), "0");
+        debug_assert(__FILE__, LN(914, 914, 914, 914, 914, 914, 914));
+        __assert(__FILE__, LN(914, 914, 914, 914, 914, 914, 914), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 914, 195));
-        __assert(__FILE__, LN(195, 194, 194, 194, 914, 195), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 914, 195, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 914, 195, 194), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 877));
-        __assert(__FILE__, LN(195, 194, 194, 194, 194, 877), "0");
+        debug_assert(__FILE__, LN(195, 194, 194, 194, 194, 877, 194));
+        __assert(__FILE__, LN(195, 194, 194, 194, 194, 877, 194), "0");
 #else
-        debug_assert(__FILE__, LN(927, 914, 914, 927, 927, 927));
-        __assert(__FILE__, LN(927, 914, 914, 927, 927, 927), "0");
+        debug_assert(__FILE__, LN(927, 914, 914, 927, 927, 927, 914));
+        __assert(__FILE__, LN(927, 914, 914, 927, 927, 927, 914), "0");
 #endif
 #endif
 #endif

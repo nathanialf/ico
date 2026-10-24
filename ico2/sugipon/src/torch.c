@@ -265,7 +265,7 @@ inline void SetTorchLife(GObj *torch, int life, int fadeTime)
 inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
 {
     TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
-                                     LN(232, 232, 232, 232, 232, 232));
+                                     LN(232, 232, 232, 232, 232, 232, 232));
     *p = emptyTorchWork;
     /* the display object read through the SubHandle union each time: the
        light store reads the slot again after the work store, which three
@@ -352,14 +352,14 @@ inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #ifdef VERSION_JUN26
     TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
-                                     LN(232, 232, 232, 232, 232, 174));
+                                     LN(232, 232, 232, 232, 232, 174, 232));
 #else
     TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
-                                     LN(232, 232, 232, 232, 174, 232));
+                                     LN(232, 232, 232, 232, 174, 232, 232));
 #endif
 #else
     TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
-                                     LN(196, 196, 196, 196, 196, 196));
+                                     LN(196, 196, 196, 196, 196, 196, 196));
 #endif
     *p = emptyTorchWork;
     /* the display object read through the SubHandle union each time: the

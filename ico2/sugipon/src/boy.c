@@ -498,34 +498,34 @@ LightLineExt *InitLightLineGeo(GObj *gobj, float *pos)
 
 #ifdef VERSION_NTSC
     llExtGeo = &_llExtGeo;
-    llExtGeo->phase =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(135, 135, 135, 135, 135, 135));
-    llExtGeo->speed =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(136, 136, 136, 136, 136, 136));
-    llExtGeo->line =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(137, 137, 137, 137, 137, 137));
+    llExtGeo->phase = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c",
+                                     LN(135, 135, 135, 135, 135, 135, 135));
+    llExtGeo->speed = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c",
+                                     LN(136, 136, 136, 136, 136, 136, 136));
+    llExtGeo->line = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c",
+                                    LN(137, 137, 137, 137, 137, 137, 137));
 #else
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     llExtGeo = &_llExtGeo;
 #else
     llExtGeo = &lightLineExt;
 #endif
-    llExtGeo->phase =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(161, 161, 161, 161, 135, 130));
-    llExtGeo->speed =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(162, 162, 162, 162, 136, 131));
-    llExtGeo->line =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(163, 163, 163, 163, 137, 132));
+    llExtGeo->phase = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c",
+                                     LN(161, 161, 161, 161, 135, 130, 161));
+    llExtGeo->speed = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c",
+                                     LN(162, 162, 162, 162, 136, 131, 162));
+    llExtGeo->line = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c",
+                                    LN(163, 163, 163, 163, 137, 132, 163));
 #endif
     for (i = 0; i < 100; i++) {
         llExtGeo->phase[i] = 0.0f;
         llExtGeo->speed[i] = random_unit() * 0.1f + 0.01f;
 #ifdef VERSION_NTSC
         llExtGeo->line[i] = iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c",
-                                           LN(142, 142, 142, 142, 142, 142));
+                                           LN(142, 142, 142, 142, 142, 142, 142));
 #else
         llExtGeo->line[i] = iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c",
-                                           LN(168, 168, 168, 168, 142, 137));
+                                           LN(168, 168, 168, 168, 142, 137, 168));
 #endif
         CopyVector(llExtGeo->line[i], &v);
         llExtGeo->line[i][0].x += (float)((i - 0x32) * 5);
@@ -666,7 +666,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     BoyWork *p;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c",
-                       LN(280, 280, 280, 280, 254, 243));
+                       LN(280, 280, 280, 280, 254, 243, 280));
     /* the work word, stored and read back as char * */
     *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x7D0) = (char *)w;
     p = (BoyWork *)*(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x7D0);
@@ -748,7 +748,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
 #ifdef VERSION_NTSC
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c",
-                       LN(254, 254, 254, 254, 254, 254));
+                       LN(254, 254, 254, 254, 254, 254, 254));
     /* the work word, stored and read back as char * */
     *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x800) = (char *)w;
     p = (BoyWork *)*(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x800);
@@ -758,7 +758,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
 #endif
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c",
-                       LN(280, 280, 280, 280, 254, 243));
+                       LN(280, 280, 280, 280, 254, 243, 280));
     /* the work word, stored and read back as char * */
 #ifdef VERSION_AUG6
     *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x7F0) = (char *)w;
@@ -998,7 +998,7 @@ void BoyGeo(GObj *gobj)
     synchronizeMotionOutputOriginForGirl(gobj);
     execClothes(gobj);
     ExecuteSlipProc(gobj);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     SetActressLight(gobj, 35, 44, 467);
 #else
 #ifdef VERSION_NTSC
@@ -1155,7 +1155,7 @@ void BoyDL(GObj *gobj)
         GetRootPosition(pos, gobj);
         GetRootQuaternion(quat, gobj);
         RotQuaternionY(quat, -32768);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         r = (int)stage_PlayBgAnimation(484, (float)w->stoneAnim, pos, quat);
 #else
         r = (int)stage_PlayBgAnimation(488, (float)w->stoneAnim, pos, quat);

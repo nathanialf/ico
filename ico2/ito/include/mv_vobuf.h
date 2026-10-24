@@ -22,7 +22,7 @@ typedef struct VoTag {      /* field names derived */
 typedef struct VoTag { /* field names derived */
     int status;        /* 0x00: 2 decoded, 1 field 0 shown, 0 free */
     char pad4[60];     /* 0x04 */
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     char packet[5][131584]; /* 0x40, the per-field image transfer packets */
 #else
     char packet[5][157440]; /* 0x40, the per-field image transfer packets */
@@ -30,9 +30,9 @@ typedef struct VoTag { /* field names derived */
 } VoTag; /* derived name */
 #endif
 
-/* One decoded picture: 720 x 576 RGBA32 (JPN and KOR 720 x 480). */
+/* One decoded picture: 720 x 576 RGBA32 (JPN, KOR and CN 720 x 480). */
 typedef struct VoData { /* field names derived */
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     unsigned int pixel[345600];
 #else
 #ifdef VERSION_JUN26

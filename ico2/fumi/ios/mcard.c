@@ -30,10 +30,15 @@ int IosMcLock = -1;
 
 char *iconName[3] = {"boy_blk.ico", "boy_blk.ico", "boy_blk.ico"};
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-#ifdef VERSION_KOR
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+#if defined(VERSION_KOR) || defined(VERSION_CN)
+#ifdef VERSION_CN
+char *iOSMcSaveSeg[6] = {"BISCPS-55001ico", "icon.sys",    "boy_blk.ico",
+                         "boy_blk.ico",     "boy_blk.ico", "game."};
+#else
 char *iOSMcSaveSeg[6] = {"BISCPS-56001ico", "icon.sys",    "boy_blk.ico",
                          "boy_blk.ico",     "boy_blk.ico", "game."};
+#endif
 #else
 char *iOSMcSaveSeg[6] = {"BISCPS-11003ico", "icon.sys",    "boy_blk.ico",
                          "boy_blk.ico",     "boy_blk.ico", "game."};
@@ -178,7 +183,7 @@ static inline int product_write(McMgr *self)
     (IosMcProductFile + self->port)->vibration = iosPadActRequestEnable;
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     (IosMcProductFile + self->port)->controlType = optionControlType;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)
     (IosMcProductFile + self->port)->cameraMove = NonLinearCameraMove;
     (IosMcProductFile + self->port)->palMode = systemStatus[0];
 #endif
@@ -554,9 +559,13 @@ retry:
     }
 
     if (mp->flags.ll & 2) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-#ifdef VERSION_KOR
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+#if defined(VERSION_KOR) || defined(VERSION_CN)
+#ifdef VERSION_CN
+        *(McName *)mp->path = *(McName *)"/BISCPS-55001ico";
+#else
         *(McName *)mp->path = *(McName *)"/BISCPS-56001ico";
+#endif
 #else
         *(McName *)mp->path = *(McName *)"/BISCPS-11003ico";
 #endif
@@ -577,9 +586,13 @@ retry:
         }
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-#ifdef VERSION_KOR
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+#if defined(VERSION_KOR) || defined(VERSION_CN)
+#ifdef VERSION_CN
+    *(McName *)mp->dirName = *(McName *)"/BISCPS-55001ico";
+#else
     *(McName *)mp->dirName = *(McName *)"/BISCPS-56001ico";
+#endif
 #else
     *(McName *)mp->dirName = *(McName *)"/BISCPS-11003ico";
 #endif

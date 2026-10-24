@@ -859,11 +859,11 @@ static void _checkCliffAndWall(void)
     }
     if (GOBJ_SUB(skelGObj)->ctrl.wallHit != 0 && GOBJ_SUB(skelGObj)->root.wall.elem == 0) {
 #ifdef VERSION_NTSC
-        debug_assertMessage(__FILE__, LN(816, 816, 816, 816, 816, 816), "NOT ENTRY WCL\n");
-        __assert(__FILE__, LN(816, 816, 816, 816, 816, 816), "e");
+        debug_assertMessage(__FILE__, LN(816, 816, 816, 816, 816, 816, 816), "NOT ENTRY WCL\n");
+        __assert(__FILE__, LN(816, 816, 816, 816, 816, 816, 816), "e");
 #else
-        debug_assertMessage(__FILE__, LN(822, 822, 822, 822, 816, 788), "NOT ENTRY WCL\n");
-        __assert(__FILE__, LN(822, 822, 822, 822, 816, 788), "e");
+        debug_assertMessage(__FILE__, LN(822, 822, 822, 822, 816, 788, 822), "NOT ENTRY WCL\n");
+        __assert(__FILE__, LN(822, 822, 822, 822, 816, 788, 822), "e");
 #endif
     }
 }
@@ -1009,17 +1009,17 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
                 "MAY BE MOTION ORIENT DATA WAS BROKEN\n(MOTIONNAME:\"%s\" ID:%d: rootUpdateMode:%d)\n",
                 skelMotDef->name, pm->motion, pm->rootUpdateMode);
 #ifdef VERSION_NTSC
-            debug_assertMessage(__FILE__, LN(991, 991, 991, 991, 991, 991), buf);
-            __assert(__FILE__, LN(991, 991, 991, 991, 991, 991), "e");
+            debug_assertMessage(__FILE__, LN(991, 991, 991, 991, 991, 991, 991), buf);
+            __assert(__FILE__, LN(991, 991, 991, 991, 991, 991, 991), "e");
 #else
-            debug_assertMessage(__FILE__, LN(997, 997, 997, 997, 989, 961), buf);
+            debug_assertMessage(__FILE__, LN(997, 997, 997, 997, 989, 961, 997), buf);
 #ifdef VERSION_AUG6
-            __assert(__FILE__, LN(822, 822, 822, 822, 989, 822), "e");
+            __assert(__FILE__, LN(822, 822, 822, 822, 989, 822, 822), "e");
 #else
 #ifdef VERSION_JUN26
-            __assert(__FILE__, LN(822, 822, 822, 822, 816, 961), "e");
+            __assert(__FILE__, LN(822, 822, 822, 822, 816, 961, 822), "e");
 #else
-            __assert(__FILE__, LN(997, 997, 997, 997, 997, 997), "e");
+            __assert(__FILE__, LN(997, 997, 997, 997, 997, 997, 997), "e");
 #endif
 #endif
 #endif

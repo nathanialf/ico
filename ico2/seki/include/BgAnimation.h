@@ -49,7 +49,7 @@ typedef struct BgaHeader { /* field names derived */
     BgaAnim *anim;             /* 0x24 */
 } BgaHeader;                   /* derived name */
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)
 #ifndef VERSION_NTSC
 /* set when an animation's camera cut restarts the global timer; the stream
    motion player resynchronises on it and clears it */

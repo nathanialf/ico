@@ -43,8 +43,8 @@ extern char D_002E3508[];
 #ifdef VERSION_NTSC
 extern char D_002E8208[];
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-#ifdef VERSION_KOR
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+#if defined(VERSION_KOR) || defined(VERSION_CN)
 extern char D_0030A6EC[];
 #else
 extern char D_0030A66C[];
@@ -103,7 +103,7 @@ static inline char *get_texture_base_name(const char *src) /* derived name */
     return p;
 }
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 static inline char *get_texture_base_name(const char *src) /* derived name */
 #else
 static inline char *get_texture_base_name(char *src) /* derived name */
@@ -134,7 +134,7 @@ static inline char *get_texture_base_name(char *src) /* derived name */
 static inline int get_texture_no_of_property(int idx) /* derived name */
 {
     int n;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     const char *src;
 #else
 #ifdef VERSION_JUN26
@@ -157,14 +157,14 @@ static inline int get_texture_no_of_property(int idx) /* derived name */
     no = tex_GetTextureNo(name);
 
     if (no < 0) {
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         debug_StdPrintfDummy("tex_id %d\n", n);
 #endif
 #endif
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
-        debug_assert(__FILE__, LN(272, 265, 265, 255, 255, 255));
-        __assert(__FILE__, LN(272, 265, 265, 255, 255, 255), "0");
+        debug_assert(__FILE__, LN(272, 265, 265, 255, 255, 255, 265));
+        __assert(__FILE__, LN(272, 265, 265, 255, 255, 255, 265), "0");
     }
     return no;
 }
@@ -209,14 +209,14 @@ static inline int kanban_layout_key(LtProp *pr) /* derived name */
     } else {
         unsigned long button = pad[0].flags;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (button & 0x20) {
 #else
         if (button & 0x40) {
 #endif
             ret = 1;
         } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             ret = (button & 0x40) ? 2 : 0;
 #else
             ret = (button & 0x10) ? 2 : 0;
@@ -363,12 +363,12 @@ static void init_textures_of_specified_property(int first, int last)
         *(void **)(D_002CC054 + i * 88 - 4) = tex_GetTextureData(no);
         tex_SetSamplingType(*(void **)(D_002CC054 + i * 88 - 4), 1, 1);
 #else
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)
         debug_StdPrintfDummy("propertyId %d\n", i);
 #endif
         no = get_texture_no_of_property(i);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
-#ifdef VERSION_KOR
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
+#if defined(VERSION_KOR) || defined(VERSION_CN)
         *(int *)(D_0030A6EC + i * 0x70) = no;
         *(void **)(D_0030A6EC + i * 0x70 - 4) = tex_GetTextureData(no);
         tex_SetSamplingType(*(void **)(D_0030A6EC + i * 0x70 - 4), 1, 1);
@@ -393,7 +393,7 @@ void kanbanInit(int no)
     if (no != 0) {
         init_textures_of_property_range(stageData[no].layoutFirst, stageData[no].layoutLast);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
         init_textures_of_property_range(0, 4);
 #else
 #ifdef VERSION_JUN26
@@ -534,7 +534,7 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
             pt[1] = r[1] + rand() % r[3];
             col2.b[3] = rand() % 127 + 32;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         for (i = 0; i < r[2] * r[3] / 1200; i++) {
 #else
         for (i = 0; i < r[2] * r[3] / 300; i++) {

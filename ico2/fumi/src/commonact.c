@@ -1385,7 +1385,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         }
         break;
     case 259:
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 10) & 1) {
 #else
         if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 9) & 1) {
@@ -1394,7 +1394,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         }
         break;
     case 298:
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (sk->actMode == 5 && *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 26) {
 #else
         if (sk->actMode == 5 && *(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 26) {
@@ -1403,7 +1403,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         }
         break;
     case 297:
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (sk->actMode == 1 &&
             *(long long *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 0x1A00000005LL) {
 #else
@@ -1418,7 +1418,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         msg = ChangeMailInLadder(self, msg);
         break;
     case 240:
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 3) & 1) {
 #else
         if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 5) & 1) {
@@ -1429,7 +1429,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         }
         break;
     case 241:
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 3) & 1) {
 #else
         if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 5) & 1) {
@@ -1556,7 +1556,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         }
         break;
     case 7:
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
         if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->modeBits.word >> 16) & 7) {
 #else
         if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->modeBits.word >> 19) & 7) {
@@ -1587,7 +1587,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         if (!(((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 19) & 1)) {
             msg = 384;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (!(((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 24) & 1)) {
 #else
         if (!(((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 25) & 1)) {
@@ -1614,7 +1614,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
                 iosOmSendMail(self, 57, param);
             }
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 38) {
 #else
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 38) {
@@ -1652,7 +1652,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         } else if (flagB) {
             msg = 43;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 21) {
 #else
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 21) {
@@ -1692,7 +1692,7 @@ int _ACTCorrectMsg(GObj *self, int msg, void *param)
         if (GOBJ_ACT(self)->unguardable != 0) {
             debug_StdPrintfDummy("!!! unable guard flag get\n");
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
         if (stage_no == 83 || debug_use_new_queen_battle != 0) {
 #else
         if (stage_no == 85 || debug_use_new_queen_battle != 0) {
@@ -2076,7 +2076,7 @@ int ACTGetOrientFromIntrK(GObj *self, int k, MotOriReq *out, int arg)
 
 void ACTRunIntrCorrect(GObj *self, IntrMail *intr, IntrMail *corr)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     MotionDef *rec;
 #else
 #ifndef VERSION_AUG6
@@ -2121,7 +2121,7 @@ void ACTRunIntrCorrect(GObj *self, IntrMail *intr, IntrMail *corr)
 
     setIntrFlags();
     correctIntrList();
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     rec = &motionKind[GOBJ_SUB(self)->ctrl.motion];
     if (rec->flags.bits.intr10Live) {
 #else
@@ -2206,7 +2206,7 @@ void WithMailFunc_AttackRejectInQueen(GObj *self)
         if (e != 0) {
             iosOmSendMail(e, 13, self);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (stage_no == 83 || debug_use_new_queen_battle != 0) {
 #else
     if (stage_no == 85 || debug_use_new_queen_battle != 0) {
@@ -2353,11 +2353,13 @@ inline void actAfterForceRope(GObj *volatile self)
     Act *s = GOBJ_ACT(self);
     if (s->chain == 0) {
 #ifdef VERSION_NTSC
-        debug_assert("src/commonact.c", LN(1455, 1455, 1455, 1455, 1455, 1455));
-        __assert("src/commonact.c", LN(1455, 1455, 1455, 1455, 1455, 1455), "ROPE_GOBJ!=NULL");
+        debug_assert("src/commonact.c", LN(1455, 1455, 1455, 1455, 1455, 1455, 1455));
+        __assert("src/commonact.c", LN(1455, 1455, 1455, 1455, 1455, 1455, 1455),
+                 "ROPE_GOBJ!=NULL");
 #else
-        debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 1267));
-        __assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 1267), "ROPE_GOBJ!=NULL");
+        debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 1267, 1531));
+        __assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 1267, 1531),
+                 "ROPE_GOBJ!=NULL");
 #endif
     }
     UnLockChainGeo(s->chain);
@@ -3410,7 +3412,7 @@ void actCommonRopeSpecial(GObj *volatile self)
     } else {
         cage = GOBJ_WORK(self)->ropeCage;
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 4 ||
         *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 5) {
 #else
@@ -3872,7 +3874,7 @@ void actCommonDie(GObj *volatile self)
         if (self->kind == 4 && g != 0) {
             iosOmSendMail(g, 18, self);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (self->labelId == 3734) {
             gamesysObjInfoCls(4, 3734);
             gamesysObjInfoCls(33, 3735);
@@ -3919,7 +3921,7 @@ void actCommonDie(GObj *volatile self)
     while (1) {
 #else
 #ifndef VERSION_AUG6
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (self->labelId == 3734) {
 #else
     if (self->labelId == 3757) {
@@ -3995,20 +3997,20 @@ void actCommonCling(GObj *volatile self)
         q[3] = 1.0f;
         if (!((unsigned int)idx < 15)) {
 #ifdef VERSION_NTSC
-            debug_assert("src/commonact.c", LN(2542, 2542, 2542, 2542, 2542, 2542));
-            __assert("src/commonact.c", LN(2542, 2542, 2542, 2542, 2542, 2542),
+            debug_assert("src/commonact.c", LN(2542, 2542, 2542, 2542, 2542, 2542, 2542));
+            __assert("src/commonact.c", LN(2542, 2542, 2542, 2542, 2542, 2542, 2542),
                      "index>=ClingDataID_cling_start && index<ClingDataID_cling_end");
 #else
 #ifdef VERSION_AUG6
-            debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 2494, 1531));
+            debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 2494, 1531, 1531));
 #else
 #ifdef VERSION_JUN26
-            debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 2220));
+            debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 2220, 1531));
 #else
-            debug_assert("src/commonact.c", LN(2733, 2733, 2733, 2733, 2733, 2733));
+            debug_assert("src/commonact.c", LN(2733, 2733, 2733, 2733, 2733, 2733, 2733));
 #endif
 #endif
-            __assert("src/commonact.c", LN(2733, 2733, 2733, 2733, 2494, 2220),
+            __assert("src/commonact.c", LN(2733, 2733, 2733, 2733, 2494, 2220, 2733),
                      "index>=ClingDataID_cling_start && index<ClingDataID_cling_end");
 #endif
         }
@@ -4442,7 +4444,7 @@ void actCommonBox(GObj *volatile self)
     GObj *sub;
     float hold[4];
 #endif
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
     int dbg = 0; /* local debug switch, see the test after the hold point below */
 #endif
 #ifdef VERSION_NTSC
@@ -4465,7 +4467,7 @@ void actCommonBox(GObj *volatile self)
     }
     ((Act *)(char *)s)->box = box;
     actMotDirToWall(self);
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
     sceVu0ScaleVector(GOBJ_WORK(self)->boxDir, s->env.wallOrient, -1.0f);
 #endif
@@ -4562,7 +4564,7 @@ void actCommonBox(GObj *volatile self)
             SetDirectRootPositionNoFittingWithNodePointXZ(
                 (void *)self, 22, pos, GOBJ_SUB(self)->ctrl.frameFlag1 != 0 ? 1.0f : 0.3f);
 #endif
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             /* a local debug switch, off: mark the global hold point. The
                ROM's stack slot order needs the block here, and the August
                TRFILE (3132-3136) and PAL's listing (3379-3383) have five
@@ -4856,10 +4858,12 @@ void actCommonJump(GObj *volatile self)
 }
 #else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_JUN26)
+#ifndef VERSION_CN
 typedef struct { /* field names derived */
     char pad0[398];
     unsigned short f18E;
 } MotRecJ; /* derived name */
+#endif
 #endif
 
 void actCommonJump(GObj *volatile self)
@@ -4905,7 +4909,7 @@ void actCommonJump(GObj *volatile self)
         SetMotionDirection(self, GOBJ_WORK(self)->boyOrient);
         s->flags18.ll |= (1ULL << 56);
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     n = *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0);
 #else
     n = *(int *)((char *)GOBJ_ACT(self)->work + 0x900);
@@ -4953,7 +4957,7 @@ void actCommonJump(GObj *volatile self)
 #ifdef VERSION_JUN26
         ACTSendMailCorrect(self, 171);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (motionKind[GOBJ_SUB(self)->ctrl.motion].flags.bits.jumpHit) {
 #else
         if (((MotRecJ *)&motionKind[GOBJ_SUB(self)->ctrl.motion])->f18E & 1) {
@@ -5190,7 +5194,7 @@ static inline int IsFallStuckOnStep(GObj *self, int state, int mot, int need,
     for (i = 0, n = 1, q = (int *)((char *)s->work + 0x838); i < 10; i++, q++) {
         if (q[-10] == state && (mot == 384 || mot == q[10])) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     for (i = 0, n = 1, q = (int *)((char *)s->work + 0x918); i < 10; i++, q++) {
 #else
     for (i = 0, n = 1, q = (int *)((char *)s->work + 0x928); i < 10; i++, q++) {
@@ -5254,7 +5258,7 @@ void actCommonFall(GObj *volatile self)
     case 152:
 #else
     case 226:
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 34 ||
             *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 28 ||
             *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 30) {
@@ -5342,7 +5346,7 @@ void actCommonFall(GObj *volatile self)
         if (d < 800.0f) {
             GOBJ_WORK(self)->fallDamageHeight = 900.0f;
         } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             if (*(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) != 38) {
 #else
             if (*(int *)((char *)GOBJ_ACT(self)->work + 0x900) != 38) {
@@ -5361,7 +5365,7 @@ void actCommonFall(GObj *volatile self)
 #ifdef VERSION_AUG6
         n = *(int *)((char *)GOBJ_ACT(self)->work + 0x810);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (mot == 7 && *(int *)((char *)GOBJ_ACT(self)->work + 0x940) == 259) {
 #else
         if (mot == 7 && *(int *)((char *)GOBJ_ACT(self)->work + 0x950) == 259) {
@@ -5371,7 +5375,7 @@ void actCommonFall(GObj *volatile self)
             FALL_SUB(self)->root.move[2] = 0;
             noVel = 1;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         n = *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0);
 #else
         n = *(int *)((char *)GOBJ_ACT(self)->work + 0x900);
@@ -5395,7 +5399,7 @@ void actCommonFall(GObj *volatile self)
         if ((unsigned char)IsFallStuckOnStep(self, 5, 384, 2, 60)) {
             ((Act *)(char *)s)->flags20.ll |= (1ULL << 18);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (self == girlGObj && mot == 7 && *(int *)((char *)GOBJ_ACT(self)->work + 0x8F0) == 21) {
 #else
         if (self == girlGObj && mot == 7 && *(int *)((char *)GOBJ_ACT(self)->work + 0x900) == 21) {
@@ -5513,7 +5517,7 @@ static inline float calcFlyAccel(float *a, float *b) /* derived name */
     _SubVector(d, a, b);
     h = d[1];
     d[1] = 0.0f;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     h += -VectorLength(d) * (stage_no == 84 || stage_no == 3 || stage_no == 46 ? 2.5f : 0.5f);
 #else
     h += -VectorLength(d) * (stage_no == 86 || stage_no == 3 || stage_no == 46 ? 2.5f : 0.5f);
@@ -5952,7 +5956,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
         flags |= 1;
         SetFlyLimit(self);
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
     if (stage_no == 84 || stage_no == 3 || stage_no == 46) {
 #else
     if (stage_no == 86 || stage_no == 3 || stage_no == 46) {
@@ -6135,7 +6139,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
         GetRootMotionMatrix(mat, self);
         if (target) {
             GetRootPosition(root, target);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
             if (stage_no == 84 || stage_no == 3 || stage_no == 46) {
 #else
             if (stage_no == 86 || stage_no == 3 || stage_no == 46) {
@@ -6197,7 +6201,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
                     debug_StdPrintfDummy("EMERGENCY COMPLETE CHECK : SPEEDSQ:%f LENSQ:%f\n",
                                          VectorLengthSquare((char *)GOBJ_SUB(self) + 0x130), spd);
                 }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 if (stage_no != 84 && stage_no != 3 && stage_no != 46) {
 #else
                 if (stage_no != 86 && stage_no != 3 && stage_no != 46) {
@@ -6227,7 +6231,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
                 debug_PrintfDummy(10, y += 10, 0x80FF0080, "EMERGENCY BY DANGER LOOP");
             acc = calcVertAccel(root, mat[3]);
             _ACTMotDirSmzDirect(self, dir);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
             if (stage_no != 84 && stage_no != 3 && stage_no != 46) {
 #else
             if (stage_no != 86 && stage_no != 3 && stage_no != 46) {
@@ -6328,7 +6332,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
 #else
         _ScaleVectorXYZ((char *)GOBJ_SUB(self) + 0x130, (char *)GOBJ_SUB(self) + 0x130, 0.92f);
         if (((int)(act->flags20.ll >> 21) & 1) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             FlyPt v = {{0.0f, 0.0f,
                         stage_no == 84 || stage_no == 3 || stage_no == 46
                             ? 3.0f
@@ -6365,7 +6369,7 @@ static void flyCoreLoop(GObj *self, GObj *target, int checkStuck)
             _AddVectorXYZ((char *)GOBJ_SUB(self) + 0x130, (char *)GOBJ_SUB(self) + 0x130, &v);
             GOBJ_SUB(self)->root.move[1] += acc * 2.0f;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if ((stage_no == 84 || stage_no == 3 || stage_no == 46) &&
             (60 - systemStatus[0] * 10) / systemStatus[1] * 10 < cnt104) {
 #else
@@ -7142,7 +7146,7 @@ int SetMotionDirectionSmooze(GObj *self, float *dir, float s)
         *(long long *)((char *)GOBJ_ACT(self)->work + 0x810) == 0x1A00000005LL) {
         s = 30.0f;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags.word >> 2) & 1 &&
         *(long long *)((char *)sub->work + 0x8F0) == 0x1A00000005LL) {
 #else
@@ -7507,7 +7511,7 @@ void _ACTCommonMailTest(GObj *self, int stopCnt, int walkCnt, int runCnt)
         ret = self == boyGObj;
         break;
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (((motionKind + GOBJ_SUB(self)->ctrl.motion)->flags2.word >> 2) & 1) {
 #else
 #ifdef VERSION_AUG6
@@ -7657,7 +7661,7 @@ int E3_LeverCheck(GObj *self)
 
 extern SlowrunRec motionOrient[];
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #ifndef VERSION_JUN26
 typedef struct { /* field names derived */
     char pad0[396];
@@ -7980,7 +7984,7 @@ void actCommonBecarry(GObj *volatile self)
     n = (int)((50.0f - _DistxzGV(test_CURRENTROOT(g), test_CURRENTROOT((void *)self))) / 5.0f);
     n = n < 0 ? -n : n;
 #else
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)
     unsigned long long fl;
 #endif
 
@@ -8036,7 +8040,7 @@ void actCommonBecarry(GObj *volatile self)
             }
         }
         if (6 <= s->modeFrame) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_AUG6)
             if (actModeTbl[GOBJ_ACT(g)->actMode].carried ||
                 motionKind[GOBJ_SUB(g)->ctrl.motion].flags.bits.carried) {
 #else
@@ -8711,7 +8715,7 @@ void actCommonSlowrun(GObj *volatile self)
         ((IntFloatSR *)p[1])[0].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x30);
         ((IntFloatSR *)p[1])[1].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x34);
         ((IntFloatSR *)p[1])[2].f = *(float *)((i2 << 6) + GOBJ_SUB(boyGObj)->nodeMtx + 0x38);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (((motionKind + GOBJ_SUB(girlGObj)->ctrl.motion)->flags.word >> 31) & 1) {
 #else
         if (((motionKind + GOBJ_SUB(girlGObj)->ctrl.motion)->flags.word >> 29) & 1) {
@@ -8755,7 +8759,7 @@ void ACT_LAYOUT_GAMEOVER(void)
 {
     if (gameover_layout_flag == 0) {
         gameover_layout_flag = 1;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         lt_switch_layout(59);
 #else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
@@ -10103,7 +10107,7 @@ inline void motCommonBoxPush(GObj *volatile self)
 
     s->pushDir = 1;
     while (1) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
         actMotDirToWall(self);
 #else
 #ifdef VERSION_JUN26
@@ -10126,7 +10130,7 @@ inline void motCommonBoxPull(GObj *volatile self)
 
     s->pushDir = -1;
     while (1) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
         actMotDirToWall(self);
 #else
 #ifdef VERSION_JUN26
@@ -10697,21 +10701,25 @@ inline void actAfterForceRopeSwing(GObj *volatile self)
     if (s->chain == 0) {
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #ifdef VERSION_JUN26
-        debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 1386));
-        __assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 1386), "ROPE_GOBJ!=NULL");
+        debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 1386, 1531));
+        __assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1427, 1386, 1531),
+                 "ROPE_GOBJ!=NULL");
 #else
-        debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1549, 1531));
-        __assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1549, 1531), "ROPE_GOBJ!=NULL");
+        debug_assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1549, 1531, 1531));
+        __assert("src/commonact.c", LN(1531, 1531, 1531, 1531, 1549, 1531, 1531),
+                 "ROPE_GOBJ!=NULL");
 #endif
     }
     UnLockChainGeo(s->chain);
 #else
 #ifdef VERSION_NTSC
-        debug_assert("src/commonact.c", LN(1577, 1577, 1577, 1577, 1577, 1577));
-        __assert("src/commonact.c", LN(1577, 1577, 1577, 1577, 1577, 1577), "ROPE_GOBJ!=NULL");
+        debug_assert("src/commonact.c", LN(1577, 1577, 1577, 1577, 1577, 1577, 1577));
+        __assert("src/commonact.c", LN(1577, 1577, 1577, 1577, 1577, 1577, 1577),
+                 "ROPE_GOBJ!=NULL");
 #else
-        debug_assert("src/commonact.c", LN(1653, 1653, 1653, 1653, 1653, 1653));
-        __assert("src/commonact.c", LN(1653, 1653, 1653, 1653, 1653, 1653), "ROPE_GOBJ!=NULL");
+        debug_assert("src/commonact.c", LN(1653, 1653, 1653, 1653, 1653, 1653, 1653));
+        __assert("src/commonact.c", LN(1653, 1653, 1653, 1653, 1653, 1653, 1653),
+                 "ROPE_GOBJ!=NULL");
 #endif
     }
     UnLockChainGeo(s->chain);

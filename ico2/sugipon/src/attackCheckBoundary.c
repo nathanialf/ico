@@ -300,20 +300,20 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(GObj *self, SObjSimpleSetting *lay)
     rec = &layoutClothDef[lay->obj];
 #ifdef VERSION_NTSC
     mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__,
-                                   LN(173, 173, 173, 173, 173, 173));
+                                   LN(173, 173, 173, 173, 173, 173, 173));
 #else
     mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__,
-                                   LN(180, 180, 180, 180, 173, 172));
+                                   LN(180, 180, 180, 180, 173, 172, 180));
 #endif
     mgr->prev = mgr->cur;
     mgr->cur = 0;
     mgr->count = rec->count;
 #ifdef VERSION_NTSC
     mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__,
-                                           LN(182, 182, 182, 182, 182, 182));
+                                           LN(182, 182, 182, 182, 182, 182, 182));
 #else
     mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__,
-                                           LN(189, 189, 189, 189, 182, 181));
+                                           LN(189, 189, 189, 189, 182, 181, 189));
 #endif
     v0[0] = rec->pt[0][0];
     v0[1] = -rec->pt[0][1];

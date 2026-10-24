@@ -164,11 +164,11 @@ SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, i
         }
     }
 #ifdef VERSION_NTSC
-    debug_assert(adpcmSrcFile, LN(360, 360, 360, 360, 360, 360));
-    __assert(adpcmSrcFile, LN(360, 360, 360, 360, 360, 360), "0");
+    debug_assert(adpcmSrcFile, LN(360, 360, 360, 360, 360, 360, 360));
+    __assert(adpcmSrcFile, LN(360, 360, 360, 360, 360, 360, 360), "0");
 #else
-    debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 317));
-    __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 317), "0");
+    debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 317, 363));
+    __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 317, 363), "0");
 #endif
 found:
     p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
@@ -187,19 +187,19 @@ found:
         break;
     default:
 #ifdef VERSION_NTSC
-        debug_assert(adpcmSrcFile, LN(378, 378, 378, 378, 378, 378));
-        __assert(adpcmSrcFile, LN(378, 378, 378, 378, 378, 378), "0");
+        debug_assert(adpcmSrcFile, LN(378, 378, 378, 378, 378, 378, 378));
+        __assert(adpcmSrcFile, LN(378, 378, 378, 378, 378, 378, 378), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 335, 363));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 335, 363), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 335, 363, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 335, 363, 363), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 335));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 335), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 335, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 335, 363), "0");
 #else
-        debug_assert(adpcmSrcFile, LN(381, 381, 381, 381, 381, 381));
-        __assert(adpcmSrcFile, LN(381, 381, 381, 381, 381, 381), "0");
+        debug_assert(adpcmSrcFile, LN(381, 381, 381, 381, 381, 381, 381));
+        __assert(adpcmSrcFile, LN(381, 381, 381, 381, 381, 381, 381), "0");
 #endif
 #endif
 #endif
@@ -331,15 +331,15 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
 
     if (no >= 3) {
 #ifdef VERSION_AUG6
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 125, 363));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 125, 363), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 125, 363, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 125, 363, 363), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 125));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 125), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 125, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 125, 363), "0");
 #else
-        debug_assert(adpcmSrcFile, LN(143, 143, 143, 143, 143, 143));
-        __assert(adpcmSrcFile, LN(143, 143, 143, 143, 143, 143), "0");
+        debug_assert(adpcmSrcFile, LN(143, 143, 143, 143, 143, 143, 143));
+        __assert(adpcmSrcFile, LN(143, 143, 143, 143, 143, 143, 143), "0");
 #endif
 #endif
     }
@@ -370,19 +370,19 @@ void AdpcmClose(SqEntry *obj)
             }
         }
 #ifdef VERSION_NTSC
-        debug_assert(adpcmSrcFile, LN(600, 600, 600, 600, 600, 600));
-        __assert(adpcmSrcFile, LN(600, 600, 600, 600, 600, 600), "0");
+        debug_assert(adpcmSrcFile, LN(600, 600, 600, 600, 600, 600, 600));
+        __assert(adpcmSrcFile, LN(600, 600, 600, 600, 600, 600, 600), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 557, 363));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 557, 363), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 557, 363, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 557, 363, 363), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 555));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 555), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 555, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 555, 363), "0");
 #else
-        debug_assert(adpcmSrcFile, LN(605, 605, 605, 605, 605, 605));
-        __assert(adpcmSrcFile, LN(605, 605, 605, 605, 605, 605), "0");
+        debug_assert(adpcmSrcFile, LN(605, 605, 605, 605, 605, 605, 605));
+        __assert(adpcmSrcFile, LN(605, 605, 605, 605, 605, 605, 605), "0");
 #endif
 #endif
 #endif

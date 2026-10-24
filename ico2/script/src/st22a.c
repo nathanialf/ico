@@ -45,7 +45,7 @@ static int lightningAnims[];
    lightning plays. */
 struct SqEntry *lightning = 0;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 static int lightningAnims[2] = {754, 755}; /* derived name */
 #else
 #ifdef VERSION_NTSC
@@ -294,7 +294,7 @@ void actSt22aIntroChk(GObj *volatile self)
 #else
     gflagOn(323);
     scpSekizouCheckPoint();
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -302,7 +302,7 @@ void actSt22aIntroChk(GObj *volatile self)
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
     gflagOn(324);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(754, 1, 0);
 #else
     stage_SetAnimation(758, 1, 0);
@@ -329,7 +329,7 @@ void actSt22aIntroChk(GObj *volatile self)
             stage_SetAnimation(anims.id[i], 1, -1);
             _ACTWait(1);
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(755, 1, -1);
 #else
 #ifdef VERSION_NTSC
@@ -362,7 +362,7 @@ void actSt22aIntroChk(GObj *volatile self)
         scpPlayMot(boyGObj, 0);
     }
     scpPlayEnd(boyGObj);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
@@ -408,13 +408,13 @@ void actSt22aIntroSub(GObj *volatile self)
     scpPlayMot(boyGObj, 391);
     while (stage_ContinueAnimation(683, 684) == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(754, 1, 0);
 #else
     stage_SetAnimation(758, 1, 0);
 #endif
     scpPlayMot(boyGObj, 397);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_ContinueAnimation(754, 755) == 0) {
 #else
     while (stage_ContinueAnimation(758, 759) == 0) {
@@ -431,7 +431,7 @@ void actSt22aIntroSub(GObj *volatile self)
     while (stage_CheckAnimationFinish(684) == 0) {
 #else
     scpPlayMot(boyGObj, 398);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(755) == 0) {
 #else
     while (stage_CheckAnimationFinish(759) == 0) {

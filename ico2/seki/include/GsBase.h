@@ -47,7 +47,7 @@ int gsb_SaveStageSettings(void);
 void gsb_ClearFrameBuffer(void);
 
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)
 int gsb_ResetSnap(void);
 int gsb_TakeSnap(void);
 #endif

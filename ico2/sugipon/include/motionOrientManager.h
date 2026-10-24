@@ -99,7 +99,7 @@ typedef union { /* field names derived */
         unsigned int handIK : 2; /* MotCtrl handIK */
         unsigned int : 1;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         unsigned int : 24;
         unsigned int fuchiMode : 2; /* MotCtrl fuchiMode */
         unsigned int : 2;
@@ -108,7 +108,7 @@ typedef union { /* field names derived */
         unsigned int : 26;
 #endif
         unsigned int handIK : 2; /* MotCtrl handIK */
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)
         unsigned int fuchiMode : 2; /* MotCtrl fuchiMode */
         unsigned int dirAdjust : 2; /* GetCurrentMotionDirectionAdjustFlag */
 #endif
@@ -117,7 +117,7 @@ typedef union { /* field names derived */
     } bits;
 } MotionModeBits; /* derived name */
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
 typedef union { /* field names derived */
     unsigned int word;
 
@@ -295,14 +295,14 @@ typedef union { /* field names derived */
         unsigned int chainIkRate : 1; /* findChainInJump sets the IK rates to 0.8 by a chain */
         unsigned int : 29;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         unsigned int : 5;
 #else
         unsigned int : 4;
 #endif
         unsigned int weaponSwing
             : 1; /* the held weapon's blade is drawn, its hand left to the motion */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         unsigned int chainIkRate : 1; /* findChainInJump sets the IK rates to 0.8 by a chain */
         unsigned int : 25;
 #else
@@ -371,7 +371,7 @@ typedef struct {    /* field names derived */
     MotionFlags2 flags2;     /* 0x18C */
 } MotionDef;                 /* derived name */
 #else
-/* motion-def: one motion kind, 0x194 bytes (JPN and KOR 0x190), indexed by the motion id the
+/* motion-def: one motion kind, 0x194 bytes (JPN, KOR and CN 0x190), indexed by the motion id the
    motion work carries (Sub15C+0x4A0): the effect, sound and vibration
    triggers frameDependSequence.c fires, the name, the switches
    SetMotionRequest copies into the motion work (MotCtrl), the root update
@@ -402,7 +402,7 @@ typedef struct {     /* field names derived */
     float weaponFrame; /* 0x138 */
     int shiftStart;    /* 0x13C */
     int shiftLength;   /* 0x140 */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     int trigger2End;      /* 0x144 */
     int trigger2Start;    /* 0x148 */
     int triggerEnd;       /* 0x14C */
@@ -439,7 +439,7 @@ typedef struct {     /* field names derived */
     int handTurnIK;       /* 0x17C, MotCtrl handTurnIK */
 #endif
     short priInputBegin; /* 0x180 */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     short priInputEnd;       /* 0x182 */
     MotionModeBits modeBits; /* 0x184 */
     MotionFlags flags;       /* 0x188 */

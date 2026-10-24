@@ -521,10 +521,10 @@ static inline int getSkeltonFocusNode(GObj *self, int focus) /* derived name */
         debug_StdPrintfDummy(
             "このメッセージを見たひとは杉山まで連絡ください: GetSkeltonFocusNode SKEL=NULL\n");
         debug_assertMessage(
-            __FILE__, LN(515, 515, 515, 515, 515, 515),
+            __FILE__, LN(515, 515, 515, 515, 515, 515, 515),
             "GetSkeltonFocusNode:\n PLEASE CALL SUGIYAMA\n GOBJ==NULL Or SKEL==NULL "
             "Or RETURNID>=NBSKELS\n");
-        __assert(__FILE__, LN(515, 515, 515, 515, 515, 515), "e");
+        __assert(__FILE__, LN(515, 515, 515, 515, 515, 515, 515), "e");
     }
     return GOBJ_SUB(self)->focusNodes[focus];
 #endif
@@ -1936,8 +1936,8 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
         __assert(motMan2File, 1358, "e");
 #else
 #ifdef VERSION_AUG6
-        debug_assertMessage(__FILE__, LN(1353, 1353, 1353, 1353, 1353, 1353), "!!");
-        __assert(__FILE__, LN(1353, 1353, 1353, 1353, 1353, 1353), "e");
+        debug_assertMessage(__FILE__, LN(1353, 1353, 1353, 1353, 1353, 1353, 1353), "!!");
+        __assert(__FILE__, LN(1353, 1353, 1353, 1353, 1353, 1353, 1353), "e");
 #else
 #ifdef VERSION_JUN26
         debug_assertMessage(__FILE__, 1341, "!!");

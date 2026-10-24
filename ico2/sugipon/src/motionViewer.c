@@ -161,7 +161,7 @@ static inline int makeMotionKindList(MvMenuEnt *ent, int base) /* derived name *
     int i;
     int k;
 
-    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, LN(93, 93, 93, 93, 92, 92));
+    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, LN(93, 93, 93, 93, 92, 92, 93));
     if (n) {
         k = 0;
         for (i = from; i < to; i++) {
@@ -481,7 +481,7 @@ static int motKindMenuProc(void)
     cur = base + ent->motFirst;
     if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 207 && motionTable[cur] == 0) {
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 400, 192,
                                         0, ent->motLast - ent->motFirst, &motSel, 0);
 #else

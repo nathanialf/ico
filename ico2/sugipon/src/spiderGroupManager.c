@@ -109,9 +109,9 @@ void EntrySpiderGroupManager(GObj *gobj)
         p->active = 0;
     } else {
         debug_assertMessage(
-            "src/spiderGroupManager.c", LN(85, 85, 85, 85, 86, 86),
+            "src/spiderGroupManager.c", LN(85, 85, 85, 85, 86, 86, 85),
             "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n");
-        __assert("src/spiderGroupManager.c", LN(85, 85, 85, 85, 86, 86), "e");
+        __assert("src/spiderGroupManager.c", LN(85, 85, 85, 85, 86, 86, 85), "e");
     }
     spiderGroups[spiderGroupCount].rev = (int)p;
     spiderGroupCount = spiderGroupCount + 1;

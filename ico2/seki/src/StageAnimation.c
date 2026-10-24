@@ -151,8 +151,8 @@ static void stage_MakeGObj(int *dat, int no)
     g = isysGObjAdd(0, 0, 0);
     if (g == 0) {
         debug_StdPrintfDummy("stage_MakeGObj:can't alloc gobj %d\n", no);
-        debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 404));
-        __assert(__FILE__, LN(541, 525, 525, 501, 475, 404), "0");
+        debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 404, 525));
+        __assert(__FILE__, LN(541, 525, 525, 501, 475, 404, 525), "0");
     }
 #ifdef VERSION_JUN26
     e->kind[e->count] = kind;
@@ -180,8 +180,8 @@ static void stage_MakeGObj(int *dat, int no)
     e->count++;
     if (e->count >= 64) {
         debug_Assert("Too much Stage Animation Objects.\n");
-        debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 425));
-        __assert(__FILE__, LN(541, 525, 525, 501, 475, 425), "0");
+        debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 425, 525));
+        __assert(__FILE__, LN(541, 525, 525, 501, 475, 425, 525), "0");
 #else
     e->data[e->flags.b.count] = dat;
     w = (e->flags.i & ~0x3FF) | ((e->flags.b.count + 1) & 0x3FF);
@@ -189,15 +189,15 @@ static void stage_MakeGObj(int *dat, int no)
     if (((w << 22) >> 22) >= 64) {
         debug_Assert("Too much Stage Animation Objects.\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(522, 522, 522, 522, 522, 522));
-        __assert(__FILE__, LN(522, 522, 522, 522, 522, 522), "0");
+        debug_assert(__FILE__, LN(522, 522, 522, 522, 522, 522, 522));
+        __assert(__FILE__, LN(522, 522, 522, 522, 522, 522, 522), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(541, 525, 525, 501, 496, 541));
-        __assert(__FILE__, LN(541, 525, 525, 501, 496, 541), "0");
+        debug_assert(__FILE__, LN(541, 525, 525, 501, 496, 541, 525));
+        __assert(__FILE__, LN(541, 525, 525, 501, 496, 541, 525), "0");
 #else
-        debug_assert(__FILE__, LN(562, 546, 546, 562, 562, 562));
-        __assert(__FILE__, LN(562, 546, 546, 562, 562, 562), "0");
+        debug_assert(__FILE__, LN(562, 546, 546, 562, 562, 562, 546));
+        __assert(__FILE__, LN(562, 546, 546, 562, 562, 562, 546), "0");
 #endif
 #endif
 #endif
@@ -242,8 +242,8 @@ void stage_ApplyData(char *name, char *data)
         }
     }
     sprintf(buf, "stage_ApplyData:Data is not registered. \n\n%s\n", name);
-    debug_assertMessage(__FILE__, LN(577, 577, 577, 577, 577, 577), buf);
-    __assert(__FILE__, LN(577, 577, 577, 577, 577, 577), "e");
+    debug_assertMessage(__FILE__, LN(577, 577, 577, 577, 577, 577, 577), buf);
+    __assert(__FILE__, LN(577, 577, 577, 577, 577, 577, 577), "e");
 }
 #else
 void stage_ApplyData(char *name, char *data)
@@ -270,7 +270,7 @@ void stage_ApplyData(char *name, char *data)
                 for (j = 0; j < 2; j++) {
                     id = ent->anim[j];
                     obj = &stageTable[id];
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                     if (id != 949) {
 #else
 #ifdef VERSION_AUG6
@@ -298,12 +298,12 @@ void stage_ApplyData(char *name, char *data)
     }
 #ifdef VERSION_JUN26
     debug_StdPrintfDummy("stage_ApplyData:Data is not registered. %s\n", name);
-    debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 474));
-    __assert(__FILE__, LN(541, 525, 525, 501, 475, 474), "0");
+    debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 474, 525));
+    __assert(__FILE__, LN(541, 525, 525, 501, 475, 474, 525), "0");
 #else
     sprintf(buf, "stage_ApplyData:Data is not registered. \n\n%s\n", name);
-    debug_assertMessage(__FILE__, LN(617, 601, 601, 617, 551, 617), buf);
-    __assert(__FILE__, LN(617, 601, 601, 617, 551, 617), "e");
+    debug_assertMessage(__FILE__, LN(617, 601, 601, 617, 551, 617, 601), buf);
+    __assert(__FILE__, LN(617, 601, 601, 617, 551, 617, 601), "e");
 #endif
 }
 #endif
@@ -406,8 +406,8 @@ int stage_Init(void)
                                                  stageAnimCount, 82);
                             /* "too many BgAnimation kinds in one stage" */
                             debug_StdPrintfDummy("1ステージ中の BgAnimation の種類が多すぎます\n");
-                            debug_assert(__FILE__, LN(662, 662, 662, 662, 662, 662));
-                            __assert(__FILE__, LN(662, 662, 662, 662, 662, 662), "0");
+                            debug_assert(__FILE__, LN(662, 662, 662, 662, 662, 662, 662));
+                            __assert(__FILE__, LN(662, 662, 662, 662, 662, 662, 662), "0");
                         }
                     }
                 }
@@ -419,8 +419,8 @@ int stage_Init(void)
             /* "stgBgas has %d, over MAX_ANIM_GOBJ %d" */
             debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n",
                                  STG[i].flags.b.count, 64);
-            debug_assert(__FILE__, LN(672, 672, 672, 672, 672, 672));
-            __assert(__FILE__, LN(672, 672, 672, 672, 672, 672), "0");
+            debug_assert(__FILE__, LN(672, 672, 672, 672, 672, 672, 672));
+            __assert(__FILE__, LN(672, 672, 672, 672, 672, 672, 672), "0");
         }
         max = max < STG[i].flags.b.count ? STG[i].flags.b.count : max;
     }
@@ -456,10 +456,10 @@ int stage_Init(void)
                 STG_SUB(e->obj[k])->nodeQuat = 0;
                 STG_SUB(e->obj[k])->nodeMtx =
                     (int)iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 6,
-                                        __FILE__, LN(716, 716, 716, 716, 716, 716));
+                                        __FILE__, LN(716, 716, 716, 716, 716, 716, 716));
                 STG_SUB(e->obj[k])->nodeQuat =
                     (int)iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 4,
-                                        __FILE__, LN(716, 716, 716, 716, 716, 716));
+                                        __FILE__, LN(716, 716, 716, 716, 716, 716, 716));
                 /* the reallocation block's count line, as chain.c, boy.c and
                    box.c spell the same block, here passed the count field
                    itself: a store of the field to itself */
@@ -469,7 +469,7 @@ int stage_Init(void)
                 }
                 STG_SUB(e->obj[k])->nodes =
                     iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum * 80, __FILE__,
-                                   LN(716, 716, 716, 716, 716, 716));
+                                   LN(716, 716, 716, 716, 716, 716, 716));
                 for (t = 0; t < STG_SUB(e->obj[k])->nodeNum; t++) {
                     STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~1;
                     STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~2;
@@ -622,7 +622,7 @@ int stage_Init(void)
                         if (strncmp(obj->data, "BGA", 3) == 0) {
                             STG[stageAnimCount].mode = 0;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                     if (id != 949) {
 #else
 #ifdef VERSION_AUG6
@@ -672,8 +672,8 @@ int stage_Init(void)
                                                  stageAnimCount, 80);
                             /* "too many BgAnimation kinds in one stage" */
                             debug_StdPrintfDummy("1ステージ中の BgAnimation の種類が多すぎます\n");
-                            debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 556));
-                            __assert(__FILE__, LN(541, 525, 525, 501, 475, 556), "0");
+                            debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 556, 525));
+                            __assert(__FILE__, LN(541, 525, 525, 501, 475, 556, 525), "0");
 #else
                         /* the DEBUG-build trace */
                         stageAnimDebugHook();
@@ -685,8 +685,8 @@ int stage_Init(void)
                                                  stageAnimCount, 82);
                             /* "too many BgAnimation kinds in one stage" */
                             debug_StdPrintfDummy("1ステージ中の BgAnimation の種類が多すぎます\n");
-                            debug_assert(__FILE__, LN(541, 525, 525, 501, 634, 541));
-                            __assert(__FILE__, LN(541, 525, 525, 501, 634, 541), "0");
+                            debug_assert(__FILE__, LN(541, 525, 525, 501, 634, 541, 525));
+                            __assert(__FILE__, LN(541, 525, 525, 501, 634, 541, 525), "0");
 #else
                         if (stageAnimCount >= 88) {
                             /* "stgBgas has %d, over MAX_ANIM_KIND %d" */
@@ -694,8 +694,8 @@ int stage_Init(void)
                                                  stageAnimCount, 87);
                             /* "too many BgAnimation kinds in one stage" */
                             debug_StdPrintfDummy("1ステージ中の BgAnimation の種類が多すぎます\n");
-                            debug_assert(__FILE__, LN(702, 686, 686, 702, 702, 702));
-                            __assert(__FILE__, LN(702, 686, 686, 702, 702, 702), "0");
+                            debug_assert(__FILE__, LN(702, 686, 686, 702, 702, 702, 686));
+                            __assert(__FILE__, LN(702, 686, 686, 702, 702, 702, 686), "0");
 #endif
 #endif
                         }
@@ -710,8 +710,8 @@ int stage_Init(void)
             /* "stgBgas has %d, over MAX_ANIM_GOBJ %d" */
             debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n", STG[i].count,
                                  64);
-            debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 566));
-            __assert(__FILE__, LN(541, 525, 525, 501, 475, 566), "0");
+            debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 566, 525));
+            __assert(__FILE__, LN(541, 525, 525, 501, 475, 566, 525), "0");
         }
         max = max < STG[i].count ? STG[i].count : max;
 #else
@@ -720,11 +720,11 @@ int stage_Init(void)
             debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n",
                                  STG[i].flags.b.count, 64);
 #ifdef VERSION_AUG6
-            debug_assert(__FILE__, LN(541, 525, 525, 501, 644, 541));
-            __assert(__FILE__, LN(541, 525, 525, 501, 644, 541), "0");
+            debug_assert(__FILE__, LN(541, 525, 525, 501, 644, 541, 525));
+            __assert(__FILE__, LN(541, 525, 525, 501, 644, 541, 525), "0");
 #else
-            debug_assert(__FILE__, LN(712, 696, 696, 712, 712, 712));
-            __assert(__FILE__, LN(712, 696, 696, 712, 712, 712), "0");
+            debug_assert(__FILE__, LN(712, 696, 696, 712, 712, 712, 696));
+            __assert(__FILE__, LN(712, 696, 696, 712, 712, 712, 696), "0");
 #endif
         }
         max = max < STG[i].flags.b.count ? STG[i].flags.b.count : max;
@@ -791,10 +791,10 @@ int stage_Init(void)
 #ifdef VERSION_AUG6
                 STG_SUB(e->obj[k])->nodeMtx =
                     (int)iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 6,
-                                        __FILE__, LN(688, 688, 688, 688, 688, 688));
+                                        __FILE__, LN(688, 688, 688, 688, 688, 688, 688));
                 STG_SUB(e->obj[k])->nodeQuat =
                     (int)iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 4,
-                                        __FILE__, LN(688, 688, 688, 688, 688, 688));
+                                        __FILE__, LN(688, 688, 688, 688, 688, 688, 688));
 #else
 #ifdef VERSION_JUN26
                 STG_SUB(e->obj[k])->nodeMtx = (int)iosMallocDebug(
@@ -804,10 +804,10 @@ int stage_Init(void)
 #else
                 STG_SUB(e->obj[k])->nodeMtx =
                     (int)iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 6,
-                                        __FILE__, LN(761, 745, 745, 761, 761, 761));
+                                        __FILE__, LN(761, 745, 745, 761, 761, 761, 745));
                 STG_SUB(e->obj[k])->nodeQuat =
                     (int)iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 4,
-                                        __FILE__, LN(761, 745, 745, 761, 761, 761));
+                                        __FILE__, LN(761, 745, 745, 761, 761, 761, 745));
 #endif
 #endif
                 /* the reallocation block's count line, as chain.c, boy.c and
@@ -827,11 +827,11 @@ int stage_Init(void)
 #ifdef VERSION_AUG6
                 STG_SUB(e->obj[k])->nodes =
                     iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum * 80, __FILE__,
-                                   LN(688, 688, 688, 688, 688, 688));
+                                   LN(688, 688, 688, 688, 688, 688, 688));
 #else
                 STG_SUB(e->obj[k])->nodes =
                     iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum * 80, __FILE__,
-                                   LN(761, 745, 745, 761, 761, 761));
+                                   LN(761, 745, 745, 761, 761, 761, 745));
 #endif
 #endif
                 for (t = 0; t < STG_SUB(e->obj[k])->nodeNum; t++) {
@@ -993,15 +993,15 @@ inline int stage_CheckAnimationFinish(int key)
     }
     debug_StdPrintfDummy("stage_CheckAnimationFinish:illegal Animation No.\n");
 #ifdef VERSION_AUG6
-    debug_assert(__FILE__, LN(541, 525, 525, 501, 837, 541));
-    __assert(__FILE__, LN(541, 525, 525, 501, 837, 541), "0");
+    debug_assert(__FILE__, LN(541, 525, 525, 501, 837, 541, 525));
+    __assert(__FILE__, LN(541, 525, 525, 501, 837, 541, 525), "0");
 #else
 #ifdef VERSION_JUN26
-    debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 768));
-    __assert(__FILE__, LN(541, 525, 525, 501, 475, 768), "0");
+    debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 768, 525));
+    __assert(__FILE__, LN(541, 525, 525, 501, 475, 768, 525), "0");
 #else
-    debug_assert(__FILE__, LN(909, 893, 893, 864, 909, 909));
-    __assert(__FILE__, LN(909, 893, 893, 864, 909, 909), "0");
+    debug_assert(__FILE__, LN(909, 893, 893, 864, 909, 909, 893));
+    __assert(__FILE__, LN(909, 893, 893, 864, 909, 909, 893), "0");
 #endif
 #endif
     return 0;
@@ -1046,19 +1046,19 @@ int stage_ContinueAnimation(int key, int next)
     }
     debug_StdPrintfDummy("stage_ContinueAnimation:illegal Animation No.\n");
 #ifdef VERSION_NTSC
-    debug_assert(__FILE__, LN(909, 909, 909, 909, 909, 909));
-    __assert(__FILE__, LN(909, 909, 909, 909, 909, 909), "0");
+    debug_assert(__FILE__, LN(909, 909, 909, 909, 909, 909, 909));
+    __assert(__FILE__, LN(909, 909, 909, 909, 909, 909, 909), "0");
 #else
 #ifdef VERSION_AUG6
-    debug_assert(__FILE__, LN(541, 525, 525, 501, 882, 541));
-    __assert(__FILE__, LN(541, 525, 525, 501, 882, 541), "0");
+    debug_assert(__FILE__, LN(541, 525, 525, 501, 882, 541, 525));
+    __assert(__FILE__, LN(541, 525, 525, 501, 882, 541, 525), "0");
 #else
 #ifdef VERSION_JUN26
-    debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 808));
-    __assert(__FILE__, LN(541, 525, 525, 501, 475, 808), "0");
+    debug_assert(__FILE__, LN(541, 525, 525, 501, 475, 808, 525));
+    __assert(__FILE__, LN(541, 525, 525, 501, 475, 808, 525), "0");
 #else
-    debug_assert(__FILE__, LN(954, 938, 938, 954, 954, 954));
-    __assert(__FILE__, LN(954, 938, 938, 954, 954, 954), "0");
+    debug_assert(__FILE__, LN(954, 938, 938, 954, 954, 954, 938));
+    __assert(__FILE__, LN(954, 938, 938, 954, 954, 954, 938), "0");
 #endif
 #endif
 #endif
@@ -1187,7 +1187,7 @@ void stage_CalcAnimationNoParent(void)
                     char *o = *(char **)(objs + (k << 2));
 
                     GOBJ_SUB(o)->disp = 0;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
                     if (GOBJ_SUB(o)->nodeNum != 0) {
                         *(int *)((int *)*(int *)(o + 0x15C))[0xC / 4] = 0;
@@ -1210,7 +1210,7 @@ void stage_CalcAnimationNoParent(void)
             case 0:
                 break;
             case 1:
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
                 if (lock != 0) {
                     if (debug_font_flag & 1) {
@@ -1292,7 +1292,7 @@ void stage_CalcAnimationParent(void)
                 char *objs = (char *)e->obj;
                 char *o = *(char **)(objs + (k << 2));
                 GOBJ_SUB(o)->disp = 0;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
                 if (GOBJ_SUB(o)->nodeNum != 0) {
                     *(int *)((int *)*(int *)(o + 0x15C))[0xC / 4] = 0;
@@ -1337,7 +1337,7 @@ void stage_DispAnimation(void)
         if (e->mode != 0) {
 #else
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         if (entry1->no == 62) {
 #else
         if (entry1->no == 0x42) {
@@ -1568,7 +1568,7 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     int k;
     int n = stageAnimCount;
     float r = t;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
 #if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     float f;
 #endif
@@ -1616,7 +1616,7 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
         if (systemStatus[0x14 / 4] != 0) {
             break;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_NTSC)
         r = t + e->entry2->step * (30.0f / ((60 - systemStatus[0] * 10) / systemStatus[1]));
 #else
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
@@ -1689,7 +1689,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
     for (i = 0; i < n; i++, e++) {
 #else
     float r = t;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)
     float f;
 #endif
     StageAnim *e;
@@ -1730,7 +1730,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         if (systemStatus[0x14 / 4] != 0) {
             break;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN) || defined(VERSION_NTSC)
         r = t + e->entry2->step * (30.0f / ((60 - systemStatus[0] * 10) / systemStatus[1]));
 #else
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
@@ -1838,7 +1838,8 @@ BgaPlayNode *stage_MakePlayBgAnimation(int key)
         return 0;
     }
 
-    p = iosMallocDebug(ios_partition_seki, 64, __FILE__, LN(1494, 1481, 1481, 1450, 1429, 1312));
+    p = iosMallocDebug(ios_partition_seki, 64, __FILE__,
+                       LN(1494, 1481, 1481, 1450, 1429, 1312, 1481));
     if (p == 0) {
         /* "cannot allocate memory for the stage segment (heap exhausted)" */
         debug_StdPrintfDummy("ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n");

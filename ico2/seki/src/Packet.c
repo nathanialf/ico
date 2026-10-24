@@ -278,8 +278,8 @@ static void pac_error(char *name, int type)
         debug_Assert("IN %s\n%s:No Weight Vertex exist(s).\n", pacWork.name, name);
         break;
     }
-    debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 645));
-    __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 645), "0");
+    debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 645, 684));
+    __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 645, 684), "0");
 }
 
 static int pac_makeNormalStrip(PObjPart *obj, short *strip, int num)
@@ -494,19 +494,19 @@ static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
         if (w[0].no >= 60 || w[1].no >= 60) {
             debug_StdPrintfDummy("over 60 skeltons exist.\n");
 #ifdef VERSION_JUN26
-            debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 855));
-            __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 855), "0");
+            debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 855, 684));
+            __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 855, 684), "0");
         }
         if (((int)(pacWork.state.l >> 3) & 1) && v[4] != -1) {
             *pacWork.cursor.f++ = *(float *)(obj->uv + v[4] * 16) * obj->texDefs[v[7]].scaleU;
             *pacWork.cursor.f++ = *(float *)(obj->uv + v[4] * 16 + 4) * obj->texDefs[v[7]].scaleV;
 #else
 #ifdef VERSION_AUG6
-            debug_assert("src/Packet.c", LN(684, 684, 684, 684, 914, 684));
-            __assert("src/Packet.c", LN(684, 684, 684, 684, 914, 684), "0");
+            debug_assert("src/Packet.c", LN(684, 684, 684, 684, 914, 684, 684));
+            __assert("src/Packet.c", LN(684, 684, 684, 684, 914, 684, 684), "0");
 #else
-            debug_assert("src/Packet.c", LN(917, 917, 917, 917, 917, 917));
-            __assert("src/Packet.c", LN(917, 917, 917, 917, 917, 917), "0");
+            debug_assert("src/Packet.c", LN(917, 917, 917, 917, 917, 917, 917));
+            __assert("src/Packet.c", LN(917, 917, 917, 917, 917, 917, 917), "0");
 #endif
         }
         if (((int)(pacWork.state.l >> 3) & 1) && v[4] != -1) {
@@ -522,8 +522,8 @@ static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
 #ifdef VERSION_JUN26
             if (obj->col == 0) {
                 debug_StdPrintfDummy("color table not exists.\n");
-                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 874));
-                __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 874), "0");
+                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 874, 684));
+                __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 874, 684), "0");
             }
             *pacWork.cursor.f++ = (float)(unsigned char)obj->col[v[5] * 4];
             *pacWork.cursor.f++ = (float)(unsigned char)obj->col[v[5] * 4 + 1];
@@ -532,11 +532,11 @@ static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
             if (col == 0) {
                 debug_StdPrintfDummy("color table not exists.\n");
 #ifdef VERSION_AUG6
-                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 933, 684));
-                __assert("src/Packet.c", LN(684, 684, 684, 684, 933, 684), "0");
+                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 933, 684, 684));
+                __assert("src/Packet.c", LN(684, 684, 684, 684, 933, 684, 684), "0");
 #else
-                debug_assert("src/Packet.c", LN(936, 936, 936, 936, 936, 936));
-                __assert("src/Packet.c", LN(936, 936, 936, 936, 936, 936), "0");
+                debug_assert("src/Packet.c", LN(936, 936, 936, 936, 936, 936, 936));
+                __assert("src/Packet.c", LN(936, 936, 936, 936, 936, 936, 936), "0");
 #endif
             }
             *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4];
@@ -802,8 +802,8 @@ static void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex)
 #ifdef VERSION_JUN26
     if ((pacWork.cursor.addr - pacWork.gifTag.addr) >> 4 == 1) {
         debug_StdPrintfDummy("pac_continueTag:Packet too small. %d\n", 0);
-        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1085));
-        __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1085), "0");
+        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1085, 684));
+        __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1085, 684), "0");
     }
     pac_setVifCode((pacWork.cursor.addr - pacWork.gifTag.addr) >> 4);
     pac_setGifTag(mat, tex,
@@ -816,11 +816,11 @@ static void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex)
     if (((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4 == 1) {
         debug_StdPrintfDummy("pac_continueTag:Packet too small. %d\n", 0);
 #ifdef VERSION_AUG6
-        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1144, 684));
-        __assert("src/Packet.c", LN(684, 684, 684, 684, 1144, 684), "0");
+        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1144, 684, 684));
+        __assert("src/Packet.c", LN(684, 684, 684, 684, 1144, 684, 684), "0");
 #else
-        debug_assert("src/Packet.c", LN(1147, 1147, 1147, 1147, 1147, 1147));
-        __assert("src/Packet.c", LN(1147, 1147, 1147, 1147, 1147, 1147), "0");
+        debug_assert("src/Packet.c", LN(1147, 1147, 1147, 1147, 1147, 1147, 1147));
+        __assert("src/Packet.c", LN(1147, 1147, 1147, 1147, 1147, 1147, 1147), "0");
 #endif
     }
     pac_setVifCode(((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4);
@@ -843,8 +843,8 @@ static void pac_checkDivide(int num, PObjMaterial *mat, PObjTexInfo *tex)
 
     if (pacWork.counts.w[0] * num > limit) {
         debug_StdPrintfDummy("Original Strip Too Long. Size %d\n", pacWork.counts.w[0] * num);
-        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1110));
-        __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1110), "0");
+        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1110, 684));
+        __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1110, 684), "0");
     }
     qwc = (pacWork.cursor.addr - pacWork.gifTag.addr) >> 4;
     if (qwc + pacWork.counts.w[0] * num > limit) {
@@ -871,11 +871,11 @@ static void pac_checkDivide(int num, PObjMaterial *mat, PObjTexInfo *tex)
     if (ctx->counts.w[0] * num > limit) {
         debug_StdPrintfDummy("Original Strip Too Long. Size %d\n", ctx->counts.w[0] * num);
 #ifdef VERSION_AUG6
-        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1169, 684));
-        __assert("src/Packet.c", LN(684, 684, 684, 684, 1169, 684), "0");
+        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1169, 684, 684));
+        __assert("src/Packet.c", LN(684, 684, 684, 684, 1169, 684, 684), "0");
 #else
-        debug_assert("src/Packet.c", LN(1172, 1172, 1172, 1172, 1172, 1172));
-        __assert("src/Packet.c", LN(1172, 1172, 1172, 1172, 1172, 1172), "0");
+        debug_assert("src/Packet.c", LN(1172, 1172, 1172, 1172, 1172, 1172, 1172));
+        __assert("src/Packet.c", LN(1172, 1172, 1172, 1172, 1172, 1172, 1172), "0");
 #endif
     }
     qwc = ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4;
@@ -1052,8 +1052,8 @@ static int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, i
             buf,
             "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n",
             ctx->name, packetSize);
-        debug_assertMessage("src/Packet.c", LN(1362, 1362, 1362, 1362, 1359, 1300), buf);
-        __assert("src/Packet.c", LN(1362, 1362, 1362, 1362, 1359, 1300), "e");
+        debug_assertMessage("src/Packet.c", LN(1362, 1362, 1362, 1362, 1359, 1300, 1362), buf);
+        __assert("src/Packet.c", LN(1362, 1362, 1362, 1362, 1359, 1300, 1362), "e");
     }
     if (size > 0) {
         if (malloc_GetPartition() == 0) {
@@ -1485,15 +1485,15 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
                 debug_StdPrintfDummy("pac_makePacket:Material Table Not Found. (%s:%s)\n",
                                      obj->name, src);
 #ifdef VERSION_AUG6
-                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1729, 684));
-                __assert("src/Packet.c", LN(684, 684, 684, 684, 1729, 684), "0");
+                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1729, 684, 684));
+                __assert("src/Packet.c", LN(684, 684, 684, 684, 1729, 684, 684), "0");
 #else
 #ifdef VERSION_JUN26
-                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1701));
-                __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1701), "0");
+                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1701, 684));
+                __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1701, 684), "0");
 #else
-                debug_assert("src/Packet.c", LN(1732, 1732, 1732, 1732, 1732, 1732));
-                __assert("src/Packet.c", LN(1732, 1732, 1732, 1732, 1732, 1732), "0");
+                debug_assert("src/Packet.c", LN(1732, 1732, 1732, 1732, 1732, 1732, 1732));
+                __assert("src/Packet.c", LN(1732, 1732, 1732, 1732, 1732, 1732, 1732), "0");
 #endif
 #endif
             }
@@ -1525,15 +1525,15 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
                     } else if (sz < 0) {
                         debug_StdPrintfDummy("illegal size = %d\n", sz);
 #ifdef VERSION_AUG6
-                        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1759, 684));
-                        __assert("src/Packet.c", LN(684, 684, 684, 684, 1759, 684), "0");
+                        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1759, 684, 684));
+                        __assert("src/Packet.c", LN(684, 684, 684, 684, 1759, 684, 684), "0");
 #else
 #ifdef VERSION_JUN26
-                        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1731));
-                        __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1731), "0");
+                        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1731, 684));
+                        __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1731, 684), "0");
 #else
-                        debug_assert("src/Packet.c", LN(1762, 1762, 1762, 1762, 1762, 1762));
-                        __assert("src/Packet.c", LN(1762, 1762, 1762, 1762, 1762, 1762), "0");
+                        debug_assert("src/Packet.c", LN(1762, 1762, 1762, 1762, 1762, 1762, 1762));
+                        __assert("src/Packet.c", LN(1762, 1762, 1762, 1762, 1762, 1762, 1762), "0");
 #endif
 #endif
                     }
@@ -1673,15 +1673,15 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
                 default:
                     debug_StdPrintfDummy("illegal vertex num %d\n", line->num);
 #ifdef VERSION_AUG6
-                    debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1844, 684));
-                    __assert("src/Packet.c", LN(684, 684, 684, 684, 1844, 684), "0");
+                    debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1844, 684, 684));
+                    __assert("src/Packet.c", LN(684, 684, 684, 684, 1844, 684, 684), "0");
 #else
 #ifdef VERSION_JUN26
-                    debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1817));
-                    __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1817), "0");
+                    debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1817, 684));
+                    __assert("src/Packet.c", LN(684, 684, 684, 684, 681, 1817, 684), "0");
 #else
-                    debug_assert("src/Packet.c", LN(1845, 1845, 1845, 1845, 1845, 1845));
-                    __assert("src/Packet.c", LN(1845, 1845, 1845, 1845, 1845, 1845), "0");
+                    debug_assert("src/Packet.c", LN(1845, 1845, 1845, 1845, 1845, 1845, 1845));
+                    __assert("src/Packet.c", LN(1845, 1845, 1845, 1845, 1845, 1845, 1845), "0");
 #endif
 #endif
                     break;

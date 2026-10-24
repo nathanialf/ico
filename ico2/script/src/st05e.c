@@ -74,7 +74,7 @@ void actSt05eWaterStop(GObj *volatile self)
 {
     GProc *th;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(52);
 #else
     lt_switch_layout(55);
@@ -101,7 +101,7 @@ void actSt05eWaterStop(GObj *volatile self)
         while (lt_fade_status() != 2) {
             _ACTWait(1);
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(263, 0, -1);
         stage_SetAnimation(262, -1, -2);
 #else
@@ -115,7 +115,7 @@ void actSt05eWaterStop(GObj *volatile self)
     scpSearchGobj(1554)->active = 0;
 
     scpBoyControlReadDisable = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     lt_switch_layout(51);
 #else
     lt_switch_layout(54);
@@ -321,7 +321,7 @@ void actSt05eSolarChk(GObj *volatile self)
     FinishHint(26);
 
     if (gflagChk(243) == 0 || gflagChk(244) == 0 || gflagChk(245) == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         lt_switch_layout(52);
 #else
         lt_switch_layout(55);
@@ -332,13 +332,13 @@ void actSt05eSolarChk(GObj *volatile self)
 
         scpAdpcmPlayRequestFunc(54, &solar, 1, 1, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(264, 1, 0);
 #else
         stage_SetAnimation(268, 1, 0);
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         while (stage_CheckAnimationFinish(264) == 0) {
 #else
         while (stage_CheckAnimationFinish(268) == 0) {
@@ -351,7 +351,7 @@ void actSt05eSolarChk(GObj *volatile self)
                 while (lt_fade_status() != 2) {
                     _ACTWait(1);
                 }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 stage_SetAnimation(264, 0, -1);
 #else
                 stage_SetAnimation(268, 0, -1);
@@ -366,7 +366,7 @@ void actSt05eSolarChk(GObj *volatile self)
             scpAdpcmFadeCloseFunc(&solar, 80);
         }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         lt_switch_layout(51);
 #else
         lt_switch_layout(54);
@@ -401,7 +401,7 @@ void actSt05eWater(GObj *volatile self)
     } else {
         scpSearchGobj(1554)->active = 0;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(262, -1, -2);
 #else
         stage_SetAnimation(266, -1, -2);
@@ -585,19 +585,19 @@ static void actSt05eWaterStopSub(GObj *volatile self)
 {
     _ACTWait(60);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(263, 1, 0);
 #else
     stage_SetAnimation(267, 1, 0);
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(262, -1, -2);
 #else
     stage_SetAnimation(266, -1, -2);
 #endif
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(263) == 0) {
 #else
     while (stage_CheckAnimationFinish(267) == 0) {

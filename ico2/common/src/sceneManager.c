@@ -445,11 +445,11 @@ static void initParentLink(int id)
                     "\"%s\"の親子関係づけをしようとしましたが、自分を親にしようとしています。\n",
                     lay);
 #ifdef VERSION_NTSC
-                debug_assert(__FILE__, LN(487, 487, 487, 487, 487, 487));
-                __assert(__FILE__, LN(487, 487, 487, 487, 487, 487), "0");
+                debug_assert(__FILE__, LN(487, 487, 487, 487, 487, 487, 487));
+                __assert(__FILE__, LN(487, 487, 487, 487, 487, 487, 487), "0");
 #else
-                debug_assert(__FILE__, LN(502, 502, 502, 502, 487, 484));
-                __assert(__FILE__, LN(502, 502, 502, 502, 487, 484), "0");
+                debug_assert(__FILE__, LN(502, 502, 502, 502, 487, 484, 502));
+                __assert(__FILE__, LN(502, 502, 502, 502, 487, 484, 502), "0");
 #endif
             }
             debug_StdPrintfDummy("Parentize \"%s\"\n", lay);
@@ -460,19 +460,19 @@ static void initParentLink(int id)
             debug_StdPrintfDummy("\"%s\"の親子関係づけをしようとしましたが、親が見つかりません。\n",
                                  lay);
 #ifdef VERSION_NTSC
-            debug_assert(__FILE__, LN(496, 496, 496, 496, 496, 496));
-            __assert(__FILE__, LN(496, 496, 496, 496, 496, 496), "0");
+            debug_assert(__FILE__, LN(496, 496, 496, 496, 496, 496, 496));
+            __assert(__FILE__, LN(496, 496, 496, 496, 496, 496, 496), "0");
 #else
 #ifdef VERSION_AUG6
-            debug_assert(__FILE__, LN(502, 502, 502, 502, 496, 502));
-            __assert(__FILE__, LN(502, 502, 502, 502, 496, 502), "0");
+            debug_assert(__FILE__, LN(502, 502, 502, 502, 496, 502, 502));
+            __assert(__FILE__, LN(502, 502, 502, 502, 496, 502, 502), "0");
 #else
 #ifdef VERSION_JUN26
-            debug_assert(__FILE__, LN(502, 502, 502, 502, 487, 493));
-            __assert(__FILE__, LN(502, 502, 502, 502, 487, 493), "0");
+            debug_assert(__FILE__, LN(502, 502, 502, 502, 487, 493, 502));
+            __assert(__FILE__, LN(502, 502, 502, 502, 487, 493, 502), "0");
 #else
-            debug_assert(__FILE__, LN(511, 511, 511, 511, 511, 511));
-            __assert(__FILE__, LN(511, 511, 511, 511, 511, 511), "0");
+            debug_assert(__FILE__, LN(511, 511, 511, 511, 511, 511, 511));
+            __assert(__FILE__, LN(511, 511, 511, 511, 511, 511, 511), "0");
 #endif
 #endif
 #endif

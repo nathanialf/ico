@@ -330,10 +330,10 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
 {
 #ifdef VERSION_NTSC
     RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile,
-                                   LN(55, 55, 55, 55, 55, 55));
+                                   LN(55, 55, 55, 55, 55, 55, 55));
 #else
     RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile,
-                                   LN(57, 57, 57, 57, 55, 53));
+                                   LN(57, 57, 57, 57, 55, 53, 57));
 #endif
 
     p->saveCount = rotObjectPhase;

@@ -94,7 +94,7 @@ inline LeverGeoWork *InitFloorLeverGeo(GObj *self, SObjSimpleSetting *lay)
 #ifdef VERSION_JUN26
     LeverGeoWork *g =
         (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(LeverGeoWork), "src/switch.c",
-                                       LN(300, 300, 300, 300, 300, 141));
+                                       LN(300, 300, 300, 300, 300, 141, 300));
 #else
     LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(LeverGeoWork),
                                                      "src/switch.c", 141);
@@ -262,7 +262,7 @@ inline LeverGeoWork *InitWallLeverGeo(GObj *self, SObjSimpleSetting *lay)
 {
     LeverGeoWork *g =
         (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(LeverGeoWork), "src/switch.c",
-                                       LN(300, 300, 300, 300, 300, 299));
+                                       LN(300, 300, 300, 300, 300, 299, 300));
     *g = leverGeoInit;
     if (lay->obj != 0) {
         g->linked = 1;

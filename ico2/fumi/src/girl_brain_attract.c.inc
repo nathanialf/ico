@@ -271,8 +271,8 @@ void subGirlBrain_Attract(GObj *volatile self)
 restart:
     setMode(0);
     if (cur == 0) {
-        debug_assert(__FILE__, LN(233, 233, 233, 233, 233, 233));
-        __assert(__FILE__, LN(233, 233, 233, 233, 233, 233), "0");
+        debug_assert(__FILE__, LN(233, 233, 233, 233, 233, 233, 233));
+        __assert(__FILE__, LN(233, 233, 233, 233, 233, 233, 233), "0");
     }
     kind = getKind();
     switch (kind) {
@@ -680,8 +680,8 @@ void subGirlBrain_Attract(GObj *volatile self)
 restart:
     setMode(0);
     if (cur == 0) {
-        debug_assert(__FILE__, LN(279, 279, 279, 279, 233, 98));
-        __assert(__FILE__, LN(279, 279, 279, 279, 233, 98), "0");
+        debug_assert(__FILE__, LN(279, 279, 279, 279, 233, 98, 279));
+        __assert(__FILE__, LN(279, 279, 279, 279, 233, 98, 279), "0");
     }
     kind = getKind();
     switch (kind) {

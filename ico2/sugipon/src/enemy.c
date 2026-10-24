@@ -161,10 +161,10 @@ static void setEnemyParticleObject(GObj *self, int pid)
 #ifdef VERSION_NTSC
     size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f;
     parts = (PrimParticle **)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
-                                            LN(105, 105, 105, 105, 105, 105));
+                                            LN(105, 105, 105, 105, 105, 105, 105));
     w->particle = parts;
     fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
-                               LN(107, 107, 107, 107, 107, 107));
+                               LN(107, 107, 107, 107, 107, 107, 107));
 #else
 #if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f;
@@ -172,10 +172,10 @@ static void setEnemyParticleObject(GObj *self, int pid)
     size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f * 10.0f;
 #endif
     parts = (PrimParticle **)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
-                                            LN(130, 130, 130, 130, 105, 104));
+                                            LN(130, 130, 130, 130, 105, 104, 130));
     w->particle = parts;
     fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
-                               LN(132, 132, 132, 132, 107, 106));
+                               LN(132, 132, 132, 132, 107, 106, 132));
 #endif
     w->flag = fl;
     clearEnemyParticleFlags(fl, n);
@@ -202,13 +202,13 @@ static void setEnemyParticleObject(GObj *self, int pid)
             /* EUC-JP: "cannot reserve the memory for the enemy soldier particles" */
             debug_StdPrintfDummy("敵兵のパーティクルのメモリを確保できません\n");
 #ifdef VERSION_NTSC
-            debug_assertMessage("src/enemy.c", LN(152, 152, 152, 152, 152, 152),
+            debug_assertMessage("src/enemy.c", LN(152, 152, 152, 152, 152, 152, 152),
                                 "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
-            __assert("src/enemy.c", LN(152, 152, 152, 152, 152, 152), "e");
+            __assert("src/enemy.c", LN(152, 152, 152, 152, 152, 152, 152), "e");
 #else
-            debug_assertMessage("src/enemy.c", LN(177, 177, 177, 177, 152, 151),
+            debug_assertMessage("src/enemy.c", LN(177, 177, 177, 177, 152, 151, 177),
                                 "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
-            __assert("src/enemy.c", LN(177, 177, 177, 177, 152, 151), "e");
+            __assert("src/enemy.c", LN(177, 177, 177, 177, 152, 151, 177), "e");
 #endif
         }
         for (cnt = 0; q->w > -1.0f && cnt < 80; cnt++, q++) {
@@ -318,7 +318,7 @@ retry:
     if (obj != 1425) {
         *(int *)&GOBJ_SUB(self)->model = GetPObjAddress(obj);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (obj != 1548) {
 #else
 #ifdef VERSION_AUG6
@@ -585,10 +585,10 @@ static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* de
 
 #ifdef VERSION_NTSC
     parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
-                                  LN(260, 260, 260, 260, 260, 260));
+                                  LN(260, 260, 260, 260, 260, 260, 260));
 #else
     parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
-                                  LN(285, 285, 285, 285, 260, 258));
+                                  LN(285, 285, 285, 285, 260, 258, 285));
 #endif
     w->broken = parts;
     clearEnemyParticleFlags(parts, n);
@@ -613,7 +613,8 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
     w->foot = InitEnemyFootPrint(6);
 #else
 #ifdef VERSION_NTSC
-    w = iosMallocDebug(ios_partition_sugipon, 80, "src/enemy.c", LN(605, 605, 605, 605, 605, 605));
+    w = iosMallocDebug(ios_partition_sugipon, 80, "src/enemy.c",
+                       LN(605, 605, 605, 605, 605, 605, 605));
 #else
 #ifdef VERSION_AUG6
     w = iosMallocDebug(ios_partition_sugipon, 80, "src/enemy.c", 597);

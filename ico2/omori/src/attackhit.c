@@ -1184,8 +1184,8 @@ inline GObj *AttackCenter(GObj *gop, int group, float *pos, float *ofs, float ra
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 704));
-        __assert(__FILE__, LN(931, 931, 931, 931, 729, 704), "gop!=NULL");
+        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 704, 931));
+        __assert(__FILE__, LN(931, 931, 931, 931, 729, 704, 931), "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
     return AttackGenerate(&pack);
@@ -1197,8 +1197,8 @@ inline GObj *AttackCenter(GObj *gop, int group, float *pos, float *ofs, float ra
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(__FILE__, LN(749, 749, 749, 749, 749, 749));
-        __assert(__FILE__, LN(749, 749, 749, 749, 749, 749), "gop!=NULL");
+        debug_assert(__FILE__, LN(749, 749, 749, 749, 749, 749, 749));
+        __assert(__FILE__, LN(749, 749, 749, 749, 749, 749, 749), "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
     return AttackGenerate(&pack);
@@ -1210,8 +1210,8 @@ inline GObj *AttackCenter(GObj *gop, int group, float *pos, float *ofs, float ra
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 931));
-        __assert(__FILE__, LN(931, 931, 931, 931, 729, 931), "gop!=NULL");
+        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 931, 931));
+        __assert(__FILE__, LN(931, 931, 931, 931, 729, 931, 931), "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
     return AttackGenerate(&pack);
@@ -1222,8 +1222,8 @@ inline GObj *_AttackCenter(GObj *gop, int group, float *pos, float *ofs, float r
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 704));
-        __assert(__FILE__, LN(931, 931, 931, 931, 729, 704), "gop!=NULL");
+        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 704, 931));
+        __assert(__FILE__, LN(931, 931, 931, 931, 729, 704, 931), "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
     pack.spare = spare;
@@ -1238,15 +1238,15 @@ inline void AttackCenter_WithDir(GObj *gop, int group, float *pos, float *dir, f
 
     if (gop == 0) {
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(768, 768, 768, 768, 768, 768));
-        __assert(__FILE__, LN(768, 768, 768, 768, 768, 768), "gop!=NULL");
+        debug_assert(__FILE__, LN(768, 768, 768, 768, 768, 768, 768));
+        __assert(__FILE__, LN(768, 768, 768, 768, 768, 768, 768), "gop!=NULL");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(931, 931, 931, 931, 748, 931));
-        __assert(__FILE__, LN(931, 931, 931, 931, 748, 931), "gop!=NULL");
+        debug_assert(__FILE__, LN(931, 931, 931, 931, 748, 931, 931));
+        __assert(__FILE__, LN(931, 931, 931, 931, 748, 931, 931), "gop!=NULL");
 #else
-        debug_assert(__FILE__, LN(951, 951, 951, 951, 951, 951));
-        __assert(__FILE__, LN(951, 951, 951, 951, 951, 951), "gop!=NULL");
+        debug_assert(__FILE__, LN(951, 951, 951, 951, 951, 951, 951));
+        __assert(__FILE__, LN(951, 951, 951, 951, 951, 951, 951), "gop!=NULL");
 #endif
 #endif
     }

@@ -63,7 +63,7 @@ inline void isysGObjAlloc(int n)
     unsigned int i;
 
     gobjTable = iosMallocDebug(ios_partition_isys, n * sizeof(GObj), __FILE__,
-                               LN(174, 174, 174, 174, 174, 171));
+                               LN(174, 174, 174, 174, 174, 171, 174));
     gobjMax = n;
     tbl = gobjTable;
     for (i = 0; i < n; i++) {
@@ -93,8 +93,8 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
             return;
         while (p->kindNext != g) {
             if (p == 0) {
-                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 146));
-                __assert(__FILE__, LN(146, 146, 146, 146, 146, 146), "0");
+                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 146, 146));
+                __assert(__FILE__, LN(146, 146, 146, 146, 146, 146, 146), "0");
             }
             p = p->kindNext;
         }
@@ -173,8 +173,8 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
             return;
         while (p->kindNext != g) {
             if (p == 0) {
-                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 146));
-                __assert(__FILE__, LN(146, 146, 146, 146, 146, 146), "0");
+                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 146, 146));
+                __assert(__FILE__, LN(146, 146, 146, 146, 146, 146, 146), "0");
             }
             p = p->kindNext;
         }
@@ -202,8 +202,8 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
             return;
         while (p->kindNext != g) {
             if (p == 0) {
-                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 143));
-                __assert(__FILE__, LN(146, 146, 146, 146, 146, 143), "0");
+                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 143, 146));
+                __assert(__FILE__, LN(146, 146, 146, 146, 146, 143, 146), "0");
             }
             p = p->kindNext;
         }

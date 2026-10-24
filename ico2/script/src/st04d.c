@@ -42,7 +42,7 @@ void actSt04dDoor1(GObj *volatile self)
 
     if (scpTriggerBall(self, boyGObj, 400.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(251, 0, 0);
 #else
 #ifdef VERSION_NTSC
@@ -79,7 +79,7 @@ void actSt04dDoor1(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(250, 0, 0);
 #else
         stage_SetAnimation(254, 0, 0);
@@ -160,7 +160,7 @@ void actSt04dDoor1UpChk(GObj *volatile self)
 
     actCreateSubThread(actSt04dDoor1UpEffect, 21);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(250, 1, 0);
 #else
 #ifdef VERSION_AUG6
@@ -200,7 +200,7 @@ void actSt04dDoor1UpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(250) == 0) {
 #else
     while (stage_CheckAnimationFinish(254) == 0) {
@@ -334,7 +334,7 @@ void actSt04dDoor1DownChk(GObj *volatile self)
 
     actCreateSubThread(actSt04dDoor1DownEffect, 21);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(251, 1, 0);
 #else
 #ifdef VERSION_AUG6
@@ -374,7 +374,7 @@ void actSt04dDoor1DownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(251) == 0) {
 #else
     while (stage_CheckAnimationFinish(255) == 0) {
@@ -437,7 +437,7 @@ void actSt04dDoor2(GObj *volatile self)
 
     if (scpTriggerBall(self, boyGObj, 400.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(253, 0, 0);
 #else
 #ifdef VERSION_NTSC
@@ -474,7 +474,7 @@ void actSt04dDoor2(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         stage_SetAnimation(252, 0, 0);
 #else
         stage_SetAnimation(256, 0, 0);
@@ -555,7 +555,7 @@ void actSt04dDoor2UpChk(GObj *volatile self)
 
     actCreateSubThread(actSt04dDoor2UpEffect, 21);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(252, 1, 0);
 #else
 #ifdef VERSION_AUG6
@@ -595,7 +595,7 @@ void actSt04dDoor2UpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(252) == 0) {
 #else
     while (stage_CheckAnimationFinish(256) == 0) {
@@ -729,7 +729,7 @@ void actSt04dDoor2DownChk(GObj *volatile self)
 
     actCreateSubThread(actSt04dDoor2DownEffect, 21);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     stage_SetAnimation(253, 1, 0);
 #else
 #ifdef VERSION_AUG6
@@ -769,7 +769,7 @@ void actSt04dDoor2DownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1222, 0, (float *)buf, 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     while (stage_CheckAnimationFinish(253) == 0) {
 #else
     while (stage_CheckAnimationFinish(257) == 0) {

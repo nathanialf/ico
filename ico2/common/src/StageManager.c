@@ -43,7 +43,7 @@ typedef struct { /* field names derived */
     float pos[4];
 } StgSlot; /* derived name */
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
 /* .data, all zero: the preload buffer, 896 sectors of 2048
    bytes, the cap stgmgrNextStagePreLoad clamps a read to and the ring cdvd.c's
    stream reads through; the stage manager's message queue record; and the exit
@@ -489,7 +489,7 @@ void StageManager(void)
         stagePreLoadMgrEntry = 0;
         if (msg->stage <= 0xFFFF) {
             exit_stage(msg->stage);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             lt_switch_layout(50);
 #else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)

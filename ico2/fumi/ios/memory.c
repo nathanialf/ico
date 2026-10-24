@@ -223,21 +223,21 @@ void *iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
     mallocFile = file;
     mallocLine = line;
     if (part == 0) {
-        debug_assertMessage(__FILE__, LN(555, 555, 555, 555, 552, 546),
+        debug_assertMessage(__FILE__, LN(555, 555, 555, 555, 552, 546, 555),
                             "IOSMALLOC():\nNULL PARTITION POINTER AT MALLOC\n");
-        __assert(__FILE__, LN(555, 555, 555, 555, 552, 546), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 552, 546, 555), "e");
         mallocBusy = 0;
         return 0;
     }
     if (strcmp(part->tag, "<PARTITION>____") != 0) {
 #ifdef VERSION_JUN26
-        debug_assertMessage(__FILE__, LN(555, 555, 555, 555, 552, 553),
+        debug_assertMessage(__FILE__, LN(555, 555, 555, 555, 552, 553, 555),
                             "IOSMALLOC():\nNULL PARTITION POINTER AT MALLOC\n");
-        __assert(__FILE__, LN(555, 555, 555, 555, 552, 553), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 552, 553, 555), "e");
 #else
-        debug_assertMessage(__FILE__, LN(555, 555, 555, 555, 559, 555),
+        debug_assertMessage(__FILE__, LN(555, 555, 555, 555, 559, 555, 555),
                             "IOSMALLOC():\nNULL PARTITION POINTER AT MALLOC\n");
-        __assert(__FILE__, LN(555, 555, 555, 555, 559, 555), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 559, 555, 555), "e");
 #endif
         mallocBusy = 0;
         return 0;
@@ -260,8 +260,8 @@ void *iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
             }
             debug_StdPrintfDummy("mem:called by %s of line %d\n", file, line);
             mallocBusy = 0;
-            debug_assert(__FILE__, LN(598, 598, 598, 598, 595, 589));
-            __assert(__FILE__, LN(598, 598, 598, 598, 595, 589), "0");
+            debug_assert(__FILE__, LN(598, 598, 598, 598, 595, 589, 598));
+            __assert(__FILE__, LN(598, 598, 598, 598, 595, 589, 598), "0");
             return 0;
         }
         if (node->size >= need) {
@@ -368,11 +368,11 @@ void *iosMallocDebug(IosMemPart *part, int size, const char *file, int line)
     }
     __asm__ __volatile__("break");
 #ifdef VERSION_JUN26
-    debug_assert(__FILE__, LN(598, 598, 598, 598, 595, 686));
-    __assert(__FILE__, LN(598, 598, 598, 598, 595, 686), "0");
+    debug_assert(__FILE__, LN(598, 598, 598, 598, 595, 686, 598));
+    __assert(__FILE__, LN(598, 598, 598, 598, 595, 686, 598), "0");
 #else
-    debug_assert(__FILE__, LN(598, 598, 598, 598, 704, 598));
-    __assert(__FILE__, LN(598, 598, 598, 598, 704, 598), "0");
+    debug_assert(__FILE__, LN(598, 598, 598, 598, 704, 598, 598));
+    __assert(__FILE__, LN(598, 598, 598, 598, 704, 598, 598), "0");
 #endif
     mallocBusy = 0;
     return 0;
@@ -403,16 +403,16 @@ static void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int l
     mallocFile = file;
     mallocLine = line;
     if (part == 0) {
-        debug_assertMessage(__FILE__, LN(555, 555, 555, 555, 552, 546),
+        debug_assertMessage(__FILE__, LN(555, 555, 555, 555, 552, 546, 555),
                             "IOSMALLOC():\nNULL PARTITION POINTER AT MALLOC\n");
-        __assert(__FILE__, LN(555, 555, 555, 555, 552, 546), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 552, 546, 555), "e");
         mallocBusy = 0;
         return 0;
     }
     if (strcmp(part->tag, "<PARTITION>____") != 0) {
-        debug_assertMessage(__FILE__, LN(562, 562, 562, 562, 562, 562),
+        debug_assertMessage(__FILE__, LN(562, 562, 562, 562, 562, 562, 562),
                             "IOSMALLOC():\nNULL PARTITION POINTER AT MALLOC\n");
-        __assert(__FILE__, LN(562, 562, 562, 562, 562, 562), "e");
+        __assert(__FILE__, LN(562, 562, 562, 562, 562, 562, 562), "e");
         mallocBusy = 0;
         return 0;
     }
@@ -434,8 +434,8 @@ static void *_iosMallocDebug(IosMemPart *part, int size, const char *file, int l
             }
             debug_StdPrintfDummy("mem:called by %s of line %d\n", file, line);
             mallocBusy = 0;
-            debug_assert(__FILE__, LN(598, 598, 598, 598, 595, 589));
-            __assert(__FILE__, LN(598, 598, 598, 598, 595, 589), "0");
+            debug_assert(__FILE__, LN(598, 598, 598, 598, 595, 589, 598));
+            __assert(__FILE__, LN(598, 598, 598, 598, 595, 589, 598), "0");
             return 0;
         }
         if (node->size >= need) {
@@ -540,8 +540,8 @@ inline void *iosMallocDebug(IosMemPart *part, int size, const char *file, int li
                 part->name, size, (float)size / 1024.0f / 1024.0f);
         debug_assertMessage(file, line, buf);
         __asm__ __volatile__("break");
-        debug_assert(__FILE__, LN(716, 716, 716, 716, 716, 716));
-        __assert(__FILE__, LN(716, 716, 716, 716, 716, 716), "0");
+        debug_assert(__FILE__, LN(716, 716, 716, 716, 716, 716, 716));
+        __assert(__FILE__, LN(716, 716, 716, 716, 716, 716, 716), "0");
     }
     return ptr;
 }
@@ -602,15 +602,15 @@ void *iosFree(void *ptr)
     if (ptr == 0) {
         debug_StdPrintfDummy("null memory pointer\n");
         __asm__ __volatile__("break");
-        debug_assertMessage(__FILE__, LN(820, 820, 820, 820, 804, 786),
+        debug_assertMessage(__FILE__, LN(820, 820, 820, 820, 804, 786, 820),
                             "IOSFREE(): NULL MEMORY POINTER\n");
 #ifdef VERSION_AUG6
-        __assert(__FILE__, LN(555, 555, 555, 555, 804, 555), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 804, 555, 555), "e");
 #else
 #ifdef VERSION_JUN26
-        __assert(__FILE__, LN(555, 555, 555, 555, 552, 786), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 552, 786, 555), "e");
 #else
-        __assert(__FILE__, LN(820, 820, 820, 820, 820, 820), "e");
+        __assert(__FILE__, LN(820, 820, 820, 820, 820, 820, 820), "e");
 #endif
 #endif
         return 0;
@@ -626,14 +626,14 @@ void *iosFree(void *ptr)
     if (strcmp(node->tag, "<ALLOC>________") != 0) {
         sprintf(buf, "IOSFREE():\n\tPREV MAGIC: %s\n\t CUR MAGIC: %s\n\tNEXT MAGIC: %s\n",
                 node->prev->tag, node->tag, node->next->tag);
-        debug_assertMessage(__FILE__, LN(836, 836, 836, 836, 820, 802), buf);
+        debug_assertMessage(__FILE__, LN(836, 836, 836, 836, 820, 802, 836), buf);
 #ifdef VERSION_AUG6
-        __assert(__FILE__, LN(555, 555, 555, 555, 820, 555), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 820, 555, 555), "e");
 #else
 #ifdef VERSION_JUN26
-        __assert(__FILE__, LN(555, 555, 555, 555, 552, 802), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 552, 802, 555), "e");
 #else
-        __assert(__FILE__, LN(836, 836, 836, 836, 836, 836), "e");
+        __assert(__FILE__, LN(836, 836, 836, 836, 836, 836, 836), "e");
 #endif
 #endif
         return 0;
@@ -683,15 +683,15 @@ void *iosFree(void *ptr)
                     prev->next = next;
                     next->prev = prev;
                 } else {
-                    debug_assertMessage(__FILE__, LN(905, 905, 905, 905, 889, 871),
+                    debug_assertMessage(__FILE__, LN(905, 905, 905, 905, 889, 871, 905),
                                         "IOSFREE(): MEMORY LINK MISS\n");
 #ifdef VERSION_AUG6
-                    __assert(__FILE__, LN(555, 555, 555, 555, 889, 555), "e");
+                    __assert(__FILE__, LN(555, 555, 555, 555, 889, 555, 555), "e");
 #else
 #ifdef VERSION_JUN26
-                    __assert(__FILE__, LN(555, 555, 555, 555, 552, 871), "e");
+                    __assert(__FILE__, LN(555, 555, 555, 555, 552, 871, 555), "e");
 #else
-                    __assert(__FILE__, LN(905, 905, 905, 905, 905, 905), "e");
+                    __assert(__FILE__, LN(905, 905, 905, 905, 905, 905, 905), "e");
 #endif
 #endif
                     return 0;
@@ -757,29 +757,29 @@ tail_node:
         node->part->head = node;
         node->free_next->free_prev = node;
     }
-    debug_assertMessage(__FILE__, LN(962, 962, 962, 962, 946, 928), "IOSFREE(): ALLOC NULL\n");
+    debug_assertMessage(__FILE__, LN(962, 962, 962, 962, 946, 928, 962), "IOSFREE(): ALLOC NULL\n");
 #ifdef VERSION_AUG6
-    __assert(__FILE__, LN(555, 555, 555, 555, 946, 555), "e");
+    __assert(__FILE__, LN(555, 555, 555, 555, 946, 555, 555), "e");
     goto tag_free;
 err_3b5:
-    debug_assertMessage(__FILE__, LN(905, 905, 905, 905, 949, 905),
+    debug_assertMessage(__FILE__, LN(905, 905, 905, 905, 949, 905, 905),
                         "IOSFREE(): MEMORY LINK MISS\n");
-    __assert(__FILE__, LN(555, 555, 555, 555, 949, 555), "e");
+    __assert(__FILE__, LN(555, 555, 555, 555, 949, 555, 555), "e");
 #else
 #ifdef VERSION_JUN26
-    __assert(__FILE__, LN(555, 555, 555, 555, 552, 928), "e");
+    __assert(__FILE__, LN(555, 555, 555, 555, 552, 928, 555), "e");
     goto tag_free;
 err_3b5:
-    debug_assertMessage(__FILE__, LN(905, 905, 905, 905, 889, 931),
+    debug_assertMessage(__FILE__, LN(905, 905, 905, 905, 889, 931, 905),
                         "IOSFREE(): MEMORY LINK MISS\n");
-    __assert(__FILE__, LN(555, 555, 555, 555, 552, 931), "e");
+    __assert(__FILE__, LN(555, 555, 555, 555, 552, 931, 555), "e");
 #else
-    __assert(__FILE__, LN(962, 962, 962, 962, 962, 962), "e");
+    __assert(__FILE__, LN(962, 962, 962, 962, 962, 962, 962), "e");
     goto tag_free;
 err_3b5:
-    debug_assertMessage(__FILE__, LN(965, 965, 965, 965, 965, 965),
+    debug_assertMessage(__FILE__, LN(965, 965, 965, 965, 965, 965, 965),
                         "IOSFREE(): MEMORY LINK MISS\n");
-    __assert(__FILE__, LN(965, 965, 965, 965, 965, 965), "e");
+    __assert(__FILE__, LN(965, 965, 965, 965, 965, 965, 965), "e");
 #endif
 #endif
     return 0;
@@ -787,14 +787,14 @@ tag_free:
     *(IosMemTag *)node = *(IosMemTag *)"<FREE AREA>____";
     goto ret_ptr;
 err_3bf:
-    debug_assertMessage(__FILE__, LN(975, 975, 975, 975, 959, 941), "IOSFREE(): ??\n");
+    debug_assertMessage(__FILE__, LN(975, 975, 975, 975, 959, 941, 975), "IOSFREE(): ??\n");
 #ifdef VERSION_AUG6
-    __assert(__FILE__, LN(555, 555, 555, 555, 959, 555), "e");
+    __assert(__FILE__, LN(555, 555, 555, 555, 959, 555, 555), "e");
 #else
 #ifdef VERSION_JUN26
-    __assert(__FILE__, LN(555, 555, 555, 555, 552, 941), "e");
+    __assert(__FILE__, LN(555, 555, 555, 555, 552, 941, 555), "e");
 #else
-    __assert(__FILE__, LN(975, 975, 975, 975, 975, 975), "e");
+    __assert(__FILE__, LN(975, 975, 975, 975, 975, 975, 975), "e");
 #endif
 #endif
 ret_ptr:
@@ -899,15 +899,15 @@ void *iosReallocDebug(void *ptr, unsigned int size)
     int d;
 
     if (ptr == 0) {
-        debug_assertMessage(__FILE__, LN(1182, 1182, 1182, 1182, 1166, 1148),
+        debug_assertMessage(__FILE__, LN(1182, 1182, 1182, 1182, 1166, 1148, 1182),
                             "IOSREALLOC():\nNULL MEMORY POINTER AT MALLOC\n");
 #ifdef VERSION_AUG6
-        __assert(__FILE__, LN(555, 555, 555, 555, 1166, 555), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 1166, 555, 555), "e");
 #else
 #ifdef VERSION_JUN26
-        __assert(__FILE__, LN(555, 555, 555, 555, 552, 1148), "e");
+        __assert(__FILE__, LN(555, 555, 555, 555, 552, 1148, 555), "e");
 #else
-        __assert(__FILE__, LN(1182, 1182, 1182, 1182, 1182, 1182), "e");
+        __assert(__FILE__, LN(1182, 1182, 1182, 1182, 1182, 1182, 1182), "e");
 #endif
 #endif
         return 0;
@@ -924,15 +924,15 @@ void *iosReallocDebug(void *ptr, unsigned int size)
         sprintf(buf, "IOSFREE():\n\tPREV MAGIC: %s\n\t CUR MAGIC: %s\n\tNEXT MAGIC: %s\n",
                 node->prev->tag, node->tag, node->next->tag);
 #ifdef VERSION_AUG6
-        debug_assertMessage(__FILE__, LN(836, 836, 836, 836, 1183, 836), buf);
-        __assert(__FILE__, LN(555, 555, 555, 555, 1183, 555), "e");
+        debug_assertMessage(__FILE__, LN(836, 836, 836, 836, 1183, 836, 836), buf);
+        __assert(__FILE__, LN(555, 555, 555, 555, 1183, 555, 555), "e");
 #else
 #ifdef VERSION_JUN26
-        debug_assertMessage(__FILE__, LN(836, 836, 836, 836, 820, 1165), buf);
-        __assert(__FILE__, LN(555, 555, 555, 555, 552, 1165), "e");
+        debug_assertMessage(__FILE__, LN(836, 836, 836, 836, 820, 1165, 836), buf);
+        __assert(__FILE__, LN(555, 555, 555, 555, 552, 1165, 555), "e");
 #else
-        debug_assertMessage(__FILE__, LN(1199, 1199, 1199, 1199, 1199, 1199), buf);
-        __assert(__FILE__, LN(1199, 1199, 1199, 1199, 1199, 1199), "e");
+        debug_assertMessage(__FILE__, LN(1199, 1199, 1199, 1199, 1199, 1199, 1199), buf);
+        __assert(__FILE__, LN(1199, 1199, 1199, 1199, 1199, 1199, 1199), "e");
 #endif
 #endif
         return 0;

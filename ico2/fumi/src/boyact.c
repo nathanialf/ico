@@ -235,7 +235,7 @@ static void findChainInJump(void *self)
     int lside = 0;
 
     sub = GOBJ_ACT(self);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     r = ((CHAINROW(self)->flags2.word >> 9) & 1) ? 300.0f : 100.0f;
     r2 = ((CHAINROW(self)->flags2.word >> 9) & 1) ? 90.0f : 120.0f;
 #else
@@ -294,7 +294,7 @@ static void findChainInJump(void *self)
     lv[3] = 0.0f;
     sceVu0ApplyMatrix(lv, mtx, lv);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (((CHAINROW(self)->flags2.word >> 7) & 1) == 0 && (rside != 0 || lside != 0) &&
         (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
 #else
@@ -317,7 +317,7 @@ static void findChainInJump(void *self)
         RequestChangeHandMode(self, 1, 2, 0, 0, 0, 0);
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if ((rside != 0 || lside != 0) &&
         motionKind[GOBJ_SUB(self)->ctrl.motion].flags2.bits.chainIkRate) {
         ((BoyVal *)((char *)GOBJ_SUB(self) + 0x45C))->f = 0.8f;
@@ -1407,7 +1407,7 @@ static BoyKidnapWork characterPacketDefault = {{0, 0, 0, 0, 0, -1, -1}}; /* deri
 
 static BgaEntry boyBgaTable[] = {
 /* derived name */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     {476, 0.0f, 7.0f, 1, 70, 1, 1, 1.0f},
     {477, 0.0f, 0.0f, 0, 70, 0, 1, 1.0f},
     {481, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
@@ -1486,8 +1486,8 @@ static void BoyBgaManager(void *self, int id, void *dst)
             goto found;
         }
     }
-    debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 1292));
-    __assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 1292), "0");
+    debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 1292, 1724));
+    __assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 1292, 1724), "0");
     p = 0;
 found:
     v = *(int *)dst;
@@ -1640,7 +1640,7 @@ static int GetChainSlope(void)
         return 0;
     }
     ratio = (float)*motionTable[GOBJ_SUB(g)->ctrl.motion] / (c * 0.5f);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     ACTGame_SetMotionPlaySpeedRatio_Reserve(g, ratio, 7);
 #else
 #ifdef VERSION_JUN26
@@ -3352,7 +3352,7 @@ void subBoyControl(GObj *volatile self)
             break;
         case 26:
             if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269)) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 sceVu0ScaleVector(GOBJ_WORK(self)->fallDir, (char *)GOBJ_ACT(self)->work + 0x8C0,
                                   -1.0f);
 #else
@@ -3856,15 +3856,15 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy) /* derived na
     }
     if (newW == 0) {
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 2695, 1731));
+        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 2695, 1731, 1724));
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 2475));
+        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 2475, 1724));
 #else
-        debug_assert(__FILE__, LN(3007, 3000, 3000, 2757, 3007, 3007));
+        debug_assert(__FILE__, LN(3007, 3000, 3000, 2757, 3007, 3007, 3000));
 #endif
 #endif
-        __assert(__FILE__, LN(3007, 3000, 3000, 2757, 2695, 2475), "next");
+        __assert(__FILE__, LN(3007, 3000, 3000, 2757, 2695, 2475, 3000), "next");
         return 0;
     }
 #ifdef VERSION_JUN26
@@ -3963,7 +3963,7 @@ static int characterPacket[6]; /* derived name */
 #else
 void ACTDispLwsBoyStonize_InQueenStage(void *self)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     BoyBgaManager(self, 476, (char *)GOBJ_ACT(self)->enemy + 0x2A0);
     BoyBgaManager(self, 477, (char *)GOBJ_ACT(self)->enemy + 0x2A4);
     BoyBgaManager(self, 481, (char *)GOBJ_ACT(self)->enemy + 0x2B0);
@@ -5038,7 +5038,7 @@ void subBoyCollision(GObj *volatile self)
                     ((float *)tgt2)[2] = test_CURRENTROOT(girlGObj)[2];
                     see = 1;
                     onGirl = 1;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 } else if ((stage_no == 84 || stage_no == 3 || stage_no == 46) &&
                            ((int)(sub->flags20.ll >> 24) & 3)) {
 #else
@@ -5291,7 +5291,7 @@ void subBoyCollision(GObj *volatile self)
                 GOBJ_ACT(girlGObj)->actMode == GOBJ_ACT(boyGObj)->actMode) {
                 if (0x3C < sitCount++) {
                     if (sitLayoutDone == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                         lt_switch_layout(25);
 #else
                         lt_switch_layout(0x1C);
@@ -5310,7 +5310,7 @@ void subBoyCollision(GObj *volatile self)
             }
             sub->flags18.ll = (sub->flags18.ll & ~0x20000000000LL) |
                               ((unsigned long long)(ACTGame_FLAG_TETSUNAGI() & 1) << 41);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
             if (((CHAINROW(self)->flags.word >> 19) & 1) && ACTGame_FLAG_TETSUNAGI() == 0) {
 #else
             if (((CHAINROW(self)->flags.word >> 13) & 1) && ACTGame_FLAG_TETSUNAGI() == 0) {
@@ -5996,7 +5996,7 @@ void actBoyCliffHesitate(GObj *volatile self)
     int hit = 0;
 
     ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.b.wall);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     GetOrientOfWall(BOY_WALL(self) + 0x8C0, GOBJ_WORK(self)->intrReq.b.wall.elem,
                     &GOBJ_WORK(self)->intrReq.b.wall.o);
 #else
@@ -6425,7 +6425,7 @@ void actBoyPullupReady(GObj *volatile self)
     }
     Act *sub = GOBJ_ACT(self);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8B0);
 #else
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8C0);
@@ -7467,7 +7467,7 @@ void actBoyDitch3mReady(GObj *volatile self)
     int a;
     int b;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8B0);
 #else
 #ifndef VERSION_AUG6
@@ -8207,7 +8207,7 @@ inline void actBoyStand(GObj *volatile self)
 {
     MotionDef *row = GOBJ_SUB(self)->ctrl.motion + motionKind;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     if (row->flags.word & 1) {
 #else
 #ifdef VERSION_AUG6
@@ -8667,19 +8667,19 @@ inline int IsBoyStatus_EnemyMustWait(void)
 
     if (boyGObj == 0) {
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 5123, 1731));
-        __assert(__FILE__, LN(1731, 1724, 1724, 1543, 5123, 1731), "0");
+        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 5123, 1731, 1724));
+        __assert(__FILE__, LN(1731, 1724, 1724, 1543, 5123, 1731, 1724), "0");
 #else
 #ifdef VERSION_JUN26
-        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 4630));
-        __assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 4630), "0");
+        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 4630, 1724));
+        __assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493, 4630, 1724), "0");
 #else
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(5211, 5211, 5211, 5211, 5211, 5211));
+        debug_assert(__FILE__, LN(5211, 5211, 5211, 5211, 5211, 5211, 5211));
 #else
-        debug_assert(__FILE__, LN(5795, 5779, 5779, 5795, 5795, 5795));
+        debug_assert(__FILE__, LN(5795, 5779, 5779, 5795, 5795, 5795, 5779));
 #endif
-        __assert(__FILE__, LN(5795, 5779, 5779, 5211, 5795, 5795), "0");
+        __assert(__FILE__, LN(5795, 5779, 5779, 5211, 5795, 5795, 5779), "0");
 #endif
 #endif
         return 0;

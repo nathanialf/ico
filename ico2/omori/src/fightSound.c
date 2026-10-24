@@ -221,8 +221,8 @@ void fightSoundProcess(void)
         fightSoundState = 0;
         break;
     default:
-        debug_assert("src/fightSound.c", LN(255, 255, 255, 255, 255, 248));
-        __assert("src/fightSound.c", LN(255, 255, 255, 255, 255, 248), "0");
+        debug_assert("src/fightSound.c", LN(255, 255, 255, 255, 255, 248, 255));
+        __assert("src/fightSound.c", LN(255, 255, 255, 255, 255, 248, 255), "0");
     }
 }
 

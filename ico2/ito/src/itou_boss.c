@@ -14,7 +14,7 @@
 #include "generator.h"
 #include "sugiCommon.h"
 
-#ifdef VERSION_KOR
+#if defined(VERSION_KOR) || defined(VERSION_CN)
 #include <stdio.h>
 #endif
 
@@ -348,7 +348,7 @@ static void effect_end_func(int id)
 #else
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
         e = &capsule[GetParticleEffectData(id)->user.capsule];
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
         pbga_start(&e->bga, 548);
 #else
         pbga_start(&e->bga, 552);
@@ -433,7 +433,7 @@ void bossCtrlBeforeFunc(GObj *self)
 inline int InqCapsuleGhostBossStage(void)
 {
     int r = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)
     if (stage_no == 84 || stage_no == 3 || stage_no == 46)
         r = 1;
 #else
@@ -806,7 +806,7 @@ static void gene_enemy(volatile int gobj)
     for (;; _ACTWait(1)) {
         total = 0;
         alive = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if !defined(VERSION_PAL) && !defined(VERSION_NTSC)
         if (stage_no == 84) {
 #else
         if (stage_no == 86) {
@@ -1016,7 +1016,7 @@ inline void actBossCtrlStart(void *gobj)
         no++;
         o = isysGObjSearchFromObjKindID_next(o);
     }
-#ifdef VERSION_KOR
+#if defined(VERSION_KOR) || defined(VERSION_CN)
     printf("n generator %d\n", no);
 #else
     debug_StdPrintfDummy("n generator %d\n", no);
@@ -1037,10 +1037,11 @@ inline int InitBossCtrlGeo(void *gobj)
     char *q;
     char *r;
 
-    ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__, LN(350, 350, 350, 350, 367, 350));
+    ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__,
+                              LN(350, 350, 350, 350, 367, 350, 350));
     actInitialize(gobj);
     actInitialize_ext_charcter(gobj);
-#ifdef VERSION_KOR
+#if defined(VERSION_KOR) || defined(VERSION_CN)
     printf("N_CAPSULE %d\n", 53);
 #else
     debug_StdPrintfDummy("N_CAPSULE %d\n", 53);
@@ -1092,7 +1093,7 @@ void BossCtrlDL(void)
         e = &base[k];
         if (e->state >= 2) {
             if (stage_DispBgAnimation(&e->bga) != 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
                 pbga_start(&e->bga, 549);
 #else
 #ifdef VERSION_NTSC

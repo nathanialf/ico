@@ -90,7 +90,7 @@ void iosInitialize(void)
     ios_partition_root = iosMallocInitPartition(0x780000, 0x1FEFFF0);
     ios_partition_common = iosMallocSetPartition(ios_partition_root, 4194304, 16);
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     ios_partition_root = iosMallocInitPartition(0x780000, 0x1FEFFF0);
 #else
     ios_partition_root = iosMallocInitPartition(0x760000, 0x1FEFFF0);
@@ -120,7 +120,7 @@ void iosInitialize(void)
     ios_partition_sound_semi = iosMallocSetPartition(ios_partition_root, 20480, 16);
     ios_partition_shock = iosMallocSetPartition(ios_partition_root, 10240, 16);
     ios_partition_hara = iosMallocSetPartition(ios_partition_root, 1, 16);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)
     ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
         iosMallocSetPartition(ios_partition_root, 15695872, 16);
 #else
