@@ -408,6 +408,10 @@
                 aria-label="KOR (SCPS-56001)" title="KOR (SCPS-56001)">
           <span>KOR</span>
         </button>
+        <button type="button" class="seg-btn" role="radio" data-v="cn" aria-checked="false" tabindex="-1"
+                aria-label="CN (SCPS-55001)" title="CN (SCPS-55001)">
+          <span>CN</span>
+        </button>
         <button type="button" class="seg-btn" role="radio" data-v="aug6" aria-checked="false" tabindex="-1"
                 aria-label="AUG6 (Aug-6-2001 prototype)" title="AUG6 (Aug-6-2001 prototype)">
           <span>AUG6</span>
@@ -607,19 +611,20 @@ const VLABEL = {
   ntsc: "NTSC (SLUS-20218, ntsc branch)",
   jpn:  "JPN (SCPS-11003, jpn branch)",
   kor:  "KOR (SCPS-56001, kor branch)",
+  cn:   "CN (SCPS-55001, cn branch)",
   aug6: "AUG6 (Aug-6-2001 prototype, aug6 branch)",
   jun26: "JUN26 (Jun-26-2001 demo, jun26 branch)",
 };
 
 // Each target's numbers are published from its own branch (main builds the
 // joined pal, jpn, kor, ntsc, aug6 and jun26 in one tree, but the site reads their frozen
-// branches), so the "repo" and "PROGRESS.md" links follow the selected view
+// branches; cn is still on its own), so the "repo" and "PROGRESS.md" links follow the selected view
 // rather than always landing on the default branch.
-const VBRANCH = { pal: "pal", ntsc: "ntsc", jpn: "jpn", kor: "kor", aug6: "aug6", jun26: "jun26" };
+const VBRANCH = { pal: "pal", ntsc: "ntsc", jpn: "jpn", kor: "kor", cn: "cn", aug6: "aug6", jun26: "jun26" };
 
 // Function grouping differs by source layout: the retail targets ship a flat
 // repo-root src/ tree, the prototype the dev's per-programmer module dirs.
-const VGROUP = { pal: "directory", ntsc: "directory", jpn: "directory", kor: "directory", aug6: "programmer", jun26: "directory" };
+const VGROUP = { pal: "directory", ntsc: "directory", jpn: "directory", kor: "directory", cn: "directory", aug6: "programmer", jun26: "directory" };
 
 // Default view = the default branch's target.
 const VDEFAULT = "pal";

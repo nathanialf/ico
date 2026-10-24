@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
-# build_pages_site.sh: assemble the six-version progress dashboard into _site/
+# build_pages_site.sh: assemble the seven-version progress dashboard into _site/
 #
 # Run by .github/workflows/pages.yml on every branch in BRANCHES (main, pal,
-# jpn, kor, ntsc, aug6 and jun26). Every target's numbers come from its own
+# jpn, kor, cn, ntsc, aug6 and jun26). Every target's numbers come from its own
 # branch; it works out what to do from the branch it is running on, so there
 # are no per-branch conditionals to keep in sync.
 #
@@ -31,6 +31,8 @@
 #   pal   -> pal    PAL retail (SCES-50760), frozen
 #   jpn   -> jpn    Japanese retail (SCPS-11003), frozen
 #   kor   -> kor    Korean retail (SCPS-56001), frozen
+#   cn    -> cn     Asian retail (SCPS-55001), the campaign branch until it
+#                   joins main
 #   ntsc  -> ntsc   USA retail (SLUS-20218), frozen
 #   aug6  -> aug6   Aug-6-2001 prototype, frozen
 #   jun26 -> jun26  Jun-26-2001 demo, frozen
@@ -40,6 +42,7 @@
 #   _site/pal/              the `pal` branch's docs/pal/progress.json and PROGRESS.md
 #   _site/jpn/              the `jpn` branch's docs/jpn/
 #   _site/kor/              the `kor` branch's docs/kor/
+#   _site/cn/               the `cn` branch's docs/cn/
 #   _site/ntsc/             the `ntsc` branch's docs/ntsc/
 #   _site/aug6/             the `aug6` branch's docs/aug6/
 #   _site/jun26/            the `jun26` branch's docs/jun26/
@@ -69,9 +72,11 @@ BRANCH="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 # The complete branch<->version table. Every publishing branch is listed in
 # BRANCHES, so adding a target branch means editing this one table (plus
 # docs/index.html's own picker) rather than hunting per-branch conditionals.
-# `main` has no version: it supplies the page (PAGE_BRANCH below). Every
-# target has joined main, so every publishing branch but main is frozen.
-BRANCHES="main pal jpn kor ntsc aug6 jun26"
+# `main` has no version: it supplies the page (PAGE_BRANCH below). A target
+# still on its own branch maps by VERSION_OF_<branch>; the joined targets are
+# frozen (FROZEN below).
+VERSION_OF_cn=cn
+BRANCHES="main pal jpn kor cn ntsc aug6 jun26"
 MAIN_BRANCH=main
 
 # Frozen branches: targets joined into main, whose numbers the site still
@@ -120,7 +125,7 @@ case " $BRANCHES " in
     *" $BRANCH "*) ;;
     *)
         echo "build_pages_site: no version mapping for branch '$BRANCH'" >&2
-        echo "  expected one of: $BRANCHES ('main' -> the page, 'pal' -> pal, 'jpn' -> jpn, 'kor' -> kor, 'ntsc' -> ntsc, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
+        echo "  expected one of: $BRANCHES ('main' -> the page, 'pal' -> pal, 'jpn' -> jpn, 'kor' -> kor, 'cn' -> cn, 'ntsc' -> ntsc, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
         exit 1
         ;;
 esac
