@@ -14,7 +14,7 @@ and tables in which it differs from PAL's.
 <!-- progress:begin -->
 | Target | Sections identical to the base |
 | --- | --- |
-| [Aug-6-2001 prototype](https://nathanialf.github.io/ico/#aug6) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2869.24%20%25%20source%20%2B%2030.76%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.56%20%25%20source%20%2B%2090.44%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.82%20%25%20source%20%2B%200.18%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
+| [Aug-6-2001 prototype](https://nathanialf.github.io/ico/#aug6) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2869.24%20%25%20source%20%2B%2030.76%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.66%20%25%20source%20%2B%2090.34%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.82%20%25%20source%20%2B%200.18%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#aug6)**: every
@@ -131,7 +131,9 @@ PAL's (most of the prototype's tables hold fewer rows, and ten record types
 have another layout). Three members sit elsewhere than in PAL's link:
 `weapon-def` and `texture-path` are in `.rodata` (PAL's `.data`), and
 `adpcmfile` leads the third `.rodata` run. They are the game's content, and
-nothing of that content is committed. The build generates them from the
+nothing of that content is committed, with one exception: the enemy kind table `enemyKind` is committed as
+`ico2/sugipon/src/enemyKind.c` (the paragraph "One exception: `enemyKind`" in
+[`docs/LEGAL.md`](docs/LEGAL.md)), so 69 runs are generated. The build generates them from the
 user's own `baserom/aug6/baseelf.elf` into `build/aug6/data/`. Each member
 becomes `build/aug6/data/<member>.c`, an initialized array of its record type compiled
 with the game's flags (`tools/gen_data_c.py`); `config/data_schema.aug6.txt`

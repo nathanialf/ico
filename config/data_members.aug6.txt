@@ -181,7 +181,7 @@ rodata adpcmfile 0x6151d8 0x6169d8 adpcmFile@0x0
 # blend-motion-def: code: GetMotionPlaySpeedRatio, getNodeBlendedFloatingMotion, func_001E02E0 (PAL's getMotionGeometry by order) read it. span 0xe50 != PAL 0x1410 (-1472 B); 229 rows for PAL's 321; content layout-changed
 rodata blend-motion-def 0x6169d8 0x617828 blendMotionKind@0x0
 # enemy-def: code: CanThisEnemyFly, GetEnemyBattleType, GetEnemyDefLife+1 read it; 45 rows of 0x14 bytes (PAL EnemyDef 0x1C): CanThisEnemyFly, GetEnemyBattleType, GetEnemyDefLife and setEnemyObject multiply by 20 (PAL 28); setEnemyObject reads PAL 0x10 (scale)->0x0C, CanThisEnemyFly and GetEnemyBattleType the attribute word 0x18->0x10, GetEnemyDefLife life at 0x08 as in PAL. PAL's EnemyDef does not hold these bytes. span 0x384 != PAL 0x4f0 (-364 B); content record-changed
-rodata enemy-def 0x617828 0x617bac enemyKind@0x0
+# enemy-def is committed source since 2026-10-24, ico2/sugipon/src/enemyKind.c (the one exception to the data-member rule, docs/LEGAL.md); its run is 0x617828..0x617bac.
 # enemy-model-grp: code: GetRealModelId read it. span 0x190 = PAL; content same
 rodata enemy-model-grp 0x617bb0 0x617d40 enemymodelGroup@0x0
 # enemy-model-tbl: code: GetRealModelId read it. span 0x64 = PAL; content changed-content
