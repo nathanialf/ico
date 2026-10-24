@@ -12,7 +12,7 @@
 
 struct GObj;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void SetFlag4PointFixID(struct GObj *self, int turns, int id);
 #endif
 
@@ -29,7 +29,7 @@ typedef struct { /* field names derived */
     ClothSet *clothes;
     ClothCfg *cfg;
     int collide;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int turns;
 #endif
 } FlagWork; /* derived name */
@@ -49,26 +49,27 @@ typedef union { /* field names derived */
    own counter, and each node's 0.0f words are stored from one float set at
    the top of the loop body.  line is the caller's source line, which the
    original passed as __LINE__ (flag.c spells it with LN). */
-#define FLAG_ALLOC_NODES(o, num, line) /* derived name */                                                \
+#ifdef VERSION_JUN26
+#define FLAG_ALLOC_NODES(o, num, line) /* derived name */                                          \
     {                                                                                              \
         int n;                                                                                     \
         if ((o)->nodeMtx != 0) {                                                                   \
-            iosFree((void *)((o)->nodeMtx & 0x0FFFFFFF));                                          \
+            iosFree((void *)(o)->nodeMtx);                                                         \
         }                                                                                          \
         if ((o)->nodeQuat != 0) {                                                                  \
-            iosFree((void *)((o)->nodeQuat & 0x0FFFFFFF));                                         \
+            iosFree((void *)(o)->nodeQuat);                                                        \
         }                                                                                          \
         *(char **)((char *)(o) + 0xC) = 0;                                                         \
         *(char **)((char *)(o) + 0x10) = 0;                                                        \
         *(char **)((char *)(o) + 0xC) =                                                            \
-            iosMallocDebug(ios_partition_seki, (num) * 64, __FILE__, line);                    \
+            iosMallocDebug(ios_partition_seki, (num) * 64, __FILE__, line);                        \
         *(char **)((char *)(o) + 0x10) =                                                           \
-            iosMallocDebug(ios_partition_seki, (num) * 16, __FILE__, line);                    \
+            iosMallocDebug(ios_partition_seki, (num) * 16, __FILE__, line);                        \
         (o)->nodeNum = (num);                                                                      \
         if ((o)->nodes != 0) {                                                                     \
-            iosFree((void *)((int)(o)->nodes & 0x0FFFFFFF));                                       \
+            iosFree((o)->nodes);                                                                   \
         }                                                                                          \
-        (o)->nodes = iosMallocDebug(ios_partition_seki, (num) * 80, __FILE__, line);           \
+        (o)->nodes = iosMallocDebug(ios_partition_seki, (num) * 80, __FILE__, line);               \
         for (n = 0; n < (num); n++) {                                                              \
             float zero = 0.0f;                                                                     \
             (o)->nodes[n].flags.ll &= ~1;                                                          \
@@ -87,4 +88,45 @@ typedef union { /* field names derived */
         }                                                                                          \
         (o)->dispType = 2;                                                                         \
     }
+#else
+#define FLAG_ALLOC_NODES(o, num, line) /* derived name */                                          \
+    {                                                                                              \
+        int n;                                                                                     \
+        if ((o)->nodeMtx != 0) {                                                                   \
+            iosFree((void *)((o)->nodeMtx & 0x0FFFFFFF));                                          \
+        }                                                                                          \
+        if ((o)->nodeQuat != 0) {                                                                  \
+            iosFree((void *)((o)->nodeQuat & 0x0FFFFFFF));                                         \
+        }                                                                                          \
+        *(char **)((char *)(o) + 0xC) = 0;                                                         \
+        *(char **)((char *)(o) + 0x10) = 0;                                                        \
+        *(char **)((char *)(o) + 0xC) =                                                            \
+            iosMallocDebug(ios_partition_seki, (num) * 64, __FILE__, line);                        \
+        *(char **)((char *)(o) + 0x10) =                                                           \
+            iosMallocDebug(ios_partition_seki, (num) * 16, __FILE__, line);                        \
+        (o)->nodeNum = (num);                                                                      \
+        if ((o)->nodes != 0) {                                                                     \
+            iosFree((void *)((int)(o)->nodes & 0x0FFFFFFF));                                       \
+        }                                                                                          \
+        (o)->nodes = iosMallocDebug(ios_partition_seki, (num) * 80, __FILE__, line);               \
+        for (n = 0; n < (num); n++) {                                                              \
+            float zero = 0.0f;                                                                     \
+            (o)->nodes[n].flags.ll &= ~1;                                                          \
+            (o)->nodes[n].flags.ll &= ~2;                                                          \
+            (o)->nodes[n].pos[0] = zero;                                                           \
+            (o)->nodes[n].pos[1] = zero;                                                           \
+            (o)->nodes[n].pos[2] = zero;                                                           \
+            (o)->nodes[n].pos[3] = 1.0f;                                                           \
+            (o)->nodes[n].flags.ll &= ~4;                                                          \
+            (o)->nodes[n].fade = zero;                                                             \
+            (o)->nodes[n].alpha = 1.0f;                                                            \
+            *(short *)((char *)&(o)->nodes[n] + 0x3A) = 0;                                         \
+            (o)->nodes[n].scale[0] = 1.0f;                                                         \
+            (o)->nodes[n].scale[1] = 1.0f;                                                         \
+            (o)->nodes[n].scale[2] = 1.0f;                                                         \
+        }                                                                                          \
+        (o)->dispType = 2;                                                                         \
+    }
+#endif
+
 #endif /* FLAG_H */

@@ -9,6 +9,7 @@
 #define SPIDER_H
 
 struct GObj;
+
 struct GamesysObjInfo;
 
 /* spider-def: one spider kind, 0x20 bytes, the row a layout object's 0x30
@@ -17,28 +18,37 @@ struct GamesysObjInfo;
    girl, the up vector's z (a_p_1's ap1LayoutUp) and whether the spider may
    attack, a float the actor converts into its flag word.  Readers: spider.c,
    a_p_1.c, act_a_p_1.c. */
-typedef struct {   /* field names derived */
-    float jump[3]; /* 0x00 */
-    int layout;    /* 0x0C, CreateLayoutedGObj's kind */
-    int count;     /* 0x10 */
+typedef struct {    /* field names derived */
+    float jump[3];  /* 0x00 */
+    int layout;     /* 0x0C, CreateLayoutedGObj's kind */
+    int count;      /* 0x10 */
     int targetGirl; /* 0x14, 1 to call the group to the girl as well */
-    float upZ;     /* 0x18 */
-    float attack;  /* 0x1C */
-} SpiderKindRec;   /* derived name */
+    float upZ;      /* 0x18 */
+    float attack;   /* 0x1C */
+} SpiderKindRec;    /* derived name */
 
 extern const SpiderKindRec spiderDef[];
 extern int sgSelLine;
 extern int sgInfoLine;
 int CheckSpidersInsideOfReviveRange(int *out, struct GObj *gp, void *center);
 int DeadAllSpiders(struct GObj *gp);
+
+#ifndef VERSION_JUN26
 void DeleteAllSpidersOfLayoutGroup(struct GObj *gp);
+#endif
+
 struct GObj *DeleteSpiderFromLayoutGroup(struct GObj *self, int idx);
 void DispAllMemberOfSpider(struct GObj *self, int *col);
 int GetAliveSpiders(struct GObj *gp);
 void SetSpiderGroupReviveStatus(struct GObj *self);
+
+#ifdef VERSION_JUN26
+void WakeUpLayoutedSpiders(struct GObj *self);
+#else
 void SleepSpiderGroup(struct GObj *gp);
 void WakeUpLayoutedSpiders(struct GObj *self);
 void WakeupSpiderGroup(struct GObj *gp);
+#endif
 
 struct SObjSimpleSetting;
 
@@ -47,7 +57,13 @@ struct SpiderWork;
 struct SpiderMemory;
 
 struct SpiderWork *InitSpiderLayoutGeo(struct GObj *self, struct SObjSimpleSetting *lay);
+
+#ifdef VERSION_JUN26
+void CallSpidersToReviveEnemy(struct GObj *self);
+#else
 int CallSpidersToReviveEnemy(struct GObj *self);
+#endif
+
 void SpiderLayoutGeo(struct GObj *self);
 int GetNearestOfLayoutSpiders(float *dist, struct GObj *gp, void *center);
 int RestoreSpiderLayoutGeo(void);

@@ -31,6 +31,12 @@ typedef struct AP1Vec { /* field names derived */
 /* the two-letter tag GetAP1AIMode hands the debug display. */
 static char *ap1ModeTag[] = {"ST", "WA", "JM", "AT", "DE", "SL"}; /* derived name */
 
+#ifdef VERSION_JUN26
+/* a second fixed vector before the boxed-in hop, which nothing reads in this
+   build */
+static AP1Vec ap1FixedVector = {0.0f, -10.0f, -15.0f, 0.0f}; /* derived name */
+#endif
+
 inline char *GetAP1AIMode(GObj *self)
 {
     Act *p = GOBJ_ACT(self);
@@ -72,13 +78,18 @@ static short boyYaw; /* derived name */ /* heading to the boy in local space */
 
 static short boyYawBack; /* derived name */ /* the opposite heading, boyYaw - 32768 */
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static int boySafe; /* derived name */ /* the boy is not in danger */
 #endif
 
 static float lookDist; /* derived name */ /* distance to the object being watched */
 
 static short lookYaw; /* derived name */ /* heading to it in local space */
+
+#ifdef VERSION_JUN26
+/* a word nothing reads in this build, after the look state */
+static int boySafe; /* derived name */
+#endif
 
 static AP1Vec boyLocalDir; /* derived name */ /* direction to the boy, in local space */
 
@@ -248,7 +259,11 @@ static int standAI(GObj *self)
 #ifdef VERSION_AUG6
     if ((int)(p->flags20.ll >> 7) & 1) {
 #else
+#ifdef VERSION_JUN26
+    if ((int)(p->flags20.ll >> 5) & 1) {
+#else
     if ((int)(p->flags20.ll >> 21) & 1) {
+#endif
 #endif
         short r = boyYaw;
         r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
@@ -303,14 +318,18 @@ static int walkAI(GObj *self)
 #ifdef VERSION_AUG6
     if ((int)(p->flags20.ll >> 7) & 1) {
 #else
+#ifdef VERSION_JUN26
+    if ((int)(p->flags20.ll >> 5) & 1) {
+#else
     if ((int)(p->flags20.ll >> 21) & 1) {
+#endif
 #endif
         if (AP1MotReq(self, 0))
             return 0;
     }
 
     if (boyDist < 300.0f) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (p->attack == 0 || boyPitch < 16384) {
 #else
         if (p->attack == 0 || boySafe == 0 || boyPitch < 16384) {
@@ -331,7 +350,7 @@ static int walkAI(GObj *self)
         }
     }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (p->attack != 0) {
 #else
     if (p->attack != 0 && boySafe != 0) {
@@ -383,7 +402,7 @@ static int walkAI(GObj *self)
             return 0;
     }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (p->attack != 0 && boyDist < 300.0f) {
 #else
     if (p->attack != 0 && boySafe != 0 && boyDist < 300.0f) {
@@ -483,7 +502,7 @@ static inline void AP1ToLocal(GObj *self, AP1Vec *v) /* derived name */
  * yields to the other threads inside the loop */
 void subAP1BrainMain(GObj *volatile self)
 {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     AP1Vec boy;
     AP1Vec look;
 #else
@@ -516,13 +535,13 @@ void subAP1BrainMain(GObj *volatile self)
         boyYawBack = boyYaw - 32768;
         CopyVector(&boyDeltaFlat, &boyDelta);
         boyDeltaFlat.y = 0.0f;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         boySafe = IsBoyStatus_NotDanger() == 0;
 #endif
 
         host = p->lookTarget;
         if (host != 0) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             GetRootPosition(&look, host);
             look.y -= GOBJ_SUB(p->lookTarget)->root.height - 10.0f;
 #else
@@ -544,7 +563,7 @@ void subAP1BrainMain(GObj *volatile self)
         } else {
             GetRootPosition(&look, boyObj);
             look.y -= GOBJ_SUB(boyObj)->root.height - 10.0f;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
             hold = 0;
 #endif
         }
@@ -575,7 +594,11 @@ void subAP1BrainMain(GObj *volatile self)
 #ifdef VERSION_AUG6
             iosOmSendMail(self, 204, self);
 #else
+#ifdef VERSION_JUN26
+            iosOmSendMail(self, 199, self);
+#else
             iosOmSendMail(self, 0xDF, self);
+#endif
 #endif
 #endif
             /* forced death */
@@ -627,6 +650,19 @@ static inline void AP1SetMode(GObj *self, int mode) /* derived name */
     GOBJ_ACT(self)->hit = 1;
 }
 
+#ifdef VERSION_JUN26
+/* the actor dies where it stands: dead mode and the death burst */
+static inline void AP1Die(GObj *self) /* derived name */
+{
+    int pos[4];
+    int quat[4];
+
+    AP1SetMode(self, 4);
+    GetRootPosition(pos, self);
+    GetRootQuaternion(quat, self);
+    SetParticleEffect(12, pos, quat);
+}
+#else
 static inline void AP1DeadEffect(GObj *self) /* derived name */
 {
     Act *p = GOBJ_ACT(self);
@@ -662,6 +698,7 @@ static inline void AP1DeadEffectHit(GObj *self) /* derived name */
         hitProc(self);
     }
 }
+#endif
 
 static inline void AP1SetHold(GObj *self) /* derived name */
 {
@@ -673,7 +710,11 @@ static inline void AP1SetHold(GObj *self) /* derived name */
 #ifdef VERSION_AUG6
     p->flags20.ll |= 0x80;
 #else
+#ifdef VERSION_JUN26
+    p->flags20.ll |= 0x20;
+#else
     p->flags20.ll |= 0x200000;
+#endif
 #endif
 #endif
 }
@@ -688,7 +729,11 @@ static inline void AP1ClrHold(GObj *self) /* derived name */
 #ifdef VERSION_AUG6
     p->flags20.ll &= ~0x80;
 #else
+#ifdef VERSION_JUN26
+    p->flags20.ll &= ~0x20;
+#else
     p->flags20.ll &= ~0x200000;
+#endif
 #endif
 #endif
 }
@@ -712,6 +757,17 @@ void AP1BeforeFunc(GObj *self)
             AP1ClrHold(self);
             break;
 
+#ifdef VERSION_JUN26
+        case 13:
+            hitProc(self);
+            AP1Die(self);
+            iosPadActRequest(boyPad, 17);
+            ExecuteSEPackage(self, 86);
+            break;
+
+        case 37:
+            AP1Die(self);
+#else
         case 34:
             AP1DeadEffectHit(self);
             break;
@@ -732,9 +788,16 @@ void AP1BeforeFunc(GObj *self)
         case 38:
             AP1DeadEffect(self);
             AP1DeadMode(self);
+#endif
             hitProc(self);
             break;
 
+#ifdef VERSION_JUN26
+        case 199:
+            AP1Die(self);
+            /* " - forced death accepted" */
+            debug_StdPrintfDummy(" - 強制死亡受理\n");
+#else
 #ifdef VERSION_NTSC
         case 207:
 #else
@@ -745,6 +808,7 @@ void AP1BeforeFunc(GObj *self)
 #endif
 #endif
             AP1DeadMode(self);
+#endif
             hitProc(self);
             break;
         }

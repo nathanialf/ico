@@ -141,6 +141,100 @@ int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
     return 0;
 }
 #else
+#ifdef VERSION_JUN26
+int GetWaterReaction(float *outH, ClipWork *info, float *pos, float *vel, float h0, float h1,
+                     float h2, float scaleIn, float amp)
+{
+    float drain[4];
+    float waterH;
+    float scale;
+    float r;
+    GObj *pool;
+    int attr;
+
+    if (info->floor.elem != 0) {
+        attr = GetFloorAttribute(info);
+        if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+            scale = scaleIn;
+            pool = info->floor.o.obj;
+            waterH = GetPoolGlobalHeightDetail(pool, pos);
+            GetPoolGlobalDrainVector(drain, pool);
+            if (waterH < h0) {
+                vel[1] = vel[1] + amp;
+            } else if (waterH < h1) {
+                vel[1] = vel[1] + amp * (h1 - waterH) / (h1 - h0);
+            } else if (waterH < h2) {
+                r = (waterH - h1) / (h2 - h1);
+                vel[1] = vel[1] +
+                         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) +
+                          amp * (1.0f - r)) *
+                             r;
+            } else {
+                vel[1] =
+                    vel[1] + 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                                 (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+                scale = 1.0f;
+                CopyVector(drain, ZeroVector);
+            }
+            vel[0] = vel[0] * scale;
+            vel[1] = vel[1] * scale;
+            vel[2] = vel[2] * scale;
+            sceVu0AddVector(vel, vel, drain);
+            AddVectorXYZ(pos, pos, vel);
+            if (outH != 0) {
+                *outH = waterH;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
+{
+    float h;
+    float dy;
+    float ph;
+    float d;
+    int attr;
+
+    if (info->floor.elem != 0) {
+        h = GOBJ_SUB(self)->root.move[1];
+        dy = info->pt[2][1] - pos[1];
+        attr = GetFloorAttribute(info);
+        if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+            if (h >= 0.0f) {
+                ph = GetPoolGlobalHeight(info->floor.o.obj);
+                d = info->pt[2][1] - ph;
+                if (dy < lim) {
+                    if (d > 0.0f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
+                            SetFallDownSplash(info->floor.o.obj, self);
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
+                        }
+                    }
+                    return 1;
+                }
+                if (d > 0.0f) {
+                    if (ph - pos[1] < lim * 0.8f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
+                            SetFallDownSplash(info->floor.o.obj, self);
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
+                        }
+                        return 2;
+                    }
+                }
+            }
+        } else {
+            if (dy < lim) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+#else
 int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel, float h0,
                      float h1, float h2, float scaleIn, float amp)
 {
@@ -203,6 +297,7 @@ int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, floa
     }
     return 0;
 }
+#endif
 
 #define ABSF(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
 
@@ -344,6 +439,10 @@ void GetOrientOfCliffOfGObj(float *dir, GObj *obj)
     CopyVector(dir, obj->dobj->ctrl.cliffNormal);
 }
 
+#ifdef VERSION_JUN26
+void SetMotionDirection(GObj *self, float *dir);
+#endif
+
 void SetMotionDirection(GObj *self, float *dir)
 {
     Sub15C *base = self->dobj;
@@ -422,14 +521,37 @@ static inline int getSkeltonFocusNode(GObj *self, int focus) /* derived name */
         debug_StdPrintfDummy(
             "このメッセージを見たひとは杉山まで連絡ください: GetSkeltonFocusNode SKEL=NULL\n");
         debug_assertMessage(
-            __FILE__, 515,
+            __FILE__, LN(515, 515, 515, 515, 515, 515),
             "GetSkeltonFocusNode:\n PLEASE CALL SUGIYAMA\n GOBJ==NULL Or SKEL==NULL "
             "Or RETURNID>=NBSKELS\n");
-        __assert(__FILE__, 515, "e");
+        __assert(__FILE__, LN(515, 515, 515, 515, 515, 515), "e");
     }
     return GOBJ_SUB(self)->focusNodes[focus];
 #endif
 }
+
+#ifdef VERSION_JUN26
+/* the body of GetSkeltonFocusNode, which SetMotionBlendlessNode, the two
+   GetDifferenceFromWall*Plane and the node fix mode setter inline and
+   GetSkeltonFocusNode calls: a missing skeleton or an out-of-range node is
+   reported (the demo's strings precede AdjustMotionHeightToField's) */
+static inline int getSkeltonFocusNode(GObj *self, int focus) /* derived name */
+{
+    Sub15C *sub = GOBJ_SUB(self);
+
+    if (sub == 0 || sub->focusNodes == 0 || sub->focusNodes[focus] >= sub->skelNodeNum) {
+        /* EUC-JP: "whoever sees this message, please contact Sugiyama" */
+        debug_StdPrintfDummy(
+            "このメッセージを見たひとは杉山まで連絡ください: GetSkeltonFocusNode SKEL=NULL\n");
+        debug_assertMessage(
+            __FILE__, 503,
+            "GetSkeltonFocusNode:\n PLEASE CALL SUGIYAMA\n GOBJ==NULL Or SKEL==NULL "
+            "Or RETURNID>=NBSKELS\n");
+        __assert(__FILE__, 503, "e");
+    }
+    return GOBJ_SUB(self)->focusNodes[focus];
+}
+#endif
 
 void AdjustMotionHeightToField(GObj *obj)
 {
@@ -438,6 +560,16 @@ void AdjustMotionHeightToField(GObj *obj)
     debug_StdPrintfDummy("Adjust Motion Height To Field. --------------\n");
 }
 
+#ifdef VERSION_JUN26
+/* the downward ray the lower-plane queries cast from pos (aug6's TRFILE: one
+   helper's lines in GetLowerPlaneCollision and in the field-filtered query) */
+static inline void setLowerPlaneRay(ClipWork *w, float *pos) /* derived name */
+{
+    CopyVector(w->pt[0], pos);
+    CopyVector(w->pt[1], w->pt[0]);
+    w->pt[1][1] = w->pt[1][1] + 10000.0f;
+}
+#else
 void GetLowerPlaneCollision(ClipWork *w, float *pos)
 {
     CopyVector(w->pt[0], pos);
@@ -453,6 +585,7 @@ static void getLowerPlaneCollisionE(ClipWork *w, float *pos)
     w->pt[1][1] = w->pt[1][1] + 10000.0f;
     ClipFloorE(w);
 }
+#endif
 
 /* inlined into AdjustMotionHeightToNearestField and InitMotionGeoInfo */
 static inline int adjustMotionHeightToNearestField(struct MotRoot *r, float *pos) /* derived name */
@@ -464,9 +597,17 @@ static inline int adjustMotionHeightToNearestField(struct MotRoot *r, float *pos
     p[1] = p[1] - 100.0f;
     if (r->filter.o.obj != 0) {
         buf.filter = r->filter;
+#ifdef VERSION_JUN26
+        setLowerPlaneRay(&buf, p);
+        ClipFloorE(&buf);
+    } else {
+        setLowerPlaneRay(&buf, p);
+        ClipFloor(&buf);
+#else
         getLowerPlaneCollisionE(&buf, p);
     } else {
         GetLowerPlaneCollision(&buf, p);
+#endif
     }
     if (buf.floor.elem == 0) {
         return 0;
@@ -475,6 +616,17 @@ static inline int adjustMotionHeightToNearestField(struct MotRoot *r, float *pos
     sceVu0CopyVector(r->footPos, buf.pt[2]);
     r->footPos[3] = 1.0f;
     return 1;
+#ifdef VERSION_JUN26
+}
+
+int AdjustMotionHeightToNearestField(GObj *self)
+{
+    float pos[4];
+    struct MotRoot *o = &self->dobj->root;
+
+    GetRootPosition(pos, self);
+    return adjustMotionHeightToNearestField(o, pos);
+#endif
 }
 
 /* RotQuaternionZ's second parameter is `int`, not `short`: calcFootIK's dev line
@@ -583,7 +735,7 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
     return ang;
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* The motion geometry record the actor sub-object carries at its own +0xA0,
    and the default every actor starts from: the same block typedef.h's MotRoot
    describes, and its fields carry MotRoot's names (the readers and writers
@@ -1048,6 +1200,120 @@ static MotionGeoInfo motionGeoInfoTemplate = {
 }; /* derived name */
 #endif
 
+#ifdef VERSION_JUN26
+/* The motion state record the actor sub-object carries at its own +0x460,
+   and the default every actor starts from: the block typedef.h's MotCtrl
+   describes, with MotCtrl's names at the same offsets.  SetMotionDirection
+   writes the direction at 0xB0, SetMotionPlaySpeedRatio the ratio at 0x48,
+   ForMotionViewer_GetCurrentMotion and ForMotionViewer_GetCurrentAnimationFrame
+   read the motion at 0x30 and the frame at 0x3C, CheckPureWallAttribute,
+   CheckPureCliffAttribute, CheckWallAttribute and CheckFloorAttribute the four
+   attributes at 0x17C to 0x188, GetRopeHangablePos the height at 0x1A8, and
+   InitMotionStateInfo itself writes the two sound groups at 0x1AC.  Its
+   vectors are Vec4, so the default is 8-byte aligned; with MotCtrl's float
+   arrays the template copy is a word copy with an alignment test (measured). */
+typedef struct MotionStateInfo { /* field names derived */
+    int stream;                  /* 0x0 */
+    int oriFrom;                 /* 0x4 */
+    int oriTo;                   /* 0x8 */
+    int shifted;                 /* 0xC */
+    int ctrlFlags;               /* 0x10 */
+    unsigned int flags;          /* 0x14 */
+    int shiftStop;               /* 0x18 */
+    int *shiftReq;               /* 0x1C */
+    int *shiftNext;              /* 0x20 */
+    int shiftFrom;               /* 0x24 */
+    int shiftMode;               /* 0x28 */
+    int request;                 /* 0x2C */
+    int motion;                  /* 0x30 */
+    int noAlt;                   /* 0x34 */
+    int shiftReady;              /* 0x38 */
+    float animFrame;             /* 0x3C */
+    float lastFrame;             /* 0x40 */
+    float playTime;              /* 0x44 */
+    float speedRatio;            /* 0x48 */
+    float playRate;              /* 0x4C */
+    float frameRatio;            /* 0x50 */
+    int waterDrag;               /* 0x54 */
+    int justShifted;             /* 0x58 */
+    int frameEnd;                /* 0x5C */
+    int keepUpdateMode;          /* 0x60 */
+    int updateModeChanged;       /* 0x64 */
+    int rootUpdateMode;          /* 0x68 */
+    int parallelEnded;           /* 0x6C */
+    int parallel;                /* 0x70 */
+    int orientUpdateOff;         /* 0x74 */
+    int noStand;                 /* 0x78 */
+    int posReserve;              /* 0x7C */
+    int loopFlag;                /* 0x80 */
+    int reserveBlend;            /* 0x84 */
+    int reserveMoved;            /* 0x88 */
+    int step;                    /* 0x8C */
+    int orientReq;               /* 0x90 */
+    int lastMotion;              /* 0x94 */
+    int lastNoAlt;               /* 0x98 */
+    int shiftFrame;              /* 0x9C */
+    int blendCount;              /* 0xA0 */
+    int blendFrames;             /* 0xA4 */
+    char padA8[8];
+    Vec4 dir;           /* 0xB0 */
+    Vec4 lastDir;       /* 0xC0 */
+    int orientKind;     /* 0xD0 */
+    int floorFit;       /* 0xD4 */
+    int wallReact;      /* 0xD8 */
+    int cliffWallCheck; /* 0xDC */
+    int catchBoy;       /* 0xE0 */
+    int sideWallCheck;  /* 0xE4 */
+    int variation;      /* 0xE8 */
+    float fallHeight;   /* 0xEC */
+    float groundHeight; /* 0xF0 */
+    int wallHit;        /* 0xF4 */
+    int cliffEdge;      /* 0xF8 */
+    int cliffWallHit;   /* 0xFC */
+    int cliffBack;      /* 0x100 */
+    int fieldWallHit;   /* 0x104 */
+    int upperWall;      /* 0x108 */
+    int sideWall;       /* 0x10C */
+    float cliffHeight;  /* 0x110 */
+    float cliffDist;    /* 0x114 */
+    char pad118[8];
+    Vec4 cliffNormal;      /* 0x120 */
+    float wallFloorHeight; /* 0x130 */
+    float wallTopHeight;   /* 0x134 */
+    float wallDist;        /* 0x138 */
+    char pad13C[4];
+    Vec4 wallDir;        /* 0x140 */
+    Vec4 wallNormal;     /* 0x150 */
+    Vec4 sideWallNormal; /* 0x160 */
+    float upperWallDist; /* 0x170 */
+    float sideWallDist;  /* 0x174 */
+    float cliffDepth;    /* 0x178 */
+    int pureWallAttr;    /* 0x17C */
+    int pureCliffAttr;   /* 0x180 */
+    int wallAttr;        /* 0x184 */
+    int floorAttr;       /* 0x188 */
+    char pad18C[4];
+    int frameFlag1;    /* 0x190 */
+    int frameFlag2;    /* 0x194 */
+    int trigger1;      /* 0x198 */
+    int trigger1Done;  /* 0x19C */
+    int trigger2;      /* 0x1A0 */
+    int trigger2Done;  /* 0x1A4 */
+    float ropeHangPos; /* 0x1A8 */
+    int seGroup[2];    /* 0x1AC */
+    int slipFlags;     /* 0x1B4 */
+    int lastSlipFlags; /* 0x1B8 */
+    int slipOn;        /* 0x1BC */
+    int pickedWeapon;  /* 0x1C0 */
+    int keepWall;      /* 0x1C4 */
+    int keepStand;     /* 0x1C8 */
+    int landed;        /* 0x1CC */
+    float waterY;      /* 0x1D0 */
+    float waterDepth;  /* 0x1D4 */
+    GObj *pool;        /* 0x1D8 */
+    int contactFlags;  /* 0x1DC */
+} MotionStateInfo;     /* derived name */
+#else
 /* The motion state record the actor sub-object carries at its own +0x470,
    and the default every actor starts from: the block typedef.h's MotCtrl
    describes, with MotCtrl's names at the same offsets.  SetMotionDirection
@@ -1164,7 +1430,114 @@ typedef struct MotionStateInfo { /* field names derived */
     int seMute;        /* 0x1E8 */
     char pad1EC[4];
 } MotionStateInfo; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+/* the record InitMotionStateInfo copies over every new actor's motion
+   state: 480 bytes in this build (its copy loop ends at 0x1E0), with the
+   step at -1, the shift frame at 1 and the slip off */
+static MotionStateInfo motionStateInfoTemplate = {
+    -1,
+    -1,
+    -1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.0f,
+    0.0f,
+    0.0f,
+    1.0f,
+    1.0f,
+    0.0f,
+    1,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    {0},
+    {{0.0f, 0.0f, 1.0f, 0.0f}},
+    {{0.0f, 0.0f, 1.0f, 0.0f}},
+    0,
+    1,
+    1,
+    1,
+    1,
+    0,
+    0,
+    0.0f,
+    0.0f,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1.5e+02f,
+    0.0f,
+    {0},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    0.0f,
+    0.0f,
+    7e+02f,
+    {0},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    {{0.0f, 0.0f, 1.0f, 1.0f}},
+    0.0f,
+    0.0f,
+    0.0f,
+    0,
+    0,
+    0,
+    0,
+    {0},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1e+02f,
+    {-1, -1},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.0f,
+    0.0f,
+    0,
+    0,
+}; /* derived name */
+#else
 /* the record InitMotionStateInfo copies over every new actor's motion
    state */
 static MotionStateInfo motionStateInfoTemplate = {
@@ -1271,6 +1644,7 @@ static MotionStateInfo motionStateInfoTemplate = {
     0,
     0,
 }; /* derived name */
+#endif
 
 void InitMotionGeoInfo(struct MotRoot *self, float x, float y, float z, float rx, float ry,
                        float rz)
@@ -1285,7 +1659,7 @@ void InitMotionGeoInfo(struct MotRoot *self, float x, float y, float z, float rx
     RotQuaternionY(self->quat, -(int)(ry * 10430.378f));
     RotQuaternionX(self->quat, -(int)(rx * 10430.378f));
     RotQuaternionZ(self->quat, (short)-(int)(rz * 10430.378f));
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     RegularizeQuaternion(self->quat);
 #endif
     adjustMotionHeightToNearestField(self, self->pos);
@@ -1305,6 +1679,10 @@ static SkelNode *skelNodes; /* derived name */
 
 /* a file static; ico2/sugipon/src/motionManager.c has its own of the same
    name */
+#ifdef VERSION_JUN26
+static void dispSkeltonHierarchy(int node);
+#endif
+
 static void dispSkeltonHierarchy(int node)
 {
     if (skelNodes[node].parent != -1) {
@@ -1425,7 +1803,7 @@ void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n)
     if (ik->rootUpdateMode < 3) {
         if (ik->rootUpdateMode > 0) {
             if (sub->slopeIK != 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
                 n0 = getSkeltonFocusNode(self, 49);
                 n1 = getSkeltonFocusNode(self, 45);
 #else
@@ -1453,6 +1831,7 @@ void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n)
     ik->playRate = (r0 > 1.0f) ? 1.0f : r0;
 }
 
+#ifndef VERSION_JUN26
 #ifdef VERSION_AUG6
 static int skeltonDispSwitch = 0;
 #else
@@ -1471,6 +1850,7 @@ static const char adjustWallMidpointMsg[] =
 
 static const char illegalCompressMsg[] =
     "Illegal compress formatID(%d) appeard... ignore.\n"; /* derived name */
+#endif
 
 /* the four wall corners in edge order, closed back onto corner 0, so a walk of
    i = 0..3 takes the pair (corner[i], corner[i+1]) */
@@ -1482,7 +1862,7 @@ static int wallLineColor[4] = {255, 255, 255, 128}; /* derived name */
 /* the same closed corner walk, used to pick the wall edge a position sits on */
 static int wallEdgeCorner[8] = {0, 1, 3, 2, 0, 0, 0, 0}; /* derived name */
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_JUN26)
 /* the matrix that turns a wall into the XY plane: the identity with the wall
    normal's X and Z written into the four rotation slots before every use */
 static float wallAlignMatrix[16] = {
@@ -1556,11 +1936,16 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
         __assert(motMan2File, 1358, "e");
 #else
 #ifdef VERSION_AUG6
-        debug_assertMessage(__FILE__, 1353, "!!");
-        __assert(__FILE__, 1353, "e");
+        debug_assertMessage(__FILE__, LN(1353, 1353, 1353, 1353, 1353, 1353), "!!");
+        __assert(__FILE__, LN(1353, 1353, 1353, 1353, 1353, 1353), "e");
+#else
+#ifdef VERSION_JUN26
+        debug_assertMessage(__FILE__, 1341, "!!");
+        __assert(__FILE__, 1341, "e");
 #else
         debug_assertMessage(motMan2File, 1360, "!!");
         __assert(motMan2File, 1360, "e");
+#endif
 #endif
 #endif
     }
@@ -1573,6 +1958,7 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
                        -sceVu0InnerProduct(bestNrm, pts + tbl[bestIdx] * 4));
     }
     return bestIdx;
+#ifndef VERSION_JUN26
 }
 
 #ifdef VERSION_NTSC
@@ -1658,6 +2044,7 @@ void AdjustVerticalSidePlaneOfWall(float *out, WallCfg *cfg, float *pos, float t
         CopyVector(out, pos);
     }
     out[3] = 1.0f;
+#endif
 }
 
 int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg, int flip)
@@ -1676,7 +2063,14 @@ int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
     tbl = wallEdgeCorner;
     pts = (ptsIn != 0) ? ptsIn : (float *)local;
     bestIdx = 0;
+#ifdef VERSION_JUN26
+    /* the wall's corners and its normal with the vertical part taken out */
+    GetWallGlobalInfo(pts, up, cfg->elem, (char *)GOBJ_SUB(cfg->o.obj)->nodeMtx + cfg->o.node * 64);
+    up[1] = 0.0f;
+    sceVu0Normalize(up, up);
+#else
     getVerticalElementOfWallNormal((int *)pts, (int *)up, cfg);
+#endif
     for (i = 0, t = tbl; i < 4; i++, t++) {
         sceVu0SubVector(work, pts + t[1] * 4, pts + t[0] * 4);
         sceVu0Normalize((int *)work, (int *)work);
@@ -1710,6 +2104,15 @@ typedef struct { /* field names derived */
     signed char adj : 7;
     unsigned char neg : 1;
 } MotS16Hdr; /* derived name */
+
+#ifdef VERSION_JUN26
+/* the sign and adjustment byte of a packed rotation on its own, as the
+   per-node formats 5 and 6 keep it */
+typedef struct { /* field names derived */
+    signed char adj : 7;
+    unsigned char neg : 1;
+} MotS16Sign; /* derived name */
+#endif
 
 /* 2^e as a float, built by repeated multiply/divide so the exponent can
    exceed a single shift's range */
@@ -1746,6 +2149,7 @@ static inline float motDecodeS16(int h) /* derived name */
     return m * s;
 }
 
+#ifndef VERSION_JUN26
 /* the VU0 square root split in two so the Q-pipeline latency is covered by
    the vector copy in between */
 static inline void motSqrtStart(float d) /* derived name */
@@ -1773,21 +2177,32 @@ static inline float motSqrtEnd(void) /* derived name */
                          : "=f"(r));
     return r;
 }
+#endif
 
 void _getS16MotRotElem(void *dst, void *src)
 {
     Vec4f v = {motDecodeS16(*(unsigned short *)((char *)src + 2)),
                motDecodeS16(*(unsigned short *)((char *)src + 4)),
                motDecodeS16(*(unsigned short *)((char *)src + 6)), 1.0f};
+#ifdef VERSION_JUN26
+    float d = sceVu0InnerProduct((float *)&v, (float *)&v);
+
+    d = (d > 1.0f) ? 1.0f : d;
+#else
     float d = _InnerProduct((float *)&v, (float *)&v);
     if (d > 1.0f) {
         d = 1.0f;
     }
     motSqrtStart(d);
+#endif
 
     *(int *)dst = *(unsigned char *)src;
     sceVu0CopyVector((char *)dst + 0x10, &v);
+#ifdef VERSION_JUN26
+    *(float *)((char *)dst + 0x1C) = FSqrt(1.0f - d);
+#else
     *(float *)((char *)dst + 0x1C) = motSqrtEnd();
+#endif
     if (*(signed char *)((char *)src + 1) < 0) {
         *(float *)((char *)dst + 0x1C) = -*(float *)((char *)dst + 0x1C);
     }
@@ -1797,12 +2212,14 @@ void _getS16MotRotElem(void *dst, void *src)
 typedef struct { /* field names derived */
     unsigned char n;
     unsigned char s;
+#ifndef VERSION_JUN26
     float x, y, z;
 } MotElemF; /* derived name */
 
 typedef struct { /* field names derived */
     unsigned char n;
     unsigned char s;
+#endif
     unsigned short a, b, c;
 } MotElemS; /* derived name */
 
@@ -1835,7 +2252,11 @@ void _getMotion(void *dst, void *m, int node, int frame)
     type = ((unsigned char *)*(int *)(mm + 8))[node];
     switch (type) {
     default:
+#ifdef VERSION_JUN26
+        debug_StdPrintfDummy("Illegal compress formatID(%d) appeard... ignore.\n", type);
+#else
         debug_StdPrintfDummy(illegalCompressMsg, type);
+#endif
         SetIdentityQuaternion((char *)dst + 0x10);
         break;
     case 1: {
@@ -1845,16 +2266,52 @@ void _getMotion(void *dst, void *m, int node, int frame)
     }
     case 2: {
         char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+#ifdef VERSION_JUN26
+        float sum;
+
+        sum = *(float *)(p + 0x8) * *(float *)(p + 0x8) +
+              *(float *)(p + 0xC) * *(float *)(p + 0xC) +
+              *(float *)(p + 0x10) * *(float *)(p + 0x10);
+        sum = (sum > 1.0f) ? 1.0f : sum;
+        *(int *)dst = ((unsigned char *)*(int *)p)[frame];
+        *(float *)((char *)dst + 0x1C) = FSqrt(1.0f - sum);
+        *(float *)((char *)dst + 0x10) = *(float *)(p + 0x8);
+        *(float *)((char *)dst + 0x14) = *(float *)(p + 0xC);
+        *(float *)((char *)dst + 0x18) = *(float *)(p + 0x10);
+        if (*(signed char *)(p + 4) < 0) {
+            *(float *)((char *)dst + 0x1C) = -*(float *)((char *)dst + 0x1C);
+        }
+#else
         MotElemF e = {((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 4),
                       *(float *)(p + 8), *(float *)(p + 0xC), *(float *)(p + 0x10)};
         getMotRotElem((char *)dst, (char *)&e);
+#endif
         break;
     }
     case 3: {
         char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+#ifdef VERSION_JUN26
+        float *zt = (float *)*(int *)(p + 4);
+        float z;
+        float sum;
+
+        *(int *)dst = ((unsigned char *)*(int *)p)[frame];
+        *(float *)((char *)dst + 0x10) = *(float *)(p + 0xC);
+        *(float *)((char *)dst + 0x14) = *(float *)(p + 0x10);
+        z = zt[frame];
+        *(float *)((char *)dst + 0x18) = z;
+        sum = *(float *)(p + 0xC) * *(float *)(p + 0xC) +
+              *(float *)(p + 0x10) * *(float *)(p + 0x10) + z * z;
+        sum = (sum > 1.0f) ? 1.0f : sum;
+        *(float *)((char *)dst + 0x1C) = FSqrt(1.0f - sum);
+        if (*(signed char *)(p + 8) < 0) {
+            *(float *)((char *)dst + 0x1C) = -*(float *)((char *)dst + 0x1C);
+        }
+#else
         MotElemF e = {((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 8),
                       *(float *)(p + 0xC), *(float *)(p + 0x10), ((float *)*(int *)(p + 4))[frame]};
         getMotRotElem((char *)dst, (char *)&e);
+#endif
         break;
     }
     case 4: {
@@ -1864,18 +2321,50 @@ void _getMotion(void *dst, void *m, int node, int frame)
     }
     case 5: {
         char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+#ifdef VERSION_JUN26
+        Vec4f v = {motDecodeS16(*(unsigned short *)(p + 6)),
+                   motDecodeS16(*(unsigned short *)(p + 8)),
+                   motDecodeS16(*(unsigned short *)(p + 0xA)), 1.0f};
+        float d = sceVu0InnerProduct((float *)&v, (float *)&v);
+
+        d = (d > 1.0f) ? 1.0f : d;
+        *(int *)dst = ((unsigned char *)*(int *)p)[frame];
+        sceVu0CopyVector((char *)dst + 0x10, &v);
+        *(float *)((char *)dst + 0x1C) = FSqrt(1.0f - d);
+        if (*(signed char *)(p + 4) < 0) {
+            *(float *)((char *)dst + 0x1C) = -*(float *)((char *)dst + 0x1C);
+        }
+        *(float *)((char *)dst + 0x1C) += (float)((MotS16Sign *)(p + 4))->adj * 0.001f;
+#else
         MotElemS e = {((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 4),
                       *(unsigned short *)(p + 6), *(unsigned short *)(p + 8),
                       *(unsigned short *)(p + 0xA)};
         _getS16MotRotElem(dst, &e);
+#endif
         break;
     }
     case 6: {
         char *p = (char *)((int *)*(int *)(mm + 0xC))[node];
+#ifdef VERSION_JUN26
+        Vec4f v = {motDecodeS16(*(unsigned short *)(p + 0xA)),
+                   motDecodeS16(*(unsigned short *)(p + 0xC)),
+                   motDecodeS16(((unsigned short *)*(int *)(p + 4))[frame]), 1.0f};
+        float d = sceVu0InnerProduct((float *)&v, (float *)&v);
+
+        d = (d > 1.0f) ? 1.0f : d;
+        *(int *)dst = ((unsigned char *)*(int *)p)[frame];
+        sceVu0CopyVector((char *)dst + 0x10, &v);
+        *(float *)((char *)dst + 0x1C) = FSqrt(1.0f - d);
+        if (*(signed char *)(p + 8) < 0) {
+            *(float *)((char *)dst + 0x1C) = -*(float *)((char *)dst + 0x1C);
+        }
+        *(float *)((char *)dst + 0x1C) += (float)((MotS16Sign *)(p + 8))->adj * 0.001f;
+#else
         MotElemS e = {((unsigned char *)*(int *)p)[frame], *(unsigned char *)(p + 8),
                       *(unsigned short *)(p + 0xA), *(unsigned short *)(p + 0xC),
                       ((unsigned short *)*(int *)(p + 4))[frame]};
         _getS16MotRotElem(dst, &e);
+#endif
         break;
     }
     }
@@ -1892,6 +2381,57 @@ static inline void getRootPos(float *dst, float *src) /* derived name */
 
     dst[0] = -dst[0];
     dst[1] = -dst[1];
+#ifdef VERSION_JUN26
+}
+
+/* the bodies of GetMotionRootPos and GetBlendedMotionRootPos, which their
+   callers inline and the two exported functions call */
+static inline void getMotionRootPos(float *dst, void *motion, int idx) /* derived name */
+{
+    float *src = (float *)(*(int *)((char *)motion + 4) + idx * 0xC);
+    getRootPos(dst, src);
+}
+
+void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count,
+               SkelNode *hrc)
+{
+    float flip[4];
+    int i;
+
+    /* the motion files' nodes are turned half a turn about X and Y */
+    SetIdentityQuaternion(flip);
+    RotQuaternionX(flip, -32768);
+    RotQuaternionY(flip, -32768);
+    if (mask != 0) {
+        for (i = 0; i < count; i++) {
+            if (mask[i] != 0) {
+                SetIdentityQuaternion(dst + i * 32 + 16);
+                *(int *)(dst + i * 32) = 0;
+            } else {
+                _getMotion(dst + i * 32, motion, i, idx);
+            }
+        }
+    } else {
+        for (i = 0; i < count; i++) {
+            _getMotion(dst + i * 32, motion, i, idx);
+        }
+    }
+
+    if (hrc != 0) {
+        for (i = 0; i < count; i++) {
+            if (hrc[i].parent == -1) {
+                MultiQuaternion(dst + i * 32 + 16, flip, dst + i * 32 + 16);
+            }
+        }
+    } else {
+        for (i = 0; i < count; i++) {
+            MultiQuaternion(dst + i * 32 + 16, flip, dst + i * 32 + 16);
+        }
+    }
+    if (root != 0) {
+        getMotionRootPos(root, motion, idx);
+    }
+#endif
 }
 
 int GetStreamMotion(StreamElem *dst, float *out, char *node, SkelNode *skel)
@@ -1954,6 +2494,7 @@ void CopyMotionWithNodeHrc(StreamElem *dst, StreamElem *src, SkelNode *hrc, int 
     }
 }
 
+#ifndef VERSION_JUN26
 /* the bodies of GetMotionRootPos and GetBlendedMotionRootPos, which their
    callers inline and the two exported functions call */
 static inline void getMotionRootPos(float *dst, void *motion, int idx) /* derived name */
@@ -1961,6 +2502,7 @@ static inline void getMotionRootPos(float *dst, void *motion, int idx) /* derive
     float *src = (float *)(*(int *)((char *)motion + 4) + idx * 0xC);
     getRootPos(dst, src);
 }
+#endif
 
 static inline void getBlendedMotionRootPos(float *dst, float *a, float *b,
                                            float t) /* derived name */
@@ -1969,6 +2511,7 @@ static inline void getBlendedMotionRootPos(float *dst, float *a, float *b,
     dst[0] = a[0] * t + b[0] * u;
     dst[1] = a[1] * t + b[1] * u;
     dst[2] = a[2] * t + b[2] * u;
+#ifndef VERSION_JUN26
 }
 
 /* the bodies of GetMotion (five sites) and GetBlendedMotion (one), which
@@ -2004,6 +2547,7 @@ static inline void getMotion(char *dst, float *root, void *motion, int idx, unsi
     if (root != 0) {
         getMotionRootPos(root, motion, idx);
     }
+#endif
 }
 
 static inline void getBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA,
@@ -2019,7 +2563,11 @@ static inline void getBlendedMotion(StreamElem *dst, float *root, StreamElem *a,
                 dst[i] = a[i];
             } else {
                 *(int *)&dst[i] = (float)*(int *)&a[i] * t + (float)*(int *)&b[i] * u;
+#ifdef VERSION_JUN26
+                GetSlerpQuaternion(dst[i].q, a[i].q, b[i].q, t);
+#else
                 GetSlerpQuaternionNoRegularize(dst[i].q, a[i].q, b[i].q, t);
+#endif
             }
         }
     } else {
@@ -2047,6 +2595,15 @@ void GetFloatingMotion(StreamElem *dst, float t, float *root, void *motion, int 
     idx = (int)t;
     idx1 = idx + 1;
     frac = t - (float)idx;
+#ifdef VERSION_JUN26
+    if (frac < 0.5f) {
+        GetMotion((char *)buf0, rootA, motion, idx, 0, count, hrc);
+        GetMotion((char *)buf1, rootB, motion, idx1, mask, count, hrc);
+        getBlendedMotion(dst, root, buf0, rootA, buf1, rootB, 1.0f - frac, mask, count);
+    } else {
+        GetMotion((char *)buf0, rootA, motion, idx, mask, count, hrc);
+        GetMotion((char *)buf1, rootB, motion, idx1, 0, count, hrc);
+#else
     if (frac == 0.0f) {
         getMotion((char *)dst, root, motion, idx, 0, count, hrc);
         return;
@@ -2058,6 +2615,7 @@ void GetFloatingMotion(StreamElem *dst, float t, float *root, void *motion, int 
     } else {
         getMotion((char *)buf0, rootA, motion, idx, mask, count, hrc);
         getMotion((char *)buf1, rootB, motion, idx1, 0, count, hrc);
+#endif
         getBlendedMotion(dst, root, buf1, rootB, buf0, rootA, frac, mask, count);
     }
 }
@@ -2147,11 +2705,16 @@ void FeedbackWallWorkInfoToBrainSystem(GObj *self)
     *(WallWork *)((char *)p + 0x170) = *(WallWork *)((char *)p + 0x190);
     *(WallWork *)(d + 0x610) = *(WallWork *)((char *)p + 0x190);
 #else
+#ifdef VERSION_JUN26
+    *(WallWork *)((char *)p + 0x170) = *(WallWork *)((char *)p + 0x190);
+    *(WallWork *)(d + 0x5F0) = *(WallWork *)((char *)p + 0x190);
+#else
     *(WallWork *)((char *)p + 0x180) = *(WallWork *)((char *)p + 0x1A0);
 #ifdef VERSION_NTSC
     *(WallWork *)(d + 0x610) = *(WallWork *)((char *)p + 0x1A0);
 #else
     *(WallWork *)(d + 0x620) = *(WallWork *)((char *)p + 0x1A0);
+#endif
 #endif
 #endif
 }
@@ -2164,7 +2727,7 @@ void *GetMotionPointer(GObj *self)
 int GetCollisionOfLastActiveField(GObj *self)
 {
     return self->dobj->root.lastField;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 }
 
 int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
@@ -2241,7 +2804,7 @@ void DebugDisp1Collision(WallCfg *cfg)
 void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color)
 {
     debugDisp1CollisionWithColor(cfg, color);
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 }
 
 /* the body of GetSkeltonFocusNode, which SetMotionBlendlessNode, the two
@@ -2290,6 +2853,13 @@ int GetSkeltonFocusNode(GObj *self, int focus)
     return getSkeltonFocusNode(self, focus);
 }
 
+#ifdef VERSION_JUN26
+void GetLowerPlaneCollision(ClipWork *w, float *pos)
+{
+    setLowerPlaneRay(w, pos);
+    ClipFloor(w);
+}
+#else
 int AdjustMotionHeightToNearestField(GObj *self)
 {
     float pos[4];
@@ -2298,6 +2868,7 @@ int AdjustMotionHeightToNearestField(GObj *self)
     GetRootPosition(pos, self);
     return adjustMotionHeightToNearestField(o, pos);
 }
+#endif
 
 void SetRootUpdateMode(GObj *self, int val)
 {
@@ -2366,7 +2937,7 @@ int GetStreamShapeMotion(float *dst, StreamShapeHdr *hdr)
 
 float GetDifferenceFromWallUpperField(GObj *self, int node)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     struct MotRoot *r = &self->dobj->root;
     int idx = getSkeltonFocusNode(self, node);
     return GetYDistanceFromPlane(r->cliffPlane,
@@ -2381,7 +2952,7 @@ float GetDifferenceFromWallUpperField(GObj *self, int node)
 
 float GetDifferenceFromLastField(GObj *self, int node)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     struct MotRoot *r = &self->dobj->root;
     int idx = getSkeltonFocusNode(self, node);
     return GetYDistanceFromPlane(r->plane.f,
@@ -2403,11 +2974,19 @@ float GetDifferenceFromLowerField(GObj *self, int node)
     idx = getSkeltonFocusNode(self, node);
     GetLowerPlaneCollision(&buf, (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
 #else
+#ifdef VERSION_JUN26
+    int idx;
+
+    idx = getSkeltonFocusNode(self, node);
+    setLowerPlaneRay(&buf, (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+    ClipFloor(&buf);
+#else
     Sub15C *ctrl;
     int idx;
     ctrl = self->dobj;
     idx = ((signed char *)ctrl->focusNodes)[node];
     GetLowerPlaneCollision(&buf, (float *)(ctrl->nodeMtx + (idx << 6) + 0x30));
+#endif
 #endif
     if (buf.floor.elem == 0) {
         return 3.40282347e+38f;
@@ -2454,7 +3033,7 @@ void EnableChangeRootUpdateMode(GObj *self)
 float GetRopeHangablePos(GObj *self)
 {
     Sub15C *sub = self->dobj;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     return sub->ctrl.ropeHangPos;
 #else
     return *(float *)((char *)sub + 0x618);
@@ -2574,11 +3153,13 @@ void GetMotionRootPos(float *dst, void *motion, int idx)
     getMotionRootPos(dst, motion, idx);
 }
 
+#ifndef VERSION_JUN26
 void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count,
                SkelNode *hrc)
 {
     getMotion(dst, root, motion, idx, mask, count, hrc);
 }
+#endif
 
 void GetBlendedMotion(StreamElem *dst, float *root, StreamElem *a, float *rootA, StreamElem *b,
                       float *rootB, float t, unsigned char *mask, int count)
@@ -2617,6 +3198,12 @@ void GetOutOutsideOfWall(GObj *obj, float threshold)
     int buf0[4];
     float buf1[4];
     if (GOBJ_SUB(obj)->root.wall.elem != 0) {
+#ifdef VERSION_JUN26
+        GetRootPosition(buf0, obj);
+        GetGlobalWallPlane(buf1, &obj->dobj->root.wall);
+        GetProjectionOfPlaneWithKeepAway(buf0, buf1, buf0, threshold);
+        SetDirectRootPosition(obj, buf0);
+#else
         float dot;
         GetRootPosition(buf0, obj);
         GetGlobalWallPlane(buf1, &obj->dobj->root.wall);
@@ -2641,6 +3228,7 @@ void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float d
         debug_StdPrintfDummy(adjustRootClippedMsg);
     } else {
         SetDirectRootPosition(self, buf.pt[1]);
+#endif
     }
 }
 
@@ -2658,7 +3246,9 @@ void GetBlendedMotionRootPos(float *dst, float *a, float *b,
     getBlendedMotionRootPos(dst, a, b, t);
 }
 
+#ifndef VERSION_JUN26
 void _getMotRotElem(char *dst, char *src)
 {
     getMotRotElem(dst, src);
 }
+#endif

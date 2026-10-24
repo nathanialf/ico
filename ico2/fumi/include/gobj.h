@@ -21,7 +21,11 @@ void isysGObjMove(struct GObj *g, unsigned char kind, int prio);
 void isysGObjMoveHead(struct GObj *g, unsigned char kind, int prio);
 void *isysGObjAddAfterGObj(void (*fn)(struct GObj *), struct GObj *other);
 void *isysGObjAddBeforeGObj(void (*fn)(struct GObj *), struct GObj *other);
+
+#ifndef VERSION_JUN26
 int isysGetNbAllocedGObjs(void);
+#endif
+
 void isysGObjAlloc(int n);
 void isysGObjRemove(struct GObj *g);
 void isysGObjKindTableAdd(struct GObj *g, int kind);

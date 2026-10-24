@@ -13,15 +13,21 @@
 struct SqEntry;
 
 /* st13b.o's .sdata globals */
+#ifdef VERSION_JUN26
+extern struct SqEntry *boss;
+#else
 extern struct SqEntry *sekizo13b;
 extern struct SqEntry *sekizo13b2;
 extern struct SqEntry *meets_again;
 extern struct SqEntry *boss;
 extern struct SqEntry *sd;
 extern struct SqEntry *boss_dead;
+#endif
+
 extern struct SqEntry *st13b_up;
 extern struct SqEntry *st13b_down;
-#ifdef VERSION_AUG6
+
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 extern int sekizo_13b;
 extern unsigned char sekizo_13b_vol;
 extern int st13b_yure;
@@ -43,6 +49,7 @@ extern struct SqEntry *sekizo_13b_vol;
 extern int st13b_yure;
 extern unsigned char st13b_yure_vol;
 #endif
+
 void actConte10c(GObj *volatile self);
 void actSt13bBossAfterChk(GObj *volatile self);
 void actSt13bBossChk(GObj *volatile self);
@@ -58,6 +65,7 @@ void actSt13bElevUpChk(GObj *volatile self);
 void actSt13bFloorChk(GObj *volatile self);
 void actSt13bMeetAgainChk(GObj *volatile self);
 #endif
+
 void actSt13bSekizo2Chk(GObj *volatile self);
 void actSt13bSekizoChk(GObj *volatile self);
 

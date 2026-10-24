@@ -12,7 +12,7 @@
 #include "quaternion.h"
 #include <string.h>
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* the corners (x, y) of each half of a fixed four-point flag, one row
    per id */
 static float flag4PointFix[2][4][4] = {
@@ -88,12 +88,12 @@ static ClothCfg flagCfg = {8, 50.0f, 10, 0, 0, 0, 5.0f}; /* derived name */
 /* clang-format off */
 char *InitFlagGeo(char *self, char *arg)
 {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
-    char *p = iosMallocDebug(ios_partition_sugipon, 16, __FILE__, LN(87, 87, 87, 31, 31));
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+    char *p = iosMallocDebug(ios_partition_sugipon, 16, __FILE__, LN(87, 87, 87, 31, 31, 31));
     Vec4Flag v[2];
     char *mesh;
 #else
-    char *p = iosMallocDebug(ios_partition_sugipon, 20, __FILE__, LN(87, 87, 87, 31, 31));
+    char *p = iosMallocDebug(ios_partition_sugipon, 20, __FILE__, LN(87, 87, 87, 31, 31, 31));
     Vec4Flag v[4];
     char *mesh;
     Vec4Flag *q;
@@ -101,19 +101,19 @@ char *InitFlagGeo(char *self, char *arg)
     const LayoutClothDef *ent = &layoutClothDef[*(int *)(arg + 0x30)];
     float k = ent->length / (float)ent->count;
     float d;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int type, i;
 #else
     int type, i, j;
 #endif
-    ClothCfg *cl = iosMallocDebug(ios_partition_sugipon, 56, __FILE__, LN(95, 95, 95, 39, 39));
+    ClothCfg *cl = iosMallocDebug(ios_partition_sugipon, 56, __FILE__, LN(95, 95, 95, 39, 39, 39));
     *cl = flagCfg;
     cl->weight = ent->weight;
     cl[1].num = -1;
     cl->num = ent->rows;
     cl->div = ent->count;
 
-    mesh = iosMallocDebug(ios_partition_sugipon, cl->num * 48, __FILE__, LN(102, 102, 102, 46, 46));
+    mesh = iosMallocDebug(ios_partition_sugipon, cl->num * 48, __FILE__, LN(102, 102, 102, 46, 46, 46));
     ((FlagNodeWord *)&cl->anchors)->i = (int)mesh;
     /* the four corners of the layout entry, with y negated and w set
        to 1 */
@@ -127,7 +127,7 @@ char *InitFlagGeo(char *self, char *arg)
     v[1].m[2] = ent->pt[1][2];
     v[1].m[3] = 1.0f;
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     type = ent->kind;
 #else
     v[2].m[0] = ent->pt[2][0];
@@ -147,13 +147,13 @@ char *InitFlagGeo(char *self, char *arg)
     switch (type) {
     case 1:
     case 2:
-        FLAG_ALLOC_NODES(((SubHandle *)(self + 0x15C))->sub, cl->div - 1, LN(132, 132, 132, 65, 65));
+        FLAG_ALLOC_NODES(((SubHandle *)(self + 0x15C))->sub, cl->div - 1, LN(132, 132, 132, 65, 65, 65));
         CopyVector(((SubHandle *)(self + 0x15C))->p + 0xA0, ZeroPoint);
         CopyVector(mesh + 0x10, &v[0]);
         CopyVector(mesh + 0x20, &v[1]);
         *(int *)mesh = -1;
         *(float *)(mesh + 4) = k;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         *(ClothSet **)(p + 4) = InitClothes(cl);
 #endif
         break;
@@ -162,7 +162,7 @@ char *InitFlagGeo(char *self, char *arg)
            GOBJ_SUB's.  Type 0 hangs the cloth along the line between the
            first two corners. */
     case 0:
-        cl->tex = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, LN(145, 145, 145, 77, 77));
+        cl->tex = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, LN(145, 145, 145, 77, 77, 77));
         strcpy(cl->tex, ent->name);
 
 
@@ -182,7 +182,7 @@ char *InitFlagGeo(char *self, char *arg)
             *(float *)(mesh + i * 48 + 4) = k;
         }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         *(ClothSet **)(p + 4) = InitClothes(cl);
         break;
 
@@ -190,7 +190,7 @@ char *InitFlagGeo(char *self, char *arg)
 
 
     case 4:
-        cl->tex = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, LN(172, 172, 172, 172, 172));
+        cl->tex = iosMallocDebug(ios_partition_sugipon, strlen(ent->name) + 1, __FILE__, LN(172, 172, 172, 172, 172, 172));
         strcpy(cl->tex, ent->name);
         /* type 4: the object's root is the mean of the four corners, the
            corners are made relative to it, and each column's length is
@@ -227,7 +227,7 @@ char *InitFlagGeo(char *self, char *arg)
 
 
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     *(int *)(p + 4) = (int)InitClothes(cl);
 #endif
     *(int *)(p + 8) = (int)cl;
@@ -277,7 +277,7 @@ void FlagGeo(GObj *self)
     case 2:
         GetClothAnimation(o->rec->pos, o->rec->vel, 0, MatrixDrive_GetMatrix(), gd->cfg,
                           gd->collide, gd->collide != 0 ? (int)self : 0, 1);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         break;
     case 4:
         GetClothAnimationFix4Points(o->rec->pos, o->rec->vel, gd->cfg, MatrixDrive_GetMatrix());
@@ -333,7 +333,7 @@ void FlagDL(GObj *self)
         m = (char *)GOBJ_SUB(self)->lightMtx;
         DispClothMesh(o->rec, m + 0x40, m);
         break;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     case 4:
         light_MakeLightMatrix(GOBJ_SUB(self), 0);
         m = (char *)GOBJ_SUB(self)->lightMtx;

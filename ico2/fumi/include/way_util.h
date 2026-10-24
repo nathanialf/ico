@@ -14,6 +14,7 @@
 /* way_util.o's global */
 extern int load_save_flag;
 
+#ifndef VERSION_JUN26
 /* The path-search work block WayUtilWorkAlloc allocates: per-group flags,
    a 94-by-94 cost matrix with its row pointers, and two predecessor and two
    distance arrays (shortest_path uses prev and dist, GetWgAll prev2 and dist2). */
@@ -25,23 +26,37 @@ typedef struct WgAll { /* field names derived */
     int *prev2;        /* 0x10 */
     int *dist;         /* 0x14 */
     int *dist2;        /* 0x18 */
-} WgAll; /* derived name */
+} WgAll;               /* derived name */
+#endif
 
 /* way_util.c's `inline` functions, in the order of their definitions'
    out-of-line copies at the end of the object (first-declaration order). */
 WayPoint *visible_waypoint_of_all_except_gid(float *pos, int gid);
+
+#ifdef VERSION_JUN26
+WayPoint *visible_waypoint_of_all_except_temp(float *pos, int gid);
+#else
 WayPoint *visible_waypoint_of_all_except_gid_ThreadVersion(float *pos, int gid);
 WayPoint *visible_waypoint_of_all_except_temp(float *pos, int gid);
 WayPoint *visible_waypoint_of_all_except_temp_ThreadVersion(float *pos, int gid);
+#endif
+
 void ez_line(void *a, void *b, unsigned int col);
 void ez_circle(void *pos, void *base, unsigned int col, float r);
 int short_direction_between_wp(WayPoint *from, WayPoint *to);
 int wgid_next(int me, int target);
+
+#ifdef VERSION_JUN26
+int shortest_path(int from, int to);
+int GetWgAll(int from, int to);
+#else
 WgAll *WayUtilWorkAlloc(void);
 void WayUtilWorkFree(WgAll *self);
 int shortest_path(int from, int to, WgAll *w);
 int shortest_path_ThreadVersion(int from, int to, WgAll *w);
 int GetWgAll(int from, int to, WgAll *w);
+#endif
+
 void set_check_wp(CheckWp *out, int wp, int gid);
 int set_bridge(int gid);
 WayPoint *nearest_waypoint_of_group(float *arg0, int handle);
@@ -67,6 +82,11 @@ WayPoint *bridge_waypoint_side_me(int me, int target);
 WayPoint *waypoint_connect_group_side_me(WayGroup *bridge, int gid);
 WayPoint *bridge_waypoint_side_bridge(int gidA, int gidB);
 WayPoint *waypoint_connect_group_side_bridge(WayGroup *bridge, int gid);
+
+#ifdef VERSION_JUN26
+int NearestWgFromTarget(int cur, int end);
+#else
 int NearestWgFromTarget(int cur, int end, WgAll *w);
+#endif
 
 #endif /* WAY_UTIL_H */

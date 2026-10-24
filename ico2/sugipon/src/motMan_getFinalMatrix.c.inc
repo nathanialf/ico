@@ -1,4 +1,5 @@
 /* motMan_getFinalMatrix.c.inc: the motion manager's final node matrices and their angle limits; motionManager.c includes this file. */
+#ifndef VERSION_JUN26
 inline int SetDirectMotionProgramInterpInfo(GObj *self, int focus, float rate)
 {
     int n = GetSkeltonFocusNode(self, focus);
@@ -10,6 +11,7 @@ inline int SetDirectMotionProgramInterpInfo(GObj *self, int focus, float rate)
     CopyQuaternion(e->offset, IdentityQuaternion);
     return 1;
 }
+#endif
 
 inline int ResetMotionProgramInterpInfo(GObj *self, int focus)
 {
@@ -328,16 +330,21 @@ static inline void getRotOfDir(float *q, float *v) /* derived name */
     MultiCurrentQuaternion(q);                                                                     \
     GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion())
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static void _getFinalMatrix(int id)
 {
     SkelNode *node = &skelNode[id];
     char *elem = skelMotion + id * 32;
     /* Sub15C nodeRotElem and nodeLimit, reached from the root block (the ROM adds 160 first) */
     char *geo = (char *)GOBJ_SUB(skelGObj) + 0xA0;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    MotIk *ik = *(MotIk **)(geo + 0x70C) + id;
+    MotLimAng *lim = ((MotLimAng **)*(char **)(geo + 0x710))[id];
+#else
     MotIk *ik = *(MotIk **)(geo + 0x72C) + id;
     MotLimAng *lim = ((MotLimAng **)*(char **)(geo + 0x730))[id];
+#endif
 #else
     MotIk *ik = *(MotIk **)(geo + 0x73C) + id;
     MotLimAng *lim = ((MotLimAng **)*(char **)(geo + 0x740))[id];
@@ -767,8 +774,13 @@ static void _getFinalMatrix(int id)
             GetSlerpQuaternion(r, t, dq, ikSlerpRate);
             MultiQuaternion(q, q, r);
             APPLY_ROT(q);
+#ifdef VERSION_JUN26
+            if (skelMotCtrl->pickedWeapon != 0 &&
+                !motionKind[skelMotCtrl->motion].flags.bits.weaponSwing) {
+#else
             if (skelMotCtrl->pickedWeapon != 0 &&
                 !motionKind[skelMotCtrl->motion].flags2.bits.weaponSwing) {
+#endif
                 switch (skelMotCtrl->rootUpdateMode) {
                 case 0:
                 case 6:
@@ -1976,8 +1988,13 @@ static inline void applyNaturalGeometry(int id) /* derived name */
     Vec16 t;
 
     if (e->parent != -1) {
+#ifdef VERSION_JUN26
+        sceVu0ScaleVectorXYZ(t.f, e->pos, skelScale);
+        sceVu0ApplyMatrix(MatrixDrive_GetMatrix()[3], MatrixDrive_GetLastMatrix(), t.f);
+#else
         _ScaleVectorXYZ(&t, e->pos, skelScale);
         _ApplyMatrix(MatrixDrive_GetMatrix()[3], MatrixDrive_GetLastMatrix(), &t);
+#endif
     }
     MultiQuaternion(GetCurrentQuaternion(), GetLastQuaternion(), skelMotion + id * 32 + 16);
     GetMatrixFromQuaternionRotElem((char *)MatrixDrive_GetMatrix(), (char *)GetCurrentQuaternion());
@@ -1986,21 +2003,33 @@ static inline void applyNaturalGeometry(int id) /* derived name */
 static void getFinalMatrixWithNaturalGeometry(int id)
 {
     SkelNode *e = &skelNode[id];
+#ifndef VERSION_JUN26
     int child = e->child;
     int next = e->sibling;
+#endif
 
     MatrixDrive_PushMatrixWithNoCopy();
     PushQuaternionWithNoCopy();
     applyNaturalGeometry(id);
     CopyMatrix((char *)GOBJ_SUB(skelGObj)->nodeMtx + id * 64, (void *)MatrixDrive_GetMatrix());
     CopyQuaternion(skelQuat + id * 16, GetCurrentQuaternion());
+#ifdef VERSION_JUN26
+    if (e->child != -1) {
+        getFinalMatrixWithNaturalGeometry(e->child);
+#else
     if (child != -1) {
         getFinalMatrixWithNaturalGeometry(child);
+#endif
     }
     MatrixDrive_PopMatrix();
     PopQuaternion();
+#ifdef VERSION_JUN26
+    if (e->sibling != -1) {
+        getFinalMatrixWithNaturalGeometry(e->sibling);
+#else
     if (next != -1) {
         getFinalMatrixWithNaturalGeometry(next);
+#endif
     }
 }
 
@@ -2010,20 +2039,30 @@ static void _calcNaturalGeometry(int id)
     char *elemB = naturalMotion + id * 32;
     float (*x)[4];
     if (elemA->parent != -1) {
+#ifdef VERSION_JUN26
+        sceVu0ScaleVectorXYZ(naturalTrans, elemA->pos, skelScale);
+#else
         _ScaleVectorXYZ(naturalTrans, elemA->pos, skelScale);
+#endif
         GetMatrixFromQuaternionPos(naturalMatrix, elemB + 16, naturalTrans);
     } else {
         GetMatrixFromQuaternion(naturalMatrix, elemB + 16);
     }
     x = MatrixDrive_GetMatrix();
+#ifdef VERSION_JUN26
+    sceVu0MulMatrix(x, MatrixDrive_GetLastMatrix(), naturalMatrix);
+#else
     _MulMatrix(x, MatrixDrive_GetLastMatrix(), naturalMatrix);
+#endif
 }
 
 static inline void pursueNaturalGeometry(int id)
 {
     SkelNode *e = &skelNode[id];
+#ifndef VERSION_JUN26
     int child = e->child;
     int next = e->sibling;
+#endif
     char *o;
     float (*m)[4];
     MatrixDrive_PushMatrixWithNoCopy();
@@ -2031,11 +2070,20 @@ static inline void pursueNaturalGeometry(int id)
     o = naturalNodePos + id * 16;
     m = MatrixDrive_GetMatrix();
     CopyVector(o, m[3]);
+#ifdef VERSION_JUN26
+    if (e->child != -1) {
+        pursueNaturalGeometry(e->child);
+    }
+    MatrixDrive_PopMatrix();
+    if (e->sibling != -1) {
+        pursueNaturalGeometry(e->sibling);
+#else
     if (child != -1) {
         pursueNaturalGeometry(child);
     }
     MatrixDrive_PopMatrix();
     if (next != -1) {
         pursueNaturalGeometry(next);
+#endif
     }
 }

@@ -8,12 +8,14 @@
 #ifndef QUEEN_H
 #define QUEEN_H
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 #ifndef VERSION_NTSC
 float GetQueenBallThickness(void);
 #endif
+
 int InqQueenBarrierExist(void);
 #endif
+
 float QueenBallRadius(struct GObj *gobj);
 int QueenBarrierInqBreakable(void);
 float QueenBarrierRadius(struct GObj *gobj);
@@ -21,7 +23,13 @@ int QueenInqDead(void);
 void QueenStartAttack(void);
 void gene_enemy(volatile int g);
 void subQueenBrainMain(volatile int g);
+
+#ifdef VERSION_JUN26
+void subQueenCollision(volatile int g);
+#endif
+
 void subQueenControl(volatile int g);
+
 #ifdef VERSION_AUG6
 void subQueenCollision(volatile int g);
 #endif

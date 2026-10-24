@@ -29,7 +29,11 @@ static inline GObj *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay) /* der
 #ifdef VERSION_AUG6
     return CreateLayoutedGObj(61, 68, -1, 0, lay, -1, 7, 1);
 #else
+#ifdef VERSION_JUN26
+    return CreateLayoutedGObj(60, 51, -1, 0, lay, -1, 7, 1);
+#else
     return CreateLayoutedGObj(63, 75, -1, 0, lay, -1, 7, 1);
+#endif
 #endif
 #endif
 }
@@ -45,7 +49,7 @@ typedef struct { /* field names derived */
     int attr;    /* 0x8 */
 } AcbWork;       /* derived name */
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
     AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 12, __FILE__, 27);
@@ -100,7 +104,7 @@ inline void SetAttackCheckBoundaryAttribute(GObj *self, int attr)
 inline float GetAttackCheckBoundaryRadius(GObj *self)
 {
     return GOBJ_SUB(self)->nodes->scale[0];
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 }
 
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
@@ -214,12 +218,19 @@ void AttackCheckBoundaryBeforeFunc(GObj *self)
                             GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
                             ExecuteSEPackage(g, 71);
 #else
+#ifdef VERSION_JUN26
+                    if (CheckWeaponKind(g) == 5 || CheckWeaponKind(g) == 4) {
+                        if (*b->handle < 2) {
+                            GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
+                            ExecuteSEPackage(g, 64);
+#else
                     int k = CheckWeaponKind(g);
 
                     if (k == 4 || k == 5 || k == 6 || k == 9 || k == 8) {
                         if (*b->handle < 2) {
                             GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
                             ExecuteSEPackage(g, 74);
+#endif
 #endif
                             b->hit = 2;
                             *b->handle = 2;
@@ -233,7 +244,11 @@ void AttackCheckBoundaryBeforeFunc(GObj *self)
 #ifdef VERSION_AUG6
                     ActSendMail_WithAdditionalData(boyGObj, 190, self, &b->attr);
 #else
+#ifdef VERSION_JUN26
+                    ActSendMail_WithAdditionalData(boyGObj, 187, self, &b->attr);
+#else
                     ActSendMail_WithAdditionalData(boyGObj, 209, self, &b->attr);
+#endif
 #endif
                     b->hit = 1;
                     *b->handle = 1;
@@ -284,19 +299,21 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(GObj *self, SObjSimpleSetting *lay)
 
     rec = &layoutClothDef[lay->obj];
 #ifdef VERSION_NTSC
-    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 173);
+    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__,
+                                   LN(173, 173, 173, 173, 173, 173));
 #else
-    mgr =
-        (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, LN(180, 180, 180, 180, 173));
+    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__,
+                                   LN(180, 180, 180, 180, 173, 172));
 #endif
     mgr->prev = mgr->cur;
     mgr->cur = 0;
     mgr->count = rec->count;
 #ifdef VERSION_NTSC
-    mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__, 182);
+    mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__,
+                                           LN(182, 182, 182, 182, 182, 182));
 #else
     mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__,
-                                           LN(189, 189, 189, 189, 182));
+                                           LN(189, 189, 189, 189, 182, 181));
 #endif
     v0[0] = rec->pt[0][0];
     v0[1] = -rec->pt[0][1];

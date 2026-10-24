@@ -66,7 +66,7 @@ void DispStageMultiBgaManager(void)
     }
 }
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void InitStageMultiBgaManager(void)
 {
     int i;
@@ -90,7 +90,7 @@ inline void InitStageMultiBgaManager(void)
 }
 #endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void EntryStageMultiBgaManager(int kind, void *pos, void *rot)
 {
     stageBgaAnim[stageBgaCount] = stage_MakePlayBgAnimation(kind);
@@ -115,7 +115,7 @@ inline void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, in
 }
 #endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, void *vel)
 {
     stageBgaAnim[stageBgaCount] = stage_MakePlayBgAnimation(kind);
@@ -159,7 +159,7 @@ void DispStageMultiBgaManager(void)
         if (stageBgaAnim[i] == 0) {
             continue;
         }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (stage_DispBgAnimation(&stageBgaAnim[i])) {
             stageBgaAnim[i] = 0;
             continue;

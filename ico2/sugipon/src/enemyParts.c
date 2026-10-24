@@ -57,7 +57,7 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *tint, float f)
     float scale;
     GifColor *t;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (NonLinearCameraMove != 0) {
 #else
     if (currentScreenWidth != 0 || GlobalTimer != 0) {
@@ -121,16 +121,16 @@ static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f}; /* derived name */
 static inline PointBlur *initPointBlurAt(int num, int pri, int *col, float *rate) /* derived name */
 {
     PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 64, "src/enemyParts.c",
-                                               LN(16, 16, 16, 16, 15));
+                                               LN(16, 16, 16, 16, 15, 15));
     *p = pointBlurTemplate;
 
     p->pri = pri;
-    p->strip =
-        iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", LN(20, 20, 20, 20, 19));
-    p->screenPos =
-        iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", LN(21, 21, 21, 21, 20));
+    p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c",
+                              LN(20, 20, 20, 20, 19, 19));
+    p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c",
+                                  LN(21, 21, 21, 21, 20, 20));
     p->stripCol = (GifColor *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c",
-                                             LN(22, 22, 22, 22, 21));
+                                             LN(22, 22, 22, 22, 21, 21));
     p->num = num;
     p->col.r = col[0];
     p->col.g = col[1];
@@ -144,7 +144,8 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 {
     EnemyEye *p;
 
-    p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c", LN(137, 137, 137, 137, 136));
+    p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c",
+                       LN(137, 137, 137, 137, 136, 136));
     *p = enemyEyeTemplate;
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -156,7 +157,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #ifdef VERSION_AUG6
     p->dobj[0] = CSVSYSTEM_InitDObj(1281, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_JUN26
+    p->dobj[0] = CSVSYSTEM_InitDObj(1201, &InitialSObjSimpleSetting);
+#else
     p->dobj[0] = CSVSYSTEM_InitDObj(1322, &InitialSObjSimpleSetting);
+#endif
 #endif
 #endif
 #endif
@@ -175,7 +180,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #ifdef VERSION_AUG6
     p->dobj[1] = CSVSYSTEM_InitDObj(1282, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_JUN26
+    p->dobj[1] = CSVSYSTEM_InitDObj(1202, &InitialSObjSimpleSetting);
+#else
     p->dobj[1] = CSVSYSTEM_InitDObj(1323, &InitialSObjSimpleSetting);
+#endif
 #endif
 #endif
 #endif
@@ -194,7 +203,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #ifdef VERSION_AUG6
     p->dobj[2] = CSVSYSTEM_InitDObj(1283, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_JUN26
+    p->dobj[2] = CSVSYSTEM_InitDObj(1203, &InitialSObjSimpleSetting);
+#else
     p->dobj[2] = CSVSYSTEM_InitDObj(1324, &InitialSObjSimpleSetting);
+#endif
 #endif
 #endif
 #endif
@@ -219,11 +232,20 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
     int j;
 
     p = iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c",
-                       LN(226, 226, 226, 226, 224));
+                       LN(226, 226, 226, 226, 224, 224));
     *p = footPrintHeadTemplate;
     p->num = num;
     p->buf = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c",
-                            LN(229, 229, 229, 229, 227));
+                            LN(229, 229, 229, 229, 227, 227));
+#ifdef VERSION_JUN26
+    d = CSVSYSTEM_InitDObj(1174, &InitialSObjSimpleSetting);
+    p->dobj = d;
+    if (d->nodeMtx != 0) {
+        iosFree((void *)d->nodeMtx);
+    }
+    if (p->dobj->nodeQuat != 0) {
+        iosFree((void *)p->dobj->nodeQuat);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     d = CSVSYSTEM_InitDObj(1291, &InitialSObjSimpleSetting);
 #else
@@ -243,19 +265,24 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
     }
     if (p->dobj->nodeQuat != 0) {
         iosFree((void *)(p->dobj->nodeQuat & 0xFFFFFFF));
+#endif
     }
     p->dobj->nodeMtx = 0;
     p->dobj->nodeQuat = 0;
     p->dobj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num << 6, "src/enemyParts.c",
-                                           LN(232, 232, 232, 232, 230));
+                                           LN(232, 232, 232, 232, 230, 230));
     p->dobj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c",
-                                            LN(232, 232, 232, 232, 230));
+                                            LN(232, 232, 232, 232, 230, 230));
     p->dobj->nodeNum = num;
     if ((int)p->dobj->nodes != 0) {
+#ifdef VERSION_JUN26
+        iosFree(p->dobj->nodes);
+#else
         iosFree((void *)((int)p->dobj->nodes & 0xFFFFFFF));
+#endif
     }
     p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 80, "src/enemyParts.c",
-                                    LN(232, 232, 232, 232, 230));
+                                    LN(232, 232, 232, 232, 230, 230));
     for (i = 0; i < num; i++) {
         p->dobj->nodes[i].flags.ll &= ~1;
         p->dobj->nodes[i].flags.ll &= ~2;
@@ -269,7 +296,7 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
 #ifdef VERSION_NTSC
         *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x840) + 0x3A) = 0;
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         *(short *)((char *)&p->dobj->nodes[i] + 0x3A) = 0;
 #else
         *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x870) + 0x3A) = 0;
@@ -379,7 +406,7 @@ int UpdateEnemyEye(EnemyEye *self, void *m, float rate)
 int DispEnemyEye(EnemyEye *self)
 {
     _CopyMatrix((void *)self->dobj[0]->nodeMtx, self->mtx);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     p2o_DispVU1DObj(self->dobj[0]);
 #else
     reg_DispMultiPri(self->dobj[0], 10);

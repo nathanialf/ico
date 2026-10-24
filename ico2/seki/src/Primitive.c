@@ -28,9 +28,9 @@ Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int 
     int i;
 
     f = (Fan2D *)iosMallocDebug(ios_partition_seki, 12, "src/Primitive.c",
-                                LN(318, 318, 318, 318, 312));
+                                LN(318, 318, 318, 318, 312, 309));
     f->buf = (Fan2DVtx *)iosMallocDebug(ios_partition_seki, (n + 2) * 32, "src/Primitive.c",
-                                        LN(319, 319, 319, 319, 313));
+                                        LN(319, 319, 319, 319, 313, 310));
     q = f->buf;
 
     f->n = n;
@@ -108,6 +108,7 @@ void prim_DispFan2D(Fan2D *f, int mode)
 {
     int v[4];
     Fan2DVtx *q;
+#ifndef VERSION_JUN26
     char *p;
     char *pp;
     char *n;
@@ -115,6 +116,7 @@ void prim_DispFan2D(Fan2D *f, int mode)
     char *end;
     char *gif;
     char *tail;
+#endif
     int i;
     int kick = 3;
 
@@ -139,6 +141,13 @@ void prim_DispFan2D(Fan2D *f, int mode)
     }
 
     q = f->buf;
+#ifdef VERSION_JUN26
+    gif_StartPacketPri(dl_GetPri());
+    if (mode == 0) {
+        gif_SetGsReg(0, ((long long)f->blend << 6) | 0x10D);
+    } else {
+        gif_SetGsReg(0, ((long long)f->blend << 6) | 0x10A);
+#else
     {
         /* The header is written through a block-scoped handle on the packet
            context: one address materialisation covers the whole region,
@@ -168,10 +177,16 @@ void prim_DispFan2D(Fan2D *f, int mode)
             ((GifPkWord *)(p + 0x28))->d = 0;
             d->ptr.c = p + 0x30;
         }
+#endif
     }
 
     for (i = 0; i < f->n + 2; i++) {
         _FTOI4Vector(v, &q->x);
+#ifdef VERSION_JUN26
+        gif_SetGsReg(1, ((long long)q->cr | ((long long)q->cg << 8) | ((long long)q->cb << 16) |
+                         ((long long)q->ca << 24)) |
+                            ((long long)0x3F800000 << 32));
+#else
         pp = PacketBufferStruct.ptr.c;
         ((GifPkWord *)pp)->d = ((long long)q->cr | ((long long)q->cg << 8) |
                                 ((long long)q->cb << 16) | ((long long)q->ca << 24)) |
@@ -180,11 +195,17 @@ void prim_DispFan2D(Fan2D *f, int mode)
         PacketBufferStruct.ptr.c = pp;
         ((GifPkWord *)pp)->d = 1;
         PacketBufferStruct.ptr.c = pp + 8;
+#endif
         if (q->z < 0.0f) {
             kick = 3;
         }
         kick--;
         if (kick > 0) {
+#ifdef VERSION_JUN26
+            gif_SetGsReg(13, (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32));
+        } else {
+            gif_SetGsReg(5, (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32));
+#else
             ((GifPkWord *)(pp + 8))->d =
                 (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
             PacketBufferStruct.ptr.c = pp + 0x10;
@@ -196,10 +217,14 @@ void prim_DispFan2D(Fan2D *f, int mode)
             PacketBufferStruct.ptr.c = pp + 0x10;
             ((GifPkWord *)(pp + 0x10))->d = 5;
             PacketBufferStruct.ptr.c = pp + 0x18;
+#endif
         }
         q++;
     }
 
+#ifdef VERSION_JUN26
+    gif_EndPacket();
+#else
     end = PacketBufferStruct.end.c;
     ((GifPkWord *)end)->d =
         (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - end) >> 4) - 1) |
@@ -234,6 +259,7 @@ void prim_DispFan2D(Fan2D *f, int mode)
 
     dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
+#endif
 }
 
 typedef int Qw128 __attribute__((mode(TI))); /* derived name */
@@ -266,8 +292,8 @@ static void prim_makePacketMesh3D(Mesh3D *m, void *pkt, int uv)
 
         if (n >= 253) {
             debug_StdPrintfDummy("too large mesh packet. %d\n", w);
-            debug_assert("src/Primitive.c", LN(473, 473, 473, 473, 467));
-            __assert("src/Primitive.c", LN(473, 473, 473, 473, 467), "0");
+            debug_assert("src/Primitive.c", LN(473, 473, 473, 473, 467, 464));
+            __assert("src/Primitive.c", LN(473, 473, 473, 473, 467, 464), "0");
         }
         h = (DpkHead *)p;
         h->vif[0] = 0;
@@ -316,26 +342,26 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
 
 #ifdef VERSION_NTSC
     m = (Mesh3D *)iosMallocDebug(ios_partition_seki, 144, "src/Primitive.c",
-                                 LN(580, 580, 580, 580, 580));
+                                 LN(580, 580, 580, 580, 580, 580));
     m->nx = nx;
     m->ny = ny;
     m->pos = (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c",
-                                         LN(583, 583, 583, 583, 583));
+                                         LN(583, 583, 583, 583, 583, 583));
     m->nrm = (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c",
-                                         LN(584, 584, 584, 584, 584));
+                                         LN(584, 584, 584, 584, 584, 584));
     m->st = (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c",
-                                        LN(585, 585, 585, 585, 585));
+                                        LN(585, 585, 585, 585, 585, 585));
 #else
     m = (Mesh3D *)iosMallocDebug(ios_partition_seki, 144, "src/Primitive.c",
-                                 LN(576, 576, 576, 576, 574));
+                                 LN(576, 576, 576, 576, 574, 571));
     m->nx = nx;
     m->ny = ny;
     m->pos = (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c",
-                                         LN(579, 579, 579, 579, 577));
+                                         LN(579, 579, 579, 579, 577, 574));
     m->nrm = (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c",
-                                         LN(580, 580, 580, 580, 578));
+                                         LN(580, 580, 580, 580, 578, 575));
     m->st = (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c",
-                                        LN(581, 581, 581, 581, 579));
+                                        LN(581, 581, 581, 581, 579, 576));
 #endif
     for (i = 0; i < m->nx * m->ny; i++) {
         m->pos[i].x = m->pos[i].y = m->pos[i].z = 0.0f;
@@ -354,14 +380,14 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
 
 #ifdef VERSION_NTSC
     m->bufs[0] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c",
-                                LN(601, 601, 601, 601, 601));
+                                LN(601, 601, 601, 601, 601, 601));
     m->bufs[1] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c",
-                                LN(602, 602, 602, 602, 602));
+                                LN(602, 602, 602, 602, 602, 602));
 #else
     m->bufs[0] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c",
-                                LN(597, 597, 597, 597, 595));
+                                LN(597, 597, 597, 597, 595, 592));
     m->bufs[1] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c",
-                                LN(598, 598, 598, 598, 596));
+                                LN(598, 598, 598, 598, 596, 593));
 #endif
 
     _InitCurrentMatrix();
@@ -614,12 +640,33 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         float v[4];
         DpkCtl *dd;
         char *q;
+#ifndef VERSION_JUN26
         char *r;
+#endif
 
         memset(v, 0, 16);
         dd = &PacketBufferStruct;
         q = dd->ptr.c;
         dd->tail.c = q;
+#ifdef VERSION_JUN26
+        *(long long *)q = 0x10000002;
+        dd->ptr.c = q + 8;
+        *(int *)(q + 8) = 0;
+        dd->ptr.c = q + 0xC;
+        dd->gif.c = q + 0xC;
+        *(int *)(q + 0xC) = 0x6C018000;
+        dd->ptr.c = q + 0x10;
+        *(Qw128 *)(q + 0x10) = *(Qw128 *)v;
+        dd->ptr.c = q + 0x20;
+        *(int *)(q + 0x20) = 0x15000002;
+        dd->ptr.c = q + 0x24;
+        *(int *)(q + 0x24) = 0;
+        dd->ptr.c = q + 0x28;
+        *(int *)(q + 0x28) = 0;
+        dd->ptr.c = q + 0x2C;
+        *(int *)(q + 0x2C) = 0;
+        dd->ptr.c = q + 0x30;
+#else
         ((GifPkWord *)q)->d = 0x10000002;
         dd->ptr.c = q + 8;
         ((GifPkWord *)(q + 8))->w[0] = 0;
@@ -638,6 +685,7 @@ void prim_DispMesh3D(Mesh3D *m, void *la, void *lb, int tex)
         dd->ptr.c = r + 8;
         ((GifPkWord *)(r + 8))->w[0] = 0;
         dd->ptr.c = r + 0xC;
+#endif
     }
 
     pri = dl_GetPri();
@@ -734,8 +782,8 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     p->tex = tex_GetTextureNo(p->name);
     if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
         debug_StdPrintfDummy("prim_InitParticle:illegal texture no. %s:%d\n", p->name, p->tex);
-        debug_assert("src/Primitive.c", LN(950, 950, 950, 950, 950));
-        __assert("src/Primitive.c", LN(950, 950, 950, 950, 950), "FALSE");
+        debug_assert("src/Primitive.c", LN(950, 950, 950, 950, 950, 950));
+        __assert("src/Primitive.c", LN(950, 950, 950, 950, 950, 950), "FALSE");
     }
     p->objSize = num * 32 + 128;
     p->objs[0] =
@@ -783,7 +831,7 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     return p;
 }
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3)
 {
     PrimQw hd = {{0x5000400000000000LL, 0x52521}};
@@ -792,15 +840,21 @@ PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char
     PrimParticle *p;
     PrimParticleObj *q;
     int *r;
+#ifdef VERSION_JUN26
+    /* the GIF tag's PRIM field: sprite, TME, ABE */
+    long long prim = 86;
+#else
     /* the GIF tag's PRIM field: sprite, TME, ABE, AA1 */
     long long prim = 214;
+#endif
 
     if (num > 80) {
         debug_StdPrintfDummy(
             "Particle Object too big (%d particles). (must be under %d particles)\n", num, 80);
         return 0;
     }
-    p = (PrimParticle *)iosMallocDebug(ios_partition_seki, 416, "src/Primitive.c", 904);
+    p = (PrimParticle *)iosMallocDebug(ios_partition_seki, 416, "src/Primitive.c",
+                                       LN(904, 904, 904, 904, 904, 901));
     if (p == 0) {
         return 0;
     }
@@ -826,18 +880,22 @@ PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char
     p->tex = tex_GetTextureNo(p->name);
     if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
         debug_StdPrintfDummy("prim_InitParticle:illegal texture no. %s:%d\n", p->name, p->tex);
-        debug_assert("src/Primitive.c", LN(473, 473, 473, 473, 935));
-        __assert("src/Primitive.c", LN(938, 938, 938, 938, 935), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Primitive.c", LN(473, 473, 473, 473, 467, 932));
+#else
+        debug_assert("src/Primitive.c", LN(473, 473, 473, 473, 935, 473));
+#endif
+        __assert("src/Primitive.c", LN(938, 938, 938, 938, 935, 932), "FALSE");
     }
     p->objSize = num * 32 + 128;
-    p->objs[0] =
-        (PrimParticleObj *)iosMallocDebug(ios_partition_seki, p->objSize, "src/Primitive.c", 941);
+    p->objs[0] = (PrimParticleObj *)iosMallocDebug(
+        ios_partition_seki, p->objSize, "src/Primitive.c", LN(941, 941, 941, 941, 941, 938));
     if (p->objs[0] == 0) {
         iosFree(p);
         return 0;
     }
-    p->objs[1] =
-        (PrimParticleObj *)iosMallocDebug(ios_partition_seki, p->objSize, "src/Primitive.c", 946);
+    p->objs[1] = (PrimParticleObj *)iosMallocDebug(
+        ios_partition_seki, p->objSize, "src/Primitive.c", LN(946, 946, 946, 946, 946, 943));
     if (p->objs[1] == 0) {
         iosFree(p->objs[0]);
         iosFree(p);
@@ -918,8 +976,8 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     p->tex = tex_GetTextureNo(p->name);
     if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
         debug_StdPrintfDummy("prim_InitParticle:illegal texture no. %s:%d\n", p->name, p->tex);
-        debug_assert("src/Primitive.c", LN(938, 938, 938, 938, 938));
-        __assert("src/Primitive.c", LN(938, 938, 938, 938, 935), "FALSE");
+        debug_assert("src/Primitive.c", LN(938, 938, 938, 938, 938, 938));
+        __assert("src/Primitive.c", LN(938, 938, 938, 938, 935, 932), "FALSE");
     }
     p->objSize = num * 32 + 128;
     p->objs[0] =
@@ -979,15 +1037,20 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
             debug_StdPrintfDummy("prim_DispParticle:指定したテクスチャ番号が異常です. %s:%d\n",
                                  p->name, p->tex);
 #ifdef VERSION_NTSC
-            debug_assert("src/Primitive.c", LN(1036, 1036, 1036, 1036, 1036));
-            __assert("src/Primitive.c", LN(1036, 1036, 1036, 1036, 1036), "FALSE");
+            debug_assert("src/Primitive.c", LN(1036, 1036, 1036, 1036, 1036, 1036));
+            __assert("src/Primitive.c", LN(1036, 1036, 1036, 1036, 1036, 1036), "FALSE");
 #else
 #ifdef VERSION_AUG6
-            debug_assert("src/Primitive.c", LN(473, 473, 473, 473, 1008));
-            __assert("src/Primitive.c", LN(938, 938, 938, 938, 1008), "FALSE");
+            debug_assert("src/Primitive.c", LN(473, 473, 473, 473, 1008, 473));
+            __assert("src/Primitive.c", LN(938, 938, 938, 938, 1008, 938), "FALSE");
 #else
-            debug_assert("src/Primitive.c", LN(1020, 1020, 1020, 1020, 1020));
-            __assert("src/Primitive.c", LN(1020, 1020, 1020, 1020, 1020), "FALSE");
+#ifdef VERSION_JUN26
+            debug_assert("src/Primitive.c", LN(473, 473, 473, 473, 467, 1005));
+            __assert("src/Primitive.c", LN(938, 938, 938, 938, 935, 1005), "FALSE");
+#else
+            debug_assert("src/Primitive.c", LN(1020, 1020, 1020, 1020, 1020, 1020));
+            __assert("src/Primitive.c", LN(1020, 1020, 1020, 1020, 1020, 1020), "FALSE");
+#endif
 #endif
 #endif
             return;
@@ -1104,7 +1167,7 @@ void prim_DispWireBox(float *sz, void *col)
     }
 }
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3)
 {
     return prim_InitParticleByPartition(num, x, y, z, a1, name, a3, ios_partition_oomori);

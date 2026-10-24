@@ -144,7 +144,7 @@ static __inline__ void SetRootPosition_i(GObj *obj, void *pos) /* derived name *
     float buf[16];
     Vec4 *p = (Vec4 *)obj->dobj->root.pos;
     CopyVector(p, pos);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     p->f[1] = p->f[1] - *(float *)((char *)p + 0xB0);
 #else
     p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
@@ -179,6 +179,37 @@ static __inline__ void SetDirectRootPositionNoFitting_i(GObj *self, void *v) /* 
     CopyVector(sub->root.delta, ZeroVector);
 }
 
+#ifdef VERSION_JUN26
+void SetDirectRootPositionNoFittingWithNodePoint(GObj *gobj, int node, float *pos, float t)
+{
+    float v[4];
+    float w[4];
+    int idx;
+
+    idx = GetSkeltonFocusNode(gobj, node);
+    sceVu0SubVector(v, pos, (float *)(gobj->dobj->nodeMtx + (idx << 6)) + 12);
+    sceVu0ScaleVector(v, v, t);
+    GetRootPosition_i(w, gobj);
+    sceVu0AddVector(w, w, v);
+    SetDirectRootPositionNoFitting_i(gobj, w);
+    AdjustMotionHeightToNearestField(gobj);
+}
+
+void SetDirectRootPositionWithNodePoint(GObj *gobj, int node, float *pos, float t)
+{
+    float v[4];
+    float w[4];
+    int idx;
+
+    idx = GetSkeltonFocusNode(gobj, node);
+    sceVu0SubVector(v, pos, (float *)(gobj->dobj->nodeMtx + (idx << 6)) + 12);
+    sceVu0ScaleVector(v, v, t);
+    GetRootPosition_i(w, gobj);
+    sceVu0AddVector(w, w, v);
+    SetDirectRootPositionNoFitting_i(gobj, w);
+    AdjustMotionHeightToNearestField(gobj);
+}
+#else
 void SetDirectRootPositionNoFittingWithNodePoint(GObj *gobj, int node, float *pos, float t)
 {
     float v[4];
@@ -215,6 +246,7 @@ void SetDirectRootPositionWithNodePoint(GObj *gobj, int node, float *pos, float 
     SetDirectRootPositionNoFittingWithNodePoint(gobj, node, pos, t);
     AdjustMotionHeightToNearestField(gobj);
 }
+#endif
 
 /* The 0x15C slot is the engine's sub-object handle: the code stores an int and
  * reads it back as a pointer; the functions below read it through this union. */
@@ -246,11 +278,11 @@ void LocalizeGeometry(GObj *gobj, ObjNode *link)
     m = &sub->root;
     if (sub->parent.obj != 0) {
         debug_assertMessage(
-            "src/geometryManager.c", LN(371, 371, 371, 371, 355),
+            "src/geometryManager.c", LN(371, 371, 371, 371, 355, 359),
             "Fatal error! Geometry localize function called with GObj\n    that already have parent.\nExit...\n");
-        __assert("src/geometryManager.c", LN(371, 371, 371, 371, 355), "e");
-        debug_assert("src/geometryManager.c", LN(372, 372, 372, 372, 356));
-        __assert("src/geometryManager.c", LN(372, 372, 372, 372, 356), "0");
+        __assert("src/geometryManager.c", LN(371, 371, 371, 371, 355, 359), "e");
+        debug_assert("src/geometryManager.c", LN(372, 372, 372, 372, 356, 360));
+        __assert("src/geometryManager.c", LN(372, 372, 372, 372, 356, 360), "0");
     }
 
     m->pos[3] = 1.0f;
@@ -400,7 +432,11 @@ loop:
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static int charGObjKinds[5] = {1, 2, 4, 46, -1}; /* derived name */
 #else
+#ifdef VERSION_JUN26
+static int charGObjKinds[5] = {1, 2, 4, 45, -1}; /* derived name */
+#else
 static int charGObjKinds[5] = {1, 2, 4, 47, -1}; /* derived name */
+#endif
 #endif
 
 /* the live character objects the cylinder check walks */
@@ -434,12 +470,16 @@ void MakeCharGObjList(void)
         if (isCharGObj(o) != 0) {
             charGObjList[charGObjCount++] = o;
             if (charGObjCount > 64) {
-                debug_assertMessage("src/geometryManager.c", LN(558, 558, 558, 558, 542),
+                debug_assertMessage("src/geometryManager.c", LN(558, 558, 558, 558, 542, 546),
                                     "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n");
 #ifdef VERSION_AUG6
-                __assert("src/geometryManager.c", LN(371, 371, 371, 371, 542), "e");
+                __assert("src/geometryManager.c", LN(371, 371, 371, 371, 542, 371), "e");
 #else
-                __assert("src/geometryManager.c", LN(558, 558, 558, 558, 558), "e");
+#ifdef VERSION_JUN26
+                __assert("src/geometryManager.c", LN(371, 371, 371, 371, 355, 546), "e");
+#else
+                __assert("src/geometryManager.c", LN(558, 558, 558, 558, 558, 558), "e");
+#endif
 #endif
             }
         }
@@ -460,9 +500,11 @@ int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float
     float dy;
     float len;
     float over;
+#ifndef VERSION_JUN26
     float a;
     float b;
     float c;
+#endif
 
     GetRootPosition_i(pos, target);
     dy = pos[1] - ppos[1];
@@ -521,6 +563,13 @@ int cylinderCollisionCheck(GObj *self, float *ppos, GObj *target, float r, float
 moved:
     if (ctrl != 0) {
         if (self != 0) {
+#ifdef VERSION_JUN26
+            SetDirectRootPositionNoFitting_i(self, d2);
+            AdjustMotionHeightToNearestField(self);
+        }
+        SetDirectRootPositionNoFitting_i(target, d3);
+        AdjustMotionHeightToNearestField(target);
+#else
             b = SUBOF(self)->root.last[1];
             c = SUBOF(self)->root.clipFrom[1];
             a = SUBOF(self)->root.move[1];
@@ -536,6 +585,7 @@ moved:
         SUBOF(target)->root.move[1] = a;
         SUBOF(target)->root.last[1] = b;
         SUBOF(target)->root.clipFrom[1] = c;
+#endif
     } else {
         if (self != 0) {
             SetRootPosition_i(self, d2);

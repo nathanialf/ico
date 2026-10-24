@@ -1,7 +1,7 @@
 #include "mv_defs.h"
 #include "mv_readbuf.h"
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #include "memory.h"
 
 static void Free(int addr);
@@ -62,7 +62,7 @@ int readBufCreate(ReadBuf *self)
     return 0;
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void readBufDelete(ReadBuf *self) {}
 #endif
 

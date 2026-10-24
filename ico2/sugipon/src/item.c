@@ -46,6 +46,45 @@ typedef struct {       /* field names derived */
     int animMode;      /* 0x24 */
 } ItemFuse;            /* derived name */
 
+#ifdef VERSION_JUN26
+/* The 128-byte work record InitItemGeo allocates and fills from
+   emptyItemWork: the dead flag, the kind (1 a bomb), the carry state and
+   holder, the rotation relative to the holder, the bobbing spin, the fuse,
+   the explosion's animation slot.  8-aligned. */
+typedef struct {                        /* field names derived */
+    int dead;                           /* 0x00 */
+    int kind;                           /* 0x04 */
+    int released;                       /* 0x08 */
+    int held;                           /* 0x0C */
+    int thrown;                         /* 0x10 */
+    int holder;                         /* 0x14, the holding object */
+    int pad18[2];                       /* 0x18 */
+    float rot[4];                       /* 0x20 */
+    float spin;                         /* 0x30 */
+    int spinCount;                      /* 0x34 */
+    int pad38[2];                       /* 0x38 */
+    ItemFuse fuse;                      /* 0x40 */
+    int pad68[2];                       /* 0x68 */
+    int inPool;                         /* 0x70 */
+    int sleep;                          /* 0x74 */
+    int pad78[2];                       /* 0x78 */
+} __attribute__((aligned(8))) ItemWork; /* derived name */
+
+static void bombSparkStartSE(GObj *gobj)
+{
+    ExecuteSEPackage(gobj, 42);
+}
+
+static void bombSparkSE(GObj *gobj)
+{
+    ExecuteSEPackage(gobj, 43);
+}
+
+static void bombExplodeSE(GObj *gobj)
+{
+    ExecuteSEPackage(gobj, 44);
+}
+#else
 /* The 160-byte work record InitItemGeo allocates and fills from
    emptyItemWork: the dead flag, the kind (1 a bomb), the carry state and
    holder, the rotation relative to the holder, the bobbing spin, the fuse,
@@ -69,7 +108,7 @@ typedef struct {    /* field names derived */
     int sleep;      /* 0x74 */
     int pad78[2];   /* 0x78 */
     float drain[4]; /* 0x80 */
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     short wave;   /* 0x90 */
     short pad92;  /* 0x92 */
     int pad94[3]; /* 0x94 */
@@ -78,7 +117,7 @@ typedef struct {    /* field names derived */
 
 static void bombSparkStartSE(GObj *gobj)
 {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     ExecuteSEPackage(gobj, 48);
 #else
     ExecuteSEPackage(gobj, 50);
@@ -87,7 +126,7 @@ static void bombSparkStartSE(GObj *gobj)
 
 static void bombSparkSE(GObj *gobj)
 {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     ExecuteSEPackage(gobj, 49);
 #else
     ExecuteSEPackage(gobj, 51);
@@ -96,7 +135,7 @@ static void bombSparkSE(GObj *gobj)
 
 static void bombExplodeSE(GObj *gobj)
 {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     ExecuteSEPackage(gobj, 50);
 #else
     ExecuteSEPackage(gobj, 52);
@@ -110,6 +149,7 @@ static inline int IsItemKindBomb(GObj *gobj) /* derived name */
     ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
     return p->kind == 1;
 }
+#endif
 
 void HoldItem(GObj *gobj, GObj *holder)
 {
@@ -121,11 +161,11 @@ void HoldItem(GObj *gobj, GObj *holder)
         /* lost sight of the small barrel but is still trying to grab it */
         debug_StdPrintfDummy("小樽を見失ったのにつかもうとしてます。\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, 344);
-        __assert(__FILE__, 344, "0");
+        debug_assert(__FILE__, LN(344, 344, 344, 344, 344, 344));
+        __assert(__FILE__, LN(344, 344, 344, 344, 344, 344), "0");
 #else
-        debug_assert(__FILE__, LN(356, 356, 356, 356, 344));
-        __assert(__FILE__, LN(356, 356, 356, 356, 344), "0");
+        debug_assert(__FILE__, LN(356, 356, 356, 356, 344, 312));
+        __assert(__FILE__, LN(356, 356, 356, 356, 344, 312), "0");
 #endif
     }
     p = GOBJ_SUB(gobj)->work;
@@ -134,7 +174,11 @@ void HoldItem(GObj *gobj, GObj *holder)
     p->holder = (int)holder;
     GOBJ_SUB(gobj)->disp = 0;
     SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
+#ifdef VERSION_JUN26
+    if (p->kind == 1) {
+#else
     if (IsItemKindBomb(gobj)) {
+#endif
         SetRootQuaternion(gobj, IdentityQuaternion);
     }
     GetRootQuaternion(q, gobj);
@@ -169,6 +213,10 @@ static float zeroVelocity[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 /* The offset a dropped item is placed at, below the holder's hand. */
 static float itemDropOfs[4] = {0.0f, -50.0f, 0.0f, 1.0f}; /* derived name */
 
+#ifdef VERSION_JUN26
+/* Where a carried item sits relative to the holder's focus node. */
+static float carryOfsOther[4] = {-10.0f, -15.0f, 0.0f, 1.0f}; /* derived name */
+#else
 /* The clip avoidInsideOfWall runs from the holder to the item, a ClipWork's
    192 bytes with the radius 20 at 0x70.  The ROM places it 8-aligned in
    .data, so it is not the 16-aligned ClipWork itself. */
@@ -200,11 +248,14 @@ static void avoidInsideOfWall(void *self, GObj *arg)
         return;
     SetDirectRootPositionNoFitting(self, p->pt[2]);
 }
+#endif
 
 void ReleaseItem(GObj *gobj)
 {
     ItemWork *p = GOBJ_SUB(gobj)->work;
+#ifndef VERSION_JUN26
     avoidInsideOfWall(gobj, (GObj *)p->holder);
+#endif
     p->released = 1;
     p->held = 0;
     p->holder = 0;
@@ -217,11 +268,13 @@ void ReleaseItem(GObj *gobj)
 void ThrowItem(GObj *gobj, void *vel)
 {
     ItemWork *p = (ItemWork *)(char *)GOBJ_SUB(gobj)->work;
+#ifndef VERSION_JUN26
     avoidInsideOfWall(gobj, (GObj *)p->holder);
+#endif
     p->released = 1;
     p->held = 0;
     p->thrown = 1;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
     SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
 #else
@@ -254,10 +307,11 @@ char *InitItemGeo(GObj *gobj, ItemLayout *layout)
     ItemLayout lay;
     Sub15C *w = GOBJ_SUB(gobj);
 #ifdef VERSION_NTSC
-    ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__, 434);
+    ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__,
+                                 LN(434, 434, 434, 434, 434, 434));
 #else
     ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__,
-                                 LN(446, 446, 446, 446, 434));
+                                 LN(446, 446, 446, 446, 434, 382));
 #endif
 
     GOBJ_SUB(gobj)->work = p;
@@ -278,7 +332,11 @@ char *InitItemGeo(GObj *gobj, ItemLayout *layout)
 #ifdef VERSION_AUG6
         g = CreateLayoutedGObj(10, 68, -1, 1, &lay, -1, 7, 0);
 #else
+#ifdef VERSION_JUN26
+        g = CreateLayoutedGObj(10, 51, -1, 1, &lay, -1, 7, 0);
+#else
         g = CreateLayoutedGObj(10, 75, -1, 1, &lay, -1, 7, 0);
+#endif
 #endif
 #endif
         SetTorchChainReactionFlag(g, 1);
@@ -308,7 +366,7 @@ static void carriedItemGeo(GObj *gobj)
     ItemWork *rec = GOBJ_SUB(gobj)->work;
 
     if (((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->ctrl.frameFlag2 != 0) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         _ApplyMatrix(&pos,
                      (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
                          GetSkeltonFocusNode((GObj *)rec->holder, 22) * 64,
@@ -352,7 +410,7 @@ static void carriedItemGeo(GObj *gobj)
         _ApplyMatrix(
             &pos, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx + node * 64, q);
         memset(&up, 0, 16);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         up.f[1] = -1.0f;
 #else
         up.f[1] = 1.0f;
@@ -372,7 +430,7 @@ static void carriedItemGeo(GObj *gobj)
     SetDirectRootPosition(gobj, &pos);
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* start the break animation of a broken item; BreakItemFromOutside and
    breakItemOnFloorHit use it */
 static inline int entryBreakBgAnimation(int id, float *pos, float *dir) /* derived name */
@@ -380,8 +438,12 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir) /* deriv
     float rot[4];
     float d[4];
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    if (id != 763) {
+#else
     if (id != 814) {
+#endif
 #else
     if (id != 815) {
 #endif
@@ -690,7 +752,11 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
 #ifdef VERSION_AUG6
         if (id != 814) {
 #else
+#ifdef VERSION_JUN26
+        if (id != 763) {
+#else
         if (id != 972) {
+#endif
 #endif
 #endif
             memset(&rot, 0, 16);
@@ -700,7 +766,7 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
             _NormalizeVector(d, d);
             RotQuaternionY(&rot, GetTableArcTan2(d[0], d[2]));
             _ScaleVectorXYZ(sv, vel, 0.3f);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             EntryStageMultiBgaManagerSensitive(id, pos, &rot, sv);
 #else
             EntryStageMultiBgaManagerSensitiveWithStay(id, pos, &rot, sv,
@@ -709,10 +775,17 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
             SetParticleEffect(10, pos, &rot);
         }
         if ((itemKind + p->kind)->flags & 1) {
+#ifdef VERSION_JUN26
+            ExecuteSEPackage(gobj, 34);
+            return 1;
+        }
+        ExecuteSEPackage(gobj, 32);
+#else
             ExecuteSEPackage(gobj, 39);
             return 1;
         }
         ExecuteSEPackage(gobj, 37);
+#endif
     }
     return 0;
 }
@@ -724,10 +797,14 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
     ItemWork *p = GOBJ_SUB(gobj)->work;
 
     if (10.0f < len) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         entryBreakBgAnimation(itemKind[p->kind].breakAnim, pos, vel);
         if ((itemKind + p->kind)->flags & 1) {
+#ifdef VERSION_JUN26
+            ExecuteSEPackage(gobj, 37);
+#else
             ExecuteSEPackage(gobj, 42);
+#endif
 #else
         entryBreakBgAnimation(itemKind[p->kind].breakAnim, pos, vel, itemKind[p->kind].breakMode);
         if ((itemKind + p->kind)->flags & 1) {
@@ -741,12 +818,20 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
 #ifdef VERSION_AUG6
         ExecuteSEPackage(gobj, 46);
 #else
+#ifdef VERSION_JUN26
+        ExecuteSEPackage(gobj, 40);
+#else
         ExecuteSEPackage(gobj, 48);
+#endif
 #endif
         return 0;
     }
     if (5.0f < len) {
+#ifdef VERSION_JUN26
+        ExecuteSEPackageWithVolumeRate(gobj, 33, 20.0f < len ? 1.0f : len * 0.05f);
+#else
         ExecuteSEPackageWithVolumeRate(gobj, 38, 20.0f < len ? 1.0f : len * 0.05f);
+#endif
     }
     return 0;
 }
@@ -759,7 +844,7 @@ static void uncarriedItemGeo(GObj *gobj)
     float vel[4];  /* 0x30 */
     ItemWork *p;   /* 0x40 */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     inline void floatGeo(float t)
     {
 #else
@@ -769,11 +854,13 @@ static void uncarriedItemGeo(GObj *gobj)
 #endif
 
         _ScaleVector(vel, vel, t);
+#ifndef VERSION_JUN26
         _AddVectorXYZ(vel, vel, p->drain);
+#endif
         GetSlerpQuaternion(GOBJ_SUB(gobj)->root.itemQuat, GOBJ_SUB(gobj)->root.itemQuat,
                            IdentityQuaternion, t);
         RegularizeQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         CopyVector(w.pt[0], pos);
         CopyVector(w.pt[1], w.pt[0]);
         w.radius = 200.0f;
@@ -799,7 +886,7 @@ static void uncarriedItemGeo(GObj *gobj)
     float len;
     float spd;
     float grav;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     float rate;
 #endif
 
@@ -818,7 +905,7 @@ static void uncarriedItemGeo(GObj *gobj)
             float r = (d + 20.0f) / 40.0f;
 
             vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f * r;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             rate = 1.0f - r * 0.08f;
             floatGeo(rate);
         } else if (0.0f < d) {
@@ -862,6 +949,7 @@ static void uncarriedItemGeo(GObj *gobj)
         if (breakItemOnWallHit(gobj, VectorLength(cw.reflect.bounce), npos, vel)) {
             setItemDead(gobj);
         }
+#ifndef VERSION_JUN26
     }
     CopyVector(cw.pt[0], pos);
     CopyVector(cw.pt[1], pos);
@@ -871,6 +959,7 @@ static void uncarriedItemGeo(GObj *gobj)
     if (cw.floor.elem != 0) {
         CopyVector(pos, cw.pt[2]);
         pos[1] -= 20.0f;
+#endif
     }
     CopyVector(cw.pt[0], pos);
     CopyVector(cw.pt[1], npos);
@@ -920,7 +1009,9 @@ static void uncarriedItemGeo(GObj *gobj)
             if (CheckFieldContact(&cw, gobj, npos, 20.0f) == 2) {
                 if (p->inPool != 1) {
                     GOBJ_SUB(gobj)->ctrl.waterY = GetPoolGlobalHeight(cw.floor.o.obj);
+#ifndef VERSION_JUN26
                     GetPoolGlobalDrainVector(p->drain, cw.floor.o.obj);
+#endif
                 }
                 GOBJ_SUB(gobj)->ctrl.waterDepth = cw.pt[2][1] - GOBJ_SUB(gobj)->ctrl.waterY;
                 p->inPool = 1;
@@ -935,12 +1026,16 @@ static void uncarriedItemGeo(GObj *gobj)
         /* emergency stop 2 */
         debug_StdPrintfDummy("緊急停止2(%f←%f)\n", spd, len0);
         p->holder = 0;
+#ifndef VERSION_JUN26
         p->sleep = 0;
+#endif
     }
     if (LimitExistGeometry(npos, vel)) {
         p->released = 0;
         p->holder = 0;
+#ifndef VERSION_JUN26
         p->sleep = 0;
+#endif
         /* emergency stop 3 */
         debug_StdPrintfDummy("緊急停止3\n");
     }
@@ -949,6 +1044,13 @@ static void uncarriedItemGeo(GObj *gobj)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
     if (p->holder != 0) {
         if (VectorLengthSquare(vel) > 100.0f) {
+#ifdef VERSION_JUN26
+            AttackCenter((GObj *)p->holder, -1, npos, 0, 20.0f);
+        }
+    }
+    if (linked != 0) {
+        if (p->spin < 8.0f) {
+#else
 #ifdef VERSION_AUG6
             AttackCenter((GObj *)p->holder, -1, npos, 0, 20.0f);
 #else
@@ -961,6 +1063,7 @@ static void uncarriedItemGeo(GObj *gobj)
     }
     if (linked != 0) {
         if (p->spin < 8.0f && p->sleep == 0) {
+#endif
             int n = p->spinCount + 1;
 
             p->spinCount = n;
@@ -976,6 +1079,9 @@ static void uncarriedItemGeo(GObj *gobj)
             p->spinCount = 0;
         }
     }
+#ifdef VERSION_JUN26
+    p->spin = p->spin < spd ? spd : p->spin;
+#else
     {
         float v = p->spin;
 
@@ -984,6 +1090,7 @@ static void uncarriedItemGeo(GObj *gobj)
         }
         p->spin = v;
     }
+#endif
     if (p->released == 0 && linked != 0) {
         LinkParentOfDObj(gobj, &link);
     }
@@ -1008,11 +1115,16 @@ static void execBombGeo(GObj *gobj)
         break;
     case 1:
         CopyVector(v, itemDropOfs);
+#ifdef VERSION_JUN26
+        v[1] = itemDropOfs[1] * (float)q->time *
+               (1.0f / ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 300.0f));
+#else
         v[1] = itemDropOfs[1] *
                (((float)q->time * (1.0f / ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
                                            60.0f * 300.0f)) +
                  1.0f) *
                 0.5f);
+#endif
         CopyVector(((SubHandle *)&q->torch->dobj)->p + 0xA0, v);
         q->time = q->time - 1;
         if (q->time == 0) {
@@ -1033,6 +1145,12 @@ static void execBombGeo(GObj *gobj)
         GetRootPosition(q->pos, gobj);
         AttackCenter(gobj, 17, q->pos, 0, 100.0f);
 #else
+#ifdef VERSION_JUN26
+        stage_SetLoopFlag(403, 0);
+        stage_SetFrameStep(403, 1);
+        GetRootPosition(q->pos, gobj);
+        AttackCenter(gobj, 19, q->pos, 0, 100.0f);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetLoopFlag(507, 0);
         stage_SetFrameStep(507, 1);
@@ -1042,6 +1160,7 @@ static void execBombGeo(GObj *gobj)
 #endif
         GetRootPosition(q->pos, gobj);
         _AttackCenter(gobj, 17, q->pos, 0, 200.0f, 0);
+#endif
 #endif
 #endif
         LightTorchOff(q->torch);
@@ -1061,8 +1180,12 @@ static void execBombGeo(GObj *gobj)
         stage_KillPlayBgAnimationIfOverMaxCount(439, 1);
         q->anim = stage_MakePlayBgAnimation(439);
 #else
+#ifdef VERSION_JUN26
+        q->anim = stage_MakePlayBgAnimation(403);
+#else
         stage_KillPlayBgAnimationIfOverMaxCount(511, 1);
         q->anim = stage_MakePlayBgAnimation(511);
+#endif
 #endif
 #endif
 #endif
@@ -1074,7 +1197,7 @@ static void execBombGeo(GObj *gobj)
         break;
     case 3:
         rec->released = 0;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (stage_DispBgAnimation(&q->anim) != 0) {
             q->state = 4;
             setItemDead(gobj);
@@ -1084,6 +1207,58 @@ static void execBombGeo(GObj *gobj)
     case 4:
         break;
     }
+#ifdef VERSION_JUN26
+}
+
+void ItemDL(GObj *gobj)
+{
+    ItemWork *p = GOBJ_SUB(gobj)->work;
+
+    if (p->dead == 1) {
+        return;
+    }
+    if (p->kind == 1) {
+        ItemFuse *q = &p->fuse;
+        int mode = q->state;
+
+        if (mode >= 2) {
+            return;
+        }
+        if (mode == 1) {
+            if (systemStatus[5] != 0) {
+                if (q->animMode != 0) {
+                    StopSEPackage(gobj);
+                    q->animMode = 0;
+                }
+            } else if (q->animMode == 0) {
+                bombSparkSE(gobj);
+                q->animMode = mode;
+            }
+        }
+    }
+    p2o_DispVU1(gobj);
+}
+
+/* the body of CheckCarryableItem, which the three Revive walkers inline and
+   CheckCarryableItem calls */
+static inline int CheckCarryableItemInline(GObj *gobj) /* derived name */
+{
+    int r = 0;
+    ItemWork *p = GOBJ_SUB(gobj)->work;
+    if (gobj->active != 0) {
+        if (*(long long *)&p->released == 0) {
+            if (p->fuse.state < 2) {
+                r = 1;
+            }
+        }
+    }
+    return r;
+}
+
+int CheckCarryableItem(GObj *gobj)
+{
+    return CheckCarryableItemInline(gobj);
+#endif
 }
 
 void ItemGeo(GObj *gobj)
@@ -1106,13 +1281,20 @@ void ItemGeo(GObj *gobj)
         if (owner != 0) {
             if (owner->kind == 17) {
                 if (GetBoxMode(owner) == 2) {
+#ifndef VERSION_JUN26
                     p->holder = 0;
+#endif
                     ThrowItem(gobj, GOBJ_SUB(owner)->root.move);
                 }
             }
         }
     }
     UpdateRootMatrix(gobj);
+#ifdef VERSION_JUN26
+    if (p->kind == 1) {
+        execBombGeo(gobj);
+    }
+#else
     if (IsItemKindBomb(gobj)) {
         execBombGeo(gobj);
     }
@@ -1261,6 +1443,7 @@ int GetCharHeldItem(GObj *chara)
         return -1;
     return ((ItemWork *)GOBJ_SUB(w)->work)->kind;
 #endif
+#endif
 }
 
 int IsItemHoldable(GObj *gobj)
@@ -1280,7 +1463,11 @@ int IsBombExplode(GObj *gobj)
 void *GetBombTorchGObj(GObj *item)
 {
     ItemWork *p = GOBJ_SUB(item)->work;
+#ifdef VERSION_JUN26
+    if (p->kind == 1) {
+#else
     if (IsItemKindBomb(item)) {
+#endif
         return p->fuse.torch;
     }
     return 0;
@@ -1295,7 +1482,9 @@ int ReviveAllCarryableItems(void)
             ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
             UnlinkParentOfDObj(g);
             p->released = 1;
+#ifndef VERSION_JUN26
             p->sleep = 0;
+#endif
         }
     }
     return 1;
@@ -1315,7 +1504,9 @@ int ReviveCarryableItemsWithBoundary(void *center, float radius)
                 ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
                 UnlinkParentOfDObj(g);
                 p->released = 1;
+#ifndef VERSION_JUN26
                 p->sleep = 0;
+#endif
             }
         }
     }
@@ -1334,7 +1525,9 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
             ItemWork *p = (ItemWork *)GOBJ_SUB(g)->work;
             UnlinkParentOfDObj(g);
             p->released = 1;
+#ifndef VERSION_JUN26
             p->sleep = 0;
+#endif
         }
         GOBJ_SUB(g)->root.move[0] = horz * GetTableSin(ang);
         GOBJ_SUB(g)->root.move[1] = up * random_unit();
@@ -1343,6 +1536,7 @@ int ReviveAllCarryableItemsWithRandomVelocity(float up, float horz)
     return 1;
 }
 
+#ifndef VERSION_JUN26
 int CheckItemDead(GObj *gobj)
 {
     int r = 0;
@@ -1404,3 +1598,4 @@ int ReviveAllCarryableItemsWithNonSleepFrame(int nonSleepFrame)
     }
     return 1;
 }
+#endif

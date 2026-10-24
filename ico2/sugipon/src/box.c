@@ -45,7 +45,42 @@ typedef struct BoxWork { /* field names derived */
     int mode;     /* 0x020, 0 still, 1 auto move, 2 falling, 3 to 5 the fall's phases, 6 aligning */
     float scaleX; /* 0x024, the layout's X scale */
     float scaleZ; /* 0x028, the layout's Z scale */
-    int colData;  /* 0x02C, the collision ReInitBoxGeo restores */
+#ifdef VERSION_JUN26
+    int moveFrames; /* 0x02C, the frames left of an auto move */
+    float vel[4];   /* 0x030, the move per frame */
+    int frontPoint; /* 0x040, the path point nearest the front axle */
+    int rearPoint;  /* 0x044, the path point nearest the rear axle */
+    int route;      /* 0x048, the routeTable index */
+    int pointCount; /* 0x04C, the route's point count */
+    WallCfg wall;   /* 0x050, the wall the box last hit */
+    char pad05C[4];
+    float mtx[4][4];      /* 0x060, the box's matrix */
+    float waterHeight[4]; /* 0x0A0, the water height GetWaterReaction reports */
+    float tilt[4];        /* 0x0B0, the floating box's tilt */
+    float tiltVel[4];     /* 0x0C0, the tilt's velocity */
+    float lastOffset[4];  /* 0x0D0, the last frame's float offset */
+    float tiltForce[4];   /* 0x0E0, the force added to the tilt each frame */
+    float lastPos[4];     /* 0x0F0, the last frame's position */
+    short floatPhase;     /* 0x100, the bob's sine phase */
+    short pad102;
+    Sub15C *wheelDObj; /* 0x104, the wheel DObj dispWheels draws */
+    short wheelAngle;  /* 0x108, the wheels' X rotation */
+    short pad10A;
+    float wheelRadius; /* 0x10C */
+    float wheelHeight; /* 0x110 */
+    float wheelFront;  /* 0x114, the front axle's Z */
+    float wheelRear;   /* 0x118, the rear axle's Z */
+    float friction;    /* 0x11C, the move's damping */
+    int autoDir;       /* 0x120, the direction moveBoxAutoMatic last moved in */
+    char pad124[4];
+    int stopWall; /* 0x128, set while a box-stop wall is ahead */
+    char pad12C[4];
+    float tiltQuat[4];  /* 0x130, the slope tilt the root quaternion takes */
+    Sub15C *effectDObj; /* 0x140, the effect DObj */
+    int charHit;        /* 0x144, set when a character pushed the floating box this frame */
+    char pad148[8];
+#else
+    int colData;    /* 0x02C, the collision ReInitBoxGeo restores */
     int moveFrames; /* 0x030, the frames left of an auto move */
     char pad034[12];
     float vel[4];   /* 0x040, the move per frame */
@@ -82,7 +117,7 @@ typedef struct BoxWork { /* field names derived */
     Sub15C *effectDObj; /* 0x160, the effect DObj */
     int charHit;        /* 0x164, set when a character pushed the floating box this frame */
     char pad168[8];
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     float floatAnchor[4]; /* 0x170, the floating box's resting X and Z */
 #else
     float floatAnchor[4]; /* 0x170, the floating box's resting X and Z */
@@ -90,6 +125,7 @@ typedef struct BoxWork { /* field names derived */
     char pad184[12];
 #ifndef VERSION_NTSC
     float moveDir[4]; /* 0x190, the direction of the last push */
+#endif
 #endif
 #endif
 } __attribute__((aligned(8))) BoxWork; /* derived name */
@@ -101,7 +137,11 @@ static void landingSE(GObj *self)
 
 static void fallDownStartSE(GObj *self)
 {
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 31);
+#else
     ExecuteSEPackage(self, 0x24);
+#endif
 }
 
 static void pushStartSE(GObj *self)
@@ -111,11 +151,18 @@ static void pushStartSE(GObj *self)
 
 static void pullStartSE(GObj *self)
 {
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 12);
+#else
     ExecuteSEPackage(self, 0xD);
+#endif
 }
 
 static void wallHitSE(GObj *self)
 {
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 29);
+#else
     ExecuteSEPackage(self, 0x1E);
 }
 
@@ -132,6 +179,7 @@ static inline void stopBoxMoveSE(GObj *self) /* derived name */
         wallHitSE(self);
         q->stopWall = 0;
     }
+#endif
 }
 
 static void initFallDown(GObj *self)
@@ -165,9 +213,15 @@ static void initFallDown(GObj *self)
     } else {
         GOBJ_SUB(self)->ctrl.motion = 1084;
 #else
+#ifdef VERSION_JUN26
+        GOBJ_SUB(self)->ctrl.motion = 1163;
+    } else {
+        GOBJ_SUB(self)->ctrl.motion = 1163;
+#else
         GOBJ_SUB(self)->ctrl.motion = 1143;
     } else {
         GOBJ_SUB(self)->ctrl.motion = 1143;
+#endif
 #endif
 #endif
         GetRootQuaternion(GOBJ_SUB(self)->root.baseQuat, self);
@@ -179,7 +233,7 @@ static int checkFieldContact(GObj *self, float lim)
     ClipWork w;
     float pos[4];
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     float v[4];
 #endif
 #endif
@@ -189,9 +243,13 @@ static int checkFieldContact(GObj *self, float lim)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     GetLowerPlaneCollision(&w, pos);
 #else
+#ifdef VERSION_JUN26
+    GetLowerPlaneCollision(&w, pos);
+#else
     CopyVector(v, pos);
     v[1] -= GOBJ_SUB(self)->root.move[1];
     GetLowerPlaneCollision(&w, v);
+#endif
 #endif
     r = CheckFieldContact(&w, self, pos, lim);
     if (GOBJ_SUB(self)->parent.obj != 0) {
@@ -296,7 +354,7 @@ static int execNormalMove(GObj *self, int stop)
 
     if (checkFieldContact(self, 110.0f) != 1) {
         if (p->holder != 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             if (GOBJ_SUB(p->holder)->ctrl.cliffWallHit == 0) {
                 return ret;
             }
@@ -324,7 +382,7 @@ static int execNormalMove(GObj *self, int stop)
 
                 d = plane_distance(up, plSide);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
                 GetProjectionPosOfPlane(proj, plSide, up);
                 GetProjectionPosOfPlane(proj, plTop, proj);
 
@@ -386,7 +444,7 @@ static int execNormalMove(GObj *self, int stop)
             } else {
                 GetSlerpQuaternion(p->tiltQuat, IdentityQuaternion, p->tiltQuat, 0.5f);
             }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             GetInverseQuaternion(norm, (char *)GOBJ_SUB(self) + 0x60);
             MultiQuaternion(axis, norm, p->tiltQuat);
             SetRootQuaternion(self, axis);
@@ -447,7 +505,7 @@ static inline float getAlign(float v, float g)
     return -getAlign(-v, g);
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* the layout position snapped to the grid in X and Z, measured from the
    object's own translation */
 inline int AlignBox(GObj *self, float grid)
@@ -526,16 +584,16 @@ static void initWheels(GObj *self, SObjSimpleSetting *lay)
         }
         w->wheelDObj->nodeMtx = 0;
         w->wheelDObj->nodeQuat = 0;
-        w->wheelDObj->nodeMtx =
-            (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, LN(551, 551, 551, 551, 551));
+        w->wheelDObj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 128, __FILE__,
+                                                    LN(551, 551, 551, 551, 551, 551));
         w->wheelDObj->nodeQuat =
-            (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, LN(551, 551, 551, 551, 551));
+            (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, LN(551, 551, 551, 551, 551, 551));
         w->wheelDObj->nodeNum = 2;
         if (w->wheelDObj->nodes != 0) {
             iosFree((void *)((int)w->wheelDObj->nodes & 0x0FFFFFFF));
         }
         w->wheelDObj->nodes =
-            iosMallocDebug(ios_partition_seki, 160, __FILE__, LN(551, 551, 551, 551, 551));
+            iosMallocDebug(ios_partition_seki, 160, __FILE__, LN(551, 551, 551, 551, 551, 551));
 
         for (i = 0; i < 2; i++) {
             {
@@ -621,31 +679,47 @@ static void initWheels(GObj *self, SObjSimpleSetting *lay)
     if (objLayout[self->labelId].accessary == 21 ||
         accessary[GOBJ_SUB(self)->accessary].model == 1510) {
 #else
+#ifdef VERSION_JUN26
+    if (objLayout[self->labelId].accessary == 21 ||
+        accessary[GOBJ_SUB(self)->accessary].model == 1425) {
+#else
     if (objLayout[self->labelId].accessary == 26 ||
         accessary[GOBJ_SUB(self)->accessary].model == 0x610) {
+#endif
 #endif
 #endif
         w->wheelDObj = 0;
     } else {
         w->wheelDObj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, lay);
         if (w->wheelDObj->nodeMtx != 0) {
+#ifdef VERSION_JUN26
+            iosFree((void *)w->wheelDObj->nodeMtx);
+        }
+        if (w->wheelDObj->nodeQuat != 0) {
+            iosFree((void *)w->wheelDObj->nodeQuat);
+#else
             iosFree((void *)(w->wheelDObj->nodeMtx & 0x0FFFFFFF));
         }
         if (w->wheelDObj->nodeQuat != 0) {
             iosFree((void *)(w->wheelDObj->nodeQuat & 0x0FFFFFFF));
+#endif
         }
         w->wheelDObj->nodeMtx = 0;
         w->wheelDObj->nodeQuat = 0;
-        w->wheelDObj->nodeMtx =
-            (int)iosMallocDebug(ios_partition_seki, 128, __FILE__, LN(560, 557, 557, 560, 536));
+        w->wheelDObj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 128, __FILE__,
+                                                    LN(560, 557, 557, 560, 536, 525));
         w->wheelDObj->nodeQuat =
-            (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, LN(560, 557, 557, 560, 536));
+            (int)iosMallocDebug(ios_partition_seki, 32, __FILE__, LN(560, 557, 557, 560, 536, 525));
         w->wheelDObj->nodeNum = 2;
         if (w->wheelDObj->nodes != 0) {
+#ifdef VERSION_JUN26
+            iosFree(w->wheelDObj->nodes);
+#else
             iosFree((void *)((int)w->wheelDObj->nodes & 0x0FFFFFFF));
+#endif
         }
         w->wheelDObj->nodes =
-            iosMallocDebug(ios_partition_seki, 160, __FILE__, LN(560, 557, 557, 560, 536));
+            iosMallocDebug(ios_partition_seki, 160, __FILE__, LN(560, 557, 557, 560, 536, 525));
 
         for (i = 0; i < 2; i++) {
             {
@@ -713,12 +787,21 @@ static void initWheels(GObj *self, SObjSimpleSetting *lay)
         ((IntFloat *)&w->wheelRear)->f =
             accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x804)].pivot[2];
 #else
+#ifdef VERSION_JUN26
+        ((IntFloat *)&w->wheelHeight)->f =
+            accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x7E4)].pivot[0];
+        ((IntFloat *)&w->wheelFront)->f =
+            accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x7E4)].pivot[1];
+        ((IntFloat *)&w->wheelRear)->f =
+            accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x7E4)].pivot[2];
+#else
         ((IntFloat *)&w->wheelHeight)->f =
             accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].pivot[0];
         ((IntFloat *)&w->wheelFront)->f =
             accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].pivot[1];
         ((IntFloat *)&w->wheelRear)->f =
             accessary[*(int *)(((IntFloat *)&self->dobj)->i + 0x844)].pivot[2];
+#endif
 #endif
     }
 }
@@ -775,11 +858,19 @@ static PathPt route2[] = {
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
 
+#ifdef VERSION_JUN26
+static PathPt route3[] = {
+    {-525.0f, 1450.0f, -1650.0f, 1.0f},
+    {-2150.0f, 1450.0f, -1650.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route3[] = {
     {-525.0f, 1450.0f, -1650.0f, 1.0f},
     {-1700.0f, 1450.0f, -1650.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
 static PathPt route4[] = {
     {6500.0f, -3470.0f, -1450.0f, 1.0f},
@@ -815,53 +906,117 @@ static PathPt route9[] = {
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
 
+#ifdef VERSION_JUN26
+static PathPt route10[] = {
+    {-390.0f, -50.0f, -570.0f, 1.0f},
+    {-220.0f, -50.0f, -570.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route10[] = {
     {-380.0f, -50.0f, -570.0f, 1.0f},
     {-220.0f, -50.0f, -570.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+static PathPt route11[] = {
+    {-390.0f, -50.0f, -1370.0f, 1.0f},
+    {-220.0f, -50.0f, -1370.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route11[] = {
     {-380.0f, -50.0f, -1370.0f, 1.0f},
     {-220.0f, -50.0f, -1370.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+static PathPt route12[] = {
+    {-390.0f, -50.0f, -2170.0f, 1.0f},
+    {-220.0f, -50.0f, -2170.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route12[] = {
     {-380.0f, -50.0f, -2170.0f, 1.0f},
     {-220.0f, -50.0f, -2170.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+static PathPt route13[] = {
+    {-390.0f, -50.0f, -2970.0f, 1.0f},
+    {-220.0f, -50.0f, -2970.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route13[] = {
     {-380.0f, -50.0f, -2970.0f, 1.0f},
     {-220.0f, -50.0f, -2970.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+static PathPt route14[] = {
+    {390.0f, -50.0f, -570.0f, 1.0f},
+    {220.0f, -50.0f, -570.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route14[] = {
     {380.0f, -50.0f, -570.0f, 1.0f},
     {220.0f, -50.0f, -570.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+static PathPt route15[] = {
+    {390.0f, -50.0f, -1370.0f, 1.0f},
+    {220.0f, -50.0f, -1370.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route15[] = {
     {380.0f, -50.0f, -1370.0f, 1.0f},
     {220.0f, -50.0f, -1370.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+static PathPt route16[] = {
+    {390.0f, -50.0f, -2170.0f, 1.0f},
+    {220.0f, -50.0f, -2170.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route16[] = {
     {380.0f, -50.0f, -2170.0f, 1.0f},
     {220.0f, -50.0f, -2170.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+static PathPt route17[] = {
+    {390.0f, -50.0f, -2970.0f, 1.0f},
+    {220.0f, -50.0f, -2970.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
+}; /* derived name */
+#else
 static PathPt route17[] = {
     {380.0f, -50.0f, -2970.0f, 1.0f},
     {220.0f, -50.0f, -2970.0f, 1.0f},
     {0.0f, 0.0f, 0.0f, 3.40282347e+38f},
 }; /* derived name */
+#endif
 
 static PathPt route18[] = {{0.0f, 0.0f, 0.0f, 3.40282347e+38f}}; /* derived name */
 
@@ -912,8 +1067,53 @@ static float holdPointOffset[4][4] = {
     {-10.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
-#ifdef VERSION_AUG6
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+/* the template a new box's work block is copied from */
+static BoxWork boxWorkInit = {
+    0,
+    0,
+    {0},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    0,
+    1.0f,
+    1.0f,
+    0,
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    2,
+    1,
+    0,
+    0,
+    {{0, -1}, 0},
+    {0},
+    {{0.0f}},
+    {0.0f},
+    {0.0f},
+    {0.0f},
+    {0.0f},
+    {0.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    0,
+    0,
+    0,
+    0,
+    0,
+    10.0f,
+    30.0f,
+    50.0f,
+    -50.0f,
+    0.9f,
+    0,
+    {0},
+    0,
+    {0},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    0,
+    0,
+    {0},
+}; /* derived name */
+#else
 static BoxWork boxWorkInit = {
     0,
     0,
@@ -961,6 +1161,7 @@ static BoxWork boxWorkInit = {
     {0},
     {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
+#endif
 #else
 static BoxWork boxWorkInit = {
     0,
@@ -1150,6 +1351,10 @@ static int getNearestPosition(float *out, int *pidx, int *path)
     out[2] = pos[2];
     out[3] = 1.0f;
 
+#ifdef VERSION_JUN26
+    debug_StdPrintfDummy("%d-%d\n", start, end);
+    debug_StdPrintfDummy("%d: %f, %f, %f\n", bi, out[0], out[1], out[2]);
+#endif
     *pidx = bi;
     return 1;
 }
@@ -1281,7 +1486,7 @@ static int onPath(GObj *self)
 static int onPath(GObj *self)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     float front[4];
     float rear[4];
 #else
@@ -1292,7 +1497,7 @@ static int onPath(GObj *self)
     VECTOR fwd = {0.0f, 0.0f, p->scaleZ * 50.0f, 1.0f};
     VECTOR bwd = {0.0f, 0.0f, p->scaleZ * -50.0f, 1.0f};
     PathPt *pts = routeTable[p->route];
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     float mid[4];
     Vec4 ofs;
     float m[16];
@@ -1306,7 +1511,7 @@ static int onPath(GObj *self)
     int hitRear;
     int i;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     sceVu0ApplyMatrix(front, (void *)GOBJ_SUB(self)->nodeMtx, &fwd);
     sceVu0ApplyMatrix(rear, (void *)GOBJ_SUB(self)->nodeMtx, &bwd);
 
@@ -1327,20 +1532,39 @@ static int onPath(GObj *self)
 
     if (hitFront != 0 || hitRear != 0) {
         if (hitFront != 0) {
+#ifdef VERSION_JUN26
+            debug_StdPrintfDummy("fronthit!\n");
+#endif
             GetMatrixFromQuaternion(m, q);
             CopyVector(&ofs, &bwd);
             ofs.f[2] -= 1.0f;
             sceVu0ApplyMatrix(&ofs, m, &ofs);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             AddVectorXYZ(mid, front, &ofs);
 #else
             AddVectorXYZ(&mid, &front, &ofs);
 #endif
         } else {
+#ifdef VERSION_JUN26
+            debug_StdPrintfDummy("rearhit!\n");
+#endif
             GetMatrixFromQuaternion(m, q);
             CopyVector(&ofs, &fwd);
             ofs.f[2] += 1.0f;
             sceVu0ApplyMatrix(&ofs, m, &ofs);
+#ifdef VERSION_JUN26
+            AddVectorXYZ(mid, rear, &ofs);
+        }
+
+        mid[1] = front[1];
+    } else {
+        sceVu0AddVector(mid, front, rear);
+        sceVu0ScaleVector(mid, mid, 0.5f);
+    }
+
+    mid[3] = 1.0f;
+    SetDirectRootPosition(self, mid);
+#else
 #ifdef VERSION_AUG6
             AddVectorXYZ(mid, rear, &ofs);
 #else
@@ -1390,6 +1614,7 @@ static int onPath(GObj *self)
 
     mid.f[3] = 1.0f;
     SetDirectRootPosition(self, &mid);
+#endif
 #endif
 
     UpdateRootMatrix(self);
@@ -1447,7 +1672,7 @@ static int playAnimationCore(GObj *self)
     sceVu0SubVector(&GOBJ_SUB(self)->root.move[0], pos, GOBJ_SUB(self)->root.last);
     CopyVector(GOBJ_SUB(self)->root.last, pos);
     SetRootPosition(self, pos);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     ExecFrameDependSequence(self);
 #endif
     return UpdateFrameCounter(self);
@@ -1460,7 +1685,7 @@ static inline void execBoxFall(GObj *self) /* derived name */
     float v[4];
 
     GetRootPosition(v, self);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     ((IntFloat *)(*(char **)(((char *)self) + 0x15C) + 0x124))->f +=
         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
@@ -1554,6 +1779,29 @@ int MoveFloatingBox(GObj *self, GObj *other, float *dst, void *src, float lim)
     return 1;
 }
 
+#ifdef VERSION_JUN26
+static void avoidCharGObj(GObj *self, GObj *chara)
+{
+    ClipWork w;
+    float pos[4];
+
+    GetCylinderCollisionWithExceptOwnCollision(self, chara, 50.0f, 50.0f, 0.0f, 1.0f, 1);
+    w.radius = (30.0f < GOBJ_SUB(chara)->root.radius) ? GOBJ_SUB(chara)->root.radius : 30.0f;
+    GetRootPosition(pos, chara);
+    CopyVector(&w, pos);
+    CopyVector(w.pt[1], pos);
+    w.filter.o.obj = self;
+    w.filter.o.node = -1;
+    w.filter.elem = 0;
+    ClipWallE(&w);
+    if (w.wall.elem != 0) {
+        GetCylinderCollisionWithExceptOwnCollision(self, chara, (w.radius + 50.0f) * 1.414f, 100.0f,
+                                                   0.5f, 0.0f, 1);
+        UpdateRootMatrix(self);
+    }
+}
+#endif
+
 /* the eight horizontal push-out directions the floating box is tested along */
 static float floatPushDir[8][4] = {
     {0.0f, 0.0f, 1.0f, 1.0f},  {0.0f, 0.0f, -1.0f, 1.0f},  {1.0f, 0.0f, 0.0f, 1.0f},
@@ -1590,6 +1838,7 @@ static inline void pushOutFloatingBox(ClipWork *cw, float *m, float *sv, float *
     }
 }
 
+#ifndef VERSION_JUN26
 /* the same prototype fieldCollision.h gives */
 
 static void avoidCharGObj(GObj *self, GObj *chara)
@@ -1627,6 +1876,7 @@ static void avoidCharGObj(GObj *self, GObj *chara)
         }
     }
 }
+#endif
 
 /* the two characters the floating box has to keep clear of, the boy and the
    girl, as sceneManager.c sets them */
@@ -1638,7 +1888,9 @@ static void execFloating(GObj *self)
 {
     ClipWork fw;
     float pos[4];
+#ifndef VERSION_JUN26
     float d[4];
+#endif
     float g[4];
     float sub[4];
     float axis[4];
@@ -1651,13 +1903,19 @@ static void execFloating(GObj *self)
     float cm[16];
     float sv[4];
     float dv[4];
+#ifndef VERSION_JUN26
     int hit;
+#endif
     BoxWork *w = GOBJ_SUB(self)->work;
     float len;
     float r;
 
     if (boyGObj != 0) {
         if (w->charHit == 0) {
+#ifdef VERSION_JUN26
+            avoidCharGObj(self, boyGObj);
+        }
+#else
             GetCylinderCollisionWithExceptOwnCollision(self, boyGObj, 50.0f, 50.0f, 0.0f, 1.0f, 1);
             avoidCharGObj(self, boyGObj);
         }
@@ -1666,6 +1924,7 @@ static void execFloating(GObj *self)
         GetCylinderCollisionWithExceptOwnCollision(self, girlGObj, 70.700005f, 50.0f, 0.0f, 1.0f,
                                                    1);
         avoidCharGObj(self, girlGObj);
+#endif
     }
     GetRootPosition(pos, self);
     GetLowerPlaneCollision(&fw, pos);
@@ -1674,6 +1933,15 @@ static void execFloating(GObj *self)
         _ScaleVectorXYZ(GOBJ_SUB(self)->root.move, GOBJ_SUB(self)->root.move, 3.0f / _Sqrt(len));
     }
     /* the three water-probe heights are additions of a negative offset */
+#ifdef VERSION_JUN26
+    if (GetWaterReaction(w->waterHeight, &fw, pos, GOBJ_SUB(self)->root.move, pos[1] + -50.0f,
+                         pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
+                         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
+                             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) *
+                             3.0f) != 0) {
+        if (fw.pt[2][1] - 50.0f < pos[1]) {
+            pos[1] = fw.pt[2][1] - 50.0f;
+#else
     if (GetWaterReaction(w->waterHeight, &hit, &fw, pos, GOBJ_SUB(self)->root.move, pos[1] + -50.0f,
                          pos[1] + -25.0f, pos[1] + 50.0f, 0.9f,
                          60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * -0.1f *
@@ -1692,6 +1960,7 @@ static void execFloating(GObj *self)
         } else {
             pos[0] = w->floatAnchor[0];
             pos[2] = w->floatAnchor[2];
+#endif
         }
         memset(g, 0, 0x10);
         g[1] = -35.0f;
@@ -1725,7 +1994,7 @@ static void execFloating(GObj *self)
     GOBJ_SUB(self)->root.move[1] += GetTableSin(w->floatPhase) * 0.1f;
     w->floatPhase += 2048;
     w->charHit = 0;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     if (w->floatPhase == 0) {
         CopyVector(cw.pt[0], pos);
         cw.pt[0][1] = w->waterHeight[0];
@@ -1754,6 +2023,10 @@ static void initFloating(GObj *self)
     CopyVector(p->tiltVel, ZeroVector);
     GetRootPosition(p->lastPos, self);
     CopyVector(GOBJ_SUB(self)->ctrl.dir, floatInitFacing);
+#ifdef VERSION_JUN26
+    p->floatPhase = rand();
+    execFloating(self);
+#else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     p->floatPhase = rand();
 #else
@@ -1791,6 +2064,7 @@ static int _checkItemBreak(void *pos)
         }
     }
     return 1;
+#endif
 }
 
 static void initLanding(GObj *self)
@@ -1809,7 +2083,11 @@ static void initLanding(GObj *self)
 #ifdef VERSION_AUG6
     GOBJ_SUB(self)->ctrl.motion = 1085;
 #else
+#ifdef VERSION_JUN26
+    GOBJ_SUB(self)->ctrl.motion = 1164;
+#else
     GOBJ_SUB(self)->ctrl.motion = 1144;
+#endif
 #endif
 #endif
     if (p->wall.elem != 0) {
@@ -1821,7 +2099,9 @@ static void initLanding(GObj *self)
         sceVu0ScaleVectorXYZ(v, plane, -(d - 50.0f));
         AddVectorXYZ(pos, pos, v);
     }
+#ifndef VERSION_JUN26
     _checkItemBreak(pos);
+#endif
     GetMatrixFromQuaternionPos(p->mtx[0], GOBJ_SUB(self)->root.baseQuat, (char *)pos);
 }
 
@@ -1844,6 +2124,7 @@ static inline void playBoxAnimation(GObj *self, float *q) /* derived name */
     }
 }
 
+#ifndef VERSION_JUN26
 /* inlined once, into execFallDown */
 static inline void attackBoxFallCenter(GObj *self) /* derived name */
 {
@@ -1859,6 +2140,7 @@ static inline void attackBoxFallCenter(GObj *self) /* derived name */
         AttackCenter_WithDir(self, 17, pos, plane, 60.0f);
     }
 }
+#endif
 
 static void execFallDown(GObj *self)
 {
@@ -1874,7 +2156,9 @@ static void execFallDown(GObj *self)
         execBoxFall(self);
         break;
     }
+#ifndef VERSION_JUN26
     attackBoxFallCenter(self);
+#endif
     switch (checkFieldContact(self, 50.0f)) {
     case 1:
         initLanding(self);
@@ -1935,18 +2219,18 @@ static void action(GObj *self)
             _ApplyMatrix(GOBJ_SUB(self)->ctrl.dir, (void *)GOBJ_SUB(self)->nodeMtx, &v);
         }
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
 #endif
 #endif
         break;
     case 1:
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     case 6:
 #endif
         execAutoMove(self);
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
 #endif
 #endif
@@ -1958,7 +2242,7 @@ static void action(GObj *self)
     case 4:
         playBoxAnimation(self, v.f);
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
 #endif
 #endif
@@ -1969,7 +2253,7 @@ static void action(GObj *self)
     case -1:
     default:
         debug_StdPrintfDummy("box die!!!\n");
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         break;
 #else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
@@ -2049,6 +2333,44 @@ inline int CanHoldBox(GObj *self)
 }
 
 #ifndef VERSION_AUG6
+#ifdef VERSION_JUN26
+static int moveBoxAutoMatic(GObj *self, int dir)
+{
+    static float pushPlusZ[4] = {0.0f, 0.0f, 0.5f, 0.0f};   /* derived name */
+    static float pushMinusZ[4] = {0.0f, 0.0f, -0.5f, 0.0f}; /* derived name */
+    BoxWork *p = GOBJ_SUB(self)->work;
+    int r;
+
+    switch (dir) {
+    default:
+        p->friction = 0.85f;
+        AddVectorXYZ(p->vel, p->vel, ZeroVector);
+        break;
+    case 1:
+        p->friction = 0.98f;
+        AddVectorXYZ(p->vel, p->vel, pushPlusZ);
+        break;
+    case -1:
+        p->friction = 0.98f;
+        AddVectorXYZ(p->vel, p->vel, pushMinusZ);
+        break;
+    }
+    if (p->autoDir != dir) {
+        StopSEPackageWithGroupVariation(self, 1);
+    }
+    if (dir != 0) {
+        ExecuteSEPackageWithGroupVariation(self, 28, 1);
+    }
+    p->autoDir = dir;
+    if (onPath(self) != 0) {
+        CopyVector(p->vel, ZeroVector);
+    }
+    UpdateRootMatrix(self);
+    r = execNormalMove(self, 1);
+    UpdateRootMatrix(self);
+    return r;
+}
+#else
 static inline void setupClipWork(ClipWork *w, GObj *obj, float *dir, float len,
                                  float h) /* derived name */
 {
@@ -2060,17 +2382,18 @@ static inline void setupClipWork(ClipWork *w, GObj *obj, float *dir, float len,
     _AddVectorXYZ(w->pt[1], w->pt[0], t);
 }
 #endif
+#endif
 
 static inline int checkBoxStopWall(GObj *obj, float *dir) /* derived name */
 {
     ClipWork w;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     float t[4];
 #endif
     int r = 1;
 
     memset(&w, 0, 0xC0);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     _ScaleVector(t, dir, 145.0f);
     GetRootPosition(w.pt[0], obj);
     w.pt[0][1] += 40.0f;
@@ -2287,6 +2610,7 @@ static inline int checkCharGObjs(GObj *obj, GObj *holder, float *dir) /* derived
     return 1;
 }
 
+#ifndef VERSION_JUN26
 static int _checkItemCollision(void *pos)
 {
     float p[4];
@@ -2397,6 +2721,7 @@ static int moveBoxAutoMatic(GObj *self, int dir)
     UpdateRootMatrix(self);
     return r;
 }
+#endif
 
 int MoveBoxWithHoldPoint(GObj *self, float *holdPoint, GObj *holder, int focus, float *dir)
 {
@@ -2407,13 +2732,13 @@ int MoveBoxWithHoldPoint(GObj *self, float *holdPoint, GObj *holder, int focus, 
     float mv[4];
     BoxWork *q = GOBJ_SUB(self)->work;
     int idx;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int hit;
 #endif
     float dot;
     float dist;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     CopyVector(q->moveDir, dir);
 #endif
     GetBoxGlobalHoldPoint(hp, self, holdPoint);
@@ -2439,6 +2764,16 @@ int MoveBoxWithHoldPoint(GObj *self, float *holdPoint, GObj *holder, int focus, 
         if (onPath(self) != 0) {
             CopyVector(q->vel, ZeroVector);
         }
+#ifdef VERSION_JUN26
+    } else if (checkCharGObjs(self, holder, dir) && checkBoxStopWall(self, dir) &&
+               CheckGeneratorCollision(self, dir)) {
+        q->moveFrames = GetNbMotionFrames(GOBJ_SUB(holder)->ctrl.motion) - 1;
+        _ScaleVectorXYZ(q->vel, dir,
+                        100.0f / ((float)q->moveFrames * 2.0f) *
+                            (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])));
+
+        q->mode = 1;
+#else
         if (stage_no == 8) {
             if (q->serial == 0 && q->seStopped == 0) {
                 pushStartSE(self);
@@ -2491,6 +2826,7 @@ int MoveBoxWithHoldPoint(GObj *self, float *holdPoint, GObj *holder, int focus, 
             q->wall = GOBJ_SUB(holder)->root.cliffWall;
         }
 #endif
+#endif
     } else {
         return 0;
     }
@@ -2519,6 +2855,16 @@ inline int BoxRideFunc(ObjNode *node, GObj *rider)
     return 1;
 }
 
+#ifdef VERSION_JUN26
+void ExecBoxMoveStartReaction(GObj *self, int dir)
+{
+    if (dir >= 0) {
+        pushStartSE(self);
+    } else {
+        pullStartSE(self);
+    }
+}
+#else
 inline void ExecBoxMoveStartReaction(GObj *self, int dir)
 {
     BoxWork *q = GOBJ_SUB(self)->work;
@@ -2537,22 +2883,35 @@ inline void ExecBoxMoveStartReaction(GObj *self, int dir)
 end:
     q->moving = 1;
 }
+#endif
 
 inline void ExecBoxMoveEndReaction(GObj *self)
 {
     BoxWork *q = GOBJ_SUB(self)->work;
+#ifdef VERSION_JUN26
+
+    StopSEPackage(self);
+    ExecuteSEPackage(self, 20);
+    if (q->stopWall != 0) {
+        wallHitSE(self);
+        q->stopWall = 0;
+    }
+#else
     if (q->route == 0 || q->moving != 0) {
         stopBoxMoveSE(self);
     }
     q->moving = 0;
+#endif
 }
 
 void ReInitBoxGeo(GObj *self)
 {
     BoxWork *p = GOBJ_SUB(self)->work;
 
+#ifndef VERSION_JUN26
     debug_StdPrintfDummy("BOXREINIT\n");
     GOBJ_SUB(self)->colData = p->colData;
+#endif
     if (checkFieldContact(self, 100000.0f) == 0) {
         /* EUC-JP: "the box is placed where there is no ground; its behaviour cannot be guaranteed (is the box before the collision definition?)" */
         debug_StdPrintfDummy(
@@ -2566,11 +2925,15 @@ void ReInitBoxGeo(GObj *self)
             /* EUC-JP: "box initially placed on the water bottom" */
             debug_StdPrintfDummy("箱初期水底配置\n");
         } else {
+#ifdef VERSION_JUN26
+            execNormalMove(self, 1);
+#else
             p->mode = 0;
             AlignBox(self, 100.0f);
             execNormalMove(self, 1);
             /* EUC-JP: "box initially placed normally" */
             debug_StdPrintfDummy("箱初期通常配置\n");
+#endif
         }
     }
     UpdateRootMatrix(self);
@@ -2587,14 +2950,19 @@ BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
     BoxWork *w = iosMallocDebug(ios_partition_sugipon, 384, __FILE__, 1905);
     GObj *o;
 #else
+#ifdef VERSION_JUN26
+    BoxWork *w = iosMallocDebug(ios_partition_sugipon, 336, __FILE__, 1667);
+    GObj *o;
+#else
 #ifdef VERSION_NTSC
     BoxWork *w = iosMallocDebug(ios_partition_sugipon, 400, __FILE__, 1964);
 #else
-    BoxWork *w =
-        iosMallocDebug(ios_partition_sugipon, 416, __FILE__, LN(2017, 2003, 2003, 2017, 2017));
+    BoxWork *w = iosMallocDebug(ios_partition_sugipon, 416, __FILE__,
+                                LN(2017, 2003, 2003, 2017, 2017, 2017));
 #endif
     GObj *o;
     GObj *g;
+#endif
 #endif
     int sub;
 
@@ -2611,6 +2979,9 @@ BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
         ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x24))->f =
             ((IntFloat *)((char *)GOBJ_SUB(self)->nodes + 0x28))->f = 1.0f;
 
+#ifdef VERSION_JUN26
+    w->effectDObj = CSVSYSTEM_InitDObj(41, &InitialSObjSimpleSetting);
+#else
     w->colData = GOBJ_SUB(self)->colData;
 
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
@@ -2618,11 +2989,12 @@ BoxWork *InitBoxGeo(GObj *self, SObjSimpleSetting *lay)
 #else
     w->effectDObj = CSVSYSTEM_InitDObj(63, &InitialSObjSimpleSetting);
 #endif
+#endif
 
     w->route = lay->obj & 0xFFFF;
     GOBJ_SUB(self)->rideFunc = BoxRideFunc;
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 #ifdef VERSION_NTSC
     g = CreateLayoutedGObj(0, 59, -1, 0, lay, 0, 7, 0);
 #else

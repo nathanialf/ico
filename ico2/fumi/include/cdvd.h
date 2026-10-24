@@ -8,7 +8,7 @@
 #ifndef CDVD_H
 #define CDVD_H
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #include <libcdvd.h>
 
 struct InflateHandler;
@@ -73,8 +73,8 @@ struct IosCdvdHandle; /* the record ios/cdvd.c defines */
  * and the file's sector, the functions told when the disc goes away and
  * comes back with their argument, and the function that closes the request
  * with its argument. */
-typedef struct CdvdBgReq { /* field names derived */
-    char name[256];                                   /* 0x000 */
+typedef struct CdvdBgReq {                              /* field names derived */
+    char name[256];                                     /* 0x000 */
     int (*readFunc)(struct CdvdBgReq *self, void *arg); /* 0x100 */
     void *readArg;                                      /* 0x104 */
 
@@ -86,15 +86,15 @@ typedef struct CdvdBgReq { /* field names derived */
         unsigned int noPause : 1; /* a disc error does not stop the read */
     } flags;                      /* 0x108 */
 
-    int size;                                                     /* 0x10C */
-    int pos;                                                      /* 0x110 */
-    int lsn;                                                      /* 0x114 */
+    int size;                                                       /* 0x10C */
+    int pos;                                                        /* 0x110 */
+    int lsn;                                                        /* 0x114 */
     void (*readyFunc)(struct CdvdBgReq *self, void *arg, int flag); /* 0x118 */
     void (*resumeFunc)(struct CdvdBgReq *self, void *arg);          /* 0x11C */
     void *cbArg;                                                    /* 0x120 */
     int (*closeFunc)(struct CdvdBgReq *self, void *arg);            /* 0x124 */
     void *closeArg;                                                 /* 0x128 */
-} CdvdBgReq; /* derived name */
+} CdvdBgReq;                                                        /* derived name */
 
 /* One entry of the directory cache iosCdvdMgrSearchFile fills: the file's
    sector and size and its disc name. */
@@ -113,9 +113,11 @@ extern CdSrhEnt iosCdvdSrhBuff[];
 extern int IosCdvdMgrSleep;
 extern int iosCdvdMediaType;
 extern int iosCdvdBackGroundMgrRunning;
+
 #ifndef VERSION_AUG6
 extern int iosCdvdStDelayCnt;
 #endif
+
 extern float inflateSec;
 long long inflate_cd_read_func(void *buf, long long size, void *handle);
 
@@ -147,7 +149,7 @@ typedef struct {  /* field names derived */
     char ext[32]; /* 0x00 */
     void (*func)(struct IosCdvdHandle *self, char *name, int size, int id, int kind, int word08,
                  int seg); /* 0x20 */
-} PackKind; /* derived name */
+} PackKind;                /* derived name */
 
 extern const PackKind initFunc[]; /* 26 rows */
 

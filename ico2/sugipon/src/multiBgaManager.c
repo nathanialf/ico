@@ -24,7 +24,7 @@ static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos,
     BgaDisp *p = &bga[no];
 
     p->kind = kind;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     p->stay = 0;
 #endif
     CopyVector(p->pos, pos);
@@ -58,7 +58,7 @@ void EntryMultiBgaManagerSensitive(BgaDisp *bga, int no, int kind, void *pos, vo
     BgaDisp *p = &bga[no];
 
     p->kind = kind;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     p->stay = 0;
 #endif
     CopyVector(p->pos, pos);

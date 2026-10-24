@@ -19,26 +19,35 @@ struct IosPadStick;
 /* act.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void actInitialize_geo(void *self);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void actInitialize_only_charcter(char *self);
 #endif
+
 int ACTReserveTarget(struct GObj *self, void *arg, int mail);
 void _ACTRun(int n);
 void _ACTWait(int frames);
+
+#ifdef VERSION_JUN26
+inline struct GProc *actCreateSubThread(void (*fn)(), int pri);
+#else
 struct GProc *actCreateSubThreadGOppArg(void (*fn)(), int pri);
+#endif
+
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 inline struct GProc *actCreateSubThread(void (*fn)(), int pri);
 #endif
+
 void actSetInterrupt(char *self, int val);
 void ConvertStickToAbsCoord(void *out, struct IosPadStick *stick);
 void ActSetStartBrainStatus(struct GObj *self, int status);
 void actWaitCondition(int value, int mask);
-
 void ACTDebugMove(struct GObj *self, int a1);
 void actChangeActBrain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actChangeActMain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actCreateMotionThread(void (*fn)(), int pri, struct GProc **slot);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 struct Act *actInitialize(struct GObj *self);
 void actInitialize_ext_charcter(struct GObj *self);
 #else
@@ -60,10 +69,10 @@ typedef struct { /* field names derived */
         int word8;     /* +0x08 */
     } ent[3];          /* 0x00, one per actor kind (Act+0x48) */
 
-    char name[32];      /* 0x24, the debug name */
-#ifdef VERSION_AUG6
-    int mail;           /* 0x44, ACTSendMailCorrect's mail */
-    int intrList;       /* 0x48, the first actIntrList row */
+    char name[32]; /* 0x24, the debug name */
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+    int mail;     /* 0x44, ACTSendMailCorrect's mail */
+    int intrList; /* 0x48, the first actIntrList row */
     /* 0x4C, the mode's flag bits */
     unsigned int escort : 1;     /* bit 0, an escort status */
     unsigned int holdDir : 1;    /* bit 1, BeforeFunc copies it to Act flags18 bit 45 */
@@ -77,32 +86,32 @@ typedef struct { /* field names derived */
     unsigned int : 23;
 #else
 #ifdef VERSION_NTSC
-    int mail;           /* 0x44, ACTSendMailCorrect's mail */
-    int intrList;       /* 0x48, the first actIntrList row */
+    int mail;     /* 0x44, ACTSendMailCorrect's mail */
+    int intrList; /* 0x48, the first actIntrList row */
     /* 0x4C, the mode's flag bits; a bit with no reader is named by its place */
-    unsigned int escort : 1;   /* bit 0, an escort status (IsGirlStatusEscortEnable) */
-    unsigned int holdDir : 1;  /* bit 1, Act flags18 bit 45: the stick does not turn the boy */
+    unsigned int escort : 1;     /* bit 0, an escort status (IsGirlStatusEscortEnable) */
+    unsigned int holdDir : 1;    /* bit 1, Act flags18 bit 45: the stick does not turn the boy */
     unsigned int skipMarked : 1; /* bit 2, the flagged mail lists are skipped */
-    unsigned int saveInfo : 1; /* bit 3, ACTGame_SaveActorInformation saves the position */
-    unsigned int bit4 : 1;     /* bit 4, nothing in September reads it */
-    unsigned int softIk : 1; /* bit 5, the girl's soft IK rate */
-    unsigned int pullUp : 1;   /* bit 6, handoff_heroin does not let the girl go */
-    unsigned int keepHand : 1; /* bit 7, actCommonBecarry: the boy keeps the girl's hand */
-    unsigned int stopMail : 1; /* bit 8, a stopped enemy without the girl mails 242 */
-    unsigned int onChain : 1;  /* bit 9, ACTGame_isHangChain */
-    unsigned int bit10 : 1;    /* bit 10, nothing in September reads it */
-    unsigned int carried : 1;  /* bit 11, actCommonBecarry ends the girl's carry */
-    unsigned int bit12 : 1;    /* bits 12-14, set in no mode and read by nothing */
+    unsigned int saveInfo : 1;   /* bit 3, ACTGame_SaveActorInformation saves the position */
+    unsigned int bit4 : 1;       /* bit 4, nothing in September reads it */
+    unsigned int softIk : 1;     /* bit 5, the girl's soft IK rate */
+    unsigned int pullUp : 1;     /* bit 6, handoff_heroin does not let the girl go */
+    unsigned int keepHand : 1;   /* bit 7, actCommonBecarry: the boy keeps the girl's hand */
+    unsigned int stopMail : 1;   /* bit 8, a stopped enemy without the girl mails 242 */
+    unsigned int onChain : 1;    /* bit 9, ACTGame_isHangChain */
+    unsigned int bit10 : 1;      /* bit 10, nothing in September reads it */
+    unsigned int carried : 1;    /* bit 11, actCommonBecarry ends the girl's carry */
+    unsigned int bit12 : 1;      /* bits 12-14, set in no mode and read by nothing */
     unsigned int bit13 : 1;
 #else
-    int intrList;       /* 0x44, the first actIntrList row */
-    int mail;           /* 0x48, ACTSendMailCorrect's mail */
+    int intrList; /* 0x44, the first actIntrList row */
+    int mail;     /* 0x48, ACTSendMailCorrect's mail */
     /* 0x4C, the mode's flag bits */
-    unsigned int carried : 1;  /* bit 0, the girl is carried */
+    unsigned int carried : 1; /* bit 0, the girl is carried */
     unsigned int bit1 : 1;
-    unsigned int onChain : 1;  /* bit 2, ACTGame_isHangChain */
+    unsigned int onChain : 1;     /* bit 2, ACTGame_isHangChain */
     unsigned int attractWait : 1; /* bit 3, the girl holds an attract turn 10 s */
-    unsigned int hintCount : 1; /* bit 4, the girl counts hint frames */
+    unsigned int hintCount : 1;   /* bit 4, the girl counts hint frames */
     unsigned int bit5 : 1;
     unsigned int keepHand : 1; /* bit 6, the boy keeps the girl's hand */
     unsigned int bit7 : 1;
@@ -117,6 +126,7 @@ typedef struct { /* field names derived */
     unsigned int : 17;
 #endif
 } ActModeRec; /* derived name */
+
 extern const ActModeRec actModeTbl[];
 
 /* act-intrlist: one actor mail entry, 0x18 bytes; lists end at the entry
@@ -131,7 +141,8 @@ typedef struct IntrMail {                           /* field names derived */
     unsigned short kind;                            /* 0x10, the mail id */
     short mode;                                     /* 0x12, the act mode it switches to */
     unsigned int flags;                             /* 0x14, bit 18: entry live */
-} IntrMail; /* derived name */
+} IntrMail;                                         /* derived name */
+
 extern IntrMail actIntrList[];
 
 #endif /* ACT_H */

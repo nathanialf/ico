@@ -103,10 +103,22 @@ static void dispClothes(GObj *gobj)
     }
 }
 #else
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static void setGirlClothSetting(int lv);
 #endif
 
+#ifdef VERSION_JUN26
+/* The girl's work record: her kind and the four cloths she wears.  The cloth
+   pointers are held as words: InitGirlGeo's zero stores to them keep their
+   order against the record's other int stores only as int stores. */
+typedef struct GirlWork { /* field names derived */
+    int kind;             /* 0x00, the layout's 0x30 word */
+    int cloth0;           /* 0x04, a Cloth4D */
+    int cloth1;           /* 0x08, a Cloth4D */
+    int cloth2;           /* 0x0C, a Cloth4D */
+    int cloth3;           /* 0x10, a Cloth4D */
+} GirlWork;               /* derived name */
+#else
 /* The girl's work record: her kind, the four cloths and the hair she wears
    with the switches SetGirlClothDispSwitch sets (case 0 for cloth0, 1 for
    cloth1, cloth2 and the hair, 2 for cloth3), the crown and the two
@@ -120,7 +132,7 @@ typedef struct GirlWork { /* field names derived */
     int cloth12Disp;      /* 0x0C */
     int cloth1;           /* 0x10, a Cloth4D */
     int cloth2;           /* 0x14, a Cloth4D */
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int cloth3Disp; /* 0x18 */
     int cloth3;     /* 0x1C, a Cloth4D */
 #else
@@ -137,7 +149,29 @@ typedef struct GirlWork { /* field names derived */
     int hint2Played;  /* 0x40 */
 #endif
 } GirlWork; /* derived name */
+#endif
 
+#ifdef VERSION_JUN26
+/* file-static: boy.c has a global function of the same name */
+static void execClothes(GObj *gobj)
+{
+    GirlWork *w;
+
+    w = GOBJ_SUB(gobj)->work;
+    if ((void *)w->cloth1 != 0) {
+        GetCloth4D((void *)w->cloth1, 4.0f, 0.98f);
+    }
+    if ((void *)w->cloth0 != 0) {
+        GetCloth4D((void *)w->cloth0, 3.0f, 0.98f);
+    }
+    if ((void *)w->cloth2 != 0) {
+        GetCloth4D((void *)w->cloth2, 4.0f, 0.98f);
+    }
+    if ((void *)w->cloth3 != 0) {
+        GetCloth4D((void *)w->cloth3, 4.0f, 0.98f);
+    }
+}
+#else
 /* file-static: boy.c has a global function of the same name */
 static void execClothes(GObj *gobj)
 {
@@ -225,6 +259,7 @@ static void dispCrown(GObj *gobj, Sub15C *acc)
     }
 }
 #endif
+#endif
 
 /* file-static: boy.c has a global function of the same name */
 static void dispClothes(GObj *gobj)
@@ -236,6 +271,19 @@ static void dispClothes(GObj *gobj)
     w = GOBJ_SUB(gobj)->work;
     x = (char *)GOBJ_SUB(gobj)->lightMtx;
     y = x + 0x40;
+#ifdef VERSION_JUN26
+    if (w->cloth1 != 0) {
+        DispCloth4D((void *)w->cloth1, y, x);
+    }
+    if (w->cloth0 != 0) {
+        DispCloth4D((void *)w->cloth0, y, x);
+    }
+    if (w->cloth2 != 0) {
+        DispCloth4D((void *)w->cloth2, y, x);
+    }
+    if (w->cloth3 != 0) {
+        DispCloth4D((void *)w->cloth3, y, x);
+#else
 #ifdef VERSION_AUG6
     if (w->cloth12Disp != 0) {
         if (w->cloth1 != 0) {
@@ -288,6 +336,7 @@ static void dispClothes(GObj *gobj)
         if (w->cloth3 != 0) {
             DispCloth4D((void *)w->cloth3, y, x);
         }
+#endif
     }
 }
 #endif
@@ -666,7 +715,7 @@ static Cloth4DCol clothMeshF8Cols[21] = {
 
 static Cloth4DCol clothMeshF10Cols[15];
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static Cloth4DCfg clothMeshF10 = {
     15, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "g_hair9", clothMeshF10Cols, 10.676f, 0,
 }; /* derived name */
@@ -694,7 +743,7 @@ static float clothMeshF10Uv[15][5][2] = {
     {{0.86f, 0.691f}, {0.835f, 0.519f}, {0.809f, 0.347f}, {0.784f, 0.176f}, {0.759f, 0.004f}},
 }; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static Cloth4DCol clothMeshF10Cols[15] = {
     {2.887f,
      {0},
@@ -1365,7 +1414,7 @@ static float clothMeshF20Uv[13][5][2] = {
     {{0.135f, 0.135f}, {0.136f, 0.116f}, {0.137f, 0.097f}, {0.137f, 0.078f}, {0.138f, 0.06f}},
 }; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static Cloth4DCol clothMeshF20Cols[13] = {
     {0.662f,
      {0},
@@ -2680,7 +2729,7 @@ static ClothHangCfg clothHangF8[3] = {
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static ClothHangCfg clothHangF10[3] = {
     {1, -3.0f, 15.0f, 10.0f, 35, {0}, 0.0f, 2.0f, {0}, 1.0f, -1.0f, {0}},
     {1, -5.0f, 8.0f, 5.0f, 34, {0}, 0.0f, 0.0f, {0}, 1.0f, -1.0f, {0}},
@@ -2704,7 +2753,7 @@ static ClothHangCfg clothHangF20[2] = {
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* the three cloth and hair setters */
 inline void SetGirlClothDispSwitch(GObj *gobj, int part, int on)
 {
@@ -2768,18 +2817,18 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     int kind;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(GirlWork), __FILE__,
-                       LN(680, 680, 680, 680, 680));
+                       LN(680, 680, 680, 680, 680, 680));
     kind = csv->obj;
     w->cloth3 = 0;
 #else
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int p;
 #endif
     int kind;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(GirlWork), __FILE__,
-                       LN(892, 892, 892, 892, 674));
-#ifdef VERSION_AUG6
+                       LN(892, 892, 892, 892, 674, 617));
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     kind = csv->obj;
     w->cloth3 = 0;
 #else
@@ -2816,6 +2865,12 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
         w->cloth1 = (int)InitCloth4D(gobj, &clothMeshF10, clothHangF10);
         w->cloth0 = (int)InitCloth4D(gobj, &clothMeshF8, clothHangF8);
         w->cloth2 = (int)InitCloth4D(gobj, &clothMeshF14, clothHangF10);
+#ifdef VERSION_JUN26
+        w->cloth3 = (int)InitCloth4D(gobj, &clothMeshF20, clothHangF20);
+        break;
+    }
+    InitMotionOrient(gobj, 1207, 1772, 12, 24, 521);
+#else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         w->cloth3 = (int)InitCloth4D(gobj, &clothMeshF20, clothHangF20);
 #else
@@ -2837,6 +2892,7 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     InitMotionOrient(gobj, 1195, 1797, 12, 24, 514);
 #else
     InitMotionOrient(gobj, 1283, 2122, 12, 24, 532);
+#endif
 #endif
 #endif
     SetLodLevel(gobj, 2);
@@ -2863,7 +2919,11 @@ void GirlGeo(GObj *gobj)
 #ifdef VERSION_AUG6
     SetActressLight(gobj, 35, 44, 406);
 #else
+#ifdef VERSION_JUN26
+    SetActressLight(gobj, 35, 44, 372);
+#else
     SetActressLight(gobj, 35, 44, 470);
+#endif
 #endif
 #endif
 #endif
@@ -2889,7 +2949,7 @@ void GirlGeo(GObj *gobj)
         }
     }
     execClothes(gobj);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 }
 
 void GirlAI(GObj *gobj)
@@ -3005,6 +3065,10 @@ inline void SetGirlClothDispSwitch(GObj *gobj, int part, int on)
         break;
     }
 }
+#endif
+
+#ifdef VERSION_JUN26
+void GirlAI(GObj *gobj) {}
 #endif
 
 #ifdef VERSION_AUG6

@@ -21,7 +21,7 @@ typedef struct AdpcmOpenReq { /* field names derived */
     int iopBuf;               /* 0x0C */
     int loopNum;              /* 0x10 */
     struct CdvdBgReq *bg;     /* 0x14, the background loader handle */
-} AdpcmOpenReq; /* derived name */
+} AdpcmOpenReq;               /* derived name */
 
 struct AdpcmStreamTag;
 
@@ -36,7 +36,7 @@ typedef struct { /* field names derived */
     int iopSize; /* 0x0C */
     int spuAddr; /* 0x10 */
     int vol;     /* 0x14 */
-} AdpcmChReq; /* derived name */
+} AdpcmChReq;    /* derived name */
 
 typedef struct AdpcmStreamTag { /* field names derived */
     int used;                   /* 0x00 */
@@ -63,6 +63,12 @@ typedef struct AdpcmStreamTag { /* field names derived */
     char pad54[4];
 } AdpcmStream; /* derived name */
 
+#ifdef VERSION_JUN26
+void AdpcmStreamInit(void);
+int AdpcmIopBuffAlloc(void);
+void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum);
+struct SqEntry *AdpcmOpenSync(AdpcmOpenReq *self);
+#else
 #ifdef VERSION_AUG6
 void AdpcmStreamInit(void);
 int AdpcmIopBuffAlloc(void);
@@ -72,16 +78,23 @@ void AdpcmStreamInit(void);
 int AdpcmIopBuffAlloc(void);
 int AdpcmNotUseIopAreaFree(void);
 #endif
+
 struct SqEntry *AdpcmOpenSync(AdpcmOpenReq *self);
 void AdpcmFadeCloseAll(short step);
 int AdpcmUseAreaGet(void);
 int AdpcmFreeAreaGet(void);
+#endif
+
 void AdpcmInterStereoVolumeSetAll(void);
 short AdpcmInterLeaveVolumeGet(struct SqEntry *self, int idx);
 inline short AdpcmVolumeGet(struct SqEntry *self);
 inline int adpcmTickProc(struct CdvdBgReq *self, struct SqEntry *obj);
 void AdpcmInterStereoVolumeSet(void *stream, int ch);
+
+#ifndef VERSION_JUN26
 void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum);
+#endif
+
 void AdpcmClose(struct SqEntry *obj);
 void AdpcmPlay(AdpcmStream *self);
 void AdpcmVolumeSet(struct SqEntry *self, int vol);
@@ -89,7 +102,8 @@ struct SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int io
 void adpcmTickProc2(struct SqEntry *obj);
 /* adpcm_init.o's .sdata global */
 extern int debugAdpcmOn;
-#ifndef VERSION_AUG6
+
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void AdpcmStreamFree(void);
 #endif
 

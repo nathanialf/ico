@@ -158,7 +158,7 @@ void queen_barrier_disp_proc(GObj *g, float k)
 
     setGsReg(0x4C, ((long long)((ScreenWidth >> 6) & 0x3F) << 16) | 64);
     setGsReg(0x40, ((long long)(ScreenWidth - 1) << 16) | ((long long)(ScreenHeight - 1) << 48));
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     setGsReg(0x18, ((2048LL - ScreenWidth / 2) << 4) | (((2048LL - ScreenHeight / 2) << 4) << 32));
 #else
     setGsReg(0x18, (((long long)(2048 - ScreenWidth / 2) << 4) + screenOffsetX) |

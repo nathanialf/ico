@@ -111,8 +111,9 @@ void MakeCollisionDependGObjList(void)
         }
     }
     if (colObjListNum >= 0x100) {
-        debug_assertMessage(__FILE__, 533, "TOO MANY COLLISION DEPEND GOBJS\n");
-        __assert(__FILE__, 533, "e");
+        debug_assertMessage(__FILE__, LN(533, 533, 533, 533, 533, 523),
+                            "TOO MANY COLLISION DEPEND GOBJS\n");
+        __assert(__FILE__, LN(533, 533, 533, 533, 533, 523), "e");
     }
     /* a debug dump of the list, compiled out of the retail build; its label
      * table and format stay in the data */
@@ -181,15 +182,21 @@ static int clip_wall_1(ClipWork *ray, FcWallEnt *wall, int flip, int useh)
     float nx;
     float nz;
     float mx;
+#ifndef VERSION_JUN26
     float ex;
     float ez;
     float ds;
+#endif
     float hh;
     float t1;
     float t2;
+#ifdef VERSION_JUN26
+    float *n;
+#else
     float sz;
     float *n;
     int far;
+#endif
 
     h = 0.0f;
     if (useh) {
@@ -221,15 +228,21 @@ static int clip_wall_1(ClipWork *ray, FcWallEnt *wall, int flip, int useh)
     d[0] = ray->pt[0][0] - e->pt[0][0];
     d[1] = ray->pt[0][1];
     d[2] = ray->pt[0][2] - e->pt[0][2];
+#ifndef VERSION_JUN26
     /* the wall origin is taken after the subtraction that reads it */
     ex = e->pt[0][0];
     ez = e->pt[0][2];
+#endif
     pa[2] = d[0] * nx + d[2] * nz;
     if (flip) {
         pa[2] = -pa[2];
     }
+#ifdef VERSION_JUN26
+    if (pa[2] <= 0.0f) {
+#else
     ds = pa[2];
     if (ds <= 0.0f) {
+#endif
         return 0;
     }
     pa[0] = d[0] * nz - d[2] * nx;
@@ -237,12 +250,18 @@ static int clip_wall_1(ClipWork *ray, FcWallEnt *wall, int flip, int useh)
     if (pa[0] < lo && pb[0] < lo) {
         return 0;
     }
+#ifndef VERSION_JUN26
     /* a second read of pa[2], into its own variable */
     sz = pa[2];
+#endif
     if (hi < pa[0] && hi < pb[0]) {
         return 0;
     }
+#ifdef VERSION_JUN26
+    if (FcAbsF(pb[2] - pa[2]) < 1.0f) {
+#else
     if (FcAbsF(pb[2] - sz) < 1.0f) {
+#endif
         if (ray->slideCount > 0) {
             pc[0] = pb[0];
             pc[1] = pb[1];
@@ -254,7 +273,11 @@ static int clip_wall_1(ClipWork *ray, FcWallEnt *wall, int flip, int useh)
             } else {
                 pc[1] = (pb[1] - pa[1]) * (lo - pa[0]) / (pb[0] - pa[0]) + pa[1];
             }
+#ifdef VERSION_JUN26
+            pb[2] = pa[2];
+#else
             pb[2] = sz;
+#endif
         } else if (e->height < pa[0]) {
             pc[0] = hi;
             if (FcAbsF(pb[0] - pa[0]) < 5.0f) {
@@ -262,7 +285,11 @@ static int clip_wall_1(ClipWork *ray, FcWallEnt *wall, int flip, int useh)
             } else {
                 pc[1] = (pb[1] - pa[1]) * (hi - pa[0]) / (pb[0] - pa[0]) + pa[1];
             }
+#ifdef VERSION_JUN26
+            pb[2] = pa[2];
+#else
             pb[2] = sz;
+#endif
         } else {
             pc[0] = pa[0];
             pc[1] = pa[1];
@@ -272,23 +299,38 @@ static int clip_wall_1(ClipWork *ray, FcWallEnt *wall, int flip, int useh)
         pb[1] = pc[1];
         ray->slideCount++;
     } else {
+#ifdef VERSION_JUN26
+        if (pa[2] < ray->radius) {
+            hh = pa[2];
+#else
         far = 25.0f < distance_squared_xz(pa, pb);
         if (ds < ray->radius) {
             hh = ds;
+#endif
             ray->slideCount++;
         } else {
             hh = ray->radius;
         }
+#ifdef VERSION_JUN26
+        if (pa[0] != pb[0] && 5.0f < _GetLengthXZ(pa, pb)) {
+            pc[0] = (pb[0] - pa[0]) * (pa[2] - hh) / FcAbsF(pb[2] - pa[2]) + pa[0];
+#else
         if (pa[0] != pb[0] && far != 0) {
             pc[0] = (pb[0] - pa[0]) * (ds - hh) / FcAbsF(pb[2] - sz) + pa[0];
+#endif
         } else {
             pc[0] = pa[0];
         }
         if (pc[0] < lo || hi < pc[0]) {
             return 0;
         }
+#ifdef VERSION_JUN26
+        if (pa[1] != pb[1] && 5.0f < _GetLengthXZ(pa, pb)) {
+            pc[1] = (pb[1] - pa[1]) * (pa[2] - hh) / FcAbsF(pb[2] - pa[2]) + pa[1];
+#else
         if (pa[1] != pb[1] && far != 0) {
             pc[1] = (pb[1] - pa[1]) * (ds - hh) / FcAbsF(pb[2] - sz) + pa[1];
+#endif
         } else {
             pc[1] = pa[1];
         }
@@ -314,8 +356,13 @@ static int clip_wall_1(ClipWork *ray, FcWallEnt *wall, int flip, int useh)
     t2 = pb[0] * nz - pb[2] * mx;
     out[1] = pb[1];
     t1 = pb[0] * mx + pb[2] * nz;
+#ifdef VERSION_JUN26
+    out[0] = t2 + e->pt[0][0];
+    out[2] = t1 + e->pt[0][2];
+#else
     out[0] = t2 + ex;
     out[2] = t1 + ez;
+#endif
     sceVu0CopyVector((int *)ray->pt[2], (int *)out);
     return 1;
 }
@@ -421,7 +468,7 @@ inline void ResetCollisionPC(void)
 
 void DispCollisionPC(void)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (graphics_ready == 0) {
 #else
     if (game_pause == 0) {
@@ -1124,6 +1171,16 @@ static inline void __ClipFloorWithDrawRay(ClipWork *w, int mode)
     gif_EndPacket();
 }
 
+#ifdef VERSION_JUN26
+/* the wall clip with collision_pick set around it; the work record is the
+   caller's, passed straight through */
+inline void ClipWallRD(ClipWork *work)
+{
+    collision_pick = 1;
+    ClipWall(work);
+    collision_pick = 0;
+}
+#else
 inline void ClipWallRD(void)
 {
     collision_pick = 1;
@@ -1132,10 +1189,19 @@ inline void ClipWallRD(void)
     ((void (*)(void))ClipWall)();
     collision_pick = 0;
 }
+#endif
 
+#ifdef VERSION_JUN26
+/* global in this build: debug.c's debug_CollisionTest calls it ($gp) */
+void (*clipWallFunc)(ClipWork *work, int mode) = __ClipWall; /* derived name */
+
+/* global in this build: the ClipFloor callers load it ($gp) */
+void (*clipFloorFunc)(ClipWork *work, int mode) = __ClipFloor; /* derived name */
+#else
 static void (*clipWallFunc)(ClipWork *work, int mode) = __ClipWall; /* derived name */
 
 static void (*clipFloorFunc)(ClipWork *work, int mode) = __ClipFloor; /* derived name */
+#endif
 
 inline int ChangeFieldCollisionDebugMode(int drawRay)
 {
@@ -1148,6 +1214,14 @@ inline int ChangeFieldCollisionDebugMode(int drawRay)
     return 0;
 }
 
+#ifdef VERSION_JUN26
+/* sets the object filter the callback clip modes test; nothing in this build
+   calls it */
+inline void SetCollisionFilter(int (*filter)(void *obj)) /* derived name */
+{
+    colFilter = filter;
+}
+#else
 inline void ClipWallDebug(ClipWork *work)
 {
     clipWallFunc(work, 0);
@@ -1235,6 +1309,7 @@ inline void ClipFloorCheckCB(ClipWork *work, int filter)
     colFilter = (int (*)(void *))filter;
     clipFloorFunc(work, 0x10);
 }
+#endif
 
 inline void *ClipWallVector(float *start, float *end)
 {
@@ -1363,7 +1438,9 @@ static FcColor wallRimColorExit = {0, 25, 19, 32}; /* derived name */
 
 static FcColor wallRimColorExit1 = {25, 0, 19, 32}; /* derived name */
 
+#ifndef VERSION_JUN26
 static float unitMatrix[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0}; /* derived name */
+#endif
 
 typedef struct { /* field names derived */
     char pad0[8];
@@ -1600,8 +1677,8 @@ int GetEdgeOfFloor(float *out, FcFloorEnt *e, float *p1, float *p2)
             }
             debug_StdPrintfDummy("%02d: src:%8f dst:%8f\n", i, g1, g2);
         }
-        debug_assert(__FILE__, 2006);
-        __assert(__FILE__, 2006, "0");
+        debug_assert(__FILE__, LN(2006, 2006, 2006, 2006, 2006, 1975));
+        __assert(__FILE__, LN(2006, 2006, 2006, 2006, 2006, 1975), "0");
     }
     return i;
 }
@@ -1768,6 +1845,7 @@ inline int PositionOfExit(float *pos, int attr)
     return 1;
 }
 
+#ifndef VERSION_JUN26
 void ClipFloorByGObj(ClipWork *p, GObj *gobj)
 {
     float buf0[4];
@@ -1824,3 +1902,4 @@ void ClipFloorByGObj(ClipWork *p, GObj *gobj)
     sceVu0CopyVector(p->pt[0], buf0);
     sceVu0CopyVector(p->pt[1], buf1);
 }
+#endif

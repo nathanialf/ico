@@ -23,6 +23,11 @@ typedef struct GirlForceFieldWork { /* field names derived */
    in; nothing reads it */
 static int forceFieldColor[4] = {64, 96, 128, 128}; /* derived name */
 
+#ifdef VERSION_JUN26
+/* a unit vector along -x after the colour; nothing reads it */
+static float forceFieldAxis[4] = {-1.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
+#endif
+
 inline GirlForceFieldWork *InitGirlForceFieldGeo(GObj *self, SObjSimpleSetting *param)
 {
     GirlForceFieldWork *w = (GirlForceFieldWork *)iosMallocDebug(

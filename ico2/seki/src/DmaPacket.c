@@ -11,12 +11,19 @@ int used_dma_memory = 0;
 void dpk_Init(void)
 {
     PacketBufferStruct.cur = 0;
+#ifdef VERSION_JUN26
+    PacketBufferStruct.buf[0] =
+        (int *)iosMallocDebug(ios_partition_common, 524288, "src/DmaPacket.c", 126);
+    PacketBufferStruct.buf[1] =
+        (int *)iosMallocDebug(ios_partition_common, 524288, "src/DmaPacket.c", 127);
+#else
     PacketBufferStruct.buf[0] =
         (int *)((int)iosMallocDebug(ios_partition_common, 524288, "src/DmaPacket.c", 134) |
                 0x30000000);
     PacketBufferStruct.buf[1] =
         (int *)((int)iosMallocDebug(ios_partition_common, 524288, "src/DmaPacket.c", 135) |
                 0x30000000);
+#endif
     PacketBufferStruct.ptr.i = PacketBufferStruct.buf[PacketBufferStruct.cur];
 }
 

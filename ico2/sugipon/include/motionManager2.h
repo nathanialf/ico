@@ -25,8 +25,12 @@ struct StreamShapeHdr;
 #include "typedef.h"
 
 int AdjustMotionHeightToNearestField(GObj *self);
+
+#ifndef VERSION_JUN26
 void AdjustRootPositionToVerticalSidePlaneOfWall(void *self, void *wall, float dist);
 void AdjustVerticalSidePlaneOfWall(float *out, WallCfg *cfg, float *pos, float t);
+#endif
+
 int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim);
 /* the GObj and the attribute mask (act_bird.c passes 0x40 and 0x50;
    boyact, script, a_p_1 and frameDependSequence do the same) */
@@ -63,14 +67,18 @@ int GetMotionFrameFlag1(GObj *self);
 int GetMotionFrameFlag2(GObj *self);
 void GetOrientOfCliffOfGObj(float *dir, GObj *obj);
 int GetPureVerticalPlane(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg, int flip);
+
 int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
                                           int flip, float *pos);
+
 void GetRootProjectionPosOfGObj(float *pos, GObj *obj);
 int GetSkeltonFocusNode(GObj *self, int focus);
 int GetStreamMotion(StreamElem *dst, float *out, char *node, SkelNode *skel);
 int GetStreamShapeMotion(float *dst, struct StreamShapeHdr *hdr);
+
 void InitMotionGeoInfo(struct MotRoot *self, float x, float y, float z, float rx, float ry,
                        float rz);
+
 void InitMotionRotElem(int *elem, int count);
 void InitMotionStateInfo(struct MotCtrl *self);
 void LockForceGroundParent(GObj *gobj);
@@ -89,19 +97,31 @@ void _GetMotionDirection(float *dir, GObj *obj);
 void _getMotion(void *dst, void *m, int node, int frame);
 void _getS16MotRotElem(void *dst, void *src);
 void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n);
+
 void CopyMotionWithNodeHrc(struct StreamElem *dst, struct StreamElem *src, SkelNode *hrc, int node,
                            int flag);
+
 void GetFloatingShapeMotion(float *dst, char *m, float t, int count);
 void GetFloatingMotionRootPos(float *dst, void *m, float t);
 void GetOutOutsideOfWall(GObj *obj, float threshold);
-int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel,
-                     float h0, float h1, float h2, float scaleIn, float amp);
+
+#ifdef VERSION_JUN26
+/* this build's has no outFlag (the demo's body reads a0..a3 only) */
+int GetWaterReaction(float *outH, ClipWork *info, float *pos, float *vel, float h0, float h1,
+                     float h2, float scaleIn, float amp);
+#else
+int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel, float h0,
+                     float h1, float h2, float scaleIn, float amp);
+#endif
+
 void dispPlane(Vec4 *plane, float *pos);
 void GetOrientOfWallOfGObj(float *dir, GObj *obj);
 void GetRootPosOfNextFrame(float *pos, GObj *obj);
 void AdjustMotionHeightToField(GObj *obj);
+
 void GetFloatingMotion(struct StreamElem *dst, float t, float *root, void *motion, int count,
                        unsigned char *mask, SkelNode *hrc);
+
 void MakeMirrorMotion(struct StreamElem *a, SkelNode *b);
 void *GetMotionPointer(GObj *self);
 int GetCollisionOfLastActiveField(GObj *self);
@@ -109,11 +129,16 @@ float GetRopeHangablePos(GObj *self);
 float GetHeightOfWallFromGObj(GObj *self);
 float GetHeightOfCliffFromGObj(GObj *self);
 void GetMotionRootPos(float *dst, void *motion, int idx);
+
 void GetMotion(char *dst, float *root, void *motion, int idx, unsigned char *mask, int count,
                SkelNode *hrc);
+
 void GetShapeMotion(float *dst, char *motion, int idx, int count);
 void fitYToPlane(long long *src, float *dest);
 void GetBlendedMotionRootPos(float *dst, float *a, float *b, float t);
+
+#ifndef VERSION_JUN26
 void _getMotRotElem(char *dst, char *src);
+#endif
 
 #endif /* MOTIONMANAGER2_H */

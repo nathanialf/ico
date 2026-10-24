@@ -211,7 +211,7 @@ int _getLine(float *o1, float *o2, float *from, float *to)
 
     if (sortByX(o1, o2))
         rev = !rev;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (2048.0f + currentScreenWidth * 0.5f <= o1[0])
         return -1;
     if (o2[0] <= 2048.0f - currentScreenWidth * 0.5f)
@@ -233,7 +233,7 @@ int _getLine(float *o1, float *o2, float *from, float *to)
 
     if (sortByY(o1, o2))
         rev = !rev;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (2048.0f + currentScreenHeight * 0.5f <= o1[1])
         return -1;
     if (o2[1] <= 2048.0f - currentScreenHeight * 0.5f)

@@ -67,14 +67,14 @@ typedef struct EnemyBattleWork { /* field names derived */
     int liftLevel;    /* 0xCC */
     int floorAttrOff; /* 0xD0 */
     char padD4[12];
-    float hitDir[4];      /* 0xE0, the direction of the last attack that hit (AttackGenerate) */
-    short hitNodes[100];  /* 0xF0, the nodes that attack hit, -1 terminated (AttackCheckHit) */
+    float hitDir[4];     /* 0xE0, the direction of the last attack that hit (AttackGenerate) */
+    short hitNodes[100]; /* 0xF0, the nodes that attack hit, -1 terminated (AttackCheckHit) */
     struct BgaDisp *lwsEffect; /* 0x1B8, the guard effect's multi-BGA slots */
     char pad1BC[4];
     float ropeCliffX; /* 0x1C0 */
     float ropeCliffY; /* 0x1C4 */
     float ropeCliffZ; /* 0x1C8 */
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     char pad1CC[12];
 #else
     char pad1CC[20];
@@ -97,11 +97,11 @@ typedef struct EnemyBattleWork { /* field names derived */
     int clingTarget; /* 0x220 */
     int waitCount;
     int slowTimer;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
-    int liftedObj;   /* 0x224 */
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+    int liftedObj; /* 0x224 */
     char pad228[8];
 #else
-    int liftedObj;   /* 0x22C */
+    int liftedObj; /* 0x22C */
 #endif
     float readyPosX; /* 0x230 */
     float readyPosY; /* 0x234 */
@@ -124,24 +124,33 @@ typedef struct EnemyBattleWork { /* field names derived */
     int ladderUpStep;   /* 0x290 */
     int ladderDownStep; /* 0x294 */
     char pad298[4];
-    int stoneLevel; /* 0x29C */
-    int stonePair;  /* 0x2A0 */
-    int word2A4;    /* 0x2A4 */
+    int stoneLevel;       /* 0x29C */
+    int stonePair;        /* 0x2A0 */
+    int word2A4;          /* 0x2A4 */
     int stoneHitNoWeapon; /* 0x2A8, queen-battle stone hits taken with no weapon */
     int stoneHitWeapon;   /* 0x2AC, the same hits taken with a weapon */
-    int word2B0;    /* 0x2B0 */
+    int word2B0;          /* 0x2B0 */
     char pad2B4[44];
     struct GObj *rescueObj; /* 0x2E0 */
     char pad2E4[12];
     float rescueBoyPos[4];  /* 0x2F0, where the boy stands to pull the girl up, 60 short of her */
     float rescueGirlPos[4]; /* 0x300, the girl's position, 50 up: [1] is the height she is set to */
-    int boxBarSound; /* 0x310 */
+    int boxBarSound;        /* 0x310 */
+#ifdef VERSION_JUN26
+    char pad314[124];      /* 0x60 bytes more than the USA build's before the climb record
+                         (RequestChangeHandMode reads 0x31C, actCommonRope climbOrient 0x390) */
+    float climbOrient[4];  /* 0x390 the orient of the chain or wall climbed */
+    float climbPos[4];     /* 0x3A0 the climb's position */
+    ClimbCol climbCol;     /* 0x3B0 the wall the climb holds, as GetChainClimbCollision fills it */
+    struct GObj *climbObj; /* 0x3BC the chain or cage climbed */
+#else
     char pad314[28];
-    float climbOrient[4]; /* 0x330 the orient of the chain or wall climbed */
-    float climbPos[4];    /* 0x340 the climb's position */
-    ClimbCol climbCol;    /* 0x350 the wall the climb holds, as GetChainClimbCollision fills it */
+    float climbOrient[4];  /* 0x330 the orient of the chain or wall climbed */
+    float climbPos[4];     /* 0x340 the climb's position */
+    ClimbCol climbCol;     /* 0x350 the wall the climb holds, as GetChainClimbCollision fills it */
     struct GObj *climbObj; /* 0x35C the chain or cage climbed */
-} EnemyBattleWork;   /* derived name */
+#endif
+} EnemyBattleWork; /* derived name */
 
 /* enemy_act.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
@@ -157,7 +166,11 @@ void actEnemyNest(GObj *volatile self);
 void funcEnemyCarryFail(struct GObj *self);
 void actEnemyHyde(GObj *self);
 inline void actEnemyFlagOnFree(GObj *self);
+
+#ifndef VERSION_JUN26
 inline void afterCommonCarry(GObj *volatile self);
+#endif
+
 void actEnemyFlagOnDead(GObj *self);
 int EnemyBrainStatus_Boy(struct GObj *self);
 int EnemyBrainStatus_Girl(struct GObj *self);
@@ -174,7 +187,8 @@ int GetEnemyTypeFromGObj(struct GObj *obj);
 int GetEnemyType(float x, float y, float z);
 int isEnemyKidnapEnable(GObj *self);
 inline int isEnemyActive(GObj *self);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void subEnemyBrain_Idle(GObj *volatile self);
 inline void subEnemyBrain_Await(GObj *volatile self);
 inline void subEnemyBrain_ToGenerator(GObj *self);
@@ -184,19 +198,28 @@ struct GObj *GetMotherGeneratorGObjAskEnemy(struct GObj *enemy);
 inline void subEnemyBrain_Idle(GObj *volatile self);
 inline void subEnemyBrain_Await(GObj *volatile self);
 #endif
+
 inline void subEnemyBrain_FindGirl(GObj *volatile self);
 inline void subEnemyBrain_BodyGuard(GObj *volatile self);
 inline void subEnemyBrain_Shoulder(GObj *volatile self);
 inline void subEnemyBrain_Pickup(GObj *volatile self);
 inline void subEnemyBrain_Bodyslam(GObj *volatile self);
+
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void subEnemyBrain_Irregular(GObj *volatile self);
 #else
 inline void subEnemyBrain_Irregular(GObj *volatile self);
 #endif
+
 inline void _BrainMode_SetDirect(GObj *self, int mode, BrainModeTarget *tgt);
 inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze);
+
+#ifdef VERSION_JUN26
+inline void afterCommonCarry(GObj *volatile self);
+#else
 inline int FlyMail(void *self);
+#endif
+
 void boss_effect_callback(int id);
 void motEnemyStand(GObj *volatile self);
 void motEnemyWalk(GObj *volatile self);
@@ -209,12 +232,15 @@ inline int _ApproachTarget(GObj *self, void *tgt, void *pos, void *fn, float ran
                            unsigned char flag);
 
 void afterEnemyBodylift(GObj *volatile self);
-
 void actEnemyRestart(GObj *self, float *pos, float *dir, int kind, GObj *mother);
 /* enemy_act.o's last .sdata global (act.c sets it) */
 extern int entesty;
 void subEnemyControl(GObj *volatile self);
 void subEnemyCollision(GObj *volatile self);
 void subEnemyBrainMain(GObj *volatile self);
+
+#ifdef VERSION_JUN26
+void FlyMail(void *self);
+#endif
 
 #endif /* ENEMY_ACT_H */

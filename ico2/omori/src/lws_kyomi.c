@@ -1,15 +1,18 @@
 #include "sceneManager.h"
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_JUN26)
 #include "memory.h"
 #include "StageAnimation.h"
 #endif
 
+#ifndef VERSION_JUN26
 #include "debug.h"
+#endif
+
 #include <string.h>
 #include "typedef.h"
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_JUN26)
 #include "lws_kyomi.h"
 #else
 #include "ios.h"
@@ -20,7 +23,7 @@
 #include "geometryManager.h"
 #include "brain.h"
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void LwsKyomiGeo(GObj *gobj)
 {
     brainSubLevelGop(gobj, 0.1f);
@@ -35,8 +38,12 @@ GObj *CreateKyomiGObj(void)
     lay[8] = 1.0f;
     lay[9] = 1.0f;
     lay[10] = 1.0f;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    gobj = CreateLayoutedGObj(58, 51, -1, 0, lay, 1, 7, 0);
+#else
     gobj = CreateLayoutedGObj(59, 68, -1, 0, lay, 1, 7, 0);
+#endif
 #else
     gobj = CreateLayoutedGObj(60, 69, -1, 0, lay, 1, 7, 0);
 #endif
@@ -201,10 +208,15 @@ void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
     if (param[2] < 0.5f) {
         on2 = 0;
     }
+#ifdef VERSION_JUN26
+    if (on2 != 0) {
+        on1 = 1;
+#else
     if (debug_lwskyomi_lookonly != 0) {
         if (on2 != 0) {
             on1 = 1;
         }
+#endif
     }
     SetDirectRootPosition(gobj, root);
     UpdateRootMatrix(gobj);
@@ -212,7 +224,7 @@ void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
     brainSetLevelGop(gobj, lv, on1, on2);
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void FinishHint(int no)
 {
     (hintTable + no)->flags |= 1;

@@ -13,19 +13,25 @@
 
 struct GObj;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void GetRotObjectGameSysObjInfoExtData(short *angle, int *turnCount, GamesysObjInfo *info);
 #endif
+
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, struct GObj *bar, void *holdPos,
                                     void *holdDir);
+
 void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, struct GObj *holder);
 float GetRotObjectRotCount(struct GObj *self);
 int GetRotObjectZPlusDirection(struct GObj *gobj);
 int MoveRotObjectWithHoldPoint(struct GObj *bar, float *hold, void *self, float *dir, float *up);
+
+#ifndef VERSION_JUN26
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetRotObjectArmRadius(struct GObj *self, float radius);
 #endif
+
 void SetRotObjectLockFlag(struct GObj *self, int lock);
+#endif
 
 struct RotObjWork;
 

@@ -13,7 +13,10 @@
 struct SqEntry;
 
 /* st05b.o's .sdata globals */
+#ifndef VERSION_JUN26
 extern struct SqEntry *sekizo5b;
+#endif
+
 extern int sekizo_5b;
 extern unsigned char sekizo_5b_vol;
 void actSt05bGirlWay(GObj *volatile self);

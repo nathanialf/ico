@@ -44,8 +44,21 @@ static void mc_setBaseOffset(int base, int pri)
     PacketBufferStruct.dma.c = c;
     PacketBufferStruct.end.c = 0;
     PacketBufferStruct.tail.c = c;
+#ifdef VERSION_JUN26
+    ((GifPkWord *)c)->d = 0x10000001;
+    PacketBufferStruct.ptr.c = c + 8;
+    ((GifPkWord *)(c + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = c + 0xC;
+    ((GifPkWord *)(c + 0xC))->w[0] = 0;
+    PacketBufferStruct.ptr.c = c + 0x10;
+    ((GifPkWord *)(c + 0x10))->w[0] = 0;
+    PacketBufferStruct.ptr.c = c + 0x14;
+    ((GifPkWord *)(c + 0x14))->w[0] = 0x13000000;
+    PacketBufferStruct.ptr.c = c + 0x18;
+#else
     ((GifPkWord *)c)->d = 0x10000000;
     PacketBufferStruct.ptr.c = c + 8;
+#endif
 
     switch (base) {
     case 1:
@@ -148,6 +161,12 @@ void mc_SetMicroCode(int mode, int light, int pass, int clip, int pri)
     case 0:
         switch (light) {
         case 0:
+#ifdef VERSION_JUN26
+            if (clip == 2) {
+                code = 36;
+            } else {
+                code = 32;
+#else
             switch (clip) {
             case -1:
                 code = 34;
@@ -158,6 +177,7 @@ void mc_SetMicroCode(int mode, int light, int pass, int clip, int pri)
             default:
                 code = 32;
                 break;
+#endif
             }
             break;
         case 3:

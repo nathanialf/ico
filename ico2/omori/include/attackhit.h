@@ -31,6 +31,9 @@ struct GObj;
 
 void CommonAttackCenter(struct GObj *gobj);
 
+#ifdef VERSION_JUN26
+struct GObj *AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius);
+#else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 struct GObj *AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius);
 #else
@@ -39,6 +42,8 @@ struct GObj *_AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, 
 #endif
 
 void AttackCenter_WithDir(struct GObj *gop, int group, float *pos, float *dir, float radius);
+#endif
+
 void EnemyAttackCenter(struct GObj *gobj);
 void BoyAttackCenter(struct GObj *gobj);
 

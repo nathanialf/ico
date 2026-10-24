@@ -13,10 +13,13 @@
 struct SqEntry;
 
 /* st06a.o's .sdata globals */
+#ifndef VERSION_JUN26
 extern struct SqEntry *suimon;
 extern struct SqEntry *shutter;
 extern struct SqEntry *toge;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#endif
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void actSt06aBoxChk(GObj *volatile self);
 void actSt06aDoorDownChk(GObj *volatile self);
 void actSt06aDoorUpChk(GObj *volatile self);

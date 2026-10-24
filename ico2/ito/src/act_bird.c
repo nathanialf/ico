@@ -33,7 +33,12 @@
 #include "obj_manager.h"
 
 static void Debug_StickControl(GObj *self);
+
+#ifdef VERSION_JUN26
+static void Debug_WireString_Bird(float *pos, char *str);
+#else
 static void Debug_WireString_Bird(float *pos, char *fmt, ...);
+#endif
 
 inline float vector_angle_degree(void *a, void *b)
 {
@@ -162,7 +167,11 @@ void birdBeforeFunc(GObj *self)
 #ifdef VERSION_AUG6
         case 389:
 #else
+#ifdef VERSION_JUN26
+        case 373:
+#else
         case 423:
+#endif
 #endif
             if (len < 200.0f) {
                 w->scared = 1;
@@ -175,9 +184,15 @@ void birdBeforeFunc(GObj *self)
             if (len < 250.0f) {
                 act->motReq = SetMotionRequest(self, 287, act->env.motOriReq);
 #else
+#ifdef VERSION_JUN26
+        case 374:
+            if (len < 250.0f) {
+                act->motReq = SetMotionRequest(self, 276, act->env.motOriReq);
+#else
         case 424:
             if (len < 250.0f) {
                 act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
+#endif
 #endif
             }
             break;
@@ -189,8 +204,13 @@ void birdBeforeFunc(GObj *self)
             if (st >= 1080 && st <= 1082) {
                 act->motReq = SetMotionRequest(self, 288, act->env.motOriReq);
 #else
+#ifdef VERSION_JUN26
+            if (st >= 1158 && st <= 1160) {
+                act->motReq = SetMotionRequest(self, 277, act->env.motOriReq);
+#else
             if (st >= 1139 && st <= 1141) {
                 act->motReq = SetMotionRequest(self, 322, act->env.motOriReq);
+#endif
 #endif
             }
             break;
@@ -200,7 +220,11 @@ void birdBeforeFunc(GObj *self)
 #ifdef VERSION_AUG6
             act->motReq = SetMotionRequest(self, 287, act->env.motOriReq);
 #else
+#ifdef VERSION_JUN26
+            act->motReq = SetMotionRequest(self, 276, act->env.motOriReq);
+#else
             act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
+#endif
 #endif
             break;
 
@@ -225,6 +249,25 @@ void birdBeforeFunc(GObj *self)
         case 388:
             act->motReq = SetMotionRequest(self, 287, act->env.motOriReq);
 #else
+#ifdef VERSION_JUN26
+            act->motReq = SetMotionRequest(self, 276, act->env.motOriReq);
+            break;
+
+        case 369:
+            act->motReq = SetMotionRequest(self, 276, act->env.motOriReq);
+            break;
+
+        case 370:
+            act->motReq = SetMotionRequest(self, 276, act->env.motOriReq);
+            break;
+
+        case 371:
+            act->motReq = SetMotionRequest(self, 276, act->env.motOriReq);
+            break;
+
+        case 372:
+            act->motReq = SetMotionRequest(self, 276, act->env.motOriReq);
+#else
             act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
             break;
 
@@ -243,6 +286,7 @@ void birdBeforeFunc(GObj *self)
         case 422:
             act->motReq = SetMotionRequest(self, 321, act->env.motOriReq);
 #endif
+#endif
             break;
         }
     }
@@ -250,6 +294,17 @@ void birdBeforeFunc(GObj *self)
     /* the actor's motion orient request, refreshed from the copy the
        sub-object keeps at 0x180 */
     act->env.motOriReq = *(MotOriReq *)&GOBJ_SUB(self)->root.wall;
+#ifdef VERSION_JUN26
+    /* the second pad's test keys: reset the bird to its home, or scare it */
+    if (pad[1].flags & 0x800) {
+        InitMotionOrient(self, 2120, 2165, -1, -1, 1153);
+        SetDirectRootPosition(self, ((BirdWork *)GOBJ_SUB(self)->work)->home);
+        act->motReq = SetMotionRequest(self, 271, act->env.motOriReq);
+    }
+    if (pad[1].flags & 0x100) {
+        act->motReq = SetMotionRequest(self, 276, act->env.motOriReq);
+    }
+#endif
 }
 #endif
 
@@ -873,8 +928,10 @@ void subBirdBrainMain(void *volatile gobj)
    _ACTWait yield, so the entry GObj lives in its stack home, not a register. */
 void subBirdBrainMain(void *volatile gobj)
 {
+#ifndef VERSION_JUN26
     float startPos[4];
     float lastPos[4];
+#endif
     float wave[8];
     float homePos[4];
     float pos[4];
@@ -882,10 +939,15 @@ void subBirdBrainMain(void *volatile gobj)
     float mtx[4][4];
     BirdWork *bw;
     Act *act;
+#ifdef VERSION_JUN26
+    int lastHit;
+    int count;
+#else
     int frames;
     int lastHit;
     int count;
     int ticks;
+#endif
     int away;
     int lastState;
     int state;
@@ -896,11 +958,15 @@ void subBirdBrainMain(void *volatile gobj)
     float travel;
 
     bw = GOBJ_SUB(gobj)->work;
+#ifndef VERSION_JUN26
     frames = 0;
+#endif
 
     lastHit = 0;
     count = 1;
+#ifndef VERSION_JUN26
     ticks = 0;
+#endif
 
     hover = 0.0f;
 
@@ -914,8 +980,10 @@ void subBirdBrainMain(void *volatile gobj)
 
     _ACTWait(1);
 
+#ifndef VERSION_JUN26
     GetRootPosition(startPos, gobj);
     GetRootPosition(lastPos, gobj);
+#endif
 
     lastState = GOBJ_SUB(gobj)->ctrl.motion;
     /* the loop opens by reading the same field into `state` again */
@@ -946,7 +1014,9 @@ void subBirdBrainMain(void *volatile gobj)
             count = 1;
             changed = 1;
 
+#ifndef VERSION_JUN26
             ticks = 0;
+#endif
         } else {
             if (lastHit != 0) {
                 count++;
@@ -954,16 +1024,25 @@ void subBirdBrainMain(void *volatile gobj)
         }
 
         hold = (changed != 0 || hit != 0);
+#ifndef VERSION_JUN26
         ticks++;
+#endif
 
         noAvoid = 0;
         if (bw->scared != 0) {
             switch (state) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+            case 1158:
+            case 1159:
+            case 1160:
+            case 1161:
+#else
             case 1080:
             case 1081:
             case 1082:
             case 1083:
+#endif
 #else
             case 1139:
             case 1140:
@@ -977,8 +1056,12 @@ void subBirdBrainMain(void *volatile gobj)
             }
         }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        if (noAvoid == 0 && state != 1153 && state != 1157) {
+#else
         if (noAvoid == 0 && state != 1075 && state != 1079) {
+#endif
 #else
         if (noAvoid == 0 && state != 1134 && state != 1138) {
 #endif
@@ -996,8 +1079,12 @@ void subBirdBrainMain(void *volatile gobj)
             float nd[4];
             float nrm[4];
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+            if (state == 1158 || state == 1159) {
+#else
             if (state == 1080 || state == 1081) {
+#endif
 #else
             if (state == 1139 || state == 1140) {
 #endif
@@ -1054,8 +1141,12 @@ void subBirdBrainMain(void *volatile gobj)
         }
 
         switch (state) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        case 1156:
+#else
         case 1078:
+#endif
 #else
         case 1137:
 #endif
@@ -1072,8 +1163,12 @@ void subBirdBrainMain(void *volatile gobj)
                 turn_bird(gobj, yaw);
             }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        case 1153:
+#else
         case 1075:
+#endif
 #else
         case 1134:
 #endif
@@ -1090,19 +1185,30 @@ void subBirdBrainMain(void *volatile gobj)
                         break;
                     }
                     if (r < 0.28f) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                        act->motReq = SetMotionRequest(gobj, 276, act->env.motOriReq);
+#else
                         act->motReq = SetMotionRequest(gobj, 287, act->env.motOriReq);
+#endif
 #else
                         act->motReq = SetMotionRequest(gobj, 321, act->env.motOriReq);
 #endif
                         break;
                     }
                     if (random_unit() <= 0.5f) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                        act->motReq = SetMotionRequest(gobj, 272, act->env.motOriReq);
+                        break;
+                    }
+                    act->motReq = SetMotionRequest(gobj, 273, act->env.motOriReq);
+#else
                         act->motReq = SetMotionRequest(gobj, 283, act->env.motOriReq);
                         break;
                     }
                     act->motReq = SetMotionRequest(gobj, 284, act->env.motOriReq);
+#endif
 #else
                         act->motReq = SetMotionRequest(gobj, 317, act->env.motOriReq);
                         break;
@@ -1116,35 +1222,54 @@ void subBirdBrainMain(void *volatile gobj)
                         break;
                     }
                     if (r < 0.28f) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                        act->motReq = SetMotionRequest(gobj, 276, act->env.motOriReq);
+#else
                         act->motReq = SetMotionRequest(gobj, 287, act->env.motOriReq);
+#endif
 #else
                         act->motReq = SetMotionRequest(gobj, 321, act->env.motOriReq);
 #endif
                         break;
                     }
                     if (r < 0.4f) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                        act->motReq = SetMotionRequest(gobj, 275, act->env.motOriReq);
+#else
                         act->motReq = SetMotionRequest(gobj, 286, act->env.motOriReq);
+#endif
 #else
                         act->motReq = SetMotionRequest(gobj, 320, act->env.motOriReq);
 #endif
                         break;
                     }
                     if (r < 0.7f) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                        act->motReq = SetMotionRequest(gobj, 274, act->env.motOriReq);
+#else
                         act->motReq = SetMotionRequest(gobj, 285, act->env.motOriReq);
+#endif
 #else
                         act->motReq = SetMotionRequest(gobj, 319, act->env.motOriReq);
 #endif
                         break;
                     }
                     if (random_unit() <= 0.7f) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                        act->motReq = SetMotionRequest(gobj, 272, act->env.motOriReq);
+                        break;
+                    }
+                    act->motReq = SetMotionRequest(gobj, 273, act->env.motOriReq);
+#else
                         act->motReq = SetMotionRequest(gobj, 283, act->env.motOriReq);
                         break;
                     }
                     act->motReq = SetMotionRequest(gobj, 284, act->env.motOriReq);
+#endif
 #else
                         act->motReq = SetMotionRequest(gobj, 317, act->env.motOriReq);
                         break;
@@ -1162,9 +1287,14 @@ void subBirdBrainMain(void *volatile gobj)
                 break;
             }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        case 1154:
+        case 1155:
+#else
         case 1076:
         case 1077:
+#endif
 #else
         case 1135:
         case 1136:
@@ -1197,8 +1327,12 @@ void subBirdBrainMain(void *volatile gobj)
             if (hit == 0) {
                 break;
             }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+            act->motReq = SetMotionRequest(gobj, 271, act->env.motOriReq);
+#else
             act->motReq = SetMotionRequest(gobj, 282, act->env.motOriReq);
+#endif
 #else
             act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
 #endif
@@ -1206,7 +1340,16 @@ void subBirdBrainMain(void *volatile gobj)
             bw->scared = 0;
             break;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        case 1157:
+            Debug_WireString_Bird(pos, "GROOM");
+
+            act->motReq = SetMotionRequest(gobj, 271, act->env.motOriReq);
+            break;
+
+        case 1158:
+#else
         case 1079:
             Debug_WireString_Bird(pos, "GROOM");
 
@@ -1214,6 +1357,7 @@ void subBirdBrainMain(void *volatile gobj)
             break;
 
         case 1080:
+#endif
 #else
         case 1138:
             Debug_WireString_Bird(pos, "GROOM");
@@ -1242,10 +1386,14 @@ void subBirdBrainMain(void *volatile gobj)
                 trans_bird(gobj, wave);
                 turn_bird(gobj, rot);
             }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             break;
 
+#ifdef VERSION_JUN26
+        case 1159:
+#else
         case 1081:
+#endif
 #else
             act->motReq = SetMotionRequest(gobj, 321, act->env.motOriReq);
             break;
@@ -1258,8 +1406,12 @@ void subBirdBrainMain(void *volatile gobj)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                     pbga_start(&bw->bga, 508);
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                    pbga_start(&bw->bga, 404);
+#else
                     pbga_start(&bw->bga, 440);
+#endif
 #else
                     pbga_start(&bw->bga, 512);
 #endif
@@ -1318,7 +1470,9 @@ void subBirdBrainMain(void *volatile gobj)
             trans_bird(gobj, wave);
             turn_bird(gobj, rot);
 
+#ifndef VERSION_JUN26
             travel = travel + 1.0f;
+#endif
             GetRootPosition(pos, gobj);
             _GetMotionDirection(dir, gobj);
 
@@ -1344,8 +1498,12 @@ void subBirdBrainMain(void *volatile gobj)
                 ClipFloor(&cf);
                 attr = GetFloorAttribute(&cf);
                 if (cf.floor.elem != 0 && attr != 64 && attr != 80) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                    act->motReq = SetMotionRequest(gobj, 271, act->env.motOriReq);
+#else
                     act->motReq = SetMotionRequest(gobj, 282, act->env.motOriReq);
+#endif
 #else
                     act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
 #endif
@@ -1370,8 +1528,12 @@ void subBirdBrainMain(void *volatile gobj)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                         pbga_start(&bw->bga, 508);
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                        pbga_start(&bw->bga, 404);
+#else
                         pbga_start(&bw->bga, 440);
+#endif
 #else
                         pbga_start(&bw->bga, 512);
 #endif
@@ -1385,8 +1547,12 @@ void subBirdBrainMain(void *volatile gobj)
             hover = hover + 1.0f;
             break;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        case 1160:
+#else
         case 1082:
+#endif
 #else
         case 1141:
 #endif
@@ -1400,8 +1566,12 @@ void subBirdBrainMain(void *volatile gobj)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                     pbga_start(&bw->bga, 508);
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                    pbga_start(&bw->bga, 404);
+#else
                     pbga_start(&bw->bga, 440);
+#endif
 #else
                     pbga_start(&bw->bga, 512);
 #endif
@@ -1414,16 +1584,24 @@ void subBirdBrainMain(void *volatile gobj)
             trans_bird(gobj, wave);
 
             if (count >= 3) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                act->motReq = SetMotionRequest(gobj, 276, act->env.motOriReq);
+#else
                 act->motReq = SetMotionRequest(gobj, 287, act->env.motOriReq);
+#endif
 #else
                 act->motReq = SetMotionRequest(gobj, 321, act->env.motOriReq);
 #endif
             }
             break;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        case 1161: {
+#else
         case 1083: {
+#endif
 #else
         case 1142: {
 #endif
@@ -1431,7 +1609,9 @@ void subBirdBrainMain(void *volatile gobj)
             float q[4];
             ClipWork cd;
 
+#ifndef VERSION_JUN26
             Debug_WireString_Bird(pos, "FLY E2");
+#endif
             if (changed != 0) {
                 wave[5] = 0.0f;
                 set_wave(wave, 0.0f, 0.0f, 0.2f);
@@ -1459,8 +1639,12 @@ void subBirdBrainMain(void *volatile gobj)
             }
 
             if (hit != 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+                act->motReq = SetMotionRequest(gobj, 271, act->env.motOriReq);
+#else
                 act->motReq = SetMotionRequest(gobj, 282, act->env.motOriReq);
+#endif
 #else
                 act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
 #endif
@@ -1469,15 +1653,23 @@ void subBirdBrainMain(void *volatile gobj)
         }
 
         default:
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+            act->motReq = SetMotionRequest(gobj, 271, act->env.motOriReq);
+#else
             act->motReq = SetMotionRequest(gobj, 282, act->env.motOriReq);
+#endif
 #else
             act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
 #endif
             break;
         }
 
-#ifdef VERSION_AUG6
+#ifdef VERSION_JUN26
+        if (GOBJ_SUB(gobj)->ctrl.flags & 0x400) {
+            act->motReq = SetMotionRequest(gobj, 276, act->env.motOriReq);
+#else
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (GOBJ_SUB(gobj)->ctrl.flags & 0x400) {
             act->motReq = SetMotionRequest(gobj, 287, act->env.motOriReq);
 #else
@@ -1512,7 +1704,7 @@ void subBirdBrainMain(void *volatile gobj)
             sceVu0CopyVector(lastPos, rp);
         }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (state == 1081 &&
             (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f < (float)frames &&
             (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 30.0f < (float)ticks) {
@@ -1531,6 +1723,7 @@ void subBirdBrainMain(void *volatile gobj)
             SetDirectRootPosition(gobj, startPos);
             act->motReq = SetMotionRequest(gobj, 316, act->env.motOriReq);
 #endif
+#endif
         }
 
         lastState = state;
@@ -1541,11 +1734,12 @@ void subBirdBrainMain(void *volatile gobj)
 }
 #endif
 
+#ifndef VERSION_JUN26
 inline void subBirdControl(void *volatile gobj)
 {
     _ACTWait(1);
     while (1) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         Act *act = GOBJ_ACT(gobj);
 #endif
         Debug_StickControl(gobj);
@@ -1573,7 +1767,7 @@ inline void actBirdStart(void *gobj)
 #ifdef VERSION_NTSC
     act->motReq = SetMotionRequest(gobj, 238, act->env.motOriReq);
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     act->motReq = SetMotionRequest(gobj, 236, act->env.motOriReq);
 #else
     act->motReq = SetMotionRequest(gobj, 270, act->env.motOriReq);
@@ -1600,6 +1794,7 @@ static void Debug_WireString_Bird(float *pos, char *fmt, ...)
     MatrixDrive_PopMatrix();
     MatrixDrive_PopMatrix();
 }
+#endif
 
 static void Debug_StickControl(GObj *self)
 {
@@ -1644,6 +1839,61 @@ void BirdDL(void *gobj)
     }
 }
 #else
+#ifdef VERSION_JUN26
+void _ACTSendMailToBird(void *obj, int mail, void *data)
+{
+    iosOmSendMail(obj, mail, data);
+}
+
+/* a label drawn in wire letters 50 above pos, facing the camera */
+static void Debug_WireString_Bird(float *pos, char *str)
+{
+    float m[16];
+
+    MatrixDrive_PushMatrix();
+    sceVu0TransposeMatrix(m, (void *)(matrixptr + 128));
+    m[3] = m[7] = m[11] = 0.0f;
+    sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+    MatrixDrive_TransMatrix(pos[0], pos[1], pos[2]);
+    sceVu0MulMatrix(MatrixDrive_GetMatrix(), MatrixDrive_GetMatrix(), m);
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrix(0.0f, -50.0f, 0.0f);
+    DispWireString(str);
+    MatrixDrive_PopMatrix();
+    MatrixDrive_PopMatrix();
+}
+
+inline void subBirdControl(void *volatile gobj)
+{
+    _ACTWait(1);
+    while (1) {
+        Act *act = GOBJ_ACT(gobj);
+
+        Debug_StickControl(gobj);
+        _ACTWait(1);
+    }
+}
+
+inline void subBirdCollision(void *volatile gobj)
+{
+    _ACTWait(1);
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+inline void actBirdStart(void *gobj)
+{
+    Act *act;
+
+    act = (Act *)actInitialize(gobj);
+    _ACTWait(1);
+    actCreateSubThread(subBirdBrainMain, 20);
+    actCreateSubThread(subBirdControl, 21);
+    actCreateSubThread(subBirdCollision, 21);
+    act->motReq = SetMotionRequest(gobj, 225, act->env.motOriReq);
+}
+#else
 void BirdDL(void *gobj)
 {
     BirdWork *w;
@@ -1664,13 +1914,14 @@ void BirdDL(void *gobj)
     }
 }
 #endif
+#endif
 
 inline BirdWork *InitBirdGeo(GObj *gobj, void *home)
 {
     BirdWork *w;
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(BirdWork), __FILE__,
-                       LN(978, 978, 978, 978, 959));
+                       LN(978, 978, 978, 978, 959, 922));
     memset(w, 0, sizeof(BirdWork));
     CopyVector(w->home, home);
     w->scared = 0;
@@ -1680,7 +1931,11 @@ inline BirdWork *InitBirdGeo(GObj *gobj, void *home)
 #ifdef VERSION_AUG6
     InitMotionOrient(gobj, 2094, 2138, -1, -1, 1075);
 #else
+#ifdef VERSION_JUN26
+    InitMotionOrient(gobj, 2120, 2165, -1, -1, 1153);
+#else
     InitMotionOrient(gobj, 2421, 2467, -1, -1, 1134);
+#endif
 #endif
 #endif
 
@@ -1690,7 +1945,7 @@ inline BirdWork *InitBirdGeo(GObj *gobj, void *home)
     GOBJ_SUB(gobj)->ctrl.catchBoy = 0;
     /* the animation frame at 0x4AC and the word after it start at the same
        random frame */
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x49C))->f = random_unit() * 100.0f;
     ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x4A0))->f = ((IntFloat *)((int)GOBJ_SUB(gobj) + 0x49C))->f;
     GOBJ_SUB(gobj)->ctrl.waterDrag = 0;
@@ -1705,10 +1960,25 @@ inline BirdWork *InitBirdGeo(GObj *gobj, void *home)
 
 inline void BirdAI(void) {}
 
+#ifdef VERSION_JUN26
+inline void BirdDL(void *gobj)
+{
+    BirdWork *w;
+
+    p2o_DispVU1Default(gobj);
+    w = GOBJ_SUB(gobj)->work;
+    if (w->bga != 0) {
+        if (stage_DispBgAnimation(&w->bga) != 0) {
+            w->bga = 0;
+        }
+    }
+}
+#else
 void _ACTSendMailToBird(void *obj, int mail, void *data)
 {
     iosOmSendMail(obj, mail, data);
 }
+#endif
 
 inline void _ACTSendMailToBirdAll(int mail, void *data)
 {

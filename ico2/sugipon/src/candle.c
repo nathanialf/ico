@@ -39,7 +39,7 @@ int InitCandleGeo(void *self, void *mtx)
     return (int)flame;
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void CandleDL(GObj *self)
 {
     Sub15C *d = self->dobj;
@@ -96,7 +96,7 @@ inline void _deleteLayoutedCandleParticleEffect(void *gobj)
     }
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void CandleGeo(void *self)
 {
     Sub15C *w = GOBJ_SUB(self);
@@ -127,7 +127,7 @@ inline void DeleteLayoutedCandleParticleEffect(void)
     }
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void CandleDL(GObj *self)
 {
     Sub15C *d = self->dobj;

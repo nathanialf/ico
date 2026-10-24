@@ -14,6 +14,9 @@ struct SqEntry;
 
 /* st22a.o's .sdata globals */
 extern struct SqEntry *lightning;
+
+#ifndef VERSION_JUN26
 void actSt22aIntroSub(GObj *volatile self);
+#endif
 
 #endif /* ST22A_H */

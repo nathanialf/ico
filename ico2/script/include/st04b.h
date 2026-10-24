@@ -13,7 +13,10 @@
 struct SqEntry;
 
 /* st04b.o's .sdata globals */
+#ifndef VERSION_JUN26
 extern struct SqEntry *sekizo4b;
+#endif
+
 extern int sekizo_4b;
 extern unsigned char sekizo_4b_vol;
 void actSt04bEne1Chk(GObj *volatile self);

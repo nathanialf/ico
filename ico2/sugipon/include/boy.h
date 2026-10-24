@@ -10,14 +10,14 @@
 
 struct GObj;
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* unmapped_00533FC0: one girl-to-boy motion pair, 8 bytes: the girl's
    motion and the boy's that synchronizeMotionOutputOriginForGirl keeps in
    step with it. */
 typedef struct { /* field names derived */
     int girl;    /* 0x00 */
     int boy;     /* 0x04 */
-} MotSyncPair; /* derived name */
+} MotSyncPair;   /* derived name */
 
 extern MotSyncPair motSyncPairs[]; /* derived name */
 #endif
@@ -28,9 +28,13 @@ extern MotSyncPair motSyncPairs[]; /* derived name */
 struct LightLineExt;
 
 extern struct LightLineExt *llExtGeo;
+
+#ifdef VERSION_JUN26
+void LightLineGeo(void);
+#else
 void SelectBoyCrown(struct GObj *self, int crown);
 void LightLineGeo(void);
 void SetBoyStonizedVisual(struct GObj *self);
-
+#endif
 
 #endif /* BOY_H */

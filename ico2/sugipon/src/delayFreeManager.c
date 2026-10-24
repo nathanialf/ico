@@ -7,7 +7,7 @@
 #ifdef VERSION_NTSC
 static void *delayFreeBuffer[3][256]; /* derived name */
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static void *delayFreeBuffer[3][128]; /* derived name */
 #else
 static void *delayFreeBuffer[3][384]; /* derived name */
@@ -35,7 +35,7 @@ static inline void ClearDelayFreeBuffer(int no) /* derived name */
 {
     int i;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     for (i = 128 - 1; i >= 0; i--) {
 #else
     for (i = 384 - 1; i >= 0; i--) {
@@ -87,7 +87,7 @@ void EntryDelayFree(void *p)
 void EntryDelayFree(void *p)
 {
     delayFreeBuffer[delayFreeNo][delayFreeCount++] = p;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (delayFreeCount >= 128) {
 #else
     if (delayFreeCount >= 384) {

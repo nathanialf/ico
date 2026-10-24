@@ -19,7 +19,7 @@ typedef struct {     /* field names derived */
     float pivot[3];  /* 0x0C, pool.c places the model at its negation */
     float subPos[3]; /* 0x18, the sub-box's offset */
     float subRotY;   /* 0x24, the sub-box's facing in degrees */
-} AccessaryRec; /* derived name */
+} AccessaryRec;      /* derived name */
 
 extern AccessaryRec accessary[];
 
@@ -28,9 +28,10 @@ struct GObj;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order box.c's inline tail has. */
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 int AlignBox(struct GObj *self, float grid);
 #endif
+
 int CanHoldBox(struct GObj *self);
 void BoxDL(struct GObj *self);
 void GetBoxGlobalHoldPoint(float *out, struct GObj *self, float *local);
@@ -46,12 +47,16 @@ int BoxMemoryFunc(void);
 
 int CheckReadyAllSwitches();
 int GetBoxMode(struct GObj *self);
-#ifndef VERSION_AUG6
+
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 int AlignBox(struct GObj *self, float grid);
 #endif
+
 int GetBoxHoldPoint(float *out, struct GObj *self, struct GObj *chara);
+
 int MoveBoxWithHoldPoint(struct GObj *self, float *holdPoint, struct GObj *holder, int focus,
                          float *dir);
+
 void GetFloorLeverGlobalHoldPoint(void *dst, struct GObj *lev);
 void GetWallLeverGlobalHoldPoint(void *dst, struct GObj *lev);
 int MoveFloatingBox(struct GObj *self, struct GObj *other, float *dst, void *src, float lim);

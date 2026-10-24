@@ -9,7 +9,9 @@
 #define GEOMETRYMANAGER_H
 
 struct GObj;
+
 struct ObjNode;
+
 struct Sub15C;
 
 int CylinderCollision(struct GObj *self, int group, float r, float h, float s);
@@ -41,7 +43,7 @@ void SetDirectRootPosition(struct GObj *self, void *v);
 void SetDirectRootPositionNoFitting(struct GObj *self, void *v);
 void SetDirectRootPositionNoFittingWithNodePoint(struct GObj *gobj, int node, float *pos, float t);
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void SetDirectRootPositionNoFittingWithNodePointXZ(struct GObj *gobj, int node, float *pos,
                                                    float t);
 #endif

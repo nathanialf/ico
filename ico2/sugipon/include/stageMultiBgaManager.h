@@ -14,7 +14,8 @@
 void InitStageMultiBgaManager(void);
 void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
 void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, void *vel);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void DispStageMultiBgaManager(void);
 #else
 void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay);

@@ -12,7 +12,9 @@
 #include <libvu0.h>
 
 struct BgaAnimObj;
+
 struct BgaDObjEnt;
+
 struct BgaLightningDef;
 
 /* The 0x30-byte animation record bga_InitData allocates for a BGA file and
@@ -34,7 +36,7 @@ typedef struct BgaAnim { /* field names derived */
    allocates. */
 typedef struct BgaHeader { /* field names derived */
     char magic[4];
-    int group;                 /* 0x04 */
+    int group; /* 0x04 */
     char pad8[2];
     signed char mode;          /* 0x0A */
     char cut;                  /* 0x0B */
@@ -51,12 +53,12 @@ typedef struct BgaHeader { /* field names derived */
 #ifndef VERSION_NTSC
 /* set when an animation's camera cut restarts the global timer; the stream
    motion player resynchronises on it and clears it */
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 extern int bgaStreamSync;
 #endif
 #endif
-
 #endif
+
 /* BgAnimation.c's `inline` functions, in the order of their definitions'
    out-of-line copies at the end of the object (first-declaration order). */
 void bga_ResetCamera(void);
@@ -69,18 +71,26 @@ int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out);
 int bga_CheckSdfCameraFinish(char *data);
 int bga_CheckSdfCameraFrame(char *data, int frame, int reset);
 int bga_CheckSdfCameraFrameIn(char *data, int in, int out);
+
+#ifdef VERSION_JUN26
+void bga_InitBGA(void);
+void bga_SetUniqAnimationFlag(int val);
+#else
 void bga_SetCameraForceOff(void);
 void bga_InitBGA(void);
 void bga_SetUniqAnimationFlag(int val);
 void bga_ResetAnimation(void);
-float bga_GetZoom(void);
+#endif
 
+float bga_GetZoom(void);
 char *bga_InitData(char *data);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n);
 #else
 void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n, int no);
 #endif
+
 void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop);
 void bga_CalcAnimation(BgaHeader *p, int loop, int reset);
 void bga_CalcSdfCamera(char *data, int loop);

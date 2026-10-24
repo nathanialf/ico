@@ -11,8 +11,12 @@
 #include "fightSound.h"
 #include "GsBase.h"
 #include "Light.h"
+
+#ifndef VERSION_JUN26
 #include "clipCollisionManager.h"
 #include "waySystemManager.h"
+#endif
+
 #include "Matrix.h"
 #include "gobj.h"
 #include "enemy_act.h"
@@ -239,7 +243,7 @@ void InitStageLight(int stage)
     GlobalStageSetting.antiLevel0 = 24;
     GlobalStageSetting.antiLevel1 = 24;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     for (i = 0; i < 4; i++) {
         int *row = (int *)&GlobalStageSetting + i * 4;
 
@@ -322,7 +326,11 @@ static void initSceneGObj(int stage, int no)
 
         ((GamesysObjInfoFlag *)info)->flag |= 1;
 
+#ifdef VERSION_JUN26
+        if (stageData[sno].flag0 == 1 && gamesysGirlStageGet() != sno) {
+#else
         if (stageData[sno].flag1 == 1 && gamesysGirlStageGet() != sno) {
+#endif
             switch (gen->kind) {
             case 4:
                 ReturnEnemyToGenerator(no);
@@ -437,11 +445,11 @@ static void initParentLink(int id)
                     "\"%s\"の親子関係づけをしようとしましたが、自分を親にしようとしています。\n",
                     lay);
 #ifdef VERSION_NTSC
-                debug_assert(__FILE__, 487);
-                __assert(__FILE__, 487, "0");
+                debug_assert(__FILE__, LN(487, 487, 487, 487, 487, 487));
+                __assert(__FILE__, LN(487, 487, 487, 487, 487, 487), "0");
 #else
-                debug_assert(__FILE__, LN(502, 502, 502, 502, 487));
-                __assert(__FILE__, LN(502, 502, 502, 502, 487), "0");
+                debug_assert(__FILE__, LN(502, 502, 502, 502, 487, 484));
+                __assert(__FILE__, LN(502, 502, 502, 502, 487, 484), "0");
 #endif
             }
             debug_StdPrintfDummy("Parentize \"%s\"\n", lay);
@@ -452,15 +460,20 @@ static void initParentLink(int id)
             debug_StdPrintfDummy("\"%s\"の親子関係づけをしようとしましたが、親が見つかりません。\n",
                                  lay);
 #ifdef VERSION_NTSC
-            debug_assert(__FILE__, 496);
-            __assert(__FILE__, 496, "0");
+            debug_assert(__FILE__, LN(496, 496, 496, 496, 496, 496));
+            __assert(__FILE__, LN(496, 496, 496, 496, 496, 496), "0");
 #else
 #ifdef VERSION_AUG6
-            debug_assert(__FILE__, LN(502, 502, 502, 502, 496));
-            __assert(__FILE__, LN(502, 502, 502, 502, 496), "0");
+            debug_assert(__FILE__, LN(502, 502, 502, 502, 496, 502));
+            __assert(__FILE__, LN(502, 502, 502, 502, 496, 502), "0");
 #else
-            debug_assert(__FILE__, LN(511, 511, 511, 511, 511));
-            __assert(__FILE__, LN(511, 511, 511, 511, 511), "0");
+#ifdef VERSION_JUN26
+            debug_assert(__FILE__, LN(502, 502, 502, 502, 487, 493));
+            __assert(__FILE__, LN(502, 502, 502, 502, 487, 493), "0");
+#else
+            debug_assert(__FILE__, LN(511, 511, 511, 511, 511, 511));
+            __assert(__FILE__, LN(511, 511, 511, 511, 511, 511), "0");
+#endif
 #endif
 #endif
         }
@@ -499,7 +512,11 @@ static inline void initGamesysSceneGObjs(int stage) /* derived name */
     GamesysObjInfoFlag *p = (GamesysObjInfoFlag *)gameSysObjInfo;
     int i;
 
+#ifdef VERSION_JUN26
+    for (i = 0; i <= 121; i++, p++) {
+#else
     for (i = 0; i <= 181; i++, p++) {
+#endif
         if (p->info.no != 0 && (p->flag & 1) == 0 && p->info.stage == stage) {
             initSceneGObj(stage, p->info.no);
         }
@@ -522,15 +539,21 @@ void InitSceneObjects(int stage)
     gameover_flag = 0;
     gameover_layout_flag = 0;
 #else
+#ifdef VERSION_JUN26
+    gameover_flag = 0;
+#else
     girlPad = 0;
     gameover_flag = 0;
     gameover_layout_flag = 0;
     itemWatchOff = 0;
 #endif
+#endif
 
     debug_StdPrintfDummy("[\033[42m scene %d \033[m ]\n", stage);
 
+#ifndef VERSION_JUN26
     gsb_SetZoom(1.0f, 1000.0f);
+#endif
     brainInit();
     ACTGameView_Init();
 
@@ -539,9 +562,11 @@ void InitSceneObjects(int stage)
     backStageGirlTargetEnemyGop = 0;
     fightSoundProcessRequestStart();
 
+#ifndef VERSION_JUN26
     CreateClipCollisionManagerGObj();
 
     CreateWaySystemManagerGObj();
+#endif
 
     cam = InitCameraGObjs(stage, 0, 1);
 
@@ -578,7 +603,11 @@ int HotInitSceneObjects(int a0)
 #ifdef VERSION_AUG6
                     iosOmSendMail(node, 46, node);
 #else
+#ifdef VERSION_JUN26
+                    iosOmSendMail(node, 45, node);
+#else
                     iosOmSendMail(node, 0x2F, node);
+#endif
 #endif
                 }
                 fn = e->hotInit;

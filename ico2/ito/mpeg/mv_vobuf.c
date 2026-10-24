@@ -22,7 +22,11 @@ int voBufCreate(VoBuf *self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     data = alloc_zeroed(6912000, 64);
 #else
+#ifdef VERSION_JUN26
+    data = alloc_zeroed(6912000, 64);
+#else
     data = alloc_zeroed(8294400, 64);
+#endif
 #endif
     if (data == 0) {
         return -1;
@@ -31,7 +35,11 @@ int voBufCreate(VoBuf *self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     tag = alloc_zeroed(3289920, 64);
 #else
+#ifdef VERSION_JUN26
+    tag = alloc_zeroed(3289920, 64);
+#else
     tag = alloc_zeroed(3936320, 64);
+#endif
 #endif
     self->tag = (VoTag *)tag;
     if (tag == 0) {

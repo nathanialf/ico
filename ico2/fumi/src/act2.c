@@ -67,7 +67,11 @@ void BeforeFunc2(GObj *self)
 #ifdef VERSION_AUG6
             while (p->mail != 392) {
 #else
+#ifdef VERSION_JUN26
+            while (p->mail != 376) {
+#else
             while (p->mail != 429) {
+#endif
 #endif
                 for (j = 0; j < mb->num; j++) {
                     if (mb->mail[j].type == p->mail) {

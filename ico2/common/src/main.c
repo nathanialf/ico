@@ -11,6 +11,11 @@
 #include "GsBase.h"
 #include "Matrix.h"
 #include "keyInput.h"
+
+#ifdef VERSION_JUN26
+#include "pad.h"
+#endif
+
 #include <eekernel.h>
 #include "main.h"
 #include <eeregs.h>
@@ -29,6 +34,12 @@
 #include "libgraph.h"
 #include <stdlib.h>
 
+#ifdef VERSION_JUN26
+#include <libcdvd.h>
+#include <sound.h>
+#include <sifrpc.h>
+#endif
+
 /* main.c's .data globals, each with an initialiser. systemStatus starts in PAL mode (word 0;
    NTSC on JPN and KOR)
    at a frame step of 2 (word 1). db is the GS double buffer (libgraph's
@@ -38,7 +49,11 @@
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int systemStatus[12] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 #else
+#ifdef VERSION_JUN26
+int systemStatus[12] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
+#else
 int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
+#endif
 #endif
 
 sceGsDBuff db = {{{0}}};
@@ -100,6 +115,16 @@ static char soundThreadStack[8192] __attribute__((aligned(16))); /* derived name
 
 static int schedulerMsgBuff[8]; /* derived name */
 
+#ifdef VERSION_JUN26
+/* the pad handle and the two stick readings sampleModeNoContTimeOutMain reads each frame
+   for the demo disc's idle countdown */
+static IosPadCtx demoIdlePad; /* derived name */
+
+static IosPadStick demoIdleStickL; /* derived name */
+
+static IosPadStick demoIdleStickR; /* derived name */
+#endif
+
 /* the six threads Emergency_DestroyAllThread tears down, every thread boot
    starts except idle; first in this object's .rodata, ahead of Main's
    strings, so it is defined here with the records it points at */
@@ -111,6 +136,13 @@ static void scheduler(void);
 /* motionOrientManager.h carries MotOriName and declares no movieFile */
 extern char movieFile[];
 int movie_abort_check(void);
+
+#ifdef VERSION_JUN26
+/* the development build's Main also called debug_Menu, debug_SetBar and
+   debug_SetBar2 and carried a frame-step block; this build has none of
+   them. */
+void Main(void);
+#endif
 
 #ifdef VERSION_AUG6
 /* the development build's Main also called debug_Menu, debug_SetBar and
@@ -205,7 +237,9 @@ void Main(void)
    them out. */
 void Main(void)
 {
+#ifndef VERSION_JUN26
     int ret;
+#endif
     int n;
 
     debug_StdPrintfDummy("VSYNC_TIMING    : \x1b[33m%s\x1b[m\n",
@@ -213,6 +247,17 @@ void Main(void)
     debug_StdPrintfDummy("FRAME_STEP      : \x1b[33m%d\x1b[m\n", systemStatus[1]);
     debug_StdPrintfDummy("SYSTEM_FRAMERATE: \x1b[33m%d\x1b[m\n",
                          (60 - systemStatus[0] * 10) / systemStatus[1]);
+#ifdef VERSION_JUN26
+    stage_no = 0;
+    *T0_COUNT = 0;
+    exit_no = 0;
+    interlace = 1;
+    NonLinearCameraMove = 0;
+    systemFault = 0;
+    GlobalTimer = 0;
+    n = debug_TryToGetStartStage();
+    thisIsYourStartStage = n < 103 ? n : 102;
+#else
     *T0_COUNT = 0;
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
@@ -231,6 +276,7 @@ void Main(void)
 #else
     thisIsYourStartStage = n < 106 ? n : 105;
 #endif
+#endif
     if (thisIsYourStartStage <= 0) {
         thisIsYourStartStage = 1;
     }
@@ -244,7 +290,13 @@ void Main(void)
     debug_StdPrintfDummy("IosstgMgrLock %d\n", IosStgMgrLock);
     WaitSema(IosStgMgrLock);
     DeleteSema(IosStgMgrLock);
+#ifdef VERSION_JUN26
+    /* the demo disc always opens on stage 92 */
+    thisIsYourStartStage = 92;
+    stgmgrForceSwitchWithFade(thisIsYourStartStage, 255.0f, 16.0f);
+#else
     stgmgrForceSwitchWithFade(thisIsYourStartStage < 0 ? 1 : thisIsYourStartStage, 255.0f, 0.0f);
+#endif
     iosThreadCancelWakeup(0);
     systemStatus[5] = 0;
     _InitRandom(1.2345678f);
@@ -253,12 +305,21 @@ void Main(void)
     while (1) {
         iosThreadCancelWakeup(0);
         iosThreadSleep();
+#ifdef VERSION_JUN26
+        if (mpegPlay != 0) {
+            /* derived: ret is zeroed where it is declared, as movie_abort_check
+               does; movie_proc's result replaces the zero, so it leaves no
+               word, but loop.c counts it, which keeps the -2 below in the
+               loop (pinned) */
+            int ret = 0;
+#else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
         gsb_ResetSnap();
 #endif
 #endif
         if (mpegPlay != 0) {
+#endif
             if (mpegInitDone == 0) {
                 continue;
             }
@@ -266,6 +327,14 @@ void Main(void)
                 continue;
             }
             ios_partition_mpeg = ios_partition_isys;
+#ifdef VERSION_JUN26
+            movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
+                       mpegPlayInitColor);
+            ret = movie_proc(movie_abort_check);
+            mpegPlay = 0;
+            ACTGame_SetActors_Debug(mpegPlayReturnStage, 1);
+            gsb_Init(&db);
+#else
             AdpcmStreamFree();
             soundAllocIopFree();
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
@@ -295,29 +364,40 @@ void Main(void)
             gsb_Init(&db);
             mpegPlay = 0;
 #endif
+#endif
             stgmgrForceSwitchWithFade(mpegPlayReturnStage, 255.0f, mpegPlayFadeInSpeed);
             if (ret == 1) {
                 stage_after_skipping_demo = 0xFFFFFFFE;
             }
             continue;
         }
+#ifndef VERSION_JUN26
         debug_ResetBar();
+#endif
         MakeCollisionDependGObjList();
         MakeCharGObjList();
         ExecKeyInput();
         ExecIcoMisc();
+#ifdef VERSION_JUN26
+        if (lock_execIcoMisc == 0) {
+#else
         if (graphics_ready == 0) {
             stage_ResetAnimation();
+#endif
             stage_CalcAnimationNoParent();
         }
         iosOmMain();
+#ifdef VERSION_JUN26
+        if (lock_execIcoMisc == 0) {
+#else
         if (graphics_ready == 0) {
+#endif
             stage_CalcAnimationParent();
         }
         iosOmCreateDL();
         ExecDelayFree();
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         gsb_TakeSnap();
 #endif
 #endif
@@ -377,7 +457,7 @@ static void scheduler(void)
     int msg[4];
 
     debug_StdPrintfDummy("scheduler() in\n");
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     sceGsSyncV(0);
 #endif
     iosMsgQueueCreate(&SchedulerMsgQ, schedulerMsgBuff, 8);
@@ -396,6 +476,9 @@ static void scheduler(void)
                     if (gsb_SyncGSSystem() != 0) {
                         goto skip;
                     }
+#ifdef VERSION_JUN26
+                    gsb_UpdateGSSystem();
+#else
                     _PushVu0Registers();
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
                     gsb_UpdateGSSystem();
@@ -403,13 +486,14 @@ static void scheduler(void)
                     gsb_UpdateGSSystem(0);
 #endif
                     _PopVu0Registers();
+#endif
                     if (systemStatus[5] != 0) {
                         if (iosCdvdDiskStatusGet() != 0) {
                             frameReady = 0;
                             goto wake;
                         }
                     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
                     GlobalTimer++;
 #else
                     lock_execIcoMisc++;
@@ -418,7 +502,9 @@ static void scheduler(void)
                 frameReady = 0;
             wake:
                 iosThreadCancelWakeup(&mainThread);
+#ifndef VERSION_JUN26
                 startStagePauseDisableTimer++;
+#endif
                 if (iosThreadWakeup(&mainThread) < 0) {
                     /* failed to start the main thread */
                     debug_StdPrintfDummy("メーンスレッドの起動失敗しました\n");
@@ -436,7 +522,7 @@ static void scheduler(void)
             if (stgMgrWakeupRequest != 0) {
                 iosThreadWakeup(&stageManagerThread);
             }
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
             la_playtime_count();
 #endif
         } else {
@@ -467,6 +553,67 @@ static void boot(void)
     iosThreadSleep();
 }
 
+#ifdef VERSION_JUN26
+/* the boot thread's kernel id, which demoEnd wakes */
+static int bootThreadId; /* derived name */
+
+/* demoDisc.c's pair (the Aug-6 map's libscedemo.o, at the same offsets):
+   the first keeps the arguments the magazine menu started the game with and
+   reads the disc's settings out of them, the second reloads the menu with
+   them */
+void sceDemoStart(int argc, char **argv, unsigned short *language, unsigned short *aspect,
+                  unsigned short *playmode, unsigned short *toInactive, unsigned short *toTotal,
+                  unsigned short *mediaType);
+
+void sceDemoEnd(int status);
+/* thread.c defines it `inline` with no header declaration */
+void iosThreadAllQuit(int self);
+
+/* the demo disc's entry: it reads the menu's settings, runs the game until
+   demoEnd wakes it, shuts the game down and goes back to the menu */
+int main(int argc, char **argv)
+{
+    unsigned short language;
+    unsigned short aspect;
+    unsigned short playmode;
+    unsigned short toInactive;
+    unsigned short toTotal;
+    unsigned short mediaType;
+    int i;
+
+    sceDemoStart(argc, argv, &language, &aspect, &playmode, &toInactive, &toTotal, &mediaType);
+    debug_StdPrintfDummy("l %d a %d pm %d toa %d tot %d\n", language, aspect, playmode, toInactive,
+                         toTotal);
+    debug_StdPrintfDummy("MEDIA TYpE %d\n", mediaType);
+    sampleModeStageInit();
+    if (mediaType == 0) {
+        iosCdvdMediaType = 1;
+    } else {
+        iosCdvdMediaType = 2;
+    }
+    debug_StdPrintfDummy("main\n");
+    debug_StdPrintfDummy("main\n");
+    ChangeThreadPriority(GetThreadId(), 14);
+    bootThreadId = GetThreadId();
+    boot();
+    iosThreadAllQuit(bootThreadId);
+    SgQuit();
+    SgInit();
+    i = 10;
+    while (i--) {
+        sceGsSyncV(0);
+    }
+    sceFsReset();
+    sceGsResetPath();
+    sceVpu0Reset();
+    gsb_InitGSSystem();
+    sceSifExitCmd();
+    debug_StdPrintfDummy("demo end !!!!!!!!!!!!!!!!!!\n");
+    sceDemoEnd(5);
+    return 0;
+}
+#endif
+
 void Emergency_DestroyAllThread(void)
 {
     int me = GetThreadId();
@@ -492,6 +639,27 @@ int movie_abort_check(void)
     return ret;
 }
 
+#ifdef VERSION_JUN26
+/* the demo disc's idle countdown: sampleModeNoContTimeOutMain counts it
+   down each frame the pads are idle and resets it on input;
+   sampleModeStageInit and sampleModeExec set it */
+static int demoIdleTimeout; /* derived name */
+
+/* the demo disc's frames for one second: 60 on NTSC, 50 on PAL, over the
+   frame step */
+#define FRAME_RATE ((60 - systemStatus[0] * 10) / systemStatus[1]) /* derived name */
+
+/* ends the demo: wakes the boot thread, which hands the disc back, and
+   sleeps for good (the Aug-6 map's demoEnd, 40 bytes after
+   movie_abort_check as here) */
+void demoEnd(void)
+{
+    WakeupThread(bootThreadId);
+    while (1) {
+        iosThreadSleep();
+    }
+}
+#else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 #ifndef VERSION_AUG6
 void demoEnd(void) {}
@@ -510,11 +678,66 @@ int main(void)
     boot();
     return 0;
 }
+#endif
+
+#ifdef VERSION_JUN26
+/* counts the idle timeout down while nobody touches the pad, and winds it
+   back to four minutes on any button or stick */
+void sampleModeNoContTimeOutMain(void)
+{
+    if (iosPadEnableGet() == 0) {
+        demoIdleTimeout = FRAME_RATE * 240;
+        return;
+    }
+    iosPadRead(&demoIdlePad);
+    iosPadGetStick(&demoIdlePad, &demoIdleStickL, 0, 2, 2, 0);
+    iosPadGetStick(&demoIdlePad, &demoIdleStickR, 1, 2, 2, 0);
+    if (demoIdlePad.trg != 0 || demoIdleStickL.mag > 0.1f || demoIdleStickR.mag > 0.1f) {
+        demoIdleTimeout = FRAME_RATE * 240;
+    } else {
+        demoIdleTimeout--;
+    }
+}
+
+/* the two ways out of the demo: to stage 101, and to stage 102 when the
+   timeout runs out or the player quits; the movie returns to stage 92 */
+void sampleModeDemoEnd(void)
+{
+    systemStatus[5] = 1;
+    mpegPlayReturnStage = 92;
+    InterStageSwitchLock++;
+    stgmgrForceSwitchWithFade(101, 4.0f, 4.0f);
+}
+
+void sampleModeDemoEndTimeOut(void)
+{
+    systemStatus[5] = 1;
+    mpegPlayReturnStage = 92;
+    InterStageSwitchLock++;
+    stgmgrForceSwitchWithFade(102, 4.0f, 4.0f);
+}
+
+void sampleModeStageInit(void)
+{
+    iosPadConnect(&demoIdlePad, 0, 0, &iosPadConfDefault);
+    demoIdleTimeout = FRAME_RATE * 240;
+}
+
+void sampleModeExec(void)
+{
+    sampleModeNoContTimeOutMain();
+    if (demoIdleTimeout < 0 && systemStatus[6] == 0 && lock_execIcoMisc == 0) {
+        sampleModeDemoEndTimeOut();
+        demoIdleTimeout = FRAME_RATE * 240;
+    }
+}
+#endif
 
 /* main.c's .sdata globals.  Every build adds six to PAL's map's (marked
    derived): one quadword after game_pause and the girl-control block before
    boyGObj.  Each is a 4-byte scalar; the ones marked QWORD open a 16-byte
    quadword of their own, the rest of which stays empty. */
+
 #define QWORD __attribute__((aligned(16)))
 
 int buffer_ID QWORD = 0;
@@ -553,7 +776,7 @@ int game_pause QWORD = 0;
 
 int data_loading QWORD = 0;
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* the inserted, unreferenced quadword */
 static int reservedWord QWORD = 0; /* derived name */
 #endif
@@ -578,7 +801,7 @@ int IosStgMgrLock QWORD = 0;
 
 int systemFault QWORD = 0;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* the 0/1 game option that selects the pad word, held or pressed, the actions read */
 int optionControlType QWORD = 0; /* derived name */
 
@@ -596,7 +819,7 @@ GObj *girlGObj = 0;
 /* the boy's and the girl's pad handles, the Act.pad each actor connects */
 IosPadCtx *boyPad = 0;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 IosPadCtx *girlPad = 0; /* derived name */
 #endif
 
@@ -611,7 +834,7 @@ IosPadCtx *girlPad = 0; /* derived name */
 /* ACTItemWatchMotion runs for the boy only while it is 0 */
 int itemWatchOff = 0; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 GObj *CurrentTargetGObj QWORD = 0;
 #else
 GObj *CurrentTargetGObj = 0;
@@ -623,4 +846,9 @@ int current_stage_no = 0;
 
 void (*system_stage_func)(void) = 0;
 
+#ifdef VERSION_JUN26
+/* 16-aligned in the demo (0x6795A0) */
+int InterStageSwitchLock QWORD = 0;
+#else
 int InterStageSwitchLock = 0;
+#endif

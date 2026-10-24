@@ -6,7 +6,11 @@ void switchOnSE(GObj *self)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 61);
 #else
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 55);
+#else
     ExecuteSEPackage(self, 63);
+#endif
 #endif
 }
 
@@ -15,7 +19,11 @@ void switchReleaseSE(GObj *self)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 62);
 #else
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 56);
+#else
     ExecuteSEPackage(self, 64);
+#endif
 #endif
 }
 
@@ -83,8 +91,14 @@ static LeverGeoWork leverGeoInit = {0}; /* derived name */
 inline LeverGeoWork *InitFloorLeverGeo(GObj *self, SObjSimpleSetting *lay)
 {
     /* "src/switch.c" is this file's name in the game's source tree */
+#ifdef VERSION_JUN26
+    LeverGeoWork *g =
+        (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(LeverGeoWork), "src/switch.c",
+                                       LN(300, 300, 300, 300, 300, 141));
+#else
     LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(LeverGeoWork),
                                                      "src/switch.c", 141);
+#endif
     *g = leverGeoInit;
     if (lay->obj != 0) {
         g->linked = 1;
@@ -96,6 +110,15 @@ inline LeverGeoWork *InitFloorLeverGeo(GObj *self, SObjSimpleSetting *lay)
     return g;
 }
 
+#ifdef VERSION_JUN26
+void SetSwitchState(GObj *lev, int state)
+{
+    LeverGeoWork *p = GOBJ_SUB(lev)->work;
+
+    p->state = state;
+    switchOnSE(lev);
+}
+#else
 inline void SetSwitchState(GObj *lev, int state)
 {
     LeverGeoWork *p = GOBJ_SUB(lev)->work;
@@ -108,6 +131,7 @@ inline void SetSwitchState(GObj *lev, int state)
         p->state = state;
     }
 }
+#endif
 
 void FloorLeverTriStateGeo(GObj *lev)
 {
@@ -236,8 +260,9 @@ inline int CanWallLeverPull(GObj *lev)
 
 inline LeverGeoWork *InitWallLeverGeo(GObj *self, SObjSimpleSetting *lay)
 {
-    LeverGeoWork *g = (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(LeverGeoWork),
-                                                     "src/switch.c", 300);
+    LeverGeoWork *g =
+        (LeverGeoWork *)iosMallocDebug(ios_partition_sugipon, sizeof(LeverGeoWork), "src/switch.c",
+                                       LN(300, 300, 300, 300, 300, 299));
     *g = leverGeoInit;
     if (lay->obj != 0) {
         g->linked = 1;

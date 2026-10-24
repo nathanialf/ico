@@ -15,7 +15,8 @@ struct SqEntry;
 /* e3.o's .sdata globals */
 extern struct SqEntry *e3capsule;
 extern struct SqEntry *e3gate1st;
-#ifdef VERSION_NTSC
+
+#if defined(VERSION_NTSC) || defined(VERSION_JUN26)
 extern unsigned int sekizo_e3;
 extern unsigned char sekizo_e3_vol;
 #else
@@ -27,6 +28,7 @@ extern struct SqEntry *sekizo_e3;
 extern int sekizo_e3_vol;
 #endif
 #endif
+
 /* e3.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 inline void actE3CapsuleDemoEnd(GObj *volatile self);
@@ -36,10 +38,17 @@ inline void actE3DoorUp(GObj *volatile self);
 inline void actE3St13cIntroChk(GObj *volatile self);
 inline void actE3CageFallReadyChk(GObj *volatile self);
 inline void actE3St01bEneChk(GObj *volatile self);
+
+#ifdef VERSION_JUN26
+inline void actE3St09aGirlWay(GObj *volatile self);
+#else
 void actE3St09aGirlWay(GObj *volatile self);
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 inline void actE3St09aBrgMain(GObj *volatile self);
 #endif
+#endif
+
 void actE3CageFallChk(GObj *volatile self);
 void actE3CageFallDemo(GObj *volatile self);
 void actE3CageFallEffect(GObj *volatile self);
@@ -52,6 +61,10 @@ void actE3Inst1Chk(GObj *volatile self);
 void actE3St09aSekizoChk(GObj *volatile self);
 void actE3TitleChk(GObj *volatile self);
 void actE3TitleFrameChk(GObj *volatile self);
+
+#ifdef VERSION_JUN26
+void actE3WarningChk(GObj *volatile self);
+#endif
 
 #include "jimaku.h"
 

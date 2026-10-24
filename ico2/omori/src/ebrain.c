@@ -81,7 +81,7 @@ inline void eBrainInit(void)
     }
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 inline int eBrainStatusSet(GObj *gop, int status)
 {
     EBSlot *slot;
@@ -130,7 +130,7 @@ static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w) /*
         }
     }
     list[j] = cur;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 }
 
 inline int eBrainStatusSet(GObj *gop, int status)
@@ -235,7 +235,11 @@ inline int GetStageFromLabel(int label)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     for (i = 0; i < 104; i++) {
 #else
+#ifdef VERSION_JUN26
+    for (i = 0; i < 103; i++) {
+#else
     for (i = 0; i < 106; i++) {
+#endif
 #endif
         if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
             UseStageNo = i;
@@ -346,7 +350,11 @@ int eBrainGetTargetGeneratorFromLabel(int label)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     for (i = 0; i < 104; i++) {
 #else
+#ifdef VERSION_JUN26
+    for (i = 0; i < 103; i++) {
+#else
     for (i = 0; i < 106; i++) {
+#endif
 #endif
         if (label >= stageData[i].labelTop && label < stageData[i].labelEnd) {
             UseStageNo = i;

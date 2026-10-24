@@ -12,11 +12,22 @@
 
 struct SqEntry;
 
+#ifdef VERSION_JUN26
+/* The stage's object entry points; st19a.c defines all but actSt19aHaguruma
+   inline, and gcc outputs them at the end of the file in this order. */
+void actSt19aOri(GObj *volatile self);
+void actSt19aOriXL(GObj *volatile self);
+void actSt19aPipe(GObj *volatile self);
+void actSt19aPipeXL(GObj *volatile self);
+void actSt19aChain(GObj *volatile self);
+void actSt19aHaguruma(GObj *volatile self);
+#else
 /* st19a.o's .sdata globals */
 extern struct SqEntry *fence_up_19a;
 extern struct SqEntry *fence_down_19a;
 extern struct SqEntry *hgrm_19a;
 extern struct SqEntry *pipe19a;
+
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern struct SqEntry *chain19a;
 void actSt19aChainDown(GObj *volatile self);
@@ -24,6 +35,7 @@ void actSt19aChainUp(GObj *volatile self);
 #else
 void actSt19aChainDown(GObj *volatile self);
 #endif
+
 void actSt19aChainMain(GObj *volatile self);
 void actSt19aChainSwitch(GObj *volatile self);
 void actSt19aHagurumaChk(GObj *volatile self);
@@ -31,6 +43,8 @@ void actSt19aOriMain(GObj *volatile self);
 void actSt19aOriSwitch(GObj *volatile self);
 void actSt19aOriUp(GObj *volatile self);
 void actSt19aPipeChk(GObj *volatile self);
+#endif
+
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt19bIntroChk(GObj *volatile self);
 #endif

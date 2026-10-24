@@ -24,20 +24,25 @@ typedef struct {
    its own sceCdlFILE body. */
 struct sceCdlFILE;
 
+#ifndef VERSION_JUN26
 #ifndef VERSION_NTSC
 struct sceCdCLOCK;
 #endif
 
 int sceCdBreak(void);
+#endif
+
 int sceCdDiskReady(int mode);
 int sceCdGetDiskType(void);
 int sceCdGetError(void);
 int sceCdInit(int mode);
 int sceCdMmode(int media);
-int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode);     /* definition in sce/ */
-#ifndef VERSION_NTSC
-int sceCdReadClock(struct sceCdCLOCK *clock);                      /* definition in sce/ */
+int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode); /* definition in sce/ */
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_JUN26)
+int sceCdReadClock(struct sceCdCLOCK *clock); /* definition in sce/ */
 #endif
+
 int sceCdReadIOPm(int lsn, int sectors, void *buf, CdRMode *mode); /* definition in sce/ */
 int sceCdSearchFile(struct sceCdlFILE *fp, const char *name);      /* definition in sce/ */
 int sceCdStInit(int bufmax, int bankmax, void *buf);               /* definition in sce/ */
@@ -45,7 +50,11 @@ int sceCdStRead(int sectors, void *buf, int mode, int *err);       /* definition
 int sceCdStStart(int lsn, CdRMode *mode);                          /* definition in sce/ */
 int sceCdStStat(void);                                             /* definition in sce/ */
 int sceCdStStop(void);                                             /* definition in sce/ */
+
+#ifndef VERSION_JUN26
 int sceCdStatus(void);
+#endif
+
 int sceCdStream(int lsn, int sectors, void *buf, int cmd, CdRMode *mode); /* definition in sce/ */
 int sceCdSync(int mode);                                                  /* definition in sce/ */
 int sceCdSyncS(int mode);                                                 /* definition in sce/ */

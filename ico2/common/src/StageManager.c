@@ -55,14 +55,18 @@ char stagePreLoadBuff[896 * 2048] __attribute__((aligned(64))) = {0};
    bytes, the cap stgmgrNextStagePreLoad clamps a read to and the ring cdvd.c's
    stream reads through; the stage manager's message queue record; and the exit
    positions of the fifteen entrances stgmgrNextStagePreLoadEntry collects. */
+#ifdef VERSION_JUN26
+char stagePreLoadBuff[1024 * 2048] = {0};
+#else
 char stagePreLoadBuff[896 * 2048] = {0};
+#endif
 #endif
 
 IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* .sbss: the one-entry buffer of the stage manager's message queue, and the
    stage stgmgrNextStagePreLoadForceStageSet asks the preloader for. */
 static int stageMgrMsgBuf; /* derived name */
@@ -75,7 +79,7 @@ static int stagePreLoadForceStageNo; /* derived name */
    where IOSThread's flags is the int ios/thread.c tests */
 static unsigned int initIcoMiscThread[28]; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* the four-entry buffer of the stage manager's message queue */
 static int stageMgrMsgBuf[4]; /* derived name */
 #endif
@@ -111,7 +115,7 @@ static void stop_free_resources(void)
     int i;
 
     debug_StdPrintfDummy("----- MASK LINK -----\n");
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     graphics_ready = 0;
 #else
     game_pause = 0;
@@ -139,7 +143,7 @@ static void stop_free_resources(void)
     iosMallocResetPartition(ios_partition_seki);
     iosMallocResetPartition(ios_partition_sugipon);
     iosMallocResetPartition(ios_partition_dmotion);
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     iosMallocResetPartition(ios_partition_oomori);
 #endif
     iosMallocResetPartition(ios_partition_isys);
@@ -207,7 +211,7 @@ static void start_stage_Load_thread(int stage)
         stage_initialize();
         stageManagerFreeResourceFlag = 0;
         iosThreadCancelWakeup(0);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         SetMotionBlur(GlobalStageSetting.motionBlur);
 #else
         gsb_SetMotionBlur();
@@ -218,7 +222,7 @@ static void start_stage_Load_thread(int stage)
         iosThreadStart((IOSThread *)initIcoMiscThread);
         flags = initIcoMiscThread[15];
         debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         graphics_ready = 1;
 #else
         game_pause = 1;
@@ -316,26 +320,52 @@ static int stgmgrNextStagePreLoad(CdvdBgReq *bg)
                 stage = e->stage;
             }
         }
+#ifdef VERSION_JUN26
+        goto check;
+#else
         break;
+#endif
     }
     case 1:
         stage = stagePreLoadForceStageNo;
+#ifdef VERSION_JUN26
+        goto check;
+    }
+    /* The DEBUG build's report and hold, see stgPreLoadDebugHook: the hold
+       repeats the checks and the report; the switch arms enter it at the
+       checks. */
+    do {
+    check:
+        if (stage == 0 || stage == stagePreLoadStageNo || stageData[stage].mpegNo != 0) {
+            return 0;
+        }
+        stgPreLoadDebugHook();
+    } while (stgPreLoadDebugHold());
+    {
+#else
         break;
     }
     if (stage != 0 && stage != stagePreLoadStageNo && stageData[stage].mpegNo == 0) {
+#endif
         int readSize;
         int ret;
 
+#ifndef VERSION_JUN26
         /* The DEBUG build's report and hold, see stgPreLoadDebugHook. */
         do {
             stgPreLoadDebugHook();
         } while (stgPreLoadDebugHold());
+#endif
         strcpy(bg->name, GetDataFileName(stage, 1));
         ret = -1;
         iosCdvdChgFileName(bg->name);
         stagePreLoadLsn = bg->lsn = iosCdvdGetFileLsn(bg->name, &size);
         size = (size + 0x7FF) / 0x800 * 0x800;
+#ifdef VERSION_JUN26
+        readSize = size > 0x200000 ? 0x200000 : size;
+#else
         readSize = size > 0x1C0000 ? 0x1C0000 : size;
+#endif
         debug_StdPrintfDummy("preload %s move %d total %d reset %d\n", bg, readSize, size,
                              size - readSize);
         bg->pos = 0;
@@ -411,7 +441,7 @@ void StageManager(void)
     StgMgrMsg *msg;
 
     debug_StdPrintfDummy("stage manager() in\n");
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     iosMsgQueueCreate(&stageMgrMsgQ, stageMgrMsgBuf, 4);
 #else
     iosMsgQueueCreate(&stageMgrMsgQ, &stageMgrMsgBuf, 1);
@@ -462,7 +492,7 @@ void StageManager(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             lt_switch_layout(50);
 #else
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             lt_switch_layout(49);
 #else
             lt_switch_layout(0x35);
@@ -525,13 +555,13 @@ void stgmgrForceSwitch(int stage)
 {
     stageMgrMsg.cmd = 0;
     stageMgrMsg.stage = stage;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     lock_execIcoMisc = 1;
 #else
     graphics_ready = 1;
 #endif
     stageMgrMsg.fadeOut = 0;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
 #else
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 1);
@@ -554,7 +584,7 @@ void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsi
     stageMgrMsg.g = g;
     stageMgrMsg.b = b;
     mpegPlayInitColor = 0x80000000 | (b << 16) | (g << 8) | r;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     lock_execIcoMisc = 1;
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
 #else

@@ -22,7 +22,7 @@ static const char rotObjectFile[] = "src/rotObject.c"; /* derived name */
    cycling through 30 so the objects' saves fall on different frames */
 static unsigned char rotObjectPhase = 0; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #ifdef VERSION_AUG6
 /* the 64-byte work block InitRotObjectGeo allocates for a rotating object */
 typedef struct RotObjWork { /* field names derived */
@@ -51,8 +51,12 @@ typedef struct RotObjWork { /* field names derived */
     float limitMax; /* 0x28, kind 3: the largest turn, from the layout's scale z */
     float limitMin; /* 0x2C, kind 3: the smallest turn, from the layout's scale x */
     int saveCount;  /* 0x30, the frame counter of the uniq-data save */
-    int lock;       /* 0x34, SetRotObjectLockFlag: no move while set */
+#ifdef VERSION_JUN26
+    char pad34[12];
+#else
+    int lock; /* 0x34, SetRotObjectLockFlag: no move while set */
     char pad38[8];
+#endif
 } RotObjWork; /* derived name */
 #endif
 
@@ -65,7 +69,11 @@ typedef struct RotObjMemory { /* field names derived */
 
 static void moveStartSE(GObj *self)
 {
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 45);
+#else
     ExecuteSEPackage(self, 51);
+#endif
 }
 #else
 /* the 64-byte work block InitRotObjectGeo allocates for a rotating object */
@@ -104,7 +112,11 @@ static void moveEndSE(GObj *self)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 56);
 #else
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 50);
+#else
     ExecuteSEPackage(self, 58);
+#endif
 #endif
 }
 
@@ -117,7 +129,7 @@ void RotObjectGeo(GObj *self)
     }
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static void getRootMatrix(void *dst, GObj *gobj)
 {
     RotObjWork *w = GOBJ_SUB(gobj)->work;
@@ -162,8 +174,12 @@ void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, GObj *holder)
     GetGlobalWallPlane(buf.plane, wall);
     sceVu0ScaleVectorXYZ(dir, buf.plane, -1.0f);
     *(int *)((char *)dir + 0xC) = 0;
+#ifdef VERSION_JUN26
+    GetProjectionPosOfPlane(pos, buf.plane, buf.pos);
+#else
     AdjustVerticalSidePlaneOfWall(pos, wall, buf.pos, 10.0f);
     GetProjectionPosOfPlane(pos, buf.plane, pos);
+#endif
     /* the hold point trace, switched off */
     if (0) {
         debug_StdPrintfDummy("%s\n", "GetRotObjectHoldPoint");
@@ -192,13 +208,15 @@ int MoveRotObjectWithHoldPoint(GObj *bar, float *hold, void *self, float *dir, f
     float ang;
     float k;
 
+#ifndef VERSION_JUN26
     if (w->lock != 0)
         return 0;
+#endif
     if (bar->active == 0) {
         w->turnCount = 0;
         return 0;
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     getRootMatrix(m, bar);
 #else
     getRotObjectDriveMatrix(bar, m);
@@ -224,7 +242,7 @@ int MoveRotObjectWithHoldPoint(GObj *bar, float *hold, void *self, float *dir, f
             return 0;
     }
     ang = -atan2f(sl, len);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     k = len * 0.01f;
 #else
     ang *= w->rate;
@@ -282,7 +300,7 @@ void ExecRotObjectMoveEndReaction(GObj *self)
     moveEndSE(self);
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void SetRotObjectArmRadius(GObj *self, float radius)
 {
     RotObjWork *w = GOBJ_SUB(self)->work;
@@ -295,7 +313,7 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdP
 {
     float m[16];
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     getRootMatrix(m, bar);
 #else
     getRotObjectDriveMatrix(bar, m);
@@ -311,10 +329,11 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdP
 RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
 {
 #ifdef VERSION_NTSC
-    RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile, 55);
+    RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile,
+                                   LN(55, 55, 55, 55, 55, 55));
 #else
     RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile,
-                                   LN(57, 57, 57, 57, 55));
+                                   LN(57, 57, 57, 57, 55, 53));
 #endif
 
     p->saveCount = rotObjectPhase;
@@ -326,10 +345,12 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
     p->angle = src->rot[1] * 32768.0f / 180.0f;
     p->turnCount = 0;
     p->limitMax = p->limitMin = 0.0f;
+#ifndef VERSION_JUN26
     p->lock = 0;
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     p->rate = src->scale[1] < 0.05f ? 1.0f : src->scale[1];
     p->armScale = 1.0f;
+#endif
 #endif
 
     if (p->kind == 3) {
@@ -342,7 +363,7 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
         q->scale[0] = q->scale[1] = q->scale[2] = 1.0f;
     }
     return p;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 #ifndef VERSION_NTSC
 }
 
@@ -377,7 +398,7 @@ int GetRotObjectZPlusDirection(GObj *gobj)
     float m[16];
     float v[4];
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     getRootMatrix(m, gobj);
 #else
     getRotObjectDriveMatrix(gobj, m);
@@ -411,9 +432,11 @@ int MemoryRotObject(RotObjMemory *mem, GObj *self)
     return 1;
 }
 
+#ifndef VERSION_JUN26
 void SetRotObjectLockFlag(GObj *self, int lock)
 {
     RotObjWork *w = GOBJ_SUB(self)->work;
 
     w->lock = lock;
 }
+#endif

@@ -13,6 +13,11 @@
 #include "lws_kyomi.h"
 #include "gflag.h"
 #include "StageAnimation.h"
+
+#ifdef VERSION_JUN26
+#include "spider.h"
+#endif
+
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
@@ -73,6 +78,11 @@ void actSt01bEneChk(GObj *volatile self)
    entry); the handler in .func is installed at run time just before the
    record is posted. Each record is named for the actor thread that owns
    and posts it. */
+#ifdef VERSION_JUN26
+static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail floor_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail floor_mes[2] = {{430}, {429}}; /* derived name */
@@ -82,6 +92,7 @@ static ActMail way_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail way_on_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail way_off_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 
 void actSt01bInit(void)
@@ -95,6 +106,14 @@ void actSt01bInit(void)
     SetWayGroupActive(2, 1);
     stage_SetAnimation(161, 0, -1);
     return stage_SetAnimation(158, 0, -1);
+#else
+#ifdef VERSION_JUN26
+    if (gflagChk(65) == 0) {
+        stage_SetAnimation(147, 0, 0);
+        return stage_SetAnimation(145, 0, 0);
+    }
+    stage_SetAnimation(147, 0, -1);
+    return stage_SetAnimation(145, 0, -1);
 #else
     if (gflagChk(70) == 0) {
         SetWayGroupActive(2, 0);
@@ -115,6 +134,7 @@ void actSt01bInit(void)
     stage_SetAnimation(180, 0, -1);
 #endif
     return FinishHint(9);
+#endif
 #endif
 }
 
@@ -137,6 +157,20 @@ void actSt01bEneChk(GObj *volatile self)
     gflagOn(65);
     stage_SetAnimation(160, 1, 0);
     while (stage_CheckAnimationFrame(160, 90, 0) == 0) {
+#else
+#ifdef VERSION_JUN26
+    while (gflagChk(65) == 0 || scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 ||
+           (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 &&
+            scpTriggerFloorAttr(girlGObj, 0x2000000) == 0)) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    _ACTWait(30);
+    gflagOn(63);
+    gflagOn(64);
+    stage_SetAnimation(146, 1, 0);
+    while (stage_CheckAnimationFrame(146, 90, 0) == 0) {
 #else
     while (gflagChk(70) == 0 || scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 ||
            (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 &&
@@ -165,6 +199,7 @@ void actSt01bEneChk(GObj *volatile self)
     while (stage_CheckAnimationFrame(182, 90, 0) == 0) {
 #endif
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -174,7 +209,13 @@ void actSt01bEneChk(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (stage_CheckAnimationFinish(160) == 0) {
 #else
+#ifdef VERSION_JUN26
+    WakeUpSpidersFromGenerator(scpSearchGobj(749));
+    WakeUpSpidersFromGenerator(scpSearchGobj(750));
+    while (stage_CheckAnimationFinish(146) == 0) {
+#else
     while (stage_CheckAnimationFinish(182) == 0) {
+#endif
 #endif
 #endif
         _ACTWait(1);
@@ -184,6 +225,10 @@ void actSt01bEneChk(GObj *volatile self)
     lt_switch_layout(50);
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyOne(3415);
+#else
+#ifdef VERSION_JUN26
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
 #else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
@@ -197,6 +242,7 @@ void actSt01bEneChk(GObj *volatile self)
     scpWakeupEnemyOne(3757);
 #endif
 #endif
+#endif
 }
 #endif
 
@@ -207,7 +253,7 @@ unsigned int st01b_yure = 0;
 
 unsigned char st01b_yure_vol = 0;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for, and the handle of the looping sound effect the demo starts. */
 static int demoEnd;
@@ -417,28 +463,49 @@ void actSt01bFloor(GObj *volatile self)
     }
 }
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void actSt01bFloorChk(GObj *volatile self)
 {
     ConstVec pos;
     int se;
 
+#ifdef VERSION_JUN26
+    while (scpIsHangChainOptional(boyGObj, 724) == 0) {
+#else
     while (scpIsHangChainOptional(boyGObj, 746) == 0) {
+#endif
         _ACTWait(1);
     }
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
+#ifdef VERSION_JUN26
+    gflagOn(65);
+#else
     scpSleepEnemyAll();
     gflagOn(66);
     SetWayGroupActive(2, 1);
+#endif
     if (girlGObj != 0) {
         scpPlayPosSet(girlGObj, -200.0f, 900.0f, -200.0f);
     }
     _ACTWait(60);
+#ifdef VERSION_JUN26
+    scpAdpcmPlayRequestFunc(74, &st01b_floor, 1, 1, 1);
+#else
     scpAdpcmPlayRequestFunc(79, &st01b_floor, 1, 1, 1);
+#endif
     while (st01b_floor == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_JUN26
+    stage_SetAnimation(145, 1, 0);
+    pos = floorChkSubPos;
+    se = soundSeDefPlay(1270, 0, pos.f, 1);
+    _ACTWait(90);
+    soundSeDefStop(se);
+    soundSeDefPlay(1238, 0, 0, 1);
+    stage_SetAnimation(147, 1, 0);
+#else
     stage_SetAnimation(158, 1, 0);
     stage_SetAnimation(159, 1, 0);
     pos = floorChkSubPos;
@@ -447,15 +514,22 @@ void actSt01bFloorChk(GObj *volatile self)
     soundSeDefStop(se);
     soundSeDefPlay(1264, 0, 0, 1);
     stage_SetAnimation(161, 1, 0);
+#endif
     st01b_yure = iosPadActRequest(boyPad, 9);
     st01b_yure_vol = 128;
     iosPadActVolumeSet(st01b_yure, 128);
+#ifdef VERSION_JUN26
+    while (stage_CheckAnimationFinish(147) == 0) {
+#else
     while (stage_CheckAnimationFrame(161, 180, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActStop(st01b_yure);
+#ifndef VERSION_JUN26
     scpWakeupEnemyAll();
+#endif
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);
 }
@@ -594,7 +668,11 @@ void actSt01bSekizo(GObj *volatile self)
 #ifdef VERSION_AUG6
     scpSekizou(self, 61, 156, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
 #else
+#ifdef VERSION_JUN26
+    scpSekizou(self, 60, 143, 0, 21, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
+#else
     scpSekizou(self, 65, 178, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
+#endif
 #endif
 #endif
 }
@@ -614,10 +692,17 @@ void actSt01bEne(GObj *volatile self)
         act->mail = ene_mes;
         ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(63) == 0) {
+        ene_mes[0].func = actSt01bEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     if (gflagChk(68) == 0) {
         ene_mes[0].func = actSt01bEneChk;
         act->mail = ene_mes;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -634,7 +719,11 @@ void actSt01bEnemy1(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (gflagChk(65) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(64) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -647,7 +736,9 @@ void actSt01bEnemy1(GObj *volatile self)
     Generator_Call(self);
     _ACTWait(60);
     Generator_Call(self);
+#ifndef VERSION_JUN26
     Generator_MaskOff(self);
+#endif
 }
 
 void actSt01bEnemy2(GObj *volatile self)
@@ -661,7 +752,11 @@ void actSt01bEnemy2(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (gflagChk(65) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(64) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -672,7 +767,9 @@ void actSt01bEnemy2(GObj *volatile self)
     Generator_Call(self);
     _ACTWait(60);
     Generator_Call(self);
+#ifndef VERSION_JUN26
     Generator_MaskOff(self);
+#endif
 }
 
 void actSt01bEnemy3(GObj *volatile self)
@@ -686,16 +783,22 @@ void actSt01bEnemy3(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (gflagChk(65) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(64) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
 
     _ACTWait(130);
     Generator_Call(self);
+#ifndef VERSION_JUN26
     _ACTWait(60);
     Generator_Call(self);
     Generator_MaskOff(self);
+#endif
 }
 
 void actSt01bEnemy4(GObj *volatile self)
@@ -709,7 +812,11 @@ void actSt01bEnemy4(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (gflagChk(65) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(64) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -729,7 +836,11 @@ void actSt01bEnemy5(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (gflagChk(65) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(64) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -749,7 +860,11 @@ void actSt01bEnemy6(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (gflagChk(65) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(64) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -774,16 +889,24 @@ void actSt01bFloor(GObj *volatile self)
         act->mail = floor_mes;
         ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(65) == 0) {
+        floor_mes[0].func = actSt01bFloorChk;
+        act->mail = floor_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     if (gflagChk(70) == 0) {
         floor_mes[0].func = actSt01bFloorChk;
         act->mail = floor_mes;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
 }
 #endif
 
+#ifndef VERSION_JUN26
 void actSt01bWay(GObj *volatile self)
 {
     GObj *x = self;
@@ -812,6 +935,7 @@ void actSt01bWay(GObj *volatile self)
 }
 
 void actSt01bEnd(void) {}
+#endif
 
 void actSt01bSekizoEvent(int x)
 {
@@ -864,6 +988,7 @@ void actSt01bWayOffChk(GObj *volatile self)
     _ACTWait(0);
 }
 #else
+#ifndef VERSION_JUN26
 void actSt01bWayOnChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -923,4 +1048,5 @@ void actSt01bWayOffChk(GObj *volatile self)
 #endif
     _ACTWait(0);
 }
+#endif
 #endif

@@ -18,15 +18,105 @@ void isysGObjProcessInit(unsigned int max)
 
 inline void isysGObjProcessAlloc(unsigned int max)
 {
+#ifdef VERSION_JUN26
+    void *ret = iosMallocDebug(ios_partition_isys, max * 0x90, "isys/gobj_process.c", 67);
+#else
     void *ret = iosMallocDebug(ios_partition_isys, max * 0x94, "isys/gobj_process.c", 73);
+#endif
     unsigned int i;
     procMax = max;
     procPool = (char *)ret;
     for (i = 0; i < max; i++) {
+#ifdef VERSION_JUN26
+        ((GProc *)(procPool + i * 0x90))->self = 0;
+#else
         ((GProc *)(procPool + i * 0x94))->self = 0;
+#endif
     }
 }
 
+#ifdef VERSION_JUN26
+static inline GProc *alloc_gobj_process(void) /* derived name */
+{
+    unsigned int i;
+    unsigned int j;
+
+    for (i = 0; i < procMax; i++) {
+        if (((GProc *)(procPool + i * 0x90))->self == 0) {
+            break;
+        }
+    }
+    if (i == procMax) {
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
+        debug_StdPrintfDummy("isys:not enough memory for GObj\n");
+        for (j = 0; j < procMax; j++) {
+            debug_StdPrintfDummy("id %d %x %x \n", ((GProc *)(procPool + j * 0x90))->self,
+                                 ((GProc *)(procPool + j * 0x90))->func,
+                                 *(int *)(procPool + j * 0x90 + 0x58));
+        }
+        return 0;
+    }
+    return (GProc *)(procPool + i * 0x90);
+}
+
+static GProc *isysGObjProcAdd_(GObj *gobj, void (*func)(), unsigned char noThread, int pri,
+                               long stackSize)
+{
+    GProc *p;
+    GProc *h;
+    GProc *t;
+
+    if (func == 0) {
+        return 0;
+    }
+    p = alloc_gobj_process();
+    if (p == 0) {
+        debug_StdPrintfDummy("isys:not enough memory for GObjProcess\n");
+        return 0;
+    }
+    p->self = p;
+    if (noThread == 0) {
+        iosThreadCreateS(&p->thread, 1, func, gobj, ios_partition_isys, stackSize, pri);
+        iosThreadStart(&p->thread);
+        p->func = 0;
+    } else {
+        p->func = func;
+    }
+    p->noThread = noThread;
+    p->owner = gobj;
+    p->active = 1;
+    p->priority = pri;
+    h = gobj->procHead;
+    if (h == 0) {
+        p->next = 0;
+        p->prev = 0;
+        gobj->procHead = p;
+        gobj->procTail = p;
+    } else if ((unsigned int)pri < h->priority) {
+        p->next = 0;
+        p->prev = gobj->procHead;
+        p->prev->next = p;
+        gobj->procHead = p;
+    } else {
+        t = gobj->procTail;
+        if (!((unsigned int)pri < t->priority)) {
+            p->next = t;
+            p->prev = 0;
+            t->prev = p;
+            gobj->procTail = p;
+        } else {
+            while (!((unsigned int)pri < h->prev->priority)) {
+                h = h->prev;
+            }
+            p->next = h;
+            p->prev = h->prev;
+            h->prev = p;
+            p->prev->next = p;
+        }
+    }
+    return p;
+}
+#else
 static inline GProc *alloc_gobj_process(void) /* derived name */
 {
     unsigned int i;
@@ -108,7 +198,19 @@ static GProc *isysGObjProcAdd_(GObj *gobj, GObj *arg, void (*func)(), unsigned c
     }
     return p;
 }
+#endif
 
+#ifdef VERSION_JUN26
+inline GProc *isysGObjProcAdd(GObj *gobj, void (*func)(), int noThread, int pri)
+{
+    return isysGObjProcAdd_(gobj, func, noThread & 0xFF, pri, 0x1800);
+}
+
+inline GProc *isysGObjProcAddS(GObj *gobj, void (*func)(), int noThread, int pri, long stackSize)
+{
+    return isysGObjProcAdd_(gobj, func, noThread & 0xFF, pri, stackSize);
+}
+#else
 inline GProc *isysGObjProcAddGOppArg(GObj *gobj, void (*func)(), int noThread, int pri)
 {
     return isysGObjProcAdd_(gobj, 0, func, noThread & 0xFF, pri, 0x1800);
@@ -128,6 +230,7 @@ inline GProc *isysGObjProcAddSGOppArg(GObj *a, void (*b)(), int c, int d, int e)
 {
     return isysGObjProcAdd_(a, 0, b, c & 0xFF, d, e);
 }
+#endif
 
 inline void isysGObjProcPause(char *self)
 {

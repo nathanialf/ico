@@ -33,7 +33,11 @@ static void falldownSE(GObj *self)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 81);
 #else
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 72);
+#else
     ExecuteSEPackage(self, 86);
+#endif
 #endif
 }
 
@@ -149,7 +153,7 @@ static inline void setWaveCell(PoolWork *w, float *pos, PoolRipple *cell, float 
     cell->age = 0.0f;
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* the pool's surface height; an object with a water attribute but no pool
    work only gets the warning */
 inline float GetPoolGlobalHeight(GObj *pool)
@@ -207,8 +211,15 @@ void SetFallDownSplash(GObj *pool, GObj *self)
 
 #ifdef VERSION_AUG6
     if (w == 0) {
-        debug_assertMessage("src/pool.c", 254, "ATR_DWATER or ATR_WATER assigned to NON POOL.\n");
-        __assert("src/pool.c", 254, "e");
+        debug_assertMessage("src/pool.c", LN(254, 254, 254, 254, 254, 254),
+                            "ATR_DWATER or ATR_WATER assigned to NON POOL.\n");
+        __assert("src/pool.c", LN(254, 254, 254, 254, 254, 254), "e");
+    }
+#endif
+#ifdef VERSION_JUN26
+    if (w == 0) {
+        debug_assertMessage("src/pool.c", 257, "ATR_DWATER or ATR_WATER assigned to NON POOL.\n");
+        __assert("src/pool.c", 257, "e");
     }
 #endif
     GetRootPosition(pos, self);
@@ -217,6 +228,14 @@ void SetFallDownSplash(GObj *pool, GObj *self)
     pos[1] = w->pos[1];
 
     if (GOBJ_SUB(self)->skel != 0) {
+#ifdef VERSION_JUN26
+        setNodePursueParticleEffectWithUpperLimit(47, self, 51, pos[1]);
+        setNodePursueParticleEffectWithUpperLimit(47, self, 47, pos[1]);
+    }
+
+    stage_SetLoopFlag(392, 0);
+    stage_SetFrameStep(392, 1);
+#else
         setNodePursueParticleEffectWithUpperLimit(48, self, 51, pos[1]);
         setNodePursueParticleEffectWithUpperLimit(48, self, 47, pos[1]);
     }
@@ -235,6 +254,7 @@ void SetFallDownSplash(GObj *pool, GObj *self)
 #else
     stage_SetLoopFlag(499, 0);
     stage_SetFrameStep(499, 1);
+#endif
 #endif
 #endif
 #endif
@@ -269,7 +289,7 @@ typedef struct {    /* field names derived */
     PoolQuad scale; /* 0x20 */
 } PoolDisp;         /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static inline int poolRideFunc(ObjNode *on, GObj *rider);
 #else
 static int poolRideFunc(ObjNode *on, GObj *rider);
@@ -279,7 +299,7 @@ static int poolRideFunc(ObjNode *on, GObj *rider);
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
     PoolWork *w =
-        iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", LN(315, 315, 315, 315, 315));
+        iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", LN(315, 315, 315, 315, 315, 315));
     int i;
     int j;
     int k;
@@ -297,11 +317,11 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
         w->step = lay->scale[1];
 
         w->height = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c",
-                                   LN(329, 329, 329, 329, 329));
+                                   LN(329, 329, 329, 329, 329, 329));
 
         for (i = 0; i < w->nx; i++) {
             w->height[i] = iosMallocDebug(ios_partition_sugipon, w->ny * 4, "src/pool.c",
-                                          LN(333, 333, 333, 333, 333));
+                                          LN(333, 333, 333, 333, 333, 333));
         }
 
         w->surface = prim_InitMesh3D(w->ny, w->nx, 1, 0x1C, (lay->obj & 0xFFFFFF00) | 0x80, 1);
@@ -310,7 +330,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 
         w->phase = 0;
         w->wire = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c",
-                                 LN(356, 356, 356, 356, 356));
+                                 LN(356, 356, 356, 356, 356, 356));
 
         for (j = 0; j < w->nx; j++) {
             w->wire[j] = w->reflect->pos + j * w->ny;
@@ -371,7 +391,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
     PoolWork *w =
-        iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", LN(316, 316, 316, 316, 309));
+        iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", LN(316, 316, 316, 316, 309, 312));
     int i;
     int j;
     int k;
@@ -389,11 +409,11 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
         w->step = lay->scale[1];
 
         w->height = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c",
-                                   LN(330, 330, 330, 330, 323));
+                                   LN(330, 330, 330, 330, 323, 326));
 
         for (i = 0; i < w->nx; i++) {
             w->height[i] = iosMallocDebug(ios_partition_sugipon, w->ny * 4, "src/pool.c",
-                                          LN(334, 334, 334, 334, 327));
+                                          LN(334, 334, 334, 334, 327, 330));
         }
 
         w->surface = prim_InitMesh3D(w->ny, w->nx, 1, 0x1C, (lay->obj & 0xFFFFFF00) | 0x80, 1);
@@ -402,7 +422,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 
         w->phase = 0;
         w->wire = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c",
-                                 LN(357, 357, 357, 357, 350));
+                                 LN(357, 357, 357, 357, 350, 353));
 
         for (j = 0; j < w->nx; j++) {
             w->wire[j] = w->reflect->pos + j * w->ny;
@@ -415,7 +435,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 
         w->rippleNo = 0;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (GOBJ_SUB(self)->accessary != 21) {
 #else
         if (GOBJ_SUB(self)->accessary != 26) {
@@ -606,10 +626,17 @@ static void updatePoolGeo(GObj *self)
     sx = 1.0f / (float)ScreenWidth;
     sy = 1.0f / (float)ScreenHeight;
 
+#ifdef VERSION_JUN26
+    pc = (float *)(matrixptr + 0x400);
+    pa = (float *)(matrixptr + 0x340);
+    pb = (float *)(matrixptr + 0x380);
+    pd = (float *)(matrixptr + 0x3C0);
+#else
     pc = (float *)(matrixptr + 0x4C0);
     pa = (float *)(matrixptr + 0x400);
     pb = (float *)(matrixptr + 0x440);
     pd = (float *)(matrixptr + 0x480);
+#endif
 
     CopyVector(pa, w->pos);
     CopyVector(pb, &org);
@@ -756,7 +783,7 @@ static void dispPool(GObj *self)
     copyToWork(4);
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 #else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -776,7 +803,13 @@ static void dispPool(GObj *self)
         prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
     }
 #else
+#ifdef VERSION_JUN26
+    if (debug_snapshot_reserve == 0) {
+        prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
+    }
+#else
     prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
+#endif
 #endif
 
     CopyMatrix((char *)GOBJ_SUB(self)->lightMtx + 0x40, workLightColor);
@@ -790,8 +823,14 @@ static void dispPool(GObj *self)
     CopyMatrix(m1, (char *)(matrixptr + 0x1C0));
     CopyMatrix(m2, (char *)(matrixptr + 0x100));
     CopyMatrix(m3, (char *)(matrixptr + 0x200));
+#ifdef VERSION_JUN26
+    CopyMatrix(m4, (char *)(matrixptr + 0x280));
+
+    debug_snapshot_reserve--;
+#else
     CopyMatrix(m4, (char *)(matrixptr + 0x340));
 
+#endif
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     debug_snapshot_reserve--;
 #endif
@@ -818,7 +857,11 @@ static void dispPool(GObj *self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
         case 99:
 #else
+#ifdef VERSION_JUN26
+        case 98:
+#else
         case 101:
+#endif
 #endif
             MatrixDrive_RotMatrixZ((w->spin << 16) / 1600);
             break;
@@ -844,10 +887,14 @@ static void dispPool(GObj *self)
 
     CopyMatrix((char *)(matrixptr + 0xC0), m0);
     CopyMatrix((char *)(matrixptr + 0x1C0), m1);
+#ifdef VERSION_JUN26
+    CopyMatrix((char *)(matrixptr + 0x280), m4);
+#else
     CopyMatrix((char *)(matrixptr + 0x340), m4);
+#endif
     CopyMatrix((char *)(matrixptr + 0x100), m2);
     CopyMatrix((char *)(matrixptr + 0x200), m3);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     currentScreenWidth = ScreenWidth;
     currentScreenHeight = ScreenHeight;
     debug_snapshot_reserve++;
@@ -864,7 +911,7 @@ static void dispPool(GObj *self)
 
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 #else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -882,7 +929,7 @@ static void dispPool(GObj *self)
     prim_DispMesh3D(w->reflect, dispLightColor, dispLightNormal, -1);
 
     gif_StartPacketPri(4);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 #else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -916,8 +963,13 @@ void PoolDL(GObj *self)
     DispMultiBgaManagerWithKind(427, w->bga, 10);
     DispMultiBgaManagerWithKind(428, w->splash, 2);
 #else
+#ifdef VERSION_JUN26
+    DispMultiBgaManagerWithKind(391, w->bga, 10);
+    DispMultiBgaManagerWithKind(392, w->splash, 2);
+#else
     DispMultiBgaManagerWithKind(498, w->bga, 10);
     DispMultiBgaManagerWithKind(499, w->splash, 2);
+#endif
 #endif
 #endif
 #endif
@@ -942,13 +994,13 @@ void InitLimitedPoolReflactionMesh(PoolMesh *refl)
 
     refl->mesh = prim_InitMesh3D(refl->ncol, refl->nrow, 1, 0x1C, refl->color, 1);
     refl->height = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c",
-                                  LN(899, 899, 899, 899, 899));
+                                  LN(899, 899, 899, 899, 899, 899));
     refl->row = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c",
-                               LN(900, 900, 900, 900, 900));
+                               LN(900, 900, 900, 900, 900, 900));
     for (i = 0; i < refl->nrow; i++) {
         refl->row[i] = refl->mesh->pos + i * refl->ncol;
         refl->height[i] = iosMallocDebug(ios_partition_sugipon, refl->ncol * 4, "src/pool.c",
-                                         LN(905, 905, 905, 905, 905));
+                                         LN(905, 905, 905, 905, 905, 905));
         for (j = 0; j < refl->ncol; j++) {
             refl->height[i][j] = 0.0f;
         }
@@ -962,13 +1014,13 @@ void InitLimitedPoolReflactionMesh(PoolMesh *refl)
 
     refl->mesh = prim_InitMesh3D(refl->ncol, refl->nrow, 1, 0x1C, refl->color, 1);
     refl->height = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c",
-                                  LN(884, 884, 884, 884, 892));
+                                  LN(884, 884, 884, 884, 892, 895));
     refl->row = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c",
-                               LN(885, 885, 885, 885, 893));
+                               LN(885, 885, 885, 885, 893, 896));
     for (i = 0; i < refl->nrow; i++) {
         refl->row[i] = refl->mesh->pos + i * refl->ncol;
         refl->height[i] = iosMallocDebug(ios_partition_sugipon, refl->ncol * 4, "src/pool.c",
-                                         LN(890, 890, 890, 890, 898));
+                                         LN(890, 890, 890, 890, 898, 901));
         for (j = 0; j < refl->ncol; j++) {
             refl->height[i][j] = 0.0f;
         }
@@ -1006,8 +1058,13 @@ void SetLayoutedPoolReflactionMesh(PoolMesh *refl)
     vec = screenOrigin;
     sx = 1.0f / (float)ScreenWidth;
     sy = 1.0f / (float)ScreenHeight;
+#ifdef VERSION_JUN26
+    tmp = (char *)(matrixptr + 0x400);
+    base = (char *)(matrixptr + 0x380);
+#else
     tmp = (char *)(matrixptr + 0x4C0);
     base = (char *)(matrixptr + 0x440);
+#endif
 
     CopyVector(base, &vec);
 
@@ -1056,7 +1113,7 @@ void SetLimitedPoolReflactionMesh(PoolMesh *refl, GObj *pool, GObj *obj)
     int i;
     int j;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (w == 0) {
         /* "a water attribute is set where there is no water (it may hang)" */
         debug_StdPrintfDummy("水域じゃないところに水アトリビュートがついてます(ハングの可能性)\n");
@@ -1077,11 +1134,19 @@ void SetLimitedPoolReflactionMesh(PoolMesh *refl, GObj *pool, GObj *obj)
     v2[1] += GOBJ_SUB(obj)->root.projHeight;
 
     pos[1] = (v1[1] + v2[1]) * 0.5f;
+#ifdef VERSION_JUN26
+    _InterVectorXYZ(pos, pos, (char *)(matrixptr + 752),
+                    (v1[1] - *(float *)(matrixptr + 756)) / (pos[1] - *(float *)(matrixptr + 756)));
+
+    _InterVectorXYZ(v2, v2, (char *)(matrixptr + 752),
+                    (v1[1] - *(float *)(matrixptr + 756)) / (v2[1] - *(float *)(matrixptr + 756)));
+#else
     _InterVectorXYZ(pos, pos, (char *)(matrixptr + 944),
                     (v1[1] - *(float *)(matrixptr + 948)) / (pos[1] - *(float *)(matrixptr + 948)));
 
     _InterVectorXYZ(v2, v2, (char *)(matrixptr + 944),
                     (v1[1] - *(float *)(matrixptr + 948)) / (v2[1] - *(float *)(matrixptr + 948)));
+#endif
 
     dist = GetPointDistance(v1, v2) + 100.0f;
 
@@ -1092,8 +1157,13 @@ void SetLimitedPoolReflactionMesh(PoolMesh *refl, GObj *pool, GObj *obj)
     vec = screenOrigin;
     sx = 1.0f / (float)ScreenWidth;
     sy = 1.0f / (float)ScreenHeight;
+#ifdef VERSION_JUN26
+    tmp = (char *)(matrixptr + 0x400);
+    base = (char *)(matrixptr + 0x380);
+#else
     tmp = (char *)(matrixptr + 0x4C0);
     base = (char *)(matrixptr + 0x440);
+#endif
 
     dz = dist / (float)refl->nrow;
 
@@ -1129,7 +1199,7 @@ void DispLimitedPoolReflactionMesh(PoolMesh *refl)
     gif_StartPacketPri(4);
     copyToWork(4);
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 #else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -1146,7 +1216,7 @@ void DispLimitedPoolReflactionMesh(PoolMesh *refl)
     }
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void PoolGeo(void) {}
 
 inline int CheckPoolHasGridMesh(GObj *pool)
@@ -1185,7 +1255,7 @@ int CheckPoolHasGridMesh(GObj *pool)
 }
 #endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void InitLayoutedPoolReflactionMesh(PoolMesh *refl, PoolMeshQuad *quad)
 {
     float v0[4];
@@ -1225,7 +1295,7 @@ void InitLayoutedPoolReflactionMesh(PoolMesh *refl, PoolMeshQuad *quad)
 }
 #endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static inline int poolRideFunc(ObjNode *on, GObj *rider)
 {
     Sub15C *e = GOBJ_SUB(rider);
@@ -1243,7 +1313,7 @@ static int poolRideFunc(ObjNode *on, GObj *rider)
 }
 #endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline float getWave(float t)
 {
     t += 50.0f;

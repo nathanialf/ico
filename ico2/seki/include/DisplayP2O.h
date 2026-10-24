@@ -115,6 +115,40 @@ typedef struct PObjMaterial { /* field names derived */
     char pad68[8];
 } PObjMaterial; /* derived name */
 
+#ifdef VERSION_JUN26
+/* one texture slot of a part, 104 bytes in June (32-byte names; the later
+ * builds' are 24), pac_getTextureInfo fills it: the texture's name and the
+ * names with "_l" and "_ref" appended, the three texture numbers (-1 where
+ * there is none), and a bit per number found: bit 0 the texture (or no
+ * texture asked for), bit 1 "_l", bit 2 "_ref" */
+typedef struct PObjTexInfo { /* field names derived */
+    char name[32];           /* 0x00 */
+    char nameL[32];          /* 0x20 */
+    char nameRef[32];        /* 0x40 */
+    short tex;               /* 0x60 */
+    short texL;              /* 0x62 */
+    short texRef;            /* 0x64 */
+    unsigned short found;    /* 0x66 */
+} PObjTexInfo;               /* derived name */
+
+/* one part's group record, 60 bytes a part in June (pac_makePacket's
+ * mallocseki(n * 60)): the part's material table (0x70 bytes a material)
+ * and count, its texture-info table and count, its first packet (a
+ * PacHeader; a line part's record is Packet.c's MatLine), the copies of the
+ * packets the morphs rewrite and the model's name, in the first part's
+ * record */
+typedef struct PObjGroup {   /* field names derived */
+    PObjMaterial *materials; /* 0x00 */
+    int matCount;            /* 0x04 */
+    PObjTexInfo *texs;       /* 0x08 */
+    int texCount;            /* 0x0C */
+    void *packets;           /* 0x10 */
+    void *morph;             /* 0x14 */
+    char name[32];           /* 0x18 */
+    char reserved;           /* 0x38, pac_makePacket clears it */
+    char pad39[3];
+} PObjGroup; /* derived name */
+#else
 /* one texture slot of a part, 80 bytes, pac_getTextureInfo fills it: the
  * texture's name and the names with "_l" and "_ref" appended, the three
  * texture numbers (-1 where there is none), and a bit per number found:
@@ -142,6 +176,7 @@ typedef struct PObjGroup {   /* field names derived */
     short texCount;          /* 0x12 */
     char name[28];           /* 0x14, the model's name, in the first part's record */
 } PObjGroup;                 /* derived name */
+#endif
 
 typedef struct PObjModel { /* field names derived */
     char name[32];         /* 0x00 */
@@ -149,14 +184,23 @@ typedef struct PObjModel { /* field names derived */
     int pad24;
     Sub15C *dobj; /* 0x28 */
     short pad2C;
+#ifdef VERSION_JUN26
+    short partCount; /* 0x2E */
+#else
     signed char partCount; /* 0x2E */
     signed char disp;      /* 0x2F */
+#endif
 
     union {
         unsigned long long bits; /* bits 16 and 17 the display type, bit 26 the shadow off */
 
         struct {
+#ifdef VERSION_JUN26
+            short clstNum; /* 0x30, the cluster count AllocPObj stores (PObj.c's clstNum);
+                                         the later builds keep a char at 0x2F */
+#else
             short id;
+#endif
             unsigned short type : 2;  /* 0x32, the display type */
             unsigned short shade : 4; /* the shade the strips carry */
             unsigned short lod : 4;   /* the level of detail the packet is built for */

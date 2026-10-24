@@ -10,7 +10,9 @@
 #include <libvu0.h>
 #include "main.h"
 
+#ifndef VERSION_JUN26
 int warpGirlInStageSet = 0;
+#endif
 
 int warpGirlId;
 
@@ -44,10 +46,14 @@ void warpGirlOutStage(int stage, int noSet)
     float b1[4]; /* the trigger box, corner 1 */
     float rpos[4];
     int i;
+#ifdef VERSION_JUN26
+
+#else
     int j;
     int hit;
 
     hit = 0;
+#endif
     if (gameSysObjInfo[1].stage != stage) {
         return;
     }
@@ -64,6 +70,10 @@ void warpGirlOutStage(int stage, int noSet)
         return;
     }
     warpGirlId = 0;
+#ifdef VERSION_JUN26
+    warpFound = 0;
+    for (i = 1; i < 26 && warpFound == 0; i++) {
+#else
     for (j = 2; j < 22; j++) {
         if (gameSysObjInfo[j].no != 0 && gameSysObjInfo[j].stage == stage_no &&
             gameSysObjInfo[j].work[0] == 4) {
@@ -76,6 +86,7 @@ void warpGirlOutStage(int stage, int noSet)
     }
     warpFound = 0;
     for (i = 1; i < 25 && warpFound == 0; i++) {
+#endif
         const WarpRec *w = &girlWarpList[i];
 
         if (w->from != stage) {
@@ -121,11 +132,15 @@ void warpGirlInStage(int stageNo)
     float ry;
     const WarpRec *w = &girlWarpList[warpGirlId];
 
+#ifndef VERSION_JUN26
     warpGirlInStageSet = 0;
+#endif
     if (IsGirlEscortedInNextStage() != 0) {
         return;
     }
+#ifndef VERSION_JUN26
     warpGirlInStageSet = 1;
+#endif
     if (w->to0 == stageNo) {
         pos[0] = -w->arrive0[3];
         pos[1] = -w->arrive0[2];
@@ -142,7 +157,9 @@ void warpGirlInStage(int stageNo)
         pos[2] = -w->arrive2[1];
         ry = w->arrive2[0];
     } else {
+#ifndef VERSION_JUN26
         warpGirlInStageSet = 0;
+#endif
         return;
     }
     rot[0] = 0.0f;
@@ -156,7 +173,11 @@ void warpGirlInStage(int stageNo)
 #ifdef VERSION_AUG6
     gamesysObjInfoPosNewStageSet(130, 2, stageNo, pos, rot);
 #else
+#ifdef VERSION_JUN26
+    gamesysObjInfoPosNewStageSet(124, 2, stageNo, pos, rot);
+#else
     gamesysObjInfoPosNewStageSet(148, 2, stageNo, pos, rot);
+#endif
 #endif
 #endif
 }

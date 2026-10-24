@@ -18,11 +18,15 @@ static inline void adpcmOpenDiskNotReady(void);
    then the two stream records and the four SPU slots the streams play on */
 static int adpcmIopBase; /* derived name */
 
+#ifdef VERSION_JUN26
+static int adpcmIopHeap; /* derived name */
+#endif
+
 static int adpcmIopBuffUsed[2]; /* derived name */
 
 static int adpcmPause; /* derived name */
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static int adpcmIopHeap; /* derived name */
 #endif
 
@@ -30,7 +34,7 @@ static AdpcmStream adpcmStream[2]; /* derived name */
 
 static int adpcmSpuSlot[4]; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* adpcm_init.o's .rodata opens with the file name, before AdpcmStreamInit's
    string */
 static const char adpcmSrcFile[] = __FILE__; /* derived name */
@@ -123,7 +127,7 @@ void adpcmTickProc2(SqEntry *obj)
     }
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* the message AdpcmIopBuffAlloc prints */
 static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n"; /* derived name */
 #else
@@ -160,11 +164,11 @@ SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, i
         }
     }
 #ifdef VERSION_NTSC
-    debug_assert(adpcmSrcFile, LN(360, 360, 360, 360, 360));
-    __assert(adpcmSrcFile, LN(360, 360, 360, 360, 360), "0");
+    debug_assert(adpcmSrcFile, LN(360, 360, 360, 360, 360, 360));
+    __assert(adpcmSrcFile, LN(360, 360, 360, 360, 360, 360), "0");
 #else
-    debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317));
-    __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317), "0");
+    debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 317));
+    __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 317), "0");
 #endif
 found:
     p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
@@ -183,15 +187,20 @@ found:
         break;
     default:
 #ifdef VERSION_NTSC
-        debug_assert(adpcmSrcFile, LN(378, 378, 378, 378, 378));
-        __assert(adpcmSrcFile, LN(378, 378, 378, 378, 378), "0");
+        debug_assert(adpcmSrcFile, LN(378, 378, 378, 378, 378, 378));
+        __assert(adpcmSrcFile, LN(378, 378, 378, 378, 378, 378), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 335));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 335), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 335, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 335, 363), "0");
 #else
-        debug_assert(adpcmSrcFile, LN(381, 381, 381, 381, 381));
-        __assert(adpcmSrcFile, LN(381, 381, 381, 381, 381), "0");
+#ifdef VERSION_JUN26
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 335));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 335), "0");
+#else
+        debug_assert(adpcmSrcFile, LN(381, 381, 381, 381, 381, 381));
+        __assert(adpcmSrcFile, LN(381, 381, 381, 381, 381, 381), "0");
+#endif
 #endif
 #endif
     }
@@ -268,6 +277,29 @@ found:
     return adpcmIopBase + i * 0x5C000;
 }
 
+#ifdef VERSION_JUN26
+inline void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum)
+{
+    int req;
+
+    debug_StdPrintfDummy("AdpcmOpen id%d \n", no);
+    req = (no & 0xFFFF) | 0x110000;
+    if (soundDataAreaSearch(&req) != 0) {
+        self->bg = 0;
+        return;
+    }
+    self->ch = ch;
+    self->id = no;
+    self->iopBuf = AdpcmIopBuffAlloc();
+    if (self->iopBuf != 0) {
+        self->bg = iosCdvdBackGroundMgrAdd((char *)&adpcmFile[no], adpcmOpenProc, self,
+                                           adpcmOpenDiskNotReady, 0, self, 0, 0);
+    } else {
+        self->bg = 0;
+    }
+    self->loopNum = loopNum;
+}
+#else
 void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum)
 {
     int req;
@@ -290,6 +322,7 @@ void AdpcmOpen(AdpcmOpenReq *self, int no, int ch, int loopNum)
     }
     self->loopNum = loopNum;
 }
+#endif
 
 static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
 {
@@ -298,11 +331,16 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
 
     if (no >= 3) {
 #ifdef VERSION_AUG6
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 125));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 125), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 125, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 125, 363), "0");
 #else
-        debug_assert(adpcmSrcFile, LN(143, 143, 143, 143, 143));
-        __assert(adpcmSrcFile, LN(143, 143, 143, 143, 143), "0");
+#ifdef VERSION_JUN26
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 125));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 125), "0");
+#else
+        debug_assert(adpcmSrcFile, LN(143, 143, 143, 143, 143, 143));
+        __assert(adpcmSrcFile, LN(143, 143, 143, 143, 143, 143), "0");
+#endif
 #endif
     }
     adpcmIopBuffUsed[no] = 0;
@@ -332,15 +370,20 @@ void AdpcmClose(SqEntry *obj)
             }
         }
 #ifdef VERSION_NTSC
-        debug_assert(adpcmSrcFile, LN(600, 600, 600, 600, 600));
-        __assert(adpcmSrcFile, LN(600, 600, 600, 600, 600), "0");
+        debug_assert(adpcmSrcFile, LN(600, 600, 600, 600, 600, 600));
+        __assert(adpcmSrcFile, LN(600, 600, 600, 600, 600, 600), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 557));
-        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 557), "0");
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 557, 363));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 557, 363), "0");
 #else
-        debug_assert(adpcmSrcFile, LN(605, 605, 605, 605, 605));
-        __assert(adpcmSrcFile, LN(605, 605, 605, 605, 605), "0");
+#ifdef VERSION_JUN26
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 555));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317, 555), "0");
+#else
+        debug_assert(adpcmSrcFile, LN(605, 605, 605, 605, 605, 605));
+        __assert(adpcmSrcFile, LN(605, 605, 605, 605, 605, 605), "0");
+#endif
 #endif
 #endif
     found:
@@ -399,7 +442,7 @@ void AdpcmVolumeSet(SqEntry *self, int vol)
 inline void adpcmPauseRequest(int val)
 {
     adpcmPause = val;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 }
 
 inline void AdpcmStreamHeap(void)
@@ -483,6 +526,7 @@ body:
     r = adpcmDataSet(0, self->id, 0x11, self->ch, 0, self->iopBuf, self->loopNum);
     iosCdvdBackGroundMgrSeek(r->stream->bg, 0x5C000);
     return r;
+#ifndef VERSION_JUN26
 }
 
 inline void AdpcmFadeCloseAll(short step)
@@ -527,6 +571,7 @@ inline int AdpcmFreeAreaGet(void)
             count = next;
     } while (n >= 0);
     return count;
+#endif
 }
 
 inline void AdpcmInterStereoVolumeSetAll(void)

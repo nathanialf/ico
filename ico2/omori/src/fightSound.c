@@ -97,9 +97,14 @@ static void fightSoundProcessMain(void)
 {
     int req;
     int cond = 0;
+#ifdef VERSION_JUN26
+
+    req = 0x110004;
+#else
     int step;
 
     req = 0x110001;
+#endif
     fightSnd.handle = soundDataAreaSearch(&req);
     if (fightSnd.handle == 0) {
         fightSnd.volume = 0;
@@ -116,15 +121,24 @@ static void fightSoundProcessMain(void)
 #ifdef VERSION_AUG6
             if (_ACTCharStatus_Check(boyGObj, 15) != 0) {
 #else
+#ifdef VERSION_JUN26
+            if (_ACTCharStatus_Check(boyGObj, 13) != 0) {
+#else
             if (_ACTCharStatus_Check(boyGObj, 17) != 0) {
+#endif
 #endif
                 cond = 1;
             }
         }
         if (systemStatus[6] == 0) {
             fightSoundGirlTaken = 0;
+#ifdef VERSION_JUN26
+            if ((girlGObj != 0 && _ACTCharStatus_Check(girlGObj, 7) != 0) ||
+                gamesysAnotherStageTsuresari != 0) {
+#else
             if ((girlGObj != 0 && _ACTCharStatus_Check(girlGObj, 9) != 0) ||
                 gamesysAnotherStageTsuresari != 0) {
+#endif
                 fightSoundGirlTaken = 1;
             }
         }
@@ -135,27 +149,41 @@ static void fightSoundProcessMain(void)
     if (fightSnd.handle == 0) {
         if (cond != 0 || fightSoundGirlTaken != 0) {
             if (systemStatus[6] == 0) {
+#ifdef VERSION_JUN26
+                soundDataOpen(&fightSnd.req, 2, 4, 2, 0);
+                fightSoundState = 1;
+#else
                 soundDataOpen(&fightSnd.req, 2, 1, 2, 0);
                 if (fightSnd.req.iopBuf != 0) {
                     fightSoundState = 1;
                 }
+#endif
             }
         }
     }
     if (fightSnd.handle == 0) {
         return;
     }
+#ifdef VERSION_JUN26
+    if (cond == 0 && fightSoundGirlTaken == 0) {
+        fightSnd.volume -= 96;
+#else
     step = 96;
     if (fightSoundPause == 1) {
         step = 1024;
     }
     if (cond == 0 && fightSoundGirlTaken == 0) {
         fightSnd.volume -= step;
+#endif
         if (fightSnd.volume < 0) {
             fightSnd.volume = 0;
         }
     } else {
+#ifdef VERSION_JUN26
+        fightSnd.volume += 96;
+#else
         fightSnd.volume += step;
+#endif
         if (fightSnd.volume > 6144) {
             fightSnd.volume = 6144;
         }
@@ -193,8 +221,8 @@ void fightSoundProcess(void)
         fightSoundState = 0;
         break;
     default:
-        debug_assert("src/fightSound.c", 255);
-        __assert("src/fightSound.c", 255, "0");
+        debug_assert("src/fightSound.c", LN(255, 255, 255, 255, 255, 248));
+        __assert("src/fightSound.c", LN(255, 255, 255, 255, 255, 248), "0");
     }
 }
 

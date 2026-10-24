@@ -109,9 +109,9 @@ void EntrySpiderGroupManager(GObj *gobj)
         p->active = 0;
     } else {
         debug_assertMessage(
-            "src/spiderGroupManager.c", LN(85, 85, 85, 85, 86),
+            "src/spiderGroupManager.c", LN(85, 85, 85, 85, 86, 86),
             "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n");
-        __assert("src/spiderGroupManager.c", LN(85, 85, 85, 85, 86), "e");
+        __assert("src/spiderGroupManager.c", LN(85, 85, 85, 85, 86, 86), "e");
     }
     spiderGroups[spiderGroupCount].rev = (int)p;
     spiderGroupCount = spiderGroupCount + 1;
@@ -157,7 +157,11 @@ static int tryToRevive(void)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
                             ExecuteSEPackage(p, 102);
 #else
+#ifdef VERSION_JUN26
+                            ExecuteSEPackage(p, 88);
+#else
                             ExecuteSEPackage(p, 107);
+#endif
 #endif
                             for (m = 0; m < 5; m++) {
                                 SetAP1DeadStatus(DeleteSpiderFromLayoutGroup(
@@ -179,13 +183,23 @@ void ExecSpiderGroupManager(void)
 {
     int i;
     int total;
+#ifndef VERSION_JUN26
     int groups;
+#endif
 
     if ((execFrame & 0xF) == 0) {
         tryToRevive();
     }
 
     if (spiderGroupIdCount != 0 && reviveDone == 0) {
+#ifdef VERSION_JUN26
+        total = 0;
+        for (i = 0; i < spiderGroupIdCount; i++) {
+            total += GetAliveSpiders((GObj *)spiderGroupIds[i]);
+        }
+
+        if (total > 0 && total < 5) {
+#else
         groups = 0;
         total = 0;
         for (i = 0; i < spiderGroupIdCount; i++) {
@@ -197,6 +211,7 @@ void ExecSpiderGroupManager(void)
         }
 
         if (groups != 0 && total > 0 && total < 5) {
+#endif
             reviveCounter = reviveCounter + 1;
             if (debug_brain_bar_flag != 0) {
                 debug_PrintfDummy(400, 120, 0xFFFFFFFF, "COUNTER %d/%d", reviveCounter,
@@ -206,19 +221,27 @@ void ExecSpiderGroupManager(void)
 
         if ((60 - systemStatus[0] * 10) / systemStatus[1] * 45 < reviveCounter) {
             for (i = 0; i < spiderGroupIdCount; i++) {
+#ifdef VERSION_JUN26
+                DeadAllSpiders((GObj *)spiderGroupIds[i]);
+#else
                 if (GetAliveSpiders((GObj *)spiderGroupIds[i]) >= 0) {
                     DeadAllSpiders((GObj *)spiderGroupIds[i]);
                 }
+#endif
             }
             reviveDone = 1;
         }
 
         if (debug_brain_bar_flag != 0) {
+#ifdef VERSION_JUN26
+            debug_PrintfDummy(400, 110, 0xFFFFFFFF, "REMAIN %d", total);
+#else
             if (groups != 0) {
                 debug_PrintfDummy(400, 110, 0xFFFFFFFF, "REMAIN %d", total);
             } else {
                 debug_PrintfDummy(400, 110, 0xFFFFFFFF, "NO GROUP WAKEUPED");
             }
+#endif
         }
     }
 

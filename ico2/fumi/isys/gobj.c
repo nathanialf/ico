@@ -16,8 +16,14 @@ static GObj *gobjKindHead[68]; /* derived name */
 /* the head of the free list for each of the 67 object kinds */
 static GObj *gobjKindHead[67]; /* derived name */
 #else
+#ifdef VERSION_JUN26
+/* the head of the free list for each of the 65 object kinds (obj-kind-data
+   has 65 rows; isysGObjKindTableInit clears 260 bytes) */
+static GObj *gobjKindHead[65]; /* derived name */
+#else
 /* the head of the free list for each of the 70 object kinds */
 static GObj *gobjKindHead[70]; /* derived name */
+#endif
 #endif
 #endif
 
@@ -56,7 +62,8 @@ inline void isysGObjAlloc(int n)
     GObj *tbl;
     unsigned int i;
 
-    gobjTable = iosMallocDebug(ios_partition_isys, n * sizeof(GObj), __FILE__, 174);
+    gobjTable = iosMallocDebug(ios_partition_isys, n * sizeof(GObj), __FILE__,
+                               LN(174, 174, 174, 174, 174, 171));
     gobjMax = n;
     tbl = gobjTable;
     for (i = 0; i < n; i++) {
@@ -86,8 +93,8 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
             return;
         while (p->kindNext != g) {
             if (p == 0) {
-                debug_assert(__FILE__, 146);
-                __assert(__FILE__, 146, "0");
+                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 146));
+                __assert(__FILE__, LN(146, 146, 146, 146, 146, 146), "0");
             }
             p = p->kindNext;
         }
@@ -166,8 +173,8 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
             return;
         while (p->kindNext != g) {
             if (p == 0) {
-                debug_assert(__FILE__, 146);
-                __assert(__FILE__, 146, "0");
+                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 146));
+                __assert(__FILE__, LN(146, 146, 146, 146, 146, 146), "0");
             }
             p = p->kindNext;
         }
@@ -181,7 +188,11 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
 {
     int kind = g->kind;
     GObj *p;
+#ifdef VERSION_JUN26
+    if ((unsigned int)(kind - 1) < 64) {
+#else
     if ((unsigned int)(kind - 1) < 69) {
+#endif
         p = gobjKindHead[kind];
         if (p == g) {
             gobjKindHead[kind] = g->kindNext;
@@ -191,8 +202,8 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
             return;
         while (p->kindNext != g) {
             if (p == 0) {
-                debug_assert(__FILE__, 146);
-                __assert(__FILE__, 146, "0");
+                debug_assert(__FILE__, LN(146, 146, 146, 146, 146, 143));
+                __assert(__FILE__, LN(146, 146, 146, 146, 146, 143), "0");
             }
             p = p->kindNext;
         }
@@ -417,7 +428,7 @@ void *isysGObjAddBeforeGObj(void (*fn)(GObj *), GObj *other)
     return g;
 }
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 int isysGetNbAllocedGObjs(void)
 {
     int result = 0;
@@ -486,7 +497,11 @@ inline void isysGObjKindTableAdd(GObj *g, int kind)
 #ifdef VERSION_AUG6
     if ((unsigned int)kind < 67) {
 #else
+#ifdef VERSION_JUN26
+    if ((unsigned int)kind < 65) {
+#else
     if ((unsigned int)kind < 70) {
+#endif
 #endif
         if (gobjKindHead[kind] == 0) {
             gobjKindHead[kind] = g;
@@ -640,7 +655,11 @@ inline void *isysGObjSearchFromObjKindID_begin(int kind)
 #ifdef VERSION_AUG6
     if ((unsigned int)(kind - 1) < 66) {
 #else
+#ifdef VERSION_JUN26
+    if ((unsigned int)(kind - 1) < 64) {
+#else
     if ((unsigned int)(kind - 1) < 69) {
+#endif
 #endif
         return gobjKindHead[kind];
     }

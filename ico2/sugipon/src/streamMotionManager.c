@@ -33,7 +33,9 @@ static char *ringBuf = 0; /* derived name */
 
 static char *readBuf = 0; /* derived name */
 
+#ifndef VERSION_JUN26
 static char *readBufRaw = 0; /* derived name */
+#endif
 
 static int headerRead = 0; /* derived name */
 
@@ -43,7 +45,7 @@ static char *streamOwner = 0; /* derived name */
 
 static int ringUsed = 0; /* derived name */
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static unsigned int streamIdle = 1; /* derived name */
 
 #ifndef VERSION_NTSC
@@ -57,6 +59,24 @@ static int frameCount = 0; /* derived name */
 #endif
 #endif
 
+#ifdef VERSION_JUN26
+/* One character's stream, 20 bytes in this build: the node and shape counts
+   the frame header gives, the frame's size, the ring offset of the current
+   frame and the object. */
+typedef struct {  /* field names derived */
+    int nodeNum;  /* 0x00, 8 bytes a node */
+    int shapeNum; /* 0x04, 4 bytes a shape */
+    int size;     /* 0x08, 16 + the two */
+    int cur;      /* 0x0C, -1 until data arrives */
+
+    union {
+        int i;
+        GObj *p;
+    } obj; /* 0x10, stored as a word: EntryStreamMotion's store of it stays
+              behind the reads of the object it follows only under an
+              any-type view */
+} SMotion; /* derived name */
+#else
 /* One character's stream: the node and shape counts the frame header gives,
    the frame's size, the ring offsets of the current and the next frame, the
    object and the function called when the stream ends. */
@@ -65,7 +85,7 @@ typedef struct {  /* field names derived */
     int shapeNum; /* 0x04, 4 bytes a shape */
     int size;     /* 0x08, 16 + the two */
     int cur;      /* 0x0C, -1 until data arrives */
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int next; /* 0x10 */
 #endif
 
@@ -78,6 +98,7 @@ typedef struct {  /* field names derived */
 
     void (*finishFunc)(GObj *); /* 0x18 */
 } SMotion;                      /* derived name */
+#endif
 
 /* the ten stream-motion slots _deleteStreamMotionManager resets to
    emptyEntry */
@@ -108,7 +129,7 @@ static inline void _setEntryOffsets(void) /* derived name */
     int i;
 
     for (i = 0; i < streamNum; i++) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         streamEntry[i].cur = (ringRead + off) % 163840;
 #else
         streamEntry[i].cur = streamEntry[i].next = (ringRead + off) % 163840;
@@ -238,7 +259,7 @@ static int _infoUpdate(void)
 #else
 static int _infoUpdate(void)
 {
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int top;
     int n;
 #endif
@@ -255,7 +276,7 @@ static int _infoUpdate(void)
                 streamEntry[i].size = 16 + streamEntry[i].nodeNum * 8 + streamEntry[i].shapeNum * 4;
                 headerSize += streamEntry[i].size;
             }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             headerRead = 1;
 #else
             n = 3619;
@@ -269,13 +290,13 @@ static int _infoUpdate(void)
             /* the data had not arrived in time when the stream motion started */
             debug_StdPrintfDummy(
                 "ストリームモーション開始時にデータの転送が間に合っていませんでした。\n");
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
             iosCdvdStDelayCnt++;
 #endif
             return 0;
         }
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (_checkRing(headerSize)) {
         _setEntryOffsets();
         if (*(unsigned char *)(ringBuf + ringRead) != 0) {
@@ -357,6 +378,19 @@ void PlayStreamMotion(void)
     streamState = 1;
 }
 
+#ifdef VERSION_JUN26
+/* reset the actor's stream-motion state */
+inline void ClearStreamMotionEntry(GObj *gobj)
+{
+    GOBJ_SUB(gobj)->ctrl.stream = -1;
+    GOBJ_SUB(gobj)->streamScale = 1;
+    CopyVector(GOBJ_SUB(gobj)->streamOfs, ZeroVector);
+    GOBJ_SUB(gobj)->ctrl.catchBoy = 1;
+}
+
+/* the cleared entry every slot is reset to */
+static SMotion emptyEntry = {0, 0, -1, -1, {0}}; /* derived name */
+#else
 /* reset the actor's stream-motion state; the offset trace at the end is
  * switched off */
 void ClearStreamMotionEntry(GObj *gobj)
@@ -379,6 +413,7 @@ static SMotion emptyEntry = {0, 0, -1, -1, {0}, 0}; /* derived name */
 #else
 static SMotion emptyEntry = {0, 0, -1, -1, -1, {0}, 0}; /* derived name */
 #endif
+#endif
 
 static void _deleteStreamMotionManager(void)
 {
@@ -387,9 +422,11 @@ static void _deleteStreamMotionManager(void)
     if (streamNum != 0) {
         for (i = 0; i < streamNum; i++) {
             ClearStreamMotionEntry(streamEntry[i].obj.p);
+#ifndef VERSION_JUN26
             if (streamEntry[i].finishFunc != 0) {
                 streamEntry[i].finishFunc(streamEntry[i].obj.p);
             }
+#endif
         }
         streamNum = 0;
     }
@@ -400,18 +437,22 @@ static void _deleteStreamMotionManager(void)
     readState = 0;
     ringRead = 0;
     ringWrite = 0;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     streamIdle = 1;
 #endif
     headerRead = 0;
     headerSize = 0;
     ringUsed = 0;
 #ifndef VERSION_NTSC
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (ringBuf != 0) {
         iosFree(ringBuf);
+#ifdef VERSION_JUN26
+        iosFree(readBuf);
+#else
         iosFree(readBufRaw);
         readBufRaw = 0;
+#endif
         ringBuf = 0;
         readBuf = 0;
     }
@@ -424,7 +465,7 @@ static void _deleteStreamMotionManager(void)
         bgMgrId = 0;
     }
     debug_StdPrintfDummy("delete stream motion manager\n");
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 }
 
 void DisableStreamMotionManagerAutomaticDelete(void)
@@ -444,7 +485,7 @@ inline int GetDataSizeOfStreamMotion(int no)
     return streamEntry[no].size;
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static void getStreamMotionData(char *dst, int off, int no)
 {
     int size = streamEntry[no].size;
@@ -487,7 +528,7 @@ typedef struct { /* field names derived */
 /* the four bytes GetStreamMotionData hands back while no data has arrived */
 static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void GetStreamMotionData(char *dst, int no)
 {
     int off;
@@ -532,6 +573,70 @@ inline float GetStreamMotionData(char *dst, int no)
 }
 #endif
 
+#ifdef VERSION_JUN26
+static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
+{
+    int old_idx = *idx_p;
+    int new_idx = old_idx + amt;
+    *idx_p = new_idx;
+    if (new_idx >= size) {
+        int overflow = new_idx - size;
+        int first_chunk = amt - overflow;
+        *idx_p = overflow;
+        memcpy(dst + old_idx, src, first_chunk);
+        memcpy(dst, src + first_chunk, *idx_p);
+        return;
+    }
+    memcpy(dst + old_idx, src, amt);
+}
+
+void ExecStreamMotionManager(void)
+{
+    int i;
+    int pct;
+
+    switch (streamState) {
+    case 0:
+        break;
+    case 1:
+        if (_infoUpdate() != 0) {
+            /* "detected the end of the stream motion" */
+            debug_StdPrintfDummy("ストリームモーションの終了を検知\n");
+            streamState = 0;
+            if (bgMgrId != 0) {
+                iosCdvdBackGroundMgrDelete(bgMgrId);
+            } else {
+                _deleteStreamMotionManager();
+            }
+            if (streamNum != 0) {
+                for (i = 0; i < streamNum; i++) {
+                    ClearStreamMotionEntry(streamEntry[i].obj.p);
+                }
+                streamNum = 0;
+            }
+        }
+        break;
+    }
+    if (bgMgrId != 0) {
+        unsigned int wp = ringWrite;
+        unsigned int rp = ringRead;
+
+        if (wp < rp) {
+            pct = wp + 163840 - rp;
+        } else {
+            pct = wp - rp;
+        }
+        pct = pct * 100 / 163840;
+        if (debug_font_flag & 1) {
+            debug_Printf(0, ScreenHeight / 2 - 16, 0xFF404000, " %d%%", pct);
+        }
+        if (debug_font_flag & 1) {
+            debug_Printf(58, ScreenHeight / 2 - 16, 0x40FF4000, "STANDBY %d CHARS %s", streamNum,
+                         streamOwner);
+        }
+    }
+}
+#else
 static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {
     int old_idx = *idx_p;
@@ -605,14 +710,14 @@ void MallocStreamMotionBuffer(void)
 {
 #ifdef VERSION_NTSC
     ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c",
-                             LN(502, 502, 502, 502, 502));
+                             LN(502, 502, 502, 502, 502, 502));
     readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c",
-                                LN(504, 504, 504, 504, 504));
+                                LN(504, 504, 504, 504, 504, 504));
 #else
     ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c",
-                             LN(602, 570, 570, 602, 602));
+                             LN(602, 570, 570, 602, 602, 602));
     readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c",
-                                LN(604, 572, 572, 604, 604));
+                                LN(604, 572, 572, 604, 604, 604));
 #endif
     readBuf = (char *)((int)(readBufRaw + 63) & 0xFFFFFFC0);
     if (ringBuf == 0 || readBuf == 0) {
@@ -621,6 +726,7 @@ void MallocStreamMotionBuffer(void)
     }
 #endif
 }
+#endif
 
 inline void ClearAllStreamMotionEntry(void)
 {
@@ -631,9 +737,11 @@ inline void ClearAllStreamMotionEntry(void)
     }
     for (i = 0; i < streamNum; i++) {
         ClearStreamMotionEntry(streamEntry[i].obj.p);
+#ifndef VERSION_JUN26
         if (streamEntry[i].finishFunc != 0) {
             streamEntry[i].finishFunc(streamEntry[i].obj.p);
         }
+#endif
     }
     streamNum = 0;
 }
@@ -709,10 +817,19 @@ inline void StandbyStreamMotion(char *file)
 #ifdef VERSION_AUG6
     }
     ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c",
-                             LN(602, 570, 570, 602, 492));
+                             LN(602, 570, 570, 602, 492, 602));
     readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c",
-                                LN(604, 572, 572, 604, 494));
+                                LN(604, 572, 572, 604, 494, 604));
     readBuf = (char *)((int)(readBufRaw + 63) & 0xFFFFFFC0);
+    if (ringBuf == 0 || readBuf == 0) {
+        /* "could not allocate the stream buffer memory" */
+        debug_StdPrintfDummy("ストリーム用のバッファメモリが確保できませんでした\n");
+#endif
+#ifdef VERSION_JUN26
+    }
+    ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c",
+                             LN(602, 570, 570, 602, 602, 456));
+    readBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c", 457);
     if (ringBuf == 0 || readBuf == 0) {
         /* "could not allocate the stream buffer memory" */
         debug_StdPrintfDummy("ストリーム用のバッファメモリが確保できませんでした\n");
@@ -741,7 +858,7 @@ inline int EntryStreamMotion(GObj *gobj)
     return no;
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void InitStreamMotionManager(void) {}
 #else
 inline void InitStreamMotionManager(void)
@@ -764,6 +881,7 @@ inline int CheckReadyStreamMotion(void)
     if (!(q < p) && (int)q < (int)end)
         r = 0;
     return r;
+#ifndef VERSION_JUN26
 }
 
 inline void SetStreamMotionFinishCallBackFunc(int no, void (*func)(GObj *))
@@ -781,6 +899,7 @@ inline void FreeStreamMotionBuffer(void)
         ringBuf = 0;
         readBuf = 0;
     }
+#endif
 #endif
 }
 

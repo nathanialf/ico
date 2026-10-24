@@ -593,6 +593,15 @@ CONT_CLUSTER_1_SPEC:
 	nop                              ibgtz vi07, CLIP_CLUSTER_1_SPEC_SET    ; vi07 > 0 -> back-face path
 NOCLIP_CLUSTER_1_SPEC:
 	nop                              sq.xyzw vf26, 2(vi03)                  ; front-face position  (delay slot)
+#ifdef VERSION_JUN26
+	nop                              b NEXT_CLUSTER_1_SPEC                  ; -> the shared loop tail
+	nop                              nop                                    ; (branch delay slot)
+CLIP_CLUSTER_1_SPEC:
+	nop                              iaddiu vi07, vi00, 3                   ; reset vi07 = 3
+CLIP_CLUSTER_1_SPEC_SET:
+	nop                              sq.xyzw vf27, 2(vi03)                  ; back-face position
+NEXT_CLUSTER_1_SPEC:
+#else
 	add.xy      vf24, vf24, vf25     ibne vi06, vi00, LOOP_CLUSTER_1_SPEC   ; vf24.xy += vf25.xy; loop
 	nop                              iaddiu vi03, vi03, 3                   ; vi03 += 3            (delay slot)
 	nop                              xgkick vi01
@@ -603,6 +612,7 @@ CLIP_CLUSTER_1_SPEC:
 	nop                              iaddiu vi07, vi00, 3                   ; reset vi07 = 3
 CLIP_CLUSTER_1_SPEC_SET:
 	nop                              sq.xyzw vf27, 2(vi03)                  ; back-face position
+#endif
 	add.xy      vf24, vf24, vf25     ibne vi06, vi00, LOOP_CLUSTER_1_SPEC   ; vf24.xy += vf25.xy; loop
 	nop                              iaddiu vi03, vi03, 3                   ; vi03 += 3            (delay slot)
 	nop                              xgkick vi01

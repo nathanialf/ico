@@ -22,6 +22,38 @@
 #include "script.h"
 #include "main.h"
 
+#ifdef VERSION_JUN26
+/* The functions stand in the order of the stage's source as this build has
+   it: the handlers in aug6's order (its TRFILE numbers them so), the rope
+   swing's three between BarricadeEvent and BarricadeChk, and the actors
+   gathered after the handlers they post (as in this build's st08b.c and
+   st05d.c), the enemy group last. The ones defined inline are output at the
+   end of the file in the order of their first declarations (the entry points
+   in st47a.h first); the others where they stand. The tables the actors
+   install with actInitialize, the main-mail tables and the switch packets
+   are file-scope statics; the ones the wing and swing handlers install
+   through GOBJ_ACT are static locals of their posters (gcc's local name.N
+   symbol); .data keeps the source order. */
+
+void actSt47aInit(void)
+{
+    if (gflagChk(43) != 0) {
+        stage_SetAnimation(131, 0, 0);
+        SetWayGroupActive(33, 1);
+    } else {
+        stage_SetAnimation(130, 0, 0);
+        SetWayGroupActive(33, 0);
+    }
+
+    if (gflagChk(44) != 0) {
+        stage_SetAnimation(133, 0, 0);
+        SetWayGroupActive(34, 1);
+    } else {
+        stage_SetAnimation(132, 0, 0);
+        SetWayGroupActive(34, 0);
+    }
+}
+#else
 #ifdef VERSION_NTSC
 void actSt47aInit(void)
 {
@@ -132,6 +164,7 @@ SqEntry *hane2up = 0;
 SqEntry *hane1down = 0;
 
 SqEntry *hane2down = 0;
+#endif
 
 int sekizo_47a = 0;
 
@@ -225,6 +258,791 @@ inline void actSt47aSekizo1(GObj *volatile self)
 }
 #endif
 
+#ifdef VERSION_JUN26
+/* the shared pad-state array (op.c's PadState, GsBase.c's GsbPad): 0x58 per
+   pad, trg at 0x4. */
+
+static ActMail sekizo1_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt47aSekizo1Event(int x)
+{
+    volatile int local = x;
+}
+
+inline void actSt47aGirlWay(GObj *volatile self);
+
+void actSt47aSekizo1Chk(GObj *volatile self)
+{
+    /* the sound handle, which the sound subsystem owns; it is kept across
+       the whole cutscene and read again for soundSeDefStop */
+    volatile int se;
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 83) {
+        _ACTWait(1);
+    }
+
+    scpSekizouCheckPoint();
+
+    scpAdpcmPlayRequestFunc(21, 0, 1, 1, 1);
+
+    scpKillEnemyAll();
+    scpMaskGeneratorAll();
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    brainLockGirl();
+
+    gflagOn(39);
+
+    _ACTWait(60);
+
+    stage_SetAnimation(126, 1, 0);
+
+    sekizo_47a = iosPadActRequest(boyPad, 9);
+    sekizo_47a_vol = 128;
+    iosPadActVolumeSet(sekizo_47a, 128);
+
+    se = soundSeDefPlay(1167, 0, 0, 1);
+
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayMot(girlGObj, 521);
+
+    scpPlayPosSet(girlGObj, 1750.0f, -272.0f, 0.0f);
+    scpPlayPosSet(boyGObj, 1750.0f, -272.0f, 50.0f);
+
+    _ACTWait(1);
+    {
+        Vec16 v;
+
+        sceVu0SubVector(v.f, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
+        scpPlayMotDir(girlGObj, v.f);
+        scpBoyControlReadDisable = 1;
+        sceVu0SubVector(v.f, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, v.f);
+
+        scpPlayMot(girlGObj, 584);
+        scpPlayWaitMotEnd(girlGObj);
+
+        soundSeDefStop(se);
+    }
+
+    while (stage_CheckAnimationFrame(126, 151, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    iosPadActStop(sekizo_47a);
+
+    scpPlayMot(girlGObj, 521);
+    scpPlayEnd(girlGObj);
+
+    actCreateSubThread(actSt47aGirlWay, 21);
+
+    _ACTWait(30);
+
+    scpPlayMot(boyGObj, 254);
+    scpPlayWaitMotEnd(boyGObj);
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+}
+
+/* A 16-byte constant vector template: the float view carries the values,
+   the long long view is the one the copy reads. */
+
+static const ConstVec girlWayPos = {{2266.0f, -272.0f, 0.0f, 0.0f}}; /* derived name */
+
+inline void actSt47aGirlWay(GObj *volatile self)
+{
+    long long buf[2];
+    long long way[2];
+
+    buf[0] = girlWayPos.d[0];
+    buf[1] = girlWayPos.d[1];
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
+
+    memset(way, 0, 16);
+    RequestStageChangeDirect(girlGObj, 11, way, 180);
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+    brainUnlockGirl();
+}
+
+inline void actSt47aSekizo2Event(int x)
+{
+    volatile int local = x;
+}
+
+inline void actSt47aSekizo3Event(int x)
+{
+    volatile int local = x;
+}
+
+inline void actSt47aSekizo4Event(int x)
+{
+    volatile int local = x;
+}
+
+void actSt47aHane1Main(GObj *volatile self);
+inline void actSt47aHane1Switch(GObj *volatile self);
+inline void actSt47aHane1Down(GObj *volatile self);
+void actSt47aHane1Up(GObj *volatile self);
+inline void actSt47aHane1_1Girl(GObj *volatile self);
+inline void actSt47aHane1_2Girl(GObj *volatile self);
+
+static ActMail hane1Main_mes[2] = {{356, actSt47aHane1Switch}, {376}}; /* derived name */
+
+static ActMail hane1_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail hane1SwitchUp_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail hane1SwitchDown_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt47aHane1Main(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+
+    sub->mainMail = hane1Main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+inline void actSt47aHane1Switch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    if (gflagChk(43) != 0) {
+        hane1SwitchUp_mes[0].func = actSt47aHane1Up;
+        sub->mail = hane1SwitchUp_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+
+    hane1SwitchDown_mes[0].func = actSt47aHane1Down;
+    sub->mail = hane1SwitchDown_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt47aHane1Down(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    static ActMail hane1Down_mes[2] = {{377}, {376}}; /* derived name */
+
+    scpAdpcmPlayRequestFunc(59, 0, 1, 1, 1);
+
+    stage_SetAnimation(130, 1, 0);
+
+    SetWayGroupActive(33, 1);
+
+    gflagOn(43);
+
+    while (stage_CheckAnimationFinish(130) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    hane1Down_mes[0].func = actSt47aHane1Main;
+    act->mail = hane1Down_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt47aHane1Up(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    static ActMail hane1Up_mes[2] = {{377}, {376}}; /* derived name */
+
+    if (girlGObj != 0) {
+        if (scpTriggerFloorAttr(girlGObj, 0x2000000) != 0) {
+            actCreateSubThread(actSt47aHane1_1Girl, 21);
+        }
+        if (scpTriggerFloorAttr(girlGObj, 0x4000000) != 0) {
+            actCreateSubThread(actSt47aHane1_2Girl, 21);
+        }
+    }
+
+    scpAdpcmPlayRequestFunc(60, 0, 1, 1, 1);
+
+    stage_SetAnimation(131, 1, 0);
+
+    SetWayGroupActive(33, 0);
+
+    gflagOff(43);
+
+    while (stage_CheckAnimationFinish(131) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    hane1Up_mes[0].func = actSt47aHane1Main;
+    act->mail = hane1Up_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+static const ConstVec hane1_1GirlPos = {{-1076.0f, -1972.0f, 755.0f, 0.0f}}; /* derived name */
+
+inline void actSt47aHane1_1Girl(GObj *volatile self)
+{
+    long long buf[2];
+    buf[0] = hane1_1GirlPos.d[0];
+    buf[1] = hane1_1GirlPos.d[1];
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
+}
+
+static const ConstVec hane1_2GirlPos = {{1028.0f, -1972.0f, 744.0f, 0.0f}}; /* derived name */
+
+inline void actSt47aHane1_2Girl(GObj *volatile self)
+{
+    long long buf[2];
+    buf[0] = hane1_2GirlPos.d[0];
+    buf[1] = hane1_2GirlPos.d[1];
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
+}
+
+void actSt47aHane2Main(GObj *volatile self);
+inline void actSt47aHane2Switch(GObj *volatile self);
+inline void actSt47aHane2Down(GObj *volatile self);
+void actSt47aHane2Up(GObj *volatile self);
+inline void actSt47aHane2Girl(GObj *volatile self);
+
+static ActMail hane2Main_mes[2] = {{357, actSt47aHane2Switch}, {376}}; /* derived name */
+
+static ActMail hane2_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail hane2SwitchUp_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail hane2SwitchDown_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt47aHane2Main(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+
+    sub->mainMail = hane2Main_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+inline void actSt47aHane2Switch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    if (gflagChk(44) != 0) {
+        hane2SwitchUp_mes[0].func = actSt47aHane2Up;
+        sub->mail = hane2SwitchUp_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+
+    hane2SwitchDown_mes[0].func = actSt47aHane2Down;
+    sub->mail = hane2SwitchDown_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt47aHane2Down(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    static ActMail hane2Down_mes[2] = {{377}, {376}}; /* derived name */
+
+    scpAdpcmPlayRequestFunc(59, 0, 1, 1, 1);
+
+    stage_SetAnimation(132, 1, 0);
+
+    SetWayGroupActive(34, 1);
+
+    gflagOn(44);
+
+    while (stage_CheckAnimationFinish(132) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    hane2Down_mes[0].func = actSt47aHane2Main;
+    act->mail = hane2Down_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt47aHane2Up(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+    static ActMail hane2Up_mes[2] = {{377}, {376}}; /* derived name */
+
+    if (girlGObj != 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
+        actCreateSubThread(actSt47aHane2Girl, 21);
+    }
+
+    scpAdpcmPlayRequestFunc(60, 0, 1, 1, 1);
+
+    stage_SetAnimation(133, 1, 0);
+
+    SetWayGroupActive(34, 0);
+
+    gflagOff(44);
+
+    while (stage_CheckAnimationFinish(133) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    hane2Up_mes[0].func = actSt47aHane2Main;
+    act->mail = hane2Up_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+static const ConstVec hane2GirlPos = {{-1031.0f, -1972.0f, -747.0f, 0.0f}}; /* derived name */
+
+inline void actSt47aHane2Girl(GObj *volatile self)
+{
+    long long buf[2];
+    buf[0] = hane2GirlPos.d[0];
+    buf[1] = hane2GirlPos.d[1];
+    _SCPMoveCharactorByWay(girlGObj, 0, (float *)buf, 100.0f, 0);
+}
+
+static ActMail rope_mes[2] = {{377}, {376}}; /* derived name */
+
+void actSt47aRopeChk(GObj *volatile self)
+{
+    while (1) {
+        if (scpGameStat_BoyWeaponkind() == 4 && scpTriggerBall(self, boyGObj, 100.0f) != 0 &&
+            (ForMotionViewer_GetCurrentMotion(boyGObj) == 39 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 44 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 46 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 40 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 41 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 62)) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+
+    gflagOn(45);
+
+    scpBoyControlReadDisable = 1;
+
+    iosPadActRequest(boyPad, 17);
+
+    _ACTWait(30);
+
+    stage_SetAnimation(135, 1, 0);
+
+    stage_SetAnimation(134, 1, 65);
+
+    soundSeDefPlay(1262, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(134) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpSearchGobj(442)->active = 1;
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
+
+static ActMail ropeSwing_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt47aBarricadeEvent(int x)
+{
+    volatile int local = x;
+}
+
+void actSt47aRopeSwingChk(GObj *volatile self);         /* derived name */
+inline void actSt47aRopeSwingDemo(GObj *volatile self); /* derived name */
+
+/* The rope swings when the boy strikes it without the sword: the check
+   threads the swing and the swing re-arms the check. */
+inline void actSt47aRopeSwingChk(GObj *volatile self) /* derived name */
+{
+    while (1) {
+        if (scpGameStat_BoyWeaponkind() != 4 && scpTriggerBall(self, boyGObj, 100.0f) != 0 &&
+            (ForMotionViewer_GetCurrentMotion(boyGObj) == 39 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 44 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 46 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 40 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 41 ||
+             ForMotionViewer_GetCurrentMotion(boyGObj) == 62)) {
+            break;
+        }
+        _ACTWait(1);
+    }
+
+    actCreateSubThread(actSt47aRopeSwingDemo, 21);
+}
+
+inline void actSt47aRopeSwingDemo(GObj *volatile self) /* derived name */
+{
+    Act *act = GOBJ_ACT(self);
+    static ActMail ropeSwingDemo_mes[2] = {{377}, {376}}; /* derived name */
+
+    stage_SetAnimation(134, 1, 0);
+
+    soundSeDefPlay(1236, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(134, 63, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    ropeSwingDemo_mes[0].func = actSt47aRopeSwingChk;
+    act->mail = ropeSwingDemo_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt47aRopeSwingEvent(int x) /* derived name */
+{
+    volatile int local = x;
+}
+
+static ActMail barricade_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt47aBarricadeChk(GObj *volatile self)
+{
+    GObj *n;
+
+    while ((n = scpIsBombExplode(19)) == 0 || scpTriggerBall(self, n, 500.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    stage_SetAnimation(136, 1, 0);
+
+    gflagOn(46);
+
+    while (stage_CheckAnimationFinish(136) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
+
+static ActMail exit_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt47aExitChk(GObj *volatile self)
+{
+    scpSearchGobj(420)->active = 0;
+
+    while ((gflagChk(148) == 0) || (gflagChk(200) == 0)) {
+        _ACTWait(1);
+    }
+
+    gflagOn(47);
+    scpSearchGobj(419)->active = 0;
+    scpSearchGobj(420)->active = 1;
+}
+
+static ActMail exit2_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt47aExit2Chk(GObj *volatile self)
+{
+    scpSearchGobj(419)->active = 1;
+    scpSearchGobj(420)->active = 0;
+}
+
+inline void actSt47aSekizo1(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(39) == 0) {
+        stage_SetAnimation(126, 0, 0);
+        sekizo1_mes[0].func = actSt47aSekizo1Chk;
+        act->mail = sekizo1_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(126, 0, -1);
+    }
+}
+
+inline void actSt47aSekizo2(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 40, 127, 0, 21, -2450.0f, -1372.0f, -1150.0f, -2450.0f, -1372.0f, -1250.0f);
+}
+
+inline void actSt47aSekizo3(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 41, 128, 0, 21, 1700.0f, -1972.0f, 650.0f, 1700.0f, -1972.0f, 750.0f);
+}
+
+inline void actSt47aSekizo4(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 42, 129, 0, 21, 1700.0f, -1972.0f, -650.0f, 1700.0f, -1972.0f, -750.0f);
+}
+
+inline void actSt47aHane1(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    gflagChk(43);
+
+    hane1_mes[0].func = actSt47aHane1Main;
+    act->mail = hane1_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt47aHane2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    hane2_mes[0].func = actSt47aHane2Main;
+    act->mail = hane2_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt47aRope(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(45) == 0) {
+        stage_SetAnimation(134, 0, 0);
+        scpSearchGobj(442)->active = 0;
+        rope_mes[0].func = actSt47aRopeChk;
+        act->mail = rope_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(134, 0, -1);
+        scpSearchGobj(442)->active = 1;
+    }
+}
+
+inline void actSt47aRopeSwing(GObj *volatile self) /* derived name */
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(45) == 0) {
+        ropeSwing_mes[0].func = actSt47aRopeSwingChk;
+        act->mail = ropeSwing_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+inline void actSt47aBarricade(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(46) == 0) {
+        stage_SetAnimation(136, 0, 0);
+        barricade_mes[0].func = actSt47aBarricadeChk;
+        act->mail = barricade_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(136, 0, -1);
+    }
+}
+
+inline void actSt47aExit(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    exit_mes[0].func = actSt47aExitChk;
+    act->mail = exit_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+inline void actSt47aExit2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(123) != 0) {
+        exit2_mes[0].func = actSt47aExit2Chk;
+        act->mail = exit2_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+inline void actSt47aEneChk(GObj *volatile self);
+
+static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt47aEne(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(48) == 0) {
+        ene_mes[0].func = actSt47aEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+inline void actSt47aEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+    gflagOn(48);
+    gflagOn(49);
+}
+
+void actSt47aEnemy1(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    Generator_Mask(self);
+
+    Generator_Mask(scpSearchGobj(453));
+
+    while (gflagChk(49) == 0) {
+        _ACTWait(1);
+    }
+
+    _ACTWait(1);
+
+    Generator_MaskOff(self);
+
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+    _ACTWait(60);
+    Generator_Call(self);
+
+    Generator_Call(scpSearchGobj(453));
+}
+
+inline void actSt47aEnemy2(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    Generator_Mask(self);
+
+    while (gflagChk(49) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    Generator_MaskOff(self);
+    Generator_Call(self);
+
+    _ACTWait(60);
+
+    Generator_Call(self);
+}
+
+void actSt47aTorch(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(132) != 0) {
+        scpTorchLightOn(428);
+        scpTorchLightOn(429);
+        scpTorchLightOn(430);
+        scpTorchLightOn(431);
+        scpTorchLightOn(432);
+        scpTorchLightOn(433);
+        scpTorchLightOn(434);
+        scpTorchLightOn(435);
+        scpTorchLightOn(436);
+        scpTorchLightOn(437);
+        scpTorchLightOn(438);
+        scpTorchLightOn(439);
+        scpTorchLightOn(440);
+        scpTorchLightOn(441);
+    }
+}
+#else
 #ifdef VERSION_NTSC
 void actSt47aSekizo1Chk(GObj *volatile self)
 {
@@ -2770,5 +3588,6 @@ static void actSt47aHint2OnChk(GObj *volatile self)
     gflagOn(54);
     WakeupHint(5);
 }
+#endif
 #endif
 #endif

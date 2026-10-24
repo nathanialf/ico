@@ -369,7 +369,7 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     w->ratio = 1.0f;
     w->route = InitChains(seg);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     /* the first node's angle words cleared as floats; int stores move
        InitWormGeo's schedule (measured; the USA build's are float stores too) */
     *(float *)&d->nodes->rot[2] = 0.0f;
@@ -394,10 +394,17 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     d->nodes->scale[0] = 1.0f;
 
     if (d->nodeMtx != 0) {
+#ifdef VERSION_JUN26
+        iosFree((void *)d->nodeMtx);
+    }
+    if (d->nodeQuat != 0) {
+        iosFree((void *)d->nodeQuat);
+#else
         iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
     }
     if (d->nodeQuat != 0) {
         iosFree((void *)(d->nodeQuat & 0xFFFFFFF));
+#endif
     }
     d->nodeMtx = 0;
     d->nodeQuat = 0;
@@ -405,7 +412,11 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     d->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num * 16, __FILE__, 367);
     d->nodeNum = num;
     if ((int)d->nodes != 0) {
+#ifdef VERSION_JUN26
+        iosFree(d->nodes);
+#else
         iosFree((void *)((int)d->nodes & 0xFFFFFFF));
+#endif
     }
     d->nodes = iosMallocDebug(ios_partition_seki, num * 80, __FILE__, 367);
     {

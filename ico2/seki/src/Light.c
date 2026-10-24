@@ -67,7 +67,9 @@ static int lastLight; /* derived name */
 
 static AmbientVolume *lastAmbient; /* derived name */
 
+#ifndef VERSION_JUN26
 static int lightCount; /* derived name */
+#endif
 
 /* the count of flat lights light_AddLight has registered, which
    light_resetFlatLight clears */
@@ -79,11 +81,11 @@ static void light_killLinkLight(Light *p)
         /* "the light is NULL" */
         debug_StdPrintfDummy("Light:NULLになってんで\n");
 #ifdef VERSION_AUG6
-        debug_assert("src/Light.c", LN(451, 451, 451, 451, 397));
-        __assert("src/Light.c", LN(451, 451, 451, 451, 397), "0");
+        debug_assert("src/Light.c", LN(451, 451, 451, 451, 397, 451));
+        __assert("src/Light.c", LN(451, 451, 451, 451, 397, 451), "0");
 #else
-        debug_assert("src/Light.c", 424);
-        __assert("src/Light.c", 424, "0");
+        debug_assert("src/Light.c", LN(424, 424, 424, 424, 424, 386));
+        __assert("src/Light.c", LN(424, 424, 424, 424, 424, 386), "0");
 #endif
     }
     if (p->next != 0) {
@@ -100,13 +102,22 @@ static void light_killLinkLight(Light *p)
     freeseki(p);
 }
 
+#ifdef VERSION_JUN26
+static void light_killLinkAmbient(AmbientVolume *p);
+#endif
+
 static void light_killLinkAmbient(AmbientVolume *p)
 {
     if (p == 0) {
         /* "the ambient volume is NULL" */
         debug_StdPrintfDummy("AmbientVolume:NULLになってんで\n");
-        debug_assert("src/Light.c", LN(451, 451, 451, 451, 424));
-        __assert("src/Light.c", LN(451, 451, 451, 451, 424), "0");
+#ifdef VERSION_JUN26
+        debug_assert("src/Light.c", LN(424, 424, 424, 424, 424, 413));
+        __assert("src/Light.c", LN(424, 424, 424, 424, 424, 413), "0");
+#else
+        debug_assert("src/Light.c", LN(451, 451, 451, 451, 424, 451));
+        __assert("src/Light.c", LN(451, 451, 451, 451, 424, 451), "0");
+#endif
     }
     if (p->next != 0) {
         p->next->prev = p->prev;
@@ -184,7 +195,7 @@ Light *light_AddLight(GObj *self, int b, int kind)
             return 0;
         }
         q = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c",
-                                    LN(620, 620, 620, 620, 593));
+                                    LN(620, 620, 620, 620, 593, 581));
         self->dobj->lightId = b;
         q->owner = self;
         q->kind = kind;
@@ -209,7 +220,7 @@ Light *light_AddLight(GObj *self, int b, int kind)
         Light *r;
 
         r = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c",
-                                    LN(685, 685, 685, 685, 658));
+                                    LN(685, 685, 685, 685, 658, 646));
         r->kind = kind;
         r->scale = 1.0f;
         r->range = 32768.0f;
@@ -219,11 +230,16 @@ Light *light_AddLight(GObj *self, int b, int kind)
     default:
         debug_StdPrintfDummy("Added Light is illegal.\n");
 #ifdef VERSION_AUG6
-        debug_assert("src/Light.c", LN(451, 451, 451, 451, 678));
-        __assert("src/Light.c", LN(451, 451, 451, 451, 678), "0");
+        debug_assert("src/Light.c", LN(451, 451, 451, 451, 678, 451));
+        __assert("src/Light.c", LN(451, 451, 451, 451, 678, 451), "0");
 #else
-        debug_assert("src/Light.c", LN(705, 705, 705, 705, 705));
-        __assert("src/Light.c", LN(705, 705, 705, 705, 705), "0");
+#ifdef VERSION_JUN26
+        debug_assert("src/Light.c", LN(424, 424, 424, 424, 424, 666));
+        __assert("src/Light.c", LN(424, 424, 424, 424, 424, 666), "0");
+#else
+        debug_assert("src/Light.c", LN(705, 705, 705, 705, 705, 705));
+        __assert("src/Light.c", LN(705, 705, 705, 705, 705, 705), "0");
+#endif
 #endif
     }
     return 0;
@@ -346,7 +362,11 @@ static void light_getNearLight(Sub15C *self, int idx)
 #ifdef VERSION_AUG6
     _NormalizeVector(self->shadowDir, dir);
 #else
+#ifdef VERSION_JUN26
+    _NormalizeVector((char *)self + 0x800, dir);
+#else
     _NormalizeVector((char *)self + 0x860, dir);
+#endif
 #endif
 #endif
     for (i = 0; i < 3; i++) {
@@ -520,7 +540,11 @@ void light_DispVolume(void)
 
     if (debug_ambient_volume & 1) {
         sceVu0FMATRIX m;
+#ifdef VERSION_JUN26
+        char buf[64];
+#else
         char buf[256];
+#endif
         int col[4];
         int black[4];
         int dir[4];
@@ -1035,6 +1059,126 @@ int light_Tool(void)
     return ret;
 }
 
+#ifdef VERSION_JUN26
+/* the reflection test's mesh: a 15 by 15 grid facing -z, built by
+   light_InitReflectTest and drawn by light_ReflectTest */
+static Mesh3D *reflectMesh; /* derived name */
+
+void light_InitReflectTest(void) /* derived name */
+{
+    int i;
+    int j;
+    int idx;
+    Prim3DVec *pos;
+    Prim3DVec *nrm;
+    Prim3DVec *st;
+
+    reflectMesh = prim_InitMesh3D(15, 15, 0, 28, 0x80808080, 0);
+    pos = reflectMesh->pos;
+    nrm = reflectMesh->nrm;
+    st = reflectMesh->st;
+    for (i = 0; i < 15; i++) {
+        for (j = 0; j < 15; j++) {
+            idx = i * 15 + j;
+            pos[idx].x = ((float)j - 7.5f) * 20.0f;
+            pos[idx].y = ((float)i - 7.5f) * 20.0f;
+            pos[idx].z = 0.0f;
+            pos[idx].w = 1.0f;
+            nrm[idx].x = nrm[idx].y = 0.0f;
+            nrm[idx].z = -1.0f;
+            nrm[idx].w = 1.0f;
+            st[idx].x = (float)j / 14.0f;
+            st[idx].y = (float)i / 14.0f;
+        }
+    }
+    prim_UpdateMesh3D(reflectMesh, 9, 0);
+    prim_UpdateMesh3D(reflectMesh, 9, 1);
+}
+
+/* the reflection test: the mesh spun by the frame count (held still while
+   pad button 0x20 is down) and in front of the camera, its texture
+   coordinates the sun-camera view of each vertex's reflected eye ray */
+void light_ReflectTest(void) /* derived name */
+{
+    sceVu0FMATRIX rot;
+    sceVu0FMATRIX world;
+    sceVu0FMATRIX view;
+    sceVu0FMATRIX inv;
+    sceVu0FVECTOR trans = {0.0f, -200.0f, 0.0f};
+    float up[4];
+    float sun[4];
+    float eye[4];
+    sceVu0FMATRIX cam;
+    float pos[4];
+    float nrm[4];
+    float ray[4];
+    float tmp[4];
+    float ref[4];
+    Prim3DVec *p;
+    Prim3DVec *n;
+    short angle;
+    int i;
+    int j;
+    int idx;
+
+    angle = frame_count * 256;
+    if (pad[0].now & 0x20) {
+        angle = 0;
+    }
+    _InitCurrentMatrix();
+    _TransCurrentMatrix(trans);
+    _RotCurrentMatrixY(angle);
+    _MulCurrentMatrixL(matrixptr + 0x80);
+    _GetCurrentMatrix(world);
+    _MulCurrentMatrixL(matrixptr + 0xC0);
+    _GetCurrentMatrix(view);
+    memset(up, 0, 16);
+    up[1] = 1.0f;
+    GetSunWorldPos(sun);
+    _ScaleVector(eye, sun, 1000000.0f);
+    _SetCameraMatrix(cam, eye, sun, up);
+    _UnitVector(cam[3]);
+    _InversMatrix(inv, matrixptr + 0x80);
+    _UnitVector(inv[3]);
+    _MulMatrix(inv, cam, inv);
+    _CopyMatrix(rot, world);
+    _UnitVector(rot[3]);
+    for (i = 0; i < 15; i++) {
+        for (j = 0; j < 15; j++) {
+            idx = i * 15 + j;
+            p = reflectMesh->pos;
+            n = reflectMesh->nrm;
+            _ApplyMatrix(pos, world, &p[idx]);
+            _NormalizeVector(pos, pos);
+            _ScaleVectorXYZ(ray, pos, -1.0f);
+            _ApplyMatrix(nrm, rot, &n[idx]);
+            _ScaleVectorXYZ(tmp, nrm, _InnerProduct(ray, nrm) * 2.0f);
+            _AddVectorXYZ(ref, tmp, pos);
+            ref[3] = 1.0f;
+            _ApplyMatrix(ref, inv, ref);
+            ref[2] *= 2.0f;
+            ref[0] += ref[2];
+            ref[1] += ref[2];
+            reflectMesh->st[idx].x = ref[0] * 0.125f + 0.25f;
+            reflectMesh->st[idx].y = ref[1] * 0.125f + 0.25f;
+            reflectMesh->st[idx].z = 1.0f;
+            reflectMesh->st[idx].w = 0.0f;
+        }
+    }
+    prim_UpdateMesh3D(reflectMesh, 8, buffer_ID);
+    gif_StartPacketPriPath1(4);
+    gif_SetGsReg(8, 0);
+    gif_SetGsReg(71, 0x50000);
+    gif_SetGsReg(66, (128LL << 32) | 0x62);
+    gif_SetGsReg(78, 0x300000C0);
+    gif_EndPacketPath1();
+    _SetCurrentMatrix(view);
+    texturetranssize += tex_TransTexture(58, 4);
+    prim_DispMesh3D(reflectMesh, 0, 0, 58);
+    debug_StdPrintfDummy("reflection test\n");
+}
+#endif
+
 void light_InitLight(void)
 {
     lastLight = 0;
@@ -1042,7 +1186,7 @@ void light_InitLight(void)
     flatLightNum = 0;
 }
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void light_ResetLight(void) {}
 #endif
 
@@ -1061,7 +1205,9 @@ void light_KillAllFixLight(void)
         }
         p = p->prev;
     }
+#ifndef VERSION_JUN26
     lightCount = 0;
+#endif
 }
 
 void light_KillAllAmbient(void)
@@ -1095,7 +1241,7 @@ AmbientVolume *light_AddAmbientObject(int obj)
     AmbientVolume *p;
 
     p = (AmbientVolume *)iosMallocDebug(ios_partition_seki, 160, "src/Light.c",
-                                        LN(723, 723, 723, 723, 696));
+                                        LN(723, 723, 723, 723, 696, 684));
     p->shape = obj;
     p->lightScale = 1.0f;
     light_setLinkAmbient(p);

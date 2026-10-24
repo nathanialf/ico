@@ -54,6 +54,45 @@ typedef struct FcFloorEnt { /* field names derived */
 /* fieldCollision.c's `inline` functions (all but the sixteen it compiles in
  * place), in the order of their definitions' out-of-line copies at the end of
  * the object (first-declaration order). */
+#ifdef VERSION_JUN26
+void ClipCollision(ClipWork *self);
+/* the wall clip ClipWall dispatches through (__ClipWall) */
+extern void (*clipWallFunc)(ClipWork *work, int mode); /* derived name */
+/* the floor clip ClipFloor dispatches through (__ClipFloor) */
+extern void (*clipFloorFunc)(ClipWork *work, int mode); /* derived name */
+
+/* this build has no ClipWall, ClipFloor or ClipWallField function: every
+   caller loads the pointer and passes the mode itself (act-game.c's
+   ACTCheckViewCl: $gp clipWallFunc with 1, clipFloorFunc with 12) */
+#define ClipWall(work) clipWallFunc((work), 1)
+#define ClipFloor(work) clipFloorFunc((work), 12)
+/* mode 3: the field walls (act-game.c's ACTCheckCollis_WAY) */
+#define ClipWallField(work) clipWallFunc((work), 3)
+/* mode 10: the walls that stop a pushed box (box.c's execNormalMove) */
+#define ClipWallBoxStop(work) clipWallFunc((work), 10)
+/* mode 4 (box.c's avoidCharGObj) */
+#define ClipWallE(work) clipWallFunc((work), 4)
+/* mode 2 (motionManager.c's checkWallState and checkCliffState) */
+#define ClipWallR(work) clipWallFunc((work), 2)
+/* mode 5: the field walls of ClipWallE (motionManager.c's _wallHitReaction) */
+#define ClipWallEField(work) clipWallFunc((work), 5)
+/* mode 6: the wave force (motionManager.c's rootUpdateXZ) */
+#define ClipWallWaveForce(work) clipWallFunc((work), 6)
+/* mode 7: the edge walls that stop a hang walk (motionManager.c's checkSideWall) */
+#define ClipWallFuchiHangWalkStop(work) clipWallFunc((work), 7)
+/* mode 11 (motionManager.c's avoidSideAdjustWall) */
+#define ClipWallAdjustPos(work) clipWallFunc((work), 11)
+/* mode 13 (motionManager.c's getFieldCollision) */
+#define ClipFloorE(work) clipFloorFunc((work), 13)
+/* mode 15 (motionManager.c's checkCliffState) */
+#define ClipFloorIH(work) clipFloorFunc((work), 15)
+/* mode 14: no ClipFloorR function either (way_sys.c's create_box_bridge:
+   $gp clipFloorFunc with 14) */
+#define ClipFloorR(work) clipFloorFunc((work), 14)
+
+int ChangeFieldCollisionDebugMode(int drawRay);
+void SetCollisionFilter(int (*filter)(void *obj)); /* derived name */
+#else
 void ClipWallDebug(ClipWork *work);
 inline void ClipWall(ClipWork *work);
 void ClipWallR(ClipWork *work);
@@ -73,6 +112,8 @@ void ClipFloorIH(ClipWork *work);
 void ClipFloorCheckCB(ClipWork *work, int filter);
 void ClipCollision(ClipWork *self);
 int ChangeFieldCollisionDebugMode(int drawRay);
+#endif
+
 void LoadCollision(void **self, char *fname);
 void DrawCollision(int mode);
 int ClipPlane(int work);
@@ -88,8 +129,12 @@ float GetYProjectionOfPlane(float *plane, float *pos);
 void ResetCollisionPC(void);
 int PositionOfExit(float *pos, int attr);
 void GetGlobalWallPlane(float *plane, WallCfg *wall);
+
 /* compiled in place */
+#ifndef VERSION_JUN26
 void ClipFloorByGObj(ClipWork *work, struct GObj *gobj);
+#endif
+
 void DrawCollisionRay(ClipWork *ray);
 void DrawGObjFloorCollision(struct GObj *gobj, int col);
 void DrawGObjWallCollision(struct GObj *gobj, int col);

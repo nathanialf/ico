@@ -16,7 +16,22 @@
    numbers, the tag and polygon counts, the packet size (the byte count in the
    low 24 bits, the clip type in the top byte), the next packet of the model
    and its DMA data. */
-typedef struct PacHeader {  /* field names derived */
+typedef struct PacHeader { /* field names derived */
+#ifdef VERSION_JUN26
+    sceVu0FVECTOR box[9];   /* 0x00 */
+    short mat;              /* 0x90 */
+    short texSlot;          /* 0x92 */
+    short tex;              /* 0x94 */
+    short tex1;             /* 0x96 */
+    short tex2;             /* 0x98 */
+    short ntag;             /* 0x9A */
+    int npoly;              /* 0x9C */
+    unsigned int size : 24; /* 0xA0 */
+    unsigned char clip;     /* 0xA3 */
+    struct PacHeader *next; /* 0xA4 */
+    char *data;             /* 0xA8 */
+    char padAC[4];
+#else
     sceVu0FVECTOR box[8];   /* 0x00 */
     short mat;              /* 0x80 */
     short texSlot;          /* 0x82 */
@@ -30,6 +45,7 @@ typedef struct PacHeader {  /* field names derived */
     struct PacHeader *next; /* 0x94 */
     char *data;             /* 0x98 */
     char pad9C[4];
+#endif
 } PacHeader; /* derived name */
 
 /* one colour of a line record, as the GS RGBAQ register takes it */
@@ -40,7 +56,7 @@ typedef struct PacColor { /* field names derived */
     unsigned char a;
 } PacColor; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* one 144-byte line record pac_makePacket builds and RegistPacket.c draws (PAL's is
    192 bytes): a line's two vertices and texture coordinates.  A point keeps its
    last screen position in pos[1] and per trail index its screen positions
@@ -91,7 +107,11 @@ typedef struct PacLine {        /* field names derived */
 typedef struct PacLineSet { /* field names derived */
     char pad00[12];
     PacLine *lines; /* 0x0C */
+#ifdef VERSION_JUN26
+    char pad10[144];
+#else
     char pad10[128];
+#endif
 } PacLineSet; /* derived name */
 
 struct PObjMaterial;

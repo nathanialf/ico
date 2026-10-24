@@ -34,13 +34,21 @@ extern int texturetranssize;
 extern int used_dl_max;
 extern int used_dl_num;
 extern int used_dl_memory[];
+
 /* debug_bar_flag is not declared here: motionOrientManager.c declares it as
    its display-mode enum, and debug.c declares it itself. */
+#ifndef VERSION_JUN26
 extern int debug_ignore_demo_camera;
+#endif
+
 extern int debug_brain_bar_flag;
 extern int debug_font_flag;
 extern int debug_font_flag2;
+
+#ifndef VERSION_JUN26
 extern int debug_font_flag3;
+#endif
+
 extern int debug_skel_flag;
 extern int debug_seslotdisp_flag;
 extern int debug_wallcheck_flag;
@@ -98,13 +106,17 @@ extern int debug_mot_slope_interp;
 extern int debug_enemy_fly_with_girl;
 extern int debug_disp_enemy_state;
 extern int debug_disp_escort_ball;
+
+#ifndef VERSION_JUN26
 extern int debug_girl_detour_flag;
 extern int debug_col_old_proc;
 extern int debug_fly_limit_test;
 extern int debug_lwskyomi_lookonly;
 extern int debug_one_hit_only;
+
 #ifndef VERSION_AUG6
 extern int debug_ignore_dodge;
+
 #ifndef VERSION_NTSC
 extern int debug_hand_camera;
 extern int debug_enemy_kidnap_timer;
@@ -115,6 +127,8 @@ extern int debug_hair_collision;
 extern int debug_no_breast_hang;
 #endif
 #endif
+#endif
+
 /* debug.c's `inline` functions, in the order of their out-of-line copies at
    the end of the object (first-declaration order).  Callers after a
    definition inline it; the out-of-line copies serve the rest of the game
@@ -144,9 +158,11 @@ void debugCdvdLoadInfoSegInit(int page);
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta);
 void debugCdvdLoadInfoSegCls(int page, int idx);
 inline int gsResetFunc(int val);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 inline void ChangeGirlControlMode(int mode);
 #endif
+
 inline int debug_CallbackGsFinish(int channel);
 void debug_SaveStartStageFile(int stage);
 
@@ -171,10 +187,15 @@ int debugCdvdLoadInfoSegDisp(void);
 int debug_GameOver(void);
 int debug_EndingDemo(void);
 int debug_BackStageTest(void);
+
+#ifndef VERSION_JUN26
 int debug_tsuresariTimeZero(void);
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 int debug_hintStart(void);
 #endif
+#endif
+
 int debug_SelectPad2ControlGobj(int reset);
 void debug_Assert(char *fmt, ...);
 void debug_DispQW(void *p, int size);

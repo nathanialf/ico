@@ -6,7 +6,7 @@
 #include <sifrpc.h>
 #include <sound.h>
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #include "memory.h"
 #include "s_init.h"
 
@@ -59,7 +59,7 @@ int audioDecCreate(AudioDec *self, int mono, int volume)
     self->iopPos = 0;
     self->word50 = 0;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     /* the IOP side buffer is the sound system's heap block (s_init.c) */
     self->iopBuf = soundIopHeapAddrs;
     debug_StdPrintfDummy("adrs %d\n", soundIopHeapAddrs);
@@ -97,7 +97,7 @@ int audioDecCreate(AudioDec *self, int mono, int volume)
     return 0;
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 inline int audioDecDelete(AudioDec *self)
 {
     if (self->iopBuf) {
@@ -132,12 +132,12 @@ inline void audioDecReset(AudioDec *self)
     *(volatile int *)&self->putTotal = 0;
     *(volatile int *)&self->sentTotal = 0;
     *(volatile int *)&self->iopPos = 0;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 }
 
 inline int audioDecDelete(AudioDec *self)
 {
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     if (self->iopBuf) {
         if (sceSifFreeIopHeap(self->iopBuf) < 0) {
             debug_StdPrintfDummy("iop heap free failed 0x%08x\n", self->iopBuf);
@@ -410,7 +410,7 @@ int pcmCallback(sceMpeg *mp, void *cbdata, void *anyData)
     return 0 < k;
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static void Free(int addr)
 {
     /* the buffers are kept as addresses (alloc_zeroed), some at their

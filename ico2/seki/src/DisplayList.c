@@ -14,6 +14,28 @@
 
 #define DL_DEBUG 0 /* derived name */
 
+#ifdef VERSION_JUN26
+/* One priority's display list: whether a DMA tag is open, where the open tag
+   is, the address and quadword count it refers to and its tag id, a VIF tag's
+   open flag and position (dl_Debug's "dlvif" count) and one more word the
+   reset clears, the start of the list's buffer and the write pointer.  0x60
+   bytes in this build. */
+typedef struct {           /* field names derived */
+    int open;              /* 0x00 */
+    int tag;               /* 0x04 */
+    long long addr;        /* 0x08 */
+    unsigned int qwc;      /* 0x10 */
+    int pad14;             /* 0x14 */
+    unsigned long long id; /* 0x18 */
+    int vifOpen;           /* 0x20, cleared with open */
+    int vifTag;            /* 0x24, the VIF tag dl_Debug counts from */
+    int pad28[2];
+    int word30; /* 0x30, cleared with open; no other reader */
+    int pad34[9];
+    int start; /* 0x58 */
+    int cur;   /* 0x5C */
+} DlEntry;     /* derived name */
+#else
 /* One priority's display list: whether a DMA tag is open, where the open tag
    is, the address and quadword count it refers to and its tag id, the start
    of the list's buffer and the write pointer. */
@@ -27,6 +49,7 @@ typedef struct {           /* field names derived */
     int start;             /* 0x20 */
     int cur;               /* 0x24 */
 } DlEntry;                 /* derived name */
+#endif
 
 /* The bank the list is built into and the priority it is building at, then the 13
    list entries, the two banks of 13 buffer heads they are reloaded from, and
@@ -51,11 +74,19 @@ static const int dlBufferSize[13] = {
     81920, 14336, 30720, 4096, 16384, 49152, 40960, 12288, 26624, 14336, 4096, 32768, 98304,
 };
 #else
+#ifdef VERSION_JUN26
+/* The size of each priority's list buffer. */
+static const int dlBufferSize[13] = {
+    /* derived name */
+    98304, 16384, 32768, 4096, 16384, 49152, 49152, 16384, 28672, 16384, 4096, 12288, 24576,
+};
+#else
 /* The size of each priority's list buffer. */
 static const int dlBufferSize[13] = {
     /* derived name */
     81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
 };
+#endif
 #endif
 
 void dl_Init(void)
@@ -71,15 +102,26 @@ void dl_Init(void)
                 (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 387) |
                 0x30000000;
 #else
+#ifdef VERSION_JUN26
+            dlBufferHead[i][j] =
+                (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 428);
+#else
             dlBufferHead[i][j] = (int)iosMallocDebug(ios_partition_common, dlBufferSize[j],
-                                                     __FILE__, LN(393, 393, 393, 393, 387)) |
+                                                     __FILE__, LN(393, 393, 393, 393, 387, 393)) |
                                  0x30000000;
+#endif
 #endif
         }
     }
     dlBank = 0;
     for (i = 0; i < 13; i++) {
+#ifdef VERSION_JUN26
+        dlEntries[i].word30 = 0;
         dlEntries[i].start = dlEntries[i].cur = dlBufferHead[0][i];
+        dlEntries[i].vifOpen = 0;
+#else
+        dlEntries[i].start = dlEntries[i].cur = dlBufferHead[0][i];
+#endif
         dlEntries[i].open = 0;
     }
     dpk_Init();
@@ -109,10 +151,18 @@ void dl_Clear(void)
     dlPriority = 0;
     for (i = 12; i >= 0; i--) {
         int v = *src;
+#ifdef VERSION_JUN26
+        dst->word30 = 0;
+#else
         dst->open = 0;
+#endif
         src++;
         dst->cur = v;
         dst->start = v;
+#ifdef VERSION_JUN26
+        dst->vifOpen = 0;
+        dst->open = 0;
+#endif
         dst++;
     }
     dpk_SwapBuffer();
@@ -127,31 +177,59 @@ void dl_Swap(void)
 {
     int i;
     int j;
+#ifdef VERSION_JUN26
+    for (i = 0; i < 13; i++) {
+        if (dlEntries[i].open) {
+            debug_StdPrintfDummy("dma not close dl priority:%d\n", i);
+            dl_CloseDma();
+        }
+    }
+#else
     int stride = 0x28;
+#endif
     dl_SetDLPriority(0xC);
     dl_OpenDma(7, 0, 0);
     dl_CloseDma();
     i = 0;
     do {
+#ifdef VERSION_JUN26
+        dl_SetDLPriority(i);
+        j = i + 1;
+        dl_OpenDma(1, (void *)(dlEntries[j].start & 0xFFFFFFF), 0);
+#else
         DlEntry *e;
         dl_SetDLPriority(i);
         j = i + 1;
         e = (DlEntry *)((char *)dlEntries + j * stride);
         dl_OpenDma(1, (void *)(e->start & 0xFFFFFFF), 0);
+#endif
         dl_CloseDma();
         i = j;
     } while (j < 0xC);
     FlushCache(0);
     if (fbKeep) {
+#ifdef VERSION_JUN26
+        sceDmaSend(dmaVif, dlEntries[11].start);
+    } else {
+        sceDmaSend(dmaVif, dlEntries[0].start);
+#else
         sceDmaSend(dmaVif, dlEntries[11].start & 0xFFFFFFF);
     } else {
         sceDmaSend(dmaVif, dlEntries[0].start & 0xFFFFFFF);
+#endif
     }
     dl_Clear();
 }
 
 inline void dl_SetDLPriority(int pri)
 {
+#ifdef VERSION_JUN26
+    DlEntry *entry = &dlEntries[dlPriority];
+
+    if (entry->open) {
+        dl_CloseDma();
+    }
+#endif
     if (pri < 0) {
         dlPriority = 0;
     } else if (pri >= 0xD) {
@@ -169,32 +247,45 @@ void dl_PushPriority(void)
     } else {
         debug_StdPrintfDummy("dl_PushPriority:Stack Overflow.\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, 526);
-        __assert(__FILE__, 526, "FALSE");
+        debug_assert(__FILE__, LN(526, 526, 526, 526, 526, 526));
+        __assert(__FILE__, LN(526, 526, 526, 526, 526, 526), "FALSE");
 #else
-        debug_assert(__FILE__, LN(534, 534, 534, 534, 526));
-        __assert(__FILE__, LN(534, 534, 534, 534, 526), "FALSE");
+        debug_assert(__FILE__, LN(534, 534, 534, 534, 526, 575));
+        __assert(__FILE__, LN(534, 534, 534, 534, 526, 575), "FALSE");
 #endif
     }
 }
 
 void dl_PopPriority(void)
 {
+#ifdef VERSION_JUN26
+    DlEntry *entry = &dlEntries[dlPriority];
+
+    if (entry->open) {
+        debug_StdPrintfDummy("dl_PushPriority:dma is now open.\n");
+        dl_CloseDma();
+    }
+#endif
     if (dlStackDepth > 0) {
         dlPriority = dlPriorityStack[dlStackDepth - 1];
         dlStackDepth--;
     } else {
         debug_StdPrintfDummy("dl_PopPriority:Stack Underflow.\n");
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, 544);
-        __assert(__FILE__, 544, "FALSE");
+        debug_assert(__FILE__, LN(544, 544, 544, 544, 544, 544));
+        __assert(__FILE__, LN(544, 544, 544, 544, 544, 544), "FALSE");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(534, 534, 534, 534, 544));
-        __assert(__FILE__, LN(534, 534, 534, 534, 544), "FALSE");
+        debug_assert(__FILE__, LN(534, 534, 534, 534, 544, 534));
+        __assert(__FILE__, LN(534, 534, 534, 534, 544, 534), "FALSE");
 #else
-        debug_assert(__FILE__, LN(552, 552, 552, 552, 552));
-        __assert(__FILE__, LN(552, 552, 552, 552, 552), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert(__FILE__, LN(534, 534, 534, 534, 526, 597));
+        __assert(__FILE__, LN(534, 534, 534, 534, 526, 597), "FALSE");
+#else
+        debug_assert(__FILE__, LN(552, 552, 552, 552, 552, 552));
+        __assert(__FILE__, LN(552, 552, 552, 552, 552, 552), "FALSE");
+#endif
 #endif
 #endif
     }
@@ -208,16 +299,24 @@ inline int dl_GetPri(void)
 void dl_Debug(void)
 {
     DlEntry *entry = &dlEntries[dlPriority];
+#ifdef VERSION_JUN26
+
+    debug_StdPrintfDummy("dldma %d\n", ((unsigned int)(entry->cur - entry->tag) >> 4) - 1);
+    debug_StdPrintfDummy("dlvif %d\n", ((unsigned int)(entry->cur - entry->vifTag) >> 4) - 1);
+#else
     unsigned int end = entry->cur;
     unsigned int start = entry->tag;
     unsigned int count = (end - start) >> 4;
     debug_StdPrintfDummy("dldma %d\n", count - 1);
+#endif
 }
 
 inline void dl_OpenDma(int id, void *addr, int qwc)
 {
     DlEntry *entry = &dlEntries[dlPriority];
+#ifndef VERSION_JUN26
     int old;
+#endif
 
     /* the buffer overflow check, compiled out (DL_DEBUG is 0); the
        message-assert form this programmer writes in Packet.c and
@@ -229,6 +328,14 @@ inline void dl_OpenDma(int id, void *addr, int qwc)
     if (entry->open) {
         dl_CloseDma();
     }
+#ifdef VERSION_JUN26
+    entry->id = id;
+    entry->qwc = qwc;
+    entry->tag = entry->cur;
+    entry->cur += 0x10;
+    entry->addr = (unsigned int)addr;
+    entry->open = 1;
+#else
     old = entry->cur;
     entry->id = id;
     entry->qwc = qwc;
@@ -236,6 +343,7 @@ inline void dl_OpenDma(int id, void *addr, int qwc)
     entry->addr = (int)addr & 0xFFFFFFF;
     entry->tag = old;
     entry->cur = old + 0x10;
+#endif
 }
 
 void dl_CloseDma(void)

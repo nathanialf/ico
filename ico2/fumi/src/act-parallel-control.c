@@ -3,6 +3,74 @@
 #include "debug_exception.h"
 #include <assert.h>
 
+#ifdef VERSION_JUN26
+/* the parallel-action ids copied out of the layout table (ActPara_InitSystem
+   copies 68, one per 148-byte parallel-motion row) */
+static int parallelIds[68]; /* derived name */
+
+/* Fill tbl from the parallel-motion table: for each bit set in mask, each
+   row's motion for that bit, resolved by the nested helper (an id above
+   0xFFFF picks one entry of a random-motion run, by n), replaces the row's
+   entry unless it is 1167, the none value. */
+void ActPara_MakeTbl(int *tbl, int mask, int n)
+{
+    int i;
+    int j;
+    int val;
+
+    inline int resolve(int v) /* derived name */
+    {
+        if (v > 0xFFFF) {
+            int idx = v - 0x10000;
+            int m = idx;
+            int k = 0;
+
+            if (randomMotionKind[m] != 1167) {
+                do {
+                    m++;
+                    k++;
+                } while (randomMotionKind[m] != 1167);
+            }
+            if (k == 0) {
+                v = 1167;
+            } else {
+                int e = idx + n % k;
+
+                v = randomMotionKind[e];
+            }
+        }
+        return v;
+    }
+
+    for (i = 0; i < 37; i++) {
+        if (((mask >> i) & 1) == 1) {
+            for (j = 0; j < 68; j++) {
+                val = parallelMotionTbl[j].motion[i];
+                val = resolve(val);
+                if (val != 1167) {
+                    tbl[j] = val;
+                }
+            }
+        }
+    }
+}
+
+void ActPara_InitSystem(void)
+{
+    int i;
+    for (i = 0; i <= 67; i++) {
+        parallelIds[i] = parallelMotionTbl[i].motion[0];
+    }
+    /* a compiled-out overflow check: its message and __FILE__ stay in .rodata
+       and its "0" in .sdata */
+    if (0) {
+        /* too many parallel motions (way too many) */
+        debug_StdPrintfDummy("並列モーションが増えすぎました（大森）");
+        debug_assert(__FILE__, 103);
+        __assert(__FILE__, 103, "0");
+    }
+}
+#else
 /* the parallel-action ids copied out of the layout table */
 #ifdef VERSION_NTSC
 static int parallelIds[71]; /* derived name */
@@ -70,7 +138,7 @@ void ActPara_InitSystem(void)
     }
 }
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static int parallelIds[71]; /* derived name */
 
 /* Fill tbl from the parallel-motion table: for each bit set in mask, each
@@ -173,7 +241,7 @@ void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n)
 void ActPara_InitSystem(void)
 {
     int i;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     for (i = 0; i <= 70; i++) {
 #else
     for (i = 0; i <= 85; i++) {
@@ -189,6 +257,7 @@ void ActPara_InitSystem(void)
         __assert(__FILE__, 103, "0");
     }
 }
+#endif
 #endif
 
 int *ActPara_GetDefTbl(void)

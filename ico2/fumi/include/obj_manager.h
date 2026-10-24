@@ -15,7 +15,11 @@
 void iosOmExeEachGObj(int idx, void (*fn)(GObj *, int), int arg);
 void iosOmExeEachGObjAll(void (*fn)(GObj *, int), int arg);
 int iosOmReturnExeEachGObj(int link, int (*fn)(GObj *, int), int arg, int flag);
+
+#ifndef VERSION_JUN26
 void iosOmGetGObjStatus(int *total, int *used);
+#endif
+
 GObj *iosOmSearchGObjId(int idx, GObj *target);
 GObj *iosOmSearchGObjIdAll(GObj *id);
 void iosOmBeforeFuncStandard(void);

@@ -15,7 +15,11 @@ void CageFixGeo(GObj *self)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     GObj *g = isysGObjSearchFromObjKindID_begin(43);
 #else
+#ifdef VERSION_JUN26
+    GObj *g = isysGObjSearchFromObjKindID_begin(42);
+#else
     GObj *g = isysGObjSearchFromObjKindID_begin(44);
+#endif
 #endif
     if (g != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeMtx);

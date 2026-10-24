@@ -4,7 +4,7 @@
 #include "ios.h"
 #include "memory.h"
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void DeleteParticleLayout(GObj *self)
 {
     int *q = GOBJ_SUB(self)->work;
@@ -21,7 +21,7 @@ inline int *InitParticleLayoutGeo(GObj *self, int *layout)
     return r;
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void ParticleLayoutGeo(GObj *self) {}
 #else
 inline void DeleteParticleLayout(GObj *self)

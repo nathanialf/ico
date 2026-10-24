@@ -32,10 +32,12 @@ void _RotTransPersCurrentMatrix(void *dst, void *src);
 void _TransposeCurrentMatrix(void);
 void _TransposeRotationCurrentMatrix(void);
 void _InverseCurrentMatrix(void);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void _PushVu0Registers(void);
 void _PopVu0Registers(void);
 #endif
+
 /* two parameters: every caller passes two and the body reads only those */
 void _NormalizeVector(void *dst, void *src);
 /* the inner product of two vectors, returned as a float */
@@ -77,7 +79,8 @@ float _GetRandom(void);
 void _GetRandomVector(void *dst);
 void _GetRandomVector0(void *dst);
 void _RotTransCurrentMatrix(void *dst, void *src);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void _PopVu0Registers(void);
 void _PushVu0Registers(void);
 #endif

@@ -7,6 +7,11 @@
 #include "charFileManager.h"
 #include <assert.h>
 
+#ifdef VERSION_JUN26
+#include <string.h>
+#include "charFileName.h"
+#endif
+
 /* a 16-byte aligned float[4], the shape of libvu0's sceVu0FVECTOR */
 typedef float Vec[4] __attribute__((aligned(16))); /* derived name */
 
@@ -22,6 +27,16 @@ typedef struct PObjPkt { /* field names derived */
     char pad814[28];
     void *nodes;      /* 0x830, one 80-byte node record a part */
     PktHdr *lightMtx; /* 0x834, the light matrices (Light.h), their mode at 0xF0 */
+} PObjPkt;            /* derived name */
+#else
+#ifdef VERSION_JUN26
+/* the packet record, 0x820 bytes in this build */
+typedef struct PObjPkt { /* field names derived */
+    char pad0[2032];
+    struct PObj *owner; /* 0x7F0 */
+    char pad7F4[28];
+    void *nodes;      /* 0x810, one 80-byte node record a part */
+    PktHdr *lightMtx; /* 0x814, the light matrices (Light.h), their mode at 0xF0 */
 } PObjPkt;            /* derived name */
 #else
 typedef struct PObjPkt { /* field names derived */
@@ -40,6 +55,7 @@ typedef struct PObjPkt { /* field names derived */
 #endif
 } PObjPkt; /* derived name */
 #endif
+#endif
 
 typedef struct PObjSub { /* field names derived */ /* 0x180 stride, hung off the PObj at 0x40 */
     long long pad0[18];
@@ -50,6 +66,12 @@ typedef struct PObjSub { /* field names derived */ /* 0x180 stride, hung off the
 
 typedef struct PObj { /* field names derived */
     char pad0[36];
+#ifdef VERSION_JUN26
+    int image;       /* 0x24, the model file image (ObjHdr) */
+    PObjPkt *pkt;    /* 0x28 */
+    short pad2C;     /* 0x2C */
+    short partCount; /* 0x2E, the file's objnum */
+#else
     int image;    /* 0x24, the model file image (ObjHdr) */
     PObjPkt *pkt; /* 0x28 */
     short pad2C;  /* 0x2C */
@@ -57,13 +79,19 @@ typedef struct PObj { /* field names derived */
        and clstnum), as one short's two bitfields */
     short partCount : 8;        /* 0x2E */
     unsigned short clstNum : 8; /* 0x2F */
+#endif
 
     union {
         long long ll;
 
         struct {
+#ifdef VERSION_JUN26
+            short clstNum; /* 0x30, the file's clstnum */
+            short bits;    /* 0x32, the display type, shade and level-of-detail bits tag.ll sets */
+#else
             short nloop; /* 0x30 */
             short bits;  /* 0x32, the display type, shade and level-of-detail bits tag.ll sets */
+#endif
             float lightScale; /* 0x34 */
         } v;
     } tag; /* 0x30 */
@@ -79,7 +107,11 @@ typedef struct PObj { /* field names derived */
 /* the file's own name tidier, inlined once, into AllocPObj */
 static __inline__ void TidyPObjName(char *name) /* derived name */
 {
+#ifdef VERSION_JUN26
+    char buf[64];
+#else
     char buf[256];
+#endif
     int i;
     int top;
 
@@ -189,6 +221,49 @@ static void MakeBoundingBox(PObj *self)
     }
 }
 
+#ifdef VERSION_JUN26
+static void MakePacket(PObj *p)
+{
+    char name[48];
+    int n = -1;
+    int i;
+    PObjPkt *q;
+
+    for (i = 0; i < ModelDataID_NUMBER; i++) {
+        sprintf(name, "%s", modelData[i].modelPath);
+        TidyPObjName(name);
+        if (strncmp(name, (char *)p, strlen((char *)p)) == 0) {
+            debug_StdPrintfDummy("search & found object [%d]%s clp:%d light:%d\n", i,
+                                 modelData[i].modelPath, modelData[i].shade, modelData[i].pktKind);
+            n = i;
+            break;
+        }
+    }
+    if (n == -1) {
+        debug_assert(__FILE__, LN(249, 249, 249, 249, 249, 217));
+        __assert(__FILE__, 217, "0");
+    }
+
+    p->tag.ll = (p->tag.ll & ~0x3C0000LL) | ((long long)modelData[n].shade << 18);
+    p->tag.ll = (p->tag.ll & ~0x3C00000LL) | ((long long)modelData[n].lod << 22);
+    p->tag.v.lightScale = modelData[n].lightScale;
+    p->ambientScale = modelData[n].ambientScale;
+    p->shadowLength = modelData[n].shadowLength;
+
+    q = (PObjPkt *)mallocseki(0x820);
+    p->pkt = q;
+    q->lightMtx = (PktHdr *)mallocseki(0x100);
+    q->lightMtx->kind = modelData[n].pktKind;
+
+    q->owner = p;
+    q->nodes = mallocseki(p->partCount * 80);
+    if (q->lightMtx->kind != 4) {
+        if (p->image != 0)
+            p2o_MakePacket((Sub15C *)q);
+    }
+    debug_StdPrintfDummy("end of packet making...\n");
+}
+#else
 static void MakePacket(PObj *p, int n)
 {
     PObjPkt *q;
@@ -220,6 +295,7 @@ static void MakePacket(PObj *p, int n)
     }
     debug_StdPrintfDummy("end of packet making...\n");
 }
+#endif
 
 /* the file's own vector setter, inlined into InitPObj */
 static __inline__ void SetPObjVector(Vec v, float x, float y, float z) /* derived name */
@@ -283,6 +359,18 @@ static __inline__ void AllocPObjSubs(PObj *p, int *list) /* derived name */
         p->sub[i] = *(PObjSub *)list[i];
 }
 
+#ifdef VERSION_JUN26
+/* the header fields of a freshly allocated PObj */
+static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h) /* derived name */
+{
+    p->image = (int)h;
+    p->pkt = 0;
+    p->pad2C = 0;
+    p->partCount = h->objNum;
+    p->tag.v.clstNum = h->clstNum;
+    p->tag.ll &= ~0x30000LL;
+}
+#else
 /* the header fields of a freshly allocated PObj */
 static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n) /* derived name */
 {
@@ -295,7 +383,85 @@ static __inline__ void InitPObjHeader(PObj *p, ObjHdr *h, int n) /* derived name
     p->tag.ll &= ~0x4000000LL;
     p->shadowLength = modelData[n].shadowLength;
 }
+#endif
 
+#ifdef VERSION_JUN26
+PObj *AllocPObj(ObjHdr *h, char *name)
+{
+    PObj *p;
+    int *tex;
+    int *list;
+    ObjRec *o;
+    unsigned int i;
+    unsigned int j;
+
+    h->objTbl += (int)h;
+
+    if (h->texTbl != 0)
+        h->texTbl += (int)h;
+    tex = (int *)h->texTbl;
+
+    list = (int *)h->objTbl;
+
+    debug_StdPrintfDummy("\033[33mobject info : adrs(%p) objnum(%d) clstnum(%d)\n", h, h->objNum,
+                         h->clstNum);
+
+    p = (PObj *)mallocseki(0xD0);
+    sprintf((char *)p, "%s", name);
+    TidyPObjName((char *)p);
+
+    debug_StdPrintfDummy("            : object name (%s)\n", (char *)p);
+    debug_StdPrintfDummy("            : object table (%p)\033\n", list);
+    if (tex != 0)
+        debug_StdPrintfDummy("            : texture table (%p)\033[m\n", tex);
+    else
+        debug_StdPrintfDummy("\033[m");
+
+    if (tex != 0) {
+        for (i = 0; i < h->texNum; i++)
+            tex[i] += (int)h;
+    }
+
+    debug_StdPrintfDummy("Solve object address. %p\n", list);
+
+    for (i = 0; i < h->objNum; i++) {
+        list[i] += (int)h;
+        o = (ObjRec *)list[i];
+
+        if (o->magic != *(int *)"OBJH") {
+            debug_StdPrintfDummy("allocPObj:Invalid Object.\n");
+            debug_assert(__FILE__, LN(249, 249, 249, 249, 249, 308));
+            __assert(__FILE__, LN(249, 249, 249, 249, 249, 308), "FALSE");
+        }
+
+        o->vtx += (int)h;
+        o->nrm += (int)h;
+        o->uv += (int)h;
+        o->col += (int)h;
+        o->mats += (int)h;
+        o->texDefs += (int)h;
+        o->polys += (int)h;
+        for (j = 0; j < o->polyCount; j++)
+            ((ObjEnt *)o->polys)[j].p = (void *)((int)((ObjEnt *)o->polys)[j].p + (int)h);
+        o->strips += (int)h;
+        for (j = 0; j < o->stripCount; j++)
+            ((void **)o->strips)[j] = (void *)((int)((void **)o->strips)[j] + (int)h);
+        o->lines += (int)h;
+        o->morphs += (int)h;
+        for (j = 0; j < o->morphCount; j++) {
+            if (((void **)o->morphs)[j] != 0)
+                ((void **)o->morphs)[j] = (void *)((int)((void **)o->morphs)[j] + (int)h);
+        }
+    }
+
+    InitPObjHeader(p, h);
+    AllocPObjSubs(p, list);
+
+    MakeBoundingBox(p);
+
+    return p;
+}
+#else
 PObj *AllocPObj(ObjHdr *h, char *name, int n)
 {
     PObj *p;
@@ -340,8 +506,8 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
 
         if (o->magic != *(int *)"OBJH") {
             debug_StdPrintfDummy("allocPObj:Invalid Object.\n");
-            debug_assert(__FILE__, 249);
-            __assert(__FILE__, 249, "FALSE");
+            debug_assert(__FILE__, LN(249, 249, 249, 249, 249, 308));
+            __assert(__FILE__, LN(249, 249, 249, 249, 249, 308), "FALSE");
         }
 
         o->vtx += (int)h;
@@ -371,7 +537,33 @@ PObj *AllocPObj(ObjHdr *h, char *name, int n)
 
     return p;
 }
+#endif
 
+#ifdef VERSION_JUN26
+PObj *InitPObj(int h, int name, float x, float y, float z)
+{
+    PObj *p;
+    Vec v;
+    int num;
+    int i;
+    int j;
+
+    p = AllocPObj((ObjHdr *)h, (char *)name);
+    SetPObjVector(v, x, y, z);
+    num = p->partCount;
+    for (i = 0; i < num; i++) {
+        PObjSub *g = &p->sub[i];
+        int cnt = g->vtxCount;
+
+        for (j = 0; j < cnt; j++)
+            _AddVector(g->vtx[j], g->vtx[j], v);
+        for (j = 0; j < 8; j++)
+            _AddVector(p->boxes[i][j], p->boxes[i][j], v);
+    }
+    MakePacket(p);
+    return p;
+}
+#else
 PObj *InitPObj(int h, int name, int n)
 {
     PObj *p;
@@ -395,6 +587,7 @@ PObj *InitPObj(int h, int name, int n)
     MakePacket(p, n);
     return p;
 }
+#endif
 
 /* The DEBUG build's report of the model file image FreePObj releases, in
    AllocPObj's terms; built only under DEBUG (the text derived). */
@@ -410,3 +603,9 @@ void FreePObj(PObj *p)
     debug_StdPrintfDummy("free object\n");
     FreePObjDebugInfo((ObjHdr *)p->image);
 }
+
+#ifdef VERSION_JUN26
+/* the file's version stamp: nothing reads it, so it stays in the member's
+   .sdata after the strings of the functions above */
+static char *version = "1.0p2"; /* derived name */
+#endif

@@ -16,6 +16,26 @@
 #include "sceneManager.h"
 #include "DObj.h"
 
+#ifdef VERSION_JUN26
+/* the cage's 64-byte work record, InitCageGeo's allocation, kept at +0x7D0
+   of the object's motion work: the cage and chain DObjs, the cage's rotation
+   and turn, the chains InitChains builds and the swing state */
+typedef struct {   /* field names derived */
+    Sub15C *dobj;  /* 0x00 */
+    Sub15C *dobj2; /* 0x04 */
+    char pad08[8];
+    float rot[4];     /* 0x10 */
+    ChainSet *chains; /* 0x20 */
+    int upperNode;    /* 0x24, the chain node weighted over 0 to 600 */
+    int lowerNode;    /* 0x28, the chain node weighted over 500 to 1400 */
+    int linkCount;    /* 0x2C, the chain's length over linkLength, the DObj node count */
+    float linkLength; /* 0x30 */
+    short angle;      /* 0x34 */
+    short pad36;
+    float mass;    /* 0x38, divides the impulse a rider gives */
+    float damping; /* 0x3C, the per-frame velocity scale */
+} CageWork;        /* derived name */
+#else
 /* the cage's 80-byte work record, InitCageGeo's allocation, kept at +0x830
    of the object's motion work: the cage and chain DObjs, the cage's rotation
    and turn, the chains InitChains builds and the swing state */
@@ -36,6 +56,7 @@ typedef struct {   /* field names derived */
     int rideable;  /* 0x40, CageRideFunc's answer */
     char pad44[12];
 } CageWork; /* derived name */
+#endif
 
 int CageRideFunc(ObjNode *self, GObj *rider)
 {
@@ -74,6 +95,16 @@ void SetCageFixGeometry(GObj *self, void *pos, void *dir)
     CopyVector(w->rot, dir);
 }
 
+#ifdef VERSION_JUN26
+inline void GetCageChainPoint(float *root, float *tip, GObj *self)
+{
+    CageWork *w = GOBJ_SUB(self)->work;
+    CopyVector(root, w->chains->nodes->pos[0]);
+    CopyVector(tip, w->chains->nodes->pos[1]);
+    root[1] = root[1] + 50.0f;
+    tip[1] = tip[1] - 150.0f;
+}
+#else
 inline int GetCageChainPoint(float *root, float *tip, GObj *self)
 {
     CageWork *w = GOBJ_SUB(self)->work;
@@ -83,6 +114,7 @@ inline int GetCageChainPoint(float *root, float *tip, GObj *self)
     tip[1] = tip[1] - 150.0f;
     return w->rideable;
 }
+#endif
 
 /* the cage's one chain, 2 nodes 500 apart hanging from the cage root */
 static ChainCfg cageChainParam[2] = {
@@ -97,13 +129,21 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     int i;
     float one;
 
+#ifdef VERSION_JUN26
+    w = (CageWork *)iosMallocDebug(ios_partition_sugipon, 64, __FILE__, 95);
+#else
     w = (CageWork *)iosMallocDebug(ios_partition_sugipon, 80, __FILE__, 97);
-    ch = iosMallocDebug(ios_partition_sugipon, 160, __FILE__, 98);
+#endif
+    ch = iosMallocDebug(ios_partition_sugipon, 160, __FILE__, LN(98, 98, 98, 98, 98, 96));
     w->dobj =
         CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model, lay);
     w->dobj2 =
         CSVSYSTEM_InitDObj(accessary[((SubHandle *)(self + 0x15C))->sub->accessary].model2, lay);
+#ifdef VERSION_JUN26
+    w->damping = 1.0f;
+#else
     w->damping = 0.995f;
+#endif
     w->mass = lay->scale[0];
     ch[0] = cageChainParam[0];
     ch[1] = cageChainParam[1];
@@ -116,7 +156,9 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     w->upperNode = SetChainExtendedWeight(w->chains->nodes, 1, 0.0f, 600.0f);
     w->lowerNode = SetChainExtendedWeight(w->chains->nodes, 1, 500.0f, 1400.0f);
     w->angle = (short)(-lay->rot[1] * 10430.378f);
+#ifndef VERSION_JUN26
     w->rideable = 1;
+#endif
     one = 1.0f;
     {
         struct DObjNode *e = ((SubHandle *)(self + 0x15C))->sub->nodes;
@@ -134,21 +176,33 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     /* from here to the 0x84C store: the DObj buffer reallocation, in the
        statement order box.c, boy.c and omori's chain.c also use */
     if (*(void **)((char *)w->dobj + 0xC) != 0) {
+#ifdef VERSION_JUN26
+        iosFree(*(void **)((char *)w->dobj + 0xC));
+    }
+    if (w->dobj->nodeQuat != 0) {
+        iosFree((void *)w->dobj->nodeQuat);
+#else
         iosFree((void *)((int)*(void **)((char *)w->dobj + 0xC) & 0x0FFFFFFF));
     }
     if (w->dobj->nodeQuat != 0) {
         iosFree((void *)(w->dobj->nodeQuat & 0x0FFFFFFF));
+#endif
     }
     *(char **)((char *)w->dobj + 0x10) = *(char **)((char *)w->dobj + 0xC) = 0;
-    *(void **)((char *)w->dobj + 0xC) =
-        iosMallocDebug(ios_partition_seki, w->linkCount << 6, __FILE__, 128);
-    *(void **)((char *)w->dobj + 0x10) =
-        iosMallocDebug(ios_partition_seki, w->linkCount << 4, __FILE__, 128);
+    *(void **)((char *)w->dobj + 0xC) = iosMallocDebug(ios_partition_seki, w->linkCount << 6,
+                                                       __FILE__, LN(128, 128, 128, 128, 128, 125));
+    *(void **)((char *)w->dobj + 0x10) = iosMallocDebug(ios_partition_seki, w->linkCount << 4,
+                                                        __FILE__, LN(128, 128, 128, 128, 128, 125));
     w->dobj->nodeNum = w->linkCount;
     if (w->dobj->nodes != 0) {
+#ifdef VERSION_JUN26
+        iosFree(w->dobj->nodes);
+#else
         iosFree((void *)((int)w->dobj->nodes & 0x0FFFFFFF));
+#endif
     }
-    w->dobj->nodes = iosMallocDebug(ios_partition_seki, w->linkCount * 80, __FILE__, 128);
+    w->dobj->nodes = iosMallocDebug(ios_partition_seki, w->linkCount * 80, __FILE__,
+                                    LN(128, 128, 128, 128, 128, 125));
     for (i = 0; i < w->linkCount; i++) {
         {
             struct DObjNode *e = (struct DObjNode *)(i * 80 + (int)w->dobj->nodes);
@@ -208,10 +262,12 @@ char *InitCageGeo(char *self, SObjSimpleSetting *lay)
     return (char *)w;
 }
 
+#ifndef VERSION_JUN26
 inline void SetCageChainHangableFlag(GObj *self, int flag)
 {
     ((CageWork *)GOBJ_SUB(self)->work)->rideable = flag;
 }
+#endif
 
 void HotInitCageGeo(GObj *self)
 {
@@ -242,7 +298,11 @@ inline void StabilizeAllLayoutedCage(void)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gobj = isysGObjSearchFromObjKindID_begin(43);
 #else
+#ifdef VERSION_JUN26
+    gobj = isysGObjSearchFromObjKindID_begin(42);
+#else
     gobj = isysGObjSearchFromObjKindID_begin(44);
+#endif
 #endif
     while (gobj != 0) {
         HotInitCageGeo(gobj);
@@ -308,8 +368,13 @@ void CageGeo(GObj *self)
                         &w->chains->nodes->ex[w->upperNode].v1);
         sceVu0Normalize(v, v);
         angle = GetTableArcTan2(FSqrt(v[0] * v[0] + v[2] * v[2]), v[1]);
+#ifdef VERSION_JUN26
+        if (angle >= 3641) {
+            f = (float)angle / 3640.0f;
+#else
         if (angle >= 2731) {
             f = (float)angle / 2730.0f;
+#endif
             v[1] = 0.0f;
             sceVu0ScaleVector(v, v, f);
             sceVu0SubVector(&w->chains->nodes->ex[w->lowerNode].v2,
@@ -328,7 +393,9 @@ void CageGeo(GObj *self)
                            &w->chains->nodes->ex[w->upperNode].v1);
     RotQuaternionY((char *)GOBJ_SUB(self)->nodeQuat, w->angle);
     MultiQuaternion((char *)GOBJ_SUB(self)->nodeQuat, (char *)GOBJ_SUB(self)->nodeQuat, w->rot);
+#ifndef VERSION_JUN26
     RegularizeQuaternion((char *)GOBJ_SUB(self)->nodeQuat);
+#endif
     GetMatrixFromQuaternionPos(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeQuat,
                                &w->chains->nodes->ex[w->upperNode].v1);
     MatrixDrive_TransMatrix(0.0f, 0.0f, 0.0f);

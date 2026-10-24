@@ -26,10 +26,18 @@ struct SObjSimpleSetting;
 
 struct GenWork *InitGeneratorGeo(struct GObj *gobj, struct SObjSimpleSetting *src);
 void Generator_Call(struct GObj *gobj);
+
+#ifdef VERSION_JUN26
+void Generator_Mask(struct GObj *gobj);
+void Generator_MaskOff(struct GObj *gobj);
+void SetMotherGenerator(int no, int label);
+#else
 void Generator_ResetCount(struct GObj *gobj);
 void Generator_Mask(struct GObj *gobj);
 void Generator_MaskOff(struct GObj *gobj);
 inline void SetMotherGenerator(int no, int label);
+#endif
+
 void Generator_Init(void);
 int *GetbufpGeneratorPacket(void);
 int GetsizeGeneratorPacket(void);
@@ -46,12 +54,22 @@ void UnlockEnemyGenerate(struct GObj *gobj);
 void RestoreReviveCount(struct GObj *gobj);
 void ReturnEnemyToGenerator(int label);
 int GeneratorWorkEnd(struct GObj *gobj);
+
+#ifdef VERSION_JUN26
+void SetInfoSpKidnapGenerator(short *info);
+void SetInfoSpKidnapEnemy(short *work);
+int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
+int CheckGeneratorCollision(struct GObj *gobj, float *dir);
+#else
 int SearchActiveGenerator(void);
+
 #ifndef VERSION_AUG6
 void ResetReviveCountEnemy(struct GObj *gobj);
 #endif
+
 void SetInfoSpKidnapGenerator(short *info);
 void SetInfoSpKidnapEnemy(short *work);
+
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
 int CheckGeneratorCollision(struct GObj *gobj, float *dir);
@@ -61,7 +79,10 @@ int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
 int CheckGeneratorCollision(struct GObj *gobj, float *dir);
 void Generator_Delete(struct GObj *gobj);
 #endif
+
 void Generator_QuickCall(struct GObj *gobj);
+#endif
+
 void GetGeneratorSafePosition(float *dst, struct GObj *gobj);
 int GetMotherGenerator(int label);
 void MakeGeneratorPacket(void);

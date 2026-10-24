@@ -11,9 +11,15 @@ WayGroup way_group[64] = {0};
 
 WayPoint way_point[215] = {0};
 #else
+#ifdef VERSION_JUN26
+WayGroup way_group[64] = {0};
+
+WayPoint way_point[192] = {0};
+#else
 WayGroup way_group[94] = {0};
 
 WayPoint way_point[275] = {0};
+#endif
 #endif
 
 /* way_llf.o's .sdata globals (declared in way_llf.h), tentative definitions */
@@ -33,7 +39,7 @@ inline int CreateWayGroup(void)
 {
     int i;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     for (i = 0; i < 64; i++) {
 #else
     for (i = 0; i < 94; i++) {
@@ -106,7 +112,11 @@ inline int CreateWayPoint(float *pos)
 #ifdef VERSION_AUG6
     for (i = 0; i < 215; i++) {
 #else
+#ifdef VERSION_JUN26
+    for (i = 0; i < 192; i++) {
+#else
     for (i = 0; i < 275; i++) {
+#endif
 #endif
         WayPoint *node = &way_point[i];
 
@@ -217,7 +227,7 @@ inline int DeleteWayPoint(int pno)
     return 0;
 }
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* CreateBridge sits between DeleteWayPoint and the begin iterators; it is the
    one function of the TU too large to inline. */
 int CreateBridge(float *a, float *b)
@@ -249,7 +259,7 @@ int CreateBridge(float *a, float *b)
 inline WayGroup *WayGroup_begin(void)
 {
     WayGroup *p = way_group - 1;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     WayGroup *end = p + 64;
 #else
     WayGroup *end = p + 94;
@@ -266,7 +276,7 @@ inline WayGroup *WayGroup_begin(void)
 
 inline WayGroup *WayGroup_next(WayGroup *p)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     WayGroup *end = &way_group[63];
 #else
     WayGroup *end = &way_group[93];
@@ -285,7 +295,7 @@ inline WayGroup *WayGroup_next(WayGroup *p)
 inline WayGroup *WayBridge_begin(void)
 {
     WayGroup *p = way_group - 1;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     WayGroup *end = p + 64;
 #else
     WayGroup *end = p + 94;
@@ -302,7 +312,7 @@ inline WayGroup *WayBridge_begin(void)
 
 inline WayGroup *WayBridge_next(WayGroup *p)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     WayGroup *end = &way_group[63];
 #else
     WayGroup *end = &way_group[93];
@@ -321,7 +331,7 @@ inline WayGroup *WayBridge_next(WayGroup *p)
 inline WayGroup *WayBridgeAll_begin(void)
 {
     WayGroup *p = way_group - 1;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     WayGroup *end = p + 64;
 #else
     WayGroup *end = p + 94;
@@ -338,7 +348,7 @@ inline WayGroup *WayBridgeAll_begin(void)
 
 inline WayGroup *WayBridgeAll_next(WayGroup *p)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     WayGroup *end = &way_group[63];
 #else
     WayGroup *end = &way_group[93];
@@ -357,7 +367,7 @@ inline WayGroup *WayBridgeAll_next(WayGroup *p)
 inline WayGroup *WayBridgeVar_begin(void)
 {
     WayGroup *p = way_group - 1;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     WayGroup *end = way_group - 1 + 64;
 #else
     WayGroup *end = way_group - 1 + 94;
@@ -378,7 +388,7 @@ ret0:
 
 inline WayGroup *WayBridgeVar_next(WayGroup *g)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     WayGroup *p, *end = &way_group[63];
 #else
     WayGroup *p, *end = &way_group[93];
@@ -400,7 +410,11 @@ inline WayPoint *WayPoint_begin(void)
 #ifdef VERSION_AUG6
     WayPoint *end = way_point - 1 + 215;
 #else
+#ifdef VERSION_JUN26
+    WayPoint *end = way_point - 1 + 192;
+#else
     WayPoint *end = way_point - 1 + 275;
+#endif
 #endif
     if (p == 0)
         goto ret0;
@@ -421,7 +435,11 @@ inline WayPoint *WayPoint_next(WayPoint *p)
 #ifdef VERSION_AUG6
     WayPoint *end = &way_point[214];
 #else
+#ifdef VERSION_JUN26
+    WayPoint *end = &way_point[191];
+#else
     WayPoint *end = &way_point[274];
+#endif
 #endif
     if (p == 0)
         goto ret0;
@@ -480,7 +498,11 @@ void InitWayPointSystem(void)
 #ifdef VERSION_AUG6
     for (i = 0; i < 215; i++) {
 #else
+#ifdef VERSION_JUN26
+    for (i = 0; i < 192; i++) {
+#else
     for (i = 0; i < 275; i++) {
+#endif
 #endif
         WayPoint *node = &way_point[i];
 
@@ -491,7 +513,7 @@ void InitWayPointSystem(void)
         node->group = -1;
     }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     for (i = 0; i < 64; i++) {
 #else
     for (i = 0; i < 94; i++) {

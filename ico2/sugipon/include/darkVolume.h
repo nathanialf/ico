@@ -16,17 +16,26 @@ struct GObj;
 #ifndef VERSION_NTSC
 int InitDarkVolumeGeo(struct GObj *self);
 #endif
+
 void DarkVolumeDL(void);
 void ExecGameOverEffect(void);
+
+#ifdef VERSION_JUN26
+void DispGameOverEffect(void);
+void InitGameOverEffect(void);
+#else
 void StartGameOverEffect(float *center, float speed);
 void StartQueenAttackEffect(float *center, float speed);
 void ResetGameOverEffect(void);
 void DispGameOverEffect(void);
 void GetGameOverEffectCenterPosition(float *pos);
 void InitGameOverEffect(void);
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetupDarkVolume(void *pos, float radius, float edge);
 #endif
+
 void SetDarkVolumeEffect(float *pos, float size);
+#endif
 
 #endif /* DARKVOLUME_H */

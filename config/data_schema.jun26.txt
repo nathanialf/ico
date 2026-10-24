@@ -1,0 +1,165 @@
+# config/data_schema.jun26.txt -- the data-only members written as C.
+#
+# One row per (member, section) of config/data_members.jun26.txt that
+# tools/gen_data_c.py writes as one C translation unit instead of assembly.
+# The row holds facts about the member's type, never its values: the build
+# reads the values from the user's own baserom/jun26/baseelf.elf and writes
+# build/jun26/data/<member>.c, which ninja compiles with the game's flags
+# (tools/compile_c.sh). Nothing generated is committed (docs/LEGAL.md).
+#
+# Columns: <member> <section> <type> <header> <count> <symbols> [hex=<field>,...]
+#   member    the member's name in config/data_members.jun26.txt
+#   section   data, rodata or sdata: the table row the definition fills;
+#             rodata rows are defined const
+#   type      the element type: a typedef or a struct tag the header
+#             defines, or a C base type with its words joined by '_'
+#             (unsigned_short), with a trailing '*' for a pointer to it
+#             (char*) or a trailing [N] for an array of N (char[32])
+#   header    the header that defines it, repo-relative
+#   count     the number of elements the member holds, or '-' for a single
+#             object
+#   symbols   MAIN.MAP's names for the member, <name>@<element index>; each
+#             names one array, and the arrays follow each other in the order
+#             given from the offset the table gives the first name (0 when
+#             it gives none)
+#   hex=      fields spelled in hex because they hold masks (dotted paths for
+#             nested fields); every other number is decimal
+#   count-of= <array>[-<k>]: a single int whose value is derived, not read
+#             from the disc: the element count of an array the member
+#             defines before it, less k, written as sizeof over that array
+#
+# A table row of the member with no schema row here is its own string pool
+# (staffroll_dat's .rodata, and the head of its .sdata): the char pointers
+# into it are written as string literals and the compiler lays the pool out.
+# staffroll_dat's count, staffRollNameDataNum, is the table's 692 entries,
+# all of them (the demo's table has no null entries at its end).
+#
+# A label some source spells inside the member (build/jun26/data_labels.txt, the
+# D_<VMA> placeholders) is not an array of its own: gen_data_c.py binds it to
+# the member's first symbol plus its offset in build/jun26/data/<member>.alias.ld.
+
+
+mc-icon-sys data sceMcIconSys ico2/fumi/include/mcdata.h - mcIconSys@0
+accessary data AccessaryRec ico2/sugipon/include/box.h 21 accessary@0
+act-data-tbl data IdleRangeRec ico2/fumi/include/commonact.h 3 actDataTbl@0
+act-intrlist data IntrMail ico2/fumi/include/act.h 773 actIntrList@0 hex=flags
+camera-set data char[32] ico2/omori/include/camera-ico2.h 86 cameraSetList@0
+game-param data float ico2/fumi/include/act-game.h 32 gameParam@0
+motion-orient data MotionOrientEntry ico2/sugipon/include/motionOrientManager.h 2166 motionOrient@0
+node-fix-ofs data ClingRec ico2/fumi/include/commonact.h 15 clingData@0
+obj-action data OaRecB ico2/common/include/typedef.h 758 objAction@0 hex=flags
+obj-kind-data data ObjKindEnt ico2/common/include/typedef.h 65 objKindData@0
+obj-layout data GenGeo ico2/common/include/typedef.h 3248 objLayout@0 hex=procPri,flags
+parallel-motion-tbl data ParallelMotionRow ico2/fumi/include/act-parallel-control.h 68 parallelMotionTbl@0
+sekind data unsigned_short ico2/fumi/include/s_init.h 1340 seKind@0
+tex-property data LtProperty ico2/common/include/layout_texture.h 384 texProperty@0
+staffroll_dat data char* ico2/common/include/staffroll.h 692 staffRollNameData@0
+# EnemyInit.o's enemy sets of models 02..09 (config/data_members.jun26.txt).
+# A kind list's count takes the zero word that fills it to 8 bytes before
+# the next list (the lists are 8-aligned), as the element after its -1.
+enemy-model02-kindlist data int ico2/seki/include/EnemyInit.h 580 enemymodel02Kind16@0,enemymodel02Kind17@2,enemymodel02Kind0@4,enemymodel02Kind3@14,enemymodel02Kind9@36,enemymodel02Kind15@58,enemymodel02Kind2@120,enemymodel02Kind8@136,enemymodel02Kind18@152,enemymodel02Kind14@188,enemymodel02Kind19@196,enemymodel02Kind23@236,enemymodel02Kind1@276,enemymodel02Kind6@318,enemymodel02Kind12@324,enemymodel02Kind20@330,enemymodel02Kind24@370,enemymodel02Kind5@410,enemymodel02Kind11@434,enemymodel02Kind21@458,enemymodel02Kind25@478,enemymodel02Kind22@498,enemymodel02Kind26@506,enemymodel02Kind4@514,enemymodel02Kind10@544,enemymodel02Kind7@572,enemymodel02Kind13@576
+enemy-model02-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 27 enemymodel02Kinds@0
+enemy-model02-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 546 enemymodel02Pos@0
+enemy-model02-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel02Set@0
+enemy-model02-list data EnemyModelSet* ico2/seki/include/EnemyInit.h 1 enemymodel02@0
+enemy-model03-kindlist data int ico2/seki/include/EnemyInit.h 636 enemymodel03Kind16@0,enemymodel03Kind17@4,enemymodel03Kind3@8,enemymodel03Kind9@30,enemymodel03Kind15@52,enemymodel03Kind2@162,enemymodel03Kind8@178,enemymodel03Kind18@194,enemymodel03Kind14@242,enemymodel03Kind19@250,enemymodel03Kind23@290,enemymodel03Kind1@330,enemymodel03Kind6@372,enemymodel03Kind12@380,enemymodel03Kind20@388,enemymodel03Kind24@428,enemymodel03Kind5@468,enemymodel03Kind11@492,enemymodel03Kind21@516,enemymodel03Kind25@536,enemymodel03Kind22@556,enemymodel03Kind26@564,enemymodel03Kind4@572,enemymodel03Kind10@600,enemymodel03Kind7@628,enemymodel03Kind13@632
+enemy-model03-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 26 enemymodel03Kinds@0
+enemy-model03-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 599 enemymodel03Pos@0
+enemy-model03-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel03Set@0
+enemy-model03-list data EnemyModelSet* ico2/seki/include/EnemyInit.h 1 enemymodel03@0
+enemy-model04-kindlist data int ico2/seki/include/EnemyInit.h 580 enemymodel04Kind16@0,enemymodel04Kind17@2,enemymodel04Kind0@4,enemymodel04Kind3@14,enemymodel04Kind9@36,enemymodel04Kind15@58,enemymodel04Kind2@120,enemymodel04Kind8@136,enemymodel04Kind18@152,enemymodel04Kind14@188,enemymodel04Kind19@196,enemymodel04Kind23@236,enemymodel04Kind1@276,enemymodel04Kind6@318,enemymodel04Kind12@324,enemymodel04Kind20@330,enemymodel04Kind24@370,enemymodel04Kind5@410,enemymodel04Kind11@434,enemymodel04Kind21@458,enemymodel04Kind25@478,enemymodel04Kind22@498,enemymodel04Kind26@506,enemymodel04Kind4@514,enemymodel04Kind10@544,enemymodel04Kind7@572,enemymodel04Kind13@576
+enemy-model04-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 27 enemymodel04Kinds@0
+enemy-model04-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 546 enemymodel04Pos@0
+enemy-model04-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel04Set@0
+enemy-model04-list data EnemyModelSet* ico2/seki/include/EnemyInit.h 1 enemymodel04@0
+enemy-model05-kindlist data int ico2/seki/include/EnemyInit.h 710 enemymodel05Kind16@0,enemymodel05Kind17@2,enemymodel05Kind0@4,enemymodel05Kind3@20,enemymodel05Kind9@74,enemymodel05Kind15@130,enemymodel05Kind2@234,enemymodel05Kind8@252,enemymodel05Kind18@270,enemymodel05Kind14@300,enemymodel05Kind19@308,enemymodel05Kind23@338,enemymodel05Kind1@368,enemymodel05Kind6@408,enemymodel05Kind12@422,enemymodel05Kind20@436,enemymodel05Kind24@478,enemymodel05Kind5@520,enemymodel05Kind11@528,enemymodel05Kind21@536,enemymodel05Kind25@544,enemymodel05Kind22@552,enemymodel05Kind26@558,enemymodel05Kind4@564,enemymodel05Kind10@634,enemymodel05Kind7@702,enemymodel05Kind13@706
+enemy-model05-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 27 enemymodel05Kinds@0
+enemy-model05-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 676 enemymodel05Pos@0
+enemy-model05-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel05Set@0
+enemy-model05b-kindlist data int ico2/seki/include/EnemyInit.h 150 enemymodel05bKind0@0,enemymodel05bKind3@8,enemymodel05bKind9@18,enemymodel05bKind15@28,enemymodel05bKind2@44,enemymodel05bKind8@48,enemymodel05bKind18@52,enemymodel05bKind19@60,enemymodel05bKind23@72,enemymodel05bKind1@86,enemymodel05bKind20@98,enemymodel05bKind24@108,enemymodel05bKind21@118,enemymodel05bKind25@130,enemymodel05bKind4@142,enemymodel05bKind10@146
+enemy-model05b-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 16 enemymodel05bKinds@0
+enemy-model05b-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 128 enemymodel05bPos@0
+enemy-model05b-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel05bSet@0
+enemy-model05-list data EnemyModelSet* ico2/seki/include/EnemyInit.h 2 enemymodel05@0
+enemy-model06-kindlist data int ico2/seki/include/EnemyInit.h 748 enemymodel06Kind16@0,enemymodel06Kind17@10,enemymodel06Kind0@20,enemymodel06Kind3@32,enemymodel06Kind9@92,enemymodel06Kind15@154,enemymodel06Kind2@242,enemymodel06Kind8@256,enemymodel06Kind18@272,enemymodel06Kind14@350,enemymodel06Kind19@358,enemymodel06Kind23@388,enemymodel06Kind1@418,enemymodel06Kind6@452,enemymodel06Kind12@466,enemymodel06Kind20@478,enemymodel06Kind24@520,enemymodel06Kind5@562,enemymodel06Kind11@572,enemymodel06Kind21@582,enemymodel06Kind25@592,enemymodel06Kind22@602,enemymodel06Kind26@606,enemymodel06Kind4@610,enemymodel06Kind10@676,enemymodel06Kind7@740,enemymodel06Kind13@744
+enemy-model06-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 27 enemymodel06Kinds@0
+enemy-model06-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 709 enemymodel06Pos@0
+enemy-model06-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel06Set@0
+enemy-model06-list data EnemyModelSet* ico2/seki/include/EnemyInit.h 1 enemymodel06@0
+enemy-model07-kindlist data int ico2/seki/include/EnemyInit.h 716 enemymodel07Kind16@0,enemymodel07Kind17@10,enemymodel07Kind0@20,enemymodel07Kind3@32,enemymodel07Kind9@62,enemymodel07Kind15@92,enemymodel07Kind2@180,enemymodel07Kind8@200,enemymodel07Kind18@222,enemymodel07Kind14@300,enemymodel07Kind19@310,enemymodel07Kind23@344,enemymodel07Kind1@376,enemymodel07Kind6@406,enemymodel07Kind12@412,enemymodel07Kind20@420,enemymodel07Kind24@474,enemymodel07Kind5@528,enemymodel07Kind11@546,enemymodel07Kind21@564,enemymodel07Kind25@572,enemymodel07Kind22@580,enemymodel07Kind26@588,enemymodel07Kind4@596,enemymodel07Kind10@652,enemymodel07Kind7@708,enemymodel07Kind13@712
+enemy-model07-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 27 enemymodel07Kinds@0
+enemy-model07-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 678 enemymodel07Pos@0
+enemy-model07-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel07Set@0
+enemy-model07-list data EnemyModelSet* ico2/seki/include/EnemyInit.h 1 enemymodel07@0
+enemy-model08-kindlist data int ico2/seki/include/EnemyInit.h 970 enemymodel08Kind16@0,enemymodel08Kind17@2,enemymodel08Kind0@4,enemymodel08Kind3@154,enemymodel08Kind9@212,enemymodel08Kind15@270,enemymodel08Kind2@374,enemymodel08Kind8@394,enemymodel08Kind18@414,enemymodel08Kind14@480,enemymodel08Kind19@488,enemymodel08Kind23@550,enemymodel08Kind1@610,enemymodel08Kind6@660,enemymodel08Kind12@666,enemymodel08Kind20@672,enemymodel08Kind24@710,enemymodel08Kind5@762,enemymodel08Kind11@782,enemymodel08Kind21@802,enemymodel08Kind25@816,enemymodel08Kind22@830,enemymodel08Kind26@832,enemymodel08Kind4@834,enemymodel08Kind10@898,enemymodel08Kind7@962,enemymodel08Kind13@966
+enemy-model08-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 27 enemymodel08Kinds@0
+enemy-model08-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 918 enemymodel08Pos@0
+enemy-model08-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel08Set@0
+enemy-model08-list data EnemyModelSet* ico2/seki/include/EnemyInit.h 1 enemymodel08@0
+enemy-model09-kindlist data int ico2/seki/include/EnemyInit.h 824 enemymodel09Kind16@0,enemymodel09Kind17@10,enemymodel09Kind0@20,enemymodel09Kind3@68,enemymodel09Kind9@106,enemymodel09Kind15@148,enemymodel09Kind2@244,enemymodel09Kind8@258,enemymodel09Kind18@274,enemymodel09Kind14@292,enemymodel09Kind19@300,enemymodel09Kind23@396,enemymodel09Kind1@490,enemymodel09Kind6@540,enemymodel09Kind12@546,enemymodel09Kind20@552,enemymodel09Kind24@592,enemymodel09Kind5@632,enemymodel09Kind11@650,enemymodel09Kind21@668,enemymodel09Kind25@678,enemymodel09Kind22@688,enemymodel09Kind26@694,enemymodel09Kind4@700,enemymodel09Kind10@760,enemymodel09Kind7@816,enemymodel09Kind13@820
+enemy-model09-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 27 enemymodel09Kinds@0
+enemy-model09-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 777 enemymodel09Pos@0
+enemy-model09-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel09Set@0
+enemy-model09b-kindlist data int ico2/seki/include/EnemyInit.h 120 enemymodel09bKind3@0,enemymodel09bKind9@8,enemymodel09bKind15@16,enemymodel09bKind1@42,enemymodel09bKind20@56,enemymodel09bKind24@64,enemymodel09bKind21@72,enemymodel09bKind25@88,enemymodel09bKind4@104,enemymodel09bKind10@112
+enemy-model09b-kinds data EnemyKindRec ico2/seki/include/EnemyInit.h 10 enemymodel09bKinds@0
+enemy-model09b-pos data sceVu0FVECTOR ico2/seki/include/EnemyInit.h 100 enemymodel09bPos@0
+enemy-model09b-set data EnemyModelSet ico2/seki/include/EnemyInit.h - enemymodel09bSet@0
+enemy-model09-list data EnemyModelSet* ico2/seki/include/EnemyInit.h 2 enemymodel09@0
+enemy-set-table data EnemySet ico2/seki/include/EnemyInit.h 9 enemySetTable@0
+item-kind-def data ItemBreakRec ico2/sugipon/include/item.h 6 itemKind@0 hex=flags
+mirror-motion-def data MotOriAlt ico2/sugipon/include/motionOrientManager.h 3 mirrorMotionTable@0
+model-path data PObjMdl ico2/common/include/charFileManager.h 1474 modelData@0
+prog-se-link data SePackage ico2/sugipon/include/frameDependSequence.h 103 progSELink@0
+texture-layout data LtProp ico2/common/include/layout_texture.h 75 texLayout@0
+way-point data WaySrcPt ico2/fumi/include/way_tool.h 2547 wayPointSheet@0
+weapon-fumble-def data FumbleRow ico2/sugipon/include/weapon.h 21 weaponFumbleGeo@0
+act-mode-def rodata ActModeRec ico2/fumi/include/act.h 116 actModeTbl@0
+attack-def rodata AttackKindEntry ico2/omori/include/attackhit.h 21 attackData@0
+auto-escort rodata EscortPoint ico2/fumi/include/girl_act.h 88 autoEscortData@0
+exit-data rodata ExitData ico2/common/include/typedef.h 256 exitData@0
+generator-sub-position rodata SafePosOffset ico2/omori/include/generator.h 6 generatorSubPosition@0
+girl-warp-list rodata WarpRec ico2/script/include/script.h 26 girlWarpList@0
+iconfile rodata IconFile ico2/fumi/include/mcard.h 5 iconFile@0
+idle-mot-def rodata IdlingDef ico2/fumi/include/commonact.h 11 idlingDef@0
+init-func rodata PackKind ico2/fumi/include/cdvd.h 25 initFunc@0
+look-target-data rodata LookTarget ico2/fumi/include/act-game.h 21 lookTargetData@0
+motion-def rodata MotionDef ico2/sugipon/include/motionOrientManager.h 1168 motionKind@0 hex=modeBits.word,flags.word
+motion-ik-eff-def rodata HandModeRow ico2/sugipon/include/handManager.h 7 motionIKEffKind@0
+motion-orient-def rodata MotOriName ico2/sugipon/include/motionOrientManager.h 282 motionOriKind@0
+motion-random-def rodata int ico2/fumi/include/act-parallel-control.h 74 randomMotionKind@0
+moviefile rodata MotOriName ico2/sugipon/include/motionOrientManager.h 5 movieFile@0
+obj-light rodata ObjLight ico2/seki/include/Light.h 3 objectLight@0
+pair-motion rodata BecPair ico2/fumi/include/commonact.h 36 pairMotion@0
+param-escape-run rodata EscapeRange ico2/fumi/include/girl_act.h 8 paramEscapeRun@0
+se-env rodata SeEnvDef ico2/fumi/include/s_init.h 420 seEnv@0
+sedef rodata SeDef ico2/fumi/include/s_init.h 1337 seDef@0
+sefile rodata SeBank ico2/fumi/include/s_init.h 104 seFile@0
+selist rodata SeKind ico2/fumi/include/s_init.h 3781 seList@0
+shocklist rodata PadActDef ico2/fumi/include/pad.h 19 shockList@0
+stage-all rodata StgPre ico2/common/include/typedef.h 103 stageData@0
+stage-anim-model rodata StgObjDat ico2/seki/include/StageAnimation.h 1179 objTableScene@0
+stage-anim rodata StageAnimDef ico2/seki/include/StageAnimation.h 764 stageTable@0
+stream-motion-def rodata StreamMotionFile ico2/sugipon/include/streamMotionManager.h 10 streamMotion@0
+weapon-def rodata WeaponDef ico2/sugipon/include/weapon.h 7 weaponKind@0
+adpcmfile rodata AdpcmDataRec ico2/fumi/include/adpcm_init.h 90 adpcmFile@0
+blend-motion-def rodata MotOriSub ico2/sugipon/include/motionOrientManager.h 208 blendMotionKind@0
+enemy-def rodata EnemyDef ico2/sugipon/include/enemy.h 18 enemyKind@0 hex=attr
+enemy-model-grp rodata EnemyMdlRec ico2/common/include/sceneManager.h 10 enemymodelGroup@0
+enemy-model-tbl rodata int ico2/common/include/sceneManager.h 25 enemymodelTable@0
+enemy-random-def rodata EnemyKindRange ico2/sugipon/include/enemy.h 10 randomEnemyKind@0
+enemy-random-variation-def rodata int ico2/sugipon/include/enemy.h 40 randomEnemyVariationKind@0
+layout-cloth-def rodata LayoutClothDef ico2/sugipon/include/attackCheckBoundary.h 30 layoutClothDef@0 hex=attr
+motion-eff-condition-def rodata VibCondEntry ico2/sugipon/include/frameDependSequence.h 11 motEffCondKind@0
+motion-eff-def rodata EffEntry ico2/sugipon/include/frameDependSequence.h 20 motionEffKind@0 hex=flags
+motion-eff-random-def rodata int ico2/sugipon/include/frameDependSequence.h 6 randomEffKind@0
+motion-limit-def rodata MotOriLimit ico2/sugipon/include/motionOrientManager.h 48 motionLimitDef@0
+motion-se-condition-def rodata SECondEntry ico2/sugipon/include/frameDependSequence.h 193 motSECondKind@0
+motion-se-random-def rodata SERandEntry ico2/sugipon/include/frameDependSequence.h 1077 randomSEKind@0
+obj-trigger-def rodata int ico2/omori/include/objact.h 11 objTriggerDef@0
+obj-trigger rodata ObjActMailEnt ico2/omori/include/objact.h 31 objTrigger@0
+parallel-motion-orient rodata MotOriParallelEnt ico2/sugipon/include/motionOrientManager.h 41 parallelMotionOrient@0
+particle-effect rodata ParticleEffectFile ico2/sugipon/include/particleEffect.h 52 particleEffectFile@0
+spider-def rodata SpiderKindRec ico2/sugipon/include/spider.h 6 spiderDef@0
+texture-path rodata TexRec ico2/common/include/charFileManager.h 52 texFile@0
+way-group rodata WaySrcGrp ico2/fumi/include/way_tool.h 627 wayGroupSheet@0
+staffroll_dat sdata int ico2/common/include/staffroll.h - staffRollNameDataNum@0 count-of=staffRollNameData

@@ -220,8 +220,8 @@ static int controler_stable_check(IosPadDevRec *dev)
             dev->phase = -1;
             dev->errCount = cnt;
             dev->lastTermId = id;
-            debug_assert(__FILE__, 422);
-            __assert(__FILE__, 422, "0");
+            debug_assert(__FILE__, LN(422, 422, 422, 422, 422, 422));
+            __assert(__FILE__, LN(422, 422, 422, 422, 422, 422), "0");
             return -1;
         }
         if (state == 6 || state == 2) {
@@ -257,7 +257,7 @@ static int controler_stable_check(IosPadDevRec *dev)
     int id = dev->lastTermId;
     int state;
     int mode;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int orig;
 #endif
     int exid;
@@ -275,6 +275,14 @@ static int controler_stable_check(IosPadDevRec *dev)
         cnt = 0;
         phase = 0;
     }
+#ifdef VERSION_JUN26
+    switch (phase) {
+    case 0:
+        if (state != 6 && state != 2) {
+            break;
+        }
+        mode = scePadInfoMode(port, slot, 1, 0);
+#else
     if (port == 0 && slot == 0) {
         debug_StdPrintfDummy("phase %d\n", phase);
     }
@@ -301,12 +309,15 @@ static int controler_stable_check(IosPadDevRec *dev)
         orig = mode;
 #endif
         debug_StdPrintfDummy("pad id:%d\n", mode);
+#endif
         debug_StdPrintfDummy("pad id:%d\n", mode);
         if (mode == 0) {
             break;
         }
         exid = scePadInfoMode(port, slot, 2, 0);
+#ifndef VERSION_JUN26
         debug_StdPrintfDummy("pad: exid %d\n", exid);
+#endif
         debug_StdPrintfDummy("pad: exid %d\n", exid);
         if (exid >= 1) {
             mode = exid;
@@ -322,15 +333,20 @@ static int controler_stable_check(IosPadDevRec *dev)
 #ifdef VERSION_AUG6
             dev->flags |= 0x40000;
 #else
+#ifndef VERSION_JUN26
             if (orig != mode) {
                 phase = 30;
             } else {
                 dev->flags |= 0x40000;
             }
 #endif
+#endif
             break;
         case 7:
             debug_StdPrintfDummy("pad:7\n");
+#ifdef VERSION_JUN26
+            phase = 70;
+#else
 #ifdef VERSION_AUG6
             if ((int)(dev->flags >> 18) & 1) {
                 phase = 70;
@@ -340,10 +356,11 @@ static int controler_stable_check(IosPadDevRec *dev)
                 phase = 0;
 #endif
             }
+#endif
             break;
         }
         debug_StdPrintfDummy("pad:%03x\n", mode);
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         break;
     case 30:
         if (scePadSetMainMode(port, slot, 0, 2) == 1) {
@@ -382,7 +399,11 @@ static int controler_stable_check(IosPadDevRec *dev)
         if (scePadGetReqState(port, slot) != 0) {
             break;
         }
+#ifdef VERSION_JUN26
+        phase = 0;
+#else
         phase = 1;
+#endif
         debug_StdPrintfDummy("pad:switch to ANALOG mode\n");
         break;
     case 70:
@@ -437,12 +458,12 @@ static int controler_stable_check(IosPadDevRec *dev)
             dev->phase = -1;
             dev->errCount = cnt;
             dev->lastTermId = id;
-            debug_assert(__FILE__, LN(468, 465, 468, 468, 422));
-            __assert(__FILE__, LN(468, 465, 468, 468, 422), "0");
+            debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 404));
+            __assert(__FILE__, LN(468, 465, 468, 468, 422, 404), "0");
             return -1;
         }
         if (state == 6 || state == 2) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             unsigned char data[32];
 
             if (scePadRead(port, slot, data) != 0) {
@@ -479,11 +500,16 @@ int iosPadDevInit(void *desc)
     if (scePadInit(0) != 1) {
         debug_StdPrintfDummy("pad:init error\n");
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(468, 465, 468, 468, 508));
-        __assert(__FILE__, LN(468, 465, 468, 468, 508), "0");
+        debug_assert(__FILE__, LN(468, 465, 468, 468, 508, 468));
+        __assert(__FILE__, LN(468, 465, 468, 468, 508, 468), "0");
 #else
-        debug_assert(__FILE__, LN(553, 550, 553, 508, 553));
-        __assert(__FILE__, LN(553, 550, 553, 508, 553), "0");
+#ifdef VERSION_JUN26
+        debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 490));
+        __assert(__FILE__, LN(468, 465, 468, 468, 422, 490), "0");
+#else
+        debug_assert(__FILE__, LN(553, 550, 553, 508, 553, 553));
+        __assert(__FILE__, LN(553, 550, 553, 508, 553, 553), "0");
+#endif
 #endif
         return 0;
     }
@@ -493,7 +519,7 @@ int iosPadDevInit(void *desc)
         dev->port = i;
         dev->slot = 0;
         dev->phase = 0;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         dev->error = 1;
 #else
         dev->error = 0xFFFFFFFFu;
@@ -502,15 +528,20 @@ int iosPadDevInit(void *desc)
         if (scePadPortOpen(i, 0, dev->dmaBuf) == 0) {
             debug_StdPrintfDummy("ERROR: scePadPortOpen port%d slot%d\n", i, 0);
 #ifdef VERSION_NTSC
-            debug_assert(__FILE__, 523);
-            __assert(__FILE__, 523, "0");
+            debug_assert(__FILE__, LN(523, 523, 523, 523, 523, 523));
+            __assert(__FILE__, LN(523, 523, 523, 523, 523, 523), "0");
 #else
 #ifdef VERSION_AUG6
-            debug_assert(__FILE__, LN(468, 465, 468, 468, 523));
-            __assert(__FILE__, LN(468, 465, 468, 468, 523), "0");
+            debug_assert(__FILE__, LN(468, 465, 468, 468, 523, 468));
+            __assert(__FILE__, LN(468, 465, 468, 468, 523, 468), "0");
 #else
-            debug_assert(__FILE__, LN(569, 566, 569, 569, 569));
-            __assert(__FILE__, LN(569, 566, 569, 569, 569), "0");
+#ifdef VERSION_JUN26
+            debug_assert(__FILE__, LN(468, 465, 468, 468, 422, 505));
+            __assert(__FILE__, LN(468, 465, 468, 468, 422, 505), "0");
+#else
+            debug_assert(__FILE__, LN(569, 566, 569, 569, 569, 569));
+            __assert(__FILE__, LN(569, 566, 569, 569, 569, 569), "0");
+#endif
 #endif
 #endif
         }
@@ -639,7 +670,7 @@ static int iosPadDevReadFunc(void)
         if (dev->phase == 99) {
             dev->error = 0;
         }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (dev->error == 1) {
 #else
         if (dev->error != 0) {
@@ -651,6 +682,10 @@ static int iosPadDevReadFunc(void)
             }
         } else {
             if (scePadRead(dev->port, dev->slot, &dev->buf[dev->idx]) == 0) {
+#ifdef VERSION_JUN26
+                dev->error = 1;
+                dev->phase = 0;
+#else
 #ifdef VERSION_JPN
                 dev->phase = 0;
                 dev->error = 1;
@@ -673,12 +708,13 @@ static int iosPadDevReadFunc(void)
                 if (t != 7 && t != 5) {
                     b->rx = b->ry = b->lx = b->ly = 127;
                 }
+#endif
             }
         }
         sh = &dev->shock;
         port = dev->port;
         Shock_Decode(&sh->box, &dev->shock.motor0, &dev->shock.motor1);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (((*(unsigned int *)((char *)dev + (dev->idx << 5) + 0x10) >> 12) & 0xF) != 7 ||
             dev->error == 1) {
 #else
@@ -731,7 +767,7 @@ int iosPadRead(IosPadCtx *ctx)
     ctx->rel2 = ctx->rel;
     ctx->word24 = ctx->word14;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (dev->error == 1) {
 #else
     if (dev->error != 0) {
@@ -748,7 +784,7 @@ int iosPadRead(IosPadCtx *ctx)
         return 0;
     }
     if (padEnabled == 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         ctx->now = 0;
         ctx->trg = 0;
         ctx->rel = 0;
@@ -802,7 +838,7 @@ float iosPadNormalizeStick(IosPadStick *st)
     return (len - 48.0f) / 72.0f;
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 int iosPadGetStick(IosPadCtx *ctx, void *out, int mode, int a3, int a4, int simulate)
 {
     IosPadStick *st = out;
@@ -998,7 +1034,7 @@ int iosPadConnect(IosPadCtx *ctx, int a1, int port, PadConf *conf)
     ctx->conf = conf;
     ctx->dev = &iosPadDev[port];
     return 0;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 }
 
 int iosPadGetStick(IosPadCtx *ctx, void *st, int mode, int a3, int a4, int simulate)
@@ -1078,6 +1114,7 @@ void iosPadActStop(int key)
         }
         ShockRequestBox_RequestCancel(entry->box, key);
         entry->key = 0;
+#ifndef VERSION_JUN26
     }
 }
 
@@ -1092,6 +1129,7 @@ void iosPadActStopAll(void)
             p->key = 0;
         }
         p++;
+#endif
     }
 }
 

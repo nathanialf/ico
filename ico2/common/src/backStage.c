@@ -46,11 +46,13 @@ static float nestSec; /* derived name */ /* nestDist scaled to seconds */
 /* the boy has already been told the heroine is in trouble */
 static int pinchTold; /* derived name */
 
+#ifndef VERSION_JUN26
 /* .bss: the nest position the carrier walks to */
 static float nestPos[4]; /* derived name */
 
 /* the carrier walks the waypoint route instead of a generator */
 static int wayKidnap; /* derived name */
+#endif
 
 /* generator.h, which this TU does not include, declares both with a
    short *; this TU passes the int * work words of a GamesysObjInfo */
@@ -65,10 +67,12 @@ inline void backStageProcessInit(void)
     pinchTold = 0;
 }
 
+#ifndef VERSION_JUN26
 inline void backStageDebugTimeZero(void)
 {
     kidnapTime = 0;
 }
+#endif
 
 #ifdef VERSION_NTSC
 void backStageProcessOutStage(void)
@@ -250,12 +254,20 @@ void backStageProcessOutStage(void)
 {
     Vec16 a;
     Vec16 b;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int done;
 #endif
     int i;
     int gen;
     void *p;
+#ifdef VERSION_JUN26
+    GamesysObjInfo *g;
+
+    if (gflagChk(343) != 0) {
+        return;
+    }
+    if (gameSysObjInfo[1].stage == stage_no) {
+#else
     GObj *o;
 
 #ifdef VERSION_AUG6
@@ -272,10 +284,18 @@ void backStageProcessOutStage(void)
     }
     if (gameSysObjInfo[1].stage == stage_no && done == 0) {
 #endif
+#endif
         debug_StdPrintfDummy("girl nokori");
         pinchTold = 0;
         kidnapObjIdx = -1;
         for (i = 2; i < 22; i++) {
+#ifdef VERSION_JUN26
+            g = gameSysObjInfo;
+            if (g[i].no == 0) {
+                continue;
+            }
+            if (g[i].work[0] == 4) {
+#else
             if (gameSysObjInfo[i].no == 0) {
                 continue;
             }
@@ -283,12 +303,15 @@ void backStageProcessOutStage(void)
                 continue;
             }
             if (gameSysObjInfo[i].work[0] == 4) {
+#endif
                 kidnapObjIdx = i;
                 break;
             }
         }
         kidnapState = 0;
+#ifndef VERSION_JUN26
         wayKidnap = 0;
+#endif
         if (kidnapObjIdx < 0) {
             GObj *e = NearestEnemyFromGirl(&enemyDist);
 
@@ -321,6 +344,7 @@ void backStageProcessOutStage(void)
                 nestSec = nestDist / 100.0f;
                 carryTime = (int)(nestSec * (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
             }
+#ifndef VERSION_JUN26
         } else if (stageData[stage_no].kidnapSeconds != 0) {
             GetRootProjectionPosOfGObj(a.f, girlGObj);
             wayKidnap = 1;
@@ -380,12 +404,20 @@ void backStageProcessOutStage(void)
 #endif
             }
             o = isysGObjSearchFromObjKindID_next(o);
+#endif
         }
     }
 }
 
 void backStageProcessMain(void)
 {
+#ifdef VERSION_JUN26
+    gamesysAnotherStageTsuresari = 0;
+    if (gflagChk(340) != 0) {
+        return;
+    }
+    if (current_layout_id != 50) {
+#else
     Vec16 pos;
     Vec16 rot;
     Vec16 tmp;
@@ -408,6 +440,7 @@ void backStageProcessMain(void)
     if (current_layout_id != 54) {
 #endif
 #endif
+#endif
         return;
     }
     if (stage_no == gameSysObjInfo[1].stage) {
@@ -415,6 +448,16 @@ void backStageProcessMain(void)
     }
     switch (kidnapState) {
     case 1:
+#ifdef VERSION_JUN26
+        debug_PrintfDummy(350, 100, 0xFFFF00FF, "TSUKAMARI TIME %d",
+                          kidnapTime / ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        if (kidnapTime-- < 0) {
+            GamesysObjInfo *s = &gameSysObjInfo[kidnapObjIdx];
+
+            kidnapState = 2;
+            sceVu0CopyVector(s->pos, gameSysObjInfo[1].pos);
+            s->work[0] = 4;
+#else
         if (kidnapTime-- < 0) {
             kidnapState = 2;
             if (wayKidnap == 0) {
@@ -472,9 +515,20 @@ void backStageProcessMain(void)
                     kidnapState = 1;
                 }
             }
+#endif
         }
         break;
     case 2:
+#ifdef VERSION_JUN26
+        debug_PrintfDummy(350, 100, 0xFF000000, "TSURESARI %d",
+                          carryTime / ((60 - systemStatus[0] * 10) / systemStatus[1]));
+        gamesysAnotherStageTsuresari = 1;
+        if (carryTime-- < 0) {
+            int st = gameSysObjInfo[1].stage;
+
+            if (gflagChk(342) == 0) {
+                gflagOn(342);
+#else
         if (CameraGetMode() != 4) {
             if (pinchTold == 0) {
                 SetStatusBoy_OtherStageGirlPinch();
@@ -483,6 +537,7 @@ void backStageProcessMain(void)
             gamesysAnotherStageTsuresari = 1;
             if (carryTime-- < 0) {
                 int st = gameSysObjInfo[1].stage;
+#endif
                 RequestStageChangeKidnapEnd(
                     st, eBrainGetTargetGeneratorFromLabel(gameSysObjInfo[kidnapObjIdx].no));
             }
@@ -506,16 +561,20 @@ static void routeSetPos(GObj *gobj0, GObj *gobj1, float *out, float ratio)
 
     len = WayLengthOfGObj_GObj(gobj0, gobj1);
     GetRootPosition(p0.f, gobj0);
+#ifndef VERSION_JUN26
     if (1.0f <= ratio) {
         GetRootPosition(out, gobj1);
         return;
     }
+#endif
     n = NumOfWpPos();
     if (n != 0) {
         sum = 0.0f;
         memset(&prev, 0, sizeof(prev));
         target = len * ratio;
+#ifndef VERSION_JUN26
         debug_StdPrintfDummy("way num %d\n", n);
+#endif
         for (i = 0; i < n; i++) {
             CopyWpPos(&cur.f, i, i);
             if (i == 0) {
@@ -524,7 +583,9 @@ static void routeSetPos(GObj *gobj0, GObj *gobj1, float *out, float ratio)
                 sceVu0SubVector(d.f, prev.f, cur.f);
                 sum += FSqrt(_InnerProduct(d.f, d.f));
             }
+#ifndef VERSION_JUN26
             debug_StdPrintfDummy("%d %d:dist %f calcdist %f\n", i, n, target, sum);
+#endif
             if (target < sum) {
                 break;
             }
@@ -535,10 +596,14 @@ static void routeSetPos(GObj *gobj0, GObj *gobj1, float *out, float ratio)
         }
         CopyWpPos(&cur.f, i, i);
         sceVu0CopyVector(out, cur.f);
+#ifdef VERSION_JUN26
+    } else {
+#else
         debug_StdPrintfDummy("set pos_table %f %f %f\n", out[0], out[1], out[2]);
     } else {
         /* no WAY candidate */
         debug_StdPrintfDummy("WAY候補無し");
+#endif
         sceVu0CopyVector(out, p0.f);
     }
 }
@@ -664,7 +729,11 @@ void backStageProcessInStage(float arg)
 #ifdef VERSION_AUG6
         if (gflagChk(356) != 0) {
 #else
+#ifdef VERSION_JUN26
+        if (gflagChk(340) != 0) {
+#else
         if (gflagChk(390) != 0) {
+#endif
 #endif
             return;
         }
@@ -673,6 +742,11 @@ void backStageProcessInStage(float arg)
     if (limit < range) {
         range = limit;
     }
+#ifdef VERSION_JUN26
+    if (backStageGirlTargetEnemyGop == 0 && IsGirlEscortedInCurrentStage() == 0 &&
+        gflagChk(343) == 0 && gameSysObjInfo[1].stage == stage_no) {
+        kidnapWarpToWaypoint(girlGObj, range);
+#else
 #ifdef VERSION_AUG6
     if (backStageGirlTargetEnemyGop == 0 && IsGirlEscortedInCurrentStage() == 0 &&
         gflagChk(360) == 0 && gameSysObjInfo[1].stage == stage_no && warpGirlInStageSet == 0) {
@@ -688,11 +762,15 @@ void backStageProcessInStage(float arg)
 #endif
             kidnapWarpToWaypoint(girlGObj, range);
         }
+#endif
     }
     gobj = isysGObjSearchFromObjKindID_begin(4);
     while (gobj != 0) {
         if (isEnemyKidnapEnable(gobj) != 0) {
             if (backStageGirlTargetEnemyGop != gobj) {
+#ifdef VERSION_JUN26
+                kidnapWarpToWaypoint(gobj, range);
+#else
                 /* the heroine is not held */
                 debug_StdPrintfDummy("ヒロイン捕まってない");
 #ifdef VERSION_AUG6
@@ -702,10 +780,22 @@ void backStageProcessInStage(float arg)
 #endif
                     kidnapWarpToWaypoint(gobj, range);
                 }
+#endif
             } else {
                 t = isysGObjSearchFromObjLayoutID(eBrainGetTargetGeneratorFromLabel(gobj->labelId));
                 if (t != 0) {
                     Vec16 pos;
+#ifdef VERSION_JUN26
+                    float ratio;
+
+                    ratio = (float)carryTime /
+                            (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 100.0f;
+                    rest = nestDist - ratio;
+                    if (rest < 0.0f) {
+                        rest = nestDist;
+                    }
+                    routeSetPos(backStageGirlTargetEnemyGop, t, pos.f, rest / nestDist);
+#else
                     Vec16 root;
                     float ratio;
 
@@ -729,6 +819,7 @@ void backStageProcessInStage(float arg)
                         routeSetPos(backStageGirlTargetEnemyGop, t, pos.f, 1.0f);
                     }
                     debug_StdPrintfDummy("set pos %f %f %f\n", pos.f[0], pos.f[1], pos.f[2]);
+#endif
                     pos.f[1] = pos.f[1] - GOBJ_SUB(backStageGirlTargetEnemyGop)->skel->pos[1];
                     SetDirectRootPosition(backStageGirlTargetEnemyGop, pos.f);
                 }

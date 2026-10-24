@@ -19,6 +19,19 @@ static ActMail st27aWave_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail spider_mes[2] = {{393}, {392}}; /* derived name */
 #else
+#ifdef VERSION_JUN26
+static ActMail explode_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail splash1_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail splash2_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail wave_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail st27aWave_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail spider_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static void actSt17aTestChk(GObj *volatile self);
 
 #ifdef VERSION_NTSC
@@ -51,6 +64,7 @@ static ActMail spider_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail st17aTest_mes[2] = {{430}, {429}}; /* derived name */
 #endif
 #endif
+#endif
 
 void actExplode(GObj *volatile self)
 {
@@ -66,7 +80,11 @@ void actExplode(GObj *volatile self)
 #ifdef VERSION_AUG6
     ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
 #endif
     _ACTWait(0);
@@ -86,7 +104,11 @@ void actSplash1(GObj *volatile self)
 #ifdef VERSION_AUG6
     ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
 #endif
     _ACTWait(0);
@@ -106,7 +128,11 @@ void actSplash2(GObj *volatile self)
 #ifdef VERSION_AUG6
     ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
 #endif
     _ACTWait(0);
@@ -126,7 +152,11 @@ void actWave(GObj *volatile self)
 #ifdef VERSION_AUG6
     ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
 #endif
     _ACTWait(0);
@@ -150,14 +180,23 @@ void actSpider(GObj *volatile self)
     stage_SetLoopFlag(138, 1);
     stage_SetAnimation(138, 1, 0);
 #else
+#ifdef VERSION_JUN26
+    stage_SetLoopFlag(125, 1);
+    stage_SetAnimation(125, 1, 0);
+#else
     stage_SetLoopFlag(160, 1);
     stage_SetAnimation(160, 1, 0);
+#endif
 #endif
 #endif
 #endif
 
     spider_mes[0].func = actSpiderChk;
     act->mail = spider_mes;
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+#else
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
@@ -236,6 +275,7 @@ void actSt17aTest(GObj *volatile self)
 #endif
     _ACTWait(0);
 #endif
+#endif
 }
 
 void actSt27aWave(GObj *volatile self)
@@ -252,7 +292,11 @@ void actSt27aWave(GObj *volatile self)
 #ifdef VERSION_AUG6
     ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
 #endif
     _ACTWait(0);
@@ -312,6 +356,15 @@ void actExplodeChk(GObj *volatile self)
     scpLinkBGAtoLayoutedTarget(2761, 439);
     while (stage_CheckAnimationFinish(439) == 0) {
 #else
+#ifdef VERSION_JUN26
+    GOBJ_SUB(scpSearchGobj(2613))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(2613))->ctrl.noStand = 0;
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(60);
+    stage_SetAnimation(403, 1, 0);
+    scpLinkBGAtoLayoutedTarget(2613, 403);
+    while (stage_CheckAnimationFinish(403) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     GOBJ_SUB(scpSearchGobj(3010))->ctrl.noStand = 1;
     GOBJ_SUB(scpSearchGobj(3010))->ctrl.noStand = 0;
@@ -331,6 +384,7 @@ void actExplodeChk(GObj *volatile self)
     while (stage_CheckAnimationFinish(511) == 0) {
 #endif
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -346,6 +400,15 @@ void actSplash1Chk(GObj *volatile self)
     stage_SetAnimation(427, 1, 0);
     scpLinkBGAtoLayoutedTarget(2762, 427);
     while (stage_CheckAnimationFinish(427) == 0) {
+#else
+#ifdef VERSION_JUN26
+    GOBJ_SUB(scpSearchGobj(2614))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(2614))->ctrl.noStand = 0;
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(60);
+    stage_SetAnimation(391, 1, 0);
+    scpLinkBGAtoLayoutedTarget(2614, 391);
+    while (stage_CheckAnimationFinish(391) == 0) {
 #else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     GOBJ_SUB(scpSearchGobj(3011))->ctrl.noStand = 1;
@@ -366,6 +429,7 @@ void actSplash1Chk(GObj *volatile self)
     while (stage_CheckAnimationFinish(498) == 0) {
 #endif
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -381,6 +445,15 @@ void actSplash2Chk(GObj *volatile self)
     stage_SetAnimation(428, 1, 0);
     scpLinkBGAtoLayoutedTarget(2763, 428);
     while (stage_CheckAnimationFinish(428) == 0) {
+#else
+#ifdef VERSION_JUN26
+    GOBJ_SUB(scpSearchGobj(2615))->ctrl.noStand = 1;
+    GOBJ_SUB(scpSearchGobj(2615))->ctrl.noStand = 0;
+    scpGetWallCollision(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(60);
+    stage_SetAnimation(392, 1, 0);
+    scpLinkBGAtoLayoutedTarget(2615, 392);
+    while (stage_CheckAnimationFinish(392) == 0) {
 #else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     GOBJ_SUB(scpSearchGobj(3012))->ctrl.noStand = 1;
@@ -399,6 +472,7 @@ void actSplash2Chk(GObj *volatile self)
     stage_SetAnimation(499, 1, 0);
     scpLinkBGAtoLayoutedTarget(3016, 499);
     while (stage_CheckAnimationFinish(499) == 0) {
+#endif
 #endif
 #endif
         _ACTWait(1);
@@ -435,6 +509,15 @@ void actWave1(GObj *volatile self)
         _ACTWait(179);
         stage_SetAnimation(450, 1, 0);
 #else
+#ifdef VERSION_JUN26
+        stage_SetAnimation(410, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(411, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(412, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(413, 1, 0);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(515, 1, 0);
 #else
@@ -460,6 +543,7 @@ void actWave1(GObj *volatile self)
 #endif
 #endif
 #endif
+#endif
         _ACTWait(179);
     }
 }
@@ -474,6 +558,16 @@ void actSt27aWave1(GObj *volatile self)
     GObj *x = self;
     actInitialize(self);
     while (1) {
+#ifdef VERSION_JUN26
+        stage_SetAnimation(156, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(157, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(158, 1, 0);
+        _ACTWait(179);
+        stage_SetAnimation(159, 1, 0);
+        _ACTWait(179);
+#else
 #ifdef VERSION_NTSC
         stage_SetAnimation(173, 1, 0);
         _ACTWait(200);
@@ -518,6 +612,7 @@ void actSt27aWave1(GObj *volatile self)
 #endif
 #endif
         _ACTWait(200);
+#endif
     }
 }
 
@@ -532,7 +627,7 @@ void actSpiderChk(GObj *volatile self)
     }
 }
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static void actSt17aTestChk(GObj *volatile self)
 {
     while (1) {

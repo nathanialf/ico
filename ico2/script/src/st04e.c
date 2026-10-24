@@ -55,6 +55,13 @@ static ActMail water_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail waterSwitch_mes[2] = {{393}, {392}}; /* derived name */
 #else
+#ifdef VERSION_JUN26
+static ActMail waterMain_mes[2] = {{356, actSt04eWaterSwitch}, {376}}; /* derived name */
+
+static ActMail water_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail waterSwitch_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static void actSt04eFuchi1Chk(GObj *volatile self);
 static void actSt04eFuchi2Chk(GObj *volatile self);
 static void actSt04eFuchi3Chk(GObj *volatile self);
@@ -269,6 +276,7 @@ void actSt04eSe(GObj *volatile self)
     _ACTWait(0);
 }
 #endif
+#endif
 
 void actSt04eWater(GObj *volatile self)
 {
@@ -287,6 +295,17 @@ void actSt04eWater(GObj *volatile self)
         scpSearchGobj(1172)->active = 0;
         stage_SetAnimation(232, -1, -2);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(196) == 0) {
+        scpSearchGobj(1118)->active = 0;
+        water_mes[0].func = actSt04eWaterMain;
+        act->mail = water_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(1117)->active = 0;
+        stage_SetAnimation(207, -1, -2);
+#else
     SetRotObjectLockFlag(scpSearchGobj(1274), 1);
 
     if (gflagChk(230) == 0) {
@@ -303,6 +322,7 @@ void actSt04eWater(GObj *volatile self)
         stage_SetAnimation(261, -1, -2);
 #endif
 #endif
+#endif
     }
 }
 #endif
@@ -310,6 +330,9 @@ void actSt04eWater(GObj *volatile self)
 void actSt04eWaterMain(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+#ifdef VERSION_JUN26
+    scpBoyControlReadDisable = 0;
+#endif
 
     sub->mainMail = waterMain_mes;
     while (1) {
@@ -383,6 +406,47 @@ void actSt04eWaterFlagOn(GObj *volatile self)
 {
     _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 11.0);
     gflagOn(205);
+}
+#else
+#ifdef VERSION_JUN26
+void actSt04eWaterSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 1;
+
+    sub->mainMail = 0;
+
+    waterSwitch_mes[0].func = actSt04eWaterStop;
+    sub->mail = waterSwitch_mes;
+    ACTSendMailCorrect(self, 377);
+    _ACTWait(0);
+}
+
+void actSt04eWaterStop(GObj *volatile self)
+{
+    lt_switch_layout(51);
+
+    gflagOn(196);
+
+    _ACTWait(60);
+
+    stage_SetAnimation(208, 1, 0);
+
+    stage_SetAnimation(207, -1, -2);
+
+    while (stage_CheckAnimationFinish(208) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpSearchGobj(1118)->active = 1;
+    scpSearchGobj(1117)->active = 0;
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+
+    SetWayGroupActive(5, 1);
 }
 #else
 void actSt04eWaterSwitch(GObj *volatile self)
@@ -560,4 +624,5 @@ static void actSt04eHint1WakeUpChk(GObj *volatile self)
     gflagOn(226);
     WakeupHint(18);
 }
+#endif
 #endif

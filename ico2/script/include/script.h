@@ -9,6 +9,7 @@
 #define SCRIPT_H
 
 #include "typedef.h"
+
 #ifdef VERSION_AUG6
 #include "gobj.h"
 #include "enemy_act.h"
@@ -30,7 +31,11 @@ extern struct SqEntry *sekizo_common;
 extern char *scpDummyGObj;
 extern char *scpDummyGObj2;
 extern int sekizo_yure;
+
+#ifndef VERSION_JUN26
 extern unsigned char sekizo_yure_vol;
+#endif
+
 /* script.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order),
  * from scpDispOffAllWithKind on. */
@@ -40,14 +45,22 @@ void scpActivateAllWithKind(int kind);
 void scpDisActivateAllWithKind(int kind);
 void scpLinkBGAtoLayoutedTarget(int id, int key);
 void scpLinkBGAtoLayoutedTargetSkelton(int id, int focus, int key);
-void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int id, int focus, int key, int localRotation);
-inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int kind, int focus, int key, int localRotation);
+
+#ifndef VERSION_JUN26
+void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int id, int focus, int key,
+                                                            int localRotation);
+
+inline void scpLinkBGAtoKindTargetSkeltonWithLocalRotationFlag(int kind, int focus, int key,
+                                                               int localRotation);
+#endif
+
 WallCfg *scpGetWallCollision(float x0, float y0, float z0, float x1, float y1, float z1);
 void scpDoorTypeUp(struct GObj *volatile self);
 inline void scpDoorTypeUpSwitch(struct GObj *volatile self);
 void scpAdpcmPlayRequestFunc(int kind, struct SqEntry **id, int ch, int loopNum, int play);
 int scpAdpcmPlayRequestNum(void);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 int scpAdpcmFadeClose(struct SqEntry *p, short fade);
 int scpAdpcmCloseChk(struct SqEntry *p);
 void scpDeamon(struct GObj *volatile self);
@@ -57,9 +70,11 @@ int scpAdpcmCloseChkFunc(struct SqEntry **h);
 void scpDeamon(struct GObj *volatile self);
 void scpGirlHintVoiceCancel(void);
 #endif
-#ifndef VERSION_AUG6
+
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void scpWoodBox(struct GObj *volatile self);
 #endif
+
 int scpIsTorchLightOn(int id);
 struct GObj *scpIsBombExplode(int x);
 float scpGetRotObjectRotCount(int id);
@@ -77,8 +92,15 @@ void scpSleepEnemyAll(void);
 void scpWakeupEnemyAll(void);
 inline void scpKillEnemyAll(void);
 inline void scpMaskGeneratorAll(void);
+
+#ifdef VERSION_JUN26
+int _SCPMoveCharactorByWay(struct GObj *self, int tgt, float *dir, float speed, int flags);
+void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1);
+#else
 void scpKillEnemyOne(int id);
 int _SCPMoveCharactorByWay(struct GObj *self, int tgt, float *dir, float speed, int flags);
+#endif
+
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1);
 #endif
@@ -86,7 +108,10 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
 int _SCPMoveByWay_ToChar(struct GObj *self, struct GObj *target, int deg, int flags, float scale,
                          float speed);
 
+#ifndef VERSION_JUN26
 void _SCPCharacterStop(struct GObj *self);
+#endif
+
 inline struct GObj *scpSearchGobj(int id);
 void scpPlayMotNode(void *self, int mot, void *obj, int node);
 void scpPlayMotReq(struct GObj *self, int mot);
@@ -111,10 +136,21 @@ int scpIsWallLever2On(void);
 int scpIsHangChain(struct GObj *self);
 int scpIsHangChainOptional(struct GObj *self, int b);
 void scpBornSpider(int n, float a, float b, float c, float d);
+
+#ifndef VERSION_JUN26
 inline int scpActStatusDeathFall(struct GObj *self);
+#endif
+
 void scpSetStreamMotionRootOffset(struct GObj *self, float x, float y, float z);
 void scpWakeupItemWithBoundary(float x, float y, float z, float r);
 int scpCheckReadyAllObjects(void);
+
+#ifdef VERSION_JUN26
+int scpTriggerIgnore(struct GObj *self);
+inline void scpDoorTypeUpMain(struct GObj *volatile self);
+void scpSubAdpcmPlay(struct GObj *volatile self);
+inline void actSubSekizoSe(struct GObj *volatile self);
+#else
 inline void ScpCallCameraSetTarget(float x, float y, float z);
 void ScpCallCameraGetTarget(float *dst);
 void ScpCallCameraOff(void);
@@ -122,6 +158,7 @@ void ScpCallCameraOn(void);
 void ScpCallCameraTargetOff(void);
 void scpTransGObj(void *self, float dx, float dy, float dz);
 void scpExplodeSecretItem(void);
+
 #ifdef VERSION_AUG6
 int scpTriggerIgnore(struct GObj *self);
 inline void scpDoorTypeUpMain(struct GObj *volatile self);
@@ -131,6 +168,7 @@ int scpCheckExistAliveEnemy(void);
 int scpCheckExistAliveSpider(void);
 void scpLockMaxRotate(struct GObj *self, float rot);
 void scpUnLockMaxRotate(struct GObj *self);
+
 #ifdef VERSION_NTSC
 int scpTriggerIgnore(struct GObj *self);
 inline void scpDoorTypeUpMain(struct GObj *volatile self);
@@ -143,30 +181,41 @@ inline void scpDoorTypeUpMain(struct GObj *volatile self);
 void actSubSekizoSe(struct GObj *volatile self);
 #endif
 #endif
+#endif
+
 /* The entry points script.o compiles in place, in its own parse order. */
 void scpTorchLightOn(int id);
 void scpTorchLightOff(int id);
 void scpSetCageVelocityFriction(int id, float friction);
 void scpPlayMotDir(struct GObj *self, float *dir);
-#ifdef VERSION_NTSC
+
+#if defined(VERSION_NTSC) || defined(VERSION_JUN26)
 void scpPlayJump(struct GObj *self, int orient);
 #endif
+
 void scpPlayMot(struct GObj *self, int mot);
 void scpPlayStart(struct GObj *self);
 void scpPlayEnd(struct GObj *self);
 void scpDoorTypeUpDown(struct GObj *volatile self);
 void scpDoorTypeUpUp(struct GObj *volatile self);
+
+#ifndef VERSION_JUN26
 void scpSubAdpcmPlay(struct GObj *volatile self);
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void scpAdpcmCloseFunc(struct SqEntry **h);
 void scpGirlHintVoiceReady(int kind);
 void scpGirlHintVoicePlay(void);
 void scpGirlHintVoiceTickProc(void *cam);
 #endif
+#endif
 
 void scpSekizou(struct GObj *self, int flag, int anim, int anim2, int kind, float bx, float by,
                 float bz, float gx, float gy, float gz);
 
+#ifdef VERSION_JUN26
+void scpSekizouCheckPoint(void);
+#else
 void _SCPMoveCharactorByWay_Cancel(struct GObj *self);
 void scpSekizouCheckPoint(void);
 void scpWakeupEnemyOne(int id);
@@ -175,8 +224,8 @@ void scpSleepSpiderGroupOne(int id);
 void scpWakeupSpiderGroupOne(int id);
 void scpKillSpiderGroup(int id);
 void preload(int idx);
-#ifdef VERSION_AUG6
 
+#ifdef VERSION_AUG6
 /* Four helpers for the stage scripts that no stage calls yet.  Pinned by
  * the bytes: four function definitions seen before the code of every stage
  * file (each definition makes three hidden static labels, so every
@@ -223,6 +272,7 @@ static inline void scpUnLockMaxRotate(GObj *self) /* derived name */
 }
 #else
 void scpSetBoyWeaponGObj(void *w);
+#endif
 #endif
 
 /* one entry of girlWarpList, the girl's warp table, 0x58 bytes; warpGirl.c

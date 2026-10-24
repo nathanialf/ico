@@ -43,8 +43,13 @@ char *iOSMcSaveSeg[6] = {"BISCPS-11003ico", "icon.sys",    "boy_blk.ico",
 char *iOSMcSaveSeg[6] = {"BASCUS-97113ico", "icon.sys",    "boy_blk.ico",
                          "boy_blk.ico",     "boy_blk.ico", "game."};
 #else
+#ifdef VERSION_JUN26
+char *iOSMcSaveSeg[6] = {"BISCUS-97113ico", "icon.sys",    "boy_blk.ico",
+                         "boy_blk.ico",     "boy_blk.ico", "game."};
+#else
 char *iOSMcSaveSeg[6] = {"BESCES-50760ico", "icon.sys",    "boy_blk.ico",
                          "boy_blk.ico",     "boy_blk.ico", "game."};
+#endif
 #endif
 #endif
 
@@ -171,7 +176,7 @@ static inline int product_write(McMgr *self)
     (IosMcProductFile + self->port)->soundMode = systemStatus[11];
     (IosMcProductFile + self->port)->outputMode = soundOutputModeGet();
     (IosMcProductFile + self->port)->vibration = iosPadActRequestEnable;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     (IosMcProductFile + self->port)->controlType = optionControlType;
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     (IosMcProductFile + self->port)->cameraMove = NonLinearCameraMove;
@@ -196,9 +201,13 @@ static inline int gameblock_write(McMgr *self, void *buf)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     iosMcHandlerWrite(self, buf, 25596);
 #else
+#ifdef VERSION_JUN26
+    iosMcHandlerWrite(self, buf, 20480);
+#else
     iosMcHandlerWrite(self, buf, 25588);
     iosMcHandlerWrite(self, (unsigned char *)&optionScreenMode, 4);
     iosMcHandlerWrite(self, (unsigned char *)&girlControlMode, 4);
+#endif
 #endif
     return 0;
 }
@@ -208,12 +217,16 @@ static inline int gameblock_read(McMgr *self, void *buf)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     iosMcHandlerRead(self, buf, 25596);
 #else
+#ifdef VERSION_JUN26
+    iosMcHandlerRead(self, buf, 20480);
+#else
     iosMcHandlerRead(self, buf, 25588);
+#endif
 #endif
     systemStatus[11] = (IosMcProductFile + self->port)->soundMode;
     soundOutputModeSet((IosMcProductFile + self->port)->outputMode);
     iosPadActRequestEnable = (IosMcProductFile + self->port)->vibration;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self->port)->padConf;
 #else
     optionControlType = (IosMcProductFile + self->port)->controlType;
@@ -230,7 +243,7 @@ typedef struct { /* field names derived */
     char c[17];
 } McName; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* the file-static card helpers the manager entry points inline */
 static inline void iosMcMgrGetInfo(McMgr *mp)
 {
@@ -551,7 +564,11 @@ retry:
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         *(McName *)mp->path = *(McName *)"/BASCUS-97113ico";
 #else
+#ifdef VERSION_JUN26
+        *(McName *)mp->path = *(McName *)"/BISCUS-97113ico";
+#else
         *(McName *)mp->path = *(McName *)"/BESCES-50760ico";
+#endif
 #endif
 #endif
         iosMcMgrMkdir(mp);
@@ -570,7 +587,11 @@ retry:
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     *(McName *)mp->dirName = *(McName *)"/BASCUS-97113ico";
 #else
+#ifdef VERSION_JUN26
+    *(McName *)mp->dirName = *(McName *)"/BISCUS-97113ico";
+#else
     *(McName *)mp->dirName = *(McName *)"/BESCES-50760ico";
+#endif
 #endif
 #endif
     iosMcMgrChdir(mp);
@@ -603,7 +624,7 @@ McSegEnt iOSMcSaveList[6] = {
 
 McProductFile IosMcProductFile[2] = {0};
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 int IosMcPreviewInfo[4] = {0};
 #else
 int IosMcPreviewInfo[6] = {0};
@@ -614,7 +635,11 @@ IosMsgQueue McMsgQ = {0};
 static void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
 {
     int r = 0;
+#ifdef VERSION_JUN26
+    int i;
+#else
     unsigned int i;
+#endif
     McSegEnt *e;
 
     mp->flags.ll = mp->flags.ll | 2;
@@ -622,6 +647,20 @@ static void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
 
     if (mp->result != 0) {
         return;
+#ifdef VERSION_JUN26
+    }
+
+    if (mp->segment > 0 && mp->segment < 5) {
+        strcpy(mp->path, "*");
+
+        iosMcMgrGetDir(mp);
+
+        for (i = 0; i < mp->dirCount; i++) {
+            if (strcmp(iOSMcSaveSeg[mp->segment], mp->dir[i].EntryName) == 0) {
+                return;
+            }
+        }
+#endif
     }
 
     mp->openMode = 0x203;
@@ -637,7 +676,11 @@ static void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
         return;
     }
 
+#ifdef VERSION_JUN26
+    for (i = 0; i < sizeof(iOSMcSaveList) / sizeof(iOSMcSaveList[0]); i++) {
+#else
     for (i = 0; i < 6; i++) {
+#endif
         e = &iOSMcSaveList[i];
         if (e->id != mp->segment) {
             continue;
@@ -663,18 +706,22 @@ static void iosMcMgrSaveSeg(McMgr *mp, char *suffix)
             mp->pos = 0;
         }
 
+#ifndef VERSION_JUN26
         if (mp->segment < 5) {
             if (mp->segment > 0) {
                 goto flush;
             }
         }
+#endif
 
         mp->size = 4;
         debug_StdPrintfDummy("write checkSum: %d\n", mp->sum);
         iosMcMgrWrite(mp, &mp->sum);
     }
 
+#ifndef VERSION_JUN26
 flush:
+#endif
     sceMcFlush(mp->fd);
     iosMcMgrSync(mp);
 
@@ -688,7 +735,11 @@ flush:
 static void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
 {
     int r = 0;
+#ifdef VERSION_JUN26
+    int i;
+#else
     unsigned int i;
+#endif
     McSegEnt *e;
 
     mp->flags.ll = mp->flags.ll & -3;
@@ -711,7 +762,11 @@ static void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
         return;
     }
 
+#ifdef VERSION_JUN26
+    for (i = 0; i < sizeof(iOSMcSaveList) / sizeof(iOSMcSaveList[0]); i++) {
+#else
     for (i = 0; i < 6; i++) {
+#endif
         e = &iOSMcSaveList[i];
         if (e->id != mp->segment) {
             continue;
@@ -752,6 +807,40 @@ static void iosMcMgrLoadSeg(McMgr *mp, char *suffix)
     }
 }
 
+#ifdef VERSION_JUN26
+/* the icon save: icon.sys and the three icons, each segment with its own
+   record; the manager dispatch calls it. */
+static void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
+{
+    mp->segment = 1;
+    mp->segArg = &iconFile[1];
+    iosMcMgrSaveSeg(mp, 0);
+
+    if (mp->result < 0) {
+        return;
+    }
+
+    mp->segment = 2;
+    mp->segArg = &iconFile[2];
+    iosMcMgrSaveSeg(mp, 0);
+
+    if (mp->result < 0) {
+        return;
+    }
+
+    mp->segment = 3;
+    mp->segArg = &iconFile[3];
+    iosMcMgrSaveSeg(mp, 0);
+
+    if (mp->result < 0) {
+        return;
+    }
+
+    mp->segment = 4;
+    mp->segArg = &iconFile[4];
+    iosMcMgrSaveSeg(mp, 0);
+}
+#else
 /* the three file-static block helpers the manager dispatch inlines.  The icon
    save ends with a DEBUG-build report of the card result. */
 static __inline__ void iosMcMgrSaveIconDebugResult(int result) /* derived name */
@@ -776,6 +865,7 @@ static inline void iosMcMgrSaveIcon(McMgr *mp) /* derived name */
     iosMcMgrSaveSeg(mp, 0);
     iosMcMgrSaveIconDebugResult(mp->result);
 }
+#endif
 
 static void iosMcMgrSaveProductBlock(McMgr *mp)
 {

@@ -53,7 +53,7 @@ int ScreenHeight;
 
 int currentScreenWidth;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 int currentScreenHeight;
 #else
 #ifndef VERSION_NTSC
@@ -134,7 +134,7 @@ void gsb_Init(void *db)
         omode = 3;
         break;
     }
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     sceGsSetDefDBuff(db, 0, ScreenWidth, ScreenHeight, 2, 0x30, fbClear);
     gsb_SetFrame(db, 0, 0, 0x30, 2);
     sceGsResetGraph(0, systemStatus[1] == 1, omode, 1);
@@ -156,7 +156,7 @@ void gsb_Init(void *db)
         debug_StdPrintfDummy("wait gs init\n");
     }
     gsb_SetVSMatrix(ScreenWidth, ScreenHeight, 512.0f);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     shadow_Init();
 #endif
     zoomTarget = 1.0f;
@@ -164,7 +164,7 @@ void gsb_Init(void *db)
     zoomCurrent = 1.0f;
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void gsb_ClearFrameBuffer(void)
 {
     long long packet[48] = {
@@ -455,7 +455,7 @@ void gsb_Reduction(void)
 void gsb_Reduction(void)
 {
     long long pk[44] = {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         0x1000000000008015LL,
         0xE,
         0,
@@ -572,7 +572,7 @@ void gsb_Reduction(void)
     *D2_MADR = (int)pk & 0x0FFFFFFF;
     *D2_CHCR = 0x101;
     sceGsSyncPath(0, 0);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     reductionRed = fbKeep ? 128 : GlobalStageSetting.reductionCol[0];
     reductionGreen = fbKeep ? 128 : GlobalStageSetting.reductionCol[1];
     reductionBlue = fbKeep ? 128 : GlobalStageSetting.reductionCol[2];
@@ -595,7 +595,11 @@ void gsb_Reduction(void)
 #endif
 
 /* the colour the kept frame is drawn back in */
+#ifdef VERSION_JUN26
+static const unsigned char keepFrameColor[4] = {128, 128, 128, 128}; /* derived name */
+#else
 static const unsigned char keepFrameColor[4] = {112, 112, 112, 128}; /* derived name */
+#endif
 
 /* as in GifPacket.h, which this TU does not include */
 extern void gif_EndPacket(void);
@@ -663,8 +667,13 @@ typedef struct { /* field names derived */
 /* Draw the whole screen back over itself as one sprite in the kept colour. */
 static void gsb_KeepFrameBuffer(void)
 {
+#ifdef VERSION_JUN26
+    GsbRect r0 = {-(ScreenWidth >> 1) * 16 - 4, -(ScreenHeight >> 1) * 16 - 4,
+                  ScreenWidth * 16 + 16, ScreenHeight * 16 + 16};
+#else
     GsbRect r0 = {-(ScreenWidth >> 1) * 16 - 12, -(ScreenHeight >> 1) * 16 - 12,
                   ScreenWidth * 16 + 32, ScreenHeight * 16 + 32};
+#endif
     GsbRect r1 = {8, 8, ScreenWidth * 16, ScreenHeight / 2 * 16};
 
     gif_StartPacketPriPath1(11);
@@ -682,7 +691,7 @@ static void gsb_KeepFrameBuffer(void)
 static float fadeLevel; /* derived name */
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static int gsbUnusedWord; /* derived name */
 #endif
 #endif
@@ -740,7 +749,7 @@ static void gsb_fade(void)
         fadeColor[3] = fadeLevel;
     }
     gif_StartPacketPri(0xB);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 #else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -760,7 +769,7 @@ clear:
     fadeStatus = 0;
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* gsb_scissorOnDemo's state: the demo state it last saw, the band level and
    its step */
 static int scissorLastState = 50; /* derived name */
@@ -862,7 +871,7 @@ static void gsb_scissorOnDemo(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (current_layout_id == 52 && scissorLastState != current_layout_id) {
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (current_layout_id == 51 && scissorLastState != current_layout_id) {
 #else
     if (current_layout_id == 55 && scissorLastState != current_layout_id) {
@@ -887,7 +896,7 @@ static void gsb_scissorOnDemo(void)
         if (debug_font_flag & 1) {
             debug_Printf(0x21C, ScreenHeight / 2 - 8, 0xCCCCCC00, "D");
         }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         dl_SetDLPriority(12);
 #else
         dl_SetDLPriority(11);
@@ -895,7 +904,7 @@ static void gsb_scissorOnDemo(void)
         gif_StartPacketPriPath1(dl_GetPri());
         memset(col, 0, 4);
         col[3] = 0x80;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
         gif_SetGsReg(0x47, 0x30000);
         gif_SetGsReg(0x4E, 0x1300000C0LL);
@@ -946,7 +955,7 @@ static void gsb_controlBrightness(void)
             gif_SetGsReg(0x47, 0x30000);
             gif_SetGsReg(0x4E, 0x1300000C0LL);
             gif_SetAlpha(1, 7, 0);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             gif_MakeSpriteNoTexture((0x800 - ScreenWidth / 2) << 4, (0x800 - ScreenHeight / 2) << 4,
                                     ScreenWidth << 4, ScreenHeight << 4, 0xFFFFFFFF, col, 1);
 #else
@@ -989,7 +998,7 @@ static void gsb_antiAlias(void)
     GsbRect d0 = {-4100, -4100, 8192, 8192};
     GsbRect d1 = {-2052, -2052, 4096, 4096};
     GsbRect d2 = {-1028, -1028, 2048, 2048};
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int lv[2] = {GlobalStageSetting.antiLevel0, GlobalStageSetting.antiLevel1};
 
 #else
@@ -1020,7 +1029,7 @@ static void gsb_antiAlias(void)
         gif_SetDrawEnviroment(0x2C00, 0, 128, 128, 0, 0);
         gif_SpriteSensitiveOrg(&d2, 0, &s1, &col, 0);
     }
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, 512, 512, 0, 0);
 #else
     gif_SetDrawEnviroment(0x800, 0, 512, 512, 1, 0);
@@ -1039,7 +1048,7 @@ static void gsb_antiAlias(void)
     }
     gif_SetZWrite(1);
     gif_SetZTest(1);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 #else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -1065,7 +1074,11 @@ static void gsb_setSemitransReg(int ctx)
     gif_SetGsReg(0x47, 0x5140D);
     gif_SetGsReg(0x4E, 0x300000C0);
     gif_SetGsReg(0x4A, 0);
+#ifdef VERSION_JUN26
+    gif_SetGsReg(0x3B, 0x8000000080LL);
+#else
     gif_SetGsReg(0x3B, 0x810000807FLL);
+#endif
     gif_EndPacketPath1();
 }
 
@@ -1108,11 +1121,18 @@ static const struct { /* field names derived */
  * VU memory, opened once for each of the thirteen list priorities. */
 void gsb_MakeCommonMatrix(void)
 {
+#ifdef VERSION_JUN26
+    float pos[4];
+    float up[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+    float sun[4];
+    float sunMatrix[4][4];
+    float invView[4][4];
+#endif
     GifPkWord *p;
     GifPkWord *q;
     int i;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (graphics_ready == 0) {
 #else
     if (game_pause == 0) {
@@ -1122,8 +1142,18 @@ void gsb_MakeCommonMatrix(void)
     i = 0;
     _MulMatrix(matrixptr + 0x100, matrixptr + 0xC0, matrixptr + 0x80);
     _MulMatrix(matrixptr + 0x200, matrixptr + 0x1C0, matrixptr + 0x80);
+#ifdef VERSION_JUN26
+    _InversMatrix(matrixptr + 0x2C0, matrixptr + 0x80);
+    GetSunWorldPos(sun);
+    _ScaleVector(pos, sun, 1000000.0f);
+    _SetCameraMatrix(sunMatrix, pos, sun, up);
+    _UnitVector(sunMatrix[3]);
+    _CopyMatrix(invView, matrixptr + 0x2C0);
+    _UnitVector(invView[3]);
+#else
     _MulMatrix(matrixptr + 0x280, matrixptr + 0x240, matrixptr + 0x80);
     _InversMatrix(matrixptr + 0x380, matrixptr + 0x80);
+#endif
     p = (GifPkWord *)PacketBufferStruct.ptr.d;
     PacketBufferStruct.gif.c = 0;
     PacketBufferStruct.dma.c = (char *)p;
@@ -1140,9 +1170,15 @@ void gsb_MakeCommonMatrix(void)
     PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
     _CopyMatrix(PacketBufferStruct.ptr.d, matrixptr + 0x100);
     PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+#ifdef VERSION_JUN26
+    _CopyMatrix(PacketBufferStruct.ptr.d, matrixptr + 0x280);
+    PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+    _MulMatrix(PacketBufferStruct.ptr.d, sunMatrix, invView);
+#else
     _CopyMatrix(PacketBufferStruct.ptr.d, matrixptr + 0x340);
     PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
     _CopyMatrix(PacketBufferStruct.ptr.d, matrixptr + 0x380);
+#endif
     q = (GifPkWord *)PacketBufferStruct.ptr.d;
     PacketBufferStruct.ptr.c = (char *)q + 0x40;
     q[8].w[0] = 0x13000000;
@@ -1173,7 +1209,7 @@ void gsb_MakeCommonMatrix(void)
 static int postEffectReady = 0; /* derived name */
 #endif
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_JUN26)
 /* set by gsb_SetGsDefault once the frame is up, tested by gsb_PostEffect */
 static int postEffectReady = 0; /* derived name */
 
@@ -1474,7 +1510,7 @@ static int gsb_PostEffect(void)
 /* gsb_InitGSSystem's first call brings every module up */
 static int firstGsInit = 1; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void gsb_InitGSSystem(void)
 {
     screen_offset_y = 0;
@@ -1502,8 +1538,10 @@ void gsb_InitGSSystem(void)
     }
     resetmallocseki();
     pac_Init();
+#ifndef VERSION_JUN26
     reg_Init();
-#ifndef VERSION_AUG6
+#endif
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     shadow_Init();
 #endif
     gsSystemReady = 1;
@@ -1578,13 +1616,13 @@ inline int gsb_SyncGSSystem(void)
         return 1;
     }
     syncRetry = 0;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     gsb_PostEffect();
 #endif
     return 0;
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* One frame boundary: take the field parity from the GS CSR, run the
  * reduction pass, flip the double buffer and hand the display list back
  * either swapped or cleared, then reopen the frame's register set. */
@@ -1617,7 +1655,7 @@ void gsb_UpdateGSSystem(void)
     if (staffRollStartFlag == 0) {
         gsb_scissorOnDemo();
     }
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     currentScreenWidth = GlobalTimer;
     light_ResetLight();
 #endif
@@ -1692,7 +1730,7 @@ void gsb_ResetGSSystem(void)
     gsb_SetGsDefault();
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* the 768 unit screen the projection proj is scaled to */
 static const float vsScreenSize[] = {768.0f, 768.0f, 0.0f, 0.0f}; /* derived name */
 #else
@@ -1700,6 +1738,60 @@ static const float vsScreenSize[] = {768.0f, 768.0f, 0.0f, 0.0f}; /* derived nam
 static const float vsScreenSize[] = {1500.0f, 1500.0f, 0.0f, 0.0f}; /* derived name */
 #endif
 
+#ifdef VERSION_JUN26
+/* Build the view matrices from the record gsb_SetVSMatrix fills (vs[0] the
+ * zoom, vs[1] and vs[2] the aspect terms, vs[3] and vs[4] the centre, vs[5]
+ * and vs[6] the depth range, vs[7] and vs[8] the near and far planes): the
+ * screen matrix screen, the perspective projection proj for the 768 unit
+ * screen and the viewport viewport. */
+static void gsb_SetVSMatrixSub(float *screen, float *proj, float *viewport, float *vs)
+{
+    float m0[16];
+    float sx;
+    float sy;
+    float zn;
+    float zf;
+
+    sx = vs[7] * vsScreenSize[0] / vs[0];
+    sy = vs[7] * vsScreenSize[1] / vs[0];
+
+    zn = (-vs[6] * vs[7] + vs[5] * vs[8]) / (-vs[7] + vs[8]);
+
+    zf = vs[8] * vs[7] * (-vs[5] + vs[6]) / (-vs[7] + vs[8]);
+
+    _UnitMatrix(screen);
+    screen[0] = vs[0];
+    screen[5] = vs[0];
+    screen[10] = 0.0f;
+    screen[15] = 0.0f;
+    screen[14] = 1.0f;
+    screen[11] = 1.0f;
+
+    _UnitMatrix(m0);
+    /* clang-format off */
+    m0[0] = vs[1]; m0[5] = vs[2]; m0[10] = zf;
+    m0[12] = vs[3]; m0[13] = vs[4]; m0[14] = zn;
+    /* clang-format on */
+    _MulMatrix(screen, m0, screen);
+
+    _UnitMatrix(proj);
+    proj[0] = (vs[7] + vs[7]) / (sx + sx);
+    proj[5] = (vs[7] + vs[7]) / (sy + sy);
+    proj[10] = (vs[8] + vs[7]) / (vs[8] - vs[7]);
+    proj[14] = vs[8] * vs[7] * -2.0f / (vs[8] - vs[7]);
+    proj[11] = 1.0f;
+    proj[15] = 0.0f;
+
+    _UnitMatrix(viewport);
+    viewport[0] = vs[0] * vs[1] * sx / vs[7];
+    viewport[5] = vs[0] * vs[2] * sy / vs[7];
+    viewport[10] = (-vs[6] + vs[5]) * 0.5f;
+    viewport[12] = vs[3];
+    viewport[13] = vs[4];
+    viewport[14] = (vs[6] + vs[5]) * 0.5f;
+    viewport[15] = 1.0f;
+}
+#else
 /* Build the view matrices from the record gsb_SetVSMatrix fills (vs[0] the
  * zoom, vs[1] and vs[2] the aspect terms, vs[3] and vs[4] the centre, vs[5]
  * and vs[6] the depth range, vs[7] and vs[8] the near and far planes): the
@@ -1712,7 +1804,7 @@ static void gsb_SetVSMatrixSub(float *screen, float *proj, float *projHalf, floa
 {
     sceVu0FVECTOR v = {ScreenWidth / 2, ScreenHeight / 2, 0.0f, 0.0f};
     float m0[16];
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     float m1[16];
 #endif
     float sx;
@@ -1721,7 +1813,7 @@ static void gsb_SetVSMatrixSub(float *screen, float *proj, float *projHalf, floa
     float cy;
     float zn;
     float zf;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     float rx;
     float ry;
 #endif
@@ -1776,7 +1868,7 @@ static void gsb_SetVSMatrixSub(float *screen, float *proj, float *projHalf, floa
     projHalf[11] = 1.0f;
     projHalf[15] = 0.0f;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     _UnitMatrix(m1);
     m1[0] = 500.0f;
     m1[5] = 500.0f;
@@ -1804,6 +1896,7 @@ static void gsb_SetVSMatrixSub(float *screen, float *proj, float *projHalf, floa
     _CopyMatrix(matrixptr + 0x680, m1);
 #endif
 }
+#endif
 
 /* The view record gsb_SetVSMatrixSub builds the view and screen matrices
  * from: the zoom, the two aspect terms, the centre, and the near and far
@@ -1825,7 +1918,7 @@ void gsb_SetVSMatrix(int w, int h, float d)
     currentScreenWidth = w;
     currentScreenHeight = h;
 #else
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_JUN26)
     currentFocusDistance = d;
 #else
     if (d == 0.0f) {
@@ -1834,8 +1927,13 @@ void gsb_SetVSMatrix(int w, int h, float d)
         currentFocusDistance = d;
     }
 #endif
+#ifdef VERSION_JUN26
+    currentScreenWidth = w;
+    currentScreenHeight = h;
+#else
     vsWidth = w;
     vsHeight = h;
+#endif
 #endif
     if (zoomTarget != zoomCurrent) {
         zoomCurrent = zoomCurrent + (zoomTarget - zoomCurrent) * zoomSpeed * 0.001f;
@@ -1843,27 +1941,125 @@ void gsb_SetVSMatrix(int w, int h, float d)
     if (staffRollStartFlag != 0) {
         center_X = center_X - staffRollCenterOffsetX;
     }
+#ifdef VERSION_JUN26
+    zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)ScreenWidth / 640.0f /
+           100.0f;
+    vsParam[0] = zoom;
+#else
     zoom = (float)GlobalStageSetting.viewScale * zoomCurrent * d * (float)debug_zoom_per *
            (float)ScreenWidth / 640.0f / 100.0f / 100.0f;
     vsParam[0] = zoom;
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_JUN26
 #ifndef VERSION_AUG6
     if (debug_snapshot_reserve != 0 || (pad[1].now & 0x800) != 0) {
         vsParam[0] = zoom * (float)debug_snapshot_num / 100.0f;
     }
 #endif
 #endif
+#endif
     tex_UpdateMipMapLevel((float)GlobalStageSetting.viewScale * zoomCurrent *
                           (float)debug_zoom_per * (float)ScreenWidth / 640.0f / 100.0f);
+#endif
     vsParam[3] = center_X;
     vsParam[4] = center_Y;
     vsParam[5] = 1.0f;
     vsParam[6] = 536870880.0f;
+#ifdef VERSION_JUN26
+    vsParam[1] = (float)w / (float)ScreenWidth;
+    vsParam[7] = 2.0f;
+#else
     vsParam[7] = 2.0f;
     vsParam[1] = (float)w / (float)ScreenWidth;
+#endif
     vsParam[8] = 262144.0f;
     vsParam[2] =
         (float)ScreenHeight * 4.0f / ((float)ScreenWidth * 3.0f) * (float)h / (float)ScreenHeight;
+#ifdef VERSION_JUN26
+    gsb_SetVSMatrixSub((float *)(matrixptr + 0xC0), (float *)(matrixptr + 0x1C0),
+                       (float *)(matrixptr + 0x280), vsParam);
+}
+
+/* the sign of a, as a factor */
+#define SIGN(a) ((a) < 0.0f ? -1.0f : ((a) > 0.0f ? 1.0f : 0.0f)) /* derived name */
+
+/* Clip a box against the current matrix: project its eight corners with the
+ * matrix in $vf4 to $vf7 to integer screen coordinates (centred, sign
+ * corrected by depth) and test them.  0 when every corner is behind the eye
+ * or past one screen edge, -1 when every corner is in front and inside the
+ * guard band, 2 when a corner is nearer than 500, else 1; pad 2's 0x200
+ * button forces 1. */
+int gsb_ClipBox(float *p)
+{
+    sceVu0IVECTOR v[8];
+    int i;
+
+    if (pad[1].now & 0x200) {
+        return 1;
+    }
+    for (i = 0; i < 8; i++, p += 4) {
+        __asm__ __volatile__(".set noreorder\n\t"
+                             "lqc2 $vf8, 0x0(%0)\n\t"
+                             "vmulax.xyzw ACC, $vf4, $vf8x\n\t"
+                             "vmadday.xyzw ACC, $vf5, $vf8y\n\t"
+                             "vmaddaz.xyzw ACC, $vf6, $vf8z\n\t"
+                             "vmaddw.xyzw $vf10, $vf7, $vf8w\n\t"
+                             "vdiv Q, $vf0w, $vf10w\n\t"
+                             "vwaitq\n\t"
+                             "vmulq.xyz $vf10, $vf10, Q\n\t"
+                             "vftoi0.xyzw $vf10, $vf10\n\t"
+                             "sqc2 $vf10, 0x0(%1)\n\t"
+                             ".set reorder"
+                             :
+                             : "r"(p), "r"(v[i])
+                             : "memory");
+        v[i][0] -= 2048;
+        v[i][1] -= 2048;
+        v[i][0] = v[i][0] * SIGN(v[i][2]);
+        v[i][1] = v[i][1] * SIGN(v[i][2]);
+    }
+    if (v[0][3] <= 0 && v[1][3] <= 0 && v[2][3] <= 0 && v[3][3] <= 0 && v[4][3] <= 0 &&
+        v[5][3] <= 0 && v[6][3] <= 0 && v[7][3] <= 0) {
+        return 0;
+    }
+    if (v[0][0] < -ScreenWidth / 2 && v[1][0] < -ScreenWidth / 2 && v[2][0] < -ScreenWidth / 2 &&
+        v[3][0] < -ScreenWidth / 2 && v[4][0] < -ScreenWidth / 2 && v[5][0] < -ScreenWidth / 2 &&
+        v[6][0] < -ScreenWidth / 2 && v[7][0] < -ScreenWidth / 2) {
+        return 0;
+    }
+    if (v[0][0] > ScreenWidth / 2 && v[1][0] > ScreenWidth / 2 && v[2][0] > ScreenWidth / 2 &&
+        v[3][0] > ScreenWidth / 2 && v[4][0] > ScreenWidth / 2 && v[5][0] > ScreenWidth / 2 &&
+        v[6][0] > ScreenWidth / 2 && v[7][0] > ScreenWidth / 2) {
+        return 0;
+    }
+    if (v[0][1] < -ScreenHeight / 2 && v[1][1] < -ScreenHeight / 2 && v[2][1] < -ScreenHeight / 2 &&
+        v[3][1] < -ScreenHeight / 2 && v[4][1] < -ScreenHeight / 2 && v[5][1] < -ScreenHeight / 2 &&
+        v[6][1] < -ScreenHeight / 2 && v[7][1] < -ScreenHeight / 2) {
+        return 0;
+    }
+    if (v[0][1] > ScreenHeight / 2 && v[1][1] > ScreenHeight / 2 && v[2][1] > ScreenHeight / 2 &&
+        v[3][1] > ScreenHeight / 2 && v[4][1] > ScreenHeight / 2 && v[5][1] > ScreenHeight / 2 &&
+        v[6][1] > ScreenHeight / 2 && v[7][1] > ScreenHeight / 2) {
+        return 0;
+    }
+    if (v[0][3] > 0 && v[1][3] > 0 && v[2][3] > 0 && v[3][3] > 0 && v[4][3] > 0 && v[5][3] > 0 &&
+        v[6][3] > 0 && v[7][3] > 0 && v[0][0] >= -2048 && v[1][0] >= -2048 && v[2][0] >= -2048 &&
+        v[3][0] >= -2048 && v[4][0] >= -2048 && v[5][0] >= -2048 && v[6][0] >= -2048 &&
+        v[7][0] >= -2048 && v[0][0] <= 2048 && v[1][0] <= 2048 && v[2][0] <= 2048 &&
+        v[3][0] <= 2048 && v[4][0] <= 2048 && v[5][0] <= 2048 && v[6][0] <= 2048 &&
+        v[7][0] <= 2048 && v[0][1] >= -2048 && v[1][1] >= -2048 && v[2][1] >= -2048 &&
+        v[3][1] >= -2048 && v[4][1] >= -2048 && v[5][1] >= -2048 && v[6][1] >= -2048 &&
+        v[7][1] >= -2048 && v[0][1] <= 2048 && v[1][1] <= 2048 && v[2][1] <= 2048 &&
+        v[3][1] <= 2048 && v[4][1] <= 2048 && v[5][1] <= 2048 && v[6][1] <= 2048 &&
+        v[7][1] <= 2048) {
+        return -1;
+    }
+    if (v[0][3] < 500 || v[1][3] < 500 || v[2][3] < 500 || v[3][3] < 500 || v[4][3] < 500 ||
+        v[5][3] < 500 || v[6][3] < 500 || v[7][3] < 500) {
+        return 2;
+    }
+    return 1;
+#else
     gsb_SetVSMatrixSub((float *)(matrixptr + 0xC0), (float *)(matrixptr + 0x1C0),
                        (float *)(matrixptr + 0x240), (float *)(matrixptr + 0x340), vsParam);
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -1949,9 +2145,10 @@ int gsb_ClipBox(float *p)
         c |= cf;
     }
     return (c & 0x20) ? 2 : 1;
+#endif
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #ifdef VERSION_AUG6
 /* libcdvd.h leaves sceCdCLOCK incomplete; its body, in BCD */
 typedef struct sceCdCLOCK {
@@ -2661,7 +2858,7 @@ static int removeLockFile(void)
 typedef struct { /* field names derived */
     char *name;  /* 0x0 */
     int (*fn)(); /* 0x4 */
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int arg; /* 0x8 */
 #endif
 } GsbMenuItem; /* derived name */
@@ -2671,7 +2868,7 @@ typedef struct { /* field names derived */
  * gsb_GetBGColor reads them back as bytes. */
 static sceVu0IVECTOR bgColor; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static GsbMenuItem stageSettingMenu[] = {
     {"Light Tool", light_Tool},
     {"Shadow Tool", shadow_Tool},
@@ -2750,7 +2947,7 @@ inline void gsb_SetZoom(float target, float speed)
     zoomSpeed = speed;
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 inline int lockOtherEditing(void)
 {
     updateOtherEditingLockFlag();

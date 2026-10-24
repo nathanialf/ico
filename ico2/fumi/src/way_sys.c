@@ -13,6 +13,170 @@
 #include "fieldCollision.h"
 #include "gamesys.h"
 
+#ifdef VERSION_JUN26
+WayPoint *GetWay_begin(float *from, WVTObj *w, float *goal)
+{
+    WayPoint *wp0;
+    WayPoint *wp;
+    int g0;
+    int g1;
+    int r;
+    int gid;
+    WayPoint *wpn;
+
+    wp0 = visible_waypoint_of_all_except_temp(from, -1);
+    if (wp0 == 0) {
+        return 0;
+    }
+
+    if ((unsigned int)w->stampFrame < (unsigned int)(GlobalTimer - 1) || w->nearWp == 0) {
+        if (w->guideFirst >= 0) {
+            wp = visible_waypoint_of_all_except_temp(goal, way_point[w->guideFirst].group);
+        } else {
+            wp = visible_waypoint_of_all_except_temp(goal, -1);
+        }
+
+        w->nearWp = wp;
+    } else {
+        if (w->guideFirst >= 0) {
+            wp =
+                visible_waypoint_of_all_except_temp(w->nearWp->pos, way_point[w->guideFirst].group);
+        } else {
+            wp = visible_waypoint_of_all_except_temp(w->nearWp->pos, -1);
+        }
+    }
+
+    if (wp == 0) {
+        return 0;
+    }
+
+    if (way_group[wp->group].active == 0) {
+        wp = visible_waypoint_of_all_except_gid(goal, wp->group);
+        if (wp == 0) {
+            return 0;
+        }
+    }
+
+    w->nearWp = wp;
+    w->fromWp = wp0;
+    w->stampFrame = GlobalTimer;
+    DeleteGuideWay(w);
+    debug_StdPrintfDummy("GetWay_begin\n");
+    debug_StdPrintfDummy("gid t:%d m:%d\n", wp0->group, wp->group);
+
+    w->group = wp->group;
+    sceVu0CopyVector(w->pos, from);
+
+    g0 = wp0->group;
+    g1 = wp->group;
+
+    w->reached = 0;
+    w->guideFirst = -1;
+    w->flag6C = 0;
+    w->pathKind = 0;
+    if (g0 == g1) {
+        debug_StdPrintfDummy("same_group\n");
+        w->avoiding = 0;
+        w->flag3C = 0;
+        w->direction = short_direction_between_wp(wp0, wp);
+        if (w->direction == -2) {
+            return 0;
+        }
+        w->chk.cur = wp;
+        w->chk.start = wp0;
+        w->chk.cross = 0;
+
+        return wp;
+    }
+
+    debug_StdPrintfDummy("other_group\n");
+    r = shortest_path(g0, g1);
+    if (r == -1) {
+        w->pathKind = 1;
+
+        if (way_group[g1].active == 0) {
+            return 0;
+        }
+        r = GetWgAll(g0, g1);
+        if (r == -1) {
+            w->pathKind = 2;
+        } else {
+            gid = NearestWgFromTarget(g0, g1);
+            /* a compiled-out print, see the note at the `r < 0` test below */
+            if (0) {
+                debug_StdPrintfDummy("gid:%d = tgid:%d, mgid:%d\n", gid, g1, g0);
+            }
+            wpn = nearest_waypoint_of_group(from, gid);
+
+            g0 = gid;
+            wp0 = wpn;
+            sceVu0CopyVector(w->pos, wp0->pos);
+            if (g0 == g1) {
+                debug_StdPrintfDummy("same_group\n");
+                w->avoiding = 0;
+                w->flag3C = 0;
+                w->direction = short_direction_between_wp(wp0, wp);
+                if (w->direction == -2) {
+                    return 0;
+                }
+                w->chk.cur = wp;
+                w->chk.start = wp0;
+                w->chk.cross = 0;
+
+                w->flag6C = 1;
+
+                return wp;
+            }
+        }
+    }
+
+    w->avoiding = 1;
+    w->flag3C = 1;
+    if (r == g0) {
+        WayGroup *a = &way_group[wp->group];
+        WayGroup *b = &way_group[wp0->group];
+
+        switch (a->bridge) {
+        case 1:
+            if (wp == a->first) {
+                if (way_point[a->end[0]].group == r) {
+                    w->flag3C = 0;
+                }
+            } else if (wp == a->last) {
+                if (way_point[a->end[1]].group == r) {
+                    w->flag3C = 0;
+                }
+            }
+            break;
+
+        case 0:
+            if (wp->index == b->end[0]) {
+                w->flag3C = 0;
+            } else if (wp->index == b->end[1]) {
+                w->flag3C = 0;
+            }
+            break;
+        }
+    }
+
+    if (r < 0) {
+        /* prints compiled out of the retail build; their strings stay in
+           .rodata */
+        if (0) {
+            debug_StdPrintfDummy("!!cant reach!!\n");
+        }
+        return 0;
+    }
+    set_check_wp(&w->chk, r, g1);
+    w->chk.cur = wp;
+
+    debug_StdPrintfDummy("wp:%p %p\n", w->chk.start, wp);
+    debug_StdPrintfDummy("gid:%d %d\n", w->chk.start->group, wp->group);
+    w->direction = short_direction_between_wp(w->chk.start, wp);
+    debug_StdPrintfDummy("direction:%d\n", w->direction);
+    return w->chk.cur;
+}
+#else
 WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded)
 {
     WayPoint *(*findTemp)(float *, int);
@@ -47,7 +211,7 @@ WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded)
         goto out;
     }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if ((unsigned int)w->stampFrame < (unsigned int)(GlobalTimer - 1) || w->nearWp == 0) {
 #else
     if ((unsigned int)w->stampFrame < (unsigned int)(lock_execIcoMisc - 1) || w->nearWp == 0) {
@@ -80,7 +244,7 @@ WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded)
 
     w->nearWp = wp;
     w->fromWp = wp0;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     w->stampFrame = GlobalTimer;
 #else
     w->stampFrame = lock_execIcoMisc;
@@ -207,13 +371,157 @@ out:
     WayUtilWorkFree(work);
     return ret;
 }
+#endif
 
+#ifdef VERSION_JUN26
+/* the object whose wall collision GetWay_next draws, for debugging; first in the
+   demo's .sdata of the TU (0x679FA0) */
+static void *wayDebugWallGObj = 0; /* derived name */
+
+typedef float WayVec[4] __attribute__((aligned(16))); /* derived name */
+
+/* one probe of avoid_obstacle: -1 when the way from pos to p is walled, else
+   1 when the way from wp to p is walled and 0 when both are open */
+static inline float avoid_ev(float *pos, float *wp, float *p) /* derived name */
+{
+    ClipWork cc;
+    float e = -1.0f;
+
+    /* a compiled-out print; its string stays in .sdata, ahead of the
+       probe's four (the .sdata order puts it before this function's
+       strings, so it is not avoid_obstacle's) */
+    if (0) {
+        debug_StdPrintfDummy("reset\n");
+    }
+    cc.radius = 25.0f;
+    sceVu0CopyVector(cc.pt[0], pos);
+    sceVu0CopyVector(cc.pt[1], p);
+    ClipWall(&cc);
+    if (cc.wall.elem == 0) {
+        sceVu0CopyVector(cc.pt[0], wp);
+        ClipWall(&cc);
+        if (cc.wall.elem != 0) {
+            e = 1.0f;
+            debug_StdPrintfDummy("hit\n");
+        } else {
+            e = 0.0f;
+            debug_StdPrintfDummy("free\n");
+        }
+    } else {
+        debug_StdPrintfDummy("fail\n");
+    }
+    debug_StdPrintfDummy("ev:%f\n", e);
+    return e;
+}
+#else
 inline WayPoint *GetWay_begin(float *from, WVTObj *w, float *goal)
 {
     return _FUNC_GetWay_begin(from, w, goal, 0);
 }
+#endif
 
+#ifdef VERSION_JUN26
+/* the first obstacle detour, which nothing in this build calls (GetWay_next
+   uses avoid_obstacle2): a box between pos and the current way point is
+   passed on whichever of its two sides or its top the probes find open, and
+   the chosen point becomes a one-point guide way */
+int avoid_obstacle(float *pos, float *wp, WVTObj *w) /* derived name */
+{
+    ClipWork cc;
+    float ev[3] = {-1.0f, -1.0f, -1.0f};
+    WayVec cand[3];
+    WayVec rp;
+    WayVec dir;
+    GObj *obj;
+    int k = -1;
+    int i;
+    int g;
+    int id;
+    float best;
+
+    sceVu0CopyVector(cc.pt[0], pos);
+    sceVu0CopyVector(cc.pt[1], w->chk.cur->pos);
+    cc.radius = 20.0f;
+    ClipWall(&cc);
+    if (cc.wall.elem != 0) {
+        obj = cc.wall.o.obj;
+        if (objLayout[obj->labelId].kind == 17) {
+            GetRootPosition(rp, obj);
+
+            if (absf(rp[0] - wp[0]) <= 100.0f) {
+                if (absf(rp[2] - wp[2]) <= 100.0f) {
+                    if (rp[1] + 50.0f - wp[1] > 95.0f) {
+                        return 0;
+                    }
+                    return 1;
+                }
+            }
+
+            /* the left side */
+            GetRootPosition(rp, obj);
+            sceVu0SubVector(dir, rp, pos);
+            sceVu0Normalize(dir, dir);
+            rp[0] += -dir[2] * 150.0f;
+            rp[2] += dir[0] * 150.0f;
+            ev[0] = avoid_ev(pos, wp, rp);
+            sceVu0CopyVector(cand[0], rp);
+
+            /* the right side */
+            GetRootPosition(rp, obj);
+            sceVu0SubVector(dir, rp, pos);
+            sceVu0Normalize(dir, dir);
+            rp[0] += dir[2] * 150.0f;
+            rp[2] += -dir[0] * 150.0f;
+            ev[1] = avoid_ev(pos, wp, rp);
+            sceVu0CopyVector(cand[1], rp);
+
+            /* over the top */
+            GetRootPosition(rp, obj);
+            rp[1] += -50.0f;
+            ev[2] = avoid_ev(pos, wp, rp);
+            if (ev[2] == 0.0f) {
+                ev[2] = 0.01f;
+            }
+            sceVu0CopyVector(cand[2], rp);
+
+            best = 10000.0f;
+            for (i = 0; i < 2; i++) {
+                if (0.0f <= ev[i] && ev[i] < best) {
+                    k = i;
+                    best = ev[i];
+                }
+            }
+            if (k == -1) {
+                k = 2;
+            }
+            sceVu0CopyVector(rp, cand[k]);
+
+            if (w->guideFirst >= 0) {
+                DeleteWayGroup(way_point[w->guideFirst].group);
+            }
+            g = CreateWayGroup();
+            id = CreateWayPoint(rp);
+            AddWayPoint(g, id);
+
+            w->guideFirst = id;
+            w->chk.cross = w->chk.cur;
+            w->chk.start = &way_point[id];
+            w->chk.cur = &way_point[id];
+            w->avoiding = 1;
+            /* compiled-out prints; their strings stay in .sdata */
+            if (0) {
+                debug_StdPrintfDummy("dst %p\n", w->chk.cur);
+                debug_StdPrintfDummy("->%p\n", w->chk.cross);
+            }
+        }
+        return 0;
+    }
+    /* an open way returns nothing: the function falls off the end here (the
+       USA build returns 0 early) */
+}
+#else
 typedef float WayVec[4] __attribute__((aligned(16))); /* derived name */
+#endif
 
 /* a wall probe between two points, both lifted 75 units */
 static inline struct FcWallEnt *way_probe(float *a, float *b) /* derived name */
@@ -236,6 +544,10 @@ static inline struct FcWallEnt *way_probe(float *a, float *b) /* derived name */
 static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
 {
     ClipWork cc;
+#ifdef VERSION_JUN26
+    float ev[3] = {-1.0f, -1.0f, -1.0f};
+    WayVec cand[3];
+#endif
     WayVec box[4];
     WayVec rp;
     WayVec off;
@@ -254,6 +566,121 @@ static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
     sceVu0CopyVector(cc.pt[1], w->chk.cur->pos);
     cc.radius = 20.0f;
     ClipWall(&cc);
+#ifdef VERSION_JUN26
+    if (cc.wall.elem != 0) {
+        obj = cc.wall.o.obj;
+        if (objLayout[obj->labelId].kind == 17) {
+            GetRootPosition(rp, obj);
+
+            if (absf(rp[0] - wp[0]) <= 100.0f) {
+                if (absf(rp[2] - wp[2]) <= 100.0f) {
+                    if (rp[1] + 50.0f - wp[1] > 95.0f) {
+                        return 0;
+                    }
+                    debug_StdPrintfDummy("skip wp\n");
+
+                    if (w->chk.cur != w->chk.start || w->avoiding != 0) {
+                        return 1;
+                    }
+
+                    hold = 1;
+                }
+            }
+
+            if (w->guideFirst >= 0) {
+                debug_StdPrintfDummy("delete guide point at avoid\n");
+
+                DeleteWayGroup(way_point[w->guideFirst].group);
+                w->guideFirst = -1;
+            }
+
+            best = 10000.0f;
+            GetRootPosition(rp, obj);
+            off[0] = 100.0f;
+            off[1] = 50.0f;
+            off[2] = 100.0f;
+            off[3] = 0.0f;
+            sceVu0AddVector(box[0], rp, off);
+            off[0] = 100.0f;
+            off[1] = 50.0f;
+            off[2] = -100.0f;
+            off[3] = 0.0f;
+            sceVu0AddVector(box[1], rp, off);
+            off[0] = -100.0f;
+            off[1] = 50.0f;
+            off[2] = -100.0f;
+            off[3] = 0.0f;
+            sceVu0AddVector(box[2], rp, off);
+            off[0] = -100.0f;
+            off[1] = 50.0f;
+            off[2] = 100.0f;
+            off[3] = 0.0f;
+            sceVu0AddVector(box[3], rp, off);
+
+            for (i = 0; i < 4; i++) {
+                d = _GetLength(box[i], pos);
+                if (d < best) {
+                    best = d;
+
+                    k = i;
+                }
+            }
+
+            /* the right-hand chain's first probe reads its second corner as
+               box[k += ofs], ofs a zero corner offset */
+            if (way_probe(box[(k + 3) % 4], box[k]) == 0 &&
+                way_probe(box[k], box[(k + 1) % 4]) == 0 &&
+                way_probe(box[(k + 1) % 4], box[(k + 2) % 4]) == 0) {
+                int j;
+
+                g = CreateTempWayGroup();
+                for (j = 0; j < 3; j++) {
+                    ids[j] = CreateWayPoint(box[(k + j) % 4]);
+                    AddWayPoint(g, ids[j]);
+                }
+                debug_StdPrintfDummy("left way %d\n", g);
+
+            } else if (way_probe(box[(k + 1) % 4], box[k += ofs]) == 0 &&
+                       way_probe(box[k], box[(k + 3) % 4]) == 0 &&
+                       way_probe(box[(k + 3) % 4], box[(k + 2) % 4]) == 0) {
+                int j;
+
+                g = CreateTempWayGroup();
+                for (j = 0; j < 3; j++) {
+                    ids[j] = CreateWayPoint(box[(k + 4 - j) % 4]);
+                    AddWayPoint(g, ids[j]);
+                }
+                debug_StdPrintfDummy("right way %d\n", g);
+
+            } else {
+                off[0] = 0.0f;
+                off[1] = -50.0f;
+                off[2] = 0.0f;
+                off[3] = 0.0f;
+                sceVu0AddVector(off, off, rp);
+                g = CreateTempWayGroup();
+                ids[0] = CreateWayPoint(off);
+                AddWayPoint(g, ids[0]);
+                ids[2] = ids[0];
+                debug_StdPrintfDummy("up way %d\n", g);
+            }
+
+            w->guideFirst = ids[0];
+            w->chk.cross = w->chk.cur;
+            w->chk.start = &way_point[ids[2]];
+            w->chk.cur = &way_point[ids[0]];
+
+            w->avoiding = 1;
+            w->direction = 1;
+
+            if (hold == 1) {
+                w->chk.cross = 0;
+                w->avoiding = 0;
+            }
+        }
+        return 0;
+    }
+#else
     if (cc.wall.elem == 0) {
         return 0;
     }
@@ -371,6 +798,7 @@ static int avoid_obstacle2(float *pos, float *wp, WVTObj *w)
     }
 
     return 0;
+#endif
 }
 
 static void create_box_bridge(char *g)
@@ -476,19 +904,25 @@ inline void DeleteGuideWay(WVTObj *o)
     }
 }
 
+#ifndef VERSION_JUN26
 /* the object whose wall collision GetWay_next draws, for debugging */
 static void *wayDebugWallGObj = 0; /* derived name */
+#endif
 
 WayPoint *GetWay_next(WVTObj *w, float *pos)
 {
     WayVec dv;
+#ifdef VERSION_JUN26
+    volatile WayPoint *cur; /* volatile view: the hold radius is read again in its else arm */
+#else
     WayPoint *cur;
+#endif
     WayPoint *nxt;
     float *p;
     int blocked;
     float lim;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     w->stampFrame = GlobalTimer;
 #else
     w->stampFrame = lock_execIcoMisc;
@@ -564,9 +998,11 @@ WayPoint *GetWay_next(WVTObj *w, float *pos)
                 break;
             }
             nxt = waypoint_bidirectional_list(nxt, w->direction ^ 1);
+#ifndef VERSION_JUN26
             if (nxt == 0) {
                 nxt = w->chk.cur;
             }
+#endif
         }
         break;
     }
@@ -593,7 +1029,9 @@ WayPoint *GetWay_next(WVTObj *w, float *pos)
        The two state prints open the first switch's arms (avoiding 1 is the
        other-group state, 0 the same-group one). */
     if (0) {
+#ifndef VERSION_JUN26
         debug_StdPrintfDummy("wp %p myway %p pos %p\n", cur, w->chk.start, pos);
+#endif
         debug_StdPrintfDummy("wgroup stat:%d\n", w->avoiding);
     }
     switch (w->avoiding) {
@@ -627,6 +1065,7 @@ WayPoint *GetWay_next(WVTObj *w, float *pos)
     }
 
     w->chk.cur = waypoint_bidirectional_list(cur, w->direction);
+#ifndef VERSION_JUN26
     /* prints compiled out of the retail build; their strings stay in
        .sdata */
     if (0) {
@@ -638,6 +1077,7 @@ WayPoint *GetWay_next(WVTObj *w, float *pos)
         debug_StdPrintfDummy("dst %p\n", w->chk.cur);
         debug_StdPrintfDummy("->%p\n", cur);
     }
+#endif
     debug_StdPrintfDummy("bilist:%p\n", w->chk.cur);
     w->nearWp = w->chk.cur;
     return w->nearWp;
@@ -654,7 +1094,11 @@ typedef struct NigeEnt { /* field names derived */
 #ifdef VERSION_AUG6
 static NigeEnt nigePointTbl[215]; /* derived name */
 #else
+#ifdef VERSION_JUN26
+static NigeEnt nigePointTbl[192]; /* derived name */
+#else
 static NigeEnt nigePointTbl[275]; /* derived name */
+#endif
 #endif
 
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)

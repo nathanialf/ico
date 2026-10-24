@@ -8,24 +8,38 @@
 #ifndef MV_VOBUF_H
 #define MV_VOBUF_H
 
+#ifdef VERSION_JUN26
 /* One video-out frame's DMA tag block: its display state and the two-field
    transfer packets mv_disp hands to the GIF, one slot per field. */
 typedef struct VoTag {      /* field names derived */
     int status;             /* 0x00: 2 decoded, 1 field 0 shown, 0 free */
     char pad4[60];          /* 0x04 */
+    char packet[5][131584]; /* 0x40, the per-field image transfer packets */
+} VoTag;                    /* derived name */
+#else
+/* One video-out frame's DMA tag block: its display state and the two-field
+   transfer packets mv_disp hands to the GIF, one slot per field. */
+typedef struct VoTag { /* field names derived */
+    int status;        /* 0x00: 2 decoded, 1 field 0 shown, 0 free */
+    char pad4[60];     /* 0x04 */
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     char packet[5][131584]; /* 0x40, the per-field image transfer packets */
 #else
     char packet[5][157440]; /* 0x40, the per-field image transfer packets */
 #endif
 } VoTag; /* derived name */
+#endif
 
 /* One decoded picture: 720 x 576 RGBA32 (JPN and KOR 720 x 480). */
 typedef struct VoData { /* field names derived */
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     unsigned int pixel[345600];
 #else
+#ifdef VERSION_JUN26
+    unsigned int pixel[345600];
+#else
     unsigned int pixel[414720];
+#endif
 #endif
 } VoData; /* derived name */
 
@@ -36,7 +50,7 @@ typedef struct VoBuf {  /* field names derived */
     volatile int idx;   /* 0x08, the slot the decoder writes next */
     volatile int count; /* 0x0C, the slots decoded and not yet shown */
     int max;            /* 0x10 */
-} VoBuf; /* derived name */
+} VoBuf;                /* derived name */
 
 extern VoBuf voBuf;
 int voBufCreate(VoBuf *self);

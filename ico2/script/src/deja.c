@@ -24,9 +24,15 @@ static ActMail _mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail after_mes[2] = {{393}, {392}}; /* derived name */
 #else
+#ifdef VERSION_JUN26
+static ActMail _mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail after_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail _mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail after_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 #endif
 
@@ -50,6 +56,7 @@ inline void actEnemySleep(GObj *volatile self)
     }
 }
 
+#ifndef VERSION_JUN26
 inline void actDeja(GObj *volatile self)
 {
     GObj *x = self;
@@ -89,10 +96,15 @@ inline void actDeja(GObj *volatile self)
         _ACTWait(0);
     }
 }
+#endif
 
 void actDejaChk(GObj *volatile self)
 {
     gflagOn(6);
+#ifdef VERSION_JUN26
+    actCreateSubThread(actEnemySleep, 21);
+    scpAdpcmPlayRequestFunc(15, &deja, 0, 1, 1);
+#else
 #ifdef VERSION_NTSC
     scpSearchGobj(2340)->active = 0;
     scpSearchGobj(2341)->active = 0;
@@ -111,6 +123,7 @@ void actDejaChk(GObj *volatile self)
         _ACTWait(1);
     }
     scpFadeIn(6.0f);
+#endif
     actCreateSubThread(actDejaDemo, 21);
     fightSoundProcessRequestPause();
     while (fightSoundPlayChk() != 0) {
@@ -129,8 +142,12 @@ void actDejaChk(GObj *volatile self)
         shadow_DispCancel(67, 0);
         scpAdpcmFadeClose(deja, 128);
 #else
+#ifdef VERSION_JUN26
+        scpAdpcmFadeClose(deja, 128);
+#else
         shadow_DispCancel(74, 0);
         scpAdpcmFadeCloseFunc(&deja, 128);
+#endif
 #endif
 #endif
         deja = 0;
@@ -214,6 +231,69 @@ void actDejaDemo(GObj *volatile self)
     scpPlayMot(scpSearchGobj(2341), 914);
     shadow_DispCancel(68, 0);
     while (stage_CheckAnimationFrame(547, 125, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    demoEnd = 1;
+}
+#else
+#ifdef VERSION_JUN26
+void actDejaDemo(GObj *volatile self)
+{
+    stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].nextStage);
+    scpPlayStart(boyGObj);
+    stage_SetAnimation(487, 1, 0);
+    scpPlayMot(boyGObj, 301);
+    while (stage_ContinueAnimation(487, 488) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 302);
+    while (stage_ContinueAnimation(488, 489) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 303);
+    while (stage_ContinueAnimation(489, 490) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 304);
+    while (stage_ContinueAnimation(490, 491) == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(498, 1, 0);
+    scpPlayMot(boyGObj, 305);
+    while (stage_ContinueAnimation(491, 492) == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(499, 1, 0);
+    while (stage_ContinueAnimation(492, 493) == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(500, 1, 0);
+    scpPlayMot(scpSearchGobj(2205), 702);
+    scpSearchGobj(2205)->active = 1;
+    while (stage_ContinueAnimation(493, 494) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 306);
+    while (stage_ContinueAnimation(494, 495) == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(501, 1, 0);
+    scpPlayMot(boyGObj, 307);
+    scpPlayMot(scpSearchGobj(2205), 703);
+    while (stage_ContinueAnimation(495, 496) == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(502, 1, 0);
+    scpPlayMot(boyGObj, 308);
+    scpPlayStart(scpSearchGobj(2206));
+    scpPlayMot(scpSearchGobj(2206), 990);
+    while (stage_ContinueAnimation(496, 497) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayMot(boyGObj, 309);
+    scpPlayMot(scpSearchGobj(2206), 991);
+    while (stage_CheckAnimationFrame(497, 125, 0) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -439,6 +519,7 @@ void actDejaDemo(GObj *volatile self)
     demoEnd = 1;
 }
 #endif
+#endif
 
 void actDejaAfter(GObj *volatile self)
 {
@@ -446,6 +527,26 @@ void actDejaAfter(GObj *volatile self)
     Act *act = actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    if (gflagChk(7) == 0 && gflagChk(6) != 0) {
+        stage_SetAnimation(27, 0, -1);
+        stage_SetAnimation(21, 0, -1);
+        stage_SetAnimation(30, 0, 0);
+        stage_SetAnimation(28, 0, 0);
+        stage_SetAnimation(31, 0, 0);
+        stage_SetAnimation(33, 0, 0);
+        after_mes[0].func = actDejaAfterChk;
+        act->mail = after_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(27, 0, -1);
+        stage_SetAnimation(21, 0, -1);
+        stage_SetAnimation(30, 0, 0);
+        stage_SetAnimation(28, 0, 0);
+        stage_SetAnimation(31, 0, 0);
+        stage_SetAnimation(33, 0, 0);
+#else
     ScpCallCameraOff();
     if (gflagChk(7) == 0 && gflagChk(6) != 0) {
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
@@ -488,6 +589,7 @@ void actDejaAfter(GObj *volatile self)
         stage_SetAnimation(33, 0, 0);
         stage_SetAnimation(36, 0, 0);
         stage_SetAnimation(38, 0, 0);
+#endif
 #endif
     }
 }
@@ -539,6 +641,14 @@ void actDejaAfterChk(GObj *volatile self)
     scpPlayMot(boyGObj, 301);
     while (stage_CheckAnimationFinish(552) == 0) {
 #else
+#ifdef VERSION_JUN26
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+    stage_SetAnimation(503, 1, 0);
+    scpPlayMot(boyGObj, 310);
+    while (stage_CheckAnimationFinish(503) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
@@ -558,6 +668,7 @@ void actDejaAfterChk(GObj *volatile self)
     while (stage_CheckAnimationFinish(624) == 0) {
 #endif
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -567,7 +678,7 @@ void actDejaAfterChk(GObj *volatile self)
     scpPlayMotDir(boyGObj, dir.f);
     scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     lt_switch_layout(50);
     _ACTWait(60);
     if (deja != 0) {
@@ -585,5 +696,23 @@ void actDejaAfterChk(GObj *volatile self)
     }
     deja = 0;
     _ACTWait(0);
+}
+#endif
+
+#ifdef VERSION_JUN26
+void actDeja(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(6) == 0) {
+        lt_switch_layout(51);
+        stage_SetAnimation(53, 0, 0);
+        _mes[0].func = actDejaChk;
+        act->mail = _mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
 }
 #endif

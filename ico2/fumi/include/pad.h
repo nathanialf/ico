@@ -63,19 +63,19 @@ typedef struct IosPadDevRec { /* field names derived */
    configuration, then the button words iosPadRead derives.  Every holder
    sets aside 0x60 bytes for it (actInitialize clears 0x60 at Act.pad, the
    tools' handles are 96 bytes). */
-typedef struct IosPadCtx {      /* field names derived */
-    IosPadDevRec *dev;          /* 0x00 */
-    struct PadConf *conf;       /* 0x04 */
-    unsigned int now;           /* 0x08 */
-    unsigned int trg;           /* 0x0C */
-    unsigned int rel;           /* 0x10 */
-    int word14;                 /* 0x14 masked and cleared with the three above; nothing sets it */
-    int now2;                   /* 0x18 */
-    int trg2;                   /* 0x1C */
-    int rel2;                   /* 0x20 */
-    int word24;                 /* 0x24 the copy of word14 */
+typedef struct IosPadCtx { /* field names derived */
+    IosPadDevRec *dev;     /* 0x00 */
+    struct PadConf *conf;  /* 0x04 */
+    unsigned int now;      /* 0x08 */
+    unsigned int trg;      /* 0x0C */
+    unsigned int rel;      /* 0x10 */
+    int word14;            /* 0x14 masked and cleared with the three above; nothing sets it */
+    int now2;              /* 0x18 */
+    int trg2;              /* 0x1C */
+    int rel2;              /* 0x20 */
+    int word24;            /* 0x24 the copy of word14 */
     char pad28[56];
-} IosPadCtx;                    /* derived name */
+} IosPadCtx; /* derived name */
 
 /* The stick reading iosPadGetStick hands back: the raw pair, the stick's
    angle to the facing direction the actor keeps beside it, and the
@@ -92,7 +92,11 @@ typedef struct IosPadStick { /* field names derived */
 
 int iosPadActRequest(IosPadCtx *pad, int id);
 void iosPadActStop(int key);
+
+#ifndef VERSION_JUN26
 void iosPadActStopAll(void);
+#endif
+
 /* One actuator request iosPadActRequest hands out: its key, the player
    box, the shockList row's voice and life, the parameter Shock_Request is
    handed and the volume iosPadActVolumeSet sets. */
@@ -113,6 +117,11 @@ int iosPadDevInit(void *desc);
 int iosPadDevRead(void);
 void iosPadDisable(void);
 void iosPadEnable(void);
+
+#ifdef VERSION_JUN26
+int iosPadEnableGet(void);
+#endif
+
 /* out is an IosPadStick; way_tool hands it a 32-byte buffer (its .bss
    layout fixes the size) */
 int iosPadGetStick(IosPadCtx *pad, void *out, int mode, int a3, int a4, int simulate);
@@ -130,11 +139,11 @@ void iosPadActInit(void);
 /* shocklist: one pad vibration, 8 bytes. Readers: ico2/fumi/ios/pad.c
  * (PadActDef), ico2/fumi/sound/s_init.c (SeInfo). Owner:
  * ico2/fumi/include/pad.h. */
-typedef struct {  /* field names derived */
-    int word0;    /* 0x00 */
-    short voice;  /* 0x04 the voice Shock_Request plays */
-    short life;   /* 0x06 */
-} PadActDef;      /* derived name */
+typedef struct { /* field names derived */
+    int word0;   /* 0x00 */
+    short voice; /* 0x04 the voice Shock_Request plays */
+    short life;  /* 0x06 */
+} PadActDef;     /* derived name */
 
 extern const PadActDef shockList[];
 

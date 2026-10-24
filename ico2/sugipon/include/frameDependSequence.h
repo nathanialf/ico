@@ -33,17 +33,22 @@ typedef struct { /* field names derived */
 /* motion-eff-def: one motion effect, 0x24 bytes: the offset and turn from
    the node, the particle effect, the node and the flags.  Readers:
    frameDependSequence.c, ico2/common/src/icoMisc.c (EffEnt). */
-typedef struct {        /* field names derived */
-    float x;            /* 0x00 */
-    float y;            /* 0x04 */
-    float z;            /* 0x08 */
-    float rx;           /* 0x0C */
-    float ry;           /* 0x10 */
-    float rz;           /* 0x14 */
-    int eff;            /* 0x18 */
+typedef struct { /* field names derived */
+    float x;     /* 0x00 */
+    float y;     /* 0x04 */
+    float z;     /* 0x08 */
+    float rx;    /* 0x0C */
+    float ry;    /* 0x10 */
+    float rz;    /* 0x14 */
+    int eff;     /* 0x18 */
+#ifdef VERSION_JUN26
+    unsigned int flags; /* 0x1C, nonzero: a stage BGA effect, else a particle effect */
+    int node;           /* 0x20 */
+#else
     int node;           /* 0x1C */
     unsigned int flags; /* 0x20 */
-} EffEntry;             /* derived name */
+#endif
+} EffEntry; /* derived name */
 
 /* motion-eff-condition-def: the shared condition table, 0x0C bytes a row:
    execEff reads its cond and actId pair as an effect id, execVibCondition
@@ -60,18 +65,36 @@ extern const SECondEntry motSECondKind[];
 extern const EffEntry motionEffKind[];
 extern const VibCondEntry motEffCondKind[];
 extern const int randomEffKind[];
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#ifdef VERSION_JUN26
+/* InitFrameDependSequence before ExecuteSEPackageWithVolumeRate: both are
+   inline in frameDependSequence.c, and gcc emits their out-of-line copies at
+   the end of the file in the order they were first declared */
+void InitFrameDependSequence(void *flags);
+void ExecFrameDependSequence(struct GObj *gobj);
+#else
 int ExecuteDirectSE(struct GObj *gobj, int id);
 #endif
+#endif
+
 void ExecuteSEPackage(struct GObj *gobj, int id);
 void ExecuteSEPackageWithGroupVariation(struct GObj *gobj, int id, int grp);
 void ExecuteSEPackageWithVolumeRate(struct GObj *gobj, int id, float rate);
+
+#ifdef VERSION_JUN26
+void StopSEPackage(struct GObj *gobj);
+void StopSEPackageWithGroupVariation(struct GObj *gobj, int grp);
+#else
 void InitFrameDependSequence(void *flags);
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void StopFDSVibration(void *flags);
 #endif
+
 void StopSEPackage(struct GObj *gobj);
 void StopSEPackageWithGroupVariation(struct GObj *gobj, int grp);
 void ExecFrameDependSequence(struct GObj *gobj);
+#endif
 
 #endif /* FRAMEDEPENDSEQUENCE_H */

@@ -47,7 +47,11 @@ void GetMatrixFromQuaternion(void *mtx, void *q);
  * GetSlerpQuaternionNoRegularize and regularizes the result; its callers
  * pass four. */
 void GetSlerpQuaternion(void *out, void *qa, void *qb, float t);
+
+#ifndef VERSION_JUN26
 void GetSlerpQuaternionNoRegularize(void *out, void *qa, void *qb, float t);
+#endif
+
 extern float IdentityQuaternion[4];
 void InitQuaternionDrive(void);
 void PushQuaternion(void);

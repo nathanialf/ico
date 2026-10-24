@@ -1,4 +1,4 @@
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #include "gobj.h"
 #include "kanbanBoot.h"
 #else
@@ -18,7 +18,7 @@
 #include "Basic.h"
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 #include "debug.h"
 #endif
 #endif
@@ -32,7 +32,7 @@ static int mcCheckStep = 0; /* derived name */
 
 static int bootStarted = 0; /* derived name */
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static int mcRetryCount = 10; /* derived name */
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
@@ -66,7 +66,7 @@ static int mcKanbanId; /* derived name */
 static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static int bootVideoMode; /* derived name */ /* the video mode in force when the sign went up */
 #endif
 #endif
@@ -151,7 +151,7 @@ static int kanbanBootMcCheck(void)
     return ret;
 }
 #else
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_JUN26)
 extern void iosMcLoadProductBlock(McMgr *mp);
 #endif
 
@@ -248,9 +248,11 @@ static int kanbanBootMcCheck(void)
 static int kanbanBootMcCheck(void)
 {
     McMgr *mc = &bootMcReq;
+#ifndef VERSION_JUN26
     McProductFile *r;
     int *lp;
     int lang;
+#endif
     int ret = 0;
 
     switch (mcCheckStep) {
@@ -259,7 +261,11 @@ static int kanbanBootMcCheck(void)
         /* fallthrough */
     case 1:
         mcPort = 0;
+#ifdef VERSION_JUN26
+        mcKanbanId = 1;
+#else
         mcKanbanId = 3;
+#endif
         mcCheckStep++;
         /* fallthrough */
     case 2:
@@ -277,6 +283,13 @@ static int kanbanBootMcCheck(void)
         break;
     case 4:
         if (mc->type == 2) {
+#ifdef VERSION_JUN26
+            if (mc->format == 0 || mc->result == 0 || mc->free >= 256) {
+                mcCheckStep = -1;
+                break;
+            }
+            mcKanbanId = 2;
+#else
             mcKanbanId = 0;
             if (mc->result == 0 && bootKanbanDone == 0) {
                 mcCheckStep = 95;
@@ -287,11 +300,20 @@ static int kanbanBootMcCheck(void)
                 break;
             }
             mcKanbanId = 4;
+#endif
         }
         if (mcPort == 0) {
             mcPort = 1;
             mcCheckStep = 2;
         } else {
+#ifdef VERSION_JUN26
+            mcCheckStep = 100;
+        }
+        break;
+    case 100:
+        fbKeep = 0;
+        bootKanban = kanbanReqAdd(3, 2);
+#else
             mcCheckStep = 90;
         }
         break;
@@ -453,16 +475,28 @@ static int kanbanBootMcCheck(void)
         fbKeep = 0;
         fadeStatus = 0;
         bootKanban = kanbanReqAdd(5, 2);
+#endif
         if (bootKanbanSub != 0) {
             kanbanReqDel(bootKanbanSub);
         }
         bootKanbanSub = kanbanReqAdd(mcKanbanId, 1);
         mcCheckStep++;
         break;
+#ifdef VERSION_JUN26
+    case 101:
+#else
     case 302:
+#endif
         if (bootKanban->key != 1) {
             break;
         }
+#ifdef VERSION_JUN26
+        if (bootKanban->layout->curItem == 5) {
+            mcCheckStep = -1;
+            break;
+        }
+        kanbanReqDel(bootKanban);
+#else
         if (bootKanban->layout->curItem == 41) {
             mcCheckStep = -1;
             kanbanReqDelFade(bootKanbanSub);
@@ -471,11 +505,14 @@ static int kanbanBootMcCheck(void)
         }
         kanbanReqDelFade(bootKanbanSub);
         kanbanReqDelFade(bootKanban);
+#endif
         mcCheckStep = 1;
         break;
     default:
         fbKeep = 0;
+#ifndef VERSION_JUN26
         fadeStatus = 0;
+#endif
         ret = 1;
         break;
     }
@@ -498,6 +535,15 @@ void kanbanBootMain(void)
         bootStep++;
         /* fallthrough */
     case 1:
+#ifdef VERSION_JUN26
+        if (bootStarted == 0) {
+            break;
+        }
+        bootStep++;
+        /* fallthrough */
+    case 2:
+        waitKanban = kanbanReqAdd(0, 1);
+#else
         if (bootStarted != 0) {
             bootStep++;
         }
@@ -512,10 +558,16 @@ void kanbanBootMain(void)
 #else
         waitKanban = kanbanReqAdd(2, 1);
 #endif
+#endif
         bootStep++;
         break;
     case 3:
+#ifdef VERSION_JUN26
+        waitTimer = (60 - systemStatus[0] * 10) / systemStatus[1] * 3;
+        fbKeep = 0;
+#else
         waitTimer = (60 - systemStatus[0] * 10) / systemStatus[1] * 5;
+#endif
         bootStep++;
         /* fallthrough */
     case 4:

@@ -6,8 +6,8 @@
  * allocator and to the assert, so the name the file is included under
  * ("../ito/include/mv_defs.h") and those lines are part of the program's
  * data.  The original header had its two calls at lines 43 and 44 in the
- * PAL build and 42 and 43 in the Japanese, Korean and USA ones and the Aug-6
- * prototype; LN gives each build its own.
+ * PAL build and 42 and 43 in the Japanese, Korean and USA ones, the Aug-6
+ * prototype and the Jun-26 demo; LN gives each build its own.
  *
  * phys_addr strips the segment bits from an EE address, the form the DMA
  * controller and the IOP heap calls take; uncached_accel_addr puts the same
@@ -24,21 +24,49 @@
 
 /* the physical address under a segment-mapped one, which the DMA
    controller takes */
+#ifdef VERSION_JUN26
 static __inline__ int phys_addr(int p) /* derived name */
-{ return p & 0x0FFFFFFF; }
+{
+    return p & 0x0FFFFFFF;
+}
+#else
+static __inline__ int phys_addr(int p) /* derived name */
+{
+    return p & 0x0FFFFFFF;
+}
+#endif
 
 /* the same address in the uncached-accelerated segment, ORed onto the
    physical one */
+#ifdef VERSION_JUN26
 static __inline__ int uncached_accel_addr(int p) /* derived name */
-{ return (p & 0x0FFFFFFF) | 0x20000000; }
+{
+    return (p & 0x0FFFFFFF) | 0x20000000;
+}
+#else
+static __inline__ int uncached_accel_addr(int p) /* derived name */
+{
+    return (p & 0x0FFFFFFF) | 0x20000000;
+}
+#endif
+
 #include <string.h>
 #include <assert.h>
 #include "ios.h"
+
 void *iosMallocAlignDebug(struct IosMemPart *part, int size, int align, const char *file, int line);
-void debug_assert(const char *file, int line);   /* assert reporter */
+void debug_assert(const char *file, int line); /* assert reporter */
+
 static __inline__ int alloc_zeroed(int size, int align) /* derived name */
-{ int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, LN(43, 42, 42, 42, 42));
-  if (p == 0) { debug_assert(__FILE__, LN(44, 43, 43, 43, 43)); __assert(__FILE__, LN(44, 43, 43, 43, 43), "p != NULL"); }
-  memset((void *)p, 0, size); return p; }
+{
+    int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__,
+                                     LN(43, 42, 42, 42, 42, 42));
+    if (p == 0) {
+        debug_assert(__FILE__, LN(44, 43, 43, 43, 43, 43));
+        __assert(__FILE__, LN(44, 43, 43, 43, 43, 43), "p != NULL");
+    }
+    memset((void *)p, 0, size);
+    return p;
+}
 
 #endif /* MV_DEFS_H */

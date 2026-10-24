@@ -15,9 +15,11 @@ struct GObj;
    four subGirlBrain_* states, enemy_list_compare and ACTCheckCollis_SAFE follow
    through their first declarations in girl_act.c. */
 void ACTGame_GirlBeforeFunc(struct GObj *self);
-#ifndef VERSION_AUG6
+
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void *FindGirlPullupFloorBoxGObj(void);
 #endif
+
 void actGirlSupportGBBegin(struct GObj *volatile self);
 void actGirlSupportGBLoop(struct GObj *volatile self);
 void actGirlSupportGBEnd(struct GObj *volatile self);
@@ -32,10 +34,12 @@ void actGirlAttack(struct GObj *volatile self);
 void actGirlBecall(struct GObj *volatile self);
 void actGirlBehanged(struct GObj *volatile self);
 void actGirlAttractAction(struct GObj *volatile self);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void actGirlHintVoice(struct GObj *volatile self);
 void actGirlCannotReach(struct GObj *volatile self);
 #endif
+
 void actGirlHand50(struct GObj *volatile self);
 void afterGirlHand50(struct GObj *volatile self);
 void actGirlHand100(struct GObj *volatile self);
@@ -81,6 +85,7 @@ typedef struct {  /* field names derived */
     float range;  /* 0x14, the distance under which it applies */
     float rate;   /* 0x18, the distance factor into the girl's 0x330 */
 } EscortPoint;    /* derived name */
+
 extern const EscortPoint autoEscortData[];
 
 #endif /* GIRL_ACT_H */

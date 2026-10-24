@@ -17,7 +17,7 @@
 #include "main.h"
 #include "script.h"
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* The functions stand in the order of the stage's source (aug6's TRFILE and the
    PAL listing number them so). The ones defined inline are output at
    the end of the file, in the order of the declarations below, which gives
@@ -28,6 +28,11 @@
 
 inline void actSt03tGirlCam(GObj *volatile self);
 inline void actSt03tSekizo(GObj *volatile self);
+
+#ifdef VERSION_JUN26
+inline void actSt03tObj776(GObj *volatile self);
+#endif
+
 inline void actSt03tWay(GObj *volatile self);
 inline void actSt03tEne(GObj *volatile self);
 inline void actSt03tGene(GObj *volatile self);
@@ -39,7 +44,24 @@ inline void actSt03tEneChk(GObj *volatile self);
 inline void actSt03tWayOnChk(GObj *volatile self);
 inline void actSt03tWayOffChk(GObj *volatile self);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+static ActMail switchL_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchLUp_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchLChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchLUpChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchR_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchRUp_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchRChk_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail switchRUpChk_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail switchL_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail switchLUp_mes[2] = {{393}, {392}}; /* derived name */
@@ -55,6 +77,7 @@ static ActMail switchRUp_mes[2] = {{393}, {392}}; /* derived name */
 static ActMail switchRChk_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail switchRUpChk_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 #else
 static ActMail switchL_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -80,23 +103,37 @@ void actSt03tSwitchL(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    if (gflagChk(78) == 0) {
+        stage_SetAnimation(295, 0, 0);
+        stage_SetAnimation(297, 0, 0);
+#else
     if (gflagChk(80) == 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         stage_SetAnimation(328, 0, 0);
         stage_SetAnimation(330, 0, 0);
 #else
         stage_SetAnimation(329, 0, 0);
         stage_SetAnimation(331, 0, 0);
 #endif
+#endif
 
         switchL_mes[0].func = actSt03tSwitchLChk;
         act->mail = switchL_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(295, 0, 45);
+        stage_SetAnimation(297, 0, -1);
+#else
         ACTSendMailCorrect(self, 393);
         _ACTWait(0);
     } else {
         stage_SetAnimation(328, 0, 45);
         stage_SetAnimation(330, 0, -1);
+#endif
 #else
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
@@ -107,8 +144,12 @@ void actSt03tSwitchL(GObj *volatile self)
 
         switchLUp_mes[0].func = actSt03tSwitchLUpChk;
         act->mail = switchLUp_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+#else
         ACTSendMailCorrect(self, 393);
+#endif
 #else
         ACTSendMailCorrect(self, 397);
 #endif
@@ -131,11 +172,18 @@ void actSt03tSwitchLChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    stage_SetAnimation(295, 1, 0);
+    soundSeDefPlay(1170, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(295, 45, 1) == 0) {
+#else
     stage_SetAnimation(328, 1, 0);
     soundSeDefPlay(1196, 0, 0, 1);
 
     while (stage_CheckAnimationFrame(328, 45, 1) == 0) {
+#endif
 #else
     stage_SetAnimation(329, 1, 0);
     soundSeDefPlay(1196, 0, 0, 1);
@@ -146,9 +194,18 @@ void actSt03tSwitchLChk(GObj *volatile self)
     }
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    gflagOn(78);
+
+    stage_SetAnimation(297, 1, 0);
+
     gflagOn(80);
 
-#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFrame(297, 75, 0) == 0) {
+#else
+    gflagOn(80);
+
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     stage_SetAnimation(330, 1, 0);
 #else
     stage_SetAnimation(331, 1, 0);
@@ -158,32 +215,47 @@ void actSt03tSwitchLChk(GObj *volatile self)
 
     gflagOn(82);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     while (stage_CheckAnimationFrame(330, 75, 0) == 0) {
 #else
     while (stage_CheckAnimationFrame(331, 75, 0) == 0) {
 #endif
-        _ACTWait(1);
-    }
-    _ACTWait(1);
-
-    soundSeDefPlay(1194, 0, 0, 1);
-
-#ifdef VERSION_AUG6
-    while (stage_CheckAnimationFrame(330, 90, 0) == 0) {
-#else
-    while (stage_CheckAnimationFrame(331, 90, 0) == 0) {
 #endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    soundSeDefPlay(1168, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(297, 90, 0) == 0) {
+#else
+    soundSeDefPlay(1194, 0, 0, 1);
+
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+    while (stage_CheckAnimationFrame(330, 90, 0) == 0) {
+#else
+    while (stage_CheckAnimationFrame(331, 90, 0) == 0) {
+#endif
+#endif
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+#ifdef VERSION_JUN26
+    soundSeDefPlay(1169, 0, 0, 1);
+#else
     soundSeDefPlay(1195, 0, 0, 1);
+#endif
 
     SetCameraFlag_LwsCutBack();
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    while (stage_CheckAnimationFinish(297) == 0) {
+#else
     while (stage_CheckAnimationFinish(330) == 0) {
+#endif
 #else
     while (stage_CheckAnimationFinish(331) == 0) {
 #endif
@@ -193,8 +265,12 @@ void actSt03tSwitchLChk(GObj *volatile self)
 
     switchLChk_mes[0].func = actSt03tSwitchLUpChk;
     act->mail = switchLChk_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -211,9 +287,17 @@ void actSt03tSwitchLUpChk(GObj *volatile self)
 
     _ACTWait(60);
 
+#ifdef VERSION_JUN26
+    gflagOff(78);
+
+    stage_SetAnimation(295, 1, 46);
+    soundSeDefPlay(1170, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(295, 90, 1) == 0) {
+#else
     gflagOff(80);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     stage_SetAnimation(328, 1, 46);
     soundSeDefPlay(1196, 0, 0, 1);
 
@@ -224,11 +308,19 @@ void actSt03tSwitchLUpChk(GObj *volatile self)
 
     while (stage_CheckAnimationFrame(329, 90, 1) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
-#ifdef VERSION_AUG6
+#ifdef VERSION_JUN26
+    stage_SetAnimation(298, 1, 0);
+
+    soundSeDefPlay(1168, 0, 0, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1169, 0, 0, 1);
+#else
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     stage_SetAnimation(331, 1, 0);
 #else
     stage_SetAnimation(332, 1, 0);
@@ -239,11 +331,16 @@ void actSt03tSwitchLUpChk(GObj *volatile self)
     soundSeDefPlay(1194, 0, 0, 1);
     _ACTWait(30);
     soundSeDefPlay(1195, 0, 0, 1);
+#endif
 
     SetCameraFlag_LwsCutBack();
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    while (stage_CheckAnimationFinish(298) == 0) {
+#else
     while (stage_CheckAnimationFrame(331, 120, 0) == 0) {
+#endif
 #else
     while (stage_CheckAnimationFrame(332, 120, 0) == 0) {
 #endif
@@ -253,8 +350,12 @@ void actSt03tSwitchLUpChk(GObj *volatile self)
 
     switchLUpChk_mes[0].func = actSt03tSwitchLChk;
     act->mail = switchLUpChk_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -268,23 +369,37 @@ void actSt03tSwitchR(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    if (gflagChk(79) == 0) {
+        stage_SetAnimation(296, 0, 0);
+        stage_SetAnimation(299, 0, 0);
+#else
     if (gflagChk(81) == 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         stage_SetAnimation(329, 0, 0);
         stage_SetAnimation(332, 0, 0);
 #else
         stage_SetAnimation(330, 0, 0);
         stage_SetAnimation(333, 0, 0);
 #endif
+#endif
 
         switchR_mes[0].func = actSt03tSwitchRChk;
         act->mail = switchR_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(296, 0, 45);
+        stage_SetAnimation(299, 0, -1);
+#else
         ACTSendMailCorrect(self, 393);
         _ACTWait(0);
     } else {
         stage_SetAnimation(329, 0, 45);
         stage_SetAnimation(332, 0, -1);
+#endif
 #else
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
@@ -295,8 +410,12 @@ void actSt03tSwitchR(GObj *volatile self)
 
         switchRUp_mes[0].func = actSt03tSwitchRUpChk;
         act->mail = switchRUp_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+#else
         ACTSendMailCorrect(self, 393);
+#endif
 #else
         ACTSendMailCorrect(self, 397);
 #endif
@@ -319,11 +438,18 @@ void actSt03tSwitchRChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    stage_SetAnimation(296, 1, 0);
+    soundSeDefPlay(1170, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(296, 45, 1) == 0) {
+#else
     stage_SetAnimation(329, 1, 0);
     soundSeDefPlay(1196, 0, 0, 1);
 
     while (stage_CheckAnimationFrame(329, 45, 1) == 0) {
+#endif
 #else
     stage_SetAnimation(330, 1, 0);
     soundSeDefPlay(1196, 0, 0, 1);
@@ -334,35 +460,57 @@ void actSt03tSwitchRChk(GObj *volatile self)
     }
     _ACTWait(1);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    stage_SetAnimation(299, 1, 0);
+#else
     stage_SetAnimation(332, 1, 0);
+#endif
 #else
     stage_SetAnimation(333, 1, 0);
 #endif
 
     SetWayGroupActive(5, 1);
 
+#ifdef VERSION_JUN26
+    gflagOn(80);
+
+    soundSeDefPlay(1168, 0, 0, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1169, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(299) == 0) {
+#else
     gflagOn(82);
 
     soundSeDefPlay(1194, 0, 0, 1);
     _ACTWait(30);
     soundSeDefPlay(1195, 0, 0, 1);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     while (stage_CheckAnimationFinish(332) == 0) {
 #else
     while (stage_CheckAnimationFinish(333) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    gflagOn(79);
+#else
     gflagOn(81);
+#endif
 
     switchRChk_mes[0].func = actSt03tSwitchRUpChk;
     act->mail = switchRChk_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -379,9 +527,17 @@ void actSt03tSwitchRUpChk(GObj *volatile self)
 
     _ACTWait(((60 - systemStatus[0] * 10) / systemStatus[1]) * 10);
 
+#ifdef VERSION_JUN26
+    gflagOff(79);
+
+    stage_SetAnimation(296, 1, 46);
+    soundSeDefPlay(1170, 0, 0, 1);
+
+    while (stage_CheckAnimationFrame(296, 90, 1) == 0) {
+#else
     gflagOff(81);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     stage_SetAnimation(329, 1, 46);
     soundSeDefPlay(1196, 0, 0, 1);
 
@@ -392,26 +548,39 @@ void actSt03tSwitchRUpChk(GObj *volatile self)
 
     while (stage_CheckAnimationFrame(330, 90, 1) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    stage_SetAnimation(300, 1, 0);
+#else
     stage_SetAnimation(333, 1, 0);
+#endif
 #else
     stage_SetAnimation(334, 1, 0);
 #endif
 
     SetWayGroupActive(5, 0);
 
+#ifdef VERSION_JUN26
+    soundSeDefPlay(1168, 0, 0, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1169, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(300) == 0) {
+#else
     soundSeDefPlay(1194, 0, 0, 1);
     _ACTWait(30);
     soundSeDefPlay(1195, 0, 0, 1);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     while (stage_CheckAnimationFinish(333) == 0) {
 #else
     while (stage_CheckAnimationFinish(334) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -419,8 +588,12 @@ void actSt03tSwitchRUpChk(GObj *volatile self)
 
     switchRUpChk_mes[0].func = actSt03tSwitchRChk;
     act->mail = switchRUpChk_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -432,8 +605,12 @@ inline void actSt03tGirlCamEvent(int x)
     volatile int local = x;
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+static ActMail girlCam_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail girlCam_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 #else
 static ActMail girlCam_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -449,8 +626,12 @@ inline void actSt03tGirlCam(GObj *volatile self)
 
     girlCam_mes[0].func = actSt03tGirlCamStartChk;
     act->mail = girlCam_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -460,12 +641,19 @@ inline void actSt03tGirlCam(GObj *volatile self)
 inline void actSt03tGirlCamStartChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
-#ifdef VERSION_AUG6
+#ifdef VERSION_JUN26
+    static ActMail girlCamStartChk_mes[2] = {{377}, {376}}; /* derived name */
+
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) != 207) {
+#else
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     static ActMail girlCamStartChk_mes[2] = {{393}, {392}}; /* derived name */
 #endif
 
     while (scpTriggerBall(self, boyGObj, 100.0f) == 0 ||
            ForMotionViewer_GetCurrentMotion(boyGObj) != 198) {
+#endif
         _ACTWait(1);
     }
 
@@ -476,8 +664,12 @@ inline void actSt03tGirlCamStartChk(GObj *volatile self)
 
     girlCamStartChk_mes[0].func = actSt03tGirlCamEndChk;
     sub->mail = girlCamStartChk_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -487,7 +679,13 @@ inline void actSt03tGirlCamStartChk(GObj *volatile self)
 inline void actSt03tGirlCamEndChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
-#ifdef VERSION_AUG6
+#ifdef VERSION_JUN26
+    static ActMail girlCamEndChk_mes[2] = {{377}, {376}}; /* derived name */
+
+    while (scpTriggerBall(self, boyGObj, 100.0f) == 0 ||
+           ForMotionViewer_GetCurrentMotion(boyGObj) == 207) {
+#else
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     static ActMail girlCamEndChk_mes[2] = {{393}, {392}}; /* derived name */
 #else
     static ActMail girlCamEndChk_mes[2] = {{397}, {396}}; /* derived name */
@@ -495,6 +693,7 @@ inline void actSt03tGirlCamEndChk(GObj *volatile self)
 
     while (scpTriggerBall(self, boyGObj, 100.0f) == 0 ||
            ForMotionViewer_GetCurrentMotion(boyGObj) == 198) {
+#endif
         _ACTWait(1);
     }
 
@@ -505,8 +704,12 @@ inline void actSt03tGirlCamEndChk(GObj *volatile self)
 
     girlCamEndChk_mes[0].func = actSt03tGirlCamStartChk;
     sub->mail = girlCamEndChk_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -518,6 +721,19 @@ inline void actSt03tSekizoEvent(int x)
     volatile int local = x;
 }
 
+#ifdef VERSION_JUN26
+inline void actSt03tSekizo(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    scpSekizou(self, 84, 61, 0, 21, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
+}
+
+static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
+#else
 inline void actSt03tSekizo(GObj *volatile self)
 {
     GObj *x = self;
@@ -528,10 +744,11 @@ inline void actSt03tSekizo(GObj *volatile self)
     scpSekizou(self, 86, 67, 0, 18, -913.0f, -400.0f, 605.0f, -1000.0f, -400.0f, 550.0f);
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
 #else
 static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 #endif
 
 inline void actSt03tEne(GObj *volatile self)
@@ -541,19 +758,92 @@ inline void actSt03tEne(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    if (gflagChk(90) == 0) {
+        ene_mes[0].func = actSt03tEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     if (gflagChk(93) == 0) {
         ene_mes[0].func = actSt03tEneChk;
         act->mail = ene_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         ACTSendMailCorrect(self, 393);
 #else
         ACTSendMailCorrect(self, 397);
+#endif
 #endif
         _ACTWait(0);
     }
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+inline void actSt03tEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(90);
+    gflagOn(91);
+    stage_SetAnimation(62, 1, 0);
+
+    while (stage_CheckAnimationFinish(62) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
+
+inline void actSt03tGene(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    Generator_Mask(self);
+
+    Generator_Mask(scpSearchGobj(784));
+
+    while (gflagChk(91) == 0) {
+        _ACTWait(1);
+    }
+
+    Generator_MaskOff(self);
+
+    Generator_Call(self);
+    _ACTWait(20);
+    Generator_Call(self);
+
+    Generator_Call(scpSearchGobj(784));
+}
+
+/* obj-layout row 776's process: the box flag 262 has dropped stays down */
+inline void actSt03tObj776(GObj *volatile self) /* derived name */
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(262) == 0) {
+        scpSearchGobj(773)->active = 0;
+    } else {
+        gflagOn(87);
+        scpSearchGobj(771)->active = 0;
+        scpSearchGobj(773)->active = 1;
+    }
+}
+#else
 inline void actSt03tEneChk(GObj *volatile self)
 {
     if (girlGObj == 0) {
@@ -623,6 +913,7 @@ void actSt03tBoxA(GObj *volatile self)
         ReInitBoxGeo(scpSearchGobj(805));
     }
 }
+#endif
 
 void actSt03tBoxB(GObj *volatile self)
 {
@@ -631,6 +922,20 @@ void actSt03tBoxB(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    if (gflagChk(261) == 0) {
+        scpSearchGobj(772)->active = 0;
+    } else {
+        scpSearchGobj(770)->active = 0;
+        scpSearchGobj(772)->active = 1;
+
+        if (gflagChk(86) == 0) {
+            scpPlayPosSet(scpSearchGobj(772), 600.0f, -150.0f, 675.0f);
+            _ACTWait(1);
+            ReInitBoxGeo(scpSearchGobj(772));
+            gflagOn(86);
+        }
+#else
     if (gflagChk(272) == 0) {
         scpSearchGobj(806)->active = 0;
     } else {
@@ -643,6 +948,7 @@ void actSt03tBoxB(GObj *volatile self)
         scpTransGObj(scpSearchGobj(806), 0.0f, -400.0f, 0.0f);
         _ACTWait(1);
         ReInitBoxGeo(scpSearchGobj(806));
+#endif
     }
 }
 #else
@@ -717,10 +1023,16 @@ void actSt03tBoxA(GObj *volatile self)
 }
 #endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+static ActMail wayOn_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail wayOff_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail wayOn_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail wayOff_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 #else
 void actSt03tBoxB(GObj *volatile self)
 {
@@ -760,20 +1072,31 @@ inline void actSt03tWay(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    if (gflagChk(88) == 0) {
+        wayOn_mes[0].func = actSt03tWayOnChk;
+        act->mail = wayOn_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     if (gflagChk(91) == 0) {
         wayOn_mes[0].func = actSt03tWayOnChk;
         act->mail = wayOn_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         ACTSendMailCorrect(self, 393);
 #else
         ACTSendMailCorrect(self, 397);
+#endif
 #endif
         _ACTWait(0);
     } else {
         wayOff_mes[0].func = actSt03tWayOffChk;
         act->mail = wayOff_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+#else
         ACTSendMailCorrect(self, 393);
+#endif
 #else
         ACTSendMailCorrect(self, 397);
 #endif
@@ -784,14 +1107,18 @@ inline void actSt03tWay(GObj *volatile self)
 inline void actSt03tWayOnChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    static ActMail wayOnChk_mes[2] = {{377}, {376}}; /* derived name */
+#else
     static ActMail wayOnChk_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 #endif
 
     if (girlGObj == 0) {
         _ACTWait(0);
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     while (scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
 #else
     while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
@@ -800,12 +1127,20 @@ inline void actSt03tWayOnChk(GObj *volatile self)
     }
 
     SetWayGroupActive(17, 1);
+#ifdef VERSION_JUN26
+    gflagOn(88);
+#else
     gflagOn(91);
+#endif
 
     wayOnChk_mes[0].func = actSt03tWayOffChk;
     sub->mail = wayOnChk_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -815,14 +1150,18 @@ inline void actSt03tWayOnChk(GObj *volatile self)
 inline void actSt03tWayOffChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    static ActMail wayOffChk_mes[2] = {{377}, {376}}; /* derived name */
+#else
     static ActMail wayOffChk_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 #endif
 
     if (girlGObj == 0) {
         _ACTWait(0);
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     while (scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
 #else
     while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) != 0) {
@@ -831,12 +1170,20 @@ inline void actSt03tWayOffChk(GObj *volatile self)
     }
 
     SetWayGroupActive(17, 0);
+#ifdef VERSION_JUN26
+    gflagOff(88);
+#else
     gflagOff(91);
+#endif
 
     wayOffChk_mes[0].func = actSt03tWayOnChk;
     sub->mail = wayOffChk_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -845,8 +1192,12 @@ inline void actSt03tWayOffChk(GObj *volatile self)
 
 void actSt03tInit(void)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    if (gflagChk(80) == 0) {
+#else
     if (gflagChk(82) == 0) {
+#endif
 #else
     if (gflagChk(82) != 0) {
         SetWayGroupActive(7, 1);
@@ -855,7 +1206,11 @@ void actSt03tInit(void)
         SetWayGroupActive(7, 0);
     }
 
+#ifdef VERSION_JUN26
+    if (gflagChk(81) != 0) {
+#else
     if (gflagChk(83) != 0) {
+#endif
         SetWayGroupActive(5, 1);
     } else {
         SetWayGroupActive(5, 0);

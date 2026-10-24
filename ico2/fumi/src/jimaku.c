@@ -32,7 +32,11 @@ struct jWayGroup { /* field names derived */ /* jimakuRing element, stride 0x18 
    per frame (jimakuDisp) */
 static struct jWayGroup jimakuRing[4];
 
+#ifdef VERSION_JUN26
+static char jimakuBuf[4][0x8C40] __attribute__((aligned(16))); /* derived name */
+#else
 static char jimakuBuf[4][0x8C40] __attribute__((aligned(64))); /* derived name */
+#endif
 
 static IosSema jimakuReadSema; /* derived name */
 
@@ -177,7 +181,7 @@ static void jimakuMgrBegin(JimakuArg *p)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     int st;
 #else
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int st = 0;
 #endif
 #endif
@@ -201,7 +205,7 @@ static void jimakuMgrBegin(JimakuArg *p)
     jimakuRing[0].state = 3;
     jimakuRing[0].tex = -1;
     sub->ringPos = 1;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     sub->bg =
         (void *)iosCdvdBackGroundMgrAdd("Tex_jimaku/data.jim", jimakuHandler, p, 0, 0, 0, 0, 0);
 #else
@@ -273,15 +277,15 @@ static void jimakuMgrNext(JimakuArg *p)
     sprintf(buf, "jimaku%02d.tm2", (sub->n + 1) % 4);
     g->node->tex = tex_InitTexture(buf, g->node->buf);
     tex_SetSamplingType(tex_GetTextureData(g->node->tex), 1, 1);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     g->node->stamp = GlobalTimer;
 #else
     g->node->stamp = lock_execIcoMisc;
 #endif
     if (g->node->tex == -1) {
         debug_StdPrintfDummy("already exist\n");
-        debug_assert(__FILE__, LN(688, 655, 658, 626, 626));
-        __assert(__FILE__, LN(688, 655, 658, 626, 626), "0");
+        debug_assert(__FILE__, LN(688, 655, 658, 626, 626, 598));
+        __assert(__FILE__, LN(688, 655, 658, 626, 626, 598), "0");
     }
     sub->n = (sub->n + 1) % 4;
     if (iosSemaWait(&jimakuShownSema) < 0) {
@@ -410,7 +414,7 @@ void jimakuDisp(JimakuArg *msg)
         return;
     }
     c = g->stamp;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if ((unsigned int)(c + jimakuDispTime) < (unsigned int)GlobalTimer) {
         jimakuDispOn = 0;
     }
@@ -443,7 +447,7 @@ void jimakuDisp(JimakuArg *msg)
         texProperty[410].texNo = v;
 #endif
 #else
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         texProperty[383].texNo = v;
         texProperty[382].texNo = v;
 #else
@@ -464,7 +468,7 @@ void jimakuDisp(JimakuArg *msg)
             display_texture(&texProperty[411]);
 #endif
 #else
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             display_texture(&texProperty[382]);
             display_texture(&texProperty[383]);
 #else

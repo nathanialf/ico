@@ -17,6 +17,11 @@
 #include "camera-root.h"
 #include "fightSound.h"
 #include "generator.h"
+
+#ifdef VERSION_JUN26
+#include "geometryManager.h"
+#endif
+
 #include "gflag.h"
 #include "script.h"
 #include "GsBase.h"
@@ -30,10 +35,15 @@
 #include "main.h"
 #include "jimaku.h"
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static void actSt13cHandSub(GObj *volatile self);
 #endif
 
+#ifdef VERSION_JUN26
+/* .sbss: the flag each demo raises when it is over (this build keeps no boss
+   generator word after it). */
+static int demoEnd;
+#else
 /* the stage-animation number sets the contes play; two functions keep one
    in their frame as the scratch vector they hand scpPlayMotDir or
    DirectCallEnemy. */
@@ -50,10 +60,11 @@ typedef struct AnimSet16 { /* field names derived */
 static int demoEnd;
 
 static GObj *bossGenerator; /* derived name */
+#endif
 
 /* .data: actor mail packets. */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void actSt13cSleep(GObj *volatile self);
 void actSt13cCageDown(GObj *volatile self);
 void actSt13cCageFallReady(GObj *volatile self);
@@ -68,7 +79,7 @@ void actSt13cBuki(GObj *volatile self);
 void actSt13cBmg1Event(int x);
 void actSt13cSleepEvent(int x);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void actSt13cSleepChk(GObj *volatile self);
 inline void actSt13cCageDownMain(GObj *volatile self);
 inline void actSt13cCageDownSwitch(GObj *volatile self);
@@ -137,18 +148,26 @@ SqEntry *bmg = 0;
 
 static SqEntry *st13c_adpcm = 0; /* derived name */
 
+#ifdef VERSION_JUN26
+SqEntry *hand = 0;
+#else
 static SqEntry *st13c_adpcm2 = 0; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static SqEntry *st13c_reserved = 0; /* derived name */
 #else
 SqEntry *hand = 0;
 #endif
+#endif
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void actSt13cInit(void)
 {
+#ifdef VERSION_JUN26
+    if (gflagChk(19)) {
+#else
     if (gflagChk(20)) {
+#endif
         SetWayGroupActive(9, 0);
     }
 }
@@ -156,10 +175,16 @@ void actSt13cInit(void)
 void actSt13cEnd(void)
 {
     if (gflagChk(29) == 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        gflagOn(340);
+    } else {
+        gflagOff(340);
+#else
         gflagOn(356);
     } else {
         gflagOff(356);
+#endif
 #else
         debug_StdPrintfDummy("BackStageOff\n");
         gflagOn(357);
@@ -196,6 +221,10 @@ typedef union { /* field names derived */
     long long d[2];
 } __attribute__((aligned(16))) ConstVecSt13c; /* derived name */
 
+#ifdef VERSION_JUN26
+/* Where actSt13cSleepChk turns the sleeping girl to face. */
+static const ConstVecSt13c sleepFacePos = {{-800.0f, 0.0f, -1000.0f, 1.0f}}; /* derived name */
+#else
 /* The animations actSt13cConte04 steps through. */
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
 static const AnimSet conte04Anims = {{621, 622, 623, 624, 625}}; /* derived name */
@@ -236,6 +265,7 @@ static const AnimSet16 conte05Anims = {
     {630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645}};
 #endif
 #endif
+#endif
 
 #endif
 
@@ -258,13 +288,17 @@ static const EffectArg cageFallEffect8 = {{-10.0f, 0.0f, 466.0f, 1.0f}}; /* deri
 
 static const EffectArg cageFallEffect9 = {{-25.0f, 0.0f, 450.0f, 1.0f}}; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void actSt13cBmg1Event(int x)
 {
     volatile int local = x;
 }
 
+#ifdef VERSION_JUN26
+static ActMail bmg1_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail bmg1_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 #endif
 
 #ifdef VERSION_NTSC
@@ -430,7 +464,7 @@ void actSt13cBmg1(GObj *volatile self)
     if (girlGObj == 0) {
         return;
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (gflagChk(20) != 0) {
 #else
     if (gflagChk(21) != 0) {
@@ -438,6 +472,11 @@ void actSt13cBmg1(GObj *volatile self)
         return;
     }
 
+#ifdef VERSION_JUN26
+    if (gflagChk(19) != 0) {
+        scpPlayPosSet(girlGObj, -30.0f, -436.0f, -1.0f);
+    } else if (gflagChk(17) == 0) {
+#else
 #ifdef VERSION_AUG6
     if (gflagChk(19) != 0) {
         scpPlayPosSet(girlGObj, -30.0f, -436.0f, -1.0f);
@@ -453,6 +492,7 @@ void actSt13cBmg1(GObj *volatile self)
     } else if (gflagChk(18) == 0) {
 #endif
         ScpCallCameraOff();
+#endif
         scpPlayPosSet(girlGObj, -7.0f, -5725.0f, 18.0f);
 
         bmg1_mes[0].func = actSt13cBmg1Chk;
@@ -460,7 +500,11 @@ void actSt13cBmg1(GObj *volatile self)
 #ifdef VERSION_AUG6
         ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+#else
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     } else {
@@ -472,7 +516,9 @@ void actSt13cBmg1Chk(GObj *volatile self)
 {
     GProc *th1;
     GProc *th2;
+#ifndef VERSION_JUN26
     unsigned int i;
+#endif
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -482,6 +528,12 @@ void actSt13cBmg1Chk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_JUN26
+    lt_switch_layout(51);
+    gflagOn(17);
+
+    scpAdpcmPlayRequestFunc(16, &bmg, 1, 1, 1);
+#else
     ScpCallCameraOn();
 #ifdef VERSION_AUG6
     lt_switch_layout(51);
@@ -496,6 +548,7 @@ void actSt13cBmg1Chk(GObj *volatile self)
 #endif
 
     scpAdpcmPlayRequestFunc(13, &bmg, 1, 1, 1);
+#endif
 
     while (bmg == 0) {
         _ACTWait(1);
@@ -514,7 +567,7 @@ void actSt13cBmg1Chk(GObj *volatile self)
     }
 
     if (demoEnd == 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         scpAdpcmFadeClose(bmg, 128);
 #else
         scpAdpcmFadeCloseFunc(&bmg, 256);
@@ -528,6 +581,11 @@ void actSt13cBmg1Chk(GObj *volatile self)
         iosThreadSetPri(&((GProc *)th1)->thread, 34);
         iosThreadSetPri(&((GProc *)th2)->thread, 34);
 
+#ifdef VERSION_JUN26
+        jimakuUndisp(&jimaku_msg);
+
+        stage_SetAnimation(508, 1, -1);
+#else
         {
             AnimSet w = conte04Anims;
 
@@ -546,6 +604,7 @@ void actSt13cBmg1Chk(GObj *volatile self)
         stage_SetAnimation(557, 1, -1);
 #else
         stage_SetAnimation(629, 1, -1);
+#endif
 #endif
 #endif
         scpFadeIn(3.0f);
@@ -568,7 +627,7 @@ void actSt13cBmg1Chk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     lt_switch_layout(50);
 #else
     lt_switch_layout(54);
@@ -580,6 +639,12 @@ void actSt13cConte04(GObj *volatile self)
 {
     scpPlayStart(boyGObj);
 
+#ifdef VERSION_JUN26
+    stage_SetAnimation(504, 1, 0);
+
+    scpPlayMot(boyGObj, 311);
+    while (stage_ContinueAnimation(504, 505) == 0) {
+#else
 #ifdef VERSION_AUG6
     stage_SetAnimation(553, 1, 0);
 
@@ -641,6 +706,7 @@ void actSt13cConte04(GObj *volatile self)
     while (stage_ContinueAnimation(628, 629) == 0) {
 #endif
 #endif
+#endif
         _ACTWait(1);
     }
 
@@ -652,7 +718,26 @@ void actSt13cConte04(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(625) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (stage_ContinueAnimation(505, 506) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 313);
+    while (stage_ContinueAnimation(506, 507) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 314);
+    while (stage_ContinueAnimation(507, 508) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 315);
+    while (stage_CheckAnimationFinish(508) == 0) {
+#else
     while (stage_CheckAnimationFinish(629) == 0) {
+#endif
 #endif
 #endif
         _ACTWait(1);
@@ -682,7 +767,11 @@ void actSt13cConte04Jimaku(GObj *volatile self)
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
+#ifdef VERSION_JUN26
+        case 850:
+#else
         case 800:
+#endif
             jimaku_msg.sub.block = 4;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
@@ -810,6 +899,526 @@ inline void actSt13cCageDownSwitch(GObj *volatile self)
 }
 #endif
 
+#ifdef VERSION_JUN26
+inline void actSt13cSleepEvent(int x)
+{
+    volatile int local = x;
+}
+
+static ActMail sleep_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt13cSleep(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(18) == 0) {
+        sleep_mes[0].func = actSt13cSleepChk;
+        act->mail = sleep_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+inline void actSt13cSleepChk(GObj *volatile self)
+{
+    long long ofs[2];
+    float dir[4];
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(self, girlGObj, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayStart(girlGObj);
+    _ACTWait(1);
+
+    ofs[0] = sleepFacePos.d[0];
+    ofs[1] = sleepFacePos.d[1];
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, dir);
+
+    scpPlayMotReq(girlGObj, 240);
+}
+
+static ActMail cageDownMain_mes[2] = {{356, actSt13cCageDownSwitch}, {376}}; /* derived name */
+
+static ActMail cageDown_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail cageDownSwitch_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt13cCageDown(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(19) == 0) {
+        stage_SetAnimation(53, 0, 0);
+        stage_SetAnimation(57, 0, 0);
+
+        cageDown_mes[0].func = actSt13cCageDownMain;
+        act->mail = cageDown_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+
+    if (gflagChk(21) == 0 && gflagChk(19) != 0) {
+        CameraSetCameraSet(37);
+    }
+}
+
+inline void actSt13cCageDownMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    scpBoyControlReadDisable = 0;
+    sub->mainMail = cageDownMain_mes;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+inline void actSt13cCageDownSwitch(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    sub->mainMail = 0;
+    scpBoyControlReadDisable = 1;
+
+    if (gflagChk(19) == 0) {
+        cageDownSwitch_mes[0].func = actSt13cCage1stDown;
+        sub->mail = cageDownSwitch_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+void actSt13cCage1stDownDemoCancel(GObj *volatile self)
+{
+    float ofs[4];
+    float dir[4];
+    GProc *proc;
+
+    demoEnd = 0;
+
+    proc = (GProc *)actCreateSubThread(actSt13cCage1stDownDemo, 21);
+
+    while (demoEnd == 0) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&proc->thread, 34);
+
+    scpPlayMot(boyGObj, 317);
+    scpPlayWaitMotEnd(boyGObj);
+
+    while (stage_CheckAnimationFrame(54, 0, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMot(boyGObj, 0);
+
+    memset(ofs, 0, 16);
+    ofs[3] = 1.0f;
+    sceVu0SubVector(dir, ofs, test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, dir);
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
+
+    CameraSetCameraSet(37);
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
+
+void actSt13cCage1stDown(GObj *volatile self)
+{
+    int se;
+
+    lt_switch_layout(51);
+    gflagOn(19);
+
+    scpAdpcmPlayRequestFunc(17, 0, 1, 1, 1);
+
+    stage_SetAnimation(53, 1, 0);
+    stage_SetAnimation(54, 1, 0);
+
+    actCreateSubThread(actSt13cCage1stDownDemoCancel, 21);
+
+    scpPlayStart(girlGObj);
+
+    while (stage_CheckAnimationFrame(53, 15, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    scpPlayMotReq(girlGObj, 241);
+
+    while (stage_CheckAnimationFrame(53, 45, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    se = soundSeDefPlay(1297, 0, 0, 1);
+
+    while (stage_CheckAnimationFinish(53) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    soundSeDefStop(se);
+}
+
+inline void actSt13cCage1stDownDemo(GObj *volatile self)
+{
+    scpPlayStart(boyGObj);
+    scpPlayMot(boyGObj, 316);
+    scpPlayWaitMotEnd(boyGObj);
+    _ACTWait(240);
+    demoEnd = 1;
+    _ACTWait(0);
+}
+
+static ActMail cageFallReady_mes[2] = {{377}, {376}}; /* derived name */
+
+inline void actSt13cCageFallReady(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(21) == 0) {
+        cageFallReady_mes[0].func = actSt13cCageFallReadyChk;
+        act->mail = cageFallReady_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    }
+}
+
+inline void actSt13cCageFallReadyChk(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+
+    _ACTWait(1);
+
+    while (scpTriggerFloorAttr(boyGObj, 0x2000000) == 0 || gflagChk(19) == 0) {
+        _ACTWait(1);
+    }
+
+    scpAdpcmPlayRequestFunc(18, &st13c_adpcm, 1, 1, 0);
+}
+
+inline void actSt13cCageFallEvent(int x)
+{
+    volatile int local = x;
+}
+
+static ActMail cageFall_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail cageFall2_mes[2] = {{377}, {376}}; /* derived name */
+
+void actSt13cCageFall(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+
+    _ACTWait(1);
+
+    if (gflagChk(19) == 0) {
+        stage_SetAnimation(53, -1, -2);
+
+        scpSearchGobj(103)->active = 0;
+        SetWeaponTorchChainReactionFlagAll(1);
+
+        cageFall_mes[0].func = actSt13cCageFallChk;
+        act->mail = cageFall_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        if (gflagChk(21) == 0) {
+            scpSearchGobj(103)->active = 0;
+
+            stage_SetAnimation(53, 0, -1);
+            stage_SetAnimation(57, 0, 0);
+
+            cageFall2_mes[0].func = actSt13cCageFallChk;
+            act->mail = cageFall2_mes;
+            ACTSendMailCorrect(self, 377);
+            _ACTWait(0);
+        }
+
+        scpSearchGobj(120)->active = 0;
+
+        stage_SetAnimation(57, 0, -1);
+        stage_SetAnimation(55, 0, -1);
+        stage_SetAnimation(56, 0, -1);
+    }
+}
+
+void actSt13cCageFallChk(GObj *volatile self)
+{
+    GProc *th1;
+    GProc *th2;
+    GProc *th3;
+    float pos[4];
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerBall(self, boyGObj, 160.0f) == 0 || gflagChk(19) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(332);
+    CheckPoint();
+    gflagOff(332);
+
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    fightSoundProcessRequestPause();
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(20);
+
+    while (st13c_adpcm == 0) {
+        _ACTWait(1);
+    }
+
+    AdpcmPlay(st13c_adpcm->stream);
+
+    th1 = actCreateSubThread(actSt13cConte05, 21);
+
+    stage_SetAnimation(55, 1, 0);
+    stage_SetAnimation(56, 1, 0);
+    stage_SetAnimation(57, 1, 0);
+
+    th2 = actCreateSubThread(actSt13cConte05Jimaku, 21);
+    th3 = actCreateSubThread(actSt13cCageFallEffect, 21);
+
+    SetWayGroupActive(9, 0);
+
+    demoEnd = 0;
+
+    while (demoEnd == 0 && ((pad[0].flags & 0x800) == 0 || scpAdpcmPlayRequestNum() != 0)) {
+        _ACTWait(1);
+    }
+
+    iosThreadSetPri(&((GProc *)th1)->thread, 34);
+    iosThreadSetPri(&((GProc *)th2)->thread, 34);
+    iosThreadSetPri(&((GProc *)th3)->thread, 34);
+
+    if (demoEnd == 0) {
+        scpAdpcmFadeClose(st13c_adpcm, 128);
+
+        scpFadeOut(16.0f, 0, 0, 0);
+        while (scpFadeChk() != 0) {
+            _ACTWait(1);
+        }
+
+        jimakuUndisp(&jimaku_msg);
+
+        stage_SetAnimation(57, 1, -1);
+        scpSearchGobj(103)->active = 1;
+        gflagOn(22);
+
+        fightSoundProcessRequestStart();
+
+        scpPlayMot(girlGObj, 717);
+        stage_SetAnimation(526, 1, 0);
+        scpPlayMot(boyGObj, 327);
+        scpPlayMot(scpSearchGobj(104), 922);
+
+        while (stage_CheckAnimationFinish(526) == 0) {
+            _ACTWait(1);
+        }
+        _ACTWait(1);
+
+        scpPlayWaitMotEnd(girlGObj);
+        scpPlayWaitMotEnd(boyGObj);
+        scpPlayWaitMotEnd(scpSearchGobj(104));
+
+        GetRootPosition(pos, girlGObj);
+        SetDirectRootPosition(scpSearchGobj(104), pos);
+        _ACTWait(1);
+
+        scpFadeIn(3.0f);
+    }
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(scpSearchGobj(104));
+    scpWakeupEnemyAll();
+    ACTEnemyForceSwitchToCarry(scpSearchGobj(104));
+    scpTorchLightOff(120);
+
+    scpSearchGobj(120)->active = 0;
+
+    scpPlayEnd(boyGObj);
+    scpPlayEnd(girlGObj);
+
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+
+    _ACTWait(30);
+    gflagOn(24);
+    SetWeaponTorchChainReactionFlagAll(0);
+}
+
+void actSt13cConte05(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+
+    stage_SetAnimation(509, 1, 0);
+
+    scpPlayMot(boyGObj, 318);
+
+    while (stage_ContinueAnimation(509, 510) == 0) {
+        _ACTWait(1);
+    }
+
+    while (stage_ContinueAnimation(510, 511) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 707);
+
+    while (stage_ContinueAnimation(511, 512) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 708);
+
+    while (stage_ContinueAnimation(512, 513) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 319);
+
+    while (stage_ContinueAnimation(513, 514) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 320);
+
+    while (stage_ContinueAnimation(514, 515) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 709);
+
+    scpSearchGobj(103)->active = 1;
+
+    while (stage_ContinueAnimation(515, 516) == 0) {
+        _ACTWait(1);
+    }
+
+    scpTorchLightOn(120);
+
+    scpPlayMot(girlGObj, 710);
+
+    while (stage_ContinueAnimation(516, 517) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 321);
+    scpPlayMot(girlGObj, 711);
+
+    while (stage_ContinueAnimation(517, 518) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 322);
+    scpPlayMot(girlGObj, 712);
+
+    _ACTWait(300);
+    gflagOn(22);
+
+    while (stage_ContinueAnimation(518, 519) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayStart(scpSearchGobj(104));
+    scpPlayMot(scpSearchGobj(104), 992);
+
+    while (stage_ContinueAnimation(519, 520) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 323);
+    scpPlayMot(girlGObj, 713);
+    scpPlayMot(scpSearchGobj(104), 992);
+
+    while (stage_ContinueAnimation(520, 521) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 324);
+    scpPlayMot(girlGObj, 714);
+    scpPlayMot(scpSearchGobj(104), 993);
+
+    while (stage_ContinueAnimation(521, 522) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 325);
+    scpPlayMot(girlGObj, 715);
+    scpPlayMot(scpSearchGobj(104), 994);
+
+    while (stage_ContinueAnimation(522, 523) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(girlGObj, 716);
+    scpPlayMot(scpSearchGobj(104), 995);
+
+    while (stage_ContinueAnimation(523, 524) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 326);
+
+    while (stage_ContinueAnimation(524, 525) == 0) {
+        _ACTWait(1);
+    }
+
+    fightSoundProcessRequestStart();
+
+    scpPlayMot(girlGObj, 717);
+    scpPlayMot(scpSearchGobj(104), 996);
+
+    while (stage_ContinueAnimation(525, 526) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 327);
+    scpPlayMot(scpSearchGobj(104), 922);
+
+    while (stage_CheckAnimationFinish(526) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    demoEnd = 1;
+    _ACTWait(0);
+}
+#else
 #ifdef VERSION_NTSC
 inline void actSt13cSleepEvent(int x)
 {
@@ -2384,6 +2993,7 @@ void actSt13cConte05(GObj *volatile self)
     _ACTWait(0);
 }
 #endif
+#endif
 
 void actSt13cConte05Jimaku(GObj *volatile self)
 {
@@ -2454,7 +3064,7 @@ void actSt13cCageFallEffect(GObj *volatile self)
     do {
         switch ((int)t) {
         case 0:
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             gflagOn(21);
 #else
             gflagOn(22);
@@ -2791,7 +3401,7 @@ void actSt13cHandChk(GObj *volatile self)
     fightSoundProcessRequestStart();
 }
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void actSt13cEnemy(GObj *volatile self)
 {
     GObj *x = self;
@@ -2800,26 +3410,38 @@ inline void actSt13cEnemy(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifndef VERSION_JUN26
     bossGenerator = self;
+#endif
     Generator_Mask(self);
 
     while (gflagChk(22) == 0) {
         _ACTWait(1);
     }
 
+#ifndef VERSION_JUN26
     Generator_Call(scpSearchGobj(134));
     _ACTWait(180);
+#endif
 
     Generator_Call(self);
     scpSleepEnemyAll();
     gflagOff(22);
 }
 
+#ifdef VERSION_JUN26
+/* the Aug-6 listing's name (PAL renames it actE3St13cSekizoEvent) */
+inline void actE3St13cSekizoEvent(int x)
+{
+    volatile int local = x;
+}
+#else
 inline void
 actE3St13cSekizoEvent(int x) /* the prototype's TRFILE.TXT spells it actSt13cSekizoEvent */
 {
     volatile int local = x;
 }
+#endif
 
 inline void actSt13cSekizo(GObj *volatile self)
 {
@@ -2828,7 +3450,11 @@ inline void actSt13cSekizo(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    scpSekizou(self, 29, 58, 0, 20, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
+#else
     scpSekizou(self, 29, 64, 0, 17, -300.0f, -100.0f, 100.0f, -300.0f, -100.0f, 0.0f);
+#endif
 
     if (gflagChk(29) == 0) {
         SetWayGroupActive(2, 0);
@@ -2837,7 +3463,11 @@ inline void actSt13cSekizo(GObj *volatile self)
     }
 }
 
+#ifdef VERSION_JUN26
+static ActMail sekizoJimaku_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail sekizoJimaku_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 
 inline void actSt13cSekizoJimaku(GObj *volatile self)
 {
@@ -2849,7 +3479,11 @@ inline void actSt13cSekizoJimaku(GObj *volatile self)
     if (gflagChk(29) == 0) {
         sekizoJimaku_mes[0].func = actSt13cSekizoJimakuChk;
         act->mail = sekizoJimaku_mes;
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+#else
         ACTSendMailCorrect(self, 393);
+#endif
         _ACTWait(0);
     }
 }
@@ -2881,7 +3515,11 @@ inline void actSt13cSekizoJimakuEff(GObj *volatile self)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
+#ifdef VERSION_JUN26
+        case 60:
+#else
         case 45:
+#endif
             jimaku_msg.sub.block = 19;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
@@ -2900,7 +3538,11 @@ inline void actSt13cSekizoJimakuEff(GObj *volatile self)
     } while (t < 500.0f);
 }
 
+#ifdef VERSION_JUN26
+static ActMail girlCarry_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail girlCarry_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 
 inline void actSt13cGirlCarry(GObj *volatile self)
 {
@@ -2912,7 +3554,11 @@ inline void actSt13cGirlCarry(GObj *volatile self)
     if (gflagChk(26) == 0) {
         girlCarry_mes[0].func = actSt13cGirlCarryChk;
         act->mail = girlCarry_mes;
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+#else
         ACTSendMailCorrect(self, 393);
+#endif
         _ACTWait(0);
     }
 }
@@ -2920,35 +3566,61 @@ inline void actSt13cGirlCarry(GObj *volatile self)
 void actSt13cGirlCarryChk(GObj *volatile self)
 {
     Act *act = GOBJ_ACT(self);
+#ifdef VERSION_JUN26
+    static ActMail girlCarryChk_mes[2] = {{377}, {376}}; /* derived name */
+#else
     static ActMail girlCarryChk_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 
     if (girlGObj == 0) {
         _ACTWait(0);
     }
 
+#ifdef VERSION_JUN26
+    while (gflagChk(24) == 0 || GOBJ_ACT(girlGObj)->actMode == 106 ||
+           GOBJ_ACT(girlGObj)->actMode == 105 || gflagChk(27) != 0) {
+#else
     while (gflagChk(24) == 0 || GOBJ_ACT(girlGObj)->actMode == 107 ||
            GOBJ_ACT(girlGObj)->actMode == 106 || gflagChk(27) != 0) {
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_JUN26
+    gflagOn(25);
+#endif
     _ACTWait(15);
 
     scpPlayStart(girlGObj);
+#ifdef VERSION_JUN26
+    scpPlayMot(girlGObj, 581);
+    scpPlayWaitMotEnd(girlGObj);
+    scpPlayMot(girlGObj, 564);
+#else
     scpPlayMot(girlGObj, 570);
     scpPlayWaitMotEnd(girlGObj);
     scpPlayMot(girlGObj, 553);
 
     gflagOn(25);
+#endif
 
     girlCarryChk_mes[0].func = actSt13cGirlCarryAgainChk;
     act->mail = girlCarryChk_mes;
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
     _ACTWait(0);
 
     _ACTWait(1);
 }
 
+#ifdef VERSION_JUN26
+static ActMail girlCarryAgainChk_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail girlCarryAgainChk_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 
 inline void actSt13cGirlCarryAgainChk(GObj *volatile self)
 {
@@ -2958,7 +3630,11 @@ inline void actSt13cGirlCarryAgainChk(GObj *volatile self)
         _ACTWait(0);
     }
 
+#ifdef VERSION_JUN26
+    while (GOBJ_ACT(girlGObj)->actMode != 106) {
+#else
     while (GOBJ_ACT(girlGObj)->actMode != 107) {
+#endif
         _ACTWait(1);
     }
 
@@ -2966,13 +3642,21 @@ inline void actSt13cGirlCarryAgainChk(GObj *volatile self)
 
     girlCarryAgainChk_mes[0].func = actSt13cGirlCarryChk;
     act->mail = girlCarryAgainChk_mes;
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
     _ACTWait(0);
 
     _ACTWait(1);
 }
 
+#ifdef VERSION_JUN26
+static ActMail hand_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail hand_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 
 inline void actSt13cHand(GObj *volatile self)
 {
@@ -2984,7 +3668,11 @@ inline void actSt13cHand(GObj *volatile self)
     if (gflagChk(26) == 0) {
         hand_mes[0].func = actSt13cHandChk;
         act->mail = hand_mes;
+#ifdef VERSION_JUN26
+        ACTSendMailCorrect(self, 377);
+#else
         ACTSendMailCorrect(self, 393);
+#endif
         _ACTWait(0);
     }
 }
@@ -3126,7 +3814,7 @@ void actSt13cGirlCarryChk(GObj *volatile self)
 void actSt13cHandChk(GObj *volatile self)
 {
     float dir[4];
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     GProc *th1;
     GProc *th2;
     int t;
@@ -3137,11 +3825,19 @@ void actSt13cHandChk(GObj *volatile self)
     }
 
     while (1) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        if (ForMotionViewer_GetCurrentMotion(boyGObj) != 83 &&
+            actEnemyFlagCheckDead(scpSearchGobj(104)) != 0 &&
+            scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 && gflagChk(25) != 0 &&
+            scpTriggerBall(girlGObj, boyGObj, 550.0f) != 0 &&
+            (GOBJ_ACT(boyGObj)->pad.trg & 8) != 0 && GOBJ_ACT(girlGObj)->actMode != 105) {
+#else
         if (scpActStatusDeathFall(boyGObj) == 0 && actEnemyFlagCheckDead(scpSearchGobj(132)) != 0 &&
             scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 && gflagChk(25) != 0 &&
             scpTriggerBall(girlGObj, boyGObj, 550.0f) != 0 &&
             (GOBJ_ACT(boyGObj)->pad.trg & 8) != 0 && GOBJ_ACT(girlGObj)->actMode != 106) {
+#endif
             break;
         }
         if (gflagChk(28) != 0) {
@@ -3160,10 +3856,14 @@ void actSt13cHandChk(GObj *volatile self)
         _ACTWait(1);
     }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
+#ifdef VERSION_JUN26
+    scpSearchGobj(104)->active = 0;
+#else
     scpSearchGobj(132)->active = 0;
+#endif
 #else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
@@ -3183,7 +3883,7 @@ void actSt13cHandChk(GObj *volatile self)
     }
 
     gsb_SetZoom(2.0f, 1000.0f);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gflagOn(26);
 #else
     gflagOn(27);
@@ -3195,7 +3895,7 @@ void actSt13cHandChk(GObj *volatile self)
     sceVu0SubVector(dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, dir);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     _SCPMoveByWay_ToChar(boyGObj, girlGObj, 0, 2, 50.0f, 30.0f);
 #else
     scpLockMaxRotate(boyGObj, 6.0f);
@@ -3208,8 +3908,13 @@ void actSt13cHandChk(GObj *volatile self)
     sceVu0SubVector(dir, test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, dir);
 
+#ifdef VERSION_JUN26
+    scpAdpcmPlayRequestFunc(19, &hand, 1, 1, 1);
+    while (hand == 0) {
+#else
     scpAdpcmPlayRequestFunc(16, &st13c_reserved, 1, 1, 1);
     while (st13c_reserved == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -3217,7 +3922,21 @@ void actSt13cHandChk(GObj *volatile self)
 
     scpPlayStart(boyGObj);
     scpPlayStart(girlGObj);
-#ifdef VERSION_AUG6
+#ifdef VERSION_JUN26
+    scpPlayMot(boyGObj, 265);
+    scpPlayMot(girlGObj, 701);
+
+    _ACTWait(100);
+    actCreateSubThread(actSt13cHandJimaku, 21);
+
+    scpPlayWaitMotEnd(boyGObj);
+
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+    scpPlayMot(girlGObj, 521);
+    scpPlayEnd(girlGObj);
+#else
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     scpPlayMot(boyGObj, 256);
     scpPlayMot(girlGObj, 680);
 
@@ -3279,17 +3998,27 @@ void actSt13cHandChk(GObj *volatile self)
 
     GOBJ_SUB(boyGObj)->ctrl.blendFrames =
         (int)((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 30.0f);
+#endif
 
     _ACTWait(1);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    iosOmSendMail(girlGObj, 58, boyGObj);
+    _ACTWait(360);
+#else
     iosOmSendMail(girlGObj, 59, boyGObj);
+#endif
 
     gsb_SetZoom(1.0f, 1000.0f);
     lt_switch_layout(50);
 
     scpBoyControlReadDisable = 0;
+#ifdef VERSION_JUN26
+    scpSearchGobj(104)->active = 1;
+#else
     scpSearchGobj(132)->active = 1;
+#endif
     fightSoundProcessRequestStart();
 #else
     iosOmSendMail(girlGObj, 63, boyGObj);
@@ -3314,19 +4043,31 @@ void actSt13cHandJimaku(GObj *volatile self)
         case 1:
             jimakuBegin(&jimaku_msg);
             break;
+#ifdef VERSION_JUN26
+        case 10:
+#else
         case 110:
+#endif
             jimaku_msg.sub.block = 11;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
+#ifdef VERSION_JUN26
+        case 130:
+#else
         case 340:
+#endif
             jimaku_msg.sub.block = 12;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
             jimakuJump(&jimaku_msg);
             break;
+#ifdef VERSION_JUN26
+        case 250:
+#else
         case 580:
+#endif
             jimaku_msg.sub.block = 13;
             jimaku_msg.sub.jump = -1;
             jimakuOn = 1;
@@ -3342,10 +4083,14 @@ void actSt13cHandJimaku(GObj *volatile self)
         } else {
             t = tn + 1.0f;
         }
+#ifdef VERSION_JUN26
+    } while (t < 500.0f);
+#else
     } while (t < 800.0f);
+#endif
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void actSt13cEnemyNull(GObj *volatile self)
 {
     GObj *x = self;
@@ -3363,8 +4108,12 @@ inline void actSt13cEnemyNull(GObj *volatile self)
     Generator_MaskOff(self);
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+static ActMail rescue_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail rescue_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 #else
 static ActMail rescue_mes[2] = {{397}, {396}}; /* derived name */
 #endif
@@ -3376,13 +4125,20 @@ inline void actSt13cRescue(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    if (gflagChk(28) == 0) {
+        rescue_mes[0].func = actSt13cRescueChk;
+        act->mail = rescue_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     if (gflagChk(28) == 0 && gflagChk(26) == 0) {
         rescue_mes[0].func = actSt13cRescueChk;
         act->mail = rescue_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         ACTSendMailCorrect(self, 393);
 #else
         ACTSendMailCorrect(self, 397);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -3394,7 +4150,11 @@ inline void actSt13cRescueChk(GObj *volatile self)
         _ACTWait(0);
     }
 
+#ifdef VERSION_JUN26
+    while (GOBJ_ACT(girlGObj)->actMode != 105) {
+#else
     while (GOBJ_ACT(girlGObj)->actMode != 106) {
+#endif
         _ACTWait(1);
     }
 
@@ -3403,8 +4163,12 @@ inline void actSt13cRescueChk(GObj *volatile self)
     _ACTWait(200);
 
     scpPlayStart(girlGObj);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    scpPlayMot(girlGObj, 564);
+#else
     scpPlayMot(girlGObj, 553);
+#endif
 #else
     scpPlayMot(girlGObj, 552);
 #endif
@@ -3418,8 +4182,12 @@ inline void actSt13cBukiEvent(int x)
     volatile int local = x;
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+static ActMail buki_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail buki_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 #else
 static ActMail buki_mes[2] = {{397}, {396}}; /* derived name */
 #endif
@@ -3433,8 +4201,12 @@ inline void actSt13cBuki(GObj *volatile self)
 
     buki_mes[0].func = actSt13cBukiChk;
     act->mail = buki_mes;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+    ACTSendMailCorrect(self, 377);
+#else
     ACTSendMailCorrect(self, 393);
+#endif
 #else
     ACTSendMailCorrect(self, 397);
 #endif
@@ -3443,10 +4215,17 @@ inline void actSt13cBuki(GObj *volatile self)
 
 inline void actSt13cBukiChk(GObj *volatile self)
 {
+#ifdef VERSION_JUN26
+    while (ForMotionViewer_GetCurrentMotion(boyGObj) != 237) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(57, -1, -2);
+#else
     while (ForMotionViewer_GetCurrentMotion(boyGObj) != 227) {
         _ACTWait(1);
     }
     stage_SetAnimation(63, -1, -2);
+#endif
 }
 #else
 void actSt13cSleep(GObj *volatile self)

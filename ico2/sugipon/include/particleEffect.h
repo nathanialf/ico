@@ -63,16 +63,16 @@ typedef struct PEPackage {  /* field names derived */
 typedef struct PEPartRec { /* field names derived */
     int alive;             /* 0x00, 0 once the particle has run out */
     int spin;              /* 0x04 */
-    long long pad08; /* 0x08 */
-    float pos[4];    /* 0x10 */
-    float vel[4];    /* 0x20 */
-    short spinX;     /* 0x30 */
-    short spinY;     /* 0x32 */
-    float size;      /* 0x34 */
-    float sizeStep;  /* 0x38 */
-    float alpha;     /* 0x3C */
-    float alphaStep; /* 0x40 */
-    int life;        /* 0x44 */
+    long long pad08;       /* 0x08 */
+    float pos[4];          /* 0x10 */
+    float vel[4];          /* 0x20 */
+    short spinX;           /* 0x30 */
+    short spinY;           /* 0x32 */
+    float size;            /* 0x34 */
+    float sizeStep;        /* 0x38 */
+    float alpha;           /* 0x3C */
+    float alphaStep;       /* 0x40 */
+    int life;              /* 0x44 */
     char pad48[8];
     int col[4]; /* 0x50 */
     float u;    /* 0x60 */
@@ -87,31 +87,31 @@ typedef struct PEPartRec { /* field names derived */
    (ParticleEffects_SetAllGoal) and the user area of a proc that moves the
    particles instead of the integrator (ito's gather effect): its speed, the
    proc, the end callback with its argument and the caller's word. */
-typedef struct PEGeo {            /* field names derived */
-    float pos[4];                 /* 0x00 */
-    float quat[4];                /* 0x10 */
-    struct PEPackage *pkg;        /* 0x20 */
-    struct PEPartRec *parts;      /* 0x24 */
-    PrimParticle *prim;           /* 0x28 */
-    float emitted;                /* 0x2C */
-    int n;                        /* 0x30 */
-    int clip;                     /* 0x34 */
-    int floorOn;                  /* 0x38 */
-    float floor;                  /* 0x3C */
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
-    float goal[4];                /* 0x40 */
-    float speed;                  /* 0x50 */
-    int (*proc)(struct PEGeo *);  /* 0x54, 0 for none; the effect ends when it returns 0 */
-    void (*endFunc)(int);         /* 0x58 */
-    int id;                       /* 0x5C, the effect's id, endFunc's argument */
+typedef struct PEGeo {       /* field names derived */
+    float pos[4];            /* 0x00 */
+    float quat[4];           /* 0x10 */
+    struct PEPackage *pkg;   /* 0x20 */
+    struct PEPartRec *parts; /* 0x24 */
+    PrimParticle *prim;      /* 0x28 */
+    float emitted;           /* 0x2C */
+    int n;                   /* 0x30 */
+    int clip;                /* 0x34 */
+    int floorOn;             /* 0x38 */
+    float floor;             /* 0x3C */
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+    float goal[4];               /* 0x40 */
+    float speed;                 /* 0x50 */
+    int (*proc)(struct PEGeo *); /* 0x54, 0 for none; the effect ends when it returns 0 */
+    void (*endFunc)(int);        /* 0x58 */
+    int id;                      /* 0x5C, the effect's id, endFunc's argument */
 #else
-    float rate;                   /* 0x40 */
-    char pad44[12];               /* 0x44 */
-    float goal[4];                /* 0x50 */
-    float speed;                  /* 0x60 */
-    int (*proc)(struct PEGeo *);  /* 0x64, 0 for none; the effect ends when it returns 0 */
-    void (*endFunc)(int);         /* 0x68 */
-    int id;                       /* 0x6C, the effect's id, endFunc's argument */
+    float rate;                  /* 0x40 */
+    char pad44[12];              /* 0x44 */
+    float goal[4];               /* 0x50 */
+    float speed;                 /* 0x60 */
+    int (*proc)(struct PEGeo *); /* 0x64, 0 for none; the effect ends when it returns 0 */
+    void (*endFunc)(int);        /* 0x68 */
+    int id;                      /* 0x6C, the effect's id, endFunc's argument */
 #endif
 
     union {
@@ -119,7 +119,7 @@ typedef struct PEGeo {            /* field names derived */
         volatile int *done; /* the releasing thread's done flag */
     } user;                 /* 0x70 */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     char pad64[12];
 #else
     char pad74[12];
@@ -139,9 +139,11 @@ extern const ParticleEffectFile particleEffectFile[];
 void DeleteParticleEffect(int no);
 void DisableParticleEffectGeometryControl(int id);
 void DispParticleEffects(void);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void ExecParticleEffect(int no);
 #endif
+
 void ExecParticleEffects(void);
 PEGeo *GetParticleEffectData(int id);
 int *GetParticleEffectPackage(int idx);
@@ -152,11 +154,13 @@ void ParticleEffects_SetAllGoal(void *goal);
 void ResetParticleEffectPackages(int *pkg);
 int SetParticleEffect(int id, void *pos, void *quat);
 int SetParticleEffectActiveSensing(int id, void *pos, void *quat);
-#ifdef VERSION_AUG6
+
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
 void SetParticleEffectPackage(int no, int *data, int size);
 #else
 int SetParticleEffectByPartition(int id, void *pos, void *quat, struct IosMemPart *part);
+
 #ifdef VERSION_NTSC
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
 void SetParticleEffectPackage(int no, int *data, int size);
@@ -167,6 +171,7 @@ void SetParticleEffectPackage(int no, int *data, int size);
 void SetParticleEffectPauseFlag(int id, int pause);
 #endif
 #endif
+
 void SetParticleEffectUpperLimit(int no, float f);
 void SetParticleEffectClipEnableFlag(int id, int on);
 void DeleteParticleEffectsByPackage(int *pkg);

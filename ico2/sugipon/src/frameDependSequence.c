@@ -12,6 +12,12 @@
 #include "motionManager2.h"
 #include "frameDependSequence.h"
 
+#ifdef VERSION_JUN26
+static int execSE(int no);
+static inline int checkWaterDepth(struct GObj *gobj, int depth);
+static inline int execVib(int no);
+static inline int execWeaponLightOff(int no);
+#else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static inline int execSE(int no);
 static inline int checkWaterDepth(struct GObj *gobj, int depth);
@@ -26,13 +32,22 @@ static inline int checkWeaponType(struct GObj *gobj, int kind);
 static inline int execVib(int no, void *entry);
 static inline int execWeaponLightOff(int no, void *entry);
 #endif
+#endif
 
 extern GsysObjInfo seDef[];
 /* int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int owner, int pos, int playMode);
 
+#ifdef VERSION_JUN26
 typedef struct FDSFlags { /* field names derived */
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+    int vibDone[1];       /* 0x00 */
+    int effDone[5];       /* 0x04 */
+    int seDone[5];        /* 0x18 */
+    int weaponDone;       /* 0x2C */
+} FDSFlags;               /* derived name */
+#else
+typedef struct FDSFlags { /* field names derived */
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int vibDone[1]; /* 0x00 */
     int effDone[5]; /* 0x04 */
     int seDone[12]; /* 0x18 */
@@ -45,6 +60,7 @@ typedef struct FDSFlags { /* field names derived */
     int vibEntry[2]; /* 0x6C */
 #endif
 } FDSFlags; /* derived name */
+#endif
 
 /* the sequence being run: its flag block, work, layout record and motion
    record, its owner, the SE volume rate and the SE group */
@@ -55,6 +71,15 @@ static void *fdsWork = 0; /* derived name */
 static struct MotCtrl *fdsLayout = 0; /* derived name */
 
 static const MotionDef *fdsRecord = 0; /* derived name */
+
+#ifdef VERSION_JUN26
+/* .sbss: the number of draws of the random SE 0x1000D, which
+   playSERandomID's trace prints; .bss: the number of times each of its SEs
+   was picked, which the trace prints as a share of the draws */
+static int seRandomPicks; /* derived name */
+
+static int seRandomPickCount[52]; /* derived name */
+#endif
 
 /* the sequence's owner object, held as a char pointer; the file's uses
    convert it */
@@ -70,7 +95,7 @@ extern int soundSeDefPlayWithVolumeRate(int se, unsigned int owner, int pos, int
 /* seMail has no header; declared as ico2/fumi/src/seMail.c defines it */
 extern void seMail(int self, int id);
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static int playSE(int no)
 {
     if (no == 0) {
@@ -140,7 +165,7 @@ static int playSERandomID(int no)
         share = rest < acc ? acc : rest / (float)nshare;
     }
     for (i = 0; i < n; i++) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         float w;
 
         if (randomSEKind[no + i].rate < 0.0f) {
@@ -155,7 +180,7 @@ static int playSERandomID(int no)
         }
         acc += w * 0.01f;
         if (rnd < acc) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             /* the draw trace for the random SE 0x1000D */
             if (debug_seslotdisp_flag != 0 && no + 0x10000 == 0x1000D) {
                 int j;
@@ -183,6 +208,38 @@ static inline int checkWaterDepth(GObj *gobj, int depth)
     return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
 }
 
+#ifdef VERSION_JUN26
+static inline int playSEConditionID(int no)
+{
+    int (*fn)(GObj *, int);
+    const SECondEntry *p;
+
+    switch (motSECondKind[no].kind) {
+    case 0:
+    default:
+        fn = CheckFloorAttribute;
+        break;
+    case 1:
+        fn = CheckWallAttribute;
+        break;
+    case 2:
+        fn = checkWaterDepth;
+        break;
+    }
+    if (motSECondKind[no].kind != -1) {
+        p = &motSECondKind[no];
+        do {
+            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
+                if (execSE(p->se) != 0) {
+                    return 1;
+                }
+            }
+            p++;
+        } while (p->kind != -1);
+    }
+    return 0;
+}
+#else
 static inline int checkModelDataID(GObj *gobj, int id)
 {
     return GOBJ_SUB(gobj)->modelId == id;
@@ -221,7 +278,25 @@ static int playSEConditionID(int no)
     }
     return 0;
 }
+#endif
 
+#ifdef VERSION_JUN26
+static int execSE(int no)
+{
+    if (no <= 0xFFFF) {
+        return playSE(no);
+    } else if (no <= 0x1FFFF) {
+        return playSERandomID(no - 0x10000);
+    } else {
+        return playSEConditionID(no - 0x20000);
+    }
+    /* the bad-ID report, switched off */
+    if (0) {
+        /* EUC-JP: "an SE with a strange ID(%d) was called" */
+        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
+    }
+}
+#else
 static inline int execSE(int no)
 {
     if (no <= 0xFFFF) {
@@ -237,6 +312,7 @@ static inline int execSE(int no)
         debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
     }
 }
+#endif
 #else
 static int playSE(int no)
 {
@@ -374,9 +450,13 @@ static void playEff(int no)
 {
     float q[4];
     float pos[4];
+#ifdef VERSION_JUN26
+    int node;
+#else
     const EffEntry *p;
     int node;
     unsigned int flags;
+#endif
 
     if (motionEffKind[no].node == -1) {
         GetRootQuaternion(q, (GObj *)fdsGObj);
@@ -399,6 +479,14 @@ static void playEff(int no)
     RotQuaternionY(q, motionEffKind[no].ry * -32768.0f / 180.0f);
     RotQuaternionX(q, motionEffKind[no].rx * -32768.0f / 180.0f);
     RotQuaternionZ(q, motionEffKind[no].rz * -32768.0f / 180.0f);
+#ifdef VERSION_JUN26
+    if (motionEffKind[no].flags != 0) {
+        if (0.0f < GOBJ_SUB(fdsGObj)->ctrl.waterDepth) {
+            pos[1] = GOBJ_SUB(fdsGObj)->ctrl.waterY;
+        }
+        EntryStageMultiBgaManager(motionEffKind[no].eff, pos, q);
+    } else {
+#else
     p = &motionEffKind[no];
     flags = p->flags;
     if ((flags >> 1) & 1) {
@@ -412,11 +500,12 @@ static void playEff(int no)
             return;
         }
 #endif
+#endif
         SetParticleEffect(motionEffKind[no].eff, pos, q);
     }
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static int execEff(int no)
 {
     int (*fn)(GObj *, int);
@@ -574,15 +663,28 @@ static void execVibCondition(int no, int *entry)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static inline void fireFDSSlot(float t, int (*fn)(int no), int no, int *done) /* derived name */
 {
+#ifdef VERSION_JUN26
+    int ok;
+#endif
     if (t < 0.0f) {
         return;
     }
     if (t < fdsLayout->animFrame) {
+#ifdef VERSION_JUN26
+        ok = fn(no);
+        *done = 1;
+        if (ok == 0) {
+            /* EUC-JP: "none of the SEs is loaded, so it could not be played" */
+            debug_StdPrintfDummy(
+                "\033[36mどのSEもロードされていないので鳴らせませんでした。\033[m\n");
+        }
+#else
         fn(no);
         *done = 1;
+#endif
     }
 }
 
@@ -590,7 +692,11 @@ static inline void fireSESlots(void) /* derived name */
 {
     int i;
 
+#ifdef VERSION_JUN26
+    for (i = 0; i < 5; i++) {
+#else
     for (i = 0; i < 12; i++) {
+#endif
         if (fdsFlags->seDone[i] == 0) {
             fireFDSSlot(fdsRecord->se[i].t, execSE, fdsRecord->se[i].no, &fdsFlags->seDone[i]);
         }
@@ -715,6 +821,17 @@ static inline int *findSEPackage(int no, int id) /* derived name */
     return progSELink[no].se;
 }
 
+#ifdef VERSION_JUN26
+/* the display object slot at GObj + 0x15C as setSEEnvironment reads it, a
+   word that is a handle or a pointer: the demo's read of it aliases the SE
+   volume store after it (ExecuteSEPackageWithVolumeRate keeps the store
+   behind the load), which a read through the union gives */
+typedef union { /* field names derived */
+    char *p;
+    int handle;
+} FDSObjWord; /* derived name */
+#endif
+
 static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
 {
     char *w;
@@ -722,14 +839,22 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     int no;
 
     /* the display object, read as a char pointer like fdsGObj */
+#ifdef VERSION_JUN26
+    w = ((FDSObjWord *)((char *)gobj + 0x15C))->p;
+#else
     w = *(char **)((char *)gobj + 0x15C);
+#endif
     fdsGObj = (char *)gobj;
     if (w != 0) {
         no = *(int *)(w + 0x84);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         p = w + 0x460;
         fdsWork = w + 0xA0;
+#ifdef VERSION_JUN26
+        fdsFlags = (FDSFlags *)(w + 0x720);
+#else
         fdsFlags = (FDSFlags *)(w + 0x730);
+#endif
         fdsRecord = &motionKind[*(int *)(p + 0x30)];
         fdsGroup = *(int *)(w + (id << 2) + 0x60C);
 #else
@@ -751,6 +876,20 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     return no;
 }
 
+#ifdef VERSION_JUN26
+static inline void executeSEPackageByGObj(GObj *gobj, int no, int grp)
+{
+    int id;
+    int *p;
+    int i;
+
+    id = setSEEnvironment(gobj, grp);
+    p = findSEPackage(no, id);
+    for (i = 0; i < 2; i++) {
+        execSE(p[i]);
+    }
+}
+#else
 static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
 {
     int id;
@@ -760,13 +899,14 @@ static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
     id = setSEEnvironment(gobj, grp);
     p = findSEPackage(no, id);
     for (i = 0; i < 2; i++) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         execSE(p[i]);
 #else
         execSE(p[i], 0);
 #endif
     }
 }
+#endif
 
 static void executeSEPackageWithNoGObj(int no)
 {
@@ -800,11 +940,19 @@ void ExecuteSEPackage(GObj *gobj, int id)
     ExecuteSEPackageWithGroupVariation(gobj, id, 0);
 }
 
+#ifdef VERSION_JUN26
+inline void ExecuteSEPackageWithVolumeRate(GObj *gobj, int id, float rate)
+{
+    fdsVolume = rate;
+    executeSEPackageByGObj(gobj, id, 0);
+}
+#else
 void ExecuteSEPackageWithVolumeRate(GObj *gobj, int id, float rate)
 {
     fdsVolume = rate;
     executeSEPackageByGObj(gobj, id, 0);
 }
+#endif
 
 /* as in s_init.h, which this file does not include */
 extern void soundSeGroupStop(int arg);
@@ -819,7 +967,7 @@ void StopSEPackage(GObj *gobj)
     StopSEPackageWithGroupVariation(gobj, 0);
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void InitFrameDependSequence(void *flags)
 {
     FDSFlags *f = flags;

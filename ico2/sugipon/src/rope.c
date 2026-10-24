@@ -116,10 +116,17 @@ void *InitRopeGeo(GObj *o, const float *p)
     }
 
     if (sub->nodeMtx != 0) {
+#ifdef VERSION_JUN26
+        iosFree((void *)sub->nodeMtx);
+    }
+    if (sub->nodeQuat != 0) {
+        iosFree((void *)sub->nodeQuat);
+#else
         iosFree((void *)(sub->nodeMtx & 0x0FFFFFFF));
     }
     if (sub->nodeQuat != 0) {
         iosFree((void *)(sub->nodeQuat & 0x0FFFFFFF));
+#endif
     }
     /* the matrix and quaternion buffers stored as pointers: int stores
        through sub->nodeMtx and nodeQuat reload c->num after each (measured) */
@@ -131,7 +138,11 @@ void *InitRopeGeo(GObj *o, const float *p)
         iosMallocDebug(ios_partition_seki, (c->num - 1) * 16, __FILE__, 82);
     sub->nodeNum = c->num - 1;
     if ((int)sub->nodes != 0) {
+#ifdef VERSION_JUN26
+        iosFree(sub->nodes);
+#else
         iosFree((void *)((int)sub->nodes & 0x0FFFFFFF));
+#endif
     }
     sub->nodes = iosMallocDebug(ios_partition_seki, (c->num - 1) * 80, __FILE__, 82);
     for (i = 0; i < c->num - 1; i++) {

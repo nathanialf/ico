@@ -48,6 +48,11 @@ int sndInitBgmCancelFlag;
 
 void sndInit(int idx)
 {
+#ifdef VERSION_JUN26
+    soundSeKindBuild();
+    adpcmPauseRequest(0);
+    soundReverbDepthSet(stageData[idx].reverbDepth);
+#else
     short attrOff;
     soundSeKindBuild();
     adpcmPauseRequest(0);
@@ -57,4 +62,5 @@ void sndInit(int idx)
     attrOff = 0x18C;
 #endif
     soundReverbDepthSet(*(unsigned short *)((char *)&stageData[idx] + attrOff));
+#endif
 }

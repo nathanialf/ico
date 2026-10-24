@@ -12,6 +12,12 @@
 #include "Matrix.h"
 #include "main.h"
 
+#ifdef VERSION_JUN26
+/* an initialised word nothing reads, first in this build's .sdata (the later
+   builds have no such word) */
+static int wayKidnapUnusedWord = 0; /* derived name */
+#endif
+
 /* the count of positions add_wp_pos has collected, the flag that stops it
    while WayRangeSearch measures a path, and the range search's limit mode */
 static int wpPosCount = 0; /* derived name */
@@ -32,6 +38,24 @@ typedef struct WpPosEntry { /* field names derived */
     float len;
 } WpPosEntry; /* derived name */
 
+#ifdef VERSION_JUN26
+/* wpPosVec and wpPosInfo are the positions and the (waypoint, length) pairs
+   add_wp_pos appends, CopyWpPos reading at most 128 (the positions are VU0
+   vectors: the run opens 16-aligned at 0x75F3E0).  This build has no search
+   node list or edge flags before them. */
+static sceVu0FVECTOR wpPosVec[128]; /* derived name */
+
+/* one entry per way point (this build's 192: the run ends at 0x7601E0) */
+static WpPosEntry wpPosInfo[192]; /* derived name */
+
+/* The DEBUG build checks the goal entry before the sorted copy (below);
+   retail builds the check as 0, as enemy_act.c's ENEMY_DEBUG_HOLD. */
+#ifdef DEBUG
+#define WP_GOAL_CHECK 1 /* derived name */
+#else
+#define WP_GOAL_CHECK 0 /* derived name */
+#endif
+#else
 /* searchNodes is the node list WayPointWithRangeFromPos2 grows while it walks
    the way graph and edgeDone its per-edge visited flags, each sized by the
    count the search clears; wpPosVec and wpPosInfo are the positions and the
@@ -56,6 +80,7 @@ static WpPosEntry wpPosInfo[216]; /* derived name */
 /* 276 entries, one more than the loops' 275 */
 static WpPosEntry wpPosInfo[276]; /* derived name */
 #endif
+#endif
 
 static void add_wp_pos(WayPoint *wp, float *pos, float len)
 {
@@ -65,7 +90,9 @@ static void add_wp_pos(WayPoint *wp, float *pos, float len)
     fzShowV(pos);
 
     wpPosInfo[wpPosCount].wp = wp;
+#ifndef VERSION_JUN26
     wpPosInfo[wpPosCount].len = len;
+#endif
     sceVu0CopyVector(wpPosVec[wpPosCount++], pos);
 }
 
@@ -119,9 +146,11 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
     if (wp == 0) {
         goto fail;
     }
+#ifndef VERSION_JUN26
     if (wp == wp1) {
         goto found;
     }
+#endif
     if (w.pathKind == 2) {
         goto fail;
     }
@@ -138,18 +167,27 @@ float WayLengthOfPos_Pos(float *pos0, float *pos1)
         if (++i >= 101) {
             goto fail;
         }
+#ifdef VERSION_JUN26
+        if (wp == wp1) {
+            goto found;
+        }
+#endif
         wp = GetWay_next(&w, cur);
 
         if (w.reached != 0) {
+#ifndef VERSION_JUN26
             if (wp == wp1) {
                 goto found;
             }
+#endif
             wp = GetWay_begin(dst, &w, cur);
             if (wp == 0) {
                 goto fail;
+#ifndef VERSION_JUN26
             }
             if (wp == wp1) {
                 goto found;
+#endif
             }
 
             sceVu0CopyVector(cur, wp->pos);
@@ -169,6 +207,12 @@ fail:
 found:
     len += _GetLength(pos1, wp1->pos);
     add_wp_pos(0, dst, len);
+#ifdef VERSION_JUN26
+    if (dst[0] < -200.0f) {
+        debug_StdPrintfDummy("cannot_reach:%d\n", w.flag6C);
+        debug_StdPrintfDummy("cannot_reach_kidnap:%d\n", w.pathKind);
+    }
+#endif
 
     return len;
 }
@@ -210,6 +254,7 @@ static inline int wpsort_compfnc(const void *a, const void *b)
     return 0;
 }
 
+#ifndef VERSION_JUN26
 static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int limit,
                                   int chk) /* derived name */
 {
@@ -233,6 +278,7 @@ static inline void WayRangeSearch(float *pos, float range, WpPosEntry *e, int li
     }
     wayRangeLimit = 0;
 }
+#endif
 
 int WayPointWithRangeFromPos(float *pos, float range, int mode)
 {
@@ -240,38 +286,102 @@ int WayPointWithRangeFromPos(float *pos, float range, int mode)
     int n;
     int i;
 
+#ifdef VERSION_JUN26
+    inline void WayRangeSearch(float *pos, float range, int limit, int chk) /* derived name */
+    {
+        wayRangeLimit = limit;
+        ClearWpPos();
+
+        for (e.wp = WayPoint_begin(); e.wp != 0; e.wp = WayPoint_next(e.wp)) {
+            if (range <= _GetLength(pos, e.wp->pos)) {
+                continue;
+            }
+            wpPosLock = 1;
+            e.len = WayLengthOfPos_Pos(pos, e.wp->pos);
+            wpPosLock = 0;
+            if (e.len < 0.0f) {
+                continue;
+            }
+            if (chk && e.wp->bridgeEnd != 0) {
+                continue;
+            }
+            add_wp_pos(e.wp, e.wp->pos, e.len);
+        }
+        wayRangeLimit = 0;
+    }
+#endif
     switch (mode) {
     case 0:
     default:
+#ifdef VERSION_JUN26
+        WayRangeSearch(pos, range, 0, 0);
+#else
         WayRangeSearch(pos, range, &e, 0, 0);
+#endif
         break;
 
     case 1:
+#ifdef VERSION_JUN26
+        WayRangeSearch(pos, range, 0, 1);
+
+        n = NumOfWpPos();
+        qsort(&wpPosInfo[1], n - 2, sizeof(WpPosEntry), wpsort_compfnc);
+        i = 1;
+        /* Drop the goal, the last entry, which has no way point (the start,
+           entry 0, has none either: hence 1..n-2). The DEBUG build walks
+           back to it past any entry after it; retail drops one entry. What
+           the bytes pin: the decrement inside a loop with no exit test and
+           no back edge (the loop notes weight n's allocation over i's, as
+           the demo's s0/s1). What they cannot pin: the DEBUG test's text. */
+        do {
+            n--;
+        } while (WP_GOAL_CHECK && n > 0 && wpPosInfo[n].wp != 0);
+        for (; i < n; i++) {
+#else
         WayRangeSearch(pos, range, &e, 0, 1);
 
         n = NumOfWpPos();
         qsort(wpPosInfo, n, sizeof(WpPosEntry), wpsort_compfnc);
         for (i = 0; i < n; i++) {
+#endif
             sceVu0CopyVector(wpPosVec[i], wpPosInfo[i].wp->pos);
         }
         break;
 
     case 2:
+#ifdef VERSION_JUN26
+        WayRangeSearch(pos, range, 1, 0);
+#else
         WayRangeSearch(pos, range, &e, 1, 0);
+#endif
         break;
 
     case 3:
+#ifdef VERSION_JUN26
+        WayRangeSearch(pos, range, 1, 1);
+
+        n = NumOfWpPos();
+        qsort(&wpPosInfo[1], n - 2, sizeof(WpPosEntry), wpsort_compfnc);
+        i = 1;
+        /* the goal, as in case 1 */
+        do {
+            n--;
+        } while (WP_GOAL_CHECK && n > 0 && wpPosInfo[n].wp != 0);
+        for (; i < n; i++) {
+#else
         WayRangeSearch(pos, range, &e, 1, 1);
 
         n = NumOfWpPos();
         qsort(wpPosInfo, n, sizeof(WpPosEntry), wpsort_compfnc);
         for (i = 0; i < n; i++) {
+#endif
             sceVu0CopyVector(wpPosVec[i], wpPosInfo[i].wp->pos);
         }
         break;
     }
 
     return NumOfWpPos();
+#ifndef VERSION_JUN26
 }
 
 static inline WayPoint *SearchOpenNode(WayPoint *start) /* derived name */
@@ -470,6 +580,7 @@ ret:
     }
     sceVu0CopyVector(dst, found->pos);
     return 1;
+#endif
 }
 
 /* a public inline, deferred like the others */

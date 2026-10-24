@@ -4,8 +4,8 @@
  * aligned: _kTLBException, _xlaunch, _kExitTLBHandler and _kDebugException
  * sit at 0x265040, 0x265140, 0x265180 and 0x265280 (USA 0x24B500, 0x24B600,
  * 0x24B640 and 0x24B740; Aug-6 prototype 0x247A00, 0x247B00, 0x247B40 and
- * 0x247C40). Of _xlaunch's lines only 92 and 96 are known; the others are
- * placed in order.
+ * 0x247C40; Jun-26 demo 0x234280, 0x234380, 0x2343C0 and 0x2344C0). Of
+ * _xlaunch's lines only 92 and 96 are known; the others are placed in order.
  */
 
 	.text

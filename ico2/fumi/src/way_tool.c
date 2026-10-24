@@ -47,10 +47,12 @@ typedef struct { /* field names derived */
     int c[4];
 } WayCol; /* derived name */
 
+#ifndef VERSION_JUN26
 /* the colour packet every way point is drawn through, the pad handle and its
    read buffer, the stick buffer, and the 32-byte way-point file block
    quick_save_wpfile writes and quick_load_wpfile reads back */
 static WayCol wayDrawCol; /* derived name */
+#endif
 
 static IosPadCtx wayToolPad; /* derived name */
 
@@ -142,7 +144,7 @@ static inline void relabel_way_groups(void) /* derived name */
     int n = 0;
     int i;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     for (i = 0; i < 64; i++) {
 #else
     for (i = 0; i < 94; i++) {
@@ -170,7 +172,7 @@ static int group_select(void)
     state = selectState;
     if (state == 0) {
         relabel_way_groups();
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         for (i = 0; i < 64; i++) {
 #else
         for (i = 0; i < 94; i++) {
@@ -286,7 +288,7 @@ static int point_insert(void)
     return 0;
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 int play_way(void);
 int point_nige(void);
 int quick_save_wpfile(void);
@@ -532,12 +534,20 @@ typedef struct { /* field names derived */
     float f[4];
 } __attribute__((aligned(8))) WayVec; /* derived name */
 
+#ifdef VERSION_JUN26
+/* way_tool.o .data +0x210: the eight RGBA packets the tool draws with (no
+   blink colour in this build). */
+static WayCol wayColorSelected = {{0xFF, 0x08, 0x08, 0xFF}}; /* derived name */
+
+static WayCol wayColorLinked = {{0xFF, 0x08, 0xFF, 0xFF}}; /* derived name */
+#else
 /* way_tool.o .data +0x210: the nine RGBA packets the tool draws with. */
 static WayCol wayColorSelected = {{0xFF, 0xFF, 0xFF, 0xFF}}; /* derived name */
 
 static WayCol wayColorLinked = {{0xFF, 0x08, 0xFF, 0xFF}}; /* derived name */
 
 static WayCol wayColorBlink = {{0xFF, 0xFF, 0xFF, 0xFF}}; /* derived name */
+#endif
 
 static WayCol wayColorCursor = {{0x80, 0xFF, 0x1E, 0xFF}}; /* derived name */
 
@@ -551,6 +561,7 @@ static WayCol wayColorClosedOther = {{0x40, 0x40, 0x00, 0x40}}; /* derived name 
 
 static WayCol wayColorBridge = {{0xFF, 0x00, 0xFF, 0xFF}}; /* derived name */
 
+#ifndef VERSION_JUN26
 static inline void set_way_point_color(WayPoint *p, WayCol *col) /* derived name */
 {
     WayCol *d = &wayDrawCol;
@@ -566,6 +577,7 @@ static inline void set_way_point_color(WayPoint *p, WayCol *col) /* derived name
         *d = wayColorBlink;
     }
 }
+#endif
 
 static void draw_way_group(int g, WayCol *col)
 {
@@ -583,8 +595,25 @@ static void draw_way_group(int g, WayCol *col)
     while (p != 0) {
         q = p->pos;
         SetVObjRT(&m, q);
+#ifdef VERSION_JUN26
+        if (p->escape != 0) {
+            /* both arms draw the linked colour: the demo still loads the
+               index for the selection test ahead of the one call the two
+               arms share (the arms are derived) */
+            if (p->index == wayPointSel) {
+                DrawVObj(0, &wayColorLinked);
+            } else {
+                DrawVObj(0, &wayColorLinked);
+            }
+        } else if (p->index == wayPointSel) {
+            DrawVObj(0, &wayColorSelected);
+        } else {
+            DrawVObj(0, col);
+        }
+#else
         set_way_point_color(p, col);
         DrawVObj(0, &wayDrawCol);
+#endif
         if (p->next != 0) {
             gif_StartPacketPri(11);
             sceVu0UnitMatrix(MatrixDrive_GetMatrix());
@@ -624,7 +653,7 @@ static void way_toolDL(GObj *self)
     SetVObjRT(&m, wayWorkPos);
     DrawVObj(0, &wayColorCursor);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     for (i = 0; i < 64; i++) {
 #else
     for (i = 0; i < 94; i++) {
@@ -693,12 +722,16 @@ int debug_WayTool(void)
         if (first_waytool == 0) {
 #ifdef VERSION_NTSC
             *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__,
-                                                        LN(1194, 1194, 1194, 1194, 1194));
+                                                        LN(1194, 1194, 1194, 1194, 1194, 1194));
 #else
 #ifdef VERSION_AUG6
             *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__, 1180);
 #else
+#ifdef VERSION_JUN26
+            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 1632, __FILE__, 1135);
+#else
             *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 0x4AA);
+#endif
 #endif
 #endif
             isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);

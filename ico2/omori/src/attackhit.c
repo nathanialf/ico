@@ -19,7 +19,7 @@ typedef struct AttackPack { /* field names derived */
     /* 0x01 */ unsigned char down; /* the hit knocks the target down */
     /* 0x02 */ char pad02[2];
     /* 0x04 */ void *actor;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     /* 0x08 */ int group;
     /* 0x0C */ int group2;
     /* 0x10 */ float center[4];
@@ -29,9 +29,11 @@ typedef struct AttackPack { /* field names derived */
     /* 0x44 */ float radius1;
     /* 0x48 */ float thickness;
     /* 0x4C */ float power;
+#ifndef VERSION_JUN26
     /* 0x50 */ unsigned char hasDir;
     /* 0x51 */ char pad51[15];
     /* 0x60 */ float dir[4];
+#endif
 #else
     /* 0x08 */ GObj *spare; /* an object the attack never hits */
     /* 0x0C */ int group;
@@ -52,7 +54,7 @@ typedef struct AttackPack { /* field names derived */
 } __attribute__((aligned(16))) AttackPack; /* derived name */
 
 /* the zeroed template every pack starts from; group and group2 start at -1 */
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, -1, -1}; /* derived name */
 #else
 static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1}; /* derived name */
@@ -62,7 +64,7 @@ static const AttackPack attackPackInit = {0, 0, {0, 0}, 0, 0, -1, -1}; /* derive
 #include <libvu0.h>
 #include "main.h"
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 typedef struct { /* field names derived */
     /* 0x00 */ float radius;
     char pad04[4];
@@ -84,7 +86,11 @@ static inline int GetAttackKindIndex(Sub15C *p) /* derived name */
     int id = p->ctrl.motion;
     int i;
 
+#ifdef VERSION_JUN26
+    for (i = 0; i < 21; i++) {
+#else
     for (i = 0; i < 19; i++) {
+#endif
         if (id == attackData[i].motion) {
             return i;
         }
@@ -208,7 +214,7 @@ static inline void GetFocusNodePos(GObj *gobj, int node, float *out) /* derived 
 static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, GObj *weapon)
 {
     float v0[4];
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     float v1[4];
 #endif
     Act *ext;
@@ -234,7 +240,7 @@ static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, GObj *weapon)
         }
         wk = CheckWeaponKind(weapon);
         WeaponCurPos(weapon, pack->center, pack->from, pack->to);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         pack->radius0 = weaponKind[wk].radius;
         pack->radius1 = 20.0f;
         pack->power = attackData[k].power * weaponKind[wk].power;
@@ -265,7 +271,7 @@ static void MakeAttackPack_Actor(AttackPack *pack, GObj *gobj, GObj *weapon)
         pack->from[0] = v0[0];
         pack->from[1] = v0[1];
         pack->from[2] = v0[2];
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         pack->to[0] = v0[0];
         pack->to[1] = v0[1];
         pack->to[2] = v0[2];
@@ -367,11 +373,16 @@ static inline void SetupAttackPack(AttackPack *pack, GObj *gop, int group, float
     if (gop != 0 && gop->kind == 52) {
         pack->thickness = pack->radius1 - 100.0f;
 #else
+#ifdef VERSION_JUN26
+    if (gop != 0 && gop->kind == 51) {
+        pack->thickness = pack->radius1 - 100.0f;
+#else
     if (gop != 0 && gop->kind == 53) {
         pack->thickness = pack->radius1 - GetQueenBallThickness();
         if (pack->thickness < 0.0f) {
             pack->thickness = 0.0f;
         }
+#endif
 #endif
     } else {
         pack->thickness = 0.0f;
@@ -392,17 +403,9 @@ typedef struct { /* field names derived */
 
 #ifdef VERSION_NTSC
 /* GObj kind -> attack class, terminated by kind -1 */
-static const AttackGroupTable attackGroupTable = {/* derived name */
-                                                  { {1, 0},
-                                                    {4, 1},
-                                                    {46, 1},
-                                                    {53, 1},
-                                                    {52, 1},
-                                                    {52, 1},
-                                                    {61, 1},
-                                                    {2, 3},
-                                                    {62, 1},
-                                                    {-1, 0} }};
+static const AttackGroupTable attackGroupTable = {
+    /* derived name */
+    {{1, 0}, {4, 1}, {46, 1}, {53, 1}, {52, 1}, {52, 1}, {61, 1}, {2, 3}, {62, 1}, {-1, 0}}};
 
 static int AttackCheckSameGroup(GObj *self, GObj *other)
 {
@@ -651,13 +654,20 @@ static const AttackGroupTable attackGroupTable = {
     /* derived name */
     {{1, 0}, {4, 1}, {46, 1}, {53, 1}, {52, 1}, {52, 1}, {60, 1}, {2, 3}, {61, 1}, {-1, 0}}};
 #else
+#ifdef VERSION_JUN26
+/* GObj kind -> attack class, terminated by kind -1 */
+static const AttackGroupTable attackGroupTable = {
+    /* derived name */
+    {{1, 0}, {4, 1}, {45, 1}, {52, 1}, {51, 1}, {51, 1}, {59, 1}, {2, 3}, {60, 1}, {-1, 0}}};
+#else
 /* GObj kind -> attack class, terminated by kind -1 */
 static const AttackGroupTable attackGroupTable = {
     /* derived name */
     {{1, 0}, {4, 1}, {47, 1}, {54, 1}, {53, 1}, {53, 1}, {62, 1}, {2, 3}, {63, 1}, {-1, 0}}};
 #endif
+#endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static int AttackCheckSameGroup(GObj *self, GObj *other)
 {
     AttackGroupTable tbl = attackGroupTable;
@@ -719,7 +729,7 @@ static int AttackCheckSameGroup(GObj *self, GObj *other, GObj *third)
 }
 #endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* whether the attack's nodes include the target's focus node 35 */
 static inline int AttackHitFocusNode(GObj *self) /* derived name */
 {
@@ -742,7 +752,7 @@ static void AttackMail(GObj *self, AttackPack *pack)
     float v2[4];
     GObj *attacker;
     Act *aext;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     Act *e;
     float *r0;
 #endif
@@ -750,7 +760,7 @@ static void AttackMail(GObj *self, AttackPack *pack)
     int group;
     int kind;
     int hard;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int mail;
 #endif
     float power;
@@ -770,7 +780,32 @@ static void AttackMail(GObj *self, AttackPack *pack)
     } else {
         kind = CheckWeaponKind(weapon);
         power = attackData[group].power * weaponKind[kind].power;
-#ifdef VERSION_AUG6
+#ifdef VERSION_JUN26
+        hard = weaponKind[kind].unguardable;
+    }
+    mail = 13;
+    if (GOBJ_ACT(self)->enemy->liftKind == 3) {
+        if (AttackHitFocusNode(self)) {
+            mail = 14;
+        }
+    }
+    iosOmSendMail(self, mail, attacker);
+
+    GOBJ_ACT(self)->attacker = attacker;
+    GOBJ_ACT(self)->damage = (int)power;
+    GOBJ_ACT(self)->hitGroup = pack->group2;
+    GOBJ_ACT(self)->downHit = attackData[group].down || pack->down;
+    GOBJ_ACT(self)->unguardable = attackData[group].unguardable || hard;
+    GOBJ_ACT(self)->stoneHit = attackData[group].stone;
+    GetRootPosition(v0, attacker);
+    GetRootPosition(v1, self);
+    sceVu0SubVector(v2, v0, v1);
+    sceVu0Normalize(v2, v2);
+    GOBJ_ACT(self)->attackDir[0] = v2[0];
+    GOBJ_ACT(self)->attackDir[1] = v2[1];
+    GOBJ_ACT(self)->attackDir[2] = v2[2];
+#else
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         hard = weaponKind[kind].unguardable;
     }
     mail = 13;
@@ -834,20 +869,21 @@ static void AttackMail(GObj *self, AttackPack *pack)
         }
 #endif
     }
+#endif
 }
 
 static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
 {
     float w[4];
     unsigned char flags[112];
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     float v[3][4];
     float acc[4];
 #endif
     Sub15C *sk;
     int n;
     int i;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int m;
 #endif
     int j;
@@ -866,9 +902,15 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
         rad = QueenBallRadius(gobj);
         rad = rad + _ACTGame_GetParamF(29);
 #else
+#ifdef VERSION_JUN26
+    case 51:
+        rad = QueenBallRadius(gobj);
+        rad = rad + _ACTGame_GetParamF(25);
+#else
     case 53:
         rad = QueenBallRadius(gobj);
         rad = rad + _ACTGame_GetParamF(31);
+#endif
 #endif
         hitR = (int)rad;
         i = 0;
@@ -877,7 +919,11 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
 #ifdef VERSION_AUG6
     case 53:
 #else
+#ifdef VERSION_JUN26
+    case 52:
+#else
     case 54:
+#endif
 #endif
         if (QueenBarrierInqBreakable() == 0) {
             hitR = 0;
@@ -888,7 +934,11 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
 #ifdef VERSION_AUG6
         rad = rad + _ACTGame_GetParamF(30);
 #else
+#ifdef VERSION_JUN26
+        rad = rad + _ACTGame_GetParamF(26);
+#else
         rad = rad + _ACTGame_GetParamF(32);
+#endif
 #endif
         hitR = (int)rad;
         i = 0;
@@ -897,7 +947,11 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
 #ifdef VERSION_AUG6
     case 61:
 #else
+#ifdef VERSION_JUN26
+    case 60:
+#else
     case 63:
+#endif
 #endif
         hitR = (int)GetAttackCheckBoundaryRadius(gobj);
         i = 0;
@@ -906,8 +960,12 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
 #ifdef VERSION_AUG6
     case 60:
 #else
+#ifdef VERSION_JUN26
+    case 59:
+#else
     case 19:
     case 62:
+#endif
 #endif
         hitR = 50;
         i = 0;
@@ -926,7 +984,7 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
     for (i = 0; i < n; i++) {
         flags[i] = 0;
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     for (t = 0.0f; t < pack->radius0; t += pack->radius1) {
         _InterGV(w, pack->to, pack->center, t, pack->radius0 - t);
         for (i = 0; i < n; i++) {
@@ -986,7 +1044,7 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
     }
     for (i = 0, j = 0; i < n; i++) {
         if (flags[i] != 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             out[j] = i;
 #else
             if (out != 0) {
@@ -996,7 +1054,7 @@ static int AttackCheckHit(AttackPack *pack, GObj *gobj, short *out)
             j++;
         }
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     out[j] = -1;
 #else
     if (out != 0) {
@@ -1010,7 +1068,7 @@ static GObj *AttackGenerate(AttackPack *pack)
 {
     GObj *g;
     GObj *hit;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     short *nodes;
 #endif
 
@@ -1023,7 +1081,7 @@ static GObj *AttackGenerate(AttackPack *pack)
         if (g->active == 0) {
             continue;
         }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (AttackCheckSameGroup(pack->actor, g) != 0) {
 #else
         if (AttackCheckSameGroup(pack->actor, g, pack->spare) != 0) {
@@ -1040,12 +1098,19 @@ static GObj *AttackGenerate(AttackPack *pack)
         }
         if (g->kind == 4 && GOBJ_ACT(g)->actMode == 100) {
 #else
+#ifdef VERSION_JUN26
+        if (!(GOBJ_ACT(g) != 0 && GOBJ_ACT(g)->enemy != 0)) {
+            continue;
+        }
+        if (GOBJ_ACT(g)->hit != 0) {
+#else
         if (!((GOBJ_ACT(g) != 0 && &GOBJ_ACT(g)->attacker != 0 && GOBJ_ACT(g)->enemy != 0) ||
               g->kind == 19)) {
             continue;
         }
         if (GOBJ_ACT(g) != 0 && &GOBJ_ACT(g)->attacker != 0 && GOBJ_ACT(g)->enemy != 0 &&
             GOBJ_ACT(g)->hit != 0) {
+#endif
 #endif
             continue;
         }
@@ -1054,6 +1119,10 @@ static GObj *AttackGenerate(AttackPack *pack)
         if (g == boyGObj && ACTChkAttackIgnore_BOY(g) != 0) {
             continue;
         }
+        /* the enemy work records the nodes the attack hits */
+        if (AttackCheckHit(pack, g, GOBJ_ACT(g)->enemy->hitNodes) == 0) {
+#else
+#ifdef VERSION_JUN26
         /* the enemy work records the nodes the attack hits */
         if (AttackCheckHit(pack, g, GOBJ_ACT(g)->enemy->hitNodes) == 0) {
 #else
@@ -1075,13 +1144,14 @@ static GObj *AttackGenerate(AttackPack *pack)
         }
         if (AttackCheckHit(pack, g, nodes) == 0) {
 #endif
+#endif
             continue;
         }
         debug_StdPrintfDummy("geometry ok\n");
         if (GOBJ_ACT(g) != 0 && GOBJ_ACT(g)->attacker != 0 &&
             GOBJ_ACT(g)->hitGroup == pack->group2) {
             debug_StdPrintfDummy("id equal error\n");
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
             continue;
         }
         if (debug_one_hit_only != 0 && pack->actor == boyGObj && g->kind == 4 &&
@@ -1108,14 +1178,27 @@ inline void CommonAttackCenter(GObj *gobj)
     AttackGenerate(&pack);
 }
 
+#ifdef VERSION_JUN26
+inline GObj *AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius)
+{
+    AttackPack pack;
+
+    if (gop == 0) {
+        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 704));
+        __assert(__FILE__, LN(931, 931, 931, 931, 729, 704), "gop!=NULL");
+    }
+    SetupAttackPack(&pack, gop, group, pos, ofs, radius);
+    return AttackGenerate(&pack);
+}
+#else
 #ifdef VERSION_NTSC
 inline GObj *AttackCenter(GObj *gop, int group, float *pos, float *ofs, float radius)
 {
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(__FILE__, LN(749, 749, 749, 749, 749));
-        __assert(__FILE__, LN(749, 749, 749, 749, 749), "gop!=NULL");
+        debug_assert(__FILE__, LN(749, 749, 749, 749, 749, 749));
+        __assert(__FILE__, LN(749, 749, 749, 749, 749, 749), "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
     return AttackGenerate(&pack);
@@ -1127,8 +1210,8 @@ inline GObj *AttackCenter(GObj *gop, int group, float *pos, float *ofs, float ra
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(__FILE__, LN(931, 931, 931, 931, 729));
-        __assert(__FILE__, LN(931, 931, 931, 931, 729), "gop!=NULL");
+        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 931));
+        __assert(__FILE__, LN(931, 931, 931, 931, 729, 931), "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
     return AttackGenerate(&pack);
@@ -1139,8 +1222,8 @@ inline GObj *_AttackCenter(GObj *gop, int group, float *pos, float *ofs, float r
     AttackPack pack;
 
     if (gop == 0) {
-        debug_assert(__FILE__, LN(931, 931, 931, 931, 729));
-        __assert(__FILE__, LN(931, 931, 931, 931, 729), "gop!=NULL");
+        debug_assert(__FILE__, LN(931, 931, 931, 931, 729, 704));
+        __assert(__FILE__, LN(931, 931, 931, 931, 729, 704), "gop!=NULL");
     }
     SetupAttackPack(&pack, gop, group, pos, ofs, radius);
     pack.spare = spare;
@@ -1155,15 +1238,15 @@ inline void AttackCenter_WithDir(GObj *gop, int group, float *pos, float *dir, f
 
     if (gop == 0) {
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(768, 768, 768, 768, 768));
-        __assert(__FILE__, LN(768, 768, 768, 768, 768), "gop!=NULL");
+        debug_assert(__FILE__, LN(768, 768, 768, 768, 768, 768));
+        __assert(__FILE__, LN(768, 768, 768, 768, 768, 768), "gop!=NULL");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(931, 931, 931, 931, 748));
-        __assert(__FILE__, LN(931, 931, 931, 931, 748), "gop!=NULL");
+        debug_assert(__FILE__, LN(931, 931, 931, 931, 748, 931));
+        __assert(__FILE__, LN(931, 931, 931, 931, 748, 931), "gop!=NULL");
 #else
-        debug_assert(__FILE__, LN(951, 951, 951, 951, 951));
-        __assert(__FILE__, LN(951, 951, 951, 951, 951), "gop!=NULL");
+        debug_assert(__FILE__, LN(951, 951, 951, 951, 951, 951));
+        __assert(__FILE__, LN(951, 951, 951, 951, 951, 951), "gop!=NULL");
 #endif
 #endif
     }
@@ -1176,6 +1259,7 @@ inline void AttackCenter_WithDir(GObj *gop, int group, float *pos, float *dir, f
     }
     AttackGenerate(&pack);
 }
+#endif
 
 void EnemyAttackCenter(GObj *gobj) {}
 

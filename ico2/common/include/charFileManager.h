@@ -14,10 +14,12 @@ void ReadSoundSqFile(void *h, int name, int size, int id, int kind, int word08, 
 void ReadSoundAdpcmFile(void *h, int name, int size, int id, int kind, int word08, int seg);
 void InitCharFileManager(void);
 void ResetCharFileManager(void);
+
 struct Sub15C;
+
 void CSVSYSTEM_ReadCharFiles(struct Sub15C *rec, int id);
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* texture-path: one texture file, 0x20 bytes. Readers: kanban.c,
  * layout_texture.c. Owner: ico2/common/include/charFileManager.h. */
 typedef struct {   /* field names derived */
@@ -43,22 +45,31 @@ typedef struct {    /* field names derived */
  * ico2/common/src/PObj.c (InitPObj, AllocPObj, MakePacket), charFileManager.c
  * (ReadSkeltonFile, ReadCollisionFile: the two paths). */
 typedef struct PObjMdl { /* field names derived */
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     char modelPath[64];  /* 0x00, the model file, no C reader */
     char shadowPath[64]; /* 0x40, the shadow model file, no C reader */
     char path[48];       /* 0x80, the skeleton file, "NULL" for none */
     char collPath[64];   /* 0xB0, the collision file */
-    float offset[3];     /* 0xF0, InitPObj adds it to every vertex and box corner */
-    float lightScale;    /* 0xFC, copied into the PObj at 0x34 */
-    float ambientScale;  /* 0x100, copied into the PObj at 0x38 */
-    float shadowLength;  /* 0x104, copied into the PObj at 0x3C */
+#ifdef VERSION_JUN26
+    char clothName[32]; /* 0xF0, a cloth set ("NULL" for none), no C reader */
+    char name110[32];   /* 0x110, "NULL" in every row, no C reader */
+    float offset[3];    /* 0x130, InitPObj adds it to every vertex and box corner */
+    float lightScale;   /* 0x13C, copied into the PObj at 0x34 */
+    float ambientScale; /* 0x140, copied into the PObj at 0x38 */
+    float shadowLength; /* 0x144, copied into the PObj at 0x3C */
 #else
-    char path[48];       /* 0x00, the skeleton file, "NULL" for none */
-    char collPath[64];   /* 0x30, the collision file */
-    float offset[3];     /* 0x70, InitPObj adds it to every vertex and box corner */
-    float lightScale;    /* 0x7C, copied into the PObj at 0x34 */
-    float ambientScale;  /* 0x80, copied into the PObj at 0x38 */
-    float shadowLength;  /* 0x84, copied into the PObj at 0x3C */
+    float offset[3];    /* 0xF0, InitPObj adds it to every vertex and box corner */
+    float lightScale;   /* 0xFC, copied into the PObj at 0x34 */
+    float ambientScale; /* 0x100, copied into the PObj at 0x38 */
+    float shadowLength; /* 0x104, copied into the PObj at 0x3C */
+#endif
+#else
+    char path[48];      /* 0x00, the skeleton file, "NULL" for none */
+    char collPath[64];  /* 0x30, the collision file */
+    float offset[3];    /* 0x70, InitPObj adds it to every vertex and box corner */
+    float lightScale;   /* 0x7C, copied into the PObj at 0x34 */
+    float ambientScale; /* 0x80, copied into the PObj at 0x38 */
+    float shadowLength; /* 0x84, copied into the PObj at 0x3C */
     /* 0x88, read as bits */
 #endif
     unsigned int pktKind : 4; /* the packet header's kind, 4 for none */
@@ -71,8 +82,13 @@ typedef struct PObjMdl { /* field names derived */
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern const TexRec texFile[];
 #else
+#ifdef VERSION_JUN26
+extern const TexRec texFile[];
+#else
 extern TexRec texFile[];
 #endif
+#endif
+
 extern PObjMdl modelData[];
 
 #endif /* CHARFILEMANAGER_H */

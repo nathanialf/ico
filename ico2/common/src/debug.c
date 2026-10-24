@@ -56,7 +56,7 @@ static void debug_PrintFont(int x, int y, int col, char *str);
 static int debug_selectFile(McMgr *mc);
 static void debug_makeBackImage(void);
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static int debug_girl_pad_control;
 #endif
 
@@ -364,7 +364,7 @@ static char *debugProfileName[] = {"Variable", "Process"}; /* derived name */
 static char *debugSnapSizeName[] = {"Normal", "Half",     "Double",  "Double+Wide",
                                     "4x4",    "4x4+Wide", "XYOFFSET"}; /* derived name */
 #else
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static char *debugSnapSizeName[] = {"Normal", "Half", "Double", "Double+Wide"}; /* derived name */
 #else
 static char *debugSnapSizeName[] = {"None", "1x1", "2x2", "4x4", "8x8"}; /* derived name */
@@ -388,13 +388,88 @@ static char *debugBoundingName[] = {"AllOff", "Object", "Material", "AllOn"}; /*
 
 static char *debugShadowName[] = {"On", "ExceptCharacter", "Line", "Off"}; /* derived name */
 
+#ifdef VERSION_JUN26
+static char *debugScissorName[] = {"AllOff", "CarryZOnly", "AllOn"}; /* derived name */
+#else
 static char *debugScissorName[] = {"AllOff", "CarryZOnly", "IgnoreCarryZ",
                                    "AllOn"}; /* derived name */
+#endif
 
 static char *debugMotionTargetName[] = {"BOY", "GIRL", "BIRD", "ENEMY", "QUEEN"}; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
-#ifdef VERSION_AUG6
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+/* the debug options: name, colour, value, range, value names and the function
+   called on a change, in the order debug_Mode pages through them */
+static const DbgOpt debugOption[62] = {
+    {" FrameStep          ", 0x0080FF80, &systemStatus[1], 1, 2, debugFrameStepName,
+     (void (*)(int))gsResetFunc},
+    {" NTSC/PAL           ", 0x0080FF80, &systemStatus[0], 0, 1, debugNtscPalName,
+     (void (*)(int))gsResetFunc},
+    {" DebugFrameStep     ", 0xC0C0C080, &debug_frame, 0, 60, 0, 0},
+    {" DebugFont          ", 0xC0C0C080, &debug_font_flag, 0, 3, debugFontName, 0},
+    {" DebugFont2         ", 0xC0C0C080, &debug_font_flag2, 0, 1, debugOffOnName, 0},
+    {" Printf             ", 0xC0C0C080, &debug_printf_flag, 0, 1, debugOffOnName, 0},
+    {" MemPartition       ", 0xC0C0C080, &debug_mem_partition_flag, 0, 1, debugOffOnName, 0},
+    {" WireString         ", 0xC0C0C080, &debug_wire_string, 0, 1, debugOffOnName, 0},
+    {" KIND ROUTINE OLD   ", 0xC0C0C080, &debugKindOld, 0, 1, debugOffOnName, 0},
+    {" DebugBar           ", 0xFF808080, &debug_bar_flag, 0, 2, debugBarName, 0},
+    {" DebugBarProfileType", 0xFF808080, &debug_profile_type, 0, 1, debugProfileName, 0},
+    {" DebugBarStartItem  ", 0xFF808080, &debug_debug_bar_start_item, 0, 1000, 0, 0},
+    {" DebugBarScale      ", 0xFF808080, &debug_debug_bar_multiply, -9, 4, debugBarScaleName, 0},
+    {" DebugMemoryBar     ", 0xFF808080, &debug_memory_bar, 0, 1, debugOffOnName, 0},
+    {" ADPCM PLAY         ", 0xFFC0C080, &debugAdpcmOn, 0, 1, debugOffOnName, 0},
+    {" SE SLOT DISP       ", 0xFFC0C080, &debug_seslotdisp_flag, 0, 1, debugOffOnName, 0},
+    {" WallCheck          ", 0x90C0FF80, &debug_wallcheck_flag, 0, 1, debugOffOnName, 0},
+    {" WallHitColDisp     ", 0x90C0FF80, &debug_wallhitcoldisp, 0, 1, debugOffOnName, 0},
+    {" FieldCollision     ", 0x90C0FF80, &debug_fieldcollision_flag, 0, 1, debugOffOnName, 0},
+    {" CollisionRayDisp   ", 0x90C0FF80, &debug_col_ray_disp, 0, 1, debugOffOnName,
+     (void (*)(int))ChangeFieldCollisionDebugMode},
+    {" Skelton            ", 0x80FFC080, &debug_skel_flag, 0, 1, debugOffOnName, 0},
+    {" ClothInfo          ", 0x80FFC080, &debug_cloth_info, 0, 1, debugOffOnName, 0},
+    {" FaceWInterpRatio   ", 0x80FFC080, &debug_face_rot_w_ratio, 0, 100, 0, 0},
+    {" CharaTarget        ", 0x80FFC080, &debug_chara_target, 0, 1, debugOffOnName, 0},
+    {" MotionActNode      ", 0x80FFC080, &debug_actnode_flag, 0, 1, debugOffOnName, 0},
+    {" MotionInterporate  ", 0x80FFC080, &debug_motion_interporate, 0, 1, debugOffOnName, 0},
+    {" MotionDebugWin     ", 0x80FFC080, &debug_window_flag, 0, 1, debugOffOnName, 0},
+    {" MotionDebugTgt     ", 0x80FFC080, &debug_mot_debug_target, 0, 4, debugMotionTargetName, 0},
+    {" MotionSlopeInterp  ", 0x80FFC080, &debug_mot_slope_interp, 0, 10, 0, 0},
+    {" BrainBar           ", 0xFF80FF80, &debug_brain_bar_flag, 0, 1, debugOffOnName, 0},
+    {" BrainOnOff         ", 0xFF80FF80, &debug_brain_flag, 0, 1, debugOffOnName, 0},
+    {" GBrainInfo         ", 0xFF80FF80, &debug_gbrain_info_flag, 0, 1, debugOffOnName, 0},
+    {" WayTool            ", 0xFF80FF80, &debug_wayline, 0, 1, debugOffOnName, 0},
+    {" SnapShotNum        ", 0xC0C0C080, &debug_snapshot_num, 0, 3000000, 0, 0},
+    {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 3, debugSnapSizeName, 0},
+    {" SnapForm           ", 0xC0C0C080, &debug_snapshot_format, 0, 1, debugSnapFormName, 0},
+    {" Jimaku Test        ", 0xC0C0C080, &debug_jimaku, 0, 1, debugOffOnName, 0},
+    {" DebugZoom          ", 0xC0C0C080, &debug_zoom_per, 50, 300, 0, 0},
+    {" Camera             ", 0xC0C0C080, &debug_camera_flag, 0, 1, debugOffOnName, 0},
+    {" RippleRoughness    ", 0xFFFF8080, &debug_ripple_roughness, 0, 100, 0, 0},
+    {" Bounding           ", 0xFFFF8080, &debug_bounding_flag, 0, 3, debugBoundingName, 0},
+    {" Specular           ", 0xFFFF8080, &debug_specular_flag, 0, 2, debugSpecularName, 0},
+    {" LightVolume        ", 0xFFFF8080, &debug_ambient_volume, 0, 3, debugLightVolumeName, 0},
+    {" ShadowOff          ", 0xFFFF8080, &debug_shadow_flag, 0, 3, debugShadowName, 0},
+    {" Scissoring         ", 0xFFFF8080, &debug_scissor, 0, 2, debugScissorName, 0},
+    {" FullScreenEffect   ", 0xFFFF8080, &debug_fullscreen_effect, 0, 1, debugOffOnName, 0},
+    {" DispClusterModel   ", 0xFFFF8080, &debug_disp_cluster, 0, 1, debugOffOnName, 0},
+    {" DispNormalModel    ", 0xFFFF8080, &debug_disp_normal, 0, 1, debugOffOnName, 0},
+    {" DispLwsModel       ", 0xFFFF8080, &debug_disp_lws, 0, 1, debugOffOnName, 0},
+    {" DispParticle       ", 0xFFFF8080, &debug_disp_particle, 0, 1, debugOffOnName, 0},
+    {" DispMesh           ", 0xFFFF8080, &debug_disp_mesh, 0, 1, debugOffOnName, 0},
+    {" DISPLAY BRIGHTNESS ", 0xFFFF8080, &systemStatus[11], 0, 15, 0, 0},
+    {" STICK INPUT        ", 0xC0C0C080, &debug_stick_input, 0, 1, debugOffOnName, 0},
+    {" STICK SIMULATE     ", 0xC0C0C080, &debug_stick_simulate, 0, 1, debugOffOnName, 0},
+    {" DEBUG SUB THREAD   ", 0xC0C0C080, &debug_act_sub_thread, 0, 1, debugOffOnName, 0},
+    {" NEW QUEEN BATTLE   ", 0xC0C0C080, &debug_use_new_queen_battle, 0, 1, debugOffOnName, 0},
+    {" CHAIN CYCLE SPEED  ", 0xC0C0C080, &debug_chain_cycle_speed, 1, 10, 0, 0},
+    {" CHAIN SLOW  SPEED  ", 0xC0C0C080, &debug_chain_slow_speed, 1, 10, 0, 0},
+    {" DISP ENEMY STATE   ", 0x80C0FF80, &debug_disp_enemy_state, 0, 1, debugOffOnName, 0},
+    {" ENEMY BATTLE TYPE  ", 0x80C0FF80, &debug_enemy_battle_type, 0, 3, debugEnemyBattleName, 0},
+    {" ENEMY FLY WITH GIRL", 0x80C0FF80, &debug_enemy_fly_with_girl, 0, 1, 0, 0},
+    {" DISP ESCORT BALL   ", 0xC0C0C080, &debug_disp_escort_ball, 0, 1, debugOffOnName, 0},
+}; /* derived name */
+#else
 /* the debug options: name, colour, value, range, value names and the function
    called on a change, in the order debug_Mode pages through them */
 static const DbgOpt debugOption[67] = {
@@ -469,6 +544,7 @@ static const DbgOpt debugOption[67] = {
     {" GIRL DETOUR        ", 0xC0C0C080, &debug_girl_detour_flag, 0, 1, debugOffOnName, 0},
     {" LWSKYOMI LOOKONLY  ", 0xC0C0C080, &debug_lwskyomi_lookonly, 0, 1, debugOffOnName, 0},
 }; /* derived name */
+#endif
 #else
 /* the debug options: name, colour, value, range, value names and the function
    called on a change, in the order debug_Mode pages through them */
@@ -758,7 +834,9 @@ typedef struct { /* field names derived */
 } DbgCol; /* derived name */
 
 /* declared ahead with no size; the sized definitions are below */
+#ifndef VERSION_JUN26
 static DbgCol markCol[];
+#endif
 
 static DbgCol brainColLow[];
 
@@ -775,14 +853,22 @@ static DbgCol barScaleCol[];
 static DbgCol barLabelCol[];
 
 /* the profiler ring: 0x400 entries of 28 bytes, filled by debug_SetBar. */
-typedef struct {   /* field names derived */
+typedef struct { /* field names derived */
+#ifdef VERSION_JUN26
+    char name[16]; /* 0x00 */
+    int count;     /* 0x10 */
+    DbgCol col;    /* 0x14 */
+    char *file;    /* 0x18 */
+    int line;      /* 0x1C */
+#else
     char name[12]; /* 0x00 */
     DbgCol col;    /* 0x0C */
     char *file;    /* 0x10 */
     short count;   /* 0x14 */
     short pad16;   /* 0x16 */
     int line;      /* 0x18 */
-} DebugBar;        /* derived name */
+#endif
+} DebugBar; /* derived name */
 
 /* .bss: debug_MakeBarString's string, debug_PrintFontf's line, the load
    info line, the debug box and ball, the collision ray, debugSceOpen's path,
@@ -819,6 +905,10 @@ static DbgFontLine fontLines[26]; /* derived name */
 
 static DebugBar debugBars[1024]; /* derived name */
 
+#ifdef VERSION_JUN26
+/* two pages of 25 {count, mark} pairs */
+static int loadInfoSeg[2][25][2]; /* derived name */
+#else
 /* two pages of 26 {count, mark} pairs */
 static int loadInfoSeg[2][26][2]; /* derived name */
 
@@ -828,6 +918,7 @@ typedef union { /* field names derived */
     int w[2];
     float f[2];
 } DbgPkWord; /* derived name */
+#endif
 
 /* a whole quadword, for the vertex copies */
 typedef int Qw128 __attribute__((mode(TI)));
@@ -1022,7 +1113,7 @@ extern void DebugDisp1Collision(void *hit);
    +0x14 samples the EE timer T0_COUNT at 0x10000000, volatile because it is a
    hardware counter. */
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 inline void ChangeGirlControlMode(int mode)
 {
     if (mode == 1) {
@@ -1035,10 +1126,10 @@ void debug_Assert(char *fmt, ...)
 {
     char buf[256];
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
-    debug_assertMessage("src/debug.c", LN(1392, 1389, 1389, 1283, 1268), buf);
-    __assert("src/debug.c", LN(1392, 1389, 1389, 1283, 1268), "e");
-    debug_assert("src/debug.c", LN(1393, 1390, 1390, 1284, 1269));
-    __assert("src/debug.c", LN(1393, 1390, 1390, 1284, 1269), "0");
+    debug_assertMessage("src/debug.c", LN(1392, 1389, 1389, 1283, 1268, 1201), buf);
+    __assert("src/debug.c", LN(1392, 1389, 1389, 1283, 1268, 1201), "e");
+    debug_assert("src/debug.c", LN(1393, 1390, 1390, 1284, 1269, 1202));
+    __assert("src/debug.c", LN(1393, 1390, 1390, 1284, 1269, 1202), "0");
 }
 
 /* the host log file (the DEBUG build opens it) */
@@ -1209,7 +1300,11 @@ static void debug_SaveDebugOptionFile(void)
 #ifdef VERSION_AUG6
         for (i = 0; i < 67; i++) {
 #else
+#ifdef VERSION_JUN26
+        for (i = 0; i < 62; i++) {
+#else
         for (i = 0; i < 76; i++) {
+#endif
 #endif
             sprintf(buf, "#%s\n", debugOption[i].name);
             sceWrite(fd, buf, strlen(buf));
@@ -1280,7 +1375,11 @@ static int debug_GetDebugOption(void)
 #ifdef VERSION_AUG6
         if (cnt != 67) {
 #else
+#ifdef VERSION_JUN26
+        if (cnt != 62) {
+#else
         if (cnt != 76) {
+#endif
 #endif
             fd = -1;
             debug_StdPrintfDummy("debug_GetDebugOption:Found Debug Option file, But illegal.\n");
@@ -1289,7 +1388,11 @@ static int debug_GetDebugOption(void)
 #ifdef VERSION_AUG6
             for (i = 0; i < 67; i++) {
 #else
+#ifdef VERSION_JUN26
+            for (i = 0; i < 62; i++) {
+#else
             for (i = 0; i < 76; i++) {
+#endif
 #endif
                 debug_StdPrintfDummy("%s => %d\n", debugOption[i].name, *debugOption[i].val);
             }
@@ -1314,12 +1417,16 @@ void debug_VariableInit(void)
 {
     debug_frame = 15;
     debug_window_flag = 0;
+#ifndef VERSION_JUN26
     debug_ignore_demo_camera = 0;
+#endif
     debug_bar_flag = 0;
     debug_memory_bar = 0;
     debug_font_flag = 0;
     debug_font_flag2 = 0;
+#ifndef VERSION_JUN26
     debug_font_flag3 = 0;
+#endif
     debug_printf_flag = 0;
     debug_skel_flag = 0;
     debug_seslotdisp_flag = 0;
@@ -1349,7 +1456,7 @@ void debug_VariableInit(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     debug_snapshot_num = 1;
 #else
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     debug_snapshot_num = 0;
 #else
     debug_snapshot_num = 100;
@@ -1359,7 +1466,7 @@ void debug_VariableInit(void)
     debug_snapshot_format = 0;
     debug_ambient_volume = 0;
     debug_cloth_info = 0;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     debug_hair_tight_level = 20;
     debug_hair_gravity_level = 0;
     debug_hair_bend_angle = 256;
@@ -1387,6 +1494,10 @@ void debug_VariableInit(void)
     debug_enemy_fly_with_girl = 0;
     debug_disp_enemy_state = 0;
     debug_disp_escort_ball = 0;
+#ifdef VERSION_JUN26
+    graphics_ready = 0;
+    ChangeFieldCollisionDebugMode(0);
+#else
     debug_girl_detour_flag = 1;
     debug_col_old_proc = 0;
     debug_fly_limit_test = 0;
@@ -1410,6 +1521,7 @@ void debug_VariableInit(void)
     game_pause = 0;
     ChangeFieldCollisionDebugMode(0);
     ChangeGirlControlMode(debug_girl_pad_control);
+#endif
 #endif
 #endif
 }
@@ -1487,9 +1599,9 @@ int debug_Load(char **dst, char *name, int kind)
         case 0:
         default:
             *dst = iosMallocDebug(ios_partition_seki, sz, "src/debug.c",
-                                  LN(1958, 1955, 1955, 1817, 1798));
+                                  LN(1958, 1955, 1955, 1817, 1798, 1719));
             loadReport();
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
                                  (*dst + sz - ios_partition_seki->start) * 100.0f / 10092544.0f);
 #else
@@ -1499,46 +1611,58 @@ int debug_Load(char **dst, char *name, int kind)
             break;
         case 1:
             *dst = iosMallocDebug(ios_partition_sugipon, sz, "src/debug.c",
-                                  LN(1965, 1962, 1962, 1824, 1805));
+                                  LN(1965, 1962, 1962, 1824, 1805, 1726));
             loadReport();
             debug_StdPrintfDummy(" to sugi area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 524288.0f,
                                  (*dst + sz - ios_partition_sugipon->start) * 100.0f / 524288.0f);
             break;
         case 2:
             *dst = iosMallocDebug(ios_partition_common, sz, "src/debug.c",
-                                  LN(1973, 1970, 1970, 1832, 1813));
+                                  LN(1973, 1970, 1970, 1832, 1813, 1734));
             loadReport();
             debug_StdPrintfDummy(" to static object area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 2.0f,
                                  (*dst + sz - ios_partition_common->start) * 100.0f / 2.0f);
             break;
         case 3:
             *dst = iosMallocDebug(ios_partition_smotion, sz, "src/debug.c",
-                                  LN(1982, 1979, 1979, 1841, 1822));
+                                  LN(1982, 1979, 1979, 1841, 1822, 1743));
             loadReport();
+#ifdef VERSION_JUN26
+            debug_StdPrintfDummy(" to static motion area.(%2.1f%%/%2.1f%%)\n",
+                                 sz * 100.0f / 1703936.0f,
+                                 (*dst + sz - ios_partition_smotion->start) * 100.0f / 1703936.0f);
+#else
             debug_StdPrintfDummy(" to static motion area.(%2.1f%%/%2.1f%%)\n",
                                  sz * 100.0f / 1179648.0f,
                                  (*dst + sz - ios_partition_smotion->start) * 100.0f / 1179648.0f);
+#endif
             break;
         case 5:
             *dst = iosMallocDebug(ios_partition_dmotion, sz, "src/debug.c",
-                                  LN(1991, 1988, 1988, 1850, 1831));
+                                  LN(1991, 1988, 1988, 1850, 1831, 1752));
             loadReport();
+#ifdef VERSION_JUN26
+            debug_StdPrintfDummy(" to dynamic motion area.(%2.1f%%/%2.1f%%)\n",
+                                 sz * 100.0f / 3145728.0f,
+                                 (*dst + sz - ios_partition_dmotion->start) * 100.0f / 3145728.0f);
+#else
             debug_StdPrintfDummy(" to dynamic motion area.(%2.1f%%/%2.1f%%)\n",
                                  sz * 100.0f / 3670016.0f,
                                  (*dst + sz - ios_partition_dmotion->start) * 100.0f / 3670016.0f);
+#endif
             break;
         case 6:
             *dst = iosMallocDebug(ios_partition_hara, sz, "src/debug.c",
-                                  LN(2000, 1997, 1997, 1859, 1840));
+                                  LN(2000, 1997, 1997, 1859, 1840, 1761));
             loadReport();
             debug_StdPrintfDummy(" to hara-area.(%2.1f%%)\n",
                                  (*dst + sz - ios_partition_hara->start) * 100.0f);
             break;
         case 7:
             *dst = iosMallocDebug(ios_partition_oomori, sz, "src/debug.c",
-                                  LN(2007, 2004, 2004, 1866, 1847));
+                                  LN(2007, 2004, 2004, 1866, 1847, 1768));
             loadReport();
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             debug_StdPrintfDummy(" to oomori area.(%2.1f%%)\n",
                                  (*dst + sz - ios_partition_oomori->start) * 100.0f / 262144.0f);
 #else
@@ -1548,23 +1672,23 @@ int debug_Load(char **dst, char *name, int kind)
             break;
         case 8:
             *dst = iosMallocDebug(ios_partition_horagai, sz, "src/debug.c",
-                                  LN(2014, 2011, 2011, 1873, 1854));
+                                  LN(2014, 2011, 2011, 1873, 1854, 1775));
             loadReport();
             debug_StdPrintfDummy(" to horagai-area.\n");
             break;
         case 9:
             *dst = iosMallocDebug(ios_partition_sound, sz, "src/debug.c",
-                                  LN(2019, 2016, 2016, 1878, 1859));
+                                  LN(2019, 2016, 2016, 1878, 1859, 1780));
             loadReport();
             debug_StdPrintfDummy(" to sound-area.\n");
             break;
         case 10:
 #ifdef VERSION_NTSC
             *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c",
-                                  LN(1883, 1883, 1883, 1883, 1883));
+                                  LN(1883, 1883, 1883, 1883, 1883, 1883));
 #else
             *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c",
-                                  LN(2024, 2021, 2021, 2024, 1864));
+                                  LN(2024, 2021, 2021, 2024, 1864, 1785));
 #endif
             loadReport();
             debug_StdPrintfDummy(" to sound_semi-area.\n");
@@ -1585,9 +1709,15 @@ int debug_Load(char **dst, char *name, int kind)
 static unsigned long long debugFontTag[2] = {0x2000400000008000LL, 0x51}; /* derived name */
 #else
 #ifndef VERSION_AUG6
+#ifdef VERSION_JUN26
+/* a GIF tag as the two 64-bit words the packet takes it in; this build
+   declares it without the quadword alignment (debugFontTag sits 8-aligned) */
+typedef unsigned long long GifTag[2]; /* derived name */
+#else
 /* a GIF tag as the two 64-bit words the packet takes it in, on the
    quadword boundary the GIF reads it at */
 typedef unsigned long long GifTag[2] __attribute__((aligned(16))); /* derived name */
+#endif
 #endif
 
 #ifdef VERSION_AUG6
@@ -1606,12 +1736,12 @@ static GifTag debugFontTag = {0x2000400000008000LL, 0x51}; /* derived name */
 static void debug_MakeFont(void)
 {
     int on = 1, off = 0;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     float v[4];
     char *ptr;
     char *base;
     unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
-    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(1928, 1928, 1928, 1928, 1909)); ptr = base;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(1928, 1928, 1928, 1928, 1909, 1830)); ptr = base;
     *((int *)ptr)++ = 0x1400000C;
     *((int *)ptr)++ = 0;
     *((long long *)ptr)++ = 0;
@@ -1619,7 +1749,7 @@ static void debug_MakeFont(void)
     struct { /* field names derived */ float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
     char *base;
     unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
-    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(2069, 2066, 2066, 2069, 2069)); w.ptr = base;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(2069, 2066, 2066, 2069, 2069, 2069)); w.ptr = base;
     *((int *)w.ptr)++ = 0x1400000C;
     *((int *)w.ptr)++ = 0;
     *((long long *)w.ptr)++ = 0;
@@ -1641,8 +1771,8 @@ static void debug_MakeFont(void)
 
 
             fontPacket[i].qwc = n + 3;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
-            ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(1949, 1949, 1949, 1949, 1930));
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
+            ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(1949, 1949, 1949, 1949, 1930, 1851));
             *((long long *)ptr)++ = 0;
             *((int *)ptr)++ = 0;
             *((int *)ptr)++ = ((n + 1) << 16) | 0x6C008000;
@@ -1650,7 +1780,7 @@ static void debug_MakeFont(void)
             *((long long *)ptr)++ = n | ((long long)0x8000 << 38) | debugFontTag[0];
             *((long long *)ptr)++ = debugFontTag[1];
 #else
-            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(2090, 2087, 2087, 2090, 2090));
+            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(2090, 2087, 2087, 2090, 2090, 2090));
             *((long long *)w.ptr)++ = 0;
             *((int *)w.ptr)++ = 0;
             *((int *)w.ptr)++ = ((n + 1) << 16) | 0x6C008000;
@@ -1662,7 +1792,7 @@ static void debug_MakeFont(void)
                 m0 = b[j];
                 m1 = a[j];
                 for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
                     v[0] = (float)k;
 
                     v[1] = (float)(j * 2);
@@ -1675,7 +1805,7 @@ static void debug_MakeFont(void)
 
 
                     if (m0 & 1) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
                         v[2] = 3.4028235e+38f;
                         v[3] = *(float *)&off;
                         *((Qw128 *)ptr)++ = *(Qw128 *)v;
@@ -1695,7 +1825,7 @@ static void debug_MakeFont(void)
                     }
                 }
             }
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             *((int *)ptr)++ = 0x1400000A;
             *((int *)ptr)++ = 0;
             *((long long *)ptr)++ = 0;
@@ -1740,8 +1870,10 @@ static void debug_makeBackImage(void)
 
 static void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, int sz)
 {
+#ifndef VERSION_JUN26
     char *p;
     char *q;
+#endif
     int px, py;
     int v[4] = {0, 0, 0, 0x60};
     int c;
@@ -1750,6 +1882,32 @@ static void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, i
     /* one packet word and its cursor advance per line; the DMA tag's line
        also opens the tail */
     /* clang-format off */
+#ifdef VERSION_JUN26
+    PacketBufferStruct.dma.c = PacketBufferStruct.ptr.c; PacketBufferStruct.gif.c = 0; PacketBufferStruct.end.c = 0;
+
+    PacketBufferStruct.tail.c = PacketBufferStruct.ptr.c; *PacketBufferStruct.ptr.d++ = 0x10000006;
+    *PacketBufferStruct.ptr.i++ = 0x11000000;
+    *PacketBufferStruct.ptr.i++ = 0x3000104;
+    *PacketBufferStruct.ptr.d++ = 0;
+    *PacketBufferStruct.ptr.i++ = 0x200017E;
+    *PacketBufferStruct.ptr.i++ = 0x6C048000;
+
+    *((Qw128 *)PacketBufferStruct.ptr.c)++ = *(Qw128 *)col;
+    *((Qw128 *)PacketBufferStruct.ptr.c)++ = *(Qw128 *)v;
+
+    px = x * ScreenWidth / 640 + 2048; px -= ScreenWidth / 2; *((float *)PacketBufferStruct.ptr.c)++ = (float)px;
+    py = y * ScreenHeight / 224 + 2048; py -= ScreenHeight / 2; py--; *((float *)PacketBufferStruct.ptr.c)++ = (float)py;
+    *PacketBufferStruct.ptr.d++ = 0;
+    *((float *)PacketBufferStruct.ptr.c)++ = (float)ScreenWidth * 12.0f / 640.0f;
+    *PacketBufferStruct.ptr.i++ = 0;
+    *PacketBufferStruct.ptr.d++ = 0;
+
+    *PacketBufferStruct.ptr.i++ = 0x14000008;
+    *PacketBufferStruct.ptr.i++ = 0;
+    *PacketBufferStruct.ptr.d++ = 0;
+
+    PacketBufferStruct.tail.c = PacketBufferStruct.ptr.c; *PacketBufferStruct.ptr.d++ = 0x60000000; *PacketBufferStruct.ptr.i++ = 0; *PacketBufferStruct.ptr.i++ = 0;
+#else
     p = PacketBufferStruct.ptr.c; PacketBufferStruct.dma.c = p; PacketBufferStruct.gif.c = 0; PacketBufferStruct.end.c = 0;
 
     PacketBufferStruct.tail.c = p; ((DbgPkWord *)p)->d = 0x10000006; PacketBufferStruct.ptr.c = p + 8;
@@ -1774,6 +1932,7 @@ static void debug_PrintCharacter(char *str, int x, int y, int r, int g, int b, i
     ((DbgPkWord *)(q + 0x24))->d = 0; PacketBufferStruct.ptr.c = q + 0x2C;
 
     PacketBufferStruct.tail.c = q + 0x2C; ((DbgPkWord *)(q + 0x2C))->d = 0x60000000; PacketBufferStruct.ptr.c = q + 0x34; ((DbgPkWord *)(q + 0x34))->w[0] = 0; PacketBufferStruct.ptr.c = q + 0x38; ((DbgPkWord *)(q + 0x38))->w[0] = 0; PacketBufferStruct.ptr.c = q + 0x3C;
+#endif
 
     dl_SetDLPriority(12); dl_OpenDma(5, PacketBufferStruct.dma.c, 0); dl_CloseDma();
 
@@ -1902,8 +2061,10 @@ static inline void make_mark_points(DbgVtx *v, DbgPos *p, int r) /* derived name
     }
 }
 
+#ifndef VERSION_JUN26
 /* the brain bar colours: the mark, then the four levels */
 static DbgCol markCol[1] = {{0x00, 0x00, 0xFF, 0xFF}}; /* derived name */
+#endif
 
 static DbgCol brainColLow[1] = {{0x40, 0x40, 0xFF, 0xFF}}; /* derived name */
 
@@ -2015,6 +2176,7 @@ static void debug_brainBar(void)
 #else
 static void debug_brainBar(void)
 {
+#ifndef VERSION_JUN26
     void draw_batsu(DbgPos * p)
     {
         DbgCol col = markCol[0];
@@ -2035,13 +2197,16 @@ static void debug_brainBar(void)
         gif_Line(&v[3].x, &v[2].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
         gif_Line(&v[2].x, &v[0].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
     }
+#endif
     DbgCol c0 = brainColLow[0];
     DbgCol c1 = brainColMid[0];
     DbgCol c2 = brainColHigh[0];
     DbgCol c3 = brainColMax[0];
     DbgPos a;
     DbgPos b;
+#ifndef VERSION_JUN26
     DbgPos c;
+#endif
     Brain *brain;
     DbgCol *col;
     int i;
@@ -2053,7 +2218,7 @@ static void debug_brainBar(void)
     gif_StartPacketPri(11);
     gif_SetAlpha(1, 2, c3.a);
     brain = &brainGirl;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     for (i = 0; i < 20; i++) {
 #else
     for (i = 0; i < 40; i++) {
@@ -2074,6 +2239,7 @@ static void debug_brainBar(void)
             col = &c1;
         }
         gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
+#ifndef VERSION_JUN26
 #ifdef VERSION_AUG6
         if (brain->tgt[i].gobj->kind == 59) {
 #else
@@ -2102,6 +2268,7 @@ static void debug_brainBar(void)
                 draw_batsu(&c);
             }
         }
+#endif
         y += 4;
     }
     b.x = 300.0f - brain->threshold * 20.0f;
@@ -2188,7 +2355,11 @@ static void debug_DrawBar(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     scale = 1.0f / (270000.0f / 30.0f);
 #else
+#ifdef VERSION_JUN26
+    scale = 1.0f / (270000.0f / 30.0f);
+#else
     scale = 1.0f / (270000.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+#endif
 #endif
 
 
@@ -2206,7 +2377,7 @@ static void debug_DrawBar(void)
     sh = debug_debug_bar_multiply;
 
     gif_StartPacketPri(12);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 0, 0);
 #else
     gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 1, 0);
@@ -2388,7 +2559,11 @@ inline void debug_SetBar(char *name, unsigned int col, char *file, int line)
 {
     DebugBar *p = &debugBars[debugBarCount];
     if (debug_profile_type == 0 && debugBarCount != 0x400) {
+#ifdef VERSION_JUN26
+        sprintf(p->name, "%s", name);
+#else
         sprintf(p->name, "%8s", name);
+#endif
         p->count = *T0_COUNT;
         p->col.r = col >> 24;
         p->col.g = col >> 16;
@@ -2406,7 +2581,11 @@ inline void debug_SetBar2(char *name, unsigned int col, char *file, int line)
 {
     DebugBar *p = &debugBars[debugBarCount];
     if (debug_profile_type != 0 && debugBarCount != 0x400) {
+#ifdef VERSION_JUN26
+        sprintf(p->name, "%s", name);
+#else
         sprintf(p->name, "%8s", name);
+#endif
         p->count = *T0_COUNT;
         p->col.r = col >> 24;
         p->col.g = col >> 16;
@@ -2427,7 +2606,11 @@ void debug_DispBar(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     inv = 1.0f / (270000.0f / 30.0f);
 #else
+#ifdef VERSION_JUN26
+    inv = 1.0f / (270000.0f / 30.0f);
+#else
     inv = 1.0f / (270000.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+#endif
 #endif
     vb = (float)(debugBars[debugBarCount - 1].count * 100) * inv;
     va = (float)(drawTimerCount * 100) * inv;
@@ -2567,7 +2750,7 @@ static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
     hdr.biYPelsPerMeter = 0;
     hdr.biClrUsed = 0;
     hdr.biClrImportant = 0;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     /* both arms store the same: the test's load and its 1 stay in the ROM
        (aug6 TRFILE debug.c:2885-2891, the 2886-2888 lines code-less) */
     if (debug_snapshot_size == 1) {
@@ -2600,10 +2783,28 @@ static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
     }
 }
 
+#ifdef VERSION_JUN26
+/* the sibling of debug_mcConfirm that prints an already-formatted message
+   instead of a fixed prompt; defined ahead of the snapshot code, where the
+   demo's .sdata has its "%s" (0x67A4D0), the copy the CSV windows share */
+static inline int debug_mcAsk(char *msg) /* derived name */
+{
+    int yes = 0;
+    debug_PrintfDummy(80, 70, 0xFFFFFF00u, "%s", msg);
+    if (pad[0].flags & 0x20) {
+        yes = 1;
+    }
+    if (pad[0].flags & 0x40) {
+        yes = -1;
+    }
+    return yes;
+}
+#endif
+
 /* debug_SnapShot's first-call flag */
 static int snapFirst = 1; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* Stores the frame as shot idx, idx frame sizes above 0x2000000, and writes
    the next free snapshot/snapNNNNNNN file: shot 0 on its own (halved for
    Half), shot 5 shots 1-4 joined two by two. */
@@ -3376,6 +3577,16 @@ inline void debug_DispVu1IReg(int no)
     }
 }
 
+#ifdef VERSION_JUN26
+/* the value names debug_Mode logs a two-state option with */
+static char *modeValueName[] = {"Off", "On"}; /* derived name */
+
+/* debug_Mode's cursor and blink counter */
+static int modeSelect = 0; /* derived name */
+
+static unsigned char modeBlink = 0; /* derived name */
+#endif
+
 inline void debug_DispVu1SReg(int no)
 {
     int i;
@@ -3401,7 +3612,7 @@ inline int gsResetFunc(int val)
     return 1;
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_JUN26)
 /* the value names debug_Mode logs a two-state option with */
 static char *modeValueName[] = {"Off", "On"}; /* derived name */
 
@@ -3488,8 +3699,13 @@ static int debug_Mode(void)
     i = (modeSelect + 61) % 67;
     end = (modeSelect + 74) % 67;
 #else
+#ifdef VERSION_JUN26
+    i = (modeSelect + 56) % 62;
+    end = (modeSelect + 69) % 62;
+#else
     i = (modeSelect + 70) % 76;
     end = (modeSelect + 83) % 76;
+#endif
 #endif
     j = 1;
     while (i != end) {
@@ -3501,7 +3717,11 @@ static int debug_Mode(void)
 #ifdef VERSION_AUG6
         if (++i == 67) i = 0;
 #else
+#ifdef VERSION_JUN26
+        if (++i == 62) i = 0;
+#else
         if (++i == 76) i = 0;
+#endif
 #endif
         j++;
     }
@@ -3513,10 +3733,17 @@ static int debug_Mode(void)
     if (pad[0].rep & 0x1000) {
         if (--modeSelect < 0) modeSelect = 66;
 #else
+#ifdef VERSION_JUN26
+        if (++modeSelect >= 62) modeSelect = 0;
+    }
+    if (pad[0].rep & 0x1000) {
+        if (--modeSelect < 0) modeSelect = 61;
+#else
         if (++modeSelect >= 76) modeSelect = 0;
     }
     if (pad[0].rep & 0x1000) {
         if (--modeSelect < 0) modeSelect = 75;
+#endif
 #endif
     }
     if (pad[0].rep & 0x2000) {
@@ -3535,7 +3762,11 @@ static int debug_Mode(void)
 #ifdef VERSION_AUG6
         for (i = 0; i < 67; i++) {
 #else
+#ifdef VERSION_JUN26
+        for (i = 0; i < 62; i++) {
+#else
         for (i = 0; i < 76; i++) {
+#endif
 #endif
             if (debugOption[i].min == 0 && debugOption[i].max == 1)
                 debug_StdPrintfDummy("debug%s => %s\n", debugOption[i].name, modeValueName[*debugOption[i].val]);
@@ -3722,10 +3953,16 @@ static int debug_SelectStageMain(int ret, int stage)
                 stgmgrForceSwitch(stage);
                 gflagOff(354);
 #else
+#ifdef VERSION_JUN26
+                gflagOn(343);
+                stgmgrForceSwitch(stage);
+                gflagOff(339);
+#else
                 gflagOn(394);
                 scpBoyControlReadDisable = 0;
                 stgmgrForceSwitch(stage);
                 gflagOff(388);
+#endif
 #endif
 #endif
                 ACTGame_SetActors_Debug(stage, on);
@@ -3747,9 +3984,15 @@ int debug_SelectStage(void)
                                                                sizeof(StgPre), 0x20, 0, 104, &stageSelectNo),
                                  stageSelectNo);
 #else
+#ifdef VERSION_JUN26
+    return debug_SelectStageMain(debug_SelectCsvWindowWithLine("stage select", 10, 80, 11, stageData,
+                                                               sizeof(StgPre), 0x20, 0, 103, &stageSelectNo),
+                                 stageSelectNo);
+#else
     return debug_SelectStageMain(debug_SelectCsvWindowWithLine("stage select", 10, 80, 11, stageData,
                                                                404, 0x20, 0, 106, &stageSelectNo),
                                  stageSelectNo);
+#endif
 #endif
 #endif
 }
@@ -3762,6 +4005,7 @@ static inline int debug_mcConfirm(char *msg) /* derived name */
         yes = 1;
     }
     return (pad[0].flags & 0x40) ? -1 : yes;
+#ifndef VERSION_JUN26
 }
 
 /* the sibling of debug_mcConfirm that prints an already-formatted message instead of a fixed prompt. */
@@ -3776,6 +4020,7 @@ static inline int debug_mcAsk(char *msg) /* derived name */
         yes = -1;
     }
     return yes;
+#endif
 }
 
 static int formatState = 0; /* derived name */
@@ -3888,7 +4133,9 @@ static int selectFileState = 0; /* derived name */
 
 static int debug_selectFile(McMgr *mc)
 {
+#ifndef VERSION_JUN26
     int i;
+#endif
     int r = 0;
     int ret = 0;
 
@@ -3913,6 +4160,7 @@ static int debug_selectFile(McMgr *mc)
     case 3:
         *(McPat *)mc->path = *(McPat *)"*";
         iosMcGetDir(mc);
+#ifndef VERSION_JUN26
         selectFileState++;
         break;
     case 6:
@@ -3920,6 +4168,7 @@ static int debug_selectFile(McMgr *mc)
             debug_StdPrintfDummy("%s %d bytes\n", mc->dir[i].EntryName,
                                  ((McDirEnt *)((char *)mc + (i << 6) + 0x4C0))->size);
         }
+#endif
         selectFileState++;
         break;
     default:
@@ -4077,7 +4326,7 @@ static int debug_mcLoadMainBlock(McMgr *mc)
         break;
     case 9:
         gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         scpBoyControlReadDisable = 0;
 #endif
         loadState++;
@@ -4229,7 +4478,11 @@ int debug_MemoryCard(void)
 
 inline int debug_STAFFROLLTest(void)
 {
+#ifdef VERSION_JUN26
+    staffRollStart(1.0f, 255);
+#else
     staffRollStart(1.0f, 0x80);
+#endif
     return 1;
 }
 
@@ -4257,8 +4510,13 @@ int debug_SETest(int reset)
     r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
                                                0, 1389, &seSelect, debug_SETest_color);
 #else
+#ifdef VERSION_JUN26
+    r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
+                                               0, 1337, &seSelect, debug_SETest_color);
+#else
     r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
                                                0, 0x592, &seSelect, debug_SETest_color);
+#endif
 #endif
 #endif
     if (r > 0) {
@@ -4311,10 +4569,18 @@ void debug_SESlotDisp(void)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+inline int debug_reverbTest(void);
+#endif
+
 static int adpcmSelect = 0; /* derived name */
 
 static int adpcmHandle = -1; /* derived name */
+
+#ifdef VERSION_JUN26
+inline int debug_AdpcmTest(int first);
+#endif
 #endif
 
 inline int debug_reverbTest(void)
@@ -4333,7 +4599,7 @@ inline int debug_reverbTest(void)
     return (pad[0].flags & 0x60) != 0;
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_JUN26)
 static int adpcmSelect = 0; /* derived name */
 
 static int adpcmHandle = -1; /* derived name */
@@ -4351,7 +4617,11 @@ inline int debug_AdpcmTest(int first)
 #ifdef VERSION_AUG6
     r = debug_SelectCsvWindow("ADPCM LIST", 10, 0x3C, 10, adpcmFile, 0x40, 0, 0, 96, &adpcmSelect);
 #else
+#ifdef VERSION_JUN26
+    r = debug_SelectCsvWindow("ADPCM LIST", 10, 60, 10, adpcmFile, 64, 0, 0, 90, &adpcmSelect);
+#else
     r = debug_SelectCsvWindow("ADPCM LIST", 10, 0x3C, 10, adpcmFile, 0x40, 0, 0, 0x69, &adpcmSelect);
+#endif
 #endif
 #endif
     if (r > 0) {
@@ -4365,34 +4635,58 @@ inline int debug_AdpcmTest(int first)
 inline void debugCdvdLoadInfoSegInit(int page)
 {
     int i;
+#ifdef VERSION_JUN26
+    for (i = 24; i >= 0; i--)
+        loadInfoSeg[page][i][0] = 0;
+#else
     for (i = 25; i >= 0; i--)
         loadInfoSeg[page][i][0] = 0;
+#endif
 }
 
 inline void debugCdvdLoadInfoSegAdd(int page, int idx, int delta)
 {
+#ifdef VERSION_JUN26
+    *(int *)((char *)loadInfoSeg + (page * 200 + idx * 8)) += delta;
+#else
     *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) += delta;
+#endif
 }
 
 inline void debugCdvdLoadInfoSegCls(int page, int idx)
 {
+#ifdef VERSION_JUN26
+    *(int *)((char *)loadInfoSeg + (page * 200 + idx * 8)) = 0;
+#else
     *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) = 0;
+#endif
 }
 
 static char *debugCdvdLoadInfoSegDispFunc(int idx, int page)
 {
     char buf[16];
     int d;
+#ifdef VERSION_JUN26
+    d = *(int *)((char *)loadInfoSeg + (page * 200 + idx * 8)) -
+        *(int *)((char *)loadInfoSeg + (page * 200 + idx * 8) + 4);
+#else
     d = *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)) -
         *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8) + 4);
+#endif
     if (d < 0) {
         sprintf(buf, "-%6x", -d);
     } else {
         sprintf(buf, " %6x", d);
     }
+#ifdef VERSION_JUN26
+    sprintf(loadInfoLine, "%3s %6x %6x %s", initFunc[idx].ext,
+            *(int *)((char *)loadInfoSeg + (page * 200 + idx * 8)),
+            *(int *)((char *)loadInfoSeg + (page * 200 + idx * 8) + 4), buf);
+#else
     sprintf(loadInfoLine, "%3s %6x %6x %s", initFunc[idx].ext,
             *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8)),
             *(int *)((char *)loadInfoSeg + (page * 0xD0 + idx * 8) + 4), buf);
+#endif
     return loadInfoLine;
 }
 
@@ -4407,12 +4701,21 @@ inline int debugCdvdLoadInfoSegDisp(void)
     if (loadInfoPage != 0) {
         strcpy(title, "CD LOAD INFO STAGE");
     }
+#ifdef VERSION_JUN26
+    r = debug_SelectCsvWindowVal(title, 80, 70, 10, 25, &loadInfoSelect,
+                                 (int (*)(int, int))debugCdvdLoadInfoSegDispFunc, loadInfoPage);
+    if (pad[0].flags & 0x10) {
+        int i;
+        int *p = (int *)((char *)loadInfoSeg + loadInfoPage * 200);
+        for (i = 24; i >= 0; i--) {
+#else
     r = debug_SelectCsvWindowVal(title, 80, 70, 10, 26, &loadInfoSelect,
                                  (int (*)(int, int))debugCdvdLoadInfoSegDispFunc, loadInfoPage);
     if (pad[0].flags & 0x10) {
         int i;
         int *p = (int *)((char *)loadInfoSeg + loadInfoPage * 0xD0);
         for (i = 25; i >= 0; i--) {
+#endif
             p[1] = p[0];
             p += 2;
         }
@@ -4438,6 +4741,7 @@ inline int debug_BackStageTest(void)
     return 1;
 }
 
+#ifndef VERSION_JUN26
 inline int debug_tsuresariTimeZero(void)
 {
     backStageDebugTimeZero();
@@ -4457,6 +4761,7 @@ inline int debug_hintStart(void)
     return 1;
 }
 #endif
+#endif
 
 static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
 {
@@ -4471,7 +4776,11 @@ static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         case 46:
 #else
+#ifdef VERSION_JUN26
+        case 45:
+#else
         case 0x2F:
+#endif
 #endif
             list[n].name = objKindData[kind].name;
             list[n].obj = g;
@@ -4706,8 +5015,10 @@ static char *collisionMoveName[] = {"move all", "move src", "move dst"}; /* deri
 /* the wall hit sphere colour */
 static Col4 collisionWallCol = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
 
+#ifndef VERSION_JUN26
 /* the floor hit sphere colour */
 static Col4 collisionFloorCol = {{0, 0x80, 0xFF, 0x80}}; /* derived name */
+#endif
 
 static int debug_CollisionTest(int reset)
 {
@@ -4756,7 +5067,11 @@ static int debug_CollisionTest(int reset)
         _AddVector(collisionRay.pt[1], collisionRay.pt[1], &mv);
         break;
     }
+#ifdef VERSION_JUN26
+    clipWallFunc(&collisionRay, 0);
+#else
     ClipCollision(&collisionRay);
+#endif
     if (collisionRay.wall.elem != 0) {
         wall.o = collisionRay.wall.o;
         wall.elem = collisionRay.wall.elem;
@@ -4774,6 +5089,7 @@ static int debug_CollisionTest(int reset)
                           collisionRay.wall.o.node);
         debug_PrintfDummy(80, 190, 0xFFFFFF00u, "ATTR: %x",
                           GetWallAttribute(&collisionRay));
+#ifndef VERSION_JUN26
     }
     if (collisionRay.floor.elem != 0) {
         gif_StartPacketPri(11);
@@ -4784,6 +5100,7 @@ static int debug_CollisionTest(int reset)
         MatrixDrive_TransMatrixV(collisionRay.pt[2]);
         prim_DispWireSphere(5.0f, (void *)&collisionFloorCol, 8, 4);
         gif_EndPacket();
+#endif
     }
     debug_PrintfDummy(80, 160, 0xFFFFFF00u, "SRC: %f, %f, %f", collisionRay.pt[0][0],
                       collisionRay.pt[0][1], collisionRay.pt[0][2]);
@@ -4841,6 +5158,39 @@ DbgMenuItem debugMenu[26] = {
 static char *debugMenuHelp[] = {"B1897   SPIDER ALIVE", "B2373   ENEMY FAIL FLY", "B2421   FLARE CLAMP FAIL",
                                 "A553/A580/B2432 THROUGH FLOOR @ SLOPE", 0}; /* derived name */
 #else
+#ifdef VERSION_JUN26
+/* the debug menu: caption, entry and whether the menu stays open */
+DbgMenuItem debugMenu[25] = {
+    {"Debug Mode", (int (*)(int))debug_Mode, 0},
+    {"Free Camera", debug_FreeCamera, 0},
+    {"Stage Select", (int (*)(int))debug_SelectStage, 1},
+    {"Target Object", debug_TargetGObj, 0},
+    {"Stage Setting", (int (*)(int))gsb_StageSetting, 0},
+    {"Way Test", (int (*)(int))debug_WayTool, 0},
+    {"Camera Editor", (int (*)(int))debug_CameraEditor, 0},
+    {"Motion Viewer", (int (*)(int))MotionViewer, 0},
+    {"Effect Tool", (int (*)(int))EffectTool, 0},
+    {"TextureList", (int (*)(int))tex_ListTool, 0},
+    {"Snap Shot", debug_SnapShot, 0},
+    {"Memory Card", (int (*)(int))debug_MemoryCard, 0},
+    {"STAFF ROLL TEST", (int (*)(int))debug_STAFFROLLTest, 0},
+    {"ADPCM TEST", debug_AdpcmTest, 0},
+    {"SE TEST", debug_SETest, 0},
+    {"REVERB TEST", (int (*)(int))debug_reverbTest, 0},
+    {"Game Over", (int (*)(int))debug_GameOver, 0},
+    {"Ending Demo", (int (*)(int))debug_EndingDemo, 0},
+    {"BackStage Test", (int (*)(int))debug_BackStageTest, 0},
+    {"LoadINFO", (int (*)(int))debugCdvdLoadInfoSegDisp, 0},
+    {"Chara Info", debug_SelectActGobj, 0},
+    {"Pad2 Control", debug_SelectPad2ControlGobj, 0},
+    {"DispBox", debug_DispBox, 0},
+    {"DispBall", debug_DispBall, 0},
+    {"Collision Test", debug_CollisionTest, 0},
+};
+
+/* the open bug list debug_MenuHelp prints beside the menu */
+static char *debugMenuHelp[] = {"B0911-2 SORRY!! LEVER UNDER WATER", "REFINE WATER FLOAT BOX(B0672)", 0}; /* derived name */
+#else
 /* the debug menu: caption, entry and whether the menu stays open */
 DbgMenuItem debugMenu[27] = {
     {"Debug Mode", (int (*)(int))debug_Mode, 0},
@@ -4875,6 +5225,7 @@ DbgMenuItem debugMenu[27] = {
 /* the open bug list debug_MenuHelp prints beside the menu */
 static char *debugMenuHelp[] = {"B2850   TOO HARD TO PICK UP LASER", "B2890   ILLEGAL CAGE CHAIN DYNAMICS", 0}; /* derived name */
 #endif
+#endif
 
 /* the menu's blink counter, state, cursor and the argument its entry gets */
 static int menuBlink = 0; /* derived name */
@@ -4901,7 +5252,11 @@ static inline void debug_MenuBlink(void) /* derived name */
 #ifdef VERSION_AUG6
         debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Aug  7 2001", "15:03:20");
 #else
+#ifdef VERSION_JUN26
+        debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Jun 26 2001", "20:01:21");
+#else
         debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Jan 17 2002", "15:37:26");
+#endif
 #endif
 #endif
 #endif
@@ -4925,7 +5280,11 @@ static inline void debug_MenuHelp(void) /* derived name */
     while (debugMenuHelp[i] != 0) {
         debug_PrintfDummy(x, y, 0x80808080u, "%s", debugMenuHelp[i]);
         y += 10;
+#ifdef VERSION_JUN26
+        if (y >= 201) {
+#else
         if (y >= 301) {
+#endif
             y = 0x50;
             x += 200;
         }
@@ -4959,8 +5318,13 @@ void debug_Menu(void)
         r = debug_SelectCsvWindow("DEBUG MENU", 0xA, 0x32, 0xB, debugMenu, 0xC, 0, 1, 26,
                                   &menuSelect);
 #else
+#ifdef VERSION_JUN26
+        r = debug_SelectCsvWindow("DEBUG MENU", 0xA, 0x32, 0xB, debugMenu, 0xC, 0, 1, 25,
+                                  &menuSelect);
+#else
         r = debug_SelectCsvWindow("DEBUG MENU", 0xA, 0x32, 0xB, debugMenu, 0xC, 0, 1, 0x1B,
                                   &menuSelect);
+#endif
 #endif
 #endif
         switch (r) {
@@ -5050,6 +5414,11 @@ int used_dl_max = 0;
 
 int used_dl_num = 0;
 
+#ifdef VERSION_JUN26
+int used_dl_memory[32] = {0};
+
+int debug_bar_flag = 0;
+#else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int used_dl_memory[32] = {0};
 #else
@@ -5059,6 +5428,7 @@ int used_dl_memory[34] = {0};
 int debug_bar_flag = 0;
 
 int debug_ignore_demo_camera = 0;
+#endif
 
 int debug_brain_bar_flag = 0;
 
@@ -5066,7 +5436,9 @@ int debug_font_flag = 0;
 
 int debug_font_flag2 = 0;
 
+#ifndef VERSION_JUN26
 int debug_font_flag3 = 0;
+#endif
 
 int debug_skel_flag = 0;
 
@@ -5182,6 +5554,11 @@ int debug_disp_enemy_state = 0;
 
 int debug_disp_escort_ball = 0;
 
+#ifdef VERSION_JUN26
+/* The demo's debug option words end here (0x67A7B8): PAL's debug_ignore_demo_camera,
+   debug_font_flag3 and the fourteen words after debug_disp_escort_ball are not
+   in this build. */
+#else
 int debug_girl_detour_flag = 0;
 
 int debug_col_old_proc = 0;
@@ -5211,5 +5588,6 @@ int debug_hair_bend_angle = 0; /* derived name */
 int debug_hair_collision = 0; /* derived name */
 
 int debug_no_breast_hang = 0; /* derived name */
+#endif
 #endif
 #endif

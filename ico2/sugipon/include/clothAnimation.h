@@ -30,11 +30,11 @@ typedef struct { /* field names derived */
 } ExW; /* derived name */
 
 /* the points of one chain InitChains builds, 0x1A0 bytes */
-typedef struct { /* field names derived */
+typedef struct {     /* field names derived */
     float (*pos)[4]; /* 0x0, the chain's points */
     float (*vel)[4]; /* 0x4, their velocities */
     float *len;      /* 0x8, one a point, the step down the chain */
-    int exNum;   /* 0xC, the extended weights in use */
+    int exNum;       /* 0xC, the extended weights in use */
     ExW ex[5];
 } ChainNode; /* derived name */
 
@@ -83,7 +83,11 @@ typedef struct ClothCfg { /* field names derived */
 /* the texture record tex_GetTextureData returns, copied whole with
    doubleword moves */
 typedef struct { /* field names derived */
+#ifdef VERSION_JUN26
+    long long q[98];
+#else
     long long q[89];
+#endif
 } TexBlob; /* derived name */
 
 /* one cloth InitClothes builds, 0x2E0 bytes: the mesh, the rows of points
@@ -108,16 +112,19 @@ typedef struct { /* field names derived */
 typedef struct Cloth4D Cloth4D; /* derived name */
 
 void DispCloth4D(Cloth4D *c, void *la, void *lb);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb);
 #endif
+
 void DispClothMesh(ClothRec *rec, void *la, void *lb);
 void DispMeshWire(Prim3DVec **rows, int nx, int ny);
 void GetChainAnimation(ChainSet *sys, struct GObj *obj, float (*mtx)[4]);
 float GetChainCollision(ChainSet *sys, void *pos, float r);
 float GetChainNodeID(ChainCfg *cfg, float f);
 void GetCloth4D(Cloth4D *c, float x, float y);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void GetCloth4DWithDetail(Cloth4D *c, float x, float y, float z, float w);
 void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *qa, void *qb);
 #endif
@@ -125,9 +132,10 @@ void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *q
 void GetClothAnimation(VECTOR **pos, VECTOR **vel, struct GObj *obj, void *m, ClothCfg *cfg,
                        int nwall, int wallOwner, int fixEnd);
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx);
 #endif
+
 ChainSet *InitChains(ChainCfg *cfg);
 
 /* One row of the table InitCloth4D's third argument points at: a collision
@@ -172,7 +180,7 @@ typedef struct {  /* field names derived */
     Cloth4DLink link[2]; /* 0x30, the second node -1 when the column hangs from the first alone */
     float (*uv)[2];      /* 0x40, ny texture coordinates */
     char pad44[12];
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     float restDir[4]; /* 0x50, the direction the column's segments are pulled toward,
                          blended per node with pos and dir */
 #else
@@ -231,16 +239,18 @@ struct Cloth4D { /* field names derived */
     sceVu0FMATRIX *colMtx; /* 0x2EC, one matrix a cylinder, the node matrices of the last step */
     ClothPoint *col;       /* 0x2F0, the cylinders */
     int sweepRight; /* 0x2F4, nonzero runs each row's collision sweep from the far edge first; InitCloth4D clears it and nothing sets it */
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
-    int collision;  /* 0x2F8, nonzero while the cylinders collide (girl.c's debug_hair_collision) */
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
+    int collision; /* 0x2F8, nonzero while the cylinders collide (girl.c's debug_hair_collision) */
 #endif
 }; /* derived name */
 
 Cloth4D *InitCloth4D(struct GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl);
 ClothSet *InitClothes(ClothCfg *cfg);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 ClothSet *InitClothesNoShade(ClothCfg *cfg);
 #endif
+
 int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1);
 void TestDispChainAnimation(ChainSet *sys);
 float getXZLength(void *v);

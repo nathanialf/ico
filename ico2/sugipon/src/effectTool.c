@@ -36,7 +36,7 @@ static char *drainTypeName[] = {"RELEASE", "LOOP"}; /* derived name */
 
 static char *alphaTypeName[] = {"BLEND", "ADD", "SUB"}; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static EffParamDef effParam[] = {
     {"U OFFSET", 0x80, 0, 0, 0, 0, 3},
     {"V OFFSET", 0x84, 0, 0, 0, 0, 3},
@@ -160,6 +160,13 @@ typedef union { /* field names derived */
 /* editParam's hold counter */
 static int holdCount = 0; /* derived name */
 
+#ifdef VERSION_JUN26
+/* a change flag per tool row, 52 in this build, then the position the
+   tool's effect is placed at */
+static int effectToolDirty[52]; /* derived name */
+
+static float effectToolPos[4]; /* derived name */
+#else
 /* a change flag per tool row, then the position the tool's effect is placed
    at */
 #ifdef VERSION_AUG6
@@ -174,6 +181,7 @@ static int effectToolDirty[64]; /* derived name */
 #endif
 
 static float effectToolPos[4]; /* derived name */
+#endif
 #endif
 
 static int editParam(int id, int sel)
@@ -529,7 +537,11 @@ static inline void initEffectTool(void) /* derived name */
 #ifdef VERSION_AUG6
     for (i = 52; i >= 0; i--) {
 #else
+#ifdef VERSION_JUN26
+    for (i = 51; i >= 0; i--) {
+#else
     for (i = 0x3C; i >= 0; i--) {
+#endif
 #endif
         effectToolDirty[i] = 0;
     }
@@ -668,8 +680,13 @@ static int execEffectTool(void)
         r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
                                   0xB, particleEffectFile, 0x50, 0, 0, 53, &effectId);
 #else
+#ifdef VERSION_JUN26
+        r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
+                                  0xB, particleEffectFile, 0x50, 0, 0, 52, &effectId);
+#else
         r = debug_SelectCsvWindow("Effect Tools: PUSH 2-CON'\202' TO SAVE SELECTED DATA", 10, 0x32,
                                   0xB, particleEffectFile, 0x50, 0, 0, 0x3D, &effectId);
+#endif
 #endif
         if (effectId != lastEffectId) {
             setQ(q);
@@ -692,7 +709,11 @@ static int execEffectTool(void)
 #ifdef VERSION_AUG6
                 effectId = 52;
 #else
+#ifdef VERSION_JUN26
+                effectId = 51;
+#else
                 effectId = 0x3C;
+#endif
 #endif
             }
         }
@@ -701,7 +722,11 @@ static int execEffectTool(void)
 #ifdef VERSION_AUG6
             if (effectId >= 53) {
 #else
+#ifdef VERSION_JUN26
+            if (effectId >= 52) {
+#else
             if (effectId >= 0x3D) {
+#endif
 #endif
                 effectId = 0;
             }

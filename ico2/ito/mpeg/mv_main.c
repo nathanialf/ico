@@ -53,7 +53,7 @@ static long long savedIMR; /* derived name */
 /* set once the movie has an audio stream */
 static int movieHasAudio = 1; /* derived name */
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 /* frames left of a read-starved pause */
 static int moviePauseCount = 0; /* derived name */
 #endif
@@ -112,7 +112,7 @@ static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
     int eof;
     void *q;
     int abort = 0;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     /* the read-starved pause is not finished in this build: nothing sets the
        counter, and the code that would act on it is not compiled in */
     int pauseCount = 0;
@@ -129,7 +129,7 @@ static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
     left = *(int *)(strf + 0x8180);
     n = left;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     while (pauseCount != 0 || (left >= 5 && videoDecGetState(dec) != 3)) {
         if (dec->mpeg.frameCount >= 11) {
 #else
@@ -207,7 +207,7 @@ static int initAll(char *name, int imageW, int imageH, int dbx, int dby, int mon
     struct ThreadParam th;
     int ret = 0;
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     moviePauseCount = 0;
 #endif
     videoDec.intcHandler = -1;

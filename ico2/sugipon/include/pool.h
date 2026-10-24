@@ -36,7 +36,7 @@ typedef struct { /* field names derived */
     VECTOR corner[4];
 } PoolMeshQuad; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* pool.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order;
  * poolRideFunc and getWave follow, declared in pool.c). */
@@ -55,6 +55,7 @@ float GetPoolGlobalHeight(GObj *pool);
 float GetPoolGlobalHeightDetail(GObj *pool, float *pos);
 void InitLayoutedPoolReflactionMesh(PoolMesh *refl, PoolMeshQuad *quad);
 #endif
+
 void InitLimitedPoolReflactionMesh(PoolMesh *refl);
 void SetFallDownSplash(GObj *pool, struct GObj *self);
 void SetLayoutedPoolReflactionMesh(PoolMesh *refl);
@@ -64,7 +65,8 @@ struct SObjSimpleSetting;
 
 char *InitPoolGeo(char *self, struct SObjSimpleSetting *lay);
 void PoolDL(GObj *self);
-#ifndef VERSION_AUG6
+
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void PoolGeo(void);
 float getWave(float t);
 #endif

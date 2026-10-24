@@ -10,7 +10,10 @@
 
 #include "typedef.h"
 
+#ifndef VERSION_JUN26
 void actSt04eWaterFlagOn(GObj *volatile self);
+#endif
+
 void actSt04eWaterMain(GObj *volatile self);
 void actSt04eWaterStop(GObj *volatile self);
 void actSt04eWaterSwitch(GObj *volatile self);

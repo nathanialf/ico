@@ -26,15 +26,24 @@ void StopStreamMotion(void);
 void DeleteStreamMotionManager(void);
 int EntryStreamMotion(struct GObj *gobj);
 int GetDataSizeOfStreamMotion(int no);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void GetStreamMotionData(char *dst, int no);
 #else
 float GetStreamMotionData(char *dst, int no);
 #endif
+
 void InitStreamMotionManager(void);
 int CheckReadyStreamMotion(void);
+
+#ifdef VERSION_JUN26
+void ClearStreamMotionEntry(struct GObj *gobj);
+void ClearAllStreamMotionEntry(void);
+void ExecStreamMotionManager(void);
+#else
 void SetStreamMotionFinishCallBackFunc(int no, void (*func)(struct GObj *));
-#ifdef VERSION_AUG6
+
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void ClearAllStreamMotionEntry(void);
 void ClearStreamMotionEntry(struct GObj *gobj);
 void ExecStreamMotionManager(void);
@@ -44,11 +53,15 @@ void ClearAllStreamMotionEntry(void);
 void ClearStreamMotionEntry(struct GObj *gobj);
 void DisableStreamMotionManagerAutomaticDelete(void);
 void ExecStreamMotionManager(void);
+
 #ifndef VERSION_NTSC
 void GetStreamMotionDataNext(char *dst, int no);
 #endif
+
 void MallocStreamMotionBuffer(void);
 #endif
+#endif
+
 void PlayStreamMotion(void);
 
 #endif /* STREAMMOTIONMANAGER_H */

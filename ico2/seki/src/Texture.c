@@ -261,14 +261,14 @@ static int tex_loadImage(unsigned int addr, TexData *tex, int idx, short dbp, sh
     default:
         /* "tex_loadImage:" + EUC-JP "the texture format cannot be told apart" + ".\n" */
         debug_StdPrintfDummy("tex_loadImage:判別できないテクスチャフォーマットです.\n");
-        debug_assert("src/Texture.c", 611);
-        __assert("src/Texture.c", 611, "0");
+        debug_assert("src/Texture.c", LN(611, 611, 611, 611, 611, 611));
+        __assert("src/Texture.c", LN(611, 611, 611, 611, 611, 611), "0");
     }
     if (size > 0x20000) {
         /* "tex_loadImage:" + EUC-JP "the texture size is too large" + ".\n" */
         debug_StdPrintfDummy("tex_loadImage:テクスチャのサイズが大きすぎます.\n");
-        debug_assert("src/Texture.c", 616);
-        __assert("src/Texture.c", 616, "0");
+        debug_assert("src/Texture.c", LN(616, 616, 616, 616, 616, 616));
+        __assert("src/Texture.c", LN(616, 616, 616, 616, 616, 616), "0");
     }
     gif_StartPacketPri(dl_GetPri());
     gif_SetGsReg(0x50, ((long long)dbp << 32) | ((long long)dbw << 48) | ((long long)dpsm << 56));
@@ -338,8 +338,8 @@ static void tex_setTexReg(Tim2Picture *pic, TexData *t, int levels, int lv, int 
     default:
         /* EUC-JP: "a texture type that is neither DIRECT nor CLUT was specified" + ".\n" */
         debug_StdPrintfDummy("DIRECTでもCLUTでもないテクスチャタイプが指定されました.\n");
-        debug_assert("src/Texture.c", 738);
-        __assert("src/Texture.c", 738, "0");
+        debug_assert("src/Texture.c", LN(738, 738, 738, 738, 738, 738));
+        __assert("src/Texture.c", LN(738, 738, 738, 738, 738, 738), "0");
         break;
     }
     if (2 <= levels) {
@@ -443,8 +443,8 @@ static int tex_transTM2(Tim2Picture *pic, TexData *t, int id, int pri)
     if (8 <= levels) {
         /* "tex_transTM2:" + EUC-JP "there are too many mipmap textures" + ".\n" */
         debug_StdPrintfDummy("tex_transTM2:ミップマップテクスチャの枚数が多すぎます.\n");
-        debug_assert("src/Texture.c", 835);
-        __assert("src/Texture.c", 835, "FALSE");
+        debug_assert("src/Texture.c", LN(835, 835, 835, 835, 835, 835));
+        __assert("src/Texture.c", LN(835, 835, 835, 835, 835, 835), "FALSE");
     }
     dl_SetDLPriority(pri);
     switch (pic->imageType) {
@@ -477,8 +477,8 @@ static int tex_transTM2(Tim2Picture *pic, TexData *t, int id, int pri)
         /* EUC-JP "the texture is corrupt" + ".\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n" */
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
-        debug_assert("src/Texture.c", 868);
-        __assert("src/Texture.c", 868, "FALSE");
+        debug_assert("src/Texture.c", LN(868, 868, 868, 868, 868, 868));
+        __assert("src/Texture.c", LN(868, 868, 868, 868, 868, 868), "FALSE");
         break;
     }
     texTable[id].rec.ext.transDone[pri] = 1;
@@ -637,8 +637,8 @@ static void tex_setRegisters(Tim2Picture *pic, TexData *t)
     default:
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
-        debug_assert("src/Texture.c", 1014);
-        __assert("src/Texture.c", 1014, "FALSE");
+        debug_assert("src/Texture.c", LN(1014, 1014, 1014, 1014, 1014, 1014));
+        __assert("src/Texture.c", LN(1014, 1014, 1014, 1014, 1014, 1014), "FALSE");
     }
 
     /* a second switch on the same field */
@@ -731,8 +731,8 @@ static void tex_initTM2(Tim2Picture *pic, TexData *t)
     default:
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
-        debug_assert("src/Texture.c", 1091);
-        __assert("src/Texture.c", 1091, "FALSE");
+        debug_assert("src/Texture.c", LN(1091, 1091, 1091, 1091, 1091, 1091));
+        __assert("src/Texture.c", LN(1091, 1091, 1091, 1091, 1091, 1091), "FALSE");
         break;
     }
     tex_setRegisters(pic, t);
@@ -780,8 +780,8 @@ static void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     sceGsSetDefLoadImage(&limg, 0x2800, w >> 6, psmTable[fmt].psm, 0, 0, w2, h);
     FlushCache(0);
     if (sceGsExecLoadImage(&limg, src)) {
-        debug_assert("src/Texture.c", 1194);
-        __assert("src/Texture.c", 1194, "FALSE");
+        debug_assert("src/Texture.c", LN(1194, 1194, 1194, 1194, 1194, 1194));
+        __assert("src/Texture.c", LN(1194, 1194, 1194, 1194, 1194, 1194), "FALSE");
     }
     sceGsSyncPath(0, 0);
     switch (psmTable[fmt].psm) {
@@ -792,19 +792,19 @@ static void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
         w2 = w >> 3;
         break;
     default:
-        debug_assert("src/Texture.c", 1199);
-        __assert("src/Texture.c", 1199, "FALSE");
+        debug_assert("src/Texture.c", LN(1199, 1199, 1199, 1199, 1199, 1199));
+        __assert("src/Texture.c", LN(1199, 1199, 1199, 1199, 1199, 1199), "FALSE");
         break;
     }
     if (32767 < w * h >> 4) {
-        debug_assert("src/Texture.c", 1202);
-        __assert("src/Texture.c", 1202, "FALSE");
+        debug_assert("src/Texture.c", LN(1202, 1202, 1202, 1202, 1202, 1202));
+        __assert("src/Texture.c", LN(1202, 1202, 1202, 1202, 1202, 1202), "FALSE");
     }
     sceGsSetDefStoreImage(&simg, 0x2800, w2 >> 6, 0, 0, 0, w2, h);
     FlushCache(0);
     if (sceGsExecStoreImage(&simg, dst)) {
-        debug_assert("src/Texture.c", 1207);
-        __assert("src/Texture.c", 1207, "FALSE");
+        debug_assert("src/Texture.c", LN(1207, 1207, 1207, 1207, 1207, 1207));
+        __assert("src/Texture.c", LN(1207, 1207, 1207, 1207, 1207, 1207), "FALSE");
     }
     sceGsSyncPath(0, 0);
 }
@@ -948,8 +948,8 @@ static void tex_makeTexturePacket(void *file, TexData *t)
             debug_StdPrintfDummy(
                 "tex_makeTexturePacket:テクスチャのユーザースペースフォーマットが異常です.'%s'\n",
                 t);
-            debug_assert("src/Texture.c", 1340);
-            __assert("src/Texture.c", 1340, "0");
+            debug_assert("src/Texture.c", LN(1340, 1340, 1340, 1340, 1340, 1340));
+            __assert("src/Texture.c", LN(1340, 1340, 1340, 1340, 1340, 1340), "0");
         }
         t->ext.file = *ext;
         t->ext.animated = 1;
@@ -974,8 +974,8 @@ static void tex_makeTexturePacket(void *file, TexData *t)
         sprintf(buf, "TEXTURE BROKEN. \"%s\"\n    I:%d C:%d iadr:%p cadr:%p hadr:%p\n", t->name,
                 pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
         debug_StdPrintfDummy(buf);
-        debug_assertMessage("src/Texture.c", 1375, buf);
-        __assert("src/Texture.c", 1375, "e");
+        debug_assertMessage("src/Texture.c", LN(1375, 1375, 1375, 1375, 1375, 1375), buf);
+        __assert("src/Texture.c", LN(1375, 1375, 1375, 1375, 1375, 1375), "e");
         break;
     }
 }
@@ -1070,8 +1070,8 @@ static int tex_initTextureSub(char *name, void *pkt)
     if (200 <= texCount) {
         /* EUC-JP "there are too many textures, make the texture list region bigger" */
         debug_StdPrintfDummy("テクスチャが多すぎます.テクスチャリスト領域を増やしてください\n");
-        debug_assert("src/Texture.c", 1471);
-        __assert("src/Texture.c", 1471, "0");
+        debug_assert("src/Texture.c", LN(1471, 1471, 1471, 1471, 1471, 1471));
+        __assert("src/Texture.c", LN(1471, 1471, 1471, 1471, 1471, 1471), "0");
     }
     return no;
 }
@@ -1093,8 +1093,8 @@ int tex_LoadTexturePart(char *name, int area)
     } else {
         /* EUC-JP: texture "%s" not found. */
         debug_StdPrintfDummy("テクスチャ \"%s\" がみつかりません.\n", buf);
-        debug_assert("src/Texture.c", 1538);
-        __assert("src/Texture.c", 1538, "FALSE");
+        debug_assert("src/Texture.c", LN(1538, 1538, 1538, 1538, 1538, 1538));
+        __assert("src/Texture.c", LN(1538, 1538, 1538, 1538, 1538, 1538), "FALSE");
         return -1;
     }
 }
@@ -1123,8 +1123,8 @@ int tex_TransTexture(int id, int ret)
             /* the same message with ". %d:%s\n" */
             debug_StdPrintfDummy("tex_TransTexture:テクスチャの転送に失敗しました. %d:%s\n", id, t);
         }
-        debug_assert("src/Texture.c", 1633);
-        __assert("src/Texture.c", 1633, "FALSE");
+        debug_assert("src/Texture.c", LN(1633, 1633, 1633, 1633, 1633, 1633));
+        __assert("src/Texture.c", LN(1633, 1633, 1633, 1633, 1633, 1633), "FALSE");
     }
     if (ret != 0) {
         textures++;
@@ -2070,8 +2070,13 @@ int tex_RemakeRegistersSampleMin(int arg)
 typedef struct TexLevel { /* field names derived */
     void *addr;
     short dbw;
+#ifdef VERSION_JUN26
+    short tbp[13];
+    short vramSize;
+#else
     short vramSize;
     short tbp[13];
+#endif
     short pad22;
 } TexLevel; /* derived name */
 
@@ -2103,6 +2108,9 @@ typedef struct TexLevelPkt { /* field names derived */
     DpkRegAD trxpos;
     DpkRegAD trxreg;
     DpkRegAD trxdir;
+#ifdef VERSION_JUN26
+    DpkRegAD texflush;
+#endif
 } TexLevelPkt; /* derived name */
 
 /* the TIM2 picture header.  The fields this file reads off
@@ -2140,6 +2148,19 @@ typedef struct Tim2Mipmap { /* field names derived */
 } Tim2Mipmap; /* derived name */
 
 struct TexData { /* field names derived */
+#ifdef VERSION_JUN26
+    /* the trimmed name tex_GetTextureNo compares against, and behind it the
+     * path the texture was loaded from, which tex_initTextureSub keeps so a
+     * second read of the same name from a different path can be reported
+     * (this build's are 32 and 128 bytes: tex_initTextureSub compares the
+     * path at 0x20, and every later field the code reads sits 0x48 past
+     * PAL's: the sampling word at 0xC0, the TIM2 picture at 0x250, the ICO
+     * block at 0x2B0, the used flag in the dword at 0x318) */
+    char name[32];
+    char file[128];
+    TexPkt pkt; /* 0xA0 */
+    TexUV uv;   /* 0xF0 */
+#else
     /* the trimmed name tex_GetTextureNo compares against, and behind it the
      * path the texture was loaded from, which tex_initTextureSub keeps so a
      * second read of the same name from a different path can be reported */
@@ -2147,15 +2168,23 @@ struct TexData { /* field names derived */
     char file[64];
     TexPkt pkt; /* 0x58 */
     TexUV uv;   /* 0xA8 */
+#endif
     /* the base of the per-level transfer packets tex_setRegisters allocates */
     TexLevelPkt *levelPkt;
     /* the TIM2 file image the record was built from */
     void *tim2;
     unsigned short levelNum; /* the mipmap level count */
+#ifdef VERSION_JUN26
+    char pad12A[2];
+    TexLevel clut;
+    TexLevel lv[7];
+    char pad24C[4];
+#else
     char padE2[2];
     TexLevel clut;
     TexLevel lv[7];
     char pad204[4];
+#endif
     /* the TIM2 picture and mipmap headers tex_makeTexturePacket copies in;
      * tex_Tool rebuilds the three CLUT copies from the picture's clutSize */
     Tim2Picture pic; /* 0x208 */
@@ -2210,7 +2239,7 @@ static VramPri vramPri[13]; /* derived name */
 
 static TexEntry texTable[200]; /* derived name */
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static int headTbp[14]; /* derived name */
 #endif
 
@@ -2269,6 +2298,17 @@ extern void gif_EndPacket(void);
 
 /* "0" */
 
+#ifdef VERSION_JUN26
+/* a TEXFLUSH write (the one qword, without the VIF DIRECT and the GIF A+D
+   tag), qword aligned as a DMA source.
+   Nothing in this build reads it: tex_loadImage writes its TEXFLUSH through
+   gif_SetGsReg and every level packet carries one of its own. */
+static const unsigned int texFlushPacket[4]
+    __attribute__((aligned(16))) = {1, 0, 0x3F, 0}; /* derived name */
+
+static int tex_loadImage(unsigned int addr, TexData *tex, int idx, short dbp, short dbw, short dpsm,
+                         short dsax, short dsay, short w, short h);
+#else
 /* three qwords: a VIF DIRECT of two, the GIF A+D tag and the TEXFLUSH write
    that closes the upload; qword aligned because
    dl_OpenDma chains it into the display list as a DMA source */
@@ -2278,6 +2318,7 @@ static const unsigned int texFlushPacket[3][4] __attribute__((aligned(16))) = {
     {0x8001, 0x10000000, 0xE, 0},
     {1, 0, 0x3F, 0},
 };
+#endif
 
 static int tex_loadImage(unsigned int addr, TexData *tex, int idx, short dbp, short dbw, short dpsm,
                          short dsax, short dsay, short w, short h)
@@ -2311,29 +2352,44 @@ static int tex_loadImage(unsigned int addr, TexData *tex, int idx, short dbp, sh
     default:
         /* "tex_loadImage:" + EUC-JP "the texture format cannot be told apart" + ".\n" */
         debug_StdPrintfDummy("tex_loadImage:判別できないテクスチャフォーマットです.\n");
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611));
-        __assert("src/Texture.c", LN(645, 645, 645, 645, 611), "0");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 562));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 611, 562), "0");
     }
     if (size > 0x20000) {
         /* "tex_loadImage:" + EUC-JP "the texture size is too large" + ".\n" */
         debug_StdPrintfDummy("tex_loadImage:テクスチャのサイズが大きすぎます.\n");
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 616));
-        __assert("src/Texture.c", LN(645, 645, 645, 645, 616), "0");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 616, 645));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 616, 645), "0");
 #else
-        debug_assert("src/Texture.c", LN(650, 650, 650, 650, 650));
-        __assert("src/Texture.c", LN(650, 650, 650, 650, 650), "0");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 567));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 611, 567), "0");
+#else
+        debug_assert("src/Texture.c", LN(650, 650, 650, 650, 650, 650));
+        __assert("src/Texture.c", LN(650, 650, 650, 650, 650, 650), "0");
+#endif
 #endif
     }
     gif_StartPacketPri(dl_GetPri());
     gif_SetGsReg(0x50, ((long long)dbp << 32) | ((long long)dbw << 48) | ((long long)dpsm << 56));
     gif_EndPacket();
+#ifdef VERSION_JUN26
+    dl_OpenDma(2, &tex->levelPkt[idx], 6);
+#else
     dl_OpenDma(2, &tex->levelPkt[idx], 5);
+#endif
     dl_CloseDma();
     dl_OpenDma(2, (void *)(addr & 0x0FFFFFFF), size + 3);
     dl_CloseDma();
+#ifdef VERSION_JUN26
+    gif_StartPacketPri(dl_GetPri());
+    gif_SetGsReg(0x3F, 1);
+    gif_EndPacket();
+#else
     dl_OpenDma(2, texFlushPacket, 3);
     dl_CloseDma();
+#endif
     return size << 4;
 }
 
@@ -2363,14 +2419,82 @@ static inline int getTWTH(int size) /* derived name */
  * last one before it indexes lv[] */
 #define TEXLV(n) ((n) < 7 ? (n) : 6) /* derived name */
 
+#ifdef VERSION_JUN26
+/* The PATH1 packet open and close, macros with the statements of
+ * GifPacket.c's gif_StartPacketPath1 and gif_EndPacketPath1 (no open flag):
+ * this build's tex_setTexReg sends its registers through VU1 in a packet of
+ * its own. */
+#define gifStartPacketPath1(c) /* derived name */                                                  \
+    {                                                                                              \
+        (c) = PacketBufferStruct.ptr.c;                                                            \
+        PacketBufferStruct.gif.c = 0;                                                              \
+        PacketBufferStruct.end.c = 0;                                                              \
+        PacketBufferStruct.dma.c = (c);                                                            \
+        PacketBufferStruct.tail.c = (c);                                                           \
+        PacketBufferStruct.ptr.c = ((c) + 8);                                                      \
+        *(unsigned int *)((c) + 8) = 0x11000000;                                                   \
+        PacketBufferStruct.gif.c = ((c) + 0xC);                                                    \
+        PacketBufferStruct.end.c = ((c) + 0x10);                                                   \
+        PacketBufferStruct.ptr.c = ((c) + 0x18);                                                   \
+        ((GifPkWord *)((c) + 0x18))->d = 0xE;                                                      \
+        PacketBufferStruct.ptr.c = ((c) + 0x20);                                                   \
+    }
+#define gifEndPacketPath1(p, q) /* derived name */                                                 \
+    {                                                                                              \
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =                                               \
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> \
+                            4) -                                                                   \
+                           1) |                                                                    \
+            0x1000000000008000LL;                                                                  \
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =                                            \
+            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |   \
+            0x6C008000;                                                                            \
+        (p) = PacketBufferStruct.ptr.c;                                                            \
+        ((GifPkWord *)(p))->w[0] = 0x15000000;                                                     \
+        (p) += 4;                                                                                  \
+        PacketBufferStruct.ptr.d = (unsigned long long *)(p);                                      \
+        ((GifPkWord *)(p))->w[0] = 0;                                                              \
+        PacketBufferStruct.ptr.c = (p) + 4;                                                        \
+        ((GifPkWord *)((p) + 4))->w[0] = 0;                                                        \
+        PacketBufferStruct.ptr.c = (p) + 8;                                                        \
+        ((GifPkWord *)((p) + 8))->w[0] = 0;                                                        \
+        PacketBufferStruct.ptr.c = (p) + 0xC;                                                      \
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =                                              \
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c -                             \
+                                            PacketBufferStruct.tail.c) >>                          \
+                             4) -                                                                  \
+                            1) |                                                                   \
+                           0x10000000);                                                            \
+        (q) = PacketBufferStruct.ptr.c;                                                            \
+        PacketBufferStruct.tail.c = (q);                                                           \
+        ((GifPkWord *)(q))->d = 0x60000000;                                                        \
+        PacketBufferStruct.ptr.c = (q) + 8;                                                        \
+        ((GifPkWord *)((q) + 8))->w[0] = 0;                                                        \
+        PacketBufferStruct.ptr.c = (q) + 0xC;                                                      \
+        ((GifPkWord *)((q) + 8))->w[1] = 0;                                                        \
+        PacketBufferStruct.ptr.c = (q) + 0x10;                                                     \
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);                                                \
+        dl_CloseDma();                                                                             \
+    }
+#endif
+
 static void tex_setTexReg(Tim2Picture *pic, TexData *t, int levels, int lv, int clut)
 {
     unsigned int tfx = 0;
+#ifdef VERSION_JUN26
+    char *c;
+    char *p;
+    char *q;
+#endif
 
     if (t->ext.animated != 0) {
         tfx = t->ext.file.texFnc;
     }
+#ifdef VERSION_JUN26
+    gifStartPacketPath1(c);
+#else
     gif_StartPacketPri(dl_GetPri());
+#endif
     switch (clut) {
     case 0:
         setGsReg(6, (long long)t->lv[TEXLV(lv)].tbp[dl_GetPri()] |
@@ -2394,11 +2518,16 @@ static void tex_setTexReg(Tim2Picture *pic, TexData *t, int levels, int lv, int 
         /* EUC-JP: "a texture type that is neither DIRECT nor CLUT was specified" + ".\n" */
         debug_StdPrintfDummy("DIRECTでもCLUTでもないテクスチャタイプが指定されました.\n");
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 738));
-        __assert("src/Texture.c", LN(645, 645, 645, 645, 738), "0");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 738, 645));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 738, 645), "0");
 #else
-        debug_assert("src/Texture.c", LN(788, 788, 788, 788, 788));
-        __assert("src/Texture.c", LN(788, 788, 788, 788, 788), "0");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 693));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 611, 693), "0");
+#else
+        debug_assert("src/Texture.c", LN(788, 788, 788, 788, 788, 788));
+        __assert("src/Texture.c", LN(788, 788, 788, 788, 788, 788), "0");
+#endif
 #endif
         break;
     }
@@ -2418,7 +2547,11 @@ static void tex_setTexReg(Tim2Picture *pic, TexData *t, int levels, int lv, int 
                            ((long long)t->lv[TEXLV(lv + 6)].tbp[dl_GetPri()] << 40) |
                            ((long long)t->lv[TEXLV(lv + 6)].dbw << 54));
     }
+#ifdef VERSION_JUN26
+    gifEndPacketPath1(p, q);
+#else
     gif_EndPacket();
+#endif
 }
 
 /* Claim one VRAM buffer per level for the current display list priority. */
@@ -2498,17 +2631,25 @@ static void tex_transRegister(TexData *t)
 static int tex_transTM2(Tim2Picture *pic, TexData *t, int id, int pri)
 {
     int ret = 0;
+#ifdef VERSION_JUN26
+    int levels = t->levelNum;
+#else
     int levels = t->levelNum - texTable[id].rec.ext.level;
+#endif
 
     if (8 <= levels) {
         /* "tex_transTM2:" + EUC-JP "there are too many mipmap textures" + ".\n" */
         debug_StdPrintfDummy("tex_transTM2:ミップマップテクスチャの枚数が多すぎます.\n");
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 835));
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 835, 645));
 #else
-        debug_assert("src/Texture.c", LN(886, 886, 886, 886, 886));
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 790));
+#else
+        debug_assert("src/Texture.c", LN(886, 886, 886, 886, 886, 886));
 #endif
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 835), "FALSE");
+#endif
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 790), "FALSE");
     }
     dl_SetDLPriority(pri);
     switch (pic->imageType) {
@@ -2542,11 +2683,16 @@ static int tex_transTM2(Tim2Picture *pic, TexData *t, int id, int pri)
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 868));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 868), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 868, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 868, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(919, 919, 919, 919, 919));
-        __assert("src/Texture.c", LN(919, 919, 919, 919, 919), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 821));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 821), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(919, 919, 919, 919, 919, 919));
+        __assert("src/Texture.c", LN(919, 919, 919, 919, 919, 919), "FALSE");
+#endif
 #endif
         break;
     }
@@ -2609,7 +2755,16 @@ static void tex_initClutTexture(Tim2Picture *pic, TexData *t)
     if ((pic->clutType >> 7) != 0)
         dbw = pic->clutColors;
 #endif
+#ifdef VERSION_JUN26
+    /* the CLUT's VRAM size from its colour count, at least one page (PAL
+     * fixes it at 8) */
+    t->clut.vramSize = pic->clutColors / psmTable[pic->clutType & 0x3F].sizeDiv *
+                           psmTable[pic->clutType & 0x3F].sizeMul >>
+                       6;
+    t->clut.vramSize = (t->clut.vramSize > 0) ? t->clut.vramSize : 1;
+#else
     t->clut.vramSize = 8;
+#endif
 
     t->clut.dbw = texTBW(&psmTable[pic->clutType & 0x3F], pic->imageWidth);
 
@@ -2689,8 +2844,13 @@ static void tex_setRegisters(Tim2Picture *pic, TexData *t)
     uv->end[2] = 0;
     uv->end[3] = 0;
 
+#ifdef VERSION_JUN26
+    t->levelPkt =
+        mallocseki((pic->imageType == 4 || pic->imageType == 5 ? levels + 1 : levels) * 96);
+#else
     t->levelPkt =
         mallocseki((pic->imageType == 4 || pic->imageType == 5 ? levels + 1 : levels) * 80);
+#endif
 
     switch (pic->imageType) {
     case 1:
@@ -2709,11 +2869,16 @@ static void tex_setRegisters(Tim2Picture *pic, TexData *t)
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1014));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 1014), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1014, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1014, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(1066, 1066, 1066, 1066, 1066));
-        __assert("src/Texture.c", LN(1066, 1066, 1066, 1066, 1066), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 967));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 967), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1066, 1066, 1066, 1066, 1066, 1066));
+        __assert("src/Texture.c", LN(1066, 1066, 1066, 1066, 1066, 1066), "FALSE");
+#endif
 #endif
     }
 
@@ -2736,6 +2901,10 @@ static void tex_setRegisters(Tim2Picture *pic, TexData *t)
 
         t->levelPkt[levels].trxdir.data = 0;
         t->levelPkt[levels].trxdir.addr = 83;
+#ifdef VERSION_JUN26
+        t->levelPkt[levels].texflush.data = 1;
+        t->levelPkt[levels].texflush.addr = 63;
+#endif
         break;
     }
 
@@ -2756,6 +2925,10 @@ static void tex_setRegisters(Tim2Picture *pic, TexData *t)
 
         t->levelPkt[i].trxdir.data = 0;
         t->levelPkt[i].trxdir.addr = 83;
+#ifdef VERSION_JUN26
+        t->levelPkt[i].texflush.data = 1;
+        t->levelPkt[i].texflush.addr = 63;
+#endif
     }
 }
 
@@ -2808,11 +2981,16 @@ static void tex_initTM2(Tim2Picture *pic, TexData *t)
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1091));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 1091), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1091, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1091, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(1143, 1143, 1143, 1143, 1143));
-        __assert("src/Texture.c", LN(1143, 1143, 1143, 1143, 1143), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1048));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 1048), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1143, 1143, 1143, 1143, 1143, 1143));
+        __assert("src/Texture.c", LN(1143, 1143, 1143, 1143, 1143, 1143), "FALSE");
+#endif
 #endif
         break;
     }
@@ -2857,16 +3035,23 @@ static void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     sceGsStoreImage simg;
     int w2 = w;
 
+#ifndef VERSION_JUN26
     sceGsSyncPath(0, 0);
+#endif
     sceGsSetDefLoadImage(&limg, 0x2800, w >> 6, psmTable[fmt].psm, 0, 0, w2, h);
     FlushCache(0);
     if (sceGsExecLoadImage(&limg, src)) {
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1194));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 1194), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1194, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1194, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(1246, 1246, 1246, 1246, 1246));
-        __assert("src/Texture.c", LN(1246, 1246, 1246, 1246, 1246), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1150));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 1150), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1246, 1246, 1246, 1246, 1246, 1246));
+        __assert("src/Texture.c", LN(1246, 1246, 1246, 1246, 1246, 1246), "FALSE");
+#endif
 #endif
     }
     sceGsSyncPath(0, 0);
@@ -2879,32 +3064,47 @@ static void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
         break;
     default:
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1199));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 1199), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1199, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1199, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(1251, 1251, 1251, 1251, 1251));
-        __assert("src/Texture.c", LN(1251, 1251, 1251, 1251, 1251), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1155));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 1155), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1251, 1251, 1251, 1251, 1251, 1251));
+        __assert("src/Texture.c", LN(1251, 1251, 1251, 1251, 1251, 1251), "FALSE");
+#endif
 #endif
         break;
     }
     if (32767 < w * h >> 4) {
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1202));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 1202), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1202, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1202, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(1254, 1254, 1254, 1254, 1254));
-        __assert("src/Texture.c", LN(1254, 1254, 1254, 1254, 1254), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1158));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 1158), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1254, 1254, 1254, 1254, 1254, 1254));
+        __assert("src/Texture.c", LN(1254, 1254, 1254, 1254, 1254, 1254), "FALSE");
+#endif
 #endif
     }
     sceGsSetDefStoreImage(&simg, 0x2800, w2 >> 6, 0, 0, 0, w2, h);
     FlushCache(0);
     if (sceGsExecStoreImage(&simg, dst)) {
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1207));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 1207), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1207, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1207, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(1259, 1259, 1259, 1259, 1259));
-        __assert("src/Texture.c", LN(1259, 1259, 1259, 1259, 1259), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1163));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 1163), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1259, 1259, 1259, 1259, 1259, 1259));
+        __assert("src/Texture.c", LN(1259, 1259, 1259, 1259, 1259, 1259), "FALSE");
+#endif
 #endif
     }
     sceGsSyncPath(0, 0);
@@ -3013,14 +3213,24 @@ static inline void tim2MakeClutPacket(Tim2Picture *pic, TexData *t, char *clut) 
 
 static void tex_makeTexturePacket(void *file, TexData *t)
 {
+#ifdef VERSION_JUN26
+    char magic[5];
+    char buf[1024];
+    Tim2Picture *pic;
+#else
     char buf[1024];
     Tim2Picture *pic = tim2Picture(file);
+#endif
     Tim2Mipmap *mip;
     Tim2Ext *ext;
     char *image;
     char *clut;
     int i;
 
+#ifdef VERSION_JUN26
+    memset(magic, 0, 5);
+    pic = tim2Picture(file);
+#endif
     mip = (Tim2Mipmap *)(pic + 1);
     ext = (Tim2Ext *)((char *)mip + mipmap_header_size[pic->mipMapTextures]);
     image = (char *)pic + pic->headerSize;
@@ -3050,11 +3260,16 @@ static void tex_makeTexturePacket(void *file, TexData *t)
                 "tex_makeTexturePacket:テクスチャのユーザースペースフォーマットが異常です.'%s'\n",
                 t);
 #ifdef VERSION_AUG6
-            debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1340));
-            __assert("src/Texture.c", LN(645, 645, 645, 645, 1340), "0");
+            debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1340, 645));
+            __assert("src/Texture.c", LN(645, 645, 645, 645, 1340, 645), "0");
 #else
-            debug_assert("src/Texture.c", LN(1392, 1392, 1392, 1392, 1392));
-            __assert("src/Texture.c", LN(1392, 1392, 1392, 1392, 1392), "0");
+#ifdef VERSION_JUN26
+            debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1296));
+            __assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1296), "0");
+#else
+            debug_assert("src/Texture.c", LN(1392, 1392, 1392, 1392, 1392, 1392));
+            __assert("src/Texture.c", LN(1392, 1392, 1392, 1392, 1392, 1392), "0");
+#endif
 #endif
         }
         t->ext.file = *ext;
@@ -3080,8 +3295,8 @@ static void tex_makeTexturePacket(void *file, TexData *t)
         sprintf(buf, "TEXTURE BROKEN. \"%s\"\n    I:%d C:%d iadr:%p cadr:%p hadr:%p\n", t->name,
                 pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
         debug_StdPrintfDummy(buf);
-        debug_assertMessage("src/Texture.c", LN(1427, 1427, 1427, 1427, 1375), buf);
-        __assert("src/Texture.c", LN(1427, 1427, 1427, 1427, 1375), "e");
+        debug_assertMessage("src/Texture.c", LN(1427, 1427, 1427, 1427, 1375, 1331), buf);
+        __assert("src/Texture.c", LN(1427, 1427, 1427, 1427, 1375, 1331), "e");
         break;
     }
 }
@@ -3091,7 +3306,11 @@ static void tex_makeTexturePacket(void *file, TexData *t)
 /* Cut the directory prefix and the extension off the name in place. */
 static inline void texTrimName(char *name) /* derived name */
 {
+#ifdef VERSION_JUN26
+    char tmp[64];
+#else
     char tmp[256];
+#endif
     int i;
     int k;
 
@@ -3112,6 +3331,9 @@ static inline void texTrimName(char *name) /* derived name */
 }
 
 /* "1:%s\n" */
+#ifdef VERSION_JUN26
+static int tex_initTextureSub(char *name, void *pkt);
+#endif
 
 static int tex_initTextureSub(char *name, void *pkt)
 {
@@ -3177,11 +3399,16 @@ static int tex_initTextureSub(char *name, void *pkt)
         /* EUC-JP "there are too many textures, make the texture list region bigger" */
         debug_StdPrintfDummy("テクスチャが多すぎます.テクスチャリスト領域を増やしてください\n");
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1471));
-        __assert("src/Texture.c", LN(645, 645, 645, 645, 1471), "0");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1471, 645));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 1471, 645), "0");
 #else
-        debug_assert("src/Texture.c", LN(1523, 1523, 1523, 1523, 1523));
-        __assert("src/Texture.c", LN(1523, 1523, 1523, 1523, 1523), "0");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1427));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1427), "0");
+#else
+        debug_assert("src/Texture.c", LN(1523, 1523, 1523, 1523, 1523, 1523));
+        __assert("src/Texture.c", LN(1523, 1523, 1523, 1523, 1523, 1523), "0");
+#endif
 #endif
     }
     return no;
@@ -3191,6 +3418,9 @@ static int tex_initTextureSub(char *name, void *pkt)
 /* "%s.tm2" */
 
 /* "FALSE" */
+#ifdef VERSION_JUN26
+int tex_LoadTexturePart(char *name, int area);
+#endif
 
 int tex_LoadTexturePart(char *name, int area)
 {
@@ -3205,11 +3435,16 @@ int tex_LoadTexturePart(char *name, int area)
         /* EUC-JP: texture "%s" not found. */
         debug_StdPrintfDummy("テクスチャ \"%s\" がみつかりません.\n", buf);
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1538));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 1538), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1538, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1538, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(1590, 1590, 1590, 1590, 1590));
-        __assert("src/Texture.c", LN(1590, 1590, 1590, 1590, 1590), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1494));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 1494), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1590, 1590, 1590, 1590, 1590, 1590));
+        __assert("src/Texture.c", LN(1590, 1590, 1590, 1590, 1590, 1590), "FALSE");
+#endif
 #endif
         return -1;
     }
@@ -3240,11 +3475,16 @@ int tex_TransTexture(int id, int ret)
             debug_StdPrintfDummy("tex_TransTexture:テクスチャの転送に失敗しました. %d:%s\n", id, t);
         }
 #ifdef VERSION_AUG6
-        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1633));
-        __assert("src/Texture.c", LN(886, 886, 886, 886, 1633), "FALSE");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1633, 645));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1633, 886), "FALSE");
 #else
-        debug_assert("src/Texture.c", LN(1685, 1685, 1685, 1685, 1685));
-        __assert("src/Texture.c", LN(1685, 1685, 1685, 1685, 1685), "FALSE");
+#ifdef VERSION_JUN26
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611, 1589));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835, 1589), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1685, 1685, 1685, 1685, 1685, 1685));
+        __assert("src/Texture.c", LN(1685, 1685, 1685, 1685, 1685, 1685), "FALSE");
+#endif
 #endif
     }
     if (ret != 0) {
@@ -3281,7 +3521,7 @@ extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm
  * GifRect *, GifColor *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, TexColor *col, int prim);
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static void tex_TransTextureDefocus(int id, int lv)
 {
     TexData *p;
@@ -3335,6 +3575,85 @@ static void tex_TransTextureDefocus(int id, int lv)
 /* the scroll step and the offset are ints in the ICO block but their sign is
  * taken through a float comparison (Basic.h's ABSF and SIGNF) */
 
+#ifdef VERSION_JUN26
+static void tex_scrollClut(void *dstClut, void *curClut, void *srcClut, int sizeDiv, int colors,
+                           void *ext, int frame)
+{
+    TexColor buf[colors];
+    TexExt *e = ext;
+    TexColor *dst = dstClut;
+    TexColor *cur = curClut;
+    TexColor *src = srcClut;
+    int lo;
+    int hi;
+    int step;
+    int rem;
+    int span;
+    int k;
+    int i;
+    int j;
+    int n;
+
+    if (sizeDiv != 2) {
+        return;
+    }
+
+    lo = e->file.csBgn;
+    hi = e->file.csEnd;
+    if (colors < lo || colors < hi) {
+        debug_StdPrintfDummy("illegal user space data(Clut Scroll) (color:%d start:%d end:%d)\n",
+                             colors, lo, hi);
+        return;
+    }
+
+    /* A swap of start and end whose last line reads lo where the temporary
+     * was meant, so it only clamps start to end. */
+    if (hi < lo) {
+        i = lo;
+        lo = hi;
+        hi = lo;
+    }
+
+    step = ABSF(e->file.csSpd);
+    rem = frame % step;
+    if (rem == 0) {
+        span = hi - lo + 1;
+        k = ABSF(e->file.csStp) % span * SIGNF(e->file.csSpd) * SIGNF(e->file.csStp);
+
+        for (i = lo; i <= hi; i++) {
+            cur[CLUT_CSM1(colors, i)] = src[CLUT_CSM1(colors, i)];
+        }
+        for (i = lo; i <= hi; i++) {
+            j = i + k;
+            while (j < lo) {
+                j += span;
+            }
+            while (hi < j) {
+                j -= span;
+            }
+            buf[CLUT_CSM1(colors, i)] = src[CLUT_CSM1(colors, j)];
+        }
+        for (i = lo; i <= hi; i++) {
+            src[CLUT_CSM1(colors, i)] = buf[CLUT_CSM1(colors, i)];
+        }
+    }
+    for (i = lo; i <= hi; i++) {
+        n = CLUT_CSM1(colors, i);
+        if (step == 1) {
+            dst[n] = src[n];
+        } else {
+            int dr = src[n].r - cur[n].r;
+            int dg = src[n].g - cur[n].g;
+            int db = src[n].b - cur[n].b;
+            int da = src[n].a - cur[n].a;
+            dst[n].r = cur[n].r + dr * rem / step;
+            dst[n].g = cur[n].g + dg * rem / step;
+            dst[n].b = cur[n].b + db * rem / step;
+            dst[n].a = cur[n].a + da * rem / step;
+        }
+    }
+}
+#else
 static void tex_scrollClut(void *dstClut, void *curClut, void *srcClut, int sizeDiv, int colors,
                            void *ext, int frame, void *tex)
 {
@@ -3413,6 +3732,7 @@ static void tex_scrollClut(void *dstClut, void *curClut, void *srcClut, int size
         }
     }
 }
+#endif
 
 static void tex_textureAnimation(void)
 {
@@ -3435,7 +3755,11 @@ static void tex_textureAnimation(void)
                     if (1.0f < uv->uOfs) {
                         uv->uOfs = uv->uOfs - 2.0f;
                     }
+#ifdef VERSION_JUN26
+                    if (e->limitOn != 0 && uv->uOfs < e->uLimit) {
+#else
                     if (e->limitOn != 0 && uv->uOfs > e->uLimit) {
+#endif
                         uv->uOfs = e->uLimit;
                         e->file.scrlU = 0.0f;
                     }
@@ -3443,7 +3767,11 @@ static void tex_textureAnimation(void)
                     if (uv->uOfs < -1.0f) {
                         uv->uOfs = uv->uOfs + 2.0f;
                     }
+#ifdef VERSION_JUN26
+                    if (e->limitOn != 0 && uv->uOfs > e->uLimit) {
+#else
                     if (e->limitOn != 0 && uv->uOfs < e->uLimit) {
+#endif
                         uv->uOfs = e->uLimit;
                         e->file.scrlU = 0.0f;
                     }
@@ -3461,7 +3789,11 @@ static void tex_textureAnimation(void)
                     if (1.0f < uv->vOfs) {
                         uv->vOfs = uv->vOfs - 2.0f;
                     }
+#ifdef VERSION_JUN26
+                    if (e->limitOn != 0 && uv->vOfs < e->vLimit) {
+#else
                     if (e->limitOn != 0 && uv->vOfs > e->vLimit) {
+#endif
                         uv->vOfs = e->vLimit;
                         e->file.scrlV = 0.0f;
                     }
@@ -3469,7 +3801,11 @@ static void tex_textureAnimation(void)
                     if (uv->vOfs < -1.0f) {
                         uv->vOfs = uv->vOfs + 2.0f;
                     }
+#ifdef VERSION_JUN26
+                    if (e->limitOn != 0 && uv->vOfs > e->vLimit) {
+#else
                     if (e->limitOn != 0 && uv->vOfs < e->vLimit) {
+#endif
                         uv->vOfs = e->vLimit;
                         e->file.scrlV = 0.0f;
                     }
@@ -3482,11 +3818,58 @@ static void tex_textureAnimation(void)
                 int clut = psmTable[t->pic.clutType & 0x3F].sizeDiv;
                 unsigned int n = t->pic.clutSize >> 2;
 
+#ifdef VERSION_JUN26
+                tex_scrollClut((char *)t->clut.addr + 0x20, e->clutA, e->clutB, clut, n, e,
+                               e->clutFrame);
+#else
                 tex_scrollClut((char *)t->clut.addr + 0x20, e->clutA, e->clutB, clut, n, e,
                                e->clutFrame, t);
+#endif
             }
             e->clutFrame++;
         }
+#ifdef VERSION_JUN26
+    }
+}
+
+/* the name lookup, which tex_SetUVScroll inlines */
+static inline int getTextureNo(const char *name) /* derived name */
+{
+    int i;
+    int ret = -1;
+
+    for (i = 0; i < texCount; i++) {
+        if (texTable[i].rec.ext.used) {
+            if (strcmp(name, texTable[i].rec.name) == 0) {
+                ret = i;
+                break;
+            }
+        }
+    }
+    return ret;
+}
+
+/* the int flag is the last parameter, after the six floats */
+void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, float ou, float ov,
+                     int limitOn)
+{
+    int no = getTextureNo(name);
+    TexData *tex = getTextureData(no);
+    TexExt *ext = &tex->ext;
+    TexUV *uv = &tex->uv;
+
+    if (ext->animated != 0) {
+        ext->file.scrlU = su;
+        ext->file.scrlV = sv;
+        uv->uOfs = u;
+        uv->vOfs = v;
+        ext->uLimit = ou;
+        ext->vLimit = ov;
+        ext->limitOn = limitOn;
+        ext->frame = 0;
+        debug_StdPrintfDummy("%s u:%f v:%f ul:%f vl:%f\n", name, uv->uOfs, uv->vOfs, ext->uLimit,
+                             ext->vLimit);
+#endif
     }
 }
 
@@ -3502,8 +3885,13 @@ void tex_SetClutAnimation(int id, int frame)
         if (frame != -1) {
             c->clutFrame = frame;
         }
+#ifdef VERSION_JUN26
+        tex_scrollClut((char *)t->clut.addr + 0x20, c->clutA, c->clutB, clut, n, c,
+                       frame == -1 ? 0 : c->clutFrame);
+#else
         tex_scrollClut((char *)t->clut.addr + 0x20, c->clutA, c->clutB, clut, n, c,
                        frame == -1 ? 0 : c->clutFrame, t);
+#endif
     }
 }
 
@@ -3545,7 +3933,7 @@ static inline void resetVramPri(int pri) /* derived name */
 
     dl_SetDLPriority(pri);
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     vramPri[pri].texAddr = 0x2800;
 #else
     if (headTbp[pri] != 0) {
@@ -3570,7 +3958,7 @@ void tex_ResetVram(void)
     int i;
 
     for (i = 0; i < 13; i++) {
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         headTbp[i] = 0;
 #endif
         resetVramPri(i);
@@ -4079,6 +4467,7 @@ int tex_LoadTexture(char *name)
     return tex_LoadTexturePart(name, 0);
 }
 
+#ifndef VERSION_JUN26
 /* the name lookup, which tex_SetUVScroll inlines */
 static inline int getTextureNo(const char *name) /* derived name */
 {
@@ -4095,6 +4484,7 @@ static inline int getTextureNo(const char *name) /* derived name */
     }
     return ret;
 }
+#endif
 
 int tex_GetTextureNo(const char *name)
 {
@@ -4126,6 +4516,7 @@ short tex_GetVramFreeAddress(int pri)
     return vramPri[pri].texAddr;
 }
 
+#ifndef VERSION_JUN26
 void tex_UpdateMipMapLevel(float lv)
 {
     int i;
@@ -4166,6 +4557,7 @@ void tex_UnlockHeadTBP(int pri)
     resetVramPri(pri);
 #endif
 }
+#endif
 
 void tex_ResetVramPri(int pri)
 {
@@ -4178,6 +4570,7 @@ int tex_GetTextureNum(void)
 }
 
 /* the int flag is the last parameter, after the six floats */
+#ifndef VERSION_JUN26
 void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, float ou, float ov,
                      int limitOn)
 {
@@ -4197,6 +4590,7 @@ void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, flo
         ext->limitOn = limitOn;
     }
 }
+#endif
 
 void tex_Init(void)
 {

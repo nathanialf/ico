@@ -10,16 +10,22 @@
 
 extern int CameraCalclated_f;
 extern struct GObj *default_cameratarget_gobj;
+
+#ifndef VERSION_JUN26
 extern int InsertCameraWorkingFlag;
+
 #ifdef VERSION_AUG6
 extern int FixViewInGameCameraFlag; /* the title shortcut holds the monitor camera's view */
 #else
 extern int FixViewInGameCameraFlag;
-extern int monitorCameraHold;      /* the title shortcut holds the monitor camera */
+extern int monitorCameraHold; /* the title shortcut holds the monitor camera */
+
 #ifndef VERSION_NTSC
 extern int insertCameraBlendTimer; /* frames left of the blend after an insert camera */
 #endif
 #endif
+#endif
+
 void Camctrl_ExitEveRock(void);
 void Camctrl_SetTarget(struct GObj *gobj, struct GObj *subGObj, int pri);
 void CameraChangeTargetParallel(struct GObj *oldTarget, struct GObj *newTarget);
@@ -31,11 +37,10 @@ void CameraSetMode(int mode);
 void *GetCameraPos(void);
 int *GetCurrentCameraSet2(void);
 void InitCamera(void);
-#ifdef VERSION_AUG6
+
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void InsertCamera_Exec(float *cam, int *cut, int *enable);
 void InsertCamera_Set(float *pos, float *tgt, int frames);
-
-
 void InsertCamera_SetNoraml(float *pos, float *tgt, int frames);
 #else
 void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
@@ -52,14 +57,20 @@ void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 struct CameraSet2;
 
 void MakeCameraMatrix(struct CameraSet2 *cs);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void ResetHandCameraLimitInDemo(void);
 void ResetZoomMaxValInDemo(void);
 #endif
+
+#ifndef VERSION_JUN26
 void SetCameraFlag_GamecamCutBack(void);
+#endif
+
 void SetCameraFlag_LwsCutBack(void);
 void SetCameraMatrix(struct GObj *self);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void SetMonitorCameraInitializeFlag(void);
 void SetWSMatrix(void *src);
 void CameraSetTargetGObj(struct GObj *gobj, struct GObj *subGObj);

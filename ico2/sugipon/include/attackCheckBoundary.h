@@ -30,9 +30,9 @@ typedef enum { CLOTH_ATTR_NONE = 0 } ClothAttr;
    corner points, the attribute and the boundary count.  This file reads the
    first two corners, the attribute and the boundary count, and InitFlagGeo
    reads the rest. */
-typedef struct {    /* field names derived */
-    char name[32];  /* 0x00 */
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+typedef struct {   /* field names derived */
+    char name[32]; /* 0x00 */
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     float pt[2][3]; /* 0x20 */
     int kind;       /* 0x38, the cloth type in the low four bits (InitFlagGeo's switch) */
     ClothAttr attr; /* 0x3C */

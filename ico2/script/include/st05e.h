@@ -15,7 +15,11 @@ struct SqEntry;
 /* st05e.o's .sdata globals */
 extern struct SqEntry *solar;
 void actSt05eSolarChk(GObj *volatile self);
+
+#ifndef VERSION_JUN26
 void actSt05eWaterFlagOn(GObj *volatile self);
+#endif
+
 void actSt05eWaterMain(GObj *volatile self);
 void actSt05eWaterStop(GObj *volatile self);
 void actSt05eWaterSwitch(GObj *volatile self);

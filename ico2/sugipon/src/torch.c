@@ -8,7 +8,7 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 typedef struct TorchGeoWork { /* field names derived */
     /* 0x00 */ int flags;
     /* 0x04 */ int lightOn;
@@ -66,7 +66,11 @@ void torchOffSE(GObj *torch)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(torch, 65);
 #else
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(torch, 59);
+#else
     ExecuteSEPackage(torch, 67);
+#endif
 #endif
 }
 
@@ -98,18 +102,30 @@ void LightTorchOn(GObj *gobj)
         if (n > 0) {
             return;
         }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
+        w->effect[1] = SetParticleEffect(20, pos, IdentityQuaternion);
+        w->effect[4] = SetParticleEffect(18, pos, IdentityQuaternion);
+        break;
+    case 4:
+        w->effect[0] = SetParticleEffect(22, pos, IdentityQuaternion);
+#else
         w->effect[1] = SetParticleEffect(21, pos, IdentityQuaternion);
         w->effect[4] = SetParticleEffect(19, pos, IdentityQuaternion);
         break;
     case 4:
         w->effect[0] = SetParticleEffect(23, pos, IdentityQuaternion);
+#endif
         break;
     default:
         w->effect[3] = SetParticleEffect(7, pos, IdentityQuaternion);
         w->effect[0] = SetParticleEffect(5, pos, IdentityQuaternion);
         w->effect[1] = SetParticleEffect(9, pos, IdentityQuaternion);
+#ifdef VERSION_JUN26
+        w->effect[4] = SetParticleEffect(18, pos, IdentityQuaternion);
+#else
         w->effect[4] = SetParticleEffect(19, pos, IdentityQuaternion);
+#endif
 #else
         w->effect[1] =
             SetParticleEffectByPartition(21, pos, IdentityQuaternion, ios_partition_seki);
@@ -162,7 +178,7 @@ void LightTorchOff(GObj *gobj)
     }
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static void torchDrainControl(GObj *gobj, float level)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
@@ -206,7 +222,7 @@ static void moveTorch(GObj *gobj, void *mtx)
     }
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline void TorchDL(void) {}
 #else
 static void setPauseFlag(GObj *gobj, int flag)
@@ -236,7 +252,7 @@ inline int IsTorchLightOn(GObj *torch)
     TorchGeoWork *w = GOBJ_SUB(torch)->work;
 
     return w->lightOn;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 }
 
 inline void SetTorchLife(GObj *torch, int life, int fadeTime)
@@ -249,7 +265,7 @@ inline void SetTorchLife(GObj *torch, int life, int fadeTime)
 inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
 {
     TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
-                                     LN(232, 232, 232, 232, 232));
+                                     LN(232, 232, 232, 232, 232, 232));
     *p = emptyTorchWork;
     /* the display object read through the SubHandle union each time: the
        light store reads the slot again after the work store, which three
@@ -330,15 +346,20 @@ GObj *CheckTorchChainReactionReverse(GObj *self, float dist)
     return 0;
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
 {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
+#ifdef VERSION_JUN26
     TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
-                                     LN(232, 232, 232, 232, 174));
+                                     LN(232, 232, 232, 232, 232, 174));
 #else
     TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
-                                     LN(196, 196, 196, 196, 196));
+                                     LN(232, 232, 232, 232, 174, 232));
+#endif
+#else
+    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
+                                     LN(196, 196, 196, 196, 196, 196));
 #endif
     *p = emptyTorchWork;
     /* the display object read through the SubHandle union each time: the
@@ -396,6 +417,45 @@ inline void UpdateRealTimeGeometryValue(GObj *self)
     CopyVector(sub->root.last, buf);
 }
 
+#ifdef VERSION_JUN26
+static inline void procChainReaction(GObj *gobj)
+{
+    TorchGeoWork *w;
+    GObj *o;
+
+    w = GOBJ_SUB(gobj)->work;
+    if (w->chainFlag == 0) {
+        return;
+    }
+    o = CheckTorchChainReaction(gobj, 20.0f);
+    if (o != 0) {
+        LightTorchOn(gobj);
+    }
+}
+
+void TorchGeo(GObj *gobj)
+{
+    TorchGeoWork *w = GOBJ_SUB(gobj)->work;
+
+    if (IsTorchLightOn(gobj) == 0) {
+        procChainReaction(gobj);
+        return;
+    }
+    if (w->burnTime < 65535) {
+        w->burnTime = w->burnTime + 1;
+    }
+    if (GOBJ_SUB(gobj)->parent.obj != 0) {
+        float pos[4];
+
+        GetRootPosition(pos, gobj);
+        UpdateRealTimeGeometryValue(gobj);
+        moveTorch(gobj, pos);
+    }
+    if (w->life < w->burnTime) {
+        LightTorchOff(gobj);
+    }
+}
+#else
 /* nonzero when lighting `other`'s torch from `gobj` must not happen: the
  * heroine's bomb, or the boy's weapon pair */
 static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name */
@@ -546,7 +606,8 @@ void TorchGeo(GObj *gobj)
 #endif
     }
 }
+#endif
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 inline void TorchDL(void) {}
 #endif

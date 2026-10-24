@@ -23,11 +23,17 @@
 #include "spider.h"
 #include <assert.h>
 
+#ifdef VERSION_JUN26
+/* as in tableSin.h, which this file does not include */
+extern short GetTableArcCos(float x);
+#else
 /* int (float) here, short (float) in tableSin.h: the ROM needs int, as
    declared short this object differs at 0x001C37D8 (JPN 0x001C3550, KOR 0x001C35E8; quaternion.c's slerp
    declares it short and matches) */
 extern int GetTableArcCos(float x);
 /* as in tableSin.h, which this file does not include */
+#endif
+
 extern short GetTableArcTan2(float y, float x);
 
 typedef struct { /* field names derived */
@@ -86,10 +92,14 @@ typedef struct {     /* field names derived */
     float mtx[16];   /* 0x1F0 */
     float root[16];  /* 0x230 */
     int blink;       /* 0x270 */
+#ifdef VERSION_JUN26
+    int pad274[3]; /* 0x274 */
+#else
     int settleCount; /* 0x274, the first 10 frames reset the position info */
     int visible;     /* 0x278 */
     int pad27C;      /* 0x27C */
-} AP1Work;           /* derived name */
+#endif
+} AP1Work; /* derived name */
 
 static int standMot(GObj *self);
 static int walkMot(GObj *self);
@@ -201,7 +211,8 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
     Sub15C *d;
     int i;
 
-    p = iosMallocDebug(ios_partition_sugipon, sizeof(AP1Work), a_p_1File, 228);
+    p = iosMallocDebug(ios_partition_sugipon, sizeof(AP1Work), a_p_1File,
+                       LN(228, 228, 228, 228, 228, 218));
     GOBJ_SUB(self)->work = p;
     p->layout = arg->obj;
     p->skel = 1;
@@ -212,8 +223,10 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
     p->sink = 0.0f;
     p->tilt = 0.0f;
     p->blink = rand() & 0x1F;
+#ifndef VERSION_JUN26
     p->settleCount = 0;
     p->visible = 1;
+#endif
     ap1LayoutUp[2] = spiderDef[p->layout].upZ;
     CopyVector(&p->up, ap1LayoutUp);
     _UnitMatrix(p->mtx);
@@ -228,27 +241,41 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
     }
     applyPartOrients(self);
     if (p->skel == 0) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         d = CSVSYSTEM_InitDObj(5, arg);
 #else
         d = CSVSYSTEM_InitDObj(7, arg);
 #endif
         p->arm[0] = d;
         if (d->nodeMtx != 0) {
+#ifdef VERSION_JUN26
+            iosFree((void *)d->nodeMtx);
+        }
+        if (p->arm[0]->nodeQuat != 0) {
+            iosFree((void *)p->arm[0]->nodeQuat);
+#else
             iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
         }
         if (p->arm[0]->nodeQuat != 0) {
             iosFree((void *)(p->arm[0]->nodeQuat & 0xFFFFFFF));
+#endif
         }
         p->arm[0]->nodeMtx = 0;
         p->arm[0]->nodeQuat = 0;
-        p->arm[0]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File, 261);
-        p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 261);
+        p->arm[0]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File,
+                                                 LN(261, 261, 261, 261, 261, 249));
+        p->arm[0]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File,
+                                                  LN(261, 261, 261, 261, 261, 249));
         p->arm[0]->nodeNum = 4;
         if (p->arm[0]->nodes != 0) {
+#ifdef VERSION_JUN26
+            iosFree(p->arm[0]->nodes);
+#else
             iosFree((void *)((int)p->arm[0]->nodes & 0xFFFFFFF));
+#endif
         }
-        p->arm[0]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 261);
+        p->arm[0]->nodes =
+            iosMallocDebug(ios_partition_seki, 320, a_p_1File, LN(261, 261, 261, 261, 261, 249));
         {
             int n;
 
@@ -269,27 +296,41 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
             }
         }
         p->arm[0]->dispType = 2;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         d = CSVSYSTEM_InitDObj(6, arg);
 #else
         d = CSVSYSTEM_InitDObj(8, arg);
 #endif
         p->arm[1] = d;
         if (d->nodeMtx != 0) {
+#ifdef VERSION_JUN26
+            iosFree((void *)d->nodeMtx);
+        }
+        if (p->arm[1]->nodeQuat != 0) {
+            iosFree((void *)p->arm[1]->nodeQuat);
+#else
             iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
         }
         if (p->arm[1]->nodeQuat != 0) {
             iosFree((void *)(p->arm[1]->nodeQuat & 0xFFFFFFF));
+#endif
         }
         p->arm[1]->nodeMtx = 0;
         p->arm[1]->nodeQuat = 0;
-        p->arm[1]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File, 264);
-        p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File, 264);
+        p->arm[1]->nodeMtx = (int)iosMallocDebug(ios_partition_seki, 256, a_p_1File,
+                                                 LN(264, 264, 264, 264, 264, 252));
+        p->arm[1]->nodeQuat = (int)iosMallocDebug(ios_partition_seki, 64, a_p_1File,
+                                                  LN(264, 264, 264, 264, 264, 252));
         p->arm[1]->nodeNum = 4;
         if (p->arm[1]->nodes != 0) {
+#ifdef VERSION_JUN26
+            iosFree(p->arm[1]->nodes);
+#else
             iosFree((void *)((int)p->arm[1]->nodes & 0xFFFFFFF));
+#endif
         }
-        p->arm[1]->nodes = iosMallocDebug(ios_partition_seki, 320, a_p_1File, 264);
+        p->arm[1]->nodes =
+            iosMallocDebug(ios_partition_seki, 320, a_p_1File, LN(264, 264, 264, 264, 264, 252));
         {
             int n;
 
@@ -314,8 +355,8 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
         for (i = 0; i < 9; i++) {
             p->focus[i] = GetSkeltonFocusNode(self, *(int *)((char *)ap1FocusNode + i * 4));
             if (p->focus[i] == -1) {
-                debug_assertMessage(a_p_1File, 269, warningBanner);
-                __assert(a_p_1File, 269, "e");
+                debug_assertMessage(a_p_1File, LN(269, 269, 269, 269, 269, 257), warningBanner);
+                __assert(a_p_1File, LN(269, 269, 269, 269, 269, 257), "e");
             }
         }
         p->arm[1] = 0;
@@ -667,7 +708,7 @@ static int rolling(GObj *self)
     if (GOBJ_SUB(self)->parent.obj != 0) {
         UnlinkParentOfDObj(self);
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     ((AP1Val *)((char *)GOBJ_SUB(self) + 0x124))->f +=
         60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
@@ -694,6 +735,10 @@ static int rolling(GObj *self)
                 if (col->wall.elem != 0) {
                     GOBJ_SUB(self)->ctrl.floorAttr = GetWallAttribute(col);
                 }
+#ifdef VERSION_JUN26
+                if (col->floor.elem != 0) {
+                    GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(col);
+#else
 #ifdef VERSION_AUG6
                 if (CheckWallAttribute(self, 0x40) != 0 || CheckWallAttribute(self, 0x50) != 0) {
 #else
@@ -720,9 +765,11 @@ static int rolling(GObj *self)
                             iosOmSendMail(self, 0x26, self);
                         }
                     }
+#endif
                 }
             }
             return 0;
+#ifndef VERSION_JUN26
         }
     }
     {
@@ -732,6 +779,7 @@ static int rolling(GObj *self)
         if (CheckFieldContact(col, self, GOBJ_SUB(self)->root.pos, 50.0f) == 2) {
             CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
             iosOmSendMail(self, 0x1A, self);
+#endif
         }
     }
     return -1;
@@ -749,7 +797,11 @@ static inline short armCosine(float a, float b, float c) /* derived name */
     float bb = b * b;
     float cc = c * c;
 
+#ifdef VERSION_JUN26
+    return GetTableArcCos((aa + bb - cc) / (2.0f * a * b));
+#else
     return (short)(int)GetTableArcCos((aa + bb - cc) / (2.0f * a * b));
+#endif
 }
 
 static void calcSubMission(GObj *self)
@@ -771,7 +823,7 @@ static void calcSubMission(GObj *self)
     Vec4A_P_1 atk;
     int i;
     int ang;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int dbg = 0; /* the function's local debug switch, off (case 1) */
 #endif
 
@@ -795,7 +847,7 @@ static void calcSubMission(GObj *self)
             w.m[1] -= (t < 0.5f) ? t * 2.0f * 20.0f : (1.0f - t) * 2.0f * 20.0f;
             _ApplyMatrix(&q, p->root, &w);
             _InterVectorXYZ(&part->pos, &q, &part->pos, t);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             /* the local debug switch's window: a dump of the root matrix
                the step is placed in.  Pinned: three to five instructions
                here at the first GCSE pass (its expression table of 219
@@ -831,7 +883,11 @@ static void calcSubMission(GObj *self)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
                 ExecuteSEPackage(self, 99);
 #else
+#ifdef VERSION_JUN26
+                ExecuteSEPackage(self, 85);
+#else
                 ExecuteSEPackage(self, 0x68);
+#endif
 #endif
                 CopyVector(&part->home, (char *)ap1PartOffset + i * 0x10);
                 part->state = 1;
@@ -867,7 +923,7 @@ static void calcSubMission(GObj *self)
         CopyVector(MatrixDrive_GetMatrix()[3], &save);
 
         if (p->skel != 0) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + (p->focus[i * 2 + 1] << 6),
                        MatrixDrive_GetMatrix(), ap1ArmScale);
 #else
@@ -894,7 +950,7 @@ static void calcSubMission(GObj *self)
         if (part->state == 2) {
             atk = attackCenterOffset;
             _ApplyMatrix(&atk, MatrixDrive_GetMatrix(), &atk);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             AttackCenter(self, -1, atk.m, 0, 30.0f);
 #else
             _AttackCenter(self, -1, atk.m, 0, 30.0f, 0);
@@ -902,7 +958,7 @@ static void calcSubMission(GObj *self)
         }
 
         if (p->skel != 0) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + (p->focus[i * 2 + 2] << 6),
                        MatrixDrive_GetMatrix(), ap1ArmScale);
 #else
@@ -957,6 +1013,7 @@ static void updateMatrix(GObj *self)
     _MulMatrix((void *)GOBJ_SUB(self)->nodeMtx, p->mtx, ap1BodyMatrix);
 }
 
+#ifndef VERSION_JUN26
 static void resetPositionInfo(GObj *self)
 {
     AP1Work *p = GOBJ_SUB(self)->work;
@@ -964,6 +1021,7 @@ static void resetPositionInfo(GObj *self)
     GetRootQuaternion(&p->quat, self);
     ResetEnemyEye(p->eye);
 }
+#endif
 
 static inline void stepAP1BlinkTimer(GObj *g) /* derived name */
 {
@@ -983,10 +1041,12 @@ void AP1Geo(GObj *self)
 
     switch (p->mode) {
     default:
+#ifndef VERSION_JUN26
         if (p->settleCount < 10) {
             p->settleCount = p->settleCount + 1;
             resetPositionInfo(self);
         }
+#endif
         p->mode = motFuncList[p->mode][1](self);
         stepAP1BlinkTimer(self);
         break;
@@ -1029,6 +1089,15 @@ void AP1DL(GObj *self)
     AP1Work *p = GOBJ_SUB(self)->work;
 
     if (p->mode < 5) {
+#ifdef VERSION_JUN26
+        p2o_SetDefaultEnviroment();
+        p2o_DispVU1(self);
+        if (p->skel == 0) {
+            p2o_DispVU1DObjMulti(p->arm[0]);
+            p2o_DispVU1DObjMulti(p->arm[1]);
+        }
+        DispEnemyEye(p->eye);
+#else
         if (p->visible != 0) {
             p2o_SetDefaultEnviroment();
             p2o_DispVU1(self);
@@ -1038,17 +1107,20 @@ void AP1DL(GObj *self)
             }
             DispEnemyEye(p->eye);
         }
+#endif
     }
 }
 
 int GetAP1SpecType(GObj *self)
 {
     return ((AP1Work *)GOBJ_SUB(self)->work)->layout;
+#ifndef VERSION_JUN26
 }
 
 void SetAP1VisualState(GObj *self, int visible)
 {
     ((AP1Work *)GOBJ_SUB(self)->work)->visible = visible;
+#endif
 }
 
 /* the angle passes as an int here (quaternion.h: short) */
@@ -1127,7 +1199,12 @@ GObj *MakeAP1GObj(SObjSimpleSetting *setting)
 #ifdef VERSION_AUG6
     return CreateLayoutedGObj(60, spiderDef[setting->obj].layout, -1, 0, setting, -1, 7, 1);
 #else
+#ifdef VERSION_JUN26
+    debug_StdPrintfDummy("TYPE: %d\n", spiderDef[setting->obj].layout);
+    return CreateLayoutedGObj(59, spiderDef[setting->obj].layout, -1, 0, setting, -1, 7, 1);
+#else
     return CreateLayoutedGObj(62, spiderDef[setting->obj].layout, -1, 0, setting, 0, 7, 1);
+#endif
 #endif
 #endif
 }

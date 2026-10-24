@@ -43,9 +43,11 @@ extern int exit_no;
 extern int motionFrameUpdate;
 extern int interlace;
 extern int thisIsYourStartStage;
+
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 extern int NonLinearCameraMove;
 #endif
+
 extern int GlobalTimer;
 extern int lock_execIcoMisc;
 extern int graphics_ready;
@@ -61,17 +63,21 @@ extern int IosCdLock;
 extern int IosSndLock;
 extern int IosStgMgrLock;
 extern int systemFault;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 extern int optionControlType; /* derived name */
 extern int optionScreenMode;  /* derived name */
 extern int girlControlMode;   /* derived name */
 #endif
+
 extern GObj *boyGObj;
 extern GObj *girlGObj;
 extern IosPadCtx *boyPad;
-#ifndef VERSION_AUG6
+
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 extern IosPadCtx *girlPad; /* derived name */
 #endif
+
 extern int gameover_flag;
 extern int gameover_layout_flag;
 extern int itemWatchOff; /* derived name */
@@ -82,5 +88,14 @@ extern void (*system_stage_func)(void);
 extern int InterStageSwitchLock;
 void Main(void);
 void Emergency_DestroyAllThread(void);
+
+#ifdef VERSION_JUN26
+/* the demo disc's exits (sampleMode.o in the Aug-6-2001 map; main.o here) */
+void sampleModeNoContTimeOutMain(void);
+void sampleModeDemoEnd(void);
+void sampleModeDemoEndTimeOut(void);
+void sampleModeStageInit(void);
+void sampleModeExec(void);
+#endif
 
 #endif /* MAIN_H */

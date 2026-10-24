@@ -13,11 +13,27 @@
 struct SqEntry;
 
 /* st04l.o's .sdata globals */
+#ifdef VERSION_JUN26
+extern struct SqEntry *crest1;
+extern struct SqEntry *crest2;
+extern struct SqEntry *solar4l;
+extern unsigned int st04l_yure;
+extern unsigned char st04l_yure_vol;
+extern unsigned int sekizo_4l;
+extern unsigned char sekizo_4l_vol;
+/* st04l.c's out-of-line handlers; the inline ones are declared in st04l.c,
+   in the order the demo outputs them. */
+void actSt04lBrg1Chk(GObj *volatile self);
+void actSt04lBrg2Chk(GObj *volatile self);
+void actSt04lC1BallTurn(GObj *volatile self);
+void actSt04lC2BallTurn(GObj *volatile self);
+#else
 extern struct SqEntry *ball1_4l;
 extern struct SqEntry *ball2_4l;
 extern struct SqEntry *ball3_4l;
 extern struct SqEntry *crest1;
 extern struct SqEntry *crest2;
+
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern struct SqEntry *solar4l;
 extern struct SqEntry *oriup4c;
@@ -27,6 +43,7 @@ extern int solar4l;
 extern unsigned int oriup4c;
 extern unsigned char oridown4c;
 #endif
+
 extern unsigned int st04l_yure;
 extern unsigned char st04l_yure_vol;
 void actSt04eSolarBeamChk(GObj *volatile self);
@@ -43,9 +60,15 @@ void actSt04lC2BallTurn(GObj *volatile self);
 void actSt04lC3BallMain(GObj *volatile self);
 void actSt04lC3BallSwitch(GObj *volatile self);
 void actSt04lC3BallTurn(GObj *volatile self);
+#endif
+
 void actSt04lCrest2Main(GObj *volatile self);
 void actSt04lCrest3Main(GObj *volatile self);
 void actSt04lCrestMain(GObj *volatile self);
+
+#ifdef VERSION_JUN26
+void actSt04lGondolaChk(GObj *volatile self);
+#else
 void actSt04lGondolaCharaChk(GObj *volatile self);
 void actSt04lGondolaChk(GObj *volatile self);
 void actSt04lMonyou01Chk(GObj *volatile self);
@@ -54,9 +77,16 @@ void actSt04lMonyou03Chk(GObj *volatile self);
 void actSt04lMonyou04Chk(GObj *volatile self);
 void actSt04lMonyou05Chk(GObj *volatile self);
 void actSt04lMonyou06Chk(GObj *volatile self);
+#endif
+
 void actSt04lMonyou07Chk(GObj *volatile self);
 void actSt04lOri2Chk(GObj *volatile self);
 void actSt04lOriChk(GObj *volatile self);
+
+#ifdef VERSION_JUN26
+void actSt04lSekizoChk(GObj *volatile self);
+void actSt04lStairChk(GObj *volatile self);
+#else
 void actSt04lOriRopeCutLChk(GObj *volatile self);
 void actSt04lOriRopeCutRChk(GObj *volatile self);
 void actSt04lRope1Chk(GObj *volatile self);
@@ -75,8 +105,10 @@ void actSt04lTorch2_2XLChk(GObj *volatile self);
 void actSt04lTorch3_1Chk(GObj *volatile self);
 void actSt04lTorch3_2Chk(GObj *volatile self);
 void actSt04lTuriChk(GObj *volatile self);
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void turnBall(GObj *self, int flag, int anim, int gobj1, int gobj2);
+#endif
 #endif
 
 #endif /* ST04L_H */

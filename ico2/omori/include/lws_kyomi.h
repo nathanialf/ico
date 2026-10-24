@@ -8,7 +8,7 @@
 #ifndef LWS_KYOMI_H
 #define LWS_KYOMI_H
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 struct GObj *CreateKyomiGObj(void);
 void SetParamKyomiGObj(struct GObj *gobj, float *root, float *param);
 #else

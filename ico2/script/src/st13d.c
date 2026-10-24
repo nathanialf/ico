@@ -2,10 +2,15 @@
 #include "gflag.h"
 #include "script.h"
 #include "geometryManager.h"
+
+#ifdef VERSION_JUN26
+#include "main.h"
+#else
 #include "st13d.h"
 #include "main.h"
 
 inline void actSt13dInit(void) {}
+#endif
 
 /* A 16-byte constant vector: the float view carries the values, the long
    long view is the one the whole-object copy reads. */
@@ -59,6 +64,7 @@ void actSt13dExit(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifndef VERSION_JUN26
 #ifdef VERSION_AUG6
     if (gflagChk(17) == 0) {
 #else
@@ -66,6 +72,7 @@ void actSt13dExit(GObj *volatile self)
 #endif
         ScpCallCameraOff();
     }
+#endif
 
     pos = exitPos;
     size = exit2Pos;

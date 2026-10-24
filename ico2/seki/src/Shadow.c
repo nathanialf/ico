@@ -22,7 +22,7 @@ static int killShadow = 0; /* derived name */
 
 static int killShadowRequest = 0; /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* the colour shadow_Reset fills the shadow buffer with, read a byte at a time;
    const, as GsBase.c's keepFrameColor: the reads depend on no packet store */
 static const unsigned char shadowFillColor[4] = {0}; /* derived name */
@@ -58,7 +58,7 @@ static const unsigned char shadowFillColor[4] = {0}; /* derived name */
         PacketBufferStruct.ptr.c = ((c) + 0x20);                                                   \
     }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
  * window centred on the GS's 2048.0 origin. */
 #define setFrame(fbp, w, h) /* derived name */                                                     \
@@ -104,7 +104,7 @@ static const unsigned char shadowFillColor[4] = {0}; /* derived name */
         }                                                                                          \
     }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void shadow_Reset(void)
 {
     char *c;
@@ -115,6 +115,17 @@ void shadow_Reset(void)
 
     if (killShadowRequest != killShadow) {
         killShadow = killShadowRequest;
+#ifdef VERSION_JUN26
+    }
+    if (killShadow == 1) {
+        return;
+    }
+    if (debug_fullscreen_effect == 0) {
+        return;
+    }
+    if (debug_shadow_flag >= 2) {
+        return;
+#endif
     }
     dl_SetDLPriority(3);
     gifStartPacketPath1(c);
@@ -254,13 +265,24 @@ void shadow_Reset(void)
 
 void shadow_Draw(void)
 {
+#ifdef VERSION_JUN26
+    if (killShadow == 1) {
+        return;
+    }
+    if (debug_fullscreen_effect == 0) {
+        return;
+    }
+    if (debug_shadow_flag >= 2) {
+        return;
+    }
+#endif
     if (debug_font_flag & 1) {
         debug_Printf(500, ScreenHeight / 2 - 8, 0xCCCCCC00u, "S");
     }
     {
         /* the four level tables, this block's statics */
         /* the frame buffer pointer of each shadow mipmap level */
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         static const unsigned int levelFbp[4] = {0x140, 0x1C0, 0x1E0, 0x1E8}; /* derived name */
         /* the texture base pointer of each shadow mipmap level */
         static const unsigned int levelTbp[4] = {0x2800, 0x3800, 0x3C00, 0x3D00}; /* derived name */
@@ -301,7 +323,7 @@ void shadow_Draw(void)
         setGsReg(0x14, 0x60);
 
         for (i = 0; i < 3; i++) {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             setFrame(levelFbp[i + 1], 512 >> (i + 1), 512 >> (i + 1));
 #else
             setFrame(levelFbp[i + 1], 512 >> (i + 1), 512 >> (i + 1), 0, 0);
@@ -321,13 +343,17 @@ void shadow_Draw(void)
             spriteUV(levelRect[i + 1], levelUV[i], col, 0x116);
         }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         setFrame(0x40, ScreenWidth, ScreenHeight);
 #else
         setFrame(0x40, ScreenWidth, ScreenHeight, 0, 0);
 #endif
         setGsReg(0x42, 0x44);
+#ifdef VERSION_JUN26
+        setGsReg(0x47, 0x34000);
+#else
         setGsReg(0x47, 0x3400D);
+#endif
 
         for (i = 3; i > 0; i--) {
             unsigned char col2[4] = {GlobalStageSetting.shadowColR, GlobalStageSetting.shadowColG,
@@ -342,7 +368,7 @@ void shadow_Draw(void)
                                           ((long long)(9 - i) << 26) | ((long long)(9 - i) << 30) |
                                           ((long long)0x8000 << 19);
             *PacketBufferStruct.ptr.d++ = 0x06;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
             setGsReg(0x14, 0x60);
 #endif
             spriteUV(off, rect[i], col2, 0x156);
@@ -350,7 +376,7 @@ void shadow_Draw(void)
 
         setGsReg(0x4E, 0x300000C0);
         setGsReg(0x47, 0x50000);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         setFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
 #endif
 
@@ -377,7 +403,7 @@ void shadow_Draw(void)
         dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     tex_UnlockHeadTBP(3);
 #endif
 }
@@ -477,7 +503,7 @@ static void shadow_EntryClusterShadow(Sub15C *o, float len)
     _InitCurrentMatrix();
     shadow_getShadowVectorAverage(v, o);
     _ScaleVectorXYZ(sa, v, len);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     _ScaleVectorXYZ(sb, v, 4.5f);
 #else
     _ScaleVectorXYZ(sb, v, 4.0f);
@@ -559,7 +585,7 @@ static inline void applyCurrentMatrixV(void *dst, void *src) /* derived name */
                          : "r"(dst), "r"(src));
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static void shadow_EntryNormalShadow(Sub15C *o, float len, int idx)
 {
     float v[4];
@@ -970,7 +996,7 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn) /* derived
 
     rate[0] = rate[1] = 1.0f;
     /* a wholly visible edge returns at once */
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (-(ScreenWidth * 3 / 2) < oa.x && oa.x < (ScreenWidth * 3 / 2) &&
         -(ScreenWidth * 3 / 2) < ob.x && ob.x < (ScreenWidth * 3 / 2) &&
         -(ScreenHeight * 3 / 2) < oa.y && oa.y < (ScreenHeight * 3 / 2) &&
@@ -996,7 +1022,7 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn) /* derived
         pa->w = -1.0f;
         return -1.0f;
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     fw = (ScreenWidth * 3 / 2);
     fh = (ScreenHeight * 3 / 2);
 #else
@@ -1187,6 +1213,10 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
                                                   float sign) /* derived name */
 {
     int order[20] = {0, 1, 3, 4, 5, 1, 2, 0, 5, 3, 3, 4, 0, 1, 2, 4, 5, 3, 2, 0};
+#ifdef VERSION_JUN26
+    /* line strips in the debug view (debug_shadow_flag 2), else triangle strips */
+    int prim = debug_shadow_flag == 2 ? 2 : 4;
+#endif
     int vi[6][4];
     int i;
     int k;
@@ -1201,7 +1231,11 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
     }
     p[0] = 0x1000000000008001LL;
     p[1] = 0xE;
+#ifdef VERSION_JUN26
+    p[2] = prim | 0x140;
+#else
     p[2] = 0x144;
+#endif
     p[3] = 0;
     p[4] = 0x240000000000800ALL;
     p[5] = 0x51;
@@ -1210,6 +1244,14 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
      * pointer; the colour word steps its own pointer in each arm */
     for (i = 0; i < 10; i++, sgn = -sgn, p++) {
         k = order[i];
+#ifdef VERSION_JUN26
+        if (debug_shadow_flag == 2) {
+            *p++ = 0x3F80000040808080LL;
+        } else if (volumeStripFaceZ(i) * sgn < 0.0f) {
+            *p++ = 0x3F80000080080808LL;
+        } else {
+            *p++ = 0x3F80000080F8F8F8LL;
+#else
         if (volumeStripFaceZ(i) * sgn < 0.0f) {
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             *p++ = 0x3F80000080080808LL;
@@ -1219,6 +1261,7 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
             *p++ = 0x3F80000080040404LL;
         } else {
             *p++ = 0x3F80000080FCFCFCLL;
+#endif
 #endif
         }
         v = vi[k];
@@ -1278,6 +1321,11 @@ typedef struct ShadowRun { /* field names derived */
     char pad6[10];
 } ShadowRun; /* derived name */
 
+#ifdef VERSION_JUN26
+/* set to 0 by shadow_RenderVolume and to 1 by shadow_RenderVolumeMulti; no reader */
+static int shadowMulti = 0; /* derived name */
+#endif
+
 void shadow_RenderVolume(Sub15C *o)
 {
     VECTOR pos;
@@ -1300,12 +1348,25 @@ void shadow_RenderVolume(Sub15C *o)
     float sgn;
     float r;
 
+#ifdef VERSION_JUN26
+    if (killShadow == 1) {
+        return;
+    }
+    if (debug_shadow_flag == 3) {
+        return;
+    }
+    if (debug_fullscreen_effect == 0) {
+        return;
+    }
+    shadowMulti = 0;
+#else
     if (x->mode.bits & 0x04000000) {
         return;
     }
     if (len != x->shadowLength && 0.0f < x->shadowLength) {
         len = x->shadowLength;
     }
+#endif
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     if (shadowVolumeOnScreen(x, len) == 0) {
         return;
@@ -1317,6 +1378,55 @@ void shadow_RenderVolume(Sub15C *o)
     if (o->dispType == 1) {
         shadow_EntryClusterShadow(o, len);
     } else {
+#ifdef VERSION_JUN26
+        shadow_EntryNormalShadow(o, len, 0);
+    }
+    if (debug_shadow_flag != 2) {
+        dl_SetDLPriority(3);
+    } else {
+        /* shadow_Reset's packet, testing the other way */
+        char *c;
+        char *p;
+        char *q;
+
+        dl_SetDLPriority(11);
+        gifStartPacketPath1(c);
+        setGsReg(0x47, 0x51000);
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
+                            4) -
+                           1) |
+            0x1000000000008000LL;
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+            0x6C008000;
+        p = PacketBufferStruct.ptr.c;
+        ((GifPkWord *)p)->w[0] = 0x15000000;
+        p += 4;
+        PacketBufferStruct.ptr.c = p;
+        ((GifPkWord *)p)->w[0] = 0;
+        PacketBufferStruct.ptr.c = (p + 4);
+        ((GifPkWord *)(p + 4))->w[0] = 0;
+        PacketBufferStruct.ptr.c = (p + 8);
+        ((GifPkWord *)(p + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = (p + 0xC);
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                             4) -
+                            1) |
+                           0x10000000);
+        q = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = q;
+        ((GifPkWord *)q)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = (q + 8);
+        ((GifPkWord *)(q + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = (q + 0xC);
+        ((GifPkWord *)(q + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = (q + 0x10);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+#else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         shadow_EntryNormalShadow(o, len, 0);
 #else
@@ -1324,6 +1434,7 @@ void shadow_RenderVolume(Sub15C *o)
 #endif
     }
     dl_SetDLPriority(3);
+#endif
     shadow_getShadowVectorAverage(&pos, o);
     loadVolumeMatrix(&pos);
     c = PacketBufferStruct.ptr.c;
@@ -1412,12 +1523,25 @@ void shadow_RenderVolumeMulti(Sub15C *o, int idx)
     float sgn;
     float r;
 
+#ifdef VERSION_JUN26
+    if (killShadow == 1) {
+        return;
+    }
+    if (debug_shadow_flag == 3) {
+        return;
+    }
+    if (debug_fullscreen_effect == 0) {
+        return;
+    }
+    shadowMulti = 1;
+#else
     if (x->mode.bits & 0x04000000) {
         return;
     }
     if (len != x->shadowLength && 0.0f < x->shadowLength) {
         len = x->shadowLength;
     }
+#endif
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     if (shadowVolumeOnScreen(x, len) == 0) {
         return;
@@ -1426,12 +1550,61 @@ void shadow_RenderVolumeMulti(Sub15C *o, int idx)
     __GetCameraPos(&cam);
     GetRootPositionByDObj(&pos, o);
     _GetLength(&pos, &cam);
+#ifdef VERSION_JUN26
+    shadow_EntryNormalShadow(o, len, idx);
+    if (debug_shadow_flag != 2) {
+        dl_SetDLPriority(3);
+    } else {
+        /* shadow_Reset's packet, testing the other way */
+        char *c;
+        char *p;
+        char *q;
+
+        dl_SetDLPriority(11);
+        gifStartPacketPath1(c);
+        setGsReg(0x47, 0x51000);
+        ((GifPkWord *)PacketBufferStruct.end.c)->d =
+            (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
+                            4) -
+                           1) |
+            0x1000000000008000LL;
+        ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+            (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+            0x6C008000;
+        p = PacketBufferStruct.ptr.c;
+        ((GifPkWord *)p)->w[0] = 0x15000000;
+        p += 4;
+        PacketBufferStruct.ptr.c = p;
+        ((GifPkWord *)p)->w[0] = 0;
+        PacketBufferStruct.ptr.c = (p + 4);
+        ((GifPkWord *)(p + 4))->w[0] = 0;
+        PacketBufferStruct.ptr.c = (p + 8);
+        ((GifPkWord *)(p + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = (p + 0xC);
+        ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+            (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                             4) -
+                            1) |
+                           0x10000000);
+        q = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = q;
+        ((GifPkWord *)q)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = (q + 8);
+        ((GifPkWord *)(q + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = (q + 0xC);
+        ((GifPkWord *)(q + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = (q + 0x10);
+        dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+        dl_CloseDma();
+    }
+#else
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     shadow_EntryNormalShadow(o, len, idx);
 #else
     shadow_EntryNormalShadow(o, idx, len);
 #endif
     dl_SetDLPriority(3);
+#endif
     shadow_getShadowVectorAverage(&pos, o);
     loadVolumeMatrix(&pos);
     c = PacketBufferStruct.ptr.c;
@@ -1534,7 +1707,11 @@ void shadow_MakeObjectData(PObjModel *mdl)
 
     for (i = 0; i < mdl->partCount; i++) {
         p = &mdl->parts[i];
+#ifdef VERSION_JUN26
+        if (mdl->mode.s.clstNum != 0) {
+#else
         if (mdl->disp != 0) {
+#endif
             p->vtxSave = mallocseki(p->vtxCount * 16);
             p->nrmSave = mallocseki(p->vtxCount * 16);
             q = (ShadowVtx *)mallocseki(p->vtxCount * 16);
@@ -1595,6 +1772,14 @@ inline void shadow_KillShadow(int val)
     killShadowRequest = val;
 }
 
+#ifdef VERSION_JUN26
+/* this build's reset clears the two switches only */
+inline void shadow_Init(void)
+{
+    killShadow = 0;
+    killShadowRequest = 0;
+}
+#else
 inline void shadow_DispCancel(int id, int cancel)
 {
     GObj *obj = isysGObjGetExist_begin();
@@ -1650,6 +1835,7 @@ inline void shadow_Init(void)
     }
 #endif
 }
+#endif
 
 /* one row of the shadow tool: the name it prints, the variable it edits and
  * the range it wraps that variable through */

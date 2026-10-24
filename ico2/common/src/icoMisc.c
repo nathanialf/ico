@@ -32,7 +32,7 @@
 #include "motionFileManager.h"
 #include "way_llf.h"
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 #include "waterDot.h"
 #endif
 
@@ -51,9 +51,17 @@
 #include "ebrain.h"
 #include "EnemyInit.h"
 #include "ZFog.h"
+
+#ifdef VERSION_JUN26
+#include "staticBlur.h"
+#include <assert.h>
+#include "motionOrientManager.h"
+#include "frameDependSequence.h"
+#else
 #include "flyManager.h"
 #include "staticBlur.h"
 #include <assert.h>
+#endif
 
 static void disp_memory_partition_bar(void);
 /* debug.h leaves it out (see there) */
@@ -76,6 +84,17 @@ static MiscColor partitionBarTint = {255, 255, 255, 128}; /* derived name */
 static int partitionFreeColor[4] = {255, 128, 64, 128}; /* derived name */
 
 static int partitionUsedColor[4] = {64, 128, 255, 128}; /* derived name */
+
+#ifdef VERSION_JUN26
+/* DispLoadProgress's spinner: four strokes, each two points on a 7 x 7 grid */
+static int loadSpinLine[4][2][4] = {
+    /* derived name */
+    {{0, 3}, {7, 3}},
+    {{0, 0}, {7, 7}},
+    {{3, 0}, {3, 7}},
+    {{7, 0}, {0, 7}},
+};
+#endif
 
 /* GifPacket.h's entry points, which this TU does not include: its call
    passes gif_MakeSpriteNoTexture's z as a 32-bit unsigned int, where the
@@ -178,11 +197,11 @@ static void disp_memory_partition_bar(void)
                         "DISP_MEMORY_PARTITION_BAR():\n\tINVALID MEMORY FREE AREA INDICATED IN PARTITION \"%s\"\n\tMALLOCED MEMORY'S NEXT_FREE: %p\n",
                         p->name, e);
 #ifdef VERSION_NTSC
-                    debug_assertMessage(__FILE__, LN(572, 572, 572, 572, 572), buf);
-                    __assert(__FILE__, LN(572, 572, 572, 572, 572), "e");
+                    debug_assertMessage(__FILE__, LN(572, 572, 572, 572, 572, 572), buf);
+                    __assert(__FILE__, LN(572, 572, 572, 572, 572, 572), "e");
 #else
-                    debug_assertMessage(__FILE__, LN(609, 609, 609, 609, 566), buf);
-                    __assert(__FILE__, LN(609, 609, 609, 609, 566), "e");
+                    debug_assertMessage(__FILE__, LN(609, 609, 609, 609, 566, 541), buf);
+                    __assert(__FILE__, LN(609, 609, 609, 609, 566, 541), "e");
 #endif
                 }
             } while (e != 0);
@@ -249,12 +268,183 @@ static void disp_memory_partition(void)
     }
 }
 
-static void *prevCameraPos = 0; /* derived name */
+#ifdef VERSION_JUN26
+/* the first two words of the TU's .sdata after its strings (0x67A998): the
+   load spinner's frame (bumped each time the load count moves) and a word no
+   June function reads */
+static int loadSpinFrame = 0; /* derived name */
 
 static int seEnvMute = 0; /* derived name */
 
+/* a screen rectangle as gif_Sprite takes it */
+typedef struct { /* field names derived */
+    int x;
+    int y;
+    int w;
+    int h;
+} LoadRect; /* derived name */
+
+/* .sbss: the load count DispLoadProgress last saw */
+static int prevMiscValue; /* derived name */
+
+extern void gif_Sprite(LoadRect *r, unsigned int z, LoadRect *uv, MiscColor *col, int prim);
+extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, MiscColor *col, int prim);
+
+/* The load progress bar and its spinner: a grey frame, a dark well and a green
+   bar of systemStatus[8] out of systemStatus[7] loads, then one of four
+   two-point strokes, the next each time the load count moves.  Nothing calls
+   it in this build. */
+void DispLoadProgress(void) /* derived name */
+{
+    int p0[4];
+    int p1[4];
+    int cur;
+
+    if (fbKeep != 0) {
+        return;
+    }
+    if (systemStatus[7] <= 0) {
+        return;
+    }
+    cur = systemStatus[8];
+    gif_StartPacketPri(12);
+    gif_SetZWrite(0);
+    gif_SetZTest(0);
+    gif_SetAlpha(1, 2, 64);
+    {
+        LoadRect r = {-260, 10, 520, 6};
+        MiscColor c = {128, 128, 128, 32};
+
+        gif_Sprite(&r, 0xFFFFFFFF, 0, &c, 1);
+    }
+    {
+        LoadRect r = {-258, 11, 516, 4};
+        MiscColor c = {0, 0, 0, 32};
+
+        gif_Sprite(&r, 0xFFFFFFFF, 0, &c, 1);
+    }
+    {
+        LoadRect r = {-256, 12, systemStatus[8] * 512 / systemStatus[7], 2};
+        MiscColor c = {64, 255, 64, 32};
+
+        gif_Sprite(&r, 0xFFFFFFFF, 0, &c, 1);
+    }
+    {
+        MiscColor c = {128, 128, 128, 32};
+
+        CopyIVector(p0, loadSpinLine[loadSpinFrame % 4][0]);
+        CopyIVector(p1, loadSpinLine[loadSpinFrame % 4][1]);
+        p0[0] += 252;
+        p1[0] += 252;
+        p0[1] += 17;
+        p1[1] += 17;
+        gif_Line(p0, p1, 0xFFFFFFFF, 0xFFFFFFFF, &c, 1);
+    }
+    gif_SetZTest(1);
+    gif_SetZWrite(1);
+    gif_SetAlpha(1, 4, 128);
+    gif_EndPacket();
+    if (cur != prevMiscValue) {
+        prevMiscValue = cur;
+        loadSpinFrame++;
+    }
+}
+
+/* .sdata after DispLoadProgress's colour templates */
+static void *prevCameraPos = 0; /* derived name */
+#else
+static void *prevCameraPos = 0; /* derived name */
+
+static int seEnvMute = 0; /* derived name */
+#endif
+
 static int diskErrorBlink = 0; /* derived name */
 
+#ifdef VERSION_JUN26
+void ExecIcoMisc(void)
+{
+    void *cam;
+
+    if (debug_mem_partition_flag == 1) {
+        disp_memory_partition();
+    }
+    if (debug_seslotdisp_flag == 1) {
+        debug_SESlotDisp();
+    }
+    if (iosCdvdDiskStatusGet() != 0) {
+        if (diskErrorBlink++ < 15) {
+            debug_PrintfDummy(250, 100, 0xFF000000, "DISK ERROR");
+        } else if (diskErrorBlink >= 31) {
+            diskErrorBlink = 0;
+        }
+    }
+    if (iopBuffOver != 0) {
+        debug_PrintfDummy(250, 100, 0xFF000000, "IOP BUFF OVER -%d bytes", iopBuffOver);
+    }
+    if (debug_memory_bar != 0) {
+        disp_memory_partition_bar();
+    }
+    if (lock_execIcoMisc == 0) {
+        if (iosCdvdDiskStatusGet() == 0) {
+            exec_layout_texture();
+        }
+    }
+    if (kanbanCommonRead != 0) {
+        if (stage_no == 1 || stage_no == 92) {
+            kanbanBootMain();
+        }
+    }
+    kanbanExec();
+    if (lock_execIcoMisc != 0) {
+        return;
+    }
+    if (systemStatus[5] == 0) {
+        ExecParticleEffects();
+        ExecStreamMotionManager();
+        ExecWindManager();
+        soundSeEnvMasterVolRate = scpSeEnvMasterVolRate;
+        ExecSpiderGroupManager();
+        ExecGameOverEffect();
+    } else if (scpSeEnvMasterVolRate > 0.5f) {
+        soundSeEnvMasterVolRate = 0.5f;
+    }
+    if (systemStatus[6] == 0) {
+        gamesysBackStageProcess();
+        if (debug_wallcheck_flag == 1) {
+            warpGirlOutStage(stage_no, 1);
+        }
+        cam = GetCameraPos();
+        if (prevCameraPos == 0) {
+            if (cam != 0) {
+                soundSeEnvPlay();
+            }
+        }
+        prevCameraPos = cam;
+        if (cam != 0) {
+            soundReqTickProc();
+        }
+        fightSoundProcess();
+    }
+    eBrainProcess();
+    sampleModeExec();
+    if (fall_death_active != 0) {
+        if (boyGObj != 0) {
+            if (GOBJ_SUB(boyGObj)->ctrl.fallHeight > 1000.0f) {
+                lt_switch_layout(58);
+            }
+        }
+        if (girlGObj != 0) {
+            if (GOBJ_SUB(girlGObj)->ctrl.fallHeight > 1000.0f) {
+                lt_switch_layout(58);
+            }
+        }
+    }
+    jimakuDisp(&jimaku_msg);
+}
+
+/* motionOrientManager.h carries MotionDef and declares no motionKind */
+extern const MotionDef motionKind[];
+#else
 #ifdef VERSION_NTSC
 void ExecIcoMisc(void)
 {
@@ -395,7 +585,7 @@ void ExecIcoMisc(void)
     if (debug_memory_bar != 0) {
         disp_memory_partition_bar();
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (lock_execIcoMisc == 0) {
 #else
     if (graphics_ready == 0) {
@@ -410,7 +600,7 @@ void ExecIcoMisc(void)
         }
     }
     kanbanExec();
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (lock_execIcoMisc != 0) {
 #else
     if (graphics_ready != 0) {
@@ -426,7 +616,7 @@ void ExecIcoMisc(void)
         ExecGameOverEffect();
         seEnvMute = 0;
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (current_layout_id == 25) {
 #else
         if (current_layout_id == 28) {
@@ -453,7 +643,7 @@ void ExecIcoMisc(void)
         prevCameraPos = cam;
         if (cam != 0) {
             soundReqTickProc();
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
             scpGirlHintVoiceTickProc(cam);
 #endif
         }
@@ -466,7 +656,7 @@ void ExecIcoMisc(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 lt_switch_layout(59);
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
                 lt_switch_layout(58);
 #else
                 lt_switch_layout(62);
@@ -479,7 +669,7 @@ void ExecIcoMisc(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 lt_switch_layout(59);
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
                 lt_switch_layout(58);
 #else
                 lt_switch_layout(62);
@@ -493,14 +683,14 @@ void ExecIcoMisc(void)
 
 /* per-scene preset: twelve (time, effect id) pairs then the scene label at 0xC0 */
 typedef struct { /* field names derived */
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     char pad0[0x60];
 #endif
 
     struct {
         float t;
         int id;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     } ent[5];
 
     char pad88[0xC8 - 0x88];
@@ -533,6 +723,7 @@ extern const ScnPre motionKind[];
 /* the effect table, read-only here and read as EffEnt;
    frameDependSequence.h declares EffEntry */
 extern const EffEnt motionEffKind[];
+#endif
 
 static unsigned char setActorsDebugPending = 1; /* derived name */
 
@@ -703,11 +894,13 @@ void InitIcoMisc(int *arg)
     InitializeStaticBlur();
     InitStreamMotionManager();
     InitSpiderGroupManager();
+#ifndef VERSION_JUN26
     InitFlyManager();
+#endif
 
     if (systemStatus[3] != 0 && systemStatus[4] != 0) {
         gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         scpBoyControlReadDisable = 0;
 #endif
         systemStatus[4] = 0;
@@ -716,7 +909,7 @@ void InitIcoMisc(int *arg)
         ACTGame_SetActors_Debug(stage, 0);
         setActorsDebugPending = 0;
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     debug_StdPrintfDummy("p2o_TransMicroProgram\n");
 #endif
     debug_StdPrintfDummy("Init Object Light\n");
@@ -739,9 +932,11 @@ void InitIcoMisc(int *arg)
         kanbanInit(0);
         kanbanBootInit();
         commonPackLoaded = 1;
+#ifndef VERSION_JUN26
     }
     if (stage_no == 1) {
         kanbanBootStart();
+#endif
     }
     if (loadedMotionSeg != stageData[stage].mot) {
         /* case 1 shares the default arm */
@@ -770,6 +965,11 @@ void InitIcoMisc(int *arg)
     debug_StdPrintfDummy("iosCdvdLoadPackFile\n");
     debugCdvdLoadInfoSegInit(1);
     iosCdvdLoadPackFile(pack, GetDataFileName(stage, pack), 1);
+#ifdef VERSION_JUN26
+    if (stage_no == 92) {
+        kanbanBootStart();
+    }
+#endif
     load_time = frame_count - load_time;
     debug_StdPrintfDummy("InitWayPointSystem\n");
     InitWayPointSystem();
@@ -778,7 +978,7 @@ void InitIcoMisc(int *arg)
     debug_StdPrintfDummy("InitParticleEffects\n");
     InitParticleEffects();
     InitStageMultiBgaManager();
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     InitializeWaterDot();
 #endif
     debug_StdPrintfDummy("InitSceneObjects( %d )\n", stage);
@@ -788,6 +988,11 @@ void InitIcoMisc(int *arg)
     init_layout_texture(stage);
 
     found = 0;
+#ifdef VERSION_JUN26
+    for (i = 0; i < 1165; i++) {
+        for (j = 0; j < 5; j++) {
+            id = motionKind[i].eff[j].no;
+#else
 #ifdef VERSION_AUG6
     for (i = 0; i < 1086; i++) {
         for (j = 0; j < 5; j++) {
@@ -796,13 +1001,23 @@ void InitIcoMisc(int *arg)
         for (j = 0; j < 12; j++) {
 #endif
             id = motionKind[i].ent[j].id;
+#endif
             if (id > 0xFFFF) {
                 continue;
             }
+#ifdef VERSION_JUN26
+            if (motionEffKind[id].flags) {
+                continue;
+            }
+            if (id == 19) {
+                continue;
+            }
+            if (GetParticleEffectPackage(motionEffKind[id].eff)[1] != 1) {
+#else
             if (motionEffKind[id].done) {
                 continue;
             }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             if (id == 19) {
 #else
             if (id == 24) {
@@ -810,12 +1025,19 @@ void InitIcoMisc(int *arg)
                 continue;
             }
             if (GetParticleEffectPackage(motionEffKind[id].pkg)[1] != 1) {
+#endif
                 continue;
             }
             /* "the particle %s that %s calls is emitted forever" */
+#ifdef VERSION_JUN26
+            debug_StdPrintfDummy(
+                "\"\033[33m%s\033[m\"が呼ぶパーティクル\"\033[33m%s\033[m\"は永久発生です\n",
+                motionKind[i].name, particleEffectFile[motionEffKind[id].eff].name);
+#else
             debug_StdPrintfDummy(
                 "\"\033[33m%s\033[m\"が呼ぶパーティクル\"\033[33m%s\033[m\"は永久発生です\n",
                 motionKind[i].name, particleEffectFile[motionEffKind[id].pkg].name);
+#endif
             found = 1;
         }
     }
@@ -826,14 +1048,14 @@ void InitIcoMisc(int *arg)
             "\033[36m動作はさせますが続けているとメモリの\n資源を食いつくします\nループではないものにデータを修正してください\033[m\n");
     }
     debug_StdPrintfDummy("Init Stage Animation\n");
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     gsb_ResetFilmNoise();
 #endif
     stage_Init();
     debug_StdPrintfDummy("Init Object Action\n");
     ObjAction_Init();
     InitStageChange();
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     lock_execIcoMisc = 0;
 #else
     graphics_ready = 0;

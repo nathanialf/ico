@@ -143,7 +143,11 @@ START_NORMAL_L:
 	nop                              iaddiu vi01, vi13, 192
 	nop                              sq.xyzw vf29, 0(vi01)
 	nop                              iaddiu vi14, vi14, 1
+#ifdef VERSION_JUN26
+	nop                              iaddiu vi03, vi01, 1
+#else
 	nop                              iaddi vi03, vi01, -2                   ; vi03 = vi01 - 2 (note: -2, not +1)
+#endif
 	nop                              mfir.w vf19, vi00
 	nop                              mfir.w vf20, vi14
 	nop                              iaddiu vi07, vi00, 208
@@ -162,12 +166,21 @@ START_NORMAL_L:
 	maddaz.xyzw acc, vf03, vf15z     fsand vi15, 0x2
 	maddw.xyzw vf28, vf04, vf00w     nop
 	add.xy      vf17, vf17, vf23     nop
+#ifdef VERSION_JUN26
+LOOP_NORMAL_L:
+	mulax.xyzw acc, vf09, vf29x      div q, vf00w, vf28w
+	madday.xyzw acc, vf10, vf29y     iaddiu vi02, vi02, 4
+	maddaz.xyzw acc, vf11, vf29z     iaddi vi04, vi04, -1
+#else
 	nop                              nop
 	mulax.xyzw acc, vf09, vf29x      nop
 	madday.xyzw acc, vf10, vf29y     div q, vf00w, vf28w
+#endif
 
+#ifndef VERSION_JUN26
 LOOP_NORMAL_L:
 	maddaz.xyzw acc, vf11, vf29z     iaddiu vi02, vi02, 4
+#endif
 	maddw.xyzw vf29, vf12, vf29w     ibeq vi15, vi00, CONT_NORMAL_L
 	nop                              lq.xyzw vf16, 1(vi02)
 	nop                              iaddiu vi05, vi00, 3
@@ -175,45 +188,88 @@ CONT_NORMAL_L:
 	mulq.xyz vf28, vf28, q           waitq
 	mulq.xyz vf21, vf17, q           lq.xyzw vf15, 0(vi02)
 	maxx.xyzw vf29, vf29, vf00x      lq.xyzw vf17, 2(vi02)
+#ifdef VERSION_JUN26
+	mulax.xyzw acc, vf05, vf16x      nop
+	sub.xyw vf00, vf13, vf28         nop
+#else
 	mulax.xyzw acc, vf05, vf16x      iaddi vi04, vi04, -1
 	sub.xyw     vf00, vf13, vf28     iaddiu vi03, vi03, 3
+#endif
 	sub.xyw     vf00, vf28, vf14     sq.xyzw vf21, 0(vi03)
 ; I-bit bundle: upper mul.xyz vf18,vf18,vf29 + I-bit; lower = 255.0f -> I
 	mul.xyz vf18, vf18, vf29         loi 0x437f0000
+#ifdef VERSION_JUN26
+	madday.xyzw acc, vf06, vf16y     nop
+#else
 	madday.xyzw acc, vf06, vf16y     move.xyzw vf30, vf28
+#endif
 	maddaz.xyzw acc, vf07, vf16z     fmand vi14, vi07
 	maddw.xyzw vf29, vf08, vf16w     fmand vi14, vi14
+#ifdef VERSION_JUN26
+	minii.xyzw vf22, vf18, i         nop
+	ftoi4.xyz vf19, vf28             lq.xyzw vf18, 3(vi02)
+	ftoi4.xyz vf20, vf28             nop
+	mulax.xyzw acc, vf01, vf15x      nop
+	ftoi0.xyzw vf22, vf22            nop
+#else
 	minii.xyzw vf22, vf18, i         iaddi vi05, vi05, -1
 	mulax.xyzw acc, vf01, vf15x      lq.xyzw vf18, 3(vi02)
+#endif
 	sub.w       vf00, vf17, vf00     nop
+#ifdef VERSION_JUN26
+	madday.xyzw acc, vf02, vf15y     iaddi vi05, vi05, -1
+#else
 	madday.xyzw acc, vf02, vf15y     nop
 	ftoi0.xyzw  vf22, vf22           nop
+#endif
 	maddaz.xyzw acc, vf03, vf15z     nop
+#ifdef VERSION_JUN26
+	maxx.xyzw vf29, vf29, vf00x      sq.xyzw vf22, 1(vi03)
+#endif
 	maddw.xyzw vf28, vf04, vf00w     fsand vi15, 0x2
+#ifdef VERSION_JUN26
+	add.xy vf17, vf17, vf23          ibne vi14, vi07, CLIP_NORMAL_L
+	nop                              nop
+#else
 	maxx.xyzw vf29, vf29, vf00x      nop
 	ftoi4.xyz   vf20, vf30           sq.xyzw vf22, 1(vi03)
 	ftoi4.xyz   vf19, vf30           ibne vi14, vi07, CLIP_NORMAL_L
 	add.xy      vf17, vf17, vf23     div q, vf00w, vf28w
+#endif
 	nop                              ibgtz vi05, CLIP_NORMAL_L_SET
 	nop                              nop
 NOCLIP_NORMAL_L:
+#ifdef VERSION_JUN26
+	nop                              sq.xyzw vf19, 2(vi03)
+	nop                              b NEXT_NORMAL_L                        ; -> the loop test
+#else
 	mulax.xyzw acc, vf09, vf29x      ibne vi04, vi00, LOOP_NORMAL_L
 	madday.xyzw acc, vf10, vf29y     sq.xyzw vf19, 2(vi03)
 	nop                              xgkick vi01
 	nop                              b BEGIN_NORMAL_L                       ; -> BEGIN_NORMAL_L E-bit
+#endif
 	nop                              nop                                    ; (branch delay slot)
 CLIP_NORMAL_L:
 	nop                              iaddiu vi05, vi00, 3
 CLIP_NORMAL_L_SET:
+#ifdef VERSION_JUN26
+	nop                              sq.xyzw vf20, 2(vi03)
+NEXT_NORMAL_L:
+	nop                              ibne vi04, vi00, LOOP_NORMAL_L
+	nop                              iaddiu vi03, vi03, 3
+#else
 	mulax.xyzw acc, vf09, vf29x      ibne vi04, vi00, LOOP_NORMAL_L
 	madday.xyzw acc, vf10, vf29y     sq.xyzw vf20, 2(vi03)
+#endif
 	nop                              xgkick vi01
 	nop                              b BEGIN_NORMAL_L                       ; -> BEGIN_NORMAL_L E-bit
 	nop                              nop                                    ; (branch delay slot)
 
 ; -----------------------------------------------------------------------
 ; BEGIN_NORMAL_L_SPEC - I-register setup (clone of BEGIN_NORMAL_L I-imm prologue).
+#ifndef VERSION_JUN26
 ; Transform body extends past 0x3690 (deferred to next batch).
+#endif
 ; -----------------------------------------------------------------------
 BEGIN_NORMAL_L_SPEC:
 	nop                              loi 0x4b7ffffe                         ; pad[I] + I = 0x4B7FFFFE
@@ -240,7 +296,9 @@ BEGIN_NORMAL_L_SPEC:
 ; twice) before quantizing, and has the I-bit 255.0f trick at 0x3810.
 START_NORMAL_L_SPEC:
 	nop                              xtop vi13
+#line LN(243,243,243,243,243,242) ""
 	nop                              iaddiu vi14, vi00, 32767
+#line LN(244,244,244,244,244,243) ""
 	nop                              iaddiu vi02, vi13, 1
 	nop                              ilwr.x vi04, (vi13)
 	nop                              lq.xyzw vf29, 0(vi13)
@@ -616,4 +674,6 @@ SCISSOR_L_XYZ3_ONLY:
 ; Entry table at 0x4B40..0x4BE8 with targets L_1DB0 / L_1E38 /
 ; L_1E70 / L_1EE0 / L_1FB8 / L_1FD0 / L_2018 / L_2030.
 ; =======================================================================
+#ifndef VERSION_JUN26
 
+#endif

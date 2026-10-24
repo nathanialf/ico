@@ -13,6 +13,9 @@
 #include "main.h"
 #include "script.h"
 
+#ifdef VERSION_JUN26
+static ActMail sekizo_mes[2] = {{377}, {376}}; /* derived name */
+#else
 #ifdef VERSION_NTSC
 static ActMail sekizo_mes[2] = {{397}, {396}}; /* derived name */
 
@@ -132,6 +135,7 @@ void actSt05bCrest01XL(GObj *volatile self)
 
 /* .sdata: the stone statue's stream handle, its shake and the shake's volume. */
 SqEntry *sekizo5b = 0;
+#endif
 
 int sekizo_5b = 0;
 
@@ -275,6 +279,80 @@ void actSt05bSolarXL(GObj *volatile self)
     }
 }
 #else
+#ifdef VERSION_JUN26
+void actSt05bSekizoChk(GObj *volatile self)
+{
+    volatile int h;
+    float d[4];
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (scpTriggerBall(self, boyGObj, 200.0f) == 0 ||
+           scpTriggerBall(self, girlGObj, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+    scpSekizouCheckPoint();
+    scpAdpcmPlayRequestFunc(21, 0, 1, 1, 1);
+    scpKillEnemyAll();
+    scpMaskGeneratorAll();
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    brainLockGirl();
+    gflagOn(136);
+    _ACTWait(60);
+    stage_SetAnimation(154, 1, 0);
+    sekizo_5b = iosPadActRequest(boyPad, 9);
+    sekizo_5b_vol = 128;
+    iosPadActVolumeSet(sekizo_5b, 128);
+    h = soundSeDefPlay(1167, 0, 0, 1);
+    scpPlayStart(boyGObj);
+    scpPlayStart(girlGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayMot(girlGObj, 521);
+    scpPlayPosSet(girlGObj, 10350.0f, -2150.0f, 0.0f);
+    scpPlayPosSet(boyGObj, 10350.0f, -2150.0f, 100.0f);
+    _ACTWait(1);
+    sceVu0SubVector(d, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
+    scpPlayMotDir(girlGObj, d);
+    scpBoyControlReadDisable = 1;
+    sceVu0SubVector(d, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+    scpPlayMotDir(boyGObj, d);
+    scpPlayMot(girlGObj, 584);
+    scpPlayWaitMotEnd(girlGObj);
+    soundSeDefStop(h);
+    while (stage_CheckAnimationFrame(154, 151, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActStop(sekizo_5b);
+    scpPlayMot(girlGObj, 521);
+    scpPlayEnd(girlGObj);
+    actCreateSubThread(actSt05bGirlWay, 21);
+    _ACTWait(30);
+    scpPlayMot(boyGObj, 254);
+    scpPlayWaitMotEnd(boyGObj);
+    scpPlayMot(boyGObj, 0);
+    scpPlayEnd(boyGObj);
+}
+
+void actSt05bCrest01XL(GObj *volatile self)
+{
+    GObj *x = self;
+
+    actInitialize(self);
+    _ACTWait(1);
+    if (gflagChk(209) == 0) {
+        stage_SetAnimation(151, 0, 0);
+        stage_SetAnimation(152, 0, 0);
+    } else {
+        stage_SetAnimation(151, 0, -1);
+        stage_SetAnimation(152, 0, -1);
+        scpTorchLightOn(1185);
+        scpTorchLightOn(1186);
+    }
+}
+#else
 void actSt05bSekizoChk(GObj *volatile self)
 {
     volatile int h;
@@ -406,6 +484,7 @@ void actSt05bSekizoChk(GObj *volatile self)
     scpBoyControlReadDisable = 0;
 #endif
 }
+#endif
 
 void actSt05bDoorXL(GObj *volatile self)
 {
@@ -420,6 +499,12 @@ void actSt05bDoorXL(GObj *volatile self)
     } else {
         stage_SetAnimation(311, 0, 0);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(209) != 0 && gflagChk(118) == 0) {
+        stage_SetAnimation(279, 0, -1);
+    } else {
+        stage_SetAnimation(279, 0, 0);
+#else
     if (gflagChk(243) != 0 && gflagChk(139) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(341, 0, -1);
@@ -431,6 +516,7 @@ void actSt05bDoorXL(GObj *volatile self)
         stage_SetAnimation(341, 0, 0);
 #else
         stage_SetAnimation(345, 0, 0);
+#endif
 #endif
 #endif
     }
@@ -449,6 +535,12 @@ void actSt05bMonyoDoorXL(GObj *volatile self)
     } else {
         stage_SetAnimation(222, 0, -1);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(200) == 0) {
+        stage_SetAnimation(197, 0, 0);
+    } else {
+        stage_SetAnimation(197, 0, -1);
+#else
     if (gflagChk(234) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(247, 0, 0);
@@ -462,6 +554,7 @@ void actSt05bMonyoDoorXL(GObj *volatile self)
         stage_SetAnimation(251, 0, -1);
 #endif
 #endif
+#endif
     }
 }
 
@@ -471,6 +564,16 @@ void actSt05bSekizo(GObj *volatile self)
     Act *act = actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_JUN26
+    if (gflagChk(136) == 0) {
+        stage_SetAnimation(154, 0, 0);
+        sekizo_mes[0].func = actSt05bSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(154, 0, -1);
+#else
 #ifdef VERSION_AUG6
     if (gflagChk(143) == 0) {
         stage_SetAnimation(170, 0, 0);
@@ -502,6 +605,7 @@ void actSt05bSekizo(GObj *volatile self)
 #endif
             ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
         }
+#endif
     }
 }
 
@@ -518,6 +622,12 @@ void actSt05bBallXL(GObj *volatile self)
     } else {
         stage_SetAnimation(264, -1, -2);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(118) == 0) {
+        stage_SetAnimation(240, -1, -2);
+    } else {
+        stage_SetAnimation(238, -1, -2);
+#else
     if (gflagChk(139) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(296, -1, -2);
@@ -529,6 +639,7 @@ void actSt05bBallXL(GObj *volatile self)
         stage_SetAnimation(294, -1, -2);
 #else
         stage_SetAnimation(298, -1, -2);
+#endif
 #endif
 #endif
     }
@@ -546,6 +657,11 @@ void actSt05bSolarXL(GObj *volatile self)
         stage_SetAnimation(269, -1, -2);
         stage_SetAnimation(272, -1, -2);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(118) == 0) {
+        stage_SetAnimation(243, -1, -2);
+        stage_SetAnimation(246, -1, -2);
+#else
     if (gflagChk(139) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(299, -1, -2);
@@ -553,6 +669,7 @@ void actSt05bSolarXL(GObj *volatile self)
 #else
         stage_SetAnimation(303, -1, -2);
         stage_SetAnimation(306, -1, -2);
+#endif
 #endif
 #endif
     }
@@ -583,7 +700,7 @@ void actSt05bGirlWay(GObj *volatile self)
     way[0] = girlWay2Pos.d[0];
     way[1] = girlWay2Pos.d[1];
     RequestStageChangeDirect(girlGObj, 28, way, 180);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     lt_switch_layout(50);
     scpBoyControlReadDisable = 0;
 #endif

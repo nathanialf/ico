@@ -56,12 +56,21 @@ MvMenuEnt objMenu[] = {
     {"QueenMotion", 46, 1013, 1075, 2080, 2094},
 };
 #else
+#ifdef VERSION_JUN26
+/* objMenu: the five objects the viewer can target */
+MvMenuEnt objMenu[] = {
+    {"BoyMotion", 1, 0, 521, 0, 1207},           {"GirlMotion", 2, 521, 821, 1207, 1772},
+    {"Enemy1Motion", 4, 821, 1002, 1772, 2106},  {"BirdMotion", 32, 1153, 1163, 2120, 2165},
+    {"QueenMotion", 45, 1091, 1153, 2106, 2120},
+};
+#else
 /* objMenu: the five objects the viewer can target */
 MvMenuEnt objMenu[] = {
     {"BoyMotion", 1, 0, 532, 0, 1283},           {"GirlMotion", 2, 532, 834, 1283, 2122},
     {"Enemy1Motion", 4, 834, 983, 2122, 2407},   {"BirdMotion", 32, 1134, 1143, 2421, 2467},
     {"QueenMotion", 47, 1072, 1134, 2407, 2421},
 };
+#endif
 #endif
 #endif
 
@@ -132,7 +141,11 @@ static inline int countMotionKinds(int id, int from, int to) /* derived name */
 #ifdef VERSION_AUG6
         if (motionOrient[i].id == id || motionOrient[i].id == 1087) {
 #else
+#ifdef VERSION_JUN26
+        if (motionOrient[i].id == id || motionOrient[i].id == 1166) {
+#else
         if (motionOrient[i].id == id || motionOrient[i].id == 1146) {
+#endif
 #endif
             n++;
         }
@@ -148,14 +161,18 @@ static inline int makeMotionKindList(MvMenuEnt *ent, int base) /* derived name *
     int i;
     int k;
 
-    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, LN(93, 93, 93, 93, 92));
+    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, LN(93, 93, 93, 93, 92, 92));
     if (n) {
         k = 0;
         for (i = from; i < to; i++) {
 #ifdef VERSION_AUG6
             if (motionOrient[i].id == id || motionOrient[i].id == 1087) {
 #else
+#ifdef VERSION_JUN26
+            if (motionOrient[i].id == id || motionOrient[i].id == 1166) {
+#else
             if (motionOrient[i].id == id || motionOrient[i].id == 1146) {
+#endif
 #endif
                 int kind = motionOrient[i].kind;
 
@@ -261,7 +278,7 @@ static int objMenuProc(void)
             viewObj->dobj->ctrl.shiftStop = 0;
         }
         viewObj = isysGObjSearchFromObjKindID_begin(objMenu[objSel].kind);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         if (objMenu[objSel].kind == 4) {
             for (; viewObj != 0; viewObj = isysGObjSearchFromObjKindID_next(viewObj)) {
                 if (isEnemyActive(viewObj)) {
@@ -457,6 +474,13 @@ static int motKindMenuProc(void)
     cur = base + ent->motFirst;
     if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 228 && motionTable[cur] == 0) {
 #else
+#ifdef VERSION_JUN26
+    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 388, 192,
+                                        0, ent->motLast - ent->motFirst, &motSel, 0);
+    base = motSel;
+    cur = base + ent->motFirst;
+    if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 207 && motionTable[cur] == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 400, 192,
                                         0, ent->motLast - ent->motFirst, &motSel, 0);
@@ -467,6 +491,7 @@ static int motKindMenuProc(void)
     base = motSel;
     cur = base + ent->motFirst;
     if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 320 && motionTable[cur] == 0) {
+#endif
 #endif
         base = 0;
         if (((blinkCount >> 4) & 3) != 0) {
@@ -545,9 +570,15 @@ static int motOriMenuProc(void)
                               "%c %s", m == now ? 62 : 32, motionKind[m].name);
             if (m == 1086) {
 #else
+#ifdef VERSION_JUN26
+            debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1165) ? 0x00FFFF00 : 0xFFFFFF00,
+                              "%c %s", m == now ? 62 : 32, motionKind[m].name);
+            if (m == 1165) {
+#else
             debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1145) ? 0x00FFFF00 : 0xFFFFFF00,
                               "%c %s", m == now ? 62 : 32, motionKind[m].name);
             if (m == 1145) {
+#endif
 #endif
                 break;
             }

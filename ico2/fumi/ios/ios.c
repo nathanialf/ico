@@ -9,7 +9,7 @@
 #include "main.h"
 #include <sound.h>
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #include "cdvd.h"
 #endif
 
@@ -72,7 +72,7 @@ static void ios_init_plus(void)
     SgSndn2RemoteInit();
     sceSifInitIopHeap();
     debug_StdPrintfDummy("allocate IOP heap memory - \n");
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     iosCdvd.stMem = iosSifAllocIopHeapDebug(80 * 2048 + 16, __FILE__, 228);
     debug_StdPrintfDummy("cd ring buff alloced 0x%x  \n", iosCdvd.stMem);
 #endif
@@ -86,7 +86,7 @@ void iosInitialize(void)
 {
     debug_StdPrintfDummy("iosInitialize()\n");
     iosThreadInit();
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     ios_partition_root = iosMallocInitPartition(0x780000, 0x1FEFFF0);
     ios_partition_common = iosMallocSetPartition(ios_partition_root, 4194304, 16);
 #else
@@ -97,13 +97,21 @@ void iosInitialize(void)
 #endif
     ios_partition_common = iosMallocSetPartition(ios_partition_root, 4227072, 16);
 #endif
+#ifdef VERSION_JUN26
+    ios_partition_smotion = iosMallocSetPartition(ios_partition_root, 1703936, 16);
+#else
     ios_partition_smotion = iosMallocSetPartition(ios_partition_root, 1179648, 16);
+#endif
     ios_partition_s2motion = iosMallocSetPartition(ios_partition_root, 3145728, 16);
     ios_partition_event = iosMallocSetPartition(ios_partition_root, 262144, 16);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     ios_partition_oomori = iosMallocSetPartition(ios_partition_root, 262144, 16);
     ios_partition_horagai = iosMallocSetPartition(ios_partition_root, 1, 16);
+#ifdef VERSION_JUN26
+    ios_partition_sound = iosMallocSetPartition(ios_partition_root, 491520, 16);
+#else
     ios_partition_sound = iosMallocSetPartition(ios_partition_root, 98304, 16);
+#endif
 #else
     ios_partition_oomori = iosMallocSetPartition(ios_partition_root, 327680, 16);
     ios_partition_horagai = iosMallocSetPartition(ios_partition_root, 1, 16);
@@ -120,8 +128,13 @@ void iosInitialize(void)
     ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
         iosMallocSetPartition(ios_partition_root, 15728640, 16);
 #else
+#ifdef VERSION_JUN26
+    ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
+        iosMallocSetPartition(ios_partition_root, 14811136, 16);
+#else
     ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
         iosMallocSetPartition(ios_partition_root, 15826944, 16);
+#endif
 #endif
 #endif
     iosMallocSetPartitionName(ios_partition_isys, "stage");

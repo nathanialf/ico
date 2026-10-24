@@ -59,7 +59,7 @@ static void connectToTarget(GObj *obj, HandRec *hw, int na, int nb, int nc)
     float q[4];
     float m[16];
     float v[4];
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     float w[4];
 #endif
     GObj *tgt;
@@ -100,13 +100,13 @@ static void connectToTarget(GObj *obj, HandRec *hw, int na, int nb, int nc)
         GetMatrixFromQuaternion(m, q);
         _SubVector(v, (char *)GOBJ_SUB(tgt)->nodeMtx + (nb << 6) + 0x30,
                    (char *)GOBJ_SUB(obj)->nodeMtx + (na << 6) + 0x30);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         sb = v[0] * v[0] + v[2] * v[2];
 #endif
         _NormalizeVector(v, v);
         _ScaleVector(v, v, sa);
         _ApplyMatrix(v, m, v);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         CopyVector(w, v);
         w[1] = 0.0f;
         if (sb < VectorLengthSquare(w)) {
@@ -174,7 +174,11 @@ static inline int PutHandOnLadder(HandRec *hw, int node) /* derived name */
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(hw->obj, 97);
 #else
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(hw->obj, 83);
+#else
     ExecuteSEPackage(hw->obj, 102);
+#endif
 #endif
     return 1;
 }
@@ -236,7 +240,7 @@ void HandManager(GObj *obj)
     float t = 1.0f;
 
     if (debug_now_motion_viewer == 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         ResetHandTarget(obj, 0x300);
         ResetHandTarget(obj, 0x2A0);
 #else

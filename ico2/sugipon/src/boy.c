@@ -17,7 +17,7 @@
 #include "pool.h"
 #include "quaternion.h"
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 #include "waterDot.h"
 #endif
 
@@ -379,6 +379,21 @@ typedef struct BoyWork { /* field names derived */
     PoolMesh refl;   /* 0x2C */
 } BoyWork;           /* derived name */
 #else
+#ifdef VERSION_JUN26
+/* The 56-byte work record InitBoyGeo allocates and hangs at the object's
+   work word: the crown display object, the five cloths and the pool
+   reflection mesh. */
+typedef struct BoyWork { /* field names derived */
+    char *crown;         /* 0x00 */
+    /* the cloth handles InitCloth4D returns, held as char * */
+    char *mantle;    /* 0x04 */
+    char *tape;      /* 0x08 */
+    char *tapeBoro1; /* 0x0C */
+    char *tapeB;     /* 0x10 */
+    char *tapeBoro2; /* 0x14 */
+    PoolMesh refl;   /* 0x18 */
+} BoyWork;           /* derived name */
+#else
 /* The 104-byte work record InitBoyGeo allocates and hangs at the object's
    work word: the crown in use and the head, body and three crown display
    objects, the stonized state and its BG animation, the five cloths, the
@@ -407,6 +422,7 @@ typedef struct BoyWork { /* field names derived */
     float detail;           /* 0x64 */
 } BoyWork;                  /* derived name */
 #endif
+#endif
 
 static void dispClothes(GObj *gobj)
 {
@@ -432,7 +448,7 @@ static void execClothes(GObj *gobj)
 {
     BoyWork *w = GOBJ_SUB(gobj)->work;
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     GetCloth4D((Cloth4D *)w->mantle, 3.0f, 0.98f);
     GetCloth4D((Cloth4D *)w->tape, 3.0f, 0.98f);
     GetCloth4D((Cloth4D *)w->tapeB, 3.0f, 0.98f);
@@ -466,7 +482,7 @@ static void execClothes(GObj *gobj)
 }
 
 /* the one LightLineExt InitLightLineGeo fills */
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 extern LightLineExt _llExtGeo;
 #else
 static LightLineExt lightLineExt; /* derived name */
@@ -482,30 +498,34 @@ LightLineExt *InitLightLineGeo(GObj *gobj, float *pos)
 
 #ifdef VERSION_NTSC
     llExtGeo = &_llExtGeo;
-    llExtGeo->phase = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 135);
-    llExtGeo->speed = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 136);
-    llExtGeo->line = iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", 137);
+    llExtGeo->phase =
+        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(135, 135, 135, 135, 135, 135));
+    llExtGeo->speed =
+        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(136, 136, 136, 136, 136, 136));
+    llExtGeo->line =
+        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(137, 137, 137, 137, 137, 137));
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     llExtGeo = &_llExtGeo;
 #else
     llExtGeo = &lightLineExt;
 #endif
     llExtGeo->phase =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(161, 161, 161, 161, 135));
+        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(161, 161, 161, 161, 135, 130));
     llExtGeo->speed =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(162, 162, 162, 162, 136));
+        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(162, 162, 162, 162, 136, 131));
     llExtGeo->line =
-        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(163, 163, 163, 163, 137));
+        iosMallocDebug(ios_partition_sugipon, 0x190, "src/boy.c", LN(163, 163, 163, 163, 137, 132));
 #endif
     for (i = 0; i < 100; i++) {
         llExtGeo->phase[i] = 0.0f;
         llExtGeo->speed[i] = random_unit() * 0.1f + 0.01f;
 #ifdef VERSION_NTSC
-        llExtGeo->line[i] = iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c", 142);
+        llExtGeo->line[i] = iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c",
+                                           LN(142, 142, 142, 142, 142, 142));
 #else
-        llExtGeo->line[i] =
-            iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c", LN(168, 168, 168, 168, 142));
+        llExtGeo->line[i] = iosMallocDebug(ios_partition_sugipon, 0x140, "src/boy.c",
+                                           LN(168, 168, 168, 168, 142, 137));
 #endif
         CopyVector(llExtGeo->line[i], &v);
         llExtGeo->line[i][0].x += (float)((i - 0x32) * 5);
@@ -615,7 +635,7 @@ void LightLineDL(void)
     gif_EndPacket();
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 inline void SelectBoyCrown(GObj *self, int crown)
 {
     ((BoyWork *)GOBJ_SUB(self)->work)->crown = crown;
@@ -639,13 +659,96 @@ static ClothHangCfg tapeHang[3] = {
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
 
+#ifdef VERSION_JUN26
+BoyWork *InitBoyGeo(GObj *gobj, void *csv)
+{
+    BoyWork *w;
+    BoyWork *p;
+
+    w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c",
+                       LN(280, 280, 280, 280, 254, 243));
+    /* the work word, stored and read back as char * */
+    *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x7D0) = (char *)w;
+    p = (BoyWork *)*(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x7D0);
+    p->mantle = (char *)InitCloth4D(gobj, &mantleMesh, mantleHang);
+    p->tape = (char *)InitCloth4D(gobj, &tapeMesh, tapeHang);
+    p->tapeB = (char *)InitCloth4D(gobj, &tapeBMesh, 0);
+    p->tapeBoro1 = (char *)InitCloth4D(gobj, &tapeBoro1Mesh, 0);
+    p->tapeBoro2 = (char *)InitCloth4D(gobj, &tapeBoro2Mesh, 0);
+    *(int *)(*(char **)(((char *)gobj) + 0x15C) + 0x544) = 1;
+    w->crown = (char *)CSVSYSTEM_InitDObj(1, csv);
+    sceVu0UnitMatrix(w->crown + 0x20);
+    InitMotionOrient(gobj, 0, 1207, 0, 12, 0);
+    InitLightLineGeo(gobj, csv);
+    SetLodLevel(gobj, 2);
+    w->refl.nrow = 20;
+    w->refl.ncol = 20;
+    w->refl.sizeX = 300.0f;
+    w->refl.sizeZ = 300.0f;
+    w->refl.color = 0x80808080;
+    InitLimitedPoolReflactionMesh(&w->refl);
+    return w;
+}
+
+void BoyGeo(GObj *gobj)
+{
+    float pos[4];
+
+    HandManager(gobj);
+    ExecMotionOrient(gobj);
+    execClothes(gobj);
+    ExecuteSlipProc(gobj);
+    SetActressLight(gobj, 35, 44, 373);
+    if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.7f) != 0) {
+        iosOmSendMail(gobj, 6, gobj);
+    }
+    CylinderCollision(gobj, 2, ACTGame_FLAG_TETSUNAGI() != 0 ? 15.0f : 30.0f, 50.0f, 0.7f);
+    GetRootPosition(pos, gobj);
+    if (debug_font_flag & 1) {
+        debug_Printf(10, 30, 0x80C0FF00, "X:%.1f Y:%.1f Z:%.1f", -pos[0], -pos[1], -pos[2]);
+    }
+}
+
+static void dispCrown(GObj *gobj)
+{
+    BoyWork *w = GOBJ_SUB(gobj)->work;
+    char *obj = w->crown;
+    int node = GetSkeltonFocusNode(gobj, 35);
+
+    CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(gobj)->nodeMtx + (node << 6));
+    MatrixDrive_RotMatrixX(-0x8000);
+    CopyMatrix(*(char **)(obj + 0xC), MatrixDrive_GetMatrix());
+    p2o_SetDefaultEnviroment();
+    p2o_DispVU1DObj((Sub15C *)obj);
+}
+
+void BoyDL(GObj *gobj)
+{
+    Sub15C *sub;
+    PoolMesh *m;
+
+    ExecutePauseSlipProc(gobj);
+    p2o_SetDefaultEnviroment();
+    p2o_DispVU1(gobj);
+    dispCrown(gobj);
+    dispClothes(gobj);
+    if (stage_no == 39 && 20.0f < GOBJ_SUB(gobj)->ctrl.waterDepth &&
+        GOBJ_SUB(gobj)->ctrl.pool != 0 && CheckPoolHasGridMesh(GOBJ_SUB(gobj)->ctrl.pool) == 0) {
+        sub = GOBJ_SUB(gobj);
+        m = (PoolMesh *)((char *)sub->work + 0x18);
+        SetLimitedPoolReflactionMesh(m, sub->ctrl.pool, gobj);
+        DispLimitedPoolReflactionMesh(m);
+    }
+}
+#else
 BoyWork *InitBoyGeo(GObj *gobj, void *csv)
 {
     BoyWork *w;
     BoyWork *p;
 #ifdef VERSION_NTSC
 
-    w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c", 254);
+    w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c",
+                       LN(254, 254, 254, 254, 254, 254));
     /* the work word, stored and read back as char * */
     *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x800) = (char *)w;
     p = (BoyWork *)*(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x800);
@@ -655,7 +758,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
 #endif
 
     w = iosMallocDebug(ios_partition_sugipon, sizeof(BoyWork), "src/boy.c",
-                       LN(280, 280, 280, 280, 254));
+                       LN(280, 280, 280, 280, 254, 243));
     /* the work word, stored and read back as char * */
 #ifdef VERSION_AUG6
     *(char **)(*(char **)(((char *)gobj) + 0x15C) + 0x7F0) = (char *)w;
@@ -1076,4 +1179,11 @@ void BoyDL(GObj *gobj)
     }
     DispWaterDot(w->waterDot);
 }
+#endif
+#endif
+
+#ifdef VERSION_JUN26
+/* (this build has no position-sync marker colours here) */
+
+LightLineExt _llExtGeo = {0, 0, 0};
 #endif

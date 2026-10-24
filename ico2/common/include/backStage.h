@@ -11,7 +11,11 @@
 /* backStage.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void backStageProcessInit(void);
+
+#ifndef VERSION_JUN26
 void backStageDebugTimeZero(void);
+#endif
+
 void backStageTsuresariReturn(void);
 void backStageProcessInStage(float arg);
 void backStageProcessOutStage(void);
@@ -35,6 +39,7 @@ typedef struct GamesysObjInfo { /* field names derived */
 } GamesysObjInfo; /* derived name */
 
 struct GamesysMemCursor;
+
 void backStageSave(struct GamesysMemCursor *h);
 void backStageLoad(struct GamesysMemCursor *h);
 

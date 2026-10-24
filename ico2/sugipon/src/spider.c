@@ -18,7 +18,7 @@
 #include "GifPacket.h"
 #include "ios.h"
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 #include "fieldCollision.h"
 #endif
 
@@ -83,7 +83,9 @@ SpiderWork *InitSpiderLayoutGeo(GObj *self, SObjSimpleSetting *lay)
     for (i = 0; i < n; i++) {
         l.rot[1] = random_signed_b() * 3.1415927f;
         w->members[i] = MakeAP1GObj(&l);
+#ifndef VERSION_JUN26
         SetAP1VisualState(w->members[i], 0);
+#endif
     }
     return w;
 }
@@ -100,7 +102,9 @@ static inline void wakeSpiderGroup(GObj *self) /* derived name */
     w->awake = 1;
     for (i = 0; i < n; i++) {
         WakeUpAP1(w->members[i]);
+#ifndef VERSION_JUN26
         SetAP1VisualState(w->members[i], 1);
+#endif
     }
 }
 
@@ -110,7 +114,51 @@ void WakeUpLayoutedSpiders(GObj *self)
 #if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 101);
 #else
+#ifdef VERSION_JUN26
+    ExecuteSEPackage(self, 87);
+}
+
+/* where the group is called to: the girl's feet, else the floor under the
+   members' centre */
+static int getCallPoint(float *out, GObj *self)
+{
+    ClipWork cw;
+    float pos[4];
+    SpiderWork *w;
+    int i;
+    int n;
+
+    w = GOBJ_SUB(self)->work;
+    if (girlGObj != 0) {
+        GetRootPosition(out, girlGObj);
+        out[1] -= GOBJ_SUB(girlGObj)->root.height;
+        return 1;
+    }
+    CopyVector(cw.pt[0], ZeroPoint);
+    for (i = 0, n = 0; i < w->n; i++, n++) {
+        if (w->members[i] != 0) {
+            GetRootPosition(pos, w->members[i]);
+            _AddVectorXYZ(cw.pt[0], cw.pt[0], pos);
+        }
+    }
+    if (n != 0) {
+        _ScaleVectorXYZ(cw.pt[0], cw.pt[0], 1.0f / (float)n);
+        CopyVector(cw.pt[1], cw.pt[0]);
+        cw.pt[0][1] -= 100.0f;
+        cw.pt[1][1] += 1000.0f;
+        ClipFloor(&cw);
+        if (cw.floor.elem != 0) {
+            CopyVector(out, cw.pt[2]);
+        } else {
+            CopyVector(out, cw.pt[0]);
+        }
+        return 1;
+    }
+    debug_StdPrintfDummy("%f, %f, %f\n", cw.pt[0][0], cw.pt[0][1], cw.pt[0][2]);
+    return 0;
+#else
     ExecuteSEPackage(self, 106);
+#endif
 #endif
 }
 
@@ -198,6 +246,23 @@ int getCallPoint(float *out, GObj *self)
     return 0;
 }
 
+#ifdef VERSION_JUN26
+void CallSpidersToReviveEnemy(GObj *self)
+{
+    SpiderWork *w;
+
+    w = GOBJ_SUB(self)->work;
+    if (w->state == 1) {
+        if (callSpidersToGirl(self)) {
+            EntryToSpiderGroupManagerForReviveMaster(self, girlGObj);
+            w->state = 2;
+            setSpiderGroupPrior(self);
+        } else {
+            callSpidersToBoy(self);
+        }
+    }
+}
+#else
 int CallSpidersToReviveEnemy(GObj *self)
 {
     SpiderWork *w;
@@ -214,6 +279,7 @@ int CallSpidersToReviveEnemy(GObj *self)
     }
     return 1;
 }
+#endif
 
 /* the layout entry count SpiderLayoutGeo prints */
 static int spiderEntryCount = 0; /* derived name */
@@ -231,6 +297,84 @@ static inline void setAllSpiderPositions(GObj *self, float *pos) /* derived name
     }
 }
 
+#ifdef VERSION_JUN26
+void SpiderLayoutGeo(GObj *self)
+{
+    float pos[4];
+    SpiderWork *w;
+    int i;
+
+    w = GOBJ_SUB(self)->work;
+    switch (w->state) {
+    case -1: {
+        GObj *host = self->dobj->parent.obj;
+
+        if (host != 0 && host->kind != 33) {
+            setSpiderGroupHost(self, host);
+        } else {
+            callSpidersToBoy(self);
+            if (spiderDef[w->kind].targetGirl == 1) {
+                if (callSpidersToGirl(self) == 0) {
+                    /* an order came to target the heroine, but this stage has no heroine */
+                    debug_StdPrintfDummy(
+                        "蜘蛛のターゲットをヒロインにせよと言う命令がありましたが\nこのステージにヒロインはいません。\n");
+                }
+            }
+        }
+        if (w->entryWait++ >= 11) {
+            if (w->revived == 0) {
+                debug_StdPrintfDummy("entry %d\n", spiderEntryCount++);
+                EntrySpiderGroupManager(self);
+                w->state = 0;
+            } else {
+                debug_StdPrintfDummy("entry revived %d\n", spiderEntryCount++);
+                EntryRevivedSpiderGroupManager(self);
+                w->state = 0;
+            }
+        }
+        break;
+    }
+    case 0: {
+        GObj *gen = self->dobj->parent.obj;
+
+        if (gen != 0 && gen->kind != 33 && IsActCharDead(gen) == 0) {
+            if (GOBJ_ACT(gen)->mother != 0) {
+                GetGeneratorSafePosition(pos, GOBJ_ACT(gen)->mother);
+                setAllSpiderPositions(self, pos);
+            }
+            WakeUpLayoutedSpiders(self);
+            w->state = 1;
+        } else if (w->wakeFrom != -1) {
+            wakeSpiderGroup(self);
+            for (i = w->wakeFrom; i < w->n; i++) {
+                iosOmSendMail(w->members[i], 199, w->members[i]);
+            }
+            w->state = 1;
+        }
+        break;
+    }
+    case 2:
+    case 3:
+        break;
+    case 1:
+    default: {
+        GObj *dead = self->dobj->parent.obj;
+
+        if (dead != 0 && dead->kind != 33) {
+            if (IsActCharDead(dead) != 0) {
+                CallSpidersToReviveEnemy(self);
+            }
+        }
+        break;
+    }
+    }
+
+    if (w->infoWait++ >= 31) {
+        w->infoWait = 0;
+        gamesysObjInfoUniqDataSet(self);
+    }
+}
+#else
 void SpiderLayoutGeo(GObj *self)
 {
     float pos[4];
@@ -317,6 +461,7 @@ void SpiderLayoutGeo(GObj *self)
         gamesysObjInfoUniqDataSet(self);
     }
 }
+#endif
 
 /* the debug display's selected line */
 int sgSelLine = 0;
@@ -392,7 +537,7 @@ void SetSpiderGroupReviveStatus(GObj *self)
     debug_StdPrintfDummy("SET %d\n", self->labelId);
 }
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 int DeadAllSpiders(GObj *gp)
 {
     SpiderWork *sg = GOBJ_SUB(gp)->work;
@@ -424,6 +569,15 @@ static inline int CountAliveSpiders(GObj *gp) /* derived name */
     return n;
 }
 
+#ifdef VERSION_JUN26
+GObj *DeleteSpiderFromLayoutGroup(GObj *self, int idx)
+{
+    GObj **arr = ((SpiderWork *)GOBJ_SUB(self)->work)->members;
+    GObj *r = arr[idx];
+    arr[idx] = 0;
+    return r;
+}
+#else
 #ifndef VERSION_AUG6
 int GetAliveSpiders(GObj *gp)
 {
@@ -462,6 +616,7 @@ GObj *DeleteSpiderFromLayoutGroup(GObj *self, int idx)
     return DeleteSpiderFromLayoutGroup_inl(self, idx);
 #endif
 }
+#endif
 
 /* clear the dead members out of a spider group */
 static inline void RemoveDeadLayoutSpiders(SpiderWork *sg) /* derived name */
@@ -537,6 +692,9 @@ int RestoreSpiderLayoutExtGeo(GObj *self, GamesysObjInfo *info)
 
     if (info->work[0]) {
         p->wakeFrom = ex[1];
+#ifdef VERSION_JUN26
+        WakeUpLayoutedSpiders(self);
+#endif
     }
     if (ex[2]) {
         p->revived = 1;
@@ -596,6 +754,35 @@ void WakeUpSpidersFromGenerator(GObj *gp)
     WakeUpLayoutedSpiders(gp);
 }
 
+#ifdef VERSION_JUN26
+int GetAliveSpiders(GObj *gp)
+{
+    Sub15C *oi = gp->dobj;
+    SpiderWork *sg = oi->work;
+    GObj *own = oi->parent.obj;
+
+    if (own != 0 && own->kind != 33 && IsActCharDead(own) == 0) {
+        return sg->n;
+    }
+    if (sg->awake) {
+        return CountAliveSpiders(gp);
+    }
+    return sg->n;
+}
+
+int DeadAllSpiders(GObj *gp)
+{
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    int i;
+    for (i = 0; i < sg->n; i++) {
+        GObj *o = sg->members[i];
+        if (o != 0) {
+            iosOmSendMail(o, 199, o);
+        }
+    }
+    return 0;
+}
+#else
 void DeleteAllSpidersOfLayoutGroup(GObj *gp)
 {
     SpiderWork *sg = GOBJ_SUB(gp)->work;
@@ -609,7 +796,9 @@ void DeleteAllSpidersOfLayoutGroup(GObj *gp)
     }
     sg->n = 0;
 }
+#endif
 
+#ifndef VERSION_JUN26
 void SleepSpiderGroup(GObj *gp)
 {
     SpiderWork *sg = GOBJ_SUB(gp)->work;
@@ -633,6 +822,7 @@ void WakeupSpiderGroup(GObj *gp)
         }
     }
 }
+#endif
 
 #ifdef VERSION_AUG6
 int GetAliveSpiders(GObj *gp)

@@ -31,6 +31,17 @@ static float sunScreenOffset[4] = {-2048.0f, -2048.0f, 0.0f, 0.0f}; /* derived n
 
 static int work0ToFeedBackRect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
 
+#ifdef VERSION_JUN26
+/* auraInspireAfter's work buffer 1 to work 0 sprite, the texture rectangle
+   of the feedback area it pastes to the frame buffer, and the sprite the
+   current frame buffer is copied into the feedback area with */
+static int reduceRect[4] = {-2048, -1024, 4096, 2048}; /* derived name */
+
+static int feedBackAreaUv[4] = {8, 18, 2048, 2048}; /* derived name */
+
+static int currentFBToFeedBackRect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
+#endif
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static int feedBackToWork0Rect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
 #endif
@@ -84,7 +95,12 @@ static int postMode = 1; /* derived name */
 
 static int postModeRequest = 1; /* derived name */
 
+#ifdef VERSION_JUN26
+/* 0 in this build's .sdata */
+static int flareOn = 0; /* derived name */
+#else
 static int flareOn = 1; /* derived name */
+#endif
 
 static int feedMode = 2; /* derived name */
 
@@ -124,12 +140,25 @@ static inline void blurPass(int fb, int tex, int rm, int um, void *col) /* deriv
     gif_SetDrawEnviroment(fb, 0, 256, 128, 0, 0);
 
     gif_SetGsReg(6, tex | 0x20010000 | 0x15C0000000LL);
+#ifdef VERSION_JUN26
+    if (rm > um) {
+        gif_SetGsReg(0x14, 0x40);
+    } else {
+        gif_SetGsReg(0x14, 0x20);
+    }
+#else
     gif_SetGsReg(0x14, 0x60);
+#endif
     gif_SetGsReg(8, 5);
     gif_SetAlpha(1, 4, 0);
     {
+#ifdef VERSION_JUN26
+        int rect[4] = {-2032, -1008, 4064 - rm, 2016 - rm};
+        int uv[4] = {24, 24, 4064 - um, 2016 - um};
+#else
         int rect[4] = {-2048, -1024, 4096 - rm, 2048 - rm};
         int uv[4] = {8, 8, 4096 - um, 2048 - um};
+#endif
 
         gif_SpriteSensitiveOrg(rect, 0, uv, col, 0);
     }
@@ -170,14 +199,16 @@ static void auraInspireBefore(void)
     gif_EndPacket();
 }
 
+#ifndef VERSION_JUN26
 /* the twelve texture and rectangle coordinates the two blur sprites are
    built from */
 static int blurUv[12]; /* derived name */
+#endif
 
 /* the blur sprite's RGBA */
 static SprCol blurCol; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static void auraInspireAfter(int mode)
 {
     /* halfRect and halfUv are read only by the DEBUG build's half-height
@@ -189,18 +220,31 @@ static void auraInspireAfter(int mode)
                    ScreenHeight * 16};
     int halfUv[4] = {8, 28, ScreenWidth * 16, ScreenHeight / 2 * 16};
 
+#ifdef VERSION_JUN26
+    inline void reduceCopyAlphaChannelOfWork1ToWork0(void)
+    {
+#else
     void reduceCopyAlphaChannelOfWork1ToWork0(void)
     {
         int suv[4] = {blurUv[0] + 16, blurUv[1] + 16, ScreenWidth * 16 + blurUv[2],
                       ScreenHeight * 16 + blurUv[3]};
         int srect[4] = {blurUv[4] - 2048, blurUv[5] - 1024, 4096,
                         systemStatus[0] == 0 ? 1792 : 2048};
+#endif
 
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
         gif_SetDrawEnviroment(workBase[0], 0, 256, 128, 0, 0);
 
         gif_SetAlpha(1, 5, 0);
+#ifdef VERSION_JUN26
+        gif_SpriteSensitiveOrg(reduceRect, 0, uv, &alphaCopyCol, 1);
+    }
+
+    inline void copyAlphaChannelOfWork0ToFeedBackArea(void)
+    {
+        SprUV a = workBufferUv;
+#else
         gif_SpriteSensitiveOrg(srect, 0, suv, &alphaCopyCol, 1);
     }
 
@@ -208,24 +252,38 @@ static void auraInspireAfter(int mode)
     {
         int suv[4] = {blurUv[6], blurUv[7], blurUv[8] + 4096, blurUv[9] + 2048};
         int srect[4] = {blurUv[10] - 1024, blurUv[11] - 1024, 2048, 2048};
+#endif
 
         gif_SetGsReg(6, workBase[0] | 0x20010000 | 0x5C0000000LL);
 
         gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
         gif_SetAlpha(1, 5, 0);
+#ifdef VERSION_JUN26
+        gif_SpriteSensitiveOrg(work0ToFeedBackRect, 0, &a, &alphaCopyCol, 1);
+#else
         gif_SpriteSensitiveOrg(srect, 0, suv, &alphaCopyCol, 1);
+#endif
     }
 
     inline void pasteFeedBackAreaToFB(void) /* derived name */
     {
+#ifndef VERSION_JUN26
         int suv[4] = {8, 8, 2048, systemStatus[0] ? 2048 : 1792};
+#endif
 
         gif_SetGsReg(6, 0x5DC00BF00LL);
 
         gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 
         gif_SetAlpha(1, 7, 0);
+#ifdef VERSION_JUN26
+        gif_SpriteSensitiveOrg(rect, 0, feedBackAreaUv, &blurCol, 1);
+    }
+
+    inline void copyCurrentFBToFeedBackArea(void)
+    {
+#else
         gif_SpriteSensitiveOrg(rect, 0, suv, &blurCol, 1);
     }
 
@@ -233,13 +291,18 @@ static void auraInspireAfter(int mode)
     {
         int suv[4] = {8, 8, ScreenWidth * 16, ScreenHeight * 16};
         int srect[4] = {-1024, -1024, 2048, systemStatus[0] ? 2048 : 1792};
+#endif
 
         gif_SetGsReg(6, ((long long)(ScreenWidth / 64) << 14) | 0x664000800LL);
 
         gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
         gif_SetAlpha(0, 2, 0);
+#ifdef VERSION_JUN26
+        gif_SpriteSensitiveOrg(currentFBToFeedBackRect, 0, uv, &whiteCol, 0);
+#else
         gif_SpriteSensitiveOrg(srect, 0, suv, &whiteCol, 0);
+#endif
     }
 
     void blurBlendFeedBackAreaToWork1(void)
@@ -301,7 +364,11 @@ static void auraInspireAfter(int mode)
         gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
 
         gif_SetAlpha(0, 2, 0);
+#ifdef VERSION_JUN26
+        gif_SpriteSensitiveOrg(feedBackToWork0Rect, 0, uv, &whiteCol, 0);
+#else
         gif_SpriteSensitiveOrg(work0ToFeedBackRect, 0, uv, &whiteCol, 0);
+#endif
     }
 
     inline void pasteWork1ToFB(void) /* derived name */
@@ -377,7 +444,9 @@ static void auraInspireAfter(int mode)
     gif_StartPacketPri(8);
     gif_SetGsReg(0x4A, 0);
     gif_SetGsReg(8, 5);
+#ifndef VERSION_JUN26
     gif_SetGsReg(0x14, 0x60);
+#endif
 
     gif_SetZTest(0);
     gif_SetZWrite(0);
@@ -438,7 +507,7 @@ static void auraInspireAfter(int mode)
     {
         int suv[4] = {blurUv[0] + 16, blurUv[1] + 16, ScreenWidth * 16 + blurUv[2],
                       ScreenHeight * 16 + blurUv[3]};
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         int srect[4] = {blurUv[4] - 2048, blurUv[5] - 1024, 4096,
                         systemStatus[0] == 0 ? 1792 : 2048};
 #else
@@ -564,7 +633,7 @@ static void auraInspireAfter(int mode)
         gif_SpriteSensitiveOrg(work0ToFeedBackRect, 0, uv, &whiteCol, 0);
     }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     inline void pasteFeedBackAreaToWork0(void) /* derived name */
     {
         gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
@@ -685,7 +754,7 @@ static void auraInspireAfter(int mode)
         }
         break;
     }
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     if (GlobalTimer) {
         pasteFeedBackAreaToWork0();
     }
@@ -724,7 +793,7 @@ void makeFullScreenFlareBefore(int mode)
 
     void fillWork2(void)
     {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         gif_SetDrawEnviroment(workBase[2], 0, ScreenWidth, ScreenHeight, 0, 0);
 #endif
         gif_SetZTest(0);
@@ -732,7 +801,7 @@ void makeFullScreenFlareBefore(int mode)
 
         {
             unsigned char col[4] = {0, 0, 0, 192};
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 
             if (mode & 2) {
                 col[0] = col[1] = col[2] = 128;
@@ -854,7 +923,11 @@ void makeFullScreenFlareAfter(int mode)
         {
             SprUV r = {-2048, -1024, 4096, 2048};
 
+#ifdef VERSION_JUN26
+            int uv[4] = {8, 8, ScreenWidth * 16 - 8, ScreenHeight * 16 - 8};
+#else
             int uv[4] = {64, 64, ScreenWidth * 16, ScreenHeight * 16};
+#endif
             SprCol col = {{128, 128, 128, 128}};
 
             gif_SpriteSensitiveOrg(&r, 0, uv, &col, 0);
@@ -887,6 +960,13 @@ void makeFullScreenFlareAfter(int mode)
             gif_SpriteSensitiveOrg(&a, 0, &b, c, 0);
         }
 
+#ifdef VERSION_JUN26
+        if ((mode & 2) == 0 && 0.0f < sunView[2] && -ScreenWidth < sunScreen[0] &&
+            sunScreen[0] < ScreenWidth && -ScreenHeight < sunScreen[1] &&
+            sunScreen[1] < ScreenHeight) {
+            int arr[4];
+            SprCol c1;
+#else
         if ((mode & 2) == 0 && sunOn && 0.0f < sunView[2] && -ScreenWidth < sunScreen[0] &&
             sunScreen[0] < ScreenWidth && -ScreenHeight < sunScreen[1] &&
             sunScreen[1] < ScreenHeight) {
@@ -894,6 +974,7 @@ void makeFullScreenFlareAfter(int mode)
             SprCol c1;
             SprCol c2;
             SprUV d;
+#endif
             int i;
 
             gif_SetGsReg(0x14, 0x60);
@@ -916,11 +997,16 @@ void makeFullScreenFlareAfter(int mode)
                 arr[3] = y1 - y;
                 c1 = (SprCol){{128, 128, 128, 128}};
 
+#ifdef VERSION_JUN26
+                gif_SetAlpha(1, 0, alpha / (i + 1));
+                gif_SpriteSensitiveOrg(eyeGhostRect, 0, arr, &c1, 1);
+#else
                 if (0 < x && x < 4095 && 0 < y && y < 4095 && 0 < x1 && x1 < 4095 && 0 < y1 &&
                     y1 < 4095) {
                     gif_SetAlpha(1, 0, alpha / (i + 1));
                     gif_SpriteSensitiveOrg(eyeGhostRect, 0, arr, &c1, 1);
                 }
+#endif
             }
 
             gif_SetGsReg(0x14, 0x60);
@@ -936,6 +1022,13 @@ void makeFullScreenFlareAfter(int mode)
                 int px1 = 4096.0f - (4096 - x0) * 0.9f;
                 int py1 = 2048.0f - (2048 - y0) * 0.9f;
 
+#ifdef VERSION_JUN26
+                int arr2[4] = {px, py, px1 - px, py1 - py};
+                SprCol c2 = {{128, 128, 128, 128}};
+
+                gif_SetAlpha(1, 4, 0);
+                gif_SpriteSensitiveOrg(eyeShrinkRect, 0, arr2, &c2, 0);
+#else
                 arr[0] = px;
                 arr[1] = py;
                 arr[2] = px1 - px;
@@ -944,6 +1037,7 @@ void makeFullScreenFlareAfter(int mode)
 
                 gif_SetAlpha(1, 4, 0);
                 gif_SpriteSensitiveOrg(eyeShrinkRect, 0, arr, &c2, 0);
+#endif
             }
 
             gif_SetGsReg(0x14, 0x40);
@@ -951,8 +1045,13 @@ void makeFullScreenFlareAfter(int mode)
             gif_SetGsReg(6, workBase[1] | 0x20010000 | 0x5C0000000LL);
 
             gif_SetDrawEnviroment(workBase[3], 0, 256, 128, 0, 0);
+#ifdef VERSION_JUN26
+            {
+                SprUV d = {520, 264, 0, 0};
+#else
             d = (SprUV){520, 264, 0, 0};
             {
+#endif
                 int rate = 10;
                 unsigned char cc[4] = {(col->f[0] - 128) * (col->f[3] * rate) / 128,
                                        (col->f[1] - 128) * (col->f[3] * rate) / 128,
@@ -1034,7 +1133,7 @@ void makeFullScreenFlareAfter(int mode)
 
     pasteWork0ToFB();
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
 #else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
@@ -1213,7 +1312,7 @@ void depthField(float depth, float width, float rate)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
 #endif
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
 #endif
     gif_EndPacket();
@@ -1249,7 +1348,11 @@ void MotionBlur(void)
     if (NonLinearCameraMove != 0) {
         motionBlurSkip = 1;
 #else
+#ifdef VERSION_JUN26
+    if (NonLinearCameraMove != 0) {
+#else
     if (currentScreenWidth != 0) {
+#endif
         return;
 #endif
     }
@@ -1285,6 +1388,9 @@ static void calcSun(void)
     _AddVectorXYZ(buf, buf, sunScreenOffset);
     _FTOI0Vector(sunScreen, buf);
     _ApplyMatrix(sunView, matrixptr + 128, sunDir);
+#ifdef VERSION_JUN26
+    flareOn = 1;
+#endif
 }
 
 static int colorSettingItem = 0; /* derived name */
@@ -1469,7 +1575,7 @@ void FullScreenEffectBefore(void)
         if (debug_font_flag & 1)
             debug_Printf(250, 40, 0xFFFFFF00, "SUN");
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     colorSetting();
 #endif
     workBase[0] = 0x2800;
@@ -1480,7 +1586,7 @@ void FullScreenEffectBefore(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     tex_LockHeadTBP(0x3800, 8);
 #else
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     if (systemStatus[0] == 1) {
         tex_LockHeadTBP(0x3A00, 8);
     } else {
@@ -1588,7 +1694,7 @@ void FullScreenEffectAfter(void)
     depthFadeStart = GlobalStageSetting.depthFieldStart;
     depthFadeWidth = GlobalStageSetting.depthFieldWidth;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     tex_UnlockHeadTBP(7);
     tex_UnlockHeadTBP(8);
 #endif

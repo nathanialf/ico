@@ -22,13 +22,23 @@ void actSt02aDoorUpChk(GObj *volatile self);
 void actSt02aDoorUpEffect(GObj *volatile self);
 void actSt02aEneChk(GObj *volatile self);
 void actSt02aFenceMain(GObj *volatile self);
+
+#ifdef VERSION_JUN26
+void actSt02aGirlJumpChk(GObj *volatile self);
+void actSt02aGirlJumpEffect(GObj *volatile self);
+#endif
+
 void actSt02aFenceOpen(GObj *volatile self);
 void actSt02aGondolaDown(GObj *volatile self);
 void actSt02aGondolaMain(GObj *volatile self);
 void actSt02aGondolaUp(GObj *volatile self);
+
+#ifndef VERSION_JUN26
 void actSt02aSecretItemChk(GObj *volatile self);
 void actSt02aTakiWayOffChk(GObj *volatile self);
 void actSt02aTakiWayOnChk(GObj *volatile self);
+#endif
+
 void actSt02aWaterFallChk(GObj *volatile self);
 void actSt02aWaterFallReflactionEffect(GObj *volatile self);
 void actSt02aWayOffChk(GObj *volatile self);

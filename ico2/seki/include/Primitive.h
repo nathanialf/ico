@@ -96,7 +96,7 @@ typedef struct { /* field names derived */
     /* 0x188 */ PrimParticleObj *objs[2];
     /* 0x190 */ void *vtx;     /* the vertices of the buffer being drawn (objs + 0x70) */
     /* 0x194 */ void *vtxNext; /* the vertices of the other buffer */
-} PrimParticle;              /* derived name */
+} PrimParticle;                /* derived name */
 
 void prim_DeleteParticle(PrimParticle *p);
 void prim_DispFan2D(Fan2D *f, int mode);
@@ -108,7 +108,7 @@ Fan2D *prim_InitFan2D(int n, float r, float *pos, unsigned int cc, unsigned int 
 Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col2, int lit);
 PrimParticle *prim_InitParticle(int num, float x, float y, float z, int a1, char *name, int a3);
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
                                            int a3, void *heap);
 #endif

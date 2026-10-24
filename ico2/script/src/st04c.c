@@ -24,6 +24,9 @@ void actSt04cEnd(void)
     }
 }
 #else
+#ifdef VERSION_JUN26
+#include "spider.h"
+#else
 #ifdef VERSION_AUG6
 /* .sdata: the intro stream's handle, which actSt04cIntroChk fades out */
 SqEntry *intro = 0;
@@ -44,6 +47,7 @@ void actSt04cEnd(void)
         }
     }
 }
+#endif
 #endif
 
 /* A 16-byte constant vector template: the float view carries the values,
@@ -284,7 +288,11 @@ void actSt04cDoorDownChk(GObj *volatile self)
 #ifdef VERSION_AUG6
     stage_SetAnimation(224, 1, 0);
 #else
+#ifdef VERSION_JUN26
+    stage_SetAnimation(199, 1, 0);
+#else
     stage_SetAnimation(253, 1, 0);
+#endif
 #endif
 #endif
 
@@ -298,6 +306,13 @@ void actSt04cDoorDownChk(GObj *volatile self)
 
     while (stage_CheckAnimationFinish(224) == 0) {
 #else
+#ifdef VERSION_JUN26
+    soundSeDefPlay(1171, 0, pos.f, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1172, 0, pos.f, 1);
+
+    while (stage_CheckAnimationFinish(199) == 0) {
+#else
     soundSeDefPlay(1221, 0, pos.f, 1);
     _ACTWait(30);
     soundSeDefPlay(1222, 0, pos.f, 1);
@@ -308,11 +323,15 @@ void actSt04cDoorDownChk(GObj *volatile self)
     while (stage_CheckAnimationFinish(253) == 0) {
 #endif
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 #ifdef VERSION_AUG6
     gflagOn(145);
+#else
+#ifdef VERSION_JUN26
+    gflagOn(138);
 #else
     gflagOn(162);
 }
@@ -378,13 +397,14 @@ void actSt04cIntroChk(GObj *volatile self)
 #endif
     scpBoyControlReadDisable = 0;
 #endif
+#endif
 }
 
 void actSt04lDoorChk(GObj *volatile self)
 {
     GObj *x = self;
     int h;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int i;
 #endif
 
@@ -395,14 +415,20 @@ void actSt04lDoorChk(GObj *volatile self)
     while (gflagChk(179) == 0) {
         switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(1007))) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(172) == 0) {
+        switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(958))) {
+#else
     while (gflagChk(199) == 0) {
         switch (GetAttackCheckBoundaryManagerStatus(scpSearchGobj(1098))) {
+#endif
 #endif
         case 0:
             _ACTWait(1);
             break;
 
         case 1:
+#ifndef VERSION_JUN26
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             stage_SetAnimation(228, 1, 0);
             while (stage_CheckAnimationFinish(228) == 0) {
@@ -417,12 +443,18 @@ void actSt04lDoorChk(GObj *volatile self)
 #endif
                 _ACTWait(1);
             }
+#endif
             _ACTWait(1);
             break;
 
         case 2:
 #ifdef VERSION_AUG6
             scpSearchGobj(1007)->active = 0;
+
+            lt_switch_layout(51);
+#else
+#ifdef VERSION_JUN26
+            scpSearchGobj(958)->active = 0;
 
             lt_switch_layout(51);
 #else
@@ -433,6 +465,7 @@ void actSt04lDoorChk(GObj *volatile self)
             lt_switch_layout(52);
 #else
             lt_switch_layout(55);
+#endif
 #endif
 #endif
 
@@ -447,6 +480,15 @@ void actSt04lDoorChk(GObj *volatile self)
             h = soundSeDefPlay(1306, 0, 0, 1);
 
             _ACTWait(90);
+#else
+#ifdef VERSION_JUN26
+            gflagOn(172);
+
+            stage_SetAnimation(182, 1, 0);
+
+            h = soundSeDefPlay(1275, 0, 0, 1);
+
+            _ACTWait(180);
 #else
             gflagOn(199);
 
@@ -478,13 +520,18 @@ void actSt04lDoorChk(GObj *volatile self)
                 _ACTWait(1);
             }
 #endif
+#endif
 
             soundSeDefStop(h);
 
 #ifdef VERSION_AUG6
             soundSeDefPlay(1307, 0, 0, 1);
 #else
+#ifdef VERSION_JUN26
+            soundSeDefPlay(1276, 0, 0, 1);
+#else
             soundSeDefPlay(1331, 0, 0, 1);
+#endif
 #endif
 
             scpWakeupEnemyAll();
@@ -493,7 +540,7 @@ void actSt04lDoorChk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             lt_switch_layout(51);
 #else
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             lt_switch_layout(50);
 #else
             lt_switch_layout(54);
@@ -515,11 +562,16 @@ void actSt04cSolarXL(GObj *volatile self)
     if (gflagChk(124) == 0) {
         stage_SetAnimation(268, -1, -2);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(117) == 0) {
+        stage_SetAnimation(242, -1, -2);
+#else
     if (gflagChk(138) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(298, -1, -2);
 #else
         stage_SetAnimation(302, -1, -2);
+#endif
 #endif
 #endif
     }
@@ -534,6 +586,15 @@ static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail st04lDoor_mes[2] = {{393}, {392}}; /* derived name */
 #else
+#ifdef VERSION_JUN26
+static ActMail doorDown_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail ene_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail intro_mes[2] = {{377}, {376}}; /* derived name */
+
+static ActMail st04lDoor_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail doorDown_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
@@ -541,6 +602,7 @@ static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail st04lDoor_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 
 void actSt04lDoor(GObj *volatile self)
@@ -559,6 +621,17 @@ void actSt04lDoor(GObj *volatile self)
     } else {
         stage_SetAnimation(202, 0, -1);
         scpSearchGobj(1007)->active = 0;
+#else
+#ifdef VERSION_JUN26
+    if (gflagChk(172) == 0) {
+        stage_SetAnimation(182, 0, 0);
+        st04lDoor_mes[0].func = actSt04lDoorChk;
+        act->mail = st04lDoor_mes;
+        ACTSendMailCorrect(self, 377);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(182, 0, -1);
+        scpSearchGobj(958)->active = 0;
 #else
     if (gflagChk(199) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -579,6 +652,7 @@ void actSt04lDoor(GObj *volatile self)
         scpSearchGobj(1098)->active = 0;
         FinishHint(15);
 #endif
+#endif
     }
 }
 
@@ -594,10 +668,17 @@ void actSt04cIntro(GObj *volatile self)
         act->mail = intro_mes;
         ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(137) == 0) {
+        intro_mes[0].func = actSt04cIntroChk;
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     if (gflagChk(161) == 0) {
         intro_mes[0].func = actSt04cIntroChk;
         act->mail = intro_mes;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -614,10 +695,17 @@ void actSt04cDoorDown(GObj *volatile self)
         act->mail = doorDown_mes;
         ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(138) == 0) {
+        doorDown_mes[0].func = actSt04cDoorDownChk;
+        act->mail = doorDown_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     if (gflagChk(162) == 0) {
         doorDown_mes[0].func = actSt04cDoorDownChk;
         act->mail = doorDown_mes;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -635,10 +723,17 @@ void actSt04cEne(GObj *volatile self)
         act->mail = ene_mes;
         ACTSendMailCorrect(self, 393);
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(139) == 0) {
+        ene_mes[0].func = actSt04cEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     if (gflagChk(163) == 0) {
         ene_mes[0].func = actSt04cEneChk;
         act->mail = ene_mes;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -655,7 +750,11 @@ void actSt04cEnemy1(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (gflagChk(147) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(140) == 0) {
+#else
     while (gflagChk(164) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -678,7 +777,11 @@ void actSt04cEnemy2(GObj *volatile self)
 #ifdef VERSION_AUG6
     while (gflagChk(147) == 0) {
 #else
+#ifdef VERSION_JUN26
+    while (gflagChk(140) == 0) {
+#else
     while (gflagChk(164) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -701,8 +804,13 @@ void actSt04cWaterXL(GObj *volatile self)
     if (gflagChk(205) != 0) {
         scpSearchGobj(1003)->active = 0;
 #else
+#ifdef VERSION_JUN26
+    if (gflagChk(196) != 0) {
+        scpSearchGobj(955)->active = 0;
+#else
     if (gflagChk(230) != 0) {
         scpSearchGobj(1094)->active = 0;
+#endif
 #endif
     }
 }
@@ -742,7 +850,7 @@ void actSt04cDoorDownEffect(GObj *volatile self)
     }
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void actSt04cEneChk(GObj *volatile self)
 {
     if (girlGObj == 0) {
@@ -751,6 +859,14 @@ void actSt04cEneChk(GObj *volatile self)
     while (scpTriggerFloorAttr(girlGObj, 0xB000000) == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_JUN26
+
+    WakeUpSpidersFromGenerator(scpSearchGobj(962));
+    WakeUpSpidersFromGenerator(scpSearchGobj(963));
+    _ACTWait(1);
+    gflagOn(139);
+    gflagOn(140);
+#else
 #ifdef VERSION_AUG6
     gflagOff(357);
 #else
@@ -759,6 +875,7 @@ void actSt04cEneChk(GObj *volatile self)
     _ACTWait(1);
     gflagOn(146);
     gflagOn(147);
+#endif
 }
 
 #ifndef VERSION_AUG6
@@ -774,6 +891,14 @@ void actSt04cIntroChk(GObj *volatile self)
 
     lt_switch_layout(51);
 
+#ifdef VERSION_JUN26
+    gflagOn(137);
+    scpBoyControlReadDisable = 1;
+
+    stage_SetAnimation(286, 1, 0);
+
+    while (stage_CheckAnimationFinish(286) == 0) {
+#else
 #ifdef VERSION_AUG6
     gflagOff(356);
 #else
@@ -791,6 +916,7 @@ void actSt04cIntroChk(GObj *volatile self)
     stage_SetAnimation(319, 1, 0);
 
     while (stage_CheckAnimationFinish(319) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }

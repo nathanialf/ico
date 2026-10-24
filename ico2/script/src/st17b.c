@@ -38,7 +38,11 @@ static ActMail check_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 #else
+#ifdef VERSION_JUN26
+static ActMail check_mes[2] = {{377}, {376}}; /* derived name */
+#else
 static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 #endif
 
@@ -128,6 +132,14 @@ void actSt17bCheck(GObj *volatile self)
     Act *act = (Act *)actInitialize(self);
 
     _ACTWait(1);
+#ifdef VERSION_JUN26
+    scpAdpcmPlayRequestFunc(87, &lightning2, 1, 0, 1);
+
+    if (gflagChk(33) == 0) {
+        check_mes[0].func = actSt17bCheckChk;
+        act->mail = check_mes;
+        ACTSendMailCorrect(self, 377);
+#else
     ScpCallCameraSetTarget(14990.0f, 7074.0f, -4694.0f);
     scpAdpcmPlayRequestFunc(94, &lightning2, 1, 0, 1);
 
@@ -135,6 +147,7 @@ void actSt17bCheck(GObj *volatile self)
         check_mes[0].func = actSt17bCheckChk;
         act->mail = check_mes;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -143,6 +156,10 @@ void actSt17bCheckChk(GObj *volatile self)
 {
     _ACTWait(1);
     CheckPoint();
+#ifdef VERSION_JUN26
+    gflagOn(32);
+#else
     gflagOn(34);
+#endif
 }
 #endif

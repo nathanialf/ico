@@ -35,7 +35,7 @@ typedef struct IosMemNode {       /* field names derived */
     int size;                     /* 0x34 */
     int line;                     /* 0x38 */
     char pad3C[4];
-} IosMemNode;                     /* derived name */
+} IosMemNode; /* derived name */
 
 /* memory.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
@@ -47,7 +47,8 @@ IosMemPart *iosMallocResetPartition(IosMemPart *part);
 IosMemPart *iosMallocSetPartition(IosMemPart *part, int size, int align);
 int iosMallocSetPartitionName(IosMemPart *part, char *name);
 void *iosReallocDebug(void *ptr, unsigned int size);
-#ifndef VERSION_AUG6
+
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void *iosMallocDebugNoAssert(IosMemPart *part, int size, const char *file, int line);
 #endif
 

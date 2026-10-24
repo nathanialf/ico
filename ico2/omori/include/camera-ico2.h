@@ -11,12 +11,15 @@
 extern int current_group;
 /* the camera data file of each camera set (the camera-set data member) */
 extern char cameraSetList[][32];
+
 struct CamGroup;
+
 struct CamSetFile;
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
 #endif
+
 void SetCameraZoomOffsetRatio(float val);
 int GetCameraGroupCurrent(void);
 int GetCameraGroupFromGObj(void *obj);
@@ -27,7 +30,6 @@ inline void *GetPluralCameraSet(int id);
 void MakeCameraSetBinary(struct CamGroup *src, int count, struct CamGroup *dst);
 int GetSizeOfCameraSetBinary(struct CamGroup *p, int n);
 void SetCameraTargetPosition(void *target, void *eye, float fov);
-
 void CameraSetCameraSet(int id);
 void CameraSetCameraSet_Default(void);
 void InitIco2Camera(void);

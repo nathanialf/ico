@@ -43,6 +43,11 @@ typedef struct RegStripVtx { /* field names derived */
     short texSlot;
 } RegStripVtx; /* derived name */
 
+#ifdef VERSION_JUN26
+/* the quadword copy type src/Primitive.c and src/Shadow.c use */
+typedef int Qw128 __attribute__((mode(TI))); /* derived name */
+#endif
+
 static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMaterial *mat)
 {
     float vec[4];
@@ -86,11 +91,11 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                             debug_StdPrintfDummy("reg_setShape:illegal vertex index. %d/%d\n",
                                                  m->index, s->vtxCount);
 #ifdef VERSION_NTSC
-                            debug_assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629));
-                            __assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629), "0");
+                            debug_assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629, 629));
+                            __assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629, 629), "0");
 #else
-                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590));
-                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590), "0");
+                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 520));
+                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 520), "0");
 #endif
                         }
                         t = s->vtx;
@@ -109,15 +114,20 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                             debug_StdPrintfDummy("reg_setShape:illegal normal index. %d/%d\n",
                                                  m->index, s->nrmCount);
 #ifdef VERSION_NTSC
-                            debug_assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636));
-                            __assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636), "0");
+                            debug_assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636, 636));
+                            __assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636, 636), "0");
 #else
 #ifdef VERSION_AUG6
-                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597));
-                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597), "0");
+                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597, 635));
+                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597, 635), "0");
 #else
-                            debug_assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642));
-                            __assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642), "0");
+#ifdef VERSION_JUN26
+                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 527));
+                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 527), "0");
+#else
+                            debug_assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642, 642));
+                            __assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642, 642), "0");
+#endif
 #endif
 #endif
                         }
@@ -126,15 +136,20 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                         _AddVectorXYZ(t, t, vec);
                     } else {
 #ifdef VERSION_NTSC
-                        debug_assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641));
-                        __assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641), "0");
+                        debug_assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641, 641));
+                        __assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641, 641), "0");
 #else
 #ifdef VERSION_AUG6
-                        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602));
-                        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602), "0");
+                        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602, 635));
+                        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602, 635), "0");
 #else
-                        debug_assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647));
-                        __assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647), "0");
+#ifdef VERSION_JUN26
+                        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 532));
+                        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 532), "0");
+#else
+                        debug_assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647, 647));
+                        __assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647, 647), "0");
+#endif
 #endif
 #endif
                     }
@@ -165,7 +180,11 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
             if (((RegStripHead *)(v - 0x10))->ofs != 0) {
                 if (n != 0) {
                     do {
+#ifdef VERSION_JUN26
+                        *(Qw128 *)p = *(Qw128 *)(s->vtx + ((RegStripVtx *)v)->vtx * 0x10);
+#else
                         _CopyVector(p, s->vtx + ((RegStripVtx *)v)->vtx * 0x10);
+#endif
                         p += 0x10;
                         if ((((int)(mat->attr.bits >> 5)) & 3) == 0) {
                             switch (mat->attr.word & 1) {
@@ -175,15 +194,30 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                                 goto nocopy;
                             }
                         }
+#ifdef VERSION_JUN26
+                        *(Qw128 *)p = *(Qw128 *)(s->nrm + ((RegStripVtx *)v)->nrm * 0x10);
+                        p += 0x10;
+                    nocopy:
+                        /* the model's disp halfword, read as a plain short
+                           rather than through the mode union, so the strip
+                           loop reads it once */
+                        if (*(short *)&mdl->mode != 0) {
+#else
                         _CopyVector(p, s->nrm + ((RegStripVtx *)v)->nrm * 0x10);
                         p += 0x10;
                     nocopy:
                         if (mdl->disp != 0) {
+#endif
                             p += 0x10;
                         }
                         n--;
+#ifdef VERSION_JUN26
+                        p += 0x20;
+                        v += 0x10;
+#else
                         v += 0x10;
                         p += 0x20;
+#endif
                     } while (n != 0);
                 }
             }
@@ -237,7 +271,11 @@ static int reg_clipPacketBoundingBox(PacHeader *pk)
     int ret = 1;
     int type;
 
+#ifdef VERSION_JUN26
+    _SetCurrentMatrix(matrixptr + 0x140);
+#else
     _SetCurrentMatrix(matrixptr + 0x300);
+#endif
 
     type = pk->clip;
     switch (type) {
@@ -261,19 +299,28 @@ static int reg_clipPacketBoundingBox(PacHeader *pk)
         break;
     default:
         debug_StdPrintfDummy("illegal clip type. %d\n", type);
+#ifdef VERSION_JUN26
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 676));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 676), "0");
+        break;
+    }
+    if (scissorSw != 0 && ret == 2) {
+        ret = 1;
+#else
 #ifdef VERSION_NTSC
-        debug_assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815));
-        __assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815), "0");
+        debug_assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815, 815));
+        __assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815, 815), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776));
-        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776), "0");
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776, 635));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776, 635), "0");
 #else
-        debug_assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821));
-        __assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821), "0");
+        debug_assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821, 821));
+        __assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821, 821), "0");
 #endif
 #endif
         break;
+#endif
     }
     if (debug_bounding_flag & 2) {
         reg_dispBoxLine(pk);
@@ -282,12 +329,20 @@ static int reg_clipPacketBoundingBox(PacHeader *pk)
 }
 
 /* MicroCode.h is not included: its mc_TransMicroCode does not agree with this file */
+#ifdef VERSION_JUN26
+extern void mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in the reflection passes */
+#else
 extern void
 mc_TransMicroCode(); /* K&R: called 1-ary here and 2-ary in reg_DispAccessoryWithShadow */
+#endif
 
 static void reg_transMicroCode(Sub15C *o, int mask)
 {
+#ifdef VERSION_JUN26
+    if (o->model->mode.s.clstNum != 0) {
+#else
     if (o->model->disp != 0) {
+#endif
         mc_TransMicroCode(3);
         return;
     }
@@ -318,12 +373,119 @@ static void reg_chooseReflectionMicroCode(int mode, int clip, int pri)
     mc_SetMicroCode(mode, 1, 2, clip, pri);
 }
 
+#ifndef VERSION_JUN26
 /* the quadword copy type src/Primitive.c and src/Shadow.c use */
 typedef int Qw128 __attribute__((mode(TI))); /* derived name */
+#endif
 
 /* PacketBufferStruct (DmaPacket.h): every packet address (dma, ptr, tail,
  * gif, end) is one pointer union, read and written through its members. */
 
+#ifdef VERSION_JUN26
+static int reg_setNMatrixPacket(Sub15C *o, int idx, int prilist)
+{
+    void setMatrix(void)
+    {
+        static const sceVu0IVECTOR endTag
+            __attribute__((aligned(16))) = {0x15000010, 0, 0, 0}; /* derived name */
+        char *c;
+        char *m;
+
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x1000000D;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+        PacketBufferStruct.ptr.c = c + 0x50;
+        _CopyMatrix(c + 0x10, matrixptr + 0x140);
+        _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x200, matrixptr + 0x40);
+        PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+        _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x80, matrixptr + 0x40);
+        m = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.ptr.c = m + 0x40;
+        *(Qw128 *)(m + 0x40) = *(Qw128 *)endTag;
+        PacketBufferStruct.ptr.c = m + 0x50;
+    }
+    void setLight(void)
+    {
+        static const sceVu0IVECTOR endTag
+            __attribute__((aligned(16))) = {0x15000012, 0, 0, 0}; /* derived name */
+        char *c;
+        char *m;
+        char *n;
+
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x10000009;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C088000;
+        PacketBufferStruct.ptr.c = c + 0x10;
+        _GetCurrentMatrix(c + 0x10);
+        m = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.ptr.c = m + 0x80;
+        _CopyMatrix(m + 0x40, (char *)o->lightMtx + 64);
+        *((Qw128 *)PacketBufferStruct.ptr.c)++ = *(Qw128 *)endTag;
+    }
+    float *box;
+    struct DObjNode *scl;
+    int mode;
+    int i;
+
+    scl = (struct DObjNode *)(idx * 80 + (int)o->nodes);
+    mode = o->lightMtx->mode;
+    if (scl->scale[0] != 1.0f || scl->scale[1] != 1.0f || scl->scale[2] != 1.0f) {
+        _InitCurrentMatrix();
+        _SetCurrentMatrix((char *)o->nodeMtx + idx * 64);
+        _ScaleCurrentMatrix(o->nodes[idx].scale[0], o->nodes[idx].scale[1], o->nodes[idx].scale[2]);
+        _GetCurrentMatrix(matrixptr + 0x40);
+    } else {
+        _CopyMatrix(matrixptr + 0x40, (char *)o->nodeMtx + idx * 64);
+    }
+    _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
+    box = o->model->box[0];
+    _SetCurrentMatrix(matrixptr + 0x140);
+    if (gsb_ClipBox(box) == 0) {
+        return 1;
+    }
+    light_MakeLightMatrix(o, idx);
+    PacketBufferStruct.dma.c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = 0;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
+    setMatrix();
+    if (mode != 0 && mode != 3) {
+        _SetCurrentMatrix(matrixptr + 0x40);
+        _ClearTransCurrentMatrix();
+        _MulCurrentMatrixL((char *)o->lightMtx);
+        setLight();
+    }
+    {
+        char *c = PacketBufferStruct.ptr.c;
+
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = c + 0x10;
+    }
+    for (i = 0; i < 13; i++) {
+        if ((prilist >> i) & 1) {
+            dl_SetDLPriority(i);
+            dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+            dl_CloseDma();
+        }
+    }
+    return 0;
+}
+#else
 static char *reg_setNMatrixPacket(Sub15C *o, int idx)
 {
     void setMatrix(void)
@@ -401,7 +563,7 @@ static char *reg_setNMatrixPacket(Sub15C *o, int idx)
     box = o->model->box[0];
     _SetCurrentMatrix(matrixptr + 0x300);
     if (gsb_ClipBox(box) == 0) {
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         if (o->shadow != 0) {
             light_MakeLightMatrix(o, idx);
         }
@@ -434,6 +596,7 @@ static char *reg_setNMatrixPacket(Sub15C *o, int idx)
     }
     return pkt;
 }
+#endif
 
 typedef struct { /* field names derived */
     float x;
@@ -446,6 +609,160 @@ typedef struct { /* field names derived */
     RegVec r[4];
 } RegMtx; /* derived name */
 
+#ifdef VERSION_JUN26
+static int reg_setMMatrixPacket(Sub15C *o, int idx, int prilist)
+{
+    RegVec s;
+    RegVec v;
+    float *box;
+    struct DObjNode *w;
+    int mode;
+    int i;
+
+    void setMatrix(void)
+    {
+        static const sceVu0IVECTOR endTag
+            __attribute__((aligned(16))) = {0x15000010, 0, 0, 0}; /* derived name */
+        char *c;
+        char *m;
+
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x1000000D;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C0C8000;
+        PacketBufferStruct.ptr.c = c + 0x50;
+        _CopyMatrix(c + 0x10, matrixptr + 0x140);
+        if ((o->nodes[idx].flags.ll & 2) != 0) {
+            _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x1C0, matrixptr + 0x180);
+        } else if ((o->nodes[idx].flags.ll & 4) != 0) {
+            _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x1C0, matrixptr + 0x180);
+        } else {
+            _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, matrixptr + 0x40);
+            _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x200, matrixptr + 0x40);
+        }
+        PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
+        _MulMatrix(PacketBufferStruct.ptr.c, matrixptr + 0x80, matrixptr + 0x40);
+        m = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.ptr.c = m + 0x40;
+        *(Qw128 *)(m + 0x40) = *(Qw128 *)endTag;
+        PacketBufferStruct.ptr.c = m + 0x50;
+    }
+    void setLight(void)
+    {
+        static const sceVu0IVECTOR endTag
+            __attribute__((aligned(16))) = {0x15000012, 0, 0, 0}; /* derived name */
+        char *c;
+        char *m;
+        char *n;
+
+        c = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x10000009;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        PacketBufferStruct.gif.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0x6C088000;
+        PacketBufferStruct.ptr.c = c + 0x10;
+        _GetCurrentMatrix(c + 0x10);
+        m = PacketBufferStruct.ptr.c;
+        PacketBufferStruct.ptr.c = m + 0x80;
+        _CopyMatrix(m + 0x40, (char *)o->lightMtx + 64);
+        *((Qw128 *)PacketBufferStruct.ptr.c)++ = *(Qw128 *)endTag;
+    }
+    w = (struct DObjNode *)(idx * 80 + (int)o->nodes);
+    mode = o->lightMtx->mode;
+    if ((w->flags.ll & 2) != 0) {
+        RegMtx um;
+
+        _SetCurrentMatrix((char *)o->nodeMtx + idx * 64);
+        _ClearTransCurrentMatrix();
+        _UnitMatrix(&um);
+        _ApplyCurrentMatrix(&v, &um.r[0]);
+        s.x = _GetLength(&v, &um.r[3]);
+        _ApplyCurrentMatrix(&v, &um.r[1]);
+        s.y = _GetLength(&v, &um.r[3]);
+        _ApplyCurrentMatrix(&v, &um.r[2]);
+        s.z = _GetLength(&v, &um.r[3]);
+        _InitCurrentMatrix();
+        _ScaleCurrentMatrix(s.x, s.y, s.z);
+        _SetTransCurrentMatrix(o->nodes[idx].pos);
+        _GetCurrentMatrix(matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
+    } else if ((w->flags.ll & 4) != 0) {
+        RegMtx um2;
+
+        _MulMatrix(matrixptr + 0x180, matrixptr + 0x80, (char *)o->nodeMtx + idx * 64);
+        _UnitMatrix(&um2);
+        _SetCurrentMatrix(matrixptr + 0x180);
+        _ClearTransCurrentMatrix();
+        _ApplyCurrentMatrix(&v, &um2.r[0]);
+        s.x = _GetLength(&v, &um2.r[3]);
+        _ApplyCurrentMatrix(&v, &um2.r[1]);
+        s.y = _GetLength(&v, &um2.r[3]);
+        _ApplyCurrentMatrix(&v, &um2.r[2]);
+        s.z = _GetLength(&v, &um2.r[3]);
+        _InitCurrentMatrix();
+        _TransCurrentMatrix(matrixptr + 0x1B0);
+        _RotCurrentMatrixZ(*(short *)((char *)&o->nodes[idx] + 58));
+        _ScaleCurrentMatrix(s.x, s.y, s.z);
+        _GetCurrentMatrix(matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
+    } else {
+        if (w->scale[0] != 1.0f || w->scale[1] != 1.0f || w->scale[2] != 1.0f) {
+            _InitCurrentMatrix();
+            _SetCurrentMatrix((char *)o->nodeMtx + idx * 64);
+            _ScaleCurrentMatrix(o->nodes[idx].scale[0], o->nodes[idx].scale[1],
+                                o->nodes[idx].scale[2]);
+            _GetCurrentMatrix(matrixptr + 0x40);
+            _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
+        } else {
+            _CopyMatrix(matrixptr + 0x40, (char *)o->nodeMtx + idx * 64);
+            _MulMatrix(matrixptr + 0x140, matrixptr + 0x100, matrixptr + 0x40);
+        }
+    }
+    box = o->model->box[0];
+    _SetCurrentMatrix(matrixptr + 0x140);
+    if (gsb_ClipBox(box) == 0) {
+        return 1;
+    }
+    light_MakeLightMatrix(o, idx);
+    PacketBufferStruct.dma.c = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = 0;
+    PacketBufferStruct.gif.c = 0;
+    PacketBufferStruct.end.c = 0;
+    setMatrix();
+    if (mode != 0 && mode != 3) {
+        _SetCurrentMatrix(matrixptr + 0x40);
+        _ClearTransCurrentMatrix();
+        _MulCurrentMatrixL((char *)o->lightMtx);
+        setLight();
+    }
+    {
+        char *c = PacketBufferStruct.ptr.c;
+
+        PacketBufferStruct.tail.c = c;
+        ((GifPkWord *)c)->d = 0x60000000;
+        PacketBufferStruct.ptr.c = c + 8;
+        ((GifPkWord *)(c + 8))->w[0] = 0;
+        PacketBufferStruct.ptr.c = c + 0xC;
+        ((GifPkWord *)(c + 8))->w[1] = 0;
+        PacketBufferStruct.ptr.c = c + 0x10;
+    }
+    for (i = 0; i < 13; i++) {
+        if ((prilist >> i) & 1) {
+            dl_SetDLPriority(i);
+            dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+            dl_CloseDma();
+        }
+    }
+    return 0;
+}
+#else
 static char *reg_setMMatrixPacket(Sub15C *o, int idx)
 {
     RegVec s;
@@ -541,7 +858,7 @@ static char *reg_setMMatrixPacket(Sub15C *o, int idx)
             _SetTransCurrentMatrix(o->nodes[idx].pos);
         }
         _GetCurrentMatrix(matrixptr + 0x180);
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x240, matrixptr + 0x180);
 #else
@@ -584,7 +901,7 @@ static char *reg_setMMatrixPacket(Sub15C *o, int idx)
     box = o->model->box[0];
     _SetCurrentMatrix(matrixptr + 0x300);
     if (gsb_ClipBox(box) == 0) {
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         if (o->shadow != 0) {
             light_MakeLightMatrix(o, idx);
         }
@@ -617,6 +934,7 @@ static char *reg_setMMatrixPacket(Sub15C *o, int idx)
     }
     return pkt;
 }
+#endif
 
 /* the head of a cluster matrix packet: the DMA tag with FLUSH and the
    UNPACK, then the first quadword unpacked, the unpack's quadword count and
@@ -637,8 +955,14 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
 
     inline void pack(void)
     {
+#ifdef VERSION_JUN26
+        static const sceVu0IVECTOR endTag
+            __attribute__((aligned(16))) = {0x15000010, 0, 0, 0}; /* derived name */
+        char *c;
+#else
         char *c;
         char *m;
+#endif
         int n;
 
         n = o->nodeNum * 4;
@@ -664,6 +988,9 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
                        o->clusterMtx + i * 64);
             PacketBufferStruct.ptr.c = PacketBufferStruct.ptr.c + 0x40;
         }
+#ifdef VERSION_JUN26
+        *((Qw128 *)PacketBufferStruct.ptr.c)++ = *(Qw128 *)endTag;
+#else
         m = PacketBufferStruct.ptr.c;
         *(int *)m = 0x15000010;
         m += 4;
@@ -672,11 +999,18 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
         PacketBufferStruct.ptr.c = m + 4;
         *(long long *)(m + 4) = 0;
         PacketBufferStruct.ptr.c = m + 0xC;
+#endif
     }
     inline void light(void)
     {
+#ifdef VERSION_JUN26
+        static const sceVu0IVECTOR endTag
+            __attribute__((aligned(16))) = {0x15000012, 0, 0, 0}; /* derived name */
+        char *c;
+#else
         char *c;
         char *n;
+#endif
 
         c = PacketBufferStruct.ptr.c;
         PacketBufferStruct.tail.c = c;
@@ -686,6 +1020,12 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
         PacketBufferStruct.ptr.c = c + 0xC;
         PacketBufferStruct.gif.c = c + 0xC;
         *(int *)PacketBufferStruct.gif.c = 0x6C088000;
+#ifdef VERSION_JUN26
+        PacketBufferStruct.ptr.c = c + 0x50;
+        _CopyMatrix(c + 0x10, (char *)o->lightMtx);
+        _CopyMatrix(((float (*)[16])PacketBufferStruct.ptr.c)++, (char *)o->lightMtx + 64);
+        *((Qw128 *)PacketBufferStruct.ptr.c)++ = *(Qw128 *)endTag;
+#else
         /* the two light matrices go in through the cursor post-increment
          * src/Primitive.c's setLight uses; the c + 0x10 store is overwritten
          * by the first increment's store */
@@ -700,6 +1040,7 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
         PacketBufferStruct.ptr.c = n + 4;
         *(long long *)(n + 4) = 0;
         PacketBufferStruct.ptr.c = n + 0xC;
+#endif
     }
 
     haslight = o->lightMtx->mode != 0;
@@ -714,15 +1055,20 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
     } else {
         debug_StdPrintfDummy("no light calc cluster model %s\n", o->model);
 #ifdef VERSION_NTSC
-        debug_assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230));
-        __assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230), "0");
+        debug_assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230, 1230));
+        __assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230, 1230), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181));
-        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181), "0");
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181, 635));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181, 635), "0");
 #else
-        debug_assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238));
-        __assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238), "0");
+#ifdef VERSION_JUN26
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 1095));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590, 1095), "0");
+#else
+        debug_assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238, 1238));
+        __assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238, 1238), "0");
+#endif
 #endif
 #endif
     }
@@ -759,6 +1105,21 @@ static const unsigned int regSpecularPacket[5][4] __attribute__((aligned(16))) =
 static void reg_dispSpecular(PacHeader *pkt, int clip, int mode) /* derived name */
 {
     short h;
+#ifdef VERSION_JUN26
+
+    if (pkt->tex1 != -1) {
+        dl_SetDLPriority(4);
+        h = pkt->tex1;
+        if (h >= 0) {
+            texturetranssize += tex_TransTexture(h, 4);
+        }
+        dl_OpenDma(2, regSpecularPacket, 5);
+        dl_CloseDma();
+        reg_chooseSpecularMicroCode(mode, clip, 4);
+        dl_OpenDma(2, pkt->data, pkt->size >> 4);
+        dl_CloseDma();
+    }
+#else
     dl_SetDLPriority(4);
     h = pkt->tex1;
     if (h >= 0) {
@@ -769,6 +1130,7 @@ static void reg_dispSpecular(PacHeader *pkt, int clip, int mode) /* derived name
     reg_chooseSpecularMicroCode(mode, clip, 4);
     dl_OpenDma(2, pkt->data, pkt->size >> 4);
     dl_CloseDma();
+#endif
 }
 
 static void reg_transMaterialPacket(PacHeader *self, PObjGroup *grp)
@@ -894,6 +1256,27 @@ static inline int regGetShinePri(int shine) /* derived name */
     return 7;
 }
 
+#ifdef VERSION_JUN26
+/* Pick the display-list priority for one material and install it. */
+static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx) /* derived name */
+{
+    PObjMaterial *mat = &grp->materials[nodeIdx];
+    int pri = 0;
+
+    if ((((int)(mat->attr.bits >> 1)) & 3) != 0) {
+        switch (mat->attr.word & 1) {
+        case 0:
+            pri = 2;
+            break;
+        case 1:
+            pri = 1;
+            break;
+        }
+    }
+    dl_SetDLPriority(pri);
+    return pri;
+}
+#else
 /* Pick the display-list priority for one material and install it. */
 static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx, TexExt *ext,
                                    float fade) /* derived name */
@@ -920,15 +1303,22 @@ static inline int regMaterialDLPri(PObjGroup *grp, int nodeIdx, TexExt *ext,
     dl_SetDLPriority(pri);
     return pri;
 }
+#endif
 
 static void reg_dispNObj(Sub15C *o)
 {
     PObjModel *mdl;
     PObjGroup *grp;
+#ifdef VERSION_JUN26
+    TexExt *ext;
+    PacHeader *pkt;
+    float *box;
+#else
     char *pk;
     PacHeader *pkt;
     float *box;
     int i;
+#endif
     int j;
     int r;
     int pri;
@@ -936,6 +1326,15 @@ static void reg_dispNObj(Sub15C *o)
 
     mdl = o->model;
     grp = mdl->groups;
+#ifdef VERSION_JUN26
+    reg_transMicroCode(o, 949);
+    if (reg_setNMatrixPacket(o, 0, 949) == 0) {
+        for (j = 0; j < mdl->partCount; j++, grp++) {
+            box = (float *)(j * 128 + (int)o->model->boxes);
+            pkt = grp->packets;
+            _SetCurrentMatrix(matrixptr + 0x140);
+            if (gsb_ClipBox(box) != 0) {
+#else
     reg_transMicroCode(o, 0x3B5);
     pk = reg_setNMatrixPacket(o, 0);
     if (pk != 0) {
@@ -953,19 +1352,33 @@ static void reg_dispNObj(Sub15C *o)
             _SetCurrentMatrix(matrixptr + 0x300);
             if (gsb_ClipBox(box) != 0) {
                 pkt = grp->packets;
+#endif
                 while (pkt != 0) {
                     r = reg_clipPacketBoundingBox(pkt);
                     if (r != 0) {
+#ifdef VERSION_JUN26
+                        pri = regMaterialDLPri(grp, pkt->mat);
+                        ext = tex_GetTexExtData(pkt->tex);
+                        if (ext->animated != 0 && ext->file.shine != 0) {
+                            pri = regGetShinePri(ext->file.shine);
+                        }
+                        _PushCurrentMatrix();
+#else
                         pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+#endif
                         regTransTexturePacket(pkt->tex, pri);
                         reg_transMaterialPacket(pkt, grp);
                         reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                         dl_OpenDma(2, pkt->data, pkt->size >> 4);
                         dl_CloseDma();
                         if (o->lightMtx->mode == 2) {
+#ifdef VERSION_JUN26
+                            reg_dispSpecular(pkt, r, 0);
+#else
                             if (pkt->tex1 != -1) {
                                 reg_dispSpecular(pkt, r, 0);
                             }
+#endif
                         }
                         mode = o->lightMtx->mode;
                         if (pkt->tex2 != -1) {
@@ -984,6 +1397,9 @@ static void reg_dispNObj(Sub15C *o)
                                 mc_TransMicroCode(1, 0x10);
                             }
                         }
+#ifdef VERSION_JUN26
+                        _PopCurrentMatrix();
+#endif
                     }
                     pkt = pkt->next;
                 }
@@ -1009,10 +1425,20 @@ static void reg_dispMObj(Sub15C *o)
     PObjModel *mdl;
     PObjGroup *grp;
     PacHeader *pkt;
+#ifdef VERSION_JUN26
+    TexExt *ext;
+#else
     char *pk;
+#endif
     struct DObjNode *w;
     float alpha;
     int i;
+#ifdef VERSION_JUN26
+    int r;
+    int dis;
+    int pri;
+    int mode;
+#else
     int j;
     int r;
     int dis;
@@ -1020,16 +1446,31 @@ static void reg_dispMObj(Sub15C *o)
     int pri;
     int mode;
     int prilist;
+#endif
 
     mdl = o->model;
     grp = mdl->groups;
+#ifdef VERSION_JUN26
+    reg_transMicroCode(o, 949);
+#else
     reg_transMicroCode(o, 0x3B5);
+#endif
     for (i = 0; i < o->nodeNum; i++) {
         w = (struct DObjNode *)(i * 80 + (int)o->nodes);
         alpha = 1.0f - (1.0f - w->fade) * w->alpha;
         if ((alpha < 0.0f ? -alpha : alpha) == 1.0f) {
             continue;
         }
+#ifdef VERSION_JUN26
+        if (reg_setMMatrixPacket(o, i, 949) == 0) {
+            if (mdl->parts[i].morphCount != 0 && grp->morph != 0) {
+                if (buffer_ID != 0) {
+                    pkt = grp->packets;
+                } else {
+                    pkt = grp->morph;
+                }
+                reg_setShape(o, i, buffer_ID == 0, pkt, &grp->materials[pkt->mat]);
+#else
         pk = reg_setMMatrixPacket(o, i);
         if (pk != 0) {
             prilist = 0x3B5;
@@ -1051,12 +1492,27 @@ static void reg_dispMObj(Sub15C *o)
                 } else {
                     pkt = grp->packets;
                 }
+#endif
             } else {
                 pkt = grp->packets;
             }
             while (pkt != 0) {
                 r = reg_clipPacketBoundingBox(pkt);
                 if (r != 0) {
+#ifdef VERSION_JUN26
+                    pri = regMaterialDLPri(grp, pkt->mat);
+                    ext = tex_GetTexExtData(pkt->tex);
+                    _PushCurrentMatrix();
+                    if ((o->nodes[i].flags.ll & 1) == 1) {
+                        if (alpha != 0.0f) {
+                            pri = 5;
+                            dl_SetDLPriority(5);
+                        }
+                    }
+                    if (ext->animated != 0 && ext->file.shine != 0) {
+                        pri = regGetShinePri(ext->file.shine);
+                    }
+#else
                     fade = 0;
                     if ((o->nodes[i].flags.ll & 1) == 1) {
                         if (alpha != 0.0f) {
@@ -1064,20 +1520,32 @@ static void reg_dispMObj(Sub15C *o)
                         }
                     }
                     pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), fade);
+#endif
                     regTransTexturePacket(pkt->tex, pri);
                     reg_transMaterialPacket(pkt, grp);
                     dis = 0;
+#ifdef VERSION_JUN26
+                    if ((o->nodes[i].flags.ll & 1) == 1) {
+                        if (alpha != 0.0f) {
+                            dis = reg_setDissolve(alpha, pri);
+                        }
+#else
                     if (fade != 0) {
                         dis = reg_setDissolve(alpha, pri);
+#endif
                     }
                     if (dis != -1) {
                         reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                         dl_OpenDma(2, pkt->data, pkt->size >> 4);
                         dl_CloseDma();
                         if (o->lightMtx->mode == 2) {
+#ifdef VERSION_JUN26
+                            reg_dispSpecular(pkt, r, 0);
+#else
                             if (pkt->tex1 != -1) {
                                 reg_dispSpecular(pkt, r, 0);
                             }
+#endif
                         }
                         mode = o->lightMtx->mode;
                         if (pkt->tex2 != -1) {
@@ -1100,6 +1568,9 @@ static void reg_dispMObj(Sub15C *o)
                     if (dis == 1) {
                         reg_resetDissolve(pri);
                     }
+#ifdef VERSION_JUN26
+                    _PopCurrentMatrix();
+#endif
                 }
                 pkt = pkt->next;
             }
@@ -1110,18 +1581,28 @@ static void reg_dispMObj(Sub15C *o)
     }
 }
 
+#ifdef VERSION_JUN26
+static void reg_dispSObj(Sub15C *o, int idx);
+#endif
+
 static void reg_dispSObj(Sub15C *o, int idx)
 {
     PObjGroup *grp;
     PacHeader *pkt;
+#ifndef VERSION_JUN26
     char *pk;
     int i;
+#endif
     int r;
     int pri;
     int mode;
 
     grp = o->model->groups;
     pkt = grp->packets;
+#ifdef VERSION_JUN26
+    reg_transMicroCode(o, 949);
+    if (reg_setMMatrixPacket(o, idx, 949) == 0) {
+#else
     reg_transMicroCode(o, 0x3B5);
     pk = reg_setMMatrixPacket(o, idx);
     if (pk != 0) {
@@ -1134,19 +1615,28 @@ static void reg_dispSObj(Sub15C *o, int idx)
                 dl_CloseDma();
             }
         }
+#endif
         while (pkt != 0) {
             r = reg_clipPacketBoundingBox(pkt);
             if (r != 0) {
+#ifdef VERSION_JUN26
+                pri = regMaterialDLPri(grp, pkt->mat);
+#else
                 pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+#endif
                 regTransTexturePacket(pkt->tex, pri);
                 reg_transMaterialPacket(pkt, grp);
                 reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
                 dl_OpenDma(2, pkt->data, pkt->size >> 4);
                 dl_CloseDma();
                 if (o->lightMtx->mode == 2) {
+#ifdef VERSION_JUN26
+                    reg_dispSpecular(pkt, r, 0);
+#else
                     if (pkt->tex1 != -1) {
                         reg_dispSpecular(pkt, r, 0);
                     }
+#endif
                 }
                 mode = o->lightMtx->mode;
                 if (pkt->tex2 != -1) {
@@ -1180,13 +1670,21 @@ static void reg_dispCObj(Sub15C *o)
     PObjGroup *grp;
     PacHeader *pkt;
     PacHeader *node;
+#ifdef VERSION_JUN26
+    TexExt *ext;
+#endif
     int i;
     int pri;
 
     mdl = o->model;
     grp = mdl->groups;
+#ifdef VERSION_JUN26
+    reg_transMicroCode(o, 947);
+    reg_setCMatrixPacket(o, 1.0f, 947);
+#else
     reg_transMicroCode(o, 0x3B3);
     reg_setCMatrixPacket(o, 1.0f, 0x3B3);
+#endif
     for (i = 0; i < mdl->partCount; i++, grp++) {
         if (mdl->parts[i].morphCount != 0) {
             node = grp->morph;
@@ -1203,16 +1701,29 @@ static void reg_dispCObj(Sub15C *o)
             pkt = grp->packets;
         }
         while (pkt != 0) {
+#ifdef VERSION_JUN26
+            pri = regMaterialDLPri(grp, pkt->mat);
+            ext = tex_GetTexExtData(pkt->tex);
+            if (ext->animated != 0 && ext->file.shine != 0) {
+                pri = regGetShinePri(ext->file.shine);
+            }
+#else
             pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+#endif
             regTransTexturePacket(pkt->tex, pri);
             reg_transMaterialPacket(pkt, grp);
             reg_chooseMicroCode(&grp->materials[pkt->mat], 0, pri);
             dl_OpenDma(2, pkt->data, pkt->size >> 4);
             dl_CloseDma();
+#ifdef VERSION_JUN26
+            if (o->lightMtx->mode == 2 && debug_specular_flag == 2) {
+                reg_dispSpecular(pkt, 0, 1);
+#else
             if (debug_specular_flag == 2 && o->lightMtx->mode == 2) {
                 if (pkt->tex1 != -1) {
                     reg_dispSpecular(pkt, 0, 1);
                 }
+#endif
             }
             pkt = pkt->next;
         }
@@ -1227,7 +1738,7 @@ static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
     float fv[4];
     int iv[4];
     int iv2[4];
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     Qw128 v;
 #endif
     int pri;
@@ -1235,7 +1746,7 @@ static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
     int z;
 
     on = 0;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     pri = node->blend != 0 ? 2 : 0;
     if (alpha != 0.0f || node->blend != 0) {
 #else
@@ -1264,7 +1775,7 @@ static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
     _RotTransPersCurrentMatrix(fv, node->pos[0]);
     _FTOI4Vector(iv, fv);
     if (idx == -1) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         *(Qw128 *)iv2 = *(Qw128 *)node->pos[1];
         *(Qw128 *)node->pos[1] = *(Qw128 *)iv;
 #else
@@ -1287,7 +1798,7 @@ static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
         if (flag != 0) {
             _CopyIVector(iv2, iv);
         } else {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             _CopyIVector(iv2, node->trail[idx]);
         }
         CopyIVector(node->trail[idx], iv);
@@ -1387,7 +1898,7 @@ static void reg_dispLine(PacLine *node, float alpha)
     int iv1[4];
     char *p;
     char *q;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int pri;
 #else
     long long h;
@@ -1398,7 +1909,7 @@ static void reg_dispLine(PacLine *node, float alpha)
     int on;
     int z;
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     pri = node->blend != 0 ? 2 : 0;
     hastex = node->tex >= 0;
     on = 0;
@@ -1416,7 +1927,7 @@ static void reg_dispLine(PacLine *node, float alpha)
     z = (int)(((alpha < 0.0f) ? (alpha + 1.0f) : (1.0f - alpha)) * 128.0f);
     dl_SetDLPriority(pri);
     if (hastex != 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         texturetranssize += tex_TransTexture(node->tex, pri);
 #else
         long long f = node->attr.word;
@@ -1536,7 +2047,7 @@ static void reg_dispPointLineObj(Sub15C *o)
     PacLine *node;
     PacLineSet *set;
     struct DObjNode *w;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     long long h;
 #endif
     float alpha;
@@ -1548,7 +2059,7 @@ static void reg_dispPointLineObj(Sub15C *o)
     grp = mdl->groups;
     hdr = o->lineHdr;
     if (hdr != 0) {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         idx = *(unsigned short *)(hdr + 2) & 3;
 #else
         idx = *(unsigned short *)(hdr + 2) % 3;
@@ -1556,9 +2067,13 @@ static void reg_dispPointLineObj(Sub15C *o)
     } else {
         idx = -1;
     }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (hdr != 0) {
+#ifdef VERSION_JUN26
+        flag = ((int)(*(long long *)hdr >> 15)) & 1;
+#else
         flag = ((int)(*(long long *)hdr >> 14)) & 1;
+#endif
     } else {
         flag = 0;
 #else
@@ -1580,7 +2095,7 @@ static void reg_dispPointLineObj(Sub15C *o)
         _SetCurrentMatrix((char *)o->nodeMtx + i * 64);
         _MulCurrentMatrixL(matrixptr + 0x100);
         node = set->lines;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         while (node->type != 0) {
             switch (node->type) {
 #else
@@ -1596,6 +2111,7 @@ static void reg_dispPointLineObj(Sub15C *o)
                 break;
             }
             node++;
+#ifndef VERSION_JUN26
 #ifndef VERSION_AUG6
             h = node->attr.word;
 #endif
@@ -1790,10 +2306,44 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
         }
         if (o->shadow != 0) {
             shadow_RenderVolume(o);
+#endif
         }
     }
 }
 
+#ifdef VERSION_JUN26
+void reg_RenderReflection(Sub15C *o, int pri)
+{
+    PObjModel *mdl;
+    PObjGroup *grp;
+    PacHeader *pkt;
+    char *pk;
+    int i;
+    int r;
+
+    mdl = o->model;
+    grp = mdl->groups;
+    dl_SetDLPriority(pri);
+    reg_transMicroCode(o, 1 << pri);
+    if (reg_setNMatrixPacket(o, 0, 1 << pri) != 0) {
+        return;
+    }
+    for (i = 0; i < mdl->partCount; i++, grp++) {
+        pkt = grp->packets;
+        while (pkt != 0) {
+            r = reg_clipPacketBoundingBox(pkt);
+            if (r != 0) {
+                regTransTexturePacket(pkt->tex, pri);
+                reg_transMaterialPacket(pkt, grp);
+                reg_chooseMicroCode(&grp->materials[pkt->mat], r, pri);
+                dl_OpenDma(2, pkt->data, pkt->size >> 4);
+                dl_CloseDma();
+            }
+            pkt = pkt->next;
+        }
+    }
+}
+#else
 void reg_RenderReflection(Sub15C *o, int pri)
 {
     PObjModel *mdl;
@@ -1834,6 +2384,7 @@ void reg_RenderReflection(Sub15C *o, int pri)
 /* The sixteen bytes that close the enemy matrix packet: the VIF MSCAL 0x10
    code and three zero words, copied as one quadword. */
 static const sceVu0IVECTOR regEnemyEndTag = {0x15000010, 0, 0, 0}; /* derived name */
+#endif
 
 void reg_DispEnemy(void *sub)
 {
@@ -1841,10 +2392,14 @@ void reg_DispEnemy(void *sub)
     PObjModel *mdl;
     PObjGroup *grp;
     PacHeader *pkt;
+#ifdef VERSION_JUN26
+    TexExt *ext;
+#endif
     float alpha;
     int i;
     int pri;
 
+#ifndef VERSION_JUN26
     void reg_setEMatrixPacket(Sub15C * o, int prilist, float alpha)
     {
         int i;
@@ -1910,12 +2465,18 @@ void reg_DispEnemy(void *sub)
             }
         }
     }
+#endif
 
     mdl = o->model;
     grp = mdl->groups;
     alpha = 1.0f - o->nodes->fade;
+#ifdef VERSION_JUN26
+    reg_transMicroCode(o, 947);
+    reg_setCMatrixPacket(o, alpha, 947);
+#else
     reg_transMicroCode(o, 0x3A0);
     reg_setEMatrixPacket(o, 0x3A0, alpha);
+#endif
     if ((alpha < 0.0f ? -alpha : alpha) == 0.0f) {
         goto done;
     }
@@ -1936,12 +2497,25 @@ void reg_DispEnemy(void *sub)
                 pkt = grp->packets;
             }
             while (pkt != 0) {
+#ifdef VERSION_JUN26
+                pri = regMaterialDLPri(grp, pkt->mat);
+                ext = tex_GetTexExtData(pkt->tex);
+                if (ext->animated != 0 && ext->file.shine != 0) {
+                    pri = regGetShinePri(ext->file.shine);
+                }
+#else
                 pri = regMaterialDLPri(grp, pkt->mat, tex_GetTexExtData(pkt->tex), 0.0f);
+#endif
                 regTransTexturePacket(pkt->tex, pri);
                 reg_transMaterialPacket(pkt, grp);
                 reg_chooseMicroCode(&grp->materials[pkt->mat], 0, pri);
                 dl_OpenDma(2, pkt->data, pkt->size >> 4);
                 dl_CloseDma();
+#ifdef VERSION_JUN26
+                if (o->lightMtx->mode == 2 && debug_specular_flag == 2) {
+                    reg_dispSpecular(pkt, 0, 1);
+                }
+#endif
                 pkt = pkt->next;
             }
         }
@@ -1952,7 +2526,7 @@ done:
     }
 }
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void reg_DispMultiPri(Sub15C *o, int pri)
 {
     PObjModel *mdl;
@@ -2057,9 +2631,13 @@ void reg_DispObj(Sub15C *o)
     if (o->dispType == 2) {
         unsigned short type = o->model->mode.bits >> 16;
 
+#ifdef VERSION_JUN26
+        if ((type & 3) != 2) {
+#else
         if ((type & 3) == 2) {
             reg_dispPointLineObj(o);
         } else {
+#endif
             reg_dispMObj(o);
         }
     } else {
@@ -2073,7 +2651,9 @@ void reg_DispObj(Sub15C *o)
             reg_dispCObj(o);
             break;
         case 2:
+#ifndef VERSION_JUN26
             reg_dispPointLineObj(o);
+#endif
             break;
         }
     }
@@ -2094,10 +2674,12 @@ void reg_TransTexturePacket(int tex, int pri)
     regTransTexturePacket(tex, pri);
 }
 
+#ifndef VERSION_JUN26
 void reg_Init(void)
 {
     scissorSw = 0;
 }
+#endif
 
 int reg_GetShinePri(int shine)
 {

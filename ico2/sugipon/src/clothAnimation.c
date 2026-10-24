@@ -617,7 +617,7 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
                 sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
             }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             /* the debug pass pad 2's button 0x20 runs: every segment pulled
                back to the chain's step length */
             inline void keepLength(float (*pp)[4]) /* derived name */
@@ -643,7 +643,7 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
             calc2(pts, 0, n - 1);
             calc2(pts, 0, n - 1);
             calc2(pts, 0, n - 1);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
             sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
 
             if (pad[1].now & 0x20) {
@@ -960,7 +960,7 @@ static __inline__ void clothFixDebug(ClothFixPoint *fix) /* derived name */
 #endif
 }
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx)
 {
     VECTOR dv;
@@ -1265,7 +1265,7 @@ ChainSet *InitChains(ChainCfg *cfg)
     float step;
 
     r = (ChainSet *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/clothAnimation.c",
-                                   LN(1192, 1192, 1192, 1192, 1058));
+                                   LN(1192, 1192, 1192, 1192, 1058, 1058));
     r->cfg = cfg;
     while (cfg[i].num != -1) {
         i++;
@@ -1273,15 +1273,18 @@ ChainSet *InitChains(ChainCfg *cfg)
     r->num = i;
     r->nodes =
         (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ChainNode),
-                                    "src/clothAnimation.c", LN(1198, 1198, 1198, 1198, 1064));
+                                    "src/clothAnimation.c", LN(1198, 1198, 1198, 1198, 1064, 1064));
     r->oddFrame = 0;
     for (i = 0; i < r->num; i++) {
-        r->nodes[i].pos = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16,
-                                         "src/clothAnimation.c", LN(1202, 1202, 1202, 1202, 1068));
-        r->nodes[i].vel = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16,
-                                         "src/clothAnimation.c", LN(1203, 1203, 1203, 1203, 1069));
-        r->nodes[i].len = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4,
-                                         "src/clothAnimation.c", LN(1204, 1204, 1204, 1204, 1070));
+        r->nodes[i].pos =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16, "src/clothAnimation.c",
+                           LN(1202, 1202, 1202, 1202, 1068, 1068));
+        r->nodes[i].vel =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16, "src/clothAnimation.c",
+                           LN(1203, 1203, 1203, 1203, 1069, 1069));
+        r->nodes[i].len =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c",
+                           LN(1204, 1204, 1204, 1204, 1070, 1070));
         r->nodes[i].exNum = 0;
         for (j = 0; j < 5; j++) {
             r->nodes[i].ex[j].w = -1.0f;
@@ -1311,7 +1314,7 @@ ClothSet *InitClothes(ClothCfg *cfg)
     float aa[4];
     float bb[4];
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     r = (ClothSet *)iosMallocDebug(ios_partition_sugipon, sizeof(ClothSet), "src/clothAnimation.c",
                                    1101);
 #else
@@ -1323,8 +1326,9 @@ ClothSet *InitClothes(ClothCfg *cfg)
         i++;
     }
     r->num = i;
-    r->rec = (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ClothRec),
-                                        "src/clothAnimation.c", LN(1240, 1240, 1240, 1240, 1106));
+    r->rec =
+        (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ClothRec),
+                                   "src/clothAnimation.c", LN(1240, 1240, 1240, 1240, 1106, 1106));
     for (i = 0; i < r->num; i++) {
         if (cfg[i].tex != 0) {
             r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x5C, 0x80808080, 1);
@@ -1334,21 +1338,24 @@ ClothSet *InitClothes(ClothCfg *cfg)
             r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x4C, 0xFFFFFF80, 1);
             r->rec[i].textured = 0;
         }
-        r->rec[i].pos = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4,
-                                       "src/clothAnimation.c", LN(1268, 1268, 1268, 1268, 1134));
-        r->rec[i].vel = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4,
-                                       "src/clothAnimation.c", LN(1269, 1269, 1269, 1269, 1135));
-        r->rec[i].mark = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4,
-                                        "src/clothAnimation.c", LN(1270, 1270, 1270, 1270, 1136));
+        r->rec[i].pos =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c",
+                           LN(1268, 1268, 1268, 1268, 1134, 1134));
+        r->rec[i].vel =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c",
+                           LN(1269, 1269, 1269, 1269, 1135, 1135));
+        r->rec[i].mark =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c",
+                           LN(1270, 1270, 1270, 1270, 1136, 1136));
         for (m = 0; m < cfg[i].num; m++) {
             r->rec[i].pos[m] = (VECTOR *)(r->rec[i].mesh->pos + m * cfg[i].div);
             r->rec[i].vel[m] =
                 iosMallocDebug(ios_partition_sugipon, cfg[i].div * 16, "src/clothAnimation.c",
-                               LN(1275, 1275, 1275, 1275, 1141));
+                               LN(1275, 1275, 1275, 1275, 1141, 1141));
             r->rec[i].mark[m] =
                 iosMallocDebug(ios_partition_sugipon, cfg[i].div * 4, "src/clothAnimation.c",
-                               LN(1276, 1276, 1276, 1276, 1142));
-#ifndef VERSION_AUG6
+                               LN(1276, 1276, 1276, 1276, 1142, 1142));
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
             memset(aa, 0, 16);
             aa[3] = 1.0f;
             memset(bb, 0, 16);
@@ -1378,8 +1385,9 @@ ClothSet *InitClothesNoShade(ClothCfg *cfg)
         i++;
     }
     r->num = i;
-    r->rec = (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ClothRec),
-                                        "src/clothAnimation.c", LN(1301, 1301, 1301, 1301, 1301));
+    r->rec =
+        (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ClothRec),
+                                   "src/clothAnimation.c", LN(1301, 1301, 1301, 1301, 1301, 1301));
     for (i = 0; i < r->num; i++) {
         if (cfg[i].tex != 0) {
             r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x5C, 0x80808080, 0);
@@ -1389,20 +1397,23 @@ ClothSet *InitClothesNoShade(ClothCfg *cfg)
             r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x4C, 0xFFFFFF80, 0);
             r->rec[i].textured = 0;
         }
-        r->rec[i].pos = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4,
-                                       "src/clothAnimation.c", LN(1329, 1329, 1329, 1329, 1329));
-        r->rec[i].vel = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4,
-                                       "src/clothAnimation.c", LN(1330, 1330, 1330, 1330, 1330));
-        r->rec[i].mark = iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4,
-                                        "src/clothAnimation.c", LN(1331, 1331, 1331, 1331, 1331));
+        r->rec[i].pos =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c",
+                           LN(1329, 1329, 1329, 1329, 1329, 1329));
+        r->rec[i].vel =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c",
+                           LN(1330, 1330, 1330, 1330, 1330, 1330));
+        r->rec[i].mark =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c",
+                           LN(1331, 1331, 1331, 1331, 1331, 1331));
         for (m = 0; m < cfg[i].num; m++) {
             r->rec[i].pos[m] = (VECTOR *)(r->rec[i].mesh->pos + m * cfg[i].div);
             r->rec[i].vel[m] =
                 iosMallocDebug(ios_partition_sugipon, cfg[i].div * 16, "src/clothAnimation.c",
-                               LN(1336, 1336, 1336, 1336, 1336));
+                               LN(1336, 1336, 1336, 1336, 1336, 1336));
             r->rec[i].mark[m] =
                 iosMallocDebug(ios_partition_sugipon, cfg[i].div * 4, "src/clothAnimation.c",
-                               LN(1337, 1337, 1337, 1337, 1337));
+                               LN(1337, 1337, 1337, 1337, 1337, 1337));
 #endif
             memset(aa, 0, 16);
             aa[3] = 1.0f;
@@ -1501,6 +1512,7 @@ void DispCloth4D(Cloth4D *c, void *la, void *lb)
     }
 }
 
+#ifndef VERSION_JUN26
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb)
 {
@@ -1530,6 +1542,7 @@ void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb)
    what getCloth4D applies the node matrix to; cylinderColor is its debug wire
    cylinder's colour; procMatrix is the matrix the nested proc applies */
 static sceVu0FVECTOR windNoise[11] = {{0.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
+#endif
 
 static sceVu0FVECTOR clothUpVector = {0.0f, 1.0f, 0.0f, 0.0f}; /* derived name */
 
@@ -1544,6 +1557,19 @@ static sceVu0FMATRIX procMatrix = {
     {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
+#ifdef VERSION_JUN26
+/* one hang point's share of a cloth point: src carried by the node matrix m,
+   weighted by f, added to dst */
+static __inline__ void clothAddPoint(void *dst, float (*m)[4], void *src,
+                                     float f) /* derived name */
+{
+    VECTOR tv;
+
+    _ApplyMatrix(&tv, m, src);
+    _ScaleVector(&tv, &tv, f);
+    AddVectorXYZ(dst, dst, &tv);
+}
+#else
 /* the two point writers: add, or set, a scaled transformed vector */
 static __inline__ void clothAddPoint(void *dst, void *src, float f) /* derived name */
 {
@@ -1553,7 +1579,83 @@ static __inline__ void clothAddPoint(void *dst, void *src, float f) /* derived n
     _ScaleVector(&tv, &tv, f);
     _AddVectorXYZ(dst, dst, &tv);
 }
+#endif
 
+#ifdef VERSION_JUN26
+static void getCloth4D_preProcess(Cloth4D *c, float g, float damp)
+{
+    VECTOR dv;
+    int i;
+    int j;
+    Prim3DVec **pos = c->pos;
+    Prim3DVec **nrm = c->nrm;
+    Prim3DVec **vel = c->vel;
+    Cloth4DCfg *cfg = c->cfg;
+    int nx = cfg->nx - (cfg->wrap != 0);
+    int ny = cfg->ny;
+    VECTOR va[nx];
+    float t;
+    float *wind;
+    float wpow;
+
+    for (i = 0; i < nx; i++) {
+        for (j = 1; j < ny; j++) {
+            sceVu0ScaleVector(&dv, &vel[i][j], damp);
+            CopyVector(&vel[i][j], &pos[i][j]);
+            AddVectorXYZ(&pos[i][j], &pos[i][j], &dv);
+        }
+    }
+    wind = GetWindVector(&wpow, &pos[0]->x);
+    wpow = wpow / 40960.0f;
+    for (i = 0; i < nx; i++) {
+        CopyVector(pos[i], ZeroPoint);
+        CopyVector(nrm[i], ZeroVector);
+        CopyVector(&va[i], ZeroVector);
+        for (j = 0; j < 2; j++) {
+            int n = cfg->cols[i].link[j].node;
+
+            if (n == -1) {
+                break;
+            }
+            {
+                /* the hang node carries the column's top point, its normal
+                   and its rest direction */
+                float m[4][4];
+                Sub15C *sk = GOBJ_SUB(c->gobj);
+
+                _MulMatrix(m, (char *)sk->nodeMtx + n * 64, sk->clusterMtx + n * 64);
+                clothAddPoint(pos[i], m, cfg->cols[i].pos, cfg->cols[i].link[j].weight);
+                clothAddPoint(nrm[i], m, cfg->cols[i].dir, cfg->cols[i].link[j].weight);
+                clothAddPoint(&va[i], m, cfg->cols[i].restDir, cfg->cols[i].link[j].weight);
+            }
+        }
+        pos[i]->w = 1.0f;
+        nrm[i]->w = 1.0f;
+        va[i].w = 0.0f;
+    }
+    for (j = 1; j < ny; j++) {
+        t = (float)(ny - j) / (float)(ny - 1);
+        t = t * t;
+        for (i = 0; i < nx; i++) {
+            AddVectorXYZ(&pos[i][j], &pos[i][j], wind);
+            {
+                /* a random gust, then the point follows the one above it
+                   toward its rest direction */
+                Vec16 noise = {{wpow * (float)((rand() & 0x7FFF) - 16383),
+                                wpow * (float)((rand() & 0x7FFF) - 16383),
+                                wpow * (float)((rand() & 0x7FFF) - 16383), 0.0f}};
+                VECTOR w;
+
+                AddVectorXYZ(&pos[i][j], &pos[i][j], &noise);
+                SubVectorXYZ(&w, &pos[i][j], &pos[i][j - 1]);
+                _InterVectorXYZ(&w, &va[i], &w, t);
+                AddVectorXYZ(&pos[i][j], &pos[i][j - 1], &w);
+            }
+            pos[i][j].y = pos[i][j].y + g;
+        }
+    }
+}
+#else
 static __inline__ void clothSetPoint(void *dst, void *src, float f) /* derived name */
 {
     VECTOR tv;
@@ -1743,6 +1845,7 @@ static void getCloth4D_preProcess(Cloth4D *c, float g, float damp, float z, floa
     }
 }
 #endif
+#endif
 
 /* the four procMatrix elements proc writes its Y rotation through */
 static float *procCosXX = &procMatrix[0][0]; /* derived name */
@@ -1863,7 +1966,7 @@ static void getCloth4D(Cloth4D *c, int **rows)
     int wrap = cfg->wrap;
     int nx = cfg->nx - (wrap != 0);
     int ny = cfg->ny;
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int cnt = c->colNum;
     ClothPoint *pts = c->col;
     float scale = c->gobj->dobj->nodes->scale[0];
@@ -1896,7 +1999,7 @@ static void getCloth4D(Cloth4D *c, int **rows)
     float tlim;
     int i;
     int j;
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     int n;
 #endif
 
@@ -1934,7 +2037,7 @@ static void getCloth4D(Cloth4D *c, int **rows)
     gif_SetAlpha(1, 5, 0x80);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         int n;
 #endif
         sceVu0FMATRIX *qF = mF;
@@ -1970,7 +2073,7 @@ static void getCloth4D(Cloth4D *c, int **rows)
         }
     }
     gif_EndPacket();
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 #ifdef DEBUG
     for (i = 0; i < cnt; i++) {
         _ScaleVector(&work[0], &vG[i], 100.0f);
@@ -2248,7 +2351,7 @@ static void getCloth4D_postProcess(Cloth4D *c, int **rows)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 void GetCloth4D(Cloth4D *c, float x, float y)
 {
     float buf[4];
@@ -2384,17 +2487,20 @@ Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
     } else {
         r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
     }
-    r->pos = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
-                                          "src/clothAnimation.c", LN(1932, 1932, 1932, 1932, 1932));
-    r->vel = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
-                                          "src/clothAnimation.c", LN(1933, 1933, 1933, 1933, 1933));
-    r->nrm = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
-                                          "src/clothAnimation.c", LN(1934, 1934, 1934, 1934, 1934));
+    r->pos =
+        (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
+                                     LN(1932, 1932, 1932, 1932, 1932, 1932));
+    r->vel =
+        (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
+                                     LN(1933, 1933, 1933, 1933, 1933, 1933));
+    r->nrm =
+        (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
+                                     LN(1934, 1934, 1934, 1934, 1934, 1934));
     for (i = 0; i < cfg->nx; i++) {
         r->pos[i] = r->mesh->pos + i * cfg->ny;
         r->vel[i] =
             (Prim3DVec *)iosMallocDebug(ios_partition_sugipon, cfg->ny * 16, "src/clothAnimation.c",
-                                        LN(1938, 1938, 1938, 1938, 1938));
+                                        LN(1938, 1938, 1938, 1938, 1938, 1938));
         r->nrm[i] = r->mesh->nrm + i * cfg->ny;
         for (j = 0; j < cfg->ny; j++) {
             CopyVector(&r->pos[i][j], ZeroPoint);
@@ -2413,11 +2519,11 @@ Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
         }
         r->colNum = i;
         r->col = iosMallocDebug(ios_partition_sugipon, i * 0x40, "src/clothAnimation.c",
-                                LN(1967, 1967, 1967, 1967, 1967));
+                                LN(1967, 1967, 1967, 1967, 1967, 1967));
         r->colMtx = iosMallocDebug(ios_partition_sugipon, r->colNum * 0x40, "src/clothAnimation.c",
-                                   LN(1968, 1968, 1968, 1968, 1968));
+                                   LN(1968, 1968, 1968, 1968, 1968, 1968));
         r->colNode = iosMallocDebug(ios_partition_sugipon, r->colNum * 4, "src/clothAnimation.c",
-                                    LN(1969, 1969, 1969, 1969, 1969));
+                                    LN(1969, 1969, 1969, 1969, 1969, 1969));
         for (i = 0; tbl[i].enable != -1; i++) {
             *(Blob64 *)&r->col[i] = *(Blob64 *)&tbl[i];
             r->col[i].radius = r->col[i].radius * sc;
@@ -2444,7 +2550,12 @@ Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
     r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, sizeof(Cloth4D), "src/clothAnimation.c",
                                   1900);
 #else
+#ifdef VERSION_JUN26
+    r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, sizeof(Cloth4D), "src/clothAnimation.c",
+                                  1867);
+#else
     r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, 0x300, "src/clothAnimation.c", 2183);
+#endif
 #endif
     r->gobj = gobj;
     r->cfg = cfg;
@@ -2455,17 +2566,20 @@ Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
     } else {
         r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
     }
-    r->pos = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
-                                          "src/clothAnimation.c", LN(2218, 2218, 2218, 2218, 1935));
-    r->vel = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
-                                          "src/clothAnimation.c", LN(2219, 2219, 2219, 2219, 1936));
-    r->nrm = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
-                                          "src/clothAnimation.c", LN(2220, 2220, 2220, 2220, 1937));
+    r->pos =
+        (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
+                                     LN(2218, 2218, 2218, 2218, 1935, 1902));
+    r->vel =
+        (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
+                                     LN(2219, 2219, 2219, 2219, 1936, 1903));
+    r->nrm =
+        (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4, "src/clothAnimation.c",
+                                     LN(2220, 2220, 2220, 2220, 1937, 1904));
     for (i = 0; i < cfg->nx; i++) {
         r->pos[i] = r->mesh->pos + i * cfg->ny;
         r->vel[i] =
             (Prim3DVec *)iosMallocDebug(ios_partition_sugipon, cfg->ny * 16, "src/clothAnimation.c",
-                                        LN(2224, 2224, 2224, 2224, 1941));
+                                        LN(2224, 2224, 2224, 2224, 1941, 1908));
         r->nrm[i] = r->mesh->nrm + i * cfg->ny;
         for (j = 0; j < cfg->ny; j++) {
             CopyVector(&r->pos[i][j], ZeroPoint);
@@ -2484,11 +2598,11 @@ Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
         }
         r->colNum = i;
         r->col = iosMallocDebug(ios_partition_sugipon, i * 0x40, "src/clothAnimation.c",
-                                LN(2253, 2253, 2253, 2253, 1970));
+                                LN(2253, 2253, 2253, 2253, 1970, 1937));
         r->colMtx = iosMallocDebug(ios_partition_sugipon, r->colNum * 0x40, "src/clothAnimation.c",
-                                   LN(2254, 2254, 2254, 2254, 1971));
+                                   LN(2254, 2254, 2254, 2254, 1971, 1938));
         r->colNode = iosMallocDebug(ios_partition_sugipon, r->colNum * 4, "src/clothAnimation.c",
-                                    LN(2255, 2255, 2255, 2255, 1972));
+                                    LN(2255, 2255, 2255, 2255, 1972, 1939));
         for (i = 0; tbl[i].enable != -1; i++) {
             *(Blob64 *)&r->col[i] = *(Blob64 *)&tbl[i];
             r->col[i].radius = r->col[i].radius * sc;
@@ -2498,7 +2612,7 @@ Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
             sceVu0UnitMatrix(r->colMtx[i]);
             r->colNode[i] = GetSkeltonFocusNode(gobj, tbl[i].node);
         }
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     } else {
         r->colNum = 0;
 #else

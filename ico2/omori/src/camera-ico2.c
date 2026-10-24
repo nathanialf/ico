@@ -63,7 +63,7 @@ static float cameraDist[100]; /* derived name */
 
 static float cameraWeight[100]; /* derived name */
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* quadword aligned: sceVu0ScaleVector reads and writes its work vectors with
    VU0 quadword moves.  In this build the alignment shows in the object's
    placement: camera-editor.o's .bss (dumpLine, 0x800 bytes) ends at
@@ -103,7 +103,7 @@ static char *cameraSetGroupsEnd; /* derived name */
 
 static int cameraSetGroupNum; /* derived name */
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static int cameraFrames; /* derived name */
 #endif
 
@@ -377,7 +377,7 @@ static int ico2camera_GetGroupNearest(float *query)
     return result;
 }
 
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static void initMonitorCamera(void)
 {
     monitorCamera.active = 1;
@@ -519,7 +519,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     float vAt[4];
     float vAt2[4];
     float vSpare[4];
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     int k;
 #else
     GObj *p1;
@@ -535,7 +535,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     float d;
     float d1;
     float d2;
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
 
 #else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
@@ -556,7 +556,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
         monitorCamera.moveDist = 0.0f;
         monitorCamera.atRate = 0.0f;
         monitorCamera.active = 0;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         if (flag != 0 && cameraFrames < 10) {
             monitorCamera.active = 1;
         }
@@ -570,6 +570,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
         *out = *cam;
         return;
     }
+#ifndef VERSION_JUN26
 #ifdef VERSION_AUG6
     if (FixViewInGameCameraFlag != 0) {
 #else
@@ -577,13 +578,14 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
 #endif
         *cam = monitorCamera.work;
     }
+#endif
     *out = *cam;
     vDiff[0] = cam->eye.f[0] - monitorCamera.work.eye.f[0];
     vDiff[1] = cam->eye.f[1] - monitorCamera.work.eye.f[1];
     vDiff[2] = cam->eye.f[2] - monitorCamera.work.eye.f[2];
     sceVu0SubVector(vEye, cam, &monitorCamera.work);
     len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     if (handCameraEyeRate * 11.0f < len) {
         if (handCameraEyeRate < monitorCamera.moveDist) {
             monitorCamera.moveDist = handCameraEyeRate;
@@ -597,7 +599,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
 #endif
         }
         if (monitorCamera.moveDist < len) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             len = monitorCamera.moveDist + handCameraEyeRate / 30.0f;
 #else
             len = monitorCamera.moveDist +
@@ -608,7 +610,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
             sceVu0ScaleVector(vEye, vEye, len);
             sceVu0AddVector(out, &monitorCamera.work, vEye);
         } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             len = handCameraEyeRate;
 #else
             len =
@@ -629,7 +631,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     sceVu0SubVector(vSpare, &cam->at, &monitorCamera.work.at);
     scePrintf("monitor camera move %f at %f %f %f\n", t, vSpare[0], vSpare[1], vSpare[2]);
 #endif
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     d = handCameraAtRate;
 #else
     held = 0;
@@ -645,7 +647,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     sceVu0SubVector(vAt, &cam->at, &monitorCamera.work.at);
     len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
     sceVu0Normalize(vAt, vAt);
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     CameraGetTargets(&p1, &p2);
     if (p1 == boyGObj) {
         held = (p2 == 0);
@@ -662,7 +664,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
         sceVu0ScaleVector(vAt, vAt, monitorCamera.atRate);
         sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
     } else {
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
         _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f, 8.0f, 1.0f);
 #else
         mode = 8;
@@ -704,7 +706,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
         if (d1 + d2 != 0.0f) {
             out->ext.f[0] = (out->ext.f[0] * d2 + monitorCamera.work.ext.f[0] * d1) / (d1 + d2);
         }
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     }
     if (insertCameraBlendTimer != 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -998,10 +1000,10 @@ void ReflectCameraSetBinary(CamGroup *src, int count)
 
 #ifdef VERSION_NTSC
     cameraSetBuf = iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count),
-                                  __FILE__, LN(1543, 1543, 1543, 1543, 1543));
+                                  __FILE__, LN(1543, 1543, 1543, 1543, 1543, 1543));
 #else
     cameraSetBuf = iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count),
-                                  __FILE__, LN(1577, 1575, 1575, 1577, 1542));
+                                  __FILE__, LN(1577, 1575, 1575, 1577, 1542, 1540));
 #endif
     cameraSetGroups = cameraSetBuf;
     cameraSetGroupsEnd = cameraSetBuf + count * 76;
@@ -1011,12 +1013,12 @@ void ReflectCameraSetBinary(CamGroup *src, int count)
 
 void InitIco2Camera(void)
 {
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     cameraFrames = 0;
 #endif
     cameraSetBuf = 0;
     CameraSetCameraSet_Default();
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     initMonitorCamera();
 #else
     initMonitorCamera(1);
@@ -1037,15 +1039,21 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
     float w[4];
     Sub15C *p;
     int n;
+#ifndef VERSION_JUN26
     int need;
+#endif
 
     if (gobj == default_cameratarget_gobj && gobj != 0) {
         n = (int)(_GetDirection(test_CURRENTORIENT(gobj)) / 3.1415927f * 180.0f);
         ofs[0] = v[0];
         ofs[1] = v[1];
         ofs[2] = -v[2];
+#ifdef VERSION_JUN26
+        if (flag) {
+#else
         need = ACTNotNeedCameraOffset(gobj) ? 1 : flag;
         if (need) {
+#endif
             lastTargetOffset[0] = 0.0f;
             lastTargetOffset[1] = 0.0f;
             lastTargetOffset[2] = 0.0f;
@@ -1067,7 +1075,7 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
         v[0] = lastTargetOffset[0];
         v[1] = lastTargetOffset[1];
         v[2] = lastTargetOffset[2];
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     }
 }
 
@@ -1276,7 +1284,9 @@ void SetCameraMatrix_Ico2(int flag)
     float vB[4];
     CamWork cw2;
     int cut;
+#ifndef VERSION_JUN26
     int cutType;
+#endif
     int enable;
     int mode = 1;
     int changed = 0;
@@ -1304,13 +1314,19 @@ void SetCameraMatrix_Ico2(int flag)
         cw.at.f[2] = targetASmooth[2];
         memset(vA, 0, 16);
         GetTargetOffset(default_cameratarget_gobj, vA, 0);
+#ifndef VERSION_JUN26
         sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
+#endif
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
     } else {
         if (flag != 0 || (cameraGroupCurrent != -1 &&
                           ((CamGroup *)cameraSetGroups)[group].kind !=
                               ((CamGroup *)cameraSetGroups)[cameraGroupCurrent].kind)) {
+#ifdef VERSION_JUN26
+            initMonitorCamera();
+#else
             initMonitorCamera(1);
+#endif
             f8 = 1;
         }
         memset(vA, 0, 16);
@@ -1320,19 +1336,29 @@ void SetCameraMatrix_Ico2(int flag)
         cw.at.f[1] = targetASmooth[1];
         cw.at.f[2] = targetASmooth[2];
         GetTargetOffset(default_cameratarget_gobj, vA, f8);
+#ifndef VERSION_JUN26
         sceVu0ScaleVector(vA, vA, zoomOffsetRatio);
         sceVu0ScaleVector(vB, vB, zoomOffsetRatio);
+#endif
         sceVu0AddVector(cw.at.f, cw.at.f, vA);
         sceVu0AddVector(cw.at.f, cw.at.f, vB);
         cameraGroupCurrent = group;
     }
+#ifdef VERSION_JUN26
+    InsertCamera_Exec((float *)&cw, &cut, &enable);
+    if (cut != 0) {
+        initMonitorCamera();
+#else
     InsertCamera_Exec((float *)&cw, &cut, &cutType, &enable);
     if (cut != 0) {
         initMonitorCamera(cutType == 0);
+#endif
     }
     if (enable != 0) {
         mode = 0;
+#ifndef VERSION_JUN26
         FixViewInGameCameraFlag = 1;
+#endif
     }
     monitorMonitorCamera(&cw, &cw2);
     cw = cw2;
@@ -1346,7 +1372,7 @@ void SetCameraMatrix_Ico2(int flag)
         float sz;
         float mag;
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         /* This build reads the stick twice. The first reading below (pad[0]'s
            first two analog bytes, the magnitude clamped to 1, the square dead zone at 0.4
            and a squared response past 0.4 on each axis, the same tests as
@@ -1361,6 +1387,11 @@ void SetCameraMatrix_Ico2(int flag)
            the bodies' two temporaries and the shared -0.4f), and the clamp
            (its label puts the dead zone's first 0.0f in $f0). aug6's TRFILE
            has no code on the lines of the clamp and of the response. */
+#ifdef VERSION_JUN26
+        if (pad[0].now & 2) {
+            mode = 0;
+        }
+#endif
         if (mode) {
             sx = (pad[0].ana[0] - 127) / 128.0f;
             sz = (pad[0].ana[1] - 127) / 128.0f;
@@ -1408,7 +1439,7 @@ void SetCameraMatrix_Ico2(int flag)
         if (systemStatus[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
             ClearHandCameraCorrect();
         } else {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
             HandCameraCorrect(&cw, cw.at.f, sx, sz,
                               60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
 #else
@@ -1418,7 +1449,7 @@ void SetCameraMatrix_Ico2(int flag)
         }
     }
     SetWSMatrix(&cw);
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     cameraFrames = cameraFrames + 1;
 #endif
 }
@@ -1435,8 +1466,8 @@ inline void *GetPluralCameraSet(int id)
     }
     /* EUC-JP: "[%s] was not found\n" */
     debug_StdPrintfDummy("[%s]が見つかりません\n", cameraSetList[id]);
-    debug_assert(__FILE__, LN(2036, 2034, 2034, 1975, 1973));
-    __assert(__FILE__, LN(2036, 2034, 2034, 1975, 1973), "0");
+    debug_assert(__FILE__, LN(2036, 2034, 2034, 1975, 1973, 1965));
+    __assert(__FILE__, LN(2036, 2034, 2034, 1975, 1973, 1965), "0");
     return 0;
 }
 
@@ -1448,11 +1479,16 @@ inline void AddPluralCameraSet(int id, char *name)
         /* EUC-JP: "at most [%d] camera sets can be registered in one stage." */
         debug_StdPrintfDummy("１ステージに登録できるカメラセットは、最大[%d]個です。", 10);
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(2036, 2034, 2034, 1975, 1982));
-        __assert(__FILE__, LN(2036, 2034, 2034, 1975, 1982), "0");
+        debug_assert(__FILE__, LN(2036, 2034, 2034, 1975, 1982, 2036));
+        __assert(__FILE__, LN(2036, 2034, 2034, 1975, 1982, 2036), "0");
 #else
-        debug_assert(__FILE__, LN(2045, 2043, 2043, 1984, 2045));
-        __assert(__FILE__, LN(2045, 2043, 2043, 1984, 2045), "0");
+#ifdef VERSION_JUN26
+        debug_assert(__FILE__, LN(2036, 2034, 2034, 1975, 1973, 1974));
+        __assert(__FILE__, LN(2036, 2034, 2034, 1975, 1973, 1974), "0");
+#else
+        debug_assert(__FILE__, LN(2045, 2043, 2043, 1984, 2045, 2045));
+        __assert(__FILE__, LN(2045, 2043, 2043, 1984, 2045, 2045), "0");
+#endif
 #endif
     }
     p = &pluralCameraSet[pluralCameraSetNum];
@@ -1473,7 +1509,7 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
     CamSetFile *p;
 
     p = (CamSetFile *)iosMallocDebug(ios_partition_seki, 16 + f->count * 76 + f->total * 92,
-                                     __FILE__, LN(2166, 2164, 2164, 2105, 2103));
+                                     __FILE__, LN(2166, 2164, 2164, 2105, 2103, 2095));
     *p = *f;
     p->magic = 0x1234;
     p->ver = 3;
@@ -1607,15 +1643,20 @@ static void *ReadCameraSet(CamSetFile *f, int stage)
             "カメラデータのバージョンに異常があります。大森まで知らせてください\n");
         debug_StdPrintfDummy("illegal camera data version [%d]\n", f->ver);
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, LN(2294, 2294, 2294, 2294, 2294));
-        __assert(__FILE__, LN(2294, 2294, 2294, 2294, 2294), "0");
+        debug_assert(__FILE__, LN(2294, 2294, 2294, 2294, 2294, 2294));
+        __assert(__FILE__, LN(2294, 2294, 2294, 2294, 2294, 2294), "0");
 #else
 #ifdef VERSION_AUG6
-        debug_assert(__FILE__, LN(2036, 2034, 2034, 1975, 2292));
-        __assert(__FILE__, LN(2036, 2034, 2034, 1975, 2292), "0");
+        debug_assert(__FILE__, LN(2036, 2034, 2034, 1975, 2292, 2036));
+        __assert(__FILE__, LN(2036, 2034, 2034, 1975, 2292, 2036), "0");
 #else
-        debug_assert(__FILE__, LN(2355, 2353, 2353, 2355, 2355));
-        __assert(__FILE__, LN(2355, 2353, 2353, 2355, 2355), "0");
+#ifdef VERSION_JUN26
+        debug_assert(__FILE__, LN(2036, 2034, 2034, 1975, 1973, 2284));
+        __assert(__FILE__, LN(2036, 2034, 2034, 1975, 1973, 2284), "0");
+#else
+        debug_assert(__FILE__, LN(2355, 2353, 2353, 2355, 2355, 2355));
+        __assert(__FILE__, LN(2355, 2353, 2353, 2355, 2355, 2355), "0");
+#endif
 #endif
 #endif
         break;

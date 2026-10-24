@@ -72,7 +72,11 @@ int videoDecCreate(VideoDec *self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     p = alloc_zeroed(1557248, 64);
 #else
+#ifdef VERSION_JUN26
+    p = alloc_zeroed(1557248, 64);
+#else
     p = alloc_zeroed(1868288, 64);
+#endif
 #endif
     self->buf = p;
     if (p == 0) {
@@ -81,7 +85,11 @@ int videoDecCreate(VideoDec *self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     sceMpegCreate(&self->mpeg, (void *)p, 1557248);
 #else
+#ifdef VERSION_JUN26
+    sceMpegCreate(&self->mpeg, (void *)p, 1557248);
+#else
     sceMpegCreate(&self->mpeg, (void *)p, 1868288);
+#endif
 #endif
     sceMpegAddCallback(&self->mpeg, 0, mpegError, 0);
     sceMpegAddCallback(&self->mpeg, 1, mpegNodata, self);
@@ -236,7 +244,7 @@ static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
         while ((p = voBufGetData(vo)) == 0) {
             switchThread();
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         if (sceMpegGetPicture(&dec->mpeg, (unsigned int)p, 1350) < 0) {
 #else
         if (sceMpegGetPicture(&dec->mpeg, (unsigned int)p, 1620) < 0) {

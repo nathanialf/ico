@@ -18,7 +18,7 @@ typedef struct FogClutPacket { /* field names derived */
     unsigned int vifEnd[4];    /* 0x420 */
 } FogClutPacket;               /* derived name */
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* a DMA source, so quadword aligned */
 static FogClutPacket fogClutPacket __attribute__((aligned(16))); /* derived name */
 #else
@@ -142,7 +142,7 @@ void fog_MakeFogClut(void)
         dl_CloseDma();                                                                             \
     }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
    window centred on the GS's 2048.0 origin: src/Shadow.c's setFrame. */
 #define FOG_SET_FRAME(fbp, w, h) /* derived name */                                                \
@@ -262,7 +262,7 @@ void fog_DrawFog(void)
         }
     }
     if (dbg) { cl[3] = 0x80; FOG_SET_GSREG(0x3B, 0x8000000080LL); }
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     FOG_SET_FRAME(64, ScreenWidth, ScreenHeight);
 #else
     FOG_SET_FRAME(64, ScreenWidth, ScreenHeight, 0, 0);
@@ -285,7 +285,7 @@ void fog_DrawFog(void)
     }
     FOG_SET_GSREG(78, ((long long)0x3000 << 16) | 0xC0);
 
-#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
     FOG_SET_FRAME(64, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
 #endif
     FOG_END_PACKET();

@@ -4,7 +4,7 @@
 
 int strFileOpen(char *self, char *name)
 {
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
     strcpy(self + 0x34, name);
 #else
     strcpy(self + 0x38, name);

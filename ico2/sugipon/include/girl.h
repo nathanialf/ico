@@ -13,18 +13,23 @@ struct GObj;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order girl.c's inline tail has. */
+#ifndef VERSION_JUN26
 void SetGirlClothDispSwitch(struct GObj *gobj, int part, int on);
+
 #if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetGirlHairDispSwitch(struct GObj *gobj, int on);
+#endif
 #endif
 
 struct SObjSimpleSetting;
 
 void *InitGirlGeo(struct GObj *gobj, struct SObjSimpleSetting *csv);
 void GirlGeo(struct GObj *gobj);
+
 #ifndef VERSION_NTSC
 void GirlAI(struct GObj *gobj);
 #endif
+
 void GirlDL(struct GObj *gobj);
 
 #endif /* GIRL_H */

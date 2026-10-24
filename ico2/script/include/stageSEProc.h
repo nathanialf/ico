@@ -8,6 +8,8 @@
 #ifndef STAGESEPROC_H
 #define STAGESEPROC_H
 
+#ifndef VERSION_JUN26
 extern float riverFadeSpeed;
+#endif
 
 #endif /* STAGESEPROC_H */

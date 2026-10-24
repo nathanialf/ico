@@ -92,7 +92,7 @@ static sceVu0IVECTOR wallHitColor2 = {0x00, 0x80, 0xFF, 0x80}; /* derived name *
 
 static float floorSlope[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
 static float sideWallProbe[4] = {0.0f, 0.0f, 10.0f, 0.0f}; /* derived name */
 #endif
 
@@ -357,6 +357,28 @@ static void clearCollisionStatus(void)
     skelMotCtrl->landed = 0;
 }
 
+#ifdef VERSION_JUN26
+static inline void checkUpperWallState(void)
+{
+    ClipWork buf;
+    memset(&buf, 0, sizeof(buf));
+    MatrixDrive_PushMatrix();
+    MatrixDrive_TransMatrixV(wallCheckBase);
+    CopyVector(&buf, (void *)(MatrixDrive_GetMatrix()[3]));
+    sceVu0ApplyMatrix(buf.pt[1], MatrixDrive_GetMatrix(), wallCheckAhead);
+    MatrixDrive_PopMatrix();
+    ClipWall(&buf);
+    if (buf.wall.elem != 0) {
+        float a;
+        struct MotCtrl *D;
+        a = GetPointDistance(buf.pt[2], &buf);
+        D = skelMotCtrl;
+        D->upperWallDist = a;
+        D->upperWall = 1;
+        D->flags = D->flags | 0x1000;
+    }
+}
+#else
 static void checkUpperWallState(void)
 {
     ClipWork buf;
@@ -377,6 +399,7 @@ static void checkUpperWallState(void)
         D->flags = D->flags | 0x1000;
     }
 }
+#endif
 
 static void checkWallSideState(void)
 {
@@ -496,7 +519,7 @@ static void checkWallState(int flag)
     }
 }
 
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
 static void checkCliffState(void)
 {
     ClipWork buf;
@@ -570,8 +593,13 @@ static void checkCliffState(void)
                 d = GetPointDistance(p->pt[2], p);
                 _ScaleVector(sc, wv, d + 10.0f);
                 _AddVectorXYZ((w2.pt[1]), &w2, sc);
+#ifdef VERSION_JUN26
+                w2.pt[0][1] = w2.pt[0][1] - 20.0f;
+                w2.pt[1][1] = w2.pt[1][1] - 20.0f;
+#else
                 w2.pt[0][1] = w2.pt[0][1] - 30.0f;
                 w2.pt[1][1] = w2.pt[1][1] - 30.0f;
+#endif
                 ClipWall(&w2);
                 if (hitColRayDisp != 0) {
                     DrawCollisionRay(&w2);
@@ -762,14 +790,16 @@ static void checkCliffState(int first)
 
 static void _checkCliffAndWall(void)
 {
+#ifndef VERSION_JUN26
     float v[4];
     float d;
+#endif
     float t;
 
     if (skelMotCtrl->cliffWallCheck == 1 ||
         (skelMotCtrl->cliffWallCheck == 2 && skelMotCtrl->variation == 0)) {
         MatrixDrive_PushMatrix();
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
         checkCliffState();
 #else
         checkCliffState(1);
@@ -794,6 +824,7 @@ static void _checkCliffAndWall(void)
                 skelMotCtrl->wallTopHeight += 30.0f;
             }
         }
+#ifndef VERSION_JUN26
         if ((GObj *)skelGObj == boyGObj && GOBJ_SUB(skelGObj)->ctrl.cliffEdge == 0) {
             _SubVectorXYZ(v, skelRoot->pos, skelRoot->last);
             v[1] = 0.0f;
@@ -805,7 +836,7 @@ static void _checkCliffAndWall(void)
                 MatrixDrive_GetMatrix()[0][0] = MatrixDrive_GetMatrix()[2][2] = v[2];
                 MatrixDrive_GetMatrix()[0][2] = -v[0];
                 MatrixDrive_GetMatrix()[2][0] = -MatrixDrive_GetMatrix()[0][2];
-#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)
                 checkCliffState();
 #else
                 checkCliffState(0);
@@ -813,6 +844,7 @@ static void _checkCliffAndWall(void)
                 MatrixDrive_PopMatrix();
             }
         }
+#endif
         if (skelMotCtrl->wallHit != 0 && skelMotCtrl->cliffEdge != 0) {
             t = skelMotCtrl->wallDist - skelMotCtrl->cliffDist;
             if ((t < 0.0f ? -t : t) < 10.0f) {
@@ -827,11 +859,11 @@ static void _checkCliffAndWall(void)
     }
     if (GOBJ_SUB(skelGObj)->ctrl.wallHit != 0 && GOBJ_SUB(skelGObj)->root.wall.elem == 0) {
 #ifdef VERSION_NTSC
-        debug_assertMessage(__FILE__, 816, "NOT ENTRY WCL\n");
-        __assert(__FILE__, 816, "e");
+        debug_assertMessage(__FILE__, LN(816, 816, 816, 816, 816, 816), "NOT ENTRY WCL\n");
+        __assert(__FILE__, LN(816, 816, 816, 816, 816, 816), "e");
 #else
-        debug_assertMessage(__FILE__, LN(822, 822, 822, 822, 816), "NOT ENTRY WCL\n");
-        __assert(__FILE__, LN(822, 822, 822, 822, 816), "e");
+        debug_assertMessage(__FILE__, LN(822, 822, 822, 822, 816, 788), "NOT ENTRY WCL\n");
+        __assert(__FILE__, LN(822, 822, 822, 822, 816, 788), "e");
 #endif
     }
 }
@@ -928,7 +960,7 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
     CopyVector((void *)v, (void *)skelMotCtrl->dir);
     SetIdentityQuaternion(q);
     sceVu0Normalize((void *)v, (void *)v);
-#ifdef VERSION_AUG6
+#if defined(VERSION_AUG6) || defined(VERSION_JUN26)
     RotQuaternionY(q, GetTableArcTan2(v[0], v[2]));
 #else
     RotQuaternionY(q, atan2f(v[0], v[2]) * 10430.378f);
@@ -958,7 +990,7 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
         skelRoot->lifting = 0;
         skelRoot->lift[0] = 0.0f;
         skelRoot->lift[1] = 0.0f;
-#ifndef VERSION_AUG6
+#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)
         CopyVector(skelRoot->up, skelRoot->pos);
 #endif
     }
@@ -977,14 +1009,18 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
                 "MAY BE MOTION ORIENT DATA WAS BROKEN\n(MOTIONNAME:\"%s\" ID:%d: rootUpdateMode:%d)\n",
                 skelMotDef->name, pm->motion, pm->rootUpdateMode);
 #ifdef VERSION_NTSC
-            debug_assertMessage(__FILE__, LN(991, 991, 991, 991, 991), buf);
-            __assert(__FILE__, LN(991, 991, 991, 991, 991), "e");
+            debug_assertMessage(__FILE__, LN(991, 991, 991, 991, 991, 991), buf);
+            __assert(__FILE__, LN(991, 991, 991, 991, 991, 991), "e");
 #else
-            debug_assertMessage(__FILE__, LN(997, 997, 997, 997, 989), buf);
+            debug_assertMessage(__FILE__, LN(997, 997, 997, 997, 989, 961), buf);
 #ifdef VERSION_AUG6
-            __assert(__FILE__, LN(822, 822, 822, 822, 989), "e");
+            __assert(__FILE__, LN(822, 822, 822, 822, 989, 822), "e");
 #else
-            __assert(__FILE__, LN(997, 997, 997, 997, 997), "e");
+#ifdef VERSION_JUN26
+            __assert(__FILE__, LN(822, 822, 822, 822, 816, 961), "e");
+#else
+            __assert(__FILE__, LN(997, 997, 997, 997, 997, 997), "e");
+#endif
 #endif
 #endif
         } break;
@@ -1053,6 +1089,19 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
     }
 }
 
+#ifdef VERSION_JUN26
+inline void getGeometryOfMotion(ObjNode *out, int second)
+{
+    MotOriReq buf;
+    Sub15C *p;
+    buf = *(MotOriReq *)&GOBJ_SUB(skelGObj)->root.wall;
+    _getGeometryOfMotion(out, second);
+    p = ((GObj *)skelGObj)->dobj;
+    if (p->ctrl.keepWall != 0) {
+        *(MotOriReq *)&p->root.wall = buf;
+    }
+}
+#else
 inline void getGeometryOfMotion(ObjNode *out, int second)
 {
     MotOriReq buf;
@@ -1204,6 +1253,7 @@ static void execPositionReserver(GObj *self, ObjNode m)
     }
 }
 #endif
+#endif
 
 typedef struct MotHdrTag MotHdr; /* derived name */
 
@@ -1296,7 +1346,64 @@ void GetGeometryOfMotion(void *self, void *m0, void *m1, float *v, float r, floa
                                        (void *)(GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 64));
         sceVu0ApplyMatrix((MOWORK(self)->motionPos), m, MOWORK(self)->motionPos);
     }
+#ifdef VERSION_JUN26
+    {
+        Sub15C *ext;
+        float buf[4];
+        float buf2[4];
+
+        ext = GOBJ_SUB(self);
+        if (ext->ctrl.loopFlag == 1) {
+            if (ext->ctrl.posReserve == 0 || ext->ctrl.posReserve != ext->ctrl.loopFlag) {
+                if (sh.obj != 0) {
+                    if (!(skelMotCtrl->floorAttr & 0xF00000) && !(skelMotCtrl->flags & 0x2000)) {
+                        ext->ctrl.posReserve = ext->ctrl.loopFlag;
+                        CopyVector(skelRoot->savePos, skelRoot->pos);
+                        skelRoot->hitObj = sh;
+                    }
+                }
+            } else {
+                CopyVector(skelRoot->pos, skelRoot->savePos);
+            }
+        }
+        skelMotCtrl->reserveMoved = 1;
+        if (GOBJ_SUB(self)->ctrl.posReserve == 1) {
+            if (sh.obj != 0) {
+                CopyVector(buf, skelRoot->savePos);
+                _ApplyMatrix(buf, ((char *)GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 64), buf);
+                if (distance_squared(buf, skelRoot->reservePos) == 0.0f) {
+                    skelMotCtrl->reserveMoved = 0;
+                }
+                buf[3] = 1.0f;
+                CopyVector(skelRoot->reservePos, buf);
+            }
+            if ((skelMotCtrl->flags & 0x2000) || sh.obj != skelRoot->hitObj.obj ||
+                sh.node != skelRoot->hitObj.node || (skelMotCtrl->floorAttr & 0xF00000)) {
+                GOBJ_SUB(self)->ctrl.posReserve = 0;
+            }
+        }
+        if (debug_skel_flag != 0) {
+            if ((GObj *)skelGObj == boyGObj) {
+                CopyVector(buf2, skelRoot->savePos);
+                _UnitMatrix(MatrixDrive_GetMatrix());
+                if (sh.obj != 0) {
+                    _ApplyMatrix(buf2, ((char *)GOBJ_SUB(sh.obj)->nodeMtx + sh.node * 64),
+                                 (char *)buf2);
+                    MatrixDrive_TransMatrixV(buf2);
+                    gif_StartPacketPri(11);
+                    if (GOBJ_SUB(self)->ctrl.posReserve == 1) {
+                        prim_DispWireSphere(30.0f, reserverColor, 16, 8);
+                    } else {
+                        prim_DispWireSphere(30.0f, reserverColor2, 16, 8);
+                    }
+                    gif_EndPacket();
+                }
+            }
+        }
+    }
+#else
     execPositionReserver(self, sh);
+#endif
 }
 
 /* GObj+8 is the index into objLayout, the 76-byte GenGeo table (ebrain.c
