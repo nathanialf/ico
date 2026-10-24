@@ -31,8 +31,7 @@
 #   pal   -> pal    PAL retail (SCES-50760), frozen
 #   jpn   -> jpn    Japanese retail (SCPS-11003), frozen
 #   kor   -> kor    Korean retail (SCPS-56001), frozen
-#   cn    -> cn     Asian retail (SCPS-55001), the campaign branch until it
-#                   joins main
+#   cn    -> cn     Asian retail (SCPS-55001), frozen
 #   ntsc  -> ntsc   USA retail (SLUS-20218), frozen
 #   aug6  -> aug6   Aug-6-2001 prototype, frozen
 #   jun26 -> jun26  Jun-26-2001 demo, frozen
@@ -72,10 +71,10 @@ BRANCH="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 # The complete branch<->version table. Every publishing branch is listed in
 # BRANCHES, so adding a target branch means editing this one table (plus
 # docs/index.html's own picker) rather than hunting per-branch conditionals.
-# `main` has no version: it supplies the page (PAGE_BRANCH below). A target
-# still on its own branch maps by VERSION_OF_<branch>; the joined targets are
-# frozen (FROZEN below).
-VERSION_OF_cn=cn
+# `main` has no version: it supplies the page (PAGE_BRANCH below). Every
+# target has joined main, so every publishing branch but main is frozen
+# (FROZEN below); a target still on its own branch would map by
+# VERSION_OF_<branch>.
 BRANCHES="main pal jpn kor cn ntsc aug6 jun26"
 MAIN_BRANCH=main
 
@@ -84,13 +83,15 @@ MAIN_BRANCH=main
 # directory FROZEN_DIR_<slug>. Main's copies of these directories are never
 # published. The frozen branches take hotfixes and main's shared layer, and a
 # push to one deploys like any other branch.
-FROZEN_SLUGS="pal jpn kor ntsc aug6 jun26"
+FROZEN_SLUGS="pal jpn kor cn ntsc aug6 jun26"
 FROZEN_BRANCH_pal=pal
 FROZEN_DIR_pal=docs/pal
 FROZEN_BRANCH_jpn=jpn
 FROZEN_DIR_jpn=docs/jpn
 FROZEN_BRANCH_kor=kor
 FROZEN_DIR_kor=docs/kor
+FROZEN_BRANCH_cn=cn
+FROZEN_DIR_cn=docs/cn
 FROZEN_BRANCH_ntsc=ntsc
 FROZEN_DIR_ntsc=docs/ntsc
 FROZEN_BRANCH_aug6=aug6

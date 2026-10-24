@@ -251,6 +251,11 @@ SELF_TEST = (
      "#else\n\n#ifdef VERSION_JUN26\n\nint d;\n\n#else\n\nint p;\n\n#endif\n\n#endif\n\n#endif\n\n#endif\n",
      "#if defined(VERSION_JPN) || defined(VERSION_KOR)\nint j;\n#else\n#ifdef VERSION_NTSC\nint n;\n#else\n#ifdef VERSION_AUG6\nint a;\n#else\n"
      "#ifdef VERSION_JUN26\nint d;\n#else\nint p;\n#endif\n#endif\n#endif\n#endif\n"),
+    # a seventh target's block inside the second's arm, beside the second's own block
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)\n\n#ifdef VERSION_KOR\n\nint k;\n\n#else\n\n"
+     "#ifdef VERSION_CN\n\nint c;\n\n#else\n\nint j;\n\n#endif\n\n#endif\n\n#else\n\nint p;\n\n#endif\nint z;\n",
+     "#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)\n#ifdef VERSION_KOR\nint k;\n#else\n"
+     "#ifdef VERSION_CN\nint c;\n#else\nint j;\n#endif\n#endif\n#else\nint p;\n#endif\n\nint z;\n"),
 )
 
 
