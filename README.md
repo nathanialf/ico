@@ -14,7 +14,7 @@ carries the functions, records and tables in which the two differ;
 <!-- progress:begin -->
 | Target | Sections identical to the base |
 | --- | --- |
-| [USA retail (SLUS-20218)](https://nathanialf.github.io/ico/#ntsc) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2869.12%20%25%20source%20%2B%2030.88%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.55%20%25%20source%20%2B%2090.45%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.82%20%25%20source%20%2B%200.18%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
+| [USA retail (SLUS-20218)](https://nathanialf.github.io/ico/#ntsc) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2869.12%20%25%20source%20%2B%2030.88%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.65%20%25%20source%20%2B%2090.35%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.82%20%25%20source%20%2B%200.18%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#ntsc)**: every
@@ -125,7 +125,9 @@ member keeps PAL's name by member order; the file's header gives the method,
 and each row says how its content compares with PAL's (most of the USA
 build's tables hold fewer rows, and eight record types have another
 layout). They are the
-game's content, and nothing of that content is committed. The build
+game's content, and nothing of that content is committed, with one exception: the enemy kind table `enemyKind` is committed as
+`ico2/sugipon/src/enemyKind.c` (the paragraph "One exception: `enemyKind`" in
+[`docs/LEGAL.md`](docs/LEGAL.md)), so 70 runs are generated. The build
 generates them from the user's own `baserom/ntsc/baseelf.elf` into
 `build/ntsc/data/`. Each member becomes `build/ntsc/data/<member>.c`, an initialized
 array of its record type compiled with the game's flags

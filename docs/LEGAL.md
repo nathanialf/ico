@@ -52,11 +52,21 @@ The USA link includes the same 70 members of the game's archive `ico2000.a`
 that have data sections and no code as the PAL link (the PAL disc's
 MAIN.MAP), plus one of the three data runs MAIN.MAP does not list; PAL's
 other two, the hint table and the subtitle file names, are not in this
-build. `config/data_members.ntsc.txt` lists them all. They are the game's
+build. `config/data_members.ntsc.txt` lists them all except `enemy-def`. They are the game's
 content: stage object layouts, model and motion file tables, sound
 definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
-other form.
+other form, with the one exception below.
+
+One exception: `enemyKind`. The member `enemy-def`, the table `enemyKind`
+that `enemy.c` reads, is committed as C source in
+`ico2/sugipon/src/enemyKind.c`, by the owner's decision of 2026-10-24. The
+PC port offers the USA build's enemy tuning as a play variant on every disc,
+which needs the USA table without the USA disc. The table holds only numbers,
+one row per enemy kind: the model and particle ids, the life, the scale and
+the attribute bits. It holds no names, text or layouts. It
+is the only exception; no other member follows it, and every other member is
+still generated at build time as described below.
 
 The build reads them from the user's own `baserom/ntsc/baseelf.elf` and
 writes them under `build/ntsc/data/`, which is gitignored. Each member is
