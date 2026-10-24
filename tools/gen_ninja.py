@@ -22,15 +22,21 @@ vusrc/x.dsm) are the ones gcc records.
 Rules: cc (tools/compile_c.sh), as (the .s sources, assembler and -G per
 archive as compile_c.sh chooses them for C), vucpp and vu (each VU1
 microprogram is two files: ico2/vusrc/<stem>.vsm, the program text, which the
-period cpp reads from standard input in ico2/ with -Ivusrc and
-writes to build/<slug>/ico2/vusrc/<stem>.i, and ico2/vusrc/<stem>.dsm, the
-DMA tags around `.include "vusrc/<stem>.i"`, which dvp-as, ps2dev's DVP
-assembler built by tools/setup.sh under tools/cc/dvp-as/, assembles from
-ico2/ on the path vusrc/<stem>.dsm with -I naming
-build/<slug>/ico2. The overlay section names dvp-as writes
+period cpp reads from standard input in ico2/ with -Ivusrc, -DVERSION_<SLUG>
+and the LN define compile_c.sh gives the C, so the text holds the targets'
+version blocks as the C does, and writes to build/<slug>/ico2/vusrc/<stem>.i,
+and ico2/vusrc/<stem>.dsm, the DMA tags around `.include "vusrc/<stem>.i"`,
+which dvp-as, ps2dev's DVP assembler built by tools/setup.sh under
+tools/cc/dvp-as/, assembles from ico2/ on the path vusrc/<stem>.dsm with -I
+naming build/<slug>/ico2. The overlay section names dvp-as writes
 hash the file and line it is reading: the .dsm path for the first, and the
 name cpp gives the text after that, "" for standard input and vusrc/<name>.h
-for a shared include; -no-abicalls -mabi=64 leave the ABI bits of e_flags
+for a shared include. Those names are in the base ELF's .DVP.ovlystrtab, so
+the .vsm line of each continuation overlay's first instruction is a datum of
+the build, and dvp-as takes it from cpp's line markers: where the targets'
+texts hold that instruction at different lines, a `#line LN(...) ""` before
+it gives each target its own line (ico2/vusrc/mesh.dsm). -no-abicalls
+-mabi=64 leave the ABI bits of e_flags
 clear, the one setting the link merges with the game's EABI64 objects;
 `overlay-fill=N` on a .dsm line passes --overlay-fill=N, the byte the
 constant-address overlay sections carry, and is omitted when absent), the
@@ -100,6 +106,10 @@ NINJA = "build.ninja"
 LD = "tools/cc/binutils-2.10-ee/bin/ld"
 DVP_AS = "tools/cc/dvp-as/bin/dvp-as"
 CPP = "tools/cc/ee-gcc2.9-991111/gcc-lib/ee/2.9-ee-991111-01/cpp"
+# The LN define tools/compile_c.sh gives the C (VERSION_DEFS there), for the
+# `#line LN(...)` of a VU program text; a joining target appends its argument
+# in both.
+LN_DEF = f'"-DLN(pal,jpn,kor,ntsc,aug6,jun26)={VERSION}"'
 LINK_LD = f"{OUT}/link.ld"
 # The layout link: the same objects and script with a zero stand-in for each
 # member written as C, so the C's pointers can be named before it exists.
@@ -339,7 +349,7 @@ def main():
     # given, vusrc/<stem>.vsm, -Ivusrc and vusrc/<stem>.dsm, stay relative
     # there); the tools and the outputs are named from $root.
     w.append("rule vucpp\n  command = cd ico2 && VERSION=$version $root/tools/period_env.sh $root/$cpp"
-             " -Ivusrc < $vsm > $root/$out\n"
+             f" -DVERSION_{VERSION.upper()} {LN_DEF} -Ivusrc < $vsm > $root/$out\n"
              "  description = CPP $out\n\n"
              "rule vu\n  command = cd ico2 && VERSION=$version $root/$dvp_as -no-abicalls -mabi=64 $fill"
              f" -I$root/{OUT}/ico2 -o $root/$out $dsm\n"
