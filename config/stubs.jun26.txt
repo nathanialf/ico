@@ -7,8 +7,8 @@
 # `INCLUDE_ASM(stem);` at the function's place in the file, with the macro
 # from build/jun26/stubs/include_asm.h, which gen_stub_s.py writes beside the
 # stubs. tools/check_dev_native.py refuses an INCLUDE_ASM whose stem has no
-# row here. With no rows the mechanism is idle, as it is on main, where every
-# object of the PAL link is built from source.
+# row here. The list has no rows, so the mechanism is idle, as it is on main:
+# every object of the demo's link is built from source.
 #
 # Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N] [file=<stem>]
 #          [in=<file.c.inc>] [inline] [def]
@@ -45,18 +45,13 @@
 #             its code, .lit4 floats, li.d doubles and jump tables follow
 #             INCLUDE_ASM at the end of the file)
 #
-#
-# Seeded from the function census, tools/correlate_elf.py, run against the
-# PAL build and against the Aug-6-2001 prototype's build (the aug6 branch,
-# whose names come from that disc's TRFILE.TXT); the demo directory ships no
-# map or listing. A name is, in this order: the name the census-paired
-# callers in the PAL build call at that address (`call-pal`), the PAL twin's
-# name (its census tier), the name the aug6 build's paired callers call
-# (`call-aug`), the aug6 twin's name (`aug`), the name of the unclaimed
-# function of the reference build that the size-and-order alignment of a gap
-# pairs it with (`order`, a place in the order, not evidence of the body),
-# else a derived func_<VMA>. Every name but a census-equal twin's is
-# provisional until the function matches. The comment gives the evidence
-# (for a PAL twin: tier, first difference, residue class, extents).
-
-sdata D_0067B250 0x0067B250 0x0067B254 ico2/fumi/src/way_kidnap.c local  # a zero word first in the TU's .sdata; no word of .text addresses it (target side)
+# tools/gen_stub_s.py --carve NAME replaces the function's definition in its
+# TU (or its in= file) with the INCLUDE_ASM line (an inline function's line
+# goes to the end of the TU, and INCLUDE_ASM_LIT takes the definition's
+# place when the row has def rows), writes lines=N, and derives the literal
+# rows (--literals, from the compiled TU and the base ELF's words;
+# --no-literals leaves them alone, and a later --literals that adds a def
+# row places the INCLUDE_ASM_LIT line); --restore NAME puts the definition
+# back from main; --carve-all and --restore-all do every text row.
+# tools/object_check.py compares each object's .text with the base and a
+# TU's function order with the target's after a link.

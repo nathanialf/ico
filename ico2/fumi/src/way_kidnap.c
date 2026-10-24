@@ -11,11 +11,10 @@
 #include <stdlib.h>
 #include "Matrix.h"
 #include "main.h"
-#include "include_asm.h"
 
-/* a zero word first in the TU's .sdata in this build, which no word of
-   .text addresses (the stub-owned row D_0067B250) */
-INCLUDE_ASM(D_0067B250);
+/* an initialised word nothing reads, first in this build's .sdata (the later
+   builds have no such word) */
+static int wayKidnapUnusedWord = 0; /* derived name */
 
 /* the count of positions add_wp_pos has collected, the flag that stops it
    while WayRangeSearch measures a path, and the range search's limit mode */

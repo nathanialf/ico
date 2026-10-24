@@ -19,7 +19,7 @@ differences.
 <!-- progress:begin -->
 | Target | Sections identical to the base |
 | --- | --- |
-| [Jun-26-2001 demo (SCUS-97158)](https://nathanialf.github.io/ico/#jun26) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2868.37%20%25%20source%20%2B%2031.63%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.26%20%25%20source%20%2B%2090.74%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.86%20%25%20source%20%2B%200.14%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
+| [Jun-26-2001 demo (SCUS-97158)](https://nathanialf.github.io/ico/#jun26) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2868.37%20%25%20source%20%2B%2031.63%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.26%20%25%20source%20%2B%2090.74%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#jun26)**: every
@@ -33,26 +33,28 @@ the base ELF.
 
 ## Status
 
-5174 of the demo build's 5175 functions are built from C
-([`docs/jun26/PROGRESS.md`](docs/jun26/PROGRESS.md)). The other one, with the
-constants it brings and one unreferenced `.sdata` word in
-`fumi/src/way_kidnap.c`, is a campaign stub: its C does not give the demo's
-bytes, so the build writes it from the user's own
-`baserom/jun26/baseelf.elf` at its place in its translation unit
-(`config/stubs.jun26.txt`, `tools/gen_stub_s.py`; nothing of it is
-committed). It is `fumi/src/girl_act.c`'s `subGirlControl`, the girl's
-control thread. Its C is known but for one region, the slow-walk block's
-debug display, compiled out in a retail build: in this build it left some
-143 or more statements that emit no instruction but decide one register
-choice (8 of the function's 481 instructions), and no map, listing or other
-build gives their text. The USA build (`ntsc` branch) holds its
-`subGirlControl` for the same region; the comment at its `INCLUDE_ASM` line
-in `girl_act.c` gives the measurement. The branch holds at `subGirlControl`
-as its last function not built from C: it is not released and does not join
-`main` while that function is built from the disc. The gate passes with the
-stub in place, so every badge above reads 100 %, and the badges split each
-figure into the share built from the tracked sources and the share from the
-disc: the stub and the data tables.
+Every object of the demo's link is built from the sources under `ico2/` and
+`sce/`, or, for the game's code-less data members, generated from the user's
+own disc at build time: all 5175 functions are built from C
+([`docs/jun26/PROGRESS.md`](docs/jun26/PROGRESS.md)), and
+`config/stubs.jun26.txt` has no rows. Every badge above reads 100 %, and a
+badge splits its figure into the share built from the tracked sources and the
+share generated from the disc, the data tables.
+
+One region of that C is a reconstruction the ROM does not fully decide: the
+slow-walk debug display in `fumi/src/girl_act.c`'s `subGirlControl`, the
+girl's control thread. The display is compiled out of every retail build and
+leaves no instruction of its own. What this build does keep of it is
+measured: eight of its strings, in a fixed order, in `.rodata` and `.sdata`,
+and the number of its calls to debug helpers without a body, 143, which sets
+the size of gcc's expression table and so one register choice (8 of the
+function's 481 instructions). The statements themselves, their order beyond
+the strings', their arguments and the helpers' names are not in the ROM, and
+no map, listing or other build gives them. The C there is an educated guess,
+marked `DRAFT, UNVERIFIED ORDERING` where the display begins, and the comment
+there says what the ROM decides and what it leaves open. The USA (`ntsc`)
+and August 6, 2001 (`aug6`) trees carry the same display with their own
+counts, 144 and 139.
 
 ## Quickstart
 
@@ -118,8 +120,8 @@ A badge reads `100 %` when the whole section equals the base. Where part of a
 section comes from the user's ELF, the badge splits the figure: `source` is
 the share placed by objects compiled or assembled from the tracked sources
 under `ico2/` and `sce/`, and `disc` is the share of the data-only members the
-build generates from the user's own ELF (next section) and of the campaign
-stubs `config/stubs.jun26.txt` still lists (Status, above). `.sbss` and `.bss`
+build generates from the user's own ELF (next section; the campaign stub list
+`config/stubs.jun26.txt` would count there too, and it is empty). `.sbss` and `.bss`
 hold no file bytes, so their figure is the share of the range that an
 object defines and the link places at the base's addresses.
 
@@ -174,8 +176,8 @@ config/                     link_order.jun26.txt (every object in link
                             data_members.jun26.txt (the data-only members),
                             data_schema.jun26.txt (the record type, count
                             and names of each member built as C),
-                            stubs.jun26.txt (the campaign stubs, while any
-                            remain), sha1sums.jun26.txt
+                            stubs.jun26.txt (the campaign stub list, empty),
+                            sha1sums.jun26.txt
 tools/                      setup, extraction, build and gate scripts, the
                             same on every target branch, listed in
                             tools/README.md

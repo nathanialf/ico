@@ -166,7 +166,8 @@ from these inputs:
 - `config/data_schema.jun26.txt`: the data-only members written as C (member,
   section, element type, the game header that defines it, element count,
   MAIN.MAP's names).
-- `config/stubs.jun26.txt`: the campaign stubs, while it has rows (section 4).
+- `config/stubs.jun26.txt`: the campaign stub list, which has no rows on
+  this branch (section 4).
 
 `tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
 `build.ninja`; needed after adding a source), `clean` (delete `build/jun26/`),
@@ -216,10 +217,11 @@ target, here the one.
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
   its offset by `build/jun26/data/<member>.alias.ld`;
-- writes the stubs, when `config/stubs.jun26.txt` has rows (with none, this
-  step does nothing). While this target is rebuilt from the tree seeded
-  from `main`, a function whose C does not yet give the demo's bytes is listed
-  there with its address range and its translation unit, and the C
+- writes the stubs, when `config/stubs.jun26.txt` has rows (on this branch it
+  has none, as on `main`, and this step does nothing). While a target is
+  rebuilt from a tree seeded from another, a function whose C does not yet
+  give that target's bytes is listed there with its address range and its
+  translation unit, and the C
   carries `INCLUDE_ASM(stem);` where the function stands in the file (the
   stem is the function's name, or the row's `file=<stem>` when two statics
   in two TUs share a name; a function defined in a `.c.inc` the TU includes

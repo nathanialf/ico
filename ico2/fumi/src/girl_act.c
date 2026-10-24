@@ -2733,9 +2733,6 @@ int padtimer_walk = 0;
 
 int padtimer_run = 0;
 
-/* the motion-def row of an actor's current motion (boyact.c's CHAINROW) */
-#define MOTDIRROW(self) (GOBJ_SUB(self)->ctrl.motion + motionKind) /* derived name */
-
 /* DRAFT, UNVERIFIED: the slow-walk display's TTY lines and markers.  Each
    is built only when DEBUG is defined, as girlBrainDebugPrint is, and the
    retail build leaves it without a body; the names and the bodies are

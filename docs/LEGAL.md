@@ -19,8 +19,7 @@ respective owners.
 - Configuration that describes how the user's own disc image is checked and
   how the rebuilt ELF is linked: the link order, the linker script, the
   data-table index, the data-table schema (record types and counts, no
-  values), the campaign stub list (names and address ranges, no bytes) and
-  the SHA-1s of the expected files.
+  values) and the SHA-1s of the expected files.
 
 ## What is not in this repository, and must never be added
 
@@ -38,8 +37,7 @@ respective owners.
   part of it, and any other file of the demo disc (its menu `SCUS_971.58`,
   the other games' directories).
 - Audio, images, textures, models, text or other assets from the disc.
-- The game's data tables, and the code and constants of any function built
-  as a campaign stub (next section).
+- The game's data tables (next section).
 - Symbol tables, map files or other identifier tables, and any debug string,
   asset or code blob, copied verbatim or in bulk out of the binary, the disc
   or any leaked development material. Using an individual fact (a name, an
@@ -53,7 +51,7 @@ harder to commit such material by accident. They do not replace care. If you
 suspect a file in this repository breaks these rules, open an issue tagged
 `legal`.
 
-## The data tables and the campaign stubs are generated at build time
+## The data tables are generated at build time
 
 The demo's link includes the same 70 members of the game's archive
 `ico2000.a` that have data sections and no code as the PAL link (the PAL
@@ -76,15 +74,6 @@ from `config/data_schema.jun26.txt` that compiles with the game's flags
 owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
 names MAIN.MAP gives the symbols, and nothing of the tables' content.
-
-The campaign stubs are handled the same way. While a function's C does not
-yet give the demo's bytes, `config/stubs.jun26.txt` names it with its address
-range and its translation unit, and `tools/gen_stub_s.py` writes its
-instructions and constants from the user's own ELF to `build/jun26/stubs/` at
-build time, where the C includes them. The list holds names, ranges and notes
-on how each function differs from PAL's or the prototype's, never a word of the code; nothing
-under `build/jun26/stubs/` is committed. When the list is empty, nothing is
-generated.
 
 The line drawn is between content and facts about its shape. The names,
 tables and strings are content and are never committed. A count or size
@@ -183,9 +172,8 @@ above, against the August 6, 2001 prototype (`aug6`, below), named by its
 branch, whose tree takes its names from the same maps. A name tied by other
 evidence (a data table's slot, a caller, the record it addresses, a
 function's place among its neighbours) is checked against the function's
-body when the function is rebuilt from source and the gate passes; the
-function still listed in `config/stubs.jun26.txt` carries that evidence on
-its row. A function or object with no counterpart in any of those builds
+body when the function is rebuilt from source and the gate passes, as every
+function of this tree has been. A function or object with no counterpart in any of those builds
 carries a derived name, marked `/* derived name */` in the source. The
 70 archive members take PAL's names by member order; the enemy-set tables
 take names derived from PAL's `enemymodel01` set and the icon.sys record a
@@ -194,11 +182,10 @@ from any of those files: every address in `config/*.jun26.*` was found in the
 user's own ELF.
 
 Of the user's disc image the build reads the disc's `SYSTEM.CNF` and
-`CUS97113/SCPS_000.00`: it checks the ELF's SHA-1, generates the 120
-data-only members from it (above), and writes the campaign stubs
-`config/stubs.jun26.txt` lists. Every other function, the five VU1
+`CUS97113/SCPS_000.00`: it checks the ELF's SHA-1 and generates the 120
+data-only members from it (above). Every function, the five VU1
 microprograms and Sony's libraries are compiled or assembled from the tracked
-sources. `tools/extract_elf.sh` copies the disc's `SYSTEM.CNF` into
+sources; nothing of the code is read from the disc. `tools/extract_elf.sh` copies the disc's `SYSTEM.CNF` into
 gitignored `baserom/jun26/`; nothing else of the disc (the menu, the other
 games) is read.
 
