@@ -1,14 +1,14 @@
 # config/stubs.aug6.txt -- the functions and data runs still built from the base ELF.
 #
 # Campaign scaffolding. A row names a range of the base ELF that no tracked
-# source produces yet; tools/gen_stub_s.py writes it as build/stubs/<stem>.s
+# source produces yet; tools/gen_stub_s.py writes it as build/aug6/stubs/<stem>.s
 # from the user's own baserom/aug6/baseelf.elf at build time (nothing of the
 # ROM is tracked, docs/LEGAL.md), and the TU the row names includes it with
 # `INCLUDE_ASM(stem);` at the function's place in the file, with the macro
-# from build/stubs/include_asm.h, which gen_stub_s.py writes beside the
+# from build/aug6/stubs/include_asm.h, which gen_stub_s.py writes beside the
 # stubs. tools/check_dev_native.py refuses an INCLUDE_ASM whose stem has no
-# row here. With no rows the mechanism is idle, as it is on main, where every
-# object of the PAL link is built from source.
+# row here. With no rows the mechanism is idle, as it is here and on main:
+# every object of the link is built from source.
 #
 # Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N] [file=<stem>]
 #          [in=<file.c.inc>] [inline] [def]
@@ -31,11 +31,7 @@
 #             after INCLUDE_ASM when it uses __LINE__; nothing reads it yet)
 #   file=stem the stub's file and INCLUDE_ASM name when two statics in two TUs
 #             share a name (default: the name); a literal row carries its text
-#             row's. Eight names need it here (Debug_StickControl, disp,
-#             dispClothes, display_texture, effect_end_func, execClothes,
-#             gene_enemy, init_textures_of_specified_property), each on
-#             both or all of its rows as <name>_<TU stem>, and every nested
-#             function's row carries <name>_<N> (below)
+#             row's
 #   in=path   the .c.inc the TU includes where the function is defined: its
 #             INCLUDE_ASM line lives there (not on a literal row)
 #   inline    with in=: an inline function of that .c.inc, whose INCLUDE_ASM
@@ -43,7 +39,7 @@
 #             INCLUDE_ASM_LIT and kept declaration stay in the .c.inc
 #             (--carve writes it)
 #   def       an rdlit or sdlit row written where the function is defined,
-#             not after its text: build/stubs/<stem>.lit.s, which the file
+#             not after its text: build/aug6/stubs/<stem>.lit.s, which the file
 #             includes with `INCLUDE_ASM_LIT(stem);` in the definition's place
 #             (a stubbed inline function's strings and gcc's other constants;
 #             its code, .lit4 floats, li.d doubles and jump tables follow
@@ -59,115 +55,3 @@
 # back from main; --carve-all and --restore-all do every text row.
 # tools/object_check.py compares each object's .text with the base and a
 # TU's function order with the target's after a link.
-#
-# Seeded from the function census against the PAL build, tools/correlate_elf.py,
-# and the prototype disc's TRFILE.TXT. The disc's MAIN.MAP is the PAL disc's
-# file and describes another link. TRFILE.TXT (an address, function, source
-# file and line per source line) is of a build close to this one but not this
-# ELF: of the first addresses of its 4710 function names only 291 are a
-# function start of the boundary scan, and at those its name agrees with the
-# census twin's in 139 of 253. Its addresses differ from this ELF's by an
-# offset that is constant between neighbouring functions, so a function here
-# is looked up in it at its
-# address plus the offset of the nearest twins on either side whose bodies are
-# equal and whose names TRFILE.TXT holds once (both sides' offsets equal, or
-# the one of the two that lands on a TRFILE.TXT function start), and the hit
-# counts only when the TRFILE.TXT function's span (to the next function start
-# of a source file, header inlines left out) equals the scanned function's.
-# Tried on every twin with that twin itself left out of the anchors, the
-# lookup names 3334 of 4194 and gives the census's name to 3299; 29 of the 35
-# others are ordinal pairs of differing bodies, most one place off in a run,
-# and 6 are bodies equal to a neighbour's. Kinds of row:
-#   - a PAL function whose aug6 twin's body differs: the twin's aug6 range and
-#     the PAL source that defines it. The name is the PAL listing's, from the
-#     census, and the comment gives the census tier (anchor, gap, window, free
-#     or ordinal), the first differing instruction, the residue class and
-#     whether the extents agree. Every such pair is ordinal: paired by
-#     position inside a gap, so the census's name is provisional. Where
-#     TRFILE.TXT names the function otherwise, the row takes TRFILE.TXT's name
-#     and the comment (`trfile`) gives the census's pairing (29 rows); three
-#     more rows are twins whose bodies equal PAL's that TRFILE.TXT gives
-#     another PAL name whose body differs (`bodies equal`; a fourth,
-#     gamesysCharacterInfoLoad, has since matched from C).
-#   - an aug6 function no PAL function claims, named by TRFILE.TXT (`trfile`):
-#     the name and the source file are TRFILE.TXT's (a .c.inc or switch.c is
-#     the PAL source that includes it). 1028 such rows are a PAL function of
-#     that same source, an earlier form of it (all but torchOnOfWeaponSE
-#     PAL-only in the census), and the comment gives PAL's size (1033 at the
-#     seed; iosMallocAlignDebug, ACTSetPositionWithFitting,
-#     ACTSetPositionNodeWithFitting, ExecRotObjectMoveStartReaction and
-#     ExecRotObjectMoveEndReaction have since matched from C); 29 are not in
-#     PAL's object. Six more such
-#     functions are byte-equal to the PAL function of their name, which the
-#     census lists as PAL-only because it gave a body-equal neighbour that
-#     name, and have no census row (EnemyAttackCenter, BoyAttackCenter,
-#     ParticleLayoutDL, adpcmOpenDiskNotReady, actSt47aSekizo1Event,
-#     actSt47aSekizo2Event); adpcmOpenDiskNotReady has a row the carve added
-#     (below).
-#   - an aug6 function no PAL function claims and TRFILE.TXT does not name
-#     (`aug6-only`): a derived name func_<VMA> and the source that holds it by
-#     link order. Inside an object's span (between two of its twins) that is
-#     the object. In a gap between two objects' spans it is one of the
-#     objects link order puts there: the PAL-only functions at the end of the
-#     one before, every function of an object with no twin, and the PAL-only
-#     functions at the start of the one after are aligned with the gap's aug6
-#     functions by size and order. The comment gives the outcome: the PAL-only
-#     function the alignment pairs it with ("PAL size and order suggest" when
-#     the sizes are equal, "PAL order suggests" within a factor of two). That
-#     is a place in the order, not a name.
-# For every TRFILE.TXT name the source file it gives agrees with the census's
-# object spans and link order.
-#
-# Removal of what the prototype does not contain. Of the 137 aug6-only rows
-# with a derived name, 128 are named after the PAL function of their TU they
-# are, each with its evidence on the line: the body (instruction shapes with
-# immediates and registers' numbers kept, relocated fields masked) against
-# the PAL function's, the share of mapped callees, the sizes, the call sites
-# that reach it from the counterparts of the PAL function's callers, and the
-# data tables (act-mode-def, obj-kind-data) that hold it in the row where
-# PAL's holds the PAL function. Two more take the names TRFILE.TXT gives in
-# the same order (actBoyItem and actBoyItemAfter, which act-mode-def's ITEM
-# and ITEMAFTER rows hold). The other seven keep func_<VMA>. Three of the
-# 128 (UpdateGeo.48, BoyBgaManager and GirlForceFieldGeo) have since matched
-# from C, so 134 rows remain of the 137. The row
-# 0x1E5688 is SetParticleEffect, which TRFILE.TXT names there and which the
-# census-equal callers call, not the census's SetParticleEffectByPartition.
-# A PAL function no row names and no twin keeps has no counterpart here and
-# is not in this tree.
-#
-# Rows the carve adds (their comments say which):
-#   - a nested function (gcc's name.N, numbered as this tree's compile numbers
-#     it, file=<name>_<N>) of a stubbed parent, placed before the parent;
-#   - an inline function the prototype emits before a stub: gcc emits every
-#     inline function after the TU's stubs, so it is stubbed too, and so is
-#     each C function that inlines one;
-#   - a static inline gcc no longer emits once its callers are stubs;
-#   - a census-equal function whose bytes still differ (an immediate the
-#     census's masks hide, or ee-as short-loop padding while the TU includes
-#     stubs);
-#   - a data row for a function-scope static that left with its function's
-#     carve and that no literal row carries;
-#   - a data row for a .data object a carved function's August C used and
-#     PAL's does not (no PAL name, so D_<VMA>).
-# Literal rows (lit4, rdlit, sdlit) follow their text rows; gen_stub_s.py
-# --literals derived them (the WIP commit that added them says how).
-#
-# Left out of the census's aug6-only list: 0x1000C0 (80 bytes) is PAL's _root,
-# its fill and RFU000_FullReset, byte-identical, merged by the boundary scan
-# (crt0.s and klib.s, a function ending in a syscall); 0x2483F8, 0x2484A4 and
-# 0x2484AC are PAL's sceSifWriteBackDCache and CB_DelayTh, byte-identical,
-# split elsewhere by the scan (a dead jr after a return). The census also
-# pairs _set_sreg (28 bytes in PAL) with 0x247A00, 892 bytes: the scan joined
-# tlbtrap.s's 860 bytes and their fill to it, those differ from PAL's only in
-# relocated fields, and _set_sreg at 0x247D60 is PAL's body; that pair has no
-# row. Two body-equal twins TRFILE.TXT names otherwise keep the census's
-# pairing and have no census row: 0x1531B8 (afterBoyHangG3M; TRFILE.TXT says
-# afterCommonItem) and 0x230C00 (actE3St13cSekizoEvent; TRFILE.TXT says
-# actSt13cSekizoEvent), neither name being in PAL's object; afterBoyHangG3M
-# has a row the carve added for emission order.
-
-text subGirlControl 0x0016FAB8 0x00170220 ico2/fumi/src/girl_act.c lines=230  # ordinal; first difference at insn 0; length:-168; extent-differs
-lit4 subGirlControl 0x0062AF4C 0x0062AF80 ico2/fumi/src/girl_act.c # target side
-rdlit subGirlControl 0x00553A60 0x00553AC0 ico2/fumi/src/girl_act.c  # target side
-rdlit subGirlControl 0x00553AC0 0x00553B78 ico2/fumi/src/girl_act.c align=16  # jump table (target side)
-sdlit subGirlControl 0x0062C628 0x0062C647 ico2/fumi/src/girl_act.c  # target side: four strings of a disabled print
