@@ -18,7 +18,7 @@ records and tables in which the two builds differ;
 <!-- progress:begin -->
 | Target | Sections identical to the base |
 | --- | --- |
-| [Japanese retail (SCPS-11003)](https://nathanialf.github.io/ico/#jpn) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.82%20%25%20source%20%2B%2027.18%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.50%20%25%20source%20%2B%2090.50%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
+| [Japanese retail (SCPS-11003)](https://nathanialf.github.io/ico/#jpn) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.82%20%25%20source%20%2B%2027.18%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.63%20%25%20source%20%2B%2090.37%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#jpn)**: every
@@ -106,7 +106,9 @@ three runs it does not list, the same set as PAL's
 run's place in this ELF was found from the code that reads it, and each
 member keeps PAL's name by member order; the file's header gives the method,
 and each row says how its content compares with PAL's. They are the game's
-content, and nothing of that content is committed. The build generates them
+content, and nothing of that content is committed, with one exception: the enemy kind table `enemyKind` is committed as
+`ico2/sugipon/src/enemyKind.c` (the paragraph "One exception: `enemyKind`" in
+[`docs/LEGAL.md`](docs/LEGAL.md)), so 72 runs are generated. The build generates them
 from the user's own `baserom/jpn/baseelf.elf` into `build/jpn/data/`. Each member
 becomes `build/jpn/data/<member>.c`, an initialized array of its record type
 compiled with the game's flags (`tools/gen_data_c.py`);
