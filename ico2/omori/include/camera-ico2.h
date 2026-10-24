@@ -14,7 +14,7 @@ extern char cameraSetList[][32];
 struct CamGroup;
 struct CamSetFile;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag);
 #endif
 void SetCameraZoomOffsetRatio(float val);

@@ -28,20 +28,21 @@ SRCROOT="${ROOT}"
 # #if defined(VERSION_JPN) || defined(VERSION_KOR), #elif defined(...); PAL's
 # in the #else), and the compile defines VERSION_<SLUG> for the one it
 # builds. LN picks a hand-written source line number for the target,
-# LN(pal, jpn, kor, ntsc): the original build passed __LINE__ to its debug
+# LN(pal, jpn, kor, ntsc, aug6): the original build passed __LINE__ to its debug
 # allocators and asserts, and those lines are part of each build's data
 # (mv_defs.h's alloc_zeroed, FileManager.c's iosMallocDebug calls). A
 # joining target appends its own argument. Measured 2026-10-15: with them
 # every object equals its build without them outside .mdebug, which the link
 # does not keep.
-# A target still on its own branch (aug6, jun26) gets VERSION_<SLUG> and no LN:
+# A target still on its own branch (jun26) gets VERSION_<SLUG> and no LN:
 # its sources do not use it until it joins main.
 VERSION_DEFS="-DVERSION_$(printf '%s' "${ICO_VERSION}" | tr '[:lower:]' '[:upper:]')"
 case "${ICO_VERSION}" in
-    pal) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc)=pal" ;;
-    jpn) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc)=jpn" ;;
-    kor) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc)=kor" ;;
-    ntsc) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc)=ntsc" ;;
+    pal) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc,aug6)=pal" ;;
+    jpn) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc,aug6)=jpn" ;;
+    kor) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc,aug6)=kor" ;;
+    ntsc) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc,aug6)=ntsc" ;;
+    aug6) VERSION_DEFS="${VERSION_DEFS} -DLN(pal,jpn,kor,ntsc,aug6)=aug6" ;;
 esac
 
 EEGCC_DIR="${EEGCC_DIR:-${ROOT}/tools/cc/ee-gcc2.9-991111}"

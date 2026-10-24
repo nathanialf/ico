@@ -6,7 +6,7 @@
 #include "GifPacket.h"
 #include "Texture.h"
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* each character's first and last column in its 20-pixel cell of the "font"
    texture, {0, 0} where the font has no glyph */
 static signed char fontKerning[128][2] = {
@@ -284,12 +284,20 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
     float cy;
     float fw;
 
+#ifdef VERSION_AUG6
+    float disp(float px, float py, int c, int cw, int fontw, int u, int v)
+    {
+        float fcw = (float)cw, fh = (float)(fontw * 640 / ScreenWidth);
+        int gsofs = 0x8000;
+        int uv[4] = {u * 16, v * 16, (u + cw + 1) * 16, (v + fontw) * 16}, iv[4];
+#else
     inline float drawOne(float px, float py, int u, int v, int cw, int dp1,
                          int fontw) /* derived name */
     {
         float fcw = (float)cw, fh = (float)(fontw * 640 / ScreenWidth);
         int gsofs = 0x8000;
         int uv[4] = {u * 16, v * 16, (u + dp1 + 1) * 16, (v + 20) * 16}, iv[4];
+#endif
         float pos[4] = {px, py, fcw, fh};
         int ofs[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 4 * 16, 0, 0};
 
@@ -377,7 +385,9 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
         int cb;
         int w;
         int cw;
+#ifndef VERSION_AUG6
         int dp1;
+#endif
         int fontw;
         int u;
         int v;
@@ -396,7 +406,9 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
         w = cb - ca;
         cw = w + 1;
         fontw = font_GetWidth();
+#ifndef VERSION_AUG6
         dp1 = cw;
+#endif
         if (cw < 7) {
             cx += 1.0f;
             cw = w + 2;
@@ -404,7 +416,11 @@ void font_Print(unsigned int color, unsigned char *str, float x, float y, int al
         if (ca == 0 && cb == 0) {
             cx += 8.0f;
         } else {
+#ifdef VERSION_AUG6
+            cx = disp(cx, cy, c, cw, fontw, u, v);
+#else
             cx = drawOne(cx, cy, u, v, cw, dp1, fontw);
+#endif
         }
     }
 

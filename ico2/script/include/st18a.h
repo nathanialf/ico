@@ -12,7 +12,7 @@
 
 void actSt18aDoorChk(GObj *volatile self);
 void actSt18aDoorDownChk(GObj *volatile self);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void actSt18aEne2Chk(GObj *volatile self);
 void actSt18aEneChk(GObj *volatile self);
 void actSt18aIntroChk(GObj *volatile self);

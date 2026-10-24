@@ -40,12 +40,20 @@ inline void ResetStatic2MotionManager(int seg)
     }
 }
 #else
+#ifdef VERSION_AUG6
+int *motionTable[1088] = {0};
+#else
 int *motionTable[1150] = {0};
+#endif
 
 inline void ResetDynamicMotionManager(void)
 {
     int i;
+#ifdef VERSION_AUG6
+    for (i = 0; i <= 1087; i++) {
+#else
     for (i = 0; i <= 1146; i++) {
+#endif
         if (motionKind[i].area == 4) {
             motionTable[i] = 0;
         }
@@ -56,7 +64,11 @@ inline void ResetDynamicMotionManager(void)
 inline void ResetStatic2MotionManager(int seg)
 {
     int i;
+#ifdef VERSION_AUG6
+    for (i = 0; i <= 1087; i++) {
+#else
     for (i = 0; i <= 1146; i++) {
+#endif
         if (motionKind[i].area == seg) {
             motionTable[i] = 0;
         }

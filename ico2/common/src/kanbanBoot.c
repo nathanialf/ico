@@ -1,4 +1,4 @@
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 #include "gobj.h"
 #include "kanbanBoot.h"
 #else
@@ -18,7 +18,9 @@
 #include "Basic.h"
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_AUG6
 #include "debug.h"
+#endif
 #endif
 
 /* .sdata: the boot sequence's step, the
@@ -30,7 +32,7 @@ static int mcCheckStep = 0; /* derived name */
 
 static int bootStarted = 0; /* derived name */
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static int mcRetryCount = 10; /* derived name */
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
@@ -64,7 +66,9 @@ static int mcKanbanId; /* derived name */
 static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_AUG6
 static int bootVideoMode; /* derived name */ /* the video mode in force when the sign went up */
+#endif
 #endif
 
 /* mcard.c's request entry points; they return iosMsgSend's result, which
@@ -73,7 +77,7 @@ static int bootVideoMode; /* derived name */ /* the video mode in force when the
 extern void iosMcChdirProduct(McMgr *mp);
 extern int iosMcSync(McMgr *mp);
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static int kanbanBootMcCheck(void)
 {
     McMgr *mc = &bootMcReq;
@@ -503,7 +507,7 @@ void kanbanBootMain(void)
             return;
         }
         kanbanReqAllDelFade();
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
         waitKanban = kanbanReqAdd(0, 1);
 #else
         waitKanban = kanbanReqAdd(2, 1);

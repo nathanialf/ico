@@ -36,6 +36,17 @@ static ActMail door2DownChk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
 #else
+#ifdef VERSION_AUG6
+static ActMail door2Down_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door2Up_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door2UpChk_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door2DownChk_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static void actSt05dCrestHintChk(GObj *volatile self);
 
 static ActMail door2Down_mes[2] = {{430}, {429}}; /* derived name */
@@ -49,6 +60,7 @@ static ActMail door2DownChk_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail crestHint_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 
 void actSt05dDoor2DownChk(GObj *volatile self);
@@ -69,7 +81,11 @@ void actSt05dDoor2(GObj *volatile self)
 #ifdef VERSION_NTSC
         stage_SetAnimation(316, 0, 0);
 #else
+#ifdef VERSION_AUG6
+        stage_SetAnimation(315, 0, 0);
+#else
         stage_SetAnimation(349, 0, 0);
+#endif
 #endif
 #endif
         _ACTWait(60);
@@ -84,6 +100,15 @@ void actSt05dDoor2(GObj *volatile self)
         act->mail = door2Up_mes;
         ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(314, 0, 0);
+        door2Up_mes[0].func = actSt05dDoor2UpChk;
+        act->mail = door2Up_mes;
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
@@ -95,6 +120,7 @@ void actSt05dDoor2(GObj *volatile self)
         door2Up_mes[0].func = actSt05dDoor2UpChk;
         act->mail = door2Up_mes;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -239,11 +265,24 @@ void actSt05dDoor2UpChk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(344, 1, 0);
 #else
+#ifdef VERSION_AUG6
+    stage_SetAnimation(314, 1, 0);
+#else
     stage_SetAnimation(348, 1, 0);
+#endif
 #endif
 
     buf[0] = door2UpChkPos.d[0];
     buf[1] = door2UpChkPos.d[1];
+#ifdef VERSION_AUG6
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(314) == 0) {
+#else
     soundSeDefPlay(1220, 0, (float *)buf, 1);
     _ACTWait(30);
     soundSeDefPlay(1221, 0, (float *)buf, 1);
@@ -255,13 +294,18 @@ void actSt05dDoor2UpChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFinish(348) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     door2UpChk_mes[0].func = actSt05dDoor2DownChk;
     sub->mail = door2UpChk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
@@ -282,11 +326,24 @@ void actSt05dDoor2DownChk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(345, 1, 0);
 #else
+#ifdef VERSION_AUG6
+    stage_SetAnimation(315, 1, 0);
+#else
     stage_SetAnimation(349, 1, 0);
+#endif
 #endif
 
     buf[0] = door2UpChkPos.d[0];
     buf[1] = door2UpChkPos.d[1];
+#ifdef VERSION_AUG6
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(315) == 0) {
+#else
     soundSeDefPlay(1220, 0, (float *)buf, 1);
     _ACTWait(30);
     soundSeDefPlay(1221, 0, (float *)buf, 1);
@@ -298,13 +355,18 @@ void actSt05dDoor2DownChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFinish(349) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     door2DownChk_mes[0].func = actSt05dDoor2UpChk;
     sub->mail = door2DownChk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
@@ -312,6 +374,14 @@ void actSt05dEne(GObj *volatile self)
 {
     GObj *x = self;
     Act *act = actInitialize(self);
+#ifdef VERSION_AUG6
+    _ACTWait(1);
+
+    if (gflagChk(153) == 0) {
+        ene_mes[0].func = actSt05dEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 393);
+#else
     GObj *g;
     short rot;
 
@@ -329,6 +399,7 @@ void actSt05dEne(GObj *volatile self)
         ene_mes[0].func = actSt05dEneChk;
         act->mail = ene_mes;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -339,9 +410,14 @@ void actSt05dEnemy1(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
     Generator_Mask(self);
+#ifdef VERSION_AUG6
+
+    while (gflagChk(154) == 0) {
+#else
     Generator_Mask(scpSearchGobj(1477));
     Generator_Mask(scpSearchGobj(1478));
     while (gflagChk(172) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -350,8 +426,10 @@ void actSt05dEnemy1(GObj *volatile self)
     Generator_Call(self);
     _ACTWait(60);
     Generator_Call(self);
+#ifndef VERSION_AUG6
     Generator_Call(scpSearchGobj(1477));
     Generator_Call(scpSearchGobj(1478));
+#endif
 }
 
 void actSt05dEnemy2(GObj *volatile self)
@@ -360,7 +438,11 @@ void actSt05dEnemy2(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
     Generator_Mask(self);
+#ifdef VERSION_AUG6
+    while (gflagChk(154) == 0) {
+#else
     while (gflagChk(172) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -368,6 +450,7 @@ void actSt05dEnemy2(GObj *volatile self)
     Generator_Call(self);
     _ACTWait(60);
     Generator_Call(self);
+#ifndef VERSION_AUG6
 }
 
 void actSt05dCrestHint(GObj *volatile self)
@@ -384,6 +467,7 @@ void actSt05dCrestHint(GObj *volatile self)
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     }
+#endif
 }
 #endif
 
@@ -440,7 +524,7 @@ void actSt05dDoor2DownEffect(GObj *volatile self)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt05dEneChk(GObj *volatile self)
 {
     if (girlGObj == 0) {

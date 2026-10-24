@@ -10,7 +10,7 @@
 
 #include "typedef.h"
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void actSt03tEneChk(GObj *volatile self);
 void actSt03tGirlCamEndChk(GObj *volatile self);
 void actSt03tGirlCamStartChk(GObj *volatile self);
@@ -19,7 +19,7 @@ void actSt03tSwitchLChk(GObj *volatile self);
 void actSt03tSwitchLUpChk(GObj *volatile self);
 void actSt03tSwitchRChk(GObj *volatile self);
 void actSt03tSwitchRUpChk(GObj *volatile self);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void actSt03tWayOffChk(GObj *volatile self);
 void actSt03tWayOnChk(GObj *volatile self);
 #endif

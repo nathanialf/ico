@@ -78,8 +78,13 @@ static void light_killLinkLight(Light *p)
     if (p == 0) {
         /* "the light is NULL" */
         debug_StdPrintfDummy("Light:NULLになってんで\n");
+#ifdef VERSION_AUG6
+        debug_assert("src/Light.c", LN(451, 451, 451, 451, 397));
+        __assert("src/Light.c", LN(451, 451, 451, 451, 397), "0");
+#else
         debug_assert("src/Light.c", 424);
         __assert("src/Light.c", 424, "0");
+#endif
     }
     if (p->next != 0) {
         p->next->prev = p->prev;
@@ -100,8 +105,8 @@ static void light_killLinkAmbient(AmbientVolume *p)
     if (p == 0) {
         /* "the ambient volume is NULL" */
         debug_StdPrintfDummy("AmbientVolume:NULLになってんで\n");
-        debug_assert("src/Light.c", 451);
-        __assert("src/Light.c", 451, "0");
+        debug_assert("src/Light.c", LN(451, 451, 451, 451, 424));
+        __assert("src/Light.c", LN(451, 451, 451, 451, 424), "0");
     }
     if (p->next != 0) {
         p->next->prev = p->prev;
@@ -178,7 +183,8 @@ Light *light_AddLight(GObj *self, int b, int kind)
         if (self->dobj == 0) {
             return 0;
         }
-        q = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c", 620);
+        q = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c",
+                                    LN(620, 620, 620, 620, 593));
         self->dobj->lightId = b;
         q->owner = self;
         q->kind = kind;
@@ -202,7 +208,8 @@ Light *light_AddLight(GObj *self, int b, int kind)
     case 3: {
         Light *r;
 
-        r = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c", 685);
+        r = (Light *)iosMallocDebug(ios_partition_seki, 80, "src/Light.c",
+                                    LN(685, 685, 685, 685, 658));
         r->kind = kind;
         r->scale = 1.0f;
         r->range = 32768.0f;
@@ -211,8 +218,13 @@ Light *light_AddLight(GObj *self, int b, int kind)
     }
     default:
         debug_StdPrintfDummy("Added Light is illegal.\n");
-        debug_assert("src/Light.c", 705);
-        __assert("src/Light.c", 705, "0");
+#ifdef VERSION_AUG6
+        debug_assert("src/Light.c", LN(451, 451, 451, 451, 678));
+        __assert("src/Light.c", LN(451, 451, 451, 451, 678), "0");
+#else
+        debug_assert("src/Light.c", LN(705, 705, 705, 705, 705));
+        __assert("src/Light.c", LN(705, 705, 705, 705, 705), "0");
+#endif
     }
     return 0;
 }
@@ -331,7 +343,11 @@ static void light_getNearLight(Sub15C *self, int idx)
 #ifdef VERSION_NTSC
     _NormalizeVector((char *)self + 0x830, dir);
 #else
+#ifdef VERSION_AUG6
+    _NormalizeVector(self->shadowDir, dir);
+#else
     _NormalizeVector((char *)self + 0x860, dir);
+#endif
 #endif
     for (i = 0; i < 3; i++) {
         if (near[i] != 0) {
@@ -1026,7 +1042,9 @@ void light_InitLight(void)
     flatLightNum = 0;
 }
 
+#ifndef VERSION_AUG6
 void light_ResetLight(void) {}
+#endif
 
 void light_KillAllFixLight(void)
 {
@@ -1076,7 +1094,8 @@ AmbientVolume *light_AddAmbientObject(int obj)
 {
     AmbientVolume *p;
 
-    p = (AmbientVolume *)iosMallocDebug(ios_partition_seki, 160, "src/Light.c", 723);
+    p = (AmbientVolume *)iosMallocDebug(ios_partition_seki, 160, "src/Light.c",
+                                        LN(723, 723, 723, 723, 696));
     p->shape = obj;
     p->lightScale = 1.0f;
     light_setLinkAmbient(p);

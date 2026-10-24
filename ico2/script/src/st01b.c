@@ -67,6 +67,7 @@ void actSt01bEneChk(GObj *volatile self)
     scpWakeupEnemyOne(3453);
 }
 #else
+#ifndef VERSION_AUG6
 /* This stage's actor mail records. Word 0 of each entry is the mail id the
    entry answers (430 = the actor's own wake-up post, 429 = the trailing
    entry); the handler in .func is installed at run time just before the
@@ -81,9 +82,20 @@ static ActMail way_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail way_on_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail way_off_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt01bInit(void)
 {
+#ifdef VERSION_AUG6
+    if (gflagChk(66) == 0) {
+        SetWayGroupActive(2, 0);
+        stage_SetAnimation(161, 0, 0);
+        return stage_SetAnimation(158, 0, 0);
+    }
+    SetWayGroupActive(2, 1);
+    stage_SetAnimation(161, 0, -1);
+    return stage_SetAnimation(158, 0, -1);
+#else
     if (gflagChk(70) == 0) {
         SetWayGroupActive(2, 0);
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -103,6 +115,7 @@ void actSt01bInit(void)
     stage_SetAnimation(180, 0, -1);
 #endif
     return FinishHint(9);
+#endif
 }
 
 void actSt01bEneChk(GObj *volatile self)
@@ -110,6 +123,21 @@ void actSt01bEneChk(GObj *volatile self)
     if (girlGObj == 0) {
         _ACTWait(0);
     }
+#ifdef VERSION_AUG6
+    while (gflagChk(66) == 0 || scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 ||
+           (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 &&
+            scpTriggerFloorAttr(girlGObj, 0x2000000) == 0)) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyOne(3415);
+    _ACTWait(30);
+    gflagOn(64);
+    gflagOn(65);
+    stage_SetAnimation(160, 1, 0);
+    while (stage_CheckAnimationFrame(160, 90, 0) == 0) {
+#else
     while (gflagChk(70) == 0 || scpTriggerFloorAttr(boyGObj, 0x1000000) == 0 ||
            (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 &&
             scpTriggerFloorAttr(girlGObj, 0x2000000) == 0)) {
@@ -136,17 +164,27 @@ void actSt01bEneChk(GObj *volatile self)
     stage_SetAnimation(182, 1, 0);
     while (stage_CheckAnimationFrame(182, 90, 0) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(178) == 0) {
 #else
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFinish(160) == 0) {
+#else
     while (stage_CheckAnimationFinish(182) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
     _ACTWait(1);
+#ifdef VERSION_AUG6
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyOne(3415);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
@@ -158,6 +196,7 @@ void actSt01bEneChk(GObj *volatile self)
 #else
     scpWakeupEnemyOne(3757);
 #endif
+#endif
 }
 #endif
 
@@ -168,7 +207,7 @@ unsigned int st01b_yure = 0;
 
 unsigned char st01b_yure_vol = 0;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for, and the handle of the looping sound effect the demo starts. */
 static int demoEnd;
@@ -378,6 +417,49 @@ void actSt01bFloor(GObj *volatile self)
     }
 }
 #else
+#ifdef VERSION_AUG6
+void actSt01bFloorChk(GObj *volatile self)
+{
+    ConstVec pos;
+    int se;
+
+    while (scpIsHangChainOptional(boyGObj, 746) == 0) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpSleepEnemyAll();
+    gflagOn(66);
+    SetWayGroupActive(2, 1);
+    if (girlGObj != 0) {
+        scpPlayPosSet(girlGObj, -200.0f, 900.0f, -200.0f);
+    }
+    _ACTWait(60);
+    scpAdpcmPlayRequestFunc(79, &st01b_floor, 1, 1, 1);
+    while (st01b_floor == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(158, 1, 0);
+    stage_SetAnimation(159, 1, 0);
+    pos = floorChkSubPos;
+    se = soundSeDefPlay(1301, 0, pos.f, 1);
+    _ACTWait(90);
+    soundSeDefStop(se);
+    soundSeDefPlay(1264, 0, 0, 1);
+    stage_SetAnimation(161, 1, 0);
+    st01b_yure = iosPadActRequest(boyPad, 9);
+    st01b_yure_vol = 128;
+    iosPadActVolumeSet(st01b_yure, 128);
+    while (stage_CheckAnimationFrame(161, 180, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActStop(st01b_yure);
+    scpWakeupEnemyAll();
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+}
+#else
 static void actSt01bFloorChkSub(GObj *volatile self)
 {
     ConstVec pos;
@@ -497,6 +579,7 @@ void actSt01bFloorChk(GObj *volatile self)
     lt_switch_layout(54);
 #endif
 }
+#endif
 
 void actSt01bSekizo(GObj *volatile self)
 {
@@ -508,7 +591,11 @@ void actSt01bSekizo(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     scpSekizou(self, 65, 174, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
 #else
+#ifdef VERSION_AUG6
+    scpSekizou(self, 61, 156, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
+#else
     scpSekizou(self, 65, 178, 0, 18, 1000.0f, 528.0f, -150.0f, 1000.0f, 528.0f, -100.0f);
+#endif
 #endif
 }
 
@@ -519,10 +606,19 @@ void actSt01bEne(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(64) == 0) {
+        static ActMail ene_mes[2] = {{393}, {392}}; /* derived name */
+
+        ene_mes[0].func = actSt01bEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(68) == 0) {
         ene_mes[0].func = actSt01bEneChk;
         act->mail = ene_mes;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -535,7 +631,11 @@ void actSt01bEnemy1(GObj *volatile self)
     _ACTWait(1);
     Generator_Mask(self);
 
+#ifdef VERSION_AUG6
+    while (gflagChk(65) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -558,7 +658,11 @@ void actSt01bEnemy2(GObj *volatile self)
     _ACTWait(1);
     Generator_Mask(self);
 
+#ifdef VERSION_AUG6
+    while (gflagChk(65) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -579,7 +683,11 @@ void actSt01bEnemy3(GObj *volatile self)
     _ACTWait(1);
     Generator_Mask(self);
 
+#ifdef VERSION_AUG6
+    while (gflagChk(65) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -598,7 +706,11 @@ void actSt01bEnemy4(GObj *volatile self)
     _ACTWait(1);
     Generator_Mask(self);
 
+#ifdef VERSION_AUG6
+    while (gflagChk(65) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -614,7 +726,11 @@ void actSt01bEnemy5(GObj *volatile self)
     _ACTWait(1);
     Generator_Mask(self);
 
+#ifdef VERSION_AUG6
+    while (gflagChk(65) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -630,7 +746,11 @@ void actSt01bEnemy6(GObj *volatile self)
     _ACTWait(1);
     Generator_Mask(self);
 
+#ifdef VERSION_AUG6
+    while (gflagChk(65) == 0) {
+#else
     while (gflagChk(69) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -641,14 +761,24 @@ void actSt01bEnemy6(GObj *volatile self)
 void actSt01bFloor(GObj *volatile self)
 {
     GObj *x = self;
+#ifdef VERSION_AUG6
+    static ActMail floor_mes[2] = {{393}, {392}}; /* derived name */
+#endif
     Act *act = actInitialize(self);
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(66) == 0) {
+        floor_mes[0].func = actSt01bFloorChk;
+        act->mail = floor_mes;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(70) == 0) {
         floor_mes[0].func = actSt01bFloorChk;
         act->mail = floor_mes;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -660,6 +790,9 @@ void actSt01bWay(GObj *volatile self)
 #ifdef VERSION_NTSC
     static ActMail way_mes[2] = {{397}, {396}}; /* derived name */
 #endif
+#ifdef VERSION_AUG6
+    static ActMail way_mes[2] = {{393}, {392}}; /* derived name */
+#endif
     Act *act = actInitialize(self);
 
     _ACTWait(1);
@@ -669,7 +802,11 @@ void actSt01bWay(GObj *volatile self)
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
     _ACTWait(0);
 }
@@ -730,11 +867,18 @@ void actSt01bWayOffChk(GObj *volatile self)
 void actSt01bWayOnChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+#ifdef VERSION_AUG6
+    static ActMail way_on_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 
     if (girlGObj == 0) {
         _ACTWait(0);
     }
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 || gflagChk(66) == 0) {
+#else
     while (scpTriggerFloorAttr(girlGObj, 0x1000000) == 0 || gflagChk(70) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -742,18 +886,29 @@ void actSt01bWayOnChk(GObj *volatile self)
 
     way_on_mes[0].func = actSt01bWayOffChk;
     sub->mail = way_on_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
 void actSt01bWayOffChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+#ifdef VERSION_AUG6
+    static ActMail way_off_mes[2] = {{393}, {392}}; /* derived name */
+#endif
 
     if (girlGObj == 0) {
         _ACTWait(0);
     }
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(girlGObj, 0x2000000) == 0 || gflagChk(66) == 0) {
+#else
     while (scpTriggerFloorAttr(girlGObj, 0x2000000) == 0 || gflagChk(70) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -761,7 +916,11 @@ void actSt01bWayOffChk(GObj *volatile self)
 
     way_off_mes[0].func = actSt01bWayOnChk;
     sub->mail = way_off_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 #endif

@@ -18,7 +18,7 @@ extern struct SqEntry *ball2_4l;
 extern struct SqEntry *ball3_4l;
 extern struct SqEntry *crest1;
 extern struct SqEntry *crest2;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern struct SqEntry *solar4l;
 extern struct SqEntry *oriup4c;
 extern struct SqEntry *oridown4c;
@@ -75,7 +75,7 @@ void actSt04lTorch2_2XLChk(GObj *volatile self);
 void actSt04lTorch3_1Chk(GObj *volatile self);
 void actSt04lTorch3_2Chk(GObj *volatile self);
 void actSt04lTuriChk(GObj *volatile self);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void turnBall(GObj *self, int flag, int anim, int gobj1, int gobj2);
 #endif
 

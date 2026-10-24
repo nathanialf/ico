@@ -1,7 +1,7 @@
 #include "fieldCollision.h"
 #include "matrixDrive.h"
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 #include "main.h"
 #endif
 
@@ -18,7 +18,7 @@ static inline int getFloorLimitValue(int attr) /* derived name */
 
     if (type == 1) {
         return 0;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     }
     if (type == 15 && (stage_no == 19 || stage_no == 28)) {
         type = 20;

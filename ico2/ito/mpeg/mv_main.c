@@ -53,8 +53,10 @@ static long long savedIMR; /* derived name */
 /* set once the movie has an audio stream */
 static int movieHasAudio = 1; /* derived name */
 
+#ifndef VERSION_AUG6
 /* frames left of a read-starved pause */
 static int moviePauseCount = 0; /* derived name */
+#endif
 
 /* the debug frame counter */
 static int movieFrameNo = 0; /* derived name */
@@ -63,7 +65,13 @@ static int movieFrameNo = 0; /* derived name */
    audio decoder objects, the argument block the decode thread is started
    with, its 32 KB stack, and the DMA and interrupt enables saved per
    channel. */
+#ifdef VERSION_AUG6
+/* the stream file's 32 KB sector buffer is a DMA target, so the record is
+   64-byte aligned, as cdvd.c's iosCdvd */
+static char mpegStrFile[33216] __attribute__((aligned(64))); /* derived name */
+#else
 static char mpegStrFile[33216]; /* derived name */
+#endif
 
 static ReadBuf mpegReadBuf; /* derived name */
 
@@ -104,6 +112,11 @@ static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
     int eof;
     void *q;
     int abort = 0;
+#ifdef VERSION_AUG6
+    /* the read-starved pause is not finished in this build: nothing sets the
+       counter, and the code that would act on it is not compiled in */
+    int pauseCount = 0;
+#endif
     int started = 0;
     int left;
     int n;
@@ -116,6 +129,10 @@ static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
     left = *(int *)(strf + 0x8180);
     n = left;
 
+#ifdef VERSION_AUG6
+    while (pauseCount != 0 || (left >= 5 && videoDecGetState(dec) != 3)) {
+        if (dec->mpeg.frameCount >= 11) {
+#else
     while (moviePauseCount != 0 || (left >= 5 && videoDecGetState(dec) != 3)) {
         if (sceCdStStat() < 32 && moviePauseCount == 0) {
             debug_StdPrintfDummy("movie pause\n");
@@ -136,6 +153,7 @@ static int readMpeg(VideoDec *dec, ReadBuf *rb, char *strf, int (*poll)(void))
             if (moviePauseCount > 0) {
                 moviePauseCount--;
             }
+#endif
             if (poll() != 0) {
                 abort = 1;
                 videoDecAbort(&videoDec);
@@ -189,7 +207,9 @@ static int initAll(char *name, int imageW, int imageH, int dbx, int dby, int mon
     struct ThreadParam th;
     int ret = 0;
 
+#ifndef VERSION_AUG6
     moviePauseCount = 0;
+#endif
     videoDec.intcHandler = -1;
     videoDec.dmacHandler = -1;
     decThreadStarted = 0;

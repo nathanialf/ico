@@ -108,7 +108,7 @@ typedef struct { /* field names derived */
 typedef struct Cloth4D Cloth4D; /* derived name */
 
 void DispCloth4D(Cloth4D *c, void *la, void *lb);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb);
 #endif
 void DispClothMesh(ClothRec *rec, void *la, void *lb);
@@ -117,7 +117,7 @@ void GetChainAnimation(ChainSet *sys, struct GObj *obj, float (*mtx)[4]);
 float GetChainCollision(ChainSet *sys, void *pos, float r);
 float GetChainNodeID(ChainCfg *cfg, float f);
 void GetCloth4D(Cloth4D *c, float x, float y);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void GetCloth4DWithDetail(Cloth4D *c, float x, float y, float z, float w);
 void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *qa, void *qb);
 #endif
@@ -125,7 +125,7 @@ void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *q
 void GetClothAnimation(VECTOR **pos, VECTOR **vel, struct GObj *obj, void *m, ClothCfg *cfg,
                        int nwall, int wallOwner, int fixEnd);
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx);
 #endif
 ChainSet *InitChains(ChainCfg *cfg);
@@ -172,8 +172,13 @@ typedef struct {  /* field names derived */
     Cloth4DLink link[2]; /* 0x30, the second node -1 when the column hangs from the first alone */
     float (*uv)[2];      /* 0x40, ny texture coordinates */
     char pad44[12];
+#ifdef VERSION_AUG6
+    float restDir[4]; /* 0x50, the direction the column's segments are pulled toward,
+                         blended per node with pos and dir */
+#else
     float restDir
         [4]; /* 0x50, the direction the column's segments are pulled toward (GetCloth4DWithDetail's z) */
+#endif
 } __attribute__((aligned(16))) Cloth4DCol; /* derived name */
 
 /* The head of one generated cloth mesh: the mesh size, a colour nothing
@@ -226,14 +231,14 @@ struct Cloth4D { /* field names derived */
     sceVu0FMATRIX *colMtx; /* 0x2EC, one matrix a cylinder, the node matrices of the last step */
     ClothPoint *col;       /* 0x2F0, the cylinders */
     int sweepRight; /* 0x2F4, nonzero runs each row's collision sweep from the far edge first; InitCloth4D clears it and nothing sets it */
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     int collision;  /* 0x2F8, nonzero while the cylinders collide (girl.c's debug_hair_collision) */
 #endif
 }; /* derived name */
 
 Cloth4D *InitCloth4D(struct GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl);
 ClothSet *InitClothes(ClothCfg *cfg);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 ClothSet *InitClothesNoShade(ClothCfg *cfg);
 #endif
 int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1);

@@ -69,7 +69,7 @@ typedef struct {    /* field names derived */
     int sleep;      /* 0x74 */
     int pad78[2];   /* 0x78 */
     float drain[4]; /* 0x80 */
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     short wave;   /* 0x90 */
     short pad92;  /* 0x92 */
     int pad94[3]; /* 0x94 */
@@ -78,7 +78,7 @@ typedef struct {    /* field names derived */
 
 static void bombSparkStartSE(GObj *gobj)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(gobj, 48);
 #else
     ExecuteSEPackage(gobj, 50);
@@ -87,7 +87,7 @@ static void bombSparkStartSE(GObj *gobj)
 
 static void bombSparkSE(GObj *gobj)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(gobj, 49);
 #else
     ExecuteSEPackage(gobj, 51);
@@ -96,7 +96,7 @@ static void bombSparkSE(GObj *gobj)
 
 static void bombExplodeSE(GObj *gobj)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(gobj, 50);
 #else
     ExecuteSEPackage(gobj, 52);
@@ -124,8 +124,8 @@ void HoldItem(GObj *gobj, GObj *holder)
         debug_assert(__FILE__, 344);
         __assert(__FILE__, 344, "0");
 #else
-        debug_assert(__FILE__, 356);
-        __assert(__FILE__, 356, "0");
+        debug_assert(__FILE__, LN(356, 356, 356, 356, 344));
+        __assert(__FILE__, LN(356, 356, 356, 356, 344), "0");
 #endif
     }
     p = GOBJ_SUB(gobj)->work;
@@ -155,6 +155,11 @@ static inline void setItemDead(GObj *gobj) /* derived name */
     gobj->active = 0;
 }
 
+#ifdef VERSION_AUG6
+/* a direction along -X, which no code of this build reads */
+static float itemNegXAxis[4] = {-1.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
+#endif
+
 static ItemWork emptyItemWork = {0,    0, 0,   0,       0, 0, {0}, {0.0f, 0.0f, 0.0f, 1.0f},
                                  0.0f, 0, {0}, {0, 300}}; /* derived name */
 
@@ -174,7 +179,7 @@ static float itemWork[12][4] = {
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f},  {0.0f, 0.0f, 0.0f, 0.0f},
 }; /* derived name */
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* Where a carried item sits relative to the focus node, the boy's hand and
    every other carrier's. */
 static float carryOfsPlayer[4] = {-3.3333335f, -27.777779f, 0.0f, 1.0f}; /* derived name */
@@ -216,6 +221,10 @@ void ThrowItem(GObj *gobj, void *vel)
     p->released = 1;
     p->held = 0;
     p->thrown = 1;
+#ifdef VERSION_AUG6
+    CopyVector(GOBJ_SUB(gobj)->root.move, vel);
+    SetIdentityQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
 #else
@@ -223,6 +232,7 @@ void ThrowItem(GObj *gobj, void *vel)
                     30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
 #endif
     SetIdentityQuaternion(*(char **)&gobj->dobj + 0x150);
+#endif
 }
 
 typedef union { /* field names derived */
@@ -246,7 +256,8 @@ char *InitItemGeo(GObj *gobj, ItemLayout *layout)
 #ifdef VERSION_NTSC
     ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__, 434);
 #else
-    ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__, 446);
+    ItemWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(ItemWork), __FILE__,
+                                 LN(446, 446, 446, 446, 434));
 #endif
 
     GOBJ_SUB(gobj)->work = p;
@@ -264,7 +275,11 @@ char *InitItemGeo(GObj *gobj, ItemLayout *layout)
 #ifdef VERSION_NTSC
         g = CreateLayoutedGObj(10, 69, -1, 1, &lay, -1, 7, 0);
 #else
+#ifdef VERSION_AUG6
+        g = CreateLayoutedGObj(10, 68, -1, 1, &lay, -1, 7, 0);
+#else
         g = CreateLayoutedGObj(10, 75, -1, 1, &lay, -1, 7, 0);
+#endif
 #endif
         SetTorchChainReactionFlag(g, 1);
         LinkParentOfDObj(g, &link);
@@ -293,7 +308,7 @@ static void carriedItemGeo(GObj *gobj)
     ItemWork *rec = GOBJ_SUB(gobj)->work;
 
     if (((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->ctrl.frameFlag2 != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         _ApplyMatrix(&pos,
                      (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx +
                          GetSkeltonFocusNode((GObj *)rec->holder, 22) * 64,
@@ -337,7 +352,7 @@ static void carriedItemGeo(GObj *gobj)
         _ApplyMatrix(
             &pos, (char *)((SubHandle *)&((GObj *)rec->holder)->dobj)->sub->nodeMtx + node * 64, q);
         memset(&up, 0, 16);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         up.f[1] = -1.0f;
 #else
         up.f[1] = 1.0f;
@@ -357,7 +372,7 @@ static void carriedItemGeo(GObj *gobj)
     SetDirectRootPosition(gobj, &pos);
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* start the break animation of a broken item; BreakItemFromOutside and
    breakItemOnFloorHit use it */
 static inline int entryBreakBgAnimation(int id, float *pos, float *dir) /* derived name */
@@ -365,7 +380,11 @@ static inline int entryBreakBgAnimation(int id, float *pos, float *dir) /* deriv
     float rot[4];
     float d[4];
 
+#ifdef VERSION_AUG6
+    if (id != 814) {
+#else
     if (id != 815) {
+#endif
         memset(&rot, 0, 16);
         rot[3] = 1.0f;
         CopyVector(d, dir);
@@ -668,7 +687,11 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (id != 949) {
 #else
+#ifdef VERSION_AUG6
+        if (id != 814) {
+#else
         if (id != 972) {
+#endif
 #endif
             memset(&rot, 0, 16);
             rot[3] = 1.0f;
@@ -677,8 +700,12 @@ static inline int breakItemOnWallHit(GObj *gobj, float len, float *pos,
             _NormalizeVector(d, d);
             RotQuaternionY(&rot, GetTableArcTan2(d[0], d[2]));
             _ScaleVectorXYZ(sv, vel, 0.3f);
+#ifdef VERSION_AUG6
+            EntryStageMultiBgaManagerSensitive(id, pos, &rot, sv);
+#else
             EntryStageMultiBgaManagerSensitiveWithStay(id, pos, &rot, sv,
                                                        itemKind[p->kind].stayMode);
+#endif
             SetParticleEffect(10, pos, &rot);
         }
         if ((itemKind + p->kind)->flags & 1) {
@@ -697,15 +724,25 @@ static inline int breakItemOnFloorHit(GObj *gobj, float len, float *pos,
     ItemWork *p = GOBJ_SUB(gobj)->work;
 
     if (10.0f < len) {
+#ifdef VERSION_AUG6
+        entryBreakBgAnimation(itemKind[p->kind].breakAnim, pos, vel);
+        if ((itemKind + p->kind)->flags & 1) {
+            ExecuteSEPackage(gobj, 42);
+#else
         entryBreakBgAnimation(itemKind[p->kind].breakAnim, pos, vel, itemKind[p->kind].breakMode);
         if ((itemKind + p->kind)->flags & 1) {
             ExecuteSEPackage(gobj, 43);
+#endif
             return 1;
         }
     }
     if (p->thrown == 0) {
         p->thrown = 1;
+#ifdef VERSION_AUG6
+        ExecuteSEPackage(gobj, 46);
+#else
         ExecuteSEPackage(gobj, 48);
+#endif
         return 0;
     }
     if (5.0f < len) {
@@ -722,15 +759,21 @@ static void uncarriedItemGeo(GObj *gobj)
     float vel[4];  /* 0x30 */
     ItemWork *p;   /* 0x40 */
 
+#ifdef VERSION_AUG6
+    inline void floatGeo(float t)
+    {
+#else
     void floatGeo(float t)
     {
         ClipWork w;
+#endif
 
         _ScaleVector(vel, vel, t);
         _AddVectorXYZ(vel, vel, p->drain);
         GetSlerpQuaternion(GOBJ_SUB(gobj)->root.itemQuat, GOBJ_SUB(gobj)->root.itemQuat,
                            IdentityQuaternion, t);
         RegularizeQuaternion(GOBJ_SUB(gobj)->root.itemQuat);
+#ifndef VERSION_AUG6
         CopyVector(w.pt[0], pos);
         CopyVector(w.pt[1], w.pt[0]);
         w.radius = 200.0f;
@@ -746,6 +789,7 @@ static void uncarriedItemGeo(GObj *gobj)
                 vel[2] += w.normal.f[2] * 100.0f * k;
             }
         }
+#endif
     }
 
     float q[4];  /* 0x50 */
@@ -755,6 +799,9 @@ static void uncarriedItemGeo(GObj *gobj)
     float len;
     float spd;
     float grav;
+#ifdef VERSION_AUG6
+    float rate;
+#endif
 
     p = GOBJ_SUB(gobj)->work;
     GOBJ_SUB(gobj)->ctrl.wallAttr = 0;
@@ -771,6 +818,15 @@ static void uncarriedItemGeo(GObj *gobj)
             float r = (d + 20.0f) / 40.0f;
 
             vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f * r;
+#ifdef VERSION_AUG6
+            rate = 1.0f - r * 0.08f;
+            floatGeo(rate);
+        } else if (0.0f < d) {
+            vel[1] -= ITEM_DT * 0.5f * ITEM_DT * 1.2f;
+            rate = 0.92f;
+            floatGeo(rate);
+        }
+#else
             floatGeo(1.0f - r * 0.08f);
             if (p->wave == 0) {
                 CopyVector(q, pos);
@@ -787,6 +843,7 @@ static void uncarriedItemGeo(GObj *gobj)
         }
         vel[1] += GetTableSin(p->wave) * 0.1f;
         p->wave += 1024;
+#endif
     }
     sceVu0AddVector(npos, pos, vel);
     GetRootQuaternion(q, gobj);
@@ -892,7 +949,11 @@ static void uncarriedItemGeo(GObj *gobj)
     CopyVector(GOBJ_SUB(gobj)->root.move, vel);
     if (p->holder != 0) {
         if (VectorLengthSquare(vel) > 100.0f) {
+#ifdef VERSION_AUG6
+            AttackCenter((GObj *)p->holder, -1, npos, 0, 20.0f);
+#else
             _AttackCenter((GObj *)p->holder, 18, npos, 0, 20.0f, gobj);
+#endif
         }
     }
     if (p->sleep != 0) {
@@ -966,6 +1027,12 @@ static void execBombGeo(GObj *gobj)
         GetRootPosition(q->pos, gobj);
         AttackCenter(gobj, 17, q->pos, 0, 100.0f);
 #else
+#ifdef VERSION_AUG6
+        stage_SetLoopFlag(439, 0);
+        stage_SetFrameStep(439, 1);
+        GetRootPosition(q->pos, gobj);
+        AttackCenter(gobj, 17, q->pos, 0, 100.0f);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetLoopFlag(507, 0);
         stage_SetFrameStep(507, 1);
@@ -975,6 +1042,7 @@ static void execBombGeo(GObj *gobj)
 #endif
         GetRootPosition(q->pos, gobj);
         _AttackCenter(gobj, 17, q->pos, 0, 200.0f, 0);
+#endif
 #endif
         LightTorchOff(q->torch);
         q->torch->active = 0;
@@ -989,8 +1057,13 @@ static void execBombGeo(GObj *gobj)
         stage_KillPlayBgAnimationIfOverMaxCount(440, 1);
         q->anim = stage_MakePlayBgAnimation(440);
 #else
+#ifdef VERSION_AUG6
+        stage_KillPlayBgAnimationIfOverMaxCount(439, 1);
+        q->anim = stage_MakePlayBgAnimation(439);
+#else
         stage_KillPlayBgAnimationIfOverMaxCount(511, 1);
         q->anim = stage_MakePlayBgAnimation(511);
+#endif
 #endif
 #endif
         q->anim->frame = 1.0f;
@@ -1001,7 +1074,7 @@ static void execBombGeo(GObj *gobj)
         break;
     case 3:
         rec->released = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         if (stage_DispBgAnimation(&q->anim) != 0) {
             q->state = 4;
             setItemDead(gobj);
@@ -1045,7 +1118,7 @@ void ItemGeo(GObj *gobj)
     }
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* ItemDL's check for the end of a bomb's explosion */
 static inline void checkBombExplodeEnd(GObj *gobj) /* derived name */
 {
@@ -1065,7 +1138,7 @@ void ItemDL(GObj *gobj)
 {
     ItemWork *p = GOBJ_SUB(gobj)->work;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     if (IsItemKindBomb(gobj)) {
         checkBombExplodeEnd(gobj);
     }
@@ -1133,10 +1206,17 @@ int BreakItemFromOutside(GObj *gobj)
         p->fuse.state = 2;
     } else {
         GetRootPosition(pos, gobj);
+#ifdef VERSION_AUG6
+        entryBreakBgAnimation(itemKind[p->kind].dropAnim, pos, ZeroVector);
+        ExecuteSEPackage(gobj, 42);
+        if (GetItemKindInline(gobj) == 6) {
+            AttackCenter(gobj, 17, pos, 0, 100.0f);
+#else
         entryBreakBgAnimation(itemKind[p->kind].dropAnim, pos, ZeroVector, 0);
         ExecuteSEPackage(gobj, 43);
         if (GetItemKindInline(gobj) == 6) {
             _AttackCenter(gobj, 17, pos, 0, 200.0f, 0);
+#endif
         }
         setItemDead(gobj);
     }
@@ -1168,7 +1248,7 @@ int CheckCarryableItem(GObj *gobj)
 int GetItemKind(GObj *gobj)
 {
     return GetItemKindInline(gobj);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 }
 
 int GetCharHeldItem(GObj *chara)
@@ -1293,7 +1373,7 @@ void StopItemExplodeAnimationAll(void)
     }
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 int BreakItemWithAttackHit(GObj *gobj, float *dir)
 {
     float pos[4];

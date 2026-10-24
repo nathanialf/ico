@@ -290,7 +290,7 @@ static __inline__ void dvCheckPacket(char *p) /* derived name */
 }
 
 /* the GS-register writer, a macro */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 #define dvSetGsReg(reg, val) /* derived name */                                                    \
     dvCheckPacket(PacketBufferStruct.ptr.c);                                                       \
     *PacketBufferStruct.ptr.d++ = (val);                                                           \
@@ -365,7 +365,7 @@ static void sonic(void *pos, float t)
 
     dl_SetDLPriority(10);
     dvOpenPacket();
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     dvSetFrame(0x140, ScreenWidth, ScreenHeight);
 #else
     dvSetFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
@@ -437,7 +437,7 @@ static void sonic(void *pos, float t)
     dvSetGsReg(0x4A, 0);
     dvSetGsReg(0x3B, 0x8000008080LL);
     dvSetGsReg(0x14, 0x60);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     dvSetFrame(0x40, ScreenWidth, ScreenHeight);
 #else
     dvSetFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
@@ -518,7 +518,7 @@ static void sonic(void *pos, float t)
 
             dvSetGsReg(0x46, 1);
             dvSetGsReg(0x4A, 0);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             dvSetFrame(0x40, ScreenWidth, ScreenHeight);
 #else
             dvSetFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
@@ -587,7 +587,7 @@ static void darkVolume(void *pos, float radius, float ratio, float edge)
 
     dl_SetDLPriority(10);
     dvOpenPacket();
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     dvSetFrame(0x140, ScreenWidth, ScreenHeight);
 #else
     dvSetFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
@@ -666,7 +666,7 @@ static void darkVolume(void *pos, float radius, float ratio, float edge)
     dvSetGsReg(0x4A, 0);
     dvSetGsReg(0x3B, 0x8000008080LL);
     dvSetGsReg(0x14, 0x60);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     dvSetFrame(0x1000040, ScreenWidth, ScreenHeight);
 #else
     dvSetFrame(0x1000040, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
@@ -757,7 +757,7 @@ static inline void setGameOverEffect(float *center, float speed) /* derived name
 inline void StartGameOverEffect(float *center, float speed)
 {
     if (girlGObj != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         ExecuteSEPackage(girlGObj, 117);
         ExecuteSEPackage(girlGObj, 118);
         ExecuteSEPackage(girlGObj, 119);
@@ -862,8 +862,13 @@ void DispGameOverEffect(void)
                  g = isysGObjSearchFromObjKindID_next(g)) {
                 sendGameOverMail(g, r2);
             }
+#ifdef VERSION_AUG6
+            for (g = isysGObjSearchFromObjKindID_begin(60); g != 0;
+                 g = isysGObjSearchFromObjKindID_next(g)) {
+#else
             for (g = isysGObjSearchFromObjKindID_begin(62); g != 0;
                  g = isysGObjSearchFromObjKindID_next(g)) {
+#endif
                 sendGameOverMail(g, r2);
             }
         }
@@ -946,12 +951,22 @@ int InitDarkVolumeGeo(GObj *self)
 
 void DarkVolumeGeo(GObj *self) {}
 #else
+#ifdef VERSION_AUG6
+int InitDarkVolumeGeo(GObj *self)
+{
+    return 0;
+}
+#else
 inline int InitDarkVolumeGeo(GObj *self)
 {
     *(int *)GOBJ_SUB(self)->nodeMtx = 0;
     return 0;
 }
+#endif
 
+#ifdef VERSION_AUG6
+void DarkVolumeGeo(GObj *self) {}
+#else
 void SetupDarkVolume(void *pos, float radius, float edge)
 {
     darkVolume(pos, radius, 1.0f, edge);
@@ -967,6 +982,7 @@ void DarkVolumeGeo(GObj *self)
         SetupDarkVolume((char *)p + 0x30, *p * 50.0f, 10.0f);
     }
 }
+#endif
 #endif
 
 inline void DarkVolumeDL(void) {}

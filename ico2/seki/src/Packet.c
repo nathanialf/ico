@@ -232,8 +232,8 @@ static void pac_error(char *name, int type)
         debug_Assert("IN %s\n%s:No Weight Vertex exist(s).\n", pacWork.name, name);
         break;
     }
-    debug_assert("src/Packet.c", 684);
-    __assert("src/Packet.c", 684, "0");
+    debug_assert("src/Packet.c", LN(684, 684, 684, 684, 681));
+    __assert("src/Packet.c", LN(684, 684, 684, 684, 681), "0");
 }
 
 static int pac_makeNormalStrip(PObjPart *obj, short *strip, int num)
@@ -400,8 +400,13 @@ static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
         *pacWork.cursor.f++ = w[1].weight;
         if (w[0].no >= 60 || w[1].no >= 60) {
             debug_StdPrintfDummy("over 60 skeltons exist.\n");
-            debug_assert("src/Packet.c", 917);
-            __assert("src/Packet.c", 917, "0");
+#ifdef VERSION_AUG6
+            debug_assert("src/Packet.c", LN(684, 684, 684, 684, 914));
+            __assert("src/Packet.c", LN(684, 684, 684, 684, 914), "0");
+#else
+            debug_assert("src/Packet.c", LN(917, 917, 917, 917, 917));
+            __assert("src/Packet.c", LN(917, 917, 917, 917, 917), "0");
+#endif
         }
         if (((int)(pacWork.state.l >> 3) & 1) && v[4] != -1) {
             *pacWork.cursor.f++ = *(float *)(uv + v[4] * 16) * obj->texDefs[v[7]].scaleU;
@@ -414,8 +419,13 @@ static int pac_makeClusterStrip(PObjPart *obj, short *strip, int num)
         if (((int)(pacWork.state.l >> 4) & 1) && v[5] != -1) {
             if (col == 0) {
                 debug_StdPrintfDummy("color table not exists.\n");
-                debug_assert("src/Packet.c", 936);
-                __assert("src/Packet.c", 936, "0");
+#ifdef VERSION_AUG6
+                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 933));
+                __assert("src/Packet.c", LN(684, 684, 684, 684, 933), "0");
+#else
+                debug_assert("src/Packet.c", LN(936, 936, 936, 936, 936));
+                __assert("src/Packet.c", LN(936, 936, 936, 936, 936), "0");
+#endif
             }
             *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4];
             *pacWork.cursor.f++ = (float)(unsigned char)col[v[5] * 4 + 1];
@@ -587,8 +597,13 @@ static void pac_continueTag(PObjMaterial *mat, PObjTexInfo *tex)
     ctx = &pacWork;
     if (((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4 == 1) {
         debug_StdPrintfDummy("pac_continueTag:Packet too small. %d\n", 0);
-        debug_assert("src/Packet.c", 1147);
-        __assert("src/Packet.c", 1147, "0");
+#ifdef VERSION_AUG6
+        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1144));
+        __assert("src/Packet.c", LN(684, 684, 684, 684, 1144), "0");
+#else
+        debug_assert("src/Packet.c", LN(1147, 1147, 1147, 1147, 1147));
+        __assert("src/Packet.c", LN(1147, 1147, 1147, 1147, 1147), "0");
+#endif
     }
     pac_setVifCode(((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4);
     pac_setGifTag(mat, tex,
@@ -610,8 +625,13 @@ static void pac_checkDivide(int num, PObjMaterial *mat, PObjTexInfo *tex)
     ctx = &pacWork;
     if (ctx->counts.w[0] * num > limit) {
         debug_StdPrintfDummy("Original Strip Too Long. Size %d\n", ctx->counts.w[0] * num);
-        debug_assert("src/Packet.c", 1172);
-        __assert("src/Packet.c", 1172, "0");
+#ifdef VERSION_AUG6
+        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1169));
+        __assert("src/Packet.c", LN(684, 684, 684, 684, 1169), "0");
+#else
+        debug_assert("src/Packet.c", LN(1172, 1172, 1172, 1172, 1172));
+        __assert("src/Packet.c", LN(1172, 1172, 1172, 1172, 1172), "0");
+#endif
     }
     qwc = ((ctx->cursor.addr & 0x0FFFFFFF) - ctx->gifTag) >> 4;
     if (qwc + ctx->counts.w[0] * num > limit) {
@@ -786,8 +806,8 @@ static int pac_makeStrip(char **out, PObjPart *obj, PObjGroup *tbl, int matno, i
             buf,
             "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n",
             ctx->name, packetSize);
-        debug_assertMessage("src/Packet.c", 1362, buf);
-        __assert("src/Packet.c", 1362, "e");
+        debug_assertMessage("src/Packet.c", LN(1362, 1362, 1362, 1362, 1359), buf);
+        __assert("src/Packet.c", LN(1362, 1362, 1362, 1362, 1359), "e");
     }
     if (size > 0) {
         if (malloc_GetPartition() == 0) {
@@ -1139,6 +1159,9 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
     int m;
     int ntex;
     int sz;
+#ifdef VERSION_AUG6
+    float q; /* derived name */
+#endif
 
     lod = obj->mode.s.lod;
     pac_resetPacketCount();
@@ -1170,8 +1193,13 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
             if (src->mats == 0) {
                 debug_StdPrintfDummy("pac_makePacket:Material Table Not Found. (%s:%s)\n",
                                      obj->name, src);
-                debug_assert("src/Packet.c", 1732);
-                __assert("src/Packet.c", 1732, "0");
+#ifdef VERSION_AUG6
+                debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1729));
+                __assert("src/Packet.c", LN(684, 684, 684, 684, 1729), "0");
+#else
+                debug_assert("src/Packet.c", LN(1732, 1732, 1732, 1732, 1732));
+                __assert("src/Packet.c", LN(1732, 1732, 1732, 1732, 1732), "0");
+#endif
             }
             for (j = 0; j < nmat; j++) {
                 for (m = -1; m < ntex; m++) {
@@ -1196,8 +1224,13 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
                         prev = node;
                     } else if (sz < 0) {
                         debug_StdPrintfDummy("illegal size = %d\n", sz);
-                        debug_assert("src/Packet.c", 1762);
-                        __assert("src/Packet.c", 1762, "0");
+#ifdef VERSION_AUG6
+                        debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1759));
+                        __assert("src/Packet.c", LN(684, 684, 684, 684, 1759), "0");
+#else
+                        debug_assert("src/Packet.c", LN(1762, 1762, 1762, 1762, 1762));
+                        __assert("src/Packet.c", LN(1762, 1762, 1762, 1762, 1762), "0");
+#endif
                     }
                 }
             }
@@ -1232,7 +1265,11 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
         for (i = 0; i < obj->partCount; i++) {
             src = &obj->parts[i];
             line = src->lines;
+#ifdef VERSION_AUG6
+            p = mallocseki((src->lineCount + 1) * 144);
+#else
             p = mallocseki((src->lineCount + 1) * 192);
+#endif
             vtx = src->vtx;
             uv = src->uv;
             idx = src->col;
@@ -1241,40 +1278,77 @@ static void pac_makePacket(PObjModel *obj, int variant, int mode)
             obj->mode.s.type = 2;
             top = p;
             for (j = 0; j < src->lineCount; j++) {
+#ifdef VERSION_AUG6
+                p->type = line->num;
+                switch (p->type) {
+#else
                 p->attr.b.type = line->num;
                 switch (p->attr.b.type) {
+#endif
                 case 1:
                     _CopyVector(p->pos[0], vtx + line->vtx[0] * 16);
                     p->col0 = ((PacColor *)idx)[line->col[0]];
+#ifdef VERSION_AUG6
+                    p->blend = 0.5019608f <= src->mats[line->mat].alpha;
+                    p->reserved = 0;
+                    break;
+                case 2:
+                    /* the line's Q, set at the top of the arm (the map's code-less line
+                       after the label: loop moves the set out, so 1.0 sits in $f21) */
+                    q = 1.0f;
+#else
                     p->attr.b.blend = 0.5019608f <= src->mats[line->mat].alpha;
                     break;
                 case 2:
+#endif
                     _CopyVector(p->pos[0], vtx + line->vtx[0] * 16);
                     _CopyVector(p->pos[1], vtx + line->vtx[1] * 16);
                     p->uv[0][0] = *(float *)(uv + line->uv[0] * 16);
                     p->uv[0][1] = *(float *)(uv + line->uv[0] * 16 + 4);
                     p->uv[1][0] = *(float *)(uv + line->uv[1] * 16);
                     p->uv[1][1] = *(float *)(uv + line->uv[1] * 16 + 4);
+#ifdef VERSION_AUG6
+                    p->uv[0][2] = q;
+#else
                     p->uv[0][2] = 1.0f;
+#endif
                     p->uv[1][3] = 0.0f;
                     p->col0 = ((PacColor *)idx)[line->col[0]];
                     p->col1 = ((PacColor *)idx)[line->col[1]];
+#ifdef VERSION_AUG6
+                    p->blend = 0.5019608f <= src->mats[line->mat].alpha;
+                    if (line->tex >= 0)
+                        p->tex = mtbl->texs[line->tex].tex;
+                    else
+                        p->tex = -1;
+                    p->reserved = 0;
+#else
                     p->attr.b.blend = 0.5019608f <= src->mats[line->mat].alpha;
                     if (line->tex >= 0)
                         p->attr.b.tex = mtbl->texs[line->tex].tex;
                     else
                         p->attr.b.tex = -1;
+#endif
                     break;
                 default:
                     debug_StdPrintfDummy("illegal vertex num %d\n", line->num);
-                    debug_assert("src/Packet.c", 1845);
-                    __assert("src/Packet.c", 1845, "0");
+#ifdef VERSION_AUG6
+                    debug_assert("src/Packet.c", LN(684, 684, 684, 684, 1844));
+                    __assert("src/Packet.c", LN(684, 684, 684, 684, 1844), "0");
+#else
+                    debug_assert("src/Packet.c", LN(1845, 1845, 1845, 1845, 1845));
+                    __assert("src/Packet.c", LN(1845, 1845, 1845, 1845, 1845), "0");
+#endif
                     break;
                 }
                 line++;
                 p++;
             }
+#ifdef VERSION_AUG6
+            p[src->lineCount].type = 0;
+#else
             p[src->lineCount].attr.b.type = 0;
+#endif
             mtbl->lineSet = mallocseki(144);
             mtbl->lineSet->lines = top;
             mtbl++;

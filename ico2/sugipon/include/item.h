@@ -16,7 +16,7 @@ struct GObj;
    package 43. */
 typedef struct {        /* field names derived */
     int stayAnim;       /* 0x00 */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     int breakAnim;      /* 0x04 */
     int dropAnim;       /* 0x08 */
     int hitAnim;        /* 0x0C */
@@ -34,7 +34,7 @@ typedef struct {        /* field names derived */
 
 extern ItemBreakRec itemKind[];
 int BreakItemFromOutside(struct GObj *gobj);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int CheckCarryableItem(struct GObj *gobj);
 int CheckItemDead(struct GObj *gobj);
 #else

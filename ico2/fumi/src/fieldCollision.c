@@ -421,7 +421,11 @@ inline void ResetCollisionPC(void)
 
 void DispCollisionPC(void)
 {
+#ifdef VERSION_AUG6
+    if (graphics_ready == 0) {
+#else
     if (game_pause == 0) {
+#endif
         return;
     }
     pcTime = *T0_COUNT - pcTime;

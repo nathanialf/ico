@@ -22,16 +22,50 @@ static int adpcmIopBuffUsed[2]; /* derived name */
 
 static int adpcmPause; /* derived name */
 
+#ifndef VERSION_AUG6
 static int adpcmIopHeap; /* derived name */
+#endif
 
 static AdpcmStream adpcmStream[2]; /* derived name */
 
 static int adpcmSpuSlot[4]; /* derived name */
 
+#ifdef VERSION_AUG6
+/* adpcm_init.o's .rodata opens with the file name, before AdpcmStreamInit's
+   string */
+static const char adpcmSrcFile[] = __FILE__; /* derived name */
+
+void AdpcmStreamInit(void)
+{
+    int i;
+    int *p;
+    int r;
+
+    for (i = 0, p = adpcmSpuSlot; i < 4; i++, p++) {
+        *p = SgGetSpuSlotMalloc(1);
+    }
+    r = iosSifAllocIopHeapDebug(0xB8800, adpcmSrcFile, 77);
+    if (r & 0x7FF) {
+        adpcmIopBase = (r / 0x800 + 1) * 0x800;
+    } else {
+        adpcmIopBase = r;
+    }
+    debug_StdPrintfDummy("iop adpcm alloced 0x%x ,%x \n", adpcmIopBase, 0x5C000 * 2);
+    SgStAdpcmInit();
+    for (i = 0; i < 2; i++) {
+        *(int *)((char *)adpcmStream + i * 0x58) = 0;
+    }
+    for (i = 0; i < 2; i++) {
+        adpcmIopBuffUsed[i] = 0;
+    }
+    adpcmPause = 0;
+}
+#else
 void AdpcmStreamFree(void)
 {
     sceSifFreeIopHeap(adpcmIopHeap);
 }
+#endif
 
 void adpcmTickProc2(SqEntry *obj)
 {
@@ -89,6 +123,10 @@ void adpcmTickProc2(SqEntry *obj)
     }
 }
 
+#ifdef VERSION_AUG6
+/* the message AdpcmIopBuffAlloc prints */
+static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n"; /* derived name */
+#else
 /* adpcm_init.o's .rodata opens with these three named objects: the two
    messages are printed further down the file than the strings that follow
    them. */
@@ -99,6 +137,7 @@ static const char adpcmNoAllocMsg[] = "AdpcmIopBuffAlloc not alloc\n"; /* derive
 /* the IOP area is reserved but unused, so it is being freed */
 static const char adpcmFreeIopMsg[] =
     "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n"; /* derived name */
+#endif
 
 int debugAdpcmOn = 1;
 
@@ -121,11 +160,11 @@ SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, i
         }
     }
 #ifdef VERSION_NTSC
-    debug_assert(adpcmSrcFile, 360);
-    __assert(adpcmSrcFile, 360, "0");
+    debug_assert(adpcmSrcFile, LN(360, 360, 360, 360, 360));
+    __assert(adpcmSrcFile, LN(360, 360, 360, 360, 360), "0");
 #else
-    debug_assert(adpcmSrcFile, 363);
-    __assert(adpcmSrcFile, 363, "0");
+    debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 317));
+    __assert(adpcmSrcFile, LN(363, 363, 363, 363, 317), "0");
 #endif
 found:
     p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
@@ -144,11 +183,16 @@ found:
         break;
     default:
 #ifdef VERSION_NTSC
-        debug_assert(adpcmSrcFile, 378);
-        __assert(adpcmSrcFile, 378, "0");
+        debug_assert(adpcmSrcFile, LN(378, 378, 378, 378, 378));
+        __assert(adpcmSrcFile, LN(378, 378, 378, 378, 378), "0");
 #else
-        debug_assert(adpcmSrcFile, 381);
-        __assert(adpcmSrcFile, 381, "0");
+#ifdef VERSION_AUG6
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 335));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 335), "0");
+#else
+        debug_assert(adpcmSrcFile, LN(381, 381, 381, 381, 381));
+        __assert(adpcmSrcFile, LN(381, 381, 381, 381, 381), "0");
+#endif
 #endif
     }
     p->mask = 0;
@@ -253,8 +297,13 @@ static inline void AdpcmIopBuffFree(AdpcmStream *self) /* derived name */
     int no = (adr - adpcmIopBase) / 0x5C000;
 
     if (no >= 3) {
-        debug_assert(adpcmSrcFile, 143);
-        __assert(adpcmSrcFile, 143, "0");
+#ifdef VERSION_AUG6
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 125));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 125), "0");
+#else
+        debug_assert(adpcmSrcFile, LN(143, 143, 143, 143, 143));
+        __assert(adpcmSrcFile, LN(143, 143, 143, 143, 143), "0");
+#endif
     }
     adpcmIopBuffUsed[no] = 0;
 }
@@ -283,11 +332,16 @@ void AdpcmClose(SqEntry *obj)
             }
         }
 #ifdef VERSION_NTSC
-        debug_assert(adpcmSrcFile, 600);
-        __assert(adpcmSrcFile, 600, "0");
+        debug_assert(adpcmSrcFile, LN(600, 600, 600, 600, 600));
+        __assert(adpcmSrcFile, LN(600, 600, 600, 600, 600), "0");
 #else
-        debug_assert(adpcmSrcFile, 605);
-        __assert(adpcmSrcFile, 605, "0");
+#ifdef VERSION_AUG6
+        debug_assert(adpcmSrcFile, LN(363, 363, 363, 363, 557));
+        __assert(adpcmSrcFile, LN(363, 363, 363, 363, 557), "0");
+#else
+        debug_assert(adpcmSrcFile, LN(605, 605, 605, 605, 605));
+        __assert(adpcmSrcFile, LN(605, 605, 605, 605, 605), "0");
+#endif
 #endif
     found:
         adpcmStream[j].used = 0;
@@ -345,6 +399,7 @@ void AdpcmVolumeSet(SqEntry *self, int vol)
 inline void adpcmPauseRequest(int val)
 {
     adpcmPause = val;
+#ifndef VERSION_AUG6
 }
 
 inline void AdpcmStreamHeap(void)
@@ -409,6 +464,7 @@ inline int AdpcmNotUseIopAreaFree(void)
         i++;
     } while (i < 2);
     return cnt;
+#endif
 }
 
 inline SqEntry *AdpcmOpenSync(AdpcmOpenReq *self)

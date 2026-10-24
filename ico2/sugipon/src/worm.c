@@ -369,6 +369,13 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     w->ratio = 1.0f;
     w->route = InitChains(seg);
 
+#ifdef VERSION_AUG6
+    /* the first node's angle words cleared as floats; int stores move
+       InitWormGeo's schedule (measured; the USA build's are float stores too) */
+    *(float *)&d->nodes->rot[2] = 0.0f;
+    *(float *)&d->nodes->rot[1] = 0.0f;
+    *(float *)&d->nodes->rot[0] = 0.0f;
+#else
     /* the first node's angle words cleared as floats; int stores through
        d->nodes->rot move InitWormGeo's schedule (measured) */
 #ifdef VERSION_NTSC
@@ -379,6 +386,7 @@ void *InitWormGeo(GObj *act, WormInit *ini)
     *(float *)(*(char **)((char *)d + 0x870) + 0x8) = 0.0f;
     *(float *)(*(char **)((char *)d + 0x870) + 0x4) = 0.0f;
     *(float *)(*(char **)((char *)d + 0x870) + 0x0) = 0.0f;
+#endif
 #endif
 
     d->nodes->scale[2] = 1.0f;

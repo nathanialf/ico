@@ -104,7 +104,7 @@ void dispClear(MvDispEnv *self, unsigned int col)
     r.x = 0;
     r.y = 0;
     r.w = self->width << 4;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     r.h = ((self->height + 31) / 32 * 64 + self->height * 3) << 4;
 #else
     r.h = ((self->height + 31) / 32 * 64 + self->height * 2) << 4;
@@ -123,7 +123,7 @@ void dispClear(MvDispEnv *self, unsigned int col)
 void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
 {
     int *p;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     int w = imageW;
     int h = imageH / 2;
 
@@ -155,7 +155,7 @@ void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     p = (int *)uncached_accel_addr((int)mvDispPacket);
 #endif
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     p = (int *)uncached_accel_addr((int)mvDispPacket);
     self->env.w.dispfbDB = (self->env.w.dispfbDB & ~0x7FF) | (dbx & 0x7FF);
     self->env.w.dispfbDB = (self->env.w.dispfbDB & 0xFFC007FF) | ((dby & 0x7FF) << 11);
@@ -177,7 +177,7 @@ void setDispEnv(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
     p = setPRMODECONT(p, 1);
     p = setFRAME_1(p, 0, (self->width + 63) / 64, 0, 0);
     p = setTEST_1(p, 0, 0, 0, 0, 0, 0, 0, 0);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     p = setSCISSOR_1(p, 0, self->width - 1, 0, (self->height + 31) / 32 * 64 + self->height * 3);
 #else
     p = setSCISSOR_1(p, 0, self->width - 1, 0, (self->height + 31) / 32 * 128 - 1);
@@ -214,7 +214,7 @@ void dispCreate(MvDispEnv *self, int imageW, int imageH, int dbx, int dby)
     *(volatile int *)&dispField = 0;
     *(volatile int *)&dispSyncBusy = 0;
     sceGsSyncV(0);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     sceGsResetGraph(0, 1, 2, 1);
 #else
     sceGsResetGraph(0, 1, systemStatus[0] != 0 ? 3 : 2, 1);
@@ -319,7 +319,7 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
 {
     MvRect r;
     MvRect uv;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     MvRect r2;
     MvRect uv2;
 #endif
@@ -335,6 +335,28 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
     nx = texW >> 4;
     ny = texH >> 4;
 
+#ifdef VERSION_AUG6
+    r.x = 0;
+    r.y = ((self->height + 31) / 32 * 64 + self->height * 2) << 4;
+    r.w = texW << 4;
+    r.h = texH / 2 << 4;
+
+    if (field == 0) {
+        uv.x = 8;
+        uv.y = 8;
+        uv.w = texW << 4;
+        uv.h = texH << 4;
+
+        r2.x = x << 4;
+        r2.y = y << 4;
+        r2.w = w << 4;
+        r2.h = h << 4;
+
+        uv2.x = 8;
+        uv2.y = (self->height * 2 << 4) + 8;
+        uv2.w = texW << 4;
+        uv2.h = texH / 2 << 4;
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     r.x = 0;
     r.y = ((self->height + 31) / 32 * 64 + self->height * 2) << 4;
@@ -352,6 +374,7 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
 #endif
 
     if (field == 0) {
+#endif
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         uv.x = 8;
         uv.y = 8;
@@ -391,8 +414,11 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         uv.x = 8;
 #endif
+#ifdef VERSION_AUG6
+        uv.x = 8;
+#endif
         uv.y = 24;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
         uv.w = texW << 4;
         uv.h = texH << 4;
 
@@ -413,14 +439,14 @@ void dispSetTags(MvDispEnv *self, int src, int image, int field, int x, int y, i
     p = setDMAscTag(p, 0, 0, 0, 7, 0, 16);
     p = setGIFtag(p, 14, 1, 0, 0, 0, 1, 15);
     p = setTEXFLUSH(p);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     p = setTEX1_1(p, 0, 0, 0, 0, 0, 0, 0);
 #else
     p = setTEX1_1(p, 0, 0, 1, 1, 0, 0, 0);
 #endif
     p = setTEX0_1(p, (self->height + 31) / 32 * ((self->width + 63) / 64 << 6),
                   (self->width + 63) / 64, 0, 10, 10, 0, 1, 0, 0, 0, 0, 0);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     p = setTexSprite(p, &r, &uv);
     p = setTEXFLUSH(p);
     p = setTEX1_1(p, 0, 0, 1, 1, 0, 0, 0);

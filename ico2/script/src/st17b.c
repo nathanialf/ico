@@ -4,6 +4,10 @@
 #include "layout_texture.h"
 #endif
 
+#ifdef VERSION_AUG6
+#include "layout_texture.h"
+#endif
+
 #include "act.h"
 #include "commonact.h"
 #include "gflag.h"
@@ -12,10 +16,21 @@
 #include "StageAnimation.h"
 #endif
 
+#ifdef VERSION_AUG6
+#include "StageAnimation.h"
+#endif
+
 #include "StageManager.h"
 #include "script.h"
 #include "typedef.h"
 
+#ifdef VERSION_AUG6
+#include "main.h"
+
+static ActMail check_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
+#else
 #ifdef VERSION_NTSC
 #include "main.h"
 
@@ -24,6 +39,7 @@ static ActMail check_mes[2] = {{397}, {396}}; /* derived name */
 static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 #else
 static ActMail check_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 
 /* .sdata: the lightning stream handle. */
@@ -37,7 +53,7 @@ void actSt17bTest(GObj *volatile self)
     _ACTWait(1);
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt17bCheck(GObj *volatile self)
 {
     GObj *x = self;
@@ -50,7 +66,11 @@ void actSt17bCheck(GObj *volatile self)
     if (gflagChk(33) == 0) {
         check_mes[0].func = actSt17bCheckChk;
         act->mail = check_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -64,7 +84,11 @@ void actSt17bIntro(GObj *volatile self)
     if (gflagChk(34) == 0) {
         intro_mes[0].func = actSt17bIntroChk;
         act->mail = intro_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -84,8 +108,13 @@ void actSt17bIntroChk(GObj *volatile self)
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
     gflagOn(34);
+#ifdef VERSION_AUG6
+    stage_SetAnimation(115, 1, 0);
+    while (stage_CheckAnimationFinish(115) == 0) {
+#else
     stage_SetAnimation(116, 1, 0);
     while (stage_CheckAnimationFinish(116) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);

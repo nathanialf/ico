@@ -12,7 +12,7 @@ inline int InitCageFixGeo(void)
 
 void CageFixGeo(GObj *self)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     GObj *g = isysGObjSearchFromObjKindID_begin(43);
 #else
     GObj *g = isysGObjSearchFromObjKindID_begin(44);

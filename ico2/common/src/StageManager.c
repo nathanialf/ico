@@ -43,7 +43,7 @@ typedef struct { /* field names derived */
     float pos[4];
 } StgSlot; /* derived name */
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* .data, all zero: the preload buffer, 896 sectors of 2048
    bytes, the cap stgmgrNextStagePreLoad clamps a read to and the ring cdvd.c's
    stream reads through; the stage manager's message queue record; and the exit
@@ -62,7 +62,7 @@ IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* .sbss: the one-entry buffer of the stage manager's message queue, and the
    stage stgmgrNextStagePreLoadForceStageSet asks the preloader for. */
 static int stageMgrMsgBuf; /* derived name */
@@ -75,7 +75,7 @@ static int stagePreLoadForceStageNo; /* derived name */
    where IOSThread's flags is the int ios/thread.c tests */
 static unsigned int initIcoMiscThread[28]; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* the four-entry buffer of the stage manager's message queue */
 static int stageMgrMsgBuf[4]; /* derived name */
 #endif
@@ -111,7 +111,11 @@ static void stop_free_resources(void)
     int i;
 
     debug_StdPrintfDummy("----- MASK LINK -----\n");
+#ifdef VERSION_AUG6
+    graphics_ready = 0;
+#else
     game_pause = 0;
+#endif
     for (i = 0; i < 8; i++) {
         isysGObjActiveLink(i, 0);
     }
@@ -135,7 +139,9 @@ static void stop_free_resources(void)
     iosMallocResetPartition(ios_partition_seki);
     iosMallocResetPartition(ios_partition_sugipon);
     iosMallocResetPartition(ios_partition_dmotion);
+#ifndef VERSION_AUG6
     iosMallocResetPartition(ios_partition_oomori);
+#endif
     iosMallocResetPartition(ios_partition_isys);
     ResetDynamicMotionManager();
     debug_StdPrintfDummy("here\n");
@@ -201,7 +207,7 @@ static void start_stage_Load_thread(int stage)
         stage_initialize();
         stageManagerFreeResourceFlag = 0;
         iosThreadCancelWakeup(0);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         SetMotionBlur(GlobalStageSetting.motionBlur);
 #else
         gsb_SetMotionBlur();
@@ -212,7 +218,11 @@ static void start_stage_Load_thread(int stage)
         iosThreadStart((IOSThread *)initIcoMiscThread);
         flags = initIcoMiscThread[15];
         debug_StdPrintfDummy("auto stack %d\n", (int)flags & 1);
+#ifdef VERSION_AUG6
+        graphics_ready = 1;
+#else
         game_pause = 1;
+#endif
         debug_StdPrintfDummy("-----------------Enable VSync\n");
     } else {
         isysInitialize();
@@ -401,7 +411,7 @@ void StageManager(void)
     StgMgrMsg *msg;
 
     debug_StdPrintfDummy("stage manager() in\n");
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     iosMsgQueueCreate(&stageMgrMsgQ, stageMgrMsgBuf, 4);
 #else
     iosMsgQueueCreate(&stageMgrMsgQ, &stageMgrMsgBuf, 1);
@@ -452,7 +462,7 @@ void StageManager(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             lt_switch_layout(50);
 #else
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             lt_switch_layout(49);
 #else
             lt_switch_layout(0x35);
@@ -515,9 +525,13 @@ void stgmgrForceSwitch(int stage)
 {
     stageMgrMsg.cmd = 0;
     stageMgrMsg.stage = stage;
+#ifdef VERSION_AUG6
+    lock_execIcoMisc = 1;
+#else
     graphics_ready = 1;
+#endif
     stageMgrMsg.fadeOut = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
 #else
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 1);
@@ -540,10 +554,15 @@ void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsi
     stageMgrMsg.g = g;
     stageMgrMsg.b = b;
     mpegPlayInitColor = 0x80000000 | (b << 16) | (g << 8) | r;
+#ifdef VERSION_AUG6
+    lock_execIcoMisc = 1;
+    iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
+#else
     graphics_ready = 1;
 #ifdef VERSION_NTSC
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
 #else
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 1);
+#endif
 #endif
 }

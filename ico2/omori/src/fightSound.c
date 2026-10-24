@@ -113,7 +113,11 @@ static void fightSoundProcessMain(void)
     if (systemStatus[5] == 0 && fightSoundPause != 1) {
         if (boyGObj != 0) {
             cond = 0;
+#ifdef VERSION_AUG6
+            if (_ACTCharStatus_Check(boyGObj, 15) != 0) {
+#else
             if (_ACTCharStatus_Check(boyGObj, 17) != 0) {
+#endif
                 cond = 1;
             }
         }

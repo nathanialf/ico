@@ -10,6 +10,7 @@
 
 struct GObj;
 
+#ifndef VERSION_AUG6
 /* unmapped_00533FC0: one girl-to-boy motion pair, 8 bytes: the girl's
    motion and the boy's that synchronizeMotionOutputOriginForGirl keeps in
    step with it. */
@@ -19,6 +20,7 @@ typedef struct { /* field names derived */
 } MotSyncPair; /* derived name */
 
 extern MotSyncPair motSyncPairs[]; /* derived name */
+#endif
 
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in

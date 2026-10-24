@@ -35,7 +35,7 @@
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
    IosMsgQueue, 0x30 B). */
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int systemStatus[12] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 #else
 int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
@@ -112,6 +112,94 @@ static void scheduler(void);
 extern char movieFile[];
 int movie_abort_check(void);
 
+#ifdef VERSION_AUG6
+/* the development build's Main also called debug_Menu, debug_SetBar and
+   debug_SetBar2 and carried a frame-step block; the retail build compiled
+   them out. */
+void Main(void)
+{
+    int ret;
+    int n;
+
+    debug_StdPrintfDummy("VSYNC_TIMING    : \x1b[33m%s\x1b[m\n",
+                         systemStatus[0] == 0 ? "NTSC" : "PAL");
+    debug_StdPrintfDummy("FRAME_STEP      : \x1b[33m%d\x1b[m\n", systemStatus[1]);
+    debug_StdPrintfDummy("SYSTEM_FRAMERATE: \x1b[33m%d\x1b[m\n",
+                         (60 - systemStatus[0] * 10) / systemStatus[1]);
+    stage_no = 0;
+    *T0_COUNT = 0;
+    exit_no = 0;
+    interlace = 1;
+    NonLinearCameraMove = 0;
+    systemFault = 0;
+    GlobalTimer = 0;
+    n = debug_TryToGetStartStage();
+    thisIsYourStartStage = n < 104 ? n : 103;
+    if (thisIsYourStartStage <= 0) {
+        thisIsYourStartStage = 1;
+    }
+    debug_VariableInit();
+    InitDelayFree();
+    debug_StdPrintfDummy("Main() in\n");
+    debug_StdPrintfDummy("Main() in\n");
+    debug_StdPrintfDummy("IosPadLock %d\n", IosPadLock);
+    WaitSema(IosPadLock);
+    DeleteSema(IosPadLock);
+    debug_StdPrintfDummy("IosstgMgrLock %d\n", IosStgMgrLock);
+    WaitSema(IosStgMgrLock);
+    DeleteSema(IosStgMgrLock);
+    stgmgrForceSwitchWithFade(thisIsYourStartStage < 0 ? 1 : thisIsYourStartStage, 255.0f, 0.0f);
+    iosThreadCancelWakeup(0);
+    systemStatus[5] = 0;
+    _InitRandom(1.2345678f);
+    gsb_InitGSSystem();
+    debug_StdPrintfDummy("main start\n");
+    while (1) {
+        iosThreadCancelWakeup(0);
+        iosThreadSleep();
+        if (mpegPlay != 0) {
+            if (mpegInitDone == 0) {
+                continue;
+            }
+            if (iosCdvdBackGroundMgrRunning != 0) {
+                continue;
+            }
+            ios_partition_mpeg = ios_partition_isys;
+            movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
+                       mpegPlayInitColor);
+            ret = movie_proc(movie_abort_check);
+            mpegPlay = 0;
+            ACTGame_SetActors_Debug(mpegPlayReturnStage, 1);
+            gsb_Init(&db);
+            stgmgrForceSwitchWithFade(mpegPlayReturnStage, 255.0f, mpegPlayFadeInSpeed);
+            if (ret == 1)
+                stage_after_skipping_demo = 0xFFFFFFFE;
+            continue;
+        }
+        debug_ResetBar();
+        MakeCollisionDependGObjList();
+        MakeCharGObjList();
+        ExecKeyInput();
+        ExecIcoMisc();
+        if (lock_execIcoMisc == 0) {
+            stage_ResetAnimation();
+            stage_CalcAnimationNoParent();
+        }
+        iosOmMain();
+        if (lock_execIcoMisc == 0) {
+            stage_CalcAnimationParent();
+        }
+        iosOmCreateDL();
+        ExecDelayFree();
+        frameReady = 1;
+        if (systemFault != 0) {
+            while (1) {
+                iosThreadSleep();
+            }
+        }
+    }
+}
+#else
 /* the development build's Main also called debug_Menu, debug_SetBar and
    debug_SetBar2 and carried a frame-step block; the retail build compiled
    them out. */
@@ -127,7 +215,9 @@ void Main(void)
                          (60 - systemStatus[0] * 10) / systemStatus[1]);
     *T0_COUNT = 0;
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_AUG6
     NonLinearCameraMove = 3;
+#endif
 #endif
     stage_no = 0;
     exit_no = 0;
@@ -136,7 +226,7 @@ void Main(void)
     systemFault = 0;
     lock_execIcoMisc = 0;
     n = debug_TryToGetStartStage();
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     thisIsYourStartStage = n < 104 ? n : 103;
 #else
     thisIsYourStartStage = n < 106 ? n : 105;
@@ -164,7 +254,9 @@ void Main(void)
         iosThreadCancelWakeup(0);
         iosThreadSleep();
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_AUG6
         gsb_ResetSnap();
+#endif
 #endif
         if (mpegPlay != 0) {
             if (mpegInitDone == 0) {
@@ -176,7 +268,7 @@ void Main(void)
             ios_partition_mpeg = ios_partition_isys;
             AdpcmStreamFree();
             soundAllocIopFree();
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
                        mpegPlayInitColor);
             ret = movie_proc(movie_abort_check);
@@ -195,7 +287,7 @@ void Main(void)
             soundAllocIopHeap();
             AdpcmStreamHeap();
             ACTGame_SetActors_Debug(mpegPlayReturnStage, 1);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             gsb_Init(&db);
 #else
             gsb_UpdateGSSystem(1);
@@ -225,7 +317,9 @@ void Main(void)
         iosOmCreateDL();
         ExecDelayFree();
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_AUG6
         gsb_TakeSnap();
+#endif
 #endif
         frameReady = 1;
         if (systemFault != 0) {
@@ -236,6 +330,7 @@ void Main(void)
         iosThreadSleep();
     }
 }
+#endif
 
 /* .sbss: the idle thread's spin counters */
 static int idleCount; /* derived name */
@@ -282,7 +377,9 @@ static void scheduler(void)
     int msg[4];
 
     debug_StdPrintfDummy("scheduler() in\n");
+#ifndef VERSION_AUG6
     sceGsSyncV(0);
+#endif
     iosMsgQueueCreate(&SchedulerMsgQ, schedulerMsgBuff, 8);
     iosMsgSetEvent(2, &SchedulerMsgQ, 2);
     while (1) {
@@ -300,7 +397,7 @@ static void scheduler(void)
                         goto skip;
                     }
                     _PushVu0Registers();
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
                     gsb_UpdateGSSystem();
 #else
                     gsb_UpdateGSSystem(0);
@@ -312,7 +409,11 @@ static void scheduler(void)
                             goto wake;
                         }
                     }
+#ifdef VERSION_AUG6
+                    GlobalTimer++;
+#else
                     lock_execIcoMisc++;
+#endif
                 }
                 frameReady = 0;
             wake:
@@ -335,7 +436,9 @@ static void scheduler(void)
             if (stgMgrWakeupRequest != 0) {
                 iosThreadWakeup(&stageManagerThread);
             }
+#ifndef VERSION_AUG6
             la_playtime_count();
+#endif
         } else {
             /* an unknown message arrived */
             debug_StdPrintfDummy("不明なメッセージの着信を確認しました in Scheduler\n");
@@ -390,7 +493,9 @@ int movie_abort_check(void)
 }
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_AUG6
 void demoEnd(void) {}
+#endif
 #endif
 
 /* the boot thread's kernel id */
@@ -448,8 +553,10 @@ int game_pause QWORD = 0;
 
 int data_loading QWORD = 0;
 
+#ifndef VERSION_AUG6
 /* the inserted, unreferenced quadword */
 static int reservedWord QWORD = 0; /* derived name */
+#endif
 
 int screen_offset_x QWORD = 0;
 
@@ -471,7 +578,7 @@ int IosStgMgrLock QWORD = 0;
 
 int systemFault QWORD = 0;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* the 0/1 game option that selects the pad word, held or pressed, the actions read */
 int optionControlType QWORD = 0; /* derived name */
 
@@ -489,7 +596,7 @@ GObj *girlGObj = 0;
 /* the boy's and the girl's pad handles, the Act.pad each actor connects */
 IosPadCtx *boyPad = 0;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 IosPadCtx *girlPad = 0; /* derived name */
 #endif
 
@@ -504,7 +611,11 @@ IosPadCtx *girlPad = 0; /* derived name */
 /* ACTItemWatchMotion runs for the boy only while it is 0 */
 int itemWatchOff = 0; /* derived name */
 
+#ifdef VERSION_AUG6
+GObj *CurrentTargetGObj QWORD = 0;
+#else
 GObj *CurrentTargetGObj = 0;
+#endif
 
 GObj *CurrentTargetGObjSub QWORD = 0;
 

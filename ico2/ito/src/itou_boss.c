@@ -284,6 +284,11 @@ static void effect_end_func(int id)
 {
     CapsuleRec *e;
 
+#ifdef VERSION_AUG6
+    if (isysGObjSearchFromObjKindID_begin(63) != 0) {
+        e = &capsule[GetParticleEffectData(id)->user.capsule];
+        pbga_start(&e->bga, 480);
+#else
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
         e = &capsule[GetParticleEffectData(id)->user.capsule];
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -291,10 +296,15 @@ static void effect_end_func(int id)
 #else
         pbga_start(&e->bga, 552);
 #endif
+#endif
         _CopyVector(e->bga->pos, e->pos);
         CopyQuaternion(e->bga->rot, e->quat);
         e->state = 2;
+#ifdef VERSION_AUG6
+        ExecuteSEPackage(0, 96);
+#else
         ExecuteSEPackage(0, 101);
+#endif
     }
 }
 #endif
@@ -335,7 +345,7 @@ void bossCtrlBeforeFunc(GObj *self)
                     }
                 }
             }
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             ExecuteSEPackage(self, 95);
 #else
             ExecuteSEPackage(self, 100);
@@ -348,7 +358,7 @@ void bossCtrlBeforeFunc(GObj *self)
 inline int InqCapsuleGhostBossStage(void)
 {
     int r = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     if (stage_no == 84 || stage_no == 3 || stage_no == 46)
         r = 1;
 #else
@@ -379,6 +389,19 @@ void BossEnemyFunc(void *self)
         case 882:
         case 883:
 #else
+#ifdef VERSION_AUG6
+        case 861:
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
+            break;
+        case 908:
+        case 909:
+        case 910:
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
+            break;
+        case 883:
+        case 884:
+        case 885:
+#else
         case 905:
             ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
             break;
@@ -390,6 +413,7 @@ void BossEnemyFunc(void *self)
         case 927:
         case 928:
         case 929:
+#endif
 #endif
             ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 1.2f, 0);
             break;
@@ -410,6 +434,7 @@ static inline void sendEnemyAway(GObj *o) /* derived name */
     pos[2] = pos[1] = pos[0] = 4294967296.0f;
     pos[3] = 0.0f;
     SetRootPosition(o, pos);
+#ifndef VERSION_AUG6
     GOBJ_SUB(o)->disp = 0;
 }
 
@@ -418,6 +443,7 @@ static inline void putEnemyAt(GObj *o, float *pos) /* derived name */
 {
     SetRootPosition(o, pos);
     GOBJ_SUB(o)->disp = 1;
+#endif
 }
 
 /* The DEBUG build's switch to release the enemies without their gather
@@ -580,7 +606,7 @@ static void gene_enemy(volatile int gobj)
     for (;; _ACTWait(1)) {
         total = 0;
         alive = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
         if (stage_no == 84) {
 #else
         if (stage_no == 86) {
@@ -638,12 +664,20 @@ static void gene_enemy(volatile int gobj)
                 if (r >= 0) {
                     GetParticleEffectData(r)->user.done = flag;
                     SetParticleEffectClipEnableFlag(r, 0);
+#ifdef VERSION_AUG6
+                    ExecuteSEPackage((GObj *)gobj, 94);
+#else
                     ExecuteSEPackage((GObj *)gobj, 99);
+#endif
                     while (*flag == 0) {
                         _ACTWait(1);
                     }
                 }
+#ifdef VERSION_AUG6
+                SetRootPosition(o, pos);
+#else
                 putEnemyAt(o, pos);
+#endif
                 GetRootPosition(pp, boyGObj);
                 sceVu0SubVector(dir, pp, pos);
                 sceVu0Normalize(dir, dir);
@@ -675,10 +709,36 @@ static void gene_enemy(volatile int gobj)
 
 void BossCtrlGeo(void *self)
 {
+#ifdef VERSION_AUG6
+    CapsuleRec *base;
+    CapsuleRec *e;
+    unsigned int k;
+    int n;
+#endif
     if (gflag[0] != 0)
         scpWakeupEnemyAll();
     else
         scpSleepEnemyAll();
+#ifdef VERSION_AUG6
+    n = 0;
+    base = capsule;
+    for (k = 0; k < 53; k++) {
+        e = &base[k];
+        if (e->state >= 2) {
+            if (stage_DispBgAnimation(&e->bga) != 0) {
+                pbga_start(&e->bga, 481);
+                _CopyVector(e->bga->pos, e->pos);
+                CopyQuaternion(e->bga->rot, e->quat);
+            }
+        }
+        if (e->state != 0) {
+            n++;
+        }
+    }
+    if ((debug_font_flag & 1) != 0) {
+        debug_Printf(10, 60, 0xFFFFFFFF, "capsule %d/%d", n, 53);
+    }
+#endif
 }
 
 /* the boss controller's actor start */
@@ -725,7 +785,7 @@ inline int InitBossCtrlGeo(void *gobj)
     char *q;
     char *r;
 
-    ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__, 350);
+    ret = (int)iosMallocDebug(ios_partition_sugipon, 0, __FILE__, LN(350, 350, 350, 350, 367));
     actInitialize(gobj);
     actInitialize_ext_charcter(gobj);
 #ifdef VERSION_KOR
@@ -762,6 +822,11 @@ void itou_boss_gflag_init(void)
     memset(gflag, 0, sizeof(gflag) + sizeof(capsule));
 }
 
+#ifdef VERSION_AUG6
+/* inline: TRFILE puts it at line 459, after InqCapsuleGhostBossEnd, and the
+   ROM emits it with the deferred inline functions, after itou_boss_gflag_init */
+inline void BossCtrlDL(void) {}
+#else
 void BossCtrlDL(void)
 {
     CapsuleRec *base;
@@ -796,6 +861,7 @@ void BossCtrlDL(void)
         debug_Printf(10, 60, 0xFFFFFFFF, "capsule %d/%d", n, 53);
     }
 }
+#endif
 
 inline void CapsuleGhostBossStart(void)
 {
@@ -835,7 +901,11 @@ inline int InqCapsuleGhostBossEnd(void)
     unsigned int cnt = 0;
     void *o;
 
+#ifdef VERSION_AUG6
+    if (isysGObjSearchFromObjKindID_begin(63) != 0) {
+#else
     if (isysGObjSearchFromObjKindID_begin(65) != 0) {
+#endif
         CapsuleRec *base = capsule;
         unsigned int i = 0;
         do {

@@ -14,6 +14,35 @@
 #include "main.h"
 #include "script.h"
 
+#ifdef VERSION_AUG6
+/* .data: actor mail packets. */
+
+static ActMail oriMain_mes[2] = {{373, actSt19aOriSwitch}, {392}}; /* derived name */
+
+static ActMail ori_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail oriSwitch_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail oriSwitch2_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail oriDown_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail haguruma_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail pipe_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail chainMain_mes[2] = {{372, actSt19aChainSwitch}, {392}}; /* derived name */
+
+static ActMail chain_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail chainSwitch_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail chainSwitch2_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail chainUp_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
+#else
 #ifdef VERSION_NTSC
 /* .data: actor mail packets. */
 
@@ -72,6 +101,7 @@ static ActMail chain_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail chainSwitch_mes[2] = {{430}, {429}}; /* derived name */
 /* .sdata: the fence, horn and pipe stream handles. */
 #endif
+#endif
 
 SqEntry *fence_up_19a = 0;
 
@@ -81,7 +111,7 @@ SqEntry *hgrm_19a = 0;
 
 SqEntry *pipe19a = 0;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 SqEntry *chain19a = 0;
 #else
 void actSt19aOriUp(GObj *volatile self)
@@ -152,7 +182,41 @@ void actSt19aOriUp(GObj *volatile self)
 
 static const ConstVec hagurumaPos = {{-642.0f, 2132.0f, -2861.0f, 0.0f}}; /* derived name */
 
-#ifdef VERSION_NTSC
+#ifdef VERSION_AUG6
+static const ConstVec hagurumaChkPos = {{486.0f, 2386.0f, -2917.0f, 0.0f}}; /* derived name */
+
+void actSt19aOriDown(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    lt_switch_layout(51);
+    _ACTWait(60);
+    scpAdpcmPlayRequestFunc(73, &fence_down_19a, 1, 1, 1);
+    while (fence_down_19a == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(121, 1, 90);
+    gflagOff(282);
+    while (stage_CheckAnimationFrame(121, 180, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    _ACTWait(120);
+    if (fence_down_19a != 0) {
+        scpAdpcmFadeClose(fence_down_19a, 256);
+    }
+    lt_switch_layout(50);
+    _ACTWait(60);
+
+    oriDown_mes[0].func = actSt19aOriMain;
+    sub->mail = oriDown_mes;
+    ACTSendMailCorrect(self, 393);
+    _ACTWait(0);
+}
+#endif
+
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifndef VERSION_AUG6
 static const ConstVec hagurumaChkPos = {{486.0f, 2386.0f, -2917.0f, 0.0f}}; /* derived name */
 
 void actSt19aOriDown(GObj *volatile self)
@@ -183,6 +247,7 @@ void actSt19aOriDown(GObj *volatile self)
     ACTSendMailCorrect(self, 397);
     _ACTWait(0);
 }
+#endif
 
 void actSt19aHaguruma(GObj *volatile self)
 {
@@ -196,12 +261,21 @@ void actSt19aHaguruma(GObj *volatile self)
     pos[0] = hagurumaPos.d[0];
     pos[1] = hagurumaPos.d[1];
     soundSeDefPlay(1322, 0, (float *)pos, 1);
+#ifdef VERSION_AUG6
+    if (gflagChk(283) == 0) {
+        scpSearchGobj(1777)->active = 0;
+        stage_SetAnimation(118, 0, 0);
+        haguruma_mes[0].func = actSt19aHagurumaChk;
+        sub->mail = haguruma_mes;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(284) == 0) {
         scpSearchGobj(1793)->active = 0;
         stage_SetAnimation(119, 0, 0);
         haguruma_mes[0].func = actSt19aHagurumaChk;
         sub->mail = haguruma_mes;
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     } else {
         pos2[0] = hagurumaChkPos.d[0];
@@ -209,10 +283,17 @@ void actSt19aHaguruma(GObj *volatile self)
         soundSeDefPlay(1323, 0, (float *)pos2, 1);
         soundSeDefPlay(1324, 0, (float *)pos2, 1);
         soundSeDefPlay(1325, 0, (float *)pos2, 1);
+#ifdef VERSION_AUG6
+        scpSearchGobj(1778)->active = 0;
+        stage_SetAnimation(118, 1, 0);
+        stage_SetLoopFlag(118, 1);
+        stage_SetLoopFlag(119, 1);
+#else
         scpSearchGobj(1794)->active = 0;
         stage_SetAnimation(119, 1, 0);
         stage_SetLoopFlag(119, 1);
         stage_SetLoopFlag(120, 1);
+#endif
     }
 }
 
@@ -220,17 +301,35 @@ void actSt19aHagurumaChk(GObj *volatile self)
 {
     long long pos[2];
 
+#ifdef VERSION_AUG6
+    while (scpTriggerBall(self, scpSearchGobj(1778), 220.0f) == 0) {
+#else
     while (scpTriggerBall(self, scpSearchGobj(1794), 220.0f) == 0) {
+#endif
         _ACTWait(1);
     }
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
+#ifdef VERSION_AUG6
+    gflagOn(283);
+#else
     gflagOn(284);
+#endif
     scpAdpcmPlayRequestFunc(74, &hgrm_19a, 1, 1, 1);
     while (hgrm_19a == 0) {
         _ACTWait(1);
     }
     _ACTWait(60);
+#ifdef VERSION_AUG6
+    stage_SetAnimation(120, 1, 0);
+    _ACTWait(90);
+    stage_SetAnimation(118, 1, 0);
+    stage_SetAnimation(119, 1, 0);
+    scpSearchGobj(1778)->active = 0;
+    scpSearchGobj(1777)->active = 1;
+    stage_SetLoopFlag(118, 1);
+    stage_SetLoopFlag(119, 1);
+#else
     stage_SetAnimation(121, 1, 0);
     _ACTWait(90);
     stage_SetAnimation(119, 1, 0);
@@ -239,12 +338,17 @@ void actSt19aHagurumaChk(GObj *volatile self)
     scpSearchGobj(1793)->active = 1;
     stage_SetLoopFlag(119, 1);
     stage_SetLoopFlag(120, 1);
+#endif
     pos[0] = hagurumaChkPos.d[0];
     pos[1] = hagurumaChkPos.d[1];
     soundSeDefPlay(1323, 0, (float *)pos, 1);
     soundSeDefPlay(1324, 0, (float *)pos, 1);
     soundSeDefPlay(1325, 0, (float *)pos, 1);
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFinish(120) == 0) {
+#else
     while (stage_CheckAnimationFinish(121) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -260,18 +364,31 @@ void actSt19aPipeChk(GObj *volatile self)
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
+#ifdef VERSION_AUG6
+    gflagOn(284);
+    scpSearchGobj(1775)->active = 0;
+#else
     gflagOn(285);
     scpSearchGobj(1791)->active = 0;
+#endif
     _ACTWait(1);
     scpAdpcmPlayRequestFunc(82, &pipe19a, 1, 1, 1);
     while (pipe19a == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_AUG6
+    stage_SetAnimation(122, 1, 0);
+#else
     stage_SetAnimation(123, 1, 0);
+#endif
     FeedbackWallWorkInfoToBrainSystem(boyGObj);
     scpPlayMot(boyGObj, 78);
     _ACTWait(300);
+#ifdef VERSION_AUG6
+    scpSearchGobj(1776)->active = 1;
+#else
     scpSearchGobj(1792)->active = 1;
+#endif
     scpPlayEnd(boyGObj);
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);
@@ -285,15 +402,27 @@ void actSt19aChainDown(GObj *volatile self)
     while (chain19a == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_AUG6
+    stage_SetAnimation(123, 1, 0);
+    gflagOn(285);
+    SetCameraFlag_LwsCutBack();
+    while (stage_CheckAnimationFrame(123, 240, 1) == 0) {
+#else
     stage_SetAnimation(124, 1, 0);
     gflagOn(286);
     SetCameraFlag_LwsCutBack();
     while (stage_CheckAnimationFrame(124, 240, 1) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
+#ifdef VERSION_AUG6
+    scpSearchGobj(1780)->active = 1;
+    stage_SetAnimation(123, 0, 361);
+#else
     scpSearchGobj(1796)->active = 1;
     stage_SetAnimation(124, 0, 361);
+#endif
     if (chain19a != 0) {
         scpAdpcmFadeClose(chain19a, 256);
     }
@@ -307,11 +436,19 @@ void actSt19aChainUp(GObj *volatile self)
 
     lt_switch_layout(51);
     _ACTWait(60);
+#ifdef VERSION_AUG6
+    scpSearchGobj(1780)->active = 0;
+    stage_SetAnimation(123, 1, 240);
+    gflagOff(285);
+    SetCameraFlag_LwsCutBack();
+    while (stage_CheckAnimationFrame(123, 359, 1) == 0) {
+#else
     scpSearchGobj(1796)->active = 0;
     stage_SetAnimation(124, 1, 240);
     gflagOff(286);
     SetCameraFlag_LwsCutBack();
     while (stage_CheckAnimationFrame(124, 359, 1) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -323,7 +460,11 @@ void actSt19aChainUp(GObj *volatile self)
 
     chainUp_mes[0].func = actSt19aChainMain;
     sub->mail = chainUp_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -336,15 +477,26 @@ void actSt19aOri(GObj *volatile self)
 
     ScpCallCameraSetTarget(4298.0f, -2342.0f, 1331.0f);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(282) != 0) {
+        stage_SetAnimation(121, 0, 89);
+    } else {
+        stage_SetAnimation(121, 0, 0);
+#else
     if (gflagChk(283) != 0) {
         stage_SetAnimation(122, 0, 89);
     } else {
         stage_SetAnimation(122, 0, 0);
+#endif
     }
 
     ori_mes[0].func = actSt19aOriMain;
     act->mail = ori_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -360,7 +512,11 @@ void actSt19aOriXL(GObj *volatile self)
     pos[1] = hagurumaPos.d[1];
     soundSeDefPlay(1322, 0, (float *)pos, 1);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(121, 0, 0);
+#else
     stage_SetAnimation(122, 0, 0);
+#endif
 }
 
 void actSt19aPipe(GObj *volatile self)
@@ -370,18 +526,33 @@ void actSt19aPipe(GObj *volatile self)
     Act *act = actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(284) == 0) {
+        scpSearchGobj(1776)->active = 0;
+        stage_SetAnimation(122, 0, 0);
+#else
     if (gflagChk(285) == 0) {
         scpSearchGobj(1792)->active = 0;
         stage_SetAnimation(123, 0, 0);
+#endif
 
         pipe_mes[0].func = actSt19aPipeChk;
         act->mail = pipe_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
 
     } else {
+#ifdef VERSION_AUG6
+        scpSearchGobj(1775)->active = 0;
+        stage_SetAnimation(122, 0, -1);
+#else
         scpSearchGobj(1791)->active = 0;
         stage_SetAnimation(123, 0, -1);
+#endif
     }
 }
 
@@ -392,10 +563,17 @@ void actSt19aPipeXL(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(284) == 0) {
+        stage_SetAnimation(122, 0, 0);
+    } else {
+        stage_SetAnimation(122, 0, -1);
+#else
     if (gflagChk(285) == 0) {
         stage_SetAnimation(123, 0, 0);
     } else {
         stage_SetAnimation(123, 0, -1);
+#endif
     }
 }
 
@@ -406,15 +584,26 @@ void actSt19aChain(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(285) == 0) {
+        scpSearchGobj(1780)->active = 0;
+
+        stage_SetAnimation(123, 0, 0);
+#else
     if (gflagChk(286) == 0) {
         scpSearchGobj(1796)->active = 0;
 
         stage_SetAnimation(124, 0, 0);
+#endif
     }
 
     chain_mes[0].func = actSt19aChainMain;
     act->mail = chain_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -425,10 +614,17 @@ void actSt19bIntro(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(286) == 0) {
+        intro_mes[0].func = actSt19bIntroChk;
+        act->mail = intro_mes;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(287) == 0) {
         intro_mes[0].func = actSt19bIntroChk;
         act->mail = intro_mes;
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -861,15 +1057,52 @@ void actSt19aOriSwitch(GObj *volatile self)
     scpBoyControlReadDisable = 1;
 
     sub->mainMail = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 
+#ifdef VERSION_AUG6
+    if (gflagChk(282) != 0) {
+        oriSwitch_mes[0].func = actSt19aOriDown;
+        sub->mail = oriSwitch_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    }
+#else
     if (gflagChk(283) != 0) {
         oriSwitch_mes[0].func = actSt19aOriDown;
         sub->mail = oriSwitch_mes;
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
     }
+#endif
 
+#ifdef VERSION_AUG6
+    oriSwitch2_mes[0].func = actSt19aOriUp;
+    sub->mail = oriSwitch2_mes;
+    ACTSendMailCorrect(self, 393);
+    _ACTWait(0);
+}
+
+void actSt19aOriUp(GObj *volatile self)
+{
+    lt_switch_layout(51);
+    _ACTWait(60);
+    scpAdpcmPlayRequestFunc(72, &fence_up_19a, 1, 1, 1);
+    while (fence_up_19a == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(121, 1, 0);
+    gflagOn(282);
+    while (stage_CheckAnimationFrame(121, 89, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    _ACTWait(120);
+    if (fence_up_19a != 0) {
+        scpAdpcmFadeClose(fence_up_19a, 256);
+    }
+    scpBoyControlReadDisable = 0;
+    lt_switch_layout(50);
+#else
     oriSwitch2_mes[0].func = actSt19aOriUp;
     sub->mail = oriSwitch2_mes;
     ACTSendMailCorrect(self, 397);
@@ -896,6 +1129,7 @@ void actSt19aOriUp(GObj *volatile self)
     }
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);
+#endif
 #else
     oriSwitch_mes[0].func = actSt19aOriUp;
     sub->mail = oriSwitch_mes;
@@ -917,7 +1151,7 @@ void actSt19aChainMain(GObj *volatile self)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt19aChainSwitch(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -926,15 +1160,26 @@ void actSt19aChainSwitch(GObj *volatile self)
 
     sub->mainMail = 0;
 
+#ifdef VERSION_AUG6
+    if (gflagChk(285) == 0) {
+        chainSwitch_mes[0].func = actSt19aChainDown;
+        sub->mail = chainSwitch_mes;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(286) == 0) {
         chainSwitch_mes[0].func = actSt19aChainDown;
         sub->mail = chainSwitch_mes;
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     } else {
         chainSwitch2_mes[0].func = actSt19aChainUp;
         sub->mail = chainSwitch2_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -946,9 +1191,15 @@ void actSt19bIntroChk(GObj *volatile self)
     }
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
+#ifdef VERSION_AUG6
+    gflagOn(286);
+    stage_SetAnimation(116, 1, 0);
+    while (stage_CheckAnimationFinish(116) == 0) {
+#else
     gflagOn(287);
     stage_SetAnimation(117, 1, 0);
     while (stage_CheckAnimationFinish(117) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);

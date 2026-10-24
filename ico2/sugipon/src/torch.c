@@ -8,7 +8,7 @@
 #include "matrixDrive.h"
 #include "quaternion.h"
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 typedef struct TorchGeoWork { /* field names derived */
     /* 0x00 */ int flags;
     /* 0x04 */ int lightOn;
@@ -63,7 +63,7 @@ inline void SetTorchChainReactionFlag(GObj *torch, int flag)
 void torchOffSE(GObj *torch)
 {
     StopSEPackage(torch);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(torch, 65);
 #else
     ExecuteSEPackage(torch, 67);
@@ -98,6 +98,19 @@ void LightTorchOn(GObj *gobj)
         if (n > 0) {
             return;
         }
+#ifdef VERSION_AUG6
+        w->effect[1] = SetParticleEffect(21, pos, IdentityQuaternion);
+        w->effect[4] = SetParticleEffect(19, pos, IdentityQuaternion);
+        break;
+    case 4:
+        w->effect[0] = SetParticleEffect(23, pos, IdentityQuaternion);
+        break;
+    default:
+        w->effect[3] = SetParticleEffect(7, pos, IdentityQuaternion);
+        w->effect[0] = SetParticleEffect(5, pos, IdentityQuaternion);
+        w->effect[1] = SetParticleEffect(9, pos, IdentityQuaternion);
+        w->effect[4] = SetParticleEffect(19, pos, IdentityQuaternion);
+#else
         w->effect[1] =
             SetParticleEffectByPartition(21, pos, IdentityQuaternion, ios_partition_seki);
         w->effect[4] =
@@ -113,6 +126,7 @@ void LightTorchOn(GObj *gobj)
         w->effect[1] = SetParticleEffectByPartition(9, pos, IdentityQuaternion, ios_partition_seki);
         w->effect[4] =
             SetParticleEffectByPartition(19, pos, IdentityQuaternion, ios_partition_seki);
+#endif
         break;
     }
     w->burnTime = 0;
@@ -148,7 +162,7 @@ void LightTorchOff(GObj *gobj)
     }
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static void torchDrainControl(GObj *gobj, float level)
 {
     TorchGeoWork *w = GOBJ_SUB(gobj)->work;
@@ -192,7 +206,7 @@ static void moveTorch(GObj *gobj, void *mtx)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 inline void TorchDL(void) {}
 #else
 static void setPauseFlag(GObj *gobj, int flag)
@@ -222,7 +236,7 @@ inline int IsTorchLightOn(GObj *torch)
     TorchGeoWork *w = GOBJ_SUB(torch)->work;
 
     return w->lightOn;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 }
 
 inline void SetTorchLife(GObj *torch, int life, int fadeTime)
@@ -234,7 +248,8 @@ inline void SetTorchLife(GObj *torch, int life, int fadeTime)
 
 inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
 {
-    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__, 232);
+    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
+                                     LN(232, 232, 232, 232, 232));
     *p = emptyTorchWork;
     /* the display object read through the SubHandle union each time: the
        light store reads the slot again after the work store, which three
@@ -315,10 +330,16 @@ GObj *CheckTorchChainReactionReverse(GObj *self, float dist)
     return 0;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 inline TorchGeoWork *InitTorchGeo(GObj *self, SObjSimpleSetting *lay)
 {
-    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__, 196);
+#ifdef VERSION_AUG6
+    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
+                                     LN(232, 232, 232, 232, 174));
+#else
+    TorchGeoWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(TorchGeoWork), __FILE__,
+                                     LN(196, 196, 196, 196, 196));
+#endif
     *p = emptyTorchWork;
     /* the display object read through the SubHandle union each time: the
        light store reads the slot again after the work store, which three
@@ -380,7 +401,7 @@ inline void UpdateRealTimeGeometryValue(GObj *self)
 static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name */
 {
     Act *p;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     Act *q;
 #endif
     GObj *a;
@@ -388,7 +409,7 @@ static inline int chainReactionBlocked(GObj *gobj, GObj *other) /* derived name 
 
     b = GOBJ_SUB(gobj)->parent.obj;
     a = GOBJ_SUB(other)->parent.obj;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     if (girlGObj != 0) {
         q = GOBJ_ACT(girlGObj);
         if (b != 0 && b == q->curItem) {
@@ -425,6 +446,7 @@ static inline void procChainReaction(GObj *gobj)
     }
 }
 #else
+#ifndef VERSION_AUG6
 static void procChainReaction(GObj *gobj)
 {
     TorchGeoWork *w;
@@ -440,13 +462,14 @@ static void procChainReaction(GObj *gobj)
     }
 }
 #endif
+#endif
 
 void TorchGeo(GObj *gobj)
 {
     TorchGeoWork *w;
     Sub15C *sub;
     GObj *o;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     float drain;
     int id;
 #endif
@@ -459,6 +482,19 @@ void TorchGeo(GObj *gobj)
             LightTorchOff(gobj);
             return;
         }
+#ifdef VERSION_AUG6
+    }
+    if (IsTorchLightOn(gobj) == 0) {
+        if (w->chainFlag != 0) {
+            GObj *other = CheckTorchChainReaction(gobj, 20.0f);
+
+            if (other != 0 && chainReactionBlocked(gobj, other) == 0) {
+                LightTorchOn(gobj);
+            }
+        }
+        return;
+    }
+#else
 #ifndef VERSION_NTSC
         GetRootPosition(w->pos, gobj);
 #endif
@@ -474,11 +510,12 @@ void TorchGeo(GObj *gobj)
         setPauseFlag(gobj, 1);
     }
 #endif
+#endif
     if (w->burnTime < 65535) {
         w->burnTime = w->burnTime + 1;
     }
     if (o != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         float pos[4];
 
         GetRootPosition(pos, gobj);
@@ -491,6 +528,7 @@ void TorchGeo(GObj *gobj)
     }
     if (w->life < w->burnTime) {
         LightTorchOff(gobj);
+#ifndef VERSION_AUG6
         procChainReaction(gobj);
 #ifndef VERSION_NTSC
         return;
@@ -505,9 +543,10 @@ void TorchGeo(GObj *gobj)
             }
         }
 #endif
+#endif
     }
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 inline void TorchDL(void) {}
 #endif

@@ -37,7 +37,11 @@ static inline void objActionCorrectFlag(OaRecB *p) /* derived name */
 #ifdef VERSION_NTSC
         p->mode = 815;
 #else
+#ifdef VERSION_AUG6
+        p->mode = 814;
+#else
         p->mode = 972;
+#endif
 #endif
 #endif
     }
@@ -56,7 +60,11 @@ static inline void objActionCorrectMode(OaRecB *p) /* derived name */
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (p->mode == 949) {
 #else
+#ifdef VERSION_AUG6
+    if (p->mode == 814) {
+#else
     if (p->mode == 972) {
+#endif
 #endif
         p->mode = p->baseMode;
     }
@@ -111,7 +119,11 @@ inline void ObjAction_MailCenter(GObj *gobj, int step)
     const ObjActMailEnt *e;
     int n;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 31; i++) {
+#else
     for (i = 0; i < 33; i++) {
+#endif
         e = &objTrigger[i];
         if (gobj->labelId != e->labelId)
             continue;

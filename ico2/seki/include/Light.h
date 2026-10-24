@@ -51,7 +51,9 @@ void light_KillAllFixLight(void);
 void light_MakeLightMatrix(struct Sub15C *self, int idx);
 void light_resetFlatLight(void);
 int light_Tool(void);
+#ifndef VERSION_AUG6
 void light_ResetLight(void);
+#endif
 void light_InitLight(void);
 
 #endif /* LIGHT_H */

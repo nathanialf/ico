@@ -12,7 +12,7 @@
    HandCameraCorrect is called with */
 static float handCameraRate; /* derived name */
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static unsigned char handCameraMode; /* derived name */
 #endif
 
@@ -36,7 +36,7 @@ static void RotateAccordingToStick_PatternThree(float *pitch, float *yaw, float 
     x = v[0];
     y = v[2];
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     if (len < 0.1f)
         spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(16);
     else
@@ -77,7 +77,7 @@ static void RotateAccordingToStick_PatternThree(float *pitch, float *yaw, float 
     *yaw += db;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static inline void SetCurrentInfo(void *eye, void *at)
 {
     float *p = handCameraWork;
@@ -216,7 +216,7 @@ inline void SetLimitHandCameraCorrect(float limitP, float limitV)
     handCameraWork[6] = limitV;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 inline void HandCameraCorrect(void *eye, void *at, float stickX, float stickZ, float rate)
 {
     float *p = handCameraWork;

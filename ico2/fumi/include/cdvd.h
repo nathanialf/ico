@@ -8,7 +8,62 @@
 #ifndef CDVD_H
 #define CDVD_H
 
+#ifdef VERSION_AUG6
+#include <libcdvd.h>
+
+struct InflateHandler;
+
+/* a handle's control doubleword: bit 0 asks for the inflating read, word 1
+   is the command */
+union IosCdvdCtl { /* field names derived */
+    long long ll;
+    int i[2];
+}; /* derived name */
+
+/* the handle's directory record of its file, the 0x24 bytes sceCdSearchFile
+   writes (cdvd.c's sceCdlFILE): sector, size, name column, date */
+typedef struct IosCdvdFile { /* field names derived */
+    unsigned int lsn;
+    unsigned int size;
+    char name[16];
+    unsigned char date[8];
+    unsigned int reserved;
+} IosCdvdFile; /* derived name */
+
+/* The cdvd handle a load request is made with (iosCdvd is the manager's own,
+ * 33216 bytes): the command word, the result, the sector cursor the
+ * stream reads advance, the read handler and its argument, the pack segment, the read counters, the file's name and its
+ * directory record, the sceCdRead mode, the inflate handle, the stream
+ * buffer, the 32 KB sector buffer and the streamed file's size. */
+typedef struct IosCdvdHandle { /* field names derived */
+    union IosCdvdCtl ctl;      /* 0x00, bit 0 asks for the inflating read; word 1 is
+                            the command: 0 wait for the disc, 1 load, 2 pack
+                            load */
+    char pad8[4];
+    int result; /* 0x0C */
+    char pad10[4];
+    int lsn;                                             /* 0x14 */
+    int (*handler)(struct IosCdvdHandle *self, int arg); /* 0x18 */
+    int handlerArg;                                      /* 0x1C */
+    int seg;                                             /* 0x20, the pack's segment id */
+    int readBytes;                                       /* 0x24 */
+    int readSectorCnt;                                   /* 0x28 */
+    int sectors;                                         /* 0x2C, the sectors still to stream */
+    int buffCnt;                                         /* 0x30 */
+    char name[256];                                      /* 0x34 */
+    IosCdvdFile file;                                    /* 0x134 */
+    CdRMode mode;                                        /* 0x158 */
+    struct InflateHandler *inflate;                      /* 0x15C */
+    int stMem;                                           /* 0x160 */
+    int stBuf;                                           /* 0x164, stMem rounded up to 16 */
+    char pad168[24];
+    unsigned char buf[32768]; /* 0x180 */
+    int stSize;               /* 0x8180 */
+    char pad8184[60];
+} IosCdvdHandle; /* derived name */
+#else
 struct IosCdvdHandle; /* the record ios/cdvd.c defines */
+#endif
 
 /* One background read request (ios/cdvd.c keeps seven): the file's name,
  * empty while the slot is free, the read function the manager calls each
@@ -58,7 +113,9 @@ extern CdSrhEnt iosCdvdSrhBuff[];
 extern int IosCdvdMgrSleep;
 extern int iosCdvdMediaType;
 extern int iosCdvdBackGroundMgrRunning;
+#ifndef VERSION_AUG6
 extern int iosCdvdStDelayCnt;
+#endif
 extern float inflateSec;
 long long inflate_cd_read_func(void *buf, long long size, void *handle);
 

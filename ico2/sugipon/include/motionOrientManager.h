@@ -83,7 +83,7 @@ typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         unsigned int : 22;
         unsigned int fuchiMode : 2; /* MotCtrl fuchiMode */
         unsigned int : 2;
@@ -141,7 +141,7 @@ typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         unsigned int : 5;
         unsigned int dropNode4Turn : 1; /* MotCtrl flag330 */
         unsigned int : 4;
@@ -151,7 +151,7 @@ typedef union { /* field names derived */
         unsigned int carried
             : 1; /* a carried pose: the girl's carry ends on it (commonact.c's becarry check) */
         unsigned int : 3;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         unsigned int parallel : 1; /* played as a parallel motion */
         unsigned int : 1;
         unsigned int shiftInside : 1; /* the shift range is the frames the shift may happen in */
@@ -189,7 +189,7 @@ typedef union { /* field names derived */
     unsigned int word;
 
     struct {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         unsigned int : 1;
         unsigned int weaponSwing
             : 1; /* the held weapon's blade is drawn, its hand left to the motion */
@@ -215,7 +215,7 @@ typedef union { /* field names derived */
     } bits;
 } MotionFlags2; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* motion-def: one motion kind, 0x190 bytes, indexed by the motion id the
    motion work carries (Sub15C+0x4A0): the sound, effect and vibration
    triggers frameDependSequence.c fires, the motion file, the name, the
@@ -384,7 +384,9 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req);
 void SetNodeRotationLimitDataTable(void *self, int from, int to);
 #ifndef VERSION_NTSC
 /* the rope interpolation rate the chain sets (motionOrientManager.c) */
+#ifndef VERSION_AUG6
 extern float ropeInterRate;
+#endif
 #endif
 void ForTest_ForceShiftMotion(int obj, int motion);
 

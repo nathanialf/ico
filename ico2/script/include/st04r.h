@@ -14,7 +14,7 @@ struct SqEntry;
 
 /* st04r.o's .sdata globals */
 extern struct SqEntry *solar4r;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern struct SqEntry *ball1_4r;
 extern struct SqEntry *ball2_4r;
 extern struct SqEntry *ball3_4r;
@@ -30,7 +30,7 @@ extern int crest2_4r;
 extern struct SqEntry *crest3_4r;
 extern struct SqEntry *stair5d;
 extern struct SqEntry *sekizo5c;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern struct SqEntry *st05d_hasi;
 #else
 extern unsigned char st05d_hasi;
@@ -42,11 +42,14 @@ extern int sekizo_4r;
 extern unsigned char sekizo_4r_vol;
 void actSt04rBarricadeChk(GObj *volatile self);
 #endif
+#ifdef VERSION_AUG6
+void actSt04rBarricadeChk(GObj *volatile self);
+#endif
 void actSt04rBrg1Chk(GObj *volatile self);
 void actSt04rBrg1WayChk(GObj *volatile self);
 void actSt04rBrg2Chk(GObj *volatile self);
 void actSt04rBrg2WayChk(GObj *volatile self);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void actSt04rBrgCommon(GObj *volatile self);
 #endif
 void actSt04rC1BallMain(GObj *volatile self);

@@ -13,7 +13,11 @@
 #ifdef VERSION_NTSC
 #define MAX_CHARS 1582
 #else
+#ifdef VERSION_AUG6
+#define MAX_CHARS 1576
+#else
 #define MAX_CHARS 1637
+#endif
 #endif
 #endif
 

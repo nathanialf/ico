@@ -37,14 +37,25 @@ typedef struct WpPosEntry { /* field names derived */
    count the search clears; wpPosVec and wpPosInfo are the positions and the
    (waypoint, length) pairs add_wp_pos appends, CopyWpPos reading at most
    128. */
+#ifdef VERSION_AUG6
+static WayPoint *searchNodes[215]; /* derived name */
+
+static char edgeDone[64]; /* derived name */
+#else
 static WayPoint *searchNodes[275]; /* derived name */
 
 static char edgeDone[94]; /* derived name */
+#endif
 
 static float wpPosVec[128][4]; /* derived name */
 
+#ifdef VERSION_AUG6
+/* 216 entries, one more than the loops' 215 */
+static WpPosEntry wpPosInfo[216]; /* derived name */
+#else
 /* 276 entries, one more than the loops' 275 */
 static WpPosEntry wpPosInfo[276]; /* derived name */
+#endif
 
 static void add_wp_pos(WayPoint *wp, float *pos, float len)
 {
@@ -327,10 +338,17 @@ int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
     int j;
     int k;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 215; i++) {
+        searchNodes[i] = 0;
+    }
+    for (k = 0; k < 64; k++) {
+#else
     for (i = 0; i < 275; i++) {
         searchNodes[i] = 0;
     }
     for (k = 0; k < 94; k++) {
+#endif
         edgeDone[k] = 0;
     }
     GetWay_begin(pos, w, pos);
@@ -369,7 +387,11 @@ int WayPointWithRangeFromPos2(float *pos, WVTObj *w, float *dst, int chk)
             break;
         }
         if (edge->bridge == 0) {
+#ifdef VERSION_AUG6
+            for (k = 0; k < 64; k++) {
+#else
             for (k = 0; k < 94; k++) {
+#endif
                 if (way_group[k].used == 0) {
                     continue;
                 }
@@ -422,7 +444,11 @@ ret:
            active group that allows a nest */
         debug_StdPrintfDummy(
             "見付からないので全WAYPOOINTから アクティブグループで巣許可の一番近いポイントを検索");
+#ifdef VERSION_AUG6
+        for (i = 0; i < 215; i++) {
+#else
         for (i = 0; i < 275; i++) {
+#endif
             cur = &way_point[i];
             if (cur->used == 0 || cur->bridgeEnd != 0 || way_group[cur->group].active == 0) {
                 continue;

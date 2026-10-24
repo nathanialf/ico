@@ -335,7 +335,11 @@ static inline void checkPoolFloor(ClipWork *w) /* derived name */
 {
     int attr = GetFloorAttribute(w);
 
+#ifdef VERSION_AUG6
+    if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+#else
     if (CompareAttribute(attr, 0x50) != 0) {
+#endif
         if (w->pt[2][1] - skelRoot->pos[1] < skelRoot->projHeight) {
             setPoolHeightOfFloor(w);
         }
@@ -1085,6 +1089,9 @@ static ObjNode rootUpdateXZ(int kind, int no)
     } else {
         ClipWork w;
 
+#ifdef VERSION_AUG6
+        if (skelRoot->gravity == 0) {
+#else
         if (skelRoot->gravity != 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             skelRoot->move[1] += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) *
@@ -1099,6 +1106,7 @@ static ObjNode rootUpdateXZ(int kind, int no)
             AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->move);
             WALL_COLLISION_AND_WAVE_FORCE();
         } else {
+#endif
             if (skelRoot->standNode != no) {
                 CopyVector(skelRoot->move, &step);
             }
@@ -1116,6 +1124,14 @@ static ObjNode rootUpdateXZ(int kind, int no)
             } else {
                 skelRoot->pos[1] = mv.f[1] + skelRoot->footPos[1];
             }
+#ifdef VERSION_AUG6
+        } else {
+            skelRoot->move[1] += 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) *
+                                 0.5f *
+                                 (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+            AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->move);
+            WALL_COLLISION_AND_WAVE_FORCE();
+#endif
         }
         checkCliffAndWallStateAtJump();
         switch (getFlyFieldCollision(&w)) {
@@ -1173,6 +1189,7 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
     if (no != -1) {
         CopyVector(skelRoot->delta, rootDelta);
     } else {
+#ifndef VERSION_AUG6
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
         if (skelMotCtrl->justShifted != 0) {
             if (systemStatus[0] == 1) {
@@ -1188,6 +1205,7 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
                 debug_StdPrintfDummy("inertia cancel.\n");
             }
         }
+#endif
         AddVectorXYZ(skelRoot->pos, skelRoot->pos, skelRoot->delta);
     }
 
@@ -1203,8 +1221,12 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
             if (getFieldCollision(&w) != 0) {
                 CopyVector(&skelRoot->plane, &w.normal);
                 skelRoot->pos[1] = w.pt[2][1] + mv.f[1];
+#ifdef VERSION_AUG6
+                if (no != -1 || skelMotCtrl->motion == 75 || skelMotCtrl->motion == 58) {
+#else
                 if (no != -1 || skelMotCtrl->motion == 75 || skelMotCtrl->motion == 599 ||
                     skelMotCtrl->motion == 58) {
+#endif
                     skelMotCtrl->floorAttr = GetFloorAttribute(&w);
                     ret = w.floor.o;
                 } else {
@@ -1236,6 +1258,9 @@ static ObjNode rootUpdateXZ_MotPos(int kind, int no)
     skelRoot->height = rootMove[1];
     SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
     CopyVector(skelRoot->trans, ZeroPoint);
+#ifdef VERSION_AUG6
+    AddVectorXYZ(skelRoot->footPos, skelRoot->footPos, skelRoot->delta);
+#endif
     CopyVector(skelRoot->last, skelRoot->pos);
     skelRoot->standNode = no;
     return ret;
@@ -1273,7 +1298,9 @@ static int adjustSideWall(ClipWork *w, int nearTest, Vec16 *wallPlane)
 
 static int checkSideWall(float *probe, float *mtx, ClipWork *p, ClipWork *base, Vec16 *wallPlane)
 {
+#ifndef VERSION_AUG6
     char buf[16];
+#endif
     int flag;
     int mag;
     int mask;
@@ -1309,6 +1336,9 @@ static int checkSideWall(float *probe, float *mtx, ClipWork *p, ClipWork *base, 
             if (flag != 0) {
                 return adjustSideWall(p, 0, wallPlane);
             }
+#ifdef VERSION_AUG6
+        }
+#else
             goto side_probe;
         }
     }
@@ -1319,6 +1349,7 @@ side_probe:
     ClipWall(p);
     if (p->wall.elem != 0) {
         goto disp_one;
+#endif
     }
     CopyVector(p, (void *)p->pt[1]);
     CopyVector((void *)p->pt[1], base->pt[1]);
@@ -1332,7 +1363,7 @@ side_probe:
 
 static void forceFallDown(void)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     iosOmSendMail((GObj *)skelGObj, 24, (void *)skelGObj);
 #else
     iosOmSendMail((GObj *)skelGObj, 0x18, (void *)skelGObj);
@@ -1345,7 +1376,11 @@ static void forceReset(void)
 #ifdef VERSION_NTSC
     iosOmSendMail((GObj *)skelGObj, 243, (void *)skelGObj);
 #else
+#ifdef VERSION_AUG6
+    iosOmSendMail((GObj *)skelGObj, 240, (void *)skelGObj);
+#else
     iosOmSendMail((GObj *)skelGObj, 0x103, (void *)skelGObj);
+#endif
 #endif
     CopyVector(skelRoot->last, (char *)skelRoot);
 }
@@ -1413,7 +1448,9 @@ static void calcWallFittingGeometry(void)
 static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
 {
     Vec16 mv;
+#ifndef VERSION_AUG6
     Vec16 up;
+#endif
     float mtx[16];
     Vec16 pl;
     Vec16 pl2;
@@ -1423,7 +1460,9 @@ static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
     int hit;
 
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
+#ifndef VERSION_AUG6
     sceVu0ApplyMatrix(&up, mtx, rootMove);
+#endif
     sceVu0ApplyMatrix(&mv, mtx, rootStep);
     AddVectorXYZ(skelRoot->pos, skelRoot->pos, &mv);
     skelRoot->height = rootMove[1];
@@ -1464,7 +1503,11 @@ static ObjNode rootUpdateHang(int kind, int hand1Pt, int hand0Pt)
                 }
                 skelRoot->wall = rec;
                 skelRoot->wallCount = n;
+#ifdef VERSION_AUG6
+                skelMotCtrl->wallAttr = attr = GetWallAttribute(&w);
+#else
                 skelMotCtrl->pureWallAttr = skelMotCtrl->wallAttr = attr = GetWallAttribute(&w);
+#endif
                 if (attr == 768) {
                     forceFallDown();
                     /* EUC-JP: "fall by the wall attribute" */
@@ -1547,7 +1590,9 @@ out:
     if (kind == 15) {
         calcWallFittingGeometry();
     }
+#ifndef VERSION_AUG6
     SubVectorXYZ(skelRoot->up, skelRoot->pos, &up);
+#endif
     SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
     CopyVector(skelRoot->last, skelRoot->pos);
     CopyVector(skelRoot->delta, rootDelta);
@@ -1666,7 +1711,9 @@ static int avoidSideAdjustWall(void)
 static ObjNode rootUpdateStepSolution(int kind)
 {
     Vec16 mv;
+#ifndef VERSION_AUG6
     Vec16 up;
+#endif
     /* every arm of the switch below reassigns it */
     WallCfg cfg = {{0, -1}, 0};
     float mtx[16];
@@ -1686,7 +1733,9 @@ static ObjNode rootUpdateStepSolution(int kind)
 
     GetMatrixFromQuaternion(mtx, skelRoot->quat);
     sceVu0ApplyMatrix(&mv, mtx, rootStep);
+#ifndef VERSION_AUG6
     sceVu0ApplyMatrix(&up, mtx, rootMove);
+#endif
     if (stepFocusNode != -1) {
         node = GetSkeltonFocusNode((GObj *)skelGObj, stepFocusNode);
         _SubVectorXYZ(&d2, (char *)GOBJ_SUB(skelGObj)->nodeMtx + node * 64 + 48,
@@ -1770,7 +1819,7 @@ static ObjNode rootUpdateStepSolution(int kind)
             }
         }
         checkWallUpperWall();
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         if (skelMotCtrl->motion == 85) {
             MatrixDrive_PushMatrix();
             _UnitMatrix(MatrixDrive_GetMatrix());
@@ -1823,7 +1872,9 @@ static ObjNode rootUpdateStepSolution(int kind)
         break;
     }
 
+#ifndef VERSION_AUG6
     SubVectorXYZ(skelRoot->up, skelRoot->pos, &up);
+#endif
     SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
     CopyVector(skelRoot->move, ZeroVector);
     CopyVector(skelRoot->footPos, skelRoot->pos);
@@ -2100,12 +2151,19 @@ static ObjNode rootUpdateY_Rope(int actPt)
 /* the parameter is unused */
 static ObjNode rootUpdateY_Rope(int actPt)
 {
+#ifndef VERSION_AUG6
     float mtx[16];
     Vec16 dir;
     Vec16 pos;
+#endif
     Vec16 v;
     Vec16 cur;
     float save;
+#ifdef VERSION_AUG6
+
+    CopyVector(skelRoot->footPos, skelRoot->pos);
+    if (skelRoot->ropeState != 0) {
+#else
     int mode;
 
     CopyVector(skelRoot->footPos, skelRoot->pos);
@@ -2117,6 +2175,7 @@ static ObjNode rootUpdateY_Rope(int actPt)
         skelRoot->pos[0] = pos.f[0];
         skelRoot->pos[2] = pos.f[2];
     } else if (mode != 0) {
+#endif
         int node = GetSkeltonFocusNode((GObj *)skelGObj, 22);
 
         v.f[0] = skelRoot->pos[0];
@@ -2124,7 +2183,11 @@ static ObjNode rootUpdateY_Rope(int actPt)
         v.f[2] = skelRoot->pos[2];
         _SubVector(skelRoot->pos, skelRoot->holdPoint, nodePos2 + node * 16);
         if (skelRoot->ropeState < 0) {
+#ifdef VERSION_AUG6
+            _InterGV(skelRoot->pos, v.f, skelRoot->pos, 1.0f, 2.0f);
+#else
             _InterGV(skelRoot->pos, v.f, skelRoot->pos, ropeInterRate, 1.0f);
+#endif
         }
     }
     save = skelRoot->radius;
@@ -2138,6 +2201,9 @@ static ObjNode rootUpdateY_Rope(int actPt)
     SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
     CopyVector(skelRoot->trans, ZeroPoint);
     CopyVector(skelRoot->footPos, skelRoot->pos);
+#ifdef VERSION_AUG6
+    AddVectorXYZ(skelRoot->footPos, skelRoot->footPos, skelRoot->delta);
+#endif
     CopyVector(skelRoot->last, skelRoot->pos);
     skelRoot->standNode = -1;
     return InitialObjPointer;
@@ -2152,7 +2218,9 @@ static ObjNode rootUpdateFly(void)
     float h;
     float d;
 
+#ifndef VERSION_AUG6
     skelMotCtrl->floorAttr = 0;
+#endif
     contact = getFlyFieldCollision(&w);
     switch (contact) {
     case 1:
@@ -2171,7 +2239,7 @@ static ObjNode rootUpdateFly(void)
     skelRoot->height = 0.0f;
     SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
     CopyVector(skelRoot->trans, ZeroPoint);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     AddVectorXYZ(skelRoot->footPos, skelRoot->footPos, skelRoot->delta);
 #endif
     CopyVector(skelRoot->move, ZeroVector);
@@ -2205,7 +2273,7 @@ static ObjNode rootUpdateEnemyFly(void)
     skelRoot->height = 0.0f;
     SubVectorXYZ(skelRoot->move, skelRoot->pos, skelRoot->last);
     CopyVector(skelRoot->trans, ZeroPoint);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     AddVectorXYZ(skelRoot->footPos, skelRoot->footPos, skelRoot->delta);
 #endif
     CopyVector(skelRoot->last, skelRoot->pos);

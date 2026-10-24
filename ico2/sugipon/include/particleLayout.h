@@ -15,13 +15,21 @@ int *InitParticleLayoutGeo(struct GObj *self, int *layout);
 #ifdef VERSION_NTSC
 void ParticleLayoutGeo(struct GObj *self);
 #endif
+#ifdef VERSION_AUG6
+void ParticleLayoutGeo(struct GObj *self);
+#else
 void ParticleLayoutDL(void);
+#endif
 void DeleteParticleLayout(struct GObj *self);
 
 struct GObj;
 
 #ifndef VERSION_NTSC
+#ifdef VERSION_AUG6
+void ParticleLayoutDL(void);
+#else
 void ParticleLayoutGeo(struct GObj *self);
+#endif
 #endif
 
 #endif /* PARTICLELAYOUT_H */

@@ -4,7 +4,7 @@
 #include "DmaPacket.h"
 #include "DisplayList.h"
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 #include "main.h"
 #endif
 
@@ -377,7 +377,7 @@ void gif_SpriteSensitiveOrg(GifRect *r, long long z, GifRect *uv, GifColor *col,
 void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
                            unsigned int h, int useoffset, int clear)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     unsigned int x;
     unsigned int y;
 #endif
@@ -392,7 +392,7 @@ void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsig
         setGsReg(0x05, (unsigned long long)(w << 4) | ((unsigned long long)(h << 4) << 16));
         setGsReg(0x47, 0x50000);
     }
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     x = (0x800 - (w >> 1)) << 4;
     y = (0x800 - (h >> 1)) << 4;
     setGsReg(0x18, (unsigned long long)x |
@@ -500,7 +500,7 @@ void gif_DrawStripF(void *v, GifColor col, int n, int prim)
 
         rotTransPers(q, p);
         t = isInScreen(q);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         setGsReg(t && stripVisible[0] && stripVisible[1] ? 0x05 : 0x0D,
                  GIF_XY0(q[0], q[1], (long long)q[2]));
         stripVisible[stripIndex++] = t;
@@ -750,7 +750,7 @@ void gif_SetZWrite(int on)
         setGsReg(0x4E, 0x1300000C0LL);
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* the XYOFFSET for a half-pixel field: the odd field of an interlaced frame
    sits half a line (8 in 12.4) lower */
 void gif_SetHalfOffset(int interlace, int odd)

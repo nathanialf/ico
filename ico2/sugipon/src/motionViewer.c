@@ -48,12 +48,21 @@ MvMenuEnt objMenu[] = {
     {"QueenMotion", 46, 1011, 1073, 2105, 2119},
 };
 #else
+#ifdef VERSION_AUG6
+/* objMenu: the five objects the viewer can target */
+MvMenuEnt objMenu[] = {
+    {"BoyMotion", 1, 0, 514, 0, 1195},           {"GirlMotion", 2, 514, 790, 1195, 1797},
+    {"Enemy1Motion", 4, 790, 924, 1797, 2080},   {"BirdMotion", 32, 1075, 1084, 2094, 2138},
+    {"QueenMotion", 46, 1013, 1075, 2080, 2094},
+};
+#else
 /* objMenu: the five objects the viewer can target */
 MvMenuEnt objMenu[] = {
     {"BoyMotion", 1, 0, 532, 0, 1283},           {"GirlMotion", 2, 532, 834, 1283, 2122},
     {"Enemy1Motion", 4, 834, 983, 2122, 2407},   {"BirdMotion", 32, 1134, 1143, 2421, 2467},
     {"QueenMotion", 47, 1072, 1134, 2407, 2421},
 };
+#endif
 #endif
 
 static int objSel = 0; /* derived name */
@@ -120,7 +129,11 @@ static inline int countMotionKinds(int id, int from, int to) /* derived name */
     int i;
 
     for (i = from; i < to; i++) {
+#ifdef VERSION_AUG6
+        if (motionOrient[i].id == id || motionOrient[i].id == 1087) {
+#else
         if (motionOrient[i].id == id || motionOrient[i].id == 1146) {
+#endif
             n++;
         }
     }
@@ -135,11 +148,15 @@ static inline int makeMotionKindList(MvMenuEnt *ent, int base) /* derived name *
     int i;
     int k;
 
-    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, 93);
+    list = iosMallocDebug(ios_partition_sugipon, n * 8, __FILE__, LN(93, 93, 93, 93, 92));
     if (n) {
         k = 0;
         for (i = from; i < to; i++) {
+#ifdef VERSION_AUG6
+            if (motionOrient[i].id == id || motionOrient[i].id == 1087) {
+#else
             if (motionOrient[i].id == id || motionOrient[i].id == 1146) {
+#endif
                 int kind = motionOrient[i].kind;
 
                 list[k].kind = kind;
@@ -244,7 +261,7 @@ static int objMenuProc(void)
             viewObj->dobj->ctrl.shiftStop = 0;
         }
         viewObj = isysGObjSearchFromObjKindID_begin(objMenu[objSel].kind);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         if (objMenu[objSel].kind == 4) {
             for (; viewObj != 0; viewObj = isysGObjSearchFromObjKindID_next(viewObj)) {
                 if (isEnemyActive(viewObj)) {
@@ -433,6 +450,13 @@ static int motKindMenuProc(void)
     int cur;
 
     dispMotFrameProgress(mot, ForMotionViewer_GetCurrentAnimationFrame(viewObj));
+#ifdef VERSION_AUG6
+    ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 400, 200,
+                                        0, ent->motLast - ent->motFirst, &motSel, 0);
+    base = motSel;
+    cur = base + ent->motFirst;
+    if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 228 && motionTable[cur] == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     ret = debug_SelectCsvWindowWithLine(ent->name, 10, 70, 6, &motionKind[ent->motFirst], 400, 192,
                                         0, ent->motLast - ent->motFirst, &motSel, 0);
@@ -443,6 +467,7 @@ static int motKindMenuProc(void)
     base = motSel;
     cur = base + ent->motFirst;
     if (motionKind[cur].area != 0 && motionKind[cur].blendKind == 320 && motionTable[cur] == 0) {
+#endif
         base = 0;
         if (((blinkCount >> 4) & 3) != 0) {
             debug_PrintfDummy(10, 60, 0x4080FF00, "NO MOTION IN THIS STAGE.");
@@ -515,9 +540,15 @@ static int motOriMenuProc(void)
         now = ForMotionViewer_GetCurrentMotion(viewObj);
         for (i = 0; i < 10; i++) {
             ori = GetMotionOrient(ent->oriFrom, ent->oriTo, m, oriCsv.rows[oriCsv.sel].kind);
+#ifdef VERSION_AUG6
+            debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1086) ? 0x00FFFF00 : 0xFFFFFF00,
+                              "%c %s", m == now ? 62 : 32, motionKind[m].name);
+            if (m == 1086) {
+#else
             debug_PrintfDummy(430, i * 8 + 90, (i == 0 || m == 1145) ? 0x00FFFF00 : 0xFFFFFF00,
                               "%c %s", m == now ? 62 : 32, motionKind[m].name);
             if (m == 1145) {
+#endif
                 break;
             }
             if (ori == 0) {

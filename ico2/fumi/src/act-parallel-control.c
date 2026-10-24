@@ -70,6 +70,56 @@ void ActPara_InitSystem(void)
     }
 }
 #else
+#ifdef VERSION_AUG6
+static int parallelIds[71]; /* derived name */
+
+/* Fill tbl from the parallel-motion table: for each bit set in mask, each
+   row's motion for that bit, resolved by the nested helper (an id above
+   0xFFFF picks one entry of a random-motion run, by n), replaces the row's
+   entry unless it is 1088. */
+void ActPara_MakeTbl(int *tbl, int mask, int n)
+{
+    int i;
+    int j;
+    int val;
+
+    inline int resolve(int v) /* derived name */
+    {
+        if (v > 0xFFFF) {
+            int idx = v - 0x10000;
+            int m = idx;
+            int k = 0;
+
+            if (randomMotionKind[m] != 1088) {
+                do {
+                    m++;
+                    k++;
+                } while (randomMotionKind[m] != 1088);
+            }
+            if (k == 0) {
+                v = 1088;
+            } else {
+                int e = idx + n % k;
+
+                v = randomMotionKind[e];
+            }
+        }
+        return v;
+    }
+
+    for (i = 0; i < 37; i++) {
+        if (((mask >> i) & 1) == 1) {
+            for (j = 0; j < 71; j++) {
+                val = parallelMotionTbl[j].motion[i];
+                val = resolve(val);
+                if (val != 1088) {
+                    tbl[j] = val;
+                }
+            }
+        }
+    }
+}
+#else
 static int parallelIds[86]; /* derived name */
 
 /* Fill tbl from the parallel-motion table: for each bit set in mask, each
@@ -118,11 +168,16 @@ void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n)
         }
     }
 }
+#endif
 
 void ActPara_InitSystem(void)
 {
     int i;
+#ifdef VERSION_AUG6
+    for (i = 0; i <= 70; i++) {
+#else
     for (i = 0; i <= 85; i++) {
+#endif
         parallelIds[i] = parallelMotionTbl[i].motion[0];
     }
     /* a compiled-out overflow check: its message and __FILE__ stay in .rodata

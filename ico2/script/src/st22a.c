@@ -30,7 +30,11 @@ static int lightningAnims[2] = {754, 755}; /* derived name */
 #ifdef VERSION_NTSC
 static int lightningAnims[2] = {684, 685}; /* derived name */
 #else
+#ifdef VERSION_AUG6
+static int lightningAnims[2] = {683, 684}; /* derived name */
+#else
 static int lightningAnims[2] = {758, 759}; /* derived name */
+#endif
 #endif
 #endif
 
@@ -68,7 +72,11 @@ void actSt22aLightningVolime(GObj *volatile self)
 #ifdef VERSION_NTSC
 static ActMail intro_mes[2] = {{397}, {396}}; /* derived name */
 #else
+#ifdef VERSION_AUG6
+static ActMail intro_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail intro_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 
 /* the point the boy turns to face when the intro is skipped */
@@ -129,6 +137,21 @@ void actSt22aIntro(GObj *volatile self)
 
     _ACTWait(1);
     lightning = 0;
+#ifdef VERSION_AUG6
+    scpAdpcmPlayRequestFunc(92, &lightning, 1, 0, 1);
+    actCreateSubThread(actSt22aLightningVolime, 21);
+    ScpCallCameraSetTarget(7000.0f, 280.0f, 4938.0f);
+    SetCageChainHangableFlag(scpSearchGobj(1688), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1689), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1690), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1691), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1692), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1693), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1694), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1695), 0);
+    SetCageChainHangableFlag(scpSearchGobj(1696), 0);
+    if (gflagChk(294) != 0) {
+#else
     scpAdpcmPlayRequestFunc(94, &lightning, 1, 0, 1);
     actCreateSubThread(actSt22aLightningVolime, 21);
     ScpCallCameraSetTarget(7000.0f, 280.0f, 4938.0f);
@@ -142,18 +165,30 @@ void actSt22aIntro(GObj *volatile self)
     SetCageChainHangableFlag(scpSearchGobj(1854), 0);
     SetCageChainHangableFlag(scpSearchGobj(1855), 0);
     if (gflagChk(324) != 0) {
+#endif
         return;
     }
     scpPlayPosSet(boyGObj, -808.0f, 148.0f, -1053.0f);
+#ifdef VERSION_AUG6
+    if (gflagChk(293) == 0) {
+#else
     if (gflagChk(323) == 0) {
+#endif
         scpFadeOut(255.0f, 0, 0, 0);
         gamesysNObjInfoInit();
         intro_mes[0].func = actSt22aIntroChk;
         act->mail = intro_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        gflagOn(294);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
         gflagOn(324);
+#endif
         pos = introFacePos;
         sceVu0SubVector(dir, &pos, test_CURRENTROOT(boyGObj));
         scpPlayMotDir(boyGObj, dir);
@@ -180,14 +215,23 @@ void actSt22aIntroChk(GObj *volatile self)
     int fin;
     unsigned int i;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+    gflagOn(293);
+#else
     gflagOn(294);
+#endif
     scpSekizouCheckPoint();
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
+#ifdef VERSION_AUG6
+    gflagOn(294);
+    stage_SetAnimation(683, 1, 0);
+#else
     gflagOn(295);
     stage_SetAnimation(684, 1, 0);
+#endif
 #else
     gflagOn(323);
     scpSekizouCheckPoint();
@@ -232,7 +276,11 @@ void actSt22aIntroChk(GObj *volatile self)
 #ifdef VERSION_NTSC
         stage_SetAnimation(685, 1, -1);
 #else
+#ifdef VERSION_AUG6
+        stage_SetAnimation(684, 1, -1);
+#else
         stage_SetAnimation(759, 1, -1);
+#endif
 #endif
 #endif
         StabilizeAllLayoutedCage();
@@ -243,7 +291,7 @@ void actSt22aIntroChk(GObj *volatile self)
         scpPlayMot(boyGObj, 0);
         _ACTWait(1);
         SetCameraFlag_GamecamCutBack();
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         scpFadeIn(3.0f);
 #else
         scpFadeIn(6.0f);
@@ -258,7 +306,7 @@ void actSt22aIntroChk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(51);
 #else
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     lt_switch_layout(50);
 #else
     lt_switch_layout(54);
@@ -296,6 +344,11 @@ void actSt22aIntroSub(GObj *volatile self)
     StVec pos;
     float dir[4];
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(683, 1, 0);
+    scpPlayMot(boyGObj, 391);
+    while (stage_ContinueAnimation(683, 684) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(754, 1, 0);
 #else
@@ -307,17 +360,23 @@ void actSt22aIntroSub(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(758, 759) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     scpPlayPosSet(boyGObj, -707.0f, 148.0f, -1112.0f);
     pos = introFacePos;
     sceVu0SubVector(dir, &pos, test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, dir);
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 392);
+    while (stage_CheckAnimationFinish(684) == 0) {
+#else
     scpPlayMot(boyGObj, 398);
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(755) == 0) {
 #else
     while (stage_CheckAnimationFinish(759) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }

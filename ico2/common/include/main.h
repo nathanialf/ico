@@ -61,7 +61,7 @@ extern int IosCdLock;
 extern int IosSndLock;
 extern int IosStgMgrLock;
 extern int systemFault;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 extern int optionControlType; /* derived name */
 extern int optionScreenMode;  /* derived name */
 extern int girlControlMode;   /* derived name */
@@ -69,7 +69,9 @@ extern int girlControlMode;   /* derived name */
 extern GObj *boyGObj;
 extern GObj *girlGObj;
 extern IosPadCtx *boyPad;
+#ifndef VERSION_AUG6
 extern IosPadCtx *girlPad; /* derived name */
+#endif
 extern int gameover_flag;
 extern int gameover_layout_flag;
 extern int itemWatchOff; /* derived name */

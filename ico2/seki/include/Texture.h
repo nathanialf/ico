@@ -83,7 +83,7 @@ int tex_InitTexture(char *name, void *pkt);
 int tex_FreeTexture(int id);
 int tex_ListTool(void);
 int tex_LoadTexturePart(char *name, int area);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void tex_LockHeadTBP(int tbp, int pri);
 #endif
 int tex_RemakeRegistersSampleMin(int arg);
@@ -94,7 +94,7 @@ void tex_SetUVScroll(const char *name, float u, float v, float su, float sv, flo
                      int limitOn);
 
 int tex_TransTexture(int no, int pri);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void tex_UnlockHeadTBP(int pri);
 #endif
 void tex_ResetVram(void);

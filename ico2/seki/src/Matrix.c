@@ -411,7 +411,7 @@ inline void _InverseCurrentMatrix(void)
     VU0_V3OP_BC(vmaddw.xyzw, 7, 0, 17, w);
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 inline void _PushVu0Registers(void)
 {
     VU0_REG("vsqi.xyzw $vf1, ($vi15++)");
@@ -989,7 +989,7 @@ inline float _Sqrt(float x)
 
 inline void _MakeNormalLightMatrix(void *dst, void *s0, void *s1, void *s2)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     __asm__ __volatile__("vsubw.x $vf1, $vf0, $vf0w\n\t"
                          "lqc2 $vf24, 0(%1)\n\t"
                          "lqc2 $vf25, 0(%2)\n\t"
@@ -1177,7 +1177,7 @@ static inline void _MakeNormal3(void *dst, void *verts, int i0, int i1, int i2) 
     VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf21, $vf11, Q");
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     VU0_REG("vnop");
     VU0_REG("vnop");
 #endif
@@ -1214,7 +1214,7 @@ static inline void _MakeNormal4(void *dst, void *verts, int i0, int i1, int i2,
     VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf21, $vf11, Q");
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     VU0_REG("vnop");
     VU0_REG("vnop");
 #endif
@@ -1224,7 +1224,7 @@ static inline void _MakeNormal4(void *dst, void *verts, int i0, int i1, int i2,
     VU0_V3OP_BC(vaddy.x, 18, 18, 18, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf22, $vf12, Q");
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     VU0_REG("vnop");
     VU0_REG("vnop");
 #endif
@@ -1274,7 +1274,7 @@ static inline void _MakeNormal5(void *dst, void *verts, int i0, int i1, int i2, 
     VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf21, $vf11, Q");
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     VU0_REG("vnop");
     VU0_REG("vnop");
 #endif
@@ -1284,7 +1284,7 @@ static inline void _MakeNormal5(void *dst, void *verts, int i0, int i1, int i2, 
     VU0_V3OP_BC(vaddy.x, 18, 18, 18, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf22, $vf12, Q");
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     VU0_REG("vnop");
     VU0_REG("vnop");
 #endif
@@ -1294,7 +1294,7 @@ static inline void _MakeNormal5(void *dst, void *verts, int i0, int i1, int i2, 
     VU0_V3OP_BC(vaddy.x, 19, 19, 19, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf23, $vf18, Q");
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     VU0_REG("vnop");
     VU0_REG("vnop");
 #endif

@@ -57,7 +57,11 @@ int UpdatePointBlur(PointBlur *p, void *mtx, void *tint, float f)
     float scale;
     GifColor *t;
 
+#ifdef VERSION_AUG6
+    if (NonLinearCameraMove != 0) {
+#else
     if (currentScreenWidth != 0 || GlobalTimer != 0) {
+#endif
         p->dirty = 1;
     }
     if (p->dirty == 0) {
@@ -116,14 +120,17 @@ static EnemyFootPrint footPrintVtxTemplate = {-1, 1.0f}; /* derived name */
    calls */
 static inline PointBlur *initPointBlurAt(int num, int pri, int *col, float *rate) /* derived name */
 {
-    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 64, "src/enemyParts.c", 16);
+    PointBlur *p = (PointBlur *)iosMallocDebug(ios_partition_sugipon, 64, "src/enemyParts.c",
+                                               LN(16, 16, 16, 16, 15));
     *p = pointBlurTemplate;
 
     p->pri = pri;
-    p->strip = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 20);
-    p->screenPos = iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", 21);
-    p->stripCol =
-        (GifColor *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c", 22);
+    p->strip =
+        iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", LN(20, 20, 20, 20, 19));
+    p->screenPos =
+        iosMallocDebug(ios_partition_sugipon, num << 4, "src/enemyParts.c", LN(21, 21, 21, 21, 20));
+    p->stripCol = (GifColor *)iosMallocDebug(ios_partition_sugipon, num << 3, "src/enemyParts.c",
+                                             LN(22, 22, 22, 22, 21));
     p->num = num;
     p->col.r = col[0];
     p->col.g = col[1];
@@ -137,7 +144,7 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 {
     EnemyEye *p;
 
-    p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c", 137);
+    p = iosMallocDebug(ios_partition_sugipon, 96, "src/enemyParts.c", LN(137, 137, 137, 137, 136));
     *p = enemyEyeTemplate;
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -146,7 +153,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #ifdef VERSION_NTSC
     p->dobj[0] = CSVSYSTEM_InitDObj(1286, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_AUG6
+    p->dobj[0] = CSVSYSTEM_InitDObj(1281, &InitialSObjSimpleSetting);
+#else
     p->dobj[0] = CSVSYSTEM_InitDObj(1322, &InitialSObjSimpleSetting);
+#endif
 #endif
 #endif
     p->dobj[0]->nodes->flags.ll |= 1;
@@ -161,7 +172,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #ifdef VERSION_NTSC
     p->dobj[1] = CSVSYSTEM_InitDObj(1287, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_AUG6
+    p->dobj[1] = CSVSYSTEM_InitDObj(1282, &InitialSObjSimpleSetting);
+#else
     p->dobj[1] = CSVSYSTEM_InitDObj(1323, &InitialSObjSimpleSetting);
+#endif
 #endif
 #endif
     p->dobj[1]->nodes->flags.ll |= 1;
@@ -176,7 +191,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #ifdef VERSION_NTSC
     p->dobj[2] = CSVSYSTEM_InitDObj(1288, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_AUG6
+    p->dobj[2] = CSVSYSTEM_InitDObj(1283, &InitialSObjSimpleSetting);
+#else
     p->dobj[2] = CSVSYSTEM_InitDObj(1324, &InitialSObjSimpleSetting);
+#endif
 #endif
 #endif
     p->dobj[2]->nodes->flags.ll |= 1;
@@ -199,17 +218,23 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
     int i;
     int j;
 
-    p = iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c", 226);
+    p = iosMallocDebug(ios_partition_sugipon, 0x10, "src/enemyParts.c",
+                       LN(226, 226, 226, 226, 224));
     *p = footPrintHeadTemplate;
     p->num = num;
-    p->buf = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c", 229);
+    p->buf = iosMallocDebug(ios_partition_sugipon, num << 5, "src/enemyParts.c",
+                            LN(229, 229, 229, 229, 227));
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     d = CSVSYSTEM_InitDObj(1291, &InitialSObjSimpleSetting);
 #else
 #ifdef VERSION_NTSC
     d = CSVSYSTEM_InitDObj(1259, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_AUG6
+    d = CSVSYSTEM_InitDObj(1254, &InitialSObjSimpleSetting);
+#else
     d = CSVSYSTEM_InitDObj(1295, &InitialSObjSimpleSetting);
+#endif
 #endif
 #endif
     p->dobj = d;
@@ -221,13 +246,16 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
     }
     p->dobj->nodeMtx = 0;
     p->dobj->nodeQuat = 0;
-    p->dobj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num << 6, "src/enemyParts.c", 232);
-    p->dobj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c", 232);
+    p->dobj->nodeMtx = (int)iosMallocDebug(ios_partition_seki, num << 6, "src/enemyParts.c",
+                                           LN(232, 232, 232, 232, 230));
+    p->dobj->nodeQuat = (int)iosMallocDebug(ios_partition_seki, num << 4, "src/enemyParts.c",
+                                            LN(232, 232, 232, 232, 230));
     p->dobj->nodeNum = num;
     if ((int)p->dobj->nodes != 0) {
         iosFree((void *)((int)p->dobj->nodes & 0xFFFFFFF));
     }
-    p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 80, "src/enemyParts.c", 232);
+    p->dobj->nodes = iosMallocDebug(ios_partition_seki, num * 80, "src/enemyParts.c",
+                                    LN(232, 232, 232, 232, 230));
     for (i = 0; i < num; i++) {
         p->dobj->nodes[i].flags.ll &= ~1;
         p->dobj->nodes[i].flags.ll &= ~2;
@@ -241,7 +269,11 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
 #ifdef VERSION_NTSC
         *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x840) + 0x3A) = 0;
 #else
+#ifdef VERSION_AUG6
+        *(short *)((char *)&p->dobj->nodes[i] + 0x3A) = 0;
+#else
         *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x870) + 0x3A) = 0;
+#endif
 #endif
         p->dobj->nodes[i].scale[0] = 1.0f;
         p->dobj->nodes[i].scale[1] = 1.0f;
@@ -347,7 +379,11 @@ int UpdateEnemyEye(EnemyEye *self, void *m, float rate)
 int DispEnemyEye(EnemyEye *self)
 {
     _CopyMatrix((void *)self->dobj[0]->nodeMtx, self->mtx);
+#ifdef VERSION_AUG6
+    p2o_DispVU1DObj(self->dobj[0]);
+#else
     reg_DispMultiPri(self->dobj[0], 10);
+#endif
     if (self->blurOn != 0) {
         PointBlur *fobj = self->blur;
         gif_StartPacketPri(fobj->pri);

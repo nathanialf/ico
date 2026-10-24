@@ -49,8 +49,13 @@ typedef struct WayGroup { /* field names derived */
 } WayGroup; /* derived name */
 
 /* way_llf.o's .data globals, the way-group and way-point tables */
+#ifdef VERSION_AUG6
+extern WayGroup way_group[64];
+extern WayPoint way_point[215];
+#else
 extern WayGroup way_group[94];
 extern WayPoint way_point[275];
+#endif
 /* way_llf.c's functions, in the order the file defines them, which is also
    the order of the `inline` functions' out-of-line copies at the end of the
    object (first-declaration order). */
@@ -63,7 +68,9 @@ int AddWayPoint(int gno, int pno);
 int AddWayPointTop(int gno, int pno);
 int InsertWayPointAfter(int dummy, int idx1, int idx2);
 int DeleteWayPoint(int pno);
+#ifndef VERSION_AUG6
 int CreateBridge(float *a, float *b);
+#endif
 WayGroup *WayGroup_begin(void);
 WayGroup *WayGroup_next(WayGroup *p);
 WayGroup *WayBridge_begin(void);

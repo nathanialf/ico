@@ -10,7 +10,7 @@
 
 int *ActPara_GetDefTbl(void);
 void ActPara_InitSystem(void);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void ActPara_MakeTbl(int *tbl, int mask, int n);
 #else
 void ActPara_MakeTbl(int *tbl, unsigned long long mask, int n);
@@ -24,7 +24,7 @@ extern const int randomMotionKind[];
  * is its id. Reader: ico2/fumi/src/act-parallel-control.c. Owner:
  * ico2/fumi/include/act-parallel-control.h. */
 typedef struct {     /* field names derived */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     int motion[37];  /* 0x00, one per status bit */
 #else
     int motion[44];  /* 0x00, one per status bit */

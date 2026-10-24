@@ -21,6 +21,17 @@ extern struct SqEntry *sd;
 extern struct SqEntry *boss_dead;
 extern struct SqEntry *st13b_up;
 extern struct SqEntry *st13b_down;
+#ifdef VERSION_AUG6
+extern int sekizo_13b;
+extern unsigned char sekizo_13b_vol;
+extern int st13b_yure;
+extern unsigned char st13b_yure_vol;
+void actConte10b(GObj *volatile self);
+void actSt13bConte02(GObj *volatile self);
+void actSt13bElevDown(GObj *volatile self);
+void actSt13bElevUpChk(GObj *volatile self);
+void actSt13bFloorChk(GObj *volatile self);
+#else
 #ifdef VERSION_NTSC
 extern int sekizo_13b;
 extern unsigned char sekizo_13b_vol;
@@ -46,6 +57,7 @@ void actSt13bElevSwitch(GObj *volatile self);
 void actSt13bElevUpChk(GObj *volatile self);
 void actSt13bFloorChk(GObj *volatile self);
 void actSt13bMeetAgainChk(GObj *volatile self);
+#endif
 void actSt13bSekizo2Chk(GObj *volatile self);
 void actSt13bSekizoChk(GObj *volatile self);
 

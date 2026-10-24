@@ -20,7 +20,7 @@
 #include "geometryManager.h"
 #include "brain.h"
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void LwsKyomiGeo(GObj *gobj)
 {
     brainSubLevelGop(gobj, 0.1f);
@@ -35,7 +35,11 @@ GObj *CreateKyomiGObj(void)
     lay[8] = 1.0f;
     lay[9] = 1.0f;
     lay[10] = 1.0f;
+#ifdef VERSION_AUG6
+    gobj = CreateLayoutedGObj(59, 68, -1, 0, lay, 1, 7, 0);
+#else
     gobj = CreateLayoutedGObj(60, 69, -1, 0, lay, 1, 7, 0);
+#endif
     brainStatusDefaultSet(&brainGirl, gobj, 1);
     return gobj;
 }
@@ -208,7 +212,7 @@ void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
     brainSetLevelGop(gobj, lv, on1, on2);
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void FinishHint(int no)
 {
     (hintTable + no)->flags |= 1;

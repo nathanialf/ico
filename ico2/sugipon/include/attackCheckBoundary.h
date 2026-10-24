@@ -32,7 +32,7 @@ typedef enum { CLOTH_ATTR_NONE = 0 } ClothAttr;
    reads the rest. */
 typedef struct {    /* field names derived */
     char name[32];  /* 0x00 */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     float pt[2][3]; /* 0x20 */
     int kind;       /* 0x38, the cloth type in the low four bits (InitFlagGeo's switch) */
     ClothAttr attr; /* 0x3C */

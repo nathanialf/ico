@@ -257,7 +257,9 @@ static int controler_stable_check(IosPadDevRec *dev)
     int id = dev->lastTermId;
     int state;
     int mode;
+#ifndef VERSION_AUG6
     int orig;
+#endif
     int exid;
     int i;
 
@@ -281,6 +283,12 @@ static int controler_stable_check(IosPadDevRec *dev)
         dev->flags &= ~0x40000;
         phase++;
     case 1:
+#ifdef VERSION_AUG6
+        if (state != 6 && state != 2) {
+            break;
+        }
+        mode = scePadInfoMode(port, slot, 1, 0);
+#else
         if (state == 0) {
             dev->flags |= 0x10000;
         }
@@ -291,6 +299,7 @@ static int controler_stable_check(IosPadDevRec *dev)
         dev->flags &= ~0x10000;
         mode = scePadInfoMode(port, slot, 1, 0);
         orig = mode;
+#endif
         debug_StdPrintfDummy("pad id:%d\n", mode);
         debug_StdPrintfDummy("pad id:%d\n", mode);
         if (mode == 0) {
@@ -310,21 +319,31 @@ static int controler_stable_check(IosPadDevRec *dev)
         case 4:
             debug_StdPrintfDummy("pad:4\n");
             phase = 40;
+#ifdef VERSION_AUG6
+            dev->flags |= 0x40000;
+#else
             if (orig != mode) {
                 phase = 30;
             } else {
                 dev->flags |= 0x40000;
             }
+#endif
             break;
         case 7:
             debug_StdPrintfDummy("pad:7\n");
+#ifdef VERSION_AUG6
+            if ((int)(dev->flags >> 18) & 1) {
+                phase = 70;
+#else
             phase = 70;
             if (((int)(dev->flags >> 18) & 1) == 0) {
                 phase = 0;
+#endif
             }
             break;
         }
         debug_StdPrintfDummy("pad:%03x\n", mode);
+#ifndef VERSION_AUG6
         break;
     case 30:
         if (scePadSetMainMode(port, slot, 0, 2) == 1) {
@@ -341,6 +360,7 @@ static int controler_stable_check(IosPadDevRec *dev)
         }
         phase = 0;
         debug_StdPrintfDummy("pad:switch to ANALOG mode\n");
+#endif
         break;
     case 40:
         if (scePadInfoMode(port, slot, 4, -1) == 0) {
@@ -417,11 +437,18 @@ static int controler_stable_check(IosPadDevRec *dev)
             dev->phase = -1;
             dev->errCount = cnt;
             dev->lastTermId = id;
-            debug_assert(__FILE__, LN(468, 465, 468, 468));
-            __assert(__FILE__, LN(468, 465, 468, 468), "0");
+            debug_assert(__FILE__, LN(468, 465, 468, 468, 422));
+            __assert(__FILE__, LN(468, 465, 468, 468, 422), "0");
             return -1;
         }
         if (state == 6 || state == 2) {
+#ifdef VERSION_AUG6
+            unsigned char data[32];
+
+            if (scePadRead(port, slot, data) != 0) {
+                padTermId = data[1];
+            }
+#endif
             /* the line after assigns id again; the object keeps this arm's
                own copy of the assignment */
             if (id != 0 && padTermId != id) {
@@ -451,8 +478,13 @@ int iosPadDevInit(void *desc)
 
     if (scePadInit(0) != 1) {
         debug_StdPrintfDummy("pad:init error\n");
-        debug_assert(__FILE__, LN(553, 550, 553, 508));
-        __assert(__FILE__, LN(553, 550, 553, 508), "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(468, 465, 468, 468, 508));
+        __assert(__FILE__, LN(468, 465, 468, 468, 508), "0");
+#else
+        debug_assert(__FILE__, LN(553, 550, 553, 508, 553));
+        __assert(__FILE__, LN(553, 550, 553, 508, 553), "0");
+#endif
         return 0;
     }
     for (i = 0; i < 2; i++) {
@@ -461,7 +493,7 @@ int iosPadDevInit(void *desc)
         dev->port = i;
         dev->slot = 0;
         dev->phase = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         dev->error = 1;
 #else
         dev->error = 0xFFFFFFFFu;
@@ -473,8 +505,13 @@ int iosPadDevInit(void *desc)
             debug_assert(__FILE__, 523);
             __assert(__FILE__, 523, "0");
 #else
-            debug_assert(__FILE__, LN(569, 566, 569, 569));
-            __assert(__FILE__, LN(569, 566, 569, 569), "0");
+#ifdef VERSION_AUG6
+            debug_assert(__FILE__, LN(468, 465, 468, 468, 523));
+            __assert(__FILE__, LN(468, 465, 468, 468, 523), "0");
+#else
+            debug_assert(__FILE__, LN(569, 566, 569, 569, 569));
+            __assert(__FILE__, LN(569, 566, 569, 569, 569), "0");
+#endif
 #endif
         }
     }
@@ -602,7 +639,11 @@ static int iosPadDevReadFunc(void)
         if (dev->phase == 99) {
             dev->error = 0;
         }
+#ifdef VERSION_AUG6
+        if (dev->error == 1) {
+#else
         if (dev->error != 0) {
+#endif
             controler_stable_check(dev);
             if (((unsigned int)frame_count) % 120 == 0) {
                 debug_StdPrintfDummy("pad:checking controler... ");
@@ -614,11 +655,16 @@ static int iosPadDevReadFunc(void)
                 dev->phase = 0;
                 dev->error = 1;
 #else
+#ifdef VERSION_AUG6
+                dev->error = 1;
+                dev->phase = 0;
+#else
                 debug_StdPrintfDummy("err %d\n", scePadGetState(dev->port, dev->slot));
                 if (scePadGetState(dev->port, dev->slot) == 0) {
                     dev->phase = 0;
                     dev->error = 1;
                 }
+#endif
 #endif
             } else {
                 IosPadBuf *b = &dev->buf[dev->idx];
@@ -632,8 +678,13 @@ static int iosPadDevReadFunc(void)
         sh = &dev->shock;
         port = dev->port;
         Shock_Decode(&sh->box, &dev->shock.motor0, &dev->shock.motor1);
+#ifdef VERSION_AUG6
+        if (((*(unsigned int *)((char *)dev + (dev->idx << 5) + 0x10) >> 12) & 0xF) != 7 ||
+            dev->error == 1) {
+#else
         if (((*(unsigned int *)((char *)dev + (dev->idx << 5) + 0x10) >> 12) & 0xF) != 7 ||
             dev->error != 0) {
+#endif
             port = -1;
         }
         Shock_SetMotor(sh->motor0, sh->motor1, &dev->shock.motor, port, dev->slot);
@@ -680,7 +731,11 @@ int iosPadRead(IosPadCtx *ctx)
     ctx->rel2 = ctx->rel;
     ctx->word24 = ctx->word14;
 
+#ifdef VERSION_AUG6
+    if (dev->error == 1) {
+#else
     if (dev->error != 0) {
+#endif
         ctx->now = 0;
         ctx->trg = 0;
         ctx->rel = 0;
@@ -693,11 +748,18 @@ int iosPadRead(IosPadCtx *ctx)
         return 0;
     }
     if (padEnabled == 0) {
+#ifdef VERSION_AUG6
+        ctx->now = 0;
+        ctx->trg = 0;
+        ctx->rel = 0;
+        ctx->word14 = 0;
+#else
         int mask = debug_hand_camera != 0 ? 2 : 0;
         ctx->now &= mask;
         ctx->trg &= mask;
         ctx->rel &= mask;
         ctx->word14 &= mask;
+#endif
     }
     return 0;
 }
@@ -740,7 +802,7 @@ float iosPadNormalizeStick(IosPadStick *st)
     return (len - 48.0f) / 72.0f;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int iosPadGetStick(IosPadCtx *ctx, void *out, int mode, int a3, int a4, int simulate)
 {
     IosPadStick *st = out;
@@ -936,7 +998,7 @@ int iosPadConnect(IosPadCtx *ctx, int a1, int port, PadConf *conf)
     ctx->conf = conf;
     ctx->dev = &iosPadDev[port];
     return 0;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 }
 
 int iosPadGetStick(IosPadCtx *ctx, void *st, int mode, int a3, int a4, int simulate)

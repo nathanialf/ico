@@ -86,11 +86,11 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                             debug_StdPrintfDummy("reg_setShape:illegal vertex index. %d/%d\n",
                                                  m->index, s->vtxCount);
 #ifdef VERSION_NTSC
-                            debug_assert("src/RegistPacket.c", 629);
-                            __assert("src/RegistPacket.c", 629, "0");
+                            debug_assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629));
+                            __assert("src/RegistPacket.c", LN(629, 629, 629, 629, 629), "0");
 #else
-                            debug_assert("src/RegistPacket.c", 635);
-                            __assert("src/RegistPacket.c", 635, "0");
+                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590));
+                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 590), "0");
 #endif
                         }
                         t = s->vtx;
@@ -109,11 +109,16 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                             debug_StdPrintfDummy("reg_setShape:illegal normal index. %d/%d\n",
                                                  m->index, s->nrmCount);
 #ifdef VERSION_NTSC
-                            debug_assert("src/RegistPacket.c", 636);
-                            __assert("src/RegistPacket.c", 636, "0");
+                            debug_assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636));
+                            __assert("src/RegistPacket.c", LN(636, 636, 636, 636, 636), "0");
 #else
-                            debug_assert("src/RegistPacket.c", 642);
-                            __assert("src/RegistPacket.c", 642, "0");
+#ifdef VERSION_AUG6
+                            debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597));
+                            __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 597), "0");
+#else
+                            debug_assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642));
+                            __assert("src/RegistPacket.c", LN(642, 642, 642, 642, 642), "0");
+#endif
 #endif
                         }
                         t = s->nrm;
@@ -121,11 +126,16 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                         _AddVectorXYZ(t, t, vec);
                     } else {
 #ifdef VERSION_NTSC
-                        debug_assert("src/RegistPacket.c", 641);
-                        __assert("src/RegistPacket.c", 641, "0");
+                        debug_assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641));
+                        __assert("src/RegistPacket.c", LN(641, 641, 641, 641, 641), "0");
 #else
-                        debug_assert("src/RegistPacket.c", 647);
-                        __assert("src/RegistPacket.c", 647, "0");
+#ifdef VERSION_AUG6
+                        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602));
+                        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 602), "0");
+#else
+                        debug_assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647));
+                        __assert("src/RegistPacket.c", LN(647, 647, 647, 647, 647), "0");
+#endif
 #endif
                     }
                 nextbone:
@@ -252,11 +262,16 @@ static int reg_clipPacketBoundingBox(PacHeader *pk)
     default:
         debug_StdPrintfDummy("illegal clip type. %d\n", type);
 #ifdef VERSION_NTSC
-        debug_assert("src/RegistPacket.c", 815);
-        __assert("src/RegistPacket.c", 815, "0");
+        debug_assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815));
+        __assert("src/RegistPacket.c", LN(815, 815, 815, 815, 815), "0");
 #else
-        debug_assert("src/RegistPacket.c", 821);
-        __assert("src/RegistPacket.c", 821, "0");
+#ifdef VERSION_AUG6
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 776), "0");
+#else
+        debug_assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821));
+        __assert("src/RegistPacket.c", LN(821, 821, 821, 821, 821), "0");
+#endif
 #endif
         break;
     }
@@ -386,9 +401,11 @@ static char *reg_setNMatrixPacket(Sub15C *o, int idx)
     box = o->model->box[0];
     _SetCurrentMatrix(matrixptr + 0x300);
     if (gsb_ClipBox(box) == 0) {
+#ifndef VERSION_AUG6
         if (o->shadow != 0) {
             light_MakeLightMatrix(o, idx);
         }
+#endif
         return 0;
     }
     pkt = PacketBufferStruct.ptr.c;
@@ -524,7 +541,7 @@ static char *reg_setMMatrixPacket(Sub15C *o, int idx)
             _SetTransCurrentMatrix(o->nodes[idx].pos);
         }
         _GetCurrentMatrix(matrixptr + 0x180);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x240, matrixptr + 0x180);
 #else
@@ -567,9 +584,11 @@ static char *reg_setMMatrixPacket(Sub15C *o, int idx)
     box = o->model->box[0];
     _SetCurrentMatrix(matrixptr + 0x300);
     if (gsb_ClipBox(box) == 0) {
+#ifndef VERSION_AUG6
         if (o->shadow != 0) {
             light_MakeLightMatrix(o, idx);
         }
+#endif
         return 0;
     }
     pkt = PacketBufferStruct.ptr.c;
@@ -695,11 +714,16 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
     } else {
         debug_StdPrintfDummy("no light calc cluster model %s\n", o->model);
 #ifdef VERSION_NTSC
-        debug_assert("src/RegistPacket.c", 1230);
-        __assert("src/RegistPacket.c", 1230, "0");
+        debug_assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230));
+        __assert("src/RegistPacket.c", LN(1230, 1230, 1230, 1230, 1230), "0");
 #else
-        debug_assert("src/RegistPacket.c", 1238);
-        __assert("src/RegistPacket.c", 1238, "0");
+#ifdef VERSION_AUG6
+        debug_assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181));
+        __assert("src/RegistPacket.c", LN(635, 635, 635, 635, 1181), "0");
+#else
+        debug_assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238));
+        __assert("src/RegistPacket.c", LN(1238, 1238, 1238, 1238, 1238), "0");
+#endif
 #endif
     }
     {
@@ -1203,14 +1227,21 @@ static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
     float fv[4];
     int iv[4];
     int iv2[4];
+#ifndef VERSION_AUG6
     Qw128 v;
+#endif
     int pri;
     int on;
     int z;
 
     on = 0;
+#ifdef VERSION_AUG6
+    pri = node->blend != 0 ? 2 : 0;
+    if (alpha != 0.0f || node->blend != 0) {
+#else
     pri = (node->attr.word & 0x1800) != 0 ? 2 : 0;
     if (alpha != 0.0f || (node->attr.word & 0x1800) != 0) {
+#endif
         on = 1;
     }
     z = (int)(((alpha < 0.0f) ? (alpha + 1.0f) : (1.0f - alpha)) * 128.0f);
@@ -1233,6 +1264,10 @@ static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
     _RotTransPersCurrentMatrix(fv, node->pos[0]);
     _FTOI4Vector(iv, fv);
     if (idx == -1) {
+#ifdef VERSION_AUG6
+        *(Qw128 *)iv2 = *(Qw128 *)node->pos[1];
+        *(Qw128 *)node->pos[1] = *(Qw128 *)iv;
+#else
         if (flag != 0) {
             _CopyIVector(iv2, iv);
         } else {
@@ -1247,10 +1282,16 @@ static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
             *(Qw128 *)node->scrPrev = *(Qw128 *)node->pos[1];
             *(Qw128 *)node->pos[1] = *(Qw128 *)iv;
         }
+#endif
     } else {
         if (flag != 0) {
             _CopyIVector(iv2, iv);
         } else {
+#ifdef VERSION_AUG6
+            _CopyIVector(iv2, node->trail[idx]);
+        }
+        CopyIVector(node->trail[idx], iv);
+#else
             if (systemStatus[5] == 0) {
                 _CopyIVector(iv2, node->trail[idx]);
             } else {
@@ -1261,6 +1302,7 @@ static void reg_dispPoint(PacLine *node, float alpha, int idx, int flag)
             _CopyIVector(node->trailPrev[idx], node->trail[idx]);
             _CopyIVector(node->trail[idx], iv);
         }
+#endif
     }
     if (_IsInScreen(iv) != 0 && _IsInScreen(iv2) != 0) {
         if (on != 0) {
@@ -1345,27 +1387,42 @@ static void reg_dispLine(PacLine *node, float alpha)
     int iv1[4];
     char *p;
     char *q;
+#ifdef VERSION_AUG6
+    int pri;
+#else
     long long h;
     int pri;
     int tex;
+#endif
     int hastex;
     int on;
     int z;
 
+#ifdef VERSION_AUG6
+    pri = node->blend != 0 ? 2 : 0;
+    hastex = node->tex >= 0;
+    on = 0;
+    if (alpha != 0.0f || node->blend != 0) {
+#else
     h = node->attr.word;
     pri = (h & 0x1800) != 0 ? 2 : 0;
     tex = (unsigned short)h << 21 >> 21;
     hastex = tex >= 0;
     on = 0;
     if (alpha != 0.0f || (h & 0x1800) != 0) {
+#endif
         on = 1;
     }
     z = (int)(((alpha < 0.0f) ? (alpha + 1.0f) : (1.0f - alpha)) * 128.0f);
     dl_SetDLPriority(pri);
     if (hastex != 0) {
+#ifdef VERSION_AUG6
+        texturetranssize += tex_TransTexture(node->tex, pri);
+#else
         long long f = node->attr.word;
 
         texturetranssize += tex_TransTexture((unsigned short)f << 21 >> 21, pri);
+#endif
     }
     {
         char *c = PacketBufferStruct.ptr.c;
@@ -1479,7 +1536,9 @@ static void reg_dispPointLineObj(Sub15C *o)
     PacLine *node;
     PacLineSet *set;
     struct DObjNode *w;
+#ifndef VERSION_AUG6
     long long h;
+#endif
     float alpha;
     int idx;
     int flag;
@@ -1489,16 +1548,27 @@ static void reg_dispPointLineObj(Sub15C *o)
     grp = mdl->groups;
     hdr = o->lineHdr;
     if (hdr != 0) {
+#ifdef VERSION_AUG6
+        idx = *(unsigned short *)(hdr + 2) & 3;
+#else
         idx = *(unsigned short *)(hdr + 2) % 3;
+#endif
     } else {
         idx = -1;
     }
+#ifdef VERSION_AUG6
+    if (hdr != 0) {
+        flag = ((int)(*(long long *)hdr >> 14)) & 1;
+    } else {
+        flag = 0;
+#else
     flag = 0;
     if (hdr != 0) {
         flag = ((int)(*(long long *)hdr >> 14)) & 1;
     }
     if (currentScreenWidth != 0 || GlobalTimer != 0) {
         flag = 1;
+#endif
     }
     for (i = 0; i < o->nodeNum; i++) {
         w = (struct DObjNode *)(i * 80 + (int)o->nodes);
@@ -1510,9 +1580,14 @@ static void reg_dispPointLineObj(Sub15C *o)
         _SetCurrentMatrix((char *)o->nodeMtx + i * 64);
         _MulCurrentMatrixL(matrixptr + 0x100);
         node = set->lines;
+#ifdef VERSION_AUG6
+        while (node->type != 0) {
+            switch (node->type) {
+#else
         h = node->attr.word;
         while (h & 0xE000) {
             switch ((short)h >> 13) {
+#endif
             case 1:
                 reg_dispPoint(node, alpha, idx, flag);
                 break;
@@ -1521,7 +1596,9 @@ static void reg_dispPointLineObj(Sub15C *o)
                 break;
             }
             node++;
+#ifndef VERSION_AUG6
             h = node->attr.word;
+#endif
         }
     }
 }
@@ -1619,7 +1696,11 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
 #ifdef VERSION_NTSC
             _CopyVector((char *)o + 0x830, (char *)src + 0x830);
 #else
+#ifdef VERSION_AUG6
+            _CopyVector(o->shadowDir, src->shadowDir);
+#else
             _CopyVector((char *)o + 0x860, (char *)src + 0x860);
+#endif
 #endif
             _CopyMatrix((char *)o->lightMtx, (char *)src->lightMtx);
             _CopyMatrix((char *)o->lightMtx + 64, (char *)src->lightMtx + 64);
@@ -1871,6 +1952,7 @@ done:
     }
 }
 
+#ifndef VERSION_AUG6
 void reg_DispMultiPri(Sub15C *o, int pri)
 {
     PObjModel *mdl;
@@ -1968,6 +2050,7 @@ void reg_DispMultiPri(Sub15C *o, int pri)
         }
     }
 }
+#endif
 
 void reg_DispObj(Sub15C *o)
 {

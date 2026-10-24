@@ -28,6 +28,9 @@ struct GObj;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order box.c's inline tail has. */
+#ifdef VERSION_AUG6
+int AlignBox(struct GObj *self, float grid);
+#endif
 int CanHoldBox(struct GObj *self);
 void BoxDL(struct GObj *self);
 void GetBoxGlobalHoldPoint(float *out, struct GObj *self, float *local);
@@ -43,7 +46,9 @@ int BoxMemoryFunc(void);
 
 int CheckReadyAllSwitches();
 int GetBoxMode(struct GObj *self);
+#ifndef VERSION_AUG6
 int AlignBox(struct GObj *self, float grid);
+#endif
 int GetBoxHoldPoint(float *out, struct GObj *self, struct GObj *chara);
 int MoveBoxWithHoldPoint(struct GObj *self, float *holdPoint, struct GObj *holder, int focus,
                          float *dir);

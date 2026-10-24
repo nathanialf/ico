@@ -20,6 +20,24 @@ extern struct SqEntry *hane1down;
 extern struct SqEntry *hane2down;
 extern int sekizo_47a;
 extern unsigned char sekizo_47a_vol;
+#ifdef VERSION_AUG6
+/* The stage's object entry points; st47a.c defines them inline, and gcc
+   outputs them at the end of the file in this order. */
+void actSt47aSekizo1(GObj *volatile self);
+void actSt47aSekizo2(GObj *volatile self);
+void actSt47aSekizo3(GObj *volatile self);
+void actSt47aSekizo4(GObj *volatile self);
+void actSt47aHane1(GObj *volatile self);
+void actSt47aHane2(GObj *volatile self);
+void actSt47aRope(GObj *volatile self);
+void actSt47aBarricade(GObj *volatile self);
+void actSt47aExit(GObj *volatile self);
+void actSt47aExit2(GObj *volatile self);
+void actSt47aEne(GObj *volatile self);
+void actSt47aEnemy2(GObj *volatile self);
+void actSt47aEnemy3(GObj *volatile self);
+void actSt47aEnemy4(GObj *volatile self);
+#else
 void actSt47aBarricadeChk(GObj *volatile self);
 void actSt47aEneChk(GObj *volatile self);
 void actSt47aExit2Chk(GObj *volatile self);
@@ -40,5 +58,6 @@ void actSt47aHane2Up(GObj *volatile self);
 void actSt47aRopeChk(GObj *volatile self);
 #endif
 void actSt47aSekizo1Chk(GObj *volatile self);
+#endif
 
 #endif /* ST47A_H */

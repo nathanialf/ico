@@ -239,8 +239,13 @@ static void findChainInJump(void *self)
     r = ((CHAINROW(self)->flags2.word >> 9) & 1) ? 300.0f : 100.0f;
     r2 = ((CHAINROW(self)->flags2.word >> 9) & 1) ? 90.0f : 120.0f;
 #else
+#ifdef VERSION_AUG6
+    r = ((CHAINROW(self)->flags.word >> 6) & 1) ? 300.0f : 100.0f;
+    r2 = ((CHAINROW(self)->flags.word >> 6) & 1) ? 90.0f : 120.0f;
+#else
     r = ((CHAINROW(self)->flags2.word >> 8) & 1) ? 300.0f : 100.0f;
     r2 = ((CHAINROW(self)->flags2.word >> 8) & 1) ? 90.0f : 120.0f;
+#endif
 #endif
 
     for (g = isysGObjSearchFromObjKindID_begin(0x15); g != 0;
@@ -288,8 +293,13 @@ static void findChainInJump(void *self)
     if (((CHAINROW(self)->flags2.word >> 7) & 1) == 0 && (rside != 0 || lside != 0) &&
         (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
 #else
+#ifdef VERSION_AUG6
+    if (((CHAINROW(self)->flags2.word >> 3) & 1) == 0 && (rside != 0 || lside != 0) &&
+        (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
+#else
     if (((CHAINROW(self)->flags2.word >> 6) & 1) == 0 && (rside != 0 || lside != 0) &&
         (lv[2] < 0.0f ? -lv[2] : lv[2]) < 150.0f) {
+#endif
 #endif
         RequestChangeHandMode(self, 0, 2, 1, g, 0, w);
         RequestChangeHandMode(self, 1, 2, 1, g, 0, w);
@@ -305,6 +315,13 @@ static void findChainInJump(void *self)
         ((BoyVal *)((char *)GOBJ_SUB(self) + 0x464))->f = 0.8f;
         ((BoyVal *)((char *)GOBJ_SUB(self) + 0x468))->f = 0.8f;
 #else
+#ifdef VERSION_AUG6
+    if ((rside != 0 || lside != 0) &&
+        motionKind[GOBJ_SUB(self)->ctrl.motion].flags2.bits.chainIkRate) {
+        ((BoyVal *)((char *)GOBJ_SUB(self) + 0x44C))->f = 0.8f;
+        ((BoyVal *)((char *)GOBJ_SUB(self) + 0x454))->f = 0.8f;
+        ((BoyVal *)((char *)GOBJ_SUB(self) + 0x458))->f = 0.8f;
+#else
     if ((rside != 0 || lside != 0) && ((CHAINROW(self)->flags2.word >> 5) & 1) != 0) {
         float sp = (systemStatus[0] == 1) ? 0.5f : 0.8f;
 
@@ -312,10 +329,15 @@ static void findChainInJump(void *self)
         ((BoyVal *)((char *)GOBJ_SUB(self) + 0x464))->f = sp;
         ((BoyVal *)((char *)GOBJ_SUB(self) + 0x468))->f = sp;
 #endif
+#endif
     }
 
     if (rside != 0 || lside != 0) {
+#ifdef VERSION_AUG6
+        _ACTCharStatus_Set(self, 16, -1.0f, (int)g);
+#else
         _ACTCharStatus_Set(self, 18, -1.0f, (int)g);
+#endif
     }
 
     if (rside != 0) {
@@ -347,6 +369,15 @@ static void findChainInJump(void *self)
         pos[0] = test_CURRENTROOT(self)[0];
         pos[1] = test_CURRENTROOT(self)[1];
         pos[2] = test_CURRENTROOT(self)[2];
+#ifdef VERSION_AUG6
+        for (o = isysGObjSearchFromObjKindID_begin(43); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o)) {
+            if (*(int *)((char *)o + 0x16C) != 0) {
+                GetCageChainPoint(cp, ce, o);
+                if (_DistxzSqGV(test_CURRENTROOT(self), cp) < 4.9e+03f && ce[1] > pos[1]) {
+                    cage = o;
+                    break;
+#else
         for (o = isysGObjSearchFromObjKindID_begin(0x2C); o != 0;
              o = isysGObjSearchFromObjKindID_next(o)) {
             if (*(int *)((char *)o + 0x16C) != 0) {
@@ -355,6 +386,7 @@ static void findChainInJump(void *self)
                         cage = o;
                         break;
                     }
+#endif
                 }
             }
         }
@@ -362,8 +394,13 @@ static void findChainInJump(void *self)
             GetRootPositionHandExtra(self, hx);
             GetCageChainPoint(cp2, ce2, cage);
             if (cp2[1] + 150.0f < hx[1]) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 159);
+                ACTSendMailCorrect(self, 158);
+#else
                 ACTSendMailCorrect(self, 0xAE);
                 ACTSendMailCorrect(self, 0xAD);
+#endif
             }
         }
     }
@@ -404,7 +441,7 @@ static int CorrectOrient_RopeCliff(float *out, void *gobj, float *dir)
                 dy = pos[1] - rpos[1];
                 if ((dy < 0.0f ? -dy : dy) < 70.0f) {
                     _OrientXZGV(orient, rpos, pos);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
                     a = _AbsRotyGV(sub->dir, orient);
                     GetChainClimbOrient(climb, p);
                     b = _AbsRotyGV(sub->dir, climb);
@@ -440,7 +477,11 @@ inline void afterBoyHand50(GObj *volatile self)
 #ifdef VERSION_NTSC
         iosOmSendMail(girlGObj, 89, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+        iosOmSendMail(girlGObj, 88, isysCurrentGObj);
+#else
         iosOmSendMail(girlGObj, 0x60, isysCurrentGObj);
+#endif
 #endif
     }
 }
@@ -450,7 +491,7 @@ inline void actBoyHand50(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
 
     debug_StdPrintfDummy("enter actBoyHand50\n");
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     sub->actMode = 79;
 #else
     sub->actMode = 0x52;
@@ -465,7 +506,11 @@ inline void actBoyHand50(GObj *volatile self)
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 89);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 88);
+#else
         ACTSendMailCorrect(self, 0x60);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -481,7 +526,11 @@ void motBoyHand50(GObj *volatile self)
 #ifdef VERSION_NTSC
             iosOmSendMail(girlGObj, 85, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 84, isysCurrentGObj);
+#else
             iosOmSendMail(girlGObj, 0x5C, isysCurrentGObj);
+#endif
 #endif
         }
         if (sub->readyFlags & 1) {
@@ -498,7 +547,11 @@ void motBoyHand50(GObj *volatile self)
 #ifdef VERSION_NTSC
             iosOmSendMail(girlGObj, 86, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 85, isysCurrentGObj);
+#else
             iosOmSendMail(girlGObj, 0x5D, isysCurrentGObj);
+#endif
 #endif
         }
         if (sub->readyFlags & 2) {
@@ -512,7 +565,11 @@ void motBoyHand50(GObj *volatile self)
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 67);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 66);
+#else
         ACTSendMailCorrect(self, 0x47);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -538,7 +595,11 @@ inline void afterBoyHand100(GObj *volatile self)
 #ifdef VERSION_NTSC
         iosOmSendMail(girlGObj, 94, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+        iosOmSendMail(girlGObj, 93, isysCurrentGObj);
+#else
         iosOmSendMail(girlGObj, 0x65, isysCurrentGObj);
+#endif
 #endif
     }
 }
@@ -548,7 +609,7 @@ inline void actBoyHand100(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
 
     debug_StdPrintfDummy("enter actBoyHand100\n");
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     sub->actMode = 80;
 #else
     sub->actMode = 0x53;
@@ -563,7 +624,11 @@ inline void actBoyHand100(GObj *volatile self)
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 94);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 93);
+#else
         ACTSendMailCorrect(self, 0x65);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -584,7 +649,11 @@ void motBoyHand100(GObj *volatile self)
 #ifdef VERSION_NTSC
                 iosOmSendMail(girlGObj, 90, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+                iosOmSendMail(girlGObj, 89, isysCurrentGObj);
+#else
                 iosOmSendMail(girlGObj, 0x61, isysCurrentGObj);
+#endif
 #endif
             }
             if ((sub->readyFlags & 1) == 0) {
@@ -599,7 +668,11 @@ void motBoyHand100(GObj *volatile self)
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 94);
 #else
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 93);
+#else
     ACTSendMailCorrect(self, 0x65);
+#endif
 #endif
     debug_StdPrintfDummy("%s sync error\n", (void *)self == boyGObj ? "boy" : "girl");
 done:
@@ -611,8 +684,13 @@ done:
     sub->motReq = SetMotionRequest((void *)self, 92, sub->env.motOriReq);
     sub->motReq = SetMotionRequest((void *)self, 145, sub->env.motOriReq);
 #else
+#ifdef VERSION_AUG6
+    sub->motReq = SetMotionRequest((void *)self, 91, sub->env.motOriReq);
+    sub->motReq = SetMotionRequest((void *)self, 143, sub->env.motOriReq);
+#else
     sub->motReq = SetMotionRequest((void *)self, 0x65, sub->env.motOriReq);
     sub->motReq = SetMotionRequest((void *)self, 0xA4, sub->env.motOriReq);
+#endif
 #endif
     while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
@@ -622,7 +700,11 @@ done:
 #ifdef VERSION_NTSC
             iosOmSendMail(girlGObj, 91, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 90, isysCurrentGObj);
+#else
             iosOmSendMail(girlGObj, 0x62, isysCurrentGObj);
+#endif
 #endif
         }
         if (sub->readyFlags & 2) {
@@ -633,7 +715,11 @@ done:
 #ifdef VERSION_NTSC
     sub->motReq = SetMotionRequest((void *)self, 92, sub->env.motOriReq);
 #else
+#ifdef VERSION_AUG6
+    sub->motReq = SetMotionRequest((void *)self, 91, sub->env.motOriReq);
+#else
     sub->motReq = SetMotionRequest((void *)self, 0x65, sub->env.motOriReq);
+#endif
 #endif
     while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
@@ -643,7 +729,11 @@ done:
 #ifdef VERSION_NTSC
             iosOmSendMail(girlGObj, 93, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 92, isysCurrentGObj);
+#else
             iosOmSendMail(girlGObj, 0x64, isysCurrentGObj);
+#endif
 #endif
         }
         if (sub->readyFlags & 8) {
@@ -656,7 +746,11 @@ done:
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 67);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 66);
+#else
         ACTSendMailCorrect(self, 0x47);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -669,7 +763,11 @@ inline void afterBoyHand200(GObj *volatile self)
 #ifdef VERSION_NTSC
         iosOmSendMail(girlGObj, 99, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+        iosOmSendMail(girlGObj, 98, isysCurrentGObj);
+#else
         iosOmSendMail(girlGObj, 0x6A, isysCurrentGObj);
+#endif
 #endif
     }
 }
@@ -679,7 +777,7 @@ inline void actBoyHand200(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
 
     debug_StdPrintfDummy("enter actBoyHand200\n");
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     sub->actMode = 81;
 #else
     sub->actMode = 0x54;
@@ -694,7 +792,11 @@ inline void actBoyHand200(GObj *volatile self)
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 99);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 98);
+#else
         ACTSendMailCorrect(self, 0x6A);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -715,7 +817,11 @@ void motBoyHand200(GObj *volatile self)
 #ifdef VERSION_NTSC
                 iosOmSendMail(girlGObj, 95, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+                iosOmSendMail(girlGObj, 94, isysCurrentGObj);
+#else
                 iosOmSendMail(girlGObj, 0x66, isysCurrentGObj);
+#endif
 #endif
             }
             if ((sub->readyFlags & 1) == 0) {
@@ -730,7 +836,11 @@ void motBoyHand200(GObj *volatile self)
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 99);
 #else
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 98);
+#else
     ACTSendMailCorrect(self, 0x6A);
+#endif
 #endif
     debug_StdPrintfDummy("%s sync error\n", (void *)self == boyGObj ? "boy" : "girl");
 done:
@@ -741,7 +851,11 @@ done:
 #ifdef VERSION_NTSC
     sub->motReq = SetMotionRequest((void *)self, 93, sub->env.motOriReq);
 #else
+#ifdef VERSION_AUG6
+    sub->motReq = SetMotionRequest((void *)self, 92, sub->env.motOriReq);
+#else
     sub->motReq = SetMotionRequest((void *)self, 0x66, sub->env.motOriReq);
+#endif
 #endif
     while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
@@ -750,8 +864,13 @@ done:
     sub->motReq = SetMotionRequest((void *)self, 93, sub->env.motOriReq);
     sub->motReq = SetMotionRequest((void *)self, 145, sub->env.motOriReq);
 #else
+#ifdef VERSION_AUG6
+    sub->motReq = SetMotionRequest((void *)self, 92, sub->env.motOriReq);
+    sub->motReq = SetMotionRequest((void *)self, 143, sub->env.motOriReq);
+#else
     sub->motReq = SetMotionRequest((void *)self, 0x66, sub->env.motOriReq);
     sub->motReq = SetMotionRequest((void *)self, 0xA4, sub->env.motOriReq);
+#endif
 #endif
     while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
@@ -761,7 +880,11 @@ done:
 #ifdef VERSION_NTSC
             iosOmSendMail(girlGObj, 96, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 95, isysCurrentGObj);
+#else
             iosOmSendMail(girlGObj, 0x67, isysCurrentGObj);
+#endif
 #endif
         }
         if (sub->readyFlags & 2) {
@@ -772,7 +895,11 @@ done:
 #ifdef VERSION_NTSC
     sub->motReq = SetMotionRequest((void *)self, 93, sub->env.motOriReq);
 #else
+#ifdef VERSION_AUG6
+    sub->motReq = SetMotionRequest((void *)self, 92, sub->env.motOriReq);
+#else
     sub->motReq = SetMotionRequest((void *)self, 0x66, sub->env.motOriReq);
+#endif
 #endif
     while ((*(int *)((char *)sub->motReq + 0x5C) & 1) == 0) {
         _ACTWait(1);
@@ -782,7 +909,11 @@ done:
 #ifdef VERSION_NTSC
             iosOmSendMail(girlGObj, 98, isysCurrentGObj);
 #else
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 97, isysCurrentGObj);
+#else
             iosOmSendMail(girlGObj, 0x69, isysCurrentGObj);
+#endif
 #endif
         }
         if (sub->readyFlags & 8) {
@@ -795,7 +926,11 @@ done:
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 67);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 66);
+#else
         ACTSendMailCorrect(self, 0x47);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -845,11 +980,16 @@ void handoff_heroin(void)
 
     if (girlGObj != 0) {
         if (GOBJ_SUB(girlGObj)->root.hand0.mode == 6) {
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 58, isysCurrentGObj);
+            ACTSendMailCorrect(boy, 231);
+#else
             if (actModeTbl[GOBJ_ACT(boy)->actMode].bit7) {
             } else {
                 iosOmSendMail(girlGObj, 0x3E, isysCurrentGObj);
             }
             ACTSendMailCorrect(boy, 0xFA);
+#endif
         } else if (_DistxzGV(test_CURRENTROOT(boy), test_CURRENTROOT(girlGObj)) < 100.0f &&
                    ABSF(ABSF(BOYGIRL_DY())) < 100.0f) {
             GetHeightOfFieldPlaneDifference(boyGObj, girlGObj);
@@ -861,11 +1001,19 @@ void handoff_heroin(void)
     }
 }
 
+#ifdef VERSION_AUG6
+static sceVu0FVECTOR pinchBoyPos; /* derived name */
+
+static sceVu0FVECTOR pinchCameraPos; /* derived name */
+
+static sceVu0FVECTOR pinchBoyPosLate; /* derived name */
+#else
 static float pinchBoyPos[4]; /* derived name */
 
 static float pinchCameraPos[4]; /* derived name */
 
 static float pinchBoyPosLate[4]; /* derived name */
+#endif
 #endif
 
 typedef struct { /* field names derived */
@@ -881,7 +1029,7 @@ static int attrWallHit[3]; /* derived name */
 
 static long long boyInfo[12]; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static void CheckCollisionAttr(void *self)
 {
     Sub15C *stage = GOBJ_SUB(self);
@@ -1031,6 +1179,24 @@ static BgaEntry boyBgaTable[] = {
     {-1},
 }; /* derived name */
 #else
+#ifdef VERSION_AUG6
+typedef struct { /* field names derived */
+    int w[6];
+} BoyKidnapWork; /* derived name */
+
+static BoyWork boyInfoDefault = {{0, 0, 0xFFFFFFFF}}; /* derived name */
+
+static BoyKidnapWork characterPacketDefault = {{0}}; /* derived name */
+
+static BgaEntry boyBgaTable[] = {
+    /* derived name */
+    {415, 0.0f, 7.0f, 1, 70, 1, 1, 1.0f},
+    {416, 0.0f, 0.0f, 0, 70, 0, 1, 1.0f},
+    {420, 0.0f, 0.0f, 0, 0, 0, 0, -1.0f},
+    {421, -10.0f, 23.0f, 1, 70, 1, 1, -1.0f},
+    {-1},
+}; /* derived name */
+#else
 typedef struct { /* field names derived */
     int w[8];
 } BoyKidnapWork; /* derived name */
@@ -1080,6 +1246,7 @@ static BgaEntry boyBgaTable[] = {
 static PrivInsCam privInsCamDefault = {
     /* derived name */
     {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0, 0, 0, 0.5f, 0.2f}; /* derived name */
+#endif
 
 #endif
 
@@ -1105,7 +1272,7 @@ static void BoyBgaManager(void *self, int id, void *dst)
             dir[1] = test_CURRENTORIENT(self)[1];
             dir[2] = test_CURRENTORIENT(self)[2];
         } else {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             obj = isysGObjSearchFromObjKindID_begin(46);
 #else
             obj = isysGObjSearchFromObjKindID_begin(47);
@@ -1132,8 +1299,8 @@ static void BoyBgaManager(void *self, int id, void *dst)
             goto found;
         }
     }
-    debug_assert(__FILE__, LN(1731, 1724, 1724, 1543));
-    __assert(__FILE__, LN(1731, 1724, 1724, 1543), "0");
+    debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493));
+    __assert(__FILE__, LN(1731, 1724, 1724, 1543, 1493), "0");
     p = 0;
 found:
     v = *(int *)dst;
@@ -1229,8 +1396,13 @@ static void E3_StageStartBoy(void *self)
         sceVu0AddVector(buf, buf, test_CURRENTROOT(self));
         SetDirectRootPositionNoFitting(self, buf);
     }
+#ifdef VERSION_AUG6
+    if (gflagChk(347)) {
+        gflagOff(347);
+#else
     if (gflagChk(381)) {
         gflagOff(381);
+#endif
         return;
     }
     if (GetStageStartInfo(self, 0, 0, &w1, &w2, &w3) == 0) {
@@ -1246,7 +1418,11 @@ static void E3_StageStartBoy(void *self)
     GetStageStartInfo(self, 0, 0, &w1, &w2, &w3);
     _ACTWait(w1);
     scpPlayStart(self);
+#ifdef VERSION_AUG6
+    scpPlayMotReq(self, 7);
+#else
     scpPlayMotReq(self, 8);
+#endif
     _ACTWait(w2);
     scpPlayEnd(self);
     _ACTWait(w3);
@@ -1270,7 +1446,7 @@ static int GetChainSlope(void)
         return 0;
     }
     ratio = (float)*motionTable[GOBJ_SUB(g)->ctrl.motion] / (c * 0.5f);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ACTGame_SetMotionPlaySpeedRatio_Reserve(g, ratio, 7);
 #else
     ACTGame_SetMotionPlaySpeedRatio_Reserve(
@@ -1298,8 +1474,11 @@ static int GetChainSlope(void)
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int InsertCameraWorkingFlag;
+
+#ifndef VERSION_AUG6
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differ) */
 extern int FixViewInGameCameraFlag;
+#endif
 
 /* An inline-only static that snapshots the boy's orient where the script
    side reads it, inlined into subBoyControl and subBoyCollision. */
@@ -1376,7 +1555,7 @@ int test_rope_slope = 0;
 
 float add_rope_val = 0.0f;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void subBoyControl(GObj *volatile self)
 {
     float stick[4];
@@ -1406,6 +1585,9 @@ void subBoyControl(GObj *volatile self)
     E3_StageStartBoy((void *)self);
     layoutActPushStartNew = 0;
     while (1) {
+#ifdef VERSION_AUG6
+        if (InsertCameraWorkingFlag) {
+#else
         if (FixViewInGameCameraFlag) {
             n = 3;
         }
@@ -1413,6 +1595,7 @@ void subBoyControl(GObj *volatile self)
             n = 3;
         }
         if ((int)(s->flags20.ll >> 18) & 1) {
+#endif
             n = 3;
         }
         sw = 0;
@@ -1497,7 +1680,11 @@ void subBoyControl(GObj *volatile self)
                     p1[2] = p1[2] - p0[2];
                     sceVu0Normalize(stick, p1);
                     if (dist < 120.0f) {
+#ifdef VERSION_AUG6
+                        ACTSendMailCorrect(self, 180);
+#else
                         ACTSendMailCorrect(self, 183);
+#endif
                         s->wayMode = 0;
                     } else if (dist < 850.0f) {
                         s->stick.mag = (dist - 100.0f) / 750.0f;
@@ -1591,6 +1778,15 @@ void subBoyControl(GObj *volatile self)
         _ACTCommonMailTest(self, c0, c1, c2);
         switch (s->actMode) {
         case 1:
+#ifdef VERSION_AUG6
+            ACTSendMailCorrect(self, 180);
+            break;
+        case 2:
+            ACTSendMailCorrect(self, 166);
+            break;
+        case 3:
+            ACTSendMailCorrect(self, 171);
+#else
             ACTSendMailCorrect(self, 183);
             break;
         case 2:
@@ -1598,17 +1794,35 @@ void subBoyControl(GObj *volatile self)
             break;
         case 3:
             ACTSendMailCorrect(self, 173);
+#endif
             break;
         case 29:
             if (s->pad.trg & 0x40) {
                 if (100.0f < GetDifferenceFromLowerField(self, 44)) {
+#ifdef VERSION_AUG6
+                    ACTSendMailCorrect(self, 275);
+                } else {
+                    ACTSendMailCorrect(self, 207);
+#else
                     ACTSendMailCorrect(self, 278);
                 } else {
                     ACTSendMailCorrect(self, 210);
+#endif
                 }
             }
             if ((0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 45) < 91) ||
                 (s->pad.trg & 0x10)) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 180);
+            }
+            if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+                ACTSendMailCorrect(self, 308);
+            }
+            if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+                ACTSendMailCorrect(self, 309);
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 183);
             }
             if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
@@ -1618,27 +1832,59 @@ void subBoyControl(GObj *volatile self)
                 ACTSendMailCorrect(self, 313);
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         case 26:
             if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269)) {
+#ifdef VERSION_AUG6
+                sceVu0ScaleVector(GOBJ_WORK(self)->fallDir, (char *)GOBJ_ACT(self)->work + 0x7E0,
+                                  -1.0f);
+                ACTSendMailCorrect(self, 291);
+#else
                 sceVu0ScaleVector(GOBJ_WORK(self)->fallDir, (char *)GOBJ_ACT(self)->work + 0x800,
                                   -1.0f);
                 ACTSendMailCorrect(self, 294);
+#endif
             }
             break;
         case 27: {
             int back = 0;
 
             if (0.1f < s->stick.mag) {
+#ifdef VERSION_AUG6
+                int r = _RotyGV(stick, GOBJ_WORK(self)->hangOrient);
+#else
                 int r = _RotyGV(stick, (float *)((char *)GOBJ_ACT(self)->work + 0x430));
+#endif
 
                 r = r < 0 ? -r : r;
                 back = r >= 136;
                 if (back && GetMotionFrameFlag1((void *)self)) {
+#ifdef VERSION_AUG6
+                    ACTSendMailCorrect(self, 285);
+#else
                     ACTSendMailCorrect(self, 288);
+#endif
                 }
             }
             if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269)) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 284);
+            }
+            if (s->pad.trg & 0x40) {
+                ACTSendMailCorrect(self, 207);
+            }
+            if (back || (s->pad.trg & 0x10)) {
+                ACTSendMailCorrect(self, 180);
+            }
+            if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+                ACTSendMailCorrect(self, 308);
+            }
+            if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+                ACTSendMailCorrect(self, 309);
+            }
+            ACTSendMailCorrect(self, 275);
+#else
                 ACTSendMailCorrect(self, 287);
             }
             if (s->pad.trg & 0x40) {
@@ -1654,10 +1900,22 @@ void subBoyControl(GObj *volatile self)
                 ACTSendMailCorrect(self, 313);
             }
             ACTSendMailCorrect(self, 278);
+#endif
             break;
         }
         case 28:
             if (s->pad.trg & 0x40) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 207);
+            }
+            if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+                ACTSendMailCorrect(self, 308);
+            }
+            if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+                ACTSendMailCorrect(self, 309);
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 210);
             }
             if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
@@ -1667,9 +1925,23 @@ void subBoyControl(GObj *volatile self)
                 ACTSendMailCorrect(self, 313);
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         case 30:
             if (s->pad.trg & 0x40) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 207);
+            } else if (s->pad.trg & 0x10) {
+                ACTSendMailCorrect(self, 180);
+            }
+            if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+                ACTSendMailCorrect(self, 308);
+            }
+            if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+                ACTSendMailCorrect(self, 309);
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 210);
             } else if (s->pad.trg & 0x10) {
                 ACTSendMailCorrect(self, 183);
@@ -1681,31 +1953,66 @@ void subBoyControl(GObj *volatile self)
                 ACTSendMailCorrect(self, 313);
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         case 31:
             if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 308);
+            }
+            if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+                ACTSendMailCorrect(self, 309);
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 312);
             }
             if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
                 ACTSendMailCorrect(self, 313);
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         case 33:
             if (s->pad.trg & 0x40) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 207);
+#else
                 ACTSendMailCorrect(self, 210);
+#endif
             }
             break;
         case 40:
             if ((s->pad.trg & 0x10) || s->stick.y - 128 < -100) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 283);
+            }
+            if (s->pad.trg & 0x40) {
+                ACTSendMailCorrect(self, 207);
+#else
                 ACTSendMailCorrect(self, 286);
             }
             if (s->pad.trg & 0x40) {
                 ACTSendMailCorrect(self, 210);
+#endif
             }
             break;
         case 34:
             if (s->pad.trg & 0x40) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 207);
+            } else if ((s->pad.trg & 0x10) ||
+                       (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 45) < 91)) {
+                ACTSendMailCorrect(self, 282);
+            }
+            if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+                ACTSendMailCorrect(self, 308);
+            }
+            if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+                ACTSendMailCorrect(self, 309);
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 210);
             } else if ((s->pad.trg & 0x10) ||
                        (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 45) < 91)) {
@@ -1718,9 +2025,22 @@ void subBoyControl(GObj *volatile self)
                 ACTSendMailCorrect(self, 313);
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         case 35:
             if (s->pad.trg & 0x40) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 207);
+            }
+            if (s->pad.trg & 0x10) {
+                ACTSendMailCorrect(self, 174);
+            }
+            if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+                ACTSendMailCorrect(self, 308);
+            }
+            if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+                ACTSendMailCorrect(self, 309);
+#else
                 ACTSendMailCorrect(self, 210);
             }
             if (s->pad.trg & 0x10) {
@@ -1731,6 +2051,7 @@ void subBoyControl(GObj *volatile self)
             }
             if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
                 ACTSendMailCorrect(self, 313);
+#endif
             }
             break;
         case 52: {
@@ -1762,10 +2083,24 @@ void subBoyControl(GObj *volatile self)
             }
             if (s->pad.now & 0x20) {
                 if (near && 0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 90) < 181) {
+#ifdef VERSION_AUG6
+                    ACTSendMailCorrect(self, 120);
+#else
                     ACTSendMailCorrect(self, 121);
+#endif
                     break;
                 }
                 if (front && 0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 89) < 179)) {
+#ifdef VERSION_AUG6
+                    ACTSendMailCorrect(self, 119);
+                    break;
+                }
+                ACTSendMailCorrect(self, 310);
+                break;
+            }
+            ACTSendMailCorrect(self, 310);
+            ACTSendMailCorrect(self, 180);
+#else
                     ACTSendMailCorrect(self, 120);
                     break;
                 }
@@ -1774,19 +2109,39 @@ void subBoyControl(GObj *volatile self)
             }
             ACTSendMailCorrect(self, 314);
             ACTSendMailCorrect(self, 183);
+#endif
             break;
         }
         case 53:
             if ((60 - systemStatus[0] * 10) / systemStatus[1] * 90 / 60 > s->modeFrame) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 125);
+                break;
+            }
+            ACTSendMailCorrect(self, 310);
+            ACTSendMailCorrect(self, 180);
+#else
                 ACTSendMailCorrect(self, 126);
                 break;
             }
             ACTSendMailCorrect(self, 314);
             ACTSendMailCorrect(self, 183);
+#endif
             break;
         case 54:
             if (s->pad.now & 0x20) {
                 if (0.1f < s->stick.mag) {
+#ifdef VERSION_AUG6
+                    ACTSendMailCorrect(self, 125);
+                    if (s->pad.now & 8) {
+                        ACTSendMailCorrect(self, 61);
+                    }
+                } else {
+                    ACTSendMailCorrect(self, 310);
+                }
+            } else {
+                ACTSendMailCorrect(self, 180);
+#else
                     ACTSendMailCorrect(self, 126);
                     if (s->pad.now & 8) {
                         ACTSendMailCorrect(self, 62);
@@ -1796,6 +2151,7 @@ void subBoyControl(GObj *volatile self)
                 }
             } else {
                 ACTSendMailCorrect(self, 183);
+#endif
             }
             break;
         case 32:
@@ -1806,6 +2162,17 @@ void subBoyControl(GObj *volatile self)
 
             if (((int)(*(unsigned long long *)((char *)GOBJ_ACT(self)->enemy + 0x298) >> 1) & 1) &&
                 !(s->stick.y - 128 < 101)) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 305);
+            } else if ((*(int *)((char *)GOBJ_ACT(self)->enemy + 0x298) & 1) &&
+                       s->stick.y - 128 < -100) {
+                ACTSendMailCorrect(self, 304);
+            } else {
+                ACTSendMailCorrect(self, 310);
+            }
+            if (s->pad.trg & 8) {
+                ACTSendMailCorrect(self, 61);
+#else
                 ACTSendMailCorrect(self, 309);
             } else if ((*(int *)((char *)GOBJ_ACT(self)->enemy + 0x298) & 1) &&
                        s->stick.y - 128 < -100) {
@@ -1815,6 +2182,7 @@ void subBoyControl(GObj *volatile self)
             }
             if (s->pad.trg & 8) {
                 ACTSendMailCorrect(self, 62);
+#endif
             }
 #ifdef DEBUG
             scePrintf("boy %08x stick %d\n", obj, s->stick.y - 128);
@@ -1823,54 +2191,104 @@ void subBoyControl(GObj *volatile self)
         }
         case 43:
             if (0.95f < s->stick.mag) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 203);
+                break;
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 206);
                 break;
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         case 44:
             if (0.95f < s->stick.mag) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 202);
+                break;
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 205);
                 break;
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         case 49:
             if (s->pad.now & 0x20) {
                 switch (s->pushDir) {
                 case 1:
                     if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 90) < 181) {
+#ifdef VERSION_AUG6
+                        ACTSendMailCorrect(self, 306);
+                    } else {
+                        ACTSendMailCorrect(self, 310);
+#else
                         ACTSendMailCorrect(self, 310);
                     } else {
                         ACTSendMailCorrect(self, 314);
+#endif
                     }
                     break;
                 case -1:
                     if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 89) < 179)) {
+#ifdef VERSION_AUG6
+                        ACTSendMailCorrect(self, 307);
+                    } else {
+                        ACTSendMailCorrect(self, 310);
+#else
                         ACTSendMailCorrect(self, 311);
                     } else {
                         ACTSendMailCorrect(self, 314);
+#endif
                     }
                     break;
                 default:
                     if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 90) < 181) {
+#ifdef VERSION_AUG6
+                        ACTSendMailCorrect(self, 306);
+                    } else if (0.1f < s->stick.mag &&
+                               !((unsigned int)(s->stick.angle + 89) < 179)) {
+                        ACTSendMailCorrect(self, 307);
+                    } else {
+                        ACTSendMailCorrect(self, 310);
+#else
                         ACTSendMailCorrect(self, 310);
                     } else if (0.1f < s->stick.mag &&
                                !((unsigned int)(s->stick.angle + 89) < 179)) {
                         ACTSendMailCorrect(self, 311);
                     } else {
                         ACTSendMailCorrect(self, 314);
+#endif
                     }
                     break;
                 }
             } else {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 310);
+                ACTSendMailCorrect(self, 180);
+#else
                 ACTSendMailCorrect(self, 314);
                 ACTSendMailCorrect(self, 183);
+#endif
             }
             break;
         case 51:
             if (s->pad.now & 0x20) {
                 if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 90) < 181) {
+#ifdef VERSION_AUG6
+                    ACTSendMailCorrect(self, 306);
+                } else if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 89) < 179)) {
+                    ACTSendMailCorrect(self, 307);
+                } else {
+                    ACTSendMailCorrect(self, 310);
+                }
+            } else {
+                ACTSendMailCorrect(self, 180);
+#else
                     ACTSendMailCorrect(self, 310);
                 } else if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 89) < 179)) {
                     ACTSendMailCorrect(self, 311);
@@ -1879,27 +2297,58 @@ void subBoyControl(GObj *volatile self)
                 }
             } else {
                 ACTSendMailCorrect(self, 183);
+#endif
             }
             break;
         case 114:
             if (s->pad.trg & 0x20) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 181);
+#else
                 ACTSendMailCorrect(self, 184);
+#endif
                 break;
             }
             if (0.1f < s->stick.mag &&
                 !(0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20)))) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 171);
+#else
                 ACTSendMailCorrect(self, 173);
+#endif
                 break;
             }
             if (0.1f < s->stick.mag && (s->stick.mag < 0.99f || (s->pad.now & 0x20))) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 166);
+                break;
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 168);
                 break;
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         case 58:
             switch (GetChainSlope()) {
             case 0:
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 150);
+                break;
+            case 1:
+                ACTSendMailCorrect(self, 136);
+                break;
+            case 2:
+                ACTSendMailCorrect(self, 137);
+                break;
+            case 3:
+                ACTSendMailCorrect(self, 138);
+                break;
+            case 4:
+                ACTSendMailCorrect(self, 139);
+#else
                 ACTSendMailCorrect(self, 152);
                 break;
             case 1:
@@ -1913,6 +2362,7 @@ void subBoyControl(GObj *volatile self)
                 break;
             case 4:
                 ACTSendMailCorrect(self, 141);
+#endif
                 break;
             }
             if (GOBJ_SUB(self)->ctrl.motion == 133) {
@@ -1929,15 +2379,26 @@ void subBoyControl(GObj *volatile self)
             } else {
                 DecreasePdlChain(s->chain);
             }
+#ifndef VERSION_AUG6
             if (s->pad.trg & 0x10) {
                 ACTSendMailCorrect(self, 177);
             }
             if (s->pad.trg & 0x40) {
                 ACTSendMailCorrect(self, 297);
             }
+#endif
             break;
         case 60:
             if (!(s->stick.y - 128 < 101)) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 207);
+            }
+            if (s->stick.y - 128 < -100) {
+                ACTSendMailCorrect(self, 145);
+            }
+            if (s->pad.now & 0x20) {
+                ACTSendMailCorrect(self, 146);
+#else
                 ACTSendMailCorrect(self, 210);
             }
             if (s->stick.y - 128 < -100) {
@@ -1948,35 +2409,59 @@ void subBoyControl(GObj *volatile self)
             }
             if (s->pad.trg & 0x40) {
                 ACTSendMailCorrect(self, 210);
+#endif
             }
             break;
         case 20:
         case 21:
             if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+                iosOmSendMail(girlGObj, 58, isysCurrentGObj);
+#else
                 iosOmSendMail(girlGObj, 59, isysCurrentGObj);
+#endif
             }
             break;
         case 105:
             if (s->pad.now & 8) {
                 break;
             }
+#ifdef VERSION_AUG6
+            ACTSendMailCorrect(self, 180);
+#else
             ACTSendMailCorrect(self, 183);
+#endif
             break;
         case 102:
             if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 45) < 91) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 348);
+            }
+            if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269)) {
+                ACTSendMailCorrect(self, 207);
+#else
                 ACTSendMailCorrect(self, 352);
             }
             if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269)) {
                 ACTSendMailCorrect(self, 210);
+#endif
             }
             break;
         case 45:
             if (0.1f < s->stick.mag) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 109);
+                ACTSendMailCorrect(self, 108);
+            }
+            if (s->pad.now & 8) {
+                ACTSendMailCorrect(self, 108);
+#else
                 ACTSendMailCorrect(self, 110);
                 ACTSendMailCorrect(self, 109);
             }
             if (s->pad.now & 8) {
                 ACTSendMailCorrect(self, 109);
+#endif
                 brainAddLevelGirl(10.0f);
             }
             if (s->modeFrame == 0 && ((int)(s->flags18.ll >> 37) & 1)) {
@@ -1985,41 +2470,70 @@ void subBoyControl(GObj *volatile self)
             break;
         case 23:
             if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 45) < 91) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 306);
+#else
                 ACTSendMailCorrect(self, 310);
+#endif
                 break;
             }
             if (0.1f < s->stick.mag && !((unsigned int)(s->stick.angle + 134) < 269)) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 307);
+#else
                 ACTSendMailCorrect(self, 311);
+#endif
                 break;
             }
             if (0.1f < s->stick.mag && (unsigned int)(s->stick.angle - 46) < 89) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 308);
+#else
                 ACTSendMailCorrect(self, 312);
+#endif
                 break;
             }
             if (0.1f < s->stick.mag && !(s->stick.angle < -134) && s->stick.angle < -45) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 309);
+#else
                 ACTSendMailCorrect(self, 313);
+#endif
             }
             break;
         case 112:
             if (0.1f < s->stick.mag &&
                 !(0.1f < s->stick.mag && (unsigned int)(s->stick.angle + 75) < 151)) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 247);
+#else
                 ACTSendMailCorrect(self, 250);
+#endif
             }
             break;
         case 91:
             if (GOBJ_ACT(self)->enemy->floorAttrOff != 0) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 335);
+                break;
+            }
+            ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 339);
                 break;
             }
             ACTSendMailCorrect(self, 314);
+#endif
             break;
         }
         _ACTWait(1);
     }
 }
 
+#ifndef VERSION_AUG6
 /* subBoyControl's countdown, set to a fifth of a second of frames */
 static int boyControlWait = 0; /* derived name */
+#endif
 #else
 void subBoyControl(GObj *volatile self)
 {
@@ -2743,7 +3257,7 @@ static void PutWeapon(void)
         InitMotionGeoInfo(&GOBJ_SUB(*(void **)(p + 0x20))->root, *(float *)(p + 0x30),
                           *(float *)(p + 0x34), *(float *)(p + 0x38), -*(float *)(p + 0x40),
                           -*(float *)(p + 0x44), -*(float *)(p + 0x48));
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         if (CheckWeaponKind(*(void **)(p + 0x20)) == 9) {
             SetWeaponOffsetMode(*(void **)(p + 0x20), 1);
         }
@@ -2761,8 +3275,12 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy) /* derived na
         return 0;
     }
     if (newW == 0) {
-        debug_assert(__FILE__, LN(3007, 3000, 3000, 2757));
-        __assert(__FILE__, LN(3007, 3000, 3000, 2757), "next");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 2695));
+#else
+        debug_assert(__FILE__, LN(3007, 3000, 3000, 2757, 3007));
+#endif
+        __assert(__FILE__, LN(3007, 3000, 3000, 2757, 2695), "next");
         return 0;
     }
     PickupWeapon(newW, boy, 0x16);
@@ -2770,8 +3288,12 @@ static inline int SwapBoyWeapon(void *oldW, void *newW, void *boy) /* derived na
 #ifdef VERSION_NTSC
     sub->weapon = newW;
 #else
+#ifdef VERSION_AUG6
+    *(void **)((char *)sub + 0x130) = newW;
+#else
     *(void **)((char *)sub + 0x150) = newW;
     SetWeaponOffsetMode(newW, 0);
+#endif
 #endif
 
     if (oldW == 0) {
@@ -2792,6 +3314,11 @@ extern float *GetCurrentCameraSet2(void);
 extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 #endif
 
+#ifdef VERSION_AUG6
+/* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
+extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames);
+#endif
+
 static void OtherStageGirlPinchCamera_After(float t)
 {
     float buf[4];
@@ -2804,7 +3331,11 @@ static void OtherStageGirlPinchCamera_After(float t)
         pinchBoyPosLate[0] = test_CURRENTROOT(boyGObj)[0];
         pinchBoyPosLate[1] = test_CURRENTROOT(boyGObj)[1];
         pinchBoyPosLate[2] = test_CURRENTROOT(boyGObj)[2];
+#ifdef VERSION_AUG6
+        GetOtherStageGirlOrient(buf);
+#else
         GetOtherStageGirlOrient(buf, GetCurrentCameraSet2());
+#endif
         sceVu0ScaleVector(buf, buf, 500.0f);
         sceVu0AddVector(pinchCameraPos, GetCurrentCameraSet2(), buf);
     } else {
@@ -2812,10 +3343,15 @@ static void OtherStageGirlPinchCamera_After(float t)
         _InterGV(pinchBoyPosLate, pinchBoyPosLate, pinchCameraPos, 1.0f, 8.0f);
         InsertCamera_SetNoraml(GetCurrentCameraSet2(), pinchBoyPosLate, 5, 1);
 #else
+#ifdef VERSION_AUG6
+        _InterGV(pinchBoyPosLate, pinchBoyPosLate, pinchCameraPos, 1.0f, 8.0f);
+        InsertCamera_SetNoraml(GetCurrentCameraSet2(), pinchBoyPosLate, 5);
+#else
         PrivInsCamSet(test_CURRENTROOT(boyGObj), pinchCameraPos, boyGObj,
                       (60 - systemStatus[0] * 10) / systemStatus[1] * 100 / 60,
                       (60 - systemStatus[0] * 10) / systemStatus[1] * 45 / 60, 0.05f, 0.25f, 0);
         GOBJ_WORK(boyGObj)->pinchFrames = 0;
+#endif
 #endif
     }
 }
@@ -2832,6 +3368,9 @@ void ACTDispLwsBoyStonize_InQueenStage(void *self)
 
 static int characterPacket[6]; /* derived name */
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
+#else
+#ifdef VERSION_AUG6
+static int characterPacket[6]; /* derived name */
 #else
 void ACTDispLwsBoyStonize_InQueenStage(void *self)
 {
@@ -2906,6 +3445,7 @@ static void PrivInsCamProcess(void)
     }
 }
 #endif
+#endif
 
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void Camctrl_SetTarget(GObj *gobj, GObj *subGObj, int pri);
@@ -2918,6 +3458,9 @@ typedef struct { /* field names derived */
 #ifdef VERSION_NTSC
 static const ObjKindList collisionKinds = {{4, 46, 61, -1}}; /* derived name */
 #else
+#ifdef VERSION_AUG6
+static const ObjKindList collisionKinds = {{4, 46, 60, -1}}; /* derived name */
+#else
 static const ObjKindList collisionKinds = {{4, 47, 62, -1}}; /* derived name */
 
 /* reset the private insert camera to its initial value; only
@@ -2926,6 +3469,7 @@ static inline void PrivInsCamInit(void) /* derived name */
 {
     privInsCam = privInsCamDefault;
 }
+#endif
 #endif
 
 /* the nearest object of a kind in front of the actor, which ACTSearchGObj,
@@ -2975,7 +3519,7 @@ static __inline__ void boyCamDebugDisp(int camOn, int looking) /* derived name *
 #endif
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void subBoyCollision(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -3003,10 +3547,21 @@ void subBoyCollision(GObj *volatile self)
         findChainInJump((void *)self);
         CheckCollisionAttr((void *)self);
         ACTGame_CommonLoop((void *)self);
+#ifdef VERSION_AUG6
+        BoyBgaManager(self, 415, (char *)GOBJ_ACT(self)->enemy + 0x2A0);
+        BoyBgaManager(self, 416, (char *)GOBJ_ACT(self)->enemy + 0x2A4);
+        BoyBgaManager(self, 420, (char *)GOBJ_ACT(self)->enemy + 0x2B0);
+        BoyBgaManager(self, 420, (char *)GOBJ_ACT(self)->enemy + 0x2AC);
+        BoyBgaManager(self, 421, (char *)GOBJ_ACT(self)->enemy + 0x2A8);
+#endif
 
         hangBit = ((int)(sub->flags18.ll >> 45) & 1);
         hang = 1;
+#ifdef VERSION_AUG6
+        if (((int)(sub->flags20.ll >> 4) & 1) == 0) {
+#else
         if (((int)(sub->flags20.ll >> 7) & 1) == 0) {
+#endif
             hang = hangBit;
         }
         if (hang == 0) {
@@ -3036,17 +3591,35 @@ void subBoyCollision(GObj *volatile self)
         switch (sub->actMode) {
         case 28:
             if (((int)(sub->wish1.ll >> 3) & 1) && ((int)(sub->wish3.ll >> 3) & 1)) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 180);
+#else
                 ACTSendMailCorrect(self, 183);
+#endif
             }
             break;
         case 38:
+#ifndef VERSION_AUG6
             if (sub->pad.trg & 0x40) {
                 ACTSendMailCorrect(self, 297);
             }
+#endif
             break;
         case 57:
             SaveBoyOrientForScript();
             add_rope_val = 0.0f;
+#ifdef VERSION_AUG6
+            if (sub->pad.now & 0x20) {
+                ACTSendMailCorrect(self, 149);
+                ACTSendMailCorrect(self, 208);
+            } else {
+                if (sub->stick.y - 0x80 < -100) {
+                    ACTSendMailCorrect(self, 304);
+                } else if (100 < sub->stick.y - 0x80) {
+                    ACTSendMailCorrect(self, 305);
+                    if (isBottomOfChain(sub->chain)) {
+                        ACTSendMailCorrect(self, 144);
+#else
             if (sub->pad.trg & 0x40) {
                 ACTSendMailCorrect(self, 297);
             }
@@ -3060,6 +3633,7 @@ void subBoyCollision(GObj *volatile self)
                     ACTSendMailCorrect(self, 309);
                     if (isBottomOfChain(sub->chain)) {
                         ACTSendMailCorrect(self, 146);
+#endif
                     }
                 } else if (GOBJ_SUB(self)->ctrl.motion == 116) {
                     float bodyori[4];
@@ -3070,10 +3644,17 @@ void subBoyCollision(GObj *volatile self)
                     SetMotionDirection((void *)self, vec);
                     if (GetChainDirCorrectVal((void *)sub->chain, &cor) != 0) {
                         if (sub->stick.x - 0x80 < -100) {
+#ifdef VERSION_AUG6
+                            ACTSendMailCorrect(self, 147);
+                        }
+                        if (100 < sub->stick.x - 0x80) {
+                            ACTSendMailCorrect(self, 148);
+#else
                             ACTSendMailCorrect(self, 149);
                         }
                         if (100 < sub->stick.x - 0x80) {
                             ACTSendMailCorrect(self, 150);
+#endif
                         }
                     } else {
                         if (sub->stick.x - 0x80 < -100) {
@@ -3091,20 +3672,44 @@ void subBoyCollision(GObj *volatile self)
                         SetMotionDirection((void *)self, bodyori);
                     }
                 }
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 310);
+#else
                 ACTSendMailCorrect(self, 314);
+#endif
             }
             break;
         case 66:
+#ifdef VERSION_AUG6
+            if (((int)(sub->flags20.ll >> 1) & 1) == 0) {
+                if (sub->stick.y - 0x80 < -100) {
+                    ACTSendMailCorrect(self, 304);
+                }
+                if (100 < sub->stick.y - 0x80) {
+                    ACTSendMailCorrect(self, 305);
+#else
             if (((int)(sub->flags20.ll >> 2) & 1) == 0) {
                 if (sub->stick.y - 0x80 < -100) {
                     ACTSendMailCorrect(self, 308);
                 }
                 if (100 < sub->stick.y - 0x80) {
                     ACTSendMailCorrect(self, 309);
+#endif
                 }
             }
             if (GOBJ_SUB(self)->ctrl.motion == 116) {
                 if (sub->stick.x - 0x80 < -100) {
+#ifdef VERSION_AUG6
+                    ACTSendMailCorrect(self, 147);
+                }
+                if (100 < sub->stick.x - 0x80) {
+                    ACTSendMailCorrect(self, 148);
+                }
+            }
+            ACTSendMailCorrect(self, 310);
+            break;
+        case 55:
+#else
                     ACTSendMailCorrect(self, 149);
                 }
                 if (100 < sub->stick.x - 0x80) {
@@ -3127,10 +3732,23 @@ void subBoyCollision(GObj *volatile self)
                     ACTSendMailCorrect(self, 234);
                 }
             }
+#endif
             /* falls through into the next arm */
         case 68:
             if (((int)(sub->wish0.ll >> 45) & 1) && ((int)(sub->wish2.ll >> 45) & 1)) {
                 if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+                    iosOmSendMail(girlGObj, 58, isysCurrentGObj);
+                }
+                ACTSendMailCorrect(self, 231);
+            } else if (NotNeedBackHand() ||
+                       (GOBJ_ACT(girlGObj)->intrMot != 84 && GOBJ_ACT(girlGObj)->intrMot != 91 &&
+                        (60 - systemStatus[0] * 10) / systemStatus[1] * 2 < sub->modeFrame)) {
+                if (((int)(sub->wish0.ll >> 46) & 1) && ((int)(sub->wish2.ll >> 46) & 1)) {
+                    ACTSendMailCorrect(self, 231);
+                } else {
+                    ACTSendMailCorrect(self, 230);
+#else
                     iosOmSendMail(girlGObj, 59, isysCurrentGObj);
                 }
                 ACTSendMailCorrect(self, 234);
@@ -3141,6 +3759,7 @@ void subBoyCollision(GObj *volatile self)
                     ACTSendMailCorrect(self, 234);
                 } else {
                     ACTSendMailCorrect(self, 233);
+#endif
                 }
             }
             break;
@@ -3166,17 +3785,29 @@ void subBoyCollision(GObj *volatile self)
                 _ACTLookTarget_Set((void *)self, 0, vec, 1, 1);
             }
             if (((int)(sub->wish0.ll >> 44) & 1) && ((int)(sub->wish2.ll >> 44) & 1)) {
+#ifndef VERSION_AUG6
                 int see = 0;
                 int onGirl = 0;
+#endif
 
                 if (girlLookStarted == 0) {
                     girlLookStarted = 1;
                     if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+                        girlLookInScreen =
+                            (0.0f < IsPointIsInScreen(work, test_CURRENTROOT(girlGObj))) ? 1 : 0;
+#else
                         girlLookInScreen =
                             (0.0f < IsPointIsInScreen(scr, test_CURRENTROOT(girlGObj))) ? 1 : 0;
+#endif
                     }
                 }
                 if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+                    float d = _DistGV(test_CURRENTROOT(boyGObj), test_CURRENTROOT(girlGObj));
+
+                    if (d < _ACTGame_GetParamF(3)) {
+#else
                     ((float *)work)[0] = test_CURRENTROOT(girlGObj)[0];
                     ((float *)work)[1] = test_CURRENTROOT(girlGObj)[1];
                     ((float *)work)[2] = test_CURRENTROOT(girlGObj)[2];
@@ -3192,6 +3823,7 @@ void subBoyCollision(GObj *volatile self)
                     float d = _DistGV(test_CURRENTROOT((void *)self), (float *)work);
 
                     if (d < _ACTGame_GetParamF(3) && onGirl) {
+#endif
                         _ACTParaStatus_Set((void *)self, 21);
                         _ACTCharStatus_Set((void *)self, 30, -1.0f, 0);
                     } else if (d < _ACTGame_GetParamF(4)) {
@@ -3208,13 +3840,23 @@ void subBoyCollision(GObj *volatile self)
                 looking = girlGObj != 0;
                 if (looking) {
                     _ACTLookTarget_Set((void *)self, girlGObj, 0, 4, 2);
+#ifdef VERSION_AUG6
+                    if (girlLookInScreen == 0 && ((int)(sub->flags20.ll >> 9) & 1)) {
+                        if ((int)(sub->flags20.ll >> 10) & 1) {
+#else
                     if (girlLookInScreen == 0 && ((int)(sub->flags20.ll >> 12) & 1)) {
                         if ((int)(sub->flags20.ll >> 13) & 1) {
+#endif
                             void *lo = isysGObjSearchFromObjLayoutID(4);
 
                             if (lo != 0) {
+#ifdef VERSION_AUG6
+                                ScpCallCameraGetTarget((float *)scr);
+                                SetRootPosition(lo, scr);
+#else
                                 ScpCallCameraGetTarget((float *)tgt);
                                 SetRootPosition(lo, tgt);
+#endif
                                 Camctrl_SetTarget(self, lo, 1);
                             }
                         } else {
@@ -3300,7 +3942,11 @@ void subBoyCollision(GObj *volatile self)
                                 (0.0f < IsPointIsInScreen(work, test_CURRENTROOT(w))) ? 1 : 0;
                         }
                         weaponLookStarted = 1;
+#ifdef VERSION_AUG6
+                        if ((sub->flags20.ll & 0x600) == 0x200) {
+#else
                         if ((sub->flags20.ll & 0x3000) == 0x1000) {
+#endif
                             Camctrl_SetTarget(self, w, 1);
                             camOn = 1;
                         }
@@ -3317,13 +3963,18 @@ void subBoyCollision(GObj *volatile self)
                     looking = 0;
                 }
                 if ((sub->pad.now & 0x8) && lo != 0) {
+#ifdef VERSION_AUG6
+                    GetOtherStageGirlOrient((float *)ofs);
+#endif
                     ((float *)tgt)[0] = test_CURRENTROOT(boyGObj)[0];
                     ((float *)tgt)[1] = test_CURRENTROOT(boyGObj)[1];
                     ((float *)tgt)[2] = test_CURRENTROOT(boyGObj)[2];
                     ((float *)scr)[0] = ((float *)GetCurrentCameraSet2())[0];
                     ((float *)scr)[1] = ((float *)GetCurrentCameraSet2())[1];
                     ((float *)scr)[2] = ((float *)GetCurrentCameraSet2())[2];
+#ifndef VERSION_AUG6
                     GetOtherStageGirlOrient((float *)ofs, (float *)scr);
+#endif
                     sceVu0ScaleVector(ofs, ofs, _DistGV((float *)scr, (float *)tgt));
                     sceVu0AddVector(work, scr, ofs);
                     SetRootPosition(lo, work);
@@ -3332,8 +3983,13 @@ void subBoyCollision(GObj *volatile self)
                     if (dbg) {
                         debug_NMarker((float *)work, 255, 0, 0, 100.0f);
                     }
+#ifdef VERSION_AUG6
+                    if ((int)(sub->flags20.ll >> 9) & 1) {
+                        if ((int)(sub->flags20.ll >> 10) & 1) {
+#else
                     if ((int)(sub->flags20.ll >> 12) & 1) {
                         if ((int)(sub->flags20.ll >> 13) & 1) {
+#endif
                             lo = isysGObjSearchFromObjLayoutID(4);
                             if (lo != 0) {
                                 ScpCallCameraGetTarget((float *)cpos);
@@ -3363,7 +4019,11 @@ void subBoyCollision(GObj *volatile self)
         }
         if ((_ACTCharStatus_Check((void *)self, 31) || _ACTCharStatus_Check((void *)self, 32)) &&
             girlGObj != 0) {
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 57, isysCurrentGObj);
+#else
             iosOmSendMail(girlGObj, 58, isysCurrentGObj);
+#endif
         }
         sub->flags18.ll = (sub->flags18.ll & ~0x2000000000LL) |
                           ((unsigned long long)(ACTGame_FLAG_TETSUNAGI() & 1) << 37);
@@ -3841,7 +4501,7 @@ inline void afterBoySwim(GObj *volatile self);
 typedef struct { /* field names derived */
     char pad0[204];
     int liftLevel; /* 0xCC, the lift level actBoyBelift sets to 10 and clamps */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     char padD0[340];
     void *liftObj; /* 0x224, the object the boy lifts (actBoyBelift stores the girl) */
     char pad228[152];
@@ -3856,7 +4516,7 @@ typedef struct { /* field names derived */
     float grip[4]; /* 0x2D0 */
 } BoyExt;          /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 #define BOY_EXT(o) (*(BoyExt **)(*(char **)((char *)(o) + 0x164) + 0x670)) /* derived name */
 #else
 #define BOY_EXT(o) (*(BoyExt **)(*(char **)((char *)(o) + 0x164) + 0x680)) /* derived name */
@@ -3874,7 +4534,7 @@ void actBoySwim(GObj *volatile self)
 {
     float pos[4];
     Act *sub = GOBJ_ACT(self);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     int padReq = 0;
 #endif
 
@@ -3883,7 +4543,7 @@ void actBoySwim(GObj *volatile self)
     while (1) {
         GObj *box = BOY_EXT(self)->box;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         if (sub->curMot == 0xAD) {
             sub->flags20.ll |= 0x800000000ULL;
         }
@@ -3900,6 +4560,13 @@ void actBoySwim(GObj *volatile self)
             if (!(_DistSqGV(test_CURRENTROOT((void *)self), pos) < 4e+04f)) {
                 BOY_EXT(self)->holdBox = 0;
             }
+#ifdef VERSION_AUG6
+            ((S12 *)(GOBJ_SUBSLOT(self) + 0x1B0))->a = (int)box;
+            ((S12 *)(GOBJ_SUBSLOT(self) + 0x1B0))->b = -1;
+            ((S12 *)(GOBJ_SUBSLOT(self) + 0x1B0))->c = 0;
+        } else {
+            RequestChangeHandMode(self, 0, 3, 0, 0, 0, 0);
+#else
             ((S12 *)(GOBJ_SUBSLOT(self) + 0x1C0))->a = (int)box;
             ((S12 *)(GOBJ_SUBSLOT(self) + 0x1C0))->b = -1;
             ((S12 *)(GOBJ_SUBSLOT(self) + 0x1C0))->c = 0;
@@ -3920,6 +4587,7 @@ void actBoySwim(GObj *volatile self)
             RequestChangeHandMode(self, 0, 3, 0, 0, 0, 0);
             padReq = 0;
 #endif
+#endif
             ((Sub15C *)GOBJ_SUBSLOT(self))->root.filter = InitialColInfo;
         }
         _ACTWait(1);
@@ -3938,7 +4606,7 @@ void actBoyWalk(GObj *volatile self)
             float ratio;
 
             GetSkeltonPosition(bp, boyGObj, 2);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             GetSkeltonPosition(gp, girlGObj, 18);
 #else
             GetSkeltonPosition(gp, girlGObj, 0x12);
@@ -3968,7 +4636,7 @@ void actBoyRun(GObj *volatile self)
             float ratio;
 
             GetSkeltonPosition(bp, boyGObj, 2);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             GetSkeltonPosition(gp, girlGObj, 18);
 #else
             GetSkeltonPosition(gp, girlGObj, 0x12);
@@ -4046,21 +4714,35 @@ void actBoyAttack(GObj *volatile self)
     int mot = *(int *)((char *)sub + 0x10);
     float vec[4];
 
+#ifdef VERSION_AUG6
+    *(int *)((char *)sub + 0x440) = mot;
+#else
     *(unsigned long long *)(sub + 0x20) |= 0x100000000ULL;
     *(int *)((char *)sub + 0x450) = mot;
+#endif
     debug_StdPrintfDummy("attack sub id [%d]\n", mot);
     debug_StdPrintfDummy("enter actBoyAttack\n");
     _ACTWait(2);
+#ifdef VERSION_AUG6
+    searchEnemy((void *)self, (int *)((char *)sub + 0x168), vec);
+    while (1) {
+        if (*(int *)((char *)sub + 0x168)) {
+#else
     searchEnemy((void *)self, (int *)((char *)sub + 0x188), vec);
     while (1) {
         if (*(int *)((char *)sub + 0x188)) {
+#endif
             if (ACTGame_NoWeapon(self)) {
                 SetMotionDirectionWithLimit((void *)self, vec, 5.0f, 45.0f);
             } else {
                 SetMotionDirectionWithLimit((void *)self, vec, 10.0f, 90.0f);
             }
         }
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 180);
+#else
         ACTSendMailCorrect(self, 0xC7);
+#endif
         BoyAttackCenter(self);
         _ACTWait(1);
     }
@@ -4097,10 +4779,17 @@ void actBoyTakeWeaponReady(GObj *volatile self)
         if ((60 - systemStatus[0] * 10) / systemStatus[1] * 2 < n++) {
             ACTSendMailCorrect(self, 188);
 #else
+#ifdef VERSION_AUG6
+            ACTSendMailCorrect(self, 185);
+        }
+        if ((60 - systemStatus[0] * 10) / systemStatus[1] * 2 < n++) {
+            ACTSendMailCorrect(self, 185);
+#else
             ACTSendMailCorrect(self, 0xCC);
         }
         if ((60 - systemStatus[0] * 10) / systemStatus[1] * 2 < n++) {
             ACTSendMailCorrect(self, 0xCC);
+#endif
 #endif
         }
         _ACTWait(1);
@@ -4248,6 +4937,77 @@ static inline void ACTSendMail_PULLUP_START(void) /* derived name */
     }
 }
 #else
+#ifdef VERSION_AUG6
+void actBoyTakeWeapon(GObj *volatile self)
+{
+    float p[4];
+    float dir[4];
+    Act *sub = GOBJ_ACT(self);
+    int picked = 0;
+    int put = 0;
+
+    InitSwapWeapon((void *)self);
+    *(BoyAfterFunc *)((char *)sub + 0x14) = afterBoyTakeWeapon;
+    p[0] = test_CURRENTROOT(BOYINFO.nextWeapon)[0];
+    p[1] = test_CURRENTROOT(BOYINFO.nextWeapon)[1];
+    p[2] = test_CURRENTROOT(BOYINFO.nextWeapon)[2];
+    _OrientXZGV(dir, p, test_CURRENTROOT((void *)self));
+    SetMotionDirection((void *)self, dir);
+    while (1) {
+        if (GOBJ_SUB(self)->ctrl.motion == 226) {
+            if (15.0f < GOBJ_SUB(self)->ctrl.animFrame && GOBJ_SUB(self)->ctrl.animFrame < 48.0f &&
+                !picked) {
+                PickupWeapon(BOYINFO.nextWeapon, (void *)self, 6);
+                picked = 1;
+            }
+            if (30.0f < GOBJ_SUB(self)->ctrl.animFrame && !put) {
+                if (BOYINFO.weapon != 0) {
+                    ReleaseWeapon(BOYINFO.weapon);
+                    ExecuteSEPackage(BOYINFO.weapon, 76);
+                }
+                PutWeapon();
+                put = 1;
+            }
+            if (48.0f < GOBJ_SUB(self)->ctrl.animFrame) {
+                if (*(BoyAfterFunc *)((char *)sub + 0x14) != 0) {
+                    (*(BoyAfterFunc *)((char *)sub + 0x14))(self);
+                    *(BoyAfterFunc *)((char *)sub + 0x14) = 0;
+                }
+            }
+        } else {
+            if (16.0f < GOBJ_SUB(self)->ctrl.animFrame) {
+                if (*(BoyAfterFunc *)((char *)sub + 0x14) != 0) {
+                    (*(BoyAfterFunc *)((char *)sub + 0x14))(self);
+                    *(BoyAfterFunc *)((char *)sub + 0x14) = 0;
+                }
+            }
+        }
+        ACTSendMailCorrect(self, 180);
+        _ACTWait(1);
+    }
+}
+
+#define BOY_WALL(o) ((char *)GOBJ_ACT(o)->work) /* derived name */
+#define BOY_GIRL_DY()                                                                              \
+    (test_CURRENTROOT(girlGObj)[1] - test_CURRENTROOT(boyGObj)[1]) /* derived name */
+
+inline void actBoyCliffHesitate(GObj *volatile self)
+{
+    ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.b.wall);
+    GetOrientOfWall(BOY_WALL(self) + 0x7E0, GOBJ_WORK(self)->intrReq.b.wall.elem,
+                    &GOBJ_WORK(self)->intrReq.b.wall.o);
+    while (1) {
+        if (girlGObj != 0) {
+            brainSetSpMode();
+            if (girlGObj != 0) {
+                iosOmSendMail(girlGObj, 57, isysCurrentGObj);
+            }
+        }
+        ACTSendMailCorrect(self, 276);
+        _ACTWait(1);
+    }
+}
+#else
 void actBoyTakeWeapon(GObj *volatile self)
 {
     float p[4];
@@ -4330,7 +5090,31 @@ void actBoyCliffHesitate(GObj *volatile self)
     }
 }
 #endif
+#endif
 
+#ifdef VERSION_AUG6
+/* the pull-up go mail, inlined into actBoyPullupReady */
+static inline void ACTSendMail_PULLUP_GO(void)
+{
+    GObj *g = boyGObj;
+    Act *sub = GOBJ_ACT(g);
+
+    switch (sub->env.cliffSel) {
+    case 100:
+        ACTSendMailCorrect(g, 69);
+        sub->orientMot = 96;
+        break;
+    case 200:
+        ACTSendMailCorrect(g, 69);
+        sub->orientMot = 98;
+        break;
+    case 300:
+        ACTSendMailCorrect(g, 69);
+        sub->orientMot = 100;
+        break;
+    }
+}
+#else
 inline void actBoyCall(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -4339,7 +5123,7 @@ inline void actBoyCall(GObj *volatile self)
     sub->actMode = 9;
     _ACTWait(2);
     if (girlGObj != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         iosOmSendMail(girlGObj, 61, isysCurrentGObj);
 #else
         iosOmSendMail(girlGObj, 0x41, isysCurrentGObj);
@@ -4347,7 +5131,7 @@ inline void actBoyCall(GObj *volatile self)
     }
     while (1) {
         if ((sub->pad.now & 8) == 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             ACTSendMailCorrect(self, 183);
 #else
             ACTSendMailCorrect(self, 0xC7);
@@ -4356,8 +5140,37 @@ inline void actBoyCall(GObj *volatile self)
         _ACTWait(1);
     }
 }
+#endif
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+/* the pull-up start mail, inlined into actBoyPullupGo */
+static inline void ACTSendMail_PULLUP_START(void) /* derived name */
+{
+    Act *sub = GOBJ_ACT(boyGObj);
+
+    switch (sub->env.cliffSel) {
+    case 100:
+        if (girlGObj != 0) {
+            iosOmSendMail(girlGObj, 76, isysCurrentGObj);
+        }
+        GOBJ_ACT(girlGObj)->orientMot = 91;
+        break;
+    case 200:
+        if (girlGObj != 0) {
+            iosOmSendMail(girlGObj, 76, isysCurrentGObj);
+        }
+        GOBJ_ACT(girlGObj)->orientMot = 92;
+        break;
+    case 300:
+        if (girlGObj != 0) {
+            iosOmSendMail(girlGObj, 76, isysCurrentGObj);
+        }
+        GOBJ_ACT(girlGObj)->orientMot = 93;
+        break;
+    }
+}
+#else
 inline void actBoyItem(GObj *volatile self)
 {
     while (1) {
@@ -4365,7 +5178,25 @@ inline void actBoyItem(GObj *volatile self)
         _ACTWait(1);
     }
 }
+#endif
 
+#ifdef VERSION_AUG6
+static int pullup_check_heroin_position(void)
+{
+    float buf[4];
+    Act *s = GOBJ_ACT(boyGObj);
+
+    sceVu0SubVector(buf, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+    if (0.0f < sceVu0InnerProduct(buf, s->env.cliffOrient) &&
+        _DistxzGV(s->env.cliffStepPos, test_CURRENTROOT(girlGObj)) < 100.0f &&
+        ((unsigned int)(GOBJ_ACT(girlGObj)->flags18.ll >> 48) & 1) &&
+        (girlGObj == 0 || boyGObj == 0 ||
+         !(test_CURRENTROOT(girlGObj)[1] > test_CURRENTROOT(boyGObj)[1] + 450.0f))) {
+        return 1;
+    }
+    return 0;
+}
+#else
 inline void actBoyItemAfter(GObj *volatile self)
 {
     float dir[4];
@@ -4377,6 +5208,7 @@ inline void actBoyItemAfter(GObj *volatile self)
         _ACTWait(1);
     }
 }
+#endif
 
 static int ditch_check_heroin_position(void)
 {
@@ -4384,10 +5216,17 @@ static int ditch_check_heroin_position(void)
     Act *s = GOBJ_ACT(boyGObj);
 
     sceVu0SubVector(buf, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+#ifdef VERSION_AUG6
+    if (0.0f < sceVu0InnerProduct(buf, (float *)((char *)s + 0x4B0)) &&
+        _DistxzGV((char *)s + 0x500, test_CURRENTROOT(girlGObj)) < 31.0f &&
+        (girlGObj == 0 || boyGObj == 0 ||
+         !(test_CURRENTROOT(girlGObj)[1] > test_CURRENTROOT(boyGObj)[1] + 450.0f))) {
+#else
     if (0.0f < sceVu0InnerProduct(buf, (float *)((char *)s + 0x4B0)) &&
         _DistxzGV((char *)s + 0x500, test_CURRENTROOT(girlGObj)) < 31.0f &&
         (girlGObj == 0 || boyGObj == 0 ||
          !(test_CURRENTROOT(girlGObj)[1] > test_CURRENTROOT(boyGObj)[1] + 200.0f))) {
+#endif
         return 1;
     }
     return 0;
@@ -4423,11 +5262,19 @@ void actBoyPullupReady(GObj *volatile self)
     while (1) {
         _ACTCharStatus_Set(self, 26, -1.0f, 0);
         if ((sub->pad.now & 8) == 0 || isGirlWithinPullupHeight()) {
+#ifdef VERSION_AUG6
+            ACTSendMailCorrect(self, 68);
+#else
             ACTSendMailCorrect(self, 69);
+#endif
         } else if (pullup_check_heroin_position()) {
             if (PAIR_IsStatus_GIRL_PULL() == 0) {
                 if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+                    iosOmSendMail(girlGObj, 74, isysCurrentGObj);
+#else
                     iosOmSendMail(girlGObj, 75, isysCurrentGObj);
+#endif
                 }
             } else if (IsCorrectPosition(girlGObj) == 0) {
                 ACTSendMail_PULLUP_GO();
@@ -4715,6 +5562,16 @@ void actBoyPullupGo(GObj *volatile self)
     ACTSendMail_PULLUP_START();
     while (1) {
         if (PAIR_IsStatus_GIRL_PULL() == 0) {
+#ifdef VERSION_AUG6
+            ACTSendMailCorrect(self, 70);
+        } else {
+            if (0.1f < sub->stick.mag && !BOY_PULLUP_MOVING(sub)) {
+                ACTSendMailCorrect(self, 71);
+            } else if (BOY_PULLUP_MOVING(sub)) {
+                ACTSendMailCorrect(self, 72);
+            } else {
+                ACTSendMailCorrect(self, 73);
+#else
             ACTSendMailCorrect(self, 0x4B);
         } else {
             if (0.1f < sub->stick.mag && !BOY_PULLUP_MOVING(sub)) {
@@ -4723,6 +5580,7 @@ void actBoyPullupGo(GObj *volatile self)
                 ACTSendMailCorrect(self, 0x4D);
             } else {
                 ACTSendMailCorrect(self, 0x4E);
+#endif
             }
         }
         _ACTWait(1);
@@ -4730,6 +5588,46 @@ void actBoyPullupGo(GObj *volatile self)
 }
 
 extern void InsertCamera_Set(float *pos, float *tgt, int frames);
+
+#ifdef VERSION_AUG6
+inline void actBoyCall(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    debug_StdPrintfDummy("enter actBoyCall\n");
+    sub->actMode = 9;
+    _ACTWait(2);
+    if (girlGObj != 0) {
+        iosOmSendMail(girlGObj, 60, isysCurrentGObj);
+    }
+    while (1) {
+        if ((sub->pad.now & 8) == 0) {
+            ACTSendMailCorrect(self, 180);
+        }
+        _ACTWait(1);
+    }
+}
+
+inline void actBoyItem(GObj *volatile self)
+{
+    while (1) {
+        ACTSendMailCorrect(self, 180);
+        _ACTWait(1);
+    }
+}
+
+inline void actBoyItemAfter(GObj *volatile self)
+{
+    float dir[4];
+
+    debug_StdPrintfDummy("enter actBoyItemAfter\n");
+    while (1) {
+        sceVu0ScaleVector(dir, test_CURRENTORIENT(self), 15.0f);
+        ACTSendMailCorrect(self, 180);
+        _ACTWait(1);
+    }
+}
+#endif
 
 void actBoyBelift(GObj *volatile self)
 {
@@ -4771,13 +5669,22 @@ void actBoyBelift(GObj *volatile self)
     cam[2] = GetCurrentCameraSet2()[2];
     _ACTWait(1);
     while (1) {
+#ifdef VERSION_AUG6
+        if (GOBJ_ACT(girl)->enemy->liftKind == 3 && (unsigned int)GOBJ_ACT(girl)->actMode == 94) {
+#else
         if (GOBJ_ACT(girl)->enemy->liftKind == 3 && (unsigned int)GOBJ_ACT(girl)->actMode == 0x61) {
+#endif
             lv = BOY_EXT(self)->liftLevel;
             lv = lv < 0 ? 0 : (10.0f < lv ? 10.0f : lv);
             lv = lv * 0.5f;
             dist = lv * 100.0f + 500.0f;
+#ifdef VERSION_AUG6
+            GetSkeltonPosition(boypos, boyGObj, 35);
+            GetSkeltonPosition(girlpos, girl, 35);
+#else
             GetSkeltonPosition(boypos, boyGObj, 0x23);
             GetSkeltonPosition(girlpos, girl, 0x23);
+#endif
             _OrientXZGV(dir, girlpos, boypos);
             sceVu0ScaleVector(ofs, dir, -dist);
             sceVu0AddVector(p, ofs, boypos);
@@ -4794,17 +5701,29 @@ void actBoyBelift(GObj *volatile self)
             cam[0] = p[0];
             cam[1] = p[1];
             cam[2] = p[2];
+#ifdef VERSION_AUG6
+            GetSkeltonPosition(girlpos, boyGObj, 44);
+#else
             GetSkeltonPosition(girlpos, boyGObj, 0x2C);
+#endif
             sceVu0ScaleVector(p, p, -1.0f);
             sceVu0ScaleVector(girlpos, girlpos, -1.0f);
             InsertCamera_Set(p, girlpos, (60 - systemStatus[0] * 10) / systemStatus[1] / 6);
         }
         switch ((unsigned int)GOBJ_ACT(girl)->actMode) {
+#ifdef VERSION_AUG6
+        case 94:
+        case 95:
+            break;
+        default:
+            ACTSendMailCorrect(self, 207);
+#else
         case 0x61:
         case 0x62:
             break;
         default:
             ACTSendMailCorrect(self, 0xE2);
+#endif
             debug_StdPrintfDummy("enemy error body slam[%s]\n",
                                  actModeTbl[(unsigned int)GOBJ_ACT(girl)->actMode].name);
             break;
@@ -5024,6 +5943,28 @@ void actBoyDitch3mReady(GObj *volatile self)
     }
 }
 #else
+#ifdef VERSION_AUG6
+inline void actBoyReadyMove(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    BoyMoveOrder ord = *(BoyMoveOrder *)((char *)GOBJ_ACT(self)->intrData);
+
+    while (1) {
+        _ACTMotDirSmzDirect((void *)self, ord.dir);
+        if (ord.fix) {
+            sub->wish3.ll |= 0x1000;
+            sub->wish3.ll |= 0x2;
+        }
+        if (ord.frames-- < 0) {
+            ACTSendMailCorrect(self, 247);
+        }
+        if (_DistxzSqGV(test_CURRENTROOT((void *)self), &ord) < ord.range * ord.range) {
+            ACTSendMailCorrect(self, 247);
+        }
+        _ACTWait(1);
+    }
+}
+#else
 void actBoyReadyMove(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -5053,6 +5994,7 @@ void actBoyReadyMove(GObj *volatile self)
         _ACTWait(1);
     }
 }
+#endif
 
 void actBoyRescueReady(GObj *volatile self)
 {
@@ -5119,7 +6061,11 @@ void actBoyRescueReady(GObj *volatile self)
             }
             if (gameover_flag == 0) {
                 if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+                    iosOmSendMail(girlGObj, 317, isysCurrentGObj);
+#else
                     iosOmSendMail(girlGObj, 0x15D, isysCurrentGObj);
+#endif
                 }
             }
             n1 = GetSkeltonFocusNode(girlGObj, 0x16);
@@ -5133,17 +6079,31 @@ void actBoyRescueReady(GObj *volatile self)
             SetDirectRootPositionNoFittingWithNodePoint((void *)self, 6, pts[0].f, 0.05f);
             u = t++;
         }
+#ifdef VERSION_AUG6
+        if (gm == 628) {
+            if ((u / 30) & 1) {
+                ACTSendMailCorrect(self, 320);
+            } else {
+                ACTSendMailCorrect(self, 319);
+#else
         if (gm == 641) {
             if ((u / 30) & 1) {
                 ACTSendMailCorrect(self, 0x160);
             } else {
                 ACTSendMailCorrect(self, 0x15F);
+#endif
             }
         } else {
             if ((u / 15) & 1) {
+#ifdef VERSION_AUG6
+                ACTSendMailCorrect(self, 320);
+            } else {
+                ACTSendMailCorrect(self, 319);
+#else
                 ACTSendMailCorrect(self, 0x160);
             } else {
                 ACTSendMailCorrect(self, 0x15F);
+#endif
             }
         }
         _ACTWait(1);
@@ -5155,14 +6115,18 @@ void actBoyDitch3mReady(GObj *volatile self)
     Act *sub = GOBJ_ACT(self);
     float p[4];
     float q[4];
+#ifndef VERSION_AUG6
     int c = 0;
+#endif
     int a;
     int b;
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8B0);
 #else
+#ifndef VERSION_AUG6
     ACTAdjustPlane(self, BOY_WALL(self) + 0x8C0);
+#endif
 #endif
     _ACTWait(1);
     ResetMotionProgramInterpInfo(self, 35);
@@ -5173,7 +6137,11 @@ void actBoyDitch3mReady(GObj *volatile self)
         b = 0;
         switch ((unsigned int)GOBJ_ACT(girlGObj)->actMode) {
         case 4:
+#ifdef VERSION_AUG6
+        case 87:
+#else
         case 90:
+#endif
             p[0] = test_CURRENTROOT(boyGObj)[0];
             p[1] = test_CURRENTROOT(boyGObj)[1];
             p[2] = test_CURRENTROOT(boyGObj)[2];
@@ -5193,6 +6161,25 @@ void actBoyDitch3mReady(GObj *volatile self)
             break;
         }
 
+#ifdef VERSION_AUG6
+        /* two branches with one body */
+        if (a != 0 && (sub->pad.now & 8) == 0) {
+            ACTSendMailCorrect(self, 360);
+        } else if (b != 0) {
+            ACTSendMailCorrect(self, 360);
+        } else {
+            if (ditch_check_heroin_position() != 0) {
+                if (girlGObj != 0) {
+                    iosOmSendMail(girlGObj, 362, isysCurrentGObj);
+                }
+            }
+            if (IsCorrectPosition(girlGObj) == 0) {
+                if (girlGObj != 0) {
+                    iosOmSendMail(girlGObj, 363, isysCurrentGObj);
+                }
+            }
+            if (GOBJ_ACT(girlGObj)->actMode == 4) {
+#else
         if (GOBJ_ACT(girlGObj)->actMode != 4 &&
             _DistSqGV(test_CURRENTROOT(boyGObj), (char *)sub + 0x510) < 90000.0f &&
             _DistSqGV(test_CURRENTROOT(girlGObj), (char *)sub + 0x510) < 90000.0f) {
@@ -5234,6 +6221,7 @@ void actBoyDitch3mReady(GObj *volatile self)
                 }
             }
             if (GOBJ_ACT(girlGObj)->actMode == 4 && c == 0) {
+#endif
                 float dy;
 
                 b = 0;
@@ -5246,16 +6234,25 @@ void actBoyDitch3mReady(GObj *volatile self)
                     ABSF(BOYGIRL_DY()) < 200.0f && 50.0f < dy && dy < 200.0f) {
                     b = 1;
                 }
+#ifndef VERSION_AUG6
                 GetSkeltonPosition(p, girlGObj, 22);
                 GetSkeltonPosition(q, boyGObj, 6);
                 if (_DistSqGV(p, q) < 3600.0f) {
                     b = 1;
                 }
+#endif
                 if (sub->env.ditchCarry != 0) {
                     b = 0;
                 }
                 if (b != 0) {
                     if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+                        iosOmSendMail(girlGObj, 365, isysCurrentGObj);
+                    }
+                    ACTSendMailCorrect(self, 361);
+                }
+            }
+#else
                         iosOmSendMail(girlGObj, 0x18F, isysCurrentGObj);
                     }
                     ACTSendMailCorrect(self, 0x18B);
@@ -5325,6 +6322,7 @@ void actBoyRescueGirlBhang(GObj *volatile self)
         }
         if (mode == 0) {
             ACTSendMailCorrect(self, 0xC7);
+#endif
         }
         _ACTWait(1);
     }
@@ -5347,7 +6345,7 @@ inline int RequestStageChangeKidnapEnd(int stage, int targetId)
     return rv;
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* as in camera-root.h, which this TU does not include (GetCurrentCameraSet2 differs) */
 extern void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
 #endif
@@ -5368,12 +6366,17 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     b = _ACTGame_GetParamF(0xE);
     t = a * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f +
         b * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f;
+#ifdef VERSION_AUG6
+    ExecuteSEPackage(0, 122);
+    GetOtherStageGirlOrient(buf);
+#else
 #ifdef VERSION_NTSC
     ExecuteSEPackage(0, 122);
 #else
     ExecuteSEPackage(0, 0x7F);
 #endif
     GetOtherStageGirlOrient(buf, GetCurrentCameraSet2());
+#endif
     w = GOBJ_WORK(g);
     frames = (int)t;
     w->pinchFrames = frames;
@@ -5386,7 +6389,11 @@ void SetStatusBoy_OtherStageGirlPinch(void)
     pos[0] = test_CURRENTROOT(boyGObj)[0];
     pos[1] = test_CURRENTROOT(boyGObj)[1];
     pos[2] = test_CURRENTROOT(boyGObj)[2];
+#ifdef VERSION_AUG6
+    InsertCamera_SetNoraml(cam, pos, frames);
+#else
     InsertCamera_SetNoraml(cam, pos, frames, 0);
+#endif
 }
 
 void *gopp_subBoyControl;
@@ -5536,14 +6543,29 @@ void actBoyStart(GObj *self)
     debug_StdPrintfDummy("actBoyStart:%p\n", self);
 
     work = (char *)actInitialize(self);
+#ifdef VERSION_AUG6
+    *(void **)(work + 0x67C) = attrWallHit;
+
+    GetRootPosition(work + 0xF0, (void *)self);
+#else
     *(void **)(work + 0x68C) = attrWallHit;
 
     GetRootPosition(work + 0x110, (void *)self);
+#endif
 
     actInitialize_ext_charcter(self);
     actInitialize_only_charcter((char *)self);
     actInitialize_geo(self);
 
+#ifdef VERSION_AUG6
+    GOBJ_ACT(self)->enemy->sofaWakeTime =
+        (int)(_ACTGame_GetParamF(31) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
+              60.0f);
+    ACTGame_LwsEffectInit(self);
+
+    *(int *)(work + 0x160) = 0;
+    *(int *)(work + 0x164) = 0;
+#else
     GOBJ_ACT(self)->enemy->sofaWakeTime =
         (int)(_ACTGame_GetParamF(0x21) * (float)((60 - systemStatus[0] * 10) / systemStatus[1]) /
               60.0f);
@@ -5551,6 +6573,7 @@ void actBoyStart(GObj *self)
 
     *(int *)(work + 0x180) = 0;
     *(int *)(work + 0x184) = 0;
+#endif
 
     gopp_subBoyControl = 0;
     ACTParaStatus_Init(self);
@@ -5560,14 +6583,23 @@ void actBoyStart(GObj *self)
 
     CurrentTargetGObj = (void *)self;
 
+#ifdef VERSION_AUG6
+    *(float *)(work + 0x1D0) = _ACTGame_GetParamF(17);
+    *(int *)(work + 0x44) = 0;
+#else
     *(float *)(work + 0x1E0) = _ACTGame_GetParamF(0x13);
     *(int *)(work + 0x48) = 0;
+#endif
 
     if (BOYINFO.boyID != 0) {
         g = isysGObjSearchFromObjLayoutID(BOYINFO.boyID);
         if (g != 0) {
             PickupWeapon(g, (void *)self, 0x16);
+#ifdef VERSION_AUG6
+            *(void **)(work + 0x130) = g;
+#else
             *(void **)(work + 0x150) = g;
+#endif
             if (BOYINFO.torch) {
                 LightTorchOnOfWeaponWithNoSE(g);
             }
@@ -5579,8 +6611,13 @@ void actBoyStart(GObj *self)
     if (BOYINFO.girlID != 0) {
         g = isysGObjSearchFromObjLayoutID(BOYINFO.girlID);
         if (g != 0) {
+#ifdef VERSION_AUG6
+            ACTSendMailCorrect(self, 52);
+            *(void **)(work + 0x164) = *(void **)(work + 0x134) = g;
+#else
             ACTSendMailCorrect(self, 0x35);
             *(void **)(work + 0x184) = *(void **)(work + 0x154) = g;
+#endif
         } else {
             BOYINFO.girlID = 0;
         }
@@ -5609,9 +6646,15 @@ void actBoyStart(GObj *self)
                 sofaWallHit.o = cw.wall.o;
                 sofaWallHit.elem = cw.wall.elem;
                 scpBoyControlReadDisable = 0;
+#ifdef VERSION_AUG6
+                ActSendMail_WithAdditionalData((void *)self, 53, (void *)self, &sofaWallHit);
+                if (BOYINFO.bit32 && girlGObj != 0) {
+                    ActSendMail_WithAdditionalData(girlGObj, 53, girlGObj, &sofaWallHit);
+#else
                 ActSendMail_WithAdditionalData((void *)self, 0x36, (void *)self, &sofaWallHit);
                 if (BOYINFO.bit32 && girlGObj != 0) {
                     ActSendMail_WithAdditionalData(girlGObj, 0x36, girlGObj, &sofaWallHit);
+#endif
                 }
             }
         } else {
@@ -5621,20 +6664,33 @@ void actBoyStart(GObj *self)
 
     startWaitCancel = 0;
 
+#ifdef VERSION_AUG6
+    *(void **)(work + 0xB0) = &actIntrList[67];
+#else
     *(void **)(work + 0xD0) = &actIntrList[74];
+#endif
 
     actCreateSubThread(subBoyBrainMain, 20);
     gopp_subBoyControl = (void *)actCreateSubThread(subBoyControl, 21);
     actCreateSubThread(subBoyCollision, 21);
     actCreateSubThread(subCommonIdle, 21);
 
+#ifdef VERSION_AUG6
+    *(void **)(work + 0xB4) = &actIntrList[72];
+    ACTSendMailCorrect(self, 180);
+#else
     *(void **)(work + 0xD4) = &actIntrList[79];
     ACTSendMailCorrect(self, 0xC7);
+#endif
 
     _ACTWait(1);
 
     if (BOYINFO.fire && girlGObj != 0) {
+#ifdef VERSION_AUG6
+        iosOmSendMail(girlGObj, 59, self);
+#else
         iosOmSendMail(girlGObj, 0x3F, self);
+#endif
         debug_StdPrintfDummy("hand connect start\n");
     }
     _ACTWait(0);
@@ -5675,7 +6731,11 @@ inline void actBoyStand(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (row->flags.word & 1) {
 #else
+#ifdef VERSION_AUG6
+    if ((row->flags.word >> 11) & 1) {
+#else
     if ((row->flags.word >> 8) & 1) {
+#endif
 #endif
         ACTAdjustPlane(self, &GOBJ_WORK(self)->intrReq.a.wall);
     }
@@ -5723,9 +6783,15 @@ inline void actBoyHangBefore(GObj *volatile self)
     GOBJ_WORK(self)->hangOrient[0] = sub->env.cliffOrient[0];
     GOBJ_WORK(self)->hangOrient[1] = sub->env.cliffOrient[1];
     GOBJ_WORK(self)->hangOrient[2] = sub->env.cliffOrient[2];
+#ifdef VERSION_AUG6
+    GOBJ_WORK(self)->cliffReq = sub->env.motOriReq.b;
+    while (1) {
+        ACTSendMailCorrect(self, 276);
+#else
     GOBJ_WORK(self)->cliffReq.a = sub->env.motOriReq.b;
     while (1) {
         ACTSendMailCorrect(self, 0x128);
+#endif
         _ACTWait(1);
     }
 }
@@ -5733,14 +6799,22 @@ inline void actBoyHangBefore(GObj *volatile self)
 
 inline void actBoyBeslam(GObj *volatile self)
 {
+#ifdef VERSION_AUG6
+    char *p = (char *)GOBJ_SUB(self) + 0x120;
+#else
     char *p = (char *)GOBJ_SUB(self) + 0x130;
+#endif
 
     sceVu0ScaleVector(p, test_CURRENTORIENT(beliftGirl), 30.0f);
     while (1) {
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 295);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 292);
+#else
         ACTSendMailCorrect(self, 0x13A);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -5752,7 +6826,11 @@ inline void actBoyRescueSrc(GObj *volatile self)
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 183);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 180);
+#else
         ACTSendMailCorrect(self, 0xC7);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -5785,9 +6863,15 @@ inline void actBoySupportGBBegin(GObj *volatile self)
 {
     while (1) {
         if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 349, isysCurrentGObj);
+        }
+        ACTSendMailCorrect(self, 347);
+#else
             iosOmSendMail(girlGObj, 0x17D, isysCurrentGObj);
         }
         ACTSendMailCorrect(self, 0x17B);
+#endif
         _ACTWait(1);
     }
 }
@@ -5795,8 +6879,13 @@ inline void actBoySupportGBBegin(GObj *volatile self)
 static inline unsigned char IsBoyStatus_SupportGB(void) /* derived name */
 {
     unsigned int st = (unsigned int)GOBJ_ACT(girlGObj)->actMode;
+#ifdef VERSION_AUG6
+    if (st < 104) {
+        if (st >= 101) {
+#else
     if (st < 0x6B) {
         if (st >= 0x68) {
+#endif
             return 1;
         }
     }
@@ -5811,7 +6900,11 @@ inline void actBoySupportGBLoop(GObj *volatile self)
 #ifdef VERSION_NTSC
             ACTSendMailCorrect(self, 210);
 #else
+#ifdef VERSION_AUG6
+            ACTSendMailCorrect(self, 207);
+#else
             ACTSendMailCorrect(self, 0xE2);
+#endif
 #endif
         }
         _ACTWait(1);
@@ -5834,9 +6927,15 @@ inline void actBoySupportGBEnd(GObj *volatile self)
 {
     while (1) {
         if (girlGObj != 0) {
+#ifdef VERSION_AUG6
+            iosOmSendMail(girlGObj, 351, isysCurrentGObj);
+        }
+        ACTSendMailCorrect(self, 180);
+#else
             iosOmSendMail(girlGObj, 0x17F, isysCurrentGObj);
         }
         ACTSendMailCorrect(self, 0xC7);
+#endif
         _ACTWait(1);
     }
 }
@@ -5848,7 +6947,11 @@ inline void actBoySupportBGBegin(GObj *volatile self)
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 359);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 355);
+#else
         ACTSendMailCorrect(self, 0x183);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -5860,7 +6963,11 @@ inline void actBoyDitch3mExec(GObj *volatile self)
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 370);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 366);
+#else
         ACTSendMailCorrect(self, 0x190);
+#endif
 #endif
         _ACTWait(1);
     }
@@ -5886,12 +6993,20 @@ inline void actBoyHangG3M(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    while (1) {
+        if (0.1f < sub->stick.mag || (sub->pad.now & 0x10)) {
+            ACTSendMailCorrect(self, 368);
+            if (girlGObj != 0) {
+                iosOmSendMail(girlGObj, 371, isysCurrentGObj);
+#else
     *(void **)((char *)sub + 0x18) = (void *)afterBoyHangG3M;
     while (1) {
         if (0.1f < sub->stick.mag || (sub->pad.now & 0x10)) {
             ACTSendMailCorrect(self, 0x192);
             if (girlGObj != 0) {
                 iosOmSendMail(girlGObj, 0x195, isysCurrentGObj);
+#endif
             }
         }
         _ACTWait(1);
@@ -5930,7 +7045,7 @@ inline void DeleteBoyWeapon(void)
         }
         characterPacket[2] = 0;
         ((int *)boyInfo)[0] = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         sub->weapon = 0;
 #else
         *(void **)((char *)sub + 0x150) = 0;
@@ -5954,13 +7069,21 @@ inline int isLiftBoyEnable(void)
 inline int isLiftBoyEnable(void)
 {
     unsigned int st = (unsigned int)GOBJ_ACT(boyGObj)->actMode;
+#ifdef VERSION_AUG6
+    if (st >= 93) {
+        return 1;
+    }
+    if (st < 91) {
+#else
     if (st >= 0x60) {
         return 1;
     }
     if (st < 0x5E) {
+#endif
         return 1;
     }
     return 0;
+#ifndef VERSION_AUG6
 }
 
 inline void SetKidnapInfo(int enemyLabel, int targetLabel)
@@ -5991,6 +7114,7 @@ inline void PrivInsCamSet(float *pos, float *tgt, GObj *track, int inFrames, int
     privInsCam.blend = blend;
     privInsCam.control = control;
     privInsCam.on = 1;
+#endif
 }
 #endif
 
@@ -6000,12 +7124,17 @@ inline int IsBoyStatus_EnemyMustWait(void)
     unsigned int st;
 
     if (boyGObj == 0) {
-#ifdef VERSION_NTSC
-        debug_assert(__FILE__, 5211);
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(1731, 1724, 1724, 1543, 5123));
+        __assert(__FILE__, LN(1731, 1724, 1724, 1543, 5123), "0");
 #else
-        debug_assert(__FILE__, LN(5795, 5779, 5779, 5795));
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, LN(5211, 5211, 5211, 5211, 5211));
+#else
+        debug_assert(__FILE__, LN(5795, 5779, 5779, 5795, 5795));
 #endif
-        __assert(__FILE__, LN(5795, 5779, 5779, 5211), "0");
+        __assert(__FILE__, LN(5795, 5779, 5779, 5211, 5795), "0");
+#endif
         return 0;
     }
     sub = GOBJ_ACT(boyGObj);
@@ -6046,7 +7175,7 @@ inline int GetSaveSofaLayoutID(void)
     if (b == 0)
         goto err;
     pa = (int *)a[0x164 / 4];
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     v = pa[0x30 / 4];
 #else
     v = pa[0x34 / 4];
@@ -6054,10 +7183,14 @@ inline int GetSaveSofaLayoutID(void)
     if (v != 0x2D)
         goto err;
     pb = (int *)b[0x164 / 4];
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     if (pb[0x30 / 4] != v)
         goto err;
+#ifdef VERSION_AUG6
+    r = (int *)pa[0x140 / 4];
+#else
     r = (int *)pa[0x150 / 4];
+#endif
 #else
     if (pb[0x34 / 4] != v)
         goto err;
@@ -6068,6 +7201,12 @@ err:
     return -1;
 }
 
+#ifdef VERSION_AUG6
+inline void OnGirlEscortFlag(void)
+{
+    boyInfo[1] |= 0x800000000LL;
+}
+#else
 inline void OnGirlEscortFlag(void)
 {
     boyInfo[1] |= 0x800000000LL;
@@ -6092,6 +7231,7 @@ inline int IsBoyStatus_NotDanger(void)
     return 0 < GOBJ_WORK(boyGObj)->downTimer;
 }
 #endif
+#endif
 
 inline int GetEfStageCameraTargetID(void)
 {
@@ -6106,7 +7246,7 @@ inline int IsBackFromEfStage(void)
     return BOYEFSTAGE[0];
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 inline int PrivInsCamChk(void)
 {
     return privInsCam.on != 0;
@@ -6163,7 +7303,11 @@ inline void MakeCharacterPacket(void)
 #else
 inline int GetsizeCharacterPacket(void)
 {
+#ifdef VERSION_AUG6
+    return 24;
+#else
     return 32;
+#endif
 }
 
 inline void MakeCharacterPacket(void)
@@ -6181,6 +7325,21 @@ inline void MakeCharacterPacket(void)
         if (sub->curItem != 0) {
             *(int *)(pkt + 0xC) = sub->curItem->labelId;
         }
+#ifdef VERSION_AUG6
+        if (sub->actMode == 45) {
+            *(int *)(pkt + 0x10) = *(int *)(sub->flags150.sofa + 0x8);
+        }
+        g = (char *)girlGObj;
+        if (g != 0 && GOBJ_ACT(g)->actMode == 45) {
+            *(int *)(pkt + 0x14) |= 1;
+        }
+        BoyInfoUpdate_StageChange();
+        *(int *)(pkt + 0x14) =
+            (*(int *)(pkt + 0x14) & ~0x10000) |
+            (((int)((unsigned char)((unsigned long long)boyInfo[1] >> 34)) & 1) << 16);
+        *(unsigned char *)(pkt + 0x15) =
+            (int)((unsigned char)((unsigned long long)boyInfo[1] >> 33)) & 1;
+#else
         if (sub->actMode == 0x2D) {
             *(int *)(pkt + 0x10) = *(int *)(sub->sofa + 0x8);
         }
@@ -6194,6 +7353,7 @@ inline void MakeCharacterPacket(void)
             (((int)((unsigned char)((unsigned long long)boyInfo[1] >> 34)) & 1) << 16);
         *(unsigned char *)(pkt + 0x1D) =
             (int)((unsigned char)((unsigned long long)boyInfo[1] >> 33)) & 1;
+#endif
         *(CharPos *)pkt = BOYINFO.f50;
     }
 }
@@ -6233,6 +7393,27 @@ typedef struct {          /* field names derived */
     unsigned int h1E : 16; /* 0x16 */
 } CharacterPacket;         /* derived name */
 #else
+#ifdef VERSION_AUG6
+inline int ACTChkAttackIgnore_BOY(GObj *self)
+{
+    Act *s = GOBJ_ACT(self);
+    if (s->actMode == 53 ||
+        (((ActWork *)s->work)->leverTimer != 0 && scpBoyControlReadDisable != 0)) {
+        return 1;
+    }
+    return 0;
+}
+
+typedef struct {          /* field names derived */
+    CharPos pos;          /* 0x00 */
+    int boyID;            /* 0x08 */
+    int girlID;           /* 0x0C */
+    int f10;              /* 0x10 */
+    unsigned int b1C : 8; /* 0x14 */
+    unsigned int b1D : 8;
+    unsigned int h1E : 16; /* 0x16 */
+} CharacterPacket;         /* derived name */
+#else
 typedef struct { /* field names derived */
     CharPos pos; /* 0x00 */
     int boyID;   /* 0x08 */
@@ -6244,6 +7425,7 @@ typedef struct { /* field names derived */
     unsigned int b1D : 8;
     unsigned int h1E : 16; /* 0x1E */
 } CharacterPacket;         /* derived name */
+#endif
 #endif
 
 inline void ReadCharacterPacket(void)
@@ -6280,13 +7462,17 @@ inline void actBoyJump(GObj *volatile self)
 #ifdef VERSION_NTSC
         ACTSendMailCorrect(self, 176);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 174);
+#else
         ACTSendMailCorrect(self, 0xBD);
+#endif
 #endif
         _ACTWait(1);
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 inline void afterBoyTakeWeapon(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -6316,6 +7502,16 @@ inline void afterBoyRescueGirlBhang(GObj *volatile self)
 }
 #endif
 
+#ifdef VERSION_AUG6
+inline void subBoyBrainMain(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+
+    while (1) {
+        _ACTWait(1);
+    }
+}
+#else
 inline void subBoyBrainMain(int arg)
 {
     volatile int local = arg;
@@ -6323,6 +7519,7 @@ inline void subBoyBrainMain(int arg)
         _ACTWait(1);
     }
 }
+#endif
 
 inline void SetBoyInfo(GObj *weapon, GObj *item)
 {
@@ -6371,12 +7568,20 @@ inline void GetBoyRootPositionForCamera(float *out, GObj *gobj)
 
     sub = GOBJ_ACT(g);
     GetRootPosition(buf, g);
+#ifdef VERSION_AUG6
+    if (_DistSqGV(buf, &sub->camRootX) < 40000.0f) {
+#else
     if (_DistSqGV(buf, (char *)sub + 0x110) < 40000.0f) {
+#endif
         out[0] = sub->camRootX;
         out[1] = sub->camRootY;
         out[2] = sub->camRootZ;
     } else {
+#ifdef VERSION_AUG6
+        GetRootPosition(&sub->camRootX, g);
+#else
         GetRootPosition((char *)sub + 0x110, g);
+#endif
         out[0] = buf[0];
         out[1] = buf[1];
         out[2] = buf[2];

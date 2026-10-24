@@ -11,7 +11,9 @@
 #include "typedef.h"
 #include "Primitive.h"
 
+#ifndef VERSION_AUG6
 struct IosMemPart;
+#endif
 
 /* One particle package, 0xA0 bytes, the record an effect file supplies per
    particle kind (SetParticleEffectPackage copies the file's over the default
@@ -96,7 +98,7 @@ typedef struct PEGeo {            /* field names derived */
     int clip;                     /* 0x34 */
     int floorOn;                  /* 0x38 */
     float floor;                  /* 0x3C */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     float goal[4];                /* 0x40 */
     float speed;                  /* 0x50 */
     int (*proc)(struct PEGeo *);  /* 0x54, 0 for none; the effect ends when it returns 0 */
@@ -117,7 +119,7 @@ typedef struct PEGeo {            /* field names derived */
         volatile int *done; /* the releasing thread's done flag */
     } user;                 /* 0x70 */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     char pad64[12];
 #else
     char pad74[12];
@@ -137,7 +139,7 @@ extern const ParticleEffectFile particleEffectFile[];
 void DeleteParticleEffect(int no);
 void DisableParticleEffectGeometryControl(int id);
 void DispParticleEffects(void);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void ExecParticleEffect(int no);
 #endif
 void ExecParticleEffects(void);
@@ -150,6 +152,10 @@ void ParticleEffects_SetAllGoal(void *goal);
 void ResetParticleEffectPackages(int *pkg);
 int SetParticleEffect(int id, void *pos, void *quat);
 int SetParticleEffectActiveSensing(int id, void *pos, void *quat);
+#ifdef VERSION_AUG6
+void SetParticleEffectGeometry(int id, void *pos, void *quat);
+void SetParticleEffectPackage(int no, int *data, int size);
+#else
 int SetParticleEffectByPartition(int id, void *pos, void *quat, struct IosMemPart *part);
 #ifdef VERSION_NTSC
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
@@ -159,6 +165,7 @@ void SetParticleEffectDrainLevel(int id, float level);
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
 void SetParticleEffectPackage(int no, int *data, int size);
 void SetParticleEffectPauseFlag(int id, int pause);
+#endif
 #endif
 void SetParticleEffectUpperLimit(int no, float f);
 void SetParticleEffectClipEnableFlag(int id, int on);

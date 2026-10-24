@@ -26,7 +26,11 @@ static inline GObj *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay) /* der
 #ifdef VERSION_NTSC
     return CreateLayoutedGObj(62, 69, -1, 0, lay, -1, 7, 1);
 #else
+#ifdef VERSION_AUG6
+    return CreateLayoutedGObj(61, 68, -1, 0, lay, -1, 7, 1);
+#else
     return CreateLayoutedGObj(63, 75, -1, 0, lay, -1, 7, 1);
+#endif
 #endif
 }
 
@@ -41,7 +45,7 @@ typedef struct { /* field names derived */
     int attr;    /* 0x8 */
 } AcbWork;       /* derived name */
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
     AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 12, __FILE__, 27);
@@ -96,7 +100,7 @@ inline void SetAttackCheckBoundaryAttribute(GObj *self, int attr)
 inline float GetAttackCheckBoundaryRadius(GObj *self)
 {
     return GOBJ_SUB(self)->nodes->scale[0];
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 }
 
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
@@ -203,12 +207,20 @@ void AttackCheckBoundaryBeforeFunc(GObj *self)
                 void *g = GetBoyWeaponGObj();
 
                 if (g != 0) {
+#ifdef VERSION_AUG6
+                    if (CheckWeaponKind(g) == 5 || CheckWeaponKind(g) == 4 ||
+                        CheckWeaponKind(g) == 6) {
+                        if (*b->handle < 2) {
+                            GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
+                            ExecuteSEPackage(g, 71);
+#else
                     int k = CheckWeaponKind(g);
 
                     if (k == 4 || k == 5 || k == 6 || k == 9 || k == 8) {
                         if (*b->handle < 2) {
                             GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
                             ExecuteSEPackage(g, 74);
+#endif
                             b->hit = 2;
                             *b->handle = 2;
                             /* " - cut by the sword" */
@@ -218,7 +230,11 @@ void AttackCheckBoundaryBeforeFunc(GObj *self)
                     }
                 }
                 if (*b->handle <= 0) {
+#ifdef VERSION_AUG6
+                    ActSendMail_WithAdditionalData(boyGObj, 190, self, &b->attr);
+#else
                     ActSendMail_WithAdditionalData(boyGObj, 209, self, &b->attr);
+#endif
                     b->hit = 1;
                     *b->handle = 1;
                     /* " - cannot cut" */
@@ -270,7 +286,8 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(GObj *self, SObjSimpleSetting *lay)
 #ifdef VERSION_NTSC
     mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 173);
 #else
-    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 180);
+    mgr =
+        (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, LN(180, 180, 180, 180, 173));
 #endif
     mgr->prev = mgr->cur;
     mgr->cur = 0;
@@ -278,7 +295,8 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(GObj *self, SObjSimpleSetting *lay)
 #ifdef VERSION_NTSC
     mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__, 182);
 #else
-    mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__, 189);
+    mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__,
+                                           LN(189, 189, 189, 189, 182));
 #endif
     v0[0] = rec->pt[0][0];
     v0[1] = -rec->pt[0][1];

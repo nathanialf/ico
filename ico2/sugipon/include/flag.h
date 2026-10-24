@@ -12,7 +12,7 @@
 
 struct GObj;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetFlag4PointFixID(struct GObj *self, int turns, int id);
 #endif
 
@@ -29,7 +29,9 @@ typedef struct { /* field names derived */
     ClothSet *clothes;
     ClothCfg *cfg;
     int collide;
+#ifndef VERSION_AUG6
     int turns;
+#endif
 } FlagWork; /* derived name */
 
 /* one word of a record, read and written through a union member: the

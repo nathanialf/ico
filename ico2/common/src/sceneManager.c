@@ -239,7 +239,7 @@ void InitStageLight(int stage)
     GlobalStageSetting.antiLevel0 = 24;
     GlobalStageSetting.antiLevel1 = 24;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     for (i = 0; i < 4; i++) {
         int *row = (int *)&GlobalStageSetting + i * 4;
 
@@ -440,8 +440,8 @@ static void initParentLink(int id)
                 debug_assert(__FILE__, 487);
                 __assert(__FILE__, 487, "0");
 #else
-                debug_assert(__FILE__, 502);
-                __assert(__FILE__, 502, "0");
+                debug_assert(__FILE__, LN(502, 502, 502, 502, 487));
+                __assert(__FILE__, LN(502, 502, 502, 502, 487), "0");
 #endif
             }
             debug_StdPrintfDummy("Parentize \"%s\"\n", lay);
@@ -455,8 +455,13 @@ static void initParentLink(int id)
             debug_assert(__FILE__, 496);
             __assert(__FILE__, 496, "0");
 #else
-            debug_assert(__FILE__, 511);
-            __assert(__FILE__, 511, "0");
+#ifdef VERSION_AUG6
+            debug_assert(__FILE__, LN(502, 502, 502, 502, 496));
+            __assert(__FILE__, LN(502, 502, 502, 502, 496), "0");
+#else
+            debug_assert(__FILE__, LN(511, 511, 511, 511, 511));
+            __assert(__FILE__, LN(511, 511, 511, 511, 511), "0");
+#endif
 #endif
         }
     }
@@ -513,7 +518,7 @@ void InitSceneObjects(int stage)
     ResetGObjProc();
     boyGObj = girlGObj = 0;
     boyPad = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gameover_flag = 0;
     gameover_layout_flag = 0;
 #else
@@ -570,7 +575,11 @@ int HotInitSceneObjects(int a0)
                 ObjKindEnt *e = &objKindData[idx];
                 void (*fn)(GObj *);
                 if (e->before != 0) {
+#ifdef VERSION_AUG6
+                    iosOmSendMail(node, 46, node);
+#else
                     iosOmSendMail(node, 0x2F, node);
+#endif
                 }
                 fn = e->hotInit;
                 if (fn != 0) {

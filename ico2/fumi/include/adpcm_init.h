@@ -63,10 +63,15 @@ typedef struct AdpcmStreamTag { /* field names derived */
     char pad54[4];
 } AdpcmStream; /* derived name */
 
+#ifdef VERSION_AUG6
+void AdpcmStreamInit(void);
+int AdpcmIopBuffAlloc(void);
+#else
 void AdpcmStreamHeap(void);
 void AdpcmStreamInit(void);
 int AdpcmIopBuffAlloc(void);
 int AdpcmNotUseIopAreaFree(void);
+#endif
 struct SqEntry *AdpcmOpenSync(AdpcmOpenReq *self);
 void AdpcmFadeCloseAll(short step);
 int AdpcmUseAreaGet(void);
@@ -84,7 +89,9 @@ struct SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int io
 void adpcmTickProc2(struct SqEntry *obj);
 /* adpcm_init.o's .sdata global */
 extern int debugAdpcmOn;
+#ifndef VERSION_AUG6
 void AdpcmStreamFree(void);
+#endif
 
 /* adpcmfile: one ADPCM stream, 0x40 bytes. Reader: ico2/fumi/sound/
  * adpcm_init.c (AdpcmDataRec). Owner: ico2/fumi/include/adpcm_init.h. */

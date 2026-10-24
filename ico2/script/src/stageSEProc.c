@@ -10,7 +10,11 @@
 #include "windManager.h"
 #include <libvu0.h>
 #include <string.h>
+
+#ifndef VERSION_AUG6
 #include "stageSEProc.h"
+#endif
+
 #include "main.h"
 
 /* where a stage sound plays from, the three floats SeSlot.pos points at */
@@ -149,7 +153,11 @@ int stageSEtaimatsu(SeSlot *self)
     float *campos;
     int i;
 
+#ifdef VERSION_AUG6
+    if (gflagChk(355)) {
+#else
     if (gflagChk(389)) {
+#endif
         return 0;
     }
     campos = (float *)GetCameraPos();
@@ -173,9 +181,15 @@ int stageSEtaimatsu(SeSlot *self)
         }
         id = self->env->se;
         if ((i & 1) == 0) {
+#ifdef VERSION_AUG6
+            id -= 414;
+        } else {
+            id -= 416;
+#else
             id -= 426;
         } else {
             id -= 428;
+#endif
         }
         if ((unsigned int)id >= 2) {
             continue;
@@ -210,7 +224,7 @@ static float river06aLevel; /* derived name */
  * stageSE06ariver */
 static inline int SEFadeOut(SeSlot *self, float *lvl) /* derived name */
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     float v = *lvl - 0.005f;
 #else
     float v = *lvl - riverFadeSpeed;
@@ -305,12 +319,20 @@ int stageSE04eriver(SeSlot *self)
     float r;
 
     if (stage_no == 21) {
+#ifdef VERSION_AUG6
+        if (gflagChk(205)) {
+#else
         if (gflagChk(230)) {
+#endif
             return SEFadeOut(self, &river04eLevelA);
         }
         river04eLevelA = 1.0f;
     } else {
+#ifdef VERSION_AUG6
+        if (gflagChk(206)) {
+#else
         if (gflagChk(231)) {
+#endif
             return SEFadeOut(self, &river04eLevelB);
         }
         river04eLevelB = 1.0f;
@@ -344,12 +366,20 @@ int stageSE06ariver(SeSlot *self)
 {
     float *p = (float *)GetCameraPos();
 
+#ifdef VERSION_AUG6
+    if (gflagChk(95)) {
+#else
     if (gflagChk(106)) {
+#endif
         return SEFadeOut(self, &river06aLevel);
     }
     river06aLevel = 1.0f;
     if (p[0] < 300.0f && 848.0f < p[2]) {
+#ifdef VERSION_AUG6
+        if (gflagChk(96) == 0) {
+#else
         if (gflagChk(107) == 0) {
+#endif
             self->volumeRate = 0.05f;
         } else {
             self->volumeRate = 0.4f;
@@ -449,7 +479,7 @@ int stageSE19ataki(SeSlot *self)
     return 1;
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
    (0.005f, or 1000.0f to cut the river at once) */
 float riverFadeSpeed = 0.0f; /* derived name */
@@ -510,7 +540,11 @@ int stageSE02ataki(SeSlot *self)
     p[0] = 785.0f;
     p[2] = 482.0f;
     self->stereoRate = 0.5f;
+#ifdef VERSION_AUG6
+    if (gflagChk(95)) {
+#else
     if (gflagChk(106)) {
+#endif
         self->volumeRate = 0.0f;
     }
     return 1;
@@ -523,7 +557,11 @@ int stageSE02atakib(SeSlot *self)
     p[1] = 1786.0f;
     p[2] = 482.0f;
     self->stereoRate = 0.5f;
+#ifdef VERSION_AUG6
+    if (gflagChk(95)) {
+#else
     if (gflagChk(106)) {
+#endif
         self->volumeRate = 0.0f;
     }
     return 1;
@@ -584,7 +622,11 @@ int stageSE04agate(SeSlot *self)
     if (x < -1300.0f) {
         return 0;
     }
+#ifdef VERSION_AUG6
+    if (gflagChk(126) == 0) {
+#else
     if (gflagChk(140) == 0) {
+#endif
         return 0;
     }
     if (x < 750.0f) {
@@ -662,11 +704,19 @@ int stageSE04eriverDown(SeSlot *self)
     float x = ((float *)GetCameraPos(self))[2];
     float f;
     if (stage_no == 21) {
+#ifdef VERSION_AUG6
+        if (gflagChk(205)) {
+#else
         if (gflagChk(230)) {
+#endif
             return 0;
         }
     } else {
+#ifdef VERSION_AUG6
+        if (gflagChk(206)) {
+#else
         if (gflagChk(231)) {
+#endif
             return 0;
         }
     }

@@ -18,7 +18,7 @@ typedef struct ClimbCol {     /* field names derived */
 } ClimbCol; /* derived name */
 
 void ChainGeo(struct GObj *gobj);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void ChainPositionReset(struct GObj *chain);
 #endif
 int CheckChainClimbablePos(struct GObj *chain);
@@ -43,7 +43,7 @@ void LockChainGeo(struct GObj *chain);
 void PlumbOrientUpdateChain(struct GObj *chain, float *src);
 void ReleaseChain(struct GObj *chain, struct GObj *owner);
 void SetChainParentGObj(struct GObj *chain, void *parent);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetChainRootUpdateMode(struct GObj *gobj, int mode, float *pos);
 #endif
 void UnLockChainGeo(struct GObj *chain);
@@ -53,7 +53,9 @@ void correct_vector(float *out, float *v);
 void ChainDL(struct GObj *gobj);
 int isStopChain(struct GObj *chain);
 int isBottomOfChain(struct GObj *chain);
+#ifndef VERSION_AUG6
 int GetChainNearestNodePosition(float *out, struct GObj *gobj, float *p);
+#endif
 void InitPendulum(struct GObj *chain);
 
 #endif /* CHAIN_H */

@@ -74,7 +74,7 @@ typedef struct EnemyBattleWork { /* field names derived */
     float ropeCliffX; /* 0x1C0 */
     float ropeCliffY; /* 0x1C4 */
     float ropeCliffZ; /* 0x1C8 */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     char pad1CC[12];
 #else
     char pad1CC[20];
@@ -97,7 +97,7 @@ typedef struct EnemyBattleWork { /* field names derived */
     int clingTarget; /* 0x220 */
     int waitCount;
     int slowTimer;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     int liftedObj;   /* 0x224 */
     char pad228[8];
 #else
@@ -174,7 +174,7 @@ int GetEnemyTypeFromGObj(struct GObj *obj);
 int GetEnemyType(float x, float y, float z);
 int isEnemyKidnapEnable(GObj *self);
 inline int isEnemyActive(GObj *self);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 inline void subEnemyBrain_Idle(GObj *volatile self);
 inline void subEnemyBrain_Await(GObj *volatile self);
 inline void subEnemyBrain_ToGenerator(GObj *self);
@@ -189,7 +189,7 @@ inline void subEnemyBrain_BodyGuard(GObj *volatile self);
 inline void subEnemyBrain_Shoulder(GObj *volatile self);
 inline void subEnemyBrain_Pickup(GObj *volatile self);
 inline void subEnemyBrain_Bodyslam(GObj *volatile self);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void subEnemyBrain_Irregular(GObj *volatile self);
 #else
 inline void subEnemyBrain_Irregular(GObj *volatile self);

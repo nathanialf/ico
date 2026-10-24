@@ -2210,7 +2210,9 @@ static VramPri vramPri[13]; /* derived name */
 
 static TexEntry texTable[200]; /* derived name */
 
+#ifndef VERSION_AUG6
 static int headTbp[14]; /* derived name */
+#endif
 
 static Tim2Ext toolExt; /* derived name */
 
@@ -2309,14 +2311,19 @@ static int tex_loadImage(unsigned int addr, TexData *tex, int idx, short dbp, sh
     default:
         /* "tex_loadImage:" + EUC-JP "the texture format cannot be told apart" + ".\n" */
         debug_StdPrintfDummy("tex_loadImage:判別できないテクスチャフォーマットです.\n");
-        debug_assert("src/Texture.c", 645);
-        __assert("src/Texture.c", 645, "0");
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 611));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 611), "0");
     }
     if (size > 0x20000) {
         /* "tex_loadImage:" + EUC-JP "the texture size is too large" + ".\n" */
         debug_StdPrintfDummy("tex_loadImage:テクスチャのサイズが大きすぎます.\n");
-        debug_assert("src/Texture.c", 650);
-        __assert("src/Texture.c", 650, "0");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 616));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 616), "0");
+#else
+        debug_assert("src/Texture.c", LN(650, 650, 650, 650, 650));
+        __assert("src/Texture.c", LN(650, 650, 650, 650, 650), "0");
+#endif
     }
     gif_StartPacketPri(dl_GetPri());
     gif_SetGsReg(0x50, ((long long)dbp << 32) | ((long long)dbw << 48) | ((long long)dpsm << 56));
@@ -2386,8 +2393,13 @@ static void tex_setTexReg(Tim2Picture *pic, TexData *t, int levels, int lv, int 
     default:
         /* EUC-JP: "a texture type that is neither DIRECT nor CLUT was specified" + ".\n" */
         debug_StdPrintfDummy("DIRECTでもCLUTでもないテクスチャタイプが指定されました.\n");
-        debug_assert("src/Texture.c", 788);
-        __assert("src/Texture.c", 788, "0");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 738));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 738), "0");
+#else
+        debug_assert("src/Texture.c", LN(788, 788, 788, 788, 788));
+        __assert("src/Texture.c", LN(788, 788, 788, 788, 788), "0");
+#endif
         break;
     }
     if (2 <= levels) {
@@ -2491,8 +2503,12 @@ static int tex_transTM2(Tim2Picture *pic, TexData *t, int id, int pri)
     if (8 <= levels) {
         /* "tex_transTM2:" + EUC-JP "there are too many mipmap textures" + ".\n" */
         debug_StdPrintfDummy("tex_transTM2:ミップマップテクスチャの枚数が多すぎます.\n");
-        debug_assert("src/Texture.c", 886);
-        __assert("src/Texture.c", 886, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 835));
+#else
+        debug_assert("src/Texture.c", LN(886, 886, 886, 886, 886));
+#endif
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 835), "FALSE");
     }
     dl_SetDLPriority(pri);
     switch (pic->imageType) {
@@ -2525,8 +2541,13 @@ static int tex_transTM2(Tim2Picture *pic, TexData *t, int id, int pri)
         /* EUC-JP "the texture is corrupt" + ".\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n" */
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
-        debug_assert("src/Texture.c", 919);
-        __assert("src/Texture.c", 919, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 868));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 868), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(919, 919, 919, 919, 919));
+        __assert("src/Texture.c", LN(919, 919, 919, 919, 919), "FALSE");
+#endif
         break;
     }
     texTable[id].rec.ext.transDone[pri] = 1;
@@ -2571,6 +2592,23 @@ static void tex_initClutTexture(Tim2Picture *pic, TexData *t)
     int i;
     int dbw;
 
+#ifdef VERSION_AUG6
+    /* The CLUT's VRAM size from its colour count, then the fixed 8 over it
+     * (PAL keeps only the 8): the size is dead, so of its divide only the
+     * division-by-zero trap on sizeDiv stays.  Both line maps leave lines
+     * without code between the size and the 8 (three in August's, seven in
+     * PAL's), and the bytes need a branch there whose arm is dead: it keeps
+     * the 8 in a block of its own until flow drops the emptied arm, so the 8
+     * is loaded after the trap, into v0 once sizeDiv dies.  Pinned: a test
+     * between the two stores whose arm only sets a dead register.  Not
+     * pinned: the test and the arm, written as this file's CSM2 test
+     * (tex_convertClutCSM2ToCSM1) and the width of a one-row CSM2 CLUT. */
+    t->clut.vramSize = (pic->clutColors / psmTable[pic->clutType & 0x3F].sizeDiv / 2) *
+                           psmTable[pic->clutType & 0x3F].sizeMul >>
+                       6;
+    if ((pic->clutType >> 7) != 0)
+        dbw = pic->clutColors;
+#endif
     t->clut.vramSize = 8;
 
     t->clut.dbw = texTBW(&psmTable[pic->clutType & 0x3F], pic->imageWidth);
@@ -2670,8 +2708,13 @@ static void tex_setRegisters(Tim2Picture *pic, TexData *t)
     default:
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
-        debug_assert("src/Texture.c", 1066);
-        __assert("src/Texture.c", 1066, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1014));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1014), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1066, 1066, 1066, 1066, 1066));
+        __assert("src/Texture.c", LN(1066, 1066, 1066, 1066, 1066), "FALSE");
+#endif
     }
 
     /* a second switch on the same field */
@@ -2764,8 +2807,13 @@ static void tex_initTM2(Tim2Picture *pic, TexData *t)
     default:
         debug_StdPrintfDummy("テクスチャが壊れています.\"%s\"I:%d C:%d iadr:%p cadr:%p hadr:%p\n",
                              t, pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
-        debug_assert("src/Texture.c", 1143);
-        __assert("src/Texture.c", 1143, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1091));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1091), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1143, 1143, 1143, 1143, 1143));
+        __assert("src/Texture.c", LN(1143, 1143, 1143, 1143, 1143), "FALSE");
+#endif
         break;
     }
     tex_setRegisters(pic, t);
@@ -2813,8 +2861,13 @@ static void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
     sceGsSetDefLoadImage(&limg, 0x2800, w >> 6, psmTable[fmt].psm, 0, 0, w2, h);
     FlushCache(0);
     if (sceGsExecLoadImage(&limg, src)) {
-        debug_assert("src/Texture.c", 1246);
-        __assert("src/Texture.c", 1246, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1194));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1194), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1246, 1246, 1246, 1246, 1246));
+        __assert("src/Texture.c", LN(1246, 1246, 1246, 1246, 1246), "FALSE");
+#endif
     }
     sceGsSyncPath(0, 0);
     switch (psmTable[fmt].psm) {
@@ -2825,19 +2878,34 @@ static void tex_convertImage(void *dst, void *src, short fmt, short w, short h)
         w2 = w >> 3;
         break;
     default:
-        debug_assert("src/Texture.c", 1251);
-        __assert("src/Texture.c", 1251, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1199));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1199), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1251, 1251, 1251, 1251, 1251));
+        __assert("src/Texture.c", LN(1251, 1251, 1251, 1251, 1251), "FALSE");
+#endif
         break;
     }
     if (32767 < w * h >> 4) {
-        debug_assert("src/Texture.c", 1254);
-        __assert("src/Texture.c", 1254, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1202));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1202), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1254, 1254, 1254, 1254, 1254));
+        __assert("src/Texture.c", LN(1254, 1254, 1254, 1254, 1254), "FALSE");
+#endif
     }
     sceGsSetDefStoreImage(&simg, 0x2800, w2 >> 6, 0, 0, 0, w2, h);
     FlushCache(0);
     if (sceGsExecStoreImage(&simg, dst)) {
-        debug_assert("src/Texture.c", 1259);
-        __assert("src/Texture.c", 1259, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1207));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1207), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1259, 1259, 1259, 1259, 1259));
+        __assert("src/Texture.c", LN(1259, 1259, 1259, 1259, 1259), "FALSE");
+#endif
     }
     sceGsSyncPath(0, 0);
 }
@@ -2981,8 +3049,13 @@ static void tex_makeTexturePacket(void *file, TexData *t)
             debug_StdPrintfDummy(
                 "tex_makeTexturePacket:テクスチャのユーザースペースフォーマットが異常です.'%s'\n",
                 t);
-            debug_assert("src/Texture.c", 1392);
-            __assert("src/Texture.c", 1392, "0");
+#ifdef VERSION_AUG6
+            debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1340));
+            __assert("src/Texture.c", LN(645, 645, 645, 645, 1340), "0");
+#else
+            debug_assert("src/Texture.c", LN(1392, 1392, 1392, 1392, 1392));
+            __assert("src/Texture.c", LN(1392, 1392, 1392, 1392, 1392), "0");
+#endif
         }
         t->ext.file = *ext;
         t->ext.animated = 1;
@@ -3007,8 +3080,8 @@ static void tex_makeTexturePacket(void *file, TexData *t)
         sprintf(buf, "TEXTURE BROKEN. \"%s\"\n    I:%d C:%d iadr:%p cadr:%p hadr:%p\n", t->name,
                 pic->imageType, pic->clutType, t->lv[0].addr, t->clut.addr, t);
         debug_StdPrintfDummy(buf);
-        debug_assertMessage("src/Texture.c", 1427, buf);
-        __assert("src/Texture.c", 1427, "e");
+        debug_assertMessage("src/Texture.c", LN(1427, 1427, 1427, 1427, 1375), buf);
+        __assert("src/Texture.c", LN(1427, 1427, 1427, 1427, 1375), "e");
         break;
     }
 }
@@ -3103,8 +3176,13 @@ static int tex_initTextureSub(char *name, void *pkt)
     if (200 <= texCount) {
         /* EUC-JP "there are too many textures, make the texture list region bigger" */
         debug_StdPrintfDummy("テクスチャが多すぎます.テクスチャリスト領域を増やしてください\n");
-        debug_assert("src/Texture.c", 1523);
-        __assert("src/Texture.c", 1523, "0");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1471));
+        __assert("src/Texture.c", LN(645, 645, 645, 645, 1471), "0");
+#else
+        debug_assert("src/Texture.c", LN(1523, 1523, 1523, 1523, 1523));
+        __assert("src/Texture.c", LN(1523, 1523, 1523, 1523, 1523), "0");
+#endif
     }
     return no;
 }
@@ -3126,8 +3204,13 @@ int tex_LoadTexturePart(char *name, int area)
     } else {
         /* EUC-JP: texture "%s" not found. */
         debug_StdPrintfDummy("テクスチャ \"%s\" がみつかりません.\n", buf);
-        debug_assert("src/Texture.c", 1590);
-        __assert("src/Texture.c", 1590, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1538));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1538), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1590, 1590, 1590, 1590, 1590));
+        __assert("src/Texture.c", LN(1590, 1590, 1590, 1590, 1590), "FALSE");
+#endif
         return -1;
     }
 }
@@ -3156,8 +3239,13 @@ int tex_TransTexture(int id, int ret)
             /* the same message with ". %d:%s\n" */
             debug_StdPrintfDummy("tex_TransTexture:テクスチャの転送に失敗しました. %d:%s\n", id, t);
         }
-        debug_assert("src/Texture.c", 1685);
-        __assert("src/Texture.c", 1685, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert("src/Texture.c", LN(645, 645, 645, 645, 1633));
+        __assert("src/Texture.c", LN(886, 886, 886, 886, 1633), "FALSE");
+#else
+        debug_assert("src/Texture.c", LN(1685, 1685, 1685, 1685, 1685));
+        __assert("src/Texture.c", LN(1685, 1685, 1685, 1685, 1685), "FALSE");
+#endif
     }
     if (ret != 0) {
         textures++;
@@ -3193,6 +3281,7 @@ extern void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm
  * GifRect *, GifColor *, int) in GifPacket.h */
 extern void gif_SpriteSensitiveOrg(int *r, unsigned int z, int *uv, TexColor *col, int prim);
 
+#ifndef VERSION_AUG6
 static void tex_TransTextureDefocus(int id, int lv)
 {
     TexData *p;
@@ -3231,12 +3320,13 @@ static void tex_TransTextureDefocus(int id, int lv)
         gif_EndPacket();
     }
 }
+#endif
 
 /* A 256-entry CLUT is held in CSM1 order, the two halves of every other
  * 16-entry block swapped, so an entry index is swizzled before the entry is
  * touched. A 16-entry CLUT is held straight. tex_dispClut walks the same
  * order. */
-#define CLUT_CSM1(n, i)              /* derived name */                                            \
+#define CLUT_CSM1(n, i) /* derived name */                                                         \
     ((n) == 16 ? (i)                                                                               \
      : (((i) & 0xF) >= 8 && (((i) >> 4) & 1) == 0)                                                 \
          ? (i) + 8                                                                                 \
@@ -3455,11 +3545,15 @@ static inline void resetVramPri(int pri) /* derived name */
 
     dl_SetDLPriority(pri);
 
+#ifdef VERSION_AUG6
+    vramPri[pri].texAddr = 0x2800;
+#else
     if (headTbp[pri] != 0) {
         vramPri[pri].texAddr = headTbp[pri];
     } else {
         vramPri[pri].texAddr = 0x2800;
     }
+#endif
     vramPri[pri].clutAddr = 0x3E80;
     vramPri[pri].lastTex = -1;
     for (i = 0; i < texCount; i++) {
@@ -3476,7 +3570,9 @@ void tex_ResetVram(void)
     int i;
 
     for (i = 0; i < 13; i++) {
+#ifndef VERSION_AUG6
         headTbp[i] = 0;
+#endif
         resetVramPri(i);
     }
     if (systemStatus[5] == 0) {
@@ -4049,9 +4145,13 @@ void tex_UpdateMipMapLevel(float lv)
             mmag = 1;
             mmin = GlobalStageSetting.texSampleMode;
         }
+#ifdef VERSION_AUG6
+        k = k * lv / 80.0f;
+#endif
         tex->pkt.tex1.data = ((long long)(mxl - 1) << 2) | ((long long)mmag << 5) |
                              ((long long)mmin << 6) | ((long long)l << 19) | ((long long)k << 32);
     }
+#ifndef VERSION_AUG6
 }
 
 void tex_LockHeadTBP(int tbp, int pri)
@@ -4064,6 +4164,7 @@ void tex_UnlockHeadTBP(int pri)
 {
     headTbp[pri] = 0;
     resetVramPri(pri);
+#endif
 }
 
 void tex_ResetVramPri(int pri)

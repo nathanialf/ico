@@ -47,7 +47,7 @@ typedef struct {       /* field names derived */
     int fumbleFrame;   /* 0x64 */
     float fumbleSpeed; /* 0x68 */
     char pad6C[4];
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     float fumbleFrom[4]; /* 0x70 */
     float fumbleTo[4];   /* 0x80 */
     float fumbleQuat[4]; /* 0x90 */
@@ -75,7 +75,7 @@ typedef struct {       /* field names derived */
 
 void torchOnOfWeaponSE(GObj *torch)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(torch, 64);
 #else
     ExecuteSEPackage(torch, 66);
@@ -85,7 +85,7 @@ void torchOnOfWeaponSE(GObj *torch)
 void torchOffOfWeaponSE(GObj *torch)
 {
     StopSEPackage(torch);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(torch, 65);
 #else
     ExecuteSEPackage(torch, 67);
@@ -94,7 +94,7 @@ void torchOffOfWeaponSE(GObj *torch)
 
 void weaponHitReactionSE(GObj *g)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(g, 66);
 #else
     ExecuteSEPackage(g, 68);
@@ -103,7 +103,7 @@ void weaponHitReactionSE(GObj *g)
 
 void weaponFumbleSE(GObj *g)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(g, 87);
 #else
     ExecuteSEPackage(g, 92);
@@ -112,7 +112,7 @@ void weaponFumbleSE(GObj *g)
 
 void weaponStickSE(GObj *g)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(g, 88);
 #else
     ExecuteSEPackage(g, 93);
@@ -175,7 +175,7 @@ static inline int fumbleTargetBlocked(FumbleVec *p) /* derived name */
     return 0;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* declared here: ico2/omori/src/attackhit.c declares the table with its
    own record and includes weapon.h; const, as the table sits in .rodata */
 extern const WeaponDef weaponKind[];
@@ -232,7 +232,7 @@ int ReleaseWeaponWithFumbleSequential(GObj *g)
     return 0;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static WeaponWork swordWorkTemplate = {
     0,
     0,
@@ -515,7 +515,7 @@ static void calcDynamicGeometry(GObj *g)
     }
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* the body of SetWeaponOffsetMode, which getGeometry and InitWeaponGeo
    inline and SetWeaponOffsetMode calls */
 static inline void setWeaponOffsetMode(GObj *g, int v) /* derived name */
@@ -552,7 +552,7 @@ static void getGeometry(GObj *g)
             CopyQuaternion(rq, quat);
         }
         UpdateRootMatrix(g);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         setWeaponOffsetMode(g, 0);
 #endif
     } else {
@@ -637,9 +637,9 @@ static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
 
     w->count = 1;
 #ifdef VERSION_NTSC
-    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 711);
+    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, LN(711, 711, 711, 711, 711));
 #else
-    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 759);
+    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, LN(759, 759, 759, 759, 712));
 #endif
 
     for (i = 0; i < 1; i++) {
@@ -647,7 +647,11 @@ static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
 #ifdef VERSION_NTSC
         o = CreateLayoutedGObj(10, 69, -1, i == 0, &r, -1, 7, 0);
 #else
+#ifdef VERSION_AUG6
+        o = CreateLayoutedGObj(10, 68, -1, i == 0, &r, -1, 7, 0);
+#else
         o = CreateLayoutedGObj(10, 75, -1, i == 0, &r, -1, 7, 0);
+#endif
 #endif
         LinkParentOfDObj(o, &lnk);
         CopyVector(GOBJ_SUB(o)->root.pos, queenSwordOfs);
@@ -656,7 +660,7 @@ static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
 
     r2 = *lay;
     r2.obj = 13;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     o2 = CreateLayoutedGObj(45, 9, -1, 0, &r2, -1, 7, 0);
 #else
     o2 = CreateLayoutedGObj(46, 11, -1, 0, &r2, -1, 7, 0);
@@ -670,9 +674,11 @@ typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
 {
 #ifdef VERSION_NTSC
-    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 772);
+    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
+                                   LN(772, 772, 772, 772, 772));
 #else
-    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 820);
+    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
+                                   LN(820, 820, 820, 820, 773));
 #endif
     int i;
 
@@ -699,9 +705,20 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             CopyVector(GOBJ_SUB(o)->root.pos, v);
             SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15);
             w->count = 1;
-            w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 800);
+            w->objs =
+                iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, LN(800, 800, 800, 800, 800));
             w->objs[0] = o;
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 808);
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(808, 808, 808, 808, 808));
+#else
+#ifdef VERSION_AUG6
+            o = CreateLayoutedGObj(10, 68, -1, 1, &r, -1, 7, 1);
+            LinkParentOfDObj(o, &lnk);
+            CopyVector(GOBJ_SUB(o)->root.pos, v);
+            SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15);
+            w->count = 1;
+            w->objs =
+                iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, LN(759, 759, 759, 759, 801));
 #else
             o = CreateLayoutedGObj(10, 75, -1, 1, &r, -1, 7, 1);
             LinkParentOfDObj(o, &lnk);
@@ -709,9 +726,12 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15,
                          (60 - systemStatus[0] * 10) / systemStatus[1] * 3);
             w->count = 1;
-            w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 848);
+            w->objs =
+                iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, LN(848, 848, 848, 848, 848));
+#endif
             w->objs[0] = o;
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 856);
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(856, 856, 856, 856, 809));
 #endif
             break;
         }
@@ -719,22 +739,36 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
         case 5:
             initializeQueenzSword(g, i, lay);
 #ifdef VERSION_NTSC
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 813);
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(813, 813, 813, 813, 813));
 #else
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 861);
+#ifdef VERSION_AUG6
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(856, 856, 856, 856, 814));
+#else
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(861, 861, 861, 861, 861));
+#endif
 #endif
             break;
 
         case 7:
 #ifdef VERSION_NTSC
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 817);
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(817, 817, 817, 817, 817));
 #else
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 865);
+#ifdef VERSION_AUG6
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(856, 856, 856, 856, 818));
+#else
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(865, 865, 865, 865, 865));
             break;
 
         case 8:
         case 9:
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 870);
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(870, 870, 870, 870, 870));
             w->net = iosMallocDebug(ios_partition_sugipon, 8, __FILE__, 871);
             w->model0 = CSVSYSTEM_InitDObj(
                 accessary[((SubHandle *)(((char *)g) + 0x15C))->sub->accessary].model, lay);
@@ -744,13 +778,21 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             UpdateRootMatrix(g);
             setWeaponOffsetMode(g, 1);
 #endif
+#endif
             break;
 
         default:
 #ifdef VERSION_NTSC
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 821);
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(821, 821, 821, 821, 821));
 #else
-            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 884);
+#ifdef VERSION_AUG6
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(856, 856, 856, 856, 822));
+#else
+            w->buf =
+                iosMallocDebug(ios_partition_sugipon, 352, __FILE__, LN(884, 884, 884, 884, 884));
+#endif
 #endif
             break;
         }
@@ -758,7 +800,7 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
     return w;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void WeaponGeo(GObj *g)
 {
     getGeometry(g);
@@ -815,7 +857,7 @@ void dispInsectNet(GObj *g)
     gif_EndPacket();
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static void dispBlur(GObj *g)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
@@ -942,7 +984,7 @@ static void calcBlur(GObj *g, float t)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void WeaponDL(GObj *g)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
@@ -1179,7 +1221,7 @@ GObj *CheckSwapableWeapon(GObj *self, float dist)
         if (g->active == 0)
             continue;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         wp = (float *)((char *)GOBJ_SUB(g)->nodeMtx + 48);
 #else
         wp = w->tipPos;
@@ -1312,9 +1354,11 @@ void *InitDemoQueensSword(GObj *g, SObjSimpleSetting *lay)
     int i;
 
 #ifdef VERSION_NTSC
-    w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 754);
+    w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
+                                     LN(754, 754, 754, 754, 754));
 #else
-    w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 802);
+    w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__,
+                                     LN(802, 802, 802, 802, 755));
 #endif
     GOBJ_SUB(g)->work = w;
     *w = swordWorkTemplate;
@@ -1331,7 +1375,7 @@ void ExecDemoQueensSword(GObj *g)
     w->sword->active = e->disp;
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetWeaponOffsetMode(GObj *self, int mode)
 {
     setWeaponOffsetMode(self, mode);

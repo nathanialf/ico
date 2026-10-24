@@ -6,9 +6,15 @@
 
 /* the way groups and the way points, zero-initialised; the points start on
    the 16-byte boundary their position vector gives them */
+#ifdef VERSION_AUG6
+WayGroup way_group[64] = {0};
+
+WayPoint way_point[215] = {0};
+#else
 WayGroup way_group[94] = {0};
 
 WayPoint way_point[275] = {0};
+#endif
 
 /* way_llf.o's .sdata globals (declared in way_llf.h), tentative definitions */
 int first_waytool;
@@ -27,7 +33,11 @@ inline int CreateWayGroup(void)
 {
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 64; i++) {
+#else
     for (i = 0; i < 94; i++) {
+#endif
         WayGroup *wg = &way_group[i];
 
         if (wg->used == 0) {
@@ -93,7 +103,11 @@ inline int CreateWayPoint(float *pos)
 {
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 215; i++) {
+#else
     for (i = 0; i < 275; i++) {
+#endif
         WayPoint *node = &way_point[i];
 
         if (node->used == 0) {
@@ -203,6 +217,7 @@ inline int DeleteWayPoint(int pno)
     return 0;
 }
 
+#ifndef VERSION_AUG6
 /* CreateBridge sits between DeleteWayPoint and the begin iterators; it is the
    one function of the TU too large to inline. */
 int CreateBridge(float *a, float *b)
@@ -226,6 +241,7 @@ int CreateBridge(float *a, float *b)
     SetWayGroupActive(gno, 1);
     return gno;
 }
+#endif
 
 /* the begin iterators start one record before the way-group table and step
    before the first test */
@@ -233,7 +249,11 @@ int CreateBridge(float *a, float *b)
 inline WayGroup *WayGroup_begin(void)
 {
     WayGroup *p = way_group - 1;
+#ifdef VERSION_AUG6
+    WayGroup *end = p + 64;
+#else
     WayGroup *end = p + 94;
+#endif
     if (p != 0 && p != end) {
         do {
             p++;
@@ -246,7 +266,11 @@ inline WayGroup *WayGroup_begin(void)
 
 inline WayGroup *WayGroup_next(WayGroup *p)
 {
+#ifdef VERSION_AUG6
+    WayGroup *end = &way_group[63];
+#else
     WayGroup *end = &way_group[93];
+#endif
     if (p != 0 && p != end) {
         WayGroup *q = p;
         do {
@@ -261,7 +285,11 @@ inline WayGroup *WayGroup_next(WayGroup *p)
 inline WayGroup *WayBridge_begin(void)
 {
     WayGroup *p = way_group - 1;
+#ifdef VERSION_AUG6
+    WayGroup *end = p + 64;
+#else
     WayGroup *end = p + 94;
+#endif
     if (p != 0 && p != end) {
         do {
             p++;
@@ -274,7 +302,11 @@ inline WayGroup *WayBridge_begin(void)
 
 inline WayGroup *WayBridge_next(WayGroup *p)
 {
+#ifdef VERSION_AUG6
+    WayGroup *end = &way_group[63];
+#else
     WayGroup *end = &way_group[93];
+#endif
     if (p != 0 && p != end) {
         WayGroup *q = p;
         do {
@@ -289,7 +321,11 @@ inline WayGroup *WayBridge_next(WayGroup *p)
 inline WayGroup *WayBridgeAll_begin(void)
 {
     WayGroup *p = way_group - 1;
+#ifdef VERSION_AUG6
+    WayGroup *end = p + 64;
+#else
     WayGroup *end = p + 94;
+#endif
     if (p != 0 && p != end) {
         do {
             p++;
@@ -302,7 +338,11 @@ inline WayGroup *WayBridgeAll_begin(void)
 
 inline WayGroup *WayBridgeAll_next(WayGroup *p)
 {
+#ifdef VERSION_AUG6
+    WayGroup *end = &way_group[63];
+#else
     WayGroup *end = &way_group[93];
+#endif
     if (p != 0 && p != end) {
         WayGroup *q = p;
         do {
@@ -317,7 +357,11 @@ inline WayGroup *WayBridgeAll_next(WayGroup *p)
 inline WayGroup *WayBridgeVar_begin(void)
 {
     WayGroup *p = way_group - 1;
+#ifdef VERSION_AUG6
+    WayGroup *end = way_group - 1 + 64;
+#else
     WayGroup *end = way_group - 1 + 94;
+#endif
     if (p == 0)
         goto ret0;
     if (p == end)
@@ -334,7 +378,11 @@ ret0:
 
 inline WayGroup *WayBridgeVar_next(WayGroup *g)
 {
+#ifdef VERSION_AUG6
+    WayGroup *p, *end = &way_group[63];
+#else
     WayGroup *p, *end = &way_group[93];
+#endif
     if (g != 0 && g != end) {
         for (p = g + 1;; p++) {
             if (p->used != 0 && p->bridge != 0 && p->active != 0)
@@ -349,7 +397,11 @@ inline WayGroup *WayBridgeVar_next(WayGroup *g)
 inline WayPoint *WayPoint_begin(void)
 {
     WayPoint *p = way_point - 1;
+#ifdef VERSION_AUG6
+    WayPoint *end = way_point - 1 + 215;
+#else
     WayPoint *end = way_point - 1 + 275;
+#endif
     if (p == 0)
         goto ret0;
     if (p == end)
@@ -366,7 +418,11 @@ ret0:
 
 inline WayPoint *WayPoint_next(WayPoint *p)
 {
+#ifdef VERSION_AUG6
+    WayPoint *end = &way_point[214];
+#else
     WayPoint *end = &way_point[274];
+#endif
     if (p == 0)
         goto ret0;
     if (p == end)
@@ -421,7 +477,11 @@ void InitWayPointSystem(void)
 {
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 215; i++) {
+#else
     for (i = 0; i < 275; i++) {
+#endif
         WayPoint *node = &way_point[i];
 
         node->used = 0;
@@ -431,7 +491,11 @@ void InitWayPointSystem(void)
         node->group = -1;
     }
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 64; i++) {
+#else
     for (i = 0; i < 94; i++) {
+#endif
         WayGroup *wg = &way_group[i];
 
         wg->used = 0;

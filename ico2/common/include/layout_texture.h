@@ -39,8 +39,12 @@ typedef struct LtProperty { /* field names derived */
     int word4;              /* 0x04, no C reader */
     int word8;              /* 0x08, no C reader */
     int wordC;              /* 0x0C, no C reader */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+    int word14;             /* 0x10, no C reader */
+#else
     int word10;             /* 0x10, no C reader */
+#endif
     void *texData;          /* 0x14, 0 in the shipped rows */
     int texNo;              /* 0x18, the texture tex_TransTexture sends */
     int up;                 /* 0x1C, lt_link_layout's layout for direction 3 */
@@ -51,7 +55,11 @@ typedef struct LtProperty { /* field names derived */
     int leftItem;           /* 0x30 */
     int downItem;           /* 0x34 */
     int upItem;             /* 0x38 */
+#ifdef VERSION_AUG6
+    int word40;             /* 0x3C, no C reader */
+#else
     int word3C;             /* 0x3C, no C reader */
+#endif
     int centerX;            /* 0x40, nonzero centres the sprite across the screen */
     int dispH;              /* 0x44, the sprite's height in field lines, 0 for the texture's */
     int dispW;              /* 0x48, its width in pixels, 0 for the texture's */

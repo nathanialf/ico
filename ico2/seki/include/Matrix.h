@@ -32,7 +32,7 @@ void _RotTransPersCurrentMatrix(void *dst, void *src);
 void _TransposeCurrentMatrix(void);
 void _TransposeRotationCurrentMatrix(void);
 void _InverseCurrentMatrix(void);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void _PushVu0Registers(void);
 void _PopVu0Registers(void);
 #endif
@@ -77,7 +77,7 @@ float _GetRandom(void);
 void _GetRandomVector(void *dst);
 void _GetRandomVector0(void *dst);
 void _RotTransCurrentMatrix(void *dst, void *src);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void _PopVu0Registers(void);
 void _PushVu0Registers(void);
 #endif

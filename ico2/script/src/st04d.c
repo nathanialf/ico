@@ -17,9 +17,15 @@ static ActMail door1_down_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail door1_up_mes[2] = {{397}, {396}}; /* derived name */
 #else
+#ifdef VERSION_AUG6
+static ActMail door1_down_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door1_up_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail door1_down_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail door1_up_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 
 void actSt04dDoor1(GObj *volatile self)
@@ -37,7 +43,11 @@ void actSt04dDoor1(GObj *volatile self)
 #ifdef VERSION_NTSC
         stage_SetAnimation(227, 0, 0);
 #else
+#ifdef VERSION_AUG6
+        stage_SetAnimation(226, 0, 0);
+#else
         stage_SetAnimation(255, 0, 0);
+#endif
 #endif
 #endif
         _ACTWait(60);
@@ -52,6 +62,15 @@ void actSt04dDoor1(GObj *volatile self)
         act->mail = door1_up_mes;
         ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(225, 0, 0);
+        door1_up_mes[0].func = actSt04dDoor1UpChk;
+        act->mail = door1_up_mes;
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
@@ -63,6 +82,7 @@ void actSt04dDoor1(GObj *volatile self)
         door1_up_mes[0].func = actSt04dDoor1UpChk;
         act->mail = door1_up_mes;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -112,7 +132,11 @@ void actSt04dDoor1UpChk(GObj *volatile self)
     _ACTWait(0);
 }
 #else
+#ifdef VERSION_AUG6
+static ActMail door1_up_chk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail door1_up_chk_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt04dDoor1UpChk(GObj *volatile self)
 {
@@ -129,11 +153,24 @@ void actSt04dDoor1UpChk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(250, 1, 0);
 #else
+#ifdef VERSION_AUG6
+    stage_SetAnimation(225, 1, 0);
+#else
     stage_SetAnimation(254, 1, 0);
+#endif
 #endif
 
     buf[0] = door1SoundPos.d[0];
     buf[1] = door1SoundPos.d[1];
+#ifdef VERSION_AUG6
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(225) == 0) {
+#else
     soundSeDefPlay(1220, 0, (float *)buf, 1);
     _ACTWait(30);
     soundSeDefPlay(1221, 0, (float *)buf, 1);
@@ -145,13 +182,18 @@ void actSt04dDoor1UpChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFinish(254) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     door1_up_chk_mes[0].func = actSt04dDoor1DownChk;
     sub->mail = door1_up_chk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 #endif
@@ -240,7 +282,11 @@ void actSt04dDoor1DownChk(GObj *volatile self)
     _ACTWait(0);
 }
 #else
+#ifdef VERSION_AUG6
+static ActMail door1_down_chk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail door1_down_chk_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt04dDoor1DownChk(GObj *volatile self)
 {
@@ -257,11 +303,24 @@ void actSt04dDoor1DownChk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(251, 1, 0);
 #else
+#ifdef VERSION_AUG6
+    stage_SetAnimation(226, 1, 0);
+#else
     stage_SetAnimation(255, 1, 0);
+#endif
 #endif
 
     buf[0] = door1SoundPos.d[0];
     buf[1] = door1SoundPos.d[1];
+#ifdef VERSION_AUG6
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(226) == 0) {
+#else
     soundSeDefPlay(1220, 0, (float *)buf, 1);
     _ACTWait(30);
     soundSeDefPlay(1221, 0, (float *)buf, 1);
@@ -273,13 +332,18 @@ void actSt04dDoor1DownChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFinish(255) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     door1_down_chk_mes[0].func = actSt04dDoor1UpChk;
     sub->mail = door1_down_chk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 #endif
@@ -294,9 +358,15 @@ static ActMail door2_down_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail door2_up_mes[2] = {{397}, {396}}; /* derived name */
 #else
+#ifdef VERSION_AUG6
+static ActMail door2_down_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door2_up_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail door2_down_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail door2_up_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 
 void actSt04dDoor2(GObj *volatile self)
@@ -314,7 +384,11 @@ void actSt04dDoor2(GObj *volatile self)
 #ifdef VERSION_NTSC
         stage_SetAnimation(229, 0, 0);
 #else
+#ifdef VERSION_AUG6
+        stage_SetAnimation(228, 0, 0);
+#else
         stage_SetAnimation(257, 0, 0);
+#endif
 #endif
 #endif
         _ACTWait(60);
@@ -329,6 +403,15 @@ void actSt04dDoor2(GObj *volatile self)
         act->mail = door2_up_mes;
         ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(227, 0, 0);
+        door2_up_mes[0].func = actSt04dDoor2UpChk;
+        act->mail = door2_up_mes;
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
@@ -340,6 +423,7 @@ void actSt04dDoor2(GObj *volatile self)
         door2_up_mes[0].func = actSt04dDoor2UpChk;
         act->mail = door2_up_mes;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -389,7 +473,11 @@ void actSt04dDoor2UpChk(GObj *volatile self)
     _ACTWait(0);
 }
 #else
+#ifdef VERSION_AUG6
+static ActMail door2_up_chk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail door2_up_chk_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt04dDoor2UpChk(GObj *volatile self)
 {
@@ -406,11 +494,24 @@ void actSt04dDoor2UpChk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(252, 1, 0);
 #else
+#ifdef VERSION_AUG6
+    stage_SetAnimation(227, 1, 0);
+#else
     stage_SetAnimation(256, 1, 0);
+#endif
 #endif
 
     buf[0] = door2SoundPos.d[0];
     buf[1] = door2SoundPos.d[1];
+#ifdef VERSION_AUG6
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(227) == 0) {
+#else
     soundSeDefPlay(1220, 0, (float *)buf, 1);
     _ACTWait(30);
     soundSeDefPlay(1221, 0, (float *)buf, 1);
@@ -422,13 +523,18 @@ void actSt04dDoor2UpChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFinish(256) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     door2_up_chk_mes[0].func = actSt04dDoor2DownChk;
     sub->mail = door2_up_chk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 #endif
@@ -517,7 +623,11 @@ void actSt04dDoor2DownChk(GObj *volatile self)
     _ACTWait(0);
 }
 #else
+#ifdef VERSION_AUG6
+static ActMail door2_down_chk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail door2_down_chk_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt04dDoor2DownChk(GObj *volatile self)
 {
@@ -534,11 +644,24 @@ void actSt04dDoor2DownChk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(253, 1, 0);
 #else
+#ifdef VERSION_AUG6
+    stage_SetAnimation(228, 1, 0);
+#else
     stage_SetAnimation(257, 1, 0);
+#endif
 #endif
 
     buf[0] = door2SoundPos.d[0];
     buf[1] = door2SoundPos.d[1];
+#ifdef VERSION_AUG6
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(228) == 0) {
+#else
     soundSeDefPlay(1220, 0, (float *)buf, 1);
     _ACTWait(30);
     soundSeDefPlay(1221, 0, (float *)buf, 1);
@@ -550,13 +673,18 @@ void actSt04dDoor2DownChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFinish(257) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     door2_down_chk_mes[0].func = actSt04dDoor2UpChk;
     sub->mail = door2_down_chk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 #endif

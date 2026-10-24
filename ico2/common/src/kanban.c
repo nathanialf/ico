@@ -34,6 +34,9 @@ int kanbanCommonRead = 0;
 static KanbanCol kanbanStartCol = {{0x80, 0x80, 0x80, 0}}; /* derived name */
 
 /* texProperty's texNo column, &texProperty[0].texNo */
+#ifdef VERSION_AUG6
+extern char D_002E3508[];
+#else
 #ifdef VERSION_NTSC
 extern char D_002E8208[];
 #else
@@ -45,6 +48,7 @@ extern char D_0030A66C[];
 #endif
 #else
 extern char D_0030D014[];
+#endif
 #endif
 #endif
 
@@ -71,7 +75,7 @@ extern void gif_StartPacketPri(int pri);
 
 static void init_textures_of_specified_property(int first, int last);
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static inline char *get_texture_base_name(const char *src) /* derived name */
 {
     char buf[256];
@@ -126,7 +130,7 @@ static inline char *get_texture_base_name(char *src) /* derived name */
 static inline int get_texture_no_of_property(int idx) /* derived name */
 {
     int n;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     const char *src;
 #else
     char *src;
@@ -142,11 +146,13 @@ static inline int get_texture_no_of_property(int idx) /* derived name */
 
     if (no < 0) {
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_AUG6
         debug_StdPrintfDummy("tex_id %d\n", n);
 #endif
+#endif
         debug_StdPrintfDummy("no texture loaded.(%s)\n", src);
-        debug_assert(__FILE__, LN(272, 265, 265, 255));
-        __assert(__FILE__, LN(272, 265, 265, 255), "0");
+        debug_assert(__FILE__, LN(272, 265, 265, 255, 255));
+        __assert(__FILE__, LN(272, 265, 265, 255, 255), "0");
     }
     return no;
 }
@@ -162,7 +168,7 @@ static inline void init_textures_of_property_range(int first, int last) /* deriv
 
 static inline int kanban_layout_key(LtProp *pr) /* derived name */
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     int ret;
     unsigned int button;
 #else
@@ -178,7 +184,7 @@ static inline int kanban_layout_key(LtProp *pr) /* derived name */
         pr->curItem = e->leftItem;
     } else if ((pad[0].flags & 0x2000) && e->rightItem > 0) {
         pr->curItem = e->rightItem;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     }
     button = pad[0].flags;
     ret = 0;
@@ -333,6 +339,12 @@ static void init_textures_of_specified_property(int first, int last)
         *(void **)(D_002E8208 + i * 108 - 4) = tex_GetTextureData(no);
         tex_SetSamplingType(*(void **)(D_002E8208 + i * 108 - 4), 1, 1);
 #else
+#ifdef VERSION_AUG6
+        no = get_texture_no_of_property(i);
+        *(int *)(D_002E3508 + i * 108) = no;
+        *(void **)(D_002E3508 + i * 108 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_002E3508 + i * 108 - 4), 1, 1);
+#else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
         debug_StdPrintfDummy("propertyId %d\n", i);
 #endif
@@ -353,6 +365,7 @@ static void init_textures_of_specified_property(int first, int last)
         tex_SetSamplingType(*(void **)(D_0030D014 + i * 0x70 - 4), 1, 1);
 #endif
 #endif
+#endif
     }
 }
 
@@ -361,7 +374,7 @@ void kanbanInit(int no)
     if (no != 0) {
         init_textures_of_property_range(stageData[no].layoutFirst, stageData[no].layoutLast);
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
         init_textures_of_property_range(0, 4);
 #else
         init_textures_of_property_range(0, 1);
@@ -442,7 +455,9 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
     int r[4];
     int pt[4];
     int i;
+#ifndef VERSION_AUG6
     int alpha;
+#endif
 
     uv[0] = (e->texU << 4) + 8;
     uv[1] = (e->texV << 4) + 8;
@@ -490,6 +505,12 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
         gif_StartPacketPri(11);
         gif_SetZTest(0);
 
+#ifdef VERSION_AUG6
+        for (i = 0; i < r[2] * r[3] / 1200; i++) {
+            pt[0] = r[0] + rand() % r[2];
+            pt[1] = r[1] + rand() % r[3];
+            col2.b[3] = rand() % 127 + 32;
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         for (i = 0; i < r[2] * r[3] / 1200; i++) {
 #else
@@ -502,6 +523,7 @@ static void display_texture(LtProp *pr, LtProperty *e, KanbanCol *col)
             if (col->b[3] < col2.b[3]) {
                 col2.b[3] = col->b[3];
             }
+#endif
 
             gif_PointOffset(pt, 0x800000, col2.b, 1);
         }
@@ -573,7 +595,11 @@ static void display_layout(Kanban *k)
     pr = k->layout;
 
     k->key = 0;
+#ifdef VERSION_AUG6
+    if (kanbanCurrent != 0 && kanbanCurrent->layout == pr) {
+#else
     if (kanbanCurrent != 0 && kanbanCurrent->layout == pr && (k->flags & 1) == 0) {
+#endif
         k->key = kanban_layout_key(pr);
     }
 

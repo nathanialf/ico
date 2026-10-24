@@ -17,6 +17,9 @@
 #ifdef VERSION_NTSC
 static ActMail sword_mes[2] = {{397}, {396}}; /* derived name */
 #else
+#ifdef VERSION_AUG6
+static ActMail sword_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static void actSt24aSwordSub(GObj *volatile self);
 
 static ActMail sword_mes[2] = {{430}, {429}}; /* derived name */
@@ -27,13 +30,14 @@ static ActMail demoCam_mes[2] = {{430}, {429}}; /* derived name */
    spins for. */
 static int demoEnd;
 #endif
+#endif
 
 static const Vec16 swordChkPos = {{1685.0f, -1080.0f, -1000.0f, 1.0f}}; /* derived name */
 
 /* .sdata: the sword's object. */
 SqEntry *sword = 0;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt24aSwordChk(GObj *volatile self)
 {
     float v[4];
@@ -45,21 +49,34 @@ void actSt24aSwordChk(GObj *volatile self)
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
     scpPlayStart(boyGObj);
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 0);
+    gflagOn(299);
+#else
     gflagOn(300);
+#endif
     soundSeDefPlay(1316, 0, 0, 1);
     _ACTWait(60);
     scpAdpcmPlayRequestFunc(33, &sword, 1, 1, 1);
     while (sword == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_AUG6
+    stage_SetAnimation(132, 1, 0);
+#else
     stage_SetAnimation(133, 1, 0);
+#endif
     scpPlayPosSet(boyGObj, 1685.0f, -1080.0f, -550.0f);
     *(Vec16 *)v = swordChkPos;
     sceVu0SubVector(dir, v, test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, dir);
     _ACTWait(300);
     scpPlayMot(boyGObj, 246);
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFinish(132) == 0) {
+#else
     while (stage_CheckAnimationFinish(133) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -77,10 +94,17 @@ void actSt24aSword(GObj *volatile self)
 
     ScpCallCameraSetTarget(363.0f, 1307.0f, -3297.0f);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(299) == 0) {
+        sword_mes[0].func = actSt24aSwordChk;
+        act->mail = sword_mes;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(300) == 0) {
         sword_mes[0].func = actSt24aSwordChk;
         act->mail = sword_mes;
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -91,7 +115,11 @@ void actSt24aSaku(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(130, 0, 0);
+#else
     stage_SetAnimation(131, 0, 0);
+#endif
 }
 #else
 void actSt24aSwordChk(GObj *volatile self)

@@ -7,7 +7,11 @@
 #ifdef VERSION_NTSC
 static void *delayFreeBuffer[3][256]; /* derived name */
 #else
+#ifdef VERSION_AUG6
+static void *delayFreeBuffer[3][128]; /* derived name */
+#else
 static void *delayFreeBuffer[3][384]; /* derived name */
+#endif
 #endif
 
 /* the frame being filled and its entry count */
@@ -31,7 +35,11 @@ static inline void ClearDelayFreeBuffer(int no) /* derived name */
 {
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 128 - 1; i >= 0; i--) {
+#else
     for (i = 384 - 1; i >= 0; i--) {
+#endif
         delayFreeBuffer[no][i] = 0;
     }
 }
@@ -79,7 +87,11 @@ void EntryDelayFree(void *p)
 void EntryDelayFree(void *p)
 {
     delayFreeBuffer[delayFreeNo][delayFreeCount++] = p;
+#ifdef VERSION_AUG6
+    if (delayFreeCount >= 128) {
+#else
     if (delayFreeCount >= 384) {
+#endif
         debug_StdPrintfDummy("[33mERROR!!! TOO MANY DELAY FREE LIST ENTRY!!! EXIT...[m\n");
         debug_assert("src/delayFreeManager.c", 51);
         __assert("src/delayFreeManager.c", 51, "0");

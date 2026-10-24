@@ -10,7 +10,11 @@
 #include "StageAnimation.h"
 #include "rotObject.h"
 #include "typedef.h"
+
+#ifndef VERSION_AUG6
 #include "stageSEProc.h"
+#endif
+
 #include "script.h"
 #include "main.h"
 
@@ -24,6 +28,17 @@ static ActMail water_mes[2] = {{397}, {396}}; /* derived name */
 static ActMail waterSwitch_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail solar_mes[2] = {{397}, {396}}; /* derived name */
+#else
+#ifdef VERSION_AUG6
+/* .data: four 0x20-byte actor mail packets, one per thread hand-off. */
+
+static ActMail waterMain_mes[2] = {{372, actSt05eWaterSwitch}, {392}}; /* derived name */
+
+static ActMail water_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail waterSwitch_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail solar_mes[2] = {{393}, {392}}; /* derived name */
 #else
 static void actSt05eWaterStopSub(GObj *volatile self);
 
@@ -100,19 +115,29 @@ void actSt05eWaterStop(GObj *volatile self)
     SetWayGroupActive(5, 1);
 }
 #endif
+#endif
 
 /* .sdata: the solar stream handle. */
 struct SqEntry *solar = 0;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt05eSolarChk(GObj *volatile self)
 {
+#ifdef VERSION_AUG6
+    while (scpIsRotObjectZPlusDirInclude(1446, 265, 275) == 0) {
+#else
     while (scpIsRotObjectZPlusDirInclude(1452, 265, 275) == 0) {
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1446)->active = 0;
+    scpSearchGobj(1447)->active = 1;
+#else
     scpSearchGobj(1452)->active = 0;
     scpSearchGobj(1453)->active = 1;
+#endif
 
     if (gflagChk(218) == 0 || gflagChk(219) == 0 || gflagChk(220) == 0) {
         lt_switch_layout(51);
@@ -122,9 +147,15 @@ void actSt05eSolarChk(GObj *volatile self)
 
         scpAdpcmPlayRequestFunc(52, &solar, 1, 1, 1);
 
+#ifdef VERSION_AUG6
+        stage_SetAnimation(236, 1, 0);
+
+        while (stage_CheckAnimationFinish(236) == 0) {
+#else
         stage_SetAnimation(237, 1, 0);
 
         while (stage_CheckAnimationFinish(237) == 0) {
+#endif
             _ACTWait(1);
         }
         _ACTWait(1);
@@ -154,16 +185,29 @@ void actSt05eWater(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(206) == 0) {
+#ifdef VERSION_AUG6
+        scpSearchGobj(1445)->active = 0;
+#else
         scpSearchGobj(1451)->active = 0;
+#endif
 
         water_mes[0].func = actSt05eWaterMain;
         act->mail = water_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(1444)->active = 0;
+
+        stage_SetAnimation(234, -1, -2);
+#else
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
     } else {
         scpSearchGobj(1450)->active = 0;
 
         stage_SetAnimation(235, -1, -2);
+#endif
     }
 }
 
@@ -174,14 +218,25 @@ void actSt05eSolar(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(207) == 0) {
+#ifdef VERSION_AUG6
+        scpSearchGobj(1447)->active = 0;
+#else
         scpSearchGobj(1453)->active = 0;
+#endif
 
         solar_mes[0].func = actSt05eSolarChk;
         act->mail = solar_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(1446)->active = 0;
+#else
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
     } else {
         scpSearchGobj(1452)->active = 0;
+#endif
     }
 }
 #else
@@ -319,7 +374,7 @@ void actSt05eWaterMain(GObj *volatile self)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt05eWaterSwitch(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -329,7 +384,11 @@ void actSt05eWaterSwitch(GObj *volatile self)
     sub->mainMail = 0;
     waterSwitch_mes[0].func = actSt05eWaterStop;
     sub->mail = waterSwitch_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -343,17 +402,30 @@ void actSt05eWaterStop(GObj *volatile self)
 
     _ACTWait(60);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(235, 1, 0);
+
+    stage_SetAnimation(234, -1, -2);
+
+    while (stage_CheckAnimationFinish(235) == 0) {
+#else
     stage_SetAnimation(236, 1, 0);
 
     stage_SetAnimation(235, -1, -2);
 
     while (stage_CheckAnimationFinish(236) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1445)->active = 1;
+    scpSearchGobj(1444)->active = 0;
+#else
     scpSearchGobj(1451)->active = 1;
     scpSearchGobj(1450)->active = 0;
+#endif
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);

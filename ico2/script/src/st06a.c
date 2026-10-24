@@ -19,11 +19,15 @@
 #include "motionManager2.h"
 #include "rotObject.h"
 #include "typedef.h"
+
+#ifndef VERSION_AUG6
 #include "stageSEProc.h"
+#endif
+
 #include "script.h"
 #include "main.h"
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* The functions stand in the order of the stage's source (aug6's TRFILE and the
    PAL listing number them so). The ones defined inline are output at
    the end of the file, in the order of the declarations below, which gives
@@ -35,7 +39,11 @@
 
 inline void actSt06aShutter(GObj *volatile self);
 inline void actSt06aExit(GObj *volatile self);
+
+#ifndef VERSION_AUG6
 inline void actSt06aExitGirl(GObj *volatile self);
+#endif
+
 inline void actSt06aBox(GObj *volatile self);
 inline void actSt06aBox2(GObj *volatile self);
 inline void actSt06aBox3(GObj *volatile self);
@@ -47,7 +55,11 @@ inline void actSt06aStatue(GObj *volatile self);
 inline void actSt06aHead(GObj *volatile self);
 inline void actSt06aTree(GObj *volatile self);
 inline void actSt06aBallDelete(GObj *volatile self);
+
+#ifndef VERSION_AUG6
 inline void actSt06aKyomi(GObj *volatile self);
+#endif
+
 inline void actSt06aSuimonEvent(int x);
 inline void actSt06aSuimonEffect(GObj *volatile self);
 inline void actSt06aSuimonFlagOn(GObj *volatile self);
@@ -57,7 +69,11 @@ inline void actSt06aDoorDownEffect(GObj *volatile self);
 inline void actSt06aShutterMain(GObj *volatile self);
 inline void actSt06aShutterSwitch(GObj *volatile self);
 inline void actSt06aExitChk(GObj *volatile self);
+
+#ifndef VERSION_AUG6
 inline void actSt06aExitGirlChk(GObj *volatile self);
+#endif
+
 inline void actSt06aBox2Chk(GObj *volatile self);
 inline void actSt06aBox3Chk(GObj *volatile self);
 inline void actSt06aBallDeleteChk(GObj *volatile self);
@@ -70,8 +86,11 @@ inline void actSt06aWallWayOffChk(GObj *volatile self);
 inline void actSt06aWallWay2OnChk(GObj *volatile self);
 inline void actSt06aWallWay2OffChk(GObj *volatile self);
 inline void actSt06aTreeChk(GObj *volatile self);
+
+#ifndef VERSION_AUG6
 inline void actSt06aKyomiOnChk(GObj *volatile self);
 inline void actSt06aKyomiOffChk(GObj *volatile self);
+#endif
 #else
 static void actSt06aBoxSub(GObj *volatile self);
 static void actSt06aExitGirlChk(GObj *volatile self);
@@ -99,9 +118,11 @@ static const ConstVec jumpPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; /* derive
 
 static const ConstVec jumpPos2 = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
+#ifndef VERSION_AUG6
 static const ConstVec kyomiPos = {{-985.0f, -177.0f, -696.0f, 0.0f}}; /* derived name */
+#endif
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* .sdata: the sluice, shutter and spike stream handles. */
 SqEntry *suimon = 0;
 
@@ -126,7 +147,11 @@ void actSt06aInit(void)
     }
 }
 
+#ifdef VERSION_AUG6
+static ActMail suimon_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail suimon_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aSuimonEvent(int x)
 {
@@ -141,6 +166,19 @@ void actSt06aSuimon(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(95) == 0) {
+#ifdef VERSION_AUG6
+        stage_SetAnimation(91, 0, 0);
+        scpSearchGobj(1619)->active = 0;
+        suimon_mes[0].func = actSt06aSuimonChk;
+        act->mail = suimon_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(91, 0, -1);
+        scpSearchGobj(1620)->active = 0;
+        _ACTWait(1);
+        ReInitBoxGeo(scpSearchGobj(1629));
+#else
         stage_SetAnimation(92, 0, 0);
         scpSearchGobj(1629)->active = 0;
         suimon_mes[0].func = actSt06aSuimonChk;
@@ -152,6 +190,7 @@ void actSt06aSuimon(GObj *volatile self)
         scpSearchGobj(1630)->active = 0;
         _ACTWait(1);
         ReInitBoxGeo(scpSearchGobj(1643));
+#endif
     }
 }
 
@@ -163,7 +202,11 @@ inline void actSt06aSuimonFlagOn(GObj *volatile self)
 
 void actSt06aSuimonChk(GObj *volatile self)
 {
+#ifdef VERSION_AUG6
+    while ((scpGetRotObjectRotCount(1630) < -2.0f) == 0) {
+#else
     while ((scpGetRotObjectRotCount(1644) < -2.0f) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -184,9 +227,15 @@ void actSt06aSuimonChk(GObj *volatile self)
 
     actCreateSubThread(actSt06aSuimonEffect, 21);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(91, 1, 0);
+
+    while (stage_CheckAnimationFinish(91) == 0) {
+#else
     stage_SetAnimation(92, 1, 0);
 
     while (stage_CheckAnimationFinish(92) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -197,8 +246,13 @@ void actSt06aSuimonChk(GObj *volatile self)
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1619)->active = 1;
+    scpSearchGobj(1620)->active = 0;
+#else
     scpSearchGobj(1629)->active = 1;
     scpSearchGobj(1630)->active = 0;
+#endif
 
     SetWayGroupActive(9, 1);
     SetWayGroupActive(10, 1);
@@ -233,6 +287,15 @@ inline void actSt06aSuimonEffect(GObj *volatile self)
     }
 }
 
+#ifdef VERSION_AUG6
+static ActMail door_down_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door_up_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door_upchk_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door_downchk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail door_down_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail door_up_mes[2] = {{397}, {396}}; /* derived name */
@@ -240,6 +303,7 @@ static ActMail door_up_mes[2] = {{397}, {396}}; /* derived name */
 static ActMail door_upchk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail door_downchk_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aDoorEvent(int x)
 {
@@ -255,10 +319,23 @@ void actSt06aDoor(GObj *volatile self)
 
     if (scpTriggerBall(self, boyGObj, 200.0f) != 0 ||
         (girlGObj != 0 && scpTriggerBall(self, girlGObj, 400.0f) != 0)) {
+#ifdef VERSION_AUG6
+        stage_SetAnimation(94, 0, 0);
+#else
         stage_SetAnimation(95, 0, 0);
+#endif
         _ACTWait(60);
         door_down_mes[0].func = actSt06aDoorDownChk;
         act->mail = door_down_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(93, 0, 0);
+        door_up_mes[0].func = actSt06aDoorUpChk;
+        act->mail = door_up_mes;
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
     } else {
@@ -266,6 +343,7 @@ void actSt06aDoor(GObj *volatile self)
         door_up_mes[0].func = actSt06aDoorUpChk;
         act->mail = door_up_mes;
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -284,7 +362,11 @@ void actSt06aDoorUpChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(93, 1, 0);
+#else
     stage_SetAnimation(94, 1, 0);
+#endif
 
     buf[0] = suimonSubPos.d[0];
     buf[1] = suimonSubPos.d[1];
@@ -294,14 +376,22 @@ void actSt06aDoorUpChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1198, 0, (float *)buf, 1);
 
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFinish(93) == 0) {
+#else
     while (stage_CheckAnimationFinish(94) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     door_upchk_mes[0].func = actSt06aDoorDownChk;
     sub->mail = door_upchk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -343,7 +433,11 @@ void actSt06aDoorDownChk(GObj *volatile self)
 
     scpWakeupItemWithBoundary(-1879.0f, -1047.0f, -620.0f, 100.0f);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(94, 1, 0);
+#else
     stage_SetAnimation(95, 1, 0);
+#endif
 
     buf[0] = suimonSubPos.d[0];
     buf[1] = suimonSubPos.d[1];
@@ -353,14 +447,22 @@ void actSt06aDoorDownChk(GObj *volatile self)
     _ACTWait(30);
     soundSeDefPlay(1198, 0, (float *)buf, 1);
 
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFinish(94) == 0) {
+#else
     while (stage_CheckAnimationFinish(95) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     door_downchk_mes[0].func = actSt06aDoorUpChk;
     sub->mail = door_downchk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -388,11 +490,19 @@ inline void actSt06aDoorDownEffect(GObj *volatile self)
     }
 }
 
+#ifdef VERSION_AUG6
+static ActMail shutter_main_mes[2] = {{372, actSt06aShutterSwitch}, {392}}; /* derived name */
+
+static ActMail shutter_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail shutter_switch_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail shutter_main_mes[2] = {{376, actSt06aShutterSwitch}, {396}}; /* derived name */
 
 static ActMail shutter_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail shutter_switch_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aShutter(GObj *volatile self)
 {
@@ -402,6 +512,17 @@ inline void actSt06aShutter(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(96) == 0) {
+#ifdef VERSION_AUG6
+        stage_SetAnimation(92, 0, 0);
+        scpSearchGobj(1611)->active = 0;
+        shutter_mes[0].func = actSt06aShutterMain;
+        act->mail = shutter_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(92, 0, -1);
+        scpSearchGobj(1610)->active = 0;
+#else
         stage_SetAnimation(93, 0, 0);
         scpSearchGobj(1621)->active = 0;
         shutter_mes[0].func = actSt06aShutterMain;
@@ -411,6 +532,7 @@ inline void actSt06aShutter(GObj *volatile self)
     } else {
         stage_SetAnimation(93, 0, -1);
         scpSearchGobj(1620)->active = 0;
+#endif
     }
 }
 
@@ -437,7 +559,11 @@ inline void actSt06aShutterSwitch(GObj *volatile self)
 
     shutter_switch_mes[0].func = actSt06aShutterOpen;
     sub->mail = shutter_switch_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -454,22 +580,37 @@ void actSt06aShutterOpen(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(92, 1, 0);
+
+    while (stage_CheckAnimationFinish(92) == 0) {
+#else
     stage_SetAnimation(93, 1, 0);
 
     while (stage_CheckAnimationFinish(93) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1610)->active = 0;
+    scpSearchGobj(1611)->active = 1;
+#else
     scpSearchGobj(1620)->active = 0;
     scpSearchGobj(1621)->active = 1;
+#endif
     scpWakeupEnemyAll();
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);
     SetWayGroupActive(12, 1);
 }
 
+#ifdef VERSION_AUG6
+static ActMail exit_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail exit_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aExit(GObj *volatile self)
 {
@@ -480,7 +621,11 @@ inline void actSt06aExit(GObj *volatile self)
 
     exit_mes[0].func = actSt06aExitChk;
     act->mail = exit_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -493,6 +638,9 @@ inline void actSt06aExitChk(GObj *volatile self)
     RequestStageChange(3, boyGObj, 0, 16.0f, 16.0f);
 }
 
+#ifdef VERSION_AUG6
+static ActMail box_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail exit_girl_mes[2] = {{397}, {396}}; /* derived name */
 
 inline void actSt06aExitGirl(GObj *volatile self)
@@ -526,6 +674,7 @@ inline void actSt06aExitGirlChk(GObj *volatile self)
 }
 
 static ActMail box_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aBox(GObj *volatile self)
 {
@@ -537,16 +686,27 @@ inline void actSt06aBox(GObj *volatile self)
     if (gflagChk(97) == 0 && gflagChk(98) == 0) {
         box_mes[0].func = actSt06aBoxChk;
         act->mail = box_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(1629)->active = 0;
+#else
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
     } else {
         scpSearchGobj(1643)->active = 0;
+#endif
     }
 }
 
 void actSt06aBoxChk(GObj *volatile self)
 {
+#ifdef VERSION_AUG6
+    while (scpTriggerBall(self, scpSearchGobj(1629), 300.0f) == 0 || gflagChk(95) != 0) {
+#else
     while (scpTriggerBall(self, scpSearchGobj(1643), 300.0f) == 0 || gflagChk(95) != 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -557,11 +717,19 @@ void actSt06aBoxChk(GObj *volatile self)
 
     _ACTWait(60);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(95, 1, 0);
+
+    scpSearchGobj(1629)->active = 0;
+
+    while (stage_CheckAnimationFinish(95) == 0) {
+#else
     stage_SetAnimation(96, 1, 0);
 
     scpSearchGobj(1643)->active = 0;
 
     while (stage_CheckAnimationFinish(96) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -573,7 +741,11 @@ void actSt06aBoxChk(GObj *volatile self)
     lt_switch_layout(50);
 }
 
+#ifdef VERSION_AUG6
+static ActMail box2_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail box2_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aBox2(GObj *volatile self)
 {
@@ -585,11 +757,28 @@ inline void actSt06aBox2(GObj *volatile self)
     if (gflagChk(97) == 0 && gflagChk(98) == 0) {
         box2_mes[0].func = actSt06aBox2Chk;
         act->mail = box2_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
 
+#ifdef VERSION_AUG6
+inline void actSt06aBox2Chk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, scpSearchGobj(1629), 200.0f) == 0 || gflagChk(95) == 0) {
+        _ACTWait(1);
+    }
+
+    gflagOn(97);
+    scpSearchGobj(1629)->active = 0;
+}
+
+static ActMail box3_mes[2] = {{393}, {392}}; /* derived name */
+#else
 inline void actSt06aBox2Chk(GObj *volatile self)
 {
     while (scpTriggerBall(self, scpSearchGobj(1643), 200.0f) == 0 || gflagChk(95) == 0) {
@@ -601,6 +790,7 @@ inline void actSt06aBox2Chk(GObj *volatile self)
 }
 
 static ActMail box3_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aBox3(GObj *volatile self)
 {
@@ -612,19 +802,31 @@ inline void actSt06aBox3(GObj *volatile self)
     if (gflagChk(97) == 0 && gflagChk(98) == 0) {
         box3_mes[0].func = actSt06aBox3Chk;
         act->mail = box3_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
 
 inline void actSt06aBox3Chk(GObj *volatile self)
 {
+#ifdef VERSION_AUG6
+    while (scpTriggerBall(self, scpSearchGobj(1629), 200.0f) == 0 || gflagChk(95) != 0) {
+#else
     while (scpTriggerBall(self, scpSearchGobj(1643), 200.0f) == 0 || gflagChk(95) != 0) {
+#endif
         _ACTWait(1);
     }
 }
 
+#ifdef VERSION_AUG6
+static ActMail ball_delete_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail ball_delete_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aBallDelete(GObj *volatile self)
 {
@@ -635,10 +837,32 @@ inline void actSt06aBallDelete(GObj *volatile self)
 
     ball_delete_mes[0].func = actSt06aBallDeleteChk;
     act->mail = ball_delete_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
+#ifdef VERSION_AUG6
+inline void actSt06aBallDeleteChk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, scpSearchGobj(1625), 200.0f) == 0 || gflagChk(95) != 0) {
+        _ACTWait(1);
+    }
+
+    scpSearchGobj(1625)->active = 0;
+}
+
+static ActMail box_event2_in_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail box_event2_out_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail box_event2_inchk_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail box_event2_outchk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 inline void actSt06aBallDeleteChk(GObj *volatile self)
 {
     while (scpTriggerBall(self, scpSearchGobj(1639), 200.0f) == 0 || gflagChk(95) != 0) {
@@ -655,6 +879,7 @@ static ActMail box_event2_out_mes[2] = {{397}, {396}}; /* derived name */
 static ActMail box_event2_inchk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail box_event2_outchk_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aBoxEvent2(GObj *volatile self)
 {
@@ -666,12 +891,20 @@ inline void actSt06aBoxEvent2(GObj *volatile self)
     if (gflagChk(99) == 0) {
         box_event2_in_mes[0].func = actSt06aBoxEvent2InChk;
         act->mail = box_event2_in_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     } else {
         box_event2_out_mes[0].func = actSt06aBoxEvent2OutChk;
         act->mail = box_event2_out_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -680,7 +913,11 @@ inline void actSt06aBoxEvent2InChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(scpSearchGobj(1629), 0x2000000) == 0) {
+#else
     while (scpTriggerFloorAttr(scpSearchGobj(1643), 0x2000000) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -688,7 +925,11 @@ inline void actSt06aBoxEvent2InChk(GObj *volatile self)
 
     box_event2_inchk_mes[0].func = actSt06aBoxEvent2OutChk;
     sub->mail = box_event2_inchk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -696,7 +937,11 @@ inline void actSt06aBoxEvent2OutChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(scpSearchGobj(1629), 0x2000000) != 0) {
+#else
     while (scpTriggerFloorAttr(scpSearchGobj(1643), 0x2000000) != 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -704,11 +949,19 @@ inline void actSt06aBoxEvent2OutChk(GObj *volatile self)
 
     box_event2_outchk_mes[0].func = actSt06aBoxEvent2InChk;
     sub->mail = box_event2_outchk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
+#ifdef VERSION_AUG6
+static ActMail way_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail way_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aWay(GObj *volatile self)
 {
@@ -719,10 +972,40 @@ inline void actSt06aWay(GObj *volatile self)
 
     way_mes[0].func = actSt06aWayOnChk;
     act->mail = way_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
+#ifdef VERSION_AUG6
+inline void actSt06aWayOnChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    static ActMail way_onchk_mes[2] = {{393}, {392}}; /* derived name */
+
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+
+    while (scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+
+    SetWayGroupActive(19, 1);
+    SetWayGroupActive(23, 1);
+    SetWayGroupActive(24, 1);
+
+    way_onchk_mes[0].func = actSt06aWayOffChk;
+    sub->mail = way_onchk_mes;
+    ACTSendMailCorrect(self, 393);
+    _ACTWait(0);
+}
+
+static ActMail way_off_chk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 inline void actSt06aWayOnChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -745,17 +1028,24 @@ inline void actSt06aWayOnChk(GObj *volatile self)
     ACTSendMailCorrect(self, 397);
     _ACTWait(0);
 }
+#endif
 
 inline void actSt06aWayOffChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+#ifndef VERSION_AUG6
     static ActMail way_offchk_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
     if (girlGObj == 0) {
         _ACTWait(0);
     }
 
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+#else
     while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -763,17 +1053,31 @@ inline void actSt06aWayOffChk(GObj *volatile self)
     SetWayGroupActive(23, 0);
     SetWayGroupActive(24, 0);
 
+#ifdef VERSION_AUG6
+    way_off_chk_mes[0].func = actSt06aWayOnChk;
+    sub->mail = way_off_chk_mes;
+    ACTSendMailCorrect(self, 393);
+#else
     way_offchk_mes[0].func = actSt06aWayOnChk;
     sub->mail = way_offchk_mes;
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
+#ifdef VERSION_AUG6
+static ActMail wall_way_on_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail wall_way_off_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail wall_way_onchk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail wall_way_on_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail wall_way_off_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail wall_way_onchk_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aWallWay(GObj *volatile self)
 {
@@ -785,14 +1089,22 @@ inline void actSt06aWallWay(GObj *volatile self)
     if (gflagChk(100) == 0) {
         wall_way_on_mes[0].func = actSt06aWallWayOnChk;
         act->mail = wall_way_on_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     } else {
         SetWayGroupActive(25, 1);
         SetWayGroupActive(26, 1);
         wall_way_off_mes[0].func = actSt06aWallWayOffChk;
         act->mail = wall_way_off_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -801,7 +1113,11 @@ inline void actSt06aWallWayOnChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    while (scpIsRotObjectZPlusDirInclude(1631, 240, 300) == 0) {
+#else
     while (scpIsRotObjectZPlusDirInclude(1645, 240, 300) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -811,16 +1127,26 @@ inline void actSt06aWallWayOnChk(GObj *volatile self)
 
     wall_way_onchk_mes[0].func = actSt06aWallWayOffChk;
     sub->mail = wall_way_onchk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
 inline void actSt06aWallWayOffChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
+#ifdef VERSION_AUG6
+    static ActMail wall_way_offchk_mes[2] = {{393}, {392}}; /* derived name */
+
+    while (scpIsRotObjectZPlusDirInclude(1631, 240, 300) != 0) {
+#else
     static ActMail wall_way_offchk_mes[2] = {{397}, {396}}; /* derived name */
 
     while (scpIsRotObjectZPlusDirInclude(1645, 240, 300) != 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -830,10 +1156,23 @@ inline void actSt06aWallWayOffChk(GObj *volatile self)
 
     wall_way_offchk_mes[0].func = actSt06aWallWayOnChk;
     sub->mail = wall_way_offchk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
+#ifdef VERSION_AUG6
+static ActMail wall_way2_on_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail wall_way2_off_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail wall_way2_onchk_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail wall_way2_offchk_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail wall_way2_on_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail wall_way2_off_mes[2] = {{397}, {396}}; /* derived name */
@@ -841,6 +1180,7 @@ static ActMail wall_way2_off_mes[2] = {{397}, {396}}; /* derived name */
 static ActMail wall_way2_onchk_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail wall_way2_offchk_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aWallWay2(GObj *volatile self)
 {
@@ -852,14 +1192,22 @@ inline void actSt06aWallWay2(GObj *volatile self)
     if (gflagChk(101) == 0) {
         wall_way2_on_mes[0].func = actSt06aWallWay2OnChk;
         act->mail = wall_way2_on_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     } else {
         SetWayGroupActive(25, 1);
         SetWayGroupActive(26, 1);
         wall_way2_off_mes[0].func = actSt06aWallWay2OffChk;
         act->mail = wall_way2_off_mes;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 397);
+#endif
         _ACTWait(0);
     }
 }
@@ -868,7 +1216,11 @@ inline void actSt06aWallWay2OnChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    while (scpIsRotObjectZPlusDirInclude(1631, 60, 120) == 0) {
+#else
     while (scpIsRotObjectZPlusDirInclude(1645, 60, 120) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -878,7 +1230,11 @@ inline void actSt06aWallWay2OnChk(GObj *volatile self)
 
     wall_way2_onchk_mes[0].func = actSt06aWallWay2OffChk;
     sub->mail = wall_way2_onchk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -886,7 +1242,11 @@ inline void actSt06aWallWay2OffChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    while (scpIsRotObjectZPlusDirInclude(1631, 60, 120) != 0) {
+#else
     while (scpIsRotObjectZPlusDirInclude(1645, 60, 120) != 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -896,11 +1256,19 @@ inline void actSt06aWallWay2OffChk(GObj *volatile self)
 
     wall_way2_offchk_mes[0].func = actSt06aWallWay2OnChk;
     sub->mail = wall_way2_offchk_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
+#ifdef VERSION_AUG6
+static ActMail statue_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail statue_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aStatue(GObj *volatile self)
 {
@@ -910,6 +1278,17 @@ inline void actSt06aStatue(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(102) == 0) {
+#ifdef VERSION_AUG6
+        stage_SetAnimation(97, 0, 0);
+        statue_mes[0].func = actSt06aStatueChk;
+        act->mail = statue_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(97, 0, -1);
+        scpSearchGobj(1662)->active = 0;
+        stage_SetAnimation(230, -1, -2);
+#else
         stage_SetAnimation(98, 0, 0);
         statue_mes[0].func = actSt06aStatueChk;
         act->mail = statue_mes;
@@ -919,6 +1298,7 @@ inline void actSt06aStatue(GObj *volatile self)
         stage_SetAnimation(98, 0, -1);
         scpSearchGobj(1678)->active = 0;
         stage_SetAnimation(231, -1, -2);
+#endif
     }
 }
 
@@ -939,20 +1319,34 @@ void actSt06aStatueChk(GObj *volatile self)
     scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1662)->active = 0;
+    stage_SetAnimation(230, -1, -2);
+    stage_SetAnimation(97, 1, 0);
+#else
     scpSearchGobj(1678)->active = 0;
     stage_SetAnimation(231, -1, -2);
     stage_SetAnimation(98, 1, 0);
+#endif
 
     handle = soundSeDefPlay(1330, 0, 0, 1);
 
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFrame(97, 70, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(98, 70, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     scpWakeupItemWithBoundary(-3855.0f, -470.0f, 1392.0f, 200.0f);
 
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFinish(97) == 0) {
+#else
     while (stage_CheckAnimationFinish(98) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -968,7 +1362,11 @@ void actSt06aStatueChk(GObj *volatile self)
     gflagOn(102);
 }
 
+#ifdef VERSION_AUG6
+static ActMail head_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail head_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aHead(GObj *volatile self)
 {
@@ -978,17 +1376,31 @@ inline void actSt06aHead(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(103) == 0) {
+#ifdef VERSION_AUG6
+        scpSearchGobj(1626)->active = 0;
+        head_mes[0].func = actSt06aHeadChk;
+        act->mail = head_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(1626)->active = 1;
+#else
         scpSearchGobj(1640)->active = 0;
         head_mes[0].func = actSt06aHeadChk;
         act->mail = head_mes;
         ACTSendMailCorrect(self, 397);
         _ACTWait(0);
+#endif
     }
 }
 
 void actSt06aHeadChk(GObj *volatile self)
 {
+#ifdef VERSION_AUG6
+    while (scpTriggerBall(self, scpSearchGobj(1625), 70.0f) == 0 || gflagChk(102) == 0) {
+#else
     while (scpTriggerBall(self, scpSearchGobj(1639), 70.0f) == 0 || gflagChk(102) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -1005,24 +1417,41 @@ void actSt06aHeadChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(99, 1, 0);
+
+    while (stage_CheckAnimationFrame(99, 150, 0) == 0) {
+#else
     stage_SetAnimation(100, 1, 0);
 
     while (stage_CheckAnimationFrame(100, 150, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     soundSeDefPlay(847, 0, 0, 1);
 
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFrame(99, 210, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(100, 210, 0) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1626)->active = 1;
+    stage_SetAnimation(99, 0, -1);
+
+    scpSearchGobj(1625)->active = 0;
+#else
     scpSearchGobj(1640)->active = 1;
     stage_SetAnimation(100, 0, -1);
 
     scpSearchGobj(1639)->active = 0;
+#endif
 
     if (toge != 0) {
         scpAdpcmFadeClose(toge, 80);
@@ -1033,7 +1462,11 @@ void actSt06aHeadChk(GObj *volatile self)
     lt_switch_layout(50);
 }
 
+#ifdef VERSION_AUG6
+static ActMail tree_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail tree_mes[2] = {{397}, {396}}; /* derived name */
+#endif
 
 inline void actSt06aTree(GObj *volatile self)
 {
@@ -1043,6 +1476,15 @@ inline void actSt06aTree(GObj *volatile self)
     _ACTWait(1);
 
     if (gflagChk(103) == 0) {
+#ifdef VERSION_AUG6
+        scpSearchGobj(1625)->active = 0;
+        tree_mes[0].func = actSt06aTreeChk;
+        act->mail = tree_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(1625)->active = 0;
+#else
         scpSearchGobj(1639)->active = 0;
         tree_mes[0].func = actSt06aTreeChk;
         act->mail = tree_mes;
@@ -1050,6 +1492,7 @@ inline void actSt06aTree(GObj *volatile self)
         _ACTWait(0);
     } else {
         scpSearchGobj(1639)->active = 0;
+#endif
     }
 }
 
@@ -1063,10 +1506,15 @@ inline void actSt06aTreeChk(GObj *volatile self)
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1625)->active = 1;
+#else
     scpSearchGobj(1639)->active = 1;
+#endif
     ReviveAllCarryableItems();
 }
 
+#ifndef VERSION_AUG6
 static ActMail kyomi_mes[2] = {{397}, {396}}; /* derived name */
 
 static ActMail kyomi_onchk_mes[2] = {{397}, {396}}; /* derived name */
@@ -1133,6 +1581,7 @@ inline void actSt06aKyomiOffChk(GObj *volatile self)
     ACTSendMailCorrect(self, 397);
     _ACTWait(0);
 }
+#endif
 #else
 static const ConstVec farPos = {{0.0f, 0.0f, -1000000.0f, 1.0f}}; /* derived name */
 

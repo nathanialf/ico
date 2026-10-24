@@ -14,10 +14,18 @@
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order girlForceField.c's inline tail has. */
 GirlForceFieldWork *InitGirlForceFieldGeo(struct GObj *self, SObjSimpleSetting *param);
+#ifdef VERSION_AUG6
+void GirlForceFieldDL(void);
+#else
 void GirlForceFieldGeo(void);
+#endif
 
 struct GObj;
 
+#ifdef VERSION_AUG6
+void GirlForceFieldGeo(struct GObj *self);
+#else
 void GirlForceFieldDL(struct GObj *self);
+#endif
 
 #endif /* GIRLFORCEFIELD_H */

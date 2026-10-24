@@ -11,7 +11,7 @@
 #include "main.h"
 
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 unsigned char gFlag[46] = {0};
 #else
 static unsigned char gflags[50] = {0}; /* derived name */
@@ -25,13 +25,21 @@ int gFlagSaveStage = 0;
 
 void gflagInit(void)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+    int keep = gflagChk(345);
+#else
     int keep = gflagChk(346);
+#endif
 
     memset(gFlag, 0, sizeof(gFlag));
     before_stage_no = 0;
     if (keep != 0) {
+#ifdef VERSION_AUG6
+        gflagOn(345);
+#else
         gflagOn(346);
+#endif
     }
     Boy_Init();
 #else
@@ -50,7 +58,7 @@ void gflagInit(void)
     Generator_Init();
     warpGirlInit();
     systemStatus[3] = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     memset(IosMcPreviewInfo, 0, 16);
 #else
     memset(IosMcPreviewInfo, 0, 20);
@@ -63,7 +71,7 @@ void gflagSave(GamesysMemCursor *fp)
 {
     gFlagSaveStage = stage_no;
     gamesysMemoryHandlerWrite(fp, &gFlagSaveStage, 4);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gamesysMemoryHandlerWrite(fp, gFlag, sizeof(gFlag));
 #else
     gamesysMemoryHandlerWrite(fp, &gFlagGameClear, 4);
@@ -74,7 +82,7 @@ void gflagSave(GamesysMemCursor *fp)
 void gflagLoad(GamesysMemCursor *fp)
 {
     gamesysMemoryHandlerRead(fp, &gFlagSaveStage, 4);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gamesysMemoryHandlerRead(fp, gFlag, sizeof(gFlag));
 #else
     gamesysMemoryHandlerRead(fp, &gFlagGameClear, 4);
@@ -84,7 +92,7 @@ void gflagLoad(GamesysMemCursor *fp)
 
 int gflagChk(int bit_idx)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     return (gFlag[bit_idx >> 3] >> (bit_idx & 7)) & 1;
 #else
     return (gflags[bit_idx >> 3] >> (bit_idx & 7)) & 1;
@@ -93,7 +101,7 @@ int gflagChk(int bit_idx)
 
 void gflagOn(int bit_idx)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gFlag[bit_idx >> 3] |= 1 << (bit_idx & 7);
 #else
     gflags[bit_idx >> 3] |= 1 << (bit_idx & 7);
@@ -102,7 +110,7 @@ void gflagOn(int bit_idx)
 
 void gflagOff(int bit_idx)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gFlag[bit_idx >> 3] &= ~(1 << (bit_idx & 7));
 #else
     gflags[bit_idx >> 3] &= ~(1 << (bit_idx & 7));

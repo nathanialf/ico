@@ -67,7 +67,7 @@ void stage_ApplyData(char *name, char *data);
 int stage_ContinueAnimation(int key, int next);
 void stage_DispAnimation(void);
 int stage_DispBgAnimation(BgaPlayNode **self);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 int stage_DispBgAnimationNoFinish(BgaPlayNode **self);
 #endif
 void stage_KillPlayBgAnimation(BgaPlayNode **self);

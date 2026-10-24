@@ -142,7 +142,11 @@ static inline void relabel_way_groups(void) /* derived name */
     int n = 0;
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 64; i++) {
+#else
     for (i = 0; i < 94; i++) {
+#endif
         if (way_group[i].used == 1) {
             sprintf(debugWayGroupSelect[n].s, "% 2d (% 2d) ", n, way_group[i].count);
             if (way_group[i].bridge == 1) {
@@ -166,7 +170,11 @@ static int group_select(void)
     state = selectState;
     if (state == 0) {
         relabel_way_groups();
+#ifdef VERSION_AUG6
+        for (i = 0; i < 64; i++) {
+#else
         for (i = 0; i < 94; i++) {
+#endif
             e = &way_group[i];
             if (e->used == 1) {
                 if (i == current_select_gid) {
@@ -278,7 +286,7 @@ static int point_insert(void)
     return 0;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int play_way(void);
 int point_nige(void);
 int quick_save_wpfile(void);
@@ -616,7 +624,11 @@ static void way_toolDL(GObj *self)
     SetVObjRT(&m, wayWorkPos);
     DrawVObj(0, &wayColorCursor);
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 64; i++) {
+#else
     for (i = 0; i < 94; i++) {
+#endif
         e = &way_group[i];
         if (e->used == 1) {
             if (e->active != 0) {
@@ -680,9 +692,14 @@ int debug_WayTool(void)
     if (cursorGObj != 0) {
         if (first_waytool == 0) {
 #ifdef VERSION_NTSC
-            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__, 1194);
+            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__,
+                                                        LN(1194, 1194, 1194, 1194, 1194));
+#else
+#ifdef VERSION_AUG6
+            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__, 1180);
 #else
             *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 0x4AA);
+#endif
 #endif
             isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
             isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);

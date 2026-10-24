@@ -18,6 +18,10 @@
 #include "GifPacket.h"
 #include "ios.h"
 
+#ifdef VERSION_AUG6
+#include "fieldCollision.h"
+#endif
+
 /* the file name and the two group-wake messages */
 static const char spiderFile[] = __FILE__; /* derived name */
 
@@ -103,7 +107,7 @@ static inline void wakeSpiderGroup(GObj *self) /* derived name */
 void WakeUpLayoutedSpiders(GObj *self)
 {
     wakeSpiderGroup(self);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 101);
 #else
     ExecuteSEPackage(self, 106);
@@ -149,6 +153,48 @@ static inline int callSpidersToGirl(GObj *self) /* derived name */
         setSpiderGroupHost(self, girlGObj);
         return 1;
     }
+#ifdef VERSION_AUG6
+    return 0;
+}
+
+/* where the group is called to: the girl's feet, else the floor under the
+   members' centre */
+int getCallPoint(float *out, GObj *self)
+{
+    ClipWork cw;
+    float pos[4];
+    SpiderWork *w;
+    int i;
+    int n;
+
+    w = GOBJ_SUB(self)->work;
+    if (girlGObj != 0) {
+        GetRootPosition(out, girlGObj);
+        out[1] -= GOBJ_SUB(girlGObj)->root.height;
+        return 1;
+    }
+    CopyVector(cw.pt[0], ZeroPoint);
+    for (i = 0, n = 0; i < w->n; i++, n++) {
+        if (w->members[i] != 0) {
+            GetRootPosition(pos, w->members[i]);
+            _AddVectorXYZ(cw.pt[0], cw.pt[0], pos);
+        }
+    }
+    if (n != 0) {
+        _ScaleVectorXYZ(cw.pt[0], cw.pt[0], 1.0f / (float)n);
+        CopyVector(cw.pt[1], cw.pt[0]);
+        cw.pt[0][1] -= 100.0f;
+        cw.pt[1][1] += 1000.0f;
+        ClipFloor(&cw);
+        if (cw.floor.elem != 0) {
+            CopyVector(out, cw.pt[2]);
+        } else {
+            CopyVector(out, cw.pt[0]);
+        }
+        return 1;
+    }
+    debug_StdPrintfDummy("%f, %f, %f\n", cw.pt[0][0], cw.pt[0][1], cw.pt[0][2]);
+#endif
     return 0;
 }
 
@@ -228,7 +274,11 @@ void SpiderLayoutGeo(GObj *self)
 #ifdef VERSION_NTSC
                 iosOmSendMail(w->members[i], 207, w->members[i]);
 #else
+#ifdef VERSION_AUG6
+                iosOmSendMail(w->members[i], 204, w->members[i]);
+#else
                 iosOmSendMail(w->members[i], 223, w->members[i]);
+#endif
 #endif
                 SetAP1VisualState(w->members[i], 0);
             }
@@ -342,6 +392,7 @@ void SetSpiderGroupReviveStatus(GObj *self)
     debug_StdPrintfDummy("SET %d\n", self->labelId);
 }
 
+#ifndef VERSION_AUG6
 int DeadAllSpiders(GObj *gp)
 {
     SpiderWork *sg = GOBJ_SUB(gp)->work;
@@ -354,6 +405,7 @@ int DeadAllSpiders(GObj *gp)
     }
     return 0;
 }
+#endif
 
 /* shared by GetAliveSpiders and MemorySpiderLayout */
 static inline int CountAliveSpiders(GObj *gp) /* derived name */
@@ -372,6 +424,7 @@ static inline int CountAliveSpiders(GObj *gp) /* derived name */
     return n;
 }
 
+#ifndef VERSION_AUG6
 int GetAliveSpiders(GObj *gp)
 {
     Sub15C *oi = gp->dobj;
@@ -386,6 +439,7 @@ int GetAliveSpiders(GObj *gp)
     }
     return -1;
 }
+#endif
 
 /* the body of DeleteSpiderFromLayoutGroup, which DeleteAllSpidersOfLayoutGroup
    inlines and DeleteSpiderFromLayoutGroup calls */
@@ -399,7 +453,14 @@ static inline GObj *DeleteSpiderFromLayoutGroup_inl(GObj *gp, int idx) /* derive
 
 GObj *DeleteSpiderFromLayoutGroup(GObj *self, int idx)
 {
+#ifdef VERSION_AUG6
+    GObj **arr = ((SpiderWork *)GOBJ_SUB(self)->work)->members;
+    GObj *r = arr[idx];
+    arr[idx] = 0;
+    return r;
+#else
     return DeleteSpiderFromLayoutGroup_inl(self, idx);
+#endif
 }
 
 /* clear the dead members out of a spider group */
@@ -572,3 +633,33 @@ void WakeupSpiderGroup(GObj *gp)
         }
     }
 }
+
+#ifdef VERSION_AUG6
+int GetAliveSpiders(GObj *gp)
+{
+    Sub15C *oi = gp->dobj;
+    SpiderWork *sg = oi->work;
+    GObj *own = oi->parent.obj;
+
+    if (own != 0 && own->kind != 33 && IsActCharDead(own) == 0) {
+        return sg->n;
+    }
+    if (sg->awake) {
+        return CountAliveSpiders(gp);
+    }
+    return -1;
+}
+
+int DeadAllSpiders(GObj *gp)
+{
+    SpiderWork *sg = GOBJ_SUB(gp)->work;
+    int i;
+    for (i = 0; i < sg->n; i++) {
+        GObj *o = sg->members[i];
+        if (o != 0) {
+            iosOmSendMail(o, 38, o);
+        }
+    }
+    return 0;
+}
+#endif

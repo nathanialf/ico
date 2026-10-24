@@ -22,7 +22,24 @@ static const char rotObjectFile[] = "src/rotObject.c"; /* derived name */
    cycling through 30 so the objects' saves fall on different frames */
 static unsigned char rotObjectPhase = 0; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+/* the 64-byte work block InitRotObjectGeo allocates for a rotating object */
+typedef struct RotObjWork { /* field names derived */
+    int kind;               /* 0x00, the layout's object word: 3 for a turn limited to a range */
+    char pad04[12];
+    float pos[4]; /* 0x10, the layout position */
+    short angle;  /* 0x20, the drive turn */
+    short pad22;
+    int turnCount;  /* 0x24, the turn summed over the moves, 65536 a revolution */
+    float limitMax; /* 0x28, kind 3: the largest turn, from the layout's scale z */
+    float limitMin; /* 0x2C, kind 3: the smallest turn, from the layout's scale x */
+    int saveCount;  /* 0x30, the frame counter of the uniq-data save */
+    int lock;       /* 0x34, SetRotObjectLockFlag: no move while set */
+    float rate;     /* 0x38, the turn per push, the layout's scale y (1 below 0.05) */
+    float armScale; /* 0x3C, 100 over the arm radius */
+} RotObjWork;       /* derived name */
+#else
 /* the 64-byte work block InitRotObjectGeo allocates for a rotating object */
 typedef struct RotObjWork { /* field names derived */
     int kind;               /* 0x00, the layout's object word: 3 for a turn limited to a range */
@@ -37,6 +54,7 @@ typedef struct RotObjWork { /* field names derived */
     int lock;       /* 0x34, SetRotObjectLockFlag: no move while set */
     char pad38[8];
 } RotObjWork; /* derived name */
+#endif
 
 /* the two halfwords MemoryRotObject saves in the object's gamesys info record and
    RestoreRotObjectExtGeo and GetRotObjectGameSysObjInfoExtData read back */
@@ -83,7 +101,7 @@ static void moveStartSE(GObj *self)
 static void moveEndSE(GObj *self)
 {
     StopSEPackage(self);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 56);
 #else
     ExecuteSEPackage(self, 58);
@@ -99,6 +117,22 @@ void RotObjectGeo(GObj *self)
     }
 }
 
+#ifdef VERSION_AUG6
+static void getRootMatrix(void *dst, GObj *gobj)
+{
+    RotObjWork *w = GOBJ_SUB(gobj)->work;
+
+    GetRootMatrix(MatrixDrive_GetMatrix(), gobj);
+    MatrixDrive_RotMatrixY(w->angle);
+    CopyMatrix(dst, MatrixDrive_GetMatrix());
+}
+
+void RotObjectDL(GObj *gobj)
+{
+    getRootMatrix((void *)GOBJ_SUB(gobj)->nodeMtx, gobj);
+    p2o_DispVU1(gobj);
+}
+#else
 static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived name */
 {
     float v[4];
@@ -114,6 +148,7 @@ static inline void getRotObjectDriveMatrix(GObj *gobj, void *dst) /* derived nam
     MatrixDrive_RotMatrixY(atan2f(v[0], v[2]) * 10430.378f);
     CopyMatrix(dst, MatrixDrive_GetMatrix());
 }
+#endif
 
 void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, GObj *holder)
 {
@@ -163,7 +198,11 @@ int MoveRotObjectWithHoldPoint(GObj *bar, float *hold, void *self, float *dir, f
         w->turnCount = 0;
         return 0;
     }
+#ifdef VERSION_AUG6
+    getRootMatrix(m, bar);
+#else
     getRotObjectDriveMatrix(bar, m);
+#endif
     {
         float v[4];
         float o[4];
@@ -185,7 +224,7 @@ int MoveRotObjectWithHoldPoint(GObj *bar, float *hold, void *self, float *dir, f
             return 0;
     }
     ang = -atan2f(sl, len);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     k = len * 0.01f;
 #else
     ang *= w->rate;
@@ -243,7 +282,7 @@ void ExecRotObjectMoveEndReaction(GObj *self)
     moveEndSE(self);
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetRotObjectArmRadius(GObj *self, float radius)
 {
     RotObjWork *w = GOBJ_SUB(self)->work;
@@ -256,7 +295,11 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdP
 {
     float m[16];
 
+#ifdef VERSION_AUG6
+    getRootMatrix(m, bar);
+#else
     getRotObjectDriveMatrix(bar, m);
+#endif
     sceVu0ApplyMatrix(pos, m, holdPos);
     sceVu0ApplyMatrix(dir, m, holdDir);
     /* the function's name trace, switched off */
@@ -270,7 +313,8 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
 #ifdef VERSION_NTSC
     RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile, 55);
 #else
-    RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile, 57);
+    RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile,
+                                   LN(57, 57, 57, 57, 55));
 #endif
 
     p->saveCount = rotObjectPhase;
@@ -283,7 +327,7 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
     p->turnCount = 0;
     p->limitMax = p->limitMin = 0.0f;
     p->lock = 0;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     p->rate = src->scale[1] < 0.05f ? 1.0f : src->scale[1];
     p->armScale = 1.0f;
 #endif
@@ -298,6 +342,7 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
         q->scale[0] = q->scale[1] = q->scale[2] = 1.0f;
     }
     return p;
+#ifndef VERSION_AUG6
 #ifndef VERSION_NTSC
 }
 
@@ -314,6 +359,7 @@ void RotObjectDL(GObj *gobj)
 {
     getRotObjectDriveMatrix(gobj, (void *)GOBJ_SUB(gobj)->nodeMtx);
     p2o_DispVU1(gobj);
+#endif
 }
 
 float GetRotObjectRotCount(GObj *self)
@@ -331,7 +377,11 @@ int GetRotObjectZPlusDirection(GObj *gobj)
     float m[16];
     float v[4];
 
+#ifdef VERSION_AUG6
+    getRootMatrix(m, gobj);
+#else
     getRotObjectDriveMatrix(gobj, m);
+#endif
     sceVu0ApplyMatrix(v, m, zPlusVector);
     v[1] = 0.0f;
     sceVu0Normalize(v, v);

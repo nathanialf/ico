@@ -44,7 +44,7 @@ extern int jimakuMsgBuf[2];
 extern JimakuArg jimaku_msg;
 void jimakuDisp(JimakuArg *msg);
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* unmapped_0055FBD0: one subtitle file name, 0x20 bytes. Reader:
  * ico2/fumi/src/jimaku.c (char [][32]). Owner: ico2/fumi/include/jimaku.h. */
 typedef struct {   /* field names derived */

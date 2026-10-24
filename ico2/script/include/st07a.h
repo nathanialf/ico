@@ -15,7 +15,7 @@ struct SqEntry;
 /* st07a.o's .sdata globals */
 extern struct SqEntry *bridge;
 extern struct SqEntry *sekizo7a;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern int sekizo_7a;
 extern unsigned char sekizo_7a_vol;
 #else

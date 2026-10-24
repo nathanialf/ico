@@ -16,7 +16,7 @@ struct SqEntry;
 extern struct SqEntry *suimon;
 extern struct SqEntry *shutter;
 extern struct SqEntry *toge;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt06aBoxChk(GObj *volatile self);
 void actSt06aDoorDownChk(GObj *volatile self);
 void actSt06aDoorUpChk(GObj *volatile self);

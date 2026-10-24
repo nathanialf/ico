@@ -41,6 +41,11 @@ inline char *GetAP1AIMode(GObj *self)
     return ap1ModeTag[p->actMode];
 }
 
+#ifdef VERSION_AUG6
+/* a hop ten units down and fifteen back, which no code of this build reads */
+static AP1Vec ap1BackHop = {0.0f, -10.0f, -15.0f, 0.0f}; /* derived name */
+#endif
+
 /* the fixed hop walkAI asks for when it is boxed in: straight down and
    two units forward. */
 static AP1Vec ap1BoxedInJump = {0.0f, -20.0f, 2.0f, 0.0f}; /* derived name */
@@ -67,7 +72,7 @@ static short boyYaw; /* derived name */ /* heading to the boy in local space */
 
 static short boyYawBack; /* derived name */ /* the opposite heading, boyYaw - 32768 */
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static int boySafe; /* derived name */ /* the boy is not in danger */
 #endif
 
@@ -240,7 +245,11 @@ static int standAI(GObj *self)
 {
     Act *p = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    if ((int)(p->flags20.ll >> 7) & 1) {
+#else
     if ((int)(p->flags20.ll >> 21) & 1) {
+#endif
         short r = boyYaw;
         r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
         AP1Turn(self, r);
@@ -291,13 +300,21 @@ static int walkAI(GObj *self)
 {
     Act *p = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    if ((int)(p->flags20.ll >> 7) & 1) {
+#else
     if ((int)(p->flags20.ll >> 21) & 1) {
+#endif
         if (AP1MotReq(self, 0))
             return 0;
     }
 
     if (boyDist < 300.0f) {
+#ifdef VERSION_AUG6
+        if (p->attack == 0 || boyPitch < 16384) {
+#else
         if (p->attack == 0 || boySafe == 0 || boyPitch < 16384) {
+#endif
             short r;
 
             if (p->modeFrame >= 31) {
@@ -314,7 +331,11 @@ static int walkAI(GObj *self)
         }
     }
 
+#ifdef VERSION_AUG6
+    if (p->attack != 0) {
+#else
     if (p->attack != 0 && boySafe != 0) {
+#endif
         if ((boyYaw < 0 ? -boyYaw : boyYaw) < 8192) {
             if (boyDist < 150.0f) {
                 short r = boyYaw;
@@ -362,7 +383,11 @@ static int walkAI(GObj *self)
             return 0;
     }
 
+#ifdef VERSION_AUG6
+    if (p->attack != 0 && boyDist < 300.0f) {
+#else
     if (p->attack != 0 && boySafe != 0 && boyDist < 300.0f) {
+#endif
         short r = boyYaw;
 
         r = r > 512 ? 512 : (r < -512 ? -512 : r);
@@ -458,7 +483,7 @@ static inline void AP1ToLocal(GObj *self, AP1Vec *v) /* derived name */
  * yields to the other threads inside the loop */
 void subAP1BrainMain(GObj *volatile self)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     AP1Vec boy;
     AP1Vec look;
 #else
@@ -491,13 +516,13 @@ void subAP1BrainMain(GObj *volatile self)
         boyYawBack = boyYaw - 32768;
         CopyVector(&boyDeltaFlat, &boyDelta);
         boyDeltaFlat.y = 0.0f;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         boySafe = IsBoyStatus_NotDanger() == 0;
 #endif
 
         host = p->lookTarget;
         if (host != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             GetRootPosition(&look, host);
             look.y -= GOBJ_SUB(p->lookTarget)->root.height - 10.0f;
 #else
@@ -519,7 +544,7 @@ void subAP1BrainMain(GObj *volatile self)
         } else {
             GetRootPosition(&look, boyObj);
             look.y -= GOBJ_SUB(boyObj)->root.height - 10.0f;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
             hold = 0;
 #endif
         }
@@ -547,7 +572,11 @@ void subAP1BrainMain(GObj *volatile self)
 #ifdef VERSION_NTSC
             iosOmSendMail(self, 207, self);
 #else
+#ifdef VERSION_AUG6
+            iosOmSendMail(self, 204, self);
+#else
             iosOmSendMail(self, 0xDF, self);
+#endif
 #endif
             /* forced death */
             debug_StdPrintfDummy("強制死亡\n");
@@ -641,7 +670,11 @@ static inline void AP1SetHold(GObj *self) /* derived name */
 #ifdef VERSION_NTSC
     p->flags20.ll |= 0x400;
 #else
+#ifdef VERSION_AUG6
+    p->flags20.ll |= 0x80;
+#else
     p->flags20.ll |= 0x200000;
+#endif
 #endif
 }
 
@@ -652,7 +685,11 @@ static inline void AP1ClrHold(GObj *self) /* derived name */
 #ifdef VERSION_NTSC
     p->flags20.ll &= ~0x400;
 #else
+#ifdef VERSION_AUG6
+    p->flags20.ll &= ~0x80;
+#else
     p->flags20.ll &= ~0x200000;
+#endif
 #endif
 }
 
@@ -684,7 +721,7 @@ void AP1BeforeFunc(GObj *self)
             AP1DeadEffect(self);
             AP1DeadMode(self);
             iosPadActRequest(boyPad, 17);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             ExecuteSEPackage(self, 100);
 #else
             ExecuteSEPackage(self, 105);
@@ -701,7 +738,11 @@ void AP1BeforeFunc(GObj *self)
 #ifdef VERSION_NTSC
         case 207:
 #else
+#ifdef VERSION_AUG6
+        case 204:
+#else
         case 223:
+#endif
 #endif
             AP1DeadMode(self);
             hitProc(self);

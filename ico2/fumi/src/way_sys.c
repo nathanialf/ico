@@ -47,7 +47,11 @@ WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded)
         goto out;
     }
 
+#ifdef VERSION_AUG6
+    if ((unsigned int)w->stampFrame < (unsigned int)(GlobalTimer - 1) || w->nearWp == 0) {
+#else
     if ((unsigned int)w->stampFrame < (unsigned int)(lock_execIcoMisc - 1) || w->nearWp == 0) {
+#endif
         if (w->guideFirst >= 0) {
             wp = findTemp(goal, way_point[w->guideFirst].group);
         } else {
@@ -76,7 +80,11 @@ WayPoint *_FUNC_GetWay_begin(float *from, WVTObj *w, float *goal, int threaded)
 
     w->nearWp = wp;
     w->fromWp = wp0;
+#ifdef VERSION_AUG6
+    w->stampFrame = GlobalTimer;
+#else
     w->stampFrame = lock_execIcoMisc;
+#endif
     DeleteGuideWay(w);
     debug_StdPrintfDummy("GetWay_begin\n");
     debug_StdPrintfDummy("gid t:%d m:%d\n", wp0->group, wp->group);
@@ -480,11 +488,15 @@ WayPoint *GetWay_next(WVTObj *w, float *pos)
     int blocked;
     float lim;
 
+#ifdef VERSION_AUG6
+    w->stampFrame = GlobalTimer;
+#else
     w->stampFrame = lock_execIcoMisc;
     if (w->chk.cur == 0 || w->chk.cur->used == 0) {
         debug_StdPrintfDummy("illigal way ");
         return 0;
     }
+#endif
     ez_circle(w->nearWp->pos, pos, 0x80800000, 30.0f);
 
     if (wayDebugWallGObj != 0) {
@@ -639,7 +651,11 @@ typedef struct NigeEnt { /* field names derived */
 
 /* The TU's whole .bss: one entry per way point (way_llf's 275), which
    GetNearNigePointN fills and sorts by path length. */
+#ifdef VERSION_AUG6
+static NigeEnt nigePointTbl[215]; /* derived name */
+#else
 static NigeEnt nigePointTbl[275]; /* derived name */
+#endif
 
 int GetNearNigePointN(void *out, int num, WVTObj *w, float *pos)
 {

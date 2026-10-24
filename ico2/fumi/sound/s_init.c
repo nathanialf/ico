@@ -139,7 +139,11 @@ inline int soundReverbDepthGet(void)
 
 void soundAllocIopHeap(void)
 {
+#ifdef VERSION_AUG6
+    int r = iosSifAllocIopHeapDebug(0x78000, __FILE__, 230);
+#else
     int r = iosSifAllocIopHeapDebug(0x78000, __FILE__, 254);
+#endif
     soundIopHeapAddrs = r;
     if (r < 0) {
         debug_StdPrintfDummy("\nCan't alloc heap \n");
@@ -157,12 +161,18 @@ void soundAllocIopFree(void)
    _soundSeDefPlay. */
 static inline int seChAlloc(SqEntry *req) /* derived name */
 {
+#ifndef VERSION_AUG6
     long long one = 1;
+#endif
     long long bit;
     int i;
 
     for (i = 0; i < 48; i++) {
+#ifdef VERSION_AUG6
+        bit = 1 << i;
+#else
         bit = one << i;
+#endif
         if ((seChMask & bit) == 0) {
             goto found;
         }
@@ -181,7 +191,11 @@ found:
    _soundSeDefStop's copy recomputes the request word's address from it. */
 static inline void seReqChClear(SqEntry *req, int ch) /* derived name */
 {
+#ifdef VERSION_AUG6
+    long long bit = 1 << ch;
+#else
     long long bit = (long long)1 << ch;
+#endif
 
     if ((req->seMask & bit) != 0) {
         req->seMask &= ~bit;
@@ -224,8 +238,8 @@ inline SqEntry *soundDataAreaGet(int no, int bank, int mode, int seg)
         key = 0;
         e = soundDataAreaSearch(&key);
         if (e == 0) {
-            debug_assert(__FILE__, 334);
-            __assert(__FILE__, 334, "0");
+            debug_assert(__FILE__, LN(334, 334, 334, 334, 322));
+            __assert(__FILE__, LN(334, 334, 334, 334, 322), "0");
         }
         memset(e, 0, 0x30);
         e->num = no;
@@ -259,8 +273,13 @@ static void soundDataOpenChk(SqEntry *self)
         }
         break;
     default:
-        debug_assert(__FILE__, 358);
-        __assert(__FILE__, 358, "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 346));
+        __assert(__FILE__, LN(334, 334, 334, 334, 346), "0");
+#else
+        debug_assert(__FILE__, LN(358, 358, 358, 358, 358));
+        __assert(__FILE__, LN(358, 358, 358, 358, 358), "0");
+#endif
         break;
     }
     if (ok == 0) {
@@ -309,8 +328,13 @@ void soundBufAlloc(SqEntry *self, int size)
         bufSeg1Next = bufSeg0Next;
         bufSeg2Next = bufSeg0Next;
         if (bufSeg0Next > 0x1D901F) {
+#ifdef VERSION_AUG6
+            debug_assert(__FILE__, LN(334, 334, 334, 334, 400));
+            __assert(__FILE__, LN(334, 334, 334, 334, 400), "0");
+#else
             debug_assert(__FILE__, 412);
             __assert(__FILE__, 412, "0");
+#endif
         }
         break;
     case 1:
@@ -319,21 +343,36 @@ void soundBufAlloc(SqEntry *self, int size)
             self->spu.buf.addr = bufSeg1Next;
             bufSeg1Next = bufSeg1Next + size;
             if (bufSeg1Next > bufSeg1Top) {
-                debug_assert(__FILE__, 420);
-                __assert(__FILE__, 420, "0");
+#ifdef VERSION_AUG6
+                debug_assert(__FILE__, LN(334, 334, 334, 334, 408));
+                __assert(__FILE__, LN(334, 334, 334, 334, 408), "0");
+#else
+                debug_assert(__FILE__, LN(420, 420, 420, 420, 420));
+                __assert(__FILE__, LN(420, 420, 420, 420, 420), "0");
+#endif
             }
             break;
         case 0:
             bufSeg1Top = bufSeg1Top - size;
             self->spu.buf.addr = bufSeg1Top;
             if (bufSeg1Top < bufSeg1Next) {
-                debug_assert(__FILE__, 424);
-                __assert(__FILE__, 424, "0");
+#ifdef VERSION_AUG6
+                debug_assert(__FILE__, LN(334, 334, 334, 334, 412));
+                __assert(__FILE__, LN(334, 334, 334, 334, 412), "0");
+#else
+                debug_assert(__FILE__, LN(424, 424, 424, 424, 424));
+                __assert(__FILE__, LN(424, 424, 424, 424, 424), "0");
+#endif
             }
             break;
         default:
-            debug_assert(__FILE__, 428);
-            __assert(__FILE__, 428, "0");
+#ifdef VERSION_AUG6
+            debug_assert(__FILE__, LN(334, 334, 334, 334, 416));
+            __assert(__FILE__, LN(334, 334, 334, 334, 416), "0");
+#else
+            debug_assert(__FILE__, LN(428, 428, 428, 428, 428));
+            __assert(__FILE__, LN(428, 428, 428, 428, 428), "0");
+#endif
         }
         break;
     case 2:
@@ -343,13 +382,23 @@ void soundBufAlloc(SqEntry *self, int size)
             bufSeg2Next = bufSeg2Next + size;
             break;
         default:
-            debug_assert(__FILE__, 443);
-            __assert(__FILE__, 443, "0");
+#ifdef VERSION_AUG6
+            debug_assert(__FILE__, LN(334, 334, 334, 334, 431));
+            __assert(__FILE__, LN(334, 334, 334, 334, 431), "0");
+#else
+            debug_assert(__FILE__, LN(443, 443, 443, 443, 443));
+            __assert(__FILE__, LN(443, 443, 443, 443, 443), "0");
+#endif
         }
         break;
     default:
-        debug_assert(__FILE__, 448);
-        __assert(__FILE__, 448, "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 436));
+        __assert(__FILE__, LN(334, 334, 334, 334, 436), "0");
+#else
+        debug_assert(__FILE__, LN(448, 448, 448, 448, 448));
+        __assert(__FILE__, LN(448, 448, 448, 448, 448), "0");
+#endif
     }
     self->spu.buf.size = size;
 }
@@ -368,40 +417,71 @@ void soundBufSegFree(int seg, int mode)
         case 2:
             return;
         }
-        debug_assert(__FILE__, 472);
-        __assert(__FILE__, 472, "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 460));
+        __assert(__FILE__, LN(334, 334, 334, 334, 460), "0");
+#else
+        debug_assert(__FILE__, LN(472, 472, 472, 472, 472));
+        __assert(__FILE__, LN(472, 472, 472, 472, 472), "0");
+#endif
         return;
     case 2:
         if (mode == 0) {
             bufSeg2Next = bufSeg0Next;
             return;
         }
-        debug_assert(__FILE__, 482);
-        __assert(__FILE__, 482, "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 470));
+        __assert(__FILE__, LN(334, 334, 334, 334, 470), "0");
+        return;
+    }
+    debug_assert(__FILE__, LN(334, 334, 334, 334, 475));
+    __assert(__FILE__, LN(334, 334, 334, 334, 475), "0");
+#else
+        debug_assert(__FILE__, LN(482, 482, 482, 482, 482));
+        __assert(__FILE__, LN(482, 482, 482, 482, 482), "0");
         return;
     }
     debug_assert(__FILE__, 487);
     __assert(__FILE__, 487, "0");
+#endif
 }
 
 inline int soundBufAdpcmChAlloc(SqEntry *self, int *chp)
 {
     int ch;
+#ifdef VERSION_AUG6
+
+    for (ch = 0; ch < 64U; ch++) {
+        if ((adpcmChMask & (1 << ch)) == 0)
+            goto found;
+    }
+    debug_assert(__FILE__, LN(334, 334, 334, 334, 487));
+    __assert(__FILE__, LN(334, 334, 334, 334, 487), "0");
+found:
+    self->spu.chMask |= 1 << ch;
+    adpcmChMask |= 1 << ch;
+    if (ch >= 5) {
+        debug_StdPrintfDummy("soundBufAdpcmChAlloc over\n");
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 491));
+        __assert(__FILE__, LN(334, 334, 334, 334, 491), "0");
+#else
     long long bit = 1;
 
     for (ch = 0; ch < 64U; ch++) {
         if ((adpcmChMask & (bit << ch)) == 0)
             goto found;
     }
-    debug_assert(__FILE__, 500);
-    __assert(__FILE__, 500, "0");
+    debug_assert(__FILE__, LN(500, 500, 500, 500, 500));
+    __assert(__FILE__, LN(500, 500, 500, 500, 500), "0");
 found:
     self->spu.chMask |= bit << ch;
     adpcmChMask |= bit << ch;
     if (ch >= 5) {
         debug_StdPrintfDummy("soundBufAdpcmChAlloc over\n");
-        debug_assert(__FILE__, 504);
-        __assert(__FILE__, 504, "0");
+        debug_assert(__FILE__, LN(504, 504, 504, 504, 504));
+        __assert(__FILE__, LN(504, 504, 504, 504, 504), "0");
+#endif
     }
     *chp = ch;
     if (ch < 0) {
@@ -469,19 +549,28 @@ void soundDataOpen(AdpcmOpenReq *work, int mode, int no, int ch, int loopNum)
     switch (mode) {
     case 0:
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, 609);
-        __assert(__FILE__, 609, "0");
+        debug_assert(__FILE__, LN(609, 609, 609, 609, 609));
+        __assert(__FILE__, LN(609, 609, 609, 609, 609), "0");
         break;
     case 1:
-        debug_assert(__FILE__, 612);
-        __assert(__FILE__, 612, "0");
+        debug_assert(__FILE__, LN(612, 612, 612, 612, 612));
+        __assert(__FILE__, LN(612, 612, 612, 612, 612), "0");
 #else
-        debug_assert(__FILE__, 614);
-        __assert(__FILE__, 614, "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 596));
+        __assert(__FILE__, LN(334, 334, 334, 334, 596), "0");
         break;
     case 1:
-        debug_assert(__FILE__, 617);
-        __assert(__FILE__, 617, "0");
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 599));
+        __assert(__FILE__, LN(334, 334, 334, 334, 599), "0");
+#else
+        debug_assert(__FILE__, LN(614, 614, 614, 614, 614));
+        __assert(__FILE__, LN(614, 614, 614, 614, 614), "0");
+        break;
+    case 1:
+        debug_assert(__FILE__, LN(617, 617, 617, 617, 617));
+        __assert(__FILE__, LN(617, 617, 617, 617, 617), "0");
+#endif
 #endif
         break;
     case 2:
@@ -489,11 +578,16 @@ void soundDataOpen(AdpcmOpenReq *work, int mode, int no, int ch, int loopNum)
         break;
     default:
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, 618);
-        __assert(__FILE__, 618, "0");
+        debug_assert(__FILE__, LN(618, 618, 618, 618, 618));
+        __assert(__FILE__, LN(618, 618, 618, 618, 618), "0");
 #else
-        debug_assert(__FILE__, 623);
-        __assert(__FILE__, 623, "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 605));
+        __assert(__FILE__, LN(334, 334, 334, 334, 605), "0");
+#else
+        debug_assert(__FILE__, LN(623, 623, 623, 623, 623));
+        __assert(__FILE__, LN(623, 623, 623, 623, 623), "0");
+#endif
 #endif
     }
 }
@@ -503,30 +597,44 @@ SqEntry *soundDataOpenSync(AdpcmOpenReq *work)
     switch (work->mode) {
     case 0:
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, 626);
-        __assert(__FILE__, 626, "0");
+        debug_assert(__FILE__, LN(626, 626, 626, 626, 626));
+        __assert(__FILE__, LN(626, 626, 626, 626, 626), "0");
         break;
     case 1:
-        debug_assert(__FILE__, 629);
-        __assert(__FILE__, 629, "0");
+        debug_assert(__FILE__, LN(629, 629, 629, 629, 629));
+        __assert(__FILE__, LN(629, 629, 629, 629, 629), "0");
 #else
-        debug_assert(__FILE__, 631);
-        __assert(__FILE__, 631, "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 613));
+        __assert(__FILE__, LN(334, 334, 334, 334, 613), "0");
         break;
     case 1:
-        debug_assert(__FILE__, 634);
-        __assert(__FILE__, 634, "0");
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 616));
+        __assert(__FILE__, LN(334, 334, 334, 334, 616), "0");
+#else
+        debug_assert(__FILE__, LN(631, 631, 631, 631, 631));
+        __assert(__FILE__, LN(631, 631, 631, 631, 631), "0");
+        break;
+    case 1:
+        debug_assert(__FILE__, LN(634, 634, 634, 634, 634));
+        __assert(__FILE__, LN(634, 634, 634, 634, 634), "0");
+#endif
 #endif
         break;
     case 2:
         return AdpcmOpenSync(work);
     default:
 #ifdef VERSION_NTSC
-        debug_assert(__FILE__, 635);
-        __assert(__FILE__, 635, "0");
+        debug_assert(__FILE__, LN(635, 635, 635, 635, 635));
+        __assert(__FILE__, LN(635, 635, 635, 635, 635), "0");
 #else
-        debug_assert(__FILE__, 640);
-        __assert(__FILE__, 640, "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(334, 334, 334, 334, 622));
+        __assert(__FILE__, LN(334, 334, 334, 334, 622), "0");
+#else
+        debug_assert(__FILE__, LN(640, 640, 640, 640, 640));
+        __assert(__FILE__, LN(640, 640, 640, 640, 640), "0");
+#endif
 #endif
     }
     return 0;
@@ -544,7 +652,11 @@ void soundDataClose(SqEntry *self)
     case 1:
         i = 0;
         while (self->seMask != 0) {
+#ifdef VERSION_AUG6
+            if (self->seMask & (1 << i)) {
+#else
             if ((int)((self->seMask >> i) & 1)) {
+#endif
                 h = seSlotTbl[i].handle;
                 SgBgmStop(h, 1);
                 SgBgmClose(h);
@@ -1142,7 +1254,11 @@ static int _soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMod
         return -2;
     }
     def = &seList[*kp];
+#ifdef VERSION_AUG6
+    if (kind == 0 || kind >= 1389) {
+#else
     if (kind == 0 || kind >= 1426) {
+#endif
         return -2;
     }
     key.b.bank = 11;
@@ -1392,7 +1508,11 @@ inline void soundSeKindBuild(void)
     unsigned short num;
     char *e;
 
+#ifdef VERSION_AUG6
+    for (i = 1388; i >= 0; i--) {
+#else
     for (i = 1419; i >= 0; i--) {
+#endif
         seKind[i] = 0;
     }
 
@@ -1400,7 +1520,11 @@ inline void soundSeKindBuild(void)
         e = (char *)&soundDataTbl[i];
         if (*(unsigned short *)(e + 2) == 11) {
             num = *(unsigned short *)e;
+#ifdef VERSION_AUG6
+            for (j = 0; j < 3806; j++) {
+#else
             for (j = 0; j < 3837; j++) {
+#endif
                 const SeKind *p = &seList[j];
                 if (p->num == num) {
                     seKind[p->idx] = j;
@@ -1459,17 +1583,119 @@ void soundSeEnvPlay(void)
             soundSeEnvDefaultSet(slot);
             if (e->ownPos == 1) {
 #ifdef VERSION_NTSC
-                slot->pos = iosMallocDebug(ios_partition_sound, 16, __FILE__, 1560);
+                slot->pos = iosMallocDebug(ios_partition_sound, 16, __FILE__,
+                                           LN(1560, 1560, 1560, 1560, 1560));
 #else
-                slot->pos = iosMallocDebug(ios_partition_sound, 16, __FILE__, 1565);
+                slot->pos = iosMallocDebug(ios_partition_sound, 16, __FILE__,
+                                           LN(1565, 1565, 1565, 1565, 1547));
 #endif
             }
         }
     }
 }
 
+#ifdef VERSION_AUG6
+void soundSeEnvNotUseClose(int a, int b)
+{
+    const SeBank *p = 0;
+    SeSlot *e;
+    SqEntry *q;
+    int ok;
+    int i;
+    int n;
+    int k;
+    int idx;
+    int m;
+    int j;
+    int x;
+    SqEntry *req;
+
+    ok = 1;
+    for (i = stageData[a].seSegFirst; i < stageData[a].seSegLast; i++) {
+        if (seFile[i].loaded == 1) {
+            p = &seFile[i];
+            break;
+        }
+    }
+    n = i;
+    if (p != 0) {
+        for (i = stageData[b].seSegFirst; i < stageData[b].seSegLast; i++) {
+            if (seFile[i].loaded == 1) {
+                if (strcmp(p->hdPath, seFile[i].hdPath) == 0) {
+                    ok = 0;
+                }
+                break;
+            }
+        }
+    }
+    if (ok == 0) {
+        idx = -1;
+        for (k = 0; k < 16; k++) {
+            q = &soundDataTbl[k];
+            if (q->bank == 11) {
+                if (q->num == i) {
+                    idx = k;
+                    break;
+                }
+            }
+        }
+        if (idx >= 0) {
+            soundDataTbl[idx].num = n;
+        }
+    }
+    if (seEnvForceClose != 0) {
+        ok = 1;
+    }
+    for (m = 0; m < 48; m++) {
+        e = &seSlotTbl[m];
+        req = e->req;
+        if (req != 0 && req->mode == 0 && e->owner == 0xFFFFFFFF) {
+            for (j = stageData[a].seEnvFirst; j < stageData[a].seEnvLast; j++) {
+                if (e->src == &seDef[seEnv[j].se]) {
+                    if (ok == 0 || seFile[seList[seKind[e->src->kind]].num].loaded != 1) {
+                        goto next;
+                    }
+                }
+            }
+            if (ok != 0 && seList[seKind[e->src->kind]].num >= 7 && a != 10) {
+                soundSeDefStopNoRelease((e->num << 8) | m);
+            } else if (e->src != &seDef[403] && e->src != &seDef[402]) {
+                soundSeDefStop((e->num << 8) | m);
+            }
+        }
+    next:;
+    }
+    if (seSemiCommonLoaded == 0) {
+        soundDataSegAllClose(2, 0);
+    }
+    if (ok != 0) {
+        if (p != 0 || seEnvForceClose != 0) {
+            soundDataSegAllClose(2, 0);
+            seSemiCommonLoaded = 2;
+        } else {
+            seSemiCommonLoaded = 0;
+        }
+    } else {
+        seSemiCommonLoaded = 1;
+    }
+    seEnvForceClose = 0;
+    for (m = 0; m < 48; m++) {
+        SeSlot *s = &seSlotTbl[m];
+        SqEntry *r = s->req;
+
+        if (r != 0 && r->mode == 0 && s->env != 0) {
+            x = *(int *)s->env;
+            if (x < 418) {
+                if (x >= 414) {
+                    soundSeDefStop((s->num << 8) | m);
+                }
+            }
+        }
+    }
+}
+#else
 /* &stageData[0].seEnvFirst, the range soundSeEnvNotUseClose walks */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern char D_005F30C8[];
 
 void soundSeEnvNotUseClose(int a, int b)
@@ -1700,6 +1926,7 @@ void soundSeEnvNotUseClose(int a, int b)
     }
 }
 #endif
+#endif
 
 void soundDataSegNextStageNotUseClose(int mode, int stage)
 {
@@ -1730,11 +1957,16 @@ void soundDataSegNextStageNotUseClose(int mode, int stage)
                 break;
             default:
 #ifdef VERSION_NTSC
-                debug_assert(__FILE__, 1736);
-                __assert(__FILE__, 1736, "0");
+                debug_assert(__FILE__, LN(1736, 1736, 1736, 1736, 1736));
+                __assert(__FILE__, LN(1736, 1736, 1736, 1736, 1736), "0");
 #else
-                debug_assert(__FILE__, 1741);
-                __assert(__FILE__, 1741, "0");
+#ifdef VERSION_AUG6
+                debug_assert(__FILE__, LN(334, 334, 334, 334, 1723));
+                __assert(__FILE__, LN(334, 334, 334, 334, 1723), "0");
+#else
+                debug_assert(__FILE__, LN(1741, 1741, 1741, 1741, 1741));
+                __assert(__FILE__, LN(1741, 1741, 1741, 1741, 1741), "0");
+#endif
 #endif
                 break;
             }

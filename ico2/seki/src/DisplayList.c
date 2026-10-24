@@ -44,7 +44,7 @@ static int dlStackDepth = 0; /* derived name */
 
 static int dlPriorityStack[8]; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* The size of each priority's list buffer. */
 static const int dlBufferSize[13] = {
     /* derived name */
@@ -71,9 +71,9 @@ void dl_Init(void)
                 (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 387) |
                 0x30000000;
 #else
-            dlBufferHead[i][j] =
-                (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 393) |
-                0x30000000;
+            dlBufferHead[i][j] = (int)iosMallocDebug(ios_partition_common, dlBufferSize[j],
+                                                     __FILE__, LN(393, 393, 393, 393, 387)) |
+                                 0x30000000;
 #endif
         }
     }
@@ -172,8 +172,8 @@ void dl_PushPriority(void)
         debug_assert(__FILE__, 526);
         __assert(__FILE__, 526, "FALSE");
 #else
-        debug_assert(__FILE__, 534);
-        __assert(__FILE__, 534, "FALSE");
+        debug_assert(__FILE__, LN(534, 534, 534, 534, 526));
+        __assert(__FILE__, LN(534, 534, 534, 534, 526), "FALSE");
 #endif
     }
 }
@@ -189,8 +189,13 @@ void dl_PopPriority(void)
         debug_assert(__FILE__, 544);
         __assert(__FILE__, 544, "FALSE");
 #else
-        debug_assert(__FILE__, 552);
-        __assert(__FILE__, 552, "FALSE");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(534, 534, 534, 534, 544));
+        __assert(__FILE__, LN(534, 534, 534, 534, 544), "FALSE");
+#else
+        debug_assert(__FILE__, LN(552, 552, 552, 552, 552));
+        __assert(__FILE__, LN(552, 552, 552, 552, 552), "FALSE");
+#endif
 #endif
     }
 }

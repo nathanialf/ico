@@ -13,7 +13,11 @@
 #include "motionManager2.h"
 #include "rotObject.h"
 #include "typedef.h"
+
+#ifndef VERSION_AUG6
 #include "stageSEProc.h"
+#endif
+
 #include "main.h"
 #include "script.h"
 
@@ -43,6 +47,13 @@ void actSt04eWater(GObj *volatile self)
         stage_SetAnimation(233, -1, -2);
     }
 }
+#else
+#ifdef VERSION_AUG6
+static ActMail waterMain_mes[2] = {{372, actSt04eWaterSwitch}, {392}}; /* derived name */
+
+static ActMail water_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail waterSwitch_mes[2] = {{393}, {392}}; /* derived name */
 #else
 static void actSt04eFuchi1Chk(GObj *volatile self);
 static void actSt04eFuchi2Chk(GObj *volatile self);
@@ -257,6 +268,7 @@ void actSt04eSe(GObj *volatile self)
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
+#endif
 
 void actSt04eWater(GObj *volatile self)
 {
@@ -264,6 +276,17 @@ void actSt04eWater(GObj *volatile self)
     Act *act = actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(205) == 0) {
+        scpSearchGobj(1173)->active = 0;
+        water_mes[0].func = actSt04eWaterMain;
+        act->mail = water_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(1172)->active = 0;
+        stage_SetAnimation(232, -1, -2);
+#else
     SetRotObjectLockFlag(scpSearchGobj(1274), 1);
 
     if (gflagChk(230) == 0) {
@@ -279,6 +302,7 @@ void actSt04eWater(GObj *volatile self)
 #else
         stage_SetAnimation(261, -1, -2);
 #endif
+#endif
     }
 }
 #endif
@@ -293,7 +317,7 @@ void actSt04eWaterMain(GObj *volatile self)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt04eWaterSwitch(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -304,7 +328,11 @@ void actSt04eWaterSwitch(GObj *volatile self)
 
     waterSwitch_mes[0].func = actSt04eWaterStop;
     sub->mail = waterSwitch_mes;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 397);
+#endif
     _ACTWait(0);
 }
 
@@ -318,17 +346,30 @@ void actSt04eWaterStop(GObj *volatile self)
 
     _ACTWait(60);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(233, 1, 0);
+
+    stage_SetAnimation(232, -1, -2);
+
+    while (stage_CheckAnimationFinish(233) == 0) {
+#else
     stage_SetAnimation(234, 1, 0);
 
     stage_SetAnimation(233, -1, -2);
 
     while (stage_CheckAnimationFinish(234) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1173)->active = 1;
+    scpSearchGobj(1172)->active = 0;
+#else
     scpSearchGobj(1177)->active = 1;
     scpSearchGobj(1176)->active = 0;
+#endif
 
     scpBoyControlReadDisable = 0;
     lt_switch_layout(50);

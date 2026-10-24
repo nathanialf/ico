@@ -20,7 +20,7 @@
 #include "main.h"
 #include "script.h"
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static void actSt02aFenceOpenSub(GObj *volatile self);
 #endif
 
@@ -90,6 +90,57 @@ void actSt02aInit(void)
     }
 }
 #else
+#ifdef VERSION_AUG6
+static ActMail door_down_start_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door_up_start_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door_up_chk_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail door_down_chk_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail fence_main_mail[2] = {{372, actSt02aFenceSwitch}, {392}}; /* derived name */
+
+static ActMail fence_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail fence_switch_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail waterfall_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail gondola_main_mail[2] = {{373, actSt02aGondolaSwitch}, {392}}; /* derived name */
+
+static ActMail gondola_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail gondola_switch_down_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail gondola_switch_up_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail gondola_up_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail gondola_down_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail ene_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail way_off_start_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail way_on_start_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail way_on_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail way_off_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail taki_way_mail[2] = {{393}, {392}}; /* derived name */
+
+/* The two waterfall-way records are named for the watcher each posts:
+ * TakiWayOnChk posts taki_off_mail, TakiWayOffChk posts taki_on_mail.  The
+ * name decides the order gcse hoists the record's address against the
+ * watcher's, so it shows in the words (s1/s0). */
+static ActMail taki_off_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail taki_on_mail[2] = {{393}, {392}}; /* derived name */
+
+static ActMail secret_item_mail[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail door_down_start_mail[2] = {{430}, {429}}; /* derived name */
 
 static ActMail door_up_start_mail[2] = {{430}, {429}}; /* derived name */
@@ -135,9 +186,17 @@ static ActMail taki_on_mail[2] = {{430}, {429}}; /* derived name */
 static ActMail taki_off_mail[2] = {{430}, {429}}; /* derived name */
 
 static ActMail secret_item_mail[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt02aInit(void)
 {
+#ifdef VERSION_AUG6
+    if (gflagChk(105) == 0) {
+        SetWayGroupActive(26, 0);
+        stage_SetAnimation(84, 0, 0);
+    } else {
+        stage_SetAnimation(84, 0, -1);
+#else
     if (gflagChk(118) == 0) {
         SetWayGroupActive(26, 0);
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -150,6 +209,7 @@ void actSt02aInit(void)
         stage_SetAnimation(95, 0, -1);
 #else
         stage_SetAnimation(99, 0, -1);
+#endif
 #endif
     }
 }
@@ -169,7 +229,11 @@ void actSt02aDoor(GObj *volatile self)
 #ifdef VERSION_NTSC
         stage_SetAnimation(84, 0, 0);
 #else
+#ifdef VERSION_AUG6
+        stage_SetAnimation(83, 0, 0);
+#else
         stage_SetAnimation(98, 0, 0);
+#endif
 #endif
 #endif
         _ACTWait(60);
@@ -184,6 +248,15 @@ void actSt02aDoor(GObj *volatile self)
         act->mail = door_up_start_mail;
         ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(82, 0, 0);
+        door_up_start_mail[0].func = actSt02aDoorUpChk;
+        act->mail = door_up_start_mail;
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
@@ -195,6 +268,7 @@ void actSt02aDoor(GObj *volatile self)
         door_up_start_mail[0].func = actSt02aDoorUpChk;
         act->mail = door_up_start_mail;
         ACTSendMailCorrect(self, 430);
+#endif
 #endif
         _ACTWait(0);
     }
@@ -214,6 +288,18 @@ static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; 
 static const ConstVec boySplashPos[2] = {{{840.0f, 235.0f, 560.0f, 1.0f}},
                                          {{740.0f, 235.0f, 560.0f, 1.0f}}};
 
+#ifdef VERSION_AUG6
+/* The waterfall's reflection mesh and the layout quad it is stretched over:
+ * the quad drops from y 280 to y 0, which is the falling water (August has no
+ * pool mesh).  The value at offset 0x1C is a hardware field. */
+static const PoolMesh fallReflactionMesh = {40, 20, 0, 0, 0, 0, 0, 0x60687080}; /* derived name */
+
+static const PoolMeshQuad fallReflactionQuad = {
+    { {650.0f, 280.0f, 550.0f, 1.0f},
+      {650.0f, 0.0f, 700.0f, 1.0f},
+      {900.0f, 280.0f, 550.0f, 1.0f},
+      {900.0f, 0.0f, 700.0f, 1.0f} }}; /* derived name */
+#else
 /* The waterfall's two reflection meshes and the two layout quads they are
  * stretched over: the first quad drops from y 280 to y 0, which is the falling
  * water, and the second is flat at y 0, which is the pool below it.  The value
@@ -231,6 +317,7 @@ static const PoolMeshQuad poolReflactionQuad = {{{650.0f, 0.0f, 700.0f, 1.0f},
                                                  {650.0f, 0.0f, 1200.0f, 1.0f},
                                                  {920.0f, 0.0f, 700.0f, 1.0f},
                                                  {920.0f, 0.0f, 1200.0f, 1.0f}}};
+#endif
 
 #ifdef VERSION_NTSC
 void actSt02aDoorUpChk(GObj *volatile self)
@@ -308,6 +395,17 @@ void actSt02aDoorUpChk(GObj *volatile self)
     _ACTWait(15);
     actCreateSubThread(actSt02aDoorUpEffect, 21);
     scpWakeupItemWithBoundary(-1827.0f, -1072.0f, 2285.0f, 100.0f);
+#ifdef VERSION_AUG6
+    stage_SetAnimation(82, 1, 0);
+    pos = doorSePos;
+    soundSeDefPlay(1196, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1197, 0, pos.f, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+    soundSeDefPlay(1198, 0, pos.f, 1);
+    while (stage_CheckAnimationFinish(82) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(93, 1, 0);
 #else
@@ -325,12 +423,17 @@ void actSt02aDoorUpChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFinish(97) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     door_up_chk_mail[0].func = actSt02aDoorDownChk;
     sub->mail = door_up_chk_mail;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
@@ -346,6 +449,17 @@ void actSt02aDoorDownChk(GObj *volatile self)
     _ACTWait(15);
     actCreateSubThread(actSt02aDoorDownEffect, 21);
     scpWakeupItemWithBoundary(-1827.0f, -1072.0f, 2285.0f, 100.0f);
+#ifdef VERSION_AUG6
+    stage_SetAnimation(83, 1, 0);
+    pos = doorSePos;
+    soundSeDefPlay(1196, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1197, 0, pos.f, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+    soundSeDefPlay(1198, 0, pos.f, 1);
+    while (stage_CheckAnimationFinish(83) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(94, 1, 0);
 #else
@@ -363,18 +477,24 @@ void actSt02aDoorDownChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFinish(98) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     door_down_chk_mail[0].func = actSt02aDoorUpChk;
     sub->mail = door_down_chk_mail;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
 /* .sdata */
 SqEntry *st02a_fence = 0;
 
+#ifndef VERSION_AUG6
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
 static int demoEnd;
@@ -430,6 +550,7 @@ void actSt02aFenceOpen(GObj *volatile self)
     scpWakeupEnemyAll();
 }
 #endif
+#endif
 
 void actSt02WaterFallBoySplashCheck(GObj *volatile self)
 {
@@ -456,6 +577,7 @@ void actSt02WaterFallBoySplashCheck(GObj *volatile self)
     }
 }
 
+#ifndef VERSION_AUG6
 void actSt02aWaterFallReflactionEffect(GObj *volatile self)
 {
     PoolMesh m0 = fallReflactionMesh;
@@ -473,6 +595,7 @@ void actSt02aWaterFallReflactionEffect(GObj *volatile self)
         _ACTWait(1);
     }
 }
+#endif
 
 void actSt02aWaterFallChk(GObj *volatile self)
 {
@@ -496,6 +619,24 @@ void actSt02aWaterFallChk(GObj *volatile self)
     ReInitBoxGeo(scpSearchGobj(1584));
     ReInitBoxGeo(scpSearchGobj(1586));
 #else
+#ifdef VERSION_AUG6
+    act->flags20.ll &= ~0x80000LL;
+    scpSearchGobj(1548)->active = 1;
+    scpSearchGobj(1544)->active = 0;
+    scpSearchGobj(1553)->active = 0;
+    scpSearchGobj(1554)->active = 0;
+    scpSearchGobj(1557)->active = 0;
+    DeleteParticleLayout(scpSearchGobj(1590));
+    DeleteParticleLayout(scpSearchGobj(1591));
+    DeleteParticleLayout(scpSearchGobj(1592));
+    DeleteParticleLayout(scpSearchGobj(1593));
+    stage_SetAnimation(354, -1, -2);
+    scpTransGObj(scpSearchGobj(1574), 0.0f, -200.0f, 0.0f);
+    scpTransGObj(scpSearchGobj(1576), 0.0f, -200.0f, 0.0f);
+    _ACTWait(5);
+    ReInitBoxGeo(scpSearchGobj(1574));
+    ReInitBoxGeo(scpSearchGobj(1576));
+#else
     act->flags20.ll &= ~0x80000000000LL;
     scpSearchGobj(1713)->active = 1;
     scpSearchGobj(1670)->active = 0;
@@ -516,6 +657,7 @@ void actSt02aWaterFallChk(GObj *volatile self)
     _ACTWait(5);
     ReInitBoxGeo(scpSearchGobj(1705));
     ReInitBoxGeo(scpSearchGobj(1707));
+#endif
 #endif
 }
 
@@ -813,13 +955,23 @@ void actSt02aGondolaUp(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    scpAdpcmPlayRequestFunc(85, &gondola, 1, 1, 1);
+#else
     scpAdpcmPlayRequestFunc(87, &gondola, 1, 1, 1);
+#endif
 
     while (gondola == 0) {
         _ACTWait(1);
     }
 
     _ACTWait(16);
+#ifdef VERSION_AUG6
+    stage_SetAnimation(86, 1, 0);
+    gflagOn(106);
+
+    while (stage_CheckAnimationFrame(86, 149, 1) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(97, 1, 0);
 #else
@@ -832,12 +984,14 @@ void actSt02aGondolaUp(GObj *volatile self)
 #else
     while (stage_CheckAnimationFrame(101, 140, 0) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     iosPadActRequest(boyPad, 16);
 
+#ifndef VERSION_AUG6
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(97, 149, 1) == 0) {
 #else
@@ -846,9 +1000,14 @@ void actSt02aGondolaUp(GObj *volatile self)
         _ACTWait(1);
     }
     _ACTWait(1);
+#endif
     _ACTWait(120);
 
     if (gondola != 0) {
+#ifdef VERSION_AUG6
+        soundDataClose(gondola);
+    }
+#else
         scpAdpcmCloseFunc(&gondola);
     }
 
@@ -859,10 +1018,15 @@ void actSt02aGondolaUp(GObj *volatile self)
 #endif
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
+#endif
 
     gondola_up_mail[0].func = actSt02aGondolaMain;
     sub->mail = gondola_up_mail;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
@@ -872,12 +1036,22 @@ void actSt02aGondolaDown(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    scpAdpcmPlayRequestFunc(85, &gondola_test, 1, 1, 1);
+#else
     scpAdpcmPlayRequestFunc(87, &gondola_test, 1, 1, 1);
+#endif
 
     while (gondola_test == 0) {
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(86, 1, 150);
+    gflagOff(106);
+
+    while (stage_CheckAnimationFrame(86, 300, 1) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(97, 1, 150);
 #else
@@ -890,12 +1064,14 @@ void actSt02aGondolaDown(GObj *volatile self)
 #else
     while (stage_CheckAnimationFrame(101, 295, 0) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
     iosPadActRequest(boyPad, 16);
 
+#ifndef VERSION_AUG6
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(97, 300, 1) == 0) {
 #else
@@ -904,9 +1080,14 @@ void actSt02aGondolaDown(GObj *volatile self)
         _ACTWait(1);
     }
     _ACTWait(1);
+#endif
     _ACTWait(120);
 
     if (gondola_test != 0) {
+#ifdef VERSION_AUG6
+        soundDataClose(gondola_test);
+    }
+#else
         scpAdpcmCloseFunc(&gondola_test);
     }
 
@@ -917,10 +1098,15 @@ void actSt02aGondolaDown(GObj *volatile self)
 #endif
     scpBoyControlReadDisable = 0;
     scpWakeupEnemyAll();
+#endif
 
     gondola_down_mail[0].func = actSt02aGondolaMain;
     sub->mail = gondola_down_mail;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
@@ -930,6 +1116,25 @@ void actSt02aBox(GObj *volatile self)
 
     actInitialize(self);
     _ACTWait(1);
+#ifdef VERSION_AUG6
+    if (gflagChk(98) != 0) {
+        scpSearchGobj(1574)->active = 0;
+        if (gflagChk(95) != 0) {
+            scpSearchGobj(1574)->active = 0;
+            scpSearchGobj(1575)->active = 0;
+        } else {
+            scpSearchGobj(1576)->active = 0;
+        }
+    }
+    if (gflagChk(97) != 0) {
+        scpSearchGobj(1575)->active = 0;
+        scpSearchGobj(1576)->active = 0;
+    }
+    if (gflagChk(97) == 0 && gflagChk(98) == 0) {
+        scpSearchGobj(1574)->active = 0;
+        scpSearchGobj(1575)->active = 0;
+        scpSearchGobj(1576)->active = 0;
+#else
     if (gflagChk(109) != 0) {
         scpSearchGobj(1705)->active = 0;
         if (gflagChk(106) != 0) {
@@ -947,6 +1152,7 @@ void actSt02aBox(GObj *volatile self)
         scpSearchGobj(1705)->active = 0;
         scpSearchGobj(1706)->active = 0;
         scpSearchGobj(1707)->active = 0;
+#endif
     }
 }
 
@@ -957,6 +1163,14 @@ void actSt02aGondola(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(106) != 0) {
+        stage_SetAnimation(86, 0, 0);
+        _ACTWait(10);
+        stage_SetAnimation(86, 0, 149);
+    } else {
+        stage_SetAnimation(86, 0, 300);
+#else
     if (gflagChk(119) != 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(97, 0, 0);
@@ -975,11 +1189,16 @@ void actSt02aGondola(GObj *volatile self)
 #else
         stage_SetAnimation(101, 0, 300);
 #endif
+#endif
     }
 
     gondola_mail[0].func = actSt02aGondolaMain;
     act->mail = gondola_mail;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
@@ -990,10 +1209,17 @@ void actSt02aFence(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(105) == 0) {
+        fence_mail[0].func = actSt02aFenceMain;
+        act->mail = fence_mail;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(118) == 0) {
         fence_mail[0].func = actSt02aFenceMain;
         act->mail = fence_mail;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -1005,14 +1231,25 @@ void actSt02aWaterFall(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(95) != 0) {
+        waterfall_mail[0].func = actSt02aWaterFallChk;
+        act->mail = waterfall_mail;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(106) != 0) {
         waterfall_mail[0].func = actSt02aWaterFallChk;
         act->mail = waterfall_mail;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(1548)->active = 0;
+#else
     scpSearchGobj(1713)->active = 0;
+#endif
 
     actCreateSubThread(actSt02WaterFallBoySplashCheck, 21);
     actCreateSubThread(actSt02aWaterFallReflactionEffect, 21);
@@ -1026,8 +1263,13 @@ void actSt02aBoxEvent2(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(99) == 0) {
+        scpSearchGobj(1578)->active = 0;
+#else
     if (gflagChk(110) == 0) {
         scpSearchGobj(1709)->active = 0;
+#endif
     }
 }
 
@@ -1038,10 +1280,17 @@ void actSt02aEne(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(108) == 0) {
+        ene_mail[0].func = actSt02aEneChk;
+        act->mail = ene_mail;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(121) == 0) {
         ene_mail[0].func = actSt02aEneChk;
         act->mail = ene_mail;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -1056,7 +1305,11 @@ void actSt02aEnemy1(GObj *volatile self)
 
     Generator_Mask(self);
 
+#ifdef VERSION_AUG6
+    while (gflagChk(109) == 0) {
+#else
     while (gflagChk(122) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1076,9 +1329,14 @@ void actSt02aEnemy2(GObj *volatile self)
     _ACTWait(1);
 
     Generator_Mask(self);
+#ifdef VERSION_AUG6
+
+    while (gflagChk(109) == 0) {
+#else
     Generator_Mask(scpSearchGobj(1703));
 
     while (gflagChk(122) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1087,7 +1345,9 @@ void actSt02aEnemy2(GObj *volatile self)
     Generator_Call(self);
     _ACTWait(60);
     Generator_Call(self);
+#ifndef VERSION_AUG6
     Generator_Call(scpSearchGobj(1703));
+#endif
 }
 
 void actSt02aSekizo(GObj *volatile self)
@@ -1100,7 +1360,11 @@ void actSt02aSekizo(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     scpSekizou(self, 123, 98, 0, 18, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 #else
+#ifdef VERSION_AUG6
+    scpSekizou(self, 110, 87, 0, 18, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
+#else
     scpSekizou(self, 123, 102, 0, 18, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
+#endif
 #endif
 }
 
@@ -1111,15 +1375,26 @@ void actSt02aWay(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(111) == 0) {
+        way_off_start_mail[0].func = actSt02aWayOffChk;
+        act->mail = way_off_start_mail;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(124) == 0) {
         way_off_start_mail[0].func = actSt02aWayOffChk;
         act->mail = way_off_start_mail;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     } else {
         way_on_start_mail[0].func = actSt02aWayOnChk;
         act->mail = way_on_start_mail;
+#ifdef VERSION_AUG6
+        ACTSendMailCorrect(self, 393);
+#else
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -1131,10 +1406,17 @@ void actSt02aTakiWay(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(95) != 0) {
+        taki_way_mail[0].func = actSt02aTakiWayOnChk;
+        act->mail = taki_way_mail;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(106) != 0) {
         taki_way_mail[0].func = actSt02aTakiWayOnChk;
         act->mail = taki_way_mail;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -1146,10 +1428,17 @@ void actSt02aSecretItem(GObj *volatile self)
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(103) == 0) {
+        secret_item_mail[0].func = actSt02aSecretItemChk;
+        act->mail = secret_item_mail;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(114) == 0) {
         secret_item_mail[0].func = actSt02aSecretItemChk;
         act->mail = secret_item_mail;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -1212,6 +1501,9 @@ void actSt02aFenceMain(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    scpBoyControlReadDisable = 0;
+#endif
     sub->mainMail = fence_main_mail;
     while (1) {
         _ACTWait(1);
@@ -1226,7 +1518,7 @@ void actSt02aFenceSwitch(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     lt_switch_layout(51);
 #else
     lt_switch_layout(55);
@@ -1239,12 +1531,16 @@ void actSt02aFenceSwitch(GObj *volatile self)
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
     _ACTWait(0);
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt02aFenceOpen(GObj *volatile self)
 {
     scpSleepEnemyAll();
@@ -1253,9 +1549,15 @@ void actSt02aFenceOpen(GObj *volatile self)
     while (st02a_fence == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_AUG6
+    stage_SetAnimation(84, 1, 0);
+    stage_SetAnimation(85, 1, 0);
+    while (stage_CheckAnimationFinish(85) == 0) {
+#else
     stage_SetAnimation(85, 1, 0);
     stage_SetAnimation(86, 1, 0);
     while (stage_CheckAnimationFinish(86) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1264,6 +1566,21 @@ void actSt02aFenceOpen(GObj *volatile self)
     lt_switch_layout(50);
     scpWakeupEnemyAll();
 }
+
+#ifdef VERSION_AUG6
+void actSt02aWaterFallReflactionEffect(GObj *volatile self)
+{
+    PoolMesh m0 = fallReflactionMesh;
+    PoolMeshQuad q0 = fallReflactionQuad;
+
+    InitLayoutedPoolReflactionMesh(&m0, &q0);
+    for (;;) {
+        SetLayoutedPoolReflactionMesh(&m0);
+        DispLimitedPoolReflactionMesh(&m0);
+        _ACTWait(1);
+    }
+}
+#endif
 #else
 static void actSt02aFenceOpenSub(GObj *volatile self)
 {
@@ -1292,6 +1609,11 @@ void actSt02aGondolaMain(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
 
+#ifdef VERSION_AUG6
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+#endif
     sub->mainMail = gondola_main_mail;
     while (1) {
         _ACTWait(1);
@@ -1329,21 +1651,36 @@ void actSt02aGondolaSwitch(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
+#ifdef VERSION_AUG6
+    lt_switch_layout(51);
+#else
     lt_switch_layout(55);
+#endif
 #endif
     scpBoyControlReadDisable = 1;
     scpSleepEnemyAll();
 
+#ifdef VERSION_AUG6
+    if (gflagChk(106) != 0) {
+        gondola_switch_down_mail[0].func = actSt02aGondolaDown;
+        sub->mail = gondola_switch_down_mail;
+        ACTSendMailCorrect(self, 393);
+#else
     if (gflagChk(119) != 0) {
         gondola_switch_down_mail[0].func = actSt02aGondolaDown;
         sub->mail = gondola_switch_down_mail;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 
     gondola_switch_up_mail[0].func = actSt02aGondolaUp;
     sub->mail = gondola_switch_up_mail;
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 #endif
@@ -1353,12 +1690,16 @@ void actSt02aEneChk(GObj *volatile self)
     if (girlGObj == 0) {
         _ACTWait(0);
     }
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+#else
     while (scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gflagOn(108);
     gflagOn(109);
 #else
@@ -1379,7 +1720,11 @@ void actSt02aWayOnChk(GObj *volatile self)
     if (girlGObj == 0) {
         _ACTWait(0);
     }
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
+#else
     while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x4000000) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -1387,7 +1732,7 @@ void actSt02aWayOnChk(GObj *volatile self)
     SetWayGroupActive(55, 1);
     SetWayGroupActive(56, 1);
     SetWayGroupActive(57, 1);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gflagOff(111);
 #else
     gflagOff(124);
@@ -1398,7 +1743,11 @@ void actSt02aWayOnChk(GObj *volatile self)
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
     _ACTWait(0);
 }
@@ -1410,7 +1759,11 @@ void actSt02aWayOffChk(GObj *volatile self)
     if (girlGObj == 0) {
         _ACTWait(0);
     }
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+#else
     while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x3000000) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -1418,7 +1771,7 @@ void actSt02aWayOffChk(GObj *volatile self)
     SetWayGroupActive(55, 0);
     SetWayGroupActive(56, 0);
     SetWayGroupActive(57, 0);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gflagOn(111);
 #else
     gflagOn(124);
@@ -1429,7 +1782,11 @@ void actSt02aWayOffChk(GObj *volatile self)
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
     _ACTWait(0);
 }
@@ -1441,19 +1798,29 @@ void actSt02aTakiWayOnChk(GObj *volatile self)
     if (girlGObj == 0) {
         _ACTWait(0);
     }
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(girlGObj, 0x6000000) == 0) {
+#else
     while (scpCheckExistAliveEnemy() != 0 || scpTriggerFloorAttr(girlGObj, 0x6000000) == 0) {
+#endif
         _ACTWait(1);
     }
 
     SetWayGroupActive(35, 1);
     SetWayGroupActive(59, 1);
 
+#ifdef VERSION_AUG6
+    taki_off_mail[0].func = actSt02aTakiWayOffChk;
+    sub->mail = taki_off_mail;
+    ACTSendMailCorrect(self, 393);
+#else
     taki_on_mail[0].func = actSt02aTakiWayOffChk;
     sub->mail = taki_on_mail;
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
     _ACTWait(0);
 }
@@ -1465,19 +1832,29 @@ void actSt02aTakiWayOffChk(GObj *volatile self)
     if (girlGObj == 0) {
         _ACTWait(0);
     }
+#ifdef VERSION_AUG6
+    while (scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
+#else
     while (scpCheckExistAliveEnemy() == 0 && scpTriggerFloorAttr(girlGObj, 0x5000000) == 0) {
+#endif
         _ACTWait(1);
     }
 
     SetWayGroupActive(35, 0);
     SetWayGroupActive(59, 0);
 
+#ifdef VERSION_AUG6
+    taki_on_mail[0].func = actSt02aTakiWayOnChk;
+    sub->mail = taki_on_mail;
+    ACTSendMailCorrect(self, 393);
+#else
     taki_off_mail[0].func = actSt02aTakiWayOnChk;
     sub->mail = taki_off_mail;
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
     _ACTWait(0);
 }
@@ -1495,7 +1872,11 @@ void actSt02aSecretItemChk(GObj *volatile self)
 #else
 void actSt02aSecretItemChk(GObj *volatile self)
 {
+#ifdef VERSION_AUG6
+    while (scpSearchGobj(1625) == 0) {
+#else
     while (scpSearchGobj(1770) == 0) {
+#endif
         _ACTWait(1);
     }
     _ACTWait(60);

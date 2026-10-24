@@ -144,7 +144,11 @@ static __inline__ void SetRootPosition_i(GObj *obj, void *pos) /* derived name *
     float buf[16];
     Vec4 *p = (Vec4 *)obj->dobj->root.pos;
     CopyVector(p, pos);
+#ifdef VERSION_AUG6
+    p->f[1] = p->f[1] - *(float *)((char *)p + 0xB0);
+#else
     p->f[1] = p->f[1] - *(float *)((char *)p + 0xC0);
+#endif
     p->f[3] = 1.0f;
     {
         Sub15C *sub = obj->dobj;
@@ -185,6 +189,7 @@ void SetDirectRootPositionNoFittingWithNodePoint(GObj *gobj, int node, float *po
     sceVu0SubVector(v, pos, (float *)(gobj->dobj->nodeMtx + (idx << 6)) + 12);
     sceVu0ScaleVector(v, v, t);
     GetRootPosition_i(w, gobj);
+#ifndef VERSION_AUG6
     sceVu0AddVector(w, w, v);
     SetDirectRootPositionNoFitting_i(gobj, w);
 }
@@ -200,6 +205,7 @@ void SetDirectRootPositionNoFittingWithNodePointXZ(GObj *gobj, int node, float *
     sceVu0ScaleVector(v, v, t);
     GetRootPosition_i(w, gobj);
     v[1] = 0.0f;
+#endif
     sceVu0AddVector(w, w, v);
     SetDirectRootPositionNoFitting_i(gobj, w);
 }
@@ -240,11 +246,11 @@ void LocalizeGeometry(GObj *gobj, ObjNode *link)
     m = &sub->root;
     if (sub->parent.obj != 0) {
         debug_assertMessage(
-            "src/geometryManager.c", 371,
+            "src/geometryManager.c", LN(371, 371, 371, 371, 355),
             "Fatal error! Geometry localize function called with GObj\n    that already have parent.\nExit...\n");
-        __assert("src/geometryManager.c", 371, "e");
-        debug_assert("src/geometryManager.c", 372);
-        __assert("src/geometryManager.c", 372, "0");
+        __assert("src/geometryManager.c", LN(371, 371, 371, 371, 355), "e");
+        debug_assert("src/geometryManager.c", LN(372, 372, 372, 372, 356));
+        __assert("src/geometryManager.c", LN(372, 372, 372, 372, 356), "0");
     }
 
     m->pos[3] = 1.0f;
@@ -391,7 +397,7 @@ loop:
 }
 
 /* the object kinds the character list builder accepts, -1 terminated */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static int charGObjKinds[5] = {1, 2, 4, 46, -1}; /* derived name */
 #else
 static int charGObjKinds[5] = {1, 2, 4, 47, -1}; /* derived name */
@@ -428,9 +434,13 @@ void MakeCharGObjList(void)
         if (isCharGObj(o) != 0) {
             charGObjList[charGObjCount++] = o;
             if (charGObjCount > 64) {
-                debug_assertMessage("src/geometryManager.c", 558,
+                debug_assertMessage("src/geometryManager.c", LN(558, 558, 558, 558, 542),
                                     "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n");
-                __assert("src/geometryManager.c", 558, "e");
+#ifdef VERSION_AUG6
+                __assert("src/geometryManager.c", LN(371, 371, 371, 371, 542), "e");
+#else
+                __assert("src/geometryManager.c", LN(558, 558, 558, 558, 558), "e");
+#endif
             }
         }
         o = isysGObjGetExist_next(o);

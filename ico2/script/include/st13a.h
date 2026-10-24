@@ -20,11 +20,13 @@ extern unsigned int st13a_yure;
 extern unsigned char st13a_yure_vol;
 extern int sekizo_13a;
 extern unsigned char sekizo_13a_vol;
+#ifndef VERSION_AUG6
 void actSt13aChainNG(GObj *volatile self);
 void actSt13aChainOK(GObj *volatile self);
 void actSt13aCheckChk(GObj *volatile self);
 void actSt13aElevMain(GObj *volatile self);
 void actSt13aElevSwitch(GObj *volatile self);
+#endif
 void actSt13aElevUp(GObj *volatile self);
 void actSt13aSekizoChk(GObj *volatile self);
 

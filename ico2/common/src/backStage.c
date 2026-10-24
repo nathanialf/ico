@@ -250,18 +250,28 @@ void backStageProcessOutStage(void)
 {
     Vec16 a;
     Vec16 b;
+#ifndef VERSION_AUG6
     int done;
+#endif
     int i;
     int gen;
     void *p;
     GObj *o;
 
+#ifdef VERSION_AUG6
+    if (gflagChk(360) != 0) {
+        kidnapState = 0;
+        return;
+    }
+    if (gameSysObjInfo[1].stage == stage_no) {
+#else
     done = 0;
     if (gflagChk(394) != 0) {
         kidnapState = 0;
         done = 1;
     }
     if (gameSysObjInfo[1].stage == stage_no && done == 0) {
+#endif
         debug_StdPrintfDummy("girl nokori");
         pinchTold = 0;
         kidnapObjIdx = -1;
@@ -343,8 +353,13 @@ void backStageProcessOutStage(void)
             if (o->labelId == 3734) {
                 gamesysObjInfoCls(4, 3734);
 #else
+#ifdef VERSION_AUG6
+            if (o->labelId == 3415) {
+                gamesysObjInfoCls(4, 3415);
+#else
             if (o->labelId == 3757) {
                 gamesysObjInfoCls(4, 3757);
+#endif
 #endif
             }
             o = isysGObjSearchFromObjKindID_next(o);
@@ -355,8 +370,13 @@ void backStageProcessOutStage(void)
             if (o->labelId == 3735) {
                 gamesysObjInfoCls(33, 3735);
 #else
+#ifdef VERSION_AUG6
+            if (o->labelId == 3416) {
+                gamesysObjInfoCls(33, 3416);
+#else
             if (o->labelId == 3758) {
                 gamesysObjInfoCls(33, 3758);
+#endif
 #endif
             }
             o = isysGObjSearchFromObjKindID_next(o);
@@ -373,6 +393,12 @@ void backStageProcessMain(void)
     GamesysObjInfo *g2;
 
     gamesysAnotherStageTsuresari = 0;
+#ifdef VERSION_AUG6
+    if (gflagChk(356) != 0) {
+        return;
+    }
+    if (current_layout_id != 50) {
+#else
     if (gflagChk(390) != 0) {
         return;
     }
@@ -380,6 +406,7 @@ void backStageProcessMain(void)
     if (current_layout_id != 51) {
 #else
     if (current_layout_id != 54) {
+#endif
 #endif
         return;
     }
@@ -396,6 +423,14 @@ void backStageProcessMain(void)
                 s->work[0] = 4;
             } else {
                 memset(&tmp, 0, sizeof(tmp));
+#ifdef VERSION_AUG6
+                tmp.f[0] = objLayout[3416].rot[0];
+                tmp.f[1] = objLayout[3416].rot[1];
+                tmp.f[2] = objLayout[3416].rot[2];
+                rot = tmp;
+                g1 = gamesysObjInfoPosNewStageSet(3415, 4, gameSysObjInfo[1].stage,
+                                                  gameSysObjInfo[1].pos, gameSysObjInfo[1].rot);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 tmp.f[0] = objLayout[3735].rot[0];
                 tmp.f[1] = objLayout[3735].rot[1];
@@ -413,6 +448,7 @@ void backStageProcessMain(void)
                 g1 = gamesysObjInfoPosNewStageSet(0xEAD, 4, gameSysObjInfo[1].stage,
                                                   gameSysObjInfo[1].pos, gameSysObjInfo[1].rot);
 #endif
+#endif
                 kidnapObjIdx = (unsigned int)((char *)g1 - (char *)gameSysObjInfo) >> 6;
                 pos.f[0] = nestPos[0];
                 pos.f[2] = nestPos[2];
@@ -420,8 +456,12 @@ void backStageProcessMain(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 g2 = gamesysObjInfoPosNewStageSet(3735, 33, gameSysObjInfo[1].stage, pos.f, rot.f);
 #else
+#ifdef VERSION_AUG6
+                g2 = gamesysObjInfoPosNewStageSet(3416, 33, gameSysObjInfo[1].stage, pos.f, rot.f);
+#else
                 g2 = gamesysObjInfoPosNewStageSet(0xEAE, 0x21, gameSysObjInfo[1].stage, pos.f,
                                                   rot.f);
+#endif
 #endif
                 SetInfoSpKidnapGenerator(g2->work);
                 SetInfoSpKidnapEnemy(g1->work);
@@ -621,7 +661,11 @@ void backStageProcessInStage(float arg)
         if (gamesysStageExitTime[stage_no] == 0) {
             return;
         }
+#ifdef VERSION_AUG6
+        if (gflagChk(356) != 0) {
+#else
         if (gflagChk(390) != 0) {
+#endif
             return;
         }
     }
@@ -629,11 +673,19 @@ void backStageProcessInStage(float arg)
     if (limit < range) {
         range = limit;
     }
+#ifdef VERSION_AUG6
+    if (backStageGirlTargetEnemyGop == 0 && IsGirlEscortedInCurrentStage() == 0 &&
+        gflagChk(360) == 0 && gameSysObjInfo[1].stage == stage_no && warpGirlInStageSet == 0) {
+        /* the heroine is not held, so the position is changed at random */
+        debug_StdPrintfDummy("ヒロイン捕まっていないのでランダムで位置変更");
+        if (gflagChk(357) == 0) {
+#else
     if (backStageGirlTargetEnemyGop == 0 && IsGirlEscortedInCurrentStage() == 0 &&
         gflagChk(394) == 0 && gameSysObjInfo[1].stage == stage_no && warpGirlInStageSet == 0) {
         /* the heroine is not held, so the position is changed at random */
         debug_StdPrintfDummy("ヒロイン捕まっていないのでランダムで位置変更");
         if (gflagChk(391) == 0) {
+#endif
             kidnapWarpToWaypoint(girlGObj, range);
         }
     }
@@ -643,7 +695,11 @@ void backStageProcessInStage(float arg)
             if (backStageGirlTargetEnemyGop != gobj) {
                 /* the heroine is not held */
                 debug_StdPrintfDummy("ヒロイン捕まってない");
+#ifdef VERSION_AUG6
+                if (gflagChk(357) == 0 && InqCapsuleGhostBossStage() == 0) {
+#else
                 if (gflagChk(391) == 0 && InqCapsuleGhostBossStage() == 0) {
+#endif
                     kidnapWarpToWaypoint(gobj, range);
                 }
             } else {

@@ -92,7 +92,9 @@ static sceVu0IVECTOR wallHitColor2 = {0x00, 0x80, 0xFF, 0x80}; /* derived name *
 
 static float floorSlope[4] = {0.0f, 0.0f, 0.0f, 0.0f}; /* derived name */
 
+#ifndef VERSION_AUG6
 static float sideWallProbe[4] = {0.0f, 0.0f, 10.0f, 0.0f}; /* derived name */
+#endif
 
 static float hangBack[4] = {0.0f, 0.0f, -50.0f, 1.0f}; /* derived name */
 
@@ -129,12 +131,27 @@ static sceVu0IVECTOR dirColor = {0xFF, 0x60, 0x40, 0x80}; /* derived name */
 
 static sceVu0IVECTOR dirColor2 = {0x00, 0x60, 0xFF, 0x80}; /* derived name */
 
+#ifdef VERSION_AUG6
+static sceVu0FVECTOR ikXAxis; /* derived name */
+
+static sceVu0FVECTOR ikBendQuat; /* derived name */
+#else
 static float ikXAxis[4]; /* derived name */
 
 static float ikBendQuat[4]; /* derived name */
+#endif
 
 static float naturalMatrix[16]; /* derived name */
 
+#ifdef VERSION_AUG6
+static sceVu0FVECTOR naturalTrans; /* derived name */
+
+static sceVu0FVECTOR rootMove; /* derived name */
+
+static sceVu0FVECTOR rootStep; /* derived name */
+
+static sceVu0FVECTOR rootDelta; /* derived name */
+#else
 static float naturalTrans[4]; /* derived name */
 
 static float rootMove[4]; /* derived name */
@@ -142,6 +159,7 @@ static float rootMove[4]; /* derived name */
 static float rootStep[4]; /* derived name */
 
 static float rootDelta[4]; /* derived name */
+#endif
 
 /* The skeleton the motion being computed belongs to: its node array and its
    object.  Declared here for the functions above; the definitions follow
@@ -478,7 +496,7 @@ static void checkWallState(int flag)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static void checkCliffState(void)
 {
     ClipWork buf;
@@ -751,7 +769,7 @@ static void _checkCliffAndWall(void)
     if (skelMotCtrl->cliffWallCheck == 1 ||
         (skelMotCtrl->cliffWallCheck == 2 && skelMotCtrl->variation == 0)) {
         MatrixDrive_PushMatrix();
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         checkCliffState();
 #else
         checkCliffState(1);
@@ -787,7 +805,7 @@ static void _checkCliffAndWall(void)
                 MatrixDrive_GetMatrix()[0][0] = MatrixDrive_GetMatrix()[2][2] = v[2];
                 MatrixDrive_GetMatrix()[0][2] = -v[0];
                 MatrixDrive_GetMatrix()[2][0] = -MatrixDrive_GetMatrix()[0][2];
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
                 checkCliffState();
 #else
                 checkCliffState(0);
@@ -812,8 +830,8 @@ static void _checkCliffAndWall(void)
         debug_assertMessage(__FILE__, 816, "NOT ENTRY WCL\n");
         __assert(__FILE__, 816, "e");
 #else
-        debug_assertMessage(__FILE__, 822, "NOT ENTRY WCL\n");
-        __assert(__FILE__, 822, "e");
+        debug_assertMessage(__FILE__, LN(822, 822, 822, 822, 816), "NOT ENTRY WCL\n");
+        __assert(__FILE__, LN(822, 822, 822, 822, 816), "e");
 #endif
     }
 }
@@ -910,7 +928,11 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
     CopyVector((void *)v, (void *)skelMotCtrl->dir);
     SetIdentityQuaternion(q);
     sceVu0Normalize((void *)v, (void *)v);
+#ifdef VERSION_AUG6
+    RotQuaternionY(q, GetTableArcTan2(v[0], v[2]));
+#else
     RotQuaternionY(q, atan2f(v[0], v[2]) * 10430.378f);
+#endif
     CopyQuaternion(skelRoot->quat, q);
     GetMatrixFromQuaternion((void *)MatrixDrive_GetMatrix(), skelRoot->quat);
     SetCurrentQuaternion(skelRoot->quat);
@@ -936,7 +958,9 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
         skelRoot->lifting = 0;
         skelRoot->lift[0] = 0.0f;
         skelRoot->lift[1] = 0.0f;
+#ifndef VERSION_AUG6
         CopyVector(skelRoot->up, skelRoot->pos);
+#endif
     }
 
     if (skelMotCtrl->stream != -1) {
@@ -953,11 +977,15 @@ static void _getGeometryOfMotion(ObjNode *out, int second)
                 "MAY BE MOTION ORIENT DATA WAS BROKEN\n(MOTIONNAME:\"%s\" ID:%d: rootUpdateMode:%d)\n",
                 skelMotDef->name, pm->motion, pm->rootUpdateMode);
 #ifdef VERSION_NTSC
-            debug_assertMessage(__FILE__, 991, buf);
-            __assert(__FILE__, 991, "e");
+            debug_assertMessage(__FILE__, LN(991, 991, 991, 991, 991), buf);
+            __assert(__FILE__, LN(991, 991, 991, 991, 991), "e");
 #else
-            debug_assertMessage(__FILE__, 997, buf);
-            __assert(__FILE__, 997, "e");
+            debug_assertMessage(__FILE__, LN(997, 997, 997, 997, 989), buf);
+#ifdef VERSION_AUG6
+            __assert(__FILE__, LN(822, 822, 822, 822, 989), "e");
+#else
+            __assert(__FILE__, LN(997, 997, 997, 997, 997), "e");
+#endif
 #endif
         } break;
         case 1:
@@ -1148,7 +1176,11 @@ static void execPositionReserver(GObj *self, ObjNode m)
         }
     }
     if (debug_skel_flag != 0) {
+#ifdef VERSION_AUG6
+        if ((GObj *)skelGObj == girlGObj) {
+#else
         if ((GObj *)skelGObj == boyGObj) {
+#endif
             CopyVector(buf2, skelRoot->savePos);
             _UnitMatrix(MatrixDrive_GetMatrix());
             if (m.obj != 0) {
@@ -1156,9 +1188,15 @@ static void execPositionReserver(GObj *self, ObjNode m)
                 MatrixDrive_TransMatrixV(buf2);
                 gif_StartPacketPri(11);
                 if (GOBJ_SUB(self)->ctrl.posReserve == 1) {
+#ifdef VERSION_AUG6
+                    prim_DispWireSphere(5.0f, reserverColor, 16, 8);
+                } else {
+                    prim_DispWireSphere(5.0f, reserverColor2, 16, 8);
+#else
                     prim_DispWireSphere(50.0f, reserverColor, 16, 8);
                 } else {
                     prim_DispWireSphere(50.0f, reserverColor2, 16, 8);
+#endif
                 }
                 gif_EndPacket();
             }

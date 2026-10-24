@@ -21,10 +21,17 @@ extern struct SqEntry *ed4;
 extern struct SqEntry *ed5;
 extern struct SqEntry *ed6;
 #else
+#ifdef VERSION_AUG6
+extern struct SqEntry *ed5;
+extern struct SqEntry *ed6;
+extern struct SqEntry *sea;
+extern struct SqEntry *happy_end;
+#else
 extern int ed5;
 extern struct SqEntry *ed6;
 extern struct SqEntry *sea;
 extern int happy_end;
+#endif
 #endif
 void actConte14_1(GObj *volatile self);
 void actConte14_10(GObj *volatile self);

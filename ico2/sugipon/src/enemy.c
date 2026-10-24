@@ -51,7 +51,7 @@ static float offsetMatrix[4][4] = {
     {10.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* The 84-byte work record InitEnemyGeo allocates into the object's work
    word: the variation kind and the counter setEnemyObject randomises it with,
    the enemy-table row, the particle and broken-part tables, the two eyes, the
@@ -134,10 +134,16 @@ static void setEnemyParticleObject(GObj *self, int pid)
     w->particle = parts;
     fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 107);
 #else
+#ifdef VERSION_AUG6
+    size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f;
+#else
     size = (p->scale[0] + p->scale[1] + p->scale[2]) * 32.0f * 0.33333f * 0.5f * 10.0f;
-    parts = (PrimParticle **)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 130);
+#endif
+    parts = (PrimParticle **)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
+                                            LN(130, 130, 130, 130, 105));
     w->particle = parts;
-    fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 132);
+    fl = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
+                               LN(132, 132, 132, 132, 107));
 #endif
     w->flag = fl;
     clearEnemyParticleFlags(fl, n);
@@ -167,8 +173,9 @@ static void setEnemyParticleObject(GObj *self, int pid)
             debug_assertMessage("src/enemy.c", 152, "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
             __assert("src/enemy.c", 152, "e");
 #else
-            debug_assertMessage("src/enemy.c", 177, "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
-            __assert("src/enemy.c", 177, "e");
+            debug_assertMessage("src/enemy.c", LN(177, 177, 177, 177, 152),
+                                "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n");
+            __assert("src/enemy.c", LN(177, 177, 177, 177, 152), "e");
 #endif
         }
         for (cnt = 0; q->w > -1.0f && cnt < 80; cnt++, q++) {
@@ -277,7 +284,11 @@ retry:
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (obj != 1548) {
 #else
+#ifdef VERSION_AUG6
+    if (obj != 1510) {
+#else
     if (obj != 0x610) {
+#endif
 #endif
         *(int *)&GOBJ_SUB(self)->model = GetPObjAddress(obj);
         GOBJ_SUB(self)->modelId = obj;
@@ -527,7 +538,8 @@ static inline int enemyInitPartsList(GObj *self, SObjSimpleSetting *param) /* de
 #ifdef VERSION_NTSC
     parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 260);
 #else
-    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c", 285);
+    parts = (int *)iosMallocDebug(ios_partition_sugipon, n * 4, "src/enemy.c",
+                                  LN(285, 285, 285, 285, 260));
 #endif
     w->broken = parts;
     clearEnemyParticleFlags(parts, n);
@@ -543,9 +555,13 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
     int no;
 
 #ifdef VERSION_NTSC
-    w = iosMallocDebug(ios_partition_sugipon, 80, "src/enemy.c", 605);
+    w = iosMallocDebug(ios_partition_sugipon, 80, "src/enemy.c", LN(605, 605, 605, 605, 605));
+#else
+#ifdef VERSION_AUG6
+    w = iosMallocDebug(ios_partition_sugipon, 80, "src/enemy.c", 597);
 #else
     w = iosMallocDebug(ios_partition_sugipon, 0x54, "src/enemy.c", 641);
+#endif
 #endif
     SUBOF(self)->work = w;
     w->word1C = 0;
@@ -560,10 +576,14 @@ void *InitEnemyGeo(GObj *self, SObjSimpleSetting *param)
     w->short40 = 0;
     w->wing = 0.0f;
     w->timer = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     kind = enemyInitPartsList(self, param);
     w->def = kind;
+#ifdef VERSION_AUG6
+    InitMotionOrient(self, 1797, 2080, 24, 36, 790);
+#else
     InitMotionOrient(self, 1820, 2105, 24, 36, 788);
+#endif
 #else
     w->flyXZAccel = 1.0f;
     kind = enemyInitPartsList(self, param);
@@ -610,7 +630,7 @@ void EnemyGeo(GObj *self)
         Sub15C *s = GOBJ_SUB(self);
         if (s->ctrl.landed != 0) {
             if (w->footSwitch != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
                 GetProjectionOfPlane(
                     buf, s->root.plane.f,
                     (float *)((char *)s->nodeMtx + s->root.standNode * 0x40 + 0x30));
@@ -691,7 +711,7 @@ void SetEnemyDissolve(GObj *self, float ratio)
         sub->nodes->fade = 0.0f;
     if (sub->nodes->fade > 1.0f)
         sub->nodes->fade = 1.0f;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 }
 
 static void SetEnemyFlyXZAccel(GObj *self, float accel)
@@ -806,12 +826,25 @@ int EnemyGetNSafeParts(GObj *self)
 void EnemyDeleteParticle(GObj *self, float *dir, short *list)
 {
     Sub15C *sub = self->dobj;
+#ifdef VERSION_AUG6
+    EnemyWork *w = sub->work;
+#endif
     int i;
     int n;
 
+#ifdef VERSION_AUG6
+    n = 3;
+    for (i = 0; list[i] >= 0 && n > 0; i++) {
+        if ((w->broken)[list[i]] == 0) {
+            (w->broken)[list[i]] = 1;
+            enemySetParticle(8, *(char **)((char *)sub + 12) + list[i] * 64 + 48, dir);
+            n--;
+        }
+#else
     n = 2;
     for (i = 0; list[i] >= 0 && n > 0; i++, n--) {
         enemySetParticle(8, (char *)sub->nodeMtx + list[i] * 64 + 48, dir);
+#endif
     }
 }
 
@@ -827,7 +860,11 @@ int InitDemoMotionGeo(GObj *self)
 #ifdef VERSION_NTSC
     InitMotionOrient(self, 1820, 2105, -1, -1, 922);
 #else
+#ifdef VERSION_AUG6
+    InitMotionOrient(self, 1797, 2080, -1, -1, 924);
+#else
     InitMotionOrient(self, 2122, 2407, -1, -1, 983);
+#endif
 #endif
     SetLodLevel(self, 0);
     self->active = 0;
@@ -839,7 +876,11 @@ void HotInitDemoMotionGeo(GObj *self)
 #ifdef VERSION_NTSC
     InitMotionOrient(self, 1820, 2105, -1, -1, 922);
 #else
+#ifdef VERSION_AUG6
+    InitMotionOrient(self, 1797, 2080, -1, -1, 924);
+#else
     InitMotionOrient(self, 2122, 2407, -1, -1, 983);
+#endif
 #endif
     SetLodLevel(self, 0);
     self->active = 0;
@@ -882,7 +923,7 @@ float GetEnemyDefLife(GObj *self)
     return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].life;
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 float GetEnemyDefDodgeRange(GObj *self)
 {
     return enemyKind[((EnemyWork *)GOBJ_SUB(self)->work)->def].dodge;

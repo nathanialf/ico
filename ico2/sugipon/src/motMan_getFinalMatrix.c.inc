@@ -328,15 +328,20 @@ static inline void getRotOfDir(float *q, float *v) /* derived name */
     MultiCurrentQuaternion(q);                                                                     \
     GetMatrixFromQuaternionRotElem(MatrixDrive_GetMatrix(), GetCurrentQuaternion())
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static void _getFinalMatrix(int id)
 {
     SkelNode *node = &skelNode[id];
     char *elem = skelMotion + id * 32;
     /* Sub15C nodeRotElem and nodeLimit, reached from the root block (the ROM adds 160 first) */
     char *geo = (char *)GOBJ_SUB(skelGObj) + 0xA0;
+#ifdef VERSION_AUG6
+    MotIk *ik = *(MotIk **)(geo + 0x72C) + id;
+    MotLimAng *lim = ((MotLimAng **)*(char **)(geo + 0x730))[id];
+#else
     MotIk *ik = *(MotIk **)(geo + 0x73C) + id;
     MotLimAng *lim = ((MotLimAng **)*(char **)(geo + 0x740))[id];
+#endif
     float v[4];
     float dq[4];
     float q[4];

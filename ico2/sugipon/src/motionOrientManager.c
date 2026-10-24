@@ -28,7 +28,7 @@
 
 static void getMotionGeometry(void *self);
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static void getStreamShapeGeometry(void *self, void *sm);
 static void shiftMotionData(int obj, int motion, int request, int shiftMode);
 #else
@@ -185,7 +185,11 @@ float GetMotionPlaySpeedRatio(int id)
 #else
 static inline void checkMotionKind(int i, int j) /* derived name */
 {
+#ifdef VERSION_AUG6
+    if (motionKind[i].blendKind != 228) {
+#else
     if (motionKind[i].blendKind != 320) {
+#endif
         char buf[256];
 
         /* EUC-JP: "the node-blending motion (%s) uses a node-blending motion again" */
@@ -194,8 +198,13 @@ static inline void checkMotionKind(int i, int j) /* derived name */
             motionKind[j].name);
         sprintf(buf, "NODE BLEND MOTION \"%s\" REFERS\nNODE BLEND MOTION RECURSIVELY.\n",
                 motionKind[j].name);
+#ifdef VERSION_AUG6
+        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 152), buf);
+        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 152), "e");
+#else
         debug_assertMessage(__FILE__, 152, buf);
         __assert(__FILE__, 152, "e");
+#endif
     }
 }
 
@@ -204,7 +213,11 @@ int GetNbMotionFrames(int id)
     int m;
     int n;
 
+#ifdef VERSION_AUG6
+    if (motionKind[id].blendKind == 228) {
+#else
     if (motionKind[id].blendKind == 320) {
+#endif
         return *motionTable[id];
     }
     m = blendMotionKind[motionKind[id].blendKind].motion;
@@ -220,7 +233,11 @@ float GetMotionPlaySpeedRatio(int id)
 {
     int m;
 
+#ifdef VERSION_AUG6
+    if (motionKind[id].blendKind == 228) {
+#else
     if (motionKind[id].blendKind == 320) {
+#endif
         return motionKind[id].playSpeedRatio;
     }
     m = blendMotionKind[motionKind[id].blendKind].motion;
@@ -293,7 +310,11 @@ static __inline__ int checkFrameInRange2(int mot, float t, float t2) /* derived 
  * them */
 static __inline__ int checkFrameInRange(int mot, float t) /* derived name */
 {
+#ifdef VERSION_AUG6
+    if ((float)motionKind[mot].triggerStart < t && t < (float)motionKind[mot].triggerEnd) {
+#else
     if ((float)motionKind[mot].triggerStart <= t && t <= (float)motionKind[mot].triggerEnd) {
+#endif
         return 1;
     }
     return 0;
@@ -301,7 +322,11 @@ static __inline__ int checkFrameInRange(int mot, float t) /* derived name */
 
 static __inline__ int checkFrameInRange2(int mot, float t, float t2) /* derived name */
 {
+#ifdef VERSION_AUG6
+    if ((float)motionKind[mot].trigger2Start < t2 && t < (float)motionKind[mot].trigger2End) {
+#else
     if ((float)motionKind[mot].trigger2Start <= t2 && t <= (float)motionKind[mot].trigger2End) {
+#endif
         return 1;
     }
     return 0;
@@ -333,7 +358,11 @@ static __inline__ int checkMotionShiftRange(int mot, float t, float t2) /* deriv
 int UpdateFrameCounter(void *self)
 {
     char *m = (char *)MOWORK(self);
+#ifdef VERSION_AUG6
+    struct MotCtrl *w = (struct MotCtrl *)(m + 0x460);
+#else
     struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
+#endif
     int nf = GetNbMotionFrames(w->motion);
     float t;
     float r;
@@ -348,9 +377,11 @@ int UpdateFrameCounter(void *self)
         t = w->speedRatio * motionKind[w->motion].playSpeedRatio * w->playRate *
             (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f);
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
+#ifndef VERSION_AUG6
         if (systemStatus[0] != 0) {
             t = t * motionKind[w->motion].palSpeedRatio;
         }
+#endif
 #endif
         if (w->waterDrag != 0) {
             switch (w->rootUpdateMode) {
@@ -379,7 +410,11 @@ int UpdateFrameCounter(void *self)
             if ((float)(nf - 1) <= w->animFrame) {
                 w->animFrame = w->animFrame - (float)(nf - 1);
                 w->frameEnd = motionKind[w->motion].playMode;
+#ifdef VERSION_AUG6
+                InitFrameDependSequence(m + 0x730);
+#else
                 InitFrameDependSequence(m + 0x740);
+#endif
                 clearFrameTriggerState(self);
                 if (motionKind[w->motion].flags.bits.loop != 0) {
                     w->loopFlag = 1;
@@ -445,7 +480,11 @@ inline MotionOrientEntry *GetMotionOrient(int i, int n, int id, int kind)
             if (motionOrient[i].id == id) {
                 return &motionOrient[i];
             }
+#ifdef VERSION_AUG6
+            if (motionOrient[i].id == 1087) {
+#else
             if (motionOrient[i].id == 1146) {
+#endif
                 found = i;
             }
         }
@@ -467,7 +506,11 @@ inline MotionOrientEntry *getMotionOrient(int i, int n, int id, int kind)
 #ifdef VERSION_NTSC
     return &motionOrient[2165];
 #else
+#ifdef VERSION_AUG6
+    return &motionOrient[2138];
+#else
     return &motionOrient[2467];
+#endif
 #endif
 }
 
@@ -576,7 +619,11 @@ static inline int searchMotionShift(void *self, int id, int cur) /* derived name
 #ifdef VERSION_NTSC
                     return 1084;
 #else
+#ifdef VERSION_AUG6
+                    return 1086;
+#else
                     return 0x479;
+#endif
 #endif
                 }
                 return (m->shiftNext)[i];
@@ -605,7 +652,11 @@ static __inline__ int searchAltMotion(int req) /* derived name */
 {
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 3; i++) {
+#else
     for (i = 0; i < 6; i++) {
+#endif
         if (mirrorMotionTable[i].req == req) {
             return mirrorMotionTable[i].alt;
         }
@@ -617,7 +668,11 @@ static __inline__ int searchAltMotion(int req) /* derived name */
 static void shiftMotionData(int obj, int motion, int request, int shiftMode)
 {
     char *m = (char *)GOBJ_SUB(obj);
+#ifdef VERSION_AUG6
+    struct MotCtrl *w = (struct MotCtrl *)(m + 0x460);
+#else
     struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
+#endif
     struct MotRoot *mw = (struct MotRoot *)(m + 0xA0);
     int mot;
     float frame;
@@ -651,7 +706,7 @@ static void shiftMotionData(int obj, int motion, int request, int shiftMode)
     mw->fieldWall = motionKind[mot].fieldWall;
     mw->cylinder = motionKind[mot].cylinder;
     mw->avgWallPlane = motionKind[mot].flags.bits.avgWallPlane;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     mw->flag330 = motionKind[mot].flags.bits.dropNode4Turn;
 #else
     mw->flag330 = motionKind[mot].flags2.bits.dropNode4Turn;
@@ -704,8 +759,8 @@ static void shiftMotionOrientEndFunc(void *self)
         /* EUC-JP: "the SE internal processing seems wrong for some reason; report it to Sugiyama" */
         debug_StdPrintfDummy(
             "何らかの理由でSEの内部処理がおかしいようです。杉山に報告してください。\n");
-        debug_assert(__FILE__, LN(745, 739, 739, 739));
-        __assert(__FILE__, LN(745, 739, 739, 739), "0");
+        debug_assert(__FILE__, LN(745, 739, 739, 739, 739));
+        __assert(__FILE__, LN(745, 739, 739, 739, 739), "0");
     }
     StopSEPackageWithGroupVariation(self, 0);
     StopSEPackageWithGroupVariation(self, 1);
@@ -741,9 +796,15 @@ inline void CopyBlendMotionDataSource(void *self, short ang)
         *(struct MotOriFloat *)((char *)MOWORK(self) + 0x160);
     *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x7D0) = *(struct MotOriHead8 *)MOWORK(self);
 #else
+#ifdef VERSION_AUG6
+    *(struct MotOriFloat *)((char *)MOWORK(self) + 0x7C8) =
+        *(struct MotOriFloat *)((char *)MOWORK(self) + 0x150);
+    *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x7C0) = *(struct MotOriHead8 *)MOWORK(self);
+#else
     *(struct MotOriFloat *)((char *)MOWORK(self) + 0x808) =
         *(struct MotOriFloat *)((char *)MOWORK(self) + 0x160);
     *(struct MotOriHead8 *)((char *)MOWORK(self) + 0x800) = *(struct MotOriHead8 *)MOWORK(self);
+#endif
 #endif
     while (MOWORK(self)->skel[i].parent == -1) {
         SetQuaternionByAxisRotate(quat, ang, 0.0f, 1.0f, 0.0f);
@@ -756,7 +817,11 @@ static void shiftMotionOrientBeginFunc(void *self, int motion, int request, int 
 {
     Vec16 v;
     char *m = (char *)MOWORK(self);
+#ifdef VERSION_AUG6
+    struct MotCtrl *w = (struct MotCtrl *)(m + 0x460);
+#else
     struct MotCtrl *w = (struct MotCtrl *)(m + 0x470);
+#endif
     struct MotRoot *p = (struct MotRoot *)(m + 0xA0);
     short ang;
 
@@ -797,7 +862,7 @@ static void shiftMotionOrientBeginFunc(void *self, int motion, int request, int 
         }
     }
     CopyBlendMotionDataSource(self, ang);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     StopFDSVibration(MOWORK(self)->fdsFlags);
 #endif
     InitFrameDependSequence(MOWORK(self)->fdsFlags);
@@ -907,7 +972,11 @@ static inline int checkMotionShiftReady(struct MotCtrl *m, MotionOrientEntry *p)
     }
     kind = p->nextId;
     m->orientReq = kind;
+#ifdef VERSION_AUG6
+    if (kind == 1086) {
+#else
     if (kind == 0x479) {
+#endif
         if (m->frameEnd == 0) {
             goto fail;
         }
@@ -928,7 +997,11 @@ static int normalMotionShift(void *self, int force)
     MotionOrientEntry *p = getMotionOrient(w->oriFrom, w->oriTo, w->request, w->orientKind);
 
     if (force == 0) {
+#ifdef VERSION_AUG6
+        if (p->id == 1087) {
+#else
         if (p->id == 1146) {
+#endif
             return 0;
         }
     }
@@ -938,11 +1011,19 @@ static int normalMotionShift(void *self, int force)
         int next;
         int r = -1; /* no pairing found; the else arm searches with it as cur */
 
+#ifdef VERSION_AUG6
+        if (kind == 1086) {
+#else
         if (kind == 0x479) {
+#endif
             kind = p->id;
             mode = 5;
             r = searchMotionShift(self, kind, w->motion);
+#ifdef VERSION_AUG6
+            if (r == -1 || r == 1086) {
+#else
             if (r == -1 || r == 0x479) {
+#endif
                 return 0;
             }
             next = r;
@@ -964,9 +1045,15 @@ static inline MotionOrientEntry *findParallelMotion(int cur, int next) /* derive
     int i;
 
     if (cur == next) {
+#ifdef VERSION_AUG6
+        return &motionOrient[2138];
+    }
+    for (i = 0; i < 41; i++) {
+#else
         return &motionOrient[2467];
     }
     for (i = 0; i < 54; i++) {
+#endif
         if (parallelMotionOrient[i].id == cur) {
             if (parallelMotionOrient[i].kind == next) {
                 return (MotionOrientEntry *)&parallelMotionOrient[i];
@@ -997,7 +1084,11 @@ static int parallelMotionShift(void *self)
 #ifdef VERSION_NTSC
         } else if (next != 1084) {
 #else
+#ifdef VERSION_AUG6
+        } else if (next != 1086) {
+#else
         } else if (next != 0x479) {
+#endif
 #endif
             MotionOrientEntry e = {m->motion, m->orientKind, next, m->shiftFrom, m->shiftMode};
 
@@ -1087,7 +1178,11 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
 #else
 char *SetMotionRequest(void *self, int mot, MotOriReq req)
 {
+#ifdef VERSION_AUG6
+    char *w = (char *)GOBJ_SUB(self) + 0x460;
+#else
     char *w = (char *)GOBJ_SUB(self) + 0x470;
+#endif
     int old = *(int *)(w + 0xD0);
 
     *(int *)(w + 0xD0) = mot;
@@ -1106,11 +1201,19 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
             debug_StdPrintfDummy("\033[36mUpdate with collision info that act memorized.\033[m\n");
             break;
         }
+#ifdef VERSION_AUG6
+        if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+            (debug_mot_debug_target == 1 && self == girlGObj) ||
+            (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(46))) {
+#else
         if ((debug_mot_debug_target == 0 && self == boyGObj) ||
             (debug_mot_debug_target == 1 && self == girlGObj) ||
             (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
             (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
             (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+#endif
             if (ignoreCount != 0 && debug_window_flag != 0) {
                 debug_PrintFontWindow(0xC0FF20, "\n ");
             }
@@ -1120,11 +1223,19 @@ char *SetMotionRequest(void *self, int mot, MotOriReq req)
     } else {
         *(int *)(w + 0xD0) = old;
         if (pad[0].now & 0x2) {
+#ifdef VERSION_AUG6
+            if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+                (debug_mot_debug_target == 1 && self == girlGObj) ||
+                (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+                (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+                (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(46))) {
+#else
             if ((debug_mot_debug_target == 0 && self == boyGObj) ||
                 (debug_mot_debug_target == 1 && self == girlGObj) ||
                 (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
                 (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
                 (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+#endif
                 MotOriSpin spin = {{"-", "\\", "|", "/"}};
 
                 if (ignoreMotion != mot && ignoreCount != 0) {
@@ -1166,7 +1277,11 @@ inline void SetParallelMotionTable(void *self, int *next, int *req, int from, in
 #ifdef VERSION_NTSC
     m->orientKind = 237;
 #else
+#ifdef VERSION_AUG6
+    m->orientKind = 235;
+#else
     m->orientKind = 269;
+#endif
 #endif
     SetParallelMotionTableWithNoRequest(self, next, req);
     m->shiftFrom = from;
@@ -1229,7 +1344,11 @@ static void getNodeBlendedFloatingMotion(StreamElem *dst, float *root, int id, i
     int prev = -1;
     SkelNode *skel = MOWORK(self)->skel;
 
+#ifdef VERSION_AUG6
+    for (i = 0, j = motionKind[id].blendKind; blendMotionKind[j].motion != 1088; i++, j++) {
+#else
     for (i = 0, j = motionKind[id].blendKind; blendMotionKind[j].motion != 0x47B; i++, j++) {
+#endif
         int node = blendMotionKind[j].motion;
 
         checkMotionKind(node, id);
@@ -1254,8 +1373,13 @@ static void getNodeBlendedFloatingMotion(StreamElem *dst, float *root, int id, i
     if (i == 0) {
         /* EUC-JP: "(%s) the motion to blend is not defined" */
         debug_StdPrintfDummy("(%s)混ぜるモーションが定義されていません。\n", motionKind[id].name);
-        debug_assert(__FILE__, LN(1228, 1222, 1222, 1228));
-        __assert(__FILE__, LN(1228, 1222, 1222, 1228), "0");
+#ifdef VERSION_AUG6
+        debug_assert(__FILE__, LN(745, 739, 739, 739, 1221));
+        __assert(__FILE__, LN(745, 739, 739, 739, 1221), "0");
+#else
+        debug_assert(__FILE__, LN(1228, 1222, 1222, 1228, 1228));
+        __assert(__FILE__, LN(1228, 1222, 1222, 1228, 1228), "0");
+#endif
     }
 }
 #endif
@@ -1282,8 +1406,8 @@ static inline void assertMotionLoaded(struct MotCtrl *w, int *md) /* derived nam
 
         sprintf(buf, "THE MOTION \"%s\"(%d)\nDID NOT LOAD IN THIS STAGE\nOR IS INVALID ID.\n",
                 motionKind[w->motion].name, w->motion);
-        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268), buf);
-        __assert(__FILE__, LN(1275, 1269, 1269, 1268), "e");
+        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 1262), buf);
+        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 1262), "e");
     }
 }
 
@@ -1303,11 +1427,16 @@ static inline void assertMotionNodeCount(struct MotCtrl *w, int *md, int n) /* d
             "THE NUMBER OF NODE DATAS OF MOTION\n\"%s\"(%d SKELTONS) DOES NOT MATCH\nTHE NUMBER OF SKELTON NODES(%d SKELTONS)\n",
             motionKind[w->motion].name, i - 1, n);
 #ifdef VERSION_NTSC
-        debug_assertMessage(__FILE__, 1280, buf);
-        __assert(__FILE__, 1280, "e");
+        debug_assertMessage(__FILE__, LN(1280, 1280, 1280, 1280, 1280), buf);
+        __assert(__FILE__, LN(1280, 1280, 1280, 1280, 1280), "e");
 #else
-        debug_assertMessage(__FILE__, LN(1287, 1281, 1281, 1287), buf);
-        __assert(__FILE__, LN(1287, 1281, 1281, 1287), "e");
+#ifdef VERSION_AUG6
+        debug_assertMessage(__FILE__, LN(1275, 1269, 1269, 1268, 1274), buf);
+        __assert(__FILE__, LN(1275, 1269, 1269, 1268, 1274), "e");
+#else
+        debug_assertMessage(__FILE__, LN(1287, 1281, 1281, 1287, 1287), buf);
+        __assert(__FILE__, LN(1287, 1281, 1281, 1287, 1287), "e");
+#endif
 #endif
     }
 }
@@ -1496,20 +1625,38 @@ static void getMotionGeometry(void *self)
     struct MotCtrl *w = &MOWORK(self)->ctrl;
     int n = MOWORK(self)->skelNodeNum;
     char *blendless = MOWORK(self)->blendless;
+#ifdef VERSION_AUG6
+    StreamElem mot[n];
+#else
     char mot[n * 32];
+#endif
     float scale = MOWORK(self)->nodes->scale[0];
     int *md = motionTable[w->motion];
 
+#ifdef VERSION_AUG6
+    if (motionKind[w->motion].blendKind == 228) {
+#else
     if (motionKind[w->motion].blendKind == 320) {
+#endif
         assertMotionLoaded(w, md);
         assertMotionNodeCount(w, md, n);
     }
+#ifndef VERSION_AUG6
     RegularizeQuaternion(MOWORK(self)->root.quat);
+#endif
     MatrixDrive_PushMatrix();
     {
         Vec16 v;
         Vec16 rv;
 
+#ifdef VERSION_AUG6
+        if (motionKind[w->motion].blendKind == 228) {
+            GetFloatingMotion(mot, w->animFrame, v.f, md, n, blendless, skel);
+            GetFloatingMotionRootPos(rv.f, md, w->lastFrame);
+        } else {
+            getNodeBlendedFloatingMotion(mot, v.f, w->motion, n, blendless, self, w->animFrame);
+            getMotionRootPos(w, rv.f);
+#else
         if (motionKind[w->motion].blendKind == 320) {
             GetFloatingMotion((StreamElem *)mot, w->animFrame, v.f, md, n, blendless, skel);
             GetFloatingMotionRootPos(rv.f, md, w->lastFrame);
@@ -1520,6 +1667,7 @@ static void getMotionGeometry(void *self)
         }
         if (w->motion == 102) {
             v.f[0] = v.f[0] + 1.0f;
+#endif
         }
         sceVu0ScaleVector(&v, &v, scale);
         if (w->animFrame < w->lastFrame) {
@@ -1529,30 +1677,50 @@ static void getMotionGeometry(void *self)
             sceVu0SubVector(mo->step, &v, &rv);
         }
         if (w->noAlt != 0) {
+#ifdef VERSION_AUG6
+            MakeMirrorMotion(mot, skel);
+        }
+        if (w->catchBoy != 0) {
+            SlopeIKControl(self, (char *)mot, v.f, (Vec4 *)mo->step, n);
+#else
             MakeMirrorMotion((StreamElem *)mot, skel);
         }
         if (w->catchBoy != 0) {
             SlopeIKControl(self, mot, v.f, (Vec4 *)mo->step, n);
+#endif
         }
         {
             Vec16 fv;
             Vec16 tv;
             Vec16 tmp;
             float len;
+#ifdef VERSION_AUG6
+            float ang;
+#else
             float c;
             float ang;
             float d;
+#endif
             float r;
             int flag;
             int k;
 
             /* a nested function, inlined into the arm that uses it */
+#ifdef VERSION_AUG6
+            inline void rotateNodes(StreamElem * m, SkelNode * s, void *q) /* derived name */
+            {
+#else
             inline void rotateNodes(char *m, SkelNode *s, void *q) /* derived name */
             {
+#endif
                 int i = 0;
 
                 do {
+#ifdef VERSION_AUG6
+                    MultiQuaternion(m[i].q, q, m[i].q);
+#else
                     MultiQuaternion(m + i * 32 + 16, q, m + i * 32 + 16);
+#endif
                     i = s[i].sibling;
                 } while (i != -1);
             }
@@ -1571,6 +1739,10 @@ static void getMotionGeometry(void *self)
                                       MOWORK(self)->parent.node * 0x40,
                                   &tv);
             }
+#ifdef VERSION_AUG6
+            ang = acosf(tv.f[0] * fv.f[0] + tv.f[2] * fv.f[2]) *
+                  ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 10430.378f);
+#else
             d = tv.f[0] * fv.f[0] + tv.f[2] * fv.f[2];
             if (1.0f < d) {
                 d = 1.0f;
@@ -1578,6 +1750,7 @@ static void getMotionGeometry(void *self)
             c = d < -1.0f ? -1.0f : d;
             ang = acosf(c) *
                   ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 60.0f * 10430.378f);
+#endif
             if (0.0f < tv.f[0] * fv.f[2] - tv.f[2] * fv.f[0]) {
                 ang = -ang;
             }
@@ -1591,7 +1764,15 @@ static void getMotionGeometry(void *self)
             if (debug_now_motion_viewer == 0) {
                 float t = 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.2f;
 
+#ifdef VERSION_AUG6
+                /* two statements with an int between them: the August TRFILE
+                 * and PAL's listing have code on both lines, the narrowing to
+                 * short on the second */
+                int tw = mo->twist * (1.0f - t);
+                mo->twist = (short)tw + r * t;
+#else
                 mo->twist = (short)((float)mo->twist * (1.0f - t)) + r * t;
+#endif
             }
             if (w->rootUpdateMode == 20) {
                 Vec16 up;
@@ -1619,12 +1800,21 @@ static void getMotionGeometry(void *self)
             if (flag != 0) {
                 float s = (float)w->blendCount / (float)w->blendFrames;
 
+#ifdef VERSION_AUG6
+                GetBlendedMotion(MOWORK(self)->motionBuf, tmp.f, mot, v.f, MOWORK(self)->blendBuf,
+                                 MOWORK(self)->localPos, s, blendless, n);
+#else
                 GetBlendedMotion(MOWORK(self)->motionBuf, tmp.f, (StreamElem *)mot, v.f,
                                  MOWORK(self)->blendBuf, MOWORK(self)->localPos, s, blendless, n);
+#endif
                 mo->radius = mo->radiusFrom * (1.0f - s) + mo->radiusTo * s;
                 GetGeometryOfMotion(self, mot, MOWORK(self)->motionBuf, v.f, s, mo->step, k);
             } else {
+#ifdef VERSION_AUG6
+                CopyMotion(MOWORK(self)->motionBuf, mot, n);
+#else
                 CopyMotion(MOWORK(self)->motionBuf, (StreamElem *)mot, n);
+#endif
                 mo->radius = mo->radiusTo;
                 GetGeometryOfMotion(self, mot, MOWORK(self)->motionBuf, v.f, 1.0f, mo->step,
                                     w->justShifted ? k : -1);
@@ -1634,7 +1824,11 @@ static void getMotionGeometry(void *self)
             RotQuaternionY(&tmp, -32768);
             MultiQuaternion(&tmp, &tmp, skel->quat);
             GetInverseQuaternion(&tmp, &tmp);
+#ifdef VERSION_AUG6
+            MultiQuaternion(mo->motionQuat, mot[0].q, &tmp);
+#else
             MultiQuaternion(mo->motionQuat, mot + 16, &tmp);
+#endif
             CopyVector(w->lastDir, w->dir);
         }
     }
@@ -1649,14 +1843,22 @@ static void getMotionGeometry(void *self)
     execFrameTrigger(self);
     UpdateFrameCounter(self);
     if (stage_no == 16 && MOWORK(self)->ctrl.wallHit != 0) {
+#ifdef VERSION_AUG6
+        void *g = isysGObjSearchFromObjLayoutID(805);
+#else
         void *g = isysGObjSearchFromObjLayoutID(865);
+#endif
 
         if (g != 0) {
             void *o;
             void *t;
 
             if ((void *)MOWORK(self)->root.wall.o.obj == g) {
+#ifdef VERSION_AUG6
+                g = isysGObjSearchFromObjLayoutID(806);
+#else
                 g = isysGObjSearchFromObjLayoutID(866);
+#endif
             }
             o = MOWORK(g)->parent.obj;
             t = (void *)MOWORK(self)->root.wall.o.obj;
@@ -1690,7 +1892,7 @@ enum DebugDisplayMode {
 
 extern enum DebugDisplayMode debug_bar_flag;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static void getShapeGeometry(void *self)
 {
     struct MotCtrl *m = &GOBJ_SUB(self)->ctrl;
@@ -1716,7 +1918,11 @@ static void getShapeGeometry(void *self)
                     }
                     for (i = 0; i < n; i++) {
                         float x = buf[i] * 0.01f;
+#ifdef VERSION_AUG6
+                        int *p = (int *)(i * 4 + *(int *)((char *)GOBJ_SUB(self) + 0x7F8));
+#else
                         int *p = (int *)(i * 4 + *(int *)((char *)GOBJ_SUB(self) + 0x808));
+#endif
 
                         if (x < 0.0f) {
                             if (0.0001f < -x) {
@@ -1910,7 +2116,19 @@ static void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float
  * shared by getStreamBlendShapeGeometry and getStreamShapeGeometry.  The test
  * is this programmer's absolute-value idiom (box.c, geometryManager.c,
  * motionManager.c). */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+#define SET_SHAPE_VALUE(self, i, x) /* derived name */                                             \
+    {                                                                                              \
+        int *p = (int *)((i) * 4 + *(int *)((char *)*(int *)((char *)(self) + 0x15C) + 0x7F8));    \
+                                                                                                   \
+        if (0.0001f < ((x) < 0.0f ? -(x) : (x))) {                                                 \
+            *(float *)p = (x);                                                                     \
+        } else {                                                                                   \
+            *p = 0;                                                                                \
+        }                                                                                          \
+    }
+#else
 #define SET_SHAPE_VALUE(self, i, x) /* derived name */                                             \
     {                                                                                              \
         int *p = (int *)((i) * 4 + *(int *)((char *)*(int *)((char *)(self) + 0x15C) + 0x808));    \
@@ -1921,6 +2139,7 @@ static void getStreamBlendMotionGeometry(void *self, void *sm0, void *sm1, float
             *p = 0;                                                                                \
         }                                                                                          \
     }
+#endif
 #else
 #define SET_SHAPE_VALUE(self, i, x) /* derived name */                                             \
     {                                                                                              \
@@ -1974,7 +2193,11 @@ static void getStreamShapeGeometry(void *self, void *sm)
 #ifdef VERSION_NTSC
                 *(int *)(*(int *)((char *)GOBJ_SUB(self) + 0x808) + i * 4) = 0;
 #else
+#ifdef VERSION_AUG6
+                *(int *)(*(int *)((char *)GOBJ_SUB(self) + 0x7F8) + i * 4) = 0;
+#else
                 *(int *)(*(int *)((char *)GOBJ_SUB(self) + 0x838) + i * 4) = 0;
+#endif
 #endif
             }
         }
@@ -2038,6 +2261,12 @@ static void getStreamMotion(void *self)
 {
     int s = MOWORK(self)->ctrl.stream;
     char a[GetDataSizeOfStreamMotion(s)];
+#ifdef VERSION_AUG6
+
+    GetStreamMotionData(a, s);
+    getStreamMotionGeometry(self, a);
+    getStreamShapeGeometry(self, a);
+#else
     float t = GetStreamMotionData(a, s);
 
     if (t <= 0.0f) {
@@ -2050,6 +2279,7 @@ static void getStreamMotion(void *self)
         getStreamBlendMotionGeometry(self, a, b, t);
         getStreamBlendShapeGeometry(self, a, b, t);
     }
+#endif
 }
 
 void ExecMotionOrient(void *self)
@@ -2061,16 +2291,28 @@ void ExecMotionOrient(void *self)
         debug_StdPrintfDummy("\033[36mモーション置き換え機能が停止しています。\033[m: %p\n", self);
     }
     if (w->stream == -1) {
+#ifdef VERSION_AUG6
+        if (w->orientKind != 235) {
+#else
         if (w->orientKind != 269) {
+#endif
             normalMotionShift(self, 0);
         } else {
             parallelMotionShift(self);
         }
+#ifdef VERSION_AUG6
+        if ((debug_mot_debug_target == 0 && self == boyGObj) ||
+            (debug_mot_debug_target == 1 && self == girlGObj) ||
+            (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
+            (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
+            (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(46))) {
+#else
         if ((debug_mot_debug_target == 0 && self == boyGObj) ||
             (debug_mot_debug_target == 1 && self == girlGObj) ||
             (debug_mot_debug_target == 2 && self == isysGObjSearchFromObjKindID_begin(32)) ||
             (debug_mot_debug_target == 3 && self == isysGObjSearchFromObjKindID_begin(4)) ||
             (debug_mot_debug_target == 4 && self == isysGObjSearchFromObjKindID_begin(47))) {
+#endif
             if (w->shifted != 0) {
                 if (ignoreCount != 0 && debug_window_flag != 0) {
                     debug_PrintFontWindow(0xC0FF20, "\n ");
@@ -2084,7 +2326,11 @@ void ExecMotionOrient(void *self)
             int i;
 
             for (i = 0; i < n; i++) {
+#ifdef VERSION_AUG6
+                *(int *)(i * 4 + *(int *)((char *)GOBJ_SUB(self) + 0x7F8)) = 0;
+#else
                 *(int *)(i * 4 + *(int *)((char *)GOBJ_SUB(self) + 0x838)) = 0;
+#endif
             }
         }
         getMotionGeometry(self);
@@ -2107,8 +2353,13 @@ void SetNodeRotationLimitDataTable(void *self, int from, int to)
             /* EUC-JP: "the node the node rotation limit data names is not in the skeleton" */
             debug_StdPrintfDummy(
                 "ノード回転リミットデータの示すノードがスケルトン中にありません。\n");
-            debug_assert(__FILE__, LN(1838, 1832, 1832, 1756));
-            __assert(__FILE__, LN(1838, 1832, 1832, 1756), "0");
+#ifdef VERSION_AUG6
+            debug_assert(__FILE__, LN(745, 739, 739, 739, 1744));
+            __assert(__FILE__, LN(745, 739, 739, 739, 1744), "0");
+#else
+            debug_assert(__FILE__, LN(1838, 1832, 1832, 1756, 1838));
+            __assert(__FILE__, LN(1838, 1832, 1832, 1756, 1838), "0");
+#endif
         }
         MOWORK(self)->nodeLimit[node] = (int)&motionLimitDef[i];
         if (motionLimitDef[i].mid.y < motionLimitDef[i + 2].mid.y) {
@@ -2156,7 +2407,7 @@ inline int ExecuteSlipProc(GObj *self)
     if (e->ctrl.lastSlipFlags != e->ctrl.slipFlags) {
         StopSEPackageWithGroupVariation(self, 1);
         if (GOBJ_SUB(self)->ctrl.slipFlags & 0x100000) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             ExecuteSEPackageWithGroupVariation(self, 109, 1);
         }
         if (GOBJ_SUB(self)->ctrl.slipFlags & 0x200000) {

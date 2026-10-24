@@ -10,7 +10,7 @@ typedef struct { /* field names derived */
     float pos2[3];
 } StageOrientDef; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static const StageOrientDef stageOrientDefs[35] = {
     /* derived name */
     {"st47a", 0.0f, {200.0f, -350.0f, -950.0f}, {0.0f, -1750.0f, 0.0f}},
@@ -116,7 +116,7 @@ inline void StageOrientInit(void)
     int i, j;
     char buf[64];
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     for (i = 0; i < 104; i++) {
 #else
     for (i = 0; i < 106; i++) {

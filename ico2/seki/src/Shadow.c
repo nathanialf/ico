@@ -22,7 +22,7 @@ static int killShadow = 0; /* derived name */
 
 static int killShadowRequest = 0; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* the colour shadow_Reset fills the shadow buffer with, read a byte at a time;
    const, as GsBase.c's keepFrameColor: the reads depend on no packet store */
 static const unsigned char shadowFillColor[4] = {0}; /* derived name */
@@ -58,7 +58,7 @@ static const unsigned char shadowFillColor[4] = {0}; /* derived name */
         PacketBufferStruct.ptr.c = ((c) + 0x20);                                                   \
     }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
  * window centred on the GS's 2048.0 origin. */
 #define setFrame(fbp, w, h) /* derived name */                                                     \
@@ -104,7 +104,7 @@ static const unsigned char shadowFillColor[4] = {0}; /* derived name */
         }                                                                                          \
     }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void shadow_Reset(void)
 {
     char *c;
@@ -260,7 +260,7 @@ void shadow_Draw(void)
     {
         /* the four level tables, this block's statics */
         /* the frame buffer pointer of each shadow mipmap level */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         static const unsigned int levelFbp[4] = {0x140, 0x1C0, 0x1E0, 0x1E8}; /* derived name */
         /* the texture base pointer of each shadow mipmap level */
         static const unsigned int levelTbp[4] = {0x2800, 0x3800, 0x3C00, 0x3D00}; /* derived name */
@@ -301,7 +301,7 @@ void shadow_Draw(void)
         setGsReg(0x14, 0x60);
 
         for (i = 0; i < 3; i++) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             setFrame(levelFbp[i + 1], 512 >> (i + 1), 512 >> (i + 1));
 #else
             setFrame(levelFbp[i + 1], 512 >> (i + 1), 512 >> (i + 1), 0, 0);
@@ -321,7 +321,7 @@ void shadow_Draw(void)
             spriteUV(levelRect[i + 1], levelUV[i], col, 0x116);
         }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         setFrame(0x40, ScreenWidth, ScreenHeight);
 #else
         setFrame(0x40, ScreenWidth, ScreenHeight, 0, 0);
@@ -342,7 +342,7 @@ void shadow_Draw(void)
                                           ((long long)(9 - i) << 26) | ((long long)(9 - i) << 30) |
                                           ((long long)0x8000 << 19);
             *PacketBufferStruct.ptr.d++ = 0x06;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
             setGsReg(0x14, 0x60);
 #endif
             spriteUV(off, rect[i], col2, 0x156);
@@ -350,7 +350,7 @@ void shadow_Draw(void)
 
         setGsReg(0x4E, 0x300000C0);
         setGsReg(0x47, 0x50000);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         setFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
 #endif
 
@@ -377,7 +377,7 @@ void shadow_Draw(void)
         dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     tex_UnlockHeadTBP(3);
 #endif
 }
@@ -477,7 +477,7 @@ static void shadow_EntryClusterShadow(Sub15C *o, float len)
     _InitCurrentMatrix();
     shadow_getShadowVectorAverage(v, o);
     _ScaleVectorXYZ(sa, v, len);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     _ScaleVectorXYZ(sb, v, 4.5f);
 #else
     _ScaleVectorXYZ(sb, v, 4.0f);
@@ -559,7 +559,7 @@ static inline void applyCurrentMatrixV(void *dst, void *src) /* derived name */
                          : "r"(dst), "r"(src));
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static void shadow_EntryNormalShadow(Sub15C *o, float len, int idx)
 {
     float v[4];
@@ -970,6 +970,18 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn) /* derived
 
     rate[0] = rate[1] = 1.0f;
     /* a wholly visible edge returns at once */
+#ifdef VERSION_AUG6
+    if (-(ScreenWidth * 3 / 2) < oa.x && oa.x < (ScreenWidth * 3 / 2) &&
+        -(ScreenWidth * 3 / 2) < ob.x && ob.x < (ScreenWidth * 3 / 2) &&
+        -(ScreenHeight * 3 / 2) < oa.y && oa.y < (ScreenHeight * 3 / 2) &&
+        -(ScreenHeight * 3 / 2) < ob.y && ob.y < (ScreenHeight * 3 / 2)) {
+        return dot * sgn;
+    }
+    if ((oa.x <= -(ScreenWidth * 3 / 2) && ob.x <= -(ScreenWidth * 3 / 2)) ||
+        ((ScreenWidth * 3 / 2) <= oa.x && (ScreenWidth * 3 / 2) <= ob.x) ||
+        (oa.y <= -(ScreenHeight * 3 / 2) && ob.y <= -(ScreenHeight * 3 / 2)) ||
+        ((ScreenHeight * 3 / 2) <= oa.y && (ScreenHeight * 3 / 2) <= ob.y)) {
+#else
     if (-ScreenWidth < oa.x && oa.x < ScreenWidth && -ScreenWidth < ob.x && ob.x < ScreenWidth &&
         -ScreenHeight < oa.y && oa.y < ScreenHeight && -ScreenHeight < ob.y &&
         ob.y < ScreenHeight) {
@@ -979,12 +991,18 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn) /* derived
         (ScreenWidth <= oa.x && ScreenWidth <= ob.x) ||
         (oa.y <= -ScreenHeight && ob.y <= -ScreenHeight) ||
         (ScreenHeight <= oa.y && ScreenHeight <= ob.y)) {
+#endif
         pb->w = -1.0f;
         pa->w = -1.0f;
         return -1.0f;
     }
+#ifdef VERSION_AUG6
+    fw = (ScreenWidth * 3 / 2);
+    fh = (ScreenHeight * 3 / 2);
+#else
     fw = ScreenWidth;
     fh = ScreenHeight;
+#endif
     t0 = t1 = 1.0f;
     if (fw < oa.x && ob.x <= fw) {
         t = (ob.x - fw) / (ob.x - oa.x);
@@ -1193,7 +1211,7 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
     for (i = 0; i < 10; i++, sgn = -sgn, p++) {
         k = order[i];
         if (volumeStripFaceZ(i) * sgn < 0.0f) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             *p++ = 0x3F80000080080808LL;
         } else {
             *p++ = 0x3F80000080F8F8F8LL;
@@ -1207,7 +1225,7 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
         *p = (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
     }
     return p;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 }
 
 /* Whether the model's bounding box, blown up about its centre by the
@@ -1288,7 +1306,7 @@ void shadow_RenderVolume(Sub15C *o)
     if (len != x->shadowLength && 0.0f < x->shadowLength) {
         len = x->shadowLength;
     }
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     if (shadowVolumeOnScreen(x, len) == 0) {
         return;
     }
@@ -1299,7 +1317,7 @@ void shadow_RenderVolume(Sub15C *o)
     if (o->dispType == 1) {
         shadow_EntryClusterShadow(o, len);
     } else {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         shadow_EntryNormalShadow(o, len, 0);
 #else
         shadow_EntryNormalShadow(o, 0, len);
@@ -1400,7 +1418,7 @@ void shadow_RenderVolumeMulti(Sub15C *o, int idx)
     if (len != x->shadowLength && 0.0f < x->shadowLength) {
         len = x->shadowLength;
     }
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     if (shadowVolumeOnScreen(x, len) == 0) {
         return;
     }
@@ -1408,7 +1426,7 @@ void shadow_RenderVolumeMulti(Sub15C *o, int idx)
     __GetCameraPos(&cam);
     GetRootPositionByDObj(&pos, o);
     _GetLength(&pos, &cam);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     shadow_EntryNormalShadow(o, len, idx);
 #else
     shadow_EntryNormalShadow(o, idx, len);
@@ -1611,6 +1629,10 @@ inline void shadow_SetLength(Sub15C *o, float len)
 
 inline void shadow_Init(void)
 {
+#ifdef VERSION_AUG6
+    killShadow = 0;
+    killShadowRequest = 0;
+#else
     GObj *obj;
     killShadow = 0;
     killShadowRequest = 0;
@@ -1626,6 +1648,7 @@ inline void shadow_Init(void)
             }
         }
     }
+#endif
 }
 
 /* one row of the shadow tool: the name it prints, the variable it edits and

@@ -47,10 +47,12 @@ void RestoreReviveCount(struct GObj *gobj);
 void ReturnEnemyToGenerator(int label);
 int GeneratorWorkEnd(struct GObj *gobj);
 int SearchActiveGenerator(void);
+#ifndef VERSION_AUG6
 void ResetReviveCountEnemy(struct GObj *gobj);
+#endif
 void SetInfoSpKidnapGenerator(short *info);
 void SetInfoSpKidnapEnemy(short *work);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
 int CheckGeneratorCollision(struct GObj *gobj, float *dir);
 #else

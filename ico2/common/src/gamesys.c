@@ -36,7 +36,7 @@ void gamesysObjInfoSave(GamesysMemCursor *h);
 static void gamesysGeneratorInfoLoad(GamesysMemCursor *self);
 static void gamesysGeneratorInfoSave(GamesysMemCursor *self);
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static void gamesysHintInfoLoad(GamesysMemCursor *self);
 static void gamesysHintInfoSave(GamesysMemCursor *self);
 #endif
@@ -49,8 +49,12 @@ static void gamesysCharacterInfoSave(GamesysMemCursor *self);
    handler per record, which gamesysMemoryLoad and gamesysMemorySave walk to
    the zero pair; the per-stage exit times; the object-info records; the save
    image itself.  The buffers are zero-initialised, so they sit in .data. */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+char stamp_str[] = "08/07/01 14:51:53";
+#else
 char stamp_str[] = "08/18/01 22:22:20";
+#endif
 
 void *gameSysMemoryFuncList[] = {
     gamesysVersionLoad,
@@ -142,7 +146,7 @@ void gamesysObjInfoInit(void)
         gameSysObjInfo[i].stage = 0xFFFF;
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     memset((char *)gamesysStageExitTime, 0, 0x1A0);
 #else
     memset((char *)gamesysStageExitTime, 0, 0x1A8);
@@ -172,7 +176,7 @@ void gamesysObjInfoSave(GamesysMemCursor *h)
 
     *(long long *)(p + 0x40) = (*(long long *)(p + 0x40) & -3) | ((long long)save << 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gamesysMemoryHandlerWrite(h, gamesysStageExitTime, 0x1A0);
 #else
     gamesysMemoryHandlerWrite(h, gamesysStageExitTime, 0x1A8);
@@ -183,7 +187,7 @@ void gamesysObjInfoLoad(GamesysMemCursor *h)
 {
     gamesysMemoryHandlerRead(h, &gamesysTimeCount, 4);
     gamesysMemoryHandlerRead(h, gameSysObjInfo, 0x2D80);
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A0);
 #else
     gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A8);
@@ -318,7 +322,11 @@ void gamesysBackStageProcess(void)
 #else
 void gamesysBackStageProcess(void)
 {
+#ifdef VERSION_AUG6
+    if (gameSysObjInfo[1].no == 130) {
+#else
     if (gameSysObjInfo[1].no == 148) {
+#endif
         gamesysGirlStage = gameSysObjInfo[1].stage;
     }
     gamesysTimeCount++;
@@ -355,7 +363,7 @@ static void gamesysGeneratorInfoLoad(GamesysMemCursor *self)
     }
     self->offset += s2;
     return ReadGeneratorPacket();
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 }
 
 static void gamesysHintInfoSave(GamesysMemCursor *self)
@@ -594,7 +602,11 @@ void gamesysMemoryLoad(void **tbl, void *mem, void *arg)
 #ifdef VERSION_NTSC
     gflagOn(361);
 #else
+#ifdef VERSION_AUG6
+    gflagOn(360);
+#else
     gflagOn(394);
+#endif
 #endif
 }
 

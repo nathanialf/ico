@@ -17,7 +17,7 @@ void ResetCharFileManager(void);
 struct Sub15C;
 void CSVSYSTEM_ReadCharFiles(struct Sub15C *rec, int id);
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* texture-path: one texture file, 0x20 bytes. Readers: kanban.c,
  * layout_texture.c. Owner: ico2/common/include/charFileManager.h. */
 typedef struct {   /* field names derived */
@@ -43,7 +43,7 @@ typedef struct {    /* field names derived */
  * ico2/common/src/PObj.c (InitPObj, AllocPObj, MakePacket), charFileManager.c
  * (ReadSkeltonFile, ReadCollisionFile: the two paths). */
 typedef struct PObjMdl { /* field names derived */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     char modelPath[64];  /* 0x00, the model file, no C reader */
     char shadowPath[64]; /* 0x40, the shadow model file, no C reader */
     char path[48];       /* 0x80, the skeleton file, "NULL" for none */
@@ -68,7 +68,7 @@ typedef struct PObjMdl { /* field names derived */
 } PObjMdl; /* derived name */
 
 /* the data-only members texture-path and model-path */
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
 extern const TexRec texFile[];
 #else
 extern TexRec texFile[];

@@ -66,6 +66,18 @@ void DispStageMultiBgaManager(void)
     }
 }
 #else
+#ifdef VERSION_AUG6
+void InitStageMultiBgaManager(void)
+{
+    int i;
+
+    for (i = 0; i < 30; i++) {
+        stageBga[i] = *(BgaDisp *)&InitialBgaMultiAnimeState;
+        stageBgaAnim[i] = 0;
+    }
+    stageBgaCount = 0;
+}
+#else
 inline void InitStageMultiBgaManager(void)
 {
     int i;
@@ -76,7 +88,20 @@ inline void InitStageMultiBgaManager(void)
     }
     stageBgaCount = 0;
 }
+#endif
 
+#ifdef VERSION_AUG6
+void EntryStageMultiBgaManager(int kind, void *pos, void *rot)
+{
+    stageBgaAnim[stageBgaCount] = stage_MakePlayBgAnimation(kind);
+    _CopyVector(stageBgaAnim[stageBgaCount]->pos, pos);
+    CopyQuaternion(stageBgaAnim[stageBgaCount]->rot, rot);
+    EntryMultiBgaManager(stageBga, stageBgaCount++, kind, pos, rot);
+    if (stageBgaCount >= 30) {
+        stageBgaCount = 0;
+    }
+}
+#else
 inline void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay)
 {
     stageBgaAnim[stageBgaCount] = stage_MakePlayBgAnimation(kind);
@@ -88,7 +113,20 @@ inline void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, in
         stageBgaCount = 0;
     }
 }
+#endif
 
+#ifdef VERSION_AUG6
+void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, void *vel)
+{
+    stageBgaAnim[stageBgaCount] = stage_MakePlayBgAnimation(kind);
+    _CopyVector(stageBgaAnim[stageBgaCount]->pos, pos);
+    CopyQuaternion(stageBgaAnim[stageBgaCount]->rot, rot);
+    EntryMultiBgaManagerSensitive(stageBga, stageBgaCount++, kind, pos, rot, vel);
+    if (stageBgaCount >= 30) {
+        stageBgaCount = 0;
+    }
+}
+#else
 inline void EntryStageMultiBgaManager(int kind, void *pos, void *rot)
 {
     EntryStageMultiBgaManagerWithStay(kind, pos, rot, 0);
@@ -111,6 +149,7 @@ inline void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, v
 {
     EntryStageMultiBgaManagerSensitiveWithStay(kind, pos, rot, vel, 0);
 }
+#endif
 
 void DispStageMultiBgaManager(void)
 {
@@ -120,6 +159,13 @@ void DispStageMultiBgaManager(void)
         if (stageBgaAnim[i] == 0) {
             continue;
         }
+#ifdef VERSION_AUG6
+        if (stage_DispBgAnimation(&stageBgaAnim[i])) {
+            stageBgaAnim[i] = 0;
+            continue;
+        }
+        _AddVector(stageBgaAnim[i]->pos, stageBgaAnim[i]->pos, stageBga[i].vel);
+#else
         if (stageBga[i].stay) {
             stage_DispBgAnimationNoFinish(&stageBgaAnim[i]);
         } else {
@@ -131,6 +177,7 @@ void DispStageMultiBgaManager(void)
         if (systemStatus[5] == 0) {
             _AddVector(stageBgaAnim[i]->pos, stageBgaAnim[i]->pos, stageBga[i].vel);
         }
+#endif
     }
 }
 #endif

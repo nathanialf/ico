@@ -15,6 +15,15 @@ typedef struct PktHdr { /* field names derived */
     int kind; /* 0xF0 */
 } PktHdr;     /* derived name */
 
+#ifdef VERSION_AUG6
+typedef struct PObjPkt { /* field names derived */
+    char pad0[2064];
+    struct PObj *owner; /* 0x810 (Sub15C's model slot) */
+    char pad814[28];
+    void *nodes;      /* 0x830, one 80-byte node record a part */
+    PktHdr *lightMtx; /* 0x834, the light matrices (Light.h), their mode at 0xF0 */
+} PObjPkt;            /* derived name */
+#else
 typedef struct PObjPkt { /* field names derived */
 #ifdef VERSION_NTSC
     char pad0[2080];
@@ -30,6 +39,7 @@ typedef struct PObjPkt { /* field names derived */
     PktHdr *lightMtx; /* 0x874, the light matrices (Light.h), their mode at 0xF0 */
 #endif
 } PObjPkt; /* derived name */
+#endif
 
 typedef struct PObjSub { /* field names derived */ /* 0x180 stride, hung off the PObj at 0x40 */
     long long pad0[18];
@@ -192,7 +202,11 @@ static void MakePacket(PObj *p, int n)
 #ifdef VERSION_NTSC
     q = (PObjPkt *)mallocseki(0x850);
 #else
+#ifdef VERSION_AUG6
+    q = (PObjPkt *)mallocseki(0x840);
+#else
     q = (PObjPkt *)mallocseki(0x880);
+#endif
 #endif
     p->pkt = q;
     q->lightMtx = (PktHdr *)mallocseki(0x100);

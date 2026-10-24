@@ -17,7 +17,7 @@ static int mcDataDone; /* derived name */
    time into a 64-byte aligned buffer and waits for the writer to drain it. */
 static inline int _iosMcIconWriteIconsys(CdvdBgReq *self, struct McIconWork *p)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     char buf[51200];
 #else
     char buf[51200 + 64];
@@ -26,7 +26,7 @@ static inline int _iosMcIconWriteIconsys(CdvdBgReq *self, struct McIconWork *p)
     int size;
     int loop = 1;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     p->buf = buf;
 #else
     ptr = (char *)(((int)buf + 63) / 64 * 64);
@@ -35,7 +35,7 @@ static inline int _iosMcIconWriteIconsys(CdvdBgReq *self, struct McIconWork *p)
 
     do {
         size = p->remain > 51200 ? 51200 : p->remain;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         iosCdvdBackGroundRead(self, buf, size);
 #else
         iosCdvdBackGroundRead(self, ptr, size);

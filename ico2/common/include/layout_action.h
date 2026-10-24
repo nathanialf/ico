@@ -35,7 +35,7 @@ int la_boot_no_free_area(int first, int item);
 int la_boot_confirm_memory_card(void);
 int la_scei_logo(int first);
 int la_title_demo(void);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 int la_mc_file_select(int first);
 int la_mc_preview_info(void);
 int la_mc_current_slot(void);
@@ -57,7 +57,9 @@ int la_delete_confirm(int first, int item);
 int la_delete_confirm_complete(void);
 int la_delete_confirm_fail(void);
 int la_game_loading(int first);
+#ifndef VERSION_AUG6
 void la_playtime_count(void);
+#endif
 int la_game_demo(int first);
 int la_game_demo_pause(int first);
 int la_game_pause(int first);

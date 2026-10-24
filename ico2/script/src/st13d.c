@@ -59,7 +59,11 @@ void actSt13dExit(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(17) == 0) {
+#else
     if (gflagChk(18) == 0) {
+#endif
         ScpCallCameraOff();
     }
 

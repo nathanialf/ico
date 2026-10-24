@@ -3,7 +3,7 @@
 
 void switchOnSE(GObj *self)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 61);
 #else
     ExecuteSEPackage(self, 63);
@@ -12,7 +12,7 @@ void switchOnSE(GObj *self)
 
 void switchReleaseSE(GObj *self)
 {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     ExecuteSEPackage(self, 62);
 #else
     ExecuteSEPackage(self, 64);

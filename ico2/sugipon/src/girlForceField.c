@@ -36,11 +36,45 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(GObj *self, SObjSimpleSetting *
     return w;
 }
 
+#ifndef VERSION_AUG6
 inline void GirlForceFieldGeo(void) {}
+#endif
 
 /* the action table the layout rows select into */
 extern OaRecB objAction[];
 
+#ifdef VERSION_AUG6
+/* in the kind's geometry slot (objKindData +0x50); PAL's listing calls this
+   body GirlForceFieldDL and holds it in the display slot */
+void GirlForceFieldGeo(GObj *self)
+{
+    float pos[4];
+    float quat[4];
+    float gpos[4];
+    GirlForceFieldWork *w = GOBJ_SUB(self)->work;
+    float d2;
+    float ratio;
+
+    UpdateRootMatrix(self);
+    GetRootPosition(pos, self);
+
+    if (girlGObj != 0) {
+        GetRootPosition(gpos, girlGObj);
+        d2 = distance_squared(gpos, pos);
+        if (d2 < w->radius * w->radius) {
+            ratio = 1.0f - FSqrt(d2) * w->invRadius;
+            ratio = ratio < 0.0f ? 0.0f : ratio;
+
+            GetRootQuaternion(quat, self);
+            w->frame = (int)stage_PlayBgAnimationDissolve(
+                objAction[objLayout[self->labelId].action].baseMode, pos, quat, (float)w->frame,
+                ratio);
+            return;
+        }
+    }
+    w->frame = 0;
+}
+#else
 void GirlForceFieldDL(GObj *self)
 {
     float pos[4];
@@ -69,3 +103,8 @@ void GirlForceFieldDL(GObj *self)
     }
     w->frame = 0;
 }
+#endif
+
+#ifdef VERSION_AUG6
+inline void GirlForceFieldDL(void) {}
+#endif

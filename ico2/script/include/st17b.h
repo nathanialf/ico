@@ -15,7 +15,7 @@ struct SqEntry;
 /* st17b.o's .sdata globals */
 extern struct SqEntry *lightning2;
 void actSt17bCheckChk(GObj *volatile self);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actSt17bIntroChk(GObj *volatile self);
 #endif
 

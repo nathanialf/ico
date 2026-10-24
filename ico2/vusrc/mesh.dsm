@@ -15,7 +15,7 @@ MeshMicroProgram:
 	DMAend
 ;
 ; One of ICO's five VU1 microprograms (PAL 0x0028A990, JPN 0x002888A0, KOR
-; 0x00288920, USA 0x002703A0, 2544 bytes), sent to VU1 by mc_TransMicroCode (MicroCode.o): a
+; 0x00288920, USA 0x002703A0, Aug-6 prototype 0x0026C730, 2544 bytes), sent to VU1 by mc_TransMicroCode (MicroCode.o): a
 ; DMAret tag whose VIF half carries MPG 0, the program, then a DMAend tag.
 ; dvp-as writes the tags, a new MPG every 256 instructions and the .DVP
 ; overlay tables. Each overlay is named with the hash of the file and the line

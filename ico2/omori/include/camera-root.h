@@ -11,10 +11,14 @@
 extern int CameraCalclated_f;
 extern struct GObj *default_cameratarget_gobj;
 extern int InsertCameraWorkingFlag;
+#ifdef VERSION_AUG6
+extern int FixViewInGameCameraFlag; /* the title shortcut holds the monitor camera's view */
+#else
 extern int FixViewInGameCameraFlag;
 extern int monitorCameraHold;      /* the title shortcut holds the monitor camera */
 #ifndef VERSION_NTSC
 extern int insertCameraBlendTimer; /* frames left of the blend after an insert camera */
+#endif
 #endif
 void Camctrl_ExitEveRock(void);
 void Camctrl_SetTarget(struct GObj *gobj, struct GObj *subGObj, int pri);
@@ -27,6 +31,13 @@ void CameraSetMode(int mode);
 void *GetCameraPos(void);
 int *GetCurrentCameraSet2(void);
 void InitCamera(void);
+#ifdef VERSION_AUG6
+void InsertCamera_Exec(float *cam, int *cut, int *enable);
+void InsertCamera_Set(float *pos, float *tgt, int frames);
+
+
+void InsertCamera_SetNoraml(float *pos, float *tgt, int frames);
+#else
 void InsertCamera_Exec(float *cam, int *cut, int *cutType, int *enable);
 void InsertCamera_Set(float *pos, float *tgt, int frames);
 
@@ -36,18 +47,19 @@ void InsertCamera_SetDetail(float *pos, float *tgt, int frames, int cutType, int
 #endif
 
 void InsertCamera_SetNoraml(float *pos, float *tgt, int frames, int cutType);
+#endif
 
 struct CameraSet2;
 
 void MakeCameraMatrix(struct CameraSet2 *cs);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void ResetHandCameraLimitInDemo(void);
 void ResetZoomMaxValInDemo(void);
 #endif
 void SetCameraFlag_GamecamCutBack(void);
 void SetCameraFlag_LwsCutBack(void);
 void SetCameraMatrix(struct GObj *self);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void SetMonitorCameraInitializeFlag(void);
 void SetWSMatrix(void *src);
 void CameraSetTargetGObj(struct GObj *gobj, struct GObj *subGObj);

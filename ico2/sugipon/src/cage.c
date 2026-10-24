@@ -239,7 +239,7 @@ inline void StabilizeAllLayoutedCage(void)
 {
     void *gobj;
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     gobj = isysGObjSearchFromObjKindID_begin(43);
 #else
     gobj = isysGObjSearchFromObjKindID_begin(44);

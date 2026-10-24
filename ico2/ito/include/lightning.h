@@ -13,6 +13,9 @@
 typedef union { /* field names derived */
     unsigned int c[4];
     unsigned long long w[2];
+#ifdef VERSION_AUG6
+    unsigned int q __attribute__((mode(TI)));
+#endif
 } LightningColor; /* derived name */
 
 /* one control point or strip vertex, read as floats, words or doublewords */
@@ -20,6 +23,9 @@ typedef union { /* field names derived */
     float f[4];
     int i[4];
     unsigned long long w[2];
+#ifdef VERSION_AUG6
+    unsigned int q __attribute__((mode(TI)));
+#endif
 } LightningVtx; /* derived name */
 
 /* one entry of the caller's node array: a 16-byte position and the sort key

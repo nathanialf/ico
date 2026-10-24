@@ -31,7 +31,7 @@ struct GObj;
 
 void CommonAttackCenter(struct GObj *gobj);
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 struct GObj *AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius);
 #else
 struct GObj *_AttackCenter(struct GObj *gop, int group, float *pos, float *ofs, float radius,

@@ -234,7 +234,7 @@ void actOpDemo01(GObj *volatile self)
 
     inline int tick(void) /* derived name */
     {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
         if ((current_layout_id == 9 || current_layout_id == 10) && lt_continue_selected == 0) {
 #else
         if ((current_layout_id == 12 || current_layout_id == 13) && lt_continue_selected == 0) {
@@ -247,7 +247,11 @@ void actOpDemo01(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             current_layout_id = 52;
 #else
+#ifdef VERSION_AUG6
+            current_layout_id = 51;
+#else
             current_layout_id = 55;
+#endif
 #endif
             return 1;
         }
@@ -257,9 +261,11 @@ void actOpDemo01(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifndef VERSION_AUG6
     gFlagGameClear = 0;
     optionScreenMode = 0;
     girlControlMode = 0;
+#endif
     stgmgrNextStagePreLoadForceStageSet(0);
 
     actCreateSubThread(actSubMpegReturnPreload, 21);
@@ -282,6 +288,15 @@ void actOpDemo01(GObj *volatile self)
         }
         opTitleLogoMode = 0;
 
+#ifdef VERSION_AUG6
+        stage_SetAnimation(499, -1, -2);
+        stage_SetAnimation(491, -1, -2);
+        stage_SetAnimation(492, -1, -2);
+        stage_SetAnimation(493, -1, -2);
+        stage_SetAnimation(495, -1, -2);
+        stage_SetAnimation(496, -1, -2);
+        stage_SetAnimation(497, -1, -2);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(567, -1, -2);
         stage_SetAnimation(559, -1, -2);
@@ -298,10 +313,17 @@ void actOpDemo01(GObj *volatile self)
         stage_SetAnimation(568, -1, -2);
         stage_SetAnimation(569, -1, -2);
 #endif
+#endif
 
         switch (opDemoMode) {
         case 0:
             debug_StdPrintfDummy("mode 0");
+#ifdef VERSION_AUG6
+            current_layout_id = 51;
+
+            if (titleAdpcm != 0) {
+                scpAdpcmFadeClose(titleAdpcm, 288);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             current_layout_id = 52;
 #else
@@ -310,6 +332,7 @@ void actOpDemo01(GObj *volatile self)
 
             if (titleAdpcm != 0) {
                 scpAdpcmFadeCloseFunc(&titleAdpcm, 288);
+#endif
             }
             titleAdpcm = 0;
             titleSubAdpcm = 0;
@@ -336,7 +359,11 @@ void actOpDemo01(GObj *volatile self)
             }
 
             if (titleSubAdpcm != 0) {
+#ifdef VERSION_AUG6
+                soundDataClose(titleSubAdpcm);
+#else
                 scpAdpcmCloseFunc(&titleSubAdpcm);
+#endif
             }
             iosThreadSetPri(&((GProc *)th)->thread, 34);
             scpFadeOut(16.0f, 0, 0, 0);
@@ -345,7 +372,7 @@ void actOpDemo01(GObj *volatile self)
         case 1:
             debug_StdPrintfDummy("mode 1");
             opTitleLogoMode = 1;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
             lt_switch_layout(9);
 #else
             lt_switch_layout(12);
@@ -360,7 +387,11 @@ void actOpDemo01(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                     lt_switch_layout(52);
 #else
+#ifdef VERSION_AUG6
+                    lt_switch_layout(51);
+#else
                     lt_switch_layout(55);
+#endif
 #endif
                     opDemoMode = opDemoNextMode;
                     break;
@@ -376,14 +407,19 @@ void actOpDemo01(GObj *volatile self)
             opDemoNextMode = 0;
             mpegPlayReturnStage = 1;
             if (titleAdpcm != 0) {
+#ifdef VERSION_AUG6
+                scpAdpcmFadeClose(titleAdpcm, 1024);
+                while (scpAdpcmCloseChk(titleAdpcm) != 0) {
+#else
                 scpAdpcmFadeCloseFunc(&titleAdpcm, 1024);
                 while (scpAdpcmCloseChkFunc(&titleAdpcm) != 0) {
+#endif
                     _ACTWait(1);
                 }
             }
             titleAdpcm = 0;
             _ACTWait(1);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
             stgmgrForceSwitchWithFade(57, 256.0f, 4.0f);
 #else
             stgmgrForceSwitchWithFade(systemStatus[0] != 0 ? 58 : 57, 256.0f, 4.0f);
@@ -456,7 +492,11 @@ void actTitleShortCut(GObj *volatile self)
 {
     GObj *x = self;
 
+#ifdef VERSION_AUG6
+    FixViewInGameCameraFlag = 1;
+#else
     monitorCameraHold = 1;
+#endif
     actInitialize(self);
     _ACTWait(1);
 
@@ -464,6 +504,19 @@ void actTitleShortCut(GObj *volatile self)
         scpPlayStart(boyGObj);
     }
     if (titleAdpcm == 0) {
+#ifdef VERSION_AUG6
+        scpAdpcmPlayRequestFunc(54, &titleAdpcm, 0, 0, 1);
+    }
+    stage_SetAnimation(499, 1, 1351);
+
+    scpSearchGobj(40)->active = 1;
+    scpSearchGobj(41)->active = 1;
+    scpSearchGobj(42)->active = 1;
+    scpSearchGobj(44)->active = 1;
+    scpSearchGobj(45)->active = 1;
+    scpSearchGobj(46)->active = 1;
+    scpSearchGobj(47)->active = 1;
+#else
         scpAdpcmPlayRequestFunc(56, &titleAdpcm, 0, 0, 1);
     }
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -482,6 +535,7 @@ void actTitleShortCut(GObj *volatile self)
     scpSearchGobj(49)->active = 1;
     scpSearchGobj(50)->active = 1;
     scpSearchGobj(51)->active = 1;
+#endif
 
     while (titleAdpcm != 0) {
         _ACTWait(1);
@@ -492,7 +546,11 @@ void actTitleShortCut(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(567) == 0) {
 #else
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFinish(499) == 0) {
+#else
     while (stage_CheckAnimationFinish(571) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -502,11 +560,19 @@ void actTitleShortCut(GObj *volatile self)
     _ACTWait(0);
 }
 
+#ifdef VERSION_AUG6
+/* .data: the two demo mail pairs, each the mail the demo thread answers and
+   the 392 end marker. */
+static ActMail opDemo02_mes[2] = {{393}, {392}}; /* derived name */
+
+static ActMail opDemo03_mes[2] = {{393}, {392}}; /* derived name */
+#else
 /* .data: the two demo mail pairs, each the mail the demo thread answers and
    the 429 end marker. */
 static ActMail opDemo02_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail opDemo03_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 #endif
 
 inline void actSubMpegReturnPreload(GObj *volatile self)
@@ -725,6 +791,12 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 
     stage_SetAnimation(2, 0, -1);
 
+#ifdef VERSION_AUG6
+    FixViewInGameCameraFlag = 0;
+
+    _ACTWait(1);
+    lt_switch_layout(51);
+#else
     monitorCameraHold = 0;
 
     _ACTWait(1);
@@ -733,9 +805,21 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     lt_switch_layout(55);
 #endif
+#endif
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(40)->active = 0;
+    scpSearchGobj(41)->active = 0;
+    scpSearchGobj(42)->active = 0;
+    scpSearchGobj(44)->active = 0;
+    scpSearchGobj(45)->active = 0;
+    scpSearchGobj(46)->active = 0;
+    scpSearchGobj(47)->active = 0;
+
+    scpSearchGobj(43)->active = 1;
+#else
     scpSearchGobj(43)->active = 0;
     scpSearchGobj(44)->active = 0;
     scpSearchGobj(45)->active = 0;
@@ -745,12 +829,21 @@ void actTitleReadTimeDemo0(GObj *volatile self)
     scpSearchGobj(51)->active = 0;
 
     scpSearchGobj(46)->active = 1;
+#endif
 
     scpAdpcmPlayRequestFunc(6, &titleSubAdpcm, 1, 1, 1);
     while (titleSubAdpcm == 0) {
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    _ACTWait(30);
+    scpFadeIn(3.0f);
+
+    stage_SetAnimation(491, 1, 0);
+
+    while (stage_ContinueAnimation(491, 492) == 0) {
+#else
     scpFadeIn(3.0f);
 
     ResetHandCameraLimitInDemo();
@@ -767,9 +860,20 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(563, 564) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(scpSearchGobj(55), 992);
+    scpSearchGobj(55)->active = 1;
+    scpPlayMot(scpSearchGobj(56), 999);
+    scpSearchGobj(56)->active = 1;
+    scpPlayMot(scpSearchGobj(57), 1006);
+    scpSearchGobj(57)->active = 1;
+
+    while (stage_ContinueAnimation(492, 493) == 0) {
+#else
     scpPlayMot(scpSearchGobj(59), 1051);
     scpSearchGobj(59)->active = 1;
     scpPlayMot(scpSearchGobj(60), 1058);
@@ -782,11 +886,27 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(564, 565) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
     scpPlayStart(boyGObj);
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 257);
+
+    scpPlayMot(scpSearchGobj(52), 924);
+    scpSearchGobj(52)->active = 1;
+    scpPlayMot(scpSearchGobj(53), 946);
+    scpSearchGobj(53)->active = 1;
+    scpPlayMot(scpSearchGobj(54), 969);
+    scpSearchGobj(54)->active = 1;
+    scpPlayMot(scpSearchGobj(55), 993);
+    scpPlayMot(scpSearchGobj(56), 1000);
+    scpPlayMot(scpSearchGobj(57), 1007);
+
+    while (stage_ContinueAnimation(493, 494) == 0) {
+#else
     scpPlayMot(boyGObj, 263);
 
     scpPlayMot(scpSearchGobj(56), 983);
@@ -804,9 +924,21 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(565, 566) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 258);
+    scpPlayMot(scpSearchGobj(52), 925);
+    scpPlayMot(scpSearchGobj(53), 947);
+    scpPlayMot(scpSearchGobj(54), 970);
+    scpPlayMot(scpSearchGobj(55), 994);
+    scpPlayMot(scpSearchGobj(56), 1001);
+    scpPlayMot(scpSearchGobj(57), 1008);
+
+    while (stage_CheckAnimationFrame(494, 60, 0) == 0) {
+#else
     scpPlayMot(boyGObj, 264);
     scpPlayMot(scpSearchGobj(56), 984);
     scpPlayMot(scpSearchGobj(57), 1006);
@@ -820,10 +952,17 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_CheckAnimationFrame(566, 60, 0) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(56)->active = 0;
+    scpSearchGobj(53)->active = 0;
+
+    while (stage_ContinueAnimation(494, 495) == 0) {
+#else
     scpSearchGobj(60)->active = 0;
     scpSearchGobj(57)->active = 0;
 
@@ -832,9 +971,24 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(566, 567) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(56)->active = 1;
+    scpSearchGobj(53)->active = 1;
+
+    scpPlayMot(boyGObj, 259);
+    scpPlayMot(scpSearchGobj(52), 926);
+    scpPlayMot(scpSearchGobj(53), 948);
+    scpPlayMot(scpSearchGobj(54), 971);
+    scpPlayMot(scpSearchGobj(55), 995);
+    scpPlayMot(scpSearchGobj(56), 1002);
+    scpPlayMot(scpSearchGobj(57), 1009);
+
+    while (stage_CheckAnimationFrame(495, 90, 0) == 0) {
+#else
     scpSearchGobj(60)->active = 1;
     scpSearchGobj(57)->active = 1;
 
@@ -851,10 +1005,16 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_CheckAnimationFrame(567, 90, 0) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(50)->active = 0;
+
+    while (stage_ContinueAnimation(495, 496) == 0) {
+#else
     scpSearchGobj(54)->active = 0;
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -862,18 +1022,33 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(567, 568) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(scpSearchGobj(52), 927);
+    scpPlayMot(scpSearchGobj(53), 949);
+    scpPlayMot(scpSearchGobj(54), 972);
+    scpPlayMot(scpSearchGobj(55), 996);
+    scpPlayMot(scpSearchGobj(56), 1003);
+    scpPlayMot(scpSearchGobj(57), 1010);
+#else
     scpPlayMot(scpSearchGobj(56), 986);
     scpPlayMot(scpSearchGobj(57), 1008);
     scpPlayMot(scpSearchGobj(58), 1031);
     scpPlayMot(scpSearchGobj(59), 1055);
     scpPlayMot(scpSearchGobj(60), 1062);
     scpPlayMot(scpSearchGobj(61), 1069);
+#endif
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(53)->active = 0;
+
+    while (stage_ContinueAnimation(496, 497) == 0) {
+#else
     scpSearchGobj(57)->active = 0;
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -881,9 +1056,19 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(568, 569) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 261);
+    scpPlayMot(scpSearchGobj(52), 928);
+    scpPlayMot(scpSearchGobj(53), 950);
+    scpPlayMot(scpSearchGobj(54), 973);
+    scpPlayMot(scpSearchGobj(55), 997);
+    scpPlayMot(scpSearchGobj(56), 1004);
+    scpPlayMot(scpSearchGobj(57), 1011);
+#else
     scpPlayMot(boyGObj, 267);
     scpPlayMot(scpSearchGobj(56), 987);
     scpPlayMot(scpSearchGobj(57), 1009);
@@ -891,9 +1076,26 @@ void actTitleReadTimeDemo0(GObj *volatile self)
     scpPlayMot(scpSearchGobj(59), 1056);
     scpPlayMot(scpSearchGobj(60), 1063);
     scpPlayMot(scpSearchGobj(61), 1070);
+#endif
 
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    scpSearchGobj(50)->active = 1;
+    scpSearchGobj(53)->active = 1;
+
+    scpSearchGobj(40)->active = 1;
+    scpSearchGobj(41)->active = 1;
+    scpSearchGobj(42)->active = 1;
+    scpSearchGobj(44)->active = 1;
+    scpSearchGobj(45)->active = 1;
+    scpSearchGobj(46)->active = 1;
+    scpSearchGobj(47)->active = 1;
+
+    scpSearchGobj(43)->active = 0;
+
+    while (stage_ContinueAnimation(497, 499) == 0) {
+#else
     scpSearchGobj(54)->active = 1;
     scpSearchGobj(57)->active = 1;
 
@@ -912,9 +1114,19 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(569, 571) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 262);
+    scpPlayMot(scpSearchGobj(52), 929);
+    scpPlayMot(scpSearchGobj(53), 951);
+    scpPlayMot(scpSearchGobj(54), 974);
+    scpPlayMot(scpSearchGobj(55), 998);
+    scpPlayMot(scpSearchGobj(56), 1005);
+    scpPlayMot(scpSearchGobj(57), 1012);
+#else
     SetHandCameraLimitInDemo(0, 0);
     SetZoomMaxValInDemo(0);
 
@@ -925,6 +1137,7 @@ void actTitleReadTimeDemo0(GObj *volatile self)
     scpPlayMot(scpSearchGobj(59), 1057);
     scpPlayMot(scpSearchGobj(60), 1064);
     scpPlayMot(scpSearchGobj(61), 1071);
+#endif
 
     debug_StdPrintfDummy("finish anim %d\n", frame_count);
 
@@ -938,12 +1151,26 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFrame(567, 1300, 0) == 0) {
 #else
+#ifdef VERSION_AUG6
+    while (stage_CheckAnimationFrame(499, 1300, 0) == 0) {
+#else
     while (stage_CheckAnimationFrame(571, 1300, 0) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    FixViewInGameCameraFlag = 1;
+
+    debug_StdPrintfDummy("game mode %d %d\n", frame_count, gflagChk(352));
+
+    lt_switch_layout(9);
+
+    if (titleAdpcm == 0) {
+        scpAdpcmPlayRequestFunc(54, &titleAdpcm, 0, 0, 1);
+#else
     monitorCameraHold = 1;
 
     debug_StdPrintfDummy("game mode %d %d\n", frame_count, gflagChk(386));
@@ -956,6 +1183,7 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 
     if (titleAdpcm == 0) {
         scpAdpcmPlayRequestFunc(56, &titleAdpcm, 0, 0, 1);
+#endif
     }
     titleSubEnd = 1;
 
@@ -966,7 +1194,11 @@ inline void actSt26aConte01_1_newgame(GObj *volatile self)
 {
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    while (gflagChk(348) == 0) {
+#else
     while (gflagChk(382) == 0) {
+#endif
         _ACTWait(1);
     }
 
@@ -994,7 +1226,7 @@ void actOpDemo01_2(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     lt_switch_layout(51);
 #else
     lt_switch_layout(55);
@@ -1019,7 +1251,7 @@ void actOpDemo01_2(GObj *volatile self)
     }
 
     if (adpcm_conte01_sea != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         scpAdpcmFadeClose(adpcm_conte01_sea, 128);
 #else
         scpAdpcmFadeCloseFunc(&adpcm_conte01_sea, 128);
@@ -1116,13 +1348,28 @@ void actOpDemo01_2Chk(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(568, 1, 0);
 #else
+#ifdef VERSION_AUG6
+    stage_SetAnimation(500, 1, 0);
+#else
     stage_SetAnimation(572, 1, 0);
+#endif
 #endif
 
     stgmgrNextStagePreLoadForceStageSet(exitData[stageData[stage_no].ent[0]].nextStage);
 
     stage_SetAnimation(7, 1, 0);
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 263);
+    scpPlayMot(scpSearchGobj(2080), 930);
+    scpSearchGobj(2080)->active = 1;
+    scpPlayMot(scpSearchGobj(2081), 952);
+    scpSearchGobj(2081)->active = 1;
+    scpPlayMot(scpSearchGobj(2082), 975);
+    scpSearchGobj(2082)->active = 1;
+
+    while (stage_ContinueAnimation(500, 501) == 0) {
+#else
     scpPlayMot(boyGObj, 269);
     scpPlayMot(scpSearchGobj(2312), 989);
     scpSearchGobj(2312)->active = 1;
@@ -1136,9 +1383,20 @@ void actOpDemo01_2Chk(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(572, 573) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(8, 1, 0);
+
+    scpPlayMot(boyGObj, 264);
+    scpPlayMot(scpSearchGobj(2080), 931);
+    scpPlayMot(scpSearchGobj(2081), 953);
+    scpPlayMot(scpSearchGobj(2082), 976);
+
+    while (stage_CheckAnimationFrame(501, 340, 0) == 0) {
+#else
     scpPlayMot(boyGObj, 270);
     scpPlayMot(scpSearchGobj(2312), 990);
     scpPlayMot(scpSearchGobj(2313), 1012);
@@ -1153,6 +1411,7 @@ void actOpDemo01_2Chk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFrame(573, 340, 0) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -1161,6 +1420,12 @@ void actOpDemo01_2Chk(GObj *volatile self)
     while (scpFadeChk() != 0) {
         _ACTWait(45);
     }
+#ifdef VERSION_AUG6
+    stage_SetAnimation(501, -1, -2);
+    scpFadeIn(3.0f);
+
+    stage_SetAnimation(502, 1, 0);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(569, -1, -2);
 #else
@@ -1173,11 +1438,20 @@ void actOpDemo01_2Chk(GObj *volatile self)
 #else
     stage_SetAnimation(574, 1, 0);
 #endif
+#endif
 
     scpAdpcmPlayRequestFunc(10, &op2, 0, 1, 1);
 
     stage_SetAnimation(9, 1, 0);
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 265);
+    scpPlayMot(scpSearchGobj(2080), 932);
+    scpPlayMot(scpSearchGobj(2081), 954);
+    scpPlayMot(scpSearchGobj(2082), 977);
+
+    while (stage_ContinueAnimation(502, 503) == 0) {
+#else
     scpPlayMot(boyGObj, 271);
     scpPlayMot(scpSearchGobj(2312), 991);
     scpPlayMot(scpSearchGobj(2313), 1013);
@@ -1188,9 +1462,20 @@ void actOpDemo01_2Chk(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(574, 575) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(10, 1, 0);
+
+    scpPlayMot(boyGObj, 266);
+    scpPlayMot(scpSearchGobj(2080), 933);
+    scpPlayMot(scpSearchGobj(2081), 955);
+    scpPlayMot(scpSearchGobj(2082), 978);
+
+    while (stage_CheckAnimationFinish(503) == 0) {
+#else
     scpPlayMot(boyGObj, 272);
     scpPlayMot(scpSearchGobj(2312), 992);
     scpPlayMot(scpSearchGobj(2313), 1014);
@@ -1204,6 +1489,7 @@ void actOpDemo01_2Chk(GObj *volatile self)
     while (stage_CheckAnimationFinish(571) == 0) {
 #else
     while (stage_CheckAnimationFinish(575) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -1223,11 +1509,15 @@ void actOpDemo02(GObj *volatile self)
         scpPlayMot(boyGObj, 0);
     }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     lt_switch_layout(51);
     scpBoyControlReadDisable = 1;
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(130, 0, 0);
+#else
     stage_SetAnimation(131, 0, 0);
+#endif
 #else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
@@ -1257,7 +1547,11 @@ void actOpDemo02(GObj *volatile self)
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
     _ACTWait(0);
 }
@@ -1280,7 +1574,7 @@ inline void actOpDemo02Chk(GObj *volatile self)
 
     if (demoSubEnd == 0) {
         if (demoAdpcm != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             scpAdpcmFadeClose(demoAdpcm, 512);
         }
         if (op2 != 0) {
@@ -1394,11 +1688,27 @@ void actSt24aConte01_2(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(572, 1, 0);
 #else
+#ifdef VERSION_AUG6
+    stage_SetAnimation(504, 1, 0);
+#else
     stage_SetAnimation(576, 1, 0);
+#endif
 #endif
 
     stage_SetAnimation(11, 1, 0);
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 267);
+
+    scpPlayMot(scpSearchGobj(2104), 934);
+    scpSearchGobj(2104)->active = 1;
+    scpPlayMot(scpSearchGobj(2105), 956);
+    scpSearchGobj(2105)->active = 1;
+    scpPlayMot(scpSearchGobj(2106), 979);
+    scpSearchGobj(2106)->active = 1;
+
+    while (stage_ContinueAnimation(504, 505) == 0) {
+#else
     scpPlayMot(boyGObj, 273);
 
     scpPlayMot(scpSearchGobj(2336), 993);
@@ -1413,14 +1723,23 @@ void actSt24aConte01_2(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(576, 577) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 268);
+    scpPlayMot(scpSearchGobj(2104), 935);
+    scpPlayMot(scpSearchGobj(2105), 957);
+
+    scpPlayMot(scpSearchGobj(2106), 982);
+#else
     scpPlayMot(boyGObj, 274);
     scpPlayMot(scpSearchGobj(2336), 994);
     scpPlayMot(scpSearchGobj(2337), 1016);
 
     scpPlayMot(scpSearchGobj(2338), 1041);
+#endif
 
     _ACTWait(1);
 
@@ -1428,6 +1747,11 @@ void actSt24aConte01_2(GObj *volatile self)
 
     _ACTWait(120);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(130, 1, 0);
+
+    while (stage_ContinueAnimation(505, 506) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(147, 1, 0);
 #else
@@ -1439,13 +1763,21 @@ void actSt24aConte01_2(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(577, 578) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 269);
+    scpPlayMot(scpSearchGobj(2104), 936);
+    scpPlayMot(scpSearchGobj(2105), 958);
+    scpPlayMot(scpSearchGobj(2106), 980);
+#else
     scpPlayMot(boyGObj, 275);
     scpPlayMot(scpSearchGobj(2336), 995);
     scpPlayMot(scpSearchGobj(2337), 1017);
     scpPlayMot(scpSearchGobj(2338), 1039);
+#endif
 
     _ACTWait(1);
 
@@ -1454,15 +1786,26 @@ void actSt24aConte01_2(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(574, 575) == 0) {
 #else
+#ifdef VERSION_AUG6
+    while (stage_ContinueAnimation(506, 507) == 0) {
+#else
     while (stage_ContinueAnimation(578, 579) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 270);
+    scpPlayMot(scpSearchGobj(2104), 937);
+    scpPlayMot(scpSearchGobj(2105), 959);
+    scpPlayMot(scpSearchGobj(2106), 981);
+#else
     scpPlayMot(boyGObj, 276);
     scpPlayMot(scpSearchGobj(2336), 996);
     scpPlayMot(scpSearchGobj(2337), 1018);
     scpPlayMot(scpSearchGobj(2338), 1040);
+#endif
 
     _ACTWait(1);
 
@@ -1474,6 +1817,19 @@ void actSt24aConte01_2(GObj *volatile self)
     while (scpFadeChk() != 0) {
         _ACTWait(45);
     }
+#ifdef VERSION_AUG6
+    stage_SetAnimation(507, -1, -2);
+    scpFadeIn(3.0f);
+
+    stage_SetAnimation(508, 1, 0);
+
+    scpPlayMot(boyGObj, 271);
+    scpPlayMot(scpSearchGobj(2104), 938);
+    scpPlayMot(scpSearchGobj(2105), 960);
+    scpPlayMot(scpSearchGobj(2106), 982);
+
+    while (stage_CheckAnimationFinish(508) == 0) {
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(575, -1, -2);
 #else
@@ -1498,6 +1854,7 @@ void actSt24aConte01_2(GObj *volatile self)
     while (stage_CheckAnimationFinish(576) == 0) {
 #else
     while (stage_CheckAnimationFinish(580) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
@@ -1551,6 +1908,13 @@ inline void actOpDemo03(GObj *volatile self)
     stage_SetAnimation(155, 0, 0);
     stage_SetAnimation(151, 0, 0);
 #else
+#ifdef VERSION_AUG6
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+
+    stage_SetAnimation(154, 0, 0);
+    stage_SetAnimation(150, 0, 0);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
@@ -1563,6 +1927,7 @@ inline void actOpDemo03(GObj *volatile self)
 #endif
     stage_SetAnimation(172, 0, 0);
 #endif
+#endif
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(168, 0, 0);
 #endif
@@ -1572,7 +1937,11 @@ inline void actOpDemo03(GObj *volatile self)
 #ifdef VERSION_NTSC
     ACTSendMailCorrect(self, 397);
 #else
+#ifdef VERSION_AUG6
+    ACTSendMailCorrect(self, 393);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
 #endif
     _ACTWait(0);
 }
@@ -1603,7 +1972,7 @@ void actOpDemo03Chk(GObj *volatile self)
 
     if (demoSubEnd == 0) {
         if (op2 != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             scpAdpcmFadeClose(op2, 128);
 #else
             scpAdpcmFadeCloseFunc(&op2, 128);
@@ -1702,6 +2071,29 @@ void actSt13aConte01_3(GObj *volatile self)
 
     scpPlayStart(boyGObj);
 
+#ifdef VERSION_AUG6
+    stage_SetAnimation(509, 1, 0);
+
+    scpPlayMot(boyGObj, 272);
+    scpPlayMot(scpSearchGobj(2131), 939);
+    scpSearchGobj(2131)->active = 1;
+    scpPlayMot(scpSearchGobj(2132), 961);
+    scpSearchGobj(2132)->active = 1;
+    scpPlayMot(scpSearchGobj(2133), 983);
+    scpSearchGobj(2133)->active = 1;
+
+    _ACTWait(1);
+    stage_SetAnimation(15, 1, 0);
+
+    while (stage_ContinueAnimation(509, 510) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(scpSearchGobj(2133), 984);
+
+    scpPlayMot(scpSearchGobj(2131), 940);
+    scpPlayMot(scpSearchGobj(2132), 962);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(577, 1, 0);
 #else
@@ -1715,6 +2107,7 @@ void actSt13aConte01_3(GObj *volatile self)
     scpSearchGobj(2365)->active = 1;
     scpPlayMot(scpSearchGobj(2366), 1042);
     scpSearchGobj(2366)->active = 1;
+#endif
 
     _ACTWait(1);
     stage_SetAnimation(16, 1, 0);
@@ -1722,18 +2115,32 @@ void actSt13aConte01_3(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(577, 578) == 0) {
 #else
+#ifdef VERSION_AUG6
+    while (stage_ContinueAnimation(510, 511) == 0) {
+#else
     while (stage_ContinueAnimation(581, 582) == 0) {
+#endif
 #endif
         _ACTWait(1);
     }
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 273);
+    scpPlayMot(scpSearchGobj(2133), 985);
+#else
     scpPlayMot(scpSearchGobj(2366), 1043);
 
     scpPlayMot(scpSearchGobj(2364), 999);
     scpPlayMot(scpSearchGobj(2365), 1021);
+#endif
 
     _ACTWait(1);
     stage_SetAnimation(17, 1, 0);
+#ifdef VERSION_AUG6
+    stage_SetAnimation(154, 1, 0);
+
+    while (stage_ContinueAnimation(511, 512) == 0) {
+#else
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_ContinueAnimation(578, 579) == 0) {
@@ -1759,18 +2166,40 @@ void actSt13aConte01_3(GObj *volatile self)
 #else
     while (stage_ContinueAnimation(583, 584) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
 
     scpFadeIn(3.0f);
 
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 274);
+    scpPlayMot(scpSearchGobj(2131), 940);
+    scpPlayMot(scpSearchGobj(2132), 962);
+    scpPlayMot(scpSearchGobj(2133), 986);
+
+    _ACTWait(1);
+    stage_SetAnimation(18, 1, 0);
+    stage_SetAnimation(150, 1, 0);
+
+    while (stage_ContinueAnimation(512, 513) == 0) {
+        _ACTWait(1);
+    }
+
+    scpPlayMot(boyGObj, 275);
+    scpPlayMot(scpSearchGobj(2131), 941);
+    scpPlayMot(scpSearchGobj(2132), 963);
+    scpPlayMot(scpSearchGobj(2133), 987);
+#else
     scpPlayMot(boyGObj, 280);
     scpPlayMot(scpSearchGobj(2364), 999);
     scpPlayMot(scpSearchGobj(2365), 1021);
     scpPlayMot(scpSearchGobj(2366), 1045);
+#endif
 
     _ACTWait(1);
     stage_SetAnimation(19, 1, 0);
+#ifndef VERSION_AUG6
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(168, 1, 0);
 #else
@@ -1792,6 +2221,7 @@ void actSt13aConte01_3(GObj *volatile self)
 
     _ACTWait(1);
     stage_SetAnimation(20, 1, 0);
+#endif
 
     _ACTWait((60 - systemStatus[0] * 10) / systemStatus[1] * 8);
 

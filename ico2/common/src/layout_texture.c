@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include "debug_exception.h"
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 #include "tableSin.h"
 #endif
 
@@ -61,7 +61,7 @@ static int lastButton; /* derived name */
 
 static int nextLayout; /* derived name */
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 static int nextFadeState; /* derived name */
 
 static signed char glowOn; /* derived name */
@@ -171,7 +171,7 @@ void lt_analog2Pad(void)
    file static) */
 static void display_texture(int no, LtProperty *e);
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 /* whether property item no is shown; the second range is a conditional
    expression */
 static inline int lt_property_visible(int no) /* derived name */
@@ -202,7 +202,7 @@ static inline void lt_draw_layout(int no) /* derived name */
     int last = texLayout[no].last;
 
     for (; i < last; i++) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         display_texture(no, &texProperty[i]);
 #else
         if (lt_property_visible(i)) {
@@ -280,6 +280,21 @@ static void default_item_select(int no)
     }
 }
 #else
+#ifdef VERSION_AUG6
+/* lt_switch_layout's body as default_item_select's two call sites have it */
+static inline void lt_switch_layout_3(int no) /* derived name */
+{
+    if ((fadeState == 2 && no != current_layout_id) || no == 58) {
+        nextLayout = no;
+        display_texture_fade_cancel_chk(current_layout_id, no);
+        if (fadeType == 1) {
+            fadeState = 5;
+        } else {
+            fadeState = 3;
+        }
+    }
+}
+#else
 /* lt_switch_layout's body as default_item_select's two call sites have it.
    The copies differ: the first site's else arm sets fadeState to 7 where the
    out-of-line function and the second site set 3. */
@@ -318,6 +333,7 @@ static inline void lt_switch_layout_3(int no) /* derived name */
         }
     }
 }
+#endif
 
 static void default_item_select(int no)
 {
@@ -337,6 +353,19 @@ static void default_item_select(int no)
     if (fadeCallback == 0) {
         lt_analog2Pad();
         prev = p->curItem;
+#ifdef VERSION_AUG6
+        if ((pad[0].flags & 0x1000) && e->upItem >= 0) {
+            p->curItem = e->upItem;
+        } else if ((pad[0].flags & 0x4000) && e->downItem >= 0) {
+            p->curItem = e->downItem;
+        } else if ((pad[0].flags & 0x8000) && e->leftItem >= 0) {
+            p->curItem = e->leftItem;
+        } else if ((pad[0].flags & 0x2000) && e->rightItem >= 0) {
+            p->curItem = e->rightItem;
+        }
+        if (p->curItem != prev) {
+            soundSeDefPlay(399, 0xFFFFFFFE, 0, 0);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         if ((pad[0].flags & 0x60) == 0) {
 #else
@@ -364,13 +393,16 @@ static void default_item_select(int no)
             glowLength = (unsigned int)((60 - systemStatus[0] * 10) / systemStatus[1] * 0.25f);
             selectFrame = frame_count;
             glowCount = 0;
+#endif
         }
     } else {
         p->curItem = ((int (*)(int))fadeCallback)(p->curItem);
         fadeCallback = 0;
     }
 
+#ifndef VERSION_AUG6
     e = &texProperty[p->curItem];
+#endif
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (pad[0].flags & 0x20) {
 #else
@@ -378,8 +410,13 @@ static void default_item_select(int no)
 #endif
         if (e->right >= 0) {
             if (fadeState == 2) {
+#ifdef VERSION_AUG6
+                soundSeDefPlay(400, 0xFFFFFFFE, 0, 0);
+                lt_switch_layout_3(e->right);
+#else
                 soundSeDefPlay(412, 0xFFFFFFFE, 0, 0);
                 lt_switch_layout_7(e->right);
+#endif
                 return;
             }
         }
@@ -391,7 +428,11 @@ static void default_item_select(int no)
 #endif
         if (e->left >= 0) {
             if (fadeState == 2) {
+#ifdef VERSION_AUG6
+                soundSeDefPlay(401, 0xFFFFFFFE, 0, 0);
+#else
                 soundSeDefPlay(413, 0xFFFFFFFE, 0, 0);
+#endif
                 lt_switch_layout_3(e->left);
             }
         }
@@ -459,7 +500,7 @@ static void texture_fading(LtProp *p)
     case 2:
         col[3] = 127;
         break;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     case 7:
         fadeState = 8;
         fadeLength = (unsigned int)((60 - systemStatus[0] * 10) / systemStatus[1] * 0.25f);
@@ -499,7 +540,7 @@ static void texture_fading(LtProp *p)
         lt_reset_property_chain(current_layout_id);
         break;
     }
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     if (glowOn != 0) {
         if (glowCount++ >= glowLength) {
             glowOn = 0;
@@ -593,6 +634,7 @@ static void display_texture(int no, LtProperty *e)
     }
 }
 #else
+#ifndef VERSION_AUG6
 extern void gif_SetGsReg(long long reg, long long data);
 
 /* the pulsing highlight sprite, inlined three times by display_texture */
@@ -613,6 +655,7 @@ static inline void lt_glow_sprite(SprRect *box, SprRect *ofs, int r, int g, int 
     gif_SetAlpha(1, 5, 0);
     gif_SpriteSensitiveOffset(&rr, 0xFFFFFF9B, ofs, &c, 1);
 }
+#endif
 
 /* a file static */
 static void display_texture(int no, LtProperty *e)
@@ -620,10 +663,14 @@ static void display_texture(int no, LtProperty *e)
     SprRect ofs;
     SprRect box;
 
+#ifdef VERSION_AUG6
+    int pt[2];
+#else
     union { /* field names derived */
         int pt[2];
         SprCol col;
     } u;
+#endif
 
     int sel;
     int i;
@@ -649,32 +696,62 @@ static void display_texture(int no, LtProperty *e)
     box.y = (e->dispY - 113) * 16;
 
     sel = (e == &texProperty[texLayout[no].curItem]);
+#ifdef VERSION_AUG6
+    if (sel && lt_item_select_disable == 0 && fadeState == 2) {
+        SprCol pcol = {128, 128, 128, 127};
+
+#else
     if (sel && lt_item_select_disable == 0 && fadeState == 2 && e->selectable == 0) {
         SprCol pcol;
 
         memset(&pcol, 0, sizeof(pcol));
         pcol.a = 127;
+#endif
         gif_StartPacketPri(11);
         gif_SetZTest(0);
         for (i = 0; i < box.w * box.h / 1200; i++) {
+#ifdef VERSION_AUG6
+            pt[0] = box.x + rand() % box.w;
+            pt[1] = box.y + rand() % box.h;
+            pcol.a = rand() % 127 + 32;
+            gif_PointOffset(pt, 0x800000, &pcol, 1);
+#else
             u.pt[0] = box.x + rand() % box.w;
             u.pt[1] = box.y + rand() % box.h;
             pcol.a = rand() % 127;
             gif_PointOffset(u.pt, 0x800000, &pcol, 1);
+#endif
         }
         gif_EndPacket();
     }
     if (e->masked == 0) {
+#ifndef VERSION_AUG6
         int flag;
 
         flag = (e->upItem >= 0 || e->downItem >= 0 || e->leftItem >= 0 || e->rightItem >= 0 ||
                 e->right >= 0 || e->left >= 0 || e->down >= 0 || e->up >= 0);
+#endif
         tex_TransTexture(e->texNo, 11);
 
         gif_StartPacketPri(11);
         gif_SetZTest(0);
         gif_SetZWrite(0);
         gif_SetAlpha(1, 7, 0);
+#ifdef VERSION_AUG6
+        box.y = box.y + 8;
+        box.h = box.h - 8;
+        ofs.h = ofs.h - 8;
+        if (e->fade_cancel == 0) {
+            ltCursorColor[0] = ~GlobalStageSetting.reductionCol[0];
+            ltCursorColor[1] = ~GlobalStageSetting.reductionCol[1];
+            ltCursorColor[2] = ~GlobalStageSetting.reductionCol[2];
+            gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, (SprCol *)ltCursorColor, 1);
+        } else {
+            ltHighlightColor.r = ~GlobalStageSetting.reductionCol[0];
+            ltHighlightColor.g = ~GlobalStageSetting.reductionCol[1];
+            ltHighlightColor.b = ~GlobalStageSetting.reductionCol[2];
+            gif_SpriteSensitiveOffset(&box, 0xFFFFFF9B, &ofs, &ltHighlightColor, 1);
+#else
         box.y = box.y + 4;
         box.x = box.x + 4;
         gif_SetGsReg(20, 96);
@@ -723,6 +800,7 @@ static void display_texture(int no, LtProperty *e)
             lt_glow_sprite(&box, &ofs, 30, 30, 30, t, 110, 100);
         } else if (e->selectable != 0 && sel != 0 && glowOn != 0) {
             lt_glow_sprite(&box, &ofs, 54, 80, 115, (float)glowCount / (float)glowLength, 32, 32);
+#endif
         }
         gif_SetZWrite(1);
         gif_EndPacket();
@@ -771,8 +849,10 @@ static void display_primary_texture_layout(int no, int sel)
 {
     SprCol col;
     LtProp *p = &texLayout[no];
+#ifndef VERSION_AUG6
     int m;
     int flag;
+#endif
 
     col.r = (int)(p->colR * 255.0f);
     col.g = (int)(p->colG * 255.0f);
@@ -780,6 +860,11 @@ static void display_primary_texture_layout(int no, int sel)
     col.a = (int)(p->colA * 127.0f);
     lt_draw_primary_sprite(&col);
     if (p->proc != 0 && (fadeState == 1 || fadeState == 2)) {
+#ifdef VERSION_AUG6
+        sel = p->proc(ltSelectFlag, sel);
+        if (sel != -1) {
+            lt_switch_layout_3(sel);
+#else
         if (p->curItem >= 0) {
             m = texProperty[p->curItem].selectMode;
         } else {
@@ -818,6 +903,7 @@ static void display_primary_texture_layout(int no, int sel)
                 nextFadeState = m;
                 fadeState = 7;
             }
+#endif
         }
         ltSelectFlag = 0;
     }
@@ -836,7 +922,7 @@ void exec_layout_texture(void)
     int j;
     int k;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     if (frame_count - selectFrame == 0 || frame_count - selectFrame == 1) {
         pad[0].flags = 0;
     }
@@ -886,6 +972,9 @@ void exec_layout_texture(void)
 /* init_textures_of_specified_property is a file static, as is
    ico2/common/src/kanban's function of the same name */
 /* texProperty's texNo column, &texProperty[0].texNo */
+#ifdef VERSION_AUG6
+extern char D_002E3508[];
+#else
 #ifdef VERSION_NTSC
 extern char D_002E8208[];
 #else
@@ -899,11 +988,12 @@ extern char D_0030A66C[];
 extern char D_0030D014[];
 #endif
 #endif
+#endif
 
 /* sce/'s string.h does not declare it */
 extern char *strtok(char *s, const char *sep);
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static inline char *lt_texture_base_name(const char *src) /* derived name */
 {
     char buf[256];
@@ -958,7 +1048,7 @@ static inline char *lt_texture_base_name(char *src) /* derived name */
 static inline int lt_texture_no_of_property(int idx) /* derived name */
 {
     int n;
-#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)
     const char *src;
 #else
     char *src;
@@ -978,8 +1068,8 @@ static inline int lt_texture_no_of_property(int idx) /* derived name */
         debug_assert(__FILE__, 1054);
         __assert(__FILE__, 1054, "0");
 #else
-        debug_assert(__FILE__, 1287);
-        __assert(__FILE__, 1287, "0");
+        debug_assert(__FILE__, LN(1287, 1287, 1287, 1287, 1054));
+        __assert(__FILE__, LN(1287, 1287, 1287, 1287, 1054), "0");
 #endif
     }
     return no;
@@ -1008,9 +1098,15 @@ static void init_textures_of_specified_property(int first, int last)
         *(void **)(D_002E8208 + i * 108 - 4) = tex_GetTextureData(no);
         tex_SetSamplingType(*(void **)(D_002E8208 + i * 108 - 4), 1, 1);
 #else
+#ifdef VERSION_AUG6
+        *(int *)(D_002E3508 + i * 108) = no;
+        *(void **)(D_002E3508 + i * 108 - 4) = tex_GetTextureData(no);
+        tex_SetSamplingType(*(void **)(D_002E3508 + i * 108 - 4), 1, 1);
+#else
         *(int *)(D_0030D014 + i * 0x70) = no;
         *(void **)(D_0030D014 + i * 0x70 - 4) = tex_GetTextureData(no);
         tex_SetSamplingType(*(void **)(D_0030D014 + i * 0x70 - 4), 1, 1);
+#endif
 #endif
 #endif
     }
@@ -1078,7 +1174,7 @@ void init_layout_texture(int stage)
     if (stage == 1) {
         gflagInit();
         if (layout_boot_flag == 0) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
             current_layout_id = 4;
 #else
             current_layout_id = 7;
@@ -1087,35 +1183,39 @@ void init_layout_texture(int stage)
             mpegPlayReturnStage = 0;
             if (stage_after_skipping_demo == 0xFFFFFFFE) {
                 title_demo_mode = title_demo_mode ^ 1;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
                 current_layout_id = 10;
 #else
                 current_layout_id = 13;
 #endif
             } else if (stage_after_skipping_demo == 0xFFFFFFFF) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
                 current_layout_id = 7;
 #else
                 current_layout_id = 10;
 #endif
                 title_demo_mode = title_demo_mode ^ 1;
             } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
                 current_layout_id = 10;
 #else
                 current_layout_id = 13;
 #endif
             }
         } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
             current_layout_id = 10;
 #else
             current_layout_id = 13;
 #endif
         }
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+        current_layout_id = 50;
+#else
         current_layout_id = 51;
+#endif
 #else
         current_layout_id = 54;
 #endif
@@ -1132,14 +1232,20 @@ inline void lt_switch_layout(int no)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     if ((fadeState == 2 && no != current_layout_id) || no == 59) {
 #else
+#ifdef VERSION_AUG6
+    if ((fadeState == 2 && no != current_layout_id) || no == 58) {
+#else
     if ((fadeState == 2 && no != current_layout_id) || no == 62) {
+#endif
 #endif
         nextLayout = no;
         display_texture_fade_cancel_chk(current_layout_id, no);
         if (fadeType == 1) {
             fadeState = 5;
         } else {
+#ifndef VERSION_AUG6
             nextFadeState = 3;
+#endif
             fadeState = 3;
         }
     }

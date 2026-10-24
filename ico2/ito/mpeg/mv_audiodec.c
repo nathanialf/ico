@@ -6,6 +6,19 @@
 #include <sifrpc.h>
 #include <sound.h>
 
+#ifdef VERSION_AUG6
+#include "memory.h"
+#include "s_init.h"
+
+static void Free(int addr);
+
+static void free_buf(AudioDec *self)
+{
+    Free(self->ring);
+}
+#else
+#endif
+
 #ifdef VERSION_NTSC
 #include "memory.h"
 
@@ -46,11 +59,17 @@ int audioDecCreate(AudioDec *self, int mono, int volume)
     self->iopPos = 0;
     self->word50 = 0;
 
+#ifdef VERSION_AUG6
+    /* the IOP side buffer is the sound system's heap block (s_init.c) */
+    self->iopBuf = soundIopHeapAddrs;
+    debug_StdPrintfDummy("adrs %d\n", soundIopHeapAddrs);
+#else
     self->iopBuf = sceSifAllocIopHeap(size);
     if (self->iopBuf == 0) {
         debug_StdPrintfDummy("Cannot allocate IOP memory\n");
         return 0;
     }
+#endif
     debug_StdPrintfDummy("Allocate IOP memory 0x%08x\n", self->iopBuf);
 
     self->mono = mono;
@@ -78,7 +97,7 @@ int audioDecCreate(AudioDec *self, int mono, int volume)
     return 0;
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 inline int audioDecDelete(AudioDec *self)
 {
     if (self->iopBuf) {
@@ -113,11 +132,12 @@ inline void audioDecReset(AudioDec *self)
     *(volatile int *)&self->putTotal = 0;
     *(volatile int *)&self->sentTotal = 0;
     *(volatile int *)&self->iopPos = 0;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 }
 
 inline int audioDecDelete(AudioDec *self)
 {
+#ifndef VERSION_AUG6
     if (self->iopBuf) {
         if (sceSifFreeIopHeap(self->iopBuf) < 0) {
             debug_StdPrintfDummy("iop heap free failed 0x%08x\n", self->iopBuf);
@@ -125,6 +145,7 @@ inline int audioDecDelete(AudioDec *self)
         debug_StdPrintfDummy("free iop heap 0x%08x\n", self->iopBuf);
         self->iopBuf = 0;
     }
+#endif
     free_buf(self);
     if (self->ch0Open) {
         SgStPcmClose(0);
@@ -389,7 +410,7 @@ int pcmCallback(sceMpeg *mp, void *cbdata, void *anyData)
     return 0 < k;
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static void Free(int addr)
 {
     /* the buffers are kept as addresses (alloc_zeroed), some at their

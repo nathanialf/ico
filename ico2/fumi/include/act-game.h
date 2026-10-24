@@ -25,8 +25,77 @@ typedef struct ActWork { /* field names derived */
     float boyDist;          /* 0x32C */
     float escortOffset;     /* 0x330 */
     float disappearSpeed;   /* 0x334 */
+#ifdef VERSION_AUG6
+    float stickMag;         /* 0x338 (subBoyControl 0x14D6D0 swc1 $f0,824(v0)) */
+    float lockedMaxRotate;  /* 0x33C, not pinned: Aug 20's field after stickMag (scpLockMaxRotate) */
+    float padWish[4]; /* 0x340, the pad wish direction a jump turns to (funcCommonJumpDircorrect
+                         0x157654 addiu a1,a1,832; June 26's place, PAL's is 0x350) */
+    float fallDir[4]; /* 0x350, the direction a fall turns to (funcCommonFallDircorrect 0x157664) */
+    char *hideObj;    /* 0x360 */
+    void *bga;        /* 0x364 */
+    int downTimer;    /* 0x368 (actAfterDown 0x15D508 sw v1,872(a0)) */
+    int brainTimer;   /* 0x36C, not pinned */
+    int turnTimer;    /* 0x370 (_ACTCorrectMsg 0x153888 lw a0,880(v1)) */
+    int turnTimer2;   /* 0x374 (_ACTCorrectMsg 0x1538A8 lw a0,884(v1)) */
+    int noInterpTimer; /* 0x378 (subCommonIdle 0x15AB1C lw v0,888(a0)) */
+    int wishHoldTimer; /* 0x37C (ACTGame_BeforeFunc 0x144868 lw v0,892(v1)) */
+    int leverTimer;  /* 0x380, frames the boy keeps hold of a lever (actCommonLever 0x156104 sw v0,896(a1)) */
+    int nakaBossCount; /* 0x384 (NakaBoss 0x160E28 lw v0,900(v1)) */
+    int carryGirlFrames; /* 0x388, the fly's frame count IsFlyTimeOver tests (emergencyCheck 0x15890C lw v1,904(a0)) */
+    MotOriTarget bellowWall400;  /* 0x38C, the wall of attribute 0x400 actCommonLadderBellow
+                                    found below, which mail 132 turns to
+                                    (ACTGetOrientFromIntrK 0x1543F8 lw t2,916(v1)) */
+    MotOriTarget bellowWall3000; /* 0x398, the same for attribute 0x3000 and mail 133 */
+    struct GObj *dangerObj; /* 0x3A4, the object SetGirlDangerGObj marks for the girl (0x17383C) */
+    char pad3A8[8];
+    float hideDirX; /* 0x3B0 (girlBrainHide_GoalTurn 0x16C840 swc1 $f1,944(v0)) */
+    float hideDirY; /* 0x3B4 */
+    float hideDirZ; /* 0x3B8 */
+    char pad3BC[20];
+    float velX; /* 0x3D0 (ACTGame_InnerVelocityUpdate 0x1444AC lwc1 $f0,976(v1)) */
+    float velY; /* 0x3D4 */
+    float velZ; /* 0x3D8 */
+    char pad3DC[4];
+    float speed;    /* 0x3E0 */
+    int slowFrames; /* 0x3E4 */
+    int stopFrames; /* 0x3E8 */
+    char pad3EC[4];
+    int noMoveFrames; /* 0x3F0 (ACTGame_InnerVelocityUpdate 0x144650 lw v0,1008(v1)) */
+    unsigned int enemyFlags; /* 0x3F4 (subEnemyBrainMain 0x160078 lwu v0,1012(a0)) */
+    char pad3F8[8];
+    GObj *genTarget;         /* 0x400, the generator the enemy heads for */
+    int motherLabel;         /* 0x404 */
+    struct GObj *motherGObj; /* 0x408, the generator object motherLabel names */
+    char pad40C[4];
+    float hangOrient[3]; /* 0x410, the cliff orientation actBoyHangBefore keeps (0x152140) */
+    char pad41C[4];
+    MotOriTarget cliffReq; /* 0x420, the target mail 285 turns to (ACTGetOrientFromIntrK
+                              0x154290 ldl a0,1063(v1)); a MotOriTarget as June 26's */
+    char pad42C[4];
+    float pinchPosX; /* 0x430 (SetStatusBoy_OtherStageGirlPinch 0x1518FC swc1 $f0,1072(v0)) */
+    float pinchPosY; /* 0x434 */
+    float pinchPosZ; /* 0x438 */
+    char pad43C[4];
+    int pinchFrames; /* 0x440 (SetStatusBoy_OtherStageGirlPinch 0x1518F8 sw s0,1088(v0)) */
+    char pad444[76];
+    WayRequest wayReq; /* 0x490 (ACTWayMove_BeginDetail 0x1FE7F8 addiu s0,s1,1168), the way
+                          search RequestWayBegin hands to the way system manager */
+    char pad548[232];
+    ClipColReq view; /* 0x630 (ACTGameView_Loop 0x143C6C lw v0,1584(v1)), the clip
+                        ACTGameView_Loop runs to the object it looks at */
+    int viewState;   /* 0x710 (ACTGameView_Loop 0x143C00 sw a0,1808(v1)) */
+    char pad714[156];
+    float emgPosX; /* 0x7B0, June 26's place before intrReq; not pinned */
+    float emgPosY; /* 0x7B4 */
+    float emgPosZ; /* 0x7B8 */
+    char pad7BC[4];
+    MotOriReq intrReq; /* 0x7C0 (actCommonBar 0x157428 addiu a2,a2,1984), the orient request of the interrupt motion
+                          act_check_intr_list started; the hang and climb acts
+                          lay the root against its walls, b's element the wall
+                          under the cliff edge */
+#else
     float fallDamageHeight; /* 0x338 */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     float stickMag;         /* 0x33C */
     float lockedMaxRotate;  /* 0x340 */
     char pad344[12];
@@ -52,7 +121,7 @@ typedef struct ActWork { /* field names derived */
     int nakaBossCount;   /* 0x398 */
     int carryGirlFrames; /* 0x39C */
     int sofaTimer;       /* 0x3A0, frames since the actor sat on the sofa (actCommonSofa) */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     int orientFrames;    /* 0x3A4 */
     MotOriTarget bellowWall400;  /* 0x3A8, the wall of attribute 0x400 actCommonLadderBellow
                                     found below, which mail 144 turns to */
@@ -197,6 +266,7 @@ typedef struct ActWork { /* field names derived */
                           under the cliff edge */
 #endif
 #endif
+#endif
 } ActWork; /* derived name */
 
 #define GOBJ_WORK(o) ((ActWork *)GOBJ_ACT(o)->work) /* derived name */
@@ -212,7 +282,7 @@ void ACTGame_StageChangeGObjID(int no, int kind, int idx);
 void ACTGame_StageChangeGObjDirect(struct GObj *self, int stage, void *dir, int deg);
 int ACTGame_FLAG_LIFEPINCH(struct GObj *self);
 unsigned char ACTGame_FLAG_TETSUNAGI(void);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 int ACTGame_FLAG_TETSUNAGI_VISUAL(void);
 #endif
 inline void GetSkeltonPosition(float *dst, struct GObj *obj, int node);
@@ -239,7 +309,11 @@ int ACTCheckCollis_W(float f, void *hand0, void *hand1, void *actor, void *posou
                      int *flagout);
 
 int ACTCheckCollis_CI(float *start, float *end, int *attr, WallCfg *wallHit);
+#ifdef VERSION_AUG6
+int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, float f, void *posout);
+#else
 int ACTCheckCollis_WELL(void *p0, void *p1, void *actor, void *posout, float f);
+#endif
 unsigned char ACTCheckCollis_WAY(float f, void *p0, void *p1, void *actor, void *posout);
 int ACTCheckViewCl(struct GObj *self, void *target, void *targetPos, int range, float f);
 void ACTGameView_FirstSet(char *self);
@@ -270,6 +344,12 @@ void ACTGame_LwsEffect_Guard(struct GObj *self);
 inline void ActGame_GetOrientQ(void *q, void *v, int deg);
 void _GetRootObjectOrient(void *orient, struct GObj *obj);
 void ACTItemForceDrop(struct GObj *self);
+#ifdef VERSION_AUG6
+/* June 26's one-argument form, a plain function at 0x147780 (MAIN.MAP's GetOtherStageGirlOrient,
+   0x448 before ACTLookTargetSystem_Exec; OtherStageGirlPinchCamera_After 0x14EAEC passes a0 only) */
+void GetOtherStageGirlOrient(float *orient);
+int ACTChkAttackIgnore_BOY(struct GObj *self); /* boyact.c (0x152A38 reads a0 only) */
+#else
 inline void GetOtherStageGirlOrient(float *orient, float *root);
 #ifdef VERSION_NTSC
 int ACTChkAttackIgnore_BOY(struct GObj *self);
@@ -279,6 +359,7 @@ int ACTChkAttackIgnore_ENEMY(struct GObj *self);
 int ACTChkAttackIgnore_BOY(struct GObj *self, struct GObj *actor);
 int ACTChkAttackIgnore_GIRL(struct GObj *self, struct GObj *actor);
 int ACTChkAttackIgnore_ENEMY(struct GObj *self, struct GObj *actor);
+#endif
 #endif
 unsigned char ACTCheckCollis_VIEW(float f, void *p0, void *p1, void *actor);
 int ACTCheckViewClDetail(struct GObj *self, void *target, void *targetPos, int range, float f);

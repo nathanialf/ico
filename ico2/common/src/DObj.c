@@ -77,6 +77,34 @@ static DObjRecord emptyDObj = {
     {0, -1}, {0}, 0, 1, 1, 1, 0, 1515, {0}, 0, -1, {0},
 }; /* derived name */
 #else
+#ifdef VERSION_AUG6
+/* The four DObj templates (names derived).  The record is 0x840 bytes, the
+   size CSVSYSTEM_InitDObj allocates before the copy; its named fields are the
+   words the template sets.  The slot table pointer at 0x800 and the character
+   file id at 0x84 are named from this file; the parent link at 0x00, the
+   collision words at 0x70 to 0x80 and the accessary row at 0x804 as Sub15C
+   (typedef.h) names them (this build's record is 0x40 bytes shorter than the
+   one Sub15C describes, whose slot table sits at 0x840).  The long long pads give the record the
+   8-byte alignment its copy loop uses. */
+typedef struct { /* field names derived */
+    ObjNode parent;
+    long long pad08[13];
+    int colData;
+    int disp;
+    int colRotate;
+    int cylinderOn;
+    int colPerNode;
+    int charFileId;
+    long long pad88[239];
+    char *slotTable;
+    int accessary;
+    long long pad808[7];
+} DObjRecord; /* derived name */
+
+static DObjRecord emptyDObj = {
+    {0, -1}, {0}, 0, 1, 1, 1, 0, 1510, {0}, 0, -1, {0},
+}; /* derived name */
+#else
 /* The four DObj templates (names derived).  The record is 0x880 bytes, the
    size CSVSYSTEM_InitDObj allocates before the copy; its named fields are the
    words the template sets.  The slot table pointer at 0x840 and the character
@@ -107,6 +135,7 @@ static DObjRecord emptyDObj = {
 static DObjRecord emptyDObj = {
     {0, -1}, {0}, 0, 1, 1, 1, 0, 1552, {0}, 0, -1, {0},
 }; /* derived name */
+#endif
 #endif
 #endif
 
@@ -174,10 +203,10 @@ static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
         p->data.d->motionBuf =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 126);
 #else
-        p->data.d->blendBuf =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 125);
-        p->data.d->motionBuf =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 127);
+        p->data.d->blendBuf = iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5,
+                                             __FILE__, LN(125, 125, 125, 125, 124));
+        p->data.d->motionBuf = iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5,
+                                              __FILE__, LN(127, 127, 127, 127, 126));
 #endif
         InitMotionRotElem(p->data.d->blendBuf, p->data.d->skelNodeNum);
         InitMotionRotElem(p->data.d->motionBuf, p->data.d->skelNodeNum);
@@ -190,8 +219,8 @@ static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
         p->data.d->nodeRotElem =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 136);
 #else
-        p->data.d->nodeRotElem =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 137);
+        p->data.d->nodeRotElem = iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6,
+                                                __FILE__, LN(137, 137, 137, 137, 136));
 #endif
         for (i = 0; i < p->data.d->skelNodeNum; i++) {
             *(DObjBlk40 *)&p->data.d->nodeRotElem[i] = initialRotElem;
@@ -200,8 +229,8 @@ static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
         p->data.d->nodeLimit =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 2, __FILE__, 144);
 #else
-        p->data.d->nodeLimit =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 2, __FILE__, 145);
+        p->data.d->nodeLimit = iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 2,
+                                              __FILE__, LN(145, 145, 145, 145, 144));
 #endif
         for (j = 0; j < p->data.d->skelNodeNum; j++) {
             p->data.d->nodeLimit[j] = 0;
@@ -210,8 +239,8 @@ static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
         p->data.d->nodeVec =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 4, __FILE__, 152);
 #else
-        p->data.d->nodeVec =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 4, __FILE__, 153);
+        p->data.d->nodeVec = iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 4,
+                                            __FILE__, LN(153, 153, 153, 153, 152));
 #endif
         for (k = 0; k < p->data.d->skelNodeNum; k++) {
             CopyVector(p->data.d->nodeVec[k], ZeroVector);
@@ -220,8 +249,8 @@ static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
         p->data.d->blendRot =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 160);
 #else
-        p->data.d->blendRot =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 161);
+        p->data.d->blendRot = iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6,
+                                             __FILE__, LN(161, 161, 161, 161, 160));
 #endif
         for (m = 0; m < p->data.d->skelNodeNum; m++) {
             *(DObjBlk40 *)p->data.d->blendRot[m] = initialBlendRot;
@@ -230,8 +259,8 @@ static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
         p->data.d->blendless =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum, __FILE__, 168);
 #else
-        p->data.d->blendless =
-            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum, __FILE__, 169);
+        p->data.d->blendless = iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum,
+                                              __FILE__, LN(169, 169, 169, 169, 168));
 #endif
         for (n = 0; n < p->data.d->skelNodeNum; n++) {
             p->data.d->blendless[n] = 0;
@@ -291,7 +320,7 @@ static void allocObjectData(Sub15C *self, SObjSimpleSetting *lay, int n)
 #ifdef VERSION_NTSC
     self->nodes = iosMallocDebug(ios_partition_seki, n * 80, __FILE__, 298);
 #else
-    self->nodes = iosMallocDebug(ios_partition_seki, n * 80, __FILE__, 299);
+    self->nodes = iosMallocDebug(ios_partition_seki, n * 80, __FILE__, LN(299, 299, 299, 299, 298));
 #endif
     for (i = 0; i < n; i++) {
         self->nodes[i].flags.ll &= ~1;
@@ -342,7 +371,8 @@ static void initInitialInverseMatrix(Sub15C *d)
 #ifdef VERSION_NTSC
     char *m = iosMallocDebug(ios_partition_sugipon, d->skelNodeNum << 6, __FILE__, 332);
 #else
-    char *m = iosMallocDebug(ios_partition_sugipon, d->skelNodeNum << 6, __FILE__, 333);
+    char *m = iosMallocDebug(ios_partition_sugipon, d->skelNodeNum << 6, __FILE__,
+                             LN(333, 333, 333, 333, 332));
 #endif
     d->clusterMtx = m;
     GetInitialInverseMatrixByDObj(m, d);
@@ -358,7 +388,7 @@ static inline void initPolyHead(Sub15C *d) /* derived name */
 #ifdef VERSION_NTSC
     d->lightMtx = iosMallocDebug(ios_partition_seki, 256, __FILE__, 237);
 #else
-    d->lightMtx = iosMallocDebug(ios_partition_seki, 256, __FILE__, 238);
+    d->lightMtx = iosMallocDebug(ios_partition_seki, 256, __FILE__, LN(238, 238, 238, 238, 237));
 #endif
     d->lightMtx->mode = q->lightMtx->mode;
     if (d->lightMtx->mode == 4) {
@@ -379,8 +409,10 @@ static inline void allocMatrixArrays(Sub15C *d, int n) /* derived name */
     *(char **)&d->nodeMtx = iosMallocDebug(ios_partition_seki, n * 64, __FILE__, 258);
     *(char **)&d->nodeQuat = iosMallocDebug(ios_partition_seki, n * 16, __FILE__, 258);
 #else
-    *(char **)&d->nodeMtx = iosMallocDebug(ios_partition_seki, n * 64, __FILE__, 259);
-    *(char **)&d->nodeQuat = iosMallocDebug(ios_partition_seki, n * 16, __FILE__, 259);
+    *(char **)&d->nodeMtx =
+        iosMallocDebug(ios_partition_seki, n * 64, __FILE__, LN(259, 259, 259, 259, 258));
+    *(char **)&d->nodeQuat =
+        iosMallocDebug(ios_partition_seki, n * 16, __FILE__, LN(259, 259, 259, 259, 258));
 #endif
     d->nodeNum = n;
     for (i = 0; i < n; i++) {
@@ -406,7 +438,8 @@ static inline void allocMorphWeights(Sub15C *d, int n) /* derived name */
 #ifdef VERSION_NTSC
     d->morphWeight = iosMallocDebug(ios_partition_seki, n * 4, __FILE__, 282);
 #else
-    d->morphWeight = iosMallocDebug(ios_partition_seki, n * 4, __FILE__, 283);
+    d->morphWeight =
+        iosMallocDebug(ios_partition_seki, n * 4, __FILE__, LN(283, 283, 283, 283, 282));
 #endif
     for (i = 0; i < n; i++) {
         d->morphWeight[i] = 0.0f;
@@ -492,7 +525,8 @@ static inline void makeSlotTable(Sub15C *d) /* derived name */
 #ifdef VERSION_NTSC
     d->focusNodes = iosMallocDebug(ios_partition_sugipon, 53, __FILE__, 439);
 #else
-    d->focusNodes = iosMallocDebug(ios_partition_sugipon, 53, __FILE__, 440);
+    d->focusNodes =
+        iosMallocDebug(ios_partition_sugipon, 53, __FILE__, LN(440, 440, 440, 440, 439));
 #endif
     for (i = 0; i < 53; i++) {
         d->focusNodes[i] = findSlot(d, i);
@@ -528,12 +562,17 @@ Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
 {
     Sub15C *d;
 
-    d = iosMallocDebug(ios_partition_seki, sizeof(DObjRecord), __FILE__, 463);
+    d = iosMallocDebug(ios_partition_seki, sizeof(DObjRecord), __FILE__,
+                       LN(463, 463, 463, 463, 462));
     *(DObjRecord *)d = emptyDObj;
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     if (id != 1548) {
 #else
+#ifdef VERSION_AUG6
+    if (id != 1510) {
+#else
     if (id != 1552) {
+#endif
 #endif
         CSVSYSTEM_ReadCharFiles(d, id);
     }
@@ -541,7 +580,9 @@ Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
     if (d->model != 0 || d->skel != 0) {
         initPolygonState(d, lay);
     }
+#ifndef VERSION_AUG6
     debug_StdPrintfDummy(" ------------------ allocate DOBJ %p: POBJ: %p\n", d, d->model);
+#endif
     debug_StdPrintfDummy("\x1b[35mINITED POLYGONSTATE\x1b[m\n");
     initGeometryState(d, lay);
     debug_StdPrintfDummy("\x1b[35mINITED GEOMETRYSTATE\x1b[m\n");

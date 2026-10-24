@@ -11,7 +11,7 @@
 struct GObj;
 struct MotOriReq;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void ACTAcceptMail(struct GObj *self, int mail);
 #endif
 void ACTAdjustPlane(struct GObj *self, void *wall); /* wall: the wall record the root is laid against */
@@ -45,7 +45,9 @@ void afterCommonTruckLever(struct GObj *volatile self);
 void subCommonIdle(struct GObj *volatile self);
 float *test_CURRENTORIENT(struct GObj *self);
 float *test_CURRENTROOT(struct GObj *self);
+#ifndef VERSION_AUG6
 int FloorIsTruck(struct GObj *self);
+#endif
 void afterCommonBox(struct GObj *volatile self);
 void actAfterFall(struct GObj *volatile self);
 

@@ -35,7 +35,7 @@ int gif_CheckOpen(void);
 void gif_Draw2DStripG(int *v, GifColor *col, int n, int prim);
 void gif_DrawPolyF4(void *p0, void *p1, void *p2, void *p3, int r, int g, int b, int a, int prim);
 void gif_DrawStripF(void *v, GifColor col, int n, int prim);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void gif_DrawStripFST(void *v, void *uv, GifColor col, int n, int prim);
 #endif
 void gif_EndPacket(void);

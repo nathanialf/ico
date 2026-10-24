@@ -45,7 +45,11 @@ void actSt05bCrest01XL(GObj *volatile self)
     }
 }
 #else
+#ifdef VERSION_AUG6
+static ActMail sekizo_mes[2] = {{393}, {392}}; /* derived name */
+#else
 static ActMail sekizo_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt05bCrest01XL(GObj *volatile self)
 {
@@ -53,6 +57,28 @@ void actSt05bCrest01XL(GObj *volatile self)
 
     actInitialize(self);
     _ACTWait(1);
+#ifdef VERSION_AUG6
+    if (gflagChk(218) == 0) {
+        stage_SetAnimation(165, 0, 0);
+        stage_SetAnimation(167, 0, 0);
+    } else {
+        stage_SetAnimation(165, 0, -1);
+        stage_SetAnimation(167, 0, -1);
+        scpTorchLightOn(1239);
+        scpTorchLightOn(1240);
+    }
+    if (gflagChk(219) == 0) {
+        stage_SetAnimation(166, 0, 0);
+    } else {
+        stage_SetAnimation(166, 0, -1);
+        scpTorchLightOn(1241);
+        scpTorchLightOn(1242);
+    }
+    if (gflagChk(226) == 0) {
+        stage_SetAnimation(168, 0, 0);
+    } else {
+        stage_SetAnimation(168, 0, -1);
+#else
     if (gflagChk(243) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(183, 0, 0);
@@ -98,6 +124,7 @@ void actSt05bCrest01XL(GObj *volatile self)
         stage_SetAnimation(186, 0, -1);
 #else
         stage_SetAnimation(190, 0, -1);
+#endif
 #endif
     }
 }
@@ -252,6 +279,9 @@ void actSt05bSekizoChk(GObj *volatile self)
 {
     volatile int h;
     float d[4];
+#ifdef VERSION_AUG6
+    int key;
+#endif
 
     if (girlGObj == 0) {
         _ACTWait(0);
@@ -260,6 +290,7 @@ void actSt05bSekizoChk(GObj *volatile self)
            scpTriggerBall(self, girlGObj, 200.0f) == 0) {
         _ACTWait(1);
     }
+#ifndef VERSION_AUG6
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     lt_switch_layout(52);
 #else
@@ -269,10 +300,26 @@ void actSt05bSekizoChk(GObj *volatile self)
     brainLockGirl();
     scpKillEnemyAll();
     scpMaskGeneratorAll();
+#endif
     scpAdpcmPlayRequestFunc(18, &sekizo5b, 1, 1, 1);
     while (sekizo5b == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_AUG6
+    scpKillEnemyAll();
+    scpMaskGeneratorAll();
+    gflagOn(356);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    brainLockGirl();
+    _ACTWait(60);
+    stage_SetAnimation(170, 1, 0);
+    ReviveAllCarryableItemsWithNonSleepFrame(250);
+    key = iosPadActRequest(boyPad, 9);
+    sekizo_5b_vol = 128;
+    iosPadActVolumeSet(sekizo_5b = key, 128);
+    h = soundSeDefPlay(1193, 0, 0, 1);
+#else
     gflagOn(390);
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     stage_SetAnimation(188, 1, 0);
@@ -284,12 +331,19 @@ void actSt05bSekizoChk(GObj *volatile self)
     sekizo_5b_vol = 128;
     iosPadActVolumeSet(sekizo_5b, 128);
     h = soundSeDefPlay(1217, 0, 0, 1);
+#endif
     scpPlayStart(boyGObj);
     scpPlayStart(girlGObj);
     scpPlayMot(boyGObj, 0);
+#ifdef VERSION_AUG6
+    scpPlayMot(girlGObj, 514);
+    scpPlayPosSet(girlGObj, 10350.0f, -2150.0f, 0.0f);
+    scpPlayPosSet(boyGObj, 10350.0f, -2150.0f, 100.0f);
+#else
     scpPlayMot(girlGObj, 532);
     scpPlayPosSet(girlGObj, 10350.0f, -2150.0f, 0.0f);
     scpPlayPosSet(boyGObj, 10350.0f, -2150.0f, -100.0f);
+#endif
     _ACTWait(1);
     sceVu0SubVector(d, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
     scpPlayMotDir(girlGObj, d);
@@ -297,6 +351,13 @@ void actSt05bSekizoChk(GObj *volatile self)
     sceVu0SubVector(d, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
     scpPlayMotDir(boyGObj, d);
     scpSekizouCheckPoint();
+#ifdef VERSION_AUG6
+    scpPlayMot(girlGObj, 573);
+    scpPlayWaitMotEnd(girlGObj);
+    gflagOn(143);
+    soundSeDefStop(h);
+    while (stage_CheckAnimationFrame(170, 151, 0) == 0) {
+#else
     scpPlayMot(girlGObj, 645);
     scpPlayWaitMotEnd(girlGObj);
     gflagOn(160);
@@ -306,19 +367,29 @@ void actSt05bSekizoChk(GObj *volatile self)
 #else
     while (stage_CheckAnimationFrame(192, 151, 0) == 0) {
 #endif
+#endif
         _ACTWait(1);
     }
     _ACTWait(1);
     iosPadActStop(sekizo_5b);
+#ifdef VERSION_AUG6
+    scpPlayMot(girlGObj, 514);
+#else
     scpPlayMot(girlGObj, 532);
+#endif
     scpPlayEnd(girlGObj);
     actCreateSubThread(actSt05bGirlWay, 21);
     _ACTWait(30);
+#ifdef VERSION_AUG6
+    scpPlayMot(boyGObj, 247);
+#else
     scpPlayMot(boyGObj, 252);
+#endif
     scpPlayWaitMotEnd(boyGObj);
     scpPlayMot(boyGObj, 0);
     scpPlayEnd(boyGObj);
     ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
+#ifndef VERSION_AUG6
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     while (stage_CheckAnimationFinish(188) == 0) {
 #else
@@ -333,6 +404,7 @@ void actSt05bSekizoChk(GObj *volatile self)
     lt_switch_layout(54);
 #endif
     scpBoyControlReadDisable = 0;
+#endif
 }
 
 void actSt05bDoorXL(GObj *volatile self)
@@ -342,6 +414,12 @@ void actSt05bDoorXL(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(218) != 0 && gflagChk(125) == 0) {
+        stage_SetAnimation(311, 0, -1);
+    } else {
+        stage_SetAnimation(311, 0, 0);
+#else
     if (gflagChk(243) != 0 && gflagChk(139) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(341, 0, -1);
@@ -354,6 +432,7 @@ void actSt05bDoorXL(GObj *volatile self)
 #else
         stage_SetAnimation(345, 0, 0);
 #endif
+#endif
     }
 }
 
@@ -364,6 +443,12 @@ void actSt05bMonyoDoorXL(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(209) == 0) {
+        stage_SetAnimation(222, 0, 0);
+    } else {
+        stage_SetAnimation(222, 0, -1);
+#else
     if (gflagChk(234) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(247, 0, 0);
@@ -376,6 +461,7 @@ void actSt05bMonyoDoorXL(GObj *volatile self)
 #else
         stage_SetAnimation(251, 0, -1);
 #endif
+#endif
     }
 }
 
@@ -385,6 +471,17 @@ void actSt05bSekizo(GObj *volatile self)
     Act *act = actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(143) == 0) {
+        stage_SetAnimation(170, 0, 0);
+        sekizo_mes[0].func = actSt05bSekizoChk;
+        act->mail = sekizo_mes;
+        ACTSendMailCorrect(self, 393);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(170, 0, -1);
+        if (gflagChk(218) == 0) {
+#else
     if (gflagChk(160) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(188, 0, 0);
@@ -402,6 +499,7 @@ void actSt05bSekizo(GObj *volatile self)
         stage_SetAnimation(192, 0, -1);
 #endif
         if (gflagChk(243) == 0) {
+#endif
             ScpCallCameraSetTarget(-10793.0f, 2122.0f, 0.0f);
         }
     }
@@ -414,6 +512,12 @@ void actSt05bBallXL(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(125) == 0) {
+        stage_SetAnimation(266, -1, -2);
+    } else {
+        stage_SetAnimation(264, -1, -2);
+#else
     if (gflagChk(139) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(296, -1, -2);
@@ -426,6 +530,7 @@ void actSt05bBallXL(GObj *volatile self)
 #else
         stage_SetAnimation(298, -1, -2);
 #endif
+#endif
     }
 }
 
@@ -436,6 +541,11 @@ void actSt05bSolarXL(GObj *volatile self)
     actInitialize(self);
     _ACTWait(1);
 
+#ifdef VERSION_AUG6
+    if (gflagChk(125) == 0) {
+        stage_SetAnimation(269, -1, -2);
+        stage_SetAnimation(272, -1, -2);
+#else
     if (gflagChk(139) == 0) {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(299, -1, -2);
@@ -443,6 +553,7 @@ void actSt05bSolarXL(GObj *volatile self)
 #else
         stage_SetAnimation(303, -1, -2);
         stage_SetAnimation(306, -1, -2);
+#endif
 #endif
     }
 }
@@ -472,7 +583,7 @@ void actSt05bGirlWay(GObj *volatile self)
     way[0] = girlWay2Pos.d[0];
     way[1] = girlWay2Pos.d[1];
     RequestStageChangeDirect(girlGObj, 28, way, 180);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     lt_switch_layout(50);
     scpBoyControlReadDisable = 0;
 #endif

@@ -48,7 +48,7 @@ void LightTorchOnOfWeaponWithNoSE(struct GObj *self);
 void PickupWeapon(struct GObj *self, struct GObj *holder, int focus);
 void ReleaseWeapon(struct GObj *self);
 int ReleaseWeaponWithFumbleSequential(struct GObj *g);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetWeaponOffsetMode(struct GObj *self, int mode);
 #endif
 void SetWeaponTorchChainReactionFlagAll(int flag);

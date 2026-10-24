@@ -14,7 +14,7 @@
 extern Brain brainGirl;
 void OverrideBrainStatusByGObj(Brain *b, GObj *gobj, float levelCap, float rate, float capStep);
 void brainAddLevelGirl(float lv);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void brainAddLevelGirlDetail(int flag, float lv);
 #endif
 void brainAddLevelGop(GObj *gobj, float lv);

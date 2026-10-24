@@ -18,7 +18,7 @@ typedef struct { /* field names derived */
     int last;    /* 0x04 */
 } EnemyKindRange; /* derived name */
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 /* enemy-def: one enemy kind, 0x14 bytes, by kind: the model and the particle
    object it is drawn with, its life, the scale its model is drawn at, then
    the attribute word: the fly type in bits 0-1 and the battle type in bits
@@ -60,7 +60,7 @@ void EnemySetfDisappearAll(struct GObj *self);
 int EnemyGetNSafeParts(struct GObj *self);
 void enemySetParticleDie(void *root, float *dir);
 int GetEnemyBattleType(struct GObj *self);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 float GetEnemyDefLife(struct GObj *self);
 #else
 float GetEnemyDefDodgeRange(struct GObj *self);

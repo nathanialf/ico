@@ -12,7 +12,7 @@
 #include "motionManager2.h"
 #include "frameDependSequence.h"
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static inline int execSE(int no);
 static inline int checkWaterDepth(struct GObj *gobj, int depth);
 static inline int checkModelDataID(struct GObj *gobj, int id);
@@ -32,7 +32,7 @@ extern GsysObjInfo seDef[];
 extern int soundSeDefPlay(int se, unsigned int owner, int pos, int playMode);
 
 typedef struct FDSFlags { /* field names derived */
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
     int vibDone[1]; /* 0x00 */
     int effDone[5]; /* 0x04 */
     int seDone[12]; /* 0x18 */
@@ -70,7 +70,7 @@ extern int soundSeDefPlayWithVolumeRate(int se, unsigned int owner, int pos, int
 /* seMail has no header; declared as ico2/fumi/src/seMail.c defines it */
 extern void seMail(int self, int id);
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static int playSE(int no)
 {
     if (no == 0) {
@@ -106,6 +106,14 @@ static int playSE(int no)
     return 1;
 }
 
+#ifdef VERSION_AUG6
+/* .sbss and .bss: the debug tally playSERandomID prints, the number of
+   picks so far and how many times each entry was picked. */
+static int seRandomPicks; /* derived name */
+
+static int seRandomPickCount[50]; /* derived name */
+#endif
+
 static int playSERandomID(int no)
 {
     float rest;
@@ -132,12 +140,38 @@ static int playSERandomID(int no)
         share = rest < acc ? acc : rest / (float)nshare;
     }
     for (i = 0; i < n; i++) {
+#ifdef VERSION_AUG6
+        float w;
+
+        if (randomSEKind[no + i].rate < 0.0f) {
+            w = share;
+        } else {
+            w = randomSEKind[no + i].rate;
+#else
         float w = randomSEKind[no + i].rate;
         if (w < 0.0f) {
             w = share;
+#endif
         }
         acc += w * 0.01f;
         if (rnd < acc) {
+#ifdef VERSION_AUG6
+            /* the draw trace for the random SE 0x1000D */
+            if (debug_seslotdisp_flag != 0 && no + 0x10000 == 0x1000D) {
+                int j;
+
+                seRandomPickCount[i]++;
+                seRandomPicks++;
+                /* EUC-JP: "call %d: " */
+                debug_StdPrintfDummy("%d回目: ", seRandomPicks);
+                for (j = 0; j < n; j++) {
+                    debug_StdPrintfDummy(
+                        "%s%d(%1.1f%%)\033[m ", j == i ? "\033[36m" : "", seRandomPickCount[j],
+                        (float)seRandomPickCount[j] * 100.0f / (float)seRandomPicks);
+                }
+                debug_StdPrintfDummy("\n");
+            }
+#endif
             return execSE(randomSEKind[no + i].se);
         }
     }
@@ -373,7 +407,7 @@ static void playEff(int no)
     if (flags & 1) {
         EntryStageMultiBgaManager(motionEffKind[no].eff, pos, q);
     } else {
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
         if (stage_no == 0x21 && pos[0] < -4500.0f) {
             return;
         }
@@ -382,7 +416,7 @@ static void playEff(int no)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static int execEff(int no)
 {
     int (*fn)(GObj *, int);
@@ -540,7 +574,7 @@ static void execVibCondition(int no, int *entry)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 static inline void fireFDSSlot(float t, int (*fn)(int no), int no, int *done) /* derived name */
 {
     if (t < 0.0f) {
@@ -692,11 +726,19 @@ static inline int setSEEnvironment(GObj *gobj, int id) /* derived name */
     fdsGObj = (char *)gobj;
     if (w != 0) {
         no = *(int *)(w + 0x84);
+#ifdef VERSION_AUG6
+        p = w + 0x460;
+        fdsWork = w + 0xA0;
+        fdsFlags = (FDSFlags *)(w + 0x730);
+        fdsRecord = &motionKind[*(int *)(p + 0x30)];
+        fdsGroup = *(int *)(w + (id << 2) + 0x60C);
+#else
         p = w + 0x470;
         fdsWork = w + 0xA0;
         fdsFlags = (FDSFlags *)(w + 0x740);
         fdsRecord = &motionKind[*(int *)(p + 0x30)];
         fdsGroup = *(int *)(w + (id << 2) + 0x61C);
+#endif
         fdsLayout = (struct MotCtrl *)p;
     } else {
         no = -1;
@@ -718,7 +760,7 @@ static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
     id = setSEEnvironment(gobj, grp);
     p = findSEPackage(no, id);
     for (i = 0; i < 2; i++) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
         execSE(p[i]);
 #else
         execSE(p[i], 0);
@@ -777,7 +819,7 @@ void StopSEPackage(GObj *gobj)
     StopSEPackageWithGroupVariation(gobj, 0);
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void InitFrameDependSequence(void *flags)
 {
     FDSFlags *f = flags;

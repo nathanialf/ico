@@ -109,9 +109,9 @@ void EntrySpiderGroupManager(GObj *gobj)
         p->active = 0;
     } else {
         debug_assertMessage(
-            "src/spiderGroupManager.c", 85,
+            "src/spiderGroupManager.c", LN(85, 85, 85, 85, 86),
             "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n");
-        __assert("src/spiderGroupManager.c", 85, "e");
+        __assert("src/spiderGroupManager.c", LN(85, 85, 85, 85, 86), "e");
     }
     spiderGroups[spiderGroupCount].rev = (int)p;
     spiderGroupCount = spiderGroupCount + 1;
@@ -154,7 +154,7 @@ static int tryToRevive(void)
                             if (DirectCallEnemy(p, 0, pos, ZUnitVector, 0) == 0) {
                                 return 0;
                             }
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
                             ExecuteSEPackage(p, 102);
 #else
                             ExecuteSEPackage(p, 107);

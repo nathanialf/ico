@@ -149,12 +149,20 @@ int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, floa
     float scale;
     float r;
     GObj *pool;
+#ifdef VERSION_AUG6
+    int attr;
+#endif
 
     if (outFlag != 0) {
         *outFlag = 0;
     }
     if (info->floor.elem != 0) {
+#ifdef VERSION_AUG6
+        attr = GetFloorAttribute(info);
+        if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+#else
         if (CompareAttribute(GetFloorAttribute(info), 0x50) != 0) {
+#endif
             scale = scaleIn;
             pool = info->floor.o.obj;
             waterH = GetPoolGlobalHeightDetail(pool, pos);
@@ -203,6 +211,52 @@ int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, floa
 static inline float getPlaneY(Vec4 pl, float *p) /* derived name */
 {
     return GetYProjectionOfPlane(pl.f, p);
+#ifdef VERSION_AUG6
+}
+
+int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
+{
+    float h;
+    float dy;
+    float ph;
+    float d;
+    int attr;
+
+    if (info->floor.elem != 0) {
+        h = GOBJ_SUB(self)->root.move[1];
+        dy = info->pt[2][1] - pos[1];
+        attr = GetFloorAttribute(info);
+        if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+            if (h >= 0.0f) {
+                ph = GetPoolGlobalHeight(info->floor.o.obj);
+                d = info->pt[2][1] - ph;
+                if (dy < lim) {
+                    if (d > 0.0f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
+                            SetFallDownSplash(info->floor.o.obj, self);
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
+                        }
+                    }
+                    return 1;
+                }
+                if (d > 0.0f) {
+                    if (ph - pos[1] < lim * 0.8f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
+                            SetFallDownSplash(info->floor.o.obj, self);
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
+                        }
+                        return 2;
+                    }
+                }
+            }
+        } else {
+            if (dy < lim) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+#endif
 }
 #endif
 
@@ -352,6 +406,29 @@ void GetRootPosOfNextFrame(float *pos, GObj *obj)
     struct MotRoot *sub = &obj->dobj->root;
     CopyVector(pos, sub->move);
     SubVectorXYZ(pos, pos, sub);
+#ifdef VERSION_AUG6
+}
+
+/* the body of GetSkeltonFocusNode, which SetMotionBlendlessNode, the two
+   GetDifferenceFromWall*Plane and the node fix mode setter inline and
+   GetSkeltonFocusNode calls: a missing skeleton or an out-of-range node is
+   reported (the demo's strings precede AdjustMotionHeightToField's) */
+static inline int getSkeltonFocusNode(GObj *self, int focus) /* derived name */
+{
+    Sub15C *sub = GOBJ_SUB(self);
+
+    if (sub == 0 || sub->focusNodes == 0 || sub->focusNodes[focus] >= sub->skelNodeNum) {
+        /* EUC-JP: "whoever sees this message, please contact Sugiyama" */
+        debug_StdPrintfDummy(
+            "このメッセージを見たひとは杉山まで連絡ください: GetSkeltonFocusNode SKEL=NULL\n");
+        debug_assertMessage(
+            __FILE__, 515,
+            "GetSkeltonFocusNode:\n PLEASE CALL SUGIYAMA\n GOBJ==NULL Or SKEL==NULL "
+            "Or RETURNID>=NBSKELS\n");
+        __assert(__FILE__, 515, "e");
+    }
+    return GOBJ_SUB(self)->focusNodes[focus];
+#endif
 }
 
 void AdjustMotionHeightToField(GObj *obj)
@@ -506,6 +583,238 @@ static int calcFootIK(SkelNode *skel, char *arg, int node, float scale, float ra
     return ang;
 }
 
+#ifdef VERSION_AUG6
+/* The motion geometry record the actor sub-object carries at its own +0xA0,
+   and the default every actor starts from: the same block typedef.h's MotRoot
+   describes, and its fields carry MotRoot's names (the readers and writers
+   are motionManager.c's and the rootUpdates').  This build's record has no
+   up vector at 0x60: InitMotionGeoInfo copies 0x3C0 bytes and copies the
+   position to savePos at 0x60, last at 0x140 and clipFrom at 0x150, so from
+   savePos on every field sits 0x10 below MotRoot's.  InitMotionGeoInfo
+   writes the position at 0x0 and the root quaternion at 0x30.  The two hand
+   records at 0x200 and 0x260 are typedef.h's HandRec.  MotRoot leaves the
+   words at 0xFC to 0x10F and 0x1D0 to 0x1EF here unread; this default puts
+   -1 and -1.0f there, so those words keep type-and-offset names.  The
+   default is this record and not a struct MotRoot because MotRoot is 16-byte
+   aligned (its plane) and the default is 8-byte aligned in the object's
+   .data. */
+typedef struct {     /* field names derived */
+    Vec4 pos;        /* 0x0, the position InitMotionGeoInfo is handed */
+    Vec4 trans;      /* 0x10 */
+    Vec4 baseQuat;   /* 0x20 */
+    Vec4 rot;        /* 0x30, the root quaternion */
+    Vec4 motionQuat; /* 0x40 */
+    short twist;     /* 0x50 */
+    char pad52[2];
+    float twistRate; /* 0x54 */
+    char pad58[8];
+    Vec4 savePos;   /* 0x60, takes a copy of the initial position */
+    ObjNode hitObj; /* 0x70 */
+    char pad78[8];
+    Vec4 nextPos;  /* 0x80, the root position of the next frame */
+    Vec4 step;     /* 0x90 */
+    Vec4 itemQuat; /* 0xA0 */
+    float height;  /* 0xB0 */
+    char padB4[12];
+    Vec4 delta;         /* 0xC0 */
+    WallCfg wall;       /* 0xD0 */
+    int wallCount;      /* 0xDC */
+    WallCfg cliffWall;  /* 0xE0 */
+    int cliffWallCount; /* 0xEC */
+    WallCfg aheadWall;  /* 0xF0 */
+    int wordFC;
+    WallCfg wall100;
+    int word10C;
+    WallCfg filter; /* 0x110 */
+    char pad11C[4];
+    Vec4 plane;       /* 0x120, the field plane under the actor */
+    int lastField;    /* 0x130 */
+    void *cliffFloor; /* 0x134 */
+    char pad138[8];
+    Vec4 last;     /* 0x140, takes a copy of the initial position */
+    Vec4 clipFrom; /* 0x150, takes a copy of the initial position */
+    Vec4 stepMove; /* 0x160 */
+    int standNode; /* 0x170, -1 for none */
+    char pad174[12];
+    Vec4 focusPos;    /* 0x180 */
+    Vec4 focusLocal;  /* 0x190 */
+    Vec4 fieldPos;    /* 0x1A0, the position projected onto the field plane */
+    Vec4 reservePos;  /* 0x1B0 */
+    float projHeight; /* 0x1C0 */
+    char pad1C4[12];
+    Vec4 vec1D0;
+    Vec4 vec1E0;
+    int liftOn;    /* 0x1F0 */
+    int lifting;   /* 0x1F4 */
+    float lift[2]; /* 0x1F8 */
+    HandRec hand1; /* 0x200 */
+    HandRec hand0; /* 0x260 */
+    Vec4 armTwist; /* 0x2C0 */
+    int lookMode;  /* 0x2D0 */
+    char pad2D4[12];
+    Vec4 lookPos; /* 0x2E0 */
+    short h;      /* 0x2F0 */
+    short p;      /* 0x2F2 */
+    short b;      /* 0x2F4 */
+    char pad2F6[2];
+    int noStepSearch; /* 0x2F8 */
+    int gravity;      /* 0x2FC */
+    int slopeIK;      /* 0x300 */
+    int stairStep;    /* 0x304 */
+    int lookIK;       /* 0x308 */
+    int handTurnIK;   /* 0x30C */
+    int fieldWall;    /* 0x310 */
+    int fuchiMode;    /* 0x314 */
+    int cylinder;     /* 0x318 */
+    int avgWallPlane; /* 0x31C */
+    int flag330;      /* 0x320 */
+    int flag334;      /* 0x324 */
+    float radius;     /* 0x328 */
+    float radiusTo;   /* 0x32C */
+    float radiusFrom; /* 0x330 */
+    char pad334[12];
+    Vec4 cliffPlane; /* 0x340 */
+    int handIK;      /* 0x350 */
+    int stepNode;    /* 0x354 */
+    char pad358[8];
+    Vec4 holdPoint; /* 0x360 */
+    int ropeState;  /* 0x370 */
+    int fixObj;     /* 0x374 */
+    int fixNode;    /* 0x378 */
+    char pad37C[4];
+    Vec4 fixQuat;         /* 0x380 */
+    Vec4 fixPos;          /* 0x390 */
+    float fixWeight;      /* 0x3A0 */
+    unsigned int fixMode; /* 0x3A4 */
+    float footIKRate;     /* 0x3A8 */
+    float ikRate0;        /* 0x3AC */
+    float handRate;       /* 0x3B0 */
+    float ikRate1;        /* 0x3B4 */
+    float ikRate2;        /* 0x3B8 */
+    char pad3BC[4];
+} MotionGeoInfo; /* derived name */
+
+/* the record InitMotionGeoInfo copies over every new actor's geometry
+   state */
+static MotionGeoInfo motionGeoInfoTemplate = {
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0,
+    {0},
+    1.0f,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {0, -1},
+    {0},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0.0f,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0, -1}, 0},
+    -1,
+    {{0, -1}, 0},
+    -1,
+    {{0, -1}, 0},
+    -1,
+    {{0, -1}, 0},
+    -1,
+    {{0, -1}, 0},
+    {0},
+    {{0.0f, -1.0f, 0.0f, 0.0f}},
+    0,
+    0,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    -1,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0.0f,
+    {0},
+    {{0.0f, -1.0f, 0.0f, 0.0f}},
+    {{0.0f, -1.0f, 0.0f, 0.0f}},
+    1,
+    0,
+    {0.0f, 0.0f},
+    {0,
+     0,
+     -1,
+     {0},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     0,
+     0,
+     {0},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     0.5f,
+     0,
+     0},
+    {0,
+     0,
+     -1,
+     {0},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     0,
+     0,
+     {0},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     0.5f,
+     0,
+     0},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0,
+    0,
+    0,
+    {0},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.0f,
+    0.0f,
+    0.0f,
+    {0},
+    {{0.0f, -1.0f, 0.0f, 0.0f}},
+    1,
+    0,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 0.0f}},
+    0,
+    0,
+    0,
+    {0},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    {{0.0f, 0.0f, 0.0f, 1.0f}},
+    0.0f,
+    0,
+    1.0f,
+    0.09f,
+    0.15f,
+    0.1f,
+    0.1f,
+}; /* derived name */
+#else
 /* The motion geometry record the actor sub-object carries at its own +0xA0,
    and the default every actor starts from: the same block typedef.h's MotRoot
    describes, and its fields carry MotRoot's names at the same offsets (the
@@ -737,6 +1046,7 @@ static MotionGeoInfo motionGeoInfoTemplate = {
     0.1f,
     0.1f,
 }; /* derived name */
+#endif
 
 /* The motion state record the actor sub-object carries at its own +0x470,
    and the default every actor starts from: the block typedef.h's MotCtrl
@@ -975,7 +1285,9 @@ void InitMotionGeoInfo(struct MotRoot *self, float x, float y, float z, float rx
     RotQuaternionY(self->quat, -(int)(ry * 10430.378f));
     RotQuaternionX(self->quat, -(int)(rx * 10430.378f));
     RotQuaternionZ(self->quat, (short)-(int)(rz * 10430.378f));
+#ifndef VERSION_AUG6
     RegularizeQuaternion(self->quat);
+#endif
     adjustMotionHeightToNearestField(self, self->pos);
     SetSimplePlane(self->plane.f, 0.0f, -1.0f, 0.0f, y);
     CopyVector(self->footPos, self->pos);
@@ -1029,8 +1341,14 @@ static void dispSkeltonHierarchy(int node)
     }
 }
 
+#ifdef VERSION_AUG6
+/* SetSkeltonDispSwitch's switch for DispSkelton's debug draw, defined
+   after SlopeIKControl */
+static int skeltonDispSwitch; /* derived name */
+#else
 /* SetSkeltonDispSwitch's switch for DispSkelton's debug draw */
 static int skeltonDispSwitch = 0; /* derived name */
+#endif
 
 void DispSkelton(GObj *self, void *motion)
 {
@@ -1107,8 +1425,13 @@ void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n)
     if (ik->rootUpdateMode < 3) {
         if (ik->rootUpdateMode > 0) {
             if (sub->slopeIK != 0) {
+#ifdef VERSION_AUG6
+                n0 = getSkeltonFocusNode(self, 49);
+                n1 = getSkeltonFocusNode(self, 45);
+#else
                 n0 = GOBJ_SUB(self)->focusNodes[49];
                 n1 = GOBJ_SUB(self)->focusNodes[45];
+#endif
                 if (n0 != -1 && n1 != -1) {
                     SkelNode *skel = GOBJ_SUB(self)->skel;
 
@@ -1130,7 +1453,11 @@ void SlopeIKControl(GObj *self, char *mot, float *v, Vec4 *vel, int n)
     ik->playRate = (r0 > 1.0f) ? 1.0f : r0;
 }
 
+#ifdef VERSION_AUG6
+static int skeltonDispSwitch = 0;
+#else
 static const char motMan2File[] = __FILE__; /* derived name */
+#endif
 
 /* AdjustRootPositionToVerticalSidePlaneOfWall was about to push into the
    wall, so the position was clipped */
@@ -1228,8 +1555,13 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
         debug_assertMessage(motMan2File, 1358, "!!");
         __assert(motMan2File, 1358, "e");
 #else
+#ifdef VERSION_AUG6
+        debug_assertMessage(__FILE__, 1353, "!!");
+        __assert(__FILE__, 1353, "e");
+#else
         debug_assertMessage(motMan2File, 1360, "!!");
         __assert(motMan2File, 1360, "e");
+#endif
 #endif
     }
     if (plane0 != 0) {
@@ -1811,11 +2143,16 @@ void FeedbackWallWorkInfoToBrainSystem(GObj *self)
 {
     Sub15C *p = self->dobj;
     char *d = (char *)self->act;
+#ifdef VERSION_AUG6
+    *(WallWork *)((char *)p + 0x170) = *(WallWork *)((char *)p + 0x190);
+    *(WallWork *)(d + 0x610) = *(WallWork *)((char *)p + 0x190);
+#else
     *(WallWork *)((char *)p + 0x180) = *(WallWork *)((char *)p + 0x1A0);
 #ifdef VERSION_NTSC
     *(WallWork *)(d + 0x610) = *(WallWork *)((char *)p + 0x1A0);
 #else
     *(WallWork *)(d + 0x620) = *(WallWork *)((char *)p + 0x1A0);
+#endif
 #endif
 }
 
@@ -1827,7 +2164,7 @@ void *GetMotionPointer(GObj *self)
 int GetCollisionOfLastActiveField(GObj *self)
 {
     return self->dobj->root.lastField;
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 }
 
 int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
@@ -1904,6 +2241,7 @@ void DebugDisp1Collision(WallCfg *cfg)
 void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color)
 {
     debugDisp1CollisionWithColor(cfg, color);
+#ifndef VERSION_AUG6
 }
 
 /* the body of GetSkeltonFocusNode, which SetMotionBlendlessNode, the two
@@ -1912,6 +2250,7 @@ void DebugDisp1CollisionWithColor(WallCfg *cfg, void *color)
 static inline int getSkeltonFocusNode(GObj *self, int focus) /* derived name */
 {
     return GOBJ_SUB(self)->focusNodes[focus];
+#endif
 }
 
 void SetMotionBlendlessNode(GObj *self, int *node)
@@ -2027,28 +2366,49 @@ int GetStreamShapeMotion(float *dst, StreamShapeHdr *hdr)
 
 float GetDifferenceFromWallUpperField(GObj *self, int node)
 {
+#ifdef VERSION_AUG6
+    struct MotRoot *r = &self->dobj->root;
+    int idx = getSkeltonFocusNode(self, node);
+    return GetYDistanceFromPlane(r->cliffPlane,
+                                 (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+#else
     Sub15C *e = self->dobj;
     int idx = (e->focusNodes)[node];
     return GetYDistanceFromPlane(e->root.cliffPlane,
                                  (float *)((char *)e->nodeMtx + idx * 0x40 + 0x30));
+#endif
 }
 
 float GetDifferenceFromLastField(GObj *self, int node)
 {
+#ifdef VERSION_AUG6
+    struct MotRoot *r = &self->dobj->root;
+    int idx = getSkeltonFocusNode(self, node);
+    return GetYDistanceFromPlane(r->plane.f,
+                                 (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+#else
     Sub15C *e = self->dobj;
     int idx = (e->focusNodes)[node];
     return GetYDistanceFromPlane(e->root.plane.f,
                                  (float *)((char *)e->nodeMtx + idx * 0x40 + 0x30));
+#endif
 }
 
 float GetDifferenceFromLowerField(GObj *self, int node)
 {
     ClipWork buf;
+#ifdef VERSION_AUG6
+    int idx;
+
+    idx = getSkeltonFocusNode(self, node);
+    GetLowerPlaneCollision(&buf, (float *)((char *)GOBJ_SUB(self)->nodeMtx + idx * 0x40 + 0x30));
+#else
     Sub15C *ctrl;
     int idx;
     ctrl = self->dobj;
     idx = ((signed char *)ctrl->focusNodes)[node];
     GetLowerPlaneCollision(&buf, (float *)(ctrl->nodeMtx + (idx << 6) + 0x30));
+#endif
     if (buf.floor.elem == 0) {
         return 3.40282347e+38f;
     }
@@ -2094,7 +2454,11 @@ void EnableChangeRootUpdateMode(GObj *self)
 float GetRopeHangablePos(GObj *self)
 {
     Sub15C *sub = self->dobj;
+#ifdef VERSION_AUG6
+    return sub->ctrl.ropeHangPos;
+#else
     return *(float *)((char *)sub + 0x618);
+#endif
 }
 
 int GetMotionFrameFlag1(GObj *self)

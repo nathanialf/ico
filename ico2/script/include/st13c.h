@@ -23,6 +23,12 @@ void actSt13cCageFallEffect(GObj *volatile self);
 #else
 extern struct SqEntry *hand;
 void actSt13cBmg1Chk(GObj *volatile self);
+#ifdef VERSION_AUG6
+void actSt13cCage1stDown(GObj *volatile self);
+void actSt13cCage1stDownDemoCancel(GObj *volatile self);
+void actSt13cCageFallChk(GObj *volatile self);
+void actSt13cCageFallEffect(GObj *volatile self);
+#else
 void actSt13cBukiChk(GObj *volatile self);
 void actSt13cCage1stDown(GObj *volatile self);
 void actSt13cCage1stDownDemo(GObj *volatile self);
@@ -33,17 +39,18 @@ void actSt13cCageFallChk(GObj *volatile self);
 void actSt13cCageFallEffect(GObj *volatile self);
 void actSt13cCageFallReadyChk(GObj *volatile self);
 #endif
+#endif
 void actSt13cConte04(GObj *volatile self);
 void actSt13cConte04Jimaku(GObj *volatile self);
 void actSt13cConte05(GObj *volatile self);
 void actSt13cConte05Jimaku(GObj *volatile self);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void actSt13cGirlCarryAgainChk(GObj *volatile self);
 #endif
 void actSt13cGirlCarryChk(GObj *volatile self);
 void actSt13cHandChk(GObj *volatile self);
 void actSt13cHandJimaku(GObj *volatile self);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void actSt13cRescueChk(GObj *volatile self);
 void actSt13cSekizoJimakuChk(GObj *volatile self);
 void actSt13cSekizoJimakuEff(GObj *volatile self);

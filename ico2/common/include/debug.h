@@ -103,6 +103,7 @@ extern int debug_col_old_proc;
 extern int debug_fly_limit_test;
 extern int debug_lwskyomi_lookonly;
 extern int debug_one_hit_only;
+#ifndef VERSION_AUG6
 extern int debug_ignore_dodge;
 #ifndef VERSION_NTSC
 extern int debug_hand_camera;
@@ -112,6 +113,7 @@ extern int debug_hair_gravity_level;
 extern int debug_hair_bend_angle;
 extern int debug_hair_collision;
 extern int debug_no_breast_hang;
+#endif
 #endif
 /* debug.c's `inline` functions, in the order of their out-of-line copies at
    the end of the object (first-declaration order).  Callers after a
@@ -142,7 +144,7 @@ void debugCdvdLoadInfoSegInit(int page);
 void debugCdvdLoadInfoSegAdd(int page, int idx, int delta);
 void debugCdvdLoadInfoSegCls(int page, int idx);
 inline int gsResetFunc(int val);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 inline void ChangeGirlControlMode(int mode);
 #endif
 inline int debug_CallbackGsFinish(int channel);
@@ -170,7 +172,7 @@ int debug_GameOver(void);
 int debug_EndingDemo(void);
 int debug_BackStageTest(void);
 int debug_tsuresariTimeZero(void);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 int debug_hintStart(void);
 #endif
 int debug_SelectPad2ControlGobj(int reset);

@@ -13,7 +13,7 @@
 
 struct GObj;
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void GetRotObjectGameSysObjInfoExtData(short *angle, int *turnCount, GamesysObjInfo *info);
 #endif
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, struct GObj *bar, void *holdPos,
@@ -22,7 +22,7 @@ void GetRotObjectHoldPoint(void *pos, void *dir, WallCfg *wall, struct GObj *hol
 float GetRotObjectRotCount(struct GObj *self);
 int GetRotObjectZPlusDirection(struct GObj *gobj);
 int MoveRotObjectWithHoldPoint(struct GObj *bar, float *hold, void *self, float *dir, float *up);
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 void SetRotObjectArmRadius(struct GObj *self, float radius);
 #endif
 void SetRotObjectLockFlag(struct GObj *self, int lock);

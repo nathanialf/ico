@@ -81,7 +81,7 @@ inline void eBrainInit(void)
     }
 }
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 inline int eBrainStatusSet(GObj *gop, int status)
 {
     EBSlot *slot;
@@ -130,7 +130,7 @@ static inline void eBrainRegistTarget(EBSlot **list, int n, EBSlot *e, int w) /*
         }
     }
     list[j] = cur;
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 }
 
 inline int eBrainStatusSet(GObj *gop, int status)
@@ -232,7 +232,7 @@ inline int GetStageFromLabel(int label)
     int UseStageNo = -1;
     int i;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     for (i = 0; i < 104; i++) {
 #else
     for (i = 0; i < 106; i++) {
@@ -343,7 +343,7 @@ int eBrainGetTargetGeneratorFromLabel(int label)
         return ret;
 
     UseStageNo = -1;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
     for (i = 0; i < 104; i++) {
 #else
     for (i = 0; i < 106; i++) {

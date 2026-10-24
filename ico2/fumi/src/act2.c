@@ -64,7 +64,11 @@ void BeforeFunc2(GObj *self)
             if (p == 0) {
                 continue;
             }
+#ifdef VERSION_AUG6
+            while (p->mail != 392) {
+#else
             while (p->mail != 429) {
+#endif
                 for (j = 0; j < mb->num; j++) {
                     if (mb->mail[j].type == p->mail) {
                         goto found;

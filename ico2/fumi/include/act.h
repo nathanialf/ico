@@ -19,14 +19,14 @@ struct IosPadStick;
 /* act.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void actInitialize_geo(void *self);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void actInitialize_only_charcter(char *self);
 #endif
 int ACTReserveTarget(struct GObj *self, void *arg, int mail);
 void _ACTRun(int n);
 void _ACTWait(int frames);
 struct GProc *actCreateSubThreadGOppArg(void (*fn)(), int pri);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 inline struct GProc *actCreateSubThread(void (*fn)(), int pri);
 #endif
 void actSetInterrupt(char *self, int val);
@@ -38,7 +38,7 @@ void ACTDebugMove(struct GObj *self, int a1);
 void actChangeActBrain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actChangeActMain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actCreateMotionThread(void (*fn)(), int pri, struct GProc **slot);
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 struct Act *actInitialize(struct GObj *self);
 void actInitialize_ext_charcter(struct GObj *self);
 #else
@@ -61,6 +61,21 @@ typedef struct { /* field names derived */
     } ent[3];          /* 0x00, one per actor kind (Act+0x48) */
 
     char name[32];      /* 0x24, the debug name */
+#ifdef VERSION_AUG6
+    int mail;           /* 0x44, ACTSendMailCorrect's mail */
+    int intrList;       /* 0x48, the first actIntrList row */
+    /* 0x4C, the mode's flag bits */
+    unsigned int escort : 1;     /* bit 0, an escort status */
+    unsigned int holdDir : 1;    /* bit 1, BeforeFunc copies it to Act flags18 bit 45 */
+    unsigned int skipMarked : 1; /* bit 2, the flagged mail lists are skipped */
+    unsigned int saveInfo : 1;   /* bit 3, BeforeFunc copies it to Act flags18 bit 35 */
+    unsigned int bit9 : 1;       /* bit 4 (PAL bit 9) */
+    unsigned int softIk : 1;     /* bit 5, the girl's soft IK rate */
+    unsigned int onChain : 1;    /* bit 6, ACTGame_isHangChain */
+    unsigned int bit1 : 1;       /* bit 7 (PAL bit 1) */
+    unsigned int carried : 1;    /* bit 8, the girl is carried */
+    unsigned int : 23;
+#else
 #ifdef VERSION_NTSC
     int mail;           /* 0x44, ACTSendMailCorrect's mail */
     int intrList;       /* 0x48, the first actIntrList row */
@@ -100,6 +115,7 @@ typedef struct { /* field names derived */
 #endif
     unsigned int bit14 : 1;
     unsigned int : 17;
+#endif
 } ActModeRec; /* derived name */
 extern const ActModeRec actModeTbl[];
 

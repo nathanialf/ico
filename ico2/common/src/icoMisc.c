@@ -32,7 +32,7 @@
 #include "motionFileManager.h"
 #include "way_llf.h"
 
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
 #include "waterDot.h"
 #endif
 
@@ -178,11 +178,11 @@ static void disp_memory_partition_bar(void)
                         "DISP_MEMORY_PARTITION_BAR():\n\tINVALID MEMORY FREE AREA INDICATED IN PARTITION \"%s\"\n\tMALLOCED MEMORY'S NEXT_FREE: %p\n",
                         p->name, e);
 #ifdef VERSION_NTSC
-                    debug_assertMessage(__FILE__, 572, buf);
-                    __assert(__FILE__, 572, "e");
+                    debug_assertMessage(__FILE__, LN(572, 572, 572, 572, 572), buf);
+                    __assert(__FILE__, LN(572, 572, 572, 572, 572), "e");
 #else
-                    debug_assertMessage(__FILE__, 609, buf);
-                    __assert(__FILE__, 609, "e");
+                    debug_assertMessage(__FILE__, LN(609, 609, 609, 609, 566), buf);
+                    __assert(__FILE__, LN(609, 609, 609, 609, 566), "e");
 #endif
                 }
             } while (e != 0);
@@ -395,7 +395,11 @@ void ExecIcoMisc(void)
     if (debug_memory_bar != 0) {
         disp_memory_partition_bar();
     }
+#ifdef VERSION_AUG6
+    if (lock_execIcoMisc == 0) {
+#else
     if (graphics_ready == 0) {
+#endif
         if (iosCdvdDiskStatusGet() == 0) {
             exec_layout_texture();
         }
@@ -406,7 +410,11 @@ void ExecIcoMisc(void)
         }
     }
     kanbanExec();
+#ifdef VERSION_AUG6
+    if (lock_execIcoMisc != 0) {
+#else
     if (graphics_ready != 0) {
+#endif
         return;
     }
     if (systemStatus[5] == 0) {
@@ -418,7 +426,7 @@ void ExecIcoMisc(void)
         ExecGameOverEffect();
         seEnvMute = 0;
     } else {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)
         if (current_layout_id == 25) {
 #else
         if (current_layout_id == 28) {
@@ -445,7 +453,9 @@ void ExecIcoMisc(void)
         prevCameraPos = cam;
         if (cam != 0) {
             soundReqTickProc();
+#ifndef VERSION_AUG6
             scpGirlHintVoiceTickProc(cam);
+#endif
         }
         fightSoundProcess();
     }
@@ -456,7 +466,11 @@ void ExecIcoMisc(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 lt_switch_layout(59);
 #else
+#ifdef VERSION_AUG6
+                lt_switch_layout(58);
+#else
                 lt_switch_layout(62);
+#endif
 #endif
             }
         }
@@ -465,7 +479,11 @@ void ExecIcoMisc(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 lt_switch_layout(59);
 #else
+#ifdef VERSION_AUG6
+                lt_switch_layout(58);
+#else
                 lt_switch_layout(62);
+#endif
 #endif
             }
         }
@@ -475,10 +493,19 @@ void ExecIcoMisc(void)
 
 /* per-scene preset: twelve (time, effect id) pairs then the scene label at 0xC0 */
 typedef struct { /* field names derived */
+#ifdef VERSION_AUG6
+    char pad0[0x60];
+#endif
 
     struct {
         float t;
         int id;
+#ifdef VERSION_AUG6
+    } ent[5];
+
+    char pad88[0xC8 - 0x88];
+    char name[0x190 - 0xC8];
+#else
     } ent[12];
 
     char pad60[0xC0 - 0x60];
@@ -486,6 +513,7 @@ typedef struct { /* field names derived */
     char name[0x190 - 0xC0];
 #else
     char name[0x194 - 0xC0];
+#endif
 #endif
 } ScnPre; /* derived name */
 #endif
@@ -679,13 +707,18 @@ void InitIcoMisc(int *arg)
 
     if (systemStatus[3] != 0 && systemStatus[4] != 0) {
         gamesysMemoryLoad(gameSysMemoryFuncList, gameSysMainSaveBuff, 0);
+#ifndef VERSION_AUG6
         scpBoyControlReadDisable = 0;
+#endif
         systemStatus[4] = 0;
     }
     if (thisIsYourStartStage != 1 && setActorsDebugPending != 0) {
         ACTGame_SetActors_Debug(stage, 0);
         setActorsDebugPending = 0;
     }
+#ifdef VERSION_AUG6
+    debug_StdPrintfDummy("p2o_TransMicroProgram\n");
+#endif
     debug_StdPrintfDummy("Init Object Light\n");
     light_InitLight();
     InitStageLight(stage);
@@ -745,7 +778,9 @@ void InitIcoMisc(int *arg)
     debug_StdPrintfDummy("InitParticleEffects\n");
     InitParticleEffects();
     InitStageMultiBgaManager();
+#ifndef VERSION_AUG6
     InitializeWaterDot();
+#endif
     debug_StdPrintfDummy("InitSceneObjects( %d )\n", stage);
     InitSceneObjects(stage);
     InitWindManager(stage);
@@ -753,8 +788,13 @@ void InitIcoMisc(int *arg)
     init_layout_texture(stage);
 
     found = 0;
+#ifdef VERSION_AUG6
+    for (i = 0; i < 1086; i++) {
+        for (j = 0; j < 5; j++) {
+#else
     for (i = 0; i < 1145; i++) {
         for (j = 0; j < 12; j++) {
+#endif
             id = motionKind[i].ent[j].id;
             if (id > 0xFFFF) {
                 continue;
@@ -762,7 +802,11 @@ void InitIcoMisc(int *arg)
             if (motionEffKind[id].done) {
                 continue;
             }
+#ifdef VERSION_AUG6
+            if (id == 19) {
+#else
             if (id == 24) {
+#endif
                 continue;
             }
             if (GetParticleEffectPackage(motionEffKind[id].pkg)[1] != 1) {
@@ -782,12 +826,18 @@ void InitIcoMisc(int *arg)
             "\033[36m動作はさせますが続けているとメモリの\n資源を食いつくします\nループではないものにデータを修正してください\033[m\n");
     }
     debug_StdPrintfDummy("Init Stage Animation\n");
+#ifndef VERSION_AUG6
     gsb_ResetFilmNoise();
+#endif
     stage_Init();
     debug_StdPrintfDummy("Init Object Action\n");
     ObjAction_Init();
     InitStageChange();
+#ifdef VERSION_AUG6
+    lock_execIcoMisc = 0;
+#else
     graphics_ready = 0;
+#endif
     debug_StdPrintfDummy("load time %f sec\n", load_time / 60.0f);
     sndInit(stage);
     iosPadActInit();

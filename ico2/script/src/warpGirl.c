@@ -153,6 +153,10 @@ void warpGirlInStage(int stageNo)
 #ifdef VERSION_NTSC
     gamesysObjInfoPosNewStageSet(131, 2, stageNo, pos, rot);
 #else
+#ifdef VERSION_AUG6
+    gamesysObjInfoPosNewStageSet(130, 2, stageNo, pos, rot);
+#else
     gamesysObjInfoPosNewStageSet(148, 2, stageNo, pos, rot);
+#endif
 #endif
 }

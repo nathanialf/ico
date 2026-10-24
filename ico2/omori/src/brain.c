@@ -35,7 +35,7 @@ void brainAddLevelGirl(float lv)
     }
 }
 
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
 void brainInit(void)
 {
     Brain *b = &brainGirl;
@@ -176,7 +176,7 @@ void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx)
     /* bit 20 of the layout row's flags puts the object in the girl's brain */
     if ((d->flags >> 20) & 1) {
         if (objKindData[k].brainLevel != 0) {
-#ifdef VERSION_NTSC
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
             brainSetTargetSub(b, gobj, (float)objKindData[k].brainLevel,
                               objKindData[k].brainCapStep, objKindData[k].brainRate);
 #else
@@ -279,11 +279,19 @@ void brainLevelProcess(Brain *b)
 {
     int i;
 
+#ifdef VERSION_AUG6
+    b->threshold = b->threshold - _ACTGame_GetParamF(22) * 0.1f;
+#else
     b->threshold = b->threshold - _ACTGame_GetParamF(24) * 0.1f;
+#endif
     if (b->threshold < b->minThreshold) {
         b->threshold = b->minThreshold;
     }
+#ifdef VERSION_AUG6
+    for (i = 0; i < 20; i++) {
+#else
     for (i = 0; i < 40; i++) {
+#endif
         BrainTarget *t = &b->tgt[i];
 
         if (t->gobj == 0) {
@@ -297,8 +305,13 @@ void brainLevelProcess(Brain *b)
             t->level = 0.0f;
             continue;
         }
+#ifdef VERSION_AUG6
+        if (t != b->cur && t->level > 1.9 && girlGObj != 0 &&
+            ((int)(GOBJ_ACT(girlGObj)->flags20.ll >> 11) & 1)) {
+#else
         if (t != b->cur && t->level > 1.9 && girlGObj != 0 &&
             ((int)(GOBJ_ACT(girlGObj)->flags20.ll >> 27) & 1)) {
+#endif
             float r;
             /* 3.40282347e+38f is FLT_MAX */
             if (ACTGameViewSimple_Check(b->girl, t->gobj) != 0) {
@@ -449,7 +462,11 @@ void brainGetTarget(Brain *b)
     int lv;
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 20; i++) {
+#else
     for (i = 0; i < 40; i++) {
+#endif
         if (b->tgt[i].gobj == 0) {
             continue;
         }
@@ -487,7 +504,11 @@ void brainGetTarget(Brain *b)
 
     if ((60 - systemStatus[0] * 10) / systemStatus[1] / 3 < b->spCount) {
         best = b->cur;
+#ifdef VERSION_AUG6
+        for (i = 0; i < 20; i++) {
+#else
         for (i = 0; i < 40; i++) {
+#endif
             t = &b->tgt[i];
             if (t == best) {
                 idx = i;
@@ -525,6 +546,13 @@ void brainGetTarget(Brain *b)
 }
 #endif
 
+#ifdef VERSION_AUG6
+BrainTarget *brainStatusSet(Brain *b, GObj *gobj, float levelCap, float capStep, float rate)
+{
+    return brainSetTargetSub(b, gobj, levelCap, capStep, rate);
+}
+#endif
+
 void brainStatusDel(char *self)
 {
     *(int *)(self + 0x0) = 0;
@@ -552,7 +580,7 @@ void brainClsTargetLevel(Brain *b)
     if (t->levelCap < t->level) {
         t->levelCap = t->level;
     }
-#ifndef VERSION_NTSC
+#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)
     *(int *)&t->lookOnly &= ~0x10000;
 #endif
     brainSetTargetTimer(t);
@@ -628,6 +656,7 @@ void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen)
     }
 }
 #else
+#ifndef VERSION_AUG6
 void brainAddLevelGirlDetail(int flag, float lv)
 {
     Brain *b = &brainGirl;
@@ -639,12 +668,17 @@ void brainAddLevelGirlDetail(int flag, float lv)
         }
     }
 }
+#endif
 
 void brainAddLevelGop(GObj *gobj, float lv)
 {
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 20; i++) {
+#else
     for (i = 0; i < 40; i++) {
+#endif
         if (brainGirl.tgt[i].gobj == gobj) {
             brainAddLevel(&brainGirl.tgt[i], lv);
         }
@@ -660,7 +694,11 @@ void brainSubLevelGop(GObj *gobj, float lv)
     int tgt = brain + 0x28;
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 20; i++) {
+#else
     for (i = 0; i < 40; i++) {
+#endif
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
             float r;
             ((BrainTarget *)tgt)[i].level = ((BrainTarget *)tgt)[i].level - lv;
@@ -683,7 +721,11 @@ void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen)
     int tgt = brain + 0x28;
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 20; i++) {
+#else
     for (i = 0; i < 40; i++) {
+#endif
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
             ((BrainTarget *)tgt)[i].lookOnly = lookOnly;
             ((BrainTarget *)tgt)[i].alwaysSeen = alwaysSeen;
@@ -739,7 +781,11 @@ int brainDecTargetTimer(GObj *gobj)
     BrainTarget *e;
     int i;
 
+#ifdef VERSION_AUG6
+    for (i = 0; i < 20; i++) {
+#else
     for (i = 0; i < 40; i++) {
+#endif
         if (((BrainTarget *)tgt)[i].gobj == gobj) {
             e = &((BrainTarget *)tgt)[i];
             goto found;
