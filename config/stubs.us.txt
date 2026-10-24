@@ -1,14 +1,14 @@
 # config/stubs.us.txt -- the functions and data runs still built from the base ELF.
 #
 # Campaign scaffolding. A row names a range of the base ELF that no tracked
-# source produces yet; tools/gen_stub_s.py writes it as build/stubs/<stem>.s
+# source produces yet; tools/gen_stub_s.py writes it as build/us/stubs/<stem>.s
 # from the user's own baserom/us/baseelf.elf at build time (nothing of the
 # ROM is tracked, docs/LEGAL.md), and the TU the row names includes it with
 # `INCLUDE_ASM(stem);` at the function's place in the file, with the macro
-# from build/stubs/include_asm.h, which gen_stub_s.py writes beside the
+# from build/us/stubs/include_asm.h, which gen_stub_s.py writes beside the
 # stubs. tools/check_dev_native.py refuses an INCLUDE_ASM whose stem has no
-# row here. With no rows the mechanism is idle, as it is on main, where every
-# object of the PAL link is built from source.
+# row here. With no rows the mechanism is idle, as it is here: every object
+# of the USA link is built from source.
 #
 # Columns: <section> <name> <vma_lo> <vma_hi> <tu> [local] [align=N] [lines=N] [file=<stem>]
 #          [in=<file.c.inc>] [inline] [def]
@@ -31,8 +31,7 @@
 #             after INCLUDE_ASM when it uses __LINE__; nothing reads it yet)
 #   file=stem the stub's file and INCLUDE_ASM name when two statics in two TUs
 #             share a name (default: the name); a literal row carries its text
-#             row's; three names need it here (display_texture,
-#             effect_end_func, init_textures_of_specified_property)
+#             row's
 #   in=path   the .c.inc the TU includes where the function is defined: its
 #             INCLUDE_ASM line lives there (not on a literal row)
 #   inline    with in=: an inline function of that .c.inc, whose INCLUDE_ASM
@@ -40,7 +39,7 @@
 #             INCLUDE_ASM_LIT and kept declaration stay in the .c.inc
 #             (--carve writes it)
 #   def       an rdlit or sdlit row written where the function is defined,
-#             not after its text: build/stubs/<stem>.lit.s, which the file
+#             not after its text: build/us/stubs/<stem>.lit.s, which the file
 #             includes with `INCLUDE_ASM_LIT(stem);` in the definition's place
 #             (a stubbed inline function's strings and gcc's other constants;
 #             its code, .lit4 floats, li.d doubles and jump tables follow
@@ -56,98 +55,3 @@
 # back from main; --carve-all and --restore-all do every text row.
 # tools/object_check.py compares each object's .text with the base and a
 # TU's function order with the target's after a link.
-#
-# Seeded from the function census against the PAL build, tools/correlate_elf.py
-# (the USA disc ships no map: a name is the PAL listing's name of the twin the
-# census found). Two kinds of row:
-#   - a PAL function whose USA twin's body differs: the PAL name, the twin's
-#     USA range, and the PAL source that defines it. The trailing comment gives
-#     the census tier (anchor, gap, window, free or ordinal), the first
-#     differing instruction, the residue class and whether the extents agree.
-#     Every such pair is ordinal: paired by position inside a gap, so its name
-#     is provisional until the function matches from the PAL source.
-#   - a USA function no PAL function claims (`us-only`): a derived name
-#     func_<VMA> and the source that holds it by link order. Inside an
-#     object's span (between two of its twins) that is the object. In a gap
-#     between two objects' spans it is one of the objects link order puts
-#     there: the PAL-only functions at the end of the one before, every
-#     function of an object with no twin, and the PAL-only functions at the
-#     start of the one after are aligned with the gap's USA functions by size
-#     and order, and a USA function whose body equals a PAL-only function's
-#     once every immediate and jump target is masked (16 bytes or more, one
-#     such function in the gap) is held to it. The comment gives the outcome:
-#     the PAL-only function the alignment pairs it with ("PAL size and order
-#     suggest" when the sizes are equal, "PAL order suggests" within a factor
-#     of two), or that body match. That is a place in the order, not a name.
-#
-# Left out of the census's USA-only list: 0x1000C0 (80 bytes) is PAL's _root,
-# its fill and RFU000_FullReset, byte-identical, merged by the boundary scan
-# (crt0.s and klib.s, a function ending in a syscall); 0x24BEF8, 0x24BFA4 and
-# 0x24BFAC are PAL's sceSifWriteBackDCache and CB_DelayTh, byte-identical,
-# split elsewhere by the scan (a dead jr after a return). The census also
-# pairs _set_sreg (28 bytes in PAL) with 0x24B500, 892 bytes: the scan joined
-# tlbtrap.s's 860 bytes and their fill to it, those differ from PAL's only in
-# %hi and %lo fields, and _set_sreg at 0x24B860 is PAL's body; that pair has
-# no row.
-#
-# The PAL functions the census found no twin for (1352), classified:
-#   - a `us-only` row renamed to the PAL function it is, its TU that
-#     function's source, the evidence on the line, the name provisional until
-#     the function matches. Evidence, strongest first: the body equal with
-#     immediates and jump targets masked (the seed's body match); PAL's size
-#     and order in the gap (the seed's); call sites (a jal of a twin pair at
-#     aligned instructions targets the PAL function in PAL and this function
-#     here); a data table (a PAL table slot holding the PAL function, located
-#     here by its neighbouring entries or by the code that loads the table);
-#     and, for the seed's "PAL order suggests" rows, callees (half or more of
-#     the functions it calls are the PAL function's) or body alignment (four
-#     fifths of the instructions align, or half with the callees agreeing).
-#     An order-only suggestion with none of these keeps its func_<VMA> name;
-#   - PAL-only functions with no counterpart are not in this branch's
-#     sources: deleted from their TU, and their prototypes where nothing else
-#     names them (a stubbed caller keeps compiling through the declaration);
-#     puddle.c, waterDot.c, windmill.c and sce/libscf/libscf.c, absent from
-#     the link, are not carried;
-#   - _root, RFU000_FullReset, sceSifWriteBackDCache and CB_DelayTh are the
-#     byte-identical functions explained above;
-#   - gamesysCharacterInfoSave and gamesysCharacterInfoLoad are the twins the
-#     census named gamesysHintInfoSave and gamesysHintInfoLoad: the USA
-#     functions call the character packet functions (GetbufpCharacterPacket,
-#     GetsizeCharacterPacket, MakeCharacterPacket, ReadCharacterPacket), and
-#     the USA save-handler table holds them where PAL's holds the hint pair,
-#     so the hint pair is the one this build lacks;
-#   - iosPadGetStick: PAL's wraps iosPadGetStick_func in _PushVu0Registers
-#     and _PopVu0Registers; every caller here calls the census's
-#     iosPadGetStick_func twin directly, so that function is iosPadGetStick.
-#   - weaponHitReactionSE is the twin the census named torchOnOfWeaponSE
-#     (both 8 bytes): ExecWeaponHitReaction tail-calls it, and it stands where
-#     PAL has weaponHitReactionSE, before weaponFumbleSE; torchOnOfWeaponSE is
-#     deleted. execParticleEffect is named by two call sites, one a tail call.
-#
-# Rows added when every row was carved (gen_stub_s.py --carve-all), each with
-# its reason on the line:
-#   - a nested function (name.N, file=name_N) whose parent is a stub, placed
-#     before the parent; and makeFullScreenFlareBefore, equal in C, whose
-#     nested fillWork2.86 is a stub;
-#   - "a stub for emission order": gcc 2.9 emits an inline function after
-#     every function defined in place and every INCLUDE_ASM, so an inline
-#     function the USA emits before a stub at the end of its file is a stub
-#     too, and so is a function defined in place whose USA place is out of
-#     the file's order of definitions; and a function equal in C that inlines
-#     one of those;
-#   - a static inline function whose out-of-line copy only stubbed callers
-#     needed, so gcc no longer emits it;
-#   - functions the census counted equal with immediates masked, whose
-#     immediates differ (tools/match_check.py names the instruction).
-# A us-only func_<VMA> row stands where its USA address puts it among its
-# TU's functions; mv_readbuf.c's readBufDelete and func_0019D9D8 open that
-# file, before readBufCreate. Functions defined in a .c.inc
-# (motMan_getFinalMatrix.c.inc, motMan_rootUpdate.c.inc,
-# girl_brain_attract.c.inc) carry their INCLUDE_ASM at the definition, in the
-# .c.inc, and their row gives in=<file.c.inc>; the .c.inc includes
-# include_asm.h itself.
-
-text subGirlControl 0x00171E48 0x001725C4 ico2/fumi/src/girl_act.c lines=230  # the slow-walk block's compiled-out debug display (about 150 body-less helper calls, text unrecoverable) decides two register choices; see the comment at the INCLUDE_ASM
-lit4 subGirlControl 0x00630DE0 0x00630E14 ico2/fumi/src/girl_act.c  # 13 floats, measured from the base: the text loads them
-rdlit subGirlControl 0x00559770 0x00559888 ico2/fumi/src/girl_act.c  # 5 strings, 1 jump table, measured from the base
-sdlit subGirlControl 0x006324C8 0x006324E7 ico2/fumi/src/girl_act.c  # 4 strings, measured from the base: no code reads them, the compiled-out debug code's
