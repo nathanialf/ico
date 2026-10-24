@@ -4,8 +4,9 @@ What differs between the targets of this tree. One tree (`ico2/`, `sce/`)
 builds every target: its base text is the PAL revision, and where another
 target differs the file holds that target's lines inline in
 `VERSION_<SLUG>` blocks (`docs/BUILDING.md`, "Targets and version
-blocks"); `grep -rn VERSION_JPN ico2`, `grep -rn VERSION_KOR ico2` and
-`grep -rn VERSION_NTSC ico2` list every place. This file
+blocks"); `grep -rn VERSION_JPN ico2`, `grep -rn VERSION_KOR ico2`,
+`grep -rn VERSION_NTSC ico2` and `grep -rn VERSION_AUG6 ico2` list every
+place. This file
 records, per target, where its build differs from PAL's and why; the file or
 function named at each line is where to read the detail. A target that joins
 later gets its own section here.
@@ -260,3 +261,143 @@ Link order. The USA disc ships no map, so `config/link_order.ntsc.txt` is
 PAL's order carried over by the function census (`tools/correlate_elf.py`),
 each departure explained on its line; the USA link has 539 objects (PAL
 547). As in the Japanese and Korean links, `libscf` is absent.
+
+## Aug-6-2001 prototype (`aug6`): how the build differs from PAL's
+
+The `VERSION_AUG6` blocks hold the August 6, 2001 prototype's differences
+from the PAL text. The prototype is the oldest build in this tree, two weeks
+before the USA retail link: the debug menu's `DISC VER.` line (`debug.c`)
+dates it `Aug  7 2001 15:03:20` and the version string in `gamesys.c` reads
+`08/07/01 14:51:53`. Its text is PAL's with 265 files changed, most of them
+in whole functions and many in whole files (a file whose functions the
+prototype has in another order holds each text whole): 4534 blocks name it,
+in 254 files. 3196 `#ifdef VERSION_AUG6` and 327 `#ifndef VERSION_AUG6`
+hold its own lines against PAL's (1441 at the top level, 2833 inside the arm
+of a Japanese or USA block, 259 inside two, 1 inside three). Where the USA
+build already differs from PAL and the prototype has the USA lines, the USA
+condition names it: 626 `#if defined(VERSION_NTSC) || defined(VERSION_AUG6)`
+and 260 `#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)`, the
+prototype's remaining differences nested inside the shared arm. 59 `#if
+defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) ||
+defined(VERSION_AUG6)`, 58 `#if defined(VERSION_JPN) || defined(VERSION_KOR)
+|| defined(VERSION_AUG6)` and one `#if defined(VERSION_KOR) ||
+defined(VERSION_AUG6)` name it where it has the Japanese lines, 7 negative
+Japanese conditions where it lacks them too. The 20 PAL-only blocks it also
+lacks keep their three-name condition (`#if !defined(VERSION_JPN) &&
+!defined(VERSION_KOR) && !defined(VERSION_NTSC)`) with `#ifndef
+VERSION_AUG6` nested inside: the four-name line would pass the column limit,
+and clang-format would break the directive, which `tools/check_targets.py`
+does not read. Each block was placed by resolving its place for each earlier
+target and comparing with the branch's text, never by assumption. Where a
+comment names PAL's value only, the prototype's is the one in its arm. The
+branch `aug6` (frozen at `c8e730628`, `aug6-v1.0.0`) is the single-target
+tree this was joined from, and its `docs/README.md` lists the same
+differences.
+
+Disc and video mode:
+
+- The disc carries no product code; `SYSTEM.CNF` reads `VER = 1.00`,
+  `VMODE = NTSC`. The build is NTSC like the USA, Japanese and Korean ones:
+  `systemStatus` starts at 0 (`main.c`) and the movie is 720 x 480 (`Main`,
+  `mv_vobuf.h`).
+- The boot file is `SCUS_971.13` (`cdvd.c`) and the memory card directory
+  `BASCUS-97113ico` (`mcard.c`), as on the USA disc; the game block is one
+  25596-byte write and `IosMcPreviewInfo` has 4 words, as there.
+- The five VU1 programs' constant-address overlays hold the byte 0x6E, as
+  on the Japanese and USA discs: `overlay-fill=110` on each `.dsm` line of
+  `config/link_order.aug6.txt`. The `.dsm` headers name the programs'
+  prototype addresses.
+- The disc ships a `MAIN.MAP` that is the PAL disc's file byte for byte,
+  describing a later link, and a `TRFILE.TXT` (`docs/LEGAL.md`); the
+  function names of this build come from the PAL listing by the census, and
+  from `TRFILE.TXT` for the functions only the prototype has.
+
+Ids and numbers:
+
+- Stage animation, mail and global-flag ids are lower than the USA build's
+  throughout the stage scripts (`st22a.c`: the lightning animations are 683
+  and 684 for the USA 684 and 685 and PAL's 758 and 759, the intro mail 393
+  and 392 for 397 and 396 and 430 and 429, the flags 293 and 294 for the USA
+  294 and PAL's 323).
+- `charFileName.h`'s `MAX_CHARS` is 1576 (USA 1582, PAL 1637, JPN and KOR
+  1621).
+- The assertion and allocation line numbers are the fifth argument of every
+  `LN(...)`: the prototype's own at the 491 sites where it differs from
+  PAL's (`mv_defs.h` 42 and 43, `FileManager.c` 312 for PAL's 349, the
+  Japanese 331 and the USA 312, `flag.c` 31, 39, 46, 65 and 77 as the USA
+  build), PAL's at the 401 sites in arms it does not compile or where the
+  lines agree. 456 sites where the four retail builds share one line, which
+  main spelled as a literal (`debug_assert(__FILE__, 598)`,
+  `iosMallocDebug(..., __FILE__, 844)`), spell `LN(n, n, n, n, m)` now that
+  the prototype's line differs.
+
+Data and records (`docs/HEADERS.md` has the layouts):
+
+- The link has the 70 data-only members PAL's has and none of PAL's three
+  unmapped runs (the hint table, `motSyncPairs` and the subtitle file names
+  are not in it; USA 71 runs, PAL and KOR 73). Most tables hold fewer rows,
+  and ten record types have another layout: eight are the USA build's
+  (`ParallelMotionRow`, `LtProperty`, `ItemBreakRec`, `PObjMdl`,
+  `MotionDef`, `EnemyDef`, `LayoutClothDef`, `TexRec`) and two the
+  prototype's own (`StgPre`, 0x190 bytes with its fields after 0x15B in
+  another order and no `ledgeRange`; `ActModeRec`, PAL's 0x50 bytes with
+  the words at 0x44 and 0x48 exchanged and the flag bits at 0x4C
+  renumbered). Each row of `config/data_members.aug6.txt` and the header of
+  `config/data_schema.aug6.txt` say how its member compares with PAL's.
+- The engine's records are 16 bytes shorter at the display object: `Act`
+  has `actMode` at 0x30 (PAL 0x34; as the USA); `Sub15C` has `motionBuf` at
+  0x77C and its node records at 0x830 (PAL 0x7B4 and 0x870, USA 0x78C and
+  0x840); `MotRoot`'s motion-control block is at +0x460 (PAL 0x470), so its
+  fields from `savePos` on sit 0x10 lower and `flag330` and `flag334` are
+  read at 0x320 and 0x324; `ActWork` has `wayReq` at 0x490, `viewState` at
+  0x710 and `intrReq` at 0x7C0 (USA 0x4B0, 0x730, 0x7E0; PAL 0x580, 0x800,
+  0x8B0). The comment at each field gives its offset and the reader that
+  pins it.
+
+Code only this build has, or lacks:
+
+- Absent, as in the USA build: Sony's `libscf`; `sugipon`'s `puddle.c`,
+  `waterDot.c` and `windmill.c`; the hint system; `libcdvd`'s
+  `sceCdReadClock` (`libcdvd_267388.c`); `SetFlag4PointFixID` and
+  `InitFlagGeo`'s cloth type 4 (`flag.c`); and many smaller functions of
+  the stage scripts and the action layer that were added after August 6.
+- Only here: the functions the prototype's `TRFILE.TXT` names and no retail
+  listing does; each carries its `TRFILE.TXT` name or a `/* derived name */`
+  (`git grep -n 'derived name'` inside the `VERSION_AUG6` blocks lists the
+  derived ones).
+- `subGirlControl` (`girl_act.c`): the girl's slow-walk states ran a debug
+  display that every retail build compiles out, and in this build the ROM
+  fixes its strings, their order, 139 calls to body-less helpers and the
+  size of its locals, not the statements themselves; the prototype arm's
+  block is an educated guess, marked in the source as a draft with
+  unverified ordering, as the USA arm's is.
+
+Names. A function or object the branch named otherwise than `main` names
+the same thing takes `main`'s name in the joined tree, since the bytes do
+not care: `handoff_heroin` and `actE3St13cSekizoEvent` (the prototype's
+`TRFILE.TXT` spells them `hand_heroin` and `actSt13cSekizoEvent`, noted at
+the definitions), `IsNeedGeneratorHard` (`generator.c`), `logoIcoMiscLock`,
+`continueIcoMiscLock` and `newGameIcoMiscLock` (`layout_action.c`, which the
+prototype sets from `GlobalTimer`), `demoClothMeshF20`, `clothMeshF20` and
+`clothHangF20` (`girl.c`; the prototype reads the record at 0x1C), the
+`MotRoot` fields `flag330` and `flag334` (0x320 and 0x324 here), the
+`ReviveSub` and `StoneSub` field `f14`, `st13c.c`'s `st13c_reserved`, and
+the locals `dy` (`girl_act.c`) and `f8` (`camera-ico2.c`). `AttackCenter`,
+`scpAdpcmFadeClose` and `scpAdpcmCloseChk`, which the branch's notes list
+as `TRFILE.TXT` spellings of `_AttackCenter`, `scpAdpcmFadeCloseFunc` and
+`scpAdpcmCloseChkFunc`, are the prototype calling the one function where PAL
+has two, and keep their names. A name a target's bytes pin stays per arm:
+`D_002E3508` (`kanban.c`, `layout_texture.c`), the label the build defines
+at that address of `texProperty` (`D_0030D014` on PAL); `GirlForceFieldGeo`
+and `GirlForceFieldDL`, since the body sits in the Geo slot of the
+prototype's object-kind table and in the DL slot of PAL's; and
+`bga_SetCameraMatrix` (`BgAnimation.c`), whose body is not
+`bga_checkCameraDistance`'s. Two reconstruction differences in typing stay
+per arm too (`motionOrientManager.c`'s `rotateNodes` taking `StreamElem *`,
+`st13c.c` holding the demo thread as `GProc *`).
+
+Link order. The prototype's `MAIN.MAP` describes PAL's link, so
+`config/link_order.aug6.txt` is PAL's order carried over by the function
+census (`tools/correlate_elf.py`) as the USA build's is, each departure
+explained on its line; the prototype's link has 536 objects (USA 539, PAL
+547). `libscf` is absent, as in every link but PAL's.

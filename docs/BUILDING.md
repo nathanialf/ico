@@ -36,6 +36,9 @@ one revision of its disc:
 - `ntsc`: the USA disc, SLUS-20218, as the raw `.bin` a dump writes and its
   `.cue` (MODE2/2352, read as the Japanese one is). The revision is
   `VER = 1.00`.
+- `aug6`: the August 6, 2001 prototype disc (no product code; its boot file
+  is `SCUS_971.13` like the USA disc's), as the raw `.bin` a dump writes and
+  its `.cue` (MODE2/2352). The revision is `VER = 1.00`.
 
 | target | file | SHA-1 (`config/sha1sums.<slug>.txt`) |
 | --- | --- | --- |
@@ -47,6 +50,8 @@ one revision of its disc:
 | kor | `baserom/kor/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `f438c8f841a84837231d79cab0c761bfb211259b` |
 | ntsc | `baserom/ntsc/baseelf.elf`, the disc's `SCUS_971.13` | `a4d8fc1948fb2da2395f3863a94a3b93de55de14` |
 | ntsc | `baserom/ntsc/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `fbf50c75cd5911273511c4f9af90503ff8423582` |
+| aug6 | `baserom/aug6/baseelf.elf`, the prototype disc's `SCUS_971.13` | `5d169c281756a8bde712704fa0cb9eb984693cd6` |
+| aug6 | `baserom/aug6/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `2b4d7de41966ff38d061b4c985de45fc212e2fb2` |
 
 ## One command
 
@@ -58,10 +63,13 @@ cp "/path/to/Ico (Japan).cue" baserom/Ico_JPN.cue
 cp "/path/to/Ico (Korea).iso" baserom/Ico_KOR.iso
 cp "/path/to/Ico (USA).bin" baserom/Ico_USA.bin
 cp "/path/to/Ico (USA).cue" baserom/Ico_USA.cue
+cp "/path/to/Ico (prototype).bin" baserom/Ico_AUG6.bin
+cp "/path/to/Ico (prototype).cue" baserom/Ico_AUG6.cue
 VERSION=pal ./build.sh
 VERSION=jpn ./build.sh
 VERSION=kor ./build.sh
 VERSION=ntsc ./build.sh
+VERSION=aug6 ./build.sh
 tools/build.sh gate-all
 ```
 
@@ -76,8 +84,8 @@ the toolchain already installed and `baserom/<slug>/` already extracted,
 `rm -rf build build.ninja && tools/build.sh setup && .venv/bin/ninja` took
 22 s and 39 s in two runs for `pal` and
 `tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 51 s
-and 47 s in two runs for `jpn`, 31 s and 30 s for `kor` and 40 s and 41 s for
-`ntsc`; each ended with
+and 47 s in two runs for `jpn`, 31 s and 30 s for `kor`, 40 s and 41 s for
+`ntsc` and 32 s and 32 s for `aug6`; each ended with
 `check_elf: gate PASS`. A
 fresh clone of the public repository, with the toolchain downloads of
 section 1, took 92 s for `pal` on the same host. A second `./build.sh` on the
@@ -148,9 +156,10 @@ explicitly: `--overlay-fill=N` (0 to 255, default 0) for an overlay whose VU
 address is a constant, 0 for the others. `tools/gen_ninja.py` passes the
 option only when a `.dsm` line of the link order carries an `overlay-fill=N`
 token; PAL's and the Korean one carry none, so their command lines also work
-with an unpatched dvp-as. The five `.dsm` lines of `config/link_order.jpn.txt`
-and of `config/link_order.ntsc.txt` carry `overlay-fill=110` (0x6E), so the
-Japanese and USA builds need the patched dvp-as.
+with an unpatched dvp-as. The five `.dsm` lines of `config/link_order.jpn.txt`,
+of `config/link_order.ntsc.txt` and of `config/link_order.aug6.txt` carry
+`overlay-fill=110` (0x6E), so the Japanese, USA and prototype builds need the
+patched dvp-as.
 With the patch the build no longer depends on the host's heap; without it a
 host with `MALLOC_PERTURB_` set fails PAL's whole-file SHA-1.
 
@@ -184,11 +193,13 @@ gitignored.
 | jpn | `Ico_JPN.bin` and `Ico_JPN.cue` | `SCPS_110.03` | `SYSTEM.CNF` (the Japanese disc ships no map or listing) |
 | kor | `Ico_KOR.iso` | `SCPS_560.01` | `SYSTEM.CNF` (the Korean disc ships no map or listing) |
 | ntsc | `Ico_USA.bin` and `Ico_USA.cue` | `SCUS_971.13` | `SYSTEM.CNF` (the USA disc ships no map or listing) |
+| aug6 | `Ico_AUG6.bin` and `Ico_AUG6.cue` | `SCUS_971.13` | `MAIN.MAP` (the PAL disc's file, describing PAL's link), `TRFILE.TXT`, `SYSTEM.CNF` (reference material, `docs/LEGAL.md`; the prototype disc ships no listing) |
 
 For a raw image the script first cooks it: it reads the mode from the `.cue`,
 keeps the 2048 bytes of user data of each 2352-byte sector, and writes the
-result once to `baserom/Ico_JPN.iso` or `baserom/Ico_USA.iso` beside the
-`.bin`, a cache that later runs read directly.
+result once to `baserom/Ico_JPN.iso`, `baserom/Ico_USA.iso` or
+`baserom/Ico_AUG6.iso` beside the `.bin`, a cache that later runs read
+directly.
 
 ## 3. `tools/build.sh setup`
 
@@ -202,9 +213,10 @@ from these inputs:
 
 - `config/link_order.<slug>.txt`: every object of the link in the retail
   link's order, one source per line, with the data-only members as `data:`
-  lines. The Japanese, Korean and USA discs have no map, so `jpn`'s, `kor`'s
-  and `ntsc`'s orders are PAL's carried over by the function census, and each
-  line that departs from it says why. `tools/gen_ninja.py` runs `tools/check_targets.py` first (below)
+  lines. The Japanese, Korean and USA discs have no map and the prototype
+  disc's map is PAL's, so `jpn`'s, `kor`'s, `ntsc`'s and `aug6`'s orders are
+  PAL's carried over by the function census, and each line that departs from
+  it says why. `tools/gen_ninja.py` runs `tools/check_targets.py` first (below)
   and fails if a source is missing from every configured target's order.
 - `config/link.<slug>.ld`: the hand-written linker script, which places each
   section at the base ELF's addresses and defines the symbols the link needs.
@@ -415,6 +427,48 @@ condition names it too:
 holds lines the three later builds share, and `#if !defined(VERSION_JPN) &&
 !defined(VERSION_KOR) && !defined(VERSION_NTSC)` lines only PAL has.
 
+The August 6, 2001 prototype's text is PAL's with 265 files changed, and in
+many places its lines are the USA build's. Its own lines sit in `#ifdef
+VERSION_AUG6` blocks against PAL's (`#ifndef VERSION_AUG6` around lines only
+it lacks), nested in the arm of a Japanese or USA block where one already
+stands; where it has the USA lines, the USA condition names it, and its
+remaining differences nest inside that arm:
+
+```c
+#if defined(VERSION_NTSC) || defined(VERSION_AUG6)
+#ifdef VERSION_AUG6
+    gflagOn(293);
+#else
+    gflagOn(294);
+#endif
+    scpSekizouCheckPoint();
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpPlayStart(boyGObj);
+#ifdef VERSION_AUG6
+    gflagOn(294);
+    stage_SetAnimation(683, 1, 0);
+#else
+    gflagOn(295);
+    stage_SetAnimation(684, 1, 0);
+#endif
+#else
+```
+
+(`st22a.c`'s `actSt22aIntroChk`; the PAL lines follow in the `#else` arm).
+
+`#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)` holds PAL lines both
+later builds lack, `#if defined(VERSION_JPN) || defined(VERSION_KOR) ||
+defined(VERSION_AUG6)` Japanese lines the prototype has and the USA build
+does not, and `#if defined(VERSION_JPN) || defined(VERSION_KOR) ||
+defined(VERSION_NTSC) || defined(VERSION_AUG6)` lines every later build
+shares. A four-name negative condition would pass the column limit and
+clang-format would break the directive, so the PAL-only lines all four later
+builds lack keep the three-name condition with `#ifndef VERSION_AUG6` nested
+inside it. Each block was placed by resolving its place for each earlier
+target and comparing with the branch's text (`docs/TARGETS.md` has the
+counts).
+
 The three-way sites nest rather than take `#elif` arms because clang-format
 formats each arm count of a nesting level in a pass of its own: with a third
 arm at the top level of a file, the third pass takes no arm of a two-arm
@@ -425,8 +479,8 @@ labels in `tools/format.sh`'s output. `tools/check_targets.py` accepts
 read them; they suit a file whose other blocks keep their braces whole.
 
 `tools/compile_c.sh` defines `VERSION_<SLUG>` for the target it compiles
-(`-DVERSION_PAL`, `-DVERSION_JPN`, `-DVERSION_KOR`, `-DVERSION_NTSC`). A
-block covers whole
+(`-DVERSION_PAL`, `-DVERSION_JPN`, `-DVERSION_KOR`, `-DVERSION_NTSC`,
+`-DVERSION_AUG6`). A block covers whole
 statements, and where most of a function or declaration differs the block
 holds each target's whole definition rather than interleaving them line by
 line. A comment that differs only in a value names every target's
@@ -440,20 +494,23 @@ whose link order alone lists it.
 **Line numbers.** The original build passed `__LINE__` to its debug
 allocators and asserts, so those lines are part of each build's data, and
 they differ between builds. The repository's lines are not the original
-files' lines, so such a call spells the number, and `LN(pal, jpn, kor, ntsc)`
-picks the target's: `iosMallocDebug(ios_partition_seki, asize,
-"src/FileManager.c", LN(349, 331, 331, 312))`. `tools/compile_c.sh` defines
-`LN` with `VERSION_<SLUG>`; `ico2/ito/include/mv_defs.h`'s `alloc_zeroed` is
-the header case (lines 43 and 44 on PAL, 42 and 43 on JPN, KOR and NTSC).
-The Korean build has the Japanese numbers except in `cdvd.c` and `pad.c`,
-which have PAL's, and `jimaku.c`'s assertion, 658. The USA build's number
-is its own at every site it compiles, and PAL's stands as its argument at a
-site in an arm it does not compile. `flag.c`'s `InitFlagGeo` passed
-`__LINE__` in the original, so it spells each line too (PAL 87, 95, 102,
-132, 145 and 172; the USA build 31, 39, 46, 65 and 77), the macro
-`FLAG_ALLOC_NODES` taking the caller's line as its third argument. This is
-the convention zeldaret/oot's `include/line_numbers.h` uses for the same
-problem.
+files' lines, so such a call spells the number, and `LN(pal, jpn, kor, ntsc,
+aug6)` picks the target's: `iosMallocDebug(ios_partition_seki, asize,
+"src/FileManager.c", LN(349, 331, 331, 312, 312))`. `tools/compile_c.sh`
+defines `LN` with `VERSION_<SLUG>`; `ico2/ito/include/mv_defs.h`'s
+`alloc_zeroed` is the header case (lines 43 and 44 on PAL, 42 and 43 on JPN,
+KOR, NTSC and AUG6). The Korean build has the Japanese numbers except in
+`cdvd.c` and `pad.c`, which have PAL's, and `jimaku.c`'s assertion, 658. The
+USA build's and the prototype's numbers are their own at every site they
+compile, and PAL's stands as the argument at a site in an arm a target does
+not compile. A site whose line the four retail builds share spells one
+literal (`debug_assert(__FILE__, 598)`) until a target's differs: 456 such
+sites took `LN(n, n, n, n, m)` at the prototype's join. `flag.c`'s
+`InitFlagGeo` passed `__LINE__` in the original, so it spells each line too
+(PAL 87, 95, 102, 132, 145 and 172; the USA build and the prototype 31, 39,
+46, 65 and 77), the macro `FLAG_ALLOC_NODES` taking the caller's line as its
+third argument. This is the convention zeldaret/oot's
+`include/line_numbers.h` uses for the same problem.
 
 **The rules.** `tools/check_targets.py` (run by `tools/gen_ninja.py`, so by
 every `setup`, and by the pre-commit hook) reads the files git tracks or
@@ -480,8 +537,8 @@ none before an `#elif`, `#else` or `#endif`). Each of the three has a
 adding a source needs `tools/build.sh regen`, and editing a header needs
 `tools/build.sh clean`.
 
-**Joining a later target.** `aug6` (branch `aug6`) joins by these steps, as
-`kor` and `ntsc` did.
+**Joining a later target.** `jun26` (branch `jun26`) joins by these steps,
+as `kor`, `ntsc` and `aug6` did.
 
 1. Copy the branch's `config/*.<slug>.*` files and its
    `config/sha1sums.<slug>.txt`, with `link.<slug>.ld`'s `INCLUDE` paths under
@@ -495,15 +552,21 @@ adding a source needs `tools/build.sh regen`, and editing a header needs
    VERSION_<SLUG>` blocks nested inside them; a branch seeded from PAL's
    tree (`ntsc`) puts its lines in `#ifdef VERSION_<SLUG>` blocks against
    PAL's, nested in the PAL arm where a Japanese block already stands, and
-   names itself in a Japanese condition where it has those lines. A hunk
+   names itself in a Japanese condition where it has those lines. A branch
+   whose text often equals an earlier joined target's (`aug6`, the USA
+   lines) is placed by equality: resolve each differing place for each
+   earlier target and compare with the branch's text, name the target in
+   that condition where they agree, and nest the remaining differences
+   inside that arm. A hunk
    that differs only in comments keeps `main`'s text. Check each file by resolving
    its blocks for the target and comparing the result with the branch's file
    outside comments.
 3. Add the target to `VERSION_DEFS` in `tools/compile_c.sh`, give `LN` its
-   argument there (`LN(pal, jpn, kor, ntsc, <slug>)`), and add the target's
-   number to every `LN(...)` call: its own where it compiles the line, the
-   base target's where it does not. A site that still passes `__LINE__`
-   (`flag.c` did) spells every target's number first.
+   argument there (`LN(pal, jpn, kor, ntsc, aug6, <slug>)`), and add the
+   target's number to every `LN(...)` call: its own where it compiles the
+   line, the base target's where it does not. A site that still passes
+   `__LINE__` (`flag.c` did) or spells one literal for every target spells
+   every target's number first.
 4. Move the branch's `tools/dev_native_allow.txt` rows for sites in the
    files it changed onto the shared files' lines.
 5. Run `tools/build.sh gate-all`, then compare each object of every target
@@ -551,9 +614,9 @@ it to GitHub Pages. A push to any of `main`, `pal`, `jpn`, `kor`, `ntsc`,
 `aug6` and `jun26` deploys, and every deploy assembles the whole site. The
 page is `main`'s `docs/index.html` (read from `origin/main` on the other
 branches). Every target's `progress.json` and `PROGRESS.md` come from that
-target's own branch: `pal`, `jpn`, `kor` and `ntsc` (frozen) supply
-`docs/pal/`, `docs/jpn/`, `docs/kor/` and `docs/ntsc/`, `aug6` supplies
-`docs/aug6/` and `jun26` supplies `docs/jun26/`. `main`'s `docs/<slug>/` stay
+target's own branch: `pal`, `jpn`, `kor`, `ntsc` and `aug6` (frozen) supply
+`docs/pal/`, `docs/jpn/`, `docs/kor/`, `docs/ntsc/` and `docs/aug6/`, and
+`jun26` supplies `docs/jun26/`. `main`'s `docs/<slug>/` stay
 as the combined build's progress record and are never published. Each tab's
 repo and `PROGRESS.md` links point at its branch.
 

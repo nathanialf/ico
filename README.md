@@ -5,19 +5,21 @@ A source tree for the PlayStation 2 game **ICO** (Sony Computer Entertainment,
 SCES-50760 (`SCES_507.60`), the Japanese one, SCPS-11003 (`SCPS_110.03`;
 `SYSTEM.CNF` reads `VER = 1.02`, `VMODE = NTSC`), the Korean one,
 SCPS-56001 (`SCPS_560.01`; `VER = 1.00`, `VMODE = NTSC`), and the USA one,
-SLUS-20218 (`SCUS_971.13`; `VER = 1.00`, `VMODE = NTSC`), with the toolchain
-the game was built with. `VERSION=pal`, `VERSION=jpn`, `VERSION=kor` or
-`VERSION=ntsc` picks the target. For each,
+SLUS-20218 (`SCUS_971.13`; `VER = 1.00`, `VMODE = NTSC`), and of the August
+6, 2001 prototype disc (`SCUS_971.13`; `VER = 1.00`, `VMODE = NTSC`), with
+the toolchain the game was built with. `VERSION=pal`, `VERSION=jpn`,
+`VERSION=kor`, `VERSION=ntsc` or `VERSION=aug6` picks the target. For each,
 every byte the console loads is identical to the disc's (the ROM image SHA-1
 matches), and so is the ELF file itself (its SHA-1 matches the disc's).
 
-The USA, Japanese and Korean builds are earlier links of the same program
-as the PAL one: their debug menus' `DISC VER.` lines read `Aug 20 2001`,
-`Nov  2 2001` and `Jan  9 2002` (`debug.c`), PAL's `Jan 17 2002`, and the
-Korean text is the Japanese one with 24 files changed. One tree (`ico2/`,
-`sce/`) builds all four: its base text is the PAL revision, and where another
-build differs the same file holds its lines inline in `VERSION_JPN`,
-`VERSION_KOR` and `VERSION_NTSC` blocks;
+The prototype and the USA, Japanese and Korean builds are earlier links of
+the same program as the PAL one: their debug menus' `DISC VER.` lines read
+`Aug  7 2001`, `Aug 20 2001`, `Nov  2 2001` and `Jan  9 2002` (`debug.c`),
+PAL's `Jan 17 2002`, and the Korean text is the Japanese one with 24 files
+changed. One tree (`ico2/`, `sce/`) builds all five: its base text is the
+PAL revision, and where another build differs the same file holds its lines
+inline in `VERSION_JPN`, `VERSION_KOR`, `VERSION_NTSC` and `VERSION_AUG6`
+blocks;
 [`docs/TARGETS.md`](docs/TARGETS.md) lists those differences and
 [`docs/BUILDING.md`](docs/BUILDING.md) explains the blocks.
 
@@ -62,6 +64,10 @@ VERSION=kor ./build.sh
 cp "/path/to/Ico (USA).bin" baserom/Ico_USA.bin
 cp "/path/to/Ico (USA).cue" baserom/Ico_USA.cue
 VERSION=ntsc ./build.sh
+# the August 6, 2001 prototype
+cp "/path/to/Ico (prototype).bin" baserom/Ico_AUG6.bin
+cp "/path/to/Ico (prototype).cue" baserom/Ico_AUG6.cue
+VERSION=aug6 ./build.sh
 ```
 
 Each target needs only its own disc. Without `VERSION` the target is the first
@@ -72,9 +78,9 @@ has no `baserom/<slug>/baseelf.elf`.
 `./build.sh` runs `tools/setup.sh` when the Python environment or the
 toolchain under `tools/cc/` is missing, extracts `baserom/<slug>/baseelf.elf`
 from the disc image when it is missing (`tools/extract_elf.sh`; for the
-Japanese and USA discs it first cooks the raw `.bin` into `baserom/Ico_JPN.iso`
-or `baserom/Ico_USA.iso` beside it, once; the PAL and Korean images are plain
-ISOs, read directly), then
+Japanese, USA and prototype discs it first cooks the raw `.bin` into
+`baserom/Ico_JPN.iso`, `baserom/Ico_USA.iso` or `baserom/Ico_AUG6.iso` beside
+it, once; the PAL and Korean images are plain ISOs, read directly), then
 runs `tools/build.sh setup` (or `verify` when `build.ninja` already exists),
 `ninja` and `tools/check_elf.py --gate`, and exits non-zero if any step
 fails. The host needs a 64-bit Linux with 32-bit libraries, a host
@@ -96,6 +102,8 @@ end.
 | kor | `baserom/kor/baseelf.rom` and `build/kor/ico.rom` (`objcopy -O binary`) | `f438c8f841a84837231d79cab0c761bfb211259b` |
 | ntsc | `baserom/ntsc/baseelf.elf` (the disc's `SCUS_971.13`) | `a4d8fc1948fb2da2395f3863a94a3b93de55de14` |
 | ntsc | `baserom/ntsc/baseelf.rom` and `build/ntsc/ico.rom` (`objcopy -O binary`) | `fbf50c75cd5911273511c4f9af90503ff8423582` |
+| aug6 | `baserom/aug6/baseelf.elf` (the prototype disc's `SCUS_971.13`) | `5d169c281756a8bde712704fa0cb9eb984693cd6` |
+| aug6 | `baserom/aug6/baseelf.rom` and `build/aug6/ico.rom` (`objcopy -O binary`) | `2b4d7de41966ff38d061b4c985de45fc212e2fb2` |
 
 The gate (`tools/check_elf.py --gate`) also compares every allocated section
 of `build/<slug>/ico.elf` with the base ELF by address and checks that `.sbss`
@@ -116,7 +124,7 @@ leaves the seven continuation overlays (`..unknvma.*`) zero.
 `tools/binutils-dvp-overlay-fill.patch` makes dvp-as write the byte
 explicitly (`--overlay-fill=N` for the five, 0 for the rest), taken from an
 `overlay-fill=N` token on the `.dsm` lines of the target's link order (none on
-pal's or kor's, `overlay-fill=110` on each of jpn's and ntsc's), so the build no longer depends on
+pal's or kor's, `overlay-fill=110` on each of jpn's, ntsc's and aug6's), so the build no longer depends on
 the host's heap: with the unpatched assembler, a host that sets
 `MALLOC_PERTURB_` (145 gives 0x6E) fails PAL's whole-file SHA-1.
 `tools/check_elf.py --full-diff` prints the whole-file comparison.
@@ -126,7 +134,7 @@ the host's heap: with the unpatched assembler, a host that sets
 There is one badge per section of the base ELF, in link order.
 `tools/check_elf.py --progress` (`tools/build.sh progress`) rewrites them,
 `docs/<slug>/PROGRESS.md` ([pal](docs/pal/PROGRESS.md),
-[jpn](docs/jpn/PROGRESS.md), [kor](docs/kor/PROGRESS.md), [ntsc](docs/ntsc/PROGRESS.md)) and the dashboard's `docs/<slug>/progress.json`
+[jpn](docs/jpn/PROGRESS.md), [kor](docs/kor/PROGRESS.md), [ntsc](docs/ntsc/PROGRESS.md), [aug6](docs/aug6/PROGRESS.md)) and the dashboard's `docs/<slug>/progress.json`
 from the built ELF and its link map; `tools/build.sh progress-all` does it
 for every configured target.
 
@@ -144,9 +152,11 @@ Each disc's link includes 73 data-only runs of the game's own archive,
 `ico2000.a`: 70 members with data sections and no code that the PAL disc's
 MAIN.MAP lists (stage layouts, model paths, motion and sound definitions, way
 points) and three runs it does not list (`config/data_members.<slug>.txt`).
-The Japanese, Korean and USA discs ship no map, so each run's place in an ELF was found from
+The Japanese, Korean and USA discs ship no map and the prototype disc's map
+is PAL's, so each run's place in an ELF was found from
 the code that reads it, and each member keeps PAL's name by member order (the
-USA link has 71 runs: PAL's hint table and subtitle file names are not in it). They
+USA link has 71 runs: PAL's hint table and subtitle file names are not in it;
+the prototype's has the 70 members and none of the three unmapped runs). They
 are the game's content, and nothing of that content is committed. The build
 generates them from the user's own `baserom/<slug>/baseelf.elf` into
 `build/<slug>/data/`. Each member becomes `build/<slug>/data/<member>.c`, an
@@ -226,8 +236,8 @@ The host's `mips-linux-gnu-objcopy` writes `build/<slug>/ico.rom`.
 
 ## Targets and branches
 
-A target is a slug: `pal`, `jpn`, `kor`, `ntsc` (USA retail) or `aug6` (the
-prototype).
+A target is a slug: `pal`, `jpn`, `kor`, `ntsc` (USA retail), `aug6` (the
+August 6, 2001 prototype) or `jun26` (the June 26, 2001 demo).
 A tree builds the targets that have a `config/link_order.<slug>.txt`; the
 target is chosen by `VERSION=<slug>`. Each target has its own
 `config/*.<slug>.*`, `config/sha1sums.<slug>.txt`, `baserom/<slug>/`,
@@ -236,20 +246,21 @@ target is chosen by `VERSION=<slug>`. Each target has its own
 
 | branch | targets | |
 | --- | --- | --- |
-| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`), `kor` (Korean retail, SCPS-56001, `SCPS_560.01`) and `ntsc` (USA retail, SLUS-20218, `SCUS_971.13`) | this document; all four gate here, and finished targets join here |
-| `aug6` | `aug6` (the August 6, 2001 prototype) | a single-target tree with its own README, until it joins `main` |
+| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`), `kor` (Korean retail, SCPS-56001, `SCPS_560.01`), `ntsc` (USA retail, SLUS-20218, `SCUS_971.13`) and `aug6` (the August 6, 2001 prototype, `SCUS_971.13`) | this document; all five gate here, and finished targets join here |
+| `jun26` | `jun26` (the June 26, 2001 demo, SCUS-97158) | a single-target tree with its own README, until it joins `main` |
 | `pal` | `pal` | the single-target PAL tree as it was at `738b77d1f`, frozen |
 | `jpn` | `jpn` | the single-target Japanese tree as it was at `4506374a6`, frozen |
 | `kor` | `kor` | the single-target Korean tree as it was at `b65c0fcf4` (`kor-v1.0.0`), frozen |
 | `ntsc` | `ntsc` | the single-target USA tree as it was at `8c99cc75a` (`ntsc-v1.0.0`), frozen |
+| `aug6` | `aug6` | the single-target prototype tree as it was at `c8e730628` (`aug6-v1.0.0`), frozen |
 
-`pal`, `jpn`, `kor` and `ntsc` are history: new work lands on `main`, and a
-fix to one of their targets is ported to its branch as a hotfix release.
-`aug6` is a separate tree that is never merged into `main` (nor `main` into
-it); it carries the shared build layer, file for file (`tools/`, `build.sh`,
-`.github/` and `docs/index.html`, which `tools/check_shared_layer.sh` checks
-against `main`), and joins by the recipe in
-[`docs/BUILDING.md`](docs/BUILDING.md).
+`pal`, `jpn`, `kor`, `ntsc` and `aug6` are history: new work lands on `main`,
+and a fix to one of their targets is ported to its branch as a hotfix
+release. `jun26` is a separate tree that is never merged into `main` (nor
+`main` into it); it carries the shared build layer, file for file (`tools/`,
+`build.sh`, `.github/` and `docs/index.html`, which
+`tools/check_shared_layer.sh` checks against `main`), and joins by the recipe
+in [`docs/BUILDING.md`](docs/BUILDING.md).
 
 ## PC port
 

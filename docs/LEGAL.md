@@ -54,11 +54,12 @@ suspect a file in this repository breaks these rules, open an issue tagged
 ## The data tables are generated at build time
 
 Each disc's link includes 70 members of the game's archive `ico2000.a` that
-have data sections and no code (MAIN.MAP of the PAL disc; the Japanese and
-Korean links have the same set, the USA link all but the hint table and the
-subtitle file names), plus three data runs MAIN.MAP does not list;
+have data sections and no code (MAIN.MAP of the PAL disc; the Japanese,
+Korean and prototype links have the same set, the USA link all but the hint
+table and the subtitle file names), plus three data runs MAIN.MAP does not
+list (none of which the prototype's link has);
 `config/data_members.<slug>.txt` lists them all for each target (73 runs, 71
-for `ntsc`). They
+for `ntsc`, 70 for `aug6`). They
 are the game's content: stage object layouts, model and motion file tables,
 sound definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
@@ -240,11 +241,12 @@ data tables' record types among them), the layout was derived from the code
 that reads it in both builds (the field offsets each twin function's loads
 and stores use), not from any other source.
 
-## Prototype symbol maps (`aug6`)
+## Prototype disc (`aug6`)
 
-The `aug6` branch builds the August 6, 2001 ICO prototype (`SCUS_971.13`).
-That prototype disc ships three build artifacts next to its boot ELF and no
-`SRCFILE.TXT`:
+The `aug6` target builds the August 6, 2001 ICO prototype (`SCUS_971.13`,
+`SYSTEM.CNF` `VER = 1.00`; the branch `aug6`, frozen at `c8e730628`, is the
+single-target tree it was joined from). That prototype disc ships three
+build artifacts next to its boot ELF and no `SRCFILE.TXT`:
 
 - `MAIN.MAP`: the same file as the PAL disc's (582413 bytes), so it
   describes a third link, neither the prototype's nor the PAL ELF's.
@@ -266,6 +268,25 @@ from a demo-disc symbol map. A review prototype that circulated through
 collectors is closer to a grey area than retail media; using its metadata is
 a deliberate choice of this project, not settled community consensus. Leaked
 source and leaked SDKs stay forbidden on every branch.
+
+The functions the prototype shares with the retail builds take their names
+from the PAL disc's listing by instruction-stream correlation, as the USA
+build's do (above); the data-only members take PAL's names by member order.
+No address is copied from either disc's map: every address in
+`config/*.aug6.*` was found in the user's own ELF.
+
+Of the user's prototype disc the build reads `SYSTEM.CNF`, to find the boot
+file, and `SCUS_971.13`: it checks the ELF's SHA-1 and generates the 70
+data-only members from it (above). Every function, the five VU1
+microprograms and Sony's libraries are compiled or assembled from the
+tracked sources; nothing of the code is read from the disc.
+`tools/extract_elf.sh` first cooks the raw `.bin` into
+`baserom/Ico_AUG6.iso`, then copies `MAIN.MAP`, `TRFILE.TXT` and
+`SYSTEM.CNF` into gitignored `baserom/aug6/` as reference material. Where
+the prototype lays out a record differently from PAL's (ten of the data
+tables' record types among them, eight of them the USA build's layouts),
+the layout was derived from the code that reads it in both builds, not from
+any other source.
 
 ## What you need to build
 
