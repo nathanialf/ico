@@ -164,19 +164,25 @@ the link places at the base's addresses.
 
 ## Data tables
 
-Each disc's link includes 73 data-only runs of the game's own archive,
-`ico2000.a`: 70 members with data sections and no code that the PAL disc's
-MAIN.MAP lists (stage layouts, model paths, motion and sound definitions, way
-points) and three runs it does not list (`config/data_members.<slug>.txt`).
+Each disc's link includes 70 members of the game's own archive,
+`ico2000.a`, with data sections and no code that the PAL disc's MAIN.MAP lists
+(stage layouts, model paths, motion and sound definitions, way points) and
+three runs it does not list; the build generates 72 of those data-only runs
+for each disc (`config/data_members.<slug>.txt`), because `enemy-def` is
+committed source (below).
 The Japanese, Korean and USA discs ship no map, the prototype disc's map
 is PAL's and the demo's directory ships none, so each run's place in an ELF
 was found from
 the code that reads it, and each member keeps PAL's name by member order (the
-USA link has 71 runs: PAL's hint table and subtitle file names are not in it;
-the prototype's has the 70 members and none of the three unmapped runs; the
-demo's has the 70 members, `mcdata.o`'s save icon record and `EnemyInit.o`'s
-49 enemy-set tables, 120 runs). They
-are the game's content, and nothing of that content is committed. The build
+USA build generates 70 runs: PAL's hint table and subtitle file names are not
+in its link; the August prototype's 69, the 70 members less `enemy-def` and
+none of the three unmapped runs; the demo's 119, the 70 members, `mcdata.o`'s
+save icon record and `EnemyInit.o`'s 49 enemy-set tables, less `enemy-def`).
+They
+are the game's content, and nothing of that content is committed, with one
+exception: the enemy kind table `enemyKind` is committed as
+`ico2/sugipon/src/enemyKind.c` (the paragraph "One exception: `enemyKind`" in
+[`docs/LEGAL.md`](docs/LEGAL.md)). The build
 generates them from the user's own `baserom/<slug>/baseelf.elf` into
 `build/<slug>/data/`. Each member becomes `build/<slug>/data/<member>.c`, an
 initialized array of its record type compiled with the game's flags
