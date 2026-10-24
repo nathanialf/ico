@@ -191,6 +191,9 @@ SELF_TEST = (
     ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR)\n#endif", 0),
     ("#ifdef VERSION_KOR\n#elif defined(VERSION_JPN)\n#else\n#endif", 0),
     ("#if defined(VERSION_KOR)\n#elif defined(VERSION_JPN) || defined(VERSION_NTSC)\n#endif", 0),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)\n#else\n#endif", 0),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)\n#endif", 0),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n#else\n#ifdef VERSION_NTSC\n#else\n#endif\n#endif", 0),
     ("#if 0\n#ifdef VERSION_JPN\n#endif\n#elif 1\n#endif", 0),
     ("#if defined(VERSION_JPN) && defined(VERSION_KOR)\n#endif", 1),
     ("#if defined(VERSION_JPN) || !defined(VERSION_KOR)\n#endif", 1),
@@ -220,7 +223,11 @@ def self_test() -> int:
                              ("#if defined(VERSION_JPN) || defined(VERSION_KOR)", "kor", True),
                              ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR)", "kor", False),
                              ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR)", "pal", True),
-                             ("#elif defined(VERSION_JPN)", "jpn", True)):
+                             ("#elif defined(VERSION_JPN)", "jpn", True),
+                             ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)", "ntsc", True),
+                             ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)", "ntsc", False),
+                             ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)", "pal", True),
+                             ("#ifdef VERSION_NTSC", "pal", False)):
         _, slugs, positive = version_condition(line)
         ok = condition_holds(slugs, positive, slug) == want
         failed += not ok

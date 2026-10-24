@@ -267,6 +267,13 @@ VERSION_LINES_SELF_TEST = (
      {"pal": "#if 0 x #elif 1 y #else w #endif", "jpn": "#if 0 x j #elif 1 y #else w #endif"}),
     ("#ifdef VERSION_JPN\n#if 1\nj\n#else\nq\n#endif\n#endif",
      {"pal": "", "jpn": "#if 1 j #else q #endif"}),
+    # a fourth target nested in the PAL arm, and named in the shared conditions
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\njk\n#else\n#ifdef VERSION_NTSC\nn\n#else\np\n#endif\n#endif",
+     {"pal": "p", "jpn": "jk", "kor": "jk", "ntsc": "n"}),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)\njkn\n#else\np\n#endif",
+     {"pal": "p", "jpn": "jkn", "kor": "jkn", "ntsc": "jkn"}),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)\np\n#endif",
+     {"pal": "p", "jpn": "", "kor": "", "ntsc": ""}),
 )
 
 

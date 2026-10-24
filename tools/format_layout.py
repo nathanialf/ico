@@ -234,6 +234,10 @@ SELF_TEST = (
      "#else\nvoid f(int a, int b)\n{\n#endif\n}\n\nint d;\n"),
     ("#ifdef VERSION_KOR\nint a;\nint f(void) { return 1; }\n#elif defined(VERSION_JPN)\nint b;\n#endif\n",
      "#ifdef VERSION_KOR\nint a;\n\nint f(void) { return 1; }\n#elif defined(VERSION_JPN)\nint b;\n#endif\n"),
+    # a fourth target's block nested in the PAL arm, every arm tight
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n\nint a;\n\n#else\n\n#ifdef VERSION_NTSC\n\nint n;\n\n"
+     "#else\n\nint b;\n\n#endif\n\n#endif\nint c;\n",
+     "#if defined(VERSION_JPN) || defined(VERSION_KOR)\nint a;\n#else\n#ifdef VERSION_NTSC\nint n;\n#else\nint b;\n#endif\n#endif\n\nint c;\n"),
 )
 
 
