@@ -14,8 +14,8 @@
 #      discs' reference files (MAIN.MAP, SRCFILE.TXT, TRFILE.TXT,
 #      TRTABLE.BIN, SYSTEM.CNF), which docs/LEGAL.md keeps out of the tree,
 #      and the names the tools give the user's disc images (Ico_PAL.*,
-#      Ico_JPN.*, Ico_KOR.*, Ico_USA.*, Ico_AUG6.*, Ico_JUN26.*) whatever their
-#      extension.
+#      Ico_JPN.*, Ico_KOR.*, Ico_CN.*, Ico_USA.*, Ico_AUG6.*, Ico_JUN26.*)
+#      whatever their extension.
 #   3. Any tracked file > 256 KiB (C sources under ico2/ and sce/: 8 MiB),
 #      except the named text files below.
 #   4. ELF magic (\x7fELF) sniff regardless of extension.
@@ -70,7 +70,7 @@ for f in "${files[@]}"; do
 done
 # The extension rule above already refuses .iso, .bin and .cue; this one
 # also refuses a renamed copy or a cooked cache under another extension.
-disc_image_re='(^|/)ICO_(PAL|JPN|KOR|USA|AUG6|JUN26)\.[^/]*$'
+disc_image_re='(^|/)ICO_(PAL|JPN|KOR|CN|USA|AUG6|JUN26)\.[^/]*$'
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     if [[ "${f^^}" =~ $disc_image_re ]]; then
