@@ -132,7 +132,7 @@ for objects and functions only this build has or splits differently
 taken from its declaration numbering in that compile. The USA ELF is
 stripped and records no symbols, so a `.N` suffix the tree's config or
 comments give a nested function (`Cling.176` and `ChangeRunMode.135` in
-`config/data_members.us.txt`) is the PAL disc's `MAIN.MAP` suffix, carried
+`config/data_members.ntsc.txt`) is the PAL disc's `MAIN.MAP` suffix, carried
 over by the census. This build's own link may number the same function
 differently (its symbol map has `Cling.165`); the suffix is no part of the
 stripped ELF's bytes.

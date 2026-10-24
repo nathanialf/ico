@@ -1,11 +1,11 @@
-/* config/link.us.ld: the link script of the USA retail ELF (SCUS_971.13).
+/* config/link.ntsc.ld: the link script of the USA retail ELF (SCUS_971.13).
  *
  * Hand-written, from config/link.pal.ld on main with every output section at
  * the USA base ELF's address (its section headers). Every output section sits
  * at the base ELF's address, so a section that comes up short fails the byte
  * gate on its own and one that runs long is an ld overlap error (no
  * --no-check-sections). Inputs are taken in the one object order of
- * config/link_order.us.txt, which is the order the objects reach ld's command
+ * config/link_order.ntsc.txt, which is the order the objects reach ld's command
  * line. ld makes the one PT_LOAD itself, at the base's file offset 0x1000 and
  * alignment, the page size of its elf32-littlemips output (a PHDRS command
  * leaves .sbss/.bss out of its memsz).
@@ -17,7 +17,7 @@
  * The linker is GNU ld 2.10 with tools/binutils-2.10-ee.patch (built by
  * tools/setup.sh), writing elf32-littlemips as the PAL MAIN.MAP's OUTPUT line
  * does; the USA disc ships no map. ld 2.10 has no INCLUDE inside a section, so
- * tools/gen_ninja.py links with build/us/link.ld, this file with the INCLUDE lines
+ * tools/gen_ninja.py links with build/ntsc/link.ld, this file with the INCLUDE lines
  * expanded.
  *
  * PAL's script also binds four TRANSITIONAL placeholders (D_0028F8F0,
@@ -46,14 +46,14 @@ SECTIONS
      * as in the base, so it takes no room in the image. */
     .reginfo 0x002746C0 : { *(.reginfo) }
     .data 0x00274700 : {
-        INCLUDE build/us/data.inputs.ld
+        INCLUDE build/ntsc/data.inputs.ld
         *(.data .data.*)
     }
     /* The assignment keeps the output section when its inputs are empty,
      * as the base's .vudata and .vubss are. */
     .vudata 0x005536B8 : { *(.vudata) . = .; }
     .rodata 0x00553700 : {
-        INCLUDE build/us/rodata.inputs.ld
+        INCLUDE build/ntsc/rodata.inputs.ld
         *(.rodata .rodata.*)
     }
     .lit4 0x00630900 : { *(.lit4) }

@@ -1,14 +1,14 @@
-# config/data_schema.us.txt -- the data-only members written as C.
+# config/data_schema.ntsc.txt -- the data-only members written as C.
 #
-# One row per (member, section) of config/data_members.us.txt that
+# One row per (member, section) of config/data_members.ntsc.txt that
 # tools/gen_data_c.py writes as one C translation unit instead of assembly.
 # The row holds facts about the member's type, never its values: the build
-# reads the values from the user's own baserom/us/baseelf.elf and writes
+# reads the values from the user's own baserom/ntsc/baseelf.elf and writes
 # build/data/<member>.c, which ninja compiles with the game's flags
 # (tools/compile_c.sh). Nothing generated is committed (docs/LEGAL.md).
 #
 # Columns: <member> <section> <type> <header> <count> <symbols> [hex=<field>,...]
-#   member    the member's name in config/data_members.us.txt
+#   member    the member's name in config/data_members.ntsc.txt
 #   section   data, rodata or sdata: the table row the definition fills;
 #             rodata rows are defined const
 #   type      the element type: a typedef or a struct tag the header

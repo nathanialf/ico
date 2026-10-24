@@ -28,10 +28,10 @@ sectors itself (the `.cue` gives the mode, MODE2/2352 on this disc), so no
 extra package is needed. The build accepts exactly one revision,
 `VER = 1.00` in the disc's `SYSTEM.CNF`:
 
-| file | SHA-1 (`config/sha1sums.us.txt`) |
+| file | SHA-1 (`config/sha1sums.ntsc.txt`) |
 | --- | --- |
-| `baserom/us/baseelf.elf`, the disc's `SCUS_971.13` | `a4d8fc1948fb2da2395f3863a94a3b93de55de14` |
-| `baserom/us/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `fbf50c75cd5911273511c4f9af90503ff8423582` |
+| `baserom/ntsc/baseelf.elf`, the disc's `SCUS_971.13` | `a4d8fc1948fb2da2395f3863a94a3b93de55de14` |
+| `baserom/ntsc/baseelf.rom`, its `objcopy -O binary --gap-fill=0x00` view | `fbf50c75cd5911273511c4f9af90503ff8423582` |
 
 ## One command
 
@@ -49,15 +49,15 @@ build only reads the image.
 stops with a non-zero exit at the first failure. On a four-core host, a
 fresh clone with the toolchain downloads and builds of section 1 took
 2 min 54 s and ended with `check_elf: gate PASS`. With the toolchain
-already installed and `baserom/us/` already extracted,
+already installed and `baserom/ntsc/` already extracted,
 `tools/build.sh clean && tools/build.sh setup && .venv/bin/ninja` took 48 s
 and 50 s in two runs. A second `./build.sh` on the built tree rebuilds
 nothing (`ninja: no work to do.`) and prints the gate again. The sections
 below describe each step; each can also be run on its own. The scripts are
 the same on every target branch and take the target, and with it every
-`config/*.us.*`, `baserom/us/` and `build/us/` path below, from
+`config/*.ntsc.*`, `baserom/ntsc/` and `build/ntsc/` path below, from
 `tools/ico_version.py` (`VERSION=<slug>`, else the first
-`config/link_order.<slug>.txt` that exists: `config/link_order.us.txt` on
+`config/link_order.<slug>.txt` that exists: `config/link_order.ntsc.txt` on
 this branch, its only target).
 
 ## 1. Host setup: `tools/setup.sh`
@@ -115,7 +115,7 @@ reproduces the second pattern in all twelve. The patch writes the byte
 explicitly: `--overlay-fill=N` (0 to 255, default 0) for an overlay whose VU
 address is a constant, 0 for the others. `tools/gen_ninja.py` passes the
 option only when a `.dsm` line of the link order carries an `overlay-fill=N`
-token. The five `.dsm` lines of `config/link_order.us.txt` carry
+token. The five `.dsm` lines of `config/link_order.ntsc.txt` carry
 `overlay-fill=110`, so this branch needs the patched dvp-as: an unpatched
 one leaves the byte to the host's heap and fails the whole-file SHA-1 unless
 the heap happens to hold 0x6E (PAL's link order carries no token).
@@ -132,17 +132,17 @@ when that changes.
 
 ## 2. The base ELF: `tools/extract_elf.sh`
 
-`./build.sh` runs it when `baserom/us/baseelf.elf` is missing, and says so
+`./build.sh` runs it when `baserom/ntsc/baseelf.elf` is missing, and says so
 plainly when `baserom/Ico_USA.bin` or `baserom/Ico_USA.cue` is missing too.
 The script first cooks the raw image: it reads the mode from the `.cue`,
 keeps the 2048 bytes of user data of each 2352-byte sector, and writes the
 result once to `baserom/Ico_USA.iso` beside the `.bin`, a cache that later
 runs read directly. It then reads that ISO9660 filesystem with pycdlib
 (`tools/extract_elf.py`), extracts the boot file named by `SYSTEM.CNF`'s
-`BOOT2` line (`SCUS_971.13`), and writes `baserom/us/baseelf.elf` and its
-`objcopy -O binary` view `baserom/us/baseelf.rom`. It checks both SHA-1s
-against `config/sha1sums.us.txt` and stops on a mismatch. It also copies the
-disc's `SYSTEM.CNF` into `baserom/us/`; the USA disc ships no map or listing
+`BOOT2` line (`SCUS_971.13`), and writes `baserom/ntsc/baseelf.elf` and its
+`objcopy -O binary` view `baserom/ntsc/baseelf.rom`. It checks both SHA-1s
+against `config/sha1sums.ntsc.txt` and stops on a mismatch. It also copies the
+disc's `SYSTEM.CNF` into `baserom/ntsc/`; the USA disc ships no map or listing
 (`docs/LEGAL.md`). Everything under `baserom/` is gitignored.
 
 ## 3. `tools/build.sh setup`
@@ -151,29 +151,29 @@ disc's `SYSTEM.CNF` into `baserom/us/`; the USA disc ships no map or listing
 `tools/build.sh verify`, which only checks the two SHA-1s; `build.ninja`
 rewrites itself when `tools/gen_ninja.py` or one of its inputs changes.
 
-`setup` deletes `build/us/`, verifies the SHA-1s of the base ELF and ROM
+`setup` deletes `build/ntsc/`, verifies the SHA-1s of the base ELF and ROM
 (`tools/verify_elf.py`), and writes `build.ninja` with `tools/gen_ninja.py`
 from these inputs:
 
-- `config/link_order.us.txt`: every object of the link in the retail link's
+- `config/link_order.ntsc.txt`: every object of the link in the retail link's
   order, one source per line, with the data-only members as `data:` lines.
   The disc has no map, so the order is PAL's carried over by the function
   census, and each line that departs from it says why.
   `tools/gen_ninja.py` runs `tools/check_targets.py` first and fails if a
   tracked source under `ico2/` or `sce/` is missing from it.
-- `config/link.us.ld`: the hand-written linker script, which places each
+- `config/link.ntsc.ld`: the hand-written linker script, which places each
   section at the base ELF's addresses and defines the symbols the link needs.
-- `config/data_members.us.txt`: the data-only members (member, section,
+- `config/data_members.ntsc.txt`: the data-only members (member, section,
   address range in this ELF, the PAL disc's MAIN.MAP names at their
   offsets).
-- `config/data_schema.us.txt`: the data-only members written as C (member,
+- `config/data_schema.ntsc.txt`: the data-only members written as C (member,
   section, element type, the game header that defines it, element count,
   MAIN.MAP's names).
-- `config/stubs.us.txt`: the campaign stub list, idle here: its header and
+- `config/stubs.ntsc.txt`: the campaign stub list, idle here: its header and
   no rows (section 4).
 
 `tools/build.sh` also has `verify` (the SHA-1s only), `regen` (rewrite
-`build.ninja`; needed after adding a source), `clean` (delete `build/us/`),
+`build.ninja`; needed after adding a source), `clean` (delete `build/ntsc/`),
 `distclean` (delete `build/` and `build.ninja`), `progress` (below) and
 `gate-all` and `progress-all`, which do the same for every configured
 target, here the one.
@@ -188,7 +188,7 @@ target, here the one.
   `__FILE__` and the include paths are spelled as the original build spelled
   them: ee-gcc 2.9-991111 with the flags of the source's origin (the game
   `-g -G 8 -fno-common`; Sony's archives `-G 0`; libc, libm and libgcc
-  `-G 0 -fno-builtin`) and `-DVERSION_US`, then the assembler of its
+  `-G 0 -fno-builtin`) and `-DVERSION_NTSC`, then the assembler of its
   archive. Both run through
   `tools/period_env.sh`, which preloads `tools/period_obstack.c` to restore
   the obstack chunk size of the machine that built the game; ee-as's R5900
@@ -199,14 +199,14 @@ target, here the one.
 - assembles the five VU1 microprograms: the period cpp reads each program's
   text, `ico2/vusrc/<stem>.vsm`, from standard input in `ico2/` with
   `-Ivusrc` (it includes `vusrc/vu1_common.h` and, in normal_c and normal_l,
-  `vusrc/scissorcommcut.h`) and writes `build/us/ico2/vusrc/<stem>.i`;
-  dvp-as, run from `ico2/` with `-I` naming `build/us/ico2`, assembles
+  `vusrc/scissorcommcut.h`) and writes `build/ntsc/ico2/vusrc/<stem>.i`;
+  dvp-as, run from `ico2/` with `-I` naming `build/ntsc/ico2`, assembles
   `vusrc/<stem>.dsm`, the DMA tags around `.include "vusrc/<stem>.i"`. The overlay section names
   dvp-as writes hash the name of the file it is reading and the line: the
   `.dsm` path for the first overlay of each program, the empty name cpp gives
   standard input and the include's path for the others;
-- writes the data-only members from the base ELF into `build/us/data/`. Each
-  of the 71, all listed in `config/data_schema.us.txt`, is written as C by
+- writes the data-only members from the base ELF into `build/ntsc/data/`. Each
+  of the 71, all listed in `config/data_schema.ntsc.txt`, is written as C by
   `tools/gen_data_c.py`: an initialized array of its record type per section,
   with every pointer named after the symbol at its address, floats as the
   shortest decimal that reads back to the same bits and names as string
@@ -214,13 +214,13 @@ target, here the one.
   literals its pointers name, and the compiler lays it out; a count the
   schema marks `count-of=` (staffroll_dat's line count) is written as
   `sizeof` over the table, not read from the ELF. The addresses
-  come from a first link, `build/us/ico.layout.elf`, in which a zero stand-in of
+  come from a first link, `build/ntsc/ico.layout.elf`, in which a zero stand-in of
   the member's size takes its place. The C compiles with the game's flags
   like any `ico2/` source, each section of the object is checked against the
   member's ROM range with its relocations applied, and a label a source
   spells inside the member (`D_<VMA>`) is bound to the member's symbol plus
-  its offset by `build/us/data/<member>.alias.ld`;
-- writes the stubs, when `config/stubs.us.txt` has rows (on this branch it
+  its offset by `build/ntsc/data/<member>.alias.ld`;
+- writes the stubs, when `config/stubs.ntsc.txt` has rows (on this branch it
   has none, as on `main`, and this step does nothing). While a target is
   rebuilt from a tree seeded from another, a function whose C does not yet
   give that target's bytes is listed there with its address range and its
@@ -230,7 +230,7 @@ target, here the one.
   in two TUs share a name; a function defined in a `.c.inc` the TU includes
   has its line there, named by the row's `in=<file.c.inc>`, and the TU's
   object depends on that file). `tools/gen_stub_s.py` writes
-  `build/us/stubs/<stem>.s` from the user's own base ELF, one `.word` per
+  `build/ntsc/stubs/<stem>.s` from the user's own base ELF, one `.word` per
   instruction with no relocations, and the assembler reads it at that point
   of the compiler's output, so the stub sits between the functions around it
   and the gate passes at every commit. The constants the function brought
@@ -247,7 +247,7 @@ target, here the one.
   split in two: gcc writes its strings and other constants where the
   function is defined, among its neighbours', and its code after the whole
   file, so its `rdlit` and `sdlit` rows for those carry `def`,
-  `gen_stub_s.py` writes them to `build/us/stubs/<stem>.lit.s`, and the file
+  `gen_stub_s.py` writes them to `build/ntsc/stubs/<stem>.lit.s`, and the file
   reads them with `INCLUDE_ASM_LIT(stem);` in the definition's place, while
   the code, the .lit4 floats, the `li.d` doubles and the jump tables (the
   assembler interns .lit4 in load order, and a jump table is referenced
@@ -262,7 +262,7 @@ target, here the one.
   `%hi`/`%lo` pairs), and the two lists must pair one to one; what cannot be
   placed by a row is printed as HAND and a pair that differs as DISAGREE,
   for the hand. It writes the
-  macro's header too, `build/us/stubs/include_asm.h`, which
+  macro's header too, `build/ntsc/stubs/include_asm.h`, which
   `tools/compile_c.sh` searches last: the tree tracks no copy, so a TU that
   includes it compiles only while stubs exist. `--carve NAME` and
   `--restore NAME` (`--carve-all`, `--restore-all`) replace a definition
@@ -290,17 +290,17 @@ target, here the one.
   range, relocated fields masked, so a function's state is known before the
   link; `tools/object_check.py` compares each object's `.text` with the
   target at the object's address in the link (or, when the link fails, in
-  `build/us/ico.layout.elf`), relocated fields masked, and with `--order` each
+  `build/ntsc/ico.layout.elf`), relocated fields masked, and with `--order` each
   TU's function order with the target's, naming a stub placed before
   functions the target emits earlier;
-- links with ld 2.10 and `config/link.us.ld`, once to `build/us/ico.syms.elf`
-  (symbols kept, with the map `build/us/ico.us.map`) and once stripped to
-  `build/us/ico.elf`, as the base is;
-- writes `build/us/ico.rom` with `objcopy -O binary`;
+- links with ld 2.10 and `config/link.ntsc.ld`, once to `build/ntsc/ico.syms.elf`
+  (symbols kept, with the map `build/ntsc/ico.ntsc.map`) and once stripped to
+  `build/ntsc/ico.elf`, as the base is;
+- writes `build/ntsc/ico.rom` with `objcopy -O binary`;
 - runs `tools/check_elf.py --gate`: every allocated section of
-  `build/us/ico.elf` must hold the base ELF's bytes at the base's addresses,
+  `build/ntsc/ico.elf` must hold the base ELF's bytes at the base's addresses,
   `.sbss` and `.bss` must be allocated over the base's ranges, and
-  `build/us/ico.rom` and `build/us/ico.elf` must have the recorded SHA-1s
+  `build/ntsc/ico.rom` and `build/ntsc/ico.elf` must have the recorded SHA-1s
   (`--require-elf-sha`). A second, informational table compares `.reginfo`,
   the `.DVP.*` sections, `e_flags`, `e_entry` and the program and section
   headers. The build fails when a gated check fails.
@@ -323,23 +323,23 @@ is unchanged after any edit.
 ## Progress and the dashboard
 
 `tools/build.sh progress` runs `tools/check_elf.py --progress`, which
-rewrites the README's badge block, the table in `docs/us/PROGRESS.md` and
-`docs/us/progress.json` from the built ELF, its link map and the function
-symbols of `build/us/ico.syms.elf`. A byte counts for its section when the map
+rewrites the README's badge block, the table in `docs/ntsc/PROGRESS.md` and
+`docs/ntsc/progress.json` from the built ELF, its link map and the function
+symbols of `build/ntsc/ico.syms.elf`. A byte counts for its section when the map
 row that places it belongs to an object built from `ico2/` or `sce/` and the
-byte equals the base's; bytes from `build/us/data/` are counted separately as
+byte equals the base's; bytes from `build/ntsc/data/` are counted separately as
 extracted tables. The count is by object, so `staffroll_dat`'s count word
 (4 bytes of `.sdata`) counts as from the disc although the generator
 computes it from the table's element count.
 
 The dashboard is `docs/index.html`, which reads each target's
 `progress.json`. On a push that changes `docs/index.html`,
-`docs/us/progress.json`, `docs/us/PROGRESS.md`,
+`docs/ntsc/progress.json`, `docs/ntsc/PROGRESS.md`,
 the workflow or its script, `.github/workflows/pages.yml` runs
 `.github/scripts/build_pages_site.sh`, which assembles one site and deploys
 it to GitHub Pages. The page is `main`'s `docs/index.html` (read from
 `origin/main` on the other branches); this branch supplies only
-`docs/us/progress.json` and `docs/us/PROGRESS.md`, the dashboard's `us`
+`docs/ntsc/progress.json` and `docs/ntsc/PROGRESS.md`, the dashboard's `ntsc`
 tab.
 
 ## Hooks
@@ -353,9 +353,9 @@ tab.
   `tools/format.sh --check` on the staged C. When a staged path is under
   `ico2/`, `sce/`, `config/`, `tools/` or `baserom/`, it then runs
   `tools/build.sh gate-all` (every configured target from scratch, here
-  `us`; a missing `baserom/us/` fails the commit) and
+  `ntsc`; a missing `baserom/ntsc/` fails the commit) and
   `tools/build.sh progress-all`, and adds the refreshed README block and
-  `docs/us/` progress files to the commit. `check_dev_native.py` checks an
+  `docs/ntsc/` progress files to the commit. `check_dev_native.py` checks an
   asm block against the PAL disc's listing, `baserom/pal/SRCFILE.TXT`; on a
   checkout without it, the blocks it would check are reported as
   unverified instead, so the unverified count is higher there.
@@ -377,6 +377,6 @@ gate after formatting.
 
 ## Running the rebuilt ELF (optional)
 
-Any PS2 emulator can run `build/us/ico.elf` as a sanity check, with
+Any PS2 emulator can run `build/ntsc/ico.elf` as a sanity check, with
 the cooked `baserom/Ico_USA.iso` (or the `.bin` and `.cue`) as the disc for
 the game's data files.

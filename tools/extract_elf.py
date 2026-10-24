@@ -14,7 +14,7 @@ configured one, and its DISCS table names each target's disc):
     jpn   baserom/Ico_JPN.bin + .cue     baseelf.{elf,rom} + SYSTEM.CNF
     kor   baserom/Ico_KOR.iso            baseelf.{elf,rom} + SYSTEM.CNF
           (plain 2048-byte-sector ISO)
-    us    baserom/Ico_USA.bin + .cue     baseelf.{elf,rom} + SYSTEM.CNF
+    ntsc  baserom/Ico_USA.bin + .cue     baseelf.{elf,rom} + SYSTEM.CNF
     aug6  baserom/Ico_AUG6.bin + .cue    baseelf.{elf,rom}
                                            + MAIN.MAP TRFILE.TXT SYSTEM.CNF
     jun26 baserom/Ico_JUN26.iso          baseelf.{elf,rom} + SYSTEM.CNF

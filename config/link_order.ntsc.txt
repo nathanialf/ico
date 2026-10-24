@@ -1,26 +1,26 @@
-# config/link_order.us.txt: the objects of the USA link, one per line, in link order.
+# config/link_order.ntsc.txt: the objects of the USA link, one per line, in link order.
 #
 # The USA disc (SLUS-20218) ships no linker map, so this order is PAL's
 # (config/link_order.pal.txt on main, MAIN.MAP's object order) carried over by
 # the function census, tools/correlate_elf.py: each PAL object keeps its place
 # while its .text twins in the USA ELF keep the same relative order. A line
 # that departs from PAL's order says why in a comment on the line. Every output
-# section of config/link.us.ld takes its inputs in this one order.
+# section of config/link.ntsc.ld takes its inputs in this one order.
 # tools/gen_ninja.py reads this file and fails on any tracked .c/.s/.dsm under
 # ico2/ or sce/ that is missing here, and on any listed file that does not
-# exist. tools/ico_version.{py,sh} detect the target (us) by this file's
+# exist. tools/ico_version.{py,sh} detect the target (ntsc) by this file's
 # existence.
 #
 # Line forms:
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
 #                      assembled per archive, ico2/vusrc/*.dsm by dvp-as)
 #   data:<member>      a data-only ico2000.a member: every row of
-#                      config/data_members.us.txt for it, generated from the
+#                      config/data_members.ntsc.txt for it, generated from the
 #                      user's base ELF at build time by tools/gen_data_c.py from
-#                      the record types config/data_schema.us.txt names. The
+#                      the record types config/data_schema.ntsc.txt names. The
 #                      data: lines are PAL's members in PAL's places, less the
 #                      two this build lacks and with the two moves
-#                      config/data_members.us.txt derives.
+#                      config/data_members.ntsc.txt derives.
 #
 # Token after a path:
 #   align.<sec>=16     the ROM starts this object's <sec> (data or rodata)
@@ -363,10 +363,10 @@ data:obj-trigger
 data:parallel-motion-orient
 data:particle-effect
 data:spider-def
-data:texture-path  # .rodata between spider-def and way-group here (config/data_members.us.txt); PAL links it in .data after texture-layout
+data:texture-path  # .rodata between spider-def and way-group here (config/data_members.ntsc.txt); PAL links it in .data after texture-layout
 data:way-group
 ico2/common/src/PObj.c
-data:unmapped_00533FC0  # first in its .data run here, before item-kind-def (data_members.us.txt)
+data:unmapped_00533FC0  # first in its .data run here, before item-kind-def (data_members.ntsc.txt)
 data:item-kind-def
 data:mirror-motion-def
 data:model-path

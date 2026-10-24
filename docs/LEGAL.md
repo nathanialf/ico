@@ -26,9 +26,9 @@ respective owners.
 - The ICO disc image (`.bin`, `.iso`, `.cue` or any other form), in whole or
   in part: on this branch `baserom/Ico_USA.bin`, `baserom/Ico_USA.cue` and
   the cooked `baserom/Ico_USA.iso`.
-- Anything the build extracts from it: `baserom/us/baseelf.elf`,
-  `baserom/us/baseelf.rom` and `baserom/us/SYSTEM.CNF`, or the build output
-  under `build/us/`.
+- Anything the build extracts from it: `baserom/ntsc/baseelf.elf`,
+  `baserom/ntsc/baseelf.rom` and `baserom/ntsc/SYSTEM.CNF`, or the build output
+  under `build/ntsc/`.
 - The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
   `SCUS_971.13`, the prototypes), or any part of it.
 - Audio, images, textures, models, text or other assets from the disc.
@@ -52,16 +52,16 @@ The USA link includes the same 70 members of the game's archive `ico2000.a`
 that have data sections and no code as the PAL link (the PAL disc's
 MAIN.MAP), plus one of the three data runs MAIN.MAP does not list; PAL's
 other two, the hint table and the subtitle file names, are not in this
-build. `config/data_members.us.txt` lists them all. They are the game's
+build. `config/data_members.ntsc.txt` lists them all. They are the game's
 content: stage object layouts, model and motion file tables, sound
 definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
 other form.
 
-The build reads them from the user's own `baserom/us/baseelf.elf` and
-writes them under `build/us/data/`, which is gitignored. Each member is
-written as `build/us/data/<member>.c`, an initialized array of its record type
-from `config/data_schema.us.txt` that compiles with the game's flags
+The build reads them from the user's own `baserom/ntsc/baseelf.elf` and
+writes them under `build/ntsc/data/`, which is gitignored. Each member is
+written as `build/ntsc/data/<member>.c`, an initialized array of its record type
+from `config/data_schema.ntsc.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
 owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
@@ -166,14 +166,14 @@ gives it. Functions a data member points at
 were named by that member's key or by the record they address. A function
 with no PAL counterpart carries a derived name. The data-only members take
 PAL's names by member order. No address is copied from either PAL file:
-every address in `config/*.us.*` was found in the user's own ELF.
+every address in `config/*.ntsc.*` was found in the user's own ELF.
 
 Of the user's USA disc the build reads `SYSTEM.CNF`, to find the boot file,
 and `SCUS_971.13`: it checks the ELF's SHA-1 and generates the 71 data-only
 members from it (above). Every function, the five VU1 microprograms and
 Sony's libraries are compiled or assembled from the tracked sources; nothing
 of the code is read from the disc.
-`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/us/`.
+`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/ntsc/`.
 
 Where the USA build lays out a record differently from PAL's (eight of the
 data tables' record types among them), the layout was derived from the code
@@ -217,7 +217,7 @@ source and leaked SDKs stay forbidden on every branch.
 
 You must legally own a copy of *ICO* for the PlayStation 2 and supply the
 disc image yourself. The build checks the extracted ELF's SHA-1 before it
-proceeds and refuses any other file (`config/sha1sums.us.txt`,
+proceeds and refuses any other file (`config/sha1sums.ntsc.txt`,
 `docs/BUILDING.md`). A SHA-1 is a fingerprint, not a copy of the work; the
 disc image and the ELF remain the property of their rightsholders.
 

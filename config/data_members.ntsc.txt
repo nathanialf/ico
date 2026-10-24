@@ -1,4 +1,4 @@
-# config/data_members.us.txt -- the ICO USA retail ELF's data-only ico2000.a members.
+# config/data_members.ntsc.txt -- the ICO USA retail ELF's data-only ico2000.a members.
 #
 # One row per (member, section) for the members of
 # config/data_members.pal.txt that this ELF holds: the 70 members MAIN.MAP
@@ -7,14 +7,14 @@
 # PAL's rows have none here, hintTable (unmapped_002ADBA0) and jimakuFileName
 # (unmapped_0055FBD0): this build has neither table nor any code that reads
 # one (the group comments below say where each would sit). Each member, typed
-# by config/data_schema.us.txt, is written as one C translation unit by
+# by config/data_schema.ntsc.txt, is written as one C translation unit by
 # tools/gen_data_c.py (build/data/<member>.c, its rows the sections of that
 # one object), which reads this table and the user's own
-# baserom/us/baseelf.elf; the bytes are never committed.
+# baserom/ntsc/baseelf.elf; the bytes are never committed.
 #
 # Columns: <section> <member> <rom_lo> <rom_hi> <symbol>@<offset>,...
 #   section   the section the bytes occupy in the retail ELF
-#   rom_lo/hi VMA range [lo, hi) in baserom/us/baseelf.elf (rom offset + 0x100000)
+#   rom_lo/hi VMA range [lo, hi) in baserom/ntsc/baseelf.elf (rom offset + 0x100000)
 #   symbols   the PAL member's names (MAIN.MAP's, or the derived name its C
 #             reader uses), offset from rom_lo
 #
@@ -26,7 +26,7 @@
 #      a %hi/%lo pair or a $gp offset in the PAL function and the same
 #      instruction in the twin give the PAL address and this ELF's address of
 #      one datum. Where PAL's reader has no twin here, its USA counterpart is
-#      the function config/stubs.us.txt names after it (a body equal with
+#      the function config/stubs.ntsc.txt names after it (a body equal with
 #      immediates masked, or PAL's size and order); a member's base is pinned
 #      only when that function reads it. Every member's base read by code
 #      ("code:", the readers common to both builds) is pinned this way, and
