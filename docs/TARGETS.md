@@ -177,8 +177,9 @@ Japanese block), 65 Japanese conditions it shares (`#if defined(VERSION_JPN)
 conditions it also lacks (`#if !defined(VERSION_JPN) &&
 !defined(VERSION_KOR) && !defined(VERSION_NTSC)`). Where a comment names
 PAL's value only, the USA build's is the one in its arm. The branch `ntsc`
-(frozen at `8c99cc75a`, `ntsc-v1.0.0`) is the single-target tree this was
-joined from, and its `docs/README.md` lists the same differences.
+is the single-target tree this was joined from (at `8c99cc75a`,
+`ntsc-v1.0.0`; current release `ntsc-v1.0.1`, `67c876a25`), and its
+`docs/README.md` lists the same differences.
 
 Disc and video mode:
 
@@ -292,9 +293,9 @@ and clang-format would break the directive, which `tools/check_targets.py`
 does not read. Each block was placed by resolving its place for each earlier
 target and comparing with the branch's text, never by assumption. Where a
 comment names PAL's value only, the prototype's is the one in its arm. The
-branch `aug6` (frozen at `c8e730628`, `aug6-v1.0.0`) is the single-target
-tree this was joined from, and its `docs/README.md` lists the same
-differences.
+branch `aug6` is the single-target tree this was joined from (at
+`c8e730628`, `aug6-v1.0.0`; current release `aug6-v1.0.1`, `ba93991ed`),
+and its `docs/README.md` lists the same differences.
 
 Disc and video mode:
 
@@ -452,8 +453,9 @@ would break the directive, which `tools/check_targets.py` does not read.
 Each block was placed by resolving its place for each earlier target and
 comparing with the branch's text, never by assumption. Where a comment names
 PAL's value only, the demo's is the one in its arm. The branch `jun26`
-(frozen at `230819536`, `jun26-v1.0.0`) is the single-target tree this was
-joined from, and its `docs/README.md` lists the same differences.
+is the single-target tree this was joined from (at `230819536`,
+`jun26-v1.0.0`; current release `jun26-v1.0.1`, `654630aa7`), and its
+`docs/README.md` lists the same differences.
 
 Disc and video mode:
 

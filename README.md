@@ -273,12 +273,12 @@ target is chosen by `VERSION=<slug>`. Each target has its own
 | branch | targets | |
 | --- | --- | --- |
 | `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`), `kor` (Korean retail, SCPS-56001, `SCPS_560.01`), `ntsc` (USA retail, SLUS-20218, `SCUS_971.13`), `aug6` (the August 6, 2001 prototype, `SCUS_971.13`) and `jun26` (the June 26, 2001 demo, SCUS-97158, `CUS97113/SCPS_000.00`) | this document; all six gate here |
-| `pal` | `pal` | the single-target PAL tree as it was at `738b77d1f`, frozen |
-| `jpn` | `jpn` | the single-target Japanese tree as it was at `4506374a6`, frozen |
-| `kor` | `kor` | the single-target Korean tree as it was at `b65c0fcf4` (`kor-v1.0.0`), frozen |
-| `ntsc` | `ntsc` | the single-target USA tree as it was at `8c99cc75a` (`ntsc-v1.0.0`), frozen |
-| `aug6` | `aug6` | the single-target prototype tree as it was at `c8e730628` (`aug6-v1.0.0`), frozen |
-| `jun26` | `jun26` | the single-target demo tree as it was at `230819536` (`jun26-v1.0.0`), frozen |
+| `pal` | `pal` | the single-target PAL tree as it was at `738b77d1f`, frozen, but for hotfixes and main's shared layer; current release `pal-v1.0.4` (`0a09a8965`) |
+| `jpn` | `jpn` | the single-target Japanese tree as it was at `4506374a6`, frozen, but for hotfixes and main's shared layer; current release `jpn-v1.0.2` (`36d432ae4`) |
+| `kor` | `kor` | the single-target Korean tree as it was at `b65c0fcf4` (`kor-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `kor-v1.0.1` (`97b640aa0`) |
+| `ntsc` | `ntsc` | the single-target USA tree as it was at `8c99cc75a` (`ntsc-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `ntsc-v1.0.1` (`67c876a25`) |
+| `aug6` | `aug6` | the single-target prototype tree as it was at `c8e730628` (`aug6-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `aug6-v1.0.1` (`ba93991ed`) |
+| `jun26` | `jun26` | the single-target demo tree as it was at `230819536` (`jun26-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `jun26-v1.0.1` (`654630aa7`) |
 
 `pal`, `jpn`, `kor`, `ntsc`, `aug6` and `jun26` are history: new work lands
 on `main`, and a fix to one of their targets is ported to its branch as a
