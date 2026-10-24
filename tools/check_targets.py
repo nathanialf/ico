@@ -7,12 +7,14 @@ blocks, which tools/compile_c.sh defines for the target it builds. A target
 is configured when config/link_order.<slug>.txt exists. Five rules:
 
   1. Every source (.c, .s, .S, .dsm) is a row of at least one configured
-     target's link order.
+     target's link order, and every VU program text (.vsm) is the mate of a
+     listed .dsm (the same stem).
   2. Every source row of every configured link order is a file.
   3. No targets/ directory: a target's differences live in the shared file.
   4. A VERSION_<SLUG> name appears only in C sources and headers (.c, .h,
-     .c.inc; nothing preprocesses the assembly and VU sources), and only for
-     a configured slug.
+     .c.inc) and in the VU program text (.vsm), which the period cpp reads
+     with VERSION_<SLUG> defined (tools/gen_ninja.py's vucpp rule); nothing
+     preprocesses the .s and .dsm sources. Only a configured slug is named.
   5. A VERSION_<SLUG> name appears only in a version condition of one of
      these forms (version_condition below), each arm of a block covering the
      targets its condition names:
@@ -47,7 +49,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from ico_version import configured_versions, config_path, layer_files  # noqa: E402
 
 SOURCES = (".c", ".s", ".S", ".dsm")
-PREPROCESSED = (".c", ".h", ".inc")
+PREPROCESSED = (".c", ".h", ".inc", ".vsm")
 VERSION_NAME = re.compile(rb"\bVERSION_([A-Z0-9_]+)\b")
 
 _DIRECTIVE = re.compile(r"\s*#\s*(ifdef|ifndef|if|elif|else|endif)\b(.*)$")
@@ -159,10 +161,12 @@ def problems(root: Path = ROOT) -> list[str]:
         if p.endswith(SOURCES) and p not in listed:
             bad.append(f"{p}: in no configured target's link order"
                        f" (configured: {', '.join(slugs) or 'none'})")
+        if p.endswith(".vsm") and p[:-4] + ".dsm" not in listed:
+            bad.append(f"{p}: not the program text of a listed .dsm (the same stem)")
         # 4
         used = set(VERSION_NAME.findall((root / p).read_bytes()))
         if used and not p.endswith(PREPROCESSED):
-            bad.append(f"{p}: VERSION_ blocks work only in C sources and headers")
+            bad.append(f"{p}: VERSION_ blocks work only in C sources and headers and the VU program text")
         for u in sorted(used):
             if u.decode() not in names:
                 bad.append(f"{p}: VERSION_{u.decode()} names no configured target"
@@ -200,6 +204,14 @@ SELF_TEST = (
     ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_AUG6)\n#else\n#endif", 0),
     ("#if defined(VERSION_NTSC) || defined(VERSION_AUG6)\n#ifdef VERSION_AUG6\n#else\n#endif\n#else\n#endif", 0),
     ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n#else\n#ifdef VERSION_NTSC\n#else\n#ifdef VERSION_AUG6\n#else\n#endif\n#endif\n#endif", 0),
+    # a sixth target: named beside the fifth, nested inside its arm (the fourth's arm around
+    # both), excluded inside a three-name PAL-only block, or on its own at the fourth level
+    ("#if defined(VERSION_AUG6) || defined(VERSION_JUN26)\n#else\n#endif", 0),
+    ("#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)\n#endif", 0),
+    ("#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)\n#ifdef VERSION_JUN26\n#else\n#endif\n#else\n#endif", 0),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_JUN26)\n#else\n#endif", 0),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)\n#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)\n#endif\n#endif", 0),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n#else\n#ifdef VERSION_NTSC\n#else\n#ifdef VERSION_AUG6\n#else\n#ifdef VERSION_JUN26\n#else\n#endif\n#endif\n#endif\n#endif", 0),
     ("#if 0\n#ifdef VERSION_JPN\n#endif\n#elif 1\n#endif", 0),
     ("#if defined(VERSION_JPN) && defined(VERSION_KOR)\n#endif", 1),
     ("#if defined(VERSION_JPN) || !defined(VERSION_KOR)\n#endif", 1),
@@ -240,7 +252,14 @@ def self_test() -> int:
                              ("#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)", "aug6", False),
                              ("#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)", "jpn", True),
                              ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)", "aug6", True),
-                             ("#ifdef VERSION_AUG6", "ntsc", False)):
+                             ("#ifdef VERSION_AUG6", "ntsc", False),
+                             ("#if defined(VERSION_AUG6) || defined(VERSION_JUN26)", "jun26", True),
+                             ("#if defined(VERSION_AUG6) || defined(VERSION_JUN26)", "aug6", True),
+                             ("#if defined(VERSION_AUG6) || defined(VERSION_JUN26)", "ntsc", False),
+                             ("#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)", "jun26", False),
+                             ("#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)", "pal", True),
+                             ("#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)", "jun26", True),
+                             ("#ifdef VERSION_JUN26", "aug6", False)):
         _, slugs, positive = version_condition(line)
         ok = condition_holds(slugs, positive, slug) == want
         failed += not ok
