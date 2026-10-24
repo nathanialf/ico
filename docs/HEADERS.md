@@ -7,9 +7,9 @@ The evidence is the PAL disc's listing (`SRCFILE.TXT`, an
 `objdump -dl` of the game with a source path and line on every instruction)
 and its `MAIN.MAP`; both are copied into `baserom/pal/` by
 `tools/extract_elf.sh` and are never committed (`docs/LEGAL.md`). The
-Japanese and Korean discs ship neither: the headers are the PAL tree's, with
-the Japanese and Korean builds' declarations inline where they differ
-(per-target declarations, below). The listing
+Japanese, Korean and USA discs ship neither: the headers are the PAL tree's,
+with the other builds' declarations inline where they differ (per-target
+declarations, below). The listing
 contains no source text. A header shows up in it only when code from the
 header was compiled into a caller: a header that only declares leaves no
 rows at all.
@@ -27,7 +27,7 @@ the listing records for it, under the programmer directory that owns it.
 | `ico2/common/include/typedef.h` | one helper at line 74, inlined twice into `avoid_obstacle2` | the engine's shared object records (`GObj`, `Sub15C`, `Act`, ...) and the game's VU0 asm templates |
 | `ico2/omori/include/{b50,b100,b200}climb.h` | whole functions, emitted into `fumi/src/boyact.c`'s object | the boy's climb handlers |
 | `ico2/omori/include/{g50,g100,g200}climb.h` | whole functions, emitted into `fumi/src/girl_act.c`'s object | the girl's climb handlers |
-| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x00619370` (Japanese build `0x00612710`, Korean `0x00612520`) names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1637; 1621 in the Japanese and Korean builds), the size of `charFileManager.c`'s character-file table and the bound its four id checks compare against |
+| `ico2/common/include/charFileName.h` | no listing rows; the ROM's message at `0x00619370` (Japanese build `0x00612710`, Korean `0x00612520`, USA `0x00612A30`) names `commmon/include/charFileName.h` (the typo is the message's) | `MAX_CHARS` (1637; 1621 in the Japanese and Korean builds, 1582 in the USA one), the size of `charFileManager.c`'s character-file table and the bound its four id checks compare against |
 
 Things a reader of these files should know:
 
@@ -45,7 +45,7 @@ Things a reader of these files should know:
   The tracked file's line numbers are not the listing's.
 - **Line numbers that are part of the bytes.** `mv_defs.h`'s allocator bakes
   `__FILE__` and `__LINE__` into the ROM (`"../ito/include/mv_defs.h"`, lines
-  43 and 44; 42 and 43 in the Japanese and Korean builds), and `typedef.h`'s helper must
+  43 and 44; 42 and 43 in the Japanese, Korean and USA builds), and `typedef.h`'s helper must
   stay on line 74. Neither file may be reflowed.
 - **The climb headers hold no bodies.** ee-gcc 2.9 emits ordinary functions
   in parse order and `inline` ones at the end of the file. In each includer
@@ -98,8 +98,8 @@ Files named `*_internal.h` hold declarations that are not public API, and their 
 are this project's, as is `sce/libsndn2/sound.h`, named after its member
 `sound.o`; the movie player's audio decoder takes the stream PCM calls from
 it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
-header compiled code into the game. The Japanese and Korean links have no
-`libscf` member, so `sce/libscf/` is listed only in PAL's link order.
+header compiled code into the game. The Japanese, Korean and USA links have
+no `libscf` member, so `sce/libscf/` is listed only in PAL's link order.
 
 ## Per-target declarations
 
@@ -125,6 +125,27 @@ and every reader of the Japanese and Korean builds compiles that block. The reco
 `act.c`'s own `ActExt`, the extended work block, has its three histories
 16 bytes lower than PAL's (0x8F0, 0x918, 0x940).
 
+Where the USA build lays out a record differently, the owner's header holds
+its layout in a `VERSION_NTSC` block (nested in the PAL arm where a Japanese
+block stands), and every reader of the USA build compiles it
+(`docs/TARGETS.md`). The records:
+
+| record | header | the USA layout |
+| --- | --- | --- |
+| `Act` | `common/include/typedef.h` | `actMode` at 0x30 (PAL 0x34), `env` at 0x4A0 (PAL 0x4B0) |
+| `Sub15C` | `common/include/typedef.h` | `motionBuf` at 0x78C (PAL 0x7B4), the node records at 0x840 (PAL 0x870) |
+| `StageSetting` | `common/include/typedef.h` | ends at `pad124`: the target colours, grain scale, camera limits and anti levels PAL has from 0x130 are not in it |
+| `ActWork` | `fumi/include/act-game.h` | no `boxDir`: `wayReq` 0x4B0, `viewState` 0x730, `intrReq` 0x7E0 (PAL 0x580, 0x800, 0x8B0) |
+| `MotionDef` (motion-def) | `sugipon/include/motionOrientManager.h` | 0x190 bytes (PAL 0x194) |
+| `TexRec` (texture-path) | `common/include/charFileManager.h` | `char path[32]`, 0x20 bytes (PAL `char path[48]` and `cameraMove`, 0x34 bytes) |
+| `PObjMdl` (model-path) | `common/include/charFileManager.h` | 0x10C bytes: a model path and a shadow model path before the skeleton path (PAL 0x8C, without the two) |
+| `McProductFile` | `common/include/typedef.h` | 0x18C bytes (PAL 0x1F0) |
+| `VoTag`, `VoData` | `ito/include/mv_vobuf.h` | sized for a 720 x 480 picture (PAL 720 x 576) |
+
+`flag.h`'s `FLAG_ALLOC_NODES` takes the caller's source line as a third
+argument, which `flag.c` spells with `LN` (the original passed
+`__LINE__`).
+
 ## Derived names
 
 The disc records no field names and no names for inlined helpers. A name
@@ -139,7 +160,9 @@ builds derive
 step, as the August 6, 2001 prototype's `TRFILE.TXT` does), `DummyIcoMisc`
 (`common/src/icoMisc.c`, an empty function only those builds have),
 `bga_updateMotionFrame` and `bgaRotDeg` (`seki/src/BgAnimation.c`) and
-`warning_mes` (`script/src/e3.c`).
+`warning_mes` (`script/src/e3.c`). The USA build derives names for the
+objects and functions only it has or splits differently (`git grep -n
+'derived name'` inside the `VERSION_NTSC` blocks lists them).
 
 ## Search order
 

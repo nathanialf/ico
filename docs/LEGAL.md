@@ -55,8 +55,10 @@ suspect a file in this repository breaks these rules, open an issue tagged
 
 Each disc's link includes 70 members of the game's archive `ico2000.a` that
 have data sections and no code (MAIN.MAP of the PAL disc; the Japanese and
-Korean links have the same set), plus three data runs MAIN.MAP does not list;
-`config/data_members.<slug>.txt` lists them all for each target (73 runs). They
+Korean links have the same set, the USA link all but the hint table and the
+subtitle file names), plus three data runs MAIN.MAP does not list;
+`config/data_members.<slug>.txt` lists them all for each target (73 runs, 71
+for `ntsc`). They
 are the game's content: stage object layouts, model and motion file tables,
 sound definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
@@ -202,6 +204,41 @@ tracked sources; nothing of the code is read from the disc.
 `tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/kor/`.
 The disc's other files (its data archive `DFDATAS/DATA.DF`, the IOP modules
 and `IOPRP224.IMG`) are never read by the build and never committed.
+
+## USA retail disc (`ntsc`)
+
+The USA retail disc (`SLUS-20218`, boot ELF `SCUS_971.13`, `SYSTEM.CNF`
+`VER = 1.00`) ships no linker map, listing or address table next to its boot
+ELF either. Its names come from the PAL disc's listing above, by
+instruction-stream correlation (`tools/correlate_elf.py`): each function of
+the USA ELF is paired with a PAL function whose instructions, relocated
+fields masked, are the same, and takes that function's name. Where the
+census paired two functions only by their position inside a run of unpaired
+ones, and where a USA function no PAL function claimed was tied by other
+evidence to a PAL function the census left without a twin (a body equal
+with immediates and jump targets masked, PAL's size and order, call sites,
+data tables, callees or body alignment), the pairing was checked by
+rebuilding the function from the PAL function's source with the USA build's
+changes until the gate passed; every function of the tree compiles to the
+USA bytes at the address the link gives it. Functions a data member points
+at were named by that member's key or by the record they address. A
+function with no PAL counterpart carries a derived name. The data-only
+members take PAL's names by member order. No address is copied from either
+PAL file: every address in `config/*.ntsc.*` was found in the user's own
+ELF.
+
+Of the user's USA disc the build reads `SYSTEM.CNF`, to find the boot file,
+and `SCUS_971.13`: it checks the ELF's SHA-1 and generates the 71 data-only
+members from it (above). Every function, the five VU1 microprograms and
+Sony's libraries are compiled or assembled from the tracked sources; nothing
+of the code is read from the disc. `tools/extract_elf.sh` first cooks the
+raw `.bin` into `baserom/Ico_USA.iso`, then copies `SYSTEM.CNF` into
+gitignored `baserom/ntsc/`.
+
+Where the USA build lays out a record differently from PAL's (eight of the
+data tables' record types among them), the layout was derived from the code
+that reads it in both builds (the field offsets each twin function's loads
+and stores use), not from any other source.
 
 ## Prototype symbol maps (`aug6`)
 

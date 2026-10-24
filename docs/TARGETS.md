@@ -4,8 +4,8 @@ What differs between the targets of this tree. One tree (`ico2/`, `sce/`)
 builds every target: its base text is the PAL revision, and where another
 target differs the file holds that target's lines inline in
 `VERSION_<SLUG>` blocks (`docs/BUILDING.md`, "Targets and version
-blocks"); `grep -rn VERSION_JPN ico2` and `grep -rn VERSION_KOR ico2` list
-every place. This file
+blocks"); `grep -rn VERSION_JPN ico2`, `grep -rn VERSION_KOR ico2` and
+`grep -rn VERSION_NTSC ico2` list every place. This file
 records, per target, where its build differs from PAL's and why; the file or
 function named at each line is where to read the detail. A target that joins
 later gets its own section here.
@@ -160,3 +160,103 @@ Link order. `puddle.c`, `waterDot.c` and `windmill.c` link in PAL's places
 `config/link_order.kor.txt` and `config/data_members.kor.txt` say how each
 place was measured. As in the Japanese link, `libscf` is absent and
 `texture-path` is in `.rodata`.
+
+## USA retail (`ntsc`): how the build differs from PAL's
+
+The `VERSION_NTSC` blocks hold the USA build's differences from the PAL
+text. The USA build is the earliest of the four retail links: the debug
+menu's `DISC VER.` line (`debug.c`) dates it `Aug 20 2001 22:01:44`, the
+Japanese build `Nov  2 2001`, the Korean `Jan  9 2002` and PAL's
+`Jan 17 2002`, and the version string in `gamesys.c` reads `08/18/01
+22:22:20`. Its text is PAL's with 189 files changed, many of them in whole
+functions: 1888 blocks name it, 1476 `#ifdef VERSION_NTSC` and 321 `#ifndef
+VERSION_NTSC` against PAL's lines (132 of them nested in the PAL arm of a
+Japanese block), 65 Japanese conditions it shares (`#if defined(VERSION_JPN)
+|| defined(VERSION_KOR) || defined(VERSION_NTSC)`) and 26 PAL-only
+conditions it also lacks (`#if !defined(VERSION_JPN) &&
+!defined(VERSION_KOR) && !defined(VERSION_NTSC)`). Where a comment names
+PAL's value only, the USA build's is the one in its arm. The branch `ntsc`
+(frozen at `8c99cc75a`, `ntsc-v1.0.0`) is the single-target tree this was
+joined from, and its `docs/README.md` lists the same differences.
+
+Disc and video mode:
+
+- `SYSTEM.CNF` reads `VER = 1.00`, `VMODE = NTSC`. The build is NTSC like
+  the Japanese and Korean ones: `systemStatus` starts at 0 (`main.c`), the
+  movie is 720 x 480 (`Main`, `mv_vobuf.h`) and `setDispEnv` sizes the
+  display from the picture (`mv_disp.c` shares the Japanese conditions
+  there).
+- The disc is `SCUS_971.13` (`cdvd.c`) and the memory card directory
+  `BASCUS-97113ico` (`mcard.c`); the product file has no `controlType`,
+  `cameraMove` or `palMode`, and the game block is one 25596-byte write
+  with no `optionScreenMode` and `girlControlMode` words after it
+  (`gameblock_write`, `gameblock_read`). `IosMcPreviewInfo` has 4 words
+  (PAL 6).
+- The five VU1 programs' constant-address overlays hold the byte 0x6E, as
+  on the Japanese disc: `overlay-fill=110` on each `.dsm` line of
+  `config/link_order.ntsc.txt`. The `.dsm` headers name the programs' USA
+  addresses.
+
+Ids and numbers:
+
+- Stage animation, layout, mail and global-flag ids are lower throughout the
+  stage scripts (`st22a.c`: the lightning animations are 684 and 685 for
+  PAL's 758 and 759 and the Japanese 754 and 755, the intro mail 397 and 396
+  for 430 and 429, the layout 50 for 54, the flag 294 for 323).
+- `charFileName.h`'s `MAX_CHARS` is 1582 (PAL 1637, JPN and KOR 1621).
+- The debug-option table has 69 records (PAL 76) (`debug.c`).
+- The heap's root partition starts at 0x780000, as in the Japanese build
+  (PAL 0x760000) (`iosInitialize`).
+- The assertion and allocation line numbers are the fourth argument of
+  every `LN(...)`: the USA build's own at the 97 sites it compiles
+  (`FileManager.c` 312 for PAL's 349 and the Japanese 331, `mv_defs.h` 42
+  and 43 like JPN and KOR, `flag.c` 31, 39, 46, 65 and 77 for PAL's 87, 95,
+  102, 132 and 145), PAL's at a site in an arm it does not compile.
+
+Data and records (`docs/HEADERS.md` has the layouts):
+
+- The link has 71 data-only runs (PAL and KOR 73): PAL's hint table and
+  subtitle file names are not in it, and no code here reads either. Most
+  tables hold fewer rows, and eight record types have another layout; each
+  row of `config/data_members.ntsc.txt` says how its member compares with
+  PAL's.
+- `Act` has `actMode` at 0x30 and `env` at 0x4A0 (PAL 0x34 and 0x4B0);
+  `Sub15C` has `motionBuf` at 0x78C (PAL 0x7B4) and its node records at
+  0x840 (PAL 0x870); `ActWork` has no `boxDir` (`wayReq` 0x4B0,
+  `viewState` 0x730, `intrReq` 0x7E0; PAL 0x580, 0x800, 0x8B0); `MotionDef`
+  is 0x190 bytes (PAL 0x194); `TexRec` is `char path[32]`, 0x20 bytes;
+  `PObjMdl` is 0x10C bytes with a model path and a shadow model path before
+  the skeleton path (PAL 0x8C); `McProductFile` is 0x18C bytes (PAL 0x1F0);
+  `StageSetting` ends at `pad124` (PAL's target colours, grain scale, camera
+  limits and anti levels from 0x130 are not in it); `VoTag` and `VoData`
+  are sized for the 720 x 480 picture.
+- `typedef.h`'s `GOBJ_SUB` reads the 0x15C word through its `IntFloat`
+  view in the USA arm and as `*(int *)` in the others. Both compile to
+  their targets' bytes; the branch measured the union view as the same
+  code for every reader of its tree (the comment at the macro), and the
+  join keeps each target's spelling rather than re-measure the other
+  three.
+
+Code only this build has, or lacks:
+
+- Absent: Sony's `libscf`; `sugipon`'s `puddle.c`, `waterDot.c` and
+  `windmill.c`; the hint system (`Hint_Init`, `MakeHintSaveInfo`,
+  `ReadHintSaveInfo`, `FinishHint`, `actGirlHintVoice`); `libcdvd`'s
+  `sceCdReadClock` (`libcdvd_267388.c`); `SetFlag4PointFixID` and the
+  fixed four-point flag, `InitFlagGeo`'s cloth type 4 (`flag.c`); and many
+  smaller functions of the stage scripts and the action layer.
+- Only here, among others: `actBoyItem`, `afterCommonItem`,
+  `actSt17bIntro`, `actSt47aSekizo3` and `actSt47aSekizo4`, which the
+  August 6, 2001 prototype's `TRFILE.TXT` and `MAIN.MAP` name and PAL's
+  `TRFILE.TXT` does not, and `bga_updateMotionFrame` (`BgAnimation.c`, a
+  derived name).
+- `subGirlControl` (`girl_act.c`): the girl's slow-walk states ran a debug
+  display that every retail build compiles out. The ROM fixes its strings,
+  their order, the number of calls to body-less helpers and the size of its
+  locals, but not the statements themselves; the USA arm's block is an
+  educated guess, marked in the source as a draft with unverified ordering.
+
+Link order. The USA disc ships no map, so `config/link_order.ntsc.txt` is
+PAL's order carried over by the function census (`tools/correlate_elf.py`),
+each departure explained on its line; the USA link has 539 objects (PAL
+547). As in the Japanese and Korean links, `libscf` is absent.
