@@ -238,6 +238,12 @@ SELF_TEST = (
     ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n\nint a;\n\n#else\n\n#ifdef VERSION_NTSC\n\nint n;\n\n"
      "#else\n\nint b;\n\n#endif\n\n#endif\nint c;\n",
      "#if defined(VERSION_JPN) || defined(VERSION_KOR)\nint a;\n#else\n#ifdef VERSION_NTSC\nint n;\n#else\nint b;\n#endif\n#endif\n\nint c;\n"),
+    # a fifth target's block inside the fourth's arm, and a block of its own at the third level
+    ("#if defined(VERSION_NTSC) || defined(VERSION_AUG6)\n\n#ifdef VERSION_AUG6\n\nint a;\n\n#else\n\nint n;\n\n#endif\n\n#else\n\nint p;\n\n#endif\nint c;\n",
+     "#if defined(VERSION_NTSC) || defined(VERSION_AUG6)\n#ifdef VERSION_AUG6\nint a;\n#else\nint n;\n#endif\n#else\nint p;\n#endif\n\nint c;\n"),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n\nint j;\n\n#else\n\n#ifdef VERSION_NTSC\n\nint n;\n\n#else\n\n#ifdef VERSION_AUG6\n\nint a;\n\n"
+     "#else\n\nint p;\n\n#endif\n\n#endif\n\n#endif\n",
+     "#if defined(VERSION_JPN) || defined(VERSION_KOR)\nint j;\n#else\n#ifdef VERSION_NTSC\nint n;\n#else\n#ifdef VERSION_AUG6\nint a;\n#else\nint p;\n#endif\n#endif\n#endif\n"),
 )
 
 

@@ -274,6 +274,14 @@ VERSION_LINES_SELF_TEST = (
      {"pal": "p", "jpn": "jkn", "kor": "jkn", "ntsc": "jkn"}),
     ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)\np\n#endif",
      {"pal": "p", "jpn": "", "kor": "", "ntsc": ""}),
+    # a fifth target named beside the fourth, with its own block inside that arm, or nested in the PAL arm of both
+    ("#if defined(VERSION_NTSC) || defined(VERSION_AUG6)\n#ifdef VERSION_AUG6\na\n#else\nn\n#endif\nna\n#else\np\n#endif",
+     {"pal": "p", "jpn": "p", "ntsc": "n na", "aug6": "a na"}),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\njk\n#else\n#ifdef VERSION_NTSC\nn\n#else\n#ifdef VERSION_AUG6\na\n#else\np\n#endif\n#endif\n#endif",
+     {"pal": "p", "kor": "jk", "ntsc": "n", "aug6": "a"}),
+    ("#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)\np\n#endif", {"pal": "p", "jpn": "p", "ntsc": "", "aug6": ""}),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)\njka\n#else\np\n#endif",
+     {"pal": "p", "jpn": "jka", "ntsc": "p", "aug6": "jka"}),
 )
 
 
