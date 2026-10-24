@@ -1,25 +1,25 @@
-# config/link_order.kor.txt: the objects of the KOR link, one per line, in link order.
+# config/link_order.cn.txt: the objects of the CN link, one per line, in link order.
 #
-# The Korean disc (SCPS-56001) ships no linker map, so this order is PAL's
+# The Asian disc (SCPS-55001) ships no linker map, so this order is PAL's
 # (config/link_order.pal.txt on main, MAIN.MAP's object order) carried over by
 # the function census, tools/correlate_elf.py: each PAL object keeps its place
-# while its .text twins in the KOR ELF keep the same relative order. A line
+# while its .text twins in the CN ELF keep the same relative order. A line
 # that departs from PAL's order says why in a comment on the line. Every output
-# section of config/link.kor.ld takes its inputs in this one order.
+# section of config/link.cn.ld takes its inputs in this one order.
 # tools/gen_ninja.py reads this file and fails on any tracked .c/.s/.dsm under
 # ico2/ or sce/ that is missing here, and on any listed file that does not
-# exist. tools/ico_version.{py,sh} detect the target (kor) by this file's
+# exist. tools/ico_version.{py,sh} detect the target (cn) by this file's
 # existence.
 #
 # Line forms:
 #   <path>             a source file (.c compiled by tools/compile_c.sh, .s
 #                      assembled per archive, ico2/vusrc/*.dsm by dvp-as)
 #   data:<member>      a data-only ico2000.a member: every row of
-#                      config/data_members.kor.txt for it, generated from the
+#                      config/data_members.cn.txt for it, generated from the
 #                      user's base ELF at build time by tools/gen_data_c.py from
-#                      the record types config/data_schema.kor.txt names. The
+#                      the record types config/data_schema.cn.txt names. The
 #                      data: lines are PAL's members in PAL's places, but for
-#                      texture-path, which config/data_members.kor.txt places
+#                      texture-path, which config/data_members.cn.txt places
 #                      in .rodata.
 #
 # Tokens after a path:
@@ -31,7 +31,7 @@
 #                      INCLUDEs) with an ALIGN before the object; otherwise
 #                      the file is empty and the script's wildcards alone
 #                      place the section. Each token below was measured on
-#                      the KOR ELF, and the comment above it gives the KOR
+#                      the CN ELF, and the comment above it gives the CN
 #                      address and the fill before it.
 #   overlay-fill=N     on a .dsm line: the byte, decimal 0 to 255, that
 #                      dvp-as repeats over the program's constant-address
@@ -39,20 +39,20 @@
 #                      tools/binutils-dvp-overlay-fill.patch). It is the
 #                      period assembler's uninitialised heap memory, measured
 #                      on the disc's ELF, not a feature of the source. The
-#                      KOR ELF holds zero in all twelve overlays, as PAL's
-#                      does (the JPN ELF has 0x6E in the five), so no line
+#                      CN ELF holds zero in all twelve overlays, as PAL's
+#                      and the KOR ELF's do (the JPN ELF has 0x6E in the five), so no line
 #                      here carries the token.
 #
 # No object owns these zero runs at the section boundaries (ROM offsets, VMA
-# minus 0x100000, from the KOR ELF's section headers): 0x18CC40, the 64 bytes
-# after .vutext (.reginfo is not allocated, the gap is fill); 0x448438, past the
-# end of .data; 0x533524, past the end of .lit4. Every other run of fill inside
+# minus 0x100000, from the CN ELF's section headers): 0x18CC00, the 128 bytes
+# after .vutext (.reginfo is not allocated, the gap is fill); 0x4486F8, past the
+# end of .data; 0x5337A4, past the end of .lit4. Every other run of fill inside
 # a section is reproduced by the next object's own alignment or a token below.
 #
 # Departures from PAL's order:
 #   sce/libscf/libscf.c, between ipuinit.c and sound.c in PAL's order, is not
 #   here: none of its 21 functions has a twin and its .data and .rodata bytes
-#   are not in the KOR ELF, so the member is not in the KOR link, and the
+#   are not in the CN ELF, so the member is not in the CN link, and the
 #   source is not on this branch, and neither is its header: this build's
 #   kanbanBoot.c calls nothing of it.
 
@@ -68,7 +68,7 @@ ico2/common/src/main.c
 ico2/sugipon/src/delayFreeManager.c
 ico2/sugipon/src/geometryManager.c
 ico2/sugipon/src/keyInput.c
-# ico2/sugipon/src/matrixDrive.c .data starts 16-aligned at 0x28DDF0, 8 B after its predecessor; the object's section is 8-aligned
+# ico2/sugipon/src/matrixDrive.c .data starts 16-aligned at 0x28DE70, 8 B after its predecessor; the object's section is 8-aligned
 ico2/sugipon/src/matrixDrive.c align.data=16
 ico2/sugipon/src/motionManager2.c
 ico2/sugipon/src/pool.c
@@ -79,7 +79,7 @@ ico2/seki/src/FileManager.c
 ico2/seki/src/GifPacket.c
 ico2/seki/src/GsBase.c
 ico2/seki/src/Light.c
-# ico2/seki/src/Matrix.c .data starts 16-aligned at 0x28E7E0, 12 B after its predecessor; the object's section is 8-aligned
+# ico2/seki/src/Matrix.c .data starts 16-aligned at 0x28E860, 12 B after its predecessor; the object's section is 8-aligned
 ico2/seki/src/Matrix.c align.data=16
 ico2/seki/src/MicroCode.c
 ico2/seki/src/Packet.c
@@ -119,10 +119,10 @@ ico2/fumi/src/fuzio.c
 ico2/fumi/src/girl_act.c
 ico2/fumi/src/jimaku.c
 ico2/fumi/src/way_sys.c
-# ico2/fumi/src/way_util.c .rodata starts 16-aligned at 0x54F3E0 in the KOR ELF, 13 B after way_sys.o's last string; the object's section is 8-aligned
+# ico2/fumi/src/way_util.c .rodata starts 16-aligned at 0x54F660 in the CN ELF, 13 B after way_sys.o's last string; the object's section is 8-aligned
 ico2/fumi/src/way_util.c align.rodata=16
 ico2/script/src/gflag.c
-# ico2/script/src/script.c .data starts 16-aligned at 0x2A3000, 14 B after its predecessor; the object's section is 8-aligned
+# ico2/script/src/script.c .data starts 16-aligned at 0x2A3080, 14 B after its predecessor; the object's section is 8-aligned
 ico2/script/src/script.c align.data=16
 ico2/script/src/st25a.c
 ico2/script/src/warpGirl.c
@@ -200,7 +200,7 @@ data:stage-anim
 data:stream-motion-def
 data:tex-property
 data:weapon-def
-ico2/common/src/DObj.c align.data=16  # KOR: weapon-def ends at 0x3159D8 and DObj.o's .data starts at 0x3159E0 (its reads at +0x880 sit at 0x316260)
+ico2/common/src/DObj.c align.data=16  # CN: weapon-def ends at 0x315C78 and DObj.o's .data starts at 0x315C80 (its reads at +0x880 sit at 0x316500)
 ico2/common/src/StageManager.c
 ico2/common/src/backStage.c
 ico2/common/src/charFileManager.c
@@ -287,7 +287,7 @@ ico2/fumi/src/way_kidnap.c
 ico2/fumi/src/way_llf.c
 ico2/fumi/src/way_tool.c
 ico2/script/src/deja.c
-# ico2/script/src/e3.c .data starts 16-aligned at 0x4F4540, 8 B after its predecessor; the object's section is 8-aligned
+# ico2/script/src/e3.c .data starts 16-aligned at 0x4F4680, 8 B after its predecessor; the object's section is 8-aligned
 ico2/script/src/e3.c align.data=16
 ico2/script/src/end.c
 ico2/script/src/op.c
@@ -353,7 +353,7 @@ data:obj-trigger
 data:parallel-motion-orient
 data:particle-effect
 data:spider-def
-data:texture-path  # .rodata between spider-def and way-group here (config/data_members.kor.txt), where MAIN.MAP also puts it; PAL links it in .data after texture-layout
+data:texture-path  # .rodata between spider-def and way-group here (config/data_members.cn.txt), where MAIN.MAP also puts it; PAL links it in .data after texture-layout
 data:way-group
 ico2/common/src/PObj.c
 data:item-kind-def

@@ -23,6 +23,6 @@ ParticleMicroProgram:
 ; the text it is in, "" for standard input, vusrc/<name>.h in an include.
 ;
 ; Re-derived from published VU0/VU1 documentation; .vutext is identical
-; in the Aug-6-2001 prototype and the USA, PAL, Japanese and Korean retail. The
+; in the Aug-6-2001 prototype and the USA, PAL, Japanese, Korean and Asian retail. The
 ; labels are the DVP assembler's own, from the PAL listing's .vutext table
 ; (spelled _$NAME there, the copy dvp-as makes), each at the listing's address.

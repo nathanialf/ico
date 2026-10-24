@@ -3,8 +3,8 @@
 [ico-pc](https://github.com/nathanialf/ico-pc) is a fork of this repository
 that is being turned into a native PC port (64-bit Linux and Windows). Its
 reference is `main`, which rebuilds the PAL boot ELF with the period
-toolchain and holds no disc data. This branch rebuilds the Korean boot ELF
-the same way and is a reference for the Korean build only; the port does
+toolchain and holds no disc data. This branch rebuilds the Asian boot ELF
+the same way and is a reference for the Asian build only; the port does
 not build on it. The port keeps the game code under `ico2/` but builds it
 with a modern host compiler and drops byte matching.
 
@@ -41,7 +41,7 @@ git merge upstream/main
 
 Conflicts in `ico2/` are resolved in favour of keeping the port's host
 changes while taking the upstream names, types and fixes. Only `main` is
-merged; the `kor`, `ntsc`, `aug6` and `jun26` branches are not part of the port.
+merged; the `cn`, `kor`, `ntsc`, `aug6` and `jun26` branches are not part of the port.
 
 ## Byte matching
 

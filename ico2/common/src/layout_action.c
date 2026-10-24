@@ -654,10 +654,10 @@ int la_vibe_select(void)
     if (lt_fade_status() == 2 && (pad[0].flags & 0x820)) {
         soundSeDefPlay(415, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
-        case 8:
+        case 14:
             iosPadActRequestEnable = 1;
             break;
-        case 9:
+        case 15:
             iosPadActRequestEnable = 0;
             break;
         }
@@ -725,23 +725,23 @@ int la_title_continue_or_new(int first)
     }
     if (continueDecided != 0) {
         lt_item_select_disable = 0;
-        lt_mask_property(14, 0);
-        lt_mask_property(15, 0);
+        lt_mask_property(20, 0);
+        lt_mask_property(21, 0);
     } else {
         lt_item_select_disable = 1;
-        lt_mask_property(14, 1);
-        lt_mask_property(15, 1);
+        lt_mask_property(20, 1);
+        lt_mask_property(21, 1);
     }
     if (continueDecided != 0 && (pad[0].flags & 0x820) && lt_fade_status() == 2) {
         lt_continue_selected = 1;
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
         switch (lt_current_property_item()) {
-        case 14:
+        case 20:
             opTitleLogoMode = 2;
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x11;
-        case 15:
+        case 21:
             opTitleLogoMode = 2;
             gFlagGameClear = 0;
             lt_set_item_select_func(0);
@@ -788,10 +788,10 @@ int la_title_new_game_only(int first)
     }
     if (newGameDecided != 0) {
         lt_item_select_disable = 0;
-        lt_mask_property(16, 0);
+        lt_mask_property(22, 0);
     } else {
         lt_item_select_disable = 1;
-        lt_mask_property(16, 1);
+        lt_mask_property(22, 1);
     }
     if (newGameDecided != 0 && (pad[0].flags & 0x820) && lt_fade_status() == 2) {
         soundSeDefPlay(414, 0xFFFFFFFF, 0, 0);
@@ -834,7 +834,7 @@ static int fileFirst = 1; /* derived name */
 
 static inline int la_mc_saved_file_select(int item)
 {
-    int i = item - 27;
+    int i = item - 33;
     int old = i;
 
     lt_analog2Pad();
@@ -860,7 +860,7 @@ static inline int la_mc_saved_file_select(int item)
     if (old != i) {
         CUR_SE();
     }
-    return i + 27;
+    return i + 33;
 }
 
 /* the selected port's current file number, 0 when the port has no card or
@@ -890,7 +890,7 @@ int la_mc_file_select(int first)
 {
     int i;
 
-    curFile = lt_current_property_item() - 27;
+    curFile = lt_current_property_item() - 33;
 
     if (first) {
         fileFirst = 1;
@@ -909,17 +909,17 @@ int la_mc_file_select(int first)
         } else {
             curFile = mcFileNoOfPort();
         }
-        texLayout[11].curItem = curFile + 27;
+        texLayout[11].curItem = curFile + 33;
         fileMoved = 1;
     }
 
     for (i = 0; i < 10; i++) {
         if (((fileMask >> i) & 1) && IosMcProductFile[filePort].file[i].stage != 0xFFFFFFFF) {
-            lt_mask_property(i + 27, 0);
-            lt_mask_property(i + 17, 1);
+            lt_mask_property(i + 33, 0);
+            lt_mask_property(i + 23, 1);
         } else {
-            lt_mask_property(i + 27, 1);
-            lt_mask_property(i + 17, 0);
+            lt_mask_property(i + 33, 1);
+            lt_mask_property(i + 23, 0);
         }
     }
 
@@ -933,19 +933,19 @@ static void _la_mask_preview_info(void)
     int i;
 
     for (i = 0; i < 10; i++) {
-        lt_mask_property(i + 41, 1);
-        lt_mask_property(i + 51, 1);
-        lt_mask_property(i + 61, 1);
-        lt_mask_property(i + 71, 1);
-        lt_mask_property(i + 81, 1);
-        lt_mask_property(i + 91, 1);
+        lt_mask_property(i + 47, 1);
+        lt_mask_property(i + 57, 1);
+        lt_mask_property(i + 67, 1);
+        lt_mask_property(i + 77, 1);
+        lt_mask_property(i + 87, 1);
+        lt_mask_property(i + 97, 1);
     }
-    lt_mask_property(39, 1);
-    lt_mask_property(40, 1);
+    lt_mask_property(45, 1);
+    lt_mask_property(46, 1);
     for (i = 0; i < 39; i++) {
-        lt_mask_property(i + 102, 1);
+        lt_mask_property(i + 108, 1);
     }
-    lt_mask_property(101, 1);
+    lt_mask_property(107, 1);
 }
 
 /* the play time of a save record split into hours, minutes and seconds and
@@ -988,14 +988,14 @@ static void _la_set_preview_info(void)
     min = ((min / 10 + 9) % 10) * 10 + (min % 10 + 9) % 10;
     sec = ((sec / 10 + 9) % 10) * 10 + (sec % 10 + 9) % 10;
 
-    lt_mask_property(41 + hour / 10, 0);
-    lt_mask_property(51 + hour % 10, 0);
-    lt_mask_property(61 + min / 10, 0);
-    lt_mask_property(71 + min % 10, 0);
-    lt_mask_property(81 + sec / 10, 0);
-    lt_mask_property(91 + sec % 10, 0);
-    lt_mask_property(39, 0);
-    lt_mask_property(40, 0);
+    lt_mask_property(47 + hour / 10, 0);
+    lt_mask_property(57 + hour % 10, 0);
+    lt_mask_property(67 + min / 10, 0);
+    lt_mask_property(77 + min % 10, 0);
+    lt_mask_property(87 + sec / 10, 0);
+    lt_mask_property(97 + sec % 10, 0);
+    lt_mask_property(45, 0);
+    lt_mask_property(46, 0);
 
     n = previewInfo.stage;
     if (n == 61) {
@@ -1010,9 +1010,9 @@ static void _la_set_preview_info(void)
             n = 40;
             break;
         }
-        lt_mask_property(n + 99, 0);
+        lt_mask_property(n + 105, 0);
         if (previewInfo.cleared != 0) {
-            lt_mask_property(101, 0);
+            lt_mask_property(107, 0);
         }
     }
 }
@@ -1030,8 +1030,8 @@ inline int la_mc_preview_info(void)
 
 inline int la_mc_current_slot(void)
 {
-    lt_mask_property(141, curPort);
-    lt_mask_property(142, curPort ^ 1);
+    lt_mask_property(147, curPort);
+    lt_mask_property(148, curPort ^ 1);
     return -1;
 }
 
@@ -1040,9 +1040,9 @@ inline int la_mc_current_slot(void)
 static inline void setLoadGameStartItem(void) /* derived name */
 {
     if (loadSerial == IosMcProductFile[0].serial || saveSerial != IosMcProductFile[1].serial) {
-        texLayout[14].defaultItem = 152;
+        texLayout[14].defaultItem = 158;
     } else {
-        texLayout[14].defaultItem = 153;
+        texLayout[14].defaultItem = 159;
     }
 }
 
@@ -1050,8 +1050,8 @@ int la_load_game_memory_card_check(int first)
 {
     _la_mask_preview_info();
     mcLoadMode = 1;
-    lt_mask_property(141, 1);
-    lt_mask_property(142, 1);
+    lt_mask_property(147, 1);
+    lt_mask_property(148, 1);
     switch (_la_set_current_port_2(&mc, first)) {
     case 0:
         if (mcLastResult == 0 || mcLastResult == -14) {
@@ -1092,7 +1092,7 @@ inline int la_mc_load_current_slot_select(void)
 {
     _la_mask_preview_info();
     if (pad[0].flags & 0x20) {
-        curPort = lt_current_property_item() - 152;
+        curPort = lt_current_property_item() - 158;
         lastPort = curPort;
         curPortInfo = &mcPortInfo[curPort];
         POSITIVE_SE();
@@ -1125,16 +1125,16 @@ int la_mc_load_file_select(int first, int item)
 
     if (fileMask != 0) {
         _la_set_preview_info();
-        lt_mask_property(38, 1);
-        lt_mask_property(37, 1);
-        lt_mask_property(161, 0);
-        lt_mask_property(162, 0);
+        lt_mask_property(44, 1);
+        lt_mask_property(43, 1);
+        lt_mask_property(167, 0);
+        lt_mask_property(168, 0);
     } else {
         _la_mask_preview_info();
-        lt_mask_property(38, 0);
-        lt_mask_property(37, 0);
-        lt_mask_property(161, 1);
-        lt_mask_property(162, 1);
+        lt_mask_property(44, 0);
+        lt_mask_property(43, 0);
+        lt_mask_property(167, 1);
+        lt_mask_property(168, 1);
     }
     lt_set_item_select_func((int)la_mc_saved_file_select);
 
@@ -1495,8 +1495,8 @@ int la_mc_confirm_save_file(int first, int item)
     int i;
 
     _la_mask_preview_info();
-    lt_mask_property(141, 1);
-    lt_mask_property(142, 1);
+    lt_mask_property(147, 1);
+    lt_mask_property(148, 1);
     if (first) {
         systemStatus[5] = 1;
         fightSoundProcessRequestPause();
@@ -1542,12 +1542,12 @@ int la_mc_confirm_save_file(int first, int item)
         {
             if (lt_fade_status() == 2) {
                 switch (item) {
-                case 184:
+                case 190:
                     POSITIVE_SE();
                     lt_set_item_select_func(0);
                     actionStarted = 0;
                     return 0x1B;
-                case 185:
+                case 191:
                     NEGATIVE_SE();
                     systemStatus[5] = 0;
                     lt_set_item_select_func(0);
@@ -1578,9 +1578,9 @@ int la_mc_confirm_save_file(int first, int item)
 static inline void setSaveGameStartItem(void) /* derived name */
 {
     if (loadSerial == IosMcProductFile[0].serial || loadSerial != IosMcProductFile[1].serial) {
-        texLayout[15].defaultItem = 152;
+        texLayout[15].defaultItem = 158;
     } else {
-        texLayout[15].defaultItem = 153;
+        texLayout[15].defaultItem = 159;
     }
 }
 
@@ -1588,8 +1588,8 @@ int la_save_game_memory_card_check(int first)
 {
     _la_mask_preview_info();
     mcLoadMode = 0;
-    lt_mask_property(141, 1);
-    lt_mask_property(142, 1);
+    lt_mask_property(147, 1);
+    lt_mask_property(148, 1);
     debug_StdPrintfDummy("save game check port %d\n", curPort);
     switch (_la_set_current_port_new(&mc, first)) {
     case 0:
@@ -1637,7 +1637,7 @@ inline int la_mc_save_current_slot_select(void)
 {
     if (pad[0].flags & 0x20) {
         POSITIVE_SE();
-        curPort = lt_current_property_item() - 152;
+        curPort = lt_current_property_item() - 158;
         lastPort = curPort;
         curPortInfo = &mcPortInfo[curPort];
         lt_set_item_select_func(0);
@@ -1742,15 +1742,15 @@ int la_mc_save_file_select(int first, int item)
 
     if (actionStarted != 0) {
         _la_set_preview_info();
-        lt_mask_property(38, 1);
-        lt_mask_property(37, 1);
-        lt_mask_property(210, 0);
-        lt_mask_property(211, 0);
+        lt_mask_property(44, 1);
+        lt_mask_property(43, 1);
+        lt_mask_property(216, 0);
+        lt_mask_property(217, 0);
     } else {
-        lt_mask_property(38, 0);
-        lt_mask_property(37, 0);
-        lt_mask_property(210, 1);
-        lt_mask_property(211, 1);
+        lt_mask_property(44, 0);
+        lt_mask_property(43, 0);
+        lt_mask_property(216, 1);
+        lt_mask_property(217, 1);
     }
 
     if (actionStarted != 0) {
@@ -1943,14 +1943,14 @@ int la_save_confirm_overwrite(int first, int item)
         return 0x1E;
     }
     switch (item) {
-    case 184:
-    case 188:
+    case 190:
+    case 194:
         POSITIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x23;
-    case 185:
-    case 189:
+    case 191:
+    case 195:
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -1998,14 +1998,14 @@ int la_format_confirm(int first, int item)
         return 0x1E;
     }
     switch (item) {
-    case 184:
-    case 188:
+    case 190:
+    case 194:
         POSITIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x22;
-    case 185:
-    case 189:
+    case 191:
+    case 195:
         NEGATIVE_SE();
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -2299,15 +2299,15 @@ inline int la_save_confirm_complete(int first, int item)
         debug_StdPrintfDummy("save complete %d %d\n", fileMask, curFile);
     }
     if (item != -1) {
-        debug_StdPrintfDummy("%d %d %d\n", 235, 236, item);
+        debug_StdPrintfDummy("%d %d %d\n", 241, 242, item);
     }
     switch (item) {
-    case 235:
+    case 241:
         systemStatus[5] = 0;
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x33;
-    case 236:
+    case 242:
         nextStage = 1;
         lt_set_item_select_func(0);
         actionStarted = 0;
@@ -2323,14 +2323,14 @@ int la_end_confirm(void)
     if (lt_fade_status() == 2 && (pad[0].flags & 0x40)) {
         NEGATIVE_SE();
         item = lt_current_property_item();
-        if (item >= 241) {
-            if (item < 243) {
+        if (item >= 247) {
+            if (item < 249) {
                 lt_set_item_select_func(0);
                 actionStarted = 0;
                 return 0x26;
             }
-            if (item < 397) {
-                if (item >= 395) {
+            if (item < 403) {
+                if (item >= 401) {
                     lt_set_item_select_func(0);
                     actionStarted = 0;
                     return 0x36;
@@ -2341,8 +2341,8 @@ int la_end_confirm(void)
     if (pad[0].flags & 0x20) {
         debug_StdPrintfDummy("%d\n", lt_current_property_item());
         switch (lt_current_property_item()) {
-        case 241:
-        case 395:
+        case 247:
+        case 401:
             POSITIVE_SE();
             optionScreenMode = 0;
             gflagInit();
@@ -2351,12 +2351,12 @@ int la_end_confirm(void)
             soundDataSegAllClose(0, 2);
             nextStage = 1;
             stgmgrForceSwitchWithFade(1, 0.025f, 4.0f);
-        case 242:
+        case 248:
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x26;
-        case 396:
+        case 402:
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -2409,11 +2409,11 @@ inline int la_delete_start_check(int first)
 inline int la_delete_confirm(int first, int item)
 {
     switch (item) {
-    case 184:
+    case 190:
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x2F;
-    case 185:
+    case 191:
         lt_set_item_select_func(0);
         actionStarted = 0;
         return 0x1B;
@@ -2580,12 +2580,12 @@ inline int la_game_pause(int first)
     if (first) {
         systemStatus[5] = 1;
         iosPadActStopAll();
-        texLayout[55].defaultItem = 279;
+        texLayout[55].defaultItem = 285;
     }
     if (lt_fade_status() != 2) {
         return -1;
     }
-    if (((pad[0].flags & 0x20) && lt_current_property_item() == 266) || (pad[0].flags & 0x840)) {
+    if (((pad[0].flags & 0x20) && lt_current_property_item() == 272) || (pad[0].flags & 0x840)) {
         NEGATIVE_SE(0);
         adpcmPauseRequest(0);
         lt_set_item_select_func(0);
@@ -2631,7 +2631,7 @@ int la_game_over_continue(int first)
         }
     } else {
         switch (lt_current_property_item()) {
-        case 400:
+        case 406:
             if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
                 return -1;
             }
@@ -2642,7 +2642,7 @@ int la_game_over_continue(int first)
             lt_set_item_select_func(0);
             actionStarted = 0;
             return 0x3C;
-        case 401:
+        case 407:
             if ((pad[0].flags & 0x20) == 0 || lt_fade_status() != 2) {
                 return -1;
             }
@@ -2673,8 +2673,8 @@ static inline void keyconfigMaskAll(void) /* derived name */
     int i;
 
     for (i = 0; i < 48; i++) {
-        lt_mask_property(i + 313, 1);
-        lt_default_mask_property(i + 313, 1);
+        lt_mask_property(i + 319, 1);
+        lt_default_mask_property(i + 319, 1);
     }
 }
 
@@ -2727,9 +2727,9 @@ int la_key_config(int first)
     int k;
     int n;
 
-    sel = lt_current_property_item() - 307;
+    sel = lt_current_property_item() - 313;
     if (first) {
-        texLayout[55].defaultItem = 294;
+        texLayout[55].defaultItem = 300;
         for (i = 0; i < 16; i++) {
             if ((keyConfigMask >> i) & 1) {
                 keyConfigSlot[keyCodeIndex(iosPadConfCustom.bit[i])] = keyCodeIndex(1 << i);
@@ -2752,17 +2752,17 @@ int la_key_config(int first)
     }
     keyconfigMaskAll();
     for (i = 0; i < 6; i++) {
-        lt_mask_property(i * 8 + 313 + keyConfigSlot[i], 0);
-        lt_default_mask_property(i * 8 + 313 + keyConfigSlot[i], 0);
+        lt_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
+        lt_default_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
     }
     if (pad[0].flags & 0x20) {
-        if (lt_current_property_item() == 362) {
+        if (lt_current_property_item() == 368) {
             for (i = 7; i >= 0; i--) {
                 keyConfigSlot[i] = i;
             }
             NEGATIVE_SE();
         }
-        if (lt_current_property_item() == 361) {
+        if (lt_current_property_item() == 367) {
             POSITIVE_SE();
             for (i = 0; i < 16; i++) {
                 if ((keyConfigMask >> i) & 1) {
@@ -2777,8 +2777,8 @@ int la_key_config(int first)
             }
             keyconfigMaskAll();
             for (i = 0; i < 6; i++) {
-                lt_default_mask_property(i * 8 + 313 + keyConfigSlot[i], 0);
-                lt_mask_property(i * 8 + 313 + keyConfigSlot[i], 0);
+                lt_default_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
+                lt_mask_property(i * 8 + 319 + keyConfigSlot[i], 0);
             }
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -2790,13 +2790,13 @@ int la_key_config(int first)
 
 /* the option screen's layout items: the five screen modes, the stage
    animation each mode plays (-1 for none), and the two choices of the control
-   type (item 289) followed by the two of the setting item 296 toggles, in one
+   type (item 295) followed by the two of the setting item 302 toggles, in one
    table; the code reaches the second pair through an offset pointer */
-static const int screenModeItem[5] = {274, 275, 276, 277, 278}; /* derived name */
+static const int screenModeItem[5] = {280, 281, 282, 283, 284}; /* derived name */
 
 static const int screenModeAnim[5] = {-1, 63, 64, 65, 66}; /* derived name */
 
-static const int choiceItem[4] = {292, 293, 299, 300}; /* derived name */
+static const int choiceItem[4] = {298, 299, 305, 306}; /* derived name */
 
 int la_game_option(void)
 {
@@ -2811,7 +2811,7 @@ int la_game_option(void)
         cur = optionControlType;
         sel = optionScreenMode;
         switch (lt_current_property_item()) {
-        case 271:
+        case 277:
             if ((pad[0].flags & 0x8000) != 0) {
                 sel--;
                 if (sel < 0) {
@@ -2826,19 +2826,19 @@ int la_game_option(void)
                 CUR_SE();
             }
             break;
-        case 289:
+        case 295:
             if ((pad[0].flags & 0xA000) != 0) {
                 cur = cur == 0;
                 CUR_SE();
             }
             break;
-        case 284:
+        case 290:
             if ((pad[0].flags & 0xA000) != 0) {
                 iosPadActRequestEnable = iosPadActRequestEnable == 0;
                 CUR_SE();
             }
             break;
-        case 279:
+        case 285:
             if ((pad[0].flags & 0xA000) != 0) {
                 if (mode == 1) {
                     mode = 0;
@@ -2849,7 +2849,7 @@ int la_game_option(void)
                 CUR_SE();
             }
             break;
-        case 296:
+        case 302:
             if ((pad[0].flags & 0xA000) != 0) {
                 girlControlMode = girlControlMode == 0;
                 CUR_SE();
@@ -2879,7 +2879,7 @@ int la_game_option(void)
     }
     lt_default_mask_property(choiceItem[optionControlType], 0);
     if ((pad[0].flags & 0x20) != 0) {
-        if (lt_current_property_item() == 301) {
+        if (lt_current_property_item() == 307) {
             NEGATIVE_SE();
             lt_set_item_select_func(0);
             actionStarted = 0;
@@ -2887,18 +2887,18 @@ int la_game_option(void)
         }
     }
     if (mode == 0) {
-        lt_default_mask_property(282, 0);
-        lt_default_mask_property(283, 1);
+        lt_default_mask_property(288, 0);
+        lt_default_mask_property(289, 1);
     } else {
-        lt_default_mask_property(282, 1);
-        lt_default_mask_property(283, 0);
+        lt_default_mask_property(288, 1);
+        lt_default_mask_property(289, 0);
     }
     if (iosPadActRequestEnable != 0) {
-        lt_default_mask_property(287, 0);
-        lt_default_mask_property(288, 1);
+        lt_default_mask_property(293, 0);
+        lt_default_mask_property(294, 1);
     } else {
-        lt_default_mask_property(287, 1);
-        lt_default_mask_property(288, 0);
+        lt_default_mask_property(293, 1);
+        lt_default_mask_property(294, 0);
     }
     for (sel = 0; sel < 2; sel++) {
         lt_default_mask_property((choiceItem + 2)[sel], 1);
@@ -2913,7 +2913,7 @@ static inline void clearAdjustScreenMarks(void) /* derived name */
     int i;
 
     for (i = 0; i < 15; i++) {
-        lt_default_mask_property(i + 366, 1);
+        lt_default_mask_property(i + 372, 1);
     }
 }
 
@@ -2921,7 +2921,7 @@ int la_adjust_screen(void)
 {
     int v;
 
-    texLayout[55].defaultItem = 295;
+    texLayout[55].defaultItem = 301;
     lt_analog2Pad();
     if (pad[0].flags & 0x8000) {
         v = systemStatus[11];
@@ -2941,7 +2941,7 @@ int la_adjust_screen(void)
         systemStatus[11] = 7;
     }
     clearAdjustScreenMarks();
-    lt_default_mask_property(systemStatus[11] + 366, 0);
+    lt_default_mask_property(systemStatus[11] + 372, 0);
     if (pad[0].flags & 0x20) {
         POSITIVE_SE();
         lt_set_item_select_func(0);

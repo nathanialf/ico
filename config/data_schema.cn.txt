@@ -1,14 +1,14 @@
-# config/data_schema.kor.txt -- the data-only members written as C.
+# config/data_schema.cn.txt -- the data-only members written as C.
 #
-# One row per (member, section) of config/data_members.kor.txt that
+# One row per (member, section) of config/data_members.cn.txt that
 # tools/gen_data_c.py writes as one C translation unit instead of assembly.
 # The row holds facts about the member's type, never its values: the build
-# reads the values from the user's own baserom/kor/baseelf.elf and writes
-# build/kor/data/<member>.c, which ninja compiles with the game's flags
+# reads the values from the user's own baserom/cn/baseelf.elf and writes
+# build/cn/data/<member>.c, which ninja compiles with the game's flags
 # (tools/compile_c.sh). Nothing generated is committed (docs/LEGAL.md).
 #
 # Columns: <member> <section> <type> <header> <count> <symbols> [hex=<field>,...]
-#   member    the member's name in config/data_members.kor.txt
+#   member    the member's name in config/data_members.cn.txt
 #   section   data, rodata or sdata: the table row the definition fills;
 #             rodata rows are defined const
 #   type      the element type: a typedef or a struct tag the header
@@ -31,11 +31,11 @@
 # The rows are PAL's (config/data_schema.pal.txt) with each count re-derived
 # from this ELF: the member's span over the record stride, less the trailing
 # fill PAL's row leaves. The counts that differ from PAL's: obj-action 944,
-# obj-layout 3736, tex-property 406, model-path 1621, texture-layout 76,
+# obj-layout 3736, tex-property 412, model-path 1621, texture-layout 76,
 # unmapped_0055FBD0 2, moviefile 5, stage-all 104, stage-anim-model 1357,
-# stage-anim 950, texture-path 53. Every count but tex-property's equals
-# the Japanese build's (config/data_schema.jpn.txt on the jpn branch); the
-# Korean tex-property has six rows fewer than the Japanese 412.
+# stage-anim 950, texture-path 53. Every count equals the Japanese build's
+# (config/data_schema.jpn.txt on the jpn branch); the Korean build's
+# tex-property has six rows fewer (406).
 #
 # Two records are not PAL's, and their headers need this target's type
 # before the generator's ROM check can pass:
@@ -56,9 +56,9 @@
 # staffroll_dat's count, staffRollNameDataNum, is the table's 964 entries
 # less its two null entries at the end, as in PAL.
 #
-# A label some source spells inside the member (build/kor/data_labels.txt, the
+# A label some source spells inside the member (build/cn/data_labels.txt, the
 # D_<VMA> placeholders) is not an array of its own: gen_data_c.py binds it to
-# the member's first symbol plus its offset in build/kor/data/<member>.alias.ld.
+# the member's first symbol plus its offset in build/cn/data/<member>.alias.ld.
 
 unmapped_002ADBA0 data HintDef ico2/omori/include/lws_kyomi.h 28 hintTable@0 hex=flags
 accessary data AccessaryRec ico2/sugipon/include/box.h 26 accessary@0
@@ -73,7 +73,7 @@ obj-kind-data data ObjKindEnt ico2/common/include/typedef.h 70 objKindData@0
 obj-layout data GenGeo ico2/common/include/typedef.h 3736 objLayout@0 hex=procPri,flags
 parallel-motion-tbl data ParallelMotionRow ico2/fumi/include/act-parallel-control.h 86 parallelMotionTbl@0
 sekind data unsigned_short ico2/fumi/include/s_init.h 1420 seKind@0
-tex-property data LtProperty ico2/common/include/layout_texture.h 406 texProperty@0
+tex-property data LtProperty ico2/common/include/layout_texture.h 412 texProperty@0
 weapon-def data WeaponDef ico2/sugipon/include/weapon.h 10 weaponKind@0
 staffroll_dat data char* ico2/common/include/staffroll.h 964 staffRollNameData@0
 item-kind-def data ItemBreakRec ico2/sugipon/include/item.h 7 itemKind@0 hex=flags

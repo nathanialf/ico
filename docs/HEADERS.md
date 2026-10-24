@@ -7,10 +7,10 @@ The evidence is the PAL disc's January 2002 listing (`SRCFILE.TXT`, an
 `objdump -dl` of the game with a source path and line on every instruction)
 and its `MAIN.MAP`; on `main`, `tools/extract_elf.sh` copies both into
 `baserom/pal/`, and neither is ever committed (`docs/LEGAL.md`). The
-Japanese and Korean discs ship neither: this branch keeps the Japanese
-tree's headers (the PAL tree's, changed where the Japanese build's records
-or declarations differ), and the Korean build's records are the Japanese
-ones. The listing
+Japanese, Korean and Asian discs ship neither: this branch keeps the
+Japanese tree's headers by way of the Korean branch (the PAL tree's, changed
+where the Japanese build's records or declarations differ), and the Asian
+build's records are the Japanese ones. The listing
 contains no source text. A header shows up in it only when code from the
 header was compiled into a caller: a header that only declares leaves no
 rows at all.
@@ -91,9 +91,9 @@ a shared record under a comment saying so (`st04a.c`'s `Act` and `GObj`,
 
 **The Japanese build's records.** Where the Japanese build lays out a
 record differently from PAL's, the owner's header holds the Japanese
-layout, and every reader uses it. The Korean build lays out every record as
-the Japanese one does; its data tables differ only in content and in
-`tex-property`'s row count (`docs/TARGETS.md`):
+layout, and every reader uses it. The Asian build lays out every record as
+the Japanese one does, with the Japanese 412 `tex-property` rows; its data
+tables differ from the Japanese ones only in content (`docs/TARGETS.md`):
 
 | record | header | the Japanese layout |
 | --- | --- | --- |
@@ -116,8 +116,8 @@ Files named `*_internal.h` hold declarations that are not public API, and their 
 are this project's, as is `sce/libsndn2/sound.h`, named after its member
 `sound.o`; the movie player's audio decoder takes the stream PCM calls from
 it. The listing attributes no rows to `/usr/local/sce/ee/include`, so no SDK
-header compiled code into the game. The Korean link, like the Japanese one,
-has no `libscf` member, so this branch has no `sce/libscf/` and no
+header compiled code into the game. The Asian link, like the Japanese and
+Korean ones, has no `libscf` member, so this branch has no `sce/libscf/` and no
 `libscf.h`.
 
 ## Derived names
@@ -129,10 +129,10 @@ whose field names are derived carries one `/* field names derived */` token
 on its opening line rather than one per field. Sony's public types keep
 their public names. Besides PAL's derived names, this branch derives
 `actEndLogoFade` (`script/src/end.c`, the ending step PAL's map calls
-`actEndLogoChk`; the Japanese and Korean builds give that name to the save
+`actEndLogoChk`; the Japanese, Korean and Asian builds give that name to the save
 step, as the August 6, 2001 prototype's `TRFILE.TXT` does), `DummyIcoMisc`
-(`common/src/icoMisc.c`, an empty function the Japanese and Korean builds
-have and PAL's does not), `bga_updateMotionFrame` and `bgaRotDeg`
+(`common/src/icoMisc.c`, an empty function the Japanese, Korean and Asian
+builds have and PAL's does not), `bga_updateMotionFrame` and `bgaRotDeg`
 (`seki/src/BgAnimation.c`) and `warning_mes` (`script/src/e3.c`).
 
 ## Search order

@@ -171,8 +171,8 @@ static inline int lt_property_visible(int no) /* derived name */
 {
     int vis = 1;
 
-    if (gFlagGameClear == 0 && current_layout_id == 55 && no >= 271 &&
-        (no < 279 || (no < 301 ? no >= 296 : 0))) {
+    if (gFlagGameClear == 0 && current_layout_id == 55 && no >= 277 &&
+        (no < 285 || (no < 307 ? no >= 302 : 0))) {
         vis = 0;
     }
     return vis;

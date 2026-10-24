@@ -1,79 +1,75 @@
 # Targets
 
-What differs between the Korean build this branch rebuilds and the builds
-it was seeded from. The tree is the `jpn` branch's (the Japanese retail
-build, SCPS-11003, which is `main`'s PAL tree with the Japanese
-differences), with the Korean build's differences written into the same
-files: this branch carries one target and no `VERSION_` blocks, as the
-`jpn` branch did before it joined `main`. Each line names where the
-difference lives; the comment at that place has the detail.
+What differs between the Asian build this branch rebuilds and the builds
+it was seeded from. The tree is the `kor` branch's (the Korean retail
+build, SCPS-56001, itself seeded from the `jpn` branch), with the Asian
+build's differences written into the same files: this branch carries one
+target and no `VERSION_` blocks, as the `kor` branch did before it joined
+`main`. Each line names where the difference lives; the comment at that
+place has the detail.
 
-## Korean retail (`kor`): how the build differs
+## Asian retail (`cn`): how the build differs from the Korean and Japanese ones
 
-The debug menu's `DISC VER.` line (`debug.c`) dates the Korean build
-`Jan  9 2002 19:03:40`, between the Japanese build's `Nov  2 2001 17:26:01`
-and PAL's `Jan 17 2002 15:37:26`; the version string in `gamesys.c` reads
-`10/23/01 17:47:13` (Japanese `10/23/01 02:02:43`); the game was released
-in Korea in February 2002. The Korean build is the
-Japanese program in nearly every function: of the 5727 functions the census
-(`tools/correlate_elf.py`) pairs with the Japanese build's, 5679 have equal
-bodies; the others are the functions named below, and a few SDK functions
-the census pairs by position across `tlbtrap.s` and `crt0.s`, whose objects
-are the Japanese ones. Everything not named here is as in the Japanese
-build, including every difference `main`'s `docs/TARGETS.md` lists for it
-against PAL (stage and animation ids, NTSC timing, the records, the memory
-map).
+The debug menu's `DISC VER.` line (`debug.c`) dates the Asian build
+`Nov  2 2001 19:35:51`, about two hours after the Japanese build's
+`Nov  2 2001 17:26:01` and before the Korean build's `Jan  9 2002
+19:03:40`; the version string in `gamesys.c` reads `10/23/01 17:47:13`, the
+Korean build's (Japanese `10/23/01 02:02:43`). The Asian build is the Korean
+program in nearly every function: of the 5727 functions the census
+(`tools/correlate_elf.py`) pairs with the Korean build's, 5693 have equal
+bodies, and of the 34 others 33 equal the Japanese build's twin (named
+below); the last is the census's pairing across `tlbtrap.s`, whose 64-byte
+alignment fill is 16 bytes shorter here, and its object is the Korean one.
+Against the Japanese build 5712 of 5727 are equal; the 15 others are the
+Korean functions named below and the same `tlbtrap.s` pairing. No function
+equals only a PAL, USA or prototype twin. Everything not named here is as
+in the Korean build, including every difference the `kor` branch's
+`docs/TARGETS.md` lists against the Japanese build that is not undone
+below.
 
 Ids and numbers:
 
-- The disc is `SCPS_560.01` (`cdvd.c`) and the memory card directory
-  `BISCPS-56001ico` (`mcard.c`); the staff roll's copyright line reads 2002
-  (the generated `staffroll_dat`).
-- The layout property table, `tex-property`, has 406 rows for the Japanese
-  412 and PAL's 436: six of the Japanese rows 2 to 12 are absent, so the
-  property ids the code names are 3 to 6 lower than the Japanese ones, 6
-  lower from the Japanese 13 on (`layout_action.c` throughout,
-  `default_item_select`'s range test, `kanbanBootMcCheck`'s item 5 for 11,
-  `jimakuDisp`'s 404 and 405 for 410 and 411). `texture-layout` keeps 76
-  rows with its property ranges and default items moved the same way.
-- `jimakuMgrNext`'s assertion line is 658 (Japanese 655, PAL 688).
-- `cdvd.c` and `pad.c` carry PAL's assertion and allocation line numbers.
+- The disc is `SCPS_550.01` (`cdvd.c`) and the memory card directory
+  `BISCPS-55001ico` (`mcard.c`); the staff roll's copyright line reads 2001,
+  as in the Japanese build (the generated `staffroll_dat`).
+- The layout property table, `tex-property`, has the Japanese build's 412
+  rows (Korean 406, PAL 436), so the property ids the code names are the
+  Japanese ones (`layout_action.c` throughout, `default_item_select`'s range
+  test, `kanbanBootMcCheck`'s item 11, `jimakuDisp`'s 410 and 411,
+  `lt_property_visible` in `layout_texture.c`). `texture-layout` is the
+  Japanese member.
+- `jimakuMgrNext`'s assertion line is 658, the Korean one (Japanese 655).
+- `pad.c` is the Japanese file: its assertion lines are 465, 550 and 566
+  (Korean and PAL 468, 553, 569), and `iosPadDevReadFunc` drops the pad on
+  any failed read without printing its state.
 
-Timing and video mode. The build is NTSC like the Japanese one
-(`SYSTEM.CNF` reads `VER = 1.00`, `VMODE = NTSC`; `main.c` is the
-Japanese file). The five constant-address VU overlays are zero-filled, as
-on PAL, where the Japanese disc has 0x6E (`config/link_order.kor.txt`
-carries no `overlay-fill` token).
+Timing and video mode. The build is NTSC like the Japanese and Korean ones
+(`SYSTEM.CNF` reads `VER = 1.02`, `VMODE = NTSC`). The five
+constant-address VU overlays are zero-filled, as on the Korean disc and
+PAL's, where the Japanese disc has 0x6E (`config/link_order.cn.txt` carries
+no `overlay-fill` token).
 
 Media and records:
 
-- The disc is a DVD, and `cdvd.c` is PAL's: media mode 2 and disc type 20,
-  `SCECdPS2DVD` (the Japanese CD build has 1 and 18, `SCECdPS2CD`), and
-  the background reads wait on `sceCdStatus` only for CD media.
+- The disc is a DVD, and `cdvd.c` is the Korean file, PAL's media mode 2
+  and disc type 20, `SCECdPS2DVD`, with the boot file name changed.
 - `iosCdvdMgrSearchFile` moves the start of `\DFDATAS\DATA.DF;1` 153600
-  sectors (300 MB) on: on the Korean disc the archive's header lies that
-  far into the file. Neither the Japanese nor the PAL build has this code,
-  but PAL's listing has seven code-less lines at that place (`cdvd.c`
-  789-795), and its assertion and allocation lines after it carry the
-  numbers they have here, so the block is in PAL's source too, compiled out
-  there.
-- `iosPadDevReadFunc` prints the pad state on a failed read and drops the
-  pad only when the state is 0, as PAL's does.
-- The records are the Japanese ones (`docs/HEADERS.md`).
+  sectors on, as the Korean build's does; the census pairs it with the
+  Korean function, equal.
+- The records are the Japanese ones (`docs/HEADERS.md`); the data members
+  are the Korean ones but for `tex-property`, `texture-layout` and the
+  `.rodata` pool of `staffroll_dat`, which hold the Japanese bytes
+  (`config/data_members.cn.txt`).
 
-Code only this build has:
+Code only this build has: none. Against the Japanese build it keeps two
+Korean functions: `actBossCtrlStart` and `InitBossCtrlGeo` (`itou_boss.c`)
+print with `printf`, and `actE3Warning` (`e3.c`) does not set
+`GlobalStageSetting.viewScale`.
 
-- `actBossCtrlStart` and `InitBossCtrlGeo` (`itou_boss.c`) print the
-  generator count and the capsule count with `printf`, where the Japanese
-  and PAL builds call `debug_StdPrintfDummy`.
-- `actE3Warning` (`e3.c`) does not set `GlobalStageSetting.viewScale` to
-  150 before its fade-in, as the Japanese build's does (PAL's function
-  changes stage instead).
-
-Link order. `puddle.c`, `waterDot.c` and `windmill.c` link in PAL's places
-(the Japanese link puts them after `mv_vibuf.c`), and the unmapped
-`hintTable` run lies between `game-param` and `motion-orient` as in PAL
-(the Japanese link has it first in its `.data` run);
-`config/link_order.kor.txt` and `config/data_members.kor.txt` say how each
-place was measured. As in the Japanese link, `libscf` is absent and
-`texture-path` is in `.rodata`.
+Link order. The Korean link's: `puddle.c`, `waterDot.c` and `windmill.c`
+in PAL's places, the unmapped `hintTable` run between `game-param` and
+`motion-orient`, no `libscf`, `texture-path` in `.rodata`
+(`config/link_order.cn.txt`, `config/data_members.cn.txt`). The objects
+move by the sizes alone: `.text` is 64 bytes shorter than the Korean
+build's (48 in `pad.c`, 16 of `tlbtrap.s`'s alignment fill), and `.data`
+is 0x2C0 bytes longer, the size of the Japanese `.data`.

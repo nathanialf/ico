@@ -41,7 +41,7 @@ static IosSema jimakuShownSema; /* derived name */
 static IosSema jimakuFrameSema; /* derived name */
 
 #include "jimaku.h"
-#include "layout_texture.h" /* texProperty: jimaku's entries are 404 and 405 */
+#include "layout_texture.h" /* texProperty: jimaku's entries are 410 and 411 */
 #include "gflag.h"
 
 typedef struct JimCol { /* field names derived */
@@ -389,14 +389,14 @@ void jimakuDisp(JimakuArg *msg)
     }
     if (jimakuDispOn != 0) {
         int v = g->tex;
-        texProperty[405].texNo = v;
-        texProperty[404].texNo = v;
+        texProperty[411].texNo = v;
+        texProperty[410].texNo = v;
         if (v < 0) {
             return;
         }
         if (jimakuOn != 0) {
-            display_texture(&texProperty[404]);
-            display_texture(&texProperty[405]);
+            display_texture(&texProperty[410]);
+            display_texture(&texProperty[411]);
         }
     }
 }

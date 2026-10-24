@@ -300,9 +300,9 @@ static inline void iosCdvdDiskReadyBlock(void)
     if (sceCdDiskReady(1) != 2) {
         sceCdlFILE fp;
         char file[32];
-        strcpy(file, "SCPS_560.01");
+        strcpy(file, "SCPS_550.01");
         iosCdvdChgFileName(file);
-        debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCPS_560.01", file);
+        debug_StdPrintfDummy("wait insert ico disk %s %s\n", "SCPS_550.01", file);
         do {
             sceCdDiskReady(0);
         } while (sceCdGetDiskType() != cdDiskType || sceCdSearchFile(&fp, file) == 0);
@@ -352,8 +352,8 @@ static void iosCdvdMgrSearchFile(IosCdvdHandle *self)
         if (sceCdSearchFile(&self->file, self->name) == 0) {
             self->result = 100;
         }
-        /* On the Korean disc the archive's header, which opens DATA.DF on
-         * the Japanese disc, lies 153600 sectors (300 MB) into the file. */
+        /* The Korean build's seek: on the Korean disc the archive's header,
+         * which opens DATA.DF on the Japanese disc, is 153600 sectors in. */
         if (strcmp("\\DFDATAS\\DATA.DF;1", self->name) == 0) {
             self->file.lsn += 153600;
         }
@@ -1006,7 +1006,7 @@ static void cdWait(int *busy)
                 systemStatus[0x14 / 4] = 1;
                 cdWaitParamSet = 1;
             }
-            strcpy(file, "SCPS_560.01");
+            strcpy(file, "SCPS_550.01");
             chgFileName(file);
             r = sceCdDiskReady(1);
             if (r == 2 && sceCdGetDiskType() == cdDiskType && sceCdSearchFile(&fp, file) != 0) {
