@@ -55,9 +55,9 @@ suspect a file in this repository breaks these rules, open an issue tagged
 
 Each disc's link includes 70 members of the game's archive `ico2000.a` that
 have data sections and no code (MAIN.MAP of the PAL disc; the Japanese,
-Korean, prototype and demo links have the same set, the USA link all but the
-hint table and the subtitle file names), plus three data runs MAIN.MAP does
-not list (none of which the prototype's or the demo's link has);
+Korean, Asian, prototype and demo links have the same set, the USA link all
+but the hint table and the subtitle file names), plus three data runs
+MAIN.MAP does not list (none of which the prototype's or the demo's link has);
 `config/data_members.<slug>.txt` lists them all for each target except
 `enemy-def` (72 runs, 70 for `ntsc`, 69 for `aug6`; 119 for `jun26`, which
 also generates `mcdata.o`'s save icon record and `EnemyInit.o`'s 49 enemy-set
@@ -215,6 +215,28 @@ data-only members from it (above). Every function, the five VU1
 microprograms and Sony's libraries are compiled or assembled from the
 tracked sources; nothing of the code is read from the disc.
 `tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/kor/`.
+The disc's other files (its data archive `DFDATAS/DATA.DF`, the IOP modules
+and `IOPRP224.IMG`) are never read by the build and never committed.
+
+## Asian retail disc (`cn`)
+
+The Asian (Traditional Chinese) retail disc (`SCPS-55001`, boot ELF
+`SCPS_550.01`, `SYSTEM.CNF` `VER = 1.02`) ships no linker map, listing or
+address table next to its boot ELF either. Its names are the Korean build's,
+carried to the Asian ELF by the same instruction-stream correlation against
+the Korean and Japanese builds: of the 5727 functions the census pairs with
+the Korean build's, 5693 have equal bodies, and 33 of the others equal the
+Japanese twin, whose text the `cn` branch took from the `jpn` branch. Every
+function of the tree compiles to the Asian bytes at the address the link
+gives it. No name or address comes from any Asian file other than the
+user's own ELF: every address in `config/*.cn.*` was found in it.
+
+Of the user's Asian disc the build reads `SYSTEM.CNF`, to find the boot
+file, and `SCPS_550.01`: it checks the ELF's SHA-1 and generates the 72
+data-only members from it (above). Every function, the five VU1
+microprograms and Sony's libraries are compiled or assembled from the
+tracked sources; nothing of the code is read from the disc.
+`tools/extract_elf.sh` copies `SYSTEM.CNF` into gitignored `baserom/cn/`.
 The disc's other files (its data archive `DFDATAS/DATA.DF`, the IOP modules
 and `IOPRP224.IMG`) are never read by the build and never committed.
 

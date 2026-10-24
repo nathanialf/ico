@@ -29,7 +29,7 @@ directory they lived in is not recorded.
 
 The source for the names is the game's own staff roll: the ending credits'
 text in the user's boot ELF (a table of string pointers at `0x004E4610`
-(`0x004E1210` in the Japanese ELF, `0x004E0FD0` in the Korean one, `0x004BD990` in the USA one, `0x004B8C90` in the August 6, 2001 prototype's, `0x004DD750` in the June 26, 2001 demo's), read in table order, each role line
+(`0x004E1210` in the Japanese ELF, `0x004E0FD0` in the Korean one, `0x004E1290` in the Asian one, `0x004BD990` in the USA one, `0x004B8C90` in the August 6, 2001 prototype's, `0x004DD750` in the June 26, 2001 demo's), read in table order, each role line
 followed by its names). Its programmers
 section reads:
 

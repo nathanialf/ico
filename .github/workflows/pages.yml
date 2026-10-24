@@ -4,10 +4,10 @@ name: Deploy progress dashboard
 #
 # Every target's numbers come from its own branch: pal -> pal (PAL retail
 # SCES-50760), jpn -> jpn (Japanese retail SCPS-11003), kor -> kor (Korean
-# retail SCPS-56001), cn -> cn (Asian retail SCPS-55001, the campaign branch
-# until it joins main), ntsc -> ntsc (USA retail, SLUS-20218), aug6 -> aug6
-# (Aug-6-2001 prototype) and jun26 -> jun26 (Jun-26-2001 demo). main builds
-# six targets (pal, jpn, kor, ntsc, aug6, jun26) in one tree and keeps their
+# retail SCPS-56001), cn -> cn (Asian retail SCPS-55001), ntsc -> ntsc (USA
+# retail, SLUS-20218), aug6 -> aug6 (Aug-6-2001 prototype) and jun26 -> jun26
+# (Jun-26-2001 demo). main builds every target (pal, jpn, kor, cn, ntsc,
+# aug6, jun26) in one tree and keeps their
 # docs/<slug>/ as its build's progress record, but the site never reads them
 # from main.
 #

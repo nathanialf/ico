@@ -1,29 +1,32 @@
 # ico
 
 A source tree for the PlayStation 2 game **ICO** (Sony Computer Entertainment,
-2001) that rebuilds the boot ELF of four retail discs, the PAL one,
+2001) that rebuilds the boot ELF of five retail discs, the PAL one,
 SCES-50760 (`SCES_507.60`), the Japanese one, SCPS-11003 (`SCPS_110.03`;
 `SYSTEM.CNF` reads `VER = 1.02`, `VMODE = NTSC`), the Korean one,
-SCPS-56001 (`SCPS_560.01`; `VER = 1.00`, `VMODE = NTSC`), and the USA one,
+SCPS-56001 (`SCPS_560.01`; `VER = 1.00`, `VMODE = NTSC`), the Asian
+(Traditional Chinese) one, SCPS-55001 (`SCPS_550.01`; `VER = 1.02`,
+`VMODE = NTSC`), and the USA one,
 SLUS-20218 (`SCUS_971.13`; `VER = 1.00`, `VMODE = NTSC`), of the August 6,
 2001 prototype disc (`SCUS_971.13`; `VER = 1.00`, `VMODE = NTSC`), and of
 the June 26, 2001 demo on the Official U.S. PlayStation Magazine demo disc 49
 (SCUS-97158; the demo's own ELF `CUS97113/SCPS_000.00`, which the disc's
 menu starts; `VER = 1.00`, `VMODE = NTSC`), with the toolchain the game was
-built with. `VERSION=pal`, `VERSION=jpn`, `VERSION=kor`, `VERSION=ntsc`,
-`VERSION=aug6` or `VERSION=jun26` picks the target. For each,
+built with. `VERSION=pal`, `VERSION=jpn`, `VERSION=kor`, `VERSION=cn`,
+`VERSION=ntsc`, `VERSION=aug6` or `VERSION=jun26` picks the target. For each,
 every byte the console loads is identical to the disc's (the ROM image SHA-1
 matches), and so is the ELF file itself (its SHA-1 matches the disc's).
 
-The demo, the prototype and the USA, Japanese and Korean builds are earlier
-links of the same program as the PAL one: the demo's ELF carries the stamp
-`Jun 26 2001`, the others' debug menus' `DISC VER.` lines read `Aug  7
-2001`, `Aug 20 2001`, `Nov  2 2001` and `Jan  9 2002` (`debug.c`), PAL's
-`Jan 17 2002`, and the Korean text is the Japanese one with 24 files
-changed. One tree (`ico2/`, `sce/`) builds all six: its base text is the
-PAL revision, and where another build differs the same file holds its lines
-inline in `VERSION_JPN`, `VERSION_KOR`, `VERSION_NTSC`, `VERSION_AUG6` and
-`VERSION_JUN26` blocks;
+The demo, the prototype and the USA, Japanese, Asian and Korean builds are
+earlier links of the same program as the PAL one: the demo's ELF carries the
+stamp `Jun 26 2001`, the others' debug menus' `DISC VER.` lines read `Aug  7
+2001`, `Aug 20 2001`, `Nov  2 2001` (`17:26:01` and `19:35:51`) and `Jan  9
+2002` (`debug.c`), PAL's `Jan 17 2002`; the Korean text is the Japanese one
+with 24 files changed, and the Asian text the Korean one with 15. One tree
+(`ico2/`, `sce/`) builds all seven: its base text is the PAL revision, and
+where another build differs the same file holds its lines inline in
+`VERSION_JPN`, `VERSION_KOR`, `VERSION_CN`, `VERSION_NTSC`, `VERSION_AUG6`
+and `VERSION_JUN26` blocks;
 [`docs/TARGETS.md`](docs/TARGETS.md) lists those differences and
 [`docs/BUILDING.md`](docs/BUILDING.md) explains the blocks.
 
@@ -42,8 +45,8 @@ inline in `VERSION_JPN`, `VERSION_KOR`, `VERSION_NTSC`, `VERSION_AUG6` and
 **[Progress dashboard](https://nathanialf.github.io/ico/#pal)**: every
 section, directory, translation unit and function of each build compared with
 its base ELF. Each target's numbers on the site come from its own branch
-(`pal`, `jpn`, `kor`, `ntsc`, `aug6`, `jun26`, and `cn` while it is in
-progress); the `docs/<slug>/` files here are `main`'s build record.
+(`pal`, `jpn`, `kor`, `cn`, `ntsc`, `aug6` and `jun26`); the
+`docs/<slug>/` files here are `main`'s build record.
 
 > [!IMPORTANT]
 > This project is not affiliated with Sony Interactive Entertainment or Team
@@ -66,6 +69,9 @@ VERSION=jpn ./build.sh
 # Korean
 cp "/path/to/Ico (Korea).iso" baserom/Ico_KOR.iso
 VERSION=kor ./build.sh
+# Asian (Traditional Chinese)
+cp "/path/to/Ico ASIA CHINESE.iso" baserom/Ico_CN.iso
+VERSION=cn ./build.sh
 # USA
 cp "/path/to/Ico (USA).bin" baserom/Ico_USA.bin
 cp "/path/to/Ico (USA).cue" baserom/Ico_USA.cue
@@ -89,7 +95,7 @@ toolchain under `tools/cc/` is missing, extracts `baserom/<slug>/baseelf.elf`
 from the disc image when it is missing (`tools/extract_elf.sh`; for the
 Japanese, USA and prototype discs it first cooks the raw `.bin` into
 `baserom/Ico_JPN.iso`, `baserom/Ico_USA.iso` or `baserom/Ico_AUG6.iso` beside
-it, once; the PAL, Korean and demo images are plain ISOs, read directly; the
+it, once; the PAL, Korean, Asian and demo images are plain ISOs, read directly; the
 demo disc's `SYSTEM.CNF` boots the magazine's menu, and the build reads the
 demo's own ELF, `CUS97113/SCPS_000.00`), then
 runs `tools/build.sh setup` (or `verify` when `build.ninja` already exists),
@@ -111,6 +117,8 @@ end.
 | jpn | `baserom/jpn/baseelf.rom` and `build/jpn/ico.rom` (`objcopy -O binary`) | `58ef44cfeeacd060ffb2acfbf42d8a21bbffd318` |
 | kor | `baserom/kor/baseelf.elf` (the disc's `SCPS_560.01`) | `f9b00596d133c698df20c8ffe4ca2d7107e236bb` |
 | kor | `baserom/kor/baseelf.rom` and `build/kor/ico.rom` (`objcopy -O binary`) | `f438c8f841a84837231d79cab0c761bfb211259b` |
+| cn | `baserom/cn/baseelf.elf` (the disc's `SCPS_550.01`) | `f3e784b6811af2de9570be5575d6db5962300bcd` |
+| cn | `baserom/cn/baseelf.rom` and `build/cn/ico.rom` (`objcopy -O binary`) | `d4b1294e86c063f2c34a86333eb5f2f2ed2de42a` |
 | ntsc | `baserom/ntsc/baseelf.elf` (the disc's `SCUS_971.13`) | `a4d8fc1948fb2da2395f3863a94a3b93de55de14` |
 | ntsc | `baserom/ntsc/baseelf.rom` and `build/ntsc/ico.rom` (`objcopy -O binary`) | `fbf50c75cd5911273511c4f9af90503ff8423582` |
 | aug6 | `baserom/aug6/baseelf.elf` (the prototype disc's `SCUS_971.13`) | `5d169c281756a8bde712704fa0cb9eb984693cd6` |
@@ -134,14 +142,14 @@ normal_c, normal_l) a `#line LN(...) ""` before that instruction gives each
 target its own line. The overlay contents are not code: each section
 is one byte repeated over the program's size, a byte the DVP assembler never
 set, so the five constant-address overlays (`.DVP.overlay..0x0.*`, one per
-program) carry whatever the assembler's heap held. On PAL's build machine that
-and the Korean one it was zero; the JPN, USA, Aug-6-2001 and Jun-26-2001
+program) carry whatever the assembler's heap held. On PAL's build machine and
+the Korean and Asian ones it was zero; the JPN, USA, Aug-6-2001 and Jun-26-2001
 discs carry 0x6E there, and every disc
 leaves the seven continuation overlays (`..unknvma.*`) zero.
 `tools/binutils-dvp-overlay-fill.patch` makes dvp-as write the byte
 explicitly (`--overlay-fill=N` for the five, 0 for the rest), taken from an
 `overlay-fill=N` token on the `.dsm` lines of the target's link order (none on
-pal's or kor's, `overlay-fill=110` on each of jpn's, ntsc's, aug6's and jun26's), so the build no longer depends on
+pal's, kor's or cn's, `overlay-fill=110` on each of jpn's, ntsc's, aug6's and jun26's), so the build no longer depends on
 the host's heap: with the unpatched assembler, a host that sets
 `MALLOC_PERTURB_` (145 gives 0x6E) fails PAL's whole-file SHA-1.
 `tools/check_elf.py --full-diff` prints the whole-file comparison.
@@ -151,7 +159,7 @@ the host's heap: with the unpatched assembler, a host that sets
 There is one badge per section of the base ELF, in link order.
 `tools/check_elf.py --progress` (`tools/build.sh progress`) rewrites them,
 `docs/<slug>/PROGRESS.md` ([pal](docs/pal/PROGRESS.md),
-[jpn](docs/jpn/PROGRESS.md), [kor](docs/kor/PROGRESS.md), [ntsc](docs/ntsc/PROGRESS.md), [aug6](docs/aug6/PROGRESS.md), [jun26](docs/jun26/PROGRESS.md)) and the dashboard's `docs/<slug>/progress.json`
+[jpn](docs/jpn/PROGRESS.md), [kor](docs/kor/PROGRESS.md), [cn](docs/cn/PROGRESS.md), [ntsc](docs/ntsc/PROGRESS.md), [aug6](docs/aug6/PROGRESS.md), [jun26](docs/jun26/PROGRESS.md)) and the dashboard's `docs/<slug>/progress.json`
 from the built ELF and its link map; `tools/build.sh progress-all` does it
 for every configured target.
 
@@ -171,7 +179,7 @@ Each disc's link includes 70 members of the game's own archive,
 three runs it does not list; the build generates 72 of those data-only runs
 for each disc (`config/data_members.<slug>.txt`), because `enemy-def` is
 committed source (below).
-The Japanese, Korean and USA discs ship no map, the prototype disc's map
+The Japanese, Korean, Asian and USA discs ship no map, the prototype disc's map
 is PAL's and the demo's directory ships none, so each run's place in an ELF
 was found from
 the code that reads it, and each member keeps PAL's name by member order (the
@@ -263,7 +271,7 @@ The host's `mips-linux-gnu-objcopy` writes `build/<slug>/ico.rom`.
 
 ## Targets and branches
 
-A target is a slug: `pal`, `jpn`, `kor`, `ntsc` (USA retail), `aug6` (the
+A target is a slug: `pal`, `jpn`, `kor`, `cn` (Asian retail), `ntsc` (USA retail), `aug6` (the
 August 6, 2001 prototype) or `jun26` (the June 26, 2001 demo).
 A tree builds the targets that have a `config/link_order.<slug>.txt`; the
 target is chosen by `VERSION=<slug>`. Each target has its own
@@ -273,22 +281,21 @@ target is chosen by `VERSION=<slug>`. Each target has its own
 
 | branch | targets | |
 | --- | --- | --- |
-| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`), `kor` (Korean retail, SCPS-56001, `SCPS_560.01`), `ntsc` (USA retail, SLUS-20218, `SCUS_971.13`), `aug6` (the August 6, 2001 prototype, `SCUS_971.13`) and `jun26` (the June 26, 2001 demo, SCUS-97158, `CUS97113/SCPS_000.00`) | this document; all six gate here |
+| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`), `kor` (Korean retail, SCPS-56001, `SCPS_560.01`), `cn` (Asian retail, SCPS-55001, `SCPS_550.01`), `ntsc` (USA retail, SLUS-20218, `SCUS_971.13`), `aug6` (the August 6, 2001 prototype, `SCUS_971.13`) and `jun26` (the June 26, 2001 demo, SCUS-97158, `CUS97113/SCPS_000.00`) | this document; all seven gate here |
 | `pal` | `pal` | the single-target PAL tree as it was at `738b77d1f`, frozen, but for hotfixes and main's shared layer; current release `pal-v1.0.4` (`0a09a8965`) |
 | `jpn` | `jpn` | the single-target Japanese tree as it was at `4506374a6`, frozen, but for hotfixes and main's shared layer; current release `jpn-v1.0.2` (`36d432ae4`) |
 | `kor` | `kor` | the single-target Korean tree as it was at `b65c0fcf4` (`kor-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `kor-v1.0.1` (`97b640aa0`) |
-| `cn` | `cn` (Asian retail, SCPS-55001, `SCPS_550.01`) | the campaign branch for the Asian (Traditional Chinese) retail disc: a single-target tree, not released, until it joins `main` |
+| `cn` | `cn` | the single-target Asian tree as it was at `c54f8b607` (`cn-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `cn-v1.0.0` (`c54f8b607`) |
 | `ntsc` | `ntsc` | the single-target USA tree as it was at `8c99cc75a` (`ntsc-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `ntsc-v1.0.1` (`67c876a25`) |
 | `aug6` | `aug6` | the single-target prototype tree as it was at `c8e730628` (`aug6-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `aug6-v1.0.1` (`ba93991ed`) |
 | `jun26` | `jun26` | the single-target demo tree as it was at `230819536` (`jun26-v1.0.0`), frozen, but for hotfixes and main's shared layer; current release `jun26-v1.0.1` (`654630aa7`) |
 
-`pal`, `jpn`, `kor`, `ntsc`, `aug6` and `jun26` are history: new work lands
+`pal`, `jpn`, `kor`, `cn`, `ntsc`, `aug6` and `jun26` are history: new work lands
 on `main`, and a fix to one of their targets is ported to its branch as a
 hotfix release. No branch is merged into `main` (nor `main` into one); each
 carries the shared build layer, file for file (`tools/`, `build.sh`,
 `.github/` and `docs/index.html`, which `tools/check_shared_layer.sh` checks
-against `main`). `cn` is not yet a target of `main`, which builds the six
-above; it joins by the recipe in [`docs/BUILDING.md`](docs/BUILDING.md).
+against `main`).
 
 ## PC port
 
