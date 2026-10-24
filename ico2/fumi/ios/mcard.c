@@ -39,8 +39,13 @@ char *iOSMcSaveSeg[6] = {"BISCPS-11003ico", "icon.sys",    "boy_blk.ico",
                          "boy_blk.ico",     "boy_blk.ico", "game."};
 #endif
 #else
+#ifdef VERSION_NTSC
+char *iOSMcSaveSeg[6] = {"BASCUS-97113ico", "icon.sys",    "boy_blk.ico",
+                         "boy_blk.ico",     "boy_blk.ico", "game."};
+#else
 char *iOSMcSaveSeg[6] = {"BESCES-50760ico", "icon.sys",    "boy_blk.ico",
                          "boy_blk.ico",     "boy_blk.ico", "game."};
+#endif
 #endif
 
 static int mcLockCount = 0; /* derived name */
@@ -166,10 +171,12 @@ static inline int product_write(McMgr *self)
     (IosMcProductFile + self->port)->soundMode = systemStatus[11];
     (IosMcProductFile + self->port)->outputMode = soundOutputModeGet();
     (IosMcProductFile + self->port)->vibration = iosPadActRequestEnable;
+#ifndef VERSION_NTSC
     (IosMcProductFile + self->port)->controlType = optionControlType;
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     (IosMcProductFile + self->port)->cameraMove = NonLinearCameraMove;
     (IosMcProductFile + self->port)->palMode = systemStatus[0];
+#endif
 #endif
     *(McBlk *)(IosMcProductFile + self->port)->padConf = *(McBlk *)iosPadConfCustom.bit;
     iosMcHandlerWrite(self, (unsigned char *)(IosMcProductFile + self->port),
@@ -186,22 +193,34 @@ static inline int product_read(McMgr *self)
 
 static inline int gameblock_write(McMgr *self, void *buf)
 {
+#ifdef VERSION_NTSC
+    iosMcHandlerWrite(self, buf, 25596);
+#else
     iosMcHandlerWrite(self, buf, 25588);
     iosMcHandlerWrite(self, (unsigned char *)&optionScreenMode, 4);
     iosMcHandlerWrite(self, (unsigned char *)&girlControlMode, 4);
+#endif
     return 0;
 }
 
 static inline int gameblock_read(McMgr *self, void *buf)
 {
+#ifdef VERSION_NTSC
+    iosMcHandlerRead(self, buf, 25596);
+#else
     iosMcHandlerRead(self, buf, 25588);
+#endif
     systemStatus[11] = (IosMcProductFile + self->port)->soundMode;
     soundOutputModeSet((IosMcProductFile + self->port)->outputMode);
     iosPadActRequestEnable = (IosMcProductFile + self->port)->vibration;
+#ifdef VERSION_NTSC
+    *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self->port)->padConf;
+#else
     optionControlType = (IosMcProductFile + self->port)->controlType;
     *(McBlk *)iosPadConfCustom.bit = *(McBlk *)(IosMcProductFile + self->port)->padConf;
     iosMcHandlerRead(self, (unsigned char *)&optionScreenMode, 4);
     iosMcHandlerRead(self, (unsigned char *)&girlControlMode, 4);
+#endif
     return self->result;
 }
 
@@ -211,6 +230,21 @@ typedef struct { /* field names derived */
     char c[17];
 } McName; /* derived name */
 
+#ifdef VERSION_NTSC
+/* the file-static card helpers the manager entry points inline */
+static inline void iosMcMgrGetInfo(McMgr *mp)
+{
+    while (sceMcGetInfo(mp->port, mp->slot, &mp->type, &mp->free, &mp->format) > 0) {
+        debug_StdPrintfDummy("iosMcMgrGetInfo: request busy\n");
+    }
+
+    iosMcMgrSync(mp);
+
+    if (mp->result != 0 && mp->result >= -10) {
+        mp->cardState = mp->result;
+    }
+}
+#else
 static void iosMcMgrGetInfo(McMgr *mp)
 {
     int r;
@@ -227,6 +261,7 @@ static void iosMcMgrGetInfo(McMgr *mp)
         mp->cardState = mp->result;
     }
 }
+#endif
 
 /* the file-static card helpers the manager entry points inline */
 static inline void iosMcMgrFormat(McMgr *mp) /* derived name */
@@ -513,7 +548,11 @@ retry:
         *(McName *)mp->path = *(McName *)"/BISCPS-11003ico";
 #endif
 #else
+#ifdef VERSION_NTSC
+        *(McName *)mp->path = *(McName *)"/BASCUS-97113ico";
+#else
         *(McName *)mp->path = *(McName *)"/BESCES-50760ico";
+#endif
 #endif
         iosMcMgrMkdir(mp);
         if (mp->result != 0 && mp->result != -4) {
@@ -528,7 +567,11 @@ retry:
     *(McName *)mp->dirName = *(McName *)"/BISCPS-11003ico";
 #endif
 #else
+#ifdef VERSION_NTSC
+    *(McName *)mp->dirName = *(McName *)"/BASCUS-97113ico";
+#else
     *(McName *)mp->dirName = *(McName *)"/BESCES-50760ico";
+#endif
 #endif
     iosMcMgrChdir(mp);
 
@@ -560,7 +603,11 @@ McSegEnt iOSMcSaveList[6] = {
 
 McProductFile IosMcProductFile[2] = {0};
 
+#ifdef VERSION_NTSC
+int IosMcPreviewInfo[4] = {0};
+#else
 int IosMcPreviewInfo[6] = {0};
+#endif
 
 IosMsgQueue McMsgQ = {0};
 

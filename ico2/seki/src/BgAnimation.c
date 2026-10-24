@@ -77,6 +77,7 @@ typedef struct BgaMotion { /* field names derived */
     /* 0x0C */ float frame;
 } BgaMotion; /* derived name */
 
+#ifndef VERSION_NTSC
 /* The words the file's functions share, four on JPN and KOR and six on PAL.  PAL's
    bgaStreamSync is read and cleared by streamMotionManager.c (_infoUpdate),
    so it is global. */
@@ -84,6 +85,7 @@ typedef struct BgaMotion { /* field names derived */
 int bgaStreamSync = 0; /* derived name */
 
 static int bgaFrame = 0; /* derived name */
+#endif
 #endif
 
 static float bgaZoom = 0.0f; /* derived name */
@@ -180,8 +182,8 @@ char *bga_InitData(char *data)
 
     if (strncmp(p->magic, "BGA", 3) != 0) {
         debug_StdPrintfDummy("this is not bga file.\n");
-        debug_assert(__FILE__, LN(952, 911, 911));
-        __assert(__FILE__, LN(952, 911, 911), "FALSE");
+        debug_assert(__FILE__, LN(952, 911, 911, 903));
+        __assert(__FILE__, LN(952, 911, 911, 903), "FALSE");
     }
     p->dobjs += (int)p;
     p->mode = -1;
@@ -269,17 +271,19 @@ typedef struct BgaSdfCam { /* field names derived */
     /* 0x10 */ BgaSdfKey key[1];
 } BgaSdfCam; /* derived name */
 
+#ifndef VERSION_NTSC
 inline char *bga_InitSdfCamera(char *data)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
 
     if (strncmp(p->id, "SDF", 3) != 0) {
         debug_StdPrintfDummy("this is not sdf camera file.\n");
-        debug_assert(__FILE__, LN(1045, 1004, 1004));
-        __assert(__FILE__, LN(1045, 1004, 1004), "FALSE");
+        debug_assert(__FILE__, LN(1045, 1004, 1004, 1045));
+        __assert(__FILE__, LN(1045, 1004, 1004, 1045), "FALSE");
     }
     return data;
 }
+#endif
 
 /* an object's display object (typedef.h's Sub15C) as bga_ApplyDObject reads
    it: the node count it hands out node numbers from and the model's name */
@@ -287,8 +291,13 @@ typedef struct BgaGeom { /* field names derived */
     /* 0x000 */ char pad00[4];
     /* 0x004 */ int parentNode;
     /* 0x008 */ int nodeNum;
+#ifdef VERSION_NTSC
+    /* 0x00C */ char pad0C[2068];
+    /* 0x820 */ char *name;
+#else
     /* 0x00C */ char pad0C[2120];
     /* 0x854 */ char *name;
+#endif
 } BgaGeom; /* derived name */
 
 typedef struct BgaGObj { /* field names derived */
@@ -328,6 +337,20 @@ typedef struct BgaLightEnv { /* field names derived */
     /* 0x60 */ float outer[3];
 } BgaLightEnv; /* derived name */
 
+#ifdef VERSION_NTSC
+inline char *bga_InitSdfCamera(char *data)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+
+    if (strncmp(p->id, "SDF", 3) != 0) {
+        debug_StdPrintfDummy("this is not sdf camera file.\n");
+        debug_assert(__FILE__, 996);
+        __assert(__FILE__, 996, "FALSE");
+    }
+    return data;
+}
+#endif
+
 static void bga_initLightEnvelope(BgaDObjEnt *p)
 {
     BgaEnvEnt *e;
@@ -350,8 +373,8 @@ static void bga_initLightEnvelope(BgaDObjEnt *p)
                     p->u.light->col[3] = 1.0f;
                 } else {
                     debug_Assert("Light Object not exists.\n");
-                    debug_assert(__FILE__, LN(1089, 1048, 1048));
-                    __assert(__FILE__, LN(1089, 1048, 1048), "0");
+                    debug_assert(__FILE__, LN(1089, 1048, 1048, 1040));
+                    __assert(__FILE__, LN(1089, 1048, 1048, 1040), "0");
                 }
                 break;
             case 7:
@@ -364,8 +387,13 @@ static void bga_initLightEnvelope(BgaDObjEnt *p)
                     p->u.light->col2[3] = 1.0f;
                 } else {
                     debug_Assert("Shadow Object not exists.\n");
-                    debug_assert(__FILE__, LN(1109, 1068, 1068));
-                    __assert(__FILE__, LN(1109, 1068, 1068), "0");
+#ifdef VERSION_NTSC
+                    debug_assert(__FILE__, 1060);
+                    __assert(__FILE__, 1060, "0");
+#else
+                    debug_assert(__FILE__, LN(1109, 1068, 1068, 1109));
+                    __assert(__FILE__, LN(1109, 1068, 1068, 1109), "0");
+#endif
                 }
                 break;
             }
@@ -382,8 +410,13 @@ static void bga_initLightEnvelope(BgaDObjEnt *p)
                     p->u.light->outer[1] = 1.0f / (((float *)d)[4] * 50.0f);
                     p->u.light->outer[2] = 1.0f / (((float *)d)[5] * 50.0f);
                 } else {
-                    debug_assert(__FILE__, LN(1141, 1100, 1100));
-                    __assert(__FILE__, LN(1141, 1100, 1100), "0");
+#ifdef VERSION_NTSC
+                    debug_assert(__FILE__, 1092);
+                    __assert(__FILE__, 1092, "0");
+#else
+                    debug_assert(__FILE__, LN(1141, 1100, 1100, 1141));
+                    __assert(__FILE__, LN(1141, 1100, 1100, 1141), "0");
+#endif
                 }
                 break;
             }
@@ -396,7 +429,8 @@ static void bga_initLightEnvelope(BgaDObjEnt *p)
     }
 }
 
-void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n, int no)
+#ifdef VERSION_NTSC
+void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n)
 {
     char buf[1024];
     int i;
@@ -405,7 +439,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n, int no)
     case 13:
         i = GetParticleIDWithName(p->name);
         if (i != -1) {
-            p->u.obj = iosMallocDebug(ios_partition_seki, 48, __FILE__, LN(1177, 1136, 1136));
+            p->u.obj = iosMallocDebug(ios_partition_seki, 48, __FILE__, 1128);
             ((BgaParticleEnt *)p->u.obj)->u.b.id = i;
             ((BgaParticleEnt *)p->u.obj)->u.b.loop =
                 GetParticleLoopFlag(((BgaParticleEnt *)p->u.obj)->u.b.id);
@@ -431,8 +465,76 @@ void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n, int no)
                 sprintf(buf, "OBJECT FILE \"%s\" NOT EXISTS.\n", p->name);
                 /* "model data file [%s] does not exist" */
                 debug_StdPrintfDummy("モデルデータファイル[%s]がありません.\n\n", p->name);
-                debug_assertMessage(__FILE__, LN(1201, 1160, 1160), buf);
-                __assert(__FILE__, LN(1201, 1160, 1160), "e");
+                debug_assertMessage(__FILE__, 1152, buf);
+                __assert(__FILE__, 1152, "e");
+            }
+            if (strcmp(((BgaGeom *)((BgaGObj *)objs[i])->geom)->name, p->name) == 0) {
+                p->u.obj = ((BgaGObj *)objs[i])->geom;
+                p->num = ((BgaGeom *)((BgaGObj *)objs[i])->geom)->nodeNum++;
+            }
+        }
+        break;
+    case 7:
+        p->u.obj = light_AddAmbientObject(0);
+        bga_initLightEnvelope(p);
+        break;
+    case 8:
+        p->u.obj = light_AddAmbientObject(2);
+        bga_initLightEnvelope(p);
+        break;
+    case 9:
+        p->u.obj = light_AddAmbientObject(1);
+        bga_initLightEnvelope(p);
+        break;
+    case 12:
+        p->u.obj = CreateKyomiGObj();
+        break;
+    }
+    if (p->child) {
+        bga_ApplyDObject(p->child, objs, n);
+    }
+    if (p->sibling) {
+        bga_ApplyDObject(p->sibling, objs, n);
+    }
+}
+#else
+void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n, int no)
+{
+    char buf[1024];
+    int i;
+
+    switch (p->type) {
+    case 13:
+        i = GetParticleIDWithName(p->name);
+        if (i != -1) {
+            p->u.obj = iosMallocDebug(ios_partition_seki, 48, __FILE__, LN(1177, 1136, 1136, 1177));
+            ((BgaParticleEnt *)p->u.obj)->u.b.id = i;
+            ((BgaParticleEnt *)p->u.obj)->u.b.loop =
+                GetParticleLoopFlag(((BgaParticleEnt *)p->u.obj)->u.b.id);
+            if (((BgaParticleEnt *)p->u.obj)->u.b.loop) {
+                ((BgaParticleEnt *)p->u.obj)->u.b.eff = SetParticleEffectActiveSensing(
+                    ((BgaParticleEnt *)p->u.obj)->u.b.id, bgaParticlePos, IdentityQuaternion);
+            } else {
+                ((BgaParticleEnt *)p->u.obj)->u.b.eff = -1;
+            }
+            break;
+        }
+    case 1:
+    case 2:
+    case 5:
+        p->u.obj = 0;
+        break;
+    case 0:
+    case 4:
+    case 10:
+        p->u.obj = 0;
+        for (i = 0; i < n; i++) {
+            if (((BgaGeom *)((BgaGObj *)objs[i])->geom)->name == 0) {
+                sprintf(buf, "OBJECT FILE \"%s\" NOT EXISTS.\n", p->name);
+                /* "model data file [%s] does not exist" */
+                debug_StdPrintfDummy("モデルデータファイル[%s]がありません.\n\n", p->name);
+                debug_assertMessage(__FILE__, LN(1201, 1160, 1160, 1201), buf);
+                __assert(__FILE__, LN(1201, 1160, 1160, 1201), "e");
             }
             if (strcmp(((BgaGeom *)((BgaGObj *)objs[i])->geom)->name, p->name) == 0) {
                 p->u.obj = ((BgaGObj *)objs[i])->geom;
@@ -463,6 +565,7 @@ void bga_ApplyDObject(BgaDObjEnt *p, GObj **objs, int n, int no)
         bga_ApplyDObject(p->sibling, objs, n, no);
     }
 }
+#endif
 
 static inline int bga_findKey(BgaKey *k, int n, float f) /* derived name */
 {
@@ -556,6 +659,173 @@ static inline int bga_findPtKey(BgaPtKey *k, int n, float f) /* derived name */
     return 0;
 }
 
+#ifdef VERSION_NTSC
+typedef struct BgaExtKey { /* field names derived */
+    /* 0x00 */ float value;
+    /* 0x04 */ float tension;
+    /* 0x08 */ float bias;
+    /* 0x0C */ int linear;
+    /* 0x10 */ int time;
+} BgaExtKey; /* derived name */
+
+typedef struct BgaExtMotion { /* field names derived */
+    /* 0x00 */ BgaExtKey *key;
+    /* 0x04 */ int n;
+    /* 0x08 */ unsigned int len;
+    /* 0x0C */ float frame;
+} BgaExtMotion; /* derived name */
+
+static inline int bga_findExtKey(BgaExtKey *k, int n, float f) /* derived name */
+{
+    int lo = 0;
+    int hi = n - 1;
+
+    if (f < (float)k[0].time) {
+        return 0;
+    }
+    if (hi < 2) {
+        return 0;
+    }
+    while (lo < hi) {
+        int mid = (lo + hi) >> 1;
+
+        if ((float)k[mid].time <= f && f < (float)k[mid + 1].time) {
+            return mid;
+        }
+        if ((float)k[mid + 1].time <= f) {
+            lo = mid + 1;
+        } else if (f <= (float)k[mid].time) {
+            hi = mid - 1;
+        }
+        if (lo == hi) {
+            return lo;
+        }
+    }
+    return 0;
+}
+
+static void bga_GetMotion(float *pos, float *rot, float *col, BgaPtMotion *m)
+{
+    BgaPtKey *k;
+    BgaPtKey *k1;
+    float f;
+    float u;
+    float s0;
+    float s1;
+    float dv;
+    float m0;
+    float m1;
+    int i;
+    int d;
+
+    f = m->frame * (30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+
+    if (m->n == 1) {
+        BgaPtKey *p = m->key;
+
+        pos[0] = p->pos[0];
+        pos[1] = p->pos[1];
+        pos[2] = p->pos[2];
+        pos[3] = 1.0f;
+        rot[0] = p->rot[0];
+        rot[1] = p->rot[1];
+        rot[2] = p->rot[2];
+        col[0] = p->col[0];
+        col[1] = p->col[1];
+        col[2] = p->col[2];
+        return;
+    }
+
+    k = m->key;
+    s0 = 0.0f;
+    s1 = 0.0f;
+    k = &k[bga_findPtKey(k, m->n, f)];
+    k1 = k + 1;
+    f -= (float)k->time;
+    d = k1->time - k->time;
+    u = f / (float)d;
+
+    if (k1->linear == 0) {
+        float h00;
+        float h01;
+        float h10;
+        float h11;
+        float ta;
+        float tb;
+        float tc;
+        float td;
+
+        ta = (1.0f - k->tension) * (k->bias + 1.0f);
+        tb = (1.0f - k->tension) * (1.0f - k->bias);
+        tc = (1.0f - k1->tension) * (1.0f - k1->bias);
+        td = (1.0f - k1->tension) * (k1->bias + 1.0f);
+        bga_hermite(u, &h00, &h01, &h10, &h11);
+        if (k->time != 0) {
+            s0 = (float)d / (float)(k1->time - k[-1].time);
+        }
+        if (k1->time < m->len) {
+            s1 = (float)d / (float)(k1[1].time - k->time);
+        }
+
+        for (i = 0; i < 3; i++) {
+            dv = k1->pos[i] - k->pos[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->pos[i] - k[-1].pos[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].pos[i] - k1->pos[i]));
+            }
+            pos[i] = k->pos[i] * h00 + k1->pos[i] * h01 + m0 * h10 + m1 * h11;
+        }
+        for (i = 0; i < 3; i++) {
+            dv = k1->rot[i] - k->rot[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->rot[i] - k[-1].rot[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].rot[i] - k1->rot[i]));
+            }
+            rot[i] = k->rot[i] * h00 + k1->rot[i] * h01 + m0 * h10 + m1 * h11;
+        }
+        for (i = 0; i < 3; i++) {
+            dv = k1->col[i] - k->col[i];
+
+            if (k->time == 0) {
+                m0 = (ta + tb) * dv;
+            } else {
+                m0 = s0 * (ta * (k->col[i] - k[-1].col[i]) + tb * dv);
+            }
+            if (k1->time >= m->len) {
+                m1 = (tc + td) * dv;
+            } else {
+                m1 = s1 * (tc * dv + td * (k1[1].col[i] - k1->col[i]));
+            }
+            col[i] = k->col[i] * h00 + k1->col[i] * h01 + m0 * h10 + m1 * h11;
+        }
+    } else {
+        for (i = 0; i < 3; i++) {
+            dv = k1->pos[i] - k->pos[i];
+            pos[i] = k->pos[i] + u * dv;
+            dv = k1->rot[i] - k->rot[i];
+            rot[i] = k->rot[i] + u * dv;
+            dv = k1->col[i] - k->col[i];
+            col[i] = k->col[i] + u * dv;
+        }
+    }
+    pos[3] = 1.0f;
+    col[3] = 1.0f;
+}
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
 static void bga_GetMotion(float *pos, float *rot, float *col, BgaPtMotion *m)
 {
@@ -1141,6 +1411,7 @@ static inline int bga_findExtKey(BgaExtKey *k, int n, float f) /* derived name *
     }
     return 0;
 }
+#endif
 
 static float bga_GetExtMotion(BgaExtMotion *m)
 {
@@ -1155,7 +1426,7 @@ static float bga_GetExtMotion(BgaExtMotion *m)
     int i;
     int d;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     f = m->frame * (30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
 #else
     f = m->frame;
@@ -1230,7 +1501,7 @@ static void bga_GetGizmoMotion(BgaMotion *m, float *dst)
     int i;
     int d;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     f = m->frame * (30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
 #else
     f = m->frame;
@@ -1341,6 +1612,12 @@ static float bgaScale[4]; /* derived name */
 static float bgaRotDeg[4]; /* derived name */
 #endif
 
+#ifdef VERSION_NTSC
+/* the rotation bga_GetMotion returns in degrees, which bga_CalcObject
+   turns into the 16-bit angles of bgaRot */
+static float bgaRotDeg[4]; /* derived name */
+#endif
+
 static int bgaRot[4]; /* derived name */
 
 static BgaLight bgaDummyLight; /* derived name */
@@ -1362,6 +1639,42 @@ static int bgaPivotFlag = 0; /* derived name */
    the display rate. */
 static void bga_updateMotionFrame(BgaExtMotion *m, float dt, int set, float f,
                                   int loop) /* derived name */
+{
+    if (set == 1) {
+        if (f >= 0.0f) {
+            float r;
+
+            if ((float)m->len * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <
+                f) {
+                r = (float)m->len *
+                    ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+            } else {
+                r = f;
+            }
+            m->frame = r;
+        } else {
+            m->frame = 0.0f;
+        }
+    } else {
+        m->frame += dt;
+        if ((float)m->len * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <
+            m->frame) {
+            if (loop) {
+                m->frame = 0.0f;
+            } else {
+                m->frame = (float)m->len *
+                           ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+            }
+        }
+    }
+}
+#else
+#ifdef VERSION_NTSC
+/* Set a motion's frame (set 1: to f, held between 0 and the motion's length)
+   or step it by dt and, once it runs past the length, wrap it to 0 when
+   looping or hold it at the end; the length is in 30 Hz frames, scaled to
+   the display rate. */
+static void bga_setCounter(BgaExtMotion *m, float dt, int set, float f, int loop)
 {
     if (set == 1) {
         if (f >= 0.0f) {
@@ -1418,6 +1731,7 @@ static inline void bga_stepEnvelope(BgaEnvEnt *e, float dt, int loop) /* derived
     }
 }
 #endif
+#endif
 
 /* Apply a node's envelopes: each entry's type says
  * what its motion drives, the node work record's float for the object, the
@@ -1444,7 +1758,11 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
 #else
+#ifdef VERSION_NTSC
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
+#else
                 bga_stepEnvelope(e, dt, loop);
+#endif
 #endif
             }
             break;
@@ -1458,7 +1776,11 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
 #else
+#ifdef VERSION_NTSC
+            bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
+#else
             bga_stepEnvelope(e, dt, loop);
+#endif
 #endif
             break;
         case 2:
@@ -1470,7 +1792,11 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
 #else
+#ifdef VERSION_NTSC
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
+#else
                 bga_stepEnvelope(e, dt, loop);
+#endif
 #endif
                 break;
             case 8:
@@ -1479,7 +1805,11 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
 #else
+#ifdef VERSION_NTSC
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
+#else
                 bga_stepEnvelope(e, dt, loop);
+#endif
 #endif
                 break;
             }
@@ -1493,7 +1823,11 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
 #else
+#ifdef VERSION_NTSC
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
+#else
                 bga_stepEnvelope(e, dt, loop);
+#endif
 #endif
                 break;
             }
@@ -1507,7 +1841,11 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 bga_updateMotionFrame((BgaExtMotion *)e->data, dt, 0, w, loop);
 #else
+#ifdef VERSION_NTSC
+                bga_setCounter((BgaExtMotion *)e->data, dt, 0, w, loop);
+#else
                 bga_stepEnvelope(e, dt, loop);
+#endif
 #endif
             }
             break;
@@ -1524,8 +1862,8 @@ static void bga_calcEnvelope(BgaDObjEnt *p, float dt, float w, int cut, int loop
             break;
         default:
             debug_StdPrintfDummy("Illegal Envelope Type : %p(%d)\n", e, e->type);
-            debug_assert(__FILE__, LN(2116, 1685, 1685));
-            __assert(__FILE__, LN(2116, 1685, 1685), "0");
+            debug_assert(__FILE__, LN(2116, 1685, 1685, 1677));
+            __assert(__FILE__, LN(2116, 1685, 1685, 1677), "0");
             break;
         }
     }
@@ -1683,8 +2021,13 @@ typedef struct BgaObj { /* field names derived */
     /* 0x20 */ char pad20[8];
     /* 0x28 */ char pad28[72];
     /* 0x70 */ float rscale[3];
+#ifdef VERSION_NTSC
+    /* 0x7C */ char pad7C[1988];
+    /* 0x840 */ BgaNodeBits *work;
+#else
     /* 0x7C */ char pad7C[2036];
     /* 0x870 */ BgaNodeBits *work;
+#endif
 } BgaObj; /* derived name */
 
 /* The lightning record bga_addLightning allocates: ten of lightning.h's
@@ -1738,6 +2081,157 @@ static inline void bga_checkCameraDistance(void) /* derived name */
     }
 }
 
+#ifdef VERSION_NTSC
+static void bga_CalcObject(BgaDObjEnt *d, float dt, float frame, int cut, int play, int loop)
+{
+    BgaPtMotion *m = (BgaPtMotion *)&d->motion;
+    int save;
+    float s;
+
+    bga_GetMotion(bgaPos, bgaRotDeg, bgaScale, m);
+    bgaRot[0] = (short)(bgaRotDeg[0] * (65536.0f / 360.0f));
+    bgaRot[1] = (short)(bgaRotDeg[1] * (65536.0f / 360.0f));
+    bgaRot[2] = (short)(bgaRotDeg[2] * (65536.0f / 360.0f));
+
+    switch (d->type) {
+    case 6:
+        d->u.obj =
+            (systemStatus[5] == 0) ? (void *)light_AddLight(0, 0, 2) : (void *)&bgaDummyLight;
+        bga_initLightEnvelope(d);
+        break;
+    case 11:
+        d->u.obj =
+            (systemStatus[5] == 0) ? (void *)light_AddLight(0, 0, 3) : (void *)&bgaDummyLight;
+        bga_initLightEnvelope(d);
+        break;
+    }
+    bgaPivotFlag = 0;
+
+    bga_calcEnvelope(d, dt, frame, cut, loop);
+    PushQuaternion();
+    _PushCurrentMatrix();
+    save = bgaRollZ;
+    if (bgaPivotFlag != 0) {
+        _PushCurrentMatrix();
+        _TransCurrentMatrix(bgaPivot);
+        _RotTransCurrentMatrixYXZ(bgaPos, bgaRot);
+        _ScaleVectorXYZ(bgaPivot, bgaPivot, -1.0f);
+        _TransCurrentMatrix(bgaPivot);
+        _ScaleCurrentMatrix(bgaScale[0], bgaScale[1], bgaScale[2]);
+        _GetCurrentMatrix(bgaPivotMatrix);
+        _PopCurrentMatrix();
+    }
+    _RotTransCurrentMatrixYXZ(bgaPos, bgaRot);
+    RotCurrentQuaternionY((short)bgaRot[1]);
+    RotCurrentQuaternionX((short)bgaRot[0]);
+    RotCurrentQuaternionZ((short)bgaRot[2]);
+    bgaRollZ -= (unsigned short)bgaRot[2];
+
+    switch (d->type) {
+    case 8:
+    case 9:
+        if (d->u.obj != 0) {
+            ((BgaObj *)d->u.obj)->rscale[0] = 1.0f / bgaScale[0];
+            ((BgaObj *)d->u.obj)->rscale[1] = 1.0f / bgaScale[1];
+            ((BgaObj *)d->u.obj)->rscale[2] = 1.0f / bgaScale[2];
+            _GetCurrentMatrix(d->u.obj);
+        }
+        break;
+    case 6:
+    case 11:
+        if (d->u.obj != 0) {
+            _GetCurrentMatrixTrans(d->u.obj);
+        }
+        break;
+    case 12:
+        _GetCurrentMatrixTrans(bgaPos);
+        SetParamKyomiGObj(d->u.obj, bgaPos, bgaScale);
+        break;
+    case 13:
+        if (d->u.obj == 0) {
+            /* "unknown particle" */
+            debug_StdPrintfDummy("不明なパーティクル\n");
+            break;
+        }
+        if (bgaUniqAnimationFlag == 0 && ((BgaParticleEnt *)d->u.obj)->u.b.loop) {
+            /* "a PBGA-type animation cannot use looping particles" */
+            debug_StdPrintfDummy(
+                "PBGAタイプのアニメーションではループのパーティクルは使用できません.\n");
+            break;
+        }
+        _GetCurrentMatrixTrans(bgaPos);
+        if (systemStatus[5] != 0) {
+            break;
+        }
+        s = bgaScale[0] + bgaScale[1] + bgaScale[2];
+        CopyQuaternion(((BgaParticleEnt *)d->u.obj)->quat, GetCurrentQuaternion());
+        _CopyVector(((BgaParticleEnt *)d->u.obj)->pos, bgaPos);
+        if (4.0f < s) {
+            ((BgaParticleEnt *)d->u.obj)->u.b.eff = SetParticleEffectActiveSensing(
+                ((BgaParticleEnt *)d->u.obj)->u.b.id, ((BgaParticleEnt *)d->u.obj)->pos,
+                ((BgaParticleEnt *)d->u.obj)->quat);
+        } else if (0.0f < s) {
+            ((BgaParticleEnt *)d->u.obj)->u.b.eff = SetParticleEffect(
+                ((BgaParticleEnt *)d->u.obj)->u.b.id, bgaPos, GetCurrentQuaternion());
+        }
+        break;
+    case 14:
+    case 15:
+        if (play != 0 && systemStatus[5] == 0) {
+            _GetCurrentMatrixTrans(bgaPos);
+            bga_addLightning(d->type, d->u.obj, bgaPos, ((BgaObj *)d->u.obj)->id,
+                             bgaScale[1] == 0.0f, bgaScale[0]);
+        }
+        break;
+    case 16:
+        if (play != 0 && systemStatus[5] == 0) {
+            _GetCurrentMatrixTrans(bgaPos);
+            bga_addLightning(d->type, d->u.obj, bgaPos, ((BgaObj *)d->u.obj)->id, 0, 0.0f);
+        }
+        break;
+    case 1:
+        _ScaleCurrentMatrix(bgaScale[0], bgaScale[1], bgaScale[2]);
+        break;
+    case 7:
+        break;
+    default:
+        _ScaleCurrentMatrix(bgaScale[0], bgaScale[1], bgaScale[2]);
+        if (d->u.obj != 0) {
+            RegularizeQuaternion(GetCurrentQuaternion());
+            CopyQuaternion(((BgaObj *)d->u.obj)->quat[d->num], GetCurrentQuaternion());
+            if (bgaPivotFlag != 0) {
+                _CopyMatrix(&((BgaObj *)d->u.obj)->mtx[d->num], bgaPivotMatrix);
+            } else {
+                _GetCurrentMatrix(&((BgaObj *)d->u.obj)->mtx[d->num]);
+            }
+            ((BgaObj *)d->u.obj)->work[d->num].flags.b.screenPos = (d->type == 10);
+            if (((BgaObj *)d->u.obj)->work[d->num].flags.b.screenPos) {
+                _CopyVector(((BgaObj *)d->u.obj)->work[d->num].pos, bgaPos);
+            }
+            ((BgaObj *)d->u.obj)->work[d->num].flags.b.billboard = (d->type == 4);
+            ((BgaObj *)d->u.obj)->work[d->num].flags.b.rotZ = bgaRollZ;
+        }
+        if (cut != 0 && d->type == 2) {
+            if (debug_font_flag & 1) {
+                debug_Printf(600, ScreenHeight / 2 - 8, 0xCCCCCC00, "LWS");
+            }
+            bga_checkCameraDistance();
+        }
+        break;
+    }
+
+    if (d->child != 0) {
+        bga_CalcObject(d->child, dt, frame, cut, play, loop);
+    }
+    bgaRollZ = save;
+    _PopCurrentMatrix();
+    PopQuaternion();
+    if (d->sibling != 0) {
+        bga_CalcObject(d->sibling, dt, frame, cut, play, loop);
+    }
+    bga_setCounter((BgaExtMotion *)m, dt, 0, frame, loop);
+}
+#else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 static inline void bga_stepMotion(BgaExtMotion *m, float dt, int reset) /* derived name */
 {
@@ -1960,6 +2454,7 @@ static void bga_CalcObject(BgaDObjEnt *d, float dt, float frame, int cut, int pl
     bga_stepMotion((BgaExtMotion *)&d->motion, dt, loop);
 #endif
 }
+#endif
 
 typedef struct { /* field names derived */
     /* 0x00 */ int key;
@@ -1981,6 +2476,68 @@ typedef struct BgaCntNode { /* field names derived */
     /* 0x34 */ BgaCount count;
 } BgaCntNode; /* derived name */
 
+#ifdef VERSION_NTSC
+static void bga_resetObjectCounter(BgaCntNode *o, float f, int loop)
+{
+    BgaCountEnt *e;
+
+    e = o->ents;
+    if (e != 0) {
+        while (e->obj != 0) {
+            bga_setCounter((BgaExtMotion *)e->obj, 0.0f, 1, f, loop);
+            e++;
+        }
+    }
+    if (o->child != 0) {
+        bga_resetObjectCounter(o->child, f, loop);
+    }
+    if (o->sibling != 0) {
+        bga_resetObjectCounter(o->sibling, f, loop);
+    }
+    bga_setCounter((BgaExtMotion *)&o->count, 0.0f, 1, f, loop);
+}
+
+void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop)
+{
+    float f;
+    int start;
+
+    if (p->cut) {
+        GlobalTimer = 1;
+        _CopyVector(bgaLastCameraPos, bgaCameraMatrix[3]);
+    }
+    start = p->start;
+    if (start < 0) {
+        start = 0;
+    }
+    switch (frame) {
+    case 0:
+        p->frame = (float)start * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+        p->mode = mode;
+        break;
+    case -1:
+        p->frame = p->end * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+        p->mode = mode;
+        break;
+    case -2:
+        p->frame = (float)start * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+        p->mode = -1;
+        return;
+    default:
+        f = (float)frame;
+        p->frame = f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+        if (frame < start) {
+            p->frame =
+                (float)start * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+        } else if (p->end < f) {
+            p->frame = p->end * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+        }
+        p->mode = mode;
+        break;
+    }
+    bga_CalcAnimation(p, loop, 1);
+}
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
 static void bga_resetObjectCounter(BgaCntNode *o, float f, int loop)
 {
@@ -2116,6 +2673,7 @@ void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop)
     }
     bga_CalcAnimation(p, loop, 1);
 }
+#endif
 
 typedef struct BgaAnimGeom { /* field names derived */
     /* 0x000 */ char pad00[12];
@@ -2128,6 +2686,174 @@ typedef struct BgaAnimObj { /* field names derived */
     /* 0x15C */ BgaAnimGeom *geom;
 } BgaAnimObj; /* derived name */
 
+#ifdef VERSION_NTSC
+void bga_CalcAnimation(BgaHeader *p, int loop, int reset)
+{
+    float m[4][4];
+    float rm[4][4];
+    BgaCntNode *o;
+    int i;
+    int f1;
+    int f2;
+
+    if (p->mode == -1) {
+        return;
+    }
+
+    if (p->cut) {
+        bgaCameraActive = 1;
+    }
+
+    GetMatrixFromQuaternionPos(m, p->anim->quat, p->anim->pos);
+    if (p->anim->obj) {
+        if (p->anim->root) {
+            _SetCurrentMatrix(p->anim->obj->geom->mtx[p->anim->idx]);
+        } else {
+            GetRootMatrix(rm, (GObj *)p->anim->obj);
+            CopyVector(rm[3], p->anim->obj->geom->mtx[p->anim->idx][3]);
+            _SetCurrentMatrix(rm);
+        }
+    } else {
+        _InitCurrentMatrix();
+    }
+    _MulCurrentMatrixR(m);
+
+    if (p->anim->obj) {
+        if (p->anim->root) {
+            CopyQuaternion(GetCurrentQuaternion(), p->anim->obj->geom->quat[p->anim->idx]);
+        } else {
+            GetRootQuaternion(GetCurrentQuaternion(), (GObj *)p->anim->obj);
+        }
+    } else {
+        SetIdentityQuaternion(GetCurrentQuaternion());
+    }
+    MultiQuaternion(GetCurrentQuaternion(), GetCurrentQuaternion(), p->anim->quat);
+
+    for (i = 0;; i++) {
+        f2 = (p->mode == 1);
+        f1 = p->cut && f2;
+        o = ((BgaCntNode **)p->roots)[i];
+        if (o == 0) {
+            break;
+        }
+        PushQuaternion();
+        _PushCurrentMatrix();
+        if (reset == 1) {
+            bga_resetObjectCounter(o, p->frame, loop);
+        }
+        bga_CalcObject((BgaDObjEnt *)o, p->step, p->frame, f1, f2, loop);
+        _PopCurrentMatrix();
+        PopQuaternion();
+    }
+
+    if (reset) {
+        return;
+    }
+
+    if (p->mode == 1) {
+        p->frame += p->step;
+        if (p->end * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) < p->frame) {
+            if (loop == 0) {
+                p->frame =
+                    p->end * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+                p->mode = 0;
+            } else {
+                p->frame = 0.0f;
+            }
+        }
+    }
+}
+
+/* The record is read through its fields.  Both frame-rate scales are the
+ * display rate over 30, and each key's two values are read into locals of
+ * their own, fov first. */
+void bga_CalcSdfCamera(char *data, int loop)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    BgaSdfKey *k0;
+    BgaSdfKey *k1;
+    float fr;
+    float t;
+    int i;
+    int i1;
+
+    if (p->mode == -1) {
+        return;
+    }
+    bgaCameraActive = 1;
+    if (p->frame * (30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) >
+        (float)p->num) {
+        if (loop == 0) {
+            p->frame =
+                (float)p->num * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f);
+            p->mode = 0;
+            return;
+        }
+        p->frame = 0.0f;
+    }
+
+    _PushCurrentMatrix();
+    fr = p->frame * (30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+    i = (int)fr;
+    i1 = i + 1;
+    if (i > p->num - 1) {
+        i = p->num - 1;
+    }
+    if (i1 > p->num - 1) {
+        i1 = p->num - 1;
+    }
+    k0 = &p->key[i];
+    k1 = &p->key[i1];
+    t = fr - (float)i;
+    {
+        VECTOR at;
+        VECTOR pos;
+        VECTOR pos0 = {k0->pos[0], k0->pos[1], k0->pos[2], 1.0f};
+        VECTOR at0 = {k0->at[0], k0->at[1], k0->at[2], 1.0f};
+        VECTOR pos1 = {k1->pos[0], k1->pos[1], k1->pos[2], 1.0f};
+        VECTOR at1 = {k1->at[0], k1->at[1], k1->at[2], 1.0f};
+        VECTOR up;
+        VECTOR dir;
+        float roll0;
+        float fov0;
+        float roll1;
+        float fov1;
+        float roll;
+        float fov;
+        short a;
+
+        memset(&up, 0, sizeof(up));
+        up.y = 1.0f;
+        fov0 = k0->fov;
+        roll0 = k0->roll;
+        fov1 = k1->fov;
+        roll1 = k1->roll;
+        _InterVectorXYZ(&pos, &pos0, &pos1, 1.0f - t);
+        _InterVectorXYZ(&at, &at0, &at1, 1.0f - t);
+        fov = fov0 * (1.0f - t) + fov1 * t;
+        roll = roll0 * (1.0f - t) + roll1 * t;
+        dir.x = at.x - pos.x;
+        dir.y = at.y - pos.y;
+        dir.z = at.z - pos.z;
+        dir.w = 0.0f;
+        _NormalizeVector(&dir, &dir);
+        _InitCurrentMatrix();
+        _RotCurrentMatrixZ((short)(roll * 182.04445f));
+        _ApplyCurrentMatrix(&up, &up);
+        _SetCameraMatrix(bgaCameraMatrix, &pos, &dir, &up);
+        if (GlobalTimer != 0) {
+            if (_GetLength(bgaCameraMatrix[3], bgaLastCameraPos) < 100.0f) {
+                GlobalTimer = 0;
+                currentScreenWidth = 0;
+            }
+        }
+        a = (short)(fov * 3.1415927f / 360.0f * 10430.378f);
+        bgaZoom = 224.0f / (GetTableSin(a) / GetTableCos(a));
+        _PopCurrentMatrix();
+    }
+    p->frame += 1.0f;
+}
+#else
 void bga_CalcAnimation(BgaHeader *p, int loop, int reset)
 {
     float m[4][4];
@@ -2336,6 +3062,7 @@ void bga_CalcSdfCamera(char *data, int loop)
     }
     p->frame += 1.0f;
 }
+#endif
 
 static void bga_addLightning(int kind, BgaLightningDef *def, float *vec, int id, int t0, float f)
 {
@@ -2364,13 +3091,13 @@ static void bga_addLightning(int kind, BgaLightningDef *def, float *vec, int id,
             }
             default:
                 debug_StdPrintfDummy("illegal lightning data set.\n");
-                debug_assert(__FILE__, LN(2960, 2502, 2502));
-                __assert(__FILE__, LN(2960, 2502, 2502), "0");
+                debug_assert(__FILE__, LN(2960, 2502, 2502, 2517));
+                __assert(__FILE__, LN(2960, 2502, 2502, 2517), "0");
                 return;
             }
         }
     }
-    p = iosMallocDebug(ios_partition_seki, 352, __FILE__, LN(2968, 2510, 2510));
+    p = iosMallocDebug(ios_partition_seki, 352, __FILE__, LN(2968, 2510, 2510, 2525));
     p->next = bgaLightningList;
     p->id = id;
     p->n = 1;
@@ -2397,8 +3124,12 @@ static void bga_addLightning(int kind, BgaLightningDef *def, float *vec, int id,
     }
     default:
         debug_StdPrintfDummy("illegal lightning data set.\n");
-        debug_assert(__FILE__, LN(2994, 2536, 2536));
-        __assert(__FILE__, LN(2994, 2536, 2536), "0");
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 2551);
+#else
+        debug_assert(__FILE__, LN(2994, 2536, 2536, 2994));
+#endif
+        __assert(__FILE__, LN(2994, 2536, 2536, 2551), "0");
         break;
     }
 }
@@ -2422,6 +3153,7 @@ static inline BgaLightningCol bga_lightningColor(BgaLightningDef *g) /* derived 
     return c;
 }
 
+#ifdef VERSION_NTSC
 void bga_DispLightning(void)
 {
     BgaLightning *p;
@@ -2482,8 +3214,138 @@ void bga_DispLightning(void)
         if (g == 0) {
             debug_StdPrintfDummy(
                 "Lightning data does not found! maybe, start point < end point.\n");
-            debug_assert(__FILE__, LN(3067, 2609, 2609));
-            __assert(__FILE__, LN(3067, 2609, 2609), "0");
+            debug_assert(__FILE__, 2624);
+            __assert(__FILE__, 2624, "0");
+            continue;
+        }
+        col = bga_lightningColor(g);
+        if (p->t0 != 0) {
+            continue;
+        }
+        switch (g->kind) {
+        case 1:
+            o = isysGObjSearchFromObjKindID_begin(2);
+            if (o == 0) {
+                continue;
+            }
+            if (systemStatus[5] == 0) {
+                k = p->n;
+                if (k < 10) {
+                    p->n = k + 1;
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
+                }
+            }
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame, g->c);
+            break;
+        case 2:
+            for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
+                if (objLayout[o->labelId].mdl == 66) {
+                    if (systemStatus[5] == 0) {
+                        k = p->n;
+                        if (k < 10) {
+                            p->n = k + 1;
+                            _CopyVector(&p->seg[k],
+                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
+                        }
+                    }
+                    DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                                   g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                                   g->texLen, p->frame, g->c);
+                }
+            }
+            break;
+        case 3:
+            for (o = isysGObjGetExist_begin(); o != 0; o = isysGObjGetExist_next(o)) {
+                if (objLayout[o->labelId].mdl == 68) {
+                    if (systemStatus[5] == 0) {
+                        k = p->n;
+                        if (k < 10) {
+                            p->n = k + 1;
+                            _CopyVector(&p->seg[k],
+                                        (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
+                        }
+                    }
+                    DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                                   g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                                   g->texLen, p->frame, g->c);
+                }
+            }
+            break;
+        case 0:
+            break;
+        default:
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame, g->c);
+            break;
+        }
+    }
+}
+#else
+void bga_DispLightning(void)
+{
+    BgaLightning *p;
+    BgaLightningDef *g;
+    GObj *o;
+    int cnt;
+    int i;
+    int num;
+    int k;
+    float z;
+    BgaLightning *list[100];
+    BgaLightningCol col;
+
+    cnt = 0;
+    num = 0;
+    for (p = bgaLightningList; p != 0; p = p->next) {
+        if (p->def->kind == 0) {
+            list[num++] = p;
+        }
+    }
+    if (num > 0) {
+        z = 0.0f;
+        i = 0;
+        for (o = isysGObjSearchFromObjKindID_begin(4); o != 0;
+             o = isysGObjSearchFromObjKindID_next(o)) {
+            if (isEnemyHyde(o) != 0) {
+                continue;
+            }
+            if (((GObj *)o)->active == 0) {
+                continue;
+            }
+            cnt++;
+            if (cnt >= 5) {
+                continue;
+            }
+            p = list[i++];
+            i %= num;
+            g = p->def;
+            if (systemStatus[5] == 0) {
+                k = p->n;
+                if (k < 10) {
+                    p->n = k + 1;
+                    _CopyVector(&p->seg[k], (char *)GOBJ_SUB(o)->nodeMtx + (g->node << 6) + 0x30);
+                }
+            }
+            col.c[0] = g->col[0];
+            col.c[1] = g->col[1];
+            col.c[2] = g->col[2];
+            col.c[3] = g->col[3];
+            DrawLightningN(p->n, p->seg, &col, g->stepMin, g->stepMax, g->swayStepMin,
+                           g->swayStepMax, g->turnMin, g->turnMax, g->swayLimit, g->width,
+                           g->texLen, p->frame + z, g->c);
+            z += 0.01f;
+        }
+    }
+    for (p = bgaLightningList; p != 0; p = p->next) {
+        g = p->def;
+        if (g == 0) {
+            debug_StdPrintfDummy(
+                "Lightning data does not found! maybe, start point < end point.\n");
+            debug_assert(__FILE__, LN(3067, 2609, 2609, 3067));
+            __assert(__FILE__, LN(3067, 2609, 2609, 3067), "0");
             continue;
         }
         col = bga_lightningColor(g);
@@ -2551,6 +3413,7 @@ void bga_DispLightning(void)
         }
     }
 }
+#endif
 
 inline void bga_ResetCamera(void)
 {
@@ -2577,12 +3440,17 @@ inline void bga_SetCamFrame(char *data, int frame, int mode, int loop)
     bgaCameraActive = 1;
     if (mode == 1) {
         GlobalTimer = mode;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
         bgaStreamSync = mode;
 #endif
         _CopyVector(bgaLastCameraPos, bgaCameraMatrix[3]);
     }
     if (frame == -1) {
+#ifdef VERSION_NTSC
+        p->frame = p->num;
+    } else {
+        p->frame = frame;
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         p->frame = p->num;
 #else
@@ -2594,9 +3462,53 @@ inline void bga_SetCamFrame(char *data, int frame, int mode, int loop)
 #else
         p->frame = bga_palFrame(frame);
 #endif
+#endif
     }
 }
 
+#ifdef VERSION_NTSC
+inline int bga_CheckAnimationFinish(BgaHeader *p)
+{
+    float f = p->end;
+    int r = 0;
+
+    if (f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) < p->frame ||
+        p->mode != 1) {
+        r = 1;
+    }
+    return r;
+}
+
+inline int bga_CheckAnimationFrame(BgaHeader *p, int frame, int reset)
+{
+    float f = frame;
+    int r = 0;
+
+    if (f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) < p->frame ||
+        p->mode != 1) {
+        r = 1;
+    }
+    if (r && reset) {
+        p->mode = 0;
+    }
+    return r;
+}
+
+inline int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out)
+{
+    float a = in;
+    int r = 0;
+
+    if (a * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) < p->frame) {
+        float b = out;
+
+        if (p->frame < b * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f)) {
+            r = p->mode == 1;
+        }
+    }
+    return r;
+}
+#else
 inline int bga_CheckAnimationFinish(BgaHeader *p)
 {
     float f = p->end;
@@ -2674,11 +3586,16 @@ inline int bga_CheckAnimationFrameIn(BgaHeader *p, int in, int out)
     }
     return r;
 }
+#endif
 
 inline int bga_CheckSdfCameraFinish(char *data)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
     float f = p->num;
+#ifdef VERSION_NTSC
+
+    return f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <= p->frame;
+#else
     float t = p->frame;
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -2689,12 +3606,18 @@ inline int bga_CheckSdfCameraFinish(char *data)
     }
     return f <= t;
 #endif
+#endif
 }
 
 inline int bga_CheckSdfCameraFrame(char *data, int frame, int reset)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
     float f = frame;
+#ifdef VERSION_NTSC
+    int r;
+
+    r = f * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <= p->frame;
+#else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
     float t = p->frame;
 #endif
@@ -2709,12 +3632,30 @@ inline int bga_CheckSdfCameraFrame(char *data, int frame, int reset)
         r = f <= t;
     }
 #endif
+#endif
     if (r && reset) {
         p->mode = 0;
     }
     return r;
 }
 
+#ifdef VERSION_NTSC
+inline int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
+{
+    BgaSdfCam *p = (BgaSdfCam *)data;
+    float a = in;
+    int r = 0;
+
+    if (a * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f) <= p->frame) {
+        float b = out;
+
+        if (p->frame < b * ((float)((60 - systemStatus[0] * 10) / systemStatus[1]) / 30.0f)) {
+            r = 1;
+        }
+    }
+    return r;
+}
+#else
 inline int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
 {
     BgaSdfCam *p = (BgaSdfCam *)data;
@@ -2741,6 +3682,7 @@ inline int bga_CheckSdfCameraFrameIn(char *data, int in, int out)
     }
     return r;
 }
+#endif
 
 inline void bga_SetCameraForceOff(void)
 {

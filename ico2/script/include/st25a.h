@@ -18,13 +18,17 @@ void actConte13Jimaku(GObj *volatile self);
 void actSt25aQueenAppearChk(GObj *volatile self);
 void actSt25aQueenDeadChk(GObj *volatile self);
 void actSt25aQueenTalkChk(GObj *volatile self);
+#ifndef VERSION_NTSC
 extern const char faceShadowTex[];
 extern const char faceShadowTex00[];
+#endif
 /* st25a.o's .sdata globals: ADPCM request slots */
 extern struct SqEntry *conte12;
 extern struct SqEntry *sd2;
 extern struct SqEntry *dead;
 void BoySekikaTexScroll(void);
+#ifndef VERSION_NTSC
 extern ActMail queen_appear_mes[]; /* st25a.o .data: the queen-appear actor mail list */
+#endif
 
 #endif /* ST25A_H */

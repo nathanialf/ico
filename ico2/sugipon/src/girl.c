@@ -24,6 +24,85 @@
 #include "DisplayP2O.h"
 #include "sceneManager.h"
 
+#ifdef VERSION_NTSC
+/* The girl's work record: her kind and the four cloths she wears with the
+   switches SetGirlClothDispSwitch sets (case 0 for cloth0, 1 for cloth1 and
+   cloth2, 2 for cloth3).  The cloth pointers are held as words: InitGirlGeo's
+   zero stores to them keep their order against the record's other int stores
+   only as int stores. */
+typedef struct GirlWork { /* field names derived */
+    int kind;             /* 0x00, the layout's 0x30 word */
+    int cloth0Disp;       /* 0x04 */
+    int cloth0;           /* 0x08, a Cloth4D */
+    int cloth12Disp;      /* 0x0C */
+    int cloth1;           /* 0x10, a Cloth4D */
+    int cloth2;           /* 0x14, a Cloth4D */
+    int cloth3Disp;       /* 0x18 */
+    int cloth3;           /* 0x1C, a Cloth4D */
+} GirlWork;               /* derived name */
+
+/* file-static: boy.c has a global function of the same name */
+static void execClothes(GObj *gobj)
+{
+    GirlWork *w;
+
+    w = GOBJ_SUB(gobj)->work;
+    if (w->cloth12Disp != 0) {
+        if ((void *)w->cloth1 != 0) {
+            GetCloth4D((void *)w->cloth1, 4.0f, 0.98f);
+        }
+        if ((void *)w->cloth2 != 0) {
+            GetCloth4D((void *)w->cloth2, 4.0f, 0.98f);
+        }
+    }
+    if (w->cloth0Disp != 0) {
+        if ((void *)w->cloth0 != 0) {
+            GetCloth4D((void *)w->cloth0, 3.0f, 0.98f);
+        }
+    }
+    if (w->cloth3Disp != 0) {
+        if ((void *)w->cloth3 != 0) {
+            GetCloth4D((void *)w->cloth3, 4.0f, 0.98f);
+        }
+    }
+}
+
+/* file-static: boy.c has a global function of the same name */
+static void dispClothes(GObj *gobj)
+{
+    GirlWork *w;
+    char *x;
+    char *y;
+
+    w = GOBJ_SUB(gobj)->work;
+    x = (char *)GOBJ_SUB(gobj)->lightMtx;
+    y = x + 0x40;
+    if (w->cloth12Disp != 0) {
+        if (w->cloth1 != 0) {
+            DispCloth4D((void *)w->cloth1, y, x);
+        }
+        if (w->cloth2 != 0) {
+            DispCloth4D((void *)w->cloth2, y, x);
+        }
+    }
+    if (w->cloth0Disp != 0) {
+        if (GOBJ_SUB(gobj)->ctrl.motion < 627) {
+            if (GOBJ_SUB(gobj)->ctrl.motion >= 624) {
+                goto skip;
+            }
+        }
+        if (w->cloth0 != 0) {
+            DispCloth4D((void *)w->cloth0, y, x);
+        }
+    skip:;
+    }
+    if (w->cloth3Disp != 0) {
+        if (w->cloth3 != 0) {
+            DispCloth4D((void *)w->cloth3, y, x);
+        }
+    }
+}
+#else
 static void setGirlClothSetting(int lv);
 
 /* The girl's work record: her kind, the four cloths and the hair she wears
@@ -179,6 +258,7 @@ static void dispClothes(GObj *gobj)
         }
     }
 }
+#endif
 
 /* The girl's eight cloth meshes: the five InitGirlGeo builds for the game,
    named after the work slot each fills, and the three the demo kind builds. */
@@ -554,9 +634,15 @@ static Cloth4DCol clothMeshF8Cols[21] = {
 
 static Cloth4DCol clothMeshF10Cols[15];
 
+#ifdef VERSION_NTSC
+static Cloth4DCfg clothMeshF10 = {
+    15, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "g_hair9", clothMeshF10Cols, 10.676f, 0,
+}; /* derived name */
+#else
 static Cloth4DCfg clothMeshF10 = {
     15, 5, 0, 0, 0x59, 0x59, 0x59, 0x80, "g_hair9", clothMeshF10Cols, 10.768f, 0,
 }; /* derived name */
+#endif
 
 static float clothMeshF10Uv[15][5][2] = {
     {{0.712f, 0.628f}, {0.717f, 0.473f}, {0.723f, 0.318f}, {0.728f, 0.163f}, {0.734f, 0.008f}},
@@ -576,6 +662,295 @@ static float clothMeshF10Uv[15][5][2] = {
     {{0.86f, 0.691f}, {0.835f, 0.519f}, {0.809f, 0.347f}, {0.784f, 0.176f}, {0.759f, 0.004f}},
 }; /* derived name */
 
+#ifdef VERSION_NTSC
+static Cloth4DCol clothMeshF10Cols[15] = {
+    {2.887f,
+     {0},
+     {-7.092f, 153.447f, -4.165f, 1.0f},
+     {-0.852f, -0.2f, 0.484f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[13],
+     {0},
+     {-0.086f, -2.873f, 0.265f, 0.0f}},
+    {2.265f,
+     {0},
+     {-8.424f, 155.071f, -5.847f, 1.0f},
+     {-0.926f, -0.04f, 0.375f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[12],
+     {0},
+     {-0.245f, -2.251f, -0.047f, 0.0f}},
+    {2.05f,
+     {0},
+     {-9.216f, 156.34f, -7.842f, 1.0f},
+     {-0.974f, 0.205f, 0.098f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[8],
+     {0},
+     {-0.344f, -2.019f, -0.086f, 0.0f}},
+    {2.495f,
+     {0},
+     {-8.695f, 157.607f, -10.626f, 1.0f},
+     {-0.944f, 0.252f, -0.211f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[2],
+     {0},
+     {-0.208f, -2.478f, -0.199f, 0.0f}},
+    {3.129f,
+     {0},
+     {-7.502f, 158.579f, -13.789f, 1.0f},
+     {-0.829f, 0.301f, -0.472f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[10],
+     {0},
+     {-0.166f, -3.084f, -0.502f, 0.0f}},
+    {4.252f,
+     {0},
+     {-4.943f, 159.364f, -16.245f, 1.0f},
+     {-0.588f, 0.307f, -0.748f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[3],
+     {0},
+     {-0.408f, -4.143f, -0.866f, 0.0f}},
+    {5.409f,
+     {0},
+     {-2.302f, 159.619f, -17.458f, 1.0f},
+     {-0.364f, 0.282f, -0.888f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[11],
+     {0},
+     {-0.397f, -5.239f, -1.284f, 0.0f}},
+    {5.957f,
+     {0},
+     {0.0f, 159.474f, -18.179f, 1.0f},
+     {0.0f, 0.277f, -0.961f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[1],
+     {0},
+     {0.0f, -5.738f, -1.601f, 0.0f}},
+    {5.409f,
+     {0},
+     {2.302f, 159.619f, -17.458f, 1.0f},
+     {0.364f, 0.282f, -0.888f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[0],
+     {0},
+     {0.397f, -5.239f, -1.284f, 0.0f}},
+    {4.252f,
+     {0},
+     {4.943f, 159.364f, -16.245f, 1.0f},
+     {0.588f, 0.307f, -0.748f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[5],
+     {0},
+     {0.408f, -4.143f, -0.866f, 0.0f}},
+    {3.129f,
+     {0},
+     {7.502f, 158.579f, -13.789f, 1.0f},
+     {0.827f, 0.298f, -0.476f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[6],
+     {0},
+     {0.166f, -3.084f, -0.502f, 0.0f}},
+    {2.495f,
+     {0},
+     {8.695f, 157.607f, -10.626f, 1.0f},
+     {0.958f, 0.26f, -0.12f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[4],
+     {0},
+     {0.208f, -2.478f, -0.199f, 0.0f}},
+    {2.05f,
+     {0},
+     {9.216f, 156.34f, -7.842f, 1.0f},
+     {0.972f, 0.186f, 0.146f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[9],
+     {0},
+     {0.344f, -2.019f, -0.086f, 0.0f}},
+    {2.265f,
+     {0},
+     {8.424f, 155.071f, -5.847f, 1.0f},
+     {0.926f, -0.04f, 0.375f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[14],
+     {0},
+     {0.245f, -2.251f, -0.047f, 0.0f}},
+    {2.887f,
+     {0},
+     {7.092f, 153.447f, -4.165f, 1.0f},
+     {0.852f, -0.2f, 0.484f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF10Uv[7],
+     {0},
+     {0.086f, -2.873f, 0.265f, 0.0f}},
+}; /* derived name */
+
+static Cloth4DCol clothMeshF14Cols[9];
+
+static Cloth4DCfg clothMeshF14 = {
+    9, 3, 0, 0, 0x59, 0x59, 0x59, 0x80, "g_hair9", clothMeshF14Cols, 9.462f, 0,
+}; /* derived name */
+
+static float clothMeshF14Uv[9][3][2] = {
+    {{0.99f, 0.542f}, {0.987f, 0.275f}, {0.984f, 0.008f}},
+    {{0.99f, 0.542f}, {0.987f, 0.275f}, {0.984f, 0.008f}},
+    {{0.768f, 0.523f}, {0.76f, 0.268f}, {0.753f, 0.013f}},
+    {{0.768f, 0.523f}, {0.76f, 0.268f}, {0.753f, 0.013f}},
+    {{0.305f, 0.508f}, {0.307f, 0.259f}, {0.31f, 0.01f}},
+    {{0.557f, 0.51f}, {0.544f, 0.26f}, {0.531f, 0.01f}},
+    {{0.557f, 0.51f}, {0.544f, 0.26f}, {0.531f, 0.01f}},
+    {{0.073f, 0.497f}, {0.078f, 0.255f}, {0.083f, 0.013f}},
+    {{0.305f, 0.508f}, {0.307f, 0.259f}, {0.31f, 0.01f}},
+}; /* derived name */
+
+static Cloth4DCol clothMeshF14Cols[9] = {
+    {3.212f,
+     {0},
+     {-8.098f, 154.294f, -6.906f, 1.0f},
+     {-0.728f, 0.272f, 0.63f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[0],
+     {0},
+     {0.5f, -2.944f, -1.184f, 0.0f}},
+    {2.488f,
+     {0},
+     {-7.896f, 152.007f, -10.583f, 1.0f},
+     {-0.047f, -0.53f, -0.847f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[3],
+     {0},
+     {0.472f, -2.242f, -0.969f, 0.0f}},
+    {3.168f,
+     {0},
+     {-6.306f, 151.903f, -12.825f, 1.0f},
+     {-0.566f, -0.67f, -0.48f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[6],
+     {0},
+     {0.453f, -2.8f, -1.411f, 0.0f}},
+    {3.178f,
+     {0},
+     {-3.611f, 151.666f, -15.01f, 1.0f},
+     {-0.479f, -0.63f, -0.611f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[8],
+     {0},
+     {0.123f, -3.044f, -0.905f, 0.0f}},
+    {3.594f,
+     {0},
+     {0.0f, 151.462f, -16.169f, 1.0f},
+     {-0.0f, -0.636f, -0.772f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[7],
+     {0},
+     {0.0f, -3.507f, -0.788f, 0.0f}},
+    {3.178f,
+     {0},
+     {3.611f, 151.666f, -15.01f, 1.0f},
+     {0.479f, -0.63f, -0.612f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[4],
+     {0},
+     {-0.123f, -3.044f, -0.905f, 0.0f}},
+    {3.168f,
+     {0},
+     {6.306f, 151.903f, -12.825f, 1.0f},
+     {0.567f, -0.669f, -0.48f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[5],
+     {0},
+     {-0.453f, -2.8f, -1.411f, 0.0f}},
+    {2.488f,
+     {0},
+     {7.896f, 152.007f, -10.583f, 1.0f},
+     {0.05f, -0.528f, -0.848f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[2],
+     {0},
+     {-0.472f, -2.242f, -0.969f, 0.0f}},
+    {3.212f,
+     {0},
+     {8.098f, 154.294f, -6.906f, 1.0f},
+     {0.729f, 0.271f, 0.629f, 0.0f},
+     35,
+     1.0f,
+     -1,
+     0.0f,
+     clothMeshF14Uv[1],
+     {0},
+     {-0.5f, -2.944f, -1.184f, 0.0f}},
+}; /* derived name */
+#else
 static Cloth4DCol clothMeshF10Cols[15] = {
     {2.726f,
      {0},
@@ -934,6 +1309,7 @@ static Cloth4DCol clothMeshF18Cols[7] = {
      {0},
      {0.049f, -0.273f, 1.183f, 0.0f}},
 }; /* derived name */
+#endif
 
 static Cloth4DCol clothMeshF20Cols[13];
 
@@ -1690,6 +2066,13 @@ static ClothHangCfg clothHangF8[3] = {
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
 
+#ifdef VERSION_NTSC
+static ClothHangCfg clothHangF10[3] = {
+    {1, -3.0f, 15.0f, 10.0f, 35, {0}, 0.0f, 2.0f, {0}, 1.0f, -1.0f, {0}},
+    {1, -5.0f, 8.0f, 5.0f, 34, {0}, 0.0f, 0.0f, {0}, 1.0f, -1.0f, {0}},
+    {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
+}; /* derived name */
+#else
 static ClothHangCfg clothHangF10[3] = {
     {1, -3.0f, 15.0f, 10.0f, 35, {0}, 0.0f, 4.0f, {0}, 1.0f, -1.0f, {0}},
     {1, -5.0f, 8.0f, 5.0f, 34, {0}, 0.0f, 0.0f, {0}, 1.0f, -1.0f, {0}},
@@ -1700,12 +2083,14 @@ static ClothHangCfg clothHangF18[2] = {
     {1, 0.0f, 10.0f, 8.0f, 35, {0}, 5.0f, 3.5f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
+#endif
 
 static ClothHangCfg clothHangF20[2] = {
     {1, -15.0f, 30.0f, 20.0f, 1, {0}, 0.0f, 13.0f, {0}, 1.0f, -1.0f, {0}},
     {-1, 0.0f, 0.0f, 0.0f, 0, {0}, 0.0f, 0.0f, {0}, 0.0f, 0.0f, {0}},
 }; /* derived name */
 
+#ifndef VERSION_NTSC
 /* the three cloth and hair setters */
 inline void SetGirlClothDispSwitch(GObj *gobj, int part, int on)
 {
@@ -1760,10 +2145,18 @@ static inline void setGirlClothSetting(int lv)
         setGirlClothParam(&girlClothGameParam);
     }
 }
+#endif
 
 void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
 {
     GirlWork *w;
+#ifdef VERSION_NTSC
+    int kind;
+
+    w = iosMallocDebug(ios_partition_sugipon, sizeof(GirlWork), __FILE__, 680);
+    kind = csv->obj;
+    w->cloth3 = 0;
+#else
     int p;
     int kind;
 
@@ -1781,6 +2174,7 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
     w->ornament0 = 0;
     w->cloth3 = 0;
     w->hair = 0;
+#endif
     w->cloth2 = 0;
     w->cloth0 = 0;
     w->cloth1 = 0;
@@ -1799,17 +2193,25 @@ void *InitGirlGeo(GObj *gobj, SObjSimpleSetting *csv)
         w->cloth1 = (int)InitCloth4D(gobj, &clothMeshF10, clothHangF10);
         w->cloth0 = (int)InitCloth4D(gobj, &clothMeshF8, clothHangF8);
         w->cloth2 = (int)InitCloth4D(gobj, &clothMeshF14, clothHangF10);
+#ifdef VERSION_NTSC
+        w->cloth3 = (int)InitCloth4D(gobj, &clothMeshF20, clothHangF20);
+#else
         w->hair = (int)InitCloth4D(gobj, &clothMeshF18, clothHangF18);
         w->cloth3 = (int)InitCloth4D(gobj, &clothMeshF20, clothHangF20);
         w->crown = (int)CSVSYSTEM_InitDObj(12, csv);
         w->ornament0 = (int)CSVSYSTEM_InitDObj(13, csv);
         w->ornament1 = (int)CSVSYSTEM_InitDObj(14, csv);
+#endif
         break;
     }
     ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth0Disp = 1;
     ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth12Disp = 1;
     ((GirlWork *)GOBJ_SUB(gobj)->work)->cloth3Disp = 1;
+#ifdef VERSION_NTSC
+    InitMotionOrient(gobj, 1216, 1820, 12, 24, 514);
+#else
     InitMotionOrient(gobj, 1283, 2122, 12, 24, 532);
+#endif
     SetLodLevel(gobj, 2);
     return w;
 }
@@ -1828,7 +2230,11 @@ void GirlGeo(GObj *gobj)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     SetActressLight(gobj, 35, 44, 466);
 #else
+#ifdef VERSION_NTSC
+    SetActressLight(gobj, 35, 44, 407);
+#else
     SetActressLight(gobj, 35, 44, 470);
+#endif
 #endif
     if (CylinderCollision(gobj, 4, 50.0f, 50.0f, 0.0f)) {
         iosOmSendMail(gobj, 6, gobj);
@@ -1852,6 +2258,7 @@ void GirlGeo(GObj *gobj)
         }
     }
     execClothes(gobj);
+#ifndef VERSION_NTSC
 }
 
 void GirlAI(GObj *gobj)
@@ -1911,6 +2318,7 @@ void GirlAI(GObj *gobj)
             scpGirlHintVoiceCancel();
         }
     }
+#endif
 }
 
 /* the name the cloth debug display prints for each girl kind */
@@ -1947,3 +2355,23 @@ void GirlDL(GObj *gobj)
     dispClothes(gobj);
     debugWireStringGirl(gobj);
 }
+
+#ifdef VERSION_NTSC
+void GirlAI(GObj *gobj) {}
+
+inline void SetGirlClothDispSwitch(GObj *gobj, int part, int on)
+{
+    GirlWork *cloth = GOBJ_SUB(gobj)->work;
+    switch (part) {
+    case 0:
+        cloth->cloth0Disp = on;
+        break;
+    case 1:
+        cloth->cloth12Disp = on;
+        break;
+    case 2:
+        cloth->cloth3Disp = on;
+        break;
+    }
+}
+#endif

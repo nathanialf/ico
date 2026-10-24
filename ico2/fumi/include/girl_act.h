@@ -30,8 +30,10 @@ void actGirlAttack(struct GObj *volatile self);
 void actGirlBecall(struct GObj *volatile self);
 void actGirlBehanged(struct GObj *volatile self);
 void actGirlAttractAction(struct GObj *volatile self);
+#ifndef VERSION_NTSC
 void actGirlHintVoice(struct GObj *volatile self);
 void actGirlCannotReach(struct GObj *volatile self);
+#endif
 void actGirlHand50(struct GObj *volatile self);
 void afterGirlHand50(struct GObj *volatile self);
 void actGirlHand100(struct GObj *volatile self);

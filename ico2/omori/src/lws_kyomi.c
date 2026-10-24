@@ -1,15 +1,45 @@
 #include "sceneManager.h"
+
+#ifndef VERSION_NTSC
 #include "memory.h"
 #include "StageAnimation.h"
+#endif
+
 #include "debug.h"
 #include <string.h>
 #include "typedef.h"
+
+#ifdef VERSION_NTSC
+#include "lws_kyomi.h"
+#else
 #include "ios.h"
 #include "lws_kyomi.h"
 #include "main.h"
+#endif
+
 #include "geometryManager.h"
 #include "brain.h"
 
+#ifdef VERSION_NTSC
+void LwsKyomiGeo(GObj *gobj)
+{
+    brainSubLevelGop(gobj, 0.1f);
+}
+
+GObj *CreateKyomiGObj(void)
+{
+    float lay[16];
+    GObj *gobj;
+
+    memset(lay, 0, 64);
+    lay[8] = 1.0f;
+    lay[9] = 1.0f;
+    lay[10] = 1.0f;
+    gobj = CreateLayoutedGObj(60, 69, -1, 0, lay, 1, 7, 0);
+    brainStatusDefaultSet(&brainGirl, gobj, 1);
+    return gobj;
+}
+#else
 struct HintInfo { /* field names derived */
     int anim;     /* the stage animation the hint plays */
     int no;
@@ -149,6 +179,7 @@ void ReadHintSaveInfo(void)
     READ_HINT_SAVE_BITS(hintWork.save, 0);
     READ_HINT_SAVE_BITS(hintWork.save + 4, 1);
 }
+#endif
 
 void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
 {
@@ -177,6 +208,7 @@ void SetParamKyomiGObj(GObj *gobj, float *root, float *param)
     brainSetLevelGop(gobj, lv, on1, on2);
 }
 
+#ifndef VERSION_NTSC
 void FinishHint(int no)
 {
     (hintTable + no)->flags |= 1;
@@ -236,3 +268,4 @@ void Hint_Init(void)
         p++;
     }
 }
+#endif

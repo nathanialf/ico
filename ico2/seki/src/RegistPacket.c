@@ -85,8 +85,13 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                         if (m->index >= s->vtxCount) {
                             debug_StdPrintfDummy("reg_setShape:illegal vertex index. %d/%d\n",
                                                  m->index, s->vtxCount);
+#ifdef VERSION_NTSC
+                            debug_assert("src/RegistPacket.c", 629);
+                            __assert("src/RegistPacket.c", 629, "0");
+#else
                             debug_assert("src/RegistPacket.c", 635);
                             __assert("src/RegistPacket.c", 635, "0");
+#endif
                         }
                         t = s->vtx;
                         t += m->index * 0x10;
@@ -103,15 +108,25 @@ static void reg_setShape(Sub15C *o, int idx, int flag, PacHeader *pkt, PObjMater
                         if (m->index >= s->nrmCount) {
                             debug_StdPrintfDummy("reg_setShape:illegal normal index. %d/%d\n",
                                                  m->index, s->nrmCount);
+#ifdef VERSION_NTSC
+                            debug_assert("src/RegistPacket.c", 636);
+                            __assert("src/RegistPacket.c", 636, "0");
+#else
                             debug_assert("src/RegistPacket.c", 642);
                             __assert("src/RegistPacket.c", 642, "0");
+#endif
                         }
                         t = s->nrm;
                         t += m->index * 0x10;
                         _AddVectorXYZ(t, t, vec);
                     } else {
+#ifdef VERSION_NTSC
+                        debug_assert("src/RegistPacket.c", 641);
+                        __assert("src/RegistPacket.c", 641, "0");
+#else
                         debug_assert("src/RegistPacket.c", 647);
                         __assert("src/RegistPacket.c", 647, "0");
+#endif
                     }
                 nextbone:
                     m++;
@@ -236,8 +251,13 @@ static int reg_clipPacketBoundingBox(PacHeader *pk)
         break;
     default:
         debug_StdPrintfDummy("illegal clip type. %d\n", type);
+#ifdef VERSION_NTSC
+        debug_assert("src/RegistPacket.c", 815);
+        __assert("src/RegistPacket.c", 815, "0");
+#else
         debug_assert("src/RegistPacket.c", 821);
         __assert("src/RegistPacket.c", 821, "0");
+#endif
         break;
     }
     if (debug_bounding_flag & 2) {
@@ -504,8 +524,13 @@ static char *reg_setMMatrixPacket(Sub15C *o, int idx)
             _SetTransCurrentMatrix(o->nodes[idx].pos);
         }
         _GetCurrentMatrix(matrixptr + 0x180);
+#ifdef VERSION_NTSC
+        _MulMatrix(matrixptr + 0x140, matrixptr + 0xC0, matrixptr + 0x180);
+        _MulMatrix(matrixptr + 0x300, matrixptr + 0x240, matrixptr + 0x180);
+#else
         _MulMatrix(matrixptr + 0x140, matrixptr + 0x640, matrixptr + 0x180);
         _MulMatrix(matrixptr + 0x300, matrixptr + 0x680, matrixptr + 0x180);
+#endif
     } else if ((w->flags.ll & 4) != 0) {
         RegMtx um2;
 
@@ -669,8 +694,13 @@ static void reg_setCMatrixPacket(Sub15C *o, float alpha, int prilist)
         light();
     } else {
         debug_StdPrintfDummy("no light calc cluster model %s\n", o->model);
+#ifdef VERSION_NTSC
+        debug_assert("src/RegistPacket.c", 1230);
+        __assert("src/RegistPacket.c", 1230, "0");
+#else
         debug_assert("src/RegistPacket.c", 1238);
         __assert("src/RegistPacket.c", 1238, "0");
+#endif
     }
     {
         char *c = PacketBufferStruct.ptr.c;
@@ -1586,7 +1616,11 @@ void reg_DispAccessoryWithShadow(Sub15C *o, Sub15C *src)
         setMatrix();
         if (mode != 0 && mode != 3) {
             o->model->shadowLength = src->model->shadowLength;
+#ifdef VERSION_NTSC
+            _CopyVector((char *)o + 0x830, (char *)src + 0x830);
+#else
             _CopyVector((char *)o + 0x860, (char *)src + 0x860);
+#endif
             _CopyMatrix((char *)o->lightMtx, (char *)src->lightMtx);
             _CopyMatrix((char *)o->lightMtx + 64, (char *)src->lightMtx + 64);
             _SetCurrentMatrix(matrixptr + 0x40);

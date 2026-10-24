@@ -12,7 +12,9 @@
 
 struct GObj;
 
+#ifndef VERSION_NTSC
 void SetFlag4PointFixID(struct GObj *self, int turns, int id);
+#endif
 
 typedef struct { /* field names derived */
     float m[4];
@@ -43,8 +45,9 @@ typedef union { /* field names derived */
    vectors, 0x870 the 80-byte nodes) freed and reallocated for n nodes, and
    the nodes reset; worm.c and boy.c carry the same block.  The block has its
    own counter, and each node's 0.0f words are stored from one float set at
-   the top of the loop body. */
-#define FLAG_ALLOC_NODES(o, num) /* derived name */                                                \
+   the top of the loop body.  line is the caller's source line, which the
+   original passed as __LINE__ (flag.c spells it with LN). */
+#define FLAG_ALLOC_NODES(o, num, line) /* derived name */                                                \
     {                                                                                              \
         int n;                                                                                     \
         if ((o)->nodeMtx != 0) {                                                                   \
@@ -56,14 +59,14 @@ typedef union { /* field names derived */
         *(char **)((char *)(o) + 0xC) = 0;                                                         \
         *(char **)((char *)(o) + 0x10) = 0;                                                        \
         *(char **)((char *)(o) + 0xC) =                                                            \
-            iosMallocDebug(ios_partition_seki, (num) * 64, __FILE__, __LINE__);                    \
+            iosMallocDebug(ios_partition_seki, (num) * 64, __FILE__, line);                    \
         *(char **)((char *)(o) + 0x10) =                                                           \
-            iosMallocDebug(ios_partition_seki, (num) * 16, __FILE__, __LINE__);                    \
+            iosMallocDebug(ios_partition_seki, (num) * 16, __FILE__, line);                    \
         (o)->nodeNum = (num);                                                                      \
         if ((o)->nodes != 0) {                                                                     \
             iosFree((void *)((int)(o)->nodes & 0x0FFFFFFF));                                       \
         }                                                                                          \
-        (o)->nodes = iosMallocDebug(ios_partition_seki, (num) * 80, __FILE__, __LINE__);           \
+        (o)->nodes = iosMallocDebug(ios_partition_seki, (num) * 80, __FILE__, line);           \
         for (n = 0; n < (num); n++) {                                                              \
             float zero = 0.0f;                                                                     \
             (o)->nodes[n].flags.ll &= ~1;                                                          \

@@ -27,7 +27,9 @@ static char *lodNameTable[4] = {"DEMO MODE", "GAMEMODE HIGH", "GAMEMODE LOW",
 void SetLodLevel(GObj *self, int lv)
 {
     int n = self->kind;
+#ifndef VERSION_NTSC
     Sub15C *p;
+#endif
 
     if (n >= 0) {
         /* %s: the LOD of "%s" was set to "%s" */
@@ -36,10 +38,12 @@ void SetLodLevel(GObj *self, int lv)
             objKindData[n].name, lodNameTable[lv]);
     }
     SetMotionBlendlessNode(self, lodNodeTable[lv]);
+#ifndef VERSION_NTSC
     p = self->dobj;
     if (p != 0) {
         if (p->lodFunc != 0) {
             p->lodFunc(lv);
         }
     }
+#endif
 }

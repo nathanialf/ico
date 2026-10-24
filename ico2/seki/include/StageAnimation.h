@@ -67,7 +67,9 @@ void stage_ApplyData(char *name, char *data);
 int stage_ContinueAnimation(int key, int next);
 void stage_DispAnimation(void);
 int stage_DispBgAnimation(BgaPlayNode **self);
+#ifndef VERSION_NTSC
 int stage_DispBgAnimationNoFinish(BgaPlayNode **self);
+#endif
 void stage_KillPlayBgAnimation(BgaPlayNode **self);
 BgaPlayNode *stage_MakePlayBgAnimation(int key);
 float stage_PlayBgAnimation(int key, float t, void *v, void *q);

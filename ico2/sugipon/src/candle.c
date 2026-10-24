@@ -39,6 +39,16 @@ int InitCandleGeo(void *self, void *mtx)
     return (int)flame;
 }
 
+#ifdef VERSION_NTSC
+void CandleDL(GObj *self)
+{
+    Sub15C *d = self->dobj;
+    if (d->disp != 0) {
+        p2o_SetDefaultEnviroment();
+        p2o_DispVU1DObjMulti(d);
+    }
+}
+#else
 void CandleGeo(void *self)
 {
     Sub15C *w = GOBJ_SUB(self);
@@ -67,6 +77,7 @@ void CandleGeo(void *self)
         }
     }
 }
+#endif
 
 inline void _deleteLayoutedCandleParticleEffect(void *gobj)
 {
@@ -85,6 +96,26 @@ inline void _deleteLayoutedCandleParticleEffect(void *gobj)
     }
 }
 
+#ifdef VERSION_NTSC
+void CandleGeo(void *self)
+{
+    Sub15C *w = GOBJ_SUB(self);
+    CandleFlame *flame = w->work;
+    int i;
+
+    if (w->disp != 0 && w->nodeNum >= 2) {
+        for (i = 0; i < w->nodeNum; i++) {
+            CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeMtx + i * 64);
+            MatrixDrive_TransMatrix(0.0f, -40.0f, 0.0f);
+            if (flame[i].effect != -1) {
+                SetParticleEffectGeometry(flame[i].effect, MatrixDrive_GetMatrix()[3],
+                                          IdentityQuaternion);
+            }
+        }
+    }
+}
+#endif
+
 inline void DeleteLayoutedCandleParticleEffect(void)
 {
     void *gobj;
@@ -96,6 +127,7 @@ inline void DeleteLayoutedCandleParticleEffect(void)
     }
 }
 
+#ifndef VERSION_NTSC
 void CandleDL(GObj *self)
 {
     Sub15C *d = self->dobj;
@@ -104,3 +136,4 @@ void CandleDL(GObj *self)
         p2o_DispVU1DObjMulti(d);
     }
 }
+#endif

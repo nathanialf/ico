@@ -4,7 +4,11 @@
 
 int strFileOpen(char *self, char *name)
 {
+#ifdef VERSION_NTSC
+    strcpy(self + 0x34, name);
+#else
     strcpy(self + 0x38, name);
+#endif
     iosCdvdDirectStOpen((struct IosCdvdHandle *)self);
     return 1;
 }

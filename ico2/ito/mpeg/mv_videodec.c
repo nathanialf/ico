@@ -69,7 +69,7 @@ int videoDecCreate(VideoDec *self)
 {
     int p;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     p = alloc_zeroed(1557248, 64);
 #else
     p = alloc_zeroed(1868288, 64);
@@ -78,7 +78,7 @@ int videoDecCreate(VideoDec *self)
     if (p == 0) {
         return -1;
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     sceMpegCreate(&self->mpeg, (void *)p, 1557248);
 #else
     sceMpegCreate(&self->mpeg, (void *)p, 1868288);
@@ -165,6 +165,55 @@ int videoCallback(sceMpeg *mp, void *cbdata, void *anyData)
     return 0 < n;
 }
 
+#ifdef VERSION_NTSC
+static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
+{
+    int ret = 1;
+    VoData *p;
+    int w;
+    int h;
+    int ox;
+    int oy;
+    int hh;
+    int i;
+    int j;
+
+    while (!sceMpegIsEnd(&dec->mpeg)) {
+        /* the decoder's state, as videoDecGetState reads it */
+        if (dec->state == 1) {
+            ret = -1;
+            debug_StdPrintfDummy("decode thread: aborted\n");
+            break;
+        }
+        while ((p = voBufGetData(vo)) == 0) {
+            switchThread();
+        }
+        if (sceMpegGetPicture(&dec->mpeg, (unsigned int)p, 1350) < 0) {
+            ErrMessage("sceMpegGetPicture() decode error");
+            ret = -1;
+            break;
+        }
+        if (dec->mpeg.frameCount == 0) {
+            debug_StdPrintfDummy("movie %d x %d\n", dec->mpeg.width, dec->mpeg.height);
+            w = dec->mpeg.width;
+            ox = (disp->imageWidth - w) >> 1;
+            h = dec->mpeg.height;
+            oy = (disp->imageHeight - h) >> 2;
+            hh = h >> 1;
+            for (i = 0; i < vo->max; i++) {
+                for (j = 0; j < 2; j++) {
+                    dispSetTags(disp, (int)vo->tag[i].packet[j], (int)&vo->data[i], j, ox, oy, w,
+                                hh, w, h);
+                }
+            }
+        }
+        voBufIncCount(vo);
+        switchThread();
+    }
+    sceMpegReset(&dec->mpeg);
+    return ret;
+}
+#else
 static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
 {
     int ret = 1;
@@ -216,6 +265,7 @@ static int decBitStrm0(VideoDec *dec, MvDispEnv *disp, VoBuf *vo)
     sceMpegReset(&dec->mpeg);
     return ret;
 }
+#endif
 
 static void Free(int addr)
 {

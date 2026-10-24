@@ -34,11 +34,23 @@ static inline void objActionCorrectFlag(OaRecB *p) /* derived name */
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         p->mode = 949;
 #else
+#ifdef VERSION_NTSC
+        p->mode = 815;
+#else
         p->mode = 972;
+#endif
 #endif
     }
 }
 
+#ifdef VERSION_NTSC
+static inline void objActionCorrectMode(OaRecB *p) /* derived name */
+{
+    if (p->mode == 815) {
+        p->mode = p->baseMode;
+    }
+}
+#else
 static inline void objActionCorrectMode(OaRecB *p) /* derived name */
 {
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -49,6 +61,7 @@ static inline void objActionCorrectMode(OaRecB *p) /* derived name */
         p->mode = p->baseMode;
     }
 }
+#endif
 
 inline void ObjAction_CorrectGeo(int label, int unused)
 {
@@ -71,6 +84,27 @@ inline void ObjAction_Mail(void *data, int mail)
     }
 }
 
+#ifdef VERSION_NTSC
+inline void ObjAction_MailCenter(GObj *gobj, int step)
+{
+    int i;
+    const ObjActMailEnt *e;
+    int n;
+
+    for (i = 0; i < 31; i++) {
+        e = &objTrigger[i];
+        if (gobj->labelId != e->labelId)
+            continue;
+        n = e->triggerNo;
+        if (step > 0) {
+            if (n < 5)
+                continue;
+            n += step;
+        }
+        ObjAction_Mail(gobj, objTriggerDef[n]);
+    }
+}
+#else
 inline void ObjAction_MailCenter(GObj *gobj, int step)
 {
     int i;
@@ -90,6 +124,7 @@ inline void ObjAction_MailCenter(GObj *gobj, int step)
         ObjAction_Mail(gobj, objTriggerDef[n]);
     }
 }
+#endif
 
 void ObjectBeforeFunc(GObj *self)
 {

@@ -14,10 +14,14 @@
 void InitStageMultiBgaManager(void);
 void EntryStageMultiBgaManager(int kind, void *pos, void *rot);
 void EntryStageMultiBgaManagerSensitive(int kind, void *pos, void *rot, void *vel);
+#ifdef VERSION_NTSC
+void DispStageMultiBgaManager(void);
+#else
 void EntryStageMultiBgaManagerWithStay(int kind, void *pos, void *rot, int stay);
 void DispStageMultiBgaManager(void);
 
 void EntryStageMultiBgaManagerSensitiveWithStay(int kind, void *pos, void *rot, void *vel,
                                                 int stay);
+#endif
 
 #endif /* STAGEMULTIBGAMANAGER_H */

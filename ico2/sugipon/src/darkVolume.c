@@ -290,6 +290,21 @@ static __inline__ void dvCheckPacket(char *p) /* derived name */
 }
 
 /* the GS-register writer, a macro */
+#ifdef VERSION_NTSC
+#define dvSetGsReg(reg, val) /* derived name */                                                    \
+    dvCheckPacket(PacketBufferStruct.ptr.c);                                                       \
+    *PacketBufferStruct.ptr.d++ = (val);                                                           \
+    *PacketBufferStruct.ptr.d++ = (reg)
+/* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
+   window centred on the GS's 2048.0 origin (ico2/seki/src/Shadow.c's setFrame) */
+#define dvSetFrame(fbp, w, h) /* derived name */                                                   \
+    {                                                                                              \
+        dvSetGsReg(0x4C, (fbp) | ((long long)(((w) >> 6) & 0x3F) << 16));                          \
+        dvSetGsReg(0x40, ((long long)((w) - 1) << 16) | ((long long)((h) - 1) << 48));             \
+        dvSetGsReg(0x18,                                                                           \
+                   ((2048 - (long long)((w) / 2)) << 4) | ((2048 - (long long)((h) / 2)) << 36));  \
+    }
+#else
 #define dvSetGsReg(reg, val) /* derived name */                                                    \
     dvCheckPacket(PacketBufferStruct.ptr.c);                                                       \
     *PacketBufferStruct.ptr.d++ = (val);                                                           \
@@ -303,6 +318,8 @@ static __inline__ void dvCheckPacket(char *p) /* derived name */
         dvSetGsReg(0x18, (((long long)(2048 - (w) / 2) << 4) + (ox)) |                             \
                              ((((long long)(2048 - (h) / 2) << 4) + (oy)) << 32));                 \
     }
+#endif
+
 /* the packet open: every insn carries the row of its call (311, 347, 392) */
 #define dvOpenPacket() /* derived name */                                                          \
     {                                                                                              \
@@ -348,7 +365,11 @@ static void sonic(void *pos, float t)
 
     dl_SetDLPriority(10);
     dvOpenPacket();
+#ifdef VERSION_NTSC
+    dvSetFrame(0x140, ScreenWidth, ScreenHeight);
+#else
     dvSetFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
+#endif
     dvSetGsReg(0x4E, 0x1300000C0LL);
     dvSetGsReg(0x47, 0x30000);
     dvSetGsReg(0x49, 0);
@@ -416,7 +437,11 @@ static void sonic(void *pos, float t)
     dvSetGsReg(0x4A, 0);
     dvSetGsReg(0x3B, 0x8000008080LL);
     dvSetGsReg(0x14, 0x60);
+#ifdef VERSION_NTSC
+    dvSetFrame(0x40, ScreenWidth, ScreenHeight);
+#else
     dvSetFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
+#endif
     dvSetGsReg(0x42, 0x44);
     dvSetGsReg(0x47, 0x30000);
     dvSetGsReg(0x06, 0x664122800LL);
@@ -493,7 +518,11 @@ static void sonic(void *pos, float t)
 
             dvSetGsReg(0x46, 1);
             dvSetGsReg(0x4A, 0);
+#ifdef VERSION_NTSC
+            dvSetFrame(0x40, ScreenWidth, ScreenHeight);
+#else
             dvSetFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
+#endif
             dvSetGsReg(0x06, 0x664020800LL);
             dvSetGsReg(0x14, 0x60);
             dvSetGsReg(0x47, 0x33001);
@@ -558,7 +587,11 @@ static void darkVolume(void *pos, float radius, float ratio, float edge)
 
     dl_SetDLPriority(10);
     dvOpenPacket();
+#ifdef VERSION_NTSC
+    dvSetFrame(0x140, ScreenWidth, ScreenHeight);
+#else
     dvSetFrame(0x140, ScreenWidth, ScreenHeight, 0, 0);
+#endif
     dvSetGsReg(0x4A, 0);
     dvSetGsReg(0x3B, 0x8000000080LL);
     dvSetGsReg(0x4E, 0x1300000C0LL);
@@ -633,7 +666,11 @@ static void darkVolume(void *pos, float radius, float ratio, float edge)
     dvSetGsReg(0x4A, 0);
     dvSetGsReg(0x3B, 0x8000008080LL);
     dvSetGsReg(0x14, 0x60);
+#ifdef VERSION_NTSC
+    dvSetFrame(0x1000040, ScreenWidth, ScreenHeight);
+#else
     dvSetFrame(0x1000040, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
+#endif
     dvSetGsReg(0x42, 0x44);
     dvSetGsReg(0x47, 0x30000);
     dvSetGsReg(0x06, 0x664122800LL);
@@ -720,11 +757,19 @@ static inline void setGameOverEffect(float *center, float speed) /* derived name
 inline void StartGameOverEffect(float *center, float speed)
 {
     if (girlGObj != 0) {
+#ifdef VERSION_NTSC
+        ExecuteSEPackage(girlGObj, 117);
+        ExecuteSEPackage(girlGObj, 118);
+        ExecuteSEPackage(girlGObj, 119);
+        ExecuteSEPackage(girlGObj, 120);
+        ExecuteSEPackage(girlGObj, 121);
+#else
         ExecuteSEPackage(girlGObj, 0x7A);
         ExecuteSEPackage(girlGObj, 0x7B);
         ExecuteSEPackage(girlGObj, 0x7C);
         ExecuteSEPackage(girlGObj, 0x7D);
         ExecuteSEPackage(girlGObj, 0x7E);
+#endif
     }
     setGameOverEffect(center, speed);
 }
@@ -759,6 +804,46 @@ static inline void sendGameOverMail(void *gobj, float r2) /* derived name */
     }
 }
 
+#ifdef VERSION_NTSC
+void DispGameOverEffect(void)
+{
+    void *g;
+
+    if (gameOverActive != 0) {
+        sonic(gameOverCenter, gameOverRadius);
+        darkVolume(gameOverCenter, gameOverRadius, 1.0f, 30.0f);
+        if (gameOverRing != 0) {
+            float r2 = gameOverRadius * gameOverRadius;
+
+            g = (void *)boyGObj;
+            if (g != 0) {
+                sendGameOverMail(g, r2);
+            }
+            for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+                 g = isysGObjSearchFromObjKindID_next(g)) {
+                sendGameOverMail(g, r2);
+            }
+            for (g = isysGObjSearchFromObjKindID_begin(61); g != 0;
+                 g = isysGObjSearchFromObjKindID_next(g)) {
+                sendGameOverMail(g, r2);
+            }
+        }
+        if (gameOverRadius < 50000.0f && systemStatus[5] == 0) {
+            gameOverRadius = gameOverRadius + gameOverSpeed;
+        }
+    } else {
+        if (darkVolumeTarget < 0.001f && darkVolumeRadius < 1.0f) {
+            return;
+        }
+        darkVolume(darkVolumeCenter, darkVolumeRadius, 0.96f, 0.0f);
+        if (systemStatus[5] != 0) {
+            return;
+        }
+        darkVolumeRadius = darkVolumeRadius + (darkVolumeTarget - darkVolumeRadius) * 0.3f;
+        darkVolumeTarget = 0.0f;
+    }
+}
+#else
 void DispGameOverEffect(void)
 {
     void *g;
@@ -797,6 +882,7 @@ void DispGameOverEffect(void)
         darkVolumeTarget = 0.0f;
     }
 }
+#endif
 
 void GetGameOverEffectCenterPosition(float *pos)
 {
@@ -852,6 +938,14 @@ void InitGameOverEffect(void)
     CopyVector(darkVolumeCenter, ZeroPoint);
 }
 
+#ifdef VERSION_NTSC
+int InitDarkVolumeGeo(GObj *self)
+{
+    return 0;
+}
+
+void DarkVolumeGeo(GObj *self) {}
+#else
 inline int InitDarkVolumeGeo(GObj *self)
 {
     *(int *)GOBJ_SUB(self)->nodeMtx = 0;
@@ -873,5 +967,6 @@ void DarkVolumeGeo(GObj *self)
         SetupDarkVolume((char *)p + 0x30, *p * 50.0f, 10.0f);
     }
 }
+#endif
 
 inline void DarkVolumeDL(void) {}

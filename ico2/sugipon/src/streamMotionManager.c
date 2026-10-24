@@ -45,12 +45,14 @@ static int ringUsed = 0; /* derived name */
 
 static unsigned int streamIdle = 1; /* derived name */
 
+#ifndef VERSION_NTSC
 static int framePlayed = 0; /* derived name */
 
 static int frameTime = 0; /* derived name */
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 static int frameCount = 0; /* derived name */
+#endif
 #endif
 
 /* One character's stream: the node and shape counts the frame header gives,
@@ -61,7 +63,9 @@ typedef struct {  /* field names derived */
     int shapeNum; /* 0x04, 4 bytes a shape */
     int size;     /* 0x08, 16 + the two */
     int cur;      /* 0x0C, -1 until data arrives */
-    int next;     /* 0x10 */
+#ifndef VERSION_NTSC
+    int next; /* 0x10 */
+#endif
 
     union {
         int i;
@@ -102,6 +106,9 @@ static inline void _setEntryOffsets(void) /* derived name */
     int i;
 
     for (i = 0; i < streamNum; i++) {
+#ifdef VERSION_NTSC
+        streamEntry[i].cur = (ringRead + off) % 163840;
+#else
         streamEntry[i].cur = streamEntry[i].next = (ringRead + off) % 163840;
         off += streamEntry[i].size;
     }
@@ -114,6 +121,7 @@ static inline void _setNextEntryOffsets(unsigned int base) /* derived name */
 
     for (i = 0; i < streamNum; i++) {
         streamEntry[i].next = (base + off) % 163840;
+#endif
         off += streamEntry[i].size;
     }
 }
@@ -184,6 +192,45 @@ static int _infoUpdate(void)
     }
     framePlayed = frameTime;
     frameTime += 1500 / ((60 - systemStatus[0] * 10) / systemStatus[1]);
+    return 0;
+}
+#else
+#ifdef VERSION_NTSC
+static int _infoUpdate(void)
+{
+    int i;
+
+    if (headerRead == 0) {
+        if (_checkRing(4096)) {
+            headerSize = 0;
+            for (i = 0; i < streamNum; i++) {
+                int a = ringRead + headerSize;
+
+                streamEntry[i].nodeNum = *(unsigned char *)(ringBuf + (a + 2) % 163840);
+                streamEntry[i].shapeNum = *(unsigned char *)(ringBuf + (a + 3) % 163840);
+                streamEntry[i].size = 16 + streamEntry[i].nodeNum * 8 + streamEntry[i].shapeNum * 4;
+                headerSize += streamEntry[i].size;
+            }
+            headerRead = 1;
+        } else {
+            /* the data had not arrived in time when the stream motion started */
+            debug_StdPrintfDummy(
+                "ストリームモーション開始時にデータの転送が間に合っていませんでした。\n");
+            iosCdvdStDelayCnt++;
+            return 0;
+        }
+    }
+    if (_checkRing(headerSize)) {
+        _setEntryOffsets();
+        if (*(unsigned char *)(ringBuf + ringRead) != 0) {
+            return 1;
+        }
+        _advanceRing(headerSize);
+    } else {
+        /* the stream motion data transfer is not keeping up */
+        debug_StdPrintfDummy("ストリームモーションのデータ転送が間に合っていません。\n");
+        iosCdvdStDelayCnt++;
+    }
     return 0;
 }
 #else
@@ -275,6 +322,7 @@ static int _infoUpdate(void)
     return 0;
 }
 #endif
+#endif
 
 void PlayStreamMotion(void)
 {
@@ -303,7 +351,11 @@ void ClearStreamMotionEntry(GObj *gobj)
 }
 
 /* the cleared entry every slot is reset to */
+#ifdef VERSION_NTSC
+static SMotion emptyEntry = {0, 0, -1, -1, {0}, 0}; /* derived name */
+#else
 static SMotion emptyEntry = {0, 0, -1, -1, -1, {0}, 0}; /* derived name */
+#endif
 
 static void _deleteStreamMotionManager(void)
 {
@@ -329,8 +381,10 @@ static void _deleteStreamMotionManager(void)
     headerRead = 0;
     headerSize = 0;
     ringUsed = 0;
+#ifndef VERSION_NTSC
     framePlayed = 0;
     frameTime = 0;
+#endif
     if (bgMgrId != 0) {
         bgMgrId = 0;
     }
@@ -353,6 +407,7 @@ inline int GetDataSizeOfStreamMotion(int no)
     return streamEntry[no].size;
 }
 
+#ifndef VERSION_NTSC
 static void getStreamMotionData(char *dst, int off, int no)
 {
     int size = streamEntry[no].size;
@@ -386,6 +441,7 @@ void GetStreamMotionDataNext(char *dst, int no)
 {
     getStreamMotionData(dst, streamEntry[no].next, no);
 }
+#endif
 
 typedef struct { /* field names derived */
     char c[4];
@@ -394,6 +450,33 @@ typedef struct { /* field names derived */
 /* the four bytes GetStreamMotionData hands back while no data has arrived */
 static const char streamDummyHead[] = {0, 0xFF, 0, 0}; /* derived name */
 
+#ifdef VERSION_NTSC
+void GetStreamMotionData(char *dst, int no)
+{
+    int off;
+    int size;
+    int over;
+
+    if (streamEntry[no].cur < 0) {
+        *(StreamMotionHead *)dst = *(const StreamMotionHead *)streamDummyHead;
+        /* "tried to get the stream motion before the data has arrived" */
+        debug_StdPrintfDummy(
+            "データがまだ来ていないのにストリームモーションの取得をしようとしました\n");
+        return;
+    }
+    off = streamEntry[no].cur;
+    size = streamEntry[no].size;
+    over = off + size - 163840;
+    if (over > 0) {
+        int first = 163840 - off;
+
+        memcpy(dst, ringBuf + off, first);
+        memcpy(dst + first, ringBuf, over);
+    } else {
+        memcpy(dst, ringBuf + off, size);
+    }
+}
+#else
 inline float GetStreamMotionData(char *dst, int no)
 {
     if (streamEntry[no].cur < 0) {
@@ -410,6 +493,7 @@ inline float GetStreamMotionData(char *dst, int no)
     return (float)framePlayed / 2997.0f;
 #endif
 }
+#endif
 
 static void _transRingBuf(int *idx_p, char *dst, int size, char *src, int amt)
 {
@@ -481,10 +565,15 @@ void ExecStreamMotionManager(void)
 
 void MallocStreamMotionBuffer(void)
 {
+#ifdef VERSION_NTSC
+    ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c", 502);
+    readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c", 504);
+#else
     ringBuf = iosMallocDebug(ios_partition_sugipon, 163840, "src/streamMotionManager.c",
-                             LN(602, 570, 570));
+                             LN(602, 570, 570, 602));
     readBufRaw = iosMallocDebug(ios_partition_sugipon, 163904, "src/streamMotionManager.c",
-                                LN(604, 572, 572));
+                                LN(604, 572, 572, 604));
+#endif
     readBuf = (char *)((int)(readBufRaw + 63) & 0xFFFFFFC0);
     if (ringBuf == 0 || readBuf == 0) {
         /* "could not allocate the stream buffer memory" */

@@ -18,7 +18,12 @@ typedef struct FogClutPacket { /* field names derived */
     unsigned int vifEnd[4];    /* 0x420 */
 } FogClutPacket;               /* derived name */
 
+#ifdef VERSION_NTSC
+/* a DMA source, so quadword aligned */
+static FogClutPacket fogClutPacket __attribute__((aligned(16))); /* derived name */
+#else
 static FogClutPacket fogClutPacket; /* derived name */
+#endif
 
 void fog_MakeFogClut(void)
 {
@@ -136,6 +141,17 @@ void fog_MakeFogClut(void)
         dl_OpenDma(5, PacketBufferStruct.dma.c, 0);                                                \
         dl_CloseDma();                                                                             \
     }
+
+#ifdef VERSION_NTSC
+/* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
+   window centred on the GS's 2048.0 origin: src/Shadow.c's setFrame. */
+#define FOG_SET_FRAME(fbp, w, h) /* derived name */                                                \
+    {                                                                                              \
+        FOG_SET_GSREG(0x4C, (fbp) | ((long long)(((w) >> 6) & 0x3F) << 16));                       \
+        FOG_SET_GSREG(0x40, ((long long)((w) - 1) << 16) | ((long long)((h) - 1) << 48));          \
+        FOG_SET_GSREG(0x18, ((2048LL - (w) / 2) << 4) | (((2048LL - (h) / 2) << 4) << 32));        \
+    }
+#else
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
    window centred on the GS's 2048.0 origin and moved by ox, oy sixteenths:
    src/Shadow.c's setFrame. */
@@ -146,6 +162,8 @@ void fog_MakeFogClut(void)
         FOG_SET_GSREG(0x18, (((long long)(2048 - (w) / 2) << 4) + (ox)) |                          \
                                 ((((long long)(2048 - (h) / 2) << 4) + (oy)) << 32));              \
     }
+#endif
+
 /* RGBAQ packed from a four-byte colour, and XYZ2 with and without the
    2048.0-pixel window origin folded in, as src/Shadow.c packs them */
 #define GIF_RGBA(c) /* derived name */                                                             \
@@ -244,7 +262,11 @@ void fog_DrawFog(void)
         }
     }
     if (dbg) { cl[3] = 0x80; FOG_SET_GSREG(0x3B, 0x8000000080LL); }
+#ifdef VERSION_NTSC
+    FOG_SET_FRAME(64, ScreenWidth, ScreenHeight);
+#else
     FOG_SET_FRAME(64, ScreenWidth, ScreenHeight, 0, 0);
+#endif
     FOG_SET_GSREG(73, 0); FOG_SET_GSREG(66, ((long long)128 << 32) | 0x44);
     FOG_SET_GSREG(6, 0x2800 | ((long long)(ScreenWidth / 64) << 14) | ((long long)0x1B << 20) | ((long long)9 << 26) | ((long long)9 << 30) | ((long long)1 << 34) |
                   ((long long)vram << 37) | ((long long)1 << 61));
@@ -263,7 +285,9 @@ void fog_DrawFog(void)
     }
     FOG_SET_GSREG(78, ((long long)0x3000 << 16) | 0xC0);
 
+#ifndef VERSION_NTSC
     FOG_SET_FRAME(64, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
+#endif
     FOG_END_PACKET();
 }
 

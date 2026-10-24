@@ -30,6 +30,117 @@ typedef struct StreamShapeHdr { /* field names derived */
     unsigned char shapeNum;
 } StreamShapeHdr; /* derived name */
 
+#ifdef VERSION_NTSC
+#define ABSF(x) ((x) < 0.0f ? -(x) : (x)) /* derived name */
+
+/* a one-line by-value wrapper: each of the six call sites copies the plane
+   into its own frame slot and passes that address */
+static inline float getPlaneY(Vec4 pl, float *p) /* derived name */
+{
+    return GetYProjectionOfPlane(pl.f, p);
+}
+
+int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel, float h0,
+                     float h1, float h2, float scaleIn, float amp)
+{
+    float drain[4];
+    float waterH;
+    float scale;
+    float r;
+    GObj *pool;
+    int attr;
+
+    if (outFlag != 0) {
+        *outFlag = 0;
+    }
+    if (info->floor.elem != 0) {
+        attr = GetFloorAttribute(info);
+        if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+            scale = scaleIn;
+            pool = info->floor.o.obj;
+            waterH = GetPoolGlobalHeightDetail(pool, pos);
+            GetPoolGlobalDrainVector(drain, pool);
+            if (outFlag != 0) {
+                if (1.0000001e-06f < VectorLengthSquare(drain)) {
+                    *outFlag = 1;
+                }
+            }
+            if (waterH < h0) {
+                vel[1] = vel[1] + amp;
+            } else if (waterH < h1) {
+                vel[1] = vel[1] + amp * (h1 - waterH) / (h1 - h0);
+            } else if (waterH < h2) {
+                r = (waterH - h1) / (h2 - h1);
+                vel[1] = vel[1] +
+                         (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                              (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1])) +
+                          amp * (1.0f - r)) *
+                             r;
+            } else {
+                vel[1] =
+                    vel[1] + 60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+                                 (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+                scale = 1.0f;
+                CopyVector(drain, ZeroVector);
+            }
+            vel[0] = vel[0] * scale;
+            vel[1] = vel[1] * scale;
+            vel[2] = vel[2] * scale;
+            sceVu0AddVector(vel, vel, drain);
+            AddVectorXYZ(pos, pos, vel);
+            if (outH != 0) {
+                *outH = waterH;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
+{
+    float h;
+    float dy;
+    float ph;
+    float d;
+    int attr;
+
+    if (info->floor.elem != 0) {
+        h = GOBJ_SUB(self)->root.move[1];
+        dy = info->pt[2][1] - pos[1];
+        attr = GetFloorAttribute(info);
+        if (CompareAttribute(attr, 0x40) | CompareAttribute(attr, 0x50)) {
+            if (h >= 0.0f) {
+                ph = GetPoolGlobalHeight(info->floor.o.obj);
+                d = info->pt[2][1] - ph;
+                if (dy < lim) {
+                    if (d > 0.0f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
+                            SetFallDownSplash(info->floor.o.obj, self);
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
+                        }
+                    }
+                    return 1;
+                }
+                if (d > 0.0f) {
+                    if (ph - pos[1] < lim * 0.8f) {
+                        if ((GOBJ_SUB(self)->ctrl.contactFlags & 1) == 0 && h > 5.0f) {
+                            SetFallDownSplash(info->floor.o.obj, self);
+                            GOBJ_SUB(self)->ctrl.contactFlags |= 1;
+                        }
+                        return 2;
+                    }
+                }
+            }
+        } else {
+            if (dy < lim) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+#else
 int GetWaterReaction(float *outH, int *outFlag, ClipWork *info, float *pos, float *vel, float h0,
                      float h1, float h2, float scaleIn, float amp)
 {
@@ -93,6 +204,7 @@ static inline float getPlaneY(Vec4 pl, float *p) /* derived name */
 {
     return GetYProjectionOfPlane(pl.f, p);
 }
+#endif
 
 /* The loop counts 0..10 and offsets by 5.  `plane` is retargeted at the
    local copy, so the six by-value argument copies and the CopyVector read
@@ -1043,6 +1155,7 @@ static int wallLineColor[4] = {255, 255, 255, 128}; /* derived name */
 /* the same closed corner walk, used to pick the wall edge a position sits on */
 static int wallEdgeCorner[8] = {0, 1, 3, 2, 0, 0, 0, 0}; /* derived name */
 
+#ifndef VERSION_NTSC
 /* the matrix that turns a wall into the XY plane: the identity with the wall
    normal's X and Z written into the four rotation slots before every use */
 static float wallAlignMatrix[16] = {
@@ -1051,6 +1164,7 @@ static float wallAlignMatrix[16] = {
 
 /* the half turn about Z every motion node's quaternion is multiplied by */
 static float nodeFlipQuaternion[4] = {0.0f, 0.0f, -1.0f, 0.0f}; /* derived name */
+#endif
 
 int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *ptsIn, WallCfg *cfg,
                                           int flip, float *pos)
@@ -1110,8 +1224,13 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
         }
     }
     if (bestIdx == -1) {
+#ifdef VERSION_NTSC
+        debug_assertMessage(motMan2File, 1358, "!!");
+        __assert(motMan2File, 1358, "e");
+#else
         debug_assertMessage(motMan2File, 1360, "!!");
         __assert(motMan2File, 1360, "e");
+#endif
     }
     if (plane0 != 0) {
         SetSimplePlane(plane0, best[0], best[1], best[2],
@@ -1123,6 +1242,17 @@ int GetPureVerticalPlaneOfCurrentPosition(void *plane0, void *plane1, float *pts
     }
     return bestIdx;
 }
+
+#ifdef VERSION_NTSC
+/* the matrix that turns a wall into the XY plane: the identity with the wall
+   normal's X and Z written into the four rotation slots before every use */
+static float wallAlignMatrix[16] = {
+    1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+}; /* derived name */
+
+/* the half turn about Z every motion node's quaternion is multiplied by */
+static float nodeFlipQuaternion[4] = {0.0f, 0.0f, -1.0f, 0.0f}; /* derived name */
+#endif
 
 static void getVerticalElementOfWallNormal(int *self, int *p, WallCfg *cfg)
 {
@@ -1682,7 +1812,11 @@ void FeedbackWallWorkInfoToBrainSystem(GObj *self)
     Sub15C *p = self->dobj;
     char *d = (char *)self->act;
     *(WallWork *)((char *)p + 0x180) = *(WallWork *)((char *)p + 0x1A0);
+#ifdef VERSION_NTSC
+    *(WallWork *)(d + 0x610) = *(WallWork *)((char *)p + 0x1A0);
+#else
     *(WallWork *)(d + 0x620) = *(WallWork *)((char *)p + 0x1A0);
+#endif
 }
 
 void *GetMotionPointer(GObj *self)
@@ -1693,6 +1827,7 @@ void *GetMotionPointer(GObj *self)
 int GetCollisionOfLastActiveField(GObj *self)
 {
     return self->dobj->root.lastField;
+#ifndef VERSION_NTSC
 }
 
 int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
@@ -1735,6 +1870,7 @@ int CheckFieldContact(ClipWork *info, GObj *self, float *pos, float lim)
         }
     }
     return 0;
+#endif
 }
 
 /* the body of DebugDisp1CollisionWithColor, which the next function

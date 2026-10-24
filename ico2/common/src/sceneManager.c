@@ -239,6 +239,7 @@ void InitStageLight(int stage)
     GlobalStageSetting.antiLevel0 = 24;
     GlobalStageSetting.antiLevel1 = 24;
 
+#ifndef VERSION_NTSC
     for (i = 0; i < 4; i++) {
         int *row = (int *)&GlobalStageSetting + i * 4;
 
@@ -256,6 +257,7 @@ void InitStageLight(int stage)
     GlobalStageSetting.handCameraLimitP = 120;
     GlobalStageSetting.handCameraLimitV = 80;
     GlobalStageSetting.zoomMaxInDemo = 200;
+#endif
 
     tex_RemakeRegistersSampleMin(0);
 }
@@ -434,8 +436,13 @@ static void initParentLink(int id)
                 debug_StdPrintfDummy(
                     "\"%s\"の親子関係づけをしようとしましたが、自分を親にしようとしています。\n",
                     lay);
+#ifdef VERSION_NTSC
+                debug_assert(__FILE__, 487);
+                __assert(__FILE__, 487, "0");
+#else
                 debug_assert(__FILE__, 502);
                 __assert(__FILE__, 502, "0");
+#endif
             }
             debug_StdPrintfDummy("Parentize \"%s\"\n", lay);
             *(int *)((int)GOBJ_SUB(self)) = parent;
@@ -444,8 +451,13 @@ static void initParentLink(int id)
             /* tried to make "%s" a parent-child link, but the parent cannot be found */
             debug_StdPrintfDummy("\"%s\"の親子関係づけをしようとしましたが、親が見つかりません。\n",
                                  lay);
+#ifdef VERSION_NTSC
+            debug_assert(__FILE__, 496);
+            __assert(__FILE__, 496, "0");
+#else
             debug_assert(__FILE__, 511);
             __assert(__FILE__, 511, "0");
+#endif
         }
     }
 }
@@ -501,10 +513,15 @@ void InitSceneObjects(int stage)
     ResetGObjProc();
     boyGObj = girlGObj = 0;
     boyPad = 0;
+#ifdef VERSION_NTSC
+    gameover_flag = 0;
+    gameover_layout_flag = 0;
+#else
     girlPad = 0;
     gameover_flag = 0;
     gameover_layout_flag = 0;
     itemWatchOff = 0;
+#endif
 
     debug_StdPrintfDummy("[\033[42m scene %d \033[m ]\n", stage);
 

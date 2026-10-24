@@ -278,6 +278,12 @@ static int point_insert(void)
     return 0;
 }
 
+#ifdef VERSION_NTSC
+int play_way(void);
+int point_nige(void);
+int quick_save_wpfile(void);
+#endif
+
 inline int play_way(void)
 {
     static int playMode = 0; /* derived name */
@@ -673,7 +679,11 @@ int debug_WayTool(void)
     cursorGObj = isysGObjSearchFromObjLayoutID(2);
     if (cursorGObj != 0) {
         if (first_waytool == 0) {
+#ifdef VERSION_NTSC
+            *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x840, __FILE__, 1194);
+#else
             *(void **)&cursorGObj->act = iosMallocDebug(ios_partition_seki, 0x850, __FILE__, 0x4AA);
+#endif
             isysGObjProcAdd(cursorGObj, cursor_control, 0, 0x13);
             isysGObjLinkObjDL(cursorGObj, way_toolDL, 0, 0, 0xFFFFFFFF);
             first_waytool = 1;

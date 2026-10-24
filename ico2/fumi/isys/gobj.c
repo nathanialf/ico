@@ -8,8 +8,13 @@
 #include "debug_exception.h"
 #include <assert.h>
 
+#ifdef VERSION_NTSC
+/* the head of the free list for each of the 68 object kinds */
+static GObj *gobjKindHead[68]; /* derived name */
+#else
 /* the head of the free list for each of the 70 object kinds */
 static GObj *gobjKindHead[70]; /* derived name */
+#endif
 
 /* defined `inline` below, and called before their definitions */
 inline void isysGObjAlloc(int n);
@@ -85,6 +90,32 @@ static void cut_gobj_link(GObj *p)
     }
 }
 
+#ifdef VERSION_NTSC
+/* the kind-table unlink, which isysGObjKindTableRemove and the object
+ * removal inline */
+static __inline__ void kindTableRemove(GObj *g) /* derived name */
+{
+    int kind = g->kind;
+    GObj *p;
+    if ((unsigned int)(kind - 1) < 67) {
+        p = gobjKindHead[kind];
+        if (p == g) {
+            gobjKindHead[kind] = g->kindNext;
+            return;
+        }
+        if (p == 0)
+            return;
+        while (p->kindNext != g) {
+            if (p == 0) {
+                debug_assert(__FILE__, 146);
+                __assert(__FILE__, 146, "0");
+            }
+            p = p->kindNext;
+        }
+        p->next = g->kindNext;
+    }
+}
+#else
 /* the kind-table unlink, which isysGObjKindTableRemove and the object
  * removal inline */
 static __inline__ void kindTableRemove(GObj *g) /* derived name */
@@ -109,6 +140,7 @@ static __inline__ void kindTableRemove(GObj *g) /* derived name */
         p->next = g->kindNext;
     }
 }
+#endif
 
 /* the object removal, which isysGObjRemove and isysGObjRemoveAll inline */
 static __inline__ void removeGObjEntry(GObj *g) /* derived name */
@@ -342,6 +374,37 @@ inline void isysGObjRemove(GObj *g)
     removeGObjEntry(g);
 }
 
+#ifdef VERSION_NTSC
+inline void isysGObjKindTableAdd(GObj *g, int kind)
+{
+    GObj *p;
+
+    if (debugKindOld != 0) {
+        g->kind = kind;
+        return;
+    }
+    for (p = isysGObjSearchFromObjKindID_begin(g->kind); p != 0;
+         isysGObjSearchFromObjKindID_next(p)) {
+        if (p == g) {
+            isysGObjKindTableRemove(g);
+            break;
+        }
+    }
+    g->kind = kind;
+    if ((unsigned int)kind < 68) {
+        if (gobjKindHead[kind] == 0) {
+            gobjKindHead[kind] = g;
+        } else {
+            p = gobjKindHead[kind];
+            while (p->kindNext != 0) {
+                p = p->kindNext;
+            }
+            p->kindNext = g;
+        }
+        g->kindNext = 0;
+    }
+}
+#else
 inline void isysGObjKindTableAdd(GObj *g, int kind)
 {
     GObj *p;
@@ -371,6 +434,7 @@ inline void isysGObjKindTableAdd(GObj *g, int kind)
         g->kindNext = 0;
     }
 }
+#endif
 
 inline void isysGObjKindTableRemove(GObj *g)
 {
@@ -476,6 +540,18 @@ static __inline__ GObj *searchGObjOfObjKind(GObj *p, int kind) /* derived name *
     return 0;
 }
 
+#ifdef VERSION_NTSC
+inline void *isysGObjSearchFromObjKindID_begin(int kind)
+{
+    if (debugKindOld != 0) {
+        return searchGObjOfObjKind(gobjTable - 1, kind);
+    }
+    if ((unsigned int)(kind - 1) < 67) {
+        return gobjKindHead[kind];
+    }
+    return 0;
+}
+#else
 inline void *isysGObjSearchFromObjKindID_begin(int kind)
 {
     if (debugKindOld != 0) {
@@ -486,6 +562,7 @@ inline void *isysGObjSearchFromObjKindID_begin(int kind)
     }
     return 0;
 }
+#endif
 
 inline void *isysGObjSearchFromObjKindID_next(GObj *g)
 {

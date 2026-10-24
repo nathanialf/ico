@@ -228,7 +228,11 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
     }
     applyPartOrients(self);
     if (p->skel == 0) {
+#ifdef VERSION_NTSC
+        d = CSVSYSTEM_InitDObj(5, arg);
+#else
         d = CSVSYSTEM_InitDObj(7, arg);
+#endif
         p->arm[0] = d;
         if (d->nodeMtx != 0) {
             iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
@@ -265,7 +269,11 @@ AP1Work *InitAP1(GObj *self, SObjSimpleSetting *arg)
             }
         }
         p->arm[0]->dispType = 2;
+#ifdef VERSION_NTSC
+        d = CSVSYSTEM_InitDObj(6, arg);
+#else
         d = CSVSYSTEM_InitDObj(8, arg);
+#endif
         p->arm[1] = d;
         if (d->nodeMtx != 0) {
             iosFree((void *)(d->nodeMtx & 0xFFFFFFF));
@@ -588,6 +596,70 @@ static int walkMot(GObj *self)
     return 1;
 }
 
+#ifdef VERSION_NTSC
+static int rolling(GObj *self)
+{
+    WallCfg info;
+
+    if (GOBJ_SUB(self)->parent.obj != 0) {
+        UnlinkParentOfDObj(self);
+    }
+    ((AP1Val *)((char *)GOBJ_SUB(self) + 0x134))->f +=
+        60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]) * 0.5f *
+        (60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+    _AddVectorXYZ(GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.pos, GOBJ_SUB(self)->root.move);
+    {
+        ClipWork *col = &ap1RollClip;
+        CopyVector(col->pt[0], GOBJ_SUB(self)->root.last);
+        CopyVector(col->pt[1], GOBJ_SUB(self)->root.pos);
+        col->pt[0][1] -= 50.0f;
+        if (clipAndTakeHit(&info, col)) {
+            CopyVector(GOBJ_SUB(self)->root.pos, ap1RollClip.pt[2]);
+            CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+            yAxisRotFitting(self, &ap1RollClip.normal);
+            LinkParentOfDObj(self, &info.o);
+            UpdateRootMatrix(self);
+            applyPartOrients(self);
+            {
+                ClipWork *col = &ap1RollClip;
+                if (col->wall.elem != 0) {
+                    GOBJ_SUB(self)->ctrl.floorAttr = GetWallAttribute(col);
+                }
+                if (CheckWallAttribute(self, 0x40) != 0 || CheckWallAttribute(self, 0x50) != 0) {
+                    if (GetPoolGlobalHeight(col->wall.o.obj) <
+                        GOBJ_SUB(self)->root.pos[1] + 50.0f) {
+                        iosOmSendMail(self, 0x26, self);
+                    }
+                }
+            }
+            {
+                ClipWork *col = &ap1RollClip;
+                if (col->floor.elem != 0) {
+                    GOBJ_SUB(self)->ctrl.floorAttr = GetFloorAttribute(col);
+                    if (CheckFloorAttribute(self, 0x40) != 0 ||
+                        CheckFloorAttribute(self, 0x50) != 0) {
+                        if (GetPoolGlobalHeight(col->floor.o.obj) <
+                            GOBJ_SUB(self)->root.pos[1] + 50.0f) {
+                            iosOmSendMail(self, 0x26, self);
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+    }
+    {
+        ClipWork *col = &ap1RollClip;
+        col->pt[1][1] += 500.0f;
+        ClipFloor(col);
+        if (CheckFieldContact(col, self, GOBJ_SUB(self)->root.pos, 50.0f) == 2) {
+            CopyVector(GOBJ_SUB(self)->root.move, ZeroVector);
+            iosOmSendMail(self, 0x1A, self);
+        }
+    }
+    return -1;
+}
+#else
 static int rolling(GObj *self)
 {
     WallCfg info;
@@ -649,6 +721,7 @@ static int rolling(GObj *self)
     }
     return -1;
 }
+#endif
 
 /* the point the spider's bite attack is centred on, 50 units down its own arm */
 static const Vec4A_P_1 attackCenterOffset = {50.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
@@ -683,6 +756,9 @@ static void calcSubMission(GObj *self)
     Vec4A_P_1 atk;
     int i;
     int ang;
+#ifdef VERSION_NTSC
+    int dbg = 0; /* the function's local debug switch, off (case 1) */
+#endif
 
     CopyMatrix(MatrixDrive_GetMatrix(), p->mtx);
     MatrixDrive_RotMatrixZ(0x4000);
@@ -704,6 +780,18 @@ static void calcSubMission(GObj *self)
             w.m[1] -= (t < 0.5f) ? t * 2.0f * 20.0f : (1.0f - t) * 2.0f * 20.0f;
             _ApplyMatrix(&q, p->root, &w);
             _InterVectorXYZ(&part->pos, &q, &part->pos, t);
+#ifdef VERSION_NTSC
+            /* the local debug switch's window: a dump of the root matrix
+               the step is placed in.  Pinned: three to five instructions
+               here at the first GCSE pass (its expression table of 219
+               buckets orders the three spilled frame addresses as the ROM
+               has them); the August TRFILE and PAL's have three code-less
+               lines (664-666) in its place.  Not pinned: the body's text,
+               which is derived. */
+            if (dbg) {
+                debug_DispMatrix((int *)p->root);
+            }
+#endif
             if ((part->count += 1) >= 10) {
                 part->state = 0;
             }
@@ -725,7 +813,11 @@ static void calcSubMission(GObj *self)
             _InterVectorXYZ(&part->pos, &dir, &part->pos, t);
             MatrixDrive_PopMatrix();
             if ((part->count += 1) >= 10) {
+#ifdef VERSION_NTSC
+                ExecuteSEPackage(self, 99);
+#else
                 ExecuteSEPackage(self, 0x68);
+#endif
                 CopyVector(&part->home, (char *)ap1PartOffset + i * 0x10);
                 part->state = 1;
                 part->count = 0;
@@ -760,8 +852,13 @@ static void calcSubMission(GObj *self)
         CopyVector(MatrixDrive_GetMatrix()[3], &save);
 
         if (p->skel != 0) {
+#ifdef VERSION_NTSC
+            _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + (p->focus[i * 2 + 1] << 6),
+                       MatrixDrive_GetMatrix(), ap1ArmScale);
+#else
             _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + ((&p->focus[1])[i * 2] << 6),
                        MatrixDrive_GetMatrix(), ap1ArmScale);
+#endif
         } else {
             _MulMatrix((char *)p->arm[0]->nodeMtx + (i << 6), MatrixDrive_GetMatrix(), ap1ArmScale);
         }
@@ -782,12 +879,21 @@ static void calcSubMission(GObj *self)
         if (part->state == 2) {
             atk = attackCenterOffset;
             _ApplyMatrix(&atk, MatrixDrive_GetMatrix(), &atk);
+#ifdef VERSION_NTSC
+            AttackCenter(self, -1, atk.m, 0, 30.0f);
+#else
             _AttackCenter(self, -1, atk.m, 0, 30.0f, 0);
+#endif
         }
 
         if (p->skel != 0) {
+#ifdef VERSION_NTSC
+            _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + (p->focus[i * 2 + 2] << 6),
+                       MatrixDrive_GetMatrix(), ap1ArmScale);
+#else
             _MulMatrix((char *)GOBJ_SUB(self)->nodeMtx + ((&p->focus[2])[i * 2] << 6),
                        MatrixDrive_GetMatrix(), ap1ArmScale);
+#endif
         } else {
             _MulMatrix((char *)p->arm[1]->nodeMtx + (i << 6), MatrixDrive_GetMatrix(), ap1ArmScale);
         }
@@ -1000,7 +1106,11 @@ check:
 
 GObj *MakeAP1GObj(SObjSimpleSetting *setting)
 {
+#ifdef VERSION_NTSC
+    return CreateLayoutedGObj(61, spiderDef[setting->obj].layout, -1, 0, setting, -1, 7, 1);
+#else
     return CreateLayoutedGObj(62, spiderDef[setting->obj].layout, -1, 0, setting, 0, 7, 1);
+#endif
 }
 
 int GetAP1Mode(GObj *self)

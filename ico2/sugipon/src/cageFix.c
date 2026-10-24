@@ -12,7 +12,11 @@ inline int InitCageFixGeo(void)
 
 void CageFixGeo(GObj *self)
 {
+#ifdef VERSION_NTSC
+    GObj *g = isysGObjSearchFromObjKindID_begin(43);
+#else
     GObj *g = isysGObjSearchFromObjKindID_begin(44);
+#endif
     if (g != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), (char *)GOBJ_SUB(self)->nodeMtx);
         SetCageFixGeometry(g, MatrixDrive_GetMatrix()[3], (void *)GOBJ_SUB(self)->nodeQuat);

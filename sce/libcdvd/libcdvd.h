@@ -24,7 +24,9 @@ typedef struct {
    its own sceCdlFILE body. */
 struct sceCdlFILE;
 
+#ifndef VERSION_NTSC
 struct sceCdCLOCK;
+#endif
 
 int sceCdBreak(void);
 int sceCdDiskReady(int mode);
@@ -33,7 +35,9 @@ int sceCdGetError(void);
 int sceCdInit(int mode);
 int sceCdMmode(int media);
 int sceCdRead(int lsn, int sectors, void *buf, CdRMode *mode);     /* definition in sce/ */
+#ifndef VERSION_NTSC
 int sceCdReadClock(struct sceCdCLOCK *clock);                      /* definition in sce/ */
+#endif
 int sceCdReadIOPm(int lsn, int sectors, void *buf, CdRMode *mode); /* definition in sce/ */
 int sceCdSearchFile(struct sceCdlFILE *fp, const char *name);      /* definition in sce/ */
 int sceCdStInit(int bufmax, int bankmax, void *buf);               /* definition in sce/ */

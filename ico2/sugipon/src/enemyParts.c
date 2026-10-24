@@ -143,7 +143,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     p->dobj[0] = CSVSYSTEM_InitDObj(1318, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_NTSC
+    p->dobj[0] = CSVSYSTEM_InitDObj(1286, &InitialSObjSimpleSetting);
+#else
     p->dobj[0] = CSVSYSTEM_InitDObj(1322, &InitialSObjSimpleSetting);
+#endif
 #endif
     p->dobj[0]->nodes->flags.ll |= 1;
     p->dobj[0]->nodes->fade = 1e-5f;
@@ -154,7 +158,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     p->dobj[1] = CSVSYSTEM_InitDObj(1319, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_NTSC
+    p->dobj[1] = CSVSYSTEM_InitDObj(1287, &InitialSObjSimpleSetting);
+#else
     p->dobj[1] = CSVSYSTEM_InitDObj(1323, &InitialSObjSimpleSetting);
+#endif
 #endif
     p->dobj[1]->nodes->flags.ll |= 1;
     p->dobj[1]->nodes->fade = 1e-5f;
@@ -165,7 +173,11 @@ EnemyEye *InitEnemyEye(int num, int mode, int pri)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     p->dobj[2] = CSVSYSTEM_InitDObj(1320, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_NTSC
+    p->dobj[2] = CSVSYSTEM_InitDObj(1288, &InitialSObjSimpleSetting);
+#else
     p->dobj[2] = CSVSYSTEM_InitDObj(1324, &InitialSObjSimpleSetting);
+#endif
 #endif
     p->dobj[2]->nodes->flags.ll |= 1;
     p->dobj[2]->nodes->fade = 1e-5f;
@@ -194,7 +206,11 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     d = CSVSYSTEM_InitDObj(1291, &InitialSObjSimpleSetting);
 #else
+#ifdef VERSION_NTSC
+    d = CSVSYSTEM_InitDObj(1259, &InitialSObjSimpleSetting);
+#else
     d = CSVSYSTEM_InitDObj(1295, &InitialSObjSimpleSetting);
+#endif
 #endif
     p->dobj = d;
     if (d->nodeMtx != 0) {
@@ -222,7 +238,11 @@ EnemyFootPrintHead *InitEnemyFootPrint(int num)
         p->dobj->nodes[i].flags.ll &= ~4;
         p->dobj->nodes[i].fade = 0;
         p->dobj->nodes[i].alpha = 1.0f;
+#ifdef VERSION_NTSC
+        *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x840) + 0x3A) = 0;
+#else
         *(short *)(i * 0x50 + (int)*(char **)((char *)p->dobj + 0x870) + 0x3A) = 0;
+#endif
         p->dobj->nodes[i].scale[0] = 1.0f;
         p->dobj->nodes[i].scale[1] = 1.0f;
         p->dobj->nodes[i].scale[2] = 1.0f;

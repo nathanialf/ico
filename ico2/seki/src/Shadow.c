@@ -22,6 +22,12 @@ static int killShadow = 0; /* derived name */
 
 static int killShadowRequest = 0; /* derived name */
 
+#ifdef VERSION_NTSC
+/* the colour shadow_Reset fills the shadow buffer with, read a byte at a time;
+   const, as GsBase.c's keepFrameColor: the reads depend on no packet store */
+static const unsigned char shadowFillColor[4] = {0}; /* derived name */
+#endif
+
 /* The shadow display opens, fills and closes a PATH1 packet of its own
  * through PacketBufferStruct (DmaPacket.h), whose packet addresses are one
  * pointer union. */
@@ -51,6 +57,18 @@ static int killShadowRequest = 0; /* derived name */
         ((GifPkWord *)((c) + 0x18))->d = 0xE;                                                      \
         PacketBufferStruct.ptr.c = ((c) + 0x20);                                                   \
     }
+
+#ifdef VERSION_NTSC
+/* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
+ * window centred on the GS's 2048.0 origin. */
+#define setFrame(fbp, w, h) /* derived name */                                                     \
+    {                                                                                              \
+        setGsReg(0x4C, (fbp) | ((long long)(((w) >> 6) & 0x3F) << 16));                            \
+        setGsReg(0x40, ((long long)((w) - 1) << 16) | ((long long)((h) - 1) << 48));               \
+        setGsReg(0x18,                                                                             \
+                 ((2048 - (long long)((w) / 2)) << 4) | ((2048 - (long long)((h) / 2)) << 36));    \
+    }
+#else
 /* FRAME_1, SCISSOR_1 and XYOFFSET_1 for a w by h buffer at base fbp, the
  * window centred on the GS's 2048.0 origin and moved by ox, oy sixteenths. */
 #define setFrame(fbp, w, h, ox, oy) /* derived name */                                             \
@@ -60,6 +78,8 @@ static int killShadowRequest = 0; /* derived name */
         setGsReg(0x18, (((long long)(2048 - (w) / 2) << 4) + (ox)) |                               \
                            ((((long long)(2048 - (h) / 2) << 4) + (oy)) << 32));                   \
     }
+#endif
+
 /* RGBAQ packed from a four-byte colour, as src/GifPacket.c packs it */
 #define GIF_RGBA(c) /* derived name */                                                             \
     ((long long)(c)[0] | ((long long)(c)[1] << 8) | ((long long)(c)[2] << 16) |                    \
@@ -84,6 +104,64 @@ static int killShadowRequest = 0; /* derived name */
         }                                                                                          \
     }
 
+#ifdef VERSION_NTSC
+void shadow_Reset(void)
+{
+    char *c;
+    char *p;
+    char *q;
+    int full[4] = {-ScreenWidth / 2 * 16, -ScreenHeight / 2 * 16, ScreenWidth * 16,
+                   ScreenHeight * 16};
+
+    if (killShadowRequest != killShadow) {
+        killShadow = killShadowRequest;
+    }
+    dl_SetDLPriority(3);
+    gifStartPacketPath1(c);
+    setFrame(0x140, ScreenWidth, ScreenHeight);
+    setGsReg(0x4E, 0xC0 | ((long long)0x30 << 24) | ((long long)1 << 32));
+    setGsReg(0x47, 0x30000);
+    spriteRect(full, shadowFillColor, 0x406);
+
+    setGsReg(0x4A, 0);
+    setGsReg(0x3B, 0x80 | ((long long)0x80 << 32));
+    setGsReg(0x47, 0x50000);
+    setGsReg(0x42, 0x68 | ((long long)0x80 << 32));
+    setGsReg(0x46, 0);
+    ((GifPkWord *)PacketBufferStruct.end.c)->d =
+        (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >> 4) -
+                       1) |
+        0x1000000000008000LL;
+    ((GifPkWord *)PacketBufferStruct.gif.c)->w[0] =
+        (((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.gif.c) >> 4) << 16) |
+        0x6C008000;
+    p = PacketBufferStruct.ptr.c;
+    ((GifPkWord *)p)->w[0] = 0x15000000;
+    p += 4;
+    PacketBufferStruct.ptr.c = p;
+    ((GifPkWord *)p)->w[0] = 0;
+    PacketBufferStruct.ptr.c = (p + 4);
+    ((GifPkWord *)(p + 4))->w[0] = 0;
+    PacketBufferStruct.ptr.c = (p + 8);
+    ((GifPkWord *)(p + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = (p + 0xC);
+    ((GifPkWord *)PacketBufferStruct.tail.c)->d =
+        (unsigned int)((((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.tail.c) >>
+                         4) -
+                        1) |
+                       0x10000000);
+    q = PacketBufferStruct.ptr.c;
+    PacketBufferStruct.tail.c = q;
+    ((GifPkWord *)q)->d = 0x60000000;
+    PacketBufferStruct.ptr.c = (q + 8);
+    ((GifPkWord *)(q + 8))->w[0] = 0;
+    PacketBufferStruct.ptr.c = (q + 0xC);
+    ((GifPkWord *)(q + 8))->w[1] = 0;
+    PacketBufferStruct.ptr.c = (q + 0x10);
+    dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
+    dl_CloseDma();
+}
+#else
 void shadow_Reset(void)
 {
     char *c;
@@ -151,6 +229,7 @@ void shadow_Reset(void)
     dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
     dl_CloseDma();
 }
+#endif
 
 /* The textured sprite: PRIM, RGBAQ, then a UV and an XYZ2 pair for each
  * corner, the far corner as spriteRect holds it. */
@@ -181,9 +260,15 @@ void shadow_Draw(void)
     {
         /* the four level tables, this block's statics */
         /* the frame buffer pointer of each shadow mipmap level */
+#ifdef VERSION_NTSC
+        static const unsigned int levelFbp[4] = {0x140, 0x1C0, 0x1E0, 0x1E8}; /* derived name */
+        /* the texture base pointer of each shadow mipmap level */
+        static const unsigned int levelTbp[4] = {0x2800, 0x3800, 0x3C00, 0x3D00}; /* derived name */
+#else
         static const unsigned int levelFbp[4] = {0x142, 0x1C2, 0x1E2, 0x1EA}; /* derived name */
         /* the texture base pointer of each shadow mipmap level */
         static const unsigned int levelTbp[4] = {0x2840, 0x3840, 0x3C40, 0x3D40}; /* derived name */
+#endif
         /* the sprite corner and size of each level in 12.4 screen units */
         static const int levelRect[4][4] = {{-4100, -4100, 8192, 8192},
                                             {-2052, -2052, 4096, 4096},
@@ -216,7 +301,11 @@ void shadow_Draw(void)
         setGsReg(0x14, 0x60);
 
         for (i = 0; i < 3; i++) {
+#ifdef VERSION_NTSC
+            setFrame(levelFbp[i + 1], 512 >> (i + 1), 512 >> (i + 1));
+#else
             setFrame(levelFbp[i + 1], 512 >> (i + 1), 512 >> (i + 1), 0, 0);
+#endif
             if (i == 0) {
                 *PacketBufferStruct.ptr.d++ = levelTbp[i] | ((long long)(512 >> i) / 64 << 14) |
                                               ((long long)1 << 20) | ((long long)(9 - i) << 26) |
@@ -232,7 +321,11 @@ void shadow_Draw(void)
             spriteUV(levelRect[i + 1], levelUV[i], col, 0x116);
         }
 
+#ifdef VERSION_NTSC
+        setFrame(0x40, ScreenWidth, ScreenHeight);
+#else
         setFrame(0x40, ScreenWidth, ScreenHeight, 0, 0);
+#endif
         setGsReg(0x42, 0x44);
         setGsReg(0x47, 0x3400D);
 
@@ -249,13 +342,17 @@ void shadow_Draw(void)
                                           ((long long)(9 - i) << 26) | ((long long)(9 - i) << 30) |
                                           ((long long)0x8000 << 19);
             *PacketBufferStruct.ptr.d++ = 0x06;
+#ifndef VERSION_NTSC
             setGsReg(0x14, 0x60);
+#endif
             spriteUV(off, rect[i], col2, 0x156);
         }
 
         setGsReg(0x4E, 0x300000C0);
         setGsReg(0x47, 0x50000);
+#ifndef VERSION_NTSC
         setFrame(0x40, ScreenWidth, ScreenHeight, screenOffsetX, screenOffsetY);
+#endif
 
         ((GifPkWord *)PacketBufferStruct.end.c)->d =
             (unsigned int)(((unsigned int)(PacketBufferStruct.ptr.c - PacketBufferStruct.end.c) >>
@@ -280,7 +377,9 @@ void shadow_Draw(void)
         dl_OpenDma(5, PacketBufferStruct.dma.c, 0);
         dl_CloseDma();
     }
+#ifndef VERSION_NTSC
     tex_UnlockHeadTBP(3);
+#endif
 }
 
 #ifdef DEBUG
@@ -378,7 +477,11 @@ static void shadow_EntryClusterShadow(Sub15C *o, float len)
     _InitCurrentMatrix();
     shadow_getShadowVectorAverage(v, o);
     _ScaleVectorXYZ(sa, v, len);
+#ifdef VERSION_NTSC
+    _ScaleVectorXYZ(sb, v, 4.5f);
+#else
     _ScaleVectorXYZ(sb, v, 4.0f);
+#endif
 
     for (i = 0; i < o->nodeNum; i++) {
         _SetCurrentMatrix((char *)o->nodeMtx + i * 0x40);
@@ -456,6 +559,55 @@ static inline void applyCurrentMatrixV(void *dst, void *src) /* derived name */
                          : "r"(dst), "r"(src));
 }
 
+#ifdef VERSION_NTSC
+static void shadow_EntryNormalShadow(Sub15C *o, float len, int idx)
+{
+    float v[4];
+    float sa[4];
+    float sb[4];
+    PObjModel *x = o->shadow;
+    int i;
+    int j;
+    PObjPart *p;
+
+    shadow_getShadowVectorAverage(v, o);
+    _ScaleVectorXYZ(sa, v, len);
+    _ScaleVectorXYZ(sb, v, 4.5f);
+    _SetCurrentMatrix((char *)o->nodeMtx + idx * 0x40);
+    _MulCurrentMatrixL(matrixptr + 0x80);
+
+    p = x->parts;
+    for (i = 0; i < x->partCount; i++, p++) {
+        for (j = 0; j < p->vtxCount; j++) {
+            applyCurrentMatrixV(p->vtxSave + j * 16, p->vtx + j * 16);
+        }
+        for (j = 0; j < p->vtxCount; j++) {
+            _AddVectorXYZ(p->nrmSave + j * 16, p->vtxSave + j * 16, sa);
+            _AddVectorXYZ(p->vtxSave + j * 16, p->vtxSave + j * 16, sb);
+        }
+    }
+
+    p = x->parts;
+    for (i = 0; i < x->partCount; i++, p++) {
+        VECTOR *va = (VECTOR *)p->vtxSave;
+        VECTOR *vb = (VECTOR *)p->nrmSave;
+
+        for (j = 0; j < p->vtxCount; j++) {
+            if (1.0f <= va[j].z && 1.0f <= vb[j].z) {
+            } else if (va[j].z < 1.0f && vb[j].z < 1.0f) {
+                vb[j].w = -1.0f;
+                va[j].w = -1.0f;
+            } else if (vb[j].z < 1.0f) {
+                _InterVectorXYZ(&vb[j], &va[j], &vb[j],
+                                1.0f - (va[j].z - 1.0f) / (va[j].z - vb[j].z));
+            } else if (va[j].z < 1.0f) {
+                _InterVectorXYZ(&va[j], &vb[j], &va[j],
+                                1.0f - (vb[j].z - 1.0f) / (vb[j].z - va[j].z));
+            }
+        }
+    }
+}
+#else
 static void shadow_EntryNormalShadow(Sub15C *o, int idx, float len)
 {
     float v[4];
@@ -503,6 +655,7 @@ static void shadow_EntryNormalShadow(Sub15C *o, int idx, float len)
         }
     }
 }
+#endif
 
 /* The static helpers shadow_RenderVolume and shadow_RenderVolumeMulti share;
  * both inline every one of them. */
@@ -551,6 +704,195 @@ static inline void storeVolumeVerts(void *dst) /* derived name */
                          : "r"(dst));
 }
 
+#ifdef VERSION_NTSC
+/* Project one silhouette edge and clip the projected segment
+ * to the screen rectangle. Returns the facing dot times the winding sign, or
+ * -1.0f when the edge is wholly off screen, which is also how the caller
+ * learns that both ends were marked away.
+ * The projection is one hand-ordered block: it rolls the six vertex
+ * registers of the strip down by one, projects the edge's two ends, divides
+ * both by w, takes the facing dot of the new triangle and leaves the two
+ * screen points both in the VU registers the emitter reads and in oa/ob for
+ * the clipper.  The GPR the dot product passes through is a named $7 (and the
+ * slides' is $8), declared clobbered, as Matrix.c and BgAnimation.c write
+ * theirs. */
+static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn) /* derived name */
+{
+    VECTOR oa;
+    VECTOR ob;
+    float rate[2];
+    float dot;
+    float fw, fh, t0, t1, t;
+
+    __asm__ __volatile__("vmove.xyzw $vf10, $vf11\n\t"
+                         "vmove.xyzw $vf13, $vf14\n\t"
+                         "vmove.xyzw $vf20, $vf21\n\t"
+                         "vmove.xyzw $vf23, $vf24\n\t"
+                         "vmove.xyzw $vf11, $vf12\n\t"
+                         "vmove.xyzw $vf14, $vf15\n\t"
+                         "vmove.xyzw $vf21, $vf22\n\t"
+                         "vmove.xyzw $vf24, $vf25\n\t"
+                         "lqc2 $vf12, 0x0(%1)\n\t"
+                         "lqc2 $vf15, 0x0(%2)\n\t"
+                         "vnop\n\t"
+                         "vsub.xyz $vf8, $vf10, $vf11\n\t"
+                         "vsub.xyz $vf9, $vf12, $vf11\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf12x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf12y\n\t"
+                         "vmaddaz.xyzw ACC, $vf6, $vf12z\n\t"
+                         "vmaddw.xyzw $vf22, $vf7, $vf0w\n\t"
+                         "vdiv Q, $vf0w, $vf22w\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyzw $vf22, $vf22, Q\n\t"
+                         "vopmula.xyz ACC, $vf8, $vf9\n\t"
+                         "vopmsub.xyz $vf2, $vf9, $vf8\n\t"
+                         "vaddw.x $vf3, $vf0, $vf0w\n\t"
+                         "vmulax.xyzw ACC, $vf4, $vf15x\n\t"
+                         "vmadday.xyzw ACC, $vf5, $vf15y\n\t"
+                         "vmaddaz.xyzw ACC, $vf6, $vf15z\n\t"
+                         "vmaddw.xyzw $vf25, $vf7, $vf0w\n\t"
+                         "vdiv Q, $vf0w, $vf25w\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyzw $vf25, $vf25, Q\n\t"
+                         "vmul.xyz $vf2, $vf1, $vf2\n\t"
+                         "vmove.w $vf12, $vf0\n\t"
+                         "vmove.w $vf15, $vf0\n\t"
+                         "vnop\n\t"
+                         "vaddax.x ACC, $vf0, $vf2x\n\t"
+                         "vmadday.x ACC, $vf3, $vf2y\n\t"
+                         "vmaddz.x $vf2, $vf3, $vf2z\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "qmfc2.ni $7, $vf2\n\t"
+                         "mtc1 $7, %0\n\t"
+                         "lqc2 $vf8, 0x0(%5)\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "vsub.xyzw $vf18, $vf22, $vf8\n\t"
+                         "vsub.xyzw $vf19, $vf25, $vf8\n\t"
+                         "vnop\n\t"
+                         "vnop\n\t"
+                         "sqc2 $vf18, 0x0(%3)\n\t"
+                         "sqc2 $vf19, 0x0(%4)"
+                         : "=f"(dot)
+                         : "r"(pa), "r"(pb), "r"(&oa), "r"(&ob), "r"(&screenOrigin)
+                         : "$7");
+
+    rate[0] = rate[1] = 1.0f;
+    /* a wholly visible edge returns at once */
+    if (-(ScreenWidth * 3 / 2) < oa.x && oa.x < (ScreenWidth * 3 / 2) &&
+        -(ScreenWidth * 3 / 2) < ob.x && ob.x < (ScreenWidth * 3 / 2) &&
+        -(ScreenHeight * 3 / 2) < oa.y && oa.y < (ScreenHeight * 3 / 2) &&
+        -(ScreenHeight * 3 / 2) < ob.y && ob.y < (ScreenHeight * 3 / 2)) {
+        return dot * sgn;
+    }
+    if ((oa.x <= -(ScreenWidth * 3 / 2) && ob.x <= -(ScreenWidth * 3 / 2)) ||
+        ((ScreenWidth * 3 / 2) <= oa.x && (ScreenWidth * 3 / 2) <= ob.x) ||
+        (oa.y <= -(ScreenHeight * 3 / 2) && ob.y <= -(ScreenHeight * 3 / 2)) ||
+        ((ScreenHeight * 3 / 2) <= oa.y && (ScreenHeight * 3 / 2) <= ob.y)) {
+        pb->w = -1.0f;
+        pa->w = -1.0f;
+        return -1.0f;
+    }
+    fw = (ScreenWidth * 3 / 2);
+    fh = (ScreenHeight * 3 / 2);
+    t0 = t1 = 1.0f;
+    if (fw < oa.x && ob.x <= fw) {
+        t = (ob.x - fw) / (ob.x - oa.x);
+        if (t < t0 && t < 1.0f && 0.0f < t) {
+            t0 = t;
+        }
+    } else if (fw < ob.x && oa.x <= fw) {
+        t = (oa.x - fw) / (oa.x - ob.x);
+        if (t < t1 && t < 1.0f && 0.0f < t) {
+            t1 = t;
+        }
+    }
+    if (oa.x < -fw && -fw <= ob.x) {
+        t = (ob.x + fw) / (ob.x - oa.x);
+        if (t < t0 && t < 1.0f && 0.0f < t) {
+            t0 = t;
+        }
+    } else if (ob.x < -fw && -fw <= oa.x) {
+        t = (oa.x + fw) / (oa.x - ob.x);
+        if (t < t1 && t < 1.0f && 0.0f < t) {
+            t1 = t;
+        }
+    }
+    if (fh < oa.y && ob.y <= fh) {
+        t = (ob.y - fh) / (ob.y - oa.y);
+        if (t < t0 && t < 1.0f && 0.0f < t) {
+            t0 = t;
+        }
+    } else if (fh < ob.y && oa.y <= fh) {
+        t = (oa.y - fh) / (oa.y - ob.y);
+        if (t < t1 && t < 1.0f && 0.0f < t) {
+            t1 = t;
+        }
+    }
+    if (oa.y < -fh && -fh <= ob.y) {
+        t = (ob.y + fh) / (ob.y - oa.y);
+        if (t < t0 && t < 1.0f && 0.0f < t) {
+            t0 = t;
+        }
+    } else if (ob.y < -fh && -fh <= oa.y) {
+        t = (oa.y + fh) / (oa.y - ob.y);
+        if (t < t1 && t < 1.0f && 0.0f < t) {
+            t1 = t;
+        }
+    }
+    rate[0] = t0;
+    rate[1] = t1;
+    t0 = 1.0f - t0;
+    t1 = 1.0f - t1;
+    if (1.0f <= t0 + t1 || t0 + t1 <= 0.0f) {
+        pb->w = -1.0f;
+        pa->w = -1.0f;
+        return -1.0f;
+    }
+    /* slide each end of the projected edge to the clip parameter found for
+     * it */
+    if (0.0f < rate[0] && rate[0] < 1.0f) {
+        __asm__ __volatile__("mfc1 $8, %0\n\t"
+                             "qmtc2.ni $8, $vf8\n\t"
+                             "vsubx.w $vf8, $vf0, $vf8x\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vmulaw.xyz ACC, $vf19, $vf8w\n\t"
+                             "vmaddx.xyz $vf22, $vf18, $vf8x\n\t"
+                             "lqc2 $vf8, 0x0(%1)\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vadd.xyzw $vf22, $vf22, $vf8"
+                             :
+                             : "f"(rate[0]), "r"(&screenOrigin)
+                             : "$8");
+    }
+    if (0.0f < rate[1] && rate[1] < 1.0f) {
+        __asm__ __volatile__("mfc1 $8, %0\n\t"
+                             "qmtc2.ni $8, $vf8\n\t"
+                             "vsubx.w $vf8, $vf0, $vf8x\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vmulaw.xyz ACC, $vf18, $vf8w\n\t"
+                             "vmaddx.xyz $vf25, $vf19, $vf8x\n\t"
+                             "lqc2 $vf8, 0x0(%1)\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vnop\n\t"
+                             "vadd.xyzw $vf25, $vf25, $vf8"
+                             :
+                             : "f"(rate[1]), "r"(&screenOrigin)
+                             : "$8");
+    }
+    return dot * sgn;
+}
+#else
 /* Project one silhouette edge and clip the projected segment
  * to the screen rectangle. Returns the facing dot times the winding sign, or
  * -1.0f when the edge is wholly off screen, which is also how the caller
@@ -737,6 +1079,7 @@ static inline float clipVolumeEdge(VECTOR *pa, VECTOR *pb, float sgn) /* derived
     }
     return dot * sgn;
 }
+#endif
 
 /* The first two edges of a strip, which open it. Returns the
  * number of strip positions still to skip because an opening vertex was
@@ -850,14 +1193,47 @@ static inline unsigned long long *emitVolumeStrip(unsigned long long *p,
     for (i = 0; i < 10; i++, sgn = -sgn, p++) {
         k = order[i];
         if (volumeStripFaceZ(i) * sgn < 0.0f) {
+#ifdef VERSION_NTSC
+            *p++ = 0x3F80000080080808LL;
+        } else {
+            *p++ = 0x3F80000080F8F8F8LL;
+#else
             *p++ = 0x3F80000080040404LL;
         } else {
             *p++ = 0x3F80000080FCFCFCLL;
+#endif
         }
         v = vi[k];
         *p = (long long)v[0] | ((long long)v[1] << 16) | ((long long)v[2] << 32);
     }
     return p;
+#ifdef VERSION_NTSC
+}
+
+/* Whether the model's bounding box, blown up about its centre by the
+ * shadow's length, is on the screen. */
+static inline int shadowVolumeOnScreen(PObjModel *x, float len) /* derived name */
+{
+    VECTOR box[8];
+    VECTOR center;
+    VECTOR d;
+    VECTOR *b = (VECTOR *)x->boxes;
+    float scale = len * 1.41421356f;
+    int i;
+
+    _UnitVector(&center);
+    for (i = 0; i < 8; i++) {
+        _AddVectorXYZ(&center, &center, &b[i]);
+    }
+    _ScaleVectorXYZ(&center, &center, 0.125f);
+    for (i = 0; i < 8; i++) {
+        _SubVector(&d, &b[i], &center);
+        _ScaleVector(&d, &d, scale);
+        _AddVector(&box[i], &b[i], &d);
+    }
+    _SetCurrentMatrix(matrixptr + 0x300);
+    return gsb_ClipBox((float *)box);
+#endif
 }
 
 static void __GetCameraPos(VECTOR *pos)
@@ -912,13 +1288,22 @@ void shadow_RenderVolume(Sub15C *o)
     if (len != x->shadowLength && 0.0f < x->shadowLength) {
         len = x->shadowLength;
     }
+#ifdef VERSION_NTSC
+    if (shadowVolumeOnScreen(x, len) == 0) {
+        return;
+    }
+#endif
     __GetCameraPos(&cam);
     GetRootPositionByDObj(&pos, o);
     _GetLength(&pos, &cam);
     if (o->dispType == 1) {
         shadow_EntryClusterShadow(o, len);
     } else {
+#ifdef VERSION_NTSC
+        shadow_EntryNormalShadow(o, len, 0);
+#else
         shadow_EntryNormalShadow(o, 0, len);
+#endif
     }
     dl_SetDLPriority(3);
     shadow_getShadowVectorAverage(&pos, o);
@@ -1015,10 +1400,19 @@ void shadow_RenderVolumeMulti(Sub15C *o, int idx)
     if (len != x->shadowLength && 0.0f < x->shadowLength) {
         len = x->shadowLength;
     }
+#ifdef VERSION_NTSC
+    if (shadowVolumeOnScreen(x, len) == 0) {
+        return;
+    }
+#endif
     __GetCameraPos(&cam);
     GetRootPositionByDObj(&pos, o);
     _GetLength(&pos, &cam);
+#ifdef VERSION_NTSC
+    shadow_EntryNormalShadow(o, len, idx);
+#else
     shadow_EntryNormalShadow(o, idx, len);
+#endif
     dl_SetDLPriority(3);
     shadow_getShadowVectorAverage(&pos, o);
     loadVolumeMatrix(&pos);

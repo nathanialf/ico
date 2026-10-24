@@ -12,7 +12,9 @@
    HandCameraCorrect is called with */
 static float handCameraRate; /* derived name */
 
+#ifndef VERSION_NTSC
 static unsigned char handCameraMode; /* derived name */
+#endif
 
 /* the correction work area, two angles and the two limits
    SetLimitHandCameraCorrect writes */
@@ -34,6 +36,12 @@ static void RotateAccordingToStick_PatternThree(float *pitch, float *yaw, float 
     x = v[0];
     y = v[2];
 
+#ifdef VERSION_NTSC
+    if (len < 0.1f)
+        spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(16);
+    else
+        spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(15);
+#else
     if (len < 0.1f) {
         if (handCameraMode == 0)
             spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(16);
@@ -43,6 +51,7 @@ static void RotateAccordingToStick_PatternThree(float *pitch, float *yaw, float 
         spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(15);
     else
         spd = handCameraRate * 0.008726646f * _ACTGame_GetParamF(17);
+#endif
 
     db = x * (p[5] * 3.1415927f / 180.0f) - *yaw;
 
@@ -68,6 +77,33 @@ static void RotateAccordingToStick_PatternThree(float *pitch, float *yaw, float 
     *yaw += db;
 }
 
+#ifdef VERSION_NTSC
+static inline void SetCurrentInfo(void *eye, void *at)
+{
+    float *p = handCameraWork;
+    float v[4];
+    float w[4];
+    float ang;
+    float t;
+    float mx;
+    float mn;
+
+    sceVu0SubVector(v, at, eye);
+    w[0] = v[0];
+    w[1] = 0.0f;
+    w[2] = v[2];
+    ang = _RotGVF(w, v);
+    p[4] = ang;
+    if (v[1] > 0.0f)
+        p[4] = -ang;
+
+    t = p[6] * 3.1415927f / 180.0f;
+    mx = (t < p[4]) ? p[4] : t;
+    p[2] = mx - p[4];
+    mn = (p[4] < -t) ? p[4] : -t;
+    p[3] = mn - p[4];
+}
+#else
 static void SetCurrentInfo(void *eye, void *at)
 {
     float *p = handCameraWork;
@@ -102,6 +138,7 @@ static void SetCurrentInfo(void *eye, void *at)
         p[3] = mn - p[4];
     }
 }
+#endif
 
 static void HandyCamera_TargetMoveType(void *eye, void *at)
 {
@@ -179,6 +216,20 @@ inline void SetLimitHandCameraCorrect(float limitP, float limitV)
     handCameraWork[6] = limitV;
 }
 
+#ifdef VERSION_NTSC
+inline void HandCameraCorrect(void *eye, void *at, float stickX, float stickZ, float rate)
+{
+    float *p = handCameraWork;
+
+    handCameraRate = rate;
+
+    SetCurrentInfo(eye, at);
+
+    RotateAccordingToStick_PatternThree(p, p + 1, stickX, -stickZ);
+
+    HandyCamera_TargetMoveType(eye, at);
+}
+#else
 void HandCameraCorrect(void *eye, void *at, int mode, float stickX, float stickZ, float rate)
 {
     float *p = handCameraWork;
@@ -192,3 +243,4 @@ void HandCameraCorrect(void *eye, void *at, int mode, float stickX, float stickZ
 
     HandyCamera_TargetMoveType(eye, at);
 }
+#endif

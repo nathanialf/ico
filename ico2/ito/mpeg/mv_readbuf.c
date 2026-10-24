@@ -1,6 +1,29 @@
 #include "mv_defs.h"
 #include "mv_readbuf.h"
 
+#ifdef VERSION_NTSC
+#include "memory.h"
+
+static void Free(int addr);
+
+/* the ring readBufCreate allocated */
+static void free_buffer(ReadBuf *self)
+{
+    Free((int)self->data);
+}
+
+void readBufDelete(ReadBuf *self)
+{
+    free_buffer(self);
+}
+
+/* this file's own Free (mv_defs.h) */
+static void Free(int addr)
+{
+    iosFree((void *)phys_addr(addr));
+}
+#endif
+
 int readBufCreate(ReadBuf *self)
 {
     int buf;
@@ -15,7 +38,9 @@ int readBufCreate(ReadBuf *self)
     return 0;
 }
 
+#ifndef VERSION_NTSC
 void readBufDelete(ReadBuf *self) {}
+#endif
 
 int readBufBeginPut(ReadBuf *self, void **p)
 {

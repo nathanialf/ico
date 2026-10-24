@@ -328,7 +328,11 @@ static void light_getNearLight(Sub15C *self, int idx)
             }
         }
     }
+#ifdef VERSION_NTSC
+    _NormalizeVector((char *)self + 0x830, dir);
+#else
     _NormalizeVector((char *)self + 0x860, dir);
+#endif
     for (i = 0; i < 3; i++) {
         if (near[i] != 0) {
             if (near[i]->kind == 0) {

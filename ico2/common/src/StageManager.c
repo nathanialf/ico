@@ -19,6 +19,11 @@
 #include "warpGirl.h"
 #include "DisplayP2O.h"
 #include "GsBase.h"
+
+#ifdef VERSION_NTSC
+#include "staticBlur.h"
+#endif
+
 #include "Matrix.h"
 #include "darkVolume.h"
 #include "delayFreeManager.h"
@@ -38,7 +43,7 @@ typedef struct { /* field names derived */
     float pos[4];
 } StgSlot; /* derived name */
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
 /* .data, all zero: the preload buffer, 896 sectors of 2048
    bytes, the cap stgmgrNextStagePreLoad clamps a read to and the ring cdvd.c's
    stream reads through; the stage manager's message queue record; and the exit
@@ -57,9 +62,11 @@ IosMsgQueue stageMgrMsgQ = {0};
 
 StgSlot stageExitData[15] = {0};
 
+#ifndef VERSION_NTSC
 /* .sbss: the one-entry buffer of the stage manager's message queue, and the
    stage stgmgrNextStagePreLoadForceStageSet asks the preloader for. */
 static int stageMgrMsgBuf; /* derived name */
+#endif
 
 static int stagePreLoadForceStageNo; /* derived name */
 
@@ -67,6 +74,11 @@ static int stagePreLoadForceStageNo; /* derived name */
    28 words; InitIcoMisc's flag word at 0x3C is read here as an unsigned word,
    where IOSThread's flags is the int ios/thread.c tests */
 static unsigned int initIcoMiscThread[28]; /* derived name */
+
+#ifdef VERSION_NTSC
+/* the four-entry buffer of the stage manager's message queue */
+static int stageMgrMsgBuf[4]; /* derived name */
+#endif
 
 #include "main.h"
 #include <libgraph.h>
@@ -189,7 +201,11 @@ static void start_stage_Load_thread(int stage)
         stage_initialize();
         stageManagerFreeResourceFlag = 0;
         iosThreadCancelWakeup(0);
+#ifdef VERSION_NTSC
+        SetMotionBlur(GlobalStageSetting.motionBlur);
+#else
         gsb_SetMotionBlur();
+#endif
         current_stage_no = stage;
         iosThreadCreateS((IOSThread *)initIcoMiscThread, 1, InitIcoMisc, &stage_no,
                          ios_partition_root, 0x18000, 27);
@@ -385,7 +401,11 @@ void StageManager(void)
     StgMgrMsg *msg;
 
     debug_StdPrintfDummy("stage manager() in\n");
+#ifdef VERSION_NTSC
+    iosMsgQueueCreate(&stageMgrMsgQ, stageMgrMsgBuf, 4);
+#else
     iosMsgQueueCreate(&stageMgrMsgQ, &stageMgrMsgBuf, 1);
+#endif
     debug_StdPrintfDummy("IosCdLock %d\n", IosCdLock);
     WaitSema(IosCdLock);
     DeleteSema(IosCdLock);
@@ -432,7 +452,11 @@ void StageManager(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             lt_switch_layout(50);
 #else
+#ifdef VERSION_NTSC
+            lt_switch_layout(49);
+#else
             lt_switch_layout(0x35);
+#endif
 #endif
             systemStatus[6] = 1;
             systemStatus[5] = 1;
@@ -493,7 +517,11 @@ void stgmgrForceSwitch(int stage)
     stageMgrMsg.stage = stage;
     graphics_ready = 1;
     stageMgrMsg.fadeOut = 0;
+#ifdef VERSION_NTSC
+    iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
+#else
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 1);
+#endif
 }
 
 void stgmgrForceSwitchWithFade(int stage, float fadeIn, float fadeOut)
@@ -513,5 +541,9 @@ void stgmgrForceSwitchWithFadeColor(int stage, float fadeIn, float fadeOut, unsi
     stageMgrMsg.b = b;
     mpegPlayInitColor = 0x80000000 | (b << 16) | (g << 8) | r;
     graphics_ready = 1;
+#ifdef VERSION_NTSC
+    iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 0);
+#else
     iosMsgSend(&stageMgrMsgQ, (int)&stageMgrMsg, 1);
+#endif
 }

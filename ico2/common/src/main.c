@@ -35,7 +35,7 @@
    sceGsDBuff, 0x230 B), stageMgrMsg the stage manager's message (main.h's
    StgMgrMsg, 0x18 B) and SchedulerMsgQ the scheduler's queue (message.c's
    IosMsgQueue, 0x30 B). */
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
 int systemStatus[12] = {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
 #else
 int systemStatus[12] = {1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7};
@@ -126,7 +126,7 @@ void Main(void)
     debug_StdPrintfDummy("SYSTEM_FRAMERATE: \x1b[33m%d\x1b[m\n",
                          (60 - systemStatus[0] * 10) / systemStatus[1]);
     *T0_COUNT = 0;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
     NonLinearCameraMove = 3;
 #endif
     stage_no = 0;
@@ -136,7 +136,7 @@ void Main(void)
     systemFault = 0;
     lock_execIcoMisc = 0;
     n = debug_TryToGetStartStage();
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     thisIsYourStartStage = n < 104 ? n : 103;
 #else
     thisIsYourStartStage = n < 106 ? n : 105;
@@ -163,7 +163,7 @@ void Main(void)
     while (1) {
         iosThreadCancelWakeup(0);
         iosThreadSleep();
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
         gsb_ResetSnap();
 #endif
         if (mpegPlay != 0) {
@@ -176,6 +176,12 @@ void Main(void)
             ios_partition_mpeg = ios_partition_isys;
             AdpcmStreamFree();
             soundAllocIopFree();
+#ifdef VERSION_NTSC
+            movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
+                       mpegPlayInitColor);
+            ret = movie_proc(movie_abort_check);
+            mpegPlay = 0;
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
             movie_init(&movieFile[mpegPlay * 0x20], 720, 480, 36, 12, soundOutputModeGet() == 1,
                        mpegPlayInitColor);
@@ -185,13 +191,18 @@ void Main(void)
 #endif
             ret = movie_proc(movie_abort_check);
             sceGsSyncV(0);
+#endif
             soundAllocIopHeap();
             AdpcmStreamHeap();
             ACTGame_SetActors_Debug(mpegPlayReturnStage, 1);
+#ifdef VERSION_NTSC
+            gsb_Init(&db);
+#else
             gsb_UpdateGSSystem(1);
             gsb_UpdateGSSystem(1);
             gsb_Init(&db);
             mpegPlay = 0;
+#endif
             stgmgrForceSwitchWithFade(mpegPlayReturnStage, 255.0f, mpegPlayFadeInSpeed);
             if (ret == 1) {
                 stage_after_skipping_demo = 0xFFFFFFFE;
@@ -213,7 +224,7 @@ void Main(void)
         }
         iosOmCreateDL();
         ExecDelayFree();
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
         gsb_TakeSnap();
 #endif
         frameReady = 1;
@@ -289,7 +300,11 @@ static void scheduler(void)
                         goto skip;
                     }
                     _PushVu0Registers();
+#ifdef VERSION_NTSC
+                    gsb_UpdateGSSystem();
+#else
                     gsb_UpdateGSSystem(0);
+#endif
                     _PopVu0Registers();
                     if (systemStatus[5] != 0) {
                         if (iosCdvdDiskStatusGet() != 0) {
@@ -374,7 +389,7 @@ int movie_abort_check(void)
     return ret;
 }
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 void demoEnd(void) {}
 #endif
 
@@ -419,7 +434,7 @@ int interlace QWORD = 0;
 
 int thisIsYourStartStage QWORD = 0;
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 int NonLinearCameraMove QWORD = 0;
 #endif
 
@@ -456,6 +471,7 @@ int IosStgMgrLock QWORD = 0;
 
 int systemFault QWORD = 0;
 
+#ifndef VERSION_NTSC
 /* the 0/1 game option that selects the pad word, held or pressed, the actions read */
 int optionControlType QWORD = 0; /* derived name */
 
@@ -464,6 +480,7 @@ int optionScreenMode QWORD = 0; /* derived name */
 
 /* ChangeGirlControlMode's flag, the game option that hands the girl to pad 2 */
 int girlControlMode QWORD = 0; /* derived name */
+#endif
 
 GObj *boyGObj = 0;
 
@@ -472,11 +489,17 @@ GObj *girlGObj = 0;
 /* the boy's and the girl's pad handles, the Act.pad each actor connects */
 IosPadCtx *boyPad = 0;
 
+#ifndef VERSION_NTSC
 IosPadCtx *girlPad = 0; /* derived name */
+#endif
 
 int gameover_flag = 0;
 
 int gameover_layout_flag = 0;
+
+#ifdef VERSION_NTSC
+IosPadCtx *girlPad = 0; /* derived name */
+#endif
 
 /* ACTItemWatchMotion runs for the boy only while it is 0 */
 int itemWatchOff = 0; /* derived name */

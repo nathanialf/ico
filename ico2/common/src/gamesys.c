@@ -35,8 +35,12 @@ void gamesysObjInfoLoad(GamesysMemCursor *h);
 void gamesysObjInfoSave(GamesysMemCursor *h);
 static void gamesysGeneratorInfoLoad(GamesysMemCursor *self);
 static void gamesysGeneratorInfoSave(GamesysMemCursor *self);
+
+#ifndef VERSION_NTSC
 static void gamesysHintInfoLoad(GamesysMemCursor *self);
 static void gamesysHintInfoSave(GamesysMemCursor *self);
+#endif
+
 static void gamesysCharacterInfoLoad(GamesysMemCursor *self);
 static void gamesysCharacterInfoSave(GamesysMemCursor *self);
 
@@ -45,6 +49,28 @@ static void gamesysCharacterInfoSave(GamesysMemCursor *self);
    handler per record, which gamesysMemoryLoad and gamesysMemorySave walk to
    the zero pair; the per-stage exit times; the object-info records; the save
    image itself.  The buffers are zero-initialised, so they sit in .data. */
+#ifdef VERSION_NTSC
+char stamp_str[] = "08/18/01 22:22:20";
+
+void *gameSysMemoryFuncList[] = {
+    gamesysVersionLoad,
+    gamesysVersionSave,
+    gflagLoad,
+    gflagSave,
+    gamesysObjInfoLoad,
+    gamesysObjInfoSave,
+    gamesysGeneratorInfoLoad,
+    gamesysGeneratorInfoSave,
+    gamesysCharacterInfoLoad,
+    gamesysCharacterInfoSave,
+    backStageLoad,
+    backStageSave,
+    itouGflagLoad,
+    itouGflagSave,
+    0,
+    0,
+};
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
 #ifdef VERSION_KOR
 char stamp_str[] = "10/23/01 17:47:13";
@@ -75,6 +101,7 @@ void *gameSysMemoryFuncList[] = {
     0,
     0,
 };
+#endif
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
 int gamesysStageExitTime[104] = {0};
@@ -115,7 +142,7 @@ void gamesysObjInfoInit(void)
         gameSysObjInfo[i].stage = 0xFFFF;
     }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     memset((char *)gamesysStageExitTime, 0, 0x1A0);
 #else
     memset((char *)gamesysStageExitTime, 0, 0x1A8);
@@ -145,7 +172,7 @@ void gamesysObjInfoSave(GamesysMemCursor *h)
 
     *(long long *)(p + 0x40) = (*(long long *)(p + 0x40) & -3) | ((long long)save << 1);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     gamesysMemoryHandlerWrite(h, gamesysStageExitTime, 0x1A0);
 #else
     gamesysMemoryHandlerWrite(h, gamesysStageExitTime, 0x1A8);
@@ -156,7 +183,7 @@ void gamesysObjInfoLoad(GamesysMemCursor *h)
 {
     gamesysMemoryHandlerRead(h, &gamesysTimeCount, 4);
     gamesysMemoryHandlerRead(h, gameSysObjInfo, 0x2D80);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A0);
 #else
     gamesysMemoryHandlerRead(h, gamesysStageExitTime, 0x1A8);
@@ -279,6 +306,16 @@ GamesysObjInfo *gamesysObjInfoBaseSet(GObj *self, int stage)
     return p;
 }
 
+#ifdef VERSION_NTSC
+void gamesysBackStageProcess(void)
+{
+    if (gameSysObjInfo[1].no == 131) {
+        gamesysGirlStage = gameSysObjInfo[1].stage;
+    }
+    gamesysTimeCount++;
+    backStageProcessMain();
+}
+#else
 void gamesysBackStageProcess(void)
 {
     if (gameSysObjInfo[1].no == 148) {
@@ -287,6 +324,7 @@ void gamesysBackStageProcess(void)
     gamesysTimeCount++;
     backStageProcessMain();
 }
+#endif
 
 void gamesysMemoryHandlerWrite(GamesysMemCursor *self, void *src, int size)
 {
@@ -317,6 +355,7 @@ static void gamesysGeneratorInfoLoad(GamesysMemCursor *self)
     }
     self->offset += s2;
     return ReadGeneratorPacket();
+#ifndef VERSION_NTSC
 }
 
 static void gamesysHintInfoSave(GamesysMemCursor *self)
@@ -339,6 +378,7 @@ static void gamesysHintInfoLoad(GamesysMemCursor *self)
     }
     self->offset += s2;
     return ReadHintSaveInfo();
+#endif
 }
 
 static void gamesysCharacterInfoSave(GamesysMemCursor *self)
@@ -551,7 +591,11 @@ void gamesysMemoryLoad(void **tbl, void *mem, void *arg)
         ((void (*)(void *, void *))tbl[0])(&cur, arg);
         tbl += 2;
     }
+#ifdef VERSION_NTSC
+    gflagOn(361);
+#else
     gflagOn(394);
+#endif
 }
 
 int gamesysVersionDiff = 0;

@@ -6,8 +6,8 @@
  * allocator and to the assert, so the name the file is included under
  * ("../ito/include/mv_defs.h") and those lines are part of the program's
  * data.  The original header had its two calls at lines 43 and 44 in the
- * PAL build and 42 and 43 in the Japanese and Korean ones; LN gives each build
- * its own.
+ * PAL build and 42 and 43 in the Japanese, Korean and USA ones; LN gives each
+ * build its own.
  *
  * phys_addr strips the segment bits from an EE address, the form the DMA
  * controller and the IOP heap calls take; uncached_accel_addr puts the same
@@ -37,8 +37,8 @@ static __inline__ int uncached_accel_addr(int p) /* derived name */
 void *iosMallocAlignDebug(struct IosMemPart *part, int size, int align, const char *file, int line);
 void debug_assert(const char *file, int line);   /* assert reporter */
 static __inline__ int alloc_zeroed(int size, int align) /* derived name */
-{ int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, LN(43, 42, 42));
-  if (p == 0) { debug_assert(__FILE__, LN(44, 43, 43)); __assert(__FILE__, LN(44, 43, 43), "p != NULL"); }
+{ int p = (int)iosMallocAlignDebug(ios_partition_mpeg, size, align, __FILE__, LN(43, 42, 42, 42));
+  if (p == 0) { debug_assert(__FILE__, LN(44, 43, 43, 43)); __assert(__FILE__, LN(44, 43, 43, 43), "p != NULL"); }
   memset((void *)p, 0, size); return p; }
 
 #endif /* MV_DEFS_H */

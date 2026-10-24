@@ -371,9 +371,15 @@ void *InitWormGeo(GObj *act, WormInit *ini)
 
     /* the first node's angle words cleared as floats; int stores through
        d->nodes->rot move InitWormGeo's schedule (measured) */
+#ifdef VERSION_NTSC
+    *(float *)(*(char **)((char *)d + 0x840) + 0x8) = 0.0f;
+    *(float *)(*(char **)((char *)d + 0x840) + 0x4) = 0.0f;
+    *(float *)(*(char **)((char *)d + 0x840) + 0x0) = 0.0f;
+#else
     *(float *)(*(char **)((char *)d + 0x870) + 0x8) = 0.0f;
     *(float *)(*(char **)((char *)d + 0x870) + 0x4) = 0.0f;
     *(float *)(*(char **)((char *)d + 0x870) + 0x0) = 0.0f;
+#endif
 
     d->nodes->scale[2] = 1.0f;
     d->nodes->scale[1] = 1.0f;

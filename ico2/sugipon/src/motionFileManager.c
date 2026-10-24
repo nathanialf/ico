@@ -16,6 +16,30 @@ extern const MotionDef motionKind[];
 
 /* every motion's loaded data, indexed by motion number; charFileManager
    fills the entries, the resets clear them */
+#ifdef VERSION_NTSC
+int *motionTable[1086] = {0};
+
+inline void ResetDynamicMotionManager(void)
+{
+    int i;
+    for (i = 0; i <= 1085; i++) {
+        if (motionKind[i].area == 4) {
+            motionTable[i] = 0;
+        }
+    }
+    motionMemorySizeStatic2 = 0;
+}
+
+inline void ResetStatic2MotionManager(int seg)
+{
+    int i;
+    for (i = 0; i <= 1085; i++) {
+        if (motionKind[i].area == seg) {
+            motionTable[i] = 0;
+        }
+    }
+}
+#else
 int *motionTable[1150] = {0};
 
 inline void ResetDynamicMotionManager(void)
@@ -38,6 +62,7 @@ inline void ResetStatic2MotionManager(int seg)
         }
     }
 }
+#endif
 
 /* the top of the motion file InitMotionFile relocates, the base every
    stored offset in it is added to */

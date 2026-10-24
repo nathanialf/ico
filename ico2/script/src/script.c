@@ -12,7 +12,11 @@
 #include "generator.h"
 #include "gv.h"
 #include "gflag.h"
+
+#ifndef VERSION_NTSC
 #include "st25a.h"
+#endif
+
 #include "Primitive.h"
 #include "StageAnimation.h"
 #include "Texture.h"
@@ -58,11 +62,13 @@ int scpBoyControlReadDisable = 0;
 
 float scpSeEnvMasterVolRate = 1.0f;
 
+#ifndef VERSION_NTSC
 static SqEntry *girlHintVoice = 0; /* derived name */
 
 static float girlHintRangeMin = 500.0f; /* derived name */
 
 static float girlHintRangeMax = 4000.0f; /* derived name */
+#endif
 
 SqEntry *sekizo_common = 0;
 
@@ -92,16 +98,27 @@ typedef struct AdpcmReq { /* field names derived */
     int loopNum;          /* 0x08, AdpcmOpen's loop count */
     int ch;               /* 0x0C, AdpcmOpen's channel */
     int play;             /* 0x10, start playing once open */
-    int cancel;           /* 0x14, close as soon as it opens */
-} AdpcmReq;               /* derived name */
+#ifndef VERSION_NTSC
+    int cancel; /* 0x14, close as soon as it opens */
+#endif
+} AdpcmReq; /* derived name */
 
 static AdpcmReq adpcmReq[2]; /* derived name */
 
+#ifdef VERSION_NTSC
+static sceVu0FVECTOR scriptCameraTarget; /* derived name */
+#else
 static float scriptCameraTarget[4]; /* derived name */
+#endif
 
 /* sugipon's motionKind (MotionDef, motionOrientManager.h), read here through
    this file's own view of the record */
 extern struct MotTblRec { /* derived name */ /* field names derived */
+#ifdef VERSION_NTSC
+    char pad0[312];
+    int smzAngle;
+    char pad13C[84];
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     char pad0[382];
 #else
@@ -113,6 +130,7 @@ extern struct MotTblRec { /* derived name */ /* field names derived */
 #else
     char pad188[12];
 #endif
+#endif
 } motionKind[];
 
 /* .data: the colour packet prim_DispWireBox draws the debug trigger box
@@ -122,6 +140,21 @@ static int wireBoxColor[4] = {0, 16, 32, 128}; /* derived name */
 /* .data: the two exported door tables, then five read only here.  Each is
    the usual actor mail pair: the mail the door thread answers, then the 429
    end marker act.c walks to. */
+#ifdef VERSION_NTSC
+ActMail scpInterDoorUpLever1[2] = {{376, scpDoorTypeUpSwitch}, {396}};
+
+ActMail scpInterDoorUpLever2[2] = {{377, scpDoorTypeUpSwitch}, {396}};
+
+static ActMail doorTypeUp_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail doorTypeUpSwitchDown_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail doorTypeUpSwitchUp_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail doorTypeUpDown_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail doorTypeUpUp_mes[2] = {{397}, {396}}; /* derived name */
+#else
 ActMail scpInterDoorUpLever1[2] = {{406, scpDoorTypeUpSwitch}, {429}};
 
 ActMail scpInterDoorUpLever2[2] = {{407, scpDoorTypeUpSwitch}, {429}};
@@ -135,6 +168,7 @@ static ActMail doorTypeUpSwitchUp_mes[2] = {{430}, {429}}; /* derived name */
 static ActMail doorTypeUpDown_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail doorTypeUpUp_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 /* the 0x30-byte wood-bridge table entry at woodBoxTbl: an object id, the
    trigger `kind` that selects which axis test runs, the bridge end offset the
@@ -167,6 +201,17 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
     {3271, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
 }; /* derived name */
 #else
+#ifdef VERSION_NTSC
+static struct WoodBoxEnt woodBoxTbl[7] = {
+    {1589, 0, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -1410.0f, 1000.0f, 0.0f, 0.0f},
+    {1584, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, 707.0f, 2000.0f, 570.0f, 1027.0f},
+    {1586, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, 707.0f, 2000.0f, 570.0f, 1027.0f},
+    {902, 6, {0}, {0.0f, -200.0f, 100.0f, 0.0f}, -1431.0f, 105.0f, -470.0f, -259.0f},
+    {806, 8, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -350.0f, -285.0f, -450.0f, -280.0f},
+    {807, 8, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -350.0f, -285.0f, -450.0f, -280.0f},
+    {1643, 7, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
+}; /* derived name */
+#else
 static struct WoodBoxEnt woodBoxTbl[11] = {
     {276, 6, {0}, {0.0f, -100.0f, 100.0f, 0.0f}, 1068.0f, -135.0f, 200.0f, 580.0f},
     {1710, 0, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, -1410.0f, 1000.0f, 0.0f, 0.0f},
@@ -180,6 +225,7 @@ static struct WoodBoxEnt woodBoxTbl[11] = {
     {1626, 1, {0}, {100.0f, -200.0f, 0.0f, 0.0f}, 680.0f, 230.0f, 0.0f, 0.0f},
     {3294, 9, {0}, {-100.0f, -200.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f},
 }; /* derived name */
+#endif
 #endif
 
 /* .sbss: a stage change has been requested and no further one is
@@ -198,6 +244,7 @@ static SObjSimpleSetting spiderLayout = {{0.0f}, {0.0f}, {1.0f, 1.0f, 1.0f}}; /*
 /* box.c's, defined in switch.c.inc */
 extern int CheckReadyAllSwitches(void);
 
+#ifndef VERSION_NTSC
 /* Before flag 332 this hands the actor queen_appear_mes and posts it; after
  * it, it shows object 2149, plays its motion and starts the face shadow
  * scrolls and the stage animations. */
@@ -239,6 +286,7 @@ inline void actSubSekizoSe(GObj *volatile self)
     stage_SetAnimation(159, 1, 0);
 #endif
 }
+#endif
 
 inline void scpDispOffAllWithKind(int kind)
 {
@@ -335,6 +383,7 @@ inline float scpGetRotObjectRotCount(int id)
     return 0.0f;
 }
 
+#ifndef VERSION_NTSC
 inline short scpGetRotObjectCurrentRot(int no)
 {
     short rot;
@@ -346,6 +395,7 @@ inline short scpGetRotObjectCurrentRot(int no)
     }
     return 0;
 }
+#endif
 
 inline int scpIsRotObjectZPlusDirInclude(int id, int from, int to)
 {
@@ -374,6 +424,7 @@ inline void scpLinkBGAtoLayoutedTarget(int id, int key)
     if (ret != 0) {
         struct ParentLink link = {ret, 0};
         stage_SetParentOfGObj(key, &link);
+#ifndef VERSION_NTSC
     }
 }
 
@@ -393,6 +444,7 @@ inline void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int id, int f
                 "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
         else
             stage_SetParentOfGObjWithLocalRotationFlag(key, &copy, localRotation);
+#endif
     }
 }
 
@@ -430,6 +482,27 @@ inline void scpLinkBGAtoLayoutedTargetSkelton(int id, int focus, int key)
                 "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
         else
             stage_SetParentOfGObjWithLocalRotationFlag(key, &copy, 1);
+#ifdef VERSION_NTSC
+    }
+}
+
+inline void scpLinkBGAtoLayoutedTargetSkeltonWithLocalRotationFlag(int id, int focus, int key,
+                                                                   int localRotation)
+{
+    GObj *ret = scpSearchGobj(id);
+    if (ret != 0) {
+        struct ParentLink copy;
+        struct ParentLink pair;
+        pair.gobj = ret;
+        pair.node = GetSkeltonFocusNode(ret, focus);
+        copy = pair;
+        if (copy.node == -1)
+            /* LWS skeleton parenting: the node was not found */
+            debug_StdPrintfDummy(
+                "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n");
+        else
+            stage_SetParentOfGObjWithLocalRotationFlag(key, &copy, localRotation);
+#endif
     }
 }
 
@@ -478,10 +551,14 @@ void scpPlayMotDirSmz(GObj *self, float *dir)
         (float)((struct MotTblRec *)(GOBJ_SUB(self)->ctrl.motion * 400 + (char *)motionKind))
             ->smzAngle);
 #else
+#ifdef VERSION_NTSC
+    SetMotionDirectionSmooze(self, dir, (float)motionKind[GOBJ_SUB(self)->ctrl.motion].smzAngle);
+#else
     SetMotionDirectionSmooze(
         self, dir,
         (float)((struct MotTblRec *)(GOBJ_SUB(self)->ctrl.motion * 404 + (char *)motionKind))
             ->smzAngle);
+#endif
 #endif
 }
 
@@ -492,6 +569,7 @@ inline void scpPlayMotNode(void *self, int mot, void *obj, int node)
     buf[3] = 1.0f;
     SetMotionNodeFixModeParameter(self, obj, 0, node, buf, 0.0f, 0.0f, 0.0f, 1.0f);
     scpPlayMot(self, mot);
+#ifndef VERSION_NTSC
 }
 
 void scpPlayMot(GObj *self, int mot)
@@ -515,6 +593,7 @@ void scpPlayMot(GObj *self, int mot)
     }
     ControlMotionOrient(id, mot);
     act->motReq = SetMotionRequest(self, 268, act->env.motOriReq);
+#endif
 }
 
 inline void scpPlayMotReq(GObj *self, int mot)
@@ -532,6 +611,31 @@ inline void scpPlayPosSet(void *self, float x, float y, float z)
     buf[2] = z;
     SetDirectRootPosition(self, buf);
     ClearMotionGeometryInfo(self);
+#ifdef VERSION_NTSC
+}
+
+void scpPlayMot(GObj *self, int mot)
+{
+    Act *act = GOBJ_ACT(self);
+    int id = -1;
+
+    if (self == boyGObj) {
+        id = 1214;
+    } else if (self == girlGObj) {
+        id = 1816;
+    } else if (self == isysGObjSearchFromObjLayoutID(1966)) {
+        id = 2111;
+    } else if (((GObj *)self)->kind == 4) {
+        id = 2103;
+    }
+
+    if (id < 0) {
+        InitMotionOrient(self, 1820, 2105, -1, -1, mot);
+        return;
+    }
+    ControlMotionOrient(id, mot);
+    act->motReq = SetMotionRequest(self, 236, act->env.motOriReq);
+#endif
 }
 
 void scpPlayJump(GObj *self, int orient)
@@ -799,7 +903,11 @@ inline void scpDoorTypeUp(GObj *volatile self)
     }
     doorTypeUp_mes[0].func = scpDoorTypeUpMain;
     act->mail = doorTypeUp_mes;
+#ifdef VERSION_NTSC
+    ACTSendMailCorrect(self, 397);
+#else
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
@@ -820,11 +928,18 @@ inline void scpDoorTypeUpSwitch(GObj *volatile self)
     if (gflagChk(act->doorFlag) != 0) {
         doorTypeUpSwitchDown_mes[0].func = scpDoorTypeUpDown;
         act->mail = doorTypeUpSwitchDown_mes;
+#ifdef VERSION_NTSC
+        ACTSendMailCorrect(self, 397);
+#else
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
     doorTypeUpSwitchUp_mes[0].func = scpDoorTypeUpUp;
     act->mail = doorTypeUpSwitchUp_mes;
+#ifdef VERSION_NTSC
+    ACTSendMailCorrect(self, 397);
+#else
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
@@ -872,6 +987,7 @@ void scpDoorTypeUpUp(GObj *volatile self)
     doorTypeUpUp_mes[0].func = scpDoorTypeUpMain;
     act->mail = doorTypeUpUp_mes;
     ACTSendMailCorrect(self, 430);
+#endif
     _ACTWait(0);
 }
 
@@ -895,7 +1011,9 @@ found:
     adpcmReq[i].loopNum = loopNum;
     adpcmReq[i].ch = ch;
     adpcmReq[i].play = play;
+#ifndef VERSION_NTSC
     adpcmReq[i].cancel = 0;
+#endif
 }
 
 inline int scpAdpcmPlayRequestNum(void)
@@ -910,6 +1028,233 @@ inline int scpAdpcmPlayRequestNum(void)
     return n;
 }
 
+#ifdef VERSION_NTSC
+void scpDoorTypeUpDown(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+
+    if (act->doorCamera != 0) {
+        Camctrl_SetTarget(act->doorCamera, 0, 3);
+        if (act->doorCamWait != 0) {
+            _ACTWait(act->doorCamWait);
+        }
+    }
+    debug_StdPrintfDummy("start animation down\n");
+    gflagOff(act->doorFlag);
+    scpTransLinear(self, 1, act->doorDist, act->doorStep);
+    if (act->doorEndWait != 0) {
+        _ACTWait(act->doorEndWait);
+    }
+    Camctrl_ExitEveRock();
+    doorTypeUpDown_mes[0].func = scpDoorTypeUpMain;
+    act->mail = doorTypeUpDown_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void scpDoorTypeUpUp(GObj *volatile self)
+{
+    Act *act = GOBJ_ACT(self);
+
+    if (act->doorCamera != 0) {
+        Camctrl_SetTarget(act->doorCamera, 0, 3);
+        if (act->doorCamWait != 0) {
+            _ACTWait(act->doorCamWait);
+        }
+    }
+    debug_StdPrintfDummy("start animation up\n");
+    gflagOn(act->doorFlag);
+    scpTransLinear(self, 1, -act->doorDist, act->doorStep);
+    if (act->doorEndWait != 0) {
+        _ACTWait(act->doorEndWait);
+    }
+    Camctrl_ExitEveRock();
+    doorTypeUpUp_mes[0].func = scpDoorTypeUpMain;
+    act->mail = doorTypeUpUp_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void scpSubAdpcmPlay(GObj *volatile self)
+{
+    AdpcmOpenReq work;
+    int i;
+    SqEntry *h;
+
+    memset(adpcmReq, 0, sizeof(adpcmReq));
+    for (;;) {
+        AdpcmReq *tbl = adpcmReq;
+        for (i = 0; i < 2; i++) {
+            if (tbl[i].kind != 0) {
+                AdpcmReq *p = &tbl[i];
+
+                while (AdpcmFreeAreaGet() == 0) {
+                    /* could not open: ADPCM is full */
+                    debug_StdPrintfDummy("ADPCM一杯で開けませんでした。\n");
+                    if (AdpcmNotUseIopAreaFree() != 0) {
+                        /* an IOP area in use although nothing is open: found and forced free */
+                        continue;
+                    }
+                    if (fightSoundPlayChk() != 0) {
+                        /* stop the battle music and request instead; no battle music until the stage changes */
+                        debug_StdPrintfDummy(
+                            "戦闘曲を止めて,変わりにリクエストします。以降ステージ切り換えまで戦闘曲なりません。\n");
+                        fightSoundProcessRequestPause();
+                        while (fightSoundPlayChk() != 0) {
+                            _ACTWait(1);
+                        }
+                    } else {
+                        /* the battle music is not playing, so to keep the program running stop every tune and request instead */
+                        debug_StdPrintfDummy(
+                            "戦闘曲なっていないので,プログラムを止めないために\n全部曲を止めて,変わりにリクエストします。\n");
+                        AdpcmFadeCloseAll(0x3FFF);
+                        _ACTWait(1);
+                    }
+                }
+                soundDataOpen(&work, 2, p->kind, p->ch, p->loopNum);
+                while ((h = soundDataOpenSync(&work)) == (SqEntry *)-1) {
+                    _ACTWait(1);
+                }
+                if (h != 0) {
+                    if (p->play != 0) {
+                        AdpcmPlay(h->stream);
+                    }
+                    if (p->id != 0) {
+                        *p->id = h;
+                    }
+                }
+                p->kind = 0;
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+inline void scpDeamon(GObj *volatile self)
+{
+    debug_StdPrintfDummy("deamon start");
+    startStagePauseDisableTimer = 0;
+    if (stage_no == 11 && gflagChk(123) == 0) {
+        scpSeEnvMasterVolRate = 0.0f;
+    } else {
+        scpSeEnvMasterVolRate = 1.0f;
+    }
+    gflagOff(356);
+    _ACTWait(1);
+    actCreateSubThread(scpSubAdpcmPlay, 21);
+    _ACTWait(3);
+    StabilizeAllLayoutedCage();
+    _ACTWait(1);
+    backStageProcessInStage(0.0f);
+    gflagOff(361);
+}
+
+static void scpWoodSrh(GObj *self, struct WoodBoxEnt *w)
+{
+    float pos[4];
+    float dst[4];
+    float gpos[4];
+    GObj *g;
+    int st;
+    int way = 0;
+
+    for (;;) {
+        st = 0;
+        GetRootPosition(pos, self);
+        pos[1] -= 50.0f;
+        switch (w->kind) {
+        case 0:
+            if (pos[0] < w->b0 && pos[1] > w->b1) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 1:
+            if (pos[0] > w->b0 && pos[1] > w->b1) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 2:
+            if (pos[2] > w->b0 && pos[1] > w->b1) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 4:
+        case 8:
+            if (pos[0] < w->b0 && pos[1] > w->b1 && pos[2] > w->b2 && pos[2] < w->b3) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            if (st == 1 && w->kind == 8) {
+                for (g = isysGObjSearchFromObjKindID_begin(17); g != 0;
+                     g = isysGObjSearchFromObjKindID_next(g)) {
+                    if (g != self) {
+                        if (g->labelId == 806 || g->labelId == 807) {
+                            GetRootPosition(gpos, g);
+                            gpos[1] -= 50.0f;
+                            if (gpos[1] < -182.0f && gpos[1] > -280.0f) {
+                                st = 2;
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        case 5:
+            if (pos[2] < w->b0 && pos[1] > w->b1 && pos[0] > w->b2 && pos[0] < w->b3) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 6:
+            if (pos[2] > w->b0 && pos[1] > w->b1 && pos[0] > w->b2 && pos[0] < w->b3) {
+                st = 1;
+            } else {
+                st = 2;
+            }
+            break;
+        case 7:
+            if (pos[1] > -190.0f && (pos[0] < 660.0f || pos[0] > 916.0f) && pos[2] > -1600.0f) {
+                st = 1;
+                if (pos[0] > 916.0) {
+                    w->ofs[0] = 100.0f;
+                } else {
+                    w->ofs[0] = -100.0f;
+                }
+            } else {
+                st = 2;
+            }
+            break;
+        }
+        switch (st) {
+        case 1:
+            if (way != 0) {
+                DeleteWayGroup(way);
+            } else {
+                debug_StdPrintfDummy("bridge create");
+            }
+            sceVu0AddVector(dst, pos, w->ofs);
+            way = CreateBridge(pos, dst);
+            break;
+        case 2:
+            if (way != 0) {
+                debug_StdPrintfDummy("bridge delete");
+                DeleteWayGroup(way);
+                way = 0;
+            }
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+#else
 /* the slot of the pending play request whose id is ID, or -1 (inlined into
    scpAdpcmCloseChkFunc, scpGirlHintVoiceCancel and others) */
 static inline int scpAdpcmRequestSlot(SqEntry **id) /* derived name */
@@ -1313,10 +1658,478 @@ inline void scpWoodBox(GObj *volatile self)
 found:
     scpWoodSrh(self, p);
 }
+#endif
 
 /* where the stone statue's sound effects play */
 static const Vec16 sekizouSePos = {{6646.0f, -2157.0f, 1102.0f, 0.0f}}; /* derived name */
 
+#ifdef VERSION_NTSC
+void scpSekizou(GObj *self, int flag, int anim, int anim2, int kind, float bx, float by, float bz,
+                float gx, float gy, float gz)
+{
+    int fade = 0;
+
+    if (gflagChk(flag) != 0) {
+        stage_SetAnimation(anim, 0, -1);
+        return;
+    }
+    stage_SetAnimation(anim, 0, 0);
+    if (girlGObj == 0) {
+        return;
+    }
+    for (;;) {
+        if (scpTriggerBall(self, girlGObj, 200.0f) == 0 ||
+            scpTriggerBall(self, boyGObj, 200.0f) == 0 || scpActStatusDeathFall(boyGObj) != 0) {
+            _ACTWait(1);
+        } else {
+            break;
+        }
+    }
+    if (gflagChk(361) != 0) {
+        fade = 1;
+        scpFadeOut(255.0f, 0, 0, 0);
+    }
+    stgmgrNextStagePreLoadForceStageSet(0);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    scpAdpcmPlayRequestFunc(kind, &sekizo_common, 1, 1, 0);
+    while (sekizo_common == 0) {
+        _ACTWait(1);
+    }
+    AdpcmPlay(sekizo_common->stream);
+    if (fade != 0) {
+        scpFadeIn(8.0f);
+    }
+    stgmgrNextStagePreLoadDistBoyMode();
+    scpKillEnemyAll();
+    scpMaskGeneratorAll();
+    stage_SetAnimation(anim, 1, 0);
+    ReviveAllCarryableItemsWithNonSleepFrame(250);
+    sekizo_yure = iosPadActRequest(boyPad, 9);
+    sekizo_yure_vol = 128;
+    iosPadActVolumeSet(sekizo_yure, 128);
+    scpPlayStart(girlGObj);
+    scpPlayMot(girlGObj, 514);
+    scpPlayPosSet(girlGObj, gx, gy, gz);
+    scpPlayPosSet(boyGObj, bx, by, bz);
+    _ACTWait(1);
+    {
+        Vec16 v;
+
+        sceVu0SubVector(v.f, test_CURRENTROOT(self), test_CURRENTROOT(girlGObj));
+        scpPlayMotDir(girlGObj, v.f);
+        scpBoyControlReadDisable = 1;
+        sceVu0SubVector(v.f, test_CURRENTROOT(girlGObj), test_CURRENTROOT(boyGObj));
+        scpPlayMotDir(boyGObj, v.f);
+        scpSekizouCheckPoint();
+        scpPlayMot(girlGObj, 572);
+        scpPlayWaitMotEnd(girlGObj);
+        gflagOn(flag);
+        if (anim2 != 0) {
+            int h;
+
+            stage_SetAnimation(anim2, 1, 0);
+            v = sekizouSePos;
+            soundSeDefPlay(1196, 0, v.f, 1);
+            _ACTWait(30);
+            h = soundSeDefPlay(1197, 0, v.f, 1);
+            _ACTWait(30);
+            soundSeDefStop(h);
+            soundSeDefPlay(1198, 0, v.f, 1);
+        }
+    }
+    while (stage_CheckAnimationFrame(anim, 180, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadActStop(sekizo_yure);
+    while (stage_CheckAnimationFinish(anim) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpPlayMot(girlGObj, 514);
+    scpPlayEnd(girlGObj);
+    lt_switch_layout(50);
+    scpBoyControlReadDisable = 0;
+}
+
+/* the root position a direct stage change parks the actor at, far out of the map */
+static const Vec16 farRootPos = {{-1000000.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
+
+void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1)
+{
+    float v0[4] = {x0, y0, z0};
+    float v1[4] = {x1, y1, z1};
+    WallCfg *wc;
+
+    if (boyGObj == 0 || girlGObj == 0) {
+        return;
+    }
+    sceVu0ScaleVector(v0, v0, -1.0f);
+    sceVu0ScaleVector(v1, v1, -1.0f);
+    wc = scpGetWallCollision(v0[0], v0[1], v0[2], v1[0], v1[1], v1[2]);
+    if (wc != 0) {
+        GOBJ_ACT(boyGObj)->env.supportReq.b.wall = *wc;
+        GOBJ_ACT(girlGObj)->env.supportReq.a.wall = *wc;
+        iosOmSendMail(boyGObj, 357, boyGObj);
+        iosOmSendMail(girlGObj, 358, boyGObj);
+    }
+}
+
+void _SCPMoveCharactorByWay_Cancel(GObj *self)
+{
+    GOBJ_ACT(self)->flags18.ll &= ~(1ULL << 42);
+    ACTCharctrl_Unlock(self);
+}
+
+void scpSekizouCheckPoint(void)
+{
+    int was;
+
+    if (girlGObj != 0) {
+        gamesysObjInfoPosSetStage(girlGObj, GOBJ_ACT(girlGObj)->infoPos, 0, stage_no);
+    }
+    gamesysObjInfoPosSetStage(boyGObj, GOBJ_ACT(boyGObj)->infoPos, 0, stage_no);
+    was = gflagChk(348);
+    gflagOn(348);
+    CheckPoint();
+    if (was == 0) {
+        gflagOff(348);
+    }
+}
+
+void scpWakeupEnemyOne(int id)
+{
+    void *rc = isysGObjSearchFromObjLayoutID(id);
+    if (rc) {
+        iosOmSendMail(rc, 31, rc);
+    }
+}
+
+inline void scpWakeupEnemyAll(void)
+{
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 31, g);
+    }
+    for (g = isysGObjSearchFromObjKindID_begin(61); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 31, g);
+    }
+}
+
+void scpSleepEnemyOne(int id)
+{
+    void *rc = isysGObjSearchFromObjLayoutID(id);
+    if (rc) {
+        iosOmSendMail(rc, 32, rc);
+    }
+}
+
+void scpSleepSpiderGroupOne(int id)
+{
+    void *v = isysGObjSearchFromObjLayoutID(id);
+    if (v) {
+        SleepSpiderGroup(v);
+    }
+}
+
+void scpWakeupSpiderGroupOne(int id)
+{
+    void *v = isysGObjSearchFromObjLayoutID(id);
+    if (v) {
+        WakeupSpiderGroup(v);
+    }
+}
+
+inline void scpSleepEnemyAll(void)
+{
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 32, g);
+    }
+    for (g = isysGObjSearchFromObjKindID_begin(61); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 32, g);
+    }
+}
+
+inline void scpKillEnemyOne(int id)
+{
+    GObj *p = isysGObjSearchFromObjLayoutID(id);
+    if (p != 0) {
+        iosOmSendMail(p, 38, p);
+        objLayout[p->labelId].reviveCount = 0;
+    }
+}
+
+inline void scpKillEnemyAll(void)
+{
+    GObj *g;
+
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 38, g);
+        objLayout[g->labelId].reviveCount = 0;
+    }
+    for (g = isysGObjSearchFromObjKindID_begin(61); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        iosOmSendMail(g, 38, g);
+    }
+}
+
+inline void scpMaskGeneratorAll(void)
+{
+    GObj *p = isysGObjSearchFromObjKindID_begin(33);
+    while (p != 0) {
+        Generator_Mask(p);
+        p = isysGObjSearchFromObjKindID_next(p);
+    }
+}
+
+void scpKillSpiderGroup(int id)
+{
+    DeleteAllSpidersOfLayoutGroup(isysGObjSearchFromObjLayoutID(id));
+}
+
+inline void scpBornSpider(int n, float a, float b, float c, float d)
+{
+    int i;
+    float t1, t2;
+    int r;
+    GObj *dead;
+    for (i = 0; i < n; i++) {
+        t1 = random_unit();
+        spiderLayout.pos[1] = b;
+        spiderLayout.pos[0] = a + d * (t1 + t1 - 1.0f);
+        t2 = random_unit();
+        spiderLayout.pos[2] = c + d * (t2 + t2 - 1.0f);
+        r = rand();
+        spiderLayout.obj = 1;
+        spiderLayout.rot[1] = (float)((r >> 4) & 0xFFFF) * 3.1415927f * 3.0517578125e-05f;
+        dead = MakeAP1GObj(&spiderLayout);
+        _ACTWait(1);
+        WakeUpAP1(dead);
+    }
+}
+
+inline void scpSetStreamMotionRootOffset(GObj *self, float x, float y, float z)
+{
+    Vec4u v;
+    v.f[0] = x;
+    v.f[1] = y;
+    v.f[2] = z;
+    v.i[3] = 0;
+    CopyVector(GOBJ_SUB(self)->streamOfs, &v);
+}
+
+inline int scpCheckReadyAllObjects(void)
+{
+    return CheckReadyAllSwitches() != 0;
+}
+
+inline void ScpCallCameraOff(void)
+{
+    GObj *g = boyGObj;
+    if (g != 0) {
+        GOBJ_ACT(g)->flags20.ll &= ~(1ULL << 12);
+    }
+}
+
+inline void ScpCallCameraOn(void)
+{
+    GObj *g = boyGObj;
+    if (g != 0) {
+        GOBJ_ACT(g)->flags20.ll |= 0x1000;
+    }
+}
+
+inline void ScpCallCameraSetTarget(float x, float y, float z)
+{
+    /* the camera target is the NEGATED point, as a homogeneous vector */
+    float pos[4] = {-x, -y, -z, 1.0f};
+    GObj *g = boyGObj;
+
+    if (g != 0) {
+        GOBJ_ACT(g)->flags20.ll |= (1ULL << 13);
+        scriptCameraTarget[0] = pos[0];
+        scriptCameraTarget[1] = pos[1];
+        scriptCameraTarget[2] = pos[2];
+    }
+}
+
+inline void ScpCallCameraTargetOff(void)
+{
+    GObj *g = boyGObj;
+    if (g != 0) {
+        GOBJ_ACT(g)->flags20.ll &= ~(1ULL << 13);
+    }
+}
+
+inline void ScpCallCameraGetTarget(float *dst)
+{
+    dst[0] = scriptCameraTarget[0];
+    dst[1] = scriptCameraTarget[1];
+    dst[2] = scriptCameraTarget[2];
+}
+
+inline void scpTransGObj(void *self, float dx, float dy, float dz)
+{
+    float buf[4];
+    GetRootPosition(buf, self);
+    buf[0] = buf[0] + dx;
+    buf[1] = buf[1] + dy;
+    buf[2] = buf[2] + dz;
+    SetDirectRootPosition(self, buf);
+}
+
+inline void scpExplodeSecretItem(void)
+{
+    void *o = (void *)isysGObjSearchFromObjKindID_begin(19);
+    while (o) {
+        if (GetItemKind(o) == 6 && CheckItemDead(o) == 0) {
+            BreakItemFromOutside(o);
+            return;
+        }
+        o = (void *)isysGObjSearchFromObjKindID_next(o);
+    }
+}
+
+/* the colour the item-revival boundary's wire sphere is drawn in */
+static const Col4 itemBoundaryColor = {{0, 32, 16, 128}}; /* derived name */
+
+inline void scpWakeupItemWithBoundary(float x, float y, float z, float r)
+{
+    float pos[4];
+    Col4 col;
+
+    pos[0] = x;
+    pos[1] = y;
+    pos[2] = z;
+    ((int *)pos)[3] = 0;
+    ReviveCarryableItemsWithBoundary(pos, r);
+    if (debug_wallcheck_flag != 0) {
+        MatrixDrive_PushMatrix();
+        col = itemBoundaryColor;
+        gif_StartPacketPri(11);
+        sceVu0UnitMatrix(MatrixDrive_GetMatrix());
+        MatrixDrive_TransMatrixV(pos);
+        prim_DispWireSphere(r, &col, 16, 8);
+        gif_EndPacket();
+        MatrixDrive_PopMatrix();
+    }
+}
+
+void preload(int idx)
+{
+    short s;
+
+    s = stageData[stage_no].ent[idx - 1];
+    stgmgrNextStagePreLoadForceStageSet(exitData[s].nextStage);
+    stgmgrNextStagePreLoadForceNoCancel(1);
+}
+
+inline int scpActStatusDeathFall(GObj *self)
+{
+    Sub15C *sub;
+
+    switch ((unsigned int)GOBJ_ACT(self)->actMode) {
+    case 4:
+    case 5:
+    case 62:
+        break;
+    case 22:
+    case 24:
+        return 1;
+    default:
+        return 0;
+    }
+
+    sub = GOBJ_SUB(self);
+    if (_ACTGame_GetParamF(2) < sub->ctrl.groundHeight) {
+        return 1;
+    }
+    sub = GOBJ_SUB(self);
+    if (!(_ACTGame_GetParamF(2) < sub->ctrl.fallHeight)) {
+        return 0;
+    }
+    return 1;
+}
+
+void scpSetBoyWeaponGObj(void *w)
+{
+    SetBoyWeaponGObj(w);
+}
+
+inline int scpCheckExistAliveEnemy(void)
+{
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(4); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (actEnemyFlagCheckDead(g) == 0) {
+            /* found a living enemy */
+            debug_StdPrintfDummy("scpCheckExistAliveEnemy: 生きている敵を発見\n");
+            return 1;
+        }
+    }
+    /* no living enemy */
+    debug_StdPrintfDummy("scpCheckExistAliveEnemy: 生きている敵はいません\n");
+    return 0;
+}
+
+inline int scpCheckExistAliveSpider(void)
+{
+    GObj *g;
+    for (g = isysGObjSearchFromObjKindID_begin(61); g != 0;
+         g = isysGObjSearchFromObjKindID_next(g)) {
+        if (IsActCharDead(g) == 0) {
+            /* found a living spider */
+            debug_StdPrintfDummy("scpCheckExistAliveSpider: 生きている蜘蛛を発見\n");
+            return 1;
+        }
+    }
+    /* no living spider */
+    debug_StdPrintfDummy("scpCheckExistAliveSpider: 生きている蜘蛛はいません\n");
+    return 0;
+}
+
+inline int scpAdpcmFadeClose(SqEntry *p, short fade)
+{
+    if (p == 0 || p->stream == 0) {
+        return 0;
+    }
+    p->stream->fadeStep = fade;
+    return 1;
+}
+
+inline int scpAdpcmCloseChk(SqEntry *p)
+{
+    if (p == 0 || p->stream == 0 || p->stream->bg == 0) {
+        return 0;
+    }
+    return 1;
+}
+
+inline void scpWoodBox(GObj *volatile self)
+{
+    struct WoodBoxEnt *p;
+    unsigned int i;
+
+    _ACTWait(10);
+
+    for (i = 0, p = woodBoxTbl; i < 7; i++, p++) {
+        if (p->id == self->labelId) {
+            goto found;
+        }
+    }
+    return;
+
+found:
+    scpWoodSrh(self, p);
+}
+#else
 void scpSekizou(GObj *self, int flag, int anim, int anim2, int kind, float bx, float by, float bz,
                 float gx, float gy, float gz)
 {
@@ -1413,6 +2226,7 @@ void scpSekizou(GObj *self, int flag, int anim, int anim2, int kind, float bx, f
 #endif
     scpBoyControlReadDisable = 0;
 }
+#endif
 
 inline void InitStageChange(void)
 {
@@ -1470,8 +2284,10 @@ inline int RequestStageChangeSimple(int no, float speed, float wait, unsigned ch
     return ret;
 }
 
+#ifndef VERSION_NTSC
 /* the root position a direct stage change parks the actor at, far out of the map */
 static const Vec16 farRootPos = {{-1000000.0f, 0.0f, 0.0f, 0.0f}}; /* derived name */
+#endif
 
 inline void RequestStageChangeDirect(GObj *self, int stage, void *dir, int deg)
 
@@ -1514,6 +2330,7 @@ inline int scpFadeChk(void)
     return 1;
 }
 
+#ifndef VERSION_NTSC
 void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1)
 {
     float v0[4] = {x0, y0, z0};
@@ -1533,11 +2350,21 @@ void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float 
         iosOmSendMail(girlGObj, 386, boyGObj);
     }
 }
+#endif
 
 inline int _SCPMoveCharactorByWay(GObj *self, int tgt, float *dir, float speed, int flags)
 {
     Act *act = GOBJ_ACT(self);
 
+#ifdef VERSION_NTSC
+    act->flags18.ll |= 1ULL << 42;
+    ACTCharctrl_Lock(self);
+    ACTSendMailCorrect(self, 246);
+    ACTWayExec_Position(self, tgt, dir, speed, flags);
+    act->flags18.ll &= ~(1ULL << 42);
+    ACTCharctrl_Unlock(self);
+    return 0;
+#else
     act->flags18.ll |= 1ULL << 47;
     ACTCharctrl_Lock(self);
     ACTSendMailCorrect(self, 262);
@@ -1551,6 +2378,7 @@ void _SCPMoveCharactorByWay_Cancel(GObj *self)
 {
     GOBJ_ACT(self)->flags18.ll &= ~(1ULL << 47);
     ACTCharctrl_Unlock(self);
+#endif
 }
 
 inline void _SCPCharacterStop(GObj *self)
@@ -1586,6 +2414,7 @@ inline int scpGameStat_BoyWeaponkind(void)
     return CheckWeaponKind(w);
 }
 
+#ifndef VERSION_NTSC
 void scpSekizouCheckPoint(void)
 {
     int was;
@@ -1601,6 +2430,7 @@ void scpSekizouCheckPoint(void)
         gflagOff(381);
     }
 }
+#endif
 
 inline int scpIsWallLever2On(void)
 {
@@ -1627,6 +2457,18 @@ out:
     return (int)v;
 }
 
+#ifdef VERSION_NTSC
+inline void scpLockMaxRotate(GObj *self, float rot)
+{
+    GOBJ_ACT(self)->flags20.ll |= (1ULL << 20);
+    GOBJ_WORK(self)->lockedMaxRotate = rot;
+}
+
+inline void scpUnLockMaxRotate(GObj *self)
+{
+    GOBJ_ACT(self)->flags20.ll &= ~(1ULL << 20);
+}
+#else
 void scpWakeupEnemyOne(int id)
 {
     void *rc = isysGObjSearchFromObjLayoutID(id);
@@ -1951,3 +2793,4 @@ inline void scpCheckDisconnectWallEnd(GObj *self)
 {
     GOBJ_ACT(self)->flags18.ll &= ~(1ULL << 58);
 }
+#endif

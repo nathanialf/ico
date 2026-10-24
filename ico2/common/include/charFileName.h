@@ -10,7 +10,11 @@
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
 #define MAX_CHARS 1621
 #else
+#ifdef VERSION_NTSC
+#define MAX_CHARS 1582
+#else
 #define MAX_CHARS 1637
+#endif
 #endif
 
 #endif

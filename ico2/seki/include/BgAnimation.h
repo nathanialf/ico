@@ -48,9 +48,11 @@ typedef struct BgaHeader { /* field names derived */
 } BgaHeader;                   /* derived name */
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#ifndef VERSION_NTSC
 /* set when an animation's camera cut restarts the global timer; the stream
    motion player resynchronises on it and clears it */
 extern int bgaStreamSync;
+#endif
 
 #endif
 /* BgAnimation.c's `inline` functions, in the order of their definitions'
@@ -72,7 +74,11 @@ void bga_ResetAnimation(void);
 float bga_GetZoom(void);
 
 char *bga_InitData(char *data);
+#ifdef VERSION_NTSC
+void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n);
+#else
 void bga_ApplyDObject(struct BgaDObjEnt *p, GObj **objs, int n, int no);
+#endif
 void bga_SetFrame(BgaHeader *p, int frame, int mode, int loop);
 void bga_CalcAnimation(BgaHeader *p, int loop, int reset);
 void bga_CalcSdfCamera(char *data, int loop);

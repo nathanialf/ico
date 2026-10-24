@@ -22,6 +22,34 @@ static const char rotObjectFile[] = "src/rotObject.c"; /* derived name */
    cycling through 30 so the objects' saves fall on different frames */
 static unsigned char rotObjectPhase = 0; /* derived name */
 
+#ifdef VERSION_NTSC
+/* the 64-byte work block InitRotObjectGeo allocates for a rotating object */
+typedef struct RotObjWork { /* field names derived */
+    int kind;               /* 0x00, the layout's object word: 3 for a turn limited to a range */
+    char pad04[12];
+    float pos[4]; /* 0x10, the layout position */
+    short angle;  /* 0x20, the drive turn */
+    short pad22;
+    int turnCount;  /* 0x24, the turn summed over the moves, 65536 a revolution */
+    float limitMax; /* 0x28, kind 3: the largest turn, from the layout's scale z */
+    float limitMin; /* 0x2C, kind 3: the smallest turn, from the layout's scale x */
+    int saveCount;  /* 0x30, the frame counter of the uniq-data save */
+    int lock;       /* 0x34, SetRotObjectLockFlag: no move while set */
+    char pad38[8];
+} RotObjWork; /* derived name */
+
+/* the two halfwords MemoryRotObject saves in the object's gamesys info record and
+   RestoreRotObjectExtGeo and GetRotObjectGameSysObjInfoExtData read back */
+typedef struct RotObjMemory { /* field names derived */
+    unsigned short angle;     /* 0x0 */
+    short turnCount;          /* 0x2, the low half of the work's turn count */
+} RotObjMemory;               /* derived name */
+
+static void moveStartSE(GObj *self)
+{
+    ExecuteSEPackage(self, 51);
+}
+#else
 /* the 64-byte work block InitRotObjectGeo allocates for a rotating object */
 typedef struct RotObjWork { /* field names derived */
     int kind;               /* 0x00, the layout's object word: 3 for a turn limited to a range */
@@ -50,11 +78,16 @@ static void moveStartSE(GObj *self)
 {
     ExecuteSEPackage(self, 53);
 }
+#endif
 
 static void moveEndSE(GObj *self)
 {
     StopSEPackage(self);
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(self, 56);
+#else
     ExecuteSEPackage(self, 58);
+#endif
 }
 
 void RotObjectGeo(GObj *self)
@@ -152,8 +185,12 @@ int MoveRotObjectWithHoldPoint(GObj *bar, float *hold, void *self, float *dir, f
             return 0;
     }
     ang = -atan2f(sl, len);
+#ifdef VERSION_NTSC
+    k = len * 0.01f;
+#else
     ang *= w->rate;
     k = len * 0.01f * w->armScale;
+#endif
     if (k > 1.0f)
         k = 1.0f;
     k *= k;
@@ -206,12 +243,14 @@ void ExecRotObjectMoveEndReaction(GObj *self)
     moveEndSE(self);
 }
 
+#ifndef VERSION_NTSC
 void SetRotObjectArmRadius(GObj *self, float radius)
 {
     RotObjWork *w = GOBJ_SUB(self)->work;
 
     w->armScale = 100.0f / radius;
 }
+#endif
 
 void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdPos, void *holdDir)
 {
@@ -228,7 +267,11 @@ void GetRotObjectGlobalHoldGeometry(void *pos, void *dir, GObj *bar, void *holdP
 
 RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
 {
+#ifdef VERSION_NTSC
+    RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile, 55);
+#else
     RotObjWork *p = iosMallocDebug(ios_partition_sugipon, sizeof(RotObjWork), rotObjectFile, 57);
+#endif
 
     p->saveCount = rotObjectPhase;
     rotObjectPhase = (rotObjectPhase + 1) % 30;
@@ -240,8 +283,10 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
     p->turnCount = 0;
     p->limitMax = p->limitMin = 0.0f;
     p->lock = 0;
+#ifndef VERSION_NTSC
     p->rate = src->scale[1] < 0.05f ? 1.0f : src->scale[1];
     p->armScale = 1.0f;
+#endif
 
     if (p->kind == 3) {
         p->limitMax = src->scale[2];
@@ -253,6 +298,7 @@ RotObjWork *InitRotObjectGeo(GObj *gobj, SObjSimpleSetting *src)
         q->scale[0] = q->scale[1] = q->scale[2] = 1.0f;
     }
     return p;
+#ifndef VERSION_NTSC
 }
 
 void GetRotObjectGameSysObjInfoExtData(short *angle, int *turnCount, GamesysObjInfo *info)
@@ -261,6 +307,7 @@ void GetRotObjectGameSysObjInfoExtData(short *angle, int *turnCount, GamesysObjI
 
     *angle = m->angle;
     *turnCount = m->turnCount;
+#endif
 }
 
 void RotObjectDL(GObj *gobj)

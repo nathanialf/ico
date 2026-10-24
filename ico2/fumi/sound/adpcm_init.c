@@ -120,8 +120,13 @@ SqEntry *adpcmDataSet(int src, int no, int bank, int ch, int size, int iopBuf, i
             goto found;
         }
     }
+#ifdef VERSION_NTSC
+    debug_assert(adpcmSrcFile, 360);
+    __assert(adpcmSrcFile, 360, "0");
+#else
     debug_assert(adpcmSrcFile, 363);
     __assert(adpcmSrcFile, 363, "0");
+#endif
 found:
     p = (AdpcmStream *)((char *)adpcmStream + i * 0x58);
     p->used = 1;
@@ -138,8 +143,13 @@ found:
         p->chAttr = 0x40000;
         break;
     default:
+#ifdef VERSION_NTSC
+        debug_assert(adpcmSrcFile, 378);
+        __assert(adpcmSrcFile, 378, "0");
+#else
         debug_assert(adpcmSrcFile, 381);
         __assert(adpcmSrcFile, 381, "0");
+#endif
     }
     p->mask = 0;
     for (j = 0; j < p->n; j++) {
@@ -272,8 +282,13 @@ void AdpcmClose(SqEntry *obj)
                 goto found;
             }
         }
+#ifdef VERSION_NTSC
+        debug_assert(adpcmSrcFile, 600);
+        __assert(adpcmSrcFile, 600, "0");
+#else
         debug_assert(adpcmSrcFile, 605);
         __assert(adpcmSrcFile, 605, "0");
+#endif
     found:
         adpcmStream[j].used = 0;
         self->mask = 0;

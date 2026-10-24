@@ -164,8 +164,8 @@ static void StartPendulum(GObj *gobj, GObj *owner, float *pos)
         }
     }
     if (nearestNode == -1) {
-        debug_assert(__FILE__, LN(563, 557, 557));
-        __assert(__FILE__, LN(563, 557, 557), "nearestNode!=-1");
+        debug_assert(__FILE__, LN(563, 557, 557, 516));
+        __assert(__FILE__, LN(563, 557, 557, 516), "nearestNode!=-1");
     }
     cw->holdNode = nearestNode;
     cw->holdNode =
@@ -247,6 +247,7 @@ static void chain_simulate_term_simple(GObj *gobj)
     chain_sub_simulate(gobj, cw->node, cw->holdNode, cw->nodes, 1, 0, 20.0f, 50.0f, 0.6f);
 }
 
+#ifndef VERSION_NTSC
 static void chain_simulate_term_ropeturn(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -258,6 +259,7 @@ static void chain_simulate_term_ropeturn(GObj *gobj)
     cw->pdl.ampSpeed = -0.4f;
     chain_simulate_term_simple(gobj);
 }
+#endif
 
 static void chain_simulate_term_loop(GObj *gobj)
 {
@@ -286,6 +288,13 @@ static void chain_simulate_term_swingready(GObj *gobj)
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_swingready\n");
     }
     if (cw->pdl.amp < 0.5) {
+#ifdef VERSION_NTSC
+        cw->pdl.ampSpeed = -0.01f;
+    } else if (cw->pdl.amp < 1.0) {
+        cw->pdl.ampSpeed = -0.05f;
+    } else {
+        cw->pdl.ampSpeed = -0.15f;
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         cw->pdl.ampSpeed = -0.01f;
 #else
@@ -303,10 +312,45 @@ static void chain_simulate_term_swingready(GObj *gobj)
 #else
         cw->pdl.ampSpeed = -4.5f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
 #endif
+#endif
     }
     chain_simulate_term_simple(gobj);
 }
 
+#ifdef VERSION_NTSC
+static void chain_simulate_term_swingstart(GObj *gobj)
+{
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
+    float h;
+
+    if (debug_font_flag & 1) {
+        chainDebugY = chainDebugY + 10;
+        debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_term_swingstart\n");
+    }
+
+    h = GOBJ_SUB(boyGObj)->ctrl.animFrame;
+
+    if (h < 20.0f) {
+        if (cw->pdl.amp < 0.3) {
+            cw->pdl.ampSpeed = -0.01f;
+        } else if (cw->pdl.amp < 1.0) {
+            cw->pdl.ampSpeed = -0.2f;
+        } else {
+            cw->pdl.ampSpeed = -0.3f;
+        }
+    } else {
+        if (h == 20.0f) {
+            cw->pdl.phase = 0.0f;
+            cw->pdl.ampLimit = 360.0f;
+        }
+        cw->pdl.ampSpeed = 0.0f;
+        cw->pdl.amp = 3.0f;
+
+        cw->pdl.phase = cw->pdl.phase - 1.0f + cw->pdl.cycle * 0.5f / 30.0f;
+    }
+    chain_simulate_term_simple(gobj);
+}
+#else
 static void chain_simulate_term_swingstart(GObj *gobj)
 {
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
@@ -362,6 +406,7 @@ static void chain_simulate_term_swingstart(GObj *gobj)
     }
     chain_simulate_term_simple(gobj);
 }
+#endif
 
 static void chain_simulate_term_moveup(GObj *gobj)
 {
@@ -460,7 +505,7 @@ static void chain_simulate_hangstart(GObj *gobj)
         chainDebugY = chainDebugY + 10;
         debug_Printf(10, chainDebugY, 0x0FFFFFFF, "chain_simulate_hangstart\n");
     }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     cw->pdl.ampSpeed = -0.05f;
 #else
     cw->pdl.ampSpeed = -1.5f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
@@ -701,12 +746,20 @@ ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
     if (n < 2) {
         /* "the chain is too short (set it with the Y-scale of the placement table)" */
         debug_StdPrintfDummy("鎖の長さが短かすぎます(配置表のY-scaleで指定します)");
-        debug_assert(__FILE__, LN(1178, 1172, 1172));
-        __assert(__FILE__, LN(1178, 1172, 1172), "0");
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 1121);
+#else
+        debug_assert(__FILE__, LN(1178, 1172, 1172, 1178));
+#endif
+        __assert(__FILE__, LN(1178, 1172, 1172, 1121), "0");
     }
 
+#ifdef VERSION_NTSC
+    cw = iosMallocDebug(ios_partition_sugipon, (n << 5) + sizeof(ChainRecord), __FILE__, 1124);
+#else
     cw = iosMallocDebug(ios_partition_sugipon, (n << 5) + sizeof(ChainRecord), __FILE__,
-                        LN(1181, 1175, 1175));
+                        LN(1181, 1175, 1175, 1181));
+#endif
 
     *(ChainRecTemplate *)cw = *(ChainRecTemplate *)&chainRecordDefault;
 
@@ -770,16 +823,23 @@ ChainRecord *InitChainGeo(GObj *gobj, ChainGeoReq *req)
     *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx = 0;
 
     *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat = 0;
+#ifdef VERSION_NTSC
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 6, __FILE__, 1188);
+    *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat =
+        (char *)iosMallocDebug(ios_partition_seki, (cw->nodes - 1) << 4, __FILE__, 1188);
+#else
     *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeMtx = (char *)iosMallocDebug(
-        ios_partition_seki, (cw->nodes - 1) << 6, __FILE__, LN(1245, 1239, 1239));
+        ios_partition_seki, (cw->nodes - 1) << 6, __FILE__, LN(1245, 1239, 1239, 1245));
     *(char **)&((ChainExtPtr *)&gobj->dobj)->sub->nodeQuat = (char *)iosMallocDebug(
-        ios_partition_seki, (cw->nodes - 1) << 4, __FILE__, LN(1245, 1239, 1239));
+        ios_partition_seki, (cw->nodes - 1) << 4, __FILE__, LN(1245, 1239, 1239, 1245));
+#endif
     ((ChainExtPtr *)&gobj->dobj)->sub->nodeNum = cw->nodes - 1;
     if (((ChainExtPtr *)&gobj->dobj)->sub->nodes != 0) {
         iosFree((void *)((int)((ChainExtPtr *)&gobj->dobj)->sub->nodes & 0x0FFFFFFF));
     }
-    ((ChainExtPtr *)&gobj->dobj)->sub->nodes =
-        iosMallocDebug(ios_partition_seki, (cw->nodes - 1) * 80, __FILE__, LN(1245, 1239, 1239));
+    ((ChainExtPtr *)&gobj->dobj)->sub->nodes = iosMallocDebug(
+        ios_partition_seki, (cw->nodes - 1) * 80, __FILE__, LN(1245, 1239, 1239, 1188));
 
     for (i = 0; i < cw->nodes - 1; i++) {
         ((ChainExtPtr *)&gobj->dobj)->sub->nodes[i].flags.ll &= ~1;
@@ -837,6 +897,7 @@ static void chain_set_charachara(GObj *gobj, float amp)
     cw->count = cw->count + 1;
 }
 
+#ifndef VERSION_NTSC
 /* The enemy parameter table, one 404-byte row (JPN and KOR 400) per motion id; ChainGeo
  * reads only the flag word at 0x18C (JPN and KOR 0x188).  Same record enemy_act.c reads
  * as EnemyParaRow. */
@@ -855,6 +916,8 @@ typedef struct { /* field names derived */
 /* the data-only member motion-def.o, read through this file's view of its
    rows; no header declares it */
 extern ChainParaRow motionKind[];
+#endif
+
 static void TestChainUpDown(GObj *gobj, GObj *boy);
 
 /* the simulation mode the boy's motion selects, for ChainGeo */
@@ -873,6 +936,26 @@ static inline int GetChainSimulateMode(GObj *gobj) /* derived name */
         }
 
         switch (GOBJ_SUB(holder)->ctrl.motion) {
+#ifdef VERSION_NTSC
+        case 121:
+        case 122:
+            mode = 4;
+            break;
+        case 118:
+            mode = 10;
+            break;
+        case 117:
+            mode = 7;
+            break;
+        case 119:
+        case 120:
+            mode = 8;
+            break;
+        case 126:
+            mode = 2;
+            break;
+        case 132:
+#else
         case 136:
         case 137:
             if (mode == 3) {
@@ -900,6 +983,7 @@ static inline int GetChainSimulateMode(GObj *gobj) /* derived name */
             mode = 2;
             break;
         case 134:
+#endif
             mode = 5;
             break;
         }
@@ -941,6 +1025,177 @@ static inline unsigned char isChainHitByHand(GObj *gobj, float *p, float *v, flo
     return 0;
 }
 
+#ifdef VERSION_NTSC
+void ChainGeo(GObj *gobj)
+{
+    float p[4];
+    float v[4];
+    ChainRecord *cw = GOBJ_SUB(gobj)->work;
+    Act *act;
+    int mode;
+    int moved;
+    int i;
+
+    chainDebugY = 250;
+
+    if (cw->locked != 0) {
+        return;
+    }
+
+    moved = UpdateRootPosition(gobj);
+
+    mode = GetChainSimulateMode(gobj);
+
+    if (boyGObj != 0) {
+        float lim;
+
+        lim = cw->hangRange;
+        if (GOBJ_ACT(boyGObj)->actMode == 5) {
+            lim = 70.0f;
+        }
+
+        GetRootPositionHandExtra(boyGObj, p);
+        if (isChainHitByHand(gobj, p, v, test_CURRENTORIENT(boyGObj), lim)) {
+            iosOmSendMail(boyGObj, 21, gobj);
+        }
+        if (_DistSqGV(p, cw->rootPos) < 900.0f) {
+            iosOmSendMail(boyGObj, 154, gobj);
+        }
+    }
+
+    if (mode != cw->mode) {
+        switch (mode) {
+        case 2:
+            initPendulum(gobj);
+            cw->pdl.amp = 10.0f;
+            break;
+        case 6:
+            initPendulum(gobj);
+            cw->pdl.amp = 5.0f;
+            break;
+        }
+        cw->mode = mode;
+    }
+
+    if (debug_font_flag & 1) {
+        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "%d\n", mode);
+    }
+    if (debug_font_flag & 1) {
+        debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "plumb = %d\n", cw->holdNode);
+    }
+
+    switch (mode) {
+    case 1:
+        if (cw->hold == 0 && cw->stopped != 0) {
+            chain_simulate_stop(gobj);
+        } else {
+            chain_simulate_free(gobj);
+        }
+        break;
+    case 2:
+        chain_simulate_hangstart(gobj);
+        break;
+    case 3:
+        chain_simulate_term_loop(gobj);
+        break;
+    case 4:
+        chain_set_charachara(gobj, 20.0f);
+    case 9:
+        chain_simulate_term_swingready(gobj);
+        break;
+    case 5:
+        chain_simulate_term_swingstart(gobj);
+        break;
+    case 6:
+        chain_simulate_term(gobj);
+        break;
+    case 8:
+        chain_set_charachara(gobj, 10.0f);
+        chain_simulate_term_down(gobj);
+        break;
+    case 7:
+        chain_set_charachara(gobj, 20.0f);
+        chain_simulate_term_moveup(gobj);
+        break;
+    default:
+        chain_simulate_term_free(gobj);
+        break;
+    }
+
+    if (cw->hold != 0) {
+        act = GOBJ_ACT(boyGObj);
+        ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = 0;
+        TestChainUpDown(gobj, cw->owner);
+
+        /* 0x130..0x138 of the extension is a float vector (cleared here and in
+         * case 2 beside the float stores at 0x410..0x418) */
+        switch (mode) {
+        case 8:
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[0] = 0.0f;
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[1] = 0.0f;
+            ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[2] = 0.0f;
+            break;
+        case 7:
+        case 10:
+            break;
+        case 2:
+            if (act != 0) {
+                float *nd = (float *)((cw->holdNode << 5) + (int)cw->node);
+                float h;
+
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[0] = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[1] = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.move[2] = 0.0f;
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.holdPoint[0] = nd[0];
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.holdPoint[1] = nd[1];
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.holdPoint[2] = nd[2];
+                h = ((ChainExtPtr *)&boyGObj->dobj)->sub->ctrl.animFrame;
+                if (h < 5.0f) {
+                    ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = -1;
+                } else {
+                    ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = 1;
+                }
+            }
+            break;
+        default:
+            if (act != 0) {
+                CopyVector(&GOBJ_SUB(boyGObj)->root.holdPoint[0], &cw->node[cw->holdNode]);
+                ((ChainExtPtr *)&boyGObj->dobj)->sub->root.ropeState = 1;
+            }
+            break;
+        }
+    }
+
+    if (cw->hold != 0) {
+        if (debug_font_flag & 1) {
+            debug_Printf(10, chainDebugY += 10, 0x0FFFFFFF, "%f/%f, %d\n", cw->pdl.length,
+                         (cw->node)[0].y - cw->node[cw->holdNode].y, cw->holdNode);
+        }
+    }
+
+    cw->stopped = 0;
+
+    if (moved == 0 && cw->pdl.amp < 5.0f) {
+        cw->stopped = 1;
+        for (i = 0; i < cw->nodes; i++) {
+            /* clang-format off */
+            v[0] = cw->rootPos[0]; v[1] = cw->rootPos[1]; v[2] = cw->rootPos[2];
+            /* clang-format on */
+            v[1] = v[1] + (float)i * 50.0f;
+            if (!(_DistSqGV(v, &(cw->node)[i]) < 9.0f)) {
+                cw->stopped = 0;
+                break;
+            }
+
+            if (1.0f < (cw->node)[i].vx * (cw->node)[i].vx + (cw->node)[i].vy * (cw->node)[i].vy +
+                           (cw->node)[i].vz * (cw->node)[i].vz) {
+                cw->stopped = 0;
+                break;
+            }
+        }
+    }
+}
+#else
 void ChainGeo(GObj *gobj)
 {
     float p[4];
@@ -1129,6 +1384,7 @@ void ChainGeo(GObj *gobj)
         }
     }
 }
+#endif
 
 void ChainDL(GObj *gobj)
 {
@@ -1224,8 +1480,13 @@ static void PlumbPointUpdateChain(GObj *gobj, float *pos)
         }
     }
     if (nearestNode == -1) {
-        debug_assert(__FILE__, LN(1675, 1669, 1669));
-        __assert(__FILE__, LN(1675, 1669, 1669), "nearestNode!=-1");
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 1607);
+        __assert(__FILE__, 1607, "nearestNode!=-1");
+#else
+        debug_assert(__FILE__, LN(1675, 1669, 1669, 1675));
+        __assert(__FILE__, LN(1675, 1669, 1669, 1675), "nearestNode!=-1");
+#endif
     }
     cw->holdNode = nearestNode;
     cw->holdNode =
@@ -1242,7 +1503,7 @@ static void PlumbPointUpdateChain(GObj *gobj, float *pos)
 typedef struct { /* field names derived */
     /* 0x00 */ sceVu0FVECTOR node;
     /* 0x10 */ sceVu0FVECTOR target;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     /* 0x20 */ int phase;
 #else
     /* 0x20 */ float phase;
@@ -1274,6 +1535,22 @@ static inline void SetChainClimbNodePoint(GObj *obj, ChainClimbWork *rec) /* der
     rec->node[0] = *(float *)(n * 64 + ((ChainExtPtr *)&obj->dobj)->sub->nodeMtx + 48); rec->node[1] = *(float *)(n * 64 + ((ChainExtPtr *)&obj->dobj)->sub->nodeMtx + 52); rec->node[2] = *(float *)(n * 64 + ((ChainExtPtr *)&obj->dobj)->sub->nodeMtx + 56);
 }
 
+#ifdef VERSION_NTSC
+static inline float *PushChainClimbRoot(GObj *obj, float *pos, float *out, float fwd) /* derived name */
+{
+    /* pushes the root out from the chain point along the orientation and
+     * returns the pushed point, which no caller reads.  The work vector is
+     * the caller's.
+     */
+    sceVu0ScaleVector(out, test_CURRENTORIENT(obj), fwd);
+    sceVu0AddVector(out, pos, out);
+
+    debug_NMarker(out, 0, 0, 255, 100.0f);
+
+    SetDirectRootPositionWithNodePoint(obj, 35, out, 1.0f);
+    return out;
+}
+#else
 static inline float *PushChainClimbRoot(GObj *obj, float *pos, float *out, float *ofs, float fwd, float side) /* derived name */
 {
     /* pushes the root out from the chain point (fwd along the orientation, side
@@ -1292,6 +1569,7 @@ static inline float *PushChainClimbRoot(GObj *obj, float *pos, float *out, float
     SetDirectRootPositionNoFittingWithNodePoint(obj, 35, out, 1.0f);
     return out;
 }
+#endif
 
 /* Climbing the chain: moves the boy's root between the chain's node points.
  * The climb-mode selector is a nested function at its head: it reads the
@@ -1306,27 +1584,46 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
     {
         int mode = -1;
         switch (motion) {
+#ifdef VERSION_NTSC
+        case 117:
+#else
         case 119:
+#endif
             mode = 4; if (GOBJ_ACT(boy)->actMode != 63) {
                 mode = 0;
             }
 
             break;
+#ifdef VERSION_NTSC
+        case 118:
+#else
         case 120:
+#endif
             mode = 1;
             break;
 
+#ifdef VERSION_NTSC
+        case 119:
+            mode = 2;
+            break;
+        case 120:
+#else
         case 121:
             mode = 2;
             break;
         case 122:
+#endif
             mode = 3;
             break;
         }
         return mode;
     }
 
+#ifdef VERSION_NTSC
+    float v[4], org[4], w[4];
+#else
     float v[4], org[4], w[4], d[4], hw[4], hd[4];
+#endif
     ChainRecord *cw = GOBJ_SUB(gobj)->work;
     /* the boy's action record, whose chain field names the chain the boy hangs on */
     Act *sub = GOBJ_ACT(boy);
@@ -1345,7 +1642,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
         org[0] = test_CURRENTROOT(boyGObj)[0]; org[1] = test_CURRENTROOT(boyGObj)[1]; org[2] = test_CURRENTROOT(boyGObj)[2];
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
             rec->phase = 0;
 #else
             rec->phase = 0.0f;
@@ -1355,7 +1652,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
         _InterGV(v, rec->node, rec->target, (float)rec->phase, (float)(rec->frames - rec->phase));
 #else
         _InterGV(v, rec->node, rec->target, rec->phase, (float)rec->frames - rec->phase);
@@ -1363,6 +1660,11 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
         v[1] = v[1] < cw->rootPos[1] ? cw->rootPos[1] : (cw->endPos[1] < v[1] ? cw->endPos[1] : v[1]);
 
+#ifdef VERSION_NTSC
+        PushChainClimbRoot(boy, v, w, -15.0f);
+
+        ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
+#else
         PushChainClimbRoot(boy, v, w, d, -10.0f, 3.0f);
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -1370,10 +1672,15 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 #else
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1.0f;
 #endif
+#endif
 
         w[0] = test_CURRENTROOT(boyGObj)[0]; w[1] = test_CURRENTROOT(boyGObj)[1]; w[2] = test_CURRENTROOT(boyGObj)[2];
         w[1] = org[1] + ((ChainExtPtr *)&boyGObj->dobj)->sub->root.step[1];
+#ifdef VERSION_NTSC
+        SetDirectRootPosition(boyGObj, w);
+#else
         SetDirectRootPositionNoFitting(boyGObj, w);
+#endif
 
     } break;
 
@@ -1384,7 +1691,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
         org[0] = test_CURRENTROOT(boyGObj)[0]; org[1] = test_CURRENTROOT(boyGObj)[1]; org[2] = test_CURRENTROOT(boyGObj)[2];
 
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
             rec->phase = 0;
 #else
             rec->phase = 0.0f;
@@ -1394,7 +1701,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
             rec->target[0] = rec->node[0]; rec->target[2] = rec->node[2];
             rec->target[1] = rec->node[1] - 100.0f;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
         _InterGV(v, rec->node, rec->target, (float)rec->phase, (float)(rec->frames - rec->phase));
 #else
         _InterGV(v, rec->node, rec->target, rec->phase, (float)rec->frames - rec->phase);
@@ -1404,12 +1711,18 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
         v[1] = v[1] < cw->node2Pos[1] ? cw->node2Pos[1] : (cw->endPos[1] < v[1] ? cw->endPos[1] : v[1]);
 
+#ifdef VERSION_NTSC
+        PushChainClimbRoot(boy, v, w, -15.0f);
+
+        ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
+#else
         PushChainClimbRoot(boy, v, w, d, mode == 0 ? -15.0f : -10.0f, mode == 0 ? -3.0f : -10.0f);
 
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
 #else
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
+#endif
 #endif
 
         w[0] = test_CURRENTROOT(boyGObj)[0]; w[1] = test_CURRENTROOT(boyGObj)[1]; w[2] = test_CURRENTROOT(boyGObj)[2];
@@ -1423,7 +1736,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
     case 2: case 3: {
         ChainClimbWork *rec;
         rec = (ChainClimbWork *)chainClimb; if (rec->prev != mode) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
             rec->phase = 0;
 #else
             rec->phase = 0.0f;
@@ -1434,7 +1747,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
             rec->target[1] = rec->node[1] + 200.0f;
         }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
         _InterGV(v, rec->node, rec->target, (float)rec->phase, (float)(rec->frames - rec->phase));
 #else
         _InterGV(v, rec->node, rec->target, rec->phase, (float)rec->frames - rec->phase);
@@ -1444,11 +1757,16 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
         v[1] = v[1] < cw->node2Pos[1] ? cw->node2Pos[1] : (cw->endPos[1] < v[1] ? cw->endPos[1] : v[1]);
 
+#ifdef VERSION_NTSC
+        PushChainClimbRoot(boy, v, org, -15.0f);
+        ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
+#else
         PushChainClimbRoot(boy, v, hw, hd, -20.0f, -5.0f);
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1;
 #else
         ((ChainClimbWork *)chainClimb)->phase = ((ChainClimbWork *)chainClimb)->phase + 1.0f;
+#endif
 #endif
         PlumbPointUpdateChain(gobj, v);
     } break;
@@ -1478,6 +1796,7 @@ static void TestChainUpDown(GObj *gobj, GObj *boy)
 
 /* clang-format on */
 
+#ifndef VERSION_NTSC
 void SetChainRootUpdateMode(GObj *gobj, int mode, float *pos)
 {
     GOBJ_SUB(gobj)->root.ropeState = mode;
@@ -1488,6 +1807,7 @@ void SetChainRootUpdateMode(GObj *gobj, int mode, float *pos)
         SetDirectRootPositionNoFittingWithNodePoint(gobj, 22, pos, 1.0f);
     }
 }
+#endif
 
 void HoldChain(GObj *chain, GObj *owner, float *pos)
 {
@@ -1667,6 +1987,7 @@ int IsAbleChainHang(GObj *chain)
     return cw->hangable;
 }
 
+#ifndef VERSION_NTSC
 void ChainPositionReset(GObj *chain)
 {
     float pos[4];
@@ -1676,6 +1997,7 @@ void ChainPositionReset(GObj *chain)
     GetRootPosition(pos, chain);
     ResetChainNodes(cw, pos);
 }
+#endif
 
 void _GetCorrectOrientOfChain(float *out, GObj *gobj, float *dir)
 {

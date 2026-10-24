@@ -15,8 +15,13 @@ struct SqEntry;
 /* st07a.o's .sdata globals */
 extern struct SqEntry *bridge;
 extern struct SqEntry *sekizo7a;
+#ifdef VERSION_NTSC
+extern int sekizo_7a;
+extern unsigned char sekizo_7a_vol;
+#else
 extern struct SqEntry *sekizo_7a;
 extern int sekizo_7a_vol;
+#endif
 void actSt07aChanChk(GObj *volatile self);
 void actSt07aChanEffect(GObj *volatile self);
 void actSt07aChanFall(GObj *volatile self);

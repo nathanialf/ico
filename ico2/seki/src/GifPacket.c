@@ -4,6 +4,10 @@
 #include "DmaPacket.h"
 #include "DisplayList.h"
 
+#ifdef VERSION_NTSC
+#include "main.h"
+#endif
+
 typedef struct { /* field names derived */
     int a, b, c, d;
 } GsAlphaEnt; /* derived name */
@@ -373,6 +377,10 @@ void gif_SpriteSensitiveOrg(GifRect *r, long long z, GifRect *uv, GifColor *col,
 void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsigned int w,
                            unsigned int h, int useoffset, int clear)
 {
+#ifdef VERSION_NTSC
+    unsigned int x;
+    unsigned int y;
+#endif
     setGsReg(0x4C,
              (fbp >> 5) | ((unsigned long long)((w >> 6) & 0x3F) << 16) | ((psm & 0xF) << 24));
     setGsReg(0x40, ((unsigned long long)(w - 1) << 16) | ((unsigned long long)(h - 1) << 48));
@@ -384,6 +392,12 @@ void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsig
         setGsReg(0x05, (unsigned long long)(w << 4) | ((unsigned long long)(h << 4) << 16));
         setGsReg(0x47, 0x50000);
     }
+#ifdef VERSION_NTSC
+    x = (0x800 - (w >> 1)) << 4;
+    y = (0x800 - (h >> 1)) << 4;
+    setGsReg(0x18, (unsigned long long)x |
+                       ((unsigned long long)(useoffset && odd_even ? y + 8 : y) << 32));
+#else
     if (useoffset) {
         setGsReg(0x18,
                  (unsigned long long)(unsigned int)(((0x800 - (w >> 1)) << 4) + screenOffsetX) |
@@ -392,6 +406,7 @@ void gif_SetDrawEnviroment(unsigned long long fbp, unsigned long long psm, unsig
         setGsReg(0x18, (unsigned long long)(unsigned int)((0x800 - (w >> 1)) << 4) |
                            ((unsigned long long)((0x800 - (h >> 1)) << 4) << 32));
     }
+#endif
 }
 
 static int stripVisible[2] = {0, 0}; /* derived name */
@@ -485,6 +500,7 @@ void gif_DrawStripF(void *v, GifColor col, int n, int prim)
 
         rotTransPers(q, p);
         t = isInScreen(q);
+#ifndef VERSION_NTSC
         setGsReg(t && stripVisible[0] && stripVisible[1] ? 0x05 : 0x0D,
                  GIF_XY0(q[0], q[1], (long long)q[2]));
         stripVisible[stripIndex++] = t;
@@ -509,6 +525,7 @@ void gif_DrawStripFST(void *v, void *uv, GifColor col, int n, int prim)
         rotTransPers(q, p);
         t = isInScreen(q);
         setGsReg(0x02, (long long)s[0] | ((long long)s[1] << 32));
+#endif
         setGsReg(t && stripVisible[0] && stripVisible[1] ? 0x05 : 0x0D,
                  GIF_XY0(q[0], q[1], (long long)q[2]));
         stripVisible[stripIndex++] = t;
@@ -733,11 +750,26 @@ void gif_SetZWrite(int on)
         setGsReg(0x4E, 0x1300000C0LL);
 }
 
+#ifdef VERSION_NTSC
+/* the XYOFFSET for a half-pixel field: the odd field of an interlaced frame
+   sits half a line (8 in 12.4) lower */
+void gif_SetHalfOffset(int interlace, int odd)
+{
+    int x = (0x800 - ScreenWidth / 2) << 4;
+    int y = (0x800 - ScreenHeight / 2) << 4;
+
+    if (interlace == 0) {
+        odd = 0;
+    }
+    setGsReg(0x18, (long long)x | ((long long)(odd ? y + 8 : y) << 32));
+}
+#else
 void gif_SetHalfOffset(void)
 {
     setGsReg(0x18, (long long)(((0x800 - ScreenWidth / 2) << 4) + screenOffsetX) |
                        ((long long)(((0x800 - ScreenHeight / 2) << 4) + screenOffsetY) << 32));
 }
+#endif
 
 int _IsInScreen(volatile int *v)
 {

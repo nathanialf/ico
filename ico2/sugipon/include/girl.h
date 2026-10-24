@@ -14,13 +14,17 @@ struct GObj;
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order girl.c's inline tail has. */
 void SetGirlClothDispSwitch(struct GObj *gobj, int part, int on);
+#ifndef VERSION_NTSC
 void SetGirlHairDispSwitch(struct GObj *gobj, int on);
+#endif
 
 struct SObjSimpleSetting;
 
 void *InitGirlGeo(struct GObj *gobj, struct SObjSimpleSetting *csv);
 void GirlGeo(struct GObj *gobj);
+#ifndef VERSION_NTSC
 void GirlAI(struct GObj *gobj);
+#endif
 void GirlDL(struct GObj *gobj);
 
 #endif /* GIRL_H */

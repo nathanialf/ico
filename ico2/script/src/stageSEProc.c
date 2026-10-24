@@ -76,6 +76,67 @@ static float windCache = 0.0f; /* derived name */
 
 static int windCacheFrame = 0; /* derived name */
 
+#ifdef VERSION_NTSC
+int stageSEtaimatsu(SeSlot *self)
+{
+    Blk16 v;
+    Blk16 d;
+    GObj *g = isysGObjSearchFromObjKindID_begin(10);
+    GObj *best = 0;
+    GObj *torch = 0;
+    float bd = 3.40282347e+38f; /* FLT_MAX */
+    int rv = 1;
+    float *campos;
+    int i;
+
+    if (gflagChk(356)) {
+        return 0;
+    }
+    campos = (float *)GetCameraPos();
+    self->stereoRate = 0.5f;
+    if (boyGObj != 0) {
+        GObj *w = GetBoyWeaponGObj();
+
+        if (w != 0) {
+            torch = GetTorchGObjOfWeapon(w);
+        }
+    }
+    for (i = 0; g != 0; i++, g = isysGObjSearchFromObjKindID_next(g)) {
+        int id;
+        float t;
+
+        if (IsTorchLightOn(g) == 0) {
+            continue;
+        }
+        if (g == torch) {
+            continue;
+        }
+        id = self->env->se;
+        if ((i & 1) == 0) {
+            id -= 414;
+        } else {
+            id -= 416;
+        }
+        if ((unsigned int)id >= 2) {
+            continue;
+        }
+        GetRootPosition(&v, g);
+        sceVu0SubVector(&d, campos, &v);
+        t = sceVu0InnerProduct(&d, &d);
+        if (t < bd) {
+            bd = t;
+            best = g;
+        }
+    }
+    if (best != 0) {
+        /* the translation row of the torch's first node matrix */
+        sceVu0CopyVector(self->pos, (float *)GOBJ_SUB(best)->nodeMtx + 12);
+    } else {
+        rv = 0;
+    }
+    return rv;
+}
+#else
 int stageSEtaimatsu(SeSlot *self)
 {
     Blk16 v;
@@ -135,6 +196,7 @@ int stageSEtaimatsu(SeSlot *self)
     }
     return rv;
 }
+#endif
 
 /* .sbss: the running level of each river sound effect, held across frames so
    SEFadeOut can walk it down to silence. */
@@ -148,7 +210,11 @@ static float river06aLevel; /* derived name */
  * stageSE06ariver */
 static inline int SEFadeOut(SeSlot *self, float *lvl) /* derived name */
 {
+#ifdef VERSION_NTSC
+    float v = *lvl - 0.005f;
+#else
     float v = *lvl - riverFadeSpeed;
+#endif
 
     *lvl = v;
     self->volumeRate = v;
@@ -160,6 +226,78 @@ static inline int SEFadeOut(SeSlot *self, float *lvl) /* derived name */
     return 0;
 }
 
+#ifdef VERSION_NTSC
+int stageSE04eriver(SeSlot *self)
+{
+    float *p = (float *)GetCameraPos();
+    float z = p[2];
+    float r;
+
+    if (stage_no == 21) {
+        if (gflagChk(205)) {
+            return SEFadeOut(self, &river04eLevelA);
+        }
+        river04eLevelA = 1.0f;
+    } else {
+        if (gflagChk(206)) {
+            return SEFadeOut(self, &river04eLevelB);
+        }
+        river04eLevelB = 1.0f;
+    }
+    if (-5500.0f < z) {
+        if (z < -5500.0f) {
+            r = 0.0f;
+        } else if (-2000.0f < z) {
+            r = 1.0f;
+        } else {
+            r = (z - -5500.0f) / 3500.0f;
+        }
+        self->volumeRate = 1.0f - r;
+    } else {
+        if (z < -5750.0f) {
+            r = 0.0f;
+        } else if (-5500.0f < z) {
+            r = 1.0f;
+        } else {
+            r = (z - -5750.0f) / 250.0f;
+        }
+        self->volumeRate = r;
+    }
+    if (self->volumeRate < 0.5f && p[1] < -1000.0f && -6500.0f < p[2]) {
+        self->volumeRate = 0.5f;
+    }
+    return -1;
+}
+
+int stageSE06ariver(SeSlot *self)
+{
+    float *p = (float *)GetCameraPos();
+
+    if (gflagChk(95)) {
+        return SEFadeOut(self, &river06aLevel);
+    }
+    river06aLevel = 1.0f;
+    if (p[0] < 300.0f && 848.0f < p[2]) {
+        if (gflagChk(96) == 0) {
+            self->volumeRate = 0.05f;
+        } else {
+            self->volumeRate = 0.4f;
+        }
+        self->stereoRate = 0.1f;
+        self->pos[0] = -490.0f;
+        self->pos[1] = -757.0f;
+        self->pos[2] = 759.0f;
+        return 1;
+    }
+    self->volumeRate = 0.7f;
+    self->flag.all &= 0xEFFFFFFF;
+    self->stereoRate = 0.75f;
+    self->pos[0] = 740.0f;
+    self->pos[1] = p[1];
+    self->pos[2] = p[2];
+    return 1;
+}
+#else
 int stageSE04eriver(SeSlot *self)
 {
     float *p = (float *)GetCameraPos();
@@ -230,6 +368,7 @@ int stageSE06ariver(SeSlot *self)
     self->pos[2] = p[2];
     return 1;
 }
+#endif
 
 int stageSE10lstrong2(SeSlot *self)
 {
@@ -310,9 +449,11 @@ int stageSE19ataki(SeSlot *self)
     return 1;
 }
 
+#ifndef VERSION_NTSC
 /* the per-frame fade step SEFadeOut subtracts; st04e, st05e and st06a set it
    (0.005f, or 1000.0f to cut the river at once) */
 float riverFadeSpeed = 0.0f; /* derived name */
+#endif
 
 int stageSE02astrong(SeSlot *self)
 {
@@ -333,6 +474,36 @@ int stageSE02astrong(SeSlot *self)
     return 1;
 }
 
+#ifdef VERSION_NTSC
+/* the river fade step; SEFadeOut walks the level down by a fixed 0.005f and
+   nothing reads this word */
+float riverFadeSpeed = 0.0f; /* derived name */
+
+int stageSE02ataki(SeSlot *self)
+{
+    float *p = self->pos;
+    p[0] = 785.0f;
+    p[2] = 482.0f;
+    self->stereoRate = 0.5f;
+    if (gflagChk(95)) {
+        self->volumeRate = 0.0f;
+    }
+    return 1;
+}
+
+int stageSE02atakib(SeSlot *self)
+{
+    float *p = self->pos;
+    p[0] = 785.0f;
+    p[1] = 1786.0f;
+    p[2] = 482.0f;
+    self->stereoRate = 0.5f;
+    if (gflagChk(95)) {
+        self->volumeRate = 0.0f;
+    }
+    return 1;
+}
+#else
 int stageSE02ataki(SeSlot *self)
 {
     float *p = self->pos;
@@ -357,6 +528,7 @@ int stageSE02atakib(SeSlot *self)
     }
     return 1;
 }
+#endif
 
 int stageSE03tsuiro(void)
 {
@@ -377,6 +549,33 @@ int stageSE03tnotSuiro(void)
     return -1;
 }
 
+#ifdef VERSION_NTSC
+int stageSE04agate(SeSlot *self)
+{
+    float x = ((float *)GetCameraPos(self))[2];
+    float ratio = 1.0f;
+    float w;
+    if (x < -1300.0f) {
+        return 0;
+    }
+    if (gflagChk(126) == 0) {
+        return 0;
+    }
+    if (x < 750.0f) {
+        ratio = (x - -1300.0f) / 2050.0f;
+    }
+    if (windCacheFrame == frame_count) {
+        w = windCache;
+    } else {
+        windCacheFrame = frame_count;
+        w = GetRegularizedWindSpeed((void *)GetCameraPos());
+        w = w * 0.5f + 0.5f;
+        windCache = w;
+    }
+    self->volumeRate = ratio * w;
+    return -1;
+}
+#else
 int stageSE04agate(SeSlot *self)
 {
     float x = ((float *)GetCameraPos(self))[2];
@@ -402,6 +601,7 @@ int stageSE04agate(SeSlot *self)
     self->volumeRate = ratio * w;
     return -1;
 }
+#endif
 
 int stageSE04bstrong(SeSlot *self)
 {
@@ -432,6 +632,31 @@ int stageSE04ewind(SeSlot *self)
     return -1;
 }
 
+#ifdef VERSION_NTSC
+int stageSE04eriverDown(SeSlot *self)
+{
+    float x = ((float *)GetCameraPos(self))[2];
+    float f;
+    if (stage_no == 21) {
+        if (gflagChk(205)) {
+            return 0;
+        }
+    } else {
+        if (gflagChk(206)) {
+            return 0;
+        }
+    }
+    if (x < -5770.0f) {
+        f = 0.0f;
+    } else if (-3680.0f < x) {
+        f = 1.0f;
+    } else {
+        f = (x - -5770.0f) / 2090.0f;
+    }
+    self->volumeRate = f;
+    return -1;
+}
+#else
 int stageSE04eriverDown(SeSlot *self)
 {
     float x = ((float *)GetCameraPos(self))[2];
@@ -455,6 +680,7 @@ int stageSE04eriverDown(SeSlot *self)
     self->volumeRate = f;
     return -1;
 }
+#endif
 
 int stageSE06astrong(SeSlot *self)
 {

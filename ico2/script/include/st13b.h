@@ -21,10 +21,17 @@ extern struct SqEntry *sd;
 extern struct SqEntry *boss_dead;
 extern struct SqEntry *st13b_up;
 extern struct SqEntry *st13b_down;
+#ifdef VERSION_NTSC
+extern int sekizo_13b;
+extern unsigned char sekizo_13b_vol;
+void actConte10a(GObj *volatile self);
+void actConte10b(GObj *volatile self);
+#else
 extern struct SqEntry *sekizo_13b;
 extern struct SqEntry *sekizo_13b_vol;
 extern int st13b_yure;
 extern unsigned char st13b_yure_vol;
+#endif
 void actConte10c(GObj *volatile self);
 void actSt13bBossAfterChk(GObj *volatile self);
 void actSt13bBossChk(GObj *volatile self);

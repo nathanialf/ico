@@ -312,6 +312,17 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
     Mesh3D *m;
     int i;
 
+#ifdef VERSION_NTSC
+    m = (Mesh3D *)iosMallocDebug(ios_partition_seki, 144, "src/Primitive.c", 580);
+    m->nx = nx;
+    m->ny = ny;
+    m->pos =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 583);
+    m->nrm =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 584);
+    m->st =
+        (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 585);
+#else
     m = (Mesh3D *)iosMallocDebug(ios_partition_seki, 144, "src/Primitive.c", 576);
     m->nx = nx;
     m->ny = ny;
@@ -321,6 +332,7 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
         (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 580);
     m->st =
         (Prim3DVec *)iosMallocDebug(ios_partition_seki, m->nx * 16 * m->ny, "src/Primitive.c", 581);
+#endif
     for (i = 0; i < m->nx * m->ny; i++) {
         m->pos[i].x = m->pos[i].y = m->pos[i].z = 0.0f;
         m->pos[i].w = 1.0f;
@@ -336,8 +348,13 @@ Mesh3D *prim_InitMesh3D(int nx, int ny, int rot, long long col, unsigned int col
 
     m->qwc = m->strips * (m->stripLen * (lit + 2) + 4);
 
+#ifdef VERSION_NTSC
+    m->bufs[0] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c", 601);
+    m->bufs[1] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c", 602);
+#else
     m->bufs[0] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c", 597);
     m->bufs[1] = iosMallocDebug(ios_partition_seki, m->qwc * 16, "src/Primitive.c", 598);
+#endif
 
     _InitCurrentMatrix();
     _RotCurrentMatrixZ((short)((float)(rot % 4) * 3.1415927f * 0.5f * 10430.3779f));
@@ -665,6 +682,99 @@ typedef struct { /* field names derived */
     long long d[2];
 } PrimQw; /* derived name */
 
+#ifdef VERSION_NTSC
+PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
+                                           int a3, void *heap)
+{
+    PrimQw hd = {{0x5000400000000000LL, 0x52521}};
+    Prim3DVec cl0 = {1024.0f, 1024.0f, 0.0f, 1.0f};
+    Prim3DVec cl1 = {3071.0f, 3071.0f, 0.0f, 16777215.0f};
+    PrimParticle *p;
+    PrimParticleObj *q;
+    int *r;
+    /* the GIF tag's PRIM field: sprite, TME, ABE, AA1 */
+    long long prim = 214;
+
+    if (num > 80) {
+        debug_StdPrintfDummy(
+            "Particle Object too big (%d particles). (must be under %d particles)\n", num, 80);
+        return 0;
+    }
+    p = (PrimParticle *)iosMallocDebugNoAssert(heap, 416, "src/Primitive.c", 919);
+    if (p == 0) {
+        return 0;
+    }
+    p->buf[0].head[0] = 0;
+    p->buf[0].head[1] = 0;
+    p->buf[0].head[2] = 0;
+    p->buf[0].head[3] = 0x6C088000;
+    _UnitMatrix(p->buf[0].mtx);
+    _UnitMatrix(p->buf[0].lmtx);
+    p->buf[0].tail[0] = 0x15000010;
+    p->buf[0].tail[1] = 0;
+    p->buf[0].tail[2] = 0;
+    p->buf[0].tail[3] = 0;
+    p->headQwc = 10;
+    malloc_MemCpy(&p->buf[1], &p->buf[0], 160);
+    p->word144 = 0;
+    p->num = num;
+    p->x = x;
+    p->y = y;
+    p->z = z;
+    p->word158 = a1;
+    sprintf(p->name, "%s", name);
+    p->tex = tex_GetTextureNo(p->name);
+    if (p->tex < 0 || p->tex >= tex_GetTextureNum()) {
+        debug_StdPrintfDummy("prim_InitParticle:illegal texture no. %s:%d\n", p->name, p->tex);
+        debug_assert("src/Primitive.c", 950);
+        __assert("src/Primitive.c", 950, "FALSE");
+    }
+    p->objSize = num * 32 + 128;
+    p->objs[0] =
+        (PrimParticleObj *)iosMallocDebugNoAssert(heap, p->objSize, "src/Primitive.c", 956);
+    if (p->objs[0] == 0) {
+        iosFree(p);
+        return 0;
+    }
+    p->objs[1] =
+        (PrimParticleObj *)iosMallocDebugNoAssert(heap, p->objSize, "src/Primitive.c", 961);
+    if (p->objs[1] == 0) {
+        iosFree(p->objs[0]);
+        iosFree(p);
+        return 0;
+    }
+    q = p->objs[0];
+    p->objSize = p->objSize >> 4;
+    q->vif[0] = 0;
+    q->vif[1] = 0;
+    q->vif[2] = 0;
+    q->vif[3] = ((p->objSize - 2) << 16) | 0x6C008000;
+    q->num[0] = num;
+    q->num[1] = 0;
+    q->num[2] = 0;
+    q->num[3] = 0;
+    q->tag[0][0] = hd.d[0] | (prim << 47) | 1;
+    q->tag[0][1] = hd.d[1];
+    q->tag[1][0] = hd.d[0] | (prim << 47) | 0x8001;
+    q->tag[1][1] = hd.d[1];
+    _CopyVector(q->clipMin, &cl0);
+    _CopyVector(q->clipMax, &cl1);
+    r = q->vtx[num];
+    r[0] = 0x13000000;
+    r[1] = 0x17000000;
+    r[2] = 0;
+    r[3] = 0;
+    q->pos[0] = x;
+    q->pos[1] = y;
+    q->pos[2] = z;
+    q->pos[3] = 0.0f;
+    malloc_MemCpy(p->objs[1], p->objs[0], p->objSize * 16);
+    p->cur = 0;
+    p->vtx = p->objs[0]->vtx;
+    p->vtxNext = p->objs[1]->vtx;
+    return p;
+}
+#else
 PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, int a1, char *name,
                                            int a3, void *heap)
 {
@@ -756,6 +866,7 @@ PrimParticle *prim_InitParticleByPartition(int num, float x, float y, float z, i
     p->vtxNext = p->objs[1]->vtx;
     return p;
 }
+#endif
 
 void prim_DispParticle(PrimParticle *p, void *mtx)
 {
@@ -766,8 +877,13 @@ void prim_DispParticle(PrimParticle *p, void *mtx)
             /* "the specified texture number is invalid" */
             debug_StdPrintfDummy("prim_DispParticle:指定したテクスチャ番号が異常です. %s:%d\n",
                                  p->name, p->tex);
+#ifdef VERSION_NTSC
+            debug_assert("src/Primitive.c", 1036);
+            __assert("src/Primitive.c", 1036, "FALSE");
+#else
             debug_assert("src/Primitive.c", 1020);
             __assert("src/Primitive.c", 1020, "FALSE");
+#endif
             return;
         }
         if (p->num < 0x51) {

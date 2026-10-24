@@ -47,6 +47,15 @@ typedef struct {       /* field names derived */
     int fumbleFrame;   /* 0x64 */
     float fumbleSpeed; /* 0x68 */
     char pad6C[4];
+#ifdef VERSION_NTSC
+    float fumbleFrom[4]; /* 0x70 */
+    float fumbleTo[4];   /* 0x80 */
+    float fumbleQuat[4]; /* 0x90 */
+    int fumbleSlot;      /* 0xA0: the drop-table row, 0 to 6 */
+    int bladeOn;         /* 0xA4: the laser blade is out */
+    float bladeLength;   /* 0xA8: the blade's drawn length */
+    float bladeTimer;    /* 0xAC: frames the blade has been growing */
+#else
     float fumbleFrom[4]; /* 0x70 */
     float fumbleTo[4];   /* 0x80 */
     float fumbleQuat[4]; /* 0x90 */
@@ -60,33 +69,54 @@ typedef struct {       /* field names derived */
     int humAnim;         /* 0xBC: the blade's BG animation handle */
     int offsetMode;      /* 0xC0: SetWeaponOffsetMode */
     char padC4[12];
-    float tipPos[4];                      /* 0xD0: the blade tip */
+    float tipPos[4]; /* 0xD0: the blade tip */
+#endif
 } __attribute__((aligned(8))) WeaponWork; /* derived name */
 
 void torchOnOfWeaponSE(GObj *torch)
 {
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(torch, 64);
+#else
     ExecuteSEPackage(torch, 66);
+#endif
 }
 
 void torchOffOfWeaponSE(GObj *torch)
 {
     StopSEPackage(torch);
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(torch, 65);
+#else
     ExecuteSEPackage(torch, 67);
+#endif
 }
 
 void weaponHitReactionSE(GObj *g)
 {
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(g, 66);
+#else
     ExecuteSEPackage(g, 68);
+#endif
 }
 
 void weaponFumbleSE(GObj *g)
 {
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(g, 87);
+#else
     ExecuteSEPackage(g, 92);
+#endif
 }
 
 void weaponStickSE(GObj *g)
 {
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(g, 88);
+#else
     ExecuteSEPackage(g, 93);
+#endif
 }
 
 static inline void releaseWeaponHolder(WeaponWork *w) /* derived name */
@@ -145,9 +175,16 @@ static inline int fumbleTargetBlocked(FumbleVec *p) /* derived name */
     return 0;
 }
 
+#ifdef VERSION_NTSC
+/* declared here: ico2/omori/src/attackhit.c declares the table with its
+   own record and includes weapon.h; const, as the table sits in .rodata */
+extern const WeaponDef weaponKind[];
+#else
 /* declared here: ico2/omori/src/attackhit.c declares the table with its
    own record and includes weapon.h */
 extern WeaponDef weaponKind[];
+#endif
+
 /* declared here as three rows to a weapon slot, the way it is read; the
    definition (weapon-fumble-def) is the flat row array */
 extern FumbleRow weaponFumbleGeo[][3];
@@ -195,6 +232,33 @@ int ReleaseWeaponWithFumbleSequential(GObj *g)
     return 0;
 }
 
+#ifdef VERSION_NTSC
+static WeaponWork swordWorkTemplate = {
+    0,
+    0,
+    0,
+    -1,
+    {{0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f},
+     {0.0f, 0.0f, 0.0f, 1.0f}},
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.0f,
+    {0},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    {0.0f, 0.0f, 0.0f, 1.0f},
+    0,
+    0,
+    0.0f,
+    0.0f,
+}; /* derived name */
+#else
 static WeaponWork swordWorkTemplate = {
     0,
     0,
@@ -227,6 +291,7 @@ static WeaponWork swordWorkTemplate = {
     {0},
     {0.0f, 0.0f, 0.0f, 1.0f},
 }; /* derived name */
+#endif
 
 /* the offsets the two path helpers below set the z of and push along */
 static float pathOfsFwd[4] = {0.0f, 0.0f, 1.0f, 1.0f}; /* derived name */
@@ -450,12 +515,14 @@ static void calcDynamicGeometry(GObj *g)
     }
 }
 
+#ifndef VERSION_NTSC
 /* the body of SetWeaponOffsetMode, which getGeometry and InitWeaponGeo
    inline and SetWeaponOffsetMode calls */
 static inline void setWeaponOffsetMode(GObj *g, int v) /* derived name */
 {
     ((WeaponWork *)GOBJ_SUB(g)->work)->offsetMode = v;
 }
+#endif
 
 static void getGeometry(GObj *g)
 {
@@ -485,7 +552,9 @@ static void getGeometry(GObj *g)
             CopyQuaternion(rq, quat);
         }
         UpdateRootMatrix(g);
+#ifndef VERSION_NTSC
         setWeaponOffsetMode(g, 0);
+#endif
     } else {
         switch (w->state) {
         default:
@@ -567,11 +636,19 @@ static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
     r.obj = (lay->obj & 0xFF00) ? 5 : 4;
 
     w->count = 1;
+#ifdef VERSION_NTSC
+    w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 711);
+#else
     w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 759);
+#endif
 
     for (i = 0; i < 1; i++) {
         queenSwordOfs[2] = weaponKind[w->kind].length * (float)i / 0.0f;
+#ifdef VERSION_NTSC
+        o = CreateLayoutedGObj(10, 69, -1, i == 0, &r, -1, 7, 0);
+#else
         o = CreateLayoutedGObj(10, 75, -1, i == 0, &r, -1, 7, 0);
+#endif
         LinkParentOfDObj(o, &lnk);
         CopyVector(GOBJ_SUB(o)->root.pos, queenSwordOfs);
         w->objs[i] = o;
@@ -579,7 +656,11 @@ static void initializeQueenzSword(GObj *g, int index, SObjSimpleSetting *lay)
 
     r2 = *lay;
     r2.obj = 13;
+#ifdef VERSION_NTSC
+    o2 = CreateLayoutedGObj(45, 9, -1, 0, &r2, -1, 7, 0);
+#else
     o2 = CreateLayoutedGObj(46, 11, -1, 0, &r2, -1, 7, 0);
+#endif
     GOBJ_SUB(o2)->parent = lnk;
     w->sword = o2;
 }
@@ -588,7 +669,11 @@ typedef float WeaponVec[4] __attribute__((aligned(8))); /* derived name */
 
 void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
 {
+#ifdef VERSION_NTSC
+    WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 772);
+#else
     WeaponWork *w = iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 820);
+#endif
     int i;
 
     GOBJ_SUB(g)->work = w;
@@ -608,6 +693,16 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             SObjSimpleSetting r = *lay;
 
             r.obj = (lay->obj & 0xFF00) != 0;
+#ifdef VERSION_NTSC
+            o = CreateLayoutedGObj(10, 69, -1, 1, &r, -1, 7, 1);
+            LinkParentOfDObj(o, &lnk);
+            CopyVector(GOBJ_SUB(o)->root.pos, v);
+            SetTorchLife(o, (60 - systemStatus[0] * 10) / systemStatus[1] * 15);
+            w->count = 1;
+            w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 800);
+            w->objs[0] = o;
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 808);
+#else
             o = CreateLayoutedGObj(10, 75, -1, 1, &r, -1, 7, 1);
             LinkParentOfDObj(o, &lnk);
             CopyVector(GOBJ_SUB(o)->root.pos, v);
@@ -617,15 +712,23 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             w->objs = iosMallocDebug(ios_partition_sugipon, 1 * 4, __FILE__, 848);
             w->objs[0] = o;
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 856);
+#endif
             break;
         }
 
         case 5:
             initializeQueenzSword(g, i, lay);
+#ifdef VERSION_NTSC
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 813);
+#else
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 861);
+#endif
             break;
 
         case 7:
+#ifdef VERSION_NTSC
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 817);
+#else
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 865);
             break;
 
@@ -640,16 +743,28 @@ void *InitWeaponGeo(GObj *g, SObjSimpleSetting *lay)
             CopyQuaternion(g->dobj->root.quat, g->dobj->quat);
             UpdateRootMatrix(g);
             setWeaponOffsetMode(g, 1);
+#endif
             break;
 
         default:
+#ifdef VERSION_NTSC
+            w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 821);
+#else
             w->buf = iosMallocDebug(ios_partition_sugipon, 352, __FILE__, 884);
+#endif
             break;
         }
     }
     return w;
 }
 
+#ifdef VERSION_NTSC
+void WeaponGeo(GObj *g)
+{
+    getGeometry(g);
+    checkHit(g);
+}
+#else
 static void dispLaserSword(GObj *g, float t)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
@@ -666,6 +781,7 @@ static void dispLaserSword(GObj *g, float t)
         p2o_DispVU1DObj(w->model1);
     }
 }
+#endif
 
 /* the insect net's line colour and its handle, end to end */
 static int netColor[4] = {128, 128, 128, 128}; /* derived name */
@@ -699,6 +815,7 @@ void dispInsectNet(GObj *g)
     gif_EndPacket();
 }
 
+#ifndef VERSION_NTSC
 static void dispBlur(GObj *g)
 {
     WeaponWork *w = GOBJ_SUB(g)->work;
@@ -819,11 +936,90 @@ static void calcBlur(GObj *g, float t)
         }
     }
 }
+#endif
 
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
+#ifdef VERSION_NTSC
+void WeaponDL(GObj *g)
+{
+    WeaponWork *w = GOBJ_SUB(g)->work;
+
+    switch (w->kind) {
+    default:
+        p2o_SetDefaultEnviroment();
+        p2o_DispVU1(g);
+        break;
+    case 7:
+        dispInsectNet(g);
+        break;
+    case 0:
+        break;
+    }
+    if (w->state == 1 ||
+        (w->holder != 0 && motionKind[w->holder->dobj->ctrl.motion].flags2.bits.weaponSwing)) {
+        float q1[4];
+        float q2[4];
+        float d[4];
+        float p[4];
+        Sub15C *e = GOBJ_SUB(g);
+
+        GetInverseQuaternion(q1, e->root.itemQuat);
+        MultiQuaternion(q1, e->root.quat, q1);
+        SubVectorXYZ(d, e->root.pos, e->root.move);
+        if (weaponKind[w->kind].blur != -1) {
+            const WeaponDef *k = &weaponKind[w->kind];
+            GifColor c = {k->color[0], k->color[1], k->color[2], k->color[3]};
+            float m[4][4];
+            float n[4];
+            float a[4];
+            float b[4];
+            char *base = w->buf;
+            int i;
+            float ang;
+
+            GetMatrixFromQuaternion(m, q1);
+            _ApplyMatrix(a, m, ZUnitVector);
+            GetMatrixFromQuaternion(m, e->root.quat);
+            _ApplyMatrix(b, m, ZUnitVector);
+            _OuterProduct(n, b, a);
+            _NormalizeVector(n, n);
+            ang = GetTableArcCos(_InnerProduct(a, b));
+            _ScaleVectorXYZ(a, a, k->length);
+            a[3] = 1.0f;
+            for (i = 0; i < 11; i++) {
+                float rr = (float)i / 10.0f;
+
+                SetQuaternionByAxisRotateVWithNoRegularize(q2, (short)(ang * (float)i / 10.0f), n);
+                sceVu0InterVector(p, e->root.pos, d, rr);
+                GetMatrixFromQuaternionPos(m, q2, p);
+                CopyVector(base + i * 32, m[3]);
+                sceVu0ApplyMatrix(base + (i * 32 + 16), m, a);
+            }
+            _SetCurrentMatrix(matrixptr + 0x100);
+            gif_StartPacketPri(2);
+            switch (k->blur) {
+            case 0:
+            default:
+                gif_SetAlpha(1, 7, 128);
+                break;
+            case 1:
+                gif_SetAlpha(1, 5, 128);
+                break;
+            case 2:
+                gif_SetAlpha(1, 6, 128);
+                break;
+            }
+            gif_SetZTest(1);
+            gif_SetZWrite(1);
+            gif_DrawStripF(base, c, 22, 1);
+            gif_EndPacket();
+        }
+    }
+}
+#else
 /* The MatrixDrive matrix, viewed as the union of float and int arrays this
    codebase uses for VU0 data. */
 typedef union { /* field names derived */
@@ -945,6 +1141,7 @@ void WeaponDL(GObj *g)
         dispBlur(g);
     }
 }
+#endif
 
 void PickupWeapon(GObj *self, GObj *holder, int focus)
 {
@@ -982,10 +1179,14 @@ GObj *CheckSwapableWeapon(GObj *self, float dist)
         if (g->active == 0)
             continue;
 
+#ifdef VERSION_NTSC
+        wp = (float *)((char *)GOBJ_SUB(g)->nodeMtx + 48);
+#else
         wp = w->tipPos;
         if (stage_no == 4 && g->labelId != 128)
             continue;
 
+#endif
         d = distance_squared(pos, wp);
         if (d < best) {
             found = g;
@@ -1110,7 +1311,11 @@ void *InitDemoQueensSword(GObj *g, SObjSimpleSetting *lay)
     WeaponWork *w;
     int i;
 
+#ifdef VERSION_NTSC
+    w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 754);
+#else
     w = (WeaponWork *)iosMallocDebug(ios_partition_sugipon, sizeof(WeaponWork), __FILE__, 802);
+#endif
     GOBJ_SUB(g)->work = w;
     *w = swordWorkTemplate;
     for (i = 0; i < GOBJ_SUB(g)->nodeNum; i++) {
@@ -1126,7 +1331,9 @@ void ExecDemoQueensSword(GObj *g)
     w->sword->active = e->disp;
 }
 
+#ifndef VERSION_NTSC
 void SetWeaponOffsetMode(GObj *self, int mode)
 {
     setWeaponOffsetMode(self, mode);
 }
+#endif

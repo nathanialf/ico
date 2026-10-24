@@ -17,7 +17,13 @@ extern struct SqEntry *fence_up_19a;
 extern struct SqEntry *fence_down_19a;
 extern struct SqEntry *hgrm_19a;
 extern struct SqEntry *pipe19a;
+#ifdef VERSION_NTSC
+extern struct SqEntry *chain19a;
 void actSt19aChainDown(GObj *volatile self);
+void actSt19aChainUp(GObj *volatile self);
+#else
+void actSt19aChainDown(GObj *volatile self);
+#endif
 void actSt19aChainMain(GObj *volatile self);
 void actSt19aChainSwitch(GObj *volatile self);
 void actSt19aHagurumaChk(GObj *volatile self);
@@ -25,5 +31,8 @@ void actSt19aOriMain(GObj *volatile self);
 void actSt19aOriSwitch(GObj *volatile self);
 void actSt19aOriUp(GObj *volatile self);
 void actSt19aPipeChk(GObj *volatile self);
+#ifdef VERSION_NTSC
+void actSt19bIntroChk(GObj *volatile self);
+#endif
 
 #endif /* ST19A_H */

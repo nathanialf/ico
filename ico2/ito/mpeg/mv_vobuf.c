@@ -19,7 +19,7 @@ int voBufCreate(VoBuf *self)
     int tag;
     int i;
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     data = alloc_zeroed(6912000, 64);
 #else
     data = alloc_zeroed(8294400, 64);
@@ -28,7 +28,7 @@ int voBufCreate(VoBuf *self)
         return -1;
     }
     self->data = (VoData *)uncached_accel_addr(data);
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     tag = alloc_zeroed(3289920, 64);
 #else
     tag = alloc_zeroed(3936320, 64);

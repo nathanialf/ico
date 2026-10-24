@@ -13,7 +13,9 @@ struct GObj;
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order darkVolume.c's inline tail has. */
+#ifndef VERSION_NTSC
 int InitDarkVolumeGeo(struct GObj *self);
+#endif
 void DarkVolumeDL(void);
 void ExecGameOverEffect(void);
 void StartGameOverEffect(float *center, float speed);
@@ -22,7 +24,9 @@ void ResetGameOverEffect(void);
 void DispGameOverEffect(void);
 void GetGameOverEffectCenterPosition(float *pos);
 void InitGameOverEffect(void);
+#ifndef VERSION_NTSC
 void SetupDarkVolume(void *pos, float radius, float edge);
+#endif
 void SetDarkVolumeEffect(float *pos, float size);
 
 #endif /* DARKVOLUME_H */

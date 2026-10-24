@@ -44,11 +44,19 @@ static int dlStackDepth = 0; /* derived name */
 
 static int dlPriorityStack[8]; /* derived name */
 
+#ifdef VERSION_NTSC
+/* The size of each priority's list buffer. */
+static const int dlBufferSize[13] = {
+    /* derived name */
+    81920, 14336, 30720, 4096, 16384, 49152, 40960, 12288, 26624, 14336, 4096, 32768, 98304,
+};
+#else
 /* The size of each priority's list buffer. */
 static const int dlBufferSize[13] = {
     /* derived name */
     81920, 14336, 30720, 4096, 16384, 65536, 40960, 12288, 26624, 14336, 4096, 28672, 86016,
 };
+#endif
 
 void dl_Init(void)
 {
@@ -58,9 +66,15 @@ void dl_Init(void)
     dlStackDepth = 0;
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 13; j++) {
+#ifdef VERSION_NTSC
+            dlBufferHead[i][j] =
+                (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 387) |
+                0x30000000;
+#else
             dlBufferHead[i][j] =
                 (int)iosMallocDebug(ios_partition_common, dlBufferSize[j], __FILE__, 393) |
                 0x30000000;
+#endif
         }
     }
     dlBank = 0;
@@ -154,8 +168,13 @@ void dl_PushPriority(void)
         dlPriorityStack[dlStackDepth - 1] = dlPriority;
     } else {
         debug_StdPrintfDummy("dl_PushPriority:Stack Overflow.\n");
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 526);
+        __assert(__FILE__, 526, "FALSE");
+#else
         debug_assert(__FILE__, 534);
         __assert(__FILE__, 534, "FALSE");
+#endif
     }
 }
 
@@ -166,8 +185,13 @@ void dl_PopPriority(void)
         dlStackDepth--;
     } else {
         debug_StdPrintfDummy("dl_PopPriority:Stack Underflow.\n");
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 544);
+        __assert(__FILE__, 544, "FALSE");
+#else
         debug_assert(__FILE__, 552);
         __assert(__FILE__, 552, "FALSE");
+#endif
     }
 }
 

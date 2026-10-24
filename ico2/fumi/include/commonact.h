@@ -11,7 +11,9 @@
 struct GObj;
 struct MotOriReq;
 
+#ifndef VERSION_NTSC
 void ACTAcceptMail(struct GObj *self, int mail);
+#endif
 void ACTAdjustPlane(struct GObj *self, void *wall); /* wall: the wall record the root is laid against */
 int ACTGetOrientFromIntrK(struct GObj *self, int kind, struct MotOriReq *out, int i);
 

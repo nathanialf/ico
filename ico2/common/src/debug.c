@@ -56,7 +56,9 @@ static void debug_PrintFont(int x, int y, int col, char *str);
 static int debug_selectFile(McMgr *mc);
 static void debug_makeBackImage(void);
 
+#ifndef VERSION_NTSC
 static int debug_girl_pad_control;
+#endif
 
 typedef struct { /* field names derived */
     int x, y;
@@ -362,7 +364,11 @@ static char *debugProfileName[] = {"Variable", "Process"}; /* derived name */
 static char *debugSnapSizeName[] = {"Normal", "Half",     "Double",  "Double+Wide",
                                     "4x4",    "4x4+Wide", "XYOFFSET"}; /* derived name */
 #else
+#ifdef VERSION_NTSC
+static char *debugSnapSizeName[] = {"Normal", "Half", "Double", "Double+Wide"}; /* derived name */
+#else
 static char *debugSnapSizeName[] = {"None", "1x1", "2x2", "4x4", "8x8"}; /* derived name */
+#endif
 #endif
 
 static char *debugSnapFormName[] = {"TIM2", "BMP"}; /* derived name */
@@ -387,6 +393,84 @@ static char *debugScissorName[] = {"AllOff", "CarryZOnly", "IgnoreCarryZ",
 
 static char *debugMotionTargetName[] = {"BOY", "GIRL", "BIRD", "ENEMY", "QUEEN"}; /* derived name */
 
+#ifdef VERSION_NTSC
+/* the debug options: name, colour, value, range, value names and the function
+   called on a change, in the order debug_Mode pages through them */
+static const DbgOpt debugOption[69] = {
+    {" FrameStep          ", 0x0080FF80, &systemStatus[1], 1, 2, debugFrameStepName,
+     (void (*)(int))gsResetFunc},
+    {" NTSC/PAL           ", 0x0080FF80, &systemStatus[0], 0, 1, debugNtscPalName,
+     (void (*)(int))gsResetFunc},
+    {" IgnoreDemoCamera   ", 0xC0C0C080, &debug_ignore_demo_camera, 0, 1, debugOffOnName, 0},
+    {" DebugFrameStep     ", 0xC0C0C080, &debug_frame, 0, 60, 0, 0},
+    {" DebugFont          ", 0xC0C0C080, &debug_font_flag, 0, 3, debugFontName, 0},
+    {" DebugFont2         ", 0xC0C0C080, &debug_font_flag2, 0, 1, debugOffOnName, 0},
+    {" DebugFont3         ", 0xC0C0C080, &debug_font_flag3, 0, 1, debugOffOnName, 0},
+    {" Printf             ", 0xC0C0C080, &debug_printf_flag, 0, 1, debugOffOnName, 0},
+    {" MemPartition       ", 0xC0C0C080, &debug_mem_partition_flag, 0, 1, debugOffOnName, 0},
+    {" WireString         ", 0xC0C0C080, &debug_wire_string, 0, 1, debugOffOnName, 0},
+    {" KIND ROUTINE OLD   ", 0xC0C0C080, &debugKindOld, 0, 1, debugOffOnName, 0},
+    {" DebugBar           ", 0xFF808080, &debug_bar_flag, 0, 2, debugBarName, 0},
+    {" DebugBarProfileType", 0xFF808080, &debug_profile_type, 0, 1, debugProfileName, 0},
+    {" DebugBarStartItem  ", 0xFF808080, &debug_debug_bar_start_item, 0, 1000, 0, 0},
+    {" DebugBarScale      ", 0xFF808080, &debug_debug_bar_multiply, -9, 4, debugBarScaleName, 0},
+    {" DebugMemoryBar     ", 0xFF808080, &debug_memory_bar, 0, 1, debugOffOnName, 0},
+    {" ADPCM PLAY         ", 0xFFC0C080, &debugAdpcmOn, 0, 1, debugOffOnName, 0},
+    {" SE SLOT DISP       ", 0xFFC0C080, &debug_seslotdisp_flag, 0, 1, debugOffOnName, 0},
+    {" WallCheck          ", 0x90C0FF80, &debug_wallcheck_flag, 0, 1, debugOffOnName, 0},
+    {" WallHitColDisp     ", 0x90C0FF80, &debug_wallhitcoldisp, 0, 1, debugOffOnName, 0},
+    {" FieldCollision     ", 0x90C0FF80, &debug_fieldcollision_flag, 0, 1, debugOffOnName, 0},
+    {" CollisionRayDisp   ", 0x90C0FF80, &debug_col_ray_disp, 0, 1, debugOffOnName,
+     (void (*)(int))ChangeFieldCollisionDebugMode},
+    {" CollisionOldProc   ", 0x90C0FF80, &debug_col_old_proc, 0, 1, debugOffOnName, 0},
+    {" Skelton            ", 0x80FFC080, &debug_skel_flag, 0, 1, debugOffOnName, 0},
+    {" ClothInfo          ", 0x80FFC080, &debug_cloth_info, 0, 1, debugOffOnName, 0},
+    {" FaceWInterpRatio   ", 0x80FFC080, &debug_face_rot_w_ratio, 0, 100, 0, 0},
+    {" CharaTarget        ", 0x80FFC080, &debug_chara_target, 0, 1, debugOffOnName, 0},
+    {" MotionActNode      ", 0x80FFC080, &debug_actnode_flag, 0, 1, debugOffOnName, 0},
+    {" MotionInterporate  ", 0x80FFC080, &debug_motion_interporate, 0, 1, debugOffOnName, 0},
+    {" MotionDebugWin     ", 0x80FFC080, &debug_window_flag, 0, 1, debugOffOnName, 0},
+    {" MotionDebugTgt     ", 0x80FFC080, &debug_mot_debug_target, 0, 4, debugMotionTargetName, 0},
+    {" MotionSlopeInterp  ", 0x80FFC080, &debug_mot_slope_interp, 0, 10, 0, 0},
+    {" Fly Limit Info     ", 0x80FFC080, &debug_fly_limit_test, 0, 1, debugOffOnName, 0},
+    {" BrainBar           ", 0xFF80FF80, &debug_brain_bar_flag, 0, 1, debugOffOnName, 0},
+    {" BrainOnOff         ", 0xFF80FF80, &debug_brain_flag, 0, 1, debugOffOnName, 0},
+    {" GBrainInfo         ", 0xFF80FF80, &debug_gbrain_info_flag, 0, 1, debugOffOnName, 0},
+    {" WayTool            ", 0xFF80FF80, &debug_wayline, 0, 1, debugOffOnName, 0},
+    {" SnapShotNum        ", 0xC0C0C080, &debug_snapshot_num, 0, 3000000, 0, 0},
+    {" SnapSize           ", 0xC0C0C080, &debug_snapshot_size, 0, 3, debugSnapSizeName, 0},
+    {" SnapForm           ", 0xC0C0C080, &debug_snapshot_format, 0, 1, debugSnapFormName, 0},
+    {" Jimaku Test        ", 0xC0C0C080, &debug_jimaku, 0, 1, debugOffOnName, 0},
+    {" Camera             ", 0xC0C0C080, &debug_camera_flag, 0, 1, debugOffOnName, 0},
+    {" RippleRoughness    ", 0xFFFF8080, &debug_ripple_roughness, 0, 100, 0, 0},
+    {" Bounding           ", 0xFFFF8080, &debug_bounding_flag, 0, 3, debugBoundingName, 0},
+    {" Specular           ", 0xFFFF8080, &debug_specular_flag, 0, 2, debugSpecularName, 0},
+    {" LightVolume        ", 0xFFFF8080, &debug_ambient_volume, 0, 3, debugLightVolumeName, 0},
+    {" ShadowOff          ", 0xFFFF8080, &debug_shadow_flag, 0, 3, debugShadowName, 0},
+    {" Scissoring         ", 0xFFFF8080, &debug_scissor, 0, 3, debugScissorName, 0},
+    {" FullScreenEffect   ", 0xFFFF8080, &debug_fullscreen_effect, 0, 1, debugOffOnName, 0},
+    {" DispClusterModel   ", 0xFFFF8080, &debug_disp_cluster, 0, 1, debugOffOnName, 0},
+    {" DispNormalModel    ", 0xFFFF8080, &debug_disp_normal, 0, 1, debugOffOnName, 0},
+    {" DispLwsModel       ", 0xFFFF8080, &debug_disp_lws, 0, 1, debugOffOnName, 0},
+    {" DispParticle       ", 0xFFFF8080, &debug_disp_particle, 0, 1, debugOffOnName, 0},
+    {" DispMesh           ", 0xFFFF8080, &debug_disp_mesh, 0, 1, debugOffOnName, 0},
+    {" DISPLAY BRIGHTNESS ", 0xFFFF8080, &systemStatus[11], 0, 15, 0, 0},
+    {" STICK INPUT        ", 0xC0C0C080, &debug_stick_input, 0, 1, debugOffOnName, 0},
+    {" STICK SIMULATE     ", 0xC0C0C080, &debug_stick_simulate, 0, 1, debugOffOnName, 0},
+    {" DEBUG SUB THREAD   ", 0xC0C0C080, &debug_act_sub_thread, 0, 1, debugOffOnName, 0},
+    {" NEW QUEEN BATTLE   ", 0xC0C0C080, &debug_use_new_queen_battle, 0, 1, debugOffOnName, 0},
+    {" CHAIN CYCLE SPEED  ", 0xC0C0C080, &debug_chain_cycle_speed, 1, 10, 0, 0},
+    {" CHAIN SLOW  SPEED  ", 0xC0C0C080, &debug_chain_slow_speed, 1, 10, 0, 0},
+    {" DISP ENEMY STATE   ", 0x80C0FF80, &debug_disp_enemy_state, 0, 1, debugOffOnName, 0},
+    {" ENEMY BATTLE TYPE  ", 0x80C0FF80, &debug_enemy_battle_type, 0, 3, debugEnemyBattleName, 0},
+    {" ENEMY FLY WITH GIRL", 0x80C0FF80, &debug_enemy_fly_with_girl, 0, 1, 0, 0},
+    {" DISP ESCORT BALL   ", 0xC0C0C080, &debug_disp_escort_ball, 0, 1, debugOffOnName, 0},
+    {" GIRL DETOUR        ", 0xC0C0C080, &debug_girl_detour_flag, 0, 1, debugOffOnName, 0},
+    {" LWSKYOMI LOOKONLY  ", 0xC0C0C080, &debug_lwskyomi_lookonly, 0, 1, debugOffOnName, 0},
+    {" ONE HIT ONLY       ", 0xC0C0C080, &debug_one_hit_only, 0, 1, debugOffOnName, 0},
+    {" IGNORE DODGE       ", 0xC0C0C080, &debug_ignore_dodge, 0, 1, debugOffOnName, 0},
+}; /* derived name */
+#else
 /* the debug options: name, colour, value, range, value names and the function
    called on a change, in the order debug_Mode pages through them */
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
@@ -555,6 +639,7 @@ static const DbgOpt debugOption[76] = {
      ChangeGirlControlMode},
     {" NO BREAST HANG     ", 0xC0C0C080, &debug_no_breast_hang, 0, 1, debugOffOnName, 0},
 }; /* derived name */
+#endif
 #endif
 
 /* the font window's line count */
@@ -860,21 +945,23 @@ extern void DebugDisp1Collision(void *hit);
    +0x14 samples the EE timer T0_COUNT at 0x10000000, volatile because it is a
    hardware counter. */
 
+#ifndef VERSION_NTSC
 inline void ChangeGirlControlMode(int mode)
 {
     if (mode == 1) {
         girlControlMode = mode;
     }
 }
+#endif
 
 void debug_Assert(char *fmt, ...)
 {
     char buf[256];
     vsprintf(buf, fmt, (char *)__builtin_next_arg(fmt) - 56);
-    debug_assertMessage("src/debug.c", LN(1392, 1389, 1389), buf);
-    __assert("src/debug.c", LN(1392, 1389, 1389), "e");
-    debug_assert("src/debug.c", LN(1393, 1390, 1390));
-    __assert("src/debug.c", LN(1393, 1390, 1390), "0");
+    debug_assertMessage("src/debug.c", LN(1392, 1389, 1389, 1283), buf);
+    __assert("src/debug.c", LN(1392, 1389, 1389, 1283), "e");
+    debug_assert("src/debug.c", LN(1393, 1390, 1390, 1284));
+    __assert("src/debug.c", LN(1393, 1390, 1390, 1284), "0");
 }
 
 /* the host log file (the DEBUG build opens it) */
@@ -939,6 +1026,99 @@ inline int debug_TryToGetStartStage(void)
     return -1;
 }
 
+#ifdef VERSION_NTSC
+static void debug_SaveDebugOptionFile(void)
+{
+    char buf[256];
+    int i;
+    int fd;
+    debug_StdPrintfDummy("==== Save Debug Option ======================================\n");
+    fd = debugSceOpen("thisIsYourDebugOption", 0x602) < 0;
+    if (fd) {
+        debug_StdPrintfDummy("debug_SaveDebugOptionFile: host file open error.\n");
+    } else {
+        for (i = 0; i < 69; i++) {
+            sprintf(buf, "#%s\n", debugOption[i].name);
+            sceWrite(fd, buf, strlen(buf));
+            sprintf(buf, "%d\n", *debugOption[i].val);
+            sceWrite(fd, buf, strlen(buf));
+        }
+        debugSceClose(fd);
+        debug_StdPrintfDummy("Save Debug Option file.\n");
+    }
+    debug_StdPrintfDummy("=============================================================\n");
+    debug_openLog();
+}
+
+static int debug_GetDebugOption(void)
+{
+    char buf[256];
+    int fd;
+    int size;
+    int i;
+    int n;
+    int cnt;
+    const DbgOpt *o;
+    const DbgOpt *p;
+
+    debug_StdPrintfDummy("==== Try to read Debug Option file. =========================\n");
+    fd = debugSceOpen("thisIsYourDebugOption", 1);
+    if (fd < 0) {
+        debug_StdPrintfDummy("debug_GetDebugOption:No Debug Option file. Setting to default.\n");
+        fd = -1;
+    } else {
+        cnt = 0;
+        size = sceLseek(fd, 0, 2);
+        sceLseek(fd, 0, 0);
+        /* clang-format off */
+        n = 0; i = 0;
+        p = o = debugOption; do {
+            /* clang-format on */
+            sceRead(fd, &buf[n], 1);
+            if (buf[n++] == '\n') {
+                switch (buf[0]) {
+                default:
+                    if (buf[0] != '\n') {
+                        /* clang-format off */
+                        *o->val = atoi(buf); o++; p++; cnt++;
+                        /* clang-format on */
+                    } else {
+                        debug_StdPrintfDummy(
+                            "\033[36mInvalid line appeard.\n    Use default one.\033[m\n");
+                        cnt = -1;
+                        goto done;
+                    }
+                    break;
+                case '#':
+                    buf[strlen(buf) - 1] = 0;
+                    if (strcmp(o->name, &buf[1]) != 0) {
+                        debug_StdPrintfDummy(
+                            "\033[36mInvalid name appeard.(%s!=%s)\n    Use default one.\033[m\n",
+                            p->name, &buf[1]);
+                        cnt = -1;
+                        goto done;
+                    }
+                }
+                n = 0;
+            }
+        } while (++i < size);
+    done:
+        debugSceClose(fd);
+        if (cnt != 69) {
+            fd = -1;
+            debug_StdPrintfDummy("debug_GetDebugOption:Found Debug Option file, But illegal.\n");
+        } else {
+            debug_StdPrintfDummy("Found Debug Option file.\n");
+            for (i = 0; i < 69; i++) {
+                debug_StdPrintfDummy("%s => %d\n", debugOption[i].name, *debugOption[i].val);
+            }
+        }
+    }
+    debug_StdPrintfDummy("=============================================================\n");
+    debug_openLog();
+    return fd;
+}
+#else
 static void debug_SaveDebugOptionFile(void)
 {
     char buf[256];
@@ -1030,6 +1210,7 @@ static int debug_GetDebugOption(void)
     debug_openLog();
     return fd;
 }
+#endif
 
 void debug_SetDmaCallback(void)
 {
@@ -1079,16 +1260,22 @@ void debug_VariableInit(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     debug_snapshot_num = 1;
 #else
+#ifdef VERSION_NTSC
+    debug_snapshot_num = 0;
+#else
     debug_snapshot_num = 100;
+#endif
 #endif
     debug_snapshot_size = 0;
     debug_snapshot_format = 0;
     debug_ambient_volume = 0;
     debug_cloth_info = 0;
+#ifndef VERSION_NTSC
     debug_hair_tight_level = 20;
     debug_hair_gravity_level = 0;
     debug_hair_bend_angle = 256;
     debug_hair_collision = 0;
+#endif
     debug_face_chest_ratio = 0;
     debug_face_rot_w_ratio = 0;
     debug_def_smpmin = 4;
@@ -1117,6 +1304,10 @@ void debug_VariableInit(void)
     debug_lwskyomi_lookonly = 0;
     debug_one_hit_only = 0;
     debug_ignore_dodge = 0;
+#ifdef VERSION_NTSC
+    game_pause = 0;
+    ChangeFieldCollisionDebugMode(0);
+#else
     debug_hand_camera = 1;
     debug_enemy_kidnap_timer = 1;
     debug_girl_pad_control = 0;
@@ -1125,6 +1316,7 @@ void debug_VariableInit(void)
     game_pause = 0;
     ChangeFieldCollisionDebugMode(0);
     ChangeGirlControlMode(debug_girl_pad_control);
+#endif
 }
 
 void debug_Init(void)
@@ -1199,62 +1391,80 @@ int debug_Load(char **dst, char *name, int kind)
         switch (kind) {
         case 0:
         default:
-            *dst = iosMallocDebug(ios_partition_seki, sz, "src/debug.c", LN(1958, 1955, 1955));
+            *dst =
+                iosMallocDebug(ios_partition_seki, sz, "src/debug.c", LN(1958, 1955, 1955, 1817));
             loadReport();
+#ifdef VERSION_NTSC
+            debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
+                                 (*dst + sz - ios_partition_seki->start) * 100.0f / 10092544.0f);
+#else
             debug_StdPrintfDummy(" to seki area.(%2.1f%%)\n",
                                  (*dst + sz - ios_partition_seki->start) * 100.0f / 10059776.0f);
+#endif
             break;
         case 1:
-            *dst = iosMallocDebug(ios_partition_sugipon, sz, "src/debug.c", LN(1965, 1962, 1962));
+            *dst = iosMallocDebug(ios_partition_sugipon, sz, "src/debug.c",
+                                  LN(1965, 1962, 1962, 1824));
             loadReport();
             debug_StdPrintfDummy(" to sugi area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 524288.0f,
                                  (*dst + sz - ios_partition_sugipon->start) * 100.0f / 524288.0f);
             break;
         case 2:
-            *dst = iosMallocDebug(ios_partition_common, sz, "src/debug.c", LN(1973, 1970, 1970));
+            *dst =
+                iosMallocDebug(ios_partition_common, sz, "src/debug.c", LN(1973, 1970, 1970, 1832));
             loadReport();
             debug_StdPrintfDummy(" to static object area.(%2.1f%%/%2.1f%%)\n", sz * 100.0f / 2.0f,
                                  (*dst + sz - ios_partition_common->start) * 100.0f / 2.0f);
             break;
         case 3:
-            *dst = iosMallocDebug(ios_partition_smotion, sz, "src/debug.c", LN(1982, 1979, 1979));
+            *dst = iosMallocDebug(ios_partition_smotion, sz, "src/debug.c",
+                                  LN(1982, 1979, 1979, 1841));
             loadReport();
             debug_StdPrintfDummy(" to static motion area.(%2.1f%%/%2.1f%%)\n",
                                  sz * 100.0f / 1179648.0f,
                                  (*dst + sz - ios_partition_smotion->start) * 100.0f / 1179648.0f);
             break;
         case 5:
-            *dst = iosMallocDebug(ios_partition_dmotion, sz, "src/debug.c", LN(1991, 1988, 1988));
+            *dst = iosMallocDebug(ios_partition_dmotion, sz, "src/debug.c",
+                                  LN(1991, 1988, 1988, 1850));
             loadReport();
             debug_StdPrintfDummy(" to dynamic motion area.(%2.1f%%/%2.1f%%)\n",
                                  sz * 100.0f / 3670016.0f,
                                  (*dst + sz - ios_partition_dmotion->start) * 100.0f / 3670016.0f);
             break;
         case 6:
-            *dst = iosMallocDebug(ios_partition_hara, sz, "src/debug.c", LN(2000, 1997, 1997));
+            *dst =
+                iosMallocDebug(ios_partition_hara, sz, "src/debug.c", LN(2000, 1997, 1997, 1859));
             loadReport();
             debug_StdPrintfDummy(" to hara-area.(%2.1f%%)\n",
                                  (*dst + sz - ios_partition_hara->start) * 100.0f);
             break;
         case 7:
-            *dst = iosMallocDebug(ios_partition_oomori, sz, "src/debug.c", LN(2007, 2004, 2004));
+            *dst =
+                iosMallocDebug(ios_partition_oomori, sz, "src/debug.c", LN(2007, 2004, 2004, 1866));
             loadReport();
             debug_StdPrintfDummy(" to oomori area.(%2.1f%%)\n",
                                  (*dst + sz - ios_partition_oomori->start) * 100.0f / 327680.0f);
             break;
         case 8:
-            *dst = iosMallocDebug(ios_partition_horagai, sz, "src/debug.c", LN(2014, 2011, 2011));
+            *dst = iosMallocDebug(ios_partition_horagai, sz, "src/debug.c",
+                                  LN(2014, 2011, 2011, 1873));
             loadReport();
             debug_StdPrintfDummy(" to horagai-area.\n");
             break;
         case 9:
-            *dst = iosMallocDebug(ios_partition_sound, sz, "src/debug.c", LN(2019, 2016, 2016));
+            *dst =
+                iosMallocDebug(ios_partition_sound, sz, "src/debug.c", LN(2019, 2016, 2016, 1878));
             loadReport();
             debug_StdPrintfDummy(" to sound-area.\n");
             break;
         case 10:
-            *dst =
-                iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c", LN(2024, 2021, 2021));
+#ifdef VERSION_NTSC
+            *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c", 1883);
+#else
+            *dst = iosMallocDebug(ios_partition_sound_semi, sz, "src/debug.c",
+                                  LN(2024, 2021, 2021, 2024));
+#endif
             loadReport();
             debug_StdPrintfDummy(" to sound_semi-area.\n");
             break;
@@ -1267,7 +1477,7 @@ int debug_Load(char **dst, char *name, int kind)
     return size;
 }
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
 /* the GIF tag debug_MakeFont copies ahead of each font packet, as
    debug_exception's fontTag: the two 64-bit words the packet takes it in,
    which the copy moves one doubleword at a time */
@@ -1286,13 +1496,24 @@ static GifTag debugFontTag = {0x2000400000008000LL, 0x51}; /* derived name */
 static void debug_MakeFont(void)
 {
     int on = 1, off = 0;
+#ifdef VERSION_NTSC
+    float v[4];
+    char *ptr;
+    char *base;
+    unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", 1928); ptr = base;
+    *((int *)ptr)++ = 0x1400000C;
+    *((int *)ptr)++ = 0;
+    *((long long *)ptr)++ = 0;
+#else
     struct { /* field names derived */ float v[4]; char *volatile ptr; } w; /* the cursor is re-read from the frame at every push */
     char *base;
     unsigned short *a, *b; unsigned short m0, m1; int i, j, k, n;
-    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(2069, 2066, 2066)); w.ptr = base;
+    base = iosMallocDebug(ios_partition_seki, 1, "src/debug.c", LN(2069, 2066, 2066, 2069)); w.ptr = base;
     *((int *)w.ptr)++ = 0x1400000C;
     *((int *)w.ptr)++ = 0;
     *((long long *)w.ptr)++ = 0;
+#endif
 
     for (i = 0; i < 256; i++) {
         a = &fontOutline[i * 16]; b = &fontGlyph[i * 8];
@@ -1310,24 +1531,49 @@ static void debug_MakeFont(void)
 
 
             fontPacket[i].qwc = n + 3;
-            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(2090, 2087, 2087));
+#ifdef VERSION_NTSC
+            ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", 1949);
+            *((long long *)ptr)++ = 0;
+            *((int *)ptr)++ = 0;
+            *((int *)ptr)++ = ((n + 1) << 16) | 0x6C008000;
+
+            *((long long *)ptr)++ = n | ((long long)0x8000 << 38) | debugFontTag[0];
+            *((long long *)ptr)++ = debugFontTag[1];
+#else
+            w.ptr = fontPacket[i].packet = iosMallocDebug(ios_partition_seki, (n + 3) * 16, "src/debug.c", LN(2090, 2087, 2087, 2090));
             *((long long *)w.ptr)++ = 0;
             *((int *)w.ptr)++ = 0;
             *((int *)w.ptr)++ = ((n + 1) << 16) | 0x6C008000;
 
             *((long long *)w.ptr)++ = n | ((long long)0x8000 << 38) | debugFontTag[0];
             *((long long *)w.ptr)++ = debugFontTag[1];
+#endif
             for (j = 0; j < 9; j++) {
                 m0 = b[j];
                 m1 = a[j];
                 for (k = 0; k < 10; k++, m0 >>= 1, m1 >>= 1) {
+#ifdef VERSION_NTSC
+                    v[0] = (float)k;
+
+                    v[1] = (float)(j * 2);
+#else
                     w.v[0] = (float)k;
 
                     w.v[1] = (float)(j * 2);
+#endif
 
 
 
                     if (m0 & 1) {
+#ifdef VERSION_NTSC
+                        v[2] = 3.4028235e+38f;
+                        v[3] = *(float *)&off;
+                        *((Qw128 *)ptr)++ = *(Qw128 *)v;
+                    } else if (m1 & 1) {
+                        v[2] = 1.7014117e+38f;
+                        v[3] = *(float *)&on;
+                        *((Qw128 *)ptr)++ = *(Qw128 *)v;
+#else
                         w.v[2] = 3.4028235e+38f;
                         w.v[3] = *(float *)&off;
                         *((Qw128 *)w.ptr)++ = *(Qw128 *)w.v;
@@ -1335,12 +1581,19 @@ static void debug_MakeFont(void)
                         w.v[2] = 1.7014117e+38f;
                         w.v[3] = *(float *)&on;
                         *((Qw128 *)w.ptr)++ = *(Qw128 *)w.v;
+#endif
                     }
                 }
             }
+#ifdef VERSION_NTSC
+            *((int *)ptr)++ = 0x1400000A;
+            *((int *)ptr)++ = 0;
+            *((long long *)ptr)++ = 0;
+#else
             *((int *)w.ptr)++ = 0x1400000A;
             *((int *)w.ptr)++ = 0;
             *((long long *)w.ptr)++ = 0;
+#endif
         }
     }
 }
@@ -1550,6 +1803,106 @@ static DbgCol brainColHigh[1] = {{0xFF, 0x40, 0x40, 0xFF}}; /* derived name */
 
 static DbgCol brainColMax[1] = {{0xFF, 0xFF, 0xFF, 0xFF}}; /* derived name */
 
+#ifdef VERSION_NTSC
+static void debug_brainBar(void)
+{
+    void draw_batsu(DbgPos * p)
+    {
+        DbgCol col = markCol[0];
+        DbgVtx v[4];
+
+        make_mark_points(v, p, 3);
+        gif_Line(&v[0].x, &v[3].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[1].x, &v[2].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+    }
+    void draw_shikaku(DbgPos * p)
+    {
+        DbgCol col = markCol[0];
+        DbgVtx v[4];
+
+        make_mark_points(v, p, 3);
+        gif_Line(&v[0].x, &v[1].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[1].x, &v[3].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[3].x, &v[2].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+        gif_Line(&v[2].x, &v[0].x, 0xFFFFFFFFU, 0xFFFFFFFFU, &col, 1);
+    }
+    DbgCol c0 = brainColLow[0];
+    DbgCol c1 = brainColMid[0];
+    DbgCol c2 = brainColHigh[0];
+    DbgCol c3 = brainColMax[0];
+    DbgPos a;
+    DbgPos b;
+    DbgPos c;
+    Brain *brain;
+    DbgCol *col;
+    int i;
+    int y;
+    int ytop;
+
+    ytop = -100;
+    y = ytop;
+    gif_StartPacketPri(11);
+    gif_SetAlpha(1, 2, c3.a);
+    brain = &brainGirl;
+    for (i = 0; i < 20; i++) {
+        b.x = 300;
+        a.y = b.y = y;
+        if (brain->tgt[i].gobj == 0) {
+            continue;
+        }
+        y += 4;
+        a.y = b.y = y;
+        a.x = 300.0f - brainGetLevel(brain, &brain->tgt[i]) * 20.0f;
+        if (brain->idx == i) {
+            col = &c2;
+        } else if (brainGetLevel(brain, &brain->tgt[i]) < brain->threshold) {
+            col = &c0;
+        } else {
+            col = &c1;
+        }
+        gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
+        if (brain->tgt[i].gobj->kind == 0x3C) {
+            /* a.z is never written: the copy reads it uninitialised */
+            c.x = a.x;
+            c.y = a.y;
+            c.z = a.z;
+            c.x -= 15;
+            if (brain->tgt[i].alwaysSeen) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+            c.x += 10;
+            if (brainCheckView(brain, &brain->tgt[i])) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+            c.x += 15;
+            if (brain->tgt[i].lookOnly) {
+                draw_shikaku(&c);
+            } else {
+                draw_batsu(&c);
+            }
+        }
+        y += 4;
+    }
+    b.x = 300.0f - brain->threshold * 20.0f;
+    a.x = b.x;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c2, 1);
+    a.x = b.x = 260;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c1, 1);
+    a.x = b.x = 220;
+    a.y = ytop;
+    b.y = y;
+    gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c0, 1);
+    gif_EndPacket();
+}
+#else
 static void debug_brainBar(void)
 {
     void draw_batsu(DbgPos * p)
@@ -1648,6 +2001,7 @@ static void debug_brainBar(void)
     gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, &c0, 1);
     gif_EndPacket();
 }
+#endif
 
 static int debug_MakeBarString(char *p, int a, int b, FR fr, long long x, int line)
 {
@@ -1713,7 +2067,7 @@ static void debug_DrawBar(void)
 
 
     flip = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     scale = 1.0f / (270000.0f / 30.0f);
 #else
     scale = 1.0f / (270000.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
@@ -1734,7 +2088,11 @@ static void debug_DrawBar(void)
     sh = debug_debug_bar_multiply;
 
     gif_StartPacketPri(12);
+#ifdef VERSION_NTSC
+    gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 0, 0);
+#else
     gif_SetDrawEnviroment(2048, 0, ScreenWidth, ScreenHeight, 1, 0);
+#endif
 
     gif_SetZWrite(0);
     gif_SetZTest(0);
@@ -1948,7 +2306,7 @@ void debug_DispBar(void)
     int va;
     int vb;
     int n;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     inv = 1.0f / (270000.0f / 30.0f);
 #else
     inv = 1.0f / (270000.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
@@ -2091,11 +2449,26 @@ static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
     hdr.biYPelsPerMeter = 0;
     hdr.biClrUsed = 0;
     hdr.biClrImportant = 0;
+#ifdef VERSION_NTSC
+    /* both arms store the same: the test's load and its 1 stay in the ROM
+       (aug6 TRFILE debug.c:2885-2891, the 2886-2888 lines code-less) */
+    if (debug_snapshot_size == 1) {
+        hdr.biWidth = w;
+        hdr.biHeight = h;
+    } else {
+        hdr.biWidth = w;
+        hdr.biHeight = h;
+    }
+    hdr.biSizeImage = hdr.biWidth * hdr.biHeight * 3;
+    hdr.bfSize = hdr.biSizeImage + hdr.bfOffBits;
+    sceWrite(fd, hdr.bfType, hdr.bfOffBits);
+#else
     hdr.biWidth = w;
     hdr.biHeight = h;
     hdr.biSizeImage = w * h * 3;
     hdr.bfSize = hdr.biSizeImage + 0x36;
     sceWrite(fd, hdr.bfType, 0x36);
+#endif
     for (y = h - 1; y >= 0; y--) {
         s = (unsigned char *)&src[y * w];
         d = line;
@@ -2112,6 +2485,191 @@ static void debug_WriteBMP(int fd, int w, int h, unsigned int *src)
 /* debug_SnapShot's first-call flag */
 static int snapFirst = 1; /* derived name */
 
+#ifdef VERSION_NTSC
+/* Stores the frame as shot idx, idx frame sizes above 0x2000000, and writes
+   the next free snapshot/snapNNNNNNN file: shot 0 on its own (halved for
+   Half), shot 5 shots 1-4 joined two by two. */
+int debug_SnapShot(int idx)
+{
+    sceGsStoreImage si;
+    char name[256];
+    int size = ScreenWidth * ScreenHeight * 4;
+    int ofs = size * idx;
+    int i;
+    int fd;
+    int *src;
+    int *dst;
+    int w;
+    int h;
+    int y;
+
+    debugBackGroundDisableFlag = 1;
+    if (snapFirst != 0) {
+        if (iosCdvdBackGroundMgrRunning != 0) {
+            return 1;
+        }
+        snapFirst = 0;
+    }
+    sceGsSyncPath(0, 0);
+    src = (int *)(0x2000000 + ofs);
+    debug_StdPrintfDummy("Snapx4:%d:%p\n", idx, src);
+    sceGsSetDefStoreImage(&si, 0x800, ScreenWidth / 64, 0, 0, 0, ScreenWidth, ScreenHeight);
+    FlushCache(0);
+    sceGsExecStoreImage(&si, src);
+    sceGsSyncPath(0, 0);
+    switch (idx) {
+    case 0:
+        for (i = 0;; i++) {
+            if (debug_snapshot_format == 0) {
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            } else {
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
+            fd = debugSceOpen(name, 1);
+            debugSceClose(fd);
+            if (fd < 0) {
+                break;
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            sprintf(name, "snapshot/snap%07d.tm2", i);
+        } else {
+            sprintf(name, "snapshot/snap%07d.bmp", i);
+        }
+        fd = debugSceOpen(name, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+            break;
+        }
+        dst = src + size * 4;
+        if (debug_snapshot_size == 1) {
+            debug_ResizeSnapShot((int)dst, (int)src, ScreenWidth, ScreenHeight);
+            w = ScreenWidth / 2;
+            h = ScreenHeight / 2;
+        } else {
+            dst = src;
+            w = ScreenWidth;
+            h = ScreenHeight;
+        }
+        if (debug_snapshot_format == 0) {
+            debug_WriteTim2(fd, dst, w, h);
+        } else {
+            debug_WriteBMP(fd, w, h, (unsigned int *)dst);
+        }
+        if (debugSceClose(fd) < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
+        break;
+    case 5: {
+        int *p[16];
+        int *out;
+        int *d;
+        int w;
+        int h;
+        int j;
+
+        for (i = 0;; i++) {
+            if (debug_snapshot_format == 0) {
+                sprintf(name, "snapshot/snap%07d.tm2", i);
+            } else {
+                sprintf(name, "snapshot/snap%07d.bmp", i);
+            }
+            fd = debugSceOpen(name, 1);
+            debugSceClose(fd);
+            if (fd < 0) {
+                break;
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            sprintf(name, "snapshot/snap%07d.tm2", i);
+        } else {
+            sprintf(name, "snapshot/snap%07d.bmp", i);
+        }
+        fd = debugSceOpen(name, 0x602);
+        if (fd < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file open error.(%s:%d)\n", name, fd);
+            break;
+        }
+        FlushCache(0);
+        w = ScreenWidth;
+        h = ScreenHeight;
+        p[0] = (int *)(0x2000000 + size);
+        p[1] = (int *)(0x2000000 + size * 2);
+        p[2] = (int *)(0x2000000 + size * 3);
+        p[3] = (int *)(0x2000000 + size * 4);
+        out = (int *)(0x2000000 + size * 5);
+        d = out;
+        debug_StdPrintfDummy("%p (%p %p %p %p)\n", out, p[0], p[1], p[2], p[3]);
+        for (y = 0; y < h * 2; y++) {
+            if (y < 4) {
+                for (i = 0; i < w * 2; i++) {
+                    *d++ = 0;
+                }
+            } else if (y >= h - 2 && y < h) {
+                for (j = 0; j < 2; j++) {
+                    for (i = 0; i < w; i++) {
+                        p[j]++;
+                    }
+                }
+            } else if (y > h - 1 && y <= h + 1) {
+                for (j = 2; j < 4; j++) {
+                    for (i = 0; i < w; i++) {
+                        p[j]++;
+                    }
+                }
+            } else if (y < h) {
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+                for (j = 0; j < 2; j++) {
+                    if (j % 2 == 1) {
+                        p[j] += 4;
+                    }
+                    for (i = 0; i < w - 4; i++) {
+                        *d++ = *p[j]++;
+                    }
+                    if (j % 2 == 0) {
+                        p[j] += 4;
+                    }
+                }
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+            } else {
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+                for (j = 2; j < 4; j++) {
+                    if (j % 2 == 1) {
+                        p[j] += 4;
+                    }
+                    for (i = 4; i < w; i++) {
+                        *d++ = *p[j]++;
+                    }
+                    if (j % 2 == 0) {
+                        p[j] += 4;
+                    }
+                }
+                for (j = 0; j < 4; j++) {
+                    *d++ = 0;
+                }
+            }
+        }
+        if (debug_snapshot_format == 0) {
+            debug_WriteTim2(fd, out, w * 2, h * 2);
+        } else {
+            debug_WriteBMP(fd, w * 2, h * 2, (unsigned int *)out);
+        }
+        if (debugSceClose(fd) < 0) {
+            debug_StdPrintfDummy("debug_SnapShot:host file close error.\n");
+        }
+        break;
+    }
+    }
+    dma_init();
+    return 1;
+}
+#else
 /* JPN and KOR: stores the frame as shot idx, idx frame sizes above 0x2000000, and
    writes the next free snapshot/snapNNNNNNN file: shot 0 on its own (halved
    for Half), shot 5 shots 1-4 joined two by two (Double, Double+Wide), shot
@@ -2454,6 +3012,7 @@ int debug_SnapShot(int idx)
     dma_init();
     return 1;
 }
+#endif
 
 void debug_DispQW(void *p, int size)
 {
@@ -2670,6 +3229,16 @@ void debug_DispVu1FReg(int no, int mode)
     }
 }
 
+#ifdef VERSION_NTSC
+/* the value names debug_Mode logs a two-state option with */
+static char *modeValueName[] = {"Off", "On"}; /* derived name */
+
+/* debug_Mode's cursor and blink counter */
+static int modeSelect = 0; /* derived name */
+
+static unsigned char modeBlink = 0; /* derived name */
+#endif
+
 inline void debug_DispVu1IReg(int no)
 {
     int i;
@@ -2714,6 +3283,7 @@ inline int gsResetFunc(int val)
     return 1;
 }
 
+#ifndef VERSION_NTSC
 /* the value names debug_Mode logs a two-state option with */
 static char *modeValueName[] = {"Off", "On"}; /* derived name */
 
@@ -2721,10 +3291,70 @@ static char *modeValueName[] = {"Off", "On"}; /* derived name */
 static int modeSelect = 0; /* derived name */
 
 static unsigned char modeBlink = 0; /* derived name */
+#endif
 
 /* the colours the cursor line blinks between */
 static const unsigned int blinkColor[] = {0xFFFFFF00, 0xC0C0C000}; /* derived name */
 
+#ifdef VERSION_NTSC
+/* clang-format off */
+static int debug_Mode(void)
+{
+    int i, end, j;
+    int ret = 0;
+
+    modeBlink++;
+
+    debug_PrintfDummy(10, 50, 0xFFFFFF00u, "DEBUG MODE");
+    debug_PrintfDummy(138, 50, 0x00FFFF00u, "Push '\202' to save debug options.");
+
+    i = (modeSelect + 63) % 69;
+    end = (modeSelect + 76) % 69;
+    j = 1;
+    while (i != end) {
+        if (debugOption[i].strs != 0) {
+            debug_PrintfDummy(18, j * 8 + 50, modeSelect == i ? (((modeBlink >> 3) & 1) ? blinkColor[0] : debugOption[i].col) : debugOption[i].col, "%c%s : %s(%d)", modeSelect == i ? 62 : 32, debugOption[i].name, debugOption[i].strs[*debugOption[i].val - debugOption[i].min], *debugOption[i].val);
+        } else {
+            debug_PrintfDummy(18, j * 8 + 50, modeSelect == i ? (((modeBlink >> 3) & 1) ? blinkColor[0] : debugOption[i].col) : debugOption[i].col, "%c%s : %d", modeSelect == i ? 62 : 32, debugOption[i].name, *debugOption[i].val);
+        }
+        if (++i == 69) i = 0;
+        j++;
+    }
+
+    if (pad[0].rep & 0x4000) {
+        if (++modeSelect >= 69) modeSelect = 0;
+    }
+    if (pad[0].rep & 0x1000) {
+        if (--modeSelect < 0) modeSelect = 68;
+    }
+    if (pad[0].rep & 0x2000) {
+        if (++*debugOption[modeSelect].val > debugOption[modeSelect].max)
+            *debugOption[modeSelect].val = debugOption[modeSelect].min;
+        if (debugOption[modeSelect].func != 0)
+            debugOption[modeSelect].func(*debugOption[modeSelect].val);
+    }
+    if (pad[0].rep & 0x8000) {
+        if (--*debugOption[modeSelect].val < debugOption[modeSelect].min)
+            *debugOption[modeSelect].val = debugOption[modeSelect].max;
+        if (debugOption[modeSelect].func != 0)
+            debugOption[modeSelect].func(*debugOption[modeSelect].val);
+    }
+    if (pad[0].flags & 0x20) {
+        for (i = 0; i < 69; i++) {
+            if (debugOption[i].min == 0 && debugOption[i].max == 1)
+                debug_StdPrintfDummy("debug%s => %s\n", debugOption[i].name, modeValueName[*debugOption[i].val]);
+            else
+                debug_StdPrintfDummy("debug%s => %d\n", debugOption[i].name, *debugOption[i].val);
+        }
+        ret = 1;
+    }
+    if (pad[0].flags & 0x40) ret = -1;
+    if (pad[0].flags & 0x10) debug_SaveDebugOptionFile();
+    if (ret != 0) modeSelect = 0;
+
+    return ret;
+}
+#else
 /* clang-format off */
 static int debug_Mode(void)
 {
@@ -2782,6 +3412,7 @@ static int debug_Mode(void)
 
     return ret;
 }
+#endif
 
 int debug_SelectCsvWindowVal(char *title, int x, int y, int rows, int count, int *psel,
                              int (*fn)(int, int), int arg)
@@ -2941,10 +3572,17 @@ static int debug_SelectStageMain(int ret, int stage)
                 seEnvForceClose = on;
                 enable_game_pause = on;
                 kanbanInit(0);
+#ifdef VERSION_NTSC
+                gflagOn(361);
+                scpBoyControlReadDisable = 0;
+                stgmgrForceSwitch(stage);
+                gflagOff(355);
+#else
                 gflagOn(394);
                 scpBoyControlReadDisable = 0;
                 stgmgrForceSwitch(stage);
                 gflagOff(388);
+#endif
                 ACTGame_SetActors_Debug(stage, on);
             }
         }
@@ -2954,7 +3592,7 @@ static int debug_SelectStageMain(int ret, int stage)
 
 int debug_SelectStage(void)
 {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     return debug_SelectStageMain(debug_SelectCsvWindowWithLine("stage select", 10, 80, 11, stageData,
                                                                404, 0x20, 0, 104, &stageSelectNo),
                                  stageSelectNo);
@@ -3458,8 +4096,13 @@ int debug_SETest(int reset)
     if (reset != 0) {
         seHandle = -1;
     }
+#ifdef VERSION_NTSC
+    r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
+                                               0, 0x56D, &seSelect, debug_SETest_color);
+#else
     r = debug_SelectCsvWindowWithLineColor("SE LIST", 0xA, 0x3C, 0xA, seDef, 0x3C, 0,
                                                0, 0x592, &seSelect, debug_SETest_color);
+#endif
     if (r > 0) {
         seHandle = soundSeDefPlay(seSelect, 0, (float *)(GOBJ_SUB(boyGObj)->nodeMtx + 0x30), 1);
         return 0;
@@ -3510,6 +4153,12 @@ void debug_SESlotDisp(void)
     }
 }
 
+#ifdef VERSION_NTSC
+static int adpcmSelect = 0; /* derived name */
+
+static int adpcmHandle = -1; /* derived name */
+#endif
+
 inline int debug_reverbTest(void)
 {
     int depth = soundReverbDepthGet();
@@ -3526,9 +4175,11 @@ inline int debug_reverbTest(void)
     return (pad[0].flags & 0x60) != 0;
 }
 
+#ifndef VERSION_NTSC
 static int adpcmSelect = 0; /* derived name */
 
 static int adpcmHandle = -1; /* derived name */
+#endif
 
 inline int debug_AdpcmTest(int first)
 {
@@ -3536,7 +4187,11 @@ inline int debug_AdpcmTest(int first)
     if (first != 0) {
         adpcmHandle = -1;
     }
+#ifdef VERSION_NTSC
+    r = debug_SelectCsvWindow("ADPCM LIST", 10, 60, 10, adpcmFile, 64, 0, 0, 96, &adpcmSelect);
+#else
     r = debug_SelectCsvWindow("ADPCM LIST", 10, 0x3C, 10, adpcmFile, 0x40, 0, 0, 0x69, &adpcmSelect);
+#endif
     if (r > 0) {
         if (adpcmSelect != 0) {
             scpAdpcmPlayRequestFunc(adpcmSelect, 0, 1, 1, 1);
@@ -3627,6 +4282,7 @@ inline int debug_tsuresariTimeZero(void)
     return 1;
 }
 
+#ifndef VERSION_NTSC
 inline int debug_hintStart(void)
 {
     void *gobj;
@@ -3638,6 +4294,7 @@ inline int debug_hintStart(void)
     }
     return 1;
 }
+#endif
 
 static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
 {
@@ -3649,7 +4306,11 @@ static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
         case 1:
         case 2:
         case 4:
+#ifdef VERSION_NTSC
+        case 46:
+#else
         case 0x2F:
+#endif
             list[n].name = objKindData[kind].name;
             list[n].obj = g;
             n++;
@@ -3983,6 +4644,41 @@ static inline int debug_FreeCamera(int first)
 
 int LoadFileType = 1;
 
+#ifdef VERSION_NTSC
+/* the debug menu: caption, entry and whether the menu stays open */
+DbgMenuItem debugMenu[26] = {
+    {"Debug Mode", (int (*)(int))debug_Mode, 0},
+    {"Free Camera", debug_FreeCamera, 0},
+    {"Stage Select", (int (*)(int))debug_SelectStage, 1},
+    {"Target Object", debug_TargetGObj, 0},
+    {"Stage Setting", (int (*)(int))gsb_StageSetting, 0},
+    {"Way Test", (int (*)(int))debug_WayTool, 0},
+    {"Camera Editor", (int (*)(int))debug_CameraEditor, 0},
+    {"Motion Viewer", (int (*)(int))MotionViewer, 0},
+    {"Effect Tool", (int (*)(int))EffectTool, 0},
+    {"TextureList", (int (*)(int))tex_ListTool, 0},
+    {"Snap Shot", debug_SnapShot, 0},
+    {"Memory Card", (int (*)(int))debug_MemoryCard, 0},
+    {"STAFF ROLL TEST", (int (*)(int))debug_STAFFROLLTest, 0},
+    {"ADPCM TEST", debug_AdpcmTest, 0},
+    {"SE TEST", debug_SETest, 0},
+    {"REVERB TEST", (int (*)(int))debug_reverbTest, 0},
+    {"Game Over", (int (*)(int))debug_GameOver, 0},
+    {"Ending Demo", (int (*)(int))debug_EndingDemo, 0},
+    {"BackStage Test", (int (*)(int))debug_BackStageTest, 0},
+    {"LoadINFO", (int (*)(int))debugCdvdLoadInfoSegDisp, 0},
+    {"Chara Info", debug_SelectActGobj, 0},
+    {"Pad2 Control", debug_SelectPad2ControlGobj, 0},
+    {"DispBox", debug_DispBox, 0},
+    {"DispBall", debug_DispBall, 0},
+    {"Collision Test", debug_CollisionTest, 0},
+    {"Tsuresari Time Zero", (int (*)(int))debug_tsuresariTimeZero, 1},
+};
+
+/* the open bug list debug_MenuHelp prints beside the menu */
+static char *debugMenuHelp[] = {"B1897   SPIDER ALIVE", "B2373   ENEMY FAIL FLY", "B2421   FLARE CLAMP FAIL",
+                                "A553/A580/B2432 THROUGH FLOOR @ SLOPE", 0}; /* derived name */
+#else
 /* the debug menu: caption, entry and whether the menu stays open */
 DbgMenuItem debugMenu[27] = {
     {"Debug Mode", (int (*)(int))debug_Mode, 0},
@@ -4016,6 +4712,7 @@ DbgMenuItem debugMenu[27] = {
 
 /* the open bug list debug_MenuHelp prints beside the menu */
 static char *debugMenuHelp[] = {"B2850   TOO HARD TO PICK UP LASER", "B2890   ILLEGAL CAGE CHAIN DYNAMICS", 0}; /* derived name */
+#endif
 
 /* the menu's blink counter, state, cursor and the argument its entry gets */
 static int menuBlink = 0; /* derived name */
@@ -4036,7 +4733,11 @@ static inline void debug_MenuBlink(void) /* derived name */
         debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Nov  2 2001", "17:26:01");
 #endif
 #else
+#ifdef VERSION_NTSC
+        debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Aug 20 2001", "22:01:44");
+#else
         debug_PrintfDummy(220, 60, 0x80C0FF80u, "DISC VER.%s %s", "Jan 17 2002", "15:37:26");
+#endif
 #endif
     }
     menuBlink++;
@@ -4084,8 +4785,13 @@ void debug_Menu(void)
     }
     state = menuState;
     if (state == 1) {
+#ifdef VERSION_NTSC
+        r = debug_SelectCsvWindow("DEBUG MENU", 0xA, 0x32, 0xB, debugMenu, 0xC, 0, 1, 0x1A,
+                                  &menuSelect);
+#else
         r = debug_SelectCsvWindow("DEBUG MENU", 0xA, 0x32, 0xB, debugMenu, 0xC, 0, 1, 0x1B,
                                   &menuSelect);
+#endif
         switch (r) {
         case 0:
             break;
@@ -4173,7 +4879,11 @@ int used_dl_max = 0;
 
 int used_dl_num = 0;
 
+#ifdef VERSION_NTSC
+int used_dl_memory[32] = {0};
+#else
 int used_dl_memory[34] = {0};
+#endif
 
 int debug_bar_flag = 0;
 
@@ -4313,6 +5023,7 @@ int debug_one_hit_only = 0; /* derived name */
 
 int debug_ignore_dodge = 0; /* derived name */
 
+#ifndef VERSION_NTSC
 int debug_hand_camera = 0; /* derived name */
 
 int debug_enemy_kidnap_timer = 0; /* derived name */
@@ -4328,3 +5039,4 @@ int debug_hair_bend_angle = 0; /* derived name */
 int debug_hair_collision = 0; /* derived name */
 
 int debug_no_breast_hang = 0; /* derived name */
+#endif

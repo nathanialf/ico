@@ -16,6 +16,15 @@ struct SqEntry;
 extern struct SqEntry *suimon;
 extern struct SqEntry *shutter;
 extern struct SqEntry *toge;
+#ifdef VERSION_NTSC
+void actSt06aBoxChk(GObj *volatile self);
+void actSt06aDoorDownChk(GObj *volatile self);
+void actSt06aDoorUpChk(GObj *volatile self);
+void actSt06aHeadChk(GObj *volatile self);
+void actSt06aShutterOpen(GObj *volatile self);
+void actSt06aStatueChk(GObj *volatile self);
+void actSt06aSuimonChk(GObj *volatile self);
+#else
 void actSt06aBallDeleteChk(GObj *volatile self);
 void actSt06aBox2Chk(GObj *volatile self);
 void actSt06aBox3Chk(GObj *volatile self);
@@ -42,5 +51,6 @@ void actSt06aWallWayOffChk(GObj *volatile self);
 void actSt06aWallWayOnChk(GObj *volatile self);
 void actSt06aWayOffChk(GObj *volatile self);
 void actSt06aWayOnChk(GObj *volatile self);
+#endif
 
 #endif /* ST06A_H */

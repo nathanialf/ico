@@ -31,7 +31,9 @@ static float sunScreenOffset[4] = {-2048.0f, -2048.0f, 0.0f, 0.0f}; /* derived n
 
 static int work0ToFeedBackRect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
 
+#ifndef VERSION_NTSC
 static int feedBackToWork0Rect[4] = {-1024, -1024, 2048, 2048}; /* derived name */
+#endif
 
 static float subWork1Point[4] = {0.0f, 0.0f, 0.0f, 1.0f}; /* derived name */
 
@@ -190,8 +192,13 @@ static void auraInspireAfter(int mode)
     {
         int suv[4] = {blurUv[0] + 16, blurUv[1] + 16, ScreenWidth * 16 + blurUv[2],
                       ScreenHeight * 16 + blurUv[3]};
+#ifdef VERSION_NTSC
+        int srect[4] = {blurUv[4] - 2048, blurUv[5] - 1024, 4096,
+                        systemStatus[0] == 0 ? 1792 : 2048};
+#else
         int srect[4] = {blurUv[4] - 2048, blurUv[5] - 1032, 4096,
                         systemStatus[0] == 0 ? 1792 : 2048};
+#endif
 
         gif_SetGsReg(6, workBase[1] | ((long long)(ScreenWidth / 64) << 14) | 0x664000000LL);
 
@@ -311,6 +318,7 @@ static void auraInspireAfter(int mode)
         gif_SpriteSensitiveOrg(work0ToFeedBackRect, 0, uv, &whiteCol, 0);
     }
 
+#ifndef VERSION_NTSC
     inline void pasteFeedBackAreaToWork0(void) /* derived name */
     {
         gif_SetDrawEnviroment(0x3F00, 0, 128, 128, 0, 0);
@@ -318,6 +326,7 @@ static void auraInspireAfter(int mode)
         gif_SetAlpha(0, 2, 0);
         gif_SpriteSensitiveOrg(feedBackToWork0Rect, 0, (void *)0, &alphaCopyCol, 0);
     }
+#endif
 
     inline void pasteWork1ToFB(void) /* derived name */
     {
@@ -430,9 +439,11 @@ static void auraInspireAfter(int mode)
         }
         break;
     }
+#ifndef VERSION_NTSC
     if (GlobalTimer) {
         pasteFeedBackAreaToWork0();
     }
+#endif
 
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
 
@@ -466,11 +477,22 @@ void makeFullScreenFlareBefore(int mode)
 
     void fillWork2(void)
     {
+#ifdef VERSION_NTSC
+        gif_SetDrawEnviroment(workBase[2], 0, ScreenWidth, ScreenHeight, 0, 0);
+#endif
         gif_SetZTest(0);
         gif_SetZWrite(0);
 
         {
             unsigned char col[4] = {0, 0, 0, 192};
+#ifdef VERSION_NTSC
+
+            if (mode & 2) {
+                col[0] = col[1] = col[2] = 128;
+            }
+            gif_SetAlpha(1, 2, 0);
+            gif_SpriteSensitiveOrg(rect, 0, (void *)0, col, 0);
+#else
             SprUV r = {-2048, -512, 4096, 1024};
 
             gif_SetAlpha(1, 2, 128);
@@ -488,6 +510,7 @@ void makeFullScreenFlareBefore(int mode)
             gif_SetDrawEnviroment(workBase[2], 0, ScreenWidth, ScreenHeight, 0, 0);
 
             gif_SpriteSensitiveOrg(rect, 0, (void *)0, col2, 0);
+#endif
         }
         gif_SetZWrite(1);
         gif_SetZTest(1);
@@ -764,7 +787,11 @@ void makeFullScreenFlareAfter(int mode)
 
     pasteWork0ToFB();
 
+#ifdef VERSION_NTSC
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+#else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+#endif
 
     gif_EndPacket();
 }
@@ -935,6 +962,9 @@ void depthField(float depth, float width, float rate)
         pasteToFB(depth + width * i * 0.25f, i * 0.25f);
     }
     pasteToFB(depth + width, 1.0f);
+#ifdef VERSION_NTSC
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+#endif
 
     gif_EndPacket();
 }
@@ -1183,11 +1213,13 @@ void FullScreenEffectBefore(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     tex_LockHeadTBP(0x3800, 8);
 #else
+#ifndef VERSION_NTSC
     if (systemStatus[0] == 1) {
         tex_LockHeadTBP(0x3A00, 8);
     } else {
         tex_LockHeadTBP(0x3800, 8);
     }
+#endif
 #endif
 
     if (sunOn) {
@@ -1289,8 +1321,10 @@ void FullScreenEffectAfter(void)
     depthFadeStart = GlobalStageSetting.depthFieldStart;
     depthFadeWidth = GlobalStageSetting.depthFieldWidth;
 
+#ifndef VERSION_NTSC
     tex_UnlockHeadTBP(7);
     tex_UnlockHeadTBP(8);
+#endif
 }
 
 /* declared here: matrixDrive.h is not included */

@@ -51,6 +51,32 @@ typedef union { /* field names derived */
     long long w[8];
 } DObjBlk40; /* derived name */
 
+#ifdef VERSION_NTSC
+/* The four DObj templates (names derived).  The record is 0x850 bytes, the
+   size CSVSYSTEM_InitDObj allocates before the copy; its named fields are the
+   words the template sets.  The slot table pointer at 0x810 and the character
+   file id at 0x84 are named from this file; the parent link at 0x00, the
+   collision words at 0x70 to 0x80 and the accessary row at 0x814.  The long long pads give the record the
+   8-byte alignment its copy loop uses. */
+typedef struct { /* field names derived */
+    ObjNode parent;
+    long long pad08[13];
+    int colData;
+    int disp;
+    int colRotate;
+    int cylinderOn;
+    int colPerNode;
+    int charFileId;
+    long long pad88[241];
+    char *slotTable;
+    int accessary;
+    long long pad818[7];
+} DObjRecord; /* derived name */
+
+static DObjRecord emptyDObj = {
+    {0, -1}, {0}, 0, 1, 1, 1, 0, 1515, {0}, 0, -1, {0},
+}; /* derived name */
+#else
 /* The four DObj templates (names derived).  The record is 0x880 bytes, the
    size CSVSYSTEM_InitDObj allocates before the copy; its named fields are the
    words the template sets.  The slot table pointer at 0x840 and the character
@@ -81,6 +107,7 @@ static DObjRecord emptyDObj = {
 static DObjRecord emptyDObj = {
     {0, -1}, {0}, 0, 1, 1, 1, 0, 1552, {0}, 0, -1, {0},
 }; /* derived name */
+#endif
 #endif
 
 /* One entry of the rotation element array at 0x80c: a zero vector then
@@ -141,10 +168,17 @@ static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
     if (p->data.d->skel != 0) {
         p->data.d->root.plane.f[3] =
             p->data.d->root.plane.f[3] + p->data.d->skel->pos[1] * self->nodes->scale[0];
+#ifdef VERSION_NTSC
+        p->data.d->blendBuf =
+            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 124);
+        p->data.d->motionBuf =
+            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 126);
+#else
         p->data.d->blendBuf =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 125);
         p->data.d->motionBuf =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 5, __FILE__, 127);
+#endif
         InitMotionRotElem(p->data.d->blendBuf, p->data.d->skelNodeNum);
         InitMotionRotElem(p->data.d->motionBuf, p->data.d->skelNodeNum);
         CopyVector(p->data.d->localPos, ZeroPoint);
@@ -152,28 +186,53 @@ static void initGeometryState(Sub15C *self, SObjSimpleSetting *lay)
         CopyVector(p->data.d->localMove, ZeroVector);
         p->data.d->localHeight = 0.0f;
         p->data.d->local = InitialObjPointer;
+#ifdef VERSION_NTSC
+        p->data.d->nodeRotElem =
+            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 136);
+#else
         p->data.d->nodeRotElem =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 137);
+#endif
         for (i = 0; i < p->data.d->skelNodeNum; i++) {
             *(DObjBlk40 *)&p->data.d->nodeRotElem[i] = initialRotElem;
         }
+#ifdef VERSION_NTSC
+        p->data.d->nodeLimit =
+            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 2, __FILE__, 144);
+#else
         p->data.d->nodeLimit =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 2, __FILE__, 145);
+#endif
         for (j = 0; j < p->data.d->skelNodeNum; j++) {
             p->data.d->nodeLimit[j] = 0;
         }
+#ifdef VERSION_NTSC
+        p->data.d->nodeVec =
+            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 4, __FILE__, 152);
+#else
         p->data.d->nodeVec =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 4, __FILE__, 153);
+#endif
         for (k = 0; k < p->data.d->skelNodeNum; k++) {
             CopyVector(p->data.d->nodeVec[k], ZeroVector);
         }
+#ifdef VERSION_NTSC
+        p->data.d->blendRot =
+            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 160);
+#else
         p->data.d->blendRot =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum << 6, __FILE__, 161);
+#endif
         for (m = 0; m < p->data.d->skelNodeNum; m++) {
             *(DObjBlk40 *)p->data.d->blendRot[m] = initialBlendRot;
         }
+#ifdef VERSION_NTSC
+        p->data.d->blendless =
+            iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum, __FILE__, 168);
+#else
         p->data.d->blendless =
             iosMallocDebug(ios_partition_sugipon, p->data.d->skelNodeNum, __FILE__, 169);
+#endif
         for (n = 0; n < p->data.d->skelNodeNum; n++) {
             p->data.d->blendless[n] = 0;
         }
@@ -229,7 +288,11 @@ static void allocObjectData(Sub15C *self, SObjSimpleSetting *lay, int n)
     int j;
     int k;
 
+#ifdef VERSION_NTSC
+    self->nodes = iosMallocDebug(ios_partition_seki, n * 80, __FILE__, 298);
+#else
     self->nodes = iosMallocDebug(ios_partition_seki, n * 80, __FILE__, 299);
+#endif
     for (i = 0; i < n; i++) {
         self->nodes[i].flags.ll &= ~1;
         self->nodes[i].flags.ll &= ~2;
@@ -276,7 +339,11 @@ static void allocObjectData(Sub15C *self, SObjSimpleSetting *lay, int n)
 
 static void initInitialInverseMatrix(Sub15C *d)
 {
+#ifdef VERSION_NTSC
+    char *m = iosMallocDebug(ios_partition_sugipon, d->skelNodeNum << 6, __FILE__, 332);
+#else
     char *m = iosMallocDebug(ios_partition_sugipon, d->skelNodeNum << 6, __FILE__, 333);
+#endif
     d->clusterMtx = m;
     GetInitialInverseMatrixByDObj(m, d);
 }
@@ -288,7 +355,11 @@ static inline void initPolyHead(Sub15C *d) /* derived name */
 
     h = d->model;
     q = h->dobj;
+#ifdef VERSION_NTSC
+    d->lightMtx = iosMallocDebug(ios_partition_seki, 256, __FILE__, 237);
+#else
     d->lightMtx = iosMallocDebug(ios_partition_seki, 256, __FILE__, 238);
+#endif
     d->lightMtx->mode = q->lightMtx->mode;
     if (d->lightMtx->mode == 4) {
         h->mode.s.type = 3;
@@ -304,8 +375,13 @@ static inline void allocMatrixArrays(Sub15C *d, int n) /* derived name */
 {
     int i;
 
+#ifdef VERSION_NTSC
+    *(char **)&d->nodeMtx = iosMallocDebug(ios_partition_seki, n * 64, __FILE__, 258);
+    *(char **)&d->nodeQuat = iosMallocDebug(ios_partition_seki, n * 16, __FILE__, 258);
+#else
     *(char **)&d->nodeMtx = iosMallocDebug(ios_partition_seki, n * 64, __FILE__, 259);
     *(char **)&d->nodeQuat = iosMallocDebug(ios_partition_seki, n * 16, __FILE__, 259);
+#endif
     d->nodeNum = n;
     for (i = 0; i < n; i++) {
         _CopyMatrix(*(char **)&d->nodeMtx + i * 64, d->matrix);
@@ -327,7 +403,11 @@ static inline void allocMorphWeights(Sub15C *d, int n) /* derived name */
 {
     int i;
 
+#ifdef VERSION_NTSC
+    d->morphWeight = iosMallocDebug(ios_partition_seki, n * 4, __FILE__, 282);
+#else
     d->morphWeight = iosMallocDebug(ios_partition_seki, n * 4, __FILE__, 283);
+#endif
     for (i = 0; i < n; i++) {
         d->morphWeight[i] = 0.0f;
     }
@@ -409,12 +489,41 @@ static inline void makeSlotTable(Sub15C *d) /* derived name */
 {
     int i;
 
+#ifdef VERSION_NTSC
+    d->focusNodes = iosMallocDebug(ios_partition_sugipon, 53, __FILE__, 439);
+#else
     d->focusNodes = iosMallocDebug(ios_partition_sugipon, 53, __FILE__, 440);
+#endif
     for (i = 0; i < 53; i++) {
         d->focusNodes[i] = findSlot(d, i);
     }
 }
 
+#ifdef VERSION_NTSC
+Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
+{
+    Sub15C *d;
+
+    d = iosMallocDebug(ios_partition_seki, sizeof(DObjRecord), __FILE__, 462);
+    *(DObjRecord *)d = emptyDObj;
+    if (id != 1515) {
+        CSVSYSTEM_ReadCharFiles(d, id);
+    }
+    debug_StdPrintfDummy("\x1b[35mALLOCED DOBJ\x1b[m\n");
+    if (d->model != 0 || d->skel != 0) {
+        initPolygonState(d, lay);
+    }
+    debug_StdPrintfDummy("\x1b[35mINITED POLYGONSTATE\x1b[m\n");
+    initGeometryState(d, lay);
+    debug_StdPrintfDummy("\x1b[35mINITED GEOMETRYSTATE\x1b[m\n");
+    if (d->skel != 0) {
+        initInitialInverseMatrix(d);
+        makeSlotTable(d);
+    }
+    debug_StdPrintfDummy("\x1b[35mEND OF INIT DOBJ\x1b[m\n");
+    return d;
+}
+#else
 Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
 {
     Sub15C *d;
@@ -443,6 +552,7 @@ Sub15C *CSVSYSTEM_InitDObj(int id, SObjSimpleSetting *lay)
     debug_StdPrintfDummy("\x1b[35mEND OF INIT DOBJ\x1b[m\n");
     return d;
 }
+#endif
 
 inline void LinkParentOfDObj(void *obj, ObjNode *link)
 {

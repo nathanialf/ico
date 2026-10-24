@@ -67,7 +67,9 @@ static short boyYaw; /* derived name */ /* heading to the boy in local space */
 
 static short boyYawBack; /* derived name */ /* the opposite heading, boyYaw - 32768 */
 
+#ifndef VERSION_NTSC
 static int boySafe; /* derived name */ /* the boy is not in danger */
+#endif
 
 static float lookDist; /* derived name */ /* distance to the object being watched */
 
@@ -91,6 +93,149 @@ static AP1Vec lookDeltaFlat; /* derived name */ /* lookDelta with y removed */
 
 static AP1Vec selfPos; /* derived name */ /* this actor's own root position */
 
+#ifdef VERSION_NTSC
+static int standAI(GObj *self)
+{
+    Act *p = GOBJ_ACT(self);
+
+    if ((int)(p->flags20.ll >> 10) & 1) {
+        short r = boyYaw;
+        r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
+        AP1Turn(self, r);
+        return -1;
+    }
+
+    if (boyDist < 500.0f) {
+        if (p->lookPri != 0) {
+            if (AP1MotReq(self, 1))
+                return 1;
+        }
+        if (lookDist > 100.0f) {
+            if (AP1MotReq(self, 1))
+                return 1;
+        }
+        if (boyPitch < 16384 && boyDist > 300.0f) {
+            short r = boyYaw;
+            r = r > 4096 ? 4096 : (r < -4096 ? -4096 : r);
+            AP1Turn(self, r);
+            return -1;
+        }
+        if (AP1MotReq(self, 1))
+            return 1;
+    }
+
+    if (p->lookPri != 0) {
+        if (lookDist < 50.0f) {
+            short r = lookYaw;
+            r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
+            AP1Turn(self, r);
+            return -1;
+        }
+        if (AP1MotReq(self, 1))
+            return 1;
+    }
+
+    if (lookDist < 100.0f) {
+        short r = boyYaw;
+        r = r > 2048 ? 2048 : (r < -2048 ? -2048 : r);
+        AP1Turn(self, r);
+        return -1;
+    }
+
+    return AP1MotReq(self, 1) ? 1 : -1;
+}
+
+static int walkAI(GObj *self)
+{
+    Act *p = GOBJ_ACT(self);
+
+    if ((int)(p->flags20.ll >> 10) & 1) {
+        if (AP1MotReq(self, 0))
+            return 0;
+    }
+
+    if (boyDist < 300.0f) {
+        if (p->attack == 0 || boyPitch < 16384) {
+            short r;
+
+            if (p->modeFrame >= 31) {
+                AP1Turn(self, boyYaw);
+                if (AP1JumpReq(self, 2, p->jump)) {
+                    p->modeFrame = 0;
+                    return 2;
+                }
+            }
+            r = boyYawBack;
+            r = r > 12288 ? 12288 : (r < -12288 ? -12288 : r);
+            AP1Turn(self, r);
+            return -1;
+        }
+    }
+
+    if (p->attack != 0) {
+        if ((boyYaw < 0 ? -boyYaw : boyYaw) < 8192) {
+            if (boyDist < 150.0f) {
+                short r = boyYaw;
+
+                r = r > 4096 ? 4096 : (r < -4096 ? -4096 : r);
+                AP1Turn(self, r);
+                if (AP1MotReq(self, 3))
+                    return 3;
+            }
+        }
+    }
+
+    if (boyDelta.y > 100.0f) {
+        if (VectorLengthSquare(&boyDeltaFlat) < 10000.0f) {
+            if (AP1JumpReq(self, 2, &ap1BoxedInJump)) {
+                p->modeFrame = 0;
+                return 2;
+            }
+        }
+    }
+
+    if (lookDelta.y > 100.0f) {
+        if (VectorLengthSquare(&lookDeltaFlat) < 10000.0f) {
+            if (AP1JumpReq(self, 2, &ap1BoxedInJump)) {
+                p->modeFrame = 0;
+                return 2;
+            }
+        }
+    }
+
+    if (p->lookPri != 0) {
+        short r = lookYaw;
+
+        r = r > 4096 ? 4096 : (r < -4096 ? -4096 : r);
+        AP1Turn(self, r);
+        if (lookDist < 50.0f) {
+            if (AP1MotReq(self, 0))
+                return 0;
+        }
+        return AP1MotReq(self, 1) == 0 ? -1 : 1;
+    }
+
+    if (lookDist < 100.0f) {
+        if (AP1MotReq(self, 0))
+            return 0;
+    }
+
+    if (p->attack != 0 && boyDist < 300.0f) {
+        short r = boyYaw;
+
+        r = r > 512 ? 512 : (r < -512 ? -512 : r);
+        AP1Turn(self, r);
+    }
+
+    {
+        short r = lookYaw;
+
+        r = r > 512 ? 512 : (r < -512 ? -512 : r);
+        AP1Turn(self, r);
+    }
+    return AP1MotReq(self, 1) ? 1 : -1;
+}
+#else
 static int standAI(GObj *self)
 {
     Act *p = GOBJ_ACT(self);
@@ -232,6 +377,7 @@ static int walkAI(GObj *self)
     }
     return AP1MotReq(self, 1) ? 1 : -1;
 }
+#endif
 
 void hehehe(GObj *self)
 {
@@ -312,10 +458,15 @@ static inline void AP1ToLocal(GObj *self, AP1Vec *v) /* derived name */
  * yields to the other threads inside the loop */
 void subAP1BrainMain(GObj *volatile self)
 {
+#ifdef VERSION_NTSC
+    AP1Vec boy;
+    AP1Vec look;
+#else
     AP1Vec smooth = {0.0f, 0.0f, 0.0f, 1.0f};
     AP1Vec boy;
     AP1Vec look;
     int hold = 0;
+#endif
     Act *p;
     GObj *boyObj;
     GObj *host;
@@ -340,10 +491,16 @@ void subAP1BrainMain(GObj *volatile self)
         boyYawBack = boyYaw - 32768;
         CopyVector(&boyDeltaFlat, &boyDelta);
         boyDeltaFlat.y = 0.0f;
+#ifndef VERSION_NTSC
         boySafe = IsBoyStatus_NotDanger() == 0;
+#endif
 
         host = p->lookTarget;
         if (host != 0) {
+#ifdef VERSION_NTSC
+            GetRootPosition(&look, host);
+            look.y -= GOBJ_SUB(p->lookTarget)->root.height - 10.0f;
+#else
             AP1Vec dest;
 
             GetRootPosition(&dest, host);
@@ -358,10 +515,13 @@ void subAP1BrainMain(GObj *volatile self)
                 }
             }
             CopyVector(&look, &smooth);
+#endif
         } else {
             GetRootPosition(&look, boyObj);
             look.y -= GOBJ_SUB(boyObj)->root.height - 10.0f;
+#ifndef VERSION_NTSC
             hold = 0;
+#endif
         }
 
         lookDist = AP1GetDirection(&lookLocalDir, &lookDelta, &look, &selfPos);
@@ -384,7 +544,11 @@ void subAP1BrainMain(GObj *volatile self)
         }
 
         if (CheckFloorAttribute(self, 0x800) || CheckFloorAttribute(self, 0x900)) {
+#ifdef VERSION_NTSC
+            iosOmSendMail(self, 207, self);
+#else
             iosOmSendMail(self, 0xDF, self);
+#endif
             /* forced death */
             debug_StdPrintfDummy("強制死亡\n");
         }
@@ -474,14 +638,22 @@ static inline void AP1SetHold(GObj *self) /* derived name */
 {
     Act *p = GOBJ_ACT(self);
 
+#ifdef VERSION_NTSC
+    p->flags20.ll |= 0x400;
+#else
     p->flags20.ll |= 0x200000;
+#endif
 }
 
 static inline void AP1ClrHold(GObj *self) /* derived name */
 {
     Act *p = GOBJ_ACT(self);
 
+#ifdef VERSION_NTSC
+    p->flags20.ll &= ~0x400;
+#else
     p->flags20.ll &= ~0x200000;
+#endif
 }
 
 void AP1BeforeFunc(GObj *self)
@@ -512,7 +684,11 @@ void AP1BeforeFunc(GObj *self)
             AP1DeadEffect(self);
             AP1DeadMode(self);
             iosPadActRequest(boyPad, 17);
+#ifdef VERSION_NTSC
+            ExecuteSEPackage(self, 100);
+#else
             ExecuteSEPackage(self, 105);
+#endif
             break;
 
         case 26:
@@ -522,7 +698,11 @@ void AP1BeforeFunc(GObj *self)
             hitProc(self);
             break;
 
+#ifdef VERSION_NTSC
+        case 207:
+#else
         case 223:
+#endif
             AP1DeadMode(self);
             hitProc(self);
             break;

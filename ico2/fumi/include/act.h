@@ -19,10 +19,16 @@ struct IosPadStick;
 /* act.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void actInitialize_geo(void *self);
+#ifdef VERSION_NTSC
+void actInitialize_only_charcter(char *self);
+#endif
 int ACTReserveTarget(struct GObj *self, void *arg, int mail);
 void _ACTRun(int n);
 void _ACTWait(int frames);
 struct GProc *actCreateSubThreadGOppArg(void (*fn)(), int pri);
+#ifdef VERSION_NTSC
+inline struct GProc *actCreateSubThread(void (*fn)(), int pri);
+#endif
 void actSetInterrupt(char *self, int val);
 void ConvertStickToAbsCoord(void *out, struct IosPadStick *stick);
 void ActSetStartBrainStatus(struct GObj *self, int status);
@@ -32,10 +38,15 @@ void ACTDebugMove(struct GObj *self, int a1);
 void actChangeActBrain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actChangeActMain(struct GObj *self, void (*fn)(), struct GProc **slot);
 void actCreateMotionThread(void (*fn)(), int pri, struct GProc **slot);
+#ifdef VERSION_NTSC
+struct Act *actInitialize(struct GObj *self);
+void actInitialize_ext_charcter(struct GObj *self);
+#else
 struct GProc *actCreateSubThread(void (*fn)(), int pri);
 struct Act *actInitialize(struct GObj *self);
 void actInitialize_ext_charcter(struct GObj *self);
 void actInitialize_only_charcter(char *self);
+#endif
 
 /* act-mode-def: one act mode, 0x50 bytes, indexed by Act+0x34. Readers:
  * ico2/fumi/src/act.c (the act per actor kind, the mail, the intr-list
@@ -50,6 +61,25 @@ typedef struct { /* field names derived */
     } ent[3];          /* 0x00, one per actor kind (Act+0x48) */
 
     char name[32];      /* 0x24, the debug name */
+#ifdef VERSION_NTSC
+    int mail;           /* 0x44, ACTSendMailCorrect's mail */
+    int intrList;       /* 0x48, the first actIntrList row */
+    /* 0x4C, the mode's flag bits; a bit with no reader is named by its place */
+    unsigned int escort : 1;   /* bit 0, an escort status (IsGirlStatusEscortEnable) */
+    unsigned int holdDir : 1;  /* bit 1, Act flags18 bit 45: the stick does not turn the boy */
+    unsigned int skipMarked : 1; /* bit 2, the flagged mail lists are skipped */
+    unsigned int saveInfo : 1; /* bit 3, ACTGame_SaveActorInformation saves the position */
+    unsigned int bit4 : 1;     /* bit 4, nothing in September reads it */
+    unsigned int softIk : 1; /* bit 5, the girl's soft IK rate */
+    unsigned int pullUp : 1;   /* bit 6, handoff_heroin does not let the girl go */
+    unsigned int keepHand : 1; /* bit 7, actCommonBecarry: the boy keeps the girl's hand */
+    unsigned int stopMail : 1; /* bit 8, a stopped enemy without the girl mails 242 */
+    unsigned int onChain : 1;  /* bit 9, ACTGame_isHangChain */
+    unsigned int bit10 : 1;    /* bit 10, nothing in September reads it */
+    unsigned int carried : 1;  /* bit 11, actCommonBecarry ends the girl's carry */
+    unsigned int bit12 : 1;    /* bits 12-14, set in no mode and read by nothing */
+    unsigned int bit13 : 1;
+#else
     int intrList;       /* 0x44, the first actIntrList row */
     int mail;           /* 0x48, ACTSendMailCorrect's mail */
     /* 0x4C, the mode's flag bits */
@@ -67,6 +97,7 @@ typedef struct { /* field names derived */
     unsigned int skipMarked : 1; /* bit 11, the flagged mail lists are skipped */
     unsigned int bit12 : 1;
     unsigned int escort : 1; /* bit 13, an escort status */
+#endif
     unsigned int bit14 : 1;
     unsigned int : 17;
 } ActModeRec; /* derived name */

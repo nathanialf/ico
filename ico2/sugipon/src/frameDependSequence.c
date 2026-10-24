@@ -12,23 +12,39 @@
 #include "motionManager2.h"
 #include "frameDependSequence.h"
 
+#ifdef VERSION_NTSC
+static inline int execSE(int no);
+static inline int checkWaterDepth(struct GObj *gobj, int depth);
+static inline int checkModelDataID(struct GObj *gobj, int id);
+static inline int execVib(int no);
+static inline int execWeaponLightOff(int no);
+#else
 static inline int execSE(int no, void *entry);
 static inline int checkWaterDepth(struct GObj *gobj, int depth);
 static inline int checkModelDataID(struct GObj *gobj, int id);
 static inline int checkWeaponType(struct GObj *gobj, int kind);
 static inline int execVib(int no, void *entry);
 static inline int execWeaponLightOff(int no, void *entry);
+#endif
+
 extern GsysObjInfo seDef[];
 /* int (int, unsigned int, int, int) here, int (int, int, int, int) in s_init.h */
 extern int soundSeDefPlay(int se, unsigned int owner, int pos, int playMode);
 
 typedef struct FDSFlags { /* field names derived */
-    int vibDone[2];       /* 0x00 */
-    int effDone[12];      /* 0x08 */
-    int seDone[12];       /* 0x38 */
-    int weaponDone;       /* 0x68 */
-    int vibEntry[2];      /* 0x6C */
-} FDSFlags;               /* derived name */
+#ifdef VERSION_NTSC
+    int vibDone[1]; /* 0x00 */
+    int effDone[5]; /* 0x04 */
+    int seDone[12]; /* 0x18 */
+    int weaponDone; /* 0x48 */
+#else
+    int vibDone[2];  /* 0x00 */
+    int effDone[12]; /* 0x08 */
+    int seDone[12];  /* 0x38 */
+    int weaponDone;  /* 0x68 */
+    int vibEntry[2]; /* 0x6C */
+#endif
+} FDSFlags; /* derived name */
 
 /* the sequence being run: its flag block, work, layout record and motion
    record, its owner, the SE volume rate and the SE group */
@@ -54,6 +70,140 @@ extern int soundSeDefPlayWithVolumeRate(int se, unsigned int owner, int pos, int
 /* seMail has no header; declared as ico2/fumi/src/seMail.c defines it */
 extern void seMail(int self, int id);
 
+#ifdef VERSION_NTSC
+static int playSE(int no)
+{
+    if (no == 0) {
+        return 1;
+    }
+    if (((GObj *)fdsGObj)->drawMask != 0) {
+        int ret;
+
+        if (fdsVolume > 0.95f) {
+            ret = soundSeDefPlay(no, fdsGroup, GOBJ_SUB(fdsGObj)->nodeMtx + 0x30, 1);
+        } else {
+            ret = soundSeDefPlayWithVolumeRate(no, fdsGroup, GOBJ_SUB(fdsGObj)->nodeMtx + 0x30, 1,
+                                               fdsVolume);
+        }
+
+        seMail((int)fdsGObj, no);
+        if (ret == -2) {
+            if (debug_seslotdisp_flag != 0) {
+                /* EUC-JP: "SE \"%s\" is not loaded" */
+                debug_StdPrintfDummy("SE \033[36m\"%s\"\033[m はロードされていません\n",
+                                     &seDef[no]);
+            }
+            return 0;
+        }
+        if (ret < 0) {
+            return 1;
+        }
+        if (debug_seslotdisp_flag != 0) {
+            debug_StdPrintfDummy("SE \033[33m\"%s\"\033[m CALLED with GROUP:\033[33m%d\033[m\n",
+                                 &seDef[no], fdsGroup);
+        }
+    }
+    return 1;
+}
+
+static int playSERandomID(int no)
+{
+    float rest;
+    float rnd;
+    float share;
+    float acc;
+    int nshare;
+    int n;
+    int i;
+
+    rest = 100.0f;
+    nshare = 0;
+    for (n = 0; n < randomSEKind[no + n].se; n++) {
+        if (randomSEKind[no + n].rate < 0.0f) {
+            nshare++;
+        } else {
+            rest -= randomSEKind[no + n].rate;
+        }
+    }
+    rnd = crt_random_unit() * 0.99999f;
+    acc = 0.0f;
+    share = 0.0f;
+    if (acc <= rest && nshare != 0) {
+        share = rest < acc ? acc : rest / (float)nshare;
+    }
+    for (i = 0; i < n; i++) {
+        float w = randomSEKind[no + i].rate;
+        if (w < 0.0f) {
+            w = share;
+        }
+        acc += w * 0.01f;
+        if (rnd < acc) {
+            return execSE(randomSEKind[no + i].se);
+        }
+    }
+    return execSE(randomSEKind[no].se);
+}
+
+static inline int checkWaterDepth(GObj *gobj, int depth)
+{
+    return (int)GOBJ_SUB(gobj)->ctrl.waterDepth < depth;
+}
+
+static inline int checkModelDataID(GObj *gobj, int id)
+{
+    return GOBJ_SUB(gobj)->modelId == id;
+}
+
+static int playSEConditionID(int no)
+{
+    int (*fn)(GObj *, int);
+    const SECondEntry *p;
+
+    switch (motSECondKind[no].kind) {
+    case 0:
+    default:
+        fn = CheckFloorAttribute;
+        break;
+    case 1:
+        fn = CheckWallAttribute;
+        break;
+    case 2:
+        fn = checkWaterDepth;
+        break;
+    case 3:
+        fn = checkModelDataID;
+        break;
+    }
+    if (motSECondKind[no].kind != -1) {
+        p = &motSECondKind[no];
+        do {
+            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
+                if (execSE(p->se) != 0) {
+                    return 1;
+                }
+            }
+            p++;
+        } while (p->kind != -1);
+    }
+    return 0;
+}
+
+static inline int execSE(int no)
+{
+    if (no <= 0xFFFF) {
+        return playSE(no);
+    } else if (no <= 0x1FFFF) {
+        return playSERandomID(no - 0x10000);
+    } else {
+        return playSEConditionID(no - 0x20000);
+    }
+    /* the bad-ID report, switched off */
+    if (0) {
+        /* EUC-JP: "an SE with a strange ID(%d) was called" */
+        debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
+    }
+}
+#else
 static int playSE(int no)
 {
     int ret;
@@ -184,6 +334,7 @@ static inline int execSE(int no, void *entry)
         debug_StdPrintfDummy("おかしなID(%d)のSEがコールされました\n", no);
     }
 }
+#endif
 
 static void playEff(int no)
 {
@@ -222,13 +373,94 @@ static void playEff(int no)
     if (flags & 1) {
         EntryStageMultiBgaManager(motionEffKind[no].eff, pos, q);
     } else {
+#ifndef VERSION_NTSC
         if (stage_no == 0x21 && pos[0] < -4500.0f) {
             return;
         }
+#endif
         SetParticleEffect(motionEffKind[no].eff, pos, q);
     }
 }
 
+#ifdef VERSION_NTSC
+static int execEff(int no)
+{
+    int (*fn)(GObj *, int);
+    const VibCondEntry *p;
+    int idx;
+    int j;
+    int eff;
+    int k;
+    int n;
+
+    if (no <= 0xFFFF) {
+        if (no == 19) {
+            goto done;
+        }
+        playEff(no);
+        goto done;
+    }
+    if (no <= 0x1FFFF) {
+        idx = no - 0x10000;
+        k = idx + 1;
+        n = 0;
+        if (randomEffKind[idx] != 19) {
+            do {
+                n++;
+            } while (randomEffKind[k++] != 19);
+        }
+        execEff(randomEffKind[idx + (int)(((float)n - 1e-05f) * crt_random_unit())]);
+        goto done;
+    }
+    j = no - 0x20000;
+    switch (motEffCondKind[j].kind) {
+    case 0:
+    default:
+        fn = CheckFloorAttribute;
+        break;
+    case 2:
+        fn = checkWaterDepth;
+        break;
+    }
+    if (motEffCondKind[j].kind != -1) {
+        p = &motEffCondKind[j];
+        do {
+            if (p->cond == -1 || fn((GObj *)fdsGObj, p->cond) != 0) {
+                eff = p->actId;
+                goto call;
+            }
+            p++;
+        } while (p->kind != -1);
+    }
+    eff = 19;
+call:
+    execEff(eff);
+done:
+    return 1;
+}
+
+static inline int execVib(int no)
+{
+    iosPadActRequest(boyPad, no);
+    return 1;
+}
+
+/* a frame slot's handler: it is passed the slot's number, which it does not read */
+static inline int execWeaponLightOff(int no)
+{
+    Sub15C *p;
+    GObj *q;
+    p = GOBJ_SUB(fdsGObj);
+    q = p->ctrl.pickedWeapon;
+    if (q != 0) {
+        if (CheckWeaponKind(q) == 1) {
+            Sub15C *r = GOBJ_SUB(fdsGObj);
+            LightTorchOffOfWeapon(r->ctrl.pickedWeapon);
+        }
+    }
+    return 1;
+}
+#else
 static int execEff(int no, void *entry)
 {
     int (*fn)(GObj *, int);
@@ -302,11 +534,88 @@ static void execVibCondition(int no, int *entry)
         }
     }
 }
+#endif
 
 /* declared here: motionOrientManager.h reaches ico2/fumi's files through
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
+#ifdef VERSION_NTSC
+static inline void fireFDSSlot(float t, int (*fn)(int no), int no, int *done) /* derived name */
+{
+    if (t < 0.0f) {
+        return;
+    }
+    if (t < fdsLayout->animFrame) {
+        fn(no);
+        *done = 1;
+    }
+}
+
+static inline void fireSESlots(void) /* derived name */
+{
+    int i;
+
+    for (i = 0; i < 12; i++) {
+        if (fdsFlags->seDone[i] == 0) {
+            fireFDSSlot(fdsRecord->se[i].t, execSE, fdsRecord->se[i].no, &fdsFlags->seDone[i]);
+        }
+    }
+}
+
+static inline void fireVibSlots(void) /* derived name */
+{
+    int i;
+
+    for (i = 0; i < 1; i++) {
+        if (fdsFlags->vibDone[i] == 0) {
+            fireFDSSlot(fdsRecord->vib[i].t, execVib, fdsRecord->vib[i].no, &fdsFlags->vibDone[i]);
+        }
+    }
+}
+
+static inline void fireEffSlots(void) /* derived name */
+{
+    int i;
+
+    for (i = 0; i < 5; i++) {
+        if (fdsFlags->effDone[i] == 0) {
+            fireFDSSlot(fdsRecord->eff[i].t, execEff, fdsRecord->eff[i].no, &fdsFlags->effDone[i]);
+        }
+    }
+}
+
+static inline void fireWeaponSlot(void) /* derived name */
+{
+    if (fdsFlags->weaponDone == 0) {
+        fireFDSSlot(fdsRecord->weaponFrame, execWeaponLightOff, 0, &fdsFlags->weaponDone);
+    }
+}
+
+inline void InitFrameDependSequence(void *flags)
+{
+    static FDSFlags clear = {{0}}; /* derived name */
+
+    *(FDSFlags *)flags = clear;
+}
+
+void ExecFrameDependSequence(GObj *gobj)
+{
+    fdsGObj = (char *)gobj;
+    fdsLayout = &GOBJ_SUB(gobj)->ctrl;
+    fdsWork = &GOBJ_SUB(gobj)->root;
+    fdsFlags = (FDSFlags *)GOBJ_SUB(gobj)->fdsFlags;
+    fdsRecord = &motionKind[fdsLayout->motion];
+    fdsVolume = 1.0f;
+
+    fireSESlots();
+    fireVibSlots();
+    fireEffSlots();
+    if (GOBJ_SUB(gobj)->ctrl.pickedWeapon != 0) {
+        fireWeaponSlot();
+    }
+}
+#else
 static inline void fireFDSSlot(float t, int no, void *entry, int *done,
                                int (*fn)(int no, void *entry)) /* derived name */
 {
@@ -359,6 +668,7 @@ void ExecFrameDependSequence(GObj *gobj)
         }
     }
 }
+#endif
 
 static inline int *findSEPackage(int no, int id) /* derived name */
 {
@@ -408,7 +718,11 @@ static void executeSEPackageByGObj(GObj *gobj, int no, int grp)
     id = setSEEnvironment(gobj, grp);
     p = findSEPackage(no, id);
     for (i = 0; i < 2; i++) {
+#ifdef VERSION_NTSC
+        execSE(p[i]);
+#else
         execSE(p[i], 0);
+#endif
     }
 }
 
@@ -463,6 +777,7 @@ void StopSEPackage(GObj *gobj)
     StopSEPackageWithGroupVariation(gobj, 0);
 }
 
+#ifndef VERSION_NTSC
 void InitFrameDependSequence(void *flags)
 {
     FDSFlags *f = flags;
@@ -554,3 +869,4 @@ static inline int execWeaponLightOff(int no, void *entry)
     }
     return 1;
 }
+#endif

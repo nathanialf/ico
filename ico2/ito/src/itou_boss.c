@@ -265,6 +265,21 @@ static const float capsuleRelease[53][4] = {
     {-3417.14f, -601.8f, -686.716f, 1.0f},
 };
 
+#ifdef VERSION_NTSC
+static void effect_end_func(int id)
+{
+    CapsuleRec *e;
+
+    if (isysGObjSearchFromObjKindID_begin(64) != 0) {
+        e = &capsule[GetParticleEffectData(id)->user.capsule];
+        pbga_start(&e->bga, 481);
+        _CopyVector(e->bga->pos, e->pos);
+        CopyQuaternion(e->bga->rot, e->quat);
+        e->state = 2;
+        ExecuteSEPackage(0, 96);
+    }
+}
+#else
 static void effect_end_func(int id)
 {
     CapsuleRec *e;
@@ -282,6 +297,7 @@ static void effect_end_func(int id)
         ExecuteSEPackage(0, 101);
     }
 }
+#endif
 
 void bossCtrlBeforeFunc(GObj *self)
 {
@@ -319,7 +335,11 @@ void bossCtrlBeforeFunc(GObj *self)
                     }
                 }
             }
+#ifdef VERSION_NTSC
+            ExecuteSEPackage(self, 95);
+#else
             ExecuteSEPackage(self, 100);
+#endif
         }
     }
     q->num = 0;
@@ -328,7 +348,7 @@ void bossCtrlBeforeFunc(GObj *self)
 inline int InqCapsuleGhostBossStage(void)
 {
     int r = 0;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     if (stage_no == 84 || stage_no == 3 || stage_no == 46)
         r = 1;
 #else
@@ -346,6 +366,19 @@ void BossEnemyFunc(void *self)
         switch (GOBJ_SUB(self)->ctrl.motion) {
         default:
             break;
+#ifdef VERSION_NTSC
+        case 859:
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
+            break;
+        case 906:
+        case 907:
+        case 908:
+            ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
+            break;
+        case 881:
+        case 882:
+        case 883:
+#else
         case 905:
             ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 2.0f, 0);
             break;
@@ -357,6 +390,7 @@ void BossEnemyFunc(void *self)
         case 927:
         case 928:
         case 929:
+#endif
             ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 1.2f, 0);
             break;
         }
@@ -399,6 +433,124 @@ extern int geneDebugNoEffect; /* derived name */
 
 static inline void gene_eff_end_func(int id);
 
+#ifdef VERSION_NTSC
+/* this file's own gene_enemy; queen.c defines a global of the same name */
+static void gene_enemy(volatile int gobj)
+{
+    int no = geneCount;
+    volatile int *flag = &geneDone[geneCount++];
+    CapsuleRec *buf[53];
+    GObj *o;
+    void *c;
+    CapsuleRec *p;
+    int i;
+    unsigned int j;
+    int total;
+    int alive;
+    int freen;
+    int num;
+
+    _ACTWait(1);
+
+    i = 0;
+    for (o = isysGObjSearchFromObjKindID_begin(33); o != 0;
+         o = isysGObjSearchFromObjKindID_next(o), i++) {
+        if (i == no) {
+            break;
+        }
+    }
+
+    for (;; _ACTWait(1)) {
+        total = 0;
+        alive = 0;
+        if (stage_no == 84) {
+            if ((pad[0].flags & 0x40) != 0) {
+                gflag[0] = 1;
+            }
+        }
+        if (gflag[0] != 0) {
+            c = isysGObjSearchFromObjKindID_begin(4);
+            while (c != 0) {
+                total++;
+                if (isEnemyHyde(c) == 0) {
+                    alive++;
+                }
+                c = isysGObjSearchFromObjKindID_next(c);
+            }
+            if ((debug_font_flag & 1) != 0) {
+                debug_Printf(10, 90, 0xFFFFFFFF, "enemy %d/%d\n", alive, total);
+            }
+            num = 0;
+            freen = 0;
+            for (j = 0; j < 53; j++) {
+                p = &capsule[j];
+                if (p->state <= 0 && p->busy == 0) {
+                    buf[num++] = p;
+                }
+                if (p->state <= 0) {
+                    freen++;
+                }
+            }
+            if (total >= freen) {
+                total = freen;
+            }
+            if (alive + geneReleasing < total && num > 0 && o != 0) {
+                float pp[4];
+                float pos[4];
+                float dir[4];
+                float m[4][4];
+                CapsuleRec *sel;
+                /* r starts as "no effect" (-1): the DEBUG build can release the
+                   enemy without its gather effect, and then the r >= 0 block is
+                   skipped.  Retail builds the switch as 0, so the call always
+                   sets r. */
+                int r = -1;
+
+                sel = buf[(int)(random_unit() * num)];
+                sceVu0CopyVector(pos, sel->release);
+                geneReleasing++;
+                sel->busy = 1;
+                *flag = 0;
+                if (!GENE_DEBUG_NO_EFFECT) {
+                    r = GatherEffect_Set(12, sel->pos, sel->quat, pos, 1.0f, gene_eff_end_func);
+                }
+                if (r >= 0) {
+                    GetParticleEffectData(r)->user.done = flag;
+                    SetParticleEffectClipEnableFlag(r, 0);
+                    ExecuteSEPackage((GObj *)gobj, 94);
+                    while (*flag == 0) {
+                        _ACTWait(1);
+                    }
+                }
+                putEnemyAt(o, pos);
+                GetRootPosition(pp, boyGObj);
+                sceVu0SubVector(dir, pp, pos);
+                sceVu0Normalize(dir, dir);
+                sceVu0UnitMatrix(m);
+                m[1][0] = 0.0f;
+                m[1][1] = 1.0f;
+                m[1][2] = 0.0f;
+                m[1][3] = 0.0f;
+                sceVu0CopyVector(m[2], dir);
+                sceVu0OuterProduct(m[0], m[1], m[2]);
+                {
+                    float q[4];
+                    ico_m33_to_quat(q, m);
+                    SetRootQuaternion(o, q);
+                }
+                Generator_Call(o);
+                while (GeneratorWorkEnd(o) == 0) {
+                    _ACTWait(1);
+                }
+                geneReleasing--;
+                sel->busy = 0;
+                _ACTWait(((60 - systemStatus[0] * 10) / systemStatus[1]) * 5);
+                sendEnemyAway(o);
+            }
+        }
+    }
+}
+#else
 /* this file's own gene_enemy; queen.c defines a global of the same name */
 static void gene_enemy(volatile int gobj)
 {
@@ -519,6 +671,7 @@ static void gene_enemy(volatile int gobj)
         }
     }
 }
+#endif
 
 void BossCtrlGeo(void *self)
 {
@@ -625,7 +778,11 @@ void BossCtrlDL(void)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
                 pbga_start(&e->bga, 549);
 #else
+#ifdef VERSION_NTSC
+                pbga_start(&e->bga, 482);
+#else
                 pbga_start(&e->bga, 553);
+#endif
 #endif
                 _CopyVector(e->bga->pos, e->pos);
                 CopyQuaternion(e->bga->rot, e->quat);
@@ -645,6 +802,33 @@ inline void CapsuleGhostBossStart(void)
     gflag[0] = 1;
 }
 
+#ifdef VERSION_NTSC
+inline int InqCapsuleGhostBossEnd(void)
+{
+    int no = 0;
+    unsigned int cnt = 0;
+    void *o;
+
+    if (isysGObjSearchFromObjKindID_begin(64) != 0) {
+        CapsuleRec *base = capsule;
+        unsigned int i = 0;
+        do {
+            if (base[i].state >= 2) {
+                cnt++;
+            }
+            i++;
+        } while (i < 53);
+    }
+    o = isysGObjSearchFromObjKindID_begin(4);
+    while (o != 0) {
+        if (isEnemyHyde(o) == 0) {
+            no++;
+        }
+        o = isysGObjSearchFromObjKindID_next(o);
+    }
+    return cnt >= 53 && no == 0;
+}
+#else
 inline int InqCapsuleGhostBossEnd(void)
 {
     int no = 0;
@@ -670,6 +854,7 @@ inline int InqCapsuleGhostBossEnd(void)
     }
     return cnt >= 53 && no == 0;
 }
+#endif
 
 static inline void gene_eff_end_func(int id)
 {

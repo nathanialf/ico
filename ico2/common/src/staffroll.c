@@ -50,7 +50,7 @@ float staffRollCenterOffsetXDest = 0.0f;
 void staffRollStart(float t, int alpha)
 {
     staffRollStartFlag = 1;
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     rollSpeed = t + t;
 #else
     rollSpeed = (t + t) * 30.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]);
@@ -119,8 +119,8 @@ static int staffRollNameOut(void)
         }
         /* staff roll: out of area */
         debug_StdPrintfDummy("staff roll 領域不足\n");
-        debug_assert(__FILE__, LN(192, 189, 189));
-        __assert(__FILE__, LN(192, 189, 189), "0");
+        debug_assert(__FILE__, LN(192, 189, 189, 189));
+        __assert(__FILE__, LN(192, 189, 189, 189), "0");
     found:
 
         e = &rollLines[i];

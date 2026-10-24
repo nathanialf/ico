@@ -8,6 +8,10 @@
 #ifndef LWS_KYOMI_H
 #define LWS_KYOMI_H
 
+#ifdef VERSION_NTSC
+struct GObj *CreateKyomiGObj(void);
+void SetParamKyomiGObj(struct GObj *gobj, float *root, float *param);
+#else
 /* one row of hintTable, the data-only member that holds the hints: the stage
  * and number a hint belongs to, its time and its flags.  It differs from
  * lws_kyomi.c's per-GObj HintInfo in one field: time is a float here
@@ -33,5 +37,6 @@ void ReadHintSaveInfo(void);
 void SetParamKyomiGObj(struct GObj *gobj, float *root, float *param);
 void SleepHint(int no);
 void WakeupHint(int no);
+#endif
 
 #endif /* LWS_KYOMI_H */

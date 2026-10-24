@@ -32,6 +32,15 @@ typedef enum { CLOTH_ATTR_NONE = 0 } ClothAttr;
    reads the rest. */
 typedef struct {    /* field names derived */
     char name[32];  /* 0x00 */
+#ifdef VERSION_NTSC
+    float pt[2][3]; /* 0x20 */
+    int kind;       /* 0x38, the cloth type in the low four bits (InitFlagGeo's switch) */
+    ClothAttr attr; /* 0x3C */
+    int rows;       /* 0x40, the cloth's rows (ClothCfg num) */
+    int count;      /* 0x44, the columns, and the boundaries a manager lays out */
+    float length;   /* 0x48, the cloth's length, shared out over the columns */
+    float weight;   /* 0x4C, the fall added to each point a step (ClothCfg weight) */
+#else
     float pt[4][3]; /* 0x20 */
     int kind;       /* 0x50, the cloth type in the low four bits (InitFlagGeo's switch) */
     ClothAttr attr; /* 0x54 */
@@ -39,6 +48,7 @@ typedef struct {    /* field names derived */
     int count;      /* 0x5C, the columns, and the boundaries a manager lays out */
     float length;   /* 0x60, the cloth's length, shared out over the columns */
     float weight;   /* 0x64, the fall added to each point a step (ClothCfg weight) */
+#endif
 } LayoutClothDef; /* derived name */
 
 extern const LayoutClothDef layoutClothDef[];

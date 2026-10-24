@@ -4,6 +4,15 @@
 #include "ios.h"
 #include "memory.h"
 
+#ifdef VERSION_NTSC
+inline void DeleteParticleLayout(GObj *self)
+{
+    int *q = GOBJ_SUB(self)->work;
+
+    DeleteParticleEffect(q[0]);
+}
+#endif
+
 inline int *InitParticleLayoutGeo(GObj *self, int *layout)
 {
     int *r;
@@ -12,6 +21,9 @@ inline int *InitParticleLayoutGeo(GObj *self, int *layout)
     return r;
 }
 
+#ifdef VERSION_NTSC
+inline void ParticleLayoutGeo(GObj *self) {}
+#else
 inline void DeleteParticleLayout(GObj *self)
 {
     int *q = GOBJ_SUB(self)->work;
@@ -33,5 +45,6 @@ void ParticleLayoutGeo(GObj *self)
         return SetParticleEffectPauseFlag(q[0], 1);
     }
 }
+#endif
 
 inline void ParticleLayoutDL(void) {}

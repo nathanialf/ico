@@ -1,3 +1,7 @@
+#ifdef VERSION_NTSC
+#include "gobj.h"
+#include "kanbanBoot.h"
+#else
 #include "StageManager.h"
 #include "layout_texture.h"
 #include "gobj.h"
@@ -6,13 +10,14 @@
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 #include <libscf.h>
 #endif
+#endif
 
 #include "kanban.h"
 #include "GsBase.h"
 #include "main.h"
 #include "Basic.h"
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 #include "debug.h"
 #endif
 
@@ -25,10 +30,12 @@ static int mcCheckStep = 0; /* derived name */
 
 static int bootStarted = 0; /* derived name */
 
+#ifndef VERSION_NTSC
 static int mcRetryCount = 10; /* derived name */
 
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 static int bootKanbanDone = 0; /* derived name */
+#endif
 #endif
 
 int kanbanBootEnd = 0;
@@ -56,7 +63,7 @@ static int mcKanbanId; /* derived name */
 
 static int mcPort; /* derived name */ /* the card slot being checked, 0 then 1 */
 
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 static int bootVideoMode; /* derived name */ /* the video mode in force when the sign went up */
 #endif
 
@@ -66,6 +73,80 @@ static int bootVideoMode; /* derived name */ /* the video mode in force when the
 extern void iosMcChdirProduct(McMgr *mp);
 extern int iosMcSync(McMgr *mp);
 
+#ifdef VERSION_NTSC
+static int kanbanBootMcCheck(void)
+{
+    McMgr *mc = &bootMcReq;
+    int ret = 0;
+
+    switch (mcCheckStep) {
+    case 0:
+        bootKanbanSub = 0;
+        /* fallthrough */
+    case 1:
+        mcPort = 0;
+        mcKanbanId = 1;
+        mcCheckStep++;
+        /* fallthrough */
+    case 2:
+        fbKeep = 1;
+        mc->port = mcPort;
+        mc->slot = 0;
+        mc->flags.ll &= ~2;
+        iosMcChdirProduct(mc);
+        mcCheckStep++;
+        /* fallthrough */
+    case 3:
+        if (iosMcSync(mc) != 0) {
+            mcCheckStep++;
+        }
+        break;
+    case 4:
+        if (mc->type == 2) {
+            if (mc->format == 0 || mc->result == 0 || mc->free >= 360) {
+                mcCheckStep = -1;
+                break;
+            }
+            mcKanbanId = 2;
+        }
+        if (mcPort == 0) {
+            mcPort = 1;
+            mcCheckStep = 2;
+        } else {
+            mcCheckStep = 100;
+        }
+        break;
+    case 100:
+        fbKeep = 0;
+        fadeStatus = 0;
+        bootKanban = kanbanReqAdd(3, 2);
+        if (bootKanbanSub != 0) {
+            kanbanReqDel(bootKanbanSub);
+        }
+        bootKanbanSub = kanbanReqAdd(mcKanbanId, 1);
+        mcCheckStep++;
+        break;
+    case 101:
+        if (bootKanban->key != 1) {
+            break;
+        }
+        if (bootKanban->layout->curItem == 5) {
+            mcCheckStep = -1;
+            break;
+        }
+        kanbanReqDelFade(bootKanbanSub);
+        kanbanReqDelFade(bootKanban);
+        mcCheckStep = 1;
+        break;
+    default:
+        fbKeep = 0;
+        fadeStatus = 0;
+        ret = 1;
+        break;
+    }
+    return ret;
+}
+#else
 #if !defined(VERSION_JPN) && !defined(VERSION_KOR)
 extern void iosMcLoadProductBlock(McMgr *mp);
 #endif
@@ -397,6 +478,7 @@ static int kanbanBootMcCheck(void)
     return ret;
 }
 #endif
+#endif
 
 static Kanban *waitKanban; /* derived name */ /* the "please wait" sign */
 
@@ -421,7 +503,7 @@ void kanbanBootMain(void)
             return;
         }
         kanbanReqAllDelFade();
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
         waitKanban = kanbanReqAdd(0, 1);
 #else
         waitKanban = kanbanReqAdd(2, 1);

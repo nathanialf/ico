@@ -14,7 +14,9 @@
 extern Brain brainGirl;
 void OverrideBrainStatusByGObj(Brain *b, GObj *gobj, float levelCap, float rate, float capStep);
 void brainAddLevelGirl(float lv);
+#ifndef VERSION_NTSC
 void brainAddLevelGirlDetail(int flag, float lv);
+#endif
 void brainAddLevelGop(GObj *gobj, float lv);
 int brainCheckView(Brain *b, BrainTarget *t);
 void brainClsTargetLevel(Brain *b);
@@ -28,6 +30,9 @@ void brainLockGirl(void);
 void brainSetLevelGop(GObj *gobj, float lv, int lookOnly, int alwaysSeen);
 void brainSetSpMode(void);
 void brainStatusDefaultSet(Brain *b, GObj *gobj, int idx);
+#ifdef VERSION_NTSC
+BrainTarget *brainStatusSet(Brain *b, GObj *gobj, float levelCap, float capStep, float rate);
+#endif
 void brainSubLevelGop(GObj *gobj, float lv);
 void brainUnlockGirl(void);
 

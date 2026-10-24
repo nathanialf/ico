@@ -74,7 +74,11 @@ typedef struct EnemyBattleWork { /* field names derived */
     float ropeCliffX; /* 0x1C0 */
     float ropeCliffY; /* 0x1C4 */
     float ropeCliffZ; /* 0x1C8 */
+#ifdef VERSION_NTSC
+    char pad1CC[12];
+#else
     char pad1CC[20];
+#endif
     float bodySize;
     int liftKind;
     int sizeClass; /* 0x1E8 */
@@ -93,7 +97,12 @@ typedef struct EnemyBattleWork { /* field names derived */
     int clingTarget; /* 0x220 */
     int waitCount;
     int slowTimer;
+#ifdef VERSION_NTSC
+    int liftedObj;   /* 0x224 */
+    char pad228[8];
+#else
     int liftedObj;   /* 0x22C */
+#endif
     float readyPosX; /* 0x230 */
     float readyPosY; /* 0x234 */
     float readyPosZ; /* 0x238 */
@@ -165,16 +174,26 @@ int GetEnemyTypeFromGObj(struct GObj *obj);
 int GetEnemyType(float x, float y, float z);
 int isEnemyKidnapEnable(GObj *self);
 inline int isEnemyActive(GObj *self);
+#ifdef VERSION_NTSC
+inline void subEnemyBrain_Idle(GObj *volatile self);
+inline void subEnemyBrain_Await(GObj *volatile self);
+inline void subEnemyBrain_ToGenerator(GObj *self);
+#else
 int GetMotherGeneratorLabelAskEnemy(struct GObj *enemy);
 struct GObj *GetMotherGeneratorGObjAskEnemy(struct GObj *enemy);
 inline void subEnemyBrain_Idle(GObj *volatile self);
 inline void subEnemyBrain_Await(GObj *volatile self);
+#endif
 inline void subEnemyBrain_FindGirl(GObj *volatile self);
 inline void subEnemyBrain_BodyGuard(GObj *volatile self);
 inline void subEnemyBrain_Shoulder(GObj *volatile self);
 inline void subEnemyBrain_Pickup(GObj *volatile self);
 inline void subEnemyBrain_Bodyslam(GObj *volatile self);
+#ifdef VERSION_NTSC
+void subEnemyBrain_Irregular(GObj *volatile self);
+#else
 inline void subEnemyBrain_Irregular(GObj *volatile self);
+#endif
 inline void _BrainMode_SetDirect(GObj *self, int mode, BrainModeTarget *tgt);
 inline void EnemyUtil_TurnToBoy(GObj *self, GObj *tgt, int smooze);
 inline int FlyMail(void *self);

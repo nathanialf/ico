@@ -23,7 +23,11 @@ inline float GetAttackCheckBoundaryRadius(GObj *self);
 
 static inline GObj *createAttackCheckBoundaryGObj(SObjSimpleSetting *lay) /* derived name */
 {
+#ifdef VERSION_NTSC
+    return CreateLayoutedGObj(62, 69, -1, 0, lay, -1, 7, 1);
+#else
     return CreateLayoutedGObj(63, 75, -1, 0, lay, -1, 7, 1);
+#endif
 }
 
 /* The 12-byte work record this function allocates and the other members
@@ -37,6 +41,7 @@ typedef struct { /* field names derived */
     int attr;    /* 0x8 */
 } AcbWork;       /* derived name */
 
+#ifndef VERSION_NTSC
 inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
 {
     AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 12, __FILE__, 27);
@@ -57,6 +62,7 @@ inline void AttackCheckBoundaryGeo(GObj *self)
         self->active = 0;
     }
 }
+#endif
 
 inline void AttackCheckBoundaryDL(GObj *obj)
 {
@@ -90,6 +96,29 @@ inline void SetAttackCheckBoundaryAttribute(GObj *self, int attr)
 inline float GetAttackCheckBoundaryRadius(GObj *self)
 {
     return GOBJ_SUB(self)->nodes->scale[0];
+#ifdef VERSION_NTSC
+}
+
+inline int InitAttackCheckBoundaryGeo(int unused, void *obj)
+{
+    AcbWork *w = (AcbWork *)iosMallocDebug(ios_partition_sugipon, 12, __FILE__, 27);
+
+    w->handle = (int *)((SObjSimpleSetting *)obj)->obj;
+    w->hit = 0;
+    *w->handle = 0;
+    w->attr = 0;
+    return (int)w;
+}
+
+inline void AttackCheckBoundaryGeo(GObj *self)
+{
+    GObj *owner = GOBJ_SUB(self)->parent.obj;
+    if (owner == 0)
+        return;
+    if (owner->active == 0) {
+        self->active = 0;
+    }
+#endif
 }
 
 inline GObj *CreateAttackCheckBoundary(int *obj, float x, float y, float z, float r)
@@ -114,6 +143,53 @@ inline void actAttackCheckBoundaryStart(GObj *self)
     p->flags18.ll |= 1LL << 32;
 }
 
+#ifdef VERSION_NTSC
+void AttackCheckBoundaryBeforeFunc(GObj *self)
+{
+    IosMailBox *box = &self->mailBox;
+    IosMail *e = box->mail;
+    int i;
+
+    for (i = 0; i < box->num; i++, e++) {
+        if (e->type == 13) {
+            if (e->arg == boyGObj) {
+                AcbWork *b = GOBJ_SUB(self)->work;
+                void *g = GetBoyWeaponGObj();
+
+                if (g != 0) {
+                    if (CheckWeaponKind(g) == 5 || CheckWeaponKind(g) == 4 ||
+                        CheckWeaponKind(g) == 6) {
+                        if (*b->handle < 2) {
+                            GOBJ_SUB(g)->ctrl.wallAttr = b->attr;
+                            ExecuteSEPackage(g, 71);
+                            b->hit = 2;
+                            *b->handle = 2;
+                            /* " - cut by the sword" */
+                            debug_StdPrintfDummy(" - 剣で切られた\n");
+                        }
+                        goto done;
+                    }
+                }
+                if (*b->handle <= 0) {
+                    ActSendMail_WithAdditionalData(boyGObj, 193, self, &b->attr);
+                    b->hit = 1;
+                    *b->handle = 1;
+                    /* " - cannot cut" */
+                    debug_StdPrintfDummy(" - きれない\n");
+                }
+            }
+        done:
+            {
+                Act *q = GOBJ_ACT(self);
+
+                q->attacker = 0;
+                q->hit = 0;
+            }
+        }
+    }
+    box->num = 0;
+}
+#else
 void AttackCheckBoundaryBeforeFunc(GObj *self)
 {
     IosMailBox *box = &self->mailBox;
@@ -160,6 +236,7 @@ void AttackCheckBoundaryBeforeFunc(GObj *self)
     }
     box->num = 0;
 }
+#endif
 
 /* the manager's 8-byte roster entries and its work block at sub+0x830 */
 typedef struct AcbEntry { /* field names derived */
@@ -190,11 +267,19 @@ AcbMgr *InitAttackCheckBoundaryManagerGeo(GObj *self, SObjSimpleSetting *lay)
     GObj *g;
 
     rec = &layoutClothDef[lay->obj];
+#ifdef VERSION_NTSC
+    mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 173);
+#else
     mgr = (AcbMgr *)iosMallocDebug(ios_partition_sugipon, 16, __FILE__, 180);
+#endif
     mgr->prev = mgr->cur;
     mgr->cur = 0;
     mgr->count = rec->count;
+#ifdef VERSION_NTSC
+    mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__, 182);
+#else
     mgr->list = (AcbEntry *)iosMallocDebug(ios_partition_sugipon, mgr->count * 8, __FILE__, 189);
+#endif
     v0[0] = rec->pt[0][0];
     v0[1] = -rec->pt[0][1];
     v0[2] = rec->pt[0][2];

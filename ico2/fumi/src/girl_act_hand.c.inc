@@ -113,7 +113,7 @@ void HandMgr_Speed(float f)
         float r;
         if (GOBJ_ACT(boyGObj)->curItem != 0) {
             r = 2.0f;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
         } else if (systemStatus[0] == 1) {
             r = (handmgr.handDist - 90.0f) / 120.0f + 1.1f;
             r = r < 1.0f ? 1.0f : (r > 1.4 ? 1.4f : r);

@@ -43,7 +43,7 @@ extern int exit_no;
 extern int motionFrameUpdate;
 extern int interlace;
 extern int thisIsYourStartStage;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
 extern int NonLinearCameraMove;
 #endif
 extern int GlobalTimer;
@@ -61,9 +61,11 @@ extern int IosCdLock;
 extern int IosSndLock;
 extern int IosStgMgrLock;
 extern int systemFault;
+#ifndef VERSION_NTSC
 extern int optionControlType; /* derived name */
 extern int optionScreenMode;  /* derived name */
 extern int girlControlMode;   /* derived name */
+#endif
 extern GObj *boyGObj;
 extern GObj *girlGObj;
 extern IosPadCtx *boyPad;

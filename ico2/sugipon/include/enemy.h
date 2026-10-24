@@ -18,6 +18,20 @@ typedef struct { /* field names derived */
     int last;    /* 0x04 */
 } EnemyKindRange; /* derived name */
 
+#ifdef VERSION_NTSC
+/* enemy-def: one enemy kind, 0x14 bytes, by kind: the model and the particle
+   object it is drawn with, its life, the scale its model is drawn at, then
+   the attribute word: the fly type in bits 0-1 and the battle type in bits
+   2-3. */
+typedef struct {  /* field names derived */
+    int model;    /* 0x00, the model id, 1515 for none */
+    int particle; /* 0x04, the particle object, -1 for none */
+    float life;   /* 0x08 */
+    float scale;  /* 0x0C */
+    unsigned int flyType : 2;
+    unsigned int battleType : 2;
+} EnemyDef; /* derived name */
+#else
 /* enemy-def: one enemy kind, 0x1C bytes, by kind: the model and the particle
    object it is drawn with, its life, the scale its model is drawn at, the
    dodge range, then the attribute word: the parameter row in bits 0-7, the
@@ -33,6 +47,7 @@ typedef struct {    /* field names derived */
     unsigned int flyType : 2;
     unsigned int battleType : 2;
 } EnemyDef; /* derived name */
+#endif
 
 extern const EnemyDef enemyKind[];
 extern const EnemyKindRange randomEnemyKind[];
@@ -45,9 +60,13 @@ void EnemySetfDisappearAll(struct GObj *self);
 int EnemyGetNSafeParts(struct GObj *self);
 void enemySetParticleDie(void *root, float *dir);
 int GetEnemyBattleType(struct GObj *self);
+#ifdef VERSION_NTSC
+float GetEnemyDefLife(struct GObj *self);
+#else
 float GetEnemyDefDodgeRange(struct GObj *self);
 float GetEnemyDefLife(struct GObj *self);
 float GetEnemyFlyXZAccel(struct GObj *self);
+#endif
 int *GetEnemyHitNodeFlag(struct GObj *self);
 int RandomizeEnemy(struct GObj *self);
 void ResetEnemyPositionInfo(struct GObj *self);

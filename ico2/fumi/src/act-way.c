@@ -20,6 +20,112 @@
 /* the three detour angles DetourCheck sweeps, in degrees, zero-terminated */
 static int detourAngle[4] = {75, -75, 0, 0}; /* derived name */
 
+#ifdef VERSION_NTSC
+static void DetourCheck(GObj *self, float *out)
+{
+    float orient[4];
+    float cur[4];
+    float o2[4];
+    float tmp[4];
+    float dir[4];
+    Act *act = GOBJ_ACT(self);
+    int i;
+    int wait = 0;
+    int ok = 0;
+
+    if (debug_girl_detour_flag == 0) {
+        return;
+    }
+    GetSkeltonOrient(orient, self, 44);
+    if (*(int *)((char *)GOBJ_ACT(self)->work + 0x810) != 0) {
+        out[0] = *(float *)((char *)GOBJ_ACT(self)->work + 0x820);
+        out[1] = *(float *)((char *)GOBJ_ACT(self)->work + 0x824);
+        out[2] = *(float *)((char *)GOBJ_ACT(self)->work + 0x828);
+        *(int *)((char *)GOBJ_ACT(self)->work + 0x810) -= 1;
+        return;
+    }
+    /* two identical case bodies */
+    switch (act->actMode) {
+    case 2:
+        ok = 1;
+        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
+        break;
+    case 3:
+        ok = 1;
+        wait = (60 - systemStatus[0] * 10) / systemStatus[1] * 40 / 60;
+        break;
+    }
+    /* the four tests are one statement */
+    if (ok == 0 || act->stick.mag == 0.0f || (GOBJ_SUB(self)->ctrl.flags & 2) == 0 ||
+        ((*(unsigned long long *)((char *)GOBJ_ACT(self)->work + 0x408) >> 33) & 1) == 0) {
+        return;
+    }
+    cur[0] = test_CURRENTROOT(self)[0];
+    cur[1] = test_CURRENTROOT(self)[1];
+    cur[2] = test_CURRENTROOT(self)[2];
+    GetSkeltonOrient(o2, self, 44);
+    for (i = 0; detourAngle[i] != 0; i++) {
+        dir[0] = o2[0];
+        dir[1] = o2[1];
+        dir[2] = o2[2];
+        _ApplyRyGV(dir, (float)detourAngle[i] * 3.1415927f / 180.0f);
+        sceVu0ScaleVector(tmp, dir, 100.0f);
+        sceVu0AddVector(tmp, cur, tmp);
+        if (ACTCheckCollis_WAY(10.0f, cur, tmp, 0, 0) == 0) {
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x820) = dir[0];
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x824) = dir[1];
+            *(float *)((char *)GOBJ_ACT(self)->work + 0x828) = dir[2];
+            *(int *)((char *)GOBJ_ACT(self)->work + 0x810) = wait;
+            return;
+        }
+    }
+}
+
+static int checkPositionIllegal(GObj *self, float *pos)
+{
+    float v[4];
+    float r[4];
+    float dy;
+    Act *act = GOBJ_ACT(self);
+
+    if (act->actMode == 108) {
+        return 0;
+    }
+    v[0] = pos[0];
+    v[1] = pos[1];
+    v[2] = pos[2];
+    debug_NMarker(v, 0, 255, 0, 100.0f);
+    r[0] = test_CURRENTROOT(self)[0];
+    r[1] = test_CURRENTROOT(self)[1];
+    r[2] = test_CURRENTROOT(self)[2];
+    r[1] = r[1] - GetDifferenceFromLastField(self, 0x2C);
+    debug_NMarker(r, 0, 0, 255, 100.0f);
+    dy = v[1] - r[1];
+    if (dy < 0.0f) {
+        if (-dy > 40.0f) {
+            return 1;
+        }
+        return 0;
+    }
+    return dy > 40.0f;
+}
+
+static inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *actor, void *posout)
+{
+    float a[4];
+    float b[4];
+
+    a[0] = p0[0];
+    a[1] = p0[1];
+    a[2] = p0[2];
+    b[0] = p1[0];
+    b[1] = p1[1];
+    b[2] = p1[2];
+    a[1] -= 50.0f;
+    b[1] -= 50.0f;
+    return ACTCheckCollis_WAY(10.0f, a, b, actor, posout);
+}
+#else
 static void DetourCheck(GObj *self, float *out)
 {
     float orient[4];
@@ -151,6 +257,7 @@ inline unsigned char WayMove_CheckCollis(float *p0, float *p1, void *actor, void
     b[1] -= 50.0f;
     return ACTCheckCollis_WAY(10.0f, a, b, actor, posout);
 }
+#endif
 
 /* three helpers inlined into ACTWayMove_BeginDetail and
    ACTWayMove_NextDetail */
@@ -233,11 +340,18 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     home = &act->way;
     way = *home;
     wp = &way;
+#ifdef VERSION_NTSC
+    act->wayFlags &= ~0x10000;
+    act->wayState.flags = (act->wayState.flags & ~0x200000) |
+                          ((long long)(checkPositionIllegal(self, goal) & 1) << 21);
+    *(float *)((char *)act + 0x424) = goal[1];
+#else
     act->wayFlags &= ~0x20000;
     act->wayFlags &= ~0x40000;
     act->wayState.flags = (act->wayState.flags & ~0x200000) |
                           ((long long)(checkPositionIllegal(self, goal) & 1) << 21);
     *(float *)((char *)act + 0x434) = goal[1];
+#endif
     w = RequestWayBegin((char *)self, goal, from, wp, sub);
     if (w != 0) {
         act->wayState.st[1] = 0;
@@ -254,16 +368,27 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
         }
         *home = way;
         act->wayLast = 0;
+#ifdef VERSION_NTSC
+        *(int *)((char *)act + 0x3F4) = (int)tgt;
+        *(float *)((char *)act + 0x400) = from[0];
+        *(float *)((char *)act + 0x404) = from[1];
+        *(float *)((char *)act + 0x408) = from[2];
+#else
         *(int *)((char *)act + 0x404) = (int)tgt;
         *(float *)((char *)act + 0x410) = from[0];
         *(float *)((char *)act + 0x414) = from[1];
         *(float *)((char *)act + 0x418) = from[2];
+#endif
         act->wayState.st[0] = 1;
     } else {
         act->wayState.st[0] = 0;
     }
     act->wayState.flags &= ~0x10000;
     act->wayState.flags &= ~0x1E0000;
+#ifdef VERSION_NTSC
+    *(int *)((char *)act + 0x420) = 0;
+    *(int *)((char *)GOBJ_ACT(self)->work + 0x810) = 0;
+#else
     *(int *)((char *)act + 0x430) = 0;
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     *(int *)((char *)GOBJ_ACT(self)->work + 0x8D0) = 0;
@@ -275,6 +400,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
             act->wayFlags |= 0x40000;
         }
     }
+#endif
     return ret;
 }
 
@@ -290,8 +416,12 @@ typedef struct {     /* field names derived */
 /* the two templates act-way.o keeps in .data: the cleared way-walker record
    (its waypoint id starts at -1) and the cleared way-step record (its two
    distances start at the largest float) */
+#ifdef VERSION_NTSC
+WVTObj INITIAL_ACTMYWAY = {{0}, {0}, {0}, 0, 0, 0, 0, 0, {0}, 0, {0}, {0}, 0, -1};
+#else
 static WVTObj wayWorkClear = {{0}, {0}, {0}, 0,   0,   0, 0,
                               0,   {0}, 0,   {0}, {0}, 0, -1}; /* derived name */
+#endif
 
 static WayStep wayStepClear = {
     {0.0f, 0.0f, 0.0f, 0.0f}, 0, 3.4028235e38f, 3.4028235e38f}; /* derived name */
@@ -300,6 +430,273 @@ static WayStep wayStepClear = {
    carries, and its GetRootProjectionPosOfGObj / IsThisBoxTruck call forms do
    not fit motionManager2.h and box.h */
 
+#ifdef VERSION_NTSC
+int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d)
+{
+    float pos[4];
+    Act *act = GOBJ_ACT(self);
+    WVTObj *way;
+    int again = 0;
+    int w;
+    WayPoint *wp;
+    int r;
+    unsigned char ok;
+    float dy;
+    int n;
+
+    *(WayStep *)((char *)act + 0x3D0) = wayStepClear;
+    act->wayNodeX = node[0];
+    act->wayNodeY = node[1];
+    act->wayNodeZ = node[2];
+    if (act->wayState.st[0] == 0) {
+        /* EUC-JP, "there is no route" */
+        debug_StdPrintfDummy("ルートがありません\n");
+    }
+    GetRootProjectionPosOfGObj(pos, self);
+    dy = pos[1] - *(float *)((char *)act + 0x424);
+    if (dy < 0.0f ? -dy > 120.0f : dy > 120.0f) {
+        /* disabled prints, here and at the two rechecks below */
+        if (0) {
+            debug_StdPrintfDummy("WBP set [height]\n");
+        }
+        ACTWay_SetBeginPositionIllegal(self);
+    }
+    *(float *)((char *)act + 0x424) = pos[1];
+    if (((int)(act->wayState.flags >> 21) & 1) != 0) {
+        if (checkPositionIllegal(self, pos) == 0) {
+            act->wayState.flags &= ~0x200000;
+            DeleteGuideWay(&act->way);
+            act->way = INITIAL_ACTMYWAY;
+            if (0) {
+                debug_StdPrintfDummy("WBP recheck first");
+            }
+            again = 1;
+        }
+    }
+    if (((int)(act->wayState.flags >> 16) & 1) == 0) {
+        if (_DistGV(goal, (char *)act + 0x400) > 300.0f) {
+            if (((int)(act->wayState.flags >> 17) & 0xF) == 0) {
+                if (act->actMode != 38) {
+                    if (0) {
+                        debug_StdPrintfDummy("WBP recheck second");
+                    }
+                    again = 1;
+                }
+            }
+        }
+    }
+    if (again != 0) {
+        w = ACTWayMove_BeginDetail(self, pos, goal, *(void **)((char *)act + 0x3F4), 0, d);
+        act->wayFlags |= 0x20000;
+        if (w == 0) {
+            return 0;
+        }
+    }
+    if (act->way.flag6C != 0) {
+        if (act->way.chk.start != 0 && _DistSqGV(act->way.chk.start->pos, pos) < 10000.0f) {
+            float d = pos[1] - act->way.chk.start->pos[1];
+
+            if (d < 0.0f ? -d < 150.0f : d < 150.0f) {
+                act->wayFlags |= 0x10000;
+            }
+        }
+    }
+    if (act->actMode == 38) {
+        float v0[4];
+        float v1[4];
+
+        {
+            sceVu0CopyVector(v0, act->way.nrm);
+            sceVu0CopyVector(v1, (float *)((char *)act + 0x540));
+            v0[1] = v1[1] = 0.0f;
+            if (sceVu0InnerProduct(v0, v1) > 0.0f) {
+                act->stick.y = 255;
+            } else {
+                act->stick.y = 0;
+            }
+            act->stick.mag = 1.0f;
+            act->wayState.st[1] = 0;
+            if (self == girlGObj && goal[1] - *(float *)((char *)act + 0x404) > 150.0f &&
+                pos[1] < goal[1]) {
+                if (((int)(act->wayState.flags >> 17) & 0xF) == 0) {
+                    *(int *)((char *)act + 0x420) =
+                        (60 - systemStatus[0] * 10) / systemStatus[1] * 90 / 60;
+                }
+                act->wayState.flags = (act->wayState.flags & ~0x1E0000) | 0x40000;
+                act->wayDetailX = *(float *)((char *)act + 0x540);
+                act->wayDetailY = *(float *)((char *)act + 0x544);
+                act->wayDetailZ = *(float *)((char *)act + 0x548);
+            }
+            if ((*(int *)((char *)act + 0x420))-- > 0) {
+                act->stick.y = 128;
+            } else if (((int)(act->wayState.flags >> 17) & 0xF) != 0) {
+                act->stick.y = 255;
+            }
+        }
+    } else {
+        n = (int)(act->wayState.flags >> 17) & 0xF;
+        if (n > 0) {
+            act->wayState.flags =
+                (act->wayState.flags & ~0x1E0000) | ((long long)((n - 1) & 0xF) << 17);
+            if (((int)(act->wayState.flags >> 17) & 0xF) == 0) {
+                goto restart;
+            }
+            act->stick.mag = 1.0f;
+            act->wayNodeX = act->wayDetailX;
+            act->wayNodeY = act->wayDetailY;
+            act->wayNodeZ = act->wayDetailZ;
+            node[0] = act->wayNodeX;
+            node[1] = act->wayNodeY;
+            node[2] = act->wayNodeZ;
+            return 1;
+        }
+    }
+    switch (act->wayState.st[1]) {
+    case 0:
+        if (self == girlGObj) {
+            SuspendGirlPullupFloorBox();
+        }
+        *(short *)((char *)act + 0x3E0) = 1;
+        way = &act->way;
+        wp = GetWay_next(way, pos);
+        if (wp != 0) {
+            if (act->wayLast != wp) {
+                if (act->wayLast != 0) {
+                    if (act->way.guideFirst <= 0) {
+                        *(short *)((char *)act + 0x3E0) = 1;
+                    }
+                }
+                act->wayLast = wp;
+            }
+        }
+        if (self == girlGObj) {
+            ResumeGirlPullupFloorBox();
+        }
+        act->wayNodeX = act->way.nrm[0];
+        act->wayNodeY = act->way.nrm[1];
+        act->wayNodeZ = act->way.nrm[2];
+        if (self == boyGObj || self == girlGObj) {
+            DetourCheck(self, (float *)((char *)act + 0x3D0));
+        }
+        if (act->way.flag3C == 0 &&
+            WayMove_CheckCollis(pos, goal, *(void **)((char *)act + 0x3F4), 0) == 0 &&
+            act->actMode != 38) {
+            act->wayState.st[1] = 1;
+            DeleteGuideWay(way);
+            *(short *)((char *)act + 0x3E0) = 2;
+        }
+        break;
+    case 1: {
+        int chk = 1;
+
+        *(short *)((char *)act + 0x3E0) = 2;
+        ok = WayMove_CheckCollis(pos, goal, *(void **)((char *)act + 0x3F4), 0);
+        if (stage_no != 22) {
+            chk = 0;
+        }
+        if (stage_no == 8 || chk != 0) {
+            if (self == girlGObj && wallGObj_ACTCheckCollis_WAY != 0 &&
+                *(int *)((char *)wallGObj_ACTCheckCollis_WAY + 0xC) == 17 &&
+                IsThisBoxTruck(wallGObj_ACTCheckCollis_WAY) != 7 &&
+                _DistSqGV(goal, test_CURRENTROOT(wallGObj_ACTCheckCollis_WAY)) < 40000.0f &&
+                _DistxzSqGV(pos, test_CURRENTROOT(wallGObj_ACTCheckCollis_WAY)) < 40000.0f) {
+                ok = 0;
+            }
+        }
+        if (ok != 0) {
+            goto restart;
+        }
+        _OrientXZGV((float *)((char *)act + 0x3D0), goal, pos);
+        if (self == boyGObj || self == girlGObj) {
+            DetourCheck(self, (float *)((char *)act + 0x3D0));
+        }
+        act->wayGoalDist = _DistxzGV(goal, pos);
+        act->wayGoalHeight = goal[1] - pos[1];
+        break;
+    }
+    }
+    if (act->way.reached == 0 ||
+        (stage_no == 22 && self->kind == 4 && ((int)(act->wayFlags >> 16) & 1) != 0)) {
+        goto done;
+    }
+restart:
+    *(short *)((char *)act + 0x3E0) = 3;
+    r = ACTWayMove_BeginDetail(self, pos, goal, *(void **)((char *)act + 0x3F4), 0, d);
+    if (r == 0) {
+        return 0;
+    }
+done:
+    return 1;
+}
+
+int ACTWayExec_Position(GObj *self, int tgt, float *dir, float speed, int flags)
+{
+    /* an inline function nested in the body: whether flags has the mask's bits */
+    inline unsigned char way_flag(int mask) /* derived name */
+    {
+        if (flags & mask) {
+            return 1;
+        }
+        return 0;
+    }
+
+    Act *w = GOBJ_ACT(self);
+    char *node;
+    float d2[4];
+    float p2[4];
+    float v[4];
+    float pos[4];
+    float f;
+
+    if (way_flag(1)) {
+        sceVu0ScaleVector(v, dir, -1.0f);
+    } else {
+        v[0] = dir[0];
+        v[1] = dir[1];
+        v[2] = dir[2];
+    }
+    if (way_flag(4)) {
+        GetRootProjectionPosOfGObj(pos, (GObj *)tgt);
+        if (WayMove_CheckCollis(pos, v, 0, 0)) {
+            v[0] = pos[0];
+            v[1] = pos[1];
+            v[2] = pos[2];
+        }
+    }
+    d2[0] = v[0];
+    d2[1] = v[1];
+    d2[2] = v[2];
+    GetRootProjectionPosOfGObj(p2, self);
+    if (ACTWayMove_BeginDetail(self, p2, d2, (void *)tgt, 0, 0) == 0) {
+        return 0;
+    }
+    node = (char *)w + 0x110;
+    for (;;) {
+        d2[0] = v[0];
+        d2[1] = v[1];
+        d2[2] = v[2];
+        GetRootProjectionPosOfGObj(p2, self);
+        if (ACTWayMove_NextDetail(self, (float *)node, d2, 0) == 0) {
+            return 0;
+        }
+        f = w->wayGoalDist;
+        w->dir[0] = w->wayNodeX;
+        w->dir[1] = w->wayNodeY;
+        w->dir[2] = w->wayNodeZ;
+        if (f < speed) {
+            if (w->wayGoalHeight < 100.0f) {
+                return 1;
+            }
+        }
+        if (f < 200.0f || way_flag(2)) {
+            w->stick.mag = 0.5f;
+        } else {
+            w->stick.mag = 1.0f;
+        }
+        _ACTWait(1);
+    }
+}
+#else
 int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d, unsigned char e)
 {
     float pos[4];
@@ -600,6 +997,7 @@ int ACTWayExec_Position(GObj *self, int tgt, float *dir, float speed, int flags)
         _ACTWait(1);
     }
 }
+#endif
 
 int ACTWay_IsMustWalkFromWay(GObj *self)
 {

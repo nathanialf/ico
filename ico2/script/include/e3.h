@@ -15,8 +15,13 @@ struct SqEntry;
 /* e3.o's .sdata globals */
 extern struct SqEntry *e3capsule;
 extern struct SqEntry *e3gate1st;
+#ifdef VERSION_NTSC
+extern unsigned int sekizo_e3;
+extern unsigned char sekizo_e3_vol;
+#else
 extern struct SqEntry *sekizo_e3;
 extern int sekizo_e3_vol;
+#endif
 /* e3.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 inline void actE3CapsuleDemoEnd(GObj *volatile self);
@@ -27,7 +32,9 @@ inline void actE3St13cIntroChk(GObj *volatile self);
 inline void actE3CageFallReadyChk(GObj *volatile self);
 inline void actE3St01bEneChk(GObj *volatile self);
 void actE3St09aGirlWay(GObj *volatile self);
+#ifndef VERSION_NTSC
 inline void actE3St09aBrgMain(GObj *volatile self);
+#endif
 void actE3CageFallChk(GObj *volatile self);
 void actE3CageFallDemo(GObj *volatile self);
 void actE3CageFallEffect(GObj *volatile self);

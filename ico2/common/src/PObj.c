@@ -16,12 +16,20 @@ typedef struct PktHdr { /* field names derived */
 } PktHdr;     /* derived name */
 
 typedef struct PObjPkt { /* field names derived */
+#ifdef VERSION_NTSC
+    char pad0[2080];
+    struct PObj *owner; /* 0x820 */
+    char pad824[28];
+    void *nodes;      /* 0x840, one 80-byte node record a part */
+    PktHdr *lightMtx; /* 0x844, the light matrices (Light.h), their mode at 0xF0 */
+#else
     char pad0[2132];
     struct PObj *owner; /* 0x854 */
     char pad858[24];
     void *nodes;      /* 0x870, one 80-byte node record a part */
     PktHdr *lightMtx; /* 0x874, the light matrices (Light.h), their mode at 0xF0 */
-} PObjPkt;            /* derived name */
+#endif
+} PObjPkt; /* derived name */
 
 typedef struct PObjSub { /* field names derived */ /* 0x180 stride, hung off the PObj at 0x40 */
     long long pad0[18];
@@ -181,7 +189,11 @@ static void MakePacket(PObj *p, int n)
     p->tag.v.lightScale = modelData[n].lightScale;
     p->ambientScale = modelData[n].ambientScale;
 
+#ifdef VERSION_NTSC
+    q = (PObjPkt *)mallocseki(0x850);
+#else
     q = (PObjPkt *)mallocseki(0x880);
+#endif
     p->pkt = q;
     q->lightMtx = (PktHdr *)mallocseki(0x100);
     q->lightMtx->kind = modelData[n].pktKind;

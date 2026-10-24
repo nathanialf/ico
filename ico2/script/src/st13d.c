@@ -22,6 +22,33 @@ static const PosBox exitRPos = {{854.0f, -156.0f, -400.0f, 0.0f}}; /* derived na
 
 static const PosBox exitLPos = {{854.0f, -156.0f, 400.0f, 0.0f}}; /* derived name */
 
+#ifdef VERSION_NTSC
+void actSt13dExit(GObj *volatile self)
+{
+    GObj *x = self;
+    PosBox pos;
+    PosBox size;
+    PosBox p;
+
+    actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(17) == 0) {
+        ScpCallCameraOff();
+    }
+
+    pos = exitPos;
+    size = exit2Pos;
+
+    GetRootPosition(&p, boyGObj);
+
+    while (scpTriggerPosBox((float *)&p, (float *)&pos, (float *)&size) == 0) {
+        _ACTWait(1);
+    }
+
+    RequestStageChange(2, boyGObj, 0, 16.0f, 16.0f);
+}
+#else
 void actSt13dExit(GObj *volatile self)
 {
     GObj *x = self;
@@ -47,6 +74,7 @@ void actSt13dExit(GObj *volatile self)
 
     RequestStageChange(2, boyGObj, 0, 16.0f, 16.0f);
 }
+#endif
 
 void actSt13dExitR(GObj *volatile self)
 {

@@ -78,12 +78,17 @@ void iosInitialize(void)
 {
     debug_StdPrintfDummy("iosInitialize()\n");
     iosThreadInit();
+#ifdef VERSION_NTSC
+    ios_partition_root = iosMallocInitPartition(0x780000, 0x1FEFFF0);
+    ios_partition_common = iosMallocSetPartition(ios_partition_root, 4194304, 16);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     ios_partition_root = iosMallocInitPartition(0x780000, 0x1FEFFF0);
 #else
     ios_partition_root = iosMallocInitPartition(0x760000, 0x1FEFFF0);
 #endif
     ios_partition_common = iosMallocSetPartition(ios_partition_root, 4227072, 16);
+#endif
     ios_partition_smotion = iosMallocSetPartition(ios_partition_root, 1179648, 16);
     ios_partition_s2motion = iosMallocSetPartition(ios_partition_root, 3145728, 16);
     ios_partition_event = iosMallocSetPartition(ios_partition_root, 262144, 16);
@@ -97,8 +102,13 @@ void iosInitialize(void)
     ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
         iosMallocSetPartition(ios_partition_root, 15695872, 16);
 #else
+#ifdef VERSION_NTSC
+    ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
+        iosMallocSetPartition(ios_partition_root, 15728640, 16);
+#else
     ios_partition_isys = ios_partition_seki = ios_partition_sugipon = ios_partition_dmotion =
         iosMallocSetPartition(ios_partition_root, 15826944, 16);
+#endif
 #endif
     iosMallocSetPartitionName(ios_partition_isys, "stage");
     iosMallocSetPartitionName(ios_partition_smotion, "stat mot");

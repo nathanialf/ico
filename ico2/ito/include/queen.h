@@ -8,7 +8,9 @@
 #ifndef QUEEN_H
 #define QUEEN_H
 
+#ifndef VERSION_NTSC
 float GetQueenBallThickness(void);
+#endif
 int InqQueenBarrierExist(void);
 float QueenBallRadius(struct GObj *gobj);
 int QueenBarrierInqBreakable(void);

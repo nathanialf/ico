@@ -24,7 +24,9 @@ static inline void entryMultiBga(BgaDisp *bga, int no, int kind, void *pos,
     BgaDisp *p = &bga[no];
 
     p->kind = kind;
+#ifndef VERSION_NTSC
     p->stay = 0;
+#endif
     CopyVector(p->pos, pos);
     CopyVector(p->vel, ZeroVector);
     CopyQuaternion(p->rot, rot);
@@ -56,7 +58,9 @@ void EntryMultiBgaManagerSensitive(BgaDisp *bga, int no, int kind, void *pos, vo
     BgaDisp *p = &bga[no];
 
     p->kind = kind;
+#ifndef VERSION_NTSC
     p->stay = 0;
+#endif
     CopyVector(p->pos, pos);
     CopyVector(p->vel, sens);
     CopyQuaternion(p->rot, rot);

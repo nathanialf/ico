@@ -22,7 +22,11 @@ void TorchDL(void);
 int IsTorchLightOn(struct GObj *torch);
 struct GObj *CheckTorchChainReaction(struct GObj *self, float dist);
 struct GObj *CheckTorchChainReactionReverse(struct GObj *self, float dist);
+#ifdef VERSION_NTSC
+void SetTorchLife(struct GObj *torch, int life);
+#else
 void SetTorchLife(struct GObj *torch, int life, int fadeTime);
+#endif
 void SetTorchChainReactionFlag(struct GObj *torch, int flag);
 void UpdateRealTimeGeometryValue(struct GObj *self);
 void LightTorchOff(struct GObj *gobj);

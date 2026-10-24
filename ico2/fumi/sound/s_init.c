@@ -468,19 +468,33 @@ void soundDataOpen(AdpcmOpenReq *work, int mode, int no, int ch, int loopNum)
     work->mode = mode;
     switch (mode) {
     case 0:
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 609);
+        __assert(__FILE__, 609, "0");
+        break;
+    case 1:
+        debug_assert(__FILE__, 612);
+        __assert(__FILE__, 612, "0");
+#else
         debug_assert(__FILE__, 614);
         __assert(__FILE__, 614, "0");
         break;
     case 1:
         debug_assert(__FILE__, 617);
         __assert(__FILE__, 617, "0");
+#endif
         break;
     case 2:
         AdpcmOpen(work, no, ch, loopNum);
         break;
     default:
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 618);
+        __assert(__FILE__, 618, "0");
+#else
         debug_assert(__FILE__, 623);
         __assert(__FILE__, 623, "0");
+#endif
     }
 }
 
@@ -488,18 +502,32 @@ SqEntry *soundDataOpenSync(AdpcmOpenReq *work)
 {
     switch (work->mode) {
     case 0:
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 626);
+        __assert(__FILE__, 626, "0");
+        break;
+    case 1:
+        debug_assert(__FILE__, 629);
+        __assert(__FILE__, 629, "0");
+#else
         debug_assert(__FILE__, 631);
         __assert(__FILE__, 631, "0");
         break;
     case 1:
         debug_assert(__FILE__, 634);
         __assert(__FILE__, 634, "0");
+#endif
         break;
     case 2:
         return AdpcmOpenSync(work);
     default:
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 635);
+        __assert(__FILE__, 635, "0");
+#else
         debug_assert(__FILE__, 640);
         __assert(__FILE__, 640, "0");
+#endif
     }
     return 0;
 }
@@ -960,6 +988,123 @@ inline void soundSePlayModeStop(int arg)
     } while (i < 48);
 }
 
+#ifdef VERSION_NTSC
+static int _soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMode,
+                           const SeEnvDef *env, SeSlot **out, float vol)
+{
+    SeDef *src;
+    const SeKind *def;
+    SqEntry *e;
+    SeSlot *slot;
+    unsigned short *kp;
+    int cb;
+
+    /* the search key as a bank:num pair written field by field, bank first */
+    union { /* field names derived */
+        int all;
+
+        struct {
+            unsigned int num : 16;
+            unsigned int bank : 16;
+        } b;
+    } key;
+
+    int r;
+    int ch;
+    int t;
+
+    src = &seDef[kind];
+    kp = &seKind[src->kind];
+    cb = 0;
+    if (out != 0) {
+        *out = 0;
+    }
+    if (env != 0) {
+        cb = (int)env->proc;
+    }
+    if (*kp == 0) {
+        return -2;
+    }
+    def = &seList[*kp];
+    if (kind == 0 || kind >= 1389) {
+        return -2;
+    }
+    key.b.bank = 11;
+    key.b.num = def->num;
+    e = soundDataAreaSearch(&key.all);
+    if (e == 0) {
+        return -3;
+    }
+    t = e->seg;
+    if (t == 1)
+        playMode = (playMode != 0) ? playMode : t;
+    switch (src->playMode) {
+    case 1:
+        if (se_find_slot(src, out) < 0) {
+            break;
+        }
+        if (out == 0 || env == 0 || (*out)->env == 0 || memcmp(env, (*out)->env, 0x1C) == 0) {
+            return -1;
+        }
+        goto stop_old;
+    case 2:
+    stop_old:
+        r = se_find_slot(src, out);
+        if (r != -1) {
+            soundSeDefStop((seSlotTbl[r].num << 8) | r);
+        }
+        break;
+    case 0:
+        break;
+    }
+    ch = seChAlloc(e);
+    if (ch < 0) {
+        debug_StdPrintfDummy("se request buff over\n");
+        return -1;
+    }
+    slot = &seSlotTbl[ch];
+    if (out != 0) {
+        *out = slot;
+    }
+    slot->flag.bit.playMode = playMode;
+    slot->src = src;
+    slot->flag.bit.audible = src->audible;
+    if (vol < 0.0f) {
+        slot->volumeRate = src->volume;
+    } else {
+        slot->volumeRate = vol;
+    }
+    slot->attenuator = 1000.0f;
+    slot->maxVolumeRange = 500.0f;
+    slot->volumeLength = 3000.0f;
+    slot->pos = pos;
+    slot->level0 = slot->level1 = 4096;
+    slot->vol0 = slot->flag.bit.vol1 = -1;
+    slot->flag.bit.soloMute = 0;
+    slot->flag.bit.levelHeight = 0;
+    slot->flag.bit.stereo = slot->flag.bit.rearFade = 1;
+    slot->flag.bit.maxVolumeType = 1;
+    slot->stereoRate = 0.1f;
+    slot->proc = (int (*)())cb;
+    slot->owner = owner;
+    slot->env = env;
+    if (stage_no == 37) {
+        slot->volumeLength = 10000.0f;
+    }
+    if ((slot->handle = SgSePlay(e->vab, def->prog, def->tone)) < 0) {
+        seReqChClear(e, ch);
+        debug_StdPrintfDummy("se not open\n");
+        return -1;
+    }
+    if (src->shock != 0) {
+        slot->padAct = iosPadActRequest(boyPad, src->shock);
+    } else {
+        slot->padAct = 0;
+    }
+    slot->req = e;
+    return (slot->num << 8) | ch;
+}
+#else
 static int _soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMode,
                            const SeEnvDef *env, SeSlot **out, float vol)
 {
@@ -1075,6 +1220,7 @@ static int _soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMod
     slot->req = e;
     return (slot->num << 8) | ch;
 }
+#endif
 
 inline int soundSeDefPlay(int kind, unsigned int owner, float *pos, int playMode)
 {
@@ -1213,6 +1359,32 @@ inline void soundVBlank(void)
     }
 }
 
+#ifdef VERSION_NTSC
+inline void soundSeKindBuild(void)
+{
+    int i;
+    int j;
+    unsigned short num;
+    char *e;
+
+    for (i = 1388; i >= 0; i--) {
+        seKind[i] = 0;
+    }
+
+    for (i = 0; i < 16; i++) {
+        e = (char *)&soundDataTbl[i];
+        if (*(unsigned short *)(e + 2) == 11) {
+            num = *(unsigned short *)e;
+            for (j = 0; j < 3806; j++) {
+                const SeKind *p = &seList[j];
+                if (p->num == num) {
+                    seKind[p->idx] = j;
+                }
+            }
+        }
+    }
+}
+#else
 inline void soundSeKindBuild(void)
 {
     int i;
@@ -1237,6 +1409,7 @@ inline void soundSeKindBuild(void)
         }
     }
 }
+#endif
 
 inline int soundSeSemiCommonLoadChk(void)
 {
@@ -1285,13 +1458,121 @@ void soundSeEnvPlay(void)
             slot->env = e;
             soundSeEnvDefaultSet(slot);
             if (e->ownPos == 1) {
+#ifdef VERSION_NTSC
+                slot->pos = iosMallocDebug(ios_partition_sound, 16, __FILE__, 1560);
+#else
                 slot->pos = iosMallocDebug(ios_partition_sound, 16, __FILE__, 1565);
+#endif
             }
         }
     }
 }
 
 /* &stageData[0].seEnvFirst, the range soundSeEnvNotUseClose walks */
+#ifdef VERSION_NTSC
+extern char D_005F30C8[];
+
+void soundSeEnvNotUseClose(int a, int b)
+{
+    const SeBank *p = 0;
+    SeSlot *e;
+    SqEntry *q;
+    int ok;
+    int i;
+    int n;
+    int k;
+    int idx;
+    int m;
+    int j;
+    int x;
+    int *first;
+    SqEntry *req;
+
+    ok = 1;
+    for (i = stageData[a].seSegFirst; i < stageData[a].seSegLast; i++) {
+        if (seFile[i].loaded == 1) {
+            p = &seFile[i];
+            break;
+        }
+    }
+    n = i;
+    if (p != 0) {
+        for (i = stageData[b].seSegFirst; i < stageData[b].seSegLast; i++) {
+            if (seFile[i].loaded == 1) {
+                if (strcmp(p->hdPath, seFile[i].hdPath) == 0) {
+                    ok = 0;
+                }
+                break;
+            }
+        }
+    }
+    if (ok == 0) {
+        idx = -1;
+        for (k = 0; k < 16; k++) {
+            q = &soundDataTbl[k];
+            if (q->bank == 11) {
+                if (q->num == i) {
+                    idx = k;
+                    break;
+                }
+            }
+        }
+        if (idx >= 0) {
+            soundDataTbl[idx].num = n;
+        }
+    }
+    if (seEnvForceClose != 0) {
+        ok = 1;
+    }
+    for (m = 0; m < 48; m++) {
+        e = &seSlotTbl[m];
+        req = e->req;
+        first = (int *)&D_005F30C8[a * 404];
+        if (req != 0 && req->mode == 0 && e->owner == 0xFFFFFFFF) {
+            for (j = *first; j < *(int *)&D_005F30C8[a * 404 + 4]; j++) {
+                if (e->src == &seDef[seEnv[j].se]) {
+                    if (ok == 0 || seFile[seList[seKind[e->src->kind]].num].loaded != 1) {
+                        goto next;
+                    }
+                }
+            }
+            if (ok != 0 && seList[seKind[e->src->kind]].num >= 7 && a != 10) {
+                soundSeDefStopNoRelease((e->num << 8) | m);
+            } else if (e->src != &seDef[403] && e->src != &seDef[402]) {
+                soundSeDefStop((e->num << 8) | m);
+            }
+        }
+    next:;
+    }
+    if (seSemiCommonLoaded == 0) {
+        soundDataSegAllClose(2, 0);
+    }
+    if (ok != 0) {
+        if (p != 0 || seEnvForceClose != 0) {
+            soundDataSegAllClose(2, 0);
+            seSemiCommonLoaded = 2;
+        } else {
+            seSemiCommonLoaded = 0;
+        }
+    } else {
+        seSemiCommonLoaded = 1;
+    }
+    seEnvForceClose = 0;
+    for (m = 0; m < 48; m++) {
+        SeSlot *s = &seSlotTbl[m];
+        SqEntry *r = s->req;
+
+        if (r != 0 && r->mode == 0 && s->env != 0) {
+            x = *(int *)s->env;
+            if (x < 418) {
+                if (x >= 414) {
+                    soundSeDefStop((s->num << 8) | m);
+                }
+            }
+        }
+    }
+}
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
 #ifdef VERSION_KOR
 extern char D_005EFC20[];
@@ -1418,6 +1699,7 @@ void soundSeEnvNotUseClose(int a, int b)
         }
     }
 }
+#endif
 
 void soundDataSegNextStageNotUseClose(int mode, int stage)
 {
@@ -1447,8 +1729,13 @@ void soundDataSegNextStageNotUseClose(int mode, int stage)
                 }
                 break;
             default:
+#ifdef VERSION_NTSC
+                debug_assert(__FILE__, 1736);
+                __assert(__FILE__, 1736, "0");
+#else
                 debug_assert(__FILE__, 1741);
                 __assert(__FILE__, 1741, "0");
+#endif
                 break;
             }
         }

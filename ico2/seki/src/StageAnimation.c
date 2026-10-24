@@ -69,7 +69,11 @@ static int stageAnimCount; /* derived name */
 
 static BgaPlayNode *bgaPlayList; /* derived name */
 
+#ifdef VERSION_NTSC
+static StageAnim stageAnimTable[82]; /* derived name */
+#else
 static StageAnim stageAnimTable[87]; /* derived name */
+#endif
 
 #include "ios.h"
 #include <stdio.h>
@@ -104,8 +108,8 @@ static void stage_MakeGObj(int *dat, int no)
     g = isysGObjAdd(0, 0, 0);
     if (g == 0) {
         debug_StdPrintfDummy("stage_MakeGObj:can't alloc gobj %d\n", no);
-        debug_assert(__FILE__, LN(541, 525, 525));
-        __assert(__FILE__, LN(541, 525, 525), "0");
+        debug_assert(__FILE__, LN(541, 525, 525, 501));
+        __assert(__FILE__, LN(541, 525, 525, 501), "0");
     }
     e->kind[e->flags.b.count] = kind;
     g->labelType = 1;
@@ -125,11 +129,58 @@ static void stage_MakeGObj(int *dat, int no)
     e->flags.i = w;
     if (((w << 22) >> 22) >= 64) {
         debug_Assert("Too much Stage Animation Objects.\n");
-        debug_assert(__FILE__, LN(562, 546, 546));
-        __assert(__FILE__, LN(562, 546, 546), "0");
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 522);
+        __assert(__FILE__, 522, "0");
+#else
+        debug_assert(__FILE__, LN(562, 546, 546, 562));
+        __assert(__FILE__, LN(562, 546, 546, 562), "0");
+#endif
     }
 }
 
+#ifdef VERSION_NTSC
+void stage_ApplyData(char *name, char *data)
+{
+    const int *tbl[2] = {&stageData[stage_no].animLayoutFirst, &stageData[stage_no].labelTop};
+    char buf[1024];
+    int m;
+    int i;
+    int j;
+    int n;
+    int id;
+    GenGeo *rec;
+    StgBgaSet *ent;
+    StageAnimDef *obj;
+
+    for (m = 0; m < 2; m++) {
+        for (i = tbl[m][0]; i < tbl[m][1]; i++) {
+            rec = &objLayout[i];
+            n = rec->action;
+            if (n != 0) {
+                ent = &objAction[n];
+                for (j = 0; j < 2; j++) {
+                    id = ent->anim[j];
+                    obj = &stageTable[id];
+                    if (id != 815) {
+                        if (strcmp(name, obj->path) == 0) {
+                            if (strncmp(data, "BGA", 3) == 0) {
+                                obj->data = bga_InitData(data);
+                            } else {
+                                obj->data = data;
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    sprintf(buf, "stage_ApplyData:Data is not registered. \n\n%s\n", name);
+    debug_assertMessage(__FILE__, 577, buf);
+    __assert(__FILE__, 577, "e");
+}
+#else
 void stage_ApplyData(char *name, char *data)
 {
     const int *tbl[2] = {&stageData[stage_no].animLayoutFirst, &stageData[stage_no].labelTop};
@@ -171,9 +222,10 @@ void stage_ApplyData(char *name, char *data)
         }
     }
     sprintf(buf, "stage_ApplyData:Data is not registered. \n\n%s\n", name);
-    debug_assertMessage(__FILE__, LN(617, 601, 601), buf);
-    __assert(__FILE__, LN(617, 601, 601), "e");
+    debug_assertMessage(__FILE__, LN(617, 601, 601, 617), buf);
+    __assert(__FILE__, LN(617, 601, 601, 617), "e");
 }
+#endif
 
 /* stage_Init reaches the table's records through a pointer */
 #define STG ((StageAnim *)stageAnimTable) /* derived name */
@@ -189,6 +241,207 @@ static __inline__ void stageAnimDebugHook(void) /* derived name */
 #endif
 }
 
+#ifdef VERSION_NTSC
+int stage_Init(void)
+{
+    const StgObjDat *p = 0;
+    const int *tbl[2] = {&stageData[stage_no].animLayoutFirst, &stageData[stage_no].labelTop};
+    SObjSimpleSetting arg;
+    int max = 0;
+    int m;
+    int i;
+    int k;
+    int t;
+    int u;
+    int n;
+    int id;
+    const StgObjDat *q;
+    GenGeo *rec;
+    ObjKindEnt *kind;
+    StageAnimDef *obj;
+    GObj *g;
+    struct BgaDObjEnt *a;
+    void *(*fn)(GObj *, void *);
+    StageAnim *e;
+
+    bga_InitBGA();
+    for (i = 0; i < 82; i++) {
+        for (k = 0; k < 64; k++) {
+            STG[i].kind[k] = -1;
+        }
+    }
+    stageAnimCount = 0;
+    for (i = 0; i < 82; i++) {
+        STG[i].flags.b.count = 0;
+    }
+    /* the DEBUG-build trace (see stageAnimDebugHook) */
+    stageAnimDebugHook();
+    bgaPlayList = 0;
+    bga_ResetCamera();
+    stageAnimDebugHook();
+    for (m = 0; m < 2; m++) {
+        stageAnimDebugHook();
+        for (i = tbl[m][0]; i < tbl[m][1]; i++) {
+            rec = &objLayout[i];
+            n = rec->action;
+            if (n != 0) {
+                StgBgaSet *ent = &objAction[n];
+
+                for (k = 0; k < 2; k++) {
+                    id = ent->anim[k];
+                    obj = &stageTable[id];
+                    if (id != 815) {
+                        if (strncmp(obj->data, "BGA", 3) == 0) {
+                            /* the DEBUG-build trace */
+                            stageAnimDebugHook();
+                            STG[stageAnimCount].flags.i &= 0x3FFFFFFF;
+                            stageAnimTable[stageAnimCount].entry2 = obj->data;
+                            ((BgaHeader *)obj->data)->group = obj->group;
+                            ((BgaHeader *)obj->data)->cut = obj->cut;
+                            stageAnimTable[stageAnimCount].entry2->mode = -1;
+                            stageAnimTable[stageAnimCount].entry1 = obj;
+                            STG[stageAnimCount].flags.b.play = 0;
+                            p = &objTableScene[obj->objFirst];
+                            q = &objTableScene[obj->objLast];
+                            for (; p != q; p++) {
+                                stage_MakeGObj((int *)p, stageAnimCount);
+                            }
+                        } else {
+                            /* the DEBUG-build trace */
+                            stageAnimDebugHook();
+                            STG[stageAnimCount].flags.i =
+                                (STG[stageAnimCount].flags.i & 0x3FFFFFFF) | 0x40000000;
+                            stageAnimTable[stageAnimCount].entry3 = obj->data;
+                            stageAnimTable[stageAnimCount].entry1 = obj;
+                        }
+                        /* the DEBUG-build trace */
+                        stageAnimDebugHook();
+                        stageAnimCount++;
+                        if (stageAnimCount >= 83) {
+                            /* "stgBgas has %d, over MAX_ANIM_KIND %d" */
+                            debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_KIND %dを越えました\n",
+                                                 stageAnimCount, 82);
+                            /* "too many BgAnimation kinds in one stage" */
+                            debug_StdPrintfDummy("1ステージ中の BgAnimation の種類が多すぎます\n");
+                            debug_assert(__FILE__, 662);
+                            __assert(__FILE__, 662, "0");
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (i = 0; i < stageAnimCount; i++) {
+        if (STG[i].flags.b.count >= 64) {
+            /* "stgBgas has %d, over MAX_ANIM_GOBJ %d" */
+            debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n",
+                                 STG[i].flags.b.count, 64);
+            debug_assert(__FILE__, 672);
+            __assert(__FILE__, 672, "0");
+        }
+        max = max < STG[i].flags.b.count ? STG[i].flags.b.count : max;
+    }
+    debug_StdPrintfDummy("Max Bga = %d // Max DObj %d\n", stageAnimCount, max);
+    if (p != 0) {
+        e = stageAnimTable;
+        for (i = 0; i < stageAnimCount; i++, e++) {
+            if ((e->flags.i >> 30) == 1) {
+                continue;
+            }
+            for (k = 0; k < e->flags.b.count; k++) {
+                if (STG_SUB(e->obj[k]) != 0) {
+                    STG_SUB(e->obj[k])->nodeNum = 0;
+                }
+            }
+            k = 0;
+            for (;;) {
+                a = e->entry2->roots[k++];
+                if (a == 0) {
+                    break;
+                }
+                bga_ApplyDObject(a, e->obj, e->flags.b.count);
+            }
+            e->flags.b.nodes = 0;
+            for (k = 0; k < e->flags.b.count; k++) {
+                if (STG_SUB(e->obj[k])->nodeMtx != 0) {
+                    iosFree((void *)(STG_SUB(e->obj[k])->nodeMtx & 0x0FFFFFFF));
+                }
+                if (STG_SUB(e->obj[k])->nodeQuat != 0) {
+                    iosFree((void *)(STG_SUB(e->obj[k])->nodeQuat & 0x0FFFFFFF));
+                }
+                STG_SUB(e->obj[k])->nodeMtx = 0;
+                STG_SUB(e->obj[k])->nodeQuat = 0;
+                STG_SUB(e->obj[k])->nodeMtx = (int)iosMallocDebug(
+                    ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 6, __FILE__, 716);
+                STG_SUB(e->obj[k])->nodeQuat = (int)iosMallocDebug(
+                    ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 4, __FILE__, 716);
+                /* the reallocation block's count line, as chain.c, boy.c and
+                   box.c spell the same block, here passed the count field
+                   itself: a store of the field to itself */
+                STG_SUB(e->obj[k])->nodeNum = STG_SUB(e->obj[k])->nodeNum;
+                if ((int)STG_SUB(e->obj[k])->nodes != 0) {
+                    iosFree((void *)((int)STG_SUB(e->obj[k])->nodes & 0x0FFFFFFF));
+                }
+                STG_SUB(e->obj[k])->nodes = iosMallocDebug(
+                    ios_partition_seki, STG_SUB(e->obj[k])->nodeNum * 80, __FILE__, 716);
+                for (t = 0; t < STG_SUB(e->obj[k])->nodeNum; t++) {
+                    STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~1;
+                    STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~2;
+                    STG_SUB(e->obj[k])->nodes[t].pos[0] = 0;
+                    STG_SUB(e->obj[k])->nodes[t].pos[1] = 0;
+                    STG_SUB(e->obj[k])->nodes[t].pos[2] = 0;
+                    STG_SUB(e->obj[k])->nodes[t].pos[3] = 1.0f;
+                    STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~4;
+                    STG_SUB(e->obj[k])->nodes[t].fade = 0;
+                    STG_SUB(e->obj[k])->nodes[t].alpha = 1.0f;
+                    *(short *)((char *)&STG_SUB(e->obj[k])->nodes[t] + 0x3A) = 0;
+                    STG_SUB(e->obj[k])->nodes[t].scale[0] = 1.0f;
+                    STG_SUB(e->obj[k])->nodes[t].scale[1] = 1.0f;
+                    STG_SUB(e->obj[k])->nodes[t].scale[2] = 1.0f;
+                }
+                STG_SUB(e->obj[k])->dispType = 2;
+                e->flags.i = (e->flags.i & 0xFFF003FF) |
+                             ((e->flags.b.nodes + STG_SUB(e->obj[k])->nodeNum) & 0x3FF) << 10;
+                for (u = 0; u < STG_SUB(e->obj[k])->nodeNum; u++) {
+                    _UnitMatrix((void *)(STG_SUB(e->obj[k])->nodeMtx + u * 64));
+                    SetIdentityQuaternion((void *)(STG_SUB(e->obj[k])->nodeQuat + u * 16));
+                }
+            }
+        }
+        e = stageAnimTable;
+        for (i = 0; i < stageAnimCount; i++, e++) {
+            if ((e->flags.i >> 30) == 1) {
+                continue;
+            }
+            for (k = 0; k < e->flags.b.count; k++) {
+                static const SObjSimpleSetting stageGObjArg = /* derived name */
+                    {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, 1};
+
+                g = e->obj[k];
+                arg = stageGObjArg;
+                kind = &objKindData[e->data[k][1]];
+                fn = kind->create;
+                if (fn != 0) {
+                    STG_SUB(e->obj[k])->work = fn(g, &arg);
+                }
+                isysGObjProcAdd(g, kind->ai, 1, 0x16);
+                isysGObjProcAdd(g, kind->geo, 1, 0x17);
+                isysGObjProcAdd(g, kind->afterGeo, 1, 0x18);
+                isysGObjLinkObjDL(g, 0, 0, 7, 0xFFFFFFFF);
+                g->active = 1;
+                STG_SUB(e->obj[k])->disp = 0;
+            }
+        }
+    }
+    e = stageAnimTable;
+    for (i = 0; i < stageAnimCount; i++, e++) {
+        if (e->entry1->loop != 0) {
+            stage_SetAnimation(e->entry1->no, 1, 0);
+        }
+    }
+    return stageAnimCount;
+}
+#else
 int stage_Init(void)
 {
     const StgObjDat *p = 0;
@@ -276,8 +529,8 @@ int stage_Init(void)
                                                  stageAnimCount, 87);
                             /* "too many BgAnimation kinds in one stage" */
                             debug_StdPrintfDummy("1ステージ中の BgAnimation の種類が多すぎます\n");
-                            debug_assert(__FILE__, LN(702, 686, 686));
-                            __assert(__FILE__, LN(702, 686, 686), "0");
+                            debug_assert(__FILE__, LN(702, 686, 686, 702));
+                            __assert(__FILE__, LN(702, 686, 686, 702), "0");
                         }
                     }
                 }
@@ -289,8 +542,8 @@ int stage_Init(void)
             /* "stgBgas has %d, over MAX_ANIM_GOBJ %d" */
             debug_StdPrintfDummy("stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n",
                                  STG[i].flags.b.count, 64);
-            debug_assert(__FILE__, LN(712, 696, 696));
-            __assert(__FILE__, LN(712, 696, 696), "0");
+            debug_assert(__FILE__, LN(712, 696, 696, 712));
+            __assert(__FILE__, LN(712, 696, 696, 712), "0");
         }
         max = max < STG[i].flags.b.count ? STG[i].flags.b.count : max;
     }
@@ -331,10 +584,10 @@ int stage_Init(void)
                 STG_SUB(e->obj[k])->nodeQuat = 0;
                 STG_SUB(e->obj[k])->nodeMtx =
                     (int)iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 6,
-                                        __FILE__, LN(761, 745, 745));
+                                        __FILE__, LN(761, 745, 745, 761));
                 STG_SUB(e->obj[k])->nodeQuat =
                     (int)iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum << 4,
-                                        __FILE__, LN(761, 745, 745));
+                                        __FILE__, LN(761, 745, 745, 761));
                 /* the reallocation block's count line, as chain.c, boy.c and
                    box.c spell the same block, here passed the count field
                    itself: a store of the field to itself */
@@ -344,7 +597,7 @@ int stage_Init(void)
                 }
                 STG_SUB(e->obj[k])->nodes =
                     iosMallocDebug(ios_partition_seki, STG_SUB(e->obj[k])->nodeNum * 80, __FILE__,
-                                   LN(761, 745, 745));
+                                   LN(761, 745, 745, 761));
                 for (t = 0; t < STG_SUB(e->obj[k])->nodeNum; t++) {
                     STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~1;
                     STG_SUB(e->obj[k])->nodes[t].flags.ll &= ~2;
@@ -402,6 +655,7 @@ int stage_Init(void)
     }
     return stageAnimCount;
 }
+#endif
 
 void stage_SetAnimation(int key, int mode, int frame)
 {
@@ -468,8 +722,8 @@ inline int stage_CheckAnimationFinish(int key)
         }
     }
     debug_StdPrintfDummy("stage_CheckAnimationFinish:illegal Animation No.\n");
-    debug_assert(__FILE__, LN(909, 893, 893));
-    __assert(__FILE__, LN(909, 893, 893), "0");
+    debug_assert(__FILE__, LN(909, 893, 893, 864));
+    __assert(__FILE__, LN(909, 893, 893, 864), "0");
     return 0;
 }
 
@@ -500,8 +754,13 @@ int stage_ContinueAnimation(int key, int next)
         }
     }
     debug_StdPrintfDummy("stage_ContinueAnimation:illegal Animation No.\n");
-    debug_assert(__FILE__, LN(954, 938, 938));
-    __assert(__FILE__, LN(954, 938, 938), "0");
+#ifdef VERSION_NTSC
+    debug_assert(__FILE__, 909);
+    __assert(__FILE__, 909, "0");
+#else
+    debug_assert(__FILE__, LN(954, 938, 938, 954));
+    __assert(__FILE__, LN(954, 938, 938, 954), "0");
+#endif
     return 0;
 }
 
@@ -588,7 +847,7 @@ void stage_CalcAnimationNoParent(void)
                     char *o = *(char **)(objs + (k << 2));
 
                     GOBJ_SUB(o)->disp = 0;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
                     if (GOBJ_SUB(o)->nodeNum != 0) {
                         *(int *)((int *)*(int *)(o + 0x15C))[0xC / 4] = 0;
                     }
@@ -599,7 +858,7 @@ void stage_CalcAnimationNoParent(void)
             case 0:
                 break;
             case 1:
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
                 if (lock != 0) {
                     if (debug_font_flag & 1) {
                         debug_Printf(0, ScreenHeight / 2 - 28, 0xCCCCCC00,
@@ -664,7 +923,7 @@ void stage_CalcAnimationParent(void)
                 char *objs = (char *)e->obj;
                 char *o = *(char **)(objs + (k << 2));
                 GOBJ_SUB(o)->disp = 0;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
                 if (GOBJ_SUB(o)->nodeNum != 0) {
                     *(int *)((int *)*(int *)(o + 0x15C))[0xC / 4] = 0;
                 }
@@ -696,10 +955,13 @@ void stage_DispAnimation(void)
 
     e = stageAnimTable;
     for (i = 0; i < stageAnimCount; i++, e++) {
+#ifndef VERSION_NTSC
         StageAnimDef *entry1 = e->entry1;
+#endif
         signed char lv;
         int k;
 
+#ifndef VERSION_NTSC
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         if (entry1->no == 62) {
 #else
@@ -707,6 +969,7 @@ void stage_DispAnimation(void)
 #endif
             continue;
         }
+#endif
         if ((e->flags.i >> 30) != 0) {
             continue;
         }
@@ -848,7 +1111,7 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
     int k;
     int n = stageAnimCount;
     float r = t;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
     float f;
 #endif
     StageAnim *e;
@@ -875,7 +1138,7 @@ float stage_PlayBgAnimation(int key, float t, void *v, void *q)
         if (systemStatus[0x14 / 4] != 0) {
             break;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
         r = t + e->entry2->step * (30.0f / ((60 - systemStatus[0] * 10) / systemStatus[1]));
 #else
         f = e->entry2->step;
@@ -916,7 +1179,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
     int k;
     int m;
     float r = t;
-#if !defined(VERSION_JPN) && !defined(VERSION_KOR)
+#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)
     float f;
 #endif
     StageAnim *e;
@@ -940,7 +1203,7 @@ float stage_PlayBgAnimationDissolve(int key, void *v, void *q, float t, float dv
         if (systemStatus[0x14 / 4] != 0) {
             break;
         }
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
         r = t + e->entry2->step * (30.0f / ((60 - systemStatus[0] * 10) / systemStatus[1]));
 #else
         f = e->entry2->step;
@@ -1012,7 +1275,7 @@ BgaPlayNode *stage_MakePlayBgAnimation(int key)
         return 0;
     }
 
-    p = iosMallocDebug(ios_partition_seki, 64, __FILE__, LN(1494, 1481, 1481));
+    p = iosMallocDebug(ios_partition_seki, 64, __FILE__, LN(1494, 1481, 1481, 1450));
     if (p == 0) {
         /* "cannot allocate memory for the stage segment (heap exhausted)" */
         debug_StdPrintfDummy("ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n");
@@ -1087,7 +1350,11 @@ static inline void stage_SetBgAnimationPlayNode(BgaPlayNode *node, int key) /* d
         if (key == e->entry1->no) {
             if ((e->flags.i >> 30) == 0) {
                 for (k = 0; k < e->flags.b.count; k++) {
+#ifdef VERSION_NTSC
+                    *(void **)(*(char **)&e->obj[k]->dobj + 0x81C) = node;
+#else
                     *(void **)(*(char **)&e->obj[k]->dobj + 0x850) = node;
+#endif
                 }
             }
         }
@@ -1125,6 +1392,7 @@ int stage_DispBgAnimation(BgaPlayNode **self)
     return 0;
 }
 
+#ifndef VERSION_NTSC
 int stage_DispBgAnimationNoFinish(BgaPlayNode **self)
 {
     int i;
@@ -1166,6 +1434,7 @@ int stage_DispBgAnimationNoFinish(BgaPlayNode **self)
 end:
     return 0;
 }
+#endif
 
 static void stage_SetCameraForceOff(void)
 {

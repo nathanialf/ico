@@ -177,7 +177,9 @@ static void jimakuMgrBegin(JimakuArg *p)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     int st;
 #else
+#ifndef VERSION_NTSC
     int st = 0;
+#endif
 #endif
     int i;
     struct jWayGroup *g;
@@ -199,6 +201,10 @@ static void jimakuMgrBegin(JimakuArg *p)
     jimakuRing[0].state = 3;
     jimakuRing[0].tex = -1;
     sub->ringPos = 1;
+#ifdef VERSION_NTSC
+    sub->bg =
+        (void *)iosCdvdBackGroundMgrAdd("Tex_jimaku/data.jim", jimakuHandler, p, 0, 0, 0, 0, 0);
+#else
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     st = gFlagGameClear != 0;
 #else
@@ -225,6 +231,7 @@ static void jimakuMgrBegin(JimakuArg *p)
 #endif
     sub->bg =
         (void *)iosCdvdBackGroundMgrAdd(jimakuFileName[st].path, jimakuHandler, p, 0, 0, 0, 0, 0);
+#endif
     {
         JimakuSub *q = &p->sub;
         int m;
@@ -269,8 +276,8 @@ static void jimakuMgrNext(JimakuArg *p)
     g->node->stamp = lock_execIcoMisc;
     if (g->node->tex == -1) {
         debug_StdPrintfDummy("already exist\n");
-        debug_assert(__FILE__, LN(688, 655, 658));
-        __assert(__FILE__, LN(688, 655, 658), "0");
+        debug_assert(__FILE__, LN(688, 655, 658, 626));
+        __assert(__FILE__, LN(688, 655, 658, 626), "0");
     }
     sub->n = (sub->n + 1) % 4;
     if (iosSemaWait(&jimakuShownSema) < 0) {
@@ -425,8 +432,13 @@ void jimakuDisp(JimakuArg *msg)
         texProperty[410].texNo = v;
 #endif
 #else
+#ifdef VERSION_NTSC
+        texProperty[383].texNo = v;
+        texProperty[382].texNo = v;
+#else
         texProperty[435].texNo = v;
         texProperty[434].texNo = v;
+#endif
 #endif
         if (v < 0) {
             return;
@@ -441,8 +453,13 @@ void jimakuDisp(JimakuArg *msg)
             display_texture(&texProperty[411]);
 #endif
 #else
+#ifdef VERSION_NTSC
+            display_texture(&texProperty[382]);
+            display_texture(&texProperty[383]);
+#else
             display_texture(&texProperty[434]);
             display_texture(&texProperty[435]);
+#endif
 #endif
         }
     }

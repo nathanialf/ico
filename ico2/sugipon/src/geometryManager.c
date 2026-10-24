@@ -391,7 +391,11 @@ loop:
 }
 
 /* the object kinds the character list builder accepts, -1 terminated */
+#ifdef VERSION_NTSC
+static int charGObjKinds[5] = {1, 2, 4, 46, -1}; /* derived name */
+#else
 static int charGObjKinds[5] = {1, 2, 4, 47, -1}; /* derived name */
+#endif
 
 /* the live character objects the cylinder check walks */
 static GObj *charGObjList[64]; /* derived name */

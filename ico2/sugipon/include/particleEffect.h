@@ -96,6 +96,13 @@ typedef struct PEGeo {            /* field names derived */
     int clip;                     /* 0x34 */
     int floorOn;                  /* 0x38 */
     float floor;                  /* 0x3C */
+#ifdef VERSION_NTSC
+    float goal[4];                /* 0x40 */
+    float speed;                  /* 0x50 */
+    int (*proc)(struct PEGeo *);  /* 0x54, 0 for none; the effect ends when it returns 0 */
+    void (*endFunc)(int);         /* 0x58 */
+    int id;                       /* 0x5C, the effect's id, endFunc's argument */
+#else
     float rate;                   /* 0x40 */
     char pad44[12];               /* 0x44 */
     float goal[4];                /* 0x50 */
@@ -103,13 +110,18 @@ typedef struct PEGeo {            /* field names derived */
     int (*proc)(struct PEGeo *);  /* 0x64, 0 for none; the effect ends when it returns 0 */
     void (*endFunc)(int);         /* 0x68 */
     int id;                       /* 0x6C, the effect's id, endFunc's argument */
+#endif
 
     union {
         int capsule;        /* the boss capsule the effect gathers at */
         volatile int *done; /* the releasing thread's done flag */
     } user;                 /* 0x70 */
 
+#ifdef VERSION_NTSC
+    char pad64[12];
+#else
     char pad74[12];
+#endif
 } PEGeo; /* derived name */
 
 /* particle-effect: one particle effect file, 0x50 bytes. Readers:
@@ -125,7 +137,9 @@ extern const ParticleEffectFile particleEffectFile[];
 void DeleteParticleEffect(int no);
 void DisableParticleEffectGeometryControl(int id);
 void DispParticleEffects(void);
+#ifndef VERSION_NTSC
 void ExecParticleEffect(int no);
+#endif
 void ExecParticleEffects(void);
 PEGeo *GetParticleEffectData(int id);
 int *GetParticleEffectPackage(int idx);
@@ -137,10 +151,15 @@ void ResetParticleEffectPackages(int *pkg);
 int SetParticleEffect(int id, void *pos, void *quat);
 int SetParticleEffectActiveSensing(int id, void *pos, void *quat);
 int SetParticleEffectByPartition(int id, void *pos, void *quat, struct IosMemPart *part);
+#ifdef VERSION_NTSC
+void SetParticleEffectGeometry(int id, void *pos, void *quat);
+void SetParticleEffectPackage(int no, int *data, int size);
+#else
 void SetParticleEffectDrainLevel(int id, float level);
 void SetParticleEffectGeometry(int id, void *pos, void *quat);
 void SetParticleEffectPackage(int no, int *data, int size);
 void SetParticleEffectPauseFlag(int id, int pause);
+#endif
 void SetParticleEffectUpperLimit(int no, float f);
 void SetParticleEffectClipEnableFlag(int id, int on);
 void DeleteParticleEffectsByPackage(int *pkg);

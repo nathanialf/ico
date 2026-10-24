@@ -150,5 +150,9 @@ void warpGirlInStage(int stageNo)
     rot[2] = 0.0f;
     sceVu0ScaleVector(rot, rot, 0.017453292f);
     debug_StdPrintfDummy("girl %p\n", girlGObj);
+#ifdef VERSION_NTSC
+    gamesysObjInfoPosNewStageSet(131, 2, stageNo, pos, rot);
+#else
     gamesysObjInfoPosNewStageSet(148, 2, stageNo, pos, rot);
+#endif
 }

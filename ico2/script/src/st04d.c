@@ -12,9 +12,15 @@ inline void actSt04dDoor1Event(int x)
     volatile int local = x;
 }
 
+#ifdef VERSION_NTSC
+static ActMail door1_down_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door1_up_mes[2] = {{397}, {396}}; /* derived name */
+#else
 static ActMail door1_down_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail door1_up_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt04dDoor1(GObj *volatile self)
 {
@@ -28,11 +34,24 @@ void actSt04dDoor1(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(251, 0, 0);
 #else
+#ifdef VERSION_NTSC
+        stage_SetAnimation(227, 0, 0);
+#else
         stage_SetAnimation(255, 0, 0);
+#endif
 #endif
         _ACTWait(60);
         door1_down_mes[0].func = actSt04dDoor1DownChk;
         act->mail = door1_down_mes;
+#ifdef VERSION_NTSC
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(226, 0, 0);
+        door1_up_mes[0].func = actSt04dDoor1UpChk;
+        act->mail = door1_up_mes;
+        ACTSendMailCorrect(self, 397);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
@@ -44,6 +63,7 @@ void actSt04dDoor1(GObj *volatile self)
         door1_up_mes[0].func = actSt04dDoor1UpChk;
         act->mail = door1_up_mes;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -56,6 +76,42 @@ static const ConstVec door1UpEffectPos = {{-505.0f, -1200.0f, -5671.0f, 1.0f}}; 
 
 static const ConstVec door1DownEffectPos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; /* derived name */
 
+#ifdef VERSION_NTSC
+static ActMail door1_up_chk_mes[2] = {{397}, {396}}; /* derived name */
+
+void actSt04dDoor1UpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt04dDoor1UpEffect, 21);
+
+    stage_SetAnimation(226, 1, 0);
+
+    buf[0] = door1SoundPos.d[0];
+    buf[1] = door1SoundPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(226) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door1_up_chk_mes[0].func = actSt04dDoor1DownChk;
+    sub->mail = door1_up_chk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+#else
 static ActMail door1_up_chk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor1UpChk(GObj *volatile self)
@@ -98,6 +154,7 @@ void actSt04dDoor1UpChk(GObj *volatile self)
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
+#endif
 
 inline void actSt04dDoor1UpEffect(GObj *volatile self)
 {
@@ -147,6 +204,42 @@ inline void actSt04dDoor1DownEffect(GObj *volatile self)
     }
 }
 
+#ifdef VERSION_NTSC
+static ActMail door1_down_chk_mes[2] = {{397}, {396}}; /* derived name */
+
+void actSt04dDoor1DownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x1000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt04dDoor1DownEffect, 21);
+
+    stage_SetAnimation(227, 1, 0);
+
+    buf[0] = door1SoundPos.d[0];
+    buf[1] = door1SoundPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(227) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door1_down_chk_mes[0].func = actSt04dDoor1UpChk;
+    sub->mail = door1_down_chk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+#else
 static ActMail door1_down_chk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor1DownChk(GObj *volatile self)
@@ -189,15 +282,22 @@ void actSt04dDoor1DownChk(GObj *volatile self)
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
+#endif
 
 inline void actSt04dDoor2Event(int x)
 {
     volatile int local = x;
 }
 
+#ifdef VERSION_NTSC
+static ActMail door2_down_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door2_up_mes[2] = {{397}, {396}}; /* derived name */
+#else
 static ActMail door2_down_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail door2_up_mes[2] = {{430}, {429}}; /* derived name */
+#endif
 
 void actSt04dDoor2(GObj *volatile self)
 {
@@ -211,11 +311,24 @@ void actSt04dDoor2(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(253, 0, 0);
 #else
+#ifdef VERSION_NTSC
+        stage_SetAnimation(229, 0, 0);
+#else
         stage_SetAnimation(257, 0, 0);
+#endif
 #endif
         _ACTWait(60);
         door2_down_mes[0].func = actSt04dDoor2DownChk;
         act->mail = door2_down_mes;
+#ifdef VERSION_NTSC
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(228, 0, 0);
+        door2_up_mes[0].func = actSt04dDoor2UpChk;
+        act->mail = door2_up_mes;
+        ACTSendMailCorrect(self, 397);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
@@ -227,6 +340,7 @@ void actSt04dDoor2(GObj *volatile self)
         door2_up_mes[0].func = actSt04dDoor2UpChk;
         act->mail = door2_up_mes;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
@@ -239,6 +353,42 @@ static const ConstVec door2UpEffectPos = {{704.0f, -1700.0f, -5679.0f, 1.0f}}; /
 
 static const ConstVec door2DownEffectPos = {{704.0f, -1955.0f, -5679.0f, 1.0f}}; /* derived name */
 
+#ifdef VERSION_NTSC
+static ActMail door2_up_chk_mes[2] = {{397}, {396}}; /* derived name */
+
+void actSt04dDoor2UpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x2000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt04dDoor2UpEffect, 21);
+
+    stage_SetAnimation(228, 1, 0);
+
+    buf[0] = door2SoundPos.d[0];
+    buf[1] = door2SoundPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(228) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door2_up_chk_mes[0].func = actSt04dDoor2DownChk;
+    sub->mail = door2_up_chk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+#else
 static ActMail door2_up_chk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor2UpChk(GObj *volatile self)
@@ -281,6 +431,7 @@ void actSt04dDoor2UpChk(GObj *volatile self)
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
+#endif
 
 inline void actSt04dDoor2UpEffect(GObj *volatile self)
 {
@@ -330,6 +481,42 @@ inline void actSt04dDoor2DownEffect(GObj *volatile self)
     }
 }
 
+#ifdef VERSION_NTSC
+static ActMail door2_down_chk_mes[2] = {{397}, {396}}; /* derived name */
+
+void actSt04dDoor2DownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x2000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt04dDoor2DownEffect, 21);
+
+    stage_SetAnimation(229, 1, 0);
+
+    buf[0] = door2SoundPos.d[0];
+    buf[1] = door2SoundPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(229) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door2_down_chk_mes[0].func = actSt04dDoor2UpChk;
+    sub->mail = door2_down_chk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+#else
 static ActMail door2_down_chk_mes[2] = {{430}, {429}}; /* derived name */
 
 void actSt04dDoor2DownChk(GObj *volatile self)
@@ -372,3 +559,4 @@ void actSt04dDoor2DownChk(GObj *volatile self)
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
+#endif

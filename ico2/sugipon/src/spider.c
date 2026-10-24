@@ -103,7 +103,11 @@ static inline void wakeSpiderGroup(GObj *self) /* derived name */
 void WakeUpLayoutedSpiders(GObj *self)
 {
     wakeSpiderGroup(self);
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(self, 101);
+#else
     ExecuteSEPackage(self, 106);
+#endif
 }
 
 static inline void setSpiderGroupHost(GObj *self, GObj *host) /* derived name */
@@ -221,7 +225,11 @@ void SpiderLayoutGeo(GObj *self)
         if (w->wakeFrom != -1) {
             wakeSpiderGroup(self);
             for (i = w->wakeFrom; i < w->n; i++) {
+#ifdef VERSION_NTSC
+                iosOmSendMail(w->members[i], 207, w->members[i]);
+#else
                 iosOmSendMail(w->members[i], 223, w->members[i]);
+#endif
                 SetAP1VisualState(w->members[i], 0);
             }
             w->state = 1;

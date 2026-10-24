@@ -12,6 +12,10 @@ void ClearHandCameraCorrect(void);
 void InitHandCameraCorrect(void);
 void SetLimitHandCameraCorrect(float limitP, float limitV);
 
+#ifdef VERSION_NTSC
+void HandCameraCorrect(void *eye, void *at, float stickX, float stickZ, float rate);
+#else
 void HandCameraCorrect(void *eye, void *at, int mode, float stickX, float stickZ, float rate);
+#endif
 
 #endif /* HAND_CAMERA_H */

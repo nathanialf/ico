@@ -1,6 +1,9 @@
 #include "fieldCollision.h"
 #include "matrixDrive.h"
+
+#ifndef VERSION_NTSC
 #include "main.h"
+#endif
 
 /* the flying object the manager tracks */
 static GObj *flyGObj = 0; /* derived name */
@@ -15,9 +18,11 @@ static inline int getFloorLimitValue(int attr) /* derived name */
 
     if (type == 1) {
         return 0;
+#ifndef VERSION_NTSC
     }
     if (type == 15 && (stage_no == 19 || stage_no == 28)) {
         type = 20;
+#endif
     }
     return type * 100;
 }

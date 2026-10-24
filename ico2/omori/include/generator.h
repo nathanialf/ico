@@ -50,10 +50,15 @@ int SearchActiveGenerator(void);
 void ResetReviveCountEnemy(struct GObj *gobj);
 void SetInfoSpKidnapGenerator(short *info);
 void SetInfoSpKidnapEnemy(short *work);
+#ifdef VERSION_NTSC
+int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
+int CheckGeneratorCollision(struct GObj *gobj, float *dir);
+#else
 inline int IsOpenGenerator(struct GObj *gobj);
 int IsEnableCallEnemyByTargetGObj(struct GObj *gobj);
 int CheckGeneratorCollision(struct GObj *gobj, float *dir);
 void Generator_Delete(struct GObj *gobj);
+#endif
 void Generator_QuickCall(struct GObj *gobj);
 void GetGeneratorSafePosition(float *dst, struct GObj *gobj);
 int GetMotherGenerator(int label);

@@ -19,7 +19,15 @@ void actBoyHang(GObj *volatile self);
 void actBoyBHang(GObj *volatile self);
 void actBoyFall(GObj *volatile self);
 void actBoyCall(GObj *volatile self);
+#ifdef VERSION_NTSC
+void actBoyItem(GObj *volatile self);
+void actBoyItemAfter(GObj *volatile self);
+void actBoyCliffHesitate(GObj *volatile self);
 void actBoyHangBefore(GObj *volatile self);
+void actBoyReadyMove(GObj *volatile self);
+#else
+void actBoyHangBefore(GObj *volatile self);
+#endif
 void actBoyBeslam(GObj *volatile self);
 void actBoyRescueSrc(GObj *volatile self);
 void actBoySupportGBBegin(GObj *volatile self);
@@ -38,11 +46,13 @@ void afterBoyHand200(GObj *volatile self);
 void ACTSearchEnemy(void *self, int *out_id, float *out_vec);
 void DeleteBoyWeapon(void);
 int isLiftBoyEnable(void);
+#ifndef VERSION_NTSC
 void SetKidnapInfo(int enemyLabel, int targetLabel);
 void GetKidnapInfo(int *enemyLabel, int *targetLabel);
 
 inline void PrivInsCamSet(float *pos, float *tgt, struct GObj *track, int inFrames, int outFrames,
                           float inRate, float blend, unsigned char control);
+#endif
 
 inline void BoyInfoUpdate_StageChange(void);
 int IsBoyStatus_EnemyMustWait(void);
@@ -51,12 +61,16 @@ unsigned char IsGirlEscortedInCurrentStage(void);
 int GetSaveSofaLayoutID(void);
 void OnGirlEscortFlag(void);
 void SetBoyWeaponGObj(void *w);
+#ifndef VERSION_NTSC
 int IsBoyStatus_NotDanger(void);
+#endif
 int RequestStageChangeKidnapEnd(int stage, int targetId);
 int GetEfStageCameraTargetID(void);
 int IsBackFromEfStage(void);
+#ifndef VERSION_NTSC
 inline int PrivInsCamChk(void);
 inline unsigned char PrivInsCamChk_Control(void);
+#endif
 int *GetbufpCharacterPacket(void);
 int GetsizeCharacterPacket(void);
 void MakeCharacterPacket(void);
@@ -65,8 +79,12 @@ void ACTSearchGObj(void *self, int kind, int maxDeg, int *out_id, float *out_vec
 void afterBoySwim(GObj *volatile self);
 void actBoyJump(GObj *volatile self);
 inline void afterBoyTakeWeapon(GObj *volatile self);
+#ifdef VERSION_NTSC
+inline void afterCommonItem(GObj *volatile self);
+#else
 inline void afterBoyHangG3M(int x);
 inline void afterBoyRescueGirlBhang(GObj *volatile self);
+#endif
 inline void subBoyBrainMain(int arg);
 void SetBoyInfo(GObj *weapon, GObj *item);
 void GetBoyRootPositionForCamera(float *out, struct GObj *gobj);

@@ -154,7 +154,11 @@ static int tryToRevive(void)
                             if (DirectCallEnemy(p, 0, pos, ZUnitVector, 0) == 0) {
                                 return 0;
                             }
+#ifdef VERSION_NTSC
+                            ExecuteSEPackage(p, 102);
+#else
                             ExecuteSEPackage(p, 107);
+#endif
                             for (m = 0; m < 5; m++) {
                                 SetAP1DeadStatus(DeleteSpiderFromLayoutGroup(
                                     spiderPairs[m].group, spiderPairs[m].spider));

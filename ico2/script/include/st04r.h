@@ -14,23 +14,41 @@ struct SqEntry;
 
 /* st04r.o's .sdata globals */
 extern struct SqEntry *solar4r;
+#ifdef VERSION_NTSC
+extern struct SqEntry *ball1_4r;
+extern struct SqEntry *ball2_4r;
+extern struct SqEntry *ball3_4r;
+extern struct SqEntry *crest1_4r;
+extern struct SqEntry *crest2_4r;
+#else
 extern int ball1_4r;
 extern int ball2_4r;
 extern int ball3_4r;
 extern struct SqEntry *crest1_4r;
 extern int crest2_4r;
+#endif
 extern struct SqEntry *crest3_4r;
 extern struct SqEntry *stair5d;
 extern struct SqEntry *sekizo5c;
+#ifdef VERSION_NTSC
+extern struct SqEntry *st05d_hasi;
+#else
 extern unsigned char st05d_hasi;
+#endif
 extern int st04r_yure;
 extern unsigned char st04r_yure_vol;
 extern int sekizo_4r;
+#ifdef VERSION_NTSC
+extern unsigned char sekizo_4r_vol;
+void actSt04rBarricadeChk(GObj *volatile self);
+#endif
 void actSt04rBrg1Chk(GObj *volatile self);
 void actSt04rBrg1WayChk(GObj *volatile self);
 void actSt04rBrg2Chk(GObj *volatile self);
 void actSt04rBrg2WayChk(GObj *volatile self);
+#ifndef VERSION_NTSC
 void actSt04rBrgCommon(GObj *volatile self);
+#endif
 void actSt04rC1BallMain(GObj *volatile self);
 void actSt04rC1BallSwitch(GObj *volatile self);
 void actSt04rC1BallTurn(GObj *volatile self);

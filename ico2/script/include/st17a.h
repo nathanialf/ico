@@ -19,8 +19,15 @@ void actSt17aDoorDownChk(GObj *volatile self);
 void actSt17aDoorDownEffect(GObj *volatile self);
 void actSt17aDoorUpChk(GObj *volatile self);
 void actSt17aDoorUpEffect(GObj *volatile self);
+#ifdef VERSION_NTSC
+void actSt17aGirlWay(GObj *volatile self);
 void actSt17aHasiChk(GObj *volatile self);
 void actSt17aHasiEffect(GObj *volatile self);
+void actSt17aIntro(GObj *volatile self);
+#else
+void actSt17aHasiChk(GObj *volatile self);
+void actSt17aHasiEffect(GObj *volatile self);
+#endif
 void actSt17aIntroChk(GObj *volatile self);
 
 #endif /* ST17A_H */

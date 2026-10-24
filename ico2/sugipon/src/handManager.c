@@ -59,7 +59,9 @@ static void connectToTarget(GObj *obj, HandRec *hw, int na, int nb, int nc)
     float q[4];
     float m[16];
     float v[4];
+#ifndef VERSION_NTSC
     float w[4];
+#endif
     GObj *tgt;
     float sa;
     float sb;
@@ -98,10 +100,13 @@ static void connectToTarget(GObj *obj, HandRec *hw, int na, int nb, int nc)
         GetMatrixFromQuaternion(m, q);
         _SubVector(v, (char *)GOBJ_SUB(tgt)->nodeMtx + (nb << 6) + 0x30,
                    (char *)GOBJ_SUB(obj)->nodeMtx + (na << 6) + 0x30);
+#ifndef VERSION_NTSC
         sb = v[0] * v[0] + v[2] * v[2];
+#endif
         _NormalizeVector(v, v);
         _ScaleVector(v, v, sa);
         _ApplyMatrix(v, m, v);
+#ifndef VERSION_NTSC
         CopyVector(w, v);
         w[1] = 0.0f;
         if (sb < VectorLengthSquare(w)) {
@@ -111,6 +116,7 @@ static void connectToTarget(GObj *obj, HandRec *hw, int na, int nb, int nc)
             _ScaleVectorXYZ(v, v, len);
             v[1] = _Sqrt(ss - sb);
         }
+#endif
         _AddVector(hw->ikDir, (char *)GOBJ_SUB(obj)->nodeMtx + (na << 6) + 0x30, v);
     }
 }
@@ -165,7 +171,11 @@ static inline int PutHandOnLadder(HandRec *hw, int node) /* derived name */
     if (hw->ikReached == 0) {
         return 0;
     }
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(hw->obj, 97);
+#else
     ExecuteSEPackage(hw->obj, 102);
+#endif
     return 1;
 }
 
@@ -230,12 +240,21 @@ void HandManager(GObj *obj)
         ResetHandTarget(obj, 0x2B0);
         if (GOBJ_SUB(obj)->root.handIK != 0) {
             const MotionDef *rec = &motionKind[GOBJ_SUB(obj)->ctrl.motion];
+#ifdef VERSION_NTSC
+            _handManager(obj, &GOBJ_SUB(obj)->root.hand0,
+                         motionIKEffKind + ((rec->modeBits.word >> 4) & 0xF0), XUnitVector,
+                         GetSkeltonFocusNode(obj, 19));
+            t = _handManager(obj, &GOBJ_SUB(obj)->root.hand1,
+                             motionIKEffKind + ((rec->modeBits.word >> 8) & 0xF0), XUnitVector,
+                             GetSkeltonFocusNode(obj, 3));
+#else
             _handManager(obj, &GOBJ_SUB(obj)->root.hand0,
                          motionIKEffKind + ((rec->modeBits.word >> 8) & 0xF0), XUnitVector,
                          GetSkeltonFocusNode(obj, 19));
             t = _handManager(obj, &GOBJ_SUB(obj)->root.hand1,
                              motionIKEffKind + ((rec->modeBits.word >> 4) & 0xF0), XUnitVector,
                              GetSkeltonFocusNode(obj, 3));
+#endif
         }
         GOBJ_SUB(obj)->root.twistRate += (t - GOBJ_SUB(obj)->root.twistRate) * 0.1f;
     }

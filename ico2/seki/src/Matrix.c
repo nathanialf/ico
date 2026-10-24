@@ -1,7 +1,10 @@
 #include "typedef.h"
 #include "tableSin.h"
+
+#ifndef VERSION_NTSC
 #include "debug_exception.h"
 #include <assert.h>
+#endif
 
 /* Quadword copy of 64 bytes, parallel form: four lq into four distinct
    scratch GPRs, then four sq.  Only this file has it, so it is defined here
@@ -408,6 +411,77 @@ inline void _InverseCurrentMatrix(void)
     VU0_V3OP_BC(vmaddw.xyzw, 7, 0, 17, w);
 }
 
+#ifdef VERSION_NTSC
+inline void _PushVu0Registers(void)
+{
+    VU0_REG("vsqi.xyzw $vf1, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf2, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf3, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf4, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf5, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf6, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf7, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf8, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf9, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf10, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf11, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf12, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf13, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf14, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf15, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf16, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf17, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf18, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf19, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf20, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf21, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf22, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf23, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf24, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf25, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf26, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf27, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf28, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf29, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf30, ($vi15++)");
+    VU0_REG("vsqi.xyzw $vf31, ($vi15++)");
+}
+
+inline void _PopVu0Registers(void)
+{
+    VU0_REG("vlqd.xyzw $vf31, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf30, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf29, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf28, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf27, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf26, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf25, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf24, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf23, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf22, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf21, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf20, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf19, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf18, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf17, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf16, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf15, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf14, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf13, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf12, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf11, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf10, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf9, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf8, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf7, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf6, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf5, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf4, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf3, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf2, (--$vi15)");
+    VU0_REG("vlqd.xyzw $vf1, (--$vi15)");
+}
+#else
 /* 32 quadwords, the size of the VU0 register file the push and pop save;
    nothing addresses it (the saves go to VU0 memory through vi15). */
 static float vu0RegisterSave[32][4] = {{0.0f}}; /* derived name */
@@ -502,6 +576,7 @@ void _PopVu0Registers(void)
         __assert("src/Matrix.c", 1119, "0");
     }
 }
+#endif
 
 inline void _NormalizeVector(void *dst, void *src)
 {
@@ -914,6 +989,59 @@ inline float _Sqrt(float x)
 
 inline void _MakeNormalLightMatrix(void *dst, void *s0, void *s1, void *s2)
 {
+#ifdef VERSION_NTSC
+    __asm__ __volatile__("vsubw.x $vf1, $vf0, $vf0w\n\t"
+                         "lqc2 $vf24, 0(%1)\n\t"
+                         "lqc2 $vf25, 0(%2)\n\t"
+                         "lqc2 $vf26, 0(%3)\n\t"
+                         "vmulx.xyz $vf24, $vf24, $vf1x\n\t"
+                         "vmulx.xyz $vf25, $vf25, $vf1x\n\t"
+                         "vmulx.xyz $vf26, $vf26, $vf1x\n\t"
+                         "vmul.xyz $vf14, $vf24, $vf24\n\t"
+                         "vaddy.x $vf14, $vf14, $vf14y\n\t"
+                         "vaddz.x $vf14, $vf14, $vf14z\n\t"
+                         "vrsqrt Q, $vf0w, $vf14x\n\t"
+                         "vmul.xyz $vf15, $vf25, $vf25\n\t"
+                         "vaddy.x $vf15, $vf15, $vf15y\n\t"
+                         "vaddz.x $vf15, $vf15, $vf15z\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf24, $vf24, Q\n\t"
+                         "vrsqrt Q, $vf0w, $vf15x\n\t"
+                         "vmul.xyz $vf16, $vf26, $vf26\n\t"
+                         "vaddy.x $vf16, $vf16, $vf16y\n\t"
+                         "vaddz.x $vf16, $vf16, $vf16z\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf25, $vf25, Q\n\t"
+                         "vrsqrt Q, $vf0w, $vf16x\n\t"
+                         "vwaitq\n\t"
+                         "vmulq.xyz $vf26, $vf26, Q\n\t"
+                         "vmove.xyzw $vf27, $vf0\n\t"
+                         "vmove.xyzw $vf14, $vf24\n\t"
+                         "vmove.xyzw $vf15, $vf25\n\t"
+                         "vmove.xyzw $vf16, $vf26\n\t"
+                         "vmove.xyzw $vf17, $vf27\n\t"
+                         "vsub.xyzw $vf1, $vf0, $vf0\n\t"
+                         "vaddx.y $vf14, $vf1, $vf25x\n\t"
+                         "vaddx.z $vf14, $vf1, $vf26x\n\t"
+                         "vaddx.w $vf14, $vf1, $vf27x\n\t"
+                         "vaddy.x $vf15, $vf1, $vf24y\n\t"
+                         "vaddy.z $vf15, $vf1, $vf26y\n\t"
+                         "vaddy.w $vf15, $vf1, $vf27y\n\t"
+                         "vaddz.x $vf16, $vf1, $vf24z\n\t"
+                         "vaddz.y $vf16, $vf1, $vf25z\n\t"
+                         "vaddz.w $vf16, $vf1, $vf27z\n\t"
+                         "vaddw.x $vf17, $vf1, $vf24w\n\t"
+                         "vaddw.y $vf17, $vf1, $vf25w\n\t"
+                         "vaddw.z $vf17, $vf1, $vf26w\n\t"
+                         "sqc2 $vf14, 0x0(%0)\n\t"
+                         "sqc2 $vf15, 0x10(%0)\n\t"
+                         "sqc2 $vf16, 0x20(%0)\n\t"
+                         "sqc2 $vf17, 0x30(%0)\n\t"
+                         "nop"
+                         :
+                         : "r"(dst), "r"(s0), "r"(s1), "r"(s2)
+                         : "$6", "$7", "$8", "$9", "memory");
+#else
     __asm__ __volatile__("vsubw.x $vf1, $vf0, $vf0w\n\t"
                          "lqc2 $vf24, 0(%1)\n\t"
                          "lqc2 $vf25, 0(%2)\n\t"
@@ -969,6 +1097,7 @@ inline void _MakeNormalLightMatrix(void *dst, void *s0, void *s1, void *s2)
                          :
                          : "r"(dst), "r"(s0), "r"(s1), "r"(s2)
                          : "$6", "$7", "$8", "$9", "memory");
+#endif
 }
 
 inline void _MakeLightColorMatrix(void *dst, void *s0, void *s1, void *s2, void *s3)
@@ -1048,8 +1177,10 @@ static inline void _MakeNormal3(void *dst, void *verts, int i0, int i1, int i2) 
     VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf21, $vf11, Q");
+#ifndef VERSION_NTSC
     VU0_REG("vnop");
     VU0_REG("vnop");
+#endif
     VU0_REG("vrsqrt Q, $vf0w, $vf17x");
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf22, $vf12, Q");
@@ -1083,16 +1214,20 @@ static inline void _MakeNormal4(void *dst, void *verts, int i0, int i1, int i2,
     VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf21, $vf11, Q");
+#ifndef VERSION_NTSC
     VU0_REG("vnop");
     VU0_REG("vnop");
+#endif
     VU0_REG("vrsqrt Q, $vf0w, $vf17x");
     VU0_V3OP(vmul.xyz, 18, 13, 13);
     VU0_V3OP_BC(vaddz.x, 18, 18, 18, z);
     VU0_V3OP_BC(vaddy.x, 18, 18, 18, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf22, $vf12, Q");
+#ifndef VERSION_NTSC
     VU0_REG("vnop");
     VU0_REG("vnop");
+#endif
     VU0_REG("vrsqrt Q, $vf0w, $vf18x");
     VU0_NOREORDER_BEGIN();
     __asm__ __volatile__("mfc1 $8, $f3" : : "f"(k) : "$8");
@@ -1139,24 +1274,30 @@ static inline void _MakeNormal5(void *dst, void *verts, int i0, int i1, int i2, 
     VU0_V3OP_BC(vaddy.x, 17, 17, 17, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf21, $vf11, Q");
+#ifndef VERSION_NTSC
     VU0_REG("vnop");
     VU0_REG("vnop");
+#endif
     VU0_REG("vrsqrt Q, $vf0w, $vf17x");
     VU0_V3OP(vmul.xyz, 18, 13, 13);
     VU0_V3OP_BC(vaddz.x, 18, 18, 18, z);
     VU0_V3OP_BC(vaddy.x, 18, 18, 18, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf22, $vf12, Q");
+#ifndef VERSION_NTSC
     VU0_REG("vnop");
     VU0_REG("vnop");
+#endif
     VU0_REG("vrsqrt Q, $vf0w, $vf18x");
     VU0_V3OP(vmul.xyz, 19, 14, 14);
     VU0_V3OP_BC(vaddz.x, 19, 19, 19, z);
     VU0_V3OP_BC(vaddy.x, 19, 19, 19, y);
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf23, $vf18, Q");
+#ifndef VERSION_NTSC
     VU0_REG("vnop");
     VU0_REG("vnop");
+#endif
     VU0_REG("vrsqrt Q, $vf0w, $vf19x");
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf24, $vf19, Q");

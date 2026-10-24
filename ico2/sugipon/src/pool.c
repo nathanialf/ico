@@ -30,7 +30,11 @@ static void copyToWork(int pri);
 
 static void falldownSE(GObj *self)
 {
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(self, 81);
+#else
     ExecuteSEPackage(self, 86);
+#endif
 }
 
 /* The whole drawing area as a sprite rectangle in GS primitive coordinates,
@@ -176,8 +180,13 @@ void SetFallDownSplash(GObj *pool, GObj *self)
     stage_SetLoopFlag(495, 0);
     stage_SetFrameStep(495, 1);
 #else
+#ifdef VERSION_NTSC
+    stage_SetLoopFlag(429, 0);
+    stage_SetFrameStep(429, 1);
+#else
     stage_SetLoopFlag(499, 0);
     stage_SetFrameStep(499, 1);
+#endif
 #endif
 
     EntryMultiBgaManagerNoKind(w->splash, w->splashNo, pos);
@@ -212,6 +221,95 @@ typedef struct {    /* field names derived */
 
 static int poolRideFunc(ObjNode *on, GObj *rider);
 
+#ifdef VERSION_NTSC
+char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
+{
+    PoolWork *w = iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", 315);
+    int i;
+    int j;
+    int k;
+
+    CopyVector(w->pos, lay->pos);
+    w->pos[3] = 1.0f;
+    CopyVector(w->drain, ZeroVector);
+    w->drain[0] = -lay->rot[0] * 180.0f / 3.1415927f;
+    w->drain[2] = -lay->rot[2] * 180.0f / 3.1415927f;
+
+    if (lay->obj != 0) {
+        w->hasGrid = 1;
+        w->nx = (int)lay->scale[0];
+        w->ny = (int)lay->scale[2];
+        w->step = lay->scale[1];
+
+        w->height = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c", 329);
+
+        for (i = 0; i < w->nx; i++) {
+            w->height[i] = iosMallocDebug(ios_partition_sugipon, w->ny * 4, "src/pool.c", 333);
+        }
+
+        w->surface = prim_InitMesh3D(w->ny, w->nx, 1, 0x1C, (lay->obj & 0xFFFFFF00) | 0x80, 1);
+
+        w->reflect = prim_InitMesh3D(w->ny, w->nx, 1, 0x5C, 0x80808080, 1);
+
+        w->phase = 0;
+        w->wire = iosMallocDebug(ios_partition_sugipon, w->nx * 4, "src/pool.c", 356);
+
+        for (j = 0; j < w->nx; j++) {
+            w->wire[j] = w->reflect->pos + j * w->ny;
+        }
+
+        for (k = 0; k < 5; k++) {
+            setWaveCell(w, w->pos, &w->ripple[k], w->step, w->nx, w->ny, 1.0f);
+            w->ripple[k].amp = -1.0f;
+        }
+
+        w->rippleNo = 0;
+
+        if (GOBJ_SUB(self)->accessary != 21) {
+            SObjSimpleSetting obj = InitialSObjSimpleSetting;
+
+            obj.pos[0] = -accessary[GOBJ_SUB(self)->accessary].pivot[0];
+            obj.pos[1] = -accessary[GOBJ_SUB(self)->accessary].pivot[1];
+            obj.pos[2] = -accessary[GOBJ_SUB(self)->accessary].pivot[2];
+            w->dobj = CSVSYSTEM_InitDObj(accessary[GOBJ_SUB(self)->accessary].model, &obj);
+
+            w->spin = 0;
+        } else {
+            w->dobj = 0;
+
+            w->spin = 0;
+        }
+    } else {
+        w->hasGrid = 0;
+    }
+
+    {
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
+        q->pos.i[0] = q->pos.i[1] = q->pos.i[2] = 0;
+    }
+    {
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
+        q->scale.f[0] = q->scale.f[1] = q->scale.f[2] = 1.0f;
+    }
+    {
+        PoolDisp *q = (PoolDisp *)GOBJ_SUB(self)->nodes;
+        q->rot.f[0] = q->rot.f[1] = q->rot.f[2] = 0.0f;
+    }
+
+    _UnitMatrix(&GOBJ_SUB(self)->matrix);
+    _UnitMatrix((char *)GOBJ_SUB(self)->nodeMtx);
+
+    w->word28 = 0;
+    w->bga = InitMultiBgaManager(10);
+
+    w->splashNo = 0;
+    w->splash = InitMultiBgaManager(2);
+
+    ((SubHandle *)(self + 0x15C))->sub->rideFunc = poolRideFunc;
+
+    return (char *)w;
+}
+#else
 char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 {
     PoolWork *w = iosMallocDebug(ios_partition_sugipon, 224, "src/pool.c", 316);
@@ -299,6 +397,7 @@ char *InitPoolGeo(char *self, SObjSimpleSetting *lay)
 
     return (char *)w;
 }
+#endif
 
 static inline void decayRipple(PoolRipple *c) /* derived name */
 {
@@ -591,7 +690,11 @@ static void dispPool(GObj *self)
     copyToWork(4);
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
 
+#ifdef VERSION_NTSC
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+#else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+#endif
 
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
@@ -602,7 +705,7 @@ static void dispPool(GObj *self)
 
     _SetCurrentMatrix(matrixptr + 0x100);
 
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
     if (debug_snapshot_reserve == 0) {
         prim_DispMesh3D(w->surface, dispLightColor, dispLightNormal, -1);
     }
@@ -626,6 +729,9 @@ static void dispPool(GObj *self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     debug_snapshot_reserve--;
 #endif
+#ifdef VERSION_NTSC
+    debug_snapshot_reserve--;
+#endif
     gsb_SetVSMatrix(0xCC, 0xCC, (float)currentFocusDistance);
 
     _MulMatrix((char *)(matrixptr + 0x100), (char *)(matrixptr + 0xC0), (char *)(matrixptr + 0x80));
@@ -643,7 +749,7 @@ static void dispPool(GObj *self)
     if (w->dobj != 0) {
         CopyMatrix(MatrixDrive_GetMatrix(), &w->dobj->matrix);
         switch (stage_no) {
-#if defined(VERSION_JPN) || defined(VERSION_KOR)
+#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)
         case 99:
 #else
         case 101:
@@ -680,10 +786,17 @@ static void dispPool(GObj *self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
     debug_snapshot_reserve++;
 #endif
+#ifdef VERSION_NTSC
+    debug_snapshot_reserve++;
+#endif
 
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
 
+#ifdef VERSION_NTSC
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+#else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+#endif
 
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
@@ -697,7 +810,11 @@ static void dispPool(GObj *self)
     prim_DispMesh3D(w->reflect, dispLightColor, dispLightNormal, -1);
 
     gif_StartPacketPri(4);
+#ifdef VERSION_NTSC
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+#else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+#endif
 
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
@@ -719,8 +836,13 @@ void PoolDL(GObj *self)
     DispMultiBgaManagerWithKind(494, w->bga, 10);
     DispMultiBgaManagerWithKind(495, w->splash, 2);
 #else
+#ifdef VERSION_NTSC
+    DispMultiBgaManagerWithKind(428, w->bga, 10);
+    DispMultiBgaManagerWithKind(429, w->splash, 2);
+#else
     DispMultiBgaManagerWithKind(498, w->bga, 10);
     DispMultiBgaManagerWithKind(499, w->splash, 2);
+#endif
 #endif
     if (systemStatus[5] == 0) {
         w->phase =
@@ -735,6 +857,24 @@ void PoolDL(GObj *self)
     }
 }
 
+#ifdef VERSION_NTSC
+void InitLimitedPoolReflactionMesh(PoolMesh *refl)
+{
+    int i;
+    int j;
+
+    refl->mesh = prim_InitMesh3D(refl->ncol, refl->nrow, 1, 0x1C, refl->color, 1);
+    refl->height = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c", 899);
+    refl->row = iosMallocDebug(ios_partition_sugipon, refl->nrow * 4, "src/pool.c", 900);
+    for (i = 0; i < refl->nrow; i++) {
+        refl->row[i] = refl->mesh->pos + i * refl->ncol;
+        refl->height[i] = iosMallocDebug(ios_partition_sugipon, refl->ncol * 4, "src/pool.c", 905);
+        for (j = 0; j < refl->ncol; j++) {
+            refl->height[i][j] = 0.0f;
+        }
+    }
+}
+#else
 void InitLimitedPoolReflactionMesh(PoolMesh *refl)
 {
     int i;
@@ -751,6 +891,7 @@ void InitLimitedPoolReflactionMesh(PoolMesh *refl)
         }
     }
 }
+#endif
 
 void SetLayoutedPoolReflactionMesh(PoolMesh *refl)
 {
@@ -898,7 +1039,11 @@ void DispLimitedPoolReflactionMesh(PoolMesh *refl)
     gif_StartPacketPri(4);
     copyToWork(4);
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);
+#ifdef VERSION_NTSC
+    gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 0, 0);
+#else
     gif_SetDrawEnviroment(0x800, 0, ScreenWidth, ScreenHeight, 1, 0);
+#endif
     gif_SetGsReg(0x14, 0x60);
     gif_SetZWrite(0);
     gif_SetZTest(1);

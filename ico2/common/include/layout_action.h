@@ -35,9 +35,15 @@ int la_boot_no_free_area(int first, int item);
 int la_boot_confirm_memory_card(void);
 int la_scei_logo(int first);
 int la_title_demo(void);
+#ifdef VERSION_NTSC
+int la_mc_file_select(int first);
+int la_mc_preview_info(void);
+int la_mc_current_slot(void);
+#else
 int la_mc_preview_info(void);
 int la_mc_current_slot(void);
 int la_mc_load_current_slot_select(void);
+#endif
 int la_mc_save_current_slot_select(void);
 int la_general_mc_confirm(void);
 int la_save_confirm_no_memory_card(int first);

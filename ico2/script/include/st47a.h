@@ -36,7 +36,9 @@ void actSt47aHane2Girl(GObj *volatile self);
 void actSt47aHane2Main(GObj *volatile self);
 void actSt47aHane2Switch(GObj *volatile self);
 void actSt47aHane2Up(GObj *volatile self);
+#ifndef VERSION_NTSC
 void actSt47aRopeChk(GObj *volatile self);
+#endif
 void actSt47aSekizo1Chk(GObj *volatile self);
 
 #endif /* ST47A_H */

@@ -26,7 +26,11 @@ void StopStreamMotion(void);
 void DeleteStreamMotionManager(void);
 int EntryStreamMotion(struct GObj *gobj);
 int GetDataSizeOfStreamMotion(int no);
+#ifdef VERSION_NTSC
+void GetStreamMotionData(char *dst, int no);
+#else
 float GetStreamMotionData(char *dst, int no);
+#endif
 void InitStreamMotionManager(void);
 int CheckReadyStreamMotion(void);
 void SetStreamMotionFinishCallBackFunc(int no, void (*func)(struct GObj *));
@@ -35,7 +39,9 @@ void ClearAllStreamMotionEntry(void);
 void ClearStreamMotionEntry(struct GObj *gobj);
 void DisableStreamMotionManagerAutomaticDelete(void);
 void ExecStreamMotionManager(void);
+#ifndef VERSION_NTSC
 void GetStreamMotionDataNext(char *dst, int no);
+#endif
 void MallocStreamMotionBuffer(void);
 void PlayStreamMotion(void);
 

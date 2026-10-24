@@ -3,12 +3,20 @@
 
 void switchOnSE(GObj *self)
 {
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(self, 61);
+#else
     ExecuteSEPackage(self, 63);
+#endif
 }
 
 void switchReleaseSE(GObj *self)
 {
+#ifdef VERSION_NTSC
+    ExecuteSEPackage(self, 62);
+#else
     ExecuteSEPackage(self, 64);
+#endif
 }
 
 inline void SetSwitchTriggerFunc(GObj *lever, int (*func)(GObj *, int))

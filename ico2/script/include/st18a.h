@@ -12,9 +12,11 @@
 
 void actSt18aDoorChk(GObj *volatile self);
 void actSt18aDoorDownChk(GObj *volatile self);
+#ifndef VERSION_NTSC
 void actSt18aEne2Chk(GObj *volatile self);
 void actSt18aEneChk(GObj *volatile self);
 void actSt18aIntroChk(GObj *volatile self);
+#endif
 void actSt18aSwitchLChk(GObj *volatile self);
 void actSt18aSwitchLUpChk(GObj *volatile self);
 void actSt18aSwitchRChk(GObj *volatile self);

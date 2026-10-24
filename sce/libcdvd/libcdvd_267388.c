@@ -1,6 +1,8 @@
 /* libcdvd.a: sceCdStatus, sceCdBreak and sceCdReadClock, which this build's
- * archive revision adds between cdvd015 and cdvd047.  Their member names are
- * not known, so the three share one file named by their address. */
+ * archive revision adds between cdvd015 and cdvd047 (the USA build's revision
+ * has the first two and no sceCdReadClock).  Their member names are not
+ * known, so the three share one file named by sceCdStatus's address in the
+ * PAL build, 0x267388 (0x24D848 in the USA build). */
 #include <eekernel.h>
 #include <stdio.h>
 #include <sifrpc.h>
@@ -51,6 +53,7 @@ int sceCdBreak(void)
     return v;
 }
 
+#ifndef VERSION_NTSC
 /* the real-time clock as sceCdReadClock returns it, the fields in BCD */
 typedef struct sceCdCLOCK {
     unsigned char stat;
@@ -86,3 +89,4 @@ int sceCdReadClock(sceCdCLOCK *clock)
     SignalSema(*(volatile int *)&_sceCd_scmd_semid);
     return v;
 }
+#endif

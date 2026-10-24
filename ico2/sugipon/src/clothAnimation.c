@@ -84,6 +84,298 @@ static __inline__ void chainDebugOld(VECTOR *old) /* derived name */
 #endif
 }
 
+#ifdef VERSION_NTSC
+void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
+{
+    VECTOR dv;
+    VECTOR tv;
+    float mm[4][4];
+    VECTOR ew[5];
+    float (*pm)[4];
+    int i;
+
+    pm = mm;
+    sceVu0UnitMatrix(pm);
+    for (i = 0; i < sys->num; i++) {
+        ChainCfg *cf = (ChainCfg *)(i * 0x50 + (int)sys->cfg);
+        int n = cf->num;
+        float (*pts)[4] = (sys->nodes + i)->pos;
+        float (*vel)[4] = (sys->nodes + i)->vel;
+        ChainParam *cp = &cf->pm;
+        int no;
+        int j;
+        int k;
+        VECTOR old[n];
+
+        if (mtx != 0 && obj != 0 && cf->pm.node != -1) {
+            no = GetSkeltonFocusNode(obj, cf->pm.node);
+        } else {
+            if (mtx == 0) {
+                mtx = pm;
+            }
+            no = 0;
+        }
+
+        /* the DEBUG build draws the chain as it stands before this frame's
+           step, one red segment from the node drawn last (k) to each next
+           one, as TestDispChainAnimation draws it live; without DEBUG the
+           loop keeps only `k = j` */
+        for (j = 0; j < n; j++) {
+#ifdef DEBUG
+            if (j > 0) {
+                DrawLine(pts[k], pts[j], (LineColor *)&chainLineColor1, 0);
+            }
+#endif
+            k = j;
+        }
+
+        for (j = 0; j < n; j++) {
+            CopyVector(&dv, pts[j]);
+            vel[j][1] += 60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
+                         (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
+            AddVectorXYZ(pts[j], pts[j], vel[j]);
+            CopyVector(&old[j], pts[j]);
+            sceVu0ScaleVector(vel[j], &dv, -1.0f);
+        }
+
+        for (k = 0; k < 5; k++) {
+            if (0.0f <= (sys->nodes + i)->ex[k].w) {
+                CopyVector(&dv, &(sys->nodes + i)->ex[k].v1);
+                (sys->nodes + i)->ex[k].v2.y +=
+                    60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]) * 0.5f *
+                    (60.0f / (float)((0x3C - systemStatus[0] * 0xA) / systemStatus[1]));
+                CopyVector(&ew[k], &(sys->nodes + i)->ex[k].v2);
+                AddVectorXYZ(&(sys->nodes + i)->ex[k].v1, &(sys->nodes + i)->ex[k].v1,
+                             &(sys->nodes + i)->ex[k].v2);
+                sceVu0ScaleVector(&(sys->nodes + i)->ex[k].v2, &dv, -1.0f);
+            }
+        }
+
+        {
+            void bindExWeight(char *ex, void *ev, float t)
+            {
+                VECTOR va;
+                VECTOR vb;
+                int id;
+                int id1;
+                float ll;
+                float ka;
+                float kb;
+                float ka2;
+                float kb2;
+                float cl;
+                float wa;
+                float wb;
+                float l;
+
+                id = (int)*(float *)ex;
+                id1 = id + 1;
+                ll = *(float *)(ex + 0x40) * *(float *)(ex + 0x40);
+                ka = t * (*(float *)ex - (float)(int)*(float *)ex);
+                kb = t * (1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+                ka2 = ka * ka;
+                kb2 = kb * kb;
+                cl = sys->cfg[i].pm.weight;
+
+                wa = cl;
+                wb = *(float *)(ex + 0x44);
+
+                sceVu0InterVector(&vb, pts[id], pts[id1],
+                                  1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+
+                sceVu0SubVector(&dv, &vb, ex + 0x20);
+                l = VectorLengthSquare(&dv);
+                if (ll < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, *(float *)(ex + 0x40) / _Sqrt(l));
+                    AddVectorXYZ(ex + 0x10, ex + 0x20, &dv);
+
+                    SubVectorXYZ(&dv, ex + 0x10, pts[id]);
+                    l = VectorLengthSquare(&dv);
+                    if (ka2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                        AddVectorXYZ(&dv, pts[id], &dv);
+                    } else {
+                        CopyVector(&dv, ex + 0x10);
+                        wa = wb;
+                    }
+
+                    SubVectorXYZ(&va, ex + 0x10, pts[id1]);
+                    l = VectorLengthSquare(&va);
+                    if (kb2 < l) {
+                        sceVu0ScaleVectorXYZ(&va, &va, kb / _Sqrt(l));
+                        AddVectorXYZ(&va, pts[id1], &va);
+                    } else {
+                        CopyVector(&va, ex + 0x10);
+                        cl = wb;
+                    }
+
+                    sceVu0ScaleVector(&dv, &dv, wa / (cl + wa));
+                    sceVu0ScaleVector(&va, &va, cl / (cl + wa));
+                    AddVectorXYZ(&dv, &dv, &va);
+
+                    SubVectorXYZ(&dv, &dv, ex + 0x10);
+                    sceVu0ScaleVector(&dv, &dv, 1.0f - wb / (cl + wa + wb));
+                    AddVectorXYZ(ex + 0x10, ex + 0x10, &dv);
+
+                    SubVectorXYZ(&dv, pts[id], ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (ka2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                        AddVectorXYZ(pts[id], ex + 0x10, &dv);
+                    }
+
+                    SubVectorXYZ(&dv, pts[id1], ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (kb2 < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, kb / _Sqrt(l));
+                        AddVectorXYZ(pts[id1], ex + 0x10, &dv);
+                    }
+
+                    sceVu0SubVector(&dv, ex + 0x20, ex + 0x10);
+                    l = VectorLengthSquare(&dv);
+                    if (ll < l) {
+                        sceVu0ScaleVectorXYZ(&dv, &dv, *(float *)(ex + 0x40) / _Sqrt(l));
+                        sceVu0AddVector(ex + 0x20, ex + 0x10, &dv);
+                    }
+                }
+                sceVu0InterVector(ex + 0x10, pts[id], pts[id1],
+                                  1.0f - (*(float *)ex - (float)(int)*(float *)ex));
+            }
+
+            void bind2(float (*pp)[4], int id, int ip, int in, float t)
+            {
+                float ka;
+                float kb;
+                float ka2;
+                float kb2;
+                float cl;
+                float wa;
+                float wb;
+                float l;
+
+                ka = (float)(id - ip < 0 ? -(id - ip) : id - ip) * t;
+                kb = (float)(id - in < 0 ? -(id - in) : id - in) * t;
+                ka2 = ka * ka;
+                kb2 = kb * kb;
+                cl = sys->cfg[i].pm.weight;
+
+                wa = cl;
+                wb = cl;
+
+                SubVectorXYZ(&dv, pp[id], pp[ip]);
+                l = VectorLengthSquare(&dv);
+                if (ka2 < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                    AddVectorXYZ(&dv, pp[ip], &dv);
+                } else {
+                    CopyVector(&dv, pp[id]);
+                    cl = wb;
+                }
+
+                SubVectorXYZ(&tv, pp[id], pp[in]);
+                l = VectorLengthSquare(&tv);
+                if (kb2 < l) {
+                    sceVu0ScaleVectorXYZ(&tv, &tv, kb / _Sqrt(l));
+                    AddVectorXYZ(&tv, pp[in], &tv);
+                } else {
+                    CopyVector(&tv, pp[id]);
+                    cl = wb;
+                }
+
+                sceVu0ScaleVector(&dv, &dv, wa / (cl + wa));
+                sceVu0ScaleVector(&tv, &tv, cl / (cl + wa));
+                AddVectorXYZ(&dv, &dv, &tv);
+
+                SubVectorXYZ(&dv, &dv, pp[id]);
+                sceVu0ScaleVector(&dv, &dv, 1.0f - wb / (cl + wa + wb));
+                AddVectorXYZ(pp[id], pp[id], &dv);
+
+                SubVectorXYZ(&dv, pp[ip], pp[id]);
+                l = VectorLengthSquare(&dv);
+                if (ka < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, ka / _Sqrt(l));
+                }
+                AddVectorXYZ(pp[ip], pp[id], &dv);
+
+                SubVectorXYZ(&dv, pp[in], pp[id]);
+                l = VectorLengthSquare(&dv);
+                if (kb < l) {
+                    sceVu0ScaleVectorXYZ(&dv, &dv, kb / _Sqrt(l));
+                }
+                AddVectorXYZ(pp[in], pp[id], &dv);
+            }
+
+            void calc2(float (*pp)[4], int lo, int hi)
+            {
+                int m;
+                int q;
+
+                sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
+                for (m = 0; m < 5; m++) {
+                    if (0.0f <= (sys->nodes + i)->ex[m].w) {
+                        bindExWeight((char *)&(sys->nodes + i)->ex[m], &ew[m], cp->step);
+                    }
+                }
+                for (m = 0; m < n; m++) {
+                    int mp = m + 1;
+                    q = n - mp;
+                    bind2(pp, m, m - 1 < 0 ? 0 : m - 1, mp < n ? mp : n - 1, cp->step);
+                    bind2(pp, q, q - 1 < 0 ? 0 : q - 1, q + 1 < n ? q + 1 : n - 1, cp->step);
+                }
+                chainDebugOld(old);
+                sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
+            }
+
+            /* the debug pass pad 2's button 0x20 runs: every segment pulled
+               back to the chain's step length */
+            inline void keepLength(float (*pp)[4]) /* derived name */
+            {
+                float len = cp->step;
+                float len2 = len * len;
+                float l;
+                int m;
+
+                for (m = 1; m < n; m++) {
+                    SubVectorXYZ(&old[m], pp[m], pp[m - 1]);
+                    l = VectorLengthSquare(&old[m]);
+                    if (len2 < l) {
+                        sceVu0ScaleVectorXYZ(&old[m], &old[m], len / _Sqrt(l));
+                    }
+                }
+                for (m = 1; m < n; m++) {
+                    AddVectorXYZ(pp[m], pp[m - 1], &old[m]);
+                }
+            }
+
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+            calc2(pts, 0, n - 1);
+
+            sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
+
+            if (pad[1].now & 0x20) {
+                keepLength(pts);
+            }
+
+            sceVu0ApplyMatrix(pts, mtx + no * 4, cp->root);
+        }
+
+        for (j = 0; j < n; j++) {
+            AddVectorXYZ(vel[j], vel[j], pts[j]);
+            vel[j][3] = 0.0f;
+        }
+
+        for (k = 0; k < 5; k++) {
+            if (0.0f <= (sys->nodes + i)->ex[k].w) {
+                AddVectorXYZ(&(sys->nodes + i)->ex[k].v2, &(sys->nodes + i)->ex[k].v2,
+                             &(sys->nodes + i)->ex[k].v1);
+            }
+        }
+    }
+    sys->oddFrame = sys->oddFrame == 0;
+}
+#else
 void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
 {
     VECTOR dv;
@@ -349,6 +641,7 @@ void GetChainAnimation(ChainSet *sys, GObj *obj, float (*mtx)[4])
     }
     sys->oddFrame = sys->oddFrame == 0;
 }
+#endif
 
 int SetChainExtendedWeight(ChainNode *node, int idx, float w0, float w1)
 {
@@ -634,6 +927,7 @@ static __inline__ void clothFixDebug(ClothFixPoint *fix) /* derived name */
 #endif
 }
 
+#ifndef VERSION_NTSC
 void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *mtx)
 {
     VECTOR dv;
@@ -744,6 +1038,7 @@ void GetClothAnimationFix4Points(VECTOR **pa, VECTOR **pv, ClothCfg *cfg, void *
         }
     }
 }
+#endif
 
 /* the two cap planes of the unit cylinder clipCylinderCollision clips
    against, each with a zero vector after it */
@@ -833,6 +1128,102 @@ static int clipCylinderCollision(char *p, void *pt)
     return -1;
 }
 
+#ifdef VERSION_NTSC
+ChainSet *InitChains(ChainCfg *cfg)
+{
+    ChainSet *r;
+    int i = 0;
+    int j;
+    float step;
+
+    r = (ChainSet *)iosMallocDebug(ios_partition_sugipon, 0x10, "src/clothAnimation.c", 1058);
+    r->cfg = cfg;
+    while (cfg[i].num != -1) {
+        i++;
+    }
+    r->num = i;
+    r->nodes = (ChainNode *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ChainNode),
+                                           "src/clothAnimation.c", 1064);
+    r->oddFrame = 0;
+    for (i = 0; i < r->num; i++) {
+        r->nodes[i].pos =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16, "src/clothAnimation.c", 1068);
+        r->nodes[i].vel =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 16, "src/clothAnimation.c", 1069);
+        r->nodes[i].len =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1070);
+        r->nodes[i].exNum = 0;
+        for (j = 0; j < 5; j++) {
+            r->nodes[i].ex[j].w = -1.0f;
+            CopyVector(&r->nodes[i].ex[j].v0, ZeroPoint);
+            CopyVector(&r->nodes[i].ex[j].v1, ZeroPoint);
+            CopyVector(&r->nodes[i].ex[j].v2, ZeroVector);
+        }
+        for (j = 0; j < r->cfg[i].num; j++) {
+            CopyVector(r->nodes[i].pos[j], cfg[i].pm.root);
+            CopyVector(r->nodes[i].vel[j], ZeroVector);
+            step = cfg[i].pm.step;
+            r->nodes[i].len[j] = step;
+            if (j != 0) {
+                r->nodes[i].pos[j][1] = r->nodes[i].pos[j - 1][1] + step;
+            }
+        }
+    }
+    return r;
+}
+
+ClothSet *InitClothes(ClothCfg *cfg)
+{
+    ClothSet *r;
+    int i = 0;
+    int m;
+    int q;
+    float aa[4];
+    float bb[4];
+
+    r = (ClothSet *)iosMallocDebug(ios_partition_sugipon, sizeof(ClothSet), "src/clothAnimation.c",
+                                   1101);
+    debug_StdPrintfDummy("\x1b[36mALLOC CLOTHES\x1b[m\n");
+    while (cfg[i].num != -1) {
+        i++;
+    }
+    r->num = i;
+    r->rec = (ClothRec *)iosMallocDebug(ios_partition_sugipon, i * sizeof(ClothRec),
+                                        "src/clothAnimation.c", 1106);
+    for (i = 0; i < r->num; i++) {
+        if (cfg[i].tex != 0) {
+            r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x5C, 0x80808080, 1);
+            r->rec[i].textured = 1;
+            r->rec[i].tex = *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg[i].tex));
+        } else {
+            r->rec[i].mesh = prim_InitMesh3D(cfg[i].div, cfg[i].num, 1, 0x4C, 0xFFFFFF80, 1);
+            r->rec[i].textured = 0;
+        }
+        r->rec[i].pos =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1134);
+        r->rec[i].vel =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1135);
+        r->rec[i].mark =
+            iosMallocDebug(ios_partition_sugipon, cfg[i].num * 4, "src/clothAnimation.c", 1136);
+        for (m = 0; m < cfg[i].num; m++) {
+            r->rec[i].pos[m] = (VECTOR *)(r->rec[i].mesh->pos + m * cfg[i].div);
+            r->rec[i].vel[m] = iosMallocDebug(ios_partition_sugipon, cfg[i].div * 16,
+                                              "src/clothAnimation.c", 1141);
+            r->rec[i].mark[m] =
+                iosMallocDebug(ios_partition_sugipon, cfg[i].div * 4, "src/clothAnimation.c", 1142);
+            memset(aa, 0, 16);
+            aa[3] = 1.0f;
+            memset(bb, 0, 16);
+            for (q = 0; q < cfg[i].div; q++) {
+                CopyVector(&r->rec[i].pos[m][q], aa);
+                CopyVector(&r->rec[i].vel[m][q], bb);
+                r->rec[i].mark[m][q] = -1;
+            }
+        }
+    }
+    return r;
+}
+#else
 ChainSet *InitChains(ChainCfg *cfg)
 {
     ChainSet *r;
@@ -979,6 +1370,7 @@ ClothSet *InitClothesNoShade(ClothCfg *cfg)
     }
     return r;
 }
+#endif
 
 void DispClothMesh(ClothRec *rec, void *la, void *lb)
 {
@@ -1063,6 +1455,7 @@ void DispCloth4D(Cloth4D *c, void *la, void *lb)
     }
 }
 
+#ifndef VERSION_NTSC
 void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb)
 {
     int t;
@@ -1084,6 +1477,7 @@ void DispCloth4DWithAdd(Cloth4D *c, void *la, void *lb)
         DispMeshWire(c->pos, c->cfg->nx, c->cfg->ny);
     }
 }
+#endif
 
 /* windNoise is the ring of eleven random wind vectors getCloth4D_preProcess
    fills and cycles through, explicitly zeroed; the up and down vectors are
@@ -1122,6 +1516,92 @@ static __inline__ void clothSetPoint(void *dst, void *src, float f) /* derived n
     _ScaleVectorXYZ(dst, &tv, f);
 }
 
+#ifdef VERSION_NTSC
+static void getCloth4D_preProcess(Cloth4D *c, float g, float damp)
+{
+    VECTOR dv;
+    float work[4][4];
+    int i;
+    int j;
+    Prim3DVec **pos = c->pos;
+    Prim3DVec **nrm = c->nrm;
+    Prim3DVec **vel = c->vel;
+    Cloth4DCfg *cfg = c->cfg;
+    int nx = cfg->nx - (cfg->wrap != 0);
+    int ny = cfg->ny;
+    VECTOR va[nx];
+    float rz;
+    float t;
+
+    for (i = 0; i < nx; i++) {
+        for (j = 1; j < ny; j++) {
+            sceVu0ScaleVector(&dv, &vel[i][j], damp);
+            CopyVector(&vel[i][j], &pos[i][j]);
+            AddVectorXYZ(&pos[i][j], &pos[i][j], &dv);
+        }
+    }
+    for (i = 0; i < nx; i++) {
+        for (j = 0; j < 2; j++) {
+            int n = cfg->cols[i].link[j].node;
+            Cloth4DCol *pt;
+            float f;
+            Sub15C *sk;
+
+            if (n == -1) {
+                break;
+            }
+            pt = &cfg->cols[i];
+            f = pt->link[j].weight;
+            sk = GOBJ_SUB(c->gobj);
+            _MulMatrix(work, (char *)sk->nodeMtx + n * 64, sk->clusterMtx + n * 64);
+            _SetCurrentMatrix(work);
+            if (j == 0) {
+                clothSetPoint(pos[i], pt->pos, f);
+                clothSetPoint(nrm[i], pt->dir, f);
+                clothSetPoint(&va[i], pt->restDir, f);
+            } else {
+                clothAddPoint(pos[i], pt->pos, f);
+                clothAddPoint(nrm[i], pt->dir, f);
+                clothAddPoint(&va[i], pt->restDir, f);
+            }
+        }
+        pos[i]->w = 1.0f;
+        nrm[i]->w = 1.0f;
+        va[i].w = 0.0f;
+    }
+    {
+        float *wind;
+        float wpow;
+        int c;
+
+        c = 0;
+        wind = GetWindVector(&wpow, &pos[0]->x);
+        wpow = wpow / 40960.0f;
+        for (i = 0; i < 11; i++) {
+            for (j = 0; j < 3; j++) {
+                windNoise[i][j] = wpow * (float)((rand() & 0x7FFF) - 16383);
+            }
+        }
+        rz = 1.0f / (float)(ny - 1);
+        for (j = 1; j < ny; j++) {
+            t = (float)(ny - j) * rz;
+            t = t * t;
+            for (i = 0; i < nx; i++) {
+                SubVectorXYZ(&work[0], &pos[i][j], &pos[i][j - 1]);
+                AddVectorXYZ(&work[0], &work[0], wind);
+                AddVectorXYZ(&work[0], &work[0], windNoise[c]);
+                c = c + 1;
+                if (c == 11) {
+                    c = 0;
+                }
+                _InterVectorXYZ(&work[0], &va[i], &work[0], t);
+                work[0][1] = work[0][1] + g;
+                AddVectorXYZ(&pos[i][j], &pos[i][j - 1], &work[0]);
+            }
+        }
+    }
+}
+#else
 static void getCloth4D_preProcess(Cloth4D *c, float g, float damp, float z, float w, int tight,
                                   void *qa, void *qb)
 {
@@ -1216,6 +1696,7 @@ static void getCloth4D_preProcess(Cloth4D *c, float g, float damp, float z, floa
         }
     }
 }
+#endif
 
 /* the four procMatrix elements proc writes its Y rotation through */
 static float *procCosXX = &procMatrix[0][0]; /* derived name */
@@ -1336,9 +1817,15 @@ static void getCloth4D(Cloth4D *c, int **rows)
     int wrap = cfg->wrap;
     int nx = cfg->nx - (wrap != 0);
     int ny = cfg->ny;
+#ifdef VERSION_NTSC
+    int cnt = c->colNum;
+    ClothPoint *pts = c->col;
+    float scale = c->gobj->dobj->nodes->scale[0];
+#else
     int cnt = c->collision ? c->colNum : 0;
     ClothPoint *pts = c->col;
     float scale = GOBJ_SUB(c->gobj)->nodes->scale[0];
+#endif
     float inv = 1.0f / scale;
     float tbase = cfg->colSpacing * scale;
     int nyArr[ny];
@@ -1363,7 +1850,9 @@ static void getCloth4D(Cloth4D *c, int **rows)
     float tlim;
     int i;
     int j;
+#ifndef VERSION_NTSC
     int n;
+#endif
 
     pD = mD;
     pC = mC;
@@ -1399,6 +1888,9 @@ static void getCloth4D(Cloth4D *c, int **rows)
     gif_SetAlpha(1, 5, 0x80);
     sceVu0UnitMatrix(MatrixDrive_GetMatrix());
     {
+#ifdef VERSION_NTSC
+        int n;
+#endif
         sceVu0FMATRIX *qF = mF;
         sceVu0FMATRIX *qE = mE;
         sceVu0FMATRIX *qD = mD;
@@ -1432,6 +1924,7 @@ static void getCloth4D(Cloth4D *c, int **rows)
         }
     }
     gif_EndPacket();
+#ifndef VERSION_NTSC
 #ifdef DEBUG
     for (i = 0; i < cnt; i++) {
         _ScaleVector(&work[0], &vG[i], 100.0f);
@@ -1441,6 +1934,7 @@ static void getCloth4D(Cloth4D *c, int **rows)
         DrawLine((char *)mD[i][3], (char *)&work[1], (LineColor *)&chainLineColor0, 0);
         DrawLine((char *)mD[i][3], (char *)&work[3], (LineColor *)&chainLineColor1, 0);
     }
+#endif
 #endif
     {
         /* proc reads only p, q and k.  Each caller also passes own, the
@@ -1708,6 +2202,54 @@ static void getCloth4D_postProcess(Cloth4D *c, int **rows)
    typedef.h, and commonact.c declares the table char [] */
 extern const MotionDef motionKind[];
 
+#ifdef VERSION_NTSC
+void GetCloth4D(Cloth4D *c, float x, float y)
+{
+    float buf[4];
+    int i;
+    int j;
+    int i2;
+    int j2;
+    int nx = c->cfg->nx;
+    int ny = c->cfg->ny;
+    int data[nx][ny];
+    int *rows[nx];
+    Sub15C *obj;
+    Cloth4DCfg *cfg;
+    int *rows2;
+    int nx2;
+    int ny2;
+    Vec16 *plane;
+
+    for (i = 0; i < nx; i++) {
+        rows[i] = data[i];
+        for (j = 0; j < ny; j++) {
+            rows[i][j] = -1;
+        }
+    }
+    getCloth4D_preProcess(c, x, y);
+    getCloth4D(c, rows);
+    obj = GOBJ_SUB(c->gobj);
+    if (motionKind[obj->ctrl.motion].flags.bits.clothPlane) {
+        plane = &obj->root.plane;
+        cfg = c->cfg;
+        rows2 = (int *)c->pos;
+        nx2 = cfg->nx - (cfg->wrap != 0);
+        ny2 = cfg->ny;
+        for (i2 = 0; i2 < nx2; i2++) {
+            for (j2 = 1; j2 < ny2; j2++) {
+                char *p = (char *)(j2 * 16 + rows2[i2]);
+                float d = plane_distance(p, plane);
+                if (d < 0.0f) {
+                    _ScaleVector(buf, plane, d);
+                    _SubVectorXYZ(p, p, buf);
+                }
+            }
+        }
+    }
+    getCloth4D_postProcess(c, rows);
+}
+#else
 static void _getCloth4D(Cloth4D *c, float x, float y, float z, float w, int tight, void *qa,
                         void *qb)
 {
@@ -1771,11 +2313,78 @@ void GetCloth4DWithTight(Cloth4D *c, float x, float y, float z, float w, void *q
 {
     _getCloth4D(c, x, y, z, w, 1, qa, qb);
 }
+#endif
 
 typedef struct { /* field names derived */
     long long q[8];
 } Blob64; /* derived name */
 
+#ifdef VERSION_NTSC
+Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
+{
+    Cloth4D *r;
+    int i;
+    int j;
+    float sc;
+
+    r = (Cloth4D *)iosMallocDebug(ios_partition_sugipon, sizeof(Cloth4D), "src/clothAnimation.c",
+                                  1897);
+    r->gobj = gobj;
+    r->cfg = cfg;
+    r->sweepRight = 0;
+    if (cfg->tex != 0) {
+        r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x5C, 0x80808080, 1);
+        r->tex = *(TexBlob *)tex_GetTextureData(tex_GetTextureNo(cfg->tex));
+    } else {
+        r->mesh = prim_InitMesh3D(cfg->ny, cfg->nx, 1, 0x4C, 0xFFFFFF80, 1);
+    }
+    r->pos = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 1932);
+    r->vel = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 1933);
+    r->nrm = (Prim3DVec **)iosMallocDebug(ios_partition_sugipon, cfg->nx * 4,
+                                          "src/clothAnimation.c", 1934);
+    for (i = 0; i < cfg->nx; i++) {
+        r->pos[i] = r->mesh->pos + i * cfg->ny;
+        r->vel[i] = (Prim3DVec *)iosMallocDebug(ios_partition_sugipon, cfg->ny * 16,
+                                                "src/clothAnimation.c", 1938);
+        r->nrm[i] = r->mesh->nrm + i * cfg->ny;
+        for (j = 0; j < cfg->ny; j++) {
+            CopyVector(&r->pos[i][j], ZeroPoint);
+            CopyVector(&r->vel[i][j], ZeroVector);
+            r->mesh->st[i * cfg->ny + j].x = cfg->cols[i].uv[j][0];
+            r->mesh->st[i * cfg->ny + j].y = 1.0f - cfg->cols[i].uv[j][1];
+        }
+    }
+    prim_UpdateMesh3D(r->mesh, 8, buffer_ID);
+    prim_UpdateMesh3D(r->mesh, 8, (buffer_ID + 1) & 1);
+    if (tbl != 0) {
+        i = 0;
+        sc = GOBJ_SUB(r->gobj)->nodes->scale[0];
+        while (tbl[i].enable != -1) {
+            i++;
+        }
+        r->colNum = i;
+        r->col = iosMallocDebug(ios_partition_sugipon, i * 0x40, "src/clothAnimation.c", 1967);
+        r->colMtx =
+            iosMallocDebug(ios_partition_sugipon, r->colNum * 0x40, "src/clothAnimation.c", 1968);
+        r->colNode =
+            iosMallocDebug(ios_partition_sugipon, r->colNum * 4, "src/clothAnimation.c", 1969);
+        for (i = 0; tbl[i].enable != -1; i++) {
+            *(Blob64 *)&r->col[i] = *(Blob64 *)&tbl[i];
+            r->col[i].radius = r->col[i].radius * sc;
+            r->col[i].top = r->col[i].top * sc;
+            r->col[i].bottom = r->col[i].bottom * sc;
+            r->col[i].invDiameter = 1.0f / (r->col[i].radius + r->col[i].radius);
+            sceVu0UnitMatrix(r->colMtx[i]);
+            r->colNode[i] = GetSkeltonFocusNode(gobj, tbl[i].node);
+        }
+    } else {
+        r->colNum = 0;
+    }
+    return r;
+}
+#else
 Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
 {
     Cloth4D *r;
@@ -1841,6 +2450,7 @@ Cloth4D *InitCloth4D(GObj *gobj, Cloth4DCfg *cfg, ClothHangCfg *tbl)
     }
     return r;
 }
+#endif
 
 void GetChainNodeGlobalQuaternion(void *q, ChainNode *node, int count)
 {

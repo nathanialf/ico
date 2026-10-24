@@ -43,6 +43,129 @@ static const ConstVec door1UpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}};
 /* .data: eleven actor mail records, each the usual pair, the 430 entry whose
    handler the sender fills in and the 429 terminator, named for the actor that
    installs it. */
+#ifdef VERSION_NTSC
+static ActMail atr2_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail ene_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail stair_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door2Down_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door2Up_mes[2] = {{397}, {396}}; /* derived name */
+
+/* the four door checks' records */
+static ActMail door2Upchk_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door2Downchk_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door1Down_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door1Up_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door1Upchk_mes[2] = {{397}, {396}}; /* derived name */
+
+static ActMail door1Downchk_mes[2] = {{397}, {396}}; /* derived name */
+
+void actSt00aInit(void)
+{
+    if (gflagChk(38) == 0) {
+        stage_SetAnimation(77, 0, 0);
+        stage_SetAnimation(74, 0, 0);
+    } else {
+        stage_SetAnimation(75, 0, -1);
+        stage_SetAnimation(74, 0, -1);
+    }
+}
+
+void actSt00aEnd(void)
+{
+    if (girlGObj != 0) {
+        if (gflagChk(39) == 0) {
+            gflagOn(358);
+        }
+    }
+}
+
+void actSt00aEneChk(GObj *volatile self)
+{
+    if (girlGObj == 0) {
+        _ACTWait(0);
+    }
+    while (gflagChk(39) == 0 || gflagChk(35) != 0) {
+        _ACTWait(1);
+    }
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(36);
+    scpSleepEnemyOne(3453);
+    gflagOff(358);
+    _ACTWait(60);
+    gflagOn(37);
+    stage_SetAnimation(156, 1, 0);
+    _ACTWait(150);
+    while (stage_CheckAnimationFinish(156) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_switch_layout(50);
+    _ACTWait(120);
+    scpBoyControlReadDisable = 0;
+    gflagOff(36);
+    scpWakeupEnemyOne(3453);
+}
+
+void actSt00aStairChk(GObj *volatile self)
+{
+    while (scpTriggerBall(self, scpSearchGobj(249), 90.0f) != 0 || gflagChk(36) != 0) {
+        _ACTWait(1);
+    }
+    gflagOn(35);
+    lt_switch_layout(51);
+    scpBoyControlReadDisable = 1;
+    gflagOn(38);
+    scpSleepEnemyAll();
+    _ACTWait(60);
+    fightSoundProcessRequestPause();
+    while (fightSoundPlayChk() != 0) {
+        _ACTWait(1);
+    }
+    scpAdpcmPlayRequestFunc(20, &proto, 1, 1, 1);
+    while (proto == 0) {
+        _ACTWait(1);
+    }
+    stage_SetAnimation(74, 1, 0);
+    ReviveAllCarryableItemsWithNonSleepFrame(260);
+    _ACTWait(90);
+    iosPadActRequest(boyPad, 17);
+    while (stage_CheckAnimationFinish(74) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    stage_SetAnimation(76, 1, 0);
+    stage_SetAnimation(77, 1, 0);
+    proto_yure = iosPadActRequest(boyPad, 9);
+    proto_yure_vol = 128;
+    iosPadActVolumeSet(proto_yure, 128);
+    _ACTWait(500);
+    iosPadActStop(proto_yure);
+    while (stage_CheckAnimationFinish(77) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    scpSearchGobj(246)->active = 0;
+    scpSearchGobj(245)->active = 1;
+    lt_switch_layout(50);
+    _ACTWait(120);
+    ReviveAllCarryableItemsWithNonSleepFrame(60);
+    stage_SetAnimation(75, 0, -1);
+    stage_SetAnimation(77, -1, -2);
+    scpBoyControlReadDisable = 0;
+    scpWakeupEnemyAll();
+    gflagOff(35);
+    fightSoundProcessRequestStart();
+}
+#else
 static ActMail atr2_mes[2] = {{430}, {429}}; /* derived name */
 
 static ActMail ene_mes[2] = {{430}, {429}}; /* derived name */
@@ -265,6 +388,7 @@ void actSt00aStairChk(GObj *volatile self)
     gflagOff(38);
     fightSoundProcessRequestStart();
 }
+#endif
 
 void actSt00aDoor2DownChk(GObj *self);
 void actSt00aDoor2UpChk(GObj *self);
@@ -280,11 +404,24 @@ void actSt00aDoor2(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(90, 0, 0);
 #else
+#ifdef VERSION_NTSC
+        stage_SetAnimation(81, 0, 0);
+#else
         stage_SetAnimation(94, 0, 0);
+#endif
 #endif
         _ACTWait(60);
         door2Down_mes[0].func = actSt00aDoor2DownChk;
         act->mail = door2Down_mes;
+#ifdef VERSION_NTSC
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(80, 0, 0);
+        door2Up_mes[0].func = actSt00aDoor2UpChk;
+        act->mail = door2Up_mes;
+        ACTSendMailCorrect(self, 397);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
@@ -296,12 +433,95 @@ void actSt00aDoor2(GObj *volatile self)
         door2Up_mes[0].func = actSt00aDoor2UpChk;
         act->mail = door2Up_mes;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
 
 void actSt00aDoor2UpEffect(GObj *volatile self);
 
+#ifdef VERSION_NTSC
+void actSt00aDoor2UpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+    int h;
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor2UpEffect, 21);
+
+    stage_SetAnimation(80, 1, 0);
+
+    scpWakeupItemWithBoundary(-6.0f, -221.0f, 1504.0f, 100.0f);
+
+    _ACTWait(1);
+
+    buf[0] = door2UpChkPos.d[0];
+    buf[1] = door2UpChkPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(60);
+    soundSeDefStop(h);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(80) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door2Upchk_mes[0].func = actSt00aDoor2DownChk;
+    sub->mail = door2Upchk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt00aDoor2DownEffect(GObj *volatile self);
+
+void actSt00aDoor2DownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    ConstVec pos;
+    int h;
+
+    while (1) {
+        if (scpTriggerFloorAttrTargetMan(self, 0x3000000) == 0)
+            break;
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor2DownEffect, 21);
+
+    stage_SetAnimation(81, 1, 0);
+
+    scpWakeupItemWithBoundary(-6.0f, -221.0f, 1504.0f, 100.0f);
+
+    _ACTWait(1);
+
+    pos = door2UpChkPos;
+    soundSeDefPlay(1196, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1197, 0, pos.f, 1);
+    _ACTWait(37);
+    soundSeDefStop(h);
+    soundSeDefPlay(1198, 0, pos.f, 1);
+
+    while (stage_CheckAnimationFinish(81) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door2Downchk_mes[0].func = actSt00aDoor2UpChk;
+    sub->mail = door2Downchk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+#else
 void actSt00aDoor2UpChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -398,6 +618,7 @@ void actSt00aDoor2DownChk(GObj *volatile self)
     ACTSendMailCorrect(self, 430);
     _ACTWait(0);
 }
+#endif
 
 void actSt00aDoor1DownChk(GObj *self);
 void actSt00aDoor1UpChk(GObj *self);
@@ -413,11 +634,24 @@ void actSt00aDoor1(GObj *volatile self)
 #if defined(VERSION_JPN) || defined(VERSION_KOR)
         stage_SetAnimation(88, 0, 0);
 #else
+#ifdef VERSION_NTSC
+        stage_SetAnimation(79, 0, 0);
+#else
         stage_SetAnimation(92, 0, 0);
+#endif
 #endif
         _ACTWait(60);
         door1Down_mes[0].func = actSt00aDoor1DownChk;
         act->mail = door1Down_mes;
+#ifdef VERSION_NTSC
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        stage_SetAnimation(78, 0, 0);
+        door1Up_mes[0].func = actSt00aDoor1UpChk;
+        act->mail = door1Up_mes;
+        ACTSendMailCorrect(self, 397);
+#else
         ACTSendMailCorrect(self, 430);
         _ACTWait(0);
     } else {
@@ -429,12 +663,172 @@ void actSt00aDoor1(GObj *volatile self)
         door1Up_mes[0].func = actSt00aDoor1UpChk;
         act->mail = door1Up_mes;
         ACTSendMailCorrect(self, 430);
+#endif
         _ACTWait(0);
     }
 }
 
 void actSt00aDoor1UpEffect(GObj *volatile self);
 
+#ifdef VERSION_NTSC
+void actSt00aDoor1UpChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    ConstVec pos;
+    int h;
+
+    while (1) {
+        if (scpTriggerFloorAttrTargetMan(self, 0x4000000) != 0)
+            break;
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor1UpEffect, 21);
+
+    scpWakeupItemWithBoundary(-8.0f, -73.0f, 64.0f, 100.0f);
+
+    stage_SetAnimation(78, 1, 0);
+
+    pos = door1UpChkPos;
+    soundSeDefPlay(1196, 0, pos.f, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1197, 0, pos.f, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+    soundSeDefPlay(1198, 0, pos.f, 1);
+
+    while (stage_CheckAnimationFinish(78) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door1Upchk_mes[0].func = actSt00aDoor1DownChk;
+    sub->mail = door1Upchk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt00aDoor1DownEffect(GObj *volatile self);
+
+void actSt00aDoor1DownChk(GObj *volatile self)
+{
+    Act *sub = GOBJ_ACT(self);
+    long long buf[2];
+    int h;
+
+    while (scpTriggerFloorAttrTargetMan(self, 0x4000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(15);
+
+    actCreateSubThread(actSt00aDoor1DownEffect, 21);
+
+    scpWakeupItemWithBoundary(-8.0f, -73.0f, 64.0f, 100.0f);
+
+    stage_SetAnimation(79, 1, 0);
+
+    buf[0] = door1UpChkPos.d[0];
+    buf[1] = door1UpChkPos.d[1];
+    soundSeDefPlay(1196, 0, (float *)buf, 1);
+    _ACTWait(30);
+    h = soundSeDefPlay(1197, 0, (float *)buf, 1);
+    _ACTWait(30);
+    soundSeDefStop(h);
+    soundSeDefPlay(1198, 0, (float *)buf, 1);
+
+    while (stage_CheckAnimationFinish(79) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+
+    door1Downchk_mes[0].func = actSt00aDoor1UpChk;
+    sub->mail = door1Downchk_mes;
+    ACTSendMailCorrect(self, 397);
+    _ACTWait(0);
+}
+
+void actSt00aEne(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(39) == 0) {
+        ene_mes[0].func = actSt00aEneChk;
+        act->mail = ene_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+
+void actSt00aEnemy1(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(37) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(50);
+    Generator_MaskOff(self);
+    Generator_Call(self);
+    _ACTWait(30);
+    Generator_Call(self);
+    _ACTWait(30);
+    Generator_Call(self);
+}
+
+void actSt00aEnemy2(GObj *volatile self)
+{
+    GObj *x = self;
+    actInitialize(self);
+    _ACTWait(1);
+    Generator_Mask(self);
+    while (gflagChk(37) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(160);
+    Generator_MaskOff(self);
+    Generator_Call(self);
+    _ACTWait(30);
+    Generator_Call(self);
+}
+
+void actSt00aStair(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(38) == 0) {
+        scpSearchGobj(245)->active = 0;
+        stair_mes[0].func = actSt00aStairChk;
+        act->mail = stair_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    } else {
+        scpSearchGobj(246)->active = 0;
+    }
+}
+
+void actSt00aAtr2Chk(GObj *volatile self);
+
+void actSt00aAtr2(GObj *volatile self)
+{
+    GObj *x = self;
+    Act *act = actInitialize(self);
+    _ACTWait(1);
+
+    if (gflagChk(39) == 0) {
+        atr2_mes[0].func = actSt00aAtr2Chk;
+        act->mail = atr2_mes;
+        ACTSendMailCorrect(self, 397);
+        _ACTWait(0);
+    }
+}
+#else
 void actSt00aDoor1UpChk(GObj *volatile self)
 {
     Act *sub = GOBJ_ACT(self);
@@ -608,6 +1002,7 @@ void actSt00aAtr2(GObj *volatile self)
         _ACTWait(0);
     }
 }
+#endif
 
 void actSt00aAtr2Chk(GObj *volatile self)
 {
@@ -617,6 +1012,9 @@ void actSt00aAtr2Chk(GObj *volatile self)
     while (scpTriggerFloorAttr(girlGObj, 0x2000000) == 0) {
         _ACTWait(1);
     }
+#ifdef VERSION_NTSC
+    gflagOn(39);
+#else
     gflagOn(42);
 }
 
@@ -645,6 +1043,7 @@ static void actSt00aStairChkSub(GObj *volatile self)
     _ACTWait(500);
     demoEnd = 1;
     _ACTWait(0);
+#endif
 }
 
 void actSt00aDoor2Event(int x)

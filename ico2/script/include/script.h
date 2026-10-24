@@ -41,10 +41,16 @@ void scpDoorTypeUp(struct GObj *volatile self);
 inline void scpDoorTypeUpSwitch(struct GObj *volatile self);
 void scpAdpcmPlayRequestFunc(int kind, struct SqEntry **id, int ch, int loopNum, int play);
 int scpAdpcmPlayRequestNum(void);
+#ifdef VERSION_NTSC
+int scpAdpcmFadeClose(struct SqEntry *p, short fade);
+int scpAdpcmCloseChk(struct SqEntry *p);
+void scpDeamon(struct GObj *volatile self);
+#else
 int scpAdpcmFadeCloseFunc(struct SqEntry **h, short fade);
 int scpAdpcmCloseChkFunc(struct SqEntry **h);
 void scpDeamon(struct GObj *volatile self);
 void scpGirlHintVoiceCancel(void);
+#endif
 void scpWoodBox(struct GObj *volatile self);
 int scpIsTorchLightOn(int id);
 struct GObj *scpIsBombExplode(int x);
@@ -65,6 +71,9 @@ inline void scpKillEnemyAll(void);
 inline void scpMaskGeneratorAll(void);
 void scpKillEnemyOne(int id);
 int _SCPMoveCharactorByWay(struct GObj *self, int tgt, float *dir, float speed, int flags);
+#ifdef VERSION_NTSC
+void _SCPBoySupportGirl(float x0, float y0, float z0, float x1, float y1, float z1);
+#endif
 
 int _SCPMoveByWay_ToChar(struct GObj *self, struct GObj *target, int deg, int flags, float scale,
                          float speed);
@@ -109,27 +118,37 @@ int scpCheckExistAliveEnemy(void);
 int scpCheckExistAliveSpider(void);
 void scpLockMaxRotate(struct GObj *self, float rot);
 void scpUnLockMaxRotate(struct GObj *self);
+#ifdef VERSION_NTSC
+int scpTriggerIgnore(struct GObj *self);
+inline void scpDoorTypeUpMain(struct GObj *volatile self);
+#else
 short scpGetRotObjectCurrentRot(int no);
 void scpCheckDisconnectWallStart(struct GObj *self);
 void scpCheckDisconnectWallEnd(struct GObj *self);
 int scpTriggerIgnore(struct GObj *self);
 inline void scpDoorTypeUpMain(struct GObj *volatile self);
 void actSubSekizoSe(struct GObj *volatile self);
+#endif
 /* The entry points script.o compiles in place, in its own parse order. */
 void scpTorchLightOn(int id);
 void scpTorchLightOff(int id);
 void scpSetCageVelocityFriction(int id, float friction);
 void scpPlayMotDir(struct GObj *self, float *dir);
+#ifdef VERSION_NTSC
+void scpPlayJump(struct GObj *self, int orient);
+#endif
 void scpPlayMot(struct GObj *self, int mot);
 void scpPlayStart(struct GObj *self);
 void scpPlayEnd(struct GObj *self);
 void scpDoorTypeUpDown(struct GObj *volatile self);
 void scpDoorTypeUpUp(struct GObj *volatile self);
 void scpSubAdpcmPlay(struct GObj *volatile self);
+#ifndef VERSION_NTSC
 void scpAdpcmCloseFunc(struct SqEntry **h);
 void scpGirlHintVoiceReady(int kind);
 void scpGirlHintVoicePlay(void);
 void scpGirlHintVoiceTickProc(void *cam);
+#endif
 
 void scpSekizou(struct GObj *self, int flag, int anim, int anim2, int kind, float bx, float by,
                 float bz, float gx, float gy, float gz);

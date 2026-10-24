@@ -92,7 +92,9 @@ static char *cameraSetGroupsEnd; /* derived name */
 
 static int cameraSetGroupNum; /* derived name */
 
+#ifndef VERSION_NTSC
 static int cameraFrames; /* derived name */
+#endif
 
 static int cameraGroupCurrent; /* derived name */
 
@@ -295,6 +297,120 @@ static void initMonitorCamera(unsigned char init)
         SetMonitorCameraInitializeFlag();
 }
 
+#ifdef VERSION_NTSC
+/* The retail build compiles out this function's debug arms, which is why
+ * `vDbg` is read at the writeback with nothing having written it, `vDiff` is
+ * written and never read, `vSpare` is read only by the DEBUG build's report in
+ * the second arm, and one loop keeps its counter with an empty body. */
+static void monitorMonitorCamera(CamWork *cam, CamWork *out)
+{
+    float vDiff[4];
+    float vDbg[4];
+    float vEye[4];
+    float vOut[4];
+    float vAt[4];
+    float vAt2[4];
+    float vSpare[4];
+    int k;
+    float len;
+    float t;
+    float d;
+    float d1;
+    float d2;
+
+    if (monitorCamera.active != 0) {
+        monitorCamera.work = *cam;
+        monitorCamera.moveDist = 0.0f;
+        monitorCamera.atRate = 0.0f;
+        monitorCamera.active = 0;
+        monitorCamera.dbgA[0] = 0.0f;
+        monitorCamera.dbgA[1] = 0.0f;
+        monitorCamera.dbgA[2] = 0.0f;
+        monitorCamera.dbgB[0] = 0.0f;
+        monitorCamera.dbgB[1] = 0.0f;
+        monitorCamera.dbgB[2] = 0.0f;
+        *out = *cam;
+        return;
+    }
+    if (monitorCameraHold != 0) {
+        *cam = monitorCamera.work;
+    }
+    *out = *cam;
+    vDiff[0] = cam->eye.f[0] - monitorCamera.work.eye.f[0];
+    vDiff[1] = cam->eye.f[1] - monitorCamera.work.eye.f[1];
+    vDiff[2] = cam->eye.f[2] - monitorCamera.work.eye.f[2];
+    sceVu0SubVector(vEye, cam, &monitorCamera.work);
+    len = FSqrt(vEye[0] * vEye[0] + vEye[1] * vEye[1] + vEye[2] * vEye[2]);
+    if (handCameraEyeRate * 11.0f < len) {
+        if (handCameraEyeRate < monitorCamera.moveDist) {
+            monitorCamera.moveDist = handCameraEyeRate;
+        }
+        if (monitorCamera.moveDist < len) {
+            len = monitorCamera.moveDist + handCameraEyeRate / 30.0f;
+            sceVu0Normalize(vEye, vEye);
+            sceVu0ScaleVector(vEye, vEye, len);
+            sceVu0AddVector(out, &monitorCamera.work, vEye);
+        } else {
+            len = handCameraEyeRate;
+            sceVu0Normalize(vEye, vEye);
+            sceVu0ScaleVector(vEye, vEye, len);
+            sceVu0AddVector(out, &monitorCamera.work, vEye);
+        }
+    } else {
+        _InterGV(out->eye.f, cam->eye.f, monitorCamera.work.eye.f, 10.0f, 1.0f);
+        for (k = 0; k < 3; k++) {}
+    }
+    sceVu0SubVector(vOut, out, &monitorCamera.work);
+    t = FSqrt(vOut[0] * vOut[0] + vOut[1] * vOut[1] + vOut[2] * vOut[2]);
+    monitorCamera.moveDist = t;
+#ifdef DEBUG
+    sceVu0SubVector(vSpare, &cam->at, &monitorCamera.work.at);
+    scePrintf("monitor camera move %f at %f %f %f\n", t, vSpare[0], vSpare[1], vSpare[2]);
+#endif
+    d = handCameraAtRate;
+    if (d < 0.0f) {
+        d = -d;
+    }
+    sceVu0SubVector(vAt, &cam->at, &monitorCamera.work.at);
+    len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
+    sceVu0Normalize(vAt, vAt);
+    if (d * 9.0f < len) {
+        monitorCamera.atRate = monitorCamera.atRate + 0.5f;
+        if (d < monitorCamera.atRate) {
+            monitorCamera.atRate = d;
+        }
+        sceVu0ScaleVector(vAt, vAt, monitorCamera.atRate);
+        sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
+    } else {
+        _InterGV(out->at.f, cam->at.f, monitorCamera.work.at.f, 8.0f, 1.0f);
+        sceVu0SubVector(vAt, &out->at, &monitorCamera.work.at);
+        len = FSqrt(vAt[0] * vAt[0] + vAt[1] * vAt[1] + vAt[2] * vAt[2]);
+        if (d < len) {
+            len = d;
+        }
+        sceVu0Normalize(vAt, vAt);
+        sceVu0ScaleVector(vAt, vAt, len);
+        sceVu0AddVector(&out->at, &monitorCamera.work.at, vAt);
+        sceVu0SubVector(vAt2, &out->at, &monitorCamera.work.at);
+        len = FSqrt(vAt2[0] * vAt2[0] + vAt2[1] * vAt2[1] + vAt2[2] * vAt2[2]);
+        monitorCamera.atRate = len;
+        if (d < len) {
+            monitorCamera.atRate = d;
+        }
+    }
+    if (out->ext.f[0] - monitorCamera.work.ext.f[0] != 0.0f) {
+        d1 = _DistGV(out, cam);
+        d2 = _DistGV(out, &monitorCamera.work);
+        if (d1 + d2 != 0.0f) {
+            out->ext.f[0] = (out->ext.f[0] * d2 + monitorCamera.work.ext.f[0] * d1) / (d1 + d2);
+        }
+    }
+    monitorCamera.work = *out;
+    monitorCamera.dbgA[0] = vDbg[0];
+    monitorCamera.dbgA[1] = vDbg[1];
+    monitorCamera.dbgA[2] = vDbg[2];
+}
+#else
 /* The retail build compiles out this function's debug arms, which is why
  * `vDbg` is read at the writeback with nothing having written it, `vDiff` is
  * written and never read, `vSpare` is read only by the DEBUG build's report in
@@ -488,6 +604,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
     monitorCamera.dbgA[1] = vDbg[1];
     monitorCamera.dbgA[2] = vDbg[2];
 }
+#endif
 
 static void ChaseCamera(float *pos, float *cam)
 {
@@ -758,8 +875,13 @@ void ReflectCameraSetBinary(CamGroup *src, int count)
         iosFree(cameraSetBuf);
     }
 
+#ifdef VERSION_NTSC
+    cameraSetBuf =
+        iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count), __FILE__, 1543);
+#else
     cameraSetBuf = iosMallocDebug(ios_partition_oomori, GetSizeOfCameraSetBinary(src, count),
-                                  __FILE__, LN(1577, 1575, 1575));
+                                  __FILE__, LN(1577, 1575, 1575, 1577));
+#endif
     cameraSetGroups = cameraSetBuf;
     cameraSetGroupsEnd = cameraSetBuf + count * 76;
     cameraSetGroupNum = count;
@@ -768,7 +890,9 @@ void ReflectCameraSetBinary(CamGroup *src, int count)
 
 void InitIco2Camera(void)
 {
+#ifndef VERSION_NTSC
     cameraFrames = 0;
+#endif
     cameraSetBuf = 0;
     CameraSetCameraSet_Default();
     initMonitorCamera(1);
@@ -818,6 +942,7 @@ static void GetTargetOffset(GObj *gobj, float *v, unsigned char flag)
         v[0] = lastTargetOffset[0];
         v[1] = lastTargetOffset[1];
         v[2] = lastTargetOffset[2];
+#ifndef VERSION_NTSC
     }
 }
 
@@ -836,6 +961,7 @@ inline void GetHandCameraStickInfo(float *outX, float *outZ, float *outMag)
         *outMag = st.mag;
         *outX = dir.f[0] * *outMag;
         *outZ = dir.f[2] * *outMag;
+#endif
     }
 }
 
@@ -947,16 +1073,81 @@ void SetCameraMatrix_Ico2(int flag)
         float sz;
         float mag;
 
+#ifdef VERSION_NTSC
+        /* This build reads the stick twice. The first reading below (pad[0]'s
+           first two analog bytes, the magnitude clamped to 1, the square dead zone at 0.4
+           and a squared response past 0.4 on each axis, the same tests as
+           camera-root.c's CameraEditManual: a positive and a negative test per
+           axis) is overwritten by the iosPad reading after it, so it is dead.
+           Its words that remain are the FSqrt call and the two 0.4f <= tests:
+           the response bodies feed the negative tests, which die only in the
+           flow pass after reload, so the two tests keep their branches until
+           the last jump pass removes them. The response constants are derived
+           (no literal of the dead code survives): the words fix only the shape,
+           bodies without the 0.4f constant (the tests' 0.4f is in $f3, past
+           the bodies' two temporaries and the shared -0.4f), and the clamp
+           (its label puts the dead zone's first 0.0f in $f0). aug6's TRFILE
+           has no code on the lines of the clamp and of the response. */
+        if (mode) {
+            sx = (pad[0].ana[0] - 127) / 128.0f;
+            sz = (pad[0].ana[1] - 127) / 128.0f;
+        } else {
+            sx = sz = 0.0f;
+        }
+        mag = FSqrt(sx * sx + sz * sz);
+        if (1.0f < mag) {
+            mag = 1.0f;
+        }
+        if ((sx < 0.0f ? -sx : sx) < 0.4f && (sz < 0.0f ? -sz : sz) < 0.4f) {
+            sx = sz = 0.0f;
+        }
+        if (0.4f <= sx) {
+            sx = sx * sx * 2.5f;
+        }
+        if (sx <= -0.4f) {
+            sx = -sx * sx * 2.5f;
+        }
+        if (0.4f <= sz) {
+            sz = sz * sz * 2.5f;
+        }
+        if (sz <= -0.4f) {
+            sz = -sz * sz * 2.5f;
+        }
+        {
+            IosPadCtx padCtx;
+            IosPadStick st;
+
+            iosPadConnect(&padCtx, 0, 0, &iosPadConfDefault);
+            iosPadRead(&padCtx);
+            iosPadGetStick(&padCtx, &st, 1, 2, 2, 0);
+            {
+                Mat4 dir = {{(float)st.x - 127.5f, 0.0f, (float)st.y - 127.5f, 0.0f}};
+
+                sceVu0Normalize(&dir, &dir);
+                mag = st.mag;
+                sx = dir.f[0] * mag;
+                sz = dir.f[2] * mag;
+            }
+        }
+#else
         GetHandCameraStickInfo(&sx, &sz, &mag);
+#endif
         if (systemStatus[5] != 0 || IsAbleBoyControl() == 0 || mode == 0) {
             ClearHandCameraCorrect();
         } else {
+#ifdef VERSION_NTSC
+            HandCameraCorrect(&cw, cw.at.f, sx, sz,
+                              60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+#else
             HandCameraCorrect(&cw, cw.at.f, 0, sx, sz,
                               60.0f / (float)((60 - systemStatus[0] * 10) / systemStatus[1]));
+#endif
         }
     }
     SetWSMatrix(&cw);
+#ifndef VERSION_NTSC
     cameraFrames = cameraFrames + 1;
+#endif
 }
 
 inline void *GetPluralCameraSet(int id)
@@ -970,8 +1161,8 @@ inline void *GetPluralCameraSet(int id)
     }
     /* EUC-JP: "[%s] was not found\n" */
     debug_StdPrintfDummy("[%s]が見つかりません\n", cameraSetList[id]);
-    debug_assert(__FILE__, LN(2036, 2034, 2034));
-    __assert(__FILE__, LN(2036, 2034, 2034), "0");
+    debug_assert(__FILE__, LN(2036, 2034, 2034, 1975));
+    __assert(__FILE__, LN(2036, 2034, 2034, 1975), "0");
     return 0;
 }
 
@@ -982,8 +1173,8 @@ inline void AddPluralCameraSet(int id, char *name)
     if (pluralCameraSetNum >= 10) {
         /* EUC-JP: "at most [%d] camera sets can be registered in one stage." */
         debug_StdPrintfDummy("１ステージに登録できるカメラセットは、最大[%d]個です。", 10);
-        debug_assert(__FILE__, LN(2045, 2043, 2043));
-        __assert(__FILE__, LN(2045, 2043, 2043), "0");
+        debug_assert(__FILE__, LN(2045, 2043, 2043, 1984));
+        __assert(__FILE__, LN(2045, 2043, 2043, 1984), "0");
     }
     p = &pluralCameraSet[pluralCameraSetNum];
     p->id = id;
@@ -1003,7 +1194,7 @@ static inline CamSetFile *allocCameraSet(CamSetFile *f) /* derived name */
     CamSetFile *p;
 
     p = (CamSetFile *)iosMallocDebug(ios_partition_seki, 16 + f->count * 76 + f->total * 92,
-                                     __FILE__, LN(2166, 2164, 2164));
+                                     __FILE__, LN(2166, 2164, 2164, 2105));
     *p = *f;
     p->magic = 0x1234;
     p->ver = 3;
@@ -1136,8 +1327,13 @@ static void *ReadCameraSet(CamSetFile *f, int stage)
         debug_StdPrintfDummy(
             "カメラデータのバージョンに異常があります。大森まで知らせてください\n");
         debug_StdPrintfDummy("illegal camera data version [%d]\n", f->ver);
-        debug_assert(__FILE__, LN(2355, 2353, 2353));
-        __assert(__FILE__, LN(2355, 2353, 2353), "0");
+#ifdef VERSION_NTSC
+        debug_assert(__FILE__, 2294);
+        __assert(__FILE__, 2294, "0");
+#else
+        debug_assert(__FILE__, LN(2355, 2353, 2353, 2355));
+        __assert(__FILE__, LN(2355, 2353, 2353, 2355), "0");
+#endif
         break;
     }
     return p;
