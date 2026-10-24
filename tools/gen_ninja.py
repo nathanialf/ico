@@ -109,7 +109,7 @@ CPP = "tools/cc/ee-gcc2.9-991111/gcc-lib/ee/2.9-ee-991111-01/cpp"
 # The LN define tools/compile_c.sh gives the C (VERSION_DEFS there), for the
 # `#line LN(...)` of a VU program text; a joining target appends its argument
 # in both.
-LN_DEF = f'"-DLN(pal,jpn,kor,ntsc,aug6,jun26)={VERSION}"'
+LN_DEF = f'"-DLN(pal,jpn,kor,ntsc,aug6,jun26,cn)={VERSION}"'
 LINK_LD = f"{OUT}/link.ld"
 # The layout link: the same objects and script with a zero stand-in for each
 # member written as C, so the C's pointers can be named before it exists.
