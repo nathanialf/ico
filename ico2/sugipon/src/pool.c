@@ -701,8 +701,8 @@ static void dispPool(GObj *self)
     CopyMatrix((char *)(matrixptr + 0x340), m4);
     CopyMatrix((char *)(matrixptr + 0x100), m2);
     CopyMatrix((char *)(matrixptr + 0x200), m3);
-    vsWidth = ScreenWidth;
-    vsHeight = ScreenHeight;
+    currentScreenWidth = ScreenWidth;
+    currentScreenHeight = ScreenHeight;
     debug_snapshot_reserve++;
 
     gif_SetGsReg(6, workVram | 0x20010000 | 0x600000000LL);

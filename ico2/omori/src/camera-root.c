@@ -384,7 +384,7 @@ GObj *default_cameratarget_gobj;
 
 int InsertCameraWorkingFlag;
 
-int monitorCameraHold; /* derived name */
+int FixViewInGameCameraFlag;
 
 void InitCamera(void)
 {
@@ -402,7 +402,7 @@ void InitCamera(void)
     lwsCutBack = 0;
     CameraCalclated_f = 0;
     InsertCameraWorkingFlag = 0;
-    monitorCameraHold = 0;
+    FixViewInGameCameraFlag = 0;
     debug_zoom_per = 100;
 }
 

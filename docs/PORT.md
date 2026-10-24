@@ -1,17 +1,20 @@
 # The PC port
 
 [ico-pc](https://github.com/nathanialf/ico-pc) is a fork of this repository
-that is being turned into a native PC port (64-bit Linux and Windows). This
-tree stays the byte-matched reference: it rebuilds the PAL boot ELF with the
-period toolchain and holds no disc data. The port keeps the game code under
-`ico2/` but builds it with a modern host compiler and drops byte matching.
+that is being turned into a native PC port (64-bit Linux and Windows). Its
+reference is `main`, which rebuilds the PAL boot ELF with the period
+toolchain and holds no disc data. This branch rebuilds the August 6, 2001
+prototype's boot ELF (`SCUS_971.13`) the same way and is a reference for the
+prototype build only; the port does not build on it. The port keeps the game
+code under `ico2/` but builds it with a modern host compiler and drops byte
+matching.
 
 ## What flows upstream (port to this repo)
 
 Anything about what the original program is, not about where it runs:
 
 - reconstruction bugs the port finds (a wrong type, field, operand or
-  control flow in a function); they are fixed here first, under this
+  control flow in a function); they are fixed on `main` first, under this
   repository's rules (byte match, period toolchain, hooks), then merged
   into the port;
 - names for functions, globals, fields and constants;
@@ -39,11 +42,13 @@ git merge upstream/main
 
 Conflicts in `ico2/` are resolved in favour of keeping the port's host
 changes while taking the upstream names, types and fixes. Only `main` is
-merged; the `ntsc` and `aug6` branches are not part of the port.
+merged; the `aug6`, `ntsc` and `jun26` branches and the frozen `pal`, `jpn`
+and `kor` branches are not part of the port. A finding on this branch that
+also holds for PAL's code reaches the port through `main`.
 
 ## Byte matching
 
 The port does not check SHA-1s or compare against the base ELF. How the
 port differs from the PS2 is the port's own concern, documented there.
-Nothing in this repository changes for the port: the byte-match gate here
-stays mandatory for every commit.
+Nothing in this repository changes for the port: the byte-match gate
+stays mandatory for every commit, on this branch as on `main`.

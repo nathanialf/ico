@@ -11,16 +11,16 @@
 #include "main.h"
 
 /* the story flag bitmap, one bit per event flag; saved and restored whole */
-static unsigned char gflags[46] = {0}; /* derived name */
+unsigned char gFlag[46] = {0};
 
-/* .sdata: the game-clear state, saved and loaded with the flags. */
-int gFlagGameClear = 0; /* derived name */
+/* .sdata: the stage the save was made on, saved and loaded with the flags */
+int gFlagSaveStage = 0;
 
 void gflagInit(void)
 {
     int keep = gflagChk(345);
 
-    memset(gflags, 0, sizeof(gflags));
+    memset(gFlag, 0, sizeof(gFlag));
     before_stage_no = 0;
     if (keep != 0) {
         gflagOn(345);
@@ -38,28 +38,28 @@ void gflagInit(void)
 
 void gflagSave(GamesysMemCursor *fp)
 {
-    gFlagGameClear = stage_no;
-    gamesysMemoryHandlerWrite(fp, &gFlagGameClear, 4);
-    gamesysMemoryHandlerWrite(fp, gflags, sizeof(gflags));
+    gFlagSaveStage = stage_no;
+    gamesysMemoryHandlerWrite(fp, &gFlagSaveStage, 4);
+    gamesysMemoryHandlerWrite(fp, gFlag, sizeof(gFlag));
 }
 
 void gflagLoad(GamesysMemCursor *fp)
 {
-    gamesysMemoryHandlerRead(fp, &gFlagGameClear, 4);
-    gamesysMemoryHandlerRead(fp, gflags, sizeof(gflags));
+    gamesysMemoryHandlerRead(fp, &gFlagSaveStage, 4);
+    gamesysMemoryHandlerRead(fp, gFlag, sizeof(gFlag));
 }
 
 int gflagChk(int bit_idx)
 {
-    return (gflags[bit_idx >> 3] >> (bit_idx & 7)) & 1;
+    return (gFlag[bit_idx >> 3] >> (bit_idx & 7)) & 1;
 }
 
 void gflagOn(int bit_idx)
 {
-    gflags[bit_idx >> 3] |= 1 << (bit_idx & 7);
+    gFlag[bit_idx >> 3] |= 1 << (bit_idx & 7);
 }
 
 void gflagOff(int bit_idx)
 {
-    gflags[bit_idx >> 3] &= ~(1 << (bit_idx & 7));
+    gFlag[bit_idx >> 3] &= ~(1 << (bit_idx & 7));
 }

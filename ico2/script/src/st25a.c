@@ -58,9 +58,9 @@ typedef struct AnimSet18 { /* field names derived */
 } AnimSet18;               /* derived name */
 
 /* the two face-shadow textures ConteQueenDead scrolls the UVs of. */
-const char faceShadowTex[] = "face_sadow_sd"; /* script.c scrolls it too */
+const char faceShadowTex[] = "face_sadow_sd"; /* derived name */ /* script.c scrolls it too */
 
-const char faceShadowTex00[] = "face_sadow_sd_00";
+const char faceShadowTex00[] = "face_sadow_sd_00"; /* derived name */
 
 /* The offset the sekika boy is dropped by. */
 static const Vec4St25A sekikaOfs = {{2000.0f, 0.0f, 0.0f, 1.0f}}; /* derived name */
@@ -87,7 +87,7 @@ static const char sekikaBoyTexture[] = "sekika_boy"; /* derived name */
    only global of the ten. */
 static ActMail queen_before_mes[2] = {{393}, {392}}; /* derived name */
 
-ActMail queen_appear_mes[2] = {{393}, {392}};
+ActMail queen_appear_mes[2] = {{393}, {392}}; /* derived name */
 
 static ActMail queen_talk_mes[2] = {{393}, {392}}; /* derived name */
 
@@ -209,7 +209,7 @@ typedef union TalkWork { /* derived name */ /* field names derived */
 
 /* .sbss: the flag the demo raises when it is over, and the one its inner event
    raises when that has run. */
-static int demoEnd;
+static int demoEnd; /* derived name */
 
 static int eventDone; /* derived name */
 

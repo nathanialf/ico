@@ -28,17 +28,24 @@ the base ELF.
 
 ## Status
 
-2819 of the build's 5408 functions are still campaign stubs: the C for them
-does not yet give the prototype's bytes, so the build writes each one from
-the user's own `baserom/aug6/baseelf.elf` at its place in its translation
-unit (`config/stubs.aug6.txt`, `tools/gen_stub_s.py`; nothing of them is
-committed). The gate passes with them in place, so every badge above reads
-100 %, and the badges split each figure into the share built from the tracked
-sources and the share from the disc: the stubs and the data tables. The
-`.text` source share is the matched code; the rest of it is the stubs. The
-stubs are campaign scaffolding, not a result: no release of this branch is
-made while the list has rows. When it is empty the mechanism is idle and the
-branch is finished in `main`'s shape.
+Every object of the link is built from the sources under `ico2/` and
+`sce/`, or, for the game's code-less data members, generated from the
+user's own disc at build time, as on `main`: all 5408 functions compile or
+assemble to the prototype's bytes
+([`docs/aug6/PROGRESS.md`](docs/aug6/PROGRESS.md)), and
+`config/stubs.aug6.txt` keeps the stub mechanism's header with no rows, so
+nothing of the code is read from the disc.
+
+One block of source is not decided by the ROM. Inside `subGirlControl`
+(`ico2/fumi/src/girl_act.c`), the girl's slow-walk states ran a debug
+display that every retail build compiles out. The ROM fixes its eight
+strings and their order, the number of its calls to helpers that have no
+body in a retail build (139 in this build: the count sets the size of
+gcse's expression table, and with it two of the function's register
+choices) and the size of its locals, but not the statements themselves.
+What stands there is an educated guess, marked in the source as a draft
+with unverified ordering; the comment at the top of the block lists what
+the ROM pins and what it does not.
 
 ## Quickstart
 
@@ -62,18 +69,19 @@ fails. The host needs a 64-bit Linux with 32-bit libraries, a host gcc,
 [`docs/BUILDING.md`](docs/BUILDING.md) lists the packages and describes each
 step.
 
-The build checks the SHA-1s from `config/sha1sums.txt`: the extracted ELF
-before it starts, and the rebuilt ROM image and the rebuilt ELF at the end.
+The build checks the SHA-1s from `config/sha1sums.aug6.txt`: the extracted
+ELF before it starts, and the rebuilt ROM image and the rebuilt ELF at the
+end.
 
 | file | SHA-1 |
 | --- | --- |
 | `baserom/aug6/baseelf.elf` (the disc's `SCUS_971.13`) | `5d169c281756a8bde712704fa0cb9eb984693cd6` |
-| `baserom/aug6/baseelf.rom` and `build/ico.rom` (`objcopy -O binary`) | `2b4d7de41966ff38d061b4c985de45fc212e2fb2` |
+| `baserom/aug6/baseelf.rom` and `build/aug6/ico.rom` (`objcopy -O binary`) | `2b4d7de41966ff38d061b4c985de45fc212e2fb2` |
 
 The gate (`tools/check_elf.py --gate`) also compares every allocated section
-of `build/ico.elf` with the base ELF by address and checks that `.sbss` and
-`.bss` cover the base's ranges, and that the whole-file SHA-1 of
-`build/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
+of `build/aug6/ico.elf` with the base ELF by address and checks that `.sbss`
+and `.bss` cover the base's ranges, and that the whole-file SHA-1 of
+`build/aug6/ico.elf` is the base ELF's (`--require-elf-sha`): the section headers,
 the symbol-name strings ld keeps and the `.DVP` overlay names and tables all
 match. The overlay names hash the file and line the DVP assembler was reading
 and are the same as PAL's: each microprogram's `.dsm` for the first, then the
@@ -95,15 +103,15 @@ heap. `tools/check_elf.py --full-diff` prints the whole-file comparison.
 
 There is one badge per section of the base ELF, in link order.
 `tools/check_elf.py --progress` (`tools/build.sh progress`) rewrites them,
-[`docs/PROGRESS.md`](docs/PROGRESS.md) and the dashboard's
-`docs/progress.json` from the built ELF and its link map.
+[`docs/aug6/PROGRESS.md`](docs/aug6/PROGRESS.md) and the dashboard's
+`docs/aug6/progress.json` from the built ELF and its link map.
 
 A badge reads `100 %` when the whole section equals the base. Where part of a
-section comes from the user's ELF, the badge splits the figure: `source` is
-the share placed by objects compiled or assembled from the tracked sources
-under `ico2/` and `sce/`, and `disc` is the share of the data-only members the
-build generates from the user's own ELF (next section) and of the campaign
-stubs (Status, above). `.sbss` and `.bss` hold no file bytes, so their figure
+section comes from the data tables (next section), the badge splits the
+figure: `source` is the share placed by objects compiled or assembled from
+the tracked sources under `ico2/` and `sce/`, and `disc` is the share of the
+data-only members the build generates from the user's own ELF. `.sbss` and
+`.bss` hold no file bytes, so their figure
 is the share of the range that an object defines and the link places at the
 base's addresses.
 
@@ -124,8 +132,8 @@ have another layout). Three members sit elsewhere than in PAL's link:
 `weapon-def` and `texture-path` are in `.rodata` (PAL's `.data`), and
 `adpcmfile` leads the third `.rodata` run. They are the game's content, and
 nothing of that content is committed. The build generates them from the
-user's own `baserom/aug6/baseelf.elf` into `build/data/`. Each member becomes
-`build/data/<member>.c`, an initialized array of its record type compiled
+user's own `baserom/aug6/baseelf.elf` into `build/aug6/data/`. Each member
+becomes `build/aug6/data/<member>.c`, an initialized array of its record type compiled
 with the game's flags (`tools/gen_data_c.py`); `config/data_schema.aug6.txt`
 holds only the record type, its header, the element count, MAIN.MAP's symbol
 names and which fields are masks. A count derived from a table is a fact
@@ -156,11 +164,13 @@ config/                     link_order.aug6.txt (every object in link order),
                             data_members.aug6.txt (the data-only members),
                             data_schema.aug6.txt (the record type, count and
                             names of each member built as C),
-                            stubs.aug6.txt (the campaign stubs), sha1sums.txt
+                            stubs.aug6.txt (the campaign stub list, empty),
+                            sha1sums.aug6.txt
 tools/                      setup, extraction, build and gate scripts, the
                             same on every target branch, listed in
                             tools/README.md
-docs/                       documentation, indexed by docs/README.md
+docs/                       documentation, indexed by docs/README.md;
+                            docs/aug6/ holds the generated progress files
 baserom/  build/            local only and gitignored: the user's disc image
                             and extracted ELF, and the build output
 ```
@@ -182,7 +192,7 @@ from a Sony SDK.
 | ee-gcc 2.9-991111-01 | compiles every C file | `decompme/compilers` release `ee-gcc2.9-991111-01.tar.xz` | GNU GPL (GCC) |
 | ee-as 2.9-991111 (bundled with that compiler) | assembles the game, libc, libm and libgcc | same archive | GNU GPL (binutils) |
 | SCE ee-as 2.10-ee-001003-1 (bundled with ee-gcc 2.96) | assembles the SDK archives under `sce/` | `decompme/compilers` release `ee-gcc2.96.tar.xz`; only its assembler runs | GNU GPL (binutils) |
-| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
+| GNU ld 2.10 with `tools/binutils-2.10-ee.patch` and `tools/binutils-2.10-dvp-ld.patch` | links `build/aug6/ico.elf` | `ftp.gnu.org` `binutils-2.10.tar.gz` (sha256 pinned in `tools/setup.sh`) | GPL-2.0-or-later |
 | dvp-as with `tools/binutils-dvp-overlay-fill.patch` | assembles the VU1 microprograms | ps2dev `binutils-gdb`, branch `dvp-v2.45.1`, commit `3eb45ea3` | GPL-3.0-or-later |
 
 The assembler follows the archive, as the disc's link did: the PAL disc's
@@ -195,21 +205,26 @@ DVP overlay sections from ps2dev's `binutils-2.14-PS2.patch`; the second
 places each VU overlay at address 0, the rule of the Cygnus linker shipped
 with the GPL ee-gcc 2.9-991111 sources. The licence notices are the tools'
 own (`--version` for the assemblers and ld; the source trees for the rest).
-The host's `mips-linux-gnu-objcopy` writes `build/ico.rom`.
+The host's `mips-linux-gnu-objcopy` writes `build/aug6/ico.rom`.
 
 ## Branches
 
-| branch | target | |
+| branch | targets | |
 | --- | --- | --- |
-| `main` | PAL retail, SCES-50760, `SCES_507.60` | the finished PAL tree this branch was seeded from, with its own README |
-| `jpn` | Japanese retail, SCPS-11003, `SCPS_110.03` | the same game on the Japanese disc, with its own README |
-| `ntsc` | USA retail, SLUS-20218, `SCUS_971.13` | the same game on the USA disc, with its own README |
-| `aug6` | the August 6, 2001 prototype, `SCUS_971.13` | this document |
+| `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`) and `kor` (Korean retail, SCPS-56001, `SCPS_560.01`) | the shared tree this branch was seeded from, with its own README; finished targets join there |
+| `aug6` | `aug6` (the August 6, 2001 prototype, `SCUS_971.13`) | this document: a single-target tree, until it joins `main` |
+| `ntsc` | `us` (USA retail, SLUS-20218, `SCUS_971.13`) | a single-target tree with its own README, until it joins `main` |
+| `jun26` | `jun26` (the June 26, 2001 demo, SCUS-97158, `CUS97113/SCPS_000.00`) | a single-target tree with its own README, until it joins `main` |
+| `pal` | `pal` | the single-target PAL tree, frozen |
+| `jpn` | `jpn` | the single-target Japanese tree, frozen |
+| `kor` | `kor` | the single-target Korean tree, frozen |
 
-The branches are separate trees and are never merged into each other. The
-four share one build layer, file for file: `tools/`, `build.sh`, `.github/`
-and `docs/index.html` (`tools/check_shared_layer.sh` checks it); a change to
-it lands on `main` first.
+`aug6`, `ntsc` and `jun26` are separate trees that are never merged into each
+other or into `main`. Every branch carries one build layer, file for file:
+`tools/`, `build.sh`, `.github/` and `docs/index.html`
+(`tools/check_shared_layer.sh` checks it against `main`); a change to it
+lands on `main` first. A finished target joins `main` by the recipe in
+`main`'s `docs/BUILDING.md` ("Targets and version blocks").
 
 ## PC port
 

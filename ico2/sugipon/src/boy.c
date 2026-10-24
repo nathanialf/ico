@@ -551,7 +551,7 @@ BoyWork *InitBoyGeo(GObj *gobj, void *csv)
     w->crown2 = (char *)CSVSYSTEM_InitDObj(12, csv);
     (*(BoyWork **)(*(char **)(((char *)gobj) + 0x15C) + 0x7F0))->crown = 0;
     sceVu0UnitMatrix(w->crown0 + 0x20);
-    InitMotionOrient(gobj, 0, 1195, 0, 0xC, 0);
+    InitMotionOrient(gobj, 0, 1195, 0, 12, 0);
     InitLightLineGeo(gobj, csv);
     SetLodLevel(gobj, 2);
     w->stone = 0;

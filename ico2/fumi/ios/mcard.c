@@ -14,7 +14,7 @@
 
 /* the semaphore descriptor the card lock is created from, then the manager
    queue's 16-slot message ring */
-static struct SemaParam mcLockSemaParam;
+static struct SemaParam mcLockSemaParam; /* derived name */
 
 static int mcMsgRing[16]; /* derived name */
 

@@ -733,7 +733,7 @@ static unsigned int planeHiddenEdgeColorSel[4] = {32, 32, 32, 128}; /* derived n
 
 static unsigned int planeEdgeColor[4] = {64, 64, 64, 128}; /* derived name */
 
-static unsigned int planeHiddenEdgeColor[4] = {16, 16, 16, 128};
+static unsigned int planeHiddenEdgeColor[4] = {16, 16, 16, 128}; /* derived name */
 
 static unsigned char planeFaceColorSel[4] = {128, 64, 64, 64}; /* derived name */
 

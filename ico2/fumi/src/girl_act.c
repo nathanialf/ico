@@ -429,12 +429,11 @@ void subGirlBrain_HideAdvance(GObj *volatile self);
 static GirlDangerEnv dangerEnvDefault = {0}; /* derived name */
 
 /* the brain mode handlers, indexed by the girl's brain mode */
-static void (*girlBrainModeTable[10])(GObj *self) = {
-    /* derived name */
+static void (*girlBrainModeTable[10])(GObj *self) /* derived name */ = {
     subGirlBrain_Idle,      subGirlBrain_Attract,     subGirlBrain_Escape, subGirlBrain_Hide,
     subGirlBrain_Hesitate,  subGirlBrain_Becarry,     subGirlBrain_Busy,   subGirlBrain_Pulledup,
     subGirlBrain_DangerEnv, subGirlBrain_HideAdvance,
-}; /* derived name */
+};
 
 static int othersKindList[3] = {4, 60, -1}; /* derived name */
 
@@ -2360,7 +2359,6 @@ no_wall:
 static void Danger_Bomb(GObj *self);
 static void Danger_Gondola(GObj *self);
 static void Danger_Box(GObj *self);
-static void Danger_Rotobject(GObj *self);
 
 inline void subGirlBrain_DangerEnv(GObj *volatile self)
 {
@@ -2904,7 +2902,7 @@ void WayTest(void)
 {
     /* .sbss, girl_act.o's first word: how many frames in a row WayTest has
        seen the girl's heading swing by more than 90 units */
-    static int wayTurnFrames;
+    static int wayTurnFrames; /* derived name */
     float a[4];
     float b[4];
     Act *s;

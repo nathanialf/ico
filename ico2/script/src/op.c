@@ -236,7 +236,7 @@ void actTitleShortCut(GObj *volatile self)
 {
     GObj *x = self;
 
-    monitorCameraHold = 1;
+    FixViewInGameCameraFlag = 1;
     actInitialize(self);
     _ACTWait(1);
 
@@ -290,7 +290,7 @@ void actTitleReadTimeDemo0(GObj *volatile self)
 
     stage_SetAnimation(2, 0, -1);
 
-    monitorCameraHold = 0;
+    FixViewInGameCameraFlag = 0;
 
     _ACTWait(1);
     lt_switch_layout(51);
@@ -456,7 +456,7 @@ void actTitleReadTimeDemo0(GObj *volatile self)
     }
     _ACTWait(1);
 
-    monitorCameraHold = 1;
+    FixViewInGameCameraFlag = 1;
 
     debug_StdPrintfDummy("game mode %d %d\n", frame_count, gflagChk(352));
 

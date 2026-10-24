@@ -211,25 +211,25 @@ int _getLine(float *o1, float *o2, float *from, float *to)
 
     if (sortByX(o1, o2))
         rev = !rev;
-    if (2048.0f + vsWidth * 0.5f <= o1[0])
+    if (2048.0f + currentScreenWidth * 0.5f <= o1[0])
         return -1;
-    if (o2[0] <= 2048.0f - vsWidth * 0.5f)
+    if (o2[0] <= 2048.0f - currentScreenWidth * 0.5f)
         return -1;
-    if (o1[0] < 2048.0f - vsWidth * 0.5f)
-        clipAtX(o1, o1, o2, 2048.0f - vsWidth * 0.5f);
-    if (2048.0f + vsWidth * 0.5f < o2[0])
-        clipAtX(o2, o1, o2, 2048.0f + vsWidth * 0.5f);
+    if (o1[0] < 2048.0f - currentScreenWidth * 0.5f)
+        clipAtX(o1, o1, o2, 2048.0f - currentScreenWidth * 0.5f);
+    if (2048.0f + currentScreenWidth * 0.5f < o2[0])
+        clipAtX(o2, o1, o2, 2048.0f + currentScreenWidth * 0.5f);
 
     if (sortByY(o1, o2))
         rev = !rev;
-    if (2048.0f + vsHeight * 0.5f <= o1[1])
+    if (2048.0f + currentScreenHeight * 0.5f <= o1[1])
         return -1;
-    if (o2[1] <= 2048.0f - vsHeight * 0.5f)
+    if (o2[1] <= 2048.0f - currentScreenHeight * 0.5f)
         return -1;
-    if (o1[1] < 2048.0f - vsHeight * 0.5f)
-        clipAtY(o1, o1, o2, 2048.0f - vsHeight * 0.5f);
-    if (2048.0f + vsHeight * 0.5f < o2[1])
-        clipAtY(o2, o1, o2, 2048.0f + vsHeight * 0.5f);
+    if (o1[1] < 2048.0f - currentScreenHeight * 0.5f)
+        clipAtY(o1, o1, o2, 2048.0f - currentScreenHeight * 0.5f);
+    if (2048.0f + currentScreenHeight * 0.5f < o2[1])
+        clipAtY(o2, o1, o2, 2048.0f + currentScreenHeight * 0.5f);
     return rev;
 }
 

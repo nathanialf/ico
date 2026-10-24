@@ -16,8 +16,8 @@ extern float center_X;
 extern float center_Y;
 extern int ScreenWidth;
 extern int ScreenHeight;
-extern int vsWidth;
-extern int vsHeight;
+extern int currentScreenWidth;
+extern int currentScreenHeight;
 /* GsBase.c's `inline` functions, in the order of their definitions'
  * out-of-line copies at the end of the object (first-declaration order). */
 void gsb_SetBGColor(void *db, int r, int g, int b);

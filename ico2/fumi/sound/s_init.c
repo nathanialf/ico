@@ -27,9 +27,9 @@ static int bufSeg1Next; /* derived name */
 
 static int bufSeg2Next; /* derived name */
 
-static long long adpcmChMask;
+static long long adpcmChMask; /* derived name */
 
-static long long seChMask;
+static long long seChMask; /* derived name */
 
 static SqEntry soundDataTbl[16]; /* derived name */
 
@@ -625,11 +625,11 @@ static void debug_DispSEInfo(void)
     /* dbg is a local debug switch, set from the debugger to keep the selected
        slot soloed.  The page's own state is local static: the selected row
        and the solo flag in .sbss, the edited centre in .bss. */
-    static sceVu0FVECTOR center;
-    static int curRow;
-    static int solo;
-    static int page = 0; /* derived name */
-    static int show = 1; /* derived name */
+    static sceVu0FVECTOR center; /* derived name */
+    static int curRow;           /* derived name */
+    static int solo;             /* derived name */
+    static int page = 0;         /* derived name */
+    static int show = 1;         /* derived name */
     float v[4];
     float step = 0.0f;
     float dist;

@@ -109,7 +109,7 @@ void actSt22aIntro(GObj *volatile self)
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loop below
    spins for. */
-static int demoEnd;
+static int demoEnd; /* derived name */
 
 typedef struct St22Anims { /* field names derived */
     int id[2];

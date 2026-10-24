@@ -57,7 +57,7 @@ static ActMail fenceUpChk2_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loops
    below spin for. */
-static int demoEnd;
+static int demoEnd; /* derived name */
 
 /* A 16-byte constant vector template: the float view carries the values,
    the long long view is the one the copy reads. */

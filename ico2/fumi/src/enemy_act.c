@@ -63,6 +63,7 @@ void subEnemyBrain_Cling(GObj *volatile self);
 void subEnemyBrain_Attack(GObj *volatile self);
 
 EnemyBrainMode brainModeTable[] = {
+    /* derived name */
     {"START", 0, subEnemyBrain_Idle, 0, 0, 1, 0},
     {"IDLE", 1, subEnemyBrain_Idle, 0, 0, 1, 0},
     {"AWAIT", 2, subEnemyBrain_Await, 2, 2, 1, 1},
@@ -1050,7 +1051,7 @@ void actEnemyKidnapEnd(GObj *volatile self)
             ACTGame_SetMotionPlaySpeedRatio_Reserve(self, 0.0001f, 9);
         }
         if (gflagChk(358) != 0) {
-            stgmgrNextStagePreLoadForceStageSet(gFlagGameClear);
+            stgmgrNextStagePreLoadForceStageSet(gFlagSaveStage);
             if ((60 - systemStatus[0] * 10) / systemStatus[1] * 3 < sub->modeFrame) {
                 backStageTsuresariReturn();
                 _ACTWait(0);

@@ -333,7 +333,7 @@ static void monitorMonitorCamera(CamWork *cam, CamWork *out)
         *out = *cam;
         return;
     }
-    if (monitorCameraHold != 0) {
+    if (FixViewInGameCameraFlag != 0) {
         *cam = monitorCamera.work;
     }
     *out = *cam;
@@ -846,7 +846,7 @@ void SetCameraMatrix_Ico2(int flag)
     }
     if (enable != 0) {
         mode = 0;
-        /* the word at 0x62C898 (camera-root.c), MAIN.MAP's FixViewInGameCameraFlag */
+        /* the map's InsertCameraWorkingFlag (the USA build sets FixViewInGameCameraFlag here) */
         InsertCameraWorkingFlag = 1;
     }
     monitorMonitorCamera(&cw, &cw2);

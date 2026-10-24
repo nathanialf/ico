@@ -12,11 +12,11 @@
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order particleLayout.c's inline tail has. */
 int *InitParticleLayoutGeo(struct GObj *self, int *layout);
-void ParticleLayoutDL(void);
+void ParticleLayoutGeo(struct GObj *self);
 void DeleteParticleLayout(struct GObj *self);
 
 struct GObj;
 
-void ParticleLayoutGeo(struct GObj *self);
+void ParticleLayoutDL(void);
 
 #endif /* PARTICLELAYOUT_H */

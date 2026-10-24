@@ -78,7 +78,7 @@ the point the listing puts it, and its assert strings still name it
 
 ## Headers placed by this project
 
-**One header per game file.** The other 217 headers under
+**One header per game file.** The other 214 headers under
 `ico2/<programmer>/include/` are each named after the source file whose
 definitions they declare (`gobj.h` for `isys/gobj.c`, `switch.h` for
 `switch.c.inc`); the disc records none of them. They hold one prototype
@@ -108,7 +108,16 @@ derived from context instead of read from the disc's maps is marked with a
 `/* derived name */` token on its definition line. A record of the game
 whose field names are derived carries one `/* field names derived */` token
 on its opening line rather than one per field. Sony's public types keep
-their public names.
+their public names. Besides PAL's derived names, this branch derives names
+for objects and functions only this build has or splits differently
+(`git grep -n 'derived name'` lists every one). Where the prototype's
+`TRFILE.TXT` spells a function otherwise than PAL's listing, the tree keeps
+the prototype's spelling: `AttackCenter` (`omori/src/attackhit.c`),
+`scpAdpcmFadeClose` and `scpAdpcmCloseChk` (`script/src/script.c`),
+`hand_heroin` (`fumi/src/boyact.c`) and `actSt13cSekizoEvent`
+(`script/src/st13c.c`), which the PAL listing calls `_AttackCenter`,
+`scpAdpcmFadeCloseFunc`, `scpAdpcmCloseChkFunc`, `handoff_heroin` and
+`actE3St13cSekizoEvent`.
 
 ## Search order
 

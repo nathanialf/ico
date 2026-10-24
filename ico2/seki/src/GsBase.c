@@ -45,9 +45,9 @@ int ScreenWidth;
 
 int ScreenHeight;
 
-int vsWidth; /* derived name */
+int currentScreenWidth;
 
-int vsHeight; /* derived name */
+int currentScreenHeight;
 
 /* The word gsb_Init clears (nothing reads it), the GS system flag, the zoom
    easing (target, current, speed) and the last projection distance
@@ -998,8 +998,8 @@ void gsb_SetVSMatrix(int w, int h, float d)
 
     center_X = center_Y = 2048.0f;
     currentFocusDistance = d;
-    vsWidth = w;
-    vsHeight = h;
+    currentScreenWidth = w;
+    currentScreenHeight = h;
     if (zoomTarget != zoomCurrent) {
         zoomCurrent = zoomCurrent + (zoomTarget - zoomCurrent) * zoomSpeed * 0.001f;
     }

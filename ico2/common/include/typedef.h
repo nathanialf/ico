@@ -846,7 +846,8 @@ typedef struct { /* field names derived */
     int timer;
     unsigned char lookOnly;   /* 0x18, the girl only looks at the target; nonzero holds the target type at 1 */
     unsigned char alwaysSeen; /* 0x19, nonzero skips the view check */
-    unsigned char detail;     /* 0x1A, bit 0 set by brainAddLevelGirlDetail */
+    unsigned char detail;     /* 0x1A, nothing in this build reads or sets it (PAL's
+                                 brainAddLevelGirlDetail sets bit 0) */
     char pad1B[1];
 } BrainTarget; /* derived name */
 
@@ -1161,7 +1162,7 @@ typedef union { /* field names derived */
     } bits;
 } WayState; /* derived name */
 
-/* one of the actor's 64-bit wish words (Act + 0x470 .. 0x497): act-wish.c sets
+/* one of the actor's 64-bit wish words (Act + 0x468 .. 0x48F): act-wish.c sets
    and tests their bits, other readers take the low or high word */
 typedef union { /* field names derived */
     unsigned long long ll;
@@ -1464,9 +1465,12 @@ typedef struct Act {         /* field names derived */
     float wayDetailX; /* 0x410, the detailed way point, x */
     float wayDetailY; /* 0x414, the detailed way point, y */
     float wayDetailZ; /* 0x418, the detailed way point, z */
-    char pad41C[12];   /* 0x420 the way wait count, 0x424 the begin height
-                          (act-way.c's raw int/float stores, 0x1FEA28 sw
-                          zero,1056 / 0x1FE7EC swc1 1060) */
+    char pad41C[4];
+    int wayWait;          /* 0x420, frames the girl holds still before a way goal far above
+                             her (act-way.c 0x1FEA28 sw zero,1056) */
+    float wayBeginHeight; /* 0x424, the height the begin check measures against: the
+                             goal's at the request, the actor's after each check
+                             (0x1FE7EC swc1 1060) */
     WayState wayState; /* 0x428 */
     int brainAim;    /* 0x430, the enemy brain's aim: 1 the girl, 2 the boy */
     int infoPos;     /* 0x434, the object info position the enemy is saved at */
@@ -1543,7 +1547,7 @@ typedef struct { /* field names derived */
  * Writers: ico2/fumi/ios/mcard.c; readers: common/src/layout_action.c. */
 typedef struct {        /* field names derived */
     unsigned int stage; /* 0x00, the saved stage, 0xFFFFFFFF for an empty file */
-    int cleared;        /* 0x04, gFlagGameClear at the save */
+    int cleared;        /* 0x04, gFlagSaveStage at the save */
     int playTime;       /* 0x08, in frames */
     int sofa;           /* 0x0C, the save sofa's layout id (GetSaveSofaLayoutID) */
 } McFileInfo;           /* derived name */

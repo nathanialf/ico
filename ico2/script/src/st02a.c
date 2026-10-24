@@ -124,7 +124,7 @@ static const ConstVec doorUpEffect2Pos = {{-505.0f, -1447.0f, -5671.0f, 1.0f}}; 
 
 /* The two boundary points the boy's splash check tests against. */
 static const ConstVec boySplashPos[2] = {{{840.0f, 235.0f, 560.0f, 1.0f}},
-                                         {{740.0f, 235.0f, 560.0f, 1.0f}}};
+                                         {{740.0f, 235.0f, 560.0f, 1.0f}}}; /* derived name */
 
 /* The waterfall's reflection mesh and the layout quad it is stretched over:
  * the quad drops from y 280 to y 0, which is the falling water (August has no
@@ -134,7 +134,7 @@ static const PoolMesh fallReflactionMesh = {40, 20, 0, 0, 0, 0, 0, 0x60687080}; 
 static const PoolMeshQuad fallReflactionQuad = {{{650.0f, 280.0f, 550.0f, 1.0f},
                                                  {650.0f, 0.0f, 700.0f, 1.0f},
                                                  {900.0f, 280.0f, 550.0f, 1.0f},
-                                                 {900.0f, 0.0f, 700.0f, 1.0f}}};
+                                                 {900.0f, 0.0f, 700.0f, 1.0f}}}; /* derived name */
 
 void actSt02aDoorUpChk(GObj *volatile self)
 {

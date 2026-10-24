@@ -49,7 +49,7 @@ inline void actSt13bDoorUp(GObj *volatile self);
 
 /* .sbss: the demo's own end flag and the pad actuator handle and volume byte
    the conte-02 cutscene holds. */
-static int demoEnd;
+static int demoEnd; /* derived name */
 
 static int padAct; /* derived name */
 

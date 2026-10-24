@@ -92,7 +92,7 @@ SqEntry *gate1 = 0;
 
 /* .sbss: the demo's own end flag, raised by the subthread the wait loops below
    spin for. */
-static int demoEnd;
+static int demoEnd; /* derived name */
 
 void actSt04aGate(GObj *volatile self)
 {

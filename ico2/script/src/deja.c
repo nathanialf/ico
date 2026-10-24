@@ -20,7 +20,7 @@ static ActMail after_mes[2] = {{393}, {392}}; /* derived name */
 
 /* .sbss: the demo's own end flag, raised by the handler the wait loop below
    is spinning for. */
-static int demoEnd;
+static int demoEnd; /* derived name */
 
 void actDejaDemo(GObj *volatile self);
 void actDejaAfterChk(GObj *volatile self);

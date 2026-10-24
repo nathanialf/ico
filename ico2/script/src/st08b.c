@@ -57,7 +57,7 @@ void actSt08bDoorDownChk(GObj *volatile self);
 
 /* .sbss: the demo's own end flag, raised by the subthreads the wait loop below
    spins for. */
-static int demoEnd;
+static int demoEnd; /* derived name */
 
 void actSt08bKurenSwitch(GObj *volatile self)
 {

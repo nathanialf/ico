@@ -284,7 +284,7 @@ void actE3Capsule(GObj *volatile self)
    the demo has finished. */
 static GProc *capsuleDemoThread; /* derived name */
 
-static int demoEnd;
+static int demoEnd; /* derived name */
 
 void actE3CapsuleDemoCancel(GObj *volatile self)
 {

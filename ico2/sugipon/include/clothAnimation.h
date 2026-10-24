@@ -162,8 +162,8 @@ typedef struct {  /* field names derived */
     Cloth4DLink link[2]; /* 0x30, the second node -1 when the column hangs from the first alone */
     float (*uv)[2];      /* 0x40, ny texture coordinates */
     char pad44[12];
-    float restDir
-        [4]; /* 0x50, the direction the column's segments are pulled toward (GetCloth4DWithDetail's z) */
+    float restDir[4]; /* 0x50, the direction the column's segments are pulled toward,
+                         blended per node with pos and dir */
 } __attribute__((aligned(16))) Cloth4DCol; /* derived name */
 
 /* The head of one generated cloth mesh: the mesh size, a colour nothing

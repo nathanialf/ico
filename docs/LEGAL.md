@@ -19,18 +19,22 @@ respective owners.
 - Configuration that describes how the user's own disc image is checked and
   how the rebuilt ELF is linked: the link order, the linker script, the
   data-table index, the data-table schema (record types and counts, no
-  values), the campaign stub list (names and address ranges, no bytes) and
-  the SHA-1s of the expected files.
+  values) and the SHA-1s of the expected files.
 
 ## What is not in this repository, and must never be added
 
 - The ICO disc image (`.bin`, `.iso`, `.cue` or any other form), in whole or
-  in part.
+  in part: on this branch the August 6, 2001 prototype disc's
+  `baserom/Ico_AUG6.bin`, `baserom/Ico_AUG6.cue` and the cooked
+  `baserom/Ico_AUG6.iso`.
+- Anything the build extracts from it: `baserom/aug6/baseelf.elf`,
+  `baserom/aug6/baseelf.rom`, `baserom/aug6/MAIN.MAP`,
+  `baserom/aug6/TRFILE.TXT` and `baserom/aug6/SYSTEM.CNF`, or the build
+  output under `build/aug6/`.
 - The boot ELF of any revision (`SCES_507.60`, `SCPS_110.03`,
   `SCUS_971.13`, the prototypes), or any part of it.
 - Audio, images, textures, models, text or other assets from the disc.
-- The game's data tables, and the code and constants of the functions this
-  branch still builds as campaign stubs (next section).
+- The game's data tables (next section).
 - Symbol tables, map files or other identifier tables, and any debug string,
   asset or code blob, copied verbatim or in bulk out of the binary, the disc
   or any leaked development material. Using an individual fact (a name, an
@@ -44,7 +48,7 @@ harder to commit such material by accident. They do not replace care. If you
 suspect a file in this repository breaks these rules, open an issue tagged
 `legal`.
 
-## The data tables and the campaign stubs are generated at build time
+## The data tables are generated at build time
 
 The prototype's link includes the same 70 members of the game's archive
 `ico2000.a` that have data sections and no code as the PAL link (the PAL
@@ -57,21 +61,13 @@ re-derive, and their values are never committed, as C, as assembly or in any
 other form.
 
 The build reads them from the user's own `baserom/aug6/baseelf.elf` and
-writes them under `build/data/`, which is gitignored. Each member is
-written as `build/data/<member>.c`, an initialized array of its record type
+writes them under `build/aug6/data/`, which is gitignored. Each member is
+written as `build/aug6/data/<member>.c`, an initialized array of its record type
 from `config/data_schema.aug6.txt` that compiles with the game's flags
 (`tools/gen_data_c.py`). The committed schema and the record types in the
 owners' headers hold only types, element counts and symbol names. The
 configuration files hold member names, address ranges, record types and the
 names MAIN.MAP gives the symbols, and nothing of the tables' content.
-
-The campaign stubs are handled the same way. While a function's C does not
-yet give the prototype's bytes, `config/stubs.aug6.txt` names it with its address
-range and its translation unit, and `tools/gen_stub_s.py` writes its
-instructions and constants from the user's own ELF to `build/stubs/` at build
-time, where the C includes them. The list holds names, ranges and notes on
-how each function differs from PAL's, never a word of the code; nothing under
-`build/stubs/` is committed.
 
 The line drawn is between content and facts about its shape. The names,
 tables and strings are content and are never committed. A count or size
@@ -183,24 +179,26 @@ source and leaked SDKs stay forbidden on every branch.
 
 This branch's names come from two places. A function of the prototype ELF
 that the function census (`tools/correlate_elf.py`) pairs with a PAL
-function takes that function's name from the PAL disc's listing above: the
-pair's instructions, relocated fields masked, are the same, or (the ordinal
-tier) the census paired them by their position inside a run of unpaired
-ones, and such a name is provisional until the function matches from the
-PAL source. A prototype function no PAL function claims takes the name
-`TRFILE.TXT` gives at its address once the region's shift is applied, and
-`config/stubs.aug6.txt` says so on its row (`trfile`); where `TRFILE.TXT`
-names nothing there, other evidence ties the function to the PAL function of
-its file that it is (instruction shapes with relocated fields masked, callees,
-sizes, call sites, the data tables that hold it), with that evidence on the
-row, or it keeps a derived name, `func_<VMA>`. A name derived from context
-carries `/* derived name */` on its definition line. The data-only members
-take PAL's names by member order. No address is copied from `MAIN.MAP`,
+function takes that function's name from the PAL disc's listing above,
+where the pair's instructions, relocated fields masked, are the same or the
+census paired them by their position inside a run of unpaired ones; every
+such pairing was then checked by rebuilding the function from the PAL,
+USA or June 26 source with the prototype's changes until the gate passed.
+A prototype function no PAL function claims takes the name `TRFILE.TXT`
+gives at its address once the region's shift is applied. Every function of
+the tree now compiles to the prototype's bytes, and every game function but
+one carries a name `TRFILE.TXT` records (`reg_dispSpecular`, absent from that
+file's link, keeps a derived name). A name derived from context carries
+`/* derived name */` on its definition line. The data-only members take
+PAL's names by member order. No address is copied from `MAIN.MAP`,
 `TRFILE.TXT` or the PAL listing: every address in this branch's
 configuration was found in the user's own ELF.
 
-The functions still built as campaign stubs are generated from the user's
-own ELF at build time (above); the tree holds their names and ranges only.
+Of the user's prototype disc the build reads `SYSTEM.CNF`, to find the boot
+file, and `SCUS_971.13`: it checks the ELF's SHA-1 and generates the 70
+data-only members from it (above). Every function, the five VU1
+microprograms and Sony's libraries are compiled or assembled from the
+tracked sources; nothing of the code is read from the disc.
 Where the prototype lays out a record differently from PAL's (ten of the
 data tables' record types among them), the layout was derived from the code
 that reads it in both builds (the field offsets each paired function's loads
@@ -216,7 +214,7 @@ the disc.
 
 You must legally own a copy of *ICO* for the PlayStation 2 and supply the
 disc image yourself. The build checks the extracted ELF's SHA-1 before it
-proceeds and refuses any other file (`config/sha1sums.txt`,
+proceeds and refuses any other file (`config/sha1sums.aug6.txt`,
 `docs/BUILDING.md`). A SHA-1 is a fingerprint, not a copy of the work; the
 disc image and the ELF remain the property of their rightsholders.
 

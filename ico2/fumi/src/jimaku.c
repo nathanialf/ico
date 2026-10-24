@@ -30,7 +30,7 @@ struct jWayGroup { /* field names derived */ /* jimakuRing element, stride 0x18 
    DMA targets) and three semaphore records of iosSemaCreate's 13 words: read
    done (signalled by jimakuHandler), shown five frames (jimakuDisp) and one
    per frame (jimakuDisp) */
-static struct jWayGroup jimakuRing[4];
+static struct jWayGroup jimakuRing[4]; /* derived name */
 
 static char jimakuBuf[4][0x8C40] __attribute__((aligned(64))); /* derived name */
 

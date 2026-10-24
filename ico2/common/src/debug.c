@@ -1472,7 +1472,7 @@ static void debug_brainBar(void)
             col = &c1;
         }
         gif_Line(&a.x, &b.x, 0xFFFFFFFFU, 0xFFFFFFFFU, col, 1);
-        if (brain->tgt[i].gobj->kind == 0x3B) {
+        if (brain->tgt[i].gobj->kind == 59) {
             /* a.z is never written: the copy reads it uninitialised */
             c.x = a.x;
             c.y = a.y;
@@ -3332,7 +3332,7 @@ static inline int debug_ListActGobj(DbgGobjEnt *list) /* derived name */
         case 1:
         case 2:
         case 4:
-        case 0x2E:
+        case 46:
             list[n].name = objKindData[kind].name;
             list[n].obj = g;
             n++;

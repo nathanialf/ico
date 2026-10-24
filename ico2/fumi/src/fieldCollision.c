@@ -64,7 +64,7 @@ static int blockNum; /* derived name */
 
 static FuzioCtx *curFuzio; /* derived name */
 
-static int (*colFilter)(void *obj);
+static int (*colFilter)(void *obj); /* derived name */
 
 static int exitAttrNum; /* derived name */
 
@@ -117,7 +117,7 @@ void MakeCollisionDependGObjList(void)
     /* a debug dump of the list, compiled out of the retail build; its label
      * table and format stay in the data */
     if (0) {
-        static char *label[8] = {"GOBJ: ", " MAT: ", " COL: "};
+        static char *label[8] = {"GOBJ: ", " MAT: ", " COL: "}; /* derived name */
         char buf[48];
         int i;
 

@@ -176,7 +176,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     act->wayFlags &= ~0x10000;
     act->wayState.flags = (act->wayState.flags & ~0x200000) |
                           ((long long)(checkPositionIllegal(self, goal) & 1) << 21);
-    *(float *)((char *)act + 0x424) = goal[1];
+    act->wayBeginHeight = goal[1];
     w = RequestWayBegin((char *)self, goal, from, wp, sub);
     if (w != 0) {
         act->wayState.st[1] = 0;
@@ -203,7 +203,7 @@ int ACTWayMove_BeginDetail(GObj *self, float *goal, float *from, void *tgt, void
     }
     act->wayState.flags &= ~0x10000;
     act->wayState.flags &= ~0x1E0000;
-    *(int *)((char *)act + 0x420) = 0;
+    act->wayWait = 0;
     *(int *)((char *)GOBJ_ACT(self)->work + 0x7F0) = 0;
     return ret;
 }
@@ -251,7 +251,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d)
         debug_StdPrintfDummy("ルートがありません\n");
     }
     GetRootProjectionPosOfGObj(pos, self);
-    dy = pos[1] - *(float *)((char *)act + 0x424);
+    dy = pos[1] - act->wayBeginHeight;
     if (dy < 0.0f ? -dy > 120.0f : dy > 120.0f) {
         /* disabled prints, here and at the two rechecks below */
         if (0) {
@@ -259,7 +259,7 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d)
         }
         ACTWay_SetBeginPositionIllegal(self);
     }
-    *(float *)((char *)act + 0x424) = pos[1];
+    act->wayBeginHeight = pos[1];
     if (((int)(act->wayState.flags >> 21) & 1) != 0) {
         if (checkPositionIllegal(self, pos) == 0) {
             act->wayState.flags &= ~0x200000;
@@ -316,15 +316,14 @@ int ACTWayMove_NextDetail(GObj *self, float *node, float *goal, unsigned char d)
             if (self == girlGObj && goal[1] - *(float *)((char *)act + 0x404) > 150.0f &&
                 pos[1] < goal[1]) {
                 if (((int)(act->wayState.flags >> 17) & 0xF) == 0) {
-                    *(int *)((char *)act + 0x420) =
-                        (60 - systemStatus[0] * 10) / systemStatus[1] * 90 / 60;
+                    act->wayWait = (60 - systemStatus[0] * 10) / systemStatus[1] * 90 / 60;
                 }
                 act->wayState.flags = (act->wayState.flags & ~0x1E0000) | 0x40000;
                 act->wayDetailX = *(float *)((char *)act + 0x540);
                 act->wayDetailY = *(float *)((char *)act + 0x544);
                 act->wayDetailZ = *(float *)((char *)act + 0x548);
             }
-            if ((*(int *)((char *)act + 0x420))-- > 0) {
+            if (act->wayWait-- > 0) {
                 act->stick.y = 128;
             } else if (((int)(act->wayState.flags >> 17) & 0xF) != 0) {
                 act->stick.y = 255;

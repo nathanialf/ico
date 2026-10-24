@@ -6,7 +6,7 @@
 #include "gamesys.h"
 
 /* Per-object force-field state: InitGirlForceFieldGeo returns it, the object
-   creator hangs it at the display object's work and GirlForceFieldDL reads it. */
+   creator hangs it at the display object's work and GirlForceFieldGeo reads it. */
 typedef struct GirlForceFieldWork { /* field names derived */
     float radius;
     float invRadius;
@@ -36,12 +36,12 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(GObj *self, SObjSimpleSetting *
     return w;
 }
 
-inline void GirlForceFieldGeo(void) {}
-
 /* the action table the layout rows select into */
 extern OaRecB objAction[];
 
-void GirlForceFieldDL(GObj *self)
+/* in the kind's geometry slot (objKindData +0x50); PAL's listing calls this
+   body GirlForceFieldDL and holds it in the display slot */
+void GirlForceFieldGeo(GObj *self)
 {
     float pos[4];
     float quat[4];
@@ -69,3 +69,5 @@ void GirlForceFieldDL(GObj *self)
     }
     w->frame = 0;
 }
+
+inline void GirlForceFieldDL(void) {}
