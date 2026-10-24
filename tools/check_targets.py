@@ -212,6 +212,15 @@ SELF_TEST = (
     ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC) || defined(VERSION_JUN26)\n#else\n#endif", 0),
     ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)\n#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)\n#endif\n#endif", 0),
     ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n#else\n#ifdef VERSION_NTSC\n#else\n#ifdef VERSION_AUG6\n#else\n#ifdef VERSION_JUN26\n#else\n#endif\n#endif\n#endif\n#endif", 0),
+    # a seventh target: named beside the second, nested inside that arm, excluded beside it,
+    # named by the complement where five names would pass the column limit, or excluded
+    # inside a three-name PAL-only block
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)\n#else\n#endif", 0),
+    ("#if defined(VERSION_KOR) || defined(VERSION_CN)\n#ifdef VERSION_CN\n#else\n#endif\n#else\n#endif", 0),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)\n#ifdef VERSION_KOR\n#else\n#endif\n#else\n#endif", 0),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN) && !defined(VERSION_NTSC)\n#endif", 0),
+    ("#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)\n#else\n#endif", 0),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_JUN26)\n#ifndef VERSION_CN\n#endif\n#endif", 0),
     ("#if 0\n#ifdef VERSION_JPN\n#endif\n#elif 1\n#endif", 0),
     ("#if defined(VERSION_JPN) && defined(VERSION_KOR)\n#endif", 1),
     ("#if defined(VERSION_JPN) || !defined(VERSION_KOR)\n#endif", 1),
@@ -259,7 +268,14 @@ def self_test() -> int:
                              ("#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)", "jun26", False),
                              ("#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)", "pal", True),
                              ("#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)", "jun26", True),
-                             ("#ifdef VERSION_JUN26", "aug6", False)):
+                             ("#ifdef VERSION_JUN26", "aug6", False),
+                             ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)", "cn", True),
+                             ("#if defined(VERSION_KOR) || defined(VERSION_CN)", "jpn", False),
+                             ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_CN)", "cn", False),
+                             ("#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)", "cn", True),
+                             ("#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)", "aug6", True),
+                             ("#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)", "pal", False),
+                             ("#ifdef VERSION_CN", "kor", False)):
         _, slugs, positive = version_condition(line)
         ok = condition_holds(slugs, positive, slug) == want
         failed += not ok
