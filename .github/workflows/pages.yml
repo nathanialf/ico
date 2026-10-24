@@ -4,16 +4,17 @@ name: Deploy progress dashboard
 #
 # Every target's numbers come from its own branch: pal -> pal (PAL retail
 # SCES-50760), jpn -> jpn (Japanese retail SCPS-11003), kor -> kor (Korean
-# retail SCPS-56001), ntsc -> us (USA retail, SLUS-20218), aug6 -> aug6
+# retail SCPS-56001), ntsc -> ntsc (USA retail, SLUS-20218), aug6 -> aug6
 # (Aug-6-2001 prototype) and jun26 -> jun26 (Jun-26-2001 demo). main builds
-# the joined targets (pal, jpn, kor) in one tree and keeps their docs/<slug>/
-# as its build's progress record, but the site never reads them from main.
+# every target (pal, jpn, kor, ntsc, aug6, jun26) in one tree and keeps their
+# docs/<slug>/ as its build's progress record, but the site never reads them
+# from main.
 #
 # Each branch runs its own copy of this workflow and of
 # .github/scripts/build_pages_site.sh; the copies are identical (the shared
 # layer, tools/check_shared_layer.sh) and main's is where a change lands
 # first. A Pages deploy replaces the ENTIRE site, so every copy assembles the
-# complete site (pal + jpn + kor + us + aug6 + jun26) from the branches'
+# complete site (pal + jpn + kor + ntsc + aug6 + jun26) from the branches'
 # progress files, or whichever branch deployed last would 404 the other
 # versions' data. A push to any of the seven branches deploys.
 #
