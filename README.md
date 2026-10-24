@@ -9,7 +9,7 @@ so is the ELF file itself (its SHA-1 matches the disc's).
 <!-- progress:begin -->
 | Target | Sections identical to the base |
 | --- | --- |
-| [PAL retail (SCES-50760)](https://nathanialf.github.io/ico/#pal) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.54%20%25%20source%20%2B%2027.46%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.49%20%25%20source%20%2B%2090.51%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
+| [PAL retail (SCES-50760)](https://nathanialf.github.io/ico/#pal) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2872.54%20%25%20source%20%2B%2027.46%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.62%20%25%20source%20%2B%2090.38%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#pal)**: every
@@ -93,7 +93,9 @@ The game links 70 members of its own archive, `ico2000.a`, that have data
 sections and no code: stage layouts, model paths, motion and sound
 definitions, way points (MAIN.MAP; the list is `config/data_members.pal.txt`,
 which also carries three data runs MAIN.MAP does not list). They are the
-game's content, and nothing of that content is committed. The build
+game's content, and nothing of that content is committed, with one exception: the enemy kind table `enemyKind` is committed as
+`ico2/sugipon/src/enemyKind.c` (the paragraph "One exception: `enemyKind`" in
+[`docs/LEGAL.md`](docs/LEGAL.md)), so 72 of the 73 runs are generated. The build
 generates them from the user's own `baserom/pal/baseelf.elf` into
 `build/pal/data/`. Each member becomes `build/pal/data/<member>.c`, an initialized
 array of its record type compiled with the game's flags
