@@ -58,14 +58,24 @@ have data sections and no code (MAIN.MAP of the PAL disc; the Japanese,
 Korean, prototype and demo links have the same set, the USA link all but the
 hint table and the subtitle file names), plus three data runs MAIN.MAP does
 not list (none of which the prototype's or the demo's link has);
-`config/data_members.<slug>.txt` lists them all for each target (73 runs, 71
-for `ntsc`, 70 for `aug6`; 120 for `jun26`, which also generates
-`mcdata.o`'s save icon record and `EnemyInit.o`'s 49 enemy-set tables, data
-the other links hold inside objects with code). They
+`config/data_members.<slug>.txt` lists them all for each target except
+`enemy-def` (72 runs, 70 for `ntsc`, 69 for `aug6`; 119 for `jun26`, which
+also generates `mcdata.o`'s save icon record and `EnemyInit.o`'s 49 enemy-set
+tables, data the other links hold inside objects with code). They
 are the game's content: stage object layouts, model and motion file tables,
 sound definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
-other form.
+other form, with the one exception below.
+
+One exception: `enemyKind`. The member `enemy-def`, the table `enemyKind`
+that `enemy.c` reads, is committed as C source in
+`ico2/sugipon/src/enemyKind.c`, by the owner's decision of 2026-10-24. The
+PC port offers the USA build's enemy tuning as a play variant on every disc,
+which needs the USA table without the USA disc. The table holds only numbers,
+one row per enemy kind: the model and particle ids, the life, the scale, the
+dodge range and the attribute bits. It holds no names, text or layouts. It
+is the only exception; no other member follows it, and every other member is
+still generated at build time as described below.
 
 The build reads them from the user's own `baserom/<slug>/baseelf.elf` and
 writes them under `build/<slug>/data/`, which is gitignored. Each member is

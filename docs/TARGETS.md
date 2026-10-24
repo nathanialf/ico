@@ -220,7 +220,9 @@ Data and records (`docs/HEADERS.md` has the layouts):
   subtitle file names are not in it, and no code here reads either. Most
   tables hold fewer rows, and eight record types have another layout; each
   row of `config/data_members.ntsc.txt` says how its member compares with
-  PAL's.
+  PAL's. One of the runs, `enemy-def` (`EnemyDef`, 0x14 bytes here), is
+  committed source, `ico2/sugipon/src/enemyKind.c` (`docs/LEGAL.md`), so
+  that file lists 70.
 - `Act` has `actMode` at 0x30 and `env` at 0x4A0 (PAL 0x34 and 0x4B0);
   `Sub15C` has `motionBuf` at 0x78C (PAL 0x7B4) and its node records at
   0x840 (PAL 0x870); `ActWork` has no `boxDir` (`wayReq` 0x4B0,
@@ -344,6 +346,9 @@ Data and records (`docs/HEADERS.md` has the layouts):
   the words at 0x44 and 0x48 exchanged and the flag bits at 0x4C
   renumbered). Each row of `config/data_members.aug6.txt` and the header of
   `config/data_schema.aug6.txt` say how its member compares with PAL's.
+  `enemy-def` (`EnemyDef`) is committed source,
+  `ico2/sugipon/src/enemyKind.c` (`docs/LEGAL.md`), so that file lists 69
+  runs.
 - The engine's records are 16 bytes shorter at the display object: `Act`
   has `actMode` at 0x30 (PAL 0x34; as the USA); `Sub15C` has `motionBuf` at
   0x77C and its node records at 0x830 (PAL 0x7B4 and 0x870, USA 0x78C and
@@ -515,6 +520,9 @@ Data and records (`docs/HEADERS.md` has the layouts):
   rows (the model paths 1474 records of 0x14C bytes, PAL 1637 of 0x8C);
   each row of `config/data_members.jun26.txt` and the header of
   `config/data_schema.jun26.txt` say how its member compares with PAL's.
+  `enemy-def` (`EnemyDef`, 18 rows here) is committed source,
+  `ico2/sugipon/src/enemyKind.c` (`docs/LEGAL.md`), so that file lists 119
+  runs.
 - Records with another layout, each derived from the demo code that reads
   it: `ParallelMotionRow`, `EnemyDef`, `LayoutClothDef`, `TexRec` and
   `ActModeRec` as the prototype has them; `PObjMdl` (0x14C), `LtProperty`
