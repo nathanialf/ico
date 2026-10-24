@@ -193,7 +193,7 @@ The host's `mips-linux-gnu-objcopy` writes `build/cn/ico.rom`.
 | branch | target | |
 | --- | --- | --- |
 | `main` | PAL retail (SCES-50760), Japanese retail (SCPS-11003), Korean retail (SCPS-56001), USA retail (SLUS-20218), the August 6, 2001 prototype and the June 26, 2001 demo | one tree with each build inline, with its own README |
-| `cn` | Asian retail, SCPS-55001, `SCPS_550.01` | this document; the campaign branch, not released, until it joins `main` |
+| `cn` | Asian retail, SCPS-55001, `SCPS_550.01` | this document, released as `cn-v1.0.0` |
 | `kor` | Korean retail, SCPS-56001, `SCPS_560.01` | the single-target Korean tree this branch was seeded from, frozen |
 | `pal`, `jpn`, `ntsc`, `aug6`, `jun26` | one target each | the single-target trees of the other builds, frozen |
 
