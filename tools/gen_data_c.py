@@ -292,6 +292,16 @@ VERSION_LINES_SELF_TEST = (
      {"pal": "p", "jpn": "", "ntsc": "", "aug6": "", "jun26": ""}),
     ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\njk\n#else\n#ifdef VERSION_NTSC\nn\n#else\n#ifdef VERSION_AUG6\na\n#else\n#ifdef VERSION_JUN26\nd\n#else\np\n#endif\n#endif\n#endif\n#endif",
      {"pal": "p", "kor": "jk", "ntsc": "n", "aug6": "a", "jun26": "d"}),
+    # a seventh target named beside the second, with its own block inside that arm or the second's
+    # kept beside it, and the complement where five names would pass the column limit
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_CN)\n#ifdef VERSION_KOR\nk\n#else\nj\n#endif\n#else\np\n#endif",
+     {"pal": "p", "jpn": "j", "kor": "k", "cn": "j", "ntsc": "p"}),
+    ("#if defined(VERSION_KOR) || defined(VERSION_CN)\n#ifdef VERSION_CN\nc\n#else\nk\n#endif\n#else\nj\n#endif",
+     {"jpn": "j", "kor": "k", "cn": "c"}),
+    ("#if !defined(VERSION_PAL) && !defined(VERSION_JUN26)\nl\n#else\np\n#endif",
+     {"pal": "p", "jpn": "l", "kor": "l", "cn": "l", "ntsc": "l", "aug6": "l", "jun26": "p"}),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_JUN26)\n#ifndef VERSION_CN\np\n#endif\n#endif",
+     {"pal": "p", "kor": "", "cn": "", "ntsc": "p", "jun26": ""}),
 )
 
 
