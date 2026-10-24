@@ -267,6 +267,31 @@ VERSION_LINES_SELF_TEST = (
      {"pal": "#if 0 x #elif 1 y #else w #endif", "jpn": "#if 0 x j #elif 1 y #else w #endif"}),
     ("#ifdef VERSION_JPN\n#if 1\nj\n#else\nq\n#endif\n#endif",
      {"pal": "", "jpn": "#if 1 j #else q #endif"}),
+    # a fourth target nested in the PAL arm, and named in the shared conditions
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\njk\n#else\n#ifdef VERSION_NTSC\nn\n#else\np\n#endif\n#endif",
+     {"pal": "p", "jpn": "jk", "kor": "jk", "ntsc": "n"}),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_NTSC)\njkn\n#else\np\n#endif",
+     {"pal": "p", "jpn": "jkn", "kor": "jkn", "ntsc": "jkn"}),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)\np\n#endif",
+     {"pal": "p", "jpn": "", "kor": "", "ntsc": ""}),
+    # a fifth target named beside the fourth, with its own block inside that arm, or nested in the PAL arm of both
+    ("#if defined(VERSION_NTSC) || defined(VERSION_AUG6)\n#ifdef VERSION_AUG6\na\n#else\nn\n#endif\nna\n#else\np\n#endif",
+     {"pal": "p", "jpn": "p", "ntsc": "n na", "aug6": "a na"}),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\njk\n#else\n#ifdef VERSION_NTSC\nn\n#else\n#ifdef VERSION_AUG6\na\n#else\np\n#endif\n#endif\n#endif",
+     {"pal": "p", "kor": "jk", "ntsc": "n", "aug6": "a"}),
+    ("#if !defined(VERSION_NTSC) && !defined(VERSION_AUG6)\np\n#endif", {"pal": "p", "jpn": "p", "ntsc": "", "aug6": ""}),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR) || defined(VERSION_AUG6)\njka\n#else\np\n#endif",
+     {"pal": "p", "jpn": "jka", "ntsc": "p", "aug6": "jka"}),
+    # a sixth target named beside the fifth, with its own block inside that arm, excluded inside the
+    # three-name PAL-only block, or nested in the PAL arm of all the others
+    ("#if defined(VERSION_AUG6) || defined(VERSION_JUN26)\n#ifdef VERSION_JUN26\nd\n#else\na\n#endif\nad\n#else\np\n#endif",
+     {"pal": "p", "ntsc": "p", "aug6": "a ad", "jun26": "d ad"}),
+    ("#if defined(VERSION_NTSC) || defined(VERSION_AUG6) || defined(VERSION_JUN26)\nnad\n#else\np\n#endif",
+     {"pal": "p", "jpn": "p", "ntsc": "nad", "aug6": "nad", "jun26": "nad"}),
+    ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR) && !defined(VERSION_NTSC)\n#if !defined(VERSION_AUG6) && !defined(VERSION_JUN26)\np\n#endif\n#endif",
+     {"pal": "p", "jpn": "", "ntsc": "", "aug6": "", "jun26": ""}),
+    ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\njk\n#else\n#ifdef VERSION_NTSC\nn\n#else\n#ifdef VERSION_AUG6\na\n#else\n#ifdef VERSION_JUN26\nd\n#else\np\n#endif\n#endif\n#endif\n#endif",
+     {"pal": "p", "kor": "jk", "ntsc": "n", "aug6": "a", "jun26": "d"}),
 )
 
 

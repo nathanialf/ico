@@ -7,7 +7,7 @@ The targets:
     pal    PAL retail, SCES-50760               SCES_507.60
     jpn    Japanese retail, SCPS-11003 (1.02)   SCPS_110.03
     kor    Korean retail, SCPS-56001            SCPS_560.01
-    us     USA retail, SLUS-20218               SCUS_971.13
+    ntsc   USA retail, SLUS-20218               SCUS_971.13
     aug6   Aug-6-2001 prototype                 SCUS_971.13
     jun26  Jun-26-2001 demo, on the US          CUS97113/SCPS_000.00
            PlayStation Magazine's disc
@@ -44,7 +44,7 @@ import os
 from pathlib import Path
 
 # Detection order.
-VERSIONS = ("pal", "jpn", "kor", "us", "aug6", "jun26")
+VERSIONS = ("pal", "jpn", "kor", "ntsc", "aug6", "jun26")
 
 # Per-target disc image.
 #   region  : how messages describe the disc
@@ -86,7 +86,7 @@ DISCS = {
         # The Korean disc ships no map or listing either.
         "extras": ("SYSTEM.CNF",),
     },
-    "us": {
+    "ntsc": {
         "region": "USA retail",
         "product": "SLUS-20218",
         "where": "USA",
@@ -131,7 +131,7 @@ def detect_version(repo_root: Path) -> str:
     if v:
         return v
     have = configured_versions(repo_root)
-    return have[0] if have else "us"
+    return have[0] if have else "ntsc"
 
 
 def baserom_dir(repo_root: Path, version: str) -> Path:

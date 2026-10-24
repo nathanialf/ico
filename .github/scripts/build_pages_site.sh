@@ -31,16 +31,16 @@
 #   pal   -> pal    PAL retail (SCES-50760), frozen
 #   jpn   -> jpn    Japanese retail (SCPS-11003), frozen
 #   kor   -> kor    Korean retail (SCPS-56001), frozen
-#   ntsc  -> us     USA retail (SLUS-20218)
-#   aug6  -> aug6   Aug-6-2001 prototype
-#   jun26 -> jun26  Jun-26-2001 demo (the "Demo" tab)
+#   ntsc  -> ntsc   USA retail (SLUS-20218), frozen
+#   aug6  -> aug6   Aug-6-2001 prototype, frozen
+#   jun26 -> jun26  Jun-26-2001 demo, frozen
 #
 # Layout produced:
 #   _site/index.html        version-toggle dashboard, `main`'s copy
 #   _site/pal/              the `pal` branch's docs/pal/progress.json and PROGRESS.md
 #   _site/jpn/              the `jpn` branch's docs/jpn/
 #   _site/kor/              the `kor` branch's docs/kor/
-#   _site/us/               the `ntsc` branch's docs/us/
+#   _site/ntsc/             the `ntsc` branch's docs/ntsc/
 #   _site/aug6/             the `aug6` branch's docs/aug6/
 #   _site/jun26/            the `jun26` branch's docs/jun26/
 #
@@ -69,10 +69,8 @@ BRANCH="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 # The complete branch<->version table. Every publishing branch is listed in
 # BRANCHES, so adding a target branch means editing this one table (plus
 # docs/index.html's own picker) rather than hunting per-branch conditionals.
-# `main` has no version: it supplies the page (PAGE_BRANCH below).
-VERSION_OF_ntsc=us
-VERSION_OF_aug6=aug6
-VERSION_OF_jun26=jun26
+# `main` has no version: it supplies the page (PAGE_BRANCH below). Every
+# target has joined main, so every publishing branch but main is frozen.
 BRANCHES="main pal jpn kor ntsc aug6 jun26"
 MAIN_BRANCH=main
 
@@ -81,13 +79,19 @@ MAIN_BRANCH=main
 # directory FROZEN_DIR_<slug>. Main's copies of these directories are never
 # published. The frozen branches take hotfixes and main's shared layer, and a
 # push to one deploys like any other branch.
-FROZEN_SLUGS="pal jpn kor"
+FROZEN_SLUGS="pal jpn kor ntsc aug6 jun26"
 FROZEN_BRANCH_pal=pal
 FROZEN_DIR_pal=docs/pal
 FROZEN_BRANCH_jpn=jpn
 FROZEN_DIR_jpn=docs/jpn
 FROZEN_BRANCH_kor=kor
 FROZEN_DIR_kor=docs/kor
+FROZEN_BRANCH_ntsc=ntsc
+FROZEN_DIR_ntsc=docs/ntsc
+FROZEN_BRANCH_aug6=aug6
+FROZEN_DIR_aug6=docs/aug6
+FROZEN_BRANCH_jun26=jun26
+FROZEN_DIR_jun26=docs/jun26
 
 # The branch whose docs/index.html is the dashboard page.
 PAGE_BRANCH=main
@@ -116,7 +120,7 @@ case " $BRANCHES " in
     *" $BRANCH "*) ;;
     *)
         echo "build_pages_site: no version mapping for branch '$BRANCH'" >&2
-        echo "  expected one of: $BRANCHES ('main' -> the page, 'pal' -> pal, 'jpn' -> jpn, 'kor' -> kor, 'ntsc' -> us, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
+        echo "  expected one of: $BRANCHES ('main' -> the page, 'pal' -> pal, 'jpn' -> jpn, 'kor' -> kor, 'ntsc' -> ntsc, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
         exit 1
         ;;
 esac
