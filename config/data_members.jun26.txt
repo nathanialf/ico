@@ -1,9 +1,10 @@
 # config/data_members.jun26.txt -- the ICO Jun-26-2001 demo ELF's data-only ico2000.a members.
 #
 # One row per (member, section) for the members of config/data_members.pal.txt
-# that this ELF holds: 70 of PAL's 73, and the runs of two members with code,
-# mcdata.o's save icon record (mc-icon-sys, below) and EnemyInit.o's 49
-# enemy-set tables (enemy-model*, enemy-set-table, below): 120 members. None of PAL's three unmapped runs has a
+# that this ELF holds: 69 of PAL's 72 (the 70th, enemy-def, is committed
+# source), and the runs of two members with code, mcdata.o's save icon record
+# (mc-icon-sys, below) and EnemyInit.o's 49 enemy-set tables (enemy-model*,
+# enemy-set-table, below): 119 members. None of PAL's three unmapped runs has a
 # row: hintTable (unmapped_002ADBA0), motSyncPairs (unmapped_00533FC0) and
 # jimakuFileName (unmapped_0055FBD0); the demo has none of the three tables
 # and no code that reads one, as in the Aug-6-2001 prototype. Each member,
@@ -153,7 +154,7 @@ rodata weapon-def 0x659b18 0x659c14 weaponKind@0x0
 rodata staffroll_dat 0x65e630 0x65f250 -
 rodata adpcmfile 0x6643c8 0x665a48 adpcmFile@0x0
 rodata blend-motion-def 0x665a48 0x666748 blendMotionKind@0x0
-rodata enemy-def 0x666748 0x6668b0 enemyKind@0x0
+# enemy-def is committed source since 2026-10-24, ico2/sugipon/src/enemyKind.c (the one exception to the data-member rule, docs/LEGAL.md); its run is 0x666748..0x6668b0. 18 rows of 0x14 bytes.
 rodata enemy-model-grp 0x6668b0 0x666a40 enemymodelGroup@0x0
 rodata enemy-model-tbl 0x666a40 0x666aa4 enemymodelTable@0x0
 rodata enemy-random-def 0x666aa8 0x666af8 randomEnemyKind@0x0

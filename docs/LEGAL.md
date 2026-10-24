@@ -60,11 +60,21 @@ hint table, the motion sync pairs and the subtitle file names are not in this
 build), and the data runs of two members with code: mcdata.o's save icon
 record (icon.sys), which PAL reads from the disc, and EnemyInit.o's 49
 enemy-set tables of the stage models, which PAL keeps only for its first model.
-`config/data_members.jun26.txt` lists all 120. They are the game's
+`config/data_members.jun26.txt` lists all 119 (`enemy-def`, the 120th, is committed source). They are the game's
 content: stage object layouts, model and motion file tables, sound
 definitions, way points, the staff roll. There is no program in them to
 re-derive, and their values are never committed, as C, as assembly or in any
-other form.
+other form, with the one exception below.
+
+One exception: `enemyKind`. The member `enemy-def`, the table `enemyKind`
+that `enemy.c` reads, is committed as C source in
+`ico2/sugipon/src/enemyKind.c`, by the owner's decision of 2026-10-24. The
+PC port offers the USA build's enemy tuning as a play variant on every disc,
+which needs the USA table without the USA disc. The table holds only numbers,
+one row per enemy kind: the model and particle ids, the life, the scale and
+the attribute bits. It holds no names, text or layouts. It
+is the only exception; no other member follows it, and every other member is
+still generated at build time as described below.
 
 The build reads them from the user's own `baserom/jun26/baseelf.elf` and
 writes them under `build/jun26/data/`, which is gitignored. Each member is

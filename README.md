@@ -19,7 +19,7 @@ differences.
 <!-- progress:begin -->
 | Target | Sections identical to the base |
 | --- | --- |
-| [Jun-26-2001 demo (SCUS-97158)](https://nathanialf.github.io/ico/#jun26) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2868.37%20%25%20source%20%2B%2031.63%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.26%20%25%20source%20%2B%2090.74%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
+| [Jun-26-2001 demo (SCUS-97158)](https://nathanialf.github.io/ico/#jun26) | ![.text progress](https://img.shields.io/badge/text-100.00%20%25-brightgreen.svg) ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg) ![.data progress](https://img.shields.io/badge/data-100.00%20%25%20%2868.37%20%25%20source%20%2B%2031.63%20%25%20disc%29-brightgreen.svg) ![.rodata progress](https://img.shields.io/badge/rodata-100.00%20%25%20%289.30%20%25%20source%20%2B%2090.70%20%25%20disc%29-brightgreen.svg) ![.lit4 progress](https://img.shields.io/badge/lit4-100.00%20%25-brightgreen.svg) ![.sdata progress](https://img.shields.io/badge/sdata-100.00%20%25%20%2899.91%20%25%20source%20%2B%200.09%20%25%20disc%29-brightgreen.svg) ![.sbss progress](https://img.shields.io/badge/sbss-100.00%20%25-brightgreen.svg) ![.bss progress](https://img.shields.io/badge/bss-100.00%20%25-brightgreen.svg) |
 <!-- progress:end -->
 
 **[Progress dashboard](https://nathanialf.github.io/ico/#jun26)**: every
@@ -142,7 +142,9 @@ keep PAL's names by member order, and the enemy sets and the icon.sys record
 take derived names; the file's header gives the method.
 Many of the demo's tables hold another number of rows, and several record
 types have another layout (`docs/README.md`). They are the game's content,
-and nothing of that content is committed. The build generates them from the
+and nothing of that content is committed, with one exception: the enemy kind table `enemyKind` is committed as
+`ico2/sugipon/src/enemyKind.c` (the paragraph "One exception: `enemyKind`" in
+[`docs/LEGAL.md`](docs/LEGAL.md)), so 119 runs are generated. The build generates them from the
 user's own `baserom/jun26/baseelf.elf` into `build/jun26/data/`. Each member
 becomes `build/jun26/data/<member>.c`, an initialized array of its record
 type compiled with the game's flags (`tools/gen_data_c.py`);

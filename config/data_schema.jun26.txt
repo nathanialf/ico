@@ -143,7 +143,6 @@ stream-motion-def rodata StreamMotionFile ico2/sugipon/include/streamMotionManag
 weapon-def rodata WeaponDef ico2/sugipon/include/weapon.h 7 weaponKind@0
 adpcmfile rodata AdpcmDataRec ico2/fumi/include/adpcm_init.h 90 adpcmFile@0
 blend-motion-def rodata MotOriSub ico2/sugipon/include/motionOrientManager.h 208 blendMotionKind@0
-enemy-def rodata EnemyDef ico2/sugipon/include/enemy.h 18 enemyKind@0 hex=attr
 enemy-model-grp rodata EnemyMdlRec ico2/common/include/sceneManager.h 10 enemymodelGroup@0
 enemy-model-tbl rodata int ico2/common/include/sceneManager.h 25 enemymodelTable@0
 enemy-random-def rodata EnemyKindRange ico2/sugipon/include/enemy.h 10 randomEnemyKind@0
