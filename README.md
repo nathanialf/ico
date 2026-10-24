@@ -215,7 +215,7 @@ The host's `mips-linux-gnu-objcopy` writes `build/<slug>/ico.rom`.
 
 ## Targets and branches
 
-A target is a slug: `pal`, `jpn`, `kor`, `us` (USA retail) or `aug6` (the
+A target is a slug: `pal`, `jpn`, `kor`, `ntsc` (USA retail) or `aug6` (the
 prototype).
 A tree builds the targets that have a `config/link_order.<slug>.txt`; the
 target is chosen by `VERSION=<slug>`. Each target has its own
@@ -226,7 +226,7 @@ target is chosen by `VERSION=<slug>`. Each target has its own
 | branch | targets | |
 | --- | --- | --- |
 | `main` | `pal` (PAL retail, SCES-50760, `SCES_507.60`), `jpn` (Japanese retail, SCPS-11003, `SCPS_110.03`) and `kor` (Korean retail, SCPS-56001, `SCPS_560.01`) | this document; all three gate here, and finished targets join here |
-| `ntsc` | `us` (USA retail, SLUS-20218, `SCUS_971.13`) | a single-target tree with its own README, until it joins `main` |
+| `ntsc` | `ntsc` (USA retail, SLUS-20218, `SCUS_971.13`) | a single-target tree with its own README, until it joins `main` |
 | `aug6` | `aug6` (the August 6, 2001 prototype) | a single-target tree with its own README, until it joins `main` |
 | `pal` | `pal` | the single-target PAL tree as it was at `738b77d1f`, frozen |
 | `jpn` | `jpn` | the single-target Japanese tree as it was at `4506374a6`, frozen |

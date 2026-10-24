@@ -31,7 +31,7 @@
 #   pal   -> pal    PAL retail (SCES-50760), frozen
 #   jpn   -> jpn    Japanese retail (SCPS-11003), frozen
 #   kor   -> kor    Korean retail (SCPS-56001), frozen
-#   ntsc  -> us     USA retail (SLUS-20218)
+#   ntsc  -> ntsc   USA retail (SLUS-20218)
 #   aug6  -> aug6   Aug-6-2001 prototype
 #   jun26 -> jun26  Jun-26-2001 demo (the "Demo" tab)
 #
@@ -40,7 +40,7 @@
 #   _site/pal/              the `pal` branch's docs/pal/progress.json and PROGRESS.md
 #   _site/jpn/              the `jpn` branch's docs/jpn/
 #   _site/kor/              the `kor` branch's docs/kor/
-#   _site/us/               the `ntsc` branch's docs/us/
+#   _site/ntsc/             the `ntsc` branch's docs/ntsc/
 #   _site/aug6/             the `aug6` branch's docs/aug6/
 #   _site/jun26/            the `jun26` branch's docs/jun26/
 #
@@ -70,7 +70,7 @@ BRANCH="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 # BRANCHES, so adding a target branch means editing this one table (plus
 # docs/index.html's own picker) rather than hunting per-branch conditionals.
 # `main` has no version: it supplies the page (PAGE_BRANCH below).
-VERSION_OF_ntsc=us
+VERSION_OF_ntsc=ntsc
 VERSION_OF_aug6=aug6
 VERSION_OF_jun26=jun26
 BRANCHES="main pal jpn kor ntsc aug6 jun26"
@@ -116,7 +116,7 @@ case " $BRANCHES " in
     *" $BRANCH "*) ;;
     *)
         echo "build_pages_site: no version mapping for branch '$BRANCH'" >&2
-        echo "  expected one of: $BRANCHES ('main' -> the page, 'pal' -> pal, 'jpn' -> jpn, 'kor' -> kor, 'ntsc' -> us, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
+        echo "  expected one of: $BRANCHES ('main' -> the page, 'pal' -> pal, 'jpn' -> jpn, 'kor' -> kor, 'ntsc' -> ntsc, 'aug6' -> aug6, 'jun26' -> jun26)." >&2
         exit 1
         ;;
 esac

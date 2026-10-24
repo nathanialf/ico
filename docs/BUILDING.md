@@ -439,7 +439,7 @@ none before an `#elif`, `#else` or `#endif`). Each of the three has a
 adding a source needs `tools/build.sh regen`, and editing a header needs
 `tools/build.sh clean`.
 
-**Joining a later target.** `us` (branch `ntsc`) and `aug6` join by these
+**Joining a later target.** `ntsc` (branch `ntsc`) and `aug6` join by these
 steps, as `kor` did.
 
 1. Copy the branch's `config/*.<slug>.*` files and its
@@ -505,7 +505,7 @@ it to GitHub Pages. A push to any of `main`, `pal`, `jpn`, `kor`, `ntsc`,
 page is `main`'s `docs/index.html` (read from `origin/main` on the other
 branches). Every target's `progress.json` and `PROGRESS.md` come from that
 target's own branch: `pal`, `jpn` and `kor` (frozen) supply `docs/pal/`,
-`docs/jpn/` and `docs/kor/`, `ntsc` supplies `docs/us/`, `aug6` supplies
+`docs/jpn/` and `docs/kor/`, `ntsc` supplies `docs/ntsc/`, `aug6` supplies
 `docs/aug6/` and `jun26` supplies `docs/jun26/`. `main`'s `docs/<slug>/` stay
 as the combined build's progress record and are never published. Each tab's
 repo and `PROGRESS.md` links point at its branch.

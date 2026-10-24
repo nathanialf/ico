@@ -190,7 +190,7 @@ SELF_TEST = (
     ("#if defined(VERSION_JPN) || defined(VERSION_KOR)\n#else\n#endif", 0),
     ("#if !defined(VERSION_JPN) && !defined(VERSION_KOR)\n#endif", 0),
     ("#ifdef VERSION_KOR\n#elif defined(VERSION_JPN)\n#else\n#endif", 0),
-    ("#if defined(VERSION_KOR)\n#elif defined(VERSION_JPN) || defined(VERSION_US)\n#endif", 0),
+    ("#if defined(VERSION_KOR)\n#elif defined(VERSION_JPN) || defined(VERSION_NTSC)\n#endif", 0),
     ("#if 0\n#ifdef VERSION_JPN\n#endif\n#elif 1\n#endif", 0),
     ("#if defined(VERSION_JPN) && defined(VERSION_KOR)\n#endif", 1),
     ("#if defined(VERSION_JPN) || !defined(VERSION_KOR)\n#endif", 1),

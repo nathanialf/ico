@@ -34,7 +34,7 @@ SRCROOT="${ROOT}"
 # joining target appends its own argument. Measured 2026-10-15: with them
 # every object equals its build without them outside .mdebug, which the link
 # does not keep.
-# A target still on its own branch (us, aug6, jun26) gets VERSION_<SLUG> and no LN:
+# A target still on its own branch (ntsc, aug6, jun26) gets VERSION_<SLUG> and no LN:
 # its sources do not use it until it joins main.
 VERSION_DEFS="-DVERSION_$(printf '%s' "${ICO_VERSION}" | tr '[:lower:]' '[:upper:]')"
 case "${ICO_VERSION}" in
