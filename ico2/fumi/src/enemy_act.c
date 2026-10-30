@@ -39,6 +39,7 @@
 #include "motionManager2.h"
 #include "attackhit.h"
 #include "pad.h"
+#include "layout_texture.h"
 
 int entesty;
 

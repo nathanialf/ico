@@ -263,6 +263,8 @@ typedef struct { /* field names derived */
 /* .sbss: the load count DispLoadProgress last saw */
 static int prevMiscValue; /* derived name */
 
+extern void gif_SetZWrite(int on);
+extern void gif_SetZTest(int on);
 extern void gif_Sprite(LoadRect *r, unsigned int z, LoadRect *uv, MiscColor *col, int prim);
 extern void gif_Line(int *v0, int *v1, unsigned int z0, unsigned int z1, MiscColor *col, int prim);
 
