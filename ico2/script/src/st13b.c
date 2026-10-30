@@ -20,6 +20,8 @@
 #include "typedef.h"
 #include "main.h"
 #include "script.h"
+#include "camera-ico2.h"
+#include "enemy_act.h"
 
 #ifdef VERSION_AUG6
 /* The functions stand in the order of the stage's source (aug6's TRFILE

@@ -25,6 +25,8 @@
 #include "Matrix.h"
 #include "ios.h"
 #include "Texture.h"
+#include "debug_exception.h"
+#include <assert.h>
 
 static void copyToWork(int pri);
 

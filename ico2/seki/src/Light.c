@@ -19,6 +19,8 @@
 #include "GifPacket.h"
 #include <stdio.h>
 #include <assert.h>
+#include "staticBlur.h"
+#include "Texture.h"
 
 /* one light on the list: where it is, the direction a flat light shines,
    its colour, the scale and range the stage gives it, the falloff and the
