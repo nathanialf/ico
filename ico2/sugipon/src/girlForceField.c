@@ -42,7 +42,7 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(GObj *self, SObjSimpleSetting *
 }
 
 #ifndef VERSION_AUG6
-inline void GirlForceFieldGeo(void) {}
+inline void GirlForceFieldGeo(GObj *self) {}
 #endif
 
 /* the action table the layout rows select into */
@@ -111,5 +111,5 @@ void GirlForceFieldDL(GObj *self)
 #endif
 
 #ifdef VERSION_AUG6
-inline void GirlForceFieldDL(void) {}
+inline void GirlForceFieldDL(GObj *self) {}
 #endif

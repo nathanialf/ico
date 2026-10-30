@@ -10,17 +10,17 @@
 
 #include "sceneManager.h"
 
+struct GObj;
+
 /* The declarations below lead this header because their order is load-bearing:
  * gcc 2.9 emits the deferred out-of-line copy of a plain-inline function in
  * first-declaration order, so this is the order girlForceField.c's inline tail has. */
 GirlForceFieldWork *InitGirlForceFieldGeo(struct GObj *self, SObjSimpleSetting *param);
 #ifdef VERSION_AUG6
-void GirlForceFieldDL(void);
+void GirlForceFieldDL(struct GObj *self);
 #else
-void GirlForceFieldGeo(void);
+void GirlForceFieldGeo(struct GObj *self);
 #endif
-
-struct GObj;
 
 #ifdef VERSION_AUG6
 void GirlForceFieldGeo(struct GObj *self);
