@@ -36,7 +36,7 @@ inline GirlForceFieldWork *InitGirlForceFieldGeo(GObj *self, SObjSimpleSetting *
     return w;
 }
 
-inline void GirlForceFieldGeo(void) {}
+inline void GirlForceFieldGeo(GObj *self) {}
 
 /* the action table the layout rows select into */
 extern OaRecB objAction[];
