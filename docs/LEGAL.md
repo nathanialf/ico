@@ -279,8 +279,8 @@ and stores use), not from any other source.
 
 The `aug6` target builds the August 6, 2001 ICO prototype (`SCUS_971.13`,
 `SYSTEM.CNF` `VER = 1.00`; the branch `aug6` is the single-target tree it
-was joined from, at `c8e730628`; current release `aug6-v1.0.1`,
-`ba93991ed`). That prototype disc ships three build artifacts next to its
+was joined from, at `c8e730628`; current release `aug6-v1.0.2`,
+`33e69cd35`). That prototype disc ships three build artifacts next to its
 boot ELF and no `SRCFILE.TXT`:
 
 - `MAIN.MAP`: the same file as the PAL disc's (582413 bytes), so it
@@ -328,7 +328,7 @@ any other source.
 The `jun26` target builds the ICO demo of the Official U.S. PlayStation
 Magazine demo disc 49 (SCUS-97158, a DVD; the branch `jun26` is the
 single-target tree it was joined from, at `230819536`; current release
-`jun26-v1.0.1`, `654630aa7`). The disc's
+`jun26-v1.0.2`, `5e83f0685`). The disc's
 `SYSTEM.CNF` (`VER = 1.00`) boots the magazine's menu, `SCUS_971.58`, which
 starts the ICO demo from its own directory: the boot ELF is
 `CUS97113/SCPS_000.00`, named by the `boot` key of the target's `DISCS` row

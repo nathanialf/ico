@@ -249,7 +249,7 @@ conditions it also lacks (`#if !defined(VERSION_JPN) &&
 !defined(VERSION_KOR) && !defined(VERSION_NTSC)`). Where a comment names
 PAL's value only, the USA build's is the one in its arm. The branch `ntsc`
 is the single-target tree this was joined from (at `8c99cc75a`,
-`ntsc-v1.0.0`; current release `ntsc-v1.0.1`, `67c876a25`), and its
+`ntsc-v1.0.0`; current release `ntsc-v1.0.2`, `4efc38828`), and its
 `docs/README.md` lists the same differences.
 
 Disc and video mode:
@@ -365,7 +365,7 @@ does not read. Each block was placed by resolving its place for each earlier
 target and comparing with the branch's text, never by assumption. Where a
 comment names PAL's value only, the prototype's is the one in its arm. The
 branch `aug6` is the single-target tree this was joined from (at
-`c8e730628`, `aug6-v1.0.0`; current release `aug6-v1.0.1`, `ba93991ed`),
+`c8e730628`, `aug6-v1.0.0`; current release `aug6-v1.0.2`, `33e69cd35`),
 and its `docs/README.md` lists the same differences.
 
 Disc and video mode:
@@ -525,7 +525,7 @@ Each block was placed by resolving its place for each earlier target and
 comparing with the branch's text, never by assumption. Where a comment names
 PAL's value only, the demo's is the one in its arm. The branch `jun26`
 is the single-target tree this was joined from (at `230819536`,
-`jun26-v1.0.0`; current release `jun26-v1.0.1`, `654630aa7`), and its
+`jun26-v1.0.0`; current release `jun26-v1.0.2`, `5e83f0685`), and its
 `docs/README.md` lists the same differences.
 
 Disc and video mode:
