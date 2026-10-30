@@ -40,6 +40,7 @@
 #include "act-env.h"
 #include "item.h"
 #include "wireLetter.h"
+#include "lineManager.h"
 
 static void _girlBrainHide_MakeHidePoint(float *p, float dist);
 static int isEnterHideadv(void);
