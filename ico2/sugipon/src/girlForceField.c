@@ -70,4 +70,4 @@ void GirlForceFieldGeo(GObj *self)
     w->frame = 0;
 }
 
-inline void GirlForceFieldDL(void) {}
+inline void GirlForceFieldDL(GObj *self) {}
